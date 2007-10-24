@@ -15,7 +15,6 @@ from constants import white
 from exprs.Rect import RectFrame
 from exprs.Overlay import Overlay
 from exprs.transforms import Translate
-from exprs.clipping_planes import Clipped
 from exprs.Exprs import V_expr
 from exprs.widget2d import Widget2D
 from exprs.instance_helpers import InstanceMacro

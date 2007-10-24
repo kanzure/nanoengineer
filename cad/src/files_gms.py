@@ -16,7 +16,7 @@ import os, re, time
 from chunk import molecule
 from chem import atom
 from string import capitalize
-from elements import PeriodicTable, Singlet
+from elements import PeriodicTable
 from PlatformDependent import get_gms_name
 from utilities.Log import redmsg, orangemsg
 from VQT import A

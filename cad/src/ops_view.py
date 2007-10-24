@@ -1,5 +1,5 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 ops_view.py provides viewSlotsMixin for MWsemantics,
 with view slot methods and related helper methods.
 
@@ -12,16 +12,14 @@ History:
 
 mark 060120 split this out of MWsemantics.py.
 
-'''
+"""
 
 import math
 from Numeric import dot
-from PyQt4.Qt import Qt, QString
 
 import env
 from VQT import V, Q, A, norm, vlen
 from utilities.Log import greenmsg, redmsg, orangemsg
-from ViewOrientationWindow import ViewOrientationWindow
 from qutemol import launch_qutemol, write_qutemol_files
 from prefs_constants import ORTHOGRAPHIC
 from prefs_constants import PERSPECTIVE
@@ -32,21 +30,27 @@ class viewSlotsMixin:
     Has slot methods and their helper methods.
     """
     def setViewHome(self):
-        """Reset view to Home view"""
+        """
+        Reset view to Home view
+        """
         cmd = greenmsg("Current View: ")
         info = 'Home'
         env.history.message(cmd + info)
         self.glpane.setViewHome()
 
     def setViewFitToWindow(self):
-        """ Fit to Window """
+        """
+        Fit to Window
+        """
         cmd = greenmsg("Fit to Window: ")
         info = ''
         env.history.message(cmd + info)
         self.glpane.setViewFitToWindow()
 
     def setViewZoomToSelection(self):
-        '''Zoom to selection (Implemented for only selected jigs and chunks'''
+        """
+        Zoom to selection (Implemented for only selected jigs and chunks
+        """
         cmd = greenmsg("Zoom To Selection:")
         info = ''
         env.history.message(cmd + info)
@@ -54,14 +58,17 @@ class viewSlotsMixin:
 
 
     def setViewHomeToCurrent(self):
-        """Changes Home view of the model to the current view in the glpane."""
+        """
+        Changes Home view of the model to the current view in the glpane.
+        """
         cmd = greenmsg("Set Home View to Current View: ")
         info = 'Home'
         env.history.message(cmd + info)
         self.glpane.setViewHomeToCurrent()
 
     def setViewRecenter(self):
-        """Recenter the view around the origin of modeling space.
+        """
+        Recenter the view around the origin of modeling space.
         """
         cmd = greenmsg("Recenter View: ")
         info = 'View Recentered'
@@ -173,9 +180,10 @@ class viewSlotsMixin:
         self.glpane.setViewProjection(PERSPECTIVE)
 
     def viewNormalTo(self): # 
-        '''Set view to the normal vector of the plane defined by 3 or more
+        """
+        Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
-        '''
+        """
         cmd = greenmsg("Set View Normal To: ")
 
         chunks = self.assy.selmols
@@ -228,9 +236,10 @@ class viewSlotsMixin:
         env.history.message(cmd + info)
 
     def viewNormalTo_NEW(self):
-        '''Set view to the normal vector of the plane defined by 3 or more
+        """
+        Set view to the normal vector of the plane defined by 3 or more
         selected atoms or a jig's (Motor or RectGadget) axis.
-        '''
+        """
         # This implementation has two serious problems:
         #   1. it selects a normal based on the atoms and not the axis of a jig (e.g. a moved rotary motor).
         #   2. doesn't consider selected jigs that have no atoms.
@@ -269,8 +278,9 @@ class viewSlotsMixin:
         env.history.message(cmd + info)
 
     def viewParallelTo(self):
-        '''Set view parallel to the vector defined by 2 selected atoms.
-        '''
+        """
+        Set view parallel to the vector defined by 2 selected atoms.
+        """
         cmd = greenmsg("Set View Parallel To: ")
 
         atoms = self.assy.selatoms_list()
@@ -301,21 +311,27 @@ class viewSlotsMixin:
         env.history.message(cmd + info)
 
     def viewRotate180(self):
-        '''Set view to the opposite of current view. '''
+        """
+        Set view to the opposite of current view.
+        """
         cmd = greenmsg("Opposite View: ")
         info = 'Current view opposite to the previous view'
         env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), math.pi))
 
     def viewRotatePlus90(self): # Added by Mark. 051013.
-        '''Increment the current view by 90 degrees around the vertical axis. '''
+        """
+        Increment the current view by 90 degrees around the vertical axis.
+        """
         cmd = greenmsg("Rotate View +90 : ")
         info = 'View incremented by 90 degrees'
         env.history.message(cmd + info)
         self.glpane.rotateView(self.glpane.quat + Q(V(0,1,0), math.pi/2))
 
     def viewRotateMinus90(self): # Added by Mark. 051013.
-        '''Decrement the current view by 90 degrees around the vertical axis. '''
+        """
+        Decrement the current view by 90 degrees around the vertical axis.
+        """
         cmd = greenmsg("Rotate View -90 : ")
         info = 'View decremented by 90 degrees'
         env.history.message(cmd + info)
@@ -359,15 +375,20 @@ class viewSlotsMixin:
         self.glpane.rotateView(Q(V(1,0,0),math.pi/2))
 
     def viewIsometric(self):
-        "This sets the view to isometric. For isometric view, it needs"\
-        "rotation around the vertical axis by pi/4 *followed* by rotation around horizontal axis by asin(tan(pi/6) - ninad060810"
-        #This is not yet called from the MainWindow. Need UI for this. Also need code review -ninad060810
+        """
+        This sets the view to isometric. For isometric view, it needs
+        rotation around the vertical axis by pi/4 *followed* by rotation
+        around horizontal axis by asin(tan(pi/6) - ninad060810
+        """
+        # This is not yet called from the MainWindow. Need UI for this.
+        # Also need code review -ninad060810
         cmd = greenmsg("Isometric View: ")
         info = 'Current view is Isometric View'
         env.history.message(cmd + info)
         self.quatX = Q(V(1,0,0), math.asin(math.tan(math.pi/6)))
         self.quatY = Q(V(0,1,0), -math.pi/4)
-        self.glpane.rotateView(self.quatY+self.quatX) #If you put quatX first, it won't give isometric view ninad060810
+        self.glpane.rotateView(self.quatY+self.quatX)
+            # If you put quatX first, it won't give isometric view ninad060810
 
     def saveNamedView(self):
         from Utility import Csys
@@ -382,7 +403,9 @@ class viewSlotsMixin:
 
 
     def getNamedViewList(self):
-        '''Returns a list of all the named view nodes in the MT inside a part.'''
+        """
+        Returns a list of all the named view nodes in the MT inside a part.
+        """
 
         from Utility import Csys
 
@@ -398,7 +421,9 @@ class viewSlotsMixin:
         return namedViewList
 
     def showStandardViewsMenu(self):
-        """When Standard Views button is activated, show its QMenu"""
+        """
+        When Standard Views button is activated, show its QMenu
+        """
         ## By default, nothing happens if you click on the 
         ## toolbutton with submenus. The menus are displayed only when you click on the small downward arrow 
         ## of the tool button. Therefore the following slot is added. ninad 070109
@@ -410,7 +435,8 @@ class viewSlotsMixin:
 
 
     def viewQuteMol(self): # Mark 2007-06-02
-        """Slot for 'View > QuteMol'.
+        """
+        Slot for 'View > QuteMol'.
         Opens the QuteMol rendering program and loads a copy of the current model.
 
         Method:
@@ -436,7 +462,8 @@ class viewSlotsMixin:
         env.history.message(cmd + msg)
 
     def viewRaytraceScene(self):
-        """Slot for 'View > POV-Ray'.
+        """
+        Slot for 'View > POV-Ray'.
         Raytraces the current scene. This version does not add a POV-Ray Scene node to the model tree.
         This is preferred since it allows the user to preview POV-Ray renderings without having to save
         the current part and/or delete unwanted nodes from the model tree. If the user wants to add the 

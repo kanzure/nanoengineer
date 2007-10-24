@@ -11,8 +11,6 @@ toolbars.py - OpenGL toolbars, basically serving as "working mockups" for Qt too
 
 from exprs.Column import SimpleRow
 
-from exprs.Overlay import Overlay
-
 from exprs.Highlightable import Highlightable
 
 from exprs.TextRect import TextRect

@@ -14,8 +14,12 @@ this file is getting kind of long - maybe split it in some sensible way?
 # note: this module should not import ExprsMeta, though its InstanceOrExpr subclass needs to (in another module).
 # instead, it is probably fully imported by ExprsMeta.
 
-from debug import compact_stack, print_compact_stack, print_compact_traceback, safe_repr
+from debug import compact_stack
+from debug import print_compact_stack
+from debug import safe_repr
+
 ##from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
+
 from utilities.Comparison import same_vals
 
 from exprs.py_utils import printnim, printfyi, printonce

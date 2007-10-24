@@ -1,5 +1,5 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 runSim.py
 
 setting up and running the simulator, for Simulate or Minimize
@@ -25,10 +25,10 @@ bruce 050901 and 050913 used env.history in some places.
 bruce 051115 some comments and code cleanup; add #SIMOPT wherever a simulator executable command-line flag is hardcoded.
 
 bruce 051231 partly-done code for using pyrex interface to sim; see use_dylib
-'''
+"""
 
 from debug import print_compact_traceback
-from DebugMenuMixin import sim_params_set, sim_param_values
+from DebugMenuMixin import sim_params_set
 from qt4transition import qt4todo
 import platform
 from PlatformDependent import fix_plurals
@@ -42,7 +42,7 @@ from movie import Movie
 from utilities.Log import redmsg, greenmsg, orangemsg, quote_html, _graymsg
 import env
 from env import seen_before
-from VQT import A, V
+from VQT import A
 import re
 from chem import AtomDict
 from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
@@ -91,7 +91,9 @@ def timestep_flag_and_arg( mflag = False): #bruce 060503
 
 
 class SimRunner:
-    "class for running the simulator [subclasses can run it in special ways, maybe]"
+    """
+    class for running the simulator [subclasses can run it in special ways, maybe]
+    """
     #bruce 050330 making this from writemovie and maybe some of Movie/SimSetup; experimental,
     # esp. since i don't yet know how much to factor the input-file writing, process spawning,
     # file-growth watching, file reading, file using. Surely in future we'll split out file using
@@ -195,7 +197,8 @@ class SimRunner:
         # so not much to do here! let caller care about res, not us.
     
     def set_options_errQ(self): #e maybe split further into several setup methods? #bruce 051115 removed unused 'options' arg
-        """Set movie alist (from simaspect or entire part); debug-msg if it was already set (and always ignore old value).
+        """
+        Set movie alist (from simaspect or entire part); debug-msg if it was already set (and always ignore old value).
         Figure out and set filenames, including sim executable path.
         All inputs and outputs are self attrs or globals or other obj attrs... except, return error code if sim executable missing
         or on other errors detected by subrs.
@@ -302,7 +305,8 @@ class SimRunner:
         return None # no error
         
     def sim_bin_dir_path(self): #bruce 060102 split this out
-        """Return pathname of bin directory that ought to contain simulator executable and/or dynamic library.
+        """
+        Return pathname of bin directory that ought to contain simulator executable and/or dynamic library.
         (Doesn't check whether it exists.)
         """
         # filePath = the current directory NE-1 is running from.
@@ -310,7 +314,8 @@ class SimRunner:
         return os.path.normpath(filePath + '/../bin')
 
     def import_dylib_sim(self, dylib_path): #bruce 051230 experimental code
-        """Try to import the dynamic library version of the simulator, under the module name 'sim',
+        """
+        Try to import the dynamic library version of the simulator, under the module name 'sim',
         located in dylib_path. Return a success flag.
         """
         import sys
@@ -343,7 +348,8 @@ class SimRunner:
         return worked
     
     def old_set_sim_output_filenames_errQ(self, movie, mflag):
-        """Old code, not yet much cleaned up. Uses and/or sets movie.filename,
+        """
+        Old code, not yet much cleaned up. Uses and/or sets movie.filename,
         with movie serving to hold desired sim parameters
         (more like a SimSetup object than a Movie object in purpose).
         Stores shell command option for using tracefile (see code, needs cleanup).
@@ -408,7 +414,8 @@ class SimRunner:
         return None # no error
 
     def sim_input_filename(self):
-        """Figure out the simulator input filename
+        """
+        Figure out the simulator input filename
         (previously set options might specify it or imply how to make it up;
          if not, make up a suitable temp name)
         and return it; don't record it (caller does that),
@@ -422,7 +429,8 @@ class SimRunner:
         return self.tmp_file_prefix + ".mmp" ## "sim-%d.mmp" % pid
     
     def write_sim_input_file(self):
-        """Write the appropriate data from self.part (as modified by self.simaspect)
+        """
+        Write the appropriate data from self.part (as modified by self.simaspect)
         to an input file for the simulator (presently always in mmp format)
         using the filename self.sim_input_file
         (overwriting any existing file of the same name).
@@ -470,7 +478,8 @@ class SimRunner:
         return
     
     def set_waitcursor(self, on_or_off): # [WARNING: this code is now duplicated in at least one other place, as of 060705]
-        """For on_or_off True, set the main window waitcursor.
+        """
+        For on_or_off True, set the main window waitcursor.
         For on_or_off False, revert to the prior cursor.
         [It might be necessary to always call it in matched pairs, I don't know [bruce 050401]. #k]
         """
@@ -488,7 +497,8 @@ class SimRunner:
         return
     
     def spawn_process(self): # misnamed, since (1) also includes monitor_progress, and (2) doesn't always use a process
-        """Actually spawn the process [or the extension class object],
+        """
+        Actually spawn the process [or the extension class object],
         making its args [or setting its params] based on some of self's attributes.
         Wait til we're done with this simulation, then record results in other self attributes.
         """
@@ -507,7 +517,8 @@ class SimRunner:
         return
 
     def setup_sim_args(self): #bruce 051231 split this out of spawn_process, added dylib case
-        """Set up arguments for the simulator, using one of two different interfaces:
+        """
+        Set up arguments for the simulator, using one of two different interfaces:
         either constructing a command line for the standalone executable simulator,
         or creating and setting up an instance of an extension class defined in the
         sim module (a dynamic library). (But don't start it running.)
@@ -983,7 +994,8 @@ class SimRunner:
 
     def sim_loop_using_dylib(self): #bruce 051231; compare to sim_loop_using_standalone_executable
         # 051231 6:29pm: works, except no trace file is written so results in history come from prior one (if any)
-        """#doc
+        """
+        #doc
         """
         movie = self._movie
         if platform.atom_debug and movie.duration:
@@ -1319,13 +1331,14 @@ class SimRunner:
     need_process_events = False #bruce 060601
     
     def sim_frame_callback_worker(self, frame_number): #bruce 060102
-        """Do whatever should be done on frame_callbacks that don't return immediately
-           (due to not enough time passing), EXCEPT for Qt-related progress updates other than gl_update --
-           caller must do those separately in sim_frame_callback_updates, if this method sets self.need_process_events.
-           Might raise exceptions -- caller should protect itself from them until the sim does.
-           + stuff new frame data into atom positions
-             +? fix singlet positions, if not too slow
-           + gl_update
+        """
+        Do whatever should be done on frame_callbacks that don't return immediately
+        (due to not enough time passing), EXCEPT for Qt-related progress updates other than gl_update --
+        caller must do those separately in sim_frame_callback_updates, if this method sets self.need_process_events.
+        Might raise exceptions -- caller should protect itself from them until the sim does.
+        + stuff new frame data into atom positions
+          +? fix singlet positions, if not too slow
+        + gl_update
         """
         if not self.aborting: #bruce 060601 replaced 'if 1'
             if self.abortbutton_controller.aborting():
@@ -1358,7 +1371,8 @@ class SimRunner:
         return
 
     def sim_frame_callback_updates(self): #bruce 060601 split out of sim_frame_callback_worker so it can be called separately
-        """Do Qt-related updates which are needed after something has updated progress bar displays or done gl_update
+        """
+        Do Qt-related updates which are needed after something has updated progress bar displays or done gl_update
         or printed history messages, if anything has set self.need_process_events to indicate it needs this
         (and reset that flag):
         - tell Qt to process events
@@ -1399,7 +1413,8 @@ class SimRunner:
     tracefileProcessor = None
     
     def print_sim_warnings(self): #bruce 050407; revised 060109, used whether or not we're not printing warnings continuously
-        """Print warnings and errors from tracefile (if this was not already done);
+        """
+        Print warnings and errors from tracefile (if this was not already done);
         then print summary/finishing info related to tracefile.
         Note: this might change self.said_we_are_done to False or True, or leave it alone.
         """
@@ -1449,13 +1464,13 @@ class SimRunner:
 
 print_sim_comments_to_history = False
 
-'''
-Date: 12 Jan 2006 20:57:05 -0000
+"""
+Date: 12 Jan 2006
 From: ericm
 To: bruce
 Subject: Minimize trace file format
 
-Here\'s the code that writes the trace file during minimize:
+Here's the code that writes the trace file during minimize:
 
     write_traceline("%4d %20f %20f %s %s\n", frameNumber, rms, max_force, callLocation, message);
 
@@ -1469,12 +1484,14 @@ you can only use lines that have callLocation=="gradient", and that
 should work well.
 
 -eric
-'''
+"""
 
 class TracefileProcessor: #bruce 060109 split this out of SimRunner to support continuous tracefile line processing
+    """
+    Helper object to filter tracefile lines and print history messages as they come and at the end
+    """
     findRmsForce = re.compile("rms ([0-9.]+) pN")
     findHighForce = re.compile("high ([0-9.]+) pN")
-    "Helper object to filter tracefile lines and print history messages as they come and at the end"
     def __init__(self, owner, minimize = False, simopts = None):
         "store owner so we can later set owner.said_we_are_done = True; also start"
         self.owner = owner
@@ -1488,7 +1505,8 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
         self.donecount = 0 # how many Done keywords we saw in there
         self.mentioned_sim_trace_file = False # public, can be set by client code
     def step(self, line): #k should this also be called by __call__ ? no, that would slow down its use as a callback.
-        """do whatever should be done immediately with this line, and save things to do later;
+        """
+        do whatever should be done immediately with this line, and save things to do later;
         this bound method might be used directly as a trace_callback [but isn't, for clarity, as of 060109]
         """
         if not line.startswith("#"):
@@ -1622,7 +1640,8 @@ else:
 #  but let it be passed in instead.] ###@@@
 def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = False, cmdname = "Simulator", cmd_type = 'Minimize'):
         #bruce 060106 added cmdname
-    """Write an input file for the simulator, then run the simulator,
+    """
+    Write an input file for the simulator, then run the simulator,
     in order to create a moviefile (.dpb file), or an .xyz file containing all
     frames(??), or an .xyz file containing what would have
     been the moviefile's final frame.  The name of the file it creates is found in
@@ -1689,7 +1708,8 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
 # The original in fileIO was by Huaicai shortly after 050120.
 #bruce 050406 further revisions (as commented).
 def readxyz(filename, alist):
-    """Read a single-frame XYZ file created by the simulator, typically for
+    """
+    Read a single-frame XYZ file created by the simulator, typically for
     minimizing a part. Check file format, check element types against those
     in alist (the number of atoms and order of their elements must agree).
     [As of 050406, also permit H in the file to match a singlet in alist.]
@@ -1769,7 +1789,8 @@ def readxyz(filename, alist):
 # == user-visible commands for running the simulator, for simulate or minimize
 
 class CommandRun: # bruce 050324; mainly a stub for future use when we have a CLI
-    """Class for single runs of commands.
+    """
+    Class for single runs of commands.
     Commands themselves (as opposed to single runs of them)
     don't yet have objects to represent them in a first-class way,
     but can be coded and invoked as subclasses of CommandRun.
@@ -1786,7 +1807,8 @@ class CommandRun: # bruce 050324; mainly a stub for future use when we have a CL
     # end of class CommandRun
 
 class simSetup_CommandRun(CommandRun):
-    """Class for single runs of the simulator setup command; create it
+    """
+    Class for single runs of the simulator setup command; create it
     when the command is invoked, to prep to run the command once;
     then call self.run() to actually run it.
     """
@@ -1889,7 +1911,8 @@ MIN_ALL, LOCAL_MIN, MIN_SEL = range(3) # internal codes for minimize command sub
     # this is a kluge compared to using command-specific subclasses, but better than testing something else like cmdname
     
 class Minimize_CommandRun(CommandRun):
-    """Class for single runs of the Minimize Selection or Minimize All commands
+    """
+    Class for single runs of the Minimize Selection or Minimize All commands
     (which one is determined by an __init__ arg, stored in self.args by superclass);
     create it when the command is invoked, to prep to run the command once;
     then call self.run() to actually run it.
@@ -2106,12 +2129,14 @@ class Minimize_CommandRun(CommandRun):
     def doMinimize(self, mtype = 1, simaspect = None):
         #bruce 051115 renamed method from makeMinMovie
         #bruce 051115 revised docstring to fit current code #e should clean it up more
-        """Minimize self.part (if simaspect is None -- no longer used)
+        """
+        Minimize self.part (if simaspect is None -- no longer used)
         or its given simaspect (simulatable aspect) (used for both Minimize Selection and Minimize All),
         generating and showing a movie (no longer asked for) or generating and applying to part an xyz file.
-           The mtype flag means:
-            1 = tell writemovie() to create a single-frame XYZ file.
-            2 = tell writemovie() to create a multi-frame DPB moviefile. [###@@@ not presently used, might not work anymore]
+
+        The mtype flag means:
+        1 = tell writemovie() to create a single-frame XYZ file.
+        2 = tell writemovie() to create a multi-frame DPB moviefile. [###@@@ not presently used, might not work anymore]
         """
         assert mtype == 1 #bruce 051115
         assert simaspect is not None #bruce 051115
@@ -2297,14 +2322,16 @@ def atom_is_anchored(atm):
     
 class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Run Sim; verified by debug_sim output.
     # warning: it also assumes this internally -- see comment below about "min = True".
-    """Class for a "simulatable aspect" of a Part.
+    """
+    Class for a "simulatable aspect" of a Part.
     For now, there's only one kind (a subset of atoms, some fixed in position),
     so we won't split out an abstract class for now.
     Someday there would be other kinds, like when some chunks were treated
     as rigid bodies or jigs and the sim was not told about all their atoms.
     """
     def __init__(self, part, atoms, cmdname_for_messages = "Minimize" ): #bruce 051129 passing cmdname_for_messages
-        """atoms is a list of atoms within the part (e.g. the selected ones,
+        """
+        atoms is a list of atoms within the part (e.g. the selected ones,
         for Minimize Selection); we copy it in case caller modifies it later.
         [Note that this class has no selection object and does not look at
         (or change) the "currently selected" state of any atoms,
@@ -2406,7 +2433,8 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
         #bruce 050404 (for most details). Imitates some of Part.writemmpfile aka files_mmp.writemmpfile_part.
         #e refile into files_mmp so the mmp format code is in the same place? maybe just some of it.
         # in fact the mmp writing code for atoms and jigs is not in files_mmp anyway! tho the reading code is.
-        """write our data into an mmp file; only include just enough info to run the sim
+        """
+        write our data into an mmp file; only include just enough info to run the sim
         [###e Should we make this work even if the atoms have moved but not restructured since we were made? I think yes.
          That means the validity hash is really made up now, not when we're made.]
         """
@@ -2458,8 +2486,9 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
         return
         
     def write_minimize_enabled_jigs(self, mapping): # Mark 051006
-        '''Writes any jig to the mmp file which has the attr "enable_minimize"=True
-        '''
+        """
+        Writes any jig to the mmp file which has the attr "enable_minimize"=True
+        """
         assert mapping.min #bruce 051031; detected by writemmp call, below; this scheme is a slight kluge
         
         from jigs import Jig

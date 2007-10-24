@@ -48,7 +48,7 @@ from exprs.Highlightable import Highlightable, BackgroundObject ##, Button, prin
 
 from exprs.controls import checkbox_pref, ActionButton
 
-from exprs.Column import SimpleColumn, SimpleRow
+from exprs.Column import SimpleColumn ##, SimpleRow
 
 from exprs.DisplistChunk import DisplistChunk
 

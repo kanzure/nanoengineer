@@ -150,7 +150,13 @@ from exprs.py_utils import printnim, identity
 from exprs.widget2d import Widget2D
 from exprs.instance_helpers import WithAttributes, InstanceMacro, _this, DelegatingInstanceOrExpr
 from exprs.attr_decl_macros import State, Option, Instance, Arg
-from exprs.ExprsConstants import trans_red, PIXELS, lightblue, lightgreen, ORIGIN, DX, DY, DZ, nevermind, PM_CORNER
+from exprs.ExprsConstants import trans_red
+from exprs.ExprsConstants import PIXELS
+from exprs.ExprsConstants import lightblue
+from exprs.ExprsConstants import lightgreen
+from exprs.ExprsConstants import ORIGIN, DX, DZ ##, DY
+from exprs.ExprsConstants import nevermind
+from exprs.ExprsConstants import PM_CORNER
 from exprs.ExprsConstants import WORLD_MT_CORNER
 from exprs.ExprsConstants import DEBUG_CORNER
 from exprs.ExprsConstants import NullIpath

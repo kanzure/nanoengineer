@@ -18,7 +18,7 @@ from exprs.transforms import Translate
 from exprs.Center import Center
 from exprs.ExprsConstants import StateRef, Vector
 from exprs.ExprsConstants import Point, Drawable
-from exprs.ExprsConstants import ORIGIN, DY, DX
+from exprs.ExprsConstants import ORIGIN, DX ##,DY
 from exprs.Highlightable import Highlightable
 from exprs.Rect import Rect
 from exprs.Exprs import tuple_Expr, call_Expr

@@ -16,10 +16,10 @@ __author__ = "Mark"
 
 import os, sys
 
-from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QDir, QMessageBox
+from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QMessageBox
 
 import env
-from utilities.Log import redmsg, orangemsg, greenmsg, _graymsg
+from utilities.Log import orangemsg ##, redmsg, greenmsg, _graymsg
 from debug import print_compact_traceback
 
 from prefs_constants import megapov_enabled_prefs_key
