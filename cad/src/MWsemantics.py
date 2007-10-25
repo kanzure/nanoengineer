@@ -243,7 +243,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.referencePlaneAction,SIGNAL("triggered()"),
                      self.createPlane)
         self.connect(self.referenceLineAction,SIGNAL("triggered()"),
-                     self.createLine)
+                     self.createPolyLine)
 
         #self.connect(self.jigsHandleAction,SIGNAL("triggered()"),self.makeHandle)
         #self.connect(self.jigsHeatsinkAction,SIGNAL("triggered()"),self.makeHeatsink)
@@ -716,24 +716,25 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.graphenecntl = GrapheneGenerator(self)
         from NanotubeGenerator import NanotubeGenerator
         self.nanotubecntl = NanotubeGenerator(self)
-        
+
         # Use old DNA generator or new DNA Duplex generator?
         if debug_pref("Use old 'Build > DNA' generator? (next session)", 
-              Choice_boolean_False, 
-              non_debug = True,
-              prefs_key = "A9 devel/DNA Duplex"):
-            
+                      Choice_boolean_False, 
+                      non_debug = True,
+                      prefs_key = "A9 devel/DNA Duplex"):
+
             print "Using original DNA generator (supports PAM-5)."
             from DnaGenerator import DnaGenerator
             self.dnacntl = DnaGenerator(self)
         else:
             # This might soon become the usual case, with the debug_pref 
             # removed. - Mark
-        
+
             print "Using new DNA Duplex command (supports PAM-3 only)."
-            from DnaDuplexGenerator import DnaDuplexGenerator
-            self.dnacntl = DnaDuplexGenerator(self)
-            
+            from DnaDuplexEditController import DnaDuplexEditController
+            self.dnaEditController = DnaDuplexEditController(self)	
+            self.dnacntl = self.dnaEditController
+
         from PovraySceneProp import PovraySceneProp
         self.povrayscenecntl = PovraySceneProp(self)
         from CommentProp import CommentProp
@@ -776,7 +777,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             # [bruce 060319 added refix_later as part of fixing bug 1421]
 
         if not MULTIPANE_GUI:
-            
+
             # This is only used by the Atom Color preference dialog, not the
             # molecular modeling kit in Build Atom (deposit mode), etc.
             start_element = 6 # Carbon
@@ -1152,7 +1153,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	    selection so that the selected item is in the center of the screen.
 	  - Bugs/ Unsupported feature: If you paste multiple copies of an object
 	    they are pasted at the same location. (i.e. the offset is constant)
-	
+
 	@see: L{ops_copy_Mixin.paste} 
 	"""
         if self.assy.shelf.members:
@@ -1440,12 +1441,12 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         Slot for 'Display > Element Color Settings...' menu item.
         """
         self.showElementColorSettings()
-    
+
     def showElementColorSettings(self, parent=None):
         """
         Opens the Element Color Setting dialog, allowing the user to change 
         default colors of elements and bondpoints, and save them to a file.
-        
+
         @param parent: The parent of the Element Color Setting dialog.
                        This allows the caller (i.e. Preferences dialog) to 
                        make it modal.
@@ -1567,8 +1568,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def makeGridPlane(self):
         self.assy.makeGridPlane()
 
-    def createLine(self):
-        self.assy.createLine()
+    def createPolyLine(self):
+        pass
+        #if 0: #NIY
+            #self.assy.createPolyLine()
 
     def makeESPImage(self):
         self.assy.makeESPImage()
@@ -1879,7 +1882,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def JobManager(self):
         """
         Opens the Job Manager dialog... for details see subroutine's docstring.
-        
+
         @note: This is not implemented.
         """
         from JobManager import JobManager
@@ -1894,7 +1897,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def serverManager(self):
         """
         Opens the server manager dialog.
-        
+
         @note: This is not implemented.
         """
         from ServerManager import ServerManager
@@ -1946,7 +1949,14 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     def insertDna(self):
         self.ensureInCommand('SELECTMOLS')
-        self.dnacntl.show()
+        if debug_pref("Use old 'Build > DNA' generator? (next session)", 
+                      Choice_boolean_False, 
+                      non_debug = True,
+                      prefs_key = "A9 devel/DNA Duplex"):
+
+            self.dnacntl.show()
+        else:
+            self.dnaEditController.runController()
 
     def insertPovrayScene(self):
         self.povrayscenecntl.setup()

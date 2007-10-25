@@ -76,23 +76,97 @@ class selectMolsMode(selectMode):
         self.w.toolsSelectMoleculesAction.setChecked(0)
             # toggle off the "Select Chunks" tools icon
         #self.w.selectMolDashboard.hide()
-
+    
+    def provideParamsForTemporaryMode(self, temporaryModeName):
+        """
+	NOTE: This needs to be a general API method. There are situations when 
+	user enters a temporary mode , does somethoing there and returns back to
+	the previous mode he was in. He also needs to send some data from 
+	previous mode to the temporary mode 
+	 
+	@see: DnaLineMode
+	@see: self.acceptParamsFromTemporaryMode for more comments and example
+	TODO: 
+	- This needs to be a more general method in mode API. 
+	- Right now it is used only for creating a DNA line. It is assumed
+	 that the DNADuplxEditController is invoked while in selectMolsMode. 
+	 If we decide to define a new DnaMode, then this method needs to go 
+	 there. 
+	 - Even better if the commandSequencer API starts supporting 
+	 sommandSequencer.previousCommand (like it does for previous mode) 
+	 where, the previousCommand can be an editController or mode, then 
+	 it would be good to define this API method in that mode or 
+	 editcontroller class  itself. In the above example, this method would 
+	 then belong to DnaDuplexEditController. 
+	 -- [Ninad 2007-10-25 comment]
+        """	        
+        if temporaryModeName in ["LineMode", \
+				 "DNA_LINE_MODE"]:
+            #This is the number of mouse clicks that the temporary mode accepts
+	    # When this limit is reached, the temporary mode will return to the
+	    #previous mode.
+            mouseClickLimit = 2
+	else:
+	    #@attention This is an arbitrary number, needs cleanup. 
+	    mouseClickLimit = 10
+	    
+	return mouseClickLimit
+	    
+    def acceptParamsFromTemporaryMode(self, temporaryModeName, params):
+        """
+	NOTE: This needs to be a general API method. There are situations when 
+	user enters a temporary mode , does somethoing there and returns back to
+	the previous mode he was in. He also needs some data that he gathered 
+	in that temporary mode so as to use it in the original mode he was 
+	working on. Here is a good example: 
+	-  User is working in selectMolsMode, Now he enters a temporary mode 
+	called DnaLine mode, where, he clicks two points in the 3Dworkspace 
+	and expects to create a DNA using the points he clicked as endpoints. 
+	Internally, the program returns to the previous mode after two clicks. 
+	The temporary mode sends this information to the method defined in 
+	the previous mode called acceptParamsFromTemporaryMode and then the
+	previous mode (selectMolsMode) can use it further to create a dna 
+	@see: DnaLineMode
+	@see: self.provideParamsForTemporaryMode
+	TODO: 
+	- This needs to be a more general method in mode API. 
+	- Right now it is used only for creating a DNA line. It is assumed
+	 that the DNADuplxEditController is invoked while in selectMolsMode. 
+	 If we decide to define a new DnaMode, then this method needs to go 
+	 there. 
+	 - Even better if the commandSequencer API starts supporting 
+	 sommandSequencer.previousCommand (like it does for previous mode) 
+	 where, the previousCommand can be an editController or mode, then 
+	 it would be good to define this API method in that mode or 
+	 editcontroller class  itself. In the above example, this method would 
+	 then belong to DnaDuplexEditController. 
+	 -- [Ninad 2007-10-25 comment]	
+        """
+	#Usually params will contain 2 items. But if user abruptly terminates  
+	#the temporary mode, this might not be true. So move the chunk by offset
+	#only when you have got 2 points!  Ninad 2007-10-16
+	if len(params) == 2:	    
+	    dnaEditController = self.win.dnaEditController
+	    if dnaEditController:
+		dnaEditController.acceptParamsFromTemporaryMode(params)
+	    
     def leftDouble(self, event):
         """
-	Switch to Build Atoms mode when user double clicks on an object
-	@note: pre Alpha9, it used to enter Move mode upon double clicking. 
-	Since Alpha9, it enters Deposit mode if you double click on an object
+	Select connected chunks
 	"""
-
-        #@@@ ninad20070510 - based on discussion with Mark, don't enter deposit
-        #mode when cursor is on empty space. (Otherwise, i.e. when its over an 
-        #object, enter deposit mode.        
-        #Following needs to be changed after implementation of objects like 
-        #points, lines etc , which don't need deposit mode. 
-
+	#this is a temporary fix for NFR bug 2569. 'Selectconnected chunks not
+	#implemented yet
         if self.cursor_over_when_LMB_pressed != 'Empty Space':
-            self.commandSequencer.userEnterCommand('DEPOSIT')
+            self.selectConnectedChunks()
         return
+    
+    def selectConnectedChunks(self):
+        """
+	TODO: Not implemented yet. Need to define a method in ops_select to 
+	do this
+        """        
+        pass
+    
 
     def update_cursor_for_no_MB(self):
         """
