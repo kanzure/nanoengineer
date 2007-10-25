@@ -3,10 +3,12 @@
 $Id$
 """
 
+import env
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 from icon_utilities import geticon
+from utilities.Log import greenmsg
 
 _theDnaFlyout = None
 
@@ -67,10 +69,12 @@ class DnaFlyout(object):
         self.exitDna = QtGui.QWidgetAction(parentWindow)
         self.exitDna.setText("Exit DNA")
         self.exitDna.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitDna.setCheckable(True)
+        self.exitDna.setChecked(True)
 
         self.dnaDuplexGenerator = QtGui.QWidgetAction(parentWindow)
-        self.dnaDuplexGenerator.setText("DNA")
-        self.dnaDuplexGenerator.setIcon(geticon("ui/actions/Tools/Build Structures/DNA"))
+        self.dnaDuplexGenerator.setText("Duplex")
+        self.dnaDuplexGenerator.setIcon(geticon("ui/actions/Tools/Build Structures/Duplex"))
 
         self.dnaOrigamiGenerator = QtGui.QWidgetAction(parentWindow)
         self.dnaOrigamiGenerator.setText("Origami")
@@ -82,14 +86,32 @@ class DnaFlyout(object):
                              self.activateDnaDuplexGenerator)
         parentWindow.connect(self.dnaOrigamiGenerator, SIGNAL("triggered()"),
                              self.activateDnaOrigamiGenerator)
+        
+        # Add tooltips
+        self.dnaDuplexGenerator.setToolTip("Duplex")
+        self.dnaOrigamiGenerator.setToolTip("Origami")
 
     def activateExitDna(self):
+        """
+        Slot for B{Exit DNA} action.
+        """
         self.parentWindow.commandManager.updateCommandManager(
             self.parentWindow.buildDnaAction, _theDnaFlyout, entering=False)
         
     def activateDnaDuplexGenerator(self):
+        """
+        Slot for B{Duplex} action.
+        """
         self.parentWindow.insertDna()
 
     def activateDnaOrigamiGenerator(self):
-        pass
+        """
+        Slot for B{Origami} action.
+        """
+        msg1 = greenmsg("DNA Origami: ")
+        msg2 = " Not implemented yet"
+        final_msg = msg1 + msg2
+        env.history.message(final_msg)
+    
+    
 

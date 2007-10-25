@@ -37,15 +37,9 @@ def setupUi(win):
     win.buildDnaAction.setIcon(geticon("ui/actions/Tools/Build Structures/DNA"))
     win.buildDnaAction.setObjectName("buildDnaAction")
     
-    win.buildDnaOrigamiAction = QtGui.QWidgetAction(MainWindow)
-    win.buildDnaOrigamiAction.setIcon(geticon(
-        "ui/actions/Tools/Build Structures/DNA_Origami"))
-    win.buildDnaOrigamiAction.setObjectName("buildDnaOrigamiAction")
-    
     # Create the Build menu.
     win.buildStructuresMenu.addAction(MainWindow.toolsDepositAtomAction)
-    win.buildStructuresMenu.addAction(win.buildDnaAction)
-    win.buildStructuresMenu.addAction(win.buildDnaOrigamiAction)    
+    win.buildStructuresMenu.addAction(win.buildDnaAction)   
     win.buildStructuresMenu.addAction(win.insertNanotubeAction)
     win.buildStructuresMenu.addAction(win.insertGrapheneAction)
     win.buildStructuresMenu.addAction(MainWindow.toolsCookieCutAction)
@@ -77,16 +71,6 @@ def retranslateUi(win):
     win.toolsDepositAtomAction.setToolTip(QtGui.QApplication.translate(
          "MainWindow", 
          "Build Atoms", 
-         None, 
-         QtGui.QApplication.UnicodeUTF8))
-    win.buildDnaOrigamiAction.setText(QtGui.QApplication.translate(
-         "MainWindow", 
-         "Origami",
-         None,
-         QtGui.QApplication.UnicodeUTF8))
-    win.buildDnaOrigamiAction.setToolTip(QtGui.QApplication.translate(
-         "MainWindow",
-         "Build DNA Origami", 
          None, 
          QtGui.QApplication.UnicodeUTF8))
      

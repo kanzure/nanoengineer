@@ -346,11 +346,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                      SIGNAL("triggered()"),
                      self.toolsBuildAtoms)
 
-        #Slot for DNA Origami
-        self.connect(self.buildDnaOrigamiAction,
-                     SIGNAL("triggered()"),
-                     self.buildDnaOrigami)
-
         self.connect(self.toolsDoneAction,SIGNAL("triggered()"),self.toolsDone)
         self.connect(self.toolsExtrudeAction,SIGNAL("triggered()"),self.toolsExtrude)
         ###self.connect(self.toolsFuseAtomsAction,SIGNAL("triggered()"),self.toolsFuseAtoms)
@@ -1814,16 +1809,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def toolsBuildAtoms(self): # note: this can now be called from update_select_mode [as of bruce 060403]
         self.depositState = 'Atoms'
         self.commandSequencer.userEnterCommand('DEPOSIT')
-
-    #get into Build DNA Origami mode
-    def buildDnaOrigami(self):
-        """
-        Enter DNA Origami mode.
-        """
-        msg1 = greenmsg("DNA Origami: ")
-        msg2 = " Not implemented yet"
-        final_msg = msg1 + msg2
-        env.history.message(final_msg)
 
     # get into cookiecutter mode
     def toolsCookieCut(self):
