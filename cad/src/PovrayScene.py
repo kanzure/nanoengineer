@@ -1,16 +1,15 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 PovrayScene.py - The POV-Ray Scene class.
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 mark 060601 - Created.
-
-'''
-
-__author__ = "Mark"
+"""
 
 import os, sys
 from PyQt4.Qt import QDialog
@@ -33,7 +32,8 @@ from debug import print_compact_traceback
 POVNum = 0
 
 def generate_povrayscene_name(assy, prefix, ext):
-    """Returns a name for the POV-Ray Scene object.
+    """
+    Returns a name for the POV-Ray Scene object.
     Make sure the filename that is derived from the new name does not already exist.
     """
     global POVNum
@@ -42,12 +42,14 @@ def generate_povrayscene_name(assy, prefix, ext):
     while name_exists:
         POVNum += 1
         name = prefix + "-" + str(POVNum) + ext  # (i.e. "POV-Ray Scene-1.pov")
+            # TODO: use gensym, then no need for POVNum
         if not os.path.exists(get_povrayscene_filename_derived_from_name(assy, name)):
             name_exists = False
             return name
 
 def get_povrayscene_filename_derived_from_name(assy, name):
-    """Returns the full (absolute) path of the POV-Ray Scene filename for <assy> derived from <name>.
+    """
+    Returns the full (absolute) path of the POV-Ray Scene filename for <assy> derived from <name>.
     """
     errorcode, dir = assy.find_or_make_pov_files_directory()
     if errorcode:
@@ -57,7 +59,8 @@ def get_povrayscene_filename_derived_from_name(assy, name):
     return povrayscene_file
 
 class PovrayScene(SimpleCopyMixin, Node):
-    """A POV-Ray Scene is a .pov file that can be used to render images, accessible from the Model Tree as a node.
+    """
+    A POV-Ray Scene is a .pov file that can be used to render images, accessible from the Model Tree as a node.
     """
 
     sym = "POV-Ray Scene"
@@ -93,19 +96,23 @@ class PovrayScene(SimpleCopyMixin, Node):
         return
             
     def set_parameters(self, params): #bruce 060620 removed name from params list
-        '''Sets all parameters in the list <params> for this POV-Ray Scene.
-        '''
+        """
+        Sets all parameters in the list <params> for this POV-Ray Scene.
+        """
         self.width, self.height, self.output_type = params
         self.povrayscene_file = get_povrayscene_filename_derived_from_name(self.assy, self.name) # Mark 060702.
         self.assy.changed()
         
     def get_parameters(self): #bruce 060620 removed name from params list
-        '''Returns list of parameters for this POV-Ray Scene.
-        '''
+        """
+        Returns list of parameters for this POV-Ray Scene.
+        """
         return (self.width, self.height, self.output_type)
 
     def edit(self):
-        "Opens POV-Ray Scene properties dialog with current parameters."
+        """
+        Opens POV-Ray Scene properties dialog with current parameters.
+        """
         self.assy.w.povrayscenecntl.setup(self)
         
     def writemmp(self, mapping):
@@ -128,9 +135,11 @@ class PovrayScene(SimpleCopyMixin, Node):
         return
     
     def readmmp_info_povrayscene_setitem( self, key, val, interp ):
-        """This is called when reading an mmp file, for each "info povrayscene" record
+        """
+        This is called when reading an mmp file, for each "info povrayscene" record
         which occurs right after this node is read and no other (povrayscene) node has been read.
-           Key is a list of words, val a string; the entire record format
+
+        Key is a list of words, val a string; the entire record format
         is presently [060108] "info povrayscene <key> = <val>", and there is exactly
         one word in <key>, "povrayscene_file". <val> is the povrayscene filename.
         <interp> is not currently used.
@@ -153,7 +162,8 @@ class PovrayScene(SimpleCopyMixin, Node):
         return
 
     def update_icon(self, print_missing_file = False, found = None):
-        """Update our icon according to whether our file exists or not (or use the boolean passed as found, if one is passed).
+        """
+        Update our icon according to whether our file exists or not (or use the boolean passed as found, if one is passed).
         (Exception: icon looks normal if filename is not set yet.
          Otherwise it looks normal if file is there, not normal if file is missing.)
         If print_missing_file is true, print an error message if the filename is non-null but the file doesn't exist.
@@ -178,10 +188,11 @@ class PovrayScene(SimpleCopyMixin, Node):
         return "<povrayscene " + self.name + ">"
         
     def write_povrayscene_file(self):
-        '''Writes a POV-Ray Scene file of the current scene in the GLPane to the POV-Ray Scene Files directory.
+        """
+        Writes a POV-Ray Scene file of the current scene in the GLPane to the POV-Ray Scene Files directory.
         If successful, returns errorcode=0 and the absolute path of povrayscene file.
         Otherwise, returns errorcode=1 with text describing the problem writing the file.
-        '''
+        """
         ini, pov, out = self.get_povfile_trio() # pov includes the POV-Ray Scene Files directory in its path.
         if not ini:
             return 1, "Can't get POV-Ray Scene filename"
@@ -190,7 +201,8 @@ class PovrayScene(SimpleCopyMixin, Node):
         return 0, pov
     
     def get_povfile_trio(self, tmpfile = False):
-        """Makes up and returns the trio of POV-Ray filenames (as absolute paths):
+        """
+        Makes up and returns the trio of POV-Ray filenames (as absolute paths):
         POV-Ray INI file, POV-Ray Scene file, and output image filename. 
         If there was any problem, returns None, None, None.
         <tmpfile> flag controls how we choose their directory.
@@ -234,7 +246,8 @@ class PovrayScene(SimpleCopyMixin, Node):
         return ini, pov, out
     
     def raytrace_scene(self, tmpscene = False):
-        """Render scene. 
+        """
+        Render scene. 
         If tmpscene is False, the INI and pov files are written to the 'POV-Ray Scene Files' directory.
         If tmpscene is True, the INI and pov files are written to a temporary directory (~/Nanorex/POV-Ray).
         Callers should set <tmpscene> = True when they want to render the scene but don't need to 
@@ -353,7 +366,8 @@ class PovrayScene(SimpleCopyMixin, Node):
         return # from raytrace_scene out
     
     def kill(self, require_confirmation = True):
-        """Delete the POV-Ray Scene node and its associated .pov file if it exists.
+        """
+        Delete the POV-Ray Scene node and its associated .pov file if it exists.
         If <require_confirmation> is True, make the user confirm first [for deleting the file and the node both, as one op].
         [WARNING: user confirmation is not yet implemented.]
         Otherwise, delete the file without user confirmation.
@@ -393,14 +407,17 @@ class PovrayScene(SimpleCopyMixin, Node):
     # Context menu item methods #######################################
     
     def __CM_Raytrace_Scene(self):
-        '''Method for "Raytrace Scene" context menu.'''
+        """
+        Method for "Raytrace Scene" context menu.
+        """
         self.raytrace_scene()
 
     pass # end of class PovrayScene
 
 # ImageViewer class for displaying the image after it is rendered. Mark 060701.
 class ImageViewer(QDialog):
-    """ImageViewer displays the POV-Ray image <image_filename> after it has been rendered.
+    """
+    ImageViewer displays the POV-Ray image <image_filename> after it has been rendered.
     """
     def __init__(self,image_filename,parent = None,name = None,modal = 0,fl = 0):
         #QDialog.__init__(self,parent,name,modal,fl)
@@ -423,7 +440,8 @@ class ImageViewer(QDialog):
         self.resize(QSize(width, height).expandedTo(self.minimumSizeHint()))
     
     def display(self):
-        """Display the image in the ImageViewer, making sure it isn't larger than the desktop size.
+        """
+        Display the image in the ImageViewer, making sure it isn't larger than the desktop size.
         """
         if QApplication.desktop().width() > self.image.width() + 10 and \
            QApplication.desktop().height() > self.image.height() + 30:
@@ -432,3 +450,8 @@ class ImageViewer(QDialog):
             self.showMaximized() 
             # No scrollbars provided with showMaximized. The image is clipped if it is larger than the screen.
             # Probably need to use a QScrollView for large images. Mark 060701.
+        return
+    pass
+
+# end
+
