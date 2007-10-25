@@ -20,12 +20,13 @@ def setupUi(mainWindow):
     global _theDnaFlyout
 
     _theDnaFlyout = DnaFlyout(mainWindow)
-
+    
 # probably needs a retranslateUi to add tooltips too...
 
 def activateDnaFlyout(mainWindow):
     mainWindow.commandManager.updateCommandManager(mainWindow.buildDnaAction, _theDnaFlyout)
 
+    
 class DnaFlyout(object):
     def __init__(self, parentWindow):
         self.parentWindow = parentWindow
@@ -49,8 +50,8 @@ class DnaFlyout(object):
         separator = QtGui.QAction(self.parentWindow)
         separator.setSeparator(True)
         subControlAreaActionList.append(separator) 
-        subControlAreaActionList.append(self.dnaDuplexGenerator)
-        subControlAreaActionList.append(self.dnaOrigamiGenerator)
+        subControlAreaActionList.append(self.dnaDuplexAction)
+        subControlAreaActionList.append(self.dnaOrigamiAction)
 
         allActionsList.extend(subControlAreaActionList)
 
@@ -66,30 +67,30 @@ class DnaFlyout(object):
         return params
 
     def _createActions(self, parentWindow):
-        self.exitDna = QtGui.QWidgetAction(parentWindow)
-        self.exitDna.setText("Exit DNA")
-        self.exitDna.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
-        self.exitDna.setCheckable(True)
-        self.exitDna.setChecked(True)
+        self.exitDnaAction = QtGui.QWidgetAction(parentWindow)
+        self.exitDnaAction.setText("Exit DNA")
+        self.exitDnaAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitDnaAction.setCheckable(True)
+        self.exitDnaAction.setChecked(True)
 
-        self.dnaDuplexGenerator = QtGui.QWidgetAction(parentWindow)
-        self.dnaDuplexGenerator.setText("Duplex")
-        self.dnaDuplexGenerator.setIcon(geticon("ui/actions/Tools/Build Structures/Duplex"))
+        self.dnaDuplexAction = QtGui.QWidgetAction(parentWindow)
+        self.dnaDuplexAction.setText("Duplex")
+        self.dnaDuplexAction.setIcon(geticon("ui/actions/Tools/Build Structures/Duplex"))
 
-        self.dnaOrigamiGenerator = QtGui.QWidgetAction(parentWindow)
-        self.dnaOrigamiGenerator.setText("Origami")
-        self.dnaOrigamiGenerator.setIcon(geticon("ui/actions/Tools/Build Structures/DNA_Origami"))
+        self.dnaOrigamiAction = QtGui.QWidgetAction(parentWindow)
+        self.dnaOrigamiAction.setText("Origami")
+        self.dnaOrigamiAction.setIcon(geticon("ui/actions/Tools/Build Structures/DNA_Origami"))
 
-        parentWindow.connect(self.exitDna, SIGNAL("triggered()"),
+        parentWindow.connect(self.exitDnaAction, SIGNAL("triggered()"),
                              self.activateExitDna)
-        parentWindow.connect(self.dnaDuplexGenerator, SIGNAL("triggered()"),
-                             self.activateDnaDuplexGenerator)
-        parentWindow.connect(self.dnaOrigamiGenerator, SIGNAL("triggered()"),
-                             self.activateDnaOrigamiGenerator)
+        parentWindow.connect(self.dnaDuplexAction, SIGNAL("triggered()"),
+                             self.activateDnaDuplexEditController)
+        parentWindow.connect(self.dnaOrigamiAction, SIGNAL("triggered()"),
+                             self.activateDnaOrigamiEditController)
         
         # Add tooltips
-        self.dnaDuplexGenerator.setToolTip("Duplex")
-        self.dnaOrigamiGenerator.setToolTip("Origami")
+        self.dnaDuplexAction.setToolTip("Duplex")
+        self.dnaOrigamiAction.setToolTip("Origami")
 
     def activateExitDna(self):
         """
@@ -98,13 +99,13 @@ class DnaFlyout(object):
         self.parentWindow.commandManager.updateCommandManager(
             self.parentWindow.buildDnaAction, _theDnaFlyout, entering=False)
         
-    def activateDnaDuplexGenerator(self):
+    def activateDnaDuplexEditController(self):
         """
         Slot for B{Duplex} action.
         """
         self.parentWindow.insertDna()
 
-    def activateDnaOrigamiGenerator(self):
+    def activateDnaOrigamiEditController(self):
         """
         Slot for B{Origami} action.
         """
@@ -112,6 +113,3 @@ class DnaFlyout(object):
         msg2 = " Not implemented yet"
         final_msg = msg1 + msg2
         env.history.message(final_msg)
-    
-    
-
