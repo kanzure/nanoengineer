@@ -100,8 +100,14 @@ class PM_SpinBox( QSpinBox ):
         @type  parentWidget: PM_GroupBox
         
         @param label: The label that appears to the left of (or above) the 
-                      spin box. To suppress the label, set I{label} to an 
-                      empty string.
+                      spin box. If label contains the relative path to an 
+                      icon (.png) file, that icon image will be used for the
+                      label.
+                      
+                      If spanWidth is True, the label will be displayed on
+                      its own row directly above the spin box. 
+                      
+                      To suppress the label, set I{label} to an empty string.
         @type  label: str
         
         @param value: The initial value of the spin box.
@@ -129,13 +135,13 @@ class PM_SpinBox( QSpinBox ):
         
         @param suffix: The suffix is appended to the end of the displayed value. 
                        Typical use is to display a unit of measurement. 
-                       The default is no suffix. The suffix is not displayed for the minimum 
-                       value if specialValueText() is set.
+                       The default is no suffix. The suffix is not displayed
+                       for the minimum value if specialValueText() is set.
         @type  suffix: str
         
-        @param spanWidth: If True, the spin box and its label will span the width
-                          of the group box. The label will appear directly above
-                          the spin box and is left justified. 
+        @param spanWidth: If True, the spin box and its label will span the 
+                          width of the group box. The label will appear 
+                          directly above the spin box and is left justified. 
         @type  spanWidth: bool
         
         @see: U{B{QSpinBox}<http://doc.trolltech.com/4/qspinbox.html>}

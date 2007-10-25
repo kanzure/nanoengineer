@@ -110,7 +110,9 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
         @type  parentWidget: PM_GroupBox
         
         @param label: The label that appears to the left or right of the 
-                      spin box. 
+                      spin box. If label contains the relative path to an 
+                      icon (.png) file, that icon image will be used for the
+                      label.
                       
                       If spanWidth is True, the label will be displayed on
                       its own row directly above the spin box.
@@ -150,13 +152,13 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
         
         @param suffix: The suffix is appended to the end of the displayed value. 
                        Typical use is to display a unit of measurement. 
-                       The default is no suffix. The suffix is not displayed for the minimum 
-                       value if specialValueText() is set.
+                       The default is no suffix. The suffix is not displayed
+                       for the minimum value if specialValueText() is set.
         @type  suffix: str
         
-        @param spanWidth: If True, the spin box and its label will span the width
-                          of the group box. The label will appear directly above
-                          the spin box and is left justified. 
+        @param spanWidth: If True, the spin box and its label will span the
+                          width of the group box. The label will appear directly
+                          above the spin box and is left justified. 
         @type  spanWidth: bool
         
         @see: U{B{QDoubleSpinBox}<http://doc.trolltech.com/4/qdoublespinbox.html>}
@@ -230,9 +232,8 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
         """
         Sets the value of the spin box to I{value}. 
         
-        setValue() will emit valueChanged() if the new value is different from the old one.
-        
-        Note: The value will be rounded so it can be displayed with the current setting of decimals.          
+        setValue() will emit valueChanged() if the new value is different from
+        the old one. 
         
         @param value: The new spin box value.
         @type  value: float
@@ -242,6 +243,9 @@ class PM_DoubleSpinBox( QDoubleSpinBox ):
 ##                             (the default) I{value} will be used as the reset 
 ##                             value.
 ##        @type  setAsDefault: bool
+        
+        @note: The value will be rounded so it can be displayed with the current
+        setting of decimals.  
         
         @see: L{setDefaultValue}
         """
