@@ -136,8 +136,6 @@ from jigs_planes import ESPImage
 from jigs_measurements import MeasureAngle
 from jigs_measurements import MeasureDihedral
 from VQT import V, Q, A
-from PovrayScene import PovrayScene
-##from Comment import Comment
 from utilities.Log import redmsg
 from elements import PeriodicTable
 from bonds import bond_atoms
@@ -226,15 +224,11 @@ gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\
 #plane (name) (r, g, b) width height (cx, cy, cz) (w, x, y, z)
 plane_pat = re.compile("plane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)")
 
-
 # ESP Image record format:
 # espimage (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
 ## esppat = re.compile("espimage \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 #bruce 060207 generalize pattern so espwindow is also accepted (to help fix bug 1357); safe forever, but can be removed after A7
 esppat = re.compile("[a-z]* \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
-
-# POV-Ray Scene record format:
-pvs_pat = re.compile("povrayscene \((.+)\) (\d+) (\d+) (.+)")
 
 # atomset (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 atmsetpat = re.compile("atomset \((.+)\) \((\d+), (\d+), (\d+)\)")
@@ -424,7 +418,11 @@ def register_MMP_RecordParser(recordname, recordParser):
 # We do this directly on import, to be sure it's not done after the real ones
 # are registered, and since doing so should not cause any trouble.
 
-_RECORDNAMES_THAT_MUST_BE_REGISTERED = ['comment', 'gamess']
+_RECORDNAMES_THAT_MUST_BE_REGISTERED = [
+    'comment',
+    'gamess',
+    'povrayscene'
+ ]
     ### TODO: extend this list as more parsers are moved out of this file
 
 for recordname in _RECORDNAMES_THAT_MUST_BE_REGISTERED:
@@ -873,23 +871,6 @@ class _readmmp_state:
         as.color = col
         self.addmember(as)
         
-    # Read the MMP record for a POV-Ray Scene as:
-    # povrayscene (name) width height output_type
-
-    def _read_povrayscene(self, card):
-        m = pvs_pat.match(card)
-        name = m.group(1)
-        name = self.decode_name(name)
-        width = int(m.group(2)); height = int(m.group(3))
-        output_type = m.group(4)        
-        
-        params = width, height, output_type
-        pvs = PovrayScene(self.assy, name, params)
-        self.addmember(pvs)
-        # for interpreting "info povrayscene" records:
-        self.set_info_object('povrayscene', pvs)
-        return
-    
     def _read_espimage(self, card):
         """
         Read the MMP record for an ESP Image jig as:

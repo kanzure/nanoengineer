@@ -58,6 +58,9 @@ def register_MMP_RecordParsers(): #bruce 071019
     import jig_Gamess
     jig_Gamess.register_MMP_RecordParser_for_Gamess()
 
+    import PovrayScene
+    PovrayScene.register_MMP_RecordParser_for_PovrayScene()
+
     # TODO: add more of these.
     
     return

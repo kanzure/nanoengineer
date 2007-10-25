@@ -29,6 +29,10 @@ import platform
 from PlatformDependent import find_or_make_Nanorex_subdir
 from debug import print_compact_traceback
 
+import re
+from files_mmp import MMP_RecordParser
+from files_mmp import register_MMP_RecordParser
+
 POVNum = 0
 
 def generate_povrayscene_name(assy, prefix, ext):
@@ -429,7 +433,8 @@ class ImageViewer(QDialog):
         caption = image_filename + " (" + str(width) + " x " + str(height) + ")"
         self.setWindowTitle(caption)
 
-        if name is None: name = "ImageViewer"
+        if name is None:
+            name = "ImageViewer"
         self.setObjectName(name)
 
         self.pixmapLabel = QLabel(self)
@@ -452,6 +457,39 @@ class ImageViewer(QDialog):
             # Probably need to use a QScrollView for large images. Mark 060701.
         return
     pass
+
+# ==
+
+# POV-Ray Scene record format:
+pvs_pat = re.compile("povrayscene \((.+)\) (\d+) (\d+) (.+)")
+
+class _MMP_RecordParser_for_PovrayScene( MMP_RecordParser): #bruce 071024
+    """
+    Read the MMP record for a POV-Ray Scene as:
+
+    povrayscene (name) width height output_type
+    """
+    def read_record(self, card):
+        m = pvs_pat.match(card)
+        name = m.group(1)
+        name = self.decode_name(name)
+        width = int(m.group(2))
+        height = int(m.group(3))
+        output_type = m.group(4)
+        params = width, height, output_type
+        pvs = PovrayScene(self.assy, name, params)
+        self.addmember(pvs)
+        # for interpreting "info povrayscene" records:
+        self.set_info_object('povrayscene', pvs)
+        return
+    pass
+
+def register_MMP_RecordParser_for_PovrayScene():
+    """
+    [call this during init, before reading any mmp files]
+    """
+    register_MMP_RecordParser( 'povrayscene', _MMP_RecordParser_for_PovrayScene )
+    return
 
 # end
 
