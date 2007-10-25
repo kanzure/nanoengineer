@@ -116,6 +116,9 @@ from movieMode import movieMode
 from ZoomMode import ZoomMode
 from PanMode import PanMode
 from RotateMode import RotateMode
+from LineMode import LineMode
+from DnaLineMode    import DnaLineMode
+#from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 from modeMixin import modeMixin
 
 import platform
@@ -345,7 +348,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     mode_classes = [selectMolsMode, selectAtomsMode, modifyMode, depositMode,
                     cookieMode, extrudeMode, fusechunksMode,
                     movieMode, ZoomMode, PanMode, RotateMode, 
-                    PasteMode, PartLibraryMode]
+                    PasteMode, PartLibraryMode, 
+		    LineMode, DnaLineMode]
+		    ##,SketchMode] #Sketchmode not implemented yet
     
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
