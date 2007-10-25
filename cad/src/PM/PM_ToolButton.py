@@ -118,8 +118,8 @@ class PM_ToolButton( QToolButton ):
         
         # Set icon
         if os.path.exists(iconPath):
-                self.setIcon(geticon(iconPath))
-                self.setIconSize(QSize(22, 22))
+            self.setIcon(geticon(iconPath))
+            self.setIconSize(QSize(22, 22))
         
         # Set default text
         self.defaultText  = text
