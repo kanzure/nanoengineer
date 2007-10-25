@@ -7,6 +7,8 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 from icon_utilities import geticon
 
+import Ui_DnaFlyout
+
 def setupUi(win):
     """Construct the QWidgetActions for the Build menu and buttons on the 
     Command Manager toolbar (and main menu bar).
@@ -47,6 +49,8 @@ def setupUi(win):
     win.buildStructuresMenu.addAction(win.insertNanotubeAction)
     win.buildStructuresMenu.addAction(win.insertGrapheneAction)
     win.buildStructuresMenu.addAction(MainWindow.toolsCookieCutAction)
+
+    Ui_DnaFlyout.setupUi(MainWindow)
     
     # Atom Generator (Developer Example). Mark 2007-06-08
     win.insertAtomAction = QtGui.QWidgetAction(MainWindow)

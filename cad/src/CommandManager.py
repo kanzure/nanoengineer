@@ -38,7 +38,7 @@ class CommandManager(Ui_CommandManager):
     the Menu of that command button (in most cases). The flyout toolbar can be
     divided into two areas: Subcontrol Area (greenish color)
     and Command Area. The 'Command Area' shows commands based on the 
-    checke SubControl Area button.Thus it could be empty in some situations. 
+    checked SubControl Area button.  Thus it could be empty in some situations. 
     """
     
     def __init__(self, win):
@@ -92,7 +92,7 @@ class CommandManager(Ui_CommandManager):
                 for a in menu.actions():
                     # 'action' is self.currentAction which is obtained 
                     #when the 'updateCommandManager method is called
-                    #while entering a mode , for instance. 
+                    #while entering a mode , for instance.
                     if a is action :
                         flyoutActionList = []                   
                         flyoutDictionary = self._getFlyoutDictonary()
@@ -176,8 +176,8 @@ class CommandManager(Ui_CommandManager):
     def updateCommandManager(self, action, obj, entering = True): #Ninad 070125
         """ Update the command manager (i.e. show the appropriate toolbar) 
         depending upon, the command button pressed . 
-        It calls a privet method that updates the SubcontrolArea and flyout 
-        toolbar based on the ControlAra button checked and also based on the 
+        It calls a private method that updates the SubcontrolArea and flyout 
+        toolbar based on the ControlArea button checked and also based on the 
         SubcontrolArea button checked. 
         @param obj: Object that requests its own Command Manager flyout toolbar
                     This can be a B{mode} or a B{generator}. 
@@ -223,6 +223,7 @@ class CommandManager(Ui_CommandManager):
         #This was earlier defined in each mode needing a flyout toolbar
 
         params = obj.getFlyoutActionList()
+        # XXXXXXXXXXXXXXXX The semantics of these lists need to be clearly defined!
         subControlAreaActionList, commandActionLists, allActionsList = params
         
         flyoutDictionary = self._createFlyoutDictionary(params) 
@@ -258,7 +259,7 @@ class CommandManager(Ui_CommandManager):
                 
                 #ninad 070201 temporary solution -- truncate the toolbutton 
                 #text if too long. 
-                text = self.truncateText(action.text())          
+                text = self.truncateText(action.text())
                 btn.setText(text)
                          
                 #@@@ ninad070125 The following function 

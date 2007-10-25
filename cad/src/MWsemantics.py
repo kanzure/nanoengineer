@@ -58,6 +58,8 @@ from debug_prefs import debug_pref, Choice_boolean_False
 from MainWindowUI import Ui_MainWindow
 from utilities.Log import greenmsg, redmsg, orangemsg
 
+import Ui_DnaFlyout
+
 from movieMode import movieDashboardSlotsMixin
 from ops_files import fileSlotsMixin
 from ops_files import recentfiles_use_QSettings
@@ -221,7 +223,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.helpKeyboardShortcutsAction,SIGNAL("triggered()"),self.helpKeyboardShortcuts)
         self.connect(self.helpMouseControlsAction,SIGNAL("triggered()"),self.helpMouseControls)
         self.connect(self.helpWhatsThisAction,SIGNAL("triggered()"),self.helpWhatsThis)
-        self.connect(self.buildDnaAction,SIGNAL("triggered()"),self.insertDna)
+        #self.connect(self.buildDnaAction,SIGNAL("triggered()"),self.insertDna)
+        self.connect(self.buildDnaAction,SIGNAL("triggered()"),self.activateDnaTool)
         self.connect(self.insertCommentAction,SIGNAL("triggered()"),self.insertComment)
         self.connect(self.insertNanotubeAction,SIGNAL("triggered()"),self.insertNanotube)
         self.connect(self.insertGrapheneAction,SIGNAL("triggered()"),self.insertGraphene)
@@ -1952,6 +1955,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
     def insertNanotube(self):
         self.ensureInCommand('SELECTMOLS')
         self.nanotubecntl.show()
+
+    def activateDnaTool(self):
+        Ui_DnaFlyout.activateDnaFlyout(self)
 
     def insertDna(self):
         self.ensureInCommand('SELECTMOLS')
