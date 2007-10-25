@@ -82,6 +82,25 @@ def getDuplexLength(conformation, numberOfBases):
     assert numberOfBases >= 0
     return getDuplexRise(conformation) * numberOfBases
 
+def getNumberOfBasesFromDuplexLength(conformation, duplexLength):
+    """
+    Returns the number of base-pairs in the duplex given the conformation
+    and the duplex length.
+    
+    @param conformation: "A-DNA", "B-DNA", or "Z-DNA"
+    @type  conformation: str
+    
+    @param duplexLength: The duplex length in Angstroms. (0 or positive value)
+    @type  duplexLength: float
+    
+    @return:  The number of base-pairs in the duplex
+    @rtype: int
+    """
+    assert conformation in ("A-DNA", "B-DNA", "Z-DNA")
+    assert duplexLength >= 0
+    return duplexLength / getDuplexRise(conformation)
+
+
 def getComplementSequence(inSequence):
     """
     Returns the complement of the DNA sequence I{inSequence}.
