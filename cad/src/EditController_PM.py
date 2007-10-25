@@ -14,8 +14,11 @@ from this class to use common methods such as ok_btn_cliked.
 import env
 
 from PM.PM_Dialog import PM_Dialog
+from PyQt4.Qt import QFileDialog, QMessageBox, QString, QWidgetAction, QAction
+from PyQt4.Qt import SIGNAL
 
 from GeneratorBaseClass import AbstractMethod
+from icon_utilities import geticon
 
 class EditController_PM(PM_Dialog):
     """    
@@ -30,7 +33,7 @@ class EditController_PM(PM_Dialog):
     pmName = title
     # The relative path to the PNG file that appears in the header
     iconPath = ""
-    
+        
     def __init__(self, win, editController):
         """
         Constructor for the EditController_PM
@@ -45,10 +48,14 @@ class EditController_PM(PM_Dialog):
         # might be one of them .--- ninad 20070613
         
         self.editController = editController
-        self.struct = self.editController.struct
+        if editController:
+            self.struct = self.editController.struct
+	    
         self.win      =  win
+	self.w = win
         self.pw       =  None     
         self.modePropertyManager = None
+	
         
         PM_Dialog.__init__(self, 
                            self.pmName, 
@@ -56,6 +63,7 @@ class EditController_PM(PM_Dialog):
                            self.title
                            )
         self._addGroupBoxes()
+	self._createFlyoutActions()
         self._addWhatsThisText()
     
     def show(self):
@@ -63,7 +71,9 @@ class EditController_PM(PM_Dialog):
         Shows the Property Manager. Overrides PM_Dialog.show)
         """
         PM_Dialog.show(self)
+	self.connect_or_disconnect_signals(isConnect = True)
         self.enable_or_disable_gui_actions(bool_enable = False)
+	self.updateCommandManager(bool_entering = True)
     
     def close(self):
         """
@@ -71,6 +81,7 @@ class EditController_PM(PM_Dialog):
         """
         self.connect_or_disconnect_signals(False)
         self.enable_or_disable_gui_actions(bool_enable = True)
+	self.updateCommandManager(bool_entering = False)
         PM_Dialog.close(self) 
         
     
@@ -82,8 +93,16 @@ class EditController_PM(PM_Dialog):
                           method. 
         @type  isConnect: boolean
         """
-        #To be implemented here or in subclasses. 
-        pass
+	if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect
+	    
+	if self.exitEditControllerAction:	    
+	    change_connect(self.exitEditControllerAction, 
+			   SIGNAL("triggered()"), 
+			   self.close)
+       
     
     def update_props_if_needed_before_closing(self):
         """
@@ -107,8 +126,8 @@ class EditController_PM(PM_Dialog):
         # [ninad 2007-10-09 comment]    
         
         #called from updatePropertyManager in Ui_PartWindow.py (Partwindowclass)
-
-        self.struct.updateCosmeticProps()
+        if hasattr(self.struct, 'updateCosmeticProps'):
+            self.struct.updateCosmeticProps()
         self.enable_or_disable_gui_actions(bool_enable = True)
     
     def enable_or_disable_gui_actions(self, bool_enable = False):
@@ -139,11 +158,12 @@ class EditController_PM(PM_Dialog):
     def ok_btn_clicked(self):
         """
         Slot for the OK button
-        """       
-        self.editController.preview_or_finalize_structure(previewing = False)
+        """   
+        if self.editController:
+            self.editController.preview_or_finalize_structure(previewing = False)
+            env.history.message(self.editController.logMessage)
+            
         self.accept() 
-        
-        env.history.message(self.editController.logMessage)
         
         self.close() # Close the property manager.        
                
@@ -170,7 +190,8 @@ class EditController_PM(PM_Dialog):
         """
         Slot for the Cancel button.
         """
-        self.editController.cancelStructure()
+        if self.editController:
+            self.editController.cancelStructure()
         self.reject() 
         self.close() 
         
@@ -193,7 +214,8 @@ class EditController_PM(PM_Dialog):
         """
         self.editController.preview_or_finalize_structure(previewing = True)
         env.history.message(self.editController.logMessage)
-            
+    
+          
     def abort_btn_clicked(self):
         """
         Slot for Abort button
@@ -210,6 +232,68 @@ class EditController_PM(PM_Dialog):
         """
         Show what's this text
         """
-        pass  
+        pass 
+    
+    def updateMessage(self, message = ''):
+        """
+        Updates the message box with an informative message
+        @param message: Message to be displayed in the Message groupbox of 
+                        the property manager
+        @type  message: string
+        """
+        msg = message
+        self.MessageGroupBox.insertHtmlMessage(msg, 
+                                               setAsDefault = False,
+                                               minLines     = 5)  
+    
+    def _createFlyoutActions(self):
+        self.exitEditControllerAction = QWidgetAction(self.win)
+	if self.editController:
+	    text = "Exit " + self.editController.cmdname
+	else:
+	    text = "Exit"
+        self.exitEditControllerAction.setText(text)
+        self.exitEditControllerAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitEditControllerAction.setCheckable(True)
+            
+    def getFlyoutActionList(self): 
+	""" 
+	returns custom actionlist that will be used in a specific mode 
+	or editing a feature etc Example: while in movie mode, 
+	the _createFlyoutToolBar method calls
+	this 
+	Subclasses must override this method if they need their own flyout 
+	toolbar
+	"""	
+		
+	#'allActionsList' returns all actions in the flyout toolbar 
+	#including the subcontrolArea actions
+	allActionsList = []
+	
+	#Action List for  subcontrol Area buttons. 
+	#In this mode there is really no subcontrol area. 
+	#We will treat subcontrol area same as 'command area' 
+	#(subcontrol area buttons will have an empty list as their command area 
+	#list). We will set  the Comamnd Area palette background color to the
+	#subcontrol area.
+	
+	subControlAreaActionList =[] 
+	
+	#Action list for the command area button (the actions meant for the 
+	commandActionLists = []	
+		
+	params = (subControlAreaActionList, commandActionLists, allActionsList)
+	
+	return params
+    
+    def updateCommandManager(self, bool_entering = True):
+	"""
+	Update the command manager
+	Subclasses should override this method if they need their flyout toolbar
+	"""	
+	
+	#Note to Eric M:
+	# This needs cleanup. This is a temporary implementation --ninad20071025
+	pass
     
     
