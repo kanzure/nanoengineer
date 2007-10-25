@@ -333,12 +333,30 @@ class Node( StateMixin):
             pass # not sure if it would be correct to call assy.changed in this case (when there's no part set) [bruce 060227 comment]
         return
     
-    def is_group(self): #bruce 050216
-        """Is self a Group node (i.e. an instance of Group or a subclass)?
-        This is almost as deprecated as isinstance(self, Group),
-        but not quite, since this would work if Utility was reloaded but that would not!
-        (This doesn't yet matter in practice since there are probably other big obstacles
+    def is_group(self): #bruce 050216; docstring revised 071024
+        """
+        Is self a Group node (i.e. an instance of Group or a subclass)?
+
+        Usage note: assuming something is known to be a Node,
+        something.is_group() is preferable to isinstance(something, Group),
+        due to its flexibility in case of future semantics changes,
+        and to the fact that it doesn't require an import of Utility.
+        (Also, this method would work if Utility was reloaded, but isinstance would not.
+         This doesn't yet matter in practice since there are probably other big obstacles
          to reloading Utility during debugging.)
+
+        However, isinstance(obj, Group_API) (NIM) might be even better,
+        since it works for any type of obj, and some of our code is
+        polymorphic enough for that to matter. So don't go converting
+        isinstance(something, Group) to something.is_group() whereever
+        possible, just yet.
+        
+        WARNING: future changes may require us to disambiguate whether
+        this refers to an "internal Group" or to "something that acts in the
+        model tree as a Group". The former (lower-level) meaning is the intended
+        one, but some calls may need to be changed to a new method corresponding
+        to the other meaning, if these aspects of a Node diverge.
+        
         [overridden in Group]
         """
         return False # for a leaf node
