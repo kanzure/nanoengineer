@@ -120,6 +120,9 @@ from OpenGL.GL import glVertex3f
 from OpenGL.GL import glVertex3fv
 from OpenGL.GL import GL_VERTEX_ARRAY
 from OpenGL.GL import glVertexPointer
+from OpenGL.GL import glPointSize
+from OpenGL.GL import GL_POINTS
+from OpenGL.GL import GL_POINT_SMOOTH
 
 from OpenGL.GLU import gluBuild2DMipmaps
 
@@ -1147,11 +1150,12 @@ class ColorSorter:
 	    #Apply appropriate opacity for the object if it is specified
 	    #in the 'color' param. (Also do necessary things such as 
 	    #call glBlendFunc it. -- Ninad 20071009
+	    
 	    if len(color) == 4:
 		opacity = color[3]
 	    else:
 		opacity = 1.0
-	    
+		
 	    if opacity != 1.0:	
 		glDepthMask(GL_FALSE)
 		glEnable(GL_BLEND)
@@ -1171,15 +1175,14 @@ class ColorSorter:
 
     schedule = staticmethod(schedule)
 
-
-    def schedule_sphere(color, pos, radius, detailLevel):
+    def schedule_sphere(color, pos, radius, detailLevel, opacity = 1.0):
         """\
         Schedule a sphere for rendering whenever ColorSorter thinks is
         appropriate.
         """
         if use_c_renderer and ColorSorter.sorting:
             if len(color) == 3:
-                lcolor = (color[0], color[1], color[2], 1.0)
+                lcolor = (color[0], color[1], color[2], opacity)
             else:
                 lcolor = color
             ColorSorter._cur_shapelist.add_sphere(lcolor, pos, radius,
@@ -1191,7 +1194,11 @@ class ColorSorter:
                 raise ValueError, "unexpected different sphere LOD levels within same frame"
             ColorSorter.sphereLevel = detailLevel
         else: # Older sorted material rendering
-            ColorSorter.schedule(color, drawsphere_worker, (pos, radius, detailLevel))
+	    if len(color) == 3:		
+		lcolor = (color[0], color[1], color[2], opacity)
+	    else:
+		lcolor = color	
+            ColorSorter.schedule(lcolor, drawsphere_worker, (pos, radius, detailLevel))
 
     schedule_sphere = staticmethod(schedule_sphere)
 
@@ -1217,7 +1224,7 @@ class ColorSorter:
             ColorSorter.schedule(lcolor, drawcylinder_worker, (pos1, pos2, radius, capped))
 
     schedule_cylinder = staticmethod(schedule_cylinder)
-
+    
     def schedule_surface(color, pos, radius, tm, nm):
         """\
         Schedule a surface for rendering whenever ColorSorter thinks is
@@ -1738,12 +1745,16 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     glPopMatrix()
     return
 
-def drawsphere(color, pos, radius, detailLevel):
+def drawsphere(color, pos, radius, detailLevel, opacity = 1.0):
     """Schedule a sphere for rendering whenever ColorSorter thinks is
     appropriate."""
-    ColorSorter.schedule_sphere(color, pos, radius, detailLevel)
+    ColorSorter.schedule_sphere(color, 
+				pos, 
+				radius, 
+				detailLevel, 
+				opacity = opacity)
 
-def drawwiresphere(color, pos, radius, detailLevel=1):
+def drawwiresphere(color, pos, radius, detailLevel = 1):
     ## assert detailLevel == 1 # true, but leave out for speed
     from debug_prefs import debug_pref, Choice_boolean_True
     newway = debug_pref("new wirespheres?", Choice_boolean_True) #bruce 060415 experiment, re iMac G4 wiresphere bug; fixes it!
@@ -1830,6 +1841,36 @@ def drawPolyLine(color, points):
    
     glEnable(GL_LIGHTING)
     return
+
+def drawPoint(color, 
+	      point, 
+	      pointSize = 3.0,
+	      isRound = True):
+    """
+    Draw a point using GL_POINTS. 
+    @param point: The x,y,z coordinate array/ vector of the point 
+    @type point: A or V
+    @param pointSize: The point size to be used by glPointSize
+    @type pointSize: float
+    @param isRound: If True, the point will be drawn round otherwise square
+    @type isRound: boolean
+    """
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    glPointSize(float(pointSize))
+    if isRound:
+	glEnable(GL_POINT_SMOOTH)
+    glBegin(GL_POINTS)
+    glVertex3fv(point)       
+    glEnd()
+    if isRound:
+	glDisable(GL_POINT_SMOOTH)
+    
+    glEnable(GL_LIGHTING)
+    if pointSize != 1.0:
+	glPointSize(1.0)
+    return
+    
 
 def drawLineCube(color, pos, radius):
     vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
