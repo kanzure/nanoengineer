@@ -9,8 +9,6 @@ $Id$
 History:
 
 bruce 050507 made this by collecting appropriate methods from class Part.
-
-bruce 050913 used env.history in some places.
 """
 
 from utilities.Log import greenmsg, redmsg
@@ -28,12 +26,15 @@ from Utility     import Group
 
 
 class ops_motion_Mixin:
-    "Mixin class for providing these methods to class Part"
-    
+    """
+    Mixin class for providing these methods to class Part
+    """
     ###@@@ move/rot should be extended to apply to jigs too (and fit into some naming convention)
     
     def movesel(self, offset):
-        "move selected chunks and jigs in space"
+        """
+        move selected chunks and jigs in space
+        """
         movables = self.getSelectedMovables()
         
         for m in movables:
@@ -42,8 +43,10 @@ class ops_motion_Mixin:
   
   
     def rotsel(self, quat):
-        '''Rotate selected chunks/jigs in space. [Huaicai 8/30/05: Fixed the problem of each rotating
-           around its own center, they will now rotate around their common center]'''
+        """
+        Rotate selected chunks/jigs in space. [Huaicai 8/30/05: Fixed the problem of each rotating
+        around its own center, they will now rotate around their common center]
+        """
         # Find the common center of all selected chunks to fix bug 594 
         comCenter = V(0.0, 0.0, 0.0)
             
@@ -92,8 +95,9 @@ class ops_motion_Mixin:
     
     #invert a chunk
     def Invert(self):
-        '''Invert the atoms of the selected chunk(s)'''
-
+        """
+        Invert the atoms of the selected chunk(s)
+        """
         mc = env.begin_op("Invert")
         cmd = greenmsg("Invert: ")
         
@@ -112,7 +116,9 @@ class ops_motion_Mixin:
     
     #Mirror the selected chunks 
     def Mirror(self):
-        "Mirror the selected chunk(s) about a selected grid plane."
+        """
+        Mirror the selected chunk(s) about a selected grid plane.
+        """
         cmd = greenmsg("Mirror: ")
         #ninad060814 this is necessary to fix a bug. Otherwise program will 
         #crash if you try to mirror when the top node of the part 
@@ -198,7 +204,6 @@ class ops_motion_Mixin:
         @type  jigToMirror: instance of class Jig
         @see:  self.Mirror
         """
-        
         j = jigToMirror
         # ninad060813 This gives an orthogonal distance between the chunk 
         # center and mirror plane.
@@ -217,13 +222,15 @@ class ops_motion_Mixin:
         #mirror operation
         if isinstance(j, Motor):
             j.reverse_direction()
-            
+        return
             
     def getQualifiedMirrorJigs(self):
-        '''Returns a list of objects that can be used as a   
+        """
+        Returns a list of objects that can be used as a   
         reference in Mirror Feature. (referece plane and grid planes are valid 
         objects). Only the first object in this list is used for mirror. 
-        See Mirror method for details'''
+        See Mirror method for details
+        """
         
         jigs = self.assy.getSelectedJigs()
         mirrorJigs = []
@@ -235,9 +242,10 @@ class ops_motion_Mixin:
         return mirrorJigs
     
     def align_NEW(self):
-        '''Align the axes of the selected movables to the axis of the movable
-        that is placed at the highest order in the Model Tree'''
-        
+        """
+        Align the axes of the selected movables to the axis of the movable
+        that is placed at the highest order in the Model Tree
+        """
         #@@This is not called yet.
         #method *always* uses the MT order to align chunks or jigs   
         #This supports jigs (including reference planes) but it has following
@@ -276,9 +284,12 @@ class ops_motion_Mixin:
         info = fix_plurals( "Aligned %d item(s)" % (len(movables) - 1) ) \
             + " to axis of %s" % movables[0].name
         env.history.message( cmd + info)
-            
+        return
     
     def align(self):
+        """
+        
+        """
         cmd = greenmsg("Align to Common Axis: ")     
  
         if len(self.selmols) < 2:
@@ -301,8 +312,9 @@ class ops_motion_Mixin:
     
     #Ninad 060904 The following is not called from UI. Need to see if this is useful to the user. 
     def alignPerpendicularToPlane(self):
-        ''' Aligns the axes of selected jigs or chunks perpendicular to a reference plane'''
-
+        """
+        Aligns the axes of selected jigs or chunks perpendicular to a reference plane
+        """
         cmd = greenmsg("Align to Plane:")
         
         referencePlaneList = self.getQualifiedReferencePlanes()
@@ -338,7 +350,9 @@ class ops_motion_Mixin:
             
                  
     def getQualifiedReferencePlanes(self, jigs): #Ninad 060904
-        "Returns a list of jigs that can be used a  reference plane in align to plane feature."
+        """
+        Returns a list of jigs that can be used a  reference plane in align to plane feature.
+        """
         referencePlaneList = []
         for j in jigs:
             if j.mmp_record_name is "gridplane":
