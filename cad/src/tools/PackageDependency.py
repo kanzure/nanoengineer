@@ -383,12 +383,30 @@ packageMapping = {
     "ZoomMode"                     : "ui",
     }
 
+packageColors = {
+    "ui"          : "#8060ff",
+    "PM"          : "#8080ff",
+    "graphics"    : "#80a0ff",
+
+    "model"       : "#80ff60",
+    "foundation"  : "#80ff80",
+    "exprs"       : "#80ffa0",
+
+    "io"          : "#ffff80",
+    "utilities"   : "#ffe080",
+
+    "examples"    : "#ff4040",
+    "test"        : "#ff4080",
+    "top"         : "#ff40a0",
+    }
+
 filesToProcess = []
 optionPrintUnreferenced = False
 optionPrintTables = False
 optionJustCycles = False
 optionByPackage = False
 optionDontPrune = False
+optionColorPackages = False
 
 moduleNameToImportList = {}
 
@@ -414,19 +432,19 @@ def fileNameToModuleName(fileName):
     fileName = fileName.replace("/", ".")
     return fileName
 
-def _dotReplacement(moduleName):
+def dotReplacement(moduleName):
     ret = moduleName.replace(".", "_")
     ret = ret.replace("-", "_")
     return ret
     
-def moduleToDotNode(moduleName):
-    if (optionByPackage):
+def moduleToDotNode(moduleName, returnPackageName):
+    if (returnPackageName):
         if (moduleName in libraryReferences):
             return "library"
         if (packageMapping.has_key(moduleName)):
             return packageMapping[moduleName]
         if (isPackage(moduleName)):
-            return _dotReplacement(moduleName)
+            return moduleName
         mod = moduleName
         while (True):
             i = mod.rfind(".")
@@ -434,8 +452,8 @@ def moduleToDotNode(moduleName):
                 return "top"
             mod = mod[:i]
             if (isPackage(mod)):
-                return _dotReplacement(mod)
-    return _dotReplacement(moduleName)
+                return mod
+    return moduleName
 
 def printPackage(fromPackageName, toPackageName, fromModuleName, toModuleName):
     if (optionByPackage):
@@ -445,7 +463,7 @@ def printPackage(fromPackageName, toPackageName, fromModuleName, toModuleName):
 def importsInFile(fileName):
     importSet = set([])
     fromModuleName = fileNameToModuleName(fileName)
-    fromModule = moduleToDotNode(fromModuleName)
+    fromModule = moduleToDotNode(fromModuleName, optionByPackage)
     f = open(fileName)
     for line in f:
         m = fromImportLineRegex.match(line)
@@ -459,12 +477,12 @@ def importsInFile(fileName):
                     if (m):
                         toModuleName = m.group(1)
                     toModuleName = packageName + "." + toModuleName
-                    toModule = moduleToDotNode(toModuleName)
+                    toModule = moduleToDotNode(toModuleName, optionByPackage)
                     if (toModule != fromModule):
                         importSet.add(toModule)
                         printPackage(fromModule, toModule, fromModuleName, toModuleName)
             else:
-                toModule = moduleToDotNode(m.group(1))
+                toModule = moduleToDotNode(m.group(1), optionByPackage)
                 if (toModule != fromModule):
                     importSet.add(toModule)
                     printPackage(fromModule, toModule, fromModuleName, m.group(1))
@@ -477,7 +495,7 @@ def importsInFile(fileName):
                 m = asRegex.match(toModuleName)
                 if (m):
                     toModuleName = m.group(1)
-                toModule = moduleToDotNode(toModuleName)
+                toModule = moduleToDotNode(toModuleName, optionByPackage)
                 if (toModule != fromModule):
                     importSet.add(toModule)
                     printPackage(fromModule, toModule, fromModuleName, toModuleName)
@@ -488,6 +506,28 @@ def importsInFile(fileName):
     importList = list(importSet)
     importList.sort()
     moduleNameToImportList[fromModule] = importList
+
+nodeColors = {}
+
+packageNodes = []
+
+def createNode(name, fullModuleName):
+    if (optionByPackage or not optionColorPackages or nodeColors.has_key(name)):
+        return
+    packageName = moduleToDotNode(fullModuleName, True)
+    if (packageColors.has_key(packageName)):
+        nodeColors[name] = packageColors[packageName]
+        print '    %s [fillcolor="%s"];' % (name, nodeColors[name])
+    else:
+        print >>sys.stderr, "undefined package color: " + packageName
+
+def printEdge(fromNode, toNode):
+    fn = dotReplacement(fromNode)
+    tn = dotReplacement(toNode)
+    createNode(fn, fromNode)
+    createNode(tn, toNode)
+    print "    %s -> %s;" % (fn, tn)
+    
 
 def dependenciesInFile(fromModuleName, printing):
     if (fromModuleName in pruneModules or fromModuleName in unreferencedModules):
@@ -501,7 +541,7 @@ def dependenciesInFile(fromModuleName, printing):
             continue
 
         if (printing and toModuleName != "library" and toModuleName != "top" and toModuleName != "tools"):
-            print "    %s -> %s;" % (fromModuleName, toModuleName)
+            printEdge(fromModuleName, toModuleName)
 
         if (fromModuleCount.has_key(fromModuleName)):
             fromModuleCount[fromModuleName] += 1
@@ -545,7 +585,7 @@ def pruneTree():
 
     alreadyProcessed = []
     for sourceFile in filesToProcess:
-        fromModuleName = moduleToDotNode(fileNameToModuleName(sourceFile))
+        fromModuleName = moduleToDotNode(fileNameToModuleName(sourceFile), optionByPackage)
         if (not fromModuleName in alreadyProcessed):
             alreadyProcessed += [fromModuleName]
             prunedModule = dependenciesInFile(fromModuleName, False)
@@ -572,36 +612,62 @@ inThisCycle = set([])
 inAnyCycle = set([])
 visited = {}
 
-def isInCycle(moduleName, cycleRoot):
+debugCycle = False
+
+def isInCycle(moduleName, cycleRoot, debugPrefix):
     global visited
 
     if (moduleName == cycleRoot):
+        if (debugCycle):
+            print debugPrefix + "Got to root"
         return True
     if (visited.has_key(moduleName)):
+        if (debugCycle):
+            print debugPrefix + "Already visited %s, returning %s" % (moduleName, visited[moduleName])
         return visited[moduleName]
     if (moduleName in pruneModules or moduleName in unreferencedModules or moduleName in externalModules):
+        if (debugCycle):
+            print debugPrefix + "Pruning " + moduleName
         return False
     importList = moduleNameToImportList[moduleName]
     visited[moduleName] = False
     for toModuleName in importList:
-        if (isInCycle(toModuleName, cycleRoot)):
+        if (debugCycle):
+            print debugPrefix + "Descending to " + toModuleName
+        if (isInCycle(toModuleName, cycleRoot, debugPrefix + " ")):
             visited[moduleName] = True
+            if (debugCycle):
+                print debugPrefix + "Part of cycle: %s -> %s" %(moduleName, toModuleName)
             return True
+    if (debugCycle):
+        print debugPrefix + "Not in cycle: " + moduleName
     return False
 
 def scanForCycles(cycleRoot):
     global visited
+    global debugCycle
+
+#    debugCycle = (cycleRoot == "pick a node")
 
     if (moduleName in pruneModules or moduleName in unreferencedModules or moduleName in externalModules):
+        if (debugCycle):
+            print "returning right away"
         return
-    visited = {}
+    
     removeArcs = []
     importList = moduleNameToImportList[cycleRoot]
     for toModuleName in importList:
-        if (isInCycle(toModuleName, cycleRoot)):
+        visited = {}
+        if (debugCycle):
+            print "------- starting to scan: " + toModuleName
+        if (isInCycle(toModuleName, cycleRoot, "")):
+            if (debugCycle):
+                print "in cycle: " + toModuleName
             pass
         else:
             removeArcs += [toModuleName]
+            if (debugCycle):
+                print "NOT in cycle: " + toModuleName
     for toModuleName in removeArcs:
         importList.remove(toModuleName)
     moduleNameToImportList[moduleName] = importList
@@ -610,9 +676,12 @@ def scanForCycles(cycleRoot):
 def printTree():
     initializeGlobals()
     print "digraph G {"
+    if (optionColorPackages):
+        print "    node [style=filled];"
+        print '    node [fillcolor="#ff4040"];'
     alreadyProcessed = []
     for sourceFile in filesToProcess:
-        fromModuleName = moduleToDotNode(fileNameToModuleName(sourceFile))
+        fromModuleName = moduleToDotNode(fileNameToModuleName(sourceFile), optionByPackage)
         if (not fromModuleName in alreadyProcessed):
             alreadyProcessed += [fromModuleName]
             dependenciesInFile(fromModuleName, True)
@@ -635,6 +704,8 @@ if (__name__ == '__main__'):
             optionJustCycles = True
         elif (opt == "--byPackage"):
             optionByPackage = True
+        elif (opt == "--colorPackages"):
+            optionColorPackages = True
         else:
             filesToProcess += [opt]
     scanForImports()
@@ -663,7 +734,7 @@ if (__name__ == '__main__'):
         if (optionJustCycles):
             alreadyProcessed = []
             for sourceFile in filesToProcess:
-                moduleName = moduleToDotNode(fileNameToModuleName(sourceFile))
+                moduleName = moduleToDotNode(fileNameToModuleName(sourceFile), optionByPackage)
                 if (not moduleName in alreadyProcessed):
                     alreadyProcessed += [moduleName]
                     scanForCycles(moduleName)
