@@ -46,7 +46,7 @@ class DnaFlyout(object):
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
-        subControlAreaActionList.append(self.exitDna)
+        subControlAreaActionList.append(self.exitDnaAction)
         separator = QtGui.QAction(self.parentWindow)
         separator.setSeparator(True)
         subControlAreaActionList.append(separator) 
