@@ -239,6 +239,9 @@ class ops_rechunk_Mixin:
                    backbone bond. It is either the 3' or 5' open bond singlet,
                    but we don't know yet.
         @type  x2: L{Atom}
+        
+        @return: The new strand chunk.
+        @rtype:  L{molecule}
         """
         minimize = debug_pref("Adjust open bond singlets using minimizer?",
                          Choice_boolean_False,
@@ -250,14 +253,23 @@ class ops_rechunk_Mixin:
             open_bond = singlet.bonds[0]
             if open_bond.isFivePrimeOpenBond():
                 five_prime_atom = open_bond.other(singlet)
-                atomList = self.o.assy.getConnectedAtoms([five_prime_atom])
-                dnaGroup = five_prime_atom.molecule.dad
-                random.shuffle(strandColorList) # Randomize strandColorList
-                self.makeChunkFromAtomList(atomList,
-                                           group = dnaGroup,
-                                           name = gensym("Strand"), 
-                                           color = strandColorList[0])
+            else:
+                three_prime_atom = open_bond.other(singlet)
                 
+        atomList = self.o.assy.getConnectedAtoms([five_prime_atom])
+        
+        if three_prime_atom in atomList:
+            # The strand was a closed loop strand, so we're done.
+            return five_prime_atom.molecule
+        
+        dnaGroup = five_prime_atom.molecule.dad
+        random.shuffle(strandColorList) # Randomize strandColorList
+
+        return self.makeChunkFromAtomList(atomList,
+                                          group = dnaGroup,
+                                          name = gensym("Strand"), 
+                                          color = strandColorList[0])
+
     pass # end of class ops_rechunk_Mixin
 
 # end
