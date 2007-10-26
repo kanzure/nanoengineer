@@ -37,7 +37,7 @@
             name="DNA_Object_Model.todo" />
     <historyfile name="" />
   </argo>
-<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Wed Oct 24 20:46:08 EDT 2007'>
+<XMI xmi.version = '1.2' xmlns:UML = 'org.omg.xmi.namespace.UML' timestamp = 'Thu Oct 25 21:35:41 EDT 2007'>
   <XMI.header>    <XMI.documentation>
       <XMI.exporter>ArgoUML (using Netbeans XMI Writer version 1.0)</XMI.exporter>
       <XMI.exporterVersion>0.24(5) revised on $Date: 2006-11-06 19:55:22 +0100 (Mon, 06 Nov 2006) $ </XMI.exporterVersion>
@@ -1200,6 +1200,9 @@
         </UML:Association>
         <UML:Association xmi.id = '-64--88-2-2--84b6567:1153ceb8659:-8000:0000000000000820'
           name = '' isSpecification = 'false' isRoot = 'false' isLeaf = 'false' isAbstract = 'false'>
+          <UML:ModelElement.comment>
+            <UML:Comment xmi.idref = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000097C'/>
+          </UML:ModelElement.comment>
           <UML:Association.connection>
             <UML:AssociationEnd xmi.id = '-64--88-2-2--84b6567:1153ceb8659:-8000:0000000000000821'
               visibility = 'public' isSpecification = 'false' isNavigable = 'true' ordering = 'unordered'
@@ -1328,10 +1331,10 @@
               visibility = 'public' isSpecification = 'false' isNavigable = 'true' ordering = 'unordered'
               aggregation = 'none' targetScope = 'instance' changeability = 'changeable'>
               <UML:AssociationEnd.multiplicity>
-                <UML:Multiplicity xmi.id = '-64--88-2-2--70f229d5:1153d891711:-8000:00000000000008BE'>
+                <UML:Multiplicity xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:0000000000000979'>
                   <UML:Multiplicity.range>
-                    <UML:MultiplicityRange xmi.id = '-64--88-2-2--70f229d5:1153d891711:-8000:00000000000008BD'
-                      lower = '1' upper = '2'/>
+                    <UML:MultiplicityRange xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:0000000000000978'
+                      lower = '1' upper = '-1'/>
                   </UML:Multiplicity.range>
                 </UML:Multiplicity>
               </UML:AssociationEnd.multiplicity>
@@ -1355,9 +1358,9 @@
               visibility = 'public' isSpecification = 'false' isNavigable = 'true' ordering = 'unordered'
               aggregation = 'none' targetScope = 'instance' changeability = 'changeable'>
               <UML:AssociationEnd.multiplicity>
-                <UML:Multiplicity xmi.id = '-64--88-2-2-183f2ecc:1157d2a30a8:-8000:000000000000091C'>
+                <UML:Multiplicity xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000097B'>
                   <UML:Multiplicity.range>
-                    <UML:MultiplicityRange xmi.id = '-64--88-2-2-183f2ecc:1157d2a30a8:-8000:000000000000091B'
+                    <UML:MultiplicityRange xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000097A'
                       lower = '1' upper = '-1'/>
                   </UML:Multiplicity.range>
                 </UML:Multiplicity>
@@ -1572,9 +1575,9 @@
               name = 'segments' visibility = 'public' isSpecification = 'false' ownerScope = 'instance'
               changeability = 'changeable' targetScope = 'instance'>
               <UML:StructuralFeature.multiplicity>
-                <UML:Multiplicity xmi.id = '-64--88-2-2-560b9634:115d48f529b:-8000:000000000000096A'>
+                <UML:Multiplicity xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000098B'>
                   <UML:Multiplicity.range>
-                    <UML:MultiplicityRange xmi.id = '-64--88-2-2-560b9634:115d48f529b:-8000:0000000000000969'
+                    <UML:MultiplicityRange xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000098A'
                       lower = '1' upper = '1'/>
                   </UML:Multiplicity.range>
                 </UML:Multiplicity>
@@ -1596,6 +1599,21 @@
                 </UML:Parameter>
               </UML:BehavioralFeature.parameter>
             </UML:Operation>
+            <UML:Attribute xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000098C'
+              name = 'strands' visibility = 'public' isSpecification = 'false' ownerScope = 'instance'
+              changeability = 'changeable' targetScope = 'instance'>
+              <UML:StructuralFeature.multiplicity>
+                <UML:Multiplicity xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:0000000000000998'>
+                  <UML:Multiplicity.range>
+                    <UML:MultiplicityRange xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:0000000000000997'
+                      lower = '1' upper = '1'/>
+                  </UML:Multiplicity.range>
+                </UML:Multiplicity>
+              </UML:StructuralFeature.multiplicity>
+              <UML:StructuralFeature.type>
+                <UML:Interface xmi.idref = '-64--88-2-2--84b6567:1153ceb8659:-8000:0000000000000789'/>
+              </UML:StructuralFeature.type>
+            </UML:Attribute>
           </UML:Classifier.feature>
         </UML:Class>
         <UML:Association xmi.id = '-64--88-2-2-509471d9:1156bd3bcd0:-8000:00000000000008ED'
@@ -1647,13 +1665,13 @@
                 </UML:Multiplicity>
               </UML:AssociationEnd.multiplicity>
               <UML:AssociationEnd.participant>
-                <UML:Class xmi.idref = '-64--88-2-2-509471d9:1156bd3bcd0:-8000:00000000000008C6'/>
+                <UML:Class xmi.idref = '-64--88-2-2-509471d9:1156bd3bcd0:-8000:00000000000008D5'/>
               </UML:AssociationEnd.participant>
             </UML:AssociationEnd>
           </UML:Association.connection>
         </UML:Association>
         <UML:Comment xmi.id = '-64--88-2-2-509471d9:1156bd3bcd0:-8000:0000000000000909'
-          isSpecification = 'false' body = 'Note: SegmentBlocks&#10;EITHER parent more&#10;SegmentBlocks, OR&#10;have Segments.'/>
+          isSpecification = 'false' body = 'Note: SegmentBlocks (Groups?)&#10;EITHER parent more&#10;SegmentBlocks, OR&#10;have Segments and Strands.'/>
         <UML:Class xmi.id = '-64--88-2-2-509471d9:1156bd3bcd0:-8000:000000000000090A'
           name = 'SubSegment' visibility = 'public' isSpecification = 'false' isRoot = 'false'
           isLeaf = 'false' isAbstract = 'false' isActive = 'false'>
@@ -2307,6 +2325,47 @@
             </UML:AssociationEnd>
           </UML:Association.connection>
         </UML:Association>
+        <UML:Comment xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000097C'
+          isSpecification = 'false' body = 'Strand relations (Enumeration):&#10;-Complimentary&#10;-Not (very) complimentary&#10;-Equal&#10;-Equal length&#10;-Fixed&#10;-Fixed length'>
+          <UML:Comment.annotatedElement>
+            <UML:Association xmi.idref = '-64--88-2-2--84b6567:1153ceb8659:-8000:0000000000000820'/>
+          </UML:Comment.annotatedElement>
+        </UML:Comment>
+        <UML:Association xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000097D'
+          name = '' isSpecification = 'false' isRoot = 'false' isLeaf = 'false' isAbstract = 'false'>
+          <UML:Association.connection>
+            <UML:AssociationEnd xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000097E'
+              visibility = 'public' isSpecification = 'false' isNavigable = 'true' ordering = 'unordered'
+              aggregation = 'aggregate' targetScope = 'instance' changeability = 'changeable'>
+              <UML:AssociationEnd.multiplicity>
+                <UML:Multiplicity xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:000000000000097F'>
+                  <UML:Multiplicity.range>
+                    <UML:MultiplicityRange xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:0000000000000980'
+                      lower = '1' upper = '1'/>
+                  </UML:Multiplicity.range>
+                </UML:Multiplicity>
+              </UML:AssociationEnd.multiplicity>
+              <UML:AssociationEnd.participant>
+                <UML:Class xmi.idref = '-64--88-2-2-509471d9:1156bd3bcd0:-8000:00000000000008D5'/>
+              </UML:AssociationEnd.participant>
+            </UML:AssociationEnd>
+            <UML:AssociationEnd xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:0000000000000981'
+              visibility = 'public' isSpecification = 'false' isNavigable = 'true' ordering = 'unordered'
+              aggregation = 'none' targetScope = 'instance' changeability = 'changeable'>
+              <UML:AssociationEnd.multiplicity>
+                <UML:Multiplicity xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:0000000000000985'>
+                  <UML:Multiplicity.range>
+                    <UML:MultiplicityRange xmi.id = '-64--88-20-102--7715b03d:115d9967001:-8000:0000000000000984'
+                      lower = '1' upper = '1'/>
+                  </UML:Multiplicity.range>
+                </UML:Multiplicity>
+              </UML:AssociationEnd.multiplicity>
+              <UML:AssociationEnd.participant>
+                <UML:Class xmi.idref = '-64--88-2-2--84b6567:1153ceb8659:-8000:00000000000007B6'/>
+              </UML:AssociationEnd.participant>
+            </UML:AssociationEnd>
+          </UML:Association.connection>
+        </UML:Association>
       </UML:Namespace.ownedElement>
     </UML:Model>
   </XMI.content>
@@ -2355,9 +2414,9 @@
   >
     <private>
       sourcePortFig="Fig20.0"
-      destPortFig="Fig18.0"
+      destPortFig="Fig20"
       sourceFigNode="Fig20"
-      destFigNode="Fig18"
+      destFigNode="Fig20"
     </private>
     <path name="Fig1.0"
       description="org.tigris.gef.presentation.FigPoly"
@@ -2369,13 +2428,13 @@
       <moveto x="520"
               y="168" />
       <lineto x="520"
-              y="128" />
-      <lineto x="592"
-              y="128" />
-      <lineto x="592"
-              y="200" />
+              y="160" />
+      <lineto x="584"
+              y="160" />
+      <lineto x="584"
+              y="184" />
       <lineto x="544"
-              y="200" />
+              y="184" />
     </path>
   </group>
   <group name="Fig2"
@@ -2959,7 +3018,7 @@
     />
   </group>
   <group name="Fig4"
-       description="org.argouml.uml.diagram.static_structure.ui.FigClass[920, 424, 272, 256]pathVisible=false;operationsVisible=true;attributesVisible=true"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[920, 360, 272, 256]pathVisible=false;operationsVisible=true;attributesVisible=true"
        href="-64--88-2-2--84b6567:1153ceb8659:-8000:00000000000007B6"
        fill="1"
        fillcolor="white"
@@ -2971,7 +3030,7 @@
     
     <rectangle name="Fig4.0"
       x="920"
-      y="424"
+      y="360"
       width="272"
       height="256"
       fill="1"
@@ -2980,7 +3039,7 @@
       strokecolor="black"
     />
     <group name="Fig4.1"
-         description="org.argouml.uml.diagram.ui.FigStereotypesCompartment[920, 424, 272, 2]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesCompartment[920, 360, 272, 2]"
          href="-64--88-2-2--84b6567:1153ceb8659:-8000:00000000000007B6"
          fill="1"
          fillcolor="white"
@@ -2992,7 +3051,7 @@
       
       <rectangle name="Fig4.1.0"
         x="920"
-        y="424"
+        y="360"
         width="272"
         height="2"
         fill="1"
@@ -3003,7 +3062,7 @@
     </group>
     <text name="Fig4.2"
       x="920"
-      y="426"
+      y="362"
       fill="1"
       fillcolor="white"
       stroke="0"
@@ -3012,7 +3071,7 @@
       textsize="10"
     >Strand</text>
     <group name="Fig4.3"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[921, 544, 271, 135]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[921, 480, 271, 135]"
          fill="1"
          fillcolor="white"
          stroke="0"
@@ -3023,7 +3082,7 @@
       
       <rectangle name="Fig4.3.0"
         x="921"
-        y="544"
+        y="480"
         width="271"
         height="135"
         fill="1"
@@ -3039,13 +3098,13 @@
         strokecolor="black"
       >
         <moveto x="921"
-                y="544" />
+                y="480" />
         <lineto x="1192"
-                y="544" />
+                y="480" />
       </path>
       <text name="Fig4.3.2"
         x="921"
-        y="545"
+        y="481"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3055,7 +3114,7 @@
       >getSequence(startIndex : int,endIndex : int) : String</text>
       <text name="Fig4.3.3"
         x="921"
-        y="558"
+        y="494"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3065,7 +3124,7 @@
       >setSequence(sequence : String) : void</text>
       <text name="Fig4.3.4"
         x="921"
-        y="571"
+        y="507"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3075,7 +3134,7 @@
       >getSequenceLength() : Integer</text>
       <text name="Fig4.3.5"
         x="921"
-        y="584"
+        y="520"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3085,7 +3144,7 @@
       >getLength() : float</text>
       <text name="Fig4.3.6"
         x="921"
-        y="597"
+        y="533"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3095,7 +3154,7 @@
       >getBaseLetter(index : Integer) : String</text>
       <text name="Fig4.3.7"
         x="921"
-        y="610"
+        y="546"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3105,7 +3164,7 @@
       >setBaseLetter(index : Integer,baseLetter : String) : void</text>
       <text name="Fig4.3.8"
         x="921"
-        y="623"
+        y="559"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3115,7 +3174,7 @@
       >getStrandRelations() : List</text>
       <text name="Fig4.3.9"
         x="921"
-        y="636"
+        y="572"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3125,7 +3184,7 @@
       >addStrandRelation(relation : SequenceRelation) : void</text>
       <text name="Fig4.3.10"
         x="921"
-        y="649"
+        y="585"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3135,7 +3194,7 @@
       >draw() : void</text>
     </group>
     <group name="Fig4.4"
-         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[921, 447, 271, 96]"
+         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[921, 383, 271, 96]"
          fill="1"
          fillcolor="white"
          stroke="0"
@@ -3146,7 +3205,7 @@
       
       <rectangle name="Fig4.4.0"
         x="921"
-        y="447"
+        y="383"
         width="271"
         height="96"
         fill="1"
@@ -3162,13 +3221,13 @@
         strokecolor="black"
       >
         <moveto x="921"
-                y="447" />
+                y="383" />
         <lineto x="1192"
-                y="447" />
+                y="383" />
       </path>
       <text name="Fig4.4.2"
         x="921"
-        y="448"
+        y="384"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3178,7 +3237,7 @@
       >name : String</text>
       <text name="Fig4.4.3"
         x="921"
-        y="461"
+        y="397"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3188,7 +3247,7 @@
       >baseFrameCoordinates : List</text>
       <text name="Fig4.4.4"
         x="921"
-        y="474"
+        y="410"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3198,7 +3257,7 @@
       >sequence : String</text>
       <text name="Fig4.4.5"
         x="921"
-        y="487"
+        y="423"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3208,7 +3267,7 @@
       >segments : List</text>
       <text name="Fig4.4.6"
         x="921"
-        y="500"
+        y="436"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3218,7 +3277,7 @@
       >relations : List</text>
       <text name="Fig4.4.7"
         x="921"
-        y="513"
+        y="449"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -3229,7 +3288,7 @@
     </group>
     <rectangle name="Fig4.5"
       x="920"
-      y="424"
+      y="360"
       width="272"
       height="256"
       fill="0"
@@ -3914,7 +3973,7 @@
       strokecolor="192 192 192"
     >
       <moveto x="1072"
-              y="424" />
+              y="360" />
       <lineto x="1072"
               y="144" />
       <lineto x="328"
@@ -4137,7 +4196,7 @@
       textsize="10"
     >PAM3_Model</text>
     <group name="Fig15.3"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[425, 1031, 70, 20]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[425, 1031, 72, 20]"
          fill="1"
          fillcolor="white"
          stroke="0"
@@ -4150,7 +4209,7 @@
       <rectangle name="Fig15.3.0"
         x="425"
         y="1031"
-        width="70"
+        width="72"
         height="20"
         fill="1"
         fillcolor="white"
@@ -4168,7 +4227,7 @@
       >
         <moveto x="425"
                 y="1031" />
-        <lineto x="495"
+        <lineto x="497"
                 y="1031" />
       </path>
     </group>
@@ -4273,7 +4332,7 @@
       textsize="10"
     >PAM5_Model</text>
     <group name="Fig16.3"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[481, 1071, 70, 20]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[481, 1071, 72, 20]"
          fill="1"
          fillcolor="white"
          stroke="0"
@@ -4286,7 +4345,7 @@
       <rectangle name="Fig16.3.0"
         x="481"
         y="1071"
-        width="70"
+        width="72"
         height="20"
         fill="1"
         fillcolor="white"
@@ -4304,7 +4363,7 @@
       >
         <moveto x="481"
                 y="1071" />
-        <lineto x="551"
+        <lineto x="553"
                 y="1071" />
       </path>
     </group>
@@ -4409,7 +4468,7 @@
       textsize="10"
     >AtomisticDNA_Model</text>
     <group name="Fig17.3"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[529, 1111, 109, 20]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[529, 1111, 108, 20]"
          fill="1"
          fillcolor="white"
          stroke="0"
@@ -4422,7 +4481,7 @@
       <rectangle name="Fig17.3.0"
         x="529"
         y="1111"
-        width="109"
+        width="108"
         height="20"
         fill="1"
         fillcolor="white"
@@ -4440,7 +4499,7 @@
       >
         <moveto x="529"
                 y="1111" />
-        <lineto x="638"
+        <lineto x="637"
                 y="1111" />
       </path>
     </group>
@@ -4647,7 +4706,7 @@
     </path>
   </group>
   <group name="Fig20"
-       description="org.argouml.uml.diagram.static_structure.ui.FigClass[456, 168, 88, 66]pathVisible=false;operationsVisible=true;attributesVisible=true"
+       description="org.argouml.uml.diagram.static_structure.ui.FigClass[456, 168, 88, 79]pathVisible=false;operationsVisible=true;attributesVisible=true"
        href="-64--88-2-2-509471d9:1156bd3bcd0:-8000:00000000000008D5"
        fill="1"
        fillcolor="white"
@@ -4661,7 +4720,7 @@
       x="456"
       y="168"
       width="88"
-      height="66"
+      height="79"
       fill="1"
       fillcolor="white"
       stroke="0"
@@ -4700,7 +4759,7 @@
       textsize="10"
     >SegmentBlock</text>
     <group name="Fig20.3"
-         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[457, 213, 87, 21]"
+         description="org.argouml.uml.diagram.ui.FigOperationsCompartment[457, 226, 87, 21]"
          fill="1"
          fillcolor="white"
          stroke="0"
@@ -4711,7 +4770,7 @@
       
       <rectangle name="Fig20.3.0"
         x="457"
-        y="213"
+        y="226"
         width="87"
         height="21"
         fill="1"
@@ -4727,13 +4786,13 @@
         strokecolor="black"
       >
         <moveto x="457"
-                y="213" />
+                y="226" />
         <lineto x="544"
-                y="213" />
+                y="226" />
       </path>
       <text name="Fig20.3.2"
         x="457"
-        y="214"
+        y="227"
         fill="0"
         fillcolor="white"
         stroke="0"
@@ -4743,7 +4802,7 @@
       >treeAPI() : void</text>
     </group>
     <group name="Fig20.4"
-         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[457, 191, 87, 21]"
+         description="org.argouml.uml.diagram.ui.FigAttributesCompartment[457, 191, 87, 34]"
          fill="1"
          fillcolor="white"
          stroke="0"
@@ -4756,7 +4815,7 @@
         x="457"
         y="191"
         width="87"
-        height="21"
+        height="34"
         fill="1"
         fillcolor="white"
         stroke="0"
@@ -4784,12 +4843,22 @@
         font="Dialog"
         textsize="10"
       >segments : List</text>
+      <text name="Fig20.4.3"
+        x="457"
+        y="205"
+        fill="0"
+        fillcolor="white"
+        stroke="0"
+        strokecolor="black"
+        font="Dialog"
+        textsize="10"
+      >strands : List</text>
     </group>
     <rectangle name="Fig20.5"
       x="456"
       y="168"
       width="88"
-      height="66"
+      height="79"
       fill="0"
       fillcolor="white"
       stroke="1"
@@ -4816,13 +4885,13 @@
       strokecolor="black"
     >
       <moveto x="512"
-              y="234" />
+              y="247" />
       <lineto x="512"
               y="272" />
     </path>
   </group>
   <group name="Fig22"
-       description="org.argouml.uml.diagram.static_structure.ui.FigComment[608, 168, 116, 64]pathVisible=false;"
+       description="org.argouml.uml.diagram.static_structure.ui.FigComment[592, 152, 163, 64]pathVisible=false;"
        href="-64--88-2-2-509471d9:1156bd3bcd0:-8000:0000000000000909"
        fill="1"
        fillcolor="255 255 200"
@@ -4833,9 +4902,9 @@
     </private>
     
     <rectangle name="Fig22.0"
-      x="608"
-      y="168"
-      width="116"
+      x="592"
+      y="152"
+      width="163"
       height="64"
       fill="0"
       fillcolor="white"
@@ -4849,18 +4918,18 @@
       stroke="1"
       strokecolor="black"
     >
-      <moveto x="608"
-              y="168" />
-      <lineto x="713"
-              y="168" />
-      <lineto x="723"
-              y="178" />
-      <lineto x="723"
-              y="231" />
-      <lineto x="608"
-              y="231" />
-      <lineto x="608"
-              y="168" />
+      <moveto x="592"
+              y="152" />
+      <lineto x="744"
+              y="152" />
+      <lineto x="754"
+              y="162" />
+      <lineto x="754"
+              y="215" />
+      <lineto x="592"
+              y="215" />
+      <lineto x="592"
+              y="152" />
     </path>
     <path name="Fig22.2"
       description="org.tigris.gef.presentation.FigPoly"
@@ -4869,17 +4938,17 @@
       stroke="1"
       strokecolor="black"
     >
-      <moveto x="713"
-              y="168" />
-      <lineto x="723"
-              y="178" />
-      <lineto x="713"
-              y="178" />
-      <lineto x="713"
-              y="168" />
+      <moveto x="744"
+              y="152" />
+      <lineto x="754"
+              y="162" />
+      <lineto x="744"
+              y="162" />
+      <lineto x="744"
+              y="152" />
     </path>
     <group name="Fig22.3"
-         description="org.argouml.uml.diagram.ui.FigStereotypesCompartment[610, 170, 102, 2]"
+         description="org.argouml.uml.diagram.ui.FigStereotypesCompartment[594, 154, 149, 2]"
          fill="0"
          fillcolor="white"
          stroke="0"
@@ -4890,9 +4959,9 @@
       </private>
       
       <rectangle name="Fig22.3.0"
-        x="610"
-        y="170"
-        width="102"
+        x="594"
+        y="154"
+        width="149"
         height="2"
         fill="0"
         fillcolor="white"
@@ -4901,18 +4970,18 @@
       />
     </group>
     <text name="Fig22.4"
-      x="610"
-      y="170"
+      x="594"
+      y="154"
       fill="0"
       fillcolor="white"
       stroke="0"
       strokecolor="black"
       font="Dialog"
       textsize="10"
-    >Note: SegmentBlocks
+    >Note: SegmentBlocks (Groups?)
 EITHER parent more
 SegmentBlocks, OR
-have Segments.</text>
+have Segments and Strands.</text>
   </group>
   <group name="Fig23"
        description="org.argouml.uml.diagram.ui.FigGeneralization"
@@ -5133,7 +5202,7 @@ have Segments.</text>
       strokecolor="black"
     >
       <moveto x="1008"
-              y="680" />
+              y="616" />
       <lineto x="1008"
               y="776" />
     </path>
@@ -6288,15 +6357,16 @@ Hollow diamond - aggregation/collection</text>
     textsize="10"
   >uses as a Singleton</text>
   <text name="Fig46"
-    x="472"
-    y="600"
+    x="456"
+    y="584"
     fill="1"
     fillcolor="white"
     stroke="1"
     strokecolor="white"
     font="Dialog"
     textsize="10"
-  >generates</text>
+  >generates
+via factory method</text>
   <group name="Fig47"
        description="org.argouml.uml.diagram.ui.FigAssociation"
        href="-64--88-2-2-560b9634:115d48f529b:-8000:000000000000097C"
@@ -6344,7 +6414,132 @@ Hollow diamond - aggregation/collection</text>
       <moveto x="1000"
               y="776" />
       <lineto x="1000"
-              y="680" />
+              y="616" />
+    </path>
+  </group>
+  <group name="Fig49"
+       description="org.argouml.uml.diagram.static_structure.ui.FigComment[1056, 808, 161, 96]pathVisible=false;"
+       href="-64--88-20-102--7715b03d:115d9967001:-8000:000000000000097C"
+       fill="1"
+       fillcolor="255 255 200"
+       stroke="1"
+       strokecolor="black"
+  >
+    <private>
+    </private>
+    
+    <rectangle name="Fig49.0"
+      x="1056"
+      y="808"
+      width="161"
+      height="96"
+      fill="0"
+      fillcolor="white"
+      stroke="0"
+      strokecolor="black"
+    />
+    <path name="Fig49.1"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="1"
+      fillcolor="255 255 200"
+      stroke="1"
+      strokecolor="black"
+    >
+      <moveto x="1056"
+              y="808" />
+      <lineto x="1206"
+              y="808" />
+      <lineto x="1216"
+              y="818" />
+      <lineto x="1216"
+              y="903" />
+      <lineto x="1056"
+              y="903" />
+      <lineto x="1056"
+              y="808" />
+    </path>
+    <path name="Fig49.2"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="1"
+      fillcolor="178 178 140"
+      stroke="1"
+      strokecolor="black"
+    >
+      <moveto x="1206"
+              y="808" />
+      <lineto x="1216"
+              y="818" />
+      <lineto x="1206"
+              y="818" />
+      <lineto x="1206"
+              y="808" />
+    </path>
+    <group name="Fig49.3"
+         description="org.argouml.uml.diagram.ui.FigStereotypesCompartment[1058, 810, 147, 2]"
+         fill="0"
+         fillcolor="white"
+         stroke="0"
+         strokecolor="black"
+         visibility="0"
+    >
+      <private>
+      </private>
+      
+      <rectangle name="Fig49.3.0"
+        x="1058"
+        y="810"
+        width="147"
+        height="2"
+        fill="0"
+        fillcolor="white"
+        stroke="0"
+        strokecolor="black"
+      />
+    </group>
+    <text name="Fig49.4"
+      x="1058"
+      y="810"
+      fill="0"
+      fillcolor="white"
+      stroke="0"
+      strokecolor="black"
+      font="Dialog"
+      textsize="10"
+    >Strand relations (Enumeration):
+-Complimentary
+-Not (very) complimentary
+-Equal
+-Equal length
+-Fixed
+-Fixed length</text>
+  </group>
+  <group name="Fig50"
+       description="org.argouml.uml.diagram.ui.FigAssociation"
+       href="-64--88-20-102--7715b03d:115d9967001:-8000:000000000000097D"
+       stroke="1"
+       strokecolor="black"
+  >
+    <private>
+      sourcePortFig="Fig20"
+      destPortFig="Fig4"
+      sourceFigNode="Fig20"
+      destFigNode="Fig4"
+    </private>
+    <path name="Fig50.0"
+      description="org.tigris.gef.presentation.FigPoly"
+      fill="0"
+      fillcolor="white"
+      stroke="1"
+      strokecolor="black"
+    >
+      <moveto x="544"
+              y="224" />
+      <lineto x="896"
+              y="224" />
+      <lineto x="896"
+              y="400" />
+      <lineto x="920"
+              y="400" />
     </path>
   </group>
 </pgml>
