@@ -239,24 +239,28 @@ class selectAtomsMode(selectMode):
     def update_selatom(self, 
                        event, 
                        singOnly = False, 
-                       msg_about_click = False, 
                        resort_to_prior = True):
         """
-        Keep selatom up-to-date, as atom under mouse based on <event>; 
+        Keep glpane.selatom up-to-date, as atom under mouse based on <event>; 
         When <singOnly> is True, only keep singlets up-to-date. 
         [not sure what that phrase means -- bruce 060726]
-        When <msg_about_click> is True, print a message on the statusbar 
-        about the LMB press.
-        <resort_to_prior> is disabled. 
-        [that statement seems incorrect -- bruce 060726]
-        ###@@@ correctness after rewrite not yet proven, 
-        due to delay until paintGL
+
+        Note: this method changes glpane.selatom but it
+        never changes glpane.selobj. It is deprecated
+        in favor of using update_selobj and glpane.selobj alone.
+
+        When <resort_to_prior> is true (the default), then if
+        selobj is not presently known, use the prior value;
+        otherwise use None. (As of 071025 no callers change
+        the default behavior.)
+
+        Warning: glpane.selobj is not updated except by paintGL,
+        and glpane.selatom is based on it, so after a mouse motion
+        it will not become correct until after the next repaint.
         """
         #bruce 050124 split this out of bareMotion so options can vary
-        #bruce 050610 rewrote this
-        #bruce 060726 comment: looks to me like docstring is wrong about 
-        #                      resort_to_prior, and some comments are obs.
-        # Note: it never changes glpane.selobj.
+        #bruce 071025 revised docstring, removed msg_about_click option
+        
         glpane = self.o
         if event is None:
             # event (and thus its x,y position) is not known 
@@ -269,13 +273,16 @@ class selectAtomsMode(selectMode):
             # and (when it does) might not know the correct obj...
             # so it returns True iff it did know the correct obj (or None) to 
             #store into glpane.selobj, False if not.
-        assert known in [False,True], \
+        assert known in [False, True], \
                "known should be False or True, not %r" % (known,)
-                #bruce 070224 added message to assert
+        
         # If not known, use None or use the prior one? This is up to the caller
         # since the best policy varies. Default is resort_to_prior = True since 
-        # some callers need this
-        # and I did not yet scan them all and fix them. ####@@@@ do that
+        # some callers need this and I did not yet scan them all and fix them.
+        # [bruce circa 050610]
+        # Update: it might be that resort_to_prior = True is the only
+        # correct value for any caller. Not sure. For now, leave in the code
+        # for both ways. [bruce 071025]
 
         selobj = glpane.selobj
 
@@ -285,7 +292,7 @@ class selectAtomsMode(selectMode):
                      # use
                 ## print "resort_to_prior using",glpane.selobj
                     # [this is rare, I guess since paintGL usually has time 
-                    #to run after bareMotion before clicks]
+                    #  to run after bareMotion before clicks]
             else:
                 selobj = None
         oldselatom = glpane.selatom
@@ -298,19 +305,11 @@ class selectAtomsMode(selectMode):
             atm = None # otherwise we'll use None
         glpane.selatom = atm
 
-        if msg_about_click: 
-            # [always do the above, since many things can change what it should 
-            # say] Come up with a status bar message about what we would paste
-            # now.
-            # [bruce 050124 new feature, to mitigate current lack of model 
-            # tree highlighting of pastable]
-            msg = self.describe_leftDown_action( glpane.selatom)
-            env.history.statusbar_msg( msg)
         if glpane.selatom is not oldselatom:
             # update display (probably redundant with side effect of 
-            #update_selobj; ok if it is, and I'm not sure it always is #k)
+            # update_selobj; ok if it is, and I'm not sure it always is #k)
             glpane.gl_update_highlight() # draws selatom too, since its chunk 
-            #is not hidden [comment might be obs, as of 050610]
+            # is not hidden [comment might be obs, as of 050610]
 
         return # from update_selatom
 

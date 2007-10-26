@@ -379,7 +379,8 @@ class selectMode(basicMode):
     def bareMotion(self, event): #bruce 050610 revised this
         """
         called for motion with no button down
-        [should not be called otherwise -- call update_selatom or update_selobj directly instead]
+        [should not be called otherwise -- call update_selatom
+         or update_selobj directly instead]
         """
 
         # The mouse_exceeded_distance() conditional below is a "hover highlighting" optimization. 
@@ -2538,31 +2539,29 @@ class selectMode(basicMode):
                 # Conclusion: no external setter func is required; maybe glpane
                 # has an internal one and tracks prior value.
                 glpane.gl_update_highlight() # this might or might not highlight that selobj ###e need to tell it how to decide??
-        #####@@@@@ we'll need to do this in a callback when selobj is set:
+        # someday -- we'll need to do this in a callback when selobj is set:
         ## self.update_selatom(event, msg_about_click = True)
+        # but for now, I removed the msg_about_click option, since it's no longer used,
+        # and can't yet be implemented correctly (due to callback issue when selobj
+        # is not yet known), and it tried to call a method defined only in depositMode,
+        # describe_leftDown_action, which I'll also remove or comment out. [bruce 071025]
         return not new_selobj_unknown # from update_selobj
 
 
     def update_selatom(self, 
                        event, 
                        singOnly = False, 
-                       msg_about_click = False, 
                        resort_to_prior = True):
         """
-        Keep selatom up-to-date, as atom under mouse based on <event>; 
-        When <singOnly> is True, only keep singlets up-to-date. 
-        [not sure what that phrase means -- bruce 060726]
-        When <msg_about_click> is True, print a message on the statusbar 
-        about the LMB press.
-        <resort_to_prior> is disabled. 
-        [that statement seems incorrect -- bruce 060726]
-        ###@@@ correctness after rewrite not yet proven, 
-        due to delay until paintGL
-
 	THE DEFAULT IMPLEMENTATION OF THIS METHOD DOES NOTHING. Subclasses 
-	should override this method.  
-	@see: selectAtomsMode.update_selatom for an example. 
-        """    
+	should override this method as needed.
+	
+	@see: selectAtomsMode.update_selatom for documentation.
+        """
+        # REVIEW: are any of the calls to this in selectMode methods,
+        # which do nothing except in subclasses of selectAtomsMode,
+        # indications that the code they're in doesn't make sense except
+        # in such subclasses? [bruce 071025 question]
         pass
 
 

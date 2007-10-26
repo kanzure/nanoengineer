@@ -57,8 +57,6 @@ from icon_utilities import geticon
 from Utility    import Group
 from Utility    import Node
 from Utility    import is_pastable
-from Utility    import is_pastable_onto_singlet
-from Utility    import is_pastable_into_free_space
 from Utility    import find_hotspot_for_pasting
 
 from ops_copy        import copied_nodes_for_DND
@@ -836,65 +834,6 @@ class depositMode(selectAtomsMode):
 
         return p1+k*(p2-p1) # always return a point on the line from p1 to p2
 
-    def describe_leftDown_action(self, selatom): # bruce 050124
-        # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable;
-        #  this copies a lot of logic from leftDown, which is bad, should be merged somehow --
-        #  maybe as one routine to come up with a command object, with a str method for messages,
-        #  called from here to say potential cmd or from leftDown to give actual cmd to do ##e]
-        # WARNING: this runs with every bareMotion (even when selatom doesn't change),
-        # so it had better be fast.
-        onto_open_bond = selatom and selatom.is_singlet()
-        try:
-            what = self.describe_paste_action(onto_open_bond) # always a string
-            if what and len(what) > 60: # guess at limit
-                what = what[:60] + "..."
-        except:
-            if platform.atom_debug:
-                print_compact_traceback("atom_debug: describe_paste_action failed: ")
-            what = "click to paste"
-        if onto_open_bond:
-            cmd = "%s onto bondpoint at %s" % (what, self.posn_str(selatom))
-            #bruce 050416 also indicate hotspot if we're on clipboard
-            # (and if this hotspot will be drawn in special color, since explaining that
-            #  special color is the main point of this statusbar-text addendum)
-            if selatom is selatom.molecule.hotspot and not self.viewing_main_part():
-                # also only if chunk at toplevel in clipboard (ie pastable)
-                # (this is badly in need of cleanup, since both here and chunk.draw
-                #  should not hardcode the cond for that, they should all ask the same method here)
-                if selatom.molecule in self.o.assy.shelf.members: 
-                    cmd += " (hotspot)"
-        elif selatom is not None:
-            cmd = "click to drag %r" % selatom
-            cmd += " (%s)" % selatom.atomtype.fullname_for_msg() # nested parens ###e improve    
-        else:
-            cmd = "%s at \"water surface\"" % what
-            #e cmd += " at position ..."
-        return cmd
-        
-    def describe_paste_action(self, onto_open_bond): # bruce 050124; added onto_open_bond flag, 050127
-        """
-        return a description of what leftDown would paste or deposit (and how user could do that), if done now
-        """
-        #e should be split into "determine what to paste" and "describe it"
-        # so the code for "determine it" can be shared with leftDown
-        # rather than copied from it as now
-        if self.w.depositState == 'Clipboard':
-            p = self.pastable
-            if p:
-                if onto_open_bond:
-                    ok = is_pastable_onto_singlet( p) #e if this is too slow, we'll memoize it
-                else:
-                    ok = is_pastable_into_free_space( p) # probably always true, but might as well check
-                if ok:
-                    return "click to paste %s" % self.pastable.name
-                else:
-                    return "can't paste %s" % self.pastable.name
-            else:
-                return "nothing to paste" # (trying would be an error)
-        else:
-            atype = self.pastable_atomtype()
-            return "click to deposit %s" % atype.fullname_for_msg()
-
     def pastable_element(self):
         if self.propMgr and hasattr(self.propMgr, 'elementChooser'):
             return self.propMgr.elementChooser.getElement()
@@ -914,8 +853,10 @@ class depositMode(selectAtomsMode):
         """
         Return the current pastable atomtype.
 
-        Note: This appears to be very similar (if not completely redundant) to 
-        get_atomtype_from_MMKit() in this file. 
+        [REVIEW: This appears to be very similar (if not completely redundant) to 
+        get_atomtype_from_MMKit() in this file. This is still used as of 071025;
+        that one is called only by the slot transmutePressed -- can that still
+        be called?]
         """
         #e we might extend this to remember a current atomtype per element... not sure if useful
         current_element = self.pastable_element()
@@ -1359,6 +1300,9 @@ class depositMode(selectAtomsMode):
             'Atoms' - an atom from the Atoms page was deposited.
             'Chunk' - a chunk from the Clipboard page was deposited.
             'Part' - a library part from the Library page was deposited.
+
+        Note: this is overridden in some subclasses (e.g. PasteMode, PartLibraryMode),
+        but the default implementation is also still used [as of 071025].
         """
         
         deposited_obj = None 
@@ -1566,50 +1510,85 @@ class depositMode(selectAtomsMode):
             self.pivax = None
 
 
-    def singletDrag(self, a, event):
+    def singletDrag(self, bondpoint, event):
         """
-        Drag a singlet. <event> is a drag event.
-        """
-        if a.element is not Singlet: return
-        
-        apos0 = a.posn()
+        Drag a bondpoint.
 
-        px = self.dragto_with_offset(a.posn(), event, self.drag_offset )
-            #bruce 060316 attempt to fix bug 1474 analogue; untested and incomplete since nothing is setting drag_offset
-            # when this is called (except to its default value V(0,0,0))! ###@@@
+        @param bondpoint: a bondpoint to drag
+        @type bondpoint: some instances of class Atom
         
-        if self.pivax: # continue pivoting around an axis
-            quat = twistor(self.pivax, a.posn()-self.pivot, px-self.pivot)
-            for at in [a]+self.baggage:
-                at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
+        @param event: a drag event
+        """
+        if bondpoint.element is not Singlet:
+            return
         
-        elif self.pivot: # continue pivoting around a point
-            quat = Q(a.posn()-self.pivot, px-self.pivot)
-            for at in [a]+self.baggage:
-                at.setposn(quat.rot(at.posn()-self.pivot) + self.pivot)
+        apos0 = bondpoint.posn()
+
+        px = self.dragto_with_offset(bondpoint.posn(),
+                                     event,
+                                     self.drag_offset )
+            #bruce 060316 attempt to fix bug 1474 analogue;
+            # untested and incomplete since nothing is setting drag_offset
+            # when this is called (except to its default value V(0,0,0))!
         
-        #bruce 051209 brought update_selatom inside this conditional, to fix an old bug; 
-        # need to reset it in other case???###@@@
-        self.update_selatom(event, singOnly = True) # indicate singlets we might bond to
-            #bruce 060726 question: I tried singOnly = False, but this had no visible effect -- the only highlightings during drag
-            # are the singlets, and real atoms that have singlets. Where is the cause of this?
-            # I can't find anything resetting selobj then.
-            # The code in update_selatom also looks like it won't refrain from storing anything in selobj, based on singOnly --
-            # this only affects what it stores in selatom. Guesses: selobj_still_ok? hicolor/selobj_highlight_color? ####@@@@
-            # Also, note that not all drag methods call update_selobj at all. (I think they then leave the old one highlighted --
-            # dragging a real atom seems to do that.) My motivations: a need to let self.drag_handler control what gets highlighted
-            # (and its color), and unexplained behavior of testdraw.py after leftDown.
-        #bruce 041130 asks: is it correct to do that when a is real? 051209: no. now i don't, that's the bugfix.
-        # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
-        self.line = [a.posn(), px] # This updates the endpoints of the white rubberband line.
+        if self.pivax:
+            # continue pivoting around an axis
+            quat = twistor(self.pivax,
+                           bondpoint.posn() - self.pivot,
+                           px - self.pivot)
+            for at in [bondpoint] + self.baggage:
+                at.setposn(quat.rot(at.posn() - self.pivot) + self.pivot)
         
-        apos1 = a.posn()
+        elif self.pivot:
+            # continue pivoting around a point
+            quat = Q(bondpoint.posn() - self.pivot, px - self.pivot)
+            for at in [bondpoint] + self.baggage:
+                at.setposn(quat.rot(at.posn() - self.pivot) + self.pivot)
+
+        # highlight bondpoints we might bond this one to
+        self.update_selatom(event, singOnly = True)
+
+            #bruce 051209: to fix an old bug, don't call update_selatom
+            # when dragging a real atom -- only call it here in this method,
+            # when dragging a bondpoint. (Related: see warnings about
+            # update_selatom's delayed effect, in its docstring or in leftDown.)
+            # Q: when dragging a real atom, in some other method,
+            # do we need to reset selatom instead?
+            # [bruce 071025 rewrote that comment for its new context and for
+            #  clarity, inferring meaning from other code & comments here;
+            #  also rewrote the old comments below, in this method]
+        
+            #bruce 060726 question: why does trying singOnly = False here
+            # have no visible effect? The only highlightings during drag
+            # are the singlets, and real atoms that have singlets.
+            # Where is the cause of this? I can't find any code resetting
+            # selobj then. The code in update_selatom also looks like it
+            # won't refrain from storing anything in selobj, based on
+            # singOnly -- this only affects what it stores in selatom.
+            # [later, 071025: wait, I thought it never stored anything in
+            # selobj at all. Is its doc wrong, does it call update_selobj
+            # and do that?]
+            # Guesses about what code could be doing that (REVIEW):
+            # selobj_still_ok? hicolor/selobj_highlight_color?
+            # Also, note that not all drag methods call update_selobj at all.
+            # (I think they then leave the old selobj highlighted --
+            # dragging a real atom seems to do that.)
+            #
+            # My motivations for wanting to understand this: a need to let
+            # self.drag_handler control what gets highlighted (and its color),
+            # and unexplained behavior of testdraw.py after leftDown.
+
+        # update the endpoints of the white rubberband line
+        self.line = [bondpoint.posn(), px]
+        
+        apos1 = bondpoint.posn()
         if apos1 - apos0:
-            msg = "pulling bondpoint %r to %s" % (a, self.posn_str(a))
+            msg = "pulling bondpoint %r to %s" % (bondpoint, self.posn_str(bondpoint))
             this_drag_id = (self.current_obj_start, self.__class__.leftDrag)
             env.history.message(msg, transient_id = this_drag_id)
             
         self.o.gl_update()
+        return
         
     def singletLeftUp(self, s1, event):
         """
