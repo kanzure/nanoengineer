@@ -40,6 +40,7 @@ from VQT import V
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
+from PM.PM_Constants     import pmPreviewButton
 
 class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
     """
@@ -84,6 +85,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
+                                pmPreviewButton| \
                                 pmWhatsThisButton)
 
     def getFlyoutActionList(self): 
