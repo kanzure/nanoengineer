@@ -1846,22 +1846,23 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     def state_version_of_cp(self, cp): #060309 ###k maybe this should be (or is already) a cp method...
         return {ASSY_VARID_STUB: cp.assy_change_counters}
         
-    def find_undoredos(self):
-        "Return a list of undo and/or redo operations that apply to the current state; return merged ops if necessary."
+    def find_undoredos(self, warn_when_change_counters_seem_wrong = True):
+        """
+        Return a list of undo and/or redo operations
+        that apply to the current state; return merged ops if necessary.
+
+        @param warn_when_change_counters_seem_wrong: see code and comments.
+        """
         #e also pass state_version? for now rely on self.last_cp or some new state-pointer...
         if not self.inited:
             return []
 
-        if 1:
-            # the following if-condition is a kluge (wrong in principle but probably safe, not entirely sure it's correct) [060309]:
-            import undo_manager
-            do_warning = undo_manager._AutoCheckpointing_enabled
-        else:
-            do_warning = True # gives false warnings when not _AutoCheckpointing_enabled
-        if do_warning:
+        if warn_when_change_counters_seem_wrong:
             # try to track down some of the bugs... if this is run when untracked changes occurred (and no checkpoint),
             # it would miss everything. If this sometimes happens routinely when undo stack *should* be empty but isn't,
             # it could explain dificulty in reproducing some bugs. [060216]
+            # update, bruce 071025: I routinely see this warning under certain conditions, which I forget.
+            # I don't think I experience bugs then, though.
             if self.last_cp.assy_change_counters != self.assy.all_change_counters():
                 print "WARNING: find_undoredos sees self.last_cp.assy_change_counters != self.assy.all_change_counters()", \
                       self.last_cp.assy_change_counters, self.assy.all_change_counters()

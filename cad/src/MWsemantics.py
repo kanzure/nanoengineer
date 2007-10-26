@@ -1099,10 +1099,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         Slot for making a checkpoint (only available when Automatic 
         Checkpointing is disabled).
         """
-        import undo_manager, debug
-        debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
-        undo_manager.editMakeCheckpoint()
-        ## env.history.message("Make Checkpoint: Not implemented yet.")
+        import undo_UI
+        undo_UI.editMakeCheckpoint(self)
         return
 
     def editUndo(self):
@@ -1115,23 +1113,24 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         """
         Slot for enabling/disabling automatic checkpointing.
         """
-        import undo_manager, debug
-        debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
-        undo_manager.editAutoCheckpointing(enabled)
-            # that will probably do (among other things): self.editMakeCheckpointAction.setVisible(not enabled)
+        import undo_manager
+        undo_manager.editAutoCheckpointing(self, enabled)
+            # note: see code comment there, for why that's not in undo_UI.
+            # note: that will probably do this (among other things):
+            #   self.editMakeCheckpointAction.setVisible(not enabled)
         return
 
     def editClearUndoStack(self):
         """
         Slot for clearing the Undo Stack. Requires the user to confirm.
         """
-        import undo_manager, debug
-        debug.reload_once_per_event(undo_manager) # only reloads if atom_debug is set
-        undo_manager.editClearUndoStack()
+        import undo_UI
+        undo_UI.editClearUndoStack(self)
         return
 
     # bruce 050131 moved some history messages from the following methods
-    # into the assy methods they call, so the menu command versions also have them
+    # into the assy methods they call, so the menu command versions also
+    # have them
 
     def editCut(self):
         self.assy.cut_sel()
