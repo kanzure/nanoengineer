@@ -417,7 +417,8 @@ class basicCommand(anyCommand):
             # if it does, put it on the Jig's cmenu maker, not here, if possible;
             # if it doesn't, also put it there if NFR 1740 remains undone and desired.
             # [bruce comment 071009]
-            print "fyi: basicCommand.setup_graphics_menu_specs sees isinstance(selobj, Jig)" # see if this can ever happen
+            ##print "fyi: basicCommand.setup_graphics_menu_specs sees isinstance(selobj, Jig)" # see if this can ever happen
+            ##    # yes, this happened when I grabbed an RMotor's GLPane cmenu. [bruce 071025]
             from wiki_help import wiki_help_menuspec_for_object
             ms = wiki_help_menuspec_for_object( self.o.selobj )
             if ms:

@@ -1,13 +1,11 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 widgets.py
 
 helpers for creating widgets, and some simple custom widgets
 
-[owned by bruce, for now -- 041229]
-
 $Id$
-'''
+"""
 __author__ = "bruce"
 
 from PyQt4 import QtGui
@@ -200,9 +198,12 @@ class TogglePrefCheckBox(QCheckBox):
 
 # ==
 
-# helper for making popup menus from our own "menu specs" description format,
-# consisting of nested lists of text, callables or submenus, options.
-# [moved here from GLPane.py -- bruce 050112]
+# Helper functions to wrap_callable_for_undo.
+# TODO: These should probably be moved into undo_manager.py,
+# but doing so won't prevent us from importing it here;
+# first, see if it already imports what these need;
+# note that wrap_callable_for_undo is also called from prefs_widgets.py.
+# [bruce comment 071025]:
 
 def _do_callable_for_undo(func, cmdname): #bruce 060324
     import undo_manager # important to do this here, since it might be reloaded before we get called
@@ -230,6 +231,12 @@ def wrap_callable_for_undo(func, cmdname = "menu command"): #bruce 060324
     # (both of these precautions are generally needed or you can have bugs,
     #  when returning lambdas out of the defining scope of local variables they reference)
     return lambda _g1_ = None, _g2_ = None, _g3_ = None, func = func, cmdname = cmdname: _do_callable_for_undo(func, cmdname)
+
+# ==
+
+# helper for making popup menus from our own "menu specs" description format,
+# consisting of nested lists of text, callables or submenus, options.
+# [moved here from GLPane.py -- bruce 050112]
 
 def makemenu_helper(widget, menu_spec, menu = None):
     """Make and return a reusable or one-time-use (at caller's option)

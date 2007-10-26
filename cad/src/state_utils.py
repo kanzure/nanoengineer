@@ -8,6 +8,14 @@ $Id$
 
 Note: same_vals was moved from here into a new file, utilities/Comparison.py,
 to break an import cycle. It is closely related to copy_val which remains here.
+
+TODO:
+
+- Move some of this code into undo_archive, or to methods on one of those,
+and/or some code from there to here, so that this module no longer
+needs to import undo_archive.
+[bruce 071025 suggestion, echoing older comments herein]
+
 """
 
 __author__ = 'bruce'
