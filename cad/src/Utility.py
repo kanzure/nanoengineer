@@ -1394,13 +1394,20 @@ class Group(Node):
     
     _s_attr_members = S_CHILDREN
 
-    def __init__(self, name, assy, dad, list = []): ###@@@ review inconsistent arg order
+    def __init__(self, name, assy, dad, list = [], editController = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
         Node.__init__(self, assy, name, dad)
         self.open = True
         for ob in list:
             self.addchild(ob)
+	
+	#@WARNING: Following (self.editController) is a temporary code that 
+	# allows editing of DNA Duplex which is, at the moment, same as a 
+	# group in the MT. Once we have a DNA object model ready, 
+	#the following should be removed/ revised . 
+	#See also self.edit where this is being used. -- Ninad 2007-10-26
+	self.editController = editController
 
     def _um_initargs(self): #bruce 051013 [in class Group]
         # [as of 060209 this is probably well-defined and correct (for most subclasses), but not presently used]
@@ -2005,9 +2012,29 @@ class Group(Node):
     
     def edit(self):
         "[this is overridden in some subclasses of Group]"
-        cntl = GroupProp(self) # Normal group prop
-        cntl.exec_()
-        self.assy.mt.mt_update()
+	if self.editController:
+	    self.editController.editStructure()
+	else:
+	    cntl = GroupProp(self) # Normal group prop
+	    cntl.exec_()
+	    self.assy.mt.mt_update()
+    
+    def getProps(self):
+	"""
+	Temporary metho to support Dna duplex editing. see Group.__init__ for 
+	a comment
+	"""
+	if self.editController:
+	    props = ()
+	    return props
+	
+    def setProps(self, props):
+	"""
+	Temporary metho to support Dna duplex editing. see Group.__init__ for 
+	a comment
+	"""
+	pass
+	
 
     def dumptree(self, depth=0):
         print depth*"...", self.name

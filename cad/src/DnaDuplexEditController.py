@@ -44,11 +44,12 @@ class DnaDuplexEditController(EditController):
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
 
-    def __init__(self, win):
+    def __init__(self, win, struct = None):
         """
         Contructor for DnaDuplexEditController
         """
         EditController.__init__(self, win)
+        self.struct = struct
         
 
     def runController(self):
@@ -82,7 +83,7 @@ class DnaDuplexEditController(EditController):
         """
         pass
 
-    def editStructure(self):
+    def ZeditStructure(self):
         """
         Overrides superclass method. It doesn't do anything for this type
         of editcontroller
@@ -151,7 +152,9 @@ class DnaDuplexEditController(EditController):
         # Create the model tree group node. 
         dnaGroup = Group(self.name, 
                          self.win.assy,
-                         self.win.assy.part.topnode)
+                         self.win.assy.part.topnode,
+                         editController = self
+                     )
         try:
             # Make the DNA duplex. <dnaGroup> will contain three chunks:
             #  - Strand1

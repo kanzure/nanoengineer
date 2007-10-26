@@ -1956,7 +1956,24 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
             self.dnacntl.show()
         else:
+	    self.dnaEditController = self._createDnaDuplexEditController()
             self.dnaEditController.runController()
+    
+    def _createDnaDuplexEditController(self, dnaDuplex = None):
+        """
+	Returns a new L{DnaDuplexEditController} object.	
+	@param dnaDuplex: This parameter is passed as an init argument for 
+			    the LinearMotorEditController that this method 
+			    creates and returns.
+	@type dnaDuplex:  B{Group} or None  (instead of a Group it will be a 
+	                  separate DNA object in future. 
+	@see: L{Group.__init__} , L{Group.edit}, 
+	      L{DnaDuplexEditController.__init__}
+	TODO: Need to use the same property manager object for all dna edit 
+	      controllers. Right now it creates different ones. 
+        """
+        from DnaDuplexEditController import DnaDuplexEditController
+	return DnaDuplexEditController(self, dnaDuplex)
 
     def insertPovrayScene(self):
         self.povrayscenecntl.setup()
