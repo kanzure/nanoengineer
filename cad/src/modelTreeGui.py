@@ -74,6 +74,8 @@ from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, C
 from widgets import makemenu_helper
 import env
 
+from Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
+
 DEBUG0 = False # debug api compliance
 DEBUG = False # debug selection stuff
 DEBUG2 = False # mouse press event details
@@ -305,18 +307,18 @@ class Node_api(Api):
         #  implicit in the Node's concrete subclass, so typical methods won't need to look at it.]
         raise Exception('overload me')
 
-    def drop_on_ok(self, drag_type, nodes):
-        """Say whether 'drag and drop' can drop the given set of nodes onto this node, when they are
-        dragged in the given way
-        """
-        raise Exception('overload me')
-
-    def drop_on(self, drag_type, nodes):
-        """After a 'drag and drop' of type 'move' or 'copy' (according to drag_type), perform the
-        drop of the given list of nodes onto this node. Return any new nodes this creates (toplevel
-        nodes only, for copied groups).
-        """
-        raise Exception('overload me')
+##    def drop_on_ok(self, drag_type, nodes):
+##        """Say whether 'drag and drop' can drop the given set of nodes onto this node, when they are
+##        dragged in the given way
+##        """
+##        raise Exception('overload me')
+##
+##    def drop_on(self, drag_type, nodes):
+##        """After a 'drag and drop' of type 'move' or 'copy' (according to drag_type), perform the
+##        drop of the given list of nodes onto this node. Return any new nodes this creates (toplevel
+##        nodes only, for copied groups).
+##        """
+##        raise Exception('overload me')
 
     def kids(self, item_prefs):
         """Return a list of Nodes that are a child of this Node.
@@ -856,7 +858,7 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             #e should generalize based on what Qt3 code does
             #k should find out why this is not redundant with drop_on_ok check below
             raise DoNotDrop()
-        if not targetnode.drop_on_ok(drag_type, nodes):
+        if not Node_as_MT_DND_Target(targetnode).drop_on_ok(drag_type, nodes):
             self.statusbar_msg( "drop refused by %s" % quote_html(targetnode.name) )
             raise DoNotDrop()
         
@@ -873,7 +875,7 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             for node1 in nodes:
                 node1.unpick()
 
-        copiednodes = targetnode.drop_on(drag_type, nodes)
+        copiednodes = Node_as_MT_DND_Target(targetnode).drop_on(drag_type, nodes)
             #bruce 050203: copiednodes is a list of copied nodes made by drop_on
             # (toplevel only, when groups are copied).
             # For a move, it's []. We use it to select the copies, below.
@@ -1900,7 +1902,13 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529-30 rewrite of
 ####################################################################
 ##################### Test code ####################################
 
-class TestNode(Node_api): # WARNING: this test code has not been rerun or actively maintained since modelTreeGui rewrite circa May 07
+class TestNode(Node_api):
+    # WARNING: this test code has not been rerun or actively maintained
+    # since modelTreeGui rewrite circa May 07 (or some time before).
+    # And bruce 071025 moved drop_on and drop_on_ok from Node_api
+    # to MT_DND_Target_API, but made no attempt to update this test code
+    # except by removing those methods from it and Node_api, and wrapping
+    # the node they're called on below in the same way as in real code above.
     def __init__(self, name, parent = None, icon = None, icon_hidden = None):
         self.open = False #bruce 070508 added this for api compliance; it's not otherwise used by test code
         self.hidden = False
@@ -1934,40 +1942,40 @@ class TestNode(Node_api): # WARNING: this test code has not been rerun or active
         if self.picked: func(self)
         for x in self.members:
             x.apply2picked(func)
-    def drop_on_ok(self, drag_type, nodes):
-        import sys, traceback
-        for node in nodes:
-            # don't drop stuff that's already here
-            if node in self.members:
-                traceback.print_stack(file = sys.stdout)
-                print self, nodes, node, self.members
-                print 'node is in children already'
-                return False
-        # We can't drop things on chunks or jigs
-        if self.name.startswith("Chunk"):
-            traceback.print_stack(file = sys.stdout)
-            print self, node, self.members
-            print 'cannot drop on a chunk'
-            return False
-        if self.name.startswith("Jig"):
-            traceback.print_stack(file = sys.stdout)
-            print self, node, self.members
-            print 'cannot drop on a jig'
-            return False
-        return True
-    def drop_on(self, drag_type, nodes):
-        previous_parents = { }
-        for node in nodes:
-            if drag_type == 'copy':
-                node = node.clone()
-            previous_parents[node] = node.parentNode
-            self.members.append(node)
-            node.parentNode = self
-            node.unpick()
-        if drag_type == 'move':
-            for node in nodes:
-                previous_parents[node].members.remove(node)
-        return [ ]
+##    def drop_on_ok(self, drag_type, nodes):
+##        import sys, traceback
+##        for node in nodes:
+##            # don't drop stuff that's already here
+##            if node in self.members:
+##                traceback.print_stack(file = sys.stdout)
+##                print self, nodes, node, self.members
+##                print 'node is in children already'
+##                return False
+##        # We can't drop things on chunks or jigs
+##        if self.name.startswith("Chunk"):
+##            traceback.print_stack(file = sys.stdout)
+##            print self, node, self.members
+##            print 'cannot drop on a chunk'
+##            return False
+##        if self.name.startswith("Jig"):
+##            traceback.print_stack(file = sys.stdout)
+##            print self, node, self.members
+##            print 'cannot drop on a jig'
+##            return False
+##        return True
+##    def drop_on(self, drag_type, nodes):
+##        previous_parents = { }
+##        for node in nodes:
+##            if drag_type == 'copy':
+##                node = node.clone()
+##            previous_parents[node] = node.parentNode
+##            self.members.append(node)
+##            node.parentNode = self
+##            node.unpick()
+##        if drag_type == 'move':
+##            for node in nodes:
+##                previous_parents[node].members.remove(node)
+##        return [ ]
     def node_icon(self, display_prefs):
         # read up on display_prefs?
         if self.hidden:
@@ -2049,14 +2057,14 @@ class TestNe1Model(Ne1Model_api):
         nodelst = self.view.topmost_selected_nodes()
         if node not in nodelst:
             nodelst.append(node)
-        self.clipboardNode.drop_on('copy', nodelst)
+        Node_as_MT_DND_Target(self.clipboardNode).drop_on('copy', nodelst)
         self.complete_context_menu_action()
 
     def cm_cut(self, node):
         nodelst = self.view.topmost_selected_nodes()
         if node not in nodelst:
             nodelst.append(node)
-        self.clipboardNode.drop_on('move', nodelst)
+        Node_as_MT_DND_Target(self.clipboardNode).drop_on('move', nodelst)
         self.complete_context_menu_action()
 
     def cm_disable(self, node):

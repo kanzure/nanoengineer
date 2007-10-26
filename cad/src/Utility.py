@@ -608,124 +608,24 @@ class Node( StateMixin):
         [some subclasses should override this]
         """
         return True
-    
-    def drop_on_ok(self, drag_type, nodes):
-        """Say whether "drag and drop" can drop the given set of nodes onto this node,
-        when they are dragged in the given way ('move' or 'copy' -- nodes arg has the originals).
-        (Typically this node (if it says ok) would insert the moved or copied nodes inside itself
-        as new members, but what it actually does with them is up to it;
-        as an initial kluge before we support dropping into gaps (if we ever don't),
-        dropping onto a leaf node might simulate dropping into the same-level gap below it
-        (i.e. make a sibling, like addmember does).
-        [some subclasses should override this]
+
+    def drop_on_should_autogroup(self, drag_type, nodes): #bruce 071025
         """
-        #bruce 050216 add exception for cycle-forming request ###@@@ needs testing
-        # (to fix bug 360 item 6 comment 9, which had been fixed in the old MT's DND code too)
-        if drag_type == 'move':
-            for node in nodes:
-                if (node is not self and node.is_ascendant(self)) or (node is self and node.is_group()):
-                    print "fyi: refusing drag-move since it would form a cycle"
-                        #e should change retval-spec and get this into a redmsg
-                    return False
-        return True #e probably change to False for leaf nodes, once we support dropping into gaps
+        Say whether Model Tree DND drops onto this node (self),
+        of the given drag_type and list of nodes,
+        should automatically group the dropped nodes.
 
-    def drop_on(self, drag_type, nodes): ###@@@ needs a big cleanup
-        """After a "drag and drop" of type 'move' or 'copy' (according to drag_type),
-        perform the drop of the given list of nodes onto this node.
-        Exactly how to do this depends on whether this node is a leaf or group;
-        subclasses can override this to change the UI behavior.
-        (As of 050307, only the Clipboard override this.)
-        Return value: if this operation creates new nodes
-        (normal for copy, but also happens in some cases for move),
-        return them in a list; otherwise return [].
+        @note: this is called even if there is only one node,
+        so if you want to group only when there's more than one,
+        return len(nodes) > 1 rather than just True.
+
+        @param drag_type: 'move' or 'copy'
+
+        @param nodes: Python list of nodes being DND'd onto self.
+        
+        [overridden in some subclasses]
         """
-        #e rewrite to use copy_nodes (nim)? (also rewrite the assy methods? not for alpha)
-        res = [] #bruce 050203: return any new nodes this creates (toplevel nodes only, for copied groups)
-        #bruce 050216: order is correct if you're dropping on a group, but (for the ops used below)
-        # wrong if you're dropping on a node. This needs a big cleanup, but for now, use this kluge
-        # [revised to fix bug 2403 (most likely, this never worked as intended for copy until now), bruce 070525]:
-        if not isinstance(self, Group):
-            # drops on leaf nodes (like self) are placed after them,
-            # when done by the methods named in the following flags,
-            # so to drop several nodes in a row and preserve order,
-            # drop them in reverse order -- but *when* we reverse them
-            # (as well as which method we use) depends on whether we're
-            # doing move or copy, so these flags are used in the right
-            # place below.
-            reverse_moveto = True
-            reverse_addmember = True
-        else:
-            # drops on groups (like self) go at the end of their members,
-            # when done by those methods, so *don't* reverse node order.
-            #
-            # [WARNING: this might change if we decide to put nodes dropped
-            # on groups at the beginning of their members list. But implementing that
-            # is not just a matter of changing these, but of calling different functions
-            # to move or add the nodes. Also, a review might be needed to find other things
-            # that need to be changed.]
-            ## assert not debug_pref_DND_drop_at_start_of_groups()
-            reverse_moveto = False
-            reverse_addmember = False
-            #bruce 060203 removing this, to implement one aspect of NFR 932:
-            ## self.open = True # open groups which have nodes dropped on them [bruce 050528 new feature]
-            pass
-        if drag_type == 'move':
-            if reverse_moveto:
-                nodes = nodes[::-1]
-            for node in nodes[:]:
-                node.moveto(self)
-        else:
-            #bruce 050527 new code to "copy anything". Preliminary (probably not enough history messages, or maybe sometimes
-            # too many). Would be better to create the Copier object (done in a subr here) earlier, when the drag is started,
-            # for various reasons mentioned elsewhere.
-            from ops_copy import copied_nodes_for_DND
-            autogroup_at_top = isinstance(self, ClipboardShelfGroup)
-                #####@@@@@ kluge! replace with per-group variable or func.
-                #e or perhaps better, a per-group method to process the nodes list, eg to do the grouping
-                # as the comment in copied_nodes_for_DND or its subr suggests.
-            nodes = copied_nodes_for_DND(nodes, autogroup_at_top = autogroup_at_top)
-                # Note: this ignores order within input list of nodes, using only their MT order
-                # to affect the order of copied nodes which it returns. [bruce 070525 comment]
-            if not nodes: # might be None
-                return [] # return copied nodes
-            res.extend(nodes)
-            if reverse_addmember:
-                nodes = nodes[::-1]
-                    # note: if autogroup_at_top makes len(nodes) == 1, this has no effect,
-                    # but it's harmless then, and logically best to do it whenever using
-                    # addmember on list elements.
-            for nc in nodes[:]:
-                self.addmember(nc) # self is sometimes a Group, so this does need to be addmember (not addchild or addsibling)
-        self.assy.update_parts() #e could be optimized to scan only what's needed (same for most other calls of update_parts)
-        return res
-
-    # Note: the methods drop_under_ok and drop_under are never called
-    # (and drop_under is not fully implemented, as its comments indicate),
-    # but they should be kept around -- they are a partly-done implementation
-    # of a Node API extension to support Model Tree DND to points between nodes
-    # (as opposed to DND to points on top of single nodes, which is all the MT
-    #  can do now). [bruce 050203/070703]
-
-    def drop_under_ok(self, drag_type, nodes, after = None): ###@@@ honor it!
-        """Say whether it's ok to drag these nodes (using drag_type)
-        into a child-position under self,
-        either after the given child 'after'
-        or (by default) as the new first child.
-           Tree widgets can use this to offer drop-points shown in gaps
-        between existing adjacent nodes.
-        [some subclasses should override this]
-        """
-        return hasattr(self, 'addchild') # i.e. whether it's a Group!
-
-    # See comment above for status of unused method 'drop_under', which should be kept around. [bruce 070703]
-    def drop_under(self, drag_type, nodes, after = None): #e move to Group, implem subrs, use ###@@@
-        "#doc"
-        if drag_type == 'copy':
-            from ops_copy import copy_nodes_in_order # might be recursive if done at toplevel
-            nodes = copy_nodes_in_order(nodes) # make a homeless copy of the set (someday preserving inter-node bonds, etc)
-        for node in nodes:
-            self.addchildren(nodes, after = after) ###@@@ IMPLEM (and make it not matter if they are homeless? for addchild)
-        return
+        return False
 
     def node_icon(self, display_prefs):
         """#doc this - should return a cached icon
@@ -2213,7 +2113,8 @@ class SimpleCopyMixin(Node):
     # but first, test it in Comment and View. When it's stable, also see if the copy methods in Jig and even Chunk
     # can make use of these methods somehow (perhaps with these modified to call new optional subclass methods).
     # [bruce 060523]
-    """Node subclasses that want to be copyable via their _s_attr or copyable_attrs decls,
+    """
+    Node subclasses that want to be copyable via their _s_attr or copyable_attrs decls,
     and that don't need any optimizations for atoms or bonds or for avoiding full copy_val of all attrs,
     and that don't need any special cases like worrying about refs to other copied things needing to be
     transformed through the mapping (i.e. for which all copyable attrs are pure data, not node or atom refs),
@@ -2249,7 +2150,8 @@ class SimpleCopyMixin(Node):
         return new
 
     def _copy_fixup_at_end(self): # warning: most of this code is copied from the Jig method.
-        """[Private method]
+        """
+        [Private method]
         This runs at the end of a copy operation to copy attributes from the old node
         (which could have been done at the start but might as well be done now for most of them).
         Self is the copy, self._orig is the original.
@@ -2266,7 +2168,8 @@ class SimpleCopyMixin(Node):
 
     
 class Csys(SimpleCopyMixin, Node):
-    """The Csys is used to store all the parameters needed to save and restore a view.
+    """
+    The Csys is used to store all the parameters needed to save and restore a view.
     It is used in two distinct ways:
         1) as a Named View created by the user and visible as a node in the model tree
         2) internal use for storing the LastView and HomeView for every part
@@ -2405,7 +2308,8 @@ class Csys(SimpleCopyMixin, Node):
 # specialized kinds of Groups:
 
 class PartGroup(Group):
-    """A specialized Group for holding the entire "main model" of an assembly,
+    """
+    A specialized Group for holding the entire "main model" of an assembly,
     with provisions for including the "assy.viewdata" elements as initial kids, but not in self.members
     (which is a kluge, and hopefully can be removed reasonably soon, though perhaps not for Alpha).
     """
@@ -2450,34 +2354,30 @@ class PartGroup(Group):
     pass
 
 class ClipboardShelfGroup(Group):
-    """A specialized Group for holding the Clipboard (aka Shelf). [This will be revised... ###@@@]
+    """
+    A specialized Group for holding the Clipboard (aka Shelf).
     """
     def postcopy_in_mapping(self, mapping): #bruce 050524
-        assert 0, "RootGroup.postcopy_in_mapping should never be called!"
+        assert 0, "ClipboardShelfGroup.postcopy_in_mapping should never be called!"
     def pick(self): #bruce 050131 for Alpha
         msg = "Clipboard can't be selected or dragged. (Individual clipboard items can be.)"
-        ## bruce 050316: no longer do this: self.redmsg( msg)
         env.history.statusbar_msg( msg)
-    def is_selection_group_container(self): return True #bruce 050131 for Alpha
-    def rename_enabled(self): return False
-    def drag_move_ok(self): return False
-    def drag_copy_ok(self): return False
-    ## def drop_enabled(self): return True # not needed since default; drop on clipboard makes a new clipboard item
-    def drop_on(self, drag_type, nodes):
-        #bruce 050203: nodes dropped onto the clipboard come from one "space"
-        # and ought to stay that way by default; user can drag them one-at-a-time if desired.
-        # (In theory this grouping need only be done for the subsets of them which are bonded;
-        #  for now that's too hard -- maybe not for long, similar to bug 371.)
-        if len(nodes) > 1 and drag_type == 'move': #####@@@@@ desired for copy too, but below implem would be wrong for that...
-            name = self.assy.name_autogrouped_nodes_for_clipboard( nodes, howmade = drag_type )
-            new = Group(name, self.assy, None)
-            for node in nodes[:]: #bruce 050216 don't reverse the order, it's already correct
-                node.unpick() #bruce 050216; don't know if needed or matters; 050307 moved from after to before moveto
-                node.moveto(new) ####@@@@ guess, same as in super.drop_on (move here, regardless of drag_type? no, not correct!)
-            nodes = [new] # a new length-1 list of nodes
-            env.history.message( "(fyi: Grouped some nodes to keep them in one clipboard item)" ) ###e improve text
-        return Group.drop_on(self, drag_type, nodes)
-    def permits_ungrouping(self): return False
+    def is_selection_group_container(self):
+        return True #bruce 050131 for Alpha
+    def rename_enabled(self):
+        return False
+    def drag_move_ok(self):
+        return False
+    def drag_copy_ok(self):
+        return False
+    def drop_on_should_autogroup(self, drag_type, nodes): #bruce 071025
+        """
+        [overrides Node method]
+        """
+        # note: drop on clipboard makes a new clipboard item.
+        return len(nodes) > 1
+    def permits_ungrouping(self):
+        return False
     ##bruce 050316: does always being openable work around the bugs in which this node is not open when it should be?
     ###e btw we need to make sure it becomes open whenever it contains the current part. ####@@@@
 ##    def openable(self): # overrides Node.openable()
@@ -2510,11 +2410,11 @@ class ClipboardShelfGroup(Group):
         pastables = []
         pastables = filter(is_pastable, self.members)
         return pastables
-            
-
+    pass
 
 class RootGroup(Group):
-    """A specialized Group for holding the entire model tree's toplevel nodes,
+    """
+    A specialized Group for holding the entire model tree's toplevel nodes,
     which (by coincidence? probably more like a historical non-coincidence)
     imitates the assy.root member of the pre-050109 code. [This will be revised... ###@@@]
     [btw i don't know for sure that this is needed at all...]
