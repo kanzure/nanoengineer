@@ -15,8 +15,6 @@ from constants import black, darkred
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix
 
-mouseClickCounter = 0
-
 STARTPOINT_SPHERE_COLOR = darkred
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
@@ -42,33 +40,42 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     previous mode (selectMolsMode) can use it further to create a dna 
     @see: L{DnaLineMode}
     @see: selectMolsMode.provideParamsForTemporaryMode comments for 
-        related  TODOs. 
+          related  TODOs. 
         
     TODO: 
     -Need further documentation. 
-    - May be class name needs reconsideration. Looks OK for now. 
     """    
-    movingPoint = None
-    currentPoint = None
+    
+    #Initial values of instance variables --
+    
+    #The first end point of the line being drawn. 
+    #It gets initialized during left down --
+    endPoint1 = None 
+    #The second endpoint of the line. This gets constantly updated as you 
+    # free drag the mouse (bare motion) 
+    endPoint2 = None
 
     def leftDown(self, event):
         """
         Event handler for LMB press event.
-        """
-        
-        # Setup pan operation
-        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)  
-        self.command.mouseClickPoints.append(self.movingPoint)
+        """        
+        #The endPoint1 and self.endPoint2 are the mouse points at the 'water' 
+        #surface. Soon, support will be added so that these are actually points 
+        #on a user specified reference plane. Also, once any temporary mode 
+        # begins supporting highlighting, we can also add feature to use 
+        # coordinates of a highlighted object (e.g. atom center) as endpoints 
+        # of the line
+        farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( event)  
+        self.command.mouseClickPoints.append(self.endPoint1)
         return
     
     def bareMotion(self, event):
         """
-        Event handler for simple mouse drag event.
-        """
-        global mouseClickCounter
-        
-        if mouseClickCounter > 0:
-            self.currentPoint = self.dragto( self.movingPoint, event)
+        Event handler for simple drag event. (i.e. the free drag without holding
+        down any mouse button)
+        """       
+        if len(self.command.mouseClickPoints) > 0:
+            self.endPoint2 = self.dragto( self.endPoint1, event)
             self.glpane.gl_update()        
         return
     
@@ -77,18 +84,18 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         Draw method for this temporary mode. 
         """
         TemporaryCommand_Overdrawing.GraphicsMode_class.Draw(self)
-        if self.currentPoint:
+        if self.endPoint2:
             glPushMatrix()  
-            if self.movingPoint:
+            if self.endPoint1:
                 drawsphere(STARTPOINT_SPHERE_COLOR, 
-                           self.movingPoint, 
+                           self.endPoint1, 
                            STARTPOINT_SPHERE_RADIUS,
                            STARTPOINT_SPHERE_DRAWLEVEL,
                            opacity = STARTPOINT_SPHERE_OPACITY
                            )            
             drawline(black, 
-                 self.movingPoint, 
-                 self.currentPoint, 
+                 self.endPoint1, 
+                 self.endPoint2, 
                  dashEnabled = True)            
             glPopMatrix()
     
@@ -96,15 +103,11 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         Event handler for Left Mouse button left-up event
         """
-        global mouseClickCounter
-        
-        assert mouseClickCounter <= self.command.mouseClickLimit
-        
-        mouseClickCounter += 1
-                
-        if mouseClickCounter == self.command.mouseClickLimit:
-            mouseClickCounter = 0  
-            self.currentPoint = None
+               
+        assert len(self.command.mouseClickPoints) <= self.command.mouseClickLimit
+                        
+        if len(self.command.mouseClickPoints) == self.command.mouseClickLimit:
+            self.endPoint2 = None
             self.glpane.gl_update()
             self.command.Done()            
             return
@@ -123,24 +126,35 @@ class LineMode(TemporaryCommand_Overdrawing):
     """
     Encapsulates the LineMode tool functionality.
     """
-    
     # class constants
     
     modename = 'LineMode'
     default_mode_status_text = ""
     hover_highlighting_enabled = True
-    
-    mouseClickPoints = []
     GraphicsMode_class = LineMode_GM
-
+    
+    # Initial vale for the instance variable. (Note that although it is assigned 
+    # an empty tuple, later it is assigned a list.) Empty tuple is just for 
+    # the safer implementation than an empty list. Also, it is not 'None' 
+    # because in LineMode_GM.bareMotion, it does a check using
+    # len(mouseClickPoints)
+    mouseClickPoints = ()
+    
     def init_gui(self):
-        prevMode = self.commandSequencer.prevMode 
+        """
+        """
+        prevMode = self.commandSequencer.prevMode
+        
+        #clear the list (for safety) which may still have old data in it
+        self.mouseClickPoints = []
         
         if hasattr(prevMode, 'provideParamsForTemporaryMode'):
             self.mouseClickLimit = prevMode.provideParamsForTemporaryMode(self.modename)
         return    
         
     def restore_gui(self):
+        """
+        """
         prevMode = self.commandSequencer.prevMode
         if hasattr(prevMode, 'acceptParamsFromTemporaryMode'):          
             prevMode.acceptParamsFromTemporaryMode(

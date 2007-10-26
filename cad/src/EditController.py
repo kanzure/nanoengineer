@@ -130,9 +130,7 @@ class EditController:
                 
         if not showPropMgr:
             return         
-        self.propMgr.updateMessage("Create a DNA by specifying two endpoints " \
-                                   "of a line.")
-        
+                
         self.propMgr.show()
      
     def createStructure(self, showPropMgr = True):

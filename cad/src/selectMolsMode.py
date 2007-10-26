@@ -80,25 +80,12 @@ class selectMolsMode(selectMode):
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """
 	NOTE: This needs to be a general API method. There are situations when 
-	user enters a temporary mode , does somethoing there and returns back to
+	user enters a temporary mode , does something there and returns back to
 	the previous mode he was in. He also needs to send some data from 
-	previous mode to the temporary mode 
-	 
+	previous mode to the temporary mode .	 
 	@see: DnaLineMode
-	@see: self.acceptParamsFromTemporaryMode for more comments and example
-	TODO: 
-	- This needs to be a more general method in mode API. 
-	- Right now it is used only for creating a DNA line. It is assumed
-	 that the DNADuplxEditController is invoked while in selectMolsMode. 
-	 If we decide to define a new DnaMode, then this method needs to go 
-	 there. 
-	 - Even better if the commandSequencer API starts supporting 
-	 sommandSequencer.previousCommand (like it does for previous mode) 
-	 where, the previousCommand can be an editController or mode, then 
-	 it would be good to define this API method in that mode or 
-	 editcontroller class  itself. In the above example, this method would 
-	 then belong to DnaDuplexEditController. 
-	 -- [Ninad 2007-10-25 comment]
+	@see: self.acceptParamsFromTemporaryMode for further comments and 
+	      example	
         """	        
         if temporaryModeName in ["LineMode", \
 				 "DNA_LINE_MODE"]:
@@ -115,7 +102,7 @@ class selectMolsMode(selectMode):
     def acceptParamsFromTemporaryMode(self, temporaryModeName, params):
         """
 	NOTE: This needs to be a general API method. There are situations when 
-	user enters a temporary mode , does somethoing there and returns back to
+	user enters a temporary mode , does something there and returns back to
 	the previous mode he was in. He also needs some data that he gathered 
 	in that temporary mode so as to use it in the original mode he was 
 	working on. Here is a good example: 
