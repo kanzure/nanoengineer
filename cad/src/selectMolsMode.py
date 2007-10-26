@@ -87,17 +87,19 @@ class selectMolsMode(selectMode):
 	@see: self.acceptParamsFromTemporaryMode for further comments and 
 	      example	
         """	        
-        if temporaryModeName in ["LineMode", \
-				 "DNA_LINE_MODE"]:
+        if temporaryModeName == "DNA_LINE_MODE":
             #This is the number of mouse clicks that the temporary mode accepts
 	    # When this limit is reached, the temporary mode will return to the
 	    #previous mode.
-            mouseClickLimit = 2
+	    dnaEditController = self.win.dnaEditController
+	    if dnaEditController:
+		params = dnaEditController.provideParamsForTemporaryMode(temporaryModeName) 
 	else:
 	    #@attention This is an arbitrary number, needs cleanup. 
-	    mouseClickLimit = 10
+	    mouseClickLimit = 2
+	    params = (mouseClickLimit)
 	    
-	return mouseClickLimit
+	return params
 	    
     def acceptParamsFromTemporaryMode(self, temporaryModeName, params):
         """
