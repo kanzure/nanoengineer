@@ -514,6 +514,42 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         mol = self.molecule
         return archive.childobj_liveQ(mol) and mol.atoms.has_key(self.key)
 
+    def _f_jigs_append(self, jig): #bruce 071025 made this from code in class Jig
+        """
+        [friend method for class Jig]
+        
+        append a jig to self.jigs, and perform necessary invalidations
+        """
+        self.jigs.append(jig)
+        #k not sure if following is needed -- bruce 060322
+        _changed_structure_Atoms[self.key] = self
+
+    def _f_jigs_remove(self, jig): #bruce 071025 made this from code in class Jig
+        """
+        [friend method for class Jig]
+        
+        remove a jig from self.jigs, and perform necessary invalidations.
+
+        @note: if jig is not in self.jigs, complain (when platform.atom_debug),
+        but tolerate this.
+        (It's probably an error, but of unknown commonness or seriousness.)
+        """
+        try:
+            self.jigs.remove(jig)
+        except:
+            # Q: does this ever still happen? TODO: if so, document when & why.
+            # Note that, in theory, it could happen for several reasons,
+            # not just the expected one (jig not in a list).
+            # new feature 071025 -- if it's not that, raise a new exception.
+            # (We could also only catch ValueError here -- might be more sensible.
+            #  First verify it's the right one for .remove not finding something!)
+            assert type(self.jigs) is type([])
+            if platform.atom_debug:
+                print_compact_traceback("atom_debug: ignoring exception in _f_jigs_remove (Jig.rematom): ")
+        else:
+            _changed_structure_Atoms[self.key] = self #k not sure if needed #bruce 060322
+        return
+
     # For each entry in this dictionary, add a context menu command on atoms of the key element type
     # allowing transmutation to each of the element types in the value list.
     # (bruce 070412 addition: if the selected atoms are all one element, and
