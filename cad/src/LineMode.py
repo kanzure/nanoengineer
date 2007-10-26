@@ -149,8 +149,17 @@ class LineMode(TemporaryCommand_Overdrawing):
         self.mouseClickPoints = []
         
         if hasattr(prevMode, 'provideParamsForTemporaryMode'):
-            self.mouseClickLimit = prevMode.provideParamsForTemporaryMode(self.modename)
-        return    
+            params = prevMode.provideParamsForTemporaryMode(self.modename)
+            self.setParams(params)
+        return   
+    
+    def setParams(self, params):
+        """
+        Assign values obtained from the previouse mode to the instance variables
+        of this command object. 
+        """
+        self.mouseClickLimit = params        
+        
         
     def restore_gui(self):
         """

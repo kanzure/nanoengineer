@@ -22,13 +22,14 @@ from Utility        import Group
 from utilities.Log  import redmsg, greenmsg
 from VQT            import Veq, vlen
 from DnaDuplex      import B_Dna_PAM3
+from DnaDuplex      import B_Dna_PAM5
 
 from GeneratorBaseClass import CadBug, PluginBug, UserError
 from DnaDuplexPropertyManager import DnaDuplexPropertyManager
 
 from constants import gensym
 
-from Dna_Constants import getNumberOfBasesFromDuplexLength
+from Dna_Constants import getNumberOfBasesFromDuplexLength, getDuplexRise
 
 class DnaDuplexEditController(EditController):
     """
@@ -83,13 +84,6 @@ class DnaDuplexEditController(EditController):
         """
         pass
 
-    def ZeditStructure(self):
-        """
-        Overrides superclass method. It doesn't do anything for this type
-        of editcontroller
-        """
-        pass
-
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 
@@ -117,6 +111,7 @@ class DnaDuplexEditController(EditController):
         # checking in gather_parameters
         numberOfBases, \
                      dnaForm, \
+                     dnaModel, \
                      basesPerTurn, \
                      endPoint1, \
                      endPoint2 = params
@@ -131,7 +126,12 @@ class DnaDuplexEditController(EditController):
             return None
 
         if dnaForm == 'B-DNA':
-            dna = B_Dna_PAM3()
+            if dnaModel == 'PAM-3':
+                dna = B_Dna_PAM3()
+            elif dnaModel == 'PAM-5':
+                dna = B_Dna_PAM5()
+            else:
+                print "bug: unknown dnaModel type: ", dnaModel
         else:
             raise PluginBug("Unsupported DNA Form: " + dnaForm)
 
@@ -175,7 +175,7 @@ class DnaDuplexEditController(EditController):
 
         except (PluginBug, UserError):
             # Why do we need UserError here? Mark 2007-08-28
-            rawDnaGroup.kill()
+            dnaGroup.kill()
             raise PluginBug("Internal error while trying to create DNA duplex.")
 
 
@@ -272,7 +272,15 @@ class DnaDuplexEditController(EditController):
         self.propMgr.numberOfBasesSpinBox.setValue(numberOfBases)
         self.propMgr.specifyDnaLineButton.setChecked(False)
         self.preview_or_finalize_structure(previewing = True)
-
+    
+    def provideParamsForTemporaryMode(self, temporaryModeName):
+        """
+        """
+        assert temporaryModeName == 'DNA_LINE_MODE'
+        
+        mouseClickLimit = 2
+        duplexRise =  getDuplexRise('B-DNA')
+        return (mouseClickLimit, duplexRise)
 
     def enterDnaLineMode(self, isChecked = False):
         """

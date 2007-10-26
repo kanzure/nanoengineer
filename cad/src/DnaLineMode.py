@@ -9,12 +9,13 @@
 from LineMode import LineMode
 
 from drawer import drawline, drawsphere
-from constants import black
+from drawer import drawLadder
+from constants import black, red, blue
 
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix
 
-
+from VQT import V, norm, Q
 # == GraphicsMode part
 
 class DnaLine_GM( LineMode.GraphicsMode_class ):
@@ -22,11 +23,30 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
     Custom GraphicsMode for use as a component of DnaLineMode.
     @see: L{DnaLineMode} for more comments. 
     """    
+    def __init__(self, command):
+        """
+        """
+        LineMode.GraphicsMode_class.__init__(self, command)
+        self.quat = Q(self.glpane.quat)
       
-    def Draw_NOT_IMPLEMENTED_YET(self):
+    def Draw_NIY(self):
         """
+        not implemented yet
         """
-        LineMode.GraphicsMode_class.Draw(self)
+        pass
+        
+        #LineMode.GraphicsMode_class.Draw(self)
+        #if self.endPoint2 and self.endPoint1:            
+            #drawLadder(self.endPoint1,
+                       #self.endPoint2, 
+                       #self.command.duplexRise,
+                       #self.quat,
+                       #beam1Color = red,
+                       #beam2Color = blue,
+                       #stepColor = black    
+                    #)          
+           
+            
         #if 0:
             #if self.currentPoint:
                 #glPushMatrix()  
@@ -42,7 +62,6 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                      #self.currentPoint, 
                      #dashEnabled = True)            
                 #glPopMatrix()
-    
     
 
 # == Command part
@@ -63,11 +82,11 @@ class DnaLineMode(LineMode):
           related  TODOs.
     """
     
-    # class constants
+    # class constants    
+    modename = 'DNA_LINE_MODE'    
     
-    modename = 'DNA_LINE_MODE'
-    default_mode_status_text = ""
-    hover_highlighting_enabled = True
-    
-    mouseClickPoints = []
     GraphicsMode_class = DnaLine_GM
+        
+    def setParams(self, params):
+        assert len(params) == 2
+        self.mouseClickLimit, self.duplexRise = params

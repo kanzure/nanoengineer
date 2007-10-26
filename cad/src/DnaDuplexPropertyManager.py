@@ -158,6 +158,14 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         self.connect( self.conformationComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.conformationComboBoxChanged )
+        
+        dnaModelChoices = ['PAM-3', 'PAM-5']
+        self.dnaModelComboBox = \
+            PM_ComboBox( pmGroupBox,     
+                         label         =  "Model :", 
+                         choices       =  dnaModelChoices,
+                         setAsDefault  =  True)
+                                            
 
         # Strand Length (i.e. the number of bases)
         self.numberOfBasesSpinBox = \
@@ -342,6 +350,8 @@ Only B-DNA is currently supported in NanoEngineer-1.</p>""")
         numberOfBases = self.numberOfBasesSpinBox.value()
         dnaForm  = str(self.conformationComboBox.currentText())
         basesPerTurn = self.basesPerTurnDoubleSpinBox.value()
+        
+        dnaModel = str(self.dnaModelComboBox.currentText())
 
         # First endpoint (origin) of DNA duplex
         x1 = self.x1SpinBox.value()
@@ -360,6 +370,7 @@ Only B-DNA is currently supported in NanoEngineer-1.</p>""")
 
         return (numberOfBases, 
                 dnaForm,
+                dnaModel,
                 basesPerTurn,
                 self.endPoint1, 
                 self.endPoint2)
