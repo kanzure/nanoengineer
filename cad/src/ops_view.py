@@ -3,7 +3,8 @@
 ops_view.py provides viewSlotsMixin for MWsemantics,
 with view slot methods and related helper methods.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 Note: most other ops_*.py files provide mixin classes for Part,
 not for MWsemantics like this one.
@@ -23,7 +24,7 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 from qutemol import launch_qutemol, write_qutemol_files
 from prefs_constants import ORTHOGRAPHIC
 from prefs_constants import PERSPECTIVE
-from Csys import Csys # if this works at toplevel, remove the inner ones #####
+from Csys import Csys
 
 class viewSlotsMixin:
     """
@@ -392,7 +393,6 @@ class viewSlotsMixin:
             # If you put quatX first, it won't give isometric view ninad060810
 
     def saveNamedView(self):
-        from Csys import Csys
         csys = Csys(self.assy, None, 
                     self.glpane.scale, 
                     self.glpane.pov, 
@@ -407,8 +407,6 @@ class viewSlotsMixin:
         """
         Returns a list of all the named view nodes in the MT inside a part.
         """
-        from Csys import Csys
-
         namedViewList = [] #Hold the result list
 
         def function(node):
