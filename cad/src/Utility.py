@@ -25,12 +25,12 @@ import env
 from constants import genKey
 from state_utils import copy_val, StateMixin
 from utilities.Log import redmsg, orangemsg
-
 from state_constants import S_PARENT, S_DATA, S_CHILD, S_CHILDREN
 
 from GroupProp import GroupProp
-
 from icon_utilities import imagename_to_pixmap
+
+from Assembly_API import Assembly_API
 
 debug_undoable_attrs = False
 
@@ -144,30 +144,21 @@ class Node( StateMixin):
         """
         #bruce 050205 added docstring; bruce 050216 revised it
 
-##bruce 051013: this is no longer needed (and neither is the _um_key argument I recently added to __init__):
-##        if assy == '<not an assembly>':
-##            # i.e. if we are _nullMol
-##            pass # our changes get tracked into a garbage dict, from where they periodically get discarded
-##        else:
-##            self._um_init( assy._u_archive, _um_key )
-##            # this is needed before any _um_xxx calls on self (used for recording or summarizing changes)
-
         self.name = name or "" # assumed to be a string by some code
         
-        # assy -- as temporary kluge, permitted to be a Part as well [bruce 050223]
-        from assembly import assembly # the class
-        if assy is not None and not isinstance(assy, assembly) and assy != '<not an assembly>':
-            assert 0, "Node assy must be an assembly, not a Part" # bruce 050527 stop permitting this
+        # assy must be None or an assembly or a certain string
+        if assy is not None and not isinstance(assy, Assembly_API) and assy != '<not an assembly>':
+            assert 0, "node.assy must be an assembly" # no need to mention the private possibilities
         # verify assy is not None (not sure if that's allowed in principle, but I think it never happens) [050223]
         if assy is None:
-            if platform.atom_debug: # might not yet be safe to print self, esp if it's a subclass
-                print_compact_stack("atom_debug: Node or Group constructed with null assy = %r" % assy)
+            #bruce 071026 always print this, not only when atom_debug
+            print_compact_stack("note: Node or Group constructed with assy = None: ")
         self.assy = assy
         if dad: # dad must be another Node (which must be a Group), or None
             dad.addchild(self) #bruce 050206 changed addmember to addchild, enforcing dad correctness
                 # warning [bruce 050316]: this might call inherit_part; subclasses must be ready for this
                 # by the time their inits call ours, e.g. a Group must have a members list by then.
-            assert self.dad is dad
+            assert self.dad is dad # addchild should have done this
         if self.__declare_undoable_attrs is not None: #bruce 060223 (temporary kluge)
             # it's None except the first time in each Node subclass; is there a faster test? (Guess: boolean test is slower.)
             self.__declare_undoable_attrs()
@@ -191,8 +182,7 @@ class Node( StateMixin):
             oldassy = self.assy
             if oldassy is not None:
                 assert oldassy != '<not an assembly>' # simplest to just require this; nodes constructed that way shouldn't be moved
-                from assembly import assembly # the class
-                assert isinstance(oldassy, assembly)
+                assert isinstance(oldassy, Assembly_API)
                 # some of the above conds might not be needed, or might be undesirable; others should be moved into following subr
                 self.remove_from_parents()
                 assert self.assy is None

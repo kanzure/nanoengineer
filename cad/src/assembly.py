@@ -1,7 +1,7 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 """
-assembly.py -- provides class assembly, for everything stored in one file,
+assembly.py -- provides class assembly, for everything stored in one mmp file,
 including one main part and zero or more clipboard items; see also part.py.
 
 @version: $Id$
@@ -92,6 +92,8 @@ from icon_utilities import imagename_to_pixmap
 from PartProp import PartProp
 from PyQt4 import QtGui
 
+from Assembly_API import Assembly_API
+
 # ==
 
 debug_assy_changes = 0 #bruce 050429
@@ -107,9 +109,18 @@ undo_archive.register_class_nickname("Assembly", "assembly") # for use in Undo a
 
 # ==
 
-class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
-    """#doc
+class assembly( StateMixin, Assembly_API):
     """
+    (This is the closest thing we have to an object
+    representing the contents of an open mmp file,
+    but it also has associated state like selection
+    and undo_archive, controllers like undo_manager,
+    and lots of miscellaneous methods for manipulating
+    that data.)
+    """
+    #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
+    #bruce 071026 inheriting Assembly_API so isinstance tests need only import that file
+    #bruce 071026 added docstring
 
     # change counters (actually more like modtimes than counters, since changes occurring between checkpoints
     # might count as only one change -- see code for details):
