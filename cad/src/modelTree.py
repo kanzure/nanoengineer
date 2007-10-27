@@ -43,7 +43,6 @@ from chunk import molecule
 from jigs import Jig
 from utilities.Log import redmsg, greenmsg, orangemsg # not all used, that's ok
 from Utility import Group
-from Utility import kluge_patch_assy_toplevel_groups
 from debug import print_compact_traceback
 
 from GlobalPreferences import permit_atom_chunk_coselection
@@ -306,7 +305,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.assy.tree.name = self.assy.name
             #k is this still desirable, now that we have PartGroup
             # so it's no longer needed for safety?
-        kluge_patch_assy_toplevel_groups( self.assy, assert_this_was_not_needed = True)
+        self.assy.kluge_patch_toplevel_groups( assert_this_was_not_needed = True)
             # fixes Group subclasses of assy.shelf and assy.tree, and
             # [not anymore, as of some time before 050417] inserts assy.viewdata.members into assy.tree
         self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf

@@ -1478,7 +1478,6 @@ def _reset_grouplist(assy, grouplist):
     Now we scan it and perform those side effects ourselves.
     """
     #bruce 050418: revising this for assy/part split
-    from Utility import kluge_patch_assy_toplevel_groups
     if grouplist is None:
         # do most of what old code did (most of which probably shouldn't be done,
         # but this needs more careful review (especially in case old code has
@@ -1490,7 +1489,7 @@ def _reset_grouplist(assy, grouplist):
         assy.shelf.name = "Clipboard"
         assy.shelf.open = False
         assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
-        kluge_patch_assy_toplevel_groups(assy)
+        assy.kluge_patch_toplevel_groups()
         assy.update_parts()
         return
     viewdata, tree, shelf = grouplist
@@ -1503,7 +1502,7 @@ def _reset_grouplist(assy, grouplist):
     if not assy.shelf.open_specified_by_mmp_file: #bruce 050421 added condition
         assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
-    kluge_patch_assy_toplevel_groups(assy)
+    assy.kluge_patch_toplevel_groups()
     assy.update_parts() #bruce 050309 for assy/part split
     # Now the parts exist, so it's safe to store the viewdata into the mainpart;
     # this imitates what the pre-050418 code did when the csys records were parsed;

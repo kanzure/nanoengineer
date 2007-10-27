@@ -5,7 +5,7 @@ assembly.py -- provides class assembly, for everything stored in one file,
 including one main part and zero or more clipboard items; see also part.py.
 
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 ==
 
@@ -68,7 +68,10 @@ on __xxx__ attrs in python objects.
 import os
 
 import Initialize
-from Utility import Group, node_name, kluge_patch_assy_toplevel_groups
+
+from Utility import Group, node_name
+from Utility import is_pastable
+
 from debug import print_compact_traceback
 from prefs_constants import workingDirectory_prefs_key
 
@@ -85,6 +88,11 @@ from state_constants import S_CHILD, S_DATA, S_REF
 
 import part
 
+from icon_utilities import imagename_to_pixmap
+from PartProp import PartProp
+from PyQt4 import QtGui
+
+# ==
 
 debug_assy_changes = 0 #bruce 050429
 
@@ -96,6 +104,8 @@ assy_number = 0 # count assembly objects [bruce 050429]
 _assy_owning_win = None #bruce 060122; assumes there's only one main window; probably needs cleanup
 
 undo_archive.register_class_nickname("Assembly", "assembly") # for use in Undo attr-dependency decls
+
+# ==
 
 class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for this (below), which should become the preferred name
     """#doc
@@ -232,7 +242,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         self._last_set_selwhat = self.selwhat
         
         #bruce 050131 for Alpha:
-        kluge_patch_assy_toplevel_groups( self)
+        self.kluge_patch_toplevel_groups( )
         self.update_parts() #bruce 050309 for assy/part split
 
         #bruce 050429 as part of fixing bug 413, no longer resetting self._modified here --
@@ -304,6 +314,73 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
             self.undo_manager.deinit()
             #e more? forget self.w?? maybe someday, in case someone uses it now who should be using env.mainwindow()
         return
+
+    # ==
+
+    def kluge_patch_toplevel_groups(self, assert_this_was_not_needed = False): #bruce 050109
+        #bruce 071026 moved this here from helper function kluge_patch_assy_toplevel_groups in Utility.py
+        """
+        [friend function; not clearly documented]
+        This kluge is needed until we do the same thing in
+        whatever makes the toplevel groups in an assembly (eg files_mmp).
+        Call it as often as you want (at least once before updating model tree
+        if self might be newly loaded); it only changes things when it needs to
+        (once for each newly loaded file or inited assy, basically);
+        in theory it makes assy (self) "look right in the model tree"
+        without changing what will be saved in an mmp file,
+        or indeed what will be seen by any other old code looking at
+        the 3 attrs of self which this function replaces (shelf, tree, root).
+        Note: if any of them is None, or not an instance object, we'll get an exception here.
+        """
+        #bruce 050131 for Alpha:
+        # this is now also called in assembly.__init__ and in readmmp,
+        # not only from the mtree.
+        
+        ## oldmod = assy_begin_suspend_noticing_changes(self)
+        oldmod = self.begin_suspend_noticing_changes()
+        # does doing it this soon help? don't know why, was doing before root mod...
+        # now i am wondering if i was wrong and bug of wrongly reported assy mod
+        # got fixed even by just doing this down below, just before remaking root.
+        # anyway that bug *is* fixed now, so ok for now, worry about it later. ###@@@
+        fixroot = 0
+        try:
+            if self.shelf.__class__ is Group:
+                self.shelf = self.shelf.kluge_change_class( ClipboardShelfGroup)
+                fixroot = 1
+            if self.tree.__class__ is Group:
+                self.tree = self.tree.kluge_change_class( PartGroup)
+                ##bruce 050302 removing use of 'viewdata' here,
+                # since its elements are no longer shown in the modelTree,
+                # and I might as well not figure them out re assy/part split until we want
+                # them back and know how we want them to behave regarding parts.
+    ##            lis = list(self.viewdata.members)
+    ##            # are these in the correct order (CSys XY YZ ZX)? I think so. [bruce 050110]
+    ##            self.tree.kluge_set_initial_nonmember_kids( lis )
+                fixroot = 1
+            if self.root.__class__ is Group or fixroot:
+                fixroot = 1 # needed for the "assert_this_was_not_needed" check
+                #e make new Root Group in there too -- and btw, use it in model tree widgets for the entire tree...
+                # would it work better to use kluge_change_class for this?
+                # academic Q, since it would not be correct, members are not revised ones we made above.
+                self.root = RootGroup("ROOT", self, None, [self.tree, self.shelf]) #k ok to not del them from the old root??
+                ###@@@ BUG (suspected caused here): fyi: too early for this status msg: (fyi: part now has unsaved changes)
+                # is it fixed now by the begin/end funcs? at leastI don't recall seeing it recently [bruce 050131]
+                ## removed this, 050310: self.current_selection_group = self.tree #bruce 050131 for Alpha
+                self.root.unpick() #bruce 050131 for Alpha, not yet 100% sure it's safe or good, but probably it prevents bugs
+                ## revised this, 050310:
+                ## self.current_selection_group = self.tree # do it both before and after unpick (though in theory either alone is ok)
+                ## self.current_selgroup_changed()
+                ## self.set_current_selgroup( self.tree) -- no, checks are not needed and history message is bad
+                self.init_current_selgroup() #050315
+        finally:
+            ## assy_end_suspend_noticing_changes(self,oldmod)
+            self.end_suspend_noticing_changes(oldmod)
+            if fixroot and assert_this_was_not_needed: #050315
+                if platform.atom_debug:
+                    print_compact_stack("atom_debug: fyi: kluge_patch_toplevel_groups sees fixroot and assert_this_was_not_needed: ")
+        return
+
+    # ==
     
     #bruce 051031: keep counter of selection commands in assy (the model object), not Part,
     # to avoid any chance of confusion when atoms (which will record this as their selection time)
@@ -1208,5 +1285,139 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
     pass # end of class assembly
 
 Assembly = assembly #bruce 060224 thinks this should become the preferred name for the class (and the only one, when practical)
+
+# ==
+
+# specialized kinds of Groups: [bruce 050108/050109]
+# [moved from Utility.py since now only used here;
+#  TODO: these Group subclasses could all be renamed as private.
+#  bruce 071026]
+
+class PartGroup(Group):
+    """
+    A specialized Group for holding the entire "main model" of an assembly,
+    with provisions for including the "assy.viewdata" elements as initial kids, but not in self.members
+    (which is a kluge, and hopefully can be removed reasonably soon, though perhaps not for Alpha).
+    """
+    _initialkids = [] #bruce 050302
+    # These revised definitions are the non-kluge reason we need this subclass: ###@@@ also some for menus...
+    def is_top_of_selection_group(self): return True #bruce 050131 for Alpha
+    def rename_enabled(self): return False
+    def drag_move_ok(self): return False
+    # ... but drag_copy is permitted! (someday, when copying groups is permitted)
+    # drop methods should be the same as for any Group
+    def permits_ungrouping(self): return False
+    def node_icon(self, display_prefs):
+        # same whether closed or open
+        return imagename_to_pixmap("modeltree/part.png")
+##    # And this temporary kluge makes it possible to use this subclass where it's
+##    # needed, without modifying assembly.py or files_mmp.py:
+##    def kluge_set_initial_nonmember_kids(self, lis): #bruce 050302 comment: no longer used, for now
+##        """[This kluge lets the csys and datum plane model tree items
+##        show up in the PartGroup, without their nodes being in its members list,
+##        since other code wants their nodes to remain in assy.viewdata, but they can
+##        only have one .dad at a time. Use of it means you can't assume node.dad
+##        corresponds to model tree item parent!]
+##        """
+##        lis = filter( lambda node: node.show_in_model_tree(), lis)
+##            # bruce 050127; for now this is the only place that honors node.show_in_model_tree()!
+##        self._initialkids = list(lis)
+    def kids(self, display_prefs):
+        "overrides Group.kids"
+        if not self.openable() or not display_prefs.get('open',False):
+            return []
+        regularkids = Group.kids(self, display_prefs)
+        return list(self._initialkids + regularkids)
+    def edit(self):
+        cntl = PartProp(self.assy)
+            #bruce comment 050420: PartProp is passed assy and gets its stats from assy.tree.
+            # This needs revision if it should someday be available for Parts on the clipboard.
+        cntl.exec_()
+        self.assy.mt.mt_update()
+    def description_for_history(self):
+        """[overridden from Group method]"""
+        return "Part Name: [" + self.name +"]"
+    pass
+
+class ClipboardShelfGroup(Group):
+    """
+    A specialized Group for holding the Clipboard (aka Shelf).
+    """
+    def postcopy_in_mapping(self, mapping): #bruce 050524
+        assert 0, "ClipboardShelfGroup.postcopy_in_mapping should never be called!"
+    def pick(self): #bruce 050131 for Alpha
+        msg = "Clipboard can't be selected or dragged. (Individual clipboard items can be.)"
+        env.history.statusbar_msg( msg)
+    def is_selection_group_container(self):
+        return True #bruce 050131 for Alpha
+    def rename_enabled(self):
+        return False
+    def drag_move_ok(self):
+        return False
+    def drag_copy_ok(self):
+        return False
+    def drop_on_should_autogroup(self, drag_type, nodes): #bruce 071025
+        """
+        [overrides Node method]
+        """
+        # note: drop on clipboard makes a new clipboard item.
+        return len(nodes) > 1
+    def permits_ungrouping(self):
+        return False
+    ##bruce 050316: does always being openable work around the bugs in which this node is not open when it should be?
+    ###e btw we need to make sure it becomes open whenever it contains the current part. ####@@@@
+##    def openable(self): # overrides Node.openable()
+##        "whether tree widgets should permit the user to open/close their view of this node"
+##        non_empty = (len(self.members) > 0)
+##        return non_empty
+    def node_icon(self, display_prefs):
+        del display_prefs # unlike most Groups, we don't even care about 'open'
+        non_empty = (len(self.members) > 0)
+        if non_empty:
+            kluge_pixmap = imagename_to_pixmap("modeltree/clipboard-full.png")
+            res = imagename_to_pixmap("modeltree/clipboard-full.png")
+        else:
+            kluge_pixmap = imagename_to_pixmap("modeltree/clipboard-gray.png")
+            res = imagename_to_pixmap("modeltree/clipboard-empty.png")
+        # kluge: guess: makes paste tool look enabled or disabled
+        ###@@@ clean this up somehow?? believe it or not, it might actually be ok...
+        self.assy.w.editPasteAction.setIcon(QtGui.QIcon(kluge_pixmap))
+        return res
+    def edit(self):
+        return "The Clipboard does not yet provide a property-editing dialog."
+    def edit_props_enabled(self):
+        return False
+    def description_for_history(self):
+        """[overridden from Group method]"""
+        return "Clipboard"    
+    def getPastables(self):
+        """
+        """
+        pastables = []
+        pastables = filter(is_pastable, self.members)
+        return pastables
+    pass
+
+class RootGroup(Group):
+    """
+    A specialized Group for holding the entire model tree's toplevel nodes,
+    which (by coincidence? probably more like a historical non-coincidence)
+    imitates the assy.root member of the pre-050109 code. [This will be revised... ###@@@]
+    [btw i don't know for sure that this is needed at all...]
+    ###obs doc, but reuse some of it:
+    This is what the pre-050108 code made or imitated in modelTree as a Group called ROOT. ###k i think
+    This will be revised soon, because
+    (1) the assembly itself might as well be this Node,
+    (2)  the toplevel members of an assembly will differ from what they are now.
+    """
+    def postcopy_in_mapping(self, mapping): #bruce 050524
+        assert 0, "RootGroup.postcopy_in_mapping should never be called!"
+    def pick(self): #bruce 050131 for Alpha
+        self.redmsg( "Internal error: tried to select assy.root (ignored)" )
+    #e does this need to differ from a Group? maybe in some dnd/rename attrs...
+    # or maybe not, since only its kids are shown ###@@@
+    # (we do use the fact that it differs in class from a Group
+    #  as a signal that we might need to replace it... not sure if this is needed)
+    pass
 
 # end
