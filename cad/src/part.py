@@ -49,7 +49,7 @@ from PyQt4.Qt import QFont, QString
 
 from Utility import Node
 from Utility import Group
-from Utility import Csys
+from Csys import Csys
 from VQT import V
 from debug import print_compact_traceback, print_compact_stack
 import platform

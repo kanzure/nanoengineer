@@ -17,7 +17,7 @@ from PyQt4.Qt import QGLFormat
 from PyQt4.Qt import QGLWidget
 
 from VQT import V, Q, Trackball
-from Utility import Csys
+from Csys import Csys
 
 from prefs_constants import undoRestoreView_prefs_key
 

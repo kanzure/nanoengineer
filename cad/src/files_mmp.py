@@ -143,7 +143,7 @@ from bonds import find_bond
 from chunk import molecule #bruce 060224
 from Utility import Node
 from Utility import Group
-from Utility import Csys
+from Csys import Csys # for reading one, and for isinstance
 
 from debug import print_compact_traceback
 from debug import print_compact_stack
