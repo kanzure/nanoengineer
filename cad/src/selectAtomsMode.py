@@ -706,10 +706,19 @@ class selectAtomsMode(selectMode):
         """
         Highlight atoms or chunks inside ESPImage jigs.
         """
-        # Note [bruce 071026]: I suspect this is also relied on
-        # to draw ESPImage jigs in a later pass (in self.Draw),
-        # since the regular drawing pass skips them due to code
-        # in Utility and/or GraphicsMode.
+        # Note: this is not directly related to
+        # ESPImage's translucency (handled by code in
+        # Utility and/or GraphicsMode which detects its
+        # .draw_later_due_to_translucency setting).
+        # Rather it's due to its wanting to overdraw
+        # certain model objects. AFAIK it doesn't need
+        # this separate pass to do that, but could just
+        # do it inside its draw method, but I'm not sure --
+        # maybe not unless that method ran during the usual
+        # pass. If that alg was fixed so that esp draw did run then,
+        # it could do this itself and not need this special case,
+        # I suspect. [bruce 071026]
+        
         from jigs_planes import ESPImage
 
         if isinstance(grp, ESPImage): 
