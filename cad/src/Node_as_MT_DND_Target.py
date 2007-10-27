@@ -211,4 +211,19 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
     
     pass
 
+# ==
+
+# not yet used, but might be someday:
+#
+##from debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
+##    # this is not really needed, can remove if necessary
+##
+##def debug_pref_DND_drop_at_start_of_groups(): 
+##    #bruce 070525 -- this is so we can experiment with this NFR someday.
+##    # The code that needs to be affected by this is not yet implemented (but has a commented out call to it).
+##    # If we implement that and it works and we like it,
+##    # we'll change the default, or maybe even hardcode it, or maybe make it an official pref setting.
+##    return debug_pref("DND: drop at start of groups?", Choice_boolean_False,
+##                      non_debug = True, prefs_key = True)
+
 # end
