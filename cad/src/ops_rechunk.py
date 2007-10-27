@@ -225,7 +225,8 @@ class ops_rechunk_Mixin:
     def makeStrandChunkFromBrokenStrand(self, x1, x2):
         """
         Makes a new strand chunk from the two singlets just created by
-        busting the original strand, which is now broken.
+        busting the original strand, which is now broken. If the original
+        strand was a ring, no new chunk is created.
         
         The new strand chunk is added to the same DNA group as the original
         strand and assigned a different color.
@@ -240,7 +241,8 @@ class ops_rechunk_Mixin:
                    but we don't know yet.
         @type  x2: L{Atom}
         
-        @return: The new strand chunk.
+        @return: The new strand chunk. Returns B{None} if no new strand chunk
+                 is created, as is the case of a ring.
         @rtype:  L{molecule}
         """
         minimize = debug_pref("Adjust open bond singlets using minimizer?",
@@ -248,25 +250,39 @@ class ops_rechunk_Mixin:
                          prefs_key = '_debug_pref_key:Adjust open bond singlets using minimizer?',
                          non_debug = True )
         
+        _five_prime_atom = None
+        _three_prime_atom = None
+        
         for singlet in (x1, x2):
             singlet.adjustSinglet(minimize = minimize)
             open_bond = singlet.bonds[0]
             if open_bond.isFivePrimeOpenBond():
-                five_prime_atom = open_bond.other(singlet)
+                _five_prime_atom = open_bond.other(singlet)
             else:
-                three_prime_atom = open_bond.other(singlet)
-                
-        atomList = self.o.assy.getConnectedAtoms([five_prime_atom])
+                _three_prime_atom = open_bond.other(singlet)
         
-        if three_prime_atom in atomList:
+        # Make sure we have exactly one 3' and one 5' singlet.
+        # If not, there is probably a direction error on the open bond(s)
+        # that x1 and/or x2 are members of.
+        if not _five_prime_atom:
+            raise PluginBug("No five prime singlet.")
+        if not _three_prime_atom:
+            raise PluginBug("No three prime singlet.")
+            
+        atomList = self.o.assy.getConnectedAtoms([_five_prime_atom])
+        
+        if _three_prime_atom in atomList:
             # The strand was a closed loop strand, so we're done.
-            return five_prime_atom.molecule
+            return None # Since no new chunk was created.
         
-        dnaGroup = five_prime_atom.molecule.dad
+        self.ensure_toplevel_group() 
+            # called to avoid potential bug: grabbing dad might change its  
+            # value to a newly created group.
+        _group_five_prime_was_in = _five_prime_atom.molecule.dad
         random.shuffle(strandColorList) # Randomize strandColorList
 
         return self.makeChunkFromAtomList(atomList,
-                                          group = dnaGroup,
+                                          group = _group_five_prime_was_in,
                                           name = gensym("Strand"), 
                                           color = strandColorList[0])
 
