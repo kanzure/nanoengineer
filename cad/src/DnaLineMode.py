@@ -9,7 +9,7 @@
 from LineMode import LineMode
 
 from drawer import drawline, drawsphere
-from drawer import drawLadder
+##from drawer import drawLadder
 from constants import black, red, blue
 
 from OpenGL.GL import glPopMatrix
