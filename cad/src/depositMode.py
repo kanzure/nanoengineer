@@ -56,8 +56,8 @@ from drawer     import drawline
 from icon_utilities import geticon
 from Utility    import Group
 from Utility    import Node
-from Utility    import is_pastable
-from Utility    import find_hotspot_for_pasting
+from pastables  import is_pastable
+from pastables  import find_hotspot_for_pasting
 
 from ops_copy        import copied_nodes_for_DND
 from selectMode      import DRAG_STICKINESS_LIMIT

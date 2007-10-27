@@ -24,7 +24,7 @@ import changes
 from utilities.Log import orangemsg
 from chem          import Atom
 from elements      import Singlet
-from Utility       import is_pastable
+from pastables     import is_pastable
 from depositMode   import depositMode
 
 from PastePropertyManager import PastePropertyManager

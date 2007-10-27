@@ -1,18 +1,28 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Utility.py -- class Node (superclass for all model-tree objects), Group, and a few subclasses,
-defining a uniform API to permit all Node subclasses to be shown in the model tree.
+Utility.py -- class Node (superclass for all model-tree objects),
+Group, and a few subclasses, defining a uniform API to permit all
+Node subclasses to be shown in the model tree, and methods for
+manipulation of Node trees. (All non-leaf nodes must be Groups.)
 
-$Id$
+@author: Josh
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+
+Notes:
 
 Other files define other subclasses of Node, such as molecule and Jig.
 
-This file should eventually be split into separate modules for Node, Group and specialized Groups, and others.
+Todo:
 
-History: originally by Josh; gradually has been greatly extended by Bruce,
+This file should eventually be split into separate modules for Node,
+Group and specialized Groups, and others.
+
+History:
+
+Originally by Josh; gradually has been greatly extended by Bruce,
 but the basic structure of Nodes and Groups has not been changed.
 """
-__author__ = "Josh"
 
 import sys, os
 from debug import print_compact_stack, print_compact_traceback
@@ -29,81 +39,6 @@ from VQT import V, Q
 from icon_utilities import imagename_to_pixmap
 
 debug_undoable_attrs = False
-
-# ==
-
-# TODO: move these to their own new file, pastable.py [bruce 071026 comment]
-
-#methods originally defined in depositMode.py -- to find pastable chunks
-#NEED CLEANUP ----- ninad 2007-08-29
-
-#bruce 050121 split out hotspot helper functions, for slightly more general use
-
-def is_pastable(obj): #e refile and clean up
-    "whether to include a clipboard object on Build's pastable spinbox"
-    #bruce 050127 make this more liberal, so it includes things which are
-    # not pastable onto singlets but are still pastable into free space
-    # (as it did before my changes of a few days ago)
-    # but always run is_pastable_onto_singlet in case it has a klugy bugfixing side-effect
-    return is_pastable_onto_singlet(obj) or is_pastable_into_free_space(obj)
-
-# these separate is_pastable_xxx functions make a distinction which might not yet be used,
-# but which should be used soon to display these kinds of pastables differently
-# in the model tree and/or spinbox [bruce 050127]:
-
-def is_pastable_into_free_space(obj):#bruce 050127
-    from chunk import molecule
-    return isinstance(obj, molecule) or isinstance(obj, Group)
-
-def is_pastable_onto_singlet(obj): #bruce 050121 (renamed 050127)
-    # this might have a klugy bugfixing side-effect -- not sure
-    ok, spot_or_whynot = find_hotspot_for_pasting(obj)
-    return ok
-
-def find_hotspot_for_pasting(obj):
-    """Return (True, hotspot) or (False, reason),
-    depending on whether obj is pastable in Build mode
-    (i.e. on whether a copy of it can be bonded to an existing singlet).
-    In the two possible return values,
-    hotspot will be one of obj's singlets, to use for pasting it
-    (but the one to actually use is the one in the copy made by pasting),
-    or reason is a string (for use in an error message) explaining why there isn't
-    a findable hotspot. For now, the hotspot can only be found for certain
-    chunks (class molecule), but someday it might be defined for certain
-    groups, as well, or anything else that can be bonded to an existing singlet.
-    """
-    #Note: method modified to support group pasting -- ninad 2007-08-29
-    from chunk import molecule
-    
-    if not (isinstance(obj, molecule) or isinstance(obj, Group)):
-        return False, "only chunks or groups can be pasted" #e for now    
-    if isinstance(obj, molecule):
-	ok, spot_or_whynot = findHotspot(obj)
-	return ok, spot_or_whynot
-    elif isinstance(obj, Group):
-	groupChunks = []
-	def func(node):
-	    if isinstance(node, molecule):
-		groupChunks.append(node)
-		
-	obj.apply2all(func)
-	
-	if len(groupChunks):
-	    for m in groupChunks:		
-		ok, spot_or_whynot = findHotspot(m)
-		if ok:
-		    return ok, spot_or_whynot
-	return False, "no hotspot in group's chunks"
-	
-def findHotspot(obj):
-    from chunk import molecule    
-    if isinstance(obj, molecule):
-	if len(obj.singlets) == 0:
-	    return False, "no bondpoints in %r (only pastable in empty space)" % obj.name
-	elif len(obj.singlets) > 1 and not obj.hotspot:
-	    return False, "%r has %d bondpoints, but none has been set as its hotspot" % (obj.name, len(obj.singlets))
-	else:
-	    return True, obj.hotspot or obj.singlets[0]
 
 # ==
 

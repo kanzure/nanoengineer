@@ -70,7 +70,7 @@ import os
 import Initialize
 
 from Utility import Group, node_name
-from Utility import is_pastable
+from pastables import is_pastable
 
 from debug import print_compact_traceback
 from prefs_constants import workingDirectory_prefs_key
