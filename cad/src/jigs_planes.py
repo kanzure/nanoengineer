@@ -363,7 +363,9 @@ def povStrVec(va):
 # == ESPImage
 
 class ESPImage(RectGadget):
-    ''' '''
+    """
+    Electrostatic potential image, displayed as a translucent square in 3D.
+    """
     #bruce 060212 use separate own_mutable_attrs and mutable_attrs to work around design flaws in attrlist inheritance scheme
     # (also including superclass mutable_attrs center,quat -- might fix some bugs -- and adding image_mods)
     own_mutable_attrs = ('fill_color', 'image_mods', )
@@ -378,6 +380,18 @@ class ESPImage(RectGadget):
     icon_names = ["modeltree/ESP_Image.png", "modeltree/ESP_Image-hide.png"]
     mmp_record_name = "espimage"
     featurename = "ESP Image" #Renamed from ESP Window. mark 060108
+    
+    draw_later_due_to_translucency = True # overrides Node default [bruce 071026]
+        # Note: all code which treats ESPImage specially due to its being translucent
+        # now uses this class-constant flag to identify it. But ESPImage has several
+        # other unique properties which are still detected using isinstance,
+        # like its desire to overdraw certain atoms or chunks when drawn in
+        # selectAtomsMode, or its relation to the mirroring feature or to NanoHive.
+        # That code needs to use some other new flag (or new other scheme), not this one.
+        #
+        # TODO: the algorithm for honoring this attribute should be made more efficient
+        # so it doesn't require two complete drawing passes over the model tree.
+        # [bruce 071026 comment]
     
     def __init__(self, assy, list, READ_FROM_MMP=False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)

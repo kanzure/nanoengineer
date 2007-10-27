@@ -83,11 +83,17 @@ class Node( StateMixin):
     by Group, and some of them by other Node subclasses.
     """
 
-    featurename = "" # default value of per-subclass attribute -- wiki help featurename for Node subclass [bruce 051201]
+    # default values of per-subclass constants
+    # (see also attribute declarations, below)
     
+    featurename = "" # wiki help featurename for Node subclass [bruce 051201]
+
+    draw_later_due_to_translucency = False # [bruce 071026]
+
+    # default values of instance variables
+
     name = "" # for use before __init__ runs (used in __str__ of subclasses)
     
-    # default values of instance variables
     picked = False # whether it's selected
         # (for highlighting in all views, and being affected by operations)
     hidden = False # whether to make it temporarily invisible in the glpane
@@ -106,6 +112,8 @@ class Node( StateMixin):
     
     is_movable = False #mark 060120
 
+    # attribute declarations (per-subclass constants used for copy and undo)
+    
     copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice') #bruce 050526
         # (see also __declare_undoable_attrs [bruce 060223])
         # subclasses need to extend this
@@ -2135,16 +2143,17 @@ class Group(Node):
             x.dumptree(depth+1)
 
         
-    def draw(self, glpane, dispdef): #bruce 050615 revised this
+    def draw(self, glpane, dispdef): #bruce 050615, 071026 revised this
         if self.hidden:
             #k does this ever happen? This state might only be stored on the kids... [bruce 050615 question]
             return
-        self.draw_begin(glpane, dispdef)
-        from jigs_planes import ESPImage
-    
+        self.draw_begin(glpane, dispdef)    
         try:
-            for ob in self.members[:]:
-                if not isinstance(ob, ESPImage): #Exclude any ESP image drawing here because of its translucency. [Huaicai 9/28/05]
+            for ob in self.members: ## [:]:
+                if not ob.draw_later_due_to_translucency:
+                    #Exclude any ESP image drawing here because of its translucency. [Huaicai 9/28/05]
+                    # (They will be drawn later when GraphicsMode.Draw_after_highlighting calls
+                    #  the misnamed self._drawESPImage. [bruce 071026 comment])
                     ob.draw(glpane, dispdef)
             #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
             #e I might like to get them to honor it, and generalize dispdef into "drawing preferences".

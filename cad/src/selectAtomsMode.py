@@ -706,6 +706,10 @@ class selectAtomsMode(selectMode):
         """
         Highlight atoms or chunks inside ESPImage jigs.
         """
+        # Note [bruce 071026]: I suspect this is also relied on
+        # to draw ESPImage jigs in a later pass (in self.Draw),
+        # since the regular drawing pass skips them due to code
+        # in Utility and/or GraphicsMode.
         from jigs_planes import ESPImage
 
         if isinstance(grp, ESPImage): 

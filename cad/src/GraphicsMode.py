@@ -373,23 +373,40 @@ class basicGraphicsMode(anyGraphicsMode):
             self.o.assy.checkpicked(always_print = 0)
         return
 
-    def _drawESPImage(self, grp, pickCheckOnly): # huaicai
+    def _drawESPImage(self, grp, pickCheckOnly): # huaicai; some comments/revisions by bruce 071026
         """
-        Draw any member in the Group <grp> if it is an ESP Image.
-        Not consider the order of ESP Image objects
+        Draw any member ob in the Group <grp> if it has
+        ob.draw_later_due_to_translucency = true.
+        (As of 071026 that's only true of ESPImage objects.)
+        Not consider the order of ESP Image objects.
+        
+        (Note: the code permits grp to be a leaf node as well.)
+        
+        (Note: unreviewed for making sense if a Group has
+         .draw_later_due_to_translucency set.)
+
+        (Note: the code tries to return a flag saying whether
+        anything was drawn, but does this incorrectly since
+        it doesn't notice this flag returned from recursive calls.
+        I don't know whether this return value is ever used.
+        The only call is in this file, but probably only pretends to use it...)
         """
-        from jigs_planes import ESPImage
-       
+        ### TODO: rename this, since it applies to anything
+        # whose .draw_later_due_to_translucency class constant being true
+        # caused the regular draw pass to skip it. Also improve the
+        # efficiency (for how, see comment where ESPImage defines that
+        # class constant).
+               
         anythingDrawn = False
     
         try:
-            if isinstance(grp, ESPImage):
+            if grp.draw_later_due_to_translucency:
                 anythingDrawn = True
-                grp.pickCheckOnly = pickCheckOnly
+                grp.pickCheckOnly = pickCheckOnly # this may only make sense for ESPImage
                 grp.draw(self.o, self.o.displayMode)
             elif isinstance(grp, Group):    
-                for ob in grp.members[:]:
-                    if isinstance(ob, ESPImage):
+                for ob in grp.members: ## [:]:
+                    if ob.draw_later_due_to_translucency:
                         anythingDrawn = True
                         ob.pickCheckOnly = pickCheckOnly
                         ob.draw(self.o, self.o.displayMode)
