@@ -1,4 +1,17 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
+utilities/Log.py -- utility functions related to message logging
+
+@author: Mark
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+
+History:
+
+Mark wrote these in HistoryWidget.py.
+
+EricM moved them into a separate file in 2007.
+"""
 
 def greenmsg(text):
     """Add the tags needed to display text in green in the HistoryWidget"""
@@ -22,3 +35,5 @@ def quote_html(text): #bruce 050727
     for char, string in [('&', '&amp;'), ('<', '&lt;'), ('>', '&gt;')]: # &amp has to come first
         text = text.replace(char, string)
     return text
+
+# end
