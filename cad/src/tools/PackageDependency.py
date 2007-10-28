@@ -32,6 +32,17 @@ import sys
 import re
 import os.path
 
+try:
+    set
+except NameError:
+    # Define 'set', for versions of Python too old to define the builtin 'set',
+    # but which have an almost-compatible sets module in their standard library
+    # (which includes some versions we still run NE1 on, like 2.3). The only
+    # incompatibility that affects this script is the need for an explicit
+    # set(list2) coercion in set1.difference(set(list2)), when using sets.py.
+    from sets import Set as set
+    pass
+
 fromImportLineRegex = re.compile(r'^\s*from\s+(\S+)\s+import\s+([^#]*)')
 importLineRegex = re.compile(r'^\s*import\s+([^#]+)')
 asRegex = re.compile(r'^(\S+)\s+as\s+')
@@ -601,8 +612,8 @@ def pruneTree():
     pruneCount += len(unreferencedModulesList)
 
     externalModulesList = referencedModules.difference(allProcessedModules)
-    externalModulesList = externalModulesList.difference(externalModules)
-    externalModulesList = externalModulesList.difference(pruneModules)
+    externalModulesList = externalModulesList.difference(set(externalModules))
+    externalModulesList = externalModulesList.difference(set(pruneModules))
     externalModules += externalModulesList
     pruneCount += len(externalModulesList)
 
