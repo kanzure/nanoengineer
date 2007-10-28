@@ -44,7 +44,7 @@ locations.  The tools involved are:
    analyze a set of import statements to verify that they are
    importing symbols from their actual definition location, and not
    indirectly.  Finally, it can parse the output of pychecker,
-   converting it's warnings about undefined globals into the
+   converting its warnings about undefined globals into the
    appropriate import statements to resolve those warnings.
 
 * pychecker
@@ -147,3 +147,7 @@ If you have the GraphViz package installed, the results can be plotted
 with:
 
 $ dot -Tpng depend.dot > depend.png
+
+(To color-code the nodes by the tentative package assignments
+hardcoded into PackageDependency.py, generate depend.dot with
+the additional option --colorPackages.)
