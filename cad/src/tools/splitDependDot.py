@@ -4,6 +4,10 @@
 @author: bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+
+Note: this produces several disconnected graphs in GraphViz
+format. I don't know if the entire output
+(when it contains more than one graph) is legal GraphViz input.
 """
 
 DEBUG = False
@@ -103,12 +107,17 @@ def doit(filename):
     while imports_dict:
         first_key = sorted(imports_dict.keys())[0]
         cyclic_set = extract_connected_set( imports_dict, first_key) # a list
-        # print this cyclic set
-        print "digraph G_%s {" % first_key
         modules = sorted(cyclic_set)
+        # print this cyclic set
+        # I don't know if '#' starts a comment line in GraphViz input...
+        # and these lines are not that useful, so don't bother:
+        ## print "# " + " ".join(modules)
+        print "digraph G_%s {" % first_key
         for module1 in modules:
             for module2 in sorted(imports_dict_orig[module1]):
                 print "    %s -> %s;" % (module1, module2)
+            if module1 != modules[-1]:
+                print
         print "}\n"
     return
 
