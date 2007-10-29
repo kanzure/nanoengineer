@@ -294,6 +294,17 @@ class ops_copy_Mixin:
             # make a new part, copy pov from original one (##k I think that happens automatically in Part.__init__)
             from part import Part
             savepart = Part(self.assy, node)
+                ### TODO: get the appropriate subclass of Part from self.assy
+                # or node, and/or use a superclass with fewer methods,
+                # to break an import cycle between part and ops_copy.
+                #   Note that this method is only needed for "save selection",
+                # which is not in the UI and probably not fully implemented
+                # (though I can't see in what way it's not done in the code,
+                #  except the logic bug comment above; otoh I might be missing
+                #  something), but which appears to be "almost fully implemented",
+                # so this code should be preserved (and made accessible from a
+                # debug menu command).
+                # [bruce 071029 comment]
             killfunc = savepart.destroy_with_topnode
         self.w.win_update() # precaution in case of bugs (like side effects on selection) -- if no bugs, should not be needed
         return (savepart, killfunc, desc)
@@ -551,7 +562,7 @@ class ops_copy_Mixin:
                 # WARNING: the rules for doing this properly are tricky and are not yet documented.
                 # The basic rule is to do things in this order, for atoms only, for a lot of them at once:
                 # prekill_prep, prekill all the atoms, kill the same atoms.
-                import chem
+                import chem # TODO: move this import to toplevel if possible [bruce 071029 comment]
                 val = chem.Atom_prekill_prep()
                 for a in self.selatoms.itervalues():
                     a._will_kill = val # inlined a._prekill(val), for speed
@@ -606,6 +617,7 @@ def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None, _sort = 
     """
     # note: used in other files, not only for DND
     from ops_select import Selection
+        # TODO: move this import to toplevel if possible [bruce 071029 comment]
     if not nodes:
         return None
     if DEBUG_ORDER:
@@ -945,8 +957,10 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             # now rename it, like old code would do (in mol.copy), though whether
             # this is a good idea seems very dubious to me [bruce 050524]
             try:
-                #bruce 050627 new feature, only used experimentally so far (demo_trans is not yet committed)
+                #bruce 050627 new feature, only used experimentally so far
+                # (demo_trans is not yet committed)
                 from demo_trans import special_node_name_q
+                    # TODO: clean this up (scratch file, not in svn)
             except:
                 pass
             else:
@@ -958,6 +972,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 pass
             else:
                 from chunk import mol_copy_name
+                    # TODO: move this import to toplevel if possible [bruce 071029 comment]
                 res.name = mol_copy_name(res.name)
         #e in future we might also need to store a ref to the top original node, top_orig;
         # this is problematic when it was made up as a wrapping group,
