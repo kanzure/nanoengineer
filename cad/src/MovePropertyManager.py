@@ -27,22 +27,23 @@ class MovePropertyManager(Ui_MovePropertyManager):
     
     # The current move mode (either TRANSLATE or ROTATE).
     _currentMoveMode = TRANSLATE 
+    
+    #see self.connect_or_disconnect_signals for comment about this flag
+    isAlreadyConnected = False
         
     def __init__(self, parentMode):
         Ui_MovePropertyManager.__init__(self)     
         self.parentMode = parentMode
+        
         self.w = self.parentMode.w
         self.win = self.parentMode.w
         self.o = self.parentMode.o
         self.pw = self.parentMode.pw
-        
         self._addGroupBoxes()  
         self.lastCheckedRotateButton = None 
         self.lastCheckedTranslateButton = None
         self.isTranslateGroupBoxActive = None                         
         self.updateMessage()
-        
-        ##self.add_whats_this_text()
     
     def connect_or_disconnect_signals(self, connect):
         """
@@ -53,14 +54,44 @@ class MovePropertyManager(Ui_MovePropertyManager):
             change_connect = self.w.connect
         else:
             change_connect = self.w.disconnect
+        
+        #TODO: This is a temporary fix for a bug. When you invoke a temporary mode 
+        #such as LineMode or PanMode, entering such a temporary mode keeps the 
+        #PM from the previous mode open (and theus keeps all its signals 
+        #connected)  but while exiting that temporary mode and reentering the 
+        #previous mode, it atucally reconnects the signal! This gives rise to 
+        #lots  of bugs. This needs more general fix in Temporary mode API. 
+        # -- Ninad 2007-10-29
+        
+        if connect and self.isAlreadyConnected:
+            return
+        
+        
+        self.isAlreadyConnected = connect
             
         change_connect(self.translateGroupBox.titleButton,
                        SIGNAL("clicked()"),
-                       self.activate_translateGroupBox_using_groupButton)  
-        
+                       self.activate_translateGroupBox_using_groupButton) 
+                        
         change_connect(self.rotateGroupBox.titleButton,
                        SIGNAL("clicked()"),
                        self.activate_rotateGroupBox_using_groupButton)
+        
+        change_connect(self.translateComboBox, 
+                     SIGNAL("currentIndexChanged(int)"), 
+                     self.updateTranslateGroupBoxes)
+        
+        change_connect(self.rotateComboBox, 
+                     SIGNAL("currentIndexChanged(int)"), 
+                     self.updateRotateGroupBoxes)
+        
+        change_connect( self.freeDragTranslateButtonGroup.buttonGroup, 
+                      SIGNAL("buttonClicked(QAbstractButton *)"), 
+                      self.changeMoveOption )
+        
+        change_connect( self.freeDragRotateButtonGroup.buttonGroup, 
+                      SIGNAL("buttonClicked(QAbstractButton *)"), 
+                      self.changeRotateOption )
         
         change_connect(self.transDeltaPlusButton, 
                        SIGNAL("clicked()"), 
@@ -81,6 +112,10 @@ class MovePropertyManager(Ui_MovePropertyManager):
         change_connect(self.rotateThetaMinusButton, 
                        SIGNAL("clicked()"), 
                        self.parentMode.rotateThetaMinus)
+        
+        change_connect(self.moveFromToButton, 
+                       SIGNAL("toggled(bool)"), 
+                       self.parentMode.moveFromToTemporaryMode)
         
     def ok_btn_clicked(self):
         """
@@ -136,7 +171,6 @@ class MovePropertyManager(Ui_MovePropertyManager):
         """
         self._currentMoveMode = ROTATE
         self.updateMessage()
-        
         self.toggle_rotateGroupBox()
         
         if not self.w.rotateComponentsAction.isChecked():            
@@ -559,10 +593,15 @@ class MovePropertyManager(Ui_MovePropertyManager):
         self.rotateGroupBox.collapse()
         Ui_MovePropertyManager.close(self)
         
-    def updateMessage(self): # Mark 2007-06-23
+    def updateMessage(self, msg = ''): # Mark 2007-06-23
         """
         Updates the message box with an informative message.
         """
+        
+        if msg:
+            self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )
+            return
+            
         
         from ops_select import objectSelected
         if objectSelected(self.o.assy):

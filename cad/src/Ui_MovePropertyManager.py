@@ -23,6 +23,8 @@ from PM.PM_PushButton      import PM_PushButton
 from PM.PM_CheckBox        import PM_CheckBox
 from PM.PM_RadioButton     import PM_RadioButton
 from PM.PM_ToolButtonRow   import PM_ToolButtonRow
+from PM.PM_ToolButton      import PM_ToolButton
+from PM.PM_LineEdit        import PM_LineEdit
 from PM.PM_LabelRow        import PM_LabelRow
 
 from PM.PM_Constants       import pmDoneButton
@@ -72,9 +74,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
         
         self.translateGroupBox.collapse()
         self.rotateGroupBox.collapse()
-        
-        pass
-    
+            
     # == Begin Translate Group Box =====================
     
     def _loadTranslateGroupBox(self, inPmGroupBox):
@@ -96,9 +96,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
                          setAsDefault = False,
                          spanWidth    = True )
         
-        self.connect(self.translateComboBox, 
-                     SIGNAL("currentIndexChanged(int)"), 
-                     self.updateTranslateGroupBoxes)
+        
         
         self.freeDragTranslateGroupBox = PM_GroupBox( inPmGroupBox )
         self._loadFreeDragTranslateGroupBox(self.freeDragTranslateGroupBox)
@@ -161,9 +159,31 @@ class Ui_MovePropertyManager( PM_Dialog ):
         inPmGroupBox.setStyleSheet(
             self.freeDragTranslateButtonGroup._getStyleSheet())
         
-        self.connect( self.freeDragTranslateButtonGroup.buttonGroup, 
-                      SIGNAL("buttonClicked(QAbstractButton *)"), 
-                      self.changeMoveOption )
+        
+        
+        self.moveFromToButton = PM_ToolButton(
+                    inPmGroupBox, 
+                    text = "Translate From/To",
+                    iconPath  = "ui/actions/Properties Manager"\
+                    "/Translate_Components.png",
+                    spanWidth = True
+                    
+                    )
+        self.moveFromToButton.setCheckable(True)
+        self.moveFromToButton.setAutoRaise(True)
+        self.moveFromToButton.setToolButtonStyle(
+            Qt.ToolButtonTextBesideIcon)
+        
+        
+        self.startCoordLineEdit = PM_LineEdit( 
+            inPmGroupBox, 
+            label        = "ui/actions/Properties Manager"\
+                    "/Move_Start_Point.png",
+            text         = "Define start point from 3D workspace",
+            setAsDefault = False,
+            )
+        self.startCoordLineEdit.setReadOnly(True)
+        self.startCoordLineEdit.setEnabled(False)
         
     def _loadByDeltaGroupBox(self, inPmGroupBox):
         """
@@ -303,10 +323,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
                          setAsDefault = False,
                          spanWidth    = True )
         
-        self.connect(self.rotateComboBox, 
-                     SIGNAL("currentIndexChanged(int)"), 
-                     self.updateRotateGroupBoxes)
-        
+               
         self.freeDragRotateGroupBox = PM_GroupBox( inPmGroupBox )
         self._loadFreeDragRotateGroupBox(self.freeDragRotateGroupBox)
         
@@ -359,11 +376,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
                                checkedId    = 1,
                                setAsDefault = True,
                             )
-        
-        self.connect( self.freeDragRotateButtonGroup.buttonGroup, 
-                      SIGNAL("buttonClicked(QAbstractButton *)"), 
-                      self.changeRotateOption )
-        
+                
         self.rotateFreeButton = self.freeDragRotateButtonGroup.getButtonById(1)
         self.rotateXButton    = self.freeDragRotateButtonGroup.getButtonById(2)
         self.rotateYButton    = self.freeDragRotateButtonGroup.getButtonById(3)
