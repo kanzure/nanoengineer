@@ -49,6 +49,9 @@ from PyQt4.Qt import QFont, QString
 
 from Utility import Node
 from Utility import Group
+
+from Assembly_API import Assembly_API
+
 from Csys import Csys
 from VQT import V
 from debug import print_compact_traceback, print_compact_stack
@@ -193,8 +196,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             
         self.add(topnode)
         # for now:
-        from assembly import Assembly
-        assert isinstance(assy, Assembly)
+        assert isinstance(assy, Assembly_API)
         assert isinstance(topnode, Node)
         
         # self._modified?? not yet needed for individual parts, but will be later.
