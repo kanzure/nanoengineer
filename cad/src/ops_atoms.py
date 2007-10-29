@@ -10,14 +10,11 @@ History:
 
 bruce 050507 made this by collecting appropriate methods (by various authors)
 from existing modules, from class Part and class basicMode.
-
-bruce 050913 used env.history in some places.
 """
 
 from utilities.Log import greenmsg, redmsg
 
-# ops_atoms, part, and assembly form an import loop
-#import assembly
+from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 
 from PlatformDependent import fix_plurals
 from elements import Singlet
@@ -114,12 +111,11 @@ class ops_atoms_Mixin:
             env.history.message(cmd + msg)
             return
 
-        import assembly
-        if self.selwhat == assembly.SELWHAT_CHUNKS:
+        if self.selwhat == SELWHAT_CHUNKS:
             for m in self.selmols:
                 m.Passivate(True) # arg True makes it work on all atoms in m
         else:
-            assert self.selwhat == assembly.SELWHAT_ATOMS
+            assert self.selwhat == SELWHAT_ATOMS
             for m in self.molecules:
                 m.Passivate() # lack of arg makes it work on only selected atoms
                 # (maybe it could just iterate over selatoms... #e)
