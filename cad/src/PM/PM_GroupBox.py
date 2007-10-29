@@ -536,20 +536,11 @@ class PM_GroupBox( QGroupBox ):
         """
         Expand this group box i.e. show all its contents and change the look 
         and feel of the groupbox button. 
-        """
-        from PM.PM_MessageGroupBox import PM_MessageGroupBox
-        if isinstance(self, PM_MessageGroupBox):
-            # If we don't do this, we get a small space b/w the 
-            # title button and the MessageTextEdit widget.
-            # Extra code unnecessary, but more readable. 
-            # Mark 2007-05-21
-            self.gridLayout.setMargin(0)
-            self.gridLayout.setSpacing(0)
-        else:
-            self.vBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
-            self.vBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
-            self.gridLayout.setMargin(pmGrpBoxGridLayoutMargin)
-            self.gridLayout.setSpacing(pmGrpBoxGridLayoutSpacing)
+        """       
+        self.vBoxLayout.setMargin(pmGrpBoxVboxLayoutMargin)
+        self.vBoxLayout.setSpacing(pmGrpBoxVboxLayoutSpacing)
+        self.gridLayout.setMargin(pmGrpBoxGridLayoutMargin)
+        self.gridLayout.setSpacing(pmGrpBoxGridLayoutSpacing)
             
         # The styleSheet contains the expand/collapse.
         styleSheet = self._getTitleButtonStyleSheet(showExpanded = True)

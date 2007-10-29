@@ -72,6 +72,24 @@ class PM_MessageGroupBox( PM_GroupBox ):
 
         # Hide until insertHtmlMessage() loads a message.
         self.hide()
+    
+    def expand(self):
+        """
+        Expand this group box i.e. show all its contents and change the look 
+        and feel of the groupbox button. It also sets the gridlayout margin and
+        spacing to 0. (necessary to get rid of the extra space inside the 
+        groupbox.)       
+        
+        @see: L{PM_GroupBox.expand}
+        """
+        PM_GroupBox.expand(self)
+        # If we don't do this, we get a small space b/w the 
+        # title button and the MessageTextEdit widget.
+        # Extra code unnecessary, but more readable. 
+        # Mark 2007-05-21
+        self.gridLayout.setMargin(0)
+        self.gridLayout.setSpacing(0)
+        
         
     def insertHtmlMessage(self, 
                           text, 
