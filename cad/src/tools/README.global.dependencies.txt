@@ -1,6 +1,8 @@
 
  Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 
+ # $Id$
+ 
 This describes how to use various tools to manage import statements
 and to detect and analyze dependency loops created by those imports.
 
@@ -151,3 +153,12 @@ $ dot -Tpng depend.dot > depend.png
 (To color-code the nodes by the tentative package assignments
 hardcoded into PackageDependency.py, generate depend.dot with
 the additional option --colorPackages.)
+
+(To split depend.dot into disjoint connected subgraphs, assuming it
+was made using the --justCycles option, run 
+
+ % tools/splitDependDot.py > anotheroutputfile
+
+after making it. I don't know if that file is suitable input to
+GraphViz, but the individual digraphs within it should be.)
+

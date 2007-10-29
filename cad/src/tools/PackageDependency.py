@@ -5,6 +5,8 @@
 """
    PackageDependency.py
 
+   $Id$
+
    Takes a list of python files as arguments, writes a list of
    packages that each imports on stdout.  This information is in a
    format suitable for use with the GraphViz package.
