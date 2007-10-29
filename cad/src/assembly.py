@@ -66,6 +66,7 @@ on __xxx__ attrs in python objects.
 # but have been kept in the same place before then for the benefit of viewcvs diff.
 
 import os
+import time
 
 import Initialize
 
@@ -86,13 +87,21 @@ import undo_archive
 from constants import gensym, SELWHAT_CHUNKS ##, SELWHAT_ATOMS
 from state_constants import S_CHILD, S_DATA, S_REF
 
-import part
+from part import Part as Part_class # use a name we can search for [bruce 071029]
+    ### TODO: rename the class Part itself somehow; both Part and part are too generic
+
+from part import MainPart
+from part import ClipboardItemPart
 
 from icon_utilities import imagename_to_pixmap
 from PartProp import PartProp
 from PyQt4 import QtGui
 
 from Assembly_API import Assembly_API
+from prefsTree import MainPrefsGroupPart
+import undo_manager
+from files_mmp import writemmpfile_assy
+
 
 # ==
 
@@ -303,7 +312,6 @@ class assembly( StateMixin, Assembly_API):
             # model objects (ie nodes for tree and shelf). Since this is not initially used except
             # to record changes as these objects are created, the fact that self is still incomplete 
             # (e.g. lacks important attributes like tree and root and part) should not matter. [#k I hope]
-            import undo_manager
             menus = (win.editMenu,) # list of menus containing editUndo/editRedo actions (for aboutToShow signal) [060122]
             self.undo_manager = undo_manager.AssyUndoManager(self, menus) # be sure to call init1() on this within self.__init__!
                 # fyi: this [no longer, 060223] sets self._u_archive for use by our model objects when they report changes
@@ -499,11 +507,10 @@ class assembly( StateMixin, Assembly_API):
            Implem note: we don't ask the nodes themselves for the partclass,
         since it might depend on their position in the MT rather than on the nodetype.
         """
-        res = [(self.tree, part.MainPart)]
+        res = [(self.tree, MainPart)]
         for node in self.shelf.members:
-            res.append(( node, part.ClipboardItemPart ))
+            res.append(( node, ClipboardItemPart ))
         if self.prefs_node is not None:
-            from prefsTree import MainPrefsGroupPart # this file might not be committed if this case doesn't run
             res.append(( self.prefs_node, MainPrefsGroupPart ))
         return res
 
@@ -863,8 +870,8 @@ class assembly( StateMixin, Assembly_API):
             ##part_methods = ['selectAll','selectNone','selectInvert']###etc... the callable attrs of part class??
         assembly.part_methods = filter( lambda attr:
                                         not attr.startswith('_')
-                                        and callable(getattr(part.Part,attr)), # note: this tries to get self.part before it's ready...
-                                        dir(part.Part) ) #approximation!
+                                        and callable(getattr(Part_class,attr)), # note: this tries to get self.part before it's ready...
+                                        dir(Part_class) ) #approximation!
         #####@@@@@ for both of the following:
         assembly.part_attrs_temporary = ['bbox','center','drawLevel'] # temp because caller should say assy.part or be inside self.part
         assembly.part_attrs_review = ['ppa2','ppa3','ppm']
@@ -1010,7 +1017,6 @@ class assembly( StateMixin, Assembly_API):
             # to the end of the filename in the window caption.
             self.w.update_mainwindow_caption_properly() #e should this depend on self.own_window_UI? [bruce 060127 question] ####@@@@
             if debug_assy_changes:
-                import time
                 print time.asctime(), self, self.name
                 print_compact_stack("atom_debug: part now has unsaved changes")
             pass
@@ -1166,7 +1172,6 @@ class assembly( StateMixin, Assembly_API):
         return "<Assembly of " + self.filename + ">"
 
     def writemmpfile(self, filename):
-        from files_mmp import writemmpfile_assy
         writemmpfile_assy( self, filename, addshelf = True)
         
     def get_cwd(self):
