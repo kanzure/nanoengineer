@@ -203,7 +203,8 @@ register_undo_updater( _undo_update_Atom_jigs,
                        after_update_of = ('Assembly', 'Node', 'Atom.bonds') # Node also covers its subclasses Chunk and Jig.
                            # We don't care if Atom is updated except for .bonds, nor whether Bond is updated at all,
                            # which is good because *we* are presumably a required part of updating both of those classes!
-                       # FYI, we use 'Assembly' (string) rather than Assembly (class) to avoid a recursive import problem.
+                       # FYI, we use 'Assembly' (string) rather than Assembly (class) to avoid a recursive import problem,
+                       # and also to avoid an inappropriate import dependency (low-level -> high-level).
                     )
 
 # ==
