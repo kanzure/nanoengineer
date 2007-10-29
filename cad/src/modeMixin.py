@@ -27,7 +27,7 @@ import env
 from modes import nullMode
 
 from Command import anyCommand # only needed for an isinstance assertion
-from GraphicsMode import anyGraphicsMode # only needed for an isinstance assertion
+from GraphicsMode_API import GraphicsMode_API 
 
 # ==
 
@@ -557,7 +557,7 @@ class modeMixin(object):
         # WARNING: if we do that, any 'is' test on .graphicsMode will need revision.
         # (Searching for ".graphicsMode is" will find at least one such test.)
         res = self._raw_currentCommand.graphicsMode # may or may not be same as self._raw_currentCommand ### FIX in nullMode #}
-        assert isinstance(res, anyGraphicsMode)
+        assert isinstance(res, GraphicsMode_API)
         return res
 
     def _set_graphicsMode(self, command):

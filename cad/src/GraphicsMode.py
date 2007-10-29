@@ -2,7 +2,8 @@
 """
 GraphicsMode.py -- 
 
-$Id$
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -15,7 +16,8 @@ TODO:
 A lot of methods in class GraphicsMode are private helper methods,
 available to subclasses and/or to default implems of public methods,
 but are not yet named as private or otherwise distinguished
-from API methods. We should turn anyGraphicsMode into GraphicsMode_API,
+from API methods. We should turn anyGraphicsMode into GraphicsMode_API
+[done as of 071028],
 add all the API methods to it, and rename the other methods
 in class GraphicsMode to look private.
 """
@@ -50,61 +52,11 @@ from Utility import Node
 
 import time
 
+from GraphicsMode_API import GraphicsMode_API
+
 # ==
 
-class anyGraphicsMode(object): #bruce 071008 added object superclass, 071009 split anyMode -> anyGraphicsMode
-    """
-    abstract superclass for all GraphicsMode objects, including nullGraphicsMode
-    """
-
-    # GraphicsMode-specific attribute null values
-    
-    compass_moved_in_from_corner = False
-        # when set, tells GLPane to render compass in a different place [bruce 070406]
-
-    render_scene = None # optional scene-rendering method [bruce 070406]
-        # When this is None, it tells GLPane to use its default method.
-        # (TODO, maybe: move that default method into basicGraphicsMode's implem
-        #  of this, and put a null implem in this class.)
-        # Note: to use this, override it with a method (or set it to a
-        # callable) which is compatible with GLPane.render_scene()
-        # but which receives a single argument which will be the GLPane.
-    
-    hover_highlighting_enabled = False
-        # note: hover_highlighting_enabled is a settable instance variable in both
-        # the Command and GraphicsMode APIs; a separate GraphicsMode delegates it
-        # as state to its Command [bruce 071011]
-
-    check_target_depth_fudge_factor = 0.0001
-        # affects GLPane's algorithm for finding objectUnderMouse (selobj)
-
-    picking = False # used as instance variable in some mouse methods
-
-    
-    # default methods for both nullGraphicsMode and basicGraphicsMode
-    
-    def selobj_highlight_color(self, selobj): #bruce 050612 added this to GraphicsMode API; see depositMode version for docstring
-        return None
-
-    def selobj_still_ok(self, selobj): #bruce 050702 added this to GraphicsMode API; overridden in GraphicsMode, and docstring is there
-        return True
-
-    def draw_overlay(self): #bruce 070405
-        return
-
-    def mouse_event_handler_for_event_position(self, wX, wY): #bruce 070405
-        return None
-
-    def update_cursor(self): #bruce 070410
-        return
-
-    def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor): #bruce 071008
-        pass
-
-    pass # end of class anyGraphicsMode
-
-
-class nullGraphicsMode(anyGraphicsMode):
+class nullGraphicsMode(GraphicsMode_API):
     """
     do-nothing GraphicsMode (for internal use only) to avoid crashes
     in case of certain bugs during transition between GraphicsModes
@@ -149,8 +101,9 @@ class nullGraphicsMode(anyGraphicsMode):
     
     pass # end of class nullGraphicsMode
 
+# ==
 
-class basicGraphicsMode(anyGraphicsMode):
+class basicGraphicsMode(GraphicsMode_API):
     """
     Common code between class GraphicsMode (see its docstring)
     and old-code-compatibility class basicMode.

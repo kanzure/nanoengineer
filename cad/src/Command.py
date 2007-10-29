@@ -38,9 +38,7 @@ from jigs import Jig
     # this is used only for cmenu making
     # TODO: probably it should be factored into a method on the object being tested
 
-from GraphicsMode import GraphicsMode # needed only for Command.GraphicsMode_class, and a related assertion
-    # TODO: find a way to register this at runtime, to avoid the import?
-    # See also the comment about import dependency near where this is used. [bruce 071012]
+from GraphicsMode_API import GraphicsMode_API
 
 # ==
 
@@ -1158,9 +1156,13 @@ class Command(basicCommand):
     """
     # default values of class constants (often overridden by subclasses)
     
-    GraphicsMode_class = GraphicsMode
-        # Each Command subclass can override this class constant
-        # with the most abstract GraphicsMode subclass which they are able to work with.
+    GraphicsMode_class = None        
+        # Each Command subclass must override this class constant with the
+        # most abstract GraphicsMode subclass which they are able to work with.
+        # In concrete Command subclassses, it must be a subclass of
+        # GraphicsMode_API, whose constructor takes a single argument,
+        # which will be the command instance.
+        #
         # Command subclasses which inherit (say) SomeCommand can also define
         # a corresponding GraphicsMode subclass (and assign it to this class attribute)
         # using SomeCommand.GraphicsMode_class as its superclass.
@@ -1187,7 +1189,7 @@ class Command(basicCommand):
     
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class # TODO: let caller pass something to replace this?
-        assert issubclass(GM_class, GraphicsMode)
+        assert issubclass(GM_class, GraphicsMode_API)
         args = [self] # the command is the only ordinary init argument
         kws = {} # TODO: let subclasses add kws to this
         # NOT TODO [see end of comment for why not]:

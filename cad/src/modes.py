@@ -51,13 +51,15 @@ from constants import GLPANE_IS_COMMAND_SEQUENCER
 
 from Command import anyCommand, nullCommand, basicCommand
 
-from GraphicsMode import anyGraphicsMode, nullGraphicsMode, basicGraphicsMode
+from GraphicsMode import nullGraphicsMode, basicGraphicsMode
+
+from GraphicsMode_API import GraphicsMode_API
 
 # ==
 
 ### TODO: fill these in, especially __init__ methods; remove the ones we don't need
 
-class anyMode(anyCommand, anyGraphicsMode):
+class anyMode(anyCommand, GraphicsMode_API):
     # used only in this file (where it provides some default methods and attrs
     # to the classes here, but surely redundantly with their other
     # superclasses, so it's probably not needed),
