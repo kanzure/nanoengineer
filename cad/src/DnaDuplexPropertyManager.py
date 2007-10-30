@@ -170,7 +170,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         # Strand Length (i.e. the number of bases)
         self.numberOfBasesSpinBox = \
             PM_SpinBox( pmGroupBox, 
-                        label         =  "Number of bases :", 
+                        label         =  "Base Pairs :", 
                         value         =  self._numberOfBases,
                         setAsDefault  =  False,
                         minimum       =  0,
