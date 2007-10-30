@@ -23,7 +23,7 @@ At some point Bruce partly cleaned up the use of display lists.
 071030 bruce split some functions and globals into draw_grid_lines.py
 and removed some obsolete functions.
 """
-    
+
 import os
 import sys
 
@@ -159,7 +159,7 @@ if not bool(gleGetNumSides):
     print "fyi: gleGetNumSides is not supported by the OpenGL pre-installed on this computer."
     gleGetNumSides = int
     gleSetNumSides = int
-                                
+
 try:
     from OpenGL.GL import glScale
 except:
@@ -278,10 +278,10 @@ def subdivide(tri,deep):
 
 ## Get the specific detail level of triangles approximation of a sphere 
 def getSphereTriangles(level):
-        ocdec = []
-        for i in icosix:
-            ocdec += subdivide((icosa[i[0]],icosa[i[1]],icosa[i[2]]),level)
-        return ocdec
+    ocdec = []
+    for i in icosix:
+        ocdec += subdivide((icosa[i[0]],icosa[i[1]],icosa[i[2]]),level)
+    return ocdec
 
 # generate two circles in space as 13-gons,
 # one rotated half a segment with respect to the other
@@ -308,9 +308,9 @@ drum2 = map((lambda a: (cos(a), sin(a), 1.0)), circ1)
 cylinderEdges = zip(drum0, drum0, drum2, drum0)
 
 circle = zip(drum0[:-1],drum0[1:],drum1[:-1]) +\
-         zip(drum1[:-1],drum0[1:],drum1[1:])
+       zip(drum1[:-1],drum0[1:],drum1[1:])
 circlen = zip(drum0[:-1],drum0[1:],drum1n[:-1]) +\
-          zip(drum1n[:-1],drum0[1:],drum1n[1:])
+        zip(drum1n[:-1],drum0[1:],drum1n[1:])
 
 cap0n = (0.0, 0.0, -1.0)
 cap1n = (0.0, 0.0, 1.0)
@@ -324,12 +324,12 @@ rotS0n = map((lambda a: (scaleS*cos(a), scaleS*sin(a), 0.0 - zOffset)), rotS)
 rotS1n = map((lambda a: (scaleS*cos(a), scaleS*sin(a), 1.0 + zOffset)), rotS)
 halfEdge = 3.0 * scaleS * sin(pi/numSeg)
 arrow0Vertices = [(rotS0n[-1][0]-halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
-                            (rotS0n[-1][0]+halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
-                            (rotS0n[-1][0], rotS0n[-1][1] + 2.0*halfEdge, rotS0n[-1][2])] 
+                  (rotS0n[-1][0]+halfEdge, rotS0n[-1][1], rotS0n[-1][2]), 
+                  (rotS0n[-1][0], rotS0n[-1][1] + 2.0*halfEdge, rotS0n[-1][2])] 
 arrow0Vertices.reverse()                            
 arrow1Vertices = [(rotS1n[-1][0]-halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
-                            (rotS1n[-1][0]+halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
-                            (rotS1n[-1][0], rotS1n[-1][1] + 2.0*halfEdge, rotS1n[-1][2])]                             
+                  (rotS1n[-1][0]+halfEdge, rotS1n[-1][1], rotS1n[-1][2]), 
+                  (rotS1n[-1][0], rotS1n[-1][1] + 2.0*halfEdge, rotS1n[-1][2])]                             
 
 ###Linear motor arrow sign data structure
 halfEdge = 1.0/3.0 ##1.0/8.0
@@ -351,7 +351,7 @@ digrid=[[[sp0, sp0, sp0], [sp1, sp1, sp1]], [[sp1, sp1, sp1], [sp2, sp2, sp0]],
         [[sp2, sp4, sp2], [sp3, sp3, sp1]], [[sp3, sp3, sp1], [sp4, sp2, sp2]],
         [[sp4, sp0, sp4], [sp3, sp1, sp3]], [[sp3, sp1, sp3], [sp2, sp2, sp4]],
         [[sp2, sp2, sp4], [sp1, sp3, sp3]], [[sp1, sp3, sp3], [sp0, sp4, sp4]]]
-        
+
 cubeVertices = [[-1.0, 1.0, -1.0], [-1.0, 1.0, 1.0],
                 [1.0, 1.0, 1.0], [1.0, 1.0, -1.0],
                 [-1.0, -1.0, -1.0], [-1.0, -1.0, 1.0],
@@ -364,13 +364,13 @@ flatCubeVertices = list(flatCubeVertices) #k probably not needed
 
 if 1: # remove this when it works
     flatCubeVertices_hardcoded = [-1.0, 1.0, -1.0,
-                    -1.0, 1.0, 1.0,
-                    1.0, 1.0, 1.0,
-                    1.0, 1.0, -1.0,
-                    -1.0, -1.0, -1.0,
-                    -1.0, -1.0, 1.0,
-                    1.0, -1.0, 1.0,
-                    1.0, -1.0, -1.0]
+                                  -1.0, 1.0, 1.0,
+                                  1.0, 1.0, 1.0,
+                                  1.0, 1.0, -1.0,
+                                  -1.0, -1.0, -1.0,
+                                  -1.0, -1.0, 1.0,
+                                  1.0, -1.0, 1.0,
+                                  1.0, -1.0, -1.0]
     assert flatCubeVertices == flatCubeVertices_hardcoded
 
 sq3 = sqrt(3.0)/3.0
@@ -435,14 +435,14 @@ class glprefs:
             self.specular_brightness = 1.0
 
         allow_color_sorting = env.prefs.get(allow_color_sorting_prefs_key,
-            allow_color_sorting_default)
+                                            allow_color_sorting_default)
 
         use_c_renderer = quux_module_import_succeeded and \
-            env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default)
+                       env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default)
 
         if use_c_renderer:
             quux.shapeRendererSetMaterialParameters(self.specular_whiteness,
-                self.specular_brightness, self.specular_shininess);
+                                                    self.specular_brightness, self.specular_shininess);
         return
 
     def materialprefs_summary(self): #bruce 051126
@@ -456,14 +456,14 @@ class glprefs:
 
         # grantham 20060314
         res += (quux_module_import_succeeded and 
-            env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default),)
+                env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default),)
 
         # grantham 20060314 - Not too sure this next addition is
         # really necessary, but it seems to me that for testing
         # purposes it is important to rebuild display lists if the
         # color sorting pref is changed.
         res += (env.prefs.get(allow_color_sorting_prefs_key,
-                allow_color_sorting_default),)
+                              allow_color_sorting_default),)
 
         return res
 
@@ -484,8 +484,8 @@ _glprefs = glprefs()
 #bruce 051212 moved this here from GLPane; maybe it belongs in prefs_constants instead?
 # Note: I'm not sure whether this is the only place where this data is coded.
 _default_lights = ((white, 0.1, 0.5, 0.5, -50, 70, 30, True),
-                (white, 0.1, 0.5, 0.5, -20, 20, 20, True),
-                (white, 0.1, 0.1, 0.1, 0, 0, 100, False))
+                   (white, 0.1, 0.5, 0.5, -20, 20, 20, True),
+                   (white, 0.1, 0.1, 0.1, 0, 0, 100, False))
         # for each of 3 lights, this stores ((r,g,b),a,d,s,x,y,z,e)
         # revised format to include s,x,y,z.  Mark 051202.
         # revised format to include c (r,g,b). Mark 051204.
@@ -522,15 +522,15 @@ def setup_standard_lights( lights, glprefs = None):
     try:
         # new code
         (((r0,g0,b0),a0,d0,s0,x0,y0,z0,e0), \
-        ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
-        ( (r2,g2,b2),a2,d2,s2,x2,y2,z2,e2)) = lights
-        
+         ( (r1,g1,b1),a1,d1,s1,x1,y1,z1,e1), \
+         ( (r2,g2,b2),a2,d2,s2,x2,y2,z2,e2)) = lights
+
         # Great place for a print statement for debugging lights.  Keep this.  Mark 051204. [revised by bruce 051212]
         #print "-------------------------------------------------------------"
         #print "setup_standard_lights: lights[0]=", lights[0]
         #print "setup_standard_lights: lights[1]=", lights[1]
         #print "setup_standard_lights: lights[2]=", lights[2]
-        
+
         glLightfv(GL_LIGHT0, GL_POSITION, (x0, y0, z0, 0))
         glLightfv(GL_LIGHT0, GL_AMBIENT, (r0*a0, g0*a0, b0*a0, 1.0))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, (r0*d0, g0*d0, b0*d0, 1.0))
@@ -542,7 +542,7 @@ def setup_standard_lights( lights, glprefs = None):
             # Added specular (s0) as its own component.  mark 051202.
             glLightfv(GL_LIGHT0, GL_SPECULAR, (r0*s0, g0*s0, b0*s0, 1.0))
         glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
-        
+
         glLightfv(GL_LIGHT1, GL_POSITION, (x1, y1, z1, 0))
         glLightfv(GL_LIGHT1, GL_AMBIENT, (r1*a1, g1*a1, b1*a1, 1.0))
         glLightfv(GL_LIGHT1, GL_DIFFUSE, (r1*d1, g1*d1, b1*d1, 1.0))
@@ -551,7 +551,7 @@ def setup_standard_lights( lights, glprefs = None):
         else:
             glLightfv(GL_LIGHT1, GL_SPECULAR, (r1*s1, g1*s1, b1*s1, 1.0))
         glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
-        
+
         glLightfv(GL_LIGHT2, GL_POSITION, (x2, y2, z2, 0))
         glLightfv(GL_LIGHT2, GL_AMBIENT, (r2*a2, g2*a2, b2*a2, 1.0))
         glLightfv(GL_LIGHT2, GL_DIFFUSE, (r2*d2, g2*d2, b2*d2, 1.0))
@@ -560,19 +560,19 @@ def setup_standard_lights( lights, glprefs = None):
         else:
             glLightfv(GL_LIGHT2, GL_SPECULAR, (r2*s2, g2*s2, b2*s2, 1.0))
         glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
-        
+
         glEnable(GL_LIGHTING)
-        
+
         if e0:
             glEnable(GL_LIGHT0)
         else:
             glDisable(GL_LIGHT0)
-            
+
         if e1:
             glEnable(GL_LIGHT1)
         else:
             glDisable(GL_LIGHT1)
-            
+
         if e2:
             glEnable(GL_LIGHT2)
         else:
@@ -585,19 +585,19 @@ def setup_standard_lights( lights, glprefs = None):
         glLightfv(GL_LIGHT0, GL_AMBIENT, (0.3, 0.3, 0.3, 1.0))
         glLightfv(GL_LIGHT0, GL_DIFFUSE, (0.8, 0.8, 0.8, 1.0))
         glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1.0)
-        
+
         glLightfv(GL_LIGHT1, GL_POSITION, (-20, 20, 20, 0))
         glLightfv(GL_LIGHT1, GL_AMBIENT, (0.4, 0.4, 0.4, 1.0))
         glLightfv(GL_LIGHT1, GL_DIFFUSE, (0.4, 0.4, 0.4, 1.0))
         glLightf(GL_LIGHT1, GL_CONSTANT_ATTENUATION, 1.0)
-        
+
         glLightfv(GL_LIGHT2, GL_POSITION, (0, 0, 100, 0))
         glLightfv(GL_LIGHT2, GL_AMBIENT, (1.0, 1.0, 1.0, 1.0))
         glLightfv(GL_LIGHT2, GL_DIFFUSE, (1.0, 1.0, 1.0, 1.0))
         glLightf(GL_LIGHT2, GL_CONSTANT_ATTENUATION, 1.0)
-        
+
         glEnable(GL_LIGHTING)
-        
+
         glEnable(GL_LIGHT0)
         glEnable(GL_LIGHT1)
         glDisable(GL_LIGHT2)
@@ -640,7 +640,7 @@ def apply_material(color): # grantham 20051121, renamed 20051201; revised by bru
         return
 
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
-        
+
     whiteness = _glprefs.specular_whiteness
     brightness = _glprefs.specular_brightness
     if whiteness == 1.0:
@@ -666,7 +666,7 @@ def get_gl_info_string(glpane): # grantham 20051129
     """
 
     glpane.makeCurrent() #bruce 070308 added glpane arg and makeCurrent call
-    
+
     gl_info_string = ''
 
     gl_info_string += 'GL_VENDOR : "%s"\n' % glGetString(GL_VENDOR)
@@ -683,36 +683,36 @@ def get_gl_info_string(glpane): # grantham 20051129
         # glAreTexturesResident, so it's disabled until I can figure that
         # out. [grantham] [bruce 070308 added the debug_pref]
 
-	all_tex_in = True
-	tex_bytes = '\0' * (512 * 512 * 4)
-	tex_names = []
-	tex_count = 0
-	tex_names = glGenTextures(1024)
-	glEnable(GL_TEXTURE_2D)
-	while all_tex_in:
-	    glBindTexture(GL_TEXTURE_2D, tex_names[tex_count])
-	    gluBuild2DMipmaps(GL_TEXTURE_2D, 4, 512, 512, GL_RGBA,
-		GL_UNSIGNED_BYTE, tex_bytes)
-	    tex_count += 1
+        all_tex_in = True
+        tex_bytes = '\0' * (512 * 512 * 4)
+        tex_names = []
+        tex_count = 0
+        tex_names = glGenTextures(1024)
+        glEnable(GL_TEXTURE_2D)
+        while all_tex_in:
+            glBindTexture(GL_TEXTURE_2D, tex_names[tex_count])
+            gluBuild2DMipmaps(GL_TEXTURE_2D, 4, 512, 512, GL_RGBA,
+                              GL_UNSIGNED_BYTE, tex_bytes)
+            tex_count += 1
 
-	    glTexCoord2f(0.0, 0.0)
-	    glBegin(GL_QUADS)
-	    glVertex2f(0.0, 0.0)
-	    glVertex2f(1.0, 0.0)
-	    glVertex2f(1.0, 1.0)
-	    glVertex2f(0.0, 1.0)
-	    glEnd()
-	    glFinish()
+            glTexCoord2f(0.0, 0.0)
+            glBegin(GL_QUADS)
+            glVertex2f(0.0, 0.0)
+            glVertex2f(1.0, 0.0)
+            glVertex2f(1.0, 1.0)
+            glVertex2f(0.0, 1.0)
+            glEnd()
+            glFinish()
 
-	    residences = glAreTexturesResident(tex_names[:tex_count])
+            residences = glAreTexturesResident(tex_names[:tex_count])
             all_tex_in = reduce(lambda a,b: a and b, residences)
                 # bruce 070308 sees this exception from this line:
                 # TypeError: reduce() arg 2 must support iteration
 
-	glDisable(GL_TEXTURE_2D)
-	glDeleteTextures(tex_names)
+        glDisable(GL_TEXTURE_2D)
+        glDeleteTextures(tex_names)
 
-	gl_info_string += "Could create %d 512x512 RGBA resident textures\n", tex_count
+        gl_info_string += "Could create %d 512x512 RGBA resident textures\n", tex_count
     return gl_info_string
 
 def drawsphere_worker(params):
@@ -750,7 +750,7 @@ def drawcylinder_worker(params):
     vec = pos2-pos1
     axis = norm(vec)
     glTranslatef(pos1[0], pos1[1], pos1[2])
-    
+
     ##Huaicai 1/17/05: To avoid rotate around (0, 0, 0), which causes 
     ## display problem on some platforms
     angle = -acos(axis[2])*180.0/pi
@@ -758,7 +758,7 @@ def drawcylinder_worker(params):
         glRotate(angle, 0.0, 1.0, 0.0)
     else:
         glRotate(angle, axis[1], -axis[0], 0.0)
-  
+
     glScale(radius,radius,Numeric.dot(vec,vec)**.5)
     glCallList(CylList)
     if capped: glCallList(CapList)
@@ -796,7 +796,7 @@ class ShapeList_inplace:
     Instead, it stores directly in a list of fixed-size Numeric arrays.
     It shows some speedup, but not a lot.  And tons of memory is being
     used.  I'm not sure where. -grantham
-    
+
     """
 
     __author__ = "grantham@plunk.org"
@@ -862,7 +862,7 @@ class ShapeList_inplace:
             radius)
 
         self.spheres[-1][1] += 1
-        
+
 
     def add_cylinder(self, color4, pos1, pos2, radius, name = 0, capped=0):
         """\
@@ -900,7 +900,7 @@ class ShapeList_inplace:
 
         self.cylinders[-1][1] += 1
 
-        
+
     def petrify(self):
         """\
         Make this object
@@ -994,21 +994,21 @@ class ShapeList:
             if not self.memoized:
                 self._memoize()
             quux.shapeRendererDrawSpheres(len(self.sphere_radii),
-                self.sphere_centers_array,
-                self.sphere_radii_array,
-                self.sphere_colors_array,
-                self.sphere_names_array)
+                                          self.sphere_centers_array,
+                                          self.sphere_radii_array,
+                                          self.sphere_colors_array,
+                                          self.sphere_names_array)
 
         if len(self.cylinder_radii) > 0:
             if not self.memoized:
                 self._memoize()
             quux.shapeRendererDrawCylinders(len(self.cylinder_radii),
-                self.cylinder_pos1_array,
-                self.cylinder_pos2_array,
-                self.cylinder_radii_array,
-                self.cylinder_cappings_array,
-                self.cylinder_colors_array,
-                self.cylinder_names_array)
+                                            self.cylinder_pos1_array,
+                                            self.cylinder_pos2_array,
+                                            self.cylinder_radii_array,
+                                            self.cylinder_cappings_array,
+                                            self.cylinder_colors_array,
+                                            self.cylinder_names_array)
 
 
     def add_sphere(self, color4, pos, radius, name = 0):
@@ -1146,7 +1146,7 @@ class ColorSorter:
         if not ColorSorter.sorted_by_color.has_key(color):
             ColorSorter.sorted_by_color[color] = []
         ColorSorter.sorted_by_color[color].append((func, params,
-            ColorSorter._gl_name_stack[-1]))
+                                                   ColorSorter._gl_name_stack[-1]))
 
     _add_to_sorter = staticmethod(_add_to_sorter)
 
@@ -1165,28 +1165,28 @@ class ColorSorter:
             name = ColorSorter._gl_name_stack[-1]
             if name:
                 glPushName(name)
-	    
-	    #Apply appropriate opacity for the object if it is specified
-	    #in the 'color' param. (Also do necessary things such as 
-	    #call glBlendFunc it. -- Ninad 20071009
-	    
-	    if len(color) == 4:
-		opacity = color[3]
-	    else:
-		opacity = 1.0
-		
-	    if opacity != 1.0:	
-		glDepthMask(GL_FALSE)
-		glEnable(GL_BLEND)
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+            #Apply appropriate opacity for the object if it is specified
+            #in the 'color' param. (Also do necessary things such as 
+            #call glBlendFunc it. -- Ninad 20071009
+
+            if len(color) == 4:
+                opacity = color[3]
+            else:
+                opacity = 1.0
+
+            if opacity != 1.0:	
+                glDepthMask(GL_FALSE)
+                glEnable(GL_BLEND)
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
             apply_material(color)
             func(params)
-	    
-	    if opacity != 1.0:	
-		glDisable(GL_BLEND)
-		glDepthMask(GL_TRUE)
-	  
+
+            if opacity != 1.0:	
+                glDisable(GL_BLEND)
+                glDepthMask(GL_TRUE)
+
 
             if name:
                 glPopName()
@@ -1205,7 +1205,7 @@ class ColorSorter:
             else:
                 lcolor = color
             ColorSorter._cur_shapelist.add_sphere(lcolor, pos, radius,
-                ColorSorter._gl_name_stack[-1])
+                                                  ColorSorter._gl_name_stack[-1])
             # 20060208 grantham - I happen to know that one detailLevel
             # is chosen for all spheres, I just record it over and
             # over here, and use the last one for the render
@@ -1213,10 +1213,10 @@ class ColorSorter:
                 raise ValueError, "unexpected different sphere LOD levels within same frame"
             ColorSorter.sphereLevel = detailLevel
         else: # Older sorted material rendering
-	    if len(color) == 3:		
-		lcolor = (color[0], color[1], color[2], opacity)
-	    else:
-		lcolor = color	
+            if len(color) == 3:		
+                lcolor = (color[0], color[1], color[2], opacity)
+            else:
+                lcolor = color	
             ColorSorter.schedule(lcolor, drawsphere_worker, (pos, radius, detailLevel))
 
     schedule_sphere = staticmethod(schedule_sphere)
@@ -1233,17 +1233,17 @@ class ColorSorter:
             else:
                 lcolor = color
             ColorSorter._cur_shapelist.add_cylinder(lcolor, pos1, pos2, radius,
-                ColorSorter._gl_name_stack[-1], capped)
+                                                    ColorSorter._gl_name_stack[-1], capped)
         else:
-	    if len(color) == 3:		
-		lcolor = (color[0], color[1], color[2], opacity)
-	    else:
-		lcolor = color		    
-	    
+            if len(color) == 3:		
+                lcolor = (color[0], color[1], color[2], opacity)
+            else:
+                lcolor = color		    
+
             ColorSorter.schedule(lcolor, drawcylinder_worker, (pos1, pos2, radius, capped))
 
     schedule_cylinder = staticmethod(schedule_cylinder)
-    
+
     def schedule_surface(color, pos, radius, tm, nm):
         """\
         Schedule a surface for rendering whenever ColorSorter thinks is
@@ -1329,30 +1329,30 @@ lonsEdges = None
 def _makeLonsCell():
     """Data structure to construct a Lonsdaleite lattice cell"""
     lVp = [# 2 outward vertices
-              [-ux, -2*uy, 0.0], [0.0, uy, 0.0],
-              # Layer 1: 7 vertices
-              [ux, -2*uy, ul],      [-ux, -2*uy, ul],     [0.0, uy, ul], 
-              [ux, 2*uy, ul+dz], [-ux, 2*uy, ul+dz], [0.0, -uy, ul+dz],
-                                         [-ux, 4*uy, ul],
-              # Layer 2: 7 vertices
-              [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)], [0.0, uy, 2*(ul+dz)],
-              [ux, 2*uy, 2*ul+dz],    [-ux, 2*uy, 2*ul+dz],     [0.0, -uy, 2*ul+dz],
-                                               [-ux, 4*uy, 2*(ul+dz)]
-          ]
+           [-ux, -2*uy, 0.0], [0.0, uy, 0.0],
+           # Layer 1: 7 vertices
+           [ux, -2*uy, ul],      [-ux, -2*uy, ul],     [0.0, uy, ul], 
+           [ux, 2*uy, ul+dz], [-ux, 2*uy, ul+dz], [0.0, -uy, ul+dz],
+           [-ux, 4*uy, ul],
+           # Layer 2: 7 vertices
+           [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)], [0.0, uy, 2*(ul+dz)],
+           [ux, 2*uy, 2*ul+dz],    [-ux, 2*uy, 2*ul+dz],     [0.0, -uy, 2*ul+dz],
+           [-ux, 4*uy, 2*(ul+dz)]
+       ]
 
     res = [ # 2 outward vertical edges for layer 1
-                      [lVp[0], lVp[3]], [lVp[1], lVp[4]],
-                      #  6 xy Edges for layer 1
-                      [lVp[2], lVp[7]], [lVp[3], lVp[7]], [lVp[7], lVp[4]],
-                      [lVp[4], lVp[6]], [lVp[4], lVp[5]],
-                      [lVp[6], lVp[8]],        
-                      #  2 outward vertical edges for layer 2
-                      [lVp[14], lVp[7]],  [lVp[13], lVp[6]], 
-                      # 6 xy Edges for layer 2
-                      [lVp[14], lVp[9]], [lVp[14], lVp[10]], [lVp[14], lVp[11]],
-                      [lVp[11], lVp[13]], [lVp[11], lVp[12]],
-                      [lVp[13], lVp[15]]
-           ]
+            [lVp[0], lVp[3]], [lVp[1], lVp[4]],
+            #  6 xy Edges for layer 1
+            [lVp[2], lVp[7]], [lVp[3], lVp[7]], [lVp[7], lVp[4]],
+            [lVp[4], lVp[6]], [lVp[4], lVp[5]],
+            [lVp[6], lVp[8]],        
+            #  2 outward vertical edges for layer 2
+            [lVp[14], lVp[7]],  [lVp[13], lVp[6]], 
+            # 6 xy Edges for layer 2
+            [lVp[14], lVp[9]], [lVp[14], lVp[10]], [lVp[14], lVp[11]],
+            [lVp[11], lVp[13]], [lVp[11], lVp[12]],
+            [lVp[13], lVp[15]]
+        ]
     return res
 
 wiresphere1list = None
@@ -1369,7 +1369,7 @@ def setup_drawer():
     since the allocated display list names are stored in globals set by this function,
     but in general those names might differ if this was called in different GL contexts.
     """
-     #bruce 060613 added docstring, cleaned up display list name allocation
+        #bruce 060613 added docstring, cleaned up display list name allocation
     # bruce 071030 renamed from setup to setup_drawer
     spherelistbase = glGenLists(numSphereSizes)
     global sphereList
@@ -1414,7 +1414,7 @@ def setup_drawer():
         doline(tri[2], tri[0])
     glEnd()
     glEndList()
-    
+
     global CylList
     CylList = glGenLists(1)
     glNewList(CylList, GL_COMPILE)
@@ -1490,15 +1490,15 @@ def setup_drawer():
     for i in xrange(len(cubeIndices)):
         avenormals = V(0,0,0) #bruce 060302 fixed normals for flat shading 
         for j in xrange(4) :    
-                nTuple = tuple(cubeNormals[cubeIndices[i][j]])
-                avenormals += A(nTuple)
+            nTuple = tuple(cubeNormals[cubeIndices[i][j]])
+            avenormals += A(nTuple)
         avenormals = norm(avenormals)
         for j in xrange(4) :    
-                ## nTuple = tuple(cubeNormals[cubeIndices[i][j]])
-                vTuple = tuple(cubeVertices[cubeIndices[i][j]])
-                vTuple = A(vTuple) * 0.5 #bruce 060302 made size compatible with glut.glutSolidCube(1.0)
-                glNormal3fv(avenormals)
-                glVertex3fv(vTuple)
+            ## nTuple = tuple(cubeNormals[cubeIndices[i][j]])
+            vTuple = tuple(cubeVertices[cubeIndices[i][j]])
+            vTuple = A(vTuple) * 0.5 #bruce 060302 made size compatible with glut.glutSolidCube(1.0)
+            glNormal3fv(avenormals)
+            glVertex3fv(vTuple)
     glEnd()
     glEndList()                
 
@@ -1507,11 +1507,11 @@ def setup_drawer():
     glNewList(rotSignList, GL_COMPILE)
     glBegin(GL_LINE_STRIP)
     for ii in xrange(len(rotS0n)):
-            glVertex3fv(tuple(rotS0n[ii]))
+        glVertex3fv(tuple(rotS0n[ii]))
     glEnd()
     glBegin(GL_LINE_STRIP)
     for ii in xrange(len(rotS1n)):
-            glVertex3fv(tuple(rotS1n[ii]))
+        glVertex3fv(tuple(rotS1n[ii]))
     glEnd()
     glBegin(GL_TRIANGLES)
     for v in arrow0Vertices + arrow1Vertices:
@@ -1568,7 +1568,7 @@ def setup_drawer():
     # 20060314 grantham
     initial_choice = choices[allow_color_sorting_default]
     allow_color_sorting_pref = debug_pref("Use Color Sorting?",
-        initial_choice, prefs_key = allow_color_sorting_prefs_key)
+                                          initial_choice, prefs_key = allow_color_sorting_prefs_key)
         #bruce 060323 removed non_debug = True for A7 release, changed default value to False (far above),
         # and changed its prefs_key so developers start with the new default value.
 
@@ -1578,10 +1578,10 @@ def setup_drawer():
     if quux_module_import_succeeded:
         initial_choice = choices[use_c_renderer_default]
         use_c_renderer = debug_pref("Use native C renderer?",
-            initial_choice, prefs_key = use_c_renderer_prefs_key)
+                                    initial_choice, prefs_key = use_c_renderer_prefs_key)
             #bruce 060323 removed non_debug = True for A7 release,
             # and changed its prefs_key so developers start over with the default value.
-        
+
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
     return # from setup_drawer
 
@@ -1591,16 +1591,16 @@ def drawCircle(color, center, radius, normal):
     glPushMatrix() 
     glColor3fv(color)
     glDisable(GL_LIGHTING)
-    
+
     glTranslatef(center[0], center[1], center[2])
     rQ = Q(V(0, 0, 1), normal)
     rotAngle = rQ.angle*180.0/pi
-    
+
     #This may cause problems as proved before in Linear motor display.
     #rotation around (0, 0, 0)
     #if vlen(V(rQ.x, rQ.y, rQ.z)) < 0.00005:
     #      rQ.x = 1.0
-    
+
     glRotatef(rotAngle, rQ.x, rQ.y, rQ.z)
     glScalef(radius, radius, 1.0)
     glCallList(circleList)
@@ -1692,11 +1692,11 @@ def drawLinearSign(color, center, axis, l, h, w):
         glScale(1.0, w, w)
     drawLinearArrows(l)
     glPopMatrix()
-    
+
     glEnable(GL_LIGHTING)
     glPopMatrix()
     return
-        
+
 def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     """Rotate sign on top of the caps of the cylinder """
     glPushMatrix()
@@ -1728,10 +1728,10 @@ def drawsphere(color, pos, radius, detailLevel, opacity = 1.0):
     """Schedule a sphere for rendering whenever ColorSorter thinks is
     appropriate."""
     ColorSorter.schedule_sphere(color, 
-				pos, 
-				radius, 
-				detailLevel, 
-				opacity = opacity)
+                                pos, 
+                                radius, 
+                                detailLevel, 
+                                opacity = opacity)
 
 def drawwiresphere(color, pos, radius, detailLevel = 1):
     ## assert detailLevel == 1 # true, but leave out for speed
@@ -1774,14 +1774,113 @@ def drawcylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
 ##                      "  (color is (%0.2f, %0.2f, %0.2f))" % (color[0], color[1], color[2])
             return
     ColorSorter.schedule_cylinder(color, pos1, pos2, radius, 
-				  capped = capped, opacity = opacity)
+                                  capped = capped, opacity = opacity)
 
 def drawsurface(color, pos, radius, tm, nm):
     """Schedule a surface for rendering whenever ColorSorter thinks is
     appropriate."""
     ColorSorter.schedule_surface(color, pos, radius, tm, nm)
-    
-def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
+
+def drawLadder(endCenter1,  
+               endCenter2,
+               stepSize, 
+               beamThickness = 2.0,
+               beam1Color = None, 
+               beam2Color = None,
+               stepColor = None
+               ):
+    """
+    Draw a ladder. 
+    @see: B{DnaLineMode.Draw } where it is used   
+    @param endCenter1: Ladder center at end 1
+    @type endCenter1: B{V}
+    @param endCenter2: Ladder center at end 2
+    @type endCenter2: B{V}
+    @param stepSize: Center to center distance between consecutive steps
+    @type stepSize: float
+    @param beamThickness: Thickness of the two ladder beams
+    @type beamThickness: float
+    @param beam1Color: Color of beam1
+    @param beam2Color: Color of beam2
+    """
+
+    #Note: The ladder needs to be always parallel to the screen. 
+    #Perhaps need to use correct rotation. 
+
+    unitVector = norm(endCenter2 - endCenter1)
+    ladderLength = vlen(endCenter1 - endCenter2)
+    ladderWidth = 8.0
+        
+    glDisable(GL_LIGHTING) 
+    glPushMatrix()
+    glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2])      
+    pointOnAxis = V(0, 0, 0)
+    ladderBeam1Point = None
+    ladderBeam2Point = None
+    x = 0.0
+    while x < ladderLength:
+        drawPoint(stepColor, pointOnAxis)
+        previousPoint = pointOnAxis
+
+        previousLadderBeam1Point = ladderBeam1Point
+
+        previousLadderBeam2Point = ladderBeam2Point
+
+        pointOnAxis = pointOnAxis + unitVector*stepSize		
+        x += stepSize
+
+        ax = previousPoint[0]
+        ay = previousPoint[1]
+        az = previousPoint[2]
+
+        bx1 = ax
+        by1 = ay + 0.5*ladderWidth
+        bz1 = az	
+
+        bx2 = ax
+        by2 = ay - 0.5*ladderWidth
+        bz2 = az
+
+        ladderBeam1Point = V(bx1, by1, bz1)
+        ladderBeam2Point = V(bx2, by2, bz2)
+
+        if previousLadderBeam1Point:
+            drawline(beam1Color, 
+                     previousLadderBeam1Point, 
+                     ladderBeam1Point, 
+                     width = 6)
+
+            drawline(beam2Color, 
+                     previousLadderBeam2Point, 
+                     ladderBeam2Point, 
+                     width = 6)
+
+            drawline(stepColor, ladderBeam1Point, ladderBeam2Point)	    
+    glPopMatrix()
+
+def drawArrowHead(color, glpaneScale, basePoint):
+    n = glpaneScale
+    arrowBase = n * 0.075 
+    arrowHeight = n * 0.35
+    lineWidth = 1.0
+    #Draw solid arrow heads
+    glPushMatrix() 
+    glDisable(GL_CULL_FACE)
+    glColor3fv(color)
+    #glColor3fv(lightblue)
+    glTranslatef(basePoint[0],basePoint[1],basePoint[2])
+    glRotatef(90,0.0,1.0,0.0)	    
+
+    glePolyCone([[0, 0, -1], 
+                 [0, 0, 0], 
+                 [0, 0, arrowHeight], 
+                 [0, 0, arrowHeight+1]], 
+                 None, 
+                 [arrowBase, arrowBase, 0, 0])
+
+    glPopMatrix()
+
+def drawline(color, pos1, pos2, dashEnabled = False, width = 1, isSmooth = True):
     """Draw a line from pos1 to pos2 of the given color.
     If dashEnabled is True, it will be dashed.
     If width is not 1, it should be an int or float (more than 0)
@@ -1798,10 +1897,14 @@ def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
         glEnable(GL_LINE_STIPPLE)
     if width != 1:
         glLineWidth(width)
+    if isSmooth:
+        glEnable(GL_LINE_SMOOTH)
     glBegin(GL_LINES)
     glVertex(pos1[0], pos1[1], pos1[2])
     glVertex(pos2[0], pos2[1], pos2[2])
     glEnd()
+    if isSmooth:
+        glDisable(GL_LINE_SMOOTH)
     if width != 1:
         glLineWidth(1.0) # restore default state
     if dashEnabled: 
@@ -1815,16 +1918,16 @@ def drawPolyLine(color, points):
     glColor3fv(color)
     glBegin(GL_LINE_STRIP)
     for v in points:
-	glVertex3fv(v)
+        glVertex3fv(v)
     glEnd()
-   
+
     glEnable(GL_LIGHTING)
     return
 
 def drawPoint(color, 
-	      point, 
-	      pointSize = 3.0,
-	      isRound = True):
+              point, 
+              pointSize = 3.0,
+              isRound = True):
     """
     Draw a point using GL_POINTS. 
     @param point: The x,y,z coordinate array/ vector of the point 
@@ -1838,18 +1941,18 @@ def drawPoint(color,
     glColor3fv(color)
     glPointSize(float(pointSize))
     if isRound:
-	glEnable(GL_POINT_SMOOTH)
+        glEnable(GL_POINT_SMOOTH)
     glBegin(GL_POINTS)
     glVertex3fv(point)       
     glEnd()
     if isRound:
-	glDisable(GL_POINT_SMOOTH)
-    
+        glDisable(GL_POINT_SMOOTH)
+
     glEnable(GL_LIGHTING)
     if pointSize != 1.0:
-	glPointSize(1.0)
+        glPointSize(1.0)
     return
-    
+
 
 def drawLineCube(color, pos, radius):
     vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
@@ -1927,7 +2030,7 @@ def segend():
     glEnd()
     glEnable(GL_LIGHTING)
     return
-    
+
 def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
     '''Draw chunk or jig axis'''
     #ninad060907 Note that this is different than draw 
@@ -1951,23 +2054,23 @@ def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
 
 def drawaxes(n,point,coloraxes=False, dashEnabled = False):
     from constants import blue, red, darkgreen
-    
+
     n *= 0.5
     glPushMatrix()
     glTranslate(point[0], point[1], point[2])
     glDisable(GL_LIGHTING)
-    
+
     if coloraxes: 
         glColor3f(red[0], red[1], red[2])
         if dashEnabled:
-             #ninad060921 Note that we will only support dotted oridin axis (hidden lines)
+                #ninad060921 Note that we will only support dotted oridin axis (hidden lines)
             #but not POV axis. (as it could be annoying)
             glLineStipple(5, 0xAAAA)
             glEnable(GL_LINE_STIPPLE)
             glDisable(GL_DEPTH_TEST)
     else:
         glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-        
+
     glBegin(GL_LINES)
     glVertex(n,0,0)
     glVertex(-n,0,0)
@@ -1979,12 +2082,12 @@ def drawaxes(n,point,coloraxes=False, dashEnabled = False):
     glVertex(0,0,n)
     glVertex(0,0,-n)
     glEnd()
-    
+
     if coloraxes:
         if dashEnabled:
             glDisable(GL_LINE_STIPPLE)
             glEnable(GL_DEPTH_TEST)
-            
+
     glEnable(GL_LIGHTING)
     glPopMatrix()
     return
@@ -2002,9 +2105,9 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     #3.Making origin non-zoomable is acheived by replacing 
     #hardcoded 'n' with glpane's scale - ninad060922
 
-    
+
     from constants import blue, red, darkgreen, black, lightblue
-    
+
     #ninad060922 in future , the following could be user preferences. 
     if (dashEnabled):
         dashShrinkage = 0.9
@@ -2021,7 +2124,7 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glTranslate(point[0], point[1], point[2])
     glDisable(GL_LIGHTING)
     glLineWidth(lineWidth)
-    
+
     gleNumSides = gleGetNumSides()
     #Code to show hidden lines of the origin if some model obscures it  ninad060921
     if dashEnabled:
@@ -2032,7 +2135,7 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
         gleSetNumSides(5)   
     else:   
         gleSetNumSides(10)
-        
+
     glBegin(GL_LINES)
 
     #glColor3f(black)
@@ -2040,7 +2143,7 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
 
     #start draw a point at origin . 
     #ninad060922 is thinking about using GL_POINTS here
-    
+
     glVertex(-x1,0.0,0.0)
     glVertex(x1,0.0,0.0)
     glVertex(0.0, -y1, 0.0)
@@ -2070,9 +2173,9 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glVertex(0.0,0.0,0.0)
     glEnd() #end draw lines
     glLineWidth(1.0)
-        
+
     glPopMatrix() # end push matrix for drawing various lines in the origin and axes
-            
+
     #start draw solid arrow heads  for  X , Y and Z axes
     glPushMatrix() 
     glDisable(GL_CULL_FACE)
@@ -2080,12 +2183,12 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glColor3fv(lightblue)
     glTranslatef(xEnd,0.0,0.0)
     glRotatef(90,0.0,1.0,0.0)
-    
+
 
     glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
 
     glPopMatrix()
-        
+
     glPushMatrix()
     #glColor3f(darkgreen)
     glColor3fv(lightblue)
@@ -2095,13 +2198,13 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
 
     glPopMatrix()
-        
+
     glPushMatrix()
     glColor3fv(lightblue)
     glTranslatef(0.0,0.0,zEnd)
 
     glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
-    
+
     #Disable line stipple and Enable Depth test
     if dashEnabled:
         glLineStipple(1, 0xAAAA)
@@ -2116,42 +2219,42 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     return
 
 def drawDirectionArrow(color, tailPoint, arrowBasePoint, 
-			    scale, flipDirection = False):
-	'''Draw a directional arrow staring at <tailPoint>
+                       scale, flipDirection = False):
+    '''Draw a directional arrow staring at <tailPoint>
 	with an endpoint decided by the vector between 
 	<arrowBasePoint> and <tailPoint> and the glpane scale <scale>
 	'''
-	
-	vec = arrowBasePoint - tailPoint
-	vec = scale*0.07*vec
-	radius = vlen(vec)*0.07
-	arrowBase =  radius*2.0
-	arrowHeight =  arrowBase*2.0
-	axis = norm(vec)
-	
-	scaledBasePoint = tailPoint + vlen(vec)*axis
-	
-	drawcylinder(color, tailPoint, scaledBasePoint, radius, capped = True)
-		
-	#start draw solid arrow heads
-	glPushMatrix() 
-	glColor3fv(color)
-	glTranslatef(scaledBasePoint[0],scaledBasePoint[1], scaledBasePoint[2])
-	
-	if flipDirection:
-		glRotatef(0,0.0,1.0,0.0)
-	else:
-		glRotatef(180,0.0,1.0,0.0)
-			
-    
-	glePolyCone([[0, 0, -1], 
-		     [0, 0, 0], 
-		     [0, 0, arrowHeight], 
-		     [0, 0, arrowHeight+1]], 
-		     None, 
-		     [arrowBase, arrowBase, 0, 0])
-    
-	glPopMatrix()
+
+    vec = arrowBasePoint - tailPoint
+    vec = scale*0.07*vec
+    radius = vlen(vec)*0.07
+    arrowBase =  radius*2.0
+    arrowHeight =  arrowBase*2.0
+    axis = norm(vec)
+
+    scaledBasePoint = tailPoint + vlen(vec)*axis
+
+    drawcylinder(color, tailPoint, scaledBasePoint, radius, capped = True)
+
+    #start draw solid arrow heads
+    glPushMatrix() 
+    glColor3fv(color)
+    glTranslatef(scaledBasePoint[0],scaledBasePoint[1], scaledBasePoint[2])
+
+    if flipDirection:
+        glRotatef(0,0.0,1.0,0.0)
+    else:
+        glRotatef(180,0.0,1.0,0.0)
+
+
+    glePolyCone([[0, 0, -1], 
+                 [0, 0, 0], 
+                 [0, 0, arrowHeight], 
+                 [0, 0, arrowHeight+1]], 
+                 None, 
+                 [arrowBase, arrowBase, 0, 0])
+
+    glPopMatrix()
 
 
 def findCell(pt, latticeType):
@@ -2160,15 +2263,15 @@ def findCell(pt, latticeType):
         a = 0; cellX = cellY = cellZ = DiGridSp
     elif latticeType == 'LONSDALEITE':
         a = 1; cellX = XLen; cellY = YLen; cellZ = ZLen
-    
+
     i = int(floor(pt[0]/cellX))
     j = int(floor(pt[1]/cellY))
     k = int(floor(pt[2]/cellZ))
-    
+
     orig = V(i*cellX, j*cellY, k*cellZ)
-    
+
     return orig, sp1
-    
+
 def genDiam(bblo, bbhi, latticeType):
     """Generate a list of possible atom positions within the area enclosed by (bblo, bbhi).
     <Return>: A list of unit cells"""
@@ -2176,7 +2279,7 @@ def genDiam(bblo, bbhi, latticeType):
         a = 0; cellX = cellY = cellZ = DiGridSp
     elif latticeType == 'LONSDALEITE':
         a = 1; cellX = XLen; cellY = YLen; cellZ = ZLen
-    
+
     allCells = []    
     for i in range(int(floor(bblo[0]/cellX)),
                    int(ceil(bbhi[0]/cellX))):
@@ -2208,7 +2311,7 @@ def drawGrid(scale, center, latticeType):
     # (and the cookie baker code too) about the eyespace clipping planes. 
     #   Once we support user prefs, this should be one of them (if the alg is
     # not fixed by then).
-    
+
     MAX_GRID_SCALE = 90.0
     if scale > MAX_GRID_SCALE:
         scale = MAX_GRID_SCALE
@@ -2217,7 +2320,7 @@ def drawGrid(scale, center, latticeType):
         cellX = cellY = cellZ = DiGridSp
     elif latticeType == 'LONSDALEITE':
         cellX = XLen; cellY = YLen; cellZ = ZLen
-    
+
     bblo = center - scale
     bbhi = center + scale
     i1 = int(floor(bblo[0]/cellX))
@@ -2233,21 +2336,21 @@ def drawGrid(scale, center, latticeType):
         for j in range(j1, j2):
             glPushMatrix()
             for k in range(k1, k2):
-                 if latticeType == 'DIAMOND':
+                if latticeType == 'DIAMOND':
                     glCallList(diamondGridList)
-                 else:
+                else:
                     glCallList(lonsGridList)
-                 glTranslate(0.0,  0.0, cellZ)
+                glTranslate(0.0,  0.0, cellZ)
             glPopMatrix()
             glTranslate(0.0,  cellY, 0.0)
         glPopMatrix()
         glTranslate(cellX, 0.0, 0.0)
     glPopMatrix()
     glEnable(GL_LIGHTING)
-    
+
     #drawCubeCell(V(1, 0, 0))
     return
-	
+
 
 def drawrectangle(pt1, pt2, rt, up, color):
     glColor3f(color[0], color[1], color[2])
@@ -2279,20 +2382,20 @@ def drawrectangle(pt1, pt2, rt, up, color):
 ##    glVertex(c3[0],c3[1],c3[2])
 ##    glEnd()
 ##    return
-       
+
 
 # Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
 def drawbrick(color, center, axis, l, h, w, opacity = 1.0):
-    
+
     if len(color) == 3:
-	color = (color[0], color[1], color[2], opacity)
-	
+        color = (color[0], color[1], color[2], opacity)
+
     if opacity != 1.0:	
-	glDepthMask(GL_FALSE)
-	glEnable(GL_BLEND)
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)  
-    
-       
+        glDepthMask(GL_FALSE)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)  
+
+
     apply_material(color)
     glPushMatrix()
     glTranslatef(center[0], center[1], center[2])
@@ -2304,16 +2407,16 @@ def drawbrick(color, center, axis, l, h, w, opacity = 1.0):
         glRotate(angle, 0.0, 1.0, 0.0)
     else:
         glRotate(angle, axis[1], -axis[0], 0.0)
-    
-    
-  
+
+
+
     glScale(h, w, l)
     glCallList(solidCubeList) #bruce 060302 revised the contents of solidCubeList as part of fixing bug 1595
-    
+
     if opacity != 1.0:	
-	glDisable(GL_BLEND)
-	glDepthMask(GL_TRUE)
-	
+        glDisable(GL_BLEND)
+        glDepthMask(GL_TRUE)
+
     glPopMatrix()
     return
 
@@ -2328,10 +2431,10 @@ def drawLineLoop(color,lines, width = 1):
     glEnable(GL_LIGHTING)  
     #reset the glLineWidth to 1
     if width!=1:
-	glLineWidth(1)
+        glLineWidth(1)
     return
 
-    
+
 def drawlinelist(color,lines):
     glDisable(GL_LIGHTING)
     glColor3fv(color)
@@ -2346,12 +2449,12 @@ cubeLines = A([[-1,-1,-1], [-1,-1, 1],
                [-1, 1,-1], [-1, 1, 1],
                [ 1,-1,-1], [ 1,-1, 1],
                [ 1, 1,-1], [ 1, 1, 1],
-               
+
                [-1,-1,-1], [-1, 1,-1],
                [-1,-1, 1], [-1, 1, 1],
                [ 1,-1,-1], [ 1, 1,-1],
                [ 1,-1, 1], [ 1, 1, 1],
-               
+
                [-1,-1,-1], [ 1,-1,-1],
                [-1,-1, 1], [ 1,-1, 1],
                [-1, 1,-1], [ 1, 1,-1],
@@ -2359,26 +2462,26 @@ cubeLines = A([[-1,-1,-1], [-1,-1, 1],
 
 def drawCubeCell(color):
     vs = [[sp0, sp0, sp0], [sp4, sp0, sp0], [sp4, sp4, sp0], [sp0, sp4, sp0],
-                            [sp0, sp0, sp4], [sp4, sp0, sp4], [sp4, sp4, sp4], [sp0, sp4, sp4]]
-    
+          [sp0, sp0, sp4], [sp4, sp0, sp4], [sp4, sp4, sp4], [sp0, sp4, sp4]]
+
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     glBegin(GL_LINE_LOOP)
     for ii in range(4):
         glVertex3fv(vs[ii])
     glEnd()
-    
+
     glBegin(GL_LINE_LOOP)
     for ii in range(4, 8):
         glVertex3fv(vs[ii])
     glEnd()
-    
+
     glBegin(GL_LINES)
     for ii in range(4):
         glVertex3fv(vs[ii])
         glVertex3fv(vs[ii+4])
     glEnd()
-    
+
     glEnable(GL_LIGHTING) 
     return
 
@@ -2387,13 +2490,13 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
        @pickCheckOnly This is used to draw the geometry only, used for OpenGL pick selection purpose.'''
     vs = [[-0.5, 0.5, 0.0], [-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0]]
     vt = [[0.0, 1.0], [0.0, 0.0], [1.0, 0.0], [1.0, 1.0]]    
-    
+
     glDisable(GL_LIGHTING)
     glColor4fv(list(color) + [opacity])
-    
+
     glPushMatrix()
     glScalef(w, h, 1.0)
-    
+
     if SOLID:
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
     else:
@@ -2404,10 +2507,10 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
         glDepthMask(GL_FALSE) # This makes sure translucent object will not occlude another translucent object
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-            
+
         if textureReady:
             glEnable(GL_TEXTURE_2D)  
-            
+
     glBegin(GL_QUADS)
     for ii in range(len(vs)):
         t = vt[ii]; v = vs[ii]
@@ -2415,18 +2518,18 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
             glTexCoord2fv(t)
         glVertex3fv(v)
     glEnd()
-    
+
     if not pickCheckOnly:
         if textureReady:
             glDisable(GL_TEXTURE_2D)
-        
+
         glDisable(GL_BLEND)
         glDepthMask(GL_TRUE) 
-    
+
     glEnable(GL_CULL_FACE)
     if not SOLID:
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-    
+
     glPopMatrix()
     glEnable(GL_LIGHTING)
     return
@@ -2439,7 +2542,7 @@ def drawFullWindow(vtColors):
        """
     from constants import GL_FAR_Z
     glDisable(GL_LIGHTING)
-    
+
     glBegin(GL_QUADS)
     glColor3fv(vtColors[0])
     glVertex3f(-1, -1, GL_FAR_Z)
@@ -2450,22 +2553,22 @@ def drawFullWindow(vtColors):
     glColor3fv(vtColors[3])
     glVertex3f(-1, 1, GL_FAR_Z)
     glEnd()
-    
+
     glEnable(GL_LIGHTING)
     return
-    
+
 def drawtext(text, color, pt, size, glpane):
 
     glDisable(GL_LIGHTING)
     glDisable(GL_DEPTH_TEST)
-    
+
     from PyQt4.Qt import QFont, QString, QColor
     font = QFont( QString("Helvetica"), size)
     #glpane.qglColor(QColor(75, 75, 75))
     from widgets import RGBf_to_QColor
     glpane.qglColor(RGBf_to_QColor(color))
     glpane.renderText(pt[0], pt[1], pt[2], QString(text), font)
-    
+
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
     return
@@ -2536,27 +2639,27 @@ def renderSurface(surfaceEntities, surfaceNormals):
         return
     def onevert(vertex_index): #bruce 060927 split this out, for code clarity, and so debug prefs are used in only one place
         glNormal3fv(surfaceNormals[vertex_index])
-	if nc > 0 and color_first: use_color(surfaceColors[vertex_index]) # this needs to be done before glVertex3fv
+        if nc > 0 and color_first: use_color(surfaceColors[vertex_index]) # this needs to be done before glVertex3fv
         glVertex3fv(surfacePoints[vertex_index])
         if nc > 0 and not color_first: use_color(surfaceColors[vertex_index]) # old code did it here -- used wrong colors sometimes
         return
     ## if nc > 0 : glDisable(GL_LIGHTING)
     if disable_lighting: glDisable(GL_LIGHTING)
     if n == 3:
-	glBegin(GL_TRIANGLES)
-	for entity in entityIndex:
-	    onevert(entity[0])
-	    onevert(entity[1])
-	    onevert(entity[2])
-	glEnd()
+        glBegin(GL_TRIANGLES)
+        for entity in entityIndex:
+            onevert(entity[0])
+            onevert(entity[1])
+            onevert(entity[2])
+        glEnd()
     else:	
-	glBegin(GL_QUADS)
-	for entity in entityIndex:
-	    onevert(entity[0])
-	    onevert(entity[1])
-	    onevert(entity[2])
-	    onevert(entity[3])
-	glEnd()
+        glBegin(GL_QUADS)
+        for entity in entityIndex:
+            onevert(entity[0])
+            onevert(entity[1])
+            onevert(entity[2])
+            onevert(entity[3])
+        glEnd()
     if disable_lighting: glEnable(GL_LIGHTING)
     return
 

@@ -4,18 +4,20 @@
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
 @license:   GPL
+
+TODO:
+- The DNA rubberband line drawn as a ladder needs to be always parallel to 
+  the screen 
+- User Preferences for different rubberband line display styles 
 """
 
 from LineMode import LineMode
 
-from drawer import drawline, drawsphere
-##from drawer import drawLadder
+from drawer import drawLadder
+##from drawer import drawArrowHead
+
 from constants import black, red, blue
 
-from OpenGL.GL import glPopMatrix
-from OpenGL.GL import glPushMatrix
-
-from VQT import V, norm, Q
 # == GraphicsMode part
 
 class DnaLine_GM( LineMode.GraphicsMode_class ):
@@ -27,42 +29,29 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         """
         """
         LineMode.GraphicsMode_class.__init__(self, command)
-        self.quat = Q(self.glpane.quat)
       
-    def Draw_NIY(self):
+    def Draw(self):
         """
-        not implemented yet
+        Draw the DNA rubberband line (a ladder representation)
         """
-        pass
+        #The rubberband line display needs to be a user preference.
+        #Example: There could be 3 radio buttons in the duplex PM that allows 
+        #you to draw the rubberband line as a simple line, a line with points 
+        #that indicate duplexrise, a dna ladder with arrow heads. Drawing it as 
+        #a ladder with arrow heads for the beams is the current implementation 
+        # -Ninad 2007-10-30
         
-        #LineMode.GraphicsMode_class.Draw(self)
-        #if self.endPoint2 and self.endPoint1:            
-            #drawLadder(self.endPoint1,
-                       #self.endPoint2, 
-                       #self.command.duplexRise,
-                       #self.quat,
-                       #beam1Color = red,
-                       #beam2Color = blue,
-                       #stepColor = black    
-                    #)          
-           
-            
-        #if 0:
-            #if self.currentPoint:
-                #glPushMatrix()  
-                #if self.movingPoint:
-                    #drawsphere(STARTPOINT_SPHERE_COLOR, 
-                               #self.movingPoint, 
-                               #STARTPOINT_SPHERE_RADIUS,
-                               #STARTPOINT_SPHERE_DRAWLEVEL,
-                               #opacity = STARTPOINT_SPHERE_OPACITY
-                               #)            
-                #drawline(black, 
-                     #self.movingPoint, 
-                     #self.currentPoint, 
-                     #dashEnabled = True)            
-                #glPopMatrix()
-    
+        LineMode.GraphicsMode_class.Draw(self)
+        if self.endPoint2 and self.endPoint1:              
+            drawLadder(self.endPoint1,
+                       self.endPoint2, 
+                       self.command.duplexRise,
+                       beam1Color = red,
+                       beam2Color = blue,
+                       stepColor = black    
+                    )  
+            ##if 0:
+                ##drawArrowHead()               
 
 # == Command part
 
