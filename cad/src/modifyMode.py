@@ -40,7 +40,15 @@ from BoundingBox import BBox
 # changed superclass from basicMode to selectMolsMode.  mark 060301. 
 class modifyMode(selectMolsMode):
     """
-    Move Chunks Mode
+    This class provides support for the two move modes B{Translate} and 
+    B{Rotate}. Translate and rotate transforms can only be performed on
+    chunks using this class.
+
+    This class can be subclassed to support these move operations in other
+    commands (modes).
+
+    @see: L{fusechunksMode} for an example of a mode that subclasses
+          I{modifyMode}.
     """
     # class constants
     gridColor = 52/255.0, 128/255.0, 26/255.0
@@ -121,61 +129,61 @@ class modifyMode(selectMolsMode):
 	in the PM and specify the two endpoints from GLPane. The program enters
 	a temporary mode while you do that and then uses the data collected 
 	while in temporary mode (i.e. two endpoints) to move the selection. 
-	
+
 	TODO: Note that the endpoints always assume GLPane depth. As of today, 
 	the temporary mode API knows nothing about the highlighting. Once it 
 	is implemented,  we can then specify atom centers etc as reference 
 	points. See comments in LineMode for further details. 
 	"""
-	if isChecked:	    
-	    self.propMgr.startCoordLineEdit.setEnabled(isChecked)
-	    msg = "Click inside the 3D workspace to define two endpoints" \
-		"of a line. The selection will be moved by the offset "\
-		"vector defined by these line endpoints."
-    
-	    self.propMgr.updateMessage(msg)
-	    
-	    commandSequencer = self.commandSequencer
-	    currentCommand = commandSequencer.currentCommand
+        if isChecked:	    
+            self.propMgr.startCoordLineEdit.setEnabled(isChecked)
+            msg = "Click inside the 3D workspace to define two endpoints" \
+                "of a line. The selection will be moved by the offset "\
+                "vector defined by these line endpoints."
 
-	    if currentCommand.modename != "LineMode":
-		commandSequencer.userEnterTemporaryCommand(
-		    'LineMode')
-		return
-	else:
-	    self.propMgr.startCoordLineEdit.setEnabled(False)
-	    self.propMgr.updateMessage()	    
-	    
-    
+            self.propMgr.updateMessage(msg)
+
+            commandSequencer = self.commandSequencer
+            currentCommand = commandSequencer.currentCommand
+
+            if currentCommand.modename != "LineMode":
+                commandSequencer.userEnterTemporaryCommand(
+                    'LineMode')
+                return
+        else:
+            self.propMgr.startCoordLineEdit.setEnabled(False)
+            self.propMgr.updateMessage()	    
+
+
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """
 	NOTE: See selectMolsMode.provideParamsForTemporaryMode 
 	for detail comment. This needs to be a API method. This is a temporary
 	implementation
         """
-	        
+
         if temporaryModeName == "LineMode":
             #This is the number of mouse clicks that the temporary mode accepts
             mouseClickLimit = 2
             return (mouseClickLimit)
-	
+
     def acceptParamsFromTemporaryMode(self, temporaryModeName, params):
         """
 	NOTE: see electMolsMode.acceptParamsFromTemporaryMode for detail 
 	comment. This needs to be a API method. This is a temporary
 	implementation	
         """
-	#Usually params will contain 2 items. But if user abruptly terminates  
-	#the temporary mode, this might not be true. So move the chunk by offset
-	#only when you have got 2 points!  Ninad 2007-10-16
-	if len(params) == 2:
-	    startPoint = params[0]
-	    endPoint = params[1]
-	    offset = endPoint - startPoint	
-	    self.o.assy.movesel(offset)
-	    self.o.gl_update()
-	    
-	self.propMgr.moveFromToButton.setChecked(False)		
+        #Usually params will contain 2 items. But if user abruptly terminates  
+        #the temporary mode, this might not be true. So move the chunk by offset
+        #only when you have got 2 points!  Ninad 2007-10-16
+        if len(params) == 2:
+            startPoint = params[0]
+            endPoint = params[1]
+            offset = endPoint - startPoint	
+            self.o.assy.movesel(offset)
+            self.o.gl_update()
+
+        self.propMgr.moveFromToButton.setChecked(False)		
 
     def getFlyoutActionList(self): #Ninad 20070618
         """ Returns a tuple that contains mode spcific actionlists in the 
@@ -1045,7 +1053,7 @@ class modifyMode(selectMolsMode):
             return
 
         ## Compute bbox for selected chunk(s).
-        
+
         bbox = BBox()
         for m in movables:
             if hasattr(m, "bbox"): # Fixes bug 1990. Mark 060702.
