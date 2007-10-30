@@ -168,7 +168,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                                             
 
         # Strand Length (i.e. the number of bases)
-        self.numberOfBasesSpinBox = \
+        self.numberOfBasePairsSpinBox = \
             PM_SpinBox( pmGroupBox, 
                         label         =  "Base Pairs :", 
                         value         =  self._numberOfBases,
@@ -176,7 +176,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                         minimum       =  0,
                         maximum       =  10000 )
 
-        self.connect( self.numberOfBasesSpinBox,
+        self.connect( self.numberOfBasePairsSpinBox,
                       SIGNAL("valueChanged(int)"),
                       self.numberOfBasesChanged )
 
@@ -347,7 +347,7 @@ Only B-DNA is currently supported in NanoEngineer-1.</p>""")
         @rtype: tuple
         @see: L{DnaDuplexEditController._gatherParameters} where this is used 
         """
-        numberOfBases = self.numberOfBasesSpinBox.value()
+        numberOfBases = self.numberOfBasePairsSpinBox.value()
         dnaForm  = str(self.conformationComboBox.currentText())
         basesPerTurn = self.basesPerTurnDoubleSpinBox.value()
         

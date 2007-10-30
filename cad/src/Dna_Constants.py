@@ -82,10 +82,10 @@ def getDuplexLength(conformation, numberOfBases):
     assert numberOfBases >= 0
     return getDuplexRise(conformation) * numberOfBases
 
-def getNumberOfBasesFromDuplexLength(conformation, duplexLength):
+def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength):
     """
-    Returns the number of base-pairs in the duplex given the conformation
-    and the duplex length.
+    Returns the number of base-pairs in the duplex given the conformation  
+    and the duplex length. This number is rounded to the nearest integer. 
     
     @param conformation: "A-DNA", "B-DNA", or "Z-DNA"
     @type  conformation: str
@@ -98,7 +98,8 @@ def getNumberOfBasesFromDuplexLength(conformation, duplexLength):
     """
     assert conformation in ("A-DNA", "B-DNA", "Z-DNA")
     assert duplexLength >= 0
-    return duplexLength / getDuplexRise(conformation)
+    numberOfBasePairs = 1 + (duplexLength / getDuplexRise(conformation))
+    return round(numberOfBasePairs)
 
 
 def getComplementSequence(inSequence):

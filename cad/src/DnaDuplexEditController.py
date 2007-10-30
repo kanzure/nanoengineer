@@ -29,7 +29,7 @@ from DnaDuplexPropertyManager import DnaDuplexPropertyManager
 
 from constants import gensym
 
-from Dna_Constants import getNumberOfBasesFromDuplexLength, getDuplexRise
+from Dna_Constants import getNumberOfBasePairsFromDuplexLength, getDuplexRise
 
 class DnaDuplexEditController(EditController):
     """
@@ -268,8 +268,8 @@ class DnaDuplexEditController(EditController):
         self.propMgr.endPoint1 = params[0]
         self.propMgr.endPoint2 = params[1]
         duplexLength = vlen(params[0] - params[1])
-        numberOfBases = getNumberOfBasesFromDuplexLength('B-DNA', duplexLength)
-        self.propMgr.numberOfBasesSpinBox.setValue(numberOfBases)
+        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', duplexLength)
+        self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
         self.propMgr.specifyDnaLineButton.setChecked(False)
         self.preview_or_finalize_structure(previewing = True)
     
