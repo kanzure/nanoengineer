@@ -1368,14 +1368,16 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         if self.assy.selmols: 
             self.assy.resetAtomsDisplay()
-            msg = "Display setting for all atoms in selected chunk(s) reset to Default (i.e. their parent chunk's display mode)."
+            msg = "Display setting for all atoms in selected chunk(s) reset" \
+                " to Default (i.e. their parent chunk's display mode)."
 
-        if self.notDefaultDisplayAtomsInSelection():
+        if self.assy.selectionContainsAtomsWithOverriddenDisplay():
             for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display != diDEFAULT:
                     a.setDisplay(diDEFAULT)
 
-            msg = "Display setting for all selected atom(s) reset to Default (i.e. their parent chunk's display mode)."
+            msg = "Display setting for all selected atom(s) reset to Default" \
+                " (i.e. their parent chunk's display mode)."
 
         env.history.message(cmd + msg)
 
@@ -1397,7 +1399,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         if self.assy.selmols:
             nia = self.assy.showInvisibleAtoms()
 
-        if self.invisibleAtomsInSelection():
+        if self.assy.selectionContainsInvisibleAtoms():
             for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display == diINVISIBLE: 
                     a.setDisplay(diDEFAULT)
@@ -1405,27 +1407,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         msg = cmd + str(nia) + " invisible atoms found."
         env.history.message(msg)
-
-    # The next two methods should be moved somewhere else (i.e. ops_select.py). Discuss with Bruce.
-    def notDefaultDisplayAtomsInSelection(self): # Mark 060707.
-        """
-        Returns True if there is one or more selected atoms with its 
-        display mode not set to diDEFAULT.
-        """
-        for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
-            if a.display != diDEFAULT: 
-                return True
-        return False
-
-    def invisibleAtomsInSelection(self): # Mark 060707.
-        """
-        Returns True if there is one or more selected atoms with its display
-        mode set to diINVISIBLE.
-        """
-        for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
-            if a.display == diINVISIBLE: 
-                return True
-        return False
 
     def changeBackgroundColor(self):
         """
@@ -1955,9 +1936,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
             self.dnacntl.show()
         else:
-	    self.dnaEditController = self._createDnaDuplexEditController()
+            self.dnaEditController = self._createDnaDuplexEditController()
             self.dnaEditController.runController()
-    
+
     def _createDnaDuplexEditController(self, dnaDuplex = None):
         """
 	Returns a new L{DnaDuplexEditController} object.	
@@ -1972,7 +1953,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	      controllers. Right now it creates different ones. 
         """
         from DnaDuplexEditController import DnaDuplexEditController
-	return DnaDuplexEditController(self, dnaDuplex)
+        return DnaDuplexEditController(self, dnaDuplex)
 
     def insertPovrayScene(self):
         self.povrayscenecntl.setup()

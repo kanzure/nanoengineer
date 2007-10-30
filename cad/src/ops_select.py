@@ -13,6 +13,7 @@ bruce 050913 used env.history in some places.
 """
 
 from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
+from constants import diINVISIBLE, diDEFAULT
 from elements import Singlet
 from VQT import V, A, norm, cross
 from Numeric import dot, transpose
@@ -30,7 +31,8 @@ JIGS = 4
 ALLOBJECTS = ATOMS | CHUNKS | JIGS
 
 def objectSelected(part, objectFlags=ALLOBJECTS): # Mark 2007-06-24
-    '''Returns True if anything is selected (i.e. atoms, chunks or jigs).
+    """
+    Returns True if anything is selected (i.e. atoms, chunks or jigs).
     Returns False if nothing is selected.
     
     <objectFlags> is an enum used to test for specific object types, where:
@@ -39,7 +41,7 @@ def objectSelected(part, objectFlags=ALLOBJECTS): # Mark 2007-06-24
         CHUNKS = 2
         JIGS = 4
         ALLOBJECT = ATOMS | CHUNKS | JIGS
-    '''
+    """
     
     if objectFlags & ATOMS:
         if part.selatoms_list():
@@ -56,7 +58,9 @@ def objectSelected(part, objectFlags=ALLOBJECTS): # Mark 2007-06-24
     return False
 
 class ops_select_Mixin:
-    "Mixin class for providing these methods to class Part"
+    """
+    Mixin class for providing selection methods to class L{Part}.
+    """
 
     # functions from the "Select" menu
     # [these are called to change the set of selected things in this part,
@@ -64,9 +68,48 @@ class ops_select_Mixin:
     #  do necessary updates at the end, e.g. win_update, and should print
     #  history messages, etc]
     
+    def selectionContainsAtomsWithOverriddenDisplay(self):
+        """
+        Checks if the current selection contains any atoms that have
+        its display mode not set to B{diDEFAULT}.
+        
+        @return: True if there is one or more selected atoms with its 
+                 display mode not set to B{diDEFAULT}.
+        @rtype:  bool
+        
+        @note: It doesn't consider atoms in a chunk or of a jig if they
+               (the atoms) are not explicitely selected.
+        """
+        for a in self.getOnlyAtomsSelectedByUser():
+            if a.display != diDEFAULT: 
+                return True
+        return False
+
+    def selectionContainsInvisibleAtoms(self):
+        """
+        Checks if the current selection contains any atoms that have
+        its display mode set to B{diINVISIBLE}.
+        
+        @return: True if there is one or more selected atoms with its display
+                 mode set to B{diINVISIBLE}.
+        @rtype:  bool
+        
+        @note: It doesn't consider atoms in a chunk or of a jig if they
+               (the atoms) are not explicitely selected.
+        """
+        for a in self.getOnlyAtomsSelectedByUser():
+            if a.display == diINVISIBLE: 
+                return True
+        return False
+    
     def getSelectedAtoms(self): #mark 060122
-        '''Returns a list of all the selected atoms, including those of selected chunks and jigs.
-        '''
+        """
+        Returns a list of all the selected atoms, including those of selected
+        chunks and jigs.
+        
+        @return: List of selected atoms.
+        @rtype:  list
+        """
         atoms = []
         
         for chunk in self.assy.selmols[:]:
@@ -80,9 +123,10 @@ class ops_select_Mixin:
         return atoms
     
     def getOnlyAtomsSelectedByUser(self): #ninad 0600818
-        '''Returns a list of atoms selected by the user. It doesn't consider atoms in a chunk or 
-        of a jig if they(the atoms) are not explicitely selected.
-        '''
+        """
+        Returns a list of atoms selected by the user. It doesn't consider atoms
+        in a chunk or of a jig if they (the atoms) are not explicitely selected.
+        """
         #ninad060818 is using this function to get distance and other info in the DynamiceTooltip class. 
         atoms = []
         atoms += self.assy.selatoms_list()
@@ -90,8 +134,9 @@ class ops_select_Mixin:
     
 
     def getSelectedJigs(self):
-        '''Returns a list of all the currently selected jigs.
-        '''
+        """
+        Returns a list of all the currently selected jigs.
+        """
         from jigs import Jig
         selJigs = []
         def addSelectedJig(obj, jigs=selJigs):
@@ -102,8 +147,9 @@ class ops_select_Mixin:
         return selJigs
         
     def getSelectedMovables(self): # Renamed from getMovables().  mark 060124.
-        '''Returns the list of all selected nodes that are movable.
-        '''
+        """
+        Returns the list of all selected nodes that are movable.
+        """
         selected_movables = []
         def addMovableNode(obj, nodes=selected_movables):
             if obj.picked and obj.is_movable:
@@ -134,12 +180,15 @@ class ops_select_Mixin:
         self.w.win_update()
 
     def selectInvert(self):
-        """If some parts are selected, select the other parts instead.
+        """
+        If some parts are selected, select the other parts instead.
         If some atoms are selected, select the other atoms instead
         (even in chunks with no atoms selected, which end up with
         all atoms selected). (And unselect all currently selected
         parts or atoms.)
-           Note: when atoms are selected, only affects atoms as permitted by the selection filter.
+        
+        @note: when atoms are selected, only affects atoms as permitted by the
+               selection filter.
         """ #bruce 060331 revised docstring
         #bruce 060721 comments: this is problematic #####@@@@@ as we move to more general selection semantics.
         # E.g. -- can it select atoms inside a CylinderChunk? It probably shouldn't, but now it can.
@@ -174,7 +223,8 @@ class ops_select_Mixin:
         self.w.win_update()
         
     def selectExpand(self):
-        """Select any atom that is bonded to any currently selected atom,
+        """
+        Select any atom that is bonded to any currently selected atom,
         and whose selection is permitted by the selection filter.
         """ #bruce 060331 revised docstring
         # Eric really needed this.  Added by Mark 050923.
@@ -212,7 +262,8 @@ class ops_select_Mixin:
         self.w.win_update()
         
     def selectContract(self):
-        """Unselects any atom which has a bond to an unselected atom, or which has any open bonds,
+        """
+        Unselects any atom which has a bond to an unselected atom, or which has any open bonds,
         and whose unselection is permitted by the selection filter.
         """ #bruce 060331 revised docstring
         # Added by Mark 050923.
@@ -262,7 +313,8 @@ class ops_select_Mixin:
     # ==
     
     def selectChunksWithSelAtoms(self): #bruce 060721 renamed from selectParts; see also permit_pick_parts
-        """change this Part's assy to permit selected chunks, not atoms,
+        """
+        change this Part's assy to permit selected chunks, not atoms,
         but select all chunks which contained selected atoms;
         then win_update
         [warning: not for general use -- doesn't change which select mode is in use]
@@ -277,7 +329,8 @@ class ops_select_Mixin:
         self.w.win_update()
 
     def selectChunksWithSelAtoms_noupdate(self): #bruce 060721 renamed from pickParts; see also permit_pick_parts
-        """change this Part's assy to permit selected chunks, not atoms,
+        """
+        Change this Part's assy to permit selected chunks, not atoms,
         but select all chunks which contained selected atoms; do no updates
         [warning: not for general use -- doesn't change which select mode is in use]
         """
@@ -293,7 +346,10 @@ class ops_select_Mixin:
         return
 
     def permit_pick_parts(self): #bruce 050125; see also selectChunksWithSelAtoms_noupdate, but that can leave some chunks initially selected
-        "ensure it's legal to pick chunks using mouse selection, and deselect any selected atoms (if picking chunks does so)"
+        """
+        Ensure it's legal to pick chunks using mouse selection, and deselect
+        any selected atoms (if picking chunks does so).
+        """
         #bruce 060414 revised this to try to fix bug 1819
         # (and perhaps related bugs like 1106, where atoms & chunks are both selected)
         if permit_atom_chunk_coselection(): #bruce 060721
@@ -312,7 +368,10 @@ class ops_select_Mixin:
         return
 
     def permit_pick_atoms(self): #bruce 050517 added this for use in some mode Enter methods -- but not sure they need it!
-        "ensure it's legal to pick atoms using mouse selection, and deselect any selected chunks (if picking atoms does so)"
+        """
+        Ensure it's legal to pick atoms using mouse selection, and deselect any
+        selected chunks (if picking atoms does so).
+        """
         if permit_atom_chunk_coselection(): #bruce 060721
             return
         ## if self.assy.selwhat != SELWHAT_ATOMS:
@@ -386,7 +445,8 @@ class ops_select_Mixin:
         This takes into account all known effects that affect drawing, except
         bonds and other non-atom things, which are treated as invisible.
         (Someday we'll fix this by switching to OpenGL-based hit-detection. #e)
-           Note: if several atoms are drawn there, the correct one to return is
+        
+        @note: if several atoms are drawn there, the correct one to return is
         the one that obscures the others at that exact point, which is not always
         the one whose center is closest to the screen!
            When water_cutoff is true, also return None if the atom you would
@@ -438,7 +498,8 @@ class ops_select_Mixin:
     
     def pick_at_event(self, event): #renamed from pick; modified
         # renamed from pick_at_event(). mark 060212.
-        """Pick whatever visible atom or chunk (depending on 
+        """
+        Pick whatever visible atom or chunk (depending on 
         self.selwhat) is under the mouse, adding it to the current selection. 
         You are not allowed to select a singlet.
         Print a message about what you just selected (if it was an atom).
@@ -465,7 +526,8 @@ class ops_select_Mixin:
         return
         
     def delete_at_event(self, event):
-        """Delete whatever visible atom or chunk (depending on self.selwhat) 
+        """
+        Delete whatever visible atom or chunk (depending on self.selwhat) 
         is under the mouse. You are not allowed to delete a singlet.
         This leaves the selection unchanged for any atoms/chunks in the current 
         selection not deleted. Print a message about what you just deleted.
@@ -496,7 +558,8 @@ class ops_select_Mixin:
         return
     
     def onlypick_at_event(self, event): #renamed from onlypick; modified
-        """Unselect everything in the glpane; then select whatever visible atom
+        """
+        Unselect everything in the glpane; then select whatever visible atom
         or chunk (depending on self.selwhat) is under the mouse at event.
         If no atom or chunk is under the mouse, nothing in glpane is selected.
         """
@@ -511,7 +574,8 @@ class ops_select_Mixin:
         self.pick_at_event(event)
     
     def unpick_at_event(self, event): #renamed from unpick; modified
-        """Make whatever visible atom or chunk (depending on self.selwhat)
+        """
+        Make whatever visible atom or chunk (depending on self.selwhat)
         is under the mouse at event get un-selected (subject to selection filter),
         but don't change whatever else is selected.
         """ #bruce 060331 revised docstring
@@ -528,7 +592,10 @@ class ops_select_Mixin:
     # == internal selection-related routines
     
     def unpickatoms(self): #e [should this be private?] [bruce 060721]
-        "Deselect any selected atoms (but don't change selwhat or do any updates)" #bruce 050517 added docstring
+        """
+        Deselect any selected atoms (but don't change selwhat or do any 
+        updates).
+        """ #bruce 050517 added docstring
         if self.selatoms:
             from chem import _changed_picked_Atoms
             ## for a in self.selatoms.itervalues():
@@ -547,7 +614,8 @@ class ops_select_Mixin:
         return
     
     def unpickparts(self): ##e this is misnamed -- should be unpicknodes #e [should this be private?] [bruce 060721]
-        """Deselect any selected nodes (e.g. chunks, Jigs, Groups) in this part
+        """
+        Deselect any selected nodes (e.g. chunks, Jigs, Groups) in this part
         (but don't change selwhat or do any updates).
         See also unpickchunks.
         """ #bruce 050517 added docstring; 060721 split out unpickchunks
@@ -555,7 +623,8 @@ class ops_select_Mixin:
         return
 
     def unpickchunks(self): #bruce 060721 made this to replace the misnamed unpick_jigs = False option of unpickparts 
-        """Deselect any selected chunks in this part
+        """
+        Deselect any selected chunks in this part
         (but don't change selwhat or do any updates).
         See also unpickparts.
         """
@@ -569,25 +638,31 @@ class ops_select_Mixin:
         return
     
     def unpickall_in_GLPane(self): #bruce 060721
-        """Unselect all things that ought to be unselected by a click in empty space in the GLPane.
-        As of 060721 this means "everything", but we might decide that MT nodes that are never drawn in GLPane
-        should remain selected in a case like this. ###@@@
+        """
+        Unselect all things that ought to be unselected by a click in empty
+        space in the GLPane.
+        As of 060721 this means "everything", but we might decide that MT nodes
+        that are never drawn in GLPane should remain selected in a case like
+        this. ###@@@
         """
         self.unpickatoms()
         self.unpickparts()
         return
 
     def unpickall_in_MT(self): #bruce 060721
-        """Unselect all things that ought to be unselected by a click in empty space in the Model Tree.
-        As of 060721 this means "all nodes", but we might decide that it should deselect atoms too. ###@@@
+        """Unselect all things that ought to be unselected by a click in empty
+        space in the Model Tree. As of 060721 this means "all nodes", but we
+        might decide that it should deselect atoms too. ###@@@
         """
         self.unpickparts()
         return
 
     def unpickall_in_win(self): #bruce 060721
-        """Unselect all things that a general "unselect all" tool button or menu command ought to.
-        This should unselect all selectable things, and should be equivalent to doing both
-        unpickall_in_GLPane and unpickall_in_MT.
+        """
+        Unselect all things that a general "unselect all" tool button or menu
+        command ought to. This should unselect all selectable things, and 
+        should be equivalent to doing both L{unpickall_in_GLPane()} and 
+        L{unpickall_in_MT()}.
         """
         self.unpickatoms()
         self.unpickparts()        
@@ -602,9 +677,11 @@ class ops_select_Mixin:
     # ==
     
     def selection_from_glpane(self): #bruce 050404 experimental feature for initial use in Minimize Selection; renamed 050523
-        """Return an object which represents the contents of the current selection,
-        independently of part attrs... how long valid?? Include the data generally used
-        when doing an op on selection from glpane (atoms and chunks); see also selection_from_MT().
+        """
+        Return an object which represents the contents of the current selection,
+        independently of part attrs... how long valid?? Include the data 
+        generally used when doing an op on selection from glpane (atoms and 
+        chunks); see also selection_from_MT().
         """
         # the idea is that this is a snapshot of selection even if it changes
         # but it's not clear how valid it is after the part contents itself starts changing...
@@ -613,12 +690,17 @@ class ops_select_Mixin:
         return selection_from_glpane( part)
 
     def selection_for_all(self): #bruce 050419 for use in Minimize All; revised 050523
-        "return a selection object referring to all our atoms (regardless of the current selection, and not changing it)"
+        """
+        Return a selection object referring to all our atoms (regardless of 
+        the current selection, and not changing it).
+        """
         part = self
         return selection_for_entire_part( part)
 
     def selection_from_MT(self): #bruce 050523; might not yet be used
-        "#doc"
+        """
+        #doc
+        """
         part = self
         return selection_from_MT( part)
 
@@ -631,7 +713,10 @@ class ops_select_Mixin:
 # ==
 
 def topmost_selected_nodes(nodes): #bruce 050523 split this out from the same-named TreeWidget method, and optimized it
-    "return a list of all selected nodes (without looking inside selected Groups) in or under the given list of nodes"
+    """
+    Return a list of all selected nodes (without looking inside selected 
+    Groups) in or under the given list of nodes.
+    """
     res = []
     func = res.append
     for node in nodes:
@@ -664,28 +749,43 @@ def atomdict_from_atomlist(atomlist): #bruce 051129 [#e should refile -- if I di
     return dict( [(a.key, a) for a in atomlist] )
 
 class Selection: #bruce 050404 experimental feature for initial use in Minimize Selection; revised 050523
-    """Represent a "snapshot-by-reference" of the contents of the current selection,
+    """
+    Represent a "snapshot-by-reference" of the contents of the current selection,
     or any similar set of objects passed to the constructor.
-    Warning: this remains valid (and unchanged in meaning) if the selection-state changes,
-    but might become invalid if the Part contents themselves change in any way!
-    (Or at least if the objects passed to the constructor (like chunks or Groups) change in contents (atoms or child nodes).)
+    
+    @warning: this remains valid (and unchanged in meaning) if the 
+    selection-state changes, but might become invalid if the Part contents
+    themselves change in any way! (Or at least if the objects passed to the
+    constructor (like chunks or Groups) change in contents (atoms or child
+    nodes).)
     """ #bruce 051129 revised docstring
     def __init__(self, part, atoms = {}, chunks = [], nodes = []):
-        """Create a snapshot-by-reference of whatever sets or lists of objects are passed
-        in the args atoms, chunks, and/or nodes (see details and limitations below).
-           Objects should not be passed redundantly -- i.e. they should not contain atoms or nodes twice,
-         where we define chunks as containing their atoms and Group nodes as containing their child nodes.
-           Objects must be of the appropriate types (if passed):
+        """Create a snapshot-by-reference of whatever sets or lists of objects
+        are passed in the args atoms, chunks, and/or nodes (see details and 
+        limitations below).
+        
+        Objects should not be passed redundantly -- i.e. they should not
+        contain atoms or nodes twice, where we define chunks as containing 
+        their atoms and Group nodes as containing their child nodes.
+        
+        Objects must be of the appropriate types (if passed):
         atoms must be a dict mapping atom keys to atoms;
         chunks must be a list of chunks;
-        nodes must be a list of nodes, thought of as disjoint node-subtrees (e.g. "topmost selected nodes").
-           The current implem also prohibits passing both chunks and nodes lists,
-        but this limitation is just for its convenience and can be removed when needed.
-           The object-containing arguments are shallow-copied immediately, but the objects they contain
-        are never copied, and in particular, the effect of changes to the set of child nodes of Group nodes
-        passed in the nodes argument is undefined. (In initial implem, the effect depends on when self.selmols
-        is first evaluated.)
-           Some methods assume only certain kinds of object arguments were passed (see their docstrings for details).
+        nodes must be a list of nodes, thought of as disjoint node-subtrees
+        (e.g. "topmost selected nodes").
+        
+        The current implem also prohibits passing both chunks and nodes lists,
+        but this limitation is just for its convenience and can be removed 
+        when needed.
+        
+        The object-containing arguments are shallow-copied immediately, but the
+        objects they contain are never copied, and in particular, the effect
+        of changes to the set of child nodes of Group nodes passed in the nodes
+        argument is undefined. (In initial implem, the effect depends on when
+        self.selmols is first evaluated.)
+        
+        Some methods assume only certain kinds of object arguments were 
+        passed (see their docstrings for details).
         """ #bruce 051129 revised docstring -- need to review code to verify its accuracy. ###k
         # note: topnodes might not always be provided;
         # when provided it should be a list of nodes in the part compatible with selmols
@@ -755,10 +855,15 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             return res
         raise AttributeError, attr
     def picks_atom(self, atom): #bruce 050526
-        "Does this selection include atom, either directly or via its chunk?"
+        """
+        Does this selection include atom, either directly or via its chunk?
+        """
         return atom.key in self.selatoms or id(atom.molecule) in self.selmols_dict
     def describe_objects_for_history(self):
-        """Return a string like "5 items" but more explicit if possible, for use in history messages"""
+        """
+        Return a string like "5 items" but more explicit if possible, for use
+        in history messages.
+        """
         if self.topnodes:
             res = fix_plurals( "%d item(s)" % len(self.topnodes) )
             #e could figure out their common class if any (esp. useful for Jig and below); for Groups say what they contain; etc
@@ -773,14 +878,18 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             #e could say "other atoms" if the selected nodes contain any atoms
         return res
     def expand_atomset(self, ntimes = 1): #bruce 051129 for use in Local Minimize; compare to selectExpand
-        """Expand self's set of atoms (to include all their real-atom neighbors) (repeating this ntimes),
-        much like "Expand Selection" but using no element filter, and of course
-        having no influence by or effect on "current selection state" (atom.picked attribute).
-           Ignore issue of self having selected chunks (as opposed to the atoms in them);
-        if this ever becomes possible we can decide how to generalize this method for that case
-        (ignore them, turn them to atoms, etc).
-           Warning: Current implem [051129] is not optimized for lots of atoms and ntimes > 1
-        (which doesn't matter for its initial use).
+        """
+        Expand self's set of atoms (to include all their real-atom neighbors)
+        (repeating this ntimes), much like "Expand Selection" but using no 
+        element filter, and of course having no influence by or effect on 
+        "current selection state" (atom.picked attribute).
+        
+        Ignore issue of self having selected chunks (as opposed to the atoms
+        in them); if this ever becomes possible we can decide how to generalize
+        this method for that case (ignore them, turn them to atoms, etc).
+        
+        @warning: Current implem [051129] is not optimized for lots of atoms
+        and ntimes > 1 (which doesn't matter for its initial use).
         """
         assert not self.selmols and not self.topnodes # (since current implem would be incorrect otherwise)
         atoms = self.selatoms # mutable dict, modified in following loop
