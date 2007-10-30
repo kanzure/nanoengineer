@@ -1124,9 +1124,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # Determine how singlets of strand open bonds should be drawn.
                 # draw_bond_main() takes care of drawing bonds accordingly.
                 # - mark 2007-10-20.
-                if bond.isFivePrimeOpenBond() & bool_arrowsOnFivePrimeEnds:
+                if bond.isFivePrimeOpenBond() and bool_arrowsOnFivePrimeEnds:
                     return 'arrowhead-in'
-                elif bond.isThreePrimeOpenBond() & bool_arrowsOnThreePrimeEnds:
+                elif bond.isThreePrimeOpenBond() and bool_arrowsOnThreePrimeEnds:
                     return 'arrowhead-out'
                 else:
                     return 'do not draw'
