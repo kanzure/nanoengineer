@@ -84,7 +84,7 @@ from state_utils import StateMixin
 from debug import print_compact_stack
 import undo_archive
 
-from constants import gensym, SELWHAT_CHUNKS ##, SELWHAT_ATOMS
+from constants import gensym, SELWHAT_CHUNKS, SELWHAT_ATOMS
 from state_constants import S_CHILD, S_DATA, S_REF
 
 from part import Part as Part_class # use a name we can search for [bruce 071029]
@@ -416,7 +416,7 @@ class assembly( StateMixin, Assembly_API):
     
     def set_selwhat(self, selwhat): #bruce 050517
         ## print_compact_stack( "set_selwhat to %r: " % (selwhat,))
-        assert selwhat in (0,2) # i.e. (SELWHAT_ATOMS, SELWHAT_CHUNKS)
+        assert selwhat in (SELWHAT_ATOMS, SELWHAT_CHUNKS)
         if not self._last_set_selwhat == self.selwhat: # compare last officially set one to last actual one
             if platform.atom_debug: # condition is because cookiemode will do this, for now
                 print_compact_stack( "atom_debug: bug: this failed to call set_selwhat, but set it directly, to %r:\n " \
