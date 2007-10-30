@@ -51,7 +51,6 @@ from drawer import drawwiresphere
 from elements import Singlet
 from elements import Hydrogen
 from elements import PeriodicTable
-from PyQt4.Qt import QMessageBox #@ Temporary!!! Mark 2007-10-23
 
 # bonds.py and chem.py form a two element import cycle, which could
 # ordinarily be broken by saying "import bonds" here, but there are
@@ -1192,14 +1191,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                             "directional bond chain containing %r and %r" % \
                             (self, bond, bond1, bond2)
                         print msg
-                        #@ THIS IS TEMPORARY - THIS WILL BE REMOVED SOON.
-                        #@ Mark 2007-10-23
-                        msg2 = "Please report this bug to support@nanorex.com" \
-                             " and include the command sequence that you " \
-                             " performed which caused this bug."
-                        QMessageBox.warning( None, "Bug found",
-                                             msg + msg2,
-                                             "Continue...", "", "")
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 elif statuscode == DIRBOND_CHAIN_END:
@@ -1213,14 +1204,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                             "directional bond chain containing %r" % \
                             (self, bond, bond1)
                         print msg
-                        #@ THIS IS TEMPORARY - THIS WILL BE REMOVED SOON.
-                        #@ Mark 2007-10-23
-                        msg2 = "Please report this bug to support@nanorex.com" \
-                             " and include the command sequence that you " \
-                             " performed which caused this bug."
-                        QMessageBox.warning( None, "Bug found",
-                                             msg + msg2,
-                                             "Continue...", "", "")
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 else:
@@ -2614,56 +2597,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # even if this can vary for different bonds to it (for the atomtype it has)
         newlen = my_atype.rcovalent + its_atype.rcovalent #k Singlet.atomtypes[0].rcovalent better be 0, check this
         return it + newlen * it_to_me_direction
-    
-    def adjustSinglet(self, minimize = False): # Mark 2007-10-21. 
-        """
-        Adjust this singlet. Real atoms are not adjusted.
-        
-        Two methods of adjusting a singlet are included here:
-        
-        1. Hydrogenate the singlet, then transmute it back to a singlet
-        (default). Singlet positions are much better after this, but
-        they are not in their optimal location.
-           
-        2. Hydrogenate the singlet, then call the simulator via the 
-        L{LocalMinimize_Function} to adjust (minimize) the hydrogen atom, then
-        tranmute the hydrogen back to a singlet. Singlet positions are best
-        after using this method, but it has one major drawback -- it
-        redraws while minimizing. This is a minor problem when breaking 
-        strands, but is intolerable in the DNA duplex generator (which adjusts
-        open bond singlets in its postProcess method.
-        
-        @param minimize: If True, use the minimizer to adjust the singlet
-                         (see method 2 description above).
-        @type  minimize: bool
-                        
-        @note: Code copied from selectMode.localmin(). Mark 2007-10-21.
-        
-        @warning: Bruce has concerns about running the minimizer from a method
-                  inside the L{Atom} class, so don't use adjustSinglet() until 
-                  we've talked and this warning has been removed! I'm doing some 
-                  testing with this since it seems to work well for my special
-                  purpose (i.e. adjusting open bond singlets (for strands).
-                  -- Mark 2007-10-21.
-                  
-        @see: L{Hydrogenate} for details about how we are using it to
-              reposition singlets (via method 1 mentioned above).
-        """
-        
-        if not self.is_singlet(): # Only adjusts singlets.
-            return
-        
-        self.Hydrogenate()
-        if minimize:
-            msg = "ATTENTION: Using minimizer to adjust open bond singlets."
-            env.history.message( orangemsg(msg) )
-            # Singlet is repositioned properly using minimize.
-            # The problem is that this redraws while running. Don't want that!
-            # Talk to Bruce and Eric M. about it. Mark 2007-10-21.
-            from runSim import LocalMinimize_function
-            LocalMinimize_function( [self], nlayers = 0 )
-        self.Transmute(Singlet)
-        return
     
     def Dehydrogenate(self):
         """[Public method; does all needed invalidations:]
