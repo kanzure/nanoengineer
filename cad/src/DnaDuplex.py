@@ -30,6 +30,8 @@ from utilities.Log      import orangemsg
 from GeneratorBaseClass import PluginBug
 from constants          import gensym, strandColorList, lightgray, diBALL
 
+from runSim import adjustSinglet
+
 from elements import PeriodicTable
 Element_Ae3 = PeriodicTable.getElement('Ae3')
 
@@ -588,8 +590,7 @@ class B_Dna_PAM3(B_Dna_PAM5):
             # I thought calling Transmute() would have deleted them, but they
             # are still there. Ask Bruce about this. Mark 2007-10-21
             if len(singlet.bonds):
-                singlet.adjustSinglet()
-            
+                adjustSinglet(singlet)
         return
 
 class Z_Dna(Dna):
