@@ -351,7 +351,6 @@ packageMapping = {
     "test_connectWithState"        : "test",
     "testdraw"                     : "test",
     "testmode"                     : "test",
-    "test_polyline_drag"           : "test",
     "ThermoPropDialog"             : "ui",
     "ThermoProp"                   : "ui",
     "ThumbView"                    : "graphics",

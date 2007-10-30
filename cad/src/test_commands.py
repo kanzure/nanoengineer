@@ -55,8 +55,8 @@ from Command import Command
 
 class minimalUsefulMode(basicMode): #bruce 071013
     #e What will be needed here, just to run the example commands?
-    # (As of 071013 this affects ExampleCommand1, ExampleCommand2 & 2E, test_connectWithState,
-    #  not counting the stub test_polyline_drag.)
+    # (As of 071013 this affects ExampleCommand1, ExampleCommand2 & 2E, test_connectWithState.
+    #  It also affected test_polyline_drag.py but as of 071030 that's moved to outtakes.)
     #
     # With nothing added here, the effects are:
     # - they don't draw the model;
@@ -288,10 +288,6 @@ def initialize():
     global ExampleCommand2E
     from example_expr_command import ExampleCommand2E
     classnames.append("ExampleCommand2E")
-
-    global test_polyline_drag
-    from test_polyline_drag import test_polyline_drag # ditto
-    classnames.append("test_polyline_drag")
 
     for classname in classnames:
         cmdname = classname # for now
