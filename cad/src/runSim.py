@@ -107,7 +107,7 @@ class SimRunner:
     # This is set to True in ops_files.py. This is a class (not instance) variable which matters
     # because ops_files.py can set this without a reference to the currently active SimRunner instance.
     PREPARE_TO_CLOSE = False
-    
+
     def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator", cmd_type = 'Minimize'):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
@@ -120,20 +120,20 @@ class SimRunner:
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
         self.pyrexSimInterrupted = False  #wware 060323, bug 1725, if interrupted we don't need so many warnings
-        
+
         prefer_standalone_sim = debug_pref("force use of standalone sim", Choice_boolean_False,
-                                      prefs_key = 'use-standalone-sim', non_debug = True)
-        
+                                           prefs_key = 'use-standalone-sim', non_debug = True)
+
         if prefer_standalone_sim:
             use_dylib_sim = False
         self.use_dylib_sim = use_dylib_sim #bruce 051230
-            
+
         self.cmdname = cmdname
         self.cmd_type = cmd_type #060705
         if not use_dylib_sim:
             env.history.message(greenmsg("Using the standalone simulator (not the pyrex simulator)"))
         return
-    
+
     def run_using_old_movie_obj_to_hold_sim_params(self, movie): #bruce 051115 removed unused 'options' arg
         self._movie = movie # general kluge for old-code compat (lots of our methods still use this and modify it)
         # note, this movie object (really should be a simsetup object?) does not yet know a proper alist (or any alist, I hope) [bruce 050404]
@@ -145,10 +145,10 @@ class SimRunner:
             return
         self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
         self.set_waitcursor(True)
-        
+
         # Disable some QActions (menu items/toolbar buttons) while the sim is running.
         self.win.disable_QActions_for_sim(True)
-        
+
         try: #bruce 050325 added this try/except wrapper, to always restore cursor
             self.write_sim_input_file() # for Minimize, uses simaspect to write file; puts it into movie.alist too, via writemovie
             self.simProcess = None #bruce 051231
@@ -162,7 +162,7 @@ class SimRunner:
             self.errcode = -11111
         self.set_waitcursor(False)
         self.win.disable_QActions_for_sim(False)
-        
+
         if not self.errcode:
             return # success
         if self.errcode == 1: # User pressed Abort button in progress dialog.
@@ -176,11 +176,11 @@ class SimRunner:
                 ## process the hard way.
                 #self.simProcess.tryTerminate()
                 #QTimer.singleShot( 2000, self.simProcess, SLOT('kill()') )
-                
+
                 # The above does not work, so we'll hammer the process with SIGKILL.
                 # This works.  Mark 050210
                 self.simProcess.kill()
-            
+
         elif not self.pyrexSimInterrupted and self.errcode != _FAILURE_ALREADY_DOCUMENTED:   # wware 060323 bug 1725
             # Something failed...
             msg = redmsg("Simulation failed: exit code or internal error code %r " % self.errcode) #e identify error better!
@@ -195,14 +195,14 @@ class SimRunner:
         # depending on how useful the real obj was while we were monitoring the progress
         # (since if so we already have it... in future we'll even start playing movies as their data comes in...)
         # so not much to do here! let caller care about res, not us.
-    
+
     def set_options_errQ(self): #e maybe split further into several setup methods? #bruce 051115 removed unused 'options' arg
         """
         Set movie alist (from simaspect or entire part); debug-msg if it was already set (and always ignore old value).
         Figure out and set filenames, including sim executable path.
         All inputs and outputs are self attrs or globals or other obj attrs... except, return error code if sim executable missing
         or on other errors detected by subrs.
-        
+
         old docstring:
         Caller should specify the options for this simulator run
         (including the output file name);
@@ -250,10 +250,10 @@ class SimRunner:
         # We now include a part-specific suffix [mark 051030]]
         # [This will need revision when we can run more than one sim process
         #  at once, with all or all but one in the "background" [bruce 050401]]
-        
+
         # simFilesPath = "~/Nanorex/SimFiles". Mark 051028.
         simFilesPath = find_or_make_Nanorex_subdir('SimFiles')
-        
+
         # Create temporary part-specific filename.  Example: "partname-minimize-pid1000"
         # We'll be appending various extensions to tmp_file_prefix to make temp file names
         # for sim input and output files as needed (e.g. mmp, xyz, etc.)
@@ -262,14 +262,14 @@ class SimRunner:
         if not basename: # The user hasn't named the part yet.
             basename = "Untitled"
         self.tmp_file_prefix = os.path.join(simFilesPath, "%s-minimize-pid%d" % (basename, os.getpid()))
-            
+
         r = self.old_set_sim_output_filenames_errQ( movie, self.mflag)
         if r: return r
         # don't call sim_input_filename here, that's done later for some reason
 
         # prepare to spawn the process later (and detect some errors now)
         bin_dir = self.sim_bin_dir_path()
-        
+
         # Make sure the simulator exists (as dylib or as standalone program)
         if self.use_dylib_sim:
             #bruce 051230 experimental code
@@ -301,9 +301,9 @@ class SimRunner:
                 env.history.message(self.cmdname + ": " + msg)
                 return -1
             self.program = program
-        
+
         return None # no error
-        
+
     def sim_bin_dir_path(self): #bruce 060102 split this out
         """
         Return pathname of bin directory that ought to contain simulator executable and/or dynamic library.
@@ -346,7 +346,7 @@ class SimRunner:
                 worked = False
                 print_compact_traceback("error trying to import Minimize and Dynamics from dylib sim: ")
         return worked
-    
+
     def old_set_sim_output_filenames_errQ(self, movie, mflag):
         """
         Old code, not yet much cleaned up. Uses and/or sets movie.filename,
@@ -359,24 +359,24 @@ class SimRunner:
         # figure out filename for trajectory or final-snapshot output from simulator
         # (for sim-movie or minimize op), and store it in movie.moviefile
         # (in some cases it's the name that was found there).
-        
+
         if mflag == 1: # single-frame XYZ file
             if movie.filename and platform.atom_debug:
                 print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
             movie.filename = self.tmp_file_prefix + ".xyz"  ## "sim-%d.xyz" % pid
-            
+
         if mflag == 2: #multi-frame DPB file
             if movie.filename and platform.atom_debug:
                 print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
             movie.filename = self.tmp_file_prefix + ".dpb"  ## "sim-%d.dpb" % pid
-        
+
         if movie.filename: 
             moviefile = movie.filename
         else:
             msg = redmsg("Can't create movie.  Empty filename.")
             env.history.message(self.cmdname + ": " + msg)
             return -1
-            
+
         # Check that the moviefile has a valid extension.
         ext = moviefile[-4:]
         if ext not in ['.dpb', '.xyz']:
@@ -407,7 +407,7 @@ class SimRunner:
             self.traceFileArg = "-q" + self.traceFileName #SIMOPT
         else:
             self.traceFileArg = ""
-                
+
         # This was the old tracefile - obsolete as of 2005-03-08 - Mark
         ## traceFileArg = "-q"+ os.path.join(self.tmpFilePath, "sim-%d-trace.txt" % pid) #SIMOPT
 
@@ -427,7 +427,7 @@ class SimRunner:
         # [bruce 050324 comment: our wanting this is unlikely, and becomes more so as time goes by,
         #  and in any case would only work for the main Part (assy.tree.part).]
         return self.tmp_file_prefix + ".mmp" ## "sim-%d.mmp" % pid
-    
+
     def write_sim_input_file(self):
         """
         Write the appropriate data from self.part (as modified by self.simaspect)
@@ -439,7 +439,7 @@ class SimRunner:
         mmpfile = self.sim_input_file # the filename to write to
         movie = self._movie # old-code compat kluge
         assert movie.alist is not None #bruce 050404
-        
+
         if not self.simaspect: ## was: if movie.alist_fits_entire_part:
             if debug_sim: #bruce 051115 added this
                 print "part.writemmpfile(%r)" % (mmpfile,)
@@ -472,11 +472,11 @@ class SimRunner:
             # can't yet happen (until Minimize Selection) and won't yet work 
             # bruce 050325 revised this to use whatever alist was asked for above (set of atoms, and order).
             # But beware, this might only be ok right away for minimize, not simulate (since for sim it has to write all jigs as well).
-        
+
         ## movie.natoms = natoms = len(movie.alist) # removed by bruce 050404 since now done in set_alist etc.
         ###@@@ why does that trash a movie param? who needs that param? it's now redundant with movie.alist
         return
-    
+
     def set_waitcursor(self, on_or_off): # [WARNING: this code is now duplicated in at least one other place, as of 060705]
         """
         For on_or_off True, set the main window waitcursor.
@@ -485,7 +485,7 @@ class SimRunner:
         """
         if on_or_off:
             # == Change cursor to Wait (hourglass) cursor
-            
+
             ##Huaicai 1/10/05, it's more appropriate to change the cursor
             ## for the main window, not for the progressbar window
             QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
@@ -495,7 +495,7 @@ class SimRunner:
             QApplication.restoreOverrideCursor() # Restore the cursor
             #win.setCursor(oldCursor)
         return
-    
+
     def spawn_process(self): # misnamed, since (1) also includes monitor_progress, and (2) doesn't always use a process
         """
         Actually spawn the process [or the extension class object],
@@ -533,7 +533,7 @@ class SimRunner:
         use_command_line = not self.use_dylib_sim
         # (The rest of this method would permit both of these flags to be set together, if desired;
         #  that might be useful if we want to try one interface, and if it fails, try the other.)
-        
+
         movie = self._movie # old-code compat kluge
         self.totalFramesRequested = movie.totalFramesRequested
         self.update_cond = movie.update_cond
@@ -546,7 +546,7 @@ class SimRunner:
 
         ext = movie.filetype #bruce 050404 added movie.filetype
         mflag = self.mflag
-        
+
         # "formarg" = File format argument -- we need this even when use_dylib,
         # since it's also used as an internal flag via self._formarg
         if ext == ".dpb": formarg = ''
@@ -568,42 +568,42 @@ class SimRunner:
             # "args" = arguments for the simulator.
             #SIMOPT -- this appears to be the only place the entire standalone simulator command line is created.
             if mflag:
-		#argument to enable or disable electrostatics
-		electrostaticArg = '--enable-electrostatic='
-		if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':
-		    electrostaticFlag = self.getElectrostaticPrefValueForAdjust()
-		else:
-		    electrostaticFlag = self.getElectrostaticPrefValueForMinimize()
-		    
+                #argument to enable or disable electrostatics
+                electrostaticArg = '--enable-electrostatic='
+                if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':
+                    electrostaticFlag = self.getElectrostaticPrefValueForAdjust()
+                else:
+                    electrostaticFlag = self.getElectrostaticPrefValueForMinimize()
+
 ##		electrostaticArg.append(str(electrostaticFlag))
-		electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
-		
+                electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
+
                 # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
                 # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
                 # [later, bruce 051231: I think only one of the two true mflag values is presently supported.]
                 args = [program, '-m', str(formarg), 
-			traceFileArg, outfileArg,
-			electrostaticArg,
-			infile] #SIMOPT
+                        traceFileArg, outfileArg,
+                        electrostaticArg,
+                        infile] #SIMOPT
             else: 
                 # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
                 # The timestep argument "-s + (movie.timestep)" is not supported for Alpha. #SIMOPT
-		
-		electrostaticArg = '--enable-electrostatic='		
-		electrostaticFlag = self.getElectrostaticPrefValueForDynamics()
+
+                electrostaticArg = '--enable-electrostatic='		
+                electrostaticFlag = self.getElectrostaticPrefValueForDynamics()
 ##		electrostaticArg.append(str(electrostaticFlag))
-		electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
-		
+                electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
+
                 args = [program, 
-                            '-f' + str(movie.totalFramesRequested), #SIMOPT
-                            '-t' + str(movie.temp),  #SIMOPT
-                            '-i' + str(movie.stepsper),  #SIMOPT
-                            '-r', #SIMOPT
-			    electrostaticArg,
-                            str(formarg),
-                            traceFileArg,
-                            outfileArg,
-                            infile]
+                        '-f' + str(movie.totalFramesRequested), #SIMOPT
+                        '-t' + str(movie.temp),  #SIMOPT
+                        '-i' + str(movie.stepsper),  #SIMOPT
+                        '-r', #SIMOPT
+                        electrostaticArg,
+                        str(formarg),
+                        traceFileArg,
+                        outfileArg,
+                        infile]
             if use_timestep_arg: #bruce 060503; I'm guessing that two separate arguments are needed for this, and that %f will work
                 args.insert(1, '--time-step')
                 args.insert(2, '%f' % timestep)
@@ -649,52 +649,52 @@ class SimRunner:
                 simopts.Temperature = movie.temp
                 simopts.IterPerFrame = movie.stepsper
                 simopts.PrintFrameNums = 0
-		simopts.EnableElectrostatic = self.getElectrostaticPrefValueForDynamics()
+                simopts.EnableElectrostatic = self.getElectrostaticPrefValueForDynamics()
             if mflag:
                 self.set_minimize_threshhold_prefs(simopts)
-		if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':		    
-		    simopts.EnableElectrostatic = self.getElectrostaticPrefValueForAdjust()
-		else:
-		    simopts.EnableElectrostatic = self.getElectrostaticPrefValueForMinimize()
-		    
+                if self.cmd_type == 'Adjust' or self.cmd_type == 'Adjust Atoms':		    
+                    simopts.EnableElectrostatic = self.getElectrostaticPrefValueForAdjust()
+                else:
+                    simopts.EnableElectrostatic = self.getElectrostaticPrefValueForMinimize()
+
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
             # probably we'll let the later sim-start code set those itself.
             self._simopts = simopts
             self._simobj = simobj
         # return whatever results are appropriate -- for now, we stored each one in an attribute (above)
         return # from setup_sim_args
-    
+
     def getElectrostaticPrefValueForAdjust(self):
-	#ninad20070509
-	#int EnableElectrostatic =1 implies electrostatic is enabled 
-	#and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
-	if env.prefs[electrostaticsForDnaDuringAdjust_prefs_key]:
-	    val = 1
-	else:
-	    val = 0	
-	return val
+        #ninad20070509
+        #int EnableElectrostatic =1 implies electrostatic is enabled 
+        #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
+        if env.prefs[electrostaticsForDnaDuringAdjust_prefs_key]:
+            val = 1
+        else:
+            val = 0	
+        return val
 
     def getElectrostaticPrefValueForMinimize(self):
-	#ninad20070509
-	# int EnableElectrostatic =1 implies electrostatic is enabled 
-	#and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
-	if env.prefs[electrostaticsForDnaDuringMinimize_prefs_key]:
-	    val = 1
-	else:
-	    val = 0	
-	return val
-    
+        #ninad20070509
+        # int EnableElectrostatic =1 implies electrostatic is enabled 
+        #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
+        if env.prefs[electrostaticsForDnaDuringMinimize_prefs_key]:
+            val = 1
+        else:
+            val = 0	
+        return val
+
 
     def getElectrostaticPrefValueForDynamics(self):
-	#ninad20070509
-	# int EnableElectrostatic =1 implies electrostatic is enabled 
-	#and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
-	if env.prefs[electrostaticsForDnaDuringDynamics_prefs_key]:
-	    val = 1 
-	else:
-	    val = 0	
-	return val
-        
+        #ninad20070509
+        # int EnableElectrostatic =1 implies electrostatic is enabled 
+        #and 0 implies it is disabled. This sim arg is defined in sim.pyx in sim/src 
+        if env.prefs[electrostaticsForDnaDuringDynamics_prefs_key]:
+            val = 1 
+        else:
+            val = 0	
+        return val
+
     def set_minimize_threshhold_prefs(self, simopts): #bruce 060628, revised 060705
         def warn(msg):
             env.history.message(orangemsg("Warning: ") + quote_html(msg))
@@ -735,7 +735,7 @@ class SimRunner:
                 defaults = (50.0, 250.0, 50.0, 250.0)
             elif cmd_type == 'Minimize':
                 defaults = (1.0, 5.0, 50.0, 250.0) # revised 060705, was (1.0, 10.0, 50.0, 300.0); also hardcoded in prefs_constants.py
-            
+
             endRMS = env.prefs[endRMS_prefs_key]
             endMax = env.prefs[endMax_prefs_key]
             cutoverRMS = env.prefs[cutoverRMS_prefs_key]
@@ -753,7 +753,7 @@ class SimRunner:
                 endMax = min( endMax, defaults[1] )
                 cutoverRMS = min( cutoverRMS, defaults[2] )
                 cutoverMax = min( cutoverMax, defaults[3] )
-                
+
             if endRMS <= 0:
                 endRMS = defaults[0] # e.g. 1.0; note, no other defaults[i] needs to appear in these formulas
             if endMax <= 0:
@@ -783,7 +783,7 @@ class SimRunner:
                     cutoverMax = cutoverRMS # sim C code would use 5.0 * cutoverRMS if we didn't fix this here
             if (endRMS, endMax, cutoverRMS, cutoverMax) != defaults or env.debug():
                 msg = "convergence criteria: endRMS = %0.2f, endMax = %0.2f, cutoverRMS = %0.2f, cutoverMax = %0.2f" % \
-                      (endRMS, endMax, cutoverRMS, cutoverMax)
+                    (endRMS, endMax, cutoverRMS, cutoverMax)
                 if (endRMS, endMax, cutoverRMS, cutoverMax) == defaults:
                     msg += " (default values -- only printed since ATOM_DEBUG is set)"
                     msg = _graymsg( msg)
@@ -802,12 +802,12 @@ class SimRunner:
             warn("internal error setting convergence criteria; the wrong ones might be used.")
             pass
         return
-            
+
     def sim_loop_using_standalone_executable(self): #bruce 051231 made this from part of spawn_process; compare to sim_loop_using_dylib
         "#doc"
         movie = self._movie
         arguments = self._arguments
-        
+
         #bruce 050404 let simProcess be instvar so external code can abort it [this is still used as of 051231]
         self.simProcess = None
         try:
@@ -818,7 +818,7 @@ class SimRunner:
             simProcess = self.simProcess
             if debug_sim: #bruce 051115 revised this debug code
                 # wware 060104  Create a shell script to re-run simulator
-		outf = open("args", "w")
+                outf = open("args", "w")
                 # On the Mac, "-f" prevents running .bashrc
                 # On Linux it disables filename wildcards (harmless)
                 outf.write("#!/bin/sh -f\n")
@@ -874,7 +874,7 @@ class SimRunner:
         # Later:
         # Do it continuously as we monitor progress (in fact, that will be
         # *how* we monitor progress, rather than watching the filesize grow).
-        
+
         return
 
     def remove_old_moviefile(self, moviefile): #bruce 051230 split this out of spawn_process
@@ -900,13 +900,13 @@ class SimRunner:
         # I don't know whether it's obsolete regarding the bug it warns about:
         # delete old moviefile we're about to write on, and warn anything that might have it open
         # (only implemented for the same movie obj, THIS IS A BUG and might be partly new... ####@@@@)
-    
+
     def remove_old_tracefile(self, tracefile): #bruce 060101
         "remove the tracefile if it exists, after warning anything that might care [nim]; can raise exceptions"
         if os.path.exists(tracefile):
-                os.remove(tracefile) # can raise exception, e.g. due to directory permission error
+            os.remove(tracefile) # can raise exception, e.g. due to directory permission error
         return
-    
+
     def monitor_progress_by_file_growth(self, movie): #bruce 051231 split this out of sim_loop_using_standalone_executable
         filesize, pbarCaption, pbarMsg = self.old_guess_filesize_and_progbartext( movie)
             # only side effect: history message [bruce 060103 comment]
@@ -914,15 +914,15 @@ class SimRunner:
         # (but they or similar might be used again soon, eg for cmdname in tooltip -- bruce 060112 comment)
         from StatusBar import show_progressbar_and_stop_button
         self.errcode = show_progressbar_and_stop_button(
-                            self.win,
-                            filesize,
-                            filename = movie.filename,
-                            cmdname = self.cmdname, #bruce 060112
-                            show_duration = 1 )
+            self.win,
+            filesize,
+            filename = movie.filename,
+            cmdname = self.cmdname, #bruce 060112
+            show_duration = 1 )
             # that 'launch' method is misnamed, since it also waits for completion;
             # its only side effects [as of bruce 060103] are showing/updating/hiding progress dialog, abort button, etc.
         return
-    
+
     def old_guess_filesize_and_progbartext(self, movie):
         "#doc [return a triple of useful values for a progressbar, and emit a related history msg]"
         #bruce 060103 added docstring
@@ -968,8 +968,8 @@ class SimRunner:
                 pbarCaption = "Simulator" # might be changed below
                 pbarMsg = "Creating movie file " + os.path.basename(moviefile) + "..."
                 msg = "Simulation started: Total Frames: " + str(movie.totalFramesRequested)\
-                        + ", Steps per Frame: " + str(movie.stepsper)\
-                        + ", Temperature: " + str(movie.temp)
+                    + ", Steps per Frame: " + str(movie.stepsper)\
+                    + ", Temperature: " + str(movie.temp)
                 env.history.message(self.cmdname + ": " + msg)
         #bruce 050415: let caller specify caption via movie object's _cmdname
         # (might not be set, depending on caller) [needs cleanup].
@@ -1017,7 +1017,7 @@ class SimRunner:
             #bruce 060106 try to let pyrex sim share some abort button code with non-pyrex sim
         self.abortbutton_controller = abortbutton = AbortButtonForOneTask(self.cmdname)
         abortbutton.start()
-        
+
         try:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
         except:
@@ -1049,7 +1049,7 @@ class SimRunner:
 
             # wware 060309, bug 1343
             self.startTime = start = time.time()
-            
+
             if not abortbutton.aborting():
                 # checked here since above processEvents can take time, include other tasks
 
@@ -1058,12 +1058,12 @@ class SimRunner:
                 # since it's when we check for user aborts and process all other user events.
                 frame_callback = self.sim_frame_callback
                 trace_callback = self.tracefile_callback
-                
+
                 simgo = simobj.go
 
                 minflag = movie.minimize_flag
                     ###@@@ should we merge this logic with how we choose the simobj class? [bruce 060112]
-                
+
                 self.tracefileProcessor = TracefileProcessor(self, minimize = minflag, simopts = simopts)
                     # so self.tracefile_callback does something [bruce 060109]
 
@@ -1128,7 +1128,7 @@ class SimRunner:
                 duration = time.time() - start
                 #e capture and print its stdout and stderr [not yet possible via pyrex interface]
                 movie.duration = duration #bruce 060103
-            
+
         except: # We had an exception.
             print_compact_traceback("exception in simulation; continuing: ")
             ##e terminate it, if it might be in a different thread; destroy object; etc
@@ -1190,7 +1190,7 @@ class SimRunner:
 ##            print "debug: %d sim_frame_callback_update_check returns %r, args" % (self.__frame_number,res), \
 ##                  simtime, pytime, nframes #bruce 060712
         return res
-        
+
     def sim_frame_callback(self, last_frame):
         "Per-frame callback function for simulator object."
         from sim import SimulatorInterrupted
@@ -1225,7 +1225,7 @@ class SimRunner:
             # always show the last frame - wware 060314
             if last_frame or debug_all_frames:
                 update_3dview = True
-            
+
             # now we know whether we want to update the 3d view (and save new values for the __last variables used above).
             if update_3dview:
                 if debug_pyrex_prints:
@@ -1254,7 +1254,7 @@ class SimRunner:
                 # update 'now' for use in progress_update decision
                 now = self.__last_3dupdate_time
                 pass
-            
+
             if now >= self.__last_progress_update_time + 1.0 or update_3dview and now >= self.__last_progress_update_time + 0.2:
                 # update progressbar [wware 060310, bug 1343]
                 # [optim by bruce 060530 -- at most once per second when not updating 3d view, or 5x/sec when updating it often]
@@ -1303,7 +1303,7 @@ class SimRunner:
                 if debug_timing_loop_on_sbar:
                     # debug: show timing loop properties on status bar
                     msg = "sim took %0.3f, hit frame %03d, py took %0.3f" % \
-                          (simtime, self.__frame_number, pytime)
+                        (simtime, self.__frame_number, pytime)
                     env.history.statusbar_msg(msg)
                 pass
             pass
@@ -1329,7 +1329,7 @@ class SimRunner:
 
     aborting = False #bruce 060601
     need_process_events = False #bruce 060601
-    
+
     def sim_frame_callback_worker(self, frame_number): #bruce 060102
         """
         Do whatever should be done on frame_callbacks that don't return immediately
@@ -1411,7 +1411,7 @@ class SimRunner:
         return
 
     tracefileProcessor = None
-    
+
     def print_sim_warnings(self): #bruce 050407; revised 060109, used whether or not we're not printing warnings continuously
         """
         Print warnings and errors from tracefile (if this was not already done);
@@ -1437,7 +1437,7 @@ class SimRunner:
                 return # sim never ran (not always an error, I suspect)
             if not tfile:
                 return # no trace file was generated using a name we provide
-                       # (maybe the sim wrote one using a name it made up... nevermind that here)
+                        # (maybe the sim wrote one using a name it made up... nevermind that here)
             try:
                 ff = open(tfile, "rU") # "U" probably not needed, but harmless
             except:
@@ -1609,7 +1609,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                 msg += ")"
                 env.history.message( msg)
         return
-        
+
     pass # end of class TracefileProcessor
 
 # this global needs to preserve its value when we reload!
@@ -1724,17 +1724,17 @@ def readxyz(filename, alist):
     """
     xyzFile = filename ## was assy.m.filename
     lines = open(xyzFile, "rU").readlines()
-    
+
     if len(lines) < 3: ##Invalid file format
         msg = "readxyz: %s: File format error (fewer than 3 lines)." % xyzFile
         print msg
         return msg
-    
+
     atomList = alist ## was assy.alist, with assy passed as an arg
         # bruce comment 050324: this list or its atoms are not modified in this function
     ## stores the new position for each atom in atomList
     newAtomsPos = [] 
-    
+
     try:     
         numAtoms = int(lines[0]) # bruce comment 050324: numAtoms is not used
         rms = float(lines[1][4:]) # bruce comment 050324: rms is not used
@@ -1742,7 +1742,7 @@ def readxyz(filename, alist):
         msg = "readxyz: %s: File format error in Line 1 and/or Line 2" % xyzFile
         print msg
         return msg
-    
+
     atomIndex = 0
     for line in lines[2:]:
         words = line.split()
@@ -1775,15 +1775,15 @@ def readxyz(filename, alist):
             msg = "readxyz: %s: error (perhaps fewer atoms in model than in xyz file)" % (xyzFile,)
             print msg
             return msg
-        
+
         atomIndex += 1
-    
+
     if (len(newAtomsPos) != len(atomList)): #bruce 050225 added some parameters to this error message
         msg = "readxyz: The number of atoms from %s (%d) is not matching with the current model (%d)." % \
-              (xyzFile, len(newAtomsPos), len(atomList))
+            (xyzFile, len(newAtomsPos), len(atomList))
         print msg
         return msg #bruce 050404 added error return after the above print statement; not sure if its lack was new or old bug
-    
+
     return newAtomsPos
 
 # == user-visible commands for running the simulator, for simulate or minimize
@@ -1819,9 +1819,9 @@ class simSetup_CommandRun(CommandRun):
         if not self.part.molecules: # Nothing in the part to simulate.
             msg = redmsg("Nothing to simulate.")
             env.history.message(self.cmdname + ": " + msg)
-	    self.win.simSetupAction.setChecked(0) # toggle the Simulator icon ninad061113
+            self.win.simSetupAction.setChecked(0) # toggle the Simulator icon ninad061113
             return
-        
+
         env.history.message(self.cmdname + ": " + "Enter simulation parameters and select <b>Run Simulation.</b>")
 
         ###@@@ we could permit this in movie player mode if we'd now tell that mode to stop any movie it's now playing
@@ -1852,9 +1852,9 @@ class simSetup_CommandRun(CommandRun):
                 msg = "Total time to create movie file: " + estr + ", Seconds/frame = " + spf
                 env.history.message(self.cmdname + ": " + msg) 
             msg = "Movie written to [" + movie.filename + "]." \
-		"<br>To play the movie, select <b>Simulation > Play Movie</b>"
+                "<br>To play the movie, select <b>Simulation > Play Movie</b>"
             env.history.message(self.cmdname + ": " + msg)
-	    self.win.simSetupAction.setChecked(0)
+            self.win.simSetupAction.setChecked(0)
             self.win.simMoviePlayerAction.setEnabled(1) # Enable "Movie Player"
             self.win.simPlotToolAction.setEnabled(1) # Enable "Plot Tool"
             #bruce 050324 question: why are these enabled here and not in the subr or even if it's cancelled? bug? ####@@@@
@@ -1876,12 +1876,12 @@ class simSetup_CommandRun(CommandRun):
             env.history.message(self.cmdname + ": " + msg)
             return -1
         ###@@@ else use suffix below!
-        
+
         self.simcntl = SimSetup(self.part, suffix = suffix)
             # this now has its own sticky params, doesn't need previous_movie [bruce 060601, fixing bug 1840]
             # Open SimSetup dialog [and run it until user dismisses it]
         movie = self.simcntl.movie # always a Movie object, even if user cancelled the dialog
-        
+
         if movie.cancelled:
             # user hit Cancel button in SimSetup Dialog. No history msg went out; caller will do that.
             movie.destroy()
@@ -1909,7 +1909,7 @@ def capitalize_first_word(words): #bruce 060705 ##e refile sometime
 
 MIN_ALL, LOCAL_MIN, MIN_SEL = range(3) # internal codes for minimize command subtypes (bruce 051129)
     # this is a kluge compared to using command-specific subclasses, but better than testing something else like cmdname
-    
+
 class Minimize_CommandRun(CommandRun):
     """
     Class for single runs of the Minimize Selection or Minimize All commands
@@ -1924,10 +1924,10 @@ class Minimize_CommandRun(CommandRun):
         """Minimize the Selection or the current Part"""
         #bruce 050324 made this method from the body of MWsemantics.modifyMinimize
         # and cleaned it up a bit in terms of how it finds the movie to use.
-        
+
         #bruce 050412 added 'Sel' vs 'All' now that we have two different Minimize buttons.
         # In future the following code might become subclass-specific (and cleaner):
-        
+
         ## fyi: this old code was incorrect, I guess since 'in' works by 'is' rather than '==' [not verified]:
         ## assert self.args in [['All'], ['Sel']], "%r" % (self.args,)
 
@@ -1937,7 +1937,7 @@ class Minimize_CommandRun(CommandRun):
         cmd_type = self.kws.get('type','Minimize')
             # one of 'Minimize' or 'Adjust' or 'Adjust Atoms'; determines conv criteria, name [bruce 060705]
         self.cmd_type = cmd_type # kluge, see comment where used
-        
+
         assert cmd_subclass_code in ['All','Sel','Atoms'] #e and len(args) matches that?
 
         # These words and phrases are used in history messages and other UI text;
@@ -1953,30 +1953,30 @@ class Minimize_CommandRun(CommandRun):
             self.word_minimize = "minimize"
             self.word_minimization = "minimization"
             self.word_minimizing = "minimizing"
-            
+
         self.word_Minimize = capitalize_first_word( self.word_minimize)
         self.word_Minimizing = capitalize_first_word( self.word_minimizing)
-        
+
         entire_part = (cmd_subclass_code == 'All')
             # (a self attr for entire_part is not yet needed)
             #e someday, entire_part might also be set later if selection happens to include everything, to permit optims,
             # but only for internal use, not for messages to user distinguishing the two commands.
             # Probably that would be a bad idea. [bruce 051129 revised this comment]
-        
+
         if cmd_subclass_code == 'All':
             cmdtype = MIN_ALL
             cmdname = "%s All" % self.word_Minimize
-        
+
         elif cmd_subclass_code == 'Sel':
             cmdtype = MIN_SEL
             cmdname = "%s Selection" % self.word_Minimize
-        
+
         elif cmd_subclass_code == 'Atoms':
             #bruce 051129 added this case for Local Minimize (extending a kluge -- needs rewrite to use command-specific subclass)
             cmdtype = LOCAL_MIN
             cmdname = "%s Atoms"  % self.word_Minimize #bruce 060705; some code may assume this is always Adjust Atoms, as it is
             # self.args is parsed later
-        
+
         else:
             assert 0, "unknown cmd_subclass_code %r" % (cmd_subclass_code,)
         self.cmdname = cmdname #e in principle this should come from a subclass for the specific command [bruce 051129 comment]
@@ -1997,8 +1997,8 @@ class Minimize_CommandRun(CommandRun):
             selection = self.part.selection_from_glpane() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
                 msg = greenmsg(cmdname + ": ") + redmsg("Nothing selected.") + \
-                      " (Use %s All to %s the entire Part.)" % (self.word_Minimize, self.word_minimize)
-                      #e might need further changes for Minimize Energy, if it's confusing that Sel/All is a dialog setting then
+                    " (Use %s All to %s the entire Part.)" % (self.word_Minimize, self.word_minimize)
+                        #e might need further changes for Minimize Energy, if it's confusing that Sel/All is a dialog setting then
                 env.history.message( msg)
                 return
         elif cmdtype == LOCAL_MIN:
@@ -2087,12 +2087,12 @@ class Minimize_CommandRun(CommandRun):
             selection = self.part.selection_for_all()
                 # like .selection_from_glpane() but for all atoms presently in the part [bruce 050419]
             # no need to check emptiness, this was done above
-        
+
         self.selection = selection #e might become a feature of all CommandRuns, at some point
 
         # At this point, the conditions are met to try to do the command.
         env.history.message(greenmsg( startmsg)) #bruce 050412 doing this earlier
-        
+
         # Disable some QActions (menu items/toolbar buttons) during minimize.
         self.win.disable_QActions_for_sim(True)
         try:
@@ -2154,7 +2154,7 @@ class Minimize_CommandRun(CommandRun):
 
         # NOTE: the movie object is used to hold params and results from minimize, even if it makes an xyz file rather than a movie file.
         # And at the moment it never makes a movie file when called from this code. [bruce 051115 comment about months-old situation]
-        
+
         movie = Movie(self.assy) # do this in writemovie? no, the other call of it needs it passed in from the dialog... #k
             # note that Movie class is misnamed since it's really a SimRunnerAndResultsUser... which might use .xyz or .dpb results
             # (maybe rename it SimRun? ###e also, it needs subclasses for the different kinds of sim runs and their results...
@@ -2236,7 +2236,7 @@ class Minimize_CommandRun(CommandRun):
             pass
         # now do this with update_cond, however it was computed
         movie.update_cond = update_cond
-        
+
         # semi-obs comment, might still be useful [as of 050406]:
         # Minimize Selection [bruce 050330] (ought to be a distinct command subclass...)
         # this will use the spawning code in writemovie but has its own way of writing the mmp file.
@@ -2257,7 +2257,7 @@ class Minimize_CommandRun(CommandRun):
             # We had a problem writing the minimize file.
             # Simply return (error message already emitted by writemovie). ###k
             return
-        
+
         if mtype == 1:  # Load single-frame XYZ file.
             newPositions = readxyz( movie.filename, movie.alist ) # movie.alist is now created in writemovie [bruce 050325]
             # retval is either a list of atom posns or an error message string.
@@ -2286,7 +2286,7 @@ class Minimize_CommandRun(CommandRun):
         return
     pass # end of class Minimize_CommandRun
 
-# ==
+# ==    
 
 def LocalMinimize_function( atomlist, nlayers ): #bruce 051207
     win = atomlist[0].molecule.part.assy.w # kluge!
@@ -2300,6 +2300,49 @@ def LocalMinimize_function( atomlist, nlayers ): #bruce 051207
 # == helper code for Minimize Selection [by bruce, circa 050406] [also used for Minimize All, probably as of 050419, as guessed 051115]
 
 from elements import Singlet
+
+def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21. 
+    """
+    Adjusts I{singlet} using one of two methods based on I{minimize}:
+
+    1. Hydrogenate the singlet, then transmute it back to a singlet
+    (default). Singlet positions are much better after this, but
+    they are not in their optimal location.
+
+    2. Hydrogenate the singlet, then call the simulator via the 
+    L{LocalMinimize_Function} to adjust (minimize) the hydrogen atom, then
+    tranmute the hydrogen back to a singlet. Singlet positions are best
+    after using this method, but it has one major drawback -- it
+    redraws while minimizing. This is a minor problem when breaking 
+    strands, but is intolerable in the DNA duplex generator (which adjusts
+    open bond singlets in its postProcess method.
+
+    @param singlet: A singlet.
+    @type  singlet: L{Atom}
+
+    @param minimize: If True, use the minimizer to adjust the singlet
+		     (i.e. method #2).
+    @type  minimize: bool
+
+    @note: Real atoms are not adjusted.
+
+    @see: L{Hydrogenate} for details about how we are using it to
+	  reposition singlets (via method 1 mentioned above).
+    """
+
+    if not singlet.is_singlet():
+        return
+
+    singlet.Hydrogenate()
+    if minimize:
+        msg = "ATTENTION: Using minimizer to adjust open bond singlets."
+        env.history.message( orangemsg(msg) )
+        # Singlet is repositioned properly using minimize.
+        # The problem is that this redraws while running. Don't want that!
+        # Talk to Bruce and Eric M. about it. Mark 2007-10-21.
+        LocalMinimize_function( [singlet], nlayers = 0 )
+    singlet.Transmute(Singlet)
+    return
 
 #obs comment:
 ###@@@ this will be a subclass of SimRun, like Movie will be... no, that's wrong.
@@ -2319,7 +2362,7 @@ def atom_is_anchored(atm):
         if jig.anchors_atom(atm): # as of 050321, true only for Anchor jigs
             res = True # but continue, so as to debug this new method anchors_atom for all jigs
     return res
-    
+
 class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Run Sim; verified by debug_sim output.
     # warning: it also assumes this internally -- see comment below about "min = True".
     """
@@ -2484,13 +2527,13 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
             if debug_sim:
                 print "debug_sim: wrote %r" % (line,)           
         return
-        
+
     def write_minimize_enabled_jigs(self, mapping): # Mark 051006
         """
         Writes any jig to the mmp file which has the attr "enable_minimize"=True
         """
         assert mapping.min #bruce 051031; detected by writemmp call, below; this scheme is a slight kluge
-        
+
         from jigs import Jig
         def func_write_jigs(nn):
             if isinstance(nn, Jig) and nn.enable_minimize:
@@ -2499,10 +2542,10 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
                     print "The jig [", nn.name, "] was written to minimize MMP file.  It is enabled for minimize."
                 nn.writemmp(mapping)
             return # from func_write_jigs only
-            
+
         self.part.topnode.apply2all( func_write_jigs)
         return
-        
+
     pass # end of class sim_aspect
 
 # end
