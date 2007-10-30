@@ -52,8 +52,9 @@ from chunk import molecule
 from drawer import drawPlane
 from drawer import drawwirecube
 from drawer import drawLineLoop
-from drawer import drawGPGrid
-from drawer import drawSiCGrid
+
+from draw_grid_lines import drawGPGrid
+from draw_grid_lines import drawSiCGrid
 
 from VQT import V, Q, A, cross
 from povheader import povpoint

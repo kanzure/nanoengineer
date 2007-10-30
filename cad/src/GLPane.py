@@ -497,7 +497,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         
         self.makeCurrent()
         
-        drawer.setup()
+        ## drawer.setup_drawer()
+        self._setup_display_lists() # defined in GLPane_minimal. [bruce 071030]
+        
         self.setAssy(assy) # leaves self.currentCommand/self.graphicsMode as nullmode, as of 050911
 
         self.loadLighting() #bruce 050311
@@ -2589,7 +2591,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # completely, here, incl the stack depths, to mitigate some
         # bugs. How??  Note that there might be some OpenGL init code
         # earlier which I'll have to not mess up. Incl displaylists in
-        # drawer.setup.  What I ended up doing is just to measure the
+        # drawer.setup_drawer.  What I ended up doing is just to measure the
         # stack depth and pop it 0 or more times to make the depth 1.
         #   BTW I don't know for sure whether this causes a significant speed
         # hit for some OpenGL implementations (esp. X windows)...

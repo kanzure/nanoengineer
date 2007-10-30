@@ -26,6 +26,9 @@ from debug_prefs import debug_pref
 
 import env
 
+from drawer import setup_drawer
+from draw_grid_lines import setup_draw_grid_lines
+
 DEPTH_TWEAK_UNITS = (2.0)**(-32)
 DEPTH_TWEAK_VALUE = 100000
     # For bond cylinders subject to shorten_tubes:
@@ -115,7 +118,21 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         self.zoomFactor = 1.0
 
         self.trackball = Trackball(10,10)
+        return
+    
+    def _setup_display_lists(self): # bruce 071030
+        """
+        This needs to be called during __init__ if a new display list context
+        is being used.
 
+        WARNING: the functions this calls store display list names in
+        global variables (as of 071030); until this is cleaned up, only the
+        most recently set up display list context will work with the
+        associated drawing functions in the same modules.
+        """
+        setup_drawer()
+        setup_draw_grid_lines()
+        return
     
     def should_draw_valence_errors(self):
         """

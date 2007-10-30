@@ -1,11 +1,27 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-drawer.py
-
-OpenGL drawing utilities.
+drawer.py - OpenGL drawing utilities.
 
 $Id$
 
+TODO:
+
+This module is too large. It needs to be split into
+several smaller files. Don't add new functions to it --
+add them in new files whose names start with "draw".
+
+History:
+
+Originated by Josh.
+
+Various developers extended it since then.
+
+Brad G. added ColorSorter features.
+
+At some point Bruce partly cleaned up the use of display lists.
+
+071030 bruce split some functions and globals into draw_grid_lines.py
+and removed some obsolete functions.
 """
     
 import os
@@ -27,11 +43,6 @@ from OpenGL.GL import glBindTexture
 from OpenGL.GL import GL_BLEND
 from OpenGL.GL import glBlendFunc
 from OpenGL.GL import glCallList
-from OpenGL.GL import glClipPlane
-from OpenGL.GL import GL_CLIP_PLANE0
-from OpenGL.GL import GL_CLIP_PLANE1
-from OpenGL.GL import GL_CLIP_PLANE2
-from OpenGL.GL import GL_CLIP_PLANE3
 from OpenGL.GL import glColor3f
 from OpenGL.GL import glColor3fv
 from OpenGL.GL import glColor4fv
@@ -176,9 +187,15 @@ from prefs_constants import material_specular_shininess_prefs_key
 from prefs_constants import material_specular_finish_prefs_key
 from prefs_constants import material_specular_brightness_prefs_key
 
-import debug #bruce 051212, for debug.print_compact_traceback
+import debug # for debug.print_compact_traceback
+
+# this can't be done at toplevel due to a recursive import issue.
+# TODO: fix by splitting this module (drawer) into smaller files.
+## from Font3D import Font3D
 
 import EndUser
+
+# ==
 
 # ColorSorter control
 allow_color_sorting = allow_color_sorting_default = False #bruce 060323 changed this to False for A7 release
@@ -210,6 +227,8 @@ except:
     if env.debug(): #bruce 060323 added condition
         print "WARNING: unable to import C rendering code (quux module). Only Python rendering will be available."
     pass
+
+# ==
 
 # the golden ratio
 phi = (1.0+sqrt(5.0))/2.0
@@ -368,7 +387,7 @@ DiGridSp = sp4
 sphereList = []
 numSphereSizes = 3
 CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
-rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = SiCGridList = None
+rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = None
 
 # grantham 20051118; revised by bruce 051126
 class glprefs:
@@ -1336,49 +1355,22 @@ def _makeLonsCell():
            ]
     return res
 
-# SiC grid geometry. The number in parentheses is the point's index in
-# the sic_vpdat list. This stuff is used to build an OpenGL display
-# list, indexed by SiCGridList. The repeating drawing unit is the
-# lines shown dotted here. The 1-6 line is omitted because it will be
-# supplied by the unit below.
-#
-#              |
-#  2*sic_yU  --+                   (3) . . . . . (4)
-#              |                   .               .
-#              |                  .                 .
-#              |                 .                   .
-#              |                .                     .
-#              |               .                       .
-#    sic_yU  -(0) . . . . . (2)                         (5)
-#              |               .                       .
-#              |                .                     .
-#              |                 .                   .
-#              |                  .                 .
-#              |                   .               .
-#         0  --+------+------|-----(1)-----|-----(6)-----|---
-#              |             |             |             |
-#              0          sic_uLen     2*sic_uLen    3*sic_uLen
-#
-sic_uLen = 1.8   # Si-C bond length (I think)
-sic_yU = sic_uLen * sqrt(3.0) / 2
-sic_vpdat = [[0.0 * sic_uLen, 1.0 * sic_yU, 0.0],
-             [1.5 * sic_uLen, 0.0 * sic_yU, 0.0],
-             [1.0 * sic_uLen, 1.0 * sic_yU, 0.0],
-             [1.5 * sic_uLen, 2.0 * sic_yU, 0.0],
-             [2.5 * sic_uLen, 2.0 * sic_yU, 0.0],
-             [3.0 * sic_uLen, 1.0 * sic_yU, 0.0],
-             [2.5 * sic_uLen, 0.0 * sic_yU, 0.0]]
-
 wiresphere1list = None
 
-def setup(): #bruce 060613 added docstring, cleaned up display list name allocation
-    """Set up the usual constant display lists in the current OpenGL context.
+# ==
+
+def setup_drawer():
+    """
+    Set up the usual constant display lists in the current OpenGL context.
+
     WARNING: THIS IS ONLY CORRECT IF ONLY ONE GL CONTEXT CONTAINS DISPLAY LISTS --
     or more precisely, only the GL context this has last been called in
     (or one which shares its display lists) will work properly with the routines in drawer.py,
     since the allocated display list names are stored in globals set by this function,
     but in general those names might differ if this was called in different GL contexts.
     """
+     #bruce 060613 added docstring, cleaned up display list name allocation
+    # bruce 071030 renamed from setup to setup_drawer
     spherelistbase = glGenLists(numSphereSizes)
     global sphereList
     sphereList = []
@@ -1568,19 +1560,6 @@ def setup(): #bruce 060613 added docstring, cleaned up display list name allocat
     glEnd()    
     glEndList()
 
-    global SiCGridList
-    SiCGridList = glGenLists(1)
-    glNewList(SiCGridList, GL_COMPILE)
-    glBegin(GL_LINES)
-    glVertex3fv(sic_vpdat[0])
-    glVertex3fv(sic_vpdat[2])
-    glEnd()
-    glBegin(GL_LINE_STRIP)
-    for v in sic_vpdat[1:]:
-        glVertex3fv(v)
-    glEnd()
-    glEndList()
-
     # Debug Preferences
     from debug_prefs import debug_pref, Choice_boolean_True
     from debug_prefs import Choice_boolean_False
@@ -1604,7 +1583,7 @@ def setup(): #bruce 060613 added docstring, cleaned up display list name allocat
             # and changed its prefs_key so developers start over with the default value.
         
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
-    return # from setup
+    return # from setup_drawer
 
 def drawCircle(color, center, radius, normal):
     """Scale, rotate/translate the unit circle properly """
@@ -2190,27 +2169,6 @@ def findCell(pt, latticeType):
     
     return orig, sp1
     
-def getGridCellPoints(pt, latticeType): 
-    grid=A([[sp0, sp0, sp0], [sp1, sp1, sp1], [sp2, sp2, sp0], [sp3, sp3, sp1], 
-        [sp4, sp4, sp0], [sp2, sp0, sp2], [sp3, sp1, sp3], [sp4, sp2, sp2],
-        [sp0, sp2, sp2], [sp1, sp3, sp3], [sp2, sp4, sp2], [sp4, sp0, sp4], 
-        [sp2, sp2, sp4], [sp0, sp4, sp4]])
-    
-    cubeCorner = [[sp0, sp0, sp0], [sp4, sp0, sp0], [sp4, sp4, sp0], [sp0, sp4, sp0],
-                            [sp0, sp0, sp4], [sp4, sp0, sp4], [sp4, sp4, sp4], [sp0, sp4, sp4]]
-    
-    if latticeType == 'DIAMOND':
-        a = 0; cellX = cellY = cellZ = DiGridSp
-    elif latticeType == 'LONSDALEITE':
-        a = 1; cellX = XLen; cellY = YLen; cellZ = ZLen       
-    i = int(floor(pt[0]/cellX))
-    j = int(floor(pt[1]/cellY))
-    k = int(floor(pt[2]/cellZ))
-    
-    orig = V(i*cellX, j*cellY, k*cellZ)
-    
-    return orig + grid 
-    
 def genDiam(bblo, bbhi, latticeType):
     """Generate a list of possible atom positions within the area enclosed by (bblo, bbhi).
     <Return>: A list of unit cells"""
@@ -2384,9 +2342,6 @@ def drawlinelist(color,lines):
     glEnable(GL_LIGHTING)
     return
 
-
-		
-
 cubeLines = A([[-1,-1,-1], [-1,-1, 1],
                [-1, 1,-1], [-1, 1, 1],
                [ 1,-1,-1], [ 1,-1, 1],
@@ -2401,60 +2356,6 @@ cubeLines = A([[-1,-1,-1], [-1,-1, 1],
                [-1,-1, 1], [ 1,-1, 1],
                [-1, 1,-1], [ 1, 1,-1],
                [-1, 1, 1], [ 1, 1, 1]])
-
-
-def drawLonsdaleiteGrid(scale, center):
-    """This function is obsolete. Call dragGrid() and pass approriate parameter to draw the Lonsdaleite Lattice """
-    glDisable(GL_LIGHTING)
-    
-    bblo = center- scale
-    bbhi = center + scale
-    i1 =  int(floor(bblo[0]/XLen))
-    i2 = int(ceil(bbhi[0]/XLen))
-    j1 = int(floor(bblo[1]/YLen))
-    j2 = int(ceil(bbhi[1]/YLen))
-    k1 = int(floor(bblo[2]/ZLen))
-    k2 = int(ceil(bbhi[2]/ZLen))
-    glPushMatrix()
-    glTranslate(i1*XLen,  j1*YLen, k1*ZLen)
-    for i in range(i1, i2):
-        glPushMatrix()
-        for j in range(j1, j2):
-            glPushMatrix()
-            for k in range(k1, k2):
-                glCallList(lonsGridList)
-                glTranslate(0.0,  0.0, ZLen)
-            glPopMatrix()
-            glTranslate(0.0,  YLen, 0.0)
-        glPopMatrix()
-        glTranslate(XLen, 0.0, 0.0)
-    glPopMatrix()
-    glEnable(GL_LIGHTING)        
-    return
-    
-###Huaicai: test function    
-def drawDiamondCubic(color):
-    glDisable(GL_LIGHTING)
-    glColor3fv(color)
-    glBegin(GL_LINES)
-    for jj in range(5):
-         for kk in range(5):
-              glVertex3f(sp0, sp1*jj, sp1*kk)
-              glVertex3f(sp4, sp1*jj, sp1*kk)
-    
-    for jj in range(5):
-         for ii in range(5):
-              glVertex3f(sp1*ii, sp1*jj, sp0)
-              glVertex3f(sp1*ii, sp1*jj, sp4)
-    
-    for kk in range(5):
-         for ii in range(5):
-              glVertex3f(sp1*ii, sp0, sp1*kk)
-              glVertex3f(sp1*ii, sp4, sp1*kk)
-              
-    glEnd()
-    glEnable(GL_LIGHTING)
-    return
 
 def drawCubeCell(color):
     vs = [[sp0, sp0, sp0], [sp4, sp0, sp0], [sp4, sp4, sp0], [sp0, sp4, sp0],
@@ -2527,191 +2428,6 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
     
     glPopMatrix()
-    glEnable(GL_LIGHTING)
-    return
-
-def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
-    '''Draw grid lines for a Grid Plane, where:
-    color = grid line color
-    line_type is: 0=None, 1=Solid, 2=Dashed" or 3=Dotted
-    w = width
-    h = height
-    uw = width spacing between grid lines
-    uh = height spacing between grid lines
-    '''
-
-    from dimensions import Font3D
-    from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
-    
-    if line_type == NO_LINE:
-        return
-
-    if uw > w: uw = w
-    if uh > h: uh = h
-
-    Z_OFF = 0.0 #0.001
-    
-    glDisable(GL_LIGHTING)
-    glColor3fv(color)
-    
-    hw = w/2.0; hh = h/2.0
-
-    #glEnable(GL_LINE_SMOOTH)
-    #glEnable(GL_BLEND)
-    #glBlendFunc(GL_SRC_ALPHA, GL_ONE)#_MINUS_SRC_ALPHA)
-    
-    if line_type > 1:
-        glEnable(GL_LINE_STIPPLE)
-        if line_type == DASHED_LINE:
-            glLineStipple (1, 0x00FF)  #  dashed
-        elif line_type == DOTTED_LINE:
-            glLineStipple (1, 0x0101)  #  dotted
-        else:
-            print "drawer.drawGPGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
-            glLineStipple (1, 0x00FF)  #  dashed
-    
-    glBegin(GL_LINES)
-
-    #Draw horizontal lines
-    y1 = 0
-    while y1 > -hh:
-        glVertex3f(-hw, y1, Z_OFF)
-        glVertex3f(hw, y1, Z_OFF)
-        y1 -= uh
-
-    y1 = 0
-    while y1 < hh:
-        glVertex3f(-hw, y1, Z_OFF)
-        glVertex3f(hw, y1, Z_OFF)
-        y1 += uh
-
-    #Draw vertical lines
-    x1 = 0
-    while x1 < hw:
-        glVertex3f(x1, hh, Z_OFF)
-        glVertex3f(x1, -hh, Z_OFF)
-        x1 += uw
-
-    x1 = 0
-    while x1 > -hw:
-        glVertex3f(x1, hh, Z_OFF)
-        glVertex3f(x1, -hh, Z_OFF)
-        x1 -= uw
-
-    glEnd()
-
-    if line_type > 1:
-        glDisable (GL_LINE_STIPPLE)
-
-    glBegin(GL_LINES)
-
-    #Draw text for horizontal lines
-    y1 = 0
-    f3d = Font3D(xpos=hw, ypos=y1, right=right, up=up, rot90=False, glBegin=True)
-    while y1 > -hh:
-        f3d.drawString("%g" % y1, y1)
-        y1 -= uh
-    f3d.drawString("%g" % y1, y1)
-
-    y1 = 0
-    while y1 < hh:
-        f3d.drawString("%g" % y1, y1)
-        y1 += uh
-    f3d.drawString("%g" % y1, y1)
-
-    #Draw text for vertical lines
-    x1 = 0
-    f3d = Font3D(xpos=x1, ypos=hh, right=right, up=up, rot90=True, glBegin=True)
-    while x1 < hw:
-        f3d.drawString("%g" % x1, x1)
-        x1 += uw
-    f3d.drawString("%g" % x1, x1)
-
-    x1 = 0
-    while x1 > -hw:
-        f3d.drawString("%g" % x1, x1)
-        x1 -= uw
-    f3d.drawString("%g" % x1, x1)
-
-    glEnd()
-
-    #glDisable(GL_LINE_SMOOTH)
-    #glDisable(GL_BLEND)
-
-    glEnable(GL_LIGHTING)
-    return
-
-def drawSiCGrid(color, line_type, w, h, up, right):
-    '''Draw SiC grid. '''
-    from dimensions import Font3D
-    from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
-    
-    if line_type == NO_LINE:
-        return
-    
-    XLen = sic_uLen * 3.0
-    YLen = sic_yU * 2.0
-    hw = w/2.0; hh = h/2.0
-    i1 = int(floor(-hw/XLen))
-    i2 = int(ceil(hw/XLen))
-    j1 = int(floor(-hh/YLen))
-    j2 = int(ceil(hh/YLen))
-    
-    glDisable(GL_LIGHTING)
-    glColor3fv(color)
-
-    if line_type > 1:
-        glEnable(GL_LINE_STIPPLE)
-        if line_type == DASHED_LINE:
-            glLineStipple (1, 0x00FF)  #  dashed
-        elif line_type == DOTTED_LINE:
-            glLineStipple (1, 0x0101)  #  dotted
-        else:
-            print "drawer.drawSiCGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
-            glLineStipple (1, 0x00FF)  #  dashed
-    
-    glClipPlane(GL_CLIP_PLANE0, (1.0, 0.0, 0.0, hw))
-    glClipPlane(GL_CLIP_PLANE1, (-1.0, 0.0, 0.0, hw))
-    glClipPlane(GL_CLIP_PLANE2, (0.0, 1.0, 0.0, hh))
-    glClipPlane(GL_CLIP_PLANE3, (0.0, -1.0, 0.0, hh))
-    glEnable(GL_CLIP_PLANE0)
-    glEnable(GL_CLIP_PLANE1)
-    glEnable(GL_CLIP_PLANE2)
-    glEnable(GL_CLIP_PLANE3)
-     
-    glPushMatrix()
-    glTranslate(i1*XLen,  j1*YLen, 0.0)
-    for i in range(i1, i2):
-        glPushMatrix()
-        for j in range(j1, j2):
-            glCallList(SiCGridList)
-            glTranslate(0.0, YLen, 0.0)
-        glPopMatrix()
-        glTranslate(XLen, 0.0, 0.0)
-    glPopMatrix()
-    
-    glDisable(GL_CLIP_PLANE0)
-    glDisable(GL_CLIP_PLANE1)
-    glDisable(GL_CLIP_PLANE2)
-    glDisable(GL_CLIP_PLANE3)
-        
-    if line_type > 1:
-        glDisable (GL_LINE_STIPPLE)
-
-    xpos, ypos = hw, 0.0
-    f3d = Font3D(xpos=xpos, ypos=ypos, right=right, up=up, rot90=False, glBegin=False)
-    for j in range(j1, j2):
-        yoff = j * YLen
-        if -hh < yoff + ypos < hh:
-            f3d.drawString("%-.4g" % yoff, color=color, yoff=yoff)
-
-    xpos, ypos = 0.0, hh
-    f3d = Font3D(xpos=xpos, ypos=ypos, right=right, up=up, rot90=True, glBegin=False)
-    for i in range(2*i1, 2*i2):
-        yoff = i * (XLen/2)
-        if -hw < yoff + xpos < hw:
-            f3d.drawString("%-.4g" % yoff, color=color, yoff=yoff)
-    
     glEnable(GL_LIGHTING)
     return
 

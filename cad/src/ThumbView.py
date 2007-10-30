@@ -194,7 +194,9 @@ class ThumbView(GLPane_minimal):
         glLoadIdentity()
         
         if not self.isSharing():
-            drawer.setup()  
+            ## drawer.setup_drawer()
+            self._setup_display_lists() # defined in GLPane_minimal. [bruce 071030]
+
         return
     
     def resetView(self):
