@@ -90,12 +90,6 @@ class minimalCommand(Command):
 ## _superclass = minimalUsefulMode
 _superclass = minimalCommand
 
-from debug import register_debug_menu_command
-
-# Removing this import removed 158 arcs and 37 nodes from the cyclic
-# dependency graph. (Caveat: that was before it had the -justCycles option.)
-#from GLPane import GLPane # maybe only needed for an isinstance assertion
-
 # ==
 
 class ExampleCommand(_superclass):
@@ -182,120 +176,15 @@ class PM_WidgetDemo(ExampleCommand):
     
     @see: PM_WidgetsDemoPropertyManager in PM_WidgetsDemoPropertyManager.py.
     """
+    # Note: this is no longer added to the UI. I don't know why it was removed.
+    # I know that for awhile it was broken due to a bug. [bruce 071030 comment]
     modename = 'PM_WidgetDemo-modename'
     default_mode_status_text = "PM_Widgets Demo"
     PM_class = PM_WidgetsDemoPropertyManager
     pass
 
-# == generic example or debug/devel code below here
+# ==
 
-### TODO: split this part (here to end) into a separate file
-
-import EndUser, Initialize
-
-def construct_cmdrun( cmd_class, glpane):
-    """Construct and return a new "CommandRun" object, for use in the given glpane.
-    Don't Start it -- there is no obligation for the caller to ever start it;
-    and if it does, it's allowed to do that after other user events and model changes
-    happened in the meantime [REVIEW THAT, it's not good for "potential commands"] --
-    but it should not be after this glpane or its underlying model (assembly object)
-    get replaced (e.g. by Open File).
-    """
-    # (we use same interface as <mode>.__init__ for now,
-    #  though passing assy might be more logical)
-    cmdrun = cmd_class(glpane)
-    if not hasattr(cmdrun, 'glpane'):
-        print "bug: no glpane in cmdrun %r: did it forget to call ExampleCommand.__init__?" % (cmdrun,)
-    ###e should also put it somewhere, as needed for a mode ####DOIT
-    if 'kluge, might prevent malloc errors after removing pm from ui (guess)':
-        import changes
-        changes.keep_forever(cmdrun)
-    return cmdrun
-
-def start_cmdrun( cmdrun):
-    ## ideally:  cmd.Start() #######
-    glpane = cmdrun.glpane # TODO: glpane -> commandSequencer
-    if cmdrun.test_commands_start_as_temporary_command:
-        # bruce 071011
-        # note: was written for commands with no PM of their own, but was only tested for a command that has one (and works)...
-        # also do we need the Draw delegation to prevMode as in TemporaryCommand_Overdrawing? ### REVIEW
-        glpane.userEnterTemporaryCommand( cmdrun)
-    else:
-        glpane.currentCommand.Done(new_mode = cmdrun) # is this what takes the old mode's PM away?
-    print "done with start_cmdrun for", cmdrun
-        # returns as soon as user is in it, doesn't wait for it to "finish" -- so run is not a good name -- use Enter??
-        # problem: Enter is only meant to be called internally by glue code in modeMixin.
-        # solution: use a new method, maybe Start. note, it's not guaranteed to change to it immediately! it's like Done (newmode arg).
-    return
-
-def enter_example_command(widget, example_command_classname):
-#    assert isinstance(widget, GLPane)
-    glpane = widget
-    if 0 and EndUser.enableDeveloperFeatures(): ###during devel only; broken due to file splitting
-        # reload before use (this module only)
-        if 0 and 'try reloading preqs too': ### can't work easily, glpane stores all the mode classes (not just their names)...
-            glpane._reinit_modes() # just to get out of current mode safely
-            import modes
-            reload(modes)
-            if _superclass is selectAtomsMode:
-                import selectMode
-                reload(selectMode)
-                import selectAtomsMode
-                reload(selectAtomsMode)
-            
-            ## glpane.mode = glpane.nullmode = modes.nullMode()
-            # revised 071010 (glpane == commandSequencer == modeMixin), new code UNTESTED:
-            glpane._recreate_nullmode()
-            glpane.use_nullmode()
-
-            glpane._reinit_modes() # try to avoid problems with changing to other modes later, caused by those reloads
-                # wrong: uses old classes from glpane
-        import test_command_PMs
-        reload(test_command_PMs)
-        Initialize.forgetInitialization(__name__)
-        import test_commands
-        reload(test_commands)
-        from test_commands import enter_example_command_doit
-    else:
-        from test_commands import enter_example_command_doit
-        
-    enter_example_command_doit(glpane, example_command_classname)
-    return
-
-def enter_example_command_doit(glpane, example_command_classname):
-    example_command_class = globals()[example_command_classname]
-    example_command_class.modename += 'x'
-        # kluge to defeat _f_userEnterCommand comparison of modename -- not sure if it works; pretty sure it's needed for now
-        # TODO: replace it with a new option to pass to that method
-    cmdrun = construct_cmdrun(example_command_class, glpane)
-    start_cmdrun(cmdrun)
-    return
-
-def initialize():
-    if (Initialize.startInitialization(__name__)):
-        return
-    
-    # initialization code (note: it's all a kluge, could be cleaned up pretty easily)
-    classnames = ["ExampleCommand1", "ExampleCommand2", "ExampleCommand2E"] # extended below
-
-    global test_connectWithState
-        # this is needed due to globals()[example_command_classname] above (kluge)
-    from test_connectWithState import test_connectWithState
-        ### once we split this file, we can avoid import loop & still import this at top,
-        # and same for the other imports here
-    classnames.append("test_connectWithState")
-
-    global ExampleCommand2E
-    from example_expr_command import ExampleCommand2E
-    classnames.append("ExampleCommand2E")
-
-    for classname in classnames:
-        cmdname = classname # for now
-        register_debug_menu_command( cmdname, (lambda widget, classname = classname: enter_example_command(widget, classname)) )
-    
-    Initialize.endInitialization(__name__)
-    return
-
-initialize() ### TODO: call this from another file, and after the reload of this module above
+# for init code which makes these available from the UI, see test_commands_init.py
 
 # end

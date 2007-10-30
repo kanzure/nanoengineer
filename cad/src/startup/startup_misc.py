@@ -219,7 +219,8 @@ def _init_test_commands():
     if debug_pref("test_commands enabled (next session)", 
                   Choice_boolean_False, 
                   prefs_key = True):
-        import test_commands
+        import test_commands_init
+        test_commands_init.initialize()
     return
 
 def _set_mainwindow_splitter_position( win): 
