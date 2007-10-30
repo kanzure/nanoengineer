@@ -1665,7 +1665,9 @@ class depositMode(selectAtomsMode):
                     open_bond2.isThreePrimeOpenBond()):
                     a1 = open_bond1.other(s1)
                     a2 = open_bond2.other(s2)
-                    a1.molecule.merge(a2.molecule) # Strand colors now the same.
+                    # We rely on merge() to check that mols are not the same.
+                    # merge also results in making the strand colors the same.
+                    a1.molecule.merge(a2.molecule) 
                 
                 # ... now bond the highlighted singlet <s2> to the first singlet <s1>
                 self.bond_singlets(s1, s2)
