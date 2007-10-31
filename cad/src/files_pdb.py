@@ -19,7 +19,8 @@ identical in both, so doing that should not cause a problem.)
 import os
 from chunk import molecule
 from chem import atom
-from bonds import bond_atoms, inferBonds
+from bonds import bond_atoms
+from bonds_from_atoms import inferBonds
 from string import capitalize
 from elements import PeriodicTable, Singlet
 from PlatformDependent import fix_plurals

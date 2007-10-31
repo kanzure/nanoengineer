@@ -398,7 +398,8 @@ def bond_direction(atom1, atom2): #bruce 070601
 # list of potential neighbors in order(1) time. This is handy for
 # inferring bonds for PDB files that lack any bonding information.
 class NeighborhoodGenerator:
-    """Given a list of atoms and a radius, be able to quickly take a
+    """
+    Given a list of atoms and a radius, be able to quickly take a
     point and generate a neighborhood, which is a list of the atoms
     within that radius of the point.
 
@@ -408,7 +409,9 @@ class NeighborhoodGenerator:
     for finding neighborhoods, especially if the same generator can
     be used many times.
     """
-    def __init__(self, atomlist, maxradius, include_singlets=False):
+    # REVIEW: should this class be moved into its own module?
+    # [bruce 071030 comment]
+    def __init__(self, atomlist, maxradius, include_singlets = False):
         self._buckets = { }
         self._oldkeys = { }
         self._maxradius = 1.0 * maxradius
@@ -473,26 +476,7 @@ class NeighborhoodGenerator:
         except:
             pass
 
-def inferBonds(mol):
-    # not sure how big a margin we should have for "coincident"
-    maxBondLength = 2.0
-    # first remove any coincident singlets
-    singlets = filter(lambda a: a.is_singlet(), mol.atoms.values())
-    removable = { }
-    sngen = NeighborhoodGenerator(singlets, maxBondLength)
-    for sing1 in singlets:
-        key1 = sing1.key
-        pos1 = sing1.posn()
-        for sing2 in sngen.region(pos1):
-            key2 = sing2.key
-            dist = vlen(pos1 - sing2.posn())
-            if key1 != key2:
-                removable[key1] = sing1
-                removable[key2] = sing2
-    for badGuy in removable.values():
-        badGuy.kill()
-    from bonds_from_atoms import make_bonds
-    make_bonds(mol.atoms.values())
+    pass # end of class NeighborhoodGenerator
 
 # ==
 

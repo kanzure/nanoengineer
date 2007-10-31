@@ -1,13 +1,21 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-bonds_from_atoms.py -- experimental code for inferring bonds from atom positions and elements alone
+"""
+bonds_from_atoms.py -- experimental code for inferring bonds from
+atom positions and elements alone
 
 $Id$
 
 History:
 
-- bruce 050906 translated into Python some Lisp code contributed by Dr. K. Eric Drexler.
-'''
+bruce 050906 translated into Python some Lisp code
+contributed by Dr. K. Eric Drexler.
+
+bruce 071030 moved inferBonds interface to that code (probably by Will) here,
+from bonds.py.
+
+TODO: make this directly accessible as one or more user operations.
+(As of 071030 it's only used when importing some PDB files.)
+"""
 
 # Translation into Python of Lisp code contributed by Dr. K. Eric Drexler.
 # Some comments are from contributed code, perhaps paraphrased.
@@ -28,7 +36,7 @@ from VQT import atom_angle_radians
 import env
 from bonds import bonded, bond_atoms_faster, NeighborhoodGenerator
 from bond_constants import V_SINGLE
-from bond_constants import bond_params # 
+from bond_constants import bond_params
 
 # constants; angles are in radians
 
@@ -314,7 +322,7 @@ def list_potential_bonds(atmlist0):
     lst.sort() # least cost first
     return lst
 
-def make_bonds(atmlist, bondtyp=V_SINGLE):
+def make_bonds(atmlist, bondtyp = V_SINGLE):
     """Make some bonds between the given atoms. At any moment make the cheapest permitted unmade bond;
     stop only when no more bonds are permitted (i.e. all potential bonds have infinite cost).
        Assume that newly made bonds can never decrease the cost of potential bonds.
@@ -364,9 +372,36 @@ def make_bonds(atmlist, bondtyp=V_SINGLE):
 
 # ==
 
+def inferBonds(mol): # [probably by Will; TODO: needs docstring]
+    
+    #bruce 071030 moved this from bonds.py to bonds_from_atoms.py
+    
+    # not sure how big a margin we should have for "coincident"
+    maxBondLength = 2.0
+    # first remove any coincident singlets
+    singlets = filter(lambda a: a.is_singlet(), mol.atoms.values())
+    removable = { }
+    sngen = NeighborhoodGenerator(singlets, maxBondLength)
+    for sing1 in singlets:
+        key1 = sing1.key
+        pos1 = sing1.posn()
+        for sing2 in sngen.region(pos1):
+            key2 = sing2.key
+            dist = vlen(pos1 - sing2.posn())
+            if key1 != key2:
+                removable[key1] = sing1
+                removable[key2] = sing2
+    for badGuy in removable.values():
+        badGuy.kill()
+    from bonds_from_atoms import make_bonds
+    make_bonds(mol.atoms.values())
+    return
+
+# ==
+
 from debug import register_debug_menu_command
 
-def remake_bonds_in_selection( selection ):
+def remake_bonds_in_selection( glpane ):
     """Remake all bonds between selected atoms (or between atoms in selected chunks),
     in the given Selection object (produced by e.g. selection_from_part),
     by destroying all old bonds between selected atoms and all open bonds on them,
@@ -378,12 +413,18 @@ def remake_bonds_in_selection( selection ):
        Note: the current algorithm might make additional stretched bonds, in cases when
     it ought to infer non-sp3 atomtypes and make fewer bonds.
     """
-    atmlist = selection.atomslist()
+    #bruce 071030 fixed several bugs in this function I wrote long ago;
+    # evidently it never worked -- was it finished?? Now it works, at least
+    # for the trivial test case of 2 nearby C(sp3) atoms.
+    atmlist = glpane.assy.getSelectedAtoms()
+        # notes: this includes atoms inside selected chunks;
+        # it also includes a selected jig's atoms, unlike most atom operations.
+    atmdict = dict([(atm.key, atm) for atm in atmlist]) # for efficiency of membership test below
     n_bonds_destroyed = 0
     n_atomtypes_changed = 0
     n_atoms = len(atmlist)
     for atm in atmlist:
-        if atm.atomtype is not atm.elements.atomtypes[0]:
+        if atm.atomtype is not atm.element.atomtypes[0]:
             n_atomtypes_changed += 1 # this assume all atoms will be changed to default atomtype, not an inferred one
             # count them all before changing them or destroying any bonds,
             # in case some atomtypes weren't initialized yet
@@ -391,12 +432,12 @@ def remake_bonds_in_selection( selection ):
     for atm in atmlist:
         for b in atm.bonds[:]:
             atm2 = b.other(atm)
-            if selection.contains_atom(atm2): ### implem contains_atom
+            if atm2.key in atmdict:
                 ###e to also zap singlets we'd need "or atm2.element is Singlet" and to prevent b.bust from remaking them!
                 # (singlets can't be selected)
                 b.bust()
                 n_bonds_destroyed += 1 # (count real bonds only)
-        atm.set_atomtype(atm.elements.atomtypes[0]) ###k this might remake singlets if it changes atomtype
+        atm.set_atomtype(atm.element.atomtypes[0]) ###k this might remake singlets if it changes atomtype
         #e future optim: revise above to also destroy singlets and bonds to them
         # (btw I think make_bonds doesn't make any singlets as it runs)
     n_bonds_made = make_bonds(atmlist)
@@ -412,7 +453,6 @@ def remake_bonds_in_selection( selection ):
     # even if nothing changed at all.
     return
 
-#register_command( "Remake bonds", remake_bonds_in_selection ) ###IMPLEM, and have it add in the initial history message
-register_debug_menu_command( "Remake bonds", remake_bonds_in_selection ) ###IMPLEM, and have it add in the initial history message
+register_debug_menu_command( "Remake Bonds", remake_bonds_in_selection )
 
 #end
