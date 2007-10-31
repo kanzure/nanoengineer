@@ -24,10 +24,10 @@ History:
 import math
 
 from VQT import vlen
+from VQT import atom_angle_radians
 import env
 from bonds import bonded, bond_atoms_faster, NeighborhoodGenerator
 from bond_constants import V_SINGLE
-from chem import atom_angle_radians
 from bond_constants import bond_params # 
 
 # constants; angles are in radians

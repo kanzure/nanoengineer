@@ -61,10 +61,14 @@ def norm(v1):
         # recomputing vlen(v1) -- code was v1 / vlen(v1)
     else: return v1+0
 
-# paranoid acos(dotproduct) function, wware 051103
-# measure the angle between two vectors, but try to cover all the wierd
-# cases where numerical anomalies could pop up
 def angleBetween(vec1, vec2):
+    """
+    Return the angle between two vectors, in degrees,
+    but try to cover all the weird cases where numerical
+    anomalies could pop up.
+    """
+    # paranoid acos(dotproduct) function, wware 051103
+    # [TODO: should merge with threepoint_angle_in_radians]
     TEENY = 1.0e-10
     lensq1 = Numeric.dot(vec1, vec1)
     if lensq1 < TEENY:
@@ -92,6 +96,46 @@ def angleBetween(vec1, vec2):
     if dprod <= -1.0:
         return 180.0
     return (180/math.pi) * math.acos(dprod)
+
+def threepoint_angle_in_radians(p1, p2, p3):
+    """
+    Given three points (Numeric arrays of floats),
+    return the angle p1-p2-p3 in radians.
+    """
+    #bruce 071030 made this from chem.atom_angle_radians.
+    # TODO: It ought to be merged with angleBetween.
+    # (I don't know whether that one is actually better.)
+    # Also compare with def angle in jigs_motors.
+    v1 = norm(p1 - p2)
+    v2 = norm(p3 - p2)
+    dotprod = Numeric.dot(v1,v2)
+    if dotprod > 1.0:
+        #bruce 050414 investigating bugs 361 and 498 (probably the same underlying bug);
+        # though (btw) it would probably be better to skip this [now caller's] angle-printing entirely ###e
+        # if angle obviously 0 since atoms 1 and 3 are the same.
+        # This case (dotprod > 1.0) can happen due to numeric roundoff in norm();
+        # e.g. I've seen this be 1.0000000000000002 (as printed by '%r').
+        # If not corrected, it can make acos() return nan or have an exception!
+        dotprod = 1.0
+    elif dotprod < -1.0:
+        dotprod = -1.0
+    ang = math.acos(dotprod)
+    return ang
+
+def atom_angle_radians(atom1, atom2, atom3):
+    """
+    Return the angle between the positions of atom1-atom2-atom3, in radians.
+    These "atoms" can be any objects with a .posn() method which returns a
+    Numeric array of three floats. If these atoms are bonded, this is the
+    angle between the atom2-atom1 and atom2-atom3 bonds,
+    but this function does not assume they are bonded.
+       Warning: current implementation is inaccurate for angles near
+    0.0 or pi (0 or 180 degrees).
+    """
+    res = threepoint_angle_in_radians( atom1.posn(),
+                                       atom2.posn(),
+                                       atom3.posn() )
+    return res
 
 # p1 and p2 are points, v1 is a direction vector from p1.
 # return (dist, wid) where dist is the distance from p1 to p2

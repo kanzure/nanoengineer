@@ -24,6 +24,8 @@ from elements import Singlet
 from bonds import Bond
 from jigs import Jig
 from VQT import vlen
+from VQT import atom_angle_radians
+
 from PlatformDependent import fix_plurals
 
 from prefs_constants import dynamicToolTipWakeUpDelay_prefs_key
@@ -261,8 +263,6 @@ class DynamicTip: # Mark and Ninad 060817.
             
         
     def getDistHighlightedAtomAndSelectedAtom(self, selectedAtomList, ppa2, atomDistPrecision): 
-        
-        from VQT import vlen
         """
         Returns the distance between the selected atom and the highlighted atom. 
         If there is only one atom selected and is same as highlighed atom, then it returns None.  (then the function calling this 
@@ -327,12 +327,9 @@ class DynamicTip: # Mark and Ninad 060817.
     def getAngleHighlightedAtomAndSelAtoms(self, ppa2, ppa3, selectedAtomList, bendAngPrecision):
         """
         Returns the angle between the last two selected atoms and the current highlighted atom. 
-        If the highlighed atom is also one of the selected atoms and there are only 2 selected  atoms other than 
-         the highlighted one then it returns None.(then the function calling this routine needs to handle that case.) 
-        
+        If the highlighed atom is also one of the selected atoms and there are only 2 selected atoms other than 
+        the highlighted one then it returns None.(then the function calling this routine needs to handle that case.) 
         """
-        from chem import atom_angle_radians
-        
         glpane = self.glpane
         lastSelAtom = None
         secondLastSelAtom = None
