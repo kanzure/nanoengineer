@@ -119,7 +119,7 @@ from RotateMode import RotateMode
 from LineMode import LineMode
 from DnaLineMode    import DnaLineMode
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
-from modeMixin import modeMixin
+from CommandSequencer import modeMixin
 
 import platform
 
@@ -339,7 +339,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # which are basicMode subclasses). The Command API of self.mode (and
     # some private aspects of our commands/modes) are used by self.modeMixin
     # to "switch between modes". Soon, the modeMixin part will become part of
-    # the planned Command Sequencer and be removed from this class GLPane,
+    # the planned Command Sequencer and be removed from this class GLPane
+    # [that's partly done as of 071030, since it's now in CommandSequencer.py],
     # and the Command and GraphicsMode class hierarchies will be separated.
     # Of the attributes mentioned, only self.graphicsMode will remain in GLPane.
     # [bruce 071011]
@@ -3585,7 +3586,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return res
 
     def enter_custom_mode( self, modename, modefile): #bruce 050515
-        # TODO: move to modeMixin.py, and call on self.win.commandSequencer rather than on self
+        # TODO: move to CommandSequencer.py, and call on self.win.commandSequencer rather than on self
         fn = modefile
         if not os.path.exists(fn) and modename != 'testmode':
             env.history.message("should never happen: file does not exist: [%s]" % fn)

@@ -256,7 +256,7 @@ packageMapping = {
     "MinimizeEnergyProp"           : "ui",
     "modelTreeGui"                 : "ui",
     "modelTree"                    : "ui",
-    "modeMixin"                    : "ui",
+    "CommandSequencer"             : "ui",
     "modes"                        : "ui",
     "modifyMode"                   : "ui",
     "MotorPropertyManager"         : "ui",
