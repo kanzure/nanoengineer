@@ -8,7 +8,7 @@ egroup (View Data)
 group (MiddleBasePair)
 info opengroup open = True
 mol (DNA-1) def
-atom 1 (300) (0, 0, 0) tub
+atom 1 (300) (0, 0, 0) def
 atom 2 (301) (0, 8697, 0) def
 info atom dnaBaseName = a
 bond1 1
