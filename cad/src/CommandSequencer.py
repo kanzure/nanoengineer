@@ -1,8 +1,12 @@
 """
-modeMixin.py - the Command Sequencer aspect of the GLPane;
-will either be replaced by or evolve into the Command Sequencer.
-(But until we decide, I kept the old name to avoid a false promise
-of good design.)
+CommandSequencer.py - prototype (or stub) Command Sequencer.
+For now, this is just class modeMixin, which acts as the
+"Command Sequencer aspect of the GLPane"; this will either
+be replaced by or evolve into a real Command Sequencer.
+
+(Until we decide, I kept the old class name to avoid a false promise
+of good design, but on 071030 gave it a new module name to
+make the role in the current code clear.)
 
 $Id$
 
@@ -11,6 +15,8 @@ History:
 - written by Bruce long ago, in modes.py, mixed into GLPane.py
 
 - split into its own file, bruce 071009
+
+- file (but not class) renamed to CommandSequencer, bruce 071030
 
 TODO:
 
