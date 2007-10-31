@@ -65,7 +65,6 @@ from VQT import V, Q, norm, vlen, cross
 from ExtrudePropertyManager import ExtrudePropertyManager
 
 from drawer import drawline
-from chem import singlet_atom
 from chunk import Chunk
 from shape import get_selCurve_color
 
@@ -1874,8 +1873,8 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
     # since it redoes a lot of the same work
     # when called repeatedly for the same extrudable unit.
     res_bad = (False, None, None)
-    a1 = singlet_atom(s1)
-    a2 = singlet_atom(s2)
+    a1 = s1.singlet_neighbor()
+    a2 = s2.singlet_neighbor()
     r1 = a1.atomtype.rcovalent
     r2 = a2.atomtype.rcovalent
     dir1 = norm(s1.posn()-a1.posn())

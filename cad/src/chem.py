@@ -3330,10 +3330,6 @@ register_class_changedicts( Atom, _Atom_global_dicts )
 
 atom = Atom # old name of that class -- must remain here until all code has been revised to use new name [bruce 050610]
 
-def singlet_atom(singlet):
-    "return the atom a singlet is bonded to, checking assertions"
-    return singlet.singlet_neighbor()
-
 def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype option
     """
     Create one unbonded atom, of element elem

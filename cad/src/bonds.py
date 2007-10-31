@@ -48,9 +48,6 @@ import platform # for atom_debug; note that uses of atom_debug should all grab i
 
 from elements import Singlet
 
-# bonds, chem, and chunk form an import loop
-import chem
-
 from bond_constants import V_SINGLE
 from bond_constants import BOND_VALENCES
 from bond_constants import BOND_MMPRECORDS
@@ -1911,8 +1908,8 @@ class bonder_at_singlets:
             return do_error("not both singlets", "not a singlet: %r" % s1)
         if not s2.is_singlet():
             return do_error("not both singlets", "not a singlet: %r" % s2)
-        a1 = self.a1 = chem.singlet_atom(s1)
-        a2 = self.a2 = chem.singlet_atom(s2)
+        a1 = self.a1 = s1.singlet_neighbor()
+        a2 = self.a2 = s2.singlet_neighbor()
         if s1 is s2: #bruce 041119
             return do_error("can't bond a singlet to itself",
               "asked to bond atom %r to itself,\n"
