@@ -134,7 +134,6 @@ from OpenGL.GL import glVertexPointer
 from OpenGL.GL import glPointSize
 from OpenGL.GL import GL_POINTS
 from OpenGL.GL import GL_POINT_SMOOTH
-
 from OpenGL.GLU import gluBuild2DMipmaps
 
 try:
@@ -1784,6 +1783,7 @@ def drawsurface(color, pos, radius, tm, nm):
 def drawLadder(endCenter1,  
                endCenter2,
                stepSize, 
+               ladderWidth = 17.0,
                beamThickness = 2.0,
                beam1Color = None, 
                beam2Color = None,
@@ -1798,32 +1798,32 @@ def drawLadder(endCenter1,
     @type endCenter2: B{V}
     @param stepSize: Center to center distance between consecutive steps
     @type stepSize: float
+    @param ladderWidth: width of the ladder
+    @type ladderWidth: float
     @param beamThickness: Thickness of the two ladder beams
     @type beamThickness: float
     @param beam1Color: Color of beam1
     @param beam2Color: Color of beam2
     """
-
+    
     #Note: The ladder needs to be always parallel to the screen. 
     #Perhaps need to use correct rotation. 
 
     unitVector = norm(endCenter2 - endCenter1)
     ladderLength = vlen(endCenter1 - endCenter2)
-    ladderWidth = 8.0
-        
+    beamThickness = 6
+                
     glDisable(GL_LIGHTING) 
     glPushMatrix()
     glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2])      
     pointOnAxis = V(0, 0, 0)
-    ladderBeam1Point = None
-    ladderBeam2Point = None
+    ladderBeam1Point = V(0, 0.5*ladderWidth, 0)
+    ladderBeam2Point = V(0, -0.5*ladderWidth, 0)
     x = 0.0
     while x < ladderLength:
         drawPoint(stepColor, pointOnAxis)
-        previousPoint = pointOnAxis
-
+        previousPoint = pointOnAxis        
         previousLadderBeam1Point = ladderBeam1Point
-
         previousLadderBeam2Point = ladderBeam2Point
 
         pointOnAxis = pointOnAxis + unitVector*stepSize		
@@ -1848,14 +1848,19 @@ def drawLadder(endCenter1,
             drawline(beam1Color, 
                      previousLadderBeam1Point, 
                      ladderBeam1Point, 
-                     width = 6)
+                     width = beamThickness,
+                     isSmooth = True
+                 )
 
             drawline(beam2Color, 
                      previousLadderBeam2Point, 
                      ladderBeam2Point, 
-                     width = 6)
+                     width = beamThickness, 
+                     isSmooth = True
+                 )
 
-            drawline(stepColor, ladderBeam1Point, ladderBeam2Point)	    
+            drawline(stepColor, ladderBeam1Point, ladderBeam2Point)
+            
     glPopMatrix()
 
 def drawArrowHead(color, glpaneScale, basePoint):
@@ -1880,7 +1885,7 @@ def drawArrowHead(color, glpaneScale, basePoint):
 
     glPopMatrix()
 
-def drawline(color, pos1, pos2, dashEnabled = False, width = 1, isSmooth = True):
+def drawline(color, pos1, pos2, dashEnabled = False, width = 1, isSmooth = False):
     """Draw a line from pos1 to pos2 of the given color.
     If dashEnabled is True, it will be dashed.
     If width is not 1, it should be an int or float (more than 0)
