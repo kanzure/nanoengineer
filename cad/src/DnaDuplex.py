@@ -28,7 +28,8 @@ from VQT                import Q, V, angleBetween, cross, vlen
 from fusechunksMode     import fusechunksBase
 from utilities.Log      import orangemsg
 from GeneratorBaseClass import PluginBug
-from constants          import gensym, strandColorList, lightgray, diBALL
+from constants          import gensym, strandColorList, lightgray
+from constants          import diBALL, diTUBES
 
 from runSim import adjustSinglet
 
@@ -352,6 +353,8 @@ class Dna:
                                                   name = "Axis",
                                                   group = dnaGroup,
                                                   color = lightgray)
+        
+        axisChunk.setDisplay(diTUBES)
 
     def getBaseRise( self ):
         """
@@ -567,30 +570,26 @@ class B_Dna_PAM3(B_Dna_PAM5):
         Ax_caps += filter( lambda atom: atom.element.symbol in ('Ax3'), 
                            end_basepair_atoms)
             
-        # Transmute Ax3 caps to Ae3 atoms.
+        # Transmute Ax3 caps to Ae3 atoms. 
+        # Note: this leaves two "killed singlets" hanging around,  
+        #       one from each Ax3 cap.
         for atom in Ax_caps:
-            atom.Transmute(Element_Ae3, force = True)
+            atom.Transmute(Element_Ae3)
             atom.setDisplay(diBALL)
-            
+        
+        # X_List will contain 6 singlets, 2 of which are killed (non-bonded).
+        # The other 4 are the 2 pair of strand open bond singlets.
         X_List = filter( lambda atom: atom.element.symbol in ('X'), 
                           start_basepair_atoms)
         X_List += filter( lambda atom: atom.element.symbol in ('X'), 
                            end_basepair_atoms)
-        
-        if 0: # I'd like to enable this assertion. See my comments below. --Mark
-            x_number = len(X_List)
-            assert x_number == 4, \
-                   "Expected 4 singlets, but there are %d!" % x_number
-        
-        # Adjust open bond singlets.
+                
+        # Adjust the 4 open bond singlets.
         for singlet in X_List:
-            # 2 extra (Ax3) singlets are hanging around (without bonds), 
-            # so I needed to add this conditional below before adjusting
-            # singlets (to skip them).
-            # I thought calling Transmute() would have deleted them, but they
-            # are still there. Ask Bruce about this. Mark 2007-10-21
-            if len(singlet.bonds):
-                adjustSinglet(singlet)
+            if singlet.killed():
+                # Skip the 2 killed singlets.
+                continue
+            adjustSinglet(singlet)
         return
 
 class Z_Dna(Dna):
