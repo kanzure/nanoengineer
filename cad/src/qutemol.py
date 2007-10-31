@@ -18,6 +18,10 @@ from PyQt4.Qt import QString, QStringList, QProcess, QMessageBox
 from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_True
 from constants import properDisplayNames, TubeRadius, diBALL_SigmaBondRadius
+from files_pdb import writePDB_Header, writepdb, EXCLUDE_HIDDEN_ATOMS
+from prefs_constants import cpkScaleFactor_prefs_key, \
+                            diBALL_AtomRadius_prefs_key
+from elements import PeriodicTable
 
 # To do list: Mark 2007-06-03
 # - Move plug-in routines to Plugins.py.
@@ -26,6 +30,7 @@ from constants import properDisplayNames, TubeRadius, diBALL_SigmaBondRadius
 # I just tried to do this, but there was some type of import error due to 
 # code in Plugins.py. I'll check with Bruce about this soon so I don't forget
 # to move this code. Mark 2007-06-02
+
 
 def _dialog_to_offer_plugin_prefs_fixup(caption, text):
     """
@@ -165,12 +170,9 @@ def verify_plugin_using_version_flag(plugin_path, version_flag, vstring):
 # Everything above this line should be moved to Plugins.py (or another file).
 # Mark 2007-06-03
 
-def launch_qutemol(pdb_file, art_file):
+def launch_qutemol(pdb_file):
     """
     Try to launch QuteMol and load <pdb_file>.
-    <art_file> is the ART file pathname, supplied as a command line 
-    argument to QuteMol. Only QuteMol version 0.4.1 or later can read the
-    ART file.
     
     Returns (errorcode, errortext), where errorcode is one of the following: ###k
     0 = successful
@@ -201,10 +203,7 @@ def launch_qutemol(pdb_file, art_file):
     
     # Start QuteMol.
     try:
-        if version == "0.4.1":
-            args = [pdb_file, "-a", art_file]
-        else:
-            args = [pdb_file]
+        args = [pdb_file]
         if env.debug():
             print "Debug: Launching", plugin_name, \
                   "\n  working directory=", workdir, \
@@ -252,40 +251,32 @@ def launch_qutemol(pdb_file, art_file):
     return 0, plugin_name + " launched." # from launch_qutemol
 
 
-def write_art_file(filename):
+def write_art_data(fileHandle):
     """
-    Writes the Atom Rendering Table (ART) file, which contains all
-    the atom rendering properties needed by QuteMol.
+    Writes the Atom Rendering Table (ART) data, which contains all
+    the atom rendering properties needed by QuteMol, to the file with the
+    given fileHandle.
     Each atom is on a separate line.
     Lines starting with '#' are comment lines.
-    <filename> - ART filename
     """
-    assert type(filename) == type(" ")
-    
-    from elements import PeriodicTable
-    elementTable = PeriodicTable.getAllElements()
-    
-    try:
-        fileHandle = open(filename, "w")
-    except:
-        print "Exception occurred to open file %s to write: " % filename
-        return None
-    
-    # QuteMol can use line 1 to validate the file format.
-    # Added @ to help make it clear that line 1 is special.
-    fileHandle.write(
-        "#@ NanoEngineer-1 Atom Rendering Table, \
-        file format version 2007-06-04\n"
-    )
+    fileHandle.write("""\
+REMARK   8
+REMARK   8 ;NanoEngineer-1 Atom Rendering Table (format version 0.1.0)
+REMARK   8 ;This table specifies the scene rendering scheme as employed by
+REMARK   8 ;NanoEngineer-1 (NE1) at the time this file was created.
+REMARK   8
+REMARK   8 ;Note: All CPK radii were calculated using a CPK scaling factor that
+REMARK   8 ;can be modified by the user from "Preferences... | Atoms".\n""")
+    fileHandle.write("REMARK   8 ;This table's CPK Scaling Factor: %2.3f"
+                     % env.prefs[cpkScaleFactor_prefs_key])
+    fileHandle.write("""
+REMARK   8 ;To compute the original van der Waals radii, use the formula:
+REMARK   8 ;  vdW Radius = CPK Radius / CPK Scaling Factor
+REMARK   8
+REMARK   8 ;Atom Name  NE1 Atom  CPK Radius  Ball and Stick  Color (RGB)
+REMARK   8 ;           Number                Radius\n""")
 
-    # Lines after line 1 are only comments.
-    fileHandle.write("#\n# File format:\n#\n")
-    fileHandle.write("# Atom   NE1    Render Covlnt\n")
-    fileHandle.write("# Symbol Number Radius Radius Red Green Blue\n")
-    
-    from prefs_constants import cpkScaleFactor_prefs_key, \
-                                diBALL_AtomRadius_prefs_key
-    
+    elementTable = PeriodicTable.getAllElements()
     for elementNumber, element in elementTable.items():
         color = element.color
         r = int(color[0] * 255 + 0.5)
@@ -306,20 +297,11 @@ def write_art_file(filename):
         #    ballAndStickRadius = 0.1
 
         fileHandle.write \
-            ('%2s  %3d  %3.3f  %3.3f  %3d  %3d  %3d\n' %
-             (element.symbol, elementNumber, cpkRadius, ballAndStickRadius,
-              r, g, b))
-    
-    fileHandle.write \
-        ("# All Render Radii were calculated using a CPK scaling factor\n"\
-         "# that can be modified by the user in \"Preference | Atoms\".\n"\
-         "# CPK Scale Factor: %2.3f\n"\
-         "# To compute the original VDW radii, use the formula:\n"\
-         "# VDW Radius = Render Radius / CPK Scale Factor\n"\
-          % env.prefs[cpkScaleFactor_prefs_key])
+            ("REMARK   8  %-3s        %-3d       %3.3f       %3.3f           %3d  %3d  %3d\n"
+             % (element.symbol, elementNumber, cpkRadius, ballAndStickRadius,
+                r, g, b))
     
     fileHandle.close()
-
     return 
 
 def write_qutemol_pdb_file(part, filename):
@@ -344,68 +326,71 @@ def write_qutemol_pdb_file(part, filename):
     BASBond1Radius = \
                    diBALL_SigmaBondRadius * \
                    env.prefs[diBALL_BondCylinderRadius_prefs_key]
+                   
+    writePDB_Header(f) # Writes our generic PDB header
     
     # Write the QuteMol REMARKS "header".
     # See the following wiki page for more information about
     # the format of all NE1-QuteMol REMARK records:
     # http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1-QuteMol_PDB_REMARK_record_format
-
-    f.write("REMARK   1 @ NanoEngineer-1/QuteMol PDB File Format\n")
-    f.write("REMARK   2 @ Version 2007-07-01 required; 2007-07-01 preferred\n")
-    f.write("REMARK   3 Csys=%1.6f %1.6f %1.6f %1.6f\n" 
+    #
+    f.write("""\
+REMARK   6 - The ";" character is used to denote non-data (explanatory) records
+REMARK   6   in the REMARK 7 and REMARK 8 blocks.
+REMARK   6
+REMARK   7 
+REMARK   7 ;QuteMol Display Data (format version 0.1.0) nanoengineer-1.com/QuteMol
+REMARK   7 ;Compatible with QuteMol version 0.4.2 qutemol.sourceforge.net.
+REMARK   7\n""")
+    
+    f.write("REMARK   7 ORIENTATION: %1.6f %1.6f %1.6f %1.6f\n" 
             % (part.o.quat.w, part.o.quat.x, part.o.quat.y, part.o.quat.z))
-    f.write("REMARK   4 Scale=%4.6f\n" 
+    f.write("REMARK   7 SCALE: %4.6f\n" 
             % part.o.scale)
-    f.write("REMARK   5 POV=%6.6f %6.6f %6.6f\n" 
+    f.write("REMARK   7 POINT_OF_VIEW: %6.6f %6.6f %6.6f\n" 
             % (part.o.pov[0], part.o.pov[1], part.o.pov[2]))
-    f.write("REMARK   6 Zoom=%6.6f\n" 
+    f.write("REMARK   7 ZOOM=%6.6f\n" 
             % part.o.zoomFactor)
     if skyBlue:
-        f.write("REMARK   7 BGColor=SkyBlue\n")
+        f.write("REMARK   7 BACKGROUND_COLOR: SkyBlue\n")
     else:
-        f.write("REMARK   7 BGColor=%3d,%3d,%3d\n" 
+        f.write("REMARK   7 BACKGROUND_COLOR: %3d %3d %3d\n" 
             % (r, g, b))
-    f.write("REMARK   8 LaunchDisplay=%s\n" 
+    f.write("REMARK   7 DISPLAY_STYLE: %s\n" 
             % properDisplayNames[part.o.displayMode])
-    f.write("REMARK   9 TubBond1Radius=%1.3f Angstroms\n" 
+    f.write("REMARK   7 TUBES_BOND_RADIUS: %1.3f\n" 
             % TubBond1Radius)
-    f.write("REMARK  10 BASBond1Radius=%1.3f Angstroms\n"
+    f.write("REMARK   7 BALL_AND_STICK_BOND_RADIUS: %1.3f\n"
             % BASBond1Radius)
 
-    # Now write the REMARK records for each chunk (MOL) in the part.
-    
+    # Now write the REMARK records for each chunk (chain) in the part.
     molNum = 1
-    remarkIndex = 20
-    
     for mol in part.molecules:        
-        f.write("REMARK %3d MOL%s " % (remarkIndex, molNum))
-        f.write("Display=%s " % properDisplayNames[mol.display])
+        f.write("REMARK   7 CHAIN: %s " % (molNum))
+        f.write("  DISPLAY_STYLE: %s " % properDisplayNames[mol.display])
         if mol.color:
             r = int (mol.color[0] * 255 + 0.5)
             g = int (mol.color[1] * 255 + 0.5)
             b = int (mol.color[2] * 255 + 0.5)
-            f.write("Color=%3d,%3d,%3d " % (r, g, b))
-        f.write("Name=\"%s\"\n" % mol.name)
+            f.write("  COLOR: %3d %3d %3d " % (r, g, b))
+        f.write("  NAME: \"%s\"\n" % mol.name)
         
         molNum+=1
-        remarkIndex += 1
         
-        if remarkIndex > 999:
-            remarkIndex = 20
+    f.write("REMARK   7\n")
         
+    write_art_data(f)
+    
     f.close()
     
     # Write the "body" of PDB file.
-    from files_pdb import writepdb, EXCLUDE_HIDDEN_ATOMS
     # Bondpoints are written to file. Mark 2007-06-11
     writepdb(part, filename, mode = 'a', excludeFlags = EXCLUDE_HIDDEN_ATOMS)
     
     
 def write_qutemol_files(part):
     """
-    Writes a PDB of the current <part> and an ART file to the Nanorex temp 
-    directory.
-    ART = Atom Rendering Table
+    Writes a PDB of the current <part> to the Nanorex temp directory.
     Returns the name of the temp pdb file, or None if no atoms are in <part>.
     """
     
@@ -428,16 +413,13 @@ def write_qutemol_files(part):
         return None
     
     pdb_basename = "qutemol.pdb"
-    art_basename = "art.txt" # ART = Atom Rendering Table
     
-    # Make full pathnames for PDB and ART files (in ~/Nanorex/temp/)
+    # Make full pathnames for the PDB file (in ~/Nanorex/temp/)
     from PlatformDependent import find_or_make_Nanorex_subdir
     tmpdir = find_or_make_Nanorex_subdir('temp')
     qutemol_pdb_file = os.path.join(tmpdir, pdb_basename)
-    art_file = os.path.join(tmpdir, art_basename)
     
-    # Write PDB and ART files.
+    # Write the PDB file.
     write_qutemol_pdb_file(part, qutemol_pdb_file)
-    write_art_file(art_file)
     
-    return qutemol_pdb_file, art_file
+    return qutemol_pdb_file

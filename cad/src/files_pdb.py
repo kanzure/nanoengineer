@@ -27,6 +27,8 @@ from PlatformDependent import fix_plurals
 from utilities.Log import redmsg, orangemsg
 from VQT import A
 from debug_prefs import debug_pref, Choice_boolean_True
+from version import Version
+from datetime import datetime
 import env
 
 def _readpdb(assy, filename, isInsert = False):
@@ -278,11 +280,12 @@ def writepdb(part,
 
     excluded = 0
     molnum   = 1
-    chainId  = chr(96+molnum)
+    chainIdChar  = 65 # ASCII "A"
     
+    if mode == 'w':
+        writePDB_Header(f)
+        
     for mol in part.molecules:
-        molstr = "MOL" + str(molnum) + "\n"
-        f.write(str(molstr))
         for a in mol.atoms.itervalues():
             if exclude(a):
                 excluded += 1
@@ -290,7 +293,7 @@ def writepdb(part,
             atomConnectList = []
             
             atomsTable[a.key] = atomSerialNumber
-            a.writepdb(f, atomSerialNumber, chainId)
+            a.writepdb(f, atomSerialNumber, chr(chainIdChar))
             atomConnectList.append(a)
     
             for b in a.bonds:
@@ -325,21 +328,35 @@ def writepdb(part,
                 # bruce 050318 comment: shouldn't we leave it out if 
                 # len(atomConnectList) == 1?
                 # I think so, so I'm doing that (unlike the previous code).
-            
-        for atomConnectList in connectLists:
-            # Begin CONECT record ----------------------------------
-            f.write("CONECT")
-            for a in atomConnectList:
-                index = atomsTable[a.key]
-                f.write("%5d" % index)
-            f.write("\n")
-            # End CONECT record ----------------------------------
-            
-        connectLists = []
-        molnum += 1
-        chainId = chr(96 + molnum)
 
-        f.write("END\n")
+        # Write the chain TER-minator record
+        #
+        # COLUMNS     DATA TYPE         FIELD           DEFINITION
+        # ------------------------------------------------------
+        #  1 - 6      Record name       "TER     "
+        #  7 - 11     Integer           serial          Serial number.
+        # 18 - 20     Residue name      resName         Residue name.
+        # 22          Character         chainID         Chain identifier.
+        # 23 - 26     Integer           resSeq          Residue sequence number.
+        # 27          AChar             iCode           Insertion code.
+        f.write("TER   %5d          %1s\n" % (molnum, chr(chainIdChar)))
+
+        molnum += 1
+        chainIdChar += 1
+        if chainIdChar > 126: # ASCII "~", end of PDB-acceptable chain chars
+            chainIdChar = 32 # Rollover to ASCII " "
+            
+    for atomConnectList in connectLists:
+        # Begin CONECT record ----------------------------------
+        f.write("CONECT")
+        for a in atomConnectList:
+            index = atomsTable[a.key]
+            f.write("%5d" % index)
+        f.write("\n")
+        # End CONECT record ----------------------------------
+        connectLists = []
+            
+    f.write("END\n")
     
     f.close()
     
@@ -351,5 +368,28 @@ def writepdb(part,
         env.history.message( orangemsg(msg))
     return # from writepdb
 
-# end
 
+def writePDB_Header(fileHandle):
+    """
+    Writes an informative REMARK 5 header at the top of the PDB file with the
+    given fileHandle.
+    """
+    version = Version()
+    fileHandle.write("REMARK   5\n")
+    fileHandle.write("REMARK   5 Created %s"
+        % (datetime.utcnow().strftime("%Y/%m/%d %I:%M:%S %p UTC\n")))
+    fileHandle.write("REMARK   5 with NanoEngineer-1 version %s nanoengineer-1.com\n"
+        % repr(version))
+    fileHandle.write("REMARK   5")
+    fileHandle.write("""
+REMARK   6
+REMARK   6 This file generally complies with the PDB format version 2.3
+REMARK   6 Notes:
+REMARK   6
+REMARK   6 - Sets of atoms are treated as PDB chains terminated with TER
+REMARK   6   records. Since the number of atom sets can exceed the 95 possible
+REMARK   6   unique chains expressed in ATOM records by single non-control ASCII
+REMARK   6   characters, TER record serial numbers will be used to uniquely
+REMARK   6   identify atom sets/chains. Chain identifiers in ATOM records will
+REMARK   6   "roll-over" after every 95 chains.
+REMARK   6\n""")

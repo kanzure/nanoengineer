@@ -448,9 +448,9 @@ class viewSlotsMixin:
 
         # Write temp PDB file of current part.
         if self.assy.molecules:
-            pdb_file, art_file = write_qutemol_files(self.assy)
+            pdb_file = write_qutemol_files(self.assy)
             # Launch QuteMol. It will verify the plugin.
-            errorcode, msg = launch_qutemol(pdb_file, art_file) 
+            errorcode, msg = launch_qutemol(pdb_file) 
             # errorcode is ignored. 
         else:
             # No pdb file was written because there 
