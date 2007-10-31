@@ -37,6 +37,8 @@ from utilities.Log import redmsg, orangemsg
 from MoviePropertyManager import MoviePropertyManager
 from icon_utilities import geticon
 
+from constants import filesplit
+
 from prefs_constants import workingDirectory_prefs_key
 
 auto_play = False # whether to automatically start playing the movie when you enter the mode
@@ -465,37 +467,11 @@ def simMoviePlayer(assy):
 
 # ==
 
-#bruce 050413 change: copy fileparse from MWsemantics, reimplement it using os.path
-# (the old one used re.match, and I don't know if it was correct in all cases),
-# which revises the spec (now the returned directory part doesn't end with '/'),
-# so renaming it to filesplit to avoid confusion. Sometime soon the one in
-# MWsemantics should be replaced with this one, which should be moved into some other file.
-
-##def fileparse(name): # '/' at end of dirname
-##    "fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')"
-##    m=re.match("(.*\/)*([^\.]+)(\..*)?",name)
-##    return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
-
-def filesplit(pathname): #bruce 050413 fileparse variant: no '/' at end of dirname
-    """Splits pathname into directory part (not ending with '/'),
-    basename, and extension (including '.', or can be "")
-    and returns them in a 3-tuple.
-    For example, filesplit('~/foo/bar/gorp.xam') ==> ('~/foo/bar', 'gorp', '.xam').
-    Compare with fileparse (deprecated), whose returned dir ends with '/'.
-    """
-    import os
-    dir, file = os.path.split(pathname)
-    base, ext = os.path.splitext(file)
-    return dir, base, ext
-
 #bruce 050413: try to move most of movie dashboard slot method code
 # out of MWsemantics, without changing the basic fact that the .ui file
 # wants to send the button signals into methods of MWsemantics
 # (and these methods probably have to exist, unchanging, from the time
 #  the MWsemantics object is initialized).
-# Besides moving the slot methods, I replaced fileparse (above) with filesplit,
-# and revised some calling code to use os.path.join to compensate for their
-# difference in returning dirname.
 
 class movieDashboardSlotsMixin:
     "Mixin class for letting MWsemantics have the movieMode dashboard slot methods."

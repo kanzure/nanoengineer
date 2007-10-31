@@ -19,6 +19,8 @@ from PyQt4.Qt import QString
 
 import env
 
+from constants import filesplit
+
 from NanoHiveDialog import Ui_NanoHiveDialog
 from utilities.Log import redmsg, greenmsg, orangemsg
 from jigs_planes import ESPImage
@@ -38,7 +40,6 @@ class NH_Sim_Parameters:
 def get_partname(assy):
     'Returns the base name of the part.  If the filename is None, returns'
     if assy.filename:
-        from movieMode import filesplit
         junk, basename, ext = filesplit(assy.filename)
         return basename
     else:

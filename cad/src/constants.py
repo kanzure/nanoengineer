@@ -1,16 +1,19 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-constants.py
+constants.py -- constants and trivial functions used in multiple modules.
 
-Various constants used in more than one module, and a few global variables.
+Everything defined here must require no imports except from builtin
+modules or PyQt, and use names that we don't mind reserving throughout NE1.
 
-Names defined here should be suitable for being imported (thus "used up")
-in all modules.
+(Ideally this module would also contain no state; probably we should move
+gensym out of it for that reason.)
 
 $Id$
 """
 
 from PyQt4.Qt import Qt
+
+# ==
 
 MULTIPANE_GUI = True # enable some code which was intended to permit the main window
     # to contain multiple PartWindows. Unfortunately we're far from that being possible,
@@ -31,6 +34,8 @@ DIAMOND_BOND_LENGTH = 1.544
     #bruce 051102 added this based on email from Damian Allis:
     # > The accepted bond length for diamond is 1.544 ("Interatomic  
     # > Distances,' The Chemical Society, London, 1958, p.M102)....
+
+# ==
 
 # note: these Button constants might be no longer used [bruce 070601 comment]
 leftButton = 1
@@ -65,6 +70,7 @@ altModifier = 134217728 # in Qt/Mac, this flag indicates the Alt/Option modifier
 debugModifiers = cntlModifier | shiftModifier | altModifier
 # on the mac, this really means command-shift-alt
 
+# ==
 
 # Trivial functions that might be needed early during app startup
 # (good to put here to avoid recursive import problems involving other modules)
@@ -81,6 +87,8 @@ def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py
         yield i
         i += 1
     pass
+
+# ==
 
 _gensym_counters = {} #bruce 070603; has last-used value for each fixed prefix (default 0)
 
@@ -128,6 +136,8 @@ def permit_gensym_to_reuse_name(prefix, name): #bruce 070604
         _gensym_counters[prefix] = corrected_last_used_value
     return
 
+# ==
+
 def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from selectMode.py to constants.py 070601
     """Return the numerical average value of seq (a Python sequence or equivalent),
     or (by default) 0.0 if seq is empty.
@@ -137,6 +147,8 @@ def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from sel
     if not seq:
         return default
     return sum(seq) / len(seq) # WARNING: this uses <built-in function sum>, not Numeric.sum.
+
+# ==
 
 # display modes:
 ## These are arranged in order of increasing thickness of the bond representation. They are indices of dispNames and dispLabel.
@@ -168,6 +180,25 @@ default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [M
 
 TubeRadius = 0.3 # (i.e. "TubesSigmaBondRadius")
 diBALL_SigmaBondRadius = 0.1
+
+# ==
+
+def filesplit(pathname):
+    """
+    Splits pathname into directory part (not ending with '/'),
+    basename, and extension (including '.', or can be "")
+    and returns them in a 3-tuple.
+    For example, filesplit('~/foo/bar/gorp.xam') ==> ('~/foo/bar', 'gorp', '.xam').
+    Compare with _fileparse (deprecated), whose returned dir ends with '/'.
+    """
+    #bruce 050413 _fileparse variant: no '/' at end of dirname
+    #bruce 071030 moved this from movieMode to constants
+    import os
+    dir, file = os.path.split(pathname)
+    base, ext = os.path.splitext(file)
+    return dir, base, ext
+
+# ==
 
 # ave_colors() logically belongs in some "color utilities file",
 # but is here so it is defined early enough for use in computing default values

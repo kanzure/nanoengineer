@@ -87,11 +87,20 @@ def set_waitcursor(on_or_off):
 
 debug_part_files = False #&&& Debug prints to history. Change to False after QA. Mark 060703 [revised by bruce 060704]
 
-def fileparse(name): #bruce 050413 comment: see also filesplit (movieMode.py) and its comments.
-    # clean things up using os.path functions - wware 060811
-    """breaks name into directory, main name, and extension in a tuple.
-    fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
+def _fileparse(name):
     """
+    DEPRECATED; in new code use filesplit (not compatible) instead.
+    
+    Breaks name into directory, main name, and extension in a tuple.
+
+    Example:
+    _fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
+    """
+    # bruce 050413 comment: deprecated in favor of filesplit
+    # wware 060811: clean things up using os.path functions
+    #   [REVIEW: did that change behavior in edge cases like "/"?
+    #    bruce 071030 question]
+    # bruce 071030: renamed to make it private.
     dir, x = os.path.split(name)
     if not dir:
         dir = '.'
@@ -215,7 +224,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 #                   env.history.message( cmd + "PDB file inserted: [ " + os.path.normpath(import_filename) + " ]" )
 
             else: # All other filetypes, which will be translated to MMP and inserted into the part.
-                dir, fil, ext = fileparse(import_filename)
+                dir, fil, ext = _fileparse(import_filename)
                 tmpdir = find_or_make_Nanorex_subdir('temp')
                 mmpfile = os.path.join(tmpdir, fil + ".mmp")
                 result = self.launch_ne1_openbabel(in_format=ext[1:], infile=import_filename, 
@@ -366,14 +375,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             linenum()
             print 'export_filename', repr(export_filename)
 
-        dir, fil, ext = fileparse(export_filename)
+        dir, fil, ext = _fileparse(export_filename)
         if ext == ".mmp":
             self.save_mmp_file(export_filename, brag=True)
         else:
             # Anything that isn't an MMP file we will export with Open Babel.
             # Its coverage of MMP files is imperfect so it makes mistakes, but
             # it would be good to use it enough to find those mistakes.
-            dir, fil, ext = fileparse(export_filename)
+            dir, fil, ext = _fileparse(export_filename)
             if platform.atom_debug:
                 linenum()
                 print 'dir, fil, ext :', repr(dir), repr(fil), repr(ext)
@@ -661,7 +670,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 readpdb(self.assy,fn)
                 env.history.message("PDB file opened: [ " + os.path.normpath(fn) + " ]")
 
-            dir, fil, ext = fileparse(fn)
+            dir, fil, ext = _fileparse(fn)
             ###@@@e could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
             self.assy.name = fil
             self.assy.filename = fn
@@ -789,7 +798,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if fn:
             fn = str(fn)
             # figure out name of new file, safile [bruce question: when and why can this differ from fn?]
-            dir, fil, ext2 = fileparse(fn)
+            dir, fil, ext2 = _fileparse(fn)
             del fn #bruce 050927
             ext = str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
             safile = dir + fil + ext # full path of "Save As" filename
@@ -859,7 +868,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                           saving the Part Files directory, too.
         """
         
-        dir, fil, ext = fileparse(safile)
+        dir, fil, ext = _fileparse(safile)
             #e only ext needed in most cases here, could replace with os.path.split [bruce 050907 comment]
                     
         if ext == ".mmp" : # Write MMP file.
@@ -890,7 +899,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         #e someday this might become a method of a "saveable object" (open file) or a "saveable subobject" (part, selection).
         from debug import linenum
         linenum()
-        dir, fil, ext = fileparse(safile)
+        dir, fil, ext = _fileparse(safile)
             #e only ext needed in most cases here, could replace with os.path.split [bruce 050908 comment]
         type = "this" # never used (even if caller passes in unsupported filetype) unless there are bugs in this routine
         saved = True # be optimistic (not bugsafe; fix later by having save methods which return a success code)
@@ -955,7 +964,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         If we are saving a part (assy) that already exists and it has an (old) Part Files directory, 
         copy those files to the new Part Files directory (i.e. '<safile> Files').
         """
-        dir, fil, extjunk = fileparse(safile)
+        dir, fil, extjunk = _fileparse(safile)
         try:
             tmpname = os.path.join(dir, '~' + fil + '.m~')
             self.assy.writemmpfile(tmpname)

@@ -46,6 +46,7 @@ from VQT import A
 import re
 from chem import AtomDict
 from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
+from constants import filesplit
 
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
@@ -257,7 +258,6 @@ class SimRunner:
         # Create temporary part-specific filename.  Example: "partname-minimize-pid1000"
         # We'll be appending various extensions to tmp_file_prefix to make temp file names
         # for sim input and output files as needed (e.g. mmp, xyz, etc.)
-        from movieMode import filesplit
         junk, basename, ext = filesplit(self.assy.filename)
         if not basename: # The user hasn't named the part yet.
             basename = "Untitled"
