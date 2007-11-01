@@ -28,7 +28,7 @@ from VQT                import Q, V, angleBetween, cross, vlen
 from fusechunksMode     import fusechunksBase
 from utilities.Log      import orangemsg
 from GeneratorBaseClass import PluginBug
-from constants          import gensym, strandColorList, lightgray
+from constants          import gensym, darkred, blue, lightgray
 from constants          import diBALL, diTUBES
 
 from runSim import adjustSinglet
@@ -331,22 +331,20 @@ class Dna:
                         raise PluginBug(msg)
                 elif atom.element.symbol in ('Ax3', 'Ae3'):
                     _axis_list.append(atom)
-        
-        random.shuffle(strandColorList) # Randomize strandColorList
-        
+                
         # Create strand and axis chunks from atom lists and add 
         # them to the dnaGroup.
         strandAChunk = \
                      self.assy.makeChunkFromAtomList(_strandA_list,
                                                      name = gensym("Strand"),
                                                      group = dnaGroup,
-                                                     color = strandColorList[0])
+                                                     color = darkred)
 
         strandBChunk = \
                      self.assy.makeChunkFromAtomList(_strandB_list,
                                                      name = gensym("Strand"),
                                                      group = dnaGroup,
-                                                     color = strandColorList[1])
+                                                     color = blue)
 
         axisChunk = \
                   self.assy.makeChunkFromAtomList(_axis_list,

@@ -228,6 +228,7 @@ def ave_colors(weight, color1, color2): #bruce 050805 moved this here from handl
 
 black =  (0.0, 0.0, 0.0)
 blue =   (0.0, 0.0, 0.6)
+lightblue =   (0.4, 0.4, 0.8)
 aqua =   (0.15, 1.0, 1.0)
 orange = (1.0, 0.25, 0.0)
 darkorange = (0.6, 0.3, 0.0)
@@ -258,8 +259,8 @@ copper = (0.3, 0.3, 0.1)
 #   - yellow (used for hover highlighting)
 #   - red (used as delete highlight color)
 #   - green (reserved for selection color)
-strandColorList = [ purple, violet, darkred, blue, steelblue, navy, 
-                    orange, darkorange, brass, copper, olive, gray, darkgray]
+strandColorList = [ purple, violet, steelblue, navy, orange, lightblue,
+                    darkorange, brass, copper, olive, gray, darkgray]
 
 #ninad20060922 using it while drawing origin axis
 lightblue = ave_colors(0.03, white, blue) 
