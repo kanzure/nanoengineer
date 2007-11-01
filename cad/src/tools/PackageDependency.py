@@ -26,8 +26,8 @@
    dependency graph.  This can be plotted with the dot program from
    the GraphViz package.
 
-   To see the entire graph, comment out the pruneTree() loop.
-from exprs import b, c as q, d # with a comment
+   http://www.graphviz.org
+   
 """
 
 import sys
@@ -396,20 +396,36 @@ packageMapping = {
     }
 
 packageColors = {
-    "ui"          : "#8060ff",
-    "PM"          : "#8080ff",
+    "ui"          : "#8050ff",
+    "PM"          : "#8070ff",
     "graphics"    : "#80a0ff",
 
-    "model"       : "#80ff60",
-    "foundation"  : "#80ff80",
+    "model"       : "#80ff50",
+    "foundation"  : "#80ff70",
     "exprs"       : "#80ffa0",
 
     "io"          : "#ffff80",
-    "utilities"   : "#ffe080",
+    "utilities"   : "#ffa080",
 
-    "examples"    : "#ff4040",
-    "test"        : "#ff4080",
-    "top"         : "#ff40a0",
+    "examples"    : "#ff3030",
+    "test"        : "#ff3060",
+    "top"         : "#ff3090",
+    }
+
+packageLevels = {
+    "top"         : 7,
+    "test"        : 7,
+    "examples"    : 7,
+    "ui"          : 6,
+    "PM"          : 6,
+    "io"          : 5,
+    "model"       : 4,
+    "graphics"    : 4,
+    "foundation"  : 3,
+    "exprs"       : 3,
+    "geometry"    : 3,
+    "utilities"   : 2,
+    "platform"    : 1,
     }
 
 filesToProcess = []
@@ -447,6 +463,11 @@ def fileNameToModuleName(fileName):
 def dotReplacement(moduleName):
     ret = moduleName.replace(".", "_")
     ret = ret.replace("-", "_")
+    # node and edge are reserved words in .dot files
+    if (ret == "node"):
+        return "_node"
+    if (ret == "edge"):
+        return "_edge"
     return ret
     
 def moduleToDotNode(moduleName, returnPackageName):
@@ -524,21 +545,38 @@ nodeColors = {}
 packageNodes = []
 
 def createNode(name, fullModuleName):
-    if (optionByPackage or not optionColorPackages or nodeColors.has_key(name)):
+    if (not optionColorPackages or nodeColors.has_key(name)):
         return
-    packageName = moduleToDotNode(fullModuleName, True)
+    if (optionByPackage):
+        packageName = name
+    else:
+        packageName = moduleToDotNode(fullModuleName, True)
     if (packageColors.has_key(packageName)):
         nodeColors[name] = packageColors[packageName]
         print '    %s [fillcolor="%s"];' % (name, nodeColors[name])
     else:
         print >>sys.stderr, "undefined package color: " + packageName
 
+def getPackageLevel(packageName):
+    if (packageLevels.has_key(packageName)):
+        return packageLevels[packageName]
+    return 9
+
 def printEdge(fromNode, toNode):
     fn = dotReplacement(fromNode)
     tn = dotReplacement(toNode)
     createNode(fn, fromNode)
     createNode(tn, toNode)
-    print "    %s -> %s;" % (fn, tn)
+    if (optionByPackage and optionColorPackages):
+        fromLevel = getPackageLevel(fromNode)
+        toLevel = getPackageLevel(toNode)
+        if (fromLevel < toLevel):
+            color = "red"
+        else:
+            color = "black"
+        print "    %s -> %s [color=%s];" % (fn, tn, color)
+    else:
+        print "    %s -> %s;" % (fn, tn)
     
 
 def dependenciesInFile(fromModuleName, printing):
