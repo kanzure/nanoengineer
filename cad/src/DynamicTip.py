@@ -38,7 +38,7 @@ from prefs_constants import dynamicToolTipAtomPosition_prefs_key
 from prefs_constants import dynamicToolTipAtomDistanceDeltas_prefs_key
 from prefs_constants import dynamicToolTipBondLength_prefs_key
 from prefs_constants import dynamicToolTipAtomMass_prefs_key
-
+from prefs_constants import dynamicToolTipVdwRadiiInAtomDistance_prefs_key
 
 class DynamicTip: # Mark and Ninad 060817.
     """
@@ -148,6 +148,7 @@ class DynamicTip: # Mark and Ninad 060817.
         self.isAtomDistDeltas = env.prefs[dynamicToolTipAtomDistanceDeltas_prefs_key]#boolean
         self.isBondLength     = env.prefs[dynamicToolTipBondLength_prefs_key] #boolean
         self.isAtomMass       = env.prefs[dynamicToolTipAtomMass_prefs_key] #boolean
+        
         
         
         objStr = self.getHighlightedObjectInfo(self.atomDistPrecision)
@@ -265,13 +266,16 @@ class DynamicTip: # Mark and Ninad 060817.
     def getDistHighlightedAtomAndSelectedAtom(self, selectedAtomList, ppa2, atomDistPrecision): 
         """
         Returns the distance between the selected atom and the highlighted atom. 
-        If there is only one atom selected and is same as highlighed atom, then it returns None.  (then the function calling this 
+        If there is only one atom selected and is same as highlighed atom, 
+        then it returns an empty string.  (then the function calling this 
         routine needs to handle that case.) 
         """
        
         glpane          =  self.glpane
         selectedAtom    =  None
         atomDistDeltas  =  None
+        #initial value of distStr. (an empty string)
+        distStr = ''
         
         if len(selectedAtomList) > 2: # ninad060824 don't show atom distance info when there are more than 2 atoms selected. Fixes bug2225 
             return False
@@ -310,19 +314,36 @@ class DynamicTip: # Mark and Ninad 060817.
          
         roundedDist = str(round(vlen(xyz - selectedAtom.posn()), atomDistPrecision))
         
-        #ninad060818 No need to display disance info if highlighed object and lastpicked/ only selected object are identical
+        if env.prefs[dynamicToolTipVdwRadiiInAtomDistance_prefs_key]:
+            rvdw1 = glpane.selobj.element.rvdw
+            rvdw2 = selectedAtom.element.rvdw
+            dist = vlen(xyz - selectedAtom.posn()) + rvdw1 + rvdw2
+            roundedDistIncludingVDWString = ("2.Including Vdw radii:" \
+                               " %s A") %(str(round(dist, atomDistPrecision)))
+        else:
+            roundedDistIncludingVDWString = ''
+            
+            
+        #ninad060818 No need to display disance info if highlighed object and 
+        #lastpicked/ only selected object are identical
         if selectedAtom:
             if selectedAtom is not glpane.selobj: 
-                distStr = ("<font color=\"#0000FF\">Distance %s-%s :</font> %s A"%(glpane.selobj, selectedAtom,roundedDist))
-                atomDistDeltas = self.getAtomDistDeltas(self.isAtomDistDeltas, atomDistPrecision,selectedAtom)
+                distStr = ("<font color=\"#0000FF\">Distance %s-%s :</font><br>"\
+                           "1.Center to center:</font>"\
+                           " %s A" %(glpane.selobj, 
+                                          selectedAtom,
+                                          roundedDist))
+                
+                if roundedDistIncludingVDWString:
+                    distStr += "<br>" + roundedDistIncludingVDWString
+                    
+                atomDistDeltas = self.getAtomDistDeltas(self.isAtomDistDeltas, 
+                                                        atomDistPrecision,
+                                                        selectedAtom)
                 if atomDistDeltas:
                     distStr += "<br>" + atomDistDeltas
                 
-                return distStr
-            else:
-                return False
-        else:
-            return False
+        return distStr
     
     def getAngleHighlightedAtomAndSelAtoms(self, ppa2, ppa3, selectedAtomList, bendAngPrecision):
         """

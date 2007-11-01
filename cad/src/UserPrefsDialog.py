@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Aug 23 13:53:18 2007
+# Created: Wed Oct 31 18:03:52 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -2030,18 +2030,18 @@ class Ui_UserPrefsDialog(object):
         self.gridlayout32.setSpacing(2)
         self.gridlayout32.setObjectName("gridlayout32")
 
-        self.dynamicToolTipAtomChunkInfo_checkbox = QtGui.QCheckBox(self.atom_dynamic_tooltips_grpbox)
-        self.dynamicToolTipAtomChunkInfo_checkbox.setChecked(False)
-        self.dynamicToolTipAtomChunkInfo_checkbox.setObjectName("dynamicToolTipAtomChunkInfo_checkbox")
-        self.gridlayout32.addWidget(self.dynamicToolTipAtomChunkInfo_checkbox,0,0,1,2)
+        self.dynamicToolTipAtomMass_checkbox = QtGui.QCheckBox(self.atom_dynamic_tooltips_grpbox)
+        self.dynamicToolTipAtomMass_checkbox.setObjectName("dynamicToolTipAtomMass_checkbox")
+        self.gridlayout32.addWidget(self.dynamicToolTipAtomMass_checkbox,1,0,1,2)
 
         self.dynamicToolTipAtomDistanceDeltas_checkbox = QtGui.QCheckBox(self.atom_dynamic_tooltips_grpbox)
         self.dynamicToolTipAtomDistanceDeltas_checkbox.setObjectName("dynamicToolTipAtomDistanceDeltas_checkbox")
         self.gridlayout32.addWidget(self.dynamicToolTipAtomDistanceDeltas_checkbox,3,0,1,2)
 
-        self.dynamicToolTipAtomMass_checkbox = QtGui.QCheckBox(self.atom_dynamic_tooltips_grpbox)
-        self.dynamicToolTipAtomMass_checkbox.setObjectName("dynamicToolTipAtomMass_checkbox")
-        self.gridlayout32.addWidget(self.dynamicToolTipAtomMass_checkbox,1,0,1,2)
+        self.dynamicToolTipAtomPosition_checkbox = QtGui.QCheckBox(self.atom_dynamic_tooltips_grpbox)
+        self.dynamicToolTipAtomPosition_checkbox.setChecked(False)
+        self.dynamicToolTipAtomPosition_checkbox.setObjectName("dynamicToolTipAtomPosition_checkbox")
+        self.gridlayout32.addWidget(self.dynamicToolTipAtomPosition_checkbox,2,0,1,2)
 
         self.vboxlayout28 = QtGui.QVBoxLayout()
         self.vboxlayout28.setMargin(0)
@@ -2055,7 +2055,7 @@ class Ui_UserPrefsDialog(object):
         self.textLabel1_8_3 = QtGui.QLabel(self.atom_dynamic_tooltips_grpbox)
         self.textLabel1_8_3.setObjectName("textLabel1_8_3")
         self.vboxlayout28.addWidget(self.textLabel1_8_3)
-        self.gridlayout32.addLayout(self.vboxlayout28,4,0,1,1)
+        self.gridlayout32.addLayout(self.vboxlayout28,5,0,1,1)
 
         self.vboxlayout29 = QtGui.QVBoxLayout()
         self.vboxlayout29.setMargin(0)
@@ -2075,12 +2075,16 @@ class Ui_UserPrefsDialog(object):
         self.dynamicToolTipBendAnglePrecision_spinbox.setProperty("value",QtCore.QVariant(3))
         self.dynamicToolTipBendAnglePrecision_spinbox.setObjectName("dynamicToolTipBendAnglePrecision_spinbox")
         self.vboxlayout29.addWidget(self.dynamicToolTipBendAnglePrecision_spinbox)
-        self.gridlayout32.addLayout(self.vboxlayout29,4,1,1,1)
+        self.gridlayout32.addLayout(self.vboxlayout29,5,1,1,1)
 
-        self.dynamicToolTipAtomPosition_checkbox = QtGui.QCheckBox(self.atom_dynamic_tooltips_grpbox)
-        self.dynamicToolTipAtomPosition_checkbox.setChecked(False)
-        self.dynamicToolTipAtomPosition_checkbox.setObjectName("dynamicToolTipAtomPosition_checkbox")
-        self.gridlayout32.addWidget(self.dynamicToolTipAtomPosition_checkbox,2,0,1,2)
+        self.dynamicToolTipAtomChunkInfo_checkbox = QtGui.QCheckBox(self.atom_dynamic_tooltips_grpbox)
+        self.dynamicToolTipAtomChunkInfo_checkbox.setChecked(False)
+        self.dynamicToolTipAtomChunkInfo_checkbox.setObjectName("dynamicToolTipAtomChunkInfo_checkbox")
+        self.gridlayout32.addWidget(self.dynamicToolTipAtomChunkInfo_checkbox,0,0,1,2)
+
+        self.includeVdwRadiiInAtomDistanceInfo = QtGui.QCheckBox(self.atom_dynamic_tooltips_grpbox)
+        self.includeVdwRadiiInAtomDistanceInfo.setObjectName("includeVdwRadiiInAtomDistanceInfo")
+        self.gridlayout32.addWidget(self.includeVdwRadiiInAtomDistanceInfo,4,0,1,1)
         self.gridlayout31.addWidget(self.atom_dynamic_tooltips_grpbox,0,0,2,1)
 
         spacerItem57 = QtGui.QSpacerItem(20,161,QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Expanding)
@@ -2133,7 +2137,7 @@ class Ui_UserPrefsDialog(object):
         self.textLabel1_8_3.setBuddy(self.dynamicToolTipBendAnglePrecision_spinbox)
 
         self.retranslateUi(UserPrefsDialog)
-        self.prefs_tab.setCurrentIndex(1)
+        self.prefs_tab.setCurrentIndex(8)
         self.level_of_detail_combox.setCurrentIndex(2)
         QtCore.QObject.connect(self.ok_btn,QtCore.SIGNAL("clicked()"),UserPrefsDialog.accept)
         QtCore.QObject.connect(self.watch_min_in_realtime_checkbox,QtCore.SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
@@ -2506,14 +2510,15 @@ class Ui_UserPrefsDialog(object):
         self.colorThemeComboBox.addItem(QtGui.QApplication.translate("UserPrefsDialog", "Blue", None, QtGui.QApplication.UnicodeUTF8))
         self.prefs_tab.setTabText(self.prefs_tab.indexOf(self.TabPage6), QtGui.QApplication.translate("UserPrefsDialog", "Window", None, QtGui.QApplication.UnicodeUTF8))
         self.atom_dynamic_tooltips_grpbox.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Dynamic Tool Tips for Atoms", None, QtGui.QApplication.UnicodeUTF8))
-        self.dynamicToolTipAtomChunkInfo_checkbox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Chunk Information", None, QtGui.QApplication.UnicodeUTF8))
-        self.dynamicToolTipAtomDistanceDeltas_checkbox.setText(QtGui.QApplication.translate("UserPrefsDialog", "XYZ Distance Deltas ", None, QtGui.QApplication.UnicodeUTF8))
         self.dynamicToolTipAtomMass_checkbox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Mass Information", None, QtGui.QApplication.UnicodeUTF8))
+        self.dynamicToolTipAtomDistanceDeltas_checkbox.setText(QtGui.QApplication.translate("UserPrefsDialog", "XYZ Distance Deltas ", None, QtGui.QApplication.UnicodeUTF8))
+        self.dynamicToolTipAtomPosition_checkbox.setText(QtGui.QApplication.translate("UserPrefsDialog", "XYZ Coordinates", None, QtGui.QApplication.UnicodeUTF8))
         self.atomDistPrecisionLabel.setText(QtGui.QApplication.translate("UserPrefsDialog", "Distance Precision:", None, QtGui.QApplication.UnicodeUTF8))
         self.textLabel1_8_3.setText(QtGui.QApplication.translate("UserPrefsDialog", "Angle Precision:", None, QtGui.QApplication.UnicodeUTF8))
         self.dynamicToolTipAtomDistancePrecision_spinbox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Sets the number of digits after the decimal places", None, QtGui.QApplication.UnicodeUTF8))
         self.dynamicToolTipBendAnglePrecision_spinbox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Sets the number of digits after the decimal places", None, QtGui.QApplication.UnicodeUTF8))
-        self.dynamicToolTipAtomPosition_checkbox.setText(QtGui.QApplication.translate("UserPrefsDialog", "XYZ Coordinates", None, QtGui.QApplication.UnicodeUTF8))
+        self.dynamicToolTipAtomChunkInfo_checkbox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Chunk Information", None, QtGui.QApplication.UnicodeUTF8))
+        self.includeVdwRadiiInAtomDistanceInfo.setText(QtGui.QApplication.translate("UserPrefsDialog", "Include Vdw radii in atom distance tooltip", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox35.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Dynamic Tool Tips for Bonds", None, QtGui.QApplication.UnicodeUTF8))
         self.dynamicToolTipBondLength_checkbox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Distance Between Atom Centers", None, QtGui.QApplication.UnicodeUTF8))
         self.dynamicToolTipBondChunkInfo_checkbox.setText(QtGui.QApplication.translate("UserPrefsDialog", "Chunk Information", None, QtGui.QApplication.UnicodeUTF8))
