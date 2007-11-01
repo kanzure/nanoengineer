@@ -2341,7 +2341,9 @@ def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21.
         # The problem is that this redraws while running. Don't want that!
         # Talk to Bruce and Eric M. about it. Mark 2007-10-21.
         LocalMinimize_function( [singlet], nlayers = 0 )
-    singlet.Transmute(Singlet)
+    # Transmute() will not transmute singlets. Since <singlet> is a Hydrogen, 
+    # and not a singlet, this will work. -mark 2007-10-31 (Boo!)
+    singlet.Transmute(Singlet) 
     return
 
 #obs comment:
