@@ -1811,8 +1811,7 @@ def drawLadder(endCenter1,
 
     unitVector = norm(endCenter2 - endCenter1)
     ladderLength = vlen(endCenter1 - endCenter2)
-    beamThickness = 6
-                
+                    
     glDisable(GL_LIGHTING) 
     glPushMatrix()
     glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2])      

@@ -16,7 +16,7 @@ from LineMode import LineMode
 from drawer import drawLadder
 ##from drawer import drawArrowHead
 
-from constants import black, red, blue
+from constants import black, darkred, blue
 
 # == GraphicsMode part
 
@@ -46,7 +46,8 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
             drawLadder(self.endPoint1,
                        self.endPoint2, 
                        self.command.duplexRise,
-                       beam1Color = red,
+                       beamThickness = 4.0,
+                       beam1Color = darkred,
                        beam2Color = blue,
                        stepColor = black    
                     )  
