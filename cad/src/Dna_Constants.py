@@ -22,6 +22,9 @@ History:
 """
 __author__ = 'mark'
 
+import math
+from constants import strandColorList
+
 basesDict = { 'A':{'Name':'Adenine',  'Complement':'T', 'Color':'darkorange' },
               'C':{'Name':'Cytosine', 'Complement':'G', 'Color':'cyan'       },
               'G':{'Name':'Guanine',  'Complement':'C', 'Color':'green'      },
@@ -48,7 +51,30 @@ dnaDict = { 'A-DNA':{'DuplexRise':3.391},
             'B-DNA':{'DuplexRise':3.180},
             'Z-DNA':{'DuplexRise':3.715} }
 
+strand_color_counter = 0
+
 # Common DNA helper functions. ######################################
+
+def getNextStrandColor(currentColor = None):
+    """
+    Return a color to assign a strand guaranteed to be different than
+    its current color.
+    
+    @param currentColor: The current color of the strand.
+    @type  currentColor: RGB tuple
+    
+    @return: New color.
+    @rtype: RGB tuple
+    """
+    global strand_color_counter
+    _clist_length = len(strandColorList)
+    r, i = math.modf(strand_color_counter / _clist_length)
+    _strand_color_index = int(strand_color_counter - (i * _clist_length))
+    _new_color = strandColorList[_strand_color_index]
+    strand_color_counter += 1
+    if _new_color == currentColor:
+        return getNextStrandColor()
+    return _new_color
 
 def getDuplexRise(conformation):
     """

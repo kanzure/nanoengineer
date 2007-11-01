@@ -15,7 +15,8 @@ bruce 050913 used env.history in some places.
 from utilities.Log import greenmsg, redmsg
 from PlatformDependent import fix_plurals
 from chunk import molecule
-from constants import gensym, strandColorList
+from constants import gensym
+from Dna_Constants import getNextStrandColor
 import env
 import random
 from debug_prefs import debug_pref, Choice_boolean_False
@@ -285,12 +286,11 @@ class ops_rechunk_Mixin:
         # See self.ensure_toplevel_group() docstring for explanation.
         self.ensure_toplevel_group()
         _group_five_prime_was_in = _five_prime_atom.molecule.dad
-        random.shuffle(strandColorList) # Randomize strandColorList
-
+        _new_strand_color = getNextStrandColor(_five_prime_atom.molecule.color)
         return self.makeChunkFromAtomList(atomList,
                                           group = _group_five_prime_was_in,
                                           name = gensym("Strand"), 
-                                          color = strandColorList[0])
+                                          color = _new_strand_color)
 
     pass # end of class ops_rechunk_Mixin
 

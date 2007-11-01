@@ -251,16 +251,16 @@ steelblue = (0.3, 0.4, 0.5)
 brass = (0.5, 0.5, 0.0)
 copper = (0.3, 0.3, 0.1)
 
-# strandColorList is used for assigning a color to a new strand 
-# when created by breaking an existing strand. 
+# strandColorList is used for assigning a color to a new strand created
+# by breaking an existing strand.
 # Do not use the following colors in strandColorList: 
 #   - white/lightgray (reserved for axis)
 #   - black (reserved as a default color for scaffold strand)
 #   - yellow (used for hover highlighting)
 #   - red (used as delete highlight color)
 #   - green (reserved for selection color)
-strandColorList = [ purple, violet, steelblue, navy, orange, lightblue,
-                    darkorange, brass, copper, olive, gray, darkgray]
+strandColorList = [ purple, brass, steelblue, orange, darkgray, lightblue,
+                    darkorange, violet, copper, olive, gray]
 
 #ninad20060922 using it while drawing origin axis
 lightblue = ave_colors(0.03, white, blue) 
