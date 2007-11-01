@@ -22,14 +22,12 @@ import os, sys
 from struct import unpack
 from PyQt4.Qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from utilities.Log import redmsg, orangemsg, greenmsg
-from VQT import A #k needed??
+from VQT import A
 from chem import move_alist_and_snuggle
 import platform
 from PlatformDependent import fix_plurals
 from debug import print_compact_stack, print_compact_traceback
 from moviefile import MovieFile #e might be renamed, creation API revised, etc
-## can't do this here (recursive import), so done at runtime:
-## from movieMode import _controls
 
 import env
 
@@ -43,6 +41,28 @@ DEBUG_DUMP = 0 # DO NOT COMMIT WITH 1
 
 playDirection = { FWD : "Forward", REV : "Reverse" }
 
+# ==
+
+def movie_controls_setEnabled(win, enabled = True):
+    """
+    Enable or disable movie controls on movieMode dashboard.
+    """
+    #bruce 071030 renamed this from _controls to movie_controls_setEnabled,
+    # and moved it from movieMode.py into movie.py to cure an import loop
+    # (they both use it). (In theory it should be a method on an owning object
+    # of these controls, but right now that owner is just win, and adding
+    # more code to MWsemantics doesn't make sense to me now.)
+    win.movieResetAction.setEnabled(enabled)
+    win.moviePlayRevAction.setEnabled(enabled)
+    win.moviePauseAction.setEnabled(enabled)
+    win.moviePlayAction.setEnabled(enabled)
+    win.movieMoveToEndAction.setEnabled(enabled)
+    win.frameNumberSL.setEnabled(enabled)
+    win.frameNumberSB.setEnabled(enabled)
+    win.fileSaveMovieAction.setEnabled(enabled)
+    return
+
+# ==
 
 class Movie:
     """
@@ -419,15 +439,15 @@ class Movie:
         # change current part and/or arrange to warn if user does that? No, this is done later when we _play.
         return True
 
-    def _controls(self, On = True): #bruce 050427 moved body of this into helper func in moviefile
-        from movieMode import _controls
-        _controls(self.assy.w, On)
-        #e perhaps this belongs in our movieMode client code instead;
-        # or perhaps we should not control dashboard directly from this object at all,
+    def movie_controls_setEnabled(self, enabled = True):
+        movie_controls_setEnabled(self.assy.w, enabled)
+        #e perhaps we should not control dashboard directly from this object at all,
         # but rather have observers we can update
     
     def _setup(self, hflag = True): #bruce 060112 revised retval documentation and specific values
-        """Setup this movie for playing; return False if this worked, True if it failed (warning: reverse of common boolean retvals).
+        """
+        Setup this movie for playing; return False if this worked,
+        True if it failed (warning: reverse of common boolean retvals).
         [#doc whether it always prints error msg to history if it failed.]
         """
         # bruce 050427 comment:
@@ -440,7 +460,8 @@ class Movie:
         # - update dashboard frame number info (SB, SL, label)
         # - history info: if hflag: self._info()
         # - self.startFrame = self.currentFrame
-        if DEBUG1: print "movie._setup() called. filename = [" + self.filename + "]"
+        if DEBUG1:
+            print "movie._setup() called. filename = [" + self.filename + "]"
 
         if self.isOpen and platform.atom_debug:
             env.history.message( redmsg( "atom_debug: redundant _setup? bug if it means atoms are still frozen"))
@@ -451,11 +472,11 @@ class Movie:
         if not ok:
             # bruce 050427 doing the following disable under more circumstances than before
             # (since old code's errcodes 'r' 1 or 2 are no longer distinguished here, they're just both False) -- is that ok?
-            self._controls(0) # Disable movie control buttons.
+            self.movie_controls_setEnabled(False)
             self.isOpen = False #bruce 050427 added this
             return True
             
-        self._controls(1) # Enable movie control buttons.
+        self.movie_controls_setEnabled(True)
 
         #bruce 050427 extensively rewrote the following (and moved some of what was here into OldFormatMovieFile_startup)
 

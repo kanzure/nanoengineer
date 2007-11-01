@@ -150,7 +150,8 @@ class movieMode(basicMode):
             #  Actions marked #k are now in disable_QActions_for_movieMode(). mark 060314)
         
         # MP dashboard initialization.
-        self._controls(0) # bruce 050428 precaution (has no noticable effect but seems safer in theory)
+        self.movie_controls_setEnabled(False)
+            #bruce 050428 precaution (has no noticable effect but seems safer in theory)
         #bruce 050428, working on bug 395: I think some undesirable state is left in the dashboard, so let's reinit it
         # (and down below we might like to init it from the movie if possible, but it's not always possible).
         self.w._movieDashboard_reinit() ###e could pass frameno? is max frames avail yet in all playable movies? not sure.
@@ -171,7 +172,7 @@ class movieMode(basicMode):
             if movie.filename: #k not sure this cond is needed or what to do if not true [bruce 050510]
                 env.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
         else:
-            self._controls(0) # Movie control buttons are disabled.
+            self.movie_controls_setEnabled(False)
 	
 	#Need to do this after calling movie._setUp (propMgr displays movie 
 	#information in its msg groupbox.  All this will be cleaned up when we 
@@ -263,7 +264,9 @@ class movieMode(basicMode):
 	return params
     
     def updateCommandManager(self, bool_entering = True):#Ninad 20070618
-	''' Update the command manager '''	
+	"""
+	Update the command manager
+	"""	
 	# object that needs its own flyout toolbar. In this case it is just 
 	#the mode itself. 
 	
@@ -271,31 +274,43 @@ class movieMode(basicMode):
 	obj = self  	    	    
 	self.w.commandManager.updateCommandManager(action,
 						   obj, 
-						   entering =bool_entering)
+						   entering = bool_entering)
+	return
 
-    def _controls(self, On = True): #bruce 050427
-        _controls( self.w, On)
+    def movie_controls_setEnabled(self, enabled = True):
+        from movie import movie_controls_setEnabled
+            ### TODO: import this at toplevel if possible
+        movie_controls_setEnabled( self.w, enabled)
 
     def might_be_playable(self):
-        "Do we have a current movie which is worth trying to play?"
+        """
+        Do we have a current movie which is worth trying to play?
+        """
         movie = self.o.assy.current_movie
         return movie and movie.might_be_playable()
     
     def update_dashboard(self): #bruce 050426 pieced this together from other code ####@@@@ call it
-        """Update our dashboard to reflect the state of assy.current_movie."""
-        self._controls( self.might_be_playable() )
+        """
+        Update our dashboard to reflect the state of assy.current_movie.
+        """
+        self.movie_controls_setEnabled( self.might_be_playable() )
         ###e need to do more here, like the stuff in init_gui and maybe elsewhere
         return
 
-    def restore_patches_by_Command(self): #bruce 050426 added this, to hold the side effect formerly done illegally by haveNontrivialState.
-        "This is run when we exit the mode for any reason."
-        #bruce 050426 continues commentary:
+    def restore_patches_by_Command(self):
+        """
+        This is run when we exit the mode for any reason.
+        """
+        #bruce 050426 added this, to hold the side effect formerly
+        # done illegally by haveNontrivialState.
         # ... but why do we need to do this at all?
         # the only point of what we'd do here would be to stop
         # having that movie optimize itself for rapid playing....
         movie = self.o.assy.current_movie
         if movie:
-            movie._close() # assume this is the only movie which might be "open", and that redundant _close is ok.
+            movie._close()
+            # note: this assumes this is the only movie which might be "open",
+            # and that redundant _close is ok.
         return
         
     def haveNontrivialState(self):
@@ -382,34 +397,19 @@ class movieMode(basicMode):
         return
     
     def update_cursor_for_no_MB(self): # Fixes bug 1693. mark 060321
-        '''Update the cursor for 'Movie Player' mode.
-        '''
+        """
+        Update the cursor for 'Movie Player' mode.
+        """
         self.o.setCursor(QCursor(Qt.ArrowCursor))
 
 # ==
 
-
-def _controls(win, On = True):
-    """Enable or disable movie controls on movieMode dashboard."""
-    #bruce 050427 moved this here -- it was a method on class Movie.
-    #e It probably should become a method of the mixin class.
-    win.movieResetAction.setEnabled(On)
-    win.moviePlayRevAction.setEnabled(On)
-    win.moviePauseAction.setEnabled(On)
-    win.moviePlayAction.setEnabled(On)
-    win.movieMoveToEndAction.setEnabled(On)
-    win.frameNumberSL.setEnabled(On)
-    win.frameNumberSB.setEnabled(On)
-    win.fileSaveMovieAction.setEnabled(On)
-
 def simMoviePlayer(assy):
-    """Plays a DPB movie file created by the simulator,
+    """
+    Plays a DPB movie file created by the simulator,
     either the current movie if any, or a previously saved
     dpb file with the same name as the current part, if one can be found.
     """
-    # moved here from MWsemantics method, and fixed bugs I recently put into it 
-    # (by rewriting it from original and from rewritten simPlot function)
-    # [bruce 050327]
     from movie import find_saved_movie, Movie #bruce 050329 precaution (in case of similar bug to bug 499)
     win = assy.w
     if not assy.molecules: # No model, so no movie could be valid for current part.
