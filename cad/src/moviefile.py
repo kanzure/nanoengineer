@@ -232,12 +232,12 @@ class OldFormatMovieFile: #bruce 050426
         #e   If we'd especially like to keep a cached copy for future speed, make one now...
         #e   Or do this inside forward-going loop?
         #e   Or in caller, having it stop for breath every so many frames, perhaps also to process user events?
-        if 0: #bruce 060111 debug code (two places), safe but could be removed when not needed (tiny bit slow) [bruce 060111] ###@@@
-            # maybe print coords for one atom
-            import runSim
-            if runSim.debug_all_frames:
-                ii = runSim.debug_all_frames_atom_index
-                print "copy_of_frame %d[%d] is" % (n, ii), frame0[ii]
+##        if 0: #bruce 060111 debug code (two places), safe but could be removed when not needed (tiny bit slow) [bruce 060111] ###@@@
+##            # maybe print coords for one atom
+##            import runSim
+##            if runSim.debug_all_frames:
+##                ii = runSim.debug_all_frames_atom_index
+##                print "copy_of_frame %d[%d] is" % (n, ii), frame0[ii]
         return frame0
 
     def donate_mutable_known_frame(self, n, frame):
@@ -357,12 +357,12 @@ class OldFormatMovieFile: #bruce 050426
             # and I think we can rule it out as a possible cause of bug 1297 (and an experiment also seems to rule that out).
             # [For the true cause, see 060111 comment in get_sim_posns.]
             # In the long run, we should fix this, though I never observed a problem. ####@@@@
-        if 0: #bruce 060111 debug code (two places), safe but could be removed when not needed (tiny bit slow) [bruce 060111] ###@@@
-            # maybe print deltas for one atom
-            import runSim
-            if runSim.debug_all_frames:
-                ii = runSim.debug_all_frames_atom_index
-                print "delta_frame %d[%d] is" % (n, ii), res[ii]
+##        if 0: #bruce 060111 debug code (two places), safe but could be removed when not needed (tiny bit slow) [bruce 060111] ###@@@
+##            # maybe print deltas for one atom
+##            import runSim
+##            if runSim.debug_all_frames:
+##                ii = runSim.debug_all_frames_atom_index
+##                print "delta_frame %d[%d] is" % (n, ii), res[ii]
         return res
 
     def close_file(self):
