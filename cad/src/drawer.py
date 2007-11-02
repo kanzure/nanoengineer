@@ -1783,6 +1783,7 @@ def drawsurface(color, pos, radius, tm, nm):
 def drawLadder(endCenter1,  
                endCenter2,
                stepSize, 
+               glpaneScale,
                ladderWidth = 17.0,
                beamThickness = 2.0,
                beam1Color = None, 
@@ -1806,18 +1807,23 @@ def drawLadder(endCenter1,
     @param beam2Color: Color of beam2
     """
     
+    #Note: glPaneScale is not used for now. If this continues to be the case, 
+    # it will be removed from the method argument. 
+    
     #Note: The ladder needs to be always parallel to the screen. 
     #Perhaps need to use correct rotation. 
-
+    
+   
     unitVector = norm(endCenter2 - endCenter1)
     ladderLength = vlen(endCenter1 - endCenter2)
                     
     glDisable(GL_LIGHTING) 
     glPushMatrix()
-    glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2])      
+    glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2]) 
     pointOnAxis = V(0, 0, 0)
     ladderBeam1Point = V(0, 0.5*ladderWidth, 0)
     ladderBeam2Point = V(0, -0.5*ladderWidth, 0)
+    drawArrowHead(beam2Color, ladderBeam2Point, - unitVector)
     x = 0.0
     while x < ladderLength:
         drawPoint(stepColor, pointOnAxis)
@@ -1857,31 +1863,32 @@ def drawLadder(endCenter1,
                      width = beamThickness, 
                      isSmooth = True
                  )
+            
 
             drawline(stepColor, ladderBeam1Point, ladderBeam2Point)
             
+    drawArrowHead(beam1Color, ladderBeam1Point, unitVector)                       
     glPopMatrix()
-
-def drawArrowHead(color, glpaneScale, basePoint):
-    n = glpaneScale
-    arrowBase = n * 0.075 
-    arrowHeight = n * 0.35
-    lineWidth = 1.0
-    #Draw solid arrow heads
-    glPushMatrix() 
-    glDisable(GL_CULL_FACE)
-    glColor3fv(color)
-    #glColor3fv(lightblue)
+    
+def drawArrowHead(color, basePoint, unitVector):
+    arrowBase = 1.0
+    arrowHeight = 2.0
+    glPushMatrix()
     glTranslatef(basePoint[0],basePoint[1],basePoint[2])
-    glRotatef(90,0.0,1.0,0.0)	    
-
-    glePolyCone([[0, 0, -1], 
-                 [0, 0, 0], 
-                 [0, 0, arrowHeight], 
-                 [0, 0, arrowHeight+1]], 
-                 None, 
-                 [arrowBase, arrowBase, 0, 0])
-
+    glRotatef(180,0.0,0.0,0.0)
+    point1 = V(0, 0, 0)
+    point1 = point1 - unitVector*arrowHeight
+    point2 = V(0.0, arrowBase, 0.0)
+    point3 = V(0.0, - arrowBase, 0.0)
+    #Drawing it as a polygone doesn't work in some orientations. Don't know why!
+    #glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    #glBegin(GL_POLYGON)
+    #glVertex3fv(point1)
+    #glVertex3fv(point2)
+    #glVertex3fv(point3)
+    #glEnd()    
+    points = [point1, point2, point3]
+    drawLineLoop(color, points)      
     glPopMatrix()
 
 def drawline(color, pos1, pos2, dashEnabled = False, width = 1, isSmooth = False):
