@@ -513,11 +513,6 @@ class MovePropertyManager(Ui_MovePropertyManager):
         else:
             self.toggleRotationDeltaLabels(show = True)
 
-        if buttonText == 'ROTATEDEFAULT':
-            self.rotateAsUnitCB.show()
-        else:
-            self.rotateAsUnitCB.hide()
-
         self.parentMode.rotateOption = buttonText
 
 

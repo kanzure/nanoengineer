@@ -97,7 +97,6 @@ class Ui_MovePropertyManager( PM_Dialog ):
                          spanWidth    = True )
         
         
-        
         self.freeDragTranslateGroupBox = PM_GroupBox( inPmGroupBox )
         self._loadFreeDragTranslateGroupBox(self.freeDragTranslateGroupBox)
         
@@ -155,11 +154,6 @@ class Ui_MovePropertyManager( PM_Dialog ):
         self.transZButton = self.freeDragTranslateButtonGroup.getButtonById(4)
         self.transAlongAxisButton = \
             self.freeDragTranslateButtonGroup.getButtonById(5)
-        
-        inPmGroupBox.setStyleSheet(
-            self.freeDragTranslateButtonGroup._getStyleSheet())
-        
-        
         
         self.moveFromToButton = PM_ToolButton(
                     inPmGroupBox, 
@@ -323,6 +317,12 @@ class Ui_MovePropertyManager( PM_Dialog ):
                          setAsDefault = False,
                          spanWidth    = True )
         
+        self.rotateAsUnitCB = \
+            PM_CheckBox( inPmGroupBox,
+                         text         = 'Rotate As a Unit' ,
+                         widgetColumn = 0,
+                         state        = Qt.Checked )
+        
                
         self.freeDragRotateGroupBox = PM_GroupBox( inPmGroupBox )
         self._loadFreeDragRotateGroupBox(self.freeDragRotateGroupBox)
@@ -415,14 +415,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
         self.rotateZLabelRow = PM_LabelRow( inPmGroupBox,
                                             title = "",
                                             labelList = Z_ROW_LABELS )  
-        self.deltaThetaZ_lbl = self.rotateZLabelRow.labels[2]
-        
-        self.rotateAsUnitCB = \
-            PM_CheckBox( inPmGroupBox,
-                         text         = 'Rotate As a Unit' ,
-                         widgetColumn = 0,
-                         state        = Qt.Unchecked )
-                         
+        self.deltaThetaZ_lbl = self.rotateZLabelRow.labels[2]                        
             
             
     def _loadBySpecifiedAngleGroupBox(self, inPmGroupBox):
