@@ -22,24 +22,25 @@ docstrings, removed some obsolete commented-out code. (Committed 050510.)
 
 Bruce 050510 made some changes for "atomtypes" with their own bonding patterns.
 
-Bruce 071101 split class Elem into its own module.
+Bruce 071101 split class Elem into its own module, removed Singleton superclass,
+and split elements_data.py out of elements.py.
 
 TODO:
 
 In elements.py and Elem.py,
 modularize the creation of different kinds of elements,
 to help permit specialized modules and Elem/Atom subclasses
-for PAM3 and PAM5 (etc). (Should we define new Elem subclasses)
+for PAM3 and PAM5 (etc). (Should we define new Elem subclasses for them?)
 """
 
-# TODO: some imports may not be needed
-
-from VQT import V, A, norm
 from preferences import prefs_context
-from constants import DIAMOND_BOND_LENGTH
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 
 from Elem import Elem
+
+from elements_data import _defaultRad_Color
+from elements_data import _altRad_Color
+from elements_data import _mendeleev
 
 # ==
 
@@ -74,303 +75,41 @@ if debug_pref("Bonds: permit directional open bonds? (next session)",
 
     pass
     
-# == Elements, and periodic table
+# ==
 
-class Singleton(object):
-    """Base class of Singleton, each subclass will only create 1 single instance.
-    Note: If subclass has __init__(), it will be called multiple times whenever
-    you want to create an instance of the sub-class, although only the same
-    single instance will be returned.
+class _ElementPeriodicTable(object):
     """
-    _singletons = {}
-    def __new__(cls, *args, **kwds):
-        if not cls._singletons.has_key(cls):
-            cls._singletons[cls] = object.__new__(cls)
-        return cls._singletons[cls]
+    Represents a table of all possible elements (including pseudoelements)
+    that can be used in Atoms.
 
-class ElementPeriodicTable(Singleton):
-    """Implement all elements related properties and functionality. Only one instance
-    will be availabe for the whole application. It's better to have 'class Elem' as an
-    inner class, so user will not be able to create an element him/her-self, which
-    normally will cause trouble. By doing that, it makes our code more modular and
-    bugs more localized, easier to test. Whenever any element color/rad changes,
-    it will depend on the user who use the element to update its display---Huaicai 3/8/05
+    Normally a singleton, but I [bruce 071101] don't know whether that's
+    obligatory.
     """
-    # the formations of bonds -- standard offsets
-    uvec = norm(V(1,1,1))
-    tetra4 = uvec * A([[1,1,1], [-1,1,-1], [-1,-1,1], [1,-1,-1]])
-    tetra3 = uvec * A([[-1,1,-1], [-1,-1,1], [1,-1,-1]])
-    oxy2 = A([[-1,0,0], [0.2588, -0.9659, 0]])
-    tetra2 = A([[-1,0,0], [0.342, -0.9396, 0]])
-    straight = A([[-1,0,0], [1,0,0]])
-    flat = A([[-0.5,0.866,0], [-0.5,-0.866,0], [1,0,0]])
-    onebond = A([[1,0,0]]) # for use with valence-1 elements
-
-    # mark 060129. New default colors for Alpha 7.
-    _defaultRad_Color = {
-        "X": (1.1,  [0.8, 0.0, 0.0]),
-        "H" : (1.2,  [0.78, 0.78, 0.78]),
-        "He" : (1.4,  [0.42, 0.45, 0.55]),
-        "Li" : (4.0,  [0.0, 0.5, 0.5]),
-        "Be" : (3.0,  [0.98, 0.67, 1.0]),
-        "B" : (2.0,  [0.2, 0.2, 0.59]),
-        "C" : (1.84, [0.39, 0.39, 0.39]),
-        "N" : (1.55, [0.12, 0.12, 0.39]),
-        "O" : (1.74, [0.5, 0.0, 0.0]),
-        "F" : (1.65, [0.0, 0.39, 0.2]),
-        "Ne" : (1.82, [0.42, 0.45, 0.55]),
-        "Na" : (4.0,  [0.0, 0.4, 0.4]),
-        "Mg" : (3.0,  [0.88, 0.6, 0.9]),
-        "Al" : (2.5,  [0.5, 0.5, 1.0]),
-        "Si" : (2.25, [0.16, 0.16, 0.16]),
-        "P" : (2.11, [0.33, 0.08, 0.5]),
-        "S" : (2.11, [0.86, 0.59, 0.0]),
-        "Cl" : (2.03, [0.29, 0.39, 0.0]),
-        "Ar" : (1.88, [0.42, 0.45, 0.55]),
-        "K" : (5.0,  [0.0, 0.3, 0.3]),
-        "Ca" : (4.0,  [0.79, 0.55, 0.8]),
-        "Sc" : (3.7,  [0.417, 0.417, 0.511]),
-        "Ti" : (3.5,  [0.417, 0.417, 0.511]),
-        "V" : (3.3,  [0.417, 0.417, 0.511]),
-        "Cr" : (3.1,  [0.417, 0.417, 0.511]),
-        "Mn" : (3.0,  [0.417, 0.417, 0.511]),
-        "Fe" : (3.0, [0.417, 0.417, 0.511]),
-        "Co" : (3.0,  [0.417, 0.417, 0.511]),
-        "Ni" : (3.0,  [0.417, 0.417, 0.511]),
-        "Cu" : (3.0,  [0.417, 0.417, 0.511]),
-        "Zn" : (2.9,  [0.417, 0.417, 0.511]),
-        "Ga" : (2.7,  [0.6, 0.6, 0.8]),
-        "Ge" : (2.5,  [0.4, 0.45, 0.1]),
-        "As" : (2.2,  [0.6, 0.26, 0.7]),
-        "Se" : (2.1,  [0.78, 0.31, 0.0]),
-        "Br" : (2.0,  [0.0, 0.4, 0.3]),
-        "Kr" : (1.9,  [0.42, 0.45, 0.55]),
-        "Sb" : (2.2,  [0.6, 0.26, 0.7]),
-        "Te" : (2.1,  [0.9, 0.35, 0.0]),
-        "I" : (2.0,  [0.0, 0.5, 0.0]),
-        "Xe" : (1.9,  [0.4, 0.45, 0.55]),
-        
-        "Ax5" : (5.0, [0.4, 0.4, 0.8]),    # PAM5 DNA pseudo atom
-        "Ss5" : (4.0, [0.4, 0.8, 0.4]),    # PAM5 DNA pseudo atom
-        "Sj5" : (4.0, [0.4, 0.8, 0.8]),    # PAM5 DNA pseudo atom
-        "Pl5" : (3.2, [0.4, 0.1, 0.5]),    # PAM5 DNA pseudo atom
-        "Ae5" : (3.5, [0.4, 0.4, 0.8]),    # PAM5 DNA pseudo atom
-        "Pe5" : (3.0, [0.4, 0.1, 0.5]),    # PAM5 DNA pseudo atom
-        "Sh5" : (2.5, [0.4, 0.8, 0.4]),    # PAM5 DNA pseudo atom
-        "Hp5" : (4.0, [0.3, 0.7, 0.3]),    # PAM5 DNA pseudo atom
-        
-        "Ax3" : (4.5, [0.4, 0.4, 0.8]),    # PAM3 DNA pseudo atom
-        "Ss3" : (4.5, [0.4, 0.8, 0.4]),    # PAM3 DNA pseudo atom
-        "Sj3" : (4.5, [0.4, 0.8, 0.8]),    # PAM3 DNA pseudo atom
-        "Pl3" : (3.0, [0.4, 0.1, 0.5]),    # PAM3 DNA pseudo atom (unused)
-        "Ae3" : (4.5, [0.1, 0.1, 0.5]),    # PAM3 DNA pseudo atom
-        "Se3" : (4.5, [0.4, 0.8, 0.4]),    # PAM3 DNA pseudo atom
-        "Sh3" : (3.0, [0.6, 0.2, 0.6]),    # PAM3 DNA pseudo atom
-        "Hp3" : (4.5, [0.3, 0.7, 0.3]),    # PAM3 DNA pseudo atom
-        }
-      
-    _altRad_Color = {
-        "Al" : (2.050,),
-        "As" : (2.050,),
-        "B" :  (1.461,),
-        "Be" :  (1.930,),
-        "Br" :  ( 1.832,),
-        "C" : (1.431, [0.4588, 0.4588, 0.4588]),
-        "Ca" :  ( 1.274, ),
-        "Cl" :  ( 1.688,),
-        "Co" :  ( 1.970, ),
-        "Cr" :  ( 2.150,),
-        "Cu" :  ( 1.870,),
-        "F" :  ( 1.293,),
-        "Fe" :  ( 2.020,),
-        "Ga" :  ( 2.300,),
-        "Ge" : (1.980,),
-        "H" :  (1.135, [1.0, 1.0, 1.0]),
-        "I" :   ( 1.967,),
-        "K" :  ( 1.592,),
-        "Li" :  (  0.971,),
-        "Mg" :  ( 1.154,),
-        "Mn" :  (1.274,),
-        "N" :  ( 1.392,),
-        "Na" :  (1.287,),
-        "Ni" :  ( 1.920,),
-        "O" :  (1.322,),
-        "P" :  ( 1.784,),
-        "S" :  (1.741,),
-        "Sb" :  ( 2.200,),
-        "Se" :  (  1.881,),
-        "Si" :  ( 1.825, [0.4353, 0.3647, 0.5216]),
-        "Ti" :  ( 2.300,)
-        }
-                     
-    # Format of _mendeleev:
-    # Symbol, Element Name, NumberOfProtons, atomic mass in 10-27 kg,
-    # then a list of atomtypes, each of which is described by
-    # [ open bonds, covalent radius (pm), atomic geometry, hybridization ]
-    # (bruce adds: not sure about cov rad units; table values are 100 times this comment's values)
-
-    # covalent radii from Gamess FF [= means double bond, + means triple bond]
-    # Biassed to make bonds involving carbon come out right
-    ## Cl - 1.02
-    ## H -- 0.31
-    ## F -- 0.7
-    ## C -- 0.77 [compare to DIAMOND_BOND_LENGTH (1.544) in constants.py [bruce 051102 comment]]
-    #### 1.544 is a bond length, double the covalent radius, so pretty consistent - wware 060518
-    ## B -- 0.8
-    ## S -- 1.07
-    ## P -- 1.08
-    ## Si - 1.11
-    ## O -- 0.69
-    ## N -- 0.73
-
-    ## C= - 0.66
-    ## O= - 0.6
-    ## N= - 0.61
-
-    ## C+ - 0.6
-    ## N+ - 0.56
-
-    # numbers changed below to match -- Josh 13Oct05
-    # [but this is problematic; see the following string-comment -- bruce 051014]
-    """
-    [bruce 051014 revised the comments above, and adds:]
-
-    Note that the covalent radii below are mainly used for two things: drawing bond
-    stretch indicators, and depositing atoms. There is a basic logic bug for both
-    uses: covalent radii ought to depend on bond type, but the table below is in
-    terms of atom type, and the atomtype only tells you which combinations of bond
-    types would be correct on an atom, not which bond is which. (And at the time an
-    atom is deposited, which bond is which is often not known, especially by the
-    current code which always makes single bonds.)
-
-    This means that no value in the table below is really correct (except for
-    atomtypes which imply all bonds should have the same type, i.e. for each
-    element's first atomtype), and even if we just want to pick the best compromise
-    value, it's not clear how best to do that.
-
-    For example, a good choice for C(sp2) covalent radius (given that it's required
-    to be the same for all bonds) might be one that would position the C between
-    its neighbors (and position the neighbors themselves, if they are subsequently
-    deposited) so that when its bond types are later changed to one of the legal
-    combos (112, 1aa, or ggg), and assuming its position is then adjusted, that the
-    neighbor atom positions need the least adjustment. This might be something like
-    an average of the bond lengths... so it's good that 71 (in the table below) is
-    between the single and double bond values of 77 and 66 (listed as 0.77 and 0.66
-    in the comment above), though I'm not aware of any specific formula having been
-    used to get 71. Perhaps we should adjust this value to match graphite (or
-    buckytubes if those are different), but this has probably not been done.
-
-    The hardest case to accomodate is the triple bond radius (C+ in the table
-    above), since this exists on C(sp) when one bond is single and one is triple
-    (i.e. -C+), so the table entry for C(sp) could be a compromise between those
-    values, but might as well instead just be the double bond value, since =C= is
-    also a legal form for C(sp). The result is that there is no place in this table
-    to put the C+ value.
-    """
-    _mendeleev = [("X",  "Singlet",      0,   0.001,  [[1, 0, None, 'sp']]), #bruce 050630 made X have atomtype name 'sp'; might revise again later
-                  ("H",  "Hydrogen",     1,   1.6737, [[1, 31, onebond]]),
-                  ("He", "Helium",       2,   6.646,  None),
-                  ("Li", "Lithium",      3,  11.525,  [[1, 152, None]]),
-                  ("Be", "Beryllium",    4,  14.964,  [[2, 114, None]]),
-                  ("B",  "Boron",        5,  17.949,  [[3, 80, flat, 'sp2']]), #bruce 050706 added 'sp2' name, though all bonds are single
-                  ("C",  "Carbon",       6,  19.925,  [[4, DIAMOND_BOND_LENGTH / 2 * 100, tetra4, 'sp3'],
-                                                    #bruce 051102 replaced 77 with constant expr, which evals to 77.2
-                                                       [3, 71, flat, 'sp2'],
-                                                       [2, 66, straight, 'sp'], # (this is correct for =C=, ie two double bonds)
-                                                    ## [1, 60, None] # what's this? I don't know how it could bond... removing it. [bruce 050510]
-                                                      ]),
-                  ("N",  "Nitrogen",     7,  23.257,  [[3, 73, tetra3, 'sp3'],
-                                                       [2, 61, flat[:2], 'sp2'], # bruce 050630 replaced tetra2 with flat[:2]
-                                                     # josh 0512013 made this radius 61, but this is only correct for a double bond,
-                                                     # whereas this will have one single and one double bond (or two aromatic bonds),
-                                                     # so 61 is probably not the best value here... 67 would be the average of single and double.
-                                                     # [bruce 051014]
-                                                       [1, 56, onebond, 'sp'],
-                                                       [3, 62, flat, 'sp2(graphitic)'],
-                                                     # this is just a guess! (for graphitic N, sp2(??) with 3 single bonds) (and the 62 is made up)
-                                                      ]),
-                  ("O",  "Oxygen",       8,  26.565,  [[2, 69, oxy2, 'sp3'],
-                                                       [1, 60, onebond, 'sp2']]), # sp2?
-                  ("F",  "Fluorine",     9,  31.545,  [[1, 70, onebond]]),
-                  ("Ne", "Neon",        10,  33.49,   None),
-                  ("Na", "Sodium",      11,  38.1726, [[1, 186, None]]),
-                  ("Mg", "Magnesium",   12,  40.356,  [[2, 160, None]]),
-                  ("Al", "Aluminum",    13,  44.7997, [[3, 143, flat]]),
-                  ("Si", "Silicon",     14,  46.6245, [[4, 111, tetra4]]),
-                  ("P",  "Phosphorus",  15,  51.429,  [[3, 108, tetra3]]),
-                  ("S",  "Sulfur",      16,  53.233,  [[2, 107, tetra2, 'sp3'],
-                                                       [1, 88, onebond, 'sp2']]), #bruce 050706 added this, and both names; length chgd by Josh
-                  ("Cl", "Chlorine",    17,  58.867,  [[1, 102, onebond]]),
-                  ("Ar", "Argon",       18,  66.33,   None),
-                  ("K",  "Potassium",   19,  64.9256, [[1, 231, None]]),
-                  ("Ca", "Calcium",     20,  66.5495, [[2, 197, tetra2]]),
-                  ("Sc", "Scandium",    21,  74.646,  [[3, 160, tetra3]]),
-                  ("Ti", "Titanium",    22,  79.534,  [[4, 147, tetra4]]),
-                  ("V",  "Vanadium",    23,  84.584,  [[5, 132, None]]),
-                  ("Cr", "Chromium",    24,  86.335,  [[6, 125, None]]),
-                  ("Mn", "Manganese",   25,  91.22,   [[7, 112, None]]),
-                  ("Fe", "Iron",        26,  92.729,  [[3, 124, None]]),
-                  ("Co", "Cobalt",      27,  97.854,  [[3, 125, None]]),
-                  ("Ni", "Nickel",      28,  97.483,  [[3, 125, None]]),
-                  ("Cu", "Copper",      29, 105.513,  [[2, 128, None]]),
-                  ("Zn", "Zinc",        30, 108.541,  [[2, 133, None]]),
-                  ("Ga", "Gallium",     31, 115.764,  [[3, 135, None]]),
-                  ("Ge", "Germanium",   32, 120.53,   [[4, 122, tetra4]]),
-                  ("As", "Arsenic",     33, 124.401,  [[5, 119, tetra3]]),
-                  ("Se", "Selenium",    34, 131.106,  [[6, 120, tetra2]]),
-                  ("Br", "Bromine",     35, 132.674,  [[1, 119, onebond]]),
-                  ("Kr", "Krypton",     36, 134.429,  None),
-
-                  ("Sb", "Antimony",    51, 124.401,  [[3, 119, tetra3]]),
-                  ("Te", "Tellurium",   52, 131.106,  [[2, 120, tetra2]]),
-                  ("I",  "Iodine",      53, 132.674,  [[1, 119, onebond]]),
-                  ("Xe", "Xenon",       54, 134.429,  None),
-
-                  # B-DNA PAM5 pseudo atoms (see also _DIRECTIONAL_BOND_ELEMENTS)
-                  ("Ax5", "PAM5-Axis", 200, 1.0, [[4, 200, tetra4]]),
-                  ("Ss5", "PAM5-Sugar", 201, 1.0, [[3, 210, flat]]),
-                  ("Pl5", "PAM5-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
-                  ("Sj5", "PAM5-Sugar-Junction", 203, 1.0, [[3, 210, flat]]),
-                  ("Ae5", "PAM5-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
-                  ("Pe5", "PAM5-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
-                  ("Sh5", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email
-                  ("Hp5", "PAM5-Hairpin", 207, 1.0, [[2, 210, tetra2]]),
-                    
-                  # B-DNA PAM3 v2 pseudo atoms (see also _DIRECTIONAL_BOND_ELEMENTS)
-                  ("Ax3", "PAM3-Axis", 300, 1.0, [[4, 200, tetra4]]),
-                  ("Ss3", "PAM3-Sugar", 301, 1.0, [[3, 210, flat]]),
-                  ("Pl3", "PAM3-Phosphate", 302, 1.0, [[2, 210, tetra2]]),
-                  ("Sj3", "PAM3-Sugar-Junction", 303, 1.0, [[3, 210, flat]]),
-                  ("Ae3", "PAM3-Axis-End", 304, 1.0, [[3, 200, tetra3]]),
-                  ("Se3", "PAM3-Sugar-End", 305, 1.0, [[2, 210, tetra2]]),
-                  ("Sh3", "PAM3-Sugar-Hydroxyl", 306, 1.0, [[1, 210, None, 'sp']]),
-                  ("Hp3", "PAM3-Hairpin", 307, 1.0, [[2, 210, tetra2]])
-                ]
-    _periodicTable = {}
-    _eltName2Num = {}
-    _eltSym2Num = {}
-                  
     def __init__(self):
-        if  not self._periodicTable:
-            self._createElements(self._mendeleev)
-            # bruce 050419 add public attributes to count changes
-            # to any element's color or rvdw; the only requirement is that
-            # each one changes at least once per user event which
-            # changes their respective attributes for one or more elements.
-            self.color_change_counter = 1
-            self.rvdw_change_counter = 1
+        self._periodicTable = {} # maps elem.eltnum to elem (elem is an instance of Elem)
+        self._eltName2Num = {} # maps elem.name to elem.eltnum
+        self._eltSym2Num = {} # maps elem.symbol to elem.eltnum
+        
+        self._createElements(_mendeleev)
+        # bruce 050419 add public attributes to count changes
+        # to any element's color or rvdw; the only requirement is that
+        # each one changes at least once per user event which
+        # changes their respective attributes for one or more elements.
+        self.color_change_counter = 1
+        self.rvdw_change_counter = 1
         return
            
     def _createElements(self, elmTable):
-        """Create elements for all member of <elmTable>.
+        """
+        Create elements for all member of <elmTable>.
         Use preference value of each element if available, otherwise, use default value.  
         <Param> elmTable: a list of elements needed to create
         """
         prefs = prefs_context()
         for elm in elmTable:
-            rad_color = prefs.get(elm[0], self._defaultRad_Color[elm[0]])
+            rad_color = prefs.get(elm[0], _defaultRad_Color[elm[0]])
             el = Elem(elm[2], elm[0], elm[1], elm[3], rad_color[0], rad_color[1], elm[4])
-            self. _periodicTable[el.eltnum] = el
+            self._periodicTable[el.eltnum] = el
             self._eltName2Num[el.name] = el.eltnum
             self._eltSym2Num[el.symbol] = el.eltnum
             if elm[0] in _DIRECTIONAL_BOND_ELEMENTS: #bruce 071015
@@ -391,11 +130,11 @@ class ElementPeriodicTable(Singleton):
                 rad_color = elSym2rad_color[e_symbol]
                 elm.rvdw = rad_color[0]
                 if len(rad_color) == 1:
-                    rad_color = self._defaultRad_Color[e_symbol]
+                    rad_color = _defaultRad_Color[e_symbol]
                 elm.color = rad_color[1]
             except:
                 if changeNotFound:
-                    rad_color = self._defaultRad_Color[e_symbol]
+                    rad_color = _defaultRad_Color[e_symbol]
                     elm.rvdw = rad_color[0]
                     elm.color = rad_color[1]
                 pass
@@ -403,12 +142,12 @@ class ElementPeriodicTable(Singleton):
     
     def loadDefaults(self):
         """Update the elements properties in the _periodicalTable as that from _defaultRad_Color"""
-        self. _loadTableSettings(self._defaultRad_Color)
+        self. _loadTableSettings(_defaultRad_Color)
         
     def loadAlternates(self):
         """Update the elements properties in the _periodicalTable as that from _altRad_Color,
         if not find, load it from default."""
-        self. _loadTableSettings(self._altRad_Color)
+        self. _loadTableSettings(_altRad_Color)
         
     def deepCopy(self):
         """Deep copy the current setting of elements rvdw/color,
@@ -516,14 +255,13 @@ class ElementPeriodicTable(Singleton):
         prefs.update(elms)
         #print "__del__() is called now."
 
-    pass # end of class ElementPeriodicTable
+    pass # end of class _ElementPeriodicTable
 
 # ==
 
-# Some global definitions -- it's not necessary, but currently I don't want
-# to change a lot of code [Huaicai 3/9/05]
+# Some global definitions
 
-PeriodicTable  = ElementPeriodicTable()
+PeriodicTable  = _ElementPeriodicTable()
 
 Hydrogen = PeriodicTable.getElement(1)
 Carbon = PeriodicTable.getElement(6)
@@ -535,19 +273,16 @@ Singlet = PeriodicTable.getElement(0)
 # == test code
 
 if __name__ == '__main__':
-        pt1 = ElementPeriodicTable()
-        pt2 = ElementPeriodicTable()
-        
-        assert pt1 == pt2
-        
-        assert pt1.getElement('C') == pt2.getElement(6)
-        assert pt2.getElement('Oxygen') == pt1.getElement(8)
-        
-        print pt1.getElement(6)
-        print pt1.getElement(18)
-        
-        print pt1.getElemSymbol(12)
-        
-        pt1.deepCopy()
+    pt1 = _ElementPeriodicTable()
+
+    assert pt1.getElement('C') == pt1.getElement(6)
+    assert pt1.getElement('Oxygen') == pt1.getElement(8)
+
+    print pt1.getElement(6)
+    print pt1.getElement(18)
+
+    print pt1.getElemSymbol(12)
+
+    pt1.deepCopy() # UNTESTED since Singleton superclass removed
 
 # end
