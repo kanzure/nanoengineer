@@ -1783,7 +1783,6 @@ def drawsurface(color, pos, radius, tm, nm):
 def drawLadder(endCenter1,  
                endCenter2,
                stepSize, 
-               glpaneScale,
                ladderWidth = 17.0,
                beamThickness = 2.0,
                beam1Color = None, 
@@ -1805,15 +1804,9 @@ def drawLadder(endCenter1,
     @type beamThickness: float
     @param beam1Color: Color of beam1
     @param beam2Color: Color of beam2
-    """
-    
-    #Note: glPaneScale is not used for now. If this continues to be the case, 
-    # it will be removed from the method argument. 
-    
+    """    
     #Note: The ladder needs to be always parallel to the screen. 
     #Perhaps need to use correct rotation. 
-    
-   
     unitVector = norm(endCenter2 - endCenter1)
     ladderLength = vlen(endCenter1 - endCenter2)
                     
