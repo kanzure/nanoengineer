@@ -1566,6 +1566,13 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # note that no changes or invals are needed for 0 atoms.
             return
 
+        # record the fact that the model will have changed by the time we return
+        # [bruce 071102 -- fixes bug 2576 and perhaps analogous bugs;
+        #  note that traditionally these calls have been left up to the
+        #  user event handlers, so most of the Node changing methods that
+        #  ought to do them probably don't do them.]
+        self.changed() # Node method
+
         # imitate the recomputes done by _recompute_atpos
         self.atpos = self.basecenter + self.quat.rot(self.basepos) # inlines base_to_abs
         self.set_atom_posns_from_atpos( self.atpos) #bruce 060308
