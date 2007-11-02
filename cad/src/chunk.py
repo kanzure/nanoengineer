@@ -99,8 +99,7 @@ import platform
 
 from icon_utilities import imagename_to_pixmap
 
-# bonds, chem, and chunk form an import cycle
-import bonds
+import bonds # TODO: import specific functions, since no longer an import cycle
 
 from elements import Singlet
 

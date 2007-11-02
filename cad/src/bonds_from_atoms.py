@@ -153,9 +153,9 @@ atomtype fixed and permit only the number of bonds it allows.
 
 Currently max_atom_bonds() is looking at
 atom.element.atomtypes[0].numbonds to determine how many bonds are OK
-for this atom. That presumes the layout of
-ElementPeriodicTable._mendeleev in elements.py will be consistent, but
-it would be better to take an explicit maximum.
+for this atom. That presumes the first atomtype permits the most bonds,
+which is presently [and still, 071101] true, but it would be better
+to take an explicit maximum.
 
 So we DO want the maximum number of bonds for ANY atomtype for this
 element, with the presumption that somebody else will later

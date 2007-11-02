@@ -18,7 +18,7 @@ TODO:
 In elements.py and Elem.py,
 modularize the creation of different kinds of elements,
 to help permit specialized modules and Elem/Atom subclasses
-for PAM3 and PAM5 (etc). (Should we define new Elem subclasses)
+for PAM3 and PAM5 (etc). (Should we define new Elem subclasses for them?)
 """
 
 from atomtypes import AtomType
@@ -36,8 +36,8 @@ class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since t
     
     def __init__(self, eltnum, sym, name, mass, rvdw, color, bn):
         """
-        called from a table in the source for class ElementPeriodicTable;
-        should not be called otherwise.
+        Note: this should only be called by class _ElementPeriodicTable
+        in elements.py.
 
         eltnum = atomic number (e.g. H is 1, C is 6); for Singlet this is 0
         sym = (e.g.) "H"
