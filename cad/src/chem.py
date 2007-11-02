@@ -1,9 +1,12 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-chem.py -- class Atom, for single atoms, and related code
+chem.py -- class Atom, and related code. An instance of Atom represents one
+atom, pseudoatom, or bondpoint in 3d space, with a list of bonds and
+jigs, and an optional display mode.
 
-$Id$
-
+@author: Josh
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -15,27 +18,37 @@ History:
 
 - elements.py was split out of this module on 041221
 
-- class Bond and associated code was moved into new file bonds.py by bruce 050502
+- class Bond and associated code moved into new file bonds.py by bruce 050502
 
-- bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
-  for atoms, molecules, elements, parts, assys, atomtypes in many places (not all commented individually); 050513
+- bruce optimized some things, including using 'is' and 'is not' rather than
+  '==' and '!=' for atoms, molecules, elements, parts, assys, atomtypes in many
+  places (not all commented individually); 050513
 
-- bruce 050610 renamed class atom to class Atom; for now, the old name still works.
-  The name should gradually be changed in all code (as of now it is not changed anywhere,
-   not even in this file except for creating the class), and then the old name should be removed. ###@@@
+- bruce 050610 renamed class atom to class Atom; for now, the old name still
+  works. The name should gradually be changed in all code (as of now it is not
+  changed anywhere, not even in this file except for creating the class), and
+  then the old name should be removed. ###@@@
 
-- bruce 050610 changing how atoms are highlighted during Build mode mouseover. ###@@@ might not be done
+- bruce 050610 changing how atoms are highlighted during Build mode mouseover.
+  ###@@@ might not be done
 
 - bruce 050901 used env.history in some places.
 
-- bruce 050920 removing laxity in valence checking for carbomeric bonds, now that mmp file supports them.
+- bruce 050920 removing laxity in valence checking for carbomeric bonds, now
+  that mmp file supports them.
 
-- bruce 060308 rewriting Atom and Chunk so that atom positions are always stored in the atom
-  (eliminating Atom.xyz and Chunk.curpos, adding Atom._posn, eliminating incremental update of atpos/basepos).
-  Motivation is to make it simpler to rewrite high-frequency methods in Pyrex. 
+- bruce 060308 rewriting Atom and Chunk so that atom positions are always stored
+  in the atom (eliminating Atom.xyz and Chunk.curpos, adding Atom._posn,
+  eliminating incremental update of atpos/basepos). One motivation is to make it
+  simpler to rewrite high-frequency methods in Pyrex.
 
+TODO:
+
+Subclasses of Atom (e.g. for PAM3 pseudoatoms or even strand atoms) are being
+considered. One issue to check is whether Undo hardcodes the classname 'Atom'
+and will need fixing to work properly for subclasses with different names.
+[bruce 071101 comment]
 """
-__author__ = "Bruce"
 
 import math
 import string
@@ -52,15 +65,11 @@ from elements import Singlet
 from elements import Hydrogen
 from elements import PeriodicTable
 
-# bonds.py and chem.py form a two element import cycle, which could
-# ordinarily be broken by saying "import bonds" here, but there are
-# classes here which use bonds as an instance variable.
-import bonds as bondsImportKluge
+from bonds import bonds_mmprecord, bond_copied_atoms, bond_atoms
 
 import bond_updater
 
 # chunk and chem form a two element import cycle.
-# bonds, chem, and chunk form an import cycle.
 import chunk
 
 from VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
@@ -1791,7 +1800,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         bondrecords.sort() # by valence
         for valence, atomcodes in bondrecords:
             assert len(atomcodes) > 0
-            mapping.write( bondsImportKluge.bonds_mmprecord( valence, atomcodes ) + "\n")
+            mapping.write( bonds_mmprecord( valence, atomcodes ) + "\n")
         for bond in bonds_with_direction:
             mapping.write( bond.mmprecord_bond_direction(self, mapping) + "\n") #bruce 070415
         return
@@ -2194,7 +2203,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         numol = self.molecule
         x = atom('X', b.ubp(a), numol) ###k verify atom.__init__ makes copy of posn, not stores original (tho orig ok if never mods it)
         na = self ## na = ndix[a.key]
-        bondsImportKluge.bond_copied_atoms(na, x, origbond, origatom) # same properties as origbond... sensible in all cases?? ##k
+        bond_copied_atoms(na, x, origbond, origatom) # same properties as origbond... sensible in all cases?? ##k
         return
         
     def unbond(self, b, make_bondpoint = True):
@@ -2267,7 +2276,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             print "debug_1779: atom.unbond on %r is making X" % self
         x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
         #bruce 050727 new feature: copy the bond type from the old bond (being broken) to the new open bond that replaces it
-        bondsImportKluge.bond_copied_atoms( self, x, b, self)
+        bond_copied_atoms( self, x, b, self)
         ## self.molecule.bond(self, x) # invals mol as needed
         return x # new feature, bruce 041222
 
@@ -2895,30 +2904,36 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     #bruce 050511 added atomtype arg  ###@@@ callers should pass atomtype
     def Transmute(self, elt, force = False, atomtype = None): 
-        """        
-        Transmutes atom into a different element, unless it is a singlet.
+        """
+        (TODO: clean up this docstring.)
         
-        If this is a real atom, change its element type to I{elt} and its 
-        atomtype to the I{atomtype} object passed, or if None is passed to 
-        elt's default atomtype or self's existing one (not sure which!###@@@) --
-        no, to the best one given the number of real bonds, or real and open
-        bonds [maybe? 050707] -- and replace its bondpoints (if any) with new
-        ones (if any are needed) to match the desired number of bonds for the
-        new element/atomtype.
+        Transmute self into a different element, unless it is a singlet.
         
-        If self is a singlet, don't transmute it.
+        If this is a real atom, change its element type to I{elt} (which
+        should not be Singlet unless precautions listed below are taken)
+        and its atomtype to the I{atomtype} object passed, or if None is
+        passed as atomtype, to elt's default atomtype or self's existing one
+        (not sure which!###@@@) -- no, to the best one given the number of
+        real bonds, or real and open bonds [maybe? 050707] -- and replace
+        its bondpoints (if any) with new ones (if any are needed) to match
+        the desired number of bonds for the new element/atomtype.
+        
+        If self is a singlet, don't transmute it. (But this is not an error.)
         
         [As of 050511 before atomtype arg added, new atom type is old one if
         elt is same and old one already correct, else is default atom type. 
         This needs improvement. ###@@@]
         
         Never remove real bonds, even if there are too many. Don't change
-        bond lengths (except to replaced bondpoints) or atom positions.
+        bond lengths (except in new open bonds created when replacing
+        bondpoints) or atom positions.
+        
         If there are too many real bonds for the new element type, refuse
         to transmute unless force is True.
         
-        @param elt: The new element to transmute this atom into. Singlets
-                    are not transmuted.
+        @param elt: The new element to transmute this atom (self) into, if
+                    self is not a bondpoint. elt must not be Singlet unless
+                    the caller has checked certain conditions documented below.
         @type  elt: L{Elem}
         
         @param force: If there are too many real bonds for the new element 
@@ -2931,18 +2946,29 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         @type  atomtype: L{AtomType}
         
         @note: Does all needed invalidations.
+
+        @note: If elt is Singlet (bondpoint), the caller must be sure that self
+               has exactly one bond, that self is in the same chunk as its
+               neighbor atom, and that the neighbor atom is not a bondpoint
+               (aka singlet), or serious but hard-to-notice bugs will ensue.
+               In practice, this is usually only safe when self was a bondpoint
+               earlier in the same user operation, and was temporarily transmuted
+               to something else, and nothing happened in the meantime that
+               could have changed those conditions. The caller must also not
+               mind creating an open bond with a nonstandard length, since
+               Transmute does not normalize open bond length as is done when
+               they are created normally.
         
         @attention: This method begins with a capital letter. So that it 
-                    conforms to our coding standards, I will renaming it
-                    to transmute() in the near future (and fixing callers).
-                    This docstring needs to be reviewed by Bruce. Here is a
-                    note to himself I moved here:
-                    "###@@@ review semantics/docstring for atomtype"
-                    
-                    - Mark 2007-10-21
+                    conforms to our coding standards, I will rename it
+                    in the near future (and fix callers). - Mark 2007-10-21
+                    (But the new name can't be "transmute", since that
+                     would be too hard to search for. -- bruce 071101)
         """
-        # Singlets should never be transmuted. Doing so causes bugs. - mark
         if self.element is Singlet:
+            # Note: some callers depend on this being a noop,
+            # including the user Transmute operation, which calls this on
+            # every atom in a chunk, including bondpoints.
             return
         if atomtype is None:
             if self.element is elt and \
@@ -2994,7 +3020,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
 
     def Transmute_selection(self, elt): #bruce 070412; could use review for appropriate level, error handling, etc
-        """[this may be a private method for use when making our cmenu;
+        """
+        [this may be a private method for use when making our cmenu;
         if not, it needs more options and a better docstring.]
         Transmute as many as possible of the selected atoms to elt.
         """
@@ -3149,8 +3176,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             pos = self.posn()
             mol = self.molecule
             for dp in atype.bondvectors:
-                x = atom('X', pos+r*dp, mol)
-                bondsImportKluge.bond_atoms(self,x) ###@@@ set valence? or update it later?
+                x = atom('X', pos + r * dp, mol)
+                bond_atoms(self, x) ###@@@ set valence? or update it later?
         return
     
     def make_bondpoints_when_1_bond(self): # by josh, with some comments and mods by bruce
@@ -3249,7 +3276,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 q = rq + q - rq + spin * spinsign
                 xpos = pos + q.rot(r)
                 x = atom('X', xpos, mol)
-                bondsImportKluge.bond_atoms(self,x)
+                bond_atoms(self, x)
         return
         
     def make_bondpoints_when_2_bonds(self):
@@ -3283,8 +3310,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         mol = self.molecule
         for q in atype.quats[1:]:
             q = rq + q - rq + tw
-            x = atom('X', pos+q.rot(r), mol)
-            bondsImportKluge.bond_atoms(self,x)
+            x = atom('X', pos + q.rot(r), mol)
+            bond_atoms(self, x)
         return
 
     def make_bondpoints_when_3_bonds(self):
@@ -3307,20 +3334,20 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             s3pos = self.bonds[2].ubp(self)
             opos = (s1pos + s2pos + s3pos)/3.0
             try:
-                assert vlen(pos-opos) > 0.001
-                dir = norm(pos-opos)
+                assert vlen(pos - opos) > 0.001
+                dir = norm(pos - opos)
             except:
                 # [bruce 041215:]
                 # fix unreported unverified bug (self at center of its neighbors):
                 # [bruce 050716 comment: one time this can happen is when we change atomtype of some C in graphite to sp3]
                 if platform.atom_debug:
                     print "atom_debug: fyi: self at center of its neighbors (more or less) while making singlet", self, self.bonds
-                dir = norm(cross(s1pos-pos,s2pos-pos))
+                dir = norm(cross(s1pos - pos, s2pos - pos))
                     # that assumes s1 and s2 are not opposite each other; #e it would be safer to pick best of all 3 pairs
-            opos = pos + atype.rcovalent*dir
+            opos = pos + atype.rcovalent * dir
             mol = self.molecule
             x = atom('X', opos, mol)
-            bondsImportKluge.bond_atoms(self,x)
+            bond_atoms(self, x)
         return
 
     pass # end of class Atom
@@ -3353,7 +3380,8 @@ def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype 
 # ==
 
 def move_alist_and_snuggle(alist, newPositions):
-    """Move the atoms in alist to the new positions in the given array or sequence
+    """
+    Move the atoms in alist to the new positions in the given array or sequence
     (which must have the same length);
     then for any singlets in alist, correct their positions using Atom.snuggle.
        WARNING: it would be wrong to call this on several alists in a row if they might overlap
