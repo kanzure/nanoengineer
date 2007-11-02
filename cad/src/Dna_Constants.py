@@ -8,7 +8,7 @@ associated files).
 
 @author: Mark Sims
 @version: $Id$
-@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 @see: References:
       - U{The Standard IUB codes used in NanoEngineer-1
@@ -22,8 +22,8 @@ History:
 """
 __author__ = 'mark'
 
-import math
-from constants import strandColorList
+from constants import purple, brass, steelblue, orange, darkgray, lightblue
+from constants import darkorange, violet, copper, olive, gray
 
 basesDict = { 'A':{'Name':'Adenine',  'Complement':'T', 'Color':'darkorange' },
               'C':{'Name':'Cytosine', 'Complement':'G', 'Color':'cyan'       },
@@ -51,29 +51,44 @@ dnaDict = { 'A-DNA':{'DuplexRise':3.391},
             'B-DNA':{'DuplexRise':3.180},
             'Z-DNA':{'DuplexRise':3.715} }
 
-strand_color_counter = 0
-
 # Common DNA helper functions. ######################################
+
+# for getNextStrandColor:
+
+# _strandColorList is used for assigning a color to a new strand created
+# by breaking an existing strand.
+# Do not use the following colors in _strandColorList: 
+#   - white/lightgray (reserved for axis)
+#   - black (reserved as a default color for scaffold strand)
+#   - yellow (used for hover highlighting)
+#   - red (used as delete highlight color)
+#   - green (reserved for selection color)
+_strandColorList = [ purple, brass, steelblue, orange, darkgray, lightblue,
+                    darkorange, violet, copper, olive, gray]
+
+_strand_color_counter = 0
 
 def getNextStrandColor(currentColor = None):
     """
-    Return a color to assign a strand guaranteed to be different than
-    its current color.
+    Return a color to assign to a strand
+    which is guaranteed to be different than
+    currentColor (which is typically that strand's
+    current color).
     
-    @param currentColor: The current color of the strand.
+    @param currentColor: The color to avoid returning,
+                         or None if the next color is ok.
     @type  currentColor: RGB tuple
     
     @return: New color.
     @rtype: RGB tuple
     """
-    global strand_color_counter
-    _clist_length = len(strandColorList)
-    r, i = math.modf(strand_color_counter / _clist_length)
-    _strand_color_index = int(strand_color_counter - (i * _clist_length))
-    _new_color = strandColorList[_strand_color_index]
-    strand_color_counter += 1
+    global _strand_color_counter
+    _new_color = _strandColorList[_strand_color_counter % len(_strandColorList)]
+    _strand_color_counter += 1
     if _new_color == currentColor:
         return getNextStrandColor()
+        # Note: this won't equal currentColor, since successive colors
+        # in _strandColorList are always different.
     return _new_color
 
 def getDuplexRise(conformation):
