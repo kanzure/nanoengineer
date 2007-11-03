@@ -91,13 +91,20 @@ from constants import white
 from constants import green
 from constants import red
 
+from exprs.reload import exprs_globals
+    #bruce 071102 renamed vv -> exprs_globals and moved it out of this file,
+    # to avoid import cycle
+
+exprs_globals.reload_counter += 1
+    # the first time we load testdraw, this changes that counter
+    # from -1 to 0; when we reload it, it changes it to 1, 2, etc;
+    # thus the counter counts the number of reloads of testdraw.
+
 ### a lot of the following constants are probably obs here, redundant with ones now defined in exprs module [070408 comment]
 
 printdraw = False # debug flag
 
 from texture_fonts import ensure_courierfile_loaded
-
-class attrholder: pass
 
 lightblue = ave_colors( 0.2, blue, white)
 lightgreen = ave_colors( 0.2, green, white)
@@ -127,21 +134,10 @@ trans_green = translucent_color(green)
 # It just needs to get into the stencil and depth buffers like the plain object, so we don't worry whether we're over other objects
 # during the mouseover.)
 
-
-try:
-    vv
-    vv.reload_counter += 1  # note: this is public, used by other modules
-##    vv.state
-except:
-    vv = attrholder()
-    vv.reload_counter = 0
-##    vv.state = {} # prototype of a place to store persistent state (presuming some persistent way of allocating keys, eg hardcoding)
-##    ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
-
 # ==
 
 if platform.atom_debug:
-    print "\ntestdraw: %d reloads" % vv.reload_counter
+    print "\ntestdraw: %d reloads" % exprs_globals.reload_counter
 
 def end_of_Enter(glpane):
     # called by testmode.Enter after it does everything else including super Enter; was never called before 070103
@@ -225,16 +221,18 @@ def drawtest0(glpane):
     # load the texture for the courier bitmap font; params incl tex_name are in private texture_fonts.vv object
     ensure_courierfile_loaded() # used to be done inside drawtest1
 
-    vv.start_time = time.time()
+    exprs_globals.start_time = time.time()
         # anything that gets drawn can compare this with realtime
         # to get time so far in this frame, but it's up to it to be drawn
         # near the end of what we draw in the frame
     
     try:
-        if printdraw: print "drawfunc (redraw %d)" % env.redraw_counter
+        if printdraw:
+            print "drawfunc (redraw %d)" % env.redraw_counter
         drawtest1(glpane)
     except:
-        print_compact_traceback("exception in testdraw.py's drawfunc call ignored: ") # this happens sometimes
+        # this happens sometimes
+        print_compact_traceback("exception in testdraw.py's drawfunc call ignored: ")
     return
 
 def drawtest1(glpane):

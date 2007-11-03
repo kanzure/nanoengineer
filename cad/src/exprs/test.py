@@ -139,7 +139,7 @@ from utilities.Comparison import same_vals
 from constants import purple, white, blue, red, orange, green, gray, pink, yellow, black, ave_colors, noop
 from prefs_constants import displayOriginAxis_prefs_key
 from texture_fonts import courierfile
-from testdraw import vv
+from exprs.reload import exprs_globals
 
 from exprs.Exprs import format_Expr, getattr_Expr, list_Expr, mod_Expr, not_Expr, eval_Expr, call_Expr, is_Expr
 from exprs.Exprs import local_ipath_Expr
@@ -1414,7 +1414,7 @@ testexpr_30i = eval_Expr( call_Expr( lambda world_ui: #070207 -- just like 30h e
                                      ))
 # see also _30j far below -- don't reuse the name
 
-#070208 -- _30ix is like _30i except includes vv.reload_counter in world_ui make-index.
+#070208 -- _30ix is like _30i except includes exprs_globals.reload_counter in world_ui make-index.
 # No effect except when instance remade after modifying test.py (thus reloading it).
 # Then, it remakes the world_ui (desired effect) but also the world itself (undesired effect, makes it lose its objects).
 # Could be fixed by making the world separately; ultimately we want buttons for remaking various obj layers (incl model and ui);
@@ -1427,7 +1427,7 @@ testexpr_30ix = eval_Expr( call_Expr( lambda world_ui:
                                                ),
                                               DrawInCorner( MT_try2(getattr_Expr(world_ui, 'world')), WORLD_MT_CORNER ),
                                              ),
-                                     call_Expr( _app.Instance, testexpr_30b, "#30bi(%d)" % vv.reload_counter)
+                                     call_Expr( _app.Instance, testexpr_30b, "#30bi(%d)" % exprs_globals.reload_counter)
                                      ))
 
 # == DraggableObject
@@ -1878,7 +1878,6 @@ def _clear_state(): #070318; doesn't crash, but has bugs -- see comments where i
     return
 
 debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -> debug_corner_stuff
-##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
 ##    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider? (after reload)", dflt = True), # works (moves compass)
     checkbox_pref("A9 devel/testdraw/super.Draw first?", "draw model & lasso first?", dflt = True), # revised 070404
@@ -2041,7 +2040,7 @@ MEMOIZE_MAIN_INSTANCE = True      # whether to memoize it across redraws, withou
 MEMOIZE_ACROSS_RELOADS = False    # whether to memoize it across reloads
     ###BUG: False seems to not be working for demo_MT, 061205... ah, the intent might have been "printed reloads of testdraw"
     # but the code looks for reloads of this module test.py! Which often correspond but not always!
-    # Solution: include testdraw.vv.reload_counter in the data, when this is false.
+    # Solution: include testdraw.exprs_globals.reload_counter in the data, when this is false.
 
 
 try:
@@ -2062,7 +2061,7 @@ def find_or_make_main_instance(glpane, staterefs, testexpr, testbed): #061120; g
     if not MEMOIZE_MAIN_INSTANCE:
         return make_main_instance(glpane, staterefs, testexpr, testbed)
     global _last_main_instance_data, _last_main_instance
-    new_data = (glpane, staterefs, testexpr, testbed, MEMOIZE_ACROSS_RELOADS or vv.reload_counter ) # revised as bugfix, 061205
+    new_data = (glpane, staterefs, testexpr, testbed, MEMOIZE_ACROSS_RELOADS or exprs_globals.reload_counter ) # revised as bugfix, 061205
         # note: comparison data doesn't include funcs & classes changed by reload & used to make old inst,
         # including widget_env, Lval classes, etc, so when memoizing, reload won't serve to try new code from those defs
     if new_data != _last_main_instance_data:

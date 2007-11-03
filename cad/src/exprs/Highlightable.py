@@ -15,6 +15,13 @@ Notable bug (really in check_target_depth in GLPane, not this file): highlighted
 can be fooled by nearby depths due to check_target_depth_fudge_factor of 0.0001. This caused
 a bug in demo_drag.py which is so far only worked around, not really fixed. [070115 comment]
 
+Another bug involves Highlightable's use inside display lists, and is described elsewhere,
+probably in the BUGS file.
+
+And on 071102 I noticed another bug, probably related: the checkboxes in the
+lower right "control corner" don't highlight or operate after the main window
+(and thus glpane) is resized, until we next reload testdraw. But the "action buttons"
+next to them continue to work then. I don't know why they'd behave differently.
 """
 
 from OpenGL.GL import glPushName
@@ -929,7 +936,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
         # ought to be ok unless they do recursive event processing. still, why not do it after instead? not sure... ##e
         # plan: try doing it after as last resort bugfix; otoh if bugs gone, try never doing it.
         
-        ## vv.havelist = 0
+        ## exprs_globals.havelist = False
         ## mode.o.gl_update()
         self.KLUGE_gl_update()
         return

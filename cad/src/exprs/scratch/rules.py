@@ -365,8 +365,8 @@ _viewer_lvaldict = LvalDict2( _make_viewer_for_object_using_key )
 
 def _viewer_for_object(obj, essential_data = None): #####@@@@@ CALL ME
     "Find or make a viewer for the given model object. Essential data is hashable data which should alter which viewer to find. ###k??"
-    from testdraw import vv
-    reload_counter = vv.reload_counter # this is so we clear this cache on reload (even if this module is not reloaded)
+    from exprs.reload import exprs_globals
+    reload_counter = exprs_globals.reload_counter # this is so we clear this cache on reload (even if this module is not reloaded)
     # assume essential_data is already hashable (eg not dict but sorted items of one)
     key = (obj, essential_data, reload_counter)
     lval = _viewer_lvaldict[ key ]

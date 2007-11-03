@@ -24,6 +24,35 @@ ENABLE_RELOAD = True and platform.atom_debug
 # before this module is first imported (probably at startup due to confirmation
 # corner imports of other exprs modules -- not sure). [bruce 070829 comment]
 
+# ==
+
+#bruce 071102 moved vv from testdraw and renamed it vv -> exprs_globals,
+# to avoid an import cycle.
+
+class _attrholder: pass
+
+
+try:
+    # see whether this module was loaded before; if so, don't disturb
+    # these globals unless we've modified this code by adding globals
+    exprs_globals
+    exprs_globals.reload_counter
+        # note: this is public, used by other modules
+    exprs_globals.start_time
+##    exprs_globals.state
+##    exprs_globals.havelist
+except:
+    # the module wasn't loaded before, or we added globals --
+    # reinitialize all these globals
+    exprs_globals = _attrholder()
+    exprs_globals.reload_counter = -1
+    exprs_globals.start_time = -1
+##    exprs_globals.state = {} # prototype of a place to store persistent state (presuming some persistent way of allocating keys, eg hardcoding)
+##    ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
+##    exprs_globals.havelist = False
+
+# ==
+
 def reload_once(module):
     """
     This function is used to support automatic runtime reloading of modules
@@ -62,7 +91,11 @@ def reload_once(module):
         if 1:
             ## printfyi( "exprs modules won't be reloaded during this session" ) # 070627 removed this
             return
-    from testdraw import vv
-    reload_once_per_event(module, always_print = True, never_again = False, counter = vv.reload_counter, check_modtime = True)
+    reload_once_per_event(module,
+                          always_print = True,
+                          never_again = False,
+                          counter = exprs_globals.reload_counter,
+                          check_modtime = True)
+    return
 
 # end

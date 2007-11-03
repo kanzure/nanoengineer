@@ -109,7 +109,8 @@ class main_ui_layout(DelegatingInstanceOrExpr):
     # since changes to ui code aren't working. I think this is a difference between a ui and operations layer (should change)
     # vs model data layer (should not change even tho the op methods on it can change). So when I can put these things into layers
     # (not only State, but even Instance or attrs within them) and make those sensitive to reload, that will help.
-    # In the meantime -- if I could kluge Instance and State to take an option to control this (like index = vv.reload_counter)
+    # In the meantime -- if I could kluge Instance and State to take an option to control this
+    # (like index = exprs_globals.reload_counter)
     # it might help.... #####TRYIT SOMETIME, and BE CAREFUL UNTIL I DO.
     world = Instance(World())
     default_tool = Instance(DefaultToolRun())

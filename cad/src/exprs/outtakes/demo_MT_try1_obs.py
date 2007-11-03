@@ -61,8 +61,9 @@ _MT_viewer_for_object = MemoDict( _make_new_MT_viewer_for_object)
     #  and a two-level dict, key1 = weak node, key2 = essentialdata.)
 
 def MT_viewer_for_object(obj, essential_data = None):
-    from testdraw import vv
-    reload_counter = vv.reload_counter # this is so we clear this cache on reload (even if this module is not reloaded)
+    from exprs.reload import exprs_globals # untested since vv was renamed and moved
+    reload_counter = exprs_globals.reload_counter # ditto
+        # this is so we clear this cache on reload (even if this module is not reloaded)
         # which partly makes up for not live-updating the displayed MT
     key = (obj, essential_data, reload_counter)
     return _MT_viewer_for_object[ key ] # assume essential_data is already hashable (eg not dict but sorted items of one)
