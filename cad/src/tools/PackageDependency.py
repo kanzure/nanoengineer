@@ -145,6 +145,7 @@ packageMapping = {
     "bond_drawer"                  : "graphics",
     "bonds_from_atoms"             : "model",
     "bonds"                        : "model",
+    "bond_chains"                  : "model",
     "bond_updater"                 : "model",
     "bond_utils"                   : "model",
     "BuildAtomsPropertyManager"    : "ui",

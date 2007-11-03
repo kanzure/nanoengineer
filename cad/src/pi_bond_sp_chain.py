@@ -29,7 +29,9 @@ from Numeric import dot
 import platform
 from jigs import Jig
 from VQT import V, Q, A, cross, vlen, norm, twistor_angle
-from bonds import grow_bond_chain
+
+from bond_chains import grow_bond_chain
+
 from bond_constants import V_SINGLE
 from bond_constants import V_DOUBLE
 from bond_constants import V_TRIPLE
