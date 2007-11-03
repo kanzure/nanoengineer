@@ -144,7 +144,8 @@ debug_1779 = False # do not commit with True, but leave the related code in for 
 
 # ==
 
-remap_atom_dispdefs = {} # some dispdef values should be replaced with others in setDisplay [bruce 060607]
+from displaymodes import remap_atom_dispdefs
+    # (moved from chem to displaymodes to break import cycle, bruce 071102)
 
 BALL_vs_CPK = 0.25 # ratio of default diBALL radius to default diTrueCPK radius [renamed from CPKvdW by bruce 060607]
 

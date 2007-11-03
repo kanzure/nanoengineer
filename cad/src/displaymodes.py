@@ -26,6 +26,11 @@ import env
 
 _display_mode_handlers = {} # maps disp_name, and also its index in constants.dispNames, to a DisplayMode instance used for drawing
 
+remap_atom_dispdefs = {}
+    # some dispdef values should be replaced with others in Atom.setDisplay,
+    # since they are not legal for atoms. [bruce 060607]
+    # (moved from chem to displaymodes to break import cycle, bruce 071102)
+
 def get_display_mode_handler(disp):
     return _display_mode_handlers.get(disp)
 
@@ -66,8 +71,7 @@ class DisplayMode:
         constants.dispLabel.append(disp_label)
         ind = constants.dispNames.index(disp_name) # internal value used by setDisplay
         if clas.chunk_only:
-            import chem
-            chem.remap_atom_dispdefs[ind] = constants.diDEFAULT # kluge?
+            remap_atom_dispdefs[ind] = constants.diDEFAULT # kluge?
         inst = clas(ind)
         _display_mode_handlers[disp_name] = inst
         _display_mode_handlers[ind] = inst #k are both of these needed??
