@@ -24,6 +24,8 @@ from prefs_constants import undoRestoreView_prefs_key
 from debug_prefs import Choice
 from debug_prefs import debug_pref
 
+from debug import print_compact_traceback
+
 import env
 
 from drawer import setup_drawer
@@ -118,6 +120,9 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         self.zoomFactor = 1.0
 
         self.trackball = Trackball(10,10)
+
+        self._functions_to_call_when_gl_context_is_current = []
+        
         return
     
     def _setup_display_lists(self): # bruce 071030
@@ -133,6 +138,47 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         setup_drawer()
         setup_draw_grid_lines()
         return
+
+    # ==
+
+    def _call_whatever_waits_for_gl_context_current(self): #bruce 071103
+        """
+        For whatever functions have been registered to be called (once)
+        when our GL context is next current, call them now (and then discard them).
+
+        Note: subclasses wishing to support self.call_when_glcontext_is_next_current
+        MUST call this at some point during their paintGL method
+        (preferably before doing any drawing in that method, though this is
+        not at present guaranteed). Subclasses not wishing to support that
+        should override it to discard functions passed to it immediately.
+        """
+        functions = self._functions_to_call_when_gl_context_is_current
+        self._functions_to_call_when_gl_context_is_current = []
+        for func in functions:
+            try:
+                func()
+            except:
+                print_compact_traceback(
+                    "bug: %r._call_whatever_waits_for_gl_context_current ignoring exception in %r: " % \
+                    (self, func) )
+            continue
+        return
+
+    def call_when_glcontext_is_next_current(self, func): #bruce 071103
+        """
+        Call func at the next convenient time when we know our OpenGL context
+        is current.
+
+        (Subclasses are permitted to call func immediately if they happen
+        to know their gl context is current right when this is called.
+        Conversely, subclasses are permitted to never call func, though
+        that will defeat the optimizations this is used for, such as
+        deallocating OpenGL display lists which are no longer needed.)
+        """
+        self._functions_to_call_when_gl_context_is_current.append( func)
+        return
+
+    # ==
     
     def should_draw_valence_errors(self):
         """
@@ -144,6 +190,8 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         """
         return False
 
+    # ==
+    
     def setDepthRange_setup_from_debug_pref(self):
         global DEPTH_TWEAK
         DEPTH_TWEAK = DEPTH_TWEAK_UNITS * \
@@ -158,7 +206,8 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         glDepthRange(0.0, 1.0 - DEPTH_TWEAK)
         return
 
-
+    # ==
+    
     def current_view_for_Undo(self, assy): #e shares code with saveNamedView
         """Return the current view in this glpane which is showing this assy,
         with additional attributes saved along with the view by Undo (i.e. the index of the current selection group).
@@ -213,5 +262,7 @@ class GLPane_minimal(QGLWidget): #bruce 070914
                 #e how might that interact with setting the selection? Hopefully, not much, since selection (if any) should be inside sg.
         #e should we update_parts?
         return
+
+    pass
 
 # end

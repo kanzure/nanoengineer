@@ -2382,15 +2382,19 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         env.after_op() #bruce 050908 [disabled in changes.py, sometime before 060323; probably obs as of 060323; see this date below]
 
-        if not self.initialised: return
+        if not self.initialised:
+            return
 
         #e Future: it might be good to set standard GL state, e.g. matrixmode, before checking self.redrawGL here,
         # in order to mitigate bugs in other code (re bug 727), but only if the current mode gets to
         # redefine what "standard GL state" means, since some modes which use this flag to avoid standard
         # repaints also maintain some GL state in nonstandard forms. [bruce 050707 comment]
         
-        if not self.redrawGL: return
+        if not self.redrawGL:
+            return
 
+        self._call_whatever_waits_for_gl_context_current() #bruce 071103
+        
         if debug_pref("GLPane: skip redraws requested only by Qt?", Choice_boolean_False, prefs_key = True):
             # (and print '#' for each skipped redraw)
             #

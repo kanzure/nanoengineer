@@ -280,8 +280,11 @@ class ThumbView(GLPane_minimal):
         depth butter are cleared, view projection are reset, view location &
         orientation are also reset. 
         """
-        if not self.initialised: return
+        if not self.initialised:
+            return
 
+        self._call_whatever_waits_for_gl_context_current() #bruce 071103
+        
         glDepthFunc( GL_LEQUAL)
 
         self.setDepthRange_setup_from_debug_pref()

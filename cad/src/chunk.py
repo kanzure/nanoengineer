@@ -60,6 +60,7 @@ from Numeric import take
 from Numeric import argmax
 
 from OpenGL.GL import glGenLists
+from OpenGL.GL import glDeleteLists
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
@@ -96,6 +97,8 @@ from constants import diDEFAULT
 from state_constants import S_REF, S_CHILDREN_NOT_DATA
 
 import platform
+
+from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 
 from icon_utilities import imagename_to_pixmap
 
@@ -288,9 +291,22 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # self.displist is allocated on demand by _get_displist [bruce 070523]
 
         return # from molecule.__init__
+
+    # ==
+
+    # Methods relating to our OpenGL display list, self.displist.
+    #
+    # (Note: most of these methods could be moved with few changes to a
+    # new mixin class concerned with maintaining self.displist for any
+    # sort of object that needs one. If that's done, see also
+    # GLPane_mixin_for_DisplistChunk for useful features of other kinds
+    # to integrate into that code. [bruce 071103 comment])
     
     def _get_displist(self):
-        "initialize and return self.displist [must only be called when an appropriate GL context is current]"
+        """
+        initialize and return self.displist
+        [must only be called when an appropriate GL context is current]
+        """
         #bruce 070523 change: do this on demand, not in __init__, to see if it fixes bug 2402
         # in which this displist can be 0 on Linux (when entering Extrude).
         # Theory: you should allocate it only when you know you're in a good GL context
@@ -307,9 +323,76 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         assert type(self.displist) in (type(1), type(1L)) #bruce 070521 added these two asserts
         assert self.displist != 0 # this failed on Linux in Extrude, when we did it in __init__ (bug 2042)
         return self.displist
+
+    def _deallocate_displist(self): #bruce 071103
+        """
+        [private method; must only be called when our displist's GL context is current]
+        Deallocate our OpenGL display list, and record that we did so.
+        """
+        if self.__dict__.has_key('displist'):
+            # Note: we can't use hasattr for that test, since it would
+            # allocate self.displist (by calling _get_displist) if we
+            # don't have one yet.
+            assert self.displist != 0
+            glDeleteLists(self.displist, 1)
+            print "fyi: deleted OpenGL display list %r belonging to %r" % (self.displist, self)
+                # keep this print around until this feature is tested on all platforms
+            self.displist = None
+            del self.displist
+                # this del is necessary, so _get_displist will be called if another
+                # display list is needed (e.g. if a killed chunk is revived by Undo)
+            self.havelist = 0
+            self.glpane = None
+        pass
+
+    def deallocate_displist_later(self): #bruce 071103
+        """
+        At the next convenient time when our OpenGL context is current,
+        if self.ok_to_deallocate_displist(),
+        call self._deallocate_displist().
+        """
+        self.call_when_glcontext_is_next_current( self._deallocate_displist_if_ok )
+        return
+    
+    def _deallocate_displist_if_ok(self): #bruce 071103
+        if self.ok_to_deallocate_displist():
+            self._deallocate_displist()
+        return
+
+    def ok_to_deallocate_displist(self): #bruce 071103
+        """
+        Say whether it's ok to deallocate self's OpenGL display list
+        right now (assuming our OpenGL context is current).
+        """
+        return len(self.atoms) == 0
+            # self.killed() does not seem to be implemented,
+            # and would be redundant with this anyway
+
+    def _gl_context_if_any(self): #bruce 071103
+        """
+        If self has yet been drawn into an OpenGL context,
+        return a GLPane_minimal object which corresponds to it;
+        otherwise return None. (Note that self can be drawn
+        into at most one OpenGL context during its lifetime,
+        except for contexts which share display list names.)
+        """
+        # (I'm not sure whether use of self.glpane is a kluge.
+        #  I guess it would not be if we formalized what it already means.)
+        return self.__dict__.get('glpane', None)
+
+    def call_when_glcontext_is_next_current(self, func): #bruce 071103
+        """
+        """
+        glpane = self._gl_context_if_any()
+        if glpane:
+            glpane.call_when_glcontext_is_next_current(func)
+        return
+
+    # ==
     
     def contains_atom(self, atom): #bruce 070514
-        """Does self contain the given atom (a real atom or bondpoint)?
+        """
+        Does self contain the given atom (a real atom or bondpoint)?
         """
         #e the same-named method would be useful in Node, Selection, etc, someday
         return atom.molecule is self
@@ -928,7 +1011,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         If the molecule itself is selected, draw its bounding box as a
         wireframe; selected atoms are drawn specially by atom.draw.
         """
-        if self.hidden: return
+        if self.hidden:
+            return
         
         self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
             # (and now also needed by BorrowerChunk during draw_dispdef's call of _dispfunc [bruce 060411])
@@ -939,10 +1023,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # though the fact that only one glpane can be recorded in self
         # is a limitation we'll need to remove at some point.
 
-        #Tried to fix some bugs by Huaicai 09/30/04
         if len(self.atoms) == 0:
-            return
             # do nothing for a molecule without any atoms
+            # [to fix bugs -- Huaicai 09/30/04]
+            return
 
         self.basepos
         # make sure basepos is up-to-date, so basecenter is not changed
@@ -1895,6 +1979,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 self.part.remove(self)
                 assert self.part is None
         Node.kill(self) #bruce 050214 moved this here, made it unconditional
+        if debug_pref("GLPane: deallocate OpenGL display lists of killed chunks?",
+                      Choice_boolean_True,
+                      prefs_key = True,
+                      non_debug = True ):
+            self.deallocate_displist_later() #bruce 071103
         return # from molecule.kill
 
     def _set_will_kill(self, val): #bruce 060327 in Chunk
