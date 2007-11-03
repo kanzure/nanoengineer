@@ -1,8 +1,6 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-bond_utils.py
-
-Helper functions for bonds, including UI code.
+"""
+bond_utils.py -- helper functions for bond-related UI code.
 
 $Id$
 
@@ -11,23 +9,26 @@ History:
 created by bruce 050705 to help with higher-order bonds for Alpha6.
 
 050901 bruce used env.history in some places.
-'''
+"""
 __author__ = "bruce"
 
 
 from VQT import Q
 from constants import noop
 import env
-from utilities.Log import greenmsg, redmsg, orangemsg
+from utilities.Log import greenmsg, redmsg, orangemsg, quote_html
 from debug import print_compact_stack
-from bonds import Bond
+
 from bond_constants import bonded_atoms_summary
 from bond_constants import btype_from_v6
 from bond_constants import v6_from_btype
 from bond_constants import bond_left_atom
 
 def intersect_sequences(s1, s2):
-    "Return the intersection of two sequences. If they are sorted in a compatible way, so will be the result."
+    """
+    Return the intersection of two sequences. If they are sorted
+    in a compatible way, so will be the result.
+    """
     return filter( lambda s: s in s2, s1)
 
 def complement_sequences(big, little):
@@ -100,7 +101,7 @@ def bond_menu_section(bond, quat = Q(1,0,0,0)):
     """
     res = []
     res.append(( bonded_atoms_summary(bond, quat = quat), noop, 'disabled' ))
-    res.extend( bond_type_menu_section(bond) )
+    res.extend( _bond_type_menu_section(bond) )
     if bond.is_directional():
         ### REVIEW: Do we want to do this for open bonds, after mark's 071014 change
         # which allows them here? Or do we want "and not bond.is_open_bond()"?
@@ -127,7 +128,7 @@ def bond_menu_section(bond, quat = Q(1,0,0,0)):
         res.append(item)
     return res
     
-def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec for Alpha6
+def _bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec for Alpha6
     """Return a menu_spec for changing the bond_type of this bond
     (as one or more checkmark items, one per permitted bond-type given the atomtypes),
     or if the bond-type is unchangeable, a disabled menu item for displaying the type
@@ -135,6 +136,8 @@ def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec
     (If the current bond type is not permitted, it's still present and checked, but disabled,
      and it might have a warning saying it's illegal.)
     """
+    # this assert is true, but it would cause an import loop:
+    ## assert isinstance(bond, Bond)
     btype_now = btype_from_v6(bond.v6)
     poss1 = possible_bond_types(bond) # a list of strings which are bond-type names, in order of increasing bond order
     poss, permitted1, permitted2 = possible_bond_types_for_elements(bond) # new feature 060703
@@ -187,7 +190,7 @@ def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec
     ##e if >1 legal value, maybe we should add a toggleable checkmark item to permit "locking" the bond to its current bond type;
     # this won't be needed until we have better bond inference (except maybe for bondpoints),
     # since right now [still true 060703] we never alter real bond types except when the user does an action on that specific bond.
-    if (isinstance(bond, Bond) and not bond.is_open_bond()):
+    if not bond.is_open_bond():
         command = ( lambda arg1=None, arg2=None, bond=bond: bond.bust() )
         res.append(None) # separator
         res.append(("Delete Bond", command))
@@ -240,7 +243,6 @@ def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060
     # Note: this can be called either from a bond's context menu, or by using a Build mode dashboard tool to click on bonds
     # (or bondpoints as of 060702) and immediately change their types.
     v6 = v6_from_btype(btype)
-    from utilities.Log import quote_html #e need to clean up from where to import this, orangemsg, etc
     oldname = quote_html( str(bond) )
     def changeit(also_atypes = None):
         if v6 == bond.v6:
