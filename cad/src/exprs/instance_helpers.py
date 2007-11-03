@@ -26,13 +26,15 @@ from exprs.Exprs import SymbolicExpr, canon_expr
 from exprs.Exprs import expr_is_Instance
 from exprs.Exprs import expr_constant_value
 from exprs.Exprs import is_Expr_pyclass
+from exprs.Exprs import EVAL_REFORM
+
+from exprs.py_utils import printnim
+from exprs.py_utils import printfyi
+
 from exprs.IorE_guest_mixin import IorE_guest_mixin
 from exprs.StatePlace import StatePlace
 from exprs.attr_decl_macros import Instance, Arg
-from exprs.py_utils import printnim
-from exprs.py_utils import printfyi
 from exprs.ExprsConstants import normalize_color
-from exprs.ExprsConstants import EVAL_REFORM
 from exprs.__Symbols__ import _self
 
 # ==

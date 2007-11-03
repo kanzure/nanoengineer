@@ -27,6 +27,16 @@ from exprs.intern_ipath import intern_ipath
 
 from state_utils_unset import _UNSET_
 
+# ==
+
+EVAL_REFORM = True
+    # False supposedly acts like old code, True like new code which has by now become standard;
+    # this affects all class defs, so to be safe, print a warning if the value is not true.
+    # [bruce 070115 & 071102]
+
+if not EVAL_REFORM:
+    print "EVAL_REFORM is %r" % EVAL_REFORM
+
 # == utilities #e refile
 
 def map_dictvals(func, dict1):
@@ -400,7 +410,6 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         return False
     def _e_eval_to_expr(self, env, ipath, expr):#070117, revised 070118 to save ipath
         "#doc"
-        from exprs.ExprsConstants import EVAL_REFORM
         assert EVAL_REFORM # otherwise exprs don't eval to self except some Symbols, and I guess those don't call this tho i forget...#k
         return lexenv_ipath_Expr(env, ipath, expr) # the full ipath might not be needed but might be ok... ###k
     # note: _e_eval is nim in this class -- it must be implemented in subclasses that need it.
@@ -1056,7 +1065,6 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     def _e_eval_lval(self, env, ipath):
         return self._e_call_with_modified_env(env, ipath, whatever = '_e_eval_lval')
     def _e_make_in(self, env, ipath):
-        from exprs.ExprsConstants import EVAL_REFORM
         assert EVAL_REFORM # since it only happens then
         return self._e_call_with_modified_env(env, ipath, whatever = '_e_make_in')
     pass # end of class lexenv_Expr
@@ -1156,7 +1164,6 @@ class eval_Expr(OpExpr):
     def _e_eval_lval(self, env, ipath):
         return self._e_call_on_argval(env, ipath, whatever = '_e_eval_lval')
     def _e_make_in(self, env, ipath):
-        from exprs.ExprsConstants import EVAL_REFORM
         assert EVAL_REFORM # since it only happens then
         return self._e_call_on_argval(env, ipath, whatever = '_e_make_in')
     pass # end of class eval_Expr
@@ -1300,8 +1307,7 @@ class Symbol(SymbolicExpr):
         if self == val:
             # return self (perhaps wrapped), after perhaps printing a warning
             if self is not val:
-                print "warning: %r and %r are two different Symbols with same name, thus equal" % (self,val)
-            from exprs.ExprsConstants import EVAL_REFORM
+                print "warning: %r and %r are two different Symbols with same name, thus equal" % (self, val)
             if EVAL_REFORM:#070117
                 if not self._e_sym_constant: #070131 added this cond (and attr)
                     print "warning: Symbol(%r) evals to itself [perhaps wrapped by _e_eval_to_expr]" % self._e_name
@@ -1313,7 +1319,7 @@ class Symbol(SymbolicExpr):
         # reached only when self != val
         assert self != val # remove when works
         if self._e_name not in ('_self', '_my', '_app'): #k Q: does this also happen for a thisname, _this_<classname> ?
-            print "warning: _e_eval of a symbol other than _self or _my is not well-reviewed or yet well-understood:",self._e_name
+            print "warning: _e_eval of a symbol other than _self or _my is not well-reviewed or yet well-understood:", self._e_name
                 # e.g. what should be in env? what if it's an expr with free vars incl _self -- are they in proper context?
                 # see docstring for more info [061105]
         ## pre-061105 code did: return val._e_eval(env, ipath)

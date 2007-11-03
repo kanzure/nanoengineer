@@ -57,21 +57,6 @@ Boolean = bool
 
 # == Python and debug utilities, and low-level local defs
 
-try:
-    old_EVAL_REFORM = EVAL_REFORM
-except NameError:
-    old_EVAL_REFORM = None
-
-EVAL_REFORM = True # 070115: False supposedly acts like old code, True like experimental new code which should become standard;
-     # this affects all class defs, so to be safe, print a warning if it changes across reload
-
-if old_EVAL_REFORM != EVAL_REFORM and old_EVAL_REFORM is not None:
-    print "\n*** WARNING: EVAL_REFORM was %r before reload, is %r now -- might require restart of NE1 or testmode" % \
-          (old_EVAL_REFORM, EVAL_REFORM)
-else:
-    if not EVAL_REFORM:
-        print "EVAL_REFORM is %r" % EVAL_REFORM
-
 nevermind = lambda func: identity
 
 # == colors (constants and simple functions; import them everywhere to discourage name conflicts that show up only later)

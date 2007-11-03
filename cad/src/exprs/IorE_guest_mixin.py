@@ -24,9 +24,10 @@ from exprs.Exprs import is_Expr_pyinstance
 from exprs.Exprs import lexenv_Expr
 from exprs.Exprs import tuple_Expr
 from exprs.Exprs import canon_expr
+from exprs.Exprs import EVAL_REFORM
+
 from exprs.ExprsMeta import ExprsMeta
 from exprs.StatePlace import StatePlace
-from exprs.ExprsConstants import EVAL_REFORM
 from exprs.py_utils import printnim
 from exprs.__Symbols__ import _E_REQUIRED_ARG_
 

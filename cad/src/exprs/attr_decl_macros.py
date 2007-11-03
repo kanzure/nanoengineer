@@ -23,10 +23,10 @@ from exprs.Exprs import is_pure_expr
 from exprs.Exprs import constant_Expr
 from exprs.Exprs import eval_Expr
 from exprs.Exprs import canon_expr
+from exprs.Exprs import EVAL_REFORM
+
 from exprs.ExprsMeta import data_descriptor_Expr_descriptor
 from exprs.StatePlace import set_default_attrs
-
-from exprs.ExprsConstants import EVAL_REFORM
 from exprs.__Symbols__ import Anything
 
 # ==
