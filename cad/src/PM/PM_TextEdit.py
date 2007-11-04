@@ -14,8 +14,8 @@ file and renamed it PM_TextEdit.
 
 from PM.PM_Constants import pmMinWidth
 
-from PM.PM_Colors    import getPalette
-from PM.PM_Colors    import pmMessageBoxColor
+##from PM.PM_Colors    import getPalette
+##from PM.PM_Colors    import pmMessageBoxColor
 
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QLabel
@@ -23,7 +23,7 @@ from PyQt4.Qt import QSize
 from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QTextCursor
 from PyQt4.Qt import QTextEdit
-from PyQt4.Qt import QPalette
+##from PyQt4.Qt import QPalette
 from PyQt4.Qt import QWidget
 
 class PM_TextEdit( QTextEdit ):
@@ -51,7 +51,8 @@ class PM_TextEdit( QTextEdit ):
                  parentWidget, 
                  label       = '', 
                  labelColumn = 0,
-                 spanWidth   = False
+                 spanWidth   = False,
+                 addToParent = True
                  ):
         """
         Appends a QTextEdit (Qt) widget to the bottom of I{parentWidget}, 
@@ -72,6 +73,14 @@ class PM_TextEdit( QTextEdit ):
                           of the group box. The label will appear directly above
                           the spin box and is left justified. 
         @type  spanWidth: bool
+        
+        @param addToParent: If True (the default), self will be added to
+                            parentWidget by passing it to
+                            parentWidget.addPmWidget. If False, self will not
+                            be added to parentWidget. Typically, when this is
+                            False, the caller will add self to parent in some
+                            other way.
+        @type  addToParent: bool
         
         @see: U{B{QTextEdit}<http://doc.trolltech.com/4/qtextedit.html>}
         """
@@ -100,21 +109,28 @@ class PM_TextEdit( QTextEdit ):
         # Shouldn't be needed with _setHeight().
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
-        from PM.PM_MessageGroupBox import PM_MessageGroupBox
-        if isinstance(parentWidget, PM_MessageGroupBox):
-            # Add to parentWidget's vBoxLayout if <parentWidget> is a MessageGroupBox.
-            parentWidget.vBoxLayout.addWidget(self)
-            # We should be calling the PM's getMessageTextEditPalette() method,
-            # but that will take some extra work which I will do soon. Mark 2007-06-21
-            self.setPalette(getPalette( None, 
-                                        QPalette.Base,
-                                        pmMessageBoxColor))
-            self.setReadOnly(True)
-            #@self.labelWidget = None # Never has one. Mark 2007-05-31
-            parentWidget._widgetList.append(self)
-            parentWidget._rowCount += 1
-        else:
+##        from PM.PM_MessageGroupBox import PM_MessageGroupBox
+##        if isinstance(parentWidget, PM_MessageGroupBox):
+##            # Add to parentWidget's vBoxLayout if <parentWidget> is a MessageGroupBox.
+##            parentWidget.vBoxLayout.addWidget(self)
+##            # We should be calling the PM's getMessageTextEditPalette() method,
+##            # but that will take some extra work which I will do soon. Mark 2007-06-21
+##            self.setPalette(getPalette( None, 
+##                                        QPalette.Base,
+##                                        pmMessageBoxColor))
+##            self.setReadOnly(True)
+##            #@self.labelWidget = None # Never has one. Mark 2007-05-31
+##            parentWidget._widgetList.append(self)
+##            parentWidget._rowCount += 1
+##        else:
+##            parentWidget.addPmWidget(self)
+        # bruce 071103 refactored the above into the new addToParent option and
+        # code added to PM_MessageGroupBox.__init__ after it calls this method.
+        
+        if addToParent:
             parentWidget.addPmWidget(self)
+        
+        return
         
     def insertHtml(self, 
                    text, 

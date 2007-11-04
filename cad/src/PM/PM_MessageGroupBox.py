@@ -17,9 +17,14 @@ into this file and renamed it PM_MessageGroupBox.
 
 from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QSizePolicy
+from PyQt4.Qt import QPalette
+
+from PM.PM_Colors    import getPalette
+from PM.PM_Colors    import pmMessageBoxColor
 
 from PM.PM_GroupBox    import PM_GroupBox
 from PM.PM_TextEdit    import PM_TextEdit
+
 
 class PM_MessageGroupBox( PM_GroupBox ):
     """
@@ -49,7 +54,30 @@ class PM_MessageGroupBox( PM_GroupBox ):
         self.gridLayout.setMargin(0)
         self.gridLayout.setSpacing(0)
 
-        self.MessageTextEdit = PM_TextEdit(self, label='', spanWidth=True)
+
+        self.MessageTextEdit = PM_TextEdit(self,
+                                           label='',
+                                           spanWidth = True,
+                                           addToParent = False)
+            # We pass addToParent = False to suppress the usual call by
+            # PM_TextEdit.__init__ of self.addPmWidget(new textedit widget),
+            # since we need to add it to self in a different way (below).
+            # [bruce 071103 refactored this from what used to be a special case
+            #  in PM_TextEdit.__init__ based on self being an instance of
+            #  PM_MessageGroupBox.]
+
+        # Add self.MessageTextEdit to self's vBoxLayout.
+        self.vBoxLayout.addWidget(self.MessageTextEdit)
+        # We should be calling the PM's getMessageTextEditPalette() method,
+        # but that will take some extra work which I will do soon. Mark 2007-06-21
+        self.MessageTextEdit.setPalette(getPalette( None,
+                                                    QPalette.Base,
+                                                    pmMessageBoxColor))
+        self.MessageTextEdit.setReadOnly(True)
+        #@self.MessageTextEdit.labelWidget = None # Never has one. Mark 2007-05-31
+        self._widgetList.append(self.MessageTextEdit)
+        self._rowCount += 1
+
 
         # wrapWrapMode seems to be set to QTextOption.WrapAnywhere on MacOS,
         # so let's force it here. Mark 2007-05-22.
