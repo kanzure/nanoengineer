@@ -324,6 +324,20 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         assert self.displist != 0 # this failed on Linux in Extrude, when we did it in __init__ (bug 2042)
         return self.displist
 
+    # new feature [bruce 071103]:
+    # deallocate display lists of killed chunks.
+    # TODO items re this:
+    # - doc the fact that self.displist can be different when chunk kill is undone
+    # - worry about ways chunks can miss out on this:
+    #   - created, then undo that
+    #   - no redraw, e.g. for a thumbview in a dialog that gets deleted...
+    #     maybe ok if user ever shows it again, but what if they never do?
+    # - probably ok, but need to test:
+    #   - close file, or open new file
+    #   - when changing to a new partlib part, old ones getting deleted
+    #   - create chunk, undo, redo, etc or then kill it
+    #   - kill chunk, undo, redo, undo, etc or then kill it
+
     def _deallocate_displist(self): #bruce 071103
         """
         [private method; must only be called when our displist's GL context is current]
