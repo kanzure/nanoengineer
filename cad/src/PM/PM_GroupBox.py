@@ -220,8 +220,25 @@ class PM_GroupBox( QGroupBox ):
         """
         # Spacers are only added to groupboxes in the PropMgr, not
         # nested groupboxes.
-        from PM.PM_Dialog import PM_Dialog
-        if not isinstance(self.parentWidget, PM_Dialog):
+        
+##        from PM.PM_Dialog import PM_Dialog
+##        if not isinstance(self.parentWidget, PM_Dialog):
+        
+        if isinstance(self.parentWidget, PM_GroupBox):
+            #bruce 071103 revised test to remove import cycle; I assume that
+            # self.parentWidget is either a PM_GroupBox or a PM_Dialog, since
+            # comments about similar code in __init__ imply that.
+            #
+            # A cleaner fix would involve asking self.parentWidget whether to
+            # do this, with instances of PM_GroupBox and PM_Dialog giving
+            # different answers, and making them both inherit an API class
+            # which documents the method or attr with which we ask them that
+            # question; the API class would be inherited by any object to
+            # which PM_GroupBox's such as self can be added.
+            #
+            # Or, an even cleaner fix would just call a method in
+            # self.parentWidget to do what this code does now (implemented
+            # differently in PM_GroupBox and PM_Dialog).
             self.verticalSpacer = None
             return
         
