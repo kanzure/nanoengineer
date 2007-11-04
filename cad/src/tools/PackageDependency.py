@@ -126,7 +126,6 @@ libraryReferences = [
     "PyQt4.Qt",
     "PyQt4.QtGui",
     "PyQt4.QtCore",
-    "demo_trans",
     "sim",
     "atombase",
     "quux",

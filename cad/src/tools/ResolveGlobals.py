@@ -117,7 +117,6 @@ _s_ignoreModuleSet = set([
     "qt_debug_hacks",
     "MMKit",
     "testmode",
-    "demo_trans",
     "bearing_data",
     "samevals",
     "exprs",

@@ -20,6 +20,9 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 from PlatformDependent import fix_plurals
 from Utility       import Group
 from chunk         import molecule
+from chunk         import mol_copy_name
+from chem          import Atom_prekill_prep
+from ops_select    import Selection
 from bonds         import bond_copied_atoms
 from constants     import gensym
 from ops_select    import selection_from_part
@@ -291,9 +294,15 @@ class ops_copy_Mixin:
             assert savepart is not None
             killfunc = noop
         else:
-            # make a new part, copy pov from original one (##k I think that happens automatically in Part.__init__)
-            from part import Part
-            savepart = Part(self.assy, node)
+            # make a new part, copy pov from original one (##k I think that
+            # pov copy happens automatically in Part.__init__)
+##            from part import Part as Part_class
+            Part_class = self.__class__ #bruce 071103 to fix import cycle
+                # (this code is untested since that Part_class change, since
+                #  this feature is not accessible from the UI)
+            assert Part_class.__name__ == 'Part' # remove when works
+            savepart = Part_class(self.assy, node)
+                # obs comment, if the above import cycle fix works:
                 ### TODO: get the appropriate subclass of Part from self.assy
                 # or node, and/or use a superclass with fewer methods,
                 # to break an import cycle between part and ops_copy.
@@ -562,8 +571,7 @@ class ops_copy_Mixin:
                 # WARNING: the rules for doing this properly are tricky and are not yet documented.
                 # The basic rule is to do things in this order, for atoms only, for a lot of them at once:
                 # prekill_prep, prekill all the atoms, kill the same atoms.
-                import chem # TODO: move this import to toplevel if possible [bruce 071029 comment]
-                val = chem.Atom_prekill_prep()
+                val = Atom_prekill_prep()
                 for a in self.selatoms.itervalues():
                     a._will_kill = val # inlined a._prekill(val), for speed
             for a in self.selatoms.values(): # the above can be itervalues, but this can't be!
@@ -615,9 +623,7 @@ def copied_nodes_for_DND( nodes, autogroup_at_top = False, assy = None, _sort = 
     
     @note: _sort is a private option for use by copy_nodes_in_order.
     """
-    # note: used in other files, not only for DND
-    from ops_select import Selection
-        # TODO: move this import to toplevel if possible [bruce 071029 comment]
+    # note: this method is used for several kinds of copying, not only for DND
     if not nodes:
         return None
     if DEBUG_ORDER:
@@ -956,23 +962,11 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             res = newstuff[0]
             # now rename it, like old code would do (in mol.copy), though whether
             # this is a good idea seems very dubious to me [bruce 050524]
-            try:
-                #bruce 050627 new feature, only used experimentally so far
-                # (demo_trans is not yet committed)
-                from demo_trans import special_node_name_q
-                    # TODO: clean this up (scratch file, not in svn)
-            except:
-                pass
-            else:
-                if special_node_name_q(res.name):
-                    return res
             if res.name.endswith('-frag'):
                 # kluge - in -frag case it's definitely bad to rename the copy, if this op added that suffix;
                 # we can't tell, but since it's likely and since this is dubious anyway, don't do it in this case.
                 pass
             else:
-                from chunk import mol_copy_name
-                    # TODO: move this import to toplevel if possible [bruce 071029 comment]
                 res.name = mol_copy_name(res.name)
         #e in future we might also need to store a ref to the top original node, top_orig;
         # this is problematic when it was made up as a wrapping group,
