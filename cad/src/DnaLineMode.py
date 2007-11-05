@@ -14,7 +14,6 @@ TODO:
 from LineMode import LineMode
 
 from drawer import drawLadder
-##from drawer import drawArrowHead
 
 from constants import black, darkred, blue
 
@@ -42,17 +41,40 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         # -Ninad 2007-10-30
         
         LineMode.GraphicsMode_class.Draw(self)
-        if self.endPoint2 and self.endPoint1:              
+        if self.endPoint2 and self.endPoint1: 
+            #Draw the ladder. 
+            #Convention:
+            # The red band(beam) of the 
+            # ladder is always the 'leading edge' of the ladder. i.e. the red 
+            # band arrow head is always at the moving end of the mouse 
+            #(endpoint2). 
+            
+            # A General Note/ FYI to keep in mind: 
+            # Consider a double stranded DNA and focus on the 'twin peaks' 
+            #(say, two consecutive helices in the middle of the dna duplex)
+            # From the "mountain" with twin peaks that is the minor groove,
+            # the DNA flows downhill 5' to 3' 
+            # Or in other words, 
+            # - For the 'mountain peak' on the right , 
+            #    the 5' to 3' flows downhill, from left to right. 
+            # - For the 'mountain peak' on the left, 
+            #   the 3' to 5' flows downhill, from right to left
+            #            
+            # Thus, the red beam of the ladder, can either become the 
+            # 'left mountain' or the 'right mountain' depending on the 
+            # orientation while drawing the ladder
+            
             drawLadder(self.endPoint1,
                        self.endPoint2, 
                        self.command.duplexRise,
+                       self.glpane.scale,
+                       self.glpane.lineOfSight,
                        beamThickness = 4.0,
                        beam1Color = darkred,
                        beam2Color = blue,
                        stepColor = black    
                     )  
-            ##if 0:
-                ##drawArrowHead()               
+                      
 
 # == Command part
 

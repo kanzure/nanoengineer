@@ -33,6 +33,7 @@ from math import acos, floor, ceil
 
 import Numeric
 from Numeric import sin, cos, sqrt, pi
+ONE_RADIAN = 180.0 / pi
 
 from OpenGL.GL import GL_AMBIENT
 from OpenGL.GL import GL_AMBIENT_AND_DIFFUSE
@@ -177,7 +178,7 @@ except:
     # The installed version of OpenGL requires argument-typed glFog calls.
     from OpenGL.GL import glFogf as glFog	
 
-from VQT import norm, vlen, V, Q, A
+from VQT import norm, vlen, V, Q, A, cross
 import env #bruce 051126
 
 from constants import DIAMOND_BOND_LENGTH, white
@@ -1783,6 +1784,8 @@ def drawsurface(color, pos, radius, tm, nm):
 def drawLadder(endCenter1,  
                endCenter2,
                stepSize, 
+               glpaneScale,
+               lineOfSightVector,
                ladderWidth = 17.0,
                beamThickness = 2.0,
                beam1Color = None, 
@@ -1790,36 +1793,75 @@ def drawLadder(endCenter1,
                stepColor = None
                ):
     """
-    Draw a ladder. 
-    @see: B{DnaLineMode.Draw } where it is used   
+    Draw a ladder.      
     @param endCenter1: Ladder center at end 1
     @type endCenter1: B{V}
     @param endCenter2: Ladder center at end 2
     @type endCenter2: B{V}
     @param stepSize: Center to center distance between consecutive steps
     @type stepSize: float
+    @param glpaneScale: GLPane scale used in scaling arrow head drawing 
+    @type glpaneScale: float
+    @param lineOfSightVector: Glpane lineOfSight vector, used to compute the 
+                              the vector along the ladder step. 
+    @type: B{V}    
     @param ladderWidth: width of the ladder
     @type ladderWidth: float
     @param beamThickness: Thickness of the two ladder beams
     @type beamThickness: float
     @param beam1Color: Color of beam1
     @param beam2Color: Color of beam2
+    @see: B{DnaLineMode.Draw } (where it is used) for comments on color 
+          convention
     """    
-    #Note: The ladder needs to be always parallel to the screen. 
-    #Perhaps need to use correct rotation. 
-    unitVector = norm(endCenter2 - endCenter1)
+    #Should this method be moved to DnaLineMode class? Don't know. Okay if it 
+    #stays here in drawer.py
+    
     ladderLength = vlen(endCenter1 - endCenter2)
+    
+    #Don't draw the vertical line (step) passing through the startpoint unless 
+    #the ladderLength is atleast equal to the stepSize. 
+    # i.e. do the drawing only when there are atleast two ladder steps. 
+    # This prevents a 'revolving line' effect due to the single ladder step at 
+    # the first endpoint 
+    if ladderLength < stepSize:
+        return
+    
+    unitVector = norm(endCenter2 - endCenter1)
+    
+        
                     
     glDisable(GL_LIGHTING) 
     glPushMatrix()
     glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2]) 
     pointOnAxis = V(0, 0, 0)
-    ladderBeam1Point = V(0, 0.5*ladderWidth, 0)
-    ladderBeam2Point = V(0, -0.5*ladderWidth, 0)
-    drawArrowHead(beam2Color, ladderBeam2Point, - unitVector)
+        
+    vectorAlongLadderStep =  cross(-lineOfSightVector, unitVector)
+    unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
+       
+    ladderBeam1Point = pointOnAxis + unitVectorAlongLadderStep*0.5*ladderWidth    
+    ladderBeam2Point = pointOnAxis - unitVectorAlongLadderStep*0.5*ladderWidth
+    
+    #Following limits the arrowHead Size to the given value. When you zoom out, 
+    #the rest of ladder drawing becomes smaller (expected) and the following
+    #check ensures that the arrowheads are drawn proportinately. 
+    # (Not using a 'constant' to do this as using glpaneScale gives better 
+    #results)
+    if glpaneScale > 40:
+        arrowDrawingScale = 40
+    else:
+        arrowDrawingScale = glpaneScale
+     #Draw the arrow head on beam1  
+    drawArrowHead(beam2Color, 
+                  ladderBeam2Point, 
+                  arrowDrawingScale,
+                  -unitVectorAlongLadderStep, 
+                  - unitVector)
+            
     x = 0.0
-    while x < ladderLength:
+    while x < ladderLength:        
         drawPoint(stepColor, pointOnAxis)
+        
         previousPoint = pointOnAxis        
         previousLadderBeam1Point = ladderBeam1Point
         previousLadderBeam2Point = ladderBeam2Point
@@ -1827,62 +1869,57 @@ def drawLadder(endCenter1,
         pointOnAxis = pointOnAxis + unitVector*stepSize		
         x += stepSize
 
-        ax = previousPoint[0]
-        ay = previousPoint[1]
-        az = previousPoint[2]
-
-        bx1 = ax
-        by1 = ay + 0.5*ladderWidth
-        bz1 = az	
-
-        bx2 = ax
-        by2 = ay - 0.5*ladderWidth
-        bz2 = az
-
-        ladderBeam1Point = V(bx1, by1, bz1)
-        ladderBeam2Point = V(bx2, by2, bz2)
+        ladderBeam1Point = previousPoint + unitVectorAlongLadderStep*0.5*ladderWidth
+        ladderBeam2Point = previousPoint - unitVectorAlongLadderStep*0.5*ladderWidth
+        
 
         if previousLadderBeam1Point:
             drawline(beam1Color, 
                      previousLadderBeam1Point, 
                      ladderBeam1Point, 
                      width = beamThickness,
-                     isSmooth = True
-                 )
+                     isSmooth = True )
 
             drawline(beam2Color, 
                      previousLadderBeam2Point, 
                      ladderBeam2Point, 
                      width = beamThickness, 
-                     isSmooth = True
-                 )
+                     isSmooth = True )
             
-
             drawline(stepColor, ladderBeam1Point, ladderBeam2Point)
             
-    drawArrowHead(beam1Color, ladderBeam1Point, unitVector)                       
+    drawArrowHead(beam1Color, 
+                  ladderBeam1Point,
+                  arrowDrawingScale,
+                  unitVectorAlongLadderStep, 
+                  unitVector)                       
     glPopMatrix()
+    glEnable(GL_LIGHTING)
     
-def drawArrowHead(color, basePoint, unitVector):
-    arrowBase = 1.0
-    arrowHeight = 2.0
+def drawArrowHead(color, 
+                  basePoint, 
+                  drawingScale, 
+                  unitBaseVector, 
+                  unitHeightVector):
+    
+    arrowBase = drawingScale*0.08
+    arrowHeight = drawingScale*0.12
+    glDisable(GL_LIGHTING)
     glPushMatrix()
     glTranslatef(basePoint[0],basePoint[1],basePoint[2])
-    glRotatef(180,0.0,0.0,0.0)
     point1 = V(0, 0, 0)
-    point1 = point1 - unitVector*arrowHeight
-    point2 = V(0.0, arrowBase, 0.0)
-    point3 = V(0.0, - arrowBase, 0.0)
-    #Drawing it as a polygone doesn't work in some orientations. Don't know why!
-    #glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-    #glBegin(GL_POLYGON)
-    #glVertex3fv(point1)
-    #glVertex3fv(point2)
-    #glVertex3fv(point3)
-    #glEnd()    
-    points = [point1, point2, point3]
-    drawLineLoop(color, points)      
+    point1 = point1 + unitHeightVector*arrowHeight    
+    point2 =  unitBaseVector*arrowBase    
+    point3 = - unitBaseVector*arrowBase
+    #Draw the arrowheads as filled triangles
+    glColor3fv(color)
+    glBegin(GL_POLYGON)
+    glVertex3fv(point1)
+    glVertex3fv(point2)
+    glVertex3fv(point3)
+    glEnd()    
     glPopMatrix()
+    glEnable(GL_LIGHTING)
 
 def drawline(color, pos1, pos2, dashEnabled = False, width = 1, isSmooth = False):
     """Draw a line from pos1 to pos2 of the given color.
