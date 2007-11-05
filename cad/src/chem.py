@@ -1350,7 +1350,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             out = norm(otherpos - pos) * otherdir
             
             # Set the axis and arrow radius.
-            if self.element is Singlet and Singlet.bonds_can_be_directional:
+            if self.element is Singlet:
+                assert Singlet.bonds_can_be_directional #bruce 071105
                 # mark 071014 (prior code was equivalent to else case)
                 if dispdef == diTUBES:
                     axis = out * drawrad * 1.5

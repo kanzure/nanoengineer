@@ -55,22 +55,23 @@ from elements_data import _mendeleev
 _DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
                               'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
 
-#bruce 071018 revised menu text of the following, and made it default True;
-# old text was "draw PAM3 bondpoints as directional bond arrows? (next session)"
-
-if debug_pref("Bonds: permit directional open bonds? (next session)", 
-              Choice_boolean_True, 
-              non_debug = True,
-              prefs_key = "A9 devel/draw PAM3 singlets as arrows"):
-
-    # (Code by mark 071014, comment by bruce 071016:)
-    # This might soon become the usual case, with the debug_pref removed.
-    # Code which needs to know whether this occurred should (for now)
-    # test the boolean flag Singlet.bonds_can_be_directional,
-    # not the debug_pref itself.
-    
-    print "Adding 'X' (bondpoint) to _DIRECTIONAL_BOND_ELEMENTS tuple."
-    
+###bruce 071018 revised menu text of the following, and made it default True;
+### old text was "draw PAM3 bondpoints as directional bond arrows? (next session)"
+##
+##if debug_pref("Bonds: permit directional open bonds? (next session)", 
+##              Choice_boolean_True, 
+##              non_debug = True,
+##              prefs_key = "A9 devel/draw PAM3 singlets as arrows"):
+##
+##    # (Code by mark 071014, comment by bruce 071016:)
+##    # This might soon become the usual case, with the debug_pref removed.
+##    # Code which needs to know whether this occurred should (for now)
+##    # test the boolean flag Singlet.bonds_can_be_directional,
+##    # not the debug_pref itself.
+##    
+##    print "Adding 'X' (bondpoint) to _DIRECTIONAL_BOND_ELEMENTS tuple."
+if 1:
+    # bruce 071105 do this always (i.e. hardcode the debug_pref to True):
     _DIRECTIONAL_BOND_ELEMENTS = _DIRECTIONAL_BOND_ELEMENTS + ('X',) # mark 071014
 
     pass

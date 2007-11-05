@@ -1420,22 +1420,25 @@ class Bond(BondBase, StateMixin):
         # but since atom.unbond now kills singlets lacking any bonds,
         # and since not doing that would be bad, I added a note about that
         # to the docstring.
+
+        assert Singlet.bonds_can_be_directional # bruce 071105 
+##        if not Singlet.bonds_can_be_directional:
+##            # mark 071014 added condition
+##            # bruce comment 071016: the following comment by me
+##            # (and perhaps this code change by mark)
+##            # might be completely wrong, since I am now thinking
+##            # that the remaining bonds are all-new (created by unbond).
+##            # ### REVIEW that, and until then, don't trust the following comment or this code:
+##            # Motivation [bruce guess 071015 -- should ask mark ###]: don't destroy preexisting direction info
+##            # if it remains legal on an open bond. Probably a good change, once I make
+##            # the other aspects of the mark 071014 changes safe. Note that rebond (which
+##            # due to this change, might occur on an open bond with direction, when some new
+##            # non-directional element is deposited on it) already calls changed_atoms,
+##            # which clears directions if they are no longer allowed.
+##            ### TODO: copy direction onto the newly created bonds to x1 and x2.
+##            # [update 071105: I think that todo item is done now.]
+##            self._clear_bond_direction() #bruce 070415
         
-        if not Singlet.bonds_can_be_directional:
-            # mark 071014 added condition
-            # bruce comment 071016: the following comment by me
-            # (and perhaps this code change by mark)
-            # might be completely wrong, since I am now thinking
-            # that the remaining bonds are all-new (created by unbond).
-            # ### REVIEW that, and until then, don't trust the following comment or this code:
-            # Motivation [bruce guess 071015 -- should ask mark ###]: don't destroy preexisting direction info
-            # if it remains legal on an open bond. Probably a good change, once I make
-            # the other aspects of the mark 071014 changes safe. Note that rebond (which
-            # due to this change, might occur on an open bond with direction, when some new
-            # non-directional element is deposited on it) already calls changed_atoms,
-            # which clears directions if they are no longer allowed.
-            ### TODO: copy direction onto the newly created bonds to x1 and x2.
-            self._clear_bond_direction() #bruce 070415
         x1 = self.atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
         x2 = self.atom2.unbond(self, make_bondpoint = make_bondpoints)
         ###e do we want to also change our atoms and key to None, for safety?
