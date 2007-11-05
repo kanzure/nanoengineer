@@ -195,7 +195,7 @@ def assy_become_scanned_state(archive, assy, stateplace): #060407 revised arg na
         # these steps are in separate functions for clarity, and so they can be profiled individually
         mash_attrs( archive, attrdicts, modified, 'fake invalmols -- bug if used')
         fix_all_chunk_atomsets( attrdicts, modified)
-        call_undo_update( modified)
+        _call_undo_update( modified)
         call_registered_undo_updaters( archive)
         final_post_undo_updates( archive)
     else:
@@ -211,14 +211,14 @@ def assy_become_scanned_state(archive, assy, stateplace): #060407 revised arg na
 
         modified = {} # key->obj for objects we modified and which are still alive
             # (the only objs we modify that are not still alive are newly dead atoms, whose .molecule we set to None,
-            #  and perhaps newly dead chunks, removing atoms and invalidating (see comments in fix_all_chunk_atomsets_differential))
+            #  and perhaps newly dead chunks, removing atoms and invalidating (see comments in _fix_all_chunk_atomsets_differential))
 
         # these steps are in separate functions for clarity, and so they can be profiled individually
         ## oldmols = {} # kluge, described elsewhere, search for 'oldmols' and this date 060409
         invalmols = {}
         mash_attrs( archive, attrdicts, modified, invalmols, differential = True )
-        fix_all_chunk_atomsets_differential( invalmols)
-        call_undo_update( modified) # it needs to only call it for live objects! so we only pass live objects.
+        _fix_all_chunk_atomsets_differential( invalmols)
+        _call_undo_update( modified) # it needs to only call it for live objects! so we only pass live objects.
         call_registered_undo_updaters( archive)
         final_post_undo_updates( archive)
 
@@ -364,8 +364,9 @@ def mash_attrs( archive, attrdicts, modified, invalmols, differential = False ):
     return # from mash_attrs
 
 def fix_all_chunk_atomsets( attrdicts, modified):
-    #060409 NOT called for differential mash_attrs; for that see fix_all_chunk_atomsets_differential
-    """[private helper for assy_become_scanned_state:]
+    #060409 NOT called for differential mash_attrs; for that see _fix_all_chunk_atomsets_differential
+    """
+    [private helper for assy_become_scanned_state:]
     Given the set of live atoms (deduced from attrdicts) and their .molecule attributes
     (pointing from each atom to its owning chunk, which should be a live chunk),
     replace each live chunk's .atoms attr (dict from atom.key to atom, for all its atoms)
@@ -445,25 +446,36 @@ def fix_all_chunk_atomsets( attrdicts, modified):
             print_compact_traceback("bug: why does this happen, for mol %r atoms %r? " % (mol, mol.atoms))
     return # from fix_all_chunk_atomsets
 
-def fix_all_chunk_atomsets_differential(invalmols):
+def _fix_all_chunk_atomsets_differential(invalmols):
     for mol in invalmols.itervalues():
-        try:
-            assert mol is not _nullMol
-                # this might routinely fail; we do this in case it has an invalidate_atom_lists method that we shouldn't call
-            method = mol.invalidate_atom_lists
-        except:
-            ## if mol is None or mol is _nullMol or mol is _UNSET_:# not sure which of these can happen; not worth finding out right now
-            if mol is _UNSET_: # actually i think that's the only one that can happen
-                continue 
-            print_compact_traceback("bug (or fyi if this is None or _nullMol), for mol %r: " % (mol,))
-        else:
-            method() # inlines some of Chunk.addatom
-                # I think we can call this on newly dead Chunks;
-                # I'm not 100% sure that's ok, but I can't see a problem in the method
-                # and I didn't find a bug in testing. [060409]
+        if mol is not _nullMol:
+            # we exclude _nullMol in case it has an invalidate_atom_lists method
+            # that we shouldn't call
+            # [implem revised, bruce 071105; should be equivalent to prior code]
+            try:
+                method = mol._f_invalidate_atom_lists_and_maybe_deallocate_displist
+                    #bruce 071105 changing this to call this new method
+                    # _f_invalidate_atom_lists_and_maybe_deallocate_displist
+                    # rather than just invalidate_atom_lists.
+                    # Unfortunately it has no clear specification in the API
+                    # so we can't give it a general name. Ideally we'd have a
+                    # separate scan to call something like undo_update_dead
+                    # on all newly dead objects, but for now, that's not easy to
+                    # add (since I'd have to analyze the code to figure out
+                    # where), and I only need it for chunks for one purpose.
+            except:
+                ## if mol is None or mol is _UNSET_:# not sure which of these can happen; not worth finding out right now
+                if mol is _UNSET_: # actually i think that's the only one that can happen
+                    continue
+                print_compact_traceback("bug (or fyi if this is None or _nullMol), for mol %r: " % (mol,))
+            else:
+                method() # inlines some of Chunk.addatom
+                    # I think we can call this on newly dead Chunks;
+                    # I'm not 100% sure that's ok, but I can't see a problem in the method
+                    # and I didn't find a bug in testing. [060409]
     return
 
-def call_undo_update(modified): #060409 for differential mash_attrs, it's safe, but are the objs it's called on enough? #####@@@@@
+def _call_undo_update(modified): #060409 for differential mash_attrs, it's safe, but are the objs it's called on enough? #####@@@@@
     """[private helper for assy_become_scanned_state:]
     Call the _undo_update method of every object we might have modified and which is still alive
     (i.e. which is passed in the <modified> arg), which has that method.
@@ -495,7 +507,7 @@ def call_undo_update(modified): #060409 for differential mash_attrs, it's safe, 
                 # can be packaged into a once-er-user-op-message helper function? [060410 suggestion; search for other places to do it]
             pass
         continue
-    return # from call_undo_update
+    return # from _call_undo_update
 
 updaters_in_order = []
 

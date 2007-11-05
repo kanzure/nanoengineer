@@ -198,28 +198,57 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # no need to _s_attr_ decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
     # [that's the theory, anyway... bruce 060223]
 
+    # ==
+    
+    # note: def __init__ occurs below a few undo-related methods. TODO: move them below it.
+    
     def _undo_update(self): #bruce 060223 (initial super-conservative overkill version -- i hope)
-        """[guess at API, might be revised/renamed]
-        (This is called when Undo has set some of our attributes, using setattr,
+        """
+        [guess at API, might be revised/renamed]
+        This is called when Undo has set some of our attributes, using setattr,
         in case we need to invalidate or update anything due to that.
+        Note: it is only called if we are now alive (reachable in the model
+        state). See also _f_invalidate_atom_lists_and_maybe_deallocate_displist,
+        which is called (later) whether we are now alive or dead.
         """
         # One thing we know is required: if self.atoms changes, invalidate self.atlist.
         # This permits us to not store atom.index as undoable state, and to not update self.atpos before undo checkpoints.
         # [bruce 060313]
         self.invalidate_atom_lists() # this is the least we need (in general), but doesn't cover atom posns I think
         self.invalidate_everything() # this is probably overkill, but otoh i don't even know for sure it covers invalidate_atom_lists
-        self._colorfunc = None; del self._colorfunc #bruce 060308 precaution; might fix (or cause?) some "Undo in Extrude" bugs
-        self._dispfunc = None; del self._dispfunc
-        Node._undo_update(self) ##k do this before or after the following??
-            # (general rule for subclass/superclass for this? guess: more like destroy than create, so do high-level (subclass) first)
+
+        self._colorfunc = None
+        del self._colorfunc #bruce 060308 precaution; might fix (or cause?) some "Undo in Extrude" bugs
+
+        self._dispfunc = None
+        del self._dispfunc
+        
+        Node._undo_update(self)
+            # (Q: what's the general rule for whether to call our superclass
+            #  implem before or after running our own code in this method?
+            #  A: guess: this method is more like destroy than create, so do
+            #  high-level (subclass) code first. If it turns out this method
+            #  has some elements of both destroy and create, perhaps do only
+            #  the destroy-like elements before the superclass implem.)
         return
 
     def _undo_setattr_hotspot(self, hotspot, archive): #bruce 060404; 060410 use store_if_invalid to fix new bug 1829
-        """Undo is mashing changed state into lots of objects' attrs at once;
+        """
+        Undo is mashing changed state into lots of objects' attrs at once;
         this lets us handle that specially, just for self.hotspot, but in unknown order (for now)
         relative either to our attrs or other objects.
         """
         self.set_hotspot( hotspot, store_if_invalid = True)
+
+    def _enable_deallocate_displist(self):
+        # to avoid duplicating this code; TODO: inline this method when it soon returns a constant True
+        res = debug_pref("GLPane: deallocate OpenGL display lists of killed chunks?",
+                         Choice_boolean_True,
+                         prefs_key = True,
+                         non_debug = True )
+        return res
+    
+    # ==
     
     def __init__(self, assy, name = None):
         self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
@@ -402,6 +431,30 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             glpane.call_when_glcontext_is_next_current(func)
         return
 
+    def _f_invalidate_atom_lists_and_maybe_deallocate_displist(self):
+        """
+        [friend method to be called by _fix_all_chunk_atomsets_differential
+         in undo_archive; called at least
+         whenever Undo makes a chunk dead w/o calling self.kill,
+         which it does when undoing chunk creation or redoing chunk deletion;
+         also called on many other changes by undo or redo, for either alive
+         or dead chunks.]
+        """
+        self.invalidate_atom_lists()
+        #bruce 071105 created this method and made undo call it
+        # instead of just calling invalidate_atom_lists directly,
+        # so the code below is new. It's needed to make sure that
+        # undo of chunk creation, or redo of chunk kill, deallocates
+        # its display list. See comment next to call about a more
+        # general mechanism (nim) that would be better in the undo
+        # interface to us than this friend method.
+        if self._enable_deallocate_displist():
+            need_to_deallocate = self.ok_to_deallocate_displist()
+            if need_to_deallocate:
+                ## print "undo or redo calling deallocate_displist_later on %r" % self
+                self.deallocate_displist_later()
+        return
+    
     # ==
     
     def contains_atom(self, atom): #bruce 070514
@@ -615,13 +668,16 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # some invalidation methods
     
     def invalidate_atom_lists(self):
-        """private method: for now this is the same for addatom and delatom
+        """
+        private method:
+        for now this is the same for addatom and delatom
         so we have common code for it --
         some atom is joining or leaving this mol, do all needed invals
         (or this can be called once if many atoms are joining and/or leaving)
         """
         # Note: as of 060409 I think Undo/Redo can call this on newly dead Chunks
-        # (from fix_all_chunk_atomsets_differential);
+        # (from _fix_all_chunk_atomsets_differential, as of 071105 via the new
+        #  method _f_invalidate_atom_lists_and_maybe_deallocate_displist);
         # I'm not 100% sure that's ok, but I can't see a problem in the method
         # and I didn't find a bug in testing. [bruce 060409]
         self.havelist = 0
@@ -1993,10 +2049,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 self.part.remove(self)
                 assert self.part is None
         Node.kill(self) #bruce 050214 moved this here, made it unconditional
-        if debug_pref("GLPane: deallocate OpenGL display lists of killed chunks?",
-                      Choice_boolean_True,
-                      prefs_key = True,
-                      non_debug = True ):
+        if self._enable_deallocate_displist():
             self.deallocate_displist_later() #bruce 071103
         return # from molecule.kill
 
