@@ -83,8 +83,8 @@ class _ElementPeriodicTable(object):
     Represents a table of all possible elements (including pseudoelements)
     that can be used in Atoms.
 
-    Normally a singleton, but I [bruce 071101] don't know whether that's
-    obligatory.
+    Normally used as a singleton, but I [bruce 071101] don't know whether
+    that's obligatory.
     """
     def __init__(self):
         self._periodicTable = {} # maps elem.eltnum to elem (elem is an instance of Elem)
@@ -118,41 +118,48 @@ class _ElementPeriodicTable(object):
                 el.bonds_can_be_directional = True
         return
     
-    def _loadTableSettings(self, elSym2rad_color, changeNotFound = True ):
-        """Load a table of elements rad/color setting into the current set _periodicTable. 
+    def _loadTableSettings(self, elSym2rad_color ):
+        """
+        Load a table of elements rad/color setting into the current set _periodicTable. 
         <Param> elnum2rad_color:  A dictionary of (eleSym : (rvdw, [r,g,b])).
                 [r,g,b] can be None, which requires color from default setting
         """
         self.rvdw_change_counter += 1
         self.color_change_counter += 1
         for elm in self._periodicTable.values():
+            # TODO: recode this to not use try/except to test the table entry format
             try:
                 e_symbol = elm.symbol
                 rad_color = elSym2rad_color[e_symbol]
                 elm.rvdw = rad_color[0]
                 if len(rad_color) == 1:
                     rad_color = _defaultRad_Color[e_symbol]
+                elm.color = rad_color[1] # guess: this is what will routinely fail if [r,g,b] is None
+            except:                
+                rad_color = _defaultRad_Color[e_symbol]
+                elm.rvdw = rad_color[0]
                 elm.color = rad_color[1]
-            except:
-                if changeNotFound:
-                    rad_color = _defaultRad_Color[e_symbol]
-                    elm.rvdw = rad_color[0]
-                    elm.color = rad_color[1]
                 pass
         return
     
     def loadDefaults(self):
-        """Update the elements properties in the _periodicalTable as that from _defaultRad_Color"""
+        """
+        Update the elements properties in the _periodicalTable as that from _defaultRad_Color
+        """
         self. _loadTableSettings(_defaultRad_Color)
         
     def loadAlternates(self):
-        """Update the elements properties in the _periodicalTable as that from _altRad_Color,
-        if not find, load it from default."""
+        """
+        Update the elements properties in the _periodicalTable as that from _altRad_Color,
+        if not find, load it from default.
+        """
         self. _loadTableSettings(_altRad_Color)
         
     def deepCopy(self):
-        """Deep copy the current setting of elements rvdw/color,
-        in case user cancel the modifications """
+        """
+        Deep copy the current setting of elements rvdw/color,
+        in case user cancel the modifications
+        """
         copyPTable = {}
         for elm in self._periodicTable.values():
             if type(elm.color) != type([1,1,1]):
@@ -161,12 +168,16 @@ class _ElementPeriodicTable(object):
         return copyPTable
     
     def resetElemTable(self, elmTable):
-        """Set the current table of elments setting as <elmTable> """
+        """
+        Set the current table of elments setting as <elmTable>
+        """
         self. _loadTableSettings(elmTable)
     
     def setElemColors(self, colTab):
-        """Set a list of elements color 
-        <param>colTab: A list of tuples in the form of <elNum, r, g, b> """
+        """
+        Set a list of elements color 
+        <param>colTab: A list of tuples in the form of <elNum, r, g, b>
+        """
         assert type(colTab) == type([1,1, 1,1])
         self.color_change_counter += 1
         for elm in colTab:
@@ -174,7 +185,9 @@ class _ElementPeriodicTable(object):
         return
     
     def setElemColor(self, eleNum, c):
-        """Set element <eleNum> color as <c> """
+        """
+        Set element <eleNum> color as <c>
+        """
         assert type(eleNum) == type(1)
         assert eleNum >= 0
         assert type(c) == type([1,1,1])
@@ -182,13 +195,17 @@ class _ElementPeriodicTable(object):
         self._periodicTable[eleNum].color = c
         
     def getElemColor(self, eleNum):
-        """Return the element color as a triple list for <eleNum> """
+        """
+        Return the element color as a triple list for <eleNum>
+        """
         assert type(eleNum) == type(1)
         assert eleNum >= 0
         return self._periodicTable[eleNum].color
     
     def getPTsenil(self):
-        """Reverse right ends of top 4 lines for passivating """
+        """
+        Reverse right ends of top 4 lines for passivating
+        """
         pTsenil = [[self._periodicTable[2], self._periodicTable[1]],
            [self._periodicTable[10], self._periodicTable[9], self._periodicTable[8],
            self._periodicTable[7], self._periodicTable[6]],
@@ -199,12 +216,16 @@ class _ElementPeriodicTable(object):
         return pTsenil
     
     def getAllElements(self):
-        """Return the whole list of elements of periodic table as dictionary object """
+        """
+        Return the whole list of elements of periodic table as dictionary object
+        """
         return self._periodicTable
     
     def getElement(self, num_or_name_or_symbol):
-        """Return the element for <num_or_name_or_symbol>,
-        which is either the index, name or symbol of the element """
+        """
+        Return the element for <num_or_name_or_symbol>,
+        which is either the index, name or symbol of the element
+        """
         s = num_or_name_or_symbol
         if s in self._eltName2Num:
             s = self._eltName2Num[s]
@@ -215,19 +236,26 @@ class _ElementPeriodicTable(object):
         return self._periodicTable[s]
             
     def getElemRvdw(self, eleNum):
-        """Return the element rvdw  for <eleNum> """
+        """
+        Return the element rvdw  for <eleNum>
+        """
         return self._periodicTable[eleNum].rvdw
     
     def getElemMass(self, eleNum):
-        """Return the mass for element <eleNum> """
+        """
+        Return the mass for element <eleNum>
+        """
         return self._periodicTable[eleNum].mass
     
     def getElemName(self, eleNum):
-        """Return the name for element <eleNum> """
+        """
+        Return the name for element <eleNum>
+        """
         return self._periodicTable[eleNum].name
         
     def getElemBondCount(self, eleNum, atomtype = None):
-        """Return the number of open bonds for element <eleNum> (with no real bonds).
+        """
+        Return the number of open bonds for element <eleNum> (with no real bonds).
         If atomtype is provided, use that atomtype, otherwise use the default atomtype
         (i.e. assume all the open bonds should be single bonds).
         """
@@ -235,8 +263,9 @@ class _ElementPeriodicTable(object):
         return elem.atomtypes[0].numbonds
     
     def getElemSymbol(self, eleNum):
-        """ <Param> eleNum: element index
-            <Return>  the symbol for the element
+        """
+        <Param> eleNum: element index
+        <Return>  the symbol for the element
         """
         assert type(eleNum) == type(1)
         try:
@@ -248,7 +277,9 @@ class _ElementPeriodicTable(object):
      
     def close(self):
         ## The 'def __del__(self)' is not guaranteed to be called. It is not called in my try on Windows.
-        """Save color/radius preference before deleting"""
+        """
+        Save color/radius preference before deleting
+        """
         prefs = prefs_context()
         elms = {}
         for elm in self._periodicTable.values():
