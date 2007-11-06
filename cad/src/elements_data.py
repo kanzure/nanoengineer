@@ -1,7 +1,7 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 elements_data.py -- data for periodic table of elements
-(for atoms and pseudoatoms)
+(for chemical elements and Singlet -- see other files for PAM pseudoatoms)
 
 @author: Josh
 @version: $Id$
@@ -18,15 +18,21 @@ Bruce 050510 made some changes for "atomtypes" with their own bonding patterns.
 
 Bruce 071101 split elements_data.py out of elements.py.
 
-TODO: the public names should not start with _.
+Bruce 071105 revised init code, and split PAM3 and PAM5 data into separate files.
 """
 
 from VQT import V, A, norm
 from constants import DIAMOND_BOND_LENGTH
 
+_DIRECTIONAL_BOND_ELEMENTS_chemical = ('X',) # mark 071014
+
 # ==
 
 # the formations of bonds -- standard offsets
+
+# (note: these are public symbols that can also be used in
+#  element data files for pseudoatoms)
+
 uvec = norm(V(1,1,1))
 tetra4 = uvec * A([[1,1,1], [-1,1,-1], [-1,-1,1], [1,-1,-1]])
 tetra3 = uvec * A([[-1,1,-1], [-1,-1,1], [1,-1,-1]])
@@ -78,25 +84,7 @@ _defaultRad_Color = {
     "Sb" : (2.2,  [0.6, 0.26, 0.7]),
     "Te" : (2.1,  [0.9, 0.35, 0.0]),
     "I" : (2.0,  [0.0, 0.5, 0.0]),
-    "Xe" : (1.9,  [0.4, 0.45, 0.55]),
-    
-    "Ax5" : (5.0, [0.4, 0.4, 0.8]),    # PAM5 DNA pseudo atom
-    "Ss5" : (4.0, [0.4, 0.8, 0.4]),    # PAM5 DNA pseudo atom
-    "Sj5" : (4.0, [0.4, 0.8, 0.8]),    # PAM5 DNA pseudo atom
-    "Pl5" : (3.2, [0.4, 0.1, 0.5]),    # PAM5 DNA pseudo atom
-    "Ae5" : (3.5, [0.4, 0.4, 0.8]),    # PAM5 DNA pseudo atom
-    "Pe5" : (3.0, [0.4, 0.1, 0.5]),    # PAM5 DNA pseudo atom
-    "Sh5" : (2.5, [0.4, 0.8, 0.4]),    # PAM5 DNA pseudo atom
-    "Hp5" : (4.0, [0.3, 0.7, 0.3]),    # PAM5 DNA pseudo atom
-    
-    "Ax3" : (4.5, [0.4, 0.4, 0.8]),    # PAM3 DNA pseudo atom
-    "Ss3" : (4.5, [0.4, 0.8, 0.4]),    # PAM3 DNA pseudo atom
-    "Sj3" : (4.5, [0.4, 0.8, 0.8]),    # PAM3 DNA pseudo atom
-    "Pl3" : (3.0, [0.4, 0.1, 0.5]),    # PAM3 DNA pseudo atom (unused)
-    "Ae3" : (4.5, [0.1, 0.1, 0.5]),    # PAM3 DNA pseudo atom
-    "Se3" : (4.5, [0.4, 0.8, 0.4]),    # PAM3 DNA pseudo atom
-    "Sh3" : (3.0, [0.6, 0.2, 0.6]),    # PAM3 DNA pseudo atom
-    "Hp3" : (4.5, [0.3, 0.7, 0.3]),    # PAM3 DNA pseudo atom
+    "Xe" : (1.9,  [0.4, 0.45, 0.55]),    
     }
   
 _altRad_Color = {
@@ -256,26 +244,15 @@ _mendeleev = [
     ("Te", "Tellurium",   52, 131.106,  [[2, 120, tetra2]]),
     ("I",  "Iodine",      53, 132.674,  [[1, 119, onebond]]),
     ("Xe", "Xenon",       54, 134.429,  None),
-
-    # B-DNA PAM5 pseudo atoms (see also _DIRECTIONAL_BOND_ELEMENTS)
-    ("Ax5", "PAM5-Axis", 200, 1.0, [[4, 200, tetra4]]),
-    ("Ss5", "PAM5-Sugar", 201, 1.0, [[3, 210, flat]]),
-    ("Pl5", "PAM5-Phosphate", 202, 1.0, [[2, 210, tetra2]]),
-    ("Sj5", "PAM5-Sugar-Junction", 203, 1.0, [[3, 210, flat]]),
-    ("Ae5", "PAM5-Axis-End", 204, 1.0, [[1, 200, None, 'sp']]),
-    ("Pe5", "PAM5-Phosphate-End", 205, 1.0, [[1, 210, None, 'sp']]),
-    ("Sh5", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']]), #bruce 070415: End->Hydroxyl per ED email
-    ("Hp5", "PAM5-Hairpin", 207, 1.0, [[2, 210, tetra2]]),
-
-    # B-DNA PAM3 v2 pseudo atoms (see also _DIRECTIONAL_BOND_ELEMENTS)
-    ("Ax3", "PAM3-Axis", 300, 1.0, [[4, 200, tetra4]]),
-    ("Ss3", "PAM3-Sugar", 301, 1.0, [[3, 210, flat]]),
-    ("Pl3", "PAM3-Phosphate", 302, 1.0, [[2, 210, tetra2]]),
-    ("Sj3", "PAM3-Sugar-Junction", 303, 1.0, [[3, 210, flat]]),
-    ("Ae3", "PAM3-Axis-End", 304, 1.0, [[3, 200, tetra3]]),
-    ("Se3", "PAM3-Sugar-End", 305, 1.0, [[2, 210, tetra2]]),
-    ("Sh3", "PAM3-Sugar-Hydroxyl", 306, 1.0, [[1, 210, None, 'sp']]),
-    ("Hp3", "PAM3-Hairpin", 307, 1.0, [[2, 210, tetra2]])
  ]
 
+# ==
+
+def init_chemical_elements( periodicTable):
+    periodicTable.addElements( _mendeleev, _defaultRad_Color, _altRad_Color,
+                               _DIRECTIONAL_BOND_ELEMENTS_chemical )
+    return
+
 # end
+
+

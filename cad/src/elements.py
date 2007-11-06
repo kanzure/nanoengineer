@@ -25,73 +25,41 @@ Bruce 050510 made some changes for "atomtypes" with their own bonding patterns.
 Bruce 071101 split class Elem into its own module, removed Singleton superclass,
 and split elements_data.py out of elements.py.
 
-TODO:
-
-In elements.py and Elem.py,
-modularize the creation of different kinds of elements,
-to help permit specialized modules and Elem/Atom subclasses
-for PAM3 and PAM5 (etc). (Should we define new Elem subclasses for them?)
+Bruce 071105 modularized the creation of different kinds of elements,
+except for the central list of all the kinds in this file (implicit
+in the list of init_xxx_elements functions we call),
+so chemical, PAM3, and PAM5 elements are created by separate modules.
 """
 
 from preferences import prefs_context
-from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 
 from Elem import Elem
 
-from elements_data import _defaultRad_Color
-from elements_data import _altRad_Color
-from elements_data import _mendeleev
-
-# ==
-
-# _DIRECTIONAL_BOND_ELEMENTS lists the symbols of elements which permit
-# "directional bonds" (between two such elements).
-#
-# Note: this list is private, used only when creating the Elems in the
-# periodic table object. External code can look at the value of the boolean
-# per-element constant, elem.bonds_can_be_directional, instead.
-# [bruce 071015]
-
-_DIRECTIONAL_BOND_ELEMENTS = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5',
-                              'Ss3', 'Pl3', 'Sj3', 'Se3', 'Sh3', 'Hp3')
-
-###bruce 071018 revised menu text of the following, and made it default True;
-### old text was "draw PAM3 bondpoints as directional bond arrows? (next session)"
-##
-##if debug_pref("Bonds: permit directional open bonds? (next session)", 
-##              Choice_boolean_True, 
-##              non_debug = True,
-##              prefs_key = "A9 devel/draw PAM3 singlets as arrows"):
-##
-##    # (Code by mark 071014, comment by bruce 071016:)
-##    # This might soon become the usual case, with the debug_pref removed.
-##    # Code which needs to know whether this occurred should (for now)
-##    # test the boolean flag Singlet.bonds_can_be_directional,
-##    # not the debug_pref itself.
-##    
-##    print "Adding 'X' (bondpoint) to _DIRECTIONAL_BOND_ELEMENTS tuple."
-if 1:
-    # bruce 071105 do this always (i.e. hardcode the debug_pref to True):
-    _DIRECTIONAL_BOND_ELEMENTS = _DIRECTIONAL_BOND_ELEMENTS + ('X',) # mark 071014
-
-    pass
+from elements_data      import init_chemical_elements
+from elements_data_PAM3 import init_PAM3_elements
+from elements_data_PAM5 import init_PAM5_elements
     
 # ==
 
 class _ElementPeriodicTable(object):
     """
     Represents a table of all possible elements (including pseudoelements)
-    that can be used in Atoms.
+    that can be used in Atoms. (Initially contains no elements; caller
+    should add all the ones it needs before use, by calling
+    addElements one or more times.)
 
     Normally used as a singleton, but I [bruce 071101] don't know whether
     that's obligatory.
     """
     def __init__(self):
-        self._periodicTable = {} # maps elem.eltnum to elem (elem is an instance of Elem)
+        self._periodicTable = {} # maps elem.eltnum to elem (an Elem)
         self._eltName2Num = {} # maps elem.name to elem.eltnum
         self._eltSym2Num = {} # maps elem.symbol to elem.eltnum
+        self._defaultRad_Color = {} #bruce 071105
+        self._altRad_Color = {} #bruce 071105
         
-        self._createElements(_mendeleev)
+##        self._createElements(_mendeleev) # bruce 071105 removed this
+        
         # bruce 050419 add public attributes to count changes
         # to any element's color or rvdw; the only requirement is that
         # each one changes at least once per user event which
@@ -99,44 +67,87 @@ class _ElementPeriodicTable(object):
         self.color_change_counter = 1
         self.rvdw_change_counter = 1
         return
-           
-    def _createElements(self, elmTable):
+
+    def addElements(self, elmTable, _defaultRad_Color, _altRad_Color,
+                    _DIRECTIONAL_BOND_ELEMENTS = () ):
+        #bruce 071105 modified from def _createElements(self, elmTable):
         """
-        Create elements for all member of <elmTable>.
-        Use preference value of each element if available, otherwise, use default value.  
-        <Param> elmTable: a list of elements needed to create
+        Create elements for all members of <elmTable> (list of tuples).
+        (Ok to call this more than once for non-overlapping elmTables
+        (unique element symbols).
+        
+        Use preference value for radius and color of each element,
+        if available (using element symbol as prefs key);
+        otherwise, use values from _defaultRad_Color dictionary,
+        which must have values for all element symbols in elmTable.
+        (Make sure it has the value, even if we don't need it due to prefs.)
+
+        Also store all values in _defaultRad_Color, _altRad_Color tables
+        for later use by loadDefaults or loadAlternates methods.
+        
+        @param elmTable: a list of elements to create, as tuples of a format
+                         documented in elements_data.py.
+
+        @param _defaultRad_Color: a dictionary of radius, color pairs,
+                                  indexed by element symbol. Must be complete.
+                                  Used now when not overridden by prefs.
+                                  Stored for optional later use by loadDefaults.
+
+        @param _altRad_Color: an alternate dictionary of radius, color pairs.
+                              Need not be complete; missing entries are
+                              effectively taken from _defaultRad_Color.
+                              Stored for optional later use by loadAlternates.
+
+        @param _DIRECTIONAL_BOND_ELEMENTS: a list of elements in elmTable
+                                           which support directional bonds.
         """
         prefs = prefs_context()
+        symbols = {}
         for elm in elmTable:
+            symbols[elm[0]] = 1 # record element symbols seen in this call
             rad_color = prefs.get(elm[0], _defaultRad_Color[elm[0]])
-            el = Elem(elm[2], elm[0], elm[1], elm[3], rad_color[0], rad_color[1], elm[4])
+            el = Elem(elm[2], elm[0], elm[1], elm[3],
+                      rad_color[0], rad_color[1], elm[4])
+            assert not self._periodicTable.has_key(el.eltnum)
+            assert not self._eltName2Num.has_key(el.name)
+            assert not self._eltSym2Num.has_key(el.symbol)
             self._periodicTable[el.eltnum] = el
             self._eltName2Num[el.name] = el.eltnum
             self._eltSym2Num[el.symbol] = el.eltnum
             if elm[0] in _DIRECTIONAL_BOND_ELEMENTS: #bruce 071015
-                # print "_DIRECTIONAL_BOND_ELEMENTS affects", el
                 el.bonds_can_be_directional = True
+        for key in _defaultRad_Color.iterkeys():
+            assert key in symbols
+        for key in _altRad_Color.iterkeys():
+            assert key in symbols
+        self._defaultRad_Color.update(_defaultRad_Color)
+        self._altRad_Color.update(_altRad_Color)
         return
     
     def _loadTableSettings(self, elSym2rad_color ):
         """
-        Load a table of elements rad/color setting into the current set _periodicTable. 
-        <Param> elnum2rad_color:  A dictionary of (eleSym : (rvdw, [r,g,b])).
-                [r,g,b] can be None, which requires color from default setting
+        Load a table of element radius/color settings into self. 
+
+        @param elSym2rad_color: A dictionary of (eleSym : (rvdw, [r,g,b])).
+                [r,g,b] can be None or missing, in which case use color from
+                self._defaultRad_Color; or the entire entry for eleSym
+                can be missing, in which case use both color and radius
+                from self._defaultRad_Color.
         """
         self.rvdw_change_counter += 1
         self.color_change_counter += 1
         for elm in self._periodicTable.values():
-            # TODO: recode this to not use try/except to test the table entry format
+            # TODO: recode this to not use try/except to test the table format
             try:
                 e_symbol = elm.symbol
                 rad_color = elSym2rad_color[e_symbol]
                 elm.rvdw = rad_color[0]
                 if len(rad_color) == 1:
-                    rad_color = _defaultRad_Color[e_symbol]
-                elm.color = rad_color[1] # guess: this is what will routinely fail if [r,g,b] is None
+                    rad_color = self._defaultRad_Color[e_symbol]
+                elm.color = rad_color[1]
+                    # guess: this is what will routinely fail if [r,g,b] is None
             except:                
-                rad_color = _defaultRad_Color[e_symbol]
+                rad_color = self._defaultRad_Color[e_symbol]
                 elm.rvdw = rad_color[0]
                 elm.color = rad_color[1]
                 pass
@@ -144,21 +155,23 @@ class _ElementPeriodicTable(object):
     
     def loadDefaults(self):
         """
-        Update the elements properties in the _periodicalTable as that from _defaultRad_Color
+        Update the elements properties in self from self._defaultRad_Color.
         """
-        self. _loadTableSettings(_defaultRad_Color)
+        self. _loadTableSettings( self._defaultRad_Color)
         
     def loadAlternates(self):
         """
-        Update the elements properties in the _periodicalTable as that from _altRad_Color,
-        if not find, load it from default.
+        Update the elements properties in self from self._altRad_Color;
+        for missing or partly-missing values, use self._defaultRad_Color.
         """
-        self. _loadTableSettings(_altRad_Color)
+        self. _loadTableSettings( self._altRad_Color)
         
     def deepCopy(self):
         """
-        Deep copy the current setting of elements rvdw/color,
-        in case user cancel the modifications
+        Deep copy the current settings of element rvdw/color,
+        and return in a form that can be passed to resetElemTable.
+        Typical use is in case user cancels modifications being done
+        by an interactive caller which can edit this table.
         """
         copyPTable = {}
         for elm in self._periodicTable.values():
@@ -169,14 +182,15 @@ class _ElementPeriodicTable(object):
     
     def resetElemTable(self, elmTable):
         """
-        Set the current table of elments setting as <elmTable>
+        Set the current table of element settings to equal those in <elmTable>
         """
-        self. _loadTableSettings(elmTable)
+        self._loadTableSettings(elmTable)
     
     def setElemColors(self, colTab):
         """
-        Set a list of elements color 
-        <param>colTab: A list of tuples in the form of <elNum, r, g, b>
+        Set a list of element colors. 
+
+        @param colTab: A list of tuples in the form of <elNum, r, g, b>
         """
         assert type(colTab) == type([1,1, 1,1])
         self.color_change_counter += 1
@@ -204,27 +218,38 @@ class _ElementPeriodicTable(object):
     
     def getPTsenil(self):
         """
-        Reverse right ends of top 4 lines for passivating
+        Return a nested list of elements for use in Passivate,
+        consisting of the reversed right ends of the top 4 rows (?)
+        of the standard periodic table of the chemical elements.
         """
-        pTsenil = [[self._periodicTable[2], self._periodicTable[1]],
-           [self._periodicTable[10], self._periodicTable[9], self._periodicTable[8],
-           self._periodicTable[7], self._periodicTable[6]],
-           [self._periodicTable[18], self._periodicTable[17], self._periodicTable[16],
-           self._periodicTable[15], self._periodicTable[14]],
-           [self._periodicTable[36], self._periodicTable[35], self._periodicTable[34],
-            self._periodicTable[33], self._periodicTable[32]]]
+        pTsenil = [
+            [self._periodicTable[2], self._periodicTable[1]],
+            
+            [self._periodicTable[10], self._periodicTable[9],
+             self._periodicTable[8], self._periodicTable[7],
+             self._periodicTable[6]],
+            
+            [self._periodicTable[18], self._periodicTable[17],
+             self._periodicTable[16], self._periodicTable[15],
+             self._periodicTable[14]],
+            
+            [self._periodicTable[36], self._periodicTable[35],
+             self._periodicTable[34], self._periodicTable[33],
+             self._periodicTable[32]]
+         ]
         return pTsenil
     
     def getAllElements(self):
         """
-        Return the whole list of elements of periodic table as dictionary object
+        Return the whole list of elements of periodic table as a dictionary.
+        The caller should not modify this dictionary.
         """
         return self._periodicTable
     
     def getElement(self, num_or_name_or_symbol):
         """
         Return the element for <num_or_name_or_symbol>,
-        which is either the index, name or symbol of the element
+        which is either the index, name or symbol of the element.
         """
         s = num_or_name_or_symbol
         if s in self._eltName2Num:
@@ -255,9 +280,11 @@ class _ElementPeriodicTable(object):
         
     def getElemBondCount(self, eleNum, atomtype = None):
         """
-        Return the number of open bonds for element <eleNum> (with no real bonds).
-        If atomtype is provided, use that atomtype, otherwise use the default atomtype
-        (i.e. assume all the open bonds should be single bonds).
+        Return the number of open bonds for element <eleNum>
+        (when it has no real bonds).
+        If atomtype is provided, use that atomtype, otherwise
+        use the default atomtype (i.e. assume all the open bonds
+        should be single bonds).
         """
         elem = self._periodicTable[eleNum]
         return elem.atomtypes[0].numbonds
@@ -276,7 +303,8 @@ class _ElementPeriodicTable(object):
             return None
      
     def close(self):
-        ## The 'def __del__(self)' is not guaranteed to be called. It is not called in my try on Windows.
+        # The 'def __del__(self)' is not guaranteed to be called.
+        # It is not called in my try on Windows. [Huaicai]
         """
         Save color/radius preference before deleting
         """
@@ -291,9 +319,15 @@ class _ElementPeriodicTable(object):
 
 # ==
 
-# Some global definitions
+# init code and global definitions
 
-PeriodicTable  = _ElementPeriodicTable()
+PeriodicTable  = _ElementPeriodicTable() # initially empty
+
+init_chemical_elements( PeriodicTable) # including Singlet == element 0
+
+init_PAM3_elements( PeriodicTable)
+init_PAM5_elements( PeriodicTable)
+
 
 Hydrogen = PeriodicTable.getElement(1)
 Carbon = PeriodicTable.getElement(6)
@@ -302,10 +336,13 @@ Oxygen = PeriodicTable.getElement(8)
 
 Singlet = PeriodicTable.getElement(0)
 
+
 # == test code
 
 if __name__ == '__main__':
+    # UNTESTED since Singleton superclass removed or init code revised [071105]
     pt1 = _ElementPeriodicTable()
+    init_chemical_elements( PeriodicTable)
 
     assert pt1.getElement('C') == pt1.getElement(6)
     assert pt1.getElement('Oxygen') == pt1.getElement(8)
@@ -315,6 +352,6 @@ if __name__ == '__main__':
 
     print pt1.getElemSymbol(12)
 
-    pt1.deepCopy() # UNTESTED since Singleton superclass removed
+    pt1.deepCopy() 
 
 # end
