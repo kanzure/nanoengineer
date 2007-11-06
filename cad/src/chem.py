@@ -1012,10 +1012,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
     
     def __repr__(self):
-        return self.element.symbol + str(self.key)
+        return self.element.symbol_for_printing + str(self.key)
 
     def __str__(self):
-        return self.element.symbol + str(self.key)
+        return self.element.symbol_for_printing + str(self.key)
 
     def prin(self):
         """for debugging
