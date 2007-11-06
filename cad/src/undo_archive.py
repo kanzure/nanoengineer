@@ -56,7 +56,8 @@ def _undo_debug_message( msg):
 # ==
 
 def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = False, **options): #bruce 060117 prototype-kluge
-    """return a data-like python object encoding all the undoable state in assy
+    """
+    Return a data-like python object encoding all the undoable state in assy
     (or in nE-1 while it's using assy)
     (it might contain refs to permanent objects like elements or atomtypes, and/or contain Numeric arrays)
     """
@@ -68,7 +69,8 @@ def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = Fals
     assert 0 # 060301, zapped even the commented-out alternative, 060314
 
 def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329/060404 added exclude_layers option
-    """[#doc better:]
+    """
+    [#doc better:]
     Return a big StateSnapshot object listing all the undoable data reachable from assy,
     except the data deemed to be in layers listed in exclude_layers (e.g. atoms and bonds and certain sets of those),
     in a data-like form (but including live objrefs), mostly equivalent to a list of objkey/attr/value triples,
@@ -109,7 +111,9 @@ def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329/060404 added 
 # assy methods, here so reload works [but as of 060407, some or all of them should not be assy methods anyway, it turns out]
 
 def assy_become_state(self, stateplace, archive): #e should revise args, but see also the last section which uses 'self' a lot [060407 comment]
-    """[self is an assy] replace our state with some new state (in an undo-private format) saved earlier by an undo checkpoint,
+    """
+    [self is an assy]
+    replace our state with some new state (in an undo-private format) saved earlier by an undo checkpoint,
     using archive to interpret it if necessary
     """
     #bruce 060117 kluge for non-modular undo; should be redesigned to be more sensible
@@ -139,8 +143,11 @@ def assy_become_state(self, stateplace, archive): #e should revise args, but see
     return
 
 def assy_clear(self): #bruce 060117 draft
+    """
+    [self is an assy]
+    become empty of undoable state (as if just initialized)
+    """
     # [note: might be called as assy.clear() or self.clear() in this file.]
-    "[self is an assy] become empty of undoable state (as if just initialized)"
     self.tree.destroy() # not sure if these work very well yet; maybe tolerable until we modularize our state-holding objects
         #bruce 060322 comments [MOSTLY WRONG but useful anyway, as explained in next lines]:
         # - as I wrote the following, I was thinking that this was an old method of assy, so they might be partly misguided.
@@ -174,8 +181,11 @@ def assy_clear(self): #bruce 060117 draft
 # ==
 
 def assy_become_scanned_state(archive, assy, stateplace): #060407 revised arg names & order
+    """
+    [obs docstring?: stateplace is returned by mmp_state_by_scan,
+    and is therefore presumably a StateSnapshot or StatePlace object]
+    """
     #e guess as of 060407: this should someday be an archive method, with some of the helpers being stateplace or state methods
-    "[obs: stateplace is returned by mmp_state_by_scan, and is therefore presumably a StateSnapshot or StatePlace object]"
     ####@@@@ this should really be a method of AssyUndoArchive (not just assy itself) [bruce 060313 realization]
     assert assy is archive.assy
         # in future, maybe an archive can support more than one assy at a time (so this will need to be more general), who knows
@@ -225,7 +235,8 @@ def assy_become_scanned_state(archive, assy, stateplace): #060407 revised arg na
     return # from assy_become_scanned_state
 
 def mash_attrs( archive, attrdicts, modified, invalmols, differential = False ): #060409 added differential = True support
-    """[private helper for assy_become_scanned_state:]
+    """
+    [private helper for assy_become_scanned_state:]
     Mash new (or old) attrvals into live objects, using setattr or _undo_setattr_;
     record which objects are modified in the given dict, using objkey->obj
     (this will cover all reachable objects in the entire state, even if only a few *needed* to be modified,
@@ -476,7 +487,8 @@ def _fix_all_chunk_atomsets_differential(invalmols):
     return
 
 def _call_undo_update(modified): #060409 for differential mash_attrs, it's safe, but are the objs it's called on enough? #####@@@@@
-    """[private helper for assy_become_scanned_state:]
+    """
+    [private helper for assy_become_scanned_state:]
     Call the _undo_update method of every object we might have modified and which is still alive
     (i.e. which is passed in the <modified> arg), which has that method.
     [Note: caller (in differential mash_attrs case)
@@ -512,7 +524,8 @@ def _call_undo_update(modified): #060409 for differential mash_attrs, it's safe,
 updaters_in_order = []
 
 def call_registered_undo_updaters(archive): #060409 seems likely to be safe/sufficient for differential mash_attrs, but too slow ###@@@
-    """[private helper for assy_become_scanned_state:]
+    """
+    [private helper for assy_become_scanned_state:]
     Call the registered undo updaters (on the overall model state, not the ones
     on individual changed objects, which should already have been called),
     in the proper order.
@@ -528,7 +541,8 @@ def call_registered_undo_updaters(archive): #060409 seems likely to be safe/suff
     return # from call_registered_undo_updaters
 
 def final_post_undo_updates(archive): #060409 seems likely to be safe/sufficient for differential mash_attrs ###@@@
-    """[private helper for assy_become_scanned_state:]
+    """
+    [private helper for assy_become_scanned_state:]
     #doc
     """
     assy = archive.assy
@@ -561,17 +575,23 @@ def final_post_undo_updates(archive): #060409 seems likely to be safe/sufficient
 _cp_counter = 0
 
 class Checkpoint:
-    """Represents a slot to be filled (usually long after object is first created)
+    """
+    Represents a slot to be filled (usually long after object is first created)
     with a snapshot of the model's undoable state. API permits snapshot data (self.state) to be
     filled in later, or (if implem supports) defined by a diff from the state of another checkpoint.
-       Some things done in the calling code (esp. fill_checkpoint) will probably be moved into methods of this class eventually.
-       Self.state will not exist until the state-data is fully defined (unless a future revision supports its being
+
+    Some things done in the calling code (esp. fill_checkpoint) will probably be moved into methods of this class eventually.
+
+    Self.state will not exist until the state-data is fully defined (unless a future revision supports its being
     some sort of lazily-valued expr which indicates a lazily filled diff and a prior checkpoint).
-       Self.complete is a boolean which is True once the snapshot contents are fully defined. As of 060118 this is
+
+    Self.complete is a boolean which is True once the snapshot contents are fully defined. As of 060118 this is
     the same as hasattr(self, 'state'), but if self.state can be lazy then it might exist with self.complete still being false.
-       The main varid_ver might exist right away, but the ones that depend on the difference with prior state won't exist
+
+    The main varid_ver might exist right away, but the ones that depend on the difference with prior state won't exist
     until the set of differences is known.
-       Note: it is good to avoid letting a checkpoint contain a reference to its assy or archive or actual model objects,
+
+    Note: it is good to avoid letting a checkpoint contain a reference to its assy or archive or actual model objects,
     since those would often be cyclic refs or refs to garbage, and prevent Python from freeing things when it should.
     """
     def __init__(self, assy_debug_name = None):
@@ -630,7 +650,8 @@ class Checkpoint:
     pass # end of class Checkpoint
 
 class SimpleDiff:
-    """Represent a diff defined as going from checkpoint 0 to checkpoint 1
+    """
+    Represent a diff defined as going from checkpoint 0 to checkpoint 1
     (in that order, when applied);
     also considered to be an operation for applying that diff in that direction.
     Also knows whether that direction corresponds to Undo or Redo,
@@ -842,7 +863,8 @@ class SimpleDiff:
 _last_real_class_for_name = {}
 
 def undo_classname_for_decls(class1):
-    """Return Undo's concept of a class's name for use in declarations,
+    """
+    Return Undo's concept of a class's name for use in declarations,
     given either the class or the name string. For dotted classnames (of builtin objects)
     this does not include the '.' even if class1.__name__ does (otherwise the notation
     "classname.attrname" would be ambiguous). Note that in its internal object analysis tables,
@@ -871,7 +893,8 @@ assert undo_classname_for_decls("_testclass") == "_testclass"
 _classname_for_nickname = {}
 
 def register_class_nickname(name, class1):
-    """Permit <name>, in addition to class1.__name__ (or class1 itself if it's a string),
+    """
+    Permit <name>, in addition to class1.__name__ (or class1 itself if it's a string),
     to be used in declarations involving class1 to the Undo system.
        This should be used only (or mainly) when the actual class name is deprecated and the class is slated
     to be renamed to <name> in the future, to permit declarations to use the preferred name in advance.
@@ -886,8 +909,11 @@ def register_class_nickname(name, class1):
 #e refile, in this file or another? not sure.
 
 def register_undo_updater( func, updates = (), after_update_of = () ):
-    ####@@@@ THIS IS NIM, its effect is kluged elsewhere [still true 060314]
-    """Register <func> to be called on 2 args (archive, assy) every time some AssyUndoArchive mashes some
+    # Note: as of 060314, this was nim, with its effect kluged elsewhere.
+    # But a month or two before 071106 that changed; ericm made it active
+    # in order to remove an import cycle.
+    """
+    Register <func> to be called on 2 args (archive, assy) every time some AssyUndoArchive mashes some
     saved state into the live objects of the current state (using setattr) and needs to fix things that might
     have been messed up by that or might no longer be consistent.
        The optional arguments <updates> and <after_update_of> affect the order in which the registered funcs
@@ -957,7 +983,8 @@ register_undo_updater( _undo_update_Atom_jigs,
 # but for now it's clearest to think about them in this separate layer.
 
 def make_empty_checkpoint(assy, cptype = None):
-    """Make a new Checkpoint object, with no state.
+    """
+    Make a new Checkpoint object, with no state.
     Sometime you might want to call fill_checkpoint on it,
     though in the future there will be more incremental options.
     """
@@ -968,7 +995,8 @@ def make_empty_checkpoint(assy, cptype = None):
     return cp
 
 def current_state(archive, assy, **options):
-    """Return a data-like representation of complete current state of the given assy;
+    """
+    Return a data-like representation of complete current state of the given assy;
     initial flag [ignored as of bfr 060407] means it might be too early (in assy.__init__) to measure this
     so just return an "empty state".
        On exception while attempting to represent current state, print debug error message
@@ -1018,11 +1046,13 @@ def fill_checkpoint(cp, state, assy): #e later replace calls to this with cp met
 # ==
 
 class checkpoint_metainfo:
-    """Hold the metainfo applicable at some moment in the undoable state...
+    """
+    Hold the metainfo applicable at some moment in the undoable state...
     undecided whether one checkpoint and/or diff might have more than one of these.
     E.g. for a diff we might have this at start of first command in it, at first and last diff in it, and at end of command;
     for checkpoint we might have it for when we finalize it.
-       Don't hold any ref to assy or glpane itself!
+
+    Don't hold any ref to assy or glpane itself!
     """
     def __init__(self, assy):
         """
@@ -1072,7 +1102,10 @@ from idlelib.Delegator import Delegator
 # print "Delegator",Delegator,type(Delegator),`Delegator`
 
 class MergingDiff(Delegator): ###@@@ this is in use, but has no effect [as of bfr 060326].
-    "A higher-level diff, consisting of a diff with some merging options which cause more diffs to be applied with it"
+    """
+    A higher-level diff, consisting of a diff with some merging options
+    which cause more diffs to be applied with it
+    """
     # When this actually merges, it needs to override menu_desc & cp's, too. ####@@@@
     def __init__(self, diff, flags = None, archive = None):
         Delegator.__init__(self, diff) # diff is now self.delegate; all its attrs should be constant since they get set on self too
@@ -1089,7 +1122,8 @@ class MergingDiff(Delegator): ###@@@ this is in use, but has no effect [as of bf
 # ==
 
 class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_older # TODO: maybe assy.changed will tell us...
-    """#docstring is in older code... maintains a series (or graph) of checkpoints and diffs connecting them....
+    """
+    #docstring is in older code... maintains a series (or graph) of checkpoints and diffs connecting them....
      At most times, we have one complete ('filled') checkpoint, and a subsequent incomplete one (subject to being modified
     by whatever changes other code might next make to the model objects).
      Even right after an undo or redo, we'll have a checkpoint
@@ -1164,16 +1198,6 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 for ourdict in ourdicts:
                     if ourdict:
                         print "bug: archive's changedict should have been empty but contains:", ourdict
-##            for ourdict, globaldict_name in ((self._changed_parent_Atoms, '_changed_parent_Atoms'),
-##                                             ##k names are correct; do we need all these sep ones?
-##                                             ###e more to the point, we want to get these from clas when we hit new objs...
-##                                             # or when new classes are registered as contributing tracked objs in certain layers.
-##                                             # (thinking ahead to custom code classes, reloaded at runtime, and multiple open files)
-##                                             (self._changed_structure_Atoms, '_changed_structure_Atoms'),
-##                                             (self._changed_posn_Atoms, '_changed_posn_Atoms'),
-##                                             (self._changed_picked_Atoms, '_changed_picked_Atoms'),
-##                                             (self._changed_otherwise_Atoms, '_changed_otherwise_Atoms'),
-##                                             (self._changed_Bonds, '_changed_Bonds')):
             cd_ods = self._changedicts[:]
             for changedict, ourdict in cd_ods:
                 self.sub_or_unsub_to_one_changedict(subQ, changedict, ourdict)
@@ -1201,7 +1225,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
     
     def _clear(self):
-        """[private helper method for self.clear_undo_stack()]
+        """
+        [private helper method for self.clear_undo_stack()]
         Clear our main data stores, which are set up in __init__, and everything referring to undoable objects or objkeys.
         (But don't clear our obj_classifier.)
         """
@@ -1251,7 +1276,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
     
     def _archive_meet_class(self, class1):
-        "[private] class1 is a class whose objects we might want to changetrack. Learn how, and subscribe to necessary changedicts."
+        """
+        [private]
+        class1 is a class whose objects we might want to changetrack.
+        Learn how, and subscribe to necessary changedicts.
+        """
         ###e if we've been destroyed, raise an exception to get us removed from the pairmatcher, maybe a special one that's not an
         # error in its eyes; in current code we'll raise AttributeError on _changedicts or maybe on its extend method #####@@@@@
         changedicts0 = changes._changedicts_for_classid[ id(class1) ] # maps name to dict, but names are only unique per-class
@@ -1277,7 +1306,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
 
     def childobj_oursQ(self, obj):
-        """Is the given object (allowed to be an arbitrary Python object, including None, a list, etc)
+        """
+        Is the given object (allowed to be an arbitrary Python object, including None, a list, etc)
         known to be one of *our* undoable state-holding objects?
         (Also True in present implem if obj has ever been one of ours;
          this needs review if this distinction ever matters,
@@ -1293,13 +1323,20 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return self.objkey_allocator._key4obj.has_key(id(obj))
     
     def new_Atom_oursQ(self, atom): #060405; rewritten 060406
-        "Is a newly seen Atom object one of ours? [it's being seen in a changed-object set; the implem might assume that, I'm not sure]"
+        """
+        Is a newly seen Atom object one of ours?
+        [it's being seen in a changed-object set;
+        the implem might assume that, I'm not sure]
+        """
         #e we might optim by also requiring it to be alive; review callers if this might be important
         ##e maybe we should be calling a private Atom method for this; not sure, since we'd need to pass self for self.childobj_oursQ
         return self.childobj_oursQ( atom.molecule ) # should be correct even if atom.molecule is None or _nullMol (says False then)    
 
     def new_Bond_oursQ(self, bond): #060405
-        "Is a newly seen Bond object one of ours? (optional: also ok to return False if it's not alive)"
+        """
+        Is a newly seen Bond object one of ours?
+        (optional: also ok to return False if it's not alive)
+        """
         ##e maybe we should be calling a private Bond method for this
         if not self.trackedobj_liveQ(bond):
             return False # seems reasonable (for any kind of object)... review/doc/comment in caller ###e
@@ -1314,7 +1351,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # - the atoms might not be "new", but (for a new bond of ours) they're new enough for that method to work.
 
     def childobj_liveQ(self, obj):
-        """Is the given object (allowed to be an arbitrary Python object, including None, a list, etc) (?? or assumed ourQ??)
+        """
+        Is the given object (allowed to be an arbitrary Python object, including None, a list, etc) (?? or assumed ourQ??)
         a live child-scanned object in the last-scanned state (still being scanned, in fact), assuming it's a child-scanned object?
         WARNING: it's legal to call this for any object, but for a non-child-scanned but undoable-state-holding object
         which is one of ours (i.e. an Atom or Bond as of 060406), the return value is undefined.
@@ -1330,7 +1368,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return self._childobj_dict.has_key(id(obj))
 
     def trackedobj_liveQ(self, obj):
-        """Assuming obj is a legitimate object of a class we change-track
+        """
+        Assuming obj is a legitimate object of a class we change-track
         (but not necessarily that we're the archive that tracks that instance, or that any archive does),
         but *not* requiring that we've already allocated an objkey for it (even if it's definitely ours),
         then ask its class-specific implem of _undo_aliveQ to do the following:
@@ -1353,7 +1392,10 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             return False
         
     def get_and_clear_changed_objs(self, want_retval = True):
-        "Clear, and (unless want_retval is false) return copies of, the changed-atoms dict (key -> atom) and changed-bonds dict (id -> bond)."
+        """
+        Clear, and (unless want_retval is false) return copies of,
+        the changed-atoms dict (key -> atom) and changed-bonds dict (id -> bond).
+        """
         for changedict, ourdict_junk in self._changedicts:
             cdp = changes._cdproc_for_dictid[id(changedict)]
             cdp.process_changes() # this is needed to add the latest changes to our own local changedict(s)
@@ -1366,7 +1408,10 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return res
     
     def destroy(self): #060126 precaution
-        "free storage, make doing of our ops illegal (noop with bug warning; or maybe just exception)"
+        """
+        free storage, make doing of our ops illegal
+        (noop with bug warning; or maybe just exception)
+        """
         if self.pref_report_checkpoints():
             self.debug_histmessage("(destroying: %r)" % self)
         self.sub_or_unsub_changedicts(False)
@@ -1389,7 +1434,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     # ==
 
     def _setup_next_cp(self):
-        """[private method, mainly for begin_cmd_checkpoint:]
+        """
+        [private method, mainly for begin_cmd_checkpoint:]
         self.last_cp is set; make (incomplete) self.next_cp, and self.current_diff to go between them.
         Index it... actually we probably can't fully index it yet if that depends on its state-subset vers.... #####@@@@@
         """
@@ -1402,7 +1448,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
 
     def set_last_cp_after_undo(self, cp): # 060301
-        """We're doing an Undo or Redo command which has just caused actual current state (and its change_counters) to equal cp.state.
+        """
+        We're doing an Undo or Redo command which has just caused actual current state (and its change_counters) to equal cp.state.
         Therefore, self.last_cp is no longer relevant, and that attr should be set to cp so further changes are measured relative to that
         (and self.current_diff and next_cp should be freshly made, forking off from it -- or maybe existing self.next_cp can be recycled for this;
         also we might need some of the flags in self.current_diff... but not the changes, I think, which either don't exist yet or are
@@ -1464,7 +1511,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
     
     def pref_report_checkpoints(self): #bruce 060127 revised meaning and menutext, same prefs key
-        "whether to report all checkpoints which see any changes from the prior one"
+        """
+        whether to report all checkpoints which see any changes from the prior one
+        """
         res = debug_pref("undo/report changed checkpoints", Choice_boolean_False,
                          prefs_key = "_debug_pref_key:" + "undo/report all checkpoints")
         return res
@@ -1499,7 +1548,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
     
     def checkpoint(self, cptype = None, cmdname_for_debug = "", merge_with_future = False ): # called from undo_manager
-        """When this is called, self.last_cp should be complete, and self.next_cp should be incomplete,
+        """
+        When this is called, self.last_cp should be complete, and self.next_cp should be incomplete,
         with its state defined as equalling the current state, i.e. as a diff (which is collecting current changes) from last_cp,
         with that diff being stored in self.current_diff.
         And this diff might or might not be presently empty. (#doc distinction between changes we record but don't count as nonempty,
@@ -1739,7 +1789,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         state_version_start = self.state_version_of_cp(from_cp)
         # toscan = { state_version_start: state_version_start } # TypeError: dict objects are unhashable
         def dictkey(somedict):
-            "you know what I meant! assume it was an immutable dict!"
+            """
+            Return a copy of somedict's data suitable for use as the key in another dict.
+            (If somedict was an immutable dict object of some sort,
+            this could just return it directly.)
+            """
             items = somedict.items()
             items.sort() # a bit silly since in present use there is always just one item, but this won't run super often, i hope
                 # (for that matter, in present use that item's key is always the same...)
@@ -1791,8 +1845,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     def do_op(self, op): ###@@@ 345pm some day bfr 060123 - figure out what this does if op.prior is not current, etc;
                 # how it relates to whether assy changed since last_cp set; etc.
-        """assuming caller has decided it's safe, good, etc, in the case of out-of-order undo,
-        Do one of the diff-ops we're storing
+        """
+        Assuming caller has decided it's safe, good, etc, in the case of out-of-order undo,
+        do one of the diff-ops we're storing
         (ie apply it to model to change its state in same direction as in this diff),
         and record this as a change to current varid_ver pairs
         (not yet sure if those are stored here or in model or both, or of details for overall vs state-subset varids).
@@ -1953,7 +2008,10 @@ ASSY_VARID_STUB = 'assy' # kluge [060309]: permit optims from this being constan
     # all uses of this except in make_assy_varid() are wrong in principle, so fix them when that kluge becomes invalid.
 
 def make_assy_varid(assy_debug_name):
-    "make the varid for changes to the entire assy, for use when we want a single undo stack for all its Parts"
+    """
+    make the varid for changes to the entire assy,
+    for use when we want a single undo stack for all its Parts
+    """
     ## return 'varid_stub_' + (assy_debug_name or "") #e will come from assy itself
     return ASSY_VARID_STUB # stub, but should work
 
