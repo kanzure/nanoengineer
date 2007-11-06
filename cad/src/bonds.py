@@ -58,7 +58,7 @@ import bond_updater
 import env
 
 from state_utils import StateMixin #bruce 060223
-from changes import register_changedict, register_class_changedicts
+from changedicts import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 from utilities.Log import redmsg, quote_html #bruce 070601
 

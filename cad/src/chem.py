@@ -78,7 +78,7 @@ from VQT import atom_angle_radians
 from mdldata import marks, links, filler
 from povheader import povpoint #bruce 050413
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
-from changes import register_changedict, register_class_changedicts
+from changedicts import register_changedict, register_class_changedicts
 
 from utilities.Printing import Vector3ToString
 from constants import genKey

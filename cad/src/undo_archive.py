@@ -22,7 +22,8 @@ import state_utils
 from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose, StatePlace, StateSnapshot
 from state_utils_unset import _UNSET_
 from prefs_constants import historyMsgSerialNumber_prefs_key
-import changes
+from changes import register_postinit_object
+import changedicts # warning: very similar to some local variable names
 
 destroy_bypassed_redos = True # whether to destroy the Redo stack to save RAM
     # [not implemented yet -- flag has no effect, but shows where to do it -- 060301]
@@ -1217,7 +1218,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
     def sub_or_unsub_to_one_changedict(self, subQ, changedict, ourdict):
         subkey = id(self)
-        cdp = changes._cdproc_for_dictid[id(changedict)]
+        cdp = changedicts._cdproc_for_dictid[id(changedict)]
         if subQ:
             cdp.subscribe(subkey, ourdict)
         else:
@@ -1270,7 +1271,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     def setup_changedicts(self):
         assert not self._changedicts, "somehow setup_changedicts got called twice, since we already have some, "\
                "and calling code didn't kluge this to be ok like it does in initial_checkpoint in case it's called from self._clear"
-        changes.register_postinit_object( '_archive_meet_class', self )
+        register_postinit_object( '_archive_meet_class', self )
             # this means we are ready to receive callbacks (now and later) on self._archive_meet_class,
             # telling us about new classes whose objects we might want to changetrack
         return
@@ -1283,12 +1284,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         """
         ###e if we've been destroyed, raise an exception to get us removed from the pairmatcher, maybe a special one that's not an
         # error in its eyes; in current code we'll raise AttributeError on _changedicts or maybe on its extend method #####@@@@@
-        changedicts0 = changes._changedicts_for_classid[ id(class1) ] # maps name to dict, but names are only unique per-class
-        changedicts = changedicts0.values() # or .items()? someday we'll want to use the dictnames, i think... for now we don't need them
-        ## self._changedicts.extend( changedicts ) -- from when ourdict was not in there (zap this commented out line soon)
+        changedicts0 = changedicts._changedicts_for_classid[ id(class1) ] # maps name to dict, but names are only unique per-class
+        changedicts_list = changedicts0.values() # or .items()? someday we'll want to use the dictnames, i think... for now we don't need them
+        ## self._changedicts.extend( changedicts_list ) -- from when ourdict was not in there (zap this commented out line soon)
         ourdicts = {'Atom':self.all_changed_Atoms, 'Bond':self.all_changed_Bonds} # compare to self.ourdicts, which is a list
         ourdict = ourdicts[class1.__name__] # only those two classes are supported, for now
-        for cd in changedicts:
+        for cd in changedicts_list:
             self._changedicts.append( (cd, ourdict) )
             # no reason to ever forget about changedicts, I think
             # (if this gets inefficient, it's only for developers who often reload code module -- I think; review this someday ##k)
@@ -1397,7 +1398,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         the changed-atoms dict (key -> atom) and changed-bonds dict (id -> bond).
         """
         for changedict, ourdict_junk in self._changedicts:
-            cdp = changes._cdproc_for_dictid[id(changedict)]
+            cdp = changedicts._cdproc_for_dictid[id(changedict)]
             cdp.process_changes() # this is needed to add the latest changes to our own local changedict(s)
         if want_retval:
             res = dict(self.all_changed_Atoms), dict(self.all_changed_Bonds) #e should generalize to a definite-order list, or name->dict
