@@ -180,6 +180,13 @@ def _undo_update_Atom_jigs(archive, assy):
     from jigs import Jig
     mols = assy.allNodes(chunk.Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part.
     jigs = assy.allNodes(Jig)
+        # Note: if we wanted to avoid those imports of Chunk and Jig,
+        # then what we really want instances of is:
+        # - for Chunk, whatever can be stored in atom.molecule
+        #   (and will thus include that atom in its .atoms dict);
+        # - for Jig, whatever can be referenced by atom.jigs.
+        # In both cases there could be API superclasses for these
+        # aspects of Nodehood.
     for m in mols:
         for a in m.atoms.itervalues():
             if a.jigs:
@@ -219,15 +226,16 @@ register_undo_updater( _undo_update_Atom_jigs,
 
 # ==
 
-# These global dicts all map atom.key -> atom, for atoms which change in various ways (different for each one).
+# These global dicts all map atom.key -> atom, for atoms which change in various ways (different for each dict).
 # The dicts themselves (as opposed to their contents) never change (so other modules can permanently import them),
 # but they are periodically processed and cleared.
 # For efficiency, they're global and not weak-valued,
 # so it's important to delete items from them when destroying atoms
-# (which is itself nim, or calls to it are; destroying assy needs to do that ####@@@@). 
+# (which is itself nim, or calls to it are; destroying assy needs to do that ### TODO). 
 # (There's no need yet to use try/except to support reloads of this module by not replacing these dicts then.)
 
 # ###@@@ Note: These are not yet looked at, but the code to add atoms into them is supposedly completed circa bruce 060322.
+# update 071106: some of them are looked at (and have been since Undo worked), but maybe not all of them.
 
 
 _changed_parent_Atoms = {} # record atoms w/ changed assy or molecule or liveness/killedness
