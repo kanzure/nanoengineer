@@ -1,24 +1,21 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-changes.py
+changes.py - utilities for tracking changes, usage, nested events, etc.
 
-Utilities for tracking changes, usage, nested events, etc.
-
-[This module is owned by Bruce until further notice. Unsigned comments are by Bruce.]
-
-$Id$
-
+@author: Bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
 original features were stubs and have mostly been removed.
 
-bruce 050803 new features to help with graphics updates when preferences are changed.
+bruce 050803 new features to help with graphics updates when
+preferences are changed.
 
-bruce 061022 soon some of this will be used in the new exprs module. Later it will need optimization for that use.
-
+bruce 061022 soon some of this will be used in the new exprs module.
+Later it will need optimization for that use.
 """
-__author__ = "Bruce"
 
 import sys
 from debug import print_compact_traceback, print_compact_stack
@@ -32,7 +29,8 @@ from utilities.Comparison import same_vals #bruce 060306
 _print_all_subs = False # can be set to True by debuggers or around bits of code being debugged
 
 class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new exprs module (and being used there); doc revised 061119
-    """This object corresponds to (one momentary value of) some variable or aspect whose uses (as inputs to
+    """
+    This object corresponds to (one momentary value of) some variable or aspect whose uses (as inputs to
     other computations) can be tracked (causing a ref to this object to get added to a set of used things).
        When the user of the value corresponding to this object finds this object in the list of all such things
     it used during some computation, it can subscribe some function (eg an invalidator for the result of that
@@ -79,7 +77,9 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
             lis.append(func)
         return #e return a unique "removal code" for this subs?? or None if we just fulfilled it now.
     def fulfill_all(self, debug = False):
-        """Fulfill all our subscriptions now (and arrange to immediately fulfill any subscriptions that come in later).
+        """
+        Fulfill all our subscriptions now (and arrange to immediately
+        fulfill any subscriptions that come in later).
         You must only call this once.
         """
         subs = self._subs
@@ -95,14 +95,21 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
             pass
         return
     def _list_of_subs(self): #bruce 070109
-        "For debugging: return a newly made list of our subscriptions (not removing duplicates), without changing or fulfilling them."
+        """
+        For debugging: return a newly made list of our subscriptions
+        (not removing duplicates), without changing or fulfilling them.
+        """
         res = []
         subs = self._subs
         for sublis in subs.itervalues():
             res.extend(sublis)
         return res
     def remove_all_subs(self): #bruce 070109 experimental (for trying to fix a bug in exprs module), might become normal
-        "[private while experimental] WARNING: I'm not sure makes sense except on an owning obj since we are a 'one time' sublist"
+        """
+        [private while experimental]
+        WARNING: I'm not sure makes sense except on an owning obj
+        since we are a 'one time' sublist
+        """
         try:
             self._subs.clear() # does self._subs always exist when this is called? I think so but I'm not sure, so check for this.
         except AttributeError:
@@ -125,7 +132,8 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
                 print_compact_stack("bug: here is where that exception occurred: ")
         return        
     def remove_subs(self, func): # note: this has never been used as of long before 061022, and looks potentially unsafe (see below)
-        """Make sure (one subscribed instance of) func will never be fulfilled.
+        """
+        Make sure (one subscribed instance of) func will never be fulfilled.
         WARNING: calling this on a subs (a specific instance of func) that was already fulfilled is an UNDETECTED ERROR.
         But it's ok to subscribe the same func eg 5 times, let 2 of those be fulfilled, and remove the other 3.
         """
@@ -137,7 +145,9 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
             # (this can create a 0-length list which remains in the dict. seems ok provided self is not recycled.)
         return
     def remove_all_instances(self, func):
-        """#doc; legal even if no instances, but only if an instance once existed (but this might not be checked for).
+        """
+        #doc; legal even if no instances, but only if an instance
+        once existed (but this might not be checked for).
         """
         try:
             del self._subs[id(func)]
@@ -159,7 +169,8 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
 #
 
 class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class molecule and (via UsageTracker) in preferences.py
-    """You can mix this into classes which need to let all other code track uses and changes
+    """
+    You can mix this into classes which need to let all other code track uses and changes
     of their "main value" (what value that means is up to them).
     (If they need to permit tracking of more than one value or aspect they own,
      they should instead use one UsageTracker object for each trackable value, in the way described here.)
@@ -180,7 +191,8 @@ class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in c
      so whether it's called directly doesn't matter anyway.)
     """
     def track_use(self):
-        """#doc
+        """
+        #doc
         [some callers might inline this method]
         [must be called on every use, not just first one after a change,
          in case env.track points to different objects for different uses]
@@ -207,7 +219,9 @@ class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in c
             #     env.used_value_sublists[id(subslist)] = subslist
         return
     def track_change(self): #e rename to track_inval?? see class docstring
-        "[also call on invals being propogated -- see class docstring]"
+        """
+        [also call on invals being propogated -- see class docstring]
+        """
         #e add args? e.g. "why" (for debugging), nature of change (for optims), etc...
         # ... or args about inval vs change-is-done (see comments in class's docstring)
         debug = getattr(self, '_changes__debug_print', False)
@@ -226,7 +240,10 @@ class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in c
 #
 
 class UsageTracker( SelfUsageTrackingMixin): #bruce 050804 #e rename?
-    "Ownable version of that mixin class, for owners that have more than one aspect whose usage can be tracked."
+    """
+    Ownable version of SelfUsageTrackingMixin, for owners that have
+    more than one aspect whose usage can be tracked.
+    """
     # note: as of 061022 this is used only in _tracker_for_pkey (preferences.py);
     # this or its superclass might soon be used in exprs/lvals.py
     pass
@@ -234,7 +251,8 @@ class UsageTracker( SelfUsageTrackingMixin): #bruce 050804 #e rename?
 # ==
 
 class begin_end_matcher: #bruce 050804
-    """Maintain a stack of objects (whose constructor is a parameter of this object)
+    """
+    Maintain a stack of objects (whose constructor is a parameter of this object)
     which are created/pushed and popped by calls of our begin/end methods, which must occur in
     properly nested matching pairs. Try to detect and handle the error of nonmatching begin/end calls.
     (This only works if the constructor promises to return unique objects, since we use their id()
@@ -242,7 +260,8 @@ class begin_end_matcher: #bruce 050804
     """
     active = False # flag to warn outside callers that we're processing a perhaps-nonreentrant method [bruce 050909]
     def __init__(self, constructor, stack_changed_func = None):
-        """Constructor is given all args (including keyword args) to self.begin(),
+        """
+        Constructor is given all args (including keyword args) to self.begin(),
         and from them should construct objects with begin(), end(), and error(text) methods
         which get stored on self.stack while they're active.
         Or constructor can be None, which means begin should always receive one arg, which is the object to use.
@@ -264,7 +283,8 @@ class begin_end_matcher: #bruce 050804
         finally:
             self.active = False
     def begin(self, *args, **kws):
-        """Construct a new object using our constructor;
+        """
+        Construct a new object using our constructor;
         activate it by calling its .begin() method [#k needed??] [before it's pushed onto the stack];
         push it on self.stack (and inform observers that self.stack was modified);
         return a currently-unique match_checking_code which must be passed to the matching self.end() call.
@@ -281,7 +301,8 @@ class begin_end_matcher: #bruce 050804
         finally:
             self.active = False
     def end(self, match_checking_code):
-        """This must be passed the return value from the matching self.begin() call.
+        """
+        This must be passed the return value from the matching self.begin() call.
         Verify begin/end matches, pop and deactivate (using .end(), after it's popped) the matching object, return it.
            Error handling:
            - Objects which had begin but no end recieve .error(errmsg_text) before their .end().
@@ -339,7 +360,11 @@ def default_track(thing): #bruce 050804; see also the default definition of trac
     return
 
 def _usage_tracker_stack_changed( usage_tracker, infodict): #bruce 050804
-    "[private] called when usage_tracker's begin/end stack is created, and after every time it changes"
+    """
+    [private]
+    called when usage_tracker's begin/end stack is created,
+    and after every time it changes
+    """
     # getting usage_tracker arg is necessary (and makes better sense anyway),
     # since when we're first called, the global usage_tracker is not yet defined
     # (since its rhs, in the assignment below, is still being evaluated).
@@ -357,12 +382,15 @@ usage_tracker = begin_end_matcher( None, _usage_tracker_stack_changed )
 usage_tracker._do_after_current_tracked_usage_ends = {} #070108
 
 def after_current_tracked_usage_ends(func):# new feature 070108 [tested and works, but not currently used]
-    """Do func at least once after the current usage-tracked computation ends.
-       WARNING: if func invalidates something used during that computation, it will cause
+    """
+    Do func at least once after the current usage-tracked computation ends.
+
+    WARNING: if func invalidates something used during that computation, it will cause
     an immediate inval of the entire computation, which in most cases would lead to
     excessive useless recomputation. For an example of incorrect usage of this kind,
     see Lval_which_recomputes_every_time in exprs/lvals.py (deprecated).
-       (There may be legitimate uses which do something other than a direct inval,
+
+    (There may be legitimate uses which do something other than a direct inval,
     such as making a note to compare something's current and new value at some later time,
     for possible inval just before it's next used in a tracked computation.
     So this function itself is not deprecated. But it's been tested only in the deprecated
@@ -377,7 +405,8 @@ def after_current_tracked_usage_ends(func):# new feature 070108 [tested and work
 
 class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class molecule, class GLPane, class Formula
     # [note, 060926: this doesn't use self at all. Does it need to be a mixin?? addendum 061022: maybe for inval propogation??]
-    """###doc - for doing usagetracking in whatever code we call when we remake a value, and handling results of that;
+    """
+    ###doc - for doing usagetracking in whatever code we call when we remake a value, and handling results of that;
     see class usage_tracker_obj for a related docstring
     """
     def begin_tracking_usage(self): #e there's a docstring for this in an outtakes file, if one is needed
@@ -417,7 +446,8 @@ class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in cl
     pass # end of class SubUsageTrackingMixin
 
 class usage_tracker_obj: #bruce 050804; docstring added 060927
-    """###doc [private to SubUsageTrackingMixin, mostly]
+    """
+    ###doc [private to SubUsageTrackingMixin, mostly]
     This object corresponds to one formula being evaluated,
     or to one occurrence of some other action which needs to know what it uses
     during a defined period of time while it calculates something.
@@ -458,7 +488,8 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
     def begin(self):
         self.data = {}
     def track(self, subslist): 
-        """This gets called (via env.track) by everything that wants to record one use of its value.
+        """
+        This gets called (via env.track) by everything that wants to record one use of its value.
         The argument subslist is a subscription-list object which permits subscribing to future changes
         (or invalidations) to the value whose use now is being tracked.
         [This method, self.track, gets installed as env.track, which is called often, so it needs to be fast.]
@@ -470,7 +501,10 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
     def end(self):
         pass # let the caller think about self.data.values() (eg filter or compress them) before subscribing to them
     def standard_end(self, invalidator, debug = False):
-        "some callers will find this useful to call, shortly after self.end gets called; see the class docstring for more info"
+        """
+        some callers will find this useful to call, shortly after
+        self.end gets called; see the class docstring for more info
+        """
         self.invalidator = invalidator # this will be called only by our own standard_inval
         whatweused = self.whatweused = self.data.values() # this list is saved for use in other methods called later
         self.last_sub_invalidator = inval = self.standard_inval
@@ -485,9 +519,12 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         self.data = 222 # make further calls of self.track() illegal [#e do this in self.end()??]
         return
     def standard_inval(self):
-        """This is used to receive the invalidation signal, and call self.invalidator after some bookkeeping.
+        """
+        This is used to receive the invalidation signal,
+        and call self.invalidator after some bookkeeping.
         See class docstring for more info.
-        It also removes all cyclic or large attrs of self, to prevent memory leaks.
+        It also removes all cyclic or large attrs of self,
+        to prevent memory leaks.
         """
         already = self.unsubscribe_to_invals('standard_inval')
         if already:
@@ -501,7 +538,10 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
                 # so we don't, and the error message above should be retained [070110 comment]
         return
     def unsubscribe_to_invals(self, why): #070110 split this out and revised caller (leaving it equivalent) and added a caller
-        "if we already did this, print an error message mentioning why we did it before and return 1, else do it and return 0"
+        """
+        if we already did this, print an error message mentioning why
+        we did it before and return 1, else do it and return 0
+        """
         # this needs to remove every subs except the one which is being fulfilled by calling it.
         # But it doesn't know which subs that is! So it has to remove them all, even that one,
         # so it has to call a remove method which is ok to call even for a subs that was already fulfilled.
@@ -550,8 +590,10 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
                 # since a bug in removing them properly at all is a possibility [070110 comment]
         return 0
     def got_inval(self):#070110
-        """Did we get an inval yet (or make them illegal already)?
-        (if we did, we no longer subscribe to any others, in theory -- known to be not always true in practice)
+        """
+        Did we get an inval yet (or make them illegal already)?
+        (if we did, we no longer subscribe to any others, in theory --
+         known to be not always true in practice)
         """
         return (self.last_sub_invalidator == 'hmm')
     def make_invals_illegal(self, obj_for_errmsgs = None):#070110, experimental -- clients ought to call it before another begin_tracking_usage... ##e
@@ -595,7 +637,9 @@ _debug_standard_inval_nottwice_stack = False # whether to print_compact_stack in
 # ==
 
 class begin_disallowing_usage_tracking(SubUsageTrackingMixin):
-    """Publicly, this is just a function, used like this:
+    """
+    Publicly, this class is just a helper function, used like this:
+    
         mc = begin_disallowing_usage_tracking(whosays) # arg is for use in debug prints and exception text
         try:
             ... do stuff in which usage tracking would be an error or indicate a bug
@@ -638,7 +682,9 @@ def end_disallowing_usage_tracking(mc):
 # ==
 
 def _std_frame_repr(frame): #bruce 061120 #e refile into debug.py? warning: dup code with lvals.py and [g4?] changes.py
-    "return a string for use in print_compact_stack"
+    """
+    return a string for use in print_compact_stack
+    """
     # older eg: frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),), linesep = '\n'
     locals = frame.f_locals
     dfr = locals.get('__debug_frame_repr__')
@@ -672,7 +718,8 @@ class Formula( SubUsageTrackingMixin): #bruce 050805 [not related to class Expr 
     """
     killed = False
     def __init__( self, value_lambda, action = None, not_when_value_same = False, debug = False ):
-        """Create a formula which tracks changes to the value of value_lambda (by tracking what's used to recompute it),
+        """
+        Create a formula which tracks changes to the value of value_lambda (by tracking what's used to recompute it),
         and when created and after each change occurs, calls action with the new value_lambda return value as sole argument.
            This only works if whatever value_lambda uses, which might change and whose changes should trigger recomputation,
         uses SelfUsageTrackingMixin or the equivalent to track its usage and changes, AND (not always true!) if those things
@@ -743,10 +790,12 @@ class Formula( SubUsageTrackingMixin): #bruce 050805 [not related to class Expr 
             self.recompute()
         return
     def values_same(self, val1, val2): #bruce 060306; untested, since self.not_when_value_same is apparently never True ###@@@
-        """Determine whether two values are the same, for purposes of the option 'not_when_value_same'.
+        """
+        Determine whether two values are the same, for purposes of the option 'not_when_value_same'.
         Override this in a subclass that needs a different value comparison, such as 'not !='
         (or change the code to let the caller pass a comparison function).
-           WARNING: The obvious naive comparison (a == b) is buggy for Numeric arrays,
+
+        WARNING: The obvious naive comparison (a == b) is buggy for Numeric arrays,
         and the fix for that, (not (a != b)), is buggy for Python container classes
         (like list or tuple) containing Numeric arrays. The current implem uses a slower and stricter comparison,
         state_utils.same_vals, which might be too strict for some purposes.
@@ -762,11 +811,13 @@ class Formula( SubUsageTrackingMixin): #bruce 050805 [not related to class Expr 
 #  a lot of Undo helpers occur below too]
 
 class pairmatcher:
-    """Keep two forever-growing lists,
+    """
+    Keep two forever-growing lists,
     and call a specified function on each pair of items in these lists,
     in a deterministic order,
     as this becomes possible due to the lists growing.
-       Normally that specified function should return None;
+
+    Normally that specified function should return None;
     otherwise it should return special codes which
     control this object's behavior (see the code for details).
     """
@@ -819,7 +870,9 @@ class pairmatcher:
     pass
 
 class MakerDict:
-    "A read-only dict with a function for constructing missing elements"
+    """
+    A read-only dict with a function for constructing missing elements.
+    """
     def __init__( self, func):
         self.data = {}
         self.func = func
@@ -835,7 +888,8 @@ class MakerDict:
 # so that objects of another kind can meet all of them using a pairmatcher (#doc better?)
 
 def postinit_func( d1, d2, matcher): #bruce 060330 add matcher arg
-    """after d1 is inited, tell it about d2.
+    """
+    After d1 is inited, tell it about d2.
     (This is meant to be called for every d1 of one kind,
      and every d2 of another kind,
      registered below under the same name.)
@@ -868,7 +922,8 @@ postinit_pairmatchers = MakerDict( lambda typename: pairmatcher( postinit_func, 
 #   which matters if this is used for lots of purposes and the same object might participate in more than one purpose.]
 
 def register_postinit_object( typename, object):
-    """Cause object to receive the method-call object.postinit_item(item)
+    """
+    Cause object to receive the method-call object.postinit_item(item)
     for every postinit item registered under the same typename,
     in the order of their registration,
     whether item is already registered or will be registered in the future.
@@ -877,7 +932,8 @@ def register_postinit_object( typename, object):
     pairmatcher.another_dim1( object)
 
 def register_postinit_item( typename, item):
-    """Cause every object registered with register_postinit_object
+    """
+    Cause every object registered with register_postinit_object
     under the same typename (whether registered already or in the future,
     and in their order of registration)
     to receive the method call object.postinit_item(item) for this item.
@@ -1068,41 +1124,71 @@ env.end_recursive_event_processing = env_end_recursive_event_processing
 
 # ==
 
-class changedict_processor: #bruce 060329 moved/modified from chem.py prototype (for Undo differential scanning optim)
-    "#doc"
+# TODO: split the following (from here to end of file) into a new file,
+# changedicts.py or so.
+#
+# Current status [071106]: appears to be active and essential for undo updating;
+# details unclear, as is whether it's used for any other kind of updating,
+# e.g. bond_updater -- guess, no (though some of the same individual dicts might be).
+#
+# [bruce 071106 comments]
+
+class changedict_processor:
+    """
+    #doc
+    """
+    #bruce 060329 moved/modified from chem.py prototype
+    # (for Undo differential scanning optim).
+    # Note: as of 071106, this class is used only by register_changedict
+    # in this file (i.e. it could be private).
     def __init__(self, changedict, changedict_name = "<some changedict>"):
         self.subscribers = {}
-            # public dict from owner-ids to subscribers; their update methods are called by process_changed_picked_Atoms
+            # public dict from owner-ids to subscribers; their update
+            # methods are called by process_changed_picked_Atoms
         assert type(changedict) == type({}) #k needed?
         self.changedict = changedict
         self.changedict_name = changedict_name
         return
     def subscribe(self, key, dictlike):
-        "subscribe dictlike (which needs a dict-compatible .update method) to self.changedict [#doc more?]"
-##        print_compact_stack( "db3g sub: %s, subkey %s, dictlike %s" % (self,key,id(dictlike)))
+        """
+        subscribe dictlike (which needs a dict-compatible .update method)
+        to self.changedict [#doc more?]
+        """
         assert not self.subscribers.has_key(key)
-        self.subscribers[key] = dictlike # ok if it overrides some other sub at same key, since we assume caller owns key
+        self.subscribers[key] = dictlike
+            # note: it's ok if it overrides some other sub at same key,
+            # since we assume caller owns key
         return
     def unsubscribe(self, key):
-##        print "db3g unsub",self,key
         del self.subscribers[key]
         return
     def process_changes(self):
-        """Update all subscribers to self.changedict by passing it to their update methods
-        (which should not change its value) (typically, subscribers are themselves just dicts); then clear it.
-        Typically, one subscriber calls this just before checking its subscribing dict,
-        but other subscribers might call it at arbitrary other times.
         """
-        sublist = self.subscribers # actually a dict, but subdict would be an unclear localvar name (imho)
+        Update all subscribers to self.changedict by passing it to their
+        update methods (which should not change its value)
+        (typically, subscribers are themselves just dicts); then clear it.
+        
+        Typically, one subscriber calls this just before checking its
+        subscribing dict, but other subscribers might call it at arbitrary
+        other times.
+        """
+        sublist = self.subscribers
+            # note: this is actually a dict, not a list,
+            # but 'subdict' would be an unclear name for a
+            # local variable (imho)
         changedict = self.changedict
         changedict_name = self.changedict_name
         len1 = len(changedict)
         for subkey, sub in sublist.items():
             try:
-                unsub = sub.update( changedict) # kluge: this API is compatible with dict.update() (which returns None).
+                unsub = sub.update( changedict)
+                    # kluge: this API is compatible with dict.update()
+                    # (which returns None).
             except:
                 #e reword the name in this? include %r for self, with id?
-                print_compact_traceback("bug: exception (ignored but unsubbing) in .update of sub (key %r) in %s: " % (subkey, changedict_name) )
+                print_compact_traceback(
+                    "bug: exception (ignored but unsubbing) in .update " \
+                    "of sub (key %r) in %s: " % (subkey, changedict_name) )
                 unsub = True
             if unsub:
                 try:
@@ -1112,7 +1198,8 @@ class changedict_processor: #bruce 060329 moved/modified from chem.py prototype 
             len2 = len(changedict)
             if len1 != len2:
                 #e reword the name in this? include %r for self, with id?
-                print "bug: some sub (key %r) in %s apparently changed its length from %d to %d!" % (subkey, changedict_name, len1, len2)
+                print "bug: some sub (key %r) in %s apparently changed " \
+                      "its length from %d to %d!" % (subkey, changedict_name, len1, len2)
                 len1 = len2
             continue
         changedict.clear()
@@ -1121,60 +1208,84 @@ class changedict_processor: #bruce 060329 moved/modified from chem.py prototype 
     pass # end of class changedict_processor
 
 
-_dictname_for_dictid = {} # maps id(dict) to its name; it's ok for multiple dicts to have the same name;
+_dictname_for_dictid = {} # maps id(dict) to its name;
+    # it's ok for multiple dicts to have the same name;
     # never cleared (memory leak is ok since it's small)
 
 _cdproc_for_dictid = {} # maps id(dict) to its changedict_processor;
     # not sure if leak is ok, and/or if this could be used to provide names too
+    # WARNING: the name says it's private, but it's directly referenced in
+    # undo_archive [bruce 071106 comment]
 
-def register_changedict( changedict, its_name, related_attrs ): #bruce 060329 not yet well defined what it should do ###@@@
+def register_changedict( changedict, its_name, related_attrs ):
+    #bruce 060329 not yet well defined what it should do ###@@@
     #e does it need to know the involved class?
-##    if env.debug():
-##        print "debug: fyi: register_changedict:", its_name, related_attrs
     cdp = changedict_processor( changedict, its_name )
-    yyy = related_attrs # not sure these should come from an arg at all, vs per-class decls... or if we even need them...
+    del related_attrs # not sure these should come from an arg at all,
+        # vs per-class decls... or if we even need them...
     #stub?
     dictid = id(changedict)
-    ## assert not _dictname_for_dictid.has_key(dictid) # this is not valid to assert, since ids can be recycled if dicts are freed
+    ## assert not _dictname_for_dictid.has_key(dictid)
+        # this is not valid to assert, since ids can be recycled if dicts are freed
     _dictname_for_dictid[dictid] = its_name
     _cdproc_for_dictid[dictid] = cdp
     return
 
-_changedicts_for_classid = {} # maps id(class) to map from dictname to dict [### what about subclass/superclass? do for every leafclass?]
+_changedicts_for_classid = {} # maps id(class) to map from dictname to dict
+    ### [what about subclass/superclass? do for every leafclass?]
+    # WARNING: the name says it's private, but it's directly referenced in
+    # undo_archive [bruce 071106 comment]
 
 def register_class_changedicts( class1, changedicts ):
-    """This must be called exactly once, for each class1 (original or reloaded), to register it as being changetracked
-    by the given changedicts, each of which must have been previously passed to register_changedict.
+    """
+    This must be called exactly once, for each class1 (original or reloaded),
+    to register it as being changetracked by the given changedicts, each of
+    which must have been previously passed to register_changedict.
     """
     classid = id(class1)
-    # make sure class1 never passed to us before; this method is only legitimate
-    # since we know these classes will be kept forever (by register_postinit_item below), so id won't be recycled
+    # make sure class1 never passed to us before; this method is only
+    # legitimate since we know these classes will be kept forever
+    # (by register_postinit_item below), so id won't be recycled
     assert not _changedicts_for_classid.has_key(classid), \
-           "register_class_changedicts was passed the same class (or a class with the same id) twice: %r" % (class1,)
-    assert not hasattr(changedicts, 'get'), "register_class_changedicts should be passed a sequence of dicts, not a dict"
-        # kluge (not entirely valid): make sure we were passed a list or tuple, not a dict,
-        # to work around one of Python's few terrible features,
-        # namely its ability to iterate over dicts w/o complaining (by iterating over their keys)
+           "register_class_changedicts was passed the same class " \
+           "(or a class with the same id) twice: %r" % (class1,)
+    assert not hasattr(changedicts, 'get'), \
+           "register_class_changedicts should be passed a sequence of dicts, not a dict"
+        # kluge (not entirely valid): make sure we were passed a list or tuple,
+        # not a dict, to work around one of Python's few terrible features,
+        # namely its ability to iterate over dicts w/o complaining
+        # (by iterating over their keys)
     for changedict in changedicts:
         changedict_for_name = _changedicts_for_classid.setdefault(classid, {})
-        dictname = _dictname_for_dictid[id(changedict)] # if this fails (KeyError), dict was not registered with register_changedict
+        dictname = _dictname_for_dictid[id(changedict)]
+            # if this fails (KeyError), it means dict was not
+            # registered with register_changedict
         changedict_for_name[dictname] = changedict
-    # in future we might be able to auto-translate old-class objects to new classes...
-    #e so store classname->newestclass map, so you know which objects to upgrade and how...
-    #...
-    #
+    # in future we might be able to auto-translate old-class objects
+    # to new classes... so (TODO, maybe) store classname->newestclass map,
+    # so you know which objects to upgrade and how...
     
-    # This is needed now, and has to be done after all the changedicts were stored above:
-    register_postinit_item( '_archive_meet_class', class1) #e we could instead pass a tuple of (class1, other_useful_info) if nec.
-    # All undo_archives (or anything else wanting to change-track all objects it might need to)
-    # should call register_postinit_object( '_archive_meet_class', self )
-    # when they are ready to receive callbacks (then and later) on self._archive_meet_class
-    # for all present-then and future classes of objects they might need to changetrack.
-    #   Note: those classes will be passed to all new archives and will therefore still exist (then and forever),
-    # and this system therefore memory-leaks redefined (obsolete) classes, even if all their objects disappear,
-    # but that should be ok, and (in far future) we can even imagine it being good if their objects might have been saved to files
-    # (it won't help in future sessions, which means user/developer should be warned, but it will help in present one
-    #  and might let them upgrade and resave, i.e. rescue, those objects).
+    # This is needed now, and has to be done after all the changedicts were
+    # stored above:
+    register_postinit_item( '_archive_meet_class', class1)
+
+    # Note: we could instead pass a tuple of (class1, other_useful_info)
+    # if necessary. All undo_archives (or anything else wanting to change-
+    # track all objects it might need to) should call
+    # register_postinit_object( '_archive_meet_class', self )
+    # when they are ready to receive callbacks (then and later) on
+    # self._archive_meet_class for all present-then and future classes of
+    # objects they might need to changetrack.
+    #
+    #   Note: those classes will be passed to all new archives and will
+    # therefore still exist (then and forever), and this system therefore
+    # memory-leaks redefined (obsolete) classes, even if all their objects
+    # disappear, but that should be ok, and (in far future) we can even
+    # imagine it being good if their objects might have been saved to files
+    # (it won't help in future sessions, which means user/developer should
+    # be warned, but it will help in present one and might let them upgrade
+    # and resave, i.e. rescue, those objects).
+    
     return
 
 #e now something to take class1 and look up the changedicts and their names
