@@ -38,7 +38,7 @@ from Elem import Elem
 from elements_data      import init_chemical_elements
 from elements_data_PAM3 import init_PAM3_elements
 from elements_data_PAM5 import init_PAM5_elements
-    
+
 # ==
 
 class _ElementPeriodicTable(object):
@@ -69,7 +69,9 @@ class _ElementPeriodicTable(object):
         return
 
     def addElements(self, elmTable, _defaultRad_Color, _altRad_Color,
-                    _DIRECTIONAL_BOND_ELEMENTS = () ):
+                    _DIRECTIONAL_BOND_ELEMENTS = (),
+                    default_options = {}
+                   ):
         #bruce 071105 modified from def _createElements(self, elmTable):
         """
         Create elements for all members of <elmTable> (list of tuples).
@@ -104,10 +106,15 @@ class _ElementPeriodicTable(object):
         prefs = prefs_context()
         symbols = {}
         for elm in elmTable:
+            options = dict(default_options)
+            assert len(elm) in (5,6,)
+            if len(elm) >= 6:
+                options.update(elm[5])
             symbols[elm[0]] = 1 # record element symbols seen in this call
             rad_color = prefs.get(elm[0], _defaultRad_Color[elm[0]])
             el = Elem(elm[2], elm[0], elm[1], elm[3],
-                      rad_color[0], rad_color[1], elm[4])
+                      rad_color[0], rad_color[1], elm[4],
+                      ** options)
             assert not self._periodicTable.has_key(el.eltnum)
             assert not self._eltName2Num.has_key(el.name)
             assert not self._eltSym2Num.has_key(el.symbol)
@@ -115,6 +122,7 @@ class _ElementPeriodicTable(object):
             self._eltName2Num[el.name] = el.eltnum
             self._eltSym2Num[el.symbol] = el.eltnum
             if elm[0] in _DIRECTIONAL_BOND_ELEMENTS: #bruce 071015
+                # TODO: put this in the options field? or infer it from pam and role?
                 el.bonds_can_be_directional = True
         for key in _defaultRad_Color.iterkeys():
             assert key in symbols

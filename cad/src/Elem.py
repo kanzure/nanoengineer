@@ -31,10 +31,22 @@ class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since t
     this object's contents will be modified accordingly.
     """
     
-    # default value of per-instance constant
+    # default values of per-instance constants
     bonds_can_be_directional = False #bruce 071015
+
+    # attributes for classifying elements -- tentative in name, meaning, and value-encoding [bruce 071106]
+    # (warning: these default values are never used, since __init__ always sets these attrs in self)
+    pam = None # name of pseudo-atom model (e.g. 'PAM3'), or None; not sure if Singlet and regular elems have same .pam
+        # REVIEW: it might be simplest if Singlet had None here, and all others had a true value, e.g. 'PAM3' or 'PAM5' or 'Chem'.
+        # If we use that scheme, then we certainly need to rename this. It is an "element class"? "element model"??
+    role = None # element role in its pseudo-atom model; can be 'strand' or 'axis' for DNA PAM models; not sure about Singlet
+    deprecated_to = None # symbol of an element to transmute this one to, when reading mmp files; or None, or 'remove' (??)
+        # (used for deprecated elements, including simulation-only elements no longer needed when modeling)
     
-    def __init__(self, eltnum, sym, name, mass, rvdw, color, bn):
+    def __init__(self, eltnum, sym, name, mass, rvdw, color, bn,
+                 pam = None,
+                 role = None,
+                 deprecated_to = None ):
         """
         Note: this should only be called by class _ElementPeriodicTable
         in elements.py.
@@ -55,15 +67,25 @@ class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since t
              optional 4th item in the "triple": name of this bonding pattern, if it has one
 
         Note: self.bonds_can_be_directional is set for some elements
-        by the caller.
+        by the caller. [In the future it may depend on the role option, or be its own option.]
         """
         # bruce 041216 and 050510 modified the above docstring
         self.eltnum = eltnum
         self.symbol = sym
+        self.symbol_for_printing = sym #bruce 071106
+        if sym[-1].isdigit():
+            # separate symbol digits from numeric key
+            self.symbol_for_printing += '-'
         self.name = name
         self.color = color
         self.mass = mass
         self.rvdw = rvdw
+        # option values
+        self.pam = pam
+        self.role = role
+        self.deprecated_to = deprecated_to
+        if not deprecated_to and deprecated_to is not None:
+            print "WARNING: we don't yet know what element %r should be deprecated_to" % sym
         ## self.bonds = bn # not needed anymore, I hope
         if not bn: # e.g. Helium
             bn = [[0, 0, None]]
