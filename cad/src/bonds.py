@@ -26,7 +26,6 @@ History:
 - 050727 bruce moved bond drawing code into a separate module, bond_drawer.py
   (also removed some imports not needed here, even though chem.py still does "from bonds import *"
    and some other modules import * from chem, so there is no guarantee these were not needed indirectly)
-
 """
 
 # TODO: some of these imports might not be needed
@@ -69,14 +68,27 @@ from state_constants import S_CACHE, S_DATA, S_PARENT
 CC_GRAPHITIC_BONDLENGTH = 1.421   # page 1647
 BN_GRAPHITIC_BONDLENGTH = 1.446   # page 1650
 
+# ==
+
 try:
-    if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key=True):
+    if not debug_pref('Enable pyrex atoms next time',
+                      Choice_boolean_False,
+                      prefs_key = True ):
         raise ImportError
     from atombase import BondSetBase, BondBase
     class BondSet(BondSetBase):
         def __init__(self):
             BondSetBase.__init__(self)
-            self.key = atKey.next()
+            self.key = atKey.next() # FIX: Undefined variable 'atKey'.
+                # This atKey should be distinct from the one in chem.py, i think
+                # (and thus needs a different name, and no import of chem).
+                # But first I need to see how it's used...
+                # maybe the (experimental) C code assumes all atom & bond keys
+                # are distinct in a single namespace.
+                # If so, we should make a single global key allocator in env.
+                # [bruce 071107 comment]
+            return
+        pass
 except ImportError:
     def BondSet():
         return { }
@@ -85,11 +97,16 @@ except ImportError:
             pass
         def __getattr__(self, attr): # in class BondBase
             raise AttributeError, attr
+        pass
+    pass
 
 # ==
 
 def bonded(a1, a2): #bruce 041119 #e optimized by bruce 050502 (this indirectly added "assert a1 != a2")
-    "are these atoms (or singlets) already directly bonded? [AssertionError if they are the same atom.]"
+    """
+    are these atoms (or singlets) already directly bonded?
+    [AssertionError if they are the same atom.]
+    """
     ## return a2 in a1.neighbors()
     return not not find_bond(a1, a2)
 
@@ -97,7 +114,10 @@ atoms_are_bonded = bonded # this is a better name (given that it only works for 
     # we should replace the old name with it sometime #bruce 070601
 
 def find_bond(a1, a2): #bruce 050502; there might be an existing function in some other file, to merge this with
-    "If a1 and a2 are bonded, return their Bond object; if not, return None. [AssertionError if they are the same atom.]"
+    """
+    If a1 and a2 are bonded, return their Bond object; if not, return None.
+    [AssertionError if they are the same atom.]
+    """
     assert a1 is not a2
     for bond in a1.bonds:
         if bond.atom1 is a2 or bond.atom2 is a2:
@@ -107,7 +127,8 @@ def find_bond(a1, a2): #bruce 050502; there might be an existing function in som
 bond_atoms_oldversion_noops_seen = {} #bruce 051216
 
 def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it's called from the newer version of bond_atoms
-    """Make a new bond between atoms a1 and a2 (and add it to their lists of bonds),
+    """
+    Make a new bond between atoms a1 and a2 (and add it to their lists of bonds),
     if they are not already bonded; if they are already bonded do nothing. Return None.
     (The new bond object, if one is made, can't be found except by scanning the bonds
     of one of the atoms.)
@@ -210,7 +231,8 @@ def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it
 ##    return
 
 def bond_atoms_faster(at1, at2, v6): #bruce 050513; docstring corrected 050706
-    """Bond two atoms, which must not be already bonded (this might not be checked).
+    """
+    Bond two atoms, which must not be already bonded (this might not be checked).
     Doesn't remove singlets. [###k should verify that by a test]
     Return the new bond object (which is given the valence v6, which must be specified).
     """
@@ -220,7 +242,8 @@ def bond_atoms_faster(at1, at2, v6): #bruce 050513; docstring corrected 050706
     return b
 
 def bond_copied_atoms(at1, at2, oldbond, origat1): #bruce 050524; revised 070424
-    """Bond the given atoms, at1 and at2 (and return the new bond object),
+    """
+    Bond the given atoms, at1 and at2 (and return the new bond object),
     copying whatever bond state is relevant from oldbond,
     which is presumably a bond between the originals of the same atoms,
     or it might be a half-copied bond if at1 or at2 is a singlet
@@ -248,7 +271,8 @@ def bond_copied_atoms(at1, at2, oldbond, origat1): #bruce 050524; revised 070424
 # == helper functions related to bonding (I might move these lower in the file #e)
 
 def bonds_mmprecord( valence, atomcodes ):
-    """Return the mmp record line (not including its terminating '\n')
+    """
+    Return the mmp record line (not including its terminating '\n')
     which represents one or more bonds of the same (given) valence
     (which must be a supported valence)
     from the prior atom in the mmp file to each of the listed atoms
@@ -260,7 +284,8 @@ def bonds_mmprecord( valence, atomcodes ):
     return recname + " " + " ".join(atomcodes)
 
 def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False):
-    """WARNING: If vnew is not provided, this function behaves differently and is
+    """
+    WARNING: If vnew is not provided, this function behaves differently and is
     much less safe for general use (details below).
     
        Behavior when vnew is provided:
@@ -375,11 +400,14 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     return bond
 
 def bond_v6(bond):
-    "Return bond.v6. Useful in map, filter, etc."
+    """
+    Return bond.v6. Useful in map, filter, etc.
+    """
     return bond.v6
 
 def bond_direction(atom1, atom2): #bruce 070601
-    """The atoms must be bonded (assertion failure if not);
+    """
+    The atoms must be bonded (assertion failure if not);
     return the bond_direction (-1, 0, or 1)
     of their bond (in the given order of atoms).
     """
@@ -413,7 +441,8 @@ class NeighborhoodGenerator:
             self.add(atom)
 
     def _quantize(self, vec):
-        """Given a point in space, partition space into little cubes
+        """
+        Given a point in space, partition space into little cubes
         so that when the time comes, it will be quick to locate and
         search the cubes right around a point.
         """
@@ -435,7 +464,8 @@ class NeighborhoodGenerator:
             self._oldkeys[atom.key] = key
 
     def atom_moved(self, atom):
-        """If an atom has been added to a neighborhood generator and
+        """
+        If an atom has been added to a neighborhood generator and
         is later moved, this method must be called to refresh the
         generator's position information. This only needs to be done
         during the useful lifecycle of the generator.
@@ -445,7 +475,8 @@ class NeighborhoodGenerator:
         self.add(atom)
 
     def region(self, center, _pack=struct.pack):
-        """Given a position in space, return the list of atoms that
+        """
+        Given a position in space, return the list of atoms that
         are within the neighborhood radius of that position.
         """
         buckets = self._buckets
@@ -483,9 +514,12 @@ _changed_Bonds = {} # tracks all changes to Bonds: existence/liveness (maybe not
     # If it has a kill or delete method (or one that's called when it's not on its atoms),
     # that should count as a change in this dict (and perhaps it should also change its atom attrs).
     #
-    #bruce 060322 for Undo change-tracking; the related bond_updater.changed_bond_types global dict should perhaps become a subscriber
+    #bruce 060322 for Undo change-tracking; the related global dict
+    # bond_updater.changed_bond_types should perhaps become a subscriber
+    # (though as of 071107 there are several things that get into _changed_Bonds
+    # but not into bond_updater.changed_bond_types -- should REVIEW the correctness of that)
 
-    ##e see comments about similar dicts in in chem.py for how this will end up being used
+    ##e see comments about similar dicts in chem.py for how this will end up being used
 
 register_changedict( _changed_Bonds, '_changed_Bonds', ()) ###k related attrs arg?? #bruce 060329
 
@@ -530,7 +564,6 @@ class Bond(BondBase, StateMixin):
     forgotten about (no need to kill or otherwise explicitly destroy
     them after they're not on their atoms).
     """
-
     pi_bond_obj = None #bruce 050718; used to memoize a perceived PiBondSpChain object (if any) which covers this bond
         # sometimes I search for pi_bond_info when I want this; see also get_pi_info and pi_info
 
@@ -804,7 +837,7 @@ class Bond(BondBase, StateMixin):
     
     #- DNA helper functions. ------------------------------------------
     
-    def getStrandName(self):
+    def getStrandName(self): # TODO: revise this when Strand object is implemented.
         """
         Return the strand name, which is this bond's chunk name.
         
@@ -818,7 +851,7 @@ class Bond(BondBase, StateMixin):
             return self.atom1.molecule.name
         return ""
     
-    def setStrandName(self, name):
+    def setStrandName(self, name): # TODO: revise this when Strand object is implemented.
         """
         Sets the name of the chunk this bond belongs to. This will fail if 
         the bond belongs to two different chunks.
@@ -898,7 +931,8 @@ class Bond(BondBase, StateMixin):
                  
         @exception: If this is a strand bond, but there is no 3' atom.
         """
-        
+        assert 0, "not yet implemented"
+        return None
                     
     #- end of DNA bond helper functions ----------------------------
     
@@ -977,7 +1011,9 @@ class Bond(BondBase, StateMixin):
         return self.atom1.element is Singlet or self.atom2.element is Singlet
     
     def set_v6(self, v6): #bruce 050717 revision: only call changed_valence when needed
-        "#doc; can't be used for illegal valences, as some of our actual setters need to do..."
+        """
+        #doc; can't be used for illegal valences, as some of our actual setters need to do...
+        """
         assert v6 in BOND_VALENCES
         if self.v6 != v6:
             self.v6 = v6
@@ -1755,7 +1791,9 @@ def bond_at_singlets(s1, s2, **opts):
     return obj.retval
 
 class bonder_at_singlets:
-    "handles one call of bond_at_singlets"
+    """
+    handles one call of bond_at_singlets
+    """
     #bruce 041109 rewrote this, added move arg, renamed it from makeBonded
     #bruce 041119 added args and retvals to help fix bugs #203 and #121
     #bruce 050429 plans to permit increasing the valence of an existing bond, #####@@@@@doit
@@ -1874,7 +1912,9 @@ class bonder_at_singlets:
         self.status = status
         return self.actually_bond()
     def actually_bond(self):
-        "#doc... (if it succeeds, uses self.status to report what it did)"
+        """
+        #doc... (if it succeeds, uses self.status to report what it did)
+        """
         #e [bruce 041109 asks: does it matter that the following code forgets which
         #   singlets were involved, before bonding?]
         #####@@@@@ this needs to worry about valence of s1 and s2 bonds, and thus of new bond
@@ -1975,7 +2015,9 @@ class bonder_at_singlets:
             # in theory we have enough info here, but the code is not well structured for this -- unless we save up this
             # message here and somehow emit it later after that stuff has been resolved). Not an ideal situation....
     def merge_open_bonds(self): #bruce 050702 new feature; implem is a guess and might be partly obs when written
-        "Merge the bond-valence of s1 into that of s2"
+        """
+        Merge the bond-valence of s1 into that of s2
+        """
         s1, a1 = self.s1, self.a1
         s2, a2 = self.s2, self.a2
         v1, v2 = s1.singlet_v6(), s2.singlet_v6()

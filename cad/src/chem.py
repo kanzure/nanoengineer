@@ -110,14 +110,20 @@ from prefs_constants import diBALL_AtomRadius_prefs_key
 
 from state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
 
+# more imports below
+
+# ==
+
 try:
-    if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key=True):
+    if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key = True):
         raise ImportError
     from atombase import AtomDictBase, AtomBase
     class AtomDict(AtomDictBase):
         def __init__(self):
             AtomDictBase.__init__(self)
             self.key = atKey.next()
+            return
+        pass
     print 'Use Pyrex atoms'
 except ImportError:
     def AtomDict():
@@ -127,6 +133,10 @@ except ImportError:
             pass
         def __getattr__(self, attr): # in class AtomBase
             raise AttributeError, attr
+        pass
+    pass
+
+# ==
 
 from utilities.Log import orangemsg
 import debug

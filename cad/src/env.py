@@ -1,10 +1,10 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-env.py
+env.py - for global variables and functions treated as "part of the environment".
 
-A place for global variables treated as "part of the environment".
-
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 This module is for various global or "dynamic" variables,
 which can be considered to be part of the environment of the code
@@ -57,8 +57,6 @@ bruce 050913 converted most or all remaining uses of win.history to env.history,
 and officially deprecated win.history.
 """
 
-__author__ = 'bruce'
-
 _mainWindow = None
 
 
@@ -94,7 +92,8 @@ def mainwindow(): #bruce 051209
     return _mainWindow
 
 def debug(): #bruce 060222
-    """Should debug checks be run, and debug messages be printed, and debug options offered in menus?
+    """
+    Should debug checks be run, and debug messages be printed, and debug options offered in menus?
     [This just returns the current value of platform.atom_debug, which is this code's conventional flag
      for "general debugging messages and checks". Someday we might move that flag itself into env,
      but that's harder since we'd have to edit lots of code that looks for it in platform,
@@ -111,7 +110,8 @@ except:
     _things_seen_before = {}
 
 def seen_before(thing): #bruce 060317 [moved from runSim to env, 060324]
-    """Return True if and only if thing has never been seen before (as an argument passed to this function).
+    """
+    Return True if and only if thing has never been seen before (as an argument passed to this function).
     Useful for helping callers do things only once per session.
     """
     res = _things_seen_before.get(thing, False)
@@ -126,7 +126,8 @@ except:
     _once_per_event_memo = {}
 
 def once_per_event(*args, **kws): #bruce 060720 ###@@@ should use this in debug's reload function
-    """Return True only once per user event (actually, per glpane redraw),
+    """
+    Return True only once per user event (actually, per glpane redraw),
     for the given exact combination of args and keyword args.
     All arg values must be hashable as dict keys.
     """
@@ -165,7 +166,10 @@ def once_per_event(*args, **kws): #bruce 060720 ###@@@ should use this in debug'
 #  The immediate motivation is to allow them to be called arbitrarily early during init.)
 
 def track(thing): #bruce 050804
-    "Default implementation -- will be replaced at runtime as soon as changes.py module is imported (if it ever is)"
+    """
+    Default implementation -- will be replaced at runtime
+    as soon as changes.py module is imported (if it ever is)
+    """
     import platform
     if platform.atom_debug:
         print "atom_debug: fyi (from env module): something asked to be tracked, but nothing is tracking: ", thing
@@ -175,11 +179,17 @@ def track(thing): #bruce 050804
 #bruce 050908 stubs for Undo  ####@@@@
 
 def begin_op(*args):
-    "Default implementation -- will be replaced at runtime as soon as changes.py module is imported (if it ever is)"
+    """
+    Default implementation -- will be replaced at runtime
+    as soon as changes.py module is imported (if it ever is)
+    """
     return "fake begin" #k needed?
 
 def end_op(*args):
-    "Default implementation -- will be replaced at runtime as soon as changes.py module is imported (if it ever is)"
+    """
+    Default implementation -- will be replaced at runtime
+    as soon as changes.py module is imported (if it ever is)
+    """
     pass
 
 in_op = begin_op
@@ -194,7 +204,10 @@ _in_event_loop = True #bruce 060127
 # end of stubs to be replaced by changes module
 
 def call_qApp_processEvents(*args): #bruce 050908
-    "No other code should directly call qApp.processEvents -- always call it via this function."
+    """
+    No other code should directly call qApp.processEvents --
+    always call it via this function.
+    """
     from PyQt4.Qt import qApp #k ??
     mc = begin_recursive_event_processing()
     try:
@@ -246,14 +259,20 @@ _change_checkpoint_counter = 0 #bruce 060123 for Undo and other uses
     # by stopping the ascent from changed child to changed parent as soon as it would store the same value of this on the parent.
 
 def change_counter_checkpoint():
-    "Call this to get a value to save in state-snapshots or the like, for comparison (using >, not ==) with stored values."
+    """
+    Call this to get a value to save in state-snapshots or the like,
+    for comparison (using >, not ==) with stored values.
+    """
     global _change_checkpoint_counter
     if _change_checkpoint_counter & 1:
         _change_checkpoint_counter += 1 # make it even, when observed
     return _change_checkpoint_counter
 
 def change_counter_for_changed_objects():
-    "Call this to get a value to store on changed objects and all their containers; see comment for important optimization."
+    """
+    Call this to get a value to store on changed objects and all their
+    containers; see comment for important optimization.
+    """
     global _change_checkpoint_counter
     if _change_checkpoint_counter & 1 == 0:
         _change_checkpoint_counter += 1 # make it odd, when recording a change
@@ -267,7 +286,9 @@ obj_with_glselect_name = {} # public for lookup
     ###e this needs to be made weak-valued ASAP! (or, call destroy methods to dealloc) ###@@@
 
 def new_glselect_name():
-    "Return a session-unique 32-bit unsigned int for use as a GL_SELECT name."
+    """
+    Return a session-unique 32-bit unsigned int for use as a GL_SELECT name.
+    """
     #e We could recycle these for dead objects (and revise docstring),
     # but that's a pain, and unneeded (I think), since it's very unlikely
     # we'll create more than 4 billion objects in one session.
@@ -276,13 +297,17 @@ def new_glselect_name():
     return _last_glselect_name
 
 def alloc_my_glselect_name(obj):
-    "Register obj as the owner of a new GL_SELECT name, and return that name."
+    """
+    Register obj as the owner of a new GL_SELECT name, and return that name.
+    """
     name = new_glselect_name()
     obj_with_glselect_name[name] = obj
     return name
 
 def dealloc_my_glselect_name(obj, name):
-    "#doc"
+    """
+    #doc
+    """
     # objs have to pass the name, since we don't know where they keep it and don't want to have to keep a reverse dict;
     # but we make sure they own it before zapping it!
     #e this function could be dispensed with if our dict was weak, but maybe it's useful for other reasons too, who knows
@@ -365,7 +390,8 @@ def register_post_event_ui_updater(function):
 
 
 def do_post_event_updates( warn_if_needed = False ):
-    """[public function]
+    """
+    [public function]
        This should be called at the end of every user event which changes
     model or selection state. WARNING: In present code (070925), it is very likely
     not called that often, but this is mitigated by the precautionary calls mentioned
@@ -387,10 +413,13 @@ def do_post_event_updates( warn_if_needed = False ):
 # ==
 
 def node_departing_assy(node, assy): #bruce 060315 for Undo
-    "If assy is an assembly, warn it that node (with all its child atoms) is leaving it."
+    """
+    If assy is an assembly, warn it that node (with all its child atoms)
+    is leaving it.
+    """
     try:
         um = assy.undo_manager
-    except:
+    except AttributeError:
         # for assy is None or == a certain string
         assert assy is None or type(assy) == type("assembly") and "assembly" in assy # could be more specific
         return

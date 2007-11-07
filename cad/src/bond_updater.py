@@ -2,11 +2,11 @@
 """
 bond_updater.py
 
-[unfinished]
-
 Recompute structural bond orders when necessary.
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 This is needed for bonds between atoms whose atomtypes make p orbitals
 available for bonding, to check whether pi bonds are formed,
@@ -14,17 +14,14 @@ whether they're aromatic or double or triple, to check for
 radicals (pi systems containing unpaired electrons),
 and to notice graphite.
 
-(Much of that is not yet implemented for Alpha6.)
+(Much of the above is not yet implemented.)
 
 History:
 
 bruce 050627 started this as part of supporting higher-order bonds.
 """
 
-__author__ = 'bruce'
-
-
-from debug import print_compact_traceback, print_compact_stack
+from debug import print_compact_traceback
 
 from bond_constants import V_SINGLE
 from bond_constants import V_DOUBLE
@@ -35,16 +32,28 @@ from bond_constants import V_CARBOMERIC
 
 import env
 
+# ==
+
+# global changedicts, public for additions by external modules
+# TODO: maybe make their global and localvar names differ
+
+# dict for atoms or singlets whose element, atomtype, or set of bonds (or neighbors) gets changed [bruce 050627]
+#e (doesn't yet include all killed atoms or singlets, but maybe it ought to) [that comment might be obs!]
+# (changing an atom's bond type does *not* itself update this dict -- see changed_bond_types for that)
+
+changed_structure_atoms = {} # maps atom.key to atom, for atoms or singlets
+    # WARNING: there is also a related but different global dict in chem.py,
+    # whose spelling differs only in 'A' vs 'a' in Atoms, and initial '_'.
+    # See the comment there for more info. [bruce 060322]
+
+changed_bond_types = {} # dict for bonds whose bond-type gets changed
+    # (need not include newly created bonds) ###k might not be used
+
+# ==
+
 def _update_bonds_after_each_event( changed_structure_atoms):
-    ###@@@ so far this is called by update_parts (eg mode chgs),
-    # and near the start of a GLPane repaint event (should be enough),
-    # and only when changed_structure_atoms is nonempty. #k
-    # It misses hearing about killed atoms or singlets,
-    # but does hear about atoms shown only in the elt selector thumbviews!
-    # I guess the latter is good, since that way it can update the bond orders in those views as well!
-    # However, debug tests showed that the elt selector thumbviews need a separate redraw to show this...
-    # that's ok, they're only supposed to draw single-bond atypes anyway.
-    """[should be called only from env.do_post_event_updates]
+    """
+    [should be called only from env.do_post_event_updates]
        This should be called at the end of every user event which might affect
     the atomtypes or bond-sets of any atoms or singlets, which are passed as the
     values of the dict changed_structure_atoms, which we should not modify
@@ -64,6 +73,14 @@ def _update_bonds_after_each_event( changed_structure_atoms):
        It will assume that interpart bonds (if any) have already been broken.
     (#e Or we might decide to extend it to break them itself.)
     """
+    ###@@@ so far this is called by update_parts (eg mode chgs),
+    # and near the start of a GLPane repaint event (should be enough),
+    # and only when changed_structure_atoms is nonempty. #k
+    # It misses hearing about killed atoms or singlets,
+    # but does hear about atoms shown only in the elt selector thumbviews!
+    # I guess the latter is good, since that way it can update the bond orders in those views as well!
+    # However, debug tests showed that the elt selector thumbviews need a separate redraw to show this...
+    # that's ok, they're only supposed to draw single-bond atypes anyway.
     bonds_to_fix = {}
     mols_changed = {} #bruce 060126, so atom._changed_structure() doesn't need to call atom.changed() directly
     
@@ -140,10 +157,12 @@ most_permissible_v6_first = ( V_SINGLE, V_DOUBLE, V_AROMATIC, V_GRAPHITE, V_TRIP
     ####@@@@ review this -- all uses should be considered suspicious [050714 comment]
 
 def best_corrected_v6(bond):
-    """This bond has an illegal v6 according to its bonded atomtypes
+    """
+    This bond has an illegal v6 according to its bonded atomtypes
     (and I guess the atomtypes are what has just changed?? ###k -- [update 060629:] NOT ALWAYS --
      it might be the bond order (and then the atomtypes), changed automatically by increase_valence_noupdate
      when the user bonds two bondpoints to increase order of existing bond, as in bug 1951).
+    
     Say how we want to fix it (or perhaps fix the atomtypes?? #e [i doubt it, they might have just changed -- 060629]).
     """
     # Given that the set of permissible bond types (for each atomtype, ignoring S=S prohibition and special graphite rules)
@@ -166,7 +185,7 @@ def best_corrected_v6(bond):
     for v6 in lis:
         if v6 == V_SINGLE or atype1.permits_v6(v6) and atype2.permits_v6(v6):
             return v6
-    assert 0, "no legal replacement for v6 = %r in %r" % (v6,bond)
+    print "bug: no legal replacement for v6 = %r in %r" % (bond.v6, bond)
     return V_SINGLE
 
 # map a now-illegal v6 to the list of replacements to try (legal ones only, of course; in the order of preference given by the list)
@@ -186,7 +205,8 @@ corrected_v6_list = {
 # ==
 
 def _process_changed_bond_types( changed_bond_types):
-    """Tell whoever needs to know that some bond types changed.
+    """
+    Tell whoever needs to know that some bond types changed.
     For now, that means only bond.pi_bond_obj objects on those very bonds.
     """
     for bond in changed_bond_types.values(): #bruce 060405 precaution: itervalues -> values, due to calls of code we don't control here
@@ -195,24 +215,14 @@ def _process_changed_bond_types( changed_bond_types):
             obj.changed_bond_type(bond)
     return
 
-# dict for atoms or singlets whose element, atomtype, or set of bonds (or neighbors) gets changed [bruce 050627]
-#e (doesn't yet include all killed atoms or singlets, but maybe it ought to)
-# (changing an atom's bond type does *not* itself update this dict -- see changed_bond_types for that)
-
-changed_structure_atoms = {} # maps atom.key to atom, for atoms or singlets
-    # WARNING: there is also a related but different global dict in chem.py, whose spelling differs only in 'A' vs 'a' in Atoms.
-    # See the comment there for more info. [bruce 060322]
-
-changed_bond_types = {} # dict for bonds whose bond-type gets changed (need not include newly created bonds) ###k might not be used
-
-
 # the beginnings of a general change-handling scheme [bruce 050627]
 
 def _bond_updater_post_event_model_updater( warn_if_needed = False ):
     """
-       This should be called at the end of every user event which might have changed
+    This should be called at the end of every user event which might have changed
     anything in any loaded model which defers some updates to this function.
-       This can also be called at the beginning of user events, such as redraws or saves,
+
+    This can also be called at the beginning of user events, such as redraws or saves,
     which want to protect themselves from event-processors which should have called this
     at the end, but forgot to. Those callers should pass warn_if_needed = True, to cause
     a debug-only warning to be emitted if the call was necessary. (This function is designed
@@ -274,10 +284,16 @@ def _bond_updater_post_event_model_updater( warn_if_needed = False ):
         _process_changed_bond_types( changed_bond_types)
             ###k our interface to that function needs review if it can recursively add bonds to this dict -- if so, it should .clear
         changed_bond_types.clear()
-    return
+    return # from _bond_updater_post_event_model_updater
 
+# ==
 
 def initialize():
-    env.register_post_event_model_updater(_bond_updater_post_event_model_updater)
+    """
+    Register one or more related post_event_model_updaters
+    (in the order in which they should run).
+    """
+    env.register_post_event_model_updater( _bond_updater_post_event_model_updater)
+    return
 
 # end
