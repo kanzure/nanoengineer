@@ -5,7 +5,7 @@ for providing operations for making specific kinds of Jigs, and associated
 public helper functions.
  
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -20,6 +20,9 @@ from PyQt4.Qt import QMessageBox
 from utilities.Log import redmsg, greenmsg, orangemsg
 import env
 from jigs import Anchor
+from jigs import Stat
+from jigs import Thermo
+from jigs import AtomSet
 
 
 class jigmakers_Mixin:
