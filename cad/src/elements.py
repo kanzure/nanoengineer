@@ -29,6 +29,11 @@ Bruce 071105 modularized the creation of different kinds of elements,
 except for the central list of all the kinds in this file (implicit
 in the list of init_xxx_elements functions we call),
 so chemical, PAM3, and PAM5 elements are created by separate modules.
+
+Bruce 071106 removed a few useless and unused methods (one of which
+had a bug -- getElemBondCount didn't honor its atomtype argument).
+To access public attributes of elements, just use getElement()
+and then access the attribute directly.
 """
 
 from preferences import prefs_context
@@ -55,11 +60,10 @@ class _ElementPeriodicTable(object):
         self._periodicTable = {} # maps elem.eltnum to elem (an Elem)
         self._eltName2Num = {} # maps elem.name to elem.eltnum
         self._eltSym2Num = {} # maps elem.symbol to elem.eltnum
-        self._defaultRad_Color = {} #bruce 071105
-        self._altRad_Color = {} #bruce 071105
-        
-##        self._createElements(_mendeleev) # bruce 071105 removed this
-        
+        #bruce 071105 added the color tables:
+        self._defaultRad_Color = {} # maps elem.symbol to (radius, color) pairs
+        self._altRad_Color = {} # alternate rad/color values (ok if incomplete)
+                
         # bruce 050419 add public attributes to count changes
         # to any element's color or rvdw; the only requirement is that
         # each one changes at least once per user event which
@@ -183,7 +187,7 @@ class _ElementPeriodicTable(object):
         """
         copyPTable = {}
         for elm in self._periodicTable.values():
-            if type(elm.color) != type([1,1,1]):
+            if type(elm.color) != type([1, 1, 1]):
                 print "Error: ", elm
             copyPTable[elm.symbol] = (elm.rvdw, elm.color[:])
         return copyPTable
@@ -200,7 +204,7 @@ class _ElementPeriodicTable(object):
 
         @param colTab: A list of tuples in the form of <elNum, r, g, b>
         """
-        assert type(colTab) == type([1,1, 1,1])
+        assert type(colTab) == type([1, 1, 1, 1])
         self.color_change_counter += 1
         for elm in colTab:
             self._periodicTable[elm[0]].color = [elm[1], elm[2], elm[3]]
@@ -212,7 +216,7 @@ class _ElementPeriodicTable(object):
         """
         assert type(eleNum) == type(1)
         assert eleNum >= 0
-        assert type(c) == type([1,1,1])
+        assert type(c) == type([1, 1, 1])
         self.color_change_counter += 1
         self._periodicTable[eleNum].color = c
         
@@ -268,48 +272,6 @@ class _ElementPeriodicTable(object):
             assert 0, s
         return self._periodicTable[s]
             
-    def getElemRvdw(self, eleNum):
-        """
-        Return the element rvdw  for <eleNum>
-        """
-        return self._periodicTable[eleNum].rvdw
-    
-    def getElemMass(self, eleNum):
-        """
-        Return the mass for element <eleNum>
-        """
-        return self._periodicTable[eleNum].mass
-    
-    def getElemName(self, eleNum):
-        """
-        Return the name for element <eleNum>
-        """
-        return self._periodicTable[eleNum].name
-        
-    def getElemBondCount(self, eleNum, atomtype = None):
-        """
-        Return the number of open bonds for element <eleNum>
-        (when it has no real bonds).
-        If atomtype is provided, use that atomtype, otherwise
-        use the default atomtype (i.e. assume all the open bonds
-        should be single bonds).
-        """
-        elem = self._periodicTable[eleNum]
-        return elem.atomtypes[0].numbonds
-    
-    def getElemSymbol(self, eleNum):
-        """
-        <Param> eleNum: element index
-        <Return>  the symbol for the element
-        """
-        assert type(eleNum) == type(1)
-        try:
-            elem = self._periodicTable[eleNum]
-            return elem.symbol
-        except:
-            print "Can't find element: ", eleNum
-            return None
-     
     def close(self):
         # The 'def __del__(self)' is not guaranteed to be called.
         # It is not called in my try on Windows. [Huaicai]
@@ -357,8 +319,6 @@ if __name__ == '__main__':
 
     print pt1.getElement(6)
     print pt1.getElement(18)
-
-    print pt1.getElemSymbol(12)
 
     pt1.deepCopy() 
 
