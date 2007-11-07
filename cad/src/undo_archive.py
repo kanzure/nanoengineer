@@ -1164,21 +1164,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # so all applicable diffs will be found when you look for varid_ver pairs representing current state.
             # (Not sure if that system will be good enough for permitting enough out-of-order list-modification ops.)
 
-##        # == above is general; below is specific to the kind of data we find in an assembly (Atoms, Bonds, Chunks...)
-##        
-##        # change tracking dicts for Atoms and Bonds (not sure we want them here, as opposed to inside current_diff...) [bruce 060315]
-##        self._changed_parent_Atoms = {} # atom.key -> atom (not objkey!) for atoms w/ changed assy or molecule or liveness/killedness
-##            # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
-##        self._changed_structure_Atoms = {} ###e format TBD, but tracks changes to element, atomtype, bond set (###k bond order?)
-##        self._changed_posn_Atoms = {} # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
-##        self._changed_picked_Atoms = {} # tracks changes to atom.picked (not to _pick_time etc, we don't cover that in Undo)
-##
-##        self._changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display mode; not sure if any more ###k)
-##
-##        self._changed_Bonds = {} # tracks all changes to Bonds: existence, which atoms, bond order. [bond.key or id(bond) is TBD ###k]
-
         self.subbing_to_changedicts_now = False # whether this was initially False or True wouldn't matter much, I think...
-        self._changedicts = [] #060404 made this a list of (changedict, ourdict) pairs, not just a list of changedicts
+        self._changedicts = [] # this gets extended in self._archive_meet_class;
+            #060404 made this a list of (changedict, ourdict) pairs, not just a list of changedicts
             # list of pairs of *external* changedicts we subscribe to -- we are not allowed to directly modify them! --
             #  and ourdicts for them, the appropriate one of self.all_changed_Atoms or self.all_changed_Bonds)
             # (in fact it might be better to just list their cdp's rather than the dicts themselves; also more efficient ##e)

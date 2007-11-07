@@ -40,13 +40,6 @@ from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
 from OpenGL.GL import GL_FILL
 
-##from chem import _changed_structure_Atoms
-##    # needed whenever we change an atom's .jigs list;
-##    # could be replaced by calling methods on the atom
-##    # to modify its atom.jigs list
-##    # (unless that's deemed too inefficient)
-##    # [bruce 071025 comment; now that's been done]
-
 import platform
 
 from Utility import Node
@@ -172,9 +165,6 @@ class Jig(Node):
                       " to add it" % (self, atm)
             else:
                 atm._f_jigs_append(self) #bruce 071025
-##                atm.jigs.append(self)
-##                #k not sure if following is needed -- bruce 060322
-##                _changed_structure_Atoms[atm.key] = atm
         return
 
     def needs_atoms_to_survive(self):
@@ -325,14 +315,6 @@ class Jig(Node):
         self.atoms.remove(atm)
         # also remove self from atm's list of jigs
         atm._f_jigs_remove(self) #bruce 071025
-##        try:
-##            atm.jigs.remove(self)
-##        except:
-##            # does this ever still happen? TODO: if so, document when & why.
-##            if platform.atom_debug:
-##                print_compact_traceback("atom_debug: ignoring exception in rematom: ")
-##        else:
-##            _changed_structure_Atoms[atm.key] = atm #k not sure if needed #bruce 060322
         if _kill_if_no_atoms_left_but_needs_them:
             if not self.atoms and self.needs_atoms_to_survive():
                 self.kill()

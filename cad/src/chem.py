@@ -240,8 +240,11 @@ register_undo_updater( _undo_update_Atom_jigs,
 
 _changed_parent_Atoms = {} # record atoms w/ changed assy or molecule or liveness/killedness
     # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
-    # related attributes: __killed, molecule ###@@@ declare these?? not yet sure if that should be per-attr or not, re subclasses...
-
+    # related attributes: __killed, molecule ###@@@ declare these??
+    # not yet sure if that should be per-attr or not, re subclasses...
+    # WARNING: name is private, but it's directly accessed in many places in
+    # chunk.py [bruce 071106 comment]
+    
 register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed', 'molecule') )
     #k or must we say _Atom__killed??
     # (It depends on whether that routine knows how to mangle it itself.)
@@ -250,7 +253,8 @@ register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed'
 
 
 _changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set (not bond order #k)
-    # WARNING: there is also a related but different global dict in env.py, whose spelling differs only in 'A' vs 'a' in Atoms.
+    # WARNING: there is also a related but different global dict in env.py,
+    # whose spelling differs only in 'A' vs 'a' in Atoms, and in having no initial underscore.
     # This confusion should be cleaned up sometime, by letting that one just be a subscriber to this one,
     # and if efficiency demands it, first splitting this one into the part equivalent to that one, and the rest.
     #
@@ -271,6 +275,8 @@ register_changedict( _changed_posn_Atoms, '_changed_posn_Atoms', ('_posn',) )
 _changed_picked_Atoms = {} # tracks changes to atom.picked (for live or dead atoms)
     # (not to _pick_time etc, we don't cover that in Undo)
     # related attributes: picked
+    # WARNING: name is private, but it's directly accessed in
+    # ops_select.py [bruce 071106 comment]
 
 register_changedict( _changed_picked_Atoms, '_changed_picked_Atoms', ('picked',) )
 
