@@ -1,5 +1,7 @@
 # lint Python modules using external checkers.
 # 
+# $Id$
+#
 # This is the main checker controlling the other ones and the reports
 # generation. It is itself both a raw checker and an astng checker in order
 # to:
@@ -57,8 +59,16 @@ load-plugins=
 # W0107 = Unnecessary pass statement [bruce 071106]
 # W0603 = Using the global statement [bruce 071106]
 # W0142 = Used * or ** magic [bruce 071106]
+
 disable-msg=C0103, W0107, W0603, W0142
 
+# explanations of some enabled but potentially confusing messages:
+# E1111 = Assigning to function call which doesn't return -- this warns about var = func(...)
+#         when func() doesn't return anything or always returns None (I think).
+
+# consider adding summary reports for the following, for all files: [bruce 071107]
+# W0311 - Bad indentation
+# ?     - Undefined variable (I forget the exact wording -- happens when you forget an import)
 
 [REPORTS]
 
@@ -184,8 +194,8 @@ init-import=yes
 
 # A regular expression matching names used for dummy variables (i.e. not used).
 ## was: dummy-variables-rgx=_|dummy
-# bruce 071106 added .*junk
-dummy-variables-rgx=_|dummy|.*junk
+# bruce 071106-07 added .*junk, .*unused
+dummy-variables-rgx=_|dummy|.*junk|.*unused
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.
