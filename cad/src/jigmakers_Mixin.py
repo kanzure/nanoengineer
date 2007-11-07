@@ -62,17 +62,20 @@ class jigmakers_Mixin:
         atoms = []
         
         # Get a list of atoms from the selected chunks or atoms.
-        atoms = self.assy.selected_atoms_list( include_atoms_in_selected_chunks = True)
+        atoms = self.assy.selected_atoms_list(
+            include_atoms_in_selected_chunks = True)
         
         if not atoms:
-            env.history.message(cmd + redmsg(
-                "At least one atom must be selected to create a " + gms_str + " jig."))
+            msg = "At least one atom must be selected to create a " + \
+                  gms_str + " jig."
+            env.history.message(cmd + redmsg(msg))
             return
         
         # Make sure that no more than 200 atoms are selected.
         nsa = len(atoms)
-        if nsa > 200: 
-            env.history.message(cmd + redmsg(str(nsa) + " atoms selected.  The limit is 200.  Try again."))
+        if nsa > 200:
+            msg = str(nsa) + " atoms selected.  The limit is 200."
+            env.history.message(cmd + redmsg(msg))
             return
         
         # Bug 742.    Mark 050731.
@@ -84,13 +87,14 @@ class jigmakers_Mixin:
                 "&Continue", "Cancel", "",
                 0, 1 )
                 
-            if ret==1: # Cancel
+            if ret == 1: # Cancel
                 return
                 
         from jig_Gamess import Gamess
         m = Gamess(self.assy, atoms)
-        m.edit() #bruce 050701 split edit method out of the constructor,
-            # so the dialog doesn't show up when the jig is read from an mmp file
+        m.edit()
+            #bruce 050701 split edit method out of the constructor, so the
+            # dialog doesn't show up when the jig is read from an mmp file
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.
             env.history.message(cmd + "Cancelled")
             return
@@ -102,18 +106,22 @@ class jigmakers_Mixin:
         
     def makeAnchor(self):
         """
-        Anchors the selected atoms so that they will not move during a minimization or simulation run.
+        Anchors the selected atoms so that they will not move
+        during a minimization or simulation run.
         """        
         cmd = greenmsg("Anchor: ")
 
         atoms = self.assy.selatoms_list()
         
         if not atoms:
-            env.history.message(cmd + redmsg("You must select at least one atom to create an Anchor."))
+            msg = "You must select at least one atom to create an Anchor."
+            env.history.message(cmd + redmsg(msg))
             return
         
         # Print warning if over 200 atoms are selected.
-        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
+        if atom_limit_exceeded_and_confirmed(self.assy.w,
+                                             len(atoms),
+                                             limit=200):
             return
 
         m = Anchor(self.assy, atoms)
@@ -132,14 +140,15 @@ class jigmakers_Mixin:
         atoms = self.assy.selatoms_list()
         
         if not atoms:
-            msg = redmsg("You must select an atom on the molecule you want to associate with a Thermostat.")
-            env.history.message(cmd + msg)
+            msg = "You must select an atom on the chunk you want to " \
+                  "associate with a Thermostat."
+            env.history.message(cmd + redmsg(msg))
             return
         
         # Make sure only one atom is selected.
         if len(atoms) != 1: 
-            msg = redmsg("To create a Thermostat, only one atom may be selected.  Try again.")
-            env.history.message(cmd + msg)
+            msg = "To create a Thermostat, only one atom may be selected."
+            env.history.message(cmd + redmsg(msg))
             return
         m = Stat(self.assy, atoms)
         self.unpickall_in_GLPane()
@@ -152,20 +161,20 @@ class jigmakers_Mixin:
         """
         Attaches a thermometer to the single atom selected.
         """
-        
         cmd = greenmsg("Thermometer: ")
 
         atoms = self.assy.selatoms_list()
         
         if not atoms:
-            msg = redmsg("You must select an atom on the molecule you want to associate with a Thermometer.")
-            env.history.message(cmd + msg)
+            msg = "You must select an atom on the chunk you want to " \
+                  "associate with a Thermometer."
+            env.history.message(cmd + redmsg(msg))
             return
         
         # Make sure only one atom is selected.
         if len(atoms) != 1: 
-            msg = redmsg("To create a Thermometer, only one atom may be selected.  Try again.")
-            env.history.message(cmd + msg)
+            msg = "To create a Thermometer, only one atom may be selected."
+            env.history.message(cmd + redmsg(msg))
             return
         
         m = Thermo(self.assy, atoms)
@@ -182,14 +191,14 @@ class jigmakers_Mixin:
         atoms = self.assy.selatoms_list()
         
         if not atoms:
-            msg = redmsg("You must select 3 or more atoms to create a Grid Plane.")
-            env.history.message(cmd + msg)
+            msg = "You must select 3 or more atoms to create a Grid Plane."
+            env.history.message(cmd + redmsg(msg))
             return
         
         # Make sure only one atom is selected.
         if len(atoms) < 3: 
-            msg = redmsg("To create a Grid Plane, at least 3 atoms must be selected.  Try again.")
-            env.history.message(cmd + msg)
+            msg = "To create a Grid Plane, at least 3 atoms must be selected."
+            env.history.message(cmd + redmsg(msg))
             return
         
         from jigs_planes import GridPlane
@@ -207,7 +216,7 @@ class jigmakers_Mixin:
       
         env.history.message(cmd + "Grid Plane created")
         self.assy.w.win_update()
-        
+        return
         
     def makeESPImage(self):
         cmd = greenmsg("ESP Image: ")
@@ -215,8 +224,8 @@ class jigmakers_Mixin:
         atoms = self.assy.selatoms_list()
 
         if len(atoms) < 3:
-            msg = redmsg("You must select at least 3 atoms to create an ESP Image.")
-            env.history.message(cmd + msg)
+            msg = "You must select at least 3 atoms to create an ESP Image."
+            env.history.message(cmd + redmsg(msg))
             return
         
         from jigs_planes import ESPImage
@@ -229,12 +238,12 @@ class jigmakers_Mixin:
         self.unpickall_in_GLPane()
         self.place_new_jig(m)
         
-        #After placing the jig, remove the atom list from the jig.
+        # After placing the jig, remove the atom list from the jig.
         m.atoms = []
         
         env.history.message(cmd + "ESP Image created.")
         self.assy.w.win_update()
-           
+        return
         
     def makeAtomSet(self):
         cmd = greenmsg("Atom Set: ")
@@ -242,11 +251,14 @@ class jigmakers_Mixin:
         atoms = self.assy.selatoms_list()
 
         if not atoms:
-            env.history.message(cmd + redmsg("You must select at least one atom to create an Atom Set."))
+            msg = "You must select at least one atom to create an Atom Set."
+            env.history.message(cmd + redmsg(msg))
             return
             
         # Print warning if over 200 atoms are selected.
-        if atom_limit_exceeded_and_confirmed(self.assy.w, len(atoms), limit=200):
+        if atom_limit_exceeded_and_confirmed(self.assy.w,
+                                             len(atoms),
+                                             limit = 200):
             return
         
         m = AtomSet(self.assy, atoms)
@@ -256,7 +268,7 @@ class jigmakers_Mixin:
         
         env.history.message(cmd + "Atom Set created.")
         self.assy.w.win_update()
-        
+        return
 
     def makeMeasureDistance(self):
         """
@@ -268,8 +280,8 @@ class jigmakers_Mixin:
         atoms = self.assy.selatoms_list()
 
         if len(atoms) != 2:
-            msg = redmsg("You must select 2 atoms to create a Distance jig.")
-            env.history.message(cmd + msg)
+            msg = "You must select 2 atoms to create a Distance jig."
+            env.history.message(cmd + redmsg(msg))
             return
         
         from jigs_measurements import MeasureDistance
@@ -290,8 +302,8 @@ class jigmakers_Mixin:
         atoms = self.assy.selatoms_list()
 
         if len(atoms) != 3:
-            msg = redmsg("You must select 3 atoms to create an Angle jig.")
-            env.history.message(cmd + msg)
+            msg = "You must select 3 atoms to create an Angle jig."
+            env.history.message(cmd + redmsg(msg))
             return
         
         from jigs_measurements import MeasureAngle
@@ -311,8 +323,8 @@ class jigmakers_Mixin:
         atoms = self.assy.selatoms_list()
 
         if len(atoms) != 4:
-            msg = redmsg("You must select 4 atoms to create a Dihedral jig.")
-            env.history.message(cmd + msg)
+            msg = "You must select 4 atoms to create a Dihedral jig."
+            env.history.message(cmd + redmsg(msg))
             return
         
         from jigs_measurements import MeasureDihedral
@@ -327,16 +339,16 @@ class jigmakers_Mixin:
 
 # ==
 
-def atom_limit_exceeded_and_confirmed(parent, natoms, limit=200):
+def atom_limit_exceeded_and_confirmed(parent, natoms, limit = 200):
     """
     Displays a warning message if 'natoms' exceeds 'limit'.
-    Returns False if the number of atoms does not exceed the limit or if the 
-    user confirms that the jigs should still be created even though the limit was 
-    exceeded.
-    If parent is 0, the message box becomes an application-global modal dialog box. 
-    If parent is a widget, the message box becomes modal relative to parent. 
+    Returns False if the number of atoms does not exceed the limit or if the
+    user confirms that the jigs should still be created even though the limit
+    was exceeded.
+    If parent is 0, the message box becomes an application-global modal dialog
+    box. 
+    If parent is a widget, the message box becomes modal relative to parent.
     """
-    
     if natoms < limit:
         return False # Atom limit not exceeded.
 
@@ -350,19 +362,22 @@ def atom_limit_exceeded_and_confirmed(parent, natoms, limit=200):
                     QMessageBox.NoButton, 
                     parent)
 
-    # We want to add a "Do not show this message again." checkbox to the dialog like this:
+    # We want to add a "Do not show this message again." checkbox to the dialog
+    # like this:
     #     checkbox = QCheckBox("Do not show this message again.", dialog)
-    # The line of code above works, but places the checkbox in the upperleft corner of the dialog, 
-    # obscuring important text.  I'll fix this later. Mark 051122.
+    # The line of code above works, but places the checkbox in the upperleft
+    # corner of the dialog, obscuring important text.  I'll fix this later.
+    # Mark 051122.
 
     ret = dialog.exec_()
 
     if ret != QMessageBox.Yes:
         return True
     
-    # Print warning msg in history widget whenever the user adds new jigs with more than 'limit' atoms.
-    wmsg = "Warning: " + str(natoms) + " atoms selected.  A jig with more than " \
-        + str(limit) + " atoms may degrade performance."
+    # Print warning msg in history widget whenever the user adds new jigs with
+    # more than 'limit' atoms.
+    wmsg = "Warning: " + str(natoms) + " atoms selected.  A jig with more " \
+        "than " + str(limit) + " atoms may degrade performance."
     env.history.message(orangemsg(wmsg))
         
     return False # from atom_limit_exceeded_and_confirmed
