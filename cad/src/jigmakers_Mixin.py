@@ -19,6 +19,7 @@ from PyQt4.Qt import QMessageBox
 
 from utilities.Log import redmsg, greenmsg, orangemsg
 import env
+from jigs import Anchor
 
 
 class jigmakers_Mixin:
