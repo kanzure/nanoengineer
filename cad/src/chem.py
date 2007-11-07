@@ -1477,8 +1477,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return not ok
 
     def bad_valence_explanation(self): #bruce 050806; revised 060703 ####@@@@ use more widely
-        """Return the reason self's valence is bad (as a short text string), or '' if it's not bad.
-        [#e Some callers might want an even shorter string; if so, we'll add an option to ask for that,
+        """
+        Return the reason self's valence is bad (as a short text string), or '' if it's not bad.
+
+        [TODO: Some callers might want an even shorter string; if so, we'll add an option to ask for that,
          and perhaps implement it by stripping off " -- " and whatever follows that.]
         """
         # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync! 
@@ -1508,9 +1510,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         pass
 
     def min_max_actual_valence(self): #bruce 051215 split this out of .bad and .bad_valence
-        """Return the pair (minv, maxv) of the min and max reasonable interpretations of self's current valence,
+        """
+        Return the pair (minv, maxv) of the min and max reasonable interpretations of self's current valence,
         based on bond types.
-           Note: these are actual valence numbers (ints or floats, but single bond is 1.0), NOT v6 values.
+
+        Note: these are actual valence numbers (ints or floats, but single bond is 1.0), NOT v6 values.
         """
         minv = maxv = 0
         for bond in self.bonds:
@@ -1520,11 +1524,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return minv, maxv
 
     def deficient_valence(self): #bruce 051215
-        """If this atom clearly wants more valence (based on existing bond types),
-        return the minimum amount it needs (as an int or float valence number, NOT as a v6).
-           Otherwise return 0.
         """
-        minv, maxv = self.min_max_actual_valence()
+        If this atom clearly wants more valence (based on existing bond types),
+        return the minimum amount it needs (as an int or float valence number, NOT as a v6).
+        Otherwise return 0.
+        """
+        minv_junk, maxv = self.min_max_actual_valence()
         want_valence = self.atomtype.valence
         if maxv < want_valence:
             return want_valence - maxv
@@ -1541,7 +1546,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return msg
 
     def overdraw_with_special_color(self, color, level = None):
-        "Draw this atom slightly larger than usual with the given special color and optional drawlevel, in abs coords."
+        """
+        Draw this atom slightly larger than usual with the given
+        special color and optional drawlevel, in abs coords.
+        """
         #bruce 050324; meant for use in Fuse Chunks mode;
         # also could perhaps speed up Extrude's singlet-coloring #e
         if level is None:
@@ -1556,7 +1564,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     def draw_in_abs_coords(self, glpane, color, useSmallAtomRadius = False): #bruce 050610
         ###@@@ needs to be told whether or not to "draw as selatom"; now it does [i.e. it's misnamed]
-        """Draw this atom in absolute (world) coordinates,
+        """
+        Draw this atom in absolute (world) coordinates,
         using the specified color (ignoring the color it would naturally be drawn with).
         See code comments about radius and display mode (current behavior might not be correct or optimal).
            This is only called for special purposes related to mouseover-highlighting,
@@ -1574,9 +1583,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ###@@@ remaining code might or might not be correct (issues: larger radius, display-mode independence)
         
         if useSmallAtomRadius:
-                drawrad = self.selatom_small_radius()
+            drawrad = self.selatom_small_radius()
         else:
-                drawrad = self.selatom_radius() # slightly larger than normal drawing radius
+            drawrad = self.selatom_radius() # slightly larger than normal drawing radius
         ## drawsphere(color, pos, drawrad, level)
         self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
             # always draw, regardless of display mode
@@ -1641,7 +1650,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # to overwrite when depths are equal [bruce 041206]
         else:
             if disp == diTUBES:
-                    drawrad *= 1.0
+                drawrad *= 1.0
                
         return drawrad
         
@@ -1661,7 +1670,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # no invals are needed if their appearance changes.
 
     def howdraw(self, dispdef): # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
-        """Tell how to draw the atom depending on its display mode (possibly
+        """
+        Tell how to draw the atom depending on its display mode (possibly
         inherited from dispdef, usually the molecule's effective dispdef).
         An atom's display mode overrides the inherited
         one from the molecule or glpane, but a molecule's color overrides the
@@ -1709,13 +1719,17 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return (disp, rad)
 
     def selradius_prefs_values(): # staticmethod in Atom #bruce 060317 for bug 1639 (and perhaps an analogue for other prefs)
-        "Return a tuple of all prefs values that are ever used in computing any atom's selection radius (by selradius_squared)."
+        """
+        Return a tuple of all prefs values that are ever used in computing
+        any atom's selection radius (by selradius_squared).
+        """
         return ( env.prefs[cpkScaleFactor_prefs_key] , env.prefs[diBALL_AtomRadius_prefs_key] ) # both used in howdraw
 
     selradius_prefs_values = staticmethod( selradius_prefs_values)
 
     def selradius_squared(self): # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
-        """Return square of desired "selection radius",
+        """
+        Return square of desired "selection radius",
         or -1.0 if atom should not be selectable (e.g. invisible).
         This might depend on whether atom is selected (and that
         might even override the effect of invisibility); in fact
@@ -1733,7 +1747,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             return rad ** 2
 
     def visible(self, dispdef = None): #bruce 041214
-        """Say whether this atom is currently visible, for purposes of selection.
+        """
+        Say whether this atom is currently visible, for purposes of selection.
         Note that this depends on self.picked, and display modes of self, its
         chunk, and its glpane, unless you pass disp (for speed) which is treated
         as the chunk's (defined or inherited) display mode.
@@ -1758,7 +1773,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return not (disp == diINVISIBLE)
 
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
-        "[compatible with Node.writemmp, though we're not a subclass of Node]"
+        """
+        [compatible with Node.writemmp, though we're not a subclass of Node]
+        """
         num_str = mapping.encode_next_atom(self) # (note: pre-050322 code used an int here)
         disp = mapping.dispname(self.display) # note: affected by mapping.sim flag
         posn = self.posn() # might be revised below
@@ -1865,8 +1882,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                       "unrecognized key %r (not an error)" % (key,)
         return
     
-    # write to a povray file:  draw a single atom
     def writepov(self, file, dispdef, col):
+        """
+        write to a povray file:  draw a single atom
+        """
         color = col or self.drawing_color()
         disp, rad = self.howdraw(dispdef)
         if disp in [diTrueCPK, diBALL]:
@@ -1879,6 +1898,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             file.write("atom(" + povpoint(self.posn()) +
                        "," + str(rad) + "," +
                        Vector3ToString(color) + ")\n")
+        return
 
     def writepdb(self, file, atomSerialNumber, chainId):
         """
@@ -1898,7 +1918,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     
         @see: U{B{ATOM Record Format}<http://www.wwpdb.org/documentation/format23/sect9.html#ATOM>}
         """
-        
         space = " "
         # Begin ATOM record ----------------------------------
         # Column 1-6: "ATOM  " (str)
@@ -1947,9 +1966,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         file.write(atomRecord)
 
         return
-            
-    # write to a MDL file.  By Chris Phoenix and Mark for John Burch [04-12-03]
+    
     def writemdl(self, alist, f, dispdef, col):
+        """
+        write to a MDL file
+        """
+        # By Chris Phoenix and Mark for John Burch [04-12-03]
         color = col or self.drawing_color()
         disp, radius = self.howdraw(dispdef)
         xyz=map(float, A(self.posn()))
@@ -1984,7 +2006,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
 
     def checkpick(self, p1, v1, disp, r=None, iPic=None):
-        """Selection function for atoms: [Deprecated! bruce 041214]
+        """
+        Selection function for atoms: [Deprecated! bruce 041214]
         Check if the line through point p1 in direction v1 goes through the
         atom (treated as a sphere with the same radius it would be drawn with,
         which might depend on disp, or with the passed-in radius r if that's
@@ -2006,15 +2029,17 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         if dist<0: return None
         return dist
 
-    def getinfo(self):
-        # Return information about the selected atom for the msgbar
-        # [mark 2004-10-14]
+    def getinfo(self): # [mark 2004-10-14]
+        """
+        Return information about the selected atom for the msgbar
+        """
         # bruce 041217 revised XYZ format to %.2f, added bad-valence info
         # (for the same atoms as self.bad(), but in case conditions are added to
         #  that, using independent code).
         # bruce 050218 changing XYZ format to %.3f (after earlier discussion with Josh).
         
-        if self is self.molecule.assy.ppa2: return
+        if self is self.molecule.assy.ppa2:
+            return
             
         xyz = self.posn()
 
@@ -2118,11 +2143,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return atomInfoStr
 
     def pick(self):
-        """make the atom selected
         """
-        if self.element is Singlet: return
+        make the atom selected
+        """
+        if self.element is Singlet:
+            return
 
-        if self.filtered(): return # mark 060303. [note: bruce 060321 has always thought it was nonmodular to check this here]
+        if self.filtered():
+            return # mark 060303. [note: bruce 060321 has always thought it was nonmodular to check this here]
             #bruce 060331 comment: we can't move this inside the conditional to optimize it, since we want it to affect
             # whether we set picked_time, but we want to set that even for already-picked atoms.
             # (Which are reasons of dubious value if this missed optim is important (don't know if it is), but are real ones.)
@@ -2154,14 +2182,16 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     _picked_time = _picked_time_2 = -1
     def pick_order(self): #bruce 051031
-        """Return something which can be sorted to determine the order in which atoms were selected; include tiebreakers.
+        """
+        Return something which can be sorted to determine the order in which atoms were selected; include tiebreakers.
         Legal to call even if self has never been selected or is not currently selected,
         though results will not be very useful then.
         """
         return (self._picked_time, self._picked_time_2, self.key)
     
     def unpick(self, filtered = True): #bruce 060331 adding filtered = False option, as part of fixing bug 1796
-        """Make the atom (self) unselected, if the selection filter permits this or if filtered = False.
+        """
+        Make the atom (self) unselected, if the selection filter permits this or if filtered = False.
         """
         # note: this is inlined (perhaps with filtered = False, not sure) into assembly.unpickatoms (in ops_select.py)
         # bruce 041214: singlets should never be picked, so Singlet test is not needed,
@@ -2170,7 +2200,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ## if self.element is Singlet: return 
         
         if self.picked:        
-            if filtered and self.filtered(): return  # mark 060303.
+            if filtered and self.filtered():
+                return  # mark 060303.
                 # [note: bruce 060321 has always thought it was nonmodular to check this here]
                 # [and as of sometime before 060331 it turns out to cause bug 1796]
                 #bruce 060331 moved this inside 'if picked', as a speed optimization
@@ -2192,7 +2223,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
     
     def copy(self): #bruce 041116
-        """Public method: copy an atom, with no special assumptions;
+        """
+        Public method: copy an atom, with no special assumptions;
         new atom is not in any mol but could be added to one using mol.addatom.
         """
         nuat = atom(self, self.posn(), None) #bruce 050524: pass self so its atomtype is copied
@@ -2207,7 +2239,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
     
     def break_unmade_bond(self, origbond, origatom): #bruce 050524
-        """Add singlets (or do equivalent invals) as if origbond was copied from origatom
+        """
+        Add singlets (or do equivalent invals) as if origbond was copied from origatom
         onto self (a copy of origatom), then broken; uses origatom
         so it can find the other atom and know bond direction in space
         (it assumes self might be translated but not rotated, wrt origatom).
@@ -2223,7 +2256,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
         
     def unbond(self, b, make_bondpoint = True):
-        """Private method (for use mainly by bonds); remove bond b from self and
+        """
+        Private method (for use mainly by bonds); remove bond b from self and
         usually replace it with a singlet (which is returned). Details:
            Remove bond b from self (error if b not in self.bonds).
         Note that bonds are compared with __eq__, not 'is', by 'in' and 'remove'.
@@ -2297,16 +2331,18 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return x # new feature, bruce 041222
 
     def get_neighbor_bond(self, neighbor):
-        '''Return the bond to a neighboring atom, or None if none exists.
-        '''
+        """
+        Return the bond to a neighboring atom, or None if none exists.
+        """
         for b in self.bonds:
             ## if b.other(self) == neighbor: could be faster [bruce 050513]:
             if b.atom1 is neighbor or b.atom2 is neighbor:
-               return b
+                return b
         return None
             
     def hopmol(self, numol): #bruce 041105-041109 extensively revised this
-        """If this atom is not already in molecule numol, move it
+        """
+        If this atom is not already in molecule numol, move it
         to molecule numol. (This only changes the owning molecule -- it doesn't
         change this atom's position in space!) Also move its singlet-neighbors.
         Do all necessary invalidations of old and new molecules,
@@ -2326,19 +2362,26 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
     
     def neighbors(self):
-        "return a list of all atoms (including singlets) bonded to this one"
+        """
+        return a list of all atoms (including singlets) bonded to this one
+        """
         return map((lambda b: b.other(self)), self.bonds)
     
     def realNeighbors(self):
-        "return a list of the real atoms (not singlets) bonded to this atom"
+        """
+        return a list of the real atoms (not singlets) bonded to this atom
+        """
         return filter(lambda atm: atm.element is not Singlet, self.neighbors())
     
     def singNeighbors(self): #e when we have only one branch again, rename this singletNeighbors or bondpointNeighbors
-        "return a list of the singlets bonded to this atom"
+        """
+        return a list of the singlets bonded to this atom
+        """
         return filter(lambda atm: atm.element is Singlet, self.neighbors())
     
     def baggage_and_other_neighbors(self): #bruce 051209
-        """Return a list of the baggage bonded to this atom (monovalent neighbors which should be dragged along with it),
+        """
+        Return a list of the baggage bonded to this atom (monovalent neighbors which should be dragged along with it),
         and a list of the others (independent neighbors). Special case: in H2 (for example) there is no baggage
         (so that there is some way to stretch the H-H bond); but singlets are always baggage, even in HX.
         """
@@ -2359,17 +2402,19 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return baggage, other
 
     def baggageNeighbors(self): #bruce 051209
-        baggage, other = self.baggage_and_other_neighbors()
+        baggage, other_unused = self.baggage_and_other_neighbors()
         return baggage
         
     def deleteBaggage(self): #mark 060129.
-        '''Deletes any monovalent atoms connected to self.  
-        '''
+        """
+        Deletes any monovalent atoms connected to self.  
+        """
         for a in self.baggageNeighbors():
             a.kill()
 
     def mvElement(self, elt, atomtype = None): #bruce 050511 added atomtype arg
-        """[Public low-level method:]
+        """
+        [Public low-level method:]
         Change the element type of this atom to element elt
         (an element object for a real element, not Singlet),
         and its atomtype to atomtype (which if provided must be an atomtype for elt),
@@ -2557,8 +2602,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return # from atom.kill
         
     def filtered(self): # mark 060303.
-        '''Returns True if self is not the element type/name currently listed in the Select Atoms filter combobox.
-        '''
+        """
+        Returns True if self is not the element type/name currently listed in the Select Atoms filter combobox.
+        """
         if self.is_singlet(): return False # Fixes bug 1608.  mark 060303.
         
         if self.molecule.assy.w.selection_filter_enabled:
@@ -3048,7 +3094,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
 
     def permitted_btypes_for_bond(self, bond): #bruce 060523
-        """If we are a real atom:
+        """
+        If we are a real atom:
         Given one of our bonds (either real or open),
         and considering as fixed only its and our real bonds' existence
         (not their current bond types or our current atomtype),
@@ -3373,6 +3420,8 @@ register_class_changedicts( Atom, _Atom_global_dicts )
 
 atom = Atom # old name of that class -- must remain here until all code has been revised to use new name [bruce 050610]
 
+# ==
+
 def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype option
     """
     Create one unbonded atom, of element elem
@@ -3427,25 +3476,26 @@ def move_alist_and_snuggle(alist, newPositions):
 
 #Huaicai 10/04/05 
 def getMultiplicity(objList):
-    '''@objList A list of Atom/Chunk objects
-       @return If the total number of electron is odd, return 2, otherwise return 1. '''
-    
+    """
+    @param objList: A list of Atom/Chunk objects
+    @return: If the total number of electron is odd, return 2, otherwise return 1.
+    """
     numElectrons = 0
     for m in objList:
         if isinstance(m, Atom):
             numElectrons += m.element.eltnum
         elif isinstance(m, chunk.molecule):
-                for a in m.atoms.itervalues():
-                    numElectrons += a.element.eltnum
+            for a in m.atoms.itervalues():
+                numElectrons += a.element.eltnum
     
-    if numElectrons % 2: return 2
-    else: return 1
+    if numElectrons % 2:
+        return 2
+    else:
+        return 1
 
-# end of chem.py
+# == test code
 
-
-### TEST code
-if __name__=='__main__':
+if __name__ == '__main__':
 
     nopos = V(0,0,0) #bruce 060308 replaced 'no' with nopos (w/o knowing if it was correct in the first place)
     
@@ -3453,9 +3503,9 @@ if __name__=='__main__':
     
     assert getMultiplicity(alist) == 2
     
-    alist +=[Atom('N', nopos, None),]
+    alist += [Atom('N', nopos, None),]
     assert getMultiplicity(alist) == 1
     
     print "Test succeed, no assertion error."
     
-# end of chem.py
+# end

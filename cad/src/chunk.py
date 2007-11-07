@@ -98,7 +98,7 @@ from state_constants import S_REF, S_CHILDREN_NOT_DATA
 
 import platform
 
-from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
+from debug_prefs import debug_pref, Choice_boolean_True ##, Choice_boolean_False
 
 from icon_utilities import imagename_to_pixmap
 
@@ -108,8 +108,8 @@ from elements import Singlet
 
 from BoundingBox import BBox
 from drawer import ColorSorter
-from drawer import drawlinelist
-from constants import PickedColor
+##from drawer import drawlinelist
+##from constants import PickedColor
 from constants import darkgreen
 from constants import diBALL
 from constants import diLINES
@@ -863,7 +863,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         atomitems.sort() # make them be in order of atom keys; probably doesn't yet matter but makes order deterministic
         atlist = [atom for (key, atom) in atomitems] #k syntax
         self.atlist = array(atlist, PyObject) #k it's untested whether making it an array is good or bad
-        for atm, i in zip(atlist,range(len(atlist))):
+        for atm, i in zip(atlist, range(len(atlist))):
             atm.index = i 
         return        
 
@@ -2053,7 +2053,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             #  to do that explicitly and to do it first -- bruce 041109 comment]
         #bruce 041029 precautions:
         if self.atoms:
-            print "fyi: bug (ignored): %r mol.kill retains killed atoms %r" % (self,self.atoms)
+            print "fyi: bug (ignored): %r mol.kill retains killed atoms %r" % (self, self.atoms)
         self.atoms = {}
         self.invalidate_attr('atlist') # probably not needed; covers atpos
             # and basepos too, due to rules; externs were correctly set to []
@@ -2231,7 +2231,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                         thick_0 = Numeric.sqrt( radii_2_0 - r_xy_2_0 )
                         zz = v[ind][2] + thick_0
                         if zz < near_cutoff:
-                            pairs.append( (zz,ind) )
+                            pairs.append( (zz, ind) )
         
         if not pairs:
             return []
@@ -3032,7 +3032,7 @@ def shakedown_poly_evals_evecs_axis(basepos):
 
     assert axis is not None
     axis = A(axis) ##k if this is in fact needed, we should probably do it inside compute_heuristic_axis for sake of other callers
-    assert type(axis) is type(V(0.1,0.1,0.1)) # this probably doesn't check element types (that's probably ok)
+    assert type(axis) is type(V(0.1, 0.1, 0.1)) # this probably doesn't check element types (that's probably ok)
     
     return polyhedron, evals, evecs, axis # from shakedown_poly_evals_evecs_axis
 

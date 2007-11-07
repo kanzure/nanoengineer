@@ -111,7 +111,7 @@ class _ElementPeriodicTable(object):
         symbols = {}
         for elm in elmTable:
             options = dict(default_options)
-            assert len(elm) in (5,6,)
+            assert len(elm) in (5, 6)
             if len(elm) >= 6:
                 options.update(elm[5])
             symbols[elm[0]] = 1 # record element symbols seen in this call
@@ -126,7 +126,8 @@ class _ElementPeriodicTable(object):
             self._eltName2Num[el.name] = el.eltnum
             self._eltSym2Num[el.symbol] = el.eltnum
             if elm[0] in _DIRECTIONAL_BOND_ELEMENTS: #bruce 071015
-                # TODO: put this in the options field? or infer it from pam and role?
+                # TODO: put this in the options field? or infer it from
+                # pam and role?
                 el.bonds_can_be_directional = True
         for key in _defaultRad_Color.iterkeys():
             assert key in symbols
