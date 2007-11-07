@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+# $Id$
+
 use Switch;
 
 # Check usage
@@ -21,6 +23,8 @@ $Y_Z_link = "<a href=\"pylint_global.4.html\">Y-Z</a>";
 
 $exprs_link = "<a href=\"pylint_global.5.html\">exprs</a>";
 $PM_link = "<a href=\"pylint_global.6.html\">PM</a>";
+$startup_link = "<a href=\"pylint_global.7.html\">exprs</a>";
+$utilities_link = "<a href=\"pylint_global.8.html\">exprs</a>";
 
 print "<h3>Pylint Results<br>\n";
 print "<font style=\"font-size: small; font-weight: normal\">Back to the <a href=\"/Engineering/\">SEMBot</a></font></h3>\n";
@@ -37,9 +41,11 @@ switch ($batchNumber) {
 print "<p>\n";
 print "Packages<br>\n";
 switch ($batchNumber) {
-  case 5 { print "<b>exprs</b> | $PM_link"; }
-  case 6 { print "$exprs_link | <b>PM</b>"; }
-  else   { print "$exprs_link | $PM_link"; }
+  case 5 { print "<b>exprs</b> | $PM_link | $startup_link | $utilities_link"; }
+  case 6 { print "$exprs_link | <b>PM</b> | $startup_link | $utilities_link"; }
+  case 7 { print "$exprs_link | $PM_link | <b>startup</b> | $utilities_link"; }
+  case 8 { print "$exprs_link | $PM_link | $startup_link | <b>utilities</b>"; }
+  else   { print "$exprs_link | $PM_link | $startup_link | $utilities_link"; }
 }
 
 print "<pre>\n";
