@@ -17,7 +17,7 @@ svn update SVN-D/cad/plugins/DNA
 svn update SVN-D/cad/src
 svn update SVN-D/sim/src
 
-# Check if the codebase update was successfull by checking for the existence of
+# Check if the codebase update was successful by checking for the existence of
 # the file we deleted earlier.
 if [ ! -e SVN-D/cad/src/epydoc.config ]; then
   RESULT="<font color=red>Failed</font>"

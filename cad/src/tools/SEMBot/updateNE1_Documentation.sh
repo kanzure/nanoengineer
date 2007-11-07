@@ -13,7 +13,7 @@ pushd SVN-D/cad/src
 /usr/local/bin/epydoc --config epydoc.config
 popd
 
-# Check if Epydoc was successfull by checking for the existence of the file we
+# Check if Epydoc was successful by checking for the existence of the file we
 # deleted earlier.
 if [ ! -e NE1_Documentation/api-objects.txt ]; then
   RESULT="<font color=red>Failed</font>"
