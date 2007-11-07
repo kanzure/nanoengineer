@@ -55,7 +55,9 @@ load-plugins=
 # Disable the message(s) with the given id(s).
 # C0103 = ...?
 # W0107 = Unnecessary pass statement [bruce 071106]
-disable-msg=C0103, W0107
+# W0603 = Using the global statement [bruce 071106]
+# W0142 = Used * or ** magic [bruce 071106]
+disable-msg=C0103, W0107, W0603, W0142
 
 
 [REPORTS]
@@ -147,7 +149,9 @@ good-names=i,j,k,ex,Run,_
 bad-names=foo,bar,baz,toto,tutu,tata
 
 # List of builtins function names that should not be used, separated by a comma
-bad-functions=map,filter,apply,input
+## was: bad-functions=map,filter,apply,input
+# bruce 071106 removed map, filter (nothing wrong with them)
+bad-functions=apply,input
 
 
 # try to find bugs in the code using type inference
@@ -179,7 +183,9 @@ acquired-members=REQUEST,acl_users,aq_parent
 init-import=yes
 
 # A regular expression matching names used for dummy variables (i.e. not used).
-dummy-variables-rgx=_|dummy
+## was: dummy-variables-rgx=_|dummy
+# bruce 071106 added .*junk
+dummy-variables-rgx=_|dummy|.*junk
 
 # List of additional names supposed to be defined in builtins. Remember that
 # you should avoid to define new builtins when possible.
