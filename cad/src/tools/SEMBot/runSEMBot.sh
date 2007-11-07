@@ -27,6 +27,7 @@ fi
 echo ${RESULT} > NE1_Docs.result
 
 # Run API documentation generation
+echo "running updateNE1_Documentation.sh, output in NE1_Docs.log"
 ./updateNE1_Documentation.sh &>NE1_Docs.log
 
 
@@ -37,6 +38,7 @@ echo ${RESULT} > NE1_Docs.result
 echo `date +"%a %b %e %T EDT %Y"` > QA_TestHarness.timestamp
 
 # Run Pylint
+echo "running runPylint.sh, output in Pylint.log"
 ./runPylint.sh &> Pylint.log
 if [ `grep -c Traceback Pylint.log` != 0 ]; then
   RESULT="<font color=red>Failed</font>"
