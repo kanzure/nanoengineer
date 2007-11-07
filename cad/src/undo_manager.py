@@ -46,7 +46,7 @@ class UndoManager:
 
 try:
     _last_autocp # don't change it when we reload this module
-except:
+except NameError:
     _last_autocp = True # used only for history messages
 
 class AssyUndoManager(UndoManager):
@@ -94,11 +94,13 @@ class AssyUndoManager(UndoManager):
         return
     
     def _initial_checkpoint(self): #bruce 060223; not much happens until this is called (order is __init__, init1, _initial_checkpoint)
-        "[private]"
+        """
+        [private]
+        """
         set_initial_AutoCheckpointing_enabled( True )
             # might have to be True for initial_checkpoint; do no UI effects or history msg; kluge that the flag is a global [060314]
         self.archive.initial_checkpoint()
-        self.connect_or_disconnect_menu_signals(True)
+##        self.connect_or_disconnect_menu_signals(True)
         self.remake_UI_menuitems() # try to fix bug 1387 [060126]
         self.active = True # redundant
         env.command_segment_subscribers.append( self._in_event_loop_changed )
@@ -120,25 +122,25 @@ class AssyUndoManager(UndoManager):
     
     def deinit(self):
         self.active = False
-        self.connect_or_disconnect_menu_signals(False)
+##        self.connect_or_disconnect_menu_signals(False)
         # and effectively destroy self... [060126 precaution; not thought through]
         self.archive.destroy()
         self._current_main_menu_ops = {}
         self.assy = self.menus = None
         #e more??
         return
-    
-    def connect_or_disconnect_menu_signals(self, connectQ): # this is a noop as of 060126
-        win = self.assy.w
-        if connectQ:
-            method = win.connect
-        else:
-            method = win.disconnect
-        for menu in self.menus:
-            # this is useless, since we have to keep them always up to date for sake of accel keys and toolbuttons [060126]
-            ## method( menu, SIGNAL("aboutToShow()"), self.remake_UI_menuitems ) ####k
-            pass
-        return
+
+# this is useless, since we have to keep them always up to date for sake of accel keys and toolbuttons [060126]    
+##    def connect_or_disconnect_menu_signals(self, connectQ): # this is a noop as of 060126
+##        win = self.assy.w
+##        if connectQ:
+##            method = win.connect
+##        else:
+##            method = win.disconnect
+##        for menu in self.menus:
+##            method( menu, SIGNAL("aboutToShow()"), self.remake_UI_menuitems ) ####k
+##            pass
+##        return
 
     def clear_undo_stack(self, *args, **kws): # this is now callable from a debug menu / other command, as of 060301 (experimental)
         if not self.inited:
@@ -149,7 +151,9 @@ class AssyUndoManager(UndoManager):
         self.checkpoint( cptype = 'user_explicit' )
 
     def make_manual_checkpoint(self): #060312
-        "#doc; called from editMakeCheckpoint, presumably only when autocheckpointing is disabled"
+        """
+        #doc; called from editMakeCheckpoint, presumably only when autocheckpointing is disabled
+        """
         self.checkpoint( cptype = 'manual', merge_with_future = False )
             # temporary comment 060312: this might be enough, once it sets up for remake_UI_menuitems
         return
@@ -219,7 +223,8 @@ class AssyUndoManager(UndoManager):
 ##                        non_debug = True)
         
     def undo_checkpoint_before_command(self, cmdname = ""):
-        """###doc
+        """
+        ###doc
         [returns a value which should be passed to undo_checkpoint_after_command;
          we make no guarantees at all about what type of value that is, whether it's boolean true, etc]
         """
@@ -289,14 +294,15 @@ class AssyUndoManager(UndoManager):
             for obs_redo in lis[:-1]:
                 if undo_archive.debug_undo2 or env.debug():
                     #060309 adding 'or env.debug()' since this should never happen once clear_redo_stack() is implemented in archive
-                    print "obsolete redo:",obs_redo
+                    print "obsolete redo:", obs_redo
                 pass #e discard it permanently? ####@@@@
         return undos, redos
     
     def undo_cmds_menuspec(self, widget):
         # WARNING: this is not being maintained, it's just a development draft.
         # So far it lacks merging and history message and perhaps win_update and update_select_mode. [060227 comment]
-        """return a menu_spec for including undo-related commands in a popup menu
+        """
+        Return a menu_spec for including undo-related commands in a popup menu
         (to be shown in the given widget, tho i don't know why the widget could matter)
         """
         del widget
@@ -384,17 +390,18 @@ class AssyUndoManager(UndoManager):
         win.editUndoAction.setWhatsThis( win.editUndoText ) #e need Ctrl->Cmd; lack of it shows that these ran
         win.editRedoAction.setWhatsThis( win.editRedoText ) # they didn't break altered tooltips, but didn't make links either
             # but of course they didn't, we have to "fix them" by running more code. find that code! ###@@@
-##        from whatsthis import fix_whatsthis_text_and_links
         from whatsthis import refix_whatsthis_text_and_links
         import whatsthis
         if 0:
             # this works, but is overkill and is probably too slow, and prints huge numbers of console messages, like this:
             ## TypeError: invalid result type from MyWhatsThis.text()
             # (I bet I could fix the messages by modifying MyWhatsThis.text() to return "" (guess))
+            from whatsthis import fix_whatsthis_text_and_links
             fix_whatsthis_text_and_links( win)
         if 0:
             # this prints no console messages, but doesn't work! (for whatsthis on tool buttons or menu items)
             # guess [much later]: it fails to actually do anything to these actions!
+            from whatsthis import fix_whatsthis_text_and_links
             fix_whatsthis_text_and_links( win.editUndoAction )
             fix_whatsthis_text_and_links( win.editRedoAction )
             # try menu objects? and toolbars?
@@ -404,7 +411,7 @@ class AssyUndoManager(UndoManager):
             refix_whatsthis_text_and_links( ) ###@@@ predict: will fix toolbuttons but not menu items
         etime = time.time()
         if whatsthis.debug_refix:
-            print "whatsthis update took",etime - stime #e and is a huge memory leak too ###@@@ now <2 msec; for toolbutton fix only
+            print "whatsthis update took", etime - stime #e and is a huge memory leak too ###@@@ now <2 msec; for toolbutton fix only
         #060304 also disable/enable Clear Undo Stack
         action = win.editClearUndoStackAction
         text = "Clear Undo Stack" + '...' # workaround missing '...' (remove this when the .ui file is fixed)
@@ -414,21 +421,23 @@ class AssyUndoManager(UndoManager):
         enable_it = not not (undos or redos)
         action.setEnabled( enable_it )
         return
-        ''' the kinds of things we can set on one of those actions include:
-        self.setViewFitToWindowAction.setText(QtGui.QApplication.translate(self.__class__.__name__, "Fit to Window"))
-        self.setViewFitToWindowAction.setText(QtGui.QApplication.translate(self.__class__.__name__, "&Fit to Window"))
-        self.setViewFitToWindowAction.setToolTip(QtGui.QApplication.translate(self.__class__.__name__, "Fit to Window (Ctrl+F)"))
-        self.setViewFitToWindowAction.setShortcut(QtGui.QApplication.translate(self.__class__.__name__, "Ctrl+F"))
-        self.viewRightAction.setStatusTip(QtGui.QApplication.translate(self.__class__.__name__, "Right View"))
-        self.helpMouseControlsAction.setWhatsThis(QtGui.QApplication.translate(self.__class__.__name__, "Displays help for mouse controls"))
-        '''
+        #
+        # the kinds of things we can set on one of those actions include:
+        #
+        # self.setViewFitToWindowAction.setText(QtGui.QApplication.translate(self.__class__.__name__, "Fit to Window"))
+        # self.setViewFitToWindowAction.setText(QtGui.QApplication.translate(self.__class__.__name__, "&Fit to Window"))
+        # self.setViewFitToWindowAction.setToolTip(QtGui.QApplication.translate(self.__class__.__name__, "Fit to Window (Ctrl+F)"))
+        # self.setViewFitToWindowAction.setShortcut(QtGui.QApplication.translate(self.__class__.__name__, "Ctrl+F"))
+        # self.viewRightAction.setStatusTip(QtGui.QApplication.translate(self.__class__.__name__, "Right View"))
+        # self.helpMouseControlsAction.setWhatsThis(QtGui.QApplication.translate(self.__class__.__name__, "Displays help for mouse controls"))
 
     def wrap_op_with_merging_flags(self, op, flags = None): #e will also accept merging-flag or -pref arguments
-        """Return a higher-level op based on the given op, but with the appropriate diff-merging flags wrapped around it.
+        """
+        Return a higher-level op based on the given op, but with the appropriate diff-merging flags wrapped around it.
         Applying this higher-level op will (in general) apply op, then apply more diffs which should be merged with it
         according to those merging flags (though in an optimized way, e.g. first collect and merge the LL diffs, then apply
         all at once). The higher-level op might also have a different menu_desc, etc.
-           In principle, caller could pass flag args, and call us more than one with different flag args for the same op;
+           In principle, caller could pass flag args, and call us more than once with different flag args for the same op;
         in making the wrapped op we don't modify the passed op.
         """
         #e first we supply our own defaults for flags
@@ -496,7 +505,8 @@ class AssyUndoManager(UndoManager):
 
 #e refile
 def fix_tooltip(qaction, text): #060126
-    """Assuming qaction's tooltip looks like "command name (accel keys)" and might contain unicode in accel keys
+    """
+    Assuming qaction's tooltip looks like "command name (accel keys)" and might contain unicode in accel keys
     (as often happens on Mac due to symbols for Shift and Command modifier keys),
     replace command name with text, leave accel keys unchanged (saving result into actual tooltip).
        OR if the tooltip doesn't end with ')', just replace the entire thing with text, plus a space if text ends with ')'
@@ -528,7 +538,9 @@ def fix_tooltip(qaction, text): #060126
 
 def undo_cmds_maker(widget):
     ###e maybe this belongs in assy module itself?? clue: it knows the name of assy.undo_manager; otoh, should work from various widgets
-    "[widget is the widget in which the debug menu is being put up right now]"
+    """
+    [widget is the widget in which the debug menu is being put up right now]
+    """
     #e in theory we use that widget's undo-chain... but in real life this won't even happen inside the debug menu, so nevermind.
     # for now just always use the assy's undo-chain.
     # hmm, how do we find the assy? well, ok, i'll use the widget.
@@ -661,7 +673,8 @@ except:
     _disable_UndoRedo = []
 
 def disable_undo_checkpoints(whycode, whymsg = ""):
-    """Disable all undo checkpoints from now until a corresponding reenable call (with the same whycode) is made.
+    """
+    Disable all undo checkpoints from now until a corresponding reenable call (with the same whycode) is made.
     Intended for temporary internal uses, or for use during specific modes or brief UI actions (eg drags).
     WARNING: if nothing reenables them, they will remain disabled for the rest of the session.
     """
@@ -670,7 +683,8 @@ def disable_undo_checkpoints(whycode, whymsg = ""):
     return
    
 def disable_UndoRedo(whycode, whymsg = ""):
-    """Disable the Undo/Redo user commands from now until a corresponding reenable call (with the same whycode) is made.
+    """
+    Disable the Undo/Redo user commands from now until a corresponding reenable call (with the same whycode) is made.
     Intended for temporary internal uses, or for use during specific modes or brief UI actions (eg drags).
     WARNING: if nothing reenables them, they will remain disabled for the rest of the session.
     """
@@ -689,8 +703,10 @@ def reenable_UndoRedo(whycode):
     _disable_UndoRedo = _do_whycode_reenable( _disable_UndoRedo, whycode)
 
 def _do_whycode_disable( reasons_list_val, whycode, whymsg):
-    "[private helper function for maintaining whycode,whymsg lists]"
-    res = filter( lambda (code,msg): code != whycode , reasons_list_val ) # zap items with same whycode
+    """
+    [private helper function for maintaining whycode,whymsg lists]
+    """
+    res = filter( lambda (code, msg): code != whycode , reasons_list_val ) # zap items with same whycode
     if len(res) < len(reasons_list_val) and env.debug():
         print_compact_stack("debug fyi: redundant call of _do_whycode_disable, whycode %r msg %r, preserved reasons %r" % \
                             ( whycode, whymsg, res ) )
@@ -698,8 +714,10 @@ def _do_whycode_disable( reasons_list_val, whycode, whymsg):
     return res
 
 def _do_whycode_reenable( reasons_list_val, whycode):
-    "[private helper function for maintaining whycode,whymsg lists]"
-    res = filter( lambda (code,msg): code != whycode , reasons_list_val ) # zap items with same whycode
+    """
+    [private helper function for maintaining whycode,whymsg lists]
+    """
+    res = filter( lambda (code, msg): code != whycode , reasons_list_val ) # zap items with same whycode
     if len(res) == len(reasons_list_val) and env.debug():
         print_compact_stack("debug fyi: redundant call of _do_whycode_reenable, whycode %r, remaining reasons %r" % \
                             ( whycode, res ) )

@@ -421,7 +421,7 @@ def fix_all_chunk_atomsets( attrdicts, modified):
     mols = {}
     molcode = ('molecule','Atom') ###@@@ KLUGE; we want attrcode for Atom.molecule; should get clas for Atom and ask it!
         ### how will i know if this breaks? debug code for it below can't be left in...
-    moldict = attrdicts.get(molcode,{}) # {} can happen, when no Chunks (ie no live atoms) were in the state!
+    moldict = attrdicts.get(molcode, {}) # {} can happen, when no Chunks (ie no live atoms) were in the state!
         # (this is a dict from atoms' objkeys to their mols, so len is number of atoms in state;
         #  i think they are all *found* atoms but as of 060330 might not be all *live* atoms,
         #  since dead mol._hotspot can be found and preserved. [no longer true, 060404])
@@ -629,7 +629,7 @@ class Checkpoint:
         self.update_ver_kluge()
         if self.ver is None:
             if platform.atom_debug:
-                print "atom_debug: warning, bug?? self.ver is None in varid_ver() for",self ###@@@
+                print "atom_debug: warning, bug?? self.ver is None in varid_ver() for", self ###@@@
         return self.varid, self.ver
     def update_ver_kluge(self):
         try:
@@ -783,7 +783,7 @@ class SimpleDiff:
         
         n = s2 - s1
         if n < 0:
-            print "bug in history serno order",s1,s2,self.direction,self
+            print "bug in history serno order", s1, s2, self.direction, self
             # this 's1,s2 = s2,s1', the only time it happened, just made it more confusing to track down the bug, so zap it [060312]
             pass
 ##            n = -n
@@ -1027,7 +1027,7 @@ def fill_checkpoint(cp, state, assy): #e later replace calls to this with cp met
     """
     if not isinstance(state, StatePlace):
         if env.debug():
-            print "likely bug: not isinstance(state, StatePlace) in fill_cp, for",state #060407
+            print "likely bug: not isinstance(state, StatePlace) in fill_cp, for", state #060407
     env.change_counter_checkpoint() ###k here?? store it??
     assert cp is not None
     assert not cp.complete
@@ -1066,7 +1066,7 @@ class checkpoint_metainfo:
         except:
             self.view = "initial view not yet set - stub, will fail if you undo to this point" 
             if env.debug():#060301 - does this ever happen (i doubt it) ###@@@ never happens; someday analyze why not [060407]
-                print "debug:",self.view
+                print "debug:", self.view
         else:
             self.view = glpane.current_view_for_Undo(assy) # Csys object (for now), with an attribute pointing out the current Part
             ###e should this also save the current mode, considered as part of the view??? [060301]
@@ -1114,7 +1114,7 @@ class MergingDiff(Delegator): ###@@@ this is in use, but has no effect [as of bf
         self.archive = archive # this ref is non-cyclic, since this kind of diff doesn't get stored anywhere for a long time
     def apply_to(self, archive):
         res = self.delegate.apply_to(archive)
-        # print "now we should apply the diffs we would merge with",self #####@@@@@
+        # print "now we should apply the diffs we would merge with", self #####@@@@@
         return res
     # def __del__(self):
     #     print "bye!" # this proves it's readily being deleted...
@@ -1173,7 +1173,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         ## self.all_changed_objs = {} # this one dict subscribes to all changes on all attrs of all classes of object (for now)
         self.all_changed_Atoms = {} # atom.key -> atom, for all changed Atoms (all attrs lumped together; this could be changed)
         self.all_changed_Bonds = {} # id(bond) -> bond, for all changed Bonds (all attrs)
-        self.ourdicts = (self.all_changed_Atoms,self.all_changed_Bonds,) #e use this more
+        self.ourdicts = (self.all_changed_Atoms, self.all_changed_Bonds,) #e use this more
         # rest of init is done later, by self.initial_checkpoint, when caller is more ready [060223]
         ###e not sure were really inited enough to return... we'll see
         return

@@ -509,7 +509,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     def _get_hotspot(self): #bruce 050217; used by getattr
         hs = self._hotspot
-        if hs is None: return None
+        if hs is None:
+            return None
         if hs.is_singlet() and hs.molecule is self:
             # hs should be a valid hotspot; if you see no bug, return it
             if hs.killed_with_debug_checks(): # this also checks whether its key is in self.atoms
@@ -550,7 +551,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     hideicon = []
     def init_icons(self):
         # see also the same-named, related method in class Jig.
-        """each subclass must define mticon = [] and hideicon = [] as class constants...
+        """
+        each subclass must define mticon = [] and hideicon = [] as class constants...
         but molecule is the only subclass, for now.
         """
         if self.mticon or self.hideicon:
@@ -576,7 +578,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             return imagename_to_pixmap("modeltree/junk.png")
         pass
     def bond(self, at1, at2):
-        """Cause atom at1 to be bonded to atom at2.
+        """
+        Cause atom at1 to be bonded to atom at2.
         Error if at1 is at2 (causes printed warning and does nothing).
         (This should really be a separate function, not a method on molecule,
         since the specific molecule asked to do this need not be either atom's
@@ -684,7 +687,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.haveradii = 0
         # bruce 050513 try to optimize this
         # (since it's 25% of time to read atom records from mmp file, 1 sec for 8k atoms)
-        ## self.invalidate_attrs(['externs','atlist'])
+        ## self.invalidate_attrs(['externs', 'atlist'])
             # (invalidating externs is needed if atom (when in mol) has bonds
             # going out (extern bonds), or inside it (would be extern if atom
             # moved out), so do it always)
@@ -705,11 +708,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             need = 1
         if need:
             # this causes trouble, not yet sure why:
-            ## self.changed_attrs(['externs','atlist'])
+            ## self.changed_attrs(['externs', 'atlist'])
             ## AssertionError: validate_attr finds no attr 'externs' was saved, in <Chunk 'Ring Gear' (5167 atoms) at 0xd967440>
             # so do this instead:
             self.externs = self.atlist = -1
-            self.invalidate_attrs(['externs','atlist'])
+            self.invalidate_attrs(['externs', 'atlist'])
         return
 
     # debugging methods (not fully tested, use at your own risk)
@@ -723,7 +726,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # now this is done in that method: attrs.sort() # be deterministic even if it hides bugs for some orders
         for attr in attrs:
             self.invalidate_attr(attr)
-        # (these might be sufficient: ['externs','atlist', 'atpos'])
+        # (these might be sufficient: ['externs', 'atlist', 'atpos'])
         return
 
     def update_everything(self):
@@ -784,7 +787,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # this would probably work even if filter returned an array.)
         return filter( lambda atm: atm.element is Singlet, self.atlist )
 
-    _inputs_for_singlpos = ['singlets','atpos']
+    _inputs_for_singlpos = ['singlets', 'atpos']
     def _recompute_singlpos(self):
         self.atpos
         # we must access self.atpos, since we depend on it in our inval rules
@@ -826,7 +829,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # full inval:
         self.havelist = 0
         self.haveradii = 0
-        self.invalidate_attrs(['atlist','externs']) # invalidates everything, I think
+        self.invalidate_attrs(['atlist', 'externs']) # invalidates everything, I think
         assert not self.valid_attrs(), "full_inval_and_update forgot to invalidate something: %r" % self.valid_attrs()
         # full update (but invals bonds):
         self.atpos # this invals all internal bonds (since it revises basecenter); we depend on that
@@ -858,9 +861,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         "[recompute the list of this chunk's atoms, in order of atom.key (and store atom.index to match, if it still exists)]"
         atomitems = self.atoms.items()
         atomitems.sort() # make them be in order of atom keys; probably doesn't yet matter but makes order deterministic
-        atlist = [atom for (key,atom) in atomitems] #k syntax
+        atlist = [atom for (key, atom) in atomitems] #k syntax
         self.atlist = array(atlist, PyObject) #k it's untested whether making it an array is good or bad
-        for atm,i in zip(atlist,range(len(atlist))):
+        for atm, i in zip(atlist,range(len(atlist))):
             atm.index = i 
         return        
 
@@ -905,7 +908,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         if debug_messup_basecenter:
             # ... so this flag lets us try some other value to test that!!
             blorp = messupKey.next()
-            self.basecenter += V(blorp,blorp,blorp)
+            self.basecenter += V(blorp, blorp, blorp)
         self.quat = Q(1,0,0,0)
             # arbitrary value, except we assume it has this specific value to simplify/optimize the next line
         if self.atoms:
@@ -1141,7 +1144,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # mode, except that doing that calls changeapp() on the required mols,
             # so it's ok in theory. [comment by bruce 041109/041123]
 
-            delegate_selection_wireframe = False
+##            delegate_selection_wireframe = False
             delegate_draw_atoms = False
             delegate_draw_chunk = False
             hd = None
@@ -1153,7 +1156,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # (we delegate those tasks to it).
                 if hd:
                     chunk_only = hd.chunk_only
-                    delegate_selection_wireframe = chunk_only
+##                    delegate_selection_wireframe = chunk_only
                     delegate_draw_atoms = chunk_only
                     delegate_draw_chunk = chunk_only #e maybe later, we'll let hd tell us each of these, based on the chunk state.
                 pass
@@ -1293,24 +1296,23 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         ColorSorter.finish() # grantham 20051205
         return # from molecule.draw()
 
-    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd): #bruce 060608 split this out of self.draw
-        "[private submethod of self.draw]"
-        if self.picked:
-            if not delegate_selection_wireframe:
-                try:
-                    drawlinelist(PickedColor, self.polyhedron or [])
-                except:
-                    # bruce 041119 debug code;
-                    # also "or []" failsafe (above)
-                    # in case recompute exception makes it None
-                    print_compact_traceback("exception in drawlinelist: ")
-                    print "(self.polyhedron is %r)" % self.polyhedron
-            else:
-                hd._drawchunk_selection_frame(glpane, self, PickedColor, highlighted = False)
-            pass
-        return
-       
-
+##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd): #bruce 060608 split this out of self.draw
+##        "[private submethod of self.draw]"
+##        if self.picked:
+##            if not delegate_selection_wireframe:
+##                try:
+##                    drawlinelist(PickedColor, self.polyhedron or [])
+##                except:
+##                    # bruce 041119 debug code;
+##                    # also "or []" failsafe (above)
+##                    # in case recompute exception makes it None
+##                    print_compact_traceback("exception in drawlinelist: ")
+##                    print "(self.polyhedron is %r)" % self.polyhedron
+##            else:
+##                hd._drawchunk_selection_frame(glpane, self, PickedColor, highlighted = False)
+##            pass
+##        return
+    
     def draw_displist(self, glpane, disp0, hd_info): #bruce 050513 optimizing this somewhat; 060608 revising it
         "[private submethod of self.draw]"
         hd, delegate_draw_atoms, delegate_draw_chunk = hd_info
@@ -1418,7 +1420,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 print_compact_traceback("exception in drawing one atom or bond ignored: ")
                 # (this might mean some externs are missing; never mind that for now.) [bruce 050513 -- not anymore]
                 try:
-                    print "current atom was:",atm
+                    print "current atom was:", atm
                 except:
                     print "current atom was... exception when printing it, discarded"
                 try:
@@ -1466,7 +1468,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
             except:
                 if 1 or platform.atom_debug: ###@@@ decide which
-                    print_compact_traceback("atom_debug: ignoring exception in overdraw_hotspot %r, %r: " % (self,hs))
+                    print_compact_traceback("atom_debug: ignoring exception in overdraw_hotspot %r, %r: " % (self, hs))
                 pass
             pass
         pass
@@ -1734,7 +1736,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # no change here in basepos or bbox (if caller changed them, it should
         # call changed_attr itself, or it should invalidate bbox itself);
         # but changes here in whatever depends on atpos, aside from those.
-        self.changed_attr('atpos', skip = ('bbox','basepos'))
+        self.changed_attr('atpos', skip = ('bbox', 'basepos'))
         
         # we've moved one end of each external bond, so invalidate them...
         # [bruce 050516 comment (95% sure it's right): note that we don't, and need not, inval internal bonds]
@@ -1756,7 +1758,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
     
     def base_to_abs(self, anything): # bruce 041115
-        """map anything (which is accepted by quat.rot() and Numeric.array's '+' method)
+        """
+        map anything (which is accepted by quat.rot() and Numeric.array's '+' method)
         from molecule-relative coords to absolute coords;
         guaranteed to never recompute basepos/atpos or modify the mol-relative
         coordinate system it uses. Inverse of abs_to_base.
@@ -1764,7 +1767,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return self.basecenter + self.quat.rot( anything)
 
     def abs_to_base(self, anything): # bruce 041201
-        """map anything (which is accepted by quat.unrot() and Numeric.array's '-' method)
+        """
+        map anything (which is accepted by quat.unrot() and Numeric.array's '-' method)
         from absolute coords to mol-relative coords;
         guaranteed to never recompute basepos/atpos or modify the mol-relative
         coordinate system it uses. Inverse of base_to_abs.
@@ -1772,13 +1776,14 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return self.quat.unrot( anything - self.basecenter)
 
     def set_basecenter_and_quat(self, basecenter, quat):
-        """Deprecated public method: change this molecule's basecenter and quat to the specified values,
+        """
+        Deprecated public method: change this molecule's basecenter and quat to the specified values,
         as a way of moving the molecule's atoms.
         It's deprecated since basecenter and quat are replaced by in-principle-arbitrary values
         every time certain recomputations are done, but this method is only useful if the caller
         knows what they are, and computes the new ones it wants relative to what they are.
         So it's much better to use mol.pivot instead (or some combo of move, rot, and pivot).
-        #"""
+        """
         # [written by bruce for extrude; moved into class molecule by bruce 041104]
         # modified from mol.move and mol.rot as of 041015 night
         self.basepos # bruce 050315 bugfix: recompute this if it's currently invalid!
@@ -1786,15 +1791,16 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # since it might destructively modify them later!
         self.basecenter = V(0,0,0) + basecenter
         self.quat = Q(1,0,0,0) + quat #e +quat might be correct and faster... don't know; doesn't matter much
-        try: del self.bbox #e could optimize if quat is not changing
-        except: pass
+        self.bbox = None
+        del self.bbox #e could optimize if quat is not changing
         self.changed_basecenter_or_quat_to_move_atoms()
 
     def getaxis(self):
         return self.quat.rot(self.axis)
 
     def setcolor(self, color):
-        """change the molecule's color;
+        """
+        change the molecule's color;
         new color should be None (let atom colors use their element colors)
         or a 3-tuple.
         """
@@ -1816,7 +1822,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.changed() # [bruce 050505 revised this]
 
     def show_invisible_atoms(self):
-        """Resets the display mode for each invisible (diINVISIBLE) atom 
+        """
+        Resets the display mode for each invisible (diINVISIBLE) atom 
         to diDEFAULT display mode, rendering them visible again.
         It returns the number of invisible atoms found.
         """
@@ -1828,14 +1835,15 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return n
 
     def set_atoms_display(self, display):
-        """Changes the display setting to 'display' for all atoms in this chunk.
+        """
+        Changes the display setting to 'display' for all atoms in this chunk.
         It returns the number of atoms which had their display mode changed.
         """
         n = 0
         for a in self.atoms.itervalues():
-                if a.display != display:
-                    a.setDisplay(display)
-                    n += 1
+            if a.display != display:
+                a.setDisplay(display)
+                n += 1
         return n
 
     glpane = None #bruce 050804
@@ -1870,7 +1878,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
 
     def natoms(self): #bruce 060215
-        "Return number of atoms (real atoms or bondpoints) in self."
+        """
+        Return number of atoms (real atoms or bondpoints) in self.
+        """
         return len(self.atoms)
 
     def getinfo(self):
@@ -1912,7 +1922,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return minfo
 
     def getstatistics(self, stats):
-        """Adds the current chunk, including number of atoms 
+        """
+        Adds the current chunk, including number of atoms 
         and singlets to part stats.
         """
         stats.nchunks += 1
@@ -1921,7 +1932,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if a.element.symbol == "X": stats.nsinglets +=1
     
     def pickatoms(self): # mark 060211. Could use a complementary unpickatoms() method. [not referring to the one in ops_select --bruce]
-        """Pick the atoms of self not already picked. Return the number of newly picked atoms.
+        """
+        Pick the atoms of self not already picked. Return the number of newly picked atoms.
         [overrides Node method]
         """
         self.assy.permit_pick_atoms()
@@ -1936,7 +1948,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return npicked
         
     def pick(self):
-        """select the molecule.
+        """
+        select self
         """
         if not self.picked:
             if self.assy is not None:
@@ -1971,7 +1984,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
     
     def unpick(self):
-        """unselect the molecule.
+        """
+        unselect self
         """
         if self.picked:
             Node.unpick(self)
@@ -2002,7 +2016,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
     
     def kill(self):
-        """(Public method)
+        """
+        (Public method)
         Kill a molecule: unpick it, break its external bonds, kill its atoms
         (which should kill any jigs attached only to this mol),
         remove it from its group (if any) and from its assembly (if any);
@@ -2066,7 +2081,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # (We should use this in extrude, too! #e)
 
     def findAtomUnderMouse( self, point, matrix, **kws):
-        """[Public method, but for a more convenient interface see its caller:]
+        """
+        [Public method, but for a more convenient interface see its caller:]
         For each visible atom or singlet (using current display modes and radii,
         but not self.hidden), determine whether its front surface hits the given
         line (encoded in point and matrix), within the optional near and far
@@ -2279,15 +2295,16 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # sorted by increasing distance from point
     # bruce 041207 comment: this is only used in depositMode.attach.
     def nearSinglets(self, point, radius):
-        if not self.singlets: return []
+        if not self.singlets:
+            return []
         singlpos = self.singlpos #bruce 051129 ensure this is computed in its own line, for sake of traceback linenos
         v = singlpos - point
         try:
             #bruce 051129 add try/except and printout to help debug bug 829
             r = Numeric.sqrt(v[:,0]**2 + v[:,1]**2 + v[:,2]**2) # this line had OverflowError in bug 829
-            p= r<=radius
-            i=argsort(compress(p,r))
-            return take(compress(p,self.singlets),i)
+            p = (r <= radius)
+            i = argsort(compress(p, r))
+            return take(compress(p, self.singlets), i)
         except:
             print_compact_traceback("exception in nearSinglets (data printed below): ")
             print "if that was bug 829, this data (point, singlpos, v) might be relevant:"
