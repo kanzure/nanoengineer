@@ -28,7 +28,6 @@ $utilities_link = "<a href=\"pylint_global.8.html\">utilities</a>";
 
 print "<h3>Pylint Results<br>\n";
 print "<font style=\"font-size: small; font-weight: normal\">Back to the <a href=\"/Engineering/\">SEMBot</a></font>\n";
-print "<br><font style=\"font-size: small; font-weight: normal\">(time/version stamp could go here)</font>";
 print "</h3>\n";
 print "<p>\n";
 print "Module Batches<br>\n";
