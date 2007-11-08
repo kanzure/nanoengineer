@@ -163,7 +163,7 @@ class ZoomMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         # plane change as scale too.
         self.glpane.scale *= zoomFactor
        
-        self.command.Done()
+        self.command.Done(exit_using_done_or_cancel = False)
         return
         
     def update_cursor_for_no_MB(self): # Fixes bug 1638. Mark 3/12/2006.

@@ -18,6 +18,10 @@ but are not yet named as private or otherwise distinguished
 from API methods. We should turn anyCommand into Command_API,
 add all the API methods to it, and rename the other methods
 in class Command to look private.
+
+Methods such as basicCommand.Done, basicCommand._enterMode, 
+basicCommand._exitMode and CommandSequencer.start_using_mode need cleanup. 
+(Needs to be done together) 
 """
 
 from PyQt4.Qt import QToolButton
@@ -85,6 +89,35 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         # presently that is done by entering it using a special method,
         # commandSequencer.userEnterTemporaryCommand.
         # [bruce 071011, to be revised (replaces need for customized Done methods)]
+    
+    command_has_its_own_gui = True 
+        #command_has_its_own_gui means, for example, the command has its own PM,
+        #and flyout toolbar and/or the Done/Cancel button corner (confirmation 
+        #corner). 
+        #For most of the commands, this is True (e.g. BuildAtoms mode , 
+        #BuildCrystal Mode, DnaDuplexEdit Controller etc.) 
+        # For many temporary commands #such as Zoom/Pan/Rotate/LineMode 
+        # it is False. That means when the temporary command is active, 
+        # it is only doing some thing in the glpane and giving the user an 
+        # impression as if he is still in the previous command he was 
+        # working on. A good example is PanMode. If user is in Build Atoms mode
+        # and needs to Pan the view, he can simply activate the PanTool(PanMode)
+        # The PanMode, being the temporary mode, has not gui of its own. All it 
+        # needs to do is to Pan the view. Thus it continues to use the PM and 
+        # flyout toolbar from Build Atoms mode, giving the user an impression
+        # that he is still operating on the old mode.         
+        # This flagis also used in fixing bugs like 2566. When user exits
+        # these temporary modes(commands) with this flag set to True, it skips
+        # the init_gui method etc. of the previous mode while resuming 'that' 
+        # mode. This flag also means that if you hit 'Done' or 'Cancel' of the
+        # previous mode (while in a temporary mode) , then 'that previous mode'
+        # will exit. The related code makes sure to first leave the temporary 
+        # mode(s) before leaving the regular mode (the command with 
+        # command_has_its_own_gui set to True). See also, flag 
+        #'exit_using_done_cancel' in basicCommand.Done used (= False) for a 
+        #typical exit of a temporary mode . See thart method for detailed 
+        # comment. -- Ninad 2007-11-09
+    
     
     def get_mode_status_text(self):
         # I think this will never be shown [bruce 040927]
@@ -555,7 +588,7 @@ class basicCommand(anyCommand):
 
     # == methods related to entering this command
     
-    def _enterMode(self, resuming = False): #bruce 070813 added resuming option
+    def _enterMode(self, resuming = False, has_its_own_gui = True): #bruce 070813 added resuming option
         """
         Private method (called only by our command sequencer) -- immediately
         enter this command, i.e. prepare it for use, not worrying at
@@ -573,6 +606,16 @@ class basicCommand(anyCommand):
                          This is for use by Subcommands resuming their parent
                          commands.
         @type resuming: bool
+        @param has_its_own_gui:  This flag determines whether the current mode
+                                 uses its own gui (such as PM, flyout
+                                 toolbar). The flag was introduced to 
+                                 fix bugs like 2566. See class 
+                                 anyCommand.has_its_own_gui for a detailed 
+                                 comment 
+        @type has_its_own_gui: boolean
+        @see: self.Done, self._exitMode, CommandSequencer.start_using_command
+        TODO: This and the other methods mentioned in 'See Also' need cleanup. 
+              Need to be simplified. 
         """
         if not resuming:
             refused = self.refuseEnter(warn = 1)
@@ -585,9 +628,15 @@ class basicCommand(anyCommand):
         else:
             refused = False
         if not refused:
-            self.init_gui() ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
-            self.update_gui() # see also UpdateDashboard
-            self.update_mode_status_text()
+            if resuming and (not has_its_own_gui):
+                pass # Do nothing if the command doesn't have its own gui and is 
+                     # going to resume the previous mode uses previous Mode Gui. 
+                     # This fixes bug 2566 which used to reconnect signals in the 
+                     # PM of the previous mode upon re-entering it. 
+            else:
+                self.init_gui() ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
+                self.update_gui() # see also UpdateDashboard
+                self.update_mode_status_text()
         # caller (our command sequencer) will set its self.currentCommand to point to us,
         # but only if we return false
         return refused
@@ -638,7 +687,8 @@ class basicCommand(anyCommand):
         update_gui()).
         """
         pass
-
+    
+    
     def update_gui(self):
         """
         Subclasses should define this to update their dashboard to reflect state
@@ -862,7 +912,11 @@ class basicCommand(anyCommand):
     #
     # -- bruce 040923
 
-    def Done(self, new_mode = None, suspend_old_mode = False, **new_mode_options):
+    def Done(self, 
+             new_mode = None, 
+             suspend_old_mode = False,
+             exit_using_done_or_cancel = True,
+             **new_mode_options):
         """
         Called by the slot method for the Done tool in the dashboard;
         also called internally (in _f_userEnterCommand and elsewhere)
@@ -874,10 +928,29 @@ class basicCommand(anyCommand):
         overridden in subclasses; instead they should override
         haveNontrivialState and/or StateDone and/or StateCancel as
         appropriate.
+        
+        @param exit_using_done_or_cancel: 
+                       This flag is usually true. Only temporary modes such as 
+                       Zoom/Pan/rotate , which don't have their own gui, set it 
+                       to False for a regular temporary mode exit (such as 
+                       pressing the 'Escape key'. Example: If user is in Build
+                       Atoms mode , then invokes Pan tool, and hits 'Escape' key
+                       the program, based on this flag decides whether to exit 
+                       the 'Pan mode' or 'also exit build Atoms mode' .  In this 
+                       case, (Escape key exit) the flag is set to False by the 
+                       caller, so program knows that user actually didn't press
+                       'done' or Cancel button from the Build Atoms PM. 
+        @type exit_using_done_or_cancel: boolean                       
         """
         # TODO: most or all of the following should be done by the CommandSequencer
         # rather than by self. Same goes for several of the methods this calls.
         # [bruce 071011 comment]
+        
+        #TODO: About the  parameter exit_using_done_cancel: 
+        # This is a bit complicated but is needed in the present implementation
+        # and can be cleaned up while doing a general cleanup of the Done and 
+        #other methods -- 2007-11-08
+        
         resuming = False
         if self.command_should_resume_prevMode:
             # (Historical note: this imitates the overrides of Done formerly done
@@ -886,15 +959,38 @@ class basicCommand(anyCommand):
             # and/or refactor it further so the Command Sequencer fully handles it
             # (as said just above). # [bruce 071011 change and comment]
             assert not suspend_old_mode # bruce 071011 added this; old code just pretended it was false
+            
             if new_mode is None:
                 try:
-                    new_mode = self.commandSequencer.prevMode
+                    new_mode = self.commandSequencer.prevMode                    
                     if new_mode:
-                        resuming = True
+                        if exit_using_done_or_cancel:                           
+                            # This fixes bugs like 2566, 2565 
+                            # @bug: But it doesn't fix the
+                            # following bug: As of 2007-11-09, the 
+                            # commandSequencer does 
+                            # not consider various editController as commands. 
+                            # Because of this, there is a bug in this 
+                            # conditional. The bug and related NFR is documented
+                            # in bug 2583 
+                            if new_mode.command_has_its_own_gui:
+                                #Example: command has a PM which in turn has a 
+                                #done/cancel button or a formal way to exit a 
+                                #regular mode. 
+                                new_mode.Done()
+                            else:
+                                #new Command is a temporary mode with no special
+                                #ui to exit it.
+                                new_mode.Done(exit_using_done_or_cancel = False)
+                            resuming = False
+                            new_mode = None
+                        else:                            
+                            resuming = True
                 except:
                     print_compact_traceback("bug, ignoring: ") #bruce 071011 added this
             if resuming:
                 new_mode_options['resuming'] = True
+                new_mode_options['has_its_own_gui'] = self.command_has_its_own_gui
             else:
                 assert new_mode_options.get('resuming', False) == False
                     # bruce 071011 added this; old code just pretended it was false
@@ -905,6 +1001,7 @@ class basicCommand(anyCommand):
                     # subclass says not to honor the Done request (and it already emitted an appropriate message)
                     return
         new_mode_options['suspend_old_mode'] = suspend_old_mode
+        
         self._exitMode( new_mode, **new_mode_options)
         if resuming:
             assert new_mode is self.commandSequencer.prevMode
@@ -918,7 +1015,7 @@ class basicCommand(anyCommand):
             else:
                 print "warning: failed to enter", new_mode # remove if fully redundant
         return
-
+    
     def StateDone(self):
         """
         Mode objects (e.g. cookieMode) which might have accumulated
@@ -932,7 +1029,10 @@ class basicCommand(anyCommand):
         assert 0, "bug: command subclass %r needs custom StateDone method, since its haveNontrivialState() apparently returned True" % \
                self.__class__.__name__
     
-    def Cancel(self, new_mode = None, **new_mode_options):
+    def Cancel(self, 
+               new_mode = None, 
+               exit_using_done_or_cancel = True,
+               **new_mode_options):
         """
         Cancel tool in dashboard; might also be called internally
         (but is not as of 040922, I think).  Change [bruce 040922]:
@@ -946,7 +1046,45 @@ class basicCommand(anyCommand):
             refused = self.StateCancel()
             if refused:
                 # subclass says not to honor the Cancel request (and it already emitted an appropriate message)
-                return
+                return      
+        
+        #TODO: Following code is mostly duplicated from self.Done. Need to 
+        #refactor these methods to use common code
+        resuming = False
+        if self.command_should_resume_prevMode:
+            if new_mode is None:
+                try:
+                    new_mode = self.commandSequencer.prevMode
+                    if new_mode:
+                        if exit_using_done_or_cancel:
+                            # This fixes bugs like 2566, 2565 
+                            # @bug: But it doesn't fix the
+                            # following bug: As of 2007-11-09, the 
+                            # commandSequencer does 
+                            # not consider various editController as commands. 
+                            # Because of this, there is a bug in this 
+                            # conditional. The bug and related NFR is documented
+                            # in bug 2583    
+                            if new_mode.command_has_its_own_gui:
+                                new_mode.Cancel()
+                            else:
+                                new_mode.Cancel(exit_using_don_or_cancel = False)
+                                
+                            resuming = False
+                            new_mode = None
+                        else:                            
+                            resuming = True
+                except:
+                    print_compact_traceback("bug, ignoring: ")
+                    
+            if resuming:
+                new_mode_options['resuming'] = True
+                new_mode_options['has_its_own_gui'] = self.command_has_its_own_gui
+            else:
+                assert new_mode_options.get('resuming', False) == False
+                    # bruce 071011 added this; old code just pretended it was false
+        
+        
         self._exitMode( new_mode, **new_mode_options)
 
     def StateCancel(self):
@@ -1014,6 +1152,7 @@ class basicCommand(anyCommand):
             # for now -- save it for when we have a real command-sequencer.
             # [bruce 070814 comment]
         return
+        
 
     def Abandon(self):
         """

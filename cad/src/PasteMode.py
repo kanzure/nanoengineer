@@ -42,6 +42,9 @@ class PasteMode(depositMode):
 
     command_can_be_suspended = False #bruce 071011, GUESS ### REVIEW whether correct when entering Zoom/Pan/Rotate
     command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
+    
+    #See Command.anyCommand for details about the following flag
+    command_has_its_own_gui = True
 
     def __init__(self, glpane):
         """

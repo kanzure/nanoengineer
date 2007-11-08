@@ -33,7 +33,7 @@ class EditController_PM(PM_Dialog):
     pmName = title
     # The relative path to the PNG file that appears in the header
     iconPath = ""
-        
+
     def __init__(self, win, editController):
         """
         Constructor for the EditController_PM
@@ -46,45 +46,49 @@ class EditController_PM(PM_Dialog):
         # ..same guess -- because opening multiple windows is not supported
         # When we begin supporting that, lots of things will change and this 
         # might be one of them .--- ninad 20070613
-        
+
         self.editController = editController
         if editController:
             self.struct = self.editController.struct
-	    
+
         self.win      =  win
-	self.w = win
+        self.w = win
         self.pw       =  None     
         self.modePropertyManager = None
-	
-        
+
+
         PM_Dialog.__init__(self, 
                            self.pmName, 
                            self.iconPath, 
                            self.title
-                           )
+                       )
         self._addGroupBoxes()
-	self._createFlyoutActions()
+        self._createFlyoutActions()
         self._addWhatsThisText()
-    
+
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show)
         """
         PM_Dialog.show(self)
-	self.connect_or_disconnect_signals(isConnect = True)
+        self.connect_or_disconnect_signals(isConnect = True)
         self.enable_or_disable_gui_actions(bool_enable = False)
-	self.updateCommandManager(bool_entering = True)
-    
+        self.updateCommandManager(bool_entering = True)
+
     def close(self):
         """
         Closes the Property Manager. Overrides PM_Dialog.close.
-        """
+        """   
+        #First exit temporary modes (e.g. Pan mode) if any.
+        currentCommand = self.win.commandSequencer.currentCommand 
+        if not currentCommand.command_has_its_own_gui:
+            currentCommand.Done()
         self.connect_or_disconnect_signals(False)
         self.enable_or_disable_gui_actions(bool_enable = True)
-	self.updateCommandManager(bool_entering = False)
+        self.updateCommandManager(bool_entering = False)
         PM_Dialog.close(self) 
-        
-    
+
+
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -93,17 +97,17 @@ class EditController_PM(PM_Dialog):
                           method. 
         @type  isConnect: boolean
         """
-	if isConnect:
+        if isConnect:
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect
-	    
-	if self.exitEditControllerAction:	    
-	    change_connect(self.exitEditControllerAction, 
-			   SIGNAL("triggered()"), 
-			   self.close)
-       
-    
+
+        if self.exitEditControllerAction:	    
+            change_connect(self.exitEditControllerAction, 
+                           SIGNAL("triggered()"), 
+                           self.close)
+
+
     def update_props_if_needed_before_closing(self):
         """
         This updates some cosmetic properties of the Rotary motor (e.g. opacity)
@@ -124,37 +128,37 @@ class EditController_PM(PM_Dialog):
         # (e.g. opacity) which distinguishes it as 
         # a previewed motor in the part. This function changes those properties.
         # [ninad 2007-10-09 comment]    
-        
+
         #called from updatePropertyManager in Ui_PartWindow.py (Partwindowclass)
         if hasattr(self.struct, 'updateCosmeticProps'):
             self.struct.updateCosmeticProps()
         self.enable_or_disable_gui_actions(bool_enable = True)
-    
+
     def enable_or_disable_gui_actions(self, bool_enable = False):
         """
         Enable or disable some gui actions when this property manager is 
         opened or closed, depending on the bool_enable. 
         Subclasses can override this method. 
-        
+
         """
         pass
-        
-        
+
+
     def _addGroupBoxes(self):
         """
         Add various group boxes to this PM. 
         Abstract method. 
         """
         raise AbstractMethod()
-    
+
     def _addWhatsThisText(self):
         """
         Add what's this text. 
         Abstract method.
         """
         raise AbstractMethod()
-    
-    
+
+
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -162,11 +166,11 @@ class EditController_PM(PM_Dialog):
         if self.editController:
             self.editController.preview_or_finalize_structure(previewing = False)
             env.history.message(self.editController.logMessage)
-            
+
         self.accept() 
-        
+
         self.close() # Close the property manager.        
-               
+
         # The following reopens the property manager of the mode after 
         # when the PM of the reference geometry is closed. -- Ninad 20070603 
         # Note: the value of self.modePropertyManager can be None
@@ -179,13 +183,13 @@ class EditController_PM(PM_Dialog):
         #  is open, since it's not currentCommand.propMgr)
         #  will be deprecated or impossible. [bruce 071011 comment])
         self.modePropertyManager = self.win.currentCommand.propMgr
-                
+
         if self.modePropertyManager:
             #@self.openPropertyManager(self.modePropertyManager)
             # (re)open the PM of the current command (i.e. "Build > Atoms").
             self.open(self.modePropertyManager)
         return 
-    
+
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.
@@ -194,46 +198,46 @@ class EditController_PM(PM_Dialog):
             self.editController.cancelStructure()
         self.reject() 
         self.close() 
-        
+
         # The following reopens the property manager of the command after
         # the PM of the reference geometry editController (i.e. Plane) is closed.
         # Note: the value of self.modePropertyManager can be None.
         # See anyMode.propMgr
         # (See similar code in ok_btn_clicked [bruce 071011 comment])
         self.modePropertyManager = self.win.currentCommand.propMgr
-            
+
         if self.modePropertyManager:
             #@self.openPropertyManager(self.modePropertyManager)
             # (re)open the PM of the current command (i.e. "Build > Atoms").
             self.open(self.modePropertyManager)
         return
-    
+
     def preview_btn_clicked(self):
         """
         Slot for the Preview button.
         """
         self.editController.preview_or_finalize_structure(previewing = True)
         env.history.message(self.editController.logMessage)
-    
-          
+
+
     def abort_btn_clicked(self):
         """
         Slot for Abort button
         """
         self.cancel_btn_clicked()
-        
+
     def restore_defaults_btn_clicked(self):
         """
         Slot for Restore defaults button
         """
         pass
-    
+
     def enter_WhatsThisMode(self):
         """
         Show what's this text
         """
         pass 
-    
+
     def updateMessage(self, message = ''):
         """
         Updates the message box with an informative message
@@ -245,19 +249,19 @@ class EditController_PM(PM_Dialog):
         self.MessageGroupBox.insertHtmlMessage(msg, 
                                                setAsDefault = False,
                                                minLines     = 5)  
-    
+
     def _createFlyoutActions(self):
         self.exitEditControllerAction = QWidgetAction(self.win)
-	if self.editController:
-	    text = "Exit " + self.editController.cmdname
-	else:
-	    text = "Exit"
+        if self.editController:
+            text = "Exit " + self.editController.cmdname
+        else:
+            text = "Exit"
         self.exitEditControllerAction.setText(text)
         self.exitEditControllerAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
         self.exitEditControllerAction.setCheckable(True)
-            
+
     def getFlyoutActionList(self): 
-	""" 
+        """ 
 	returns custom actionlist that will be used in a specific mode 
 	or editing a feature etc Example: while in movie mode, 
 	the _createFlyoutToolBar method calls
@@ -265,35 +269,35 @@ class EditController_PM(PM_Dialog):
 	Subclasses must override this method if they need their own flyout 
 	toolbar
 	"""	
-		
-	#'allActionsList' returns all actions in the flyout toolbar 
-	#including the subcontrolArea actions
-	allActionsList = []
-	
-	#Action List for  subcontrol Area buttons. 
-	#In this mode there is really no subcontrol area. 
-	#We will treat subcontrol area same as 'command area' 
-	#(subcontrol area buttons will have an empty list as their command area 
-	#list). We will set  the Comamnd Area palette background color to the
-	#subcontrol area.
-	
-	subControlAreaActionList =[] 
-	
-	#Action list for the command area button (the actions meant for the 
-	commandActionLists = []	
-		
-	params = (subControlAreaActionList, commandActionLists, allActionsList)
-	
-	return params
-    
+
+        #'allActionsList' returns all actions in the flyout toolbar 
+        #including the subcontrolArea actions
+        allActionsList = []
+
+        #Action List for  subcontrol Area buttons. 
+        #In this mode there is really no subcontrol area. 
+        #We will treat subcontrol area same as 'command area' 
+        #(subcontrol area buttons will have an empty list as their command area 
+        #list). We will set  the Comamnd Area palette background color to the
+        #subcontrol area.
+
+        subControlAreaActionList =[] 
+
+        #Action list for the command area button (the actions meant for the 
+        commandActionLists = []	
+
+        params = (subControlAreaActionList, commandActionLists, allActionsList)
+
+        return params
+
     def updateCommandManager(self, bool_entering = True):
-	"""
+        """
 	Update the command manager
 	Subclasses should override this method if they need their flyout toolbar
 	"""	
-	
-	#Note to Eric M:
-	# This needs cleanup. This is a temporary implementation --ninad20071025
-	pass
-    
-    
+
+        #Note to Eric M:
+        # This needs cleanup. This is a temporary implementation --ninad20071025
+        pass
+
+

@@ -37,7 +37,10 @@ class PlaneEditController(EditController):
     # We now support multiple keywords in a list or tuple
     # sponsor_keyword = ('Graphenes', 'Carbon')
     sponsor_keyword = 'Plane'
-    propMgr = None
+    #See Command.anyCommand for details about the following flags
+    command_should_resume_prevMode = True
+    command_has_its_own_gui = True
+    
     
     def __init__(self, win, struct = None):
         """

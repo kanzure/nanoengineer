@@ -26,6 +26,8 @@ class TemporaryCommand_preMixin(commonCommand):
     """
     command_can_be_suspended = False #bruce 071011
     command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
+    #See Command.anyCommand for detailed explanation of the following flag
+    command_has_its_own_gui = False
     pass
 
 
@@ -40,7 +42,7 @@ class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
     def keyPress(self, key):
         # ESC - Exit our command.
         if key == Qt.Key_Escape:
-            self.command.Done()
+            self.command.Done(exit_using_done_or_cancel = False)
         else:
             #bruce 071012 bugfix: add 'else' to prevent letting superclass
             # also handle Key_Escape and do assy.selectNone.
@@ -84,8 +86,8 @@ class Overdrawing_GraphicsMode_preMixin(commonGraphicsMode):
 # ==
 
 class _TemporaryCommand_Overdrawing_GM( ESC_to_exit_GraphicsMode_preMixin,
-                                       Overdrawing_GraphicsMode_preMixin,
-                                       GraphicsMode ):
+                                        Overdrawing_GraphicsMode_preMixin,
+                                        GraphicsMode ):
     """
     GraphicsMode component of TemporaryCommand_Overdrawing.
 
@@ -109,8 +111,8 @@ class TemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
     GraphicsMode component from GraphicsMode.
     """
     GraphicsMode_class = _TemporaryCommand_Overdrawing_GM
-    pass
-
+    
+    
 # keep this around for awhile, to show how to set it up when we want the
 # same thing while converting larger old modes:
 #
@@ -125,5 +127,5 @@ class TemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
 ##                       Overdrawing_GraphicsMode_preMixin,
 ##                       basicMode ):
 ##    pass
-                       
+
 # end

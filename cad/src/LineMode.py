@@ -118,8 +118,21 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         self.glpane.setCursor(self.win.SelectAtomsCursor)
     
+    def resetVariables(self):
+        """
+        Reset instance variables. Typically used by self.command when the 
+        command is exited without the graphics mode knowing about it before hand
+        Example: You entered line mode, started drawing line, and hit Done 
+        button. This exits the Graphics mode (without the 'leftup' which usually
+        terminates the command *from Graphics mode') . In the above case, the 
+        command.restore_gui needs to tell its graphics mode about what just 
+        happened , so that all the assigned values get cleared and ready to use
+        next time this graphicsMode is active.
+        """
+        self.endPoint1 = None
+        self.endPoint2 = None
             
-
+            
 # == Command part
 
 class LineMode(TemporaryCommand_Overdrawing): 
@@ -143,10 +156,11 @@ class LineMode(TemporaryCommand_Overdrawing):
     def init_gui(self):
         """
         """
-        prevMode = self.commandSequencer.prevMode
-        
+        prevMode = self.commandSequencer.prevMode        
         #clear the list (for safety) which may still have old data in it
         self.mouseClickPoints = []
+        
+        self.glpane.gl_update()
         
         if hasattr(prevMode, 'provideParamsForTemporaryMode'):
             params = prevMode.provideParamsForTemporaryMode(self.modename)
@@ -160,16 +174,18 @@ class LineMode(TemporaryCommand_Overdrawing):
         """
         self.mouseClickLimit = params        
         
-        
     def restore_gui(self):
         """
         """
         prevMode = self.commandSequencer.prevMode
-        if hasattr(prevMode, 'acceptParamsFromTemporaryMode'):          
+        if hasattr(prevMode, 'acceptParamsFromTemporaryMode'): 
             prevMode.acceptParamsFromTemporaryMode(
                 self.modename, 
                 self.mouseClickPoints)
             #clear the list
-            self.mouseClickPoints = []
+            self.mouseClickPoints = []       
+        
+        self.graphicsMode.resetVariables()
+       
         return
     

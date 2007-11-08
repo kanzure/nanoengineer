@@ -165,7 +165,7 @@ class modeMixin(object):
 ##    def isNullCommand(self, command):
 ##        return command.is_null
     
-    def start_using_mode(self, mode, resuming = False): #bruce 070813 added resuming option
+    def start_using_mode(self, mode, resuming = False, has_its_own_gui = True): #bruce 070813 added resuming option
         """
         Semi-internal method (meant to be called only from self
         (typically a GLPane) or from one of our mode objects):
@@ -230,7 +230,8 @@ class modeMixin(object):
                     #bruce 050106: added this status/history message about new mode...
                     # I'm not sure this is the best place to put it, but it's the best
                     # existing single place I could find.
-                refused = mode._enterMode(resuming = resuming)
+                refused = mode._enterMode(resuming = resuming, 
+                                          has_its_own_gui = has_its_own_gui)
                     # let the mode get ready for use; it can assume self.currentCommand
                     # will be set to it, but not that it already has been.  It
                     # should emit a message and return True if it wants to
@@ -444,6 +445,7 @@ class modeMixin(object):
         # [Implem revised by bruce 070814; comment updated by bruce 071011.]
         
         prior_command = self._raw_currentCommand # might be changed inside if statement below
+   
 
         assert not prior_command.is_null # neither case below looks correct for nullmode
 
@@ -452,7 +454,7 @@ class modeMixin(object):
             # Since we can't suspend the prior command, just exit it.
             # (If this toggles off its button and runs this method recursively,
             #  that will cause bugs. TODO -- detect that, fix it if it happens.)
-            prior_command.Done()
+            prior_command.Done(exit_using_done_or_cancel = False)
                 # presumably this reenters the prior suspended command (prevMode)
                 # (since there probably was one if prior_command was temporary),
                 # but if so, we'll immediately resuspend it below.
