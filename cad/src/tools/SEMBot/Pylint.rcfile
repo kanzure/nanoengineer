@@ -65,10 +65,9 @@ disable-msg=C0103, W0107, W0603, W0142
 # explanations of some enabled but potentially confusing messages:
 # E1111 = Assigning to function call which doesn't return -- this warns about var = func(...)
 #         when func() doesn't return anything or always returns None (I think).
-
-# consider adding summary reports for the following, for all files: [bruce 071107]
-# W0311 - Bad indentation
-# ?     - Undefined variable (I forget the exact wording -- happens when you forget an import)
+#
+# see also runPylint.sh, which generates summary reports of certain messages
+# over all source files, e.g. W0611 and E0602.
 
 [REPORTS]
 

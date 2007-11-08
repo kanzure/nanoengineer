@@ -50,7 +50,18 @@ rm pylint.?.result tmp.txt
 
 popd
 
-# Generate a filtered report (W0611 - Unused import %s Used when an imported
-# module or variable is not used.
+# Generate filtered summary reports:
+# (their output files have links in index.php)
+
+# W0611 - Unused import %s. Emitted when an imported module or variable is not used.
 grep W0611 SVN-D/cad/src/pylint_* > W0611.txt
 
+# E0602 - Undefined variable %s. Emitted when a non-builtin symbol is used, but no 
+# definition or import of it can be found.
+grep E0602 SVN-D/cad/src/pylint_* > E0602.txt
+
+# consider adding summary reports for the following:
+# W0311 - Bad indentation
+# ? - tabs in indentation
+
+# end

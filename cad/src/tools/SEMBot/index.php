@@ -115,7 +115,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
         <tr>
           <td align="right">Pylint: </td>
           <td><span class="summary-name"><?php include 'Pylint.result'; ?>&nbsp;out of 10.0</span></td>
-          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a> (Filtered: <a href="W0611.txt">W0611</a>*)</td></tr>
+          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a> (Filtered: <a href="W0611.txt">W0611</a>* <a href="E0602.txt">E0602</a>* )</td></tr>
       </table></td>
   </tr>
 
@@ -132,7 +132,10 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td class="summary">
       Each convention, refactor, warning, and error message code is following by a brief description, but if that is insufficient, you can get a slightly more informative description for it here: <a href="http://www.logilab.org/card/wikiid/pylintfeatures">Pylint man page</a>
       <p>
-      * W0611 - Unused import warning. Emitted when an imported module or variable is not used.</td>
+      * W0611 - Unused import warning. Emitted when an imported module or variable is not used.
+      <p>
+      * E0602 - Undefined variable error. Emitted when a non-builtin symbol is used, but no definition or import of it can be found.
+      </td>
   </tr>
 </table>
 <pre>
