@@ -6,6 +6,10 @@
 
 # Run Pylint 
 pushd SVN-D/cad/src
+
+# Remove old reports
+rm -rf pylint_*
+
 BATCH_NUMBER=0
 # Some files break Pylint, exclude them
 CAPITAL_T_STAR=`ls T*.py|grep -v TreeView.py|grep -v TreeWidget.py`
