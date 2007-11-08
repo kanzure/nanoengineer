@@ -1,9 +1,9 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 """
-debug.py -- debugging functions
+debug.py -- various debugging utilities and debug-related UI code
 
-(Collects various functions related to debugging.)
+TODO: split into several modules in a debug package.
 
 $Id$
 
@@ -23,9 +23,8 @@ frame when it's first seen, and perhaps incrementing it each time it's seen).
 
 History:
 
-Created by bruce.
+Created by Bruce. Added to by various developers, especially Will.
 
-bruce 050913 used env.history in some places.
 """
 
 import sys, os, time, types, traceback
@@ -36,95 +35,20 @@ import platform
 # note: some debug features run user-supplied code in this module's
 # global namespace (on platforms where this is permitted by our licenses).
 
-API_ENFORCEMENT = False   # for performance, commit this only as False
-
-class APIViolation(Exception):
-    pass
+# ==
 
 _default_x = object()
-def print_verbose_traceback(x=_default_x):
-    traceback.print_stack(file=sys.stdout)
+
+def print_verbose_traceback(x = _default_x):
+    traceback.print_stack(file = sys.stdout)
     if x is not _default_x:
         print x
     print
 
-# We compare class names to find out whether calls to private methods
-# are originating from within the same class (or one of its friends). This
-# could give false negatives, if two classes defined in two different places
-# have the same name. A work-around would be to use classes as members of
-# the "friends" tuple instead of strings. But then we need to do extra
-# imports, and that seems to be not only inefficient, but to sometimes
-# cause exceptions to be raised.
-
-def _getClassName(frame):
-    """Given a frame (as returned by sys._getframe(int)), dig into
-    the list of local variables' names in this stack frame. If the
-    frame represents a method call in an instance of a class, then the
-    first local variable name will be "self" or whatever was used instead
-    of "self". Use that to index the local variables for the frame and
-    get the instance that owns that method. Return the class name of
-    the instance.
-    See http://docs.python.org/ref/types.html for more details.
-    """
-    varnames = frame.f_code.co_varnames
-    selfname = varnames[0]
-    methodOwner = frame.f_locals[selfname]
-    return methodOwner.__class__.__name__
-
-def _privateMethod(friends=()):
-    """Verify that the call made to this method came either from within its
-    own class, or from a friendly class which has been granted access. This
-    is done by digging around in the Python call stack. The "friends" argument
-    should be a tuple of strings, the names of the classes that are considered
-    friendly. If no list of friends is given, then any calls from any other
-    classes will be flagged as API violations.
-
-    CAVEAT: Detection of API violations is done by comparing only the name of
-    the class. (This is due to some messiness I encountered while trying to
-    use the actual class object itself, apparently a complication of importing.)
-    This means that some violations may not be detected, if we're ever careless
-    enough to give two classes the same name.
-
-    ADDITIONAL CAVEAT: Calls from global functions will usually be flagged as API
-    violations, and should always be flagged. But this approach will not catch
-    all such cases. If the first argument to the function happens to be an
-    instance whose class name is the same as the class wherein the private
-    method is defined, it won't be caught.
-    """
-    f1 = sys._getframe(1)
-    f2 = sys._getframe(2)
-    called = _getClassName(f1)
-    caller = _getClassName(f2)
-    if caller == called or caller in friends:
-        # These kinds of calls are okay.
-        return
-    # Uh oh, an API violation. Print information that will
-    # make it easy to track it down.
-    import inspect
-    f1 = inspect.getframeinfo(f1)
-    f2 = inspect.getframeinfo(f2)
-    lineno, meth = f1[1], f1[2]
-    lineno2, meth2 = f2[1], f2[2]
-    print
-    print (called + "." + meth +
-           " (line " + repr(lineno) + ")" +
-           " is a private method called by")
-    print (caller + "." + meth2 +
-           " (line " + repr(lineno2) + ")" +
-           " in file " + f2[0])
-    raise APIViolation
-
-if API_ENFORCEMENT:
-    privateMethod = _privateMethod
-else:
-    # If we're not checking API violations, be as low-impact as possible.
-    # In this case 'friends' is ignored.
-    def privateMethod(friends=None):
-        return
-
 # ==
+
 # Generally useful line number function, wware 051205
-def linenum(depth=0):
+def linenum(depth = 0):
     try:
         raise Exception
     except:
@@ -135,11 +59,13 @@ def linenum(depth=0):
         print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
 
 # ==
+
 # Enter/leave functions which give performance information
+# (by Will; bruce 071107 renamed them to be easier to search for.)
 
 _timing_stack = [ ]
 
-def enter():
+def debug_enter():
     if platform.atom_debug:
         try:
             raise Exception
@@ -150,7 +76,7 @@ def enter():
         _timing_stack.append((fname, time.time()))
         print 'ENTER', fname
 
-def leave():
+def debug_leave():
     if platform.atom_debug:
         try:
             raise Exception
@@ -162,7 +88,7 @@ def leave():
         assert fname == fname1, 'enter/leave mismatch, got ' + fname1 + ', expected ' + fname
         print 'LEAVE', fname, time.time() - start
 
-def middle():
+def debug_middle():
     if platform.atom_debug:
         try:
             raise Exception
@@ -173,174 +99,6 @@ def middle():
         fname1, start = _timing_stack[-1]
         assert fname == fname1, 'enter/middle mismatch, got ' + fname1 + ', expected ' + fname
         print 'MIDDLE', fname, line, time.time() - start
-
-# ==
-def standardExclude(attr, obj):
-    #from MWsemantics import MWsemantics
-    #from GLPane import GLPane
-    # I am rarely interested in peeking inside these, and they create
-    # tons of output.
-    return False
-
-class ObjectDescender:
-    def __init__(self, maxdepth, outf=sys.stdout):
-        self.already = [ ]
-        self.maxdepth = maxdepth
-        self.outf = outf
-
-    def exclude(self, attr, obj):
-        return False
-    def showThis(self, attr, obj):
-        return True
-
-    def prefix(self, depth, pn):
-        return ((depth * "\t") + ".".join(pn) + ": ")
-
-    def handleLeaf(self, v, depth, pn):
-        def trepr(v):
-            if v == None:
-                return "None"
-            elif type(v) == types.InstanceType:
-                def classWithBases(cls):
-                    r = cls.__name__
-                    for b in cls.__bases__:
-                        r += ":" + classWithBases(b)
-                    return r
-                # r = v.__class__.__name__
-                r = "<" + classWithBases(v.__class__) + ">"
-            else:
-                r = repr(type(v))
-            return "%s at %x" % (r, id(v))
-        if type(v) in (types.ListType, types.TupleType):
-            self.outf.write(self.prefix(depth, pn) + trepr(v))
-            if len(v) == 0:
-                self.outf.write(" (empty)")
-            self.outf.write("\n")
-        elif type(v) in (types.StringType, types.IntType,
-                         types.FloatType, types.ComplexType):
-            self.outf.write(self.prefix(depth, pn) + repr(v) + "\n")
-        else:
-            self.outf.write(self.prefix(depth, pn) + trepr(v) + "\n")
-
-    def getAttributes(self, obj):
-        lst = dir(obj)
-        if hasattr(obj, "__dict__"):
-            for x in obj.__dict__.keys():
-                if x not in lst:
-                    lst.append(x)
-        def no_double_underscore(x):
-            return not x.startswith('__')
-        lst = filter(no_double_underscore, lst)
-        lst.sort()
-        return lst
-
-    def descend(self, obj, depth=0, pathname=[ ], excludeClassVars=False):
-        if obj in self.already:
-            return
-        self.already.append(obj)
-        if depth == 0:
-            self.handleLeaf(obj, depth, pathname)
-        if depth >= self.maxdepth:
-            return
-        if type(obj) in (types.ListType, types.TupleType):
-            lst = [ ]
-            if len(pathname) > 0:
-                lastitem = pathname[-1]
-                pathname = pathname[:-1]
-            else:
-                lastitem = ""
-            for i in range(len(obj)):
-                x = obj[i]
-                if not self.exclude(i, x):
-                    y = pathname + [ lastitem + ("[%d]" % i) ]
-                    lst.append((i, x, y))
-            for i, v, pn in lst:
-                if self.showThis(i, v):
-                    self.handleLeaf(v, depth+1, pn)
-            for i, v, pn in lst:
-                self.descend(v, depth+1, pn)
-        elif type(obj) in (types.DictType,):
-            keys = obj.keys()
-            lst = [ ]
-            if len(pathname) > 0:
-                lastitem = pathname[-1]
-                pathname = pathname[:-1]
-            else:
-                lastitem = ""
-            for k in keys:
-                x = obj[k]
-                if not self.exclude(k, x):
-                    y = pathname + [ lastitem + ("[%s]" % repr(k)) ]
-                    lst.append((k, x, y))
-            for k, v, pn in lst:
-                if self.showThis(k, v):
-                    self.handleLeaf(v, depth+1, pn)
-            for k, v, pn in lst:
-                self.descend(v, depth+1, pn)
-        elif (hasattr(obj, "__class__") or
-            type(obj) in (types.InstanceType, types.ClassType,
-                          types.ModuleType, types.FunctionType)):
-            ckeys = [ ]
-            if True:
-                # Look at instance variables, ignore class variables and methods
-                if hasattr(obj, "__class__"):
-                    ckeys = self.getAttributes(obj.__class__)
-            else:
-                # Look at all variables and methods
-                ckeys = ( )
-            keys = self.getAttributes(obj)
-            if excludeClassVars:
-                keys = filter(lambda x: x not in ckeys, keys)
-            lst = [ ]
-            for k in keys:
-                x = getattr(obj, k)
-                if not self.exclude(k, x):
-                    lst.append((k, x, pathname + [ k ]))
-            for k, v, pn in lst:
-                if self.showThis(k, v):
-                    self.handleLeaf(v, depth+1, pn)
-            for k, v, pn in lst:
-                self.descend(v, depth+1, pn)
-
-def objectBrowse(obj, maxdepth=1, exclude=standardExclude, showThis=None, outf=sys.stdout):
-    od = ObjectDescender(maxdepth=maxdepth, outf=outf)
-    if showThis != None:
-        od.showThis = showThis
-    od.exclude = exclude
-    od.descend(obj, pathname=['arg'])
-
-def findChild(obj, showThis, maxdepth=8):
-    # Drill down deeper because we're being more selective
-    def prefix(depth, pn):
-        # no indentation
-        return (".".join(pn) + ": ")
-    f = Finder(maxdepth=maxdepth)
-    f.showThis = showThis
-    f.prefix = prefix
-    f.descend(obj, pathname=['arg'])
-
-# python -c "import debug; debug.testDescend()"
-def testDescend():
-    class Foo:
-        pass
-    x = Foo()
-    y = Foo()
-    z = Foo()
-    x.a = 3.14159
-    x.b = "When in the course of human events"
-    x.c = y
-    x.d = [3,1,4,1,6]
-    y.a = 2.71828
-    y.b = "Apres moi, le deluge"
-    y.c = z
-    z.a = [x, y, z]
-    z.b = range(12)
-    x.e = {'y': y, 'z': z}
-    objectBrowse(x)
-    def test(name, val):
-        return name == "a"
-    findChild(x, test)
-
 
 # ==
 
@@ -359,7 +117,11 @@ class Stopwatch:
         return time.time() - self.__start
 
 def time_taken(func): #bruce 051202 moved this here from undo.py
-    "call func and measure how long this takes. return a triple (real-time-taken, cpu-time-taken, result-of-func)."
+    """
+    call func and measure how long this takes.
+
+    @return: a triple (real-time-taken, cpu-time-taken, result-of-func)
+    """
     t1c = time.clock()
     t1t = time.time()
     res = func()
@@ -378,7 +140,8 @@ def call_func_with_timing_histmsg( func): #bruce 051202 moved this here from und
 # [in Qt4, all-GPL, they work on all platforms, as of 070425]
 
 def legally_execfile_in_globals(filename, globals, error_exception = True):
-    """if/as permitted by our Qt/PyQt license agreements,
+    """
+    if/as permitted by our Qt/PyQt license agreements,
     execute the python commands in the given file, in this process.
     """
     try:
@@ -395,7 +158,8 @@ def legally_execfile_in_globals(filename, globals, error_exception = True):
     return
 
 def legally_exec_command_in_globals( command, globals, error_exception = True ):
-    """if/as permitted by our Qt/PyQt license agreements,
+    """
+    if/as permitted by our Qt/PyQt license agreements,
     execute the given python command (using exec) in the given globals,
     in this process.
     """
@@ -414,17 +178,19 @@ def legally_exec_command_in_globals( command, globals, error_exception = True ):
     return
 
 def exec_allowed():
-    "are exec and/or execfile allowed in this version?"
+    """
+    are exec and/or execfile allowed in this version of NE1?
+    """
     try:
         import gpl_only
     except ImportError:
         return False
     return True
 
-# safe_repr [moved from undo_archive.py to debug.py by bruce 070131; will be called from more places]
-    # fyi: this import doesn't work: from asyncore import safe_repr
+# ==
 
 def safe_repr(obj, maxlen = 1000):
+    # fyi: this import doesn't work: from asyncore import safe_repr
     try:
         maxlen = int(maxlen)
         assert maxlen >= 5
@@ -441,7 +207,9 @@ def safe_repr(obj, maxlen = 1000):
         return rr
     pass
 
-# traceback
+# ==
+
+# traceback (see also print_verbose_traceback)
 
 def print_compact_traceback(msg = "exception ignored: "):
     print >> sys.__stderr__, msg + compact_traceback() # bruce 061227 changed this back to old form
@@ -549,10 +317,12 @@ if __name__ == '__main__':
 # (moved here from GLPane.py by bruce 040928; docstring and messages maybe not yet fixed)
 
 def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in GLPane.py; modified 040928
-    """Execute a python command, supplied by the user via some sort of debugging interface (named by source),
-       in debug.py's globals. Return 1 for ok (incl empty command), 0 for any error.
-       Caller should not print exception diagnostics -- this function does that
-       (and does not reraise the exception).
+    """
+    Execute a python command, supplied by the user via some sort of debugging interface (named by source),
+    in debug.py's globals. Return 1 for ok (incl empty command), 0 for any error.
+
+    Caller should not print exception diagnostics -- this function does that
+    (and does not reraise the exception).
     """
     #e someday we might record time, history, etc
     command = "" + command # i.e. assert it's a string
@@ -587,8 +357,6 @@ def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in
         print "did it!"
         return 1
     pass
-
-
 
 # ==
 
@@ -625,7 +393,8 @@ def debug_timing_test_pycode_from_a_dialog( ): #bruce 051117
     print_exec_timing_explored(mycode)
 
 def print_exec_timing_explored(mycode, ntimes = 1, trymore = True): #bruce 051117
-    """After making sure exec of user code is legally permitted, and exec of mycode works,
+    """
+    After making sure exec of user code is legally permitted, and exec of mycode works,
     execute mycode ntimes and print how long that takes in realtime (in all, and per command).
     If it took <1 sec and trymore is True, repeat with ntimes *= 4, repeatedly until it took >= 1 sec.
     """
@@ -648,7 +417,8 @@ def print_exec_timing_explored(mycode, ntimes = 1, trymore = True): #bruce 05111
     return
 
 def print_exec_timing(mycode, ntimes, glob): #bruce 051117
-    """Execute mycode in glob ntimes and print how long that takes in realtime (in all, and per command).
+    """
+    Execute mycode in glob ntimes and print how long that takes in realtime (in all, and per command).
     Return total time taken in seconds (as a float). DON'T CALL THIS ON USER CODE UNTIL ENSURING OUR LICENSE
     PERMITS EXECUTING USER CODE in the caller; see print_exec_timing_explored for one way to do that.
     """
@@ -698,14 +468,15 @@ class menu_cmd: #bruce 050923 [committed 051006]. #e maybe the maker option shou
             #e should also protect caller from badly formatted value... or maybe menu spec processor should do that?
             return res
         text, func = self.text, self.func
-        return [ (text, lambda func=func, widget=widget: func(widget)) ]    
-            # (the func=func was apparently necessary, otherwise the wrong func got called,
+        return [ (text, lambda func = func, widget = widget: func(widget)) ]    
+            # (the func = func was apparently necessary, otherwise the wrong func got called,
             #  always the last one processed here)
             # [that comment is from before revision of 050923 but probably still applies]
     pass
 
 def register_debug_menu_command( *args, **kws ):
-    """Let other modules register commands which appear in the debug menu.
+    """
+    Let other modules register commands which appear in the debug menu.
     When called, they get one arg, the widget in which the debug menu appeared.
        If order is supplied and not None, it's used to sort the commands in the menu
     (the other ones come at the end in order of their names).
@@ -742,7 +513,9 @@ def registered_commands_menuspec( widget):
 # ===
 
 def overridden_attrs( class1, instance1 ): #bruce 050108
-    "return a list of the attrs of class1 which are overridden by instance1"
+    """
+    return a list of the attrs of class1 which are overridden by instance1
+    """
     # probably works for class1, subclass1 too [untested]
     res = []
     for attr in dir(class1):
@@ -765,7 +538,8 @@ def overridden_attrs( class1, instance1 ): #bruce 050108
 debug_reload_once_per_event = False # do not commit with true
 
 def reload_once_per_event(module, always_print = False, never_again = True, counter = None, check_modtime = False):
-    """Reload module (given as object or as name),
+    """
+    Reload module (given as object or as name),
     but at most once per user-event or redraw, and only if platform.atom_debug.
     Assumes w/o checking that this is a module it's ok to reload, unless the module defines _reload_ok as False,
     in which case, all other reload tests are done, but a warning is printed rather than actually reloading it.
@@ -876,7 +650,5 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
         if never_again:
             module.__redraw_counter_when_reloaded__ = 'never again'
     return
-
-# ==
 
 # end
