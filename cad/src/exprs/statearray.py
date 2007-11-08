@@ -107,6 +107,8 @@ def StateArrayRefs_getitem_as_stateref(statearrayrefs, index): #070313 renamed g
             # What we need is to ask for an lval or stateref for that StateArray at that index!
             # Can we do that using getitem_Expr (re semantics, reasonableness, and efficiency)? ##k
     else:
+        StateRef_from_lvalue = 'nim'
+        from exprs.Exprs import getitem_Expr # apparently the only use of that, and never runs, and requires an extension of it...
         return StateRef_from_lvalue( getitem_Expr(statearrayrefs, index))
             ###IMPLEM this getitem_Expr behavior (proposed, not yet decided for sure; easy, see getattr_Expr for how)
             ###IMPLEM StateRef_from_lvalue if I can think of a decent name for it, and if I really want it around

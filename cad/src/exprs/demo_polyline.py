@@ -126,7 +126,7 @@ class CommandWithItsOwnEditMode( DelegatingInstanceOrExpr): #e rename! and inher
 
     def on_time_passing(self):
         "#doc [only needed if time-dependent animation needs doing; that might include delayed tooltip popups, fadeouts...]"
-        nim # similar to on_baremotion -- maybe even identical if we decide that's simpler --
+        assert 0 # nim # similar to on_baremotion -- maybe even identical if we decide that's simpler --
         # it probably is, since time passes during mouse motion too!
         pass
     
@@ -249,7 +249,7 @@ class Polyline(SketchEntity): #e rename -- 2D or general? [see also class polyli
 ##        if self._use_relative:
 ##            return self.end1.center # this can vary!
 ##        return ORIGIN
-        nim
+        assert 0 # nim
     def _C_origin(self): #070307 renamed this to origin from center (in demo_drag.py version); not sure if needed here at all
 ##        if self._use_relative:
 ##            return self.end1.center # this can vary!
@@ -354,10 +354,10 @@ class Polyline_draw_helpers( Drawable):
         return
     def draw_alignment_lines(self):
         "helper method for some interactive drawing wrappers: draw yellow and blue dotted alignment lines for the last segment"
-        nim
+        assert 0 # nim
     def draw_tooltip(self):
         #e does this even belong here? prob not -- let edit wrapper ask for info and do it from the info
-        nim
+        assert 0 # nim
     pass # end of class xxx
 
 class _draggable_polyline_point(DelegatingInstanceOrExpr): # experimental 070308
@@ -368,7 +368,7 @@ def draggable_polyline_point(polyline):
     "return a func of a point" ##E oops! the point needs to know its index in the polyline! (and the polyline itself.)
     # it seems we don't want a pos like polyline.points has now, but a Point object for the polyline to give us!
     # e.g. polyline.point_objects, where each knows parent, has state, setting its state changes the parent state...
-    return lambda point: bla
+    return lambda point: 'bla'
 
 OverlayList = StubType ## Overlay #stub
 map_Expr = StubType

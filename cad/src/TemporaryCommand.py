@@ -47,7 +47,7 @@ class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
             # I think that was a bug, since you might want to pan or zoom etc
             # in order to increase the selection. Other ways of changing
             # the viewpoint (eg trackball) don't deselect everything.
-            super(TemporaryOverdrawing_GraphicsMode, self).keyPress(key) # Fixes bug 1172 (F1 key). mark 060321
+            super(ESC_to_exit_GraphicsMode_preMixin, self).keyPress(key) # Fixes bug 1172 (F1 key). mark 060321
         return
     pass
 

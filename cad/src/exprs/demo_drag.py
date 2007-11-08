@@ -512,6 +512,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
             
         if 0:
             ## MAKE THIS WORK:
+            draggable_node_expr = 'define this'
             newnode = self.world.make_and_add( draggable_node_expr, type = "Vertex")
         else:
             newnode = self.world.make_and_add( node_expr, type = "Vertex") #070206 added type = "Vertex"

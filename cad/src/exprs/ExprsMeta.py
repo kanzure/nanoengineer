@@ -159,8 +159,6 @@ from exprs.Exprs import expr_is_Instance
 from exprs.Exprs import is_Expr_pyclass
 from exprs.__Symbols__ import _E_ATTR, _self
 
-# undefined symbol: FAKE_ATTRNAME
-
 # ==
 
 def remove_prefix(str1, prefix):#e refile
@@ -221,10 +219,15 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         #e should we store only the class id and name, to avoid ref cycles? Not very important since classes are not freed too often.
         return
     def _ExprsMeta__set_attr(self, attr): # see class State_helper discussion for motivation
-        "[private method for ExprsMeta to call when it knows the defining attr]" # 061201, not always called(?) or needed, experimental
+        """
+        [private method for ExprsMeta to call when it knows the defining attr]
+        """
+        # 061201, not always called(?) or needed, experimental
         print "called _ExprsMeta__set_attr",self,attr
             ####k does it ever happen? if not, it's probably obs; even if so, might be unneeded [cmt 061204]
-        if self.attr == FAKE_ATTRNAME:
+            # update: this probably never happens, since until 071107, it referenced
+            # an undefined symbol FAKE_ATTRNAME (probably a typo)
+        if self.attr == FAKE_ATTR:
             self.attr = attr
         else:
             assert self.attr == attr, "%r already has an attr, but another one %r is trying to be set in it" % (self, attr)

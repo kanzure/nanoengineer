@@ -4,7 +4,7 @@ ModelNode.py
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note: as of sometime before 070129 this is an unfinished stub,
 and it's not clear whether it will be used.
@@ -97,7 +97,7 @@ class ModelNode(InstanceOrExpr): #e rename since not a Node anymore (unless I ac
     _s_attr_stuff = S_DATA
     def draw(self, glpane, dispdef):
         if self.picked: # only draw when picked! (good?)
-            draw_stuff(self.stuff, glpane)
+            draw_stuff(self.stuff, glpane) ### FIX: Undefined variable 'draw_stuff'
     def writemmp(self, mapping):
         """Write this Node to an mmp file, as controlled by mapping,
         which should be an instance of files_mmp.writemmp_mapping.

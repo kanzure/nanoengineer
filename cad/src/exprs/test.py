@@ -2187,6 +2187,7 @@ per_reload_state = {}     ### NOT YET USED as of 061120
 
 # one-time tests: to do them, change if 0 to if 1:
 
+from exprs.instance_helpers import InstanceOrExpr
 if 0:
     class something(InstanceOrExpr):#070123
         attr1 = Arg(int)

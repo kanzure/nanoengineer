@@ -47,6 +47,9 @@ from exprs.__Symbols__ import _self
 
 # ==
 
+StateRef = Automatic = State = 'needs import'
+_my_node = 'needs implem'
+
 class ToggleShow(InstanceMacro):
     # args
     thing = Arg(Widget2D)

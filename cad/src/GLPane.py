@@ -3619,6 +3619,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     # but prepending dir onto path would risk much worse bugs
                     # if dir masked any standard modules which got loaded now.
             import gpl_only # make sure exec is ok in this version (caller should have done this already)
+            _module = _modeclass = None # fool pylint into realizing this is not undefined 2 lines below
             exec("import %s as _module" % (base,))
             reload(_module)
             exec("from %s import %s as _modeclass" % (base,base))

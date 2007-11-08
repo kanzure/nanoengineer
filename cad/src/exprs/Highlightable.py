@@ -144,7 +144,8 @@ def copy_pyopengl_matrix( matrix): #bruce 070704
 debug_saved_coords = False #070317
 
 class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 070317
-    """Abstract superclass [private] for Instances which can capture the current OpenGL drawing coordinates,
+    """
+    Abstract superclass [private] for Instances which can capture the current OpenGL drawing coordinates,
     restore them later, and do OpenGL state queries within them.
        Superclass of Highlightable [though maybe it could just own one of us in an attr, instead?? ##e];
     and of SavedCoordsys, for holding a saved static coordsys.
@@ -162,7 +163,8 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         return # from _init_instance
 
     def run_OpenGL_in_local_coords(self, func): #061206
-        """Run the OpenGL code in func in self's local coordinate system (and with its GL context current),
+        """
+        Run the OpenGL code in func in self's local coordinate system (and with its GL context current),
         and not while compiling any display list. If we run func immediately (always true in present implem),
         return (True, func-retval); otherwise return (False, not-yet-defined-info-about-how-or-why-we-delayed-func).
            Intended to be called from user mouse event handlers (not sure if ok for key or wheel events ##k).
@@ -239,7 +241,10 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         return
 
     def save_coords_if_safe(self): #070401 [#e rename?]
-        "call self.save_coords if the glpane drawing phase indicates the results should be valid for highlighting"
+        """
+        call self.save_coords if the glpane drawing phase indicates
+        the results should be valid for highlighting
+        """
         if not self.env.glpane.current_glselect:
             self.save_coords()
             # Historical note: using this cond apparently fixes the projection = True bug (even when used in DrawInCorner_projection),
@@ -272,7 +277,10 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         return
 
     def safe_glLoadMatrixd(self, matrix, name): # note: doesn't use self, ought to refile in draw_utils.py or a glpane proxy ###e
-        "call glLoadMatrixd(matrix( if it looks like matrix has the right type; print a warning otherwise."
+        """
+        call glLoadMatrixd(matrix( if it looks like matrix has
+        the right type; print a warning otherwise.
+        """
         # as of initial commit, 061214 359, the crash bug never recurred but neither did I see any prints from this,
         # so it remains untested as a bugfix, tho it's tested as a matrix-loader.
         if matrix is None:
@@ -312,7 +320,8 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         #e rename? #e add variant to get the drag-startpoint too #e cache the result
         #e is this the right class for it? self is only used for glpane and local coords,
         # but "run_OpenGL_in_local_coords" is only implementable in this class for the moment.
-        """Return the 3d point (in self's local coordinates) corresponding to the mouse position
+        """
+        Return the 3d point (in self's local coordinates) corresponding to the mouse position
         of the current mouse event (error if no current mouse event which stores the necessary info for this),
         interpreting its depth based on the arguments/options.
            If no options are passed, then the event's depth is defined (for now) by the depth buffer pixel clicked on,
@@ -432,7 +441,8 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         return funcres # from current_event_mousepoint
 
     def gluProject(self, point): #070226; probably to be moved to more kinds of objects but implemented differently, eventually
-        """Return the same (wX, wY, depth) that gluProject would or should return
+        """
+        Return the same (wX, wY, depth) that gluProject would or should return
         if run in local model coords (and gl state for drawing) of this object,
         on point (which should be an x,y,z-tuple or Numeric array in the same coords).
            This may or may not actually run gluProject depending on the implementation
@@ -448,7 +458,8 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         return wX, wY, depth
 
     def gluUnProject(self, wX, wY, depth): #070226
-        """Act like gluUnProject... for more info (and bugs) see docstring for gluProject.
+        """
+        Act like gluUnProject... for more info (and bugs) see docstring for gluProject.
         """
         ###UNTESTED, NOT YET USED
         ran_already_flag, funcres = self.run_OpenGL_in_local_coords( lambda: gluUnProject(wX, wY, depth) )
@@ -457,7 +468,8 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         return V(x,y,z)
     
     def screenrect(self, point = ORIGIN):#070226 ##e rename? btw what interface are this and current_event_mousepoint part of?
-        """Return the 4 corners (in local model coords) of a screen rectangle, projected to the same depth as point
+        """
+        Return the 4 corners (in local model coords) of a screen rectangle, projected to the same depth as point
         (which is also in local model coords; if left out it's their origin).
         """
         #e should add option to directly pass depth
@@ -501,7 +513,8 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
     pass # end of class _CoordsysHolder
 
 class SavedCoordsys(_CoordsysHolder): #070317
-    """One of these can be told to save a static copy of the coordsys from any instance of a _CoordsysHolder subclass,
+    """
+    One of these can be told to save a static copy of the coordsys from any instance of a _CoordsysHolder subclass,
     or to save one from the current GL state, and then to make use of it in some of the same ways Highlightable can do. #doc better
     """
     def copy_from(self, other): #070328 moved the method body to superclass & renamed it there.
@@ -516,7 +529,8 @@ printdraw = False # debug flag [same name as one in cad/src/testdraw.py]
 
 class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 split out superclass _CoordsysHolder
     #e rename to Button? make variant called Draggable?
-    """Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
+    """
+    Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
     [###WRONG, those are not named options -- fix docstring, or change them to options??]
     renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight [#k or just highlight??]
     [and has more, so as to be Button #doc #e rename #e split out draggable of some sort]
@@ -663,7 +677,11 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
         return
 
     def draw_in_abs_coords(self, glpane, color):
-        "#doc; called from GLPane using an API it specifies; see also run_OpenGL_in_local_coords for more general related feature"
+        """
+        #doc;
+        called from GLPane using an API it specifies; see also
+        run_OpenGL_in_local_coords for more general related feature
+        """
         # [this API comes from GLPane behavior:
         # - why does it pass color? historical: so we can just call our own draw method, with that arg (misguided even so??)
         # - what about coords? it has no way to know old ones, so we have no choice but to know or record them...
@@ -702,7 +720,8 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
         ## [Highlightable.py:260] [ExprsMeta.py:250] [ExprsMeta.py:318] [ExprsMeta.py:366] [Exprs.py:184] [Highlightable.py:260] ...
     
     def mouseover_statusbar_message(self): # called in GLPane.set_selobj
-        """#doc
+        """
+        #doc
         [an optional method in NE1's "selobj interface"]
         """
         ###e NEEDED: we need to pick up info from the mode about the hitpoint used to pick this selobj,
@@ -716,7 +735,9 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
         return str(self.sbar_text) or "%r" % (self,) #e note: that str() won't be needed once the type-coercion in Option works
 
     def highlight_color_for_modkeys(self, modkeys):
-        """#doc; modkeys is e.g. "Shift+Control", taken from glpane.modkeys
+        """
+        #doc;
+        modkeys is e.g. "Shift+Control", taken from glpane.modkeys
         """
         return green
             # KLUGE: The specific color we return doesn't matter, but it matters that it's not None, to GLPane --
@@ -768,7 +789,9 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
     _glpane_button = None # private helper attr for altkey
 
     def _update_altkey(self):
-        "[private helper method for public read-only Instance attr self.altkey]"
+        """
+        [private helper method for public read-only Instance attr self.altkey]
+        """
         self._glpane_button = self.env.glpane.button or self._glpane_button # persistence needed to handle None in ReleasedOn
         self.altkey = (self._glpane_button == 'MMB')
         return
@@ -885,7 +908,10 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
         return
     
     def _do_action(self, name, motion = False, glpane_bindings = {}):
-        "[private, should only be called with one of our action-option names, like on_press or on_release_in (not on_release)]"
+        """
+        [private, should only be called with one of our action-option names,
+        like on_press or on_release_in (not on_release)]
+        """
 ##        if not motion:
 ##            print "_do_action",name
         assert name.startswith('on_')
@@ -927,7 +953,8 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
         return
 
     def inval(self, mode): ###k needed??
-        """we might look different now;
+        """
+        we might look different now;
         make sure display lists that might contain us are remade [stub],
         and glpanes are updated
         """
@@ -942,7 +969,8 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 
         return
 
     def make_selobj_cmenu_items(self, menu_spec): # 070204 new feature, experimental
-        """Add self-specific context menu items to [mutable] <menu_spec> list when self is the selobj.
+        """
+        Add self-specific context menu items to [mutable] <menu_spec> list when self is the selobj.
         [For more examples, see this method as implemented in chem.py, jigs*.py in cad/src.]
         """
         obj = self.cmenu_maker # might be None or a ModelObject
@@ -976,7 +1004,9 @@ Button = Highlightable # [maybe this should be deprecated, but it's still in use
 # ==
 
 class _UNKNOWN_SELOBJ_class: #061218 
-    "[private helper, for a kluge]"
+    """
+    [private helper, for a kluge]
+    """
     def handles_updates(self): #k guessing this one might be needed
         return True
     # these methods were found by experiment to be needed
@@ -1003,7 +1033,9 @@ class _UNKNOWN_SELOBJ_class: #061218
     pass
 
 def _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode): #061218, revised 071010
-    "[private helper, for a kluge -- see comment where called]"
+    """
+    [private helper, for a kluge -- see comment where called]
+    """
     # The only call as of 071010 is in exprs/test.py which sets it on testmode, and says:
     #   fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
     #   then click again, could falsely click the same checkbox twice.
@@ -1077,87 +1109,5 @@ class BackgroundObject(DelegatingInstanceOrExpr): #070322 [renamed from _Backgro
 # not sure that's a good idea, what if we draw it twice? anyway, shouldn't it have more than one component we can draw?
 # model, different parts, MT, etc... maybe we can add another one for empty space.
 # [end of older comments]
-
-# == NO CURRENT CODE IS BELOW HERE (I think)
-
-
-# == old comments, might be useful (e.g. the suggested formulas involving in_drag)
-
-# I don't think Local and If can work until we get WEs to pass an env into their subexprs, as we know they need to do ####@@@@
-
-# If will eval its cond in the env, and delegate to the right argument -- when needing to draw, or anything else
-# Sensor is like Highlightable and Button code above
-# Overlay is like Row with no offsetting
-# Local will set up more in the env for its subexprs
-# Will they be fed the env only as each method in them gets called? or by "pre-instantiation"?
-
-##def Button(plain, highlighted, pressed_inside, pressed_outside, **actions):
-##    # this time around, we have a more specific API, so just one glname will be needed (also not required, just easier, I hope)
-##    return Local(__, Sensor( # I think this means __ refers to the Sensor() -- not sure... (not even sure it can work perfectly)
-##        0 and Overlay( plain,
-##                 If( __.in_drag, pressed_outside),
-##                 If( __.mouseover, If( __.in_drag, pressed_inside, highlighted )) ),
-##            # what is going to sort out the right pieces to draw in various lists?
-##            # this is like "difference in what's drawn with or without this flag set" -- which is a lot to ask smth to figure out...
-##            # so it might be better to just admit we're defining multiple different-role draw methods. Like this: ###@@@
-##        DrawRoles( ##e bad name
-##            plain, dict(
-##                in_drag = pressed_outside, ### is this a standard role or what? do we have general ability to invent kinds of extras?
-##                mouseover = If( __.in_drag, pressed_inside, highlighted ) # this one is standard, for a Sensor (its own code uses it)
-##            )),
-##        # now we tell the Sensor how to behave
-##        **actions # that simple? are the Button actions so generic? I suppose they might be. (But they'll get more args...)
-##    ))
-
-# == old code
-
-if 0:
-    
-    Column(
-      Rect(1.5, 1, red),
-      ##Button(Overlay(TextRect(18, 3, "line 1\nline 2...."),Rect(0.5,0.5,black)), on_press = print_Expr("zz")),
-          # buggy - sometimes invis to clicks on the text part, but sees them on the black rect part ###@@@
-          # (see docstring at top for a theory about the cause)
-      
-    ##                  Button(TextRect(18, 3, "line 1\nline 2...."), on_press = print_Expr("zztr")), # 
-    ##                  Button(Overlay(Rect(3, 1, red),Rect(0.5,0.5,black)), on_press = print_Expr("zzred")), # works
-    ##                  Button(Rect(0.5,0.5,black), on_press = print_Expr("zz3")), # works
-      Invisible(Rect(0.2,0.2,white)), # kluge to work around origin bug in TextRect ###@@@
-      Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
-      Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
-      Rect(1.5, 1, green),
-      gap = 0.2
-    ## DrawThePart(),
-    )
-
-    # ... FilledSquare(color, color) ...
-
-    Closer(Column(
-        Highlightable( Rect(2, 3, pink),
-                       # this form of highlight (same shape and depth) works from either front or back view
-                       Rect(2, 3, orange), # comment this out to have no highlight color, but still sbar_text
-                       # example of complex highlighting:
-                       #   Row(Rect(1,3,blue),Rect(1,3,green)),
-                       # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
-                       #   Row(Rect(1,3,blue),Rect(2,3,green)),
-                       sbar_text = "big pink rect"
-                       ),
-        #Highlightable( Rect(2, 3, pink), Closer(Rect(2, 3, orange), 0.1) ) # only works from front
-            # (presumably since glpane moves it less than 0.1; if I use 0.001 it still works from either side)
-        Highlightable( # rename? this is any highlightable/mouseoverable, cmenu/click/drag-sensitive object, maybe pickable
-            Rect(1, 1, pink), # plain form, also determines size for layouts
-            Rect(1, 1, orange), # highlighted form (can depend on active dragobj/tool if any, too) #e sbar_text?
-            # [now generalize to be more like Button, but consider it a primitive, as said above]
-            # handling_a_drag form:
-            If( True, ## won't work yet: lambda env: env.this.mouseoverme , ####@@@@ this means the Highlightable -- is that well-defined???
-                Rect(1, 1, blue),
-                Rect(1, 1, lightblue) # what to draw during the drag
-            ),
-            sbar_text = "little buttonlike rect"
-        )
-    ))
-
-# see also:
-## ToggleShow-outtakes.py: 48:         on_press = ToggleAction(stateref)
 
 # end

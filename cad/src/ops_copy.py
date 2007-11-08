@@ -234,6 +234,8 @@ class ops_copy_Mixin:
             env.history.message(text)
         else:
             whynot = copier.whynot()
+            cmd = 'Copy: ' # WRONG, but before this, it was undefined, according to pylint;
+              # I guess it should be passed in from caller? needs REVIEW. [bruce 071107]
             env.history.message(cmd + redmsg(whynot))
             return
         # 3. do it
@@ -521,7 +523,7 @@ class ops_copy_Mixin:
         @see: L{self.paste} for implementation notes.
         """
         
-        assert isinstance(groupToPaste, Jig)
+        assert isinstance(jigToPaste, Jig)
         
         pastable = jigToPaste
         pos = mousePosition     
@@ -539,7 +541,7 @@ class ops_copy_Mixin:
             moveOffset += 0.2 * self.assy.o.down         
             
         newJig.move(moveOffset) 
-        assy.addnode(newJig)
+        assy.addnode(newJig) ### BUG: Undefined variable 'assy'
         
         return newJig, errorMsg
 

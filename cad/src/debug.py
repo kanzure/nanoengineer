@@ -25,9 +25,13 @@ History:
 
 Created by Bruce. Added to by various developers, especially Will.
 
+Bruce 071107 split out two modules by Will:
+- objectBrowse.py 
+- scratch/api_enforcement.py 
+
 """
 
-import sys, os, time, types, traceback
+import sys, os, time, traceback
 from constants import noop
 import env
 import platform

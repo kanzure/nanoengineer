@@ -46,9 +46,9 @@ class CommandRegistry: #e rename?
         self.class_for_name[name] = val # stub [btw should we be a UserDict? that depends -- are we dictlike in any sensible way?]
         pass #stub
     def command_for_toolname(self, toolname): #e rename to say "main"?
-        nim # not possible, for subtools... might work for main tools. not sure!
+        assert 0 # nim # not possible, for subtools... might work for main tools. not sure!
     def subtools_for_command(self, command): #e rename command -> main_command? (in method, not arg)
-        nim
+        assert 0 # nim
         # for subtools, the alg needs to be, figure out the set you want, get their nicknames, disambiguate or discard dups...
         # return a name list and name->cmd mapping, but the mapping is not determined just from self
         # even given the set of cmds in it or set of names in it, so no method can do what this one says (except for fullnames).

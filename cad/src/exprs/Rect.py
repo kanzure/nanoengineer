@@ -32,14 +32,21 @@ from exprs.draw_utils import draw_filled_triangle
 from exprs.draw_utils import draw_filled_rect_frame
 from exprs.__Symbols__ import _self
 
+from exprs.py_utils import printnim, printfyi
+
+# ==
 
 class Rect(Widget2D): # finally working as of 061106
-    """Rect(width, height, color) renders as a filled x/y-aligned rectangle
+    """
+    Rect(width, height, color) renders as a filled x/y-aligned rectangle
     of the given dimensions and color, with the origin on bottomleft,
     and a layout box equal to its size (no margin).
-       If color is not given, it will be gray [#e should be a default attrval from env].
-       If height is not given, it will be a square (even if width is a formula and/or random).
-       See also: RectFrame, ...
+
+    If color is not given, it will be gray [#e should be a default attrval from env].
+
+    If height is not given, it will be a square (even if width is a formula and/or random).
+
+    See also: RectFrame, ...
     """
     # args
     width = Arg(Width, 5) # changed 10 to 5 late on 061109
@@ -75,7 +82,8 @@ class Rect(Widget2D): # finally working as of 061106
 
 class Sphere(Widget2D): # the superclass is to give it a 2D lbox. We'll need to think about whether it needs renaming.
         # or maybe this super will be Widget3D and that will inherit Widget2D?? hmm...
-    """Sphere(radius, color, center) represents a spherical surface
+    """
+    Sphere(radius, color, center) represents a spherical surface
     of the given radius (default 1), color (default gray), and center (default the local origin) [partly nim if not #e].
     [There is also an undocumented option, detailLevel.]
     """
@@ -114,7 +122,10 @@ class Spacer_pre061205_obs(Rect): #061126
 
 class Spacer(Widget2D): # rewritten 061205 to not inherit from Rect, so arg defaults can change --
         ###e it would be better if that was not the only safe way [tho I didn't even bother trying the simpler way, I admit]
-    "Accept same args as Rect, but draw as nothing. Equivalent to SpacerFor(Rect( same args))."
+    """
+    Accept same args as Rect, but draw as nothing.
+    Equivalent to SpacerFor(Rect( same args)).
+    """
     width = Arg(Width, 0)
         # Note: Widget2D defines width & height, making this seem circular, but it's ok (see comment in RectFrame)
     height = Arg(Width, width)
@@ -127,7 +138,8 @@ class Spacer(Widget2D): # rewritten 061205 to not inherit from Rect, so arg defa
     pass
 
 class SpacerFor(InstanceOrExpr, DelegatingMixin):
-    """A spacer, the same size and position (ie same lbox) as its arg. ###e Should merge this with Spacer(dims),
+    """
+    A spacer, the same size and position (ie same lbox) as its arg. ###e Should merge this with Spacer(dims),
     easier if dims can be a rect object which is also like a thing you could draw... maybe that's the same as a Rect object? #k
     See also Invisible, which unlike this will pick up mouseovers for highlighting. [##e And which is nim, in a cannib file.]
     """
@@ -139,7 +151,8 @@ class SpacerFor(InstanceOrExpr, DelegatingMixin):
 # ==
 
 class IsocelesTriangle(Rect):
-    """IsocelesTriangle(width, height, color) renders as a filled upright isoceles triangle
+    """
+    IsocelesTriangle(width, height, color) renders as a filled upright isoceles triangle
     (symmetric around a vertical line, apex centered on top), with local origin on bottomleft vertex.
     """
     def draw(self):
@@ -151,7 +164,8 @@ class IsocelesTriangle(Rect):
 # ==
 
 class RectFrame(Widget2D):
-    """RectFrame(width, height, thickness, color) is an empty rect (of the given outer dims)
+    """
+    RectFrame(width, height, thickness, color) is an empty rect (of the given outer dims)
     with a filled border of the given thickness (like a picture frame with nothing inside).
     """
     # args
@@ -194,7 +208,9 @@ class Line(InstanceOrExpr): #070211; revised 070419 (Widget2D -> IorE, more opti
 
 class PartialDisk(Widget2D): # stub (no settable parameters), works (testexpr_38), 070401
     def _C_quadric(self):
-        "set up self.quadric"
+        """
+        set up self.quadric
+        """
         # see PyOpenGL Demo/NeHe/lesson18.py
         quadric = gluNewQuadric() #e it may be that this object could be shared by all instances, or even more globally -- not sure
         gluQuadricNormals(quadric, GLU_SMOOTH) # Create Smooth Normals

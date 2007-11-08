@@ -24,7 +24,8 @@ from OpenGL.GL import GL_QUAD_STRIP
 
 from OpenGL.GLU import gluUnProject
 
-from VQT import norm
+from VQT import norm, A
+from Numeric import dot
 
 # ==
 
@@ -49,7 +50,8 @@ def mymousepoints(glpane, x, y): #bruce 071017 moved this here from testdraw.py
 # == new LL drawing helpers
 
 def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):
-    """Fill a spatial rect defined by the 3d points (origin, dx, dy)
+    """
+    Fill a spatial rect defined by the 3d points (origin, dx, dy)
     with the 2d-texture subrect defined by the 2d points (tex_origin, tex_dx, tex_dy)
     in the currently bound texture object.
     """
@@ -67,9 +69,11 @@ def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):
     glDisable(GL_TEXTURE_2D)
 
 def draw_textured_rect_subtriangle(origin, dx, dy, tex_origin, tex_dx, tex_dy, points): #070404 modified from draw_textured_rect
-    """Like draw_textured_rect, but draw only the sub-triangle of the same rect (textured in the same way),
+    """
+    Like draw_textured_rect, but draw only the sub-triangle of the same rect (textured in the same way),
     where the subtriangle has relative 2d vertices as specified inside that rect (treating its own coords as each in [0.0, 1.0]).
-       WARNING: depending on the glEnables set up by the caller, the sub-triangle coords might need to be
+
+    WARNING: depending on the glEnables set up by the caller, the sub-triangle coords might need to be
     in CCW winding order for the triangle to be visible from the front.
     """
     #e could easily generalize API to polygon, and this implem to convex polygon, if desired
@@ -130,7 +134,9 @@ def draw_filled_triangle(origin, dx, dy, color):
     glEnable(GL_LIGHTING)
 
 def draw_filled_rect_frame(origin, dx, dy, thickness, color):
-    "draw something that looks like a picture frame of a single filled color."
+    """
+    draw something that looks like a picture frame of a single filled color.
+    """
     tx = thickness * norm(dx)
     ty = thickness * norm(dy)
     ## glColor3fv(color) ### this has an exception (wants 3 elts, gets 4) in Mac A9.1-rc1

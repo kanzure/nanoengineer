@@ -1,6 +1,6 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-demo_MT.py
+demo_MT.py - demo of "model tree in GLPane" (primitive, but works)
 
 @author: bruce
 @version: $Id$
@@ -117,33 +117,27 @@ nfrs:
 
 # == imports
 
+from constants import blue, green, ave_colors, white
+
+from debug import print_compact_traceback
+from debug import safe_repr
+
 from exprs.Highlightable import Highlightable
-
 from exprs.TextRect import TextRect
-
 from exprs.Column import SimpleRow, SimpleColumn
-
 from exprs.Overlay import Overlay
-
 from exprs.Set import Set
-
 from exprs.Rect import Rect, Spacer
-
 from exprs.images import Image
-
 from exprs.Center import CenterY, Center
-
 from exprs.transforms import Translate
-
 from exprs.projection import DrawInCenter #e but what we need is not those, but DrawInAbsCoords or DrawInThingsCoords
     # or really, just get the place (or places) a thing will draw in, in local coords (see projection.py for more discussion)
 
 from exprs.DisplistChunk import DisplistChunk
-
-from constants import blue, green, ave_colors, white
-
 from exprs.Exprs import call_Expr, list_Expr, getattr_Expr, not_Expr, format_Expr
 from exprs.Exprs import is_expr_Instance
+from exprs.Exprs import is_Expr
 from exprs.If_expr import If
 from exprs.widget2d import Stub
 from exprs.iterator_exprs import MapListToExpr
@@ -272,7 +266,10 @@ def node_kids(node): # revised 070207
     return () # give up and assume it has no kids
 
 def node_openable(node): # revised 070207
-    "return the openable property of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
+    """
+    return the openable property of the node, regardless of which
+    model tree node interface it's trying to use [slight kluge]
+    """
     try:
         node.mt_openable # look for (value computed by) ModelTreeNodeInterface method
     except AttributeError:
@@ -291,7 +288,10 @@ def node_openable(node): # revised 070207
         ##e (consider varying this if node defines mt_kids or kids, even if they are empty)
 
 def node_name(node): # revised 070207
-    "return the name property of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
+    """
+    return the name property of the node, regardless of which
+    model tree node interface it's trying to use [slight kluge]
+    """
     try:
         node.mt_name # look for (value computed by) ModelTreeNodeInterface method
     except AttributeError:
@@ -309,7 +309,7 @@ def node_name(node): # revised 070207
     try:
         return "%s" % node
     except:
-        last_resort = safe_repr(node, maxlen = 20)
+        last_resort = safe_repr(node, maxlen = 20) ### FIX: Undefined variable safe_repr, print_compact_traceback
         print_compact_traceback("node_name fails when trying %%s on node %s: " % last_resort )
         return last_resort
     pass
@@ -317,7 +317,10 @@ def node_name(node): # revised 070207
 print_mt_node_id = False # set True for debugging (or remove in a few days [070218])
 
 def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a function in Utility.py (which we import and use here, btw)
-    "return the mt_node_id property of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
+    """
+    return the mt_node_id property of the node, regardless of which
+    model tree node interface it's trying to use [slight kluge]
+    """
     # look for value of ModelTreeNodeInterface attr
     try:
         node.mt_node_id
@@ -482,6 +485,7 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
 
     if 0:
         # cross-highlighting experiment, 070210, but disabled since approach seems wrong (as explained in comment)
+        yellow = DZ = 'need to import these'
         indicator_over_obj_center = Center(Rect(0.4, 0.4, yellow))
         position_over_obj_center = node.center + DZ * 3 ###BUG: DZ does not point towards screen if trackballing was done
             ###STUB:
@@ -557,7 +561,8 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
 
 # note: this predates MT_try2, but it's not moved into demo_MT_try1_obs.py since it might still be used someday. [070210]
 
-Node = Stub # [later note 061215: this is probably the same as Utility.Node; it's NOT the same as that's new subclass, ModelNode.]
+Node = Stub # [later note 061215: this is probably the same as Utility.Node;
+  # it's NOT the same as that's new subclass, ModelNode in ModelNode.py.]
 
 class test_drag_pixmap(InstanceMacro):
     mt = Arg(Anything) # pass _my.env.glpane.assy.w.mt

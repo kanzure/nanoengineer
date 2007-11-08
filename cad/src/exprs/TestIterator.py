@@ -4,16 +4,13 @@ TestIterator.py
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 
 # not reviewed recently, was part of NewInval
 # as of 061106 the setup looks obs, but it might as well be revived and tested before Column is worked on much
 # revived 061113, see below
-
-# just a guess for this symbol, but it isn't defined there:
-#from OpenGL.GL import glTranslate3fv
 
 from exprs.Overlay import Overlay
 
@@ -30,11 +27,21 @@ from exprs.instance_helpers import InstanceMacro
 from exprs.attr_decl_macros import Arg, ArgExpr, Instance
 from exprs.ExprsConstants import PIXELS
 
+# just a guess for this symbol...
+## from OpenGL.GL import glTranslatefv # I think this used to work but doesn't now, so instead:
+from OpenGL.GL import glTranslatef
+def glTranslatefv(vec):
+    x, y, z = vec
+    glTranslatef(x, y, z)
+    return
+
 # == obs:
 
 HelperClass = Widget2D
 class TestIterator_old_nevertried(HelperClass):
-    "simple iterator which makes two instances of the same WE arg"
+    """
+    simple iterator which makes two instances of the same WE arg
+    """
     def _make(self, place):
         arg = self._e_args[0] # 061106 args -> _e_args (guess)
         self._define_kid(1, arg) # lexenvfunc can be default (identity), I think
@@ -48,7 +55,7 @@ class TestIterator_old_nevertried(HelperClass):
         if kid1 is None: kid1 = 1
         if kid2 is None: kid2 = 1
         assert kid1 in (1,2) and kid2 in (1,2)
-        glTranslate3fv(V((kid2 - kid1) * 2.0, 0, 0)) #####@@@@@
+        glTranslatefv(V((kid2 - kid1) * 2.0, 0, 0))
         return
     def draw(self):
         self._move(None, 1)
@@ -74,7 +81,9 @@ class TestIterator_old_nevertried(HelperClass):
 Maker = Stub # won't work, since Arg instantiates (unless several bugs conspire to make it work wrongly, eg with 1 shared instance)
 
 class TestIterator_alsoobsnow_nevertried(InstanceMacro):
-    "simple iterator which makes two instances of the same arg"
+    """
+    simple iterator which makes two instances of the same arg
+    """
     #e for debug, we should make args to pass to this which show their ipaths as text!
     thing = Arg(Maker(Widget)) # Maker? ExprFor? ProducerOf? Producer? Expr?
     w1 = Instance(thing)
@@ -97,7 +106,9 @@ class TestIterator_alsoobsnow_nevertried(InstanceMacro):
 # ==
 
 class TestIterator(InstanceMacro):
-    "simple iterator which makes two distinct instances of the same arg"
+    """
+    simple iterator which makes two distinct instances of the same arg
+    """
     #e for debug, we should make args to pass to this which show their ipaths as text!
     thing = ArgExpr(Widget)
     w1 = Instance(thing)
@@ -106,17 +117,22 @@ class TestIterator(InstanceMacro):
     pass 
 
 class TestIterator_wrong_to_compare(InstanceMacro):
-    "variant of that which shows one Instance twice"
+    """
+    variant of that which shows one Instance twice
+    """
     thing = Arg(Widget) # the only difference
     w1 = Instance(thing) # these Instances will be idempotent
     w2 = Instance(thing)
     _value = SimpleColumn( w1, w2) # show one instance twice
-    pass 
+    pass
 
-
+# ==
 
 #k not reviewed:
-if 0: # Rect etc not imported yet
+if 0:
+    Rect = black = If = red = ToggleShow = 'needs import'
+    _enclosing_If = 'needs implem' # see comment below
+    
     goal1 = TestIterator(Rect(1,1,black))
 
     goal2 = TestIterator(If(_enclosing_If.index[0] == 1, Rect(1,1,black), Rect(1,1,red))) #####@@@@@ _enclosing_If IMPLEM, part of lexenv

@@ -715,6 +715,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
      )
     return expr
 
+object_id = 'needs import or implem' ##### TODO
 
 class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_FixedToolOnArg1; need to unify them as a ui-provider framework
     # args
@@ -873,7 +874,7 @@ class OrigamiGrid(OrigamiDomain):
         Q: should we force adding them in pairs, so this op doesn't need to change which kind of cyl (a or b in pairing scheme)
         an existing cyl is? yes.
         """
-        nim
+        assert 0 # nim
     def make_and_add_cyl_pair(self, cyl_options = {}, cyl_class = DNA_Cylinder): #e rename cyl_class -> cyl_expr??
         """Make and add to self a new cyl pair (based on the given class or expr, and customization options),
         at the end of self (or at a specified position within self #e),
@@ -900,7 +901,7 @@ class OrigamiGrid(OrigamiDomain):
             # note: cyl1 starts out as a child node of self in MT, a child object for delete, etc,
             # but it *can* be moved out of self and still exist in the model. Thus it really lives in the world
             # (or model -- #e rename method? worry about which config or part?) more fundamentally than in self.
-        cyl2 = ditto
+        cyl2 = 'ditto...'
         
         pair = (cyl1, cyl2) #e does it need its own cyl-pair object wrapper, being a conceptual unit of some sort? guess: yes, someday
         self.add_cyl_pair(self, pair)
