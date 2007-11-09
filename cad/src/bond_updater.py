@@ -19,6 +19,10 @@ and to notice graphite.
 History:
 
 bruce 050627 started this as part of supporting higher-order bonds.
+
+bruce 071108 split out the general orchestration and registration
+part of this into master_model_updater.py, leaving only the bond-
+type- and atom-type- updating code in this file.
 """
 
 from debug import print_compact_traceback
@@ -30,28 +34,9 @@ from bond_constants import V_GRAPHITE
 from bond_constants import V_TRIPLE
 from bond_constants import V_CARBOMERIC
 
-import env
-
 # ==
 
-# global changedicts, public for additions by external modules
-# TODO: maybe make their global and localvar names differ
-
-# dict for atoms or singlets whose element, atomtype, or set of bonds (or neighbors) gets changed [bruce 050627]
-#e (doesn't yet include all killed atoms or singlets, but maybe it ought to) [that comment might be obs!]
-# (changing an atom's bond type does *not* itself update this dict -- see changed_bond_types for that)
-
-changed_structure_atoms = {} # maps atom.key to atom, for atoms or singlets
-    # WARNING: there is also a related but different global dict in chem.py,
-    # whose spelling differs only in 'A' vs 'a' in Atoms, and initial '_'.
-    # See the comment there for more info. [bruce 060322]
-
-changed_bond_types = {} # dict for bonds whose bond-type gets changed
-    # (need not include newly created bonds) ###k might not be used
-
-# ==
-
-def _update_bonds_after_each_event( changed_structure_atoms):
+def update_bonds_after_each_event( changed_structure_atoms):
     """
     [should be called only from env.do_post_event_updates]
        This should be called at the end of every user event which might affect
@@ -143,7 +128,7 @@ def _update_bonds_after_each_event( changed_structure_atoms):
     for bond in bonds_to_fix.itervalues():
         # every one of these bonds is wrong, in a direct local way (ie due to its atoms)!
         # figure out what to change it to, and [someday] initiate our scan of changes from each end of each bond.
-        new_v6 = best_corrected_v6(bond) ####@@@@ IMPLEM the rest of that... actually this'll all be revised
+        new_v6 = _best_corrected_v6(bond) ####@@@@ IMPLEM the rest of that... actually this'll all be revised
         bond.set_v6(new_v6) #####@@@@@ ensure this calls _changed_structure on both atoms -- WRONG, needs to call something different,
             # saying it changes bond orders but not bonds themselves (so e.g. sp chains update geom but don't get destroyed).
             # [As of 050725 I think it doesn't do either of those.]
@@ -151,12 +136,13 @@ def _update_bonds_after_each_event( changed_structure_atoms):
             # (and furthermore, we might depend on the fact that it does, for doing valence checks on them!)
             #060306 update: as of long before now, it stores these bonds in changed_bond_types.
 
-    return # from _update_bonds_after_each_event
+    return # from update_bonds_after_each_event
 
-most_permissible_v6_first = ( V_SINGLE, V_DOUBLE, V_AROMATIC, V_GRAPHITE, V_TRIPLE, V_CARBOMERIC ) # not quite true for graphite?
-    ####@@@@ review this -- all uses should be considered suspicious [050714 comment]
+##most_permissible_v6_first = ( V_SINGLE, V_DOUBLE, V_AROMATIC, V_GRAPHITE, V_TRIPLE, V_CARBOMERIC ) # not quite true for graphite?
+##    ####@@@@ review this -- all uses should be considered suspicious [050714 comment]
+##    # [this seems to be no longer used as of 071108...]
 
-def best_corrected_v6(bond):
+def _best_corrected_v6(bond):
     """
     This bond has an illegal v6 according to its bonded atomtypes
     (and I guess the atomtypes are what has just changed?? ###k -- [update 060629:] NOT ALWAYS --
@@ -171,12 +157,12 @@ def best_corrected_v6(bond):
     # no, it depends on prior bond (presumably one the user likes, or at least consented to),
     # [note 060629 -- in bug 1951 the prior bond is carbomeric, but the user never wanted it, they just wanted to increase aromatic
     #  by 1, which numerically gets to carbomeric, but in that bug's example it's not a legal type and they really want double.
-    #  So I will change the weird ordering of corrected_v6_list[V_CARBOMERIC] to a decreasing one, to fix that bug.]
+    #  So I will change the weird ordering of _corrected_v6_list[V_CARBOMERIC] to a decreasing one, to fix that bug.]
     # but clearly we move to the left in that list. Like this: c -> a, 3 -> max in list? or 2? or depends on other bonds/valences?
     pass # stub... might return a list of legal btypes in order of preference, for inference code (see paper notes)
     v6 = bond.v6
     try:
-        lis = corrected_v6_list[v6]
+        lis = _corrected_v6_list[v6]
     except KeyError:
         # this happens for illegal v6 values
         return V_SINGLE
@@ -189,7 +175,7 @@ def best_corrected_v6(bond):
     return V_SINGLE
 
 # map a now-illegal v6 to the list of replacements to try (legal ones only, of course; in the order of preference given by the list)
-corrected_v6_list = {
+_corrected_v6_list = {
     V_DOUBLE: (V_SINGLE,),
     V_TRIPLE: (V_DOUBLE, V_SINGLE),
     V_AROMATIC: (V_SINGLE,),
@@ -204,7 +190,7 @@ corrected_v6_list = {
 
 # ==
 
-def _process_changed_bond_types( changed_bond_types):
+def process_changed_bond_types( changed_bond_types):
     """
     Tell whoever needs to know that some bond types changed.
     For now, that means only bond.pi_bond_obj objects on those very bonds.
@@ -213,87 +199,6 @@ def _process_changed_bond_types( changed_bond_types):
         obj = bond.pi_bond_obj
         if obj is not None:
             obj.changed_bond_type(bond)
-    return
-
-# the beginnings of a general change-handling scheme [bruce 050627]
-
-def _bond_updater_post_event_model_updater( warn_if_needed = False ):
-    """
-    This should be called at the end of every user event which might have changed
-    anything in any loaded model which defers some updates to this function.
-
-    This can also be called at the beginning of user events, such as redraws or saves,
-    which want to protect themselves from event-processors which should have called this
-    at the end, but forgot to. Those callers should pass warn_if_needed = True, to cause
-    a debug-only warning to be emitted if the call was necessary. (This function is designed
-    to be very fast when called more times than necessary.)
-    """
-    #bruce 060127: Note: as of long before now, nothing actually calls this with warn_if_needed = True;
-    # the only calls are from GLPane.paintGL and assembly.update_parts.
-    # FYI: As of 060127 I'll be calling update_parts (which always calls this method)
-    # before every undo checkpoint (begin and end both), so that all resulting changes
-    # from both of them (and the effect of calling assy.changed, now often done by this method as of yesterday)
-    # get into the same undo diff.) [similar comment is in update_parts]
-    #
-    #obs? ####@@@@ call this from lots of places, not just update_parts like now; #doc is obs
-    #
-    #bruce 051011: some older experimental undo code I probably won't use:
-##    for class1, classmethodname in _change_recording_classes:
-##        try:
-##            method = getattr(class1, classmethodname)
-##            method() # this can update the global dicts here...
-##                #e how that works will be revised later... e.g. we might pass an object to revise
-##        except:
-##            print "can't yet handle an exception in %r.%r, just reraising it" % (class1, classmethodname)
-##            raise
-##        pass
-    if not (changed_structure_atoms or changed_bond_types):
-        #e this will be generalized to: if no changes of any kind, since the last call
-        return
-    # some changes occurred, so this function needed to be called (even if they turn out to be trivial)
-    if warn_if_needed and env.debug():
-        # whichever user event handler made these changes forgot to call this function when it was done!
-        print "atom_debug: do_post_event_updates should have been called before, but wasn't!" #e use print_compact_stack??
-        pass # (other than printing this, we handle unreported changes normally)
-    # handle and clear all changes since the last call
-    # (in the proper order, when there might be more than one kind of change #nim)
-
-    # NOTE: reloading won't work the way this code is currently
-    # structured.  If reloading is needed, this routine needs to be
-    # unregistered prior to the reload, and reregistered afterwards.
-    # Also, note that the module would be reloading itself, so be
-    # careful.
-    #if changed_structure_atoms or changed_bond_types:
-        #if 0 and platform.atom_debug: #bruce 060315 disabled this automatic reload (not needed at the moment)
-            # during development, reload this module every time it's used
-            # (Huaicai says this should not be done by default in the released version,
-            #  due to potential problems if reloading from a zip file. He commented it
-            #  out completely (7/14/05), and I then replaced it with this debug-only reload.
-            #  [bruce 050715])
-            #import bond_updater
-            #reload(bond_updater)
-
-    if changed_structure_atoms:
-        _update_bonds_after_each_event( changed_structure_atoms)
-            #bruce 060315 revised following comments:
-            # this can modify changed_bond_types (from bond-inference in the future, or from correcting illegal bond types now).
-            #e not sure if that routine will need to use or change other similar globals in this module;
-            # if it does, passing just that one might be a bit silly (so we could pass none, or all affected ones)
-        changed_structure_atoms.clear()
-    if changed_bond_types: # warning: this can be modified by above loop which processes changed_structure_atoms...
-        _process_changed_bond_types( changed_bond_types)
-            ###k our interface to that function needs review if it can recursively add bonds to this dict -- if so, it should .clear
-        changed_bond_types.clear()
-    return # from _bond_updater_post_event_model_updater
-
-# ==
-
-def initialize():
-    """
-    Register one or more related post_event_model_updaters
-    (in the order in which they should run).
-    """
-    env.register_post_event_model_updater( _bond_updater_post_event_model_updater)
     return
 
 # end

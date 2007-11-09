@@ -67,7 +67,7 @@ from elements import PeriodicTable
 
 from bonds import bonds_mmprecord, bond_copied_atoms, bond_atoms
 
-import bond_updater
+import global_model_changedicts
 
 # chunk and chem form a two element import cycle.
 import chunk
@@ -761,8 +761,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             print_compact_stack( "bug: reguess_atomtype of killed atom %s (returning default): " % self)
             return self.element.atomtypes[0]
         if len(self.bonds) == 0:## and platform.atom_debug:
-            # [bruce 071018 check this always, to see if skipping killed atoms in bond_updater has fixed this bug for good]
-            # (I think the following cond (using self.element rather than elt) is correct even when elt is passed -- bruce 050707)
+            # [bruce 071018 check this always, to see if skipping killed atoms
+            #  in update_bonds_after_each_event has fixed this bug for good]
+            # (I think the following cond (using self.element rather than elt)
+            # is correct even when elt is passed -- bruce 050707)
             if self.element.atomtypes[0].numbonds != 0: # not a bug for noble gases!
                 if 1: ## or env.once_per_event("reguess_atomtype warning"): #bruce 060720, only warn once per user event
                     print_compact_stack(
@@ -772,7 +774,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return self.best_atomtype_for_numbonds(elt = elt)
 
     def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype; perhaps use more widely
-        "#doc; atomtype is None means use default atomtype"
+        """
+        #doc;
+        atomtype is None means use default atomtype
+        """
         atomtype = self.element.find_atomtype( atomtype) # handles all forms of the request; exception if none matches
         assert atomtype.element is self.element # [redundant with find_atomtype]
         self.atomtype = atomtype
@@ -2953,7 +2958,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ####@@@@ I suspect it is better to also call this for all killed atoms or bondpoints, but didn't do this yet. [bruce 050725]
         ## before 051011 this used id(self) for key
         #e could probably optim by importing this dict at toplevel, or perhaps even assigning a lambda in place of this method
-        bond_updater.changed_structure_atoms[ self.key ] = self
+        global_model_changedicts.changed_structure_atoms[ self.key ] = self
         _changed_structure_Atoms[ self.key ] = self #bruce 060322
             # (see comment at _changed_structure_Atoms about how these two dicts are related)
         return

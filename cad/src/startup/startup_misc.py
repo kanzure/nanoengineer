@@ -36,8 +36,8 @@ def call_module_init_functions(): #bruce 071005 split this out of main_startup.s
     #  which calls the bond updater presently registered by bond_updater.initialize.)
     # [bruce 070925 comment]
     
-    import bond_updater
-    bond_updater.initialize()
+    import master_model_updater
+    master_model_updater.initialize()
     
     import assembly
     assembly.assembly.initialize()

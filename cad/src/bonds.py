@@ -53,7 +53,7 @@ from bond_constants import bond_type_names
 
 from bond_chains import grow_directional_bond_chain
 
-import bond_updater
+import global_model_changedicts
 import env
 
 from state_utils import StateMixin #bruce 060223
@@ -515,9 +515,9 @@ _changed_Bonds = {} # tracks all changes to Bonds: existence/liveness (maybe not
     # that should count as a change in this dict (and perhaps it should also change its atom attrs).
     #
     #bruce 060322 for Undo change-tracking; the related global dict
-    # bond_updater.changed_bond_types should perhaps become a subscriber
+    # global_model_changedicts.changed_bond_types should perhaps become a subscriber
     # (though as of 071107 there are several things that get into _changed_Bonds
-    # but not into bond_updater.changed_bond_types -- should REVIEW the correctness of that)
+    # but not into global_model_changedicts.changed_bond_types -- should REVIEW the correctness of that)
 
     ##e see comments about similar dicts in chem.py for how this will end up being used
 
@@ -745,7 +745,7 @@ class Bond(BondBase, StateMixin):
         # (i.e. their atoms' chunks). That should be fixed (or better yet, this whole scheme scrapped and replaced
         #  with per-attr change/usage tracking, like in the exprs module), but for now, just handle it directly
         # on the set of atoms we need to change. [BTW, this is inefficient compared to extending something
-        # like bond_updater to do this in a batch manner from a global dictionary of changed bonds. That's ok for now. #e]
+        # like bond_updater.py to do this in a batch manner from a global dictionary of changed bonds. That's ok for now. #e]
         dict1 = {}
         def collect(atom):
             mol = atom.molecule #bruce 071016 optim - only collect the mols
@@ -1132,7 +1132,7 @@ class Bond(BondBase, StateMixin):
             # presence of valence error actually changes, for each atom. (But it often does, so nevermind for now.)
             self.atom1.molecule.changeapp(0)
             self.atom2.molecule.changeapp(0)
-        bond_updater.changed_bond_types[id(self)] = self
+        global_model_changedicts.changed_bond_types[id(self)] = self
         _changed_Bonds[id(self)] = self #bruce 060322 (covers changes to self.v6)
         return
 
@@ -1781,7 +1781,7 @@ def bond_at_singlets(s1, s2, **opts):
     of the error, saying it's a bug. 
     """
     ### REVIEW what we are allowed to do and will do, and what docstring should say: 
-    # - Can we remove those singlets we're passed? [either here, or in subsequent bond_updater actions]
+    # - Can we remove those singlets we're passed? [either here, or in subsequent bond_updater.py actions]
     # - Can we alter (e.g. replace) any other singlets on their atoms?
     #   I think we used to not do this in most cases, and extrude & fusechunks depended on that. ###
     #   Now, with debug pref to not use OLD code below, it looks like we or an immediate subsequent update
@@ -2009,7 +2009,7 @@ class bonder_at_singlets:
             # later when the current state (including positions of old singlets) is gone.
         a2.update_valence()
         return (0, "increased bond order between atoms %r and %r" % (a1,a2)) #e say existing and new order?
-            # Note, bruce 060629: the new bond order would be hard to say, since later code in bond_updater is likely
+            # Note, bruce 060629: the new bond order would be hard to say, since later code in bond_updater.py is likely
             # to decrease the value, but in a way it might be hard to predict at this point (it depends on what happens
             # to the atomtypes which that code will also fix, and that depends on the other bonds we modify here;
             # in theory we have enough info here, but the code is not well structured for this -- unless we save up this
