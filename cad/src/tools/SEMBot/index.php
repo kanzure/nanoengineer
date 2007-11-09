@@ -13,14 +13,14 @@ page_head("");
       <th bgcolor="#70b0f0" class="navbar-select"
           >&nbsp;&nbsp;&nbsp;Home&nbsp;&nbsp;&nbsp;</th>
 
-      <th nowrap>&nbsp;&nbsp;&nbsp;<a
-        href="NE1_Documentation">NE1 API Docs</a>&nbsp;&nbsp;&nbsp;</th>
-
       <th>&nbsp;&nbsp;&nbsp;<a
         href="#qa">QA</a>&nbsp;&nbsp;&nbsp;</th>
 
-      <th>&nbsp;&nbsp;&nbsp;<a
-        href="#">Builds</a>&nbsp;&nbsp;&nbsp;</th>
+      <th nowrap>&nbsp;&nbsp;&nbsp;<a
+        href="NE1_Documentation">NE1 API Docs</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th nowrap>&nbsp;&nbsp;&nbsp;<a
+        href="#builds">Nightly Builds</a>&nbsp;&nbsp;&nbsp;</th>
 
       <th class="navbar" align="right" width="100%">
         <table border="0" cellpadding="0" cellspacing="0">
@@ -38,7 +38,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
 
 <!-- SEMBot -->
 <table class="summary" border="1" cellpadding="3"
-       cellspacing="0" width="500" bgcolor="white">
+       cellspacing="0" width="600" bgcolor="white">
   <tr bgcolor="#70b0f0" class="table-header">
     <td colspan="2" class="table-header">
     <span class="table-header">SEMBot</span></td>
@@ -85,7 +85,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
 <!-- QA Test Harness -->
 <a name="qa"></a>
 <table class="summary" border="1" cellpadding="3"
-       cellspacing="0" width="500" bgcolor="white">
+       cellspacing="0" width="600" bgcolor="white">
   <tr bgcolor="#70b0f0" class="table-header">
     <td colspan="2" class="table-header">
     <span class="table-header">QA Test Harness</span></td>
@@ -94,7 +94,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Summary</span></td>
-    <td class="summary">This mechanism runs the following Quality Assurance tools: <a href="http://www.logilab.org/project/eid/857">Pylint</a>. Coming soon: Pychecker, Pyunit, and more.</td>
+    <td class="summary">This mechanism runs the following Quality Assurance tools: <a href="http://www.logilab.org/project/eid/857">Pylint</a> and a custom dependency cycles discovery tool. Coming soon: Pychecker, Pyunit, and more.</td>
   </tr>
 
   <tr>
@@ -115,7 +115,15 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
         <tr>
           <td align="right">Pylint: </td>
           <td><span class="summary-name"><?php include 'Pylint.result'; ?>&nbsp;out of 10.0</span></td>
-          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a> (Filtered: <a href="W0611.txt">W0611</a>* <a href="E0602.txt">E0602</a>* )</td></tr>
+          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a> (Filtered: <a href="W0611.txt">W0611</a>*  <a href="E0602.txt">E0602</a>*)</td></tr>
+        <tr>
+          <td valign="top" align="right">Dependency cycles: </td>
+          <td valign="top"><span class="summary-name">Modules (arcs): <?php include 'depend.dot.lines'; ?>&nbsp;</span></td>
+          <td><a href="depend.dot">depend.dot</a></td></tr>
+        <tr>
+          <td></td>
+          <td valign="top"><span class="summary-name">Packages (arcs): <?php include 'dependpack.dot.lines'; ?>&nbsp;</span></td>
+          <td><a href="dependpack.dot">dependpack.dot</a></td></tr>
       </table></td>
   </tr>
 
@@ -123,19 +131,20 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Logs</span></td>
     <td class="summary">
-      <span class="summary-name"><!--<a href="QA_TestHarness.log">QA_TestHarness.log</a><br>--><a href="Pylint.log">Pylint.log</a></span></td>
+      <span class="summary-name"><!--<a href="QA_TestHarness.log">QA_TestHarness.log</a><br>--><a href="Pylint.log">Pylint.log</a> <a href="DependencyCycles.log">DependencyCycles.log</a></span></td>
   </tr>
 
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Notes</span></td>
     <td class="summary">
-      Each convention, refactor, warning, and error message code is following by a brief description, but if that is insufficient, you can get a slightly more informative description for it here: <a href="http://www.logilab.org/card/wikiid/pylintfeatures">Pylint man page</a>
+      <b>Pylint:</b> Each convention, refactor, warning, and error message code is following by a brief description, but if that is insufficient, you can get a slightly more informative description for it here: <a href="http://www.logilab.org/card/wikiid/pylintfeatures">Pylint man page</a>
+      <p>
+      <b>Dependency cycles:</b> Fewer arcs is better. Zero is ideal, but not always possible with respect to code clarity and convenience.
       <p>
       * W0611 - Unused import warning. Emitted when an imported module or variable is not used.
       <p>
-      * E0602 - Undefined variable error. Emitted when a non-builtin symbol is used, but no definition or import of it can be found.
-      </td>
+      * E0602 - Undefined variable error. Emitted when a non-builtin symbol is used, but no definition or import of it can be found.</td>
   </tr>
 </table>
 <pre>
@@ -145,7 +154,7 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
 <!-- Epydoc -->
 <a name="epydoc"></a>
 <table class="summary" border="1" cellpadding="3"
-       cellspacing="0" width="500" bgcolor="white">
+       cellspacing="0" width="600" bgcolor="white">
   <tr bgcolor="#70b0f0" class="table-header">
     <td colspan="2" class="table-header">
     <span class="table-header">Epydoc API Documentation Generation</span></td>
@@ -196,18 +205,77 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
 <!-- Builds -->
 <a name="builds"></a>
 <table class="summary" border="1" cellpadding="3"
-       cellspacing="0" width="500" bgcolor="white">
+       cellspacing="0" width="600" bgcolor="white">
   <tr bgcolor="#70b0f0" class="table-header">
     <td colspan="2" class="table-header">
-    <span class="table-header">Builds</span></td>
+    <span class="table-header">Nightly Builds</span></td>
   </tr>
 
   <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">Summary</span></td>
-    <td class="summary">Nightly builds, etc.</td>
+    <td class="summary">
+
+Currently disabled.</td></tr></table>
+<!--
+      Created nightly from the previous day's work, these builds may or may not work. Use them to verify that a bug you're tracking has been fixed.
+      <p>
+      We make nightly builds for testing only. We write code and post the results right away so people like you can join our testing process and report bugs. You will find bugs, and lots of them. NanoEngineer-1 might crash on startup. It might delete all your files and cause your computer to burst into flames. Don't bother downloading nightly builds if you're unwilling to put up with problems.
+      </td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Last run</span></td>
+    <td class="summary">
+      <span class="summary-name"><?php include 'NightlyBuild.timestamp'; ?></span> (Run every night.)</td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Last result</span></td>
+    <td class="summary">
+      <span class="summary-name"><?php include 'NightlyBuild.result'; ?></span></td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Log</span></td>
+    <td class="summary">
+      <span class="summary-name"><a href="http://www.nanohive-1.org/Engineering/NightlyBuild.log">NightlyBuild.log</a></span></td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Last build</span></td>
+    <td class="summary">
+      <span class="summary-name"><?php include 'NightlyBuild.filename'; ?></span>
+      <table>
+        <tr><td>Cross-platform source-code&nbsp;&nbsp;</td><?php include 'tar.gz.frag'; ?></tr>
+        <tr><td>Mac OS X installer</td><td><span class="summary-name"><a href="#">dmg</a></span></td><td><span class="summary-name">[30.5 Mb]</span></td></tr>
+        <tr><td>Linux RPM</td><td><span class="summary-name"><a href="#">rpm</a></td><td><span class="summary-name">[10.1 Mb]</span></td></tr>
+      </table>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Notes</span></td>
+    <td class="summary">
+      Nightly build serial numbers, for example NanoEngineer-1_0.9.2_<b>070806a</b>, correspond to the date that the build was created followed by a letter corresponding to that day's build. 070806a indicates the first build (a) on August 6 (0806), 2007 (07). 070806b would indicate the second build (b) on that day.</td>
+  </tr>
+
+  <tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">Build archives</span></td>
+    <td class="summary">
+      <span class="summary-name">
+      <table>
+        <?php include 'archives.frag'; ?>
+      </table>
+      </span>
   </tr>
 </table>
+-->
 
 </body>
 </html>
