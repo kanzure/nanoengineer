@@ -213,7 +213,7 @@ def safe_repr(obj, maxlen = 1000):
 
 # ==
 
-# traceback (see also print_verbose_traceback)
+# traceback / stack utilities (see also print_verbose_traceback)
 
 def print_compact_traceback(msg = "exception ignored: "):
     print >> sys.__stderr__, msg + compact_traceback() # bruce 061227 changed this back to old form
@@ -224,25 +224,33 @@ def print_compact_traceback(msg = "exception ignored: "):
     ## # bug: that doesn't print the exception itself.
 
 def compact_traceback():
-    type, value, traceback = sys.exc_info()
+    type, value, traceback1 = sys.exc_info()
     if (type, value) == (None, None):
-        del traceback # even though it should be None
+        del traceback1 # even though it should be None
+            # Note (pylint bug): when this local var was named traceback,
+            # this del confused pylint -- even though we immediately return
+            # (so this del has no effect in the subsequent code), pylint
+            # now thinks traceback inside the try clause below refers to the
+            # module in our global namespace, not the local variable. I'll
+            # rename the local variable to traceback1 to see if this helps.
+            # (It may only partly help -- maybe pylint will now complain
+            #  falsely about an undefined variable.) [bruce 071108]
         return "<incorrect call of compact_traceback(): no exception is being handled>"
     try:
         printlines = []
-        while traceback is not None:
+        while traceback1 is not None:
             # cf. PythonDocumentation/ref/types.html;
             # starting from current stack level (of exception handler),
             # going deeper (towards innermost frame, where exception occurred):
-            filename = traceback.tb_frame.f_code.co_filename
-            lineno = traceback.tb_lineno
+            filename = traceback1.tb_frame.f_code.co_filename
+            lineno = traceback1.tb_lineno
             printlines.append("[%s:%r]" % ( os.path.basename(filename), lineno ))
-            traceback = traceback.tb_next
-        del traceback
+            traceback1 = traceback1.tb_next
+        del traceback1
         ctb = ' '.join(printlines)
         return "%s: %s\n  %s" % (type, value, ctb)
     except:
-        del traceback
+        del traceback1
         return "<bug in compact_traceback(); exception from that not shown>"
     pass
 
