@@ -63,7 +63,7 @@ from PyQt4.Qt import Qt
 
 from VQT import V, Q, A
 import drawer
-from assembly import assembly 
+from model.assembly import assembly 
 import env
 import platform
 
@@ -738,7 +738,6 @@ class ElementView(ThumbView):
         if 0: #1:
             assy = DummyAssy()
         else:
-            from assembly import assembly 
             assy = assembly(None)
             assy.o = self
                 

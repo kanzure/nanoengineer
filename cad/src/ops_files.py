@@ -41,7 +41,7 @@ import platform
 
 from PlatformDependent import find_or_make_Nanorex_subdir
 
-from assembly import assembly
+from model.assembly import assembly
 from files_pdb import readpdb, insertpdb, writepdb
 from files_gms import insertgms
 from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp

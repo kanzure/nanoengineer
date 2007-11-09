@@ -39,8 +39,8 @@ def call_module_init_functions(): #bruce 071005 split this out of main_startup.s
     import master_model_updater
     master_model_updater.initialize()
     
-    import assembly
-    assembly.assembly.initialize()
+    import model.assembly
+    model.assembly.assembly.initialize()
     
     import GroupButtonMixin
     GroupButtonMixin.GroupButtonMixin.initialize()

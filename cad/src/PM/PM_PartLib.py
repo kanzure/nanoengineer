@@ -23,7 +23,7 @@ import platform
 
 from constants      import diTUBES
 from ThumbView      import MMKitView
-from assembly       import assembly
+from model.assembly import assembly
 from files_mmp      import readmmp
 
 from PM.PM_GroupBox    import PM_GroupBox

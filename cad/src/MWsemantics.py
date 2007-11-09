@@ -37,7 +37,7 @@ from PyQt4.Qt import QColorDialog
 from PyQt4 import QtCore
 from GLPane import GLPane 
 from elements import PeriodicTable
-from assembly import assembly 
+from model.assembly import assembly 
 from drawer import get_gl_info_string ## grantham 20051201
 from Ui_PartWindow import PartWindow, GridPosition
 import os, sys
