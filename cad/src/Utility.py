@@ -18,7 +18,6 @@ Originally by Josh; gradually has been greatly extended by Bruce,
 but the basic structure of Nodes and Groups has not been changed.
 """
 
-import sys, os
 from debug import print_compact_stack, print_compact_traceback
 import platform
 import env
@@ -70,7 +69,9 @@ def node_name(node):
         return "<node has no .name>"
     pass
 
-_will_kill_count = 1 # this must start > 0, even though it's incremented when next used [bruce 060327]
+_will_kill_count = 1
+    # Note: this must start > 0, even though it's incremented when next used
+    # [bruce 060327]
 
 # ==
 
@@ -98,37 +99,43 @@ class Node( StateMixin):
         # (for highlighting in all views, and being affected by operations)
     hidden = False # whether to make it temporarily invisible in the glpane
         # (note: self.hidden is defined, but always False, for Groups;
-        #  it might be set for any leaf node whether or not that node is ever actually
-        #  shown in the glpane.)
-    open = False # bruce 050125; kluge to make it easier to count open nodes in a tree
-        # (this will never become True except for Groups)
-        # (when more than one tree widget can show the same node, .open will need replacement
-        #  with treewidget-specific state #e)
+        #  it might be set for any leaf node whether or not that node is ever
+        #  actually shown in the glpane.)
+    open = False # defined on all Nodes, to make it easier to count open nodes
+        # in a tree (this will never become True except for Groups)
+        # (when more than one tree widget can show the same node, .open will
+        #  need replacement with treewidget-specific state #e)
     dad = None
     part = None #bruce 050303
     prior_part = None #bruce 050527
     disabled_by_user_choice = False
-        # [bruce 050505 made this default on all Nodes, tho only Jigs use the attr so far; see also is_disabled]
+        # [bruce 050505 made this the default on all Nodes, though only Jigs
+        #  use the attr so far; see also is_disabled]
     
     is_movable = False #mark 060120
 
     # attribute declarations (per-subclass constants used for copy and undo)
     
-    copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice') #bruce 050526
+    copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice')
+        #bruce 050526
         # (see also __declare_undoable_attrs [bruce 060223])
         # subclasses need to extend this
-        #e could someday use these to help make mmp writing and reading more uniform,
-        # if we also listed the ones handled specially (so we can only handle the others in the new uniform way)
+        # TODO: could someday use these to help make mmp writing and reading
+        # more uniform, if we also listed the ones handled specially
+        # (so we can handle only the others in the new uniform way)
 
-    _s_attr_dad = S_PARENT #obs cmt: overridden (bug) (doesn't matter for now) [i think that's fixed now, anyway, 060224]
+    _s_attr_dad = S_PARENT
     _s_attr_picked = S_DATA
     _s_categorize_picked = 'selection'
     _s_attr_part = S_CHILD
-        # has to be child to be found (another way would be assy._s_scan_children); not S_CACHE since Parts store some defining state
+        # has to be child to be found
+        # (another way would be assy._s_scan_children);
+        # not S_CACHE since Parts store some defining state
     #e need anything to reset prior_part to None? yes, do it in _undo_update.
     _s_attr_assy = S_PARENT
-        # assy can't be left out, since on some or all killed nodes it's foolishly set to None, which is
-        # a change we need to undo when we revive them.
+        # assy can't be left out, since on some or all killed nodes it's
+        # foolishly set to None, which is a change we need to undo when we
+        # revive them. TODO: stop doing that, have a killed flag instead.
 
     def _undo_update(self): #bruce 060223
         # no change to .part, since that's declared as S_CHILD
@@ -138,42 +145,55 @@ class Node( StateMixin):
         return
 
     def __init__(self, assy, name, dad = None):
-        #bruce 050216 fixed inconsistent arg order [re other leaf nodes -- Group is not yet fixed], made name required
         """
         Make a new node (Node or any subclass), in the given assembly (assy)
         (I think assy must always be supplied, but I'm not sure),
         with the given name (or "" if the supplied name is None),
         and with the optionally specified dad (a Group node or None),
-        adding it to that dad as a new member (unless it's None or not specified, which is typical).
+        adding it to that dad as a new member (unless it's None or not
+        specified, which is typical).
         All args are supplied positionally, even the optional one.
 
-        Warning: arg order was revised by bruce 050216 to be more consistent with subclasses,
-        but Group's arg order was and still is inconsistent with all other Node classes' arg order.
+        Warning: arg order was revised by bruce 050216 to be more consistent
+        with subclasses, but Group's arg order was and still is inconsistent
+        with all other Node classes' arg order.
         """
         #bruce 050205 added docstring; bruce 050216 revised it
+        #bruce 050216 fixed inconsistent arg order
+        # [re other leaf nodes -- Group is not yet fixed], made name required
 
         self.name = name or "" # assumed to be a string by some code
         
         # assy must be None or an assembly or a certain string
-        if assy is not None and not isinstance(assy, Assembly_API) and assy != '<not an assembly>':
-            assert 0, "node.assy must be an assembly" # no need to mention the private possibilities
-        # verify assy is not None (not sure if that's allowed in principle, but I think it never happens) [050223]
+        if assy is not None and \
+           not isinstance(assy, Assembly_API) and \
+           assy != '<not an assembly>':
+            assert 0, "node.assy must be an assembly"
+                # no need to mention the private possibilities in the error msg
+        # verify assy is not None (not sure if that's allowed in principle,
+        # but I think it never happens) [050223]
         if assy is None:
             #bruce 071026 always print this, not only when atom_debug
             print_compact_stack("note: Node or Group constructed with assy = None: ")
         self.assy = assy
         if dad: # dad must be another Node (which must be a Group), or None
-            dad.addchild(self) #bruce 050206 changed addmember to addchild, enforcing dad correctness
-                # warning [bruce 050316]: this might call inherit_part; subclasses must be ready for this
-                # by the time their inits call ours, e.g. a Group must have a members list by then.
+            dad.addchild(self)
+                #bruce 050206 changed addmember to addchild, thus enforcing
+                # dad correctness
+                # warning [bruce 050316]: this might call inherit_part;
+                # subclasses must be ready for this by the time their inits call
+                # ours, e.g. a Group must have a members list by then.
             assert self.dad is dad # addchild should have done this
         if self.__declare_undoable_attrs is not None: #bruce 060223 (temporary kluge)
-            # it's None except the first time in each Node subclass; is there a faster test? (Guess: boolean test is slower.)
+            # it's None except the first time in each Node subclass;
+            # is there a faster test? (Guess: boolean test is slower.)
             self.__declare_undoable_attrs()
         return
 
     def __repr__(self): #bruce 060220
-        "[subclasses can override this, and often do]"
+        """
+        [subclasses can override this, and often do]
+        """
         classname = self.__class__.__name__
         try:
             name_msg = ", name = %r" % (self.name,)
@@ -181,7 +201,8 @@ class Node( StateMixin):
             name_msg = " (exception in `self.name`)"
         return "<%s at %#x%s>" % (classname, id(self), name_msg)
     
-    def setAssy(self, assy): #bruce 051227, Node method [used in depositMode; #e should rename to avoid confusion with GLPane method]
+    def setAssy(self, assy):
+        #bruce 051227, Node method [used in depositMode; TODO: rename to avoid confusion with GLPane method]
         """
         Change self.assy from its current value to assy,
         cleanly removing self from the prior self.assy if that is not assy.
@@ -189,13 +210,18 @@ class Node( StateMixin):
         if self.assy is not assy:
             oldassy = self.assy
             if oldassy is not None:
-                assert oldassy != '<not an assembly>' # simplest to just require this; nodes constructed that way shouldn't be moved
+                assert oldassy != '<not an assembly>'
+                    # simplest to just require this;
+                    # nodes constructed that way shouldn't be moved
                 assert isinstance(oldassy, Assembly_API)
-                # some of the above conds might not be needed, or might be undesirable; others should be moved into following subr
+                # some of the above conds might not be needed, or might be
+                # undesirable; others should be moved into following subr
                 self.remove_from_parents()
                 assert self.assy is None
-            # now ok to replace self.assy, which is None or (ignoring the above assert) '<not an assembly>'
-            # (safety of latter case unverified, but I think it will never happen, even without the assert that disallows it)
+            # now ok to replace self.assy, which is None or (ignoring
+            # the above assert) '<not an assembly>'
+            # (safety of latter case unverified, but I think it will
+            # never happen, even without the assert that disallows it)
             assert self.assy is None
             self.assy = assy
             assert self.part is None
@@ -207,19 +233,26 @@ class Node( StateMixin):
         Return the wiki-help featurename for this object's class,
         or '' if there isn't one.
         """
-        return self.__class__.featurename # intended to be a per-subclass constant... so enforce this until we need otherwise
+        return self.__class__.featurename
+            # that's intended to be a per-subclass constant...
+            # so enforce that until we need to permit it to be otherwise
     
     def _um_initargs(self): #bruce 051013 [in class Node]
-        # [as of 060209 this is probably well-defined and correct (for most subclasses), but not presently used]
+        # [as of 060209 this is probably well-defined and correct
+        #  (for most subclasses), but not presently used]
+        # [update 071109: since then it may well have come into use]
         """
         Return args and kws suitable for __init__.
 
-        [Overrides an undo-related superclass method; see its docstring for details.]
+        [Overrides an undo-related superclass method;
+         see its docstring for details.]
         """
         return (self.assy, self.name), {}
             # self.dad (like most inter-object links) is best handled separately
 
-    def _um_existence_permitted(self): #bruce 051005 [###@@@ as of 060209 it seems likely this should go away, but I'm not sure]
+    def _um_existence_permitted(self):
+        #bruce 051005 [###@@@ as of 060209 it seems likely this should go away,
+        #  but I'm not sure]
         """
         [overrides UndoStateMixin method]
 
@@ -227,19 +260,27 @@ class Node( StateMixin):
         Returning False does not imply anything's wrong, or that we should be or should have been killed/destroyed/deleted/etc --
         just that changes in us should be invisible to Undo.
         """
-        return self.assy is not None and self.part is not None and self.dad is not None
-            ###e and we're under root? does that method exist? (or should viewpoint objects count here?)
+        return self.assy is not None and \
+               self.part is not None and \
+               self.dad is not None
+            ###e and we're under root? does that method exist?
+            # (or should viewpoint objects count here?)
 
     def __declare_undoable_attrs(self): #bruce 060223
         """
         [private method for internal use by Node.__init__ only;
          temporary kluge until individual _s_attr decls are added]
         
-        Scan the perhaps-someday-to-be-deprecated per-class list, copyable_attrs,
-        and add _s_attr decls for the attrs listed in them to self.__class__ (Node or any of its subclasses).
-        Don't override any such decls already present, if possible [not sure if you can tell which class added them #k].
-        Should be run only once per Node subclass, but needs an example object (self) to run on.
-        Contains its own kluge to help cause it to be run only once.
+        Scan the perhaps-someday-to-be-deprecated per-class list,
+        copyable_attrs, and add _s_attr decls for the attrs listed in them
+        to self.__class__ (Node or any of its subclasses).
+
+        Don't override any such decls already present, if possible
+        [not sure if you can tell which class added them #k].
+
+        Should be run only once per Node subclass, but needs an example object
+        (self) to run on. Contains its own kluge to help cause it to be run only
+        once.
         """
         subclass = self.__class__
         if debug_undoable_attrs:
@@ -248,14 +289,20 @@ class Node( StateMixin):
             name = "_s_attr_" + attr
             if hasattr(subclass, name):
                 if debug_undoable_attrs:
-                    print " debug: not overwriting manual decl of %r as %r" % (name, getattr(subclass, name))
+                    print " debug: not overwriting manual decl of %r as %r" % \
+                          (name, getattr(subclass, name))
             else:
-                setattr( subclass, name, S_DATA) # or S_REFS? If it needs to be S_CHILD, add an individual decl to override it.
-        # prevent further runs on same subclass (in cooperation with the sole calling code)
-        subclass.__declare_undoable_attrs = None # important to do this in subclass, not in self or Node
+                setattr( subclass, name, S_DATA)
+                    # or S_REFS? If it needs to be S_CHILD, add an individual
+                    # decl to override it.
+        # prevent further runs on same subclass (in cooperation with the sole
+        # calling code)
+        subclass.__declare_undoable_attrs = None
+            # important to do this in subclass, not in self or Node
         return
         
-    def set_disabled_by_user_choice(self, val): #bruce 050505 as part of fixing bug 593
+    def set_disabled_by_user_choice(self, val):
+        #bruce 050505 as part of fixing bug 593
         self.disabled_by_user_choice = val
         self.changed()
 
@@ -272,9 +319,13 @@ class Node( StateMixin):
         than not calling it when needed.
         """
         if self.part is not None:
-            self.part.changed() #e someday we'll do self.changed which will do dad.changed....
+            self.part.changed()
+                #e someday we'll do self.changed which will do dad.changed....
         elif self.assy is not None:
-            pass # not sure if it would be correct to call assy.changed in this case (when there's no part set) [bruce 060227 comment]
+            pass
+                # I'm not sure if it would be correct to call assy.changed
+                # in this case (when there's no .part set)
+                # [bruce 060227 comment]
         return
     
     def is_group(self): #bruce 050216; docstring revised 071024
@@ -285,9 +336,9 @@ class Node( StateMixin):
         something.is_group() is preferable to isinstance(something, Group),
         due to its flexibility in case of future semantics changes,
         and to the fact that it doesn't require an import of Utility.
-        (Also, this method would work if Utility was reloaded, but isinstance would not.
-         This doesn't yet matter in practice since there are probably other big obstacles
-         to reloading Utility during debugging.)
+        (Also, this method would work if Utility was reloaded, but isinstance
+         would not. This doesn't yet matter in practice since there are
+         probably other big obstacles to reloading Utility during debugging.)
 
         However, isinstance(obj, Group_API) (NIM) might be even better,
         since it works for any type of obj, and some of our code is
@@ -308,23 +359,27 @@ class Node( StateMixin):
     def readmmp_info_leaf_setitem( self, key, val, interp ): #bruce 050421, part of fixing bug 406
         """
         This is called when reading an mmp file, for each "info leaf" record
-        which occurs right after this node is read and no other node has been read.
-        (If this node is a group, we're called after it's closed, but groups should
-        ignore this record.)
+        which occurs right after this node is read and no other node has been
+        read. (If this node is a group, we're called after it's closed, but
+        groups should ignore this record.)
            Key is a list of words, val a string; the entire record format
         is presently [050421] "info leaf <key> = <val>".
         Interp is an object to help us translate references in <val>
         into other objects read from the same mmp file or referred to by it.
-        See the calls of this method from files_mmp for the doc of interp methods.
-           If key is recognized, set the attribute or property
-        it refers to to val; otherwise do nothing (or for subclasses of Node
-        which handle certain keys specially, call the same method in the superclass
+        See the calls of this method from files_mmp for the doc of interp
+        methods.
+           If key is recognized, set the attribute or property it refers to to
+        val; otherwise do nothing (or for subclasses of Node which handle
+        certain keys specially, call the same method in the superclass
         for other keys).
            (An unrecognized key, even if longer than any recognized key,
         is not an error. Someday it would be ok to warn about an mmp file
         containing unrecognized info records or keys, but not too verbosely
         (at most once per file per type of info).)
         """
+        # logic bug: new mmp records for leaf nodes, skipped by old reading code,
+        # cause their info leaf records to erroneously get applied to the previous
+        # leaf node that the old code was able to read. [bruce 071109 comment]
         if self.is_group():
             if platform.atom_debug:
                 print "atom_debug: mmp file error, ignored: a group got info leaf %r = ..." % (key,)
@@ -338,13 +393,16 @@ class Node( StateMixin):
             val = (val == 'True')
             self.disabled_by_user_choice = val
         elif key == ['forwarded']: #bruce 050422
-            # this happens just after we read this leaf node (self) from an mmp file,
-            # and means we should move it from where it was just placed (at the end of some Group still being read)
+            # this happens just after we read this leaf node (self)
+            # from an mmp file, and means we should move it from where it was
+            # just placed (at the end of some Group still being read)
             # to a previous location indicated by val, and available via interp.
             interp.move_forwarded_node( self, val)
         else:
             if platform.atom_debug:
-                print "atom_debug: fyi: info leaf (in Node) with unrecognized key %r (not an error)" % (key,)
+                msg = "atom_debug: fyi: info leaf (in Node) with " \
+                      "unrecognized key %r (not an error)" % (key,)
+                print msg
         return
     
     def is_disabled(self): #bruce 050421 experiment related to bug 451-9 #e what Jig method does belongs here... [050505 comment]
@@ -360,7 +418,8 @@ class Node( StateMixin):
     def is_top_of_selection_group(self): #bruce 050131 for Alpha [#e rename is_selection_group?] [#e rename concept "selectable set"?]
         """
         Whether this node is the top of a "selection group".
-        (This can be true of leaf nodes as well as group nodes, in spite of the name.)
+        (Note: this can be true of leaf nodes as well as group nodes,
+         in spite of the name.)
         We enforce a rule that limits the selection to being entirely within
         one selection group at a time, since many operations on mixes
         of nodes from different selection groups are unsafe.
@@ -379,12 +438,14 @@ class Node( StateMixin):
         #
         # Following implem is correct for most nodes --
         # determine whether self is a "clipboard item".
-        # [It could even work if we someday introduce "Groups of clipboard items".]
+        # [It could even work if we someday introduce "Groups of clipboard
+        #  items".]
         # But it's wrong for PartGroup itself (thus is overridden by it).
         return self.dad and self.dad.is_selection_group_container()
 
     no_selgroup_is_ok = False
-        #bruce 050612 class constant, could be overridden in some subclasses [not presently needed, but tested]
+        #bruce 050612 class constant, could be overridden in some subclasses
+        # [not presently needed, but tested]
     
     def change_current_selgroup_to_include_self(self): #bruce 050131 for Alpha
         "#doc"
@@ -901,7 +962,8 @@ class Node( StateMixin):
         see Group.apply2all docstring for details.
         """
         fn(self)
-
+        return
+    
     def apply2tree(self, fn): ###@@@ should rename (both defs)
         """
         Like apply2all, but only applies fn to all Group nodes (at or under self).
@@ -915,8 +977,10 @@ class Node( StateMixin):
 
         See Group.apply2picked docstring for details.
         """
-        if self.picked: fn(self)
-
+        if self.picked:
+            fn(self)
+        return
+    
     def hindmost(self):
         """
         [docstring is meant for both Node and Group methods taken together:]
@@ -1455,20 +1519,21 @@ class Group(Node):
     
     _s_attr_members = S_CHILDREN
 
-    def __init__(self, name, assy, dad, list = [], editController = None): ###@@@ review inconsistent arg order
+    def __init__(self, name, assy, dad, members = (), editController = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
         Node.__init__(self, assy, name, dad)
         self.open = True
-        for ob in list:
+        for ob in members:
             self.addchild(ob)
 	
 	#@WARNING: Following (self.editController) is a temporary code that 
 	# allows editing of DNA Duplex which is, at the moment, same as a 
 	# group in the MT. Once we have a DNA object model ready, 
-	#the following should be removed/ revised . 
-	#See also self.edit where this is being used. -- Ninad 2007-10-26
-	self.editController = editController
+	# the following should be removed/ revised . 
+	# See also self.edit where this is being used. -- Ninad 2007-10-26
+        self.editController = editController
+        return
 
     def _um_initargs(self): #bruce 051013 [in class Group]
         # [as of 060209 this is probably well-defined and correct (for most subclasses), but not presently used]
@@ -1525,8 +1590,12 @@ class Group(Node):
                 print "atom_debug: fyi: info opengroup (in Group) with unrecognized key %r (not an error)" % (key,)
         return
 
-    def drag_move_ok(self): return True # same as for Node
-    def drag_copy_ok(self): return True # for my testing... maybe make it False for Alpha though ###e ####@@@@ 050201
+    def drag_move_ok(self):
+        return True # same as for Node
+    
+    def drag_copy_ok(self):
+        return True # for my testing... maybe make it False for Alpha though ###e ####@@@@ 050201
+    
     def is_selection_group_container(self): #bruce 050131 for Alpha
         """
         Whether this group causes each of its direct members to be treated
@@ -1541,9 +1610,11 @@ class Group(Node):
         Whether node's subtree has any picked members.
         [See comments in Node.haspicked docstring.]
         """
-        if self.picked: return True
+        if self.picked:
+            return True
         for m in self.members:
-            if m.haspicked(): return True
+            if m.haspicked():
+                return True
         return False
     
     def changed_members(self): #bruce 050121 new feature, now needed by depositMode
@@ -1646,7 +1717,7 @@ class Group(Node):
             # handles that. So yes wins, unless bugs show up!
             # BUT: don't do this until we're all done (so new is entirely valid).
             ## mem.changed_dad()
-        for attr in ['open','hidden','picked']:
+        for attr in ['open', 'hidden', 'picked']:
             # not name, assy, dad (done in init or above), selgroup, space (done in changed_dad)
             try:
                 val = getattr(self, attr)
@@ -1711,14 +1782,16 @@ class Group(Node):
             # those methods never did that. Soon after Alpha we should fix them all and then
             # make this a detected error and no longer tolerate it.
             if platform.atom_debug:
-                msg = "atom_debug: addchild setting newchild.dad to None since newchild not in dad's members: %s, %s" % (self,newchild)
+                msg = "atom_debug: addchild setting newchild.dad to None " \
+                      "since newchild not in dad's members: %s, %s" % (self, newchild)
                 print_compact_stack(msg)
             newchild.dad = None
         if newchild.is_ascendant(self):
             #bruce 050205 adding this for safety (should prevent DND-move cycles as a last resort, tho might lose moved nodes)
             if platform.atom_debug:
                 # this msg covers newchild is self too since that's a length-1 cycle
-                print "atom_debug: addchild refusing to form a cycle, doing nothing; this indicates a bug in the caller:",self,newchild
+                print "atom_debug: addchild refusing to form a cycle, " \
+                      "doing nothing; this indicates a bug in the caller:", self, newchild
             return
         if newchild.dad:
             # first cleanly remove newchild from its prior home.
@@ -1734,7 +1807,8 @@ class Group(Node):
                 # We print a debug msg just as fyi; that can be removed once this is stable and tested.
                 if platform.atom_debug and 0:
                     # i'll remove this msg soon after i first see it.
-                    print "atom_debug: fyi: addchild asked to move newchild within self.members, might need special cases",self,newchild
+                    print "atom_debug: fyi: addchild asked to move newchild " \
+                          "within self.members, might need special cases", self, newchild
                     print "...options: top = %r, after = %r, before = %r" % (top , after , before)
                 if type(before) is type(1):
                      # indices will change, use real nodes instead
@@ -1930,7 +2004,8 @@ class Group(Node):
         For effect of fn modifying a members list, see comments in apply2all docstring.
         [An example of (i hope) a safe way of modifying it, as of 050121, is in Group.ungroup.]
         """
-        if self.picked: fn(self)
+        if self.picked:
+            fn(self)
         else:
             for ob in self.members[:]:
                 ob.apply2picked(fn)
@@ -1942,16 +2017,18 @@ class Group(Node):
         subtree of self which contains all picked nodes in this subtree, or None
         if there are no picked nodes in this subtree. Note that the result does
         not depend on the order of traversal of the members of a Group.
-        """ #bruce 041208 added docstring, inferred from code
-        if self.picked: return self
+        """
+        if self.picked:
+            return self
         node = None
         for x in self.members:
             h = x.hindmost()
-            if node and h: return self
+            if node and h:
+                return self
             node = node or h
         return node
  
-    def permits_ungrouping(self): #bruce 050121
+    def permits_ungrouping(self):
         """
         Should the user interface permit users to dissolve this Group
         using self.ungroup?
@@ -1969,7 +2046,6 @@ class Group(Node):
         rather than a structural primitive.]
         [overrides Node.ungroup]
         """
-        #bruce 050121 inferred docstring from 2 implems and 1 call
         #bruce 050121 revised: use permits_ungrouping;
         # add kids in place of self within dad (rather than at end)
         if self.dad and self.permits_ungrouping():
@@ -2038,15 +2114,15 @@ class Group(Node):
         return
 
     def reset_subtree_part_assy(self): #bruce 051227
-        "[overrides Node method]"
+        """
+        [overrides Node method]
+        """
         for m in self.members[:]:
             m.reset_subtree_part_assy()
         Node.reset_subtree_part_assy(self)
         return
     
     def is_ascendant(self, node):
-            #e rename nodetree_contains? is_ancestor? (tho true of self too)
-            #e or just contains? (no, not obvious arg is a node)
         """
         [overrides Node.is_ascendant, which is a very special case of the same semantics]
         Returns True iff self is an ascendant of node,
@@ -2054,8 +2130,11 @@ class Group(Node):
         (node must be a Node or None (for None we return False);
          thus it's legal to call this for node being any node's dad.)
         """
+            #e rename nodetree_contains? is_ancestor? (tho true of self too)
+            #e or just contains? (no, not obvious arg is a node)
         while node is not None:
-            if node is self: return True
+            if node is self:
+                return True
             node = node.dad
         return False
         
@@ -2096,7 +2175,7 @@ class Group(Node):
         corresponds to the parent relation in their own tree of display items. I don't know
         how well the existing caller (modelTree.py) follows this so far. -- bruce 050113]
         """
-        if not self.openable() or not display_prefs.get('open',False):
+        if not self.openable() or not display_prefs.get('open', False):
             ###@@@ I suspect this check should always be done in the tree widget,
             # so we don't have to do it in Group methods. [bruce 050113]
             return []
@@ -2112,36 +2191,36 @@ class Group(Node):
         """
         [this is overridden in some subclasses of Group]
         """
-	if self.editController:
-	    self.editController.editStructure()
-	else:
-	    cntl = GroupProp(self) # Normal group prop
-	    cntl.exec_()
-	    self.assy.mt.mt_update()
+        if self.editController:
+            self.editController.editStructure()
+        else:
+            cntl = GroupProp(self) # Normal group prop
+            cntl.exec_()
+            self.assy.mt.mt_update()
     
     def getProps(self):
-	"""
+        """
 	Temporary method to support Dna duplex editing. see Group.__init__ for 
 	a comment
 	"""
-	if self.editController:
-	    props = ()
-	    return props
+        if self.editController:
+            props = ()
+            return props
 	
     def setProps(self, props):
-	"""
+        """
 	Temporary method to support Dna duplex editing. see Group.__init__ for 
 	a comment
 	"""
-	pass
+        pass
 	
-
-    def dumptree(self, depth=0):
-        print depth*"...", self.name
+    def dumptree(self, depth = 0):
+        print depth * "...", self.name
         for x in self.members:
-            if x.dad is not self: print "bad thread:", x, self, x.dad
-            x.dumptree(depth+1)
-
+            if x.dad is not self:
+                print "bad thread:", x, self, x.dad
+            x.dumptree(depth + 1)
+        return
         
     def draw(self, glpane, dispdef): #bruce 050615, 071026 revised this
         if self.hidden:
@@ -2173,7 +2252,6 @@ class Group(Node):
         """
         pass
 
-
     def draw_end(self, glpane, dispdef): #bruce 050615
         """
         Subclasses which override draw_begin should also override draw_end
@@ -2183,7 +2261,6 @@ class Group(Node):
          and which might be subject to numerical errors).
         """
         pass
-    
     
     def getstatistics(self, stats):
         """
@@ -2209,12 +2286,16 @@ class Group(Node):
         mapping.write("egroup (" + mapping.encode_name(self.name) + ")\n")
         
     def writepov(self, f, dispdef):
-        if self.hidden: return
-        for x in self.members: x.writepov(f, dispdef)
+        if self.hidden:
+            return
+        for x in self.members:
+            x.writepov(f, dispdef)
 
     def writemdl(self, alist, f, dispdef):
-        if self.hidden: return
-        for x in self.members: x.writemdl(alist, f, dispdef)
+        if self.hidden:
+            return
+        for x in self.members:
+            x.writemdl(alist, f, dispdef)
             
     def __str__(self):
         return "<group " + self.name +">"
