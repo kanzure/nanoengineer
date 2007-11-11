@@ -225,6 +225,7 @@ packageMapping = {
     "GridPlanePropDialog"          : "ui",
     "GridPlaneProp"                : "ui",
     "GROMACS"                      : "io",
+    "Group"                        : "foundation", # some model code?
     "GroupButtonMixin"             : "ui",
     "GroupPropDialog"              : "ui",
     "GroupProp"                    : "ui",

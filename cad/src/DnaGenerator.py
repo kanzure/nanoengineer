@@ -32,8 +32,8 @@ import random
 
 from constants import darkred, blue, lightgray
 
-from Utility        import Group
-from utilities.Log import redmsg, greenmsg ##, orangemsg
+from Group          import Group
+from utilities.Log  import redmsg, greenmsg ##, orangemsg
 from VQT            import Q, V, angleBetween, cross, vlen, Veq
 from math           import pi
 from chunk          import molecule

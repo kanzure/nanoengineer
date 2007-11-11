@@ -1,7 +1,7 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 Utility.py -- class Node (superclass for all model-tree objects),
-Group [imported for compatibility at EOF, now defined in Group.py],
+Group [now defined in Group.py, no longer imported here],
 and a few related classes or functions, defining a uniform
 API to permit all Node subclasses to be shown in the model tree,
 and methods for manipulation of Node trees. (Most Node subclasses
@@ -1594,9 +1594,5 @@ def topmost_nodes( nodes): #bruce 050303
                     del res[id(other)]
             res[id(node)] = node
     return res.values()
-
-# ==
-
-from Group import Group # TEMPORARY [bruce 071110]
 
 # end

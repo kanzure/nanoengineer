@@ -45,10 +45,10 @@ from prefs_constants import displayOriginAxis_prefs_key
 from prefs_constants import displayOriginAsSmallAxis_prefs_key
 from prefs_constants import displayPOVAxis_prefs_key
 
-from Utility import Group
 from chem import Atom
 from bonds import Bond
 from Utility import Node
+from Group import Group
 
 import time
 

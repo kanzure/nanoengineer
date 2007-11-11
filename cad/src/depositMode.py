@@ -54,7 +54,7 @@ from VQT        import Q, A, norm, twistor
 from drawer     import drawline
 
 from icon_utilities import geticon
-from Utility    import Group
+from Group      import Group
 from Utility    import Node
 from pastables  import is_pastable
 from pastables  import find_hotspot_for_pasting

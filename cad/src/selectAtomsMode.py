@@ -38,7 +38,7 @@ from bonds import Bond
 from elements import Singlet
 
 from debug import print_compact_traceback
-from Utility import Group
+from Group import Group
 
 from selectMode import selectMode
 from selectMode import DRAG_STICKINESS_LIMIT

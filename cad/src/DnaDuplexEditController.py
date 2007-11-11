@@ -18,7 +18,7 @@ TODO:
 """
 from EditController import EditController
 
-from Utility        import Group
+from Group          import Group
 from utilities.Log  import redmsg, greenmsg
 from VQT            import Veq, vlen
 from DnaDuplex      import B_Dna_PAM3

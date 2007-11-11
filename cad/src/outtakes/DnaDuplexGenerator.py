@@ -14,7 +14,7 @@ Mark 2007-10-18:
 
 __author__ = "Mark"
 
-from Utility        import Group
+from Group          import Group
 from utilities.Log  import redmsg, greenmsg
 from VQT            import V, Veq
 from DnaDuplex      import B_Dna_PAM3

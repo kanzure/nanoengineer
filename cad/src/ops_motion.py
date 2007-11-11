@@ -22,7 +22,7 @@ from chunk       import molecule
 from jigs        import Jig
 from jigs_motors import Motor
 from jigs_planes import ESPImage
-from Utility     import Group
+from Group       import Group
 
 
 class ops_motion_Mixin:

@@ -42,7 +42,7 @@ import modelTreeGui   # ModelTreeGui, Ne1Model_api
 from chunk import molecule
 from jigs import Jig
 from utilities.Log import redmsg, greenmsg, orangemsg # not all used, that's ok
-from Utility import Group
+from Group import Group
 from debug import print_compact_traceback
 
 from GlobalPreferences import permit_atom_chunk_coselection

@@ -70,7 +70,8 @@ import time
 
 import Initialize
 
-from Utility import Group, node_name
+from Utility import node_name
+from Group import Group
 from pastables import is_pastable
 
 from debug import print_compact_traceback

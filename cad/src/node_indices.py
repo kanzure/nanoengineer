@@ -18,7 +18,7 @@ but most of it probably makes sense to leave here in its own module,
 so Utility.py can stay small and to the point.
 """
 
-from Utility import Group # for isinstance
+from Group import Group # for isinstance
 from jigs import Jig # for isinstance
 
 # quick try at fixing bug 296 for josh emergency use!

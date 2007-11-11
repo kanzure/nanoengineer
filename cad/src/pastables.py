@@ -26,7 +26,7 @@ and paste it onto a bondpoint.
 """
 
 from chunk import molecule # only for isinstance
-from Utility import Group # only for isinstance
+from Group import Group # only for isinstance
 
 def is_pastable(obj):
     "whether to include a clipboard object on Build's pastable spinbox"

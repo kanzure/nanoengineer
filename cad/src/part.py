@@ -48,7 +48,7 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QFont, QString
 
 from Utility import Node
-from Utility import Group
+from Group   import Group
 
 from Assembly_API import Assembly_API
 

@@ -18,7 +18,7 @@ import env
 from debug         import print_compact_stack
 from utilities.Log import greenmsg, redmsg, orangemsg
 from PlatformDependent import fix_plurals
-from Utility       import Group
+from Group         import Group
 from chunk         import molecule
 from chunk         import mol_copy_name
 from chem          import Atom_prekill_prep

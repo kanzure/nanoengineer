@@ -26,7 +26,7 @@ I think). It has a bug number.
 
 """
 
-from Utility import Group # for isinstance and for autogrouping; could remove by
+from Group import Group # for isinstance and for autogrouping; could remove by
     # asking the assy (and/or the dropped on node) to do the grouping
 
 from ops_copy import copy_nodes_in_order

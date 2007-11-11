@@ -75,7 +75,7 @@ from constants import bluesky
 from constants import GL_FAR_Z
 from prefs_constants import bondpointHighlightColor_prefs_key
 
-from Utility import Group
+from Group import Group
 
 from GLPane_minimal import GLPane_minimal
 
