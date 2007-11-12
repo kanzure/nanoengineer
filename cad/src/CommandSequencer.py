@@ -454,7 +454,7 @@ class modeMixin(object):
             # Since we can't suspend the prior command, just exit it.
             # (If this toggles off its button and runs this method recursively,
             #  that will cause bugs. TODO -- detect that, fix it if it happens.)
-            prior_command.Done(exit_using_done_or_cancel = False)
+            prior_command.Done(exit_using_done_or_cancel_button = False)
                 # presumably this reenters the prior suspended command (prevMode)
                 # (since there probably was one if prior_command was temporary),
                 # but if so, we'll immediately resuspend it below.

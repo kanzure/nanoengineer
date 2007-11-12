@@ -106,10 +106,11 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         # needs to do is to Pan the view. Thus it continues to use the PM and 
         # flyout toolbar from Build Atoms mode, giving the user an impression
         # that he is still operating on the old mode.         
-        # This flagis also used in fixing bugs like 2566. When user exits
-        # these temporary modes(commands) with this flag set to True, it skips
-        # the init_gui method etc. of the previous mode while resuming 'that' 
-        # mode. This flag also means that if you hit 'Done' or 'Cancel' of the
+        # This flag is also used in fixing bugs like 2566. 
+        # When user exits these temporary modes(i.e. 'tempoary commands') ,
+        # with this flag set to 'False', it skips the init_gui method etc. 
+        # of the previous mode, while resuming 'that' (previouse) mode. 
+        # This flag also means that if you hit 'Done' or 'Cancel' of the
         # previous mode (while in a temporary mode) , then 'that previous mode'
         # will exit. The related code makes sure to first leave the temporary 
         # mode(s) before leaving the regular mode (the command with 
@@ -609,11 +610,16 @@ class basicCommand(anyCommand):
         @param has_its_own_gui:  This flag determines whether the current mode
                                  uses its own gui (such as PM, flyout
                                  toolbar). The flag was introduced to 
-                                 fix bugs like 2566. See class 
-                                 anyCommand.has_its_own_gui for a detailed 
-                                 comment 
+                                 fix bugs like 2566. Note that this flag is 
+                                 about the  mode the user has *just exited*
+                                 and not the 'new_mode' that he is has just 
+                                 entered. See class anyCommand.has_its_own_gui 
+                                 for a detailed comment.
+                                 
         @type has_its_own_gui: boolean
+        
         @see: self.Done, self._exitMode, CommandSequencer.start_using_command
+        
         TODO: This and the other methods mentioned in 'See Also' need cleanup. 
               Need to be simplified. 
         """
@@ -915,7 +921,7 @@ class basicCommand(anyCommand):
     def Done(self, 
              new_mode = None, 
              suspend_old_mode = False,
-             exit_using_done_or_cancel = True,
+             exit_using_done_or_cancel_button = True,
              **new_mode_options):
         """
         Called by the slot method for the Done tool in the dashboard;
@@ -929,7 +935,7 @@ class basicCommand(anyCommand):
         haveNontrivialState and/or StateDone and/or StateCancel as
         appropriate.
         
-        @param exit_using_done_or_cancel: 
+        @param exit_using_done_or_cancel_button: 
                        This flag is usually true. Only temporary modes such as 
                        Zoom/Pan/rotate , which don't have their own gui, set it 
                        to False for a regular temporary mode exit (such as 
@@ -940,16 +946,17 @@ class basicCommand(anyCommand):
                        case, (Escape key exit) the flag is set to False by the 
                        caller, so program knows that user actually didn't press
                        'done' or Cancel button from the Build Atoms PM. 
-        @type exit_using_done_or_cancel: boolean                       
+                       (and thus exit_using_done_or_cancel_button was 'False')
+        @type exit_using_done_or_cancel_button: boolean                       
         """
         # TODO: most or all of the following should be done by the CommandSequencer
         # rather than by self. Same goes for several of the methods this calls.
         # [bruce 071011 comment]
         
-        #TODO: About the  parameter exit_using_done_cancel: 
+        #TODO: About the  parameter exit_using_done_or_cancel_button: 
         # This is a bit complicated but is needed in the present implementation
         # and can be cleaned up while doing a general cleanup of the Done and 
-        #other methods -- 2007-11-08
+        # other methods -- 2007-11-08
         
         resuming = False
         if self.command_should_resume_prevMode:
@@ -964,7 +971,7 @@ class basicCommand(anyCommand):
                 try:
                     new_mode = self.commandSequencer.prevMode                    
                     if new_mode:
-                        if exit_using_done_or_cancel:                           
+                        if exit_using_done_or_cancel_button:                           
                             # This fixes bugs like 2566, 2565 
                             # @bug: But it doesn't fix the
                             # following bug: As of 2007-11-09, the 
@@ -981,7 +988,7 @@ class basicCommand(anyCommand):
                             else:
                                 #new Command is a temporary mode with no special
                                 #ui to exit it.
-                                new_mode.Done(exit_using_done_or_cancel = False)
+                                new_mode.Done(exit_using_done_or_cancel_button = False)
                             resuming = False
                             new_mode = None
                         else:                            
@@ -1031,7 +1038,7 @@ class basicCommand(anyCommand):
     
     def Cancel(self, 
                new_mode = None, 
-               exit_using_done_or_cancel = True,
+               exit_using_done_or_cancel_button = True,
                **new_mode_options):
         """
         Cancel tool in dashboard; might also be called internally
@@ -1056,7 +1063,7 @@ class basicCommand(anyCommand):
                 try:
                     new_mode = self.commandSequencer.prevMode
                     if new_mode:
-                        if exit_using_done_or_cancel:
+                        if exit_using_done_or_cancel_button:
                             # This fixes bugs like 2566, 2565 
                             # @bug: But it doesn't fix the
                             # following bug: As of 2007-11-09, the 

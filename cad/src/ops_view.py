@@ -142,7 +142,7 @@ class viewSlotsMixin:
             if command.modename == modename: #bruce 071011 change, an educated guess, may increase prints, may cause bugs ### TEST
             ## if command.modename in modes_we_are_called_for:
                 # we're now in the command being turned off, as expected.
-                command.Done(exit_using_done_or_cancel = False)
+                command.Done(exit_using_done_or_cancel_button = False)
                 ### REVIEW: Can this ever happen if we just now entered that command,
                 # due to a programmatic change to that button, e.g. if another one
                 # was pressed? If so, it might cause some bug. [bruce 070814 comment]

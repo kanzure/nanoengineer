@@ -42,7 +42,7 @@ class ESC_to_exit_GraphicsMode_preMixin(commonGraphicsMode):
     def keyPress(self, key):
         # ESC - Exit our command.
         if key == Qt.Key_Escape:
-            self.command.Done(exit_using_done_or_cancel = False)
+            self.command.Done(exit_using_done_or_cancel_button = False)
         else:
             #bruce 071012 bugfix: add 'else' to prevent letting superclass
             # also handle Key_Escape and do assy.selectNone.
