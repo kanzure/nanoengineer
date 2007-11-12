@@ -10,12 +10,14 @@ MotorPropertyManager.py
 from PyQt4.Qt import QColorDialog
 
 from PM.PM_GroupBox      import PM_GroupBox
-from PM.PM_ListWidget    import PM_ListWidget
+
+from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_Constants     import pmRestoreDefaultsButton
 from widgets             import QColor_to_RGBf
 
 from GeneratorBaseClass  import AbstractMethod
 from EditController_PM   import EditController_PM
+
 
 from debug               import print_compact_traceback
 
@@ -52,7 +54,7 @@ class MotorPropertyManager(EditController_PM):
                
         # Hide Restore defaults button for Alpha9.
         self.hideTopRowButtons(pmRestoreDefaultsButton)
-    
+
     def show(self):
         """
         Show the  motor Property Manager.
@@ -74,13 +76,26 @@ class MotorPropertyManager(EditController_PM):
                           method. 
         @type  isConnect: boolean
         """
-        #if isConnect:
-            #change_connect = self.win.connect
-        #else:
-            #change_connect = self.win.disconnect        
-        pass
+        if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect 
+        
+        
+        EditController_PM.connect_or_disconnect_signals(self, isConnect)
+        
+        self.attachedAtomsListWidget.connect_or_disconnect_signals(isConnect)
 
     
+    def close(self):
+        """
+        Close this Property manager.
+        """
+        if self.attachedAtomsListWidget:
+            self.attachedAtomsListWidget.clearTags()            
+        EditController_PM.close(self)
+
+
     def enable_or_disable_gui_actions(self, bool_enable = False):
         """
         Enable or disable some gui actions when this property manager is 
@@ -135,18 +150,13 @@ class MotorPropertyManager(EditController_PM):
         """
         Update the list of attached atoms in the self.selectedAtomsListWidget
         """
-        attachedAtomNames = []
-        
+              
         if not atomList:
             if self.struct:
                 atomList = self.struct.atoms[:]
-                  
-        if atomList:
-            for atm in atomList:            
-                attachedAtomNames.append(str(atm))
-       
+                         
         self.attachedAtomsListWidget.insertItems(row = 0, 
-                                                 items = attachedAtomNames)
+                                                 items = atomList )
         
             
     def updateMessage(self, message = ''):
@@ -160,8 +170,6 @@ class MotorPropertyManager(EditController_PM):
         self.MessageGroupBox.insertHtmlMessage(msg, 
                                                setAsDefault = False,
                                                minLines     = 5)
-    
-    
     
     #Define the UI for the property manager=====================
 
@@ -195,32 +203,8 @@ class MotorPropertyManager(EditController_PM):
         """
         Load widgets in groupbox 3. 
         This is the default implementation. Can be overridden in subclasses. 
-        """     
-        
-        ##selectedAtomNames = []
-        
-        ### Create a list of the selected atoms (descriptions).
-        ##from bond_constants import describe_atom_and_atomtype
-        ##for a in self.struct.atoms:
-            ##san = describe_atom_and_atomtype(a)
-            ##selectedAtomNames.append(san)
-            
-        ##self.attachedAtomsListWidget = \
-            ##PM_ListWidget(pmGroupBox, 
-                                ##label="Atoms :", 
-                                ##items=selectedAtomNames,
-                                ##row=0, 
-                                ##setAsDefault=True,
-                                ##numRows=6,
-                                ##spanWidth=False)
-            
-            
+        """  
         self.attachedAtomsListWidget = \
-            PM_ListWidget(pmGroupBox, 
-                          label = "Atoms :",
-                          heightByRows = 6
-                        )
-        #old comment --
-        # Keep to discuss with Bruce. Mark 2007-06-04
-        #self.attachedAtomsListWidget.atoms = self.struct.atoms[:] 
-        
+            PM_SelectionListWidget(pmGroupBox, 
+                                   self.win,
+                                   heightByRows = 6  )       

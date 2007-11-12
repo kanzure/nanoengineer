@@ -424,6 +424,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         key = 0   # BAD FOR PYREX ATOMS - class variable vs. instance variable
 
     _will_kill = 0 #bruce 060327
+    
+    # The iconPath specifies path(string) of an icon that represents the 
+    # objects of this class  (in this case its gives the path of an 'atom' icon')
+    # see PM.PM_SelectionListWidget.insertItems for an example use of this
+    # attribute. 
+    iconPath = "ui/modeltree/Single_Atom.png"
 
     # def __init__  is just below a couple undo-update methods
 

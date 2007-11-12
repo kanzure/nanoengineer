@@ -265,13 +265,20 @@ class DnaDuplexEditController(EditController):
 	 -- [Ninad 2007-10-25 comment]	
 
         """
+        
         self.propMgr.endPoint1 = params[0]
         self.propMgr.endPoint2 = params[1]
         duplexLength = vlen(params[0] - params[1])
-        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', duplexLength)
+        
+        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
+                                                                 duplexLength)
+        
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
         self.propMgr.specifyDnaLineButton.setChecked(False)
         self.preview_or_finalize_structure(previewing = True)
+        if self.struct:
+            self.propMgr.strandListWidget.insertItems(row = 0,
+                                                      items = self.struct.members)
     
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """

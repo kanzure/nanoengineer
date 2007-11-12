@@ -28,7 +28,7 @@ from Numeric import exp
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QMenu
 
-from VQT import V, Q, vlen, norm, planeXline, ptonline
+from VQT import V, Q, vlen, norm, planeXline, ptonline, cross
 import drawer
 
 from debug import print_compact_traceback
@@ -39,6 +39,7 @@ import env
 from shape import get_selCurve_color
 
 from constants import SELSHAPE_RECT
+from constants import yellow
 
 from prefs_constants import zoomAboutScreenCenter_prefs_key
 from prefs_constants import displayOriginAxis_prefs_key
@@ -61,13 +62,13 @@ class nullGraphicsMode(GraphicsMode_API):
     do-nothing GraphicsMode (for internal use only) to avoid crashes
     in case of certain bugs during transition between GraphicsModes
     """
-    
+
     # needs no __init__ method; constructor takes no arguments
-    
+
     # WARNING: the next two methods are similar in all "null objects", of which
     # we have nullCommand and nullGraphicsMode so far. They ought to be moved
     # into a common nullObjectMixin for all kinds of "null objects". [bruce 071009]
-    
+
     def noop_method(self, *args, **kws):
         if platform.atom_debug:
             print "fyi: atom_debug: nullGraphicsMode noop method called -- probably ok; ignored"
@@ -83,7 +84,7 @@ class nullGraphicsMode(GraphicsMode_API):
             raise AttributeError, attr #e args?
 
     # GraphicsMode-specific null methods
-    
+
     def Draw(self):
         # Note: this does happen... maybe due to how soon we call
         # .start_using_mode( '$DEFAULT_MODE')".
@@ -98,7 +99,7 @@ class nullGraphicsMode(GraphicsMode_API):
         pass
     def bareMotion(self, e):
         pass
-    
+
     pass # end of class nullGraphicsMode
 
 # ==
@@ -110,7 +111,7 @@ class basicGraphicsMode(GraphicsMode_API):
     Will be merged with class GraphicsMode (keeping that one's name)
     when basicMode is no longer needed.
     """
-    
+
     #Initialize clock time during a wheel event to None. Its value is assigned 
     #in self.wheelEvent. This time is used to decide whether to highlight 
     #object under cursor. I.e. when user is scrolling the wheel to zoom in or
@@ -124,6 +125,11 @@ class basicGraphicsMode(GraphicsMode_API):
     # This is done differently in different subclasses, since in some of
     # them, those are the same object.
     
+    # Draw tags on entities in the 3D workspace if wanted. see self._drawTags
+    # dor details
+    _tagPositions = ()
+    _tagColor = yellow
+    
     def __init__(self, glpane):
         """
         """
@@ -132,7 +138,7 @@ class basicGraphicsMode(GraphicsMode_API):
 
         # initialize attributes used by methods to refer to
         # important objects in their runtime environment
-        
+
         self.glpane = glpane
         self.win = glpane.win
 
@@ -141,7 +147,7 @@ class basicGraphicsMode(GraphicsMode_API):
         # self.win doesn't yet have this attribute:
         # (btw the exception from this is not very understandable.)
         # So instead, we define a property that does this alias, below.
-        
+
         # Note: the attributes self.o and self.w are deprecated, but often used.
         # New code should use some other attribute, such as self.glpane or
         # self.commandSequencer or self.win, as appropriate. [bruce 070613, 071008]
@@ -156,7 +162,7 @@ class basicGraphicsMode(GraphicsMode_API):
     def isCurrentGraphicsMode(self): #bruce 071010, for GraphicsMode API
         """
         Return a boolean to indicate whether self is the currently active GraphicsMode.
-        
+
         See also Command.isCurrentCommand.
         """
         # see WARNING in modeMixin about this needing revision if .graphicsMode
@@ -179,7 +185,7 @@ class basicGraphicsMode(GraphicsMode_API):
         Menu_spec,
         Menu_spec_shift,
         Menu_spec_control,
-        
+
         and turn them into self._Menu1 etc, which are QMenus,
         one of which will be posted by the caller
         depending on the modkeys of an event.
@@ -191,26 +197,26 @@ class basicGraphicsMode(GraphicsMode_API):
         # GraphicsMode._setup_menus, bruce 071009
 
         command = self.command
-        
+
         command.setup_graphics_menu_specs()
-        
+
         self._Menu1 = QMenu()
         self.makemenu(command.Menu_spec, self._Menu1)
-        
+
         self._Menu2 = QMenu()
         self.makemenu(command.Menu_spec_shift, self._Menu2)
-        
+
         self._Menu3 = QMenu()
         self.makemenu(command.Menu_spec_control, self._Menu3)
-        
+
         return
-    
+
     # ==
 
     # confirmation corner methods [bruce 070405-070409, 070627]
 
     _ccinstance = None
-    
+
     def draw_overlay(self): #bruce 070405, revised 070627
         """
         called from GLPane with same drawing coordsys as for model
@@ -292,7 +298,7 @@ class basicGraphicsMode(GraphicsMode_API):
         unless they have a good reason not to. Note: it doesn't draw the model,
         since not all modes want to always draw it.
         """
-        
+
         # Draw the Origin axis.
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
@@ -302,10 +308,10 @@ class basicGraphicsMode(GraphicsMode_API):
                 #ninad060922 passing self.o.scale makes sure that the origin / pov axes are not zoomable
             else:
                 drawer.drawaxes(self.o.scale, (0.0,0.0,0.0), coloraxes=True)
-            
+
         if env.prefs[displayPOVAxis_prefs_key]:
             drawer.drawaxes(self.o.scale, -self.o.pov)
-        
+
         # Draw the Point of View axis unless it is at the origin (0,0,0) AND draw origin as cross wire is true ninad060920
         if env.prefs[displayPOVAxis_prefs_key]:
             if not env.prefs[displayOriginAsSmallAxis_prefs_key]:
@@ -317,7 +323,11 @@ class basicGraphicsMode(GraphicsMode_API):
                         drawer.drawaxes(self.o.scale, -self.o.pov)
             else:
                 drawer.drawaxes(self.o.scale, -self.o.pov)
-	
+        
+        #Draw tags if any
+        self._drawTags()
+                        
+
         # bruce 040929/041103 debug code -- for developers who enable this
         # feature, check for bugs in atom.picked and mol.picked for everything
         # in the assembly; print and fix violations. (This might be slow, which
@@ -325,6 +335,48 @@ class basicGraphicsMode(GraphicsMode_API):
         if platform.atom_debug:
             self.o.assy.checkpicked(always_print = 0)
         return
+    
+    def drawTags(self, tagPositions = (), tagColor = yellow):
+        """
+        Public method that accepts requests to draw tags at the given 
+        tagPositions.
+        @param tagPositions: The client can provide a list or tuple of tag 
+                            base positions. The default value for this parameter
+                            is an empty tuple. Thus, if no tag position is 
+                            specified, it won't draw any tags and will also 
+                            clear the previously drawn tags.
+        @type tagPositions: list or tuple
+        @param tagColor: The color of the tags
+        @type tagColor:  B{A}
+        @see: self._drawTags 
+        @see: DnaDuplexPropertyManager.clearTags for an example
+        """
+        self._tagPositions = list(tagPositions)
+        self._tagColor = tagColor
+        
+    def _drawTags(self):
+        """
+        Private method, called in self.Draw that actually draws the tags 
+        for self._tagPositions.
+        @see: self.drawTag 
+        """
+        
+        if self._tagPositions:            
+            for basePoint in self._tagPositions: 
+                if self.glpane.scale < 5:
+                    lineScale = 5
+                else:
+                    lineScale = self.glpane.scale
+                
+                endPoint = basePoint + self.glpane.up*0.2*lineScale
+                
+                pointSize = round(self.glpane.scale*0.5)
+                
+                drawer.drawTag(self._tagColor, 
+                               basePoint, 
+                               endPoint, 
+                               pointSize = pointSize)
+       
 
     def _drawESPImage(self, grp, pickCheckOnly): # huaicai; some comments/revisions by bruce 071026
         """
@@ -332,9 +384,9 @@ class basicGraphicsMode(GraphicsMode_API):
         ob.draw_later_due_to_translucency = true.
         (As of 071026 that's only true of ESPImage objects.)
         Not consider the order of ESP Image objects.
-        
+
         (Note: the code permits grp to be a leaf node as well.)
-        
+
         (Note: unreviewed for making sense if a Group has
          .draw_later_due_to_translucency set.)
 
@@ -349,9 +401,9 @@ class basicGraphicsMode(GraphicsMode_API):
         # caused the regular draw pass to skip it. Also improve the
         # efficiency (for how, see comment where ESPImage defines that
         # class constant).
-               
+
         anythingDrawn = False
-    
+
         try:
             if grp.draw_later_due_to_translucency:
                 anythingDrawn = True
@@ -377,7 +429,7 @@ class basicGraphicsMode(GraphicsMode_API):
             print_compact_traceback("exception in drawing some Group member; skipping to end: ")
             ###k return value?
         pass
-    
+
     def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
         """
         Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
@@ -386,12 +438,12 @@ class basicGraphicsMode(GraphicsMode_API):
 
         Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion
         (presently only used in depositMode).
-        
+
         [New method in mode API as of bruce 050610. General form not yet defined -- just a hack for Build mode's
          water surface. Could be used for transparent drawing in general.]
         """
         return self._drawESPImage(self.o.assy.part.topnode, pickCheckOnly)
-    
+
     def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; revised 060724
         """
         Say whether a highlighted mouseover object from a prior draw (in the same mode) is still ok.
@@ -436,7 +488,7 @@ class basicGraphicsMode(GraphicsMode_API):
     def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor): #bruce 071008 for graphics mode API
         """
         Subclasses should override this as needed, though most don't need to:
-        
+
         Draw selobj in highlighted form for being the object under the mouse,
         as appropriate to this graphics mode.
         [TODO: document this properly: Use hicolor as its color
@@ -445,35 +497,35 @@ class basicGraphicsMode(GraphicsMode_API):
         Note: selobj is typically glpane.selobj, but don't assume this.
         """
         selobj.draw_in_abs_coords(glpane, hicolor)
-    
+
     # left mouse button actions -- overridden in modes that respond to them
     def leftDown(self, event):
         pass
-    
+
     def leftDrag(self, event):
         pass
-    
+
     def leftUp(self, event):
         pass
-    
+
     def leftShiftDown(self, event):
         pass
-    
+
     def leftShiftDrag(self, event):
         pass
-    
+
     def leftShiftUp(self, event):
         pass
-    
+
     def leftCntlDown(self, event):
         pass
-    
+
     def leftCntlDrag(self, event):
         pass
-    
+
     def leftCntlUp(self, event):
         pass
-    
+
     def leftDouble(self, event):
         pass
 
@@ -487,7 +539,7 @@ class basicGraphicsMode(GraphicsMode_API):
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
-        
+
         # Turn off hover highlighting while rotating the view with middle mouse button. Fixes bug 1657. Mark 060805.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
 
@@ -502,12 +554,12 @@ class basicGraphicsMode(GraphicsMode_API):
         # comment applies to all three *Down/*Drag/*Up methods.
         if not self.picking:
             return
-        
+
         self.o.SaveMouse(event)
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1])
         self.o.quat += q
         self.o.gl_update()
- 
+
     def middleUp(self, event):
         self.picking = False
         self.update_cursor()
@@ -536,13 +588,13 @@ class basicGraphicsMode(GraphicsMode_API):
             # REVIEW: needed? the subclasses that use it also set it, so probably not.
             # TODO: confirm that guess, then remove this set. (In fact, this makes me wonder
             # if some or all of the other things in this method are redundant now.) [bruce 071012 comment]
-        
+
         self.o.SaveMouse(event) #k still needed?? probably yes; might even be useful to help dragto for atoms #e [bruce 060316 comment]
         self.picking = True
-        
+
         # Turn off hover highlighting while panning the view with middle mouse button. Fixes bug 1657. Mark 060808.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
-        
+
     def dragto(self, point, event, perp = None):
         """
         Return the point to which we should drag the given point,
@@ -598,7 +650,7 @@ class basicGraphicsMode(GraphicsMode_API):
         center and its dragpoint differ, and of how the offset between them rotates as the object does.
         """
         return self.dragto(point + offset, event) - offset
-    
+
     def middleShiftDrag(self, event):
         """
         Pan view with MMB+Shift+Drag. 
@@ -607,11 +659,11 @@ class basicGraphicsMode(GraphicsMode_API):
         point = self.dragto( self.movingPoint, event)
         self.o.pov += point - self.movingPoint
         self.o.gl_update()
-        
+
     def middleShiftUp(self, event):
         self.picking = False
         self.update_cursor()
-    
+
     def middleCntlDown(self, event):
         """
         Set up for rotating view around POV axis with MMB+Cntl+Drag.
@@ -622,17 +674,17 @@ class basicGraphicsMode(GraphicsMode_API):
         self.Zq = Q(self.o.quat)
         self.Zpov = self.o.pov
         self.picking = True
-        
+
         # Turn off hover highlighting while rotating the view with middle mouse button. Mark 060808.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
-    
+
     def middleCntlDrag(self, event):
         """
         Rotate around the point of view (POV) axis
         """
         if not self.picking:
             return
-        
+
         self.o.SaveMouse(event)
         dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
 
@@ -640,34 +692,34 @@ class basicGraphicsMode(GraphicsMode_API):
 
         w = self.o.width+0.0
         self.o.quat = self.Zq + Q(V(0,0,1),2*math.pi*dx/w)
- 
+
         self.o.gl_update()
-        
+
     def middleCntlUp(self, event):
         self.picking = False
         self.update_cursor()
-        
+
     def middleShiftCntlDown(self, event): # mark 060228.
         """
         Set up zooming POV in/out
         """
         self.middleCntlDown(event)
-        
+
     def middleShiftCntlDrag(self, event):
         """
         Zoom (push/pull) point of view (POV) away/nearer
         """
         if not self.picking:
             return
-        
+
         self.o.SaveMouse(event)
         dx,dy = (self.o.MousePos - self.Zorg) * V(1,-1)
         self.o.quat = Q(self.Zq)
         h=self.o.height+0.0
         self.o.pov = self.Zpov-self.o.out*(2.0*dy/h)*self.o.scale
- 
+
         self.o.gl_update()
-        
+
     def middleShiftCntlUp(self, event):
         self.picking = False
         self.update_cursor()
@@ -676,12 +728,12 @@ class basicGraphicsMode(GraphicsMode_API):
         pass
 
     # right button actions... #doc
-    
+
     def rightDown(self, event):
         self._setup_menus_in_each_cmenu_event()
         self._Menu1.exec_(event.globalPos())
         #ninad061009: Qpopupmenu in qt3 is  QMenu in Qt4
-	#apparently QMenu._exec does not take option int indexAtPoint.
+        #apparently QMenu._exec does not take option int indexAtPoint.
         # [bruce 041104 comment:] Huaicai says that menu.popup and menu.exec_
         # differ in that menu.popup returns immediately, whereas menu.exec_
         # returns after the menu is dismissed. What matters most for us is whether
@@ -700,13 +752,13 @@ class basicGraphicsMode(GraphicsMode_API):
         # click rather than drag (which I don't like); this might be fixable in
         # the corresponding mouseup methods, but that requires worrying about the
         # above-described issues.
-    
+
     def rightDrag(self, event):
         pass
-    
+
     def rightUp(self, event):
         pass
-    
+
     def rightShiftDown(self, event):
         self._setup_menus_in_each_cmenu_event()
         # Previously we did this:
@@ -718,29 +770,29 @@ class basicGraphicsMode(GraphicsMode_API):
         # and Qt does not give us the latter. So forget about the 3.
         self._Menu2.exec_(event.globalPos())
 
-                
+
     def rightShiftDrag(self, event):
         pass
-    
+
     def rightShiftUp(self, event):
         pass
-    
+
     def rightCntlDown(self, event):
         self._setup_menus_in_each_cmenu_event()
         # see note above
         self._Menu3.exec_(event.globalPos())
-        
+
     def rightCntlDrag(self, event):
         pass
-    
+
     def rightCntlUp(self, event):
         pass
-    
+
     def rightDouble(self, event):
         pass
 
     # other events
-    
+
     def bareMotion(self, event):
         pass
 
@@ -766,13 +818,13 @@ class basicGraphicsMode(GraphicsMode_API):
             # Fixed by using an exponential instead.
         self.rescale_around_point_re_user_prefs( factor , point )
             # note: depending on factor < 1.0 and user prefs, point is not always used.
-        
+
         # Turn off hover highlighting while zooming with mouse wheel. Fixes bug 1657. Mark 060805.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
-        
+
         #Following fixes bug 2536 See also selectMolsMode.bareMotion
         self.timeAtLastWheelEvent = time.clock()
-        
+
         self.o.gl_update()
         return
 
@@ -802,7 +854,7 @@ class basicGraphicsMode(GraphicsMode_API):
                 from debug_prefs import debug_pref, Choice_boolean_False
                 if debug_pref("GLPane: zoom out acts the same as zoom in?", Choice_boolean_False,
                               prefs_key = "A9 devel/GLPane: zoom out same as zoom in?"
-                             ):
+                              ):
                     recenter = not env.prefs[zoomAboutScreenCenter_prefs_key]
                 else:
                     recenter = False # the new documented behavior
@@ -811,17 +863,17 @@ class basicGraphicsMode(GraphicsMode_API):
         glpane = self.o
         glpane.rescale_around_point(factor, point) # note: point might have been modified above
         return
-    
+
     # [remaining methods not yet analyzed by bruce 040922]
 
-    
+
     # Key event handling revised by bruce 041220 to fix some bugs;
     # see comments in the GLPane methods, which now contain Mac-specific Delete
     # key fixes that used to be done here. For the future: The keyPressEvent and
     # keyReleaseEvent methods must be overridden by any mode which needs to know
     # more about key events than e.key() (which is the same for 'A' and 'a',
     # for example). As of 041220 no existing mode needs to do this.
-    
+
     def keyPressEvent(self, e):
         """
         [some modes will need to override this in the future]
@@ -838,9 +890,9 @@ class basicGraphicsMode(GraphicsMode_API):
         else:
             self.keyPress(e.key())
         return
-        
+
     def keyReleaseEvent(self, e):
-        
+
         # Ignore autorepeating key events.  Read comments in keyPressEvent above for more detail.
         # Mark 050412
         #bruce 060516 extending this; see same comment.
@@ -851,7 +903,7 @@ class basicGraphicsMode(GraphicsMode_API):
         return
 
     # the old key event API (for modes which don't override keyPressEvent etc)
-    
+
     def keyPress(self,key): # several modes extend this method, some might replace it
         if key == Qt.Key_Delete:
             self.w.killDo()
@@ -866,13 +918,13 @@ class basicGraphicsMode(GraphicsMode_API):
         elif key == Qt.Key_Comma: 
             self.o.scale *= 1.05
             self.o.gl_update()
-	# comment out wiki help feature until further notice, wware 051101
-	# [bruce 051130 revived/revised it, elsewhere in file]
+        # comment out wiki help feature until further notice, wware 051101
+        # [bruce 051130 revived/revised it, elsewhere in file]
         #if key == Qt.Key_F1:
         #    import webbrowser
         #    # [will 051010 added wiki help feature]
         #    webbrowser.open(self.__WikiHelpPrefix + self.__class__.__name__)
-	#bruce 051201: let's see if I can bring this F1 binding back.
+        #bruce 051201: let's see if I can bring this F1 binding back.
         # It works for Mac (only if you hold down "fn" key as well as F1);
         # but I don't know whether it's appropriate for Mac.
         # F1 for help (opening separate window, not usually an external website)
@@ -893,7 +945,7 @@ class basicGraphicsMode(GraphicsMode_API):
         if key in (Qt.Key_Period, Qt.Key_Comma):
             self.keyPress(key)
         return
-    
+
     def keyRelease(self,key): # mark 2004-10-11
         #e bruce comment 041220: lots of modes change cursors on this, but they
         # have bugs when more than one modifier is pressed and then one is
@@ -906,26 +958,26 @@ class basicGraphicsMode(GraphicsMode_API):
         if key in (Qt.Key_Period, Qt.Key_Comma):
             self.keyRelease(key)
         return
-        
+
     def update_cursor(self): # mark 060227
         """
         Update the cursor based on the current mouse button and mod keys pressed.
         """
         # print "basicMode.update_cursor(): button = %s, modkeys = %s, mode = %r, handler = %r" % \
         #     ( self.o.button, self.o.modkeys, self, self.o.mouse_event_handler )
-        
+
         handler = self.o.mouse_event_handler # [bruce 070405]
             # Note: use of this attr here is a sign that this method really belongs in class GLPane,
             # and the glpane should decide whether to pass this update call to that attr's value or to the mode.
             # Or, better, maybe the mouse_event_handler should be temporarily on top of the command stack
             # in the command sequencer, overriding the mode below it for some purposes.
             # [bruce 070628 comment]
-        
+
         if handler is not None:
             wX, wY = self.o._last_event_wXwY #bruce 070626
             handler.update_cursor(self, (wX, wY))
             return
-        
+
         if self.o.button is None:
             self.update_cursor_for_no_MB()
         elif self.o.button == 'LMB':
@@ -937,19 +989,19 @@ class basicGraphicsMode(GraphicsMode_API):
         else:
             print "basicMode.update_cursor() button ignored:", self.o.button
         return
-        
+
     def update_cursor_for_no_MB(self): # mark 060228
         """
         Update the cursor for operations when no mouse button is pressed
         """
         pass
-    
+
     def update_cursor_for_LMB(self): # mark 060228
         """
         Update the cursor for operations when the left mouse button (LMB) is pressed
         """
         pass
-        
+
     def update_cursor_for_MMB(self): # mark 060228
         """
         Update the cursor for operations when the middle mouse button (MMB) is pressed
@@ -967,7 +1019,7 @@ class basicGraphicsMode(GraphicsMode_API):
         else:
             print "Error in update_cursor_for_MMB(): Invalid modkey=", self.o.modkeys
         return
-        
+
     def update_cursor_for_RMB(self): # mark 060228
         """
         Update the cursor for operations when the right mouse button (RMB) is pressed
@@ -984,11 +1036,11 @@ class basicGraphicsMode(GraphicsMode_API):
         Draw the (possibly unfinished) freehand selection curve.
         """
         color = get_selCurve_color(self.selSense, self.o.backgroundColor)
-        
+
         pl = zip(self.selCurve_List[:-1],self.selCurve_List[1:])
         for pp in pl: # Draw the selection curve (lasso).
             drawer.drawline(color,pp[0],pp[1])
-            
+
         if self.selShape == SELSHAPE_RECT:  # Draw the selection rectangle.
             drawer.drawrectangle(self.selCurve_StartPt, self.selCurve_PrevPt,
                                  self.o.up, self.o.right, color)
@@ -1024,12 +1076,12 @@ class GraphicsMode(basicGraphicsMode):
     # since it is always mixed in after basicCommand
     # (sinc it is only for use in basicMode)
     # and they are provided by basicCommand or basicMode.
-    
+
     def _get_commandSequencer(self):
         return self.command.commandSequencer
-    
+
     commandSequencer = property(_get_commandSequencer) ### REVIEW: needed in this class?
-    
+
     def set_cmdname(self, name): ### REVIEW: needed in this class? # Note: used directly, not in a property.
         """
         Helper method for setting the cmdname to be used by Undo/Redo.
@@ -1041,12 +1093,12 @@ class GraphicsMode(basicGraphicsMode):
 
     def _get_hover_highlighting_enabled(self):
         return self.command.hover_highlighting_enabled
-    
+
     def _set_hover_highlighting_enabled(self, val):
         self.command.hover_highlighting_enabled = val
 
     hover_highlighting_enabled = property(_get_hover_highlighting_enabled, _set_hover_highlighting_enabled)
-    
+
     pass
 
 commonGraphicsMode = basicGraphicsMode # use this for mixin classes that need to work in both basicGraphicsMode and GraphicsMode

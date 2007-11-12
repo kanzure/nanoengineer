@@ -194,6 +194,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     ## _s_attr_atoms = S_CHILDREN
     _s_attr_atoms = S_CHILDREN_NOT_DATA
     _s_attrlayer_atoms = 'atoms' #bruce 060404
+    
+    # The iconPath specifies path(string) of an icon that represents the 
+    # objects of this class  (in this case its gives the path of an 'chunk icon')
+    # see PM.PM_SelectionListWidget.insertItems for an example use of this
+    # attribute.
+    iconPath = "ui/modeltree/Chunk.png"
 
     # no need to _s_attr_ decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
     # [that's the theory, anyway... bruce 060223]

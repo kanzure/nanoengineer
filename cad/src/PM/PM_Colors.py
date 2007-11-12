@@ -119,6 +119,8 @@ PM_MESSAGE_TEXT_EDIT_COLOR = QColor(255, 255, 100)
 # pmMessageTextEditColor to be deprecated.
 pmMessageBoxColor = pmMessageTextEditColor 
 
+pmReferencesListWidgetColor = QColor(254, 128, 129)
+
 if COLOR_THEME == "Gray":
 
     # Dark Gray Color Theme

@@ -1994,6 +1994,26 @@ def drawPoint(color,
         glPointSize(1.0)
     return
 
+def drawTag(color, basePoint, endPoint, pointSize = 20.0):
+    """
+    Draw a tag (or a 'flag') as a line ending with a circle (like a balloon 
+    with a string). Note: The word 'Flag' is intentionally not used in the 
+    method nameto avoid potential confusion with a boolean flag.
+    
+    @param color: color of the tag 
+    @type color: A
+    @param basePoint: The base point of the tag 
+    @type basePoint: V
+    @param endPoint: The end point of the tag 
+    @type endPoint: V
+    @param pointSize: The pointSize of the point to be drawin at the <endPoint>
+    @type  pointSize: float
+    
+    @see: GraphicsMode._drawTags where it is called (an example)
+    
+    """
+    drawline(color, basePoint, endPoint)
+    drawPoint(color, endPoint, pointSize = 20.0)
 
 def drawLineCube(color, pos, radius):
     vtIndices = [0,1,2,3, 0,4,5,1, 5,4,7,6, 6,7,3,2]
@@ -2104,8 +2124,8 @@ def drawaxes(n,point,coloraxes=False, dashEnabled = False):
     if coloraxes: 
         glColor3f(red[0], red[1], red[2])
         if dashEnabled:
-                #ninad060921 Note that we will only support dotted oridin axis (hidden lines)
-            #but not POV axis. (as it could be annoying)
+            #ninad060921 Note that we will only support dotted origin axis 
+            #(hidden lines)but not POV axis. (as it could be annoying)
             glLineStipple(5, 0xAAAA)
             glEnable(GL_LINE_STIPPLE)
             glDisable(GL_DEPTH_TEST)

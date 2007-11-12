@@ -152,6 +152,7 @@ class LinearMotorEditController(EditController):
         logMessage = ""
         isAtomRequirementMet = False
         
+                
         if numberOfAtoms == 0:
             logMessage = "No Atoms selected to create a %s" %(self.cmdname)
             isAtomRequirementMet = False
@@ -176,6 +177,8 @@ class LinearMotorEditController(EditController):
                 isAtomRequirementMet = False
             
             return (isAtomRequirementMet, logMessage)
+        
+        return (isAtomRequirementMet, logMessage)
             
         
     

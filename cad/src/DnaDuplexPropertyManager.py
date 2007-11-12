@@ -32,6 +32,8 @@ from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_ToolButton    import PM_ToolButton
+from PM.PM_PushButton    import PM_PushButton
+from PM.PM_SelectionListWidget import PM_SelectionListWidget
 
 from DebugMenuMixin import DebugMenuMixin
 from EditController_PM import EditController_PM
@@ -41,6 +43,10 @@ from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 from PM.PM_Constants     import pmPreviewButton
+
+from PM.PM_Colors        import pmReferencesListWidgetColor
+from utilities.Comparison import same_vals
+
 
 class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
     """
@@ -70,7 +76,9 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
     _duplexLength  = getDuplexLength(_conformation, _numberOfBases)
 
     endPoint1 = None
-    endPoint2 = None    
+    endPoint2 = None 
+    #For model changed signal
+    previousSelectionParams = None
 
     def __init__( self, win, editController ):
         """
@@ -87,6 +95,116 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                                 pmCancelButton | \
                                 pmPreviewButton| \
                                 pmWhatsThisButton)
+    
+    def connect_or_disconnect_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect 
+        
+        
+        EditController_PM.connect_or_disconnect_signals(self, isConnect)
+        
+        self.strandListWidget.connect_or_disconnect_signals(isConnect)
+        
+        change_connect( self.conformationComboBox,
+                      SIGNAL("currentIndexChanged(int)"),
+                      self.conformationComboBoxChanged )
+        
+        change_connect( self.numberOfBasePairsSpinBox,
+                      SIGNAL("valueChanged(int)"),
+                      self.numberOfBasesChanged )
+        
+        change_connect(self.specifyDnaLineButton, 
+                     SIGNAL("toggled(bool)"), 
+                     self.editController.enterDnaLineMode)
+    
+    def model_changed(self):
+        """
+        NOT IMPLEMENTED YET. This needs commandSequencer to treat various 
+        edit controllers as commands. Until then, the 'model_changed' method 
+        (and thus this method) will  never be called.
+        
+        When the editcontroller is treated as a 'command' by the 
+        commandSequencer. this method will override basicCommand.model_changed.
+        
+        @WARNING: Ideally this property manager should implement both
+               model_changed and selection_changed methods in the mode/command
+               API. 
+               model_changed method will be used here when the selected atom is 
+               dragged, transmuted etc. The selection_changed method will be 
+               used when the selection (picking/ unpicking) changes. 
+               At present, selection_changed and model_changed methods are 
+               called too frequently that it doesn't matter which one you use. 
+               Its better to use only a single method for preformance reasons 
+               (at the moment). This should change when the original 
+               methods in the API are revised to be called at appropiraite 
+               time. 
+        """  
+        newSelectionParams = self._currentSelectionParams()
+        
+        if same_vals(newSelectionParams, self.previousSelectionParams):
+            return
+        
+        self.previousSelectionParams = newSelectionParams   
+        #subclasses of BuildAtomsPM may not define self.selectedAtomPosGroupBox
+        #so do the following check.
+        if newSelectionParams[0]:            
+            self.editStrandPropertiesButton.setEnabled(True) 
+        else:
+            self.editStrandPropertiesButton.setEnabled(False) 
+            
+    
+    def _currentSelectionParams(self):
+        """
+        NOT CALLED YET. This needs commandSequencer to treat various 
+        edit controllers as commands. Until then, the 'model_changed' method 
+        (and thus this method) will  never be called.
+        
+        Returns a tuple containing current selection parameters. These 
+        parameters are then used to decide whether updating widgets
+        in this property manager is needed when L{self.model_changed} or 
+        L{self.selection_changed} methods are called. 
+        @return: A tuple that contains following selection parameters
+                   - Total number of selected atoms (int)
+                   - Selected Atom if a single atom is selected, else None
+                   - Position vector of the single selected atom or None
+        @rtype:  tuple
+        @NOTE: The method name may be renamed in future. 
+        Its possible that there are other groupboxes in the PM that need to be 
+        updated when something changes in the glpane.        
+        """
+         
+        selectedStrands = self.strandListWidget.selectedItems()
+        
+        if len(selectedStrands) == 1: 
+            #self.win.assy.selatoms_list() is same as 
+            # selectedAtomsDictionary.values() except that it is a sorted list 
+            #it doesn't matter in this case, but a useful info if we decide 
+            # we need a sorted list for multiple atoms in future. 
+            # -- ninad 2007-09-27 (comment based on Bruce's code review)
+            
+            return (selectedStrands[0])
+        else: 
+            return (None)
+    
+    def close(self):
+        """
+        Closes the Property Manager. Overrided EditController_PM.close()
+        """
+        #Clear tags, if any, due to the selection in the self.strandListWidget.
+        if self.strandListWidget:
+            self.strandListWidget.clearTags()
+                        
+        EditController_PM.close(self)
+    
 
     def getFlyoutActionList(self): 
         """ returns custom actionlist that will be used in a specific mode 
@@ -131,22 +249,60 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
 
         return params
 
-
-
-
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
         """
-        self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
-        self._loadGroupBox1( self._pmGroupBox1 )
-
-        self._pmGroupBox2 = PM_GroupBox( self, title = "Endpoints" )
+        
+        #Unused 'References List Box' to be revided. (just commented out for the
+        #time being. 
+        ##self._pmGroupBox1 = PM_GroupBox( self, title = "Reference Plane" )
+        ##self._loadGroupBox1( self._pmGroupBox1 )
+        
+        self._pmGroupBox2 = PM_GroupBox( self, title = "Strands" )
         self._loadGroupBox2( self._pmGroupBox2 )
+        
+        self._pmGroupBox3 = PM_GroupBox( self, title = "Parameters" )
+        self._loadGroupBox3( self._pmGroupBox3 )
 
+        self._pmGroupBox4 = PM_GroupBox( self, title = "Endpoints" )
+        self._loadGroupBox4( self._pmGroupBox4 )
+    
     def _loadGroupBox1(self, pmGroupBox):
         """
-        Load widgets in group box 1.
+        load widgets in groupbox1
+        """
+        self.referencePlaneListWidget = PM_SelectionListWidget(
+            pmGroupBox,
+            self.win,
+            label = "",
+            color = pmReferencesListWidgetColor,
+            heightByRows = 2)
+    
+    def _loadGroupBox2(self, pmGroupBox):
+        """
+        load widgets in groupbox2
+        """
+        #TODO: Following list widget will be a part of the default PM of 
+        #DNA Mode and not a part of DnaDuplx PM, this is work in progress, 
+        #to be revised soon (once dna object model is implemented)
+        # -- Ninad 2007-11-12
+        self.strandListWidget = PM_SelectionListWidget(pmGroupBox,
+                                                       self.win,
+                                                       label = "",
+                                                       heightByRows = 4 )
+        self.strandListWidget.setTagInstruction('TAG_AND_PICK_ITEM_IN_GLPANE')
+    
+        self.editStrandPropertiesButton = PM_PushButton( 
+            pmGroupBox,
+            label = "",
+            text  = "Edit Properties..." )
+        self.editStrandPropertiesButton.setEnabled(False)
+        
+
+    def _loadGroupBox3(self, pmGroupBox):
+        """
+        Load widgets in group box 3.
         """
 
         self.conformationComboBox  = \
@@ -155,9 +311,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                          choices       =  ["B-DNA"],
                          setAsDefault  =  True)
 
-        self.connect( self.conformationComboBox,
-                      SIGNAL("currentIndexChanged(int)"),
-                      self.conformationComboBoxChanged )
+        
         
         dnaModelChoices = ['PAM-3', 'PAM-5']
         self.dnaModelComboBox = \
@@ -166,7 +320,6 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                          choices       =  dnaModelChoices,
                          setAsDefault  =  True)
                                             
-
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
             PM_SpinBox( pmGroupBox, 
@@ -176,10 +329,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                         minimum       =  0,
                         maximum       =  10000 )
 
-        self.connect( self.numberOfBasePairsSpinBox,
-                      SIGNAL("valueChanged(int)"),
-                      self.numberOfBasesChanged )
-
+        
         self.basesPerTurnDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
                               label         =  "Bases Per Turn :",
@@ -197,11 +347,11 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                          text          =  "0.0 Angstroms",
                          setAsDefault  =  False)
 
-        self.duplexLengthLineEdit.setDisabled(True)
+        self.duplexLengthLineEdit.setDisabled(True)        
 
-    def _loadGroupBox2(self, pmGroupBox):
+    def _loadGroupBox4(self, pmGroupBox):
         """
-        Load widgets in group box 3.
+        Load widgets in group box 4.
         """
         #Folllowing toolbutton facilitates entering a temporary DnaLineMode
         #to create a DNA using endpoints of the specified line. 
@@ -217,13 +367,10 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         self.specifyDnaLineButton.setToolButtonStyle(
             Qt.ToolButtonTextBesideIcon)
 
-        self.connect(self.specifyDnaLineButton, 
-                     SIGNAL("toggled(bool)"), 
-                     self.editController.enterDnaLineMode)
-
         self._endPoint1GroupBox = PM_GroupBox( pmGroupBox, title = "Endpoint1" )
         self._endPoint2GroupBox = PM_GroupBox( pmGroupBox, title = "Endpoint2" )
-
+        
+        
         # Point 1
         self.x1SpinBox  =  \
             PM_DoubleSpinBox( self._endPoint1GroupBox,
@@ -299,12 +446,12 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
 
         @note: Many PM widgets are still missing their "What's This" text.
         """
-
-        self.conformationComboBox.setWhatsThis("""<b>Conformation</b>
-                                               <p>DNA exists in several possible conformations, with A-DNA, B-DNA,
-and Z-DNA being the most common. 
-<br>
-Only B-DNA is currently supported in NanoEngineer-1.</p>""")
+        txt_conformationComboBox = "<b>Conformation</b> <p>DNA exists in "\
+                                 "several possible conformations, with A-DNA, "\
+                                 "B-DNA, and Z-DNA being the most common. <br>"\
+                                 "Only B-DNA is currently supported in "\
+                                 "NanoEngineer-1.</p>"
+        self.conformationComboBox.setWhatsThis(txt_conformationComboBox)
 
     def conformationComboBoxChanged( self, inIndex ):
         """
@@ -382,7 +529,7 @@ Only B-DNA is currently supported in NanoEngineer-1.</p>""")
         #self.win.buildDnaAction is the action in Build menu in the control 
         # area. So when the Build button is checked, the command manager will 
         # show a custom flyout toolbar. 
-        #Note to Eric M:
+        # Note to Eric M:
         # This needs cleanup. It's a temporary implementation --ninad20071025
 
         action = self.win.buildDnaAction
@@ -391,5 +538,3 @@ Only B-DNA is currently supported in NanoEngineer-1.</p>""")
         self.win.commandManager.updateCommandManager(action,
                                                      obj, 
                                                      entering =bool_entering)
-
-
