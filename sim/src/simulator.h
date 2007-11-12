@@ -19,6 +19,7 @@
     RCSID_READMMP_H \
     RCSID_READXYZ_H \
     RCSID_PRINTERS_H \
+    RCSID_PRINTGROMACSTOPLOGY_H \
     RCSID_DYNAMICS_H \
     RCSID_JIGS_H \
     RCSID_POTENTIAL_H \
@@ -149,6 +150,7 @@
 #include "minstructure.h"
 #include "writemovie.h"
 #include "rigid.h"
+#include "printGromacsTopology.h"
 
 #include "globals.h"
 

@@ -23,6 +23,9 @@ usage(void)
     fprintf(stderr, "\ncommand line parameters:\n\
    --dump-part\n\
                     write out internal representation of .mmp file, then exit\n\
+   --write-gromacs-topology output_prefix\n\
+                    reads .mmp file and writes it as gromacs topology and coordinates\n\
+                    files.  Writes output_prefix.top and output_prefix.gro\n\
    --print-potential-function=<bond>\n\
                     print the values of the potential and gradient for the given bond.\n\
                     <bond> should be one of:\n\
@@ -152,10 +155,12 @@ set_py_exc_str(const char *filename,
 #define OPT_THERMOSTAT_GAMMA  LONG_OPT (15)
 #define OPT_PRINT_ENERGIES    LONG_OPT (16)
 #define OPT_ENABLE_ELECTROSTATIC LONG_OPT (17)
+#define OPT_WRITE_GROMACS_TOPOLOGY LONG_OPT (18)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
     { "dump-part", no_argument, NULL, OPT_DUMP_PART },
+    { "write-gromacs-topology", required_argument, NULL, OPT_WRITE_GROMACS_TOPOLOGY },
     { "print-potential-function", required_argument, NULL, OPT_PRINT_POTENTIAL},
     { "initial", required_argument, NULL, OPT_INITIAL},
     { "increment", required_argument, NULL, OPT_INCREMENT},
@@ -220,6 +225,7 @@ main(int argc, char **argv)
     struct part *part;
     int opt, n;
     int dump_part = 0;
+    char *write_gromacs_topology = NULL;
     int printStructurePotentialEnergy = 0;
     char *printPotential = NULL;
     double printPotentialInitial = -1; // pm
@@ -244,6 +250,9 @@ main(int argc, char **argv)
 	    usage();
 	case OPT_DUMP_PART:
 	    dump_part = 1;
+	    break;
+	case OPT_WRITE_GROMACS_TOPOLOGY:
+	    write_gromacs_topology = optarg;
 	    break;
         case OPT_PRINT_POTENTIAL:
             printPotential = optarg;
@@ -459,6 +468,18 @@ main(int argc, char **argv)
         // valgrind -v --leak-check=full --leak-resolution=high --show-reachable=yes simulator --dump-part part.mmp
         //
         printPart(stdout, part);
+        destroyPart(part);
+        part = NULL;
+        destroyBondTable();
+        fclose(TraceFile);
+        destroyAccumulator(CommandLine);
+        free(InputFileName);
+        free(OutputFileName);
+        exit(0);
+    }
+
+    if (write_gromacs_topology != NULL) {
+        printGromacsToplogy(write_gromacs_topology, part);
         destroyPart(part);
         part = NULL;
         destroyBondTable();

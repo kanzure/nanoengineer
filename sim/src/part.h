@@ -374,6 +374,10 @@ struct part
     struct xyz *velocities;
     
     struct atom *vdwHash[GRID_SIZE][GRID_SIZE][GRID_SIZE];
+
+    // Maps symbol to actual atomtype struct for each atomtype that
+    // appears in the part.
+    struct hashtable *atomTypesUsed;
 };
 
 extern struct part *makePart(char *filename, int (*parseError)(void *), void *stream);

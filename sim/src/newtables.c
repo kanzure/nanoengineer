@@ -504,7 +504,6 @@ generateVanDerWaals(char *bondName, int element1, int element2)
   evdW = (getAtomTypeByIndex(element1)->e_vanDerWaals +
                getAtomTypeByIndex(element2)->e_vanDerWaals) / 2.0;
 
-
   return addVanDerWaalsInteraction(bondName, rvdW, evdW, -1.0, -1.0);
 }
 

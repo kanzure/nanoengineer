@@ -252,7 +252,9 @@ hashtable_destroy(struct hashtable *table, void func(void *value))
     b = &table->buckets[i];
     if (b->key != NULL) {
       if (b->value != NULL) {
-        func(b->value);
+        if (func != NULL) {
+          func(b->value);
+        }
         b->value = NULL;
       }
       free(b->key);

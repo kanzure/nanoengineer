@@ -55,6 +55,7 @@ makePart(char *filename, int (*parseError)(void *), void *stream)
 
     p->num_rigidBodies = 1 ;
     p->rigidBodies = (struct rigidBody *)accumulator(p->rigidBodies, sizeof(struct rigidBody), 0);
+    p->atomTypesUsed = hashtable_new(32);
     rb = &p->rigidBodies[0];
     memset(rb, 0, sizeof(struct rigidBody));
     rb->name = copy_string("$Anchor");
@@ -213,7 +214,8 @@ destroyPart(struct part *p)
         free(p->outOfPlanes);
         p->outOfPlanes = NULL;
     }
-    
+
+    hashtable_destroy(p->atomTypesUsed, NULL);
     free(p);
 }
 
@@ -1636,6 +1638,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
         return;
     }
     a->type = getAtomTypeByIndex(elementType);
+    hashtable_put(p->atomTypesUsed, a->type->symbol, a->type);
     a->vdwBucketInvalid = 1;
 
     vdwRadius = a->type->vanDerWaalsRadius * 100.0; // convert from angstroms to pm
@@ -2793,12 +2796,28 @@ printOutOfPlane(FILE *f, struct part *p, struct outOfPlane *o)
     fprintf(f, ")\n");
 }
 
+static FILE *whereToPrintHashtableEntries = NULL;
+
+static void
+printAtomtypeHashtableEntry(char *symbol, void *value)
+{
+    struct atomType *at = (struct atomType *)value;
+
+    if (at != NULL) {
+        fprintf(whereToPrintHashtableEntries, "   %s(%s)\n", at->name, at->symbol);
+    }
+}
+
+
 void
 printPart(FILE *f, struct part *p)
 {
     int i;
     
     fprintf(f, "part loaded from file %s\n", p->filename);
+    whereToPrintHashtableEntries = f;
+    fprintf(f, "atomTypes used:\n");
+    hashtable_iterate(p->atomTypesUsed, printAtomtypeHashtableEntry);
     for (i=0; i<p->num_atoms; i++) {
 	printAtom(f, p, p->atoms[i]);
     }
