@@ -1,0 +1,48 @@
+mmpformat 050920 required; 051103 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (9.825484) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.825484) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (cytosine)
+info opengroup open = True
+mol (cytosine) def
+atom 1 (7) (1740, 106, -235) def
+atom 2 (6) (1027, -1075, -237) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (7) (-310, -1071, -245) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (6) (-1006, 72, -252) def
+info atom atomtype = sp2
+bond2 3
+atom 5 (6) (-341, 1302, -250) def
+info atom atomtype = sp2
+bond1 4
+atom 6 (6) (1056, 1308, -243) def
+info atom atomtype = sp2
+bond1 1
+bond2 5
+atom 7 (7) (-2410, 36, -260) def
+bond1 4
+atom 8 (8) (1684, -2243, -230) def
+info atom atomtype = sp2
+bond2 2
+atom 9 (1) (1597, 2243, -240) def
+bond1 6
+atom 10 (1) (-895, 2228, -257) def
+bond1 5
+atom 11 (1) (-2781, 856, 259) def
+bond1 7
+atom 12 (1) (-2736, -841, 190) def
+bond1 7
+atom 13 (1) (2780, 93, -229) def
+bond1 1
+egroup (cytosine)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part cytosine
