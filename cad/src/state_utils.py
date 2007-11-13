@@ -75,7 +75,8 @@ Do any inapprop obs get a key (like data or foreign objs) in current code?? ####
 # ==
 
 class _eq_id_mixin_: ##e use more? (GLPane?)
-    """For efficiency, any objects defining __getattr__ which might frequently be compared
+    """
+    For efficiency, any objects defining __getattr__ which might frequently be compared
     with == or != or coerced to a boolean, should have definitions for __eq__ and __ne__ and __nonzero__
     (and any others we forgot??), even if those are semantically equivalent to Python's behavior when they don't.
     Otherwise Python has to call __getattr__ on each comparison of these objects, just to check whether
@@ -105,11 +106,12 @@ class _eq_id_mixin_: ##e use more? (GLPane?)
 
 # ==
 
-def noop(*args,**kws): #k redundant with noop in constants, but i don't want to try importing from there right now [bruce 070412]
+def noop(*args, **kws): #k redundant with noop in constants, but i don't want to try importing from there right now [bruce 070412]
     pass
 
 def transclose( toscan, collector, layer_collector = noop, pass_counter = False):
-    """General transitive closure routine using dictionaries for collections in its API,
+    """
+    General transitive closure routine using dictionaries for collections in its API,
     where the keys can be whatever you want as long as they are unique (for desired equiv classes of objects)
     and used consistently.
        Details: Toscan should be a dictionary whose values are the starting point for the closure,
@@ -166,11 +168,13 @@ def transclose( toscan, collector, layer_collector = noop, pass_counter = False)
 # ==
 
 # private exceptions for use in private helper functions for certain recursive scanners:
-class _IsMutable(Exception): pass
+class _IsMutable(Exception):
+    pass
 
 
 class Classification: #e want _eq_id_mixin_? probably not, since no getattr.
-    """Classifications record policies and methods for inspecting/diffing/copying/etc all objects of one kind,
+    """
+    Classifications record policies and methods for inspecting/diffing/copying/etc all objects of one kind,
     or can be used as dict keys for storing those policies externally.
     (By "one kind of object", we often mean the instances of one Python class, but not always.)
     """
@@ -265,10 +269,13 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
     # we might decide to have a helper func classify an instance and return one of several classes, or None-or-so...
     # i mean some more atomic-like classification for classes that deserve one... [060221 late]
     #k not sure if this gains anything from its superclass
-    """###doc, implem - hmm, why do we use same obj for outside and inside? because, from outside, you might add to explore-list...
+    """
+    ###doc, implem - hmm, why do we use same obj for outside and inside? because, from outside, you might add to explore-list...
     """
     def __init__(self, class1):
-        "Become a Classification for class class1 (applicable to its instances)"
+        """
+        Become a Classification for class class1 (applicable to its instances)
+        """
         self.policies = {} # maps attrname to policy for that attr #k format TBD, now a map from attrname to decl val
         self.class1 = class1
 
@@ -322,7 +329,9 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.class1.__name__)
     
     def _find_attr_decls(self, class1):
-        "find _s_attr_xxx decls on class1, and process/store them"
+        """
+        find _s_attr_xxx decls on class1, and process/store them
+        """
         if self.debug_all_attrs:
             print "debug: _find_attr_decls in %s:" % (class1.__name__,)
         hmm = filter(lambda x: x.startswith("_s_"), dir(class1))
@@ -415,15 +424,21 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         return res
 
     def obj_is_data(self, obj):
-        "Should obj (one of our class's instances) be considered a data object?"
+        """
+        Should obj (one of our class's instances) be considered a data object?
+        """
         return self._objs_are_data ## or hasattr(obj, '_s_deepcopy'), if we let individual instances override their classes on this
     
     def copy(self, val, func): # from outside, when in vals, it might as well be atomic! WRONG, it might add self to todo list...
-        "Copy val, a (PyObject pointer to an) instance of our class"
+        """
+        Copy val, a (PyObject pointer to an) instance of our class
+        """
         return val
     
     def scan_children( self, obj1, func, deferred_category_collectors = {}, exclude_layers = ()):
-        "[for #doc of deferred_category_collectors, see caller docstring]"
+        """
+        [for #doc of deferred_category_collectors, see caller docstring]
+        """
         try:
             # (we might as well test this on obj1 itself, since not a lot slower than memoizing the same test on its class)
             method = obj1._s_scan_children # bug: not yet passing deferred_category_collectors ###@@@ [not needed for A7, I think]
@@ -449,7 +464,9 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         return
 
     def exclude(self, attr, exclude_layers):
-        "Should you scan attr (of an obj of this clas), given these exclude_layers (perhaps ())?"
+        """
+        Should you scan attr (of an obj of this clas), given these exclude_layers (perhaps ())?
+        """
         return self.attrlayers.get(attr) in exclude_layers # correct even though .get is often None
 
     pass # end of class InstanceClassification
@@ -476,10 +493,12 @@ copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes w
 _debug_deepcopy = False # initial value not used -- set to env.debug() in each run of copy_val [bruce 060311]
 
 def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficiency #bruce 060315 partly optimized env.debug() check
-    """Efficiently copy a general Python value (so that mutable components are not shared with the original),
+    """
+    Efficiently copy a general Python value (so that mutable components are not shared with the original),
     passing Python instances unchanged, unless they define a _s_deepcopy method,
     and passing unrecognized objects (e.g. QWidgets, bound methods) through unchanged.
-       (See a code comment for the reason we can't just use the standard Python copy module for this.)
+
+    (See a code comment for the reason we can't just use the standard Python copy module for this.)
     """
     global _debug_deepcopy
     _debug_deepcopy = platform.atom_debug # inlined env.debug()
@@ -497,7 +516,8 @@ def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficienc
     pass
 
 def is_mutable(val): #060302 [###@@@ use this more]
-    """Efficiently scan a potential argument to copy_val to see if it contains any mutable parts (including itself),
+    """
+    Efficiently scan a potential argument to copy_val to see if it contains any mutable parts (including itself),
     with special cases suitable for use on state-holding attribute values for Undo,
     which might be surprising in other applications (notably, for most InstanceType objects).
        Details:
@@ -517,7 +537,9 @@ def is_mutable(val): #060302 [###@@@ use this more]
     return False
 
 def _is_mutable_helper(val): #060303
-    "[private recursive helper for is_mutable] raise _IsMutable if val (or part of it) is mutable"
+    """
+    [private recursive helper for is_mutable] raise _IsMutable if val (or part of it) is mutable
+    """
     typ = type(val)
     if typ is type(()):
         # tuple is a special case -- later, make provisions for more
@@ -540,7 +562,8 @@ def _is_mutable_helper(val): #060303
     pass
     
 def scan_val(val, func): 
-    """Efficiently scan a general Python value, and call func on all InstanceType objects encountered
+    """
+    Efficiently scan a general Python value, and call func on all InstanceType objects encountered
     (or in the future, on objects of certain other types, like registered new-style classes or extension classes).
        No need to descend inside any values unless they might contain InstanceType objects. Note that some InstanceType
     objects define the _s_scan_children method, but we *don't* descend into them here using that -- this is only done
@@ -763,7 +786,8 @@ else:
 # ==
 
 class objkey_allocator:
-    """Use one of these to allocate small int keys (guaranteed nonzero) for objects you're willing to keep forever.
+    """
+    Use one of these to allocate small int keys (guaranteed nonzero) for objects you're willing to keep forever.
     We provide public dict attrs with our tables, and useful methods for whether we saw an object yet, etc.
        Note: a main motivation for having these keys at all is speed and space when using them as dict keys in large dicts,
     compared to python id() values. Other motivations are their uniqueness, and possible use in out-of-session encodings,
@@ -787,7 +811,9 @@ class objkey_allocator:
         return
     
     def allocate_key(self, key = None): # maybe not yet directly called; untested
-        "Allocate the requested key (assertfail if it's not available), or a new one we make up, and store None for it."
+        """
+        Allocate the requested key (assertfail if it's not available), or a new one we make up, and store None for it.
+        """
         if key is not None:
             # this only makes sense if we allocated it before and then abandoned it (leaving a hole), which is NIM anyway,
             # or possibly if we use md5 or sha1 strings or the like for keys (though we'd probably first have to test for prior decl).
@@ -804,7 +830,8 @@ class objkey_allocator:
         return key
 
     def key4obj(self, obj): # maybe not yet directly called; untested; inlined by some code
-        """What's the key for this object, if it has one? Return None if we didn't yet allocate one for it.
+        """
+        What's the key for this object, if it has one? Return None if we didn't yet allocate one for it.
         Ok to call on objects for which allocating a key would be illegal (in fact, on any Python values, I think #k).
         """
         return self._key4obj.get(id(obj)) #e future optim: store in the obj, for some objs? not sure it's worth the trouble,
@@ -813,29 +840,31 @@ class objkey_allocator:
             # that obj's id from being recycled. If it left and came back, this is not valid, but then neither would the comparison be!)
 
     def key4obj_maybe_new(self, obj):
-        """What's the key for this object, which we may not have ever seen before (in which case, make one up)?
+        """
+        What's the key for this object, which we may not have ever seen before (in which case, make one up)?
         Only legal to call when you know it's ok for this obj to have a key (since this method doesn't check that).
         Optimized for when key already exists.
         """
         try:
             return self._key4obj[id(obj)]
         except KeyError:
-            pass
-        # this is the usual way to assign new keys to newly seen objects (maybe the only way)
-        # note: this is an inlined portion of self.allocate_key()
-        self._lastobjkey += 1
-        key = self._lastobjkey
-        assert not self.obj4key.has_key(key)
-        self.obj4key[key] = obj
-        self._key4obj[id(obj)] = key
-        return key
+            # this is the usual way to assign new keys to newly seen objects (maybe the only way)
+            # note: this is an inlined portion of self.allocate_key()
+            self._lastobjkey += 1
+            key = self._lastobjkey
+            assert not self.obj4key.has_key(key)
+            self.obj4key[key] = obj
+            self._key4obj[id(obj)] = key
+            return key
+        pass
     
     pass # end of class objkey_allocator
 
 # ==
 
 class StateSnapshot:
-    """A big pile of saved (copies of) attribute values -- for each known attr, a dict from objkey to value.
+    """
+    A big pile of saved (copies of) attribute values -- for each known attr, a dict from objkey to value.
     The code that stores data into one of these is the collect_state method in some other class.
     The code that applies this data to live current objects is... presently in assy_become_scanned_state
     but maybe should be a method in this class. ####@@@@
@@ -855,11 +884,15 @@ class StateSnapshot:
     #e future: methods to read and write the data, to diff it, etc, and state-decls to let it be compared...
     #e will __eq__ just be eq on our attrdicts? or should attrdict missing or {} be the same? guess: same.
     def make_attrdict(self, attrcode):
-        "Make an attrdict for attrcode. Assume we don't already have one."
+        """
+        Make an attrdict for attrcode. Assume we don't already have one.
+        """
         assert self.attrdicts.get(attrcode) is None
         self.attrdicts[attrcode] = {}
     def size(self): ##e should this be a __len__ and/or a __nonzero__ method? ### shares code with DiffObj; use common superclass?
-        "return the total number of attribute values we're storing (over all objects and all attrnames)"
+        """
+        return the total number of attribute values we're storing (over all objects and all attrnames)
+        """
         res = 0
         for d in self.attrdicts.itervalues():
             # <rant> Stupid Python didn't complain when I forgot to say .values(),
@@ -877,21 +910,23 @@ class StateSnapshot:
 ##            # (attrname in more than one class is common, due to inheritance)
 ##            pass # not yet needed now that I fixed the bug in self.size(), above
     def __eq__(self, other):
-        "[this is used by undo_archive to see if the state has really changed]"
+        """
+        [this is used by undo_archive to see if the state has really changed]
+        """
         # this implem assumes modtimes/change_counters are not stored in the snapshots (or, not seen by diff_snapshots)!
         return self.__class__ is other.__class__ and not diff_snapshots(self, other)
     def __ne__(self, other):
         return not (self == other)
     def val_diff_func_for(self, attrcode):
-        attr, acode = attrcode
+        attr, acode_unused = attrcode
         if attr == '_posnxxx': # kluge, should use an _s_decl; remove xxx when this should be tried out ###@@@ [not used for A7]
             return val_diff_func_for__posn # stub for testing
         return None
     def extract_layers(self, layernames): #060404 first implem
         assert layernames == ('atoms',), "layernames can't be %r" % layernames #e generalize, someday
         res = self.__class__()
-        for attrcode, attrdict in self.attrdicts.items():
-            attr, acode = attrcode
+        for attrcode, attrdict_unused in self.attrdicts.items():
+            attr_unused, acode = attrcode
             if acode in ('Atom','Bond'): ###@@@ kluge 060404; assume acode is class name... only true for these two classes!!
                 res.attrdicts[attrcode] = self.attrdicts.pop(attrcode)
         return res
@@ -903,13 +938,16 @@ class StateSnapshot:
         return
     pass # end of class StateSnapshot
 
-def val_diff_func_for__posn((p1,p2), whatret): # purely a stub for testing, though it should work
+def val_diff_func_for__posn( (p1, p2), whatret): # purely a stub for testing, though it should work
     assert type(p1) is _Numeric_array_type
     assert type(p2) is _Numeric_array_type
     return p2 - p1
 
 def diff_snapshots(snap1, snap2, whatret = 0): #060227 
-    "Diff two snapshots. Retval format [needs doc]. Missing attrdicts are like empty ones. obj/attr sorting by varid to be added later."
+    """
+    Diff two snapshots. Retval format [needs doc]. Missing attrdicts
+    are like empty ones. obj/attr sorting by varid to be added later.
+    """
     keydict = dict(snap1.attrdicts) # shallow copy, used only for its keys (presence of big values shouldn't slow this down)
     keydict.update(snap2.attrdicts)
     attrcodes = keydict.keys()
@@ -937,7 +975,10 @@ def diff_snapshots(snap1, snap2, whatret = 0): #060227
     return res # just a diff-attrdicts-dict, with no empty dict members (so boolean test works ok) -- not a Snapshot itself.
 
 def diff_snapshots_oneway(snap1, snap2):
-    "diff them, but only return what's needed to turn snap1 into snap2, as an object containing attrdicts (all mutable)"
+    """
+    diff them, but only return what's needed to turn snap1 into snap2,
+    as an object containing attrdicts (all mutable)
+    """
     return DiffObj( diff_snapshots(snap1, snap2, whatret = 2) ) ######@@@@@@ also store val_diff_func per attrcode? [060309 comment]
 
 class DiffObj:
@@ -952,16 +993,21 @@ class DiffObj:
     def __init__(self, attrdicts = None):
         self.attrdicts = attrdicts or {}
     def size(self): ### shares code with StateSnapshot; use common superclass?
-        "return the total number of attribute value differences we're storing (over all objects and all attrnames)"
+        """
+        return the total number of attribute value differences we're
+        storing (over all objects and all attrnames)
+        """
         res = 0
         for d in self.attrdicts.itervalues():
             res += len(d)
         return res
     def RAM_usage_guess(self): #060323
-        "return a rough guess of our RAM consumption"
+        """
+        return a rough guess of our RAM consumption
+        """
         res = 0
         for attrcode, d in self.attrdicts.iteritems():
-            attr, acode = attrcode
+            attr, acode_unused = attrcode
             valsize = self.attrname_valsizes.get(attr, 24) # it's a kluge to use attr rather than attrcode here
                 # 24 is a guess, and is conservative: 2 pointers in dict item == 8, 2 small pyobjects (8 each??)
             res += len(d) * valsize
@@ -973,7 +1019,8 @@ class DiffObj:
     def __nonzero__(self):
         return self.nonempty()
     def accumulate_diffs(self, diffs): #060409
-        """Modify self to incorporate a copy of the given diffs (which should be another diffobj),
+        """
+        Modify self to incorporate a copy of the given diffs (which should be another diffobj),
         so that applying the new self is like applying the old self and then applying the given diffs.
         Don't change, or be bothered by future changes to, the given diffs.
         Return None.
@@ -994,7 +1041,8 @@ class DiffObj:
 
 def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
     ###e dflt is problematic since we don't know it here and it might vary by obj or class [not anymore, long bfr 060309; ##doc]
-    """Given two dicts, return a new one with entries at keys where their values differ (according to same_vals),
+    """
+    Given two dicts, return a new one with entries at keys where their values differ (according to same_vals),
     treating missing values as dflt (which is None if not provided, but many callers should pass _UNSET_).
        Values in retval depend on whatret and val_diff_func, as follows:
     If val_diff_func is None, values are pairs (v1, v2) where v1 = d1.get(key, dflt), and same for v2,
@@ -1016,15 +1064,15 @@ def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
 ##            if v1 == v2: # optim: == will be faster than != for some of our most common values
 ##                pass
 ##            else:
-##                res[key] = (v1,v2)
+##                res[key] = (v1, v2)
 ##        elif 0:
 ##            #####@@@@@ see if *this* fixes my bug... 060302 955a
 ##            # [it did for whole Numeric arrays, but it won't work for Numeric arrays inside tuples or lists]
 ##            if v1 != v2:
-##                res[key] = (v1,v2)
+##                res[key] = (v1, v2)
 ##        else:
-        if not same_vals(v1,v2):
-            res[key] = (v1,v2)
+        if not same_vals(v1, v2):
+            res[key] = (v1, v2)
     for key, v2 in d2.iteritems():
         #e (optim note: i don't know how to avoid scanning common keys twice, just to find d2-only keys;
         #   maybe copying d1 and updating with d2 and scanning that would be fastest way?
@@ -1035,9 +1083,9 @@ def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
 ##            if v1 == v2: # same order and test as above... oops, forgot to include the above's bugfix here, until 060303 11pm!
 ##                pass
 ##            else:
-##                res[key] = (v1,v2)
-            if not same_vals(v1,v2):
-                res[key] = (v1,v2)
+##                res[key] = (v1, v2)
+            if not same_vals(v1, v2):
+                res[key] = (v1, v2)
     if val_diff_func is None:
         if whatret: #e should optimize by using loop variants above, instead ###@@@
             ind = whatret - 1
@@ -1049,7 +1097,7 @@ def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
         for key, pair in res.items():
             res[key] = val_diff_func( pair, whatret )
                 #e We could optim by requiring caller to pass a func that already knows whatret!
-                # or letting whatrets 0,1,2 be special cases of val_diff_func (same idea), which takes (v1,v2) to what we want.
+                # or letting whatrets 0,1,2 be special cases of val_diff_func (same idea), which takes (v1, v2) to what we want.
                 # or just letting whatret be either 0,1,2, or a function.
                 #    But these optims are not needed, since the idea is to use this on a small number of attrvals with lots of data in
                 # each one (not just on a small number of attr *names*, but a small number of *values*). E.g. one attr for the entire
@@ -1075,7 +1123,8 @@ def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
 ##    return
 
 def diff_and_copy_state(archive, assy, priorstate): #060228 (#e maybe this is really an archive method? 060408 comment & revised docstring)
-    """Figure out how the current actual model state (of assy) differs from the last model state we archived (in archive/priorstate).
+    """
+    Figure out how the current actual model state (of assy) differs from the last model state we archived (in archive/priorstate).
     Return a new StatePlace (representing a logically immutable snapshot of the current model state)
     which presently owns a complete copy of that state (a mutable StateSnapshot which always tracks our most recent snapshot
     of the actual state), but is willing to give that up (and redefine itself (equivalently) as a diff from a changed version of that)
@@ -1116,7 +1165,8 @@ def diff_and_copy_state(archive, assy, priorstate): #060228 (#e maybe this is re
 
 def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers, layers, diffobj, childobj_dict ): #060404
     #e rename lastsnap_diffscan_layers
-    """[this might become a method of the undo_archive; it will certainly be generalized, as its API suggests]
+    """
+    [this might become a method of the undo_archive; it will certainly be generalized, as its API suggests]
     - Get sets of changed objects from (our subs to) global changedicts, and clear those.
     - Use those to modify lastsnap_diffscan_layers to cover changes tracked
       in the layers specified (for now only 'atoms' is supported),
@@ -1141,7 +1191,7 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
     changed_live = {} # both atoms & bonds; we'll classify, so more general (for future subclasses); not sure this is worth it
     changed_dead = {}
     archive._childobj_dict = childobj_dict # temporarily stored, for use by _oursQ and _liveQ methods (several calls deep) [060408]
-    for akey, obj in chgd_atoms.iteritems():
+    for akey_unused, obj in chgd_atoms.iteritems():
         # akey is atom.key, obj is atom
         key = _key4obj.get(id(obj)) # inlined keyknower.key4obj; key is objkey, not atom.key
         if key is None:
@@ -1180,7 +1230,7 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
         key = key4obj(obj)
         clas = ci(obj) #e could heavily optimize this if we kept all leaf classes separate; probably should
         for attrcode, dflt in clas.attrcode_dflt_pairs:
-            attr, acode_junk = attrcode
+            attr, acode_unused = attrcode
             ## state_attrdict = state_attrdicts[attrcode] #k if this fails, just use setdefault with {} [it did; makes sense]
             ## state_attrdict = state_attrdicts.setdefault(attrcode, {})
             state_attrdict = state_attrdicts[attrcode] # this should always work now that _archive_meet_class calls classify_class
@@ -1198,9 +1248,10 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
                 else:
                     state_attrdict[key] = copy_val(val)
                 diff_attrdicts[attrcode][key] = oldval
-        dflt = None; del dflt
+        dflt = None
+        del dflt
         for attrcode in clas.attrcodes_with_no_dflt:
-            attr, acode_junk = attrcode
+            attr, acode_unused = attrcode
             state_attrdict = state_attrdicts[attrcode]
             val = getattr(obj, attr, _Bugval)
             oldval = state_attrdict.get(key, _UNSET_) # not sure if _UNSET_ can happen, in this no-dflt case
@@ -1209,25 +1260,27 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
                 try:
                     diff_attrdict = diff_attrdicts[attrcode]
                 except:
-                    print "it failed, keys are",diff_attrdicts.keys() ####@@@@ should not happen anymore
-                    print " and state ones are",state_attrdicts.keys()
+                    print "it failed, keys are", diff_attrdicts.keys() ####@@@@ should not happen anymore
+                    print " and state ones are", state_attrdicts.keys()
                     ## sys.exit(1)
                     diff_attrdict = diff_attrdicts[attrcode] = {}
                 diff_attrdict[key] = oldval #k if this fails, just use setdefault with {} 
-        attrcode = None; del attrcode
+        attrcode = None
+        del attrcode
     for idobj, obj in changed_dead.iteritems():
         #e if we assumed these all have same clas, we could invert loop order and heavily optimize
         key = key4obj(obj)
         clas = ci(obj)
         for attrcode in clas.dict_of_all_state_attrcodes.iterkeys():
             # (this covers the attrcodes in both clas.attrcode_dflt_pairs and clas.attrcodes_with_no_dflt)
-            attr, acode_junk = attrcode
+            attr, acode_unused = attrcode
             state_attrdict = state_attrdicts[attrcode]
             val = _UNSET_ # convention for dead objects
             oldval = state_attrdict.pop(key, _UNSET_) # use pop because we know val is _UNSET_
             if oldval is not val:
                 diff_attrdicts[attrcode][key] = oldval
-        attrcode = None; del attrcode
+        attrcode = None
+        del attrcode
     if 1:
         from undo_archive import _undo_debug_obj, _undo_debug_message
         obj = _undo_debug_obj
@@ -1259,7 +1312,8 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
 # ==
 
 class StatePlace:
-    """basically an lval for a StateSnapshot or a (diffobj, StatePlace) pair;
+    """
+    basically an lval for a StateSnapshot or a (diffobj, StatePlace) pair;
     represents a logically immutable snapshot in a mutable way
     """
     # WARNING: as of 060309 callers have a kluge that will break if anything sets the attr 'attrdicts' in this object. ##@@ fix
@@ -1288,7 +1342,10 @@ class StatePlace:
         return res
     #e methods for pulling the snap back to us, too... across the pointer self.diff_and_place, i guess
     def get_snap_back_to_self(self, accum_diffobj = None):
-        "[recursive (so might not be ok in practice)] [if accum_diffobj is passed, accumulate the diffs we traversed into it]"
+        """
+        [recursive (so might not be ok in practice)]
+        [if accum_diffobj is passed, accumulate the diffs we traversed into it]
+        """
         # predicted bug if we try this on the initial state, so, need caller to use StatePlace there ####@@@@
         # (this bug never materialized, but I don't know why not!!! [bruce 060309])
         # sanity check re that:
@@ -1310,7 +1367,8 @@ class StatePlace:
         return
     #e and for access to it, for storing it back into assy using archive
     def get_attrdicts_for_immediate_use_only(self): # [renamed, 060309]
-        """WARNING: these are only for immediate use without modification!
+        """
+        WARNING: these are only for immediate use without modification!
         They are shared with mutable dicts which we *will* modify the next time some other stateplace
         has this method called on it, if not sooner!
         """
@@ -1318,7 +1376,8 @@ class StatePlace:
         return self.lastsnap.attrdicts
     
     def get_attrdicts_relative_to_lastsnap(self): #060407 late, done & always used as of 060409
-        """WARNING: the return value depends on which stateplace last had this method
+        """
+        WARNING: the return value depends on which stateplace last had this method
         (or get_attrdicts_for_immediate_use_only, i.e. any caller of get_snap_back_to_self) run on it!!
         [I think that's all, but whether more needs to be said ought to be analyzed sometime. ##k]
         """
@@ -1327,7 +1386,8 @@ class StatePlace:
         return accum_diffobj.attrdicts #e might be better to get more methods into diffobj and then return diffobj here
     
     def _relative_RAM(self, priorplace): #060323
-        """Return a guess about the RAM requirement of retaining the diff data to let this state
+        """
+        Return a guess about the RAM requirement of retaining the diff data to let this state
         be converted (by Undo) into the state represented by priorplace, also a StatePlace (??).
         Temporary kluge: this must only be called at certain times, soon after self finalized... not sure of details.
         """
@@ -1335,7 +1395,8 @@ class StatePlace:
     pass # end of class StatePlace
 
 def apply_and_reverse_diff(diff, snap):
-    """Given a DiffObj <diff> and a StateSnapshot <snap> (both mutable), modify <snap> by applying <diff> to it,
+    """
+    Given a DiffObj <diff> and a StateSnapshot <snap> (both mutable), modify <snap> by applying <diff> to it,
     at the same time recording the values kicked out of <snap> into <diff>, thereby turning it into a reverse diff.
     Missing values in <snap> are represented as _UNSET_ in <diff>, in both directions (found or set in <snap>).
        Return None, to remind caller we modify our argument objects.
@@ -1391,7 +1452,8 @@ def apply_and_reverse_diff(diff, snap):
 # or "class1", or something else.
 
 class obj_classifier: 
-    """Classify objects seen, and save the results, and provide basic uses of the results for scanning.
+    """
+    Classify objects seen, and save the results, and provide basic uses of the results for scanning.
     Probably can't yet handle "new-style" classes. Doesn't handle extension types (presuming they're not InstanceTypes) [not sure].
        Note: the amount of data this stores is proportional to the number of classes and state-holding attribute declarations;
     it doesn't (and shouldn't) store any per-object info. I.e. it soon reaches a small fixed size, regardless of number of objects
@@ -1404,7 +1466,8 @@ class obj_classifier:
         return
     
     def classify_instance(self, obj):
-        """Obj is known to be of InstanceType. Classify it (memoizing classifications per class when possible).
+        """
+        Obj is known to be of InstanceType. Classify it (memoizing classifications per class when possible).
         It might be a StateHolder, Data object, or neither.
         """
         class1 = obj.__class__
@@ -1417,31 +1480,33 @@ class obj_classifier:
             # (#e future optim, though: perhaps store clas inside the object, and also objkey, as special attrs)
             return self._clas_for_class[class1]
         except KeyError:
-            pass
-        return self.classify_class(class1)
+            return self.classify_class(class1)
+        pass
         
     def classify_class(self, class1):
-        """Find or make (and return) an InstanceClassification for this class;
+        """
+        Find or make (and return) an InstanceClassification for this class;
         if you make it, memoize it and record info about its attr decls.
         """
         try:
             return self._clas_for_class[class1] # redundant when called from classify_instance, but needed for direct calls
         except KeyError:
-            pass
-        clas = self._clas_for_class[class1] = InstanceClassification(class1)
-        self.dict_of_all_state_attrcodes.update( clas.dict_of_all_state_attrcodes )
-        self.attrcodes_with_undo_setattr.update( clas.attrcodes_with_undo_setattr )
+            clas = self._clas_for_class[class1] = InstanceClassification(class1)
+            self.dict_of_all_state_attrcodes.update( clas.dict_of_all_state_attrcodes )
+            self.attrcodes_with_undo_setattr.update( clas.attrcodes_with_undo_setattr )
 #bruce 060330 not sure if the following can be fully zapped, though most of it can. Not sure how "cats" are used yet...
 # wondering if acode should be classname. ###@@@
 # ... ok, most of it can be zapped; here's enough to say what it was about:
-##        # Store per-attrdict metainfo, which in principle could vary per-class but should be constant for one attrdict.
-#....
-##                self.kluge_attr2metainfo[attr] = attr_metainfo
-##                self.kluge_attr2metainfo_from_class[attr] = clas # only for debugging
-        return clas
+##            # Store per-attrdict metainfo, which in principle could vary per-class but should be constant for one attrdict.
+##            ....
+##            self.kluge_attr2metainfo[attr] = attr_metainfo
+##            self.kluge_attr2metainfo_from_class[attr] = clas # only for debugging
+            return clas
+        pass
     
     def collect_s_children(self, val, deferred_category_collectors = {}, exclude_layers = ()): #060329/060404 added exclude_layers
-        """Collect all objects in val, and their s_children, defined as state-holding objects
+        """
+        Collect all objects in val, and their s_children, defined as state-holding objects
         found (recursively, on these same objects) in their attributes which were
         declared S_CHILD or S_CHILDREN or S_CHILDREN_NOT_DATA using the state attribute decl system... [#doc that more precisely]
         return them as the values of a dictionary whose keys are their python id()s.
@@ -1474,7 +1539,8 @@ class obj_classifier:
         env_debug = env.debug()
         classify_instance = self.classify_instance
         def obj_and_dict(obj1, dict1): #e rename
-            """pass me to transclose; I'll store objs into dict1 when I reach them from a child attribute of obj; all objs are
+            """
+            pass me to transclose; I'll store objs into dict1 when I reach them from a child attribute of obj; all objs are
             assumed to be instances of the kind acceptable to classify_instance.
             """
             # note, obj1 might be (what we consider) either a StateHolder or a Data object (or neither).
@@ -1511,7 +1577,8 @@ class obj_classifier:
         return allobjs # from collect_s_children
 
     def collect_state(self, objdict, keyknower, exclude_layers = ()): #060329/060404 added exclude_layers
-        """Given a dict from id(obj) to obj, which is already transclosed to include all objects of interest,
+        """
+        Given a dict from id(obj) to obj, which is already transclosed to include all objects of interest,
         ensure all these objs have objkeys (allocating them from keyknower (an objkey_allocator instance) as needed),
         and grab the values of all their state-holding attrs,
         and return this in the form of a StateSnapshot object.
@@ -1540,10 +1607,10 @@ class obj_classifier:
             # Do we optim dflt values of attrs? We ought to... even when we're differential, we're not *always* differential.
             ###e need to teach clas to know those, then.
             for attrcode, dflt in clas.attrcode_dflt_pairs: # for attrs holding state (S_DATA, S_CHILD*, S_PARENT*, S_REF*) with dflts
-                attr, acode_junk = attrcode
+                attr, acode_unused = attrcode
                 if clas.exclude(attr, exclude_layers):
                     if env.debug():###@@@ rm when works
-                        print "debug: collect_state exclude_layers1 excludes",attr,"of",obj
+                        print "debug: collect_state exclude_layers1 excludes", attr, "of", obj
                     continue
                 val = getattr(obj, attr, dflt)
                 # note: this dflt can depend on key -- no need for it to be the same within one attrdict,
@@ -1563,10 +1630,10 @@ class obj_classifier:
                 #valcopy = copy_val(val)
                 #attrdict = attrdicts[attr]
                 #attrdict[key] = valcopy
-                attr, acode_junk = attrcode
+                attr, acode_unused = attrcode
                 if clas.exclude(attr, exclude_layers):
                     if env.debug():###@@@ rm when works
-                        print "debug: collect_state exclude_layers2 excludes",attr,"of",obj
+                        print "debug: collect_state exclude_layers2 excludes", attr, "of", obj
                     continue
                 attrdicts[attrcode][key] = copy_val(getattr(obj, attr, _Bugval))
                     # We do it all in one statement, for efficiency in case compiler is not smart enough to see that local vars
@@ -1591,13 +1658,14 @@ class obj_classifier:
         return snapshot # from collect_state
 
     def reset_obj_attrs_to_defaults(self, obj):
-        """Given an obj we have saved state for, reset each attr we might save
+        """
+        Given an obj we have saved state for, reset each attr we might save
         to its default value (which might be "missing"??), if it has one.
         [#e someday we might also reset S_CACHE attrs, but not for now.]
         """
         from undo_archive import _undo_debug_obj, _undo_debug_message
         clas = self.classify_instance(obj)
-        for (attr, acode_junk), dflt in clas.attrcode_dflt_pairs:
+        for (attr, acode_unused), dflt in clas.attrcode_dflt_pairs:
             if obj is _undo_debug_obj:
                 _undo_debug_message("undo/redo: reset dflt %r.%s = %r" % (obj, attr, dflt))
             setattr(obj, attr, dflt) #e need copy_val? I suspect not, so as of 060311 1030pm PST I'll remove it as an optim.
@@ -1630,12 +1698,15 @@ class StateMixin( _eq_id_mixin_ ):
         # (which is ok, since if you added this mixin to them, you must have thought about
         #  whether they needed such decls)
     def _undo_update(self):
-        "#doc [see docstring in chunk]"
+        """
+        #doc [see docstring in chunk]
+        """
         return
     pass
 
 class DataMixin:
-    """Convenience mixin for classes that act as "data" when present
+    """
+    Convenience mixin for classes that act as "data" when present
     in values of declared state-holding attributes. Provides method stubs
     to remind you when you haven't declared a necessary method. (not sure this is good)
     Makes sure state system treats this object as data (and doesn't warn about it).
@@ -1657,7 +1728,9 @@ class DataMixin:
         return not (self == other) # this uses the __eq__ above, or one which the main class defined
     pass
 
-# == test code
+# ===
+
+# test code
 
 def _test():
     print "testing some simple cases of copy_val"
