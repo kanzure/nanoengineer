@@ -60,6 +60,7 @@ from PM.PM_CheckBox import PM_CheckBox
 ##from modes import *
 ##from modes import basicMode
 from Command import Command
+from GraphicsMode import GraphicsMode
 
 from debug import print_compact_traceback, register_debug_menu_command
 import time, math
@@ -954,7 +955,9 @@ class TextState(InstanceMacro):#e rename?
 
 # ==============================================================================
 
-_superclass_GM = _superclass.GraphicsMode_class
+## _superclass_GM = _superclass.GraphicsMode_class # wrong, this is None now
+_superclass_GM = GraphicsMode
+print "_superclass = %r, _superclass_GM = %r" % (_superclass, _superclass_GM)####
 
 class test_animation_mode_GM( _superclass_GM ):
     
