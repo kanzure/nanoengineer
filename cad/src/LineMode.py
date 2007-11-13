@@ -109,7 +109,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         if len(self.command.mouseClickPoints) == self.command.mouseClickLimit:
             self.endPoint2 = None
             self.glpane.gl_update()
-            self.command.Done()            
+            self.command.Done(exit_using_done_or_cancel_button = False)            
             return
          
     def update_cursor_for_no_MB(self): 
