@@ -360,9 +360,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # in theory the value doesn't matter at all for a chunkless atom, but a removed atom (see Chunk.delatom) will have -1 here,
         # so imitating that seems most correct.
         
-    ## dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
-    ## dnaStrandName -- set when first demanded, or can be explicitly set using setDnaStrandName().
-
     # _s_attr decls for state attributes -- children, parents, refs, bulky data, optional data [bruce 060223]
 
     _s_attr_bonds = S_CHILDREN
@@ -836,76 +833,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         """
         return self.atomtype.name
 
-    def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
-        """
-        Set the Dna base name. This is only valid for PAM Ss or Sj
-        atoms.
-        
-        @param dnaBaseName: The DNA base name. This is usually a single letter,
-                            but it can be more. Only letters are valid.
-        @type  dnaBaseName: str
-        
-        @raise: If self is not Sj or Ss, or if dnaBaseName has an invalid 
-                character(s).
-        
-        """
-        assert self.element.symbol in ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5'), \
-            "Can only assign dnaBaseNames to Ss or Sj (PAM) atoms. \
-            Attempting to assign dnaBaseName %r to element %r." \
-            % (dnaBaseName, self.element.name)
-        
-        # Make sure dnaBaseName has all valid characters.
-        for c in dnaBaseName:
-            if not c in string.letters:
-                assert 0, "%r is not a valid dnaBaseName name." % (dnaBaseName)
-                
-        self.dnaBaseName = dnaBaseName
-        
-    def getDnaBaseName(self):
-        """
-        Returns the value of attr I{dnaBaseName}.
-        
-        @return: The DNA base name, or None if the attr I{dnaBaseName} does 
-                 not exist.
-        @rtype:  str
-        """
-        return self.__dict__.get('dnaBaseName', "")
-    
-    def setDnaStrandName(self, dnaStrandName): # Mark 2007-09-04
-        """
-        Set the Dna strand name. This is only valid for PAM-5 Pe atoms.
-        
-        @param dnaStrandName: The DNA strand name.
-        @type  dnaStrandName: str
-        
-        @raise: If self is not a Pe atom.
-        
-        """
-        assert self.element.symbol in ('Se3', 'Pe5'), \
-            "Can only assign dnaStrandNames to Pe (PAM) atoms. \
-            Attempting to assign dnaStrandName %r to element %r." \
-            % (dnaStrandName, self.element.name)
-        
-        # Make sure dnaStrandName has all valid characters.
-        #@ Need to allow digits and letters. Mark 2007-09-04
-        """
-        for c in dnaStrandName:
-            if not c in string.letters:
-                assert 0, "Strand name %r has an invalid character (%r)." \
-                       % (dnaStrandName, c)"""
-                
-        self.dnaStrandName = dnaStrandName
-        
-    def getDnaStrandName(self):
-        """
-        Returns the value of attr I{dnaStrandName}.
-        
-        @return: The DNA strand name, or None if the attr I{dnaStrandName} does 
-                 not exist.
-        @rtype:  str
-        """
-        return self.__dict__.get('dnaStrandName', "")
-        
     def posn(self):
         """Return the absolute position of the atom in space.
         [Public method; should be ok to call for any atom at any time.]
@@ -1181,170 +1108,6 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 #  since it usually looks like a cone when it's correctly used? Current code won't do that.
                 #e Maybe add option to draw the dir == 0 case too, to point out you ought to propogate the direction
         return ""
-
-    def directional_bond_chain_status(self): # bruce 071016
-        """
-        Return a tuple (statuscode, bond1, bond2)
-        indicating the status of self's bonds with respect to chains
-        of directional bonds. The possible return values are:
-
-        DIRBOND_CHAIN_MIDDLE, bond1, bond2 -- inside a chain involving these two bonds
-          (note: there might be other directional bonds (open bonds) which should be ignored)
-
-        DIRBOND_CHAIN_END, bond1, None -- at the end of a chain, which ends with this bond
-        
-        DIRBOND_NONE, None, None -- not in a chain
-
-        DIRBOND_ERROR, None, None -- local error in directional bond structure,
-          so caller should treat this as not being in a chain
-
-        Note that all we consider is whether a bond is directional, not whether
-        a direction is actually set. Similarly, when two bonds have directions
-        set, we don't consider whether their directions are consistent.
-
-        But if self is monovalent (e.g. a bondpoint) and its neighbor is not,
-        we consider its neighbor's status in determining its own.
-        
-        Note that when drawing a bond, each of its atoms can have an
-        almost-independent directional_bond_chain_status (due to the
-        possibility of erroneous structures), so both of its atoms
-        need their directional_bond_chain_status checked for errors.
-        """
-        # note: I think this implem is correct with or without open bonds
-        # being directional [bruce 071016]
-        if not self.element.bonds_can_be_directional:
-            # optimization
-            return DIRBOND_NONE, None, None
-        if len(self.bonds) == 1:
-            # Special cases, in all but a few situations that I think will never happen.
-            # (But for those, fall thru to general case below.)
-            bond = self.bonds[0]
-            neighbor = bond.other(self)
-            if len(neighbor.bonds) > 1:
-                # monovalents defer to non-monovalent neighbors
-                # (note: this applies to bondpoints (after mark 071014 changes)
-                #  or to "strand termination atoms".)
-                statuscode, bond1, bond2 = neighbor.directional_bond_chain_status()
-                if statuscode == DIRBOND_NONE or statuscode == DIRBOND_ERROR:
-                    return statuscode, None, None
-                elif statuscode == DIRBOND_CHAIN_MIDDLE:
-                    # it matters whether we're in the neighbor's chain
-                    if bond is bond1 or bond is bond2:
-                        return DIRBOND_CHAIN_END, bond, None
-                    else:
-                        # we're attached to the chain but not in it.
-                        # REVIEW: return DIRBOND_ERROR in some cases??
-                        msg =  "warning: %r has one directional bond (%r) " \
-                            "by which it's attached to (but not in) a " \
-                            "directional bond chain containing %r and %r" % \
-                            (self, bond, bond1, bond2)
-                        print msg
-                        return DIRBOND_NONE, None, None # DIRBOND_ERROR?
-                    pass
-                elif statuscode == DIRBOND_CHAIN_END:
-                    # it matters whether the neighbor's chain includes us
-                    # (though I suspect that it always does include us except in errors).
-                    if bond is bond1:
-                        return DIRBOND_CHAIN_END, bond, None
-                    else:
-                        msg = "warning: %r has one directional bond (%r) " \
-                            "by which it's attached to (but not in) the end of a " \
-                            "directional bond chain containing %r" % \
-                            (self, bond, bond1)
-                        print msg
-                        return DIRBOND_NONE, None, None # DIRBOND_ERROR?
-                    pass
-                else:
-                    assert 0, "%r got unrecognized statuscode %r from %r.directional_bond_chain_status" % \
-                           (self, statuscode, neighbor)
-                    return DIRBOND_ERROR, None, None
-                pass
-            else:
-                # two connected monovalent atoms, one maybe-directional bond...
-                # for now, proceed with no special case. If this ever happens, review it.
-                # (e.g. we might consider it an error.)
-                pass
-            pass
-        dirbonds = self.directional_bonds()
-        num = len(dirbonds)
-        if num == 2:
-            # it doesn't matter how many of them are open bonds, in this case
-            return DIRBOND_CHAIN_MIDDLE, dirbonds[0], dirbonds[1]
-        elif num == 1:
-            # whether or not it's an open bond
-            return DIRBOND_CHAIN_END, dirbonds[0], None
-        elif num == 0:
-            return DIRBOND_NONE, None, None
-        else:
-            # more than 2 -- see if some of them can be ignored
-            # (WARNING: current behavior is not ideal at ends of bare strands) 
-            real_dirbonds = filter( lambda bond: not bond.is_open_bond(), dirbonds )
-            num_real = len(real_dirbonds)
-            if num_real == 2:
-                # This works around the near-term situation in which a single strand
-                # has open bonds where axis atoms ought to be, by ignoring those open bonds.
-                # POSSIBLE BUG: the propogate caller can reach this, if it can start on an
-                # ignored open bond. Maybe we should require that it is not offered in the UI
-                # in this case, by having it check this method before deciding. ### REVIEW
-                return DIRBOND_CHAIN_MIDDLE, real_dirbonds[0], real_dirbonds[1]
-            else:
-                # some sort of error, or at least, a situation we can't propogate a chain in.
-                # WARNING: this happens routinely at the end of a "bare strand" (no axis atoms),
-                # since it has one real and two open bonds, all directional.
-                # This situation will probably be deprecated but can happen at present.
-                # (REVIEW: in that situation would it be better to return DIRBOND_NONE, None, None?)
-                # We might fix this by:
-                # - making that situation never occur
-                # - making bonds know whether they're directional even if they're open (bond subclass)
-                # - atom subclass for bondpoints
-                # - notice whether a direction is set on just one open bond;
-                #   construct open bonds on directional elements so the right number are set
-                #   (or preferably, marked as directional bonds without a direction being set)
-                # REVIEW: return an error message string?
-                # [bruce 071112 updated comment]
-                return DIRBOND_ERROR, None, None
-        pass
-    
-    def strand_end_bond(self): #bruce 070415, revised 071016 ### REVIEW: rename?
-        """
-        For purposes of possibly drawing self as an arrowhead,
-        determine whether self is on the end of a chain of directional bonds
-        (regardless of whether they have an assigned direction).
-        But if self is a bondpoint attached to a chain of directional real bonds,
-        treat it as not part of a bond chain, even if it's directional.
-        [REVIEW: is that wise, if it has a direction set (which is probably an error)?]
-
-        @return: None, or the sole directional bond on self (if it
-                 might be correct to use that for drawing self as an
-                 arrowhead).
-
-        TODO: need a more principled separation of responsibilities
-        between self and caller re "whether it might be correct to
-        draw self as an arrowhead" -- what exactly is it our job to
-        determine?
-
-        REVIEW: also return an error code, for drawing red arrowheads
-        in the case of certain errors?
-        """
-        if not self.element.bonds_can_be_directional:
-            return None # optimization
-        statuscode, bond1, bond2 = self.directional_bond_chain_status()
-        if statuscode == DIRBOND_CHAIN_END:
-            assert bond1
-            assert bond2 is None
-            return bond1
-        else:
-            return None
-        pass
-    
-    def directional_bonds(self): #bruce 070415
-        """
-        Return a list of our directional bonds. Its length might be 0, 1, or 2,
-        or in the case of erroneous structures [or possibly some legal ones as of
-        mark 071014 changes], 3 or more.
-        """
-        ### REVIEW: should this remain as a separate method, now that its result can't be used naively?
-        return filter(lambda bond: bond.is_directional(), self.bonds)
     
     def draw_atom_sphere(self, color, pos, drawrad, level, dispdef, abs_coords = False):
         "#doc [dispdef can be None if not known to caller]"
@@ -3447,7 +3210,250 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             bond_atoms(self, x)
         return
 
+    # ===
+    #
+    # The Atom methods below this point might be moved into subclasses for specific
+    # types of atoms. [bruce 071113 moved existing methods here]
+    #
+    # ===
+
+    def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
+        """
+        Set the Dna base name. This is only valid for PAM Ss or Sj
+        atoms.
+        
+        @param dnaBaseName: The DNA base name. This is usually a single letter,
+                            but it can be more. Only letters are valid.
+        @type  dnaBaseName: str
+        
+        @raise: If self is not Sj or Ss, or if dnaBaseName has an invalid 
+                character(s).
+        
+        """
+        assert self.element.symbol in ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5'), \
+            "Can only assign dnaBaseNames to Ss or Sj (PAM) atoms. \
+            Attempting to assign dnaBaseName %r to element %r." \
+            % (dnaBaseName, self.element.name)
+        
+        # Make sure dnaBaseName has all valid characters.
+        for c in dnaBaseName:
+            if not c in string.letters:
+                assert 0, "%r is not a valid dnaBaseName name." % (dnaBaseName)
+                
+        self.dnaBaseName = dnaBaseName
+        
+    def getDnaBaseName(self):
+        """
+        Returns the value of attr I{dnaBaseName}.
+        
+        @return: The DNA base name, or None if the attr I{dnaBaseName} does 
+                 not exist.
+        @rtype:  str
+        """
+        return self.__dict__.get('dnaBaseName', "")
+    
+    def setDnaStrandName(self, dnaStrandName): # Mark 2007-09-04
+        """
+        Set the Dna strand name. This is only valid for PAM-5 Pe atoms.
+        
+        @param dnaStrandName: The DNA strand name.
+        @type  dnaStrandName: str
+        
+        @raise: If self is not a Pe atom.
+        
+        """
+        assert self.element.symbol in ('Se3', 'Pe5'), \
+            "Can only assign dnaStrandNames to Pe (PAM) atoms. \
+            Attempting to assign dnaStrandName %r to element %r." \
+            % (dnaStrandName, self.element.name)
+        
+        # Make sure dnaStrandName has all valid characters.
+        #@ Need to allow digits and letters. Mark 2007-09-04
+        """
+        for c in dnaStrandName:
+            if not c in string.letters:
+                assert 0, "Strand name %r has an invalid character (%r)." \
+                       % (dnaStrandName, c)"""
+                
+        self.dnaStrandName = dnaStrandName
+        
+    def getDnaStrandName(self):
+        """
+        Returns the value of attr I{dnaStrandName}.
+        
+        @return: The DNA strand name, or None if the attr I{dnaStrandName} does 
+                 not exist.
+        @rtype:  str
+        """
+        return self.__dict__.get('dnaStrandName', "")
+        
+    def directional_bond_chain_status(self): # bruce 071016
+        """
+        Return a tuple (statuscode, bond1, bond2)
+        indicating the status of self's bonds with respect to chains
+        of directional bonds. The possible return values are:
+
+        DIRBOND_CHAIN_MIDDLE, bond1, bond2 -- inside a chain involving these two bonds
+          (note: there might be other directional bonds (open bonds) which should be ignored)
+
+        DIRBOND_CHAIN_END, bond1, None -- at the end of a chain, which ends with this bond
+        
+        DIRBOND_NONE, None, None -- not in a chain
+
+        DIRBOND_ERROR, None, None -- local error in directional bond structure,
+          so caller should treat this as not being in a chain
+
+        Note that all we consider is whether a bond is directional, not whether
+        a direction is actually set. Similarly, when two bonds have directions
+        set, we don't consider whether their directions are consistent.
+
+        But if self is monovalent (e.g. a bondpoint) and its neighbor is not,
+        we consider its neighbor's status in determining its own.
+        
+        Note that when drawing a bond, each of its atoms can have an
+        almost-independent directional_bond_chain_status (due to the
+        possibility of erroneous structures), so both of its atoms
+        need their directional_bond_chain_status checked for errors.
+        """
+        # note: I think this implem is correct with or without open bonds
+        # being directional [bruce 071016]
+        if not self.element.bonds_can_be_directional:
+            # optimization
+            return DIRBOND_NONE, None, None
+        if len(self.bonds) == 1:
+            # Special cases, in all but a few situations that I think will never happen.
+            # (But for those, fall thru to general case below.)
+            bond = self.bonds[0]
+            neighbor = bond.other(self)
+            if len(neighbor.bonds) > 1:
+                # monovalents defer to non-monovalent neighbors
+                # (note: this applies to bondpoints (after mark 071014 changes)
+                #  or to "strand termination atoms".)
+                statuscode, bond1, bond2 = neighbor.directional_bond_chain_status()
+                if statuscode == DIRBOND_NONE or statuscode == DIRBOND_ERROR:
+                    return statuscode, None, None
+                elif statuscode == DIRBOND_CHAIN_MIDDLE:
+                    # it matters whether we're in the neighbor's chain
+                    if bond is bond1 or bond is bond2:
+                        return DIRBOND_CHAIN_END, bond, None
+                    else:
+                        # we're attached to the chain but not in it.
+                        # REVIEW: return DIRBOND_ERROR in some cases??
+                        msg =  "warning: %r has one directional bond (%r) " \
+                            "by which it's attached to (but not in) a " \
+                            "directional bond chain containing %r and %r" % \
+                            (self, bond, bond1, bond2)
+                        print msg
+                        return DIRBOND_NONE, None, None # DIRBOND_ERROR?
+                    pass
+                elif statuscode == DIRBOND_CHAIN_END:
+                    # it matters whether the neighbor's chain includes us
+                    # (though I suspect that it always does include us except in errors).
+                    if bond is bond1:
+                        return DIRBOND_CHAIN_END, bond, None
+                    else:
+                        msg = "warning: %r has one directional bond (%r) " \
+                            "by which it's attached to (but not in) the end of a " \
+                            "directional bond chain containing %r" % \
+                            (self, bond, bond1)
+                        print msg
+                        return DIRBOND_NONE, None, None # DIRBOND_ERROR?
+                    pass
+                else:
+                    assert 0, "%r got unrecognized statuscode %r from %r.directional_bond_chain_status" % \
+                           (self, statuscode, neighbor)
+                    return DIRBOND_ERROR, None, None
+                pass
+            else:
+                # two connected monovalent atoms, one maybe-directional bond...
+                # for now, proceed with no special case. If this ever happens, review it.
+                # (e.g. we might consider it an error.)
+                pass
+            pass
+        dirbonds = self.directional_bonds()
+        num = len(dirbonds)
+        if num == 2:
+            # it doesn't matter how many of them are open bonds, in this case
+            return DIRBOND_CHAIN_MIDDLE, dirbonds[0], dirbonds[1]
+        elif num == 1:
+            # whether or not it's an open bond
+            return DIRBOND_CHAIN_END, dirbonds[0], None
+        elif num == 0:
+            return DIRBOND_NONE, None, None
+        else:
+            # more than 2 -- see if some of them can be ignored
+            # (WARNING: current behavior is not ideal at ends of bare strands) 
+            real_dirbonds = filter( lambda bond: not bond.is_open_bond(), dirbonds )
+            num_real = len(real_dirbonds)
+            if num_real == 2:
+                # This works around the near-term situation in which a single strand
+                # has open bonds where axis atoms ought to be, by ignoring those open bonds.
+                # POSSIBLE BUG: the propogate caller can reach this, if it can start on an
+                # ignored open bond. Maybe we should require that it is not offered in the UI
+                # in this case, by having it check this method before deciding. ### REVIEW
+                return DIRBOND_CHAIN_MIDDLE, real_dirbonds[0], real_dirbonds[1]
+            else:
+                # some sort of error, or at least, a situation we can't propogate a chain in.
+                # WARNING: this happens routinely at the end of a "bare strand" (no axis atoms),
+                # since it has one real and two open bonds, all directional.
+                # This situation will probably be deprecated but can happen at present.
+                # (REVIEW: in that situation would it be better to return DIRBOND_NONE, None, None?)
+                # We might fix this by:
+                # - making that situation never occur
+                # - making bonds know whether they're directional even if they're open (bond subclass)
+                # - atom subclass for bondpoints
+                # - notice whether a direction is set on just one open bond;
+                #   construct open bonds on directional elements so the right number are set
+                #   (or preferably, marked as directional bonds without a direction being set)
+                # REVIEW: return an error message string?
+                # [bruce 071112 updated comment]
+                return DIRBOND_ERROR, None, None
+        pass
+    
+    def strand_end_bond(self): #bruce 070415, revised 071016 ### REVIEW: rename?
+        """
+        For purposes of possibly drawing self as an arrowhead,
+        determine whether self is on the end of a chain of directional bonds
+        (regardless of whether they have an assigned direction).
+        But if self is a bondpoint attached to a chain of directional real bonds,
+        treat it as not part of a bond chain, even if it's directional.
+        [REVIEW: is that wise, if it has a direction set (which is probably an error)?]
+
+        @return: None, or the sole directional bond on self (if it
+                 might be correct to use that for drawing self as an
+                 arrowhead).
+
+        TODO: need a more principled separation of responsibilities
+        between self and caller re "whether it might be correct to
+        draw self as an arrowhead" -- what exactly is it our job to
+        determine?
+
+        REVIEW: also return an error code, for drawing red arrowheads
+        in the case of certain errors?
+        """
+        if not self.element.bonds_can_be_directional:
+            return None # optimization
+        statuscode, bond1, bond2 = self.directional_bond_chain_status()
+        if statuscode == DIRBOND_CHAIN_END:
+            assert bond1
+            assert bond2 is None
+            return bond1
+        else:
+            return None
+        pass
+    
+    def directional_bonds(self): #bruce 070415
+        """
+        Return a list of our directional bonds. Its length might be 0, 1, or 2,
+        or in the case of erroneous structures [or possibly some legal ones as of
+        mark 071014 changes], 3 or more.
+        """
+        ### REVIEW: should this remain as a separate method, now that its result can't be used naively?
+        return filter(lambda bond: bond.is_directional(), self.bonds)
+
     pass # end of class Atom
+
+# ==
 
 register_class_changedicts( Atom, _Atom_global_dicts )
     # error if one class has two same-named changedicts (so be careful re module reload)
