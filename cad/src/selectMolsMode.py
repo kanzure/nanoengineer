@@ -76,7 +76,7 @@ class selectMolsMode(selectMode):
         self.w.toolsSelectMoleculesAction.setChecked(0)
             # toggle off the "Select Chunks" tools icon
         #self.w.selectMolDashboard.hide()
-    
+
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """
 	NOTE: This needs to be a general API method. There are situations when 
@@ -89,18 +89,18 @@ class selectMolsMode(selectMode):
         """	        
         if temporaryModeName == "DNA_LINE_MODE":
             #This is the number of mouse clicks that the temporary mode accepts
-	    # When this limit is reached, the temporary mode will return to the
-	    #previous mode.
-	    dnaEditController = self.win.dnaEditController
-	    if dnaEditController:
-		params = dnaEditController.provideParamsForTemporaryMode(temporaryModeName) 
-	else:
-	    #@attention This is an arbitrary number, needs cleanup. 
-	    mouseClickLimit = 2
-	    params = (mouseClickLimit)
-	    
-	return params
-	    
+            # When this limit is reached, the temporary mode will return to the
+            #previous mode.	    
+            dnaEditController = self.win.dnaEditController
+            if dnaEditController:
+                params = dnaEditController.provideParamsForTemporaryMode(temporaryModeName) 
+        else:
+            #@attention This is an arbitrary number, needs cleanup. 
+            mouseClickLimit = 2
+            params = (mouseClickLimit)
+
+        return params
+
     def acceptParamsFromTemporaryMode(self, temporaryModeName, params):
         """
 	NOTE: This needs to be a general API method. There are situations when 
@@ -131,31 +131,33 @@ class selectMolsMode(selectMode):
 	 then belong to DnaDuplexEditController. 
 	 -- [Ninad 2007-10-25 comment]	
         """
-	#Usually params will contain 2 items. But if user abruptly terminates  
-	#the temporary mode, this might not be true. So move the chunk by offset
-	#only when you have got 2 points!  Ninad 2007-10-16
-	if len(params) == 2:	    
-	    dnaEditController = self.win.dnaEditController
-	    if dnaEditController:
-		dnaEditController.acceptParamsFromTemporaryMode(params)
-	    
+
+        #Usually params will contain 2 items. But if user abruptly terminates  
+        #the temporary mode, this might not be true. So move the chunk by offset
+        #only when you have got 2 points!  Ninad 2007-10-16
+        if 1:
+            if len(params) == 2:	    
+                dnaEditController = self.win.dnaEditController
+                if dnaEditController:
+                    dnaEditController.acceptParamsFromTemporaryMode(params)
+
     def leftDouble(self, event):
         """
 	Select connected chunks
 	"""
-	#this is a temporary fix for NFR bug 2569. 'Selectconnected chunks not
-	#implemented yet
+        #this is a temporary fix for NFR bug 2569. 'Selectconnected chunks not
+        #implemented yet
         if self.cursor_over_when_LMB_pressed != 'Empty Space':
             self.selectConnectedChunks()
         return
-    
+
     def selectConnectedChunks(self):
         """
 	TODO: Not implemented yet. Need to define a method in ops_select to 
 	do this
         """        
         pass
-    
+
 
     def update_cursor_for_no_MB(self):
         """
@@ -248,24 +250,22 @@ class selectMolsMode(selectMode):
 
     # Chunk selection helper methods. 
 
-    def atomLeftDown(self, a, event):        
+    def atomLeftDown(self, a, event):  
+        """
+        Left down on an atom or a singlet(bondpoint)
+        @param a: Atom or singlet
+        @type  a: Atom or singlet
+        @param event: QMouseLeftDown event
+        """
         m = a.molecule
-        if not m.picked and self.o.modkeys is None:
-            self.o.assy.unpickall_in_GLPane()
-            m.pick()
-            self.o.selobj =  None
-        if not m.picked and self.o.modkeys == 'Shift':
-            m.pick()
-            self.o.selobj =  None
-
-        if m.picked:
-            self.cursor_over_when_LMB_pressed = 'Picked Chunk'
-        else:
-            self.cursor_over_when_LMB_pressed = 'Unpicked Chunk'
-
-        self.w.win_update()
-
-
+        self.chunkLeftDown(m, event)
+        #@ATTENTION: Doubt about the following call. This is probably needed 
+        # only to get a value for self.current_object which is then used in 
+        # self.leftUp . This value is set in selectode.objectSetup. 
+        # Not sure if we need all things in selectmode.atomSetup appears 
+        # buggy. -- Ninad 2007-11-13 (commented during select*Mode cleanup #2)
+        self.atomSetup(a, event)
+    
     def atomLeftUp(self, a, event):
         """
         Real atom <a> was clicked, so select, unselect or delete 
@@ -277,82 +277,70 @@ class selectMolsMode(selectMode):
           selection.
         - If Shift+Control (Delete) is pressed, delete atom <m>.
         """
-
         m = a.molecule
-
+        #Don't know if deallocate_bc_in_use is needed. Keeping the old code.
         self.deallocate_bc_in_use()
-
-        if not self.current_obj_clicked:
-            # Atom was dragged.  Nothing to do but return.
-            if self.drag_multiple_atoms:
-                self.set_cmdname('Move Atoms')
-            else:
-                self.set_cmdname('Move Atom')
-            # REVIEW: note about command names: if jigs were moved too,
-            # "Move Selected Objects" might be better... [bruce 060412 comment]
-            self.o.assy.changed() # mark 060227
-            return
-
-        nochange = False
-
+        
+        self.chunkLeftUp(m, event)
+    
+    def chunkLeftDown(self, chunk, event):
+        """
+        Depending on the modifier key(s) pressed, it does various operations on
+        chunk..typically pick or unpick the chunk(s) or do nothing.
+        
+        If an object left down happens, the left down method of that object
+        calls this method (chunkLeftDown) as it is the 'selectMolsMode' which 
+        is supposed to select chunk (molecule) of the object clicked
+        @param chunk: The chunk of the object clicked (example, if the  object 
+                      is an atom, then it is atom.molecule
+        @type chunk: B{molecule}
+        @param event: MouseLeftDown event
+        @see: self.atomLeftDown
+        @see: self.chunkLeftDown
+        """
+        m = chunk
+        
+        assert m.__class__.__name__ == 'molecule' 
+        
         if self.o.modkeys is None:
-            # isn't this redundant with the side effects in atomLeftDown??
-            # [bruce 060721 question]
             self.o.assy.unpickall_in_GLPane()
-            if m.picked:
-                nochange = True
-                #bruce 060331 comment: nochange = True is wrong,
-                # since the unpick might have changed something.
-                # For some reason the gl_update occurs anyway,
-                # so I don't know if this causes a real bug,
-                # so I didn't change it.
-            else:
-                m.pick()
-                self.set_cmdname('Select Atom')
-            env.history.message(a.getinfo())
-
+            m.pick()
+            self.o.selobj =  None
         elif self.o.modkeys == 'Shift':
-            if m.picked: 
-                nochange = True
-            else:
+            if not m.picked:
                 m.pick()
-                self.set_cmdname('Select Atom')
-            env.history.message(a.getinfo())
-
+            self.o.selobj =  None
         elif self.o.modkeys == 'Control':
             if m.picked:
                 m.unpick()
-                self.set_cmdname('Unselect Atom')
-                #bruce 060331 comment:
-                # I think a better term (in general) would be "Deselect".
-                #bruce 060331 bugfix:
-                # if filtering prevents the unpick, don't print the message
-                # saying we unpicked it. I also fixed the message to not use
-                # the internal jargon 'unpicked'. I also added an orangemsg
-                # when filtering prevented the unpick, as we have when it
-                # prevents a delete.
-                if not m.picked:
-                    # the unpick worked (was not filtered)
-                    env.history.message("Deselected atom %r" % a)
-                else:
-                    msg = "Can't deselect atom %r due to selection filter. " \
-                        "Hit Escape to clear the filter." % a
-                    env.history.message(orangemsg(msg))
-            else: # Already unpicked.
-                nochange = True
-
-        elif self.o.modkeys == 'Shift+Control':
-            result = self.delete_atom_and_baggage(event)
-            env.history.message_no_html(result)
-            self.set_cmdname('Delete Atom')
-            return # delete_atom_and_baggage() calls win_update.
-
+            self.o.selobj =  None
         else:
-            print_compact_stack('Invalid modkey = "' + str(self.o.modkeys) + '" ')
-            return
-
-        if nochange: return
-        self.o.gl_update()    
+            pass
+        
+        if m.picked:
+            self.cursor_over_when_LMB_pressed = 'Picked Chunk'
+        else:
+            self.cursor_over_when_LMB_pressed = 'Unpicked Chunk'
+        
+        self.w.win_update()
+            
+    def chunkLeftUp(self, chunk, event):   
+        """
+        Depending on the modifier key(s) pressed, it does various operations on
+        chunk. Example: if Shift and Control modkeys are pressed, it deletes the
+        chunk
+        @see: self.atomLeftUp
+        @see: self.chunkLeftUp
+        
+        """
+        m = chunk
+        assert m.__class__.__name__ == 'molecule'      
+        if self.o.modkeys == 'Shift+Control':
+            obj = self.get_obj_under_cursor(event)
+            if obj is self.o.selobj:
+                m.kill()                
+            self.o.selobj =  None       
+        self.w.win_update()
 
     def bondLeftDown(self, b, event):
         """
@@ -366,64 +354,49 @@ class selectMolsMode(selectMode):
         - If Shift+Control (Delete) is pressed, delete chunk(s) associated 
           with this bond <b>. <event> is a LMB release event.
         """
-
         self.cursor_over_when_LMB_pressed = 'Bond'
         self.bondSetup(b)
 
         chunk1 = b.atom1.molecule
         chunk2 = b.atom2.molecule
-
-        if not (chunk1.picked or chunk2.picked) and self.o.modkeys is None:
+        self.set_cmdname('Select Chunks')
+        
+        if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
-
-            if chunk1 is chunk2:
-                chunk1.pick()
-            else:
-                chunk1.pick()
-                chunk2.pick()
-
-            self.o.selobj =  None   
-            self.set_cmdname('Select Chunks')
-
-        if not (chunk1.picked or chunk2.picked) and self.o.modkeys == 'Shift':
-            if chunk1 is chunk2:
-                chunk1.pick()
-            else:
-                chunk1.pick()
-                chunk2.pick()
-
-            self.o.selobj =  None
-            self.set_cmdname('Select Chunks')
+            chunk1.pick()            
+            if chunk2 is not chunk1:
+                chunk2.pick()                  
+            self.o.selobj =  None  
+        elif self.o.modkeys == 'Shift':
+            chunk1.pick()
+            chunk2.pick()
+            self.o.selobj =  None 
+        elif self.o.modkeys == 'Control':
+            chunk1.unpick()
+            if chunk2 is not chunk1:
+                chunk2.unpick()
+            self.set_cmdname('Unselect Chunks')
+            self.o.selobj =  None 
+        else:
+            pass
 
         if chunk1.picked or chunk2.picked:
             self.cursor_over_when_LMB_pressed = 'Picked Chunk'
         else:
             self.cursor_over_when_LMB_pressed = 'Unpicked Chunk'
 
-
-        self.o.gl_update()
+        self.w.win_update()
 
     def bondLeftUp(self, b, event):
-
         chunk1 = b.atom1.molecule
-        chunk2 = b.atom2.molecule
-
-        if self.o.modkeys == 'Control':
-            if chunk1 is chunk2:
-                chunk1.unpick()
-            else:
-                chunk1.unpick()
-                chunk2.unpick()
-
-            self.o.selobj =  None
-            self.set_cmdname('Unselect Chunks')
-
+        chunk2 = b.atom2.molecule        
         if self.o.modkeys == 'Shift+Control':
-            chunk1.kill()
-            chunk2.kill()
+            if chunk1 is not chunk2:
+                chunk1.kill()
+                chunk2.kill()
+            else:
+                chunk1.kill()
             self.o.selobj =  None
-
-        pass
 
     # == Singlet helper methods
     def singletLeftDown(self, s, event):
@@ -445,7 +418,7 @@ class selectMolsMode(selectMode):
         # is very similar, so I'm removing the redundant comments from
         # this one (selectMolsMode); see selectAtomsMode to find them.
         # [bruce 071022]
-        
+
         self.set_cmdname('ChunkClick')
             # TODO: this should be set again later (during the same drag)
             # to a more specific command name.
@@ -487,7 +460,7 @@ class selectMolsMode(selectMode):
         self.doObjectSpecificLeftDown(obj, event)
 
         self.w.win_update()
-        
+
         return # from selectMolsMode.leftDown
 
 
@@ -635,7 +608,7 @@ class selectMolsMode(selectMode):
                 # event, for passing to *leftUp methods [bruce 060728 comment]
 
         obj = self.current_obj
-
+  
         if obj is None: # Nothing dragged (or clicked); return.
             return
 

@@ -618,7 +618,7 @@ class selectMode(basicMode):
 	@type  event: QMouseEvent instance
 	"""
         obj = object 
-
+        
         if isinstance(obj, Atom) and obj.is_singlet(): 
             self.singletLeftDown(obj, event)# Cursor over a singlet               
         elif isinstance(obj, Atom) and not obj.is_singlet(): 
@@ -640,6 +640,7 @@ class selectMode(basicMode):
 	@param event: Left Up mouse event 
 	@type  event: QMouseEvent instance
 	"""
+        
         obj = object
         if isinstance(obj, Atom):
             if obj.is_singlet(): # Bondpoint
@@ -1091,6 +1092,7 @@ class selectMode(basicMode):
         If the object under the cursor is an atom, delete it and any baggage.  
         Return the result of what happened.
         """
+        print "***in delete_atom_and_baggage"
         a = self.get_real_atom_under_cursor(event)
 
         if a is None:
@@ -1113,80 +1115,6 @@ class selectMode(basicMode):
         self.o.assy.changed()
         self.w.win_update()
         return result
-
-    def atomDrag(self, a, event):
-        """
-        Drag real atom <a> and any other selected atoms and/or jigs.  <event> is a drag event.
-        """
-        apos0 = a.posn()
-        apos1 = self.dragto_with_offset(apos0, event, self.drag_offset ) #bruce 060316 fixing bug 1474
-        delta = apos1 - apos0 # xyz delta between new and current position of <a>.
-
-
-        if self.drag_multiple_atoms:
-            self.drag_selected_atoms(delta)
-        else:
-            self.drag_selected_atom(a, delta) #bruce 060316 revised API [##k could this case be handled by the multiatom case??]
-
-        self.drag_selected_jigs(delta)
-
-        self.atomDragUpdate(a, apos0)
-        return
-
-    def drag_selected_atom(self, a, delta): #bruce 060316 revised API for uniformity and no redundant dragto, re bug 1474
-        """
-        Drag real atom <a> by the xyz offset <delta>, adjusting its baggage atoms accordingly
-        (how that's done depends on its other neighbor atoms).
-        """
-        apo = a.posn()
-        ## delta = px - apo
-        px = apo + delta
-
-        n = self.nonbaggage
-            # n = real atoms bonded to <a> that are not singlets or monovalent atoms.
-            # they need to have their own baggage adjusted below.
-
-        old = V(0,0,0)
-        new = V(0,0,0)
-            # old and new are used to compute the delta quat for the average 
-            # non-baggage bond [in a not-very-principled way, which doesn't work well -- bruce 060629]
-            # and apply it to <a>'s baggage
-
-        for at in n:
-            # Since adjBaggage() doesn't change at.posn(), I switched the order for readability.
-            # It is now more obvious that <old> and <new> have no impact on at.adjBaggage(). 
-            # mark 060202.
-            at.adjBaggage(a, px) # Adjust the baggage of nonbaggage atoms.
-            old += at.posn()-apo
-            new += at.posn()-px
-
-        # Handle baggage differently if <a> has nonbaggage atoms.
-        if n: # If <a> has nonbaggage atoms, move and rotate its baggage atoms.
-            # slight safety tweaks to old code, though we're about to add new code to second-guess it [bruce 060629]
-            old = norm(old) #k not sure if these norms make any difference
-            new = norm(new)
-            if old and new:
-                q = Q(old,new)
-                for at in self.baggage:
-                    at.setposn(q.rot(at.posn()-apo)+px) # similar to adjBaggage, but also has a translation
-            else:
-                for at in self.baggage:
-                    at.setposn(at.posn()+delta)
-            #bruce 060629 for "bondpoint problem": treat that as an initial guess --
-            # now fix them better (below, after we've also moved <a> itself.)
-        else: # If <a> has no nonbaggage atoms, just move each baggage atom (no rotation).
-            for at in self.baggage:
-                at.setposn(at.posn()+delta)
-        a.setposn(px)
-        # [bruce 041108 writes:]
-        # This a.setposn(px) can't be done before the at.adjBaggage(a, px)
-        # in the loop before it, or adjBaggage (which compares a.posn() to
-        # px) would think atom <a> was not moving.
-
-        if n:
-            #bruce 060629 for bondpoint problem
-            a.reposition_baggage(self.baggage)
-        return
 
     #bruce 060414 move selatoms optimization (won't be enabled by default in A7)
     # (very important for dragging atomsets that are part of big chunks but not all of them)
@@ -1228,47 +1156,7 @@ class selectMode(basicMode):
         bc.demolish() # so it stores nothing now, but can be reused later; repeated calls must be ok
         self._reusable_borrowerchunks.append(bc)
 
-    maybe_use_bc = False # precaution
-
-    def drag_selected_atoms(self, offset):
-        # WARNING: this (and quite a few other methods) is probably only called (ultimately) from event handlers
-        # in selectAtomsMode, and probably uses some attrs of self that only exist in that mode. [bruce 070412 comment]
-
-        if self.maybe_use_bc and self.dragatoms and self.bc_in_use is None:
-            #bruce 060414 move selatoms optimization (unfinished); as of 060414 this never happens unless you set a debug_pref.
-            # See long comment above for more info.
-            bc = self.allocate_empty_borrowerchunk()
-            self.bc_in_use = bc
-            other_chunks, other_atoms = bc.take_atoms_from_list( self.dragatoms )
-            self.dragatoms = other_atoms # usually []
-            self.dragchunks.extend(other_chunks) # usually []
-            self.dragchunks.append(bc)
-
-        # Move dragatoms.
-        for at in self.dragatoms:
-            at.setposn(at.posn()+offset)
-
-        # Move baggage (or slow atoms, in smooth-reshaping drag case)
-        if not self.smooth_reshaping_drag:
-            for at in self.baggage:
-                at.setposn(at.posn() + offset)
-        else:
-            # kluge: in this case, the slow-moving atoms are the ones in self.baggage.
-            # We should probably rename self.baggage or not use the same attribute for those.
-            for at in self.baggage:
-                f = self.offset_ratio(at, assert_slow = True)
-                at.setposn(at.posn() + f * offset)
-            pass
-
-        # Move chunks. [bruce 060410 new feature, for optimizing moving of selected atoms, re bugs 1828 / 1438]
-        # Note, these might be chunks containing selected atoms (and no unselected atoms, except baggage), not selected chunks.
-        # All that matters is that we want to move them as a whole (as an optimization of moving their atoms individually).
-        # Note, as of 060414 one of them might be a BorrowerChunk.
-        for ch in self.dragchunks:
-            ch.move(offset)
-
-        return
-
+    
     def offset_ratio(self, atom, assert_slow = False): #bruce 070412
         """
         When self.smooth_reshaping_drag, return the drag_offset_ratio for any atom (0 if we're not dragging it).
@@ -1301,22 +1189,6 @@ class selectMode(basicMode):
             self.deallocate_borrowerchunk( self.bc_in_use )
             self.bc_in_use = None
         return
-
-    def atomDragUpdate(self, a, apos0):
-        """
-        Updates the GLPane and status bar message when dragging atom <a> around.
-        <apos0> is the previous x,y,z position of <a>.
-        """
-        apos1 = a.posn()
-        if apos1 - apos0:
-            if debug_pref("show drag coords continuously", #bruce 060316 made this optional, to see if it causes lagging drags of C
-                          Choice_boolean_True, non_debug = True, # non_debug needed for testing, for now
-                          prefs_key = "A7/Show Continuous Drag Coordinates"):
-                msg = "dragged atom %r to %s" % (a, self.posn_str(a))
-                this_drag_id = (self.current_obj_start, self.__class__.leftDrag)
-                env.history.message(msg, transient_id = this_drag_id)
-            self.current_obj_clicked = False # atom was dragged. mark 060125.
-            self.o.gl_update()
 
     #bruce 060316 moved dragto from here (selectMode) into class basicMode
 
@@ -1713,31 +1585,6 @@ class selectMode(basicMode):
                          prefs_key = True, non_debug = True )
         return res
 
-
-    def jigDrag(self, j, event):
-        """
-        Drag jig <j> and any other selected jigs or atoms.  <event> is a drag event.
-        """
-        #bruce 060316 commented out deltaMouse since it's not used in this routine
-##        deltaMouse = V(event.pos().x() - self.o.MousePos[0], self.o.MousePos[1] - event.pos().y(), 0.0)
-
-        jig_NewPt = self.dragto( self.jig_MovePt, event) #bruce 060316 replaced old code with dragto (equivalent)
-
-        # Print status bar msg indicating the current move offset.
-        if 1:
-            self.moveOffset = jig_NewPt - self.jig_StartPt
-            msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
-            env.history.statusbar_msg(msg)
-
-        offset = jig_NewPt - self.jig_MovePt
-
-        self.drag_selected_atoms(offset)
-        self.drag_selected_jigs(offset)
-
-        self.jig_MovePt = jig_NewPt
-
-        self.current_obj_clicked = False # jig was dragged.
-        self.o.gl_update()
 
     def drag_selected_jigs(self, offset):
         for j in self.dragjigs:
