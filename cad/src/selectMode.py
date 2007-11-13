@@ -79,7 +79,7 @@ import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 from debug_prefs import Choice
 
-from VQT import V, Q, A, norm, ptonline, vlen
+from VQT import V, A, norm, ptonline, vlen
 
 from shape import SelectionShape
 from bonds import Bond
@@ -382,7 +382,6 @@ class selectMode(basicMode):
         [should not be called otherwise -- call update_selatom
          or update_selobj directly instead]
         """
-
         # The mouse_exceeded_distance() conditional below is a "hover highlighting" optimization. 
         # It works by returning before calling update_selobj() if the mouse is moving fast. 
         # This reduces unnecessary highlighting of objects whenever the user moves the cursor 
@@ -593,21 +592,6 @@ class selectMode(basicMode):
     def emptySpaceLeftUp(self, event):
         self.end_selection_curve(event)
         return
-
-    # == Atom selection and dragging helper methods
-
-    def atomLeftDown(self, a, event):            
-        if not a.picked and self.o.modkeys is None:
-            self.o.assy.unpickall_in_GLPane()
-            a.pick()
-        if not a.picked and self.o.modkeys == 'Shift':
-            a.pick()
-
-        if a.picked:
-            self.cursor_over_when_LMB_pressed = 'Picked Atom'
-        else:
-            self.cursor_over_when_LMB_pressed = 'Unpicked Atom'
-        self.atomSetup(a, event)
 
     def doObjectSpecificLeftDown(self, object, event):
         """
@@ -1087,35 +1071,7 @@ class selectMode(basicMode):
 
         return res # from (NEW) get_dragatoms_and_baggage
 
-    def delete_atom_and_baggage(self, event):
-        """
-        If the object under the cursor is an atom, delete it and any baggage.  
-        Return the result of what happened.
-        """
-        print "***in delete_atom_and_baggage"
-        a = self.get_real_atom_under_cursor(event)
-
-        if a is None:
-            return None
-
-        if a.filtered(): # mark 060304.
-            # note: bruce 060331 thinks refusing to delete filtered atoms, as this does, is a bad UI design;
-            # fo details, see longer comment on similar code in delete_at_event (ops_select.py).
-            # (Though when highlighting is disabled, it's arguable that this is more desirable than bad -- conceivably.)
-            #bruce 060331 adding orangemsg, since we should warn user we didn't do what they asked.
-            env.history.message(orangemsg("Cannot delete " + str(a) + " since it is being filtered. "\
-                                          "Hit Escape to clear the selection filter."))
-            return None
-
-        a.deleteBaggage()
-        result = "deleted %r" % a
-        self.neighbors_of_last_deleted_atom = a.realNeighbors()
-        a.kill()
-        self.o.selatom = None #bruce 041130 precaution
-        self.o.assy.changed()
-        self.w.win_update()
-        return result
-
+    
     #bruce 060414 move selatoms optimization (won't be enabled by default in A7)
     # (very important for dragging atomsets that are part of big chunks but not all of them)
     # UNFINISHED -- still needs:
@@ -1191,77 +1147,28 @@ class selectMode(basicMode):
         return
 
     #bruce 060316 moved dragto from here (selectMode) into class basicMode
-
-    def atomLeftUp(self, a, event): # Was atomClicked(). mark 060220.
+    
+    def atomLeftDown(self, a, event):
         """
-        Real atom <a> was clicked, so select, unselect or delete it based on the current modkey.
-        - If no modkey is pressed, clear the selection and pick atom <a>.
-        - If Shift is pressed, pick <a>, adding it to the current selection.
-        - If Ctrl is pressed,  unpick <a>, removing it from the current selection.
-        - If Shift+Control (Delete) is pressed, delete atom <a>.
+        Subclasses should override this method.
+        @param a: Instance of class Atom 
+        @type a: B{Atom}
+        @param event: the QMouseEvent. 
+        @see: selectAtomsMode.atomLeftDown
         """
+        self.atomSetup(a, event)
 
-        self.deallocate_bc_in_use()
-
-        if not self.current_obj_clicked:
-            # Atom was dragged.  Nothing to do but return.
-            if self.drag_multiple_atoms:
-                self.set_cmdname('Move Atoms') #bruce 060412 added plural variant
-            else:
-                self.set_cmdname('Move Atom')
-            ##e note about command names: if jigs were moved too, "Move Selected Objects" might be better... [bruce 060412 comment]
-            self.o.assy.changed() # mark 060227
-            return
-
-        nochange = False
-
-        if self.o.modkeys is None:
-            # isn't this redundant with the side effects in atomLeftDown?? [bruce 060721 question]
-            self.o.assy.unpickall_in_GLPane() # was unpickatoms only; I think unpickall makes more sense [bruce 060721]
-            if a.picked:
-                nochange = True
-                #bruce 060331 comment: nochange = True is wrong, since the unpick might have changed something.
-                # For some reason the gl_update occurs anyway, so I don't know if this causes a real bug, so I didn't change it.
-            else:
-                a.pick()
-                self.set_cmdname('Select Atom')
-            env.history.message(a.getinfo())
-
-        elif self.o.modkeys == 'Shift':
-            if a.picked: 
-                nochange = True
-            else:
-                a.pick()
-                self.set_cmdname('Select Atom')
-            env.history.message(a.getinfo())
-
-        elif self.o.modkeys == 'Control':
-            if a.picked:
-                a.unpick()
-                self.set_cmdname('Unselect Atom') #bruce 060331 comment: I think a better term (in general) would be "Deselect".
-                #bruce 060331 bugfix: if filtering prevents the unpick, don't print the message saying we unpicked it.
-                # I also fixed the message to not use the internal jargon 'unpicked'.
-                # I also added an orangemsg when filtering prevented the unpick, as we have when it prevents a delete.
-                if not a.picked:
-                    # the unpick worked (was not filtered)
-                    env.history.message("Deselected atom %r" % a)
-                else:
-                    env.history.message(orangemsg("Can't deselect atom %r due to selection filter. Hit Escape to clear the filter." % a))
-            else: # Already unpicked.
-                nochange = True
-
-        elif self.o.modkeys == 'Shift+Control':
-            result = self.delete_atom_and_baggage(event)
-            env.history.message_no_html(result)
-            self.set_cmdname('Delete Atom')
-            return # delete_atom_and_baggage() calls win_update.
-
-        else:
-            print_compact_stack('Invalid modkey = "' + str(self.o.modkeys) + '" ')
-            return
-
-        if nochange: return
-        self.o.gl_update()
+    def atomLeftUp(self, a, event):
+        """
+        Subclasses should override this method. The default implementation does
+        nothing. 
+        @param a: Instance of class Atom 
+        @type a: B{Atom}
+        @param event: the QMouseEvent. 
+        @see: selectAtomsMode.atomLeftUp
+        """
+        pass
+    
 
     def atomLeftDouble(self): # mark 060308
         """

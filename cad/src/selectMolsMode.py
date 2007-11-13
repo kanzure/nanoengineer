@@ -36,11 +36,9 @@ from bonds import Bond
 from chem import Atom
 from selectMode import selectMode
 from selectMode import DRAG_STICKINESS_LIMIT
-from utilities.Log import orangemsg
 from chunk import molecule
 
 from debug import print_compact_stack
-from debug import print_compact_traceback
 
 from constants import yellow
 from constants import orange
@@ -305,7 +303,7 @@ class selectMolsMode(selectMode):
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
             m.pick()
-            self.o.selobj =  None
+            #self.o.selobj =  None
         elif self.o.modkeys == 'Shift':
             if not m.picked:
                 m.pick()
@@ -335,11 +333,10 @@ class selectMolsMode(selectMode):
         """
         m = chunk
         assert m.__class__.__name__ == 'molecule'      
-        if self.o.modkeys == 'Shift+Control':
-            obj = self.get_obj_under_cursor(event)
+        if self.o.modkeys == 'Shift+Control':            
             if obj is self.o.selobj:
                 m.kill()                
-            self.o.selobj =  None       
+            self.o.selobj =  None             
         self.w.win_update()
 
     def bondLeftDown(self, b, event):
