@@ -19,7 +19,7 @@ import time
 from PyQt4.Qt import QToolTip, QRect
 
 import env
-from chem import atom
+from chem import Atom
 from elements import Singlet
 from bonds import Bond
 from jigs import Jig
@@ -84,7 +84,7 @@ class DynamicTip: # Mark and Ninad 060817.
         
         # If the highlighted object is a singlet, 
         # don't display a tooltip for it.
-        if isinstance(selobj, atom) and (selobj.element is Singlet):
+        if isinstance(selobj, Atom) and (selobj.element is Singlet):
             return
             
         if self.toolTipShown:
@@ -172,7 +172,7 @@ class DynamicTip: # Mark and Ninad 060817.
         #highlighted and ppa3. (as of 060818 it doesn't even display the atom info ..but thats not a bug just NIY that I need to 
         #handle somewhere else. 
         
-        elif isinstance(glpane.selobj, atom) and (len(selectedAtomList) == 1 ):
+        elif isinstance(glpane.selobj, Atom) and (len(selectedAtomList) == 1 ):
             if self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, 
                                                           ppa2,
                                                           self.atomDistPrecision):
@@ -188,7 +188,7 @@ class DynamicTip: # Mark and Ninad 060817.
         #If the highlighted atom is also selected/last picked/lasttolastpicked , only give atom and distance info don't give angle info
         #If distance info is not available for some reasons (e.g. no ppa2 or more than 2 atoms region selected  etc, return Distance info only)
         
-        elif  isinstance(glpane.selobj, atom) and ( len(selectedAtomList) == 2 or len(selectedAtomList) == 3):
+        elif  isinstance(glpane.selobj, Atom) and ( len(selectedAtomList) == 2 or len(selectedAtomList) == 3):
             if self.getAngleHighlightedAtomAndSelAtoms(ppa2, 
                                                        ppa3,
                                                        selectedAtomList,
@@ -227,15 +227,13 @@ class DynamicTip: # Mark and Ninad 060817.
     def getHighlightedObjectInfo(self, atomDistPrecision): 
         """
         Returns the info such as name, id, xyz coordinates etc of the highlighed object.
-        """
-        #from chem import Atom
-        
+        """        
         glpane        = self.glpane
         atomposn      = None
         atomChunkInfo = None
                 
         #      ---- Atom Info ----
-        if isinstance(glpane.selobj, atom):
+        if isinstance(glpane.selobj, Atom):
             selAtom     = glpane.selobj
             atomInfoStr = selAtom.getToolTipInfo(glpane, 
                                                  self.isAtomPosition,

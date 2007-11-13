@@ -611,7 +611,7 @@ class ThumbView(GLPane_minimal):
         """
         if not obj:
             return
-        if not isinstance(obj, atom) or (obj.element is not Singlet):
+        if not isinstance(obj, Atom) or (obj.element is not Singlet):
             return
 
         self._preHighlight()
@@ -666,7 +666,7 @@ class ThumbView(GLPane_minimal):
     
 # ==
 
-from chem import atom
+from chem import Atom
 from elements import Singlet
 from chunk import molecule
 
@@ -742,7 +742,7 @@ class ElementView(ThumbView):
             assy.o = self
                 
         mol = molecule(assy, 'dummy') 
-        atm = atom(elm.symbol, pos, mol)
+        atm = Atom(elm.symbol, pos, mol)
         atm.display = dispMode
         ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom:
         ## atm.set_atomtype_but_dont_revise_singlets('sp2')
@@ -755,7 +755,7 @@ class ElementView(ThumbView):
         """
         Override the parent version. Specific drawing code for the object.
         """
-        if isinstance(obj, atom) and (obj.element is Singlet):
+        if isinstance(obj, Atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])
 
     pass # end of class ElementView
@@ -828,7 +828,7 @@ class MMKitView(ThumbView):
         """
         Override the parent version. Specific drawing code for the object.
         """
-        if isinstance(obj, atom) and (obj.element is Singlet):
+        if isinstance(obj, Atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])
 
             
@@ -858,7 +858,7 @@ class MMKitView(ThumbView):
             assy.o = self
                 
         mol = molecule(assy, 'dummy') 
-        atm = atom(elm.symbol, pos, mol)
+        atm = Atom(elm.symbol, pos, mol)
         atm.display = dispMode
         ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom:
         if self.hybrid_type_name:
@@ -878,7 +878,7 @@ class MMKitView(ThumbView):
         if self.elementMode: return
         
         obj = self.selectedObj
-        if isinstance(obj, atom) and (obj.element is Singlet):
+        if isinstance(obj, Atom) and (obj.element is Singlet):
             mol = obj.molecule
             if not mol is self.lastHotspotChunk:
                 if self.lastHotspotChunk: # Unset previous hotspot [bruce 060629 fix bug 1974 -- only if in same part]
@@ -1024,7 +1024,7 @@ class ChunkView(ThumbView):
         """
         Override the parent version. Specific drawing code for the object.
         """
-        if isinstance(obj, atom) and (obj.element is Singlet):
+        if isinstance(obj, Atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, 
                                    env.prefs[bondpointHighlightColor_prefs_key])
 

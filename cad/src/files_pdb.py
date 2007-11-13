@@ -18,7 +18,7 @@ identical in both, so doing that should not cause a problem.)
 
 import os
 from chunk import molecule
-from chem import atom
+from chem import Atom
 from bonds import bond_atoms
 from bonds_from_atoms import inferBonds
 from string import capitalize
@@ -124,7 +124,7 @@ def _readpdb(assy, filename, isInsert = False):
             else:
                 xyz = map(float, [card[30:38], card[38:46], card[46:54]] )
                 n = int(card[6:11])
-                a = atom(sym, A(xyz), mol)
+                a = Atom(sym, A(xyz), mol)
                 ndix[n] = a
         elif key == "conect":
             try:

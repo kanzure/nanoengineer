@@ -329,7 +329,8 @@ def Atom_prekill_prep(): #bruce 060328
 class Atom(AtomBase, InvalMixin, StateMixin):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     # (so we have to assign atom = Atom, after this class definition, until all code has been revised)
-    """An atom instance represents one real atom, or one "singlet"
+    # update, bruce 071113: I am removing that assignment below. See comment there.
+    """An Atom instance represents one real atom, or one "singlet"
     (a place near a real atom where another atom could bond to it).
        At any time, each atom has an element, a position in space,
     a list of bond objects it's part of, a list of jigs it's part of,
@@ -341,7 +342,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     self.index. The attributes .index and .xyz are essentially for the
     private use of the owning molecule; see the methods posn and baseposn
     for details. Other code might add other attributes to an atom; some of
-    those might be copied in the private method atom.copy_for_mol_copy() [now removed].
+    those might be copied in the private method Atom.copy_for_mol_copy() [now removed].
     """
     # bruce 041109-16 wrote docstring
     # default values of instance variables:
@@ -463,7 +464,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         StateMixin._undo_update(self)
 
     def __init__(self, sym, where, mol = None): #bruce 060612 let mol be left out
-        """Create an atom of element sym
+        """Create an Atom of element sym
         (e.g. 'C' -- sym can be an element, atomtype, or element-symbol, or another atom to copy these from)
         at location 'where' (e.g. V(36, 24, 36))
         belonging to molecule mol (can be None or missing).
@@ -539,7 +540,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ## if platform.atom_debug:
         ##     self._source = compact_stack()
         self.set_atomtype_but_dont_revise_singlets( atype)
-        return # from atom.__init__
+        return # from Atom.__init__
 
     def _undo_aliveQ(self, archive): #bruce 060406
         """Would this (Atom) object be picked up as a child object in a (hypothetical) complete scan of children
@@ -657,8 +658,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     if doall:
                         cmdname = "Transmute selected atoms to %s" % toSymbol
                             #e could also say the number of atoms
-                        command = ( lambda arg1=None, arg2=None,
-                                    atom=self, newElement=newElement: atom.Transmute_selection(newElement) )
+                        command = ( lambda arg1 = None, arg2 = None,
+                                    atom = self, newElement = newElement: atom.Transmute_selection(newElement) )
                             # Kluge: locate that command method on atom, used for access to selatoms,
                             # even though it's not defined to operate on atom (tho it does in this case).
                             # One motivation is to ease the upcoming emergency merge by not modifying more files/code
@@ -666,12 +667,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     else:
                         cmdname = "Transmute this atom to %s" % toSymbol
                             #e could also say fromSymbol, tho it appears elsewhere in the menu
-                        command = ( lambda arg1=None, arg2=None,
-                                    atom=self, newElement=newElement: atom.Transmute(newElement) )
+                        command = ( lambda arg1 = None, arg2 = None,
+                                    atom = self, newElement = newElement: atom.Transmute(newElement) )
                 else:
                     cmdname = "Transmute to %s" % toSymbol
-                    command = ( lambda arg1=None, arg2=None,
-                                atom=self, newElement=newElement: atom.Transmute(newElement) )
+                    command = ( lambda arg1 = None, arg2 = None,
+                                atom = self, newElement = newElement: atom.Transmute(newElement) )
                 menu_spec.append((cmdname, command))
                 continue
         if platform.atom_debug:
@@ -904,7 +905,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # fyi: called from depositMode, but not (yet?) from movie-playing. [041110]
         # [bruce 050406: now this is called from movie playing, at least for now.
         #  It's also been called (for awhile) from reading xyz files from Minimize.]
-        # bruce 041130 added unary '+' (see atom.posn comment for the reason).
+        # bruce 041130 added unary '+' (see Atom.posn comment for the reason).
         #bruce 060308 rewrite
         self._setposn_no_chunk_or_bond_invals(pos)
         mol = self.molecule
@@ -959,8 +960,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         new = V(0,0,0)
         for at in n:
             old += at.posn()-apo
-            if at is atom: new += nupos-apo
-            else: new += at.posn()-apo
+            if at is atom:
+                new += nupos-apo
+            else:
+                new += at.posn()-apo
         if n:
             # slight safety tweaks to old code, though we're about to add new code to second-guess it [bruce 060629]
             old = norm(old) #k not sure if these norms make any difference
@@ -1459,7 +1462,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         self.molecule.changeapp(1)
         self.changed() # bruce 041206 bugfix (unreported bug); revised, bruce 050509
         # bruce 041109 comment:
-        # atom.setDisplay changes appearance of this atom's bonds,
+        # Atom.setDisplay changes appearance of this atom's bonds,
         # so: do we need to invalidate the bonds? No, they don't store display
         # info, and the geometry related to bond.setup_invalidate has not changed.
         # What about the mols on both ends of the bonds? The changeapp() handles
@@ -1472,7 +1475,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         inherited from dispdef, usually the molecule's effective dispdef).
         An atom's display mode overrides the inherited
         one from the molecule or glpane, but a molecule's color overrides the
-        atom's element-dependent one (color is handled in atom.draw, not here,
+        atom's element-dependent one (color is handled in Atom.draw, not here,
         so this is just FYI).
            Return display mode and radius to use, in a tuple (disp, rad).
         For display modes in which the atom is not drawn, such as diLINES or
@@ -1483,7 +1486,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         """
         if dispdef == diDEFAULT: #bruce 041129 permanent debug code, re bug 21
             if platform.atom_debug and 0: #bruce 050419 disable this since always happens for Element Color Prefs dialog
-                print "bug warning: dispdef == diDEFAULT in atom.howdraw for %r" % self
+                print "bug warning: dispdef == diDEFAULT in Atom.howdraw for %r" % self
             dispdef = default_display_mode # silently work around that bug [bruce 041206]
         if self.element is Singlet:
             try:
@@ -1649,7 +1652,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             except:
                 # didn't find it. (#e We ought to have a different API so a real error could be distinguished from that.)
                 if platform.atom_debug:
-                    print "atom_debug: fyi: info atom atomtype (in class atom) with unrecognized atomtype %r (not an error)" % (val,)
+                    print "atom_debug: fyi: info atom atomtype (in class Atom) with unrecognized atomtype %r (not an error)" % (val,)
                 pass
             else:
                 self.set_atomtype_but_dont_revise_singlets( atype)
@@ -1675,7 +1678,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                  
         else:
             if platform.atom_debug:
-                print "atom_debug: fyi: info atom (in class atom) with "\
+                print "atom_debug: fyi: info atom (in class Atom) with "\
                       "unrecognized key %r (not an error)" % (key,)
         return
     
@@ -2009,7 +2012,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 del self.molecule.assy.selatoms[self.key]
             except:
                 if platform.atom_debug:
-                    print_compact_traceback("atom_debug: atom.unpick finds atom not in selatoms: ")
+                    print_compact_traceback("atom_debug: Atom.unpick finds atom not in selatoms: ")
             self.picked = False
             _changed_picked_Atoms[self.key] = self #bruce 060321 for Undo (or future general uses)
             # note: no need to change self._picked_time -- that would have no effect unless
@@ -2024,7 +2027,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         Public method: copy an atom, with no special assumptions;
         new atom is not in any mol but could be added to one using mol.addatom.
         """
-        nuat = atom(self, self.posn(), None) #bruce 050524: pass self so its atomtype is copied
+        nuat = Atom(self, self.posn(), None) #bruce 050524: pass self so its atomtype is copied
         nuat.display = self.display
             # no need in new atoms for anything like _changed_otherwise_Atoms[nuat.key] = nuat #bruce 060322 guess ###@@@ #k
         nuat.info = self.info # bruce 041109, needed by extrude and other future things; revised 050524
@@ -2047,7 +2050,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         a = origatom
         b = origbond
         numol = self.molecule
-        x = atom('X', b.ubp(a), numol) ###k verify atom.__init__ makes copy of posn, not stores original (tho orig ok if never mods it)
+        x = Atom('X', b.ubp(a), numol) ###k verify Atom.__init__ makes copy of posn, not stores original (tho orig ok if never mods it)
         na = self ## na = ndix[a.key]
         bond_copied_atoms(na, x, origbond, origatom) # same properties as origbond... sensible in all cases?? ##k
         return
@@ -2067,7 +2070,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         Do all necessary invalidations of Chunks, and self._changed_structure(),
         BUT NOT OF b (see above). 
            If self is a singlet, kill it (singlets must always have one bond).
-           As of 041109, this is called from atom.kill of the other atom,
+           As of 041109, this is called from Atom.kill of the other atom,
         and from bond.bust, and [added by bruce 041109] from bond.rebond.
            As of 050727, newly created open bonds have same bond type as the
         removed bond.
@@ -2087,7 +2090,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         except ValueError: # list.remove(x): x not in list
             # this is always a bug in the caller, but we catch it here to
             # prevent turning it into a worse bug [bruce 041028]
-            msg = "fyi: atom.unbond: bond %r should be in bonds %r\n of atom %r, " \
+            msg = "fyi: Atom.unbond: bond %r should be in bonds %r\n of atom %r, " \
                   "but is not:\n " % (b, self.bonds, self)
             print_compact_traceback(msg)
         # normally replace an atom (bonded to self) with a singlet,
@@ -2120,8 +2123,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                       ( self._will_kill , Utility._will_kill_count )
                 return None
         if debug_1779:
-            print "debug_1779: atom.unbond on %r is making X" % self
-        x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
+            print "debug_1779: Atom.unbond on %r is making X" % self
+        x = Atom('X', b.ubp(self), self.molecule) # invals mol as needed
         #bruce 050727 new feature: copy the bond type from the old bond (being broken) to the new open bond that replaces it
         bond_copied_atoms( self, x, b, self)
         ## self.molecule.bond(self, x) # invals mol as needed
@@ -2220,7 +2223,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
            Note: this does not change any atom or singlet positions, so callers
         wanting to correct the bond lengths need to do that themselves.
         It does not even delete or add extra singlets to match the new element
-        type; for that, use atom.Transmute.
+        type; for that, use Atom.Transmute.
         """
         if atomtype is None:
             atomtype = elt.atomtypes[0]
@@ -2309,17 +2312,17 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 assert self.__killed == 0
             return killed
         except:
-            print_compact_traceback("fyi: atom.killed detects some problem" \
+            print_compact_traceback("fyi: Atom.killed detects some problem" \
                 " in atom %r, trying to work around it:\n " % self )
             try:
                 self.__killed = 0 # make sure kill tries to do something
                 _changed_parent_Atoms[self.key] = self
                 self.kill()
             except:
-                print_compact_traceback("fyi: atom.killed: ignoring" \
+                print_compact_traceback("fyi: Atom.killed: ignoring" \
                     " exception when killing atom %r:\n " % self )
             return True
-        pass # end of atom.killed_with_debug_checks()
+        pass # end of Atom.killed_with_debug_checks()
 
     def _prekill(self, val): #bruce 060328; usually inlined (but was tested when first written)
         self._will_kill = val
@@ -2334,7 +2337,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         will themselves be killed.)
         """        
         if debug_1779:
-            print "debug_1779: atom.kill on %r" % self
+            print "debug_1779: Atom.kill on %r" % self
         if self.__killed:
             if not self.element is Singlet:
                 print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
@@ -2353,7 +2356,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             self.unpick(filtered = False) #bruce 041029
                 #bruce 060331 adding filtered = False (and implementing it in unpick) to fix bug 1796
         except:
-            print_compact_traceback("fyi: atom.kill: ignoring error in unpick: ")
+            print_compact_traceback("fyi: Atom.kill: ignoring error in unpick: ")
             pass
         # bruce 041115 reordered everything that follows, so it's safe to use
         # delatom (now at the end, after things which depend on self.molecule),
@@ -2368,7 +2371,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 #  will never recursively kill this atom, so it should be ok]
             except:
                 # does this ever still happen? TODO: if so, document when & why.
-                print_compact_traceback("fyi: atom.kill: ignoring error in rematom %r from jig %r: " % (self,j) )
+                print_compact_traceback("fyi: Atom.kill: ignoring error in rematom %r from jig %r: " % (self,j) )
         self.jigs = [] #bruce 041029 mitigate repeated kills
             # [bruce 050215 comment: this should soon no longer be needed, but will be kept as a precaution]
         _changed_structure_Atoms[self.key] = self #k not sure if needed; if it is, also covers .bonds below #bruce 060322
@@ -2377,7 +2380,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         for b in self.bonds[:]: #bruce 050214 copy list as a precaution
             n = b.other(self)
             if debug_1779:
-                print "debug_1779: atom.kill on %r is calling unbond on %r" % (self,b)
+                print "debug_1779: Atom.kill on %r is calling unbond on %r" % (self,b)
             n.unbond(b) # note: this can create a new singlet on n, if n is real,
                         # which requires computing b.ubp which uses self.posn()
                         # or self.baseposn(); or it can kill n if it's a singlet.
@@ -2394,9 +2397,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             self.molecule.delatom(self) # bruce 041115
             # delatom also kills the mol if it becomes empty (as of bruce 041116)
         except KeyError:
-            print "fyi: atom.kill: atom %r not in its molecule (killed twice?)" % self
+            print "fyi: Atom.kill: atom %r not in its molecule (killed twice?)" % self
             pass
-        return # from atom.kill
+        return # from Atom.kill
         
     def filtered(self): # mark 060303.
         """
@@ -2554,7 +2557,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             #bruce 050221 added data to the assert, hoping to track down bug 372 when it's next seen
         obond = self.bonds[0]
         atom = obond.other(self)
-        assert atom.element is not Singlet, "bug: a singlet %r is bonded to another singlet %r!!" % (self,atom)
+        assert atom.element is not Singlet, "bug: a singlet %r is bonded to another singlet %r!!" % (self, atom)
         return atom
 
     # higher-valence bonds methods [bruce 050502] [bruce 050627 comment: a lot of this might be obsolete. ###@@@]
@@ -2758,7 +2761,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
 
     def update_everything(self):
-        print "atom.update_everything() does nothing"
+        print "Atom.update_everything() does nothing"
         return
 
     #bruce 050511 added atomtype arg  ###@@@ callers should pass atomtype
@@ -3022,7 +3025,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
 
     # the make_singlets methods were split out of the private depositMode methods
-    # (formerly called bond1 - bond4), to help implement atom.Transmute [bruce 041215]
+    # (formerly called bond1 - bond4), to help implement Atom.Transmute [bruce 041215]
 
     def make_bondpoints_when_no_bonds(self): #bruce 050511 partly revised this for atomtypes
         """
@@ -3036,7 +3039,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             pos = self.posn()
             mol = self.molecule
             for dp in atype.bondvectors:
-                x = atom('X', pos + r * dp, mol)
+                x = Atom('X', pos + r * dp, mol)
                 bond_atoms(self, x) ###@@@ set valence? or update it later?
         return
     
@@ -3135,7 +3138,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # with the default pref value giving the correct behavior (moved just above, outside of this loop).
                 q = rq + q - rq + spin * spinsign
                 xpos = pos + q.rot(r)
-                x = atom('X', xpos, mol)
+                x = Atom('X', xpos, mol)
                 bond_atoms(self, x)
         return
         
@@ -3170,7 +3173,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         mol = self.molecule
         for q in atype.quats[1:]:
             q = rq + q - rq + tw
-            x = atom('X', pos + q.rot(r), mol)
+            x = Atom('X', pos + q.rot(r), mol)
             bond_atoms(self, x)
         return
 
@@ -3206,7 +3209,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     # that assumes s1 and s2 are not opposite each other; #e it would be safer to pick best of all 3 pairs
             opos = pos + atype.rcovalent * dir
             mol = self.molecule
-            x = atom('X', opos, mol)
+            x = Atom('X', opos, mol)
             bond_atoms(self, x)
         return
 
@@ -3483,7 +3486,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 register_class_changedicts( Atom, _Atom_global_dicts )
     # error if one class has two same-named changedicts (so be careful re module reload)
 
-atom = Atom # old name of that class -- must remain here until all code has been revised to use new name [bruce 050610]
+# removing definition of atom = Atom, since I have just fixed all uses, I hope: [bruce 071113]
+## atom = Atom # old name of that class -- must remain here until all code has been revised to use new name [bruce 050610]
 
 # ==
 
@@ -3497,7 +3501,7 @@ def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype 
     # bruce 041215 moved this from chunk.py to chem.py, and split part of it
     # into the new atom method make_bondpoints_when_no_bonds, to help fix bug 131.
     mol = chunk.molecule(assy, 'bug') # name is reset below!
-    atm = atom(elem.symbol, pos, mol)
+    atm = Atom(elem.symbol, pos, mol)
     # bruce 041124 revised name of new mol, was gensym('Chunk.');
     # no need for gensym since atom key makes the name unique, e.g. C1.
     atm.set_atomtype_but_dont_revise_singlets(atomtype) # ok to pass None, type name, or type object; this verifies no change in elem

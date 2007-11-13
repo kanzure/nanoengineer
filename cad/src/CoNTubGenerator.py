@@ -592,14 +592,14 @@ class PluginlikeGenerator:
         assy = self.win.assy
         from VQT import V
         from chunk import molecule
-        from chem import atom
+        from chem import Atom
         mol = molecule(assy, 'bug') # name is reset below!
         n = max(params[0],1)
         for x in range(n):
           for y in range(2):
             ## build methane, from oneUnbonded
             pos = V(x,y,0)
-            atm = atom('C', pos, mol)
+            atm = Atom('C', pos, mol)
             atm.make_bondpoints_when_no_bonds() # notices atomtype
         mol.name = name
         ## assy.addmol(mol)

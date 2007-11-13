@@ -18,7 +18,7 @@ __author__ = "Josh"
 
 
 from VQT import norm
-from chem import atom # the class
+from chem import Atom
 
 from debug import print_compact_traceback
 
@@ -197,7 +197,7 @@ class AtomTypeDepositionTool(DepositionTool):
         for sk, pk in lis[1:]: # 0 or more pairs after the first
             totpos += pk # warning: += can modify a mutable totpos
         pos = totpos / (0.0 + len(lis)) # use average of ideal positions
-        atm = atom(self.atomtype, pos, mol)
+        atm = Atom(self.atomtype, pos, mol)
         for sk, pk in lis:
             sk.bonds[0].rebond(sk, atm)
         return atm

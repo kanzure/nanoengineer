@@ -14,7 +14,7 @@ __author__ = "Mark"
 
 import os, re, time
 from chunk import molecule
-from chem import atom
+from chem import Atom
 from string import capitalize
 from elements import PeriodicTable
 from PlatformDependent import get_gms_name
@@ -103,7 +103,7 @@ def _readgms(assy, filename, isInsert=False):
                 env.history.message( redmsg( "Warning: GAMESS DAT file: unknown element %s in: %s" % (sym,card) ))
             else:
                 xyz = map(float, (m.group(2),m.group(3), m.group(4)))
-                a = atom(sym, A(xyz), mol)
+                a = Atom(sym, A(xyz), mol)
                 ndix[n] = a
                 n += 1
             
@@ -170,7 +170,7 @@ def insertgms_new(assy,filename):
         print a
         pos = a.posn()
         fpos = (float(pos[0]), float(pos[1]), float(pos[2]))
-        na = atom(a.element.symbol, fpos, mol)
+        na = Atom(a.element.symbol, fpos, mol)
         ndix[n] = na
         n += 1
     
@@ -269,7 +269,7 @@ def _get_atomlist_from_gms_outfile(assy, filename):
                 env.history.message( redmsg( "Warning: GAMESS OUT file: unknown element %s in: %s" % (sym,card) ))
             else:
                 xyz = map(float, (m.group(2),m.group(3), m.group(4)))
-                a = atom(sym, A(xyz), mol)
+                a = Atom(sym, A(xyz), mol)
                 newAtomList += [a]
             
 # Let caller handle history msgs.  Mark 050712

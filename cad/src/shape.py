@@ -1336,7 +1336,7 @@ class CookieShape(shape):
         all layers together, which may fuse some half bonds to full bonds.
         """
         from chunk import molecule
-        from chem import atom
+        from chem import Atom
         from constants import gensym
         
         numLayers = len(self.bondLayers)
@@ -1390,7 +1390,7 @@ class CookieShape(shape):
                         if keyHedron:
                             if type(bBonds[0]) == type(1) or (not bBonds[0][1]):
                                 if not bKey in carbonAtoms:
-                                    keyAtom = atom("C", allCarbons[bKey], mol) 
+                                    keyAtom = Atom("C", allCarbons[bKey], mol) 
                                     carbonAtoms[bKey] = keyAtom
                                 else: keyAtom = carbonAtoms[bKey]
                                 keyHedron = False
@@ -1399,19 +1399,19 @@ class CookieShape(shape):
                             if type(bond) != type((1,1)): raise ValueError, (bKey, bond, bBonds)
                             else:
                                 xp = (allCarbons[bKey] + allCarbons[bond[0]])/2.0
-                                keyAtom = atom("X", xp, mol)         
+                                keyAtom = Atom("X", xp, mol)         
                             
                         if type(bond) == type(1) or bond[1]:
                             if type(bond) == type(1):
                                 bvKey = bond
                             else: bvKey = bond[0]
                             if not bvKey in carbonAtoms:
-                                bondAtom = atom("C", allCarbons[bvKey], mol) 
+                                bondAtom = Atom("C", allCarbons[bvKey], mol) 
                                 carbonAtoms[bvKey] = bondAtom
                             else: bondAtom = carbonAtoms[bvKey]
                         else:
                             xp = (allCarbons[bKey] + allCarbons[bond[0]])/2.0
-                            bondAtom = atom("X", xp, mol)     
+                            bondAtom = Atom("X", xp, mol)     
                         
                         mol.bond(keyAtom, bondAtom)
         

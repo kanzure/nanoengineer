@@ -42,12 +42,7 @@ History:
 """
 __author__ = "Josh"
 
-# a lot of what we import from chem might not be needed here in chunk.py,
-# but note that as of 050502 they are all imported into chem.py (at end of that file)
-# and everything from it is imported into some other modules.
-# [bruce comment 050502] ###@@@
-
-import math # only used for pi, everything else is from Numeric
+import math # only used for pi, everything else is from Numeric [as of before 071113]
 
 import Numeric
 from Numeric import array
@@ -71,6 +66,7 @@ from OpenGL.GL import glNewList
 from OpenGL.GL import glEndList
 
 # chunk and chem form a two element import cycle
+# (chem is used here only for class Atom and one global changedict, as of before 071113)
 import chem
 
 from VQT import V, Q, A, vlen
@@ -563,7 +559,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         if self.mticon or self.hideicon:
             return
-        # the following runs once per Atom session.
+        # the following runs once per NE1 session.
         for name in self.mticon_names:
             self.mticon.append( imagename_to_pixmap( "modeltree/" + name))
         for name in self.hideicon_names:
@@ -2572,9 +2568,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     # we have an implicit but unambiguous hotspot:
                     # make it explicit in the copy [bruce 041123]
                     copied_hotspot = self.singlets[0]
-            for a,b in extern_atoms_bonds:
+            for a, b in extern_atoms_bonds:
                 # compare to code in Bond.unbond():
-                x = chem.atom('X', b.ubp(a) + offset, numol)
+                x = chem.Atom('X', b.ubp(a) + offset, numol)
                 na = ndix[a.key]
                 #bruce 050715 bugfix: also copy the bond-type (two places in this routine)
                 ## numol.bond(na, x)

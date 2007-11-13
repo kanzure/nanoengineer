@@ -38,7 +38,7 @@ from MMKitDialog import Ui_MMKitDialog
 from ThumbView import MMKitView, ChunkView
 from elements import PeriodicTable
 from constants import diTUBES
-from chem import atom
+## from chem import Atom [not used i think - bruce 071113]
 from chunk import molecule
 from Utility import imagename_to_icon, geticon
 from assembly import assembly

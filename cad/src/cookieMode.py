@@ -45,7 +45,7 @@ import drawer
 from drawer import DiGridSp
 from drawer import genDiam
 from chunk import molecule
-from chem import atom
+from chem import Atom
 
 from constants import gensym
 from constants import diTUBES
@@ -1306,21 +1306,21 @@ def molmake(assy,shap):
             if shap.isin(pp[0]):
                 pp0h = hashAtomPos(pp[0])
                 if pp0h not in ndx:
-                    pp0 = atom("C", pp[0], mol)
+                    pp0 = Atom("C", pp[0], mol)
                     ndx[pp0h] = pp0
                 else: pp0 = ndx[pp0h]
             if shap.isin(pp[1]):
                 pp1h = hashAtomPos(pp[1])
                 if pp1h not in ndx:
-                    pp1 = atom("C", pp[1], mol)
+                    pp1 = Atom("C", pp[1], mol)
                     ndx[pp1h] = pp1
                 else: pp1 = ndx[pp1h]
             if pp0 and pp1: mol.bond(pp0, pp1)
             elif pp0:
-                x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
+                x = Atom("X", (pp[0] + pp[1]) / 2.0, mol)
                 mol.bond(pp0, x)
             elif pp1:
-                x = atom("X", (pp[0] + pp[1]) / 2.0, mol)
+                x = Atom("X", (pp[0] + pp[1]) / 2.0, mol)
                 mol.bond(pp1, x)
    
     #Added by huaicai to fixed some bugs for the 0 atoms molecule 09/30/04

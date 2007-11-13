@@ -124,7 +124,7 @@ import re
 import env
 import platform
 
-from chem import atom
+from chem import Atom
 from jigs import AtomSet
 from jigs import Anchor
 from jigs import Stat
@@ -696,7 +696,7 @@ class _readmmp_state:
             self.guess_sim_input('missing_group_or_chunk')
             self.prevchunk = molecule(self.assy,  "sim chunk")
             self.addmember(self.prevchunk)
-        a = atom(sym, xyz, self.prevchunk) # sets default atomtype for the element [behavior of that was revised by bruce 050707]
+        a = Atom(sym, xyz, self.prevchunk) # sets default atomtype for the element [behavior of that was revised by bruce 050707]
         a.unset_atomtype() # let it guess atomtype later from the bonds read from subsequent mmp records [bruce 050707]
         disp = atom2pat.match(card)
         if disp:
