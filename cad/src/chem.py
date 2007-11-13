@@ -1182,7 +1182,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 #e Maybe add option to draw the dir == 0 case too, to point out you ought to propogate the direction
         return ""
 
-    def directional_bond_chain_status(self): # bruce 071016; should be ok with or without open bonds being directional
+    def directional_bond_chain_status(self): # bruce 071016
         """
         Return a tuple (statuscode, bond1, bond2)
         indicating the status of self's bonds with respect to chains
@@ -1198,18 +1198,20 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         DIRBOND_ERROR, None, None -- local error in directional bond structure,
           so caller should treat this as not being in a chain
 
-        Note that all we consider is whether a bond is directional,
-        not whether a direction is actually set, or if two bonds have directions,
-        whether they are consistent.
+        Note that all we consider is whether a bond is directional, not whether
+        a direction is actually set. Similarly, when two bonds have directions
+        set, we don't consider whether their directions are consistent.
 
-        But if self is monovalent and its neighbor is not,
-        we consider its neighbor's status in determining its own. ### IMPLEM
+        But if self is monovalent (e.g. a bondpoint) and its neighbor is not,
+        we consider its neighbor's status in determining its own.
         
-        Note that when drawing a bond, 
-        each of its atoms can have an almost-independent
-        directional_bond_chain_status, so both of them
-        need to be checked for errors.
+        Note that when drawing a bond, each of its atoms can have an
+        almost-independent directional_bond_chain_status (due to the
+        possibility of erroneous structures), so both of its atoms
+        need their directional_bond_chain_status checked for errors.
         """
+        # note: I think this implem is correct with or without open bonds
+        # being directional [bruce 071016]
         if not self.element.bonds_can_be_directional:
             # optimization
             return DIRBOND_NONE, None, None
@@ -1241,7 +1243,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                     pass
                 elif statuscode == DIRBOND_CHAIN_END:
                     # it matters whether the neighbor's chain includes us
-                    # (though I suspect this situation is not possible except in errors).
+                    # (though I suspect that it always does include us except in errors).
                     if bond is bond1:
                         return DIRBOND_CHAIN_END, bond, None
                     else:
@@ -1275,6 +1277,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             return DIRBOND_NONE, None, None
         else:
             # more than 2 -- see if some of them can be ignored
+            # (WARNING: current behavior is not ideal at ends of bare strands) 
             real_dirbonds = filter( lambda bond: not bond.is_open_bond(), dirbonds )
             num_real = len(real_dirbonds)
             if num_real == 2:
@@ -1286,9 +1289,19 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 return DIRBOND_CHAIN_MIDDLE, real_dirbonds[0], real_dirbonds[1]
             else:
                 # some sort of error, or at least, a situation we can't propogate a chain in.
+                # WARNING: this happens routinely at the end of a "bare strand" (no axis atoms),
+                # since it has one real and two open bonds, all directional.
+                # This situation will probably be deprecated but can happen at present.
+                # (REVIEW: in that situation would it be better to return DIRBOND_NONE, None, None?)
+                # We might fix this by:
+                # - making that situation never occur
+                # - making bonds know whether they're directional even if they're open (bond subclass)
+                # - atom subclass for bondpoints
+                # - notice whether a direction is set on just one open bond;
+                #   construct open bonds on directional elements so the right number are set
+                #   (or preferably, marked as directional bonds without a direction being set)
                 # REVIEW: return an error message string?
-                ### REVIEW: if we have (e.g.) one real and two open bonds, should we check whether
-                # just one of the open bonds has a direction actually set??
+                # [bruce 071112 updated comment]
                 return DIRBOND_ERROR, None, None
         pass
     
