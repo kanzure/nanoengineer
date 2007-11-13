@@ -3212,10 +3212,35 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     # ===
     #
-    # The Atom methods below this point might be moved into subclasses for specific
-    # types of atoms. [bruce 071113 moved existing methods here]
+    # The Atom methods below this point might be moved into subclasses for
+    # specific types of atoms.
+    #
+    # (Some of these methods might need trivial default defs on class Atom
+    #  until old code is fully revised to only call them on the subclasses.)
+    #
+    # Several general methods above also have special cases that might be
+    # revised to be in subclass methods that extend them. These include:
+    #
+    #  drawing_color
+    #  _draw_atom_style
+    #  draw_atom_sphere
+    #  draw_wirespheres
+    #  max_pixel_radius
+    #  writemmp
+    #  readmmp_info_atom_setitem
+    #  getInformationString
+    #
+    # (But some of these might be purely graphical, perhaps usable by more than
+    # one subclass, and might thus remain in the superclass, or in a separately
+    # refactored Atom drawing controller class.)
+    #
+    # [bruce 071113 comment, and reordered existing methods to move these here]
     #
     # ===
+
+    # default values of instance variables (not needed):
+    ## dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
+    ## dnaStrandName -- set when first demanded, or can be explicitly set using setDnaStrandName().
 
     def setDnaBaseName(self, dnaBaseName): # Mark 2007-08-16
         """
