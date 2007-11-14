@@ -61,7 +61,7 @@ from changedicts import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 from utilities.Log import redmsg, quote_html #bruce 070601
 
-from state_constants import S_CACHE, S_DATA, S_PARENT
+from state_constants import S_CACHE, S_DATA, S_PARENT, UNDO_SPECIALCASE_BOND
 
 # Linus Pauling
 # http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148
@@ -566,6 +566,13 @@ class Bond(BondBase, StateMixin):
     """
     pi_bond_obj = None #bruce 050718; used to memoize a perceived PiBondSpChain object (if any) which covers this bond
         # sometimes I search for pi_bond_info when I want this; see also get_pi_info and pi_info
+
+    _s_undo_specialcase = UNDO_SPECIALCASE_BOND
+        # This tells Undo what specialcase code to use for this class
+        # (and any subclasses we might add). It also tells it which
+        # changedicts to look at.
+        # TODO: See comment near use of UNDO_SPECIALCASE_ATOM in class Atom.
+        # [bruce 071114]
 
     _s_attr_pi_bond_obj = S_CACHE # see comments in pi_bond_sp_chain.py. [bruce 060224]
 

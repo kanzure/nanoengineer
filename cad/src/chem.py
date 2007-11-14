@@ -107,6 +107,7 @@ from prefs_constants import cpkScaleFactor_prefs_key
 from prefs_constants import diBALL_AtomRadius_prefs_key
 
 from state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
+from state_constants import UNDO_SPECIALCASE_ATOM
 
 # more imports below
 
@@ -360,6 +361,33 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # so imitating that seems most correct.
         
     # _s_attr decls for state attributes -- children, parents, refs, bulky data, optional data [bruce 060223]
+
+    _s_undo_specialcase = UNDO_SPECIALCASE_ATOM
+        # This tells Undo what specialcase code to use for this class
+        # (and any subclasses we might add). It also tells it which
+        # changedicts to look at.
+        # TODO:
+        # - That whole system of Undo changedicts
+        # could be refactored and improved, so that we'd instead point
+        # to a changedict-containing object which knew which attribute
+        # each one was for, as well as knowing this specialcase-type.
+        # That object would be a "description of this class for
+        # purposes of Undo" (except for the _s_attr decls, which might
+        # as well remain as they are).
+        # - Ultimately, Undo shouldn't need specialcases at all;
+        # right now it needs them since we don't have enough control,
+        # when registering updaters that involve several specific
+        # classes, of their calling order.
+        # (And maybe other minor reasons I forget now, but I think
+        #  that's the only major one.)
+        # - Meanwhile, it would be good to automatically ensure that
+        # the related_attrs lists passed to register_changedicts
+        # cover all the undoable state attrs in all the classes
+        # that use those changedicts. Otherwise it means changes to
+        # some attr are not noticed by Undo (or, that they are,
+        # but we forgot to declare which changedict notices them
+        # in the related_attrs list for that changedict).
+        # [bruce 071114]
 
     _s_attr_bonds = S_CHILDREN
 

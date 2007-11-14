@@ -1,9 +1,12 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 state_constants.py -- constants for declaring attributes' roles in
-holding state or referring to objects that hold state.
+holding state or referring to objects that hold state. (Also some
+names for the available kinds of specialcase treatment re Undo.)
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 See state_utils.py for more info and related classes/utilities.
 (It's undecided whether these declarations make sense
@@ -19,13 +22,10 @@ how to save objects to files, how to copy or diff or delete them,
 how to browse or edit their state from a UI, etc.
 """
 
-__author__ = "bruce"
+# This module should not import anything non-builtin,
+# or define any name unsuitable for being a global in all modules.
 
-
-# This is presently imported by constants.py and thus by most modules,
-# so it should not import much, or define anything unsuitable for
-# being a global in all modules.
-
+# ==
 
 # Possible values for _s_attr_xxx attribute declarations (needed by Undo)
 # (defining these in constants.py might be temporary; for now it does "import *" from here)
@@ -66,5 +66,14 @@ S_IGNORE = 'S_IGNORE' # state system should pretend this attr doesn't exist (i.e
     # (This is equivalent to providing no state declaration for the attr, unless we add a future "default decl" for all attrs
     #  not declared individually, in which case this will let you exclude an attr from that.
     #  It's also useful for subclasses wanting to override state decls inherited from a superclass.)
+
+# ==
+
+# Kinds of specialcases that Undo can handle; for use as the value
+# of a class constant for _s_undo_specialcase: [bruce 071114]
+
+UNDO_SPECIALCASE_ATOM = 'UNDO_SPECIALCASE_ATOM'
+UNDO_SPECIALCASE_BOND = 'UNDO_SPECIALCASE_BOND'
+UNDO_SPECIALCASE_ATOM_OWNER = 'UNDO_SPECIALCASE_ATOM_OWNER' # not sure this is right, vs CHUNK
 
 # end
