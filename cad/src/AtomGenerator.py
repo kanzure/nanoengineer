@@ -1,31 +1,25 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-An example of a structure generator class meant 
+AtomGenerator.py - an example of a structure generator class meant 
 to be a template for developers.
 
 The AtomGenerator class is an example of how a structure generator is
 implemented for NanoEngineer-1.  The key points of interest are the 
 methods:  __init__, gather_parameters and build_struct.  
-They all **must always** be overriden when a new structure generator 
+They all **must always** be overridden when a new structure generator 
 class is defined.
 
 The class variables cmd, prefix and sponsor_keyword should be changed 
 to fit the new structure generator's role.
 
 @author: Jeff Birac
-@copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
-@version: 0.1
-
-AtomGenerator.py
-
-$Id$
+@version: $Id$
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Jeff 2007-05-30: Based on Will Ware's GrapheneGenerator.py
 Mark 2007-07-25: Uses new PM module.
 """
-
-__author__ = "Jeff"
 
 import platform, env
 from chem import Atom

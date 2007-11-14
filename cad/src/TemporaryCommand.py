@@ -4,9 +4,9 @@
 TemporaryCommand.py -- provides several kinds of TemporaryCommand superclasses
 (so far, just TemporaryCommand_Overdrawing, used for Zoom/Pan/Rotate).
 
-@author:    Mark and Bruce
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@author:    Mark, Bruce
 @version:   $Id$
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 """
 

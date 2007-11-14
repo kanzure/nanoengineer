@@ -22,7 +22,7 @@ it will get it right.
 
 @author: Eric Messick
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 

@@ -1,12 +1,10 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-elementColors.py
+"""
+elementColors.py - dialog for changing element color table; related functions
 
-$Id$
-
-
-bruce 050913 used env.history in some places.
-'''
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+"""
 
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import SIGNAL

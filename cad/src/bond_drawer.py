@@ -4,7 +4,7 @@ bond_drawer.py -- implementations of Bond.draw and Bond.writepov.
 
 @author: Josh, Bruce
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 

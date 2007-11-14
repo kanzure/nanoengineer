@@ -7,7 +7,7 @@ in widget exprs which display it, edit it, operate on it, produce it
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 note: this used to define StatePlace and associated things, but those are now in StatePlace.py [as of 061203];
 most things remaining here are nim

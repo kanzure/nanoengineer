@@ -4,7 +4,7 @@ demo_drag.py
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 demo not only some drag actions, but some ways of setting up new model types

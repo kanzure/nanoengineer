@@ -5,7 +5,7 @@ inherited by modelTree.py to provide NE1's Model Tree of Nodes.
 
 @author: Will, Bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Goals:
 

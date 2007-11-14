@@ -4,8 +4,8 @@
 Utilities for formatting various data types as strings.
 
 @author:    Eric Messick
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 """
 

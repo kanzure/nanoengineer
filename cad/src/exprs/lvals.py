@@ -5,7 +5,7 @@ with special behavior such as usage-tracking and invalidation/update.
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 ===
 

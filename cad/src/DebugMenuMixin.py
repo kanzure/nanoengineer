@@ -3,8 +3,8 @@
 """
 Mixin class to help some of our widgets offer a debug menu.
 
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 @version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import sys

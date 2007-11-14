@@ -4,7 +4,7 @@ widget_env.py -- an environment for the instantiation and use of widget exprs
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 The environment is used for lexical replacement & instantiation,

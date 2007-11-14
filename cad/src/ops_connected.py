@@ -2,7 +2,9 @@
 """
 ops_connected.py -- operations on the connectivity of bond networks.
 
-$Id$
+@author: Josh, Bruce
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -11,11 +13,7 @@ bruce 050507 made this by collecting appropriate methods (by Josh) from class Pa
 bruce 050520 added new code (mostly in a separate new file) for Select Doubly.
 
 bruce 050629 code cleanup.
-
-bruce 050913 used env.history in some places.
 """
-
-__author__ = "Josh, Bruce"
 
 from utilities.Log import greenmsg, redmsg
 import env

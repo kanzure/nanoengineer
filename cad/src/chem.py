@@ -32,8 +32,6 @@ History:
 - bruce 050610 changing how atoms are highlighted during Build mode mouseover.
   ###@@@ might not be done
 
-- bruce 050901 used env.history in some places.
-
 - bruce 050920 removing laxity in valence checking for carbomeric bonds, now
   that mmp file supports them.
 

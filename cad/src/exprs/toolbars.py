@@ -6,7 +6,7 @@ toolbars.py - OpenGL toolbars, basically serving as "working mockups" for Qt too
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from exprs.Column import SimpleRow

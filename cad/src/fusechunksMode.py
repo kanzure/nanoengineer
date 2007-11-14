@@ -2,13 +2,10 @@
 """
 fusechunksMode.py
 
-$Id$
-
-bruce 050913 used env.history in some places.
+@author: Mark
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-
-__author__ = "Mark"
-
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QWidgetAction

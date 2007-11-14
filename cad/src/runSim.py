@@ -1,14 +1,15 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-runSim.py
-
-setting up and running the simulator, for Simulate or Minimize
+runSim.py -- setting up and running the simulator, for Simulate or Minimize
 (i.e. the same code that would change if the simulator interface changed),
-and the user-visible commands for those operations.
+and part of the implementation of user-visible commands for those operations.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
-History: Mark created a file of this name, but that was renamed to SimSetup.py
+History:
+
+Mark created a file of this name, but that was renamed to SimSetup.py
 by bruce on 050325.
 
 Bruce 050324 pulled in lots of existing code for running the simulator
@@ -20,9 +21,8 @@ of the experimental CommandRun class.
 Bruce 050331 is splitting writemovie into several methods in more than
 one subclass (eventually) of a new SimRunner class.
 
-bruce 050901 and 050913 used env.history in some places.
-
-bruce 051115 some comments and code cleanup; add #SIMOPT wherever a simulator executable command-line flag is hardcoded.
+bruce 051115 some comments and code cleanup; add #SIMOPT wherever a
+simulator executable command-line flag is hardcoded.
 
 bruce 051231 partly-done code for using pyrex interface to sim; see use_dylib
 """

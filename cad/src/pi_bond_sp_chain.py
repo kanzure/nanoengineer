@@ -5,7 +5,7 @@ of them connected by sp atoms.
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note, 070414: it turns out a lot of the same concepts and similar code
 ought to be useful for keeping track of chains of "directional bonds"

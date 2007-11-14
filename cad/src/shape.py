@@ -4,7 +4,7 @@ shape.py -- handle freehand curves for selection and cookie-cutting
 
 @author: Josh, Huaicai, maybe others
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from Numeric import array, zeros, maximum, minimum, ceil, dot, floor

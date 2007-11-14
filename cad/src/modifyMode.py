@@ -3,7 +3,7 @@
 modifyMode.py -- provides class modifyMode (Move Chunks Mode)
 
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 

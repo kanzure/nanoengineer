@@ -3,7 +3,7 @@
 jigs.py -- Classes for motors and other jigs, and their superclass, Jig.
 
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -14,12 +14,10 @@ except for this module-docstring and a few blank lines and comments.
 
 bruce 050507 pulled in the jig-making methods from class Part.
 
-bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
-on __xxx__ attrs in python objects.
+bruce 050513 replaced some == with 'is' and != with 'is not',
+to avoid __getattr__ on __xxx__ attrs in python objects.
 
 bruce circa 050518 made rmotor arrow rotate along with the atoms.
-
-050901 bruce used env.history in some places. 
 
 050927 moved motor classes to jigs_motors.py and plane classes to jigs_planes.py
 

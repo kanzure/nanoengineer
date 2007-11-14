@@ -20,7 +20,7 @@ The fileNames produced look like "./directory/Module.py", with a
 corresponding moduleName of "directory.Module".
 
 @author: Eric Messick
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @version: $Id$
 """
 

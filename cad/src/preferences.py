@@ -4,7 +4,7 @@ preferences.py -- Preferences system.
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 ==
 

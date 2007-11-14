@@ -4,7 +4,7 @@ crossovers.py -- support for DNA crossovers, modelled at various levels
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 Includes Make Crossover and Remove Crossover Pl-atom-pair context menu commands.
 """

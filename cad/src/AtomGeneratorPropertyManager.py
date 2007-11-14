@@ -1,27 +1,24 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-
 An example of a structure generator's user interface 
-meant to be a template developers.
+meant to be a template for developers.
 
 The AtomGeneratorDialog class is an example of how PropMgrBaseClass 
 is used to build a structure generator's user interface (dialog) in 
 NanoEngineer-1.  The key points of interest are the methods: __init__, 
 addGroupBoxes and add_whats_this_text.  They all **must always** be 
-overriden when a new structure generator dialog class is defined.
+overridden when a new structure generator dialog class is defined.
 
 The class variables <title> and <iconPath> should be changed to fit the 
 new structure generator's role.
 
 The class static variables (prefixed with _s) and their accessor 
-methods (Get.../Set...)are purely for the sake of example and may 
+methods (Get.../Set...) are purely for the sake of example and may 
 be omitted from any new implementation.
 
 @author: Jeff Birac
-@copyright: Copyright (c) 2007 Nanorex, Inc.  All rights reserved.
-@version: 0.1
-
-$Id$
+@version: $Id$
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
   Jeff 2007-05-29: Based on Mark Sims' GrapheneGeneratorDialog.py, v1.17
@@ -50,8 +47,6 @@ History:
   Mark 2007-07-24: Uses new PM module.
   
 """
-        
-__author__ = "Jeff"
 
 from icon_utilities import geticon, getpixmap
 

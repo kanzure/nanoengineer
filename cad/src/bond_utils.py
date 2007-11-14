@@ -2,16 +2,14 @@
 """
 bond_utils.py -- helper functions for bond-related UI code.
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 created by bruce 050705 to help with higher-order bonds for Alpha6.
-
-050901 bruce used env.history in some places.
 """
-__author__ = "bruce"
-
 
 from VQT import Q
 from constants import noop
@@ -35,7 +33,8 @@ def complement_sequences(big, little):
     return filter( lambda s: s not in little, big)
 
 def possible_bond_types(bond):
-    """Return a list of names of possible bond types for the given bond,
+    """
+    Return a list of names of possible bond types for the given bond,
     in order of increasing bond order,
     based on its atoms' current elements and atomtypes.
        This list is never empty since single bonds are always deemed possible
@@ -69,7 +68,8 @@ def possible_bond_types_for_elements(bond):
 # and should "unknown" be explicitly in the list?
 
 def bond_type_warning(bond, btype): # 050707
-    """Return a warning (short text suitable to be added to menu item text), or "" for no warning,
+    """
+    Return a warning (short text suitable to be added to menu item text), or "" for no warning,
     about the use of btype (bond type name) for bond.
     This can be based on its atomtypes or perhaps on more info about the surroundings
     (#e we might need to add arguments to pass such info).
@@ -94,7 +94,8 @@ def bond_type_warning(bond, btype): # 050707
 _BOND_DIR_TEXTS = {0:"unset", 1:" --->", -1:"<--- "} # see also _BOND_DIR_NAMES #e refile
 
 def bond_menu_section(bond, quat = Q(1,0,0,0)):
-    """Return a menu_spec subsection for displaying info about a highlighted bond,
+    """
+    Return a menu_spec subsection for displaying info about a highlighted bond,
     changing its bond_type, offering commands about it, etc.
     If given, use the quat describing the rotation used for displaying it
     to order the atoms in the bond left-to-right (e.g. in text strings).
@@ -129,7 +130,8 @@ def bond_menu_section(bond, quat = Q(1,0,0,0)):
     return res
     
 def _bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec for Alpha6
-    """Return a menu_spec for changing the bond_type of this bond
+    """
+    Return a menu_spec for changing the bond_type of this bond
     (as one or more checkmark items, one per permitted bond-type given the atomtypes),
     or if the bond-type is unchangeable, a disabled menu item for displaying the type
     (which looks the same as when the bond type is changeable, except for being disabled).
@@ -234,7 +236,8 @@ def _bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spe
 # - then it's safe to let bond cmenu have more entries (since they might be open bonds)
 
 def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060703 added allow_remake_bondpoints for bug 833-1
-    """Apply the given bond-type name (e.g. 'single') to the given bond, iff this is permitted by its atomtypes
+    """
+    Apply the given bond-type name (e.g. 'single') to the given bond, iff this is permitted by its atomtypes
     (or, new feature 060523, if it's permitted by its real atoms' possible atomtypes and their number of real bonds),
     and do whatever inferences are presently allowed [none are implemented as of 050727].
     Emit an appropriate history message. Do appropriate invals/updates.
@@ -342,7 +345,8 @@ def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060
     return # from apply_btype_to_bond
 
 def best_atype(atom, atomtypes = None): #bruce 060523
-    """Which atomtype for atom is best, among the given or possible ones,
+    """
+    Which atomtype for atom is best, among the given or possible ones,
     where best means the fewest number of bondpoints need removing to get to it?
     (Break ties by favoring current one (never matters as presently called, 060523)
     or those earlier in the list.)

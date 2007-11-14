@@ -4,7 +4,7 @@ Set.py - provide the assignment action called Set, and (for now) the deprecated 
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 Note: this operation name is important enough to override any worry about the potential

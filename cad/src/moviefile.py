@@ -3,12 +3,10 @@
 moviefile.py -- classes and other code for interpreting movie files
 (of various formats, once we have them)
 
-$Id$
-
-bruce 050913 used env.history in some places, removed history args
-from some function/method APIs.
+@author: Bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-__author__ = "Bruce" #k for now... I might bring in some older code too
 
 # note that in future there's more than one class, and a function to figure out the right one to use
 # for an existing file, or to be told this (being told the format) for a new file we'll cause to be made...

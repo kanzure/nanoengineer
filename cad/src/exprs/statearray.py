@@ -4,7 +4,7 @@ statearray.py
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 ###e still UNFINISHED in some ways, the worst being that our elements are staterefs
 # (see StateArrayRefs_getitem_as_stateref,

@@ -3,8 +3,8 @@
 Rotate mode functionality.
 
 @author:    Mark Sims
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
 """
 

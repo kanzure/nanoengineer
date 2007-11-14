@@ -1,20 +1,17 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-prefsTree.py
-
-experimental code related to user preferences
+prefsTree.py -- experimental code related to showing
+user preferences in the model tree
 (not presently used as of 050612, but works; very incomplete)
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 bruce 050613 started this.
-
-bruce 050901, 050913 used env.history in some places.
 """
-
-__author__ = "bruce"
 
 import os
 from Utility import Node

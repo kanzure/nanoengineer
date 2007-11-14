@@ -4,7 +4,7 @@ test_statearray_3.py
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 test code for one kind of constrained dragging
 

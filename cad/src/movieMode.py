@@ -2,7 +2,9 @@
 """
 movieMode.py -- movie player mode.
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -13,12 +15,8 @@ Adding various comments and revising docstrings; perhaps not signing every such 
 (Most movie code revisions will be in other files, and most revisions here will
  probably just be to adapt this file to the external changes.)
 
-bruce 050913 used env.history in some places.
-
 ninad20070507: moved Movie Player dashboard to Movie Property Manager. 
 """
-
-__author__ = "Mark"
 
 import os
 

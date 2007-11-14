@@ -1,10 +1,13 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-handles.py
+handles.py - graphical handles used in Extrude Mode.
 
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
-Owned by bruce for use in extrude... might not remain a separate file, we'll see.
+TODO:
+
 Needs cleanup.
 """
 
@@ -21,7 +24,9 @@ from constants import magenta
 from constants import blue
 
 class handleWithHandleSet:
-    "used to wrap handles returned from a handleset, so they can use its methods"
+    """
+    used to wrap handles returned from a handleset, so they can use its methods
+    """
     def __init__(self, handle, handleset, copy_id = None): 
         self.handle = handle
         self.handleset = handleset
@@ -39,7 +44,9 @@ class handleWithHandleSet:
     pass
 
 class HandleSet:
-    "maintain a set of spheres, able to be efficiently(#e) intersected with a ray, or a 3d point"
+    """
+    maintain a set of spheres, able to be intersected with a ray, or a 3d point
+    """
     color = (0.5,0.5,0.5) # default color (gray50)
     radius_multiplier = 1.0 # this might be patched to some other value by our owner;
      # should affect all internal computations using radii, but not returned radii inside handle tuples ######NIM
@@ -51,7 +58,10 @@ class HandleSet:
         self.maxradius = 0.01 # not true, but best if it's always positive, I think
     #e to optimize, we might want a "compile" method which caches Array versions of these lists
     def addHandle(self, pos, radius, info):
-        "add a handle of the given position, radius, and info, and return its index, unique in this Set"
+        """
+        add a handle of the given position, radius, and info,
+        and return its index, unique in this Set
+        """
         self.handles.append((pos,radius,info))
         self.handlpos.append(pos)
         if radius > self.maxradius:
@@ -63,7 +73,9 @@ class HandleSet:
         self.origin = self.origin + offset
         ## warning: this would be wrong (due to destructive mod of a vector): self.origin += motion
     def draw(self, glpane, offset = V(0,0,0), color = None, info = {}): # this code is copied/modified into a subclass, sorry
-        "draw our spheres (in practice we'll need to extend this for different sets...)"
+        """
+        draw our spheres (in practice we'll need to extend this for different sets...)
+        """
 ##        self.radius_multiplier = 1.0 # this might be changed by certain subclass's process_optional_info method
 ##        self.process_optional_info(info) # might reset instvars that affect following code... (kluge?)
         color = color or self.color
@@ -80,7 +92,10 @@ class HandleSet:
 ##        "some subclasses should override this to let info affect draw method"
 ##        pass
     def findHandles_containing(self, point):
-        "return a list of all the handles (in arbitrary order) which (as balls) contain the given 3d point"
+        """
+        return a list of all the handles (in arbitrary order)
+        which (as balls) contain the given 3d point
+        """
         res = []
         for (pos,radius,info) in self.handles: #e revise this code if we cluster them, esp with bigger radius
             if vlen(point - pos) <= radius * self.radius_multiplier:

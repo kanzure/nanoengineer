@@ -6,7 +6,7 @@ WARNING: this file has been mostly superseded by DnaDuplexGenerator.py.
 
 @author: Will Ware
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -24,8 +24,6 @@ Mark 2007-10-18:
 # To do:
 # 1) Use two endpoints to create an arbitrarily positioned duplex.
 # 2) Remove support for Atomistic DNA models.
-
-__author__ = "Will"
 
 import env
 import random

@@ -1,26 +1,25 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-HistoryWidget.py provides a Qt "megawidget" supporting our history/status area.
+"""
+HistoryWidget.py -- provides a Qt "megawidget" supporting our history/status area.
 
-For now (circa 040105 and until further notice), this file is owned by Bruce,
-and is likely to be extensively revised or reorganized at any time, possibly
-along with all code that calls it (e.g. any code that generates status messages).
+@author: bruce
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+
+TODO:
+
+This file ought to be extensively revised or reorganized, possibly along
+with all code that calls it (e.g. any code that generates status messages).
 
 The history code itself (as opposed to the UI code in the megawidget)
-will be split into a separate module when it gets complicated.
+should be split into a separate module when it gets complicated.
 
-Terminology: a "megawidget" is an object, not itself a widget, which controls
+Terminology:
+
+A "megawidget" is an object, not itself a widget, which controls
 one or more widgets so as to act like a single more complex widget. I got the
 term from "Python Megawidgets" (which are implemented in Tk rather than Qt).
-
-This file used to be named HistoryMegawidget.py, but that was unnecessarily
-verbose, since megawidgets are normal. This file's rev 1.1 is identical
-to HistoryMegawidget.py's rev 1.5 except for this name change, which appears
-only in this docstring and the classname (and in a few other files).
-
-$Id$
-'''
-__author__ = "bruce"
+"""
 
 import sys, os, time
 
@@ -42,7 +41,9 @@ from utilities.Log import _graymsg, quote_html, greenmsg, redmsg, orangemsg
 
 
 class message:
-    """Stores one message for a history."""
+    """
+    Stores one message for a history.
+    """
     #e this will get more complicated (and its existence will be justified)
     # once messages can be html-formatted, include links to what they're about,
     # etc; and it may also gain search or filter methods for the display.
@@ -162,7 +163,8 @@ class HistoryWidget:
     # If we decide more than one window displays the status, sharing one history,
     # we'll have to figure out how to do that at the time.
     def __init__(self, parent, header_line = None, filename = None, mkdirs = 0):
-        """###doc this;
+        """
+        ###doc this;
         optional arg header_line should be a string, generally not ending in '\n'
         """
         
@@ -223,7 +225,8 @@ class HistoryWidget:
     file = None
     filename = ""
     def _init_file(self, filename, mkdirs = 0):
-        """Set up optional file. Call this even if filename is None, so debug code can run.
+        """
+        Set up optional file. Call this even if filename is None, so debug code can run.
         Don't output a history message naming the file -- but return one,
         so caller can do that later if it wants to.
         """
@@ -270,7 +273,9 @@ class HistoryWidget:
         self._print_msg("atom_debug: %s modtime is %s" % (ff,tt))
 
     def _append(self, something): ###e perhaps split into append_text, append_html, and append_msg
-        """[private method] Append some text to the widget and the optional history file.
+        """
+        [private method]
+        Append some text to the widget and the optional history file.
         The text is not processed except to add newlines as needed.
         We assume the given text does not normally start or end with a newline.
         """
@@ -290,7 +295,8 @@ class HistoryWidget:
     # main print method for one message
     
     def _print_msg(self, msg):
-        """Format and print one message (a string, usually not starting or
+        """
+        Format and print one message (a string, usually not starting or
         ending with newline). Precede it with a timestamp.
         Most printing should go though this method.
         Client code should call a higher-level method which uses this one.
@@ -325,7 +331,8 @@ class HistoryWidget:
     # or in older code via the MainWindow object (e.g. win.history or w.history or self.history):
     
     def message(self, msg, transient_id = None, repaint = 0, norepeat_id = None, **options):
-        """Compatibility method -- pretend we're a statusbar and this is its "set text" call.
+        """
+        Compatibility method -- pretend we're a statusbar and this is its "set text" call.
         [The following is not yet implemented as of the initial commit:]
         In reality, make sure the new end of the history looks basically like the given text,
         but use semi-heuristics to decide how to combine this text with previous "status text"
@@ -406,14 +413,16 @@ class HistoryWidget:
         return self.message( msg, **opts)
     
     def flush_saved_transients(self):
-        """make sure a saved-up transient message, if there is one,
+        """
+        make sure a saved-up transient message, if there is one,
         is put into the history now
         """
         self.message(None)
         # [passing None is a private implem -- outsiders should not do this!]
     
     def statusbar_msg(self, msg_text, repaint = 0): #bruce 050914 renamed transient_msg => statusbar_msg
-        """Show the message (which must be plain text and short) in Qt's main status bar.
+        """
+        Show the message (which must be plain text and short) in Qt's main status bar.
         This only works for plain text messages, not html.
         If the message is too long, it might make the window become too wide, perhaps off the screen!
         Thus use this with care.
@@ -476,7 +485,8 @@ class HistoryWidget:
         return
     
     def debug_print(self, fmt, *args):
-        """Any code that wants to print debug-only notes, properly timestamped
+        """
+        Any code that wants to print debug-only notes, properly timestamped
         and intermixed with other history, and included in the history file,
         can use this method."""
         if not platform.atom_debug:
@@ -487,7 +497,8 @@ class HistoryWidget:
     # inval/update methods
     
     def h_update(self): # bruce 050107 renamed this from 'update'
-        """(should be called at the end of most user events)
+        """
+        (should be called at the end of most user events)
         [no longer named update, since that conflicts with QWidget.update --
          technically this doesn't matter since we are not a QWidget subclass,
          but even so it's good to avoid this confusion.]

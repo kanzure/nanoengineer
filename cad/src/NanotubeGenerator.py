@@ -4,7 +4,7 @@ NanotubeGenerator.py
 
 @author: Will
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 @see http://www.nanoengineer-1.net/mediawiki/index.php?title=Nanotube_generator_dialog
 for notes about what's going on here.

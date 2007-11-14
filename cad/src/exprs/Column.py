@@ -6,7 +6,7 @@ Column.py - provide SimpleColumn and SimpleRow, and someday, fancier Column and 
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
 

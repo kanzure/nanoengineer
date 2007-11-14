@@ -4,15 +4,13 @@ DnaDuplex.py -- DNA duplex model classes based on empirical data.
 
 @author: Mark Sims
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 Mark 2007-10-18:
 - Created. Major rewrite of Dna.py.
 """
-
-__author__ = "Mark"
 
 import env
 import os

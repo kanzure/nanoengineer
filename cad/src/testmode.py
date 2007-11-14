@@ -1,15 +1,15 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-testmode.py -- scratchpad for new code (mainly related to DNA Origami),
-OWNED BY BRUCE, not imported by default.
+testmode.py -- Command/GraphicsMode for testing graphical exprs
+(implemented in the exprs module).
 
-FOR NOW [060716], NO ONE BUT BRUCE SHOULD EDIT THIS FILE IN ANY WAY.
-(Unless Ninad needs to edit the Qt4 version.)
+@author: bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
-$Id$
+How to use:
 
-
-How to use:   [see also exprs/README.txt, which is more up to date]
+  [see also exprs/README.txt, which is more up to date]
 
   [this symlink is no longer needed as of 061207:]
   make a symlink from ~/Nanorex/Modes/testmode.py to this file, i.e.
@@ -30,8 +30,6 @@ on the "cad/src/experimental/textures" directory. As of 070604 that's being chan
 to depend on a new subdirectory of cad/src/ui named exprs (so it will be supported
 in built releases).
 """
-
-__author__ = "bruce"
 
 import time
 

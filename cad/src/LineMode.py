@@ -1,8 +1,8 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Ninad
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
         
 """

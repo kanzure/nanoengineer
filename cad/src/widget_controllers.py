@@ -4,7 +4,7 @@ widget_controllers.py
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 # a widget expr controller for a collapsible GroupBox

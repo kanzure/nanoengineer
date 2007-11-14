@@ -2,7 +2,9 @@
 """
 atomtypes.py -- AtomType object, knows about one bonding pattern for one element.
 
-$Id$
+@author: Josh, Bruce
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -16,8 +18,6 @@ and their .valence attribute is probably not yet used [later: now it's used].)
 
 bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.
-
-050901 bruce used env.history in some places.
 """
 
 # element.atomtypes -> list of atom types usable for that element

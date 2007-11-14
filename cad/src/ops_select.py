@@ -3,13 +3,12 @@
 ops_select.py -- operations and internal methods for changing what's selected
 and maintaining other selection-related state. (Not well-organized.)
 
-$Id$
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 bruce 050507 made this by collecting appropriate methods from class Part.
-
-bruce 050913 used env.history in some places.
 """
 
 from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
@@ -30,7 +29,7 @@ CHUNKS = 2
 JIGS = 4
 ALLOBJECTS = ATOMS | CHUNKS | JIGS
 
-def objectSelected(part, objectFlags=ALLOBJECTS): # Mark 2007-06-24
+def objectSelected(part, objectFlags = ALLOBJECTS): # Mark 2007-06-24
     """
     Returns True if anything is selected (i.e. atoms, chunks or jigs).
     Returns False if nothing is selected.

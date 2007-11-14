@@ -4,7 +4,7 @@ GamessJob.py -- This is the GAMESS Job parms default settings.
 
 @author: Mark
 @version: $Id$
-@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import os, sys, time, re

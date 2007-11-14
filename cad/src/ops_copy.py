@@ -4,14 +4,13 @@ ops_copy.py -- general cut/copy/delete operations on selections
 containing all kinds of model tree nodes.
 
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 bruce 050507 made this by collecting appropriate methods from class Part.
-
-bruce 050901 used env.history in some places.
 """
+
 import platform
 import env
 

@@ -1,9 +1,10 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-ops_files.py provides fileSlotsMixin for MWsemantics,
+ops_files.py - provides fileSlotsMixin for MWsemantics,
 with file slot methods and related helper methods.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note: most other ops_*.py files provide mixin classes for Part,
 not for MWsemantics like this one.
@@ -13,9 +14,8 @@ History:
 bruce 050907 split this out of MWsemantics.py.
 [But it still needs major cleanup and generalization.]
 
-bruce 050913 used env.history in some places.
-
-mark 060730 removed unsupported slot method fileNew(); refined and added missing docstrings
+mark 060730 removed unsupported slot method fileNew();
+refined and added missing docstrings
 """
 
 import re

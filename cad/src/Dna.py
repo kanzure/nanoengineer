@@ -6,7 +6,7 @@ WARNING: this file has been mostly superseded by DnaDuplex.py.
 
 @author: Will Ware
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 

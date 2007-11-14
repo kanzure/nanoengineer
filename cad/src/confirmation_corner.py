@@ -5,7 +5,7 @@ confirmation_corner.py -- helpers for modes with a confirmation corner
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note: confirmation corners make use of two methods added to the "GraphicsMode API"
 (the one used by GLPane to interface to glpane.graphicsMode for mouse and drawing)
@@ -19,8 +19,6 @@ Those method implems assume that Command subclasses (whose instances are
 found in graphicsMode.command) override want_confirmation_corner_type
 to return the kind of confirmation corner they want at a given moment.
 """
-
-__author__ = "bruce"
 
 import os
 

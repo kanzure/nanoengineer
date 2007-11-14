@@ -4,7 +4,7 @@ demo_ui.py - try out a more CAD-like UI organization
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from exprs.toolbars import MainToolbar

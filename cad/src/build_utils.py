@@ -2,9 +2,9 @@
 """
 build_utils.py -- some utilities for Build mode.
 
-Owned by bruce while atomtypes and higher-order bonds are being implemented.
-
-$Id$
+@author: Josh
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -12,10 +12,9 @@ Original code written by Josh in depositMode.py.
 
 Bruce moved it into this separate file, 050510,
 and added superstructure, in preparation for extending it to atom types
-with new bonding patterns. And did some of that extension, 050511. [It's ongoing.]
+with new bonding patterns. And did some of that extension, 050511.
+[It's ongoing.]
 """
-__author__ = "Josh"
-
 
 from VQT import norm
 from chem import Atom
@@ -35,7 +34,9 @@ class PastableDepositionTool(DepositionTool): # not yet filled in (with code fro
     pass
 
 class AtomTypeDepositionTool(DepositionTool):
-    """DepositionTool for depositing atoms of a given type (element and bonding pattern)."""
+    """
+    DepositionTool for depositing atoms of a given type (element and bonding pattern).
+    """
     #bruce 050510 made this from some methods in depositMode, and extended it for atomtypes.
     def __init__(self, atomtype):
         self.atomtype = atomtype
@@ -62,7 +63,8 @@ class AtomTypeDepositionTool(DepositionTool):
 
     def attach_to( self, singlet, autobond = True, autobond_msg = True): # in AtomTypeDepositionTool
         # [bruce 050831 added autobond option; 050901 added autobond_msg]
-        """[public method]
+        """
+        [public method]
         Deposit a new atom of self.atomtype onto the given singlet,
         and (if autobond is true) make other bonds (to other near-enough atoms with singlets)
         as appropriate. (But never more than one bond per other real atom.)

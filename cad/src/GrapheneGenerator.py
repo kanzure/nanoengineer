@@ -4,7 +4,7 @@ GrapheneGenerator.py
 
 @author: Will
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 

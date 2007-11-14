@@ -10,8 +10,8 @@ not drag in much else.  As of 2007/09/05, that's probably not true
 yet.
 
 @author: Eric Messick
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 @version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from prefs_constants import permit_atom_chunk_coselection_prefs_key

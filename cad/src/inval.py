@@ -4,7 +4,7 @@ inval.py -- simple invalidation/update system for attributes within an object
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
 on __xxx__ attrs in python objects.

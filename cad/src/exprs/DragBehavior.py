@@ -4,7 +4,7 @@ DragBehavior.py - the DragBehavior API and some useful specific behaviors
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 A DragBehavior
 

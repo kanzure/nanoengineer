@@ -6,7 +6,7 @@ are each variants of ExampleCommand2's command and PM classes
  
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 

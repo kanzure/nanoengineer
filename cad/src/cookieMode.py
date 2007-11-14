@@ -2,9 +2,8 @@
 """
 cookieMode.py -- cookie cutter mode.
 
-$Id$
-
-bruce 050913 used env.history in some places.
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note: Till Alpha8, this mode was called Cookie Cutter mode. In Alpha9 
 it has been renamed to 'Build Crystal' mode. -- ninad 20070511

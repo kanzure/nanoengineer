@@ -3,13 +3,12 @@
 ops_rechunk.py -- operations for changing the way atoms are divided
 into chunks, without altering the atoms or bonds themselves.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 bruce 050507 made this by collecting appropriate methods from class Part.
-
-bruce 050913 used env.history in some places.
 """
 
 from utilities.Log import greenmsg, redmsg

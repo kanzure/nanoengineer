@@ -2,13 +2,14 @@
 """
 files_pdb.py -- reading and writing PDB files
 
-$Id$
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
-History: this was part of fileIO.py,
+History:
+
+This was part of fileIO.py,
 until bruce 050414 started splitting that
 into separate modules for each file format.
-
-bruce 050901 used env.history in some places.
 
 bruce 070410 added some hacks to read more pdb files successfully --
 but they need review by someone who knows whether they're correct or not.

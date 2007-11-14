@@ -5,7 +5,7 @@ represent pi orbitals as "vanes".
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import math

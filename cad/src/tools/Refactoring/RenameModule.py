@@ -59,7 +59,7 @@ Where an 'import as' remains after this refactoring, a further
 refactoring should be done to remove the 'as' clause.
 
 @author: Eric Messick
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @version: $Id$
 """
 

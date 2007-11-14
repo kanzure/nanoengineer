@@ -4,7 +4,7 @@ demo_MT.py - demo of "model tree in GLPane" (primitive, but works)
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 ### WARNING: the rest of this docstring has not been reviewed since before MT_try2 was implemented

@@ -2,8 +2,9 @@
 """
 files_mmp.py -- reading and writing MMP files
 
-$Id$
-
+@author: Josh
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History: bruce 050414 pulled this out of fileIO.py rev. 1.97
 (of which it was the major part),
@@ -18,10 +19,8 @@ mainly (but not only) for the classes molecule, atom, and Jig.
 keep the reading and writing code for one format together --
 since it's mostly not together now.)
 
-bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
-on __xxx__ attrs in python objects.
-
-bruce 050901 used env.history in some places.
+bruce 050513 replaced some == with 'is' and != with 'is not',
+to avoid __getattr__ on __xxx__ attrs in python objects.
 
 ===
 

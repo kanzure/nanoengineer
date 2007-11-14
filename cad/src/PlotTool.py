@@ -1,16 +1,15 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 PlotTool.py
 
-$Id$
-
-bruce 050913 used env.history in some places.
+@author: Mark
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 bruce 060105 revised trace file header parsing to fix bug 1266
 and make it more likely to keep working with future revisions
 to trace file format.
-'''
-__author__ = "Mark"
+"""
 
 import sys, os, string
 

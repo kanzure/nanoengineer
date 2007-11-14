@@ -4,7 +4,7 @@ Boxed.py -- example of high-level layout expr
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 See also: DraggablyBoxed
 

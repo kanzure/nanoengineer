@@ -1,16 +1,15 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-extrudeMode.py
-Extrude mode, including its internal "rod" and "ring" modes.
+extrudeMode.py - Extrude mode, including its internal "rod" and "ring" modes.
 Unfinished [as of 050518], especially ring mode.
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
-History: by bruce, 040924/041011/041015... 050107...
+History:
 
-bruce 050913 used env.history in some places.
+by bruce, 040924/041011/041015... 050107...
 
 ninad 070110: retired extrude dashboard  (in Qt4 branch). It was 
 replaced with its 'Property Manager' (see Ui_ExtrudePropertyManager, 
@@ -19,7 +18,6 @@ ExtrudePropertyManager)
 ninad 20070725: code cleanup to create a propMgr object for extrude mode. 
 Moved many ui helper methods to class ExtrudePropertyManager .
 """
-__author__ = "bruce"
 
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
 

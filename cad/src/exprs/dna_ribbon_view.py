@@ -4,7 +4,7 @@ dna_ribbon_view.py
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 
 070125: started this from a copy of demo_dna-outtakes.py.

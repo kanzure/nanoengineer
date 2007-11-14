@@ -1,22 +1,17 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-movie.py -- the Movie class.
+movie.py -- class Movie, used for simulation parameters and open movie files
 
-This file mainly defines class Movie
-
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 Initially by Mark.
 
 Some parts rewritten by Bruce circa 050427.
-
-bruce 050913 used env.history in some places, removed history args
-from some function/method APIs.
 """
-
-__author__ = "Mark"
 
 import os, sys
 from struct import unpack

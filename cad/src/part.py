@@ -1,12 +1,11 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-
 """
-part.py
+part.py -- class Part, for all chunks and jigs in a single physical space,
+together with their selection state and grouping structure (shown in the
+model tree).
 
-Provides class Part, for all chunks and jigs in a single physical space,
-together with their selection state and grouping structure (shown in the model tree).
-
-$Id$
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 see assembly.py docstring, some of which is really about this module. ###@@@ revise
 
@@ -18,12 +17,15 @@ other file. [As of 050507, much of that has now been moved.]
 
 ==
 
-History: split out of assembly.py (the file, and more importantly the class)
+History:
+
+Split out of assembly.py (the file, and more importantly the class)
 by bruce 050222. The Part/assembly distinction was introduced by bruce 050222
 (though some of its functionality was anticipated by the "current selection group"
 introduced earlier, just before Alpha-1). [I also rewrote this entire docstring then.]
 
-The Part/assembly distinction is unfinished, particularly in how it relates to some modes and to movie files.
+The Part/assembly distinction is unfinished, particularly in how it
+relates to some modes and to movie files.
 
 Prior history of assembly.py (and thus of much code in this file) unclear;
 assembly.py was almost certainly originated by Josh.
@@ -31,10 +33,8 @@ assembly.py was almost certainly originated by Josh.
 bruce 050507 moved various methods out of this file, into more appropriate
 smaller files, some existing (jigs.py) and some new (ops_*.py).
 
-bruce 050513 replaced some == with 'is' and != with 'is not', to avoid __getattr__
-on __xxx__ attrs in python objects.
-
-bruce 050901 used env.history in some places.
+bruce 050513 replaced some == with 'is' and != with 'is not',
+to avoid __getattr__ on __xxx__ attrs in python objects.
 """
 
 from OpenGL.GL import GL_LIGHTING

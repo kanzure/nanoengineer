@@ -4,7 +4,7 @@ DraggableHandle.py - some convenience exprs for draggable handles
 
 @author: bruce
 @version: $Id$
-@copyright: Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note about the name: we use DraggableHandle rather than DragHandle,
 to avoid confusion with the DragHandler API (which would
