@@ -32,19 +32,20 @@ from PyQt4.Qt import QMouseEvent
 
 import env
 
-from VQT import V, Q, norm
+from VQT import V, Q, norm, vlen, ptonline
 from chem import Atom
 from jigs import Jig
 from bonds import Bond
 from elements import Singlet
 
 from debug import print_compact_traceback, print_compact_stack
+
 from Group import Group
 
 from selectMode import selectMode
 from selectMode import DRAG_STICKINESS_LIMIT
 
-from debug_prefs import debug_pref, Choice_boolean_True
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
 from prefs_constants import bondHighlightColor_prefs_key
 from prefs_constants import bondpointHighlightColor_prefs_key
@@ -667,6 +668,65 @@ class selectAtomsMode(selectMode):
     
     # ===== START: Atom selection and dragging helper methods ==========
     
+    # Method atomSetup moved from selectMode to here during
+    # cleanup on 2007-11-13
+    drag_offset = V(0,0,0) # avoid tracebacks from lack of leftDown
+
+    def atomSetup(self, a, event): #bruce 060316 added <event> argument, 
+                                   #for bug 1474
+        """
+        Setup for a click, double-click or drag event for real atom <a>.
+        """
+        #bruce 060316 set self.drag_offset to help fix bug 1474 
+        #(this should be moved into a method so singlets can call it too)--
+        farQ, dragpoint = self.dragstart_using_GL_DEPTH( event)
+        apos0 = a.posn()
+        if farQ or vlen( dragpoint - apos0 ) > a.max_pixel_radius():
+            # dragpoint is not realistic -- find a better one (using code 
+            #similar to innards of dragstart_using_GL_DEPTH)
+            ###@@@ Note: + 0.2 is purely a guess (probably too big) -- 
+            ###what it should be is a new method a.max_drawn_radius(),
+            # which gives max distance from center of a drawn pixel, including 
+            #selatom, highlighting, wirespheres,
+            # and maybe even the depth offset added by GLPane when it draws in
+            # highlighted form (not sure, it might not draw
+            # into depth buffer then...) Need to fix this sometime. Not high
+            # priority, since it seems to work with 0.2,
+            # and since higher than needed values would be basically ok anyway.
+            #[bruce 060316]
+            if env.debug(): # leave this in until we see it printed sometime
+                print "debug: fyi: atomSetup dragpoint try1 was bad, %r "\
+                      "for %r, reverting to ptonline" % (dragpoint, apos0)
+            p1, p2 = self.o.mousepoints(event)
+            dragpoint = ptonline(apos0, p1, norm(p2-p1))
+            del p1,p2
+        del farQ, event
+        self.drag_offset = dragpoint - apos0 # some subclass drag methods can 
+                                             #use this with 
+                                             #self.dragto_with_offset()
+   
+        self.objectSetup(a)
+
+        if len(self.o.assy.selatoms_list()) == 1:
+            #bruce 060316 question: does it matter, in this case, whether <a> 
+            #is the single selected atom? is it always??
+            self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
+            self.drag_multiple_atoms = False
+        else:
+            #bruce 070412
+            self.smooth_reshaping_drag = self.get_smooth_reshaping_drag() 
+            self.dragatoms, self.baggage, self.dragchunks = \
+                self.get_dragatoms_and_baggage()
+                # if no atoms in alist, dragatoms and baggage are empty lists,
+                #which is good.
+            self.drag_multiple_atoms = True
+            self.maybe_use_bc = debug_pref("use bc to drag mult?", 
+                                           Choice_boolean_False) #bruce 060414
+
+        # dragjigs contains all the selected jigs.
+        self.dragjigs = self.o.assy.getSelectedJigs()
+        
+    
     # Method atomLeftDown moved from selectMode to here during
     # cleanup on 2007-11-13
     def atomLeftDown(self, a, event):            
@@ -771,6 +831,22 @@ class selectAtomsMode(selectMode):
 
         if nochange: return
         self.o.gl_update()
+    
+    def atomLeftDouble(self): # mark 060308
+        """
+        Atom double click event handler for the left mouse button.
+        """
+        if self.o.modkeys == 'Control':
+            self.o.assy.unselectConnected( [ self.obj_doubleclicked ] )
+        elif self.o.modkeys == 'Shift+Control':
+            self.o.assy.deleteConnected( self.neighbors_of_last_deleted_atom )
+        else:
+            self.o.assy.selectConnected( [ self.obj_doubleclicked ] )
+        # the assy.xxxConnected routines do their own win_update or gl_update 
+        #as needed. [bruce 060412 comment]
+        ##e set_cmdname would be useful here, conditioned on whether 
+        ##they did anything [bruce 060412 comment]
+        return
     
     #===Drag related methods. Moved from selectMode to here on 2007-11-13    
     def atomDrag(self, a, event):

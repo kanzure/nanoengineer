@@ -483,9 +483,11 @@ class selectMolsMode(selectMode):
         """ 
 	Overrides leftdrag method of superclass.
 	A) If the mouse cursor was on Empty space during left down, it draws 
-	a selection curve 
+	   a selection curve 
 	B) If it was on an object, it translates translates the selection 
-	(free drag translate). This is called 'pseudo move mode' for convenience.
+	  (free drag translate). This is called 'pseudo move mode' 
+          for convenience.
+          
 	Note that NE1 still remains in the selectMolsMode while doing this. 
 	It calls separate method for objects that implement drag handler API 
 
@@ -574,8 +576,8 @@ class selectMolsMode(selectMode):
             return
 
         if self.movingPoint is None: 
-            self.leftDown(event)         
-
+            self.leftDown(event)    
+            
         #Turn Off hover highlighting while translating the selection
         #This will be turned ON again in leftUp method. 
         self.hover_highlighting_enabled = False  
