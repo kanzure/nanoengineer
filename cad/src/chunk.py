@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-chunk.py -- provides class molecule [soon to be renamed class Chunk],
+chunk.py -- provides class Chunk [formerly known as class molecule],
 for a bunch of atoms (not necessarily bonded together) which can be moved
 and selected as a unit.
 
@@ -136,7 +136,7 @@ _inval_all_bonds_counter = 1 #bruce 050516
 # molecules
 #
 # [bruce 050315 adds: I've seen "part" used for the assembly, but not for "chunk"
-#  (which is the current term for instances of class molecule).
+#  (which is the current term for instances of class molecule aka Chunk).
 #  Now, however, each assy has one or more Parts, each with its own
 #  physical space, containing perhaps many bonded chunks. So any use of
 #  "part" to mean "chunk" would be misleading.]
@@ -148,9 +148,12 @@ _inval_all_bonds_counter = 1 #bruce 050516
 # problems, we should instead do it when we update the model tree or glpane,
 # since we need to ensure it's always done by the end of any user event.)
 
-register_class_nickname("Chunk", "molecule") # for use in Undo attr-dependency decls
+##register_class_nickname("Chunk", "molecule") # for use in Undo attr-dependency decls
 
-class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
+class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
+    """
+    """
+    #bruce 071114 renamed this from class molecule -> class Chunk
 
     # class constants to serve as default values of attributes, and _s_attr decls for some of them
     
@@ -2732,13 +2735,13 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         else:
             return True
             
-    pass # end of class molecule (soon to be renamed class Chunk)
+    pass # end of class Chunk
 
-Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename the class this way
-
-del molecule #bruce 071113 along with revising all uses to refer to Chunk (except the classname itself)
-
-# Note: we can't rename the class until string literals 'molecule' are reviewed.
+##Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename the class this way
+##
+##del molecule #bruce 071113 along with revising all uses to refer to Chunk (except the classname itself)
+##
+### Note: we can't rename the class until string literals 'molecule' are reviewed.
 
 # ==
 
