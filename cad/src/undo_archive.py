@@ -26,10 +26,13 @@ from prefs_constants import historyMsgSerialNumber_prefs_key
 from changes import register_postinit_object
 import changedicts # warning: very similar to some local variable names
 
-destroy_bypassed_redos = True # whether to destroy the Redo stack to save RAM
-    # [not implemented yet -- flag has no effect, but shows where to
-    #  do it -- 060301]
-    # aka destroy alternate futures, destroy inaccessible redos...
+destroy_bypassed_redos = True # whether to destroy the Redo stack to save RAM,
+    # when redos become inaccessible since a new operation is done after an Undo.
+    # (The reason you might *not* want to is if you wanted to give UI access
+    #  to "abandoned alternate futures". We have no plans to do that,
+    #  but the low-level Undo code would support it just fine.)
+    # [As of 060301 this was not yet implemented, but the flag shows where to
+    #  implement it. As of 060309 this is partly implemented.]
 
 debug_undo2 = False # do not commit with true
 

@@ -1,10 +1,10 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-state_utils.py
+state_utils.py - general state-related utilities, and undo-related uses of them.
 
-General state-related utilities.
-
-$Id$
+@author: bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Note: same_vals was moved from here into a new file, utilities/Comparison.py,
 to break an import cycle. It is closely related to copy_val which remains here.
@@ -15,19 +15,22 @@ TODO:
 and/or some code from there to here, so that this module no longer
 needs to import undo_archive.
 [bruce 071025 suggestion, echoing older comments herein]
-
 """
 
-__author__ = 'bruce'
+from types import InstanceType
 
-from types import InstanceType # use this form in inner loops
+from state_constants import S_DATA
+from state_constants import S_CHILD, S_CHILDREN, S_CHILDREN_NOT_DATA
+from state_constants import S_REF, S_REFS
+from state_constants import S_PARENT, S_PARENTS
 
-from state_constants import S_DATA, S_CHILD, S_CHILDREN, S_REF, S_REFS, S_PARENT, S_PARENTS, S_CHILDREN_NOT_DATA
+from state_utils_unset import _UNSET_, _Bugval
+    # (these could reasonably be moved into state_constants)
+
 import env
 from debug import print_compact_stack
-import platform # for atom_debug [bruce 060315]
+import platform
 from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
-from state_utils_unset import _UNSET_, _Bugval
 from constants import remove_prefix
 
 ### TODO:
@@ -38,60 +41,88 @@ That should say:
 
 - When defining _s_deepcopy, consider:
 
-  - is it correct for any copyfunc argument? (esp in its assumption about what that returns, original or copy or transformed copy)
+  - is it correct for any copyfunc argument? (esp in its assumption
+    about what that returns, original or copy or transformed copy)
   
-  - is its own return value __eq__ to the original? It should be, so you have to define __eq__ AND __ne__ accordingly.
+  - is its own return value __eq__ to the original? It should be,
+    so you have to define __eq__ AND __ne__ accordingly.
   
-  - should you define _s_scan_children to, to scan the same things copied? (Only if they are instance objects, and are "children".
-    See S_CHILDREN doc for what that means.)
+  - should you define _s_scan_children to, to scan the same things copied?
+    (Only if they are instance objects, and are "children".
+     See S_CHILDREN doc for what that means.)
 
-Did the above for VQT and jigs_planes, still no __eq__ or children for jig_Gamess -- I'll let that be a known bug I fix later,
+I did the above for VQT and jigs_planes, but still no __eq__ or children
+for jig_Gamess -- I'll let that be a known bug I fix later,
 to test the behavior of my error detect/response code.
-Also, when I do fix it (requires analyzing jig_Gamess contents) I might as well turn it into using a mixin
-to give it a proper __eq__ based on declaring the state attrs! 
-####@@@@
+[later: I think this ended up getting done.]
+Also, when I do fix it (requires analyzing jig_Gamess contents)
+I might as well turn it into using a mixin
+to give it a proper __eq__ based on declaring the state attrs!
 
-I might as well put state decls into the archived-state objects I'm creating, so they too could be compared by __eq__ and diffed!!!
-(Actually, that won't work for diff since it has to descend into their dictionaries in an intelligent way.
- But it might work for __eq__.)
+I might as well put state decls into the archived-state objects I'm creating,
+so they too could be compared by __eq__ and diffed!!! (Actually, that wouldn't
+work for diff since it has to descend into their dictionaries in an intelligent
+way. But it might work for __eq__.)
 
-This means my archived-state objects should really be objects, not just tuples or dicts.
-Let's change the code that collects one to make this true. Search for... attrdict?
+This means my archived-state objects should really be objects, not just
+tuples or dicts. Let's change the code that collects one to make this true.
+Search for... attrdict?
 
-S_CHILDREN: we might need a decl that we have no children (so don't warn me about that), and a reg for external classes of the same.
+S_CHILDREN: we might need a decl that we (some class) have no children
+(so we don't print a warning about that), and a registration for external classes
+of the same thing. [TODO: this needs a better explanation]
 
-And certainly we need to go through the existing stateholder classes (e.g. Node) and add their attr/child decls.
-Maybe rather than accomodating copyable_attrs, we'll just replace it? Not sure, maybe later (a lot of things use it).
+And certainly we need to go through the existing stateholder classes (e.g. Node)
+and add their attr/child decls. [that has been done]
+Maybe rather than accomodating copyable_attrs, we'll just replace it?
+Not sure, maybe later (a lot of things use it). [it's still there, 071113]
 
-Do any inapprop obs get a key (like data or foreign objs) in current code?? #####@@@@@
+Do any inappropriate objects get a key (like data or foreign objs)
+in current code?? #####@@@@@
 '''
 
-##debug_dont_trust_Numeric_copy = False # 060302 -- will this fix last night's singlet-pulling bug? [no, that was weird '==' semantics]
+##debug_dont_trust_Numeric_copy = False # 060302 -- will this fix last night's
+##  singlet-pulling bug? [no, that was weird '==' semantics]
 ##    # (warning, it's slow!) 
 ##
-##debug_print_every_array_passed_to_Numeric_copy = False # hmm, this might be slow too... to be safe the runtime
-##    # use of it should condition it on env.debug(), and to be fast, also on debug_dont_trust_Numeric_copy.
+##debug_print_every_array_passed_to_Numeric_copy = False # hmm, this might be
+##  slow too... to be safe, the runtime use of it should condition it on env.debug(),
+##  and to be fast, also on debug_dont_trust_Numeric_copy.
 
 # ==
 
-class _eq_id_mixin_: ##e use more? (GLPane?)
+class _eq_id_mixin_: #bruce 060209 ##e refile? use more? (GLPane?)
     """
-    For efficiency, any objects defining __getattr__ which might frequently be compared
-    with == or != or coerced to a boolean, should have definitions for __eq__ and __ne__ and __nonzero__
-    (and any others we forgot??), even if those are semantically equivalent to Python's behavior when they don't.
-    Otherwise Python has to call __getattr__ on each comparison of these objects, just to check whether
-    they have one of those special method definitions (potentially as a value returned by __getattr__).
-       This mixin class provides definitions for those methods. It's ok for a class to override some of these.
-    It can override both __eq__ and __ne__, or __eq__ alone, but should not normally override __ne__ alone,
-    since our definition of __ne__ is defined as inverse of object's __eq__.
-       These definitions are suitable for objects meant as containers for "named" mutable state
-    (for which different objects are never equal, even if their *current* state is equal, since their future
-    state might not be). They are not suitable for data-like objects. This is why the name contains _eq_id_
-    rather than _eq_data_. For datalike objects, there is no shortcut to defining each of these methods in
-    a customized way (and that should definitely be done, for efficiency, under same conditions in which use
-    of this mixin is recommended). We might still decide to make an _eq_data_mixin_(?) class for them, for some other reason.
+    For efficiency, any classes defining __getattr__ which might frequently
+    be compared using == or != or coerced to a boolean, should have definitions
+    for __eq__ and __ne__ and __nonzero__ (and any others we forgot??),
+    even if those are semantically equivalent to Python's behavior when they don't.
+
+    Otherwise Python has to call __getattr__ on each comparison of these objects,
+    just to check whether they have one of those special method definitions
+    (potentially as a value returned by __getattr__). This makes those simple
+    comparisons MUCH SLOWER!
+    
+    This mixin class is one way of solving that problem by providing definitions
+    for those methods.
+
+    It's ok for a subclass to override some of the methods defined here.
+    It can override both __eq__ and __ne__, or __eq__ alone (which will cause
+    our __ne__ to follow suit, since it calls the instances __eq__), but it
+    should not normally override __ne__ alone, since that would probably
+    cause __eq__ and __ne__ to be incompatible.
+
+    These definitions are suitable for objects meant as containers for "named"
+    mutable state (for which different objects are never equal, even if their
+    *current* state is equal, since their future state might not be equal).
+
+    They are not suitable for data-like objects. This is why the class name
+    contains '_eq_id_' rather than '_eq_data_'. For datalike objects, there is
+    no shortcut to defining each of these methods in a customized way (and that
+    should definitely be done, for efficiency, under the same conditions in
+    which use of this mixin is recommended). (We might still decide to make
+    an _eq_data_mixin_(?) class for them, for some other reason.)
     """
-    #bruce 060209
     def __eq__(self, other):
         return self is other
     def __ne__(self, other):
