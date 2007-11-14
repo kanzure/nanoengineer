@@ -38,7 +38,7 @@ from selectMode import selectMode
 from selectMode import DRAG_STICKINESS_LIMIT
 from chunk import Chunk 
 
-from debug import print_compact_stack
+from debug import print_compact_traceback
 
 from constants import yellow
 from constants import orange
@@ -89,9 +89,10 @@ class selectMolsMode(selectMode):
             #This is the number of mouse clicks that the temporary mode accepts
             # When this limit is reached, the temporary mode will return to the
             #previous mode.	    
-            dnaEditController = self.win.dnaEditController
-            if dnaEditController:
-                params = dnaEditController.provideParamsForTemporaryMode(temporaryModeName) 
+            dnaEditCntl = self.win.dnaEditController
+            if dnaEditCntl:
+                params = dnaEditCntl.provideParamsForTemporaryMode(
+                    temporaryModeName) 
         else:
             #@attention This is an arbitrary number, needs cleanup. 
             mouseClickLimit = 2
@@ -165,8 +166,8 @@ class selectMolsMode(selectMode):
         #  self.o.button,"modkeys=",self.o.modkeys
 
         if self.o.modkeys is None:
-##            print "seeing modkeys is None",self.w.MolSelCursor #bruce 070628
-##            self.o.gl_update()  #bruce 070628, didn't help
+            ##print "seeing modkeys is None",self.w.MolSelCursor #bruce 070628
+            ##self.o.gl_update()  #bruce 070628, didn't help
             self.o.setCursor(self.w.MolSelCursor)
         elif self.o.modkeys == 'Shift':
             self.o.setCursor(self.w.MolSelAddCursor)
@@ -175,7 +176,8 @@ class selectMolsMode(selectMode):
         elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:
-            print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
+            print "Error in update_cursor_for_no_MB(): " \
+                  "Invalid modkey=", self.o.modkeys
         return
 
     def rightShiftDown(self, event):
@@ -197,19 +199,28 @@ class selectMolsMode(selectMode):
         if self.o.assy.selmols:
             # Menu items added when there are selected chunks.
             self.Menu_spec = [
-                ('Change Color of Selected Chunks...', self.w.dispObjectColor),
-                ('Reset Color of Selected Chunks', self.w.dispResetChunkColor),
-                ('Reset Atoms Display of Selected Chunks', self.w.dispResetAtomsDisplay),
-                ('Show Invisible Atoms of Selected Chunks', self.w.dispShowInvisAtoms),
+                ('Change Color of Selected Chunks...', 
+                 self.w.dispObjectColor),
+                ('Reset Color of Selected Chunks', 
+                 self.w.dispResetChunkColor),
+                ('Reset Atoms Display of Selected Chunks', 
+                 self.w.dispResetAtomsDisplay),
+                ('Show Invisible Atoms of Selected Chunks', 
+                 self.w.dispShowInvisAtoms),
                 ('Hide Selected Chunks', self.o.assy.Hide),
             ]
 
         # Enable/Disable Jig Selection.
-        # This is duplicated in selectMode.makeMenus() and depositMode.makeMenus().
+        # This is duplicated in selectMode.makeMenus() and
+        # depositMode.makeMenus().
         if self.o.jigSelectionEnabled:
-            self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'checked')])
+            self.Menu_spec.extend( [('Enable Jig Selection',  
+                                     self.toggleJigSelection, 
+                                     'checked')])
         else:
-            self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'unchecked')])
+            self.Menu_spec.extend( [('Enable Jig Selection',  
+                                     self.toggleJigSelection, 
+                                     'unchecked')])
 
         self.Menu_spec.extend( [
             # mark 060303. added the following:
@@ -335,6 +346,7 @@ class selectMolsMode(selectMode):
         
         """
         m = a_chunk
+        obj = self.get_obj_under_cursor(event)
         assert isinstance(m, Chunk)     
         if self.o.modkeys == 'Shift+Control':            
             if obj is self.o.selobj:
@@ -442,15 +454,18 @@ class selectMolsMode(selectMode):
             # This looks identical to the code from selectAtomsMode.leftDown
             # which I just split into a separate method call_leftClick_method,
             # so I will shortly move that into our common superclass and
-            # call it here instead of duplicating that code. [bruce 071022 comment]
-            gl_event_info = self.dragstart_using_GL_DEPTH( event, more_info = True)
+            # call it here instead of duplicating that code. 
+            #[bruce 071022 comment]
+            gl_event_info = self.dragstart_using_GL_DEPTH( event, 
+                                                           more_info = True)
             self._drag_handler_gl_event_info = gl_event_info 
             farQ_junk, hitpoint, wX, wY, depth, farZ = gl_event_info
             del wX, wY, depth, farZ
             try:
                 retval = method(hitpoint, event, self)
             except:
-                print_compact_traceback("exception ignored in %r.leftClick: " % (obj,))
+                print_compact_traceback("exception ignored "\
+                                        "in %r.leftClick: " % (obj,))
                 return
             self.drag_handler = retval # needed even if this is None
             if self.drag_handler is not None:

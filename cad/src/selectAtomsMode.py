@@ -38,7 +38,7 @@ from jigs import Jig
 from bonds import Bond
 from elements import Singlet
 
-from debug import print_compact_traceback
+from debug import print_compact_traceback, print_compact_stack
 from Group import Group
 
 from selectMode import selectMode
@@ -52,14 +52,16 @@ from prefs_constants import atomHighlightColor_prefs_key
 from prefs_constants import deleteBondHighlightColor_prefs_key
 from prefs_constants import deleteAtomHighlightColor_prefs_key
 
+from utilities.Log import orangemsg
+
 class selectAtomsMode(selectMode):
     """
     Select Atoms Mode
     """
     modename = 'SELECTATOMS'
     default_mode_status_text = "Mode: Select Atoms"
-    highlight_singlets = False 
-        # Don't highlight singlets in selectAtomsMode. Fixes bug 1540. mark 060220.
+    # Don't highlight singlets in selectAtomsMode. Fixes bug 1540.mark 060220.
+    highlight_singlets = False         
     water_enabled = False # Fixes bug 1583. mark 060301.
 
     eCCBtab1 = [1, 2,
@@ -130,12 +132,17 @@ class selectAtomsMode(selectMode):
             return None
 
         if a.filtered(): # mark 060304.
-            # note: bruce 060331 thinks refusing to delete filtered atoms, as this does, is a bad UI design;
-            # fo details, see longer comment on similar code in delete_at_event (ops_select.py).
-            # (Though when highlighting is disabled, it's arguable that this is more desirable than bad -- conceivably.)
-            #bruce 060331 adding orangemsg, since we should warn user we didn't do what they asked.
-            env.history.message(orangemsg("Cannot delete " + str(a) + " since it is being filtered. "\
-                                          "Hit Escape to clear the selection filter."))
+            # note: bruce 060331 thinks refusing to delete filtered atoms, 
+            #as this does, is a bad UI design;
+            # fo details, see longer comment on similar code in 
+            #delete_at_event (ops_select.py).
+            # (Though when highlighting is disabled, it's arguable that this 
+            #is more desirable than bad -- conceivably.)
+            #bruce 060331 adding orangemsg, since we should warn user we didn't 
+            #do what they asked.
+            msg = "Cannot delete " + str(a) + " since it is being filtered."\
+                " Hit Escape to clear the selection filter."
+            env.history.message(orangemsg(msg))
             return None
 
         a.deleteBaggage()
@@ -419,7 +426,8 @@ class selectAtomsMode(selectMode):
             # bruce 070322.)
             # If highlighting is turned off, get_obj_under_cursor() returns
             # atoms and singlets (not bonds or jigs).
-            # [not sure if that's still true -- probably not. bruce 060725 addendum]
+            # [not sure if that's still true -- 
+            # probably not. bruce 060725 addendum]
 
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)
@@ -450,7 +458,8 @@ class selectAtomsMode(selectMode):
         
         return # from selectAtomsMode.leftDown
 
-    def call_leftClick_method(self, method, obj, event): #bruce 071022 split this out
+    def call_leftClick_method(self, method, obj, event):#bruce 071022 split this
+                                                        #out
         """
         ###doc
         [return True if nothing more should be done to handle this event,
@@ -473,7 +482,8 @@ class selectAtomsMode(selectMode):
                 # or methods of self which the method call is specifically
                 # allowed to access as part of that API #e)
         except:
-            print_compact_traceback("exception ignored in %r.leftClick: " % (obj,))
+            print_compact_traceback("exception ignored "\
+                                    "in %r.leftClick: " % (obj,))
             return True
         # If retval is None, the object just wanted to know about the click,
         # and now we handle it normally (including the usual special cases for
@@ -616,7 +626,8 @@ class selectAtomsMode(selectMode):
 
         if self.drag_handler:
             #bruce 060728
-            self.dragHandlerLeftUp(self.drag_handler, event) # does updates if needed
+            # does updates if needed
+            self.dragHandlerLeftUp(self.drag_handler, event) 
             self.leftUp_reset_a_few_drag_vars() #k needed??
             return
 
@@ -654,7 +665,7 @@ class selectAtomsMode(selectMode):
         self.o.selatom = None #bruce 041208 for safety in case it's killed
         return
     
-    # == Atom selection and dragging helper methods
+    # ===== START: Atom selection and dragging helper methods ==========
     
     # Method atomLeftDown moved from selectMode to here during
     # cleanup on 2007-11-13
@@ -675,34 +686,43 @@ class selectAtomsMode(selectMode):
     # cleanup on 2007-11-13
     def atomLeftUp(self, a, event): # Was atomClicked(). mark 060220.
         """
-        Real atom <a> was clicked, so select, unselect or delete it based on the current modkey.
+        Real atom <a> was clicked, so select, unselect or delete it based on 
+        the current modkey.
         - If no modkey is pressed, clear the selection and pick atom <a>.
         - If Shift is pressed, pick <a>, adding it to the current selection.
-        - If Ctrl is pressed,  unpick <a>, removing it from the current selection.
+        - If Ctrl is pressed,  unpick <a>, removing it from the current 
+          selection.
         - If Shift+Control (Delete) is pressed, delete atom <a>.
         """
 
         self.deallocate_bc_in_use()
-
+        
         if not self.current_obj_clicked:
             # Atom was dragged.  Nothing to do but return.
             if self.drag_multiple_atoms:
-                self.set_cmdname('Move Atoms') #bruce 060412 added plural variant
+                self.set_cmdname('Move Atoms') #bruce 060412 added plural
+                                               #variant
             else:
                 self.set_cmdname('Move Atom')
-            ##e note about command names: if jigs were moved too, "Move Selected Objects" might be better... [bruce 060412 comment]
+            ##e note about command names: if jigs were moved too, 
+            ##"Move Selected Objects" might be better... [bruce 060412 comment]
             self.o.assy.changed() # mark 060227
             return
 
         nochange = False
 
         if self.o.modkeys is None:
-            # isn't this redundant with the side effects in atomLeftDown?? [bruce 060721 question]
-            self.o.assy.unpickall_in_GLPane() # was unpickatoms only; I think unpickall makes more sense [bruce 060721]
+            # isn't this redundant with the side effects in atomLeftDown?? 
+            #[bruce 060721 question]
+            self.o.assy.unpickall_in_GLPane() # was unpickatoms only; 
+                                              # I think unpickall makes more 
+                                              # sense [bruce 060721]
             if a.picked:
                 nochange = True
-                #bruce 060331 comment: nochange = True is wrong, since the unpick might have changed something.
-                # For some reason the gl_update occurs anyway, so I don't know if this causes a real bug, so I didn't change it.
+                #bruce 060331 comment: nochange = True is wrong, since 
+                #the unpick might have changed something.
+                # For some reason the gl_update occurs anyway, so I don't know 
+                # if this causes a real bug, so I didn't change it.
             else:
                 a.pick()
                 self.set_cmdname('Select Atom')
@@ -719,15 +739,22 @@ class selectAtomsMode(selectMode):
         elif self.o.modkeys == 'Control':
             if a.picked:
                 a.unpick()
-                self.set_cmdname('Unselect Atom') #bruce 060331 comment: I think a better term (in general) would be "Deselect".
-                #bruce 060331 bugfix: if filtering prevents the unpick, don't print the message saying we unpicked it.
-                # I also fixed the message to not use the internal jargon 'unpicked'.
-                # I also added an orangemsg when filtering prevented the unpick, as we have when it prevents a delete.
+                self.set_cmdname('Unselect Atom') 
+                #bruce 060331 comment: I think a better term (in general) 
+                # would be "Deselect".
+                #bruce 060331 bugfix: if filtering prevents the unpick, 
+                #don't print the message saying we unpicked it.
+                # I also fixed the message to not use the internal jargon 
+                #'unpicked'.
+                # I also added an orangemsg when filtering prevented 
+                #the unpick, as we have when it prevents a delete.
                 if not a.picked:
                     # the unpick worked (was not filtered)
                     env.history.message("Deselected atom %r" % a)
                 else:
-                    env.history.message(orangemsg("Can't deselect atom %r due to selection filter. Hit Escape to clear the filter." % a))
+                    msg = "Can't deselect atom %r due to selection filter."\
+                        " Hit Escape to clear the filter." % (a)
+                    env.history.message(orangemsg(msg))
             else: # Already unpicked.
                 nochange = True
 
@@ -738,27 +765,32 @@ class selectAtomsMode(selectMode):
             return # delete_atom_and_baggage() calls win_update.
 
         else:
-            print_compact_stack('Invalid modkey = "' + str(self.o.modkeys) + '" ')
+            print_compact_stack('Invalid modkey = "' + \
+                                str(self.o.modkeys) + '" ')
             return
 
         if nochange: return
         self.o.gl_update()
     
-    #===Drag related methods. Moved from selectMode to here on 2007-11-13
-    
+    #===Drag related methods. Moved from selectMode to here on 2007-11-13    
     def atomDrag(self, a, event):
         """
-        Drag real atom <a> and any other selected atoms and/or jigs.  <event> is a drag event.
+        Drag real atom <a> and any other selected atoms and/or jigs.  
+        @param event: is a drag event.
         """
         apos0 = a.posn()
-        apos1 = self.dragto_with_offset(apos0, event, self.drag_offset ) #bruce 060316 fixing bug 1474
-        delta = apos1 - apos0 # xyz delta between new and current position of <a>.
+        #bruce 060316 fixing bug 1474 --
+        apos1 = self.dragto_with_offset(apos0, event, self.drag_offset ) 
+        # xyz delta between new and current position of <a>.
+        delta = apos1 - apos0 
 
 
         if self.drag_multiple_atoms:
             self.drag_selected_atoms(delta)
         else:
-            self.drag_selected_atom(a, delta) #bruce 060316 revised API [##k could this case be handled by the multiatom case??]
+            self.drag_selected_atom(a, delta) #bruce 060316 revised API 
+                                              #[##k could this case be handled 
+                                              # by the multiatom case??]
 
         self.drag_selected_jigs(delta)
 
@@ -772,37 +804,48 @@ class selectAtomsMode(selectMode):
         """
         apos1 = a.posn()
         if apos1 - apos0:
-            if debug_pref("show drag coords continuously", #bruce 060316 made this optional, to see if it causes lagging drags of C
-                          Choice_boolean_True, non_debug = True, # non_debug needed for testing, for now
-                          prefs_key = "A7/Show Continuous Drag Coordinates"):
+            if debug_pref(
+                #bruce 060316 made this optional, to see if it causes 
+                #lagging drags of C
+                "show drag coords continuously", 
+                # non_debug needed for testing, for now [bruce comment]
+                Choice_boolean_True, non_debug = True, 
+                prefs_key = "A7/Show Continuous Drag Coordinates"):
+                
                 msg = "dragged atom %r to %s" % (a, self.posn_str(a))
                 this_drag_id = (self.current_obj_start, self.__class__.leftDrag)
                 env.history.message(msg, transient_id = this_drag_id)
             self.current_obj_clicked = False # atom was dragged. mark 060125.
             self.o.gl_update()
     
-    def drag_selected_atom(self, a, delta): #bruce 060316 revised API for uniformity and no redundant dragto, re bug 1474
+    def drag_selected_atom(self, a, delta): # bruce 060316 revised API for
+                                            # uniformity and no redundant 
+                                            # dragto, re bug 1474
         """
-        Drag real atom <a> by the xyz offset <delta>, adjusting its baggage atoms accordingly
-        (how that's done depends on its other neighbor atoms).
+        Drag real atom <a> by the xyz offset <delta>, adjusting its baggage 
+        atoms accordingly(how that's done depends on its other neighbor atoms).
         """
         apo = a.posn()
         ## delta = px - apo
         px = apo + delta
 
         n = self.nonbaggage
-            # n = real atoms bonded to <a> that are not singlets or monovalent atoms.
+            # n = real atoms bonded to <a> that are not singlets or
+            # monovalent atoms.
             # they need to have their own baggage adjusted below.
 
         old = V(0,0,0)
         new = V(0,0,0)
             # old and new are used to compute the delta quat for the average 
-            # non-baggage bond [in a not-very-principled way, which doesn't work well -- bruce 060629]
+            # non-baggage bond [in a not-very-principled way, 
+            # which doesn't work well -- bruce 060629]
             # and apply it to <a>'s baggage
 
         for at in n:
-            # Since adjBaggage() doesn't change at.posn(), I switched the order for readability.
-            # It is now more obvious that <old> and <new> have no impact on at.adjBaggage(). 
+            # Since adjBaggage() doesn't change at.posn(), 
+            #I switched the order for readability.
+            # It is now more obvious that <old> and <new> have no impact 
+            # on at.adjBaggage(). 
             # mark 060202.
             at.adjBaggage(a, px) # Adjust the baggage of nonbaggage atoms.
             old += at.posn()-apo
@@ -810,19 +853,23 @@ class selectAtomsMode(selectMode):
 
         # Handle baggage differently if <a> has nonbaggage atoms.
         if n: # If <a> has nonbaggage atoms, move and rotate its baggage atoms.
-            # slight safety tweaks to old code, though we're about to add new code to second-guess it [bruce 060629]
+            # slight safety tweaks to old code, though we're about to add new 
+            #code to second-guess it [bruce 060629]
             old = norm(old) #k not sure if these norms make any difference
             new = norm(new)
             if old and new:
                 q = Q(old,new)
                 for at in self.baggage:
-                    at.setposn(q.rot(at.posn()-apo)+px) # similar to adjBaggage, but also has a translation
+                    at.setposn(q.rot(at.posn()-apo)+px) # similar to adjBaggage,
+                                                     #but also has a translation
             else:
                 for at in self.baggage:
                     at.setposn(at.posn()+delta)
-            #bruce 060629 for "bondpoint problem": treat that as an initial guess --
+            #bruce 060629 for "bondpoint problem": treat that as an 
+            # initial guess --
             # now fix them better (below, after we've also moved <a> itself.)
-        else: # If <a> has no nonbaggage atoms, just move each baggage atom (no rotation).
+        else: # If <a> has no nonbaggage atoms, just move each baggage atom 
+              # (no rotation).
             for at in self.baggage:
                 at.setposn(at.posn()+delta)
         a.setposn(px)
@@ -840,15 +887,18 @@ class selectAtomsMode(selectMode):
     maybe_use_bc = False # precaution
 
     def drag_selected_atoms(self, offset):
-        # WARNING: this (and quite a few other methods) is probably only called (ultimately) from event handlers
-        # in selectAtomsMode, and probably uses some attrs of self that only exist in that mode. [bruce 070412 comment]
+        # WARNING: this (and quite a few other methods) is probably only called
+        #(ultimately) from event handlers
+        # in selectAtomsMode, and probably uses some attrs of self that only 
+        # exist in that mode. [bruce 070412 comment]
 
         if self.maybe_use_bc and self.dragatoms and self.bc_in_use is None:
-            #bruce 060414 move selatoms optimization (unfinished); as of 060414 this never happens unless you set a debug_pref.
+            #bruce 060414 move selatoms optimization (unfinished); 
+            # as of 060414 this never happens unless you set a debug_pref.
             # See long comment above for more info.
             bc = self.allocate_empty_borrowerchunk()
             self.bc_in_use = bc
-            other_chunks, other_atoms = bc.take_atoms_from_list( self.dragatoms )
+            other_chunks, other_atoms = bc.take_atoms_from_list( self.dragatoms)
             self.dragatoms = other_atoms # usually []
             self.dragchunks.extend(other_chunks) # usually []
             self.dragchunks.append(bc)
@@ -862,36 +912,175 @@ class selectAtomsMode(selectMode):
             for at in self.baggage:
                 at.setposn(at.posn() + offset)
         else:
-            # kluge: in this case, the slow-moving atoms are the ones in self.baggage.
-            # We should probably rename self.baggage or not use the same attribute for those.
+            # kluge: in this case, the slow-moving atoms are the ones in 
+            # self.baggage.
+            # We should probably rename self.baggage or not use the same 
+            # attribute for those.
             for at in self.baggage:
                 f = self.offset_ratio(at, assert_slow = True)
                 at.setposn(at.posn() + f * offset)
-            pass
-
-        # Move chunks. [bruce 060410 new feature, for optimizing moving of selected atoms, re bugs 1828 / 1438]
-        # Note, these might be chunks containing selected atoms (and no unselected atoms, except baggage), not selected chunks.
-        # All that matters is that we want to move them as a whole (as an optimization of moving their atoms individually).
+            
+        # Move chunks. [bruce 060410 new feature, for optimizing moving of 
+        # selected atoms, re bugs 1828 / 1438]
+        # Note, these might be chunks containing selected atoms (and no 
+        # unselected atoms, except baggage), not selected chunks.
+        # All that matters is that we want to move them as a whole (as an 
+        # optimization of moving their atoms individually).
         # Note, as of 060414 one of them might be a BorrowerChunk.
         for ch in self.dragchunks:
             ch.move(offset)
 
         return
+    # ===== END: Atom selection and dragging helper methods ==========
+    
+    
+    
+    # ===== START: Bond selection, deletion and dragging helper methods =======
+    
+    #Note: Methods bondDrag, bondLeftDouble, bondLeftUp, bondDelete 
+    #were moved from selectMode to here during code cleanup on 2007-11-14
+        
+    def bondDrag(self, obj, event):
+        # [bruce 060728 added obj arg, for uniformity; probably needed even more
+        # in other Bond methods ##e]
+        # If a LMB+Drag event has happened after selecting a bond in left*Down()
+        # do a 2D region selection as if the bond were absent. This takes care
+        # of both Shift and Control mod key cases.
+        self.cursor_over_when_LMB_pressed = 'Empty Space'
+        self.select_2d_region(self.LMB_press_event) # [i suspect this inlines 
+                                                    # something in another 
+                                                    # method -- bruce 060728]
+        self.current_obj_clicked = False
+        self.current_obj = None
+        return
+    
+      
+    def bondLeftDouble(self): # mark 060308.
+        """
+        Bond double click event handler for the left mouse button. 
+        """
+        if self.o.modkeys == 'Control':
+            self.o.assy.unselectConnected( [ self.obj_doubleclicked.atom1 ] )
+        elif self.o.modkeys == 'Shift+Control':
+            self.o.assy.deleteConnected( [ self.obj_doubleclicked.atom1, 
+                                           self.obj_doubleclicked.atom2 ] )
+        else:
+            self.o.assy.selectConnected( [ self.obj_doubleclicked.atom1 ] )
+        # the assy.xxxConnected routines do their own win_update or gl_update 
+        #as needed. [bruce 060412 comment]
+        return
+    
+
+    def bondLeftUp(self, b, event):
+        """
+        Bond <b> was clicked, so select or unselect its atoms or delete bond <b>
+        based on the current modkey.
+        - If no modkey is pressed, clear the selection and pick <b>'s two atoms.
+        - If Shift is pressed, pick <b>'s two atoms, adding them to the current 
+          selection.
+        - If Ctrl is pressed,  unpick <b>'s two atoms, removing them from 
+          the current selection.
+        - If Shift+Control (Delete) is pressed, delete bond <b>.
+        <event> is a LMB release event.
+        """
+
+        #& To do: check if anything changed (picked/unpicked) before 
+        #calling gl_update(). mark 060210.
+        if self.o.modkeys is None:
+            self.o.assy.unpickall_in_GLPane() # was unpickatoms() [bruce 060721]
+            b.atom1.pick()
+            b.atom2.pick()
+            self.set_cmdname('Select Atoms')
+
+        elif self.o.modkeys == 'Shift':
+            b.atom1.pick()
+            b.atom2.pick()
+            self.set_cmdname('Select Atoms')
+            #Bond class needs a getinfo() method to be called here. mark 060209.
+
+        elif self.o.modkeys == 'Control':
+            b.atom1.unpick()
+            b.atom2.unpick()
+            self.set_cmdname('Unselect Atoms')
+           
+        elif self.o.modkeys == 'Shift+Control':
+            self.bondDelete(event) 
+                # <b> is the bond the cursor was over when the LMB was pressed.
+                # use <event> to delete bond <b> to ensure that the cursor 
+                # is still over it.
+
+        else:
+            print_compact_stack('Invalid modkey = "' + 
+                                str(self.o.modkeys) + '" ')
+            return
+
+        self.o.gl_update()
+        
+ 
+    def bondDelete(self, event):
+        """
+        If the object under the cursor is a bond, delete it.
+        
+        @param event: A left mouse up event.
+        @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
+        """
+        
+        #bruce 041130 in case no update_selatom happened yet
+        self.update_selatom(event)             
+            # see warnings about update_selatom's delayed effect, 
+            # in its docstring or in leftDown. [bruce 050705 comment]
+        selobj = self.o.selobj
+        if isinstance( selobj, Bond) and not selobj.is_open_bond():
+            _busted_strand_bond = False
+            if selobj.isStrandBond(): 
+                _busted_strand_bond = True
+                msg = "breaking strand %s" % selobj.getStrandName()
+            else:
+                msg = "breaking bond %s" % selobj
+            env.history.message_no_html(msg)
+                # note: %r doesn't show bond type, but %s needs _no_html 
+                # since it contains "<-->" which looks like HTML.
+            self.o.selobj = None 
+                # without this, the bond remains highlighted 
+                # even after it's broken (visible if it's toolong)
+                ###e shouldn't we use set_selobj instead?? 
+                ##[bruce 060726 question]
+            x1, x2 = selobj.bust() 
+                # this fails to preserve the bond type on the open bonds 
+                # -- not sure if that's bad, but probably it is
+
+            # After bust() selobj.isStrandBond() is too fragile, so I set
+            # <_busted_strand_bond> and test it instead. - Mark 2007-10-23.
+            if _busted_strand_bond: # selobj.isStrandBond():
+                self.o.assy.makeStrandChunkFromBrokenStrand(x1, x2)
+
+            self.set_cmdname('Delete Bond')
+            self.o.assy.changed() #k needed?
+            self.w.win_update() #k wouldn't gl_update be enough? 
+                                #[bruce 060726 question]
+            
+    # ===== END: Bond selection and dragging helper methods ==========
 
     
     def jigDrag(self, j, event):
         """
-        Drag jig <j> and any other selected jigs or atoms.  <event> is a drag event.
+        Drag jig <j> and any other selected jigs or atoms.  
+        <event> is a drag event.
         """
-        #bruce 060316 commented out deltaMouse since it's not used in this routine
-##        deltaMouse = V(event.pos().x() - self.o.MousePos[0], self.o.MousePos[1] - event.pos().y(), 0.0)
-
-        jig_NewPt = self.dragto( self.jig_MovePt, event) #bruce 060316 replaced old code with dragto (equivalent)
+        #bruce 060316 commented out deltaMouse since it's not used in this 
+        #routine
+          ##deltaMouse = V(event.pos().x() - self.o.MousePos[0], 
+          ##                self.o.MousePos[1] - event.pos().y(), 0.0)
+          
+        #bruce 060316 replaced old code with dragto (equivalent)
+        jig_NewPt = self.dragto( self.jig_MovePt, event) 
 
         # Print status bar msg indicating the current move offset.
         if 1:
             self.moveOffset = jig_NewPt - self.jig_StartPt
-            msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0], self.moveOffset[1], self.moveOffset[2])
+            msg = "Offset: [X: %.2f] [Y: %.2f] [Z: %.2f]" % (self.moveOffset[0],
+                                                             self.moveOffset[1],
+                                                             self.moveOffset[2])
             env.history.statusbar_msg(msg)
 
         offset = jig_NewPt - self.jig_MovePt
@@ -957,7 +1146,8 @@ class selectAtomsMode(selectMode):
         elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:
-            print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
+            print "Error in update_cursor_for_no_MB():"\
+                  "Invalid modkey = ", self.o.modkeys
         return
 
     def update_cursor_for_no_MB_selection_filter_enabled(self):
@@ -971,9 +1161,11 @@ class selectAtomsMode(selectMode):
         elif self.o.modkeys == 'Control':
             self.o.setCursor(self.w.SelectAtomsSubtractFilterCursor)
         elif self.o.modkeys == 'Shift+Control':
-            self.o.setCursor(self.w.DeleteFilterCursor) # Fixes bug 1604. mark 060303.
+            # Fixes bug 1604. mark 060303.
+            self.o.setCursor(self.w.DeleteFilterCursor) 
         else:
-            print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
+            print "Error in update_cursor_for_no_MB(): "\
+                  "Invalid modkey = ", self.o.modkeys
         return
 
     def rightShiftDown(self, event):
@@ -1024,4 +1216,3 @@ class selectAtomsMode(selectMode):
     pass # end of class selectAtomsMode
 
 # end
-

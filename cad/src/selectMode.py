@@ -72,7 +72,6 @@ from constants import black
 
 from modes import basicMode
 
-from utilities.Log import orangemsg
 from utilities.Log import redmsg
 
 import env
@@ -1201,110 +1200,47 @@ class selectMode(basicMode):
 
     def bondLeftUp(self, b, event):
         """
-        Bond <b> was clicked, so select or unselect its atoms or delete bond <b> 
+        Subclasses should override this method. The default implementation does 
+        nothing. 
+        
+        Bond <b> was clicked, so select or unselect its atoms or delete bond <b>
         based on the current modkey.
         - If no modkey is pressed, clear the selection and pick <b>'s two atoms.
-        - If Shift is pressed, pick <b>'s two atoms, adding them to the current selection.
-        - If Ctrl is pressed,  unpick <b>'s two atoms, removing them from the current selection.
+        - If Shift is pressed, pick <b>'s two atoms, adding them to the current 
+          selection.
+        - If Ctrl is pressed,  unpick <b>'s two atoms, removing them from 
+          the current selection.
         - If Shift+Control (Delete) is pressed, delete bond <b>.
         <event> is a LMB release event.
         """
-
-        #& To do: check if anything changed (picked/unpicked) before calling gl_update(). 
-        #& mark 060210.
-        if self.o.modkeys is None:
-            self.o.assy.unpickall_in_GLPane() # was unpickatoms() [bruce 060721]
-            b.atom1.pick()
-            b.atom2.pick()
-            self.set_cmdname('Select Atoms')
-
-        elif self.o.modkeys == 'Shift':
-            b.atom1.pick()
-            b.atom2.pick()
-            self.set_cmdname('Select Atoms')
-            #& Bond class needs a getinfo() method to be called here. mark 060209.
-
-        elif self.o.modkeys == 'Control':
-            b.atom1.unpick()
-            b.atom2.unpick()
-            self.set_cmdname('Unselect Atoms')
-            #env.history.message("unpicked %r and %r" % (self.bond_clicked.atom1, self.bond_clicked.atom2))
-            #& Not necessary to print history msg.  mark 060210.
-            # [It's also wrong to print one, or at least the one above, if selection filter affected both atoms. bruce 060331]
-
-        elif self.o.modkeys == 'Shift+Control':
-            self.bondDelete(event) 
-                # <b> is the bond the cursor was over when the LMB was pressed.
-                # use <event> to delete bond <b> to ensure that the cursor is still over it.
-
-        else:
-            print_compact_stack('Invalid modkey = "' + str(self.o.modkeys) + '" ')
-            return
-
-        self.o.gl_update()
-
+        pass
+    
+        
     def bondDelete(self, event):
         """
-        If the object under the cursor is a bond, delete it.
+                
+        If the object under the cursor is a bond, delete it. Subclasses should 
+        override this method. The default implementation does nothing. 
         
         @param event: A left mouse up event.
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
-        self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
-            # see warnings about update_selatom's delayed effect, 
-            # in its docstring or in leftDown. [bruce 050705 comment]
-        selobj = self.o.selobj
-        if isinstance( selobj, Bond) and not selobj.is_open_bond():
-            _busted_strand_bond = False
-            if selobj.isStrandBond(): 
-                _busted_strand_bond = True
-                msg = "breaking strand %s" % selobj.getStrandName()
-            else:
-                msg = "breaking bond %s" % selobj
-            env.history.message_no_html(msg)
-                # note: %r doesn't show bond type, but %s needs _no_html 
-                # since it contains "<-->" which looks like HTML.
-            self.o.selobj = None 
-                # without this, the bond remains highlighted 
-                # even after it's broken (visible if it's toolong)
-                ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
-            x1, x2 = selobj.bust() 
-                # this fails to preserve the bond type on the open bonds 
-                # -- not sure if that's bad, but probably it is
-
-            # After bust() selobj.isStrandBond() is too fragile, so I set
-            # <_busted_strand_bond> and test it instead. - Mark 2007-10-23.
-            if _busted_strand_bond: # selobj.isStrandBond():
-                self.o.assy.makeStrandChunkFromBrokenStrand(x1, x2)
-
-            self.set_cmdname('Delete Bond')
-            self.o.assy.changed() #k needed?
-            self.w.win_update() #k wouldn't gl_update be enough? [bruce 060726 question]
-        
+        pass
+    
     def bondDrag(self, obj, event):
-        # [bruce 060728 added obj arg, for uniformity; probably needed even more in other Bond methods ##e]
-        # If a LMB+Drag event has happened after selecting a bond in left*Down(),
-        # do a 2D region selection as if the bond were absent. This takes care of 
-        # both Shift and Control mod key cases.
-        self.cursor_over_when_LMB_pressed = 'Empty Space'
-        self.select_2d_region(self.LMB_press_event) # [i suspect this inlines something in another method -- bruce 060728 comment]
-        self.current_obj_clicked = False
-        self.current_obj = None
-        return
-
-    def bondLeftDouble(self): # mark 060308.
         """
-        Bond double click event handler for the left mouse button. 
+        Subclasses should override this method
+        @see: selectAtomsMode.bondDrag
         """
-        if self.o.modkeys == 'Control':
-            self.o.assy.unselectConnected( [ self.obj_doubleclicked.atom1 ] )
-        elif self.o.modkeys == 'Shift+Control':
-            self.o.assy.deleteConnected( [ self.obj_doubleclicked.atom1, self.obj_doubleclicked.atom2 ] )
-        else:
-            self.o.assy.selectConnected( [ self.obj_doubleclicked.atom1 ] )
-        # the assy.xxxConnected routines do their own win_update or gl_update as needed. [bruce 060412 comment]
-        return
-
+        pass
+    
+    def bondLeftDouble(self):
+        """
+        Subclasses should override this method
+        @see: selectAtomsMode.bondLeftDouble
+        """
+        pass
+        
     # == End of bond selection helper methods
 
     # == Singlet helper methods
@@ -1432,8 +1368,7 @@ class selectMode(basicMode):
 
     def handleSetUp(self, hdl):
         self.objectSetup(hdl)
-        pass
-
+        
     # == Jig event handler helper methods   
 
 
