@@ -28,7 +28,7 @@ from debug import print_compact_stack
 import platform # for atom_debug [bruce 060315]
 from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
 from state_utils_unset import _UNSET_, _Bugval
-
+from constants import remove_prefix
 
 ### TODO:
 '''
@@ -334,12 +334,13 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         """
         if self.debug_all_attrs:
             print "debug: _find_attr_decls in %s:" % (class1.__name__,)
-        hmm = filter(lambda x: x.startswith("_s_"), dir(class1))
-        for name in hmm:
+        all_s_attr_decls = filter(lambda x: x.startswith("_s_"), dir(class1))
+        for name in all_s_attr_decls:
             if name.startswith('_s_attr_'):
-                attr_its_about = name[len('_s_attr_'):]
+                ## attr_its_about = name[len('_s_attr_'):]
+                attr_its_about = remove_prefix( name, '_s_attr_')
                 setattr_name = '_undo_setattr_' + attr_its_about
-                declval = getattr(class1, name)
+                declval = getattr(class1, name) # the value assigned to _s_attr_<attr>
                 self.policies[attr_its_about] = declval #k for class1, not in general
                 if self.debug_all_attrs:
                     print "  %s = %s" % (name, declval)
@@ -347,23 +348,14 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                 #e check if per-instance? if callable? if legal?
                 if declval in STATE_ATTR_DECLS:
                     # figure out if this attr has a known default value... in future we'll need decls to guide/override this
-                    try:
-                        if 'even worse kluge 060409': ###@@@
-                            # differential mash_attrs requires no dflt vals at all, or it's too complicated.
-                            # what would be better (and will be needed to support dfltvals for binary mmp save)
-                            # would be to still store attrs with dflts here, but to change the undo iter loops
-                            # to iterate over all attrs with or without defaults, unlike now.
-                            class1.some_attr_im_pretty_sure_it_doesnt_have
-##                        if 'kluge': # see if this fixes some bugs... 060405 1138p
-##                            # for change-tracked classes, pretend there's no such thing as a default value,
-##                            # since i suspect some logic bugs in the dual meaning of missing state entries as dflt or dontcare.
-##                            if class1.__name__ in ('Atom','Bond'):
-##                                class1.some_attr_im_pretty_sure_it_doesnt_have
-                        dflt = getattr(class1, attr_its_about)
-                    except AttributeError:
-                        # assume no default value unless one is declared (which is nim)
-                        acode = 0 ###stub, but will work initially; later will need info about whether class is diffscanned, in layer, etc
-                        if class1.__name__ in ('Atom','Bond'): ###@@@ kluge 060404, in two places
+                    # (REVIEW: is this really about a declared one, or a class-defined one, if both of those are supported?
+                    #  This is academic now, since neither is supported. [bruce 071113 comment])
+                    has_dflt, dflt = self.attr_has_default(class1, attr_its_about)
+                    assert not has_dflt # see comment in attr_has_default about why current code requires this
+                    if not has_dflt:
+                        acode = 0 ###stub, but will work initially;
+                            # later will need info about whether class is diffscanned, in layer, etc
+                        if class1.__name__ in ('Atom', 'Bond'): ###@@@ kluge 060404, in two places
                             acode = class1.__name__
                         attrcode = (attr_its_about, acode)
                         self.attrcodes_with_no_dflt.append(attrcode)
@@ -376,7 +368,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                             # this limitation could be removed when we need to, by fixing the code that calls reset_obj_attrs_to_defaults
                         acode = id(dflt) ###stub, but should eliminate issue of attrs with conflicting dflts in different classes
                             # (more principled would be to use the innermost class which changed the _s_decl in a way that matters)
-                        if class1.__name__ in ('Atom','Bond'): ###@@@ kluge 060404, in two places
+                        if class1.__name__ in ('Atom', 'Bond'): ###@@@ kluge 060404, in two places
                             acode = class1.__name__ # it matters that this can't equal id(dflt) for this attr in some other class
                         attrcode = (attr_its_about, acode)
                         self.attrcode_dflt_pairs.append( (attrcode, dflt) )
@@ -387,16 +379,16 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                             pass # when we see what is warned about, we'll decide what this should do then [060302]
                                 # e.g. debug warning: dflt val for 'axis' in <class jigs_motors.LinearMotor at 0x3557d50>
                                 #      is mutable: array([ 0.,  0.,  0.])
-
                         if self.debug_all_attrs:
                             print "                                               dflt val for %r is %r" % (attrcode, dflt,)
                         pass
                     self.dict_of_all_state_attrcodes[ attrcode ] = None
                     if hasattr(class1, setattr_name):
                         self.attrcodes_with_undo_setattr[ attrcode ] = True
-                        # only True, not e.g. the unbound method, since classes with this can share attrcodes, so it's just a hint
+                        # only True, not e.g. the unbound method, since classes
+                        # with this can share attrcodes, so it's just a hint
                 pass
-            elif name == '_s_deepcopy': # note: exact name, and doesn't end with '_'
+            elif name == '_s_deepcopy': # note: exact name (not a prefix), and doesn't end with '_'
                 self.warn = False # enough to be legitimate data
             elif name == '_s_scan_children':
                 pass ## probably not: self.warn = False
@@ -415,6 +407,49 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                 print "warning: unrecognized _s_ attribute ignored:", name ##e
         return
 
+    def attr_has_default(self, class1, attr):
+        """
+        Figure out whether attr has a known default value in class1.
+
+        @param class1: a class whose instances might be scanned for diffs by Undo.
+
+        @param attr: an attribute of instances of class1, which contains undoable state.
+
+        @return: (has_dflt, dflt), where has_dflt is a boolean saying
+        whether attr has a default value in class1, and (if it does)
+        dflt is that value (and is identical to it, not just equal to it,
+        if that might matter).
+        
+        @note: this currently always says "no" by returning (False, None),
+        to accomodate limitations in other code. (See code comment for details.)
+
+        @note: in future we'll need decls to guide/override this.
+        When we do, the callers may need to distinguish whether there's
+        a known default value, vs whether it's stored as a class attribute.
+        """
+        if 0:
+            # This version is disabled because differential mash_attrs requires
+            # no dflt vals at all, or it's too complicated.
+            #
+            # What would be better (and will be needed to support dfltvals
+            # for binary mmp save) would be to still store attrs with dflts
+            # here, but to change the undo iter loops to iterate over all
+            # attrs with or without defaults, unlike now.
+            #
+            # An earlier kluge [060405 1138p], trying to fix some bugs,
+            # was, for change-tracked classes, to pretend there's no such thing
+            # as a default value, since I suspected some logic bugs in the dual
+            # meaning of missing state entries as dflt or dontcare.
+            # That kluge looked at class1.__name__ in ('Atom', 'Bond') to detect
+            # change-tracked classes.
+            try:
+                return True, getattr(class1, attr)
+            except AttributeError:
+                # assume no default value unless one is declared (which is nim)
+                return False, None
+            pass
+        return False, None
+    
     def attrs_declared_as(self, S_something):
         #e if this is commonly called, we'll memoize it in __init__ for each S_something
         res = []
@@ -927,7 +962,7 @@ class StateSnapshot:
         res = self.__class__()
         for attrcode, attrdict_unused in self.attrdicts.items():
             attr_unused, acode = attrcode
-            if acode in ('Atom','Bond'): ###@@@ kluge 060404; assume acode is class name... only true for these two classes!!
+            if acode in ('Atom', 'Bond'): ###@@@ kluge 060404; assume acode is class name... only true for these two classes!!
                 res.attrdicts[attrcode] = self.attrdicts.pop(attrcode)
         return res
     def insert_layers(self, layerstuff): #060404 first implem
@@ -1218,7 +1253,7 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
     key4obj = keyknower.key4obj_maybe_new
     diff_attrdicts = diffobj.attrdicts
     for attrcode in archive.obj_classifier.dict_of_all_state_attrcodes.iterkeys():
-        if attrcode[1] in ('Atom','Bond'):
+        if attrcode[1] in ('Atom', 'Bond'):
             diff_attrdicts.setdefault(attrcode, {}) # this makes some diffs too big, but speeds up our loops ###k is it ok??
             # if this turns out to cause trouble, just remove these dicts at the end if they're still empty
     state_attrdicts = lastsnap_diffscan_layers.attrdicts
@@ -1588,7 +1623,7 @@ class obj_classifier:
         attrcodes = self.dict_of_all_state_attrcodes.keys()
         if exclude_layers:
             assert exclude_layers == ('atoms',) # the only one we support right here
-            attrcodes = filter( lambda (attr, acode): acode not in ('Atom','Bond'), attrcodes )
+            attrcodes = filter( lambda (attr, acode): acode not in ('Atom', 'Bond'), attrcodes )
                 # this is required, otherwise insert_layers (into this) will complain about these layers already being there
         snapshot = StateSnapshot(attrcodes)
             # make a place to keep all the values we're about to grab
@@ -1600,7 +1635,7 @@ class obj_classifier:
             if 'KLUGE': ###@@@ remove when works, at least once this code is debugged; safe for A7
                 if exclude_layers:
                     assert exclude_layers == ('atoms',) # the only one we support right here
-                    if not ( clas.class1.__name__ not in ('Atom','Bond') ):
+                    if not ( clas.class1.__name__ not in ('Atom', 'Bond') ):
                         print "bug: exclude_layers didn't stop us from seeing", obj
             # hmm, use attrs in clas or use __dict__? Either one might be way too big... start with smaller one? nah. guess.
             # also we might as well use getattr and be more flexible (not depending on __dict__ to exist). Ok, use getattr.
