@@ -12,7 +12,6 @@ ninad 2007-08-20: code cleanup to use new PM module classes.
 
 __author__ = "Ninad"
 
-from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 
 from PM.PM_Dialog          import PM_Dialog
@@ -21,14 +20,15 @@ from PM.PM_DoubleSpinBox   import PM_DoubleSpinBox
 from PM.PM_ComboBox        import PM_ComboBox
 from PM.PM_PushButton      import PM_PushButton
 from PM.PM_CheckBox        import PM_CheckBox
-from PM.PM_RadioButton     import PM_RadioButton
 from PM.PM_ToolButtonRow   import PM_ToolButtonRow
 from PM.PM_ToolButton      import PM_ToolButton
 from PM.PM_LineEdit        import PM_LineEdit
 from PM.PM_LabelRow        import PM_LabelRow
+from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
+
 
 
 class Ui_MovePropertyManager( PM_Dialog ):
@@ -96,10 +96,9 @@ class Ui_MovePropertyManager( PM_Dialog ):
                          setAsDefault = False,
                          spanWidth    = True )
         
-        
         self.freeDragTranslateGroupBox = PM_GroupBox( inPmGroupBox )
         self._loadFreeDragTranslateGroupBox(self.freeDragTranslateGroupBox)
-        
+                
         self.byDeltaGroupBox = PM_GroupBox( inPmGroupBox )
         self._loadByDeltaGroupBox(self.byDeltaGroupBox)
         
@@ -189,40 +188,43 @@ class Ui_MovePropertyManager( PM_Dialog ):
         """
 
         self.moveDeltaXSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "X:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 3, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
+            PM_DoubleSpinBox( 
+                inPmGroupBox, 
+                label        = "ui/actions/Properties Manager/Delta_X.png",
+                value        = 0.0, 
+                setAsDefault = True,
+                minimum      = -100.0, 
+                maximum      =  100.0, 
+                singleStep   = 1.0, 
+                decimals     = 3, 
+                suffix       = ' Angstroms',
+                spanWidth    = False )
         
         self.moveDeltaYSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "Y:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 3, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
+            PM_DoubleSpinBox( 
+                inPmGroupBox, 
+                label        = "ui/actions/Properties Manager/Delta_Y.png",
+                value        = 0.0, 
+                setAsDefault = True,
+                minimum      = -100.0, 
+                maximum      =  100.0, 
+                singleStep   = 1.0, 
+                decimals     = 3, 
+                suffix       = ' Angstroms',
+                spanWidth    = False )
         
         self.moveDeltaZSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "Z:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 3, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
+            PM_DoubleSpinBox( 
+                inPmGroupBox, 
+                label        = "ui/actions/Properties Manager/Delta_Z.png",
+                value        = 0.0, 
+                setAsDefault = True,
+                minimum      = -100.0, 
+                maximum      =  100.0, 
+                singleStep   = 1.0, 
+                decimals     = 3, 
+                suffix       = ' Angstroms',
+                spanWidth    = False )
         
         DELTA_BUTTONS = [
                         ("QToolButton",1,  "Delta Plus", 
@@ -256,49 +258,20 @@ class Ui_MovePropertyManager( PM_Dialog ):
                              group box.
         @type  inPmGroupBox: L{PM_GroupBox}
         """
-
-        self.moveXSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "X:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 3, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
         
-        self.moveYSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "Y:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 3, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
+        self.toPositionspinboxes = PM_CoordinateSpinBoxes(inPmGroupBox)
         
-        self.moveZSpinBox = \
-            PM_DoubleSpinBox( inPmGroupBox, 
-                              label        = "Z:",
-                              value        = 0.0, 
-                              setAsDefault = True,
-                              minimum      = -100.0, 
-                              maximum      =  100.0, 
-                              singleStep   = 1.0, 
-                              decimals     = 3, 
-                              suffix       = ' Angstroms',
-                              spanWidth    = False )
+        self.moveXSpinBox = self.toPositionspinboxes.xSpinBox
+        self.moveYSpinBox = self.toPositionspinboxes.ySpinBox
+        self.moveZSpinBox = self.toPositionspinboxes.zSpinBox
+        
         
         self.moveAbsoluteButton = \
             PM_PushButton( inPmGroupBox,
                            label     = "",
                            text      = "Move Selection",
                            spanWidth = True )
-    
+            
     # == Begin Rotate Group Box =====================
     def _loadRotateGroupBox(self, inPmGroupBox):
         """
@@ -415,7 +388,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
         self.rotateZLabelRow = PM_LabelRow( inPmGroupBox,
                                             title = "",
                                             labelList = Z_ROW_LABELS )  
-        self.deltaThetaZ_lbl = self.rotateZLabelRow.labels[2]                        
+        self.deltaThetaZ_lbl = self.rotateZLabelRow.labels[2]    
             
             
     def _loadBySpecifiedAngleGroupBox(self, inPmGroupBox):

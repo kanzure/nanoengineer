@@ -24,7 +24,10 @@ class PM_CoordinateSpinBoxes(PM_GroupBox):
     """
     def __init__(self, 
                  parentWidget,
-                 title = ""
+                 title = "",
+                 label = '',
+                 labelColumn = 0,
+                 spanWidth   = True 
                  ):
         """
         Appends a PM_CoordinateSpinBoxes groupbox widget to I{parentWidget},
@@ -36,7 +39,41 @@ class PM_CoordinateSpinBoxes(PM_GroupBox):
         
         @param title: The title (button) text.
         @type  title: str        
+        
+        @param label:      The label for the coordinate spinbox.
+        @type  label:      str
+        
+        @param labelColumn: The column in the parentWidget's grid layout to 
+                            which this widget's label will be added. 
+                            The labelColum can only be E{0} or E{1}
+        @type  labelColumn: int
+        
+        @param spanWidth: If True, the widget and its label will span the width
+                         of the group box. Its label will appear directly above
+                         the widget (unless the label is empty) and is left 
+                         justified.
+        @type  spanWidth: bool (default False)
         """
+        
+        # Intializing label, labelColumn etc is needed before doing 
+        # PM_GroupBox.__init__. This is done so that 
+        # self.parentWidget.addPmWidget(self) done at the end of __init__
+        # works properly. 
+        # 'self.parentWidget.addPmWidget(self)' is done to avoid a bug where a 
+        # groupbox is always appended as the 'last widget' when its 
+        # parentWidget is also a groupbox. This is due to other PM widgets 
+        #(e.g. PM_PushButton)add themselves to their parent widget in their 
+        #__init__ using self.parentWidget.addPmWidget(self). So doing the
+        #same thing here. More general fix is needed in PM_GroupBox code
+        # --Ninad 2007-11-14
+        self.label = label
+        self.labelColumn = labelColumn
+        self.spanWidth = spanWidth
+        
+        if label: # Create this widget's QLabel.
+            self.labelWidget = QLabel()
+            self.labelWidget.setText(label)
+            
         PM_GroupBox.__init__(self, parentWidget, title)
         
         #Initialize attributes
@@ -45,7 +82,9 @@ class PM_CoordinateSpinBoxes(PM_GroupBox):
         self.zSpinBox = None
         
         self._loadCoordinateSpinBoxes()
-    
+        
+        self.parentWidget.addPmWidget(self)
+        
     def _loadCoordinateSpinBoxes(self):
         """
         Load the coordinateSpinboxes groupbox with the x, y, z spinboxes
@@ -90,7 +129,7 @@ class PM_CoordinateSpinBoxes(PM_GroupBox):
                               decimals      =  3,
                               suffix        =  " A")
     
-    def _getStyleSheet(self):
+    def _zgetStyleSheet(self):
         """
         Return the style sheet for the groupbox. This sets the following 
         properties only:
