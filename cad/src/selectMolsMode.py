@@ -288,9 +288,9 @@ class selectMolsMode(selectMode):
         If an object left down happens, the left down method of that object
         calls this method (chunkLeftDown) as it is the 'selectMolsMode' which 
         is supposed to select Chunk of the object clicked
-        @param chunk: The chunk of the object clicked (example, if the  object 
+        @param a_chunk: The chunk of the object clicked (example, if the  object 
                       is an atom, then it is atom.molecule
-        @type chunk: B{Chunk}
+        @type a_chunk: B{Chunk}
         @param event: MouseLeftDown event
         @see: self.atomLeftDown
         @see: self.chunkLeftDown
@@ -326,9 +326,9 @@ class selectMolsMode(selectMode):
         Depending on the modifier key(s) pressed, it does various operations on
         chunk. Example: if Shift and Control modkeys are pressed, it deletes the
         chunk
-        @param chunk: The chunk of the object clicked (example, if the  object 
+        @param a_chunk: The chunk of the object clicked (example, if the  object 
                       is an atom, then it is atom.molecule
-        @type chunk: B{Chunk}
+        @type a_chunk: B{Chunk}
         @param event: MouseLeftUp event
         @see: self.atomLeftUp
         @see: self.chunkLeftDown
