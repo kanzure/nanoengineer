@@ -18,10 +18,16 @@ import platform
 from debug import print_compact_traceback, print_compact_stack, safe_repr
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
+
 import state_utils
 from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state
 from state_utils import transclose, StatePlace, StateSnapshot
+
 from state_utils_unset import _UNSET_
+
+from state_constants import UNDO_SPECIALCASE_ATOM, UNDO_SPECIALCASE_BOND
+from state_constants import ATOM_CHUNK_ATTRIBUTE_NAME
+
 from prefs_constants import historyMsgSerialNumber_prefs_key
 from changes import register_postinit_object
 import changedicts # warning: very similar to some local variable names
@@ -322,6 +328,18 @@ def mash_attrs( archive, attrdicts, modified, invalmols, differential = False ):
      even if only a few *needed* to be modified,
      in the present implem [still true even with differential atom/bond scan,
      as of 060406] [NOT TRUE ANYMORE if differential passed; 060409])
+
+    @param invalmols: a dictionary mapping id(mol) -> mol, to which we should
+                      add any mol (i.e. any object we find or store in
+                      atom.molecule for some atom we're modifying) from whose
+                      .atoms dict we successfully remove atom, or to whose
+                      .atoms dict we add atom. We assume mol.atoms maps atom.key
+                      to atom. By "atom" we mean an instance of a class whose
+                      _s_undo_specialcase == UNDO_SPECIALCASE_ATOM.
+                      
+    @type invalmols: a mutable dictionary which maps id(mol) -> mol, where
+                     mol can be any object found or stored as atom.molecule,
+                     which has an .atoms dict (i.e. a Chunk).
     """
     # use undotted localvars, for faster access in inner loop:
     modified_get = modified.get
@@ -364,104 +382,21 @@ def mash_attrs( archive, attrdicts, modified, invalmols, differential = False ):
                         # code, once per class). When necessary, we'll fix
                         # that by sophisticating this code. [bruce 060404]
                 pass
-            if differential and attrcode == ('molecule', 'Atom'):
-                # TODO: split this case into a helper function.
-                #
-                # obj is an Atom and we're changing its .molecule.
-                # This is a kluge to help update mol.atoms for its old and
-                # new mol.
-                #
-                # We might be able to do this with Atom._undo_setattr_molecule
-                # (though I recall rejecting that approach in the past,
-                # for non-differential mash_attrs, but I forget why),
-                # but for efficiency and simplicity we do it with this
-                # specialcase kluge (in two parts, this one for removal
-                # [of atom from old mol, i guess as of 071113 --
-                #  but which code exactly is the other part of the kluge??]).
-                mol = obj.molecule
-                # mol might be _UNSET_, None, or _nullMol, in which case,
-                # we should do nothing, or perhaps it might be a real mol
-                # but with obj not in mol.atoms, which might deserve a
-                # debug print, but we should still do nothing --
-                # simplest implem of all this is just to not be bothered
-                # by not finding .atoms, or obj.key inside it.
-                try:
-                    del mol.atoms[obj.key]
-                except:
-                    if mol is not None and mol is not _nullMol and env.debug():
-                        # remove when works!
-                        print_compact_traceback(
-                            "debug fyi: expected exception in del " \
-                            "mol.atoms[obj.key] for mol %r obj %r" % \
-                                                (mol, obj) )
-                    pass
-                else:
-                    # this is only needed if the del succeeds (even if it fails
-                    # for a real mol, due to a bug), since only then did we
-                    # actually change mol
-                    invalmols[id(mol)] = mol
-                if val is _UNSET_:
-                    # I'm not fully comfortable with leaving invalid mol refs in
-                    # dead atoms, so I make this exception to the general rule
-                    # in this case. (If we later add back
-                    # Atom._undo_setattr_molecule, this would mess it up, but
-                    # hopefully it would take over this kluge's job entirely.)
-                    ## val = None -- this caused e.g.
-                    ##   exception in _undo_update for X21; skipping it:
-                    ##   exceptions.AttributeError:
-                    ##   'NoneType' object has no attribute 'havelist'
-                    ## which calls into question calling _undo_update on dead
-                    ## objs, or more likely, this one's implem,
-                    ## but maybe it's fine (not reviewed now) and this is why
-                    ## we have _nullMol, so store that instead of None.
-                    ## val = _nullMol
-                    ## (Let's hope this can only happen when
-                    ##  _nullMol is not None!!! Hmm, not true! Fix it here,
-                    ##  or let _undo_update init _nullMol and store it??
-                    ##  Neither: store None, and let _undo_update do no
-                    ##  invals at all in that case. Come to think of it,
-                    ##  the non-differential mash_attrs probably only called
-                    ##  undo_update on live objects!! Should we?
-                    ##  #####@@@@@ issue on bonds too
-                    val = None
-                    obj.molecule = val
-                    # but we *don't* do modified[key] = obj, since
-                    # we only want that for live objects
-                    if obj is _undo_debug_obj:
-                        msg = "undo/redo: %r.%s = %r, and removed it " \
-                              "from %r.atoms" % \
-                              (obj, 'molecule', val, mol)
-                        _undo_debug_message( msg)
-                    continue
-                else:
-                    # this is the "add to new mol.atoms" part of the kluge.
-                    # obj is always a live atom (I think), so val should
-                    # always be a real Chunk with .atoms.
-                    mol = val
-                    obj.molecule = mol
-                    mol.atoms[obj.key] = obj
-                    invalmols[id(mol)] = mol
-                    modified[key] = obj
-                    if obj is _undo_debug_obj:
-                        msg = "undo/redo: %r.%s = %r, and added it " \
-                              "to .atoms" % \
-                              (obj, 'molecule', mol)
-                        _undo_debug_message( msg)
-                    continue
-                # this was part of try1 of fixing mol.atoms,
-                # but it had an unfixable flaw of being non-incremental,
-                # as well as minor flaws with _UNSET_:
-##                # kluge to help fix_all_chunk_atomsets in differential case
-##                oldmols = differential['oldmols'] # part of the kluge
-##                mol = obj.molecule
-##                oldmols[id(mol)] = mol
+            if differential and archive.attrcode_is_Atom_chunk(attrcode):
+                ## was: differential and attrcode == ('molecule', 'Atom'):
+                attrname = attrcode[0] # this is 'molecule' as of 071114,
+                    # or more generally it's ATOM_CHUNK_ATTRIBUTE_NAME,
+                    # but it's correct to grab it from attrcode this way
+                _mash_attrs_Atom_chunk(key, obj, attrname, val, modified, invalmols)
+                continue
             if differential and val is _UNSET_:
                 # this differential case can't support attrs with dflts at all,
                 # so they're turned off now [060409]
                 ## dflts = classifier.classify_instance(obj).attrcode_defaultvals
                 continue # because no need to setattr.
                     # However, we *do* need to do the Atom.molecule kluge
-                    # (above) first. And we probably also need to update
+                    # (above) first (which skips this code via 'continue'
+                    # if it happens). And we probably also need to update
                     # modified first (as we do before that).
             modified[key] = obj # redundant if not differential (nevermind)
             val = copy(val)
@@ -530,6 +465,132 @@ def mash_attrs( archive, attrdicts, modified, invalmols, differential = False ):
         continue
     return # from mash_attrs
 
+# ==
+
+def _mash_attrs_Atom_chunk(key, obj, attrname, val, modified, invalmols):
+    """
+    Special case for differential mash_attrs when changing an
+    Atom.molecule attribute. (Private helper function for mash_attrs.)
+
+    @param key: the index of obj in modified. (For more info, see calling code.)
+                Warning: not the same as obj.key.
+
+    @param obj: an atom (i.e. an instance of a class whose _s_undo_specialcase
+                attribute equals UNDO_SPECIALCASE_ATOM).
+                
+    @param attrname: 'molecule', or whatever attribute name we change it to.
+    
+    @param val: the new value we should store into obj.molecule.
+    
+    @param modified: same as in mash_attrs.
+    
+    @param invalmols: same as in mash_attrs.
+    """
+    #bruce 071114 split this out of mash_attrs,
+    # with slight changes to comments and attrname
+    # (which used to be hardcoded as 'molecule',
+    #  and is still hardcoded as obj.molecule gets and sets,
+    #  and as method names containing 'molecule' in comments).
+
+    assert attrname == 'molecule', "oops, you better revise " \
+           "obj.molecule gets/sets in this function"
+    assert attrname == ATOM_CHUNK_ATTRIBUTE_NAME # that should match too
+    
+    # obj is an Atom and we're changing its .molecule.
+    # This is a kluge to help update mol.atoms for its old and
+    # new mol.
+    #
+    # We might be able to do this with Atom._undo_setattr_molecule
+    # (though I recall rejecting that approach in the past,
+    # for non-differential mash_attrs, but I forget why),
+    # but for efficiency and simplicity we do it with this
+    # specialcase kluge, which comes in two parts -- this one
+    # for removal [of atom from old mol, i guess as of 071113],
+    # and the other one below, findable by searching for the
+    # ' "add to new mol.atoms" part of the kluge '.
+    # [comment revised, bruce 071114]
+    
+    mol = obj.molecule
+    # mol might be _UNSET_, None, or _nullMol, in which case,
+    # we should do nothing, or perhaps it might be a real mol
+    # but with obj not in mol.atoms, which might deserve a
+    # debug print, but we should still do nothing --
+    # simplest implem of all this is just to not be bothered
+    # by not finding .atoms, or obj.key inside it.
+    try:
+        del mol.atoms[obj.key]
+    except:
+        if mol is not None and mol is not _nullMol and env.debug():
+            # remove when works!
+            print_compact_traceback(
+                "debug fyi: expected exception in del " \
+                "mol.atoms[obj.key] for mol %r obj %r" % \
+                                    (mol, obj) )
+        pass
+    else:
+        # this is only needed if the del succeeds (even if it fails
+        # for a real mol, due to a bug), since only then did we
+        # actually change mol
+        invalmols[id(mol)] = mol
+    if val is _UNSET_:
+        # I'm not fully comfortable with leaving invalid mol refs in
+        # dead atoms, so I make this exception to the general rule
+        # in this case. (If we later add back
+        # Atom._undo_setattr_molecule, this would mess it up, but
+        # hopefully it would take over this kluge's job entirely.)
+        ## val = None -- this caused e.g.
+        ##   exception in _undo_update for X21; skipping it:
+        ##   exceptions.AttributeError:
+        ##   'NoneType' object has no attribute 'havelist'
+        ## which calls into question calling _undo_update on dead
+        ## objs, or more likely, this one's implem,
+        ## but maybe it's fine (not reviewed now) and this is why
+        ## we have _nullMol, so store that instead of None.
+        ## val = _nullMol
+        ## (Let's hope this can only happen when
+        ##  _nullMol is not None!!! Hmm, not true! Fix it here,
+        ##  or let _undo_update init _nullMol and store it??
+        ##  Neither: store None, and let _undo_update do no
+        ##  invals at all in that case. Come to think of it,
+        ##  the non-differential mash_attrs probably only called
+        ##  undo_update on live objects!! Should we?
+        ##  #####@@@@@ issue on bonds too
+        val = None
+        obj.molecule = val
+        # but we *don't* do modified[key] = obj, since
+        # we only want that for live objects
+        if obj is _undo_debug_obj:
+            msg = "undo/redo: %r.%s = %r, and removed it " \
+                  "from %r.atoms" % \
+                  (obj, attrname, val, mol)
+            _undo_debug_message( msg)
+        pass
+    else:
+        # this is the "add to new mol.atoms" part of the kluge.
+        # obj is always a live atom (I think), so val should
+        # always be a real Chunk with .atoms.
+        mol = val
+        obj.molecule = mol
+        mol.atoms[obj.key] = obj
+        invalmols[id(mol)] = mol
+        modified[key] = obj
+        if obj is _undo_debug_obj:
+            msg = "undo/redo: %r.%s = %r, and added it " \
+                  "to .atoms" % \
+                  (obj, attrname, mol)
+            _undo_debug_message( msg)
+        pass
+    # this was part of try1 of fixing mol.atoms,
+    # but it had an unfixable flaw of being non-incremental,
+    # as well as minor flaws with _UNSET_:
+##    # kluge to help fix_all_chunk_atomsets in differential case
+##    oldmols = differential['oldmols'] # part of the kluge
+##    mol = obj.molecule
+##    oldmols[id(mol)] = mol
+    return
+
+# ==
+
 def fix_all_chunk_atomsets( attrdicts, modified):
     #060409 NOT called for differential mash_attrs;
     # for that see _fix_all_chunk_atomsets_differential
@@ -579,10 +640,15 @@ def fix_all_chunk_atomsets( attrdicts, modified):
 ##        pass
 ##    ## mols = {}
     mols = {}
-    molcode = ('molecule', 'Atom') # KLUGE; we want attrcode for Atom.molecule;
+
+    molcode = (ATOM_CHUNK_ATTRIBUTE_NAME, 'Atom') # KLUGE; we want attrcode for Atom.molecule;
         # instead we should just get the clas for Atom and ask it!
         ### how will I know if this breaks? debug code for it below
         # can't be left in...
+    assert 0, "this code is no longer valid, since Atom might have subclasses soon (with different names)"
+        # not worth the effort to port it re those changes,
+        # since it never runs anymore [bruce 071114]
+        
     moldict = attrdicts.get(molcode, {})
         # Note: the value {} can happen, when no Chunks (i.e. no live atoms)
         # were in the state!
@@ -641,6 +707,16 @@ def fix_all_chunk_atomsets( attrdicts, modified):
     return # from fix_all_chunk_atomsets
 
 def _fix_all_chunk_atomsets_differential(invalmols):
+    """
+    Fix or properly invalidate the passed chunks, whose .atoms dicts
+    the caller has directly modified (by adding or removing atoms which entered
+    or left those chunks) without doing any invalidations or other changes.
+    
+    @param invalmols: a dict mapping id(mol) -> mol
+                      where mol can be anything found or stored in atom.molecule
+                      which has an .atoms dict of the same kind as Chunk.
+                      (As of 071114, such a mol is always a Chunk.)
+    """
     for mol in invalmols.itervalues():
         if mol is not _nullMol:
             # we exclude _nullMol in case it has an invalidate_atom_lists method
@@ -664,6 +740,9 @@ def _fix_all_chunk_atomsets_differential(invalmols):
                     # not worth finding out right now
                 if mol is _UNSET_:
                     # actually i think that's the only one that can happen
+                    print "fyi: mol is _UNSET_ in _fix_all_chunk_atomsets_differential"
+                        #bruce 071114 - caller looks like it prevents this, let's find out
+                        # (if not, fix the docstrings I just added which imply this!)
                     continue
                 msg = "bug (or fyi if this is None or _nullMol), " \
                       "for mol %r: " % (mol,)
@@ -1506,13 +1585,28 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # for now we don't need them
         ## self._changedicts.extend( changedicts_list ) -- from when ourdict
         ##   was not in there (zap this commented out line soon)
-        ourdicts = {'Atom': self.all_changed_Atoms,
-                    'Bond': self.all_changed_Bonds}
+        ourdicts = {UNDO_SPECIALCASE_ATOM: self.all_changed_Atoms,
+                    UNDO_SPECIALCASE_BOND: self.all_changed_Bonds}
             # note: this is a dict, but self.ourdicts is a list
-        specialcase_type = class1.__name__
-        assert specialcase_type in ('Atom', 'Bond')
-            # only those two classes are supported, for now
-        ourdict = ourdicts[specialcase_type] 
+        
+##        specialcase_type = class1.__name__
+##        assert specialcase_type in ('Atom', 'Bond')
+##            # only those two classes are supported, for now
+
+        # Each changetracked class has to be handled by specialcase code
+        # of a type we recognize. For now there are two types, for use by
+        # subclasses of Atom & Bond.
+        # [Before 071114 only those two exact classes were supported.]
+        #
+        # This also tells us which specific set of registered changedicts
+        # to monitor for changes to instances of that class.
+        # (In the future we might just ask the class for those changedicts.)
+        assert hasattr(class1, '_s_undo_specialcase')
+        specialcase_type = class1._s_undo_specialcase
+        assert specialcase_type in (UNDO_SPECIALCASE_ATOM,
+                                    UNDO_SPECIALCASE_BOND)
+        
+        ourdict = ourdicts[specialcase_type]
         for cd in changedicts_list:
             self._changedicts.append( (cd, ourdict) )
             # no reason to ever forget about changedicts, I think
@@ -1602,6 +1696,19 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # - the atoms might not be "new", but (for a new bond of ours)
             #   they're new enough for that method to work.
 
+    def attrcode_is_Atom_chunk(self, attrcode): #bruce 071114
+        """
+        Say whether an attrcode should be treated as Atom.molecule,
+        or more precisely, as pointing to the owning chunk
+        of an "atom", i.e. an instance of a class whose
+        _s_undo_specialcase attribute is UNDO_SPECIALCASE_ATOM.
+        """
+        res = self.obj_classifier.dict_of_all_Atom_chunk_attrcodes.has_key(attrcode)
+        # make sure this is equivalent to the old hardcoded version (temporary):
+        assert res == (attrcode == (ATOM_CHUNK_ATTRIBUTE_NAME, 'Atom'))
+            # remove when works -- will become wrong when we add Atom subclasses
+        return res
+    
     def childobj_liveQ(self, obj):
         """
         Is the given object (allowed to be an arbitrary Python object,

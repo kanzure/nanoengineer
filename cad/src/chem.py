@@ -107,7 +107,7 @@ from prefs_constants import cpkScaleFactor_prefs_key
 from prefs_constants import diBALL_AtomRadius_prefs_key
 
 from state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
-from state_constants import UNDO_SPECIALCASE_ATOM
+from state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
 
 # more imports below
 
@@ -254,7 +254,7 @@ _changed_parent_Atoms = {} # record atoms w/ changed assy or molecule or livenes
     # WARNING: name is private, but it's directly accessed in many places in
     # chunk.py [bruce 071106 comment]
     
-register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed', 'molecule') )
+register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed', ATOM_CHUNK_ATTRIBUTE_NAME) )
     #k or must we say _Atom__killed??
     # (It depends on whether that routine knows how to mangle it itself.)
     # (As of long before 071018 that arg of register_changedict (related_attrs)
@@ -392,6 +392,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     _s_attr_bonds = S_CHILDREN
 
     _s_attr_molecule = S_PARENT # note: most direct sets of self.molecule are in chunk.py
+
+    assert ATOM_CHUNK_ATTRIBUTE_NAME == 'molecule'
+        # must match this _s_attr_molecule decl attr name,
+        # and all the atom.molecule refs in all files [bruce 071114]
     
     _s_attr_jigs = S_CACHE # first i said S_REFS, but this is more efficient, and helps handle pi_bond_sp_chain.py's Jigs.
         # [not sure if following comment written 060223 is obs as of 060224:]

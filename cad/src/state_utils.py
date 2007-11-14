@@ -23,6 +23,8 @@ from state_constants import S_DATA
 from state_constants import S_CHILD, S_CHILDREN, S_CHILDREN_NOT_DATA
 from state_constants import S_REF, S_REFS
 from state_constants import S_PARENT, S_PARENTS
+from state_constants import UNDO_SPECIALCASE_ATOM, UNDO_SPECIALCASE_BOND
+from state_constants import ATOM_CHUNK_ATTRIBUTE_NAME
 
 from state_utils_unset import _UNSET_, _Bugval
     # (these could reasonably be moved into state_constants)
@@ -323,6 +325,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
             # public list of attrcode, dflt pairs, for attrs with a default value (has actual value, not a copy);
             # attrcode will be distinct whenever dflt value differs (and maybe more often) [as of 060330]
         self.dict_of_all_state_attrcodes = {}
+        self.dict_of_all_Atom_chunk_attrcodes = {} #bruce 071104 kluge
         self.attrcodes_with_undo_setattr = {} #060404, maps the attrcodes to an arbitrary value (only the keys are currently used)
         self.categories = {} # (public) categories (e.g. 'selection', 'view') for attrs which declare them using _s_categorize_xxx
         self.attrlayers = {} # (public) similar [060404]
@@ -358,7 +361,30 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
 
     def __repr__(self):
         return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.class1.__name__)
-    
+
+    def _acode_should_be_classname(self, class1): #bruce 071114
+        """
+        Say whether the acode component of all attrcodes for
+        undoable attributes in instances of class1
+        should equal the classname of class1,
+        rather than having its usual value
+        as determined by the caller.
+        """
+        # VERIFY right thing it should be, right cond; understand why;
+        # [prior code was equivalent to class1.__name__ in ('Atom', 'Bond')
+        #  and had comment "###@@@ kluge 060404, in two places",
+        #  which occurred at both code snippets that are now calls of this.
+        #  One of them also says "# it matters that this can't equal id(dflt)
+        #  for this attr in some other class" -- I think that was depended on
+        #  to let each subclass with same attrname have its own dfltval,
+        #  back when dfltvals were supported. But there might be other things
+        #  that still happen that assume this, I don't know. [bruce 071114]]
+        specialcase_type = getattr( class1, '_s_undo_specialcase', None)
+        if specialcase_type in (UNDO_SPECIALCASE_ATOM,
+                                UNDO_SPECIALCASE_BOND):
+            return True
+        return False
+        
     def _find_attr_decls(self, class1):
         """
         find _s_attr_xxx decls on class1, and process/store them
@@ -386,11 +412,15 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                     if not has_dflt:
                         acode = 0 ###stub, but will work initially;
                             # later will need info about whether class is diffscanned, in layer, etc
-                        if class1.__name__ in ('Atom', 'Bond'): ###@@@ kluge 060404, in two places
+                        if self._acode_should_be_classname(class1):
                             acode = class1.__name__
+                            assert _KLUGE_acode_is_special_for_extract_layers(acode)
+                        else:
+                            assert not _KLUGE_acode_is_special_for_extract_layers(acode)
                         attrcode = (attr_its_about, acode)
                         self.attrcodes_with_no_dflt.append(attrcode)
                     else:
+                        # NOTE: this case never runs as of long before 071114.
                         # attr has a default value.
                         # first, make sure it has no _undo_setattr_ method, since our code for those has a bug
                         # in that reset_obj_attrs_to_defaults would need to exclude those attrs, but doesn't...
@@ -399,8 +429,11 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                             # this limitation could be removed when we need to, by fixing the code that calls reset_obj_attrs_to_defaults
                         acode = id(dflt) ###stub, but should eliminate issue of attrs with conflicting dflts in different classes
                             # (more principled would be to use the innermost class which changed the _s_decl in a way that matters)
-                        if class1.__name__ in ('Atom', 'Bond'): ###@@@ kluge 060404, in two places
+                        if self._acode_should_be_classname(class1):
                             acode = class1.__name__ # it matters that this can't equal id(dflt) for this attr in some other class
+                            assert _KLUGE_acode_is_special_for_extract_layers(acode)
+                        else:
+                            assert not _KLUGE_acode_is_special_for_extract_layers(acode)
                         attrcode = (attr_its_about, acode)
                         self.attrcode_dflt_pairs.append( (attrcode, dflt) )
                         self.attrcode_defaultvals[attrcode] = dflt
@@ -418,11 +451,17 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                         self.attrcodes_with_undo_setattr[ attrcode ] = True
                         # only True, not e.g. the unbound method, since classes
                         # with this can share attrcodes, so it's just a hint
+                    specialcase_type = getattr( class1, '_s_undo_specialcase', None)
+                    if specialcase_type == UNDO_SPECIALCASE_ATOM and \
+                       attr_its_about == ATOM_CHUNK_ATTRIBUTE_NAME:
+                        self.dict_of_all_Atom_chunk_attrcodes[ attrcode ] = None #071114
                 pass
             elif name == '_s_deepcopy': # note: exact name (not a prefix), and doesn't end with '_'
                 self.warn = False # enough to be legitimate data
             elif name == '_s_scan_children':
                 pass ## probably not: self.warn = False
+            elif name == '_s_undo_specialcase':
+                pass
             elif name.startswith('_s_categorize_'):
                 #060227; #e should we rename it _s_category_ ?? do we still need it, now that we have _s_attrlayer_ ? (we do use it)
                 attr_its_about = name[len('_s_categorize_'):]
@@ -993,7 +1032,7 @@ class StateSnapshot:
         res = self.__class__()
         for attrcode, attrdict_unused in self.attrdicts.items():
             attr_unused, acode = attrcode
-            if acode in ('Atom', 'Bond'): ###@@@ kluge 060404; assume acode is class name... only true for these two classes!!
+            if _KLUGE_acode_is_special_for_extract_layers(acode):
                 res.attrdicts[attrcode] = self.attrdicts.pop(attrcode)
         return res
     def insert_layers(self, layerstuff): #060404 first implem
@@ -1003,6 +1042,18 @@ class StateSnapshot:
         layerstuff.attrdicts.clear() # optional, maybe not even good...
         return
     pass # end of class StateSnapshot
+
+def _KLUGE_acode_is_special_for_extract_layers(acode): #bruce 071114
+    #e rename when we see all the uses...
+    # guess: probably just means
+    # "acode is for a change-tracked attr, not a full-diff-scanned attr"
+    # (together with assuming that for any class, all or none of its attrs are change-tracked),
+    # (where by "change-tracked" we mean that changes are reported in registered changedicts --
+    #  not directly related to the changed/usage tracked invalidatable lvalues in changes.py)
+    # but the code in this file also assumes those objects are all part of
+    # the so-called "atoms layer".
+    ## was: return acode in ('Atom', 'Bond'): ###@@@ kluge 060404; assume acode is class name... only true for these two classes!!
+    return type(acode) == type("")
 
 def val_diff_func_for__posn( (p1, p2), whatret): # purely a stub for testing, though it should work
     assert type(p1) is _Numeric_array_type
@@ -1284,7 +1335,9 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
     key4obj = keyknower.key4obj_maybe_new
     diff_attrdicts = diffobj.attrdicts
     for attrcode in archive.obj_classifier.dict_of_all_state_attrcodes.iterkeys():
-        if attrcode[1] in ('Atom', 'Bond'):
+        acode = attrcode[1]
+        ## if acode in ('Atom', 'Bond'):
+        if _KLUGE_acode_is_special_for_extract_layers(acode):
             diff_attrdicts.setdefault(attrcode, {}) # this makes some diffs too big, but speeds up our loops ###k is it ok??
             # if this turns out to cause trouble, just remove these dicts at the end if they're still empty
     state_attrdicts = lastsnap_diffscan_layers.attrdicts
@@ -1528,6 +1581,7 @@ class obj_classifier:
     def __init__(self):
         self._clas_for_class = {} # maps Python classes (values of obj.__class__ for obj an InstanceType, for now) to Classifications
         self.dict_of_all_state_attrcodes = {} # maps attrcodes to arbitrary values, for all state-holding attrs ever declared to us
+        self.dict_of_all_Atom_chunk_attrcodes = {} # same, only for attrcodes for .molecule attribute of UNDO_SPECIALCASE_ATOM classes
         self.attrcodes_with_undo_setattr = {} # see doc in clas
         return
     
@@ -1559,6 +1613,7 @@ class obj_classifier:
         except KeyError:
             clas = self._clas_for_class[class1] = InstanceClassification(class1)
             self.dict_of_all_state_attrcodes.update( clas.dict_of_all_state_attrcodes )
+            self.dict_of_all_Atom_chunk_attrcodes.update( clas.dict_of_all_Atom_chunk_attrcodes )
             self.attrcodes_with_undo_setattr.update( clas.attrcodes_with_undo_setattr )
 #bruce 060330 not sure if the following can be fully zapped, though most of it can. Not sure how "cats" are used yet...
 # wondering if acode should be classname. ###@@@
@@ -1654,7 +1709,10 @@ class obj_classifier:
         attrcodes = self.dict_of_all_state_attrcodes.keys()
         if exclude_layers:
             assert exclude_layers == ('atoms',) # the only one we support right here
-            attrcodes = filter( lambda (attr, acode): acode not in ('Atom', 'Bond'), attrcodes )
+            attrcodes = filter( lambda (attr, acode):
+                                ## acode not in ('Atom', 'Bond'),
+                                not _KLUGE_acode_is_special_for_extract_layers(acode),
+                                attrcodes )
                 # this is required, otherwise insert_layers (into this) will complain about these layers already being there
         snapshot = StateSnapshot(attrcodes)
             # make a place to keep all the values we're about to grab
@@ -1663,10 +1721,13 @@ class obj_classifier:
         for obj in objdict.itervalues():
             key = key4obj(obj)
             clas = self.classify_instance(obj)
-            if 'KLUGE': ###@@@ remove when works, at least once this code is debugged; safe for A7
+            if 0 and 'ENABLE SLOW TEST CODE':
                 if exclude_layers:
                     assert exclude_layers == ('atoms',) # the only one we support right here
-                    if not ( clas.class1.__name__ not in ('Atom', 'Bond') ):
+                    print "remove when works, once this code is debugged -- too slow!" ### bruce 071114
+                    ## if not ( clas.class1.__name__ not in ('Atom', 'Bond') ):
+                    if getattr(obj, '_s_undo_specialcase', None) in (UNDO_SPECIALCASE_ATOM,
+                                                                     UNDO_SPECIALCASE_BOND):
                         print "bug: exclude_layers didn't stop us from seeing", obj
             # hmm, use attrs in clas or use __dict__? Either one might be way too big... start with smaller one? nah. guess.
             # also we might as well use getattr and be more flexible (not depending on __dict__ to exist). Ok, use getattr.
@@ -1744,7 +1805,7 @@ class obj_classifier:
         # not needed: for attr in clas.attrcodes_with_no_dflt: ...
         return
     
-    pass # end of class obj_classifier, if we didn't rename it by now
+    pass # end of class obj_classifier
 
 # ==
 

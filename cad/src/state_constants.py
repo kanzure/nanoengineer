@@ -74,6 +74,8 @@ S_IGNORE = 'S_IGNORE' # state system should pretend this attr doesn't exist (i.e
 
 UNDO_SPECIALCASE_ATOM = 'UNDO_SPECIALCASE_ATOM'
 UNDO_SPECIALCASE_BOND = 'UNDO_SPECIALCASE_BOND'
-UNDO_SPECIALCASE_ATOM_OWNER = 'UNDO_SPECIALCASE_ATOM_OWNER' # not sure this is right, vs CHUNK
+##UNDO_SPECIALCASE_ATOM_OWNER = 'UNDO_SPECIALCASE_ATOM_OWNER' # not sure this is right, vs CHUNK -- also it may never be needed
+
+ATOM_CHUNK_ATTRIBUTE_NAME = 'molecule' # must match the Atom.molecule attrname
 
 # end

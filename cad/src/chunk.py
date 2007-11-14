@@ -2741,7 +2741,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 ##
 ##del molecule #bruce 071113 along with revising all uses to refer to Chunk (except the classname itself)
 ##
-### Note: we can't rename the class until string literals 'molecule' are reviewed.
+### Note: we can't rename the class until all string literals 'molecule' are reviewed. [has been done now]
 
 # ==
 
