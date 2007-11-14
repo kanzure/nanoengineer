@@ -970,8 +970,11 @@ class Thermo(Jig_onChunk_by1atom):
                     "[Attached to: " + str(self.atoms[0].molecule.name) + "] "
                     
     def _getToolTipInfo(self): #ninad060825
-        "Return a string for display in Dynamic Tool tip "
-        attachedChunkInfo = ("<font color=\"#0000FF\">Attached to chunk </font>[%s]") %(self.atoms[0].molecule.name) #ninad060825 We know that stat has only one atom May be we should use try - except to be safer?
+        """
+        Return a string for display in Dynamic Tool tip
+        """
+        attachedChunkInfo = ("<font color=\"#0000FF\">Attached to chunk </font>[%s]") %(self.atoms[0].molecule.name)
+            #ninad060825 We know that stat has only one atom... Maybe we should use try/except to be safer?
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Thermometer"\
         + "<br>" + str(attachedChunkInfo)
 
@@ -988,8 +991,9 @@ class Thermo(Jig_onChunk_by1atom):
 # == AtomSet
 
 class AtomSet(Jig):
-    """an Atom Set just has a list of atoms that can be easily selected by the user"""
-
+    """
+    An Atom Set just has a list of atoms that can be easily selected by the user.
+    """
     sym = "AtomSet" # Was "Atom Set" (removed space). Mark 2007-05-28
     icon_names = ["modeltree/Atom_Set.png", "modeltree/Atom_Set-hide.png"]
     featurename = "Atom Set" #bruce 051203
