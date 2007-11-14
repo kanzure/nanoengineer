@@ -200,6 +200,28 @@ def filesplit(pathname):
 
 # ==
 
+def remove_prefix(str1, prefix): 
+    # TODO: put this into a new file, utilities.string_utils?
+    """
+    Remove an optional prefix from a string:
+    if str1 starts with prefix, remove it (and return the result),
+    otherwise return str1 unchanged.
+
+    @param str1: a string that may or may not start with prefix.
+    @type str1: string
+    
+    @param prefix: a string to remove if it occurs at the beginning of str1.
+    @type prefix: string
+    
+    @return: a string, equal to str1 with prefix removed, or to str1.
+    """
+    if str1.startswith(prefix):
+        return str1[len(prefix):]
+    else:
+        return str1
+
+# ==
+
 # ave_colors() logically belongs in some "color utilities file",
 # but is here so it is defined early enough for use in computing default values
 # of user preferences in prefs_constants.py.

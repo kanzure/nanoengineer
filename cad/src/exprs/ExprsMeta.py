@@ -133,16 +133,16 @@ What ExprsMeta handles specifically:
 # == imports
 
 # from python library
+
 from idlelib.Delegator import Delegator
 
 # from modules in cad/src
+
+from constants import remove_prefix
 ##from env import seen_before
 from debug import print_compact_traceback, print_compact_stack
 
 # from this exprs package in cad/src
-
-###e make reloadable? I'm not sure if *this* module supports reload. ##k
-#e if it does, we should make all but basic reloadable here.
 
 from exprs.py_utils import printnim, printfyi
 
@@ -160,12 +160,6 @@ from exprs.Exprs import is_Expr_pyclass
 from exprs.__Symbols__ import _E_ATTR, _self
 
 # ==
-
-def remove_prefix(str1, prefix):#e refile
-    "if str1 starts with prefix, remove it (and return the result), else return str1 unchanged"
-    if str1.startswith(prefix):
-        return str1[len(prefix):]
-    return str1
 
 # added 061201: as of 061204 not sure if still needed (guess: no), tho still active
 FAKE_ATTR = "<FAKE_ATTR>" # not a possible attr name, but a string in case used in __repr__
