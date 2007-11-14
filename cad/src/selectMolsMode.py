@@ -36,7 +36,7 @@ from bonds import Bond
 from chem import Atom
 from selectMode import selectMode
 from selectMode import DRAG_STICKINESS_LIMIT
-from chunk import Chunk as molecule ### TODO [bruce 071113]: rename molecule to Chunk inside this file; then import Chunk, not molecule
+from chunk import Chunk 
 
 from debug import print_compact_stack
 
@@ -155,8 +155,7 @@ class selectMolsMode(selectMode):
 	do this
         """        
         pass
-
-
+    
     def update_cursor_for_no_MB(self):
         """
         Update the cursor for 'Select Chunks' mode (selectMolsMode).
@@ -281,24 +280,24 @@ class selectMolsMode(selectMode):
         
         self.chunkLeftUp(m, event)
     
-    def chunkLeftDown(self, chunk, event):
+    def chunkLeftDown(self, a_chunk, event):
         """
         Depending on the modifier key(s) pressed, it does various operations on
         chunk..typically pick or unpick the chunk(s) or do nothing.
         
         If an object left down happens, the left down method of that object
         calls this method (chunkLeftDown) as it is the 'selectMolsMode' which 
-        is supposed to select chunk (molecule) of the object clicked
+        is supposed to select Chunk of the object clicked
         @param chunk: The chunk of the object clicked (example, if the  object 
                       is an atom, then it is atom.molecule
-        @type chunk: B{molecule}
+        @type chunk: B{Chunk}
         @param event: MouseLeftDown event
         @see: self.atomLeftDown
         @see: self.chunkLeftDown
         """
-        m = chunk
+        m = a_chunk
         
-        assert m.__class__.__name__ == 'molecule' 
+        assert isinstance(m, Chunk)
         
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
@@ -322,17 +321,21 @@ class selectMolsMode(selectMode):
         
         self.w.win_update()
             
-    def chunkLeftUp(self, chunk, event):   
+    def chunkLeftUp(self, a_chunk, event):   
         """
         Depending on the modifier key(s) pressed, it does various operations on
         chunk. Example: if Shift and Control modkeys are pressed, it deletes the
         chunk
+        @param chunk: The chunk of the object clicked (example, if the  object 
+                      is an atom, then it is atom.molecule
+        @type chunk: B{Chunk}
+        @param event: MouseLeftUp event
         @see: self.atomLeftUp
-        @see: self.chunkLeftUp
+        @see: self.chunkLeftDown
         
         """
-        m = chunk
-        assert m.__class__.__name__ == 'molecule'      
+        m = a_chunk
+        assert isinstance(m, Chunk)     
         if self.o.modkeys == 'Shift+Control':            
             if obj is self.o.selobj:
                 m.kill()                
@@ -699,7 +702,7 @@ class selectMolsMode(selectMode):
 
         bool_fullBondLength = True
 
-        if isinstance(selobj, molecule):
+        if isinstance(selobj, Chunk):
             print "I think this is never called "\
                   "(drawHighlightedChunk with selobj a Chunk)" #bruce 071008
             chunk = selobj
