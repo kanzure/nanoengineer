@@ -36,7 +36,7 @@ from bonds import Bond
 from chem import Atom
 from selectMode import selectMode
 from selectMode import DRAG_STICKINESS_LIMIT
-from chunk import molecule
+from chunk import Chunk as molecule ### TODO [bruce 071113]: rename molecule to Chunk inside this file; then import Chunk, not molecule
 
 from debug import print_compact_stack
 

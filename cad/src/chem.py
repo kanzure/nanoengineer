@@ -3498,7 +3498,7 @@ def oneUnbonded(elem, assy, pos, atomtype = None): #bruce 050510 added atomtype 
     """
     # bruce 041215 moved this from chunk.py to chem.py, and split part of it
     # into the new atom method make_bondpoints_when_no_bonds, to help fix bug 131.
-    mol = chunk.molecule(assy, 'bug') # name is reset below!
+    mol = chunk.Chunk(assy, 'bug') # name is reset below!
     atm = Atom(elem.symbol, pos, mol)
     # bruce 041124 revised name of new mol, was gensym('Chunk.');
     # no need for gensym since atom key makes the name unique, e.g. C1.
@@ -3551,7 +3551,7 @@ def getMultiplicity(objList):
     for m in objList:
         if isinstance(m, Atom):
             numElectrons += m.element.eltnum
-        elif isinstance(m, chunk.molecule):
+        elif isinstance(m, chunk.Chunk):
             for a in m.atoms.itervalues():
                 numElectrons += a.element.eltnum
     

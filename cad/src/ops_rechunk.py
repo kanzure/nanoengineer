@@ -13,7 +13,7 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 
 from utilities.Log import greenmsg, redmsg
 from PlatformDependent import fix_plurals
-from chunk import molecule
+from chunk import Chunk
 from constants import gensym
 from Dna_Constants import getNextStrandColor
 import env
@@ -32,14 +32,14 @@ class ops_rechunk_Mixin:
     # this with Bruce since this is called directly from some mode modules.
     # Mark 050209
     #
-    # separate selected atoms into a new molecule
+    # separate selected atoms into a new Chunk
     # (one new mol for each existing one containing any selected atoms)
     # do not break bonds
     def modifySeparate(self, new_old_callback = None):
         """
-        For each molecule (named N) containing any selected atoms,
+        For each Chunk (named N) containing any selected atoms,
         move the selected atoms out of N (but without breaking any bonds)
-        into a new molecule which we name N-frag. If N is now empty, remove it.
+        into a new Chunk which we name N-frag. If N is now empty, remove it.
         
         @param new_old_callback: If provided, then each time we create a new
             (and nonempty) fragment N-frag, call new_old_callback with the
@@ -85,7 +85,7 @@ class ops_rechunk_Mixin:
             pass 
         numolist=[]
         for mol in self.molecules[:]: # new mols are added during the loop!
-            numol = molecule(self.assy, gensym(mol.name + "-frag")) # (in modifySeparate)
+            numol = Chunk(self.assy, gensym(mol.name + "-frag")) # (in modifySeparate)
             for a in mol.atoms.values():
                 if a.picked:
                     # leave the moved atoms picked, so still visible
@@ -167,7 +167,7 @@ class ops_rechunk_Mixin:
                     
         #bruce 060329 new feature: work on atoms too (put all selected atoms into a new chunk)
         self.ensure_toplevel_group() # avoid bug for part containing just one chunk, all atoms selected
-        numol = molecule(self.assy, gensym("Chunk"))
+        numol = Chunk(self.assy, gensym("Chunk"))
         natoms = len(self.selatoms)
         for a in self.selatoms.values():
             # leave the moved atoms picked, so still visible
@@ -203,15 +203,15 @@ class ops_rechunk_Mixin:
         @type  color: tuple
         
         @return: The new chunk.
-        @rtype:  L{molecule}
+        @rtype:  L{Chunk}
         
         """
         assert atomList
         
         if name:
-            newChunk = molecule(self.assy, name)
+            newChunk = Chunk(self.assy, name)
         else:
-            newChunk = molecule(self.assy, gensym("Chunk"))
+            newChunk = Chunk(self.assy, gensym("Chunk"))
             
         for a in atomList:
             a.hopmol(newChunk)
@@ -248,7 +248,7 @@ class ops_rechunk_Mixin:
         
         @return: The new strand chunk. Returns B{None} if no new strand chunk
                  is created, as is the case of a ring.
-        @rtype:  L{molecule}
+        @rtype:  L{Chunk}
         """
         minimize = debug_pref("Adjust open bond singlets using minimizer?",
                          Choice_boolean_False,

@@ -25,7 +25,7 @@ implementations on a few subclasses of Node.
 and paste it onto a bondpoint.
 """
 
-from chunk import molecule # only for isinstance
+from chunk import Chunk # only for isinstance
 from Group import Group # only for isinstance
 
 def is_pastable(obj):
@@ -43,7 +43,7 @@ def is_pastable(obj):
 #  they ought to be public anyway)
 
 def is_pastable_into_free_space(obj):#bruce 050127
-    return isinstance(obj, molecule) or isinstance(obj, Group)
+    return isinstance(obj, Chunk) or isinstance(obj, Group)
 
 def is_pastable_onto_singlet(obj): #bruce 050121 (renamed 050127)
     # this might have a klugy bugfixing side-effect -- not sure
@@ -59,20 +59,20 @@ def find_hotspot_for_pasting(obj):
     (but the one to actually use is the one in the copy made by pasting),
     or reason is a string (for use in an error message) explaining why there isn't
     a findable hotspot. For now, the hotspot can only be found for certain
-    chunks (class molecule), but someday it might be defined for certain
-    groups, as well, or anything else that can be bonded to an existing singlet.
+    chunks, but someday it might be defined for certain groups, as well,
+    or anything else that can be bonded to an existing singlet.
     """
     #Note: method modified to support group pasting -- ninad 2007-08-29
     
-    if not (isinstance(obj, molecule) or isinstance(obj, Group)):
+    if not (isinstance(obj, Chunk) or isinstance(obj, Group)):
         return False, "only chunks or groups can be pasted" #e for now    
-    if isinstance(obj, molecule):
+    if isinstance(obj, Chunk):
 	ok, spot_or_whynot = _findHotspot(obj)
 	return ok, spot_or_whynot
     elif isinstance(obj, Group):
 	groupChunks = []
 	def func(node):
-	    if isinstance(node, molecule):
+	    if isinstance(node, Chunk):
 		groupChunks.append(node)
 		
 	obj.apply2all(func)
@@ -86,7 +86,7 @@ def find_hotspot_for_pasting(obj):
     pass
 	
 def _findHotspot(obj):
-    if isinstance(obj, molecule):
+    if isinstance(obj, Chunk):
 	if len(obj.singlets) == 0:
 	    return False, "no bondpoints in %r (only pastable in empty space)" % obj.name
 	elif len(obj.singlets) > 1 and not obj.hotspot:

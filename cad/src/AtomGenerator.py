@@ -23,7 +23,7 @@ Mark 2007-07-25: Uses new PM module.
 
 import platform, env
 from chem import Atom
-from chunk import molecule
+from chunk import Chunk
 from VQT import V
 from elements import PeriodicTable
 from utilities.Log import greenmsg
@@ -123,8 +123,8 @@ class AtomGenerator( AtomGeneratorPropertyManager, GeneratorBaseClass ):
         """
         x, y, z, theElement, theAtomType  =  parameters
 
-        # Create new molecule (chunk) to contain the atom.
-        outMolecule  =  molecule( self.win.assy, self.name )
+        # Create new chunk to contain the atom.
+        outMolecule  =  Chunk( self.win.assy, self.name )
         theAtom      =  Atom( theElement, V(x, y, z), outMolecule )
         theAtom.set_atomtype( theAtomType )
         theAtom.make_enough_bondpoints()

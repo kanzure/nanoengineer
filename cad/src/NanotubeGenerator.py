@@ -20,7 +20,7 @@ from debug import Stopwatch
 
 from chem import Atom
 
-from chunk import molecule
+from chunk import Chunk
 
 from elements import PeriodicTable
 
@@ -374,7 +374,7 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
             sw.start()
         xyz = self.chirality.xyz
         if mol == None:
-            mol = molecule(self.win.assy, name)
+            mol = Chunk(self.win.assy, name)
         atoms = mol.atoms
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends

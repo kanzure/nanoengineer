@@ -546,7 +546,7 @@ class SelectionShape(shape):
             # also added .hidden check to the last of 3 cases. Same in self.select().
             c = self.curve
             if c.selSense == START_NEW_SELECTION:
-                # drag selection: unselect any selected molecule not in the area, 
+                # drag selection: unselect any selected Chunk not in the area, 
                 # modified by Huaicai to fix the selection bug 10/05/04
                 for m in assy.selmols[:]:
                     m.unpick()
@@ -1332,10 +1332,10 @@ class CookieShape(shape):
     
     def buildChunk(self, assy):
         """
-        Build molecule for the cookies. First, combine bonds from
+        Build Chunk for the cookies. First, combine bonds from
         all layers together, which may fuse some half bonds to full bonds.
         """
-        from chunk import molecule
+        from chunk import Chunk
         from chem import Atom
         from constants import gensym
         
@@ -1382,7 +1382,7 @@ class CookieShape(shape):
             #print "allCarbons: ", allCarbons
                 
             carbonAtoms = {}
-            mol = molecule(assy, gensym("Crystal-"))
+            mol = Chunk(assy, gensym("Crystal-"))
             for bKey, bBonds in allBonds.items():
                 keyHedron = True
                 if len(bBonds):

@@ -18,7 +18,7 @@ from debug         import print_compact_stack
 from utilities.Log import greenmsg, redmsg, orangemsg
 from PlatformDependent import fix_plurals
 from Group         import Group
-from chunk         import molecule
+from chunk         import Chunk
 from chunk         import mol_copy_name
 from chem          import Atom_prekill_prep
 from ops_select    import Selection
@@ -372,7 +372,7 @@ class ops_copy_Mixin:
         # And it ought to work for selected non-nodes like atoms, too, IMHO.
         # [bruce 071011 comment]
         
-        if isinstance(pastable, molecule):
+        if isinstance(pastable, Chunk):
             itemToPaste, errorMsg = self._pasteChunk(pastable, pos)         
         elif isinstance(pastable, Group):
             itemToPaste, errorMsg = self._pasteGroup(pastable, pos)
@@ -407,7 +407,7 @@ class ops_copy_Mixin:
         """
         Paste the given chunk in the 3 D workspace. 
         @param chunkToPaste: The chunk to be pasted in the 3D workspace
-        @type  chunkToPaste: L{molecule}
+        @type  chunkToPaste: L{Chunk}
         
         @param mousePosition: These is the coordinates during mouse double 
                               click. 
@@ -415,7 +415,7 @@ class ops_copy_Mixin:
                               screen or 'None'
         @see: L{self.paste} for implementation notes.
         """
-        assert isinstance(chunkToPaste, molecule)
+        assert isinstance(chunkToPaste, Chunk)
         
         pastable = chunkToPaste
         pos = mousePosition     
@@ -480,7 +480,7 @@ class ops_copy_Mixin:
             
         chunkList = []
         for newNode in newNodeList:
-            if isinstance(newNode, molecule):
+            if isinstance(newNode, Chunk):
                 chunkList.append(newNode)       
                 
         if chunkList:
@@ -590,13 +590,13 @@ class ops_copy_Mixin:
         if self.immortal():
             self.topnode.unpick_top() #bruce 050201: prevent deletion of entire part (no msg needed)
         if self.topnode:
-            # The code above that calls a.kill() may have already deleted the molecule/node the atom(s) belonged to.
+            # The code above that calls a.kill() may have already deleted the Chunk/Node the atom(s) belonged to.
             # If the current node is a clipboard item part, self no longer has a topnode.  Fixes bug 1466.  mark 060307.
             # [bruce 060307 adds: this only happens if all atoms in the Part were deleted, and it has nothing except Chunks.
             #  By "the current node" (which is not a concept we have) I think Mark meant the former value of self.topnode,
             #  when that was a chunk which lost all its atoms.) See also my comment in cut_sel, which will someday need this fix.]
             self.topnode.apply2picked(lambda o: o.kill())
-        self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the atom and molecule kill methods, and add/remove methods
+        self.invalidate_attr('natoms') #####@@@@@ actually this is needed in the Atom and Chunk kill methods, and add/remove methods
         #bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         
         env.history.message( cmd + info) # Mark 050715

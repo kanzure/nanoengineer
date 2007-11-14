@@ -21,7 +21,7 @@ from chem import Atom
 import bonds # for bond_atoms
 import bond_constants
 
-from chunk import molecule
+from chunk import Chunk
 import env
 from debug import Stopwatch
 from elements import PeriodicTable
@@ -60,7 +60,8 @@ class GrapheneGenerator( GrapheneGeneratorPropertyManager, GeneratorBaseClass):
     # any necessary helper functions
 
     def gather_parameters(self):
-        """Return all the parameters from the Property Manager.
+        """
+        Return all the parameters from the Property Manager.
         """
         height = self.heightField.value()
         width = self.widthField.value()
@@ -70,14 +71,15 @@ class GrapheneGenerator( GrapheneGeneratorPropertyManager, GeneratorBaseClass):
         return (height, width, bond_length, endings)
 
     def build_struct(self, name, params, position):
-        """Build a graphene sheet from the parameters in the Property Manager.
+        """
+        Build a graphene sheet from the parameters in the Property Manager.
         """
         height, width, bond_length, endings = params
         PROFILE = False
         if PROFILE:
             sw = Stopwatch()
             sw.start()
-        mol = molecule(self.win.assy, self.name)
+        mol = Chunk(self.win.assy, self.name)
         atoms = mol.atoms
         z = 0.0
         self.populate(mol, height, width, z, bond_length, endings, position)

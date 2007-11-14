@@ -13,14 +13,17 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 
 from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from constants import diINVISIBLE, diDEFAULT
+from jigs import Jig
+from chem import _changed_picked_Atoms
+from chunk import Chunk
 from elements import Singlet
 from VQT import V, A, norm, cross
 from Numeric import dot, transpose
 import env
 from utilities.Log import redmsg, greenmsg, orangemsg
-from debug import print_compact_traceback #bruce 051129
-import platform #bruce 051129
-from PlatformDependent import fix_plurals #bruce 051129
+from debug import print_compact_traceback
+import platform
+from PlatformDependent import fix_plurals
 from GlobalPreferences import permit_atom_chunk_coselection
 
 # Object flags, used by objectSelected() and its callers. 
@@ -136,7 +139,6 @@ class ops_select_Mixin:
         """
         Returns a list of all the currently selected jigs.
         """
-        from jigs import Jig
         selJigs = []
         def addSelectedJig(obj, jigs=selJigs):
             if obj.picked and isinstance(obj, Jig):
@@ -503,8 +505,8 @@ class ops_select_Mixin:
         You are not allowed to select a singlet.
         Print a message about what you just selected (if it was an atom).
         """
-        # [bruce 041227 moved the getinfo status messages here, from the atom
-        # and molecule pick methods, since doing them there was too verbose
+        # [bruce 041227 moved the getinfo status messages here, from the Atom
+        # and Chunk pick methods, since doing them there was too verbose
         # when many items were selected at the same time. Original message
         # code was by [mark 2004-10-14].]
         self.begin_select_cmd() #bruce 051031
@@ -596,7 +598,6 @@ class ops_select_Mixin:
         updates).
         """ #bruce 050517 added docstring
         if self.selatoms:
-            from chem import _changed_picked_Atoms
             ## for a in self.selatoms.itervalues():
                 #bruce 060405 comment/precaution: that use of self.selatoms.itervalues might have been safe
                 # (since actual .unpick (which would modify it) is not called in the loop),
@@ -837,9 +838,8 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             # compute from self.topnodes -- can't assume selection state of self.part
             # is same as during our init, or even know whether it was relevant then.
             res = []
-            from chunk import molecule
             def func(node):
-                if isinstance(node, molecule):
+                if isinstance(node, Chunk):
                     res.append(node)
                 return # from func
             for node in self.topnodes:

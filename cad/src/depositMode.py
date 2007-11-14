@@ -45,7 +45,7 @@ import platform
 import changes
 from PlatformDependent import fix_plurals
 
-from chunk      import molecule
+from chunk      import Chunk
 from chem       import Atom
 from chem       import oneUnbonded
 from elements   import Singlet
@@ -910,7 +910,6 @@ class depositMode(selectAtomsMode):
         """
         if not stuff:
             return 0 #k can this happen? I think so, since old code could handle it.
-        from chunk import Chunk #k might not be needed
         if isinstance(stuff, Chunk):
             chunk = stuff
             if chunk.get_dispdef(self.o) == diINVISIBLE:
@@ -1753,7 +1752,7 @@ class depositMode(selectAtomsMode):
         
         hotspot = hotspot_or_whynot
         
-        if isinstance(pastable, molecule):
+        if isinstance(pastable, Chunk):
             numol = pastable.copy(None)
             # bruce 041116 added (implicitly, by default) cauterize = 1
             # to mol.copy() above; change this to cauterize = 0 here if unwanted,

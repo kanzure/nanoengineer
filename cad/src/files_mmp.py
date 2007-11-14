@@ -14,7 +14,7 @@ Perhaps it should be further split into a reading and writing module,
 since it's still large, and the code for those is not very related.
 
 Note that a lot of mmp writing code remains in other files,
-mainly (but not only) for the classes molecule, atom, and Jig.
+mainly (but not only) for the classes Chunk, Atom, and Jig.
 (So it's hard to argue that it should not be split in order to
 keep the reading and writing code for one format together --
 since it's mostly not together now.)
@@ -139,7 +139,7 @@ from utilities.Log import redmsg
 from elements import PeriodicTable
 from bonds import bond_atoms
 from bonds import find_bond
-from chunk import molecule #bruce 060224
+from chunk import Chunk
 from Utility import Node
 from Group import Group
 from Csys import Csys # for reading one, and for isinstance
@@ -463,7 +463,7 @@ class _readmmp_state:
     # TODO: some or all of these are private -- rename them to indicate that [bruce 071023 comment]
     prevatom = None # the last atom read, if any
     prevcard = None # used in reading atoms and bonds [TODO: doc, make private]
-    prevchunk = None # the current Chunk (class molecule) being built, if any [renamed from self.mol, bruce 071023]
+    prevchunk = None # the current Chunk being built, if any [renamed from self.mol, bruce 071023]
     prevmotor = None # the last motor jig read, if any (used by shaft record)
     
     def __init__(self, assy, isInsert):
@@ -665,10 +665,10 @@ class _readmmp_state:
             return "mismatched group records: egroup %r tried to match group %r" % (name, curname) #bruce 050405 revised this msg
         return None # success
 
-    def _read_mol(self, card): # mol: start a molecule
+    def _read_mol(self, card): # mol: start a Chunk
         name = self.get_name(card, "Mole")
         name = self.decode_name(name) #bruce 050618
-        mol = molecule(self.assy,  name)
+        mol = Chunk(self.assy,  name)
         self.prevchunk = mol
             # so its atoms, etc, can find it (might not be needed if they'd search for it) [bruce 050405 comment]
             # now that I removed _addMolecule, this is less often reset to None,
@@ -693,7 +693,7 @@ class _readmmp_state:
         if self.prevchunk is None:
             #bruce 050405 new feature for reading new bare sim-input mmp files
             self.guess_sim_input('missing_group_or_chunk')
-            self.prevchunk = molecule(self.assy,  "sim chunk")
+            self.prevchunk = Chunk(self.assy,  "sim chunk")
             self.addmember(self.prevchunk)
         a = Atom(sym, xyz, self.prevchunk) # sets default atomtype for the element [behavior of that was revised by bruce 050707]
         a.unset_atomtype() # let it guess atomtype later from the bonds read from subsequent mmp records [bruce 050707]
@@ -1428,7 +1428,7 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
 
     return grouplist # from _readmmp
 
-# read a Molecular Machine Part-format file into maybe multiple molecules
+# read a Molecular Machine Part-format file into maybe multiple Chunks
 def readmmp(assy, filename, isInsert = False): #bruce 050302 split out some subroutines for use in other code
     """
     Read an mmp file to create a new model (including a new

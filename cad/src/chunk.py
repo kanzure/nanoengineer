@@ -1,10 +1,12 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-chunk.py -- provides class molecule, for a chunk of atoms
-which can be moved and selected as a unit.
+chunk.py -- provides class molecule [soon to be renamed class Chunk],
+for a bunch of atoms (not necessarily bonded together) which can be moved
+and selected as a unit.
 
-$Id$
-
+@author: Josh
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -40,7 +42,6 @@ History:
    Sometime I should review this and see if there is some obvious optimization needed.]
 
 """
-__author__ = "Josh"
 
 import math # only used for pi, everything else is from Numeric [as of before 071113]
 
@@ -66,14 +67,15 @@ from OpenGL.GL import glNewList
 from OpenGL.GL import glEndList
 
 # chunk and chem form a two element import cycle
-# (chem is used here only for class Atom and one global changedict, as of before 071113)
+# (chem is used here only for class Atom and one global changedict,
+#  as of before 071113)
 import chem
 
 from VQT import V, Q, A, vlen
 
 from Utility import Node
 
-from debug import print_compact_stack, print_compact_traceback, safe_repr # safe_repr uses revised by bruce 070131
+from debug import print_compact_stack, print_compact_traceback, safe_repr
 
 from inval import InvalMixin
 from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
@@ -82,7 +84,7 @@ from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
     # would draw differently due to a change in some graphics pref it used
 from prefs_constants import bondpointHotspotColor_prefs_key
 import env
-import drawer #bruce 051126
+import drawer
 from undo_archive import register_class_nickname, set_undo_nullMol
 from utilities.Comparison import same_vals
 ##from state_utils import copy_val
@@ -124,20 +126,22 @@ _inval_all_bonds_counter = 1 #bruce 050516
 
 # == Molecule (i.e. Chunk)
 
+# Historical note:
+#
 # (Josh wrote:)
 # I use "molecule" and "part" interchangeably throughout the program.
 # this is the class intended to represent rigid collections of
 # atoms bonded together, but it's quite possible to make a molecule
 # object with unbonded atoms, and with bonds to atoms in other
 # molecules
-
+#
 # [bruce 050315 adds: I've seen "part" used for the assembly, but not for "chunk"
 #  (which is the current term for instances of class molecule).
 #  Now, however, each assy has one or more Parts, each with its own
 #  physical space, containing perhaps many bonded chunks. So any use of
 #  "part" to mean "chunk" would be misleading.]
 
-# Huaicai: It's completely possible to create a molecule without any atoms,
+# Huaicai: It's completely possible to create a Chunk without any atoms,
 # so don't assume it always has atoms.   09/30/04
 # (However, as of bruce 041116 we kill any mol which loses all its atoms
 # after having had some. This is an experimental change; if it causes
@@ -280,7 +284,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # using InvalMixin.__getattr__, e.g. center, bbox, basepos, atpos.
         # [bruce 041112]
         
-        # molecule-relative coordinate system, used internally to speed up
+        # Chunk-relative coordinate system, used internally to speed up
         # redrawing after mol is moved or rotated:
         self.basecenter = V(0,0,0) # origin, for basepos, used for redrawing
         self.quat = Q(1, 0, 0, 0) # attitude in space, for basepos
@@ -295,15 +299,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # - self.average_position (average posn of atoms or singlets; default
         #   value for self.center).
         
-        # this set and the molecule in assy.selmols
-        # must remain consistent
-        ## self.picked=0 # bruce 050308 removed this, redundant with Node.__init__
-        
         self.havelist = 0 # note: havelist is not handled by InvalMixin
         self.haveradii = 0 # ditto
         
-        # hotspot: default place to bond this molecule when pasted;
-        # should be a singlet in this molecule, or None.
+        # hotspot: default place to bond this Chunk when pasted;
+        # should be a singlet in this Chunk, or None.
         ## old code: self.hotspot = None
         # (As of bruce 050217 (to fix bug 312)
         # this is computed by getattr each time it's needed,
@@ -321,7 +321,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
         # self.displist is allocated on demand by _get_displist [bruce 070523]
 
-        return # from molecule.__init__
+        return # from Chunk.__init__
 
     # ==
 
@@ -518,7 +518,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if hs.killed_with_debug_checks(): # this also checks whether its key is in self.atoms
                 # bug detected
                 if platform.atom_debug:
-                    print "_get_hotspot sees killed singlet still claiming to be in this molecule"
+                    print "_get_hotspot sees killed singlet still claiming to be in this Chunk"
                 # fall thru
             else:
                 # return a valid hotspot.
@@ -555,7 +555,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # see also the same-named, related method in class Jig.
         """
         each subclass must define mticon = [] and hideicon = [] as class constants...
-        but molecule is the only subclass, for now.
+        but Chunk is the only subclass, for now.
         """
         if self.mticon or self.hideicon:
             return
@@ -583,23 +583,24 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         Cause atom at1 to be bonded to atom at2.
         Error if at1 is at2 (causes printed warning and does nothing).
-        (This should really be a separate function, not a method on molecule,
-        since the specific molecule asked to do this need not be either atom's
-        molecule, and is not used in the method at all.)
+        (This should really be a separate function, not a method on Chunk,
+        since the specific Chunk asked to do this need not be either atom's
+        Chunk, and is not used in the method at all.)
         """
         bonds.bond_atoms(at1, at2) #bruce 041109 split out separate function to do it
-        ## old code assumed both atoms were in this molecule; often not true!
+        ## old code assumed both atoms were in this Chunk; often not true!
         ## self.havelist = 0
         return
 
     # lowest-level structure-changing methods
     
     def addatom(self, atm):
-        """Private method;
-        should be the only way new atoms can be added to a molecule
-        (except for optimized callers like molecule.merge, and others with comments saying they inline it).
-           Add an existing atom (with no current molecule, and with a valid literal
-        .xyz field) to molecule self, doing necessary invals in self, but not yet
+        """
+        Private method;
+        should be the only way new atoms can be added to a Chunk
+        (except for optimized callers like Chunk.merge, and others with comments saying they inline it).
+           Add an existing atom (with no current Chunk, and with a valid literal
+        .xyz field) to the Chunk self, doing necessary invals in self, but not yet
         giving the new atom an index in our curpos, basepos, etc (which will not
         yet include the new atom at all).
            Details of invalidations: Curpos must be left alone (so as not
@@ -616,12 +617,12 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         ## [definitely not after bruce 050516, since changing atm.molecule is enough;
         #   if this is not changing it, then atm was in _nullMol and we don't care
         #   whether its bonds are valid.]
-        # make atom know molecule
+        # make atom know self as its .molecule
         assert atm.molecule is None or atm.molecule is _nullMol
         atm.molecule = self
         chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
         atm.index = -1 # illegal value
-        # make molecule have atom
+        # make Chunk self have atom
         self.atoms[atm.key] = atm
         self.invalidate_atom_lists()
         return
@@ -637,10 +638,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
     
     def delatom(self, atm):
-        """Private method;
-        should be the only way atoms can be removed from a molecule
-        (except for optimized callers like molecule.merge).
-           Remove atom atm from molecule self, preparing atm for being destroyed
+        """
+        Private method;
+        should be the only way atoms can be removed from a Chunk
+        (except for optimized callers like Chunk.merge).
+           Remove atom atm from the Chunk self, preparing atm for being destroyed
         or for later addition to some other mol, doing necessary invals in self,
         and (for safety and possibly to break cycles of python refs) removing all
         connections from atm back to self.
@@ -648,15 +650,15 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         ## atm.invalidate_bonds() # not needed after bruce 050516; see comment in addatom
         self.invalidate_atom_lists() # do this first, in case exceptions below
 
-        # make atom independent of molecule
+        # make atom independent of self
         assert atm.molecule is self
         atm.index = -1 # illegal value
         # inlined get_nullMol:
         global _nullMol
         if _nullMol is None:
-            # this caused a bus error when done right after class molecule
+            # this caused a bus error when done right after class Chunk
             # defined; don't know why (class Node not yet ok??) [bruce 041116]
-            ## _nullMol = molecule("<not an assembly>", 'name-of-_nullMol')
+            ## _nullMol = Chunk("<not an assembly>", 'name-of-_nullMol')
             # this newer method might or might not have that problem
             _nullMol = _make_nullMol()
         atm.molecule = _nullMol # not a real mol; absorbs invals without harm
@@ -664,7 +666,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # (note, we *don't* add atm to _nullMol.atoms, or do invals on it here;
         #  see comment about _nullMol where it's defined)
 
-        # make molecule forget about atom
+        # make self forget about atom
         del self.atoms[atm.key] # callers can check for KeyError, always an error
         if not self.atoms:
             self.kill() # new feature, bruce 041116, experimental
@@ -1011,7 +1013,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # What used to be called self.center, used mainly to relate basepos and curpos,
     # is now called self.basecenter and is not a recomputed attribute,
     # though it is chosen and stored by the _recompute_atpos method.
-    # See also a comment about this in molecule.__init__. [bruce 041112]
+    # See also a comment about this in Chunk.__init__. [bruce 041112]
 
     # Display list:
     # It's not sensible to integrate the display list into this recompute system,
@@ -1033,7 +1035,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return externs
     
     def freeze(self):
-        """ set the molecule up for minimization or simulation"""
+        """ set self up for minimization or simulation"""
         return #bruce 060308 removing this
                # (it wasn't working beyond the first frame anyway; it will be superceded by Pyrex optims;
                #  only call is in movie.py)
@@ -1043,8 +1045,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return #bruce 060308 removing this (see comments in freeze)
 
     def get_dispdef(self, glpane = None):
-        "reveal what dispdef we will use to draw this molecule"
-        # copied out of molecule.draw by bruce 041109 for use in extrudeMode.py
+        "reveal what dispdef we will use to draw this Chunk"
+        # copied out of Chunk.draw by bruce 041109 for use in extrudeMode.py
         if self.display != diDEFAULT:
             disp = self.display
         else:
@@ -1077,13 +1079,13 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     _havelist_inval_counter = 0
     
     def draw(self, glpane, dispdef):
-        """draw all the atoms, using the atom's, molecule's,
+        """draw all the atoms, using the atom's, self's,
         or GLPane's display mode in that order of preference.
         (Note that our dispdef argument is not used at all.)
         Draw each bond only once, even though internal bonds
-        will be referenced from two atoms in this molecule.
-        (External bonds are drawn once by each molecule they connect.)
-        If the molecule itself is selected, draw its bounding box as a
+        will be referenced from two atoms in this Chunk.
+        (External bonds are drawn once by each Chunk they connect.)
+        If the Chunk itself is selected, draw its bounding box as a
         wireframe; selected atoms are drawn specially by atom.draw.
         """
         if self.hidden:
@@ -1099,7 +1101,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # is a limitation we'll need to remove at some point.
 
         if len(self.atoms) == 0:
-            # do nothing for a molecule without any atoms
+            # do nothing for a Chunk without any atoms
             # [to fix bugs -- Huaicai 09/30/04]
             return
 
@@ -1218,7 +1220,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 try:
                     self.draw_displist(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk))
                 except:
-                    print_compact_traceback("exception in molecule.draw_displist ignored: ")
+                    print_compact_traceback("exception in Chunk.draw_displist ignored: ")
 
                 if wantlist:
                     ColorSorter.finish() # grantham 20051205
@@ -1230,7 +1232,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     self.havelist = (disp, eltprefs, matprefs, drawLevel)
                     assert self.havelist, "bug: havelist must be set to a true value here, not %r" % (self.havelist,)
                     # always set the self.havelist flag, even if exception happened,
-                    # so it doesn't keep happening with every redraw of this molecule.
+                    # so it doesn't keep happening with every redraw of this Chunk.
                     #e (in future it might be safer to remake the display list to contain
                     # only a known-safe thing, like a bbox and an indicator of the bug.)
                 pass
@@ -1246,7 +1248,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 self.overdraw_hotspot(glpane, disp) # only does anything for pastables as of 050316 (toplevel clipboard items)
 
         except:
-            print_compact_traceback("exception in molecule.draw, continuing: ")
+            print_compact_traceback("exception in Chunk.draw, continuing: ")
             
         glPopMatrix()
 
@@ -1296,7 +1298,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     bon.draw(glpane, disp, bondcolor, drawLevel)
             pass
         ColorSorter.finish() # grantham 20051205
-        return # from molecule.draw()
+        return # from Chunk.draw()
 
 ##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd): #bruce 060608 split this out of self.draw
 ##        "[private submethod of self.draw]"
@@ -1552,7 +1554,6 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             mapping.write("info chunk color = %d %d %d\n" % (r,g,b))
         return
 
-    # write to a povray file:  draw the atoms and bonds inside a molecule
     def writepov(self, file, disp):
         """
         Draw self (if visible) into an open povray file
@@ -1584,9 +1585,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             a.writemdl(alist, f, disp, self.color)
             
     def move(self, offset):
-        """Public method: translate self (a molecule) by offset;
-        do all necessary invalidations, but optimize those based on the
-        molecule's relative structure not having changed or reoriented.
+        """
+        Public method:
+        translate self (a Chunk) by offset;
+        do all necessary invalidations, but optimize those based on self's
+        relative structure not having changed or reoriented.
         """
         # code and doc rewritten by bruce 041109.
         # The method is public but its implem is pretty private!
@@ -1618,9 +1621,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.changed_basecenter_or_quat_to_move_atoms()
 	
     def pivot(self, point, q):
-        """Public method: pivot the molecule around point by quaternion q;
-        do all necessary invalidations, but optimize those based on the
-        molecule's relative structure not having changed. See also self.rot().
+        """Public method: pivot the Chunk self around point by quaternion q;
+        do all necessary invalidations, but optimize those based on
+        self's relative structure not having changed. See also self.rot().
         """
         # First make sure self.basepos is up to date! Otherwise
         # self.changed_basecenter_or_quat_to_move_atoms() might not be able to reconstruct it.
@@ -1639,9 +1642,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.changed_basecenter_or_quat_to_move_atoms()
 
     def rot(self, q):
-        """Public method: rotate the molecule around its center by quaternion q;
-        do all necessary invalidations, but optimize those based on the
-        molecule's relative structure not having changed. See also self.pivot().
+        """Public method: rotate self around its center by quaternion q;
+        do all necessary invalidations, but optimize those based on
+        self's relative structure not having changed. See also self.pivot().
         """
         # bruce 041109: the center of rotation is not always self.basecenter,
         # so in general we need to pivot around self.center.
@@ -1649,7 +1652,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
     
     def stretch(self, factor, point = None):
-        """Public method: expand the molecule by the given factor
+        """Public method: expand self by the given factor
         (keeping point fixed, by default its center).
         Do all necessary invalidations, optimized as convenient
         given the nature of this operation.
@@ -1702,7 +1705,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """Private method:
         Call this whenever you have just changed self.basecenter and/or self.quat
         (and/or self.basepos if you call changed_attr on it yourself), and
-        you want to move the molecule by changing curpos to match, assuming that
+        you want to move the Chunk self (in 3d model space)
+        by changing curpos to match, assuming that
         basepos is still correct in the new local coords basecenter and quat.
            Note that basepos must already exist, since this method can't recompute
         it from curpos in the standard way, since curpos is wrong and basepos is
@@ -1762,7 +1766,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def base_to_abs(self, anything): # bruce 041115
         """
         map anything (which is accepted by quat.rot() and Numeric.array's '+' method)
-        from molecule-relative coords to absolute coords;
+        from Chunk-relative coords to absolute coords;
         guaranteed to never recompute basepos/atpos or modify the mol-relative
         coordinate system it uses. Inverse of abs_to_base.
         """
@@ -1779,14 +1783,14 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     def set_basecenter_and_quat(self, basecenter, quat):
         """
-        Deprecated public method: change this molecule's basecenter and quat to the specified values,
-        as a way of moving the molecule's atoms.
+        Deprecated public method: change this Chunk's basecenter and quat to the specified values,
+        as a way of moving the Chunk's atoms.
         It's deprecated since basecenter and quat are replaced by in-principle-arbitrary values
         every time certain recomputations are done, but this method is only useful if the caller
         knows what they are, and computes the new ones it wants relative to what they are.
         So it's much better to use mol.pivot instead (or some combo of move, rot, and pivot).
         """
-        # [written by bruce for extrude; moved into class molecule by bruce 041104]
+        # [written by bruce for extrude; moved into class Chunk by bruce 041104]
         # modified from mol.move and mol.rot as of 041015 night
         self.basepos # bruce 050315 bugfix: recompute this if it's currently invalid!
         # make sure mol owns its new basecenter and quat,
@@ -1802,7 +1806,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     def setcolor(self, color):
         """
-        change the molecule's color;
+        change self's color;
         new color should be None (let atom colors use their element colors)
         or a 3-tuple.
         """
@@ -1817,7 +1821,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.changed() #[bruce 050505]
 
     def setDisplay(self, disp):
-        "change the molecule's display mode"
+        "change self's display mode"
         self.display = disp
         self.havelist = 0
         self.haveradii = 0
@@ -1851,14 +1855,14 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     glpane = None #bruce 050804
             
     def changeapp(self, atoms):
-        """call when you've changed appearance of the molecule
+        """call when you've changed appearance of self
         (but you don't need to call it if only the external bonds look different).
         Arg atoms = 1 means that not only the entire mol appearance,
         but specifically the set of atoms or atomic radii
         (for purposes of selection), have changed.
            Note that changeapp does not itself call self.assy.changed(),
         since that is not always correct to do (e.g., selecting an atom
-        should call changeapp(), but not assy.changed(), on its molecule).
+        should call changeapp(), but not assy.changed(), on its chunk aka .molecule).
         """ 
         self.havelist = 0
         if atoms: #bruce 041207 added this arg and its effect
@@ -1892,7 +1896,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         
         ele2Num = {}
         
-        # Determine the number of element types in this molecule.
+        # Determine the number of element types in this Chunk.
         for a in self.atoms.values():
             if not ele2Num.has_key(a.element.symbol): ele2Num[a.element.symbol] = 1 # New element found
             else: ele2Num[a.element.symbol] += 1 # Increment element
@@ -2020,7 +2024,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def kill(self):
         """
         (Public method)
-        Kill a molecule: unpick it, break its external bonds, kill its atoms
+        Kill a Chunk: unpick it, break its external bonds, kill its atoms
         (which should kill any jigs attached only to this mol),
         remove it from its group (if any) and from its assembly (if any);
         make it forget its group and assembly.
@@ -2036,7 +2040,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # (caller no longer needs to set externs to [] when there are no atoms)
         if self is _nullMol:
             return
-        # all the following must be ok for an already-killed molecule!
+        # all the following must be ok for an already-killed Chunk!
         self._prekill() #bruce 060327, needed here even though Node.kill might do it too
         self.unpick() #bruce 050214 comment: keep doing this here even though Node.kill now does it too
         for b in self.externs[:]: #bruce 050214 copy list as a precaution
@@ -2068,7 +2072,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         Node.kill(self) #bruce 050214 moved this here, made it unconditional
         if self._enable_deallocate_displist():
             self.deallocate_displist_later() #bruce 071103
-        return # from molecule.kill
+        return # from Chunk.kill
 
     def _set_will_kill(self, val): #bruce 060327 in Chunk
         "[extends private superclass method; see its docstring for details]"
@@ -2127,7 +2131,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # Select atoms which are hit by the line of sight (as array of indices).
         # See comments in findAtomUnderMouse_Numeric_stuff for more details.
         # (Optimize for the slowest case: lots of atoms, most fail lineofsight
-        # test, but a lot still pass it since we have a thick molecule; do
+        # test, but a lot still pass it since we have a thick Chunk; do
         # "slab" test separately on smaller remaining set of atoms.)
 
         # self.sel_radii_squared (not a real attribute, just the way we refer to
@@ -2336,7 +2340,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
            Never refuses. Returns copy (a new chunk with no atoms).
         Ok to assume self has never yet been copied.
         """
-        numol = molecule(mapping.assy, self.name)
+        numol = Chunk(mapping.assy, self.name)
         self.copy_copyable_attrs_to(numol) # copies .name (redundantly), .hidden, .display, .color...
         mapping.record_copy(self, numol)
         # also copy user-specified axis, center, etc, if we ever have those
@@ -2483,9 +2487,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # for details. [bruce 070412/070525 comment]
         #
         #bruce 060308 major rewrite, and no longer permit args to vary from defaults
-        """Public method: Copy the molecule to a new molecule.
+        """Public method: Copy the Chunk self to a new Chunk.
         Offset tells where it will go relative to the original.
-        Unless cauterize = 0, replace bonds out of the molecule
+        Unless cauterize = 0, replace bonds out of self (to atoms in other Chunks)
         with singlets in the copy [though that's not very nice when we're
         copying a group of mols all at once ###@@@ bruce 050206 comment],
         and if this causes the hotspot in the copy to become ambiguous,
@@ -2520,7 +2524,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #bruce 041124 added "-copy<n>" (or renumbered it, if already in name),
         # similar to Ninad's suggestion for improving bug 163's status message
         # by making it less misleading.
-        numol = molecule(self.assy, "fakename") # name is set below
+        numol = Chunk(self.assy, "fakename") # name is set below
         #bruce 050531 kluges to fix bug 660, until we replace or rewrite this method
         # using one of the newer "copy" methods
         self.copy_copyable_attrs_to(numol)
@@ -2667,7 +2671,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     def merge(self, mol):
         """
-        merge the given molecule into this one.
+        merge the given Chunk into this one.
         """
         if mol is self: # Can't merge self. Mark 2007-10-21
             return
@@ -2683,7 +2687,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             #bruce 050516: changing atm.molecule is now enough in itself
             # to invalidate atm's bonds, since their validity now depends on
             # a counter stored in (and unique to) atm.molecule having
-            # a specific stored value; in the new molecule (self) this will
+            # a specific stored value; in the new Chunk (self) this will
             # have a different value. So I can remove the following code:
 ##            for bon in atm.bonds:
 ##                bon.setup_invalidate()
@@ -2696,7 +2700,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return # from merge
 
     def get_singlets(self): #bruce 041109 moved here from extrudeMode.py
-        "return a sequence of the singlets of molecule self"
+        "return a sequence of the singlets of Chunk self"
         return self.singlets # might be recomputed by _recompute_singlets
 
     def overlapping_chunk(self, chunk, tol = 0.0):
@@ -2728,9 +2732,13 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         else:
             return True
             
-    pass # end of class molecule
+    pass # end of class molecule (soon to be renamed class Chunk)
 
 Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename the class this way
+
+del molecule #bruce 071113 along with revising all uses to refer to Chunk (except the classname itself)
+
+# Note: we can't rename the class until string literals 'molecule' are reviewed.
 
 # ==
 
@@ -2742,7 +2750,7 @@ Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename
 
 # Initing _nullMol here caused a bus error; don't know why (class Node not ready??)
 # So we do it when first needed, in delatom, instead. [bruce 041116]
-## _nullMol = molecule("<not an assembly>")
+## _nullMol = Chunk("<not an assembly>")
 
 def get_nullMol():
     "return _nullMol, after making sure it's initialized"
@@ -2756,12 +2764,12 @@ _nullMol = None
 
 def _make_nullMol(): #bruce 060331 split out and revised this, to mitigate bugs similar to bug 1796
     "[private] Make and return (what the caller should store as) the single _nullMol object."
-    ## return molecule("<not an assembly>", 'name-of-_nullMol')
+    ## return Chunk("<not an assembly>", 'name-of-_nullMol')
     null_mol = _nullMol_Chunk("<not an assembly>", 'name-of-_nullMol')
     set_undo_nullMol(null_mol)
     return null_mol
 
-class _nullMol_Chunk(molecule):
+class _nullMol_Chunk(Chunk):
     "[private] subclass for _nullMol"
     def changed_selection(self):
         msg = "bug: _nullMol.changed_selection() should never be called"
@@ -2775,7 +2783,8 @@ class _nullMol_Chunk(molecule):
 # ==
 
 class BorrowerChunk(Chunk):
-    """A temporary Chunk (mostly transparent to users and Undo, when not added to MT) whose atoms belong in other chunks.
+    """
+    A temporary Chunk (mostly transparent to users and Undo, when not added to MT) whose atoms belong in other chunks.
     Useful for optimizing redraws, since it has one perhaps-small display list, and the other chunks' display lists
     won't be modified when our atoms change (except once when we first steal their atoms, and when we add them back).
        WARNING: removing atoms from, or adding atoms to, this pseudo-chunk is not supported.
@@ -3005,12 +3014,12 @@ from geometry import selection_polyhedron, inertia_eigenvectors, compute_heurist
 def shakedown_poly_evals_evecs_axis(basepos):
     """Given basepos (an array of atom positions), compute and return (as the
     elements of a tuple) the bounding polyhedron we should draw around these
-    atoms to designate that their molecule is selected, the eigenvalues and
+    atoms to designate that their Chunk is selected, the eigenvalues and
     eigenvectors of the inertia tensor (computed as if all atoms had the same
     mass), and the (heuristically defined) principal axis.
     """
-    #bruce 041106 split this out of the old molecule.shakedown() method,
-    # replaced molecule attrs with simple variables (the ones we return),
+    #bruce 041106 split this out of the old Chunk.shakedown() method,
+    # replaced Chunk attrs with simple variables (the ones we return),
     # and renamed self.eval to evals (just in this function) to avoid
     # confusion with python's built-in function eval.
     #bruce 060119 split it into smaller routines in new file geometry.py.

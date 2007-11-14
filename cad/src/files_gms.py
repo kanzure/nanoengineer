@@ -2,7 +2,9 @@
 """
 files_gms.py -- reading and writing GAMESS files
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -10,10 +12,8 @@ GAMESS file IO was part of GamessJob.py until I moved it here
 to make it more modular and consistent.
 """
 
-__author__ = "Mark"
-
 import os, re, time
-from chunk import molecule
+from chunk import Chunk
 from chem import Atom
 from string import capitalize
 from elements import PeriodicTable
@@ -28,7 +28,8 @@ noconvpat = re.compile("GEOMETRY SEARCH IS NOT CONVERGED")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")
 
 def _readgms(assy, filename, isInsert=False):
-    """Read the atoms from a GAMESS DAT file into a single new chunk, which is returned,
+    """
+    Read the atoms from a GAMESS DAT file into a single new chunk, which is returned,
     unless there are no atoms in the file, in which case a warning is printed
     and None is returned. (The new chunk (if returned) is in assy, but is not
     yet added into any Group or Part in assy -- caller must do that.)
@@ -39,7 +40,7 @@ def _readgms(assy, filename, isInsert=False):
     
     dir, nodename = os.path.split(filename)
     ndix = {}
-    mol = molecule(assy, nodename)
+    mol = Chunk(assy, nodename)
     countdown = 0
     equilibruim_found = False
     atoms_found = False
@@ -121,12 +122,13 @@ def _readgms(assy, filename, isInsert=False):
     env.history.message( orangemsg(msg))
     return mol
     
-# Read a GAMESS DAT file into a single molecule (chunk)
+# Read a GAMESS DAT file into a single chunk
 def readgms(assy,filename):
-    '''Reads a GAMESS DAT file.
+    """
+    Reads a GAMESS DAT file.
     Returns: 0 = Success
                    1 = Failed
-    '''
+    """
     mol  = _readgms(assy, filename, isInsert = False)
     if mol is not None:
         assy.addmol(mol)
@@ -134,12 +136,13 @@ def readgms(assy,filename):
     else:
         return 1
     
-# Insert a GAMESS DAT file into a single molecule (chunk).
+# Insert a GAMESS DAT file into a single chunk.
 def insertgms(assy,filename):
-    '''Reads a GAMESS DAT file and inserts it into the existing model.
+    """
+    Reads a GAMESS DAT file and inserts it into the existing model.
     Returns: 0 = Success
                    1 = Failed
-    '''
+    """
     mol  = _readgms(assy, filename, isInsert = True)
     if mol is not None:
         assy.addmol(mol)
@@ -148,12 +151,13 @@ def insertgms(assy,filename):
         return 1
         
 
-# Insert a GAMESS DAT file into a single molecule (chunk).
+# Insert a GAMESS DAT file into a single chunk.
 def insertgms_new(assy,filename):
-    '''Reads a GAMESS DAT file and inserts it into the existing model.
+    """
+    Reads a GAMESS DAT file and inserts it into the existing model.
     Returns: 0 = Success
                    1 = Failed
-    '''
+    """
 
     gmsAtomList  = _get_atomlist_from_gms_outfile(assy, filename)
     
@@ -161,7 +165,7 @@ def insertgms_new(assy,filename):
         return 1 # No atoms read.
     
     dir, nodename = os.path.split(filename)
-    mol = molecule(assy, nodename)
+    mol = Chunk(assy, nodename)
     ndix = {}
     
     n = 0
@@ -187,7 +191,8 @@ def insertgms_new(assy,filename):
 # I created a list with the same order that the atoms are read from the GAMESS OUT file.
 # Mark 050712.
 def _get_atomlist_from_gms_outfile(assy, filename):
-    """Read the atoms from a GAMESS OUT file into an atom list, which is returned,
+    """
+    Read the atoms from a GAMESS OUT file into an atom list, which is returned,
     unless there are no atoms in the file, in which case a warning is printed
     and None is returned.
     """
@@ -196,7 +201,7 @@ def _get_atomlist_from_gms_outfile(assy, filename):
     fi.close()
     
     dir, nodename = os.path.split(filename)
-    mol = molecule(assy, nodename)
+    mol = Chunk(assy, nodename)
     
     newAtomList = [] 
     countdown = 0
@@ -281,10 +286,11 @@ def _get_atomlist_from_gms_outfile(assy, filename):
     return newAtomList
     
         
-# Read a GAMESS OUT file into a single molecule (chunk)
+# Read a GAMESS OUT file into a single chunk
 def get_atompos_from_gms_outfile(assy, filename, atomList):
-    '''Reads a GAMESS DAT file and returns the xyz positions of the atoms.
-    '''
+    """
+    Reads a GAMESS DAT file and returns the xyz positions of the atoms.
+    """
     gmsAtomList  = _get_atomlist_from_gms_outfile(assy, filename)
     
     if not gmsAtomList:
@@ -321,9 +327,9 @@ def get_atompos_from_gms_outfile(assy, filename, atomList):
 # File Writing Methods.
         
 def writegms_inpfile(filename, gamessJig):
-    '''Writes a GAMESS INP file from a GAMESS Jig.'''
-
-    
+    """
+    Writes a GAMESS INP file from a GAMESS Jig.
+    """
     pset = gamessJig.pset
         
     f = open(filename,'w') # Open GAMESS input file.
@@ -362,8 +368,9 @@ def writegms_inpfile(filename, gamessJig):
 
 
 def writegms_batfile(filename, gamessJob):
-    'Write PC GAMESS BAT file'
-        
+    """
+    Write PC GAMESS BAT file
+    """ 
     f = open(filename,'w') # Open new BAT file.
     
     # Get the script comment character(s) for this platform.
@@ -385,9 +392,10 @@ def writegms_batfile(filename, gamessJob):
     f.close() # Close BAT file.
 
 def get_energy_from_gms_outfile(filename):
-    '''Returns a string containing the final energy value from a GAMESS OUT file.
+    """
+    Returns a string containing the final energy value from a GAMESS OUT file.
     Works for both PC GAMESS and GAMESS-US.
-    '''
+    """
     # Method: Process the output file line by line backwards.  Since there are multiple 
     # "FINAL ENERGY IS" lines in the output file of an Optimization run (one for each iteration), 
     # it is the last line that contains the final energy value we need. This fixes an undocumented 

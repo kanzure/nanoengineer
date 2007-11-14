@@ -60,7 +60,7 @@ import platform
 from utilities.Log import greenmsg, redmsg
 from BoundingBox import BBox
 
-from chunk import molecule
+from chunk import Chunk
 from jigs import Jig
 
 from constants import diINVISIBLE
@@ -280,7 +280,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         node.part = node.prior_part = self
             #bruce 050527 comment: I hope and guess this is the only place node.part is set to anything except None; need to check ###k
         self.nodecount += 1
-        if isinstance(node, molecule): #####@@@@@ #e better if we let the node add itself to our stats and lists, i think...
+        if isinstance(node, Chunk): #####@@@@@ #e better if we let the node add itself to our stats and lists, i think...
             self.invalidate_attrs(['molecules'], skip = ['natoms']) # this also invals bbox, center
                 #e or we could append node to self.molecules... but I doubt that's worthwhile ###@@@
             self.adjust_natoms( len(node.atoms)) 
@@ -299,7 +299,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         """
         assert node.part is self
         node.unpick() # this maintains selmols if necessary
-        if isinstance(node, molecule):
+        if isinstance(node, Chunk):
             # need to unpick the atoms? [would be better to let the node itself have a method for this]
             # (#####@@@@@ fix atom.unpick to not remake selatoms if missing, or to let this part maintain it)
             if (not self.__dict__.has_key('selatoms')) or self.selatoms:
@@ -451,7 +451,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         seen = {} # values will be new list of mols
         def func(n):
             "run this exactly once on all molecules that properly belong in this assy"
-            if isinstance(n, molecule):
+            if isinstance(n, Chunk):
                 # check for duplicates (mol at two places in tree) using a dict, whose values accumulate our mols list
                 if seen.get(id(n)):
                     print "bug: some chunk occurs twice in this part's topnode tree; semi-tolerated but not fixed"
@@ -603,7 +603,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
                 if not isinstance(obj, Jig):
                     if obj.display == diINVISIBLE:
                         continue
-                if isinstance(obj, molecule):
+                if isinstance(obj, Chunk):
                     for a in obj.atoms.itervalues():
                         pointList.append(a.posn())
                 elif isinstance(obj, Jig):
@@ -643,7 +643,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         alist = []
         def func_alist(nn):
             "run this exactly once on all molecules (or other nodes) in this part, in tree order"
-            if isinstance(nn, molecule):
+            if isinstance(nn, Chunk):
                 alist.extend(nn.atoms_in_mmp_file_order())
             return # from func_alist only
         self.topnode.apply2all( func_alist)
@@ -659,7 +659,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         res = []
         def func_selmols(nn):
             "run this exactly once on all molecules (or other nodes) in this part (in any order)"
-            if isinstance(nn, molecule) and nn.picked:
+            if isinstance(nn, Chunk) and nn.picked:
                 res.append(nn)
             return # from func_selmols only
         self.topnode.apply2all( func_selmols)
@@ -700,7 +700,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         res = {}
         def func_selatoms(nn):
             "run this exactly once on all molecules (or other nodes) in this part (in any order)"
-            if isinstance(nn, molecule):
+            if isinstance(nn, Chunk):
                 for atm in nn.atoms.itervalues():
                     if atm.picked:
                         res[atm.key] = atm

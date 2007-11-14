@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-cookieMode.py -- cookie cutter mode.
+cookieMode.py -- cookie cutter mode, aka "Build Crystal"
 
 @version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
@@ -43,7 +43,7 @@ from shape import get_selCurve_color
 import drawer
 from drawer import DiGridSp
 from drawer import genDiam
-from chunk import molecule
+from chunk import Chunk
 from chem import Atom
 
 from constants import gensym
@@ -59,7 +59,9 @@ import changes
 
 
 class cookieMode(basicMode):
-
+    """
+    Build Crystal
+    """
     # class constants
     backgroundColor = 0/255.0, 0/255.0, 0/255.0
     backgroundGradient = False # Mark 051029.
@@ -1278,7 +1280,7 @@ class cookieMode(basicMode):
 def hashAtomPos(pos):
         return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
 
-# make a new molecule using a cookie-cut shape
+# make a new Chunk using a cookie-cut shape
 
 # [bruce 050222 changed this from an assembly method to a cookieMode function
 #  (since it's about cookies made from diamond, like this file),
@@ -1293,7 +1295,7 @@ def molmake(assy,shap):
     #@@@ ninad20070511 : Is the followinf ever used?? I found another code
     # which eventually decided the chunk name after Crystal creation. 
     # it is in shape.py -> buildChunk method
-    mol = molecule(assy, gensym("Crystal-"))
+    mol = Chunk(assy, gensym("Crystal-"))
     ndx={}
     hashAtomPos #bruce 050222 comment: this line is probably a harmless typo, should be removed
     bbhi, bblo = shap.bbox.data
@@ -1322,7 +1324,7 @@ def molmake(assy,shap):
                 x = Atom("X", (pp[0] + pp[1]) / 2.0, mol)
                 mol.bond(pp1, x)
    
-    #Added by huaicai to fixed some bugs for the 0 atoms molecule 09/30/04
+    #Added by huaicai to fixed some bugs for the 0 atoms Chunk 09/30/04
     # [bruce 050222 comment: I think Huaicai added the condition, not the body,
     #  i.e. before that it was effectively "if 1".]
     if len(mol.atoms) > 0:

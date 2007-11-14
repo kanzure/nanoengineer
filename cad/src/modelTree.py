@@ -39,7 +39,7 @@ import platform # for atom_debug
 from PlatformDependent import fix_plurals #bruce 070503 Qt4
 import modelTreeGui   # ModelTreeGui, Ne1Model_api
 
-from chunk import molecule
+from chunk import Chunk
 from jigs import Jig
 from utilities.Log import redmsg, greenmsg, orangemsg # not all used, that's ok
 from Group import Group
@@ -60,7 +60,9 @@ debug_preftree = 0 # bruce 050602 experiment; requires new (not yet committed) f
 # helpers for making context menu commands
 
 class statsclass:
-    "class for holding and totalling counts of whatever you want, in named attributes"
+    """
+    class for holding and totalling counts of whatever you want, in named attributes
+    """
     def __getattr__(self, attr): # in class statsclass
         if not attr.startswith('_'):
             return 0 # no need to set it
@@ -88,15 +90,16 @@ class statsclass:
     pass
 
 def accumulate_stats(node, stats):
-    """When making a context menu from a nodeset (of "topselected nodes"),
+    """
+    When making a context menu from a nodeset (of "topselected nodes"),
     this is run once on every topselected node (note: they are all picked)
     and once on every node under those (whether or not they are picked).
     """
     stats.n += 1
 
-    stats.ngroups += int(isinstance(node,Group))
-    stats.nchunks += int(isinstance(node,molecule))
-    stats.njigs += int(isinstance(node,Jig))
+    stats.ngroups += int(isinstance(node, Group))
+    stats.nchunks += int(isinstance(node, Chunk))
+    stats.njigs += int(isinstance(node, Jig))
     #e later, classify(node1, Node) into a list of classes, and get counts for all...
 
     stats.npicked += int(node.picked)
@@ -914,7 +917,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
          chunkList = []
          #Find the chunks in the selection and store them temporarily
          for m in nodeset:
-             if isinstance(m, molecule):
+             if isinstance(m, Chunk):
                  chunkList.append(m)
          #Following selects  the current color of the chunk 
          #in the QColor dialog. If multiple chunks are selected, 

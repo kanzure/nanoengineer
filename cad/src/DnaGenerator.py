@@ -34,7 +34,7 @@ from Group          import Group
 from utilities.Log  import redmsg, greenmsg ##, orangemsg
 from VQT            import Q, V, angleBetween, cross, vlen, Veq
 from math           import pi
-from chunk          import molecule
+from chunk          import Chunk
 from constants      import gensym    
 
 from Dna_Constants  import basesDict, getReverseSequence
@@ -378,16 +378,16 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         @type  dnaGroup: L{Group}
         
         @return: The DNA chunk.
-        @rtype:  L{molecule} (i.e. a chunk)
+        @rtype:  L{Chunk}
         """
         
-        if not isinstance(dnaGroup.members[0], molecule):
+        if not isinstance(dnaGroup.members[0], Chunk):
             env.history.message(redmsg(
                 "Internal error in creating a single chunk DNA"))
             return
         
         for m in dnaGroup.members[1:]:
-            if isinstance(m, molecule):
+            if isinstance(m, Chunk):
                 dnaGroup.members[0].merge(m)
                 
         # Rename the merged chunk 
@@ -457,7 +457,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         
         startBasePair = rawDnaGroup.members[0]
         
-        if not isinstance(startBasePair, molecule):
+        if not isinstance(startBasePair, Chunk):
             env.history.message(redmsg(
                 "Internal error in creating a chunks for strands and axis"
                 ))
@@ -519,7 +519,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
         @type  atomList: list
         
         @return: The new chunk.
-        @rtype:  L{molecule}
+        @rtype:  L{Chunk}
         
         @deprecated: use ops_rechunk.makeChunkFromAtomsList() instead.
         
@@ -528,7 +528,7 @@ class DnaGenerator(DnaGeneratorPropertyManager, GeneratorBaseClass):
             print "bug in creating chunks from the given atom list"
             return
         
-        newChunk = molecule(self.win.assy, gensym("Chunk"))
+        newChunk = Chunk(self.win.assy, gensym("Chunk"))
         for a in atomList:            
             # leave the moved atoms picked, so still visible
             a.hopmol(newChunk)

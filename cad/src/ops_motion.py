@@ -4,7 +4,8 @@ ops_motion.py -- various ways of moving or spatially distorting
 selected atoms or chunks (and someday, attached jigs).
 These operations don't create or destroy atoms or bonds.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -18,7 +19,7 @@ import env
 from math import pi
 from debug import print_compact_traceback
 
-from chunk       import molecule
+from chunk       import Chunk
 from jigs        import Jig
 from jigs_motors import Motor
 from jigs_planes import ESPImage
@@ -40,7 +41,7 @@ class ops_motion_Mixin:
         for m in movables:
             self.changed() #Not check if this can be combined into one call
             m.move(offset)
-  
+        return
   
     def rotsel(self, quat):
         """
@@ -68,11 +69,12 @@ class ops_motion_Mixin:
                 
                 m.move(rotOff) 
                 m.rot(quat) 
-        
-            
-    #stretch a molecule
+        return
+    
     def Stretch(self):
-
+        """
+        stretch a Chunk
+        """
         mc = env.begin_op("Stretch")
         try:
             cmd = greenmsg("Stretch: ")
@@ -93,10 +95,9 @@ class ops_motion_Mixin:
             env.end_op(mc)
         return
     
-    #invert a chunk
     def Invert(self):
         """
-        Invert the atoms of the selected chunk(s)
+        Invert the atoms of the selected chunk(s) around the chunk centers
         """
         mc = env.begin_op("Invert")
         cmd = greenmsg("Invert: ")
@@ -114,7 +115,6 @@ class ops_motion_Mixin:
         env.history.message( cmd + info)
         env.end_op(mc) #e try/finally?
     
-    #Mirror the selected chunks 
     def Mirror(self):
         """
         Mirror the selected chunk(s) about a selected grid plane.
@@ -154,21 +154,20 @@ class ops_motion_Mixin:
         #rotate the inverted chunk by pi around this axis vector
         self.mirrorAxis = self.mirrorJigs[0].getaxis()  
         
-        if isinstance(copiedObject, molecule):
+        if isinstance(copiedObject, Chunk):
             copiedObject.name = copiedObject.name + "-Mirror"
             self._mirrorChunk(copiedObject)            
             return        
         elif isinstance(copiedObject, Group):
             copiedObject.name = "Mirrored Items"
             def mirrorChild(obj):
-                if isinstance(obj, molecule):
+                if isinstance(obj, Chunk):
                     self._mirrorChunk(obj)
                 elif isinstance(obj, Jig):
                     self._mirrorJig(obj)
                                                            
             copiedObject.apply2all(mirrorChild)
-            return
-                                
+        return                        
                 
     def _mirrorChunk(self, chunkToMirror):
         """
@@ -176,7 +175,7 @@ class ops_motion_Mixin:
         
         @param chunkToMirror: The chunk that needs to be converted into its own
                mirror chunk. 
-        @type  chunkToMirror: instance of class molecule
+        @type  chunkToMirror: instance of class Chunk
         @see:  self.Mirror
         """
         m = chunkToMirror
@@ -194,6 +193,7 @@ class ops_motion_Mixin:
         
         m.stretch(-1.0)
         m.rot(Q(self.mirrorAxis, pi))
+        return
                 
     def _mirrorJig(self, jigToMirror):
         """
@@ -268,8 +268,6 @@ class ops_motion_Mixin:
         self.changed()
         try:
             firstAxis = movables[0].getaxis()
-            from chunk import molecule
-            from jigs import Jig
             for m in movables[1:]:             
                 m.rot(Q(m.getaxis(),firstAxis))                
             self.o.gl_update()

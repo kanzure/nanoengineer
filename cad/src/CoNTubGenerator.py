@@ -584,16 +584,16 @@ class PluginlikeGenerator:
         return thing # doesn't actually insert it, GBC does that
 
     def remove_outfiles(self, outfiles):
-        print "removing these files is nim:",outfiles ###@@@
+        print "removing these files is nim:", outfiles ###@@@
 
     def create_methane_test(self, params, name):
         # example: build some methanes
         print "create_methane_test"
         assy = self.win.assy
         from VQT import V
-        from chunk import molecule
+        from chunk import Chunk
         from chem import Atom
-        mol = molecule(assy, 'bug') # name is reset below!
+        mol = Chunk(assy, 'bug') # name is reset below!
         n = max(params[0],1)
         for x in range(n):
           for y in range(2):

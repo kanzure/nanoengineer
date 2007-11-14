@@ -48,7 +48,7 @@ from PyQt4.Qt import QFileDialog
 import env
 import platform
 
-from chunk import molecule
+from chunk import Chunk
 from drawer import drawPlane
 from drawer import drawwirecube
 from drawer import drawLineLoop
@@ -556,7 +556,7 @@ class ESPImage(RectGadget):
         
         atomChunks = self.findObjsInside()
         for m in atomChunks:
-            if isinstance(m, molecule):
+            if isinstance(m, Chunk):
                 for a in m.atoms.itervalues():
                     a.overdraw_with_special_color(ave_colors( 0.8, green, black))
             else:

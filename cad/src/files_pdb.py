@@ -18,7 +18,7 @@ identical in both, so doing that should not cause a problem.)
 """
 
 import os
-from chunk import molecule
+from chunk import Chunk
 from chem import Atom
 from bonds import bond_atoms
 from bonds_from_atoms import inferBonds
@@ -53,7 +53,7 @@ def _readpdb(assy, filename, isInsert = False):
     @param isInsert: bool
     
     @return: A chunk containing the contents of the PDB file.
-    @rtype:  L{molecule}
+    @rtype:  L{Chunk}
     
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
@@ -65,7 +65,7 @@ def _readpdb(assy, filename, isInsert = False):
     if not isInsert:
         assy.filename = filename
     ndix = {}
-    mol = molecule(assy, nodename)
+    mol = Chunk(assy, nodename)
     numconects = 0
 
     atomname_exceptions = {
@@ -167,7 +167,7 @@ def _readpdb(assy, filename, isInsert = False):
         inferBonds(mol)
     return mol
     
-# read a Protein DataBank-format file into a single molecule
+# read a Protein DataBank-format file into a single Chunk
 #bruce 050322 revised this for bug 433
 def readpdb(assy, filename):
     """
@@ -184,7 +184,7 @@ def readpdb(assy, filename):
         assy.addmol(mol)
     return
     
-# Insert a Protein DataBank-format file into a single molecule
+# Insert a Protein DataBank-format file into a single Chunk
 #bruce 050322 revised this for bug 433
 def insertpdb(assy,filename):
     """Reads a pdb file and inserts it into the existing model """
@@ -193,7 +193,7 @@ def insertpdb(assy,filename):
         assy.addmol(mol)
     return
 
-# Write all molecules into a Protein DataBank-format file
+# Write all Chunks into a Protein DataBank-format file
 # [bruce 050318 revised comments, and made it not write singlets or their bonds,
 #  and made it not write useless 1-atom CONECT records, and include each bond
 #  in just one CONECT record instead of two.]
@@ -256,7 +256,7 @@ def writepdb(part,
         conditions:
             - if it is a singlet
             - if it is not visible
-            - if it is a member of a hidden chunk (molecule)
+            - if it is a member of a hidden chunk
         """
         # Added not visible and hidden member of chunk. This effectively deletes
         # these atoms, which might be considered a bug.

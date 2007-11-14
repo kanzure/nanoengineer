@@ -668,7 +668,7 @@ class ThumbView(GLPane_minimal):
 
 from chem import Atom
 from elements import Singlet
-from chunk import molecule
+from chunk import Chunk
 
 class ElementView(ThumbView):
     """
@@ -728,8 +728,8 @@ class ElementView(ThumbView):
         @param dispMode: the display mode of the atom
         @type  dispMode: int
         
-        @return: the molecule which contains the geometry model.
-        @rtype: L{molecule}
+        @return: the Chunk which contains the geometry model.
+        @rtype: L{Chunk}
         """
         class DummyAssy:
             """Dummy assemby class"""
@@ -741,7 +741,7 @@ class ElementView(ThumbView):
             assy = assembly(None)
             assy.o = self
                 
-        mol = molecule(assy, 'dummy') 
+        mol = Chunk(assy, 'dummy') 
         atm = Atom(elm.symbol, pos, mol)
         atm.display = dispMode
         ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom:
@@ -796,7 +796,7 @@ class MMKitView(ThumbView):
         """
         
         if self.model:
-            if isinstance(self.model, molecule) or \
+            if isinstance(self.model, Chunk) or \
                isinstance(self.model, Group):
                 self.model.draw(self, None)
             else: ## assembly
@@ -844,8 +844,8 @@ class MMKitView(ThumbView):
         @param dispMode: the display mode of the atom
         @type  dispMode: int
         
-        @return: the molecule which contains the geometry model.
-        @rtype: L{molecule}
+        @return: the Chunk which contains the geometry model.
+        @rtype: L{Chunk}
         """
         class DummyAssy:
             """dummy assemby class"""
@@ -857,7 +857,7 @@ class MMKitView(ThumbView):
             assy = assembly(None)
             assy.o = self
                 
-        mol = molecule(assy, 'dummy') 
+        mol = Chunk(assy, 'dummy') 
         atm = Atom(elm.symbol, pos, mol)
         atm.display = dispMode
         ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom:
@@ -955,7 +955,7 @@ class MMKitView(ThumbView):
         
         self.quat = Q(1, 0, 0, 0)
         
-        if isinstance(self.model, molecule):
+        if isinstance(self.model, Chunk):
             self.model._recompute_bbox()
             bbox = self.model.bbox
         else: ## assembly
@@ -986,7 +986,9 @@ class MMKitView(ThumbView):
 class ChunkView(ThumbView):
     """
     Chunk display class.
-    """ # Currently this is not used. [still true 060328 due to setup code in MMKit -- bruce comment]
+    """
+    # Currently this is not used.
+    # [still true 060328 due to setup code in MMKit -- bruce comment]
     def __init__(self, parent, name, shareWidget = None):
         ThumbView.__init__(self, parent, name, shareWidget)
         #self.scale = 3.0 #5.0 ## the possible largest rvdw of all elements

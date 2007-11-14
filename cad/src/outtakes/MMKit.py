@@ -39,7 +39,7 @@ from ThumbView import MMKitView, ChunkView
 from elements import PeriodicTable
 from constants import diTUBES
 ## from chem import Atom [not used i think - bruce 071113]
-from chunk import molecule
+## from chunk import Chunk [not used i think - bruce 071113]
 from Utility import imagename_to_icon, geticon
 from assembly import assembly
 from files_mmp import readmmp
