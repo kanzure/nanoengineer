@@ -1,0 +1,19 @@
+#!/bin/sh
+
+cat ./ac_utils.m4 > ./acinclude.m4
+cat ./ac_freezepython.m4 >> ./acinclude.m4
+cat ./ac_qt4.m4 >> ./acinclude.m4
+cat ./ac_pyqt.m4 >> ./acinclude.m4
+cat ./ac_numarray.m4 >> ./acinclude.m4
+cat ./ac_numeric.m4 >> ./acinclude.m4
+cat ./ac_numpy.m4 >> ./acinclude.m4
+cat ./ac_ctypes.m4 >> ./acinclude.m4
+cat ./ac_pyopengl.m4 >> ./acinclude.m4
+cat ./ac_pil.m4 >> ./acinclude.m4
+
+aclocal
+autoheader
+libtoolize --force
+automake --foreign --add-missing --copy
+autoconf
+

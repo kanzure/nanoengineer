@@ -1,0 +1,22 @@
+This package was debianized by Brian Helfrich <helfrich@nanorex.com> on
+Thu, 13 Sep 2007 13:46:58 -0400.
+
+It was downloaded from http://www.nanorex.com/
+
+Upstream Author: Brian Helfrich <helfrich@nanorex.com>
+
+Copyright 2007 Nanorex, Inc.
+
+You are free to distribute this software under the terms of
+the GNU General Public License  either version 2 of the License,
+or (at your option) any later version.
+On Debian systems, the complete text of the GNU General Public
+License can be found in the file `/usr/share/common-licenses/GPL-2'.
+
+The Debian packaging is (C) 2007, Brian Helfrich <helfrich@nanorex.com> and
+is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+
+
+# Please also look if there are files or directories which have a
+# different copyright/license attached and list them here.
+

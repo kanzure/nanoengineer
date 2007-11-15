@@ -1,0 +1,15 @@
+Source: nanoengineer-1
+Section: science
+Priority: extra
+Maintainer: Brian Helfrich <helfrich@nanorex.com>
+Build-Depends: debhelper (>= 5), autotools-dev
+Standards-Version: 3.7.2
+
+Package: nanoengineer-1
+Section: science
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libgle3
+Description: NanoEngineer-1 60-char description.
+ Long NanoEngineer-1 description, with each new line indented with spaces;
+ like this.
+
