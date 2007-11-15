@@ -4,6 +4,6 @@
 
 #define RCSID_PRINTGROMACSTOPLOGY_H  "$Id$"
 
-extern void printGromacsToplogy(char *basename, struct part *p);
+extern char *printGromacsToplogy(char *basename, struct part *p);
 
 #endif

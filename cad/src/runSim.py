@@ -88,9 +88,6 @@ def timestep_flag_and_arg( mflag = False): #bruce 060503
 
 # ==
 
-
-
-
 class SimRunner:
     """
     class for running the simulator [subclasses can run it in special ways, maybe]
@@ -158,6 +155,27 @@ class SimRunner:
                 # since it also monitors progress and waits until it's done,
                 # and insert results back into part, either in real time or when done.
                 # result error code (or abort button flag) stored in self.errcode
+            if (self.mflag == 1 and debug_pref("Use Gromacs for minimize?", Choice_boolean_False)):
+                gromacsBaseFileName = self._movie.filename
+                gromppArgs = [
+                    "-f", "%s.mdp" % gromacsBaseFileName,
+                    "-c", "%s.gro" % gromacsBaseFileName,
+                    "-p", "%s.top" % gromacsBaseFileName,
+                    "-o", "%s.tpr" % gromacsBaseFileName,
+                    ]
+                errorCode = QProcess.execute("grompp", gromppArgs)
+                if (errorCode != 0):
+                    print >>sys.stderr, "grompp returned %d" % errorCode
+                else:
+                    mdrunArgs = [
+                        "-s", "%s.tpr" % gromacsBaseFileName,
+                        "-c", "%s-out.gro" % gromacsBaseFileName,
+                        "-g", "%s-mdrun.log" % gromacsBaseFileName,
+                        ]
+                    errorCode = QProcess.execute("mdrun", mdrunArgs)
+                    if (errorCode != 0):
+                        print >>sys.stderr, "mdrun returned %d" % errorCode
+        
         except:
             print_compact_traceback("bug in simulator-calling code: ")
             self.errcode = -11111
@@ -578,11 +596,19 @@ class SimRunner:
 ##		electrostaticArg.append(str(electrostaticFlag))
                 electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 
+                if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False)):
+                    gromacsArg1 = "--write-gromacs-topology"
+                    gromacsArg2 = moviefile
+                else:
+                    gromacsArg1 = ""
+                    gromacsArg2 = ""
+
                 # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
                 # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
                 # [later, bruce 051231: I think only one of the two true mflag values is presently supported.]
                 args = [program, '-m', str(formarg), 
                         traceFileArg, outfileArg,
+                        gromacsArg1, gromacsArg2,
                         electrostaticArg,
                         infile] #SIMOPT
             else: 
@@ -656,6 +682,9 @@ class SimRunner:
                     simopts.EnableElectrostatic = self.getElectrostaticPrefValueForAdjust()
                 else:
                     simopts.EnableElectrostatic = self.getElectrostaticPrefValueForMinimize()
+
+                if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug = True)):
+                    simopts.GromacsOutputBaseName = moviefile
 
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
             # probably we'll let the later sim-start code set those itself.
@@ -1786,6 +1815,47 @@ def readxyz(filename, alist):
 
     return newAtomsPos
 
+def readGromacsCoordinates(filename, atomList):
+    """
+    Read a coordinate file created by gromacs, typically for
+    minimizing a part.
+       On error, print a message to stdout and also return it to the caller.
+       On success, return a list of atom new positions
+    in the same order as in the xyz file (hopefully the same order as in alist).
+    """
+    lines = open(filename, "rU").readlines()
+
+    if len(lines) < 3: ##Invalid file format
+        msg = "readGromacsCoordinates: %s: File format error (fewer than 3 lines)." % filename
+        print msg
+        return msg
+
+    newAtomsPos = [] 
+
+    try:     
+        numAtoms = int(lines[1]) # bruce comment 050324: numAtoms is not used
+    except ValueError:
+        msg = "readGromacsCoordinates: %s: File format error in Line 2" % filename
+        print msg
+        return msg
+
+    atomIndex = 0
+    for line in lines[2:-1]:
+        #          1         2         3         4
+        #01234567890123456789012345678901234567890123456789
+        #    1xxx     A1    1   9.683   9.875   0.051
+        x = float(line[20:27]) * 10.0
+        y = float(line[28:35]) * 10.0
+        z = float(line[36:43]) * 10.0
+        newAtomsPos += [[x, y, z]]
+    if (len(newAtomsPos) != len(atomList)): #bruce 050225 added some parameters to this error message
+        msg = "readGromacsCoordinates: The number of atoms from %s (%d) is not matching with the current model (%d)." % \
+            (filename, len(newAtomsPos), len(atomList))
+        print msg
+        return msg #bruce 050404 added error return after the above print statement; not sure if its lack was new or old bug
+
+    return newAtomsPos
+
 # == user-visible commands for running the simulator, for simulate or minimize
 
 class CommandRun: # bruce 050324; mainly a stub for future use when we have a CLI
@@ -2259,7 +2329,10 @@ class Minimize_CommandRun(CommandRun):
             return
 
         if mtype == 1:  # Load single-frame XYZ file.
-            newPositions = readxyz( movie.filename, movie.alist ) # movie.alist is now created in writemovie [bruce 050325]
+            if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False)):
+                newPositions = readGromacsCoordinates(movie.filename + "-out.gro", movie.alist)
+            else:
+                newPositions = readxyz( movie.filename, movie.alist ) # movie.alist is now created in writemovie [bruce 050325]
             # retval is either a list of atom posns or an error message string.
             assert type(newPositions) in [type([]),type("")]
             if type(newPositions) == type([]):

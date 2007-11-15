@@ -375,6 +375,8 @@ dumpPart(void)
 static PyObject *
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
+    char *problem;
+    
     // wware 060109  python exception handling
     start_python_call();
     // bruce 060101 moved this section here, from the end of initsimhelp,
@@ -422,22 +424,31 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
         traceJigHeader(part);
     }
 
-    OutputFile = fopen(OutputFileName, DumpAsText ? "w" : "wb");
-    if (OutputFile == NULL) {
-	snprintf(buf, 1024, "bad output filename: %s", OutputFileName);
-	raiseExceptionIfNoneEarlier(PyExc_IOError, buf);
-	return NULL;
-    }
-    writeOutputHeader(OutputFile, part);
+    if (GromacsOutputBaseName != NULL && GromacsOutputBaseName[0] != '\0') {
+        problem = printGromacsToplogy(GromacsOutputBaseName, part);
+        if (problem != NULL) {
+            raiseExceptionIfNoneEarlier(PyExc_IOError, problem);
+            free(problem);
+        }
+    } else {
+        OutputFile = fopen(OutputFileName, DumpAsText ? "w" : "wb");
+        if (OutputFile == NULL) {
+            snprintf(buf, 1024, "bad output filename: %s", OutputFileName);
+            raiseExceptionIfNoneEarlier(PyExc_IOError, buf);
+            return NULL;
+        }
+        writeOutputHeader(OutputFile, part);
 
-    if  (ToMinimize) {
-	minimizeStructure(part);
-    }
-    else {
-        dynamicsMovie(part);
-    }
+        if  (ToMinimize) {
+            minimizeStructure(part);
+        }
+        else {
+            dynamicsMovie(part);
+        }
 
-    fcloseIfNonNull(&OutputFile);
+        fcloseIfNonNull(&OutputFile);
+    }
+    
     if (py_exc_str != NULL) {
         ERROR(py_exc_str);
     }

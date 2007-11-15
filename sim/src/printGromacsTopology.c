@@ -81,12 +81,13 @@ printAtomtypeHashtableEntry(char *symbol, void *value)
 {
     struct atomType *at = (struct atomType *)value;
 
-    double c6 = 0.0;
-    double c12 = 0.0;
+    double A = 0.0;
+    double B = 0.0;
+    double C = 0.0;
     
     if (at != NULL) {
         // Particle type is A, not sure what options are here.
-        fprintf(closure_topologyFile, " %4s %6d %10.5f %8.4f    A   %10.5f %10.5f\n", at->symbol, at->protons, yg_to_Da(at->mass), at->charge, c6, c12);
+        fprintf(closure_topologyFile, " %4s %6d %10.5f %8.4f    A   %10.5f %10.5f %10.5f\n", at->symbol, at->protons, yg_to_Da(at->mass), at->charge, A, B, C);
     }
 }
 
@@ -136,41 +137,83 @@ allNonBondedAtomtypesPass1(char *symbol, void *value)
     }
 }
 
+static char *
+io_error(char *fileName)
+{
+    char *message = strerror(errno);
+    int len = strlen(message) + strlen(fileName) + 4;
+    char *ret = (char *)allocate(len);
+    
+    sprintf(ret, "%s: %s\n", fileName, message);
+    return ret;
+}
 
-void
+// returns NULL for success, or an error string.
+char *
 printGromacsToplogy(char *basename, struct part *p)
 {
     int i;
     FILE *top; // Gromacs topology file (basename.top)
     FILE *gro; // Gromacs coordinate file (basename.gro)
+    FILE *mdp; // Gromacs configuration file (basename.mdp)
     int len;
     char *fileName;
+    char *ret = NULL;
     
     len = strlen(basename) + 5;
     fileName = allocate(len);
     sprintf(fileName, "%s.top", basename);
     top = fopen(fileName, "w");
     if (top == NULL) {
-      perror(fileName);
-      free(fileName);
-      return;
+        ret = io_error(fileName);
+        free(fileName);
+        return ret;
     }
     sprintf(fileName, "%s.gro", basename);
     gro = fopen(fileName, "w");
     if (gro == NULL) {
-      perror(fileName);
-      free(fileName);
-      return;
+        ret = io_error(fileName);
+        free(fileName);
+        fclose(top);
+        return ret;
+    }
+    sprintf(fileName, "%s.mdp", basename);
+    mdp = fopen(fileName, "w");
+    if (mdp == NULL) {
+        ret = io_error(fileName);
+        free(fileName);
+        fclose(top);
+        fclose(gro);
+        return ret;
     }
     free(fileName);
+
+    fprintf(mdp, "title               =  NE1-minimize\n");
+    fprintf(mdp, "cpp                 =  /usr/bin/cpp\n"); // XXX probably platform dependent
+    fprintf(mdp, "define              =  -DFLEX_SPC\n");
+    fprintf(mdp, "constraints         =  none\n");
+    fprintf(mdp, "integrator          =  steep\n");
+    fprintf(mdp, "dt                  =  0.002    ; ps !\n");
+    fprintf(mdp, "nsteps              =  100\n");
+    fprintf(mdp, "nstlist             =  10\n");
+    fprintf(mdp, "ns_type             =  grid\n");
+    fprintf(mdp, "rlist               =  1.0\n");
+    fprintf(mdp, "rcoulomb            =  1.0\n");
+    fprintf(mdp, "rvdw                =  1.0\n");
+    fprintf(mdp, ";\n");
+    fprintf(mdp, ";       Energy minimizing stuff\n");
+    fprintf(mdp, ";\n");
+    fprintf(mdp, "emtol               =  1000\n");  // XXX this should be calculated from MinimizeThresholdEndRMS
+    fprintf(mdp, "emstep              =  10\n");
+    fclose(mdp);
     
     fprintf(top, "[ defaults ]\n");
     fprintf(top, "; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ\n");
-    fprintf(top, "  1             1               no              1.0     1.0\n");
+    fprintf(top, "  2             1               no              1.0     1.0\n");
     fprintf(top, "\n");
 
     fprintf(top, "[ atomtypes ]\n");
-    fprintf(top, ";name  at.num    mass    charge   ptype     c6         c12\n");
+    fprintf(top, ";name  at.num    mass    charge   ptype     A          B          C\n");
     closure_topologyFile = top;
     hashtable_iterate(p->atomTypesUsed, printAtomtypeHashtableEntry);
     fprintf(top, "\n");
@@ -196,7 +239,7 @@ printGromacsToplogy(char *basename, struct part *p)
     for (i=0; i<p->num_atoms; i++) {
 	writeGromacsAtom(top, gro, p, p->atoms[i]);
     }
-    fprintf(gro, "%10.5f%10.5f%10.5f", 10.0, 10.0, 10.0); // periodic box size
+    fprintf(gro, "%10.5f%10.5f%10.5f\n", 10.0, 10.0, 10.0); // periodic box size
     fclose(gro);
     fprintf(top, "\n");
 
@@ -225,6 +268,7 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(top, "\n");
 
     fclose(top);
+    return NULL;
 }
 
 /*

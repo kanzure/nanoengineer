@@ -61,6 +61,9 @@ void traceHeader(struct part *part)
     if (InputFileName != NULL && InputFileName[0] != '\0') {
         write_traceline("# Input File: %s\n", InputFileName);
     }
+    if (GromacsOutputBaseName != NULL && GromacsOutputBaseName[0] != '\0') {
+        write_traceline("# Gromacs Output Base Name: %s\n", GromacsOutputBaseName);
+    }
     if (OutputFileName != NULL && OutputFileName[0] != '\0') {
         write_traceline("# Output File: %s\n", OutputFileName);
     }

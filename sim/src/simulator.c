@@ -225,7 +225,6 @@ main(int argc, char **argv)
     struct part *part;
     int opt, n;
     int dump_part = 0;
-    char *write_gromacs_topology = NULL;
     int printStructurePotentialEnergy = 0;
     char *printPotential = NULL;
     double printPotentialInitial = -1; // pm
@@ -252,7 +251,7 @@ main(int argc, char **argv)
 	    dump_part = 1;
 	    break;
 	case OPT_WRITE_GROMACS_TOPOLOGY:
-	    write_gromacs_topology = optarg;
+	    GromacsOutputBaseName = optarg;
 	    break;
         case OPT_PRINT_POTENTIAL:
             printPotential = optarg;
@@ -478,8 +477,8 @@ main(int argc, char **argv)
         exit(0);
     }
 
-    if (write_gromacs_topology != NULL) {
-        printGromacsToplogy(write_gromacs_topology, part);
+    if (GromacsOutputBaseName != NULL) {
+        printGromacsToplogy(GromacsOutputBaseName, part);
         destroyPart(part);
         part = NULL;
         destroyBondTable();
@@ -487,6 +486,7 @@ main(int argc, char **argv)
         destroyAccumulator(CommandLine);
         free(InputFileName);
         free(OutputFileName);
+        done("");
         exit(0);
     }
 
