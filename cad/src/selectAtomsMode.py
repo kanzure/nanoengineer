@@ -571,7 +571,12 @@ class selectAtomsMode(selectMode):
 	@type  object: instance 
 	@param event: Left drag mouse event 
 	@type  event: QMouseEvent instance
+        
 	"""
+        #current object is not clicked but is dragged. Important to set this 
+        #flag. See selectMode.doObjectSpecificLeftUp for more comments
+        self.current_obj_clicked = False
+                
         obj = object
 
         if isinstance(obj, Atom):
@@ -638,7 +643,6 @@ class selectAtomsMode(selectMode):
             return
 
         self.doObjectSpecificLeftUp(obj, event)
-
 
         self.leftUp_reset_a_few_drag_vars()
         #bruce 041130 comment: it forgets selatom, but doesn't repaint,

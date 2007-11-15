@@ -624,6 +624,22 @@ class selectMode(basicMode):
 	@type  event: QMouseEvent instance
 	"""
         
+        #This flag initially gets set in selectMode.objectSetup. Then, 
+        #if the object is being dragged, the value is reset to False in 
+        #the object specific drag method  . FYI: The comment in 
+        #selectMode.objectSetup suggests the this flag should not be set in 
+        #class.leftDrag method. (but instead object specific left drag) 
+        #So lets set that flag up in the method 
+        #selectMode.doObjectSpecificLeftDrag. Note that this method is 
+        #overridden in subclasses, so make sure to either set that flag in 
+        #those methods or always call the superclass method at the beginning. 
+        # In case of selectMolsMode, the 'objects' are 
+        # really the  selectedMovable. so it makes sense to set it in 
+        #selectMolsMode.pseudoMoveModeLeftDrag or call doObjectSpecificLeftDrag 
+        #somewhere -- Ninad 2007-11-15
+        if not self.current_obj_clicked:
+            return
+        
         obj = object
         if isinstance(obj, Atom):
             if obj.is_singlet(): # Bondpoint
@@ -643,15 +659,21 @@ class selectMode(basicMode):
     def doObjectSpecificLeftDrag(self, object, event):
         """
 	Call objectLeftDrag methods depending on the object instance.
-	Default implementation does nothing.
+	Default implementation only sets flag self.current_obj_clicked to False.
+        Subclasses should make sure to either set that flag in 
+        #those methods or always call the superclass method at the beginning. 
+        
 	@param object: object under consideration. 
 	@type  object: instance 
 	@param event: Left drag mouse event 
 	@type  event: QMouseEvent instance
 	@see: selectAtomsMode.doObjectSpecificLeftDrag
+        @see: self.doObjectSpecificLeftUp, self.objectSetup for comments
 	"""
-        pass
-
+        #current object is not clicked but is dragged. Important to set this 
+        #flag. See self.doObjectSpecificLeftUp for more comments
+        self.current_obj_clicked = False
+        
 
     def objectSetup(self, obj): 
         ###e [should move this up, below generic left* methods -- it's not just about atoms]
@@ -668,14 +690,13 @@ class selectMode(basicMode):
                 # [will be set back to False if obj is dragged, but only by class-specific drag methods,
                 #  not by leftDrag itself -- make sure to consider doing that in drag_handler case too  #####@@@@@
                 #  [bruce 060727 comment]]
-
+                
             # we need to store something unique about this event;
             # we'd use serno or time if it had one... instead this _count will do.
             global _count
             _count = _count + 1
             self.current_obj_start = _count # used in transient_id argument to env.history.message
-
-    
+           
 
     def OLD_get_dragatoms_and_baggage(self): # by mark. later optimized and extended by bruce, 060410. Still used, 070413.
         """

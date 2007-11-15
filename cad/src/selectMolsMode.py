@@ -267,11 +267,9 @@ class selectMolsMode(selectMode):
         """
         m = a.molecule
         self.chunkLeftDown(m, event)
-        #@ATTENTION: Doubt about the following call. This is probably needed 
-        # only to get a value for self.current_object which is then used in 
-        # self.leftUp . This value is set in selectode.objectSetup. 
-        # Not sure if we need all things in selectmode.atomSetup appears 
-        # buggy. -- Ninad 2007-11-13 (commented during select*Mode cleanup #2)
+        
+        #calling atom setup is needed as it calls 'objectSetup' , which in turn 
+        #sets an appropriate flag for leftUp methods 
         self.atomSetup(a, event)
     
     def atomLeftUp(self, a, event):
@@ -287,8 +285,7 @@ class selectMolsMode(selectMode):
         """
         m = a.molecule
         #Don't know if deallocate_bc_in_use is needed. Keeping the old code.
-        self.deallocate_bc_in_use()
-        
+        self.deallocate_bc_in_use()                
         self.chunkLeftUp(m, event)
     
     def chunkLeftDown(self, a_chunk, event):
@@ -309,14 +306,13 @@ class selectMolsMode(selectMode):
         m = a_chunk
         
         assert isinstance(m, Chunk)
-        
-        if self.o.modkeys is None:
+                
+        if not m.picked and self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
             m.pick()
-            #self.o.selobj =  None
-        elif self.o.modkeys == 'Shift':
-            if not m.picked:
-                m.pick()
+            self.o.selobj =  None
+        elif not m.picked and self.o.modkeys == 'Shift':
+            m.pick()
             self.o.selobj =  None
         elif self.o.modkeys == 'Control':
             if m.picked:
@@ -345,13 +341,31 @@ class selectMolsMode(selectMode):
         @see: self.chunkLeftDown
         
         """
+        #Note: The following check is already done in 
+        #selectMode.doObjectspecificLeftUp. 
+        #self.chunkLeftUp method should never be called if
+        #self.current_obj_clicked is False. The check below is added just 
+        #to be on a safer side and prints a warning.
+        if not self.current_obj_clicked:
+            print_compact_traceback("Note: self.current_obj_clicked is False "
+            "and still selectMolsMode.chunkLeftUp is called. Make sure to "
+            "call selectMode.objectSpecificLeftUp before calling "
+            "selectMolsMode.chunkLeftUp")
+            return
+        
         m = a_chunk
-        obj = self.get_obj_under_cursor(event)
-        assert isinstance(m, Chunk)     
-        if self.o.modkeys == 'Shift+Control':            
+                
+        assert isinstance(m, Chunk)    
+        
+        if self.o.modkeys is None:
+            self.o.assy.unpickall_in_GLPane()
+            m.pick()          
+        elif self.o.modkeys == 'Shift+Control':
+            obj = self.get_obj_under_cursor(event)
             if obj is self.o.selobj:
                 m.kill()                
             self.o.selobj =  None             
+        
         self.w.win_update()
 
     def bondLeftDown(self, b, event):
@@ -367,26 +381,36 @@ class selectMolsMode(selectMode):
           with this bond <b>. <event> is a LMB release event.
         """
         self.cursor_over_when_LMB_pressed = 'Bond'
+        
         self.bondSetup(b)
 
         chunk1 = b.atom1.molecule
         chunk2 = b.atom2.molecule
         self.set_cmdname('Select Chunks')
         
+        if chunk1 is chunk2:
+            self.chunkLeftDown(chunk1, event)
+            return
+        
         if self.o.modkeys is None:
-            self.o.assy.unpickall_in_GLPane()
-            chunk1.pick()            
-            if chunk2 is not chunk1:
-                chunk2.pick()                  
+            if chunk1.picked and chunk2.picked:
+                pass
+            else:
+                self.o.assy.unpickall_in_GLPane()
+                if not chunk1.picked:
+                    chunk1.pick()     
+                if not chunk2.picked:
+                    chunk2.pick()                
             self.o.selobj =  None  
         elif self.o.modkeys == 'Shift':
-            chunk1.pick()
-            chunk2.pick()
+            if not chunk1.picked:
+                chunk1.pick()     
+            if not chunk2.picked:
+                chunk2.pick() 
             self.o.selobj =  None 
         elif self.o.modkeys == 'Control':
-            chunk1.unpick()
-            if chunk2 is not chunk1:
-                chunk2.unpick()
+            chunk1.unpick()            
+            chunk2.unpick()
             self.set_cmdname('Unselect Chunks')
             self.o.selobj =  None 
         else:
@@ -400,14 +424,34 @@ class selectMolsMode(selectMode):
         self.w.win_update()
 
     def bondLeftUp(self, b, event):
+        
+        #Note: The following check is already done in 
+        #selectMode.doObjectspecificLeftUp. 
+        #self.chunkLeftUp method should never be called if
+        #self.current_obj_clicked is False. The check below is added just 
+        #to be on a safer side and prints a warning.
+        if not self.current_obj_clicked:
+            print_compact_traceback("Note: self.current_obj_clicked is False "
+            "and still selectMolsMode.bondLeftUp is called. Make sure to "
+            "call selectMode.objectSpecificLeftUp before calling "
+            "selectMolsMode.bondLeftUp")
+            return
+        
         chunk1 = b.atom1.molecule
-        chunk2 = b.atom2.molecule        
-        if self.o.modkeys == 'Shift+Control':
-            if chunk1 is not chunk2:
-                chunk1.kill()
-                chunk2.kill()
-            else:
-                chunk1.kill()
+        chunk2 = b.atom2.molecule  
+        
+        if chunk1 is chunk2:
+            self.chunkLeftUp(chunk1, event)
+            return
+        
+        if self.o.modkeys is None:
+            self.o.assy.unpickall_in_GLPane()
+            chunk1.pick() 
+            chunk2.pick()  
+            self.o.selobj =  None
+        elif self.o.modkeys == 'Shift+Control':         
+            chunk1.kill()
+            chunk2.kill()
             self.o.selobj =  None
 
     # == Singlet helper methods
@@ -430,7 +474,7 @@ class selectMolsMode(selectMode):
         # is very similar, so I'm removing the redundant comments from
         # this one (selectMolsMode); see selectAtomsMode to find them.
         # [bruce 071022]
-
+ 
         self.set_cmdname('ChunkClick')
             # TODO: this should be set again later (during the same drag)
             # to a more specific command name.
@@ -581,6 +625,13 @@ class selectMolsMode(selectMode):
         #Turn Off hover highlighting while translating the selection
         #This will be turned ON again in leftUp method. 
         self.hover_highlighting_enabled = False  
+        
+        # This flag is required in various leftUp methods. It helps them 
+        # decide what to do upon left up. The flag value is set in 
+        # selectMode.objectSetup, selectMode.objectLeftDrag.  
+        #See those comments. Found a bit confusing bu enough documentation 
+        #exists so ok        
+        self.current_obj_clicked = False
 
         # Move section
         deltaMouse = V(event.pos().x() - self.o.MousePos[0],
@@ -612,9 +663,9 @@ class selectMolsMode(selectMode):
         #@warning: When we add the chunk highlighting to the preferences, 
         #the following should set the user preferences value instead of 
         #setting this to 'True' -- ninad 20070720
-        if not self.hover_highlighting_enabled:
-            self.hover_highlighting_enabled = True
-
+        ##if not self.hover_highlighting_enabled:
+            ##self.hover_highlighting_enabled = True
+        
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.emptySpaceLeftUp(event)
             return
@@ -655,6 +706,9 @@ class selectMolsMode(selectMode):
             timeSinceLastWheelEvent = time.clock() - self.timeAtLastWheelEvent	    
             if timeSinceLastWheelEvent < 2.0:		
                 return 
+        
+        if not self.hover_highlighting_enabled:
+            self.hover_highlighting_enabled = True
 
         selectMode.bareMotion(self, event)
 
