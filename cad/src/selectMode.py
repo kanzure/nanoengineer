@@ -623,7 +623,7 @@ class selectMode(basicMode):
 	@param event: Left Up mouse event 
 	@type  event: QMouseEvent instance
 	"""
-        
+                
         #This flag initially gets set in selectMode.objectSetup. Then, 
         #if the object is being dragged, the value is reset to False in 
         #the object specific drag method  . FYI: The comment in 
@@ -637,19 +637,30 @@ class selectMode(basicMode):
         # really the  selectedMovable. so it makes sense to set it in 
         #selectMolsMode.pseudoMoveModeLeftDrag or call doObjectSpecificLeftDrag 
         #somewhere -- Ninad 2007-11-15
-        if not self.current_obj_clicked:
-            return
         
+        #UPDATE 2007-11-15:
+        #The self.current_obj_clicked is not valid for  Singlets (bond 
+        #points) because singlet dragging and then doing left up actually forms 
+        #a bond. So It is important to continue down this method for that
+        #condition even if self.current_obj_clicked is False. Otherwise bonds 
+        # won't be formed....Then should this check be done in each of the 
+        #objectLeftUp methods? But that would be too many methods in various 
+        #subclasses and it may cause bugs if someone forgets to add this check.
+                
+        if not self.current_obj_clicked:
+            if isinstance(object, Atom) and object.is_singlet():
+                pass
+            else:
+                return
+          
         obj = object
         if isinstance(obj, Atom):
-            if obj.is_singlet(): # Bondpoint
-                self.singletLeftUp(obj, event)
+            if obj.is_singlet(): # Bondpoint                
+                self.singletLeftUp(obj, event)                
             else: # Real atom
                 self.atomLeftUp(obj, event)
-
         elif isinstance(obj, Bond): # Bond
             self.bondLeftUp(obj, event)
-
         elif isinstance(obj, Jig): # Jig
             self.jigLeftUp(obj, event)
 
