@@ -126,7 +126,8 @@ def _master_model_updater( warn_if_needed = False ):
 def initialize():
     """
     Register one or more related post_event_model_updaters
-    (in the order in which they should run).
+    (in the order in which they should run). These will be
+    run by env.do_post_event_updates().
     """
     env.register_post_event_model_updater( _master_model_updater)
     return

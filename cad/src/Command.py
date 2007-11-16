@@ -811,7 +811,9 @@ class basicCommand(anyCommand):
         """
         Call model_changed and/or selection_changed as needed, in that order.
         Not normally overridden by subclasses [I hope].
-        Called by env.do_post_event_updates.
+
+        FYI: This is called by env.do_post_event_updates() by a registered
+        "post_event_ui_updater" set up by MWsemantics. [still true 071115]
         """
         ### TODO: call each method only when needed, using assy change counters, and maybe a selobj test.
         self.model_changed()

@@ -402,6 +402,8 @@ def do_post_event_updates( warn_if_needed = False ):
     a debug-only warning to be emitted if the call was necessary (but there is no guarantee
     that such a warning is always emitted). (The updaters registered to be called by this
     function should be designed to be fast when called more times than necessary.)
+
+    @see: _master_model_updater
     """
     # do all model updaters before any ui updaters
     for function in _post_event_model_updaters:
