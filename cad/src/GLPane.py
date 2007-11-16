@@ -238,7 +238,8 @@ button_names = {Qt.NoButton:None, Qt.LeftButton:'LMB', Qt.RightButton:'RMB', Qt.
 # ==
 
 class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from exprs/DisplistChunk.py and made GLPane inherit it
-    """Private mixin class for GLPane. Attr and method names must not interfere with GLPane.
+    """
+    Private mixin class for GLPane. Attr and method names must not interfere with GLPane.
     Likely to be merged into class GLPane in future (as directly included methods rather than a mixin superclass).
     """
     compiling_displist = 0 #e rename to be private? probably not.
@@ -246,7 +247,8 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
     def glGenLists(self, *args):
         return glGenLists(*args)
     def glNewList(self, listname, mode, owner = None):
-        """Execute glNewList, after verifying args are ok and we don't think we're compiling a display list now.
+        """
+        Execute glNewList, after verifying args are ok and we don't think we're compiling a display list now.
         (The OpenGL call is illegal if we're *actually* compiling one now. Even if it detects that error (as is likely),
         it's not a redundant check, since our internal flag about whether we're compiling one could be wrong.)
            If owner is provided, record it privately (until glEndList) as the owner of the display list being compiled.
@@ -271,7 +273,10 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
         self.compiling_displist_owned_by = None
         return
     def glCallList(self, listname):
-        "Compile a call to the given display list. Note: most error checking and any extra tracking is responsibility of caller."
+        """
+        Compile a call to the given display list.
+        Note: most error checking and any extra tracking is responsibility of caller.
+        """
         ##e in future, could merge successive calls into one call of multiple lists
         ## assert not self.compiling_displist # redundant with OpenGL only if we have no bugs in maintaining it, so worth checking
             # above was WRONG -- what was I thinking? This is permitted, and we'll need it whenever one displist can call another.
@@ -285,7 +290,8 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
         glCallList(listname)
         return
     def ensure_dlist_ready_to_call( self, dlist_owner_1 ): #e rename the local vars, revise term "owner" in it [070102 cmt]
-        """[private helper method for use by DisplistChunk]
+        """
+        [private helper method for use by DisplistChunk]
            This implements the recursive algorithm described in DisplistChunk.__doc__.
         dlist_owner_1 should be a DisplistOwner ###term; we use private attrs and/or methods of that class,
         including _key, _recompile_if_needed_and_return_sublists_dict().
@@ -355,7 +361,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
-    def __init__(self, assy, parent=None, name=None, win=None):
+    def __init__(self, assy, parent = None, name = None, win = None):
 
 	shareWidget = None
 	useStencilBuffer = True
@@ -529,7 +535,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return True
     
     def add_whats_this_text(self):
-        """Adds What's This description to this glpane.
+        """
+        Adds What's This description to this glpane.
         """
         # We must do this here (and not in whatsthis.py) because in the future
         # there will be multiple part windows, each with its own glpane.
@@ -563,7 +570,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     #== Background color helper methods. Moved here from basicMode (modes.py). Mark 060814.
     
     def restoreDefaultBackground(self):
-        """Restore the default background color and gradient (Sky Blue).
+        """
+        Restore the default background color and gradient (Sky Blue).
         Always do a gl_update.
         """
         env.prefs.restore_defaults([
@@ -576,13 +584,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.gl_update()
         
     def setBackgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
-        '''Sets the mode\'s background color and stores it in the prefs db.'''
+        """
+        Sets the mode\'s background color and stores it in the prefs db.
+        """
         self.backgroundColor = color
         env.prefs[ backgroundColor_prefs_key ] = color
         return
 
     def setBackgroundGradient(self, gradient): # mark 050808 new feature
-        """Stores the background gradient prefs value in the prefs db.
+        """
+        Stores the background gradient prefs value in the prefs db.
         gradient can be either:
             0 - the background color is used to fill the GLPane.
             1 - the background gradient is set to a 'Blue Sky' gradient.
@@ -596,7 +607,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # self.part maintenance [bruce 050419]
     
     def set_part(self, part):
-        """change our current part to the one given, and take on that part's view;
+        """
+        change our current part to the one given, and take on that part's view;
         ok if old or new part is None;
         note that when called on our current part,
         effect is to store our view into it
@@ -609,26 +621,38 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self._open_part() # loads view from new part (if not None)
 
     def forget_part(self, part):
-        "[public] if you know about this part, forget about it (call this from dying parts)"
+        """
+        [public]
+        if you know about this part, forget about it (call this from dying parts)
+        """
         if self.part is part:
             self.set_part(None)
         return
 
     def _close_part(self):
-        "[private] save our current view into self.part [if not None] and forget about self.part"
+        """
+        [private]
+        save our current view into self.part [if not None] and forget about self.part
+        """
         if self.part:
             self._saveLastViewIntoPart( self.part)
         self.part = None
 
     def _open_part(self):
-        "[private] after something set self.part, load our current view from it"
+        """
+        [private]
+        after something set self.part, load our current view from it
+        """
         if self.part:
             self._setInitialViewFromPart( self.part)
         # else our current view doesn't matter
         return
 
     def saveLastView(self):
-        "[public method] update the view of all parts you are displaying (presently only one or none) from your own view"
+        """
+        [public method]
+        update the view of all parts you are displaying (presently only one or none) from your own view
+        """
         if self.part:
             self._saveLastViewIntoPart( self.part)
     
@@ -638,7 +662,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # and renamed them as needed to reflect that.
     
     def _setInitialViewFromPart(self, part):
-        """Set the initial (or current) view used by this GLPane
+        """
+        Set the initial (or current) view used by this GLPane
         to the one stored in part.lastCsys, i.e. to part's "Last View".
         """
         # Huaicai 1/27/05: part of the code of this method comes
@@ -649,7 +674,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.snapToCsys( part.lastCsys)
     
     def _saveLastViewIntoPart(self, part):
-        """Save the current view used by this GLPane into part.lastCsys,
+        """
+        Save the current view used by this GLPane into part.lastCsys,
         which (when this part's assy is later saved in an mmp file)
         will be saved as that part's "Last View".
         [As of 050418 this still only gets saved in the file for the main part]
@@ -660,7 +686,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.saveViewInCsys( part.lastCsys)
 
     def saveViewInCsys(self, csys):
-        "Save the current view used by this GLPane in the given Csys object."
+        """
+        Save the current view used by this GLPane in the given Csys object.
+        """
         #e [bruce comment 050418: it would be good to verify csys has the right type,
         #   since almost any python object could be used here without any immediately
         #   detectable error. Maybe this should be a method in csys.]
@@ -672,7 +700,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # ==
     
     def setAssy(self, assy): #bruce 050911 revised this
-        """[bruce comment 040922] This is called from self.__init__,
+        """
+        [bruce comment 040922] This is called from self.__init__,
         and from MWSemantics.__clear when user asks to open a new
         file, etc.  Apparently, it is supposed to forget whatever is
         happening now, and reinitialize the entire GLPane.  However,
@@ -749,7 +778,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     #  Also revised them for assembly/part split, i.e. per-part csys attributes.]
     
     def setViewHome(self):
-        "Change view to our model's home view (for glpane's current part)."
+        """
+        Change view to our model's home view (for glpane's current part).
+        """
         self.animateToCsys( self.part.homeCsys)
         
     def setViewFitToWindow(self, fast = False):
@@ -810,12 +841,16 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
         
     def setViewHomeToCurrent(self):
-        "Set the Home view to the current view."
+        """
+        Set the Home view to the current view.
+        """
         self.saveViewInCsys( self.part.homeCsys)
         self.part.changed() # Mark [041215]
         
-    def setViewRecenter(self, fast=False):
-        "Recenter the current view around the origin of modeling space."
+    def setViewRecenter(self, fast = False):
+        """
+        Recenter the current view around the origin of modeling space.
+        """
         part = self.part
         part.computeBoundingBox()
         scale = (part.bbox.scale() * 0.75) + (vlen(part.center) * .5)
@@ -831,11 +866,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             self.animateToView(self.quat, scale, pov, 1.0)
         
     def setViewProjection(self, projection): # Added by Mark 050918.
-        '''Set projection, where 0 = Perspective and 1 = Orthographic.  It does not set the 
+        """
+        Set projection, where 0 = Perspective and 1 = Orthographic.  It does not set the 
         prefs db value itself, since we don\'t want all user changes to projection to be stored
         in the prefs db, only the ones done from the Preferences dialog.
-        '''
-
+        """
         # Set the checkmark for the Ortho/Perspective menu item in the View menu.  
         # This needs to be done before comparing the value of self.ortho to projection
         # because self.ortho and the toggle state of the corresponding action may 
@@ -854,28 +889,29 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.gl_update()
         
     def snapToCsys(self, csys):
-        '''Snap to the destination view defined by csys.
-        '''
+        """
+        Snap to the destination view defined by csys.
+        """
         self.snapToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor)
         
     def animateToCsys(self, csys, animate = True):
-        '''Animate to the destination view defined by csys.
+        """
+        Animate to the destination view defined by csys.
         If animate is False *or* the user pref "Animate between views" is not selected, 
         then do not animate;  just snap to the destination view.
-        '''
-        
+        """
         # Determine whether to snap (don't animate) to the destination view.
         if not animate or not env.prefs[animateStandardViews_prefs_key]:
             self.snapToCsys(csys)
             return
-            
         self.animateToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate)
+        return
 
     def snapToView(self, q2, s2, p2, z2, update_duration = False):
-        '''Snap to the destination view defined by
+        """
+        Snap to the destination view defined by
         quat q2, scale s2, pov p2, and zoom factor z2.
-        '''
-        
+        """
         # Caller could easily pass these args in the wrong order.  Let's typecheck them.
         typecheckViewArgs(q2, s2, p2, z2)
         
@@ -890,9 +926,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             self.gl_update()
     
     def rotateView(self, q2): 
-        "Rotate current view to quat (viewpoint) q2"
-        
-        self.animateToView(q2, self.scale, self.pov, self.zoomFactor, animate=True)
+        """
+        Rotate current view to quat (viewpoint) q2
+        """
+        self.animateToView(q2, self.scale, self.pov, self.zoomFactor, animate = True)
         return
 
     # animateToView() uses "Normalized Linear Interpolation" 
@@ -900,13 +937,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # which traces the same path as slerp but works much faster.
     # The advantages to this approach are explained in detail here:
     # http://number-none.com/product/Hacking%20Quaternions/
-    def animateToView(self, q2, s2, p2, z2, animate=True):
-        '''Animate from the current view to the destination view defined by
+    def animateToView(self, q2, s2, p2, z2, animate = True):
+        """
+        Animate from the current view to the destination view defined by
         quat q2, scale s2, pov p2, and zoom factor z2.
         If animate is False *or* the user pref "Animate between views" is not selected, 
         then do not animate;  just snap to the destination view.
-        '''
-        
+        """
         # Caller could easily pass these args in the wrong order.  Let's typecheck them.
         typecheckViewArgs(q2, s2, p2, z2)
         
@@ -1179,40 +1216,39 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
 
     def warning(self, str, bother_user_with_dialog = 0, ensure_visible = 1):
-        
-        """[experimental method by bruce 040922]
-
-            ###@@@ need to merge this with env.history.message
-            or make a sibling method! [bruce 041223]
-        
-           Show a warning to the user, without interrupting them
-           (i.e. not in a dialog) unless bother_user_with_dialog is
-           true, or unless ensure_visible is true and there's no other
-           way to be sure they'll see the message.  (If neither of
-           these options is true, we might merely print the message to
-           stdout.)
-
-           In the future, this might go into a status bar in the
-           window, if we can be sure it will remain visible long
-           enough.  For now, that won't work, since some status bar
-           messages I emit are vanishing almost instantly, and I can't
-           yet predict which ones will do that.  Due to that problem
-           and since the stdout/stderr output might be hidden from the
-           user, ensure_visible implies bother_user_with_dialog for
-           now.  (And when we change that, we have to figure out
-           whether all the calls that no longer use dialogs are still
-           ok.)
-
-           In the future, all these messages will also probably get
-           timestamped and recorded in a log file, in addition to
-           whereever they're shown now.
-
-           This is an experimental method, not yet uniformly used
-           (most uses are in modes.py), and it's likely to be revised
-           a few times in API as well as in implemention. [bruce
-           040924]
         """
-        
+        [experimental method by bruce 040922]
+
+        ###@@@ need to merge this with env.history.message
+        or make a sibling method! [bruce 041223]
+
+        Show a warning to the user, without interrupting them
+        (i.e. not in a dialog) unless bother_user_with_dialog is
+        true, or unless ensure_visible is true and there's no other
+        way to be sure they'll see the message.  (If neither of
+        these options is true, we might merely print the message to
+        stdout.)
+
+        In the future, this might go into a status bar in the
+        window, if we can be sure it will remain visible long
+        enough.  For now, that won't work, since some status bar
+        messages I emit are vanishing almost instantly, and I can't
+        yet predict which ones will do that.  Due to that problem
+        and since the stdout/stderr output might be hidden from the
+        user, ensure_visible implies bother_user_with_dialog for
+        now.  (And when we change that, we have to figure out
+        whether all the calls that no longer use dialogs are still
+        ok.)
+
+        In the future, all these messages will also probably get
+        timestamped and recorded in a log file, in addition to
+        whereever they're shown now.
+
+        This is an experimental method, not yet uniformly used
+        (most uses are in modes.py), and it's likely to be revised
+        a few times in API as well as in implemention. [bruce
+        040924]
+        """
         use_status_bar = 0 # always 0, for now
         use_dialog = bother_user_with_dialog
         
@@ -1262,7 +1298,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # == lighting methods [bruce 050311 rush order for Alpha4]
     
     def setLighting(self, lights, _guard_ = 6574833, gl_update = True): 
-        """Set current lighting parameters as specified
+        """
+        Set current lighting parameters as specified
         (using the format as described in the getLighting method docstring).
         This does not save them in the preferences file; for that see the saveLighting method.
         If option gl_update is False, then don't do a gl_update, let caller do that if they want to.
@@ -1307,7 +1344,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
 
     def getLighting(self):
-        """Return the current lighting parameters.
+        """
+        Return the current lighting parameters.
         [For now, these are a list of 3 tuples, one per light,
         each giving several floats and booleans
         (specific format is only documented in other methods or in their code).]
@@ -1326,7 +1364,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     _last_glprefs_data_used_by_lights = None #bruce 051212, replaces/generalizes _last_override_light_specular
     
     def _setup_lighting(self): # as of bruce 060415, this is mostly duplicated between GLPane (has comments) and ThumbView ###@@@
-        """[private method]
+        """
+        [private method]
         Set up lighting in the model (according to self._lights).
         [Called from both initializeGL and paintGL.]
         """
@@ -1356,7 +1395,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
     
     def saveLighting(self):
-        "save the current lighting values in the standard preferences database"
+        """
+        save the current lighting values in the standard preferences database
+        """
         try:
             prefs = preferences.prefs_context()
             key = glpane_lights_prefs_key
@@ -1397,7 +1438,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
 
     def loadLighting(self, gl_update = True):
-        """load new lighting values from the standard preferences database, if possible;
+        """
+        load new lighting values from the standard preferences database, if possible;
         if correct values were loaded, start using them, and do gl_update unless option for that is False;
         return True if you loaded new values, False if that failed
         """
@@ -1437,8 +1479,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         pass
 
     def restoreDefaultLighting(self, gl_update = True):
-        "restore the default (built-in) lighting preferences (but don't save them)."
-        
+        """
+        restore the default (built-in) lighting preferences (but don't save them).
+        """
         # Restore light color prefs keys.
         env.prefs.restore_defaults([
             light1Color_prefs_key, 
@@ -1453,7 +1496,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # ==
     
     def initializeGL(self):
-        "#doc [called by Qt]"
+        """
+        #doc [called by Qt]
+        """
         self.makeCurrent() # bruce comment 050311: probably not needed since Qt does it before calling this
         self._setup_lighting()
         glShadeModel(GL_SMOOTH)
@@ -1483,11 +1528,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     _last_event_wXwY = (-1,-1) #bruce 070626
     
     def fix_event(self, event, when, target): #bruce 060220 added support for self.modkeys
-        """[For most documentation, see fix_event_helper. Argument <when> is one of 'press', 'release', or 'move'.
-            We also set self.modkeys to replace the obsolete mode.modkey variable.
-            This only works if we're called for all event types which want to look at that variable.]
         """
-
+        [For most documentation, see fix_event_helper. Argument <when> is one of 'press', 'release', or 'move'.
+         We also set self.modkeys to replace the obsolete mode.modkey variable.
+         This only works if we're called for all event types which want to look at that variable.]
+        """
         qt4transition.qt4todo('reconcile state and stateAfter')
         # fyi: for info about event methods button and buttons (related to state and stateAfter in Qt3) see
         # http://www.riverbankcomputing.com/Docs/PyQt4/html/qmouseevent.html#button
@@ -2113,7 +2158,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return (p1, p2)
 
     def eyeball(self): #bruce 060219 ##e should call this to replace equivalent formulae in other places
-        "Return the location of the eyeball in model coordinates."
+        """
+        Return the location of the eyeball in model coordinates.
+        """
         return self.quat.unrot(V(0,0,self.vdist)) - self.pov # note: self.vdist is (usually??) 6 * self.scale
         ##k need to review whether this is correct for tall aspect ratio GLPane
 
@@ -2141,7 +2188,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
     def snapquat(self, qlist):
         q1 = self.quat
-        a=1.1
+        a = 1.1
         what = 0
         for q2,n in qlist:
             a2 = vlen((q2-q1).axis)
@@ -2161,7 +2208,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         to either "Default Display" (True)
         or "Current Display (False, the default).
         """
-        
         #&&& print_compact_stack("GLPane.setDisplay():")
         #&&& print "Current Display Mode = ", self.displayMode
         #&&& print "Default Display Mode = ", env.prefs[defaultDisplayMode_prefs_key]
@@ -2205,7 +2251,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 ##        return self.zoomFactor
 
     def dragstart_using_GL_DEPTH(self, event, more_info = False): #bruce 061206 added more_info option
-        """Use the OpenGL depth buffer pixel at the coordinates of event
+        """
+        Use the OpenGL depth buffer pixel at the coordinates of event
         (which works correctly only if the proper GL context (of self) is current -- caller is responsible for this)
         to guess the 3D point that was visually clicked on.
         If that was too far away to be correct, use a point under the mouse and in the plane of the center of view.
@@ -2241,7 +2288,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return farQ, point
 
     def rescale_around_point(self, factor, point = None): #bruce 060829; 070402 moved user prefs functionality into caller
-        """Rescale around point (or center of view == - self.pov, if point is not supplied),
+        """
+        Rescale around point (or center of view == - self.pov, if point is not supplied),
         by multiplying self.scale by factor (and shifting center of view if point is supplied).
            Note: factor < 1 means zooming in, since self.scale is the model distance from screen center
         to edge in plane of center of view.
@@ -2270,14 +2318,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             self.pov += (factor - 1) * (point - (-self.pov))
         return
 
-    def gl_update_duration(self, new_part=False):
-        '''Redraw GLPane and update the repaint duration variable <self._repaint_duration>
+    def gl_update_duration(self, new_part = False):
+        """
+        Redraw GLPane and update the repaint duration variable <self._repaint_duration>
         used by animateToView() to compute the proper number of animation frames.
         Redraws the GLPane twice if <new_part> is True and only saves the repaint 
         duration of the second redraw.  This is needed in the case of drawing a newly opened part,
         which takes much longer to draw the first time than the second (or thereafter).
-        '''
-        
+        """
         # The first redraw of a new part takes much longer than the second redraw.
         if new_part: 
             self.gl_update()
@@ -2303,11 +2351,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     _needs_repaint = 1 #bruce 050516 experiment -- initial value is true
     
     def gl_update(self): #bruce 050127
-        """External code should call this when it thinks the GLPane needs
+        """
+        External code should call this when it thinks the GLPane needs
         redrawing, rather than directly calling paintGL, unless it really
         knows it needs to wait until the redrawing has been finished
         (which should be very rare).
-           Unlike calling paintGL directly (which can be very slow for
+
+        Unlike calling paintGL directly (which can be very slow for
         large models, and redoes all its work each time it's called),
         this method is ok to call many times during the handling of one
         user event, since this will cause only one call of paintGL, after
@@ -2323,7 +2373,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
 
     def gl_update_highlight(self): #bruce 070626
-        """External code should call this when it thinks the hover-highlighting in self
+        """
+        External code should call this when it thinks the hover-highlighting in self
         needs redrawing (but when it doesn't need to report any other need for redrawing).
            This is an optimization, since if there is no other reason to redraw,
         the highlighting alone may be redrawn faster by using a saved color/depth image of
@@ -2334,7 +2385,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
 
     def gl_update_for_glselect(self): #bruce 070626
-        """External code should call this instead of gl_update when the only reason
+        """
+        External code should call this instead of gl_update when the only reason
         it would have called that is to make us notice self.glselect_wanted and use it to
         update self.selobj. [That optim is NIM as of 070626.]
         """
@@ -2342,7 +2394,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
 
     def gl_update_confcorner(self): #bruce 070627
-        """External code should call this when it thinks the confirmation corner may need
+        """
+        External code should call this when it thinks the confirmation corner may need
         redrawing (but when it doesn't need to report any other need for redrawing).
            This is an optimization, since if there is no other reason to redraw,
         the confirmation corner alone may be redrawn faster by using a saved color image of
@@ -2362,66 +2415,80 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         ### TODO: document this better
     
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
-        """[PRIVATE METHOD -- call gl_update instead!]
-        The main screen-drawing function, called internally by Qt when our
-        superclass needs to repaint. THIS SHOULD NO LONGER BE CALLED DIRECTLY
-        BY EXTERNAL CODE -- CALL gl_update INSTEAD.
-           Sets up point of view projection, position, angle.
-        Calls draw member fns for everything in the screen.
         """
-        # bruce comment 041220: besides our own calls of this function
-        # [later: which no longer exist after 050127], it can
-        # be called directly from the app.exec_() in main.py; I'm not sure
-        # exactly why or under what circumstances, but one case (on Mac) is when you
-        # switch back into the app by clicking in the blank part of the model tree
-        # (multiple repaints by different routes in that case),
-        # or on the window's title bar (just one repaint); another case is when
-        # you switch *out* of the app by clicking on some other app's window.
-        # Guess: it's a special method name known to the superclass widget.
-        # (Presumably the Qt docs spell this out... find out sometime! #k)
+        [PRIVATE METHOD -- call gl_update instead!]
+        
+        The main screen-drawing method, called internally by Qt when our
+        superclass needs to repaint (and quite a few other times when it
+        doesn't need to).
 
-        env.after_op() #bruce 050908 [disabled in changes.py, sometime before 060323; probably obs as of 060323; see this date below]
+        THIS METHOD SHOULD NOT BE CALLED DIRECTLY
+        BY OUR OWN CODE -- CALL gl_update INSTEAD.
+        """
+        
+        env.after_op() #bruce 050908
+            # [disabled in changes.py, sometime before 060323;
+            #  probably obs as of 060323; see this date below]
 
         if not self.initialised:
             return
 
-        #e Future: it might be good to set standard GL state, e.g. matrixmode, before checking self.redrawGL here,
-        # in order to mitigate bugs in other code (re bug 727), but only if the current mode gets to
-        # redefine what "standard GL state" means, since some modes which use this flag to avoid standard
-        # repaints also maintain some GL state in nonstandard forms. [bruce 050707 comment]
+        # SOMEDAY: it might be good to set standard GL state, e.g. matrixmode,
+        # before checking self.redrawGL here, in order to mitigate bugs in other
+        # code (re bug 727), but only if the current mode gets to redefine what
+        # "standard GL state" means, since some modes which use this flag to
+        # avoid standard repaints also maintain some GL state in nonstandard
+        # forms (e.g. for XOR-mode drawing). [bruce 050707 comment]
         
         if not self.redrawGL:
             return
 
         self._call_whatever_waits_for_gl_context_current() #bruce 071103
         
-        if debug_pref("GLPane: skip redraws requested only by Qt?", Choice_boolean_False, prefs_key = True):
-            # (and print '#' for each skipped redraw)
+        if debug_pref("GLPane: skip redraws requested only by Qt?",
+                      Choice_boolean_False,
+                      prefs_key = True):
+
+            # if we don't think this redraw is needed,
+            # skip it (but print '#' if atom_debug is set).
+                        
+            #bruce 070109 restored/empowered the following code, but
+            # only within this new debug pref [persistent as of 070110].
             #
-            #bruce 070109 restored/empowered the following code, but only within this new debug pref [persistent as of 070110].
-            # ITS USE IS PREDICTED TO CAUSE SOME BUGS: one in changed bond redrawing [described below, "bruce 050717 bugfix"]
-            # (though the fact that _needs_repaint is not reset until below makes me think it either won't happen now,
+            # ITS USE IS PREDICTED TO CAUSE SOME BUGS: one in changed bond
+            # redrawing [described below, "bruce 050717 bugfix"]
+            # (though the fact that _needs_repaint is not reset until below
+            #  makes me think it either won't happen now,
             #  or is explained incorrectly in that comment),
-            # and maybe some in look of glpane after resizing, toolbar changes, or popups/dialogs going up or down,
-            # any of which might be platform-dependent. The debug_pref's purpose is experimentation --
-            # if we could figure out which repaints are really needed, we could probably optimize away quite a few unneeded ones.
+            # and maybe some in look of glpane after resizing, toolbar changes,
+            # or popups/dialogs going up or down, any of which might be
+            # platform-dependent. The debug_pref's purpose is experimentation --
+            # if we could figure out which repaints are really needed, we could
+            # probably optimize away quite a few unneeded ones.
             #
-            # Update, bruce 070414: so far I only found one bug this debug_pref causes: MT clicks which change chunk selection
-            # don't cause redraws, but need to (to show their selection wireframes). That could be easily fixed.
+            # Update, bruce 070414: so far I only found one bug this debug_pref
+            # causes: MT clicks which change chunk selection don't cause redraws,
+            # but need to (to show their selection wireframes). That could be
+            # easily fixed.
+            
             if not self._needs_repaint: #bruce 050516 experiment
-                # This probably happens fairly often when Qt calls paintGL but our own code
-                # didn't change anything and therefore didn't call gl_update.
-                # The plan is to return in this case, but until I'm sure that's safe
-                # (and/or know what else needs to be checked, like the GLPane widget size in case that changed),
-                # I'll just print a debug message about the missed chance for an optimization.
-                # (Removed message since it happens a lot, mainly when context menu is put up, window goes bg or fg, etc.
-                #  What we need is a debug pref to turn off repainting then, so we can see if it's needed on each platform.
-                #  Even if it is, we might optimize by somehow painting from the existing buffer
-                # without swapping or clearing it. ###@@@)
+                # This probably happens fairly often when Qt calls paintGL but
+                # our own code didn't change anything and therefore didn't call
+                # gl_update.
+                #
+                # This is known to happen when a context menu is put up,
+                # the main app window goes into bg or fg, etc.
+
+                # SOMEDAY:
+                # An alternative to skipping the redraw would be to optimize it
+                # by redrawing a saved image. We're likely to do that for other
+                # reasons as well (e.g. to optimize redraws in which only the
+                # selection or highlighting changes).
+                
                 if platform.atom_debug:
-                    ## print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ") # happens a lot
                     sys.stdout.write("#") # indicate a repaint is being skipped
                     sys.stdout.flush()
+                
                 return # skip the following repaint
             pass
 
@@ -2435,46 +2502,46 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # nothing triggers another gl_update, so the fixed bond is not drawn right away. I suppose set_v6 ought to do its own
         # gl_update, but for some reason I'm uncomfortable with that for now (and even if it did, this bugfix here is
         # probably also needed). And many analogous LL changers don't do that.
+        
         env.do_post_event_updates( warn_if_needed = False)
+            # WARNING: this calls command-specific ui updating methods
+            # like model_changed and selection_changed, even when it
+            # doesn't need to (still true 071115). That needs to be fixed,
+            # or they all need to be fast when no changes are needed,
+            # or this will make redraw needlessly slow. [bruce 071115 comment]
 
-#bruce 060326 zapping this, since it caused bug 1759, and I put in a better fix for bugs like 1411 since then
-# (in the menu_spec processor in widgets.py). There might be reasons to revive this someday, and ways to avoid 1759 then,
-# but it's hard and inefficient and not needed for now.
-##        # Fix bugs from missing mouseReleases (like bug 1411) (provided they do a gl_update like that one does),
-##        # from model changes during env.do_post_event_updates(), or from unexpected model changes during the following
-##        # repaint, by surrounding this repaint with begin/end checkpoints. We might do the same thing in the model tree, too.
-##        # [bruce 060323]
-##        flag_and_begin_retval = None # different than (but analogous to) self.__flag_and_begin_retval
-##        if self.assy:
-##            begin_retval = self.assy.undo_checkpoint_before_command("(redraw)")
-##                # this command name "(redraw)" won't be seen (I think) unless there are model changes during the redraw (a bug)
-##            flag_and_begin_retval = True, begin_retval
+        # Note: at one point we surrounded this repaint with begin/end undo
+        # checkpoints, to fix bugs from missing mouseReleases (like bug 1411)
+        # (provided they do a gl_update like that one does), from model changes
+        # during env.do_post_event_updates(), or from unexpected model changes
+        # during the following repaint. But this was slow, and caused bug 1759,
+        # and a better fix for 1411 was added (in the menu_spec processor in
+        # widgets.py). So the checkpoints were zapped [by bruce 060326].
+        # There might be reasons to revive that someday, and ways to avoid
+        # its slowness and bugs, but it's not needed for now.
 
         try:
             self.most_of_paintGL()
         except:
             print_compact_traceback("exception in most_of_paintGL ignored: ")
 
-##        if flag_and_begin_retval:
-##            flagjunk, begin_retval = flag_and_begin_retval
-##            if self.assy:
-##                #k should always be true, and same assy as before... (for more info see same comment elsewhere in this file)
-##                self.assy.undo_checkpoint_after_command( begin_retval)
-
         return # from paintGL
 
     def most_of_paintGL(self): #bruce 060323 split this out of paintGL
-        "Do most of what paintGL should do."
+        """
+        Do most of what paintGL should do.
+        """
+        self._needs_repaint = 0
+            # do this now, even if we have an exception during the repaint
 
-        self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
-
-        #k not sure whether _restore_modelview_stack_depth is also needed in the split-out standard_repaint [bruce 050617]
+        #k not sure whether _restore_modelview_stack_depth is also needed
+        # in the split-out standard_repaint [bruce 050617]
         
-        self._restore_modelview_stack_depth() #bruce 050608 moved this here (was after _setup_lighting ###k verify that)
+        self._restore_modelview_stack_depth()
 
-        # 20060224 Added fog_test_enable debug pref, can take out if fog is implemented fully. [bruce 061208 moved this down a bit]
-        fog_test_enable = debug_pref("Use test fog?", Choice_boolean_False, non_debug = True)
-            #e should remove non_debug = True before release!
+        # fog_test_enable debug_pref can be removed if fog is implemented fully
+        # (added by bradg 20060224)
+        fog_test_enable = debug_pref("Use test fog?", Choice_boolean_False)
 
         if fog_test_enable:
             drawer.setup_fog(125, 170, self.backgroundColor)
@@ -2482,19 +2549,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # the atomic model itself.  I dunno where that is.
             drawer.enable_fog()
 
-        glDepthFunc( GL_LEQUAL) #bruce 070921; GL_LESS causes bugs (e.g. in exprs/Overlay.py)
+        glDepthFunc( GL_LEQUAL) #bruce 070921; GL_LESS causes bugs
+            # (e.g. in exprs/Overlay.py)
             # TODO: put this into some sort of init function in GLPane_minimal;
-            # not urgent, since all instances of GLPane_minimal share one GL context for now,
-            # and also they all contain this in paintGL.
+            # not urgent, since all instances of GLPane_minimal share one GL
+            # context for now, and also they all contain this in paintGL.
         
         self.setDepthRange_setup_from_debug_pref()
         self.setDepthRange_Normal()
         
-        method = self.graphicsMode.render_scene #bruce 070406, 071011 revised this
+        method = self.graphicsMode.render_scene # revised, bruce 070406/071011
         if method is None:
             self.render_scene() # usual case
-                # [TODO: move that code into basicGraphicsMode and let it get called
-                #  in the same way as the following]
+                # [TODO: move that code into basicGraphicsMode and let it get
+                #  called in the same way as the following]
         else:
             method( self) # let the graphicsMode override it
 
@@ -2512,19 +2580,28 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     _conf_corner_bg_image_data = None
     
     def grab_conf_corner_bg_image(self): #bruce 070626
-        """Grab an image of the top right corner, for use in confirmation corner
+        """
+        Grab an image of the top right corner, for use in confirmation corner
         optimizations which redraw it without redrawing everything.
         """
         width = self.width
         height = self.height
         subwidth = min(width, 100)
         subheight = min(height, 100)
-        gl_format, gl_type = GL_RGB, GL_UNSIGNED_BYTE # these seem to be enough; GL_RGBA, GL_FLOAT also work but look the same
-        image = glReadPixels( width - subwidth, height - subheight, subwidth, subheight, gl_format, gl_type)
-        if type(image) is not type("") and not env.seen_before("conf_corner_bg_image of unexpected type"):
-            print "fyi: grabbed conf_corner_bg_image of unexpected type %r:" % ( type(image), )
+        gl_format, gl_type = GL_RGB, GL_UNSIGNED_BYTE
+            # these seem to be enough; GL_RGBA, GL_FLOAT also work but look the same
+        image = glReadPixels( width - subwidth,
+                              height - subheight,
+                              subwidth, subheight,
+                              gl_format, gl_type )
+        if type(image) is not type("") and \
+           not env.seen_before("conf_corner_bg_image of unexpected type"):
+            print "fyi: grabbed conf_corner_bg_image of unexpected type %r:" % \
+                  ( type(image), )
         
-        self._conf_corner_bg_image_data = (subwidth, subheight, width, height, gl_format, gl_type, image)
+        self._conf_corner_bg_image_data = (subwidth, subheight,
+                                           width, height,
+                                           gl_format, gl_type, image)
         
             # Note: the following alternative form probably grabs a Numeric array, but I'm not sure
             # our current PyOpenGL (in release builds) supports those, so for now I'll stick with strings, as above.
@@ -2534,7 +2611,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
 
     def draw_conf_corner_bg_image(self, pos = None): #bruce 070626 (pos argument is just for development & debugging)
-        """Redraw the previously grabbed conf_corner_bg_image,
+        """
+        Redraw the previously grabbed conf_corner_bg_image,
         in the same place from which it was grabbed,
         or in the specified place (lower left corner of pos, in OpenGL window coords).
         Note: this modifies the OpenGL raster position.
@@ -2591,7 +2669,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
     
     def _restore_modelview_stack_depth(self): #bruce 050608 split this out
-        "restore GL_MODELVIEW_STACK_DEPTH to 1, if necessary"
+        """
+        restore GL_MODELVIEW_STACK_DEPTH to 1, if necessary
+        """
         #bruce 040923: I'd like to reset the OpenGL state
         # completely, here, incl the stack depths, to mitigate some
         # bugs. How??  Note that there might be some OpenGL init code
@@ -2626,11 +2706,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # this is set to True after we redraw, and to False by the following method
 
     def wants_gl_update_was_True(self): #bruce 050804
-        """Outside code should call this if it changes what our redraw would draw,
+        """
+        Outside code should call this if it changes what our redraw would draw,
         and then sees self.wants_gl_update being true,
         if it might not otherwise call self.gl_update
         (which is also ok to do, but might be slower -- whether it's actually slower is not known).
-           This can also be used as an invalidator for passing to self.end_tracking_usage().
+
+        This can also be used as an invalidator for passing to self.end_tracking_usage().
         """
         #bruce 070109 comment: it looks wrong to me that the use of this as an invalidator in end_tracking_usage
         # is not conditioned on self.wants_gl_update, either inside or outside this routine. I'm not sure it's really wrong,
@@ -2673,7 +2755,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     __subusage = None #bruce 070110
     
     def standard_repaint(self): #bruce 050617 split this out; bruce 061208 removed obsolete special_topnode experiment
-        """#doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
+        """
+        #doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
         this routine sets its own matrixmode but depends on other gl state being standard when entered.
         """
         if 0:
@@ -3296,7 +3379,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return newpicked # might be None in case of errors (or if selobj_hicolor returns None)
 
     def check_target_depth(self, candidate, fudge, debug_prefix = None): #bruce 050609; revised 050702, 070115
-        """[private helper method]
+        """
+        [private helper method]
            [required arg fudge is the fudge factor in threshhold test]
            WARNING: docstring is obsolete -- no newpicked anymore, retval details differ: ###@@@
         Candidate is an object which drew at the mouse position during GL_SELECT drawing mode
@@ -3348,7 +3432,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return None
 
     def _setup_modelview(self):
-        "set up modelview coordinate system"
+        """
+        set up modelview coordinate system
+        """
         #bruce 070919 removed vdist arg, getting it from self.vdist
         vdist = self.vdist
         glMatrixMode(GL_MODELVIEW)
@@ -3503,7 +3589,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # ==
            
     def resizeGL(self, width, height):
-        """Called by QtGL when the drawing window is resized.
+        """
+        Called by QtGL when the drawing window is resized.
         """
         self.width = width
         self.height = height
@@ -3522,7 +3609,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return
            
     def xdump(self):
-        """for debugging"""
+        """
+        for debugging
+        """
         print " pov: ", self.pov
         print " quat ", self.quat
 
@@ -3537,7 +3626,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         return makemenu_helper(self, menu_spec, menu)
     
     def debug_menu_items(self): #bruce 050515
-        "overrides method from DebugMenuMixin"
+        """
+        overrides method from DebugMenuMixin
+        """
         super = DebugMenuMixin
         usual = super.debug_menu_items(self)
             # list of (text, callable) pairs, None for separator
