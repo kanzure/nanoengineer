@@ -9,6 +9,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 from icon_utilities import geticon
 from debug import print_compact_traceback
+from debug_prefs  import debug_pref, Choice_boolean_False
 
 def setupUi(win):
     
@@ -27,7 +28,8 @@ def setupUi(win):
     win.simMoviePlayerAction = QtGui.QWidgetAction(MainWindow)
            
             
-    win.simMoviePlayerAction.setIcon(geticon("ui/actions/Simulation/Play_Movie"))
+    win.simMoviePlayerAction.setIcon(
+        geticon("ui/actions/Simulation/Play_Movie"))
     
     win.simPlotToolAction = QtGui.QWidgetAction(MainWindow)
     win.simPlotToolAction.setEnabled(True)
@@ -39,7 +41,8 @@ def setupUi(win):
     win.jigsMotorAction.setObjectName("jigsMotorAction")
 
     win.jigsLinearMotorAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsLinearMotorAction.setIcon(geticon("ui/actions/Simulation/Linear_Motor"))
+    win.jigsLinearMotorAction.setIcon(
+        geticon("ui/actions/Simulation/Linear_Motor"))
     win.jigsLinearMotorAction.setObjectName("jigsLinearMotorAction")
     
     win.jigsStatAction = QtGui.QWidgetAction(MainWindow)
@@ -47,7 +50,8 @@ def setupUi(win):
     win.jigsStatAction.setObjectName("jigsStatAction")
     
     win.jigsThermoAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsThermoAction.setIcon(geticon("ui/actions/Simulation/Measurements/Thermometer"))
+    win.jigsThermoAction.setIcon(
+        geticon("ui/actions/Simulation/Measurements/Thermometer"))
     win.jigsThermoAction.setObjectName("jigsThermoAction")
     
     win.jigsAnchorAction = QtGui.QWidgetAction(MainWindow)
@@ -87,22 +91,43 @@ def setupUi(win):
     win.simulationMeasurementsMenu.addAction(win.jigsDihedralAction)
     win.simulationMenu.addSeparator()
     
-    win.simulationMenu.addAction(win.jigsGamessAction) # GAMESS
-    win.simulationMenu.addAction(win.jigsESPImageAction) # ESP Image
+    #NOTE: The GAMESS and ESPImage options are intentionally disabled
+    #Disabling these items from the UI was a rattlesnake backlog item. 
+    #see this page for details:
+    #U{<http://www.nanoengineer-1.net/mediawiki/index.php?title=Rattlesnake_Sprint_Backlog>}
+    #See also: UserPrefs.py _hideOrShowTheseWidgetsInUserPreferenceDialog method
+    #where the widgets in the UserPrefernces dialog corresponding to these actions
+    #are hidden. 
+    if debug_pref("Show GAMESS and ESP Image UI options",
+                  Choice_boolean_False,
+                  prefs_key = True):
+        win.simulationMenu.addAction(win.jigsGamessAction) # GAMESS
+        win.simulationMenu.addAction(win.jigsESPImageAction) # ESP Image
     
 def retranslateUi(win):
-    win.simulationMenu.setTitle(QtGui.QApplication.translate("MainWindow", "Simulation", None, QtGui.QApplication.UnicodeUTF8))
-    win.simSetupAction.setText(QtGui.QApplication.translate("MainWindow", " Run Dynamics...", None, QtGui.QApplication.UnicodeUTF8))
-    win.simSetupAction.setIconText(QtGui.QApplication.translate("MainWindow", "Run Dynamics", None, QtGui.QApplication.UnicodeUTF8))
-    win.simSetupAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Run Dynamics",
-                                                               None, QtGui.QApplication.UnicodeUTF8))
-    win.simMoviePlayerAction.setText(QtGui.QApplication.translate("MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))
-    win.simMoviePlayerAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))    
-    win.simPlotToolAction.setText(QtGui.QApplication.translate("MainWindow", "Graphs...", None, QtGui.QApplication.UnicodeUTF8))
-    win.simPlotToolAction.setIconText(QtGui.QApplication.translate("MainWindow", "Graphs", None, QtGui.QApplication.UnicodeUTF8))
-    
-    win.jigsESPImageAction.setText(QtGui.QApplication.translate("MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
-    win.jigsESPImageAction.setIconText(QtGui.QApplication.translate("MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
+    win.simulationMenu.setTitle(QtGui.QApplication.translate(
+        "MainWindow", 
+        "Simulation", 
+        None, 
+        QtGui.QApplication.UnicodeUTF8))
+    win.simSetupAction.setText(QtGui.QApplication.translate(
+        "MainWindow", " Run Dynamics...", None, QtGui.QApplication.UnicodeUTF8))
+    win.simSetupAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Run Dynamics", None, QtGui.QApplication.UnicodeUTF8))
+    win.simSetupAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", "Run Dynamics", None, QtGui.QApplication.UnicodeUTF8))
+    win.simMoviePlayerAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))
+    win.simMoviePlayerAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", "Play Movie",None, QtGui.QApplication.UnicodeUTF8))    
+    win.simPlotToolAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "Graphs...", None, QtGui.QApplication.UnicodeUTF8))
+    win.simPlotToolAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Graphs", None, QtGui.QApplication.UnicodeUTF8))    
+    win.jigsESPImageAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsESPImageAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
     
     if sys.platform == "win32":
         gms_str = "PC GAMESS"
@@ -115,16 +140,26 @@ def retranslateUi(win):
         "MainWindow", gms_str, None, QtGui.QApplication.UnicodeUTF8))
     
     #Simulation Jigs 
-    win.jigsLinearMotorAction.setText(QtGui.QApplication.translate("MainWindow", "&Linear Motor", None, QtGui.QApplication.UnicodeUTF8))
-    win.jigsLinearMotorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Linear Motor", None, QtGui.QApplication.UnicodeUTF8))
-    win.jigsStatAction.setText(QtGui.QApplication.translate("MainWindow", "Thermo&stat", None, QtGui.QApplication.UnicodeUTF8))
-    win.jigsStatAction.setIconText(QtGui.QApplication.translate("MainWindow", "Thermostat", None, QtGui.QApplication.UnicodeUTF8))
-    win.jigsAnchorAction.setText(QtGui.QApplication.translate("MainWindow", "&Anchor", None, QtGui.QApplication.UnicodeUTF8))
-    win.jigsAnchorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Anchor", None, QtGui.QApplication.UnicodeUTF8))
-    win.jigsMotorAction.setText(QtGui.QApplication.translate("MainWindow", "&Rotary Motor", None, QtGui.QApplication.UnicodeUTF8))
-    win.jigsMotorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Rotary Motor", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsLinearMotorAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "&Linear Motor", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsLinearMotorAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Linear Motor", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsStatAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "Thermo&stat", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsStatAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Thermostat", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsAnchorAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "&Anchor", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsAnchorAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Anchor", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsMotorAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "&Rotary Motor", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsMotorAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Rotary Motor", None, QtGui.QApplication.UnicodeUTF8))
 
     #Simulation Measurement Jigs
-    win.jigsThermoAction.setText(QtGui.QApplication.translate("MainWindow", "&Thermometer", None, QtGui.QApplication.UnicodeUTF8))
-    win.jigsThermoAction.setIconText(QtGui.QApplication.translate("MainWindow", "Thermometer", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsThermoAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "&Thermometer", None, QtGui.QApplication.UnicodeUTF8))
+    win.jigsThermoAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Thermometer", None, QtGui.QApplication.UnicodeUTF8))
     

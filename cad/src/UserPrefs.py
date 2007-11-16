@@ -31,6 +31,7 @@ from PyQt4.Qt import QFont
 from UserPrefsDialog import Ui_UserPrefsDialog
 import preferences
 from debug import print_compact_traceback
+from debug_prefs import debug_pref, Choice_boolean_False
 import env
 from widgets import RGBf_to_QColor, QColor_to_RGBf
 from widgets import double_fixup
@@ -372,7 +373,15 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
     def __init__(self, assy):
         QDialog.__init__(self)
         self.setupUi(self)
-
+        
+        #NOTE: THE FOLLOWING HIDES SOME WIDGETS (e.g. GAMESS plugin, 
+        #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
+        #This is for the rattlesnake spring backlog item 
+        #"disable the items that aren't used too much (GAMESS, CoNTub, ESP/NH1)"
+        #See also: Ui_SimulationMenu.py where the coresponding commands are hidden
+        #or shown based on a debug pref. 
+        self._hideOrShowTheseWidgetsInUserPreferenceDialog()
+        
         self.resetMouseSpeedDuringRotation_btn.setIcon(
             geticon('ui/dialogs/Reset.png'))
         self.reset_cpk_scale_factor_btn.setIcon(
@@ -786,6 +795,7 @@ restored when the user undoes a structural change.</p>
         self.save_current_btn.setWhatsThis("""Saves the main window's current position and size for the next time the program starts.""")
         self.restore_saved_size_btn.setWhatsThis("""Saves the main window's current position and size for the next time the program starts.""")
         return
+    
 
     def _setup_caption_signals(self):
         # caption_prefix signals
@@ -860,6 +870,33 @@ restored when the user undoes a structural change.</p>
         return
 
     ###### Private methods ###############################
+    def _hideOrShowTheseWidgetsInUserPreferenceDialog(self):
+        """
+        2007-11-16:
+        THIS METHOD PERMANENTLY HIDES SOME WIDGETS in UserPrefs tab 
+        #(e.g. GAMESS plugin, 
+        #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
+        #This is for the rattlesnake spring backlog item 
+        #"disable the items that aren't used too much (GAMESS, CoNTub, ESP/NH1)"
+        
+        """
+        widgetList = [self.nanohive_lbl, 
+                      self.nanohive_checkbox, 
+                      self.nanohive_path_linedit,
+                      self.nanohive_choose_btn,
+                      self.gamess_checkbox,
+                      self.gamess_lbl,
+                      self.gamess_path_linedit,
+                      self.gamess_choose_btn]      
+        
+        for widget in widgetList:    
+            if debug_pref("Show GAMESS and ESP Image UI options",
+                      Choice_boolean_False,
+                      prefs_key = True):
+                widget.show()
+            else:
+                widget.hide()
+
 
     def _setup_general_page(self):
         ''' Setup widgets to initial (default or defined) values on the General page.

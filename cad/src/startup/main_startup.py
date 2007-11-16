@@ -141,10 +141,13 @@ def startup_script( main_globals):
 
 
     # initialize CoNTubGenerator
-    # TODO: move this into one of the other initialization functions
-    
-    import CoNTubGenerator
-    CoNTubGenerator.initialize()
+    # TODO: move this into one of the other initialization functions   
+    #Disabling the following code that initializes the ConTub plugin 
+    #(in UI it is called Heterojunction.) The Heterojunction generator or 
+    #ConTubGenerator was never ported to Qt4 platform. The plugin generator 
+    #needs a code cleanup  -- ninad 2007-11-16
+    ##import CoNTubGenerator
+    ##CoNTubGenerator.initialize()
 
 
     # for developers: run a hook function that .atom-debug-rc might have defined
