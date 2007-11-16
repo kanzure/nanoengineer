@@ -146,10 +146,15 @@ class assembly( StateMixin, Assembly_API):
     
     _view_change_counter = 0 # also includes changing current part, glpane display mode [mostly nim as of 060228]
 
-    def all_change_counters(self): #bruce 060227
+    def all_change_counters(self): #bruce 060227; 071116 added guarantees to docstring
         """
         Return a tuple of all our change counters, suitable for later passing
-        to self.reset_changed_for_undo().
+        to self.reset_changed_for_undo(). The order is guaranteed to be:
+
+        (model_change_counter, selection_change_counter, view_change_counter)
+
+        and if we add new elements, we guarantee we'll add them at the end
+        (so indices of old elements won't change).
         """
         return self._model_change_counter, self._selection_change_counter, self._view_change_counter
 
