@@ -56,6 +56,8 @@ from prefs_constants import atomHighlightColor_prefs_key
 from prefs_constants import deleteBondHighlightColor_prefs_key
 from prefs_constants import deleteAtomHighlightColor_prefs_key
 
+from constants import average_value
+
 from utilities.Log import orangemsg
 
 class selectAtomsMode(selectMode):
@@ -76,6 +78,9 @@ class selectAtomsMode(selectMode):
 
     def __init__(self, glpane):
         selectMode.__init__(self, glpane)
+        self.get_smooth_reshaping_drag()
+            # exercise debug_pref to make sure it's always in the menu.
+        self.get_use_old_safe_drag_code() # ditto
 
     def Enter(self): 
         selectMode.Enter(self)        
@@ -1138,6 +1143,525 @@ class selectAtomsMode(selectMode):
         return
     # ===== END: Atom selection and dragging helper methods ==========
     
+    #Various Drag related methods (some are experimental methods created 
+    #and maintained by Bruce.
+    #NOTE Methods - get_dragatoms_and_baggage, OLD_get_dragatoms_and_baggage
+    #get_smooth_reshaping_drag, get_use_old_safe_drag_code were moved from 
+    #selectMode to this mode on 2007-11-16. 
+    
+    #@TODO: Bruce will be renaming/cleaningup method 
+    # OLD_get_dragatoms_and_baggage
+    
+    def get_dragatoms_and_baggage(self):
+        """
+        #doc... return dragatoms, baggage, dragchunks; look at 
+        self.smooth_reshaping_drag [nim];
+        how atoms are divided between dragatoms & baggage is arbitrary and is 
+        not defined.
+        [A rewrite of callers would either change them to treat those 
+        differently and change
+        this to care how they're divided up (requiring a decision about 
+        selected baggage atoms),
+        or remove self.baggage entirely.]
+        """
+        #bruce 060410 optimized this; it had a quadratic algorithm (part of the 
+        #cause of bugs 1828 / 1438), and other slownesses.
+        # The old code was commented out for comparison [and later, 070412, 
+        # was removed].
+        # [Since then, it was totally rewritten by bruce 070412.]
+        #
+        # Note: as of 060410, it looks like callers only care about the total 
+        # set of atoms in the two returned lists,
+        # not about which atom is in which list, so the usefulness of having two
+        # lists is questionable.
+        # The old behavior was (by accident) that selected baggage atoms end up
+        # only in the baggage list, not in dragatoms.
+        # This was probably not intended but did not matter at the time.
+        # The dragchunks optimization at the end [060410] changes this by 
+        # returning all atoms in dragatoms or dragchunks,
+        # none in baggage. The new smooth reshaping feature [070412] may change 
+        # this again.
+
+        if not self.smooth_reshaping_drag and self.get_use_old_safe_drag_code():
+            # by default, for now: for safety, use the old drag code, if we're 
+            #not doing a smooth_reshaping_drag.
+            # After FNANO I'll change the default for use_old_safe_drag_code 
+            # to False. [bruce 070413]
+            return self.OLD_get_dragatoms_and_baggage()
+
+        print "fyi: using experimental code for get_dragatoms_and_baggage;"\
+              "smooth_reshaping_drag = %r" % self.smooth_reshaping_drag
+            # Remove this print after FNANO when this code becomes standard, 
+            #at least for non-smooth_reshaping_drag case.
+            # But consider changing the Undo cmdname, drag -> smooth drag or 
+            #reshaping drag. #e
+
+        # rewrite, bruce 070412, for smooth reshaping and also for general 
+        # simplification:
+        # [this comment and the partly redundant ones in the code will be 
+        # merged later]
+        # - treat general case as smooth reshaping with different (trivial) 
+        # motion-function (though we'll optimize for that) 
+        # -- gather the same setup data either way. That will reduce 
+        # bug-differences between smooth reshaping and plain drags, and it might
+        # help with other features in the future, like handling baggage better
+        # when there are multiple selected atoms. - any baggage atom B has 
+        # exactly one neighbor S, and if that neighbor is selected(which is the
+        # only time we might think of B as baggage here), we want B to move
+        #   with S, regardless of smooth reshaping which might otherwise move 
+        #  them differently.
+        #   This is true even if B itself is selected. So, for baggage atoms 
+        #  (even if selected) make a dict which points them to other selected 
+        # atoms. If we find cycles in that, those atoms must be closed for 
+        # selection (ie not indirectly bonded to unselected atoms, which is what
+        # matters for smooth reshaping alg) or can be treated that way, so move 
+        # those atoms into a third dict for moving atoms which are not connected
+        # to unmoving atoms.(These never participate in smooth reshaping 
+        # -- they always move
+        #   with the drag.)
+        # - the other atoms which move with the drag are the ones we find 
+        # later with N == N_max,
+        #   and the other ones not bonded to unselected nonbaggage atoms,
+        #   and all of them if
+        #   we're not doing reshaping drag.
+        # - then for all atoms which move with the drag (including some of 
+        #   the baggage,
+        #   so rescan it to find those), we do the dragchunk optim;
+        #   for the ones which move, but not with the drag, we store their 
+        #   motion-offset-ratio
+        #   in a dict to be used during the drag (or maybe return it and let 
+        #   caller store it #k).
+        #
+        # - I think all the above can be simplified to the following:
+        #   - expand selatoms to include baggage (then no need to remember 
+        #      which was which, since "monovalent" is good enough to mean 
+        #     "drag with neighbor", even for non-baggage)
+        #   - point monovalent atoms in that set, whose neighbors are in it, 
+        #      to those neighbors(removing them from that set) 
+        #     (permitting cycles, which are always length 2)(during the drag, 
+        #      we'll move them with neighbors, then in future correct
+        #      their posn for the motion of other atoms around those neighbors,
+        #      as is now only done in single-atom dragging)
+        #   - analyze remaining atoms in set for closeness (across bonds) to 
+        #     unselected atoms(permitting infinite dist == no connection to 
+        #     them)
+        #   - then sort all the atoms into groups that move with the same 
+        #     offset, and find whole chunks in those groups (or at least in the 
+        #     group that moves precisely with the drag). (In future we'd use the
+        #     whole-chunk and borrowerchunk optims (or equiv) for the 
+        #     slower-moving groups too. Even now, it'd be easy to use 
+        #     whole-chunk optim then, but only very rarely useful, so don't 
+        #     bother.)
+        #
+        # - finally, maybe done in another routine, selected movable jigs move 
+        #    in a way that depends on how
+        #   their atoms move -- maybe their offset-ratio is the average of 
+        #   that of their atoms.
+
+        # Ok, here we go:
+        #   - expand selatoms to include baggage (then no need to remember 
+        #     which was which, since "monovalent" is good enough to mean 
+        #    "drag with neighbor", even for non-baggage)
+
+        selatoms = self.o.assy.selatoms # maps atom.key -> atom
+            # note: after this, we care only which atoms are in selatoms, 
+            # not whether they're selected --
+            # in other words, you could pass some other dict in place of 
+            # selatoms if we modified the API for that,
+            # and no code after this point would need to change.
+        atoms_todo = dict(selatoms) # a copy which we'll modify in the 
+             # following loop,and later;
+            # in general it contains all moving atoms we didn't yet decide how 
+            # to handle.
+        monovalents = {} # maps a monvalent atom -> its neighbor, 
+                         #starting with baggage atoms we find
+        boundary = {} # maps boundary atoms (selected, with unselected 
+                      #nonbaggage neighbor) to themselves
+        ## unselected = {} # maps an unselected nonbaggage atom 
+        ##(next to one or more selected ones) to an arbitrary selected one
+        for atom in selatoms.itervalues():
+            baggage, nonbaggage = atom.baggage_and_other_neighbors()
+            for b in baggage:
+                monovalents[b] = atom # note: b (I mean b.key) might 
+                                      #also be in atoms_todo
+            for n in nonbaggage:
+                if n.key not in selatoms:
+                    ## unselected[n] = atom
+                    boundary[atom] = atom
+                    break
+            continue
+        del selatoms
+        # note: monovalents might overlap atoms_todo; we'll fix that later.
+        # also it is not yet complete, we'll extend it later.
+
+        #   - point monovalent atoms in that set (atoms_todo), whose neighbors 
+        #    are in it, to those neighbors
+        #     (removing them from that set) (permitting cycles, which are 
+        #     always length 2 -- handled later ###DOIT)
+        for atom in atoms_todo.itervalues():
+            if len(atom.bonds) == 1:
+                bond = atom.bonds[0]
+                if bond.atom1.key in atoms_todo and bond.atom2.key in atoms_todo:
+                    monovalents[atom] = bond.other(atom)
+        for b in monovalents:
+            atoms_todo.pop(b.key, None) # make sure b is not in atoms_todo, 
+                                        #if it ever was
+
+        len_total = len(monovalents) + len(atoms_todo) # total number of atoms 
+                                                #considered, used in assertions
+
+        #   - analyze remaining atoms in set (atoms_todo) for closeness 
+        # (across bonds) to unselected atoms
+        #     (permitting infinite dist == no connection to them)
+        # Do this by transclosing boundary across bonds to atoms in atoms_todo.
+        layers = {} # will map N to set-of-atoms-with-N (using terminology of 
+                   #smooth-reshaping drag proposal)
+        from state_utils import transclose
+        def collector( atom, dict1):
+            """
+            Add neighbors of atom which are in atoms_todo (which maps 
+            atom keys to atoms)to dict1 (which maps atoms to atoms).
+            """
+            for n in atom.neighbors():
+                if n.key in atoms_todo:
+                    dict1[n] = n
+            return
+        def layer_collector( counter, set):
+            layers[counter] = set
+            ## max_counter = counter # calling order is guaranteed by transclose
+                # no good namespace to store this in -- grab it later
+            return
+        layers_union = transclose( boundary, collector, layer_collector)
+        max_counter = len(layers)
+
+        # Now layers_union is a subset of atoms_todo, and is the union of all 
+        # the layers; the other atoms in atoms_todo are the ones not connected 
+        # to unselected nonbaggage atoms.
+        # And that's all moving atoms except the ones in monovalents.
+
+        for atom in layers_union:
+            atoms_todo.pop(atom.key) # this has KeyError if atom is not there, 
+                                    #which is a good check of the above alg.
+
+        unconnected = {} # this will map atoms to themselves, which are not 
+            # connected to unselected atoms.
+            # note that we can't say "it's atoms_todo", since that maps atom 
+            #keys to atoms.
+            # (perhaps a mistake.)
+        for atom in atoms_todo.itervalues():
+            unconnected[atom] = atom
+        ## del atoms_todo
+            ## SyntaxError: can not delete variable 'atoms_todo' referenced 
+            ##in nested scope
+            # not even if I promise I'll never use one of those references 
+            # again? (they're only in the local function defs above)
+        atoms_todo = -1111 # error if used as a dict; recognizable/searchable 
+                           #value in a debugger
+
+        assert len(monovalents) + len(layers_union) + len(unconnected) == \
+               len_total
+        assert len(layers_union) == sum(map(len, layers.values()))
+
+        # Warning: most sets at this point map atoms to themselves, but
+        # monovalents maps them to their neighbors
+        # (which may or may not be monovalents).
+
+        # Now sort all the atoms into groups that move with the same offset,
+        # and find whole chunks
+        # in those groups (or at least in the group that moves precisely 
+        # with the drag).
+        # First, sort monovalents into unconnected ones (2-cycles, moved into 
+        # unconnected)and others (left in monovalents).
+
+        cycs = {}
+        for m in monovalents:
+            if monovalents[m] in monovalents:
+                assert monovalents[monovalents[m]] is m
+                cycs[m] = m
+                unconnected[m] = m
+        for m in cycs:
+            monovalents.pop(m)
+        del cycs
+        assert len(monovalents) + len(layers_union) + len(unconnected) == \
+               len_total # again, now that we moved them around
+
+        # Now handle the non-smooth_reshaping_drag case by expressing our 
+        # results from above
+        # in terms of the smooth_reshaping_drag case.
+
+        if not self.smooth_reshaping_drag:
+            # throw away all the work we did above! (but help to catch bugs 
+            #in the above code, even so)
+            unconnected.update(layers_union)
+            for atom in monovalents:
+                unconnected[atom] = atom
+            assert len(unconnected) == len_total
+            layers_union = {}
+            layers = {}
+            monovalents = {}
+            max_counter = 0
+
+        # Now we'll move unconnected and the highest layer (or layers?) with the
+        # drag, move the other layers lesser amounts, and move monovalents with 
+        # their neighbors. Let's label all the atoms with their N, then pull 
+        # that back onto the monovalents, and add them to a layer or unconnected
+        # as we do that, also adding a layer to unconnected if it moves the same
+        # But the code is simpler if we move unconnected into the highest layer
+        # instead of the other way around (noting that maybe max_counter == 0 
+        # and layers is empty). (unconnected can be empty too, but that is not 
+        # hard to handle.)
+
+        labels = {}
+        self.smooth_Max_N = max_counter # for use during the drag
+        self.smooth_N_dict = labels # ditto (though we'll modify it below)
+
+        if not max_counter:
+            assert not layers
+            layers[max_counter] = {}
+        layers[max_counter].update(unconnected)
+        del unconnected
+
+        assert max_counter in layers
+        for N, layer in layers.iteritems():
+            assert N <= max_counter
+            for atom in layer:
+                labels[atom] = N
+        N = layer = None
+        del N, layer
+
+        for m, n in monovalents.iteritems():
+            where = labels[n]
+            labels[m] = where
+            layers[where][m] = m
+        del monovalents
+
+        # Now every atom is labelled and in a layer. Move the fast ones out, 
+        #keep the slower ones in layers.
+        # (Note that labels itself is a dict of all the atoms, with their N 
+        #-- probably it could be our sole output
+        #  except for the dragchunks optim. But we'll try to remain compatible 
+        #with the old API. Hmm, why not return
+        #  the slow atoms in baggage and the fast ones in dragatoms/dragchunks?)
+
+        fastatoms = layers.pop(max_counter)
+
+        slowatoms = {}
+        for layer in layers.itervalues():
+            slowatoms.update(layer)
+        layer = None
+        del layer
+        layers = -1112
+        # slowatoms is not further used here, just returned
+
+        assert len_total == len(fastatoms) + len(slowatoms)
+
+        # Now find whole chunks in the group that moves precisely with the drag 
+        #(fastatoms).
+        # This is a slightly modified version of:
+        #bruce 060410 new code: optimize when all atoms in existing chunks are 
+        #being dragged.
+        # (##e Soon we hope to extend this to all cases, by making new temporary
+        # chunks to contain dragged atoms, invisibly to the user, taking steps 
+        #to not mess up existing chunks re their hotspot, display mode, etc.)
+        atomsets = {} # id(mol) -> (dict from atom.key -> atom) for dragged 
+                      #atoms in that mol
+        def doit(at):
+            mol = at.molecule
+            atoms = atomsets.setdefault(id(mol), {}) # dragged atoms which are 
+                                                     #in this mol, so far, 
+                                                     #as atom.key -> atom
+            atoms[at.key] = at # atoms serves later to count them, to let us 
+                               #make fragments, and to identify the source mol
+        for at in fastatoms:
+            doit(at)
+        dragatoms = []
+        dragchunks = []
+        for atomset in atomsets.itervalues():
+            assert atomset
+            mol = None # to detect bugs
+            for key, at in atomset.iteritems():
+                mol = at.molecule
+                break # i.e. pick an arbitrary item... is there an easier way? 
+                      #is this way efficient?
+            if len(mol.atoms) == len(atomset):
+                # all mol's atoms are being dragged
+                dragchunks.append(mol)
+            else:
+                # some but not all of mol's atoms are being dragged
+                ##e soon we can optimize this case too by separating those 
+                ##atoms into a temporary chunk,
+                # but for now, just drag them individually as before:
+                dragatoms.extend(atomset.itervalues())
+                    #k itervalues ok here? Should be, and seems to work ok. 
+                    #Faster than .values? Might be, in theory; not tested.
+            continue
+
+        assert len(fastatoms) == \
+               len(dragatoms) + sum([len(chunk.atoms) for chunk in dragchunks])
+
+        res = (dragatoms, slowatoms.values(), dragchunks) # these are all lists
+
+        return res # from (NEW) get_dragatoms_and_baggage
+    
+    
+    # By mark. later optimized and extended by bruce, 060410.
+    # Still used 2007-11-15. [OLD_get_dragatoms_and_baggage]
+    def OLD_get_dragatoms_and_baggage(self): 
+        """
+        #doc... return dragatoms, baggage, dragchunks; look at 
+        self.smooth_reshaping_drag [nim];
+        how atoms are divided between dragatoms & baggage is arbitrary and 
+        is not defined.
+        [A rewrite of callers would either change them to treat those 
+        differently and change
+        this to care how they're divided up (requiring a decision about 
+        selected baggage atoms),
+        or remove self.baggage entirely.]
+        """
+        #bruce 060410 optimized this; it had a quadratic algorithm 
+        #(part of the cause of bugs 1828 / 1438), and other slownesses.
+        # The old code was commented out for comparison 
+        #[and later, 070412, was removed].
+        #
+        # Note: as of 060410, it looks like callers only care about the total
+        #set of atoms in the two returned lists, not about which atom is in 
+        # which list, so the usefulness of having two lists is questionable.
+        # The old behavior was (by accident) that selected baggage atoms end up
+        # only in the baggage list, not in dragatoms. This was probably not 
+        # intended but did not matter at the time. The dragchunks optimization 
+        # at the end [060410] changes this by returning all atoms in dragatoms 
+        # or dragchunks, none in baggage. The new smooth reshaping feature 
+        #[070412] may change this again.
+        # WARNING: THIS IS NOT USED for smooth reshaping; see (non-OLD) 
+        #get_dragatoms_and_baggage for that.
+
+        dragatoms = []
+        baggage = []
+
+        selatoms = self.o.assy.selatoms
+
+        # Accumulate all the baggage from the selected atoms, which can include
+        # selected atoms if a selected atom is another selected atom's baggage.
+        # BTW, it is not possible for an atom to end up in self.baggage twice.
+
+        for at in selatoms.itervalues():
+            bag, nbag_junk = at.baggage_and_other_neighbors()
+            baggage.extend(bag) # the baggage we'll keep.
+
+        bagdict = dict([(at.key, None) for at in baggage])
+
+        # dragatoms should contain all the selected atoms minus atoms that 
+        # are also baggage.
+        # It is critical that dragatoms does not contain any baggage atoms or 
+        #they 
+        # will be moved twice in drag_selected_atoms(), so we remove them here.
+        for key, at in selatoms.iteritems():
+            if key not in bagdict: # no baggage atoms in dragatoms.
+                dragatoms.append(at)
+
+        # Accumulate all the nonbaggage bonded to the selected atoms.
+        # We also need to keep a record of which selected atom belongs to
+        # each nonbaggage atom.  This is not implemented yet, but will be needed
+        # to get drag_selected_atoms() to work properly.  I'm commenting it out
+        #for now.
+        # mark 060202.
+        ## [code removed, 070412]
+
+
+        #bruce 060410 new code: optimize when all atoms in existing chunks 
+        #are being dragged.
+        # (##e Soon we hope to extend this to all cases, by making new 
+        #temporary chunks to contain dragged atoms,
+        #  invisibly to the user, taking steps to not mess up existing chunks re
+        #their hotspot, display mode, etc.)
+        atomsets = {} # id(mol) -> (dict from atom.key -> atom) for dragged 
+        #atoms in that mol
+        def doit(at):
+            mol = at.molecule
+            atoms = atomsets.setdefault(id(mol), {}) # dragged atoms which are 
+                                                     #in this mol, so far, as 
+                                                     #atom.key -> atom
+            atoms[at.key] = at # atoms serves later to count them, to let
+                               #us make fragments, and to identify the source 
+                               #mol
+        for at in dragatoms:
+            doit(at)
+        for at in baggage:
+            doit(at)
+        dragatoms = []
+        baggage = [] # no longer used
+        dragchunks = []
+        for atomset in atomsets.itervalues():
+            assert atomset
+            mol = None # to detect bugs
+            for key, at in atomset.iteritems():
+                mol = at.molecule
+                break # i.e. pick an arbitrary item... is there an easier way? 
+                      #is this way efficient?
+            if len(mol.atoms) == len(atomset):
+                # all mol's atoms are being dragged
+                dragchunks.append(mol)
+            else:
+                # some but not all of mol's atoms are being dragged
+                ##e soon we can optimize this case too by separating those atoms
+                ##into a temporary chunk,
+                # but for now, just drag them individually as before:
+                dragatoms.extend(atomset.itervalues())
+                    #k itervalues ok here? Should be, and seems to work ok. 
+                    #Faster than .values? Might be, in theory; not tested.
+            continue
+
+        return dragatoms, baggage, dragchunks  # return from 
+                                                #OLD_get_dragatoms_and_baggage; 
+                                                #this routine will be removed 
+                                                #later
+                                                
+    def offset_ratio(self, atom, assert_slow = False): #bruce 070412
+        """
+        When self.smooth_reshaping_drag, return the drag_offset_ratio for 
+        any atom (0 if we're not dragging it).
+        """
+        N = float(self.smooth_N_dict.get(atom, 0))
+            # If found: from 1 to Max_N
+        Max_N = self.smooth_Max_N # 0 or more (integer)
+        if Max_N == 0:
+            R = 0; f = 1
+        else:
+            R = (Max_N - N)/Max_N # ranges from just above 0 to just below 1, 
+                                  # in slow case, or can be exact 0 or 1 in 
+                                  # general
+            f = (1-R**2)**2 # could be precomputed for each N, but that's 
+                            #probably not a big optim
+        if assert_slow:
+            assert 1 <= N < Max_N
+            assert 0 < R < 1, "why is R == %r not strictly between 0 and 1?" \
+                   "N = %r, Max_N = %r, atom = %r" % \
+                   (R, N, Max_N, atom)
+            assert 0 < f < 1
+        else:
+            assert 0 <= N <= Max_N
+            assert 0 <= R <= 1
+            assert 0 <= f <= 1
+        return f
+
+    
+    #bruce 070525 shortened text (it made entire menu too wide)
+    def get_smooth_reshaping_drag(self): 
+        res = debug_pref(
+            "Drag reshapes selected atoms?", 
+            Choice_boolean_False,
+            prefs_key = '_debug_pref_key:Drag reshapes selected atoms when \
+            bonded to unselected atoms?',
+            non_debug = True )
+        return res
+
+    def get_use_old_safe_drag_code(self): #bruce 070413
+        res = debug_pref("use old safe drag code, when not reshaping?",
+                         Choice_boolean_True, ###e change this default to False
+                         ##(and change the prefs key) after FNANO-2007
+                         prefs_key = True, non_debug = True )
+        return res
+    
     
     
     # ===== START: Bond selection, deletion and dragging helper methods =======
@@ -1265,7 +1789,38 @@ class selectAtomsMode(selectMode):
                                 #[bruce 060726 question]
             
     # ===== END: Bond selection and dragging helper methods ==========
+    
+    # Methods jigSetup, drag_selected_jigs  moved from selectMode to here 
+    # on 2007-11-16
 
+    def jigSetup(self, j):
+        """
+        Setup for a click, double-click or drag event for jig <j>.
+        """
+        self.objectSetup(j)
+        
+        #bruce 070412
+        self.smooth_reshaping_drag = self.get_smooth_reshaping_drag() 
+
+        self.dragatoms, self.baggage, self.dragchunks = \
+            self.get_dragatoms_and_baggage()
+            # if no atoms are selected, dragatoms and baggage 
+            #are empty lists, which is good.
+
+        # dragjigs contains all the selected jigs.
+        self.dragjigs = self.o.assy.getSelectedJigs()
+    
+    def drag_selected_jigs(self, offset):
+        for j in self.dragjigs:
+            if self.smooth_reshaping_drag:
+                # figure out a modified offset by averaging the offset-ratio for
+                #this jig's atoms
+                ratio = average_value(map(self.offset_ratio, j.atoms), 
+                                      default = 1.0)
+                offset = offset * ratio # not *=, since it's a mutable Numeric 
+                                        #array!
+            j.move(offset)
+    
     
     def jigDrag(self, j, event):
         """
