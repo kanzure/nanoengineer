@@ -1,3 +1,3 @@
 
-SUBDIRS = DNA
+SUBDIRS = DNA HDF5_SimResults
 

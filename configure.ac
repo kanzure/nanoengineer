@@ -50,7 +50,21 @@ fi
 AM_CONDITIONAL([RUN_FREEZEPYTHON], [test -n "$freezepython_prefix"])
 
 
+#
+# Check if we're building the CppUnit tests
+#
+AC_ARG_ENABLE(cppunit-tests,
+            AC_HELP_STRING([--enable-cppunit-tests],
+                           [build the CppUnit test suites]))
+if test -z "$enable_cppunit_tests"; then
+  enable_cppunit_tests="no"
+fi
+AM_CONDITIONAL([ENABLE_CPPUNIT_TESTS], [test "$enable_cppunit_tests" = "yes"])
+
+
+#
 # Checks for libraries.
+#
 CHECK_FREEZEPYTHON([3.0.3])
 CHECK_QT([4.2.3])
 CHECK_PYQT([4.2])
@@ -60,6 +74,12 @@ CHECK_NUMPY([1.0.2])
 CHECK_CTYPES([1.0.2])
 CHECK_PYOPENGL([3.0.0a6])
 CHECK_PIL([1.1.6])
+
+#   CppUnit Tests (CppUnit)
+if test "$enable_cppunit_tests" = "yes"; then
+  CHECK_CPPUNIT([1.10.0])
+fi
+
 
 # Checks for header files.
 #AC_HEADER_STDC
@@ -90,14 +110,17 @@ CHECK_PIL([1.1.6])
 AC_SUBST(UNAME_A, "$(uname -a)")
 
 AC_CONFIG_FILES([Makefile
-		 cad/Makefile
-		 cad/doc/Makefile
-		 cad/src/Makefile
-		 cad/partlib/Makefile
-		 cad/plugins/Makefile
-		 cad/plugins/DNA/Makefile
-		 debian/postinst
-		 sim/Makefile
-		 sim/src/Makefile])
+		cad/Makefile
+			cad/doc/Makefile
+			cad/src/Makefile
+			cad/partlib/Makefile
+			cad/plugins/Makefile
+				cad/plugins/DNA/Makefile
+				cad/plugins/HDF5_SimResults/Makefile
+					cad/plugins/HDF5_SimResults/src/Makefile
+						cad/plugins/HDF5_SimResults/src/Testing/Makefile
+		debian/postinst
+		sim/Makefile
+			sim/src/Makefile])
 AC_OUTPUT
 

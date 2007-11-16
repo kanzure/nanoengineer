@@ -10,6 +10,7 @@ cat ./ac_numpy.m4 >> ./acinclude.m4
 cat ./ac_ctypes.m4 >> ./acinclude.m4
 cat ./ac_pyopengl.m4 >> ./acinclude.m4
 cat ./ac_pil.m4 >> ./acinclude.m4
+cat ./ac_cppunit.m4 >> ./acinclude.m4
 
 aclocal
 autoheader
