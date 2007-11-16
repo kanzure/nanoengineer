@@ -31,6 +31,7 @@ code works.]
 from PyQt4.Qt import QMouseEvent
 
 import env
+import platform
 
 from VQT import V, Q, norm, vlen, ptonline
 from chem import Atom
@@ -39,6 +40,8 @@ from bonds import Bond
 from elements import Singlet
 
 from debug import print_compact_traceback, print_compact_stack
+
+from runSim import LocalMinimize_function
 
 from Group import Group
 
@@ -352,13 +355,135 @@ class selectAtomsMode(selectMode):
             # is not hidden [comment might be obs, as of 050610]
 
         return # from update_selatom
+    
+    
+    # Method update_selatom_and_selobj moved here from selectMode on 2007-11-16
+    
+    def update_selatom_and_selobj(self, event = None): #bruce 050705
+        """
+        update_selatom (or cause this to happen with next paintGL);
+        return consistent pair (selatom, selobj);
+        atom_debug warning if inconsistent
+        """
+        #e should either use this more widely, or do it in selatom itself, 
+        #or convert entirely to using only selobj.
+        self.update_selatom( event) # bruce 050612 added this -- 
+                                    #not needed before since bareMotion did it 
+                                    #(I guess).
+            ##e It might be better to let set_selobj callback (NIM, but needed 
+            ##for sbar messages) keep it updated.
+            #
+            # See warnings about update_selatom's delayed effect, in its 
+            #docstring or in leftDown. [bruce 050705 comment]
+        selatom = self.o.selatom
+        selobj = self.o.selobj #bruce 050705 -- #e it might be better to use
+                               #selobj alone (selatom should be derived from it)
+        if selatom is not None:
+            if selobj is not selatom:
+                if platform.atom_debug:
+                    print "atom_debug: selobj %r not consistent with" \
+                         "selatom %r -- using selobj = selatom" % (selobj, 
+                                                                   selatom)
+                selobj = selatom # just for our return value, not changed in 
+                                 #GLPane (self.o)
+        else:
+            pass #e could check that selobj is reflected in selatom if an atom, 
+                 #but might as well let update_selatom do that,
+                 #esp. since it behaves differently for singlets
+        return selatom, selobj
+    
+    
+    #Method self.makeMenus -- Moved from selectMode to here on 2007-11-16 
+
+    call_makeMenus_for_each_event = True #mark 060312
+    
+    def makeMenus(self): 
+
+        selatom, selobj = self.update_selatom_and_selobj( None)
+
+        self.Menu_spec = []
+
+        # Local minimize [now called Adjust Atoms in history/Undo,
+        #Adjust <what> here and in selectMode -- mark & bruce 060705]
+        # WARNING: This code is duplicated in depositMode.makeMenus(). 
+        #--mark 060314.
+        if selatom is not None and \
+           not selatom.is_singlet() and \
+           self.w.simSetupAction.isEnabled():
+            
+            # see comments in depositMode version
+            self.Menu_spec.append((
+                'Adjust atom %s' % selatom, 
+                lambda e1=None,a=selatom: self.localmin(a,0) ))
+            
+            self.Menu_spec.append((
+                'Adjust 1 layer', 
+                lambda e1=None,a=selatom: self.localmin(a,1) ))
+            
+            self.Menu_spec.append((
+                'Adjust 2 layers', 
+                lambda e1=None,a=selatom: self.localmin(a,2) ))
+
+        # selobj-specific menu items. [revised by bruce 060405; 
+        #for more info see the same code in depositMode]
+        if selobj is not None and hasattr(selobj, 'make_selobj_cmenu_items'):
+            try:
+                selobj.make_selobj_cmenu_items(self.Menu_spec)
+            except:
+                print_compact_traceback("bug: exception (ignored) in"
+                                        " make_selobj_cmenu_items "
+                                        "for %r: " % selobj)
+
+        # separator and other mode menu items.
+        if self.Menu_spec:
+            self.Menu_spec.append(None)
+
+        # Enable/Disable Jig Selection.
+        # This is duplicated in depositMode.makeMenus() and 
+        #selectMolsMode.makeMenus().
+        if self.o.jigSelectionEnabled:
+            self.Menu_spec.extend( [('Enable Jig Selection',  
+                                     self.toggleJigSelection, 
+                                     'checked')])
+        else:
+            self.Menu_spec.extend( [('Enable Jig Selection', 
+                                     self.toggleJigSelection, 
+                                     'unchecked')])
+
+        self.Menu_spec.extend( [
+            # mark 060303. added the following:
+            None,
+            ('Change Background Color...', self.w.changeBackgroundColor),
+        ])
+
+        return # from makeMenus
+    
+    # Method localmin moved here from selectMode -- 2007-11-16
+    # Local minimize [now called Adjust Atoms in history/Undo, Adjust <what> 
+    #in menu commands -- mark & bruce 060705]
+    def localmin(self, atom, nlayers): #bruce 051207 #e might generalize to 
+                                       #take a list or pair of atoms, other 
+                                       #options
+        if platform.atom_debug:
+            print "debug: reloading runSim on each use, for development"\
+                  "[localmin %s, %d]" % (atom, nlayers)
+            import runSim, debug
+            debug.reload_once_per_event(runSim) #bruce 060705 revised this
+        if 1:
+            # this does not work, 
+            #I don't know why, should fix sometime: [bruce 060705]
+            self.set_cmdname("Adjust Atoms") # for Undo (should we be more 
+                                             #specific, like the menu text was? 
+                                             #why didn't that get used?)
+        
+        LocalMinimize_function( [atom], nlayers )
+        return
 
 
     # == LMB event handling methods ====================================
     #
     # The following sections include all the LMB event handling methods for
-    # selectAtomsMode. The section is organized in the following order and
-    # includes the following methods:
+    # selectAtomsMode. The section includes the following methods:
     #
     #   - LMB down-click (button press) methods
     #       leftShiftDown()

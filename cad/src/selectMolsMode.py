@@ -257,7 +257,6 @@ class selectMolsMode(selectMode):
         return
 
     # Chunk selection helper methods. 
-
     def atomLeftDown(self, a, event):  
         """
         Left down on an atom or a singlet(bondpoint)

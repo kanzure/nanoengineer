@@ -1364,7 +1364,6 @@ class selectMode(basicMode):
     # == Jig event handler helper methods   
 
     def jigLeftDown(self, j, event):
-
         if not j.picked and self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane() # was unpickatoms, unpickparts [bruce 060721]
             j.pick()
@@ -2041,8 +2040,10 @@ class selectMode(basicMode):
             obj = self.o.assy.findAtomUnderMouse(event, 
                                                  self.water_enabled, 
                                                  singlet_ok = True)
-            # Note: findAtomUnderMouse() only returns atoms and singlets, not bonds or jigs.
-            # This means that bonds can never be selected when highlighting is turned off.
+            # Note: findAtomUnderMouse() only returns atoms and singlets, not 
+            # bonds or jigs.
+            # This means that bonds can never be selected when highlighting 
+            # is turned off.
             # [What about jigs? bruce question 060721]
         return obj
 
@@ -2080,28 +2081,36 @@ class selectMode(basicMode):
 
 
         #e see also the options on update_selatom;
-        # probably update_selatom should still exist, and call this, and provide those opts, and set selatom from this,
+        # probably update_selatom should still exist, and call this, and 
+        #provide those opts, and set selatom from this,
         # but see the docstring issues before doing this ####@@@@
 
-        # bruce 050610 new comments for intended code (#e clean them up and make a docstring):
+        # bruce 050610 new comments for intended code (#e clean them up and
+        # make a docstring):
         # selobj might be None, or might be in stencil buffer.
-        # Use that and depthbuffer to decide whether redraw is needed to look for a new one.
-        # Details: if selobj none, depth far or under water is fine, any other depth means look for new selobj (set flag, glupdate).
-        # if selobj not none, stencil 1 means still same selobj (if no stencil buffer, have to guess it's 0);
-        # else depth far or underwater means it's now None (repaint needed to make that look right, but no hittest needed)
-        # and another depth means set flag and do repaint (might get same selobj (if no stencil buffer or things moved)
-        #   or none or new one, won't know yet, doesn't matter a lot, not sure we even need to reset it to none here first).
-        # Only goals of this method: maybe glupdate, if so maybe first set flag, and maybe set selobj none, but prob not
-        # (repaint sets new selobj, maybe highlights it).
-        # [some code copied from modifyMode]
+        # Use that and depthbuffer to decide whether redraw is needed to look 
+        # for a new one.
+        # Details: if selobj none, depth far or under water is fine, any other 
+        # depth means look for new selobj (set flag, glupdate). if selobj not
+        # none, stencil 1 means still same selobj (if no stencil buffer, have to
+        # guess it's 0); else depth far or underwater means it's now None 
+        #(repaint needed to make that look right, but no hittest needed)
+        # and another depth means set flag and do repaint (might get same selobj
+        #(if no stencil buffer or things moved)or none or new one, won't know 
+        # yet, doesn't matter a lot, not sure we even need to reset it to none 
+        # here first).
+        # Only goals of this method: maybe glupdate, if so maybe first set flag,
+        # and maybe set selobj none, but prob not(repaint sets new selobj, maybe
+        # highlights it).[some code copied from modifyMode]
 
         if debug_update_selobj_calls:
             print_compact_stack("debug_update_selobj_calls: ")
 
         glpane = self.o
 
-        # If animating or ZPRing (zooming/panning/rotating) with the MMB, do not hover highlight anything. 
-        # For more info about <is_animating>, see GLPane.animateToView(). mark 060404.
+        # If animating or ZPRing (zooming/panning/rotating) with the MMB, 
+        # do not hover highlight anything. For more info about <is_animating>, 
+        #see GLPane.animateToView(). mark 060404.
         if self.o.is_animating or \
            (self.o.button == "MMB" and not getattr(self, '_defeat_update_selobj_MMB_specialcase', False)):
             return
@@ -2227,7 +2236,6 @@ class selectMode(basicMode):
         # describe_leftDown_action, which I'll also remove or comment out. [bruce 071025]
         return not new_selobj_unknown # from update_selobj
 
-
     def update_selatom(self, 
                        event, 
                        singOnly = False, 
@@ -2237,97 +2245,33 @@ class selectMode(basicMode):
 	should override this method as needed.
 	
 	@see: selectAtomsMode.update_selatom for documentation.
+        #see; selectMode.get_obj_under_cursor
         """
         # REVIEW: are any of the calls to this in selectMode methods,
         # which do nothing except in subclasses of selectAtomsMode,
         # indications that the code they're in doesn't make sense except
         # in such subclasses? [bruce 071025 question]
+        
+        #I am not sure what you mean above. Assuming you meant: Is there a 
+        #method in this class selectMode, that calls this method
+        # (i.e. calls selectMode.update_selatom)
+        #Yes, there is a method self.selectMode.get_obj_under_cursor that calls 
+        #this method and thats why I kept a default implemetation that does 
+        #nothing -- Ninad 2007-11-16
         pass
 
-
-    # update_selatom_and_selobj() moved here from depositMode.py  mark 060312.
-    def update_selatom_and_selobj(self, event = None): #bruce 050705
+    def makeMenus(self):
         """
-        update_selatom (or cause this to happen with next paintGL);
-        return consistent pair (selatom, selobj);
-        atom_debug warning if inconsistent
+        Overrided in subclasses. Default implementation does nothing
+        @see: selectAtomsMode.makeMenus
+        @see: selectMolsMode.makeMenus         
         """
-        #e should either use this more widely, or do it in selatom itself, or convert entirely to using only selobj.
-        self.update_selatom( event) # bruce 050612 added this -- not needed before since bareMotion did it (I guess).
-            ##e It might be better to let set_selobj callback (NIM, but needed for sbar messages) keep it updated.
-            #
-            # See warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
-        selatom = self.o.selatom
-        selobj = self.o.selobj #bruce 050705 -- #e it might be better to use selobj alone (selatom should be derived from it)
-        if selatom is not None:
-            if selobj is not selatom:
-                if platform.atom_debug:
-                    print "atom_debug: selobj %r not consistent with selatom %r -- using selobj = selatom" % (selobj, selatom)
-                selobj = selatom # just for our return value, not changed in GLPane (self.o)
-        else:
-            pass #e could check that selobj is reflected in selatom if an atom, but might as well let update_selatom do that,
-                # esp. since it behaves differently for singlets
-        return selatom, selobj
-
-    call_makeMenus_for_each_event = True #mark 060312
-
-    def makeMenus(self): # menu item names modified by bruce 041217
-
-        selatom, selobj = self.update_selatom_and_selobj( None)
-
-        self.Menu_spec = []
-
-        # Local minimize [now called Adjust Atoms in history/Undo, Adjust <what> here and in selectMode -- mark & bruce 060705]
-        # WARNING: This code is duplicated in depositMode.makeMenus(). mark 060314.
-        if selatom is not None and not selatom.is_singlet() and self.w.simSetupAction.isEnabled():
-            # see comments in depositMode version
-            self.Menu_spec.append(( 'Adjust atom %s' % selatom, lambda e1=None,a=selatom: self.localmin(a,0) ))
-            self.Menu_spec.append(( 'Adjust 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
-            self.Menu_spec.append(( 'Adjust 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
-
-        # selobj-specific menu items. [revised by bruce 060405; for more info see the same code in depositMode]
-        if selobj is not None and hasattr(selobj, 'make_selobj_cmenu_items'):
-            try:
-                selobj.make_selobj_cmenu_items(self.Menu_spec)
-            except:
-                print_compact_traceback("bug: exception (ignored) in make_selobj_cmenu_items for %r: " % selobj)
-
-        # separator and other mode menu items.
-        if self.Menu_spec:
-            self.Menu_spec.append(None)
-
-        # Enable/Disable Jig Selection.
-        # This is duplicated in depositMode.makeMenus() and selectMolsMode.makeMenus().
-        if self.o.jigSelectionEnabled:
-            self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'checked')])
-        else:
-            self.Menu_spec.extend( [('Enable Jig Selection',  self.toggleJigSelection, 'unchecked')])
-
-        self.Menu_spec.extend( [
-            # mark 060303. added the following:
-            None,
-            ('Change Background Color...', self.w.changeBackgroundColor),
-        ])
-
-        return # from makeMenus
+        pass    
 
     def toggleJigSelection(self):
         self.o.jigSelectionEnabled = not self.o.jigSelectionEnabled
 
-    # localmin moved here from depositMode. mark 060314.
-    # Local minimize [now called Adjust Atoms in history/Undo, Adjust <what> in menu commands -- mark & bruce 060705]
-    def localmin(self, atom, nlayers): #bruce 051207 #e might generalize to take a list or pair of atoms, other options
-        if platform.atom_debug:
-            print "debug: reloading runSim on each use, for development [localmin %s, %d]" % (atom, nlayers)
-            import runSim, debug
-            debug.reload_once_per_event(runSim) #bruce 060705 revised this
-        if 1:
-            # this does not work, I don't know why, should fix sometime: [bruce 060705]
-            self.set_cmdname("Adjust Atoms") # for Undo (should we be more specific, like the menu text was? why didn't that get used?)
-        from runSim import LocalMinimize_function
-        LocalMinimize_function( [atom], nlayers )
-        return
-
+    
     pass # end of class selectMode
 
 # end
