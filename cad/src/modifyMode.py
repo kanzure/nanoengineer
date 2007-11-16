@@ -720,6 +720,16 @@ class modifyMode(selectMolsMode):
 	@see : self.leftDragRotation
 
         """
+        
+        selectedMovables = self.o.assy.getSelectedMovables()
+        
+        if not selectedMovables: 
+            # This should never happen (i.e. the method leftDragFreeRotation
+            # should be called only when movable entities are selected)
+            # This is just a safety check.
+            env.history.message(redmsg("No chunks or movable jigs selected."))
+            return
+        
         #Note: In Alpha 9.1 and before, this operation was done by leftCntlDrag
         #Now, leftCntlDrag is used for 'subtract from selection' which is 
         #consistent with the default mode (selectMols mode)- ninad 20070802
@@ -735,9 +745,15 @@ class modifyMode(selectMolsMode):
         if self.propMgr.rotateAsUnitCB.isChecked():
             self.o.assy.rotsel(q) # Rotate the selection as a unit.
         else:
-            for mol in self.o.assy.selmols: # Rotate each chunk individually.
-                mol.rot(q)
-
+            #Following fixes bug 2521
+            for item in selectedMovables:
+                try:
+                    item.rot(q)
+                except AssertionError:
+                    print_compact_traceback("Selected movable doesn't have"\
+                                            "rot method?")
+                    
+            
         self.o.gl_update()
 
     def leftUp(self, event):  
