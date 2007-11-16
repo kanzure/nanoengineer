@@ -20,8 +20,8 @@ writeGromacsAtom(FILE *top, FILE *gro, struct part *p, struct atom *a)
 {
     int residueNumber = 1;
     char *residueName = "xxx";
-    int chargeGroupNumber = 0;
     int atomNumber = a->index + 1;
+    int chargeGroupNumber = atomNumber;
     char atomName[256];
     struct xyz pos = p->positions[a->index];
     
