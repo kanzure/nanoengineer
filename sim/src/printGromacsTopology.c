@@ -20,7 +20,7 @@ writeGromacsAtom(FILE *top, FILE *gro, struct part *p, struct atom *a)
 {
     int residueNumber = 1;
     char *residueName = "xxx";
-    int chargeGroupNumber = 1;
+    int chargeGroupNumber = 0;
     int atomNumber = a->index + 1;
     char atomName[256];
     struct xyz pos = p->positions[a->index];
@@ -192,10 +192,12 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(mdp, "cpp                 =  /usr/bin/cpp\n"); // XXX probably platform dependent
     fprintf(mdp, "define              =  -DFLEX_SPC\n");
     fprintf(mdp, "constraints         =  none\n");
-    fprintf(mdp, "integrator          =  steep\n");
+    fprintf(mdp, "pbc                 =  no\n");
+    fprintf(mdp, "integrator          =  cg\n"); // cg or steep, for conjugate gradients or steepest descent
     fprintf(mdp, "dt                  =  0.002    ; ps !\n");
-    fprintf(mdp, "nsteps              =  100\n");
-    fprintf(mdp, "nstlist             =  10\n");
+    fprintf(mdp, "nsteps              =  1000\n"); // max number of iterations
+    fprintf(mdp, "nstcgsteep          =  100\n"); // steps per cg or steep phase
+    fprintf(mdp, "nstlist             =  10\n"); // update frequency for neighbor list
     fprintf(mdp, "ns_type             =  grid\n");
     fprintf(mdp, "rlist               =  1.0\n");
     fprintf(mdp, "rcoulomb            =  1.0\n");
@@ -203,8 +205,10 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(mdp, ";\n");
     fprintf(mdp, ";       Energy minimizing stuff\n");
     fprintf(mdp, ";\n");
-    fprintf(mdp, "emtol               =  1000\n");  // XXX this should be calculated from MinimizeThresholdEndRMS
-    fprintf(mdp, "emstep              =  10\n");
+    // emtol in kJ mol^-1 nm^-1
+    // MinimizeThresholdEndRMS is in pN (1e-12 J m^-1), or zJ nm^-1
+    fprintf(mdp, "emtol               =  %f\n", zJ_to_kJpermol(MinimizeThresholdEndRMS));
+    fprintf(mdp, "emstep              =  0.1\n"); // initial step size in nm
     fclose(mdp);
     
     fprintf(top, "[ defaults ]\n");
@@ -239,7 +243,8 @@ printGromacsToplogy(char *basename, struct part *p)
     for (i=0; i<p->num_atoms; i++) {
 	writeGromacsAtom(top, gro, p, p->atoms[i]);
     }
-    fprintf(gro, "%10.5f%10.5f%10.5f\n", 10.0, 10.0, 10.0); // periodic box size
+#define BOXSIZE 0.00001
+    fprintf(gro, "%10.5f%10.5f%10.5f\n", BOXSIZE, BOXSIZE, BOXSIZE); // periodic box size
     fclose(gro);
     fprintf(top, "\n");
 

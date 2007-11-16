@@ -155,7 +155,7 @@ class SimRunner:
                 # since it also monitors progress and waits until it's done,
                 # and insert results back into part, either in real time or when done.
                 # result error code (or abort button flag) stored in self.errcode
-            if (self.mflag == 1 and debug_pref("Use Gromacs for minimize?", Choice_boolean_False)):
+            if (self.mflag == 1 and debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug=True, prefs_key=True)):
                 gromacsBaseFileName = self._movie.filename
                 gromppArgs = [
                     "-f", "%s.mdp" % gromacsBaseFileName,
@@ -596,7 +596,7 @@ class SimRunner:
 ##		electrostaticArg.append(str(electrostaticFlag))
                 electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 
-                if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False)):
+                if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug=True, prefs_key=True)):
                     gromacsArg1 = "--write-gromacs-topology"
                     gromacsArg2 = moviefile
                 else:
@@ -683,7 +683,7 @@ class SimRunner:
                 else:
                     simopts.EnableElectrostatic = self.getElectrostaticPrefValueForMinimize()
 
-                if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug = True)):
+                if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug = True, prefs_key=True)):
                     simopts.GromacsOutputBaseName = moviefile
 
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
@@ -2329,7 +2329,7 @@ class Minimize_CommandRun(CommandRun):
             return
 
         if mtype == 1:  # Load single-frame XYZ file.
-            if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False)):
+            if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug=True, prefs_key=True)):
                 newPositions = readGromacsCoordinates(movie.filename + "-out.gro", movie.alist)
             else:
                 newPositions = readxyz( movie.filename, movie.alist ) # movie.alist is now created in writemovie [bruce 050325]
