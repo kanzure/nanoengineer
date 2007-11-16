@@ -12,8 +12,10 @@ coordinate spinboxes.
 @TODO: Need to implement connectWidgetWithState when that API is formalized.
 """
 
+from PyQt4.Qt            import QLabel
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
+
 
 class PM_CoordinateSpinBoxes(PM_GroupBox):
     """

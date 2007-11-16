@@ -631,9 +631,12 @@ class Z_Dna_Atomistic(Z_Dna):
         basefile     =  self._baseFileName(basename)
         return (basefile, zoffset, thetaOffset)
 
-    def _strandBinfo(self, index):
+    def _strandBinfo(self, baseLetter, index):
         """
         Returns parameters needed to add a base to strand B.
+        
+        @param baseLetter: The base letter.
+        @type  baseLetter: str
         
         @param index: Base-pair index.
         @type  index: int

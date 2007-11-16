@@ -19,25 +19,20 @@ ninad 2007-09-11: Code clean up to use PM module classes
 """
 
 
-
 from PyQt4.Qt      import Qt
-from PyQt4.QtCore  import QSize
 
 from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_Slider        import PM_Slider
-from PM.PM_ComboBox      import PM_ComboBox
 from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_WidgetRow     import PM_WidgetRow
 from PM.PM_ToolButton    import PM_ToolButton
-from PM.PM_ToolButtonRow import PM_ToolButtonRow
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 
-from icon_utilities      import geticon
 from NE1ToolBar          import NE1ToolBar
 
 
@@ -171,49 +166,6 @@ class Ui_MoviePropertyManager(PM_Dialog):
                                                 widgetColumn = 0,
                                                 state = Qt.Unchecked) 
         
-        #####################DEBUG ONLY STARTS###############################
-        if 0:
-            #+++++++DEBUG ONLY+++++
-            
-            # Button list to create a toolbutton row.
-            # Format: 
-            # - buttonId, 
-            # - buttonText , 
-            # - iconPath
-            # - tooltip
-            # - shortcut
-            # - column
-            MOVIE_CONTROL_BUTTONS = \
-                              [ ( "QToolButton", 0, "Reset Movie","", "", 
-                                  None, 0),
-                                ( "QToolButton", 1,  "Reverse",    "", "", 
-                                  None, 1),
-                                ( "QToolButton", 2,  "TRIPLE",    "", "", 
-                                  None, 2),
-                                ( "QToolButton", 3,  "AROMATIC",  "", "", 
-                                  None, 3),
-                                ( "QToolButton", 4,  "GRAPHITIC", "", "", 
-                                  None, 4),
-                                ( "QToolButton", 5,  "CUTBONDS",  "", "", 
-                                  None, 5)
-                              ]
-                            
-            self.movieControlsButtonRow = \
-                PM_ToolButtonRow( 
-                    inPmGroupBox, 
-                    title        = "",
-                    buttonList   = MOVIE_CONTROL_BUTTONS,
-                    checkedId    = 0,
-                    setAsDefault = True )
-            
-                                                       
-            for btn in self.movieControlsButtonRow.buttons():
-                btnId = self.movieControlsButtonRow.buttonGroup.id(btn)
-                action = bondToolActions[btnId]
-                action.setCheckable(True)
-                btn.setIconSize(QSize(24,24))
-                btn.setDefaultAction(action)
-        #####################DEBUG ONLY ENDS################################
 
     def _loadMovieFilesGroupBox(self, inPmGroupBox):
         """
