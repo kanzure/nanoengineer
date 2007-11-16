@@ -147,7 +147,10 @@ class assembly( StateMixin, Assembly_API):
     _view_change_counter = 0 # also includes changing current part, glpane display mode [mostly nim as of 060228]
 
     def all_change_counters(self): #bruce 060227
-        "Return a tuple of all our change counters, suitable for later passing to self.reset_changed_for_undo()."
+        """
+        Return a tuple of all our change counters, suitable for later passing
+        to self.reset_changed_for_undo().
+        """
         return self._model_change_counter, self._selection_change_counter, self._view_change_counter
 
     # state declarations:
@@ -177,7 +180,6 @@ class assembly( StateMixin, Assembly_API):
         """
         @type win: MWsemantics or None
         """
-
         self.own_window_UI = own_window_UI
         
         # ignore changes to this assembly during __init__, and after it,
@@ -452,7 +454,8 @@ class assembly( StateMixin, Assembly_API):
 
     next_clipboard_item_number = 1 # initial value of instance variable
     def name_autogrouped_nodes_for_clipboard(self, nodes, howmade = ""):
-        """Make up a default initial name for an automatically made Group
+        """
+        Make up a default initial name for an automatically made Group
         whose purpose is to keep some nodes in one clipboard item.
            The nodes in question might be passed, but this is optional
         (but you have to pass None or [] if you don't want to pass them),
@@ -498,7 +501,8 @@ class assembly( StateMixin, Assembly_API):
     prefs_node = None #bruce 050602; default value of instance variable; experimental
     
     def topnode_partmaker_pairs(self): #bruce 050602
-        """Return a list of (node, partclass) pairs,
+        """
+        Return a list of (node, partclass) pairs,
         for each node (in the tree of our nodes we'd display in a model tree)
         which should be at the top of its own Part of the specified Part subclass.
            The partclass might actually be any Part constructor with similar API
@@ -522,7 +526,8 @@ class assembly( StateMixin, Assembly_API):
         return res
     
     def update_parts(self):
-        """For every node in this assy, make sure it's in the correct Part (of the correct kind),
+        """
+        For every node in this assy, make sure it's in the correct Part (of the correct kind),
         creating new parts if necessary. [See also checkparts method.] 
         For now [050308], also break inter-Part bonds; later this might be done separately.
         """
@@ -565,7 +570,8 @@ class assembly( StateMixin, Assembly_API):
         return
     
     def ensure_one_part(self, node, part_constructor): #bruce 050420 revised this to help with bug 556; revised again 050527
-        """Ensure node is the top node of its own Part, and all its kids are in that Part,
+        """
+        Ensure node is the top node of its own Part, and all its kids are in that Part,
         either by verifying this situation, or creating a new Part just for node and its kids.
         Specifically:
            If node's part is None or not owned by node (ie node is not its own part's topnode),
@@ -600,7 +606,9 @@ class assembly( StateMixin, Assembly_API):
     # == Part-related debugging functions
 
     def checkparts(self):
-        "make sure each selgroup has its own Part, and all is correct about them"
+        """
+        make sure each selgroup has its own Part, and all is correct about them
+        """
         # presumably this is only called when platform.atom_debug, but that's up to the caller
         for node in self.topnodes_with_own_parts():
             ## print "checking part-related stuff about node:" ,node
@@ -640,7 +648,8 @@ class assembly( StateMixin, Assembly_API):
     # == current selection group (see it and/or change it)
 
     def current_selgroup_iff_valid(self):
-        """If the current selection group, as stored (with no fixing!),
+        """
+        If the current selection group, as stored (with no fixing!),
         is valid in all ways we can think of checking
         (except any ways related to Parts, which are not examined here),
         return it, otherwise return None (not an error).
@@ -652,7 +661,8 @@ class assembly( StateMixin, Assembly_API):
         return sg
 
     def valid_selgroup(self, sg):
-        """If the GIVEN (not current) selection group (with no fixing!)
+        """
+        If the GIVEN (not current) selection group (with no fixing!)
         is valid in all ways we can think of checking
         (except ways related to its .part, which is not examined -- see selgroup_part for that)
         as a candidate for being or becoming our current selection group,
@@ -675,7 +685,8 @@ class assembly( StateMixin, Assembly_API):
         return True
 
     def current_selgroup(self):
-        """If the current selection group is valid as stored, return it.
+        """
+        If the current selection group is valid as stored, return it.
         If not, try to fix it, choosing a new one which includes the stored one if possible
         (this situation might be normal after a DND move of a whole clipboard item
          into the inside of some other Part),
@@ -721,7 +732,8 @@ class assembly( StateMixin, Assembly_API):
         return self._last_current_selgroup # (this will be same as newsg, or debug prints already occurred)
 
     def selgroup_part(self, sg):
-        """Given a valid selgroup sg (or None), check that it's its .part's topnode,
+        """
+        Given a valid selgroup sg (or None), check that it's its .part's topnode,
         and if so return its .part, and if not return None after emitting debug prints
         (which always indicates a bug, I'm 90% sure as I write it -- except maybe during init ###k #doc).
         """
@@ -739,7 +751,8 @@ class assembly( StateMixin, Assembly_API):
     # ==
     
     def current_selgroup_index(self): #bruce 060125 so Undo can store "current part" w/o doing update_parts [guess; wisdom unreviewed]
-        """Return the index of the current selgroup, where 0 means self.tree and 1, 2, etc refer to
+        """
+        Return the index of the current selgroup, where 0 means self.tree and 1, 2, etc refer to
         the clipboard items in their current positional order. [Note that this won't be useful for out-of-order redo.]
         """
         sg = self.current_selgroup()
@@ -753,7 +766,10 @@ class assembly( StateMixin, Assembly_API):
         pass
 
     def selgroup_at_index(self, i): #bruce 060125 for Undo
-        "Return the selection group at index i (0 means self.tree), suitable for passing to set_current_selgroup."
+        """
+        Return the selection group at index i (0 means self.tree),
+        suitable for passing to set_current_selgroup.
+        """
         if i == 0:
             return self.tree
         try:
@@ -767,7 +783,8 @@ class assembly( StateMixin, Assembly_API):
 
     ##e move this lower down?
     def fyi_part_topnode_changed(self, old_top, new_top):
-        """[private method for a single caller in Part]
+        """
+        [private method for a single caller in Part]
         Some Part tells us that its topnode changed from old_top to new_top.
         If our current selgroup happened to be old_top, make it now be new_top,
         but don't emit a history message about this change.
@@ -786,7 +803,10 @@ class assembly( StateMixin, Assembly_API):
         self.set_current_selgroup( part.topnode)
     
     def set_current_selgroup(self, node): #bruce 050131 for Alpha; heavily revised 050315; might need options wrt history msg, etc
-        "Set our current selection group to node, which should be a valid one. [public method; no retval]"
+        """
+        Set our current selection group to node, which should be a valid one.
+        [public method; no retval]
+        """
         assert node
         prior = self.current_selgroup_iff_valid() # don't call current_selgroup itself here --
             # it might try to "fix an out of date current selgroup"
@@ -808,7 +828,9 @@ class assembly( StateMixin, Assembly_API):
         return
     
     def current_selgroup_changed(self, prior = 0): #bruce 050131 for Alpha
-        "#doc; caller has already stored new valid one; prior == 0 means unknown -- caller might pass None"
+        """
+        #doc; caller has already stored new valid one; prior == 0 means unknown -- caller might pass None
+        """
         #e in future (post-Alpha) this might revise self.molecules, what to show in glpane, etc
         # for now, make sure nothing outside it is picked!
         # This is the only place where that unpicking from changing selgroup is implemented. ###@@@ verify that claim
@@ -954,7 +976,8 @@ class assembly( StateMixin, Assembly_API):
     # == change-tracking [needs to be extended to be per-part or per-node, and for Undo]
     
     def has_changed(self):
-        """Report whether this assembly (or something it contains)
+        """
+        Report whether this assembly (or something it contains)
         has been changed since it was last saved or loaded from a file.
         See self.changed() docstring and comments for more info.
         Don't use or set self._modified directly!
@@ -965,7 +988,8 @@ class assembly( StateMixin, Assembly_API):
         return self._modified
     
     def changed(self): # by analogy with other methods this would be called changed_model(), but we won't rename it [060227]
-        """Record the fact that this assembly (or something it contains)
+        """
+        Record the fact that this assembly (or something it contains)
         has been changed, in the sense that saving it into a file would
         produce meaningfully different file contents than if that had been
         done before the change.
@@ -1032,7 +1056,9 @@ class assembly( StateMixin, Assembly_API):
         return # from assembly.changed()
 
     def modflag_asserts(self): #bruce 060123; revised 060125
-        "check invariants related to self._modified"
+        """
+        check invariants related to self._modified
+        """
         if 1: ###@@@ maybe should be: if platform.atom_debug:
             hopetrue = ( (not self._modified) == (self._model_change_counter == self._change_counter_when_reset_changed) )
             if not hopetrue:
@@ -1054,7 +1080,9 @@ class assembly( StateMixin, Assembly_API):
         # effective implem of following methods.
     
     def begin_suspend_noticing_changes(self): #bruce 060121 revised implem, see comment above and in self.changed()
-        """See docstring of end_suspend_noticing_changes."""
+        """
+        See docstring of end_suspend_noticing_changes.
+        """
         assert not self._suspend_noticing_changes
         self._suspend_noticing_changes = True # this prevents self.changed() from doing much
         oldmod = self._modified
@@ -1064,7 +1092,8 @@ class assembly( StateMixin, Assembly_API):
         # calling "end" of this, i suppose; best not to depend on that
 
     def end_suspend_noticing_changes(self, oldmod):
-        """Call this sometime after every call of begin_suspend_noticing_changes.
+        """
+        Call this sometime after every call of begin_suspend_noticing_changes.
         These begin/end pairs can be nested, but see the caveat below about the oldmod argument in that case.
            The argument should be the begin method's return value, unless you know you want the new situation
         to look "not modified", in which case the argument should be False.
@@ -1079,7 +1108,8 @@ class assembly( StateMixin, Assembly_API):
         protection for mismatch-bugs and needs revision anyway.
            It's probably safe even if the assembly object these methods are being called on
         is not the same for the begin and end methods!
-        """ # docstring by bruce 050429 ; might be wrong due to changes of 060121
+        """
+        # docstring by bruce 050429 ; might be wrong due to changes of 060121
         assert self._suspend_noticing_changes
         self._suspend_noticing_changes = False
         self._modified = oldmod
@@ -1088,7 +1118,8 @@ class assembly( StateMixin, Assembly_API):
     _change_counter_when_reset_changed = -1 #bruce 060123 for Undo; as of 060125 it should no longer matter whether the value is even
     
     def reset_changed(self): # bruce 050107
-        """[private method] #doc this... see self.changed() docstring...
+        """
+        [private method] #doc this... see self.changed() docstring...
         """
         #bruce 060123 assuming all calls are like File->Save call...
         # actual calls are from MWsem.__init__, File->Open,
@@ -1124,7 +1155,8 @@ class assembly( StateMixin, Assembly_API):
         return
 
     def reset_changed_for_undo(self, change_counters ): #bruce 060123 guess; needs cleanup
-        """External code (doing an Undo or Redo) has made our state like it was when self.all_change_counters() was as given.
+        """
+        External code (doing an Undo or Redo) has made our state like it was when self.all_change_counters() was as given.
         Set all self._xxx_change_counter attrs to match that tuple,
         and update self._modified to match (using self._change_counter_when_reset_changed without changing it).
            Note that modified flag is false if no model changes happened, even if selection or structural changes happened.
@@ -1151,13 +1183,17 @@ class assembly( StateMixin, Assembly_API):
     ## bruce 050308 disabling checkpicked for assy/part split; they should be per-part
     ## and they fix errors in the wrong direction (.picked is more fundamental)
     def checkpicked(self, always_print = 0):
-        if always_print: print "fyi: checkpicked() is disabled until assy/part split is completed"
+        if always_print:
+            print "fyi: checkpicked() is disabled until assy/part split is completed"
         return
 
     # ==
 
     def apply2movies(self, func): #bruce 050428
-        "apply func to all possibly-ever-playable Movie objects we know about. (Not to mere sim-param-holders for minimize, etc.)"
+        """
+        apply func to all possibly-ever-playable Movie objects we know about.
+        (Not to mere sim-param-holders for minimize, etc.)
+        """
         if self.current_movie:
             # for now, this is the only one! (even if it's a "mere param-holder".)
             # at some point there'll also be movie nodes in the MT...
@@ -1176,8 +1212,9 @@ class assembly( StateMixin, Assembly_API):
         writemmpfile_assy( self, filename, addshelf = True)
         
     def get_cwd(self):
-        '''Returns the current working directory for assy.
-        '''
+        """
+        Returns the current working directory for assy.
+        """
         if self.filename: 
             cwd, file = os.path.split(self.filename)
         else: 
@@ -1224,7 +1261,8 @@ class assembly( StateMixin, Assembly_API):
             return self.undo_manager.clear_undo_stack(*args, **kws)
 
     def allNodes(self, class1 = None): #bruce 060224; use more widely?
-        """Return a new list (owned by caller) of all Nodes in self.tree or self.shelf (including Groups ###untested).
+        """
+        Return a new list (owned by caller) of all Nodes in self.tree or self.shelf (including Groups ###untested).
         If class1 is passed, limit them to the instances of that class.
         WARNING: self.shelf might be in the list, if it includes Groups. If this is bad we might revise the API to exclude it.
         """
@@ -1237,7 +1275,8 @@ class assembly( StateMixin, Assembly_API):
         return res
     
     def get_part_files_directory(self): # Mark 060703.
-        """Returns the Part Files directory for this assembly, even if it doesn't exist.
+        """
+        Returns the Part Files directory for this assembly, even if it doesn't exist.
         """
         # Maybe find_or_make_part_files_directory() should call this to centralize name creation. Mark 060703.
         if self.filename:
@@ -1247,7 +1286,8 @@ class assembly( StateMixin, Assembly_API):
             return 1, "I cannot do this until this part is saved."
         
     def find_or_make_part_files_directory(self, make=True):
-        """Return the Part Files directory for this assembly. Make it if it doesn't already exist.
+        """
+        Return the Part Files directory for this assembly. Make it if it doesn't already exist.
         If <make> is False, return the Part Files directory if it already exists. If it doesn't exist, return None.
         
         Specifically, return:
@@ -1286,7 +1326,8 @@ class assembly( StateMixin, Assembly_API):
                 return 0, None
         
     def find_or_make_pov_files_directory(self, make=True):
-        """Return the POV-Ray Scene Files directory for this assembly. 
+        """
+        Return the POV-Ray Scene Files directory for this assembly. 
         The POV-Ray Scene Files directory is a subdirectory under the current MMP file's Part Files directory
         and contains all the associated POV-Ray files for this assembly.
         For any error, return (1, errortext); on success return (0, full_path_of_pov_files_dir).

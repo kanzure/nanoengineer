@@ -209,7 +209,8 @@ class GLPane_minimal(QGLWidget): #bruce 070914
     # ==
     
     def current_view_for_Undo(self, assy): #e shares code with saveNamedView
-        """Return the current view in this glpane which is showing this assy,
+        """
+        Return the current view in this glpane which is showing this assy,
         with additional attributes saved along with the view by Undo (i.e. the index of the current selection group).
         (The assy arg is used for multiple purposes specific to Undo.)
         WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
@@ -226,7 +227,8 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         return csys # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to Csys
 
     def set_view_for_Undo(self, assy, csys): # shares code with Csys.set_view; might be very similar to some GLPane method, too
-        """Restore the view (and the current Part) to what was saved by current_view_for_Undo.
+        """
+        Restore the view (and the current Part) to what was saved by current_view_for_Undo.
         WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
         WARNING: might not gl_update, assume caller does so [#k obs warning?]
         """
