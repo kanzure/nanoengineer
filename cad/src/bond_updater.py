@@ -89,17 +89,25 @@ def update_bonds_after_each_event( changed_structure_atoms):
             # this inlines atm.killed() for speed, since this will happen a lot
             continue
 
-        if 'testing kluge':
-            #bruce 071117 -- see if this breaks any of our Python versions
-            from chem import Atom2, Atom
-            if atm.__class__ is Atom:
-                nc = Atom2
-            else:
-                nc = Atom
-            assert nc is not atm.__class__
-            atm.__class__ = nc
-            print "testing kluge, bruce 071117: set %s.__class__ to %s" % (atm, nc)
-            assert nc is atm.__class__
+##        if 'testing kluge':
+##            #bruce 071117 -- see if this breaks any of our Python versions.
+##            # update 071119: reported to work for Windows- python 2.4,
+##            # OS X- python 2.3, Ubuntu- python2.5, so we can assume it
+##            # works for all versions unless we find out otherwise.
+##            # So this test code is now disabled unless further needed.
+##            # I'm commenting it out entirely, so the import from chem can't
+##            # mess up our import analysis. Once some real code relies on
+##            # class-switching, we can remove this test code entirely.
+##            # [bruce 071119]
+##            from chem import Atom2, Atom
+##            if atm.__class__ is Atom:
+##                nc = Atom2
+##            else:
+##                nc = Atom
+##            assert nc is not atm.__class__
+##            atm.__class__ = nc
+##            print "testing kluge, bruce 071117: set %s.__class__ to %s" % (atm, nc)
+##            assert nc is atm.__class__
 
         # for singlets, just look at their base atoms
         # [I'm not sure where that comment shows up in the code, or whether the

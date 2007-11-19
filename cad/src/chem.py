@@ -3527,14 +3527,16 @@ register_class_changedicts( Atom, _Atom_global_dicts )
 
 # ==
 
-class Atom2(Atom): #bruce 071116
-    """
-    For development tests only -- a clone of class Atom,
-    for testing the effect of replace_atom_class on live atoms.
-    """
-    # tell undo to treat the class as Atom when grabbing and storing diffs:
-    _s_undo_class_alias = Atom
-    pass
+# this can be removed when the code that uses it in bond_updater.py is removed.
+# [bruce 071119]
+##class Atom2(Atom): #bruce 071116
+##    """
+##    For development tests only -- a clone of class Atom,
+##    for testing the effect of replace_atom_class on live atoms.
+##    """
+##    # tell undo to treat the class as Atom when grabbing and storing diffs:
+##    _s_undo_class_alias = Atom
+##    pass
 
 # ==
 
