@@ -189,19 +189,17 @@ printGromacsToplogy(char *basename, struct part *p)
     free(fileName);
 
     fprintf(mdp, "title               =  NE1-minimize\n");
-    fprintf(mdp, "cpp                 =  /usr/bin/cpp\n"); // XXX probably platform dependent
-    fprintf(mdp, "define              =  -DFLEX_SPC\n");
     fprintf(mdp, "constraints         =  none\n");
-    fprintf(mdp, "pbc                 =  no\n");
+    fprintf(mdp, "pbc                 =  no\n"); // disable periodic boundary conditions
     fprintf(mdp, "integrator          =  cg\n"); // cg or steep, for conjugate gradients or steepest descent
-    fprintf(mdp, "dt                  =  0.002    ; ps !\n");
     fprintf(mdp, "nsteps              =  1000\n"); // max number of iterations
-    fprintf(mdp, "nstcgsteep          =  100\n"); // steps per cg or steep phase
+    fprintf(mdp, "nstcgsteep          =  100\n"); // frequency of steep steps during cg
     fprintf(mdp, "nstlist             =  10\n"); // update frequency for neighbor list
-    fprintf(mdp, "ns_type             =  grid\n");
-    fprintf(mdp, "rlist               =  1.0\n");
-    fprintf(mdp, "rcoulomb            =  1.0\n");
-    fprintf(mdp, "rvdw                =  1.0\n");
+    fprintf(mdp, "ns_type             =  simple\n"); // neighbor search type, must be simple for pbc=no
+    fprintf(mdp, "rlist               =  1.0\n"); // short range neighbor list cutoff distance
+    fprintf(mdp, "rcoulomb            =  1.0\n"); // cutoff distance
+    fprintf(mdp, "epsilon_r           =  %f\n", DielectricConstant);
+    fprintf(mdp, "rvdw                =  1.0\n"); // cutoff distance
     fprintf(mdp, ";\n");
     fprintf(mdp, ";       Energy minimizing stuff\n");
     fprintf(mdp, ";\n");
@@ -243,7 +241,7 @@ printGromacsToplogy(char *basename, struct part *p)
     for (i=0; i<p->num_atoms; i++) {
 	writeGromacsAtom(top, gro, p, p->atoms[i]);
     }
-#define BOXSIZE 0.00001
+#define BOXSIZE 0.0
     fprintf(gro, "%10.5f%10.5f%10.5f\n", BOXSIZE, BOXSIZE, BOXSIZE); // periodic box size
     fclose(gro);
     fprintf(top, "\n");
