@@ -129,6 +129,10 @@ def initialize():
     (in the order in which they should run). These will be
     run by env.do_post_event_updates().
     """
+    if 0:
+        # TODO: dna_updater.initialize(), then call it from inside _master_model_updater
+        import dna_updater
+        dna_updater.initialize()
     env.register_post_event_model_updater( _master_model_updater)
     return
 

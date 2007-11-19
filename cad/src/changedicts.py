@@ -12,7 +12,7 @@ bruce 071106 split this out of changes.py
 
 Current status:
 
-This code appears  to be active and essential for undo updating;
+This code appears to be active and essential for undo updating;
 details unclear, as is whether it's used for any other kind of updating,
 e.g. bond_updater -- guess, no (though some of the same individual dicts
 might be). [bruce 071106 comment]
@@ -21,6 +21,8 @@ might be). [bruce 071106 comment]
 from debug import print_compact_traceback
 
 from changes import register_postinit_item
+
+DEBUG_CHANGEDICTS = False # do not commit with True
 
 # ==
 
@@ -72,6 +74,8 @@ class changedict_processor:
             # note: this is actually a dict, not a list,
             # but 'subdict' would be an unclear name for a
             # local variable (imho)
+        if DEBUG_CHANGEDICTS:
+            print "DEBUG_CHANGEDICTS: %r has %d subscribers" % (self, len(sublist))
         changedict = self.changedict
         changedict_name = self.changedict_name
         len1 = len(changedict)
@@ -105,13 +109,17 @@ class changedict_processor:
 
 
 _dictname_for_dictid = {} # maps id(dict) to its name;
+    # truly private, used here in both register_ functions;
     # it's ok for multiple dicts to have the same name;
     # never cleared (memory leak is ok since it's small)
 
 _cdproc_for_dictid = {} # maps id(dict) to its changedict_processor;
     # not sure if leak is ok, and/or if this could be used to provide names too
     # WARNING: the name says it's private, but it's directly referenced in
-    # undo_archive [bruce 071106 comment]
+    # undo_archive.get_and_clear_changed_objs and
+    # undo_archive.sub_or_unsub_to_one_changedict;
+    # it's used here only in register_changedict
+    # [bruce 071106 comment]
 
 def register_changedict( changedict, its_name, related_attrs ):
     #bruce 060329 not yet well defined what it should do ###@@@
@@ -130,7 +138,8 @@ def register_changedict( changedict, its_name, related_attrs ):
 _changedicts_for_classid = {} # maps id(class) to map from dictname to dict
     ### [what about subclass/superclass? do for every leafclass?]
     # WARNING: the name says it's private, but it's directly referenced in
-    # undo_archive [bruce 071106 comment]
+    # undo_archive._archive_meet_class; used here only in register_class_changedicts
+    # [bruce 071106 comment]
 
 def register_class_changedicts( class1, changedicts ):
     """
@@ -188,5 +197,32 @@ def register_class_changedicts( class1, changedicts ):
 #e and let this run when we make InstanceClassification
 
 ##e class multiple_changedict_processor?
+
+# ==
+
+class refreshing_changedict_subscription(object): #bruce 071116; TODO: rename
+    """
+    Helper class, for one style of subscribing to a changedict_processor
+    """
+    def __init__(self, cdp):
+        self.cdp = cdp # a changedict_processor (public?)
+        self._key = id(self) #k
+        self._dict = {}
+        self._subscribe()
+    def _subscribe(self):
+        self.cdp.subscribe( self._key, self._dict)
+    def _unsubscribe(self):
+        self.cdp.unsubscribe( self._key)
+    def get_changes_and_clear(self):
+        self.cdp.process_changes()
+        res = self._dict # caller will own this when we return it
+        #e optim, when works without it:
+        ## if not res:
+        ##     return {} # note: it would be wrong to return res!
+        self._unsubscribe()
+        self._dict = {} # make a new dict, rather than copying/clearing old one
+        self._subscribe()
+        return res
+    pass
 
 # end
