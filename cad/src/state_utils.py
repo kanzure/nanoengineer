@@ -462,6 +462,8 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                 pass ## probably not: self.warn = False
             elif name == '_s_undo_specialcase':
                 pass
+            elif name == '_s_undo_class_alias':
+                pass
             elif name.startswith('_s_categorize_'):
                 #060227; #e should we rename it _s_category_ ?? do we still need it, now that we have _s_attrlayer_ ? (we do use it)
                 attr_its_about = name[len('_s_categorize_'):]
@@ -1611,6 +1613,10 @@ class obj_classifier:
         try:
             return self._clas_for_class[class1] # redundant when called from classify_instance, but needed for direct calls
         except KeyError:
+            class_alias = getattr(class1, '_s_undo_class_alias', None)
+            if class_alias and class_alias is not class1:
+                clas = self._clas_for_class[class1] = self.classify_class(class_alias)
+                return clas
             clas = self._clas_for_class[class1] = InstanceClassification(class1)
             self.dict_of_all_state_attrcodes.update( clas.dict_of_all_state_attrcodes )
             self.dict_of_all_Atom_chunk_attrcodes.update( clas.dict_of_all_Atom_chunk_attrcodes )
