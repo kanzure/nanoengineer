@@ -88,7 +88,19 @@ def update_bonds_after_each_event( changed_structure_atoms):
         if atm._Atom__killed:
             # this inlines atm.killed() for speed, since this will happen a lot
             continue
-        
+
+        if 'testing kluge':
+            #bruce 071117 -- see if this breaks any of our Python versions
+            from chem import Atom2, Atom
+            if atm.__class__ is Atom:
+                nc = Atom2
+            else:
+                nc = Atom
+            assert nc is not atm.__class__
+            atm.__class__ = nc
+            print "testing kluge, bruce 071117: set %s.__class__ to %s" % (atm, nc)
+            assert nc is atm.__class__
+
         # for singlets, just look at their base atoms
         # [I'm not sure where that comment shows up in the code, or whether the
         #  following comment was meant to be a change to it -- bruce 071115]

@@ -262,10 +262,16 @@ register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed'
 
 
 _changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set (not bond order #k)
-    # WARNING: there is also a related but different global dict in env.py,
-    # whose spelling differs only in 'A' vs 'a' in Atoms, and in having no initial underscore.
+    # WARNING: there is also a related but different global dict in global_model_changedicts.py,
+    # whose spelling differs only in 'A' vs 'a' in Atoms, and in having no initial underscore,
+    # namely, changed_structure_atoms.
+    #
     # This confusion should be cleaned up sometime, by letting that one just be a subscriber to this one,
     # and if efficiency demands it, first splitting this one into the part equivalent to that one, and the rest.
+    #
+    # Ways this one has more atoms added to it than that one does:
+    # jigs, info, kill. (See also the comment where the other one is defined.)
+    # See also: _changed_parent_Atoms, which also covers kill (probably in a better way).
     #
     # related attributes: bonds, element, atomtype, info, jigs # (not only '.jigs =', but '.jigs.remove' or '.jigs.append')
     # (we include info since it's used for repeat-unit correspondences in extrude; this is questionable)
@@ -3518,6 +3524,17 @@ register_class_changedicts( Atom, _Atom_global_dicts )
 
 # removing definition of atom = Atom, since I have just fixed all uses, I hope: [bruce 071113]
 ## atom = Atom # old name of that class -- must remain here until all code has been revised to use new name [bruce 050610]
+
+# ==
+
+class Atom2(Atom): #bruce 071116
+    """
+    For development tests only -- a clone of class Atom,
+    for testing the effect of replace_atom_class on live atoms.
+    """
+    # tell undo to treat the class as Atom when grabbing and storing diffs:
+    _s_undo_class_alias = Atom
+    pass
 
 # ==
 
