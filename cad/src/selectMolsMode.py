@@ -38,7 +38,7 @@ from selectMode import selectMode
 from selectMode import DRAG_STICKINESS_LIMIT
 from chunk import Chunk 
 
-from debug import print_compact_traceback
+from debug import print_compact_traceback, print_compact_stack
 
 from constants import yellow
 from constants import orange
@@ -346,10 +346,10 @@ class selectMolsMode(selectMode):
         #self.current_obj_clicked is False. The check below is added just 
         #to be on a safer side and prints a warning.
         if not self.current_obj_clicked:
-            print_compact_traceback("Note: self.current_obj_clicked is False "
+            print_compact_stack("Note: self.current_obj_clicked is False "
             "and still selectMolsMode.chunkLeftUp is called. Make sure to "
             "call selectMode.objectSpecificLeftUp before calling "
-            "selectMolsMode.chunkLeftUp")
+            "selectMolsMode.chunkLeftUp: ")
             return
         
         m = a_chunk
@@ -430,10 +430,10 @@ class selectMolsMode(selectMode):
         #self.current_obj_clicked is False. The check below is added just 
         #to be on a safer side and prints a warning.
         if not self.current_obj_clicked:
-            print_compact_traceback("Note: self.current_obj_clicked is False "
+            print_compact_stack("Note: self.current_obj_clicked is False "
             "and still selectMolsMode.bondLeftUp is called. Make sure to "
             "call selectMode.objectSpecificLeftUp before calling "
-            "selectMolsMode.bondLeftUp")
+            "selectMolsMode.bondLeftUp: ")
             return
         
         chunk1 = b.atom1.molecule
