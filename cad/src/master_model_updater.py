@@ -81,11 +81,12 @@ def _master_model_updater( warn_if_needed = False ):
     # TODO: check some dicts first, to optimize this call when not needed?
     # TODO: zap the temporary function calls here
     if debug_pref_use_dna_updater(): # soon will be if 1
-        import dna_updater # soon will be toplevel import
         if debug_pref_reload_dna_updater(): # for release, always false
-            _reload_dna_updater() # also reinits it
+            _reload_dna_updater() # also reinits it if needed
         _ensure_ok_to_call_dna_updater() # soon will not be needed here
-        dna_updater.update_PAM_atoms(assy)
+        from dna_updater.dna_updater_main import full_dna_update
+            # soon will be toplevel import
+        full_dna_update()
         pass
 
     if not (changed_structure_atoms or changed_bond_types):
@@ -165,16 +166,16 @@ _initialized_dna_updater_yet = False
 def _ensure_ok_to_call_dna_updater():
     global _initialized_dna_updater_yet
     if not _initialized_dna_updater_yet:
-        import dna_updater
-        dna_updater.initialize()
+        from dna_updater import dna_updater_init
+        dna_updater_init.initialize()
         _initialized_dna_updater_yet = True
     return
 
 def _reload_dna_updater():
-    import dna_updater
-    reload(dna_updater)
-    global _initialized_dna_updater_yet
-    _initialized_dna_updater_yet = False
+    from dna_updater import dna_updater_atoms
+    reload(dna_updater_atoms)
+    #e could add more modules to that list, in order;
+    # no need to reinit
     return
 
 def initialize():
@@ -184,8 +185,8 @@ def initialize():
     run by env.do_post_event_updates().
     """
     if debug_pref_use_dna_updater():
-##        import dna_updater
-##        dna_updater.initialize()
+##        from dna_updater import dna_updater_init
+##        dna_updater_init.initialize()
         _ensure_ok_to_call_dna_updater() # TODO: replace with the commented out 2 lines above
 
     env.register_post_event_model_updater( _master_model_updater)

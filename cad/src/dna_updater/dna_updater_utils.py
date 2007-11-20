@@ -1,26 +1,29 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-dna_updater_utils.py -- utilities for dna_updater.py
+dna_updater_utils.py -- miscellaneous utilities for dna_updater
 
 @author: Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-def replace_atom_class(assy, atom, newclass, *atomdicts): #e refile??
+from dna_updater_constants import DEBUG_DNA_UPDATER
+
+# ==
+
+def replace_atom_class( atom, newclass, *atomdicts): #e refile?
     """
     Change atom's class to newclass.
 
     This might be done by directly replacing atom.__class__,
     or by making a new Atom instance (identical except for __class__)
     and replacing atom with newatom in the rest of the model (assy)
-    and in all transient state that might point to atom (accessible
-    via assy). If any atomdicts are passed, they are assumed to be
+    in which atom resides, and in all transient state that might
+    point to atom (accessible via atom's assy).
+
+    If any atomdicts are passed, they are assumed to be
     atom.key -> atom dicts in which atom should be also replaced with
     newatom (at the same key, since it will be given the same .key).
-
-    @param assy: the model in which atom resides.
-    @type assy: Assembly.
 
     @param atom: a real atom or bondpoint of any subclass of Atom.
     @type atom: Atom.
@@ -63,12 +66,25 @@ def replace_atom_class(assy, atom, newclass, *atomdicts): #e refile??
     atom.__class__ = newclass
     return
 
-def replace_bond_class(assy, bond, newclass, *bonddicts): #e refile??
+def replace_bond_class( bond, newclass, *bonddicts): #e refile?
     """
     Like replace_atom_class, except for Bonds.
     The bonddicts map id(bond) -> bond.
     """
     bond.__class__ = newclass
+    return
+
+# ==
+
+def remove_killed_atoms( atomdict):
+    killed = []
+    for atom in atomdict.itervalues():
+        if atom.killed(): ### MAKE THIS FAST, or make it an attribute of all model objects
+            killed.append(atom)
+    if DEBUG_DNA_UPDATER and killed:
+        print "dna_updater: ignoring %d killed atoms" % len(killed)
+    for atom in killed:
+        del atomdict[atom.key]
     return
 
 # end
