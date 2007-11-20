@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Dna.py -- DNA model classes based on empirical data.
+Dna.py -- DNA generator helper classes, based on empirical data.
 
 WARNING: this file has been mostly superseded by DnaDuplex.py.
 

@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-DnaDuplex.py -- DNA duplex model classes based on empirical data.
+DnaDuplex.py -- DNA duplex generator helper classes, based on empirical data.
 
 @author: Mark Sims
 @version: $Id$
