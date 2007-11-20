@@ -24,6 +24,7 @@ class PM_WidgetRow( PM_WidgetGrid ):
     @see: B{Ui_CookiePropertyManager._loadLayerPropertiesGroupBox} that uses 
           a B{PM_WidgetRow}
     """
+    titleButtonRequested = False
             
     def __init__(self, 
                  parentWidget,

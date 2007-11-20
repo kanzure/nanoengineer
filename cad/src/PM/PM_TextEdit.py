@@ -25,6 +25,7 @@ from PyQt4.Qt import QTextCursor
 from PyQt4.Qt import QTextEdit
 ##from PyQt4.Qt import QPalette
 from PyQt4.Qt import QWidget
+from PyQt4.Qt import QTextCharFormat
 
 class PM_TextEdit( QTextEdit ):
     """
@@ -108,6 +109,7 @@ class PM_TextEdit( QTextEdit ):
         # is displayed in the MessageGroupBox. Mark 2007-05-24.
         # Shouldn't be needed with _setHeight().
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         
 ##        from PM.PM_MessageGroupBox import PM_MessageGroupBox
 ##        if isinstance(parentWidget, PM_MessageGroupBox):
@@ -130,6 +132,7 @@ class PM_TextEdit( QTextEdit ):
         if addToParent:
             parentWidget.addPmWidget(self)
         
+       
         return
         
     def insertHtml(self, 
@@ -170,8 +173,13 @@ class PM_TextEdit( QTextEdit ):
             cursor.setPosition( len(self.toPlainText()), 
                                 QTextCursor.MoveAnchor )
             self.setTextCursor( cursor )
-            
-        self._setHeight(minLines, maxLines)
+        
+              
+        #Don't call _setHeight after insertHtml, it increases the height of the
+        #text widget and thus gives an undesirable visual effect.
+        #This was seen in SequenceEditor. Also tried using 'setSizePolicy' like 
+        #done in PM_MessagegroupBox but that didn't work. 
+        ##self._setHeight(minLines, maxLines)
         
     def _setHeight( self, 
                     minLines = 4, 

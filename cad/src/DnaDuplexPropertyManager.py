@@ -47,6 +47,9 @@ from PM.PM_Constants     import pmPreviewButton
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 
+from PM.PM_DockWidget     import PM_DockWidget
+from SequenceEditor       import SequenceEditor
+
 
 class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
     """
@@ -79,6 +82,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
     endPoint2 = None 
     #For model changed signal
     previousSelectionParams = None
+    sequenceEditor = None
 
     def __init__( self, win, editController ):
         """
@@ -95,6 +99,22 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                                 pmCancelButton | \
                                 pmPreviewButton| \
                                 pmWhatsThisButton)
+        
+        self._loadSequenceEditor()
+        
+    
+    def _loadSequenceEditor(self):
+        """
+        Temporary code  that shows the Sequence editor ..a doc widget docked
+        at the bottom of the mainwindow. The implementation is going to change
+        before 'rattleSnake' product release.
+        As of 2007-11-20: This feature (sequence editor) is waiting 
+        for the ongoing dna model work to complete.
+        TODO: revide the code and use only a single sequenceEditor object 
+        (e.g. call self.win.sequenceEdior) 
+        """
+        self.sequenceEditor = SequenceEditor(self.win)
+        self.sequenceEditor.setObjectName("sequence_editor")
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -113,6 +133,9 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         EditController_PM.connect_or_disconnect_signals(self, isConnect)
         
         self.strandListWidget.connect_or_disconnect_signals(isConnect)
+        
+        if self.sequenceEditor:
+            self.sequenceEditor.connect_or_disconnect_signals(isConnect)
         
         change_connect( self.conformationComboBox,
                       SIGNAL("currentIndexChanged(int)"),
@@ -202,10 +225,28 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         #Clear tags, if any, due to the selection in the self.strandListWidget.
         if self.strandListWidget:
             self.strandListWidget.clearTags()
+        
+        if self.sequenceEditor:
+            self.sequenceEditor.hide()
+            self.win.activePartWindow().history_widget.show()
+           
                         
         EditController_PM.close(self)
     
-
+    def show(self):
+        """
+        Show this PM 
+        As of 2007-11-20, it also shows the Sequence Editor widget and hides 
+        the history widget. This implementation may change in the near future
+        """
+        EditController_PM.show(self)
+        if self.sequenceEditor:
+            #hide the history widget first
+            #(It will be shown back during self.close)
+            self.win.activePartWindow().history_widget.hide()
+            #Show the sequence editor
+            self.sequenceEditor.show()
+        
     def getFlyoutActionList(self): 
         """ returns custom actionlist that will be used in a specific mode 
 	or editing a feature etc Example: while in movie mode, 
@@ -252,8 +293,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
-        """
-        
+        """        
         #Unused 'References List Box' to be revided. (just commented out for the
         #time being. 
         ##self._pmGroupBox1 = PM_GroupBox( self, title = "Reference Plane" )
@@ -298,8 +338,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
             label = "",
             text  = "Edit Properties..." )
         self.editStrandPropertiesButton.setEnabled(False)
-        
-
+       
     def _loadGroupBox3(self, pmGroupBox):
         """
         Load widgets in group box 3.

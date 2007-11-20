@@ -259,6 +259,26 @@ class PM_WidgetGrid( PM_GroupBox ):
         label.setText(labelText)
         return label
     
+    def _createSpacer(self, widgetParams):
+        """
+        Returns a QSpacerItem created using the custom parameters. 
+                
+        @param widgetParams: A list containing spacer parameters. 
+        @type  widgetParams: list
+        
+        @see: L{self._createWidgetUsingParameters} where this method is called.
+        """
+        spacerParams = list(widgetParams)
+        spacerWidth = spacerParams[1]
+        spacerHeight = spacerParams[2]
+            
+        spacer = QSpacerItem(spacerWidth, 
+                             spacerHeight, 
+                             QSizePolicy.MinimumExpanding, 
+                             QSizePolicy.Minimum
+                         )
+        return spacer
+    
       
     
     

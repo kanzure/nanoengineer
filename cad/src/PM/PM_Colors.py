@@ -120,6 +120,7 @@ PM_MESSAGE_TEXT_EDIT_COLOR = QColor(255, 255, 100)
 pmMessageBoxColor = pmMessageTextEditColor 
 
 pmReferencesListWidgetColor = QColor(254, 128, 129)
+sequenceEditStrandMateBaseColor = QColor(255, 221, 203)
 
 if COLOR_THEME == "Gray":
 

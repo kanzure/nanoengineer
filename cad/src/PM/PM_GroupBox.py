@@ -100,6 +100,7 @@ class PM_GroupBox( QGroupBox ):
     _rowCount      = 0
     _groupBoxCount = 0
     _lastGroupBox  = None
+    titleButtonRequested = True
     
     def __init__(self, 
                  parentWidget, 
@@ -195,12 +196,15 @@ class PM_GroupBox( QGroupBox ):
         if isinstance(parentWidget, PM_GroupBox):
             self.setTitle(title)
         else: # Parent is a PM_Dialog, so add a title button.
-            self.titleButton = self._getTitleButton(self, title)
-            self._vBoxLayout.insertWidget(0, self.titleButton)
-            if connectTitleButton:
-                self.connect( self.titleButton, 
-                              SIGNAL("clicked()"),
-                              self.toggleExpandCollapse)
+            if not self.titleButtonRequested:
+                self.setTitle(title)
+            else:
+                self.titleButton = self._getTitleButton(self, title)
+                self._vBoxLayout.insertWidget(0, self.titleButton)
+                if connectTitleButton:
+                    self.connect( self.titleButton, 
+                                  SIGNAL("clicked()"),
+                                  self.toggleExpandCollapse)
             
         # Fixes the height of the group box. Very important. Mark 2007-05-29
         self.setSizePolicy(
