@@ -271,7 +271,8 @@ class assembly( StateMixin, Assembly_API):
         
         #bruce 050131 for Alpha:
         self.kluge_patch_toplevel_groups( )
-        self.update_parts() #bruce 050309 for assy/part split
+        self.update_parts( do_post_event_updates = False)
+            #bruce 050309 for assy/part split
 
         #bruce 050429 as part of fixing bug 413, no longer resetting self._modified here --
         # client code should call reset_changed instead, when appropriate.
@@ -530,12 +531,22 @@ class assembly( StateMixin, Assembly_API):
             res.append( self.prefs_node)
         return res
     
-    def update_parts(self):
+    def update_parts(self, do_post_event_updates = True):
         """
-        For every node in this assy, make sure it's in the correct Part (of the correct kind),
-        creating new parts if necessary. [See also checkparts method.] 
-        For now [050308], also break inter-Part bonds; later this might be done separately.
+        For every node in this assy, make sure it's in the correct Part,
+        creating new parts as necessary (of the correct classes).
+        
+        Also break any inter-part bonds, and set the current selgroup
+        (fixing it if necessary).
+
+        Also call env.do_post_event_updates(), unless the option
+        do_post_event_updates is false.
+
+        [See also the checkparts method.]        
         """
+        #bruce 071119 revised docstring, added do_post_event_updates option
+        # (which was effectively always True before).
+        #
         #bruce 060127: as of now, I'll be calling update_parts
         # before every undo checkpoint (begin and end both), so that all resulting changes
         # (and the effect of calling assy.changed, now often done by do_post_event_updates as of yesterday)
@@ -569,9 +580,11 @@ class assembly( StateMixin, Assembly_API):
         sg = self.current_selgroup()
         # and make sure selgroup_part finds a part from it, too
         assert self.selgroup_part(sg)
-        # 050519 new feature: since bonds might have been broken above (by break_interpart_bonds), do this too:
-        ## self.update_bonds() #e overkill -- might need to be optimized
-        env.do_post_event_updates() #bruce 050627 this replaces update_bonds
+        if do_post_event_updates:
+            # 050519 new feature: since bonds might have been broken above
+            # (by break_interpart_bonds), do this too:
+            ## self.update_bonds() #e overkill -- might need to be optimized
+            env.do_post_event_updates() #bruce 050627 this replaces update_bonds
         return
     
     def ensure_one_part(self, node, part_constructor): #bruce 050420 revised this to help with bug 556; revised again 050527
