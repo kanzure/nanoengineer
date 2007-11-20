@@ -73,7 +73,21 @@ def _master_model_updater( warn_if_needed = False ):
     In practice, as of 071115, we have not yet tried to put in calls
     to this function at the end of user event handlers, so we rely on the
     other calls mentioned above, and none of them pass warn_if_needed.
-    """    
+    """
+
+    assy = env.mainwindow().assy # KLUGE
+        # todo: assy ought to be an argument instead, or found from one
+    
+    # TODO: check some dicts first, to optimize this call when not needed?
+    # TODO: zap the temporary function calls here
+    if debug_pref_use_dna_updater(): # soon will be if 1
+        import dna_updater # soon will be toplevel import
+        if debug_pref_reload_dna_updater(): # for release, always false
+            _reload_dna_updater() # also reinits it
+        _ensure_ok_to_call_dna_updater() # soon will not be needed here
+        dna_updater.update_PAM_atoms(assy)
+        pass
+
     if not (changed_structure_atoms or changed_bond_types):
         # Note: this will be generalized to:
         # if no changes of any kind, since the last call
@@ -123,16 +137,57 @@ def _master_model_updater( warn_if_needed = False ):
 
 # ==
 
+# temporary code for use while developing dna_updater
+
+def debug_pref_use_dna_updater():
+    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+    res = debug_pref("DNA: use dna_updater.py?",
+                     Choice_boolean_False,
+                     ## SOON: Choice_boolean_True,
+                     non_debug = True,
+                     prefs_key = True)
+    return res
+
+def debug_pref_reload_dna_updater():
+    import EndUser
+    if not EndUser.enableDeveloperFeatures():
+        return False
+    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+    res = debug_pref("DNA: auto-reload dna_updater.py?",
+                     Choice_boolean_False,
+                     ## SOON: Choice_boolean_True,
+                     non_debug = True,
+                     prefs_key = True)
+    return res
+    
+_initialized_dna_updater_yet = False
+
+def _ensure_ok_to_call_dna_updater():
+    global _initialized_dna_updater_yet
+    if not _initialized_dna_updater_yet:
+        import dna_updater
+        dna_updater.initialize()
+        _initialized_dna_updater_yet = True
+    return
+
+def _reload_dna_updater():
+    import dna_updater
+    reload(dna_updater)
+    global _initialized_dna_updater_yet
+    _initialized_dna_updater_yet = False
+    return
+
 def initialize():
     """
     Register one or more related post_event_model_updaters
     (in the order in which they should run). These will be
     run by env.do_post_event_updates().
     """
-    if 0:
-        # TODO: dna_updater.initialize(), then call it from inside _master_model_updater
-        import dna_updater
-        dna_updater.initialize()
+    if debug_pref_use_dna_updater():
+##        import dna_updater
+##        dna_updater.initialize()
+        _ensure_ok_to_call_dna_updater() # TODO: replace with the commented out 2 lines above
+
     env.register_post_event_model_updater( _master_model_updater)
     return
 
