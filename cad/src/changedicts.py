@@ -204,9 +204,10 @@ class refreshing_changedict_subscription(object): #bruce 071116; TODO: rename
     """
     Helper class, for one style of subscribing to a changedict_processor
     """
+    cdp = None
     def __init__(self, cdp):
         self.cdp = cdp # a changedict_processor (public?)
-        self._key = id(self) #k
+        self._key = id(self)
         self._dict = {}
         self._subscribe()
     def _subscribe(self):
@@ -223,6 +224,16 @@ class refreshing_changedict_subscription(object): #bruce 071116; TODO: rename
         self._dict = {} # make a new dict, rather than copying/clearing old one
         self._subscribe()
         return res
+    def __del__(self):
+        # When we're gone, we no longer own id(self) as a key in self.cdp!
+        # So free it. (Also presumably an optim.)
+        if self.cdp:
+            try:
+                self._unsubscribe()
+            except:
+                print_compact_traceback("bug, ignored: error during __del__: ")
+                pass
+        return
     pass
 
 # end
