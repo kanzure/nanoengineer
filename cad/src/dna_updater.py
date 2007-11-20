@@ -14,20 +14,56 @@ from chem import _changed_structure_Atoms, _changed_parent_Atoms # but they're p
 
 from dna_updater_utils import replace_atom_class, replace_bond_class
 
+from elements import PeriodicTable
+
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+
+from debug import register_debug_menu_command
+
+import env
+
+from constants import diDEFAULT
+
+from utilities.Log import orangemsg, greenmsg
+
+# ==
+
+DEBUG_DNA_UPDATER = True # ok to commit with True for now [bruce 071119]
+
+# ==
+
 # _rcdp1 and _rcdp2 will be replaced in initialize()
 # with refreshing_changedict_subscription instances:
 _rcdp1 = None
 _rcdp2 = None
 
+# REVIEW: when we reload this module during development,
+# do we need to preserve those global objects?
+# I would guess so, but I didn't yet see a bug from not doing so.
+# [bruce 071119]
+
 def initialize():
     """
     Meant to be called only from master_model_updater.py.
-    Set up our private global changedict subscription handlers.
+    Do whatever one-time initialization is needed before our
+    other public functions should be called.
+    [Also called after this module is reloaded.]
     """
+##    if DEBUG_DNA_UPDATER:
+##        print "dna updater: initialize"
+
+    # set up this module's private global changedict subscription handlers
     global _rcdp1, _rcdp2
     _rcdp = _refreshing_changedict_subscription_for_dict
     _rcdp1 = _rcdp(_changed_structure_Atoms)
     _rcdp2 = _rcdp(_changed_parent_Atoms)
+
+    # make debug prefs appear in debug menu
+    pref_fix_deprecated_PAM3_atoms()
+    pref_fix_deprecated_PAM5_atoms()
+
+    _register_our_debug_menu_commands()
+    
     return
 
 def _refreshing_changedict_subscription_for_dict(dict1):
@@ -51,31 +87,163 @@ def _get_changes_and_clear():
 
 # ==
 
-def update_PAM_atoms(assy): # TODO: call this from _master_model_updater
+# TODO: when these debug prefs change, have them rescan all atoms
+# in the current part, or print a reminder to do that.
+
+def pref_fix_deprecated_PAM3_atoms():
+    res = debug_pref("DNA: fix deprecated PAM3 atoms?",
+                     Choice_boolean_False,
+                     ## SOON: Choice_boolean_True,
+                     non_debug = True,
+                     prefs_key = True,
+                     call_with_new_value = _changed_prefs )
+    return res
+
+def pref_fix_deprecated_PAM5_atoms():
+    res = debug_pref("DNA: fix deprecated PAM5 atoms?",
+                     Choice_boolean_False,
+                     non_debug = True,
+                     prefs_key = True,
+                     call_with_new_value = _changed_prefs )
+    return res
+
+def _changed_prefs(val):
+    if val:
+        msg = "Note: to use new DNA prefs value on existing atoms, " \
+              "run \"DNA: rescan all atoms\" in debug->other menu."
+        env.history.message(orangemsg(msg))
+    return
+
+# ==
+
+def rescan_atoms_in_current_part(assy, only_selected = False):
+    oldlen = len(_changed_structure_Atoms)
+    for mol in assy.molecules:
+        for atom in mol.atoms.itervalues():
+            if not only_selected or atom.picked or \
+               (atom.is_singlet() and atom.singlet_neighbor().picked):
+                _changed_structure_Atoms[atom.key] = atom
+    newlen = len(_changed_structure_Atoms)
+    msg = "len(_changed_structure_Atoms) %d -> %d" % (oldlen, newlen)
+    env.history.message(greenmsg( "DNA debug command:") + " " + msg)
+    return
+
+def rescan_all_atoms(glpane):
+    rescan_atoms_in_current_part( glpane.assy)
+
+def rescan_selected_atoms(glpane):
+    rescan_atoms_in_current_part( glpane.assy, only_selected = True)
+
+def _register_our_debug_menu_commands():
+    register_debug_menu_command( "DNA: rescan all atoms", rescan_all_atoms )
+    register_debug_menu_command( "DNA: rescan selected atoms", rescan_selected_atoms )
+
+# ==
+    
+def update_PAM_atoms(assy):
     """
+    [called from _master_model_updater]
     """
     changed_atoms = _get_changes_and_clear()
+    
+    if not changed_atoms:
+##        if DEBUG_DNA_UPDATER:
+##            print "dna updater: update_PAM_atoms() has no work to do"
+        return # optimization (might not be redundant with caller)
 
     # scan for deprecated elements, and fix them
 
+    if DEBUG_DNA_UPDATER:
+        print "dna updater: %d changed atoms to scan" % len(changed_atoms)
+
+    deprecated_atoms = []
+    
     for atom in changed_atoms.itervalues():
-        xxx = atom.element.xxx
-        if xxx:
-            xxx
+        deprecated_to = atom.element.deprecated_to
+            # an element symbol, or None, or 'remove'
+        if deprecated_to:
+            pam = atom.element.pam
+            assert pam in ('PAM3', 'PAM5')
+            if pam == 'PAM3':
+                fix = pref_fix_deprecated_PAM3_atoms()
+            elif pam == 'PAM5':
+                fix = pref_fix_deprecated_PAM5_atoms()
+            else:
+                fix = False
+            if fix:
+                deprecated_atoms.append(atom)
+            elif DEBUG_DNA_UPDATER:
+                print "dna updater: debug_pref says don't alter deprecated atom %r" % (atom,)
+        continue
 
-    # grab whatever new atoms the prior step made,
-    # and include them in subsequent steps
+    for atom in deprecated_atoms:
+        deprecated_to = atom.element.deprecated_to
+            # an element symbol, or 'remove'
+        if atom.display != diDEFAULT:
+            # Atoms of deprecated elements sometimes have funny display modes
+            # set by the DNA Duplex Generator. Remove these here.
+            # (This may be needed even after we fix the generator,
+            #  due to old mmp files. REVIEW: can it ever cause harm?)
+            atom.setDisplay(diDEFAULT)
+        if deprecated_to == 'remove' or deprecated_to == 'X':
+            # (Atom.kill might be unideal behavior for 'remove',
+            #  but that's only on Pl3 which never occurs AFAIK, so nevermind)
+            # Kill the atom (and make sure that new bondpoints get into a good enough position).
+            # REVIEW: does atom.kill make new bps immediately
+            # (review whether ok if more than one needs making on one base atom)
+            # or later
+            # (review whether it's still going to happen in the current master_updater call)? ####
+
+            if DEBUG_DNA_UPDATER:
+                print "dna updater: kill atom %r" % (atom,)
+            atom.kill()
+
+            # TODO: worry about atom being a hotspot, or having a bondpoint which is a hotspot?
+        else:
+            # Transmute atom to a new element symbol -- assume its position,
+            # bonds, and bondpoints are all ok and need no changes.
+            # (Should be true of as 071119, since this is used only
+            #  to make Ax and Ss PAM atoms from variant atomtypes
+            #  used to mark them as being in special situations.)
+            #
+            # Use mvElement to avoid remaking existing bondpoints.
+            elt = PeriodicTable.getElement(deprecated_to)
+            if DEBUG_DNA_UPDATER:
+                print "dna updater: transmute atom %r to element %s" % (atom, elt)
+            atom.mvElement(elt)
+            atom.make_enough_bondpoints()
+                # REVIEW: do this later, if atom classes should be corrected first
+                # to help this properly position bondpoints
+                # (or perhaps, first set correct atom classes, then do this,
+                #  making sure it sets correct bondpoint classes,
+                #  or that we correct them separately afterwards)
+        continue
+
+    # Grab whatever new atoms the prior step made,
+    # and include them in subsequent steps.
+    # (Note that atoms we already had might have become killed
+    #  and/or have different elements now.)
     changed_atoms.update( _get_changes_and_clear() )
-
 
     #e filter out killed atoms?
 
 
+
+    ########### RETURN HERE, FOR INITIAL TESTING
+    
+    return
+
+    ##########
+
+
+
     # Give bondpoints and real atoms the desired Atom subclasses.
+    # (Note: this can affect bondpoints and real atoms created by earlier steps
+    #  of the same call of this function.)
     for atom in changed_atoms.itervalues():
         if not atom.killed():
             if atom._f_actual_class_code != atom._f_desired_class_code:
-                newclass = ...
+                newclass = '...'#stub
                 replace_atom_class(assy, atom, newclass, changed_atoms)
                     # note: present implem is atom.__class__ = newclass
             pass
@@ -84,7 +252,9 @@ def update_PAM_atoms(assy): # TODO: call this from _master_model_updater
     # ...
                 
     
-    # fhkdhfsda
+    # look at element fields:
+    # pam = 'PAM3' or 'PAM5' or None
+    # role = 'axis' or 'strand' or None
 
 
     #fh hdsfhsajd
@@ -135,8 +305,8 @@ def _pop_arbitrary_real_atom_with_directional_real_bond(atoms_dict):
                 return atom, bond
     return None, None
 
-def xxx:
-    ...
+def xxx():
+    # ...
     while True:
         atom, bond = _pop_arbitrary_real_atom_with_directional_real_bond(unprocessed_atoms)
         if atom is None:
