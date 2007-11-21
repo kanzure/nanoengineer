@@ -191,7 +191,7 @@ class SequenceEditor(PM_DockWidget):
                              sequenceEditStrandMateBaseColor)
         self.sequenceTextEdit_mate.setPalette(palette)        
         self.sequenceTextEdit_mate.setFixedHeight(20)
-        #self.sequenceTextEdit_mate.setReadOnly(True)
+        self.sequenceTextEdit_mate.setReadOnly(True)
         self.sequenceTextEdit_mate.setWordWrapMode(QTextOption.WrapAnywhere)
      
     def sequenceChanged( self ):
@@ -381,7 +381,7 @@ class SequenceEditor(PM_DockWidget):
         selectionStart  =  cursor.selectionStart()
         selectionEnd    =  cursor.selectionEnd()
         complementSequence = getComplementSequence(str(inSequence))
-                
+      
         if inStylize:
             inSequence  =  self.stylizeSequence( inSequence )            
             complementSequence = self.stylizeSequence(complementSequence)
@@ -389,14 +389,11 @@ class SequenceEditor(PM_DockWidget):
         self.sequenceTextEdit.insertHtml( inSequence )
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
         
-        if inRestoreCursor:
-            cursor.setPosition( min(selectionStart, self.getSequenceLength()), 
-                                QTextCursor.MoveAnchor )
-            cursor.setPosition( min(selectionEnd, self.getSequenceLength()), 
-                                 QTextCursor.KeepAnchor )
-                        
+        if inRestoreCursor:                      
+            cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)
+            cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)                        
             self.sequenceTextEdit.setTextCursor( cursor )
-              
+                          
         return
     
     def getSequenceLength( self ):

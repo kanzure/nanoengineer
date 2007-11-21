@@ -24,6 +24,7 @@ __author__ = 'mark'
 
 from constants import purple, brass, steelblue, orange, darkgray, lightblue
 from constants import darkorange, violet, copper, olive, gray
+from PyQt4.Qt import QString
 
 basesDict = { 'A':{'Name':'Adenine',  'Complement':'T', 'Color':'darkorange' },
               'C':{'Name':'Cytosine', 'Complement':'G', 'Color':'cyan'       },
@@ -153,11 +154,23 @@ def getComplementSequence(inSequence):
     @return: The complement DNA sequence.
     @rtype:  str
     """
+    #If user enters an empty 'space' or 'tab key', treat it as an empty space 
+    #in the complement sequence. (don't convert it to 'N' base) 
+    #This is needed in B{SequenceEditor} where , if user enters an empty space
+    #in the 'Strand' Sequence, its 'Mate' also enters an empty space. 
+    validSpaceSymbol  =  QString(' ')
+    validTabSymbol = QString('\t')
     assert isinstance(inSequence, str)
     outSequence = ""
     for baseLetter in inSequence:
+                
         if baseLetter not in basesDict.keys():
-            baseLetter = "N"
+            if baseLetter in validSpaceSymbol:
+                pass
+            elif baseLetter in validTabSymbol:
+                baseLetter = '\t'
+            else:                
+                baseLetter = "N"
         else:
             baseLetter = basesDict[baseLetter]['Complement']
         outSequence += baseLetter
