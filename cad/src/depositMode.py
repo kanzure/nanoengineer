@@ -1688,9 +1688,24 @@ class depositMode(selectAtomsMode):
         if isinstance(a, Atom):
             if a.is_singlet():
                 return a
+            # Update, bruce 071121, about returning singlets bonded to real
+            # atoms under the cursor, but not themselves under it:
+            # Note that this method affects what happens
+            # on leftup, but is not used to determine what gets highlighted
+            # during mouse motion. A comment below mentions that
+            # selobj_highlight_color is related to that. It looks like it has
+            # code for this in selectAtomsMode._getAtomHighlightColor.
+            # There is also a call
+            # to update_selatom with singOnly = True, which doesn't have this
+            # special case for non-bondpoints, but I don't know whether it's
+            # related to what happens here. And finally, the element symbols
+            # hardcoded below are no longer correct, so that Pl-Sh special case
+            # is effectively disabled!
+            # (Obsolete element symbols also appear elsewhere in *Mode.py.)
+            # All this may or may not relate to bug 2587.
             if a.singNeighbors():
-                if env.debug():
-                    #bruce 060721
+                if env.debug() and len(a.singNeighbors()) > 1:
+                    #bruce 060721, cond revised 071121
                     print "debug warning (likely bug): get_singlet_under_cursor returning an arbitrary bondpoint of %r" % (a,)
                 return a.singNeighbors()[0]
             if reaction_from == 'Pl' and a.element.symbol == 'Sh' and len(a.bonds) == 1 and len(a.realNeighbors()) == 1:

@@ -621,15 +621,17 @@ class selectMolsMode(selectMode):
         if self.movingPoint is None: 
             self.leftDown(event)    
             
-        #Turn Off hover highlighting while translating the selection
-        #This will be turned ON again in leftUp method. 
+        # Turn Off hover highlighting while translating the selection
+        # This will be turned ON again in leftUp method.
+        # [update, bruce 071121: it looks like it's turned back on
+        #  in bareMotion instead.]
         self.hover_highlighting_enabled = False  
         
         # This flag is required in various leftUp methods. It helps them 
         # decide what to do upon left up. The flag value is set in 
         # selectMode.objectSetup, selectMode.objectLeftDrag.  
-        #See those comments. Found a bit confusing bu enough documentation 
-        #exists so ok        
+        # See those comments. Found a bit confusing but enough documentation 
+        # exists so ok        
         self.current_obj_clicked = False
 
         # Move section

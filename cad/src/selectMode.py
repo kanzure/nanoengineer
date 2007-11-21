@@ -294,6 +294,9 @@ class selectMode(basicMode):
         self.only_highlight_singlets = False
             # when set to True, only singlets get highlighted when dragging a singlet.
             # depositMode.singletSetup() sets this to True when dragging a singlet around.
+            # [update bruce 071121: this is only used in selectAtomsMode, so it
+            #  should be moved there. Maybe the same is true for other variables
+            #  here?]
         self.neighbors_of_last_deleted_atom = []
             # list of the real atom neighbors connected to a deleted atom.  Used by atomLeftDouble()
             # to find the connected atoms to a recently deleted atom when double clicking with 'Shift+Control'
@@ -1478,7 +1481,7 @@ class selectMode(basicMode):
         # (so it can highlight just the things it might let you 
         # DND its selobj to, for example),
         # even for Atom/Bondpoint/Bond/Jig, maybe even when not 
-        #self.hover_highlighting_enabled. [bruce 060726 comment]
+        # self.hover_highlighting_enabled. [bruce 060726 comment]
 
         if isinstance(selobj, Atom):
             return self._getAtomHighlightColor(selobj)
@@ -1568,7 +1571,7 @@ class selectMode(basicMode):
         Return the object under the cursor.  Only atoms, singlets and bonds 
 	are returned.
         Returns None for all other cases, including when a bond, jig or nothing 
-	is under the cursor.
+	is under the cursor. [warning: this docstring appears wrong.]
 
         @attention: This method was originally from class selectAtomsMode. See
 	            code comment for details
