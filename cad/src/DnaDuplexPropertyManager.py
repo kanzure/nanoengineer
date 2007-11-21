@@ -48,8 +48,6 @@ from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 
 from PM.PM_DockWidget     import PM_DockWidget
-from SequenceEditor       import SequenceEditor
-
 
 class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
     """
@@ -101,8 +99,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                                 pmWhatsThisButton)
         
         self._loadSequenceEditor()
-        
-    
+            
     def _loadSequenceEditor(self):
         """
         Temporary code  that shows the Sequence editor ..a doc widget docked
@@ -110,11 +107,8 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         before 'rattleSnake' product release.
         As of 2007-11-20: This feature (sequence editor) is waiting 
         for the ongoing dna model work to complete.
-        TODO: revide the code and use only a single sequenceEditor object 
-        (e.g. call self.win.sequenceEdior) 
         """
-        self.sequenceEditor = SequenceEditor(self.win)
-        self.sequenceEditor.setObjectName("sequence_editor")
+        self.sequenceEditor = self.win.createSequenceEditorIfNeeded()        
     
     def connect_or_disconnect_signals(self, isConnect):
         """

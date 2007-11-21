@@ -16,8 +16,6 @@ NOTE: Methods such as sequenceChanged, stylizeSequence are copied from the old
 TODO: (as of 2007-11-20)
 - File open-save strand sequence needs more work 
 - Implement 'Find and Replace' feature
-- When strand editor cursor scrolls , it should also reflect changes in the 
-  mate editor. 
 - Many other things listed on rattleSnake sprint backlog, once dna object model
   is ready
   
@@ -116,7 +114,7 @@ class SequenceEditor(PM_DockWidget):
         change_connect( self.sequenceTextEdit,
                       SIGNAL("cursorPositionChanged()"),
                       self.cursorPosChanged)               
-           
+                
     def _loadWidgets(self):
         """
         Overrides PM.PM_dockWidget._loadWidgets. Loads the widget in this
@@ -193,7 +191,7 @@ class SequenceEditor(PM_DockWidget):
                              sequenceEditStrandMateBaseColor)
         self.sequenceTextEdit_mate.setPalette(palette)        
         self.sequenceTextEdit_mate.setFixedHeight(20)
-        self.sequenceTextEdit_mate.setReadOnly(True)
+        #self.sequenceTextEdit_mate.setReadOnly(True)
         self.sequenceTextEdit_mate.setWordWrapMode(QTextOption.WrapAnywhere)
      
     def sequenceChanged( self ):
@@ -201,7 +199,7 @@ class SequenceEditor(PM_DockWidget):
         Slot for the Strand Sequence textedit widget.
         Assumes the sequence changed directly by user's keystroke in the 
         textedit.  Other methods...
-        """        
+        """ 
         cursorPosition  =  self.getCursorPosition()
         theSequence     =  self.getPlainSequence()
         # Disconnect while we edit the sequence.            
@@ -379,6 +377,7 @@ class SequenceEditor(PM_DockWidget):
         The textChanged() signal will be sent to any connected widgets.
         """
         cursor          =  self.sequenceTextEdit.textCursor()
+                
         selectionStart  =  cursor.selectionStart()
         selectionEnd    =  cursor.selectionEnd()
         complementSequence = getComplementSequence(str(inSequence))
@@ -397,6 +396,7 @@ class SequenceEditor(PM_DockWidget):
                                  QTextCursor.KeepAnchor )
                         
             self.sequenceTextEdit.setTextCursor( cursor )
+              
         return
     
     def getSequenceLength( self ):
@@ -419,13 +419,33 @@ class SequenceEditor(PM_DockWidget):
 
     def cursorPosChanged( self ):
         """
-        Slot called when the cursor position changes.
-        @TODO: cursorPosChanged doesn't do anything for now
-        """        
-        pass
-        ##cursor  =  self.sequenceTextEdit.textCursor()
-             
+        Slot called when the cursor position of the strand textEdit changes. 
+        When this happens, this method also changes the cursor position 
+        of the 'Mate' text edit. Because of this, both the text edit widgets 
+        in the Sequence Editor scroll 'in sync'.
+        """  
+        strandSequence = self.sequenceTextEdit.toPlainText()
+        strandSequence_mate = self.sequenceTextEdit_mate.toPlainText()
+        
+        #The cursorChanged signal is emitted even before the program enters 
+        #setSequence (or before the 'textChanged' signal is emitted) 
+        #So, simply return if the 'Mate' doesn't have same number of characters
+        #as the 'Strand text edit' (otherwise it will print warning message 
+        # while setting the cursor_mate position later in the method. 
+        if strandSequence.length() != strandSequence_mate.length():
+            return        
+        
+        cursor  =  self.sequenceTextEdit.textCursor()
+        cursor_mate =  self.sequenceTextEdit_mate.textCursor()
+        
+        if cursor_mate.position() != cursor.position():
+            cursor_mate.setPosition( cursor.position(), 
+                                    QTextCursor.MoveAnchor )
+            #After setting position, it is important to do setTextCursor 
+            #otherwise no effect will be observed. 
+            self.sequenceTextEdit_mate.setTextCursor(cursor_mate)
     
+
     def synchronizeLengths( self ):
         """
         Guarantees the values of the duplex length and strand length 

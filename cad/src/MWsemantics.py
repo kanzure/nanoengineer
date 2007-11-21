@@ -130,6 +130,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self._activepw = None
 
         self.orientationWindow = None
+        
+       
+        self.sequenceEditor = None  #see self.createSequenceEditrIfNeeded 
+                                    #for details
 
         undo.just_before_mainwindow_super_init()
 
@@ -1550,8 +1554,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
     def createPolyLine(self):
         pass
-        #if 0: #NIY
-            #self.assy.createPolyLine()
+        if 0: #NIY
+            self.assy.createPolyLine()
 
     def makeESPImage(self):
         self.assy.makeESPImage()
@@ -1954,7 +1958,33 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         """
         from DnaDuplexEditController import DnaDuplexEditController
         return DnaDuplexEditController(self, dnaDuplex)
-
+    
+    def createSequenceEditorIfNeeded(self):
+        """
+        Returns a Sequence editor object (a dockwidget).
+        If one doesn't already exists, it creates one .
+        (created only once and only when its first requested and then the 
+        object is reused)
+        @return: The sequence editor object (self.sequenceEditor
+        @rtype: B{SequenceEditor}
+        @see: DnaDuplexPropertyManager._loadSequenceEditor
+        @WARNING: QMainwindow.restoreState prints a warning message because its 
+        unable to find this object in the next session. (as this object is 
+        created only when requested) This warning message is harmless, but
+        if we want to get rid of it, easiest way is to always  create this 
+        object when MainWindow is created. (This is a small object so may 
+        be thats the best way)
+        """
+        if not self.sequenceEditor:
+            from SequenceEditor import SequenceEditor
+            self.sequenceEditor = SequenceEditor(self)
+            self.sequenceEditor.setObjectName("sequence_editor")
+            #Should changes.keep_forevenr be called here? 
+            #doesn't look necessary at the moment -- ninad 2007-11-21
+        
+        return self.sequenceEditor        
+    
+    
     def insertPovrayScene(self):
         self.povrayscenecntl.setup()
 
