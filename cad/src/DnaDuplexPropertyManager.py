@@ -241,6 +241,22 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
             #Show the sequence editor
             self.sequenceEditor.show()
         
+        self.updateStrandListWidget()
+    
+    def updateStrandListWidget(self):   
+        """
+        Update the list of items inside the strandlist widget 
+        Example: Origianally it shows two srands. User now edits an
+        existing dna, and deletes some of the strands, hits done. User then 
+        again invokes the Edit command for this dna object -- now the strand 
+        list widget must be updated so that it shows only the existing strands.
+        """
+        if self.editController.struct:
+            self.strandListWidget.insertItems(
+                row = 0,
+                items = self.editController.struct.members)
+            
+          
     def getFlyoutActionList(self): 
         """ returns custom actionlist that will be used in a specific mode 
 	or editing a feature etc Example: while in movie mode, 

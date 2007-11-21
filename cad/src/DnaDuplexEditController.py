@@ -276,9 +276,7 @@ class DnaDuplexEditController(EditController):
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
         self.propMgr.specifyDnaLineButton.setChecked(False)
         self.preview_or_finalize_structure(previewing = True)
-        if self.struct:
-            self.propMgr.strandListWidget.insertItems(row = 0,
-                                                      items = self.struct.members)
+        self.propMgr.updateStrandListWidget()
     
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """
