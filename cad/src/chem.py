@@ -3590,40 +3590,4 @@ def move_alist_and_snuggle(alist, newPositions):
         a.snuggle() # includes a.setposn; no need for that to be setposn_batch [bruce 050516 comment]
     return
 
-# ==
-
-#Huaicai 10/04/05 
-def getMultiplicity(objList):
-    """
-    @param objList: A list of Atom/Chunk objects
-    @return: If the total number of electron is odd, return 2, otherwise return 1.
-    """
-    numElectrons = 0
-    for m in objList:
-        if isinstance(m, Atom):
-            numElectrons += m.element.eltnum
-        elif isinstance(m, chunk.Chunk):
-            for a in m.atoms.itervalues():
-                numElectrons += a.element.eltnum
-    
-    if numElectrons % 2:
-        return 2
-    else:
-        return 1
-
-# == test code
-
-if __name__ == '__main__':
-
-    nopos = V(0,0,0) #bruce 060308 replaced 'no' with nopos (w/o knowing if it was correct in the first place)
-    
-    alist = [Atom('C', nopos, None), Atom('C', nopos, None), Atom('H', nopos, None), Atom('O', nopos, None), ]
-    
-    assert getMultiplicity(alist) == 2
-    
-    alist += [Atom('N', nopos, None),]
-    assert getMultiplicity(alist) == 1
-    
-    print "Test succeed, no assertion error."
-    
 # end

@@ -49,6 +49,8 @@ import env
 import platform
 
 from chunk import Chunk
+from chem import Atom
+
 from drawer import drawPlane
 from drawer import drawwirecube
 from drawer import drawLineLoop
@@ -720,7 +722,6 @@ class ESPImage(RectGadget):
         sim_parms.temp = 300 # Room temp
         
         #Get updated multiplicity from this ESP image jig bbox
-        from chem import getMultiplicity
         atomList = self.findObjsInside()
         self.multiplicity = getMultiplicity(atomList)        
        
@@ -895,6 +896,31 @@ class ESPImage(RectGadget):
 
     pass # end of class ESPImage       
 
+
+def getMultiplicity(objList):
+    """
+    @param objList: A list of Atom/Chunk objects
+    @return: If the total number of electron is odd, return 2, otherwise return 1.
+
+    @note: not correct for PAM atoms, but doesn't check for the error of using one.
+    """
+    #Huaicai 10/04/05 -- see also the test code at EOF
+    # [bruce 071120 moved this from chem.py to jigs_planes.py]
+    numElectrons = 0
+    for m in objList:
+        if isinstance(m, Atom):
+            numElectrons += m.element.eltnum
+        elif isinstance(m, Chunk):
+            for a in m.atoms.itervalues():
+                numElectrons += a.element.eltnum
+    
+    if numElectrons % 2:
+        return 2
+    else:
+        return 1
+    pass
+
+
 class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
     "record the mirror/flip/rotate history of an image in a short canonical form, and be able to write/read/do this"
     def __init__(self, mirror = False, ccwdeg = 0):
@@ -954,5 +980,21 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
     def __ne__(self, other): #bruce 060228
         return not (self == other)
     pass # end of class image_mod_record
+
+# == test code
+
+if __name__ == '__main__':
+
+    nopos = V(0,0,0) #bruce 060308 replaced 'no' with nopos (w/o knowing if it was correct in the first place)
+    
+    alist = [Atom('C', nopos, None), Atom('C', nopos, None), Atom('H', nopos, None), Atom('O', nopos, None), ]
+    
+    assert getMultiplicity(alist) == 2
+    
+    alist += [Atom('N', nopos, None),]
+    assert getMultiplicity(alist) == 1
+    
+    print "Test succeed, no assertion error."
+    
 
 #end
