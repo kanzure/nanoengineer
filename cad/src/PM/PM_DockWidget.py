@@ -246,7 +246,6 @@ class PM_DockWidget(QDockWidget):
         # value that can be supplied to maintain the behavior (0 doesn't 
         # work). The workaround is to call addWidget() without the <alignment>
         # argument. Mark 2007-07-27.
-
         if widgetAlignment == pmLeftAlignment:
             self.gridLayout.addWidget( pmWidget,
                                        widgetRow, 
@@ -261,4 +260,5 @@ class PM_DockWidget(QDockWidget):
                                        1, 
                                        widgetSpanCols,
                                        widgetAlignment)        
-        self._rowCount += rowIncrement        
+        self._rowCount += rowIncrement
+        
