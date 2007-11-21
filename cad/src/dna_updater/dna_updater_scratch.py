@@ -1,18 +1,4 @@
 
-    # Give bondpoints and real atoms the desired Atom subclasses.
-    # (Note: this can affect bondpoints and real atoms created by earlier steps
-    #  of the same call of this function.)
-    for atom in changed_atoms.itervalues():
-        if not atom.killed():
-            if atom._f_actual_class_code != atom._f_desired_class_code:
-                newclass = '...'#stub
-                replace_atom_class( atom, newclass, changed_atoms)
-                    # note: present implem is atom.__class__ = newclass
-            pass
-        continue
-
-    # ...
-                
     # find directional bond chains (or rings) covering our atoms
 
     def func( atom1, dir1): # wrong, see below

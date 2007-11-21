@@ -16,7 +16,7 @@ from dna_updater_utils import remove_killed_atoms
 
 from constants import noop as STUB_FUNCTION # FIX all uses
 
-fix_atom_classes = STUB_FUNCTION
+from fix_atom_classes import fix_atom_classes
 
 fix_bond_classes = STUB_FUNCTION
 

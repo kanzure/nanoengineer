@@ -62,7 +62,8 @@ def replace_atom_class( atom, newclass, *atomdicts): #e refile?
     # See outtakes/Atom_replace_class.py for unfinished code which does
     # some of that work, and a more detailed comment about what would have
     # to be done, also covering analogous replacements for Bond and Chunk.
-    
+    if DEBUG_DNA_UPDATER:
+        print "dna_updater: replacing %r class %r with %r" % (atom, atom.__class__, newclass)
     atom.__class__ = newclass
     return
 
@@ -71,6 +72,8 @@ def replace_bond_class( bond, newclass, *bonddicts): #e refile?
     Like replace_atom_class, except for Bonds.
     The bonddicts map id(bond) -> bond.
     """
+    if DEBUG_DNA_UPDATER:
+        print "dna_updater: replacing %r class %r with %r" % (bond, bond.__class__, newclass)
     bond.__class__ = newclass
     return
 
