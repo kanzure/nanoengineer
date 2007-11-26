@@ -559,7 +559,8 @@ class selectMode(basicMode):
             self.o.shape = None
 
         self.selCurve_List = []
-            # (for debugging purposes, it's sometimes useful to not reset selCurve_List here,
+            # (for debugging purposes, it's sometimes useful to not reset 
+            #  selCurve_List here,
             #  so you can see it at the same time as the selection it caused.)
 
         self.w.win_update()
@@ -572,10 +573,10 @@ class selectMode(basicMode):
 
     # == Empty Space helper methods
 
-    #& The Empty Space, Atom, Bond and Singlet helper methods should probably be moved to
-    #& selectAtomsMode.  I put them here because I think there is a good chance that we'll 
-    #& allow intermixing of atoms, chunks and jigs (and other stuff) in any mode.
-    #& Mark 060220.
+    #& The Empty Space, Atom, Bond and Singlet helper methods should probably be
+    #& moved to selectAtomsMode.  I put them here because I think there is a 
+    #& good chance that we'll allow intermixing of atoms, chunks and jigs 
+    #&(and other stuff) in any mode. Mark 060220.
 
     def emptySpaceLeftDown(self, event):
         self.objectSetup(None)
@@ -591,16 +592,15 @@ class selectMode(basicMode):
         self.end_selection_curve(event)
         return
 
-    def doObjectSpecificLeftDown(self, object, event):
+    def doObjectSpecificLeftDown(self, obj, event):
         """
 	Call objectLeftDown methods depending on the object instance. 
-	@param object: object under consideration
-	@type  object: instance 
+	@param obj: object under consideration
+	@type  obj: instance 
 	@param event: Left down mouse event 
 	@type  event: QMouseEvent instance
 	"""
-        obj = object 
-        
+                
         if isinstance(obj, Atom) and obj.is_singlet(): 
             self.singletLeftDown(obj, event)# Cursor over a singlet               
         elif isinstance(obj, Atom) and not obj.is_singlet(): 
@@ -614,11 +614,11 @@ class selectMode(basicMode):
             # (should be handled in caller)
             pass
 
-    def doObjectSpecificLeftUp(self, object, event):
+    def doObjectSpecificLeftUp(self, obj, event):
         """
 	Call objectLeftUp methods depending on the object instance. 
-	@param object: object under consideration
-	@type  object: instance 
+	@param obj: object under consideration
+	@type  obj: instance 
 	@param event: Left Up mouse event 
 	@type  event: QMouseEvent instance
 	"""
@@ -647,12 +647,11 @@ class selectMode(basicMode):
         #subclasses and it may cause bugs if someone forgets to add this check.
                 
         if not self.current_obj_clicked:
-            if isinstance(object, Atom) and object.is_singlet():
+            if isinstance(obj, Atom) and obj.is_singlet():
                 pass
             else:
                 return
           
-        obj = object
         if isinstance(obj, Atom):
             if obj.is_singlet(): # Bondpoint                
                 self.singletLeftUp(obj, event)                
@@ -666,15 +665,15 @@ class selectMode(basicMode):
         else:
             pass
 
-    def doObjectSpecificLeftDrag(self, object, event):
+    def doObjectSpecificLeftDrag(self, obj, event):
         """
 	Call objectLeftDrag methods depending on the object instance.
 	Default implementation only sets flag self.current_obj_clicked to False.
         Subclasses should make sure to either set that flag in 
         #those methods or always call the superclass method at the beginning. 
         
-	@param object: object under consideration. 
-	@type  object: instance 
+	@param obj: object under consideration. 
+	@type  obj: instance 
 	@param event: Left drag mouse event 
 	@type  event: QMouseEvent instance
 	@see: selectAtomsMode.doObjectSpecificLeftDrag
@@ -686,48 +685,67 @@ class selectMode(basicMode):
         
 
     def objectSetup(self, obj): 
-        ###e [should move this up, below generic left* methods -- it's not just about atoms]
-        # [this seems to be called (sometimes indirectly) by every leftDown method, and by some methods in depmode
-        #  that create objects and can immediately drag them. Purpose is more general than just for a literal "drag" --
-        #  I guess it's for many things that immediately-subsequent leftDrag or leftUp or leftDouble might need to
-        #  know obj to decide on. I think I'll call it for all new drag_handlers too. [bruce 060728 comment]]
-        self.current_obj = obj # [used by leftDrag and leftUp to decide what to do [bruce 060727 comment]]
-        self.obj_doubleclicked = obj # [used by leftDouble and class-specific leftDouble methods [bruce 060727 comment]]
+        ###e [should move this up, below generic left* methods -- 
+        ##it's not just about atoms]
+        # [this seems to be called (sometimes indirectly) by every leftDown 
+        # method, and by some methods in depmode that create objects and can 
+        # immediately drag them. Purpose is more general than just for a 
+        # literal "drag" --
+        # I guess it's for many things that immediately-subsequent leftDrag or 
+        # leftUp or leftDouble might need to know obj to decide on. I think I'll
+        #call it for all new drag_handlers too. [bruce 060728 comment]]
+        self.current_obj = obj # [used by leftDrag and leftUp to decide what 
+                               #to do [bruce 060727 comment]]
+        self.obj_doubleclicked = obj # [used by leftDouble and class-specific 
+                                     #leftDouble methods [bruce 060727 comment]]
         if obj is None:
             self.current_obj_clicked = False
         else:
             self.current_obj_clicked = True
-                # [will be set back to False if obj is dragged, but only by class-specific drag methods,
-                #  not by leftDrag itself -- make sure to consider doing that in drag_handler case too  #####@@@@@
+                # [will be set back to False if obj is dragged, but only by 
+                # class-specific drag methods, not by leftDrag itself -- make 
+                # sure to consider doing that in drag_handler case too  ##@@@@@
                 #  [bruce 060727 comment]]
                 
             # we need to store something unique about this event;
-            # we'd use serno or time if it had one... instead this _count will do.
+            # we'd use serno or time if it had one..instead this _count will do.
             global _count
             _count = _count + 1
-            self.current_obj_start = _count # used in transient_id argument to env.history.message
+            self.current_obj_start = _count # used in transient_id argument 
+                                            #to env.history.message
            
     
     #bruce 060414 move selatoms optimization (won't be enabled by default in A7)
-    # (very important for dragging atomsets that are part of big chunks but not all of them)
+    # (very important for dragging atomsets that are part of big chunks but not 
+    # all of them)
     # UNFINISHED -- still needs:
     # - failsafe for demolishing bc if drag doesn't end properly
-    # - disable undo cp's when bc exists (or maybe during any drag of any kind in any mode)
-    # - fix checkparts assertfail (or disable checkparts) when bc exists and atom_debug set
+    # - disable undo cp's when bc exists (or maybe during any drag of any kind
+    #   in any mode)
+    # - fix checkparts assertfail (or disable checkparts) when bc exists and 
+    #   atom_debug set
     # - not a debug pref anymore
-    # - work for single atom too (with its baggage, implying all bps for real atoms in case chunk rule for that matters)
+    # - work for single atom too (with its baggage, implying all bps for real 
+    #   atoms in case chunk rule for that matters)
     # - (not directly related:)
-    #   review why reset_drag_vars is only called in selectAtomsMode but the vars are used in the superclass selectMode
-    #   [later 070412: maybe because the methods calling it are themselves only called from selectAtomsMode? it looks that way anyway]
-    #   [later 070412: ###WARNING: in Qt3, reset_drag_vars is defined in selectAtomsMode, but in Qt4, it's defined in selectMode.]
+    #   review why reset_drag_vars is only called in selectAtomsMode but the 
+    #    vars are used in the superclass selectMode
+    #   [later 070412: maybe because the methods calling it are themselves only 
+    #    called from selectAtomsMode? it looks that way anyway]
+    #   [later 070412: ###WARNING: in Qt3, reset_drag_vars is defined in 
+    #   selectAtomsMode, but in Qt4, it's defined in selectMode.]
     # 
     bc_in_use = None # None, or a BorrowerChunk in use for the current drag,
-            # which should be drawn while in use, and demolished when the drag is done (without fail!) #####@@@@@ need failsafe
-    _reusable_borrowerchunks = [] # a freelist of empty BorrowerChunks not now being used (a class variable, not instance variable)
+            # which should be drawn while in use, and demolished when the drag 
+            #is done (without fail!) #####@@@@@ need failsafe
+    _reusable_borrowerchunks = [] # a freelist of empty BorrowerChunks not now
+                                  # being used (a class variable, not instance 
+                                  # variable)
 
     def allocate_empty_borrowerchunk(self):
         """
-        Someone wants a BorrowerChunk; allocate one from our freelist or a new one
+        Someone wants a BorrowerChunk; allocate one from our freelist or a new 
+        one
         """
         while self._reusable_borrowerchunks:
             # try to use one from this list
@@ -745,7 +763,8 @@ class selectMode(basicMode):
         return BorrowerChunk(self.o.assy)
 
     def deallocate_borrowerchunk(self, bc):
-        bc.demolish() # so it stores nothing now, but can be reused later; repeated calls must be ok
+        bc.demolish() # so it stores nothing now, but can be reused later; 
+                     #repeated calls must be ok
         self._reusable_borrowerchunks.append(bc)
 
     
@@ -753,8 +772,9 @@ class selectMode(basicMode):
 
     def deallocate_bc_in_use(self):
         """
-        If self.bc_in_use is not None, it's a BorrowerChunk and we need to deallocate it --
-        this must be called at the end of any drag which might have allocated it.
+        If self.bc_in_use is not None, it's a BorrowerChunk and we need to 
+        deallocate it -- this must be called at the end of any drag which might 
+        have allocated it.
         """
         if self.bc_in_use is not None:
             self.deallocate_borrowerchunk( self.bc_in_use )
@@ -987,7 +1007,6 @@ class selectMode(basicMode):
     # == Jig event handler helper methods   
 
     def jigLeftDown(self, j, event):
-        print "***in jigLeftDown"
         if not j.picked and self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane() # was unpickatoms, unpickparts [bruce 060721]
             j.pick()
