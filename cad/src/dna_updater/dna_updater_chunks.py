@@ -41,25 +41,34 @@ def update_PAM_chunks(changed_atoms):
     axis_atoms = {}
     strand_atoms = {}
 
-    for key, atom in changed_atoms.iteritems():
+    def classify(atom):
+        "put a live real atom into axis_atoms or strand_atoms, or discard it"
+        # REVIEW: should we use atom classes or per-class methods here?
+        # REVIEW: need to worry about atoms with too few bonds?
+        element = atom.element
+        role = element.role # 'axis' or 'strand' or None
+        pam = element.pam # 'PAM3' or 'PAM5' or None
+        if role == 'axis':
+            axis_atoms[atom.key] = atom
+            assert pam in ('PAM3', 'PAM5') # REVIEW: separate these too?
+        elif role == 'strand':
+            strand_atoms[atom.key] = atom
+            assert pam in ('PAM3', 'PAM5') # REVIEW: separate these too?
+        else:
+            pass # ignore all other atoms
+        return
+
+    for atom in changed_atoms.itervalues():
         if atom.killed():
             print "bug: update_PAM_chunks: %r is killed (ignoring)", atom
         elif atom.is_singlet():
-            pass # ignore bondpoints
+            # classify the real neighbor instead
+            # (Note: I'm not sure if this is needed, but I'll do it to be safe.
+            #  A possible need-case to review is when an earlier update step
+            #  broke a bond.)
+            classify(atom.singlet_neighbor())
         else:
-            # REVIEW: should we use atom classes or per-class methods here?
-            # REVIEW: need to worry about atoms with too few bonds?
-            element = atom.element
-            role = element.role # 'axis' or 'strand' or None
-            pam = element.pam # 'PAM3' or 'PAM5' or None
-            if role == 'axis':
-                axis_atoms[key] = atom
-                assert pam in ('PAM3', 'PAM5') # REVIEW: separate these too?
-            elif role == 'strand':
-                strand_atoms[key] = atom
-                assert pam in ('PAM3', 'PAM5') # REVIEW: separate these too?
-            else:
-                pass # ignore all other atoms
+            classify(atom)
         continue
 
     if not axis_atoms and not strand_atoms:
@@ -74,12 +83,24 @@ def update_PAM_chunks(changed_atoms):
     # (If any improper branching is found, complain, and let it break up
     #  the chunks so that each one is properly structured.)
 
-    res = find_chains_or_rings( axis_atoms, next_axis_bond_in_chain )
+    def atom_ok_in_axis(atom): # REVIEW: pass in the first atom as well?
+        "is an atom bonded to an atom in axis_atoms ok in the same AxisChunk?"
+        assert not atom.killed()
+        return atom.element.role == 'axis' # implies atom is not a bondpoint
+    
+    res = find_chains_or_rings( axis_atoms, atom_ok_in_axis )
+        # NOTE: this takes ownership of axis_atoms and trashes it.
         # NOTE: this only finds chains or rings which contain at least one
         # atom in axis_atoms, but they often contain other axis atoms too
         # (which were not in axis_atoms since they were not recently changed).
         # Result is a list of ... #doc
 
+    ## del axis_atoms
+    ##     SyntaxError: can not delete variable 'axis_atoms' referenced in nested scope
+    axis_atoms = None # not a dict, bug if used
+
+    
+    
     # ...
 
     return # from update_PAM_chunks
