@@ -7,8 +7,6 @@ dna_updater_atoms.py - enforce rules on newly changed PAM atoms and bonds
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater_constants import DEBUG_DNA_UPDATER
-
 from dna_updater_globals import get_changes_and_clear
 from dna_updater_globals import ignore_new_changes
 
@@ -26,23 +24,18 @@ delete_bare_atoms = STUB_FUNCTION
 
 # ==
 
-def update_PAM_atoms_and_bonds():
+def update_PAM_atoms_and_bonds(changed_atoms):
     """
     Update PAM atoms and bonds.
 
-    @return: an atom dict of all changed atoms that later update steps
-             might need to consider, which includes no killed atoms.
+    @param changed_atoms: an atom.key -> atom dict of all changed atoms
+                          that this update function needs to consider,
+                          which includes no killed atoms. THIS WILL BE
+                          MODIFIED to include all atoms changed herein,
+                          and to remove any newly killed atoms.
+
+    @return: None
     """
-    changed_atoms = get_changes_and_clear()
-    
-    if not changed_atoms:
-        return changed_atoms # optimization (might not be redundant with caller)
-
-    if DEBUG_DNA_UPDATER:
-        print "dna updater: %d changed atoms to scan" % len(changed_atoms)
-
-    remove_killed_atoms( changed_atoms) # only affects this dict
-
     # ==
 
     # fix atom & bond classes, and break illegal bonds
@@ -114,6 +107,6 @@ def update_PAM_atoms_and_bonds():
 
     remove_killed_atoms( changed_atoms)
 
-    return changed_atoms # from update_PAM_atoms_and_bonds
+    return # from update_PAM_atoms_and_bonds
 
 # end

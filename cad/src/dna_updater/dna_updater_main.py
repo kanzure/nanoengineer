@@ -8,7 +8,15 @@ including DnaGroups, AxisChunks, PAM atoms, etc.
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
+from dna_updater_globals import get_changes_and_clear
+
+from dna_updater_constants import DEBUG_DNA_UPDATER
+
+from dna_updater_utils import remove_killed_atoms
+
 from dna_updater_atoms import update_PAM_atoms_and_bonds
+
+from dna_updater_chunks import update_PAM_chunks
 
 # ==
 
@@ -26,21 +34,29 @@ def full_dna_update():
 
     @return: None
     """
-    changed_atoms = update_PAM_atoms_and_bonds()
+    changed_atoms = get_changes_and_clear()
     
     if not changed_atoms:
         return # optimization (might not be redundant with caller)
 
-    # now do chunks, groups .... TODO
+    if DEBUG_DNA_UPDATER:
+        print "dna updater: %d changed atoms to scan" % len(changed_atoms)
 
-        # ==
+    remove_killed_atoms( changed_atoms) # only affects this dict, not the atoms
+
+    if not changed_atoms:
+        return
     
-    # divide atoms into chunks of the right classes, in the right way
+    update_PAM_atoms_and_bonds( changed_atoms)
+    
+    if not changed_atoms:
+        # (unlikely, but no harm)
+        return
 
-    # look at element fields:
-    # pam = 'PAM3' or 'PAM5' or None
-    # role = 'axis' or 'strand' or None
+    update_PAM_chunks( changed_atoms)
+        # ... return value?
 
+    # now do groups .... TODO
     
     # ....
     
