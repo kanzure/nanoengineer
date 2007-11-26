@@ -148,8 +148,16 @@ class DnaDuplexEditController(EditController):
                 # (can't reuse name in this case -- not sure what prefix it was
                 #  made with)
             name = self.name
-
+        
+               
         # Create the model tree group node. 
+        # Make sure that the 'topnode'  of this part is a Group (under which the
+        # DNa group will be placed), if the topnode is not a group, make it a
+        # a 'Group' (applicable to Clipboard parts).See part.py
+        # --Part.ensure_toplevel_group method. This is an important line
+        # and it fixes bug 2585
+        self.win.assy.part.ensure_toplevel_group()
+        
         dnaGroup = Group(self.name, 
                          self.win.assy,
                          self.win.assy.part.topnode,
