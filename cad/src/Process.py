@@ -1,5 +1,5 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 Process.py
 
 Provides class Process, a QProcess subclass which is more convenient to use,
@@ -19,12 +19,14 @@ running multiple processes concurrently.
 
 And it might as well be extended enough to replace some existing uses of QProcess
 with uses of this class, if that would simplify them (but I'm not sure whether it would).
-'''
+"""
 
 __author__ = 'bruce'
 
 from PyQt4.Qt import QProcess, QStringList, qApp, SIGNAL, QDir, QString
 import time
+
+import env
 
 def ensure_QStringList(args):
     if type(args) == type([]):
@@ -58,43 +60,79 @@ class Process(QProcess):
         # In order to not have to worry about this, we read it all, whether or not caller wants it.
         # We discard it here (in these slot methods) if caller didn't call set_stdout or set_stderr.
         # See also QProcess.communication property (whose meaning or effect is not documented in Qt Assistant).
-        self.connect( self, SIGNAL('readyReadStdout()'), self.read_stdout) ###k
-        self.connect( self, SIGNAL('readyReadStderr()'), self.read_stderr) ###k
+        self.connect( self, SIGNAL('readyReadStandardOutput()'), self.read_stdout) ###k
+        self.connect( self, SIGNAL('readyReadStandardError()'), self.read_stderr) ###k
+        self.connect( self, SIGNAL('error(int)'), self.got_error) ###k
+
+        self.currentError = None
+        self.stdoutRedirected = False
+        self.stderrRedirected = False
+
     def read_stdout(self):
-        bytes = self.readStdout() # QByteArray
-        bytes = str(bytes) ###k
-        self.got_stdout(bytes)
+        self.setReadChannel(QProcess.StandardOutput)
+        while (self.bytesAvailable()):
+            line = self.readLine() # QByteArray
+            line = str(line) ###k
+            self.standardOutputLine(line)
+
     def read_stderr(self):
-        bytes = self.readStderr() # QByteArray
-        bytes = str(bytes) ###k
-        self.got_stderr(bytes)
-    
+        self.setReadChannel(QProcess.StandardError)
+        while (self.bytesAvailable()):
+            line = self.readLine() # QByteArray
+            line = str(line) ###k
+            self.standardErrorLine(line)
+
+    def got_error(self, err):
+        # it doesn't seem like Qt ever calls this on Linux
+        self.currentError = err
+        print "got error: " + self.processState()
+        
     ##def setArguments(self, args): #k needed?
         ##"Overrides QProcess.setArguments so it can accept a Python list as well as a QStringList."
         ##args = ensure_QStringList(args)
         ##super.setArguments(self, args)
+
     ##def setWorkingDirectory(self, arg): # definitely needed
         ##"Overrides QProcess.setWorkingDirectory so it can accept a Python string or QString as well as a QDir object."
         ##arg = ensure_QDir(arg)
         ##super.setWorkingDirectory(self, arg)
+
     def set_stdout(self, stdout):
         """Cause stdout from this process to be written to the given file-like object
         (which must have write method, and whose flush method is also used if it exists).
         This should be called before starting the process.
         If it's never called, stdout from the process will be read and discarded.
         """
+        if (self.stdout and self.stdoutRedirected):
+            self.stdout.close()
+        self.stdoutRedirected = False
         self.stdout = stdout
+
     def set_stderr(self, stderr):
         "Like set_stdout but for stderr."
+        if (self.stderr and self.stderrRedirected):
+            self.stderr.close()
+        self.stderrRedirected = False
         self.stderr = stderr
-    def got_stdout(self, bytes):
+
+    def redirect_stdout_to_file(self, filename):
+        self.stdout = open(filename, 'w')
+        self.stdoutRedirected = True
+
+    def redirect_stderr_to_file(self, filename):
+        self.stderr = open(filename, 'w')
+        self.stderrRedirected = True
+
+    def standardOutputLine(self, bytes):
         if self.stdout is not None:
             self.stdout.write(bytes)
             self.try_flush(self.stdout)
-    def got_stderr(self, bytes):
+
+    def standardErrorLine(self, bytes):
         if self.stderr is not None:
             self.stderr.write(bytes)
             self.try_flush(self.stderr)
+
     def try_flush(self, file):
         try:
             file.flush # see if attr is present
@@ -103,35 +141,66 @@ class Process(QProcess):
         else:
             file.flush()
         return
+
+    def processState(self):
+        s = self.state()
+        if (s == QProcess.NotRunning):
+            state = "NotRunning"
+        elif (s == QProcess.Starting):
+            state = "Starting"
+        elif (s == QProcess.Running):
+            state = "Running"
+        else:
+            state = "UnknownState: %s" % s
+        if (self.currentError != None):
+            if (self.currentError == QProcess.FailedToStart):
+                err = "FailedToStart"
+            elif (self.currentError == QProcess.Crashed):
+                err = "Crashed"
+            elif (self.currentError == QProcess.Timedout):
+                err = "Timedout"
+            elif (self.currentError == QProcess.ReadError):
+                err = "ReadError"
+            elif (self.currentError == QProcess.WriteError):
+                err = "WriteError"
+            else:
+                err = "UnknownError"
+        else:
+            err = ""
+        return state + "[" + err + "]"
+        
     def wait_for_exit(self):
         """Wait for the process to exit (sleeping by 0.05 seconds in a loop).
         Return its exitcode.
         Call this only after the process was successfully started using self.start() or self.launch().
         """
-        while self.isRunning():
-            import env
+        while (not self.state() == QProcess.NotRunning):
             env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
                 #k is this required for us to get the slot calls for stdout / stderr ?
                 # I don't know, but we want it even if not.
             time.sleep(0.05)
-        return self.exitcode()
-    def exitcode(self):
+        return self.exitCode()
+
+    def getExitValue(self):
         "Return the exitcode, or -2 if it crashed or was terminated. Only call this after it exited."
-        assert not self.isRunning()
-        if self.normalExit():
-            return self.exitStatus()
+        code = self.wait_for_exit()
+        if (self.exitStatus() == QProcess.NormalExit):
+            return code
         return -2
-    def run(self, args = None):
+
+    def run(self, program, args = None):
         """Do everything needed to run the process with these args
         (a list of strings, starting with program name or path),
         except for the setX methods which caller might want to call first,
         like set_stdout, set_stderr, setWorkingDirectory,
         and optionally setArguments if args are not provided here.
         """
-        if args is not None:
-            self.setArguments(args)
-        self.start() #k ok that we provide no stdin? #e might need to provide an env here
-        return self.wait_for_exit()
+        if (args is None):
+            args = []
+        self.currentError = None
+        self.start(program, args) #k ok that we provide no stdin? #e might need to provide an env here
+        
+        return self.getExitValue()
     pass
 
 def run_command( program, args = [], stdout = None, stderr = None, cwd = None ):
@@ -143,52 +212,62 @@ def run_command( program, args = [], stdout = None, stderr = None, cwd = None ):
     If something goes wrong in finding or starting the program, raise an exception.
     """
     pp = Process()
-    pp.setArguments([program] + args)
     if cwd:
         pp.setWorkingDirectory(cwd)
     pp.set_stdout( stdout) # ok if this is None
     pp.set_stderr( stderr)
-    ec = pp.run()
+    ec = pp.run(program, args)
     return ec
 
 # == test code
 
-def _test(args, wd = None):
-    import sys
-    pp = Process()
+class ProcessTest(object):
+    
+    def _test(self, program, args = None, wd = None):
+        import sys
+        pp = Process()
 
-    print
-    print "args:", args
-    if wd:
-        print "working dir:", wd
+        print
+        print "program: %s, args: " % program, args
+        if wd:
+            print "working dir:", wd
 
-    pp.setArguments(args)
-    if wd:
-        pp.setWorkingDirectory(wd)
-    pp.set_stdout( sys.stdout) #k might be more useful if we labelled the first uses or the lines...
-    pp.set_stderr( sys.stderr)
-    print "running it"
-    ec = pp.run()
-    print "exitcode was", ec
+        if wd:
+            pp.setWorkingDirectory(wd)
+        #pp.set_stdout( sys.stdout) #k might be more useful if we labelled the first uses or the lines...
+        pp.set_stderr(sys.stderr)
+        ##pp.setProcessChannelMode(QProcess.ForwardedChannels)
+        ec = pp.run(program, args)
+        print "exitcode was", ec
 
-def _all_tests():
-    _test( ["date","-r","8"] )
-    ##Wed Dec 31 16:00:08 PST 1969
-    ##exitcode was 0
+    def _all_tests(self):
+        self._test("ferdisaferd")
+        ##Wed Dec 31 16:00:08 PST 1969
+        ##exitcode was 0
 
-    _test( ["date","-rrr","8"] )
-    ##date: illegal time format
-    ##usage: date [-nu] [-r seconds] [+format]
-    ##       date [[[[[cc]yy]mm]dd]hh]mm[.ss]
-    ##exitcode was 1
+        #self._test("date", ["-rrr", "8"] )
+        ##date: illegal time format
+        ##usage: date [-nu] [-r seconds] [+format]
+        ##       date [[[[[cc]yy]mm]dd]hh]mm[.ss]
+        ##exitcode was 1
 
-    _test( ["ls","-f"], "/tmp" )
-    ##501
-    ##mcx_compositor
-    ##printers
-    ##exitcode was 0
+        #self._test("ls", ["-f"], "/tmp" )
+        ##501
+        ##mcx_compositor
+        ##printers
+        ##exitcode was 0
+        global app
+        app.quit()
 
 if __name__ == '__main__':
-    _all_tests()
+    from PyQt4.Qt import QApplication, QTimer
+    import sys
+    test = ProcessTest()
+    app = QApplication(sys.argv, False)
+    timer = QTimer()
+    timer.connect(timer, SIGNAL("timeout()"), test._all_tests)
+    timer.setSingleShot(True)
+    timer.start(10)
+    app.exec_()
 
 # end

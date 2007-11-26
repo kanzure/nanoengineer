@@ -297,7 +297,7 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
             if arg != "":
                 arguments.append(arg)
 
-        from Process import Process, ensure_QStringList
+        from Process import Process
         p = Process()
             #bruce 060707: this doesn't take advantage of anything not in QProcess,
             # unless it matters that it reads and discards stdout/stderr

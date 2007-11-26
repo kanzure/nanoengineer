@@ -47,6 +47,7 @@ import re
 from chem import AtomDict
 from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 from constants import filesplit
+from Process import Process
 
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
@@ -87,6 +88,37 @@ def timestep_flag_and_arg( mflag = False): #bruce 060503
 ##    # since it won't be an issue later when timestep is again supported as a movie attribute.
 
 # ==
+
+class GromacsProcess(Process):
+    verboseGromacsOutput = False
+
+    def standardOutputLine(self, line):
+        Process.standardOutputLine(self, line)
+        if (self.verboseGromacsOutput):
+            if (self.runningGrompp and False):
+                print "grompp stdout: " + line.rstrip()
+            if (self.runningMdrun and False):
+                print "mdrun stdout: " + line.rstrip()
+
+    def standardErrorLine(self, line):
+        Process.standardErrorLine(self, line)
+        if (self.verboseGromacsOutput):
+            if (self.runningGrompp and False):
+                print "grompp stderr: " + line.rstrip()
+            if (self.runningMdrun):
+                print "mdrun stderr: " + line.rstrip()
+        if (line.startswith("ERROR:")):
+            msg = redmsg("Gromacs " + line.rstrip().rstrip("-"))
+            env.history.message(msg)
+
+    def prepareForGrompp(self):
+        self.runningGrompp = True
+        self.runningMdrun = False
+
+    def prepareForMdrun(self):
+        self.runningGrompp = False
+        self.runningMdrun = True
+    
 
 class SimRunner:
     """
@@ -157,24 +189,40 @@ class SimRunner:
                 # result error code (or abort button flag) stored in self.errcode
             if (self.mflag == 1 and debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug=True, prefs_key=True)):
                 gromacsBaseFileName = self._movie.filename
+                gromacsProcess = GromacsProcess()
+                gromacsProcess.prepareForGrompp()
+                gromacsProcess.redirect_stdout_to_file("%s-grompp-stdout.txt" % gromacsBaseFileName)
+                gromacsProcess.redirect_stderr_to_file("%s-grompp-stderr.txt" % gromacsBaseFileName)
                 gromppArgs = [
                     "-f", "%s.mdp" % gromacsBaseFileName,
                     "-c", "%s.gro" % gromacsBaseFileName,
                     "-p", "%s.top" % gromacsBaseFileName,
                     "-o", "%s.tpr" % gromacsBaseFileName,
+                    "-po", "%s-out.mdp" % gromacsBaseFileName,
                     ]
-                errorCode = QProcess.execute("grompp", gromppArgs)
+                errorCode = gromacsProcess.run("grompp", gromppArgs)
                 if (errorCode != 0):
-                    print >>sys.stderr, "grompp returned %d" % errorCode
+                    msg = redmsg("Gromacs minimization failed, grompp returned %d" % errorCode)
+                    env.history.message(self.cmdname + ": " + msg)
+                    self.errcode = 2;
                 else:
+                    gromacsProcess.prepareForMdrun()
+                    gromacsProcess.redirect_stdout_to_file("%s-mdrun-stdout.txt" % gromacsBaseFileName)
+                    gromacsProcess.redirect_stderr_to_file("%s-mdrun-stderr.txt" % gromacsBaseFileName)
                     mdrunArgs = [
                         "-s", "%s.tpr" % gromacsBaseFileName,
+                        "-o", "%s.trr" % gromacsBaseFileName,
+                        "-e", "%s.edr" % gromacsBaseFileName,
                         "-c", "%s-out.gro" % gromacsBaseFileName,
                         "-g", "%s-mdrun.log" % gromacsBaseFileName,
                         ]
-                    errorCode = QProcess.execute("mdrun", mdrunArgs)
+                    errorCode = gromacsProcess.run("mdrun", mdrunArgs)
                     if (errorCode != 0):
-                        print >>sys.stderr, "mdrun returned %d" % errorCode
+                        msg = redmsg("Gromacs minimization failed, mdrun returned %d" % errorCode)
+                        env.history.message(self.cmdname + ": " + msg)
+                        self.errcode = 3;
+                gromacsProcess.set_stdout(None) # closes output file
+                gromacsProcess.set_stderr(None)
         
         except:
             print_compact_traceback("bug in simulator-calling code: ")

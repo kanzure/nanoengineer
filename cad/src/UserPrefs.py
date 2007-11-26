@@ -877,7 +877,7 @@ restored when the user undoes a structural change.</p>
         #(e.g. GAMESS plugin, 
         #ESP Image plugin (nanohive) path widgets.(under plugins tab) 
         #This is for the rattlesnake spring backlog item 
-        #"disable the items that aren't used too much (GAMESS, CoNTub, ESP/NH1)"
+        #'disable the items that aren't used too much (GAMESS, CoNTub, ESP/NH1)'
         
         """
         widgetList = [self.nanohive_lbl, 
