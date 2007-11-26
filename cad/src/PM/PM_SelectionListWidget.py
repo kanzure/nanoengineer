@@ -22,6 +22,29 @@ TODO:
 - the attr 'iconPath' needs to be defined for various objects. Need a better 
    name?  (Example: see class Atom.iconPath that specifies the atom icon path 
    as a string)
+
+- Review Changes to be done: (Bruce's email)
+  As for self._tagInstruction in PM_SelectionListWidget.py 
+  -- things will be cleaner if the widget code does not know a lot of details 
+  about how to manipulate display and model info in a graphicsMode. Also, 
+  there are update issues about storing atom posns in the graphicsMode.list of
+  tag posns and then the user moves the atoms. So, what I suggest as a 
+  refactoring at some point is for the widget to just be given a callback 
+  function, so that whenever the set of selected list items is different, 
+  it calls that function with the new list. Then the specific graphicsModes can
+  clear whatever they stored last time, then scan that list and do whatever they
+  want with it. No graphicsMode knowledge is needed in the widget, and whatever 
+  atom posn updates are needed is handled entirely in the graphicsMode -- either
+  it updates the list of tag posns whenever model_changed, or it just stores a 
+  list of atoms in the first place, not a list of their positions, so it uses up
+  to date posns each time it draws.
+  **Comments/Questions: Implementation of this callback function 
+  -- where should this be  defined? In the propMgr that initializes this list 
+  widget? If so, it needs to be defined in each propMgr that will define this 
+  listwidget (example: MotorPM and SDnaDuplxPM each will need to define the 
+  callback methods. In the current implementation, they just set a 
+  'tag instruction' for this widget.)What if propMgr.model_changed also calls a 
+  model_changed method defined in this widget? 
 """
 from PM_ListWidget import PM_ListWidget
 from PyQt4.Qt import QListWidgetItem
