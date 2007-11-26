@@ -198,7 +198,14 @@ class EditController:
 
         if not self.propMgr:
             self.propMgr = self._createPropMgrObject()
-                
+        
+        #Following is needed to make sure that when a dna line is drawn 
+        #(using DNA Line mode), it takes input and gives output to the 
+        # currently active editController 
+        #(see selectMolsMode.provideParametersForTemporaryMode where we are 
+        # using self.win.dnaEditController) Fixes bug 2588
+        self.win.dnaEditController = self
+        
         self.existingStructForEditing = True
         self.old_props = self.struct.getProps()
         self.propMgr.show() 
