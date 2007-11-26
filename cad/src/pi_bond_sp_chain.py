@@ -57,7 +57,9 @@ else:
     pass
 
 def bond_get_pi_info(bond, **kws):
-    "#doc; **kws include out, up, abs_coords"
+    """
+    #doc; **kws include out, up, abs_coords
+    """
     obj = bond.pi_bond_obj
     if obj is not None:
         # let the obj update itself and return the answer.
@@ -89,7 +91,9 @@ def bond_get_pi_info(bond, **kws):
     return obj.get_pi_info(bond, **kws)
 
 class PerceivedStructureType(Jig): #e rename, not really a Type (eg not a pattern), more like a set or layer or record
-    """... Subclasses are used for specific kinds of perceived structures (e.g. sp chains, pi systems, diamond or graphite rings).
+    """
+    ... Subclasses are used for specific kinds of perceived structures
+    (e.g. sp chains, pi systems, diamond or graphite rings).
     """
     pass
 
@@ -118,7 +122,8 @@ class PerceivedStructureType(Jig): #e rename, not really a Type (eg not a patter
 # ###@@@
 
 class PiBondSpChain(PerceivedStructureType):
-    """Records one chain (or ring) of potential-pi-bonds connected by -sp- atoms;
+    """
+    Records one chain (or ring) of potential-pi-bonds connected by -sp- atoms;
     as a Jig, sits on all atoms whose structure or motion matters for the extent of this chain
     and the geometry of its pi orbitals (ie all atoms in the chain, and the immediate neighbor atoms of the ends).
        Main job is to calculate pi-orbital angles for drawing the pi bonds.
@@ -127,12 +132,17 @@ class PiBondSpChain(PerceivedStructureType):
     ringQ = False # class constant; in the Ring subclass, this is True
     have_geom = False # initial value of instance variable
     def _undo_update(self): #bruce 060223; see long comment above
-        "our atomset (a member of our superclass Jig) must have changed..."
+        """
+        our atomset (a member of our superclass Jig) must have changed...
+        """
         self.destroy()
         PerceivedStructureType._undo_update(self) # might be pointless after that, but you never know...
         return
     def __init__(self, listb, lista): ### not like Jig init, might be a problem eg for copying it ###@@@ review whether that happens
-        "Make one, from lists of bonds and atoms (one more atom than bond, even for a ring, where 1st and last atoms are same)"
+        """
+        Make one, from lists of bonds and atoms (one more atom than bond,
+        even for a ring, where 1st and last atoms are same)
+        """
         self._recompile_counter = _recompile_counter
         self.listb = listb
         self.lista = lista
@@ -183,11 +193,16 @@ class PiBondSpChain(PerceivedStructureType):
         self.destroy() ###k need to make sure it's ok for jigs (Nodes) not in the model tree
         # no point in calling super.changed_structure after self.destroy!
     def moved_atom(self, atom):
-        "some atom I'm on moved; invalidate my geometric info"
+        """
+        some atom I'm on moved; invalidate my geometric info
+        """
         # must be fast, so don't bother calling Jig.moved_atom, since it's a noop
         self.have_geom = False
     def changed_bond_type(self, bond): #bruce 050726
-        "some bond I'm on changed type (perhaps due to user change or to bond inference code); invalidate my geometric info"
+        """
+        some bond I'm on changed type (perhaps due to user change
+        or to bond inference code); invalidate my geometric info
+        """
         # there is no superclass method for this -- it's only called on bond.pi_bond_obj for our own bonds
         ###e it might be worth only invalidating if the bond type differs from what we last used when recomputing
         self.have_geom = False        
@@ -221,7 +236,8 @@ class PiBondSpChain(PerceivedStructureType):
         return pi_info_from_abs_pvecs( bond, bond_axis, biL_pvec, biR_pvec, abs_coords = abs_coords) 
 
     def pvecs_i(self, i, abs_coords = False):
-        """use last recomputed geom to get the 2 pvecs for bond i...
+        """
+        Use last recomputed geom to get the 2 pvecs for bond i...
         in the coordsys of the bond, or always abs if flag is passed.
         WARNING: pvec order matches atom order in lista, maybe not in bond.
         """
@@ -247,7 +263,8 @@ class PiBondSpChain(PerceivedStructureType):
         return biL_pvec, biR_pvec # warning: these two vectors might be the same object
 
     def recompute_geom(self, out = DFLT_OUT, up = DFLT_UP):
-        """Compute and store enough geometric info for pvecs_i to run (using submethods for various special cases):
+        """
+        Compute and store enough geometric info for pvecs_i to run (using submethods for various special cases):
         self.quats_cum, self.twist, self.b0L_pvec.
         """
         # put coords on each bond axis, then link these (gauge transform)... start with first and propogate.
@@ -315,7 +332,10 @@ class PiBondSpChain(PerceivedStructureType):
         return # from recompute_geom
 
     def adjacent_double_bonds( self, i1, i2 ): # replaces self.twist90 code, 050726
-        "#doc; i1 might be -1"
+        """
+        #doc;
+        i1 might be -1
+        """
         bonds = self.listb
         v1 = bonds[i1].v6 # ok for negative indices i1
         v2 = bonds[i2].v6
@@ -334,7 +354,9 @@ class PiBondSpChain(PerceivedStructureType):
         return False
     
     def recompute_geom_from_quats(self): # non-ring class
-        "[not a ring; various possible end situations]"
+        """
+        [not a ring; various possible end situations]
+        """
         out = self.out
         up = self.up
         atoms = self.lista
@@ -385,7 +407,9 @@ class PiBondSpChain(PerceivedStructureType):
         return # from non-ring recompute_geom_from_quats
 
     def recompute_geom_both_ends_constrained(self):
-        """Using self.b0L_pvec and self.chain_quat_cum and self.bm1R_pvec, figure out self.twist...
+        """
+        Using self.b0L_pvec and self.chain_quat_cum and self.bm1R_pvec,
+        figure out self.twist...
         [used for rings, and for linear chains with both ends constrained]
         """
         bonds = self.listb
@@ -416,7 +440,11 @@ class PiBondSpChain(PerceivedStructureType):
     pass # end of class PiBondSpChain
 
 class RingPiBondSpChain( PiBondSpChain):
-    "Class for a perceived ring of =C= or -C# atoms, or other 2-bond sp atoms if there are any (not sure if there can be)"
+    """
+    Class for a perceived ring of =C= or -C# atoms,
+    or other 2-bond sp atoms if there are any
+    (not sure if there can be)
+    """
     ringQ = True
     # Note: I've assumed a ring means no constraints on angles... what if other bonds? but sp2 atoms count as endpoints,
     # so it's ok, this is just ring of sp, so it's true.
@@ -430,8 +458,12 @@ class RingPiBondSpChain( PiBondSpChain):
         return
     pass # end of class RingPiBondSpChain
 
-def make_pi_bond_obj(bond):
-    "#doc ... make one for a pi bond, extended over sp atoms in the middle... what if sp3-sp-sp3, no pi bonds? then no need for one!"
+def make_pi_bond_obj(bond): # see also find_chain_or_ring_from_bond, which generalizes this [bruce 071126]
+    """
+    #doc ...
+    make one for a pi bond, extended over sp atoms in the middle...
+    what if sp3-sp-sp3, no pi bonds? then no need for one!
+    """
     atom1 = bond.atom1
     atom2 = bond.atom2
     # more atoms to the right? what we need to grow: sp atom, exactly one other bond, it's a pi bond. (and no ring formed)
@@ -446,19 +478,26 @@ def make_pi_bond_obj(bond):
     return PiBondSpChain( listb1 + [bond] + listb2, lista1 + [atom1, atom2] + lista2 ) # one more atom than bond
 
 def potential_pi_bond(bond):
-    "given our atomtypes, are we a potential pi bond?"
+    """
+    given our atomtypes, are we a potential pi bond?
+    """
     return bond.potential_pi_bond()
     ## return bond.atom1.atomtype.spX < 3 and bond.atom2.atomtype.spX < 3
 
 def sp_atom_2bonds(atom):
-    "#doc"
+    """
+    """
     ## warning: this being true is *not* enough to know that a pi bond containing atom has an sp-chain length > 1.
     return atom.atomtype.spX == 1 and len(atom.bonds) == 2 and atom.atomtype.numbonds == 2
 
 def next_bond_in_sp_chain(bond, atom):
-    """Given a pi bond and one of its atoms, try to grow the chain beyond that atom... return next bond, or None.
-    [This function not returning None (for either atom on the end of a potential pi bond)
-    is the definitive condition for that bond not being the only one in its sp-chain.]
+    """
+    Given a pi bond and one of its atoms, try to grow the chain
+    beyond that atom... return next bond, or None.
+
+    @note: This function not returning None (for either atom on the end
+    of a potential pi bond) is the definitive condition for that bond
+    not being the only one in its sp-chain.
     """
     assert potential_pi_bond(bond)
     if not sp_atom_2bonds(atom):
@@ -477,8 +516,9 @@ def next_bond_in_sp_chain(bond, atom):
 def pi_bond_alone_in_its_sp_chain_Q(bond):
     return next_bond_in_sp_chain(bond, bond.atom1) is None and next_bond_in_sp_chain(bond, bond.atom2) is None
 
-def grow_pi_sp_chain(bond, atom): # WARNING: very similar to grow_bond_chain, SHOULD BE made into a call of it; see below ##e
-    """Given a potential pi bond and one of its atoms,
+def grow_pi_sp_chain(bond, atom): # WARNING: superceded by grow_pi_sp_chain_NEWER_BETTER, except that one is untested. see its comment.
+    """
+    Given a potential pi bond and one of its atoms,
     grow the pi-sp-chain containing bond in the direction of atom,
     adding newly found bonds and atoms to respective lists (listb, lista) which we'll return,
     until you can't or until you notice that it came back to bond and formed a ring
@@ -509,7 +549,8 @@ def grow_pi_sp_chain_NEWER_BETTER(bond, atom):
 
 def pi_vectors(bond, out = DFLT_OUT, up = DFLT_UP, abs_coords = False): # rename -- pi_info for pi bond in degen sp chain
     # see also PiBondSpChain.get_pi_info
-    """Given a bond involving some pi orbitals, return the 4-tuple ((a1py, a1pz), (a2py, a2pz), ord_pi_y, ord_pi_z),
+    """
+    Given a bond involving some pi orbitals, return the 4-tuple ((a1py, a1pz), (a2py, a2pz), ord_pi_y, ord_pi_z),
     where a1py and a1pz are orthogonal vectors from atom1 giving the direction of its p orbitals for use in drawing
     this bond (for twisted bonds, the details of these might be determined more by graphic design issues than by the
     shapes of the real pi orbitals of the bond, though the goal is to approximate those);
@@ -552,7 +593,10 @@ def pi_vectors(bond, out = DFLT_OUT, up = DFLT_UP, abs_coords = False): # rename
     return pi_info_from_abs_pvecs( bond, bond_axis, pvec1, pvec2, abs_coords = abs_coords) 
 
 def pi_info_from_abs_pvecs( bond, bond_axis, pvec1, pvec2, abs_coords = False):
-    "#doc; bond_axis (passed only as an optim) and pvecs are in abs coords; retval is in bond coords unless abs_coords is true"
+    """
+    #doc;
+    bond_axis (passed only as an optim) and pvecs are in abs coords; retval is in bond coords unless abs_coords is true
+    """
     a1py = pvec1
     a2py = pvec2
     a1pz = norm(cross(bond_axis, pvec1))
@@ -588,7 +632,8 @@ V_CARBOMERIC: (0.5, 1), # I think the 0.5 should actually be 1-x for adjacent bo
 # ==
         
 def p_vector_from_sp2_atom(atom, bond, out = DFLT_OUT, up = DFLT_UP):
-    """Given an sp2 atom and a possibly-pi bond to it,
+    """
+    Given an sp2 atom and a possibly-pi bond to it,
     return its p orbital vector for use in thinking about that pi bond,
     or None if this atom (considering its other bonds) doesn't constrain that direction.
     """
@@ -611,7 +656,8 @@ def p_vector_from_sp2_atom(atom, bond, out = DFLT_OUT, up = DFLT_UP):
     pass
 
 def p_vector_from_3_bonds(atom, bond, out = DFLT_OUT, up = DFLT_UP):
-    """Given an sp2 atom with 3 bonds, and one of those bonds which we assume has pi orbitals in it,
+    """
+    Given an sp2 atom with 3 bonds, and one of those bonds which we assume has pi orbitals in it,
     return a unit vector from atom along its p orbital, guaranteed perpendicular to bond,
     for purposes of drawing the pi orbital component of bond.
     Note that it's arbitrary whether we return a given vector or its opposite.
@@ -684,8 +730,15 @@ def p_vector_from_sp2_2_bonds(atom, bond, out = DFLT_OUT, up = DFLT_UP):
         return norm(out)
     return v2p / lenv2p
 
+# ==
+
+# pure geometry routines, should be refiled:
+
 def arb_non_parallel_vector(vec):
-    "Given a nonzero vector, return an arbitrary vector not close to being parallel to it."
+    """
+    Given a nonzero vector, return an arbitrary vector not close to
+    being parallel to it.
+    """
     x,y,z = vec
     if abs(z) < abs(x) > abs(y):
         # x is biggest, use y
@@ -695,12 +748,18 @@ def arb_non_parallel_vector(vec):
     pass
 
 def arb_perp_unit_vector(vec):
-    "Given a nonzero vector, return an arbitrary unit vector perpendicular to it."
+    """
+    Given a nonzero vector, return an arbitrary unit vector
+    perpendicular to it.
+    """
     vec2 = arb_non_parallel_vector(vec)
     return norm(cross(vec, vec2))
 
 def arb_ortho_pair(vec): #k not presently used # see also some related code in pi_vectors()
-    "Given a nonzero vector, return an arbitrary pair of unit vectors perpendicular to it and to each other."
+    """
+    Given a nonzero vector, return an arbitrary pair of unit vectors
+    perpendicular to it and to each other.
+    """
     res1 = arb_perp_unit_vector(vec)
     res2 = norm(cross(vec, res1))
     return res1, res2
