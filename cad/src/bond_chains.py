@@ -29,7 +29,8 @@ def grow_bond_chain(bond, atom, next_bond_in_chain): #bruce 070415; generalized 
        Note that listb never includes the original bond, so it is never a complete list of bonds in the chain.
     In general, to form a complete chain, a caller must piece together a starting bond and two bond lists
     grown in opposite directions, or one bond list if bond is part of a ring.
-    (See also XXX [nim, to be modified from make_pi_bond_obj], which calls us twice and does this.)
+    (See also the method find_chain_or_ring_from_bond [modified from make_pi_bond_obj],
+     which calls us twice and does this.)
        The function next_bond_in_chain(bond, atom) must return another bond containing atom
     in the same chain or ring, or None if the chain ends at bond (on the end of bond which is atom),
     and must be defined in such a way that its progress from bond to bond, through any atom, is consistent from
@@ -116,6 +117,28 @@ def next_directional_bond_in_chain(bond, atom):
 
 # ==
 
+# dict utils to be refiled:
+
+def pop_arbitrary_item(dict1):
+    """
+    Assume dict1 is not empty; efficiently pop and return
+    an arbitrary item (key, value pair) from it.
+    """
+    key, val_unused = item = arbitrary_item(dict1)
+    del dict1[key]
+    return item
+
+def arbitrary_item(dict1):
+    """
+    If dict1 is not empty, efficiently return an arbitrary item
+    (key, value pair) from it. Otherwise return None.
+    """
+    for item in dict1.iteritems():
+        return item
+    return None
+
+# ==
+
 class abstract_bond_chain_analyzer:
     """
     Abstract helper class for testing atoms and bonds as qualified
@@ -126,6 +149,10 @@ class abstract_bond_chain_analyzer:
     """
     #bruce 071126, synthesizing some existing related code and new code
     # TODO: recode existing helper functions to use this.
+
+    # per-subclass constants
+    branches_ok = False # the other value is untested
+        
     def atom_ok(self, atom):
         """
         Subclass-specific primitive for whether an atom qualifies.
@@ -145,22 +172,20 @@ class abstract_bond_chain_analyzer:
         unless both its atoms satisfy atom_ok.
         """
         return True
-    def atom_list_of_ok_bonds_others(self, atom):
+    def atom_list_of_ok_bonds(self, atom):
         """
         Assume self.atom_ok(atom). Return a list of
-        all atom's bonds, each paired with its "other atom",
-        i.e. a list of pairs (bond, otheratom) where bond's
-        two atoms are atom and otheratom,
-        for which the bond and both of its atoms
+        atom's bonds for which the bond and its atoms
         satisfy bond_ok and atom_ok respectively.
-        This list might have any length; we don't detect the
-        errors of its length being 0 or more than 2.
-        (In fact, we don't assume that these are errors,
-        though all existing subclasses do. ### VERIFY)
+        
+        This list might have any length (including 0
+        or more than 2); we don't assume it's an error
+        if the length is more than 2, though callers
+        of this method in certain subclasses are free to do so.
 
         The implementation assumes that self.atom_ok might be
         expensive enough to justify comparing bond's atoms to atom
-        to avoid calling self.atom_ok redundantly.
+        to avoid calling self.atom_ok redundantly on atom.
         """
         atom_ok = self.atom_ok
         assert atom_ok(atom)
@@ -169,10 +194,10 @@ class abstract_bond_chain_analyzer:
             if self.bond_ok(bond):
                 other = bond.other(atom)
                 if atom_ok(other):
-                    res.append((bond, other)) #k do any callers want other? looks like not. TODO: simplify them, don't include it.@@@
+                    res.append(bond)
         return res
     def atom_is_branchpoint(self, atom):
-        return len(self.atom_list_of_ok_bonds_others(atom)) > 2
+        return len(self.atom_list_of_ok_bonds(atom)) > 2
     def next_bond_in_chain(self, bond, atom):
         """
         Assume bond & both its atoms qualify (but not that atom has been checked
@@ -190,16 +215,16 @@ class abstract_bond_chain_analyzer:
          directions from a bond and both of them end on an atom with
          too many qualifying bonds, those two ends might be the same atom.)
         """
-        bonds_others = self.atom_list_of_ok_bonds_others(atom)
-        assert (bond, bond.other(atom)) in bonds_others # remove when works?
-        if len(bonds_others) != 2:
+        bonds = self.atom_list_of_ok_bonds(atom)
+        assert bond in bonds # remove when works? #####
+        if len(bonds) != 2:
             return None
-        for otherbond, otheratom_unused in bonds_others:
+        for otherbond in bonds:
             if otherbond is not bond:
                 return otherbond
-        assert 0, "bond %r occurs twice in %r -- should be impossible" % (bond, bonds_others)
+        assert 0, "bond %r occurs twice in %r -- should be impossible" % (bond, bonds)
         return None
-    def find_chain_or_ring_from_bond(self, bond, branches_ok = False):
+    def find_chain_or_ring_from_bond(self, bond):
         """
         Return the maximal chain or ring of qualifying atoms
         connected by qualifying bonds, which includes bond.
@@ -208,7 +233,8 @@ class abstract_bond_chain_analyzer:
         (Return None if bond or either of its atoms doesn't qualify.) [### REVIEW - compare to lone-atom error return]
         
         If any qualifying atom has more than two qualifying bonds,
-        behave differently depending on branches_ok: if it's False (default),
+        behave differently depending on the per-subclass constant
+        self.branches_ok: if it's False,
         treat this as an error which in some sense disqualifies that atom --
         complain, stop growing the chain, and don't include that atom in it
         (or any of its bonds). This error can lead to a chain with one atom
@@ -218,20 +244,27 @@ class abstract_bond_chain_analyzer:
         But do nothing to modify the offending atom or its bonds in the model
         (except perhaps to set flags in it which affect only future complaints).
 
-        But if branches_ok is true, just include the branchpoint atom as one
+        But if self.branches_ok is true, just include the branchpoint atom as one
         end of the returned chain. Note that the other end may or may not also
         be a branchpoint; if both ends are branchpoints, they may be the same
         atom, but the result will still be considered a chain rather than a
-        ring. [REVIEW: maybe best to delegate this worry entirely to self.make_chain]
+        ring.
 
-        (If any qualifying atom has no qualifying bonds,
+        @note: The effect of self.branches_ok is implemented in self._found_chain,
+        which could be extended in subclasses to change that behavior.)
+
+        @note: If any qualifying atom has no qualifying bonds,
         we'll never encounter it, since we encounter atoms
         only via qualifying bonds on them.)
 
-        @return: #doc format; use subclass methods to create returned objects
+        @return: None, or an object returned by one of the
+        methods make_1atom_chain, make_chain, make_ring (unless the
+        corresponding _found methods which call them are overridden,
+        which is not encouraged). (Note: make_chain can return None if bond's
+        atoms both have too many qualifying chain-bonds; also we can return None
+        directly, as described elsewhere.)
         """
         #bruce 071126 made this from make_pi_bond_obj; TODO: recode that to use this
-        
         atom_ok = self.atom_ok
         atom1 = bond.atom1
         atom2 = bond.atom2
@@ -246,46 +279,179 @@ class abstract_bond_chain_analyzer:
         if ringQ:
             # branchpoint atoms can't occur in rings
             assert atom2 is lista1[-1]
-            return self.make_ring( [bond] + listb1 ,
-                                   [atom2, atom1] + lista1 )
+            res = self._found_ring( [bond] + listb1 ,
+                                    [atom2, atom1] + lista1 )
         else:
             ringQ, listb2, lista2 = grow_bond_chain(bond, atom2, self.next_bond_in_chain)
             assert not ringQ
             listb1.reverse()
             lista1.reverse()
-            # TODO: worry about branchpoint atoms at either or both ends,
-            # depending on branches_ok. (Maybe call different result constructors depending on ends?
-            # (Or maybe let the chain constructor decide what to do about them? that seems best! @@@)
-            return self.make_chain( listb1 + [bond] + listb2, lista1 + [atom1, atom2] + lista2 ) # one more atom than bond
-        pass
-    def make_ring(self, listb, lista):
-        "[subclass can extend]"
+            # Note: depending on branches_ok, we worry about branchpoint atoms
+            # at either or both ends, inside _found_chain.
+            res = self._found_chain( listb1 + [bond] + listb2,
+                                     lista1 + [atom1, atom2] + lista2 )
+        return res
+    def _found_ring(self, listb, lista):
+        """
+        @see: make_ring
+        [subclasses should extend make_ring, which we call,
+         rather than this method]
+        """
         assert len(listb) == len(lista)
+        if 'debug, but REMOVE WHEN WORKS':
+            from bonds import find_bond
+            for i in range(len(listb)):
+                assert find_bond(lista[i] , lista[(i+1) % len(lista)]) is listb[i]
+            print "remove when works! in _found_ring len %d" % len(lista)####
+        return self.make_ring(listb, lista)
+    def make_ring(self, listb, lista):
+        """
+        Return a representation of the ring of bonds and atoms
+        in listb and lista, which have the same length
+        and in which listb[i] bonds lista[i] and lista[(i+1) % len(lista)].
+
+        The default implementation just returns (True, listb, lista),
+        which has the same format as the grow_bond_chain return value.
+        
+        Subclasses can extend this method to return a different representation,
+        or just to do something and return None. The return value is used only
+        as a possible return value of find_chain_or_ring_from_bond and
+        related methods.
+        """
         return (True, listb, lista)
-    def make_chain(self, listb, lista): # rename? found_ring vs make_ring, etc? @@@
-        "[subclass can extend]" # TODO: have subclass provide submethod, rather than extending this? @@@
-        # TODO: worry about branchpoint atoms at either or both ends... maybe only in subclasses...
-        assert len(lista) - 1 == len(listb)
-        assert len(listb) > 0 # somewhat arbitrary
-        if not self.branches_ok: # class constant? @@@ or override this method in a subclass?
+    def _found_chain(self, listb, lista):
+        """
+        #doc [similar to _found_ring; usually return the output of make_chain];
+        if not self.branches_ok, we worry about branchpoint atoms at either or both ends...
+        this can cause us to return the output of make_1atom_chain, or even to return None.
+        @see: make_chain
+        [subclasses should extend make_chain, which we call,
+         rather than this method]
+        """        
+        assert len(lista) - 1 == len(listb) # one more atom than bond
+        assert len(listb) > 0 # somewhat arbitrary - could easily be recoded to not assume this
+        if not self.branches_ok: # a per-subclass constant
             is_branchpoint = self.atom_is_branchpoint
             if is_branchpoint( lista[0] ):
                 del lista[0]
                 del listb[0]
-                if not listb:
-                    return (False, listb, lista) ### make_lone_atom - but wait, did we check *it* for being a branchpoint?
             if is_branchpoint( lista[-1] ):
+                if not listb:
+                    return None # i.e. a 0-atom chain
                 del lista[-1]
                 del listb[-1]
-                if not listb:
-                    return (False, listb, lista) ### make_lone_atom
-            assert len(lista) - 1 == len(listb)
-            assert len(listb) > 0
-            assert not is_branchpoint( lista[0] )
-            assert not is_branchpoint( lista[-1] )
-            # fall thru
+        if not listb:
+            # note: this can only happen when self.branches_ok and both atoms
+            # were branchpoints, but if we recoded this to relax our initial
+            # assumption that len(listb) > 0, then testing it here would be correct.
+            return self._found_1atom_chain(lista)
+        # recheck these, in case things changed
+        assert len(lista) - 1 == len(listb)
+        assert len(listb) > 0
+        assert not is_branchpoint( lista[0] )
+        assert not is_branchpoint( lista[-1] )
+        return self.make_chain(listb, lista)
+    def make_chain(self, listb, lista): # TODO: doc similar to make_ring
+        """
+        TODO: doc similar to make_ring
+        """
         return (False, listb, lista)
-    #TODO: more methods: make them from an atom, or from a dict of atoms (zapping the found atoms)
+    def _found_1atom_chain(self, lista):
+        assert len(lista) == 1
+        return self.make_1atom_chain(lista[0])
+    def make_1atom_chain(self, atom):
+        """
+        [subclasses may need to override this method]
+        """
+        return self.make_chain([], [atom])
+    def found_object_iteratoms(self, chain_or_ring):
+        """
+        For anything returnable by one of the methods
+        make_1atom_chain, make_chain, make_ring
+        (or our methods which return their results, if overridden),
+        return an iterator over that thing's contained atoms
+        (or a sequence of them).
+
+        This method must be extended to handle objects returnable
+        by those methods, if they are extended.
+        """
+        if chain_or_ring is None:
+            return ()
+        assert type(chain_or_ring) is type((False,[],[])) # ringQ, listb, lista
+            # todo: define an API for those found/made objects,
+            # so this default implem can handle them when they are instance objects
+        return chain_or_ring[2]
+    def find_chains_or_rings(self, atoms_dict):
+        """
+        Take ownership of the atom.key -> atom dict, atoms_dict,
+        and find all chains, rings, or lone atoms that contain any atoms
+        in that dict. (The search along bond chains ignores the dict,
+        except to remove found atoms that reside in it -- typically
+        the found objects contain many atoms besides those in the dict.)
+
+        Remove atoms from atoms_dict as we search from them.
+        Found objects are returned only once even if several of their
+        atoms are initially in the dict. Upon normal return (anything
+        except raising an exception), atoms_dict will be empty.
+
+        @note: We treat all atoms equally (even if killed, or bondpoints);
+        caller may want to filter them out before passing us atoms_dict.
+
+        @return: a list of found objects, each returned by one of the
+        methods make_1atom_chain, make_chain, make_ring (unless the
+        corresponding _found methods which call them are overridden,
+        which is not encouraged), with results of None filtered out.
+        (Note that these methods are permitted to be overridden to
+        have side effects and return None, so in some subclasses,
+        the side effects for found objects may be the main result.)
+        """
+        assert not self.branches_ok # see review comment below for why
+        res = []
+        while atoms_dict:
+            key_unused, atom = pop_arbitrary_item(atoms_dict)
+            subres = self.find_chain_or_ring_from_atom(atom)
+            if subres is not None:
+                res.append(subres)
+                # remove found object's atoms from atoms_dict, if present
+                # (REVIEW: this removal might be wrong if self.branches_ok)
+                for atom in self.found_object_iteratoms(subres):
+                    atoms_dict.pop(atom.key, None)
+            continue
+        return res
+    def find_chain_or_ring_from_atom(self, atom):
+        assert not self.branches_ok # until review; see comment below for why
+        if not self.atom_ok(atom):
+            return None
+        bonds = self.atom_list_of_ok_bonds(atom)
+        if bonds:
+            bond = bonds[0]
+            # We'll search from bond, but from no other bond of atom.
+            # The result should not be affected by which bond we choose
+            # except perhaps in ways like ring or chain index-origins,
+            # if those are arbitrary.
+            #
+            # Warning: doing at most one search from atom is only
+            # correct when not self.branches_ok. Otherwise, one atom
+            # can be in more than one ring or chain (though not if
+            # "in" means "in interior"). If that case is ever used,
+            # we'll need to revise this API to return a list, or just
+            # inline this (modified) into find_chains_or_rings, or outlaw
+            # branchpoint atoms in this method and have callers replace them
+            # with all their non-branchpoint neighbors.
+            #
+            # (Note: we can ignore len(bonds), since the following
+            #  will check whether it's too long, finding it again
+            #  from atom.)
+            subres = self.find_chain_or_ring_from_bond(bond)
+        else:
+            subres = self._found_1atom_chain([atom])
+        return subres
+# alt implem from when our meat was inlined into our caller; untested; remove after commit:
+##        res = self.find_chains_or_rings( {atom.key : atom} )
+##        if not res:
+##            return None
+##        assert len(res) == 1
+##        return res[0]
     pass # end of class abstract_bond_chain_analyzer
 
 # end

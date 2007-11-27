@@ -26,6 +26,7 @@
 
 # ==
 
+# obs - see pop_arbitrary_item and its caller in bond_chains.py
 def _pop_arbitrary_atom_with_qualifying_bond(atoms_dict, bond_ok_func):
     """
     Return (atom, bond) (and pop atom from atoms_dict) where atom has bond
@@ -62,6 +63,7 @@ def _pop_arbitrary_atom_with_qualifying_bond(atoms_dict, bond_ok_func):
         # REVIEW: should we return (atom, None) here?
     return None, None
 
+# obs - see same-named method in class xxx in bond_chains.py
 def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in TODO @@@ ; REVIEW: discard lone atoms ok??
         # TODO: also needs a function to find one bond or test one bond;
         # if that func just returns the special bonds from an atom, up to 2, open bonds ok??,
@@ -96,26 +98,6 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
     return ksddskj
 
 
-def pop_arbitrary_item(dict1):
-    """
-    If dict1 is not empty, efficiently pop and return
-    an arbitrary item (key, value pair) from it.
-    Otherwise return None.
-    """
-    if not dict1:
-        return None
-    key, val_unused = item = arbitrary_item(dict1)
-    del dict1[key]
-    return item
-
-def arbitrary_item(dict1):
-    """
-    If dict1 is not empty, efficiently return an arbitrary item
-    (key, value pair) from it. Otherwise return None.
-    """
-    for item in dict1.iteritems():
-        return item
-    return None
 
 
 # a lot of atom methods about directional bonds would also apply to axis bonds... almost unchanged, isomorphic

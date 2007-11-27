@@ -12,10 +12,7 @@ from dna_updater_globals import ignore_new_changes
 
 from dna_updater_utils import remove_killed_atoms
 
-from constants import noop as STUB_FUNCTION # FIX all uses
-
-find_chains_or_rings = STUB_FUNCTION # IMPLEM
-next_axis_bond_in_chain = STUB_FUNCTION # IMPLEM
+##from constants import noop as STUB_FUNCTION # FIX all uses
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
 
@@ -87,28 +84,57 @@ def update_PAM_chunks(changed_atoms):
         "is an atom bonded to an atom in axis_atoms ok in the same AxisChunk?"
         assert not atom.killed()
         return atom.element.role == 'axis' # implies atom is not a bondpoint
+
+    axis_analyzer = axis_bond_chain_analyzer()
     
-    res = find_chains_or_rings( axis_atoms, atom_ok_in_axis )
+    axis_chains = axis_analyzer.find_chains_or_rings( axis_atoms )
         # NOTE: this takes ownership of axis_atoms and trashes it.
         # NOTE: this only finds chains or rings which contain at least one
         # atom in axis_atoms, but they often contain other axis atoms too
         # (which were not in axis_atoms since they were not recently changed).
-        # Result is a list of ... #doc
+        #
+        # Result is a list of objects returned by the make_ methods in
+        # analyzer (for doc, see abstract_bond_chain_analyzer, unless we
+        # override them in axis_bond_chain_analyzer).
+
+    assert not axis_atoms ### REMOVE WHEN WORKS
 
     ## del axis_atoms
     ##     SyntaxError: can not delete variable 'axis_atoms' referenced in nested scope
     axis_atoms = None # not a dict, bug if used
 
-    
+    if DEBUG_DNA_UPDATER:
+        print "dna updater: found %d axis chains or rings" % len(axis_chains)
     
     # ...
+    # just for debug:
+    strand_analyzer = strand_bond_chain_analyzer()
+    strand_chains = strand_analyzer.find_chains_or_rings( strand_atoms )
+    assert not strand_atoms ### REMOVE WHEN WORKS
+    strand_atoms = None # not a dict, bug if used
+    if DEBUG_DNA_UPDATER:
+        print "dna updater: found %d strand chains or rings" % len(strand_chains)
 
     return # from update_PAM_chunks
 
-# end, and scratch area
+# == scratch area
 
 
         # divide atoms into chunks of the right classes, in the right way
 
         # some bond classes can't be internal bonds... some must be...
+
+# == for a new file? if short, can stay here
+
+from bond_chains import abstract_bond_chain_analyzer
+
+class axis_bond_chain_analyzer(abstract_bond_chain_analyzer): #e also new make_ methods?
+    def atom_ok(self, atom):
+        return atom.element.role == 'axis'
+    pass
+
+class strand_bond_chain_analyzer(abstract_bond_chain_analyzer):
+    def atom_ok(self, atom):
+        return atom.element.role == 'strand'
+    pass
 
