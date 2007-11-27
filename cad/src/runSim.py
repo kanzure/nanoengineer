@@ -197,6 +197,7 @@ class SimRunner:
                     "-f", "%s.mdp" % gromacsBaseFileName,
                     "-c", "%s.gro" % gromacsBaseFileName,
                     "-p", "%s.top" % gromacsBaseFileName,
+                    "-n", "%s.ndx" % gromacsBaseFileName,
                     "-o", "%s.tpr" % gromacsBaseFileName,
                     "-po", "%s-out.mdp" % gromacsBaseFileName,
                     ]
