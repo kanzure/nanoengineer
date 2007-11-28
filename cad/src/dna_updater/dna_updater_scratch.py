@@ -106,4 +106,92 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
 # classes right... it might help with open bonds marked as directional... have to review all code that creates them.
 # (and what about mmp reading? have to assume correct structure; for bare strand ends use geom or be arb if it is)
 
+===
+
+
+    # Separate connected sets of axis atoms into AxisChunks, reusing existing
+    # AxisChunks whereever possible; same with StrandSegmentChunks, but more complex...
+    #
+    # [REVIEW: also label the atoms with positional hints? Note that we need these
+    #  (e.g. base indices) in order to decide which old chunks correspond to
+    #  which new ones when they break or merge. For now we might just use atom.key,
+    #  since for generated structures it may have sort of the right order.]
+
+        # REVIEW/obs/scratch comments:
+
+        # divide atoms into chunks of the right classes, in the right way
+
+        # some bond classes can't be internal bonds... some must be...
+        
+        # (If any improper branching is found, complain, and let it break up
+        #  the chunks so that each one is properly structured.)
+
+    axis_chains, strand_chains = find_axis_and_strand_chains_or_rings( changed_atoms)
+
+    # ... now we should recognize sections of axis on which both strands remain properly bonded...
+    # assigning every atom an index ... probably the strand atoms look at their axis atom index...
+    # PROBLEM: extent of axes and strands we have (the changed ones) does not correspond.
+    # Ideally we'd like to ignore the unchanged parts. Even more ideally, not even scan them!
+    # (tThough they have new indices and might be in different strands/segments, so in the end
+    #  we at least have to scan thru them to change some settings about that.)
+    #
+    # If we have these ids on atoms, can't we just trust them and not scan them, for sections
+    # with no atom changes? those sections get broken up, but the pieces ought to have trustable indices...
+    # to implement the breakage we might have to reindex (all but one of them) somehow... ####
+
+    # goals:
+    # - low runtime when few changes -- take advantage of unchanged sections, even if we have to reindex them
+    # - simplicity, robustness
+    # - know how to copy segment and strand info, incl unique id, as things change in extent (does it slide along the chains?)
+    # - recognize base pairs and properly stacked basepairs, assign indices that fit, use those for geom/direction error checking,
+    #   direction assignment when unset
+    # design Qs:
+    # - how *do* we decide how to copy strand & segment info? note: pay more attention to basepair index than to strand direction.
+    #   e.g. compare basepair index (or atom key) of the connected axis atoms of the base pairs.
+    # - user-settable jigs for base index origin/direction?
+    # - user-settable jigs or tags for subsequences on strands or segments?
+    # implem Qs:
+    # - are the indices undoable?
+    #   (guess: no, they're always derived;
+    #    but if we make arb choices like ring-origin, create undoable/mmp state for them, either fields/tags or jigs. ###)
+    # - do they affect display? (eg in rainbow coloring mode) 
+
+    # misc:
+    # - if earlier stage assigns atom classes, it could also order the bonds in a definite way,
+    #   e.g. a strand atom's first bond could be to the axis
+    
+    for axis_set in axis_chains:
+        axis_set.ringQ
+        axis_set.lista # or atoms_list or atoms_dict?
+        axis_set.listb
+        for atom in axis_analyzer.found_object_iteratoms(axis_set):
+            bla
+
+_changed_markers = {}
+
+class ChainAtomMarker(Jig):
+    _old_atom = None
+    def needs_atoms_to_survive(self):
+        # False, so that if our atom is removed, we don't die.
+        # Problem: if we're selected and copied, but our atom isn't, this would copy us.
+        # But this can't happen if we're at toplevel in a DNA Group, and hidden from user,
+        # and thus only selected if entire DNA Group is.
+        return False
+    def confers_properties_on(self, atom):
+        """
+        [overrides Node method]
+        Should this jig be partly copied (even if not selected)
+        when this atom is individually selected and copied?
+        (It's ok to assume without checking that atom is one of this jig's atoms.)
+        """
+        return True
+    def remove_atom(self, atom):
+        self._old_atom = atom
+        _changed_markers[id(self)] = self # TODO: also do this when copied? not sure it's needed.
+        Jig.remove_atom(atom)
+        return
+    pass
+
+# should AtomChain itself also be a Jig? (only if it can store its atoms in a set, not a list...)
+
 

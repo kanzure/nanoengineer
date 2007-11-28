@@ -40,7 +40,7 @@ def full_dna_update():
         return # optimization (might not be redundant with caller)
 
     if DEBUG_DNA_UPDATER:
-        print "dna updater: %d changed atoms to scan" % len(changed_atoms)
+        print "\ndna updater: %d changed atoms to scan" % len(changed_atoms)
 
     remove_killed_atoms( changed_atoms) # only affects this dict, not the atoms
 

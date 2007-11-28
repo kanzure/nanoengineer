@@ -80,6 +80,15 @@ def replace_bond_class( bond, newclass, *bonddicts): #e refile?
 # ==
 
 def remove_killed_atoms( atomdict):
+    """
+    Remove any killed atoms from atomdict.
+
+    @warning: Closing a file does not presently [071126] kill its atoms
+    (let alone destroy them and (ideally) remove all references to them);
+    they can remain in global changedicts and later be seen by
+    dna updater functions; this function will not remove them.
+    There is presently no good way to detect a "closed-file atom".
+    """
     killed = []
     for atom in atomdict.itervalues():
         if atom.killed(): ### MAKE THIS FAST, or make it an attribute of all model objects
