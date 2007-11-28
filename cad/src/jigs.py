@@ -110,8 +110,11 @@ class Jig(Node):
     
     def __init__(self, assy, atomlist):
         """
-        each subclass needs to call this, either in its own __init__ method
-        or at least sometime before it's used as a Node
+        Each subclass needs to call this, either in its own __init__ method
+        or at least sometime before it's used as a Node.
+
+        @warning: any subclass which overrides this and changes the argument signature
+        may need to override _um_initargs as well.
         """
         # Warning: some Jig subclasses require atomlist in __init__ to equal [] [revised circa 050526]
         Node.__init__(self, assy, gensym("%s-" % self.sym)) # Changed from "." to "-". mark 060107
@@ -135,8 +138,10 @@ class Jig(Node):
         Return args and kws suitable for __init__.
         [Overrides an undo-related superclass method; see its docstring for details.]
         """
-        # [as of 060209 this is probably well-defined and correct (for most Jig subclasses), but not presently used]
-        # [it might have come into use later, not sure]
+        # [as of 060209 this is probably well-defined and correct (for most Jig subclasses), ...]
+        # [as of 071128 it looks like it's only used in nodes that inherit SimpleCopyMixin,
+        #  but is slated to become used more widely when copy code is cleaned up.
+        #  It is also not currently correct for RotaryMotor and LinearMotor.]
         return (self.assy, self.atoms), {} # This should be good enough for most Jig subclasses.
 
     def node_icon(self, display_prefs):

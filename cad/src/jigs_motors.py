@@ -41,10 +41,10 @@ from constants import gray
 
 # == Motors
 
-_superclass = Jig
-
 class Motor(Jig):
-    "superclass for Motor jigs"
+    """
+    superclass for Motor jigs
+    """
     axis = V(0,0,0) #bruce 060120; redundant with some subclass inits; some code could handle None here, but I'm not sure it all could.
         # WARNING: this is added to copyable_attrs in subclasses, not here, and is not added to mutable_attrs (possible bug). ###@@@
         # Also, self.center is not in mutable_attrs, but is modified by += , which is a likely bug. ####@@@@
@@ -107,8 +107,9 @@ class Motor(Jig):
         return
 
     def __CM_Recenter_on_atoms(self): #bruce 050704 moved this from modelTree.py and made it use newer system for custom cmenu cmds
-        '''Rotary or Linear Motor context menu command: "Recenter on atoms"
-        '''
+        """
+        Rotary or Linear Motor context menu command: "Recenter on atoms"
+        """
         ##e it might be nice to dim this menu item if the atoms haven't moved since this motor was made or recentered;
         # first we'd need to extend the __CM_ API to make that possible. [bruce 050704]
 
@@ -121,9 +122,10 @@ class Motor(Jig):
         return
 
     def __CM_Align_to_chunk(self):
-        '''Rotary or Linear Motor context menu command: "Align to chunk"
+        """
+        Rotary or Linear Motor context menu command: "Align to chunk"
         This uses the chunk connected to the first atom of the motor.
-        '''
+        """
         # I needed this when attempting to simulate the rotation of a long, skinny
         # chunk.  The axis computed from the attached atoms was not close to the axis
         # of the chunk.  I figured this would be a common feature that was easy to add.
@@ -153,8 +155,9 @@ class Motor(Jig):
         return
 
     def __CM_Reverse_direction(self): #bruce 060116 new feature (experimental)
-        '''Rotary or Linear Motor context menu command: "Reverse direction"
-        '''
+        """
+        Rotary or Linear Motor context menu command: "Reverse direction"
+        """
         cmd = greenmsg("Reverse direction: ")
         self.reverse_direction()
         info = "Reversed direction of motor [%s]" % self.name 
@@ -185,9 +188,9 @@ class Motor(Jig):
     def axen(self):
         return self.axis
 
-    def remove_atom(self, *args, **opts): #bruce 050518
+    def remove_atom(self, *args, **opts):
         self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
-        return _superclass.remove_atom(self, *args, **opts)
+        return Jig.remove_atom(self, *args, **opts)
 
     def make_selobj_cmenu_items(self, menu_spec):
         """
@@ -231,11 +234,12 @@ class Motor(Jig):
 # == RotaryMotor
 
 class RotaryMotor(Motor):
-    '''A Rotary Motor has an axis, represented as a point and
-       a direction vector, a stall torque, a no-load speed, and
-       a set of atoms connected to it
-       To Be Done -- selecting & manipulation'''
-
+    """
+    A Rotary Motor has an axis, represented as a point and
+    a direction vector, a stall torque, a no-load speed, and
+    a set of atoms connected to it
+    To Be Done -- selecting & manipulation
+    """
     sym = "RotaryMotor" # Was "Rotary Motor" (removed space). Mark 2007-05-28
     icon_names = ["modeltree/Rotary_Motor.png", "modeltree/Rotary_Motor-hide.png"]
     featurename = "Rotary Motor" #bruce 051203
@@ -248,11 +252,16 @@ class RotaryMotor(Motor):
                                              'center', 'axis', \
                                              '_initial_posns', '_initial_quats' )
 
-    # create a blank Rotary Motor not connected to anything    
     def __init__(self, 
                  assy, 
-                 editController =  None,
-                 atomlist = []): #bruce 050526 added optional atomlist arg
+                 editController = None,
+                 atomlist = []):
+        """
+        create a blank Rotary Motor not connected to anything
+        """
+        # [note (bruce 071128): future copy-code cleanup will require either
+        # that the atomlist argument comes before the editController argument,
+        # or that _um_initargs is overridden.]
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Motor.__init__(self, assy, atomlist)
         self.torque = 0.0 # in nN * nm
@@ -346,7 +355,8 @@ class RotaryMotor(Motor):
         stats.nrmotors += 1
 
     def norm_project_posns(self, posns):
-        """[Private helper for getrotation]
+        """
+        [Private helper for getrotation]
         Given a Numeric array of position vectors relative to self.center,
         project them along self.axis and normalize them (and return that --
         but we take ownership of posns passed to us, so we might or might not
@@ -364,7 +374,8 @@ class RotaryMotor(Motor):
         return posns # (note: in this implem, we did modify the mutable argument posns, but are returning a different object anyway.)
 
     def getrotation(self): #bruce 050518 new feature for showing rotation of rmotor in its cap-arrow
-        """Return a rotation angle for the motor. This is arbitrary, but rotates smoothly
+        """
+        Return a rotation angle for the motor. This is arbitrary, but rotates smoothly
         with the atoms, averaging out their individual thermal motion.
         It is not history-dependent -- e.g. it will be consistent regardless of how you jump around
         among the frames of a movie. But if we ever implement remaking or revising the motor position,
@@ -445,9 +456,10 @@ class RotaryMotor(Motor):
         return ang
 
     def _draw_jig(self, glpane, color, highlighted=False):
-        '''Draw a Rotary Motor jig as a cylinder along the axis, with a thin cylinder (spoke) to each atom.
+        """
+        Draw a Rotary Motor jig as a cylinder along the axis, with a thin cylinder (spoke) to each atom.
         If <highlighted> is True, the Rotary Motor is draw slightly larger.
-        '''
+        """
         ## print "RMotor _draw_jig",env.redraw_counter
             # This confirms that Jigs are drawn more times than they ought to need to be,
             # possibly due to badly organized Jig hit-testing code -- 4 times on mouseenter that highlights them in Build mode
@@ -549,7 +561,8 @@ class RotaryMotor(Motor):
     pass # end of class RotaryMotor
 
 def angle(x,y): #bruce 050518; see also atan2 (noticed used in VQT.py) which might do roughly the same thing
-    """Return the angle above the x axis of the line from 0,0 to x,y,
+    """
+    Return the angle above the x axis of the line from 0,0 to x,y,
     in a numerically stable way, assuming vlen(V(x,y)) is very close to 1.0.
     """
     if y < 0: return 360 - angle(x,-y)
@@ -566,11 +579,12 @@ def angle(x,y): #bruce 050518; see also atan2 (noticed used in VQT.py) which mig
 # == LinearMotor
 
 class LinearMotor(Motor):
-    '''A Linear Motor has an axis, represented as a point and
-       a direction vector, a force, a stiffness, and
-       a set of atoms connected to it
-       To Be Done -- selecting & manipulation'''
-
+    """
+    A Linear Motor has an axis, represented as a point and
+    a direction vector, a force, a stiffness, and
+    a set of atoms connected to it
+    To Be Done -- selecting & manipulation
+    """
     sym = "LinearMotor" # Was "Linear Motor" (removed space). Mark 2007-05-28
     icon_names = ["modeltree/Linear_Motor.png", "modeltree/Linear_Motor-hide.png"]
     featurename = "Linear Motor" #bruce 051203
@@ -578,11 +592,16 @@ class LinearMotor(Motor):
     copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius', 'center', 'axis', \
                                              'enable_minimize', 'dampers_enabled')
 
-    # create a blank Linear Motor not connected to anything
     def __init__(self, 
                  assy, 
                  editController = None,
-                 atomlist = []): 
+                 atomlist = []):
+        """
+        create a blank Linear Motor not connected to anything
+        """
+        # [note (bruce 071128): future copy-code cleanup will require either
+        # that the atomlist argument comes before the editController argument,
+        # or that _um_initargs is overridden.]
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Motor.__init__(self, assy, atomlist)
 
@@ -676,8 +695,9 @@ class LinearMotor(Motor):
         stats.nlmotors += 1
 
     def _draw_jig(self, glpane, color, highlighted=False):
-        '''Draw a linear motor as a long box along the axis, with a thin cylinder (spoke) to each atom.
-        '''
+        """
+        Draw a linear motor as a long box along the axis, with a thin cylinder (spoke) to each atom.
+        """
         glPushMatrix()
         try:
             glTranslatef( self.center[0], self.center[1], self.center[2])
