@@ -13,9 +13,13 @@ NOTE: Methods such as sequenceChanged, stylizeSequence are copied from the old
       This old PM used to implement a 'SequenceEditor text editor'.
       That file hasn't been deprecated yet -- 2007-11-20
       
-TODO: (as of 2007-11-20)
+TODO:  Ninad 2007-11-28
 - File open-save strand sequence needs more work 
-- Implement 'Find and Replace' feature
+- The old method 'setSequence' that inserts a sequence into the text edit 
+  is slow. Apparently it replaces the whole sequence each time. This 
+  needs to be cleaned up.
+- Should the find and replace widgets and methods be defined in their own class
+  and then called here? 
 - Many other things listed on rattleSnake sprint backlog, once dna object model
   is ready
   
@@ -27,37 +31,33 @@ might be renamed in future) is a readonly and it shows the complement of the
 sequence you enter in the Strand TextEdit field. User can Open or Save the 
 strand sequence using the options in the sequrence editor. (other options such 
 as Find and replace to be added) 
+
 """
 
+import env
+import os
+import re
+
 from PyQt4.Qt import SIGNAL
-from PyQt4.Qt import QPalette
 from PyQt4.Qt import QTextCursor, QRegExp
-from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QString
 from PyQt4.Qt import QFileDialog
 from PyQt4.Qt import QMessageBox
-
-from PM.PM_Colors    import getPalette
-from PM.PM_Colors    import sequenceEditStrandMateBaseColor
-
-
-from PM.PM_DockWidget import PM_DockWidget
-from PM.PM_WidgetRow  import PM_WidgetRow
-from PM.PM_ToolButton import PM_ToolButton
-from PM.PM_ComboBox   import PM_ComboBox
-from PM.PM_TextEdit   import PM_TextEdit
+from PyQt4.Qt import QTextCharFormat, QBrush
+from PyQt4.Qt import QRegExp
+from PyQt4.Qt import QTextDocument
 
 from Dna_Constants import basesDict
 from Dna_Constants import getComplementSequence
 from Dna_Constants import getReverseSequence
 
+from PM.PM_Colors import pmMessageBoxColor
+
 from prefs_constants import workingDirectory_prefs_key
 
-import env
-import os
+from Ui_SequenceEditor import Ui_SequenceEditor
 
-
-class SequenceEditor(PM_DockWidget):
+class SequenceEditor(Ui_SequenceEditor):
     """
     Creates a dockable sequence editor. The sequence editor has two text edit 
     fields -- Strand and Mate and has various options such as 
@@ -65,11 +65,13 @@ class SequenceEditor(PM_DockWidget):
     the sequence editor is docked in the bottom area of the mainwindow. 
     The sequence editor shows up in Dna edit mode. 
     """
-    _title         =  "Sequence Editor"
-    _groupBoxCount = 0
-    _lastGroupBox = None
+   
     validSymbols  =  QString(' <>~!@#%&_+`=$*()[]{}|^\'"\\.;:,/?')
     sequenceFileName = None
+    
+    currentPosition = 0
+    startPosition = 0
+    endPosition = 0
     
     def __init__(self, win):
         """
@@ -77,10 +79,9 @@ class SequenceEditor(PM_DockWidget):
         """
         self.win = win
         # Should parentWidget for a docwidget always be win? 
-        #Not necessary but most likely it will be the case.
-        
-        parentWidget = win        
-        PM_DockWidget.__init__(self, parentWidget, title = self._title)
+        #Not necessary but most likely it will be the case.        
+        parentWidget = win                
+        Ui_SequenceEditor.__init__(self, parentWidget)        
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -113,50 +114,25 @@ class SequenceEditor(PM_DockWidget):
         
         change_connect( self.sequenceTextEdit,
                       SIGNAL("cursorPositionChanged()"),
-                      self.cursorPosChanged)               
+                      self.cursorPosChanged) 
+        
+        change_connect( self.findLineEdit,
+                      SIGNAL("textEdited(const QString&)"),
+                      self.findLineEdit_textEdited) 
+        
+        change_connect( self.findNextToolButton,
+                      SIGNAL("clicked()"),
+                      self.findNext) 
+        
+        change_connect( self.findPreviousToolButton,
+                      SIGNAL("clicked()"),
+                      self.findPrevious) 
+        
+        change_connect( self.replacePushButton,
+                      SIGNAL("clicked()"),
+                      self.replace) 
+        
                 
-    def _loadWidgets(self):
-        """
-        Overrides PM.PM_dockWidget._loadWidgets. Loads the widget in this
-        dockwidget.
-        """
-        self._loadMenuWidgets()
-        self._loadTextEditWidget()
-    
-    def _loadMenuWidgets(self):
-        """
-        """
-        self.loadSequenceButton = PM_ToolButton(
-            self,
-            iconPath = "ui/actions/Properties Manager/Open_Strand_Sequence.png")  
-        
-        self.saveSequenceButton = PM_ToolButton(
-            self, 
-            iconPath = "ui/actions/Properties Manager/Save_Strand_Sequence.png") 
-                                        
-        self.loadSequenceButton.setAutoRaise(True)
-        self.saveSequenceButton.setAutoRaise(True)
-        
-        editDirectionChoices = ["5' to 3'", "3' to 5'"]
-        self.baseDirectionChoiceComboBox = \
-            PM_ComboBox( self,
-                         choices = editDirectionChoices,
-                         index     = 0, 
-                         spanWidth = False )
-        
-        widgetList = [('PM_ToolButton', self.loadSequenceButton, 0),
-                      ('PM_ToolButton', self.saveSequenceButton, 1),
-                      ('QLabel', "     Sequence direction:", 2),
-                      ('PM_ComboBox',  self.baseDirectionChoiceComboBox , 3),
-                      ('QSpacerItem', 5, 5, 4) ]
-        
-        widgetRow = PM_WidgetRow(self,
-                                 title     = '',
-                                 widgetList = widgetList,
-                                 label = "",
-                                 spanWidth = True )
-        
-       
     def _reverseSequence(self, itemIndex):
         """
         Reverse the strand sequence and update the StrandTextEdit widgets. 
@@ -171,29 +147,7 @@ class SequenceEditor(PM_DockWidget):
         sequence = self.getPlainSequence()
         reverseSequence = getReverseSequence(str(sequence))
         self.setSequence(reverseSequence)  
-           
-    def _loadTextEditWidget(self):
-        """
-        Load the SequenceTexteditWidgets.         
-        """        
-        self.sequenceTextEdit = \
-            PM_TextEdit( self, label = " Strand: ", spanWidth = False )        
-        self.sequenceTextEdit.setCursorWidth(2)
-        self.sequenceTextEdit.setWordWrapMode( QTextOption.WrapAnywhere )
-        self.sequenceTextEdit.setFixedHeight(20)
-        
-        #The StrandSequence 'Mate' it is a read only etxtedit that shows
-        #the complementary strand sequence.         
-        self.sequenceTextEdit_mate = \
-            PM_TextEdit(self, label = " Mate: ", spanWidth = False )        
-        palette = getPalette(None, 
-                             QPalette.Base, 
-                             sequenceEditStrandMateBaseColor)
-        self.sequenceTextEdit_mate.setPalette(palette)        
-        self.sequenceTextEdit_mate.setFixedHeight(20)
-        self.sequenceTextEdit_mate.setReadOnly(True)
-        self.sequenceTextEdit_mate.setWordWrapMode(QTextOption.WrapAnywhere)
-     
+             
     def sequenceChanged( self ):
         """
         Slot for the Strand Sequence textedit widget.
@@ -358,7 +312,7 @@ class SequenceEditor(PM_DockWidget):
     def setSequence( self,
                      inSequence,
                      inStylize        =  True,
-                     inRestoreCursor  =  True ):
+                     inRestoreCursor  =  True):
         """ 
         Replace the current strand sequence with the new sequence text.
         
@@ -375,7 +329,13 @@ class SequenceEditor(PM_DockWidget):
         
         @attention: Signals/slots must be managed before calling this method.  
         The textChanged() signal will be sent to any connected widgets.
+        
+        
         """
+        #@NOTE: This method was mostly copied from old DnaGenerator
+        #Apparently PM_TextEdit.insertHtml replaces the the whole 
+        #sequence each time. This needs to be cleaned up. - Ninad 2007-11-27
+
         cursor          =  self.sequenceTextEdit.textCursor()
                 
         selectionStart  =  cursor.selectionStart()
@@ -390,8 +350,9 @@ class SequenceEditor(PM_DockWidget):
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
         
         if inRestoreCursor:                      
-            cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)
-            cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)                        
+            cursor.setPosition(selectionStart, QTextCursor.MoveAnchor)       
+            cursor.setPosition(selectionEnd, QTextCursor.KeepAnchor)     
+
             self.sequenceTextEdit.setTextCursor( cursor )
                           
         return
@@ -403,7 +364,6 @@ class SequenceEditor(PM_DockWidget):
         """
         theSequence  =  self.getPlainSequence( inOmitSymbols = True )
         outLength    =  theSequence.length()
-
         return outLength
         
     def getCursorPosition( self ):
@@ -545,5 +505,135 @@ class SequenceEditor(PM_DockWidget):
             self._writeStrandSequenceFile(
                 fileName,
                 str(self.sequenceTextEdit.toPlainText()))
-
     
+    # ==== Methods to support find and replace. 
+    # Should this (find and replace) be in its own class? -- Ninad 2007-11-28
+    
+    def findNext(self):
+        """
+        Find the next occurence of the search string in the sequence
+        """
+        self._findNextOrPrevious()
+        
+    def findPrevious(self):
+        """
+        Find the previous occurence of the search string in the sequence
+        """
+        self._findNextOrPrevious(findPrevious = True)
+        
+    def _findNextOrPrevious(self, findPrevious = False):
+        """
+        Find the next or previous matching string depending on the 
+        findPrevious flag. It also considers into account various findFlags 
+        user might have set (e.g. case sensitive search)
+        @param findPrevious: If true, this method will find the previous 
+                             occurance of the search string. 
+        @type  findPrevious: boolean
+        """
+        findFlags = QTextDocument.FindFlags()
+    
+        if findPrevious:
+            findFlags |= QTextDocument.FindBackward
+    
+        if self.caseSensitiveFindAction.isChecked():
+            findFlags |= QTextDocument.FindCaseSensitively    
+            
+        if not self.sequenceTextEdit.hasFocus():
+            self.sequenceTextEdit.setFocus()
+    
+        searchString = self.findLineEdit.text()        
+        cursor  =  self.sequenceTextEdit.textCursor()
+    
+        found = self.sequenceTextEdit.find(searchString, findFlags)
+    
+        #May be the cursor reached the end of the document, set it at position 0
+        #to redo the search. This makes sure that the search loops over as 
+        #user executes findNext multiple times. 
+        if not found:
+            if findPrevious:
+                sequence_QString = self.sequenceTextEdit.toPlainText()
+                newCursorStartPosition = sequence_QString.length()
+            else:
+                newCursorStartPosition = 0
+                
+            cursor.setPosition( newCursorStartPosition, 
+                                QTextCursor.MoveAnchor)  
+            self.sequenceTextEdit.setTextCursor(cursor)
+            found = self.sequenceTextEdit.find(searchString, findFlags)
+    
+        #Display or hide the warning widgets (that say 'sequence not found' 
+        #based on the boolean 'found' 
+        self._toggleWarningWidgets(found)
+        
+    def _toggleWarningWidgets(self, found):
+        """
+        If the given searchString is not found in the sequence string, toggle 
+        the display of the 'sequence not found' warning widgets. Also enable 
+        or disable  the 'Replace' button accordingly
+        @param found: Flag that decides whether to sho or hide warning 
+        @type  found: boolean
+        @see: self.findNext, self.findPrevious
+        """
+        if not found:
+            self.findLineEdit.setStyleSheet(self._getFindLineEditStyleSheet())
+            self.phraseNotFoundLabel.show()
+            self.warningSign.show()
+            self.replacePushButton.setEnabled(False)
+        else:
+            self.findLineEdit.setStyleSheet("")
+            self.phraseNotFoundLabel.hide()
+            self.warningSign.hide()
+            self.replacePushButton.setEnabled(True)
+        
+    def findLineEdit_textEdited(self, searchString):
+        """
+        Slot method called whenever the text in the findLineEdit is edited 
+        *by the user*  (and not by the setText calls). This is useful in 
+        dynamically searching the string as it gets typed in the findLineedit.
+        """
+        self.findNext()
+        #findNext sets the focus inside the sequenceTextEdit. So set it back to
+        #to the findLineEdit to permit entering more characters.
+        if not self.findLineEdit.hasFocus():
+            self.findLineEdit.setFocus()        
+    
+    def replace(self):
+        """
+        Find a string matching the searchString given in the findLineEdit and 
+        replace it with the string given in the replaceLineEdit. 
+        """        
+        searchString = self.findLineEdit.text()                    
+        replaceString = self.replaceLineEdit.text()        
+        sequence = self.sequenceTextEdit.toPlainText()
+        
+        #Its important to set focus on the sequenceTextEdit otherwise, 
+        #cursor.setPosition and setTextCursor won't have any effect 
+        if not self.sequenceTextEdit.hasFocus():
+            self.sequenceTextEdit.setFocus()       
+        
+        cursor  =  self.sequenceTextEdit.textCursor() 
+        selectionStart = cursor.selectionStart()
+        selectionEnd = cursor.selectionEnd()
+                
+        sequence.replace( selectionStart, 
+                          (selectionEnd - selectionStart), 
+                          replaceString )  
+        
+        #Move the cursor position one step back. This is important to do.
+        #Example: Let the sequence be 'AAZAAA' and assume that the 
+        #'replaceString' is empty. Now user hits 'replace' , it deletes first 
+        #'A' . Thus the new sequence starts with the second A i.e. 'AZAAA' .
+        # Note that the cursor position is still 'selectionEnd' i.e. cursor 
+        # position index is 1. 
+        #Now you do 'self.findNext' -- so it starts with cursor position 1 
+        #onwards, thus missing the 'A' before the character Z. That's why 
+        #the following is done.     
+        cursor.setPosition((selectionEnd -1), QTextCursor.MoveAnchor)        
+        self.sequenceTextEdit.setTextCursor(cursor)   
+        
+        #Set the sequence in the text edit. This could be slow. See comments
+        #in self.setSequence for more info. 
+        self.setSequence(sequence)
+        
+        #Find the next occurance of the 'seqrchString' in the sequence.
+        self.findNext()

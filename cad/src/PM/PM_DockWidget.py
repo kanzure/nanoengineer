@@ -64,7 +64,6 @@ class PM_DockWidget(QDockWidget):
                                     QPalette.Window,
                                     pmGrpBoxColor))
 
-        self.setFixedHeight(85) 
        
         self.parentWidget.addDockWidget(Qt.BottomDockWidgetArea, self)
         
