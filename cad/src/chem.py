@@ -620,7 +620,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             #  First verify it's the right one for .remove not finding something!)
             assert type(self.jigs) is type([])
             if platform.atom_debug:
-                print_compact_traceback("atom_debug: ignoring exception in _f_jigs_remove (Jig.rematom): ")
+                print_compact_traceback("atom_debug: ignoring exception in _f_jigs_remove (Jig.remove_atom): ")
         else:
             _changed_structure_Atoms[self.key] = self #k not sure if needed #bruce 060322
         return
@@ -2401,13 +2401,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # josh 10/26 to fix bug 85 - remove from jigs
         for j in self.jigs[:]: #bruce 050214 copy list as a precaution
             try:
-                j.rematom(self)
+                j.remove_atom(self)
                 # [bruce 050215 comment: this might kill the jig (if it has no
                 #  atoms left), and/or it might remove j from self.jigs, but it
                 #  will never recursively kill this atom, so it should be ok]
             except:
                 # does this ever still happen? TODO: if so, document when & why.
-                print_compact_traceback("fyi: Atom.kill: ignoring error in rematom %r from jig %r: " % (self,j) )
+                print_compact_traceback("fyi: Atom.kill: ignoring error in remove_atom %r from jig %r: " % (self, j) )
         self.jigs = [] #bruce 041029 mitigate repeated kills
             # [bruce 050215 comment: this should soon no longer be needed, but will be kept as a precaution]
         _changed_structure_Atoms[self.key] = self #k not sure if needed; if it is, also covers .bonds below #bruce 060322

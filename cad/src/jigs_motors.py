@@ -185,9 +185,9 @@ class Motor(Jig):
     def axen(self):
         return self.axis
 
-    def rematom(self, *args, **opts): #bruce 050518
+    def remove_atom(self, *args, **opts): #bruce 050518
         self._initial_posns = None #bruce 050518; needed in RotaryMotor, harmless in others
-        return _superclass.rematom(self, *args, **opts)
+        return _superclass.remove_atom(self, *args, **opts)
 
     def make_selobj_cmenu_items(self, menu_spec):
         """

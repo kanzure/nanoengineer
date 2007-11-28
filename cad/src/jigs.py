@@ -108,8 +108,12 @@ class Jig(Node):
 
     _s_attr_atoms = S_REFS #bruce 060228 fix bug 1592 [untested]
     
-    def __init__(self, assy, atomlist): # Warning: some Jig subclasses require atomlist in __init__ to equal [] [revised circa 050526]
-        "each subclass needs to call this, at least sometime before it's used as a Node"
+    def __init__(self, assy, atomlist):
+        """
+        each subclass needs to call this, either in its own __init__ method
+        or at least sometime before it's used as a Node
+        """
+        # Warning: some Jig subclasses require atomlist in __init__ to equal [] [revised circa 050526]
         Node.__init__(self, assy, gensym("%s-" % self.sym)) # Changed from "." to "-". mark 060107
         self.setAtoms(atomlist) #bruce 050526 revised this; this matters since some subclasses now override setAtoms
             # Note: the atomlist fed to __init__ is always [] for some subclasses
@@ -136,7 +140,9 @@ class Jig(Node):
         return (self.assy, self.atoms), {} # This should be good enough for most Jig subclasses.
 
     def node_icon(self, display_prefs):
-        "a subclass should override this if it needs to choose its icons differently"
+        """
+        a subclass should override this if it needs to choose its icons differently
+        """
         return imagename_to_pixmap( self.icon_names[self.hidden] )
         
     def setAtoms(self, atomList):
@@ -157,12 +163,12 @@ class Jig(Node):
             # intended to fix bug 2561 more safely than the prior change [bruce 071010]
             self._remove_all_atoms() 
         self.atoms = list(atomList) # copy the list
-        for atm in atomList:
-            if self in atm.jigs:
+        for atom in atomList:
+            if self in atom.jigs:
                 print "bug: %r is already in %r.jigs, just before we want" \
-                      " to add it" % (self, atm)
+                      " to add it" % (self, atom)
             else:
-                atm._f_jigs_append(self) #bruce 071025
+                atom._f_jigs_append(self) #bruce 071025
         return
 
     def needs_atoms_to_survive(self):
@@ -201,7 +207,9 @@ class Jig(Node):
     # == when these differ from Node methods] [bruce 050526 revised these]
     
     def will_copy_if_selected(self, sel, realCopy):
-        "[overrides Node method]"
+        """
+        [overrides Node method]
+        """
         # Copy this jig if asked, provided the copy will refer to atoms if necessary.
         # Whether it's disabled (here and/or in the copy, and why) doesn't matter.
         if not self.needs_atoms_to_survive():
@@ -218,7 +226,9 @@ class Jig(Node):
         return False
 
     def will_partly_copy_due_to_selatoms(self, sel):
-        "[overrides Node method]"
+        """
+        [overrides Node method]
+        """
         return True # this is correct for jigs that say yes to jig.confers_properties_on(atom), and doesn't matter for others.
 
     def copy_full_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
@@ -285,15 +295,15 @@ class Jig(Node):
         (For internal use, when new atoms are about to be added.)
         @see: L{self.setAtoms}
         """
-        # TODO: could be optimized by inlining rematom
-        for atm in list(self.atoms):
-            self.rematom(atm, _kill_if_no_atoms_left_but_needs_them = False)
+        # TODO: could be optimized by inlining remove_atom
+        for atom in list(self.atoms):
+            self.remove_atom(atom, _kill_if_no_atoms_left_but_needs_them = False)
         return
     
-    def rematom(self, atm, _kill_if_no_atoms_left_but_needs_them = True):
+    def remove_atom(self, atom, _kill_if_no_atoms_left_but_needs_them = True):
         """
-        Remove atm from self, and remove self from atm
-        [called from atom.kill]
+        Remove atom from self, and remove self from atom
+        [called from Atom.kill]
 
         Also kill self if it loses all its atoms but it needs them to survive,
         unless the private option to prevent that is passed.
@@ -310,18 +320,19 @@ class Jig(Node):
 
         See also: self._remove_all_atoms method
         """
-        self.atoms.remove(atm)
-        # also remove self from atm's list of jigs
-        atm._f_jigs_remove(self) #bruce 071025
+        #bruce 071127 renamed this Jig API method, rematom -> remove_atom
+        self.atoms.remove(atom)
+        # also remove self from atom's list of jigs
+        atom._f_jigs_remove(self) #bruce 071025
         if _kill_if_no_atoms_left_but_needs_them:
             if not self.atoms and self.needs_atoms_to_survive():
                 self.kill()
         return
     
     def kill(self):
-        # bruce 050215 modified this to remove self from our atoms' jiglists, via rematom
-        for atm in self.atoms[:]: #bruce 050316: copy the list (presumably a bugfix)
-            self.rematom(atm) # the last one removed kills the jig recursively!
+        # bruce 050215 modified this to remove self from our atoms' jiglists, via remove_atom
+        for atom in self.atoms[:]: #bruce 050316: copy the list (presumably a bugfix)
+            self.remove_atom(atom) # the last one removed kills the jig recursively!
         Node.kill(self) # might happen twice, that's ok
 
     def destroy(self): #bruce 050718, for bonds code
@@ -333,7 +344,9 @@ class Jig(Node):
     #bruce 050131 for Alpha: more changes to it (still needs review after Alpha is out)
     
     def pick(self): 
-        """select the Jig"""
+        """
+        select the Jig
+        """
         from debug_prefs import debug_pref_History_print_every_selected_object
         if debug_pref_History_print_every_selected_object(): #bruce 070504 added this condition
             env.history.message(self.getinfo())
@@ -345,7 +358,9 @@ class Jig(Node):
         return
 
     def unpick(self):
-        """unselect the Jig"""
+        """
+        unselect the Jig
+        """
         if self.picked:
             Node.unpick(self) # bruce 050126 -- required now
             self.color = self.normcolor # see also a copy method which has to use the same statement to compensate for this kluge
@@ -353,7 +368,6 @@ class Jig(Node):
     def rot(self, quat):
         pass
 
-    
     def moved_atom(self, atom): #bruce 050718, for bonds code
         """
         FYI (caller is saying to this jig),
@@ -371,7 +385,9 @@ class Jig(Node):
         pass
     
     def break_interpart_bonds(self): #bruce 050316 fix the jig analog of bug 371; 050421 undo that change for Alpha5 (see below)
-        "[overrides Node method]"
+        """
+        [overrides Node method]
+        """
         #e this should be a "last resort", i.e. it's often better if interpart bonds
         # could split the jig in two, or pull it into a new Part.
         # But that's NIM (as of 050316) so this is needed to prevent some old bugs.
@@ -379,13 +395,16 @@ class Jig(Node):
         # make the Jig disabled. That way you can drag Jigs out and back into a Part w/o losing their atoms.
         # (And we avoid bugs from removing Jigs and perhaps their clipboard-item Parts at inconvenient times.)
         #bruce 050513 as long as the following code does nothing, let's speed it up ("is not") and also comment it out.
-##        for atm in self.atoms[:]:
-##            if self.part is not atm.molecule.part and 0: ###@@@ try out not doing this; jigs will draw and save inappropriately at first...
-##                self.rematom(atm) # this might kill self, if we remove them all
+##        for atom in self.atoms[:]:
+##            if self.part is not atom.molecule.part and 0: ###@@@ try out not doing this; jigs will draw and save inappropriately at first...
+##                self.remove_atom(atom) # this might kill self, if we remove them all
         return
 
-    def anchors_atom(self, atm): #bruce 050321, renamed 050404
-        "does this jig hold this atom fixed in space? [should be overridden by subclasses as needed, but only Anchor needs to]"
+    def anchors_atom(self, atom): #bruce 050321, renamed 050404
+        """
+        does this jig hold this atom fixed in space?
+        [should be overridden by subclasses as needed, but only Anchor needs to]
+        """
         return False # for most jigs
 
     def node_must_follow_what_nodes(self): #bruce 050422 made Node and Jig implems of this from function of same name
@@ -393,15 +412,17 @@ class Jig(Node):
         [overrides Node method]
         """
         mols = {} # maps id(mol) to mol [bruce 050422 optim: use dict, not list]
-        for atm in self.atoms:
-            mol = atm.molecule
+        for atom in self.atoms:
+            mol = atom.molecule
             if id(mol) not in mols:
                 mols[id(mol)] = mol
         return mols.values()
 
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
-        "[overrides Node.writemmp; could be overridden by Jig subclasses, but isn't (as of 050322)]"
-         #bruce 050322 made this from old Node.writemmp, but replaced nonstandard use of __repr__
+        """
+        [overrides Node.writemmp; could be overridden by Jig subclasses, but isn't (as of 050322)]
+        """
+        #bruce 050322 made this from old Node.writemmp, but replaced nonstandard use of __repr__
         line, wroteleaf = self.mmp_record(mapping) # includes '\n' at end
         if line:
             mapping.write(line)
@@ -413,7 +434,9 @@ class Jig(Node):
         return
     
     def writemmp_info_leaf(self, mapping): #bruce 051102
-        "[extends superclass method]"
+        """
+        [extends superclass method]
+        """
         Node.writemmp_info_leaf(self, mapping)
         if self.enable_minimize:
             mapping.write("info leaf enable_in_minimize = True\n") #bruce 051102
@@ -422,7 +445,9 @@ class Jig(Node):
         return
 
     def readmmp_info_leaf_setitem( self, key, val, interp ): #bruce 051102
-        "[extends superclass method]"
+        """
+        [extends superclass method]
+        """
         if key == ['enable_in_minimize']:
             # val should be "True" or "False" (unrecognized vals are treated as False)
             val = (val == 'True')
@@ -436,8 +461,7 @@ class Jig(Node):
         return
     
     def _mmp_record_front_part(self, mapping):
-        # [Huaicai 9/21/05: split mmp_record into front-middle-last 3 parts, so the each part can be different for a diffent jig.
-        
+        # [Huaicai 9/21/05: split mmp_record into front-middle-last 3 parts, so each part can be different for a different jig.
         if mapping is not None:
             name = mapping.encode_name(self.name) #bruce 050729 help fix some Jig.__repr__ tracebacks (e.g. part of bug 792-1)
         else:
@@ -453,10 +477,11 @@ class Jig(Node):
                                                                color[0], color[1], color[2])
         return mmprectype_name_color
     
-    
     def _mmp_record_last_part(self, mapping):
-        """Last part of the record. Subclass can override this method to provide specific version of this part.
-         Note: If it returns anything other than empty, make sure to put one extra space character at the front."""
+        """
+        Last part of the record. Subclass can override this method to provide specific version of this part.
+        @note: If it returns anything other than empty, make sure to put one extra space character at the front.
+        """
         # [Huaicai 9/21/05: split this from mmp_record, so the last part can be different for a jig like ESP Image, which is none.
         if mapping is not None:
             ndix = mapping.atnums
@@ -468,13 +493,13 @@ class Jig(Node):
         
         return " " + " ".join(map(str,nums))
         
-
     def mmp_record(self, mapping = None): 
         #bruce 050422 factored this out of all the existing Jig subclasses, changed arg from ndix to mapping
         #e could factor some code from here into mapping methods
         #bruce 050718 made this check for mapping is not None (2 places), as a bugfix in __repr__
         #bruce 051031 revised forward ref code, used mapping.min
-        """Returns a pair (line, wroteleaf)
+        """
+        Returns a pair (line, wroteleaf)
         where line is the standard MMP record for any jig
         (one string containing one or more lines including their \ns):
             jigtype (name) (r, g, b) ... [atnums-list]\n
@@ -551,7 +576,8 @@ class Jig(Node):
         return frontpart + midpart + lastpart + "\n" , True
 
     def mmp_record_jigspecific_midpart(self):
-        """#doc
+        """
+        #doc
         (see rmotor's version's docstring for details)
         [some subclasses need to override this]
         Note: If it returns anything other than empty, make sure add one more extra 'space' at the front.
@@ -563,7 +589,8 @@ class Jig(Node):
     # [Mark 051006 defined return_partial_list API; bruce 051031 revised docstring and added implem,
     #  here and in one subclass.]
     def atnums_or_None(self, ndix, return_partial_list = False):
-        """Return list of atnums to write, as ints(??) (using ndix to encode them),
+        """
+        Return list of atnums to write, as ints(??) (using ndix to encode them),
         or None if some atoms were not yet written to the file and return_partial_list is False.
         (If return_partial_list is True, then missing atoms are just left out of the returned list.
         Callers should check whether the resulting list is [] if that matters.)
@@ -572,8 +599,8 @@ class Jig(Node):
         [Jig method; overridden by some subclasses]
         """
         res = []
-        for atm in self.atoms:
-            key = atm.key
+        for atom in self.atoms:
+            key = atom.key
             if ndix:
                 code = ndix.get(key, None) # None means don't add it, and sometimes also means return early
                 if code is None and not return_partial_list:
@@ -599,22 +626,23 @@ class Jig(Node):
             return "<%s at %#x>" % (self.__class__.__name__, id(self)) # untested
         pass
 
-
     def is_disabled(self): #bruce 050421 experiment related to bug 451-9
-        "[overrides Node method]"
+        """
+        [overrides Node method]
+        """
         return self.disabled_by_user_choice or self.disabled_by_atoms()
 
-
     def disabled_by_atoms(self): #e rename?
-        "is this jig necessarily disabled (due to some atoms being in a different part)?"
+        """
+        is this jig necessarily disabled (due to some atoms being in a different part)?
+        """
         part = self.part
-        for atm in self.atoms:
-            if part is not atm.molecule.part:
+        for atom in self.atoms:
+            if part is not atom.molecule.part:
                 return True # disabled (or partly disabled??) due to some atoms not being in the same Part
                 #e We might want to loosen this for an Anchor/Ground (and only disable the atoms in a different Part),
                 # but for initial bugfixing, let's treat all atoms the same for all jigs and see how that works.
         return False
-
 
     def getinfo(self): #bruce 050421 added this wrapper method and renamed the subclass methods it calls.
         sub = self._getinfo()
@@ -639,15 +667,23 @@ class Jig(Node):
         return sub
 
     def _getinfo(self):#ninad060825
-        "Return a string for display in history or Properties [subclasses should override this]"
+        """
+        Return a string for display in history or Properties
+        [subclasses should override this]
+        """
         return "[%s: %s]" % (self.sym, self.name)
     
     def getToolTipInfo(self):
-        "public method that returns a string for display in Dynamic Tool tip "
+        """
+        public method that returns a string for display in Dynamic Tool tip
+        """
         return self._getToolTipInfo() 
             
     def _getToolTipInfo(self):
-        "Return a string for display in Dynamic Tool tip  [subclasses should override this]"
+        """
+        Return a string for display in Dynamic Tool tip
+        [subclasses should override this]
+        """
         return "%s <br><font color=\"#0000FF\"> Jig Type:</font> %s" % (self.name, self.sym)
         
     def draw(self, glpane, dispdef): #bruce 050421 added this wrapper method and renamed the subclass methods it calls. ###@@@writepov too
@@ -697,7 +733,8 @@ class Jig(Node):
         self.cntl.exec_()
         
     def toggleJigDisabled(self):
-        """Enable/Disable jig.
+        """
+        Enable/Disable jig.
         """
         # this is wrong, doesn't do self.changed():
         ## self.disabled_by_user_choice = not self.disabled_by_user_choice
@@ -712,7 +749,8 @@ class Jig(Node):
         return self.name
         
     def make_selobj_cmenu_items(self, menu_spec):
-        """Add jig specific context menu items to <menu_spec> list when self is the selobj.
+        """
+        Add jig specific context menu items to <menu_spec> list when self is the selobj.
         This method should be overridden by subclasses that want to add more/different
         menu items. For a good example, see the Motor.make_selobj_cmenu_items().
         """
@@ -734,8 +772,9 @@ class Jig(Node):
 # == Anchor (was Ground)
 
 class Anchor(Jig):
-    """an Anchor (Ground) just has a list of atoms that are anchored in space"""
-
+    """
+    an Anchor (Ground) just has a list of atoms that are anchored in space
+    """
     sym = "Anchor"
     icon_names = ["modeltree/anchor.png", "modeltree/anchor-hide.png"]
     featurename = "Anchor" # wiki help featurename [bruce 051201; note that for a few jigs this should end in "Jig"]
@@ -770,7 +809,9 @@ class Anchor(Jig):
         return "[Object: Anchor] [Name: " + str(self.name) + "] [Total Anchors: " + str(len(self.atoms)) + "]"
                     
     def _getToolTipInfo(self): #ninad060825
-        "Return a string for display in Dynamic Tool tip "
+        """
+        Return a string for display in Dynamic Tool tip
+        """
         attachedAtomCount = "<font color=\"#0000FF\"> Total Anchors:</font> %d "%(len(self.atoms))
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Anchor"\
         + "<br>"  + str(attachedAtomCount)
@@ -782,12 +823,15 @@ class Anchor(Jig):
     def mmp_record_jigspecific_midpart(self): # see also fake_Anchor_mmp_record [bruce 050404]
         return ""
 
-    def anchors_atom(self, atm): #bruce 050321; revised 050423 (warning: quadratic time for large anchor jigs in Minimize)
-        "does this jig hold this atom fixed in space? [overrides Jig method]"
-        return (atm in self.atoms) and not self.is_disabled()
+    def anchors_atom(self, atom): #bruce 050321; revised 050423 (warning: quadratic time for large anchor jigs in Minimize)
+        """
+        does this jig hold this atom fixed in space? [overrides Jig method]
+        """
+        return (atom in self.atoms) and not self.is_disabled()
 
     def confers_properties_on(self, atom): # Anchor method
-        """[overrides Node method]
+        """
+        [overrides Node method]
         Should this jig be partly copied (even if not selected)
         when this atom is individually selected and copied?
         (It's ok to assume without checking that atom is one of this jig's atoms.)
@@ -797,9 +841,11 @@ class Anchor(Jig):
     pass # end of class Anchor
 
 def fake_Anchor_mmp_record(atoms, mapping): #bruce 050404 utility for Minimize Selection
-    """Return an mmp record (one or more lines with \n at end)
+    """
+    Return an mmp record (one or more lines with \n at end)
     for a fake Anchor (Ground) jig for use in an mmp file meant only for simulator input.
-       Note: unlike creating and writing out a new real Anchor (Ground) object,
+
+    @note: unlike creating and writing out a new real Anchor (Ground) object,
     which adds itself to each involved atom's .jigs list (perhaps just temporarily),
     perhaps causing unwanted side effects (like calling some .changed() method),
     this function has no side effects.
@@ -815,14 +861,17 @@ def fake_Anchor_mmp_record(atoms, mapping): #bruce 050404 utility for Minimize S
 # == Stat and Thermo
 
 class Jig_onChunk_by1atom(Jig):
-    """Subclass for Stat and Thermo, which are on one atom in cad code,
+    """
+    Subclass for Stat and Thermo, which are on one atom in cad code,
     but on its whole chunk in simulator,
     by means of being written into mmp file as the min and max atnums in that chunk
     (whose atoms always occupy a contiguous range of atnums, since those are remade per writemmp event),
     plus the atnum of their one user-visible atom.
     """
     def setAtoms(self, atomlist):
-        "[Overrides Jig method; called by Jig.__init__]"
+        """
+        [Overrides Jig method; called by Jig.__init__]
+        """
         # old comment:
         # ideally len(list) should be 1, but in case code in files_mmp uses more
         # when supporting old Stat records, all I assert here is that it's at
@@ -834,14 +883,15 @@ class Jig_onChunk_by1atom(Jig):
         super.setAtoms(self, atomlist)
         
     def atnums_or_None(self, ndix, return_partial_list = False): #bruce 051031 added return_partial_list implem
-        """return list of atnums to write, or None if some atoms not yet written
+        """
+        return list of atnums to write, or None if some atoms not yet written
         [overrides Jig method]
         """
         assert len(self.atoms) == 1
-        atm = self.atoms[0]
+        atom = self.atoms[0]
         if ndix:
             # for mmp file -- return numbers of first, last, and defining atom
-            atomkeys = [atm.key] + atm.molecule.atoms.keys() # arbitrary order except first list element
+            atomkeys = [atom.key] + atom.molecule.atoms.keys() # arbitrary order except first list element
                 # first key occurs twice, that's ok (but that it's first matters)
                 # (this is just a kluge so we don't have to process it thru ndix separately)
             try:
@@ -859,7 +909,8 @@ class Jig_onChunk_by1atom(Jig):
     pass
     
 class Stat( Jig_onChunk_by1atom ):
-    """A Stat is a Langevin thermostat, which sets a chunk to a specific
+    """
+    A Stat is a Langevin thermostat, which sets a chunk to a specific
     temperature during a simulation. A Stat is defined and drawn on a single
     atom, but its record in an mmp file includes 3 atoms:
     - first_atom: the first atom of the chunk to which it is attached.
@@ -932,7 +983,8 @@ class Stat( Jig_onChunk_by1atom ):
 # == Thermo
 
 class Thermo(Jig_onChunk_by1atom):
-    """A Thermo is a thermometer which measures the temperature of a chunk
+    """
+    A Thermo is a thermometer which measures the temperature of a chunk
     during a simulation. A Thermo is defined and drawn on a single
     atom, but its record in an mmp file includes 3 atoms and applies to all
     atoms in the same chunk; for details see Stat docstring.
@@ -1012,7 +1064,8 @@ class AtomSet(Jig):
 
     # it's drawn as a wire cube around each atom (default color = black)
     def _draw(self, glpane, dispdef):
-        """Draws a red wire frame cube around each atom, only if the jig is select.
+        """
+        Draws a red wire frame cube around each atom, only if the jig is select.
         """
         if not self.picked:
             return
@@ -1030,7 +1083,9 @@ class AtomSet(Jig):
         return "[Object: Atom Set] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "]"
                     
     def _getToolTipInfo(self): #ninad060825
-        "Return a string for display in Dynamic Tool tip "
+        """
+        Return a string for display in Dynamic Tool tip
+        """
         attachedAtomCount ="<font color=\"#0000FF\">Total  Atoms: </font>%d"%(len(self.atoms))
         return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Atom Set"\
         + "<br>"  + str(attachedAtomCount)
@@ -1042,20 +1097,6 @@ class AtomSet(Jig):
     def mmp_record_jigspecific_midpart(self):
         return ""
         
-#    def _mmp_record_front_part(self, mapping):
-#        
-#        if mapping is not None:
-#            name = mapping.encode_name(self.name)
-#        else:
-#            name = self.name
-#        
-#        if self.picked:
-#            c = self.normcolor
-#        else:
-#            c = self.color
-#        mmprectype_name_color = "%s (%s) " % (self.mmp_record_name, name)
-#        return mmprectype_name_color
-
     pass # end of class AtomSet
 
-# end of module jigs.py
+# end

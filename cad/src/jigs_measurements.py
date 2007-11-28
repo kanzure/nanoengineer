@@ -118,8 +118,10 @@ class MeasurementJig(Jig):
     # I'm working on now in other files, so it might be just as well for me
     # to be the one to change the code. >>>>
     # For now, I think I'll go with Jig.kill, and let Bruce modify as needed.
-    def rematom(self, atm):
-        "Delete the jig if any of its atoms are deleted"
+    def remove_atom(self, atom):
+        """
+        Delete self if *any* of its atoms are deleted
+        """
         Node.kill(self)
 
     # Set the properties for a Measure Distance jig read from a (MMP) file
