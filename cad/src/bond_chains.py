@@ -372,8 +372,9 @@ class abstract_bond_chain_analyzer:
         return an iterator over that thing's contained atoms
         (or a sequence of them).
 
-        This method must be extended to handle objects returnable
-        by those methods, if they are extended.
+        This method must be extended (or replaced)
+        to handle objects returnable by those methods,
+        if they are extended.
         """
         if chain_or_ring is None:
             return ()

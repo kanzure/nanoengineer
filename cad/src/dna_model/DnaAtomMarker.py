@@ -26,7 +26,7 @@ _CONTROLLING_UNKNOWN = True # represents an unknown value of self.controlling
 
 _homeless_dna_markers = {}
 
-def _f_get_homeless_dna_markers(): # @@@ CALL ME
+def _f_get_homeless_dna_markers():
     """
     Return the homeless dna markers,
     and clear the list so they won't be returned again
@@ -75,6 +75,8 @@ class DnaAtomMarker( ChainAtomMarker):
     # other variables
 
     controlling = _CONTROLLING_UNKNOWN
+
+    # == Jig API methods (overridden or extended):
     
     def remove_atom(self, atom):
         "[extends superclass method]"
@@ -82,17 +84,27 @@ class DnaAtomMarker( ChainAtomMarker):
         _homeless_dna_markers[id(self)] = self # TODO: also do this when copied? not sure it's needed.
         return
 
-    def set_chain(self, chain):# @@@ CALL ME
-        """
-        A new atom chain or ring is taking us over (but we'll stay on the same atom).
+    #e also add a method [nim in api] for influencing how we draw the atom?
+    # guess: no -- might be sufficient (and is better, in case old markers lie around)
+    # to just use the Jig.draw method, and draw the marker explicitly. Then it can draw
+    # other graphics too, be passed style info from its DnaGroup/Strand/Segment, etc.
 
-        @param chain: the atom chain or ring which we reside on when created (can it be None??)
+    # == ChainAtomMarker API methods (overridden or extended):
+    
+    def set_chain(self, chain):
+        """
+        A new AtomChainOrRing object is taking us over (but we'll stay on the same atom).
+        (Also called during superclass __init__ to set our initial chain.)
+
+        @param chain: the atom chain or ring which we now reside on (can't be None)
         @type chain: AtomChainOrRing instance
         """
         ChainAtomMarker.set_chain(self, chain)
         self.controlling = _CONTROLLING_UNKNOWN
-        
-    def set_whether_controlling(self, controlling): # @@@ CALL ME
+
+    # == other methods
+    
+    def set_whether_controlling(self, controlling):
         """
         our new chain tells us whether we control its atom indexing, etc, or not
         [depending on our settings, we might die or behave differently if we're not]

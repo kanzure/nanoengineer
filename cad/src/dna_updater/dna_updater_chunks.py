@@ -18,24 +18,48 @@ from dna_updater_constants import DEBUG_DNA_UPDATER
 
 from bond_chains import abstract_bond_chain_analyzer
 
+from dna_model.AtomChainOrRing import AtomChain, AtomRing
+from dna_model.AtomChainOrRing import AtomChainOrRing # for isinstance
+
 from dna_model.DnaAtomMarker import _f_get_homeless_dna_markers
 
 # ==
 
-class axis_bond_chain_analyzer(abstract_bond_chain_analyzer): #e also new make_ methods?
+# helper classes (will probably turn out to be private, or perhaps
+#  even local to find_axis_and_strand_chains_or_rings)
+
+class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
+    """
+    For DNA, we like our found atom/bond chains or rings to be instances
+    of one of AtomChainOrRing's subclasses, AtomChain or AtomRing.
+    """
+    def make_chain(self, listb, lista):
+        # also used for lone atoms
+        return AtomChain(listb, lista)
+    def make_ring(self, listb, lista):
+        return AtomRing(listb, lista)
+    def found_object_iteratoms(self, chain_or_ring):
+        if chain_or_ring is None:
+            return ()
+        assert isinstance( chain_or_ring, AtomChainOrRing) #e remove when works?
+        return chain_or_ring.iteratoms()
+    pass
+    
+class axis_bond_chain_analyzer(dna_bond_chain_analyzer): 
     def atom_ok(self, atom):
         return atom.element.role == 'axis'
     pass
 
-class strand_bond_chain_analyzer(abstract_bond_chain_analyzer):
+class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
     def atom_ok(self, atom):
+        # note: can include Pl atoms in PAM5
         return atom.element.role == 'strand'
     pass
 
 # singleton objects
 # (todo: could be local to the main using function,
 #  if they returned instances so axis_analyzer.found_object_iteratoms etc
-#  was not needed by other functions here)
+#  was not needed by other functions here; now they do, so REVIEW whether they can be local ###)
 
 axis_analyzer = axis_bond_chain_analyzer()
 
@@ -102,7 +126,7 @@ def update_PAM_chunks( changed_atoms):
     for chain in strand_chains:
         chain._f_own_atoms()# IMPLEM
 
-
+    # That figured out which markers control each chain (and stored the answers in the chains). ###IMPLEM
 
 
 

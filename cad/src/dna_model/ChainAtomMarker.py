@@ -30,15 +30,17 @@ class ChainAtomMarker(Jig):
     # == Jig API methods
 
     def __init__(self, assy, atomlist, chain = None):
-        ### REVIEW: pass chain?
-        # [can chain be None after we get copied? I think so... if never passed, entire init method not needed]
+        # [can chain be None after we get copied? I think so...]
+        # (chain arg is not needed in _um_initargs since copying it can/should make it None. REVIEW, is that right? ###]
         """
         @param chain: the atom chain or ring which we reside on when created (can it be None??)
         @type chain: AtomChainOrRing instance
         """
         assert len(atomlist) == 1
         Jig.__init__(self, assy, atomlist)
-        self._chain = chain ### or None?
+        if chain is not None:
+            self.set_chain(chain)
+        return
         
     def needs_atoms_to_survive(self):
         # False, so that if our atom is removed, we don't die.
@@ -103,6 +105,7 @@ class ChainAtomMarker(Jig):
         """
         assert not self.is_homeless()
         #e assert chain contains self._get_marker_atom()?
+        assert chain is not None # or should None be allowed, as a way of unsetting it??
         self._chain = chain
         return
 
