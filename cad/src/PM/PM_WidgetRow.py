@@ -20,9 +20,33 @@ class PM_WidgetRow( PM_WidgetGrid ):
     The B{PM_WidgetRow} provides a convenient way to create different 
     types of widgets (such as ToolButtons, Labels, PushButtons etc) in a single
     row and add them to a groupbox. 
+    
+    #Example of how a caller creates a PM_WidgetRow object:
+    
+    # Format of the widget list that is passed to the widget row --        
+        # - Widget type,
+        # - Middle portion of any tuple in the list is either a widget object 
+        #   or some other parameters if the widget object of 
+        #   given type needs to be created by the PM_WidgetRow. For example--
+        #   If widget type  is 'QLabel' , then it will be created by 
+        #   PM_WidgetRow class and user just need to provide the text for the 
+        #   QLabel. 
+        # - column number (the last item in a tuple)
         
+    aWidgetList = [('PM_ComboBox', self.latticeTypeComboBox, 0),
+                   ('PM_PushButton', self.addLayerButton, 1),
+                   ('QLabel', "Some Label", 2)  ]
+        
+    widgetRow = PM_WidgetRow(parentWidget,
+                             title     = '',
+                             widgetList = aWidgetList,
+                             label = "Layer:",
+                             labelColumn  = 0,
+                             )
+    @see: B{PM_WidgetGrid._createWidgetUsingParameters }
     @see: B{Ui_CookiePropertyManager._loadLayerPropertiesGroupBox} that uses 
           a B{PM_WidgetRow}
+    
     """
     titleButtonRequested = False
             
