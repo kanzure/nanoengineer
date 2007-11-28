@@ -897,7 +897,12 @@
            </item>
            <item>
             <property name="text" >
-             <string>GROMACS - SDN p-atom force-field</string>
+             <string>GROMACS with ND1 Force Field</string>
+            </property>
+           </item>
+           <item>
+            <property name="text" >
+             <string>Background GROMACS with ND1 Force Field</string>
             </property>
            </item>
           </widget>

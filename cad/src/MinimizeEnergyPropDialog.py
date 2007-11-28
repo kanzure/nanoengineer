@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-# Form implementation generated from reading ui file 'C:\Atom\qt4\cad\src\MinimizeEnergyPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\Atom\cad\src\MinimizeEnergyPropDialog.ui'
 #
-# Created: Wed May 09 14:31:28 2007
-#      by: PyQt4 UI code generator 4.1.1
+# Created: Wed Nov 28 15:50:06 2007
+#      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-from PropMgr_Constants import getHeaderFont
-from PropMgr_Constants import pmLabelLeftAlignment
 
 class Ui_MinimizeEnergyPropDialog(object):
     def setupUi(self, MinimizeEnergyPropDialog):
@@ -45,10 +42,18 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.hboxlayout.addWidget(self.heading_pixmap)
 
         self.heading_label = QtGui.QLabel(self.heading_frame)
-        self.heading_label.setFont(getHeaderFont())
-        self.heading_label.setAlignment(pmLabelLeftAlignment)
+
+        font = QtGui.QFont()
+        font.setFamily("Sans Serif")
+        font.setPointSize(12)
+        font.setWeight(75)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setStrikeOut(False)
+        font.setBold(True)
+        self.heading_label.setFont(font)
+        self.heading_label.setObjectName("heading_label")
         self.hboxlayout.addWidget(self.heading_label)
-        
         self.vboxlayout.addWidget(self.heading_frame)
 
         self.body_frame = QtGui.QFrame(MinimizeEnergyPropDialog)
@@ -478,7 +483,8 @@ class Ui_MinimizeEnergyPropDialog(object):
         self.min_options_label_4.setText(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Minimize Engine", None, QtGui.QApplication.UnicodeUTF8))
         self.minimize_engine_combobox.setToolTip(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Choose the simulation engine with which to minimize energy.", None, QtGui.QApplication.UnicodeUTF8))
         self.minimize_engine_combobox.addItem(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "NanoDynamics-1 (Default)", None, QtGui.QApplication.UnicodeUTF8))
-        self.minimize_engine_combobox.addItem(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "GROMACS - SDN p-atom force-field", None, QtGui.QApplication.UnicodeUTF8))
+        self.minimize_engine_combobox.addItem(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "GROMACS with ND1 Force Field", None, QtGui.QApplication.UnicodeUTF8))
+        self.minimize_engine_combobox.addItem(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Background GROMACS with ND1 Force Field", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_btn.setToolTip(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_btn.setText(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
         self.ok_btn.setToolTip(QtGui.QApplication.translate("MinimizeEnergyPropDialog", "OK", None, QtGui.QApplication.UnicodeUTF8))

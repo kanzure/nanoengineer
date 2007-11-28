@@ -22,7 +22,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="prefs_tab" >
      <property name="currentIndex" >
-      <number>8</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -661,7 +661,174 @@
           <property name="spacing" >
            <number>6</number>
           </property>
+          <item row="1" column="0" >
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QCheckBox" name="watch_min_in_realtime_checkbox" >
+                <property name="toolTip" >
+                 <string>Enable/disable real time graphical updates for &lt;b>Adjust All&lt;/b> or &lt;b>Adjust Selection&lt;/b></string>
+                </property>
+                <property name="text" >
+                 <string>Watch motion in real time</string>
+                </property>
+                <property name="checked" >
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="electrostaticsForDnaDuringAdjust_checkBox" >
+                <property name="text" >
+                 <string>Enable Electrostatics for DNA Reduced Model</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
           <item row="2" column="0" >
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QGroupBox" name="update_btngrp" >
+              <property name="title" >
+               <string/>
+              </property>
+              <layout class="QVBoxLayout" >
+               <property name="margin" >
+                <number>9</number>
+               </property>
+               <property name="spacing" >
+                <number>6</number>
+               </property>
+               <item>
+                <widget class="QRadioButton" name="update_asap_rbtn" >
+                 <property name="toolTip" >
+                  <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
+                 </property>
+                 <property name="text" >
+                  <string>Update as fast as possible</string>
+                 </property>
+                 <property name="checked" >
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" >
+                 <property name="margin" >
+                  <number>0</number>
+                 </property>
+                 <property name="spacing" >
+                  <number>6</number>
+                 </property>
+                 <item>
+                  <widget class="QRadioButton" name="update_every_rbtn" >
+                   <property name="toolTip" >
+                    <string>Specify how often to update the screen during adjustments</string>
+                   </property>
+                   <property name="text" >
+                    <string>Update every</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="update_number_spinbox" >
+                   <property name="toolTip" >
+                    <string>Specify how often to update the screen during adjustments</string>
+                   </property>
+                   <property name="maximum" >
+                    <number>9999</number>
+                   </property>
+                   <property name="minimum" >
+                    <number>1</number>
+                   </property>
+                   <property name="value" >
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QComboBox" name="update_units_combobox" >
+                   <property name="toolTip" >
+                    <string>Specify how often to update the screen during adjustments</string>
+                   </property>
+                   <item>
+                    <property name="text" >
+                     <string>frames</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>seconds</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>minutes</string>
+                    </property>
+                   </item>
+                   <item>
+                    <property name="text" >
+                     <string>hours</string>
+                    </property>
+                   </item>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="0" >
            <widget class="QGroupBox" name="groupBox20" >
             <property name="sizePolicy" >
              <sizepolicy>
@@ -883,122 +1050,8 @@
             </layout>
            </widget>
           </item>
-          <item row="1" column="0" >
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item>
-             <widget class="QGroupBox" name="update_btngrp" >
-              <property name="title" >
-               <string/>
-              </property>
-              <layout class="QVBoxLayout" >
-               <property name="margin" >
-                <number>9</number>
-               </property>
-               <property name="spacing" >
-                <number>6</number>
-               </property>
-               <item>
-                <widget class="QRadioButton" name="update_asap_rbtn" >
-                 <property name="toolTip" >
-                  <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
-                 </property>
-                 <property name="text" >
-                  <string>Update as fast as possible</string>
-                 </property>
-                 <property name="checked" >
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" >
-                 <property name="margin" >
-                  <number>0</number>
-                 </property>
-                 <property name="spacing" >
-                  <number>6</number>
-                 </property>
-                 <item>
-                  <widget class="QRadioButton" name="update_every_rbtn" >
-                   <property name="toolTip" >
-                    <string>Specify how often to update the screen during adjustments</string>
-                   </property>
-                   <property name="text" >
-                    <string>Update every</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="update_number_spinbox" >
-                   <property name="toolTip" >
-                    <string>Specify how often to update the screen during adjustments</string>
-                   </property>
-                   <property name="maximum" >
-                    <number>9999</number>
-                   </property>
-                   <property name="minimum" >
-                    <number>1</number>
-                   </property>
-                   <property name="value" >
-                    <number>1</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="update_units_combobox" >
-                   <property name="toolTip" >
-                    <string>Specify how often to update the screen during adjustments</string>
-                   </property>
-                   <item>
-                    <property name="text" >
-                     <string>frames</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text" >
-                     <string>seconds</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text" >
-                     <string>minutes</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text" >
-                     <string>hours</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" >
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
           <item row="0" column="0" >
-           <layout class="QHBoxLayout" >
+           <layout class="QVBoxLayout" >
             <property name="margin" >
              <number>0</number>
             </property>
@@ -1006,7 +1059,7 @@
              <number>6</number>
             </property>
             <item>
-             <layout class="QVBoxLayout" >
+             <layout class="QHBoxLayout" >
               <property name="margin" >
                <number>0</number>
               </property>
@@ -1014,39 +1067,84 @@
                <number>6</number>
               </property>
               <item>
-               <widget class="QCheckBox" name="watch_min_in_realtime_checkbox" >
-                <property name="toolTip" >
-                 <string>Enable/disable real time graphical updates for &lt;b>Adjust All&lt;/b> or &lt;b>Adjust Selection&lt;/b></string>
-                </property>
+               <widget class="QLabel" name="min_options_label_4" >
                 <property name="text" >
-                 <string>Watch motion in real time</string>
-                </property>
-                <property name="checked" >
-                 <bool>true</bool>
+                 <string>Adjust Engine</string>
                 </property>
                </widget>
               </item>
               <item>
-               <widget class="QCheckBox" name="electrostaticsForDnaDuringAdjust_checkBox" >
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeType" >
+                 <enum>QSizePolicy::Expanding</enum>
+                </property>
+                <property name="sizeHint" >
+                 <size>
+                  <width>21</width>
+                  <height>16</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="grpbtn_4" >
+                <property name="sizePolicy" >
+                 <sizepolicy>
+                  <hsizetype>0</hsizetype>
+                  <vsizetype>0</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize" >
+                 <size>
+                  <width>16</width>
+                  <height>16</height>
+                 </size>
+                </property>
                 <property name="text" >
-                 <string>Enable Electrostatics for DNA Reduced Model</string>
+                 <string/>
+                </property>
+                <property name="icon" >
+                 <iconset>../../../../:icons/MinimizeEnergyPropDialog_image6</iconset>
+                </property>
+                <property name="autoDefault" >
+                 <bool>false</bool>
+                </property>
+                <property name="default" >
+                 <bool>false</bool>
+                </property>
+                <property name="flat" >
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
+             <widget class="QComboBox" name="minimize_engine_combobox" >
+              <property name="toolTip" >
+               <string>Choose the simulation engine with which to minimize energy.</string>
               </property>
-              <property name="sizeHint" >
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
+              <item>
+               <property name="text" >
+                <string>NanoDynamics-1 (Default)</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>GROMACS with ND1 Force Field</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Background GROMACS with ND1 Force Field</string>
+               </property>
+              </item>
+             </widget>
             </item>
            </layout>
           </item>
@@ -3649,6 +3747,54 @@
               </item>
              </layout>
             </item>
+            <item>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QCheckBox" name="gromacs_checkbox" >
+                <property name="text" >
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="gromacs_labe" >
+                <property name="text" >
+                 <string>GROMACS:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QCheckBox" name="cpp_checkBox" >
+                <property name="text" >
+                 <string/>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="cpp_label" >
+                <property name="text" >
+                 <string>cpp:</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
            </layout>
           </item>
           <item row="0" column="1" >
@@ -3659,127 +3805,6 @@
             <property name="spacing" >
              <number>6</number>
             </property>
-            <item row="0" column="0" >
-             <widget class="QLineEdit" name="qutemol_path_linedit" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="toolTip" >
-               <string>The full path to the Nano-Hive executable file.</string>
-              </property>
-              <property name="text" >
-               <string/>
-              </property>
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="5" column="0" >
-             <widget class="QLineEdit" name="gamess_path_linedit" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="maximumSize" >
-               <size>
-                <width>32767</width>
-                <height>32767</height>
-               </size>
-              </property>
-              <property name="toolTip" >
-               <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-              </property>
-              <property name="text" >
-               <string/>
-              </property>
-              <property name="maxLength" >
-               <number>32767</number>
-              </property>
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="1" >
-             <widget class="QPushButton" name="povdir_choose_btn" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="text" >
-               <string>Choose...</string>
-              </property>
-              <property name="autoDefault" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1" >
-             <widget class="QPushButton" name="megapov_choose_btn" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="toolTip" >
-               <string>Choose MegaPOV executable (megapov.exe)</string>
-              </property>
-              <property name="text" >
-               <string>Choose...</string>
-              </property>
-              <property name="autoDefault" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0" >
-             <widget class="QLineEdit" name="povray_path_linedit" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="maximumSize" >
-               <size>
-                <width>32767</width>
-                <height>32767</height>
-               </size>
-              </property>
-              <property name="toolTip" >
-               <string>The full path to the POV-Ray executable file.</string>
-              </property>
-              <property name="text" >
-               <string/>
-              </property>
-              <property name="maxLength" >
-               <number>32767</number>
-              </property>
-              <property name="readOnly" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1" >
-             <widget class="QPushButton" name="povray_choose_btn" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="toolTip" >
-               <string>Choose POV-Ray executable</string>
-              </property>
-              <property name="text" >
-               <string>Choose...</string>
-              </property>
-              <property name="autoDefault" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0" >
-             <widget class="QLineEdit" name="povdir_linedit" >
-              <property name="enabled" >
-               <bool>true</bool>
-              </property>
-              <property name="toolTip" >
-               <string>Select custom POV include directory</string>
-              </property>
-             </widget>
-            </item>
             <item row="5" column="1" >
              <widget class="QPushButton" name="gamess_choose_btn" >
               <property name="enabled" >
@@ -3787,22 +3812,6 @@
               </property>
               <property name="toolTip" >
                <string>Choose GAMESS executable</string>
-              </property>
-              <property name="text" >
-               <string>Choose...</string>
-              </property>
-              <property name="autoDefault" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1" >
-             <widget class="QPushButton" name="qutemol_choose_btn" >
-              <property name="enabled" >
-               <bool>false</bool>
-              </property>
-              <property name="toolTip" >
-               <string>Choose location of Nano-Hive executable </string>
               </property>
               <property name="text" >
                <string>Choose...</string>
@@ -3866,6 +3875,169 @@
               </property>
               <property name="readOnly" >
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1" >
+             <widget class="QPushButton" name="megapov_choose_btn" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="toolTip" >
+               <string>Choose MegaPOV executable (megapov.exe)</string>
+              </property>
+              <property name="text" >
+               <string>Choose...</string>
+              </property>
+              <property name="autoDefault" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="0" >
+             <widget class="QLineEdit" name="povdir_linedit" >
+              <property name="enabled" >
+               <bool>true</bool>
+              </property>
+              <property name="toolTip" >
+               <string>Select custom POV include directory</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="0" >
+             <widget class="QLineEdit" name="gromacs_path_lineedit" />
+            </item>
+            <item row="0" column="0" >
+             <widget class="QLineEdit" name="qutemol_path_linedit" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="toolTip" >
+               <string>The full path to the Nano-Hive executable file.</string>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="4" column="1" >
+             <widget class="QPushButton" name="povdir_choose_btn" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="text" >
+               <string>Choose...</string>
+              </property>
+              <property name="autoDefault" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" >
+             <widget class="QPushButton" name="povray_choose_btn" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="toolTip" >
+               <string>Choose POV-Ray executable</string>
+              </property>
+              <property name="text" >
+               <string>Choose...</string>
+              </property>
+              <property name="autoDefault" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QPushButton" name="qutemol_choose_btn" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="toolTip" >
+               <string>Choose location of Nano-Hive executable </string>
+              </property>
+              <property name="text" >
+               <string>Choose...</string>
+              </property>
+              <property name="autoDefault" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1" >
+             <widget class="QPushButton" name="gromacs_choose_button" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="text" >
+               <string>Choose...</string>
+              </property>
+             </widget>
+            </item>
+            <item row="5" column="0" >
+             <widget class="QLineEdit" name="gamess_path_linedit" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="maximumSize" >
+               <size>
+                <width>32767</width>
+                <height>32767</height>
+               </size>
+              </property>
+              <property name="toolTip" >
+               <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+              <property name="maxLength" >
+               <number>32767</number>
+              </property>
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <widget class="QLineEdit" name="povray_path_linedit" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="maximumSize" >
+               <size>
+                <width>32767</width>
+                <height>32767</height>
+               </size>
+              </property>
+              <property name="toolTip" >
+               <string>The full path to the POV-Ray executable file.</string>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+              <property name="maxLength" >
+               <number>32767</number>
+              </property>
+              <property name="readOnly" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="7" column="0" >
+             <widget class="QLineEdit" name="cpp_path_lineedit" />
+            </item>
+            <item row="7" column="1" >
+             <widget class="QPushButton" name="cpp_choose_button" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="text" >
+               <string>Choose...</string>
               </property>
              </widget>
             </item>
