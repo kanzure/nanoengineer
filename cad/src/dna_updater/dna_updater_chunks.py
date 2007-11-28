@@ -18,6 +18,8 @@ from dna_updater_constants import DEBUG_DNA_UPDATER
 
 from bond_chains import abstract_bond_chain_analyzer
 
+from dna_model.DnaAtomMarker import _f_get_homeless_dna_markers
+
 # ==
 
 class axis_bond_chain_analyzer(abstract_bond_chain_analyzer): #e also new make_ methods?
@@ -63,8 +65,51 @@ def update_PAM_chunks( changed_atoms):
     
     axis_chains, strand_chains = find_axis_and_strand_chains_or_rings( changed_atoms)
 
-    #e move the chain markers whose atoms got killed
+    #e move the chain markers whose atoms got killed, onto new atoms in the same old chains.
+    # (all atoms still have their old chain info at this point. maybe old chain objects still exist
+    #  to let the markers navigate to new homes?)
 
+    homeless_markers = _f_get_homeless_dna_markers()
+
+##    markers = [] #e rename; maybe not needed at all
+    
+    for marker in homeless_markers:
+        still_alive = marker._f_move_to_live_atom()
+        if DEBUG_DNA_UPDATER:
+            print "dna updater: moved marker %r, still_alive = %r" % (marker, still_alive)
+##        if still_alive:
+##            markers.append(marker)
+##    for marker in markers:
+##        pass # handle these later when we find them on new atoms... we'll see them all, since all broken chain frags get found.
+
+    # Tell new chains to take over their atoms and any markers on them,
+    # deciding between competing markers for influencing base indexing
+    # and other settings, and creating new markers as needed.
+    #
+    # (Maybe also save markers for use in later steps, like making or updating
+    #  Segment & Strand objects, and storing all these in DNA Groups.)
+    #
+    # Do axis chains first, so strand chains can be influenced by
+    # their base numbering, order, etc.
+    #
+    # [Possible optim: reuse old chains if nothing has changed.
+    # Not done at present; I'm not sure how rare the opportunity will be,
+    # but I suspect it's rare, in which case, it's not worth the bug risk.]
+    
+    for chain in axis_chains:
+        chain._f_own_atoms() # REVIEW: retval of all live markers, for later steps? or, just record them in the chain? that's better.
+
+    for chain in strand_chains:
+        chain._f_own_atoms()# IMPLEM
+
+
+
+
+
+    # replace old chain info with new chain info on all live atoms
+    # (Q: is this chain info undoable state? guess: yes) (do we need it? could find it via chunks... more efficient.... ### @@@)
+
+    
     #e use them (or make new) to determine id & index for each chain
 
     # revise indices & chunking

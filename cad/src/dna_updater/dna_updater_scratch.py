@@ -167,31 +167,12 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
         for atom in axis_analyzer.found_object_iteratoms(axis_set):
             bla
 
-_changed_markers = {}
 
-class ChainAtomMarker(Jig):
-    _old_atom = None
-    def needs_atoms_to_survive(self):
-        # False, so that if our atom is removed, we don't die.
-        # Problem: if we're selected and copied, but our atom isn't, this would copy us.
-        # But this can't happen if we're at toplevel in a DNA Group, and hidden from user,
-        # and thus only selected if entire DNA Group is.
-        return False
-    def confers_properties_on(self, atom):
-        """
-        [overrides Node method]
-        Should this jig be partly copied (even if not selected)
-        when this atom is individually selected and copied?
-        (It's ok to assume without checking that atom is one of this jig's atoms.)
-        """
-        return True
-    def remove_atom(self, atom):
-        self._old_atom = atom
-        _changed_markers[id(self)] = self # TODO: also do this when copied? not sure it's needed.
-        Jig.remove_atom(atom)
-        return
-    pass
 
+
+# class ChainAtomMarker(Jig):
+#     ....
 # should AtomChain itself also be a Jig? (only if it can store its atoms in a set, not a list...)
-
+# ... or if its atom list never change. and killed atoms are not removed from it! but then should they point to it too??
+# seems too weird, better to have a non-Jig object in that case.
 
