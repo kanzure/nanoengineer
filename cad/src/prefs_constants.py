@@ -48,6 +48,13 @@ DOTTED_LINE = 3
 SQUARE_GRID = 0
 SiC_GRID = 1
 
+# these match the indexes in minimize_engine_combobox in
+# MinimizeEnergyPropDialog and UserPrefsDialog
+MINIMIZE_ENGINE_UNSPECIFIED = -1
+MINIMIZE_ENGINE_ND1_FOREGROUND = 0
+MINIMIZE_ENGINE_GROMACS_FOREGROUND = 1
+MINIMIZE_ENGINE_GROMACS_BACKGROUND = 2
+
 # ==
 
 # Keys for user preferences
@@ -95,6 +102,8 @@ Adjust_endMax_prefs_key = 'A8/End Max Adjust'
 Adjust_cutoverRMS_prefs_key = 'A8/Cutover RMS Adjust'
 Adjust_cutoverMax_prefs_key = 'A8/Cutover Max Adjust'
 
+Adjust_minimizationEngine_prefs_key = 'A10/Adjust Minimization Engine'
+
 #Ninad 20070509 Adjust , Minimize and Simulation(Dynamics) Preferences for DNA 
 #reduced model(Enable or disable elecrostatics)
 electrostaticsForDnaDuringAdjust_prefs_key = 'A9/ Electrostatics for Dna During Adjust'
@@ -107,6 +116,8 @@ Minimize_endRMS_prefs_key = 'A8/End RMS Minimize'
 Minimize_endMax_prefs_key = 'A8/End Max Minimize'
 Minimize_cutoverRMS_prefs_key = 'A8/Cutover RMS Minimize'
 Minimize_cutoverMax_prefs_key = 'A8/Cutover Max Minimize'
+
+Minimize_minimizationEngine_prefs_key = 'A10/Minimize Minimization Engine'
 
 # Pref to add potential energy to trace file
 Potential_energy_tracefile_prefs_key = 'A8/Potential energy checkbox'
@@ -343,12 +354,16 @@ prefs_table = (
     ('', 'float', Adjust_endMax_prefs_key, -1.0), # -1.0 means blank lineedit widget, and actual value is computed from other prefs
     ('', 'float', Adjust_cutoverRMS_prefs_key, -1.0),
     ('', 'float', Adjust_cutoverMax_prefs_key, -1.0),
+
+    ('', 'int', Adjust_minimizationEngine_prefs_key, MINIMIZE_ENGINE_ND1_FOREGROUND),
     
     ('', 'boolean', Minimize_watchRealtimeMinimization_prefs_key, True), 
     ('', 'float', Minimize_endRMS_prefs_key, +1.0), # WARNING: this value may also be hardcoded in runSim.py
     ('', 'float', Minimize_endMax_prefs_key, -1.0), 
     ('', 'float', Minimize_cutoverRMS_prefs_key, -1.0), 
     ('', 'float', Minimize_cutoverMax_prefs_key, -1.0), 
+
+    ('', 'int', Minimize_minimizationEngine_prefs_key, MINIMIZE_ENGINE_ND1_FOREGROUND),
 
     # preference for adding potential energy to trace file
 

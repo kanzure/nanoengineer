@@ -47,6 +47,7 @@ from prefs_constants import displayCompassLabels_prefs_key
 from prefs_constants import displayPOVAxis_prefs_key
 from prefs_constants import animateStandardViews_prefs_key
 from prefs_constants import Adjust_watchRealtimeMinimization_prefs_key
+from prefs_constants import Adjust_minimizationEngine_prefs_key
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from prefs_constants import Adjust_cutoverRMS_prefs_key
 from prefs_constants import qutemol_enabled_prefs_key
@@ -492,6 +493,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.display_compass_checkbox,SIGNAL("stateChanged(int)"),self.display_compass)
         self.connect(self.endmax_linedit,SIGNAL("textChanged(const QString&)"),self.change_endmax)
         self.connect(self.endrms_linedit,SIGNAL("textChanged(const QString&)"),self.change_endrms)
+        self.connect(self.minimize_engine_combobox,SIGNAL("activated(int)"),self.set_adjust_minimization_engine)
         self.connect(self.logosDownloadPermissionBtnGroup,
                      SIGNAL("buttonClicked(int)"),
                      self.setPrefsLogoDownloadPermissions)
@@ -968,6 +970,8 @@ restored when the user undoes a structural change.</p>
 
         self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, '')
         self.cutovermax_linedit.setText(str(self.cutovermax))
+
+        self.minimize_engine_combobox.setCurrentIndex(env.prefs[Adjust_minimizationEngine_prefs_key])
 
         # Setup Background Color widgets.
         if self.glpane.backgroundGradient:
@@ -1521,6 +1525,12 @@ restored when the user undoes a structural change.</p>
             print_compact_traceback("bug in change_cutovermax ignored: ") #bruce 060627
 
 
+    def set_adjust_minimization_engine(self, engine):
+        """
+        Combobox action, sets Adjust_minimizationEngine preference
+        """
+        env.prefs[Adjust_minimizationEngine_prefs_key] = engine
+        
     def setPrefsLogoDownloadPermissions(self, permission):
         """
         Set the sponsor logos download permissions in the persistent user

@@ -52,6 +52,12 @@ from Process import Process
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 from prefs_constants import electrostaticsForDnaDuringDynamics_prefs_key
+from prefs_constants import Adjust_minimizationEngine_prefs_key
+
+from prefs_constants import MINIMIZE_ENGINE_UNSPECIFIED
+from prefs_constants import MINIMIZE_ENGINE_GROMACS_FOREGROUND
+from prefs_constants import MINIMIZE_ENGINE_GROMACS_BACKGROUND
+
 # more imports lower down
 
 debug_sim_exceptions = 0 # DO NOT COMMIT WITH 1 -- set this to reproduce a bug mostly fixed by Will today #bruce 060111
@@ -138,7 +144,7 @@ class SimRunner:
     # because ops_files.py can set this without a reference to the currently active SimRunner instance.
     PREPARE_TO_CLOSE = False
 
-    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator", cmd_type = 'Minimize'):
+    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator", cmd_type = 'Minimize', useGromacs = False, background = False):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
@@ -150,6 +156,8 @@ class SimRunner:
         self.errcode = 0 # public attr used after we're done; 0 or None = success (so far), >0 = error (msg emitted)
         self.said_we_are_done = False #bruce 050415
         self.pyrexSimInterrupted = False  #wware 060323, bug 1725, if interrupted we don't need so many warnings
+        self.useGromacs = useGromacs
+        self.background = background
 
         prefer_standalone_sim = debug_pref("force use of standalone sim", Choice_boolean_False,
                                            prefs_key = 'use-standalone-sim', non_debug = True)
@@ -187,7 +195,7 @@ class SimRunner:
                 # since it also monitors progress and waits until it's done,
                 # and insert results back into part, either in real time or when done.
                 # result error code (or abort button flag) stored in self.errcode
-            if (self.mflag == 1 and debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug=True, prefs_key=True)):
+            if (self.mflag == 1 and self.useGromacs):
                 gromacsBaseFileName = self._movie.filename
                 gromacsProcess = GromacsProcess()
                 gromacsProcess.prepareForGrompp()
@@ -645,7 +653,7 @@ class SimRunner:
 ##		electrostaticArg.append(str(electrostaticFlag))
                 electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 
-                if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug=True, prefs_key=True)):
+                if (self.useGromacs):
                     gromacsArg1 = "--write-gromacs-topology"
                     gromacsArg2 = moviefile
                 else:
@@ -732,7 +740,7 @@ class SimRunner:
                 else:
                     simopts.EnableElectrostatic = self.getElectrostaticPrefValueForMinimize()
 
-                if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug = True, prefs_key=True)):
+                if (self.useGromacs):
                     simopts.GromacsOutputBaseName = moviefile
 
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
@@ -1716,7 +1724,7 @@ else:
 #  to accept the movie to use as an argument; and, perhaps, mainly called by a Movie method.
 #  For now, I renamed assy.m -> assy.current_movie, and never grab it here at all
 #  but let it be passed in instead.] ###@@@
-def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = False, cmdname = "Simulator", cmd_type = 'Minimize'):
+def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = False, cmdname = "Simulator", cmd_type = 'Minimize', useGromacs = False, background = False):
         #bruce 060106 added cmdname
     """
     Write an input file for the simulator, then run the simulator,
@@ -1742,7 +1750,7 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
 
-    simrun = SimRunner( part, mflag, simaspect = simaspect, cmdname = cmdname, cmd_type = cmd_type)
+    simrun = SimRunner( part, mflag, simaspect = simaspect, cmdname = cmdname, cmd_type = cmd_type, useGromacs = useGromacs, background = background)
         #e in future mflag should choose subclass (or caller should)
     movie._simrun = simrun #bruce 050415 kluge... see also the related movie._cmdname kluge
     movie.currentFrame = 0 #bruce 060108 moved this here, was in some caller's success cases
@@ -2057,6 +2065,20 @@ class Minimize_CommandRun(CommandRun):
             # one of 'Minimize' or 'Adjust' or 'Adjust Atoms'; determines conv criteria, name [bruce 060705]
         self.cmd_type = cmd_type # kluge, see comment where used
 
+        engine = self.kws.get('engine', MINIMIZE_ENGINE_UNSPECIFIED)
+        if (engine == MINIMIZE_ENGINE_UNSPECIFIED):
+            engine = env.prefs[Adjust_minimizationEngine_prefs_key]
+
+        if (engine == MINIMIZE_ENGINE_GROMACS_FOREGROUND):
+            self.useGromacs = True
+            self.background = False
+        elif (engine == MINIMIZE_ENGINE_GROMACS_BACKGROUND):
+            self.useGromacs = True
+            self.background = True
+        else:
+            self.useGromacs = False
+            self.background = False
+
         assert cmd_subclass_code in ['All','Sel','Atoms'] #e and len(args) matches that?
 
         # These words and phrases are used in history messages and other UI text;
@@ -2369,16 +2391,24 @@ class Minimize_CommandRun(CommandRun):
             # classes Movie should be split into, i.e. one for the way we're using it here, to know how to run the sim,
             # which is perhaps really self (a SimRunner), once the code is fully cleaned up.
 
-        r = writemovie(self.part, movie, mtype, simaspect = simaspect, print_sim_warnings = True,
-                       cmdname = self.cmdname, cmd_type = self.cmd_type) # write input for sim, and run sim
-            # this also sets movie.alist from simaspect
+        # write input for sim, and run sim
+        # this also sets movie.alist from simaspect
+        r = writemovie(self.part,
+                       movie,
+                       mtype,
+                       simaspect = simaspect,
+                       print_sim_warnings = True,
+                       cmdname = self.cmdname,
+                       cmd_type = self.cmd_type,
+                       useGromacs = self.useGromacs,
+                       background = self.background)
         if r:
             # We had a problem writing the minimize file.
             # Simply return (error message already emitted by writemovie). ###k
             return
 
         if mtype == 1:  # Load single-frame XYZ file.
-            if (debug_pref("Use Gromacs for minimize?", Choice_boolean_False, non_debug=True, prefs_key=True)):
+            if (self.useGromacs):
                 newPositions = readGromacsCoordinates(movie.filename + "-out.gro", movie.alist)
             else:
                 newPositions = readxyz( movie.filename, movie.alist ) # movie.alist is now created in writemovie [bruce 050325]

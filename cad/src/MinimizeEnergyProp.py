@@ -28,6 +28,7 @@ from prefs_constants import Minimize_endRMS_prefs_key as endRMS_prefs_key
 from prefs_constants import Minimize_endMax_prefs_key as endMax_prefs_key
 from prefs_constants import Minimize_cutoverRMS_prefs_key as cutoverRMS_prefs_key
 from prefs_constants import Minimize_cutoverMax_prefs_key as cutoverMax_prefs_key
+from prefs_constants import Minimize_minimizationEngine_prefs_key
 from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 
 from debug import print_compact_traceback
@@ -74,7 +75,9 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         connect_checkbox_with_boolean_pref(
             self.electrostaticsForDnaDuringMinimize_checkBox,
             electrostaticsForDnaDuringMinimize_prefs_key)
-        
+
+        self.minimize_engine_combobox.setCurrentIndex(env.prefs[Minimize_minimizationEngine_prefs_key])
+
         self.win = win
         self.previousParams = None
         self.setup_ruc()
@@ -129,12 +132,6 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         y, and z coordinates) so the search space is multi-dimensional. The global minimum is the configuration that the atoms will
         settle into if lowered to zero Kelvin.
         </p>""")
-        
-        if not debug_pref("GROMACS Enabled", Choice_boolean_False,
-                          prefs_key=True):
-            # Hide the Energy Minimization engine chooser altogether.
-            self.buttonGroup8_2.setHidden(True)
-            self.setMaximumHeight(0)
             
         self.update_widgets() # to make sure self attrs are set
 
@@ -203,42 +200,30 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
     def ok_btn_clicked(self):
         'Slot for OK button.'
         QDialog.accept(self)
-        if env.debug(): print 'ok'
-
-        if self.minimize_engine_combobox.currentIndex() == 1:
-            # GROMACS was selected as the minimization engine.
-            #
-            # NOTE: This code is just for demo and prototyping purposes - the 
-            # real approach will be architected and utilize plugins.
-            #
-            # Brian Helfrich 2007-03-31
-            #
-            from GROMACS import GROMACS
-            gmx = GROMACS(self.win.assy.part)
-            gmx.run("em")
-
+        if env.debug():
+            print 'ok'
+        self.gather_parameters()
+        ### kluge: has side effect on env.prefs
+        # (should we pass these as arg to Minimize_CommandRun rather than thru env.prefs??)
+        if platform.atom_debug:
+            print "debug: reloading runSim on each use, for development"
+            import runSim, debug
+            debug.reload_once_per_event(runSim)
+        from runSim import Minimize_CommandRun
+        # do this in gather?
+        if self.minimize_all_rbtn.isChecked():
+            self.seltype = 'All'
+            seltype_name = "All"
         else:
-            # NanoDynamics-1 was selected as the minimization engine
-            self.gather_parameters()
-                ### kluge: has side effect on env.prefs
-                # (should we pass these as arg to Minimize_CommandRun rather than thru env.prefs??)
-            if platform.atom_debug:
-                print "debug: reloading runSim on each use, for development"
-                import runSim, debug
-                debug.reload_once_per_event(runSim)
-            from runSim import Minimize_CommandRun
-            # do this in gather?
-            if self.minimize_all_rbtn.isChecked():
-                self.seltype = 'All'
-                seltype_name = "All"
-            else:
-                self.seltype = 'Sel'
-                seltype_name = "Selection"
-            self.win.assy.current_command_info(cmdname = self.plain_cmdname + " (%s)" % seltype_name) # cmdname for Undo
+            self.seltype = 'Sel'
+            seltype_name = "Selection"
+        self.win.assy.current_command_info(cmdname = self.plain_cmdname + " (%s)" % seltype_name) # cmdname for Undo
     
-            update_cond = self.ruc.get_update_cond_from_widgets()
-            cmdrun = Minimize_CommandRun( self.win, self.seltype, type = 'Minimize', update_cond = update_cond)
-            cmdrun.run()
+        update_cond = self.ruc.get_update_cond_from_widgets()
+        engine = self.minimize_engine_combobox.currentIndex()
+        env.prefs[Minimize_minimizationEngine_prefs_key] = engine
+        cmdrun = Minimize_CommandRun( self.win, self.seltype, type = 'Minimize', update_cond = update_cond, engine = engine)
+        cmdrun.run()
         return
         
     def cancel_btn_clicked(self):
