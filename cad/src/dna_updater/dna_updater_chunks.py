@@ -167,7 +167,7 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
                           Note: in present calling code [071127]
                           this dict might include atoms from closed files.
 
-    @return: (axis_chains, strand_chains), which are lists of
+    @return: (axis_chains, strand_chains), which are sequences of
     objects representing changed chains or rings (or lone atoms)
     of the specified element roles (axis or strand respectively).
     The chain or ring format is as returned by the make_* methods
@@ -215,7 +215,7 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
         continue
 
     if not axis_atoms and not strand_atoms:
-        return # optimization
+        return (), () # optimization
 
     if DEBUG_DNA_UPDATER:
         print "dna updater: %d axis atoms, %d strand atoms" % (len(axis_atoms), len(strand_atoms))
@@ -246,7 +246,7 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
     if DEBUG_DNA_UPDATER:
         print "dna updater: found %d strand chains or rings" % len(strand_chains)
 
-    return axis_chains, strand_chains # from ...
+    return axis_chains, strand_chains # from find_axis_and_strand_chains_or_rings
 
 # end
 
