@@ -100,17 +100,26 @@ def update_PAM_chunks( changed_atoms):
     """
 
     # see scratch file for comments to revise and bring back here...
-    # also notesfile about dna markers, for how to maintain base index origin and identity.
 
     ignore_new_changes("as update_PAM_chunks starts", changes_ok = False )
+
+
+    # Find the current axis and strand chains on which any changed atoms reside.
     
     axis_chains, strand_chains = find_axis_and_strand_chains_or_rings( changed_atoms)
 
     ignore_new_changes("from find_axis_and_strand_chains_or_rings", changes_ok = False )
 
-    # make a dict from atom.key to new chain (id, index), for use when moving
-    # homeless markers (whose underlying atoms died) [and perhaps for later use].
-    # (keep axis and strand info in one dict for convenience, since both kinds
+
+    # Move the chain markers whose atoms got killed, onto atoms which remain alive
+    # but were in the same old chains. (Their old chain objects still exist, in
+    # the markers, to help the markers decide where and how to move.)
+
+    # To help the moving markers know how to advise their new chains about
+    # internal baseindex direction coming from their old chains, we first
+    # make a dict from atom.key to (new chain id, atom's baseindex in new chain).
+    # (We might use it later as well, not sure.)
+    # (We keep axis and strand info in one dict for convenience, since both kinds
     #  of markers are in one list we iterate over.)
     
     new_chain_info = {} 
@@ -120,49 +129,98 @@ def update_PAM_chunks( changed_atoms):
             info = (chain.chain_id(), index)
             new_chain_info[atom.key] = info
 
-    #e move the chain markers whose atoms got killed, onto new atoms in the same old chains.
-    # (their old chain objects still exist to help the markers navigate to new homes)
-
     homeless_markers = _f_get_homeless_dna_markers()
-
-##    markers = [] #e rename; maybe not needed at all
     
     for marker in homeless_markers:
         still_alive = marker._f_move_to_live_atom(new_chain_info)
+            # Note: this also comes up with direction advice for the new chain,
+            # stored in the marker and based on the direction of its new atoms
+            # in its old chain (if enough of them remain adjacent, currently 2);
+            # but the new chain will later take that advice from at most one marker.
         if DEBUG_DNA_UPDATER:
             print "dna updater: moved marker %r, still_alive = %r" % (marker, still_alive)
-##        if still_alive:
-##            markers.append(marker)
-##    for marker in markers:
-##        pass # handle these later when we find them on new atoms... we'll see them all, since all broken chain frags get found.
+        # Note: we needn't record the markers whose atoms are still alive,
+        # since we'll find them all later on a new chain. Any marker
+        # that moves either finds new atoms whose chain has a change
+        # somewhere that leads us to find it (otherwise that chain would
+        # be unchanged and could have no new connection to whatever other
+        # chain lost atoms which the marker was on), or finds none, and
+        # can't move, and either dies or is of no concern to us.
 
-    # Tell new chains to take over their atoms and any markers on them,
+    # Tell all new chains to take over their atoms and any markers on them,
     # deciding between competing markers for influencing base indexing
     # and other settings, and creating new markers as needed.
     #
     # (Maybe also save markers for use in later steps, like making or updating
     #  Segment & Strand objects, and storing all these in DNA Groups.)
     #
-    # Do axis chains first, so strand chains can be influenced by
-    # their base numbering, order, etc.
+    # Do axis chains first, so strand chains which need new markers or
+    # direction decisions (etc) can be influenced by their base numbering, order, etc.
     #
+    # (Future: we might have a concept of "main" and "secondary" strands
+    # (e.g. scaffold vs staples in origami), and if so, we might want to do
+    # all main strands before all secondary ones for the same reason.)
+    
     # [Possible optim: reuse old chains if nothing has changed.
     # Not done at present; I'm not sure how rare the opportunity will be,
     # but I suspect it's rare, in which case, it's not worth the bug risk.]
     
     for chain in axis_chains:
-        chain._f_own_atoms() # REVIEW: retval of all live markers, for later steps? or, just record them in the chain? that's better.
+        chain._f_own_atoms()
+        # note: if useful, this might record a list of all live markers
+        # found on that chain in the chain, as well as whatever marker
+        # is chosen or made to control it. (But note that markers might
+        # get removed or made independently without the chain itself
+        # changing. If so, some invalidation of those chain attributes
+        # might be needed. #e move this comment to DnaChain)
 
     for chain in strand_chains:
-        chain._f_own_atoms()# IMPLEM
+        chain._f_own_atoms()# IMPLEM - now these are stubs which always remake markers @@@
 
     ignore_new_changes("from updating DnaAtomMarkers")
         # ignore changes caused by adding/removing marker jigs
         # to their atoms, when the jigs die/move/areborn
     
-    
     # That figured out which markers control each chain (and stored the answers in the chains). ###IMPLEM
 
+    # Now use new_chain_info and the new chains to find all properly structured
+    # base pairs and base pair stacks, for several purposes:
+    # - (future) help detect errors in bond direction, major/minor groove
+    #   geometry, etc
+    # - find sets of atoms to make into AxisChunks or StrandSegmentChunks,
+    #   using the markers updated above to know when to reuse old chunks
+    #   (if that matters -- it might not, chunks might be an internal concept)
+    # - update existing & new Strand and Segment objects, using markers to
+    #   maintain their identity & association in the best way.
+
+    # Basic algorithm: scan each axis chain (or ring), and follow along its two
+    # bound strands to see when one or both of them leave it or stop (i.e. when
+    # the next atom along the strand is not bound to the next atom along the
+    # axis). This should classify all strand atoms as well (since bare ones were
+    # deleted earlier -- if they weren't, remaining strand fragments can also
+    # be found).
+    #
+    # implem/devel notes (some can be removed/condensed when devel is done):
+    #
+    # The fundamental operation is to move from a stacked base pair, or a maximal
+    # fragment of one on one axis bond, to the next one, deciding which base
+    # stackings were present. This might use of next_directional_bond_in_chain
+    # to scan the strands, or similar code, needing a strand bond and atom to go
+    # from. So we want a data structure that knows all the atoms and bonds in a
+    # base pair (or at least the sugar atoms and bonds from them, if Pl atoms
+    # are also present for PAM5). Ideally it should work for mixed PAM3/PAM5
+    # chains, so we'll try to code it to not care.
+    #
+    # (Should the stacked base pair object be retained, as a jig known to
+    #  all its atoms? Then the unchanged ones needn't be remade now... not sure.
+    #  For now just treat it as flyweight, or even mutable/scannable, perhaps
+    #  made of two flyweight base pair objects and an adjacent-base-pair holder
+    #  for them. Those objects and their ops might as well be made generally
+    #  available. So they'll be coded in new dna_model modules.)
+    
+
+
+    # Now.... @@@ [below here might be obs]
 
 
     # replace old chain info with new chain info on all live atoms

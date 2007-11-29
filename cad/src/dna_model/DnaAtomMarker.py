@@ -63,6 +63,7 @@ class DnaAtomMarker( ChainAtomMarker):
     """
 
     # default values of instance variables:
+    
     # Jig API variables
     sym = "DnaAtomMarker" # ?? maybe used only on subclasses for SegmentMarker & StrandMarker? maybe never visible?
         # TODO: not sure if this gets into mmp file, but i suppose it does... and it gets copied, and has undoable properties...
@@ -75,6 +76,9 @@ class DnaAtomMarker( ChainAtomMarker):
     # other variables
 
     controlling = _CONTROLLING_UNKNOWN
+
+    _advise_new_chain_direction = 0
+        # temporarily set to 0 or -1 or 1 for use when moving self and setting a new chain
 
     # == Jig API methods (overridden or extended):
     
@@ -128,11 +132,6 @@ class DnaAtomMarker( ChainAtomMarker):
         assert self.is_homeless()
         
         chain = self._chain
-
-
-        print "nim for new_chain_info, 2 atoms, ought to assert 0", self ########
-
-        
         old_atom = self._get_marker_atom()
         
         assert not self.atoms
@@ -179,12 +178,17 @@ class DnaAtomMarker( ChainAtomMarker):
         
         before = True # changed to False when we find old_atom during loop
 
+        old_index_to_atom_dict = {}
+
         for atom, baseindex in chain.baseatom_index_pairs(): # skips non-base atoms
             # note: this is in order for chain (arb direction), or ring (arbitrary origin & direction)
             # note: in current implem, found indices will start at 1, but the method can't guarantee
             # that in general (since negative indices might be required for a user-set origin),
             # so this code should't assume they avoid any int values.
             #e possible optim: call chain method to do this search in a faster way??
+            old_index_to_atom_dict[baseindex] = atom
+                #e possible optim: use this to partly replace the _stuff objects?
+                #e possible optim: cache on the chain itself, for use by several moving markers?
             if atom.killed():
                 if atom is old_atom:
                     old_atom_index = baseindex
@@ -218,31 +222,153 @@ class DnaAtomMarker( ChainAtomMarker):
         else:
             lookat = reversed_list(before_look) + after_look #e do we also need to record in which of these lists we find the answer?
 
-        newatom, newindex = None, None
+        new_atom, old_index_of_new_atom = None, None
         
-        for atom, index in lookat: # might be empty
-            newatom, newindex = atom, index
-            ok = True # this atom ok? (not sure if this can ever be false in future...)
-            if ok:
-                break
-            continue
+        for atom, index in lookat:
+            # note: lookat might be empty; if not, for now we use
+            # only the first element
+            new_atom, old_index_of_new_atom = atom, index
+            break
+                # (in future we might decide if this atom is good enough
+                #  in some way, and continue if not)
+
+        # these variables will be set to better values below if possible:
+        didit = False # whether we succeed in moving to a valid new location
+        advise_new_chain_direction = 0
+            # base index direction to advise new chain to take
+            # (-1 or 1, or 0 if we don't know)
         
-        if newatom is None:
-            didit = False
+        if new_atom is not None:
+            reldir = self.compute_new_chain_relative_direction( 
+                new_atom,
+                new_chain_info,
+                old_index_to_atom_dict,
+                old_index_of_new_atom
+             )
+            advise_new_chain_direction = reldir * chain.index_direction # can be 0 or -1 or 1
+
+            #e if that method didn't guess a direction, we could decide to fail here
+            # (didit = False), but for now we don't...
+            
+            didit = self._move_to_this_atom(new_atom)
+                #e pass index offset, or info to compute it? or compute it in this method now, or before this line?
+            
+        if didit:
+            self._advise_new_chain_direction = advise_new_chain_direction ### @@@ USE ME
         else:
-            didit = self._move_to_this_atom(newatom) #e pass index offset, or info to compute it?
-        if not didit:
+            # in future this will depend on settings:
             self.kill()
         return didit
     
-    def _move_to_this_atom(self, atom): #e arg for index change too?
+    def _move_to_this_atom(self, atom, new_chain_info): #e arg for index change too?
         #e assert correct kind of atom, for a per-subclass kind... call a per-subclass atom_ok function?
         self._set_marker_atom(atom)
         #e other updates (if not done by submethod)?
         #e set a flag telling the user to review this change, if settings ask us to... (or let caller do this??)
         return True
+
+    def compute_new_chain_relative_direction(self,
+                                             new_atom,
+                                             new_chain_info,
+                                             old_index_to_atom_dict,
+                                             old_index_of_new_atom
+                                            ): #e fill in param info in docstring
+        """
+        Figure out what base direction to advise our new chain to adopt,
+        relative to its current one,
+        if we can and in case we're asked to advise it later.
+
+        @param new_atom:
+        @type new_atom: atom
+        
+        @param new_chain_info:
+        @type new_chain_info: dict from ...
+        
+        @param old_index_to_atom_dict: dict from old chain baseindex to atom,
+                                       including at least new_atom and its old
+                                       immediate neighbors, and as many more
+                                       atoms (with old baseindices on the same
+                                       old self.chain_or_ring) as you want
+        @type old_index_to_atom_dict: dict (int to atom)
+        
+        @param old_index_of_new_atom:
+        @type old_index_of_new_atom: int
+        
+        @return: base index direction to advise new chain to take (-1 or 1, or 0 if we don't know)
+
+        Do this by figuring out how the old
+        chain's base direction maps onto the new one's, if any bases adjacent
+        in the old chain are still adjacent in the new one. Record the result
+        as a sign, relative to the *current* direction of the new chain.
+        (If it's direction is flipped, we are not notified, but its index_direction
+         will be reversed at the same time, so our stored sign, relative to that,
+         will remain correct. This assumes that reversing a chain reverses both
+         its .index_direction and the visible order of its atoms, at the same time.) ### REVIEW this point when done
+        """
+        
+        # implem notes:
+        # old_atom is not relevant here at all, i think -- for old direction we look at old indexes around new atom.
+        # new_atom and its both-newly-and-oldly-adjacent atoms are the only ones relevant to look at here;
+        # for each such atom (at most 2, not counting new_atom) we just compare its index delta in old and new info.
+        # if they disagree, we can either give up, or favor the one in the old direction the marker moved. [for now: latter.]
+        # if the latter, we can just pick the first old-and-new-adj atom to look at, and use it.
+        # we can test an atom for old-adjacent during our scan... not sure... maybe we want a dict
+        # for old_chain_info which has index as key, only for old_chain? yes. we pass it in.
+        
+        new_atom_new_info = new_chain_info[new_atom.key]
+        new_atom_new_chain_id, new_atom_new_index = new_atom_new_info
+
+        assert old_index_to_atom_dict[old_index_of_new_atom] is new_atom
+        for try_this_old_index in (old_index_of_new_atom + 1, old_index_of_new_atom - 1): #e maybe only pass in this much info?
+            # note: we do this in order of which result we'll use,
+            # so we can use the first result we get.
+            # The order of +1 / -1 really depends on the old direction in which the marker wants to move.
+            # In future that will be a setting, and it's hardcoded in at least one other place besides here.
+            ### FIX SOON, for 2nd strand marker -- when adding new markers, try to add to left edge of axis & 2 strands
+            # and have them move in same way on each. Hmm, that doesn't require this variable, it's still forward
+            # in base index if we assume that's same on the two strands from this point... if it's not it's probably user-set.
+            # but if 2nd strand has direction but no marker, do we add a backwards marker there? I doubt that can happen... we'll see.
+            try:
+                try_this_old_atom = old_index_to_atom_dict[try_this_old_index]
+                info = new_chain_info[try_this_old_atom.key]
+            except KeyError: # from either of the two lookups
+                pass
+            else:
+                new_chain_id, new_index = info
+                # is the trial atom in the same new chain, at an adjacent index?
+                if new_chain_id == new_atom_new_chain_id:
+                    new_index_delta = new_index - new_atom_new_index # could be anything except 0
+                    assert new_index_delta != 0
+                    assert type(new_index_delta) == type(1)
+                    if new_index_delta in (-1,1):
+                        old_index_delta = try_this_old_index - old_index_of_new_atom
+                        assert old_index_delta in (-1,1) # by construction
+                        res = new_index_delta / old_index_delta
+                        assert res in (-1,1) # a fact of math (and that the '/' operator works right)
+                        return res
+                            # note: relative to current direction, which we
+                            # don't know in this method and which might not be 1
+        return 0
+
+# pseudocode i didn't need, remove after commit:
+##        some_atoms = ...
+##
+##        for atom in some_atoms:
+##            try:
+##                old_chain_id, old_index = old_chain_info[atom.key]
+##                new_chain_id, new_index = new_chain_info[atom.key]
+##            except KeyError:
+##                pass
+##            else:
+##                assert old_chain_id == old_chain.chain_id() # or, the same as for old_atom
+##                if new_chain_id == same as for new_atom:
+##                    hmm.append( (old_index, new_index) )
+##        if len(hmm) > 1:
+##            # we have enough info for a guess; make sure it's consistent!
+##            
+##        return -1 or 1 }
     
-    pass
+    pass # end of class DnaAtomMarker
 
 #e subclasses for SegmentMarker & StrandMarker??
 

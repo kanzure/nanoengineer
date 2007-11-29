@@ -19,6 +19,8 @@ try:
 except NameError:
     _chain_id_counter = 0
 
+### REVIEW: should a DnaChain contain any undoable state? (it doesn't now) (guess: no)
+
 class DnaChain(object):
     """
     Abstract class, superclass of AxisChain and StrandChain.
@@ -26,11 +28,39 @@ class DnaChain(object):
     Owns and delegates to an AtomChainOrRing, providing DNA-specific
     navigation and indexing.
 
-    Used internally for base indexing in strands and segments.
+    Used internally for base indexing in strands and segments,
+    mainly while updating associations between the user-visible
+    nodes for those and the pseudoatoms comprising them.
+
+    Note: this base indexing is for purposes of moving origin markers
+    for user convenience when editing several associated chains
+    (e.g. the axis and two strand of a duplex). By default it
+    is likely to be assigned as a "base pair index", which means
+    that on the "2nd strand" it will go backwards compared to
+    the actual "physical" base index within that strand. So it
+    should not be confused with that. Further, on rings it
+    may jump in value at a different point than whatever user-
+    visible index is desired. If in doubt, consider it
+    an internal thing, not to be user-exposed without using
+    markers, relative directions, offsets, and ring-origins
+    to interpret it.
+
+    Note: some of the atoms in our chain_or_ring might be killed;
+    we never remove atoms or modify our atom list after creation
+    (except perhaps to reverse or reorder it). Instead, client code
+    makes new chain objects.
     """
     # default values of instance variables (DNA-specific):
+    
     index_direction = 1 # might be set to 1 or -1 in instances -- OR we might replace this with a .reverse() method ### REVIEW/IMPLEM
         # note: not the same as bond direction for strands (which is not even defined for axis bonds).
+
+        # current plan: this is public; might be moved to bare chain object;
+        # a reverse method negates this and also reverses the lists.
+        # so this's purpose is just to record whether that's been done
+        # so direction info relative to our direction can continue to make sense
+        # w/o needing update. @@@ REVIEW ### DOIT
+    
     controlling_marker = None
 
     # REVIEW: need to delegate ringQ, or any other vars or methods, to self.chain_or_ring?
@@ -89,13 +119,13 @@ class DnaChain(object):
         # stub -- just make a new marker! we'll need code for this anyway...
         # but it's WRONG to do it when an old one could take over, so this is not a correct stub, just one that might run.
         atom = chain.atom_list[0]
-        # hmm, this is getting dna specific, but we already have a chain vs ring subclass distinction,
-        # which might affect general methods, so ignore that for now...
         assy = atom.molecule.assy
         marker = DnaAtomMarker(assy, [atom], chain = self) ### REVIEW: chain = self or chain? what's it for, anyway? ### @@@
         self.controlling_marker = marker
         marker.set_whether_controlling(True)
         ## and call that with False for the other markers, so they die if needed -- ### IMPLEM
+        #e For a chosen old marker, we get advice from it about chain direction,
+        # then call a direction reverser if needed; see comments around index_direction.
     pass
 
 # ==
