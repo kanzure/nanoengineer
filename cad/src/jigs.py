@@ -71,21 +71,35 @@ class Jig(Node):
     # - mmp_record_name (if it's ever written to an mmp file)
     #
     # and can optionally redefine some of the following class constants:
+    
     sym = "Jig" # affects name-making code in __init__
+
     pickcolor = darkgreen # color in glpane when picked. [mark 2007-05-07 modified color]
+
     mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
+
     featurename = "" # wiki help featurename for each Jig (or Node) subclass, or "" if it doesn't have one yet [bruce 051201]
         # (Each Jig subclass should override featurename with a carefully chosen name; for a few jigs it should end in "Jig".)
 
+    _affects_atom_structure = True # whether adding or removing this jig
+        # to/from an atom should record a structural change to that atom
+        # (in _changed_structure_Atoms) for purposes of undo and updaters.
+        # Unclear whether it ever needs to be True, but for historical
+        # compatibility, it's True except on certain new jig classes.
+        # (For more info see comments where this is used in class Atom.)
+        # [bruce 071128]
+    
     # class constants used as default values of instance variables:
     
     #e we should sometime clean up the normcolor and color attributes, but it's hard,
     # since they're used strangly in the *Prop.py files and in our pick and unpick methods.
     # But at least we'll give them default values for the sake of new jig subclasses. [bruce 050425]
+
     color = normcolor = (0.5, 0.5, 0.5)
     
     # "Enable in Minimize" is only supported for motors.  Otherwise, it is ignored.  Mark 051006.
     # [I suspect the cad code supports it for all jigs, but only provides a UI to set it for motors. -- bruce 051102]
+
     enable_minimize = False # whether a jig should apply forces to atoms during Minimize
         # [should be renamed 'enable_in_minimize', but I'm putting this off since it affects lots of files -- bruce 051102]
         # WARNING: this is added to copyable_attrs in some subclasses, rather than here
@@ -173,7 +187,8 @@ class Jig(Node):
                 print "bug: %r is already in %r.jigs, just before we want" \
                       " to add it" % (self, atom)
             else:
-                atom._f_jigs_append(self) #bruce 071025
+                atom._f_jigs_append(self,
+                            changed_structure = self._affects_atom_structure )
         return
 
     def needs_atoms_to_survive(self):
@@ -328,7 +343,8 @@ class Jig(Node):
         #bruce 071127 renamed this Jig API method, rematom -> remove_atom
         self.atoms.remove(atom)
         # also remove self from atom's list of jigs
-        atom._f_jigs_remove(self) #bruce 071025
+        atom._f_jigs_remove(self,
+                            changed_structure = self._affects_atom_structure )
         if _kill_if_no_atoms_left_but_needs_them:
             if not self.atoms and self.needs_atoms_to_survive():
                 self.kill()

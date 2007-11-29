@@ -21,6 +21,9 @@ class ChainAtomMarker(Jig):
     # Jig API variables
     sym = "ChainAtomMarker" # probably never visible, since this is an abstract class
 
+    _affects_atom_structure = False # so adding/removing this jig doesn't
+        # confuse dna updater with a repeated change to the atom
+    
     ## copyable_attrs = Jig.copyable_attrs + () # more are only needed in subclasses
     
     # other variables

@@ -589,26 +589,40 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         mol = self.molecule
         return archive.childobj_liveQ(mol) and mol.atoms.has_key(self.key)
 
-    def _f_jigs_append(self, jig): #bruce 071025 made this from code in class Jig
+    def _f_jigs_append(self, jig, changed_structure = True):
         """
         [friend method for class Jig]
         
-        append a jig to self.jigs, and perform necessary invalidations
+        Append a jig to self.jigs, and perform necessary invalidations.
+        
+        @param changed_structure: if true (the default, though whether that's
+        needed has not been reviewed), record this as a change to this
+        atom's structure for purposes of Undo and updaters.
         """
+        #bruce 071025 made this from code in class Jig;
+        #bruce 071128 added changed_structure option
         self.jigs.append(jig)
         #k not sure if following is needed -- bruce 060322
-        _changed_structure_Atoms[self.key] = self
+        if changed_structure:
+            _changed_structure_Atoms[self.key] = self
+        return
 
-    def _f_jigs_remove(self, jig): #bruce 071025 made this from code in class Jig
+    def _f_jigs_remove(self, jig, changed_structure = True):
         """
         [friend method for class Jig]
         
-        remove a jig from self.jigs, and perform necessary invalidations.
+        Remove a jig from self.jigs, and perform necessary invalidations.
+        
+        @param changed_structure: if true (the default, though whether that's
+        needed has not been reviewed), record this as a change to this
+        atom's structure for purposes of Undo and updaters.
 
         @note: if jig is not in self.jigs, complain (when platform.atom_debug),
         but tolerate this.
         (It's probably an error, but of unknown commonness or seriousness.)
         """
+        #bruce 071025 made this from code in class Jig;
+        #bruce 071128 added changed_structure option
         try:
             self.jigs.remove(jig)
         except:
@@ -622,7 +636,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: ignoring exception in _f_jigs_remove (Jig.remove_atom): ")
         else:
-            _changed_structure_Atoms[self.key] = self #k not sure if needed #bruce 060322
+            #k not sure if following is needed -- bruce 060322
+            if changed_structure:
+                _changed_structure_Atoms[self.key] = self
         return
 
     # For each entry in this dictionary, add a context menu command on atoms of the key element type
