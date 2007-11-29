@@ -21,6 +21,9 @@ from bond_chains import abstract_bond_chain_analyzer
 from dna_model.AtomChainOrRing import AtomChain, AtomRing
 from dna_model.AtomChainOrRing import AtomChainOrRing # for isinstance
 
+from dna_model.DnaChain import AxisChain, StrandChain
+from dna_model.DnaChain import DnaChain # for isinstance
+
 from dna_model.DnaAtomMarker import _f_get_homeless_dna_markers
 
 # ==
@@ -30,27 +33,39 @@ from dna_model.DnaAtomMarker import _f_get_homeless_dna_markers
 
 class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
     """
+    [private abstract helper class]
     For DNA, we like our found atom/bond chains or rings to be instances
     of one of AtomChainOrRing's subclasses, AtomChain or AtomRing.
     """
+    _wrapper = None # a per-subclass constant, to wrap an AtomChainOrRing
     def make_chain(self, listb, lista):
         # also used for lone atoms
-        return AtomChain(listb, lista)
+        return self._wrap(AtomChain(listb, lista))
     def make_ring(self, listb, lista):
-        return AtomRing(listb, lista)
+        return self._wrap(AtomRing(listb, lista))
+    def _wrap(self, chain_or_ring):
+        if chain_or_ring is None:
+            return None
+        res = self._wrapper(chain_or_ring)
+        # check effect of wrapper:
+        assert isinstance( res, DnaChain) #e remove when works?
+        return res
     def found_object_iteratoms(self, chain_or_ring):
         if chain_or_ring is None:
             return ()
-        assert isinstance( chain_or_ring, AtomChainOrRing) #e remove when works?
+        # check effect of wrapper:
+        assert isinstance( chain_or_ring, DnaChain) #e remove when works?
         return chain_or_ring.iteratoms()
     pass
     
-class axis_bond_chain_analyzer(dna_bond_chain_analyzer): 
+class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
+    _wrapper = AxisChain
     def atom_ok(self, atom):
         return atom.element.role == 'axis'
     pass
 
 class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
+    _wrapper = StrandChain
     def atom_ok(self, atom):
         # note: can include Pl atoms in PAM5
         return atom.element.role == 'strand'
@@ -93,16 +108,27 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("from find_axis_and_strand_chains_or_rings", changes_ok = False )
 
+    # make a dict from atom.key to new chain (id, index), for use when moving
+    # homeless markers (whose underlying atoms died) [and perhaps for later use].
+    # (keep axis and strand info in one dict for convenience, since both kinds
+    #  of markers are in one list we iterate over.)
+    
+    new_chain_info = {} 
+
+    for chain in axis_chains + strand_chains:
+        for atom, index in chain.baseatom_index_pairs(): # skips non-base atoms like Pl
+            info = (chain.chain_id(), index)
+            new_chain_info[atom.key] = info
+
     #e move the chain markers whose atoms got killed, onto new atoms in the same old chains.
-    # (all atoms still have their old chain info at this point. maybe old chain objects still exist
-    #  to let the markers navigate to new homes?)
+    # (their old chain objects still exist to help the markers navigate to new homes)
 
     homeless_markers = _f_get_homeless_dna_markers()
 
 ##    markers = [] #e rename; maybe not needed at all
     
     for marker in homeless_markers:
-        still_alive = marker._f_move_to_live_atom()
+        still_alive = marker._f_move_to_live_atom(new_chain_info)
         if DEBUG_DNA_UPDATER:
             print "dna updater: moved marker %r, still_alive = %r" % (marker, still_alive)
 ##        if still_alive:

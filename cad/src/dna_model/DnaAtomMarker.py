@@ -114,7 +114,7 @@ class DnaAtomMarker( ChainAtomMarker):
             self.kill() # stub -- in future, depends on user-settable properties and/or on subclass
         return
     
-    def _f_move_to_live_atom(self):
+    def _f_move_to_live_atom(self, new_chain_info):
         """
         [friend method, called from dna_updater]
         Our atom died; see if there is a live atom on our old chain which we want to move to;
@@ -128,6 +128,11 @@ class DnaAtomMarker( ChainAtomMarker):
         assert self.is_homeless()
         
         chain = self._chain
+
+
+        print "nim for new_chain_info, 2 atoms, ought to assert 0", self ########
+
+        
         old_atom = self._get_marker_atom()
         
         assert not self.atoms
@@ -142,9 +147,9 @@ class DnaAtomMarker( ChainAtomMarker):
         class stuff: #e rename
             "track first & last atom seen during some subsection of the chain"
             first_atom = None
-            first_index = -1
+            first_index = None
             last_atom = None
-            last_index = -1
+            last_index = None
             def see(self, atom, index):
                 # assume live atom
                 if self.first_atom is None:
@@ -170,29 +175,25 @@ class DnaAtomMarker( ChainAtomMarker):
         before_stuff = stuff()
         after_stuff = stuff()
         
-        old_atom_index = -1
+        old_atom_index = None # note: any int is a possible value, in principle
         
-        baseindex = 0 # incremented for base atoms during loop; found indices will start at 1
         before = True # changed to False when we find old_atom during loop
 
-        atom_list = chain.atom_list
-        if chain.index_direction < 0: ### IMPLEM, -1 or 1... better if we can get chain to reverse the list when it's made ###
-            # do this now, so our baseindex counter is in the right order
-            atom_list = reversed_list(atom_list)
-        
-        for atom in atom_list: # in order for chain (arb direction), or ring (arbitrary origin & direction)
-            #e or call chain method to do this search? faster using atom dict? or it might know atom -> index...
-            if not atom.element.sym.startswith('P'): # KLUGE, should use an element attribute, whether it's base-indexed
-                baseindex += 1
-                if atom.killed():
-                    if atom is old_atom:
-                        old_atom_index = baseindex
-                        before = False
+        for atom, baseindex in chain.baseatom_index_pairs(): # skips non-base atoms
+            # note: this is in order for chain (arb direction), or ring (arbitrary origin & direction)
+            # note: in current implem, found indices will start at 1, but the method can't guarantee
+            # that in general (since negative indices might be required for a user-set origin),
+            # so this code should't assume they avoid any int values.
+            #e possible optim: call chain method to do this search in a faster way??
+            if atom.killed():
+                if atom is old_atom:
+                    old_atom_index = baseindex
+                    before = False
+            else:
+                if before:
+                    before_stuff.see(atom, baseindex)
                 else:
-                    if before:
-                        before_stuff.see(atom, baseindex)
-                    else:
-                        after_stuff.see(atom, baseindex)
+                    after_stuff.see(atom, baseindex)
             continue
         assert not before
         
@@ -210,11 +211,6 @@ class DnaAtomMarker( ChainAtomMarker):
         # our variables are lists of atom, index pairs.
         before_look = before_stuff.atom_index_pairs()
         after_look = after_stuff.atom_index_pairs()
-# do this earlier, so baseindex is correct:
-##        if chain.index_direction < 0: ### IMPLEM, -1 or 1
-##            before_look.reverse()
-##            after_look.reverse()
-##            before_look, after_look = after_look, before_look
         if chain.ringQ:
             # we're looking before first, so just put everything before [todo: clarify that comment]
             lookat = after_look + before_look # in base index order, but relative to old_atom around ring
@@ -222,7 +218,7 @@ class DnaAtomMarker( ChainAtomMarker):
         else:
             lookat = reversed_list(before_look) + after_look #e do we also need to record in which of these lists we find the answer?
 
-        newatom, newindex = None, -1
+        newatom, newindex = None, None
         
         for atom, index in lookat: # might be empty
             newatom, newindex = atom, index
