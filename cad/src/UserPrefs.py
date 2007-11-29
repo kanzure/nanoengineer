@@ -499,6 +499,25 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
                      self.setPrefsLogoDownloadPermissions)
         self.connect(self.gamess_checkbox,SIGNAL("toggled(bool)"),self.enable_gamess)
         self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
+        
+        #connect GROMACS checkbox under Preferences > Plugins when 
+        #to enable/disable GROMACS plugin line edit and the 'choose button'
+        self.connect(self.gromacs_checkbox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_gromacs)
+        self.connect(self.gromacs_choose_button,
+                     SIGNAL("clicked()"),
+                     self.set_gromacs_path)
+        
+        #connect GROMACS checkbox under Preferences > Plugins when 
+        #to enable/disable GROMACS plugin line edit and the 'choose button'
+        self.connect(self.cpp_checkBox,
+                     SIGNAL("toggled(bool)"),
+                     self.enable_cpp)
+        self.connect(self.cpp_choose_button,
+                     SIGNAL("clicked()"),
+                     self.set_cpp_path)
+      
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("buttonClicked(int)"),self.change_high_order_bond_display)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.level_of_detail_combox,SIGNAL("activated(int)"),self.change_level_of_detail)
@@ -2052,6 +2071,51 @@ restored when the user undoes a structural change.</p>
             self.gamess_path_linedit.setText("")
             env.prefs[gmspath_prefs_key] = ''
             env.prefs[gamess_enabled_prefs_key] = False
+    
+    def set_gromacs_path(self):
+        """
+        Sets the GROMACS path 
+        """
+        pass
+    
+    
+    def enable_gromacs(self, enable = True):
+        """
+        If True, GROMACS plug-in is enabled
+        """
+        
+        if enable:
+            self.gromacs_path_lineedit.setEnabled(True)
+            self.gromacs_choose_button.setEnabled(True)
+            ##env.prefs[gromacs_enabled_prefs_key] = True
+        else:
+            self.gromacs_path_lineedit.setEnabled(False)
+            self.gromacs_choose_button.setEnabled(False)
+            self.gromacs_path_lineedit.setText("")
+            ##env.prefs[gromacs_path_prefs_key] = ''
+            ##env.prefs[gromacs_enabled_prefs_key] = False
+    
+    def set_cpp_path(self):
+        """
+        Sets the GROMACS path 
+        """
+        pass
+    
+    def enable_cpp(self, enable = True):
+        """
+        If True, cpp path in Preferences> Plug-ins is enabled
+        """
+        if enable:
+            self.cpp_path_lineedit.setEnabled(True)
+            self.cpp_choose_button.setEnabled(True)
+            ##env.prefs[cpp_enabled_prefs_key] = True
+        else:
+            self.cpp_path_lineedit.setEnabled(False)
+            self.cpp_choose_button.setEnabled(False)
+            self.cpp_path_lineedit.setText("")
+            ##env.prefs[cpp_path_prefs_key] = ''
+            ##env.prefs[cpp_enabled_prefs_key] = False
+            
 
     # QuteMol slots #######################################
 
