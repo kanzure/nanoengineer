@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Nov 28 15:43:18 2007
+# Created: Wed Nov 28 22:20:44 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -1702,6 +1702,7 @@ class Ui_UserPrefsDialog(object):
         self.gridlayout24.addWidget(self.povdir_linedit,4,0,1,1)
 
         self.gromacs_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
+        self.gromacs_path_lineedit.setEnabled(False)
         self.gromacs_path_lineedit.setObjectName("gromacs_path_lineedit")
         self.gridlayout24.addWidget(self.gromacs_path_lineedit,6,0,1,1)
 
@@ -1751,6 +1752,7 @@ class Ui_UserPrefsDialog(object):
         self.gridlayout24.addWidget(self.povray_path_linedit,2,0,1,1)
 
         self.cpp_path_lineedit = QtGui.QLineEdit(self.file_locations_grp)
+        self.cpp_path_lineedit.setEnabled(False)
         self.cpp_path_lineedit.setObjectName("cpp_path_lineedit")
         self.gridlayout24.addWidget(self.cpp_path_lineedit,7,0,1,1)
 
@@ -2221,7 +2223,7 @@ class Ui_UserPrefsDialog(object):
         self.textLabel1_8_3.setBuddy(self.dynamicToolTipBendAnglePrecision_spinbox)
 
         self.retranslateUi(UserPrefsDialog)
-        self.prefs_tab.setCurrentIndex(0)
+        self.prefs_tab.setCurrentIndex(5)
         self.level_of_detail_combox.setCurrentIndex(2)
         QtCore.QObject.connect(self.ok_btn,QtCore.SIGNAL("clicked()"),UserPrefsDialog.accept)
         QtCore.QObject.connect(self.watch_min_in_realtime_checkbox,QtCore.SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
