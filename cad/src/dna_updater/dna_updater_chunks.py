@@ -86,8 +86,12 @@ def update_PAM_chunks( changed_atoms):
 
     # see scratch file for comments to revise and bring back here...
     # also notesfile about dna markers, for how to maintain base index origin and identity.
+
+    ignore_new_changes("as update_PAM_chunks starts", changes_ok = False )
     
     axis_chains, strand_chains = find_axis_and_strand_chains_or_rings( changed_atoms)
+
+    ignore_new_changes("from find_axis_and_strand_chains_or_rings", changes_ok = False )
 
     #e move the chain markers whose atoms got killed, onto new atoms in the same old chains.
     # (all atoms still have their old chain info at this point. maybe old chain objects still exist
@@ -126,6 +130,11 @@ def update_PAM_chunks( changed_atoms):
     for chain in strand_chains:
         chain._f_own_atoms()# IMPLEM
 
+    ignore_new_changes("from updating DnaAtomMarkers")
+        # ignore changes caused by adding/removing marker jigs
+        # to their atoms, when the jigs die/move/areborn
+    
+    
     # That figured out which markers control each chain (and stored the answers in the chains). ###IMPLEM
 
 

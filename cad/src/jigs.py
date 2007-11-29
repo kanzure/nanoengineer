@@ -87,6 +87,9 @@ class Jig(Node):
         # Unclear whether it ever needs to be True, but for historical
         # compatibility, it's True except on certain new jig classes.
         # (For more info see comments where this is used in class Atom.)
+        # OTOH it's also possible this is needed on all jigs, even internal ones,
+        # to prevent undo bugs (when undoing changes to a jig's atoms).
+        # Until that's reviewed, it should not be overridden on any jig.
         # [bruce 071128]
     
     # class constants used as default values of instance variables:

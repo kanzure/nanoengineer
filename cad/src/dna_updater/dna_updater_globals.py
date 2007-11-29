@@ -15,6 +15,8 @@ from changedicts import _cdproc_for_dictid # but it's private!
 
 from chem import _changed_structure_Atoms, _changed_parent_Atoms # but they're private! refactor sometime
 
+from debug import print_compact_stack
+
 # ==
 
 # _rcdp1 and _rcdp2 will be replaced in initialize_globals()
@@ -67,7 +69,7 @@ def get_changes_and_clear():
     dict2.update(dict1)
     return dict2
 
-def ignore_new_changes( from_what):
+def ignore_new_changes( from_what, changes_ok = True ):
     """
     Discard whatever changes occurred since the last time
     we called get_changes_and_clear,
@@ -76,12 +78,23 @@ def ignore_new_changes( from_what):
     @param from_what: a string for debug prints,
                       saying what the changes are from,
                       e.g. "from fixing classes".
+    @type from_what: string
+    
+    @param changes_ok: whether it's ok (not an error) if we see changes.
+    @type changes_ok: boolean
     """    
     ignore_these = get_changes_and_clear()
-    
-    if DEBUG_DNA_UPDATER and ignore_these:
-        print "dna updater: ignoring %d new changes %s" % (len(ignore_these), from_what)
-    
+
+    if ignore_these:
+        if changes_ok:
+            if DEBUG_DNA_UPDATER:
+                print "dna updater: ignoring %d new changes %s" % (len(ignore_these), from_what)
+        else:
+            msg = "\nBUG: dna updater: ignoring %d new changes %s -- any such changes are a bug: " % \
+                  (len(ignore_these), from_what)
+            print_compact_stack(msg)
+            print
+            
     del ignore_these
     return
 
