@@ -124,7 +124,8 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         Update the cursor for this mode.
         """
-        self.glpane.setCursor(self.win.SelectAtomsCursor)
+        #self.glpane.setCursor(self.win.SelectAtomsCursor)
+        self.glpane.setCursor(self.win.colorPencilCursor)
     
     def resetVariables(self):
         """

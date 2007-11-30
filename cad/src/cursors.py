@@ -12,6 +12,8 @@ __author__ = "Mark"
 from PyQt4.Qt import QCursor, QBitmap, Qt
 import os, sys
 
+from icon_utilities import getpixmap
+
 def loadCursors(w):
     """This routine is called once to load all the custom cursors needed by the program.
     To add a new cursor, two BMP files are placed in the cad/src/ui/cursors directory
@@ -149,5 +151,8 @@ def loadCursors(w):
     # Confirmation corner cursors [loaded by bruce 070626 from files committed by mark]
     w._confcorner_OKCursor = loadCursor("ui/confcorner/OKCursor", 0, 0)
     w._confcorner_CancelCursor = loadCursor("ui/confcorner/CancelCursor", 0, 0)
+    
+    #COLOR CURSORS!
+    w.colorPencilCursor = QCursor(getpixmap('ui/cursors/Pencil.png'), 0, 0)
 
     return # from loadCursors
