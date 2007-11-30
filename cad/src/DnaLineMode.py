@@ -13,9 +13,9 @@ TODO:
 
 from LineMode import LineMode
 
-from drawer import drawLadder
+from drawer import drawLadder, drawRibbons
 
-from constants import black, darkred, blue
+from constants import black, darkred, blue, white
 
 # == GraphicsMode part
 
@@ -24,6 +24,11 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
     Custom GraphicsMode for use as a component of DnaLineMode.
     @see: L{DnaLineMode} for more comments. 
     """    
+    # The following valuse are used in drawing the 'sphere' that represent the 
+    #first endpoint of the line. See LineMode.Draw for details. 
+    endPoint1_sphereColor = white 
+    endPoint1_sphereOpacity = 1.0
+    
     def __init__(self, command):
         """
         """
@@ -64,14 +69,30 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
             # 'left mountain' or the 'right mountain' depending on the 
             # orientation while drawing the ladder
             
-            drawLadder(self.endPoint1,
+            if 0:
+                #Note there needs to be a radio button to switch on the 
+                # rubberband ladder display for a dna line. At the moment it is 
+                # disabled and is superseded by the ribbons ruberband display. 
+                drawLadder(self.endPoint1,
+                           self.endPoint2, 
+                           self.command.duplexRise,
+                           self.glpane.scale,
+                           self.glpane.lineOfSight,
+                           beamThickness = 4.0,
+                           beam1Color = darkred,
+                           beam2Color = blue,
+                           stepColor = black    
+                        )  
+                
+            #Default dna rubberband line display style       
+            drawRibbons(self.endPoint1,
                        self.endPoint2, 
                        self.command.duplexRise,
                        self.glpane.scale,
                        self.glpane.lineOfSight,
-                       beamThickness = 4.0,
-                       beam1Color = darkred,
-                       beam2Color = blue,
+                       ribbonThickness = 4.0,
+                       ribbon1Color = darkred,
+                       ribbon2Color = blue,
                        stepColor = black    
                     )  
                       

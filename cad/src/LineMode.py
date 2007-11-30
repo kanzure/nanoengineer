@@ -15,10 +15,9 @@ from constants import black, darkred
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix
 
-STARTPOINT_SPHERE_COLOR = darkred
+
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
-STARTPOINT_SPHERE_OPACITY = 0.5
 
 # == GraphicsMode part
 
@@ -54,6 +53,14 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     #The second endpoint of the line. This gets constantly updated as you 
     # free drag the mouse (bare motion) 
     endPoint2 = None
+    
+    
+    #Rubberband line color
+    rubberband_line_color = black
+    rubberband_line_width = 1  #thickness or 'width' for drawer.drawline
+    
+    endPoint1_sphereColor = darkred
+    endPoint1_sphereOpacity = 0.5
 
     def leftDown(self, event):
         """
@@ -87,15 +94,16 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         if self.endPoint2:
             glPushMatrix()  
             if self.endPoint1:
-                drawsphere(STARTPOINT_SPHERE_COLOR, 
+                drawsphere(self.endPoint1_sphereColor, 
                            self.endPoint1, 
                            STARTPOINT_SPHERE_RADIUS,
                            STARTPOINT_SPHERE_DRAWLEVEL,
-                           opacity = STARTPOINT_SPHERE_OPACITY
+                           opacity = self.endPoint1_sphereOpacity
                            )            
-            drawline(black, 
+            drawline(self.rubberband_line_color, 
                  self.endPoint1, 
-                 self.endPoint2, 
+                 self.endPoint2,
+                 width = self.rubberband_line_width,
                  dashEnabled = True)            
             glPopMatrix()
     
@@ -159,7 +167,7 @@ class LineMode(TemporaryCommand_Overdrawing):
         prevMode = self.commandSequencer.prevMode        
         #clear the list (for safety) which may still have old data in it
         self.mouseClickPoints = []
-        
+        self.glpane.setCursor(self.win.ZoomCursor)
         self.glpane.gl_update()
         
         if hasattr(prevMode, 'provideParamsForTemporaryMode'):

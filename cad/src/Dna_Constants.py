@@ -127,7 +127,15 @@ def getDuplexLength(conformation, numberOfBases):
 def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength):
     """
     Returns the number of base-pairs in the duplex given the conformation  
-    and the duplex length. This number is rounded to the nearest integer. 
+    and the duplex length. This number is NOT rounded to the nearest integer. 
+    The rounding is intentionally not done. Example: While drawing a dna line, 
+    when user clicks on the screen to complete the second endpoint, the actual 
+    dna axis endpoint might be trailing the clicked point because the total 
+    dna length is not sufficient to complete the 'next step'. 
+    Thus, by not rounding the number of bases, we make sure that the dna 
+    consists of exactly same number of bases as displayed by the rubberband line    
+    ( The dna rubberband line gives enough visual indication about this. 
+    see drawer.drawRibbons for more details on the visual indication )
     
     @param conformation: "A-DNA", "B-DNA", or "Z-DNA"
     @type  conformation: str
@@ -141,7 +149,8 @@ def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength):
     assert conformation in ("A-DNA", "B-DNA", "Z-DNA")
     assert duplexLength >= 0
     numberOfBasePairs = 1 + (duplexLength / getDuplexRise(conformation))
-    return round(numberOfBasePairs)
+    return int(numberOfBasePairs)
+
 
 
 def getComplementSequence(inSequence):
