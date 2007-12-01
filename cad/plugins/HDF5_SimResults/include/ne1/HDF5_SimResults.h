@@ -4,6 +4,12 @@
 #ifndef NE1_HDF5_SIMRESULTS_H
 #define NE1_HDF5_SIMRESULTS_H
 
+#ifdef WIN32
+#     ifdef _MSC_VER
+#             pragma warning(disable:4786)
+#     endif
+#endif
+
 #include <stdlib.h>
 #include <map>
 
@@ -98,6 +104,7 @@ class HDF5_SimResults : public SimResultsDataStore {
 		
 		int openDataStore(const char* directory, std::string& message);
 		void synchronize();
+		void flush();
 		
 		int getName(std::string& name) const;
 		int setName(const std::string& name, std::string& message);

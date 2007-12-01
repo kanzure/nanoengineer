@@ -1,7 +1,7 @@
 
 // Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 
-#include "HDF5_SimResults.h"
+#include "ne1/HDF5_SimResults.h"
 
 namespace ne1 {
 
@@ -122,6 +122,14 @@ void HDF5_SimResults::synchronize() {
 	datastoreFilename.append("/").append(HDF5_SIM_RESULT_FILENAME);
 	fileId = H5Fopen(datastoreFilename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT);
 	openDatasets();
+}
+
+
+/* FUNCTION: flush */
+void HDF5_SimResults::flush() {
+	int resultCode = H5Fflush(fileId, H5F_SCOPE_GLOBAL);
+	if (resultCode)
+		;//message = "Couldn't flush HDF5 file.";
 }
 
 

@@ -11,6 +11,8 @@ libHDF5_SimResults_la_LDFLAGS = -version-info 1:0:0
 #nanohiveutil_HEADERS = \
 #	$(top_builddir)/../include/NanoHiveUtil/CmdLine.h \
 #	$(top_builddir)/../include/NanoHiveUtil/ZipUnzip/zip.h
+ne1includedir = $(includedir)/ne1
+ne1include_HEADERS = ../include/ne1/HDF5_SimResults.h ../include/ne1/SimResultsDataStore.h
  
 libHDF5_SimResults_la_SOURCES = \
 	HDF5_SimResults.cpp \

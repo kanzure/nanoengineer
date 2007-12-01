@@ -8,7 +8,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "HDF5_SimResults.h"
+#include "ne1/HDF5_SimResults.h"
 
 
 /* CLASS: HDF5_SimResultsTest */

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string>
 
-#include "HDF5_SimResults.h"
+#include "ne1/HDF5_SimResults.h"
 
 
 /* FUNCTION: main */
