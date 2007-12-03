@@ -328,6 +328,22 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     # ==
 
+    def invalidate_ladder(self): #bruce 071203
+        """
+        Subclasses which have a .ladder attribute
+        should call its invalidate method.
+        """
+        return
+
+    def in_a_valid_ladder(self): #bruce 071203
+        """
+        Is this chunk a rail of a valid DnaLadder?
+        [subclasses that might be should override]
+        """
+        return False
+    
+    # ==
+    
     # Methods relating to our OpenGL display list, self.displist.
     #
     # (Note: most of these methods could be moved with few changes to a

@@ -7,87 +7,17 @@ dna_updater_chunks.py - enforce rules on chunks containing changed PAM atoms
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-# todo - some imports maybe not needed?
-
-from dna_updater_globals import get_changes_and_clear
 from dna_updater_globals import ignore_new_changes
-
-from dna_updater_utils import remove_killed_atoms
-
-##from constants import noop as STUB_FUNCTION # FIX all uses
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
 
-from bond_chains import abstract_bond_chain_analyzer
-
-from dna_model.AtomChainOrRing import AtomChain, AtomRing
-from dna_model.AtomChainOrRing import AtomChainOrRing # for isinstance
-
-from dna_model.DnaChain import AxisChain, StrandChain
-from dna_model.DnaChain import DnaChain_AtomChainWrapper # for isinstance
-
 from dna_model.DnaAtomMarker import _f_get_homeless_dna_markers
 
+from dna_updater_find_chains import find_axis_and_strand_chains_or_rings
 
+from dna_updater_ladders import dissolve_or_fragment_invalid_ladders
 from dna_updater_ladders import make_new_ladders, merge_ladders
 
-# ==
-
-# helper classes (will probably turn out to be private, or perhaps
-#  even local to find_axis_and_strand_chains_or_rings)
-
-class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
-    """
-    [private abstract helper class]
-    For DNA, we like our found atom/bond chains or rings to be instances
-    of one of AtomChainOrRing's subclasses, AtomChain or AtomRing.
-    """
-    _wrapper = None # a per-subclass constant, to wrap an AtomChainOrRing
-    def make_chain(self, listb, lista):
-        # also used for lone atoms
-        return self._wrap(AtomChain(listb, lista))
-    def make_ring(self, listb, lista):
-        return self._wrap(AtomRing(listb, lista))
-    def _wrap(self, chain_or_ring):
-        if chain_or_ring is None:
-            return None
-        res = self._wrapper(chain_or_ring)
-        # check effect of wrapper:
-        assert isinstance( res, DnaChain_AtomChainWrapper) #e remove when works?
-        return res
-    def found_object_iteratoms(self, chain_or_ring):
-        if chain_or_ring is None:
-            return ()
-        # check effect of wrapper:
-        assert isinstance( chain_or_ring, DnaChain_AtomChainWrapper) #e remove when works?
-        return chain_or_ring.iteratoms()
-            # note: it's essential to include Pl atoms in this value,
-            # for sake of find_chain_or_ring's dict.pop @@@
-    pass
-    
-class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
-    _wrapper = AxisChain
-    def atom_ok(self, atom):
-        return atom.element.role == 'axis'
-    pass
-
-class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
-    _wrapper = StrandChain
-    def atom_ok(self, atom):
-        # note: this can include Pl atoms in PAM5,
-        # but the wrapper class filters them out of
-        # the atom list it stores. [filtering is new behavior 071203, nim@@@]
-        return atom.element.role == 'strand'
-    pass
-
-# singleton objects
-# (todo: could be local to the main using function,
-#  if they returned instances so axis_analyzer.found_object_iteratoms etc
-#  was not needed by other functions here; now they do, so REVIEW whether they can be local ###)
-
-axis_analyzer = axis_bond_chain_analyzer()
-
-strand_analyzer = strand_bond_chain_analyzer()
 
 # ==
 
@@ -112,12 +42,27 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("as update_PAM_chunks starts", changes_ok = False )
 
+    homeless_markers = _f_get_homeless_dna_markers()
+    
+    live_markers = []
+    for marker in homeless_markers:
+        still_alive = marker._f_move_to_live_atom_step1() #e rename, doc
+            # move, and record old neighbor atoms for later use in determining new direction advice [1/2 split is nim] @@@
+        if DEBUG_DNA_UPDATER:
+            print "dna updater: moved_step1 marker %r, still_alive = %r" % (marker, still_alive)
+        if still_alive:
+            live_markers.append(marker)
+    del homeless_markers
 
-    # IMPLEM: make sure invalid DnaLadders are recognized
+    # warning: all marker-related comments below here need revision, as of 071203 @@@
+    
+
+    # make sure invalid DnaLadders are recognized
     # as such in the next step, and recorded for update or disposal... @@@
     # also (#e future optim) break long ones at damage points so the undamaged
     # parts needn't be rescanned in the next step.
-    print "nim - make sure invalid DnaLadders are recognized"
+
+    dissolve_or_fragment_invalid_ladders( changed_atoms) # stub, and valid flag not used @@@
     
     # Find the current axis and strand chains (perceived from current bonding)
     # on which any changed atoms reside, but only [nim @@@] scanning along atoms
@@ -171,16 +116,16 @@ def update_PAM_chunks( changed_atoms):
             info = (chain.chain_id(), index)
             new_chain_info[atom.key] = info
 
-    homeless_markers = _f_get_homeless_dna_markers()
-    
-    for marker in homeless_markers:
-        still_alive = marker._f_move_to_live_atom(new_chain_info)
+
+
+    for marker in live_markers:
+        still_alive = marker._f_move_to_live_atom_step2(new_chain_info)
             # Note: this also comes up with direction advice for the new chain,
             # stored in the marker and based on the direction of its new atoms
             # in its old chain (if enough of them remain adjacent, currently 2);
             # but the new chain will later take that advice from at most one marker.
         if DEBUG_DNA_UPDATER:
-            print "dna updater: moved marker %r, still_alive = %r" % (marker, still_alive)
+            print "dna updater: moved_step2 marker %r" % (marker, still_alive)
         # Note: we needn't record the markers whose atoms are still alive,
         # since we'll find them all later on a new chain. Any marker
         # that moves either finds new atoms whose chain has a change
@@ -188,6 +133,7 @@ def update_PAM_chunks( changed_atoms):
         # be unchanged and could have no new connection to whatever other
         # chain lost atoms which the marker was on), or finds none, and
         # can't move, and either dies or is of no concern to us.
+    del live_markers #k if not, update it with new liveness
 
     # Tell all new chains to take over their atoms and any markers on them,
     # deciding between competing markers for influencing base indexing
@@ -256,103 +202,6 @@ def update_PAM_chunks( changed_atoms):
     # optim: sort bonds in atom classes, and sort atoms in bond classes, in special ways.
     
     return # from update_PAM_chunks
-
-# ==
-
-def find_axis_and_strand_chains_or_rings( changed_atoms):
-    """
-    Find and return the lists (axis_chains, strand_chains)
-    of connected sets of axis and strand atoms respectively,
-    in the representation described below.
-
-    @param changed_atoms: an atom.key -> atom dict of all changed atoms
-                          that this function needs to consider,
-                          which includes no killed atoms. WE ASSUME
-                          OWNERSHIP OF THIS DICT and modify it in
-                          arbitrary ways.
-                          Note: in present calling code [071127]
-                          this dict might include atoms from closed files.
-
-    @return: (axis_chains, strand_chains), which are sequences of
-    objects representing changed chains or rings (or lone atoms)
-    of the specified element roles (axis or strand respectively).
-    The chain or ring format is as returned by the make_* methods
-    of the singleton objects axis_analyzer and strand_analyzer,
-    which have methods for further use of those objects (in case
-    they are just python data rather than class instances),
-    e.g. for iterating over their atoms.
-    Exception: None is never an element of the returned lists,
-    since we remove it.
-    """
-
-    # Sort changed atoms into types we consider differently.
-
-    axis_atoms = {}
-    strand_atoms = {}
-
-    def classify(atom):
-        "put a live real atom into axis_atoms or strand_atoms, or discard it"
-        # REVIEW: should we use atom classes or per-class methods here?
-        # REVIEW: need to worry about atoms with too few bonds?
-        element = atom.element
-        role = element.role # 'axis' or 'strand' or None
-        pam = element.pam # 'PAM3' or 'PAM5' or None
-        if role == 'axis':
-            axis_atoms[atom.key] = atom
-            assert pam in ('PAM3', 'PAM5') # REVIEW: separate these too?
-        elif role == 'strand':
-            strand_atoms[atom.key] = atom
-            assert pam in ('PAM3', 'PAM5') # REVIEW: separate these too?
-        else:
-            pass # ignore all other atoms
-        return
-
-    for atom in changed_atoms.itervalues():
-        if atom.killed():
-            print "bug: update_PAM_chunks: %r is killed (ignoring)", atom
-        elif atom.is_singlet():
-            # classify the real neighbor instead
-            # (Note: I'm not sure if this is needed, but I'll do it to be safe.
-            #  A possible need-case to review is when an earlier update step
-            #  broke a bond.)
-            classify(atom.singlet_neighbor())
-        else:
-            classify(atom)
-        continue
-
-    if not axis_atoms and not strand_atoms:
-        return (), () # optimization
-
-    if DEBUG_DNA_UPDATER:
-        print "dna updater: %d axis atoms, %d strand atoms" % (len(axis_atoms), len(strand_atoms))
-    
-    axis_chains = axis_analyzer.find_chains_or_rings( axis_atoms )
-        # NOTE: this takes ownership of axis_atoms and trashes it.
-        # NOTE: this only finds chains or rings which contain at least one
-        # atom in axis_atoms, but they often contain other axis atoms too
-        # (which were not in axis_atoms since they were not recently changed).
-        #
-        # Result is a list of objects returned by the make_ methods in
-        # analyzer (for doc, see abstract_bond_chain_analyzer, unless we
-        # override them in axis_bond_chain_analyzer).
-
-    assert not axis_atoms ### REMOVE WHEN WORKS
-
-    ## del axis_atoms
-    ##     SyntaxError: can not delete variable 'axis_atoms' referenced in nested scope
-    axis_atoms = None # not a dict, bug if used
-
-    if DEBUG_DNA_UPDATER:
-        print "dna updater: found %d axis chains or rings" % len(axis_chains)
-    
-    # 
-    strand_chains = strand_analyzer.find_chains_or_rings( strand_atoms )
-    assert not strand_atoms ### REMOVE WHEN WORKS
-    strand_atoms = None # not a dict, bug if used
-    if DEBUG_DNA_UPDATER:
-        print "dna updater: found %d strand chains or rings" % len(strand_chains)
-
-    return axis_chains, strand_chains # from find_axis_and_strand_chains_or_rings
 
 # end
 

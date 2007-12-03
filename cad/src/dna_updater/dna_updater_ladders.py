@@ -1,21 +1,46 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-dna_updater_ladders.py - helpers for dna_updater_chunks - make_new_ladders, merge_ladders
+dna_updater_ladders.py - ladder-related helpers for dna_updater_chunks
 
 @author: Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
-See also: DnaLadder [nim]
+See also: DnaLadder
 """
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
 
 from dna_updater_follow_strand import dna_updater_follow_strand
 
-from dna_model.DnaLadder import DnaLadder # nim @@@
+from dna_model.DnaLadder import DnaLadder
 
-# == helpers
+from dna_model.DnaLadderRailChunk import DnaLadderRailChunk # import not needed?
+
+# ==
+
+def dissolve_or_fragment_invalid_ladders( changed_atoms):
+    """
+    """
+    # assume ladder rails are chunks.
+    
+    changed_chunks = {}
+
+    for atom in changed_atoms.itervalues():
+        chunk = atom.molecule
+        changed_chunks[id(chunk)] = chunk
+    
+    for chunk in changed_chunks.values():
+        # todo: assert not killed, not nullMol, is a Chunk
+        chunk.invalidate_ladder() # noop except in DnaLadderRailChunk
+            # this just dissolves chunk.ladder;
+            # a future optim could fragment it instead,
+            # if we also recorded which basepair positions
+            # were invalid.
+
+    return
+
+# == helper for make_new_ladders
 
 class chains_to_break:
     """

@@ -57,6 +57,7 @@ contain undoable state), but will not be stored in the mmp file.
 class DnaLadder(object):
     """
     """
+    valid = False
     def __init__(self, axis_rail):
         self.axis_rail = axis_rail
         self.strand_rails = []
@@ -72,6 +73,10 @@ class DnaLadder(object):
                   "(should be 1 or 2)" % (self, len(self.strand_rails))
         for rail in self.strand_rails:
             pass # reverse if nec to fit axis_rail?? or later? @@@
+        self.valid = True # ??
+    def invalidate(self):
+        print "invalidating", self #e remove when seen @@@
+        self.valid = False
     pass
 
 # end
