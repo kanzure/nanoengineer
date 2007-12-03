@@ -64,7 +64,7 @@ def _pop_arbitrary_atom_with_qualifying_bond(atoms_dict, bond_ok_func):
     return None, None
 
 # obs - see same-named method in class xxx in bond_chains.py
-def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in TODO @@@ ; REVIEW: discard lone atoms ok??
+def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in TODO; REVIEW: discard lone atoms ok??
         # TODO: also needs a function to find one bond or test one bond;
         # if that func just returns the special bonds from an atom, up to 2, open bonds ok??,
         # then maybe it's enough and we can use it to make the next_bond_in_chain function too.
@@ -176,3 +176,35 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
 # ... or if its atom list never change. and killed atoms are not removed from it! but then should they point to it too??
 # seems too weird, better to have a non-Jig object in that case.
 
+
+==
+
+            # outtake:
+            # but we might look up new strand atoms in new_chain_info for adjacency -- or test bonding if easier.
+            # I think the lookup is easier and more general...
+
+
+
+            # not used here [scanning axis and strand chains for chunking] after all:
+            def adjacent(atom1, atom2): #e refile, use above too -- hmm, should new_chain_info be an object with this method?? ### Q
+                "are two strand atoms adjacent (and in same chain) according to new_chain_info?"
+                #e to work for ring indices, we need to ask the chain, but the chain_id does not know the ring object....
+                # can we just put the chain object instead of its id in that info thing? ### DECIDE
+                chain1, index1 = new_chain_info[atom1.key]
+                chain2, index2 = new_chain_info[atom2.key]
+                if chain1 != chain2:
+                    return #k review, if these are objects
+                assert index1 != index2 # hmm, would this fail for a length-1 ring?? yes!!! can that happen? ### REVIEW; special case
+                return chain1.are_indices_adjacent( index1, index2) #IMPLEM
+
+
+            # worry about "adjacent" for rings!
+            
+            ### LOGIC BUG: earlier code that moved markers forgot to use ringness in checking index adjacency
+            # or in the lookup of an old index!!! Might need to ask the ring to canonicalize the index...
+
+that logic bug is a current bug in the code, refile it...
+
+
+        strand1_atom = strand2_atom = None # from prior axis atom as we scan #e keep in a list or set?
+        # if we're a ring, patch that up at the end by identifying strand_segment_ids if appropriate

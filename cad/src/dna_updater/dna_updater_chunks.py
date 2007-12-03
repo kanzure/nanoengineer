@@ -7,6 +7,8 @@ dna_updater_chunks.py - enforce rules on chunks containing changed PAM atoms
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
+# todo - some imports maybe not needed?
+
 from dna_updater_globals import get_changes_and_clear
 from dna_updater_globals import ignore_new_changes
 
@@ -22,9 +24,12 @@ from dna_model.AtomChainOrRing import AtomChain, AtomRing
 from dna_model.AtomChainOrRing import AtomChainOrRing # for isinstance
 
 from dna_model.DnaChain import AxisChain, StrandChain
-from dna_model.DnaChain import DnaChain # for isinstance
+from dna_model.DnaChain import DnaChain_AtomChainWrapper # for isinstance
 
 from dna_model.DnaAtomMarker import _f_get_homeless_dna_markers
+
+
+from dna_updater_ladders import make_new_ladders, merge_ladders
 
 # ==
 
@@ -48,14 +53,16 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
             return None
         res = self._wrapper(chain_or_ring)
         # check effect of wrapper:
-        assert isinstance( res, DnaChain) #e remove when works?
+        assert isinstance( res, DnaChain_AtomChainWrapper) #e remove when works?
         return res
     def found_object_iteratoms(self, chain_or_ring):
         if chain_or_ring is None:
             return ()
         # check effect of wrapper:
-        assert isinstance( chain_or_ring, DnaChain) #e remove when works?
+        assert isinstance( chain_or_ring, DnaChain_AtomChainWrapper) #e remove when works?
         return chain_or_ring.iteratoms()
+            # note: it's essential to include Pl atoms in this value,
+            # for sake of find_chain_or_ring's dict.pop @@@
     pass
     
 class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
@@ -67,7 +74,9 @@ class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
 class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
     _wrapper = StrandChain
     def atom_ok(self, atom):
-        # note: can include Pl atoms in PAM5
+        # note: this can include Pl atoms in PAM5,
+        # but the wrapper class filters them out of
+        # the atom list it stores. [filtering is new behavior 071203, nim@@@]
         return atom.element.role == 'strand'
     pass
 
@@ -104,23 +113,56 @@ def update_PAM_chunks( changed_atoms):
     ignore_new_changes("as update_PAM_chunks starts", changes_ok = False )
 
 
-    # Find the current axis and strand chains on which any changed atoms reside.
+    # IMPLEM: make sure invalid DnaLadders are recognized
+    # as such in the next step, and recorded for update or disposal... @@@
+    # also (#e future optim) break long ones at damage points so the undamaged
+    # parts needn't be rescanned in the next step.
+    print "nim - make sure invalid DnaLadders are recognized"
+    
+    # Find the current axis and strand chains (perceived from current bonding)
+    # on which any changed atoms reside, but only [nim @@@] scanning along atoms
+    # not still part of valid DnaLadders. (I.e. leave existing undamaged
+    # DnaLadders alone.)
+    # Make the found chains or rings into new DnaChain objects.
     
     axis_chains, strand_chains = find_axis_and_strand_chains_or_rings( changed_atoms)
 
     ignore_new_changes("from find_axis_and_strand_chains_or_rings", changes_ok = False )
 
 
+    ### @@@ should markers be done after we make new ladders?
+    # guess: moving: no; choosing one on new whole chain: yes.
+
+    
     # Move the chain markers whose atoms got killed, onto atoms which remain alive
     # but were in the same old chains. (Their old chain objects still exist, in
     # the markers, to help the markers decide where and how to move.)
 
-    # To help the moving markers know how to advise their new chains about
+    # @@@ LOGIC ISSUE: does this moving process have to cross ladders? if so, are they a mix of old and current chains??
+    # the change since i wrote the code is that the old chains are fragments, so they might get moved off of.
+    # maybe we assume that every ladder rail == chain that we ever make, still exists....
+    # but, the old bonds that link them are gone! how can we move the marker? we need an old complete-chain object...
+    # or we need to move it more incrly, but even then we'd need the object at that time, so now is as a good a time
+    # as any if we have that object. So, these chains in the markers need to be complete chains!
+    # we need to make lists of chain fragments into complete chains and keep those in the markers.
+    # of course we really should keep a single one in a strand or segment object shared by that obj and all markers. ### DOIT
+    # And when they move onto new ladders, the advice below is needed, but what if they move onto old ladders,
+    # do we need to update the marker situation of those too? i guess those old ladder rails get
+    # into new whole-chains in that case... so YES. ### DOIT [so in the end we process all changed strands & segs,
+    # we just optim by incorporating unchanged ladder-rungs and ladders into them. We have higher-level chains
+    # whose components are these rungs, which are chains of atoms.]
+    # ... or is it easier to let markers move before things are killed? let them see the prekill and be alerted to move in time?
+    # let that occur at the chunk level for efficiency (ladder & rung level for them) (not important)? ### DECIDE, guess not needed
+
+    # [@@@ pre-ladder comment:] To help the moving markers know how to advise their new chains about
     # internal baseindex direction coming from their old chains, we first
     # make a dict from atom.key to (new chain id, atom's baseindex in new chain).
     # (We might use it later as well, not sure.)
     # (We keep axis and strand info in one dict for convenience, since both kinds
     #  of markers are in one list we iterate over.)
+
+    ### WORRY ABOUT RING WRAPAROUND in this marker code,
+    # where it's a current bug -- see scratch file for more info ###FIX @@@
     
     new_chain_info = {} 
 
@@ -167,12 +209,6 @@ def update_PAM_chunks( changed_atoms):
     
     for chain in axis_chains:
         chain._f_own_atoms()
-        # note: if useful, this might record a list of all live markers
-        # found on that chain in the chain, as well as whatever marker
-        # is chosen or made to control it. (But note that markers might
-        # get removed or made independently without the chain itself
-        # changing. If so, some invalidation of those chain attributes
-        # might be needed. #e move this comment to DnaChain)
 
     for chain in strand_chains:
         chain._f_own_atoms()# IMPLEM - now these are stubs which always remake markers @@@
@@ -183,48 +219,25 @@ def update_PAM_chunks( changed_atoms):
     
     # That figured out which markers control each chain (and stored the answers in the chains). ###IMPLEM
 
-    # Now use new_chain_info and the new chains to find all properly structured
-    # base pairs and base pair stacks, for several purposes:
-    # - (future) help detect errors in bond direction, major/minor groove
-    #   geometry, etc
-    # - find sets of atoms to make into AxisChunks or StrandSegmentChunks,
-    #   using the markers updated above to know when to reuse old chunks
-    #   (if that matters -- it might not, chunks might be an internal concept)
-    # - update existing & new Strand and Segment objects, using markers to
-    #   maintain their identity & association in the best way.
+    # Now use the above-computed info to make new DnaLadders out of the chains
+    # we just made (which contain all PAM atoms no longer in valid old ladders),
+    # and to merge end-to-end-connected ladders (new/new or new/old) into larger
+    # ones, when that doesn't make them too long.
 
-    # Basic algorithm: scan each axis chain (or ring), and follow along its two
-    # bound strands to see when one or both of them leave it or stop (i.e. when
-    # the next atom along the strand is not bound to the next atom along the
-    # axis). This should classify all strand atoms as well (since bare ones were
-    # deleted earlier -- if they weren't, remaining strand fragments can also
-    # be found).
-    #
-    # implem/devel notes (some can be removed/condensed when devel is done):
-    #
-    # The fundamental operation is to move from a stacked base pair, or a maximal
-    # fragment of one on one axis bond, to the next one, deciding which base
-    # stackings were present. This might use of next_directional_bond_in_chain
-    # to scan the strands, or similar code, needing a strand bond and atom to go
-    # from. So we want a data structure that knows all the atoms and bonds in a
-    # base pair (or at least the sugar atoms and bonds from them, if Pl atoms
-    # are also present for PAM5). Ideally it should work for mixed PAM3/PAM5
-    # chains, so we'll try to code it to not care.
-    #
-    # (Should the stacked base pair object be retained, as a jig known to
-    #  all its atoms? Then the unchanged ones needn't be remade now... not sure.
-    #  For now just treat it as flyweight, or even mutable/scannable, perhaps
-    #  made of two flyweight base pair objects and an adjacent-base-pair holder
-    #  for them. Those objects and their ops might as well be made generally
-    #  available. So they'll be coded in new dna_model modules.)
-    
+    new_ladders = make_new_ladders(axis_chains, strand_chains)
+
+    ignore_new_changes("from make_new_ladders", changes_ok = False)
+
+    merge_ladders(new_ladders)
+
+    ignore_new_changes("from merge_ladders", changes_ok = False)
 
 
     # Now.... @@@ [below here might be obs]
 
 
     # replace old chain info with new chain info on all live atoms
-    # (Q: is this chain info undoable state? guess: yes) (do we need it? could find it via chunks... more efficient.... ### @@@)
+    # (Q: is this chain info undoable state? guess: yes) (do we need it? could find it via chunks... more efficient.... ###)
 
     
     #e use them (or make new) to determine id & index for each chain

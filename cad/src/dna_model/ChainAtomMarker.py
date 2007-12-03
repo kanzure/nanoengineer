@@ -6,6 +6,16 @@ to a new atom if its old atom is killed; has state for undo/copy/save
 @author: Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+
+### REVIEW -- is the following true?
+Note: in principle, this is not specific to DNA, so it probably doesn't
+need to be inside the dna_model package, though it was written to support that.
+
+This module has no dna-specific knowledge (except in a few comments about
+intended uses), and that should remain true.
+
+See also: class DnaAtomMarker, which inherits this.
+
 """
 
 from jigs import Jig
@@ -14,22 +24,20 @@ from jigs import Jig
 
 class ChainAtomMarker(Jig):
     """
-    
+    A marked atom in an AtomChainOrRing, with help for moving it
+    to a new atom if its old atom is killed; has state for undo/copy/save
     """
 
     # default values of instance variables:
+    
     # Jig API variables
+    
     sym = "ChainAtomMarker" # probably never visible, since this is an abstract class
 
-# i got worried about possible undo bugs from this change, when undoing a move of a marker
-# (whether an automatic one by updater, or a manual one), so I'm replacing it
-# with a different way to ignore those changes that won't affect Undo. [bruce 071128]
-##    _affects_atom_structure = False # so adding/removing this jig doesn't
-##        # confuse dna updater with a repeated change to the atom
-    
     ## copyable_attrs = Jig.copyable_attrs + () # more are only needed in subclasses
     
     # other variables
+    
     _old_atom = None # (not undoable or copyable)
     _chain = None # (not undoable or copyable)
     
@@ -52,7 +60,8 @@ class ChainAtomMarker(Jig):
         # False, so that if our atom is removed, we don't die.
         # Problem: if we're selected and copied, but our atom isn't, this would copy us.
         # But this can't happen if we're at toplevel in a DNA Group, and hidden from user,
-        # and thus only selected if entire DNA Group is.
+        # and thus only selected if entire DNA Group is. REVIEW if this code is ever used
+        # in a non-DnaGroup context.
         return False
     
     def confers_properties_on(self, atom):
@@ -65,7 +74,9 @@ class ChainAtomMarker(Jig):
         return True
     
     def remove_atom(self, atom):
-        "[subclasses might need to extend this]"
+        """
+        [subclasses might need to extend this]
+        """
         assert atom in self.atoms and len(self.atoms) == 1
         self._old_atom = atom
         Jig.remove_atom(atom)

@@ -3293,6 +3293,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     #
     # ===
 
+    # == PAM strand atom methods (some are more specific than that, ie not on Pl)
+    
     # default values of instance variables (not needed):
     ## dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
     ## dnaStrandName -- set when first demanded, or can be explicitly set using setDnaStrandName().
@@ -3528,9 +3530,43 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         or in the case of erroneous structures [or possibly some legal ones as of
         mark 071014 changes], 3 or more.
         """
-        ### REVIEW: should this remain as a separate method, now that its result can't be used naively?
+        ### REVIEW: should this remain as a separate method, now that its result
+        # can't be used naively?
         return filter(lambda bond: bond.is_directional(), self.bonds)
 
+    def axis_neighbor(self): #bruce 071203
+        """
+        Assume self is a PAM strand sugar atom; return the single neighbor of
+        self which is a PAM axis atom. This always exists [NIM] after the dna
+        updater has run.
+        """
+        axis_neighbors = filter( lambda atom: atom.element.role == 'axis',
+                                 self.neighbors())
+        assert len(axis_neighbors) == 1
+            # stub -- the updater checks to ensure this are NIM
+        return axis_neighbors[0]
+
+    # == PAM axis atom methods
+    
+    def strand_neighbors(self): #bruce 071203
+        """
+        Assume self is a PAM axis atom; return the neighbors of self
+        which are PAM strand sugar atoms. There are always exactly one or
+        two of these [NIM] after the dna updater has run.
+        """
+        # [stub -- need more error checks in following (don't return Pl).
+        #  but this is correct if structures have no errors.]
+        res = filter( lambda atom: atom.element.role == 'strand',
+                      self.neighbors())
+        ##assert len(res) in (1, 2), \
+        ##       "error: axis atom %r has %d strand_neighbors (should be 1 or 2)"\
+        ##       % (self, len(res))
+        # happens in mmkit - leave it as just a print at least until we implem "delete bare atoms" -
+        if not ( len(res) in (1, 2) ):
+            print "error: axis atom %r has %d strand_neighbors " \
+                  "(should be 1 or 2)" % (self, len(res))
+        return res
+    
     pass # end of class Atom
 
 # ==

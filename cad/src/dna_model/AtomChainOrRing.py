@@ -11,7 +11,7 @@ dna_model package, though it was written to support that.
 
 This module has no dna-specific knowledge, and that should remain true.
 
-See also: class DnaChain.
+See also: class DnaChain, which inherits this.
 """
 
 class AtomChainOrRing(object):
