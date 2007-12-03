@@ -14,178 +14,33 @@ __author__ = "Mark"
 
 import env, os, sys
 from prefs_constants import qutemol_enabled_prefs_key, qutemol_path_prefs_key
-from PyQt4.Qt import QString, QStringList, QProcess, QMessageBox
+from PyQt4.Qt import QString, QStringList, QProcess
 from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_True
 from constants import properDisplayNames, TubeRadius, diBALL_SigmaBondRadius
-from files_pdb import writePDB_Header, writepdb, EXCLUDE_HIDDEN_ATOMS
+from files_pdb import writePDB_Header, writepdb, EXCLUDE_HIDDEN_ATOMS, EXCLUDE_BONDPOINTS
 from prefs_constants import cpkScaleFactor_prefs_key, \
                             diBALL_AtomRadius_prefs_key
 from elements import PeriodicTable
 
-# To do list: Mark 2007-06-03
-# - Move plug-in routines to Plugins.py.
-
-# General plug-in helper functions. These should be put into Plugins.py. Mark 2007-06-02.
-# I just tried to do this, but there was some type of import error due to 
-# code in Plugins.py. I'll check with Bruce about this soon so I don't forget
-# to move this code. Mark 2007-06-02
-
-
-def _dialog_to_offer_plugin_prefs_fixup(caption, text):
-    """
-    Offer the user a chance to fix a plugin problem. 
-    Return 0 if they accept (after letting them try), 
-    1 if they decline.
-    [private helper for _fix_plugin_problem]
-    """
-    
-    win = env.mainwindow()
-
-    ret = QMessageBox.warning(win, caption, text, 
-        "&OK", "Cancel", "",
-        0, 1 )
-    if ret==0: # OK
-        win.userPrefs.showDialog('Plug-ins') # Show Preferences | Plug-in.
-        return 0 # let caller figure out whether user fixed the problem
-    elif ret==1: # Cancel
-        return 1
-    pass
-
-def _fix_plugin_problem(plugin_name, errortext):
-    """
-    [private helper for check_plugin_prefs]
-    """
-    caption = "%s Problem" % plugin_name
-    text = "Error: %s.\n" % (errortext,) + \
-        "  Select OK to fix this now in the Plugins page of\n" \
-        "the Preferences dialog and retry rendering, or Cancel."
-    return _dialog_to_offer_plugin_prefs_fixup(caption, text)
-
-def _check_plugin_prefs_0(plugin_name, plugin_prefs_keys):
-    """
-    Checks <plugin_name> to make sure it is enabled and 
-    that its path points to a file.
-    
-    Returns :0, plugin path on success, or
-             1 and an error message indicating the problem.
-            
-    Arguments:
-    <plugin_name> - name of plug-in (i.e. QuteMol)
-    <plugin_keys> - the plugin enable prefs key and path prefs key.
-    [private helper for check_plugin_prefs]
-    """
-
-    plugin_enabled_prefs_key, plugin_path_prefs_key = plugin_prefs_keys
-    
-    if env.prefs[plugin_enabled_prefs_key]:
-        plugin_path = env.prefs[plugin_path_prefs_key]
-    else:
-        return 1, "%s is not enabled" % plugin_name
-
-    if not plugin_path:
-        return 1, "%s plug-in executable path is empty" % plugin_name
-    
-    if not os.path.exists(plugin_path):
-        return 1, "%s executable not found at specified path %s" % plugin_name, plugin_path
-
-    ##e should check version of plugin, if we know how
-
-    return 0, plugin_path
-
-def check_plugin_prefs(plugin_name, plugin_prefs_keys, ask_for_help):
-    """
-    Checks <plugin_name> to make sure it is enabled and 
-    that its path points to a file.
-    
-    Returns :0, plugin path on success, or
-             1 and an error message indicating the problem.
-            
-    Arguments:
-    <plugin_name> - name of plug-in (i.e. QuteMol, GAMESS, etc.)
-    <plugin_keys> - the plugin enable prefs key and path prefs key.
-    """
-    
-    # Make sure the other prefs settings are correct; if not, maybe repeat
-    # until user fixes them or gives up.
-    while 1:
-        errorcode, errortext_or_path = \
-                 _check_plugin_prefs_0(plugin_name, plugin_prefs_keys)
-        if errorcode:
-            if not ask_for_help:
-                return errorcode, errortext_or_path
-            ret = _fix_plugin_problem(plugin_name, errortext_or_path)
-
-            if ret==0: # Subroutine has shown Preferences | Plug-in.
-                continue # repeat the checks, to figure out whether user fixed
-                         # the problem.
-            elif ret==1: # User declined to try to fix it now
-                return errorcode, errortext_or_path
-        else:
-            return 0, errortext_or_path
-    pass # end of check_plugin_prefs
-
-
-def verify_plugin_using_version_flag(plugin_path, version_flag, vstring):
-    '''Verifies a plugin by running it with <version_flag> as the only 
-    command line argument and matching the output to <vstring>.
-    Returns 0 if there is a match.  Otherwise, returns 1
-    
-    This is only useful if the plug-in supports a version flag arguments.
-    '''
-    
-    if not plugin_path:
-        return 1
-    
-    if not os.path.exists(plugin_path):
-        return 1
-        
-    args = [version_flag]
-    
-    from Process import Process
-    
-    arguments = []
-    for arg in args:
-        if arg != "":
-            arguments.append(arg)
-        
-    p = Process()
-    p.start(plugin_path, arguments)
-    
-    if not p.waitForFinished (10000): # Wait for 10000 milliseconds = 10 seconds
-        return 1
-    
-    output = 'Not vstring'
-    
-    output = str(p.readAllStandardOutput())
-    
-    #print "output=", output
-    #print "vstring=", vstring
-    
-    if output.find(vstring) == -1:
-        return 1
-    else:
-        return 0 # Match found.
-
-# Everything above this line should be moved to Plugins.py (or another file).
-# Mark 2007-06-03
+from Plugins import checkPluginPreferences
 
 def launch_qutemol(pdb_file):
     """
     Try to launch QuteMol and load <pdb_file>.
     
-    Returns (errorcode, errortext), where errorcode is one of the following: ###k
-    0 = successful
-    8 = QuteMol failed for an unknown reason.
+    @return: (errorcode, errortext)
+             where errorcode is one of the following: ###k
+                 0 = successful
+                 8 = QuteMol failed for an unknown reason.
+    @rtype:  int, text
     """
     
     plugin_name = "QuteMol"
     plugin_prefs_keys = (qutemol_enabled_prefs_key, qutemol_path_prefs_key)
-        
-    ask_for_help = True # give user the chance to fix problems 
-                        # in the prefs dialog
+            
     errorcode, errortext_or_path = \
-             check_plugin_prefs(plugin_name, plugin_prefs_keys, ask_for_help)
+             checkPluginPreferences(plugin_name, plugin_prefs_keys)
     if errorcode:
         return errorcode, errortext_or_path
     
@@ -385,8 +240,8 @@ REMARK   7\n""")
     
     # Write the "body" of PDB file.
     # Bondpoints are written to file. Mark 2007-06-11
-    writepdb(part, filename, mode = 'a', excludeFlags = EXCLUDE_HIDDEN_ATOMS)
-    
+    excludeFlags = EXCLUDE_HIDDEN_ATOMS # | EXCLUDE_BONDPOINTS
+    writepdb(part, filename, mode = 'a', excludeFlags = excludeFlags)
     
 def write_qutemol_files(part):
     """
