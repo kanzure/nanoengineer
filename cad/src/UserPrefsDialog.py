@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Wed Nov 28 22:20:44 2007
+# Created: Sun Dec 02 20:24:40 2007
 #      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -1649,11 +1649,12 @@ class Ui_UserPrefsDialog(object):
         self.hboxlayout47.setSpacing(6)
         self.hboxlayout47.setObjectName("hboxlayout47")
 
-        self.cpp_checkBox = QtGui.QCheckBox(self.file_locations_grp)
-        self.cpp_checkBox.setObjectName("cpp_checkBox")
-        self.hboxlayout47.addWidget(self.cpp_checkBox)
+        self.cpp_checkbox = QtGui.QCheckBox(self.file_locations_grp)
+        self.cpp_checkbox.setObjectName("cpp_checkbox")
+        self.hboxlayout47.addWidget(self.cpp_checkbox)
 
         self.cpp_label = QtGui.QLabel(self.file_locations_grp)
+        self.cpp_label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.cpp_label.setObjectName("cpp_label")
         self.hboxlayout47.addWidget(self.cpp_label)
         self.vboxlayout19.addLayout(self.hboxlayout47)
@@ -2529,21 +2530,21 @@ class Ui_UserPrefsDialog(object):
         self.file_locations_grp.setTitle(QtGui.QApplication.translate("UserPrefsDialog", "Location of Executables", None, QtGui.QApplication.UnicodeUTF8))
         self.qutemol_checkbox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable Nano-Hive.", None, QtGui.QApplication.UnicodeUTF8))
         self.qutemol_lbl.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable Nano-Hive.", None, QtGui.QApplication.UnicodeUTF8))
-        self.qutemol_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "QuteMol :", None, QtGui.QApplication.UnicodeUTF8))
+        self.qutemol_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "QuteMol:", None, QtGui.QApplication.UnicodeUTF8))
         self.nanohive_checkbox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable Nano-Hive.", None, QtGui.QApplication.UnicodeUTF8))
         self.nanohive_lbl.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable Nano-Hive.", None, QtGui.QApplication.UnicodeUTF8))
-        self.nanohive_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "Nano-Hive :", None, QtGui.QApplication.UnicodeUTF8))
+        self.nanohive_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "Nano-Hive:", None, QtGui.QApplication.UnicodeUTF8))
         self.povray_checkbox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable POV-Ray", None, QtGui.QApplication.UnicodeUTF8))
         self.povray_lbl.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable POV-Ray", None, QtGui.QApplication.UnicodeUTF8))
-        self.povray_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "POV-Ray :", None, QtGui.QApplication.UnicodeUTF8))
+        self.povray_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "POV-Ray:", None, QtGui.QApplication.UnicodeUTF8))
         self.megapov_checkbox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable MegaPOV", None, QtGui.QApplication.UnicodeUTF8))
         self.megapov_lbl.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable MegaPOV", None, QtGui.QApplication.UnicodeUTF8))
-        self.megapov_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "MegaPOV :", None, QtGui.QApplication.UnicodeUTF8))
+        self.megapov_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "MegaPOV:", None, QtGui.QApplication.UnicodeUTF8))
         self.povdir_checkbox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "User-custom directory for POV libraries", None, QtGui.QApplication.UnicodeUTF8))
-        self.povdir_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "POV include dir :", None, QtGui.QApplication.UnicodeUTF8))
+        self.povdir_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "POV include dir:", None, QtGui.QApplication.UnicodeUTF8))
         self.gamess_checkbox.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable GAMESS.", None, QtGui.QApplication.UnicodeUTF8))
         self.gamess_lbl.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Enable GAMESS.", None, QtGui.QApplication.UnicodeUTF8))
-        self.gamess_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "GAMESS :", None, QtGui.QApplication.UnicodeUTF8))
+        self.gamess_lbl.setText(QtGui.QApplication.translate("UserPrefsDialog", "GAMESS:", None, QtGui.QApplication.UnicodeUTF8))
         self.gromacs_labe.setText(QtGui.QApplication.translate("UserPrefsDialog", "GROMACS:", None, QtGui.QApplication.UnicodeUTF8))
         self.cpp_label.setText(QtGui.QApplication.translate("UserPrefsDialog", "cpp:", None, QtGui.QApplication.UnicodeUTF8))
         self.gamess_choose_btn.setToolTip(QtGui.QApplication.translate("UserPrefsDialog", "Choose GAMESS executable", None, QtGui.QApplication.UnicodeUTF8))

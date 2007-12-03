@@ -61,6 +61,10 @@ from prefs_constants import megapov_path_prefs_key
 from prefs_constants import povdir_enabled_prefs_key
 from prefs_constants import gamess_enabled_prefs_key
 from prefs_constants import gmspath_prefs_key
+from prefs_constants import gromacs_enabled_prefs_key
+from prefs_constants import gromacs_path_prefs_key
+from prefs_constants import cpp_enabled_prefs_key
+from prefs_constants import cpp_path_prefs_key
 from prefs_constants import defaultDisplayMode_prefs_key
 from prefs_constants import buildModeAutobondEnabled_prefs_key
 from prefs_constants import buildModeWaterEnabled_prefs_key
@@ -152,7 +156,8 @@ default_modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT']
 startup_modes = ['$DEFAULT_MODE', 'DEPOSIT']
 
 def fix_modename_pref( modename, modename_list, modename_fallback = None): #bruce 060403
-    """modename came from prefs db; if it's in modename_list, return it unchanged,
+    """
+    modename came from prefs db; if it's in modename_list, return it unchanged,
     but if not, return one of the modenames in modename_list to be used in place of it, or modename_fallback.
     This is REQUIRED for decoding any modename-valued prefs value.
     """
@@ -170,7 +175,8 @@ def fix_modename_pref( modename, modename_list, modename_fallback = None): #bruc
         # but in the list constants above, the last choices seem to be best
 
 def default_modename(): #bruce 060403
-    """Return the modename string of the user's default mode.
+    """
+    Return the modename string of the user's default mode.
     External code should use this, rather than directly using env.prefs[ defaultMode_prefs_key ].
     """
     #ninad070501 For A9 , startup mode = default mode = SELECTMOLS mode
@@ -178,8 +184,10 @@ def default_modename(): #bruce 060403
     ##return fix_modename_pref( env.prefs[ defaultMode_prefs_key ], default_modes)
 
 def startup_modename(): #bruce 060403
-    """Return the modename string (literal or symbolic, e.g. '$DEFAULT_MODE') of the user's startup mode.
-    External code should use this, rather than directly using env.prefs[ startupMode_prefs_key ].
+    """
+    Return the modename string (literal or symbolic, e.g. '$DEFAULT_MODE') 
+    of the user's startup mode. External code should use this, rather than 
+    directly using env.prefs[ startupMode_prefs_key ].
     """
     #ninad 070501 For A9 , startup mode = default mode = SELECTMOLS mode
     return 'SELECTMOLS'
@@ -194,10 +202,11 @@ def parentless_open_dialog_pref(): #bruce 060710 for Mac A8
 parentless_open_dialog_pref()
 
 def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
-    '''Present user with the Qt file chooser to select a file.
+    """
+    Present user with the Qt file chooser to select a file.
     prefs_key is the key to save the filename in the prefs db
     caption is the string for the dialog caption.
-    '''
+    """
     # see also get_dirname_and_save_in_prefs, which has similar code
 
     if parentless_open_dialog_pref():
@@ -219,10 +228,17 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     return filename
 
 def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 for Mac A8
-    '''Present user with the Qt file chooser to select an existing directory.
-    If they do that, and if prefs_key is not null, save its full pathname in env.prefs[prefs_key].
-    <caption> is the string for the dialog caption.
-    '''
+    """
+    Present user with the Qt file chooser to select an existing directory.
+    If they do that, and if prefs_key is not null, save its full pathname in 
+    env.prefs[prefs_key].
+    
+    @param prefs_key: the pref_key to save the pathname.
+    @type  prefs_key: text
+    
+    @param caption: the string for the dialog caption.
+    @type  caption: text
+    """
     # see also get_filename_and_save_in_prefs, which has similar code
 
     if parentless_open_dialog_pref():
@@ -266,10 +282,12 @@ def _get_window_pos_size(win):
     return pos, size
 
 def save_window_pos_size( win, keyprefix): #bruce 050913 removed histmessage arg
-    """Save the size and position of the given main window, win,
+    """
+    Save the size and position of the given main window, win,
     in the preferences database, using keys based on the given keyprefix,
     which caller ought to reserve for geometry aspects of the main window.
-    (#e Someday, maybe save more aspects like dock layout and splitter bar positions??)
+    (#e Someday, maybe save more aspects like dock layout and splitter bar
+    positions??)
     """
 ##    from preferences import prefs_context
 ##    prefs = prefs_context()
@@ -281,13 +299,15 @@ def save_window_pos_size( win, keyprefix): #bruce 050913 removed histmessage arg
     return
 
 def load_window_pos_size( win, keyprefix, defaults = None, screen = None): #bruce 050913 removed histmessage arg; 060517 revised
-    """Load the last-saved size and position of the given main window, win,
+    """
+    Load the last-saved size and position of the given main window, win,
     from the preferences database, using keys based on the given keyprefix,
     which caller ought to reserve for geometry aspects of the main window.
     (If no prefs have been stored, return reasonable or given defaults.)
        Then set win's actual position and size (using supplied defaults, and
     limited by supplied screen size, both given as ((pos_x,pos_y),(size_x,size_y)).
-    (#e Someday, maybe restore more aspects like dock layout and splitter bar positions??)
+    (#e Someday, maybe restore more aspects like dock layout and splitter bar
+    positions??)
     """
     if screen is None:
         screen = screen_pos_size()
@@ -311,7 +331,8 @@ def load_window_pos_size( win, keyprefix, defaults = None, screen = None): #bruc
     return
 
 def _get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
-    """Load and return the last-saved size and position of the given main window, win,
+    """
+    Load and return the last-saved size and position of the given main window, win,
     from the preferences database, using keys based on the given keyprefix,
     which caller ought to reserve for geometry aspects of the main window.
     (If no prefs have been stored, return reasonable or given defaults.)
@@ -330,14 +351,18 @@ def _get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
     return pos, size
 
 def validate_gamess_path(parent, gmspath):
-    '''Checks that gmspath (GAMESS executable) exists.  If not, the user is asked
+    """
+    Checks that gmspath (GAMESS executable) exists.  If not, the user is asked
     if they want to use the File Chooser to select the GAMESS executable.
     This function does not check whether the GAMESS path is actually GAMESS 
-    or if it is the correct version of GAMESS for this platform (i.e. PC GAMESS for Windows).
-    Returns: 
-            - "gmspath" if it is validated or if the user does not want to change it for any reason, or
-            - "new_gmspath" if gmspath is invalid and the user selected a new GAMESS executable.
-    '''
+    or if it is the correct version of GAMESS for this platform (i.e. PC GAMESS
+    for Windows).
+    
+    @return:  "gmspath" if it is validated or if the user does not want to 
+              change it for any reason, or
+              "new_gmspath" if gmspath is invalid and the user selected a new
+              GAMESS executable.
+    """
 
     if not gmspath: # It is OK if gmspath is empty.
         return ''
@@ -360,7 +385,9 @@ def validate_gamess_path(parent, gmspath):
             return gmspath
 
 def get_pref_or_optval(key, val, optval):
-    """Return <key>'s value. If <val> is equal to <key>'s value, return <optval> instead.
+    """
+    Return <key>'s value. If <val> is equal to <key>'s value, return <optval> 
+    instead.
     """
     if env.prefs[key] == val:
         return optval
@@ -368,8 +395,10 @@ def get_pref_or_optval(key, val, optval):
         return env.prefs[key]
 
 class UserPrefs(QDialog, Ui_UserPrefsDialog):
-    '''The User Preferences dialog used for accessing and changing user preferences
-    '''
+    """
+    The User Preferences dialog used for accessing and changing user 
+    preferences.
+    """
 
     def __init__(self, assy):
         QDialog.__init__(self)
@@ -511,7 +540,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         
         #connect GROMACS checkbox under Preferences > Plugins when 
         #to enable/disable GROMACS plugin line edit and the 'choose button'
-        self.connect(self.cpp_checkBox,
+        self.connect(self.cpp_checkbox,
                      SIGNAL("toggled(bool)"),
                      self.enable_cpp)
         self.connect(self.cpp_choose_button,
@@ -855,8 +884,13 @@ restored when the user undoes a structural change.</p>
         self.connect( self.povdir_linedit, SIGNAL("returnPressed()"), \
                       self.povdir_linedit_returnPressed )
 
-    def showDialog(self, pagename='General'):
-        '''Display the Preferences dialog with page 'pagename'. '''
+    def showDialog(self, pagename = 'General'):
+        """
+        Display the Preferences dialog with page I{pagename}. 
+        
+        @param pagename: name of the Preferences page. Default is "General".
+        @type  pagename: text
+        """
 
         # Added to fix bug 894.  Mark.
         # [circa 050817, adds bruce; what's new is the pagename argument]
@@ -881,7 +915,6 @@ restored when the user undoes a structural change.</p>
             self.prefs_tab.setCurrentIndex(8)
         else:
             print 'Error: Preferences page unknown: ', pagename
-
 
         self.setUI_LogoDownloadPermissions()
 
@@ -920,8 +953,9 @@ restored when the user undoes a structural change.</p>
 
 
     def _setup_general_page(self):
-        ''' Setup widgets to initial (default or defined) values on the General page.
-        '''
+        """
+        Setup widgets to initial (default or defined) values on the General page.
+        """
         connect_checkbox_with_boolean_pref( self.display_compass_checkbox, displayCompass_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_compass_labels_checkbox, displayCompassLabels_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
@@ -1001,8 +1035,9 @@ restored when the user undoes a structural change.</p>
         self.setUI_LogoDownloadPermissions()
 
     def _setup_plugins_page(self):
-        ''' Setup widgets to initial (default or defined) values on the Plug-ins page.
-        '''
+        """
+        Setup widgets to initial (default or defined) values on the Plug-ins page.
+        """
 
         # GAMESS label.
         if sys.platform == 'win32': # Windows
@@ -1038,9 +1073,18 @@ restored when the user undoes a structural change.</p>
         # GAMESS executable path.
         self.gamess_checkbox.setChecked(env.prefs[gamess_enabled_prefs_key])
         self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
+        
+        # GROMACS executable path.
+        self.gromacs_checkbox.setChecked(env.prefs[gromacs_enabled_prefs_key])
+        self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
+        
+        # cpp executable path.
+        self.cpp_checkbox.setChecked(env.prefs[cpp_enabled_prefs_key])
+        self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
 
     def _setup_modes_page(self):
-        """ Setup widgets to initial (default or defined) values on the Modes page.
+        """
+        Setup widgets to initial (default or defined) values on the Modes page.
         """
 
         #ninad070430 startup and default modes are same for A9 
@@ -1086,8 +1130,9 @@ restored when the user undoes a structural change.</p>
 
 # Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
     def _setup_lighting_page(self, lights=None): #mark 051124
-        ''' Setup widgets to initial (default or defined) values on the Lighting page.
-        '''
+        """
+        Setup widgets to initial (default or defined) values on the Lighting page.
+        """
         if not lights:
             self.lights = self.original_lights = self.glpane.getLighting()
         else:
@@ -1137,10 +1182,11 @@ restored when the user undoes a structural change.</p>
 
 # _setup_material_group() should be folded back into _setup_lighting_page(). Mark 051204.
     def _setup_material_group(self, reset=False):
-        ''' Setup Material Specularity widgets to initial (default or defined) values on the Lighting page.
+        """
+        Setup Material Specularity widgets to initial (default or defined) values on the Lighting page.
         If reset = False, widgets are reset from the prefs db.
         If reset = True, widgets are reset from their previous values.
-        '''
+        """
 
         if reset:
             self.material_specularity = self.original_material_specularity
@@ -1174,8 +1220,9 @@ restored when the user undoes a structural change.</p>
         self.ms_brightness_linedit.setText(str(self.brightness * .01))
 
     def _setup_atoms_page(self):
-        ''' Setup widgets to initial (default or defined) values on the atoms page.
-        '''
+        """
+        Setup widgets to initial (default or defined) values on the atoms page.
+        """
         # Set colors for atom color swatches
 ##        self.atom_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(orange))
 
@@ -1233,8 +1280,9 @@ restored when the user undoes a structural change.</p>
         return
 
     def _setup_bonds_page(self):
-        ''' Setup widgets to initial (default or defined) values on the bonds page.
-        '''
+        """
+        Setup widgets to initial (default or defined) values on the bonds page.
+        """
         # Set colors for bond color swatches
 
 
@@ -1304,8 +1352,9 @@ restored when the user undoes a structural change.</p>
         return
 
     def _setup_undo_page(self):
-        ''' Setup widgets to initial (default or defined) values on the Undo page.
-        '''
+        """
+        Setup widgets to initial (default or defined) values on the Undo page.
+        """
 
         connect_checkbox_with_boolean_pref( self.undo_restore_view_checkbox, undoRestoreView_prefs_key )
         connect_checkbox_with_boolean_pref( self.undo_automatic_checkpoints_checkbox, undoAutomaticCheckpoints_prefs_key )
@@ -1330,8 +1379,9 @@ restored when the user undoes a structural change.</p>
         return
 
     def _setup_window_page(self): #bruce 050810 revised this, and also call it from __init__ to be safe
-        ''' Setup widgets to initial (default or defined) values on the window page.
-        '''
+        """
+        Setup widgets to initial (default or defined) values on the window page.
+        """
 
         # Update the max value of the Current Size Spinboxes
         screen = screen_pos_size()
@@ -1363,7 +1413,10 @@ restored when the user undoes a structural change.</p>
         return
 
     def _setup_tooltips_page(self): #Ninad 060830
-        ''' Setup widgets to initialize (default or defined) values on the tooltips page.'''
+        """
+        Setup widgets to initialize (default or defined) values on the tooltips 
+        page.
+        """
         #Atom related Dynamic tooltip preferences
         connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomChunkInfo_checkbox, dynamicToolTipAtomChunkInfo_prefs_key)
         connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomMass_checkbox, dynamicToolTipAtomMass_prefs_key)
@@ -1412,17 +1465,23 @@ restored when the user undoes a structural change.</p>
     ########## Slot methods for "General" page widgets ################   
 
     def display_compass(self, val):
-        '''Slot for the Display Compass checkbox, which enables/disables the Display Compass Labels checkbox.
-        '''
+        """
+        Slot for the Display Compass checkbox, which enables/disables the 
+        Display Compass Labels checkbox.
+        """
         self.display_compass_labels_checkbox.setEnabled(val)
 
     def set_compass_position(self, val):
-        '''Set position of compass, where <val> is:
-            0 = upper right
-            1 = upper left
-            2 = lower left
-            3 = lower right
-        '''
+        """
+        Set position of compass.
+        
+        @param val: The position, where:
+                    - 0 = upper right
+                    - 1 = upper left
+                    - 2 = lower left
+                    - 3 = lower right
+        @type  val: int
+        """
         # set the pref
         env.prefs[compassPosition_prefs_key] = val
         # update the glpane
@@ -1430,13 +1489,23 @@ restored when the user undoes a structural change.</p>
         self.glpane.gl_update()
 
     def set_default_projection(self, projection):
-        "Set projection, where 0 = Perspective and 1 = Orthographic"
+        """
+        Set the projection.
+        
+        @param projection: The projection, where:
+                           - 0 = Perspective
+                           - 1 = Orthographic
+        @type  projection: int
+        """
         # set the pref
         env.prefs[defaultProjection_prefs_key] = projection
         self.glpane.setViewProjection(projection)
 
     def change_displayOriginAsSmallAxis(self, value):
-        "this sets the preference to view origin as small axis so that it is sticky across sessions"
+        """"
+        This sets the preference to view origin as small axis so that it is 
+        sticky across sessions.
+        """
         #set the preference
         env.prefs[displayOriginAsSmallAxis_prefs_key] = value
             #niand060920 This condition might not be necessary as we are disabling the btn_grp 
@@ -1445,9 +1514,11 @@ restored when the user undoes a structural change.</p>
             self.glpane.gl_update()
 
     def change_high_quality_graphics(self, state): #mark 060315.
-        """Enable/disable high quality graphics during view animations.
-        This has never been implemented. The checkbox has been removed from the UI file for A9.
-        Mark 060815.
+        """
+        Enable/disable high quality graphics during view animations.
+        
+        @attention: This has never been implemented. The checkbox has been 
+                    removed from the UI file for A9. Mark 060815.
         """
         # Let the user know this is NIY. Addresses bug 1249 for A7. mark 060314.
         msg = "High Quality Graphics is not implemented yet."
@@ -1455,8 +1526,9 @@ restored when the user undoes a structural change.</p>
         env.history.message(orangemsg(msg))
 
     def change_view_animation_speed(self):
-        '''Sets the view animation speed between .25 (fast) and 3.0 (slow) seconds.
-        '''
+        """
+        Sets the view animation speed between .25 (fast) and 3.0 (slow) seconds.
+        """
         # To change the range, edit the maxValue and minValue attr for the slider.
         # For example, if you want the fastest animation time to be .1 seconds,
         # change maxValue to -10.  If you want the slowest time to be 4.0 seconds,
@@ -1465,8 +1537,12 @@ restored when the user undoes a structural change.</p>
            self.animation_speed_slider.value() / -100.0
 
     def change_mouseSpeedDuringRotation(self, val):
-        '''Slot that sets the factor controlling rotation speed during middle mouse drag 0.3(slow) and 1(fast)'''
-        env.prefs[mouseSpeedDuringRotation_prefs_key] = self.mouseSpeedDuringRotation_slider.value() / 100.0
+        """
+        Slot that sets the factor controlling rotation speed during middle 
+        mouse drag 0.3(slow) and 1(fast).
+        """
+        env.prefs[mouseSpeedDuringRotation_prefs_key] = \
+           self.mouseSpeedDuringRotation_slider.value() / 100.0
 
         val = self.mouseSpeedDuringRotation_slider.value() 
         if val == 60:
@@ -1475,18 +1551,20 @@ restored when the user undoes a structural change.</p>
             self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
 
     def reset_mouseSpeedDuringRotation(self):
-        '''Slot called when pressing the Mouse speed during rotation  reset button.
+        """
+        Slot called when pressing the Mouse speed during rotation reset button.
         Restores the default value of the mouse speed.
-        '''
+        """
         env.prefs.restore_defaults([mouseSpeedDuringRotation_prefs_key])
         self.mouseSpeedDuringRotation_slider.setValue(int (env.prefs[mouseSpeedDuringRotation_prefs_key] * 100.0))
         self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
 
     # [WARNING: bruce 060705 copied some of the following methods into MinimizeEnergyProp.py]
     def change_endrms(self, text):
-        '''Slot for EndRMS.
+        """
+        Slot for EndRMS.
         This gets called each time a user types anything into the widget.
-        '''
+        """
         try:
             endrms_str = double_fixup(self.endrms_validator, self.endrms_linedit.text(), self.endrms)
             self.endrms_linedit.setText(endrms_str)
@@ -1499,9 +1577,10 @@ restored when the user undoes a structural change.</p>
             print_compact_traceback("bug in change_endrms ignored: ") #bruce 060627
 
     def change_endmax(self, text):
-        '''Slot for EndMax.
+        """
+        Slot for EndMax.
         This gets called each time a user types anything into the widget.
-        '''
+        """
         try:
             endmax_str = double_fixup(self.endmax_validator, self.endmax_linedit.text(), self.endmax)
             self.endmax_linedit.setText(endmax_str)
@@ -1514,9 +1593,10 @@ restored when the user undoes a structural change.</p>
             print_compact_traceback("bug in change_endmax ignored: ") #bruce 060627
 
     def change_cutoverrms(self, text):
-        '''Slot for Cutover RMS.
+        """
+        Slot for Cutover RMS.
         This gets called each time a user types anything into the widget.
-        '''
+        """
         try:
             cutoverrms_str = double_fixup(self.cutoverrms_validator, self.cutoverrms_linedit.text(), self.cutoverrms)
             self.cutoverrms_linedit.setText(cutoverrms_str)
@@ -1529,9 +1609,10 @@ restored when the user undoes a structural change.</p>
             print_compact_traceback("bug in change_cutoverrms ignored: ") #bruce 060627
 
     def change_cutovermax(self, text):
-        '''Slot for Cutover Max.
+        """
+        Slot for Cutover Max.
         This gets called each time a user types anything into the widget.
-        '''
+        """
         try:
             cutovermax_str = double_fixup(self.cutovermax_validator, self.cutovermax_linedit.text(), self.cutovermax)
             self.cutovermax_linedit.setText(cutovermax_str)
@@ -1573,8 +1654,9 @@ restored when the user undoes a structural change.</p>
     ########### BG Color slots ############
 
     def change_fill_type(self, ftype):
-        '''Slot called when the user changes the Fill Type.
-        '''        
+        """
+        Slot called when the user changes the Fill Type.
+        """        
         if ftype == 'Solid':
             self.bg_solid_setup()
         else: # 'Blue Sky'
@@ -1583,8 +1665,9 @@ restored when the user undoes a structural change.</p>
         self.glpane.gl_update()
 
     def bg_solid_setup(self):
-        '''Setup the BG color page for a solid fill type.
-        '''
+        """
+        Setup the BG color page for a solid fill type.
+        """
 
         self.bg1_color_lbl.setEnabled(True)
         self.bg1_color_frame.setEnabled(True)
@@ -1608,8 +1691,9 @@ restored when the user undoes a structural change.</p>
         self.glpane.setBackgroundColor(self.glpane.backgroundColor)
 
     def bg_gradient_setup(self):
-        '''Setup the Modes page for the background gradient fill type.
-        '''
+        """
+        Setup the Modes page for the background gradient fill type.
+        """
         self.bg1_color_lbl.setEnabled(False)
         self.bg1_color_frame.setEnabled(False)
         self.choose_bg1_color_btn.setEnabled(False)
@@ -1632,8 +1716,9 @@ restored when the user undoes a structural change.</p>
         self.glpane.setBackgroundGradient(True) # This also stores the pref in the db.
 
     def change_bg1_color(self):
-        '''Change a mode\'s primary background color.
-        '''
+        """
+        Change a mode\'s primary background color.
+        """
         # Allow user to select a new background color and set it.
         self.glpane.setBackgroundRole(QPalette.Window)
 
@@ -1652,8 +1737,10 @@ restored when the user undoes a structural change.</p>
         self.glpane.gl_update()
 
     def restore_default_bgcolor(self):
-        '''Slot for "Restore Default Color" button, which restores the bg color and fill type.
-        '''
+        """
+        Slot for "Restore Default Color" button, which restores the bg color
+        and fill type.
+        """
 
         self.glpane.restoreDefaultBackground()
 
@@ -1664,9 +1751,11 @@ restored when the user undoes a structural change.</p>
             self.bg_solid_setup()
 
     def changeZoomBehaviorPreference(self):
-        '''Changes the zoom behavior based on the user preference (zoom about 
+        """
+        Changes the zoom behavior based on the user preference (zoom about 
         the GLPane's center). as of 061003, this preference is implemented as
-         View > Zoom About Screen Center (and not in Edit > Preferences)'''
+         View > Zoom About Screen Center (and not in Edit > Preferences).
+         """
         #ninad061003 : Also, we may need to change the wording 'Zoom About Screen Center' 
         #to 'Zoom About 3D workspace center'  or something similar
         if self.w.viewZoomAboutScreenCenterAction.isChecked():
@@ -1677,8 +1766,8 @@ restored when the user undoes a structural change.</p>
 
     def setUI_LogoDownloadPermissions(self):
         """
-		Set the sponsor logos download permissions in the user interface.
-		"""
+        Set the sponsor logos download permissions in the user interface.
+        """
         if env.prefs[sponsor_permanent_permission_prefs_key]:
             if env.prefs[sponsor_download_permission_prefs_key]:
                 self.logoNeverAskRadioBtn.setChecked(True)
@@ -1693,8 +1782,9 @@ restored when the user undoes a structural change.</p>
     ########## Slot methods for "Atoms" page widgets ################
 
     def change_element_colors(self):
-        '''Display the Element Color Settings Dialog.
-        '''
+        """
+        Display the Element Color Settings Dialog.
+        """
         # Since the prefs dialog is modal, the element color settings dialog must be modal.
         self.w.showElementColorSettings(self)
 
@@ -1703,15 +1793,21 @@ restored when the user undoes a structural change.</p>
         colorpref_edit_dialog( self, prefs_key, caption = caption)
 
     def change_atom_hilite_color(self):
-        '''Change the atom highlight color.'''
+        """
+        Change the atom highlight color.
+        """
         self.usual_change_color( atomHighlightColor_prefs_key)
 
     def change_bondpoint_hilite_color(self):
-        '''Change the bondpoint highlight color.'''
+        """
+        Change the bondpoint highlight color.
+        """
         self.usual_change_color( bondpointHighlightColor_prefs_key)    
 
     def change_hotspot_color(self): #bruce 050808 implement new slot which Mark recently added to .ui file
-        '''Change the free valence hotspot color.'''
+        """
+        Change the free valence hotspot color.
+        """
         #e fyi, we might rename hotspot to something like "bonding point" someday...
         self.usual_change_color( bondpointHotspotColor_prefs_key)
 
@@ -1724,13 +1820,17 @@ restored when the user undoes a structural change.</p>
                                  ])
 
     def change_level_of_detail(self, level_of_detail_item): #bruce 060215 revised this
-        '''Change the level of detail, where <level_of_detail_item> is a value between 0 and 3 where:
-            0 = low
-            1 = medium
-            2 = high
-            3 = variable (based on number of atoms in the part)
-                [note: the prefs db value for 'variable' is -1, to allow for higher LOD levels in the future] 
-        '''
+        """
+        Change the level of detail, where <level_of_detail_item> is a value 
+        between 0 and 3 where:
+            - 0 = low
+            - 1 = medium
+            - 2 = high
+            - 3 = variable (based on number of atoms in the part)
+        
+        @note: the prefs db value for 'variable' is -1, to allow for higher LOD 
+               levels in the future.
+        """
         lod = level_of_detail_item
         if level_of_detail_item == 3:
             lod = -1
@@ -1741,31 +1841,35 @@ restored when the user undoes a structural change.</p>
         return
 
     def change_ballstick_atom_radius(self, val):
-        '''Change the CPK (Ball and Stick) atom radius by % value <val>.
-        '''
+        """
+        Change the CPK (Ball and Stick) atom radius by % value <val>.
+        """
         #bruce 060607 renamed change_cpk_atom_radius -> change_ballstick_atom_radius in this file and the .py/.ui dialog files.
         env.prefs[diBALL_AtomRadius_prefs_key] = val * .01
         self.glpane.gl_update() #k this gl_update is probably not needed and sometimes a slowdown [bruce 060607]
 
     def change_cpk_scale_factor(self, val):
-        '''Slot called when moving the slider.
+        """
+        Slot called when moving the slider.
         Change the % value displayed in the LineEdit widget for CPK Scale Factor.
-        '''
+        """
         sf = val * .005
         self.cpk_scale_factor_linedit.setText(str(sf))
 
     def save_cpk_scale_factor(self):
-        '''Slot called when releasing the slider.
+        """
+        Slot called when releasing the slider.
         Saves the CPK (VdW) scale factor.
-        '''
+        """
         env.prefs[cpkScaleFactor_prefs_key] = self.cpk_scale_factor_slider.value() * .005
         self.glpane.gl_update()
         self.reset_cpk_scale_factor_btn.setEnabled(1)
 
     def reset_cpk_scale_factor(self):
-        '''Slot called when pressing the CPK Scale Factor reset button.
+        """
+        Slot called when pressing the CPK Scale Factor reset button.
         Restores the default value of the CPK Scale Factor.
-        '''
+        """
         env.prefs.restore_defaults([cpkScaleFactor_prefs_key])
         self.cpk_scale_factor_slider.setValue(int (env.prefs[cpkScaleFactor_prefs_key] * 200.0))
             # generates signal (good), which calls slot save_cpk_scale_factor().
@@ -1776,19 +1880,27 @@ restored when the user undoes a structural change.</p>
     ########## Slot methods for "Bonds" page widgets ################
 
     def change_bond_hilite_color(self):
-        '''Change the bond highlight color.'''
+        """
+        Change the bond highlight color.
+        """
         self.usual_change_color( bondHighlightColor_prefs_key)        
 
     def change_bond_stretch_color(self):
-        '''Change the bond stretch color.'''
+        """
+        Change the bond stretch color.
+        """
         self.usual_change_color( bondStretchColor_prefs_key)        
 
     def change_bond_vane_color(self):
-        '''Change the bond vane color for pi orbitals.'''
+        """
+        Change the bond vane color for pi orbitals.
+        """
         self.usual_change_color( bondVaneColor_prefs_key)
 
     def change_ballstick_bondcolor(self): #bruce 060607 renamed this in this file and .ui/.py dialog files
-        '''Change the bond cylinder color used in Ball & Stick display mode.'''
+        """
+        Change the bond cylinder color used in Ball & Stick display mode.
+        """
         self.usual_change_color( diBALL_bondcolor_prefs_key)        
 
     def reset_bond_colors(self):
@@ -1801,7 +1913,9 @@ restored when the user undoes a structural change.</p>
                                  ])
 
     def change_high_order_bond_display(self, val): #bruce 050806 filled this in
-        "Slot for the button group that sets the high order bond display."
+        """
+        Slot for the button group that sets the high order bond display.
+        """
         #  ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
         try:
             symbol = {0:'multicyl', 1:'vane', 2:'ribbon'}[val]
@@ -1814,7 +1928,9 @@ restored when the user undoes a structural change.</p>
         return
 
     def change_bond_labels(self, val): #bruce 050806 filled this in
-        "Slot for the checkbox that turns Pi Bond Letters on/off."
+        """
+        Slot for the checkbox that turns Pi Bond Letters on/off.
+        """
         # (BTW, these are not "labels" -- someday we might add user-settable longer bond labels,
         #  and the term "labels" should refer to that. These are just letters indicating the bond type. [bruce 050806])
         env.prefs[ pibondLetters_prefs_key ] = not not val
@@ -1822,30 +1938,35 @@ restored when the user undoes a structural change.</p>
         return
 
     def change_show_valence_errors(self, val): #bruce 050806 made this up
-        "Slot for the checkbox that turns Show Valence Errors on/off."
+        """
+        Slot for the checkbox that turns Show Valence Errors on/off.
+        """
         env.prefs[ showValenceErrors_prefs_key ] = not not val
 ##        if platform.atom_debug:
 ##            print showValenceErrors_prefs_key, env.prefs[ showValenceErrors_prefs_key ] #k prints true, from our initial setup of page
         return
 
     def change_bond_line_thickness(self, pixel_thickness): #mark 050831
-        '''Set the default bond line thickness for Lines display.  
+        """
+        Set the default bond line thickness for Lines display.  
         pixel_thickness can be 1, 2 or 3.
-        '''
+        """
         env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
         self.update_bond_line_thickness_suffix()
 
     def update_bond_line_thickness_suffix(self):
-        '''Updates the suffix for the bond line thickness spinbox.
-        '''
+        """
+        Updates the suffix for the bond line thickness spinbox.
+        """
         if env.prefs[linesDisplayModeThickness_prefs_key] == 1:
             self.bond_line_thickness_spinbox.setSuffix(' pixel')
         else:
             self.bond_line_thickness_spinbox.setSuffix(' pixels')
 
     def change_ballstick_cylinder_radius(self, val): 
-        '''Change the CPK (Ball and Stick) cylinder radius by % value <val>.
-        '''
+        """
+        Change the CPK (Ball and Stick) cylinder radius by % value <val>.
+        """
         #bruce 060607 renamed change_cpk_cylinder_radius -> change_ballstick_cylinder_radius (in this file and .ui/.py dialog files)
         env.prefs[diBALL_BondCylinderRadius_prefs_key] = val *.01
         self.glpane.gl_update() #k gl_update is probably not needed and in some cases is a slowdown [bruce 060607 comment]
@@ -1855,20 +1976,25 @@ restored when the user undoes a structural change.</p>
     ########## Slot methods for "Modes" page widgets ################
 
     def change_startup_mode(self, option):
-        "Slot for the combobox that sets the Startup Mode."
+        """
+        Slot for the combobox that sets the Startup Mode.
+        """
         env.prefs[ startupMode_prefs_key ] = startup_modes[self.startup_mode_combox.currentIndex()]
         return
 
     def change_default_mode(self, val):
-        "Slot for the combobox that sets the Default Mode."
+        """
+        Slot for the combobox that sets the Default Mode.
+	"""
         env.prefs[ defaultMode_prefs_key ] = default_modes[self.default_mode_combox.currentIndex()]
         self.glpane.currentCommand.UpdateDashboard() # Update Done button on dashboard.
         return
 
     def set_default_display_mode(self, displayMode): #bruce 050810 revised this to set the pref immediately
-        '''Set default display mode to <displayMode>. 
+        """
+	Set default display mode to <displayMode>. 
         This also changes the current display mode of the glpane to <displayMode>.
-        '''        
+        """        
         if displayMode == env.prefs[defaultDisplayMode_prefs_key]:
             print "No change in Default Display Mode: ddm=", displayMode
             return
@@ -1933,15 +2059,20 @@ restored when the user undoes a structural change.</p>
         self._setup_lighting_page()
 
     def change_light_color(self):
-        '''Slot for light color "Choose" button.  Saves the new color in the prefs db.
-        Changes the current Light color in the graphics area and the light color swatch in the UI.'''
+        """
+        Slot for light color "Choose" button.  Saves the new color in the 
+        prefs db.
+        
+        Changes the current Light color in the graphics area and the light 
+        color swatch in the UI.
+        """
         self.usual_change_color(self.current_light_key)
         self.light_color = env.prefs[self.current_light_key]
         self.save_lighting()
 
     def update_light_combobox_items(self):
-        '''Updates all light combobox items with '(On)' or '(Off)' label.
-        '''
+        """Updates all light combobox items with '(On)' or '(Off)' label.
+        """
         for i in range(3):
             if self.lights[i][7]:
                 txt = "%d (On)" % (i+1)
@@ -1950,9 +2081,11 @@ restored when the user undoes a structural change.</p>
             self.light_combobox.setItemText(i, txt)
 
     def toggle_light(self, on):
-        '''Slot for light 'On' checkbox.  
-        It updates the current item in the light combobox with '(On)' or '(Off)' label.
-        '''
+        """
+        Slot for light 'On' checkbox.  
+        It updates the current item in the light combobox with '(On)' or 
+        '(Off)' label.
+        """
         if on:
             txt = "%d (On)" % (self.light_combobox.currentIndex()+1)
         else:
@@ -1962,38 +2095,44 @@ restored when the user undoes a structural change.</p>
         self.save_lighting()
 
     def save_lighting(self):
-        '''Saves lighting parameters (but not material specularity parameters) to pref db.
-        This is also the slot for light sliders (only when released).
-        '''
+        """
+        Saves lighting parameters (but not material specularity parameters) 
+        to pref db. This is also the slot for light sliders (only when 
+        released).
+        """
         self.change_lighting()
         self.glpane.saveLighting()
 
     def toggle_material_specularity(self, val):
-        '''This is the slot for the Material Specularity Enabled checkbox.
-        '''
+        """
+        This is the slot for the Material Specularity Enabled checkbox.
+        """
         env.prefs[material_specular_highlights_prefs_key] = val
 
     def change_material_finish(self, finish):
-        '''This is the slot for the Material Finish slider.
+        """
+        This is the slot for the Material Finish slider.
         'finish' is between 0 and 100. 
         Saves finish parameter to pref db.
-        '''
+        """
         # For whiteness, the stored range is 0.0 (Metal) to 1.0 (Plastic).
         # The Qt slider range is 0 - 100, so we multiply by 100 to set the slider.  Mark. 051129.
         env.prefs[material_specular_finish_prefs_key] = float(finish * 0.01)
         self.ms_finish_linedit.setText(str(finish * 0.01))
 
     def change_material_shininess(self, shininess):
-        ''' This is the slot for the Material Shininess slider.
+        """
+        This is the slot for the Material Shininess slider.
         'shininess' is between 15 (low) and 60 (high).
-        '''
+        """
         env.prefs[material_specular_shininess_prefs_key] = float(shininess)
         self.ms_shininess_linedit.setText(str(shininess))
 
     def change_material_brightness(self, brightness):
-        ''' This is the slot for the Material Brightness slider.
+        """
+        This is the slot for the Material Brightness slider.
         'brightness' is between 0 (low) and 100 (high).
-        '''
+        """
         env.prefs[material_specular_brightness_prefs_key] = float(brightness * 0.01)
         self.ms_brightness_linedit.setText(str(brightness * 0.01))
 
@@ -2022,14 +2161,18 @@ restored when the user undoes a structural change.</p>
         env.prefs.resume_saving_changes()
 
     def reset_lighting(self):
-        "Slot for Reset button"
+        """
+        Slot for Reset button.
+        """
         # This has issues.  I intend to remove the Reset button for A7.  Confirm with Bruce.  Mark 051204.
         self._setup_material_group(reset=True)
         self._setup_lighting_page(self.original_lights)
         self.glpane.saveLighting()
 
     def restore_default_lighting(self):
-        "Slot for Restore Defaults button"
+        """
+        Slot for Restore Defaults button.
+        """
 
         self.glpane.restoreDefaultLighting()
 
@@ -2049,17 +2192,23 @@ restored when the user undoes a structural change.</p>
     ########## Slot methods for "Plug-ins" page widgets ################
 
     def set_gamess_path(self):
-        '''Slot for GAMESS path "Choose" button.
-        '''
-        gamess_exe = get_filename_and_save_in_prefs(self, gmspath_prefs_key, 'Choose GAMESS Executable')
+        """
+        Slot for GAMESS path "Choose" button.
+        """
+        gamess_exe = get_filename_and_save_in_prefs(self, 
+                                                    gmspath_prefs_key, 
+                                                    'Choose GAMESS Executable')
 
         if gamess_exe:
             self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
 
     def enable_gamess(self, enable=True):
-        '''GAMESS is enabled when enable=True.
-        GAMESS is disabled when enable=False.
-        '''
+        """
+        Enables/disables GAMESS plugin.
+        
+        @param enable: Enabled when True. Disables when False.
+        @type  enable: bool
+        """
         if enable:
             self.gamess_path_linedit.setEnabled(1)
             self.gamess_choose_btn.setEnabled(1)
@@ -2071,76 +2220,110 @@ restored when the user undoes a structural change.</p>
             self.gamess_path_linedit.setText("")
             env.prefs[gmspath_prefs_key] = ''
             env.prefs[gamess_enabled_prefs_key] = False
+            
+    # GROMACS slots #######################################
     
     def set_gromacs_path(self):
         """
-        Sets the GROMACS path 
+        Slot for GROMACS path "Choose" button.
         """
-        pass
-    
+        gromacs_exe = \
+                    get_filename_and_save_in_prefs(self, 
+                                                   gromacs_path_prefs_key, 
+                                                   "Choose GROMOACS Executable")
+        if gromacs_exe:
+            self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])   
     
     def enable_gromacs(self, enable = True):
         """
-        If True, GROMACS plug-in is enabled
+        Enables/disables GROMACS plugin.
+        
+        @param enable: Enabled when True. Disables when False.
+        @type  enable: bool
         """
         
         if enable:
             self.gromacs_path_lineedit.setEnabled(True)
             self.gromacs_choose_button.setEnabled(True)
-            ##env.prefs[gromacs_enabled_prefs_key] = True
+            env.prefs[gromacs_enabled_prefs_key] = True
+            
+            # Sets the GROMACS path to the standard location, if it exists.
+            if not env.prefs[gromacs_path_prefs_key]:
+                env.prefs[gromacs_path_prefs_key] = get_default_plugin_path( \
+                    "C:\\GROMACS\\bin\\grompp.exe", \
+                    "/usr/local/bin/grompp", \
+                    "/usr/local/bin/grompp")
+                
+            self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
+            
         else:
             self.gromacs_path_lineedit.setEnabled(False)
             self.gromacs_choose_button.setEnabled(False)
             self.gromacs_path_lineedit.setText("")
-            ##env.prefs[gromacs_path_prefs_key] = ''
-            ##env.prefs[gromacs_enabled_prefs_key] = False
+            env.prefs[gromacs_path_prefs_key] = ''
+            env.prefs[gromacs_enabled_prefs_key] = False
+            
+    # cpp slots #######################################
     
     def set_cpp_path(self):
         """
-        Sets the GROMACS path 
+        Sets the cpp path 
         """
-        pass
+        cpp_exe = get_filename_and_save_in_prefs(self, 
+                                                 cpp_path_prefs_key, 
+                                                 "Choose CPP Executable")
+        if cpp_exe:
+            self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
     
     def enable_cpp(self, enable = True):
         """
-        If True, cpp path in Preferences> Plug-ins is enabled
+        Enables/disables cpp plugin.
+        
+        @param enable: Enabled when True. Disables when False.
+        @type  enable: bool
         """
         if enable:
             self.cpp_path_lineedit.setEnabled(True)
             self.cpp_choose_button.setEnabled(True)
-            ##env.prefs[cpp_enabled_prefs_key] = True
+            env.prefs[cpp_enabled_prefs_key] = True
+            
+            # Sets the cpp path to the standard location, if it exists.
+            if not env.prefs[cpp_path_prefs_key]:
+                env.prefs[cpp_path_prefs_key] = get_default_plugin_path( \
+                    "C:\\GROMACS\\cpp.exe", \
+                    "/usr/local/bin/cpp", \
+                    "/usr/local/bin/cpp")
+                
+            self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
+            
         else:
             self.cpp_path_lineedit.setEnabled(False)
             self.cpp_choose_button.setEnabled(False)
             self.cpp_path_lineedit.setText("")
-            ##env.prefs[cpp_path_prefs_key] = ''
-            ##env.prefs[cpp_enabled_prefs_key] = False
+            env.prefs[cpp_path_prefs_key] = ''
+            env.prefs[cpp_enabled_prefs_key] = False
             
 
     # QuteMol slots #######################################
 
     def set_qutemol_path(self):
-        '''Slot for QuteMol path "Choose" button.
-        '''
-
-        qp = get_filename_and_save_in_prefs(self, qutemol_path_prefs_key, 'Choose QuteMol Executable')
+        """
+        Slot for QuteMol path "Choose" button.
+        """
+        qp = get_filename_and_save_in_prefs(self, 
+                                            qutemol_path_prefs_key, 
+                                            'Choose QuteMol Executable')
 
         if qp:
             self.qutemol_path_linedit.setText(qp)
 
-    def set_nanohive_path(self):
-        '''Slot for Nano-Hive path "Choose" button.
-        '''
-
-        nh = get_filename_and_save_in_prefs(self, nanohive_path_prefs_key, 'Choose Nano-Hive Executable')
-
-        if nh:
-            self.nanohive_path_linedit.setText(nh)
-
-    def enable_qutemol(self, enable=True):
-        '''QuteMol is enabled when enable=True.
-        QuteMol is disabled when enable=False.
-        '''
+    def enable_qutemol(self, enable = True):
+        """
+        Enables/disables QuteMol plugin.
+        
+        @param enable: Enabled when True. Disables when False.
+        @type  enable: bool
+        """
         if enable:
             self.qutemol_path_linedit.setEnabled(1)
             self.qutemol_choose_btn.setEnabled(1)
@@ -2164,9 +2347,25 @@ restored when the user undoes a structural change.</p>
 
     # NanoHive-1 slots #####################################
 
+    def set_nanohive_path(self):
+        """
+        Slot for Nano-Hive path "Choose" button.
+        """
+
+        nh = get_filename_and_save_in_prefs(self, 
+                                            nanohive_path_prefs_key, 
+                                            'Choose Nano-Hive Executable')
+
+        if nh:
+            self.nanohive_path_linedit.setText(nh)
+            
     def enable_nanohive(self, enable=True):
-        '''Enable/disables Nano-Hive plug-in when enable=True/False.
-        '''
+        """
+        Enables/disables NanoHive-1 plugin.
+        
+        @param enable: Enabled when True. Disables when False.
+        @type  enable: bool
+        """
         if enable:
             self.nanohive_path_linedit.setEnabled(1)
             self.nanohive_choose_btn.setEnabled(1)
@@ -2200,17 +2399,21 @@ restored when the user undoes a structural change.</p>
             env.prefs[nanohive_enabled_prefs_key] = False
 
     def set_povray_path(self):
-        '''Slot for POV-Ray path "Choose" button.
-        '''
+        """
+        Slot for POV-Ray path "Choose" button.
+        """
         povray_exe = get_filename_and_save_in_prefs(self, povray_path_prefs_key, 'Choose POV-Ray Executable')
 
         if povray_exe:
             self.povray_path_linedit.setText(povray_exe)
 
     def enable_povray(self, enable=True):
-        '''POV-Ray is enabled when enable=True.
-        POV-Ray is disabled when enable=False.
-        '''
+        """
+        Enables/disables POV-Ray plugin.
+        
+        @param enable: Enabled when True. Disables when False.
+        @type  enable: bool
+        """
         if enable:
             self.povray_path_linedit.setEnabled(1)
             self.povray_choose_btn.setEnabled(1)
@@ -2234,17 +2437,21 @@ restored when the user undoes a structural change.</p>
         self._update_povdir_enables() #bruce 060710
 
     def set_megapov_path(self):
-        '''Slot for MegaPOV path "Choose" button.
-        '''
+        """
+        Slot for MegaPOV path "Choose" button.
+        """
         megapov_exe = get_filename_and_save_in_prefs(self, megapov_path_prefs_key, 'Choose MegaPOV Executable')
 
         if megapov_exe:
             self.megapov_path_linedit.setText(megapov_exe)
 
     def enable_megapov(self, enable=True):
-        '''MegaPOV is enabled when enable=True.
-        MegaPOV is disabled when enable=False.
-        '''
+        """
+        Enables/disables MegaPOV plugin.
+        
+        @param enable: Enabled when True. Disables when False.
+        @type  enable: bool
+        """
         if enable:
             self.megapov_path_linedit.setEnabled(1)
             self.megapov_choose_btn.setEnabled(1)
@@ -2270,7 +2477,8 @@ restored when the user undoes a structural change.</p>
     # pov include directory [bruce 060710 for Mac A8; will be A8.1 in Windows, not sure about Linux]
 
     def _update_povdir_enables(self): #bruce 060710
-        """[private method]
+        """
+        [private method]
         Call this whenever anything changes regarding when to enable the povdir checkbox, line edit, or choose button.
         We enable the checkbox when either of the POV-Ray or MegaPOV plugins is enabled.
         We enable the line edit and choose button when that condition holds and when the checkbox is checked.
@@ -2287,18 +2495,20 @@ restored when the user undoes a structural change.</p>
         return
 
     def enable_povdir(self, enable=True): #bruce 060710
-        '''slot method for povdir checkbox.
+        """
+        Slot method for povdir checkbox.
         povdir is enabled when enable=True.
         povdir is disabled when enable=False.
-        '''
+        """
         env.prefs[povdir_enabled_prefs_key] = not not enable
         self._update_povdir_enables()
 ##        self.povdir_linedit.setText(env.prefs[povdir_path_prefs_key])
         return
 
     def set_povdir(self): #bruce 060710
-        '''Slot for Pov include dir "Choose" button.
-        '''
+        """
+        Slot for Pov include dir "Choose" button.
+        """
         povdir_path = get_dirname_and_save_in_prefs(self, povdir_path_prefs_key, 'Choose Custom POV-Ray Include directory')
         # note: return value can't be ""; if user cancels, value is None;
         # to set "" you have to edit the lineedit text directly, but this doesn't work since
@@ -2341,24 +2551,32 @@ restored when the user undoes a structural change.</p>
     ########## Slot methods for "Undo" (former name "Caption") page widgets ################
 
     def change_undo_stack_memory_limit(self, mb_val):
-        '''Slot for 'Undo Stack Memory Limit' spinbox. Sets the RAM limit for the Undo Stack.
+        """
+        Slot for 'Undo Stack Memory Limit' spinbox. 
+        Sets the RAM limit for the Undo Stack.
         <mb-val> can range from 0-99999 (MB).
-        '''
+        """
         env.prefs[undoStackMemoryLimit_prefs_key] = mb_val
 
     def change_historyHeight(self, value):
-        ''' slot for  history height spinbox'''
+        """
+        Slot for  history height spinbox.
+        """
         env.prefs[ historyHeight_prefs_key] = value
 
     ########## End of slot methods for "Undo" page widgets ###########
 
     ########## Start slot methods for "ToolTips" page widgets ###########
     def change_dynamicToolTipAtomDistancePrecision(self, value):
-        '''Update the atom distance precision for the dynamic tool tip.'''
+        """
+        Update the atom distance precision for the dynamic tool tip.
+        """
         env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] = value
 
     def change_dynamicToolTipBendAnglePrecision(self, value):
-        '''Update the bend angle precision for the dynamic tool tip.'''
+        """
+        Update the bend angle precision for the dynamic tool tip.
+        """
         env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] = value
 
     ########## End of slot methods for "ToolTips" page widgets ###########
@@ -2367,17 +2585,22 @@ restored when the user undoes a structural change.</p>
 
     #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]
 
-    def change_window_size(self, val=0):
-        '''Slot for both the width and height spinboxes that change the current window size.
-        Also called from other slots to change the window size based on new values in spinboxes.
-        <val> is not used.
-        '''
+    def change_window_size(self, val = 0):
+        """
+        Slot for both the width and height spinboxes that change the current 
+        window size. 
+        
+        Also called from other slots to change the window size based on new 
+        values in spinboxes. <val> is not used.
+        """
         w = self.current_width_spinbox.value()
         h = self.current_height_spinbox.value()
         self.w.resize(w,h)
 
     def update_saved_size(self, w, h):
-        'Update the saved width and height text'
+        """
+        Update the saved width and height text.
+        """
         self.saved_width_lineedit.setText(QString(str(w) + " pixels"))
         self.saved_height_lineedit.setText(QString(str(h) + " pixels"))
 
@@ -2390,7 +2613,9 @@ restored when the user undoes a structural change.</p>
         return
 
     def restore_saved_size(self):
-        'Restore the window size, but not the position, from the prefs db'
+        """
+        Restore the window size, but not the position, from the prefs db.
+        """
         from prefs_constants import mainwindow_geometry_prefs_key_prefix
         keyprefix = mainwindow_geometry_prefs_key_prefix
         pos, size = _get_prefs_for_window_pos_size( self.w, keyprefix)
@@ -2402,27 +2627,31 @@ restored when the user undoes a structural change.</p>
         self.change_window_size()
 
     def change_use_selected_font(self, use_selected_font):
-        """Slot for "Use Selected Font" checkbox on the groupbox.
+        """
+        Slot for "Use Selected Font" checkbox on the groupbox.
         Called when the checkbox is toggled.
         """
         env.prefs[useSelectedFont_prefs_key] = use_selected_font
         self.set_font()
 
     def change_font(self, font):
-        """Slot for the Font combobox.
+        """
+        Slot for the Font combobox.
         Called whenever the font is changed.
         """
         env.prefs[displayFont_prefs_key] = str(font.family())
         self.set_font()
 
     def change_fontsize(self, pointsize):
-        """Slot for the Font size spinbox.
+        """
+        Slot for the Font size spinbox.
         """
         env.prefs[displayFontPointSize_prefs_key] = pointsize
         self.set_font()
 
     def change_selected_font_to_default_font(self):
-        """Slot for "Make the selected font the default font" button.
+        """
+        Slot for "Make the selected font the default font" button.
         The default font will be displayed in the Font and Size
         widgets.
         """
@@ -2435,12 +2664,13 @@ restored when the user undoes a structural change.</p>
             print "change_selected_font_to_default_font(): Button clicked. Default font: ", font.family(), ", size=", font.pointSize()        
 
     def set_font_widgets(self, setFontFromPrefs=True):
-        """Update font widgets based on font prefs.
+        """
+        Update font widgets based on font prefs.
         Unconnects signals from slots, updates widgets, then reconnects slots.
 
-        Arguments:
-
-        <setFontFromPrefs> - when True (default), sets the display font (based on font prefs).
+        @param setFontFromPrefs: when True (default), sets the display font 
+                                (based on font prefs).
+        @type  setFontFromPrefs: bool
         """
 
         if platform.atom_debug: 
@@ -2481,7 +2711,8 @@ restored when the user undoes a structural change.</p>
             self.set_font()
 
     def set_font(self):
-        """Set the current display font using the font prefs.
+        """
+        Set the current display font using the font prefs.
         """
 
         use_selected_font = env.prefs[useSelectedFont_prefs_key]
@@ -2505,7 +2736,8 @@ restored when the user undoes a structural change.</p>
         self.w.setFont(font)
 
     def change_color_theme(self, color_theme):
-        """Slot for Color Theme combobox.
+        """
+        Slot for Color Theme combobox.
         Not implemented yet. Mark 2007-05-27.
         """
         print "change_color_theme(): Color theme = ", color_theme
@@ -2569,12 +2801,16 @@ restored when the user undoes a structural change.</p>
             print_compact_traceback("bug in setup_current_page ignored: ") #bruce 060627
 
     def accept(self):
-        '''The slot method for the 'OK' button.'''
+        """
+        The slot method for the 'OK' button.
+        """
         # self._update_prefs() # Mark 050919
         QDialog.accept(self)
 
     def reject(self):
-        '''The slot method for the "Cancel" button.'''
+        """
+        The slot method for the "Cancel" button.
+        """
         # The Cancel button has been removed, but this still gets called
         # when the user hits the dialog's "Close" button in the dialog's window border (upper right X).
         # Since I've not implemented 'Cancel', it is safer to go ahead and

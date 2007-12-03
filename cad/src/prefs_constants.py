@@ -197,7 +197,10 @@ povdir_path_prefs_key = 'A8/POV Include Directory' # only in Mac A8, for Windows
 povdir_enabled_prefs_key = 'A8/POV Include Directory Enabled' # ditto, and might not end up being used [bruce 060710]
 gmspath_prefs_key = 'A6/GAMESS Path'
 gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
-
+gromacs_path_prefs_key = 'A10/GROMACS Path'
+gromacs_enabled_prefs_key = 'A10/GROMACS Enabled'
+cpp_path_prefs_key = 'A10/cpp Path'
+cpp_enabled_prefs_key = 'A10/cpp Enabled'
 
 # Undo and History prefs
 undoRestoreView_prefs_key = 'A7/Undo Restore View'
@@ -463,8 +466,11 @@ prefs_table = (
     ('povdir_enabled', 'boolean', povdir_enabled_prefs_key, False ), #bruce 060710
     ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
     ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
+    ('gromacs_exe_path', 'string', gromacs_path_prefs_key, "" ),
+    ('gromacs_enabled', 'boolean', gromacs_enabled_prefs_key, False ),
+    ('cpp_exe_path', 'string', cpp_path_prefs_key, "" ),
+    ('cpp_enabled', 'boolean', cpp_enabled_prefs_key, False ),
     
-
     # Undo and History preferences [added to this table by bruce 050810]
     ('', 'boolean', undoRestoreView_prefs_key, False), # mark 060314
     ('', 'boolean', undoAutomaticCheckpoints_prefs_key, True), # mark 060314
