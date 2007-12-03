@@ -534,7 +534,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.gromacs_checkbox,
                      SIGNAL("toggled(bool)"),
                      self.enable_gromacs)
-        self.connect(self.gromacs_choose_button,
+        self.connect(self.gromacs_choose_btn,
                      SIGNAL("clicked()"),
                      self.set_gromacs_path)
         
@@ -543,7 +543,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.cpp_checkbox,
                      SIGNAL("toggled(bool)"),
                      self.enable_cpp)
-        self.connect(self.cpp_choose_button,
+        self.connect(self.cpp_choose_btn,
                      SIGNAL("clicked()"),
                      self.set_cpp_path)
       
@@ -819,6 +819,10 @@ PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS
 GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>""")
         self.povdir_linedit.setWhatsThis("""Specify a directory for where to find POV-Ray or MegaPOV include
                                      files such as transforms.inc.""")
+        
+        self.gromacs_checkbox.setWhatsThis("""This enables GROMACS as a plug-in. GROMACS is a free rendering program available from http://www.gromacs.org/. GROMACS must be installed on your computer before you can enable the GROMACS plug-in.""")
+        self.gromacs_path_lineedit.setWhatsThis("""The full path to the GROMACS executable file (grompp.exe).""")
+        
         self.qutemol_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
                                          location of the QuteMol executable.""")
         self.nanohive_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
@@ -829,6 +833,8 @@ GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.h
                                          location of the MegaPOV executable (megapov.exe).""")
         self.gamess_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
                                         location of the GAMESS or PC-GAMESS executable.""")
+        self.gromacs_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
+                                        location of the GROMACS executable (grompp.exe).""")
         self.megapov_lbl.setWhatsThis("""This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
         self.povdir_checkbox.setWhatsThis("""Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc.""")
         self.undo_automatic_checkpoints_checkbox.setWhatsThis("""<p><b>Automatic Checkpoints</b></p>Specifies whether <b>Automatic
@@ -2244,7 +2250,7 @@ restored when the user undoes a structural change.</p>
         
         if enable:
             self.gromacs_path_lineedit.setEnabled(True)
-            self.gromacs_choose_button.setEnabled(True)
+            self.gromacs_choose_btn.setEnabled(True)
             env.prefs[gromacs_enabled_prefs_key] = True
             
             # Sets the GROMACS path to the standard location, if it exists.
@@ -2258,7 +2264,7 @@ restored when the user undoes a structural change.</p>
             
         else:
             self.gromacs_path_lineedit.setEnabled(False)
-            self.gromacs_choose_button.setEnabled(False)
+            self.gromacs_choose_btn.setEnabled(False)
             self.gromacs_path_lineedit.setText("")
             env.prefs[gromacs_path_prefs_key] = ''
             env.prefs[gromacs_enabled_prefs_key] = False
@@ -2284,7 +2290,7 @@ restored when the user undoes a structural change.</p>
         """
         if enable:
             self.cpp_path_lineedit.setEnabled(True)
-            self.cpp_choose_button.setEnabled(True)
+            self.cpp_choose_btn.setEnabled(True)
             env.prefs[cpp_enabled_prefs_key] = True
             
             # Sets the cpp path to the standard location, if it exists.
@@ -2298,7 +2304,7 @@ restored when the user undoes a structural change.</p>
             
         else:
             self.cpp_path_lineedit.setEnabled(False)
-            self.cpp_choose_button.setEnabled(False)
+            self.cpp_choose_btn.setEnabled(False)
             self.cpp_path_lineedit.setText("")
             env.prefs[cpp_path_prefs_key] = ''
             env.prefs[cpp_enabled_prefs_key] = False

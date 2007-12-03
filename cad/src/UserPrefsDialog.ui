@@ -3478,7 +3478,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="toolTip" >
-                 <string>Enable Nano-Hive.</string>
+                 <string>Enable QuteMol</string>
                 </property>
                 <property name="text" >
                  <string/>
@@ -3505,7 +3505,7 @@
                  </size>
                 </property>
                 <property name="toolTip" >
-                 <string>Enable Nano-Hive.</string>
+                 <string/>
                 </property>
                 <property name="text" >
                  <string>QuteMol:</string>
@@ -3531,7 +3531,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="toolTip" >
-                 <string>Enable Nano-Hive.</string>
+                 <string>Enable NanoHive-1</string>
                 </property>
                 <property name="text" >
                  <string/>
@@ -3558,10 +3558,10 @@
                  </size>
                 </property>
                 <property name="toolTip" >
-                 <string>Enable Nano-Hive.</string>
+                 <string/>
                 </property>
                 <property name="text" >
-                 <string>Nano-Hive:</string>
+                 <string>NanoHive-1:</string>
                 </property>
                 <property name="alignment" >
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3605,7 +3605,7 @@
                  </size>
                 </property>
                 <property name="toolTip" >
-                 <string>Enable POV-Ray</string>
+                 <string/>
                 </property>
                 <property name="text" >
                  <string>POV-Ray:</string>
@@ -3652,7 +3652,7 @@
                  </size>
                 </property>
                 <property name="toolTip" >
-                 <string>Enable MegaPOV</string>
+                 <string/>
                 </property>
                 <property name="text" >
                  <string>MegaPOV:</string>
@@ -3678,7 +3678,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="toolTip" >
-                 <string>User-custom directory for POV libraries</string>
+                 <string>Custom directory for POV libraries</string>
                 </property>
                 <property name="text" >
                  <string/>
@@ -3711,7 +3711,7 @@
               <item>
                <widget class="QCheckBox" name="gamess_checkbox" >
                 <property name="toolTip" >
-                 <string>Enable GAMESS.</string>
+                 <string>Enable GAMESS</string>
                 </property>
                 <property name="text" >
                  <string/>
@@ -3735,7 +3735,7 @@
                  </size>
                 </property>
                 <property name="toolTip" >
-                 <string>Enable GAMESS.</string>
+                 <string/>
                 </property>
                 <property name="text" >
                  <string>GAMESS:</string>
@@ -3757,6 +3757,9 @@
               </property>
               <item>
                <widget class="QCheckBox" name="gromacs_checkbox" >
+                <property name="toolTip" >
+                 <string>Enable GROMACS</string>
+                </property>
                 <property name="text" >
                  <string/>
                 </property>
@@ -3781,6 +3784,9 @@
               </property>
               <item>
                <widget class="QCheckBox" name="cpp_checkbox" >
+                <property name="toolTip" >
+                 <string>Enable cpp (needed by GROMACS)</string>
+                </property>
                 <property name="text" >
                  <string/>
                 </property>
@@ -3830,7 +3836,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>Choose location of Nano-Hive executable </string>
+               <string>Choose location of NanoHive-1 executable </string>
               </property>
               <property name="text" >
                <string>Choose...</string>
@@ -3871,7 +3877,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>The full path to the Nano-Hive executable file.</string>
+               <string>The full path to the NanoHive-1 executable file.</string>
               </property>
               <property name="text" >
                <string/>
@@ -3912,6 +3918,9 @@
               <property name="enabled" >
                <bool>false</bool>
               </property>
+              <property name="toolTip" >
+               <string>The full path to the GROMACS executable file (grompp.exe).</string>
+              </property>
              </widget>
             </item>
             <item row="0" column="0" >
@@ -3920,7 +3929,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>The full path to the Nano-Hive executable file.</string>
+               <string>The full path to the QuteMol executable file.</string>
               </property>
               <property name="text" >
                <string/>
@@ -3934,6 +3943,9 @@
              <widget class="QPushButton" name="povdir_choose_btn" >
               <property name="enabled" >
                <bool>false</bool>
+              </property>
+              <property name="toolTip" >
+               <string>Choose the POV include directory</string>
               </property>
               <property name="text" >
                <string>Choose...</string>
@@ -3965,7 +3977,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>Choose location of Nano-Hive executable </string>
+               <string>Choose location of QuteMol executable </string>
               </property>
               <property name="text" >
                <string>Choose...</string>
@@ -3976,9 +3988,12 @@
              </widget>
             </item>
             <item row="6" column="1" >
-             <widget class="QPushButton" name="gromacs_choose_button" >
+             <widget class="QPushButton" name="gromacs_choose_btn" >
               <property name="enabled" >
                <bool>false</bool>
+              </property>
+              <property name="toolTip" >
+               <string>Choose GROMACS executable (grompp.exe)</string>
               </property>
               <property name="text" >
                <string>Choose...</string>
@@ -4040,12 +4055,18 @@
               <property name="enabled" >
                <bool>false</bool>
               </property>
+              <property name="toolTip" >
+               <string>The full path to the cpp executable file (cpp.exe) for GROMACS.</string>
+              </property>
              </widget>
             </item>
             <item row="7" column="1" >
-             <widget class="QPushButton" name="cpp_choose_button" >
+             <widget class="QPushButton" name="cpp_choose_btn" >
               <property name="enabled" >
                <bool>false</bool>
+              </property>
+              <property name="toolTip" >
+               <string>Choose cpp executable (cpp.exe) for GROMACS</string>
               </property>
               <property name="text" >
                <string>Choose...</string>
