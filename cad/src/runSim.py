@@ -48,6 +48,7 @@ from chem import AtomDict
 from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 from constants import filesplit
 from Process import Process
+from Plugins import checkPluginPreferences
 
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
@@ -98,6 +99,29 @@ def timestep_flag_and_arg( mflag = False): #bruce 060503
 class GromacsProcess(Process):
     verboseGromacsOutput = False
 
+    def verifyGromacsPlugin(self):
+        """
+        Verify GROMACS plugin.
+        
+        Returns (errorcode, errortext), where errorcode is one of the following:
+        0 = successful
+        non-zero = failed for an unknown reason.
+        """
+        
+        plugin_name = "GROMACS"
+        plugin_prefs_keys = (gromacs_enabled_prefs_key, gromacs_path_prefs_key)
+            
+        errorcode, errortext_or_path = \
+                 checkPluginPreferences(plugin_name, plugin_prefs_keys)
+        if errorcode:
+            return errorcode, errortext_or_path
+        
+        program_path = errortext_or_path
+        
+        gromacs_bin_dir, junk_exe = os.path.split(program_path)
+        
+        return 0, gromacs_bin_dir
+    
     def standardOutputLine(self, line):
         Process.standardOutputLine(self, line)
         if (self.verboseGromacsOutput):
@@ -125,10 +149,10 @@ class GromacsProcess(Process):
         self.runningGrompp = False
         self.runningMdrun = True
     
-
 class SimRunner:
     """
-    class for running the simulator [subclasses can run it in special ways, maybe]
+    Class for running the simulator.
+    [subclasses can run it in special ways, maybe]
     """
     #bruce 050330 making this from writemovie and maybe some of Movie/SimSetup; experimental,
     # esp. since i don't yet know how much to factor the input-file writing, process spawning,
@@ -159,8 +183,9 @@ class SimRunner:
         self.useGromacs = useGromacs
         self.background = background
 
-        prefer_standalone_sim = debug_pref("force use of standalone sim", Choice_boolean_False,
-                                           prefs_key = 'use-standalone-sim', non_debug = True)
+        prefer_standalone_sim = \
+            debug_pref("force use of standalone sim", Choice_boolean_False,
+                       prefs_key = 'use-standalone-sim', non_debug = True)
 
         if prefer_standalone_sim:
             use_dylib_sim = False
@@ -191,9 +216,10 @@ class SimRunner:
             self.write_sim_input_file() # for Minimize, uses simaspect to write file; puts it into movie.alist too, via writemovie
             self.simProcess = None #bruce 051231
             self.spawn_process()
-                # spawn_process is misnamed since it can go thru either interface (pyrex or exec OS process),
-                # since it also monitors progress and waits until it's done,
-                # and insert results back into part, either in real time or when done.
+                # spawn_process is misnamed since it can go thru either 
+                # interface (pyrex or exec OS process), since it also monitors
+                # progress and waits until it's done, and insert results back
+                # into part, either in real time or when done.
                 # result error code (or abort button flag) stored in self.errcode
             if (self.mflag == 1 and self.useGromacs):
                 gromacsBaseFileName = self._movie.filename
