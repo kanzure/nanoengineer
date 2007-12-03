@@ -103,9 +103,9 @@ class GromacsProcess(Process):
         """
         Verify GROMACS plugin.
         
-        Returns (errorcode, errortext), where errorcode is one of the following:
-        0 = successful
-        non-zero = failed for an unknown reason.
+        @return: (0, path to GROMACS bin directory) on success, or
+                 (1, an error message indicating the problem).
+        @rtype:  List
         """
         
         plugin_name = "GROMACS"
