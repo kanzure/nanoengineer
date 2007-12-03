@@ -17,6 +17,7 @@ from drawer import drawLadder, drawRibbons
 
 from constants import black, darkred, blue, white
 
+
 # == GraphicsMode part
 
 class DnaLine_GM( LineMode.GraphicsMode_class ):
@@ -28,6 +29,8 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
     #first endpoint of the line. See LineMode.Draw for details. 
     endPoint1_sphereColor = white 
     endPoint1_sphereOpacity = 1.0
+    
+    text = ''
     
     def __init__(self, command):
         """
@@ -94,11 +97,17 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                        ribbon1Color = darkred,
                        ribbon2Color = blue,
                        stepColor = black    
-                    )  
-                      
+                    )       
+
+            if self.command:
+                self.text = self.command.callbackMethodForCursorTextString(
+                    self.endPoint1, 
+                    self.endPoint2)
+                self.glpane.renderTextNearCursor(self.text)
+                          
+          
 
 # == Command part
-
 class DnaLineMode(LineMode): 
     """
     Encapsulates the LineMode functionality.
@@ -113,6 +122,8 @@ class DnaLineMode(LineMode):
     @see: L{LineMode}
     @see: selectMolsMode.provideParamsForTemporaryMode comments for 
           related  TODOs.
+    @see: DnaDuplexEditController.provideParamsForTemporaryMode
+    @see: DnaDuplexEditController.getCursorTextForTemporaryMode
     """
     
     # class constants    
@@ -121,5 +132,7 @@ class DnaLineMode(LineMode):
     GraphicsMode_class = DnaLine_GM
         
     def setParams(self, params):
-        assert len(params) == 2
-        self.mouseClickLimit, self.duplexRise = params
+        assert len(params) == 3
+        self.mouseClickLimit, \
+            self.duplexRise, \
+            self.callbackMethodForCursorTextString = params

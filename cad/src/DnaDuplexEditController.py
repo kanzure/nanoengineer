@@ -293,7 +293,18 @@ class DnaDuplexEditController(EditController):
         
         mouseClickLimit = 2
         duplexRise =  getDuplexRise('B-DNA')
-        return (mouseClickLimit, duplexRise)
+        callbackMethod = self.getCursorTextForTemporaryMode
+        return (mouseClickLimit, duplexRise, callbackMethod)
+    
+    def getCursorTextForTemporaryMode(self, endPoint1, endPoint2):
+        """
+        """
+        duplexLength = vlen(endPoint2 - endPoint1)
+        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
+                                                                 duplexLength)
+        duplexLengthString = str(round(duplexLength, 3))
+        text =  str(numberOfBasePairs)+ "b, "+ duplexLengthString 
+        return text 
 
     def enterDnaLineMode(self, isChecked = False):
         """
