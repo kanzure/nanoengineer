@@ -26,6 +26,8 @@ usage(void)
    --write-gromacs-topology output_prefix\n\
                     reads .mmp file and writes it as gromacs topology and coordinates\n\
                     files.  Writes output_prefix.top and output_prefix.gro\n\
+   --path-to-cpp path\n\
+                    path to the c preprocessor executable (for gromacs)\n\
    --print-potential-function=<bond>\n\
                     print the values of the potential and gradient for the given bond.\n\
                     <bond> should be one of:\n\
@@ -156,11 +158,13 @@ set_py_exc_str(const char *filename,
 #define OPT_PRINT_ENERGIES    LONG_OPT (16)
 #define OPT_ENABLE_ELECTROSTATIC LONG_OPT (17)
 #define OPT_WRITE_GROMACS_TOPOLOGY LONG_OPT (18)
+#define OPT_PATH_TO_CPP LONG_OPT (19)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
     { "dump-part", no_argument, NULL, OPT_DUMP_PART },
     { "write-gromacs-topology", required_argument, NULL, OPT_WRITE_GROMACS_TOPOLOGY },
+    { "path-to-cpp", required_argument, NULL, OPT_PATH_TO_CPP },
     { "print-potential-function", required_argument, NULL, OPT_PRINT_POTENTIAL},
     { "initial", required_argument, NULL, OPT_INITIAL},
     { "increment", required_argument, NULL, OPT_INCREMENT},
@@ -252,6 +256,9 @@ main(int argc, char **argv)
 	    break;
 	case OPT_WRITE_GROMACS_TOPOLOGY:
 	    GromacsOutputBaseName = optarg;
+	    break;
+	case OPT_PATH_TO_CPP:
+	    PathToCpp = optarg;
 	    break;
         case OPT_PRINT_POTENTIAL:
             printPotential = optarg;

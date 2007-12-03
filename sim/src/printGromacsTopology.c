@@ -204,6 +204,9 @@ printGromacsToplogy(char *basename, struct part *p)
 
     fprintf(mdp, "title               =  NE1-minimize\n");
     fprintf(mdp, "constraints         =  none\n");
+    if (PathToCpp != NULL) {
+        fprintf(mdp, "cpp                 =  %s\n", PathToCpp);
+    }
     fprintf(mdp, "pbc                 =  no\n"); // disable periodic boundary conditions
     fprintf(mdp, "integrator          =  cg\n"); // cg or steep, for conjugate gradients or steepest descent
     fprintf(mdp, "nsteps              =  1000\n"); // max number of iterations

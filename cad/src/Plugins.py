@@ -6,7 +6,7 @@ Contains a collection general plugin helper functions for the purpose of
 checking and/or verifying that a plugin is enabled and that the path pointed
 to by its pref_key is the plugin.
 
-@version: $Id:$
+@version: $Id$
 
 History:
 
@@ -89,7 +89,7 @@ def _checkPluginPreferences_0(plugin_name, plugin_prefs_keys):
         return 1, "%s plug-in executable path is empty" % plugin_name
     
     if not os.path.exists(plugin_path):
-        return 1, "%s executable not found at specified path %s" % plugin_name, plugin_path
+        return 1, "%s executable not found at specified path %s" % (plugin_name, plugin_path)
 
     ##e should check version of plugin, if we know how
 

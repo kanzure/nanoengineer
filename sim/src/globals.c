@@ -46,6 +46,7 @@ char *OutputFileName;
 char *TraceFileName;
 char *BaseFileName;
 char *GromacsOutputBaseName;
+char *PathToCpp;
 int QualityWarningLevel;
 float SimpleMovieForceScale;
 double MinimizeThresholdCutoverRMS;
@@ -137,6 +138,7 @@ reinit_globals(void)
     TraceFileName = NULL;
     BaseFileName = NULL;
     GromacsOutputBaseName = NULL;
+    PathToCpp = NULL;
     QualityWarningLevel = 5;
     SimpleMovieForceScale = 1.0;
     TimeReversal = 0;

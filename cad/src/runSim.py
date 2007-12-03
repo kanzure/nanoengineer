@@ -55,6 +55,11 @@ from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 from prefs_constants import electrostaticsForDnaDuringDynamics_prefs_key
 from prefs_constants import Adjust_minimizationEngine_prefs_key
 
+from prefs_constants import gromacs_enabled_prefs_key
+from prefs_constants import gromacs_path_prefs_key
+from prefs_constants import cpp_enabled_prefs_key
+from prefs_constants import cpp_path_prefs_key
+
 from prefs_constants import MINIMIZE_ENGINE_UNSPECIFIED
 from prefs_constants import MINIMIZE_ENGINE_GROMACS_FOREGROUND
 from prefs_constants import MINIMIZE_ENGINE_GROMACS_BACKGROUND
@@ -98,29 +103,6 @@ def timestep_flag_and_arg( mflag = False): #bruce 060503
 
 class GromacsProcess(Process):
     verboseGromacsOutput = False
-
-    def verifyGromacsPlugin(self):
-        """
-        Verify GROMACS plugin.
-        
-        @return: (0, path to GROMACS bin directory) on success, or
-                 (1, an error message indicating the problem).
-        @rtype:  List
-        """
-        
-        plugin_name = "GROMACS"
-        plugin_prefs_keys = (gromacs_enabled_prefs_key, gromacs_path_prefs_key)
-            
-        errorcode, errortext_or_path = \
-                 checkPluginPreferences(plugin_name, plugin_prefs_keys)
-        if errorcode:
-            return errorcode, errortext_or_path
-        
-        program_path = errortext_or_path
-        
-        gromacs_bin_dir, junk_exe = os.path.split(program_path)
-        
-        return 0, gromacs_bin_dir
     
     def standardOutputLine(self, line):
         Process.standardOutputLine(self, line)
@@ -197,6 +179,42 @@ class SimRunner:
             env.history.message(greenmsg("Using the standalone simulator (not the pyrex simulator)"))
         return
 
+    def verifyGromacsPlugin(self):
+        """
+        Verify GROMACS plugin.
+        
+        @return: True if GROMACS is properly enabled.
+        @rtype: boolean
+        """
+        
+        plugin_name = "GROMACS"
+        plugin_prefs_keys = (gromacs_enabled_prefs_key, gromacs_path_prefs_key)
+            
+        errorcode, errortext_or_path = \
+                 checkPluginPreferences(plugin_name, plugin_prefs_keys)
+        if errorcode:
+            msg = redmsg("Verify Plugin: %s (code %d)" % (errortext_or_path, errorcode))
+            env.history.message(msg)
+            return False
+        
+        program_path = errortext_or_path
+        
+        self.gromacs_bin_dir, junk_exe = os.path.split(program_path)
+        
+        plugin_name = "CPP"
+        plugin_prefs_keys = (cpp_enabled_prefs_key, cpp_path_prefs_key)
+            
+        errorcode, errortext_or_path = \
+                 checkPluginPreferences(plugin_name, plugin_prefs_keys)
+        if errorcode:
+            msg = redmsg("Verify Plugin: %s (code %d)" % (errortext_or_path, errorcode))
+            env.history.message(msg)
+            return False
+        
+        self.cpp_executable_path = errortext_or_path
+        
+        return True
+
     def run_using_old_movie_obj_to_hold_sim_params(self, movie): #bruce 051115 removed unused 'options' arg
         self._movie = movie # general kluge for old-code compat (lots of our methods still use this and modify it)
         # note, this movie object (really should be a simsetup object?) does not yet know a proper alist (or any alist, I hope) [bruce 050404]
@@ -207,6 +225,10 @@ class SimRunner:
             # bruce 051115 comment: more than one reason this can happen, one is sim executable missing
             return
         self.sim_input_file = self.sim_input_filename() # might get name from options or make up a temporary filename
+        if (self.mflag == 1 and self.useGromacs):
+            if (not self.verifyGromacsPlugin()):
+                self.errcode = _FAILURE_ALREADY_DOCUMENTED
+                return
         self.set_waitcursor(True)
 
         # Disable some QActions (menu items/toolbar buttons) while the sim is running.
@@ -222,6 +244,9 @@ class SimRunner:
                 # into part, either in real time or when done.
                 # result error code (or abort button flag) stored in self.errcode
             if (self.mflag == 1 and self.useGromacs):
+                grompp = os.path.join(self.gromacs_bin_dir, "grompp") # do we need .exe for windows?
+                mdrun = os.path.join(self.gromacs_bin_dir, "mdrun") # do we need .exe for windows?
+                
                 gromacsBaseFileName = self._movie.filename
                 gromacsProcess = GromacsProcess()
                 gromacsProcess.prepareForGrompp()
@@ -235,7 +260,7 @@ class SimRunner:
                     "-o", "%s.tpr" % gromacsBaseFileName,
                     "-po", "%s-out.mdp" % gromacsBaseFileName,
                     ]
-                errorCode = gromacsProcess.run("grompp", gromppArgs)
+                errorCode = gromacsProcess.run(grompp, gromppArgs)
                 if (errorCode != 0):
                     msg = redmsg("Gromacs minimization failed, grompp returned %d" % errorCode)
                     env.history.message(self.cmdname + ": " + msg)
@@ -251,7 +276,7 @@ class SimRunner:
                         "-c", "%s-out.gro" % gromacsBaseFileName,
                         "-g", "%s-mdrun.log" % gromacsBaseFileName,
                         ]
-                    errorCode = gromacsProcess.run("mdrun", mdrunArgs)
+                    errorCode = gromacsProcess.run(mdrun, mdrunArgs)
                     if (errorCode != 0):
                         msg = redmsg("Gromacs minimization failed, mdrun returned %d" % errorCode)
                         env.history.message(self.cmdname + ": " + msg)
@@ -680,11 +705,13 @@ class SimRunner:
                 electrostaticArg += str(electrostaticFlag) #bruce 070601 bugfix
 
                 if (self.useGromacs):
-                    gromacsArg1 = "--write-gromacs-topology"
-                    gromacsArg2 = moviefile
+                    gromacsArgs = ["--write-gromacs-topology",
+                                   moviefile,
+                                   "--path-to-cpp",
+                                   self.cpp_executable_path
+                                   ]
                 else:
-                    gromacsArg1 = ""
-                    gromacsArg2 = ""
+                    gromacsArgs = []
 
                 # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
                 # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
@@ -693,7 +720,7 @@ class SimRunner:
                         traceFileArg, outfileArg,
                         gromacsArg1, gromacsArg2,
                         electrostaticArg,
-                        infile] #SIMOPT
+                        infile] + gromacsArgs #SIMOPT
             else: 
                 # THE TIMESTEP ARGUMENT IS MISSING ON PURPOSE.
                 # The timestep argument "-s + (movie.timestep)" is not supported for Alpha. #SIMOPT
@@ -768,6 +795,7 @@ class SimRunner:
 
                 if (self.useGromacs):
                     simopts.GromacsOutputBaseName = moviefile
+                    simopts.PathToCpp = self.cpp_executable_path
 
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
             # probably we'll let the later sim-start code set those itself.
@@ -2435,6 +2463,8 @@ class Minimize_CommandRun(CommandRun):
 
         if mtype == 1:  # Load single-frame XYZ file.
             if (self.useGromacs):
+                if (self.background):
+                    return
                 newPositions = readGromacsCoordinates(movie.filename + "-out.gro", movie.alist)
             else:
                 newPositions = readxyz( movie.filename, movie.alist ) # movie.alist is now created in writemovie [bruce 050325]

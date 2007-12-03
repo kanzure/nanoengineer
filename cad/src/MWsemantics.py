@@ -71,6 +71,8 @@ import undo
 
 from prefs_constants import nanohive_enabled_prefs_key
 from prefs_constants import gamess_enabled_prefs_key
+from prefs_constants import gromacs_enabled_prefs_key
+from prefs_constants import cpp_enabled_prefs_key
 from prefs_constants import zoomAboutScreenCenter_prefs_key
 from prefs_constants import workingDirectory_prefs_key
 from prefs_constants import getDefaultWorkingDirectory
@@ -683,6 +685,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # where all plug-ins get added and enabled during invocation.  Mark 050921.
         self.userPrefs.enable_nanohive(env.prefs[nanohive_enabled_prefs_key])
         self.userPrefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
+        self.userPrefs.enable_gromacs(env.prefs[gromacs_enabled_prefs_key])
+        self.userPrefs.enable_cpp(env.prefs[cpp_enabled_prefs_key])
 
         #Zoom behavior setting  (View > Zoom About Screen Center)
         self.viewZoomAboutScreenCenterAction.setChecked(

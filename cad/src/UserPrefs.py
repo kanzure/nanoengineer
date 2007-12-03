@@ -27,6 +27,8 @@ from PyQt4.Qt import QPalette
 from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import QString
 from PyQt4.Qt import QFont
+from PyQt4.Qt import Qt
+
 
 from UserPrefsDialog import Ui_UserPrefsDialog
 import preferences
@@ -536,15 +538,21 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
                      self.enable_gromacs)
         self.connect(self.gromacs_choose_btn,
                      SIGNAL("clicked()"),
+                     self.choose_gromacs_path)
+        self.connect(self.gromacs_path_lineedit,
+                     SIGNAL("textEdited(const QString&)"),
                      self.set_gromacs_path)
         
-        #connect GROMACS checkbox under Preferences > Plugins when 
-        #to enable/disable GROMACS plugin line edit and the 'choose button'
+        #connect cpp checkbox under Preferences > Plugins when 
+        #to enable/disable cpp plugin line edit and the 'choose button'
         self.connect(self.cpp_checkbox,
                      SIGNAL("toggled(bool)"),
                      self.enable_cpp)
         self.connect(self.cpp_choose_btn,
                      SIGNAL("clicked()"),
+                     self.choose_cpp_path)
+        self.connect(self.cpp_path_lineedit,
+                     SIGNAL("textEdited(const QString&)"),
                      self.set_cpp_path)
       
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("buttonClicked(int)"),self.change_high_order_bond_display)
@@ -790,6 +798,17 @@ Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")
                                                       When depositing atoms, clipboard chunks or library parts, their atoms will automatically be selected.""")
         self.buildmode_highlighting_checkbox.setWhatsThis("""Build mode's default setting for Highlighting at startup (enabled/disabled)""")
 
+        self.gromacs_labe.setWhatsThis("""Enable GROMACS and choose the mdrun executable path to use.""")
+        self.gromacs_checkbox.setWhatsThis("""This enables GROMACS as a plug-in. GROMACS is a free rendering program available from http://www.gromacs.org/. GROMACS must be installed on your computer before you can enable the GROMACS plug-in.  Check this and choose the the path to the mdrun executable from your GROMACS distribution.""")
+        self.gromacs_path_lineedit.setWhatsThis("""The full path to the mdrun executable file for GROMACS.""")
+        self.gromacs_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
+                                        location of the GROMACS executable (mdrun).""")
+
+        self.cpp_label.setWhatsThis("""Specify the C-preprocessor (cpp) for GROMACS to use.""")
+        self.cpp_checkbox.setWhatsThis("""Specify the C-preprocessor (cpp) for GROMACS to use.""")
+        self.cpp_path_lineedit.setWhatsThis("""The full path to the C-preprocessor (cpp) executable file for GROMACS to use.""")
+        self.cpp_choose_btn.setWhatsThis("""Allows you to choose the path to the C-preprocessor (cpp) executable file for GROMACS to use.""")
+
         self.povray_checkbox.setWhatsThis("""This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
         self.povray_lbl.setWhatsThis("""This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
 
@@ -820,8 +839,6 @@ GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.h
         self.povdir_linedit.setWhatsThis("""Specify a directory for where to find POV-Ray or MegaPOV include
                                      files such as transforms.inc.""")
         
-        self.gromacs_checkbox.setWhatsThis("""This enables GROMACS as a plug-in. GROMACS is a free rendering program available from http://www.gromacs.org/. GROMACS must be installed on your computer before you can enable the GROMACS plug-in.""")
-        self.gromacs_path_lineedit.setWhatsThis("""The full path to the GROMACS executable file (grompp.exe).""")
         
         self.qutemol_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
                                          location of the QuteMol executable.""")
@@ -833,8 +850,6 @@ GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.h
                                          location of the MegaPOV executable (megapov.exe).""")
         self.gamess_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
                                         location of the GAMESS or PC-GAMESS executable.""")
-        self.gromacs_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
-                                        location of the GROMACS executable (grompp.exe).""")
         self.megapov_lbl.setWhatsThis("""This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
         self.povdir_checkbox.setWhatsThis("""Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc.""")
         self.undo_automatic_checkpoints_checkbox.setWhatsThis("""<p><b>Automatic Checkpoints</b></p>Specifies whether <b>Automatic
@@ -2229,40 +2244,52 @@ restored when the user undoes a structural change.</p>
             
     # GROMACS slots #######################################
     
-    def set_gromacs_path(self):
+    def choose_gromacs_path(self):
         """
         Slot for GROMACS path "Choose" button.
         """
-        gromacs_exe = \
-                    get_filename_and_save_in_prefs(self, 
-                                                   gromacs_path_prefs_key, 
-                                                   "Choose GROMOACS Executable")
-        if gromacs_exe:
-            self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])   
+
+        mdrun_executable = get_filename_and_save_in_prefs(self,
+                                                          gromacs_path_prefs_key,
+                                                          'Choose mdrun Executable (GROMACS)')
+
+        if mdrun_executable:
+            self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
+    
+    def set_gromacs_path(self, newValue):
+        """
+        Slot for GROMACS path line editor.
+        """
+        env.prefs[gromacs_path_prefs_key] = str(newValue)
     
     def enable_gromacs(self, enable = True):
         """
-        Enables/disables GROMACS plugin.
+        If True, GROMACS path is set in Preferences>Plug-ins
         
-        @param enable: Enabled when True. Disables when False.
+        @param enable: Is the path set?
         @type  enable: bool
         """
-        
+
+        state = self.gromacs_checkbox.checkState()
         if enable:
+            if (state != Qt.Checked):
+                self.gromacs_checkbox.setCheckState(Qt.Checked)
             self.gromacs_path_lineedit.setEnabled(True)
             self.gromacs_choose_btn.setEnabled(True)
             env.prefs[gromacs_enabled_prefs_key] = True
             
-            # Sets the GROMACS path to the standard location, if it exists.
+            # Sets the GROMACS (executable) path to the standard location, if it exists.
             if not env.prefs[gromacs_path_prefs_key]:
                 env.prefs[gromacs_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\GROMACS\\bin\\grompp.exe", \
-                    "/usr/local/bin/grompp", \
-                    "/usr/local/bin/grompp")
+                    "C:\\GROMACS\\bin\\mdrun.exe", \
+                    "/usr/bin/mdrun",
+                    "/usr/bin/mdrun")
                 
             self.gromacs_path_lineedit.setText(env.prefs[gromacs_path_prefs_key])
             
         else:
+            if (state != Qt.Unchecked):
+                self.gromacs_checkbox.setCheckState(Qt.Unchecked)
             self.gromacs_path_lineedit.setEnabled(False)
             self.gromacs_choose_btn.setEnabled(False)
             self.gromacs_path_lineedit.setText("")
@@ -2271,15 +2298,23 @@ restored when the user undoes a structural change.</p>
             
     # cpp slots #######################################
     
-    def set_cpp_path(self):
+    def choose_cpp_path(self):
         """
-        Sets the cpp path 
+        Sets the path to cpp (C pre-processor)
         """
-        cpp_exe = get_filename_and_save_in_prefs(self, 
-                                                 cpp_path_prefs_key, 
-                                                 "Choose CPP Executable")
-        if cpp_exe:
+
+        cpp_executable = get_filename_and_save_in_prefs(self,
+                                                        cpp_path_prefs_key,
+                                                        'Choose cpp Executable (used by GROMACS)')
+
+        if cpp_executable:
             self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
+    
+    def set_cpp_path(self, newValue):
+        """
+        Slot for cpp path line editor.
+        """
+        env.prefs[cpp_path_prefs_key] = str(newValue)
     
     def enable_cpp(self, enable = True):
         """
@@ -2288,7 +2323,10 @@ restored when the user undoes a structural change.</p>
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
         """
+        state = self.cpp_checkbox.checkState()
         if enable:
+            if (state != Qt.Checked):
+                self.cpp_checkbox.setCheckState(Qt.Checked)
             self.cpp_path_lineedit.setEnabled(True)
             self.cpp_choose_btn.setEnabled(True)
             env.prefs[cpp_enabled_prefs_key] = True
@@ -2297,12 +2335,14 @@ restored when the user undoes a structural change.</p>
             if not env.prefs[cpp_path_prefs_key]:
                 env.prefs[cpp_path_prefs_key] = get_default_plugin_path( \
                     "C:\\GROMACS\\cpp.exe", \
-                    "/usr/local/bin/cpp", \
-                    "/usr/local/bin/cpp")
+                    "/usr/bin/cpp", \
+                    "/usr/bin/cpp")
                 
             self.cpp_path_lineedit.setText(env.prefs[cpp_path_prefs_key])
             
         else:
+            if (state != Qt.Unchecked):
+                self.cpp_checkbox.setCheckState(Qt.Unchecked)
             self.cpp_path_lineedit.setEnabled(False)
             self.cpp_choose_btn.setEnabled(False)
             self.cpp_path_lineedit.setText("")

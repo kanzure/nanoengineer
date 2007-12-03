@@ -52,6 +52,7 @@ cdef extern from "simhelp.c":
     char *OutputFileName
     char *TraceFileName
     char *GromacsOutputBaseName
+    char *PathToCpp
     double Dt
     double Dx
     double Dmass
@@ -173,6 +174,11 @@ cdef class BaseSimulator:
                 # should we raise an AttributeError here?
                 return ""
             return GromacsOutputBaseName
+        elif strcmp(key, "PathToCpp") == 0:
+            if PathToCpp == NULL:
+                # should we raise an AttributeError here?
+                return ""
+            return PathToCpp
         elif strcmp(key, "Dt") == 0:
             return Dt
         elif strcmp(key, "Dx") == 0:
@@ -261,6 +267,9 @@ cdef class BaseSimulator:
         elif strcmp(key, "GromacsOutputBaseName") == 0:
             global GromacsOutputBaseName
             GromacsOutputBaseName = value
+        elif strcmp(key, "PathToCpp") == 0:
+            global PathToCpp
+            PathToCpp = value
         elif strcmp(key, "Dt") == 0:
             global Dt
             Dt = value

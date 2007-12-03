@@ -35,6 +35,7 @@ extern char *OutputFileName;
 extern char *TraceFileName;
 extern char *BaseFileName;
 extern char *GromacsOutputBaseName;
+extern char *PathToCpp;
 extern int QualityWarningLevel;
 extern float SimpleMovieForceScale;
 extern double MinimizeThresholdCutoverRMS;
