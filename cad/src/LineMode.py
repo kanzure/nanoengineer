@@ -15,6 +15,8 @@ from constants import black, darkred
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix
 
+from VQT import vlen, Q, norm, angleBetween, V
+
 
 STARTPOINT_SPHERE_RADIUS = 1.0
 STARTPOINT_SPHERE_DRAWLEVEL = 2
@@ -61,6 +63,9 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     
     endPoint1_sphereColor = darkred
     endPoint1_sphereOpacity = 0.5
+    
+    _snapOn = False
+    _snapType = ''
 
     def leftDown(self, event):
         """
@@ -83,9 +88,63 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """       
         if len(self.command.mouseClickPoints) > 0:
             self.endPoint2 = self.dragto( self.endPoint1, event)
-            self.glpane.gl_update()        
+            self.snapLineEndPoint()          
+            self.update_cursor_for_no_MB()
+            self.glpane.gl_update()    
+        
         return
     
+    def snapLineEndPoint(self):
+        """
+        Snap the line to the specified constraints. 
+        To be refactored and expanded. 
+        """        
+        up = self.glpane.up
+        down = self.glpane.down
+        left = self.glpane.left
+        right = self.glpane.right  
+        
+        snapVector = V(0, 0, 0)
+        
+        currentLineVector = norm(self.endPoint2 - self.endPoint1)
+        
+        theta_horizontal = angleBetween(right, currentLineVector) 
+        theta_vertical = angleBetween(up, currentLineVector) 
+        
+        theta_horizontal_old = theta_horizontal
+        theta_vertical_old = theta_vertical
+        
+        if theta_horizontal != 90.0:            
+            theta_horizontal = min(theta_horizontal, 
+                                   (180.0 - theta_horizontal))
+        
+        if theta_vertical != 90.0:            
+            theta_vertical = min(theta_vertical, 
+                                 180.0 - theta_vertical)
+            
+        theta = min(theta_horizontal, theta_vertical)
+                
+        if theta <= 10.0 and theta != 0.0:
+            self._snapOn = True
+            if theta == theta_horizontal:
+                self._snapType = 'HORIZONTAL'
+                if theta_horizontal == theta_horizontal_old:
+                    snapVector = right                   
+                else:
+                    snapVector = left
+            elif theta == theta_vertical:
+                self._snapType = 'VERTICAL'
+                if theta_vertical == theta_vertical_old:
+                    snapVector = up
+                else:
+                    snapVector = down
+                    
+            self.endPoint2 = self.endPoint1 + \
+                      vlen(self.endPoint1 - self.endPoint2)*snapVector
+ 
+        else:                
+            self._snapOn = False
+
     def Draw(self):
         """
         Draw method for this temporary mode. 
@@ -105,7 +164,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
                  self.endPoint2,
                  width = self.rubberband_line_width,
                  dashEnabled = True)            
-            glPopMatrix()
+            glPopMatrix()            
     
     def leftUp(self, event):
         """
@@ -125,7 +184,13 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         Update the cursor for this mode.
         """
         #self.glpane.setCursor(self.win.SelectAtomsCursor)
-        self.glpane.setCursor(self.win.colorPencilCursor)
+        if self._snapOn:
+            if self._snapType == 'HORIZONTAL':
+                self.glpane.setCursor(self.win.pencilHorizontalSnapCursor)
+            elif self._snapType == 'VERTICAL':
+                self.glpane.setCursor(self.win.pencilVerticalSnapCursor)
+        else:
+            self.glpane.setCursor(self.win.colorPencilCursor)
     
     def resetVariables(self):
         """
@@ -168,7 +233,6 @@ class LineMode(TemporaryCommand_Overdrawing):
         prevMode = self.commandSequencer.prevMode        
         #clear the list (for safety) which may still have old data in it
         self.mouseClickPoints = []
-        self.glpane.setCursor(self.win.ZoomCursor)
         self.glpane.gl_update()
         
         if hasattr(prevMode, 'provideParamsForTemporaryMode'):

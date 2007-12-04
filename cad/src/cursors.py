@@ -154,5 +154,9 @@ def loadCursors(w):
     
     #COLOR CURSORS!
     w.colorPencilCursor = QCursor(getpixmap('ui/cursors/Pencil.png'), 0, 0)
+    w.pencilHorizontalSnapCursor = \
+     QCursor(getpixmap('ui/cursors/Pencil_HorizontalSnap.png'), 0, 0)
+    w.pencilVerticalSnapCursor = \
+     QCursor(getpixmap('ui/cursors/Pencil_VerticalSnap.png'), 0, 0)
 
     return # from loadCursors
