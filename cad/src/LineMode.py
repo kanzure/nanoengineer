@@ -185,15 +185,13 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     def leftUp(self, event):
         """
         Event handler for Left Mouse button left-up event
-        """
-        print "~~~~~~~~~~~~~~~~~"
-        print "*** in leftUp"       
+        """      
         assert len(self.command.mouseClickPoints) <= self.command.mouseClickLimit
                         
         if len(self.command.mouseClickPoints) == self.command.mouseClickLimit:
             self.endPoint2 = None
             self._snapOn = False
-            ##self.glpane.gl_update()
+            self.glpane.gl_update()
             self.command.Done(exit_using_done_or_cancel_button = False)            
             return
          
@@ -207,7 +205,6 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
             if self._snapType == 'HORIZONTAL':
                 self.glpane.setCursor(self.win.pencilHorizontalSnapCursor)
             elif self._snapType == 'VERTICAL':
-                print "***in update_cursor_for_no_MB, self._snapType =", self._snapType
                 self.glpane.setCursor(self.win.pencilVerticalSnapCursor)
         else:
             self.glpane.setCursor(self.win.colorPencilCursor)
@@ -249,6 +246,7 @@ class LineMode(TemporaryCommand_Overdrawing):
     
     def init_gui(self):
         """
+        Initialize GUI for this mode 
         """
         prevMode = self.commandSequencer.prevMode        
         #clear the list (for safety) which may still have old data in it
@@ -269,6 +267,7 @@ class LineMode(TemporaryCommand_Overdrawing):
         
     def restore_gui(self):
         """
+        Restore the GUI 
         """
         prevMode = self.commandSequencer.prevMode
         if hasattr(prevMode, 'acceptParamsFromTemporaryMode'): 
