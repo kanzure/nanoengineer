@@ -2143,7 +2143,13 @@ def drawArrowHead(color,
     glPopMatrix()
     glEnable(GL_LIGHTING)
 
-def drawline(color, pos1, pos2, dashEnabled = False, width = 1, isSmooth = False):
+def drawline(color, 
+             pos1, 
+             pos2, 
+             dashEnabled = False, 
+             stipleFactor = 1,
+             width = 1, 
+             isSmooth = False):
     """Draw a line from pos1 to pos2 of the given color.
     If dashEnabled is True, it will be dashed.
     If width is not 1, it should be an int or float (more than 0)
@@ -2156,7 +2162,7 @@ def drawline(color, pos1, pos2, dashEnabled = False, width = 1, isSmooth = False
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     if dashEnabled: 
-        glLineStipple(1, 0xAAAA)
+        glLineStipple(stipleFactor, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
     if width != 1:
         glLineWidth(width)

@@ -4,18 +4,29 @@
 @version:   $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
-        
+
+TODOs:
+- Refactor/ expand snap code. Should all the snapping code be in its own module?
+- Need to discuss and derive various snap rules 
+  Examples: If 'theta_snap' between dragged line and the  two reference enties 
+            is the same, then the snap should use the entity with shortest  
+            distance
+            Should horizontal/vertical snap checkes always be done before 
+            standard axis  snap checks -- guess-- No. The current implementation
+            however skips the standard axis snap check if the 
+            horizontal/vertical snap checks succeed.           
+
 """
 
 from TemporaryCommand import TemporaryCommand_Overdrawing
 
 from drawer import drawline, drawsphere
-from constants import black, darkred
+from constants import black, darkred, blue
 
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix
 
-from VQT import vlen, Q, norm, angleBetween, V
+from VQT import vlen, Q, norm, angleBetween, V, ptonline
 
 
 STARTPOINT_SPHERE_RADIUS = 1.0
@@ -66,6 +77,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     
     _snapOn = False
     _snapType = ''
+    _standardAxisVectorForDrawingSnapReference = None
 
     def leftDown(self, event):
         """
@@ -109,7 +121,29 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         Snap the line to the specified constraints. 
         To be refactored and expanded. 
+        @return: The new endPoint2 i.e. the moving endpoint of the rubberband 
+                 line . This value may be same as previous or snapped so that it
+                 lies on a specified vector (if one exists)                 
+        @rtype: B{A}
         """        
+        endPoint2 = self._snapEndPointHorizontalOrVertical()
+        
+        if not self._snapOn:
+            endPoint2 = self._snapEndPointToStandardAxis()
+            pass
+                
+        return endPoint2
+    
+    def _snapEndPointHorizontalOrVertical(self):
+        """
+        Snap the second endpoint of the line (and thus the whole line) to the
+        screen horizontal or vertical vectors. 
+        @return: The new endPoint2 i.e. the moving endpoint of the rubberband 
+                 line . This value may be same as previous or snapped so that 
+                 line is horizontal or vertical depending upon the angle it 
+                 makes with the horizontal and vertical. 
+        @rtype: B{A}
+        """
         up = self.glpane.up
         down = self.glpane.down
         left = self.glpane.left
@@ -157,9 +191,78 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
  
         else:                
             self._snapOn = False
-        
-                
+            
         return endPoint2
+    
+    def _snapEndPointToStandardAxis(self):
+        """
+        Snap the second endpoint of the line so that it lies on the nearest
+        axis vector. (if its close enough) . This functions keeps the uses the
+        current rubberband line vector and just extends the second end point 
+        so that it lies at the intersection of the nearest axis vector and the 
+        rcurrent rubberband line vector. 
+        @return: The new endPoint2 i.e. the moving endpoint of the rubberband 
+                 line . This value may be same as previous or snapped to lie on
+                 the nearest axis (if one exists) 
+        @rtype: B{A}
+        """
+        x_axis = V(1, 0, 0)
+        y_axis = V(0, 1, 0)
+        z_axis = V(0, 0, 1)
+        
+        endPoint2 = self.endPoint2
+        currentLineVector = norm(self.endPoint2 - self.endPoint1)
+        
+        theta_x = angleBetween(x_axis, self.endPoint2)
+        theta_y = angleBetween(y_axis, self.endPoint2)
+        theta_z = angleBetween(z_axis, self.endPoint2)
+        
+        theta_x = min(theta_x, (180 - theta_x))
+        theta_y = min(theta_y, (180 - theta_y))
+        theta_z = min(theta_z, (180 - theta_z))
+        
+        theta = min(theta_x, theta_y, theta_z)
+                
+        if theta < 2.0:    
+            if theta == theta_x:                
+                self._standardAxisVectorForDrawingSnapReference = x_axis
+            elif theta == theta_y:
+                self._standardAxisVectorForDrawingSnapReference = y_axis
+            elif theta == theta_z:                
+                self._standardAxisVectorForDrawingSnapReference = z_axis
+            
+            endPoint2 = ptonline(self.endPoint2, 
+                                 V(0, 0, 0), 
+                                 self._standardAxisVectorForDrawingSnapReference)
+        else:
+            self._standardAxisVectorForDrawingSnapReference = None
+            
+                    
+        return endPoint2
+    
+    def _drawSnapReferenceLines(self):
+        """
+        Draw the snap reference lines as dottedt lines. Example, if the 
+        moving end of the rubberband line is 'close enough' to a standard axis 
+        vector, that point is 'snapped' soi that it lies on the axis. When this 
+        is done, program draws a dotted line from origin to the endPoint2 
+        indicating that the endpoint is snapped to that axis line.
+        
+        This method is called inside the self.Draw method. 
+        
+        @see: self._snapEndPointToStandardAxis 
+        @see: self.Draw
+        """
+        if not self.endPoint2:
+            return
+        if self._standardAxisVectorForDrawingSnapReference:
+            drawline(blue,
+                     V(0, 0, 0), 
+                     self.endPoint2, 
+                     dashEnabled = True, 
+                     stipleFactor = 4,
+                     width = 2)
+           
 
     def Draw(self):
         """
@@ -179,7 +282,9 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
                  self.endPoint1, 
                  self.endPoint2,
                  width = self.rubberband_line_width,
-                 dashEnabled = True)            
+                 dashEnabled = True)         
+            
+            self._drawSnapReferenceLines()
             glPopMatrix()            
     
     def leftUp(self, event):
@@ -191,6 +296,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         if len(self.command.mouseClickPoints) == self.command.mouseClickLimit:
             self.endPoint2 = None
             self._snapOn = False
+            self._standardAxisVectorForDrawingSnapReference = None
             self.glpane.gl_update()
             self.command.Done(exit_using_done_or_cancel_button = False)            
             return
@@ -222,7 +328,8 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         self.endPoint1 = None
         self.endPoint2 = None
-            
+    
+    
             
 # == Command part
 
