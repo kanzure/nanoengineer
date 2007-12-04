@@ -63,10 +63,14 @@ class Process(QProcess):
         self.connect( self, SIGNAL('readyReadStandardOutput()'), self.read_stdout) ###k
         self.connect( self, SIGNAL('readyReadStandardError()'), self.read_stderr) ###k
         self.connect( self, SIGNAL('error(int)'), self.got_error) ###k
+        self.connect( self, SIGNAL('finished(int)'), self.process_exited) ###k
 
         self.currentError = None
         self.stdoutRedirected = False
         self.stderrRedirected = False
+        self.stdoutPassThrough = False
+        self.stderrPassThrough = False
+        self.processName = "subprocess"
 
     def read_stdout(self):
         self.setReadChannel(QProcess.StandardOutput)
@@ -86,6 +90,13 @@ class Process(QProcess):
         # it doesn't seem like Qt ever calls this on Linux
         self.currentError = err
         print "got error: " + self.processState()
+
+    def process_exited(self, exitvalue):
+        self.set_stdout(None)
+        self.set_stderr(None)
+        #exit_code = self.exitCode()
+        #exit_status = self.exitStatus()
+        #print "%s exited, code: %d, status: %d" % (self.processName, exit_code, exit_status)
         
     ##def setArguments(self, args): #k needed?
         ##"Overrides QProcess.setArguments so it can accept a Python list as well as a QStringList."
@@ -123,15 +134,28 @@ class Process(QProcess):
         self.stderr = open(filename, 'w')
         self.stderrRedirected = True
 
+    def setStandardOutputPassThrough(self, passThrough):
+        self.stdoutPassThrough = passThrough
+
+    def setStandardErrorPassThrough(self, passThrough):
+        self.stderrPassThrough = passThrough
+
+    def setProcessName(self, name):
+        self.processName = name
+        
     def standardOutputLine(self, bytes):
         if self.stdout is not None:
             self.stdout.write(bytes)
             self.try_flush(self.stdout)
+        if (self.stdoutPassThrough):
+            print "%s: %s" % (self.processName, bytes.rstrip())
 
     def standardErrorLine(self, bytes):
         if self.stderr is not None:
             self.stderr.write(bytes)
             self.try_flush(self.stderr)
+        if (self.stdoutPassThrough):
+            print "%s(stderr): %s" % (self.processName, bytes.rstrip())
 
     def try_flush(self, file):
         try:
@@ -188,18 +212,21 @@ class Process(QProcess):
             return code
         return -2
 
-    def run(self, program, args = None):
+    def run(self, program, args = None, background = False):
         """Do everything needed to run the process with these args
         (a list of strings, starting with program name or path),
         except for the setX methods which caller might want to call first,
         like set_stdout, set_stderr, setWorkingDirectory,
         and optionally setArguments if args are not provided here.
         """
+        #print "%s: starting" % self.processName
         if (args is None):
             args = []
         self.currentError = None
         self.start(program, args) #k ok that we provide no stdin? #e might need to provide an env here
-        
+
+        if (background):
+            return 0
         return self.getExitValue()
     pass
 

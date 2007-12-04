@@ -244,11 +244,19 @@ class SimRunner:
                 # into part, either in real time or when done.
                 # result error code (or abort button flag) stored in self.errcode
             if (self.mflag == 1 and self.useGromacs):
-                grompp = os.path.join(self.gromacs_bin_dir, "grompp") # do we need .exe for windows?
-                mdrun = os.path.join(self.gromacs_bin_dir, "mdrun") # do we need .exe for windows?
+                if (sys.platform == 'win32'):
+                    dot_exe = ".exe"
+                else:
+                    dot_exe = ""
+                sim_bin_dir = self.sim_bin_dir_path()
+                grompp = os.path.join(self.gromacs_bin_dir, "grompp%s" % dot_exe)
+                mdrun = os.path.join(self.gromacs_bin_dir, "mdrun%s" % dot_exe)
+                nv1 = os.path.join(sim_bin_dir, "nv1%s" % dot_exe)
                 
                 gromacsBaseFileName = self._movie.filename
+                env.history.message("%s: files at %s.*" % (self.cmdname, gromacsBaseFileName))
                 gromacsProcess = GromacsProcess()
+                gromacsProcess.setProcessName("grompp")
                 gromacsProcess.prepareForGrompp()
                 gromacsProcess.redirect_stdout_to_file("%s-grompp-stdout.txt" % gromacsBaseFileName)
                 gromacsProcess.redirect_stderr_to_file("%s-grompp-stderr.txt" % gromacsBaseFileName)
@@ -266,23 +274,35 @@ class SimRunner:
                     env.history.message(self.cmdname + ": " + msg)
                     self.errcode = 2;
                 else:
+                    gromacsProcess.setProcessName("mdrun")
                     gromacsProcess.prepareForMdrun()
                     gromacsProcess.redirect_stdout_to_file("%s-mdrun-stdout.txt" % gromacsBaseFileName)
                     gromacsProcess.redirect_stderr_to_file("%s-mdrun-stderr.txt" % gromacsBaseFileName)
+                    if (self.background):
+                        mdrunOutputExtension = "nh5"
+                    else:
+                        mdrunOutputExtension = "trr"
                     mdrunArgs = [
                         "-s", "%s.tpr" % gromacsBaseFileName,
-                        "-o", "%s.trr" % gromacsBaseFileName,
+                        "-o", "%s.%s" % (gromacsBaseFileName, mdrunOutputExtension),
                         "-e", "%s.edr" % gromacsBaseFileName,
                         "-c", "%s-out.gro" % gromacsBaseFileName,
                         "-g", "%s-mdrun.log" % gromacsBaseFileName,
                         ]
-                    errorCode = gromacsProcess.run(mdrun, mdrunArgs)
+                    errorCode = gromacsProcess.run(mdrun, mdrunArgs, self.background)
                     if (errorCode != 0):
                         msg = redmsg("Gromacs minimization failed, mdrun returned %d" % errorCode)
                         env.history.message(self.cmdname + ": " + msg)
                         self.errcode = 3;
-                gromacsProcess.set_stdout(None) # closes output file
-                gromacsProcess.set_stderr(None)
+                    if (self.background):
+                        nv1Process = Process()
+                        nv1Args = [
+                            gromacsBaseFileName,
+                            ]
+                        nv1Process.setStandardOutputPassThrough(True)
+                        nv1Process.setStandardErrorPassThrough(True)
+                        nv1Process.setProcessName("nv1")
+                        nv1Process.run(nv1, nv1Args, True)
         
         except:
             print_compact_traceback("bug in simulator-calling code: ")
