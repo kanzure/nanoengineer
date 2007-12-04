@@ -78,6 +78,17 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         # coordinates of a highlighted object (e.g. atom center) as endpoints 
         # of the line
         farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( event)  
+        
+        if self._snapOn and self.endPoint2:
+            # This fixes a bug. Example: Suppose the dna line is snapped to a 
+            # constraint during the bare motion and the second point is clicked
+            # when this happens, the second clicked point is the new 
+            #'self.endPoint1'  which needs to be snapped like we did for 
+            # self.endPoint2 in the bareMotion. Setting self._snapOn to False
+            # ensures that the cursor is set to the simple Pencil cursor after 
+            # the click  -- Ninad 2007-12-04
+            self.endPoint1 = self.snapLineEndPoint()    
+            self._snapOn = False
         self.command.mouseClickPoints.append(self.endPoint1)
         return
     
@@ -88,7 +99,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """       
         if len(self.command.mouseClickPoints) > 0:
             self.endPoint2 = self.dragto( self.endPoint1, event)
-            self.snapLineEndPoint()          
+            self.endPoint2 = self.snapLineEndPoint()  
             self.update_cursor_for_no_MB()
             self.glpane.gl_update()    
         
@@ -103,6 +114,8 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         down = self.glpane.down
         left = self.glpane.left
         right = self.glpane.right  
+        
+        endPoint2 = self.endPoint2
         
         snapVector = V(0, 0, 0)
         
@@ -124,7 +137,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
             
         theta = min(theta_horizontal, theta_vertical)
                 
-        if theta <= 10.0 and theta != 0.0:
+        if theta <= 2.0 and theta != 0.0:
             self._snapOn = True
             if theta == theta_horizontal:
                 self._snapType = 'HORIZONTAL'
@@ -139,11 +152,14 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
                 else:
                     snapVector = down
                     
-            self.endPoint2 = self.endPoint1 + \
+            endPoint2 = self.endPoint1 + \
                       vlen(self.endPoint1 - self.endPoint2)*snapVector
  
         else:                
             self._snapOn = False
+        
+                
+        return endPoint2
 
     def Draw(self):
         """
@@ -170,12 +186,14 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         Event handler for Left Mouse button left-up event
         """
-               
+        print "~~~~~~~~~~~~~~~~~"
+        print "*** in leftUp"       
         assert len(self.command.mouseClickPoints) <= self.command.mouseClickLimit
                         
         if len(self.command.mouseClickPoints) == self.command.mouseClickLimit:
             self.endPoint2 = None
-            self.glpane.gl_update()
+            self._snapOn = False
+            ##self.glpane.gl_update()
             self.command.Done(exit_using_done_or_cancel_button = False)            
             return
          
@@ -183,11 +201,13 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         Update the cursor for this mode.
         """
+        
         #self.glpane.setCursor(self.win.SelectAtomsCursor)
         if self._snapOn:
             if self._snapType == 'HORIZONTAL':
                 self.glpane.setCursor(self.win.pencilHorizontalSnapCursor)
             elif self._snapType == 'VERTICAL':
+                print "***in update_cursor_for_no_MB, self._snapType =", self._snapType
                 self.glpane.setCursor(self.win.pencilVerticalSnapCursor)
         else:
             self.glpane.setCursor(self.win.colorPencilCursor)
