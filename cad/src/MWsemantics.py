@@ -622,13 +622,14 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	when you rightclick on QMainWindow widget.
 	"""
         menu = QMenu(self)
-        contextMenuToolBars = [self.standardToolBar, self.viewToolBar,
-                               self.simulationToolBar, self.buildToolsToolBar,
-                               self.selectToolBar, self.buildStructuresToolBar]
+        contextMenuToolBars = \
+                        [self.standardToolBar, self.viewToolBar,
+                         self.standardViewsToolBar, self.displayStylesToolBar,
+                         self.simulationToolBar, self.buildToolsToolBar,
+                         self.selectToolBar, self.buildStructuresToolBar]
         for toolbar in contextMenuToolBars:
             menu.addAction(toolbar.toggleViewAction())
         return menu
-
 
     def removePartWindow(self, pw):
         self.layout.removeWidget(pw)
