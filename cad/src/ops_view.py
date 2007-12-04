@@ -431,33 +431,20 @@ class viewSlotsMixin:
         else:
             self.standardViews_btn.showMenu()
 
-
-    def viewQuteMol(self): # Mark 2007-06-02
+    def viewQuteMol(self):
         """
-        Slot for 'View > QuteMol'.
-        Opens the QuteMol rendering program and loads a copy of the current model.
-
-        Method:
-
-        1. Write a PDB file of the current part.
-        2. Write an atom attributes table text file containing atom radii and color information.
-        3. Launches QuteMol (with the PDB file as an argument). 
-
+        Slot for 'View > QuteMol'. Opens the QuteMol Propery Manager.
+        
+        @note: The QuteMol PM will not open if there are no atoms in the part.
         """    
         cmd = greenmsg("QuteMol : ")
 
-        # Write temp PDB file of current part.
         if self.assy.molecules:
-            pdb_file = write_qutemol_files(self.assy)
-            # Launch QuteMol. It will verify the plugin.
-            errorcode, msg = launch_qutemol(pdb_file) 
-            # errorcode is ignored. 
+            self.qutemolPM.show()
         else:
-            # No pdb file was written because there 
-            # were no atoms in the current part.
-            msg = "No atoms in the current part."
-
-        env.history.message(cmd + msg)
+            # There are no atoms in the current part.
+            msg = orangemsg("No atoms in the current part.")
+            env.history.message(cmd + msg)
 
     def viewRaytraceScene(self):
         """

@@ -755,6 +755,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         #@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
         from AtomGenerator import AtomGenerator
         self.atomcntl = AtomGenerator(self)
+        
+        # QuteMol Property Manager. Mark 2007-12-02.
+        from QuteMolPropertyManager import QuteMolPropertyManager
+        self.qutemolPM = QuteMolPropertyManager(self)
 
         if not MULTIPANE_GUI:
             # do here to avoid a circular dependency

@@ -18,7 +18,7 @@ from PyQt4.Qt import QString, QStringList, QProcess
 from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_True
 from constants import properDisplayNames, TubeRadius, diBALL_SigmaBondRadius
-from files_pdb import writePDB_Header, writepdb, EXCLUDE_HIDDEN_ATOMS, EXCLUDE_BONDPOINTS
+from files_pdb import writePDB_Header, writepdb, EXCLUDE_HIDDEN_ATOMS
 from prefs_constants import cpkScaleFactor_prefs_key, \
                             diBALL_AtomRadius_prefs_key
 from elements import PeriodicTable
@@ -27,7 +27,10 @@ from Plugins import checkPluginPreferences
 
 def launch_qutemol(pdb_file):
     """
-    Try to launch QuteMol and load <pdb_file>.
+    Launch and load QuteMol with the PDB file I{pdb_file}.
+    
+    @param pdb_file: the PDB filename to load
+    @type  pdb_file: string
     
     @return: (errorcode, errortext)
              where errorcode is one of the following: ###k
@@ -159,9 +162,21 @@ REMARK   8 ;           Number                Radius\n""")
     fileHandle.close()
     return 
 
-def write_qutemol_pdb_file(part, filename):
+def write_qutemol_pdb_file(part, filename, excludeFlags):
     """
-    Writes an NE1-QuteMol PDB file of <part> to <filename>. 
+    Writes an NE1-QuteMol PDB file of I{part} to I{filename}. 
+    
+    @param part: the NE1 part.
+    @type  part: L{assembly}
+    
+    @param filename: the PDB filename to write
+    @type  filename: string
+    
+    @param excludeFlags: used to exclude certain atoms from being written 
+        to the QuteMol PDB file.
+    @type  excludeFlags: int
+    
+    @see L{writepdb()} for more information about I{excludeFlags}.
     """
     
     f = open(filename, "w")
@@ -239,14 +254,27 @@ REMARK   7\n""")
     f.close()
     
     # Write the "body" of PDB file.
-    # Bondpoints are written to file. Mark 2007-06-11
-    excludeFlags = EXCLUDE_HIDDEN_ATOMS # | EXCLUDE_BONDPOINTS
     writepdb(part, filename, mode = 'a', excludeFlags = excludeFlags)
     
-def write_qutemol_files(part):
+def write_qutemol_files(part, excludeFlags = EXCLUDE_HIDDEN_ATOMS):
     """
-    Writes a PDB of the current <part> to the Nanorex temp directory.
-    Returns the name of the temp pdb file, or None if no atoms are in <part>.
+    Writes a PDB of the current I{part} to the Nanorex temp directory.
+    
+    @param part: the NE1 part.
+    @type  part: L{assembly}
+    
+    @param excludeFlags: used to exclude certain atoms from being written 
+        to the QuteMol PDB file, where:
+        WRITE_ALL_ATOMS = 0 (even writes hidden and invisble atoms)
+        EXCLUDE_BONDPOINTS = 1 (excludes bondpoints)
+        EXCLUDE_HIDDEN_ATOMS = 2 (excludes both hidden and invisible atoms)
+        EXCLUDE_DNA_ATOMS = 4 (excludes PAM-3 and PAM-5 pseudo atoms)
+        EXCLUDE_DNA_AXIS_ATOMS = 8 (excludes PAM-3 axis atoms)
+        EXCLUDE_DNA_AXIS_BONDS = 16 (supresses PAM-3 axis bonds)
+    @type  excludeFlags: int
+    
+    @return: the name of the temp PDB file, or None if no atoms are in I{part}.
+    @rtype:  str
     """
     
     # Is there a better way to get the number of atoms in <part>.? 
@@ -275,6 +303,6 @@ def write_qutemol_files(part):
     qutemol_pdb_file = os.path.join(tmpdir, pdb_basename)
     
     # Write the PDB file.
-    write_qutemol_pdb_file(part, qutemol_pdb_file)
+    write_qutemol_pdb_file(part, qutemol_pdb_file, excludeFlags)
     
     return qutemol_pdb_file

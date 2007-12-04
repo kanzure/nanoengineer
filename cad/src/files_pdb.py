@@ -205,11 +205,13 @@ WRITE_ALL_ATOMS = 0
 EXCLUDE_BONDPOINTS = 1
 EXCLUDE_HIDDEN_ATOMS = 2 # excludes both hidden and invisible atoms.
 EXCLUDE_DNA_ATOMS = 4
+EXCLUDE_DNA_AXIS_ATOMS = 8
+EXCLUDE_DNA_AXIS_BONDS = 16
 
 def writepdb(part, 
              filename, 
-             mode='w', 
-             excludeFlags = EXCLUDE_BONDPOINTS|EXCLUDE_HIDDEN_ATOMS
+             mode = 'w', 
+             excludeFlags = EXCLUDE_BONDPOINTS | EXCLUDE_HIDDEN_ATOMS
              ):
     """
     Write a PDB file of the I{part}.
@@ -231,6 +233,8 @@ def writepdb(part,
         EXCLUDE_BONDPOINTS = 1 (excludes bondpoints)
         EXCLUDE_HIDDEN_ATOMS = 2 (excludes both hidden and invisible atoms)
         EXCLUDE_DNA_ATOMS = 4 (excludes PAM-3 and PAM-5 pseudo atoms)
+        EXCLUDE_DNA_AXIS_ATOMS = 8 (excludes PAM-3 axis atoms)
+        EXCLUDE_DNA_AXIS_BONDS = 16 (supresses PAM-3 axis bonds)
     @type  excludeFlags: int
     
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
@@ -273,10 +277,18 @@ def writepdb(part,
         if excludeFlags & EXCLUDE_HIDDEN_ATOMS:
             if not atm.visible() or atm.molecule.hidden:
                 return True # Exclude
+        if excludeFlags & EXCLUDE_DNA_AXIS_ATOMS:
+            if atm.element.symbol in ('Ax3', 'Ae3'):
+                return True # Exclude
         if excludeFlags & EXCLUDE_DNA_ATOMS:
             # PAM5 atoms begin at 200.
             if atm.element.eltnum >= 200:
                 return True # Exclude
+        # Always exclude singlets connected to DNA p-atoms.
+        if atm.element == Singlet: 
+            for a in atm.neighbors():
+                if a.element.eltnum >= 200:
+                    return True
         return False # Don't exclude.
 
     excluded = 0
@@ -299,17 +311,8 @@ def writepdb(part,
     
             for b in a.bonds:
                 a2 = b.other(a)
-                        
-                # The following debug pref provides an option for removing 
-                # bonds b/w PAM3 axis atoms. 
-                # I added this so I can render PAM3 structures in QuteMol for 
-                # examples of this display style, which may become a PAM3 
-                # display style option for NE1. 
-                # Note: You must launch QuteMol at least once before this
-                # debug pref option becomes available. - Mark
-                if not debug_pref("QuteMol: Draw bonds b/w PAM3 axis atoms?", 
-                              Choice_boolean_True, 
-                              prefs_key = True):
+                # The following removes bonds b/w PAM3 axis atoms. 
+                if excludeFlags & EXCLUDE_DNA_AXIS_BONDS:
                     if a.element.symbol in ('Ax3', 'Ae3'):
                         if a2.element.symbol in ('Ax3', 'Ae3'):
                             continue
