@@ -96,7 +96,7 @@ from state_constants import S_REF, S_CHILDREN_NOT_DATA
 
 import platform
 
-from debug_prefs import debug_pref, Choice_boolean_True ##, Choice_boolean_False
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
 from icon_utilities import imagename_to_pixmap
 
@@ -399,7 +399,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # don't have one yet.
             assert self.displist != 0
             glDeleteLists(self.displist, 1)
-            print "fyi: deleted OpenGL display list %r belonging to %r" % (self.displist, self)
+            if debug_pref("GLPane: print deleted display lists", Choice_boolean_False): #bruce 071205 made debug pref
+                print "fyi: deleted OpenGL display list %r belonging to %r" % (self.displist, self)
                 # keep this print around until this feature is tested on all platforms
             self.displist = None
             del self.displist
