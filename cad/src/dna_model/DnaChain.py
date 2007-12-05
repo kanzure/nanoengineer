@@ -126,7 +126,7 @@ class DnaChain(object):
         See self.bond_direction() docstring for definition of correct values.
         """
         # 1 = right, -1 = left, 0 = inconsistent or unknown # IMPLEM? maybe not needed, now that we have _f_set_bond_direction...
-        assert 0, "nim (and never will be) in %r" % self ####
+        assert 0, "nim (and never will be) in %r" % self #### this means more things must call _f_set_bond_direction, eg merge_ladders
 
     def _f_set_bond_direction(self, dir, error = None):
         """
@@ -139,7 +139,21 @@ class DnaChain(object):
         self._bond_direction = dir
         self._bond_direction_error = error
         return
-    
+
+    def bond_direction_is_arbitrary(self):
+        """
+        Are we so short that our bond direction (relative to index direction)
+        is arbitrary, so caller could reverse it using
+        self._f_reverse_arbitrary_bond_direction(),
+        with no problematic effect?
+        """
+        # review: also condition result on self._bond_direction??
+        return len(self.baseatoms) <= 1 # even if original chain's atom_list was longer
+
+    def _f_reverse_arbitrary_bond_direction(self):
+        assert self.bond_direction_is_arbitrary()
+        self._bond_direction *= -1
+
     pass
 
 # ==
@@ -346,8 +360,22 @@ class StrandChain(DnaChain_AtomChainWrapper):
         if not chain.atom_list[0].bond_directions_are_set_and_consistent() or \
            not chain.atom_list[-1].bond_directions_are_set_and_consistent():
             dir_so_far = 0
+        if dir_so_far is None:
+            assert len(chain.atom_list) == 1 and len(chain.bond_list) == 0
+            # direction remains unknown, i guess...
+            # but I think we can legally set it to either value,
+            # and doing so simplifies the code that wants it to be set.
+            # (That code may need to know it's arbitrary since we're
+            # so short that reverse is a noop (except for negating directions),
+            # but there's no point in marking it as arbitrary here, since
+            # there might be other ways of making such short chains.
+            # So instead, let that code detect that we're that short,
+            # using our superclass method bond_direction_is_arbitrary, which says yes
+            # even if this code didn't run (e.g. if atom_list had a Pl).)
+            dir_so_far = 1
         self._f_set_bond_direction(dir_so_far)
         return
+        
     pass
 
 # end

@@ -155,7 +155,8 @@ class DnaLadder(object):
                 desired_dir = -1
                 reverse = False # if dir is wrong, error
                     # review: how to handle it in later steps? mark ladder error, don't merge it?
-            have_dir = strand_rail.bond_direction() # 1 = right, -1 = left, 0 = inconsistent or unknown # IMPLEM
+            have_dir = strand_rail.bond_direction() # 1 = right, -1 = left, 0 = inconsistent or unknown
+                # IMPLEM note - this is implemented except for merged ladders; some bugs for length-1 chains.
                 # strand_rail.bond_direction must check consistency of bond
                 # directions not only throughout the rail, but just after the
                 # ends (thru Pl too), so we don't need to recheck it for the
@@ -169,7 +170,11 @@ class DnaLadder(object):
                 reverse = True # might as well fix the other strand, if we didn't get to it yet
             else:
                 if have_dir != desired_dir:
-                    if reverse:
+                    if strand_rail.bond_direction_is_arbitrary():
+                        strand_rail._f_reverse_arbitrary_bond_direction()
+                        have_dir = strand_rail.bond_direction() # only needed for assert
+                        assert have_dir == desired_dir
+                    elif reverse:
                         for rail in self.strand_rails + [axis_rail]:
                             rail.reverse_baseatoms()
                     else:
@@ -338,6 +343,9 @@ class DnaLadder(object):
             extra = ""
         elif ns == 1:
             extra = " (single strand)"
+        elif ns == 0:
+            # don't say it's an error if 0, since it might be still being made
+            extra = " (0 strands)"
         else:
             extra = " (error: %d strands)" % ns
         return "<%s at %#x, axis len %d%s>" % (self.__class__.__name__, id(self), self.axis_rail.baselength(), extra)

@@ -104,8 +104,14 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
     prior_index = None
     prior_direction = None # normally, -1 or 1, or 0 for "just entered"
 
-    for s_atom, s_index in strand.baseatom_index_pairs():
-        (axis, index) = strand_axis_info[s_atom.key]
+    for s_atom, s_index in list(strand.baseatom_index_pairs()) + [(None, None)]:
+        if s_atom is None:
+            # last iteration, just to make strand seem to jump off prior_axis
+            # at the end
+            assert prior_axis is not None # since at least one s_atom
+            (axis, index) = None, None
+        else:
+            (axis, index) = strand_axis_info[s_atom.key]
         # set the variables jumped, new_direction, changed_direction;
         # these are their values unless changed explicitly just below:
         jumped = False
@@ -163,7 +169,8 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
             assert new_direction == 0
             if prior_axis is not None:
                 do_jump_from_axis( prior_axis, prior_index, prior_direction)
-            do_jump_of_strand( strand, s_index)
+            if s_index is not None:
+                do_jump_of_strand( strand, s_index)
             # set up to break new axis before the entry point --
             # this is done by recording the state as described above,
             # so the next loop iteration will do it (by calling

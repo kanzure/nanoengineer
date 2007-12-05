@@ -80,8 +80,11 @@ class DnaLadderRailChunk(Chunk):
     def addatom(self, atom):
         Chunk.addatom(self, atom)
         if self.ladder and self.ladder.valid:
-            # does this ever happen?
-            print "dna updater, fyi: %r.addatom invals %r" % (self, self.ladder)
+            # this happens for bondpoints (presumably when they're added since
+            # we broke a bond); I doubt it happens for anything else,
+            # but let's find out (in a very safe way, tho a bit unclear):
+            if atom.element.eltnum != 0:
+                print "dna updater, fyi: %r.addatom %r invals %r" % (self, atom, self.ladder)
             self.ladder.invalidate()
         return
 
