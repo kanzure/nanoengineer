@@ -5,27 +5,34 @@ whatsthis.py
 $Id$
 
 ===
-wware 20060706:
 
-Bruce and I have been discussing whats-this text and we realized that
-it can come from two unrelated sources.
+What's This text for widgets in the mainwindow object (i.e. toolbars and menus)
+come from two unrelated sources.
 
-One source of whats-this text is the UI file, for instance in
-MainWindowUI.ui where you see things like this:
+One source of "What's This" text is the UI file (and its generated Python file). 
+For instance in MainWindowUI.ui (which is used to generate MainWindowUI.py)
+you see things like this:
+
    <property name="whatsThis">
        <string>&lt;u&gt;&lt;b&gt;Minimize Energy&lt;/b&gt;&lt;/u&gt;.....
        </string>
    </property>
 
-The other source is the createWhatsThis() function in whatsthis.py,
-where you see things like this:
+The another source is the createWhatsThisTextForMainWindowWidgets() function in this file
+(whatsthis.py), where you see things like this:
+
    fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)<br> " .....
    self.fileOpenAction.setWhatsThis(fileOpenText)
 
-Having two different sources for whatsthis text could become a source
-of confusion for developers. It might make sense at some point after
-A8 to find all the whats-this text specified in UI files, and move it
-into whatsthis.py (or maybe in some cases other Python source files).
+Having two different sources for "What's This" text is confusing for
+developers. To address this, we intend to move all "What's This" text for
+widgets in the mainwindow object into this file (or maybe in some cases 
+other Python source files).
+
+B{"What's This" text for widgets in the Property Manager:}
+
+Property Managers specify What's This text for their own widgets, usually in a 
+method called add_whats_this_text(), not in this file. 
 """
 
 from PyQt4.Qt import qApp
@@ -52,7 +59,17 @@ debug_refix_cutoff = 24 # vary this by binary search in a debugger; this value i
 
 # ===
 
-def createWhatsThis(self):
+def createWhatsThisTextForMainWindowWidgets(win):
+    """
+    Adds the "What's This" help text to items found in the NE1 mainwindow
+    toolbars and menus .
+    
+    @param win: NE1's mainwindow object.
+    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    
+    @note: Property Managers specify "What's This" text for their own widgets, 
+           usually in a method called add_whats_this_text(), not in this file. 
+    """
 
     #
     # File Toolbar
@@ -64,14 +81,14 @@ def createWhatsThis(self):
                  "Opens a new file."\
                  "</p>"
 
-    self.fileOpenAction.setWhatsThis( fileOpenText )
+    win.fileOpenAction.setWhatsThis( fileOpenText )
     # Import File
 
     fileImportText = "<u><b>Import File</b></u><br>"\
                    "Inserts a file of any chemical file format supported by <b>Openbabel</b> "\
                    "into the current Part"
 
-    self.fileImportAction.setWhatsThis(fileImportText)
+    win.fileImportAction.setWhatsThis(fileImportText)
 
     #Export File 
     fileExportText = "<u><b>Export File</b></u><br>"\
@@ -79,9 +96,7 @@ def createWhatsThis(self):
                    "<b>Openbabel</b>. Note that exclusive features of NanoEngineer-1 "\
                    "are not saved to the exported file"
 
-
-    self.fileExportAction.setWhatsThis(fileExportText)
-
+    win.fileExportAction.setWhatsThis(fileExportText)
 
     # Save File
 
@@ -90,8 +105,7 @@ def createWhatsThis(self):
                  "Saves the current file."\
                  "</p>"
 
-    self.fileSaveAction.setWhatsThis( fileSaveText )
-
+    win.fileSaveAction.setWhatsThis( fileSaveText )
 
     #
     # Edit Toolbar
@@ -104,7 +118,7 @@ def createWhatsThis(self):
                            "Make Undo checkpoint."\
                            "</p>"
 
-    self.editMakeCheckpointAction.setWhatsThis( editMakeCheckpointText )
+    win.editMakeCheckpointAction.setWhatsThis( editMakeCheckpointText )
 
     # Automatic Checkpointing ### [minor changes, bruce 060319]
 
@@ -119,7 +133,7 @@ def createWhatsThis(self):
                               "Automatic Checkpointing is disabled.</i></b>"\
                               "</p>"
 
-    self.editAutoCheckpointingAction.setWhatsThis( editAutoCheckpointingText )
+    win.editAutoCheckpointingAction.setWhatsThis( editAutoCheckpointingText )
 
     # Clear Undo Stack ### [minor changes, bruce 060319]
 
@@ -127,7 +141,7 @@ def createWhatsThis(self):
                            "<p>Clears all checkpoints on the Undo and Redo stacks, freeing up memory."\
                            "</p>"
 
-    self.editClearUndoStackAction.setWhatsThis( editClearUndoStackText )
+    win.editClearUndoStackAction.setWhatsThis( editClearUndoStackText )
 
     # Undo
 
@@ -141,9 +155,9 @@ def createWhatsThis(self):
                  "</font>"\
                  "</p>" #bruce 060317 revised this text to reflect what it does in A7; 060320 added 1421-not-fixed warning
 
-    self.editUndoAction.setWhatsThis( editUndoText )
+    win.editUndoAction.setWhatsThis( editUndoText )
 
-    self.editUndoText = editUndoText #bruce 060317 to help fix bug 1421 in Undo whatsthis wiki help link
+    win.editUndoText = editUndoText #bruce 060317 to help fix bug 1421 in Undo whatsthis wiki help link
 
     # Redo
 
@@ -165,9 +179,9 @@ def createWhatsThis(self):
                  "</p>" % redo_accel
         #bruce 060317 revised this text to be more accurate, and split out redo_accel; 060320 added 1421-not-fixed warning
 
-    self.editRedoAction.setWhatsThis( editRedoText )
+    win.editRedoAction.setWhatsThis( editRedoText )
 
-    self.editRedoText = editRedoText #bruce 060317 to help fix bug 1421 in Redo whatsthis wiki help link
+    win.editRedoText = editRedoText #bruce 060317 to help fix bug 1421 in Redo whatsthis wiki help link
 
     # Cut
 
@@ -177,7 +191,7 @@ def createWhatsThis(self):
                 "clipboard."\
                 "</p>"
 
-    self.editCutAction.setWhatsThis( editCutText )
+    win.editCutAction.setWhatsThis( editCutText )
 
     # Copy
 
@@ -187,7 +201,7 @@ def createWhatsThis(self):
                  "while leaving the original chunk(s) unaffected."\
                  "</p>"
 
-    self.editCopyAction.setWhatsThis( editCopyText )
+    win.editCopyAction.setWhatsThis( editCopyText )
 
     # Paste
 
@@ -204,7 +218,7 @@ def createWhatsThis(self):
                   "<b><i>MMKit's Thumbview</i></b>."\
                   "</p>"
 
-    self.editPasteAction.setWhatsThis( editPasteText )
+    win.editPasteAction.setWhatsThis( editPasteText )
 
     # Delete
 
@@ -214,7 +228,7 @@ def createWhatsThis(self):
                    "For this Alpha release, deleted objects may be permanently lost, or they might be recoverable using Undo.</p>"
         #bruce 060212 revised above text (and fixed spelling error); should be revised again before A7 release
 
-    self.editDeleteAction.setWhatsThis( editDeleteText )
+    win.editDeleteAction.setWhatsThis( editDeleteText )
 
     #Preferences Dialog
 
@@ -223,18 +237,27 @@ def createWhatsThis(self):
                   "such as changing atom, bond display properties,"\
                   "lighting, background color, window position and"\
                   "size, plugins etc. </p>"
-    self.editPrefsAction.setWhatsThis( editPrefsText )
+    win.editPrefsAction.setWhatsThis( editPrefsText )
+    
     #
     # View Toolbar
     #
 
     # Home View
 
-    setViewHomeActionText = "<u><b>Home</b></u>     (Home)<br>"\
-                          "<p><img source=\"ui/actions/View/Modify/Home.png\"><br> "\
-                          "When you create a new model, it appears in a default view orientation (FRONT view). When you open an existing model, it appears in the orientation it was last saved.  You can change the default orientation by selecting <b>Set Home View to Current View</b> from the <b>View</b> menu.</p>"
+    setViewHomeActionText = \
+        "<u><b>Home</b></u>     (Home)<br>"\
+        "<p>"\
+        "<img source=\"ui/actions/View/Modify/Home.png\"><br>"\
+        "When you create a new model, it appears in a "\
+        "default view orientation (FRONT view). When you "\
+        "open an existing model, it appears in the "\
+        "orientation it was last saved.  You can change the "\
+        "default orientation by selecting <b>Set Home View "\
+        "to Current View</b> from the <b>View</b> menu."\
+        "</p>"
 
-    self.setViewHomeAction.setWhatsThis( setViewHomeActionText )
+    win.setViewHomeAction.setWhatsThis( setViewHomeActionText )
 
     # Fit to Window
 
@@ -243,7 +266,7 @@ def createWhatsThis(self):
                                  "Refits the model to the screen so you can view the entire model."\
                                  "</p>"
 
-    self.setViewFitToWindowAction.setWhatsThis( setViewFitToWindowActionText )   
+    win.setViewFitToWindowAction.setWhatsThis( setViewFitToWindowActionText )   
 
     # Recenter
 
@@ -253,7 +276,7 @@ def createWhatsThis(self):
                               "center of the view and you can view the entire model."\
                               "</p>"
 
-    self.setViewRecenterAction.setWhatsThis( setViewRecenterActionText )       
+    win.setViewRecenterAction.setWhatsThis( setViewRecenterActionText )       
 
     # Zoom Tool
 
@@ -264,8 +287,7 @@ def createWhatsThis(self):
                           "<p>A mouse with a mouse wheel can also be used to zoom in and out "\
                           "at any time, without using the Zoom Tool.</p>"
 
-    self.zoomToolAction.setWhatsThis( setzoomToolActionText )      
-
+    win.zoomToolAction.setWhatsThis( setzoomToolActionText )      
 
     # Pan Tool
 
@@ -275,8 +297,7 @@ def createWhatsThis(self):
                          "<p>Users with a 3-button mouse can pan the model at any time by pressing "\
                          "the middle mouse button while holding down the Shift key.</p>"
 
-    self.panToolAction.setWhatsThis( setpanToolActionText )
-
+    win.panToolAction.setWhatsThis( setpanToolActionText )
 
     # Rotate Tool
 
@@ -286,7 +307,7 @@ def createWhatsThis(self):
                             "<p>Users with a 3-button mouse can rotate the model at any time by pressing "\
                             "the middle mouse button and dragging the mouse.</p>"
 
-    self.rotateToolAction.setWhatsThis( setrotateToolActionText )
+    win.rotateToolAction.setWhatsThis( setrotateToolActionText )
 
     # Orthographic Projection
 
@@ -294,7 +315,7 @@ def createWhatsThis(self):
                            "<p>Sets nonperspective (or parallel) projection, with no foreshortening."\
                            "</p>"
 
-    self.setViewOrthoAction.setWhatsThis( setViewOrthoActionText )
+    win.setViewOrthoAction.setWhatsThis( setViewOrthoActionText )
 
     # Perspective Projection
 
@@ -303,7 +324,7 @@ def createWhatsThis(self):
                              "that are closer to the viewer."\
                              "</p>"
 
-    self.setViewPerspecAction.setWhatsThis( setViewPerspecActionText )
+    win.setViewPerspecAction.setWhatsThis( setViewPerspecActionText )
 
     # Normal To
 
@@ -313,7 +334,7 @@ def createWhatsThis(self):
                            "3 or more selected atoms, or a jig's axis."\
                            "</p>"
 
-    self.viewNormalToAction.setWhatsThis( viewNormalToActionText )
+    win.viewNormalToAction.setWhatsThis( viewNormalToActionText )
 
     # Parallel To
 
@@ -322,7 +343,7 @@ def createWhatsThis(self):
                              "Orients view parallel to the vector defined by 2 selected atoms."\
                              "</p>"
 
-    self.viewParallelToAction.setWhatsThis( viewParallelToActionText ) 
+    win.viewParallelToAction.setWhatsThis( viewParallelToActionText ) 
 
     # Save Named View
 
@@ -332,8 +353,7 @@ def createWhatsThis(self):
                             "<p>The view can be restored by selecting <b>Change View</b> from its context menu in the Model Tree."\
                             "</p>"
 
-    self.saveNamedViewAction.setWhatsThis( saveNamedViewActionText ) 
-
+    win.saveNamedViewAction.setWhatsThis( saveNamedViewActionText ) 
 
     # Front View
 
@@ -342,7 +362,7 @@ def createWhatsThis(self):
                         "Orients the view to the Front View."\
                         "</p>"
 
-    self.viewFrontAction.setWhatsThis( viewFrontActionText )  
+    win.viewFrontAction.setWhatsThis( viewFrontActionText )  
 
     # Back View
 
@@ -351,7 +371,7 @@ def createWhatsThis(self):
                        "Orients the view to the Back View."\
                        "</p>"
 
-    self.viewBackAction.setWhatsThis( viewBackActionText )     
+    win.viewBackAction.setWhatsThis( viewBackActionText )     
 
     # Top View
 
@@ -360,7 +380,7 @@ def createWhatsThis(self):
                       "Orients the view to the Top View."\
                       "</p>"
 
-    self.viewTopAction.setWhatsThis( viewTopActionText )      
+    win.viewTopAction.setWhatsThis( viewTopActionText )      
 
     # Bottom View
 
@@ -369,7 +389,7 @@ def createWhatsThis(self):
                          "Orients the view to the Bottom View."\
                          "</p>"
 
-    self.viewBottomAction.setWhatsThis( viewBottomActionText )  
+    win.viewBottomAction.setWhatsThis( viewBottomActionText )  
 
     # Left View
 
@@ -378,7 +398,7 @@ def createWhatsThis(self):
                        "Orients the view to the Left View."\
                        "</p>"
 
-    self.viewLeftAction.setWhatsThis( viewLeftActionText )
+    win.viewLeftAction.setWhatsThis( viewLeftActionText )
 
     # Right View
 
@@ -387,7 +407,7 @@ def createWhatsThis(self):
                         "Orients the view to the Right View."\
                         "</p>"
 
-    self.viewRightAction.setWhatsThis( viewRightActionText )
+    win.viewRightAction.setWhatsThis( viewRightActionText )
 
     #Isometric View 
 
@@ -396,7 +416,7 @@ def createWhatsThis(self):
                             "Orients the view to the Isometric View."\
                             "</p>"
 
-    self.viewIsometricAction.setWhatsThis( viewIsometricActionText )
+    win.viewIsometricAction.setWhatsThis( viewIsometricActionText )
 
 
     # Rotate View 180
@@ -406,7 +426,7 @@ def createWhatsThis(self):
                             "Rotates the view 180 degrees."\
                             "</p>"
 
-    self.viewRotate180Action.setWhatsThis( viewRotate180ActionText )
+    win.viewRotate180Action.setWhatsThis( viewRotate180ActionText )
 
     # Rotate View +90
 
@@ -415,7 +435,7 @@ def createWhatsThis(self):
                                "Increment the current view by 90 degrees around the vertical axis."\
                                "</p>"
 
-    self.viewRotatePlus90Action.setWhatsThis( viewRotatePlus90ActionText )
+    win.viewRotatePlus90Action.setWhatsThis( viewRotatePlus90ActionText )
 
     # Rotate View -90
 
@@ -424,7 +444,7 @@ def createWhatsThis(self):
                                 "Decrement the current view by 90 degrees around the vertical axis."\
                                 "</p>"
 
-    self.viewRotateMinus90Action.setWhatsThis( viewRotateMinus90ActionText )
+    win.viewRotateMinus90Action.setWhatsThis( viewRotateMinus90ActionText )
 
     # QuteMol
 
@@ -437,7 +457,7 @@ def createWhatsThis(self):
                           "<b>Preferences > Plug-ins</b> for this feature to work." \
                           "</p>"
 
-    self.viewQuteMolAction.setWhatsThis( viewQuteMolActionText )
+    win.viewQuteMolAction.setWhatsThis( viewQuteMolActionText )
 
     # POV-Ray (was Raytrace Scene)
 
@@ -449,7 +469,7 @@ def createWhatsThis(self):
                                 "<b>Preferences > Plug-ins</b> for this feature to work." \
                                 "</p>"
 
-    self.viewRaytraceSceneAction.setWhatsThis( viewRaytraceSceneActionText )
+    win.viewRaytraceSceneAction.setWhatsThis( viewRaytraceSceneActionText )
 
     #
     # Grids Toolbar
@@ -463,7 +483,7 @@ def createWhatsThis(self):
                         "look straight into a (1,0,0) surface of a diamond lattice."\
                         "</p>"
 
-    self.orient100Action.setWhatsThis(orient100ActionText )
+    win.orient100Action.setWhatsThis(orient100ActionText )
 
     # Surface 110
 
@@ -473,7 +493,7 @@ def createWhatsThis(self):
                         "look straight into a (1,1,0) surface of a diamond lattice."\
                         "</p>"
 
-    self.orient110Action.setWhatsThis(orient110ActionText )
+    win.orient110Action.setWhatsThis(orient110ActionText )
 
     # Surface 111
 
@@ -483,7 +503,7 @@ def createWhatsThis(self):
                         "look straight into a (1,1,1) surface of a diamond lattice."\
                         "</p>"
 
-    self.orient111Action.setWhatsThis(orient111ActionText )
+    win.orient111Action.setWhatsThis(orient111ActionText )
 
     #
     # Insert toolbar
@@ -503,7 +523,7 @@ def createWhatsThis(self):
                              "</p>"
 
 
-    self.insertGrapheneAction.setWhatsThis(insertGrapheneActionText )
+    win.insertGrapheneAction.setWhatsThis(insertGrapheneActionText )
 
     # Build Nanotube
 
@@ -518,7 +538,7 @@ def createWhatsThis(self):
                              "<img source=\"ui/actions/Properties Manager/Preview.png\"> "\
                              "</p>"
 
-    self.insertNanotubeAction.setWhatsThis(insertNanotubeActionText )
+    win.insertNanotubeAction.setWhatsThis(insertNanotubeActionText )
 
     # Build DNA
 
@@ -534,7 +554,7 @@ def createWhatsThis(self):
                        "</p>"
 
 
-    self.buildDnaAction.setWhatsThis(buildDnaActionText )
+    win.buildDnaAction.setWhatsThis(buildDnaActionText )
 
     # POV-Ray Scene
 
@@ -543,7 +563,7 @@ def createWhatsThis(self):
                                 "Inserts a POV-Ray Scene file based on the current model and viewpoint. "\
                                 "</p>"
 
-    self.insertPovraySceneAction.setWhatsThis(insertPovraySceneActionText )
+    win.insertPovraySceneAction.setWhatsThis(insertPovraySceneActionText )
 
     # Comment
 
@@ -552,7 +572,7 @@ def createWhatsThis(self):
                             "Inserts a comment in the current part. "\
                             "</p>"
 
-    self.insertCommentAction.setWhatsThis(insertCommentActionText )
+    win.insertCommentAction.setWhatsThis(insertCommentActionText )
 
     #
     # Display toolbar
@@ -577,7 +597,7 @@ def createWhatsThis(self):
                           "lower right corner of the main window."\
                           "</p>"
 
-    self.dispDefaultAction.setWhatsThis(dispDefaultActionText )
+    win.dispDefaultAction.setWhatsThis(dispDefaultActionText )
 
     # Display Invisible
 
@@ -592,7 +612,7 @@ def createWhatsThis(self):
                         "this display property."\
                         "</p>"
 
-    self.dispInvisAction.setWhatsThis(dispInvisActionText )       
+    win.dispInvisAction.setWhatsThis(dispInvisActionText )       
 
     # Display Lines
 
@@ -607,7 +627,7 @@ def createWhatsThis(self):
                         "this display property."\
                         "</p>"
 
-    self.dispLinesAction.setWhatsThis(dispLinesActionText )  
+    win.dispLinesAction.setWhatsThis(dispLinesActionText )  
 
     # Display Tubes
 
@@ -623,7 +643,7 @@ def createWhatsThis(self):
                         "</p>"
 
 
-    self.dispTubesAction.setWhatsThis(dispTubesActionText )  
+    win.dispTubesAction.setWhatsThis(dispTubesActionText )  
 
     # Display Ball and Stick
 
@@ -642,7 +662,7 @@ def createWhatsThis(self):
                        "<b>Atoms</b> and <b>Bonds</b> pages of the <b>Preferences</b> dialog."\
                        "</p>"
 
-    self.dispBallAction.setWhatsThis(dispBallActionText ) 
+    win.dispBallAction.setWhatsThis(dispBallActionText ) 
 
     # Display CPK # [bruce extended and slightly corrected text, 060307]
 
@@ -663,7 +683,7 @@ def createWhatsThis(self):
                       "<b>Atoms</b> and <b>Bonds</b> pages of the <b>Preferences</b> dialog."\
                       "</p>"
 
-    self.dispCPKAction.setWhatsThis(dispCPKActionText )
+    win.dispCPKAction.setWhatsThis(dispCPKActionText )
 
     # Display Cylinder
 
@@ -678,7 +698,7 @@ def createWhatsThis(self):
                            "this display property."\
                            "</p>"
 
-    self.dispCylinderAction.setWhatsThis(dispCylinderActionText )
+    win.dispCylinderAction.setWhatsThis(dispCylinderActionText )
 
     # Display Surface
 
@@ -693,14 +713,14 @@ def createWhatsThis(self):
                           "this display property."\
                           "</p>"
 
-    self.dispSurfaceAction.setWhatsThis(dispSurfaceActionText )
+    win.dispSurfaceAction.setWhatsThis(dispSurfaceActionText )
 
     #Reset Chunk Color
     dispResetChunkColorText = "<u><b>Reset Chunk Color</b></u><br>"\
                             "Resets the user defined chunk color and renders the atoms " \
                             "(in the chunk) with their own element colors"
 
-    self.dispResetChunkColorAction.setWhatsThis(dispResetChunkColorText )
+    win.dispResetChunkColorAction.setWhatsThis(dispResetChunkColorText )
 
     #Reset Atoms Display
 
@@ -709,7 +729,7 @@ def createWhatsThis(self):
                               "selected chunks) with the same display style as "\
                               "that of their parent chunk"
 
-    self.dispResetAtomsDisplayAction.setWhatsThis(dispResetAtomsDisplayText)
+    win.dispResetAtomsDisplayAction.setWhatsThis(dispResetAtomsDisplayText)
 
     #Show Invisible Atoms
 
@@ -719,7 +739,7 @@ def createWhatsThis(self):
                            "However, if the parent chunk  is set as invisible, this feature " \
                            "will not work. "
 
-    self.dispShowInvisAtomsAction.setWhatsThis(dispShowInvisAtomsText)
+    win.dispShowInvisAtomsAction.setWhatsThis(dispShowInvisAtomsText)
 
 
     #Element Color Settings Dialog
@@ -729,7 +749,7 @@ def createWhatsThis(self):
                                  "using this dialog. Also, the user can load"\
                                  "or save the element colors"
 
-    self.dispElementColorSettingsAction.setWhatsThis(dispElementColorSettingsText)
+    win.dispElementColorSettingsAction.setWhatsThis(dispElementColorSettingsText)
 
     #
     # Select toolbar
@@ -743,7 +763,7 @@ def createWhatsThis(self):
                         "the model.  Otherwise, this will select all the chunks in the model."\
                         "</p>"
 
-    self.selectAllAction.setWhatsThis(selectAllActionText )
+    win.selectAllAction.setWhatsThis(selectAllActionText )
 
     # Select None
 
@@ -751,7 +771,7 @@ def createWhatsThis(self):
                          "<p><img source=\"ui/actions/Tools/Select/Select_None.png\"><br> "\
                          "Unselects everything currently selected.</p>"
 
-    self.selectNoneAction.setWhatsThis(selectNoneActionText )
+    win.selectNoneAction.setWhatsThis(selectNoneActionText )
 
     # InvertSelection
 
@@ -759,7 +779,7 @@ def createWhatsThis(self):
                            "<p><img source=\"ui/actions/Tools/Select/Select_Invert.png\"><br> "\
                            "Inverts the current selection.</p>"
 
-    self.selectInvertAction.setWhatsThis(selectInvertActionText )
+    win.selectInvertAction.setWhatsThis(selectInvertActionText )
 
     # Select Connected
 
@@ -770,7 +790,7 @@ def createWhatsThis(self):
                               "<p>You can also select all connected atoms by double clicking on an atom or bond "\
                               "while in <b>Build</b> mode.</p>"
 
-    self.selectConnectedAction.setWhatsThis(selectConnectedActionText )
+    win.selectConnectedAction.setWhatsThis(selectConnectedActionText )
 
     # Select Doubly
 
@@ -782,7 +802,7 @@ def createWhatsThis(self):
                            "included in the selection."\
                            "</p>"
 
-    self.selectDoublyAction.setWhatsThis(selectDoublyActionText )
+    win.selectDoublyAction.setWhatsThis(selectDoublyActionText )
 
     # Expand Selection
 
@@ -791,7 +811,7 @@ def createWhatsThis(self):
                            "Selects any atom that is a neighbor of a currently selected atom."\
                            "</p>"
 
-    self.selectExpandAction.setWhatsThis(selectExpandActionText )
+    win.selectExpandAction.setWhatsThis(selectExpandActionText )
 
     # Contract Selection
 
@@ -800,7 +820,7 @@ def createWhatsThis(self):
                              "Deselects any atom that is a neighbor of a non-picked atom or has a bondpoint."\
                              "</p>"
 
-    self.selectContractAction.setWhatsThis(selectContractActionText )
+    win.selectContractAction.setWhatsThis(selectContractActionText )
 
     #
     # Modify Toolbar
@@ -814,7 +834,7 @@ def createWhatsThis(self):
                               "The operations used to move the atoms and bonds approximate molecular mechanics methods."\
                               "</p>"
 
-    self.modifyAdjustSelAction.setWhatsThis(modifyAdjustSelActionText )
+    win.modifyAdjustSelAction.setWhatsThis(modifyAdjustSelActionText )
 
     # Adjust All
 
@@ -824,7 +844,7 @@ def createWhatsThis(self):
                               "The operations used to move the atoms and bonds approximate molecular mechanics methods."\
                               "</p>"
 
-    self.modifyAdjustAllAction.setWhatsThis(modifyAdjustAllActionText )
+    win.modifyAdjustAllAction.setWhatsThis(modifyAdjustAllActionText )
 
     # Hydrogenate
 
@@ -832,7 +852,7 @@ def createWhatsThis(self):
                                 "<p><img source=\"ui/actions/Tools/Build Tools/Hydrogenate.png\"><br> "\
                                 "Adds hydrogen atoms to all the bondpoints in the selection.</p>"
 
-    self.modifyHydrogenateAction.setWhatsThis(modifyHydrogenateActionText )
+    win.modifyHydrogenateAction.setWhatsThis(modifyHydrogenateActionText )
 
     # Dehydrogenate
 
@@ -840,7 +860,7 @@ def createWhatsThis(self):
                                   "<p><img source=\"ui/actions/Tools/Build Tools/Dehydrogenate.png\"><br> "\
                                   "Removes all hydrogen atoms from the selection.</p>"
 
-    self.modifyDehydrogenateAction.setWhatsThis(modifyDehydrogenateActionText )     
+    win.modifyDehydrogenateAction.setWhatsThis(modifyDehydrogenateActionText )     
 
     # Passivate
 
@@ -850,7 +870,7 @@ def createWhatsThis(self):
                               "right number of bonds, using atoms with the best atomic radius."\
                               "</p>"
 
-    self.modifyPassivateAction.setWhatsThis(modifyPassivateActionText )
+    win.modifyPassivateAction.setWhatsThis(modifyPassivateActionText )
 
     # Stretch
 
@@ -858,7 +878,7 @@ def createWhatsThis(self):
                             "<p><img source=\"ui/actions/Tools/Build Tools/Stretch.png\"><br> "\
                             "Stretches the bonds of the selected chunk(s).</p>"
 
-    self.modifyStretchAction.setWhatsThis(modifyStretchActionText )
+    win.modifyStretchAction.setWhatsThis(modifyStretchActionText )
 
     # Delete Bonds
 
@@ -866,7 +886,7 @@ def createWhatsThis(self):
                                 "<p><img source=\"ui/actions/Tools/Build Tools/Delete_Bonds.png\"><br> "\
                                 "Delete all bonds between selected and unselected atoms or chunks.</p>"
 
-    self.modifyDeleteBondsAction.setWhatsThis(modifyDeleteBondsActionText )  
+    win.modifyDeleteBondsAction.setWhatsThis(modifyDeleteBondsActionText )  
 
     # Separate/New Chunk
 
@@ -876,7 +896,7 @@ def createWhatsThis(self):
                              "If the selected atoms belong to different chunks, multiple new "\
                              "chunks are created.</p>"
 
-    self.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
+    win.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
 
     # New Chunk
 
@@ -885,7 +905,7 @@ def createWhatsThis(self):
                                          "Creates a new chunk from the currently selected atoms. "\
                                          "All atoms end up in a single chunk.</p>"
 
-    self.makeChunkFromSelectedAtomsAction.setWhatsThis(makeChunkFromSelectedAtomsActionText ) 
+    win.makeChunkFromSelectedAtomsAction.setWhatsThis(makeChunkFromSelectedAtomsActionText ) 
 
     # Merge Chunks
 
@@ -893,7 +913,7 @@ def createWhatsThis(self):
                           "<p><img source=\"ui/actions/Tools/Build Tools/Merge.png\"><br> "\
                           "Merges two or more chunks into a single chunk.</p>"
 
-    self.modifyMergeAction.setWhatsThis(modifyMergeActionText )  
+    win.modifyMergeAction.setWhatsThis(modifyMergeActionText )  
 
     # Invert Chunks
 
@@ -901,7 +921,7 @@ def createWhatsThis(self):
                            "<p><img source=\"ui/actions/Tools/Build Tools/Invert.png\"><br> "\
                            "Inverts the atoms of the selected chunks.</p>"
 
-    self.modifyInvertAction.setWhatsThis(modifyInvertActionText )  
+    win.modifyInvertAction.setWhatsThis(modifyInvertActionText )  
 
     # Mirror Selected Chunks
 
@@ -912,7 +932,7 @@ def createWhatsThis(self):
                            "Mirrors the selected <b> chunks </b> about a reference Grid Plane.<br>"\
                            "<font color=\"#808080\">Note: In this version, it doesn't mirror jigs or individual atoms.</font> </p>"
 
-    self.modifyMirrorAction.setWhatsThis(modifyMirrorActionText )  
+    win.modifyMirrorAction.setWhatsThis(modifyMirrorActionText )  
 
     # Align to Common Axis
 
@@ -922,7 +942,7 @@ def createWhatsThis(self):
                                     "You must select two or more chunks before using this feature."\
                                     "</p>"
 
-    self. modifyAlignCommonAxisAction.setWhatsThis( modifyAlignCommonAxisActionText )
+    win. modifyAlignCommonAxisAction.setWhatsThis( modifyAlignCommonAxisActionText )
 
     #Center on Common Axis 
     modifyCenterCommonAxisActionText= "<u><b>Center On Common Axis</b></u><br>"\
@@ -930,7 +950,7 @@ def createWhatsThis(self):
                                     "and also <b>aligns</b> them to the axis of the first one ."\
                                     "You must select two or more chunks before using this feature. </p>" 
 
-    self.modifyCenterCommonAxisAction.setWhatsThis(modifyCenterCommonAxisActionText)
+    win.modifyCenterCommonAxisAction.setWhatsThis(modifyCenterCommonAxisActionText)
 
     #
     # Tools Toolbar
@@ -947,7 +967,7 @@ def createWhatsThis(self):
                                    "<p><b>Shift+Left Click/Drag</b> - adds chunk(s) to selection."\
                                    "</p>"
 
-    self. toolsSelectMoleculesAction.setWhatsThis( toolsSelectMoleculesActionText )
+    win. toolsSelectMoleculesAction.setWhatsThis( toolsSelectMoleculesActionText )
 
 
     # Move Chunks
@@ -962,7 +982,7 @@ def createWhatsThis(self):
                                 "<p><b>Shift+Left Drag</b> - constrained movement and rotation of a chunk about its own axis."\
                                 "</p>"
 
-    self. toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText )
+    win. toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText )
 
     # Build Atoms
 
@@ -976,7 +996,7 @@ def createWhatsThis(self):
                                "simply dragging and dropping one bondpoint onto another."\
                                "</p>"
 
-    self. toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText )
+    win. toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText )
 
     # Build Crystal (was Cookie Cutter Mode)
 
@@ -985,7 +1005,7 @@ def createWhatsThis(self):
                              "<b>Build Crystal</b> provides tools for cutting out multi-layered shapes from "\
                              "slabs of diamond or lonsdaleite lattice.</p>"
 
-    self. toolsCookieCutAction.setWhatsThis( toolsCookieCutActionText )
+    win. toolsCookieCutAction.setWhatsThis( toolsCookieCutActionText )
 
     # Tools > Extrude
 
@@ -994,7 +1014,7 @@ def createWhatsThis(self):
                            "Activates <b>Extrude</b> mode, allowing you to create a rod or ring using a chunk as "\
                            "a repeating unit.</p>"
 
-    self. toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )
+    win. toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )
 
     # Fuse Chunks Mode
 
@@ -1015,7 +1035,7 @@ def createWhatsThis(self):
                               "minimize this problem, try to get the bonds of overlapping atoms oriented similarly.<br>"\
                               "</p>"
 
-    self.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )
+    win.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )
 
     #
     # Simulator Toolbar
@@ -1039,7 +1059,7 @@ def createWhatsThis(self):
                                 "coordinates) so the search space is multi-dimensional. The global minimum is the configuration " \
                                 "that the atoms will settle into if lowered to zero Kelvin. </p>"
 
-    self. simMinimizeEnergyAction.setWhatsThis( simMinimizeEnergyActionText )
+    win. simMinimizeEnergyAction.setWhatsThis( simMinimizeEnergyActionText )
 
     # Run Dynamics (was NanoDynamics-1). Mark 060807.
 
@@ -1050,7 +1070,7 @@ def createWhatsThis(self):
                        "The simulator creates a trajectory (movie) file by calculating the inter-atomic potentials and bonding "\
                        "of the entire model.</p>"
 
-    self. simSetupAction.setWhatsThis( simSetupActionText )
+    win. simSetupAction.setWhatsThis( simSetupActionText )
 
     # Play Movie (was Movie Player) Mark 060807.
 
@@ -1059,7 +1079,7 @@ def createWhatsThis(self):
                              "Plays the most recent trajectory (movie) file created by the NanoEngineer-1 molecular dynamics simulator."\
                              "To create a movie file, select <b>Run Dynamics</b>.</p>"
 
-    self. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )
+    win. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )
 
     # Make Graphs (was Plot Tool) Mark 060807.
 
@@ -1078,7 +1098,7 @@ def createWhatsThis(self):
                           "<b>Measure Dihedral:</b> dihedral(degrees)<br>"\
                           "</p>"
 
-    self. simPlotToolAction.setWhatsThis( simPlotToolActionText )
+    win. simPlotToolAction.setWhatsThis( simPlotToolActionText )
 
     #
     # Dashboard Buttons
@@ -1091,7 +1111,7 @@ def createWhatsThis(self):
                         "Completes the current operation and enters the default mode."\
                         "</p>"
 
-    self. toolsDoneAction.setWhatsThis( toolsDoneActionText )  
+    win. toolsDoneAction.setWhatsThis( toolsDoneActionText )  
 
     # Cancel
 
@@ -1100,7 +1120,7 @@ def createWhatsThis(self):
                           "Cancels the current operation and enters the default mode."\
                           "</p>"
 
-    self. toolsCancelAction.setWhatsThis( toolsCancelActionText ) 
+    win. toolsCancelAction.setWhatsThis( toolsCancelActionText ) 
 
     # Back up
 
@@ -1108,7 +1128,7 @@ def createWhatsThis(self):
                           "Undoes the previous operation."\
                           "</p>"
 
-    self. toolsBackUpAction.setWhatsThis( toolsBackUpActionText ) 
+    win. toolsBackUpAction.setWhatsThis( toolsBackUpActionText ) 
 
     # Start Over
 
@@ -1116,7 +1136,7 @@ def createWhatsThis(self):
                              "Cancels the current operation, leaving the user in the current mode."\
                              "</p>"
 
-    self.toolsStartOverAction.setWhatsThis(toolsStartOverActionText ) 
+    win.toolsStartOverAction.setWhatsThis(toolsStartOverActionText ) 
 
     # Add Layers
 
@@ -1125,7 +1145,7 @@ def createWhatsThis(self):
                          "Adds a new layer of diamond lattice to the existing layer."\
                          "</p>"
 
-    self.ccAddLayerAction.setWhatsThis(ccAddLayerActionText ) 
+    win.ccAddLayerAction.setWhatsThis(ccAddLayerActionText ) 
 
     #
     # Jigs
@@ -1143,7 +1163,7 @@ def createWhatsThis(self):
                          "Anchors are drawn as a black wireframe box around each selected atom."\
                          "</p>"
 
-    self.jigsAnchorAction.setWhatsThis(jigsAnchorActionText )  
+    win.jigsAnchorAction.setWhatsThis(jigsAnchorActionText )  
 
     # Rotary Motor
 
@@ -1157,7 +1177,7 @@ def createWhatsThis(self):
                         "select the atoms you want to attach the motor to and then select this action."\
                         "</p>"
 
-    self.jigsMotorAction.setWhatsThis(jigsMotorActionText )  
+    win.jigsMotorAction.setWhatsThis(jigsMotorActionText )  
 
     # Linear Motor
 
@@ -1171,7 +1191,7 @@ def createWhatsThis(self):
                               "select the atoms you want to attach the motor to and then select this action."\
                               "</p>"
 
-    self.jigsLinearMotorAction.setWhatsThis(jigsLinearMotorActionText )  
+    win.jigsLinearMotorAction.setWhatsThis(jigsLinearMotorActionText )  
 
     # Thermostat
 
@@ -1189,7 +1209,7 @@ def createWhatsThis(self):
                        "blue wireframe box around the selected atom."\
                        "</p>"
 
-    self.jigsStatAction.setWhatsThis(jigsStatActionText ) 
+    win.jigsStatAction.setWhatsThis(jigsStatActionText ) 
 
     # Thermometer
 
@@ -1205,7 +1225,7 @@ def createWhatsThis(self):
                          "dark red wireframe box around the selected atom."\
                          "</p>"
 
-    self.jigsThermoAction.setWhatsThis(jigsThermoActionText )
+    win.jigsThermoAction.setWhatsThis(jigsThermoActionText )
 
     # ESP Image
 
@@ -1220,7 +1240,7 @@ def createWhatsThis(self):
                            "plane with a bounding volume."\
                            "</p>"
 
-    self.jigsESPImageAction.setWhatsThis(jigsESPImageActionText )
+    win.jigsESPImageAction.setWhatsThis(jigsESPImageActionText )
 
     # Atom Set
 
@@ -1238,7 +1258,7 @@ def createWhatsThis(self):
                           "<b>Select this jig's atoms</b>."\
                           "</p>"
 
-    self.jigsAtomSetAction.setWhatsThis(jigsAtomSetActionText )
+    win.jigsAtomSetAction.setWhatsThis(jigsAtomSetActionText )
 
     # Measure Distance
 
@@ -1258,7 +1278,7 @@ def createWhatsThis(self):
                            "for each frame of a simulation run and can be plotted using the Plot Tool."\
                            "</p>"
 
-    self.jigsDistanceAction.setWhatsThis(jigsDistanceActionText )
+    win.jigsDistanceAction.setWhatsThis(jigsDistanceActionText )
 
     # Measure Angle
 
@@ -1275,7 +1295,7 @@ def createWhatsThis(self):
                         "for each frame of a simulation run and can be plotted using the Plot Tool."\
                         "</p>"
 
-    self.jigsAngleAction.setWhatsThis(jigsAngleActionText )
+    win.jigsAngleAction.setWhatsThis(jigsAngleActionText )
 
     # Measure Dihedral
 
@@ -1292,7 +1312,7 @@ def createWhatsThis(self):
                            "for each frame of a simulation run and can be plotted using the Plot Tool."\
                            "</p>"
 
-    self.jigsDihedralAction.setWhatsThis(jigsDihedralActionText )
+    win.jigsDihedralAction.setWhatsThis(jigsDihedralActionText )
 
     # GAMESS Jig
 
@@ -1306,7 +1326,7 @@ def createWhatsThis(self):
                          "set of magenta wireframe boxes around each atom."\
                          "</p>"
 
-    self.jigsGamessAction.setWhatsThis(jigsGamessActionText )
+    win.jigsGamessAction.setWhatsThis(jigsGamessActionText )
 
     # Grid Plane Jig
 
@@ -1323,8 +1343,7 @@ def createWhatsThis(self):
                             "<p>The Grid Plane jig is drawn as a rectanglar plane with a grid."\
                             "</p>"
 
-    self.jigsGridPlaneAction.setWhatsThis(jigsGridPlaneActionText )
-
+    win.jigsGridPlaneAction.setWhatsThis(jigsGridPlaneActionText )
 
     #
     # Help Toolbar
@@ -1338,8 +1357,7 @@ def createWhatsThis(self):
                       "Click on a feature which you would like more information about. "\
                       "A popup box appears with information about the feature.</p>"
 
-    self.helpWhatsThisAction.setWhatsThis( helpWhatsThisText )
-
+    win.helpWhatsThisAction.setWhatsThis( helpWhatsThisText )
 
 def create_whats_this_descriptions_for_UserPrefs_dialog(w):
     "Create What's This descriptions for the User Prefs dialog widgets."

@@ -60,7 +60,7 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 
 import Ui_DnaFlyout
 
-from gui.whatsthis import createWhatsThis, fix_whatsthis_text_and_links
+from gui.whatsthis import createWhatsThisTextForMainWindowWidgets, fix_whatsthis_text_and_links
 
 from movieMode import movieDashboardSlotsMixin
 from ops_files import fileSlotsMixin
@@ -552,7 +552,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         if MULTIPANE_GUI:
             # Create the "What's This?" online help system.
-            createWhatsThis(self)
+            createWhatsThisTextForMainWindowWidgets(self)
 
             # This is only used by the Atom Color preference dialog, not the
             # molecular modeling kit in Build Atom (deposit mode), etc.
@@ -784,7 +784,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         # Create the "What's This?" online help system.
         if not MULTIPANE_GUI:
-            createWhatsThis(self)
+            createWhatsThisTextForMainWindowWidgets(self)
 
         # IMPORTANT: All widget creation (i.e. dashboards, dialogs, etc.) and their 
         # whatthis text should be created before this line. [If this is not possible,
