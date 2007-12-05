@@ -44,6 +44,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         self.lastCheckedTranslateButton = None
         self.isTranslateGroupBoxActive = None                         
         self.updateMessage()
+        self.add_whats_this_text()
 
     def connect_or_disconnect_signals(self, connect):
         """
