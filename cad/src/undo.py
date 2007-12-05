@@ -318,7 +318,7 @@ class wrappedslot:
             # doesn't that mean the same as, this begin_op is the one that changed the boundary? (ie call came from event loop?)
             sender = self.__sender
             ##print "sender",sender # or could grab its icon for insertion into history
-            from whatsthis import _actions
+            from gui.whatsthis import _actions
             fn = _actions.get(id(sender))
                 # When we used sender rather than id(sender), the UI seemed noticably slower!!
                 # Possible problem with using id() is for temporary items -- when they're gone,

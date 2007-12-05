@@ -358,7 +358,7 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
     # Only called for len(options) > 0, though it presumably works
     # just as well for len 0 (try it sometime).
     import types
-    from whatsthis import turn_featurenames_into_links, enable_whatsthis_links
+    from gui.whatsthis import turn_featurenames_into_links, enable_whatsthis_links
     if not raw_command:
         command = wrap_callable_for_undo(command, cmdname = undo_cmdname or menutext)
         import changes

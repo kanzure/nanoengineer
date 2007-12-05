@@ -60,6 +60,8 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 
 import Ui_DnaFlyout
 
+from gui.whatsthis import createWhatsThis, fix_whatsthis_text_and_links
+
 from movieMode import movieDashboardSlotsMixin
 from ops_files import fileSlotsMixin
 from ops_files import recentfiles_use_QSettings
@@ -93,7 +95,6 @@ from constants import MULTIPANE_GUI
 
 elementSelectorWin = None
 elementColorsWin = None
-
 
 eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
 
@@ -551,7 +552,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         if MULTIPANE_GUI:
             # Create the "What's This?" online help system.
-            from whatsthis import createWhatsThis
             createWhatsThis(self)
 
             # This is only used by the Atom Color preference dialog, not the
@@ -783,7 +783,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.editMakeCheckpointAction.setVisible(False)
 
         # Create the "What's This?" online help system.
-        from whatsthis import createWhatsThis, fix_whatsthis_text_and_links
         if not MULTIPANE_GUI:
             createWhatsThis(self)
 
