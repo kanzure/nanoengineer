@@ -69,7 +69,7 @@ def update_PAM_chunks( changed_atoms):
     # warning: all marker-related comments below here need revision, as of 071203 @@@
     
     # make sure invalid DnaLadders are recognized as such in the next step,
-    # and [nim -- needed?] recorded for disposal... @@@
+    # and dissolved [possible optim: also recorded for later destroy??].
     # also (#e future optim) break long ones at damage points so the undamaged
     # parts needn't be rescanned in the next step.
     #
@@ -81,7 +81,9 @@ def update_PAM_chunks( changed_atoms):
     # This might be done by adding some of their atoms into changed_atoms
     # in the following method.
     
-    dissolve_or_fragment_invalid_ladders( changed_atoms) # stub? @@@
+    dissolve_or_fragment_invalid_ladders( changed_atoms)
+        # note: this adds atoms to changed_atoms;
+        # see its comments and above comment for details.
     
     # Find the current axis and strand chains (perceived from current bonding)
     # on which any changed atoms reside, but only scanning along atoms

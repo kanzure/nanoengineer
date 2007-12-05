@@ -10,6 +10,7 @@ See also: DnaLadder
 """
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
 from dna_updater_follow_strand import dna_updater_follow_strand
 
@@ -39,26 +40,19 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
     
     changed_chunks = {}
 
-##    dissolved_ladders = {} # values are dissolved ladders or None
-
     for atom in changed_atoms.itervalues():
         chunk = atom.molecule
         changed_chunks[id(chunk)] = chunk
-        if atom.key == 11: ###@@@ debug
-            print "%r, chunk %r, to inval/dissolve" % (atom, chunk) ### @@@
     
     for chunk in changed_chunks.itervalues():
         # todo: assert not killed, not nullMol, is a Chunk
-        ladder = chunk.invalidate_ladder() # noop except in DnaLadderRailChunk
-            # this just dissolves (and returns the now-invalid) chunk.ladder;
+        chunk.invalidate_ladder() # noop except in DnaLadderRailChunk
+            # this just invals chunk.ladder (and below code will dissolve it);
             # a future optim could fragment it instead,
             # if we also recorded which basepair positions
             # were invalid, and made sure their atoms were covered
             # below so their chains will get scanned by caller,
             # e.g. due to changed_atoms.
-        assert ladder is None
-        # todo: remove retval variable 'ladder' from this code
-##        dissolved_ladders[id(ladder)] = ladder # even if it's None
 
     # Changed atoms that got removed from their ladders invalidated them
     # at the time (in DnaLadderRailChunk.delatom). Those that didn't get
@@ -68,7 +62,6 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
 
     invalid_ladders = _f_get_invalid_dna_ladders()
 
-##    for ladder in dissolved_ladders.itervalues():
     for ladder in invalid_ladders:
         # WARNING: the following is only reviewed for the case of the above code
         # dissolving (invalidating, not fragmenting) chunk's ladder.
@@ -87,14 +80,13 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
         # parts of it. But this function name claims to do the dissolving
         # itself (even on already invalidated ladders). # todo: clarify.
         
-        assert ladder is not None # simplify when works
-        if ladder is not None:
-            print "fyi: adding all atoms from dissolved ladder =", ladder #####
-            for rail in ladder.all_rails():
-                for atom in rail.baseatoms: # probably overkill, maybe just one atom is enough -- not sure
-                    # note: we know atom is alive, since it's in a ladder
-                    # that was valid a moment ago
-                    changed_atoms[atom.key] = atom
+        if DEBUG_DNA_UPDATER_VERBOSE:
+            print "dna updater: fyi: adding all atoms from dissolved ladder =", ladder
+        for rail in ladder.all_rails():
+            for atom in rail.baseatoms: # probably overkill, maybe just one atom is enough -- not sure
+                # note: we know atom is alive, since it's in a ladder
+                # that was valid a moment ago
+                changed_atoms[atom.key] = atom
         continue
     
     return
@@ -178,7 +170,7 @@ class chains_to_break:
                 res.append( (start_index, length) )
             start_index = break_before
             continue
-        if DEBUG_DNA_UPDATER:
+        if DEBUG_DNA_UPDATER: # _VERBOSE?
             print "broke %r -> %d pieces == %r" % (chain, len(res), res)
         assert num_bases == chain.baselength()
         return res
@@ -203,7 +195,7 @@ def make_new_ladders(axis_chains, strand_chains):
 
     The new ladders will have rails in the same direction
     and with proper bond directions. (If necessary, we fix
-    inconsistent bond directions.) @@@doit
+    inconsistent bond directions.) [### partly nim; see ladder.error flag]
 
     @return: list of newly made DnaLadders
     """
@@ -226,14 +218,13 @@ def make_new_ladders(axis_chains, strand_chains):
         for atom, index in axis.baseatom_index_pairs():
             # assume no termination atoms here
             
-            new_strand_atoms = atom.strand_neighbors() # IMPLEM
+            new_strand_atoms = atom.strand_neighbors()
                 # todo: make an AxisAtom method from this new Atom method
 
             # For efficiency, at this stage we just store info about these strand atoms' axis locations;
             # later we scan strands all at once and look at that info. This avoids trying both pairings
             # of prior and current strand atoms, and checking for bonding (perhaps thru Pl) or adjacency
             # (worrying about ring index wraparound).
-
 
             for s_atom in new_strand_atoms:
                 strand_axis_info[s_atom.key] = (axis, index)

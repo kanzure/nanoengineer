@@ -14,9 +14,16 @@ from constants import gensym
 # ==
 
 class DnaLadderRailChunk(Chunk):
+    """
+    """
+
+    # initial values of instance variables:
+    
     chain = None # will be a DnaChain in finished instances
+    
     ladder = None # will be a DnaLadder in finished instances
-    ###e todo: undo, copy for that attr
+    
+    ###e todo: undo, copy for those attrs?
 
     # == init methods
 
@@ -26,13 +33,13 @@ class DnaLadderRailChunk(Chunk):
         # for now just assume chain_or_something_else is a DnaChain
         chain = chain_or_something_else
         # name should not be seen, but it is for now...
-        name = gensym(self.__class__.__name__.split('.')[-1]) + ' (internal)' ###k
-        Chunk.__init__(self, assy, name) #k
+        name = gensym(self.__class__.__name__.split('.')[-1]) + ' (internal)'
+        Chunk.__init__(self, assy, name)
         self.chain = chain
         # add atoms before setting self.ladder, so adding them doesn't invalidate it
         self._grab_atoms_from_chain(chain) #e we might change when this is done, if we implem copy for this class
         # following import is a KLUGE to avoid recursive import
-        # (still has import cycle, ought to fix -- should refile that func somehow)
+        # (still has import cycle, ought to ### FIX -- should refile that func somehow)
         from DnaLadder import _rail_end_atom_to_ladder # todo: make not private... or get by without it here (another init arg??)            
         self.ladder = _rail_end_atom_to_ladder( chain.baseatoms[0] )
         return
@@ -46,7 +53,7 @@ class DnaLadderRailChunk(Chunk):
         """
         # common code -- just pull in baseatoms and their bondpoints.
         # subclass must extend as needed.
-        for atom in chain.baseatoms: # public?
+        for atom in chain.baseatoms:
             atom.hopmol(self)
                 # note: hopmol immediately kills old chunk if it becomes empty
         return
@@ -58,14 +65,8 @@ class DnaLadderRailChunk(Chunk):
         [overrides Chunk method]
         [only legal after init, not during it, thus not in self.addatom]
         """
-        print "%r will invalidate %r" % (self, self.ladder) ### remove after debug @@@
         self.ladder.invalidate()
-##        return self.ladder # REQUIRED; need to doc this requirement in superclass docstring [no, it's obs, nevermind]
         return
-    
-    ###e todo: at least self-inval on structure changes... like new atoms...
-    # might not be needed since dna updater does it? (unless it ignores the change if it happens while we run)
-    # (don't do a thing like that during our init!)
 
     def in_a_valid_ladder(self): #bruce 071203
         """
@@ -80,7 +81,7 @@ class DnaLadderRailChunk(Chunk):
         Chunk.addatom(self, atom)
         if self.ladder and self.ladder.valid:
             # does this ever happen?
-            print "dna updater, fyi: %r.addatom invals %r" % (self, self.ladder) # to see if it happens
+            print "dna updater, fyi: %r.addatom invals %r" % (self, self.ladder)
             self.ladder.invalidate()
         return
 
@@ -109,9 +110,6 @@ class DnaStrandChunk(DnaLadderRailChunk):
     updater to make one, is not yet decided. Likewise, whether self.draw is
     normally called is not yet decided.)
     """
-##    def __init__(self, assy, chain_or_something_else):
-##        # for now just assume chain_or_something_else is a DnaChain
-##        DnaLadderRailChunk.__init__(self, assy, chain_or_something_else)
     def _grab_atoms_from_chain(self, chain):
         """
         [extends superclass version]

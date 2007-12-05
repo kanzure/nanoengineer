@@ -47,7 +47,7 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
         assert isinstance( chain_or_ring, DnaChain_AtomChainWrapper) #e remove when works?
         return chain_or_ring.iteratoms()
             # note: it's essential to include Pl atoms in this value,
-            # for sake of find_chain_or_ring's dict.pop @@@
+            # for sake of find_chain_or_ring's dict.pop.
     pass
     
 class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
@@ -61,7 +61,7 @@ class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
     def atom_ok(self, atom):
         # note: this can include Pl atoms in PAM5,
         # but the wrapper class filters them out of
-        # the atom list it stores. [filtering is new behavior 071203, nim@@@]
+        # the atom list it stores.
         return atom.element.role == 'strand' and not atom.molecule.in_a_valid_ladder()
     pass
 

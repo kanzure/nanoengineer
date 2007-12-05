@@ -2,6 +2,8 @@
 """
 BasePair.py - BasePair, StackedBasePairs flyweight objects
 
+WARNING -- this is not yet used; it's really just a scratch file. [bruce 071205]
+
 @author: Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.

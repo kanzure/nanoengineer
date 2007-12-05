@@ -9,4 +9,6 @@ dna_updater_constants.py -- constants for dna_updater
 
 DEBUG_DNA_UPDATER = True # ok to commit with True for now [bruce 071119]
 
+DEBUG_DNA_UPDATER_VERBOSE = False # bruce 071205
+
 # end

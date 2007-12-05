@@ -12,6 +12,8 @@ future to mark subsequence endpoints for relations or display styles.
 
 from dna_model.DnaAtomMarker import DnaAtomMarker
 
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+
 # ==
 
 try:
@@ -32,7 +34,9 @@ class DnaChain(object):
     
     # default values of public instance variables:
     
-    baseatoms = None # subclass-specific __init__ must set this
+    baseatoms = None # public for read; sequence of all our atoms with a baseindex
+        # (whether in strand or axis) (leaves out Pl, bondpoints, termination atoms)
+        # note: subclass-specific __init__ must set this
     
     index_direction = 1 # instances negate this when they reverse baseatoms
         # (and thus its indexing) using reverse_baseatoms. It records the
@@ -150,8 +154,8 @@ class DnaChainFragment(DnaChain): #e does it need to know ringQ? axis vs strand?
         self.baseatoms = atom_list
         if index_direction is not None:
             self.index_direction = index_direction
-            # not sure this is correct,
-            # as opposed to always storing (or caller always passing) 1 @@@
+        else:
+            pass # use default index_direction (since arbitrary)
         if bond_direction is not None or bond_direction_error is not None:
             bond_direction = bond_direction or 0
             bond_direction_error = bond_direction_error or False
@@ -204,7 +208,7 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
         #e possible optim: can we discard the bonds stored in chain_or_ring, and keep only the atomlist,
         # maybe not even in that object?
         # (but we do need ringQ, and might need future chain_or_ring methods that differ for it.)
-        # decision 071203: yes, and even more, discard non-base atoms, optimize base scanning. [nim @@@]
+        # decision 071203: yes, and even more, discard non-base atoms, optimize base scanning.
         # make sure we can iterate over all atoms incl bos and Pls, sometime, for some purposes.
         # use a method name that makes that explicit.
         # For now, just store a separate list of baseatoms (in each subclass __init__ method).
@@ -248,8 +252,9 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
         # get removed or made independently without the chain itself
         # changing. If so, some invalidation of those chain attributes
         # might be needed)
-        
-        print "%r._f_own_atoms() is a stub - always makes a new marker" % self #####FIX
+
+        if DEBUG_DNA_UPDATER_VERBOSE:
+            print "%r._f_own_atoms() is a stub - always makes a new marker" % self #####FIX
         chain = self.chain_or_ring
         # stub -- just make a new marker! we'll need code for this anyway...
         # but it's WRONG to do it when an old one could take over, so this is not a correct stub, just one that might run.

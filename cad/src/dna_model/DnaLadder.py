@@ -50,6 +50,8 @@ from bonds import atoms_are_bonded
 
 from DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
 
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+
 # codes for ladder ends (used privately or passed to other-ladder friend methods)
  
 _ENDS = (0, 1)
@@ -100,7 +102,7 @@ class DnaLadder(object):
     at a time, and set a private atom attribute to point to that ladder.
     """
     valid = False # public for read, private for set; whether structure is ok and we own our atoms
-    error = False # ditto; whether num_strands or strand bond directions are wrong (parallel) # @@@ USE ME MORE?
+    error = False # ditto; whether num_strands or strand bond directions are wrong (parallel) # todo: use more?
     def __init__(self, axis_rail):
         self.axis_rail = axis_rail
         self.assy = axis_rail.baseatoms[0].molecule.assy #k
@@ -188,14 +190,16 @@ class DnaLadder(object):
                 for atom in self.rail_end_baseatoms():
                     # (could debug-warn if already set)
                     atom._DnaLadder__ladder = self
-                    print "%r owning %r" % (self, atom) ### remove when works
+                    if DEBUG_DNA_UPDATER_VERBOSE:
+                        print "%r owning %r" % (self, atom)
             else:
                 # un-tell them
                 for atom in self.rail_end_baseatoms():
                     # (could debug-warn if not set to self)
                     atom._DnaLadder__ladder = None
                     del atom._DnaLadder__ladder
-                    print "%r un-owning %r" % (self, atom) ### remove when works
+                    if DEBUG_DNA_UPDATER_VERBOSE:
+                        print "%r de-owning %r" % (self, atom)
                 # tell the next run of the dna updater we're invalid
                 _invalid_dna_ladders[id(self)] = self
         return
@@ -210,8 +214,10 @@ class DnaLadder(object):
             if atom2 is not atom1:
                 yield atom2
         return
-    def invalidate(self): # todo: doc why this is called - so changed atoms inval their entire ladders
-        print "invalidating", self #e remove after debug @@@
+    def invalidate(self):
+        # note: this is called from dna updater and from
+        # DnaLadderRailChunk.delatom, so changed atoms inval their
+        # entire ladders
         self.set_valid(False)
 
     # == ladder-merge methods
@@ -371,7 +377,8 @@ class DnaLadder(object):
                 group = part.topnode
             assert group.is_group()
             chunk = want_class(assy, rail)
-            print "%r.remake_chunks made %r" % (self, chunk) ####
+            if DEBUG_DNA_UPDATER_VERBOSE:
+                print "%r.remake_chunks made %r" % (self, chunk)
             chunk.color = old_chunk.color # works, at least if a color was set
             #e put it into the model in the right place [stub - puts it in the same group]
             # (also - might be wrong, we might want to hold off and put it in a better place a bit later during dna updater)

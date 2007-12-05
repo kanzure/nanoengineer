@@ -17,7 +17,7 @@ from chem import _changed_structure_Atoms, _changed_parent_Atoms # but they're p
 
 from debug import print_compact_stack
 
-_DEBUG_ATOM_KEY = 11 # None, or a value of atom.key for which all ignored changes should be printed
+_DEBUG_ATOM_KEY = None # None, or a value of atom.key for which all ignored changes should be printed
 
 # ==
 
