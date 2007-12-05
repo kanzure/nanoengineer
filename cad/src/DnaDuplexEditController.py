@@ -90,9 +90,7 @@ class DnaDuplexEditController(EditController):
         editController. 
         """
         assert not self.propMgr
-
         propMgr = DnaDuplexPropertyManager(self.win, self)
-
         return propMgr
 
 
@@ -293,11 +291,19 @@ class DnaDuplexEditController(EditController):
         
         mouseClickLimit = 2
         duplexRise =  getDuplexRise('B-DNA')
-        callbackMethod = self.getCursorTextForTemporaryMode
-        return (mouseClickLimit, duplexRise, callbackMethod)
+        callback_cursorText = self.getCursorTextForTemporaryMode
+        callback_snapEnabled = self.isRubberbandLineSnapEnabled
+        callback_rubberbandLineDisplay = self.getDisplayStyleForRubberbandLine
+        return (mouseClickLimit, 
+                duplexRise, 
+                callback_cursorText, 
+                callback_snapEnabled, 
+                callback_rubberbandLineDisplay )
     
     def getCursorTextForTemporaryMode(self, endPoint1, endPoint2):
         """
+        This is used as a callback method in DnaLine mode 
+        @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
         duplexLength = vlen(endPoint2 - endPoint1)
         numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
@@ -305,6 +311,29 @@ class DnaDuplexEditController(EditController):
         duplexLengthString = str(round(duplexLength, 3))
         text =  str(numberOfBasePairs)+ "b, "+ duplexLengthString 
         return text 
+    
+    
+    def isRubberbandLineSnapEnabled(self):
+        """
+        This returns True or False based on the checkbox state in the PM.
+        
+        This is used as a callback method in DnaLine mode (DnaLine_GM)
+        @see: DnaLine_GM.snapLineEndPoint where the boolean value returned from
+              this method is used
+        @return: Checked state of the linesnapCheckBox in the PM
+        @rtype: boolean
+        """
+        return self.propMgr.lineSnapCheckBox.isChecked()
+    
+    def getDisplayStyleForRubberbandLine(self):
+        """
+        This is used as a callback method in DnaLine mode . 
+        @return: The current display style for the rubberband line. 
+        @rtype: string
+        @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
+        """
+        return self.propMgr.dnaRubberBandLineDisplayComboBox.currentText()
+      
 
     def enterDnaLineMode(self, isChecked = False):
         """
@@ -322,5 +351,4 @@ class DnaDuplexEditController(EditController):
                 commandSequencer.userEnterTemporaryCommand(
                     'DNA_LINE_MODE')
                 return
-
-
+            

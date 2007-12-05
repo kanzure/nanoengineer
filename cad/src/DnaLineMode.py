@@ -17,7 +17,6 @@ from drawer import drawLadder, drawRibbons
 
 from constants import black, darkred, blue, white
 
-
 # == GraphicsMode part
 
 class DnaLine_GM( LineMode.GraphicsMode_class ):
@@ -36,6 +35,24 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         """
         """
         LineMode.GraphicsMode_class.__init__(self, command)
+    
+    def snapLineEndPoint(self):
+        """
+        Snap the line to the specified constraints. 
+        To be refactored and expanded. 
+        @return: The new endPoint2 i.e. the moving endpoint of the rubberband 
+                 line . This value may be same as previous or snapped so that it
+                 lies on a specified vector (if one exists)                 
+        @rtype: B{A}
+        """
+                
+        if self.command.callbackForSnapEnabled() == 1:
+            endPoint2  = LineMode.GraphicsMode_class.snapLineEndPoint(self)
+        else:
+            endPoint2 = self.endPoint2
+            
+        return endPoint2
+        
       
     def Draw(self):
         """
@@ -48,8 +65,10 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         #a ladder with arrow heads for the beams is the current implementation 
         # -Ninad 2007-10-30
         
-        LineMode.GraphicsMode_class.Draw(self)
+        
+        LineMode.GraphicsMode_class.Draw(self)        
         if self.endPoint2 and self.endPoint1: 
+            
             #Draw the ladder. 
             #Convention:
             # The red band(beam) of the 
@@ -72,7 +91,7 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
             # 'left mountain' or the 'right mountain' depending on the 
             # orientation while drawing the ladder
             
-            if 0:
+            if self.command.callback_rubberbandLineDisplay() == 'Ladder':
                 #Note there needs to be a radio button to switch on the 
                 # rubberband ladder display for a dna line. At the moment it is 
                 # disabled and is superseded by the ribbons ruberband display. 
@@ -86,26 +105,29 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                            beam2Color = blue,
                            stepColor = black    
                         )  
-                
-            #Default dna rubberband line display style       
-            drawRibbons(self.endPoint1,
-                       self.endPoint2, 
-                       self.command.duplexRise,
-                       self.glpane.scale,
-                       self.glpane.lineOfSight,
-                       ribbonThickness = 4.0,
-                       ribbon1Color = darkred,
-                       ribbon2Color = blue,
-                       stepColor = black    
-                    )       
-
+            elif self.command.callback_rubberbandLineDisplay() ==  'Ribbons':  
+                #Default dna rubberband line display style       
+                drawRibbons(self.endPoint1,
+                           self.endPoint2, 
+                           self.command.duplexRise,
+                           self.glpane.scale,
+                           self.glpane.lineOfSight,
+                           ribbonThickness = 4.0,
+                           ribbon1Color = darkred,
+                           ribbon2Color = blue,
+                           stepColor = black    
+                        )   
+            else:
+                pass
+            
+            #Draw the text next to the cursor that gives info about 
+            #number of base pairs etc
             if self.command:
                 self.text = self.command.callbackMethodForCursorTextString(
                     self.endPoint1, 
                     self.endPoint2)
                 self.glpane.renderTextNearCursor(self.text)
-                          
-          
+        
 
 # == Command part
 class DnaLineMode(LineMode): 
@@ -132,7 +154,9 @@ class DnaLineMode(LineMode):
     GraphicsMode_class = DnaLine_GM
         
     def setParams(self, params):
-        assert len(params) == 3
+        assert len(params) == 5
         self.mouseClickLimit, \
             self.duplexRise, \
-            self.callbackMethodForCursorTextString = params
+            self.callbackMethodForCursorTextString, \
+            self.callbackForSnapEnabled, \
+            self.callback_rubberbandLineDisplay = params

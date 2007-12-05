@@ -34,6 +34,8 @@ from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_ToolButton    import PM_ToolButton
 from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
+from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
+from PM.PM_CheckBox   import PM_CheckBox
 
 from DebugMenuMixin import DebugMenuMixin
 from EditController_PM import EditController_PM
@@ -142,7 +144,8 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         change_connect(self.specifyDnaLineButton, 
                      SIGNAL("toggled(bool)"), 
                      self.editController.enterDnaLineMode)
-    
+        
+        
     def model_changed(self):
         """
         NOT IMPLEMENTED YET. This needs commandSequencer to treat various 
@@ -330,12 +333,15 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         self._pmGroupBox2 = PM_GroupBox( self, title = "Strands" )
         self._loadGroupBox2( self._pmGroupBox2 )
         
-        self._pmGroupBox3 = PM_GroupBox( self, title = "Parameters" )
+        self._pmGroupBox3 = PM_GroupBox( self, title = "Endpoints" )
         self._loadGroupBox3( self._pmGroupBox3 )
-
-        self._pmGroupBox4 = PM_GroupBox( self, title = "Endpoints" )
+        
+        self._pmGroupBox4 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox4( self._pmGroupBox4 )
-    
+        
+        self._pmGroupBox5 = PM_GroupBox( self, title = "Advanced Options" )
+        self._loadGroupBox5( self._pmGroupBox5 )
+
     def _loadGroupBox1(self, pmGroupBox):
         """
         load widgets in groupbox1
@@ -366,10 +372,45 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
             label = "",
             text  = "Edit Properties..." )
         self.editStrandPropertiesButton.setEnabled(False)
-       
+    
     def _loadGroupBox3(self, pmGroupBox):
         """
         Load widgets in group box 3.
+        """
+        #Folllowing toolbutton facilitates entering a temporary DnaLineMode
+        #to create a DNA using endpoints of the specified line. 
+        self.specifyDnaLineButton = PM_ToolButton(
+            pmGroupBox, 
+            text = "Specify Endpoints",
+            iconPath  = "ui/actions/Properties Manager"\
+            "/Pencil.png",
+            spanWidth = True                        
+        )
+        self.specifyDnaLineButton.setCheckable(True)
+        self.specifyDnaLineButton.setAutoRaise(True)
+        self.specifyDnaLineButton.setToolButtonStyle(
+            Qt.ToolButtonTextBesideIcon)
+    
+        #EndPoint1 and endPoint2 coordinates. These widgets are hidden 
+        # as of 2007- 12 - 05
+        self._endPoint1SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox, 
+                                                label = "End Point 1")
+        self.x1SpinBox = self._endPoint1SpinBoxes.xSpinBox
+        self.y1SpinBox = self._endPoint1SpinBoxes.ySpinBox
+        self.z1SpinBox = self._endPoint1SpinBoxes.zSpinBox
+        
+        self._endPoint2SpinBoxes = PM_CoordinateSpinBoxes(pmGroupBox, 
+                                                label = "End Point 2")
+        self.x2SpinBox = self._endPoint2SpinBoxes.xSpinBox
+        self.y2SpinBox = self._endPoint2SpinBoxes.ySpinBox
+        self.z2SpinBox = self._endPoint2SpinBoxes.zSpinBox
+        
+        self._endPoint1SpinBoxes.hide()
+        self._endPoint2SpinBoxes.hide()
+       
+    def _loadGroupBox4(self, pmGroupBox):
+        """
+        Load widgets in group box 4.
         """
 
         self.conformationComboBox  = \
@@ -416,95 +457,30 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
 
         self.duplexLengthLineEdit.setDisabled(True)        
 
-    def _loadGroupBox4(self, pmGroupBox):
+    def _loadGroupBox5(self, pmGroupBox):
         """
-        Load widgets in group box 4.
+        Load widgets in group box 5.
         """
-        #Folllowing toolbutton facilitates entering a temporary DnaLineMode
-        #to create a DNA using endpoints of the specified line. 
-        self.specifyDnaLineButton = PM_ToolButton(
-            pmGroupBox, 
-            text = "Specify Endpoints",
-            iconPath  = "ui/actions/Properties Manager"\
-            "/Pencil.png",
-            spanWidth = True                        
-        )
-        self.specifyDnaLineButton.setCheckable(True)
-        self.specifyDnaLineButton.setAutoRaise(True)
-        self.specifyDnaLineButton.setToolButtonStyle(
-            Qt.ToolButtonTextBesideIcon)
-
-        self._endPoint1GroupBox = PM_GroupBox( pmGroupBox, title = "Endpoint1" )
-        self._endPoint2GroupBox = PM_GroupBox( pmGroupBox, title = "Endpoint2" )
+        self._rubberbandLineGroupBox = PM_GroupBox(
+            pmGroupBox,
+            title = 'Rubber band Line:')
+        
+        dnaLineChoices = ['Ribbons', 'Ladder']
+        self.dnaRubberBandLineDisplayComboBox = \
+            PM_ComboBox( self._rubberbandLineGroupBox ,     
+                         label         =  " Display As:", 
+                         choices       =  dnaLineChoices,
+                         setAsDefault  =  True)
+        
+        self.lineSnapCheckBox = \
+            PM_CheckBox(self._rubberbandLineGroupBox ,
+                        text         = 'Enable line snap' ,
+                        widgetColumn = 1,
+                        state        = Qt.Checked
+                        )
         
         
-        # Point 1
-        self.x1SpinBox  =  \
-            PM_DoubleSpinBox( self._endPoint1GroupBox,
-                              label         =  \
-                              "ui/actions/Properties Manager/X_Coordinate.png",
-                              value         =  0,
-                              setAsDefault  =  True,
-                              minimum       =  -100.0,
-                              maximum       =   100.0,
-                              decimals      =  3,
-                              suffix        =  ' Angstroms')
-
-        self.y1SpinBox  =  \
-            PM_DoubleSpinBox( self._endPoint1GroupBox,
-                              label         =  \
-                              "ui/actions/Properties Manager/Y_Coordinate.png",
-                              value         =  0,
-                              setAsDefault  =  True,
-                              minimum       =  -100.0,
-                              maximum       =   100.0,
-                              decimals      =  3,
-                              suffix        =  ' Angstroms')
-
-        self.z1SpinBox  =  \
-            PM_DoubleSpinBox( self._endPoint1GroupBox,
-                              label         =  \
-                              "ui/actions/Properties Manager/Z_Coordinate.png",
-                              value         =  0,
-                              setAsDefault  =  True,
-                              minimum       =  -100.0,
-                              maximum       =   100.0,
-                              decimals      =  3,
-                              suffix        =  ' Angstroms')
-
-        # Point 2
-        self.x2SpinBox  =  \
-            PM_DoubleSpinBox( self._endPoint2GroupBox,
-                              label         =  \
-                              "ui/actions/Properties Manager/X_Coordinate.png",
-                              value         =  10.0,
-                              setAsDefault  =  True,
-                              minimum       =  -100.0,
-                              maximum       =   100.0,
-                              decimals      =  3,
-                              suffix        =  ' Angstroms')
-
-        self.y2SpinBox  =  \
-            PM_DoubleSpinBox( self._endPoint2GroupBox,
-                              label         =  \
-                              "ui/actions/Properties Manager/Y_Coordinate.png",
-                              value         =  0,
-                              setAsDefault  =  True,
-                              minimum       =  -100.0,
-                              maximum       =   100.0,
-                              decimals      =  3,
-                              suffix        =  ' Angstroms')
-
-        self.z2SpinBox  =  \
-            PM_DoubleSpinBox( self._endPoint2GroupBox,
-                              label         =  \
-                              "ui/actions/Properties Manager/Z_Coordinate.png",
-                              value         =  0,
-                              setAsDefault  =  True,
-                              minimum       =  -100.0,
-                              maximum       =   100.0,
-                              decimals      =  3,
-                              suffix        =  ' Angstroms')
+        
 
     def _addWhatsThisText( self ):
         """
