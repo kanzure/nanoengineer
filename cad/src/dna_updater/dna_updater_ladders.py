@@ -21,28 +21,51 @@ from dna_model.DnaLadderRailChunk import DnaLadderRailChunk # import not needed?
 
 def dissolve_or_fragment_invalid_ladders( changed_atoms):
     """
+    #doc... [some is in a caller comment]
+    
+    Also make sure that atoms that are no longer in valid ladders
+    (due to dissolved or fragmented ladders) are included in the caller's
+    subsequent step of finding changed chains,
+    or that the chains they are in are covered. This is necessary so that
+    the found chains below cover all atoms in every "base pair" (Ss-Ax-Ss)
+    they cover any atom in.
+    This might be done by adding some of their atoms into changed_atoms
+    in this method.
     """
     # assume ladder rails are DnaLadderRailChunk instances.
     
     changed_chunks = {}
 
+    dissolved_ladders = {} # values are dissolved ladders or None
+
     for atom in changed_atoms.itervalues():
         chunk = atom.molecule
         changed_chunks[id(chunk)] = chunk
     
-    for chunk in changed_chunks.values():
+    for chunk in changed_chunks.itervalues():
         # todo: assert not killed, not nullMol, is a Chunk
-        chunk.invalidate_ladder() # noop except in DnaLadderRailChunk
-            # this just dissolves chunk.ladder;
+        ladder = chunk.invalidate_ladder() # noop except in DnaLadderRailChunk
+            # this just dissolves (and returns the now-invalid) chunk.ladder;
             # a future optim could fragment it instead,
             # if we also recorded which basepair positions
-            # were invalid.
+            # were invalid, and made sure their atoms were covered
+            # below so their chains will get scanned by caller,
+            # e.g. due to changed_atoms.
+        dissolved_ladders[id(ladder)] = ladder # even if it's None
 
-    # BUGS: [from deleting one duplex strand bond]
-    # - ladder rails are not yet DnaLadderRailChunk instances.
-    # - ladder rails whose whole chains stay untouched (no atoms in changed_atoms)
-    #   need inclusion in the strand and axis chain lists (in current code, 071204)
-    #   but are not included in them.
+    for ladder in dissolved_ladders.itervalues():
+        # WARNING: the following is only reviewed for the case of the above code
+        # dissolving (not fragmenting) chunk's ladder.
+        #e Could optim if we know some rails were untouched, by
+        # "including them whole" rather than rescanning them, in caller.
+        if ladder is not None:
+            print "fyi: adding all atoms from dissolved ladder =", ladder #####
+            for rail in ladder.all_rails():
+                for atom in rail.baseatoms: # probably overkill, maybe just one atom is enough -- not sure
+                    # note: we know atom is alive, since it's in a ladder
+                    # that was valid a moment ago
+                    changed_atoms[atom.key] = atom
+        continue
     
     return
 
@@ -55,13 +78,16 @@ class chains_to_break:
     """
     def __init__( self, chains):
         self.chains = chains # a list
-        self._set_of_breakpoints_for_chain = {}
+        self._set_of_breakpoints_for_chain = d = {}
+        for chain in chains:
+            d[chain] = {} # avoid later setdefault
+        return
     def break_chain_later( self, chain, index, whichside):
         """
         Record info about where to later break chain --
         on whichside of index.
 
-        @param chain: a chain that's assumed to be in self.chains
+        @param chain: a chain that must be in self.chains
         @type chain: DnaChain
         
         @param index: an atom index in chain; WARNING: would become invalid
@@ -77,28 +103,55 @@ class chains_to_break:
         # it up per chain:
         if whichside == -1:
             # break_indices = index - 1, index
-            break_after = index - 1
+            break_before = index
         else:
             assert whichside == 1
             # break_indices = index, index + 1
-            break_after = index
-        self._set_of_breakpoints_for_chain .setdefault(chain, {})[break_after] = None
+            break_before = index + 1
+        # not needed: assert chain in self.chains
+        ## self._set_of_breakpoints_for_chain.setdefault(chain, {})[break_before] = None
+        self._set_of_breakpoints_for_chain[chain][break_before] = None # arb value
         return
+    def break_between_Q( self, chain, index1, index2):
+        """
+        Is there a break between the given two adjacent indices in chain?
+        @note: adjacent indices can be passed in either order.
+        """
+        breaks = self._set_of_breakpoints_for_chain[chain]
+        assert abs(index1 - index2) == 1
+        break_before = max(index1, index2)
+        return breaks.has_key(break_before)
     def breakit(self, chain):
         """
-        Return a sequence of (start_index, length, direction) triples,
-        suitable for passing to chain.virtual_fragment
-        for the fragments of chain into which are recorded breaks
-        should break it.
-        Direction will always be 1.
+        Return a sequence of (start_index, length) pairs,
+        suitable for passing to chain.virtual_fragment,
+        which describes the fragments of chain into which our
+        recorded breaks should break it.
 
-        @param chain: a chain that's assumed to be in self.chains
+        @param chain: a chain that must be in self.chains
         @type chain: DnaChain
 
-        @return: sequence of (start_index, length, direction) triples
+        @return: sequence of (start_index, length) pairs
         """
-        print "breakit nim, stub never breaks",chain ####
-        return [ (chain.start_baseindex(), chain.baselength()) ]
+        breaks = self._set_of_breakpoints_for_chain[chain].keys() # might be empty
+        breaks.sort()
+        start_index = chain.start_baseindex() # modified during loop
+        limit_index = chain.baselength() + start_index
+        breaks.append(limit_index)
+        res = []
+        num_bases = 0 # for asserts only
+        for break_before in breaks:
+            length = break_before - start_index
+            num_bases += length # for asserts only
+            # length can be 0 here, due to explicit breaks at the ends
+            if length:
+                res.append( (start_index, length) )
+            start_index = break_before
+            continue
+        if DEBUG_DNA_UPDATER:
+            print "broke %r -> %d pieces == %r" % (chain, len(res), res)
+        assert num_bases == chain.baselength()
+        return res
     pass
 
 # ==
@@ -182,7 +235,13 @@ def make_new_ladders(axis_chains, strand_chains):
         # along axis (for details, see the helper function).
         # (The break_ functions store the virtual breaks for later use
         #  in fragmenting the chains.)
-        dna_updater_follow_strand(strand, strand_axis_info, break_axis, break_strand)
+        dna_updater_follow_strand(1, strand, strand_axis_info, break_axis, break_strand)
+
+    for strand in strand_chains:
+        # Now copy any axis breaks that strand moves over
+        # onto strand breaks, in case they originated from the
+        # other strand at that point on the axis.
+        dna_updater_follow_strand(2, strand, strand_axis_info, None, break_strand, axis_breaker.break_between_Q )
 
     # Now use the recorded axis breaks to decide what new ladder fragments
     # to make, and the recorded strand breaks to make strand fragments to
@@ -209,9 +268,8 @@ def make_new_ladders(axis_chains, strand_chains):
 
     ladder_locator = {} # atom.key -> ladder, for end axis atoms of each ladder we're making
 
-    def end_atoms(rail):
+    def end_baseatoms(rail):
         return rail.end_baseatoms()
-        ## return (rail.atom_list[0], rail.atom_list[-1])
 
     ladders = []
     
@@ -221,7 +279,7 @@ def make_new_ladders(axis_chains, strand_chains):
             start_index, length = frag
             axis_rail = axis.virtual_fragment(start_index, length)
             ladder = DnaLadder(axis_rail)
-            for atom in end_atoms(axis_rail):
+            for atom in end_baseatoms(axis_rail):
                 ladder_locator[atom.key] = ladder
             ladders.append(ladder)
 
@@ -231,7 +289,7 @@ def make_new_ladders(axis_chains, strand_chains):
             start_index, length = frag
             strand_rail = strand.virtual_fragment(start_index, length)
             # find ladder to put it in
-            atom = end_atoms(strand_rail)[0].axis_neighbor()
+            atom = end_baseatoms(strand_rail)[0].axis_neighbor()
             ladder = ladder_locator[atom.key]
             ladder.add_strand_rail(strand_rail)
 

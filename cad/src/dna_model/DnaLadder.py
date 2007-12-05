@@ -87,7 +87,13 @@ class DnaLadder(object):
     def baselength(self):
         return len(self.axis_rail)
     def add_strand_rail(self, strand_rail):
-        assert strand_rail.baselength() == self.axis_rail.baselength()
+        assert strand_rail.baselength() == self.axis_rail.baselength(), \
+               "baselengths in %r don't match: %r (%d) != %r (%d)" % \
+               (self,
+                strand_rail,
+                strand_rail.baselength(),
+                self.axis_rail,
+                self.axis_rail.baselength())
         self.strand_rails.append(strand_rail)
         return
     def finished(self):
@@ -257,7 +263,7 @@ class DnaLadder(object):
             return None
         # try each orientation for other ladder;
         # first collect the atoms to test for bonding to other
-        our_end_atoms = self.end_atoms(end) # IMPLEM
+        our_end_atoms = self.end_atoms(end)
         for other_end in _ENDS:
             other_end_atoms = other.end_atoms(other_end)
                 # note: top to bottom on left, bottom to top on right,
@@ -274,6 +280,37 @@ class DnaLadder(object):
                 other_ladder_and_merge_info = other, merge_info
                 return other_ladder_and_merge_info
         return None
+    def end_atoms(self, end):
+        """
+        Return a list of our 3 rail-end atoms at the specified end,
+        using None for a missing atom due to a missing strand2,
+        in the order strand1, axis, strand2 for the left end,
+        or the reverse order for the right end (since flipping self
+        also reverses that rail order in order to preserve strand bond
+        directions).
+        """
+        # note: top to bottom on left, bottom to top on right,
+        # None in place of missing atoms for strand2
+        assert len(self.strand_rails) in (1,2)
+        strand_rails = self.strand_rails + [None]
+        rails = [strand_rails[0], self.axis_rail, strand_rails[1]] # order matters
+        def atom0(rail):
+            if rail is None:
+                return None
+            return rail.end_baseatoms()[end]
+        res0 = map( atom0, rails)
+        if end != _END0:
+            res0.reverse()
+        return res0
+    def __repr__(self):
+        ns = self.num_strands()
+        if ns == 2:
+            extra = ""
+        elif ns == 1:
+            extra = " (single strand)"
+        else:
+            extra = " (error: %d strands)" % ns
+        return "<%s at %#x, axis len %d%s>" % (self.__class__.__name__, id(self), self.axis_rail.baselength(), extra)
     def _do_merge_with_other_at_ends(self, other, end, other_end):
         print "nim (bug): _do_merge_with_other_at_ends(self = %r, other_ladder = %r, end = %r, other_end = %r)" % \
               (self, other, end, other_end)
@@ -281,6 +318,12 @@ class DnaLadder(object):
 
     # ==
 
+    def all_rails(self): #todo: could use in various methods herein if desired; could guarantee order (review it first)
+        """
+        Return a list of all our rails (axis and 1 or 2 strands), in arbitrary order.
+        """
+        return [self.axis_rail] + self.strand_rails
+    
     def remake_chunks(self):
         assert self.valid
         # but don't assert not self.error
@@ -289,14 +332,30 @@ class DnaLadder(object):
                 want_class = DnaAxisChunk
             else:
                 want_class = DnaStrandChunk
-            assy = self.assy
-            chunk = want_class(assy, rail)
-            print "%r.remake_chunks made %r" % (self, chunk) #### 
-            #e put it into the model in the right place [stub - puts it at the end]
-            # (also - might be wrong, we might want to hold off and put it in a better place a bit later during dna updater)
+            old_chunk = rail.baseatoms[0].molecule # from arbitrary atom in rail
+            assy = old_chunk.assy
+            assert assy is self.assy
             part = assy.part
             part.ensure_toplevel_group()
-            part.addmol(chunk) # revise to some better method that calls this stuff? iirc, one exists
+            group = old_chunk.dad # put new chunk in same group as old
+                # (but don't worry about where inside it, for now)
+            if group is None:
+                # this happens for MMKit chunks with "dummy" in their names;
+                # can it happen for anything else? should fix in mmkit code.
+                if "dummy" not in old_chunk.name:
+                    print "dna updater: why is %r.dad == None? (assy = %r)" % (old_chunk, assy) ###
+                group = part.topnode
+            assert group.is_group()
+            chunk = want_class(assy, rail)
+            print "%r.remake_chunks made %r" % (self, chunk) ####
+            chunk.color = old_chunk.color # works, at least if a color was set
+            #e put it into the model in the right place [stub - puts it in the same group]
+            # (also - might be wrong, we might want to hold off and put it in a better place a bit later during dna updater)
+            # also works: part.addnode(chunk), which includes its own ensure_toplevel_group
+            group.addchild(chunk)
+            # todo: if you don't want this location for the added node chunk,
+            # just call chunk.moveto when you're done,
+            # or if you know a group you want it in, call group.addchild(chunk) instead of this.
     pass
 
 # ==

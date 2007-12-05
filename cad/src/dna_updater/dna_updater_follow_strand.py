@@ -7,8 +7,12 @@ dna_updater_follow_strand.py - helper function for dna_updater_ladders.
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-def dna_updater_follow_strand(strand, strand_axis_info, break_axis, break_strand):
+from constants import noop
+
+def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break_strand, axis_break_between_Q = None):
     """
+    If phase is 1:
+    
     Loop over strand's base atoms, watching the strand join and leave
     axis chains and move along them; break both axis and strand
     whenever it joins, leaves, or moves discontinuously
@@ -19,8 +23,16 @@ def dna_updater_follow_strand(strand, strand_axis_info, break_axis, break_strand
     for those functions should be the same as for the method break_chain_later
     of the helper class chains_to_break in the calling code.
 
+    If phase is 2:
+
+    Same, but the only breaks we make are strand_breaks at the same
+    places at which axis_break_between_Q says the axis has a break
+    (for its API doc see chains_to_break.break_between_Q in caller).
+
     @return: None
     """
+    # For phase 1:
+    #
     # Loop over strand's base atoms, watching the strand join and leave
     # axis chains and move along them. If it jumps (moves more than one base)
     # or stays on the same atom (implying that it switched ladder sides --
@@ -72,6 +84,22 @@ def dna_updater_follow_strand(strand, strand_axis_info, break_axis, break_strand
     # or that we just entered it, with a special case for having
     # been in no axis or having been all done with the prior axis.
 
+    # (For phase 2, just modify this slightly.)
+
+    assert phase in (1,2)
+    if phase == 2:
+        break_strand_phase2 = break_strand
+        break_strand = noop # optimization
+        break_axis = noop # optimization
+        assert callable( axis_break_between_Q)
+        assert callable( break_strand_phase2)
+    else:
+        assert axis_break_between_Q is None
+        break_strand_phase2 = None # not used, but mollify pylint
+    
+    assert callable(break_axis)
+    assert callable(break_strand)
+    
     prior_axis = None
     prior_index = None
     prior_direction = None # normally, -1 or 1, or 0 for "just entered"
@@ -91,6 +119,10 @@ def dna_updater_follow_strand(strand, strand_axis_info, break_axis, break_strand
                 jumped = True
             else:
                 new_direction = delta # only used if we don't jump
+                if phase == 2:
+                    if axis_break_between_Q(axis, index, prior_index):
+                        # break the strand to match the axis break we just passed over
+                        break_strand_phase2(strand, s_index, -1)
                 if prior_direction and new_direction != prior_direction:
                     jumped = True
                     new_direction = 0 # required when we pretend to jump

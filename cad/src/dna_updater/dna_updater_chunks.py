@@ -72,7 +72,15 @@ def update_PAM_chunks( changed_atoms):
     # and [nim -- needed?] recorded for disposal... @@@
     # also (#e future optim) break long ones at damage points so the undamaged
     # parts needn't be rescanned in the next step.
-
+    #
+    # Also make sure that atoms that are no longer in valid ladders
+    # (due to dissolved or fragmented ladders) are included below,
+    # or that the chains they are in are covered. This is necessary so that
+    # the found chains below cover all atoms in every "base pair" (Ss-Ax-Ss)
+    # they cover any atom in.
+    # This might be done by adding some of their atoms into changed_atoms
+    # in the following method.
+    
     dissolve_or_fragment_invalid_ladders( changed_atoms) # stub? @@@
     
     # Find the current axis and strand chains (perceived from current bonding)
@@ -136,6 +144,8 @@ def update_PAM_chunks( changed_atoms):
         # can't move, and either dies or is of no concern to us.
     del live_markers #k if not, update it with new liveness
 
+    ignore_new_changes("from updating DnaAtomMarkers, step2", changes_ok = False)
+
     # @@@ LOGIC ISSUE: is the following about new chain fragments, or new/modified whole chains? do it before or after ladders?
     #
     # Tell all new chains to take over their atoms and any markers on them,
@@ -162,7 +172,8 @@ def update_PAM_chunks( changed_atoms):
     for chain in strand_chains:
         chain._f_own_atoms()# IMPLEM - now these are stubs which always remake markers @@@
 
-    ignore_new_changes("from updating DnaAtomMarkers, step2/own", changes_ok = False)
+    ignore_new_changes("from updating DnaAtomMarkers, own_atoms")
+        # changes are ok since it can add new marker jigs to atoms
     
     # That figured out which markers control each chain (and stored the answers in the chains). ###IMPLEM
     # It also means we no longer need to care about chain.index_direction,

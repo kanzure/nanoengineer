@@ -67,7 +67,7 @@ def real_atom_desired_class(atom): #e refile into an Atom method? return classna
     else:
         return Atom # ChemAtom?
     
-def fix_atom_classes( changed_atoms): #e rename, real_atom; call differently, see comment above ##### [where i am]
+def fix_atom_classes( changed_atoms): #e rename, real_atom; call differently, see comment above ### @@@
     """
     Fix classes of PAM atoms in changed_atoms, ignoring bondpoints
     and/or killed atoms.

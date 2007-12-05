@@ -9,6 +9,7 @@ DnaLadderRailChunk.py -
 
 from chunk import Chunk
 
+from constants import gensym
 
 # ==
 
@@ -24,7 +25,8 @@ class DnaLadderRailChunk(Chunk):
         # and if ok for rest of Node API if it matters for this kind of chunk
         # for now just assume chain_or_something_else is a DnaChain
         chain = chain_or_something_else
-        name = 'bug if seen'
+        # name should not be seen, but it is for now...
+        name = gensym(self.__class__.__name__.split('.')[-1]) + ' (internal)' ###k
         Chunk.__init__(self, assy, name) #k
         self.chain = chain
         # KLUGE to avoid recursive import (still has import cycle) --
@@ -46,8 +48,8 @@ class DnaLadderRailChunk(Chunk):
         # common code -- just pull in baseatoms and their bondpoints.
         # subclass must extend as needed.
         for atom in chain.baseatoms: # public?
-            atom.hopmol(self) ######k does it kill old chunk if no atoms left in it? (see chunk.delatom)
-            # if so, ok? if not, when should we do it (update_parts??)
+            atom.hopmol(self)
+                # note: hopmol immediately kills old chunk if it becomes empty
         return
 
     # == invalidation-related methods
@@ -57,7 +59,7 @@ class DnaLadderRailChunk(Chunk):
         [overrides Chunk method]
         """
         self.ladder.invalidate()
-        return
+        return self.ladder # REQUIRED; need to doc this requirement in superclass docstring
     
     ###e todo: at least self-inval on structure changes... like new atoms...
     # might not be needed since dna updater does it? (unless it ignores the change if it happens while we run)
@@ -100,7 +102,7 @@ class DnaStrandChunk(DnaLadderRailChunk):
         for atom in chain.baseatoms:
             # pull in unowned Pls too
             for atom2 in atom.neighbors():
-                if atom2.symbol.startswith('Pl'): # KLUGE
+                if atom2.element.symbol.startswith('Pl'): # KLUGE
                     mol2 = atom2.molecule
                     if not isinstance(mol2, DnaLadderRailChunk):
                         # also covers whether mol2 is self
