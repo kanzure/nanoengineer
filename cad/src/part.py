@@ -140,7 +140,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     repeated_bonds_dict = None
     
     def _undo_update_always(self): #bruce 060224
-        "This is run on every Part still around after an Undo or Redo op, whether or not it was modified by that op."
+        """
+        This is run on every Part still around after an Undo or Redo op, whether or not it was modified by that op.
+        """
         # (though to be honest, that's due to a kluge, as of 060224 -- it won't yet run this on any other class!)
         attrs = self.invalidatable_attrs()
         if debug_1855:
@@ -254,7 +256,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # == updaters (###e refile??)
 
     def gl_update(self):
-        "update whatever glpane is showing this part (more than one, if necessary)"
+        """
+        update whatever glpane is showing this part (more than one, if necessary)
+        """
         self.assy.o.gl_update()
     
     # == membership maintenance
@@ -292,7 +296,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
     
     def remove(self, node):
-        """Remove node (a member of this part) from this part's lists and stats;
+        """
+        Remove node (a member of this part) from this part's lists and stats;
         reset node.part; DON'T look for interspace bonds yet (since this node
         and some of its neighbors might be moving to the same new part).
         Node (and its atoms, if it's a chunk) will be unpicked before the removal.
@@ -324,7 +329,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
     
     def destroy_with_topnode(self): #bruce 050927; consider renaming this to destroy, and destroy to something else
-        """destroy self.topnode and then self; assertionerror if self still has nodes after topnode is destroyed
+        """
+        destroy self.topnode and then self; assertionerror if self still has nodes after topnode is destroyed
         WARNING [060322]: This probably doesn't follow the semantics of other destroy methods (the issue is unreviewed). ###@@@
         """
         if self.topnode is not None:
@@ -333,7 +339,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
     
     def destroy(self): #bruce 050428 making this much more conservative for Alpha5 release and to fix bug 573 
-        """forget enough to prevent memory leaks; only valid if we have no nodes left; MUST NOT forget views!
+        """
+        forget enough to prevent memory leaks; only valid if we have no nodes left; MUST NOT forget views!
         WARNING [060322]: This doesn't follow the semantics of other destroy methods; in particular, destroyed Parts might be revived
         later by Undo. This should be fixed by renaming this method (perhaps to kill), so we can add a real destroy method. ####@@@@
         """
@@ -390,7 +397,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
 
     def adjust_natoms(self, delta):
-        "adjust the number of atoms, if known. Useful since drawLevel depends on this and is often recomputed."
+        """
+        adjust the number of atoms, if known. Useful since drawLevel depends on this and is often recomputed.
+        """
         if self.__dict__.has_key('natoms'):
             self.natoms += delta
         return
@@ -410,7 +419,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # == properties that might be overridden by subclasses
     
     def immortal(self):
-        """Should this Part be undeletable from the UI (by cut or delete operations)?
+        """
+        Should this Part be undeletable from the UI (by cut or delete operations)?
         When true, delete will delete its members (leaving it empty but with its topnode still present),
         and cut will cut its members and move them into a copy of its topnode, which is left still present and empty.
         [can be overridden in subclasses]
@@ -434,7 +444,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     assy_attrs_all = assy_attrs + assy_attrs_temporary + assy_attrs_review
     
     def __getattr__(self, attr): # in class Part
-        "[overrides InvalMixin.__getattr__]"
+        """
+        [overrides InvalMixin.__getattr__]
+        """
         if attr.startswith('_'): # common case, be fast (even though it's done redundantly by InvalMixin.__getattr__)
             raise AttributeError, attr
         if attr in self.assy_attrs_all:
@@ -446,7 +458,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     _inputs_for_molecules = [] # only invalidated directly #####@@@@@ need to do it in any other places too?
     def _recompute_molecules(self):
-        "recompute self.molecules as a list of this part's chunks, IN ARBITRARY AND NONDETERMINISTIC ORDER."
+        """
+        recompute self.molecules as a list of this part's chunks, IN ARBITRARY AND NONDETERMINISTIC ORDER.
+        """
         self.molecules = 333 # not a sequence - detect bug of touching or using this during this method
         seen = {} # values will be new list of mols
         def func(n):
@@ -465,7 +479,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
 
     def nodes_in_mmpfile_order(self, nodeclass = None): #bruce 050325 to help with movie writing; might not be needed
-        """Return a list of leaf nodes in this part (only of the given class, if provided)
+        """
+        Return a list of leaf nodes in this part (only of the given class, if provided)
         in the same order as they appear in its nodetree (depth first),
         which should be the same order they'd be written into an mmp file,
         unless something reorders them first (as happens for certain jigs
@@ -492,7 +507,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     _inputs_for_drawLevel = ['natoms']
     def _recompute_drawLevel(self):
-        "This is used to control the detail level of sphere subdivision when drawing atoms."
+        """
+        This is used to control the detail level of sphere subdivision when drawing atoms.
+        """
         num = self.natoms # this must be accessed whether or not its value is needed, due to limitations in InvalMixin
             #e (it might be good to optimize by not using InvalMixin so we don't need to recompute self.natoms when it's not needed)
         lod = env.prefs[ levelOfDetail_prefs_key ] # added by mark, revised by bruce, 060215
@@ -530,7 +547,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # [bruce 070919 question]
     
     def computeBoundingBox(self):
-        """Compute the bounding box for this Part. This should be
+        """
+        Compute the bounding box for this Part. This should be
         called whenever the geometry model has been changed, like new
         parts added, parts/atoms deleted, parts moved/rotated(not view
         move/rotation), etc."""
@@ -620,7 +638,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     
     _inputs_for_alist = [] # only invalidated directly. Not sure if we'll inval this whenever we should, or before uses. #####@@@@@
     def _recompute_alist(self):
-        """Recompute self.alist, a list of all atoms in this Part, in the same order in which they
+        """
+        Recompute self.alist, a list of all atoms in this Part, in the same order in which they
         were read from, or would be written to, an mmp file --
         namely, tree order for chunks, atom.key order within chunks.
         See also nodes_in_mmpfile_order.
@@ -717,7 +736,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
 
     def selatoms_list(self): #bruce 051031
-        """Return the current list of selected atoms, in order of selection (whenever that makes sense), earliest first.
+        """
+        Return the current list of selected atoms, in order of selection (whenever that makes sense), earliest first.
         This list is recomputed whenever requested, since order can change even when set of selected atoms
         doesn't change; therefore its API looks like a method rather than like an attribute.
            Intended usage: use .selatoms_list() instead of .selatoms.values() for anything which might care about atom order.
@@ -727,7 +747,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return [pair[1] for pair in items]
 
     def selected_atoms_list(self, include_atoms_in_selected_chunks = False): #bruce 070508
-        """Return a list of all selected atoms. If the option says to, also include
+        """
+        Return a list of all selected atoms. If the option says to, also include
         real (i.e. selectable, ignoring selection filter) atoms in selected chunks.
         Atoms are in arbitrary order, except that if only atoms were selected (not chunks),
         then they're in order of selection.
@@ -747,36 +768,31 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # ==
     
     def addmol(self, mol): #bruce 050228 revised this for Part (was on assy) and for inval/update of part-summary attrs.
-        """(Public method:)
+        """
+        (Public method:)
         Add a chunk to this Part (usually the "current Part").
         Invalidate part attributes which summarize part content (e.g. bbox, drawLevel).
-##        Merge bboxes and update our drawlevel
-##        (though there is no guarantee that mol's bbox and/or number of atoms
-##        won't change again during the same user-event that's running now;
-##        some code might add mol when it has no atoms, then add atoms to it).
         """
         ## not needed since done in changed_members:
         ## self.changed() #bruce 041118
-##        self.bbox.merge(mol.bbox) # [see also computeBoundingBox -- bruce 050202 comment]
-##        self.center = self.bbox.center()
-##        self.molecules += [mol]
-        self.ensure_toplevel_group() # need if, e.g., we use Build mode to add to a clipboard item
+        self.ensure_toplevel_group() # needed if, e.g., we use Build mode to add to a clipboard item
         self.topnode.addchild(mol)
             #bruce 050202 comment: if you don't want this location for the added mol,
-            # just call mol.moveto when you're done, like [some code in files_mmp.py] does.   
+            # just call mol.moveto when you're done, like [some code in files_mmp.py] does.
         ## done in addchild->changed_dad->inherit_part->Part.add:
         ## self.invalidate_attrs(['natoms','molecules']) # this also invals bbox and center, via molecules
         
         #bruce 050321 disabling the following debug code, since not yet ok for all uses of _readmmp;
         # btw does readmmp even need to call addmol anymore??
-        #bruce 050322 now readmmp doesn't call addmol so I'll try reenabling this:
+        #bruce 050322 now readmmp doesn't call addmol so I'll try reenabling this debug code:
         if 1 and platform.atom_debug:
             self.assy.checkparts()
 
     addnode = addmol #bruce 060604; should make addnode the fundamental one, and deprecate addmol, and clean up above comments
 
     def ensure_toplevel_group(self): #bruce 050228, 050309
-        """Make sure this Part's toplevel node is a Group, by Grouping it if not.
+        """
+        Make sure this Part's toplevel node is a Group, by Grouping it if not.
         [Note: operations which create new nodes and want to add them needn't call this directly,
          since they can call self.addnode or assy.addnode instead.]
         """
@@ -786,7 +802,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
 
     def create_new_toplevel_group(self):
-        "#doc; return newly made toplevel group"
+        """
+        #doc; return newly made toplevel group
+        """
         ###e should assert we're a clipboard item part
         # to do this correctly, I think we have to know that we're a "clipboard item part";
         # this implem might work even if we permit Groups of clipboard items someday
@@ -879,7 +897,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         pass
     
     def draw_text_label(self, glpane):
-        "#doc; called from GLPane.paintGL just after it calls mode.Draw()"
+        """
+        #doc; called from GLPane.paintGL just after it calls mode.Draw()
+        """
         # caller catches exceptions, so we don't have to bother
         text = self.glpane_text()
         if text:
@@ -929,7 +949,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # ==
 
     def break_interpart_bonds(self): ###@@@ move elsewhere in method order? review, implem for jigs
-        """Break all bonds between nodes in this part and nodes in other parts;
+        """
+        Break all bonds between nodes in this part and nodes in other parts;
         jig-atom connections count as bonds [but might not be handled correctly as of 050308].
         #e In future we might optimize this and only do it for specific node-trees.
         """
@@ -945,12 +966,16 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # make Hide and Unhide work on jigs even when in selatoms mode.
     
     def Hide(self):
-        "Hide all selected chunks and jigs"
+        """
+        Hide all selected chunks and jigs
+        """
         self.topnode.apply2picked(lambda x: x.hide())
         self.w.win_update()
 
     def Unhide(self):
-        "Unhide all selected chunks and jigs"
+        """
+        Unhide all selected chunks and jigs
+        """
         self.topnode.apply2picked(lambda x: x.unhide())
         self.w.win_update()
          
@@ -1029,7 +1054,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         
 
     def place_new_jig(self, jig): #bruce 050415, split from all jig makers, extended, bugfixed
-        """Place a new jig
+        """
+        Place a new jig
         (created by user, from atoms which must all be in this Part)
         into a good place in this Part's model tree.
         """
@@ -1057,7 +1083,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     # ==
     
     def resetAtomsDisplay(self):
-        """Resets the display mode for each atom in the selected chunks 
+        """
+        Resets the display mode for each atom in the selected chunks 
         to default display mode.
         Returns the total number of atoms that had their display setting reset.
         """
@@ -1068,7 +1095,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return n
 
     def showInvisibleAtoms(self):
-        """Resets the display mode for each invisible (diINVISIBLE) atom in the 
+        """
+        Resets the display mode for each invisible (diINVISIBLE) atom in the 
         selected chunks to default display mode.
         Returns the total number of invisible atoms that had their display setting reset.
         """
@@ -1089,14 +1117,17 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         
     pass # end of class Part
 
-# subclasses of Part
+# == subclasses of Part
 
 class MainPart(Part):
-    def immortal(self): return True
+    def immortal(self):
+        return True
     def location_name(self):
         return "main part"
     def movie_suffix(self):
-        "what suffix should we use in movie filenames? None means don't permit making them."
+        """
+        what suffix should we use in movie filenames? None means don't permit making them.
+        """
         return ""
     pass
 
@@ -1105,16 +1136,22 @@ class ClipboardItemPart(Part):
         #e abbreviate long names...
         return "%s (%s)" % (self.topnode.name, self.location_name())
     def location_name(self):
-        "[used in history messages and on glpane]"
+        """
+        [used in history messages and on glpane]
+        """
         # bruce 050418 change:
         ## return "clipboard item %d" % ( self.clipboard_item_number(), )
         return "on Clipboard" #e might be better to rename that to Shelf, so only the current
             # pastable (someday also in OS clipboard) can be said to be "on the Clipboard"!
     def clipboard_item_number(self):
-        "this can be different every time..."
+        """
+        this can be different every time...
+        """
         return self.assy.shelf.members.index(self.topnode) + 1
     def movie_suffix(self):
-        "what suffix should we use in movie filenames? None means don't permit making them."
+        """
+        what suffix should we use in movie filenames? None means don't permit making them.
+        """
         ###e stub -- not a good choice, since it changes and thus is reused...
         # it might be better to assign serial numbers to each newly made Part that needs one for this purpose...
         # actually I should store part numbers in the file, and assign new ones as 1 + max of existing ones in shelf.
