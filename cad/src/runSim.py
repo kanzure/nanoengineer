@@ -1998,9 +1998,14 @@ def readGromacsCoordinates(filename, atomList):
         #          1         2         3         4
         #01234567890123456789012345678901234567890123456789
         #    1xxx     A1    1   9.683   9.875   0.051
-        x = float(line[20:27]) * 10.0
-        y = float(line[28:35]) * 10.0
-        z = float(line[36:43]) * 10.0
+        xstr = line[20:28]
+        ystr = line[28:36]
+        zstr = line[36:44]
+        if (xstr == "     nan" or ystr == "     nan" or zstr == "     nan"):
+            return "GROMACS minimize returned undefined results"
+        x = float(xstr) * 10.0
+        y = float(ystr) * 10.0
+        z = float(zstr) * 10.0
         newAtomsPos += [[x, y, z]]
     if (len(newAtomsPos) != len(atomList)): #bruce 050225 added some parameters to this error message
         msg = "readGromacsCoordinates: The number of atoms from %s (%d) is not matching with the current model (%d)." % \
