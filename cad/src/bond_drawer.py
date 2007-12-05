@@ -296,7 +296,7 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
             bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
             bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
             
-            # Determine whether cylinders of strand open bonds should be draw.
+            # Determine whether cylinders of strand open bonds should be drawn.
             # Atom._draw_atom_style() takes care of drawing singlets as 
             # arrowheads (or not drawing them at all) based on these 
             # two user prefs. - mark 2007-10-20.
