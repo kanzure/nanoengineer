@@ -141,7 +141,7 @@ class LinearMotorEditController(EditController):
         """
         assert not self.propMgr
         
-        propMgr = LinearMotorPropertyManager(self.win, self)
+        propMgr = self.win.createLinearMotorPropMgr_if_needed(self)
         
         return propMgr
     ##=====================================##

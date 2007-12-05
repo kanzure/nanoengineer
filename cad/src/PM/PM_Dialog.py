@@ -169,7 +169,13 @@ class PM_Dialog( QDialog, SponsorableMixin ):
                 # that's an internal name, but this is just for a debug print
             print "PM_Dialog.open(): Reopening the PM for command:", commandName
         
-        self.close() # Just in case there is another PM open.
+        # The following line of code is buggy when you, for instance, exit a PM
+        # and reopen the previous one. It sends the disconnect signal twice to 
+        # the PM that is just closed.So disabling this line -- Ninad 2007-12-04
+        
+        ##self.close() # Just in case there is another PM open.
+        
+        
         self.pw = self.win.activePartWindow()         
         self.pw.updatePropertyManagerTab(pm)
         try:

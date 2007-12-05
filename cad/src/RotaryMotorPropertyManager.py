@@ -49,28 +49,108 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         MotorPropertyManager.__init__( self, 
                                        win,
                                        motorEditController) 
-                           
-
+    
+    def connect_or_disconnect_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        """
+        if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect
+        
+        MotorPropertyManager.connect_or_disconnect_signals(self, isConnect)
+        
+        change_connect(self.directionPushButton, 
+                     SIGNAL("clicked()"), 
+                     self.reverse_direction)
+        change_connect(self.motorLengthDblSpinBox, 
+                     SIGNAL("valueChanged(double)"), 
+                     self.change_motor_size)
+        change_connect(self.motorRadiusDblSpinBox, 
+                    SIGNAL("valueChanged(double)"), 
+                    self.change_motor_size)
+        change_connect(self.spokeRadiusDblSpinBox, 
+                     SIGNAL("valueChanged(double)"), 
+                     self.change_motor_size)
+        change_connect(self.colorPushButton, 
+                     SIGNAL("clicked()"), 
+                     self.change_jig_color)
+    
+    def _update_widgets_in_PM_before_show(self):
+        """
+        Update various widgets  in this Property manager.
+        Overrides MotorPropertyManager._update_widgets_in_PM_before_show. 
+        The various  widgets , (e.g. spinboxes) will get values from the 
+        structure for which this propMgr is constructed for 
+        (self.editcCntroller.struct)
+        
+        @see: MotorPropertyManager._update_widgets_in_PM_before_show
+        @see: self.show where it is called. 
+        """       
+        if self.editController and self.editController.struct:            
+            torque = self.editController.struct.torque
+            initial_speed = self.editController.struct.initial_speed
+            final_speed = self.editController.struct.speed
+            dampers_enabled = self.editController.struct.dampers_enabled
+            enable_minimize = self.editController.struct.enable_minimize
+            
+            length = self.editController.struct.length
+            radius = self.editController.struct.radius
+            spoke_radius = self.editController.struct.sradius
+            normcolor = self.editController.struct.normcolor
+        else:
+            torque = 0.0
+            initial_speed = 0.0
+            final_speed = 0.0
+            dampers_enabled = False
+            enable_minimize = False
+            
+            length = 10.0
+            radius = 1.0
+            spoke_radius = 0.2
+            normcolor = gray
+            
+        self.torqueDblSpinBox.setValue(torque)
+        self.initialSpeedDblSpinBox.setValue(initial_speed)
+        self.finalSpeedDblSpinBox.setValue(final_speed)
+        self.dampersCheckBox.setChecked(dampers_enabled)
+        self.enableMinimizeCheckBox.setChecked(enable_minimize)
+        
+        self.motorLengthDblSpinBox.setValue(length)
+        self.motorRadiusDblSpinBox.setValue(radius)
+        self.spokeRadiusDblSpinBox.setValue(spoke_radius)
+        self.jig_QColor = RGBf_to_QColor(normcolor)
+            
     def change_motor_size(self, gl_update = True):
         """
         Slot method to change the jig's length, radius and/or spoke radius.
         """
-        self.struct.length = self.motorLengthDblSpinBox.value()# motor length
-        self.struct.radius = self.motorRadiusDblSpinBox.value() # motor radius
-        self.struct.sradius = self.spokeRadiusDblSpinBox.value() # spoke radius
-        if gl_update:
-            self.glpane.gl_update()
+        if self.editController and self.editController.struct:
+            self.editController.struct.length = \
+                self.motorLengthDblSpinBox.value()# motor length
+            self.editController.struct.radius = \
+                self.motorRadiusDblSpinBox.value() # motor radius
+            self.editController.struct.sradius = \
+                self.spokeRadiusDblSpinBox.value() # spoke radius
+            
+            if gl_update:
+                self.glpane.gl_update()
     
     def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in MotorParamsGroupBox.
-        """      
-        if self.struct:
-            torque = self.struct.torque
-            initial_speed = self.struct.initial_speed
-            final_speed = self.struct.speed
-            dampers_enabled = self.struct.dampers_enabled
-            enable_minimize = self.struct.enable_minimize
+        """    
+        if self.editController and self.editController.struct:
+            torque = self.editController.struct.torque
+            initial_speed = self.editController.struct.initial_speed
+            final_speed = self.editController.struct.speed
+            dampers_enabled = self.editController.struct.dampers_enabled
+            enable_minimize = self.editController.struct.enable_minimize
         else:
             torque = 0.0
             initial_speed = 0.0
@@ -133,26 +213,23 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
                           text = "Reverse",
                           spanWidth = False)
         
-        self.connect(self.directionPushButton, 
-                     SIGNAL("clicked()"), 
-                     self.reverse_direction)
+        
     
     def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in groubox 2.
         """
-        if self.struct:
-            length = self.struct.length
-            radius = self.struct.radius
-            spoke_radius = self.struct.sradius
-            normcolor = self.struct.normcolor
+        if self.editController and self.editController.struct:
+            length = self.editController.struct.length
+            radius = self.editController.struct.radius
+            spoke_radius = self.editController.struct.sradius
+            normcolor = self.editController.struct.normcolor
         else:
             length = 10
             radius = 1
             spoke_radius = 0.2
             normcolor = gray
-            
-        
+
         self.motorLengthDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label = "Motor Length :", 
@@ -163,11 +240,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
                                 singleStep = 0.5, 
                                 decimals = 1, 
                                 suffix = ' Angstroms')
-        
-        self.connect(self.motorLengthDblSpinBox, 
-                     SIGNAL("valueChanged(double)"), 
-                     self.change_motor_size)
-        
+
         self.motorRadiusDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label="Motor Radius :", 
@@ -178,11 +251,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
                                 singleStep = 0.1, 
                                 decimals = 1, 
                                 suffix = ' Angstroms')
-        
-        self.connect(self.motorRadiusDblSpinBox, 
-                     SIGNAL("valueChanged(double)"), 
-                     self.change_motor_size)
-        
+
         self.spokeRadiusDblSpinBox = \
             PM_DoubleSpinBox(pmGroupBox, 
                                 label = "Spoke Radius :", 
@@ -194,9 +263,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
                                 decimals = 1, 
                                 suffix = ' Angstroms')
         
-        self.connect(self.spokeRadiusDblSpinBox, 
-                     SIGNAL("valueChanged(double)"), 
-                     self.change_motor_size)
+        
         # Used as default color by Color Chooser
         self.jig_QColor = RGBf_to_QColor(normcolor) 
         
@@ -204,11 +271,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
             PM_PushButton(pmGroupBox,
                           label = "Color :",
                           text = "Choose...")
-        
-        self.connect(self.colorPushButton, 
-                     SIGNAL("clicked()"), 
-                     self.change_jig_color)
-        
+               
 
     def _addWhatsThisText(self):
         """

@@ -44,7 +44,6 @@ class MotorPropertyManager(EditController_PM):
                                     win,
                                     motorEditController) 
                 
-        
         msg = "Attach a " + self.title + " to the selected atoms"
         
         # This causes the "Message" box to be displayed as well.
@@ -54,20 +53,19 @@ class MotorPropertyManager(EditController_PM):
                
         # Hide Restore defaults button for Alpha9.
         self.hideTopRowButtons(pmRestoreDefaultsButton)
-
+ 
     def show(self):
         """
         Show the  motor Property Manager.
         """
-        ##self.update_spinboxes() 
         EditController_PM.show(self)
         #It turns out that if updateCosmeticProps is called before 
         #EditController_PM.show, the 'preview' properties are not updated 
         #when you are editing an existing R.Motor. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
-        self.struct.updateCosmeticProps(previewing = True)
+        self.editController.struct.updateCosmeticProps(previewing = True)
         self.updateAttachedAtomListWidget()
-    
+
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -128,7 +126,7 @@ class MotorPropertyManager(EditController_PM):
             #self.jig_color_pixmap = \
                 #get_widget_with_color_palette(self.jig_color_pixmap, 
                                               #self.jig_QColor)  
-            self.struct.color = self.struct.normcolor = QColor_to_RGBf(color)
+            self.editController.struct.color = self.editController.struct.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
     
     def change_motor_size(self, gl_update = True):
@@ -143,7 +141,7 @@ class MotorPropertyManager(EditController_PM):
         Slot for reverse direction button.
         Reverses the direction of the motor.
         """
-        self.struct.reverse_direction()
+        self.editController.struct.reverse_direction()
         self.glpane.gl_update()
     
     def updateAttachedAtomListWidget(self, atomList = None):
@@ -152,8 +150,8 @@ class MotorPropertyManager(EditController_PM):
         """
               
         if not atomList:
-            if self.struct:
-                atomList = self.struct.atoms[:]
+            if self.editController.struct:
+                atomList = self.editController.struct.atoms[:]
                          
         self.attachedAtomsListWidget.insertItems(row = 0, 
                                                  items = atomList )

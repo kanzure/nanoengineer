@@ -136,6 +136,11 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
        
         self.sequenceEditor = None  #see self.createSequenceEditrIfNeeded 
                                     #for details
+        
+        self.rotaryMotorPropMgr = None
+        self.linearMotorPropMgr = None
+        self.dnaDuplexPropMgr   = None
+        self.planePropMgr = None
 
         undo.just_before_mainwindow_super_init()
 
@@ -1991,9 +1996,88 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             #Should changes.keep_forevenr be called here? 
             #doesn't look necessary at the moment -- ninad 2007-11-21
         
-        return self.sequenceEditor        
+        return self.sequenceEditor   
+    
+    def createRotaryMotorPropMgr_if_needed(self, editController):
+        """
+        Create the Rotary motor PM object (if one doesn't exist) 
+        If this object is already present, then set its editcontroller to this
+        parameter
+        @parameter editController: The edit controller object for this PM 
+        @type editController: B{RotaryMotorEditController}
+        @see: B{RotaryMotorEditController._createPropMgrObject}
+        """
+        from RotaryMotorPropertyManager import RotaryMotorPropertyManager
+        if self.rotaryMotorPropMgr is None:
+            self.rotaryMotorPropMgr = \
+                RotaryMotorPropertyManager(self, editController)  
+        else:
+            self.rotaryMotorPropMgr.setEditController(editController)        
+        
+        return self.rotaryMotorPropMgr   
     
     
+    def createLinearMotorPropMgr_if_needed(self, editController):
+        """
+        Create the Linear motor PM object (if one doesn't exist) 
+        If this object is already present, then set its editcontroller to this
+        parameter
+        @parameter editController: The edit controller object for this PM 
+        @type editController: B{LinearMotorEditController}
+        @see: B{LinearMotorEditController._createPropMgrObject}
+        """
+        from LinearMotorPropertyManager import LinearMotorPropertyManager
+        if self.linearMotorPropMgr is None:
+            self.linearMotorPropMgr = \
+                LinearMotorPropertyManager( self, editController)  
+        else:
+            self.linearMotorPropMgr.setEditController(editController)        
+        
+        return self.linearMotorPropMgr
+    
+    def createPlanePropMgr_if_needed(self, editController):
+        """
+        Create the Plane PM object (if one doesn't exist) 
+        If this object is already present, then set its editcontroller to this
+        parameter
+        @parameter editController: The edit controller object for this PM 
+        @type editController: B{RotaryMotorEditController}
+        @see: B{PlaneEditController._createPropMgrObject}
+        """
+        from PlanePropertyManager import PlanePropertyManager
+        if self.planePropMgr is None:
+            self.planePropMgr = \
+                PlanePropertyManager(self, editController)  
+        else:
+            self.planePropMgr.setEditController(editController)        
+        
+        return self.planePropMgr
+    
+    def createDnaDuplexPropMgr_if_needed(self, editController):
+        """
+        THIS METHOD IS NOT USED AS OF 2007-12-04
+        - This is because the endPoint1 and endPoint2 passed to the 
+        Dna duplex PM are unique for each generated Dna group. So having a 
+        unique PM for editing such a dna group. The 'endPoints' are not stored
+        in the dna group. The new dna data model will store the axis end points
+        Once thats done this method will be used to create only a single 
+        PM object and reusing it as needed. 
+        
+        Create the DNA Duplex PM object (if one doesn't exist) 
+        If this object is already present, then set its editcontroller to this
+        parameter
+        @parameter editController: The edit controller object for this PM 
+        @type editController: B{DnaDuplexEditController}
+        """
+        from DnaDuplexPropertyManager import DnaDuplexPropertyManager
+        if self.dnaDuplexPropMgr is None:
+            self.dnaDuplexPropMgr = \
+                DnaDuplexPropertyManager(self, editController)
+        else:
+            self.dnaDuplexPropMgr.setEditController(editController)
+            
+        return self.dnaDuplexPropMgr
+
     def insertPovrayScene(self):
         self.povrayscenecntl.setup()
 

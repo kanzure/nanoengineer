@@ -50,6 +50,8 @@ class EditController_PM(PM_Dialog):
         self.editController = editController
         if editController:
             self.struct = self.editController.struct
+        else:
+            self.struct = None
 
         self.win      =  win
         self.w = win
@@ -65,11 +67,19 @@ class EditController_PM(PM_Dialog):
         self._addGroupBoxes()
         self._createFlyoutActions()
         self._addWhatsThisText()
+    
+    def setEditController(self, editController):
+        """
+        """
+        assert editController
+        self.editController = editController
+        self.struct = self.editController.struct
 
     def show(self):
         """
         Shows the Property Manager. Overrides PM_Dialog.show)
         """
+        self._update_widgets_in_PM_before_show() 
         PM_Dialog.show(self)
         self.connect_or_disconnect_signals(isConnect = True)
         self.enable_or_disable_gui_actions(bool_enable = False)
@@ -106,6 +116,18 @@ class EditController_PM(PM_Dialog):
             change_connect(self.exitEditControllerAction, 
                            SIGNAL("triggered()"), 
                            self.close)
+    
+    def _update_widgets_in_PM_before_show(self):
+        """
+        Update various widgets  in this Property manager. The default 
+        implementation does nothing. Overridden in subclasses. The various 
+        widgets , (e.g. spinboxes) will get values from the structure for which
+        this propMgr is constructed for (seelf.editController.struct)
+        
+        @see: RotaryMotorPropertyManager._update_widgets_in_PM_before_show
+        @see: self.show where it is called. 
+        """
+        pass
 
 
     def update_props_if_needed_before_closing(self):

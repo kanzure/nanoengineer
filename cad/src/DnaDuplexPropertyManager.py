@@ -243,6 +243,22 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         
         self.updateStrandListWidget()
     
+    def _update_widgets_in_PM_before_show(self):
+        """
+        Update various widgets  in this Property manager.
+        Overrides MotorPropertyManager._update_widgets_in_PM_before_show. 
+        The various  widgets , (e.g. spinboxes) will get values from the 
+        structure for which this propMgr is constructed for 
+        (self.editcCntroller.struct)
+        
+        @see: MotorPropertyManager._update_widgets_in_PM_before_show
+        @see: self.show where it is called. 
+        """       
+        if self.specifyDnaLineButton.isChecked():
+            self.specifyDnaLineButton.setChecked(False)        
+        
+        self.updateStrandListWidget()            
+       
     def updateStrandListWidget(self):   
         """
         Update the list of items inside the strandlist widget 
@@ -251,10 +267,12 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         again invokes the Edit command for this dna object -- now the strand 
         list widget must be updated so that it shows only the existing strands.
         """
-        if self.editController.struct:
+        if self.editController and self.editController.struct:
             self.strandListWidget.insertItems(
                 row = 0,
                 items = self.editController.struct.members)
+        else:
+            self.strandListWidget.clear()
             
           
     def getFlyoutActionList(self): 

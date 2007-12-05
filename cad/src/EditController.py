@@ -123,6 +123,7 @@ class EditController:
         @param showPropMgr: If True, show the property manager 
         @type showPropMgr: boolean
         """
+        
         if not self.propMgr:                 
             self.propMgr = self._createPropMgrObject()
             #IMPORTANT keep this propMgr permanently -- needed to fix bug 2563
@@ -199,12 +200,19 @@ class EditController:
         if not self.propMgr:
             self.propMgr = self._createPropMgrObject()
         
+        assert self.propMgr
+        
         #Following is needed to make sure that when a dna line is drawn 
         #(using DNA Line mode), it takes input and gives output to the 
         # currently active editController 
         #(see selectMolsMode.provideParametersForTemporaryMode where we are 
         # using self.win.dnaEditController) Fixes bug 2588
         self.win.dnaEditController = self
+        
+        #Important to set the edit controller for the property manager 
+        #because we are reusing the propMgr object so it needs to know the 
+        # current edit controller. 
+        self.propMgr.setEditController(self)
         
         self.existingStructForEditing = True
         self.old_props = self.struct.getProps()

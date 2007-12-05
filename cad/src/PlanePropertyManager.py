@@ -188,7 +188,7 @@ class PlanePropertyManager(EditController_PM):
         #EditController_PM.show, the 'preview' properties are not updated 
         #when you are editing an existing plane. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
-        self.struct.updateCosmeticProps(previewing = True)
+        self.editController.struct.updateCosmeticProps(previewing = True)
         
                 
     def change_plane_width(self, newWidth):
@@ -196,8 +196,8 @@ class PlanePropertyManager(EditController_PM):
         Slot for width spinbox in the Property Manager.
         """
         if self.aspectRatioCheckBox.isChecked():
-            self.struct.width   =  newWidth
-            self.struct.height  =  self.struct.width / \
+            self.editController.struct.width   =  newWidth
+            self.editController.struct.height  =  self.editController.struct.width / \
                                      self.aspectRatioSpinBox.value() 
             self.update_spinboxes()
         else:
@@ -209,8 +209,8 @@ class PlanePropertyManager(EditController_PM):
         Slot for height spinbox in the Property Manager.
         """
         if self.aspectRatioCheckBox.isChecked():
-            self.struct.height  =  newHeight 
-            self.struct.width   =  self.struct.height * \
+            self.editController.struct.height  =  newHeight 
+            self.editController.struct.width   =  self.editController.struct.height * \
                                      self.aspectRatioSpinBox.value()
             self.update_spinboxes()
         else:
@@ -225,10 +225,10 @@ class PlanePropertyManager(EditController_PM):
         @type  gl_update: bool
         """
         if not self.resized_from_glpane:
-            self.struct.width   =  self.widthDblSpinBox.value()
-            self.struct.height  =  self.heightDblSpinBox.value() 
+            self.editController.struct.width   =  self.widthDblSpinBox.value()
+            self.editController.struct.height  =  self.heightDblSpinBox.value() 
         if gl_update:
-            self.struct.glpane.gl_update()
+            self.editController.struct.glpane.gl_update()
     
     def changePlanePlacement(self, buttonId):
         """
@@ -280,11 +280,12 @@ class PlanePropertyManager(EditController_PM):
         # spinbox.valueChanged()
         # signal is not emitted after calling spinbox.setValue(). 
         # This flag is used in change_plane_size method.-- Ninad 20070601
-        self.resized_from_glpane = True
-        self.heightDblSpinBox.setValue(self.struct.height)
-        self.widthDblSpinBox.setValue(self.struct.width)
-        self.struct.glpane.gl_update()
-        self.resized_from_glpane = False
+        if self.editController and self.editController.struct:
+            self.resized_from_glpane = True
+            self.heightDblSpinBox.setValue(self.editController.struct.height)
+            self.widthDblSpinBox.setValue(self.editController.struct.width)
+            self.editController.struct.glpane.gl_update()
+            self.resized_from_glpane = False
     
     def _enableAspectRatioSpinBox(self, enable):
         """
@@ -301,7 +302,7 @@ class PlanePropertyManager(EditController_PM):
         """
         Updates the Aspect Ratio spin box based on the current width and height.
         """
-        aspectRatio = self.struct.width / self.struct.height
+        aspectRatio = self.editController.struct.width / self.editController.struct.height
         self.aspectRatioSpinBox.setValue(aspectRatio)
     
     
@@ -327,8 +328,8 @@ class PlanePropertyManager(EditController_PM):
         EditController_PM.update_props_if_needed_before_closing(self)
         
         #Don't draw the direction arrow when the object is finalized. 
-        if self.struct.offsetParentGeometry:
-            dirArrow = self.struct.offsetParentGeometry.directionArrow 
+        if self.editController.struct.offsetParentGeometry:
+            dirArrow = self.editController.struct.offsetParentGeometry.directionArrow 
             dirArrow.setDrawRequested(False)
     
     def updateMessage(self, message = ''):

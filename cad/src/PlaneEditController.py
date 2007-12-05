@@ -69,7 +69,7 @@ class PlaneEditController(EditController):
         """
         assert not self.propMgr
         
-        propMgr = PlanePropertyManager(self.win, self)
+        propMgr = self.win.createPlanePropMgr_if_needed(self)
         
         return propMgr
         

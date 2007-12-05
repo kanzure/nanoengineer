@@ -52,7 +52,7 @@ class RotaryMotorEditController(EditController):
         """ 
         EditController.__init__(self, win)
         self.struct = struct
-    
+            
     def _gatherParameters(self):
         """
         Return all the parameters from the Rotary Motor Property Manager.
@@ -150,9 +150,9 @@ class RotaryMotorEditController(EditController):
         editController. 
         """
         assert not self.propMgr
-        
-        propMgr = RotaryMotorPropertyManager(self.win, self)
-        
+
+        propMgr = self.win.createRotaryMotorPropMgr_if_needed(self)
+
         return propMgr
     ##=====================================##
     
