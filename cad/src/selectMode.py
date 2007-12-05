@@ -208,11 +208,7 @@ class selectMode(basicMode):
             #  self.current_obj and other state variables are used instead of
             #  checking for the other values; I don't know if the other values
             #  are always correct. bruce 060721 comment]
-        self.drag_multiple_atoms = False
-            # set to True when we are dragging a movable unit of 2 or more atoms.
-        self.maybe_use_bc = False
-            # whether to use the BorrowerChunk optimization for the current
-            # drag (experimental) [bruce 060414]
+                
         self.current_obj = None
             # current_obj is the object under the cursor when the LMB was pressed.
             # [it is set to that obj by objectSetup, and set back to None by some, but not all,
@@ -227,36 +223,7 @@ class selectMode(basicMode):
             #  Maybe we'll need some uses of current_obj to filter it though a self method which converts drag_handlers
             #  back to their underlying objects (i.e. the selobj that they were made from or made for). (Or have a .selobj attr.)
             #  #####@@@@@ [bruce 060728 comment]]
-        self.dragatoms = []
-            # dragatoms is constructed in get_dragatoms_and_baggage() and contains all 
-            # the selected atoms (except selected baggage atoms) that are dragged around
-            # as part of the current selection in drag_selected_atoms().
-            # Selected atoms that are baggage are placed in self.baggage
-            # along with non-selected baggage atoms connected to dragatoms.
-            # See atomSetup() for more information.
-            #bruce 060410 note: self.dragatoms is only set along with self.baggage,
-            # and the atoms in these lists are only moved together (in all cases involving self.dragatoms,
-            #  though not in all cases involving self.baggage),
-            # so it doesn't matter which atoms are in which lists (in those cases),
-            # and probably the code should be revised to use only the self.dragatoms list (in those cases).
-            #bruce 060410 optimization and change: when all atoms in existing chunks are being dragged
-            # (or if new chunks could be temporarily and transparently made for which all their atoms were being dragged),
-            # then we can take advantage of chunk display lists to get a big speedup in dragging the atoms.
-            # We do this by listing such chunks in self.dragchunks and excluding their atoms from self.dragatoms
-            # and self.baggage.
-        self.dragchunks = []
-        self.dragjigs = []
-            # dragjigs is constructed in jigSetup() and contains all the selected jigs that 
-            # are dragged around as part of the current selection in jigDrag().
-            # See jigSetup() for more information.
-        self.baggage = []
-            # baggage contains singlets and/or monovalent atoms (i.e. H, O(sp2), F, Cl, Br)
-            # which are connected to a dragged atom and get dragged around with it.
-            # Also, no atom which has baggage can also be baggage.
-        self.nonbaggage = []
-            # nonbaggage contains atoms which are bonded to a dragged atom but 
-            # are not dragged around with it. Their own baggage atoms are moved when a 
-            # single atom is dragged in atomDrag().
+
         self.current_obj_clicked = False 
             # current_obj_clicked is used to determine if a lit up atom, singlet or bond was picked (clicked)
             # or not picked (dragged). It must be set to False here so that a newly 
@@ -289,22 +256,12 @@ class selectMode(basicMode):
         #bruce 060315 replaced drag_stickiness_limit_exceeded with max_dragdist_pixels
         self.max_dragdist_pixels = 0
             # used in mouse_within_stickiness_limit
-        self.drag_offset = V(0,0,0) #bruce 060316
-            # default value of offset from object reference point (e.g. atom center) to dragpoint (used by some drag methods)
-        self.only_highlight_singlets = False
-            # when set to True, only singlets get highlighted when dragging a singlet.
-            # depositMode.singletSetup() sets this to True when dragging a singlet around.
-            # [update bruce 071121: this is only used in selectAtomsMode, so it
-            #  should be moved there. Maybe the same is true for other variables
-            #  here?]
-        self.neighbors_of_last_deleted_atom = []
-            # list of the real atom neighbors connected to a deleted atom.  Used by atomLeftDouble()
-            # to find the connected atoms to a recently deleted atom when double clicking with 'Shift+Control'
-            # modifier keys pressed together.
+                
         self.atoms_of_last_deleted_jig = []
             # list of the real atoms connected to a deleted jig.  Used by jigLeftDouble()
             # to retreive the atoms of a recently deleted jig when double clicking with 'Shift+Control'
             # modifier keys pressed together.
+
         self.drag_handler = None #bruce 060725
 
         return
