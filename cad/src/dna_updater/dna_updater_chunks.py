@@ -42,62 +42,65 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("as update_PAM_chunks starts", changes_ok = False )
 
+    # Move the chain markers whose atoms got killed, onto atoms which remain alive
+    # but were in the same old chains. (Their old chain objects still exist, in
+    # the markers, to help the markers decide where and how to move.)
+    # (They can't also correlate their old chain to new chain direction,
+    #  since the new chain is not yet known, but they record info to help
+    #  them do that later.)
+
     homeless_markers = _f_get_homeless_dna_markers()
     
     live_markers = []
     for marker in homeless_markers:
         still_alive = marker._f_move_to_live_atom_step1() #e rename, doc
-            # move, and record old neighbor atoms for later use in determining new direction advice [1/2 split is nim] @@@
+            # move, and record old neighbor atoms for later use
+            # in determining new baseindex direction advice for new chain
         if DEBUG_DNA_UPDATER:
             print "dna updater: moved_step1 marker %r, still_alive = %r" % (marker, still_alive)
         if still_alive:
             live_markers.append(marker)
     del homeless_markers
 
+    ignore_new_changes("from updating DnaAtomMarkers, step1")
+        # ignore changes caused by adding/removing marker jigs
+        # to their atoms, when the jigs die/move/areborn
+
     # warning: all marker-related comments below here need revision, as of 071203 @@@
     
-
-    # make sure invalid DnaLadders are recognized
-    # as such in the next step, and recorded for update or disposal... @@@
+    # make sure invalid DnaLadders are recognized as such in the next step,
+    # and [nim -- needed?] recorded for disposal... @@@
     # also (#e future optim) break long ones at damage points so the undamaged
     # parts needn't be rescanned in the next step.
 
-    dissolve_or_fragment_invalid_ladders( changed_atoms) # stub, and valid flag not used @@@
+    dissolve_or_fragment_invalid_ladders( changed_atoms) # stub? @@@
     
     # Find the current axis and strand chains (perceived from current bonding)
-    # on which any changed atoms reside, but only [nim @@@] scanning along atoms
+    # on which any changed atoms reside, but only scanning along atoms
     # not still part of valid DnaLadders. (I.e. leave existing undamaged
-    # DnaLadders alone.)
-    # Make the found chains or rings into new DnaChain objects.
+    # DnaLadders alone.) (The found chains or rings will be used below to
+    # make new DnaChain and DnaLadder objects.)
+
+    ignore_new_changes("from dissolve_or_fragment_invalid_ladders", changes_ok = False)
     
     axis_chains, strand_chains = find_axis_and_strand_chains_or_rings( changed_atoms)
 
     ignore_new_changes("from find_axis_and_strand_chains_or_rings", changes_ok = False )
 
 
-    ### @@@ should markers be done after we make new ladders?
-    # guess: moving: no; choosing one on new whole chain: yes.
-
-    
-    # Move the chain markers whose atoms got killed, onto atoms which remain alive
-    # but were in the same old chains. (Their old chain objects still exist, in
-    # the markers, to help the markers decide where and how to move.)
-
-    # @@@ LOGIC ISSUE: does this moving process have to cross ladders? if so, are they a mix of old and current chains??
-    # the change since i wrote the code is that the old chains are fragments, so they might get moved off of.
-    # maybe we assume that every ladder rail == chain that we ever make, still exists....
-    # but, the old bonds that link them are gone! how can we move the marker? we need an old complete-chain object...
+    # @@@ LOGIC ISSUE for moving markers: ....
+    # ... we need an old complete-chain object...
     # or we need to move it more incrly, but even then we'd need the object at that time, so now is as a good a time
     # as any if we have that object. So, these chains in the markers need to be complete chains!
     # we need to make lists of chain fragments into complete chains and keep those in the markers.
     # of course we really should keep a single one in a strand or segment object shared by that obj and all markers. ### DOIT
-    # And when they move onto new ladders, the advice below is needed, but what if they move onto old ladders,
-    # do we need to update the marker situation of those too? i guess those old ladder rails get
+    # And when the markers move onto new ladders, the advice (which?) below is needed,
+    # but what if they move onto old ladders,
+    # Q do we need to update the marker situation of those too? ###figureout
+    # A i guess those old ladder rails get
     # into new whole-chains in that case... so YES. ### DOIT [so in the end we process all changed strands & segs,
     # we just optim by incorporating unchanged ladder-rungs and ladders into them. We have higher-level chains
     # whose components are these rungs, which are chains of atoms.]
-    # ... or is it easier to let markers move before things are killed? let them see the prekill and be alerted to move in time?
-    # let that occur at the chunk level for efficiency (ladder & rung level for them) (not important)? ### DECIDE, guess not needed
 
     # [@@@ pre-ladder comment:] To help the moving markers know how to advise their new chains about
     # internal baseindex direction coming from their old chains, we first
@@ -116,8 +119,6 @@ def update_PAM_chunks( changed_atoms):
             info = (chain.chain_id(), index)
             new_chain_info[atom.key] = info
 
-
-
     for marker in live_markers:
         still_alive = marker._f_move_to_live_atom_step2(new_chain_info)
             # Note: this also comes up with direction advice for the new chain,
@@ -125,7 +126,7 @@ def update_PAM_chunks( changed_atoms):
             # in its old chain (if enough of them remain adjacent, currently 2);
             # but the new chain will later take that advice from at most one marker.
         if DEBUG_DNA_UPDATER:
-            print "dna updater: moved_step2 marker %r" % (marker, still_alive)
+            print "dna updater: moved_step2 marker %r, still_alive = %r" % (marker, still_alive)
         # Note: we needn't record the markers whose atoms are still alive,
         # since we'll find them all later on a new chain. Any marker
         # that moves either finds new atoms whose chain has a change
@@ -135,6 +136,8 @@ def update_PAM_chunks( changed_atoms):
         # can't move, and either dies or is of no concern to us.
     del live_markers #k if not, update it with new liveness
 
+    # @@@ LOGIC ISSUE: is the following about new chain fragments, or new/modified whole chains? do it before or after ladders?
+    #
     # Tell all new chains to take over their atoms and any markers on them,
     # deciding between competing markers for influencing base indexing
     # and other settings, and creating new markers as needed.
@@ -159,25 +162,43 @@ def update_PAM_chunks( changed_atoms):
     for chain in strand_chains:
         chain._f_own_atoms()# IMPLEM - now these are stubs which always remake markers @@@
 
-    ignore_new_changes("from updating DnaAtomMarkers")
-        # ignore changes caused by adding/removing marker jigs
-        # to their atoms, when the jigs die/move/areborn
+    ignore_new_changes("from updating DnaAtomMarkers, step2/own", changes_ok = False)
     
     # That figured out which markers control each chain (and stored the answers in the chains). ###IMPLEM
+    # It also means we no longer need to care about chain.index_direction,
+    # which frees us to permit merging of new and old chains, whose
+    # index_directions might be incompatible at the merge points.
+    # (I think they'll be compatible for new/new merges, but it doesn't matter.)
 
     # Now use the above-computed info to make new DnaLadders out of the chains
     # we just made (which contain all PAM atoms no longer in valid old ladders),
     # and to merge end-to-end-connected ladders (new/new or new/old) into larger
-    # ones, when that doesn't make them too long.
+    # ones, when that doesn't make them too long. We'll reverse chains
+    # as needed to make the ones in one ladder correspond in direction, and to
+    # standardize their strand bond directions. (There is no longer any need to
+    # keep track of index_direction -- it might be useful for new/new ladder
+    # merging, but that probably doesn't help us since we also need to handle
+    # new/old merging. For now, the lower-level code maintains it for individual
+    # chains, and when fragmenting chains above, but discards it for merged
+    # chains.)
 
     new_ladders = make_new_ladders(axis_chains, strand_chains)
 
     ignore_new_changes("from make_new_ladders", changes_ok = False)
 
-    merge_ladders(new_ladders)
+    modified_valid_ladders = merge_ladders(new_ladders)
+        # note: each returned ladder is either entirely new (perhaps merged),
+        # or the result of merging new and old ladders.
 
     ignore_new_changes("from merge_ladders", changes_ok = False)
 
+    # Now make or remake chunks as needed, so that each ladder-rail is a chunk.
+    # This must be done to all newly made or merged ladders (even if parts are old).
+
+    for ladder in modified_valid_ladders:
+        ladder.remake_chunks() # IMPLEM/unstub
+
+    ignore_new_changes("from remake_chunks", changes_ok = True)#k changes_ok?
 
     # Now.... @@@ [below here might be obs]
 

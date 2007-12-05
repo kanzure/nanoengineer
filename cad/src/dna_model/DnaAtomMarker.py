@@ -118,7 +118,7 @@ class DnaAtomMarker( ChainAtomMarker):
             self.kill() # stub -- in future, depends on user-settable properties and/or on subclass
         return
     
-    def _f_move_to_live_atom(self, new_chain_info):
+    def _f_move_to_live_atom_step1(self): #e todo: split docstring
         """
         [friend method, called from dna_updater]
         Our atom died; see if there is a live atom on our old chain which we want to move to;
@@ -131,7 +131,7 @@ class DnaAtomMarker( ChainAtomMarker):
 
         assert self.is_homeless()
         
-        chain = self._chain
+        old_chain = self._chain # @@@ needs revision so this is a FullChain (list of chain frags), not just one chain frag like now
         old_atom = self._get_marker_atom()
         
         assert not self.atoms
@@ -180,7 +180,7 @@ class DnaAtomMarker( ChainAtomMarker):
 
         old_index_to_atom_dict = {}
 
-        for atom, baseindex in chain.baseatom_index_pairs(): # skips non-base atoms
+        for atom, baseindex in old_chain.baseatom_index_pairs(): # skips non-base atoms
             # note: this is in order for chain (arb direction), or ring (arbitrary origin & direction)
             # note: in current implem, found indices will start at 1, but the method can't guarantee
             # that in general (since negative indices might be required for a user-set origin),
@@ -215,7 +215,7 @@ class DnaAtomMarker( ChainAtomMarker):
         # our variables are lists of atom, index pairs.
         before_look = before_stuff.atom_index_pairs()
         after_look = after_stuff.atom_index_pairs()
-        if chain.ringQ:
+        if old_chain.ringQ:
             # we're looking before first, so just put everything before [todo: clarify that comment]
             lookat = after_look + before_look # in base index order, but relative to old_atom around ring
             lookat.reverse() # in looking order (last atom before old_atom is looked at first)
@@ -232,35 +232,63 @@ class DnaAtomMarker( ChainAtomMarker):
                 # (in future we might decide if this atom is good enough
                 #  in some way, and continue if not)
 
-        # these variables will be set to better values below if possible:
+        # didit will be set to true below if possible:
         didit = False # whether we succeed in moving to a valid new location
-        advise_new_chain_direction = 0
-            # base index direction to advise new chain to take
-            # (-1 or 1, or 0 if we don't know)
-        
-        if new_atom is not None:
-            reldir = self.compute_new_chain_relative_direction( 
-                new_atom,
-                new_chain_info,
-                old_index_to_atom_dict,
-                old_index_of_new_atom
-             )
-            advise_new_chain_direction = reldir * chain.index_direction # can be 0 or -1 or 1
 
-            #e if that method didn't guess a direction, we could decide to fail here
-            # (didit = False), but for now we don't...
-            
+        if new_atom is not None:
             didit = self._move_to_this_atom(new_atom)
-                #e pass index offset, or info to compute it? or compute it in this method now, or before this line?
-            
+            #e pass index offset, or info to compute it? or compute it
+            # in this method now, or before this line?
+
         if didit:
-            self._advise_new_chain_direction = advise_new_chain_direction ### @@@ USE ME
+            # save info to move direction onto new chain
+            # (possible optim: only save a few indices in the dict --
+            #  for now I assume it's not worthwhile, we'll die soon anyway...
+            #  to do it, we'd only save old_index_to_atom_dict items whose
+            #  index (key) was old_index_of_new_atom + one of (-1,0,1))
+            self._info_for_step2 = new_atom, old_index_to_atom_dict, old_index_of_new_atom, old_chain
         else:
             # in future this will depend on settings:
             self.kill()
         return didit
     
-    def _move_to_this_atom(self, atom, new_chain_info): #e arg for index change too?
+    def _f_move_to_live_atom_step2(self, new_chain_info): #e todo: split docstring
+        """
+        [friend method, called from dna_updater]
+        Our atom died; see if there is a live atom on our old chain which we want to move to;
+        if so, move to the best one (updating all our properties accordingly) and return True;
+        if not, die and return False.
+        """
+        
+        # will be set to 1 or -1 below if possible:
+        advise_new_chain_direction = 0
+            # base index direction to advise new chain to take
+            # (-1 or 1, or 0 if we don't know)
+
+        new_atom, old_index_to_atom_dict, old_index_of_new_atom, old_chain = self._info_for_step2
+        del self._info_for_step2
+        assert new_atom is self.atoms[0] #k
+        assert old_chain is self._chain # guess true now, but remove when works if not required, as i think
+        
+        reldir = self.compute_new_chain_relative_direction(
+            new_atom,
+            new_chain_info,
+            old_index_to_atom_dict,
+            old_index_of_new_atom
+         )
+        advise_new_chain_direction = reldir * old_chain.index_direction # can be 0 or -1 or 1
+
+        #e if that method didn't guess a direction, we could decide to die here
+        # (didit = False), but for now we don't... in future this will depend on settings:
+        didit = True
+            
+        if didit:
+            self._advise_new_chain_direction = advise_new_chain_direction ### @@@ USE ME
+        else:
+            self.kill()
+        return didit
+    
+    def _move_to_this_atom(self, atom): #e arg for index change too?
         #e assert correct kind of atom, for a per-subclass kind... call a per-subclass atom_ok function?
         self._set_marker_atom(atom)
         #e other updates (if not done by submethod)?

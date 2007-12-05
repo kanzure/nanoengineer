@@ -53,7 +53,7 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
 class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
     _wrapper = AxisChain
     def atom_ok(self, atom):
-        return atom.element.role == 'axis'
+        return atom.element.role == 'axis' and not atom.molecule.in_a_valid_ladder()
     pass
 
 class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
@@ -62,7 +62,7 @@ class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
         # note: this can include Pl atoms in PAM5,
         # but the wrapper class filters them out of
         # the atom list it stores. [filtering is new behavior 071203, nim@@@]
-        return atom.element.role == 'strand'
+        return atom.element.role == 'strand' and not atom.molecule.in_a_valid_ladder()
     pass
 
 # singleton objects

@@ -79,7 +79,7 @@ class ChainAtomMarker(Jig):
         """
         assert atom in self.atoms and len(self.atoms) == 1
         self._old_atom = atom
-        Jig.remove_atom(atom)
+        Jig.remove_atom(self, atom)
         return
     
     # == other methods

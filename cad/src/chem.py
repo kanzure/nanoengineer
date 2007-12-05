@@ -3534,6 +3534,47 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # can't be used naively?
         return filter(lambda bond: bond.is_directional(), self.bonds)
 
+    def bond_directions_are_set_and_consistent(self): #bruce 071204
+        """
+        Does self (a strand atom, base or base linker)
+        have exactly two bond directions set, not inconsistently?
+        """
+        count_plus, count_minus = 0, 0
+        for bond in self.bonds:
+            dir = bond.bond_direction_from(self)
+            if dir == 1:
+                count_plus += 1
+            elif dir == -1:
+                count_minus += 1
+        return (count_plus, count_minus) == (1, 1)
+
+    def next_atom_in_bond_direction(self, bond_direction): #bruce 071204
+        """
+        Assuming self is in a chain of directional bonds
+        with consistently set directions,
+        return the next atom (of any kind, including bondpoints)
+        in that chain, in the given bond_direction.
+
+        If the chain does not continue in the given direction, return None.
+
+        If the assumptions are false, no error is detected, and no
+        exception is raised, but either None or some neighbor atom
+        might be returned.
+
+        @note: does not verify that bond directions are consistent.
+        Result is not deterministic if two bonds from self have
+        same direction from self (depends on order of self.bonds).
+        """
+        assert bond_direction in (-1, 1)
+        for bond in self.bonds:
+            dir = bond.bond_direction_from(self)
+            if dir == bond_direction:
+                return bond.other(self)
+        # todo: could assert self is a termination atom or bondpoint,
+        # or if not, that self.bond_directions_are_set_and_consistent()
+        # (if we do, revise docstring)
+        return None
+        
     def axis_neighbor(self): #bruce 071203
         """
         Assume self is a PAM strand sugar atom; return the single neighbor of
@@ -3543,8 +3584,42 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         axis_neighbors = filter( lambda atom: atom.element.role == 'axis',
                                  self.neighbors())
         assert len(axis_neighbors) == 1
-            # stub -- the updater checks to ensure this are NIM
+            # stub, since the updater checks needed to ensure this are NIM as of 071203
         return axis_neighbors[0]
+
+    def strand_base_neighbors(self): #bruce 071204 (nim, not yet needed; #e maybe rename)
+        """
+        Assume self is a PAM strand sugar atom; return a list of the neighboring
+        PAM strand sugar atoms (even if PAM5 linker atoms separate them from
+        self).
+        """
+        # review: should the return value also say in which direction each one lies,
+        # whether in terms of bond_direction or base_index_direction?
+        assert 0, "nim"
+
+    def strand_next_baseatom(self, bond_direction = None): #bruce 071204
+        """
+        Assume self is a PAM strand sugar atom, and bond_direction is -1 or 1.
+        Find the next PAM strand sugar atom (i.e. base atom) in the given
+        bond direction, or None if it is missing (since the strand ends)
+        or if any bond directions are unset or inconsisent
+        or if any other structural error causes difficulty.
+        """
+        # note: API might be extended to permit passing a baseindex direction
+        # instead, and working on either strand or axis baseatoms.
+        assert bond_direction in (-1, 1)
+        atom1 = self.next_atom_in_bond_direction(bond_direction) # might be None
+        if atom1 is None:
+            return None
+        symbol = atom1.element.symbol # KLUGE -- should use another element attr, or maybe Atom subclass
+        if symbol[0:2] not in ('Ss', 'Sj', 'Hp', 'Pl'): # base or base linker atoms (#todo: verify or de-kluge)
+            return None
+        if symbol.startswith('Pl'): # base linker atom
+            atom1 = atom1.next_atom_in_bond_direction(direction) # might be None
+            assert atom1 is not self
+                # (false would imply one bond had two directions,
+                #  or two bonds between same two atoms)
+        return atom1 # might be None
 
     # == PAM axis atom methods
     
@@ -3566,6 +3641,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             print "error: axis atom %r has %d strand_neighbors " \
                   "(should be 1 or 2)" % (self, len(res))
         return res
+
+    def axis_neighbors(self): #bruce 071204 (maybe not used)
+        return filter( lambda atom: atom.element.role == 'axis',
+                       self.neighbors())
     
     pass # end of class Atom
 

@@ -19,27 +19,33 @@ try:
 except NameError:
     _chain_id_counter = 0
 
+# ==
+
 ### REVIEW: should a DnaChain contain any undoable state? (it doesn't now) (guess: no)
 
-
-
-
-class DnaChain_minimal(object):
+class DnaChain(object):
     """
-    just has baseatoms, index_direction record [doc more]
+    Base class for various kinds of DnaChain. Mostly abstract --
+    just has baseatoms (which must be set by subclass),
+    index_direction, and methods that only depend on those.
     """
-    # default values of instance variables:
+    
+    # default values of public instance variables:
     
     baseatoms = None # subclass-specific __init__ must set this
     
-    index_direction = 1 # might be set to 1 or -1 in instances -- OR we might replace this with a .reverse() method ### REVIEW/IMPLEM
-        # note: not the same as bond direction for strands (which is not even defined for axis bonds).
+    index_direction = 1 # instances negate this when they reverse baseatoms
+        # (and thus its indexing) using reverse_baseatoms. It records the
+        # relation between the current and original baseindex direction.
+        #
+        # note: baseindex direction is not necessarily the same as bond
+        # direction for strands (which is not even defined for axis bonds).
 
-        # current plan: this is public; might be moved to bare chain object;
-        # a reverse method negates this and also reverses the lists.
-        # so this's purpose is just to record whether that's been done
-        # so direction info relative to our direction can continue to make sense
-        # w/o needing update. @@@ REVIEW ### DOIT
+        # note: i'm not sure index_direction is needed -- it's used, but it
+        # might be that it's only changed after it doesn't matter to the
+        # current overall algorithm. OTOH, it might turn out that when
+        # merging ladders and reversing it, we have to tell their markers
+        # we did that, which is not done now [071204].
 
     def baseatom_index_pairs(self):
         """
@@ -54,10 +60,9 @@ class DnaChain_minimal(object):
         termination atoms if we still had them. [###REVIEW -- do we, in PAM5? nim if so?])
         """
         # doc - iterator or just return a list? for now, return list, for simplicity & robustness
+        #e would it be an optim to cache this? note the reverse method would have to redo or inval it.
         baseatoms = self.baseatoms
-##        if self.index_direction < 0: ### IMPLEM, -1 or 1... better if we can get chain to reverse the list when it's made ###
-##            baseatoms = reversed_list(baseatoms)
-        return zip(baseatoms, range(len(baseatoms))) # assumes no bondpoint-like termination atoms! review for PAM5.
+        return zip(baseatoms, range(len(baseatoms)))
 
     def start_baseindex(self):
         return 0
@@ -68,21 +73,94 @@ class DnaChain_minimal(object):
     def end_baseatoms(self):
         return (self.baseatoms[0], self.baseatoms[-1]) # might be same atom
 
+    def reverse_baseatoms(self):
+        self.baseatoms = list(self.baseatoms)
+        self.baseatoms.reverse()
+        self.index_direction *= -1
+        self._bond_direction *= -1
+        return
+
+    # kluge: bond direction code/attrs are also here, even though it only applies to strands,
+    # since strands can have different classes with no more specific common superclass.
+    
+    _bond_direction = 0 # 0 = not yet computed, or error (unset or inconsistent);
+        # 1 or -1 means it was set by _recompute_bond_direction
+        # (see bond_direction docstring for meaning)
+
+    _bond_direction_error = False # False = error, or not yet known
+
+        # to interpret those: if both are default, we've never run _recompute_bond_direction,
+        # since it either sets a specific direction or signals an error.
+        
+    def bond_direction(self):
+        """
+        Only legal if self is a chain of strand base atoms.
+        
+        If self has a known, consistently set bond direction,
+        throughout its length and also in the directional bonds
+        to the next strand base atoms just outside it
+        (which can be two actua bonds each if a PAM5 Pl intervenes),
+        return that direction; 1 means left to right, -1 means right to left,
+        treating base_index as growing from left to right
+        (self.index_direction is ignored).
+
+        Otherwise set self._bond_direction_error and return 0.
+
+        The value is cached to avoid recomputing it when known,
+        and (nim; externally implemented) set when merging ladders
+        to avoid recomputing it on merged ladders.
+
+        The cached value is negated by self.reverse_baseatoms().
+        """
+        if not self._bond_direction and not self._bond_direction_error:
+            self._recompute_bond_direction()
+        return self._bond_direction
+
+    def _recompute_bond_direction(self):
+        """
+        Set self._bond_direction and self._bond_direction_error correctly.
+        See self.bond_direction() docstring for definition of correct values.
+        """
+        # 1 = right, -1 = left, 0 = inconsistent or unknown # IMPLEM? maybe not needed, now that we have _f_set_bond_direction...
+        assert 0, "nim (and never will be) in %r" % self ####
+
+    def _f_set_bond_direction(self, dir, error = None):
+        """
+        [friend method, for self (certain subclasses) or to optimize merging strand chains]
+        #doc
+        """
+        assert dir in (-1, 0, 1)
+        if error is None:
+            error = (dir == 0)
+        self._bond_direction = dir
+        self._bond_direction_error = error
+        return
+    
     pass
 
 # ==
 
-class DnaChainFragment(DnaChain_minimal): #e does it need to know ringQ? axis vs strand?
-    def __init__(self, atom_list, index_direction):
+class DnaChainFragment(DnaChain): #e does it need to know ringQ? axis vs strand? #e misnamed??
+    def __init__(self,
+                 atom_list,
+                 index_direction = None,
+                 bond_direction = None,
+                 bond_direction_error = None
+                ):
         self.baseatoms = atom_list
-        self.index_direction = index_direction
+        if index_direction is not None:
+            self.index_direction = index_direction
             # not sure this is correct,
             # as opposed to always storing (or caller always passing) 1 @@@
+        if bond_direction is not None or bond_direction_error is not None:
+            bond_direction = bond_direction or 0
+            bond_direction_error = bond_direction_error or False
+            self._f_set_bond_direction( bond_direction, bond_direction_error)
     pass
 
 # ==
 
-class DnaChain_AtomChainWrapper(DnaChain_minimal):
+class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code is on this vs what is on a higher-level WholeChain 
     #e inherit ChainAPI? (we're passed to a DnaAtomMarker as its chain -- no, more likely, as an element of a list which is that@@@)
     """
     Abstract class, superclass of AxisChain and StrandChain.
@@ -121,6 +199,7 @@ class DnaChain_AtomChainWrapper(DnaChain_minimal):
     def __init__(self, chain_or_ring):
         
         self.chain_or_ring = chain_or_ring
+        self.ringQ = chain_or_ring.ringQ
         
         #e possible optim: can we discard the bonds stored in chain_or_ring, and keep only the atomlist,
         # maybe not even in that object?
@@ -151,15 +230,6 @@ class DnaChain_AtomChainWrapper(DnaChain_minimal):
             self._chain_id = _chain_id_counter
         return self._chain_id
     
-##    def baseatom_index_pairs(self):
-##        assert 0, "subclass must implement"
-##        
-##    def start_baseindex(self):
-##        assert 0, "subclass must implement"
-##        
-##    def baselength(self):
-##        assert 0, "subclass must implement"
-
     def _f_own_atoms(self):
         """
         Own our atoms, for chain purposes.
@@ -194,16 +264,23 @@ class DnaChain_AtomChainWrapper(DnaChain_minimal):
         #e For a chosen old marker, we get advice from it about chain direction,
         # then call a direction reverser if needed; see comments around index_direction.
 
-    def virtual_fragment(self, start_baseindex, baselength, direction):
+    def virtual_fragment(self, start_baseindex, baselength): #e misnamed if not virtual -- review
         """
+        #doc
         """
-        # STUB - assume dir is 1, always return real fragment,
-        # but assume it doesn't need most methods of the main api here...
-        # so refactor this class... but for now, be quicker:
-        assert direction == 1
+        # current implem always returns a real fragment; might be ok
         baseindex = start_baseindex - self.start_baseindex()
         subchain = self.baseatoms[baseindex : baseindex + baselength]
-        return DnaChainFragment(subchain, self.index_direction) #e more args? does it know original indices? (i doubt it)
+        # note: if self._bond_direction_error, self._bond_direction will be 0
+        # and cause the subchain direction to be recomputed... but it can't
+        # be recomputed on that kind of chain (using the current code)...
+        # so we pass the error flag too.
+        return DnaChainFragment(subchain,
+                                index_direction = self.index_direction,
+                                bond_direction = self._bond_direction,
+                                bond_direction_error = self._bond_direction_error
+                               )
+            #e more args? does it know original indices? (i doubt it)
         
     pass # end of class DnaChain_AtomChainWrapper
 
@@ -217,16 +294,6 @@ class AxisChain(DnaChain_AtomChainWrapper):
         DnaChain_AtomChainWrapper.__init__(self, chain_or_ring)
         self.baseatoms = chain_or_ring.atom_list
         return
-##    def baseatom_index_pairs(self):
-##        chain = self.chain_or_ring
-##        atom_list = chain.atom_list
-####        if self.index_direction < 0: ### IMPLEM, -1 or 1... better if we can get chain to reverse the list when it's made ###
-####            atom_list = reversed_list(atom_list)
-##        return zip(atom_list, range(len(atom_list))) # assumes no bondpoint-like termination atoms! review for PAM5.
-##    def start_baseindex(self):
-##        return 0
-##    def baselength(self):
-##        return len(self.chain_or_ring.atom_list)
     pass
 
 # ==
@@ -236,7 +303,9 @@ class StrandChain(DnaChain_AtomChainWrapper):
     A kind of DnaChain for just-found strand chains or rings.
     
     Knows to skip Pl atoms when indexing or iterating over "base atoms"
-    (but covers them in iteratoms).
+    (but covers them in iteratoms). Also knows to look at bond_direction
+    on all the bonds (in self and to neighbors), for being set and consistent,
+    and to cache this info.
     """
     def __init__(self, chain_or_ring):
         DnaChain_AtomChainWrapper.__init__(self, chain_or_ring)
@@ -247,26 +316,33 @@ class StrandChain(DnaChain_AtomChainWrapper):
         self.baseatoms = baseatoms # in order of rungindex (called baseindex in methods)
             # note: baseatoms affects methods with "base" in their name,
             # but not e.g. iteratoms (which must cover Pl)
+        # Now check all bond directions, inside and just outside this chain.
+        # Use the all-atom version, which includes Pl atoms.
+        # Assume that every Pl atom ends up in some chain,
+        # and gets checked here, so that all inter-chain bonds are covered.
+        # (This is assumed when setting bond_direction on merged chains. #doc in what code)
+        dir_so_far = None
+        chain = self.chain_or_ring
+        for atom, bond in zip(chain.atom_list[:len(chain.bond_list)], chain.bond_list):
+            thisdir = bond.bond_direction_from(atom)
+            # TODO: VERIFY this is the right atom/bond arrangement, for chain or ring!
+            # (if not, i should see a bug at some point...)
+            if dir_so_far == None: #e could optim by moving out of loop
+                dir_so_far = thisdir
+                if not thisdir:
+                    break
+            else:
+                assert dir_so_far in (-1, 1)
+                if dir_so_far != thisdir:
+                    # contradiction, or thisdir is 0
+                    dir_so_far = 0
+                    break
+            continue
+        if not chain.atom_list[0].bond_directions_are_set_and_consistent() or \
+           not chain.atom_list[-1].bond_directions_are_set_and_consistent():
+            dir_so_far = 0
+        self._f_set_bond_direction(dir_so_far)
         return
-    
-##    def baseatom_index_pairs(self):
-##        chain = self.chain_or_ring
-##        atom_list = chain.atom_list
-####        if self.index_direction < 0: ### IMPLEM, -1 or 1... better if we can get chain to reverse the list when it's made ###
-####            # do this now, so our baseindex counter is in the right order
-####            atom_list = reversed_list(atom_list)
-##
-####        res = []
-####        baseindex = 0 # incremented for base atoms during loop; found indices will start at 1
-####        for atom in atom_list: # in order for chain (arb direction), or ring (arbitrary origin & direction)
-####            if not atom.element.symbol.startswith('P'): # KLUGE, should use an element attribute, whether it's base-indexed
-####                baseindex += 1
-####                res.append((atom, baseindex))
-####        return res
-##    def start_baseindex(self):
-##        return 1
-##    def baselength(self):
-##        return len(self.baseatom_index_pairs()) # STUB, correct but SLOW, needs optim (cache the value) #####
     pass
 
 # end

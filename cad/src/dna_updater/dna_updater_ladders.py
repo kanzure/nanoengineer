@@ -22,7 +22,7 @@ from dna_model.DnaLadderRailChunk import DnaLadderRailChunk # import not needed?
 def dissolve_or_fragment_invalid_ladders( changed_atoms):
     """
     """
-    # assume ladder rails are chunks.
+    # assume ladder rails are DnaLadderRailChunk instances.
     
     changed_chunks = {}
 
@@ -38,6 +38,12 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
             # if we also recorded which basepair positions
             # were invalid.
 
+    # BUGS: [from deleting one duplex strand bond]
+    # - ladder rails are not yet DnaLadderRailChunk instances.
+    # - ladder rails whose whole chains stay untouched (no atoms in changed_atoms)
+    #   need inclusion in the strand and axis chain lists (in current code, 071204)
+    #   but are not included in them.
+    
     return
 
 # == helper for make_new_ladders
@@ -92,7 +98,7 @@ class chains_to_break:
         @return: sequence of (start_index, length, direction) triples
         """
         print "breakit nim, stub never breaks",chain ####
-        return [ (chain.start_baseindex(), chain.baselength(), 1) ] # WARNING baselength is a stub -- correct but too slow
+        return [ (chain.start_baseindex(), chain.baselength()) ]
     pass
 
 # ==
@@ -212,25 +218,27 @@ def make_new_ladders(axis_chains, strand_chains):
     for axis in axis_chains:
         frags = axis_breaker.breakit(axis)
         for frag in frags:
-            start_index, length, direction = frag # won't direction always be 1?
-        axis_rail = axis.virtual_fragment(start_index, length, direction)
-        ladder = DnaLadder(axis_rail)
-        for atom in end_atoms(axis_rail):
-            ladder_locator[atom.key] = ladder
-        ladders.append(ladder)
+            start_index, length = frag
+            axis_rail = axis.virtual_fragment(start_index, length)
+            ladder = DnaLadder(axis_rail)
+            for atom in end_atoms(axis_rail):
+                ladder_locator[atom.key] = ladder
+            ladders.append(ladder)
 
     for strand in strand_chains:
         frags = strand_breaker.breakit(strand)
         for frag in frags:
-            start_index, length, direction = frag # won't direction always be 1?
-            strand_rail = strand.virtual_fragment(start_index, length, direction)
+            start_index, length = frag
+            strand_rail = strand.virtual_fragment(start_index, length)
             # find ladder to put it in
             atom = end_atoms(strand_rail)[0].axis_neighbor()
             ladder = ladder_locator[atom.key]
-            ladder.add_strand_rail(strand_rail) ### FIX: check on #strands, length, match both ends, etc; reverse if needed
+            ladder.add_strand_rail(strand_rail)
 
     for ladder in ladders:
-        ladder.finished() ### FIX: error if not at least one strand has been added (now it's asfail - stub?)
+        ladder.finished()
+            # this ensures ladder has one or two strands, antiparallel in standard bond directions, aligned with axis rungs
+            # (it reverses chains as needed, for rung alignment and strand bond direction)
 
     return ladders
 
@@ -239,9 +247,34 @@ def make_new_ladders(axis_chains, strand_chains):
 def merge_ladders(new_ladders):
     """
     Merge end-to-end-connected ladders (new/new or new/old) into larger
-    ones, when that doesn't make them too long.
+    ones, when that doesn't make the resulting ladders too long.
+
+    @return: list of modified_valid_ladders [nim]
+
+    @note: each returned ladder is either entirely new (perhaps merged),
+           or the result of merging new and old ladders.
     """
-    print "merge_ladders nim"
-    return
+    # Initial implem - might be too slow (quadratic in atomcount) if repeated
+    # merges from small to large chain sizes occur.
+    # Note, these ladders' rails might be real chunks (merge is slower)
+    # or some sort of real or virtual atom chains (merge is faster).
+    res = []
+    while new_ladders:
+        next = []
+        for ladder in new_ladders:
+            if ladder.can_merge(): # at either end! only if ladder is valid; ladder can't merge with self!
+                assert ladder.valid
+                merged_ladder = ladder.do_merge()
+                    # kluge: does either end's merge, if both ends could be done
+                    # note: invals the old ladders
+                    # Q: what if the rails (also merged) are contained in some sort of chains?
+                    # Should we just make sure the chains can easily be found, and only find them later? guess: yes.
+                assert not ladder.valid
+                assert merged_ladder.valid
+                next.append(merged_ladder)
+            else:
+                res.append(ladder)
+        new_ladders = next
+    return res
 
 # end
