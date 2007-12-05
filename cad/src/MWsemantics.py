@@ -718,9 +718,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         else:
             qt4warning('self.fileMenu.setItemEnabled(menuItem, False)')
             if menuItem is not None: menuItem.setEnabled(False)
-        self.helpMouseControlsAction.setWhatsThis('Displays help for mouse controls')
-        self.helpKeyboardShortcutsAction.setWhatsThis('Displays help for keyboard shortcuts')
-        self.insertCommentAction.setWhatsThis('Inserts a comment in the part.')
 
         # Create the Help dialog. Mark 050812
         from help import Help

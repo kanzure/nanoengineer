@@ -3,36 +3,7 @@
 whatsthis.py
 
 $Id$
-
-===
-
-What's This text for widgets in the mainwindow object (i.e. toolbars and menus)
-come from two unrelated sources.
-
-One source of "What's This" text is the UI file (and its generated Python file). 
-For instance in MainWindowUI.ui (which is used to generate MainWindowUI.py)
-you see things like this:
-
-   <property name="whatsThis">
-       <string>&lt;u&gt;&lt;b&gt;Minimize Energy&lt;/b&gt;&lt;/u&gt;.....
-       </string>
-   </property>
-
-The another source is the createWhatsThisTextForMainWindowWidgets() function in this file
-(whatsthis.py), where you see things like this:
-
-   fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)<br> " .....
-   self.fileOpenAction.setWhatsThis(fileOpenText)
-
-Having two different sources for "What's This" text is confusing for
-developers. To address this, we intend to move all "What's This" text for
-widgets in the mainwindow object into this file (or maybe in some cases 
-other Python source files).
-
-B{"What's This" text for widgets in the Property Manager:}
-
-Property Managers specify What's This text for their own widgets, usually in a 
-method called add_whats_this_text(), not in this file. 
+ 
 """
 
 from PyQt4.Qt import qApp
@@ -1358,6 +1329,10 @@ def createWhatsThisTextForMainWindowWidgets(win):
                       "A popup box appears with information about the feature.</p>"
 
     win.helpWhatsThisAction.setWhatsThis( helpWhatsThisText )
+    
+    win.helpMouseControlsAction.setWhatsThis('Displays help for mouse controls')
+    
+    win.helpKeyboardShortcutsAction.setWhatsThis('Displays help for keyboard shortcuts')
 
 def create_whats_this_descriptions_for_UserPrefs_dialog(w):
     "Create What's This descriptions for the User Prefs dialog widgets."
