@@ -8,8 +8,8 @@ from PyQt4.Qt import Qt
 from wiki_help import QToolBar_WikiHelp
 
 def setupUi(win):
-    """Add the QWidgetActions to the 'Build' Command Manager toolbar.
-    'Build Structures' is another name for this toolbar.
+    """
+    Creates and populates the "Build Structures" toolbar.
     """
     MainWindow = win
     
@@ -31,5 +31,12 @@ def setupUi(win):
     MainWindow.addToolBar(Qt.RightToolBarArea, win.buildStructuresToolBar)
     
 def retranslateUi(win):
-     win.buildStructuresToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Build Structures", 
-                                                                      None, QtGui.QApplication.UnicodeUTF8))
+    """
+    Assigns the I{window title} property of the "Build Structures" toolbar.
+    
+    The window title of the "Build Structures" toolbar will be displayed in the
+    popup menu under "View > Toolbars".
+    """
+    win.buildStructuresToolBar.setWindowTitle(
+        QtGui.QApplication.translate("MainWindow", "Build Structures", 
+                                     None, QtGui.QApplication.UnicodeUTF8))

@@ -9,6 +9,9 @@ from wiki_help import QToolBar_WikiHelp
 from icon_utilities import geticon
 
 def setupUi(win):
+    """
+    Creates and populates the "Simulation" toolbar.
+    """
     MainWindow = win
     
     win.simulationToolBar = QToolBar_WikiHelp(MainWindow)
@@ -38,4 +41,12 @@ def setupUi(win):
     win.simulationToolBar.addAction(win.simPlotToolAction)
     
 def retranslateUi(win):
-    win.simulationToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Simulation", None, QtGui.QApplication.UnicodeUTF8))
+    """
+    Assigns the I{window title} property of the "Simulation" toolbar.
+    
+    The window title of the "Simulation" toolbar will be displayed in the popup 
+    menu under "View > Toolbars".
+    """
+    win.simulationToolBar.setWindowTitle(
+        QtGui.QApplication.translate("MainWindow", "Simulation", 
+                                     None, QtGui.QApplication.UnicodeUTF8))

@@ -11,11 +11,13 @@ from wiki_help import QToolBar_WikiHelp
 from icon_utilities import geticon
 
 def setupUi(win):
-
+    """
+    Creates and populates the "View", "Standard Views" and "Display Styles"
+    toolbars.
+    """
     MainWindow = win
 
     # View toolbar: Create and populate 
-    
     win.viewToolBar = QToolBar_WikiHelp(MainWindow)
     win.viewToolBar.setEnabled(True)
     win.viewToolBar.setObjectName("viewToolBar")
@@ -32,7 +34,6 @@ def setupUi(win):
     win.viewToolBar.addSeparator()
 
     # Create Standard Views dropdown menu in the View Tool bar ---
-
     win.standardViewsMenu = QtGui.QMenu("Standard Views")
 
     win.standardViewsMenu.addAction(win.viewFrontAction)
@@ -74,7 +75,6 @@ def setupUi(win):
     win.viewToolBar.addAction(win.viewRaytraceSceneAction) 
     
     # Standard Views toolbar: Create and populate 
-    
     # Having all the standard views available on their own toolbar is nice
     # if the screen is wide enough. Mark 2007-12-02
     win.standardViewsToolBar = QToolBar_WikiHelp(MainWindow)
@@ -91,7 +91,6 @@ def setupUi(win):
     win.standardViewsToolBar.addAction(win.viewIsometricAction)
     
     # Display Style toolbar: Create and populate 
-    
     win.displayStylesToolBar = QToolBar_WikiHelp(MainWindow)
     win.displayStylesToolBar.setEnabled(True)
     win.displayStylesToolBar.setObjectName("displayStylesToolBar")
@@ -107,6 +106,13 @@ def setupUi(win):
     win.displayStylesToolBar.addAction(win.dispSurfaceAction)
 
 def retranslateUi(win):
+    """
+    Assigns the I{window title} property of the "View", "Standard Views" and 
+    "Display Styles" toolbars.
+    
+    The window title of these toolbars will be displayed in the popup menu 
+    under "View > Toolbars".
+    """
     win.viewToolBar.setWindowTitle(
         QtGui.QApplication.translate(
             "MainWindow", "View", 

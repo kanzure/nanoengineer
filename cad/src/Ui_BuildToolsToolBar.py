@@ -8,6 +8,10 @@ from PyQt4.Qt import Qt
 from wiki_help import QToolBar_WikiHelp
 
 def setupUi(win):
+    """
+    Creates and populates the "Build Tools" toolbar.
+    """
+    
     MainWindow = win
     
     win.buildToolsToolBar = QToolBar_WikiHelp(MainWindow)
@@ -32,10 +36,15 @@ def setupUi(win):
     win.buildToolsToolBar.addAction(win.modifyAlignCommonAxisAction)
     #win.buildToolsToolBar.addAction(win.modifyCenterCommonAxisAction)
     
-    
-    ##MainWindow.addToolBar(Qt.RightToolBarArea, win.buildToolsToolBar)
     MainWindow.addToolBar(Qt.TopToolBarArea, win.buildToolsToolBar)
         
 def retranslateUi(win):
-    win.buildToolsToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Build Tools", 
-                                                                      None, QtGui.QApplication.UnicodeUTF8))
+    """
+    Assigns the I{window title} property of the "Build Tools" toolbar.
+    
+    The window title of the "Build Tools" toolbar will be displayed in the popup 
+    menu under "View > Toolbars".
+    """
+    win.buildToolsToolBar.setWindowTitle(
+        QtGui.QApplication.translate("MainWindow", "Build Tools", 
+                                     None, QtGui.QApplication.UnicodeUTF8))

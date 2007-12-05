@@ -8,8 +8,11 @@ from PyQt4.Qt import Qt
 from wiki_help import QToolBar_WikiHelp
 
 def setupUi(win):
-    
+    """
+    Creates and populates the "Select" toolbar.
+    """
     MainWindow = win
+    
     win.selectToolBar = QToolBar_WikiHelp(MainWindow)
     win.selectToolBar.setEnabled(True)
     win.selectToolBar.setGeometry(QtCore.QRect(458,0,89,20))
@@ -26,4 +29,12 @@ def setupUi(win):
     win.selectToolBar.addAction(win.selectContractAction)    
     
 def retranslateUi(win):
-    win.selectToolBar.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Select", None, QtGui.QApplication.UnicodeUTF8))
+    """
+    Assigns the I{window title} property of the "Select" toolbar.
+    
+    The window title of the "Select" toolbar will be displayed in the popup 
+    menu under "View > Toolbars".
+    """
+    win.selectToolBar.setWindowTitle(
+        QtGui.QApplication.translate("MainWindow", "Select", 
+                                     None, QtGui.QApplication.UnicodeUTF8))
