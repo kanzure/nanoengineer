@@ -37,7 +37,8 @@ from PlatformDependent import hhmmss_str
 import os, sys, time
 from math import sqrt
 from SimSetup import SimSetup
-from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
+from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject,\
+    QFileInfo, SIGNAL
 from movie import Movie
 from utilities.Log import redmsg, greenmsg, orangemsg, quote_html, _graymsg
 import env
@@ -249,25 +250,44 @@ class SimRunner:
                 else:
                     dot_exe = ""
                 sim_bin_dir = self.sim_bin_dir_path()
-                grompp = os.path.join(self.gromacs_bin_dir, "grompp%s" % dot_exe)
+                grompp = \
+                    os.path.join(self.gromacs_bin_dir, "grompp%s" % dot_exe)
                 mdrun = os.path.join(self.gromacs_bin_dir, "mdrun%s" % dot_exe)
                 nv1 = os.path.join(sim_bin_dir, "nv1%s" % dot_exe)
                 
-                gromacsBaseFileName = self._movie.filename
-                env.history.message("%s: files at %s.*" % (self.cmdname, gromacsBaseFileName))
+                gmxFullBaseFileName = self._movie.filename
+                fileInfo = QFileInfo(gmxFullBaseFileName)
+                gmxWorkingDir = fileInfo.dir().absolutePath()
+                gmxBaseFileName = fileInfo.fileName()
+                
+                env.history.message("%s: files at %s.*" %
+                    (self.cmdname, gmxFullBaseFileName))
                 gromacsProcess = GromacsProcess()
                 gromacsProcess.setProcessName("grompp")
                 gromacsProcess.prepareForGrompp()
-                gromacsProcess.redirect_stdout_to_file("%s-grompp-stdout.txt" % gromacsBaseFileName)
-                gromacsProcess.redirect_stderr_to_file("%s-grompp-stderr.txt" % gromacsBaseFileName)
+                gromacsProcess.redirect_stdout_to_file("%s-grompp-stdout.txt" %
+                    gmxFullBaseFileName)
+                gromacsProcess.redirect_stderr_to_file("%s-grompp-stderr.txt" %
+                    gmxFullBaseFileName)
                 gromppArgs = [
-                    "-f", "%s.mdp" % gromacsBaseFileName,
-                    "-c", "%s.gro" % gromacsBaseFileName,
-                    "-p", "%s.top" % gromacsBaseFileName,
-                    "-n", "%s.ndx" % gromacsBaseFileName,
-                    "-o", "%s.tpr" % gromacsBaseFileName,
-                    "-po", "%s-out.mdp" % gromacsBaseFileName,
+                    "-f", "%s.mdp" % gmxBaseFileName,
+                    "-c", "%s.gro" % gmxBaseFileName,
+                    "-p", "%s.top" % gmxBaseFileName,
+                    "-n", "%s.ndx" % gmxBaseFileName,
+                    "-o", "%s.tpr" % gmxBaseFileName,
+                    "-po", "%s-out.mdp" % gmxBaseFileName,
                     ]
+                    
+                gromacsProcess.setWorkingDirectory(gmxWorkingDir)
+                
+                gromacs_topo_dir = \
+                    self.gromacs_bin_dir[0:len(self.gromacs_bin_dir) - 4]
+                gromacs_topo_dir = \
+                    os.path.join(gromacs_topo_dir, "share", "gromacs", "top")
+                environmentVariables = gromacsProcess.environment()
+                environmentVariables += "GMXLIB=%s" % gromacs_topo_dir
+                gromacsProcess.setEnvironment(environmentVariables)
+                
                 errorCode = gromacsProcess.run(grompp, gromppArgs)
                 if (errorCode != 0):
                     msg = redmsg("Gromacs minimization failed, grompp returned %d" % errorCode)
@@ -276,20 +296,23 @@ class SimRunner:
                 else:
                     gromacsProcess.setProcessName("mdrun")
                     gromacsProcess.prepareForMdrun()
-                    gromacsProcess.redirect_stdout_to_file("%s-mdrun-stdout.txt" % gromacsBaseFileName)
-                    gromacsProcess.redirect_stderr_to_file("%s-mdrun-stderr.txt" % gromacsBaseFileName)
+                    gromacsProcess.redirect_stdout_to_file \
+                        ("%s-mdrun-stdout.txt" % gmxFullBaseFileName)
+                    gromacsProcess.redirect_stderr_to_file \
+                        ("%s-mdrun-stderr.txt" % gmxFullBaseFileName)
                     if (self.background):
                         mdrunOutputExtension = "nh5"
                     else:
                         mdrunOutputExtension = "trr"
                     mdrunArgs = [
-                        "-s", "%s.tpr" % gromacsBaseFileName,
-                        "-o", "%s.%s" % (gromacsBaseFileName, mdrunOutputExtension),
-                        "-e", "%s.edr" % gromacsBaseFileName,
-                        "-c", "%s-out.gro" % gromacsBaseFileName,
-                        "-g", "%s-mdrun.log" % gromacsBaseFileName,
+                        "-s", "%s.tpr" % gmxBaseFileName,
+                        "-o", "%s.%s" % (gmxBaseFileName, mdrunOutputExtension),
+                        "-e", "%s.edr" % gmxBaseFileName,
+                        "-c", "%s-out.gro" % gmxBaseFileName,
+                        "-g", "%s-mdrun.log" % gmxBaseFileName,
                         ]
-                    errorCode = gromacsProcess.run(mdrun, mdrunArgs, self.background)
+                    errorCode = \
+                        gromacsProcess.run(mdrun, mdrunArgs, self.background)
                     if (errorCode != 0):
                         msg = redmsg("Gromacs minimization failed, mdrun returned %d" % errorCode)
                         env.history.message(self.cmdname + ": " + msg)
@@ -297,7 +320,7 @@ class SimRunner:
                     if (self.background):
                         nv1Process = Process()
                         nv1Args = [
-                            gromacsBaseFileName,
+                            gmxFullBaseFileName,
                             ]
                         nv1Process.setStandardOutputPassThrough(True)
                         nv1Process.setStandardErrorPassThrough(True)
