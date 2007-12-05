@@ -14,8 +14,10 @@ from dna_updater_constants import DEBUG_DNA_UPDATER
 from dna_updater_follow_strand import dna_updater_follow_strand
 
 from dna_model.DnaLadder import DnaLadder
+from dna_model.DnaLadder import _f_get_invalid_dna_ladders
 
 from dna_model.DnaLadderRailChunk import DnaLadderRailChunk # import not needed?
+
 
 # ==
 
@@ -32,15 +34,18 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
     This might be done by adding some of their atoms into changed_atoms
     in this method.
     """
-    # assume ladder rails are DnaLadderRailChunk instances.
+    # assume ladder rails are DnaLadderRailChunk instances,
+    # or were such until atoms got removed (calling their delatom methods).
     
     changed_chunks = {}
 
-    dissolved_ladders = {} # values are dissolved ladders or None
+##    dissolved_ladders = {} # values are dissolved ladders or None
 
     for atom in changed_atoms.itervalues():
         chunk = atom.molecule
         changed_chunks[id(chunk)] = chunk
+        if atom.key == 11: ###@@@ debug
+            print "%r, chunk %r, to inval/dissolve" % (atom, chunk) ### @@@
     
     for chunk in changed_chunks.itervalues():
         # todo: assert not killed, not nullMol, is a Chunk
@@ -51,13 +56,38 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
             # were invalid, and made sure their atoms were covered
             # below so their chains will get scanned by caller,
             # e.g. due to changed_atoms.
-        dissolved_ladders[id(ladder)] = ladder # even if it's None
+        assert ladder is None
+        # todo: remove retval variable 'ladder' from this code
+##        dissolved_ladders[id(ladder)] = ladder # even if it's None
 
-    for ladder in dissolved_ladders.itervalues():
+    # Changed atoms that got removed from their ladders invalidated them
+    # at the time (in DnaLadderRailChunk.delatom). Those that didn't get
+    # removed from them are still in them, and invalidated them just above.
+    # So the following will now give us a complete list of invalid ladders,
+    # all of whose atoms we want to scan here.
+
+    invalid_ladders = _f_get_invalid_dna_ladders()
+
+##    for ladder in dissolved_ladders.itervalues():
+    for ladder in invalid_ladders:
         # WARNING: the following is only reviewed for the case of the above code
-        # dissolving (not fragmenting) chunk's ladder.
+        # dissolving (invalidating, not fragmenting) chunk's ladder.
         #e Could optim if we know some rails were untouched, by
         # "including them whole" rather than rescanning them, in caller.
+        
+        # Note: what is meant by "dissolving the ladder" (done above)
+        # vs "fragmenting it" (not implemented) is the difference between
+        # what happens to the atoms no longer in a valid ladder --
+        # are they (until updater runs on them) in no valid ladder,
+        # or in some newly made smaller one? The former, for now.
+        # The comments and docstrings here are unclear about *when*
+        # the dissolving or fragmenting is done. The dissolving can
+        # be considered done right when the ladder is invalidated,
+        # since we don't intend to make fragments from the untouched
+        # parts of it. But this function name claims to do the dissolving
+        # itself (even on already invalidated ladders). # todo: clarify.
+        
+        assert ladder is not None # simplify when works
         if ladder is not None:
             print "fyi: adding all atoms from dissolved ladder =", ladder #####
             for rail in ladder.all_rails():

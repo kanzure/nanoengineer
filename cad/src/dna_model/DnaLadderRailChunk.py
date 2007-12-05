@@ -29,13 +29,12 @@ class DnaLadderRailChunk(Chunk):
         name = gensym(self.__class__.__name__.split('.')[-1]) + ' (internal)' ###k
         Chunk.__init__(self, assy, name) #k
         self.chain = chain
-        # KLUGE to avoid recursive import (still has import cycle) --
-        # we need to move that func somehow ####
+        # add atoms before setting self.ladder, so adding them doesn't invalidate it
+        self._grab_atoms_from_chain(chain) #e we might change when this is done, if we implem copy for this class
+        # following import is a KLUGE to avoid recursive import
+        # (still has import cycle, ought to fix -- should refile that func somehow)
         from DnaLadder import _rail_end_atom_to_ladder # todo: make not private... or get by without it here (another init arg??)            
         self.ladder = _rail_end_atom_to_ladder( chain.baseatoms[0] )
-        self._grab_atoms_from_chain(chain) #e might change when this happens, if we implem copy for this class
-        #e also worry about where to put it in the model? note: that's not normally done in __init__ for chunks.
-        # so don't do it for this subclass either
         return
 
     def _grab_atoms_from_chain(self, chain):
@@ -57,9 +56,12 @@ class DnaLadderRailChunk(Chunk):
     def invalidate_ladder(self): #bruce 071203
         """
         [overrides Chunk method]
+        [only legal after init, not during it, thus not in self.addatom]
         """
+        print "%r will invalidate %r" % (self, self.ladder) ### remove after debug @@@
         self.ladder.invalidate()
-        return self.ladder # REQUIRED; need to doc this requirement in superclass docstring
+##        return self.ladder # REQUIRED; need to doc this requirement in superclass docstring [no, it's obs, nevermind]
+        return
     
     ###e todo: at least self-inval on structure changes... like new atoms...
     # might not be needed since dna updater does it? (unless it ignores the change if it happens while we run)
@@ -71,6 +73,22 @@ class DnaLadderRailChunk(Chunk):
         [overrides Chunk method]
         """
         return self.ladder.valid
+
+    # == override Chunk methods related to invalidation
+
+    def addatom(self, atom):
+        Chunk.addatom(self, atom)
+        if self.ladder and self.ladder.valid:
+            # does this ever happen?
+            print "dna updater, fyi: %r.addatom invals %r" % (self, self.ladder) # to see if it happens
+            self.ladder.invalidate()
+        return
+
+    def delatom(self, atom):
+        Chunk.delatom(self, atom)
+        if self.ladder.valid:
+            self.ladder.invalidate()
+        return
     
     # == other methods
     

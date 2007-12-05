@@ -17,6 +17,8 @@ from chem import _changed_structure_Atoms, _changed_parent_Atoms # but they're p
 
 from debug import print_compact_stack
 
+_DEBUG_ATOM_KEY = 11 # None, or a value of atom.key for which all ignored changes should be printed
+
 # ==
 
 # _rcdp1 and _rcdp2 will be replaced in initialize_globals()
@@ -94,6 +96,13 @@ def ignore_new_changes( from_what, changes_ok = True ):
                   (len(ignore_these), from_what)
             print_compact_stack(msg)
             print
+
+        if ignore_these.has_key(_DEBUG_ATOM_KEY):
+            msg = "*** _DEBUG_ATOM_KEY %r: %r seen in those changes" % (_DEBUG_ATOM_KEY, ignore_these[_DEBUG_ATOM_KEY])
+            if changes_ok:
+                print_compact_stack(msg + ": ") # since we didn't print stack just above
+            else:
+                print msg
             
     del ignore_these
     return

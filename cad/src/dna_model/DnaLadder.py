@@ -60,6 +60,27 @@ _BOND_DIRECTION_TO_OTHER_AT_END = [-1, 1]
 
 # ==
 
+# globals and accessors
+
+_invalid_dna_ladders = {}
+
+def _f_get_invalid_dna_ladders():
+    """
+    Return the invalid dna ladders,
+    and clear the list so they won't be returned again
+    (unless they are newly made invalid).
+
+    Friend function for dna updater. Other calls
+    would cause it to miss newly invalid ladders,
+    causing serious bugs.
+    """
+    res = _invalid_dna_ladders.values()
+    _invalid_dna_ladders.clear()
+    res = filter( lambda ladder: not ladder.valid, res ) # probably not needed
+    return res
+
+# ==
+
 ### REVIEW: should a DnaLadder contain any undoable state?
 # (guess: yes... maybe it'll be a Group subclass, for sake of copy & undo?
 #  for now, assume just an object (not a Node), and try to fit it into
@@ -175,6 +196,9 @@ class DnaLadder(object):
                     atom._DnaLadder__ladder = None
                     del atom._DnaLadder__ladder
                     print "%r un-owning %r" % (self, atom) ### remove when works
+                # tell the next run of the dna updater we're invalid
+                _invalid_dna_ladders[id(self)] = self
+        return
     def rail_end_baseatoms(self):
         """
         yield the 3 or 6 atoms which are end-atoms for one of our 3 rails
@@ -186,8 +210,8 @@ class DnaLadder(object):
             if atom2 is not atom1:
                 yield atom2
         return
-    def invalidate(self): # todo: doc why this is called
-        print "invalidating", self #e remove when seen @@@
+    def invalidate(self): # todo: doc why this is called - so changed atoms inval their entire ladders
+        print "invalidating", self #e remove after debug @@@
         self.set_valid(False)
 
     # == ladder-merge methods
