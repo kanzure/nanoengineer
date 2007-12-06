@@ -22,16 +22,16 @@ class DnaGroup(Block):
     in mmp files, copied, and undo-scanned in the usual ways.
 
     Specific kinds of Group member contents include:
-    - DnaStrands
-    - DnaSegments
+    - DnaStrands (optionally inside Blocks)
+    - DnaSegments (ditto)
     - Blocks (a kind of Group)
     - DnaAtomMarkers (a kind of Jig, probably always inside an owning
       DnaStrand or DnaSegment)
     - specialized chunks for holding PAM atoms:
       - DnaAxisChunk (undecided whether these will live inside DnaSegments
-        they belong to)
+        they belong to, but probably they will)
       - DnaStrandChunk (undecided whether these will live inside their
-        DnaStrands)
+        DnaStrands, but probably they will)
 
     As other attributes:
     - whatever other properties the user needs to assign, which are not
@@ -42,7 +42,7 @@ class DnaGroup(Block):
         """
         Return a list of all our DnaSegment objects.
         """
-        return self.get_subnodes_of_class(DnaSegment) # IMPLEM get_subnodes_of_class
+        return self.get_subnodes_of_class("DnaSegment") # IMPLEM get_subnodes_of_class
     pass
 
 # end

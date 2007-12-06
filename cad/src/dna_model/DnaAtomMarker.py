@@ -12,6 +12,10 @@ future to mark subsequence endpoints for relations or display styles.
 
 from ChainAtomMarker import ChainAtomMarker
 
+from DnaStrand import DnaStrand
+from DnaSegment import DnaSegment
+from DnaGroup import DnaGroup
+
 # ==
 
 # constants
@@ -107,6 +111,46 @@ class DnaAtomMarker( ChainAtomMarker):
         self.controlling = _CONTROLLING_UNKNOWN
 
     # == other methods
+
+    # These should be split between new subclasses, DnaStrandMarker and DnaSegmentMarker.
+    
+    def get_DnaStrand(self):
+        """
+        Return the DnaStrand that owns us, or None if none does.
+        [It's not yet decided whether the latter case can occur
+        normally if we have survived a run of the dna updater.]
+
+        @see: self.controlling, for whether we control base indexing
+        (and perhaps other aspects) of the DnaStrand that owns us.
+        """
+        return self.parent_node_of_class( DnaStrand) ### IMPLEM Node.parent_node_of_class
+
+    def get_DnaSegment(self):
+        """
+        Return the DnaSegment that owns us, or None if none does.
+        [It's not yet decided whether the latter case can occur
+        normally if we have survived a run of the dna updater.]
+
+        @see: self.controlling, for whether we control base indexing
+        (and perhaps other aspects) of the DnaSegment that owns us.
+        """
+        return self.parent_node_of_class( DnaSegment)
+
+    def get_DnaGroup(self):
+        """
+        Return the DnaGroup we are contained in, or None if we're not
+        inside one.
+
+        @note: if we are inside a DnaStrand or DnaSegment, then our
+        DnaGroup will be the same as its DnaGroup. But we can be outside
+        one (if this is permitted) and still have a DnaGroup.
+        
+        [Returning None should not be possible
+         if we have survived a run of the dna updater.]
+        """
+        return self.parent_node_of_class( DnaGroup)
+        
+    # ==
     
     def set_whether_controlling(self, controlling):
         """
