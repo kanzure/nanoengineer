@@ -363,8 +363,15 @@ class DnaLadder(object):
         return [self.axis_rail] + self.strand_rails
     
     def remake_chunks(self):
+        """
+        #doc
+        
+        @return: list of all newly made (by this method) DnaLadderRailChunks
+                 (or modified ones, if that's ever possible)
+        """
         assert self.valid
         # but don't assert not self.error
+        res = []
         for rail in self.strand_rails + [self.axis_rail]:
             if rail is self.axis_rail:
                 want_class = DnaAxisChunk
@@ -395,7 +402,10 @@ class DnaLadder(object):
             # todo: if you don't want this location for the added node chunk,
             # just call chunk.moveto when you're done,
             # or if you know a group you want it in, call group.addchild(chunk) instead of this.
-    pass
+            res.append(chunk)
+        return res
+    
+    pass # end of class DnaLadder
 
 # ==
 

@@ -35,7 +35,8 @@ def update_PAM_chunks( changed_atoms):
                           Note: in present calling code [071127]
                           this dict might include atoms from closed files.
 
-    @return: None (??)
+    @return: list of all newly made DnaLadderRailChunks (or modified ones,
+             if that's ever possible)
     """
 
     # see scratch file for comments to revise and bring back here...
@@ -208,8 +209,11 @@ def update_PAM_chunks( changed_atoms):
     # Now make or remake chunks as needed, so that each ladder-rail is a chunk.
     # This must be done to all newly made or merged ladders (even if parts are old).
 
+    all_new_chunks = []
+    
     for ladder in modified_valid_ladders:
-        ladder.remake_chunks() # IMPLEM/unstub
+        new_chunks = ladder.remake_chunks()
+        all_new_chunks.extend(new_chunks)
 
     ignore_new_changes("from remake_chunks", changes_ok = True)#k changes_ok?
 
@@ -235,7 +239,7 @@ def update_PAM_chunks( changed_atoms):
 
     # optim: sort bonds in atom classes, and sort atoms in bond classes, in special ways.
     
-    return # from update_PAM_chunks
+    return new_chunks # from update_PAM_chunks
 
 # end
 

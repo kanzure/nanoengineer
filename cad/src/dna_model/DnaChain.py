@@ -10,7 +10,9 @@ future to mark subsequence endpoints for relations or display styles.
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_model.DnaAtomMarker import DnaAtomMarker
+from dna_model.DnaAtomMarker import DnaAtomMarker # only for issubclass
+from dna_model.DnaAtomMarker import DnaSegmentMarker
+from dna_model.DnaAtomMarker import DnaStrandMarker
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
@@ -274,7 +276,9 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
         # but it's WRONG to do it when an old one could take over, so this is not a correct stub, just one that might run.
         atom = chain.atom_list[0]
         assy = atom.molecule.assy
-        marker = DnaAtomMarker(assy, [atom], chain = self)
+        marker_class = self._marker_class
+        assert issubclass(marker_class, DnaAtomMarker)
+        marker = marker_class(assy, [atom], chain = self)
             # note: chain has to be self, not self.chain
             # (the marker calls some methods that are only on self).
         self.controlling_marker = marker
@@ -309,6 +313,7 @@ class AxisChain(DnaChain_AtomChainWrapper):
     """
     A kind of DnaChain for just-found axis chains or rings.
     """
+    _marker_class = DnaSegmentMarker
     def __init__(self, chain_or_ring):
         DnaChain_AtomChainWrapper.__init__(self, chain_or_ring)
         self.baseatoms = chain_or_ring.atom_list
@@ -326,6 +331,7 @@ class StrandChain(DnaChain_AtomChainWrapper):
     on all the bonds (in self and to neighbors), for being set and consistent,
     and to cache this info.
     """
+    _marker_class = DnaStrandMarker
     def __init__(self, chain_or_ring):
         DnaChain_AtomChainWrapper.__init__(self, chain_or_ring)
         baseatoms = filter( lambda atom:

@@ -20,7 +20,7 @@ from DnaGroup import DnaGroup
 
 # constants
 
-_CONTROLLING_UNKNOWN = True # represents an unknown value of self.controlling
+_CONTROLLING_IS_UNKNOWN = True # represents an unknown value of self.controlling
     # note: this value of True is not strictly correct, but simplifies the code
     #e rename?
 
@@ -64,6 +64,9 @@ class DnaAtomMarker( ChainAtomMarker):
     """
     A ChainAtomMarker specialized for DNA axis or strand atoms
     (base atoms only, not Pl atoms).
+
+    Abstract class; see subclasses DnaSegmentMarker and
+    DnaStrandMarker.
     """
 
     # default values of instance variables:
@@ -79,7 +82,7 @@ class DnaAtomMarker( ChainAtomMarker):
     
     # other variables
 
-    controlling = _CONTROLLING_UNKNOWN
+    controlling = _CONTROLLING_IS_UNKNOWN
 
     _advise_new_chain_direction = 0
         # temporarily set to 0 or -1 or 1 for use when moving self and setting a new chain
@@ -108,33 +111,9 @@ class DnaAtomMarker( ChainAtomMarker):
         @type chain: AtomChainOrRing instance
         """
         ChainAtomMarker.set_chain(self, chain)
-        self.controlling = _CONTROLLING_UNKNOWN
+        self.controlling = _CONTROLLING_IS_UNKNOWN
 
     # == other methods
-
-    # These should be split between new subclasses, DnaStrandMarker and DnaSegmentMarker.
-    
-    def get_DnaStrand(self):
-        """
-        Return the DnaStrand that owns us, or None if none does.
-        [It's not yet decided whether the latter case can occur
-        normally if we have survived a run of the dna updater.]
-
-        @see: self.controlling, for whether we control base indexing
-        (and perhaps other aspects) of the DnaStrand that owns us.
-        """
-        return self.parent_node_of_class( DnaStrand) ### IMPLEM Node.parent_node_of_class
-
-    def get_DnaSegment(self):
-        """
-        Return the DnaSegment that owns us, or None if none does.
-        [It's not yet decided whether the latter case can occur
-        normally if we have survived a run of the dna updater.]
-
-        @see: self.controlling, for whether we control base indexing
-        (and perhaps other aspects) of the DnaSegment that owns us.
-        """
-        return self.parent_node_of_class( DnaSegment)
 
     def get_DnaGroup(self):
         """
@@ -145,8 +124,10 @@ class DnaAtomMarker( ChainAtomMarker):
         DnaGroup will be the same as its DnaGroup. But we can be outside
         one (if this is permitted) and still have a DnaGroup.
         
-        [Returning None should not be possible
-         if we have survived a run of the dna updater.]
+        @note: returning None should never happen
+        if we have survived a run of the dna updater.
+
+        @see: get_DnaStrand, get_DnaSegment
         """
         return self.parent_node_of_class( DnaGroup)
         
@@ -421,27 +402,49 @@ class DnaAtomMarker( ChainAtomMarker):
                             # note: relative to current direction, which we
                             # don't know in this method and which might not be 1
         return 0
-
-# pseudocode i didn't need, remove after commit:
-##        some_atoms = ...
-##
-##        for atom in some_atoms:
-##            try:
-##                old_chain_id, old_index = old_chain_info[atom.key]
-##                new_chain_id, new_index = new_chain_info[atom.key]
-##            except KeyError:
-##                pass
-##            else:
-##                assert old_chain_id == old_chain.chain_id() # or, the same as for old_atom
-##                if new_chain_id == same as for new_atom:
-##                    hmm.append( (old_index, new_index) )
-##        if len(hmm) > 1:
-##            # we have enough info for a guess; make sure it's consistent!
-##            
-##        return -1 or 1 }
     
     pass # end of class DnaAtomMarker
 
-#e subclasses for SegmentMarker & StrandMarker??
+# ==
+
+class DnaSegmentMarker(DnaAtomMarker): #e rename to DnaAxisMarker? guess: no...
+    """
+    A DnaAtomMarker for marking an axis atom of a DnaSegment
+    (and, therefore, a base-pair position within the segment).
+    """
+    def get_DnaSegment(self):
+        """
+        Return the DnaSegment that owns us, or None if none does.
+        [It's not yet decided whether the latter case can occur
+        normally if we have survived a run of the dna updater.]
+
+        @see: self.controlling, for whether we control base indexing
+        (and perhaps other aspects) of the DnaSegment that owns us.
+
+        @see: get_DnaGroup
+        """
+        return self.parent_node_of_class( DnaSegment)
+    pass
+
+# ==
+
+class DnaStrandMarker(DnaAtomMarker):
+    """
+    A DnaAtomMarker for marking an atom of a DnaStrand
+    (and, therefore, a base position along the strand).
+    """
+    def get_DnaStrand(self):
+        """
+        Return the DnaStrand that owns us, or None if none does.
+        [It's not yet decided whether the latter case can occur
+        normally if we have survived a run of the dna updater.]
+
+        @see: self.controlling, for whether we control base indexing
+        (and perhaps other aspects) of the DnaStrand that owns us.
+
+        @see: get_DnaGroup
+        """
+        return self.parent_node_of_class( DnaStrand) ### IMPLEM Node.parent_node_of_class
+    pass
 
 # end
