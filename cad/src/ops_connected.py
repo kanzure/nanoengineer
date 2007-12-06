@@ -211,12 +211,14 @@ class ops_connected_Mixin:
                         # function in bond_constants.py which computes it for a pair of atoms.
                         # Someday we might have other kinds of non-connected bonds,
                         # e.g. hydrogen bonds, or higher-level analogues of that. [bruce 070411]
-                        axis_elements = ('Ax3','Ae3', 'Ax5', 'Ae5')
-                        strand_elements = ('Ss3','Pl3','Sj3','Se3','Sh3', 'Hp3',
-                                           'Ss5','Pl5','Sj5','Pe5','Sh5', 'Hp5') #k needs review: does Hp belong in this list?
-                        if at1.element.symbol in axis_elements and at2.element.symbol in strand_elements:
+
+                        ## axis_elements = ('Ax3','Ae3', 'Ax5', 'Ae5') # element.role == 'axis'
+                        ## strand_elements = ('Ss3','Pl3','Sj3','Se3','Sh3', 'Hp3',
+                        ##                    'Ss5','Pl5','Sj5','Pe5','Sh5', 'Hp5') #k needs review: does Hp belong in this list?
+                        ## # element.role == 'strand'
+                        if at1.element.role == 'axis' and at2.element.role == 'strand':
                             really_connected = False
-                        elif at2.element.symbol in axis_elements and at1.element.symbol in strand_elements:
+                        elif at2.element.role == 'axis' and at1.element.role == 'strand':
                             really_connected = False
                     if really_connected:
                         if id(at1) not in marked: #e could also check for singlets here...
