@@ -26,14 +26,14 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
     """
     #doc... [some is in a caller comment]
     
-    Also make sure that atoms that are no longer in valid ladders
+    Also make sure that live atoms that are no longer in valid ladders
     (due to dissolved or fragmented ladders) are included in the caller's
     subsequent step of finding changed chains,
     or that the chains they are in are covered. This is necessary so that
     the found chains below cover all atoms in every "base pair" (Ss-Ax-Ss)
     they cover any atom in.
     This might be done by adding some of their atoms into changed_atoms
-    in this method.
+    in this method (but only live atoms).
     """
     # assume ladder rails are DnaLadderRailChunk instances,
     # or were such until atoms got removed (calling their delatom methods).
@@ -84,9 +84,11 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
             print "dna updater: fyi: adding all atoms from dissolved ladder =", ladder
         for rail in ladder.all_rails():
             for atom in rail.baseatoms: # probably overkill, maybe just one atom is enough -- not sure
-                # note: we know atom is alive, since it's in a ladder
-                # that was valid a moment ago
-                changed_atoms[atom.key] = atom
+                # note: atom is in a ladder that was valid a moment ago,
+                # but even so, it might be killed now, e.g. if you select
+                # and delete one strand atom in a duplex.
+                if not atom.killed():
+                    changed_atoms[atom.key] = atom
         continue
     
     return

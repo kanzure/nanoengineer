@@ -93,6 +93,8 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
     @return: (axis_chains, strand_chains), which are sequences of
     objects representing changed chains or rings (or lone atoms)
     of the specified element roles (axis or strand respectively).
+    (They should be both tuples or both lists, so the caller can
+    concatenate them using +.)
     The chain or ring format is as returned by the make_* methods
     of the singleton objects axis_analyzer and strand_analyzer,
     which have methods for further use of those objects (in case
@@ -126,7 +128,7 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
 
     for atom in changed_atoms.itervalues():
         if atom.killed():
-            print "bug: update_PAM_chunks: %r is killed (ignoring)", atom
+            print "bug: update_PAM_chunks: %r is killed (ignoring)" % atom
         elif atom.is_singlet():
             # classify the real neighbor instead
             # (Note: I'm not sure if this is needed, but I'll do it to be safe.

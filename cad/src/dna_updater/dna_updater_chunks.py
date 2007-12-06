@@ -82,7 +82,7 @@ def update_PAM_chunks( changed_atoms):
     # in the following method.
     
     dissolve_or_fragment_invalid_ladders( changed_atoms)
-        # note: this adds atoms to changed_atoms;
+        # note: this adds atoms (live atoms only) to changed_atoms;
         # see its comments and above comment for details.
     
     # Find the current axis and strand chains (perceived from current bonding)
