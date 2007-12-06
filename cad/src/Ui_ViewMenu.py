@@ -266,6 +266,25 @@ def setupUi(win):
     win.displayMenu.addAction(win.viewQuteMolAction)
     win.displayMenu.addAction(win.viewRaytraceSceneAction)
     
+    
+
+    win.viewSemiFullScreenAction = QtGui.QAction(MainWindow)
+    win.viewSemiFullScreenAction.setText('Semi-Full Screen')
+    win.viewSemiFullScreenAction.setCheckable(True)
+    win.viewSemiFullScreenAction.setChecked(False)
+    win.viewSemiFullScreenAction.setShortcut('F11')  
+    
+    win.viewFullScreenAction = QtGui.QAction(MainWindow)
+    win.viewFullScreenAction.setText('Full Screen')
+    win.viewFullScreenAction.setCheckable(True)
+    win.viewFullScreenAction.setChecked(False)
+    win.viewFullScreenAction.setShortcut('F12')
+    
+    win.viewMenu.addAction(win.viewSemiFullScreenAction)
+    win.viewMenu.addAction(win.viewFullScreenAction)
+ 
+
+    
         
 def retranslateUi(win):
         
