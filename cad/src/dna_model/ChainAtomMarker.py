@@ -38,7 +38,7 @@ class ChainAtomMarker(Jig):
     
     # other variables
     
-    _old_atom = None # (not undoable or copyable)
+    _old_atom = None # (not undoable or copyable) (but see comment on "make _old_atom undoable" below)
     _chain = None # (not undoable or copyable)
     
     # == Jig API methods
@@ -91,6 +91,11 @@ class ChainAtomMarker(Jig):
         res = (not self.atoms) and (self._old_atom is not None)
         if res:
             assert self._old_atom.killed()
+            # BUG: can fail in Undo, e.g. if you select and delete all atoms,
+            # then Undo that. (At least it did once after some other atom
+            # deletes in a duplex, just after delete_bare_atoms implemented.)
+            # REVIEW: make _old_atom undoable, to fix this? Not sure it would help...
+            # [071205]
         return res
 
     def _set_marker_atom(self, atom):

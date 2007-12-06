@@ -3642,7 +3642,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                   "(should be 1 or 2)" % (self, len(res))
         return res
 
-    def axis_neighbors(self): #bruce 071204 (maybe not used)
+    def axis_neighbors(self): #bruce 071204
+        # (maybe not used; OTOH, maybe defined on both axis & strand atoms)
         return filter( lambda atom: atom.element.role == 'axis',
                        self.neighbors())
     
