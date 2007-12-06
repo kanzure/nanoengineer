@@ -623,7 +623,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         # Translate group box widgets ################################
 
-        self.movetype_combox.setWhatsThis(
+        self.translateComboBox.setWhatsThis(
             """<b>Translation Options</b>
             <p>This menu provides different options for translating the
             current selection where:</p>
@@ -639,7 +639,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
             this operation.
         </p>""")
 
-        self.moveFreeButton.setWhatsThis(
+        self.transFreeButton.setWhatsThis(
             """<b>Unconstrained Translation</b>
             <p>Translates the selection freely within the plane of the screen.
         </p>""")
@@ -659,7 +659,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
             <p>Constrains translation of the selection to the Z axis.
         </p>""")
 
-        self.rotTransAlongAxisButton_1.setWhatsThis(
+        self.transAlongAxisButton.setWhatsThis(
             """<b>Axial Translation/Rotation</b>
             <p>Constrains both translation and rotation of the selection along
             the central axis of the selected object(s). This is especially
@@ -681,28 +681,28 @@ class MovePropertyManager(Ui_MovePropertyManager):
             clicking the +/- Delta buttons.
         </p>""")
 
-        self.moveDeltaXSpinBox.setWhatsThis(
+        self.moveDeltaZSpinBox.setWhatsThis(
             """<b>Delta Z</b>
             <p>The Z offset distance the selection is moved when 
             clicking the +/- Delta buttons.
         </p>""")
 
-        self.moveDeltaPlusButton.setWhatsThis(
+        self.transDeltaPlusButton.setWhatsThis(
             """<b>Delta +</b>
             <p>Moves the current selection by an offset
             specified by the Delta X, Y and Z spinboxes.
         </p>""")
 
-        self.moveDeltaPlusButton.setToolTip(
+        self.transDeltaPlusButton.setToolTip(
             "Move selection by + (plus) delta XYZ")
 
-        self.moveDeltaMinusButton.setWhatsThis(
+        self.transDeltaMinusButton.setWhatsThis(
             """<b>Delta -</b>
             <p>Moves the current selection by an offset opposite of that 
             specified by the Delta X, Y and Z spinboxes.
         </p>""")
 
-        self.moveDeltaPlusButton.setToolTip(
+        self.transDeltaMinusButton.setToolTip(
             "Move selection by - (minus) delta XYZ")
 
         # To XYZ Position widgets
@@ -738,7 +738,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         # Rotate group box widgets ############################
 
-        self.rotatetype_combox.setWhatsThis(
+        self.rotateComboBox.setWhatsThis(
             """<b>Rotate Options</b>
             <p>This menu provides different options for rotating the
             current selection where:</p>
@@ -772,7 +772,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
             <p>Constrains rotation of the selection to the Z axis.
         </p>""")
 
-        self.rotTransAlongAxisButton_2.setWhatsThis(
+        self.rotAlongAxisButton.setWhatsThis(
             """<b>Axial Translation/Rotation</b>
             <p>Constrains both translation and rotation of the selection along
             the central axis of the selected object(s). This is especially
@@ -790,28 +790,28 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         # By Specified Angle widgets
 
-        self.rotateByThetaXButton.setWhatsThis(
+        self.rotateXButton.setWhatsThis(
             """<b>Rotate about X axis</b>
             <p>Constrains rotation about the X axis.
         </p>""")
 
-        self.rotateByThetaXButton.setToolTip(
+        self.rotateXButton.setToolTip(
             "Rotate about X axis")
 
-        self.rotateByThetaYButton.setWhatsThis(
+        self.rotateYButton.setWhatsThis(
             """<b>Rotate about Y axis</b>
             <p>Constrains rotation about the Y axis.
         </p>""")
 
-        self.rotateByThetaYButton.setToolTip(
+        self.rotateYButton.setToolTip(
             "Rotate about Y axis")
 
-        self.rotateByThetaZButton.setWhatsThis(
+        self.rotateZButton.setWhatsThis(
             """<b>Rotate about Z axis</b>
             <p>Constrains rotation about the Z axis.
         </p>""")
 
-        self.rotateByThetaZButton.setToolTip(
+        self.rotateZButton.setToolTip(
             "Rotate about Z axis")
 
         self.rotateThetaSpinBox.setWhatsThis(
