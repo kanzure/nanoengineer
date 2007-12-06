@@ -73,10 +73,14 @@ def loadCursors(w):
         return cursor
 
     # Build mode - normal cursors
-    w.SelectAtomsCursor = loadCursor("SelectAtomsCursor", 0, 0)
-    w.SelectAtomsAddCursor = loadCursor("SelectAtomsAddCursor", 0, 0)
-    w.SelectAtomsSubtractCursor = loadCursor("SelectAtomsSubtractCursor", 0, 0)
-    w.DeleteCursor = QCursor(getpixmap("ui/cursors/DeleteCursor.png"), 0, 0)
+    w.SelectAtomsCursor = \
+     QCursor(getpixmap("ui/cursors/SelectAtomsCursor.png"), 0, 0)
+    w.SelectAtomsAddCursor = \
+     QCursor(getpixmap("ui/cursors/SelectAtomsAddCursor.png"), 0, 0)
+    w.SelectAtomsSubtractCursor = \
+     QCursor(getpixmap("ui/cursors/SelectAtomsSubtractCursor.png"), 0, 0)
+    w.DeleteCursor = \
+     QCursor(getpixmap("ui/cursors/DeleteCursor.png"), 0, 0)
 
     # Build mode - Atom Selection cursors
     w.SelectAtomsFilterCursor = loadCursor("SelectAtomsFilterCursor", 0, 0)
@@ -86,7 +90,7 @@ def loadCursors(w):
 
     # Build mode - Bond Tool cursors with no modkey pressed
     w.BondToolCursor = []
-    w.BondToolCursor.append(loadCursor("SelectAtomsCursor", 0, 0))
+    w.BondToolCursor.append(QCursor(getpixmap("ui/cursors/SelectAtomsCursor.png"), 0, 0))
     w.BondToolCursor.append(loadCursor("Bond1ToolCursor", 0, 0))
     w.BondToolCursor.append(loadCursor("Bond2ToolCursor", 0, 0))
     w.BondToolCursor.append(loadCursor("Bond3ToolCursor", 0, 0))
@@ -96,7 +100,7 @@ def loadCursors(w):
 
     # Build mode - Bond Tool cursors with Shift modkey pressed
     w.BondToolAddCursor = []
-    w.BondToolAddCursor.append(loadCursor("SelectAtomsAddCursor", 0, 0))
+    w.BondToolAddCursor.append(QCursor(getpixmap("ui/cursors/SelectAtomsAddCursor.png"), 0, 0))
     w.BondToolAddCursor.append(loadCursor("Bond1ToolAddCursor", 0, 0))
     w.BondToolAddCursor.append(loadCursor("Bond2ToolAddCursor", 0, 0))
     w.BondToolAddCursor.append(loadCursor("Bond3ToolAddCursor", 0, 0))
@@ -105,7 +109,7 @@ def loadCursors(w):
 
     # Build mode - Bond Tool cursors with Control/Cmd modkey pressed
     w.BondToolSubtractCursor = []
-    w.BondToolSubtractCursor.append(loadCursor("SelectAtomsSubtractCursor", 0, 0))
+    w.BondToolSubtractCursor.append(QCursor(getpixmap("ui/cursors/SelectAtomsSubtractCursor.png"), 0, 0))
     w.BondToolSubtractCursor.append(loadCursor("Bond1ToolSubtractCursor", 0, 0))
     w.BondToolSubtractCursor.append(loadCursor("Bond2ToolSubtractCursor", 0, 0))
     w.BondToolSubtractCursor.append(loadCursor("Bond3ToolSubtractCursor", 0, 0))
