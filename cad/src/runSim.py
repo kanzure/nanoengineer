@@ -255,30 +255,30 @@ class SimRunner:
                 mdrun = os.path.join(self.gromacs_bin_dir, "mdrun%s" % dot_exe)
                 nv1 = os.path.join(sim_bin_dir, "nv1%s" % dot_exe)
                 
-                gmxFullBaseFileName = self._movie.filename
-                fileInfo = QFileInfo(gmxFullBaseFileName)
-                gmxWorkingDir = fileInfo.dir().absolutePath()
-                gmxBaseFileName = fileInfo.fileName()
+                gromacsFullBaseFileName = self._movie.filename
+                fileInfo = QFileInfo(gromacsFullBaseFileName)
+                gromacsWorkingDir = fileInfo.dir().absolutePath()
+                gromacsBaseFileName = fileInfo.fileName()
                 
                 env.history.message("%s: files at %s.*" %
-                    (self.cmdname, gmxFullBaseFileName))
+                    (self.cmdname, gromacsFullBaseFileName))
                 gromacsProcess = GromacsProcess()
                 gromacsProcess.setProcessName("grompp")
                 gromacsProcess.prepareForGrompp()
                 gromacsProcess.redirect_stdout_to_file("%s-grompp-stdout.txt" %
-                    gmxFullBaseFileName)
+                    gromacsFullBaseFileName)
                 gromacsProcess.redirect_stderr_to_file("%s-grompp-stderr.txt" %
-                    gmxFullBaseFileName)
+                    gromacsFullBaseFileName)
                 gromppArgs = [
-                    "-f", "%s.mdp" % gmxBaseFileName,
-                    "-c", "%s.gro" % gmxBaseFileName,
-                    "-p", "%s.top" % gmxBaseFileName,
-                    "-n", "%s.ndx" % gmxBaseFileName,
-                    "-o", "%s.tpr" % gmxBaseFileName,
-                    "-po", "%s-out.mdp" % gmxBaseFileName,
+                    "-f", "%s.mdp" % gromacsBaseFileName,
+                    "-c", "%s.gro" % gromacsBaseFileName,
+                    "-p", "%s.top" % gromacsBaseFileName,
+                    "-n", "%s.ndx" % gromacsBaseFileName,
+                    "-o", "%s.tpr" % gromacsBaseFileName,
+                    "-po", "%s-out.mdp" % gromacsBaseFileName,
                     ]
                     
-                gromacsProcess.setWorkingDirectory(gmxWorkingDir)
+                gromacsProcess.setWorkingDirectory(gromacsWorkingDir)
                 
                 gromacs_topo_dir = \
                     self.gromacs_bin_dir[0:len(self.gromacs_bin_dir) - 4]
@@ -297,19 +297,20 @@ class SimRunner:
                     gromacsProcess.setProcessName("mdrun")
                     gromacsProcess.prepareForMdrun()
                     gromacsProcess.redirect_stdout_to_file \
-                        ("%s-mdrun-stdout.txt" % gmxFullBaseFileName)
+                        ("%s-mdrun-stdout.txt" % gromacsFullBaseFileName)
                     gromacsProcess.redirect_stderr_to_file \
-                        ("%s-mdrun-stderr.txt" % gmxFullBaseFileName)
+                        ("%s-mdrun-stderr.txt" % gromacsFullBaseFileName)
                     if (self.background):
                         mdrunOutputExtension = "nh5"
                     else:
                         mdrunOutputExtension = "trr"
                     mdrunArgs = [
-                        "-s", "%s.tpr" % gmxBaseFileName,
-                        "-o", "%s.%s" % (gmxBaseFileName, mdrunOutputExtension),
-                        "-e", "%s.edr" % gmxBaseFileName,
-                        "-c", "%s-out.gro" % gmxBaseFileName,
-                        "-g", "%s-mdrun.log" % gmxBaseFileName,
+                        "-s", "%s.tpr" % gromacsBaseFileName,
+                        "-o", "%s.%s" % (gromacsBaseFileName,
+                                         mdrunOutputExtension),
+                        "-e", "%s.edr" % gromacsBaseFileName,
+                        "-c", "%s-out.gro" % gromacsBaseFileName,
+                        "-g", "%s-mdrun.log" % gromacsBaseFileName,
                         ]
                     errorCode = \
                         gromacsProcess.run(mdrun, mdrunArgs, self.background)
@@ -320,7 +321,7 @@ class SimRunner:
                     if (self.background):
                         nv1Process = Process()
                         nv1Args = [
-                            gmxFullBaseFileName,
+                            gromacsFullBaseFileName,
                             ]
                         nv1Process.setStandardOutputPassThrough(True)
                         nv1Process.setStandardErrorPassThrough(True)
