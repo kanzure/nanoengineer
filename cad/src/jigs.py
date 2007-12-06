@@ -639,15 +639,22 @@ class Jig(Node):
 
     def __repr__(self): #bruce 050322 compatibility method, probably not needed, but affects debugging
         try:
+            line, wroteleaf = None, None # for debug print, in case not assigned
             line, wroteleaf = self.mmp_record()
             assert wroteleaf
+            # BTW, is wroteleaf false for jigs whose mmp line is a comment? Does it need to be? [bruce 071205 Q]
         except: #bruce 050422
-            print_compact_traceback( "bug in Jig.__repr__ call of self.mmp_record() ignored: " )
+            msg = "bug in Jig.__repr__ call of self.mmp_record() ignored, " \
+                  "which returned (%r, %r)" % (line, wroteleaf)
+            print_compact_traceback( msg + ": " )
             line = None
         if line:
             return line
+                # review: is this precise retval still required
+                # by mmp writing code? I hope not... if not, change it
+                # to be a better version of __repr__. [bruce 071205 comment]
         else:
-            return "<%s at %#x>" % (self.__class__.__name__, id(self)) # untested
+            return "<%s at %#x>" % (self.__class__.__name__, id(self))
         pass
 
     def is_disabled(self): #bruce 050421 experiment related to bug 451-9
