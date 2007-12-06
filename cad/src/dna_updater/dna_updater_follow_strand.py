@@ -86,6 +86,15 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
 
     # (For phase 2, just modify this slightly.)
 
+    if strand.baselength() == 0:
+        # This was not supposed to be possible, but it can happen in the MMKit
+        # for the "bare Pl atom". Maybe the strand should refuse to be made then,
+        # but this special case seems to fix the assertion error we otherwise
+        # got below, from "assert prior_axis is not None # since at least one s_atom",
+        # so for now, permit it (with debug print) and see if it causes any other trouble.
+        print "fyi: dna_updater_follow_strand bailing on 0-length strand %r" % (strand,)
+        return
+    
     assert phase in (1,2)
     if phase == 2:
         break_strand_phase2 = break_strand
@@ -112,6 +121,11 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
             (axis, index) = None, None
         else:
             (axis, index) = strand_axis_info[s_atom.key]
+            # BUG: this fails for a bare strand atom (which can be permitted
+            # by debug_prefs), e.g. in the mmkit. Low pri for now.
+            # We might want to exclude bare atoms from processed changes,
+            # when we don't delete them. #doit sometime [071205]
+            
         # set the variables jumped, new_direction, changed_direction;
         # these are their values unless changed explicitly just below:
         jumped = False

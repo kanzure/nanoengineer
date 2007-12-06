@@ -23,7 +23,11 @@ from dna_updater_prefs import pref_fix_deprecated_PAM5_atoms
 def fix_deprecated_elements( changed_atoms):
     """
     scan for deprecated elements, and fix them
-    """    
+    """
+
+    fix_PAM3 = pref_fix_deprecated_PAM3_atoms()
+    fix_PAM5 = pref_fix_deprecated_PAM5_atoms()
+    
     deprecated_atoms = []
     
     for atom in changed_atoms.itervalues():
@@ -33,9 +37,9 @@ def fix_deprecated_elements( changed_atoms):
             pam = atom.element.pam
             assert pam in ('PAM3', 'PAM5')
             if pam == 'PAM3':
-                fix = pref_fix_deprecated_PAM3_atoms()
+                fix = fix_PAM3
             elif pam == 'PAM5':
-                fix = pref_fix_deprecated_PAM5_atoms()
+                fix = fix_PAM5
             else:
                 fix = False
             if fix:
@@ -63,7 +67,7 @@ def fix_deprecated_elements( changed_atoms):
             # (review whether it's still going to happen in the current master_updater call)? ####
 
             if DEBUG_DNA_UPDATER:
-                print "dna updater: kill atom %r" % (atom,)
+                print "dna updater: kill deprecated atom %r" % (atom,)
             atom.kill()
 
             # TODO: worry about atom being a hotspot, or having a bondpoint which is a hotspot?
@@ -77,7 +81,7 @@ def fix_deprecated_elements( changed_atoms):
             # Use mvElement to avoid remaking existing bondpoints.
             elt = PeriodicTable.getElement(deprecated_to)
             if DEBUG_DNA_UPDATER:
-                print "dna updater: transmute atom %r to element %s" % (atom, elt)
+                print "dna updater: transmute deprecated atom %r to element %s" % (atom, elt)
             atom.mvElement(elt)
             atom.make_enough_bondpoints()
                 # REVIEW: do this later, if atom classes should be corrected first
