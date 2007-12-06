@@ -303,7 +303,27 @@ class Node( StateMixin):
         subclass.__declare_undoable_attrs = None
             # important to do this in subclass, not in self or Node
         return
-        
+
+    def parent_node_of_class(self, class_or_classname): #bruce 071206
+        """
+        If self has a parent Node in the current part
+        with the given class_or_classname (known to self.assy),
+        return the innermost such node; otherwise return None.
+        """
+        part = self.part
+        node = self.dad
+        class1 = self.assy.class_or_classname_to_class(class_or_classname)
+        while node and node.part is part:
+            if issubclass( node.__class__, class1):
+                # assert not too high in internal MT
+                assy = self.assy
+                assert node.assy is assy
+                assert node is not assy.shelf
+                assert node is not assy.root
+                # but i think it's ok if node is assy.tree!
+                return node
+        return None
+
     def set_disabled_by_user_choice(self, val):
         #bruce 050505 as part of fixing bug 593
         self.disabled_by_user_choice = val
@@ -748,6 +768,11 @@ class Node( StateMixin):
         state -- if we ever let two MTs show the model hierarchy at once, this will need an argument
         which is the openness-dict, or need to become an MT method.]
         """
+        # Note: this is not presently used, but should be used, since it helped
+        # implement the MT arrow key bindings, which are desirable but were lost
+        # in the port to Qt4. But it needs correction for self.kids() not always
+        # equalling self.members (and probably so does lots of other MT code).
+        # [bruce 071206 comment]
         if self.is_group() and self.open and self.members:
             if include_parents:
                 yield self
@@ -942,9 +967,9 @@ class Node( StateMixin):
         self.unpick()
         
     def Hide(self): # called from a node's (Jig) "Hide" context menu item (in the GLPane, not MT). mark 060312.
-        '''
+        """
         Hide self, and update the MT and GLPane accordingly.
-        '''
+        """
         self.hide()
         if self is self.assy.o.selobj:
             # Without this, self will remain highlighted until the mouse moves.
