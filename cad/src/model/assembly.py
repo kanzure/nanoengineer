@@ -409,6 +409,17 @@ class assembly( StateMixin, Assembly_API):
         return
 
     # ==
+
+    def class_or_classname_to_class(self, class_or_classname): #bruce 071206
+        """
+        If class_or_classname is a class, return it.
+
+        If it's a string, it should be a model class nickname registered with
+        self via xxx; return the corresponding class.
+        """
+        return class_or_classname ### STUB @@@
+
+    # ==
     
     #bruce 051031: keep counter of selection commands in assy (the model object), not Part,
     # to avoid any chance of confusion when atoms (which will record this as their selection time)
