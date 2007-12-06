@@ -39,6 +39,55 @@ class viewSlotsMixin:
         info = 'Home'
         env.history.message(cmd + info)
         self.glpane.setViewHome()
+    
+    def setViewFullScreen(self, val):
+        """
+        Full screen mode. (maximize the glpane real estate by hiding/ collapsing
+        other widgets. (only Menu bar and the glpane are shown)
+        The widgets hidden or collapsed include: 
+         - MainWindow Title bar
+         - Command Manager, 
+         - All toolbars, 
+         - ModelTree/PM area,
+         - History Widget,
+         - Statusbar         
+        
+        @param val: The state of the QAction (checked or uncheced) If True, it 
+                    will show the main window full screen , otherwise show it 
+                    with its regular size
+        @type val: boolean
+        @see: MWsemantics.showSemiFullScreen, MWsemantics.showNormal
+        @see: self.setViewSemiFullScreen
+        """
+        if val:
+            self.showFullScreen()
+        else:
+            self.showNormal()
+    
+    def setViewSemiFullScreen(self, val):
+        """
+        Semi-Full Screen mode. (maximize the glpane real estate by hiding/ collapsing
+        other widgets. This is different than the 'Full Screen mode' as it hides
+        or collapses only the following widgets -- 
+         - MainWindow Title bar
+         - ModelTree/PM area,
+         - History Widget,
+         - Statusbar         
+        
+        @param val: The state of the QAction (checked or uncheced) If True, it 
+                    will show the main window full screen , otherwise show it 
+                    with its regular size
+        @type val: boolean
+        @see: MWsemantics.showSemiFullScreen, MWsemantics.showNormal
+        @see: self.setViewFullScreen
+        """
+        
+        if val:
+            self.showSemiFullScreen()
+        else:
+            self.showNormal()
+        
+        
 
     def setViewFitToWindow(self):
         """

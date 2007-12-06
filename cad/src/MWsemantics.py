@@ -35,6 +35,8 @@ from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QWidget
 from PyQt4.Qt import QSplitter, QMessageBox
 from PyQt4.Qt import QColorDialog
 from PyQt4 import QtCore
+from PyQt4.Qt import QToolBar
+from PyQt4.Qt import QStatusBar
 from GLPane import GLPane 
 from elements import PeriodicTable
 from model.assembly import assembly 
@@ -132,8 +134,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self._init_part_two_done = False
         self._activepw = None
 
-        self.orientationWindow = None
-        
+        self.orientationWindow = None     
        
         self.sequenceEditor = None  #see self.createSequenceEditrIfNeeded 
                                     #for details
@@ -142,6 +143,23 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.linearMotorPropMgr = None
         self.dnaDuplexPropMgr   = None
         self.planePropMgr = None
+        
+        # These boolean flags, if True, stop the execution of slot 
+        # methods that are called because the state of 'self.viewFullScreenAction
+        # or self.viewSemiFullScreenAction is changed. May be there is a way to 
+        # do this using QActionGroup (which make the actions mutually exclusive)
+        #.. tried that but it didn't work. After doing this when I tried to 
+        #  toggle the checked action in the action group, it didn't work
+        #..will try it again sometime in future. The following flags are good 
+        # enough for now. See methods self.showFullScreen and 
+        # self.showSemiFullScreen where they are used. -- Ninad 2007-12-06
+        self._block_viewFullScreenAction_event = False
+        self._block_viewSemiFullScreenAction_event = False
+        #The following maintains a list of all widgets that are hidden during
+        #the FullScreen or semiFullScreen mode. Thislist is then used in 
+        #self.showNormal to show the hidden widgets if any. The list is cleared 
+        #at the end of self.showNormal
+        self._widgetToHideDuringFullScreenMode = []
 
         undo.just_before_mainwindow_super_init()
 
@@ -211,6 +229,14 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.partLibAction, 
                      SIGNAL("triggered()"),
                      self.insertPartFromPartLib)
+        
+        self.connect(self.viewFullScreenAction, 
+                     SIGNAL("toggled(bool)"), 
+                     self.setViewFullScreen)
+        self.connect(self.viewSemiFullScreenAction, 
+                     SIGNAL("toggled(bool)"), 
+                     self.setViewSemiFullScreen)
+                     
 
         self.connect(self.editPrefsAction,SIGNAL("triggered()"),self.editPrefs)
         self.connect(self.editRedoAction,SIGNAL("triggered()"),self.editRedo)
@@ -643,7 +669,113 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         if self.numParts == 0:
             self.cmdManagerControlArea.hide()
         # [bruce 070503 question: why do we not worry about whether pw == self._activepw?]
+    
+    def showFullScreen(self):
+        """
+        Full screen mode. (maximize the glpane real estate by hiding/ collapsing
+        other widgets. (only Menu bar and the glpane are shown)
+        The widgets hidden or collapsed include: 
+         - MainWindow Title bar
+         - Command Manager, 
+         - All toolbars, 
+         - ModelTree/PM area,
+         - History Widget,
+         - Statusbar         
+        
+        @param val: The state of the QAction (checked or uncheced) If True, it 
+                    will show the main window full screen , otherwise show it 
+                    with its regular size
+        @type val: boolean
+        @see: self.showSemiFullScreen, self.showNormal
+        @see: ops_view.viewSlotsMixin.setViewFullScreen
+        """
+        
+        if self._block_viewFullScreenAction_event:
+            #see self.__init__ for a detailed comment about this instance 
+            #variable
+            return
+        
+        self._block_viewFullScreenAction_event = False
+        
+        if self.viewSemiFullScreenAction.isChecked():
+            self._block_viewSemiFullScreenAction_event = True
+            self.viewSemiFullScreenAction.setChecked(False)
+            self._block_viewSemiFullScreenAction_event = False            
+            
+        self._showFullScreenCommonCode()
+        for  widget in self.children():
+            if isinstance(widget, QToolBar):
+                if widget.isVisible():
+                    widget.hide()
+                    self._widgetToHideDuringFullScreenMode.append(widget)
+        
+        self.commandManager.cmdManager.hide()
+        
+    def _showFullScreenCommonCode(self):
+        """
+        The common code for making the Mainwindow full screen (maximimzing the
+        3D workspace area) This is used by both, View > Full Screen and 
+        View > Semi-Full Screen
+        @see: self.showFullScreen 
+        @see: self._showSemiFullScreen
+        """
+        #see self.__init__ for a detailed comment about this list
+        self._widgetToHideDuringFullScreenMode = []
+        QMainWindow.showFullScreen(self)
+        for  widget in self.children():
+            if isinstance(widget, QStatusBar):
+                if widget.isVisible():
+                    widget.hide()
+                    self._widgetToHideDuringFullScreenMode.append(widget)      
+        
+        self.activePartWindow().collapseModelTreeArea()        
+        self.activePartWindow().collapseHistoryWidget()
 
+    def showSemiFullScreen(self):
+        """
+        Semi-Full Screen mode. (maximize the glpane real estate by hiding/ collapsing
+        other widgets. This is different than the 'Full Screen mode' as it hides
+        or collapses only the following widgets -- 
+         - MainWindow Title bar
+         - ModelTree/PM area,
+         - History Widget,
+         - Statusbar         
+        
+        @param val: The state of the QAction (checked or uncheced) If True, it 
+                    will show the main window full screen , otherwise show it 
+                    with its regular size
+        @type val: boolean
+        @see: self.showFullScreen, self.showNormal
+        @see: ops_view.viewSlotsMixin.setViewSemiFullScreen
+        """
+        if self._block_viewSemiFullScreenAction_event:
+            #see self.__init__ for a detailed comment about this instance 
+            #variable
+            return
+        
+        self._block_viewSemiFullScreenAction_event = False
+        
+        if self.viewFullScreenAction.isChecked():
+            self._block_viewFullScreenAction_event = True
+            self.viewFullScreenAction.setChecked(False)
+            self._block_viewFullScreenAction_event = False
+        
+        self._showFullScreenCommonCode()
+        
+            
+    
+    def showNormal(self):
+        QMainWindow.showNormal(self)
+        self.activePartWindow().expandModelTreeArea()
+        self.activePartWindow().expandHistoryWidget()
+        
+        for  widget in self._widgetToHideDuringFullScreenMode:           
+            widget.show()
+        
+        self.commandManager.cmdManager.show()
+        #Clear the list of hidden widgets (those are no more hidden)
+        self._widgetToHideDuringFullScreenMode = [] 
+               
     def addPartWindow(self, assy):
         # This should be associated with fileOpen (ops_files.py) or with creating a new structure
         # from scratch.

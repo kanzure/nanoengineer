@@ -225,9 +225,12 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         
         if self.sequenceEditor:
             self.sequenceEditor.hide()
-            self.win.activePartWindow().history_widget.show()
+            if self.win.viewFullScreenAction.isChecked() or \
+               self.win.viewSemiFullScreenAction.isChecked():
+                pass
+            else:
+                self.win.activePartWindow().history_object.expandWidget()
            
-                        
         EditController_PM.close(self)
     
     def show(self):
@@ -240,12 +243,21 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         if self.sequenceEditor:
             #hide the history widget first
             #(It will be shown back during self.close)
-            self.win.activePartWindow().history_widget.hide()
+            #The history widget is hidden or shown only when both 
+            # 'View > Full Screen' and View > Semi Full Screen actions 
+            # are *unchecked*
+            #Thus show or close methods won't do anything to history widget
+            # if either of the above mentioned actions is checked.
+            if self.win.viewFullScreenAction.isChecked() or \
+               self.win.viewSemiFullScreenAction.isChecked():
+                pass
+            else:
+                self.win.activePartWindow().history_object.collapseWidget()
             #Show the sequence editor
             self.sequenceEditor.show()
         
         self.updateStrandListWidget()
-    
+        
     def _update_widgets_in_PM_before_show(self):
         """
         Update various widgets  in this Property manager.

@@ -216,11 +216,28 @@ class HistoryWidget:
         self.widget.setMaximumHeight(int(h))
         self.widget.setWordWrapMode(QTextOption.WordWrap)
         self.widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.widget.ensureCursorVisible()
+        self.widget.ensureCursorVisible()    
         
-        
-                
+        #Initialize the variable used in expanding / collapsing the history
+        #widget.
+        self._previousWidgetHeight = h
         return
+    
+    def collapseWidget(self):
+        """
+        Collapse the history widget.
+        """
+        #Store the earlier history widget height (to be used in 
+        # self.expandWidget)
+        self._previousWidgetHeight = self.widget.height()
+        self.widget.setMaximumHeight(0)
+    
+    def expandWidget(self):
+        """
+        Expand the history widget
+        """        
+        self.widget.setMaximumHeight(self._previousWidgetHeight)
+        
     
     file = None
     filename = ""
