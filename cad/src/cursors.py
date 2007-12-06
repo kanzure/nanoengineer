@@ -118,7 +118,6 @@ def loadCursors(w):
     w.MolSelSubCursor = loadCursor("MolSelSubCursor", 0, 0) # was SelectMolsSubCursor
 
     # Translate select cursors
-    ## w.MoveCursor = loadCursor("MoveCursor", 0, 0)
     w.MolSelTransCursor = loadCursor("MolSelTransCursor", 0, 0) # was MoveSelectCursor
     w.MolSelTransAddCursor = loadCursor("MolSelTransAddCursor", 0, 0) # was MoveSelectAddCursor
     w.MolSelTransSubCursor = loadCursor("MolSelTransSubCursor", 0, 0) # was MoveSelectSubtractCursor
@@ -139,8 +138,8 @@ def loadCursors(w):
 
     # View Zoom, Pan, Rotate cursors
     w.ZoomCursor = QCursor(getpixmap("ui/cursors/ZoomCursor.png"), 0, 0)
-    w.MoveCursor = loadCursor("MoveCursor", 0, 0) # change to PanViewCursor
-    w.RotateCursor = loadCursor("RotateCursor", 0, 0) # change to RotateViewCursor
+    w.PanViewCursor = QCursor(getpixmap("ui/cursors/PanViewCursor.png"), 0, 0)
+    w.RotateViewCursor = QCursor(getpixmap("ui/cursors/RotateViewCursor.png"), 0, 0)
 
     # Miscellaneous cursors
     w.RotateZCursor = loadCursor("RotateZCursor", 0, 0)

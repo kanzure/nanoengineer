@@ -1009,9 +1009,9 @@ class basicGraphicsMode(GraphicsMode_API):
         #print "basicMode.update_cursor_for_MMB(): button=",self.o.button
 
         if self.o.modkeys is None:
-            self.o.setCursor(self.w.RotateCursor)
+            self.o.setCursor(self.w.RotateViewCursor)
         elif self.o.modkeys == 'Shift':
-            self.o.setCursor(self.w.MoveCursor)
+            self.o.setCursor(self.w.PanViewCursor)
         elif self.o.modkeys == 'Control':
             self.o.setCursor(self.w.RotateZCursor)
         elif self.o.modkeys == 'Shift+Control':

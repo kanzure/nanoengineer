@@ -37,7 +37,7 @@ class PanMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         Update the cursor for 'Pan' mode.
         """
-        self.glpane.setCursor(self.win.MoveCursor)
+        self.glpane.setCursor(self.win.PanViewCursor)
 
     pass
 

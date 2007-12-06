@@ -36,7 +36,7 @@ class RotateMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         Update the cursor for 'Rotate' mode.
         """
-        self.glpane.setCursor(self.win.RotateCursor)
+        self.glpane.setCursor(self.win.RotateViewCursor)
         return
 
     pass
