@@ -91,7 +91,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         # of the line
         farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( event)  
         
-        if self._snapOn and self.endPoint2:
+        if self._snapOn and self.endPoint2 is not None:
             # This fixes a bug. Example: Suppose the dna line is snapped to a 
             # constraint during the bare motion and the second point is clicked
             # when this happens, the second clicked point is the new 
@@ -253,7 +253,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         @see: self._snapEndPointToStandardAxis 
         @see: self.Draw
         """
-        if not self.endPoint2:
+        if self.endPoint2 is None:
             return
         if self._standardAxisVectorForDrawingSnapReference:
             drawline(blue,
@@ -269,7 +269,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         Draw method for this temporary mode. 
         """
         TemporaryCommand_Overdrawing.GraphicsMode_class.Draw(self)
-        if self.endPoint2:
+        if self.endPoint2 is not None:
             glPushMatrix()  
             if self.endPoint1:
                 drawsphere(self.endPoint1_sphereColor, 

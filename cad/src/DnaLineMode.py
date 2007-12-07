@@ -67,7 +67,8 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         
         
         LineMode.GraphicsMode_class.Draw(self)        
-        if self.endPoint2 and self.endPoint1: 
+        if self.endPoint2 is not None and \
+           self.endPoint1 is not None: 
             
             #Draw the ladder. 
             #Convention:
