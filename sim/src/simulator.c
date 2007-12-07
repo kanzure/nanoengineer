@@ -456,6 +456,8 @@ main(int argc, char **argv)
         exit(1);
     }
     initializePart(part);
+    createPatterns();
+    matchPartToAllPatterns(part);
 
     if (printStructurePotentialEnergy) {
         struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
