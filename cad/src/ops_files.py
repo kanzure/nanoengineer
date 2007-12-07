@@ -656,19 +656,25 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             #  if we ever let the default mode be one that cares about the
             #  model or viewpoint when it's entered.)
             # [bruce 050911 questions]
-
+            
+            # This puts up the hourglass cursor while opening a file.
+            QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+            _openmsg = "" # Precaution.
+            env.history.message("Opening file...")
+            
             isMMPFile = False
             if fn[-3:] == "mmp":
                 readmmp(self.assy,fn)
                     #bruce 050418 comment: we need to check for an error return
                     # and in that case don't clear or have other side effects on assy;
                     # this is not yet perfectly possible in readmmmp.
-                env.history.message("MMP file opened: [ " + os.path.normpath(fn) + " ]")
+                _openmsg = "MMP file opened: [ " + os.path.normpath(fn) + " ]"
                 isMMPFile = True
                 
             if fn[-3:] in ["pdb","PDB"]:
+                env.history.message(_openmsg)
                 readpdb(self.assy,fn)
-                env.history.message("PDB file opened: [ " + os.path.normpath(fn) + " ]")
+                _openmsg = "PDB file opened: [ " + os.path.normpath(fn) + " ]"
 
             dir, fil, ext = _fileparse(fn)
             ###@@@e could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
@@ -691,6 +697,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.glpane.gl_update_duration(new_part=True) #mark 060116.
             
             self.mt.mt_update()
+            
+            # All set. Restore the normal cursor and print a history msg.
+            env.history.message(_openmsg)
+            QApplication.restoreOverrideCursor() # Restore the cursor
             
         self.setCurrentWorkingDirectory()
         

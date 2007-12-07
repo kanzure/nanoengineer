@@ -854,6 +854,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # Create the Help dialog. Mark 050812
         from help import Help
         self.help = Help()
+        
+        # Create the NE1 Progress Dialog. mark 2007-12-06
+        self.createProgressDialog()
 
         from GrapheneGenerator import GrapheneGenerator
         self.graphenecntl = GrapheneGenerator(self)
@@ -2462,7 +2465,24 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.setWindowTitle(self.trUtf8("NanoEngineer-1" + " - " +prefix + "[" + partname + "]" + suffix))
         self.setWindowIcon(geticon("ui/border/MainWindow"))
         return
-
+    
+    def createProgressDialog(self):
+        """
+        Creates the main window's Progress Dialog, which can be used to 
+        display a progress dialog at any time. It is modal by default.
+        
+        @see: _readmmp() for an example of use.
+        @see: U{B{QProgressDialog}<http://doc.trolltech.com/4/qprogressdialog.html>}
+        
+        """
+        from PyQt4.Qt import QProgressDialog
+        self.progressDialog = QProgressDialog(self)
+        self.progressDialog.setWindowModality(Qt.WindowModal)
+        self.progressDialog.setWindowTitle("NanoEngineer-1")
+        
+        # setMinimumDuration() doesn't work. Qt bug?
+        self.progressDialog.setMinimumDuration(500) # 500 ms = 0.5 seconds
+    
     pass # end of class MWsemantics
 
 # end

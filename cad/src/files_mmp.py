@@ -1379,14 +1379,9 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
     # dialog that doesn't include a "Cancel" button. --mark 2007-12-06
     _progressValue = 0
     _progressFinishValue = len(lines)
-    _win = env.mainwindow()
-    # Does this cause an import cycle?
-    from PyQt4.Qt import QProgressDialog, Qt
-    progress = QProgressDialog(_win)
-    progress.setWindowModality(Qt.WindowModal)
-    progress.setWindowTitle("NanoEngineer-1")
-    progress.setLabelText("Reading file...")
-    progress.setRange(0, _progressFinishValue)
+    win = env.mainwindow()
+    win.progressDialog.setLabelText("Reading file...")
+    win.progressDialog.setRange(0, _progressFinishValue)
     
     for card in lines:
         try:
@@ -1403,9 +1398,9 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
         
         _progressValue += 1
         if _progressValue >= _progressFinishValue:
-            progress.setLabelText("Building model...")
+            win.progressDialog.setLabelText("Building model...")
         else:
-            progress.setValue(_progressValue)
+            win.progressDialog.setValue(_progressValue)
         
     grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
 
@@ -1450,7 +1445,8 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
         
     state.destroy() # not before now, since it keeps track of which warnings we already emitted
     
-    progress.setValue(_progressFinishValue) # Make the progress dialog go away. 
+    # Make the progress dialog go away.
+    win.progressDialog.setValue(_progressFinishValue) 
     
     return grouplist # from _readmmp
 
