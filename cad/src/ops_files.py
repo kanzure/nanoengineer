@@ -664,7 +664,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             
             isMMPFile = False
             if fn[-3:] == "mmp":
-                readmmp(self.assy,fn)
+                readmmp(self.assy, fn, showProgressDialog = True)
                     #bruce 050418 comment: we need to check for an error return
                     # and in that case don't clear or have other side effects on assy;
                     # this is not yet perfectly possible in readmmmp.
@@ -672,8 +672,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 isMMPFile = True
                 
             if fn[-3:] in ["pdb","PDB"]:
-                env.history.message(_openmsg)
-                readpdb(self.assy,fn)
+                readpdb(self.assy, fn, showProgressDialog = True)
                 _openmsg = "PDB file opened: [ " + os.path.normpath(fn) + " ]"
 
             dir, fil, ext = _fileparse(fn)

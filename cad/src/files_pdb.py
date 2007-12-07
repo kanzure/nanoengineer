@@ -17,7 +17,7 @@ but they need review by someone who knows whether they're correct or not.
 identical in both, so doing that should not cause a problem.)
 """
 
-import os
+import os, time
 from chunk import Chunk
 from chem import Atom
 from bonds import bond_atoms
@@ -32,7 +32,7 @@ from version import Version
 from datetime import datetime
 import env
 
-def _readpdb(assy, filename, isInsert = False):
+def _readpdb(assy, filename, isInsert = False, showProgressDialog = False):
     """
     Read a Protein DataBank-format file into a single new chunk, which is 
     returned unless there are no atoms in the file, in which case a warning
@@ -45,12 +45,16 @@ def _readpdb(assy, filename, isInsert = False):
     @type  assy: L{assembly}
     
     @param filename: The PDB filename to read.
-    @type  filename: str
+    @type  filename: string
     
     @param isInsert: If True, the PDB file will be inserted into the current
                      assembly. If False (default), the PDB is opened as the 
                      assembly.
-    @param isInsert: bool
+    @param isInsert: boolean
+    
+    @param showProgressDialog: if True, display a progress dialog while reading
+                               a file.
+    @type  showProgressDialog: boolean
     
     @return: A chunk containing the contents of the PDB file.
     @rtype:  L{Chunk}
@@ -79,6 +83,20 @@ def _readpdb(assy, filename, isInsert = False):
         # specialcased below, rather than being included in this table.)
         "HN":"H",
      }
+    
+    # Create and display a Progress dialog while reading the MMP file. 
+    # One issue with this implem is that QProgressDialog always displays 
+    # a "Cancel" button, which is not hooked up. I think this is OK for now,
+    # but later we should either hook it up or create our own progress
+    # dialog that doesn't include a "Cancel" button. --mark 2007-12-06
+    if showProgressDialog:
+        _progressValue = 0
+        _progressFinishValue = len(lines)
+        win = env.mainwindow()
+        win.progressDialog.setLabelText("Reading file...")
+        win.progressDialog.setRange(0, _progressFinishValue)
+        _progressDialogDisplayed = False
+        _timerStart = time.time()
 
     for card in lines:
         key = card[:6].lower().replace(" ", "")
@@ -154,6 +172,23 @@ def _readpdb(assy, filename, isInsert = False):
                         continue
                     bond_atoms(a1, a2)
                     numconects += 1
+        
+        if showProgressDialog: # Update the progress dialog.
+            _progressValue += 1
+            if _progressValue >= _progressFinishValue:
+                win.progressDialog.setLabelText("Building model...")
+            elif _progressDialogDisplayed:
+                win.progressDialog.setValue(_progressValue)
+            else:
+                _timerDuration = time.time() - _timerStart
+                if _timerDuration > 0.25: 
+                    # Display progress dialog after 0.25 seconds
+                    win.progressDialog.setValue(_progressValue)
+                    _progressDialogDisplayed = True
+    
+    if showProgressDialog: # Make the progress dialog go away.
+        win.progressDialog.setValue(_progressFinishValue) 
+    
     #bruce 050322 part of fix for bug 433: don't return an empty chunk
     if not mol.atoms:
         env.history.message( redmsg( "Warning: Pdb file contained no atoms"))
@@ -169,7 +204,7 @@ def _readpdb(assy, filename, isInsert = False):
     
 # read a Protein DataBank-format file into a single Chunk
 #bruce 050322 revised this for bug 433
-def readpdb(assy, filename):
+def readpdb(assy, filename, showProgressDialog = False):
     """
     Reads (loads) a PDB file.
     
@@ -177,18 +212,31 @@ def readpdb(assy, filename):
     @type  assy: L{assembly}
     
     @param filename: The PDB filename to read.
-    @type  filename: str
+    @type  filename: string
+    
+    @param showProgressDialog: if True, display a progress dialog while reading
+                               a file. Default is False.
+    @type  showProgressDialog: boolean
     """
-    mol  = _readpdb(assy, filename, isInsert = False)
+    mol  = _readpdb(assy, filename, 
+                    isInsert = False, showProgressDialog = showProgressDialog)
     if mol is not None:
         assy.addmol(mol)
     return
     
 # Insert a Protein DataBank-format file into a single Chunk
 #bruce 050322 revised this for bug 433
-def insertpdb(assy,filename):
-    """Reads a pdb file and inserts it into the existing model """
-    mol  = _readpdb(assy, filename, isInsert = True)
+def insertpdb(assy, filename):
+    """
+    Reads a pdb file and inserts it into the existing model.
+    
+    @param assy: The assembly.
+    @type  assy: L{assembly}
+    
+    @param filename: The PDB filename to read.
+    @type  filename: string
+    """
+    mol  = _readpdb(assy, filename, isInsert = True, showProgressDialog = True)
     if mol is not None:
         assy.addmol(mol)
     return
@@ -221,11 +269,11 @@ def writepdb(part,
     
     @param filename: The fullpath of the PDB file to write. 
                      We don't care if it has the .pdb extension or not.
-    @type  filename: str
+    @type  filename: string
                  
     @param mode: 'w' for writing (the default)
                  'a' for appending
-    @type  mode: str
+    @type  mode: string
     
     @param excludeFlags: used to exclude certain atoms from being written, 
         where:
@@ -235,7 +283,7 @@ def writepdb(part,
         EXCLUDE_DNA_ATOMS = 4 (excludes PAM-3 and PAM-5 pseudo atoms)
         EXCLUDE_DNA_AXIS_ATOMS = 8 (excludes PAM-3 axis atoms)
         EXCLUDE_DNA_AXIS_BONDS = 16 (supresses PAM-3 axis bonds)
-    @type  excludeFlags: int
+    @type  excludeFlags: integer
     
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
@@ -377,6 +425,9 @@ def writePDB_Header(fileHandle):
     """
     Writes an informative REMARK 5 header at the top of the PDB file with the
     given fileHandle.
+    
+    @param fileHandle: The file to write into.
+    @type  fileHandle: file
     """
     version = Version()
     fileHandle.write("REMARK   5\n")

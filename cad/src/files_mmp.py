@@ -118,7 +118,7 @@ new file, which is initially in the same directory as this file.]
 MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 070415 preferred'
 #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
-import re
+import re, time
 
 import env
 import platform
@@ -874,7 +874,8 @@ class _readmmp_state:
         """
         Read the MMP record for an ESP Image jig as:
 
-        espimage (name) (r, g, b) width height resolution (cx, cy, cz) (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset 
+        espimage (name) (r, g, b) width height resolution (cx, cy, cz) 
+        (w, x, y, z) trans (fr, fg, fb) show_bbox win_offset edge_offset.
         """
         m = esppat.match(card)
         name = m.group(1)
@@ -1354,17 +1355,35 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 05051
 
 # ==
 
-def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & docstring
+#bruce 050405 revised code & docstring
+def _readmmp(assy, filename, isInsert = False, showProgressDialog = False): 
     """
     Read an mmp file, print errors and warnings to history,
     modify assy in various ways (a bad design, see comment in insertmmp)
-    (but don't actually add file contents to assy -- let caller do that if and where it prefers),
-    and return either None (after an error for which caller should store no file contents at all)
-    or a list of 3 Groups, which caller should treat as having roles "viewdata", "tree", "shelf",
-    regardless of how many toplevel items were in the file, or of whether they were groups.
-    (We handle normal mmp files with exactly those 3 groups, old sim-input files with only
-    the first two, and newer sim-input files for Parts (one group) or for minimize selection
-    (maybe no groups at all). And most other weird kinds of mmp files someone might create.)
+    (but don't actually add file contents to assy -- let caller do that if and
+    where it prefers), and return either None (after an error for which caller
+    should store no file contents at all) or a list of 3 Groups, which caller
+    should treat as having roles "viewdata", "tree", "shelf", regardless of 
+    how many toplevel items were in the file, or of whether they were groups.
+    (We handle normal mmp files with exactly those 3 groups, old sim-input
+    files with only the first two, and newer sim-input files for Parts 
+    (one group) or for minimize selection (maybe no groups at all). And most 
+    other weird kinds of mmp files someone might create.)
+    
+    @param assy: the assembly the file contents are being added into
+    @type  assy: assembly.assembly
+    
+    @param filename: where the data will be read from
+    @type  filename: string
+    
+    @param isInsert: if True, the file contents are being added to an
+                     existing assembly, otherwise the file contents are being
+                     used to initialize a new assembly.
+    @type  isInsert: boolean
+    
+    @param showProgressDialog: if True, display a progress dialog while reading
+                               a file. Default is False.
+    @type  showProgressDialog: boolean
     """
     state = _readmmp_state( assy, isInsert)
     lines = open(filename,"rU").readlines()
@@ -1377,11 +1396,14 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
     # a "Cancel" button, which is not hooked up. I think this is OK for now,
     # but later we should either hook it up or create our own progress
     # dialog that doesn't include a "Cancel" button. --mark 2007-12-06
-    _progressValue = 0
-    _progressFinishValue = len(lines)
-    win = env.mainwindow()
-    win.progressDialog.setLabelText("Reading file...")
-    win.progressDialog.setRange(0, _progressFinishValue)
+    if showProgressDialog:
+        _progressValue = 0
+        _progressFinishValue = len(lines)
+        win = env.mainwindow()
+        win.progressDialog.setLabelText("Reading file...")
+        win.progressDialog.setRange(0, _progressFinishValue)
+        _progressDialogDisplayed = False
+        _timerStart = time.time()
     
     for card in lines:
         try:
@@ -1396,11 +1418,18 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
             ###e special return value then??
             break
         
-        _progressValue += 1
-        if _progressValue >= _progressFinishValue:
-            win.progressDialog.setLabelText("Building model...")
-        else:
-            win.progressDialog.setValue(_progressValue)
+        if showProgressDialog: # Update the progress dialog.
+            _progressValue += 1
+            if _progressValue >= _progressFinishValue:
+                win.progressDialog.setLabelText("Building model...")
+            elif _progressDialogDisplayed:
+                win.progressDialog.setValue(_progressValue)
+            else:
+                _timerDuration = time.time() - _timerStart
+                if _timerDuration > 0.25: 
+                    # Display progress dialog after 0.25 seconds
+                    win.progressDialog.setValue(_progressValue)
+                    _progressDialogDisplayed = True
         
     grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
 
@@ -1445,13 +1474,13 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
         
     state.destroy() # not before now, since it keeps track of which warnings we already emitted
     
-    # Make the progress dialog go away.
-    win.progressDialog.setValue(_progressFinishValue) 
+    if showProgressDialog: # Make the progress dialog go away.
+        win.progressDialog.setValue(_progressFinishValue) 
     
     return grouplist # from _readmmp
 
 # read a Molecular Machine Part-format file into maybe multiple Chunks
-def readmmp(assy, filename, isInsert = False): #bruce 050302 split out some subroutines for use in other code
+def readmmp(assy, filename, isInsert = False, showProgressDialog = False): #bruce 050302 split out some subroutines for use in other code
     """
     Read an mmp file to create a new model (including a new
     Clipboard).  Returns a tuple of (viewdata, tree, shelf).  If
@@ -1463,15 +1492,21 @@ def readmmp(assy, filename, isInsert = False): #bruce 050302 split out some subr
     representing the contents of that file.
 
     @param assy: the assembly the file contents are being added into
-    @type assy: assembly.assembly
+    @type  assy: assembly.assembly
+    
     @param filename: where the data will be read from
-    @type filename: string
+    @type  filename: string
+    
     @param isInsert: if True, the file contents are being added to an
-    existing assembly, otherwise the file contents are being used to
-    initialize a new assembly.
-    @type isInsert: boolean
+                     existing assembly, otherwise the file contents are being
+                     used to initialize a new assembly.
+    @type  isInsert: boolean
+    
+    @param showProgressDialog: if True, display a progress dialog while reading
+                               a file. Default is False.
+    @type  showProgressDialog: boolean
     """
-    grouplist = _readmmp(assy, filename, isInsert)
+    grouplist = _readmmp(assy, filename, isInsert, showProgressDialog)
     if (not isInsert):
         _reset_grouplist(assy, grouplist) # handles grouplist is None (though not very well)
     return grouplist
@@ -1855,7 +1890,7 @@ def writemmpfile_assy(assy, filename, addshelf = True): #e should merge with wri
 
 def writemmpfile_part(part, filename, **mapping_options): ##e should merge with writemmpfile_assy #bruce 051209 added mapping_options
     """
-    write an mmp file for a single Part
+    Write an mmp file for a single Part.
     """
     # as of 050412 this didn't yet turn singlets into H;
     # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!)
