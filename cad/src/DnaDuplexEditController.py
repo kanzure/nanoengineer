@@ -20,7 +20,7 @@ from EditController import EditController
 
 from Group          import Group
 from utilities.Log  import redmsg, greenmsg
-from VQT            import Veq, vlen
+from VQT            import V, Veq, vlen
 from DnaDuplex      import B_Dna_PAM3
 from DnaDuplex      import B_Dna_PAM5
 
@@ -30,6 +30,7 @@ from DnaDuplexPropertyManager import DnaDuplexPropertyManager
 from constants import gensym
 
 from Dna_Constants import getNumberOfBasePairsFromDuplexLength, getDuplexRise
+from Dna_Constants import getDuplexLength
 
 class DnaDuplexEditController(EditController):
     """
@@ -113,6 +114,16 @@ class DnaDuplexEditController(EditController):
                      basesPerTurn, \
                      endPoint1, \
                      endPoint2 = params
+        
+        #If user enters the number of basepairs and hits preview i.e. endPoint1
+        #and endPoint2 are not entered by the user and thus have default value 
+        #of V(0, 0, 0), then enter the endPoint1 as V(0, 0, 0) and compute
+        #endPoint2 using the duplex length. 
+        if endPoint1 == endPoint2 and endPoint1 == V(0, 0, 0):
+            endPoint2 = endPoint1 + \
+                      self.win.glpane.right*getDuplexLength('B-DNA', 
+                                                            numberOfBases)
+            
 
         if Veq(endPoint1, endPoint2):
             raise CadBug("DNA endpoints cannot be the same point.")
