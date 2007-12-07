@@ -119,7 +119,9 @@ class DnaDuplexEditController(EditController):
         #and endPoint2 are not entered by the user and thus have default value 
         #of V(0, 0, 0), then enter the endPoint1 as V(0, 0, 0) and compute
         #endPoint2 using the duplex length. 
-        if Veq(endPoint1 , endPoint2) and endPoint1 == V(0, 0, 0):
+        #Do not use '==' equality check on vectors! its a bug. Use same_vals 
+        # or Veq instead. 
+        if Veq(endPoint1 , endPoint2) and Veq(endPoint1, V(0, 0, 0)):
             endPoint2 = endPoint1 + \
                       self.win.glpane.right*getDuplexLength('B-DNA', 
                                                             numberOfBases)
