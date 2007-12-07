@@ -1371,6 +1371,23 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
         # 'U' in filemode is for universal newline support
     if not isInsert:
         assy.filename = filename ###e would it be better to do this at the end, and not at all if we fail?
+    
+    # Create and display a Progress dialog while reading the MMP file. 
+    # One issue with this implem is that QProgressDialog always displays 
+    # a "Cancel" button, which is not hooked up. I think this is OK for now,
+    # but later we should either hook it up or create our own progress
+    # dialog that doesn't include a "Cancel" button. --mark 2007-12-06
+    _progressValue = 0
+    _progressFinishValue = len(lines)
+    _win = env.mainwindow()
+    # Does this cause an import cycle?
+    from PyQt4.Qt import QProgressDialog, Qt
+    progress = QProgressDialog(_win)
+    progress.setWindowModality(Qt.WindowModal)
+    progress.setWindowTitle("NanoEngineer-1")
+    progress.setLabelText("Reading file...")
+    progress.setRange(0, _progressFinishValue)
+    
     for card in lines:
         try:
             errmsg = state.readmmp_line( card) # None or an error message
@@ -1383,6 +1400,13 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
             ###e general history msg for stopping early on error
             ###e special return value then??
             break
+        
+        _progressValue += 1
+        if _progressValue >= _progressFinishValue:
+            progress.setLabelText("Building model...")
+        else:
+            progress.setValue(_progressValue)
+        
     grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
 
     #bruce 050418: if my fixes today for HomeView & LastView work, then following comment is obs: ###@@@
@@ -1425,7 +1449,9 @@ def _readmmp(assy, filename, isInsert = False): #bruce 050405 revised code & doc
     assert len(grouplist) == 3
         
     state.destroy() # not before now, since it keeps track of which warnings we already emitted
-
+    
+    progress.setValue(_progressFinishValue) # Make the progress dialog go away. 
+    
     return grouplist # from _readmmp
 
 # read a Molecular Machine Part-format file into maybe multiple Chunks
