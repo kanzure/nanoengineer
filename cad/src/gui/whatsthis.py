@@ -16,7 +16,8 @@ from PyQt4.Qt import QWhatsThis
 from qt4transition import qt4todo, qt4warning
 
 #bruce 051227-29 code for putting hyperlinks into most WhatsThis texts
-# (now finished enough for release, though needs testing and perhaps cleanup and documentation)
+# (now finished enough for release, though needs testing and perhaps cleanup 
+# and documentation)
 
 enable_whatsthis_links = True
 
@@ -26,7 +27,9 @@ debug_refix = False # DO NOT COMMIT with True
 
 use_debug_refix_cutoff = False # DO NOT COMMIT with True 
 
-debug_refix_cutoff = 24 # vary this by binary search in a debugger; this value is large enough to not matter
+debug_refix_cutoff = 24 
+# vary this by binary search in a debugger; 
+# this value is large enough to not matter
 
 # ===
 
@@ -56,8 +59,8 @@ def createWhatsThisTextForMainWindowWidgets(win):
     # Import File
 
     fileImportText = "<u><b>Import File</b></u><br>"\
-                   "Inserts a file of any chemical file format supported by <b>Openbabel</b> "\
-                   "into the current Part"
+                   "Inserts a file of any chemical file format supported by "\
+                   "<b>Openbabel</b> into the current Part"
 
     win.fileImportAction.setWhatsThis(fileImportText)
 
@@ -84,25 +87,33 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     # Make Checkpoint ###
 
-    editMakeCheckpointText =  "<u><b>Make Checkpoint</b></u>"\
-                           "<p><img source=\"ui/actions/Edit/Make_CheckPoint.png\"><br> "\
-                           "Make Undo checkpoint."\
-                           "</p>"
+    editMakeCheckpointText = \
+        "<u><b>Make Checkpoint</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/Edit/Make_CheckPoint.png\"><br> "\
+        "Make Undo checkpoint."\
+        "</p>"
 
     win.editMakeCheckpointAction.setWhatsThis( editMakeCheckpointText )
 
     # Automatic Checkpointing ### [minor changes, bruce 060319]
 
-    editAutoCheckpointingText =  "<u><b>Automatic Checkpointing</b></u>"\
-                              "<p>Enables/Disables <b>Automatic Checkpointing</b>. When enabled, the program "\
-                              "maintains the Undo stack automatically.  When disabled, the user is required to "\
-                              "manually create Undo checkpoints using the <b>Make Checkpoint</b> button: </p>"\
-                              "<p><img source=\"ui/actions/Edit/Make_CheckPoint.png\"></p>"\
-                              "<p><b>Automatic Checkpointing</b> can impact program performance. By disabling "\
-                              "Automatic Checkpointing, the program will run faster.</p>"\
-                              "<p><b><i>Remember that you must make your own Undo checkpoints manually when "\
-                              "Automatic Checkpointing is disabled.</i></b>"\
-                              "</p>"
+    editAutoCheckpointingText = \
+        "<u><b>Automatic Checkpointing</b></u>"\
+        "<p>"\
+        "Enables/Disables <b>Automatic Checkpointing</b>. When enabled, "\
+        "the program maintains the Undo stack automatically.  When disabled, "\
+        "the user is required to manually create Undo checkpoints using the "\
+        "<b>Make Checkpoint</b> button: "\
+        "</p>"\
+        "<p><img source=\"ui/actions/Edit/Make_CheckPoint.png\">"\
+        "</p>"\
+        "<p><b>Automatic Checkpointing</b> can impact program performance. "\
+        "By disabling Automatic Checkpointing, the program will run faster. "\
+        "</p>"\
+        "<p><b><i>Remember that you must make your own Undo checkpoints "\
+        "manually when Automatic Checkpointing is disabled.</i></b>"\
+        "</p>"
 
     win.editAutoCheckpointingAction.setWhatsThis( editAutoCheckpointingText )
 
