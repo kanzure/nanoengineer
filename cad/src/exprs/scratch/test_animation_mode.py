@@ -80,7 +80,7 @@ DX = V(1,0,0)
 DY = V(0,1,0)
 DZ = V(0,0,1)
 
-from PyQt4.Qt import Qt
+from PyQt4.Qt import Qt, QCursor
 # for Qt.Key_Left, etc
 
 shiftButton = Qt.ShiftModifier
@@ -142,7 +142,9 @@ KLUGE_MANUAL_UPDATE = False # temporary
 TESTING_KLUGES = False # temporary
 
 class test_animation_mode_PM(ExampleCommand1_PM):
-    "does not use GBC; at least Done & Cancel should work"
+    """
+    [does not use GBC; at least Done & Cancel should work]
+    """
     title = "test_animation_mode PM"
     def _addGroupBoxes(self):
         """Add the groupboxes for this Property Manager."""
@@ -161,8 +163,9 @@ class test_animation_mode_PM(ExampleCommand1_PM):
     _sMaxCannonHeight = 20
     
     def _loadGroupBox1(self, pmGroupBox):
-        """Load widgets into groupbox 1 (passed as pmGroupBox)."""
-
+        """
+        Load widgets into groupbox 1 (passed as pmGroupBox)
+        """
 ##        elementComboBoxItems  =  self._sElementSymbolList
 ##        self.elementComboBox  =  \
 ##            PM_ComboBox( pmGroupBox,
@@ -287,17 +290,20 @@ class test_animation_mode_PM(ExampleCommand1_PM):
             # Workaround (untested): adjust cannon height or use arrow key -- should trigger redraw.
         
     def _addWhatsThisText(self):
-        """What's This text for some of the widgets in the Property Manager."""
+        """
+        What's This text for some of the widgets in the Property Manager
+        """
         self.cannonHeightSpinbox.setWhatsThis("cannon height")
         return
     pass # test_animation_mode_PM
 
 
 '''
-  File "/Nanorex/Working/cad/src/platform.py", line 92, in ascii
-    return filter_key( self._qt_event.ascii() ) #k (does filter_key matter here?)
+File "/Nanorex/Working/cad/src/platform.py", line 92, in ascii
+  return filter_key( self._qt_event.ascii() ) #k (does filter_key matter here?)
 AttributeError: ascii
-'''#unfixed bug in arrow key bindings -- due to event.ascii ### BUG: not available in Qt4 [070811]
+'''
+#unfixed bug in arrow key bindings -- due to event.ascii ### BUG: not available in Qt4 [070811]
 
 keynames = {}
 for keyname in filter(lambda s: s.startswith('Key'), dir(Qt)):
@@ -310,22 +316,22 @@ def keyname(key):#070812
         return "<key %r>" % (key,)
     pass
 
-pink1 = (0.8,0.4,0.4)
-yellow = (0.8,0.7,0.0)
-yellow2 = (0.8,0.7,0.2)
-ygreen = (0.4,0.85,0.1)
-blue = (0.0,0.2,0.9)
-orange = (1.0,0.35,0.05)
-orange = (1.0,0.3,0.00)
-pumpkin = (0.9,0.4,0.0)
-purple = (0.7,0.0,0.7) #060218 bugfix
+pink1 = (0.8, 0.4, 0.4)
+yellow = (0.8, 0.7, 0.0)
+yellow2 = (0.8, 0.7, 0.2)
+ygreen = (0.4, 0.85, 0.1)
+blue = (0.0, 0.2, 0.9)
+orange = (1.0, 0.35, 0.05)
+orange = (1.0, 0.3, 0.00)
+pumpkin = (0.9, 0.4, 0.0)
+purple = (0.7, 0.0, 0.7) #060218 bugfix
 
 def light(color, whiteness = 0.25):
     return mix(color, white, whiteness)
 
-def mix(color1,color2,amount2):
-    amount2 = V(amount2,amount2,amount2) #e optional?
-    amount1 = V(1,1,1) - amount2
+def mix(color1, color2, amount2):
+    amount2 = V(amount2, amount2, amount2) #e optional?
+    amount1 = V(1, 1, 1) - amount2
     return color1 * amount1 + color2 * amount2
 
 lgreen = light(green)
@@ -336,7 +342,7 @@ colorkeys = dict(R = light(red),
                  G = light(green),
                  B = light(blue),
                  P = light(purple),
-                 W = light(black,0.8),
+                 W = light(black, 0.8),
                  K = light(black),
                  Y = yellow,
                  O = orange,
@@ -357,7 +363,8 @@ S_DATA = 'S_DATA'
 class _S_Data_Mixin: pass #e stub #e refile in state_utils
 
 class _S_ImmutableData_Mixin(_S_Data_Mixin):
-    """For efficiency, inheritors of this mixin promise that all their declared data
+    """
+    For efficiency, inheritors of this mixin promise that all their declared data
     is immutable, so it can be shared by all copies, and so they themselves can be
     copied as themselves. (Most of them deepcopy the data passed into them, to protect
     themselves from callers who might pass shared data.)
@@ -366,7 +373,8 @@ class _S_ImmutableData_Mixin(_S_Data_Mixin):
         #e maybe someday we'll inherit this from (say) _S_ImmutableData_Mixin
         return self
     def _s_copy_for_shallow_mod(self): #e likely to be renamed, maybe ...private_mod
-        """Private method for main class -- copy self, sharing data,
+        """
+        Private method for main class -- copy self, sharing data,
         in anticipation that the copy will be privately modified
         and then returned as a new immutable data object.
         """
@@ -383,18 +391,22 @@ def do_what_MainWindowUI_should_do(win):
 ##_superclass = selectAtomsMode # this works too [050528]
 ##_superclass = basicMode
 _superclass = Command
+# see also _superclass_GM
 
 # new stuff 060218
 
-# local copy for debugging
+# local copy for debugging & customization, original by josh in VQT.py
 class myTrackball:
-    '''A trackball object.    The current transformation matrix
-       can be retrieved using the "matrix" attribute.'''
-
+    """
+    A trackball object. The current transformation matrix
+    can be retrieved using the "matrix" attribute.
+    """
     def __init__(self, wide, high):
-        '''Create a Trackball object.
-           "size" is the radius of the inner trackball
-           sphere. '''
+        """
+        Create a Trackball object.
+        "size" is the radius of the inner trackball
+        sphere.
+        """
         self.w2=wide/2.0
         self.h2=high/2.0
         self.scale = 1.1 / min(wide/2.0, high/2.0)
@@ -429,7 +441,7 @@ class myTrackball:
 
 def hacktrack(glpane):
     print "hacking trackball, permanently"
-    glpane.trackball = myTrackball(10,10)
+    glpane.trackball = myTrackball(10, 10)
     glpane.trackball.rescale(glpane.width, glpane.height)
 
 quats_to_show = {}
@@ -451,7 +463,7 @@ def drawquat(glpane, quat, where):
         return glpane.pov + oldquat.unrot(screenpos)
     # show how the x,y,z axes would be moved.
     p0 = trans(where)
-    for vec,color in [ (V(1,0,0),red), (V(0,1,0),green), (V(0,0,1),blue) ]:
+    for vec, color in [ (V(1,0,0), red), (V(0,1,0), green), (V(0,0,1), blue) ]:
         vecnow = oldquat.rot(vec)
         vecthen = newquat.rot(vec)
         p1 = trans(where + vecnow)
@@ -469,7 +481,9 @@ def novertigo_cmd(widget):
     return
 
 def novertigo(glpane):
-    "Rotate the view so that the Y axis V(0,1,0) points up, plus maybe a bit in or out."
+    """
+    Rotate the view so that the Y axis V(0,1,0) points up, plus maybe a bit in or out.
+    """
     xjunk, y, z = Y = glpane.quat.rot(V(0,1,0))
     # we'll use a projection of this into the y,z plane, but fix it to be within our range; note, y,z could be (0,0)
     k = 2 # determines max angle from vertical
@@ -478,8 +492,8 @@ def novertigo(glpane):
     if y < k * abs(z):
         y = k * abs(z)
     if y == 0 and z == 0:
-        y,z = 1,0
-    proj = norm(V(0,y,z))
+        y, z = 1, 0
+    proj = norm(V(0, y, z))
     ##printvec("proj",proj)
     ## print proj
     # proj is where we want Y to be
@@ -497,7 +511,10 @@ register_debug_menu_command("novertigo", novertigo_cmd) # will only work in glpa
 
 
 def hack_standard_repaint_0(glpane, prefunc):
-    "replace glpane.standard_repaint_0 with one which calls prefunc and then calls the class version of standard_repaint_0"
+    """
+    replace glpane.standard_repaint_0 with one which calls prefunc
+    and then calls the class version of standard_repaint_0
+    """
     def imposter(glpane = glpane, prefunc = prefunc):
         prefunc()
         glpane.__class__.standard_repaint_0(glpane)
@@ -508,7 +525,8 @@ def hack_standard_repaint_0(glpane, prefunc):
 # ==
 
 class CyberTextNode(Node):
-    """Hold some text which can be edited and displayed, and a few properties to control when/where/how to display it.
+    """
+    Hold some text which can be edited and displayed, and a few properties to control when/where/how to display it.
     Also try to let it exist in cyberspace, i.e. when it's changed, store it there, and when we're reshown, reload it from there.
     For initial test, cyberspace means a file whose basename we contain and whose dirname is hardcoded.
     Or a prefs db entry, or something like that.
@@ -572,7 +590,8 @@ class DebugNode(Node):
         if self.picked: # only draw when picked! (good?)
             draw_stuff(self.stuff, glpane)
     def writemmp(self, mapping):
-        """Write this Node to an mmp file, as controlled by mapping,
+        """
+        Write this Node to an mmp file, as controlled by mapping,
         which should be an instance of files_mmp.writemmp_mapping.
         """
         line = "# nim: mmp record for %r" % self.__class__.__name__
@@ -580,7 +599,9 @@ class DebugNode(Node):
         # no warning; this happens all the time as we make undo checkpoints
         return
     def __CM_upgrade_my_code(self): # experiment
-        "replace self with an updated version using the latest code, for self *and* self's data!"
+        """
+        replace self with an updated version using the latest code, for self *and* self's data!
+        """
         name = self.__class__.__name__
         print "name is",name # "DebugNode"
         print self.__class__.__module__ # "test_animation_mode"
@@ -658,7 +679,9 @@ DEFAULT_DIRECTIONS = attrholder(away = - DZ, towards = DZ, up = DY, down = - DY,
     # maybe attrnames should differ?
 
 def interpret_arrow_key( key, space = None): ###TODO: pass space if nec.
-    "return None for a non-3d-arrow-key, or a direction vector for one, taken from space or DEFAULT_DIRECTIONS"
+    """
+    return None for a non-3d-arrow-key, or a direction vector for one, taken from space or DEFAULT_DIRECTIONS
+    """
     if not space:
         space = DEFAULT_DIRECTIONS
     if key == Qt.Key_Up: # 4115:# up means in = lineofsight = away from user
@@ -679,7 +702,10 @@ def interpret_arrow_key( key, space = None): ###TODO: pass space if nec.
 
 class shelvable_graphic:
     # some default state attrs (kluge, should be in a graphical subclass)
-    pos = V(0,0,0); dir = V(1,0,0); size = V(1,1,1); color = pink1
+    pos = V(0,0,0)
+    dir = V(1,0,0)
+    size = V(1,1,1)
+    color = pink1
     dead = False # set self.dead to True in instances, to cause destroy() and culling on next redraw
         # ok to set it during a command (then it prevents redraw of self) or during redraw (culls upon return); see guy.draw for implem
     def __init__(self, space, dict1 = {}):
@@ -700,10 +726,14 @@ class shelvable_graphic:
                 res[k] = self.__dict__[k]
         return res
     def contents(self):
-        "other objs whose state is sometimes considered part of ours, but not in self.state()"
+        """
+        other objs whose state is sometimes considered part of ours, but not in self.state()
+        """
         return self.stuff.values()
     def load(self, storage, key):
-        "change our state to match what's in the storage"
+        """
+        change our state to match what's in the storage
+        """
         stored = storage[key]
         self.__dict__.update(stored) # dangerous!
     def destroy(self):
@@ -716,7 +746,7 @@ class shelvable_graphic:
 ##class brick(shelvable_graphic): # this is not right yet
 ##    "a brick, in standard orientation, std size, brighter if keyfocus is on it; has specified shelf-key for state"
 ##    def draw(self, pos = V(0,0,0), dir = V(1,0,0), size = V(1,1,1), color = pink1):
-##        # drawbrick(pink1, self.origin + V(2.5,0,0), self.right, 2.0,4.0,6.0) - uses current GL context (that's ok)
+##        # drawbrick(pink1, self.origin + V(2.5, 0, 0), self.right, 2.0, 4.0, 6.0) - uses current GL context (that's ok)
 ##        drawbrick(color, pos, dir, size[0], size[1], size[2])
 ##    pass
 
@@ -778,17 +808,17 @@ class cannon(shelvable_graphic): # one of these is self.cannon in test_animation
         mode = self.space
         ## pos = mode.origin
         pos = self.pos # changed by .move()
-        return pos + V(mode.brickpos,0,0) - DY * 9
+        return pos + V(mode.brickpos, 0, 0) - DY * 9
     
     def draw(self): # needs glpane arg if ever occurs in object list
         mode = self.space # note: uses mode.brickpos for position, updated separately -- should bring that in here
 
         ## drawwirecube(purple, mode.origin, 5.0)
         ## drawwirecube(gray, mode.origin, 6.5)
-        ## if 0: drawbrick(yellow, mode.origin, mode.right, 2.0,4.0,6.0)
+        ## if 0: drawbrick(yellow, mode.origin, mode.right, 2.0, 4.0, 6.0)
 
         basepos = self.basepos()
-        drawbrick(pink1, basepos + 1.0 * self.direction, mode.right, 2.0,2.0,1.0) # wrong orientation
+        drawbrick(pink1, basepos + 1.0 * self.direction, mode.right, 2.0, 2.0, 1.0) # wrong orientation
         detailLevel = 2
         drawsphere(red, basepos + 2.5 * self.direction, 2, detailLevel) ###@@@
         radius = mode.cannonWidth / 2.0 # note: this is usage-tracked!
@@ -815,17 +845,19 @@ class cannon(shelvable_graphic): # one of these is self.cannon in test_animation
     pass # class cannon
 
 class guy(shelvable_graphic):
-    "a combo of object list and a specific thing ###FIX"
+    """
+    a combo of object list and a specific thing ###FIX
+    """
     def draw(self, glpane):
         # this main guy is the one that needs to be transparent, so you can see what's he's making under him!
         # and, the thing he might make also needs to be transparent but there. and, a key should put it down for you... and unput it.
         # and, remove any other stuff in same pos!
         pos = self.pos ## + self.space.now # 070813 experiment -- works [since then, glpane .mode -> self.space, but i don't want to move this guy (the 3d cursor)
-        drawbrick(self.color, pos, self.dir, 1,1,1) ## 2.0,4.0,6.0) # uses current GL context
+        drawbrick(self.color, pos, self.dir, 1, 1, 1) ## 2.0, 4.0, 6.0) # uses current GL context
         glDisable(GL_LIGHTING)
-        drawbrick(gray, pos * V(1,0,1) - V(0,6,0), self.dir, 1, 1, 0.02) # brick dims for this dir are x,inout,z
+        drawbrick(gray, pos * V(1,0,1) - V(0, 6, 0), self.dir, 1, 1, 0.02) # brick dims for this dir are x, inout, z
         glEnable(GL_LIGHTING)
-        drawline(light(black,0.2), pos, pos * V(1,0,1) - V(0,6,0))
+        drawline(light(black, 0.2), pos, pos * V(1,0,1) - V(0, 6, 0))
         #e and a line between them
         deads = []
         for thing in self.stuff.itervalues():
@@ -856,7 +888,7 @@ class guy(shelvable_graphic):
             chrkey = chr(key)
         except:
             chrkey = None
-        ##print key,asc,but,chrkey
+        ##print key, asc, but, chrkey
         if key == Qt.Key_Return: # 4100: # Return
             key = ord('\n')
             ## asc = key
@@ -870,7 +902,7 @@ class guy(shelvable_graphic):
 ##        elif key in [4099, 'del']: # Delete on Mac; unable to bind the "del" key!
 ##            self.text = self.text[:self.curpos-1] + self.text[self.curpos:]
 ##            self.curpos -= 1
-        ## print "data:",asc,key,chrkey,self.colorkeys # asc = 114, key = 82, chr(key) = 'R'
+        ## print "data:", asc, key, chrkey, self.colorkeys # asc = 114, key = 82, chr(key) = 'R'
 
         arrowdir = interpret_arrow_key(key)
         
@@ -898,13 +930,15 @@ class guy(shelvable_graphic):
     def save(self):
         pass # save the state! just store our dict at a key... but turn values from objs to refs... ask the objs for those. ###@@@
     def move(self, delta):
-        "overrides superclass move; compatible but does more"
+        """
+        overrides superclass move; compatible but does more
+        """
         if self.shift:
             self.makeonehere() # should be in the space, not the guy itself! ###@@@
         self.lastmotion = delta
         # this is superclass.move: ###FIX, call it
         pos = self.pos = self.pos + delta
-        ##print "new pos and proj",pos,pos*V(1,0,1)-V(0,6,0)
+        ##print "new pos and proj", pos, pos * V(1,0,1) - V(0,6,0)
         # caller does redraw, no need to tell it to here
     def makeonehere(self):
         d1 = dict(self.__dict__)
@@ -961,11 +995,13 @@ print "_superclass = %r, _superclass_GM = %r" % (_superclass, _superclass_GM)###
 
 class test_animation_mode_GM( _superclass_GM ):
     
-    def leftDown(self,event):
+    def leftDown(self, event):
         pass
-    def leftDrag(self,event):
+
+    def leftDrag(self, event):
         pass
-    def leftUp(self,event):
+    
+    def leftUp(self, event):
         pass
 
     def middleDrag(self, event):
@@ -976,13 +1012,16 @@ class test_animation_mode_GM( _superclass_GM ):
 ##        q2 = Q(glpane.quat)
         novertigo(glpane)
 ##        q3 = Q(glpane.quat)
-##        print "nv",q1,q2,q3
+##        print "nv", q1, q2, q3
         return
 
     def pre_repaint(self):
-        "This is called early enough in paintGL to have a chance (unlike Draw) to update the point of view."
+        """
+        This is called early enough in paintGL to have a chance
+        (unlike Draw) to update the point of view.
+        """
         if self.isCurrentGraphicsMode() and self.command._in_loop:
-            ## self.glpane.quat += Q(V(0,0,1),norm(V(0,0.01,0.99)))
+            ## self.glpane.quat += Q(V(0,0,1), norm(V(0, 0.01, 0.99)))
             ## now = time.time() - self._loop_start_time
             now = self.command.simtime
             self.now = now # not used??
@@ -1006,7 +1045,7 @@ class test_animation_mode_GM( _superclass_GM ):
             newcov = + cov
             newcov += guy_offset * 0.2
             # now figure out new pos of camera (maintains distance), then new angle... what is old pos of camera?
-            eyeball = (glpane.quat).unrot(V(0,0,6*glpane.scale)) - glpane.pov # code copied from selectMode; the 6 might be wrong
+            eyeball = (glpane.quat).unrot(V(0, 0, 6 * glpane.scale)) - glpane.pov # code copied from selectMode; the 6 might be wrong
                 # took out - from -glpane.quat since it looks wrong... this drastically improved it, still not perfect.
                 # but it turned out that was wrong! There was some other bug (what was it? I forget).
                 # And th - was needed. I prefer to put in unrot instead.
@@ -1017,11 +1056,11 @@ class test_animation_mode_GM( _superclass_GM ):
             # ignore for now and see what happens? or just use fixed ratio?
             desired_elev = 2 * glpane.scale ## guess
             desired_h_dist = math.sqrt( desireddist * desireddist - desired_elev * desired_elev)
-##            print "desireddist = %s, desired_elev = %s, desired_h_dist = %s" % (desireddist,desired_elev,desired_h_dist)
+##            print "desireddist = %s, desired_elev = %s, desired_h_dist = %s" % (desireddist, desired_elev, desired_h_dist)
             # figure out coords for use in setting camera position from this
             dx, dy, dz = eyeball - newcov
-            # x,z is a ratio to maintain
-            eyedir = norm(V(dx,0,dz)) * desired_h_dist # dir on ground only
+            # x, z is a ratio to maintain
+            eyedir = norm(V(dx, 0, dz)) * desired_h_dist # dir on ground only
             eyedir += desired_elev * V(0,1,0)
             # eyedir is ideal position rel to newcov, but eyeball should only move partway towards it... perfect this later (inertia?)
             eyeball += ((eyedir + newcov) - eyeball) * 0.2
@@ -1035,8 +1074,8 @@ class test_animation_mode_GM( _superclass_GM ):
             # Standard axes: eyeball from cov is positive z...
             wantz = norm(eyeball - realcov)
             Y = V(0,1,0)
-            wantx = norm(cross(Y,wantz))
-            wanty = cross(wantz,wantx)
+            wantx = norm(cross(Y, wantz))
+            wanty = cross(wantz, wantx)
 ##            ## print "w", wantx, wanty, wantz
             realquat = - Q(wantx, wanty, wantz) # added '-' since should be correct...
 ##            print "X_AXIS =? realquat.rot(wantx)", realquat.rot(wantx)
@@ -1057,12 +1096,12 @@ class test_animation_mode_GM( _superclass_GM ):
 ##            debug_stuff = [makeline(white, oldeye, oldcov), makeline(gray, oldcov, newguy), makedot(gray, guylookat),
 ##                           makeline(orange, oldeye, eyeball), makedot(green, eyeball),
 ##                           makedot(blue, realcov),
-##                           makevecs(realcov, [wantx, wanty, wantz], [red,green,blue]),
+##                           makevecs(realcov, [wantx, wanty, wantz], [red, green, blue]),
 ##                                ]
 ##            dn = DebugNode(debug_stuff, name = "debug%d" % env.redraw_counter)
 ##            space.placenode(dn) #e maybe ought to put them in a group, one per loop? not sure, might be more inconvenient than useful.
 ##            print "tried to set eyeball to be at", eyeball, "and cov at", realcov
-##            apparenteyeball = (glpane.quat).unrot(V(0,0,6*glpane.scale)) - glpane.pov ### will unrot fix it? yes!
+##            apparenteyeball = (glpane.quat).unrot(V(0, 0, 6*glpane.scale)) - glpane.pov ### will unrot fix it? yes!
 ##            print "recomputed eyeball from formula is", apparenteyeball, "and also", realcov + glpane.out * desireddist
 ##            # 2nd formula says we got it right. first formula must be wrong (also in earlier use above).
 ##            # if we assume that glpane.eyeball() is nonsense (too early for gluUnProject??)
@@ -1125,7 +1164,7 @@ class test_animation_mode_GM( _superclass_GM ):
         ## self.incrkluge = thing.keyPressEvent(event)
         self.redraw()
     
-    def keyReleaseEvent(self,event):
+    def keyReleaseEvent(self, event):
         pass ## thing.keyReleaseEvent(event)
 
     def redraw(self):
@@ -1133,6 +1172,12 @@ class test_animation_mode_GM( _superclass_GM ):
         self.command.modelstate += 1
         ##bruce 050528 zapped this: self.glpane.paintGL() - do it this newer way now:
         self.glpane.gl_update()
+
+    def update_cursor_for_no_MB(self):
+        """
+        [part of GraphicsMode subclass API]
+        """
+        self.o.setCursor(QCursor(Qt.ArrowCursor))
 
     pass # end of class test_animation_mode_GM
 
@@ -1194,13 +1239,16 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
     simtime = 0.0 # this is a constant between loops, and grows with real time during loops. only changed in cmd_Start. never reset.
 
     def __init__(self, glpane):
-        "create an expr instance, to draw in addition to the model" # code copied from test_commands.py
+        """
+        create an expr instance, to draw in addition to the model
+        """
+        # code copied from test_commands.py
         super(test_animation_mode, self).__init__(glpane) # that only calls some mode's init method, not IorE.__init__,
             # so (for now) call that separately
         IorE_guest_mixin.__init__(self, glpane)
         if 0:
             # expr from test_commands - works except for resizer highlighting
-            ## expr1 = Rect(4,1,green)
+            ## expr1 = Rect(4, 1, green)
             expr1 = TextState()
             expr2 = DraggablyBoxed(expr1, resizable = True)
                 ###BUG: resizing is projecting mouseray in the wrong way, when plane is tilted!
@@ -1211,7 +1259,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         if 0:
             expr = Rect() # works
         if 1:
-            expr = Image("/Users/bruce/Desktop/IMG_0560 clouds1.jpg", size = Rect())
+            expr = Image("/Users/bruce/Desktop/IMG_0560 clouds g5 2.jpg", size = Rect())
         
         # note: this code is similar to expr_instance_for_imagename in confirmation_corner.py
         ih = get_glpane_InstanceHolder(glpane)
@@ -1227,7 +1275,9 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         return
 
     def clear(self):
-        "(part of mode API)"
+        """
+        (part of mode API)
+        """
         self.cmd_Stop()
         if TESTING_KLUGES:
             print "KLUGE FOR TESTING: set cannonWidth in cmd_Stop"
@@ -1239,13 +1289,13 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
     def Enter(self):
         print
         print "entering test_animation_mode again", time.asctime()
-        self.assy = self.w.assy
+##        self.assy = self.w.assy # [AttributeError: can't set attribute -- property?]
         hacktrack(self.glpane)
         hack_standard_repaint_0(self.glpane, self.graphicsMode.pre_repaint)
             # KLUGE -- this ought to be part of an Enter_GraphicsMode method...
             # there was something like that in one of those Pan/Rotate/Zoom classes too...
             # need to find those and decide when to call a method like that.
-        self.glpane.pov = V(0,0,0)
+        self.glpane.pov = V(0, 0, 0)
         self.glpane.quat = Q(1,0,0,0) + Q(V(1,0,0),10.0 * pi/180)
         print "self.glpane.scale =", self.glpane.scale # 10 -- or 10.0?
         self.glpane.scale = 20.0 #### 070813 # note: using 20 (int not float) may have caused AssertionError:
@@ -1263,7 +1313,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         self.guy = guy(self)
         self.cannon = cannon(self)
         
-        ##self.glbufstates = [0,0] # 0 = unknown, number = last drawn model state number
+        ##self.glbufstates = [0, 0] # 0 = unknown, number = last drawn model state number
         self.modelstate = 1
         # set perspective view -- no need, just do it in user prefs
         return _superclass.Enter(self)
@@ -1309,7 +1359,9 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         return
 
     def rotleft(self, amount):
-        "#doc is in caller"
+        """
+        [#doc is in caller]
+        """
         # from Q doc: Q(V(x,y,z), theta) is what you probably want.
         #060218 bugfix: left -> down
         self.glpane.quat += Q(self.down, amount * 2 * pi) # does something, but not yet what i want. need to transform to my model...###@@@
