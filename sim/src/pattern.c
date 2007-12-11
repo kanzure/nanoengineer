@@ -43,6 +43,18 @@ destroyMatch(struct patternMatch *match)
   free(match);
 }
 
+static void
+printMatch(struct patternMatch *match)
+{
+  int i;
+  
+  printf("match for pattern %s\n", match->patternName);
+  for (i=0; i<match->numberOfAtoms; i++) {
+    //printf("pattern index: %d, atomid: %d\n", i, match->atomIndices[i]);
+    printAtom(stdout, match->p, match->p->atoms[match->atomIndices[i]]);
+  }
+}
+
 // debug routine
 static void
 printMatchStatus(struct patternMatch *match,
@@ -246,7 +258,7 @@ checkForDuplicateMatch(struct patternMatch *match)
   int *atomIndices = (int *)allocate(sizeof(int) * match->numberOfAtoms);
   char *buf1;
   char buf2[20];
-  int ret;
+  int dup;
 
   for (i=match->numberOfAtoms-1; i>=0; i--) {
     atomIndices[i] = match->atomIndices[i];
@@ -263,11 +275,11 @@ checkForDuplicateMatch(struct patternMatch *match)
     sprintf(buf2, "%d.", atomIndices[i]);
     strcat(buf1, buf2);
   }
-  ret = hashtable_get(matchSet, buf1) != NULL;
-  if (!ret) {
+  dup = hashtable_get(matchSet, buf1) != NULL;
+  if (!dup) {
     hashtable_put(matchSet, buf1, (void *)1);
   }
-  return ret;
+  return !dup;
 }
 
 // Matches one traversal in a compiled pattern.  See
@@ -295,6 +307,10 @@ matchOneTraversal(struct patternMatch *match,
   struct compiledPatternTraversal *traversal;
   
   if (traversalIndex >= pattern->numberOfTraversals) {
+    if (debugMatch) {
+      printf("found match, checking for duplicate\n");
+      printMatch(match);
+    }
     if (checkForDuplicateMatch(match)) {
       pattern->matchFunction(match);
     }
@@ -464,25 +480,80 @@ makePattern(char *name,
   return pat;
 }
 
+static struct bendData *pam5_Ax_Ax_Ss_low = NULL;
+static struct bendData *pam5_Ax_Ax_Ss_high = NULL;
+
 static void
-printMatch(struct patternMatch *match)
+pam5_ring_match(struct patternMatch *match)
 {
-  int i;
-  
-  printf("match for pattern %s\n", match->patternName);
-  for (i=0; i<match->numberOfAtoms; i++) {
-    //printf("pattern index: %d, atomid: %d\n", i, match->atomIndices[i]);
-    printAtom(stdout, match->p, match->p->atoms[match->atomIndices[i]]);
+  struct part *p = match->p;
+  struct atom *aA1 = p->atoms[match->atomIndices[0]];
+  struct atom *aA2 = p->atoms[match->atomIndices[1]];
+  struct atom *aS2 = p->atoms[match->atomIndices[2]];
+  struct atom *aP  = p->atoms[match->atomIndices[3]];
+  struct atom *aS1 = p->atoms[match->atomIndices[4]];
+  struct atom *aE;
+  struct bond *b = getBond(p, aP, aS1);
+  struct atom *t;
+  struct bend *bend1;
+  struct bend *bend2;
+  int reverse = 0;
+
+  BAIL();
+  if (match->numberOfAtoms == 6) {
+    aE = p->atoms[match->atomIndices[5]];
   }
+  // here is the layout we're looking for:
+  //
+  //  aS2->aP->aS1
+  //   |        |
+  //  aA2------aA1 (- - - Ae)
+  //
+  // reverse means the bond directions are flipped from that layout
+
+  switch (b->direction) {
+  case 'F':
+    reverse = (b->a1 == aS1);
+    break;
+  case 'R':
+    reverse = (b->a1 == aP);
+    break;
+  default:
+    ERROR2("pam5_ring_match: bond between ids %d and %d has no direction", aP->atomID, aS1->atomID);
+    p->parseError(p->stream);
+    return;
+  }
+  if (match->numberOfAtoms == 5) {
+    if (reverse) {
+      t = aA1;
+      aA1 = aA2;
+      aA2 = t;
+      t = aS1;
+      aS1 = aS2;
+      aS2 = t;
+    }
+    bend1 = getBend(p, aA2, aA1, aS1); BAIL();
+    bend2 = getBend(p, aA1, aA2, aS2); BAIL();
+    bend1->bendType = pam5_Ax_Ax_Ss_low;
+    bend2->bendType = pam5_Ax_Ax_Ss_high;
+  } else {
+    bend1 = getBend(p, aE, aA1, aS1); BAIL();
+    bend1->bendType = reverse ? pam5_Ax_Ax_Ss_high : pam5_Ax_Ax_Ss_low;
+  }
+  //printMatch(match);
 }
 
-static struct compiledPattern *allPatterns[1];
+#define NUM_PATTERNS 2
+static struct compiledPattern *allPatterns[NUM_PATTERNS];
 
 void
 createPatterns(void)
 {
+  double ktheta;
+  double theta0;
   struct compiledPatternTraversal *t[10];
   struct compiledPatternAtom *a[10];
+  struct patternParameter *param;
   
   makeUnmatchableType();
   
@@ -496,15 +567,41 @@ createPatterns(void)
   t[2] = makeTraversal(a[2], a[3], '1');
   t[3] = makeTraversal(a[3], a[4], '1');
   t[4] = makeTraversal(a[4], a[0], '1');
-  allPatterns[0] = makePattern("DNAring", printMatch, 5, 5, t);
+  allPatterns[0] = makePattern("PAM5-ring", pam5_ring_match, 5, 5, t);
+
+  a[0] = makePatternAtom(0, "Ax5");
+  a[1] = makePatternAtom(1, "Ax5");
+  a[2] = makePatternAtom(2, "Ss5");
+  a[3] = makePatternAtom(3, "Pl5");
+  a[4] = makePatternAtom(4, "Ss5");
+  a[5] = makePatternAtom(5, "Ae5");
+  t[0] = makeTraversal(a[5], a[0], '1');
+  t[1] = makeTraversal(a[0], a[1], '1');
+  t[2] = makeTraversal(a[1], a[2], '1');
+  t[3] = makeTraversal(a[2], a[3], '1');
+  t[4] = makeTraversal(a[3], a[4], '1');
+  t[5] = makeTraversal(a[4], a[0], '1');
+  allPatterns[1] = makePattern("PAM5-ring-end", pam5_ring_match, 6, 6, t);
+
+  param = getPatternParameter("PAM5:Ax-Ax-Ss_low_ktheta"); BAIL();
+  ktheta = param->value * 1e6;
+  param = getPatternParameter("PAM5:Ax-Ax-Ss_low_theta0"); BAIL();
+  theta0 = param->value * param->angleUnits;
+  pam5_Ax_Ax_Ss_low = newBendData("Ax-Ax-Ss_low", ktheta, theta0, 9);
+
+  param = getPatternParameter("PAM5:Ax-Ax-Ss_high_ktheta"); BAIL();
+  ktheta = param->value * 1e6;
+  param = getPatternParameter("PAM5:Ax-Ax-Ss_high_theta0"); BAIL();
+  theta0 = param->value * param->angleUnits;
+  pam5_Ax_Ax_Ss_high = newBendData("Ax-Ax-Ss_high", ktheta, theta0, 9);
 }
 
 void
 matchPartToAllPatterns(struct part *part)
 {
-  double val;
-  
-  matchPartToPattern(part, allPatterns[0]);
-  val = getPatternParameter("PAM5:DNAring:upward_bend_theta0");
-  printf("theta0: %f\n", val);
+  int i;
+
+  for (i=0; i<NUM_PATTERNS; i++) {
+    matchPartToPattern(part, allPatterns[i]);
+  }
 }

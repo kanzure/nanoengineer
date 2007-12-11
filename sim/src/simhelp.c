@@ -407,6 +407,9 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     }
     initializePart(part);
     PYBAIL();
+    createPatterns();
+    matchPartToAllPatterns(part);
+    PYBAIL();
 
     // ##e should print options set before run, but it's too early to do that in this code
 

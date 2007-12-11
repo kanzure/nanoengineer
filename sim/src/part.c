@@ -397,6 +397,44 @@ generateBends(struct part *p)
     }
 }
 
+struct bend *
+getBend(struct part *p, struct atom *a1, struct atom *ac, struct atom *a2)
+{
+    struct bend *b;
+    int i;
+    
+    for (i=0; i<p->num_bends; i++) {
+        b = &p->bends[i];
+        if (b->ac == ac && ((b->a1 == a1 && b->a2 == a2) ||
+                            (b->a1 == a2 && b->a2 == a1)))
+        {
+            return b;
+        }
+    }
+    ERROR3("getBend: no bend between atom ids %d-%d-%d", a1->atomID, ac->atomID, a2->atomID);
+    p->parseError(p->stream);
+    return NULL;
+}
+
+struct bond *
+getBond(struct part *p, struct atom *a1, struct atom *a2)
+{
+    struct bond *b;
+    int i;
+    
+    for (i=0; i<p->num_bonds; i++) {
+        b = p->bonds[i];
+        if ((b->a1 == a1 && b->a2 == a2) ||
+            (b->a1 == a2 && b->a2 == a1))
+        {
+            return b;
+        }
+    }
+    ERROR2("getBond: no bond between atom ids %d-%d", a1->atomID, a2->atomID);
+    p->parseError(p->stream);
+    return NULL;
+}
+
 static void
 makeTorsion(struct part *p, int index, struct bond *center, struct bond *b1, struct bond *b2)
 {
@@ -1705,7 +1743,32 @@ makeBond(struct part *p, int atomID1, int atomID2, char order)
     CHECK_VALID_BOND(b);
     // XXX should we reject unknown bond orders here?
     b->order = order;
+    b->direction = '?';
     b->valid = -1;
+}
+
+void
+setBondDirection(struct part *p, int atomID1, int atomID2)
+{
+    struct atom *a1 = translateAtomID(p, atomID1); BAIL();
+    struct atom *a2 = translateAtomID(p, atomID2); BAIL();
+    struct bond *b;
+    int i;
+    
+    for (i=p->num_bonds-1; i>=0; i--) {
+        b = p->bonds[i];
+        if (b->a1 == a1 && b->a2 == a2) {
+            b->direction = 'F';
+            return;
+        }
+        if (b->a1 == a2 && b->a2 == a1) {
+            b->direction = 'R';
+            return;
+        }
+    }
+    ERROR2("setBondDirection: no bond between atom ids %d and %d", atomID1, atomID2);
+    p->parseError(p->stream);
+    return;
 }
 
 // Add a static van der Waals interaction between a pair of bonded

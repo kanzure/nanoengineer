@@ -149,13 +149,21 @@ struct atomType
   int refCount;
 };
 
+struct patternParameter
+{
+  double value;
+  double angleUnits;
+};
+
 extern struct atomType *getAtomTypeByIndex(int atomTypeIndex);
 
 extern int isAtomTypeValid(int atomTypeIndex);
 
+extern struct bendData *newBendData(char *bendName, double kb, double theta0, int quality);
+
 extern struct atomType *getAtomTypeByName(char *symbol);
 
-extern double getPatternParameter(char *name);
+extern struct patternParameter *getPatternParameter(char *name);
 
 extern void initializeBondTable(void);
 

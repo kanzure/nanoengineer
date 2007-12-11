@@ -458,6 +458,7 @@ readMMP(char *filename)
   int atomListLength;
   int *atomList;
   int atomID; // atom number in mmp file
+  int atomID2;
 
   mmp = &thisMMPStream;
   mmp->fileName = filename;
@@ -588,6 +589,14 @@ readMMP(char *filename)
       while (expectInt(mmp, &atomID, 1)) {
         makeBond(p, previousAtomID, atomID, bondOrder); BAILP();
       }
+    }
+
+    // bond_direction atno atno
+    // Indicates bond has direction from first to second atom
+    else if (!strncmp(tok, "bond_direction", 14)) {
+      expectInt(mmp, &atomID, 0);
+      expectInt(mmp, &atomID2, 0);
+      setBondDirection(p, atomID, atomID2); BAILP();
     }
 		
     // waals atno atno atno ...

@@ -67,6 +67,11 @@ struct bond
     struct atom *a1;
     struct atom *a2;
     char order;
+
+    // 'F': bond points from a1 to a2
+    // 'R': bond points from a2 to a1
+    // '?': bond has no defined direction
+    char direction;
     
     // A serial number indicating when each of the following fields was
     // last calculated.
@@ -392,6 +397,10 @@ extern void generateStretches(struct part *p);
 
 extern void generateBends(struct part *p);
 
+extern struct bend *getBend(struct part *p, struct atom *a1, struct atom *ac, struct atom *a2);
+
+extern struct bond *getBond(struct part *p, struct atom *a1, struct atom *a2);
+
 extern void generateTorsions(struct part *p);
 
 extern void generateOutOfPlanes(struct part *p);
@@ -405,6 +414,8 @@ extern void makeAtom(struct part *p, int externalID, int elementType, struct xyz
 extern void setAtomHybridization(struct part *p, int atomID, enum hybridization h);
 
 extern void makeBond(struct part *p, int atomID1, int atomID2, char order);
+
+extern void setBondDirection(struct part *p, int atomID1, int atomID2);
 
 extern void makeVanDerWaals(struct part *p, int atomID1, int atomID2);
 

@@ -308,7 +308,7 @@ newBondStretch(char *bondName, double ks, double r0, double de, double beta, dou
 
 // kb in yJ / rad^2 (yoctoJoules per radian squared, or 1e-24 J/rad^2)
 // theta0 in radians
-static struct bendData *
+struct bendData *
 newBendData(char *bendName, double kb, double theta0, int quality)
 {
   struct bendData *bend;
@@ -711,24 +711,28 @@ destroyStaticBondTable(void)
 }
 
 static void
-addPatternParameter(char *name, double value)
+addPatternParameter(char *name, double value, double angleUnits)
 {
-  double *dp = (double *)allocate(sizeof(double));
-  *dp = value;
-  dp = (double *)hashtable_put(patternParameterHashtable, name, (void *)dp);
-  free(dp);
+  struct patternParameter *param =
+    (struct patternParameter *)allocate(sizeof(struct patternParameter));
+  param->value = value;
+  param->angleUnits = angleUnits;
+  param = (struct patternParameter *)hashtable_put(patternParameterHashtable,
+                                                   name, (void *)param);
+  free(param);
 }
 
-double
+struct patternParameter *
 getPatternParameter(char *name)
 {
-  double *dp = (double *)hashtable_get(patternParameterHashtable, name);
-  if (dp != NULL) {
-    return *dp;
+  struct patternParameter *param =
+    (struct patternParameter *)hashtable_get(patternParameterHashtable, name);
+  if (param != NULL) {
+    return param;
   }
   fprintf(stderr, "getPatternParameter(%s): parameter not defined in sim-params.txt\n", name);
   ERROR("pattern parameter not defined in sim-params.txt");
-  return 0.0;
+  return NULL;
 }
 
 static void
@@ -761,6 +765,7 @@ readBondTableOverlay(char *filename)
   double cutoffRadiusStart;
   double cutoffRadiusEnd;
   double value;
+  double angleUnits = 1.0; // default to radians
   FILE *f = fopen(filename, "r");
   
   if (f == NULL) {
@@ -773,6 +778,19 @@ readBondTableOverlay(char *filename)
     if (token) {
       if (!strncmp(token, "#", 1) ) {
         continue;
+      } else if (!strcmp(token, "units")) {
+        err = 0;
+        name = strtok(NULL, " \n");
+        if (!strcmp(name, "degrees")) {
+          angleUnits = Pi / 180.0;
+        } else if (!strcmp(name, "radians")) {
+          angleUnits = 1.0;
+        } else {
+          fprintf(stderr, "unknown unit at file %s line %d\n", filename, lineNumber);
+        }
+        if (err || name == NULL) {
+          fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
+        }
       } else if (!strcmp(token, "element")) {
         err = 0;
         protons = tokenizeInt(&err);
@@ -812,7 +830,7 @@ readBondTableOverlay(char *filename)
       } else if (!strcmp(token, "bend")) {
         err = 0;
         ktheta = tokenizeDouble(&err);
-        theta0 = tokenizeDouble(&err);
+        theta0 = tokenizeDouble(&err) * angleUnits;
         quality = tokenizeInt(&err);
         name = strtok(NULL, " \n");
         if (err || name == NULL) {
@@ -841,7 +859,7 @@ readBondTableOverlay(char *filename)
         if (err || name == NULL) {
           fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
         } else {
-          addPatternParameter(name, value);
+          addPatternParameter(name, value, angleUnits);
           DPRINT2(D_READER, "addPatternParameter: %s %f\n", name, value);
         }
       } else {
