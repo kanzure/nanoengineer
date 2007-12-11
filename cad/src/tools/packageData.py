@@ -7,7 +7,7 @@ packageData.py -- data about modules and packages, for PackageDependency.py
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-packageColors = {
+packageColors = { # needs geometry, platform
     "ui"              : "#8050ff",
     "PM"              : "#8070ff",
     "graphics"        : "#80a0ff",
@@ -40,9 +40,29 @@ packageLevels = {
     "platform"    : 1,
     }
 
+# status as of 071210:
+
+# virtual packages named below but not yet listed above:
+# "?" - unclassified [maybe none at present]
+# "operations" - tentative, for ops on model, could be model or controller
+# "tools"
+# "top_level"
+
+# ... listed above but not yet used below (and not a Python package):
+# "top"
+
+# names of existing Python packages (in theory all should appear above)
+# - appearing above: exprs, PM, utilities, model
+# - not yet appearing above: startup, dna_model, dna_updater, gui
+
+# modules listed below but no longer output at toplevel by AllPyFiles.sh:
+#   assembly - now in model/
+#   pyrex_test - exists as .c .pyx .so but not as .py
+#   whatsthis - now in gui/
+
 packageMapping = {
     "assembly"                         : "model",
-    "Assembly_API"                     : "?",
+    "Assembly_API"                     : "foundation", # ?
     "AtomGenerator"                    : "ui",
     "AtomGeneratorPropertyManager"     : "ui",
     "atomtypes"                        : "model",
@@ -53,10 +73,10 @@ packageMapping = {
     "bond_drawer"                      : "graphics",
     "bond_updater"                     : "model",
     "bond_utils"                       : "model",
-    "BoundingBox"                      : "?",
+    "BoundingBox"                      : "model", # mostly geometry, some graphics, some hardcoded distance constants
     "BuildAtomsPropertyManager"        : "ui",
     "build_utils"                      : "ui",
-    "changedicts"                      : "?",
+    "changedicts"                      : "foundation",
     "changes"                          : "foundation",
     "chem"                             : "model",
     "chem_patterns"                    : "model",
@@ -77,7 +97,7 @@ packageMapping = {
     "cookieMode"                       : "ui",
     "CookiePropertyManager"            : "ui",
     "crossovers"                       : "model",
-    "Csys"                             : "?",
+    "Csys"                             : "model",
     "cursors"                          : "ui",
     "CylinderChunks"                   : "graphics",
     "debug"                            : "utilities",
@@ -87,36 +107,36 @@ packageMapping = {
     "dimensions"                       : "graphics",
     "DirectionArrow"                   : "ui",
     "displaymodes"                     : "ui",
-    "Dna"                              : "model",
-    "DnaDuplex"                        : "?",
-    "DnaDuplexEditController"          : "?",
-    "DnaDuplexPropertyManager"         : "?",
+    "Dna"                              : "model", #?
+    "DnaDuplex"                        : "operations", # class to help construct model objects defined elsewhere
+    "DnaDuplexEditController"          : "ui",
+    "DnaDuplexPropertyManager"         : "ui",
     "DnaGenerator"                     : "ui",
     "DnaGeneratorPropertyManager"      : "ui",
-    "DnaLineMode"                      : "?",
+    "DnaLineMode"                      : "ui",
     "Dna_Constants"                    : "model",
     "DragHandler"                      : "ui",
     "drawer"                           : "graphics",
     "draw_bond_vanes"                  : "graphics",
-    "draw_grid_lines"                  : "?",
+    "draw_grid_lines"                  : "graphics",
     "DynamicTip"                       : "ui",
     "EditController"                   : "ui",
     "EditController_PM"                : "ui",
-    "Elem"                             : "?",
+    "Elem"                             : "model",
     "elementColors"                    : "ui",
     "ElementColorsDialog"              : "ui",
     "elements"                         : "model",
     "elementSelector"                  : "ui",
     "ElementSelectorDialog"            : "ui",
-    "elements_data"                    : "?",
-    "elements_data_PAM3"               : "?",
-    "elements_data_PAM5"               : "?",
+    "elements_data"                    : "model",
+    "elements_data_PAM3"               : "model",
+    "elements_data_PAM5"               : "model",
     "EndUser"                          : "utilities",
     "env"                              : "utilities",
     "ESPImageProp"                     : "ui",
     "ESPImagePropDialog"               : "ui",
     "example_expr_command"             : "examples",
-    "ExecSubDir"                       : "?",
+    "ExecSubDir"                       : "top_level",
     "extensions"                       : "top_level",
     "extrudeMode"                      : "ui",
     "ExtrudePropertyManager"           : "ui",
@@ -125,7 +145,7 @@ packageMapping = {
     "files_mmp"                        : "io",
     "files_nh"                         : "io",
     "files_pdb"                        : "io",
-    "Font3D"                           : "?",
+    "Font3D"                           : "graphics",
     "fusechunksMode"                   : "ui",
     "FusePropertyManager"              : "ui",
     "GamessJob"                        : "io",
@@ -136,14 +156,14 @@ packageMapping = {
     "generator_button_images"          : "ui",
     "geometry"                         : "geometry",
     "GlobalPreferences"                : "utilities",
-    "global_model_changedicts"         : "?",
+    "global_model_changedicts"         : "model", #?
     "GLPane"                           : "graphics",
     "GLPane_minimal"                   : "graphics",
     "gpl_only"                         : "platform",
     "GrapheneGenerator"                : "ui",
     "GrapheneGeneratorPropertyManager" : "ui",
     "GraphicsMode"                     : "ui",
-    "GraphicsMode_API"                 : "?",
+    "GraphicsMode_API"                 : "ui",
     "GridPlaneProp"                    : "ui",
     "GridPlanePropDialog"              : "ui",
     "GROMACS"                          : "io",
@@ -160,7 +180,7 @@ packageMapping = {
     "_import_roots"                    : "top_level",
     "Initialize"                       : "utilities",
     "inval"                            : "foundation",
-    "jigmakers_Mixin"                  : "?",
+    "jigmakers_Mixin"                  : "model", # tells Part how to create & edit various Jigs (some ui?)
     "JigProp"                          : "ui",
     "JigPropDialog"                    : "ui",
     "jigs"                             : "model",
@@ -173,10 +193,10 @@ packageMapping = {
     "Line"                             : "ui", # geometry, model?
     "LinearMotorEditController"        : "ui",
     "LinearMotorPropertyManager"       : "ui",
-    "LineMode"                         : "?",
+    "LineMode"                         : "ui",
     "main"                             : "top_level",
     "MainWindowUI"                     : "ui",
-    "master_model_updater"             : "?",
+    "master_model_updater"             : "model",
     "mdldata"                          : "io",
     "MinimizeEnergyProp"               : "ui",
     "MinimizeEnergyPropDialog"         : "ui",
@@ -197,9 +217,9 @@ packageMapping = {
     "NanotubeGenerator"                : "ui",
     "NanotubeGeneratorPropertyManager" : "ui",
     "NE1ToolBar"                       : "ui",
-    "Node_as_MT_DND_Target"            : "?",
+    "Node_as_MT_DND_Target"            : "ui",
     "node_indices"                     : "foundation",
-    "objectBrowse"                     : "?",
+    "objectBrowse"                     : "utilities",
     "ops_atoms"                        : "model",
     "ops_connected"                    : "model",
     "ops_copy"                         : "model", # parts may be foundation
@@ -217,18 +237,18 @@ packageMapping = {
     "PartLibraryMode"                  : "ui",
     "PartProp"                         : "ui",
     "PartPropDialog"                   : "ui",
-    "pastables"                        : "?",
+    "pastables"                        : "model", # supports pasting operations
     "PasteMode"                        : "ui",
     "PastePropertyManager"             : "ui",
     "pi_bond_sp_chain"                 : "model",
-    "Plane"                            : "ui", # geometry, model?
+    "Plane"                            : "ui", # geometry, model? [model]
     "PlaneEditController"              : "ui",
     "PlanePropertyManager"             : "ui",
     "platform"                         : "utilities",
     "PlatformDependent"                : "platform",
     "PlotTool"                         : "ui",
     "PlotToolDialog"                   : "ui",
-    "Plugins"                          : "?",
+    "Plugins"                          : "ui", # ?
     "povheader"                        : "io",
     "povray"                           : "io",
     "PovrayScene"                      : "model", # ?
@@ -243,10 +263,10 @@ packageMapping = {
     "pyrex_test"                       : "top_level",
     "qt4transition"                    : "utilities",
     "qutemol"                          : "io",
-    "QuteMolPropertyManager"           : "?",
+    "QuteMolPropertyManager"           : "ui",
     "ReferenceGeometry"                : "ui", # geometry, model?
     "reposition_baggage"               : "model",
-    "ResizeHandle"                     : "?",
+    "ResizeHandle"                     : "ui", # interactive graphics - package will be revised
     "RotaryMotorEditController"        : "ui",
     "RotaryMotorPropertyManager"       : "ui",
     "RotateMode"                       : "ui",
@@ -255,7 +275,7 @@ packageMapping = {
     "selectMode"                       : "ui",
     "selectMolsMode"                   : "ui",
     "Selobj"                           : "ui", # graphics?
-    "SequenceEditor"                   : "?",
+    "SequenceEditor"                   : "ui",
     "ServerManager"                    : "ui",
     "ServerManagerDialog"              : "ui",
     "setup"                            : "tools",
@@ -277,13 +297,13 @@ packageMapping = {
     "testdraw"                         : "test",
     "testmode"                         : "test",
     "test_commands"                    : "test",
-    "test_commands_init"               : "?",
+    "test_commands_init"               : "test", # all these test* modules might be reclassified
     "test_command_PMs"                 : "test",
     "test_connectWithState"            : "test",
     "test_connectWithState_constants"  : "test",
     "test_connectWithState_PM"         : "test",
-    "texture_fonts"                    : "?",
-    "texture_helpers"                  : "?",
+    "texture_fonts"                    : "graphics",
+    "texture_helpers"                  : "graphics",
     "ThermoProp"                       : "ui",
     "ThermoPropDialog"                 : "ui",
     "ThumbView"                        : "graphics",
@@ -295,7 +315,7 @@ packageMapping = {
     "Ui_CommandManager"                : "ui",
     "Ui_CookiePropertyManager"         : "ui",
     "Ui_DimensionsMenu"                : "ui",
-    "Ui_DnaFlyout"                     : "?",
+    "Ui_DnaFlyout"                     : "ui",
     "Ui_EditMenu"                      : "ui",
     "Ui_ExtrudePropertyManager"        : "ui",
     "Ui_FileMenu"                      : "ui",
@@ -306,7 +326,7 @@ packageMapping = {
     "Ui_PartWindow"                    : "ui",
     "Ui_SelectMenu"                    : "ui",
     "Ui_SelectToolBar"                 : "ui",
-    "Ui_SequenceEditor"                : "?",
+    "Ui_SequenceEditor"                : "ui",
     "Ui_SimulationMenu"                : "ui",
     "Ui_SimulationToolBar"             : "ui",
     "Ui_StandardToolBar"               : "ui",
@@ -317,7 +337,7 @@ packageMapping = {
     "undo"                             : "foundation",
     "undo_archive"                     : "foundation",
     "undo_manager"                     : "foundation",
-    "undo_UI"                          : "?",
+    "undo_UI"                          : "ui",
     "UserPrefs"                        : "ui",
     "UserPrefsDialog"                  : "ui",
     "Utility"                          : "foundation", # some model code?
