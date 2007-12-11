@@ -16,6 +16,8 @@ This code appears to be active and essential for undo updating;
 details unclear, as is whether it's used for any other kind of updating,
 e.g. bond_updater -- guess, no (though some of the same individual dicts
 might be). [bruce 071106 comment]
+
+Update 071210: since that comment, it's also been used in the dna updater.
 """
 
 from debug import print_compact_traceback

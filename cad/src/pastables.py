@@ -29,7 +29,9 @@ from chunk import Chunk # only for isinstance
 from Group import Group # only for isinstance
 
 def is_pastable(obj):
-    "whether to include a clipboard object on Build's pastable spinbox"
+    """
+    whether to include a clipboard object on Build's pastable spinbox
+    """
     #bruce 050127 make this more liberal, so it includes things which are
     # not pastable onto singlets but are still pastable into free space
     # (as it did before my changes of a few days ago)
@@ -51,7 +53,8 @@ def is_pastable_onto_singlet(obj): #bruce 050121 (renamed 050127)
     return ok
 
 def find_hotspot_for_pasting(obj):
-    """Return (True, hotspot) or (False, reason),
+    """
+    Return (True, hotspot) or (False, reason),
     depending on whether obj is pastable in Build mode
     (i.e. on whether a copy of it can be bonded to an existing singlet).
     In the two possible return values,

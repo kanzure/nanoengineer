@@ -9,6 +9,11 @@ BoundingBox.py
 History:
 This class BBox was originally in shape.py. Moved to its own module on 
 2007-10-17.
+
+Note: this is classified in model (not geometry), not just because it
+includes graphics code, but because it includes hardcoded constants
+(at least 1.8 and 10.0, as of now) whose values come from considerations
+about its use for our model objects (atoms). [bruce 071210 comment]
 """
 from drawer import drawwirebox
 from Numeric import add, subtract, sqrt 

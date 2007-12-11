@@ -1,8 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Plugins.py
-
-Contains a collection general plugin helper functions for the purpose of 
+Plugins.py - a collection of general plugin helper functions for the purpose of
 checking and/or verifying that a plugin is enabled and that the path pointed
 to by its pref_key is the plugin.
 
@@ -163,6 +161,7 @@ def verifyPluginUsingVersionFlag(plugin_path, version_flag, vstring):
     args = [version_flag]
     
     from Process import Process
+        # (this import should be moved to toplevel [--bruce 071012])
     
     arguments = []
     for arg in args:

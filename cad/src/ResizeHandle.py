@@ -2,7 +2,7 @@
 """
 ResizeHandle.py
 This class provides Handles for resizing the parent object. The parent 
-object in most cases is a geometry (e.g. Plane, Line etc) 
+object in most cases is a reference geometry model object (e.g. Plane, Line etc) 
 
 @author: Ninad
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.

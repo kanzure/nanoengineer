@@ -5,6 +5,13 @@ shape.py -- handle freehand curves for selection and cookie-cutting
 @author: Josh, Huaicai, maybe others
 @version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+
+Note: this needs to be split into several modules, since its different
+classes naturally belong in different packages. It looks like this
+split would be easy. For now, if it's classified as "model" the import
+situation will be ok, even though it contains some code that more
+naturally belongs in "geometry", some in "graphical selection", and
+some that goes whereever cookieMode goes. [bruce 071210 comment]
 """
 
 from Numeric import array, zeros, maximum, minimum, ceil, dot, floor
