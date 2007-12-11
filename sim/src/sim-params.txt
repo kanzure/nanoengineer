@@ -369,3 +369,6 @@ bend   0.04          2.2165681475    9   Sh3-1-Hp3.sp3-1-Sh3
 bend   0.04          2.2165681475    9   H-1-Hp3.sp3-1-Se3
 bend   0.04          2.2165681475    9   H-1-Hp3.sp3-1-Sh3
 bend   0.04          2.2165681475    9   H-1-Hp3.sp3-1-H
+
+# 80 degrees
+pattern PAM5:DNAring:upward_bend_theta0 1.3962634

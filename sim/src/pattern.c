@@ -502,5 +502,9 @@ createPatterns(void)
 void
 matchPartToAllPatterns(struct part *part)
 {
+  double val;
+  
   matchPartToPattern(part, allPatterns[0]);
+  val = getPatternParameter("PAM5:DNAring:upward_bend_theta0");
+  printf("theta0: %f\n", val);
 }

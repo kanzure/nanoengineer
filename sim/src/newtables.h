@@ -155,6 +155,8 @@ extern int isAtomTypeValid(int atomTypeIndex);
 
 extern struct atomType *getAtomTypeByName(char *symbol);
 
+extern double getPatternParameter(char *name);
+
 extern void initializeBondTable(void);
 
 extern void destroyBondTable(void);

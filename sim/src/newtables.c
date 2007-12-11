@@ -8,6 +8,7 @@ static struct bondStretch *
 getBondStretchEntry(int element1, int element2, char bondOrder);
 
 static struct hashtable *periodicHashtable = NULL;
+static struct hashtable *patternParameterHashtable = NULL;
 
 struct atomType *
 getAtomTypeByIndex(int atomTypeIndex)
@@ -705,6 +706,29 @@ destroyStaticBondTable(void)
   vanDerWaalsHashtable = NULL;
   hashtable_destroy(electrostaticHashtable, destroyElectrostatic);
   electrostaticHashtable = NULL;
+  hashtable_destroy(patternParameterHashtable, free);
+  patternParameterHashtable = NULL;
+}
+
+static void
+addPatternParameter(char *name, double value)
+{
+  double *dp = (double *)allocate(sizeof(double));
+  *dp = value;
+  dp = (double *)hashtable_put(patternParameterHashtable, name, (void *)dp);
+  free(dp);
+}
+
+double
+getPatternParameter(char *name)
+{
+  double *dp = (double *)hashtable_get(patternParameterHashtable, name);
+  if (dp != NULL) {
+    return *dp;
+  }
+  fprintf(stderr, "getPatternParameter(%s): parameter not defined in sim-params.txt\n", name);
+  ERROR("pattern parameter not defined in sim-params.txt");
+  return 0.0;
 }
 
 static void
@@ -736,6 +760,7 @@ readBondTableOverlay(char *filename)
   double theta0;
   double cutoffRadiusStart;
   double cutoffRadiusEnd;
+  double value;
   FILE *f = fopen(filename, "r");
   
   if (f == NULL) {
@@ -809,6 +834,16 @@ readBondTableOverlay(char *filename)
           addVanDerWaalsInteraction(name, rvdW, evdW, cutoffRadiusStart, cutoffRadiusEnd);
           DPRINT5(D_READER, "addVanDerWaalsInteraction: %f %f %f %f %s\n", rvdW, evdW, cutoffRadiusStart, cutoffRadiusEnd, name);
         }
+      } else if (!strcmp(token, "pattern")) {
+        err = 0;
+        name = strtok(NULL, " \n");
+        value = tokenizeDouble(&err);
+        if (err || name == NULL) {
+          fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
+        } else {
+          addPatternParameter(name, value);
+          DPRINT2(D_READER, "addPatternParameter: %s %f\n", name, value);
+        }
       } else {
         fprintf(stderr, "unrecognized line type at file %s line %d: %s\n", filename, lineNumber, token);
       }
@@ -828,6 +863,7 @@ initializeStaticBondTable(void)
   bendDataHashtable = hashtable_new(40);
   vanDerWaalsHashtable = hashtable_new(40);
   electrostaticHashtable = hashtable_new(40);
+  patternParameterHashtable = hashtable_new(40);
   
   // groups 9-22 are lanthanides
   // groups 8-31 are transition metals
