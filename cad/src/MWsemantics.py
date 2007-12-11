@@ -1461,38 +1461,75 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.win_update() # bruce 041206, needed for model tree display mode icons
         ## was self.glpane.paintGL() [but now would be self.glpane.gl_update]
 
-    # set the color of the selected molecule
-    # atom colors cannot be changed singly
-    def dispObjectColor(self, currentcolor = None):
-        if not self.assy.selmols: 
-            env.history.message(redmsg("Set Chunk Color: No chunks selected.")) #bruce 050505 added this message
+    def dispObjectColor(self, initialColor = Qt.white):
+        """
+        Sets the color of the selected chunks and/or jigs to a color the user 
+        chooses.
+        
+        @param initialColor: the initial color to display in the color chooser
+                             dialog. The default initial color is white.
+        @type  initialColor: QColor
+        
+        @note: Need better method name (i.e. setObjectColor()).
+        """
+        
+        _cmd = greenmsg("Change Color: ")
+        
+        from ops_select import objectSelected, ATOMS, CHUNKS, JIGS
+        if not objectSelected(self.assy, objectFlags = CHUNKS | JIGS):
+            if objectSelected(self.assy, objectFlags = ATOMS):
+                _msg = redmsg("Cannot change color of individual atoms.")
+            else:
+                _msg = redmsg("Nothing selected.")
+            env.history.message(_cmd + _msg)
             return
-        if not currentcolor:
-            c = QColorDialog.getColor(Qt.white, self)
-        else:
-            c = QColorDialog.getColor(currentcolor, self)
-
-        if c.isValid():
-            molcolor = c.red()/255.0, c.green()/255.0, c.blue()/255.0
+        
+        _numSelectedObjects = self.assy.getNumberOfSelectedObjects()
+        
+        if _numSelectedObjects == 1 and self.assy.getNumberOfSelectedChunks == 1:
+            # If only one object is selected, and its a chunk, 
+            # assign initialColor its color.
+            _selectedChunkColor = self.assy.selmols[0].color
+            if _selectedChunkColor:
+                from widgets import RGBf_to_QColor
+                initialColor = RGBf_to_QColor(_selectedChunkColor)
+        
+        elif _numSelectedObjects == 1 and self.assy.getNumberOfSelectedJigs == 1:
+            # If only one object is selected, and its a jig, 
+            # assign initialColor its color.
+            _selectedJig = self.assy.getSelectedJigs()
+            _selectedJigColor = _selectedJig[0].normcolor
+            if _selectedJigColor:
+                from widgets import RGBf_to_QColor
+                initialColor = RGBf_to_QColor(_selectedJigColor)
+                
+        _c = QColorDialog.getColor(initialColor, self)
+        if _c.isValid():
+            from widgets import QColor_to_RGBf
+            _newColor = QColor_to_RGBf(_c)
             list = []
             for ob in self.assy.selmols:
-                ob.setcolor(molcolor)
+                ob.setcolor(_newColor)
+                list.append(ob)
+                
+            for ob in self.assy.getSelectedJigs():
+                ob.color = _newColor # Need jig.setColor() method! --mark
+                ob.normcolor =  _newColor
                 list.append(ob)
 
-            #Ninad 070321: Since the chunk is selected as a colored selection, 
-            #it should be unpicked after changing its color. 
-            #The user has most likely selected the chunk to change its color 
-            #and won't like it still shown 'green'(the selection color) 
-            #even after changing the color. so deselect it. 	
-            # The chunk is NOT unpicked IF the color is changed via chunk property
-            #dialog. see ChunkProp.change_chunk_color for details. This is intentional.
+            # Ninad 070321: Since the chunk is selected as a colored selection, 
+            # it should be unpicked after changing its color. 
+            # The user has most likely selected the chunk to change its color 
+            # and won't like it still shown 'green'(the selection color) 
+            # even after changing the color. so deselect it. 	
+            # The chunk is NOT unpicked IF the color is changed via chunk 
+            # property dialog. see ChunkProp.change_chunk_color for details.
+            # This is intentional.
 
             for ob in list: 		
                 ob.unpick()
 
             self.win_update()
-            #self.glpane.gl_update()
-
 
     def dispResetChunkColor(self):
         """

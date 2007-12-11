@@ -136,10 +136,10 @@ def retranslateUi(win):
                                                                              None, QtGui.QApplication.UnicodeUTF8))
     win.editClearUndoStackAction.setIconText(QtGui.QApplication.translate("MainWindow", "Clear Undo Stack", 
                                                                           None, QtGui.QApplication.UnicodeUTF8))    
-    win.dispObjectColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Chunk Color...", 
+    win.dispObjectColorAction.setText(QtGui.QApplication.translate("MainWindow", "Change Color...", 
                                                                     None, QtGui.QApplication.UnicodeUTF8))
-    win.dispObjectColorAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Edit Chunk Color...", 
+    win.dispObjectColorAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Change Color", 
                                                                         None, QtGui.QApplication.UnicodeUTF8))
-    win.dispObjectColorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Chunk Color", 
+    win.dispObjectColorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Change Color", 
                                                                        None, QtGui.QApplication.UnicodeUTF8))
               
