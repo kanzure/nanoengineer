@@ -24,8 +24,18 @@ from jigs import Jig
 
 class ChainAtomMarker(Jig):
     """
-    A marked atom in an AtomChainOrRing, with help for moving it
-    to a new atom if its old atom is killed; has state for undo/copy/save
+    Marks a single atom in an AtomChainOrRing, with support for the marker
+    (self) being moved to a new atom in the same chain if the old atom gets
+    killed.
+
+    (But the strategy for finding which atom self should move to, if its old
+    atom gets killed, or whether self should die in that case,
+    and when any of that should happen, is left up to a specific subclass.)
+
+    WARNING: this will be revised, since the marker really needs to
+    be on a higher-level WholeChain which covers multiple AtomChainOrRings.
+
+    Has state for undo/copy/save.
     """
 
     # default values of instance variables:
