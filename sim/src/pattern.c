@@ -43,6 +43,7 @@ destroyMatch(struct patternMatch *match)
   free(match);
 }
 
+// debug routine
 static void
 printMatchStatus(struct patternMatch *match,
                  char *label,
@@ -79,6 +80,10 @@ printMatchStatus(struct patternMatch *match,
   printf("\n");
 }
 
+// This routine erases the state of any matches past the indicated
+// point in the iteration through the pattern.  While we are iterating
+// through possibilities for atom a (which==1) at the start of each
+// loop, we must forget the state of atom b (which==2).
 static int
 resetMatchForThisTraversal(struct patternMatch *match,
                            int traversalIndex,
@@ -116,6 +121,8 @@ atomIsType(struct atom *a, struct atomType *type)
   return a->type == type;
 }
 
+// Returns true if the indicated atom (id) has not yet appeared in the
+// match.  This keeps a pattern from matching the same atom twice.
 static int
 atomNotUsed(struct patternMatch *match, int traversalIndex, int id)
 {
@@ -133,7 +140,12 @@ atomNotUsed(struct patternMatch *match, int traversalIndex, int id)
   }
   return 1;
 }
-           
+
+// Returns the next atom to match at the given position in the
+// pattern, or NULL if the possibilities have been exhausted.  If an
+// atom was fixed at a previous traversal (earlier in the matching
+// process), this routing will return that atom on the first call, and
+// NULL on the second call.  That state is kept in callCount.
 static struct atom *
 matchOneAtom(struct patternMatch *match,
              struct compiledPattern *pattern,
@@ -177,6 +189,11 @@ matchOneAtom(struct patternMatch *match,
   return NULL;
 }
 
+// Returns true if the specified targetAtom matches at the given point
+// in the pattern.  The atom may have been fixed at a previous
+// traversal, in which case we must be looking at the same atom.  If
+// this is a new atom at this traversal, we fix it here if the type is
+// correct.
 static int
 matchSpecificAtom(struct patternMatch *match,
                   struct compiledPatternAtom *patternAtom,
@@ -208,6 +225,60 @@ matchSpecificAtom(struct patternMatch *match,
   return 0;
 }
 
+static struct hashtable *matchSet = NULL;
+
+static int
+integerSortCompare(const void *a, const void *b)
+{
+  return *(int *)a - *(int *)b;
+}
+
+// Returns true if the matched set of atoms has already been found
+// while matching this pattern.  Keeps symmetric patterns from
+// matching more than once on the same set of atoms.  The set of
+// matched atoms is canonicalized (by sorting the numerical ids),
+// turned into a string, and used as a hashtable key.
+static int
+checkForDuplicateMatch(struct patternMatch *match)
+{
+  int i;
+  int len;
+  int *atomIndices = (int *)allocate(sizeof(int) * match->numberOfAtoms);
+  char *buf1;
+  char buf2[20];
+  int ret;
+
+  for (i=match->numberOfAtoms-1; i>=0; i--) {
+    atomIndices[i] = match->atomIndices[i];
+  }
+  qsort(atomIndices, match->numberOfAtoms, sizeof(int), integerSortCompare);
+  len = 0;
+  for (i=match->numberOfAtoms-1; i>=0; i--) {
+    sprintf(buf2, "%d.", atomIndices[i]);
+    len += strlen(buf2);
+  }
+  buf1 = (char *)allocate(sizeof(char) * (len + 1));
+  buf1[0] = '\0';
+  for (i=match->numberOfAtoms-1; i>=0; i--) {
+    sprintf(buf2, "%d.", atomIndices[i]);
+    strcat(buf1, buf2);
+  }
+  ret = hashtable_get(matchSet, buf1) != NULL;
+  if (!ret) {
+    hashtable_put(matchSet, buf1, (void *)1);
+  }
+  return ret;
+}
+
+// Matches one traversal in a compiled pattern.  See
+// http://www.nanoengineer-1.net/mediawiki/index.php?title=User:Emessick/Molecular_pattern_matching
+// for a description of the algorithm.  Basically, each traversal
+// represents an expansion of the set of criteria for matching the
+// pattern.  The first traversal establishes a seed, and later
+// traversals add to the seed, crystallizing the pattern around it.
+// The crystallization only proceeds in the presence of a matching
+// target structure.  If the crystal grows to the end of the traversal
+// list, the whole pattern matched.
 static void
 matchOneTraversal(struct patternMatch *match,
                   struct compiledPattern *pattern,
@@ -224,8 +295,9 @@ matchOneTraversal(struct patternMatch *match,
   struct compiledPatternTraversal *traversal;
   
   if (traversalIndex >= pattern->numberOfTraversals) {
-    // check for duplicate matches here
-    pattern->matchFunction(match);
+    if (checkForDuplicateMatch(match)) {
+      pattern->matchFunction(match);
+    }
     return;
   }
   traversal = pattern->traversals[traversalIndex];
@@ -292,20 +364,27 @@ matchOneTraversal(struct patternMatch *match,
   }
 }
 
-
+// Housekeeping that has to happen around the recursive
+// matchOneTraversal() routine.
 static void
 matchPartToPattern(struct part *part, struct compiledPattern *pattern)
 {
   struct patternMatch *match;
 
   match = makeMatch(part, pattern);
+  matchSet = hashtable_new(64);
   matchOneTraversal(match, pattern, 0);
   destroyMatch(match);
+  hashtable_destroy(matchSet, NULL);
+  matchSet = NULL;
 }
 
 
 static struct atomType *unmatchable = NULL;
 
+// Creates an atomType which cannot represent any atoms.  Used only if
+// a pattern references an unknown type.  In that case, the pattern
+// can never match.
 static void
 makeUnmatchableType(void)
 {
@@ -397,7 +476,7 @@ printMatch(struct patternMatch *match)
   }
 }
 
-static struct compiledPattern *allPatterns[3];
+static struct compiledPattern *allPatterns[1];
 
 void
 createPatterns(void)
@@ -407,44 +486,21 @@ createPatterns(void)
   
   makeUnmatchableType();
   
-  a[0] = makePatternAtom(0, "C");
-  a[1] = makePatternAtom(1, "O");
-  a[2] = makePatternAtom(2, "O");
-  a[3] = makePatternAtom(3, "H");
-  t[0] = makeTraversal(a[0], a[1], '2');
-  t[1] = makeTraversal(a[0], a[2], '1');
-  t[2] = makeTraversal(a[2], a[3], '1');
-  allPatterns[0] = makePattern("COOH", printMatch, 4, 3, t);
-
-  a[0] = makePatternAtom(0, "C");
-  a[1] = makePatternAtom(1, "N");
-  a[2] = makePatternAtom(2, "C");
-  a[3] = makePatternAtom(3, "C");
-  a[4] = makePatternAtom(4, "C");
-  a[5] = makePatternAtom(5, "C");
-  a[6] = makePatternAtom(6, "N");
-  a[7] = makePatternAtom(7, "He");
+  a[0] = makePatternAtom(0, "Ax5");
+  a[1] = makePatternAtom(1, "Ax5");
+  a[2] = makePatternAtom(2, "Ss5");
+  a[3] = makePatternAtom(3, "Pl5");
+  a[4] = makePatternAtom(4, "Ss5");
   t[0] = makeTraversal(a[0], a[1], '1');
   t[1] = makeTraversal(a[1], a[2], '1');
   t[2] = makeTraversal(a[2], a[3], '1');
-  t[3] = makeTraversal(a[7], a[7], '1');
-  t[4] = makeTraversal(a[3], a[4], '1');
-  t[5] = makeTraversal(a[4], a[5], '1');
-  t[6] = makeTraversal(a[5], a[0], '1');
-  t[7] = makeTraversal(a[0], a[6], '0');
-  allPatterns[1] = makePattern("ring", printMatch, 8, 8, t);
-
-  a[0] = makePatternAtom(0, "He");
-  a[1] = makePatternAtom(1, "He");
-  t[0] = makeTraversal(a[0], a[0], '1');
-  t[1] = makeTraversal(a[1], a[1], '1');
-  allPatterns[2] = makePattern("He", printMatch, 2, 2, t);
+  t[3] = makeTraversal(a[3], a[4], '1');
+  t[4] = makeTraversal(a[4], a[0], '1');
+  allPatterns[0] = makePattern("DNAring", printMatch, 5, 5, t);
 }
 
 void
 matchPartToAllPatterns(struct part *part)
 {
   matchPartToPattern(part, allPatterns[0]);
-  matchPartToPattern(part, allPatterns[1]);
-  matchPartToPattern(part, allPatterns[2]);
 }
