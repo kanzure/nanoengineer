@@ -55,18 +55,18 @@ def update_DNA_groups( new_chunks ):
     
     ignore_new_changes("as update_DNA_groups starts", changes_ok = False )
 
-    chains = {}
+    whole_chains = {}
     
     for chunk in new_chunks:
         # does it have a desired home, or need a new one?
-        # A desired one is found via its marker, on a chain passing through the chunk.
+        # A desired one is found via the controlling_marker on a whole_chain passing through the chunk.
 
         # MAYBE TODO: We might do part of this when creating the chunk
         # and only do it now if no home existed.
-        chain = chunk.chain # this wants the higher-level WholeChain ##### DOIT
-        chains[id(chain)] = chain
-        marker = chain.find_controlling_marker() # IMPLEM
-        strand_or_segment = marker.owning_strand_or_segment()
+        whole_chain = chunk.whole_chain # this wants the higher-level WholeChain ##### DOIT
+        whole_chains[id(whole_chain)] = whole_chain
+        controlling_marker = whole_chain.find_controlling_marker() # IMPLEM
+        strand_or_segment = controlling_marker._f_get_owning_strand_or_segment()
             # IMPLEM; might just be an attr, .owner; or just .dad??
             # but note we have new methods like it for more external use, that call get_parentnode....
         if strand_or_segment is None:
@@ -82,14 +82,20 @@ def update_DNA_groups( new_chunks ):
                 assert chunk.get_parentnode_of_class(DnaStrandOrSegment) is None
                 dnaGroup = new_DnaGroup_around_chunk(chunk)
             # now make a strand or segment in that DnaGroup (in a certain Block??)
-            strand_or_segment = dnaGroup.makeStrandOrSegmentForMarker(marker) # IMPLEM; marker might be new, or newly controlling
+            strand_or_segment = dnaGroup.makeStrandOrSegmentForMarker(controlling_marker) # IMPLEM; controlling_marker might be new, or newly controlling;
+                # doesn't matter for this call whether it moves controlling_marker into self, but i suppose it will
         # move the chunk there
         strand_or_segment._move_into_your_members(chunk) # IMPLEM for chunks (or make variant method for each arg class)
 
-    for chain in chains.itervalues():
-        for marker in chain.all_markers(): # IMPLEM
-            strand_or_segment = marker.owning_strand_or_segment()
-            assert strand_or_segment # not sure this will be true... note it can't rely on .dad etc to find it!!! #####DOIT
+    for whole_chain in whole_chains.itervalues():
+        controlling_marker = whole_chain.find_controlling_marker()
+        strand_or_segment = controlling_marker._f_get_owning_strand_or_segment()
+        for marker in whole_chain.all_markers(): # IMPLEM
+##            strand_or_segment = marker._f_get_owning_strand_or_segment()
+##            assert strand_or_segment # not sure this will be true... note it can't rely on .dad etc to find it!
+##                # hmm, it seems likely (or possible anyway) that this will be false.
+##                # what should be possible is to find the controlling marker
+##                # on the same whole_chain!
             strand_or_segment._move_into_your_members(marker) # IMPLEM for markers
 
     return # from update_DNA_groups

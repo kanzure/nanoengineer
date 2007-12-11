@@ -87,6 +87,8 @@ class DnaAtomMarker( ChainAtomMarker):
     _advise_new_chain_direction = 0
         # temporarily set to 0 or -1 or 1 for use when moving self and setting a new chain
 
+    _owning_strand_or_segment = None
+    
     # == Jig API methods (overridden or extended):
     
     def remove_atom(self, atom):
@@ -130,7 +132,35 @@ class DnaAtomMarker( ChainAtomMarker):
         @see: get_DnaStrand, get_DnaSegment
         """
         return self.parent_node_of_class( DnaGroup)
+
+    def _get_DnaStrandOrSegment(self):
+        """
+        [private]
+        Non-friend callers should instead use the appropriate
+        method out of get_DnaStrand or get_DnaSegment.
+        """
+        return self.parent_node_of_class( DnaStrandOrSegment)
         
+    def _f_get_owning_strand_or_segment(self):
+        """
+        [friend method for dna updater]
+        Find the DnaStrand or DnaSegment which owns this marker,
+        or None if there isn't one,
+        even if the internal Node tree structure (node.dad)
+        has not yet been updated to reflect this properly
+        (which may only happen when self is homeless).
+
+        Non-friend callers (outside the dna updater, and not running
+        just after creating this before the updater has a chance to run
+        or gets called explicitly) should instead use the appropriate
+        method out of get_DnaStrand or get_DnaSegment.
+        """
+        res = self._owning_strand_or_segment
+        ### maybe todo: if this might be updated lazily, and is None, update it now from .dad?
+        if res is None:
+            assert self._get_DnaStrandOrSegment() is None # if fails, need code to update this attr,
+                # maybe in the _move_into_your_members method?
+        return res
     # ==
     
     def set_whether_controlling(self, controlling):
