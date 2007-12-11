@@ -146,6 +146,30 @@ class ops_select_Mixin:
         
         self.topnode.apply2all(addSelectedJig)
         return selJigs
+    
+    def getNumberOfSelectedChunks(self):
+        """
+        Returns the number of selected chunks. 
+        
+        @note:Atoms and jigs are not counted.
+        """
+        return len(self.assy.selmols)
+    
+    def getNumberOfSelectedJigs(self):
+        """
+        Returns the number of selected jigs. 
+        
+        @note:Atoms and chunks are not counted.
+        """
+        return len(self.assy.getSelectedJigs())
+    
+    def getNumberOfSelectedObjects(self):
+        """
+        Returns the number of selected chunks and jigs. 
+        
+        @note:Atoms are not counted.
+        """
+        return len(self.assy.selmols) + len(self.assy.getSelectedJigs())
         
     def getSelectedMovables(self): # Renamed from getMovables().  mark 060124.
         """
