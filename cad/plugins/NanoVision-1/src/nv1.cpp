@@ -6,8 +6,20 @@
 
 /* CONSTRUCTOR */
 nv1::nv1() {
-	QWidget* mdiArea = new QWidget();
+	/* For Qt 4.3
+	QMdiArea* mdiArea = new QMdiArea();
 	setCentralWidget(mdiArea);
+	*/
+
+	/* For Qt 4.2 */
+	workspace = new QWorkspace();
+	setCentralWidget(workspace);
+	connect(workspace, SIGNAL(windowActivated(QWidget *)),
+	        this, SLOT(updateMenus()));
+	windowMapper = new QSignalMapper(this);
+	connect(windowMapper, SIGNAL(mapped(QWidget *)),
+	        workspace, SLOT(setActiveWindow(QWidget *)));
+
 
 	createActions();
 	createMenus();
@@ -16,7 +28,8 @@ nv1::nv1() {
 
 	readSettings();
 
-	setCurrentFile("");
+	setWindowTitle(tr("MDI"));
+//	setCurrentFile("");
 }
 
 
@@ -27,26 +40,104 @@ nv1::~nv1() {
 
 /* FUNCTION: closeEvent */
 void nv1::closeEvent(QCloseEvent *event) {
-	writeSettings();
-	event->accept();
+	workspace->closeAllWindows();
+	if (activeMdiWindow()) {
+		event->ignore();
+	} else {
+		writeSettings();
+		event->accept();
+	}
 }
 
 
 /* FUNCTION: open */
 void nv1::open() {
 	QString fileName = QFileDialog::getOpenFileName(this);
-	if (!fileName.isEmpty())
-		loadFile(fileName);
+	if (!fileName.isEmpty()) {
+		MdiWindow* existing = findMdiWindow(fileName);
+		if (existing) {
+			workspace->setActiveWindow(existing);
+			return;
+		}
+
+		MdiWindow* window = createMdiWindow();
+		if (window->loadFile(fileName)) {
+			statusBar()->showMessage(tr("File loaded"), 2000);
+			window->show();
+		} else {
+			window->close();
+		}
+	}
 }
 
 
 /* FUNCTION: about */
 void nv1::about() {
 	QMessageBox::about(this,
-					   tr("About NanoVision-1"),
+	                   tr("About NanoVision-1"),
 	                   tr("Nanorex NanoVision-1 0.1.0\n"
 	                      "Copyright 2007 Nanorex, Inc.\n"
-						  "See LICENSE file for details."));
+	                      "See LICENSE file for details."));
+}
+
+
+/* FUNCTION: updateMenus */
+void nv1::updateMenus() {
+	bool hasMdiWindow = (activeMdiWindow() != 0);
+	closeAction->setEnabled(hasMdiWindow);
+	closeAllAction->setEnabled(hasMdiWindow);
+	tileAction->setEnabled(hasMdiWindow);
+	cascadeAction->setEnabled(hasMdiWindow);
+	arrangeAction->setEnabled(hasMdiWindow);
+	nextAction->setEnabled(hasMdiWindow);
+	previousAction->setEnabled(hasMdiWindow);
+	separatorAction->setVisible(hasMdiWindow);
+}
+
+
+/* FUNCTION: updateWindowMenu */
+void nv1::updateWindowMenu() {
+	windowMenu->clear();
+	windowMenu->addAction(closeAction);
+	windowMenu->addAction(closeAllAction);
+	windowMenu->addSeparator();
+	windowMenu->addAction(tileAction);
+	windowMenu->addAction(cascadeAction);
+	windowMenu->addAction(arrangeAction);
+	windowMenu->addSeparator();
+	windowMenu->addAction(nextAction);
+	windowMenu->addAction(previousAction);
+	windowMenu->addAction(separatorAction);
+
+	QList<QWidget*> windows = workspace->windowList();
+	separatorAction->setVisible(!windows.isEmpty());
+
+	for (int index = 0; index < windows.size(); ++index) {
+		MdiWindow* window = qobject_cast<MdiWindow*>(windows.at(index));
+
+		QString text;
+		if (index < 9) {
+			text = tr("&%1 %2").arg(index + 1)
+			       .arg(window->userFriendlyCurrentFile());
+		} else {
+			text = tr("%1 %2").arg(index + 1)
+			       .arg(window->userFriendlyCurrentFile());
+		}
+		QAction *action  = windowMenu->addAction(text);
+		action->setCheckable(true);
+		action ->setChecked(window == activeMdiWindow());
+		connect(action, SIGNAL(triggered()), windowMapper, SLOT(map()));
+		windowMapper->setMapping(action, window);
+	}
+}
+
+
+/* FUNCTION: createMdiWindow */
+MdiWindow* nv1::createMdiWindow() {
+	MdiWindow* window = new MdiWindow;
+	workspace->addWindow(window);
+
+	return window;
 }
 
 
@@ -61,7 +152,44 @@ void nv1::createActions() {
 	exitAction = new QAction(tr("E&xit"), this);
 	exitAction->setShortcut(tr("Ctrl+Q"));
 	exitAction->setStatusTip(tr("Exit NanoVision-1"));
-	connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+	connect(exitAction, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
+
+	closeAction = new QAction(tr("Cl&ose"), this);
+	closeAction->setShortcut(tr("Ctrl+F4"));
+	closeAction->setStatusTip(tr("Close the active window"));
+	connect(closeAction, SIGNAL(triggered()),
+	        workspace, SLOT(closeActiveWindow()));
+
+	closeAllAction = new QAction(tr("Close &All"), this);
+	closeAllAction->setStatusTip(tr("Close all the windows"));
+	connect(closeAllAction, SIGNAL(triggered()),
+	        workspace, SLOT(closeAllWindows()));
+
+	tileAction = new QAction(tr("&Tile"), this);
+	tileAction->setStatusTip(tr("Tile the windows"));
+	connect(tileAction, SIGNAL(triggered()), workspace, SLOT(tile()));
+
+	cascadeAction = new QAction(tr("&Cascade"), this);
+	cascadeAction->setStatusTip(tr("Cascade the windows"));
+	connect(cascadeAction, SIGNAL(triggered()), workspace, SLOT(cascade()));
+
+	arrangeAction = new QAction(tr("Arrange &icons"), this);
+	arrangeAction->setStatusTip(tr("Arrange the icons"));
+	connect(arrangeAction, SIGNAL(triggered()), workspace, SLOT(arrangeIcons()));
+
+	nextAction = new QAction(tr("Ne&xt"), this);
+	nextAction->setStatusTip(tr("Move the focus to the next window"));
+	connect(nextAction, SIGNAL(triggered()),
+	        workspace, SLOT(activateNextWindow()));
+
+	previousAction = new QAction(tr("Pre&vious"), this);
+	previousAction->setStatusTip(tr("Move the focus to the previous "
+	                                "window"));
+	connect(previousAction, SIGNAL(triggered()),
+	        workspace, SLOT(activatePreviousWindow()));
+
+	separatorAction = new QAction(this);
+	separatorAction->setSeparator(true);
 
 	aboutAction = new QAction(tr("&About"), this);
 	aboutAction->setStatusTip(tr("Show NanoVision-1's About box"));
@@ -75,6 +203,10 @@ void nv1::createMenus() {
 	fileMenu->addAction(openAction);
 	fileMenu->addSeparator();
 	fileMenu->addAction(exitAction);
+
+	windowMenu = menuBar()->addMenu(tr("&Window"));
+	updateWindowMenu();
+	connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowMenu()));
 
 	menuBar()->addSeparator();
 
@@ -114,41 +246,20 @@ void nv1::writeSettings() {
 }
 
 
-/* FUNCTION: loadFile */
-void nv1::loadFile(const QString &fileName) {
-	QFile file(fileName);
-	if (!file.open(QFile::ReadOnly | QFile::Text)) {
-		QMessageBox::warning(this, tr("NanoVision-1"),
-		                     tr("Cannot read file %1:\n%2.")
-		                     .arg(fileName)
-		                     .arg(file.errorString()));
-		return;
+/* FUNCTION: activeMdiWindow */
+MdiWindow* nv1::activeMdiWindow() {
+	return qobject_cast<MdiWindow *>(workspace->activeWindow());
+}
+
+
+/* FUNCTION: findMdiWindow */
+MdiWindow* nv1::findMdiWindow(const QString &fileName) {
+	QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
+
+	foreach (QWidget* window, workspace->windowList()) {
+		MdiWindow* mdiWindow = qobject_cast<MdiWindow*>(window);
+		if (mdiWindow->currentFile() == canonicalFilePath)
+			return mdiWindow;
 	}
-
-	QApplication::setOverrideCursor(Qt::WaitCursor);
-	// Read file
-	QApplication::restoreOverrideCursor();
-
-	setCurrentFile(fileName);
-	statusBar()->showMessage(tr("File loaded"), 2000);
-}
-
-
-/* FUNCTION: setCurrentFile */
-void nv1::setCurrentFile(const QString &fileName) {
-	curFile = fileName;
-
-	QString shownName;
-	if (curFile.isEmpty())
-		shownName = "";
-	else
-		shownName = strippedName(curFile);
-
-	setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("NanoVision-1")));
-}
-
-
-/* FUNCTION: strippedName */
-QString nv1::strippedName(const QString &fullFileName) {
-	return QFileInfo(fullFileName).fileName();
+	return 0;
 }

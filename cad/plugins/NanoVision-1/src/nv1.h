@@ -1,6 +1,5 @@
 // Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
-
 #ifndef NV1_H
 #define NV1_H
 
@@ -8,10 +7,11 @@
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QCloseEvent>
-//#include <QMdiArea>
 
-//class QAction;
-//class QMenu;
+// For Qt 4.3: #include <QMdiArea>
+#include <QWorkspace>
+
+#include "MdiWindow.h"
 
 
 /* CLASS: nv1 */
@@ -28,6 +28,9 @@ protected:
 private slots:
 	void open();
 	void about();
+	void updateMenus();
+	void updateWindowMenu();
+	MdiWindow* createMdiWindow();
 
 private:
 	void createActions();
@@ -36,18 +39,33 @@ private:
 	void createStatusBar();
 	void readSettings();
 	void writeSettings();
-	void loadFile (const QString &fileName);
-	void setCurrentFile ( const QString &fileName );
-	QString strippedName ( const QString &fullFileName );
+	MdiWindow* activeMdiWindow();
+	MdiWindow* findMdiWindow(const QString &fileName);
 
-	QString curFile;
+	QWorkspace* workspace;
+	QSignalMapper* windowMapper;
+
+//	void loadFile (const QString &fileName);
+//	void setCurrentFile ( const QString &fileName );
+//	QString strippedName ( const QString &fullFileName );
+
+//	QString curFile;
 
 	QMenu *fileMenu;
+	QMenu *windowMenu;
 	QMenu *helpMenu;
 	QToolBar *fileToolBar;
 
 	QAction *openAction;
 	QAction *exitAction;
+	QAction *closeAction;
+	QAction *closeAllAction;
+	QAction *tileAction;
+	QAction *cascadeAction;
+	QAction *arrangeAction;
+	QAction *nextAction;
+	QAction *previousAction;
+	QAction *separatorAction;
 	QAction *aboutAction;
 };
 

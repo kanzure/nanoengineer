@@ -1,6 +1,8 @@
 SOURCES += nv1.cpp \
-           main.cpp
-HEADERS += nv1.h
+           main.cpp \
+ MdiWindow.cpp
+HEADERS += nv1.h \
+ MdiWindow.h
 TEMPLATE = app
 CONFIG += warn_on \
 	  thread \
