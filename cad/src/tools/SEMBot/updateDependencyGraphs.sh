@@ -5,11 +5,11 @@ HERE=/home/httpd/vhosts/nanohive-1.org/httpdocs/Engineering
 cd SVN-D/cad/src
 
 echo creating color module graph
-tools/PackageDependency.py `tools/AllPyFiles.sh` --justCycles --colorPackages > $HERE/dependcolor.dot 2> $HERE/packageloopcounts
+/usr/local/bin/python tools/PackageDependency.py `tools/AllPyFiles.sh` --justCycles --colorPackages > $HERE/dependcolor.dot 2> $HERE/packageloopcounts
 echo creating bw module graph
-tools/PackageDependency.py `tools/AllPyFiles.sh` --justCycles > $HERE/depend.dot 2> $HERE/packageloopcounts.in
+/usr/local/bin/python tools/PackageDependency.py `tools/AllPyFiles.sh` --justCycles > $HERE/depend.dot 2> $HERE/packageloopcounts.in
 echo creating color package graph
-tools/PackageDependency.py `tools/AllPyFiles.sh` --byPackage --colorPackages > $HERE/dependpack.dot 2> $HERE/packagemodulemapping.in
+/usr/local/bin/python tools/PackageDependency.py `tools/AllPyFiles.sh` --byPackage --colorPackages > $HERE/dependpack.dot 2> $HERE/packagemodulemapping.in
 
 cd $HERE
 

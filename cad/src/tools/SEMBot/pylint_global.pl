@@ -21,33 +21,25 @@ $M_R_link = "<a href=\"pylint_global.2.html\">M-R</a>";
 $S_X_link = "<a href=\"pylint_global.3.html\">S-X</a>";
 $Y_Z_link = "<a href=\"pylint_global.4.html\">Y-Z</a>";
 
-$exprs_link = "<a href=\"pylint_global.5.html\">exprs</a>";
-$PM_link = "<a href=\"pylint_global.6.html\">PM</a>";
-$startup_link = "<a href=\"pylint_global.7.html\">startup</a>";
-$utilities_link = "<a href=\"pylint_global.8.html\">utilities</a>";
+$dna_model_link = "<a href=\"pylint_global.5.html\">dna_model</a>";
+$dna_updater_link = "<a href=\"pylint_global.6.html\">dna_updater</a>";
+$exprs_link = "<a href=\"pylint_global.7.html\">exprs</a>";
+$gui_link = "<a href=\"pylint_global.8.html\">gui</a>";
+$model_link = "<a href=\"pylint_global.9.html\">model</a>";
+$PM_link = "<a href=\"pylint_global.10.html\">PM</a>";
+$startup_link = "<a href=\"pylint_global.11.html\">startup</a>";
+$utilities_link = "<a href=\"pylint_global.12.html\">utilities</a>";
 
 print "<h3>Pylint Results<br>\n";
 print "<font style=\"font-size: small; font-weight: normal\">Back to the <a href=\"/Engineering/\">SEMBot</a></font>\n";
 print "</h3>\n";
 print "<p>\n";
 print "Module Batches<br>\n";
-switch ($batchNumber) {
-  case 0 { print "<b>A-F</b> | $G_L_link | $M_R_link | $S_X_link | $Y_Z_link"; }
-  case 1 { print "$A_F_link | <b>G-L</b> | $M_R_link | $S_X_link | $Y_Z_link"; }
-  case 2 { print "$A_F_link | $G_L_link | <b>M-R</b> | $S_X_link | $Y_Z_link"; }
-  case 3 { print "$A_F_link | $G_L_link | $M_R_link | <b>S-X</b> | $Y_Z_link"; }
-  case 4 { print "$A_F_link | $G_L_link | $M_R_link | $S_X_link | <b>Y-Z</b>"; }
-  else   { print "$A_F_link | $G_L_link | $M_R_link | $S_X_link | $Y_Z_link"; }
-}
+print "$A_F_link | $G_L_link | $M_R_link | $S_X_link | $Y_Z_link\n";
 print "<p>\n";
 print "Packages<br>\n";
-switch ($batchNumber) {
-  case 5 { print "<b>exprs</b> | $PM_link | $startup_link | $utilities_link"; }
-  case 6 { print "$exprs_link | <b>PM</b> | $startup_link | $utilities_link"; }
-  case 7 { print "$exprs_link | $PM_link | <b>startup</b> | $utilities_link"; }
-  case 8 { print "$exprs_link | $PM_link | $startup_link | <b>utilities</b>"; }
-  else   { print "$exprs_link | $PM_link | $startup_link | $utilities_link"; }
-}
+print "$dna_model_link | $dna_updater_link | $exprs_link | $gui_link | ";
+print "$model_link | $PM_link | $startup_link | $utilities_link\n";
 
 print "<pre>\n";
 
