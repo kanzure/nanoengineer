@@ -231,7 +231,10 @@ class basicCommand(anyCommand):
     command_can_be_suspended = True # good default value for most commands [bruce 071011]
     
     def user_modename(self): #bruce 051130 (apparently this is new; it can be the official user-visible-modename method for now)
-        "Return a string such as 'Move Mode' or 'Build Mode' -- the name of this command for users; or '' if unknown."
+        """
+        Return a string such as 'Move Mode' or 'Build Mode' --
+        the name of this command for users; or '' if unknown.
+        """
         ### TODO: move below __init__ or make it a property or so
         if self.default_mode_status_text.startswith("Mode: "):
             return self.default_mode_status_text[len("Mode: "):] + " Mode"

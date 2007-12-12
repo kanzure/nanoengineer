@@ -1074,7 +1074,7 @@ class GraphicsMode(basicGraphicsMode):
 
     # Note: the remaining methods etc are not needed in basicGraphicsMode
     # since it is always mixed in after basicCommand
-    # (sinc it is only for use in basicMode)
+    # (since it is only for use in basicMode)
     # and they are provided by basicCommand or basicMode.
 
     def _get_commandSequencer(self):
