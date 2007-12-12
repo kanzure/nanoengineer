@@ -5,20 +5,19 @@
 
 /* CONSTRUCTOR */
 nv1::nv1() {
-	/* For Qt 4.3
-	QMdiArea* mdiArea = new QMdiArea();
-	setCentralWidget(mdiArea);
-	*/
+	MainWindowTabWidget* mainWindowTabs = new MainWindowTabWidget(this);
+	setCentralWidget(mainWindowTabs);	
 
-	/* For Qt 4.2 */
 	workspace = new QWorkspace();
-	setCentralWidget(workspace);
 	connect(workspace, SIGNAL(windowActivated(QWidget *)),
 	        this, SLOT(updateMenus()));
 	windowMapper = new QSignalMapper(this);
 	connect(windowMapper, SIGNAL(mapped(QWidget *)),
 	        workspace, SLOT(setActiveWindow(QWidget *)));
-
+	
+	mainWindowTabs->vboxLayout->removeWidget(mainWindowTabs->widget);
+	delete mainWindowTabs->widget;
+    mainWindowTabs->vboxLayout->addWidget(workspace);
 
 	createActions();
 	createMenus();

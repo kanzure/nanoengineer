@@ -7,11 +7,10 @@
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QCloseEvent>
-
-// For Qt 4.3: #include <QMdiArea>
 #include <QWorkspace>
 
 #include "ResultsWindow.h"
+#include "MainWindowTabWidget.h"
 
 
 /* CLASS: nv1 */

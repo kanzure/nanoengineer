@@ -9,6 +9,8 @@
 #include <QApplication>
 #include <QCloseEvent>
 #include <QFileInfo>
+#include <QMainWindow>
+#include <QDockWidget>
 
 #include "ui_ResultsWindow.h"
 

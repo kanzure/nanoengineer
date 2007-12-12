@@ -34,6 +34,14 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 
 	setCurrentFile(fileName);
 
+	// Dock widgets test
+	QMainWindow* mainWindow = new QMainWindow(this);
+	splitter->insertWidget(1, mainWindow);
+	delete widget;
+	QDockWidget* dock = new QDockWidget(tr("Foo"), this);
+	dock->setFloating(true);
+	mainWindow->addDockWidget(Qt::LeftDockWidgetArea, dock);
+	
 	return true;
 }
 
