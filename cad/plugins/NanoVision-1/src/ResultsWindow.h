@@ -1,7 +1,7 @@
 // Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
-#ifndef MDIWINDOW_H
-#define MDIWINDOW_H
+#ifndef RESULTSWINDOW_H
+#define RESULTSWINDOW_H
 
 #include <QWidget>
 #include <QFile>
@@ -10,14 +10,16 @@
 #include <QCloseEvent>
 #include <QFileInfo>
 
+#include "ui_ResultsWindow.h"
 
-/* CLASS: MdiWindow */
-class MdiWindow : public QWidget {
+
+/* CLASS: ResultsWindow */
+class ResultsWindow : public QWidget, private Ui_ResultsWindow {
 	Q_OBJECT
-
+	
 public:
-	MdiWindow(QWidget *parent = 0);
-	~MdiWindow();
+	ResultsWindow(QWidget *parent = 0);
+	~ResultsWindow();
 
 	bool loadFile(const QString &fileName);
 	QString userFriendlyCurrentFile();

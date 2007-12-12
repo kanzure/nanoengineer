@@ -11,7 +11,7 @@
 // For Qt 4.3: #include <QMdiArea>
 #include <QWorkspace>
 
-#include "MdiWindow.h"
+#include "ResultsWindow.h"
 
 
 /* CLASS: nv1 */
@@ -30,7 +30,7 @@ private slots:
 	void about();
 	void updateMenus();
 	void updateWindowMenu();
-	MdiWindow* createMdiWindow();
+	ResultsWindow* createResultsWindow();
 
 private:
 	void createActions();
@@ -39,17 +39,11 @@ private:
 	void createStatusBar();
 	void readSettings();
 	void writeSettings();
-	MdiWindow* activeMdiWindow();
-	MdiWindow* findMdiWindow(const QString &fileName);
+	ResultsWindow* activeResultsWindow();
+	ResultsWindow* findResultsWindow(const QString &fileName);
 
 	QWorkspace* workspace;
 	QSignalMapper* windowMapper;
-
-//	void loadFile (const QString &fileName);
-//	void setCurrentFile ( const QString &fileName );
-//	QString strippedName ( const QString &fullFileName );
-
-//	QString curFile;
 
 	QMenu *fileMenu;
 	QMenu *windowMenu;

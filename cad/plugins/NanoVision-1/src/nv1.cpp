@@ -1,6 +1,5 @@
 // Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
-
 #include "nv1.h"
 
 
@@ -28,8 +27,7 @@ nv1::nv1() {
 
 	readSettings();
 
-	setWindowTitle(tr("MDI"));
-//	setCurrentFile("");
+	setWindowTitle(tr("NanoVision-1"));
 }
 
 
@@ -41,7 +39,7 @@ nv1::~nv1() {
 /* FUNCTION: closeEvent */
 void nv1::closeEvent(QCloseEvent *event) {
 	workspace->closeAllWindows();
-	if (activeMdiWindow()) {
+	if (activeResultsWindow()) {
 		event->ignore();
 	} else {
 		writeSettings();
@@ -54,13 +52,13 @@ void nv1::closeEvent(QCloseEvent *event) {
 void nv1::open() {
 	QString fileName = QFileDialog::getOpenFileName(this);
 	if (!fileName.isEmpty()) {
-		MdiWindow* existing = findMdiWindow(fileName);
+		ResultsWindow* existing = findResultsWindow(fileName);
 		if (existing) {
 			workspace->setActiveWindow(existing);
 			return;
 		}
 
-		MdiWindow* window = createMdiWindow();
+		ResultsWindow* window = createResultsWindow();
 		if (window->loadFile(fileName)) {
 			statusBar()->showMessage(tr("File loaded"), 2000);
 			window->show();
@@ -83,15 +81,15 @@ void nv1::about() {
 
 /* FUNCTION: updateMenus */
 void nv1::updateMenus() {
-	bool hasMdiWindow = (activeMdiWindow() != 0);
-	closeAction->setEnabled(hasMdiWindow);
-	closeAllAction->setEnabled(hasMdiWindow);
-	tileAction->setEnabled(hasMdiWindow);
-	cascadeAction->setEnabled(hasMdiWindow);
-	arrangeAction->setEnabled(hasMdiWindow);
-	nextAction->setEnabled(hasMdiWindow);
-	previousAction->setEnabled(hasMdiWindow);
-	separatorAction->setVisible(hasMdiWindow);
+	bool hasResultsWindow = (activeResultsWindow() != 0);
+	closeAction->setEnabled(hasResultsWindow);
+	closeAllAction->setEnabled(hasResultsWindow);
+	tileAction->setEnabled(hasResultsWindow);
+	cascadeAction->setEnabled(hasResultsWindow);
+	arrangeAction->setEnabled(hasResultsWindow);
+	nextAction->setEnabled(hasResultsWindow);
+	previousAction->setEnabled(hasResultsWindow);
+	separatorAction->setVisible(hasResultsWindow);
 }
 
 
@@ -113,7 +111,7 @@ void nv1::updateWindowMenu() {
 	separatorAction->setVisible(!windows.isEmpty());
 
 	for (int index = 0; index < windows.size(); ++index) {
-		MdiWindow* window = qobject_cast<MdiWindow*>(windows.at(index));
+		ResultsWindow* window = qobject_cast<ResultsWindow*>(windows.at(index));
 
 		QString text;
 		if (index < 9) {
@@ -125,16 +123,16 @@ void nv1::updateWindowMenu() {
 		}
 		QAction *action  = windowMenu->addAction(text);
 		action->setCheckable(true);
-		action ->setChecked(window == activeMdiWindow());
+		action ->setChecked(window == activeResultsWindow());
 		connect(action, SIGNAL(triggered()), windowMapper, SLOT(map()));
 		windowMapper->setMapping(action, window);
 	}
 }
 
 
-/* FUNCTION: createMdiWindow */
-MdiWindow* nv1::createMdiWindow() {
-	MdiWindow* window = new MdiWindow;
+/* FUNCTION: createResultsWindow */
+ResultsWindow* nv1::createResultsWindow() {
+	ResultsWindow* window = new ResultsWindow;
 	workspace->addWindow(window);
 
 	return window;
@@ -246,20 +244,20 @@ void nv1::writeSettings() {
 }
 
 
-/* FUNCTION: activeMdiWindow */
-MdiWindow* nv1::activeMdiWindow() {
-	return qobject_cast<MdiWindow *>(workspace->activeWindow());
+/* FUNCTION: activeResultsWindow */
+ResultsWindow* nv1::activeResultsWindow() {
+	return qobject_cast<ResultsWindow *>(workspace->activeWindow());
 }
 
 
-/* FUNCTION: findMdiWindow */
-MdiWindow* nv1::findMdiWindow(const QString &fileName) {
+/* FUNCTION: findResultsWindow */
+ResultsWindow* nv1::findResultsWindow(const QString &fileName) {
 	QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
 
 	foreach (QWidget* window, workspace->windowList()) {
-		MdiWindow* mdiWindow = qobject_cast<MdiWindow*>(window);
-		if (mdiWindow->currentFile() == canonicalFilePath)
-			return mdiWindow;
+		ResultsWindow* resultsWindow = qobject_cast<ResultsWindow*>(window);
+		if (resultsWindow->currentFile() == canonicalFilePath)
+			return resultsWindow;
 	}
 	return 0;
 }

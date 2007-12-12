@@ -1,22 +1,24 @@
 // Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
-#include "MdiWindow.h"
+#include "ResultsWindow.h"
 
 
 /* CONSTRUCTOR */
-MdiWindow::MdiWindow(QWidget *parent)
-		: QWidget(parent) {
+ResultsWindow::ResultsWindow(QWidget *parent)
+		: QWidget(parent), Ui_ResultsWindow() {
+		
+	setupUi(this);
 	setAttribute(Qt::WA_DeleteOnClose);
 }
 
 
 /* DESTRUCTOR */
-MdiWindow::~MdiWindow() {
+ResultsWindow::~ResultsWindow() {
 }
 
 
 /* FUNCTION: loadFile */
-bool MdiWindow::loadFile(const QString &fileName) {
+bool ResultsWindow::loadFile(const QString &fileName) {
 	QFile file(fileName);
 	if (!file.open(QFile::ReadOnly | QFile::Text)) {
 		QMessageBox::warning(this, tr("NanoVision-1"),
@@ -37,26 +39,25 @@ bool MdiWindow::loadFile(const QString &fileName) {
 
 
 /* FUNCTION: userFriendlyCurrentFile */
-QString MdiWindow::userFriendlyCurrentFile() {
+QString ResultsWindow::userFriendlyCurrentFile() {
 	return strippedName(curFile);
 }
 
 
 /* FUNCTION: closeEvent */
-void MdiWindow::closeEvent(QCloseEvent *event) {
+void ResultsWindow::closeEvent(QCloseEvent *event) {
 	event->accept();
 }
 
 
 /* FUNCTION: setCurrentFile */
-void MdiWindow::setCurrentFile(const QString &fileName) {
+void ResultsWindow::setCurrentFile(const QString &fileName) {
 	curFile = QFileInfo(fileName).canonicalFilePath();
 	setWindowTitle(userFriendlyCurrentFile() + "[*]");
 }
 
 
 /* FUNCTION: strippedName */
-QString MdiWindow::strippedName(const QString &fullFileName) {
+QString ResultsWindow::strippedName(const QString &fullFileName) {
 	return QFileInfo(fullFileName).fileName();
 }
-
