@@ -21,7 +21,7 @@ for batch in \
   "m*.py M*.py n*.py N*.py o*.py O*.py p*.py P*.py q*.py Q*.py r*.py R*.py" \
   "s*.py S*.py t*.py $CAPITAL_T_STAR u*.py U*.py v*.py V*.py w*.py W*.py x*.py X*.py" \
   "y*.py Y*.py z*.py Z*.py" \
-  "exprs/*.py" "$PM_STAR" "startup/*.py" "utilities/*.py"; do
+  "exprs/*.py" "gui/*.py" "$PM_STAR" "startup/*.py" "utilities/*.py"; do
   echo Running batch $BATCH_NUMBER
   /usr/local/bin/pylint --rcfile=../../../Pylint.rcfile $batch
 
