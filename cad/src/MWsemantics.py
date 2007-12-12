@@ -1484,9 +1484,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             env.history.message(_cmd + _msg)
             return
         
-        _numSelectedObjects = self.assy.getNumberOfSelectedObjects()
+        _numSelectedObjects = self.assy.getNumberOfSelectedChunks() \
+                            + self.assy.getNumberOfSelectedJigs()
         
-        if _numSelectedObjects == 1 and self.assy.getNumberOfSelectedChunks == 1:
+        if _numSelectedObjects == 1 and self.assy.getNumberOfSelectedChunks() == 1:
             # If only one object is selected, and its a chunk, 
             # assign initialColor its color.
             _selectedChunkColor = self.assy.selmols[0].color
@@ -1494,7 +1495,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 from widgets import RGBf_to_QColor
                 initialColor = RGBf_to_QColor(_selectedChunkColor)
         
-        elif _numSelectedObjects == 1 and self.assy.getNumberOfSelectedJigs == 1:
+        elif _numSelectedObjects == 1 and self.assy.getNumberOfSelectedJigs() == 1:
             # If only one object is selected, and its a jig, 
             # assign initialColor its color.
             _selectedJig = self.assy.getSelectedJigs()
