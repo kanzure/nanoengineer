@@ -44,35 +44,51 @@ BUTTON_CODES = ('Done', 'Cancel')
 # ==
 
 class MouseEventHandler_API: #e refile #e some methods may need graphicsMode and/or glpane arg...
-    """API (and default method implems) for the MouseEventHandler interface
+    """
+    API (and default method implems) for the MouseEventHandler interface
     (for objects used as glpane.mouse_event_handler) [abstract class]
     """
     def mouseMoveEvent(self, event):
-        ""
+        """
+        """
+        pass
     def mouseDoubleClickEvent(self, event):
-        ""
+        """
+        """
+        pass
     def mousePressEvent(self, event):
-        ""
+        """
+        """
+        pass
     def mouseReleaseEvent(self, event):
-        ""
+        """
+        """
+        pass
     def update_cursor(self, graphicsMode, wpos):
-        """Perform side effects in graphicsMode (assumed to be a basicGraphicsMode subclass)
+        """
+        Perform side effects in graphicsMode (assumed to be a basicGraphicsMode subclass)
         to give it the right cursor for being over self
         at position <wpos> (in OpenGL window coords).
         """
         ###e may need more args (like mod keys, etc),
         # or official access to more info (like glpane.button),
         # to choose the cursor
+        pass
     def want_event_position(self, wX, wY):
-        """Return a true value if self wants to handle mouse events
+        """
+        Return a true value if self wants to handle mouse events
         at the given OpenGL window coords, false otherwise.
-           Note: some implems, in the true case, actually return some data
+
+        Note: some implems, in the true case, actually return some data
         indicating what cursor and display state they want to use; it's not
         yet decided whether this is supported in the official API (it's not yet)
         or merely permitted for internal use (it is and always will be).
         """
+        pass
     def draw(self):
-        ""
+        """
+        """
+        pass
     pass
 
 # ==
@@ -100,7 +116,9 @@ OK_Cancel.png
 OK_pressed.png""".split()
 
 class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make
-    "###doc"
+    """
+    ###doc
+    """
     
     # initial values of state variables, etc
     last_button_position = False # False or an element of BUTTON_CODES
@@ -126,7 +144,8 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         return expr_instance
 
     def _advise_find_args(self, cctype, command):
-        """private; can be called as often as every time this is drawn;
+        """
+        private; can be called as often as every time this is drawn;
         cctype can be None or one of a few string constants
         """
         self.command = command # used to find buttons for doing actions; not cross-checked with passed or found modes...
@@ -147,17 +166,20 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
     # == event position (internal and _API methods), and other methods ###DESCRIBE better
     
     def want_event_position(self, wX, wY):
-        """MouseEventHandler_API method:
+        """
+        MouseEventHandler_API method:
         Return False if we don't want to be the handler for this event and immediately after it;
         return a true button-region-code if we do.
-           Note: Only called externally when mouse is pressed (glpane.in_drag will already be set then),
+
+        @note: Only called externally when mouse is pressed (glpane.in_drag will already be set then),
         or moves when not pressed (glpane.in_drag will be unset); deprecated for internal calls.
         The current implem does not depend on only being called at those times, AFAIK.
         """
         return self.button_region_for_event_position(wX, wY)
     
     def button_region_for_event_position(self, wX, wY):
-        """Return False if wX, wY is not over self, or a button-region-code
+        """
+        Return False if wX, wY is not over self, or a button-region-code
         (whose boolean value is true; an element of BUTTON_CODES) if it is,
         which says which button region of self it's over (regardless of pressed state of self).
         """
@@ -178,7 +200,8 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         return False
     
     def draw(self):
-        """MouseEventHandler_API method: draw self. Assume background is already correct
+        """
+        MouseEventHandler_API method: draw self. Assume background is already correct
         (so our implem can be the same, whether the incremental drawing optim for the rest
         of the GLPane content is operative or not).
         """
@@ -224,7 +247,9 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         return
     
     def update_cursor(self, graphicsMode, wpos):
-        "MouseEventHandler_API method; change cursor based on current state and event position"
+        """
+        MouseEventHandler_API method; change cursor based on current state and event position
+        """
         assert self.glpane is graphicsMode.glpane
         win = graphicsMode.win # for access to cursors
         wX, wY = wpos
@@ -307,7 +332,8 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
     # == internal update methods
     
     def do_update_cursor(self): ### TODO: REVISE DOCSTRING; it's unclear after recent changes [bruce 070628]
-        """internal helper for calling our external API method update_cursor with the right arguments --
+        """
+        internal helper for calling our external API method update_cursor with the right arguments --
         but only if we're still responsible for the cursor according to the GLPane --
         otherwise, call the one that is!
         """
@@ -328,7 +354,9 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
     # == internal action methods
 
     def do_action(self, buttoncode):
-        "do the action corresponding to buttoncode (protected from exceptions)"
+        """
+        do the action corresponding to buttoncode (protected from exceptions)
+        """
         #e in future: statusbar message?
 
         # print "do_action", buttoncode
@@ -376,7 +404,10 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
 # ==
 
 def find_or_make(cctype, graphicsMode):
-    "Return a confirmation corner instance for graphicsMode, of the given cctype. [Called from basicMode.draw_overlay]"
+    """
+    Return a confirmation corner instance for graphicsMode, of the given cctype.
+    [Called from basicMode.draw_overlay]
+    """
     command = graphicsMode.command #bruce 071015 to fix bug 2565
         # This means we cache this on the Command, not on the GraphicsMode.
         # I'm not sure that's best, though since the whole thing seems to assume

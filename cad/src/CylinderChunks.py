@@ -3,13 +3,13 @@
 CylinderChunks.py -- define a new whole-chunk display mode,
 which shows a chunk as a single opaque bounding cylinder of the chunk's color.
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 This is mainly intended as an example of how to use class ChunkDisplayMode,
 though it might be useful as a fast-rendering display mode too.
 """
-
-__author__ = 'bruce'
 
 from Numeric import dot, argmax, argmin, sqrt
 
@@ -25,7 +25,10 @@ from prefs_constants import atomHighlightColor_prefs_key
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
 class CylinderChunks(ChunkDisplayMode):
-    "example chunk display mode, which draws the chunk as a cylinder, aligned to the chunk's axes, of the chunk's color"
+    """
+    example chunk display mode, which draws the chunk as a cylinder,
+    aligned to the chunk's axes, of the chunk's color
+    """
     mmp_code = 'cyl' # this must be a unique 3-letter code, distinct from the values in constants.dispNames or in other display modes
     disp_label = 'CylinderChunks' # label for statusbar fields, menu text, etc
     icon_name = "displayCylinder.png"
@@ -34,7 +37,8 @@ class CylinderChunks(ChunkDisplayMode):
     ##e also should define icon as an icon object or filename, either in class or in each instance
     ##e also should define a featurename for wiki help
     def drawchunk(self, glpane, chunk, memo, highlighted):
-        """Draw chunk in glpane in the whole-chunk display mode represented by this ChunkDisplayMode subclass.
+        """
+        Draw chunk in glpane in the whole-chunk display mode represented by this ChunkDisplayMode subclass.
         Assume we're already in chunk's local coordinate system
         (i.e. do all drawing using atom coordinates in chunk.basepos, not chunk.atpos).
            If highlighted is true, draw it in hover-highlighted form (but note that it may have
@@ -56,7 +60,8 @@ class CylinderChunks(ChunkDisplayMode):
         drawer.drawcylinder(color, end1, end2, radius, capped = True)
         return
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
-        """Given the same arguments as drawchunk, plus selection_frame_color, draw the chunk's selection frame.
+        """
+        Given the same arguments as drawchunk, plus selection_frame_color, draw the chunk's selection frame.
         (Drawing the chunk itself as well would not cause drawing errors
          but would presumably be a highly undesirable slowdown, especially if redrawing
          after selection and deselection is optimized to not have to redraw the chunk at all.)
@@ -77,7 +82,8 @@ class CylinderChunks(ChunkDisplayMode):
         drawer.drawcylinder_wireframe(color, end1, end2, radius + alittle)
         return
     def compute_memo(self, chunk):
-        """If drawing chunk in this display mode can be optimized by precomputing some info from chunk's appearance,
+        """
+        If drawing chunk in this display mode can be optimized by precomputing some info from chunk's appearance,
         compute that info and return it.
            If this computation requires preference values, access them as env.prefs[key],
         and that will cause the memo to be removed (invalidated) when that preference value is changed by the user.
