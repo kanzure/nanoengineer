@@ -40,11 +40,59 @@ packageLevels = {
     "platform"    : 1,
     }
 
+# NIM: warn or enforce the non-use of the following names (case-insensitively?)
+# We don't list every possible disallowed name,
+# just the ones that we might be tempted to use otherwise.
+#
+# Note: on Mac, python import seems to be case-sensitive even though you can't
+# have two filesystem-directory entries differing only by case. If we can rely
+# on this, we can permit ourselves to have packages named opengl and Build,
+# even though OpenGL is an extension module and build is a reserved directory
+# name.
+
+# Package names we can't use at the top level:
+disallowedToplevelPackageNames = {
+    "build"        : "temporary directory for compiling some .pyx files", # probably ok except at toplevel, and we might want Build
+    "ui"           : "name of subdirectory for icons/images", # should be renamed
+    "main"         : "reserved for main.py",
+}
+
+# Package names we can't use at any level:
+disallowedPackageNames = {
+    "globals"      : "python built-in function",
+    "global"       : "python keyword",
+    "CVS"          : "name of CVS control directory",
+    "scratch"      : "our convention for a scratch-file directory",
+    "outtakes"     : "our convention for an outtakes directory",
+    "experimental" : "our convention for an experimental-code directory",
+    "sim"          : "import sim is reserved for sim.so/dll, even if it's missing",
+    "OpenGL"       : "extension module",
+    "Numeric"      : "extension module",
+    "Image"        : "extension module",
+    "math"         : "Python library module",
+}
+
+# Module names we can't use at the top level:
+disallowedToplevelModuleNames = {
+}
+
+# Module names we can't use at any level:
+disallowedModuleNames = {
+    "globals"      : "python built-in function",
+    "global"       : "python keyword",
+    "sim"          : "import sim is reserved for sim.so/dll, even if it's missing",
+    "OpenGL"       : "extension module",
+    "Numeric"      : "extension module",
+    "Image"        : "extension module",
+    "math"         : "Python library module",
+}
+
+
 # status as of 071210:
 
 # virtual packages named below but not yet listed above:
 # "?" - unclassified [maybe none at present]
-# "operations" - tentative, for ops on model, could be model or controller
+# "operation" - tentative, for ops on model, could be model or controller
 # "tools"
 # "top_level"
 
@@ -61,25 +109,26 @@ packageLevels = {
 #   whatsthis - now in gui/
 
 packageMapping = {
-    "assembly"                         : "model",
-    "Assembly_API"                     : "foundation", # ?
-    "AtomGenerator"                    : "ui",
-    "AtomGeneratorPropertyManager"     : "ui",
-    "atomtypes"                        : "model",
-    "bonds"                            : "model",
-    "bonds_from_atoms"                 : "model",
-    "bond_chains"                      : "model",
+    "assembly"                         : "model", # (some foundation, but knows part.py which knows lots of ops & model constructors)
+                                                  # (also: knows about selection, undo state, change counting, open file)
+    "Assembly_API"                     : "foundation", # put all _API in foundation for now
+    "AtomGenerator"                    : "ui/command/generator",
+    "AtomGeneratorPropertyManager"     : "ui/propmgr",
+    "atomtypes"                        : "model", # or chemistry?
+    "bonds"                            : "model", # Bond
+    "bonds_from_atoms"                 : "operation",
+    "bond_chains"                      : "operation",
     "bond_constants"                   : "model",
     "bond_drawer"                      : "graphics",
-    "bond_updater"                     : "model",
-    "bond_utils"                       : "model",
+    "bond_updater"                     : "updater",
+    "bond_utils"                       : "operation", # maybe also some ui
     "BoundingBox"                      : "model", # mostly geometry, some graphics, some hardcoded distance constants
-    "BuildAtomsPropertyManager"        : "ui",
-    "build_utils"                      : "ui",
+    "BuildAtomsPropertyManager"        : "ui/propmgr",
+    "build_utils"                      : "operation", # AtomDepositionTool
     "changedicts"                      : "foundation",
     "changes"                          : "foundation",
     "chem"                             : "model",
-    "chem_patterns"                    : "model",
+    "chem_patterns"                    : "operation",
     "chunk"                            : "model",
     "ChunkProp"                        : "ui",
     "ChunkPropDialog"                  : "ui",
@@ -90,60 +139,60 @@ packageMapping = {
     "Comment"                          : "model",
     "CommentProp"                      : "ui",
     "CommentPropDialog"                : "ui",
-    "confirmation_corner"              : "ui",
+    "confirmation_corner"              : "graphics_behavior",#? a MouseEventHandler; like a GraphicsMode or DragHandler; graphics_what?
     "constants"                        : "utilities",
     "CoNTubGenerator"                  : "ui",
     "CookieCtrlPanel"                  : "ui",
     "cookieMode"                       : "ui",
     "CookiePropertyManager"            : "ui",
-    "crossovers"                       : "model",
+    "crossovers"                       : "operation",
     "Csys"                             : "model",
     "cursors"                          : "ui",
-    "CylinderChunks"                   : "graphics",
+    "CylinderChunks"                   : "graphics_view",#? a ChunkDisplayMode; graphics_what? _view? _style?
     "debug"                            : "utilities",
-    "DebugMenuMixin"                   : "ui",
-    "debug_prefs"                      : "utilities",
-    "depositMode"                      : "ui",
-    "dimensions"                       : "graphics",
-    "DirectionArrow"                   : "ui",
-    "displaymodes"                     : "ui",
-    "Dna"                              : "model", #?
-    "DnaDuplex"                        : "operations", # class to help construct model objects defined elsewhere
-    "DnaDuplexEditController"          : "ui",
-    "DnaDuplexPropertyManager"         : "ui",
-    "DnaGenerator"                     : "ui",
-    "DnaGeneratorPropertyManager"      : "ui",
-    "DnaLineMode"                      : "ui",
-    "Dna_Constants"                    : "model",
-    "DragHandler"                      : "ui",
+    "DebugMenuMixin"                   : "ui", # menu spec and ops for debug menu
+    "debug_prefs"                      : "utilities", # (foundation? nah)
+    "depositMode"                      : "ui", # Build Atoms Command and GraphicsMode
+    "dimensions"                       : "graphics", # graphics output, not opengl-specific in principle
+    "DirectionArrow"                   : "graphics_behavior", # a kind of DragHandler (drawable with behavior); graphics_what?
+    "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
+    "Dna"                              : "operation", # obs?
+    "DnaDuplex"                        : "operation", # class to help construct model objects defined elsewhere
+    "DnaDuplexEditController"          : "ui/controller",
+    "DnaDuplexPropertyManager"         : "ui/propmgr",
+    "DnaGenerator"                     : "ui", # obs?
+    "DnaGeneratorPropertyManager"      : "ui/propmgr", # obs?
+    "DnaLineMode"                      : "ui",#?
+    "Dna_Constants"                    : "model",#?
+    "DragHandler"                      : "graphics_behavior",
     "drawer"                           : "graphics",
     "draw_bond_vanes"                  : "graphics",
     "draw_grid_lines"                  : "graphics",
-    "DynamicTip"                       : "ui",
-    "EditController"                   : "ui",
-    "EditController_PM"                : "ui",
-    "Elem"                             : "model",
-    "elementColors"                    : "ui",
-    "ElementColorsDialog"              : "ui",
-    "elements"                         : "model",
-    "elementSelector"                  : "ui",
-    "ElementSelectorDialog"            : "ui",
-    "elements_data"                    : "model",
-    "elements_data_PAM3"               : "model",
-    "elements_data_PAM5"               : "model",
+    "DynamicTip"                       : "graphics_widgets", # but some should be refactored into GraphicsMode
+    "EditController"                   : "ui/controller",
+    "EditController_PM"                : "ui/propmgr",
+    "Elem"                             : "model", # chemistry?
+    "elementColors"                    : "ui/dialog",
+    "ElementColorsDialog"              : "ui/dialog",
+    "elements"                         : "model", # class PeriodicTable, and our specific one??
+    "elementSelector"                  : "ui/dialog",
+    "ElementSelectorDialog"            : "ui/dialog",
+    "elements_data"                    : "model", # model_data? like some constants?
+    "elements_data_PAM3"               : "model", # in dna
+    "elements_data_PAM5"               : "model", # in dna
     "EndUser"                          : "utilities",
-    "env"                              : "utilities",
-    "ESPImageProp"                     : "ui",
-    "ESPImagePropDialog"               : "ui",
-    "example_expr_command"             : "examples",
+    "env"                              : "foundation", # not utilities - only meant to be used from foundation or above
+    "ESPImageProp"                     : "ui/dialog", # question: is this a property manager? are ui/dialog and ui/propmgr the same?
+    "ESPImagePropDialog"               : "ui/dialog", 
+    "example_expr_command"             : "examples",#?
     "ExecSubDir"                       : "top_level",
-    "extensions"                       : "top_level",
+    "extensions"                       : "top_level", # (someday, find a way to move it into a subdir)
     "extrudeMode"                      : "ui",
-    "ExtrudePropertyManager"           : "ui",
-    "fileIO"                           : "io",
-    "files_gms"                        : "io",
-    "files_mmp"                        : "io",
-    "files_nh"                         : "io",
+    "ExtrudePropertyManager"           : "ui/propmgr",
+    "fileIO"                           : "graphics_io", # should be split into files_mdl and files_povray
+    "files_gms"                        : "io", # for a gamess package
+    "files_mmp"                        : "io", # perhaps for an mmp_io package?
+    "files_nh"                         : "io", # for a nanohive esp package
     "files_pdb"                        : "io",
     "Font3D"                           : "graphics",
     "fusechunksMode"                   : "ui",
