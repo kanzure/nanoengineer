@@ -239,7 +239,7 @@ def update_PAM_chunks( changed_atoms):
 
     # optim: sort bonds in atom classes, and sort atoms in bond classes, in special ways.
     
-    return new_chunks # from update_PAM_chunks
+    return all_new_chunks # from update_PAM_chunks
 
 # end
 
