@@ -106,9 +106,8 @@ Part Properties dialog), so no harm is caused by changing it.
 ===
 
 General notes about when to change the mmp format version:
-see a separate file, fileIO-doc.txt.
-
-[That file has not been renamed, even though this one is no longer fileIO.py.]
+see a separate file, files_mmp_format_version.txt
+(renamed from fileIO-doc.txt, bruce 071213).
 
 [bruce 050227 moved those notes out of this docstring and into that
 new file, which is initially in the same directory as this file.]
