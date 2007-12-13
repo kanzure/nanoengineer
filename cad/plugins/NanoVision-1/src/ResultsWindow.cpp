@@ -35,12 +35,17 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 	setCurrentFile(fileName);
 
 	// Dock widgets test
-	QMainWindow* mainWindow = new QMainWindow(this);
-	splitter->insertWidget(1, mainWindow);
+	//*
+	TrajectoryGraphicsPane* trajectoryGraphicsPane =
+		new TrajectoryGraphicsPane(this);
+	splitter->insertWidget(1, trajectoryGraphicsPane);
 	delete widget;
-	QDockWidget* dock = new QDockWidget(tr("Foo"), this);
-	dock->setFloating(true);
-	mainWindow->addDockWidget(Qt::LeftDockWidgetArea, dock);
+	QDockWidget* dock = new QDockWidget(tr("dna_motor_results"), trajectoryGraphicsPane);
+	dock->setAllowedAreas(Qt::LeftDockWidgetArea);
+	ViewParametersWindow* viewParametersWindow = new ViewParametersWindow(dock);
+	dock->setWidget(viewParametersWindow);
+	trajectoryGraphicsPane->addDockWidget(Qt::LeftDockWidgetArea, dock);
+	//*/
 	
 	return true;
 }

@@ -13,7 +13,8 @@
 #include <QDockWidget>
 
 #include "ui_ResultsWindow.h"
-
+#include "ViewParametersWindow.h"
+#include "TrajectoryGraphicsPane.h"
 
 /* CLASS: ResultsWindow */
 class ResultsWindow : public QWidget, private Ui_ResultsWindow {
