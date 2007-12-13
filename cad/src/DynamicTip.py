@@ -1,16 +1,32 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-DynamicTip.py 
-
-For the support of dynamic, informative tooltips of a highligthed object in the GLPane. 
+DynamicTip.py - supports dynamic, informative tooltips of highlighted objects in GLPane
 
 History: 
 060817 Mark created dynamicTip class
-060818 Ninad moved DynamiceTip class into this file DynamicTip.py and added more
+060818 Ninad moved DynamicTip class into this file DynamicTip.py and added more
 
 $Id$
 
+TODO: This needs refactoring into the part which has the mechanics
+of displaying the tooltip at the right time (some of the code for which
+must be in the glpane passed to the constructor, and is in fact only in
+class GLPane), and the part which knows what the tooltip should contain.
 
+One way would be to separate it into an abstract class and concrete subclass,
+mostly just by splitting the existing methods between them (except that
+maybeTip, mostly tooltip mechanics, has some model-specific knowledge),
+but we'd then need to either tell GLPane where to get the model-specific
+concrete class, or have it ask its .graphicsMode for that.
+
+Alternatively, we could just have this class ask the glpane.graphicsMode
+for the content of what/whether to display in the tooltip, and move that code
+from this into a new method in GraphicsMode (adding a stub version to the
+GraphicsMode API). That's probably simpler and better.
+
+However we do it, when classifying modules, the tooltip mechanics part should
+end up being classified in the same way as the GLPane, and the tooltip-text-
+determining part in the same way as GraphicsMode.
 """
 
 import math
@@ -42,10 +58,13 @@ from prefs_constants import dynamicToolTipVdwRadiiInAtomDistance_prefs_key
 
 class DynamicTip: # Mark and Ninad 060817.
     """
-    For the support of dynamic, informative tooltips of a highligthed object in the GLPane. 
+    For the support of dynamic, informative tooltips of a highlighted object in the GLPane. 
     """
     def __init__(self, glpane):
-        
+        """
+        @param glpane: An instance of class GLPane (since only it has the necessary code
+                       to set some timer-related attributes we depend on). 
+        """
         self.glpane = glpane       
         
         # <toolTipShown> is a flag set to True when a tooltip is currently displayed for the 
@@ -68,7 +87,7 @@ class DynamicTip: # Mark and Ninad 060817.
         """
         
         # <motionlessCursorDuration> is the amount of time the cursor (mouse) has been motionless.
-        motionlessCursorDuration = time.time()- self.glpane.cursorMotionlessStartTime
+        motionlessCursorDuration = time.time() - self.glpane.cursorMotionlessStartTime
         
         # Don't display the tooltip yet if <motionlessCursorDuration> hasn't exceeded the "wake up delay".
         # The wake up delay is currently set to 1 second in prefs_constants.py. Mark 060818.
@@ -99,7 +118,8 @@ class DynamicTip: # Mark and Ninad 060817.
             tipText = "" 
             # This makes sure that dynamic tip is not displayed when
             # the highlightable object is 'unknown' to the dynamic tip class.
-            
+            # (From QToolTip.showText doc: "If text is empty the tool tip is hidden.")
+        
         
         QToolTip.showText(helpEvent.globalPos(), tipText)  #@@@ ninad061107 works fine but need code review
                
