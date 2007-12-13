@@ -7,14 +7,14 @@
 
 #include "ui_ViewParametersWindow.h"
 
+
+/* CLASS: ViewParametersWindow */
 class ViewParametersWindow : public QWidget, private Ui_ViewParametersWindow {
 	Q_OBJECT
 
 public:
 	ViewParametersWindow(QWidget *parent = 0);
-
 	~ViewParametersWindow();
-
 };
 
 #endif

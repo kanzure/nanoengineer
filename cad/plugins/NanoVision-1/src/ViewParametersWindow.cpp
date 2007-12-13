@@ -2,6 +2,8 @@
 
 #include "ViewParametersWindow.h"
 
+
+/* CONSTRUCTOR */
 ViewParametersWindow::ViewParametersWindow(QWidget *parent)
 		: QWidget(parent), Ui_ViewParametersWindow() {
 
@@ -10,6 +12,7 @@ ViewParametersWindow::ViewParametersWindow(QWidget *parent)
 }
 
 
+/* DESTRUCTOR */
 ViewParametersWindow::~ViewParametersWindow() {
 }
 

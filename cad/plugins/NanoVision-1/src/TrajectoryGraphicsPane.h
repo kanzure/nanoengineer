@@ -7,13 +7,15 @@
 
 #include <ui_TrajectoryGraphicsPane.h>
 
-class TrajectoryGraphicsPane : public QMainWindow, private Ui_TrajectoryGraphicsPane {
+
+/* CLASS: TrajectoryGraphicsPane */
+class TrajectoryGraphicsPane
+		: public QMainWindow, private Ui_TrajectoryGraphicsPane {
 	Q_OBJECT
 
 public:
 	TrajectoryGraphicsPane(QWidget *parent = 0);
 	~TrajectoryGraphicsPane();
-
 };
 
 #endif

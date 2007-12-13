@@ -2,6 +2,8 @@
 
 #include "TrajectoryGraphicsPane.h"
 
+
+/* CONSTRUCTOR */
 TrajectoryGraphicsPane::TrajectoryGraphicsPane(QWidget *parent)
 		: QMainWindow(parent), Ui_TrajectoryGraphicsPane() {
 
@@ -11,6 +13,7 @@ TrajectoryGraphicsPane::TrajectoryGraphicsPane(QWidget *parent)
 }
 
 
+/* DESTRUCTOR */
 TrajectoryGraphicsPane::~TrajectoryGraphicsPane() {
 }
 
