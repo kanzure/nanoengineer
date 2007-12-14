@@ -602,6 +602,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                         QString(textString),
                         self._getFontForTextNearCursor())
         self.qglClearColor(QColor(0, 0, 0))
+        glEnable(GL_LIGHTING)
     
     def _getFontForTextNearCursor(self):
         """
