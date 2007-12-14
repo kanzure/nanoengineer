@@ -14,9 +14,7 @@ from PyQt4.Qt import QAction
 import env
 import changes
 
-from modes import basicMode
 from VQT import vlen
-from selectMolsMode import selectMolsMode
 from drawer import drawline
 from elements import Singlet
 from modifyMode import modifyMode
@@ -522,11 +520,11 @@ class fusechunksMode(modifyMode, fusechunksBase):
 
     def Wheel(self, event):
         """
-        Mouse wheel event handler.  This overrides basicMode.Wheel() to optimize
+        Mouse wheel event handler.  This overrides modifyMode.Wheel() to optimize
         redraws by setting 'recompute_fusables' to False so that Draw()
         will not recompute fusables while zooming in/out.
         """
-        basicMode.Wheel(self, event)
+        modifyMode.Wheel(self, event)
         self.recompute_fusables = False
 
     def leftUp(self, event):  
@@ -534,7 +532,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         Overrides leftup method of modifyMode
         """        
         if self.dragdist < 2:
-            selectMolsMode.leftUp(self,event)
+            modifyMode.leftUp(self,event)
         # end of leftUp
 
 
