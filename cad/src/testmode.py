@@ -239,7 +239,7 @@ class testmode(superclass):
         print
         print "entering testmode again", time.asctime()
         self.reload()
-        self.assy = self.w.assy
+##        self.assy = self.w.assy # [now done by basicCommand]
         self.o.pov = V(0,0,0)
         self.o.quat = Q(1,0,0,0)
 
