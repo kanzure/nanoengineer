@@ -568,40 +568,45 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         self.setWhatsThis(glpaneText)
     
-    #Method to render text near the cursor position. See example in DNA Line 
-    #mode
-    def renderTextNearCursor(self, textString = ""):
+    # ==
+    
+    def renderTextNearCursor(self, textString):
         """
-        Renders text near the cursor position, on the top right side of the cursor
-        (slightly above it) See example in DNA Line mode
+        Renders text near the cursor position, on the top right side of the
+        cursor (slightly above it).
+
+        See example in DNA Line mode.
+
+        @param textString: string
+        
         @see: DnaLineMode.Draw
         @see: self._getFontForTextNearCursor
         """
         pos = self.cursor().pos()  
-        #x, y coordinates need to be in windows coordinate system. 
-        #QGLWidget.mapToGlobal for more details.
+        # x, y coordinates need to be in window coordinate system. 
+        # See QGLWidget.mapToGlobal for more details.
         pos = self.mapFromGlobal(pos)
         
-        #Important to turn off the lighting. Otherwise the text color would 
-        #be dull and may also become even more light if some other object 
-        #is rendered as a transparent object. Example in DNA Line mode, when the
+        # Important to turn off the lighting. Otherwise the text color would 
+        # be dull and may also become even more light if some other object 
+        # is rendered as a transparent object. Example in DNA Line mode, when the
         # second axis end sphere is rendered as a transparent sphere, it affects
-        #the text rendering as well (if GL_Lighting is not disabled)
+        # the text rendering as well (if GL_Lighting is not disabled)
         # [-- Ninad 2007-12-03]
         glDisable(GL_LIGHTING)
               
-        #Note: self.renderText is QGLWidget.renderText method. It is necessary 
-        #to set the font color otherwise it may change ! 
+        # Note: It is necessary to set the font color, otherwise it may change!
         self.qglColor(QColor(0, 0, 0))
         x = pos.x() + 5
         y = pos.y() - 5
         
-        #Note: self.renderText is QGLWidget.renderText method. 
+        # Note: self.renderText is QGLWidget.renderText method.
         self.renderText(x,
                         y,
                         QString(textString),
                         self._getFontForTextNearCursor())
         self.qglClearColor(QColor(0, 0, 0))
+            # question: is this related to glClearColor? [bruce 071214 question]
         glEnable(GL_LIGHTING)
     
     def _getFontForTextNearCursor(self):
@@ -614,7 +619,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         ##font.setPixelSize(15)                
         return font
 
-    #== Background color helper methods. Moved here from basicMode (modes.py). Mark 060814.
+    # == Background color helper methods. Moved here from basicMode (modes.py). Mark 060814.
 
     def restoreDefaultBackground(self):
         """
