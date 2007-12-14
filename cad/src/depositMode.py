@@ -60,7 +60,7 @@ from pastables  import is_pastable
 from pastables  import find_hotspot_for_pasting
 
 from ops_copy        import copied_nodes_for_DND
-from selectMode      import DRAG_STICKINESS_LIMIT
+from Select_GraphicsMode      import DRAG_STICKINESS_LIMIT
 from selectAtomsMode import selectAtomsMode
 
 from shape import get_selCurve_color
@@ -770,6 +770,7 @@ class depositMode(selectAtomsMode):
         """
         Update the cursor for 'Build' mode (when no mouse button is pressed).
         """
+        
         cursor_id = 0
         if hasattr(self.w, "current_bondtool_button") and self.w.current_bondtool_button is not None:
             cursor_id = self.w.current_bondtool_button.index
@@ -1520,7 +1521,7 @@ class depositMode(selectAtomsMode):
         """
         if bondpoint.element is not Singlet:
             return
-        
+         
         apos0 = bondpoint.posn()
 
         px = self.dragto_with_offset(bondpoint.posn(),
