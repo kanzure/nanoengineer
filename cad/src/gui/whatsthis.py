@@ -224,6 +224,55 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.editPasteAction.setWhatsThis( editPasteText )
 
+
+    # Paste From Clipboard
+    
+    pasteFromClipboardText = \
+        "<u><b>Paste From Clipboard</b></u> "\
+        "<p>"\
+        "<img source=\"ui/actions/properties manager/clipboard-full.png\"><br> "\
+        "Allows the user to preview the contents of the "\
+        "clipboard and past items into the Workspace."\
+        "The preview window also allows the user to set "\
+        "hot spots on chunks."\
+        "</p>"
+    
+    
+    
+    win.pasteFromClipboardAction.setWhatsThis( pasteFromClipboardText )
+        
+    # Translate
+
+    toolsMoveMoleculeActionText = \
+    "<u><b>Translate</b></u> "\
+    "<p>"\
+    "<img source=\"ui/actions/Properties Manager/Translate_Components.png\"><br> "\
+    "Activates <b>Move Chunks</b> mode, allowing "\
+    "you to select, move and rotate one or more "\
+    "chunks with the mouse. Displays the Translate commands of the Move "\
+    "Properties Manager."
+    "</p>"
+
+   #This won't create a wiki link, not sure why
+      
+ 
+ 
+    win.toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText )
+    
+    #Rotate Chunk
+    
+    rotateComponentsActionText = \
+    "<u><b>Rotate Chunk</b></u> "\
+    "<img source=\"ui/actions/properties manager/Rotate_Components.png\"><br> " \
+    "Activates <b>Move Chunks</b> mode, allowing you to select, move and "\
+    "rotate one or more chunks with the mouse. Displays the Rotate "\
+    "commands of the Move Properties Manager." 
+    "</p>"
+        
+    #Thimins appears to have the same problem as translate, no wiki link 
+    
+    win.rotateComponentsAction.setWhatsThis( rotateComponentsActionText )
+    
     # Delete
 
     editDeleteText =  \
@@ -309,7 +358,18 @@ def createWhatsThisTextForMainWindowWidgets(win):
                     "Zoom Tool."\
                     "</p>"
 
-    win.zoomToolAction.setWhatsThis( setzoomToolActionText )      
+    win.zoomToolAction.setWhatsThis( setzoomToolActionText )
+    
+    #Zoom To Selection
+    setViewZoomtoSelectionActionText = \
+    "<u><b>Zoom to Selection</b></u><br>"\
+    "<p>"\
+    "<img source=\"ui/actions/View/Modify/Zoom_To_Selection.png\"><br> "\
+    " Zooms view to selected atoms or chunks. "
+    "</p>"
+    
+    
+    win.setViewZoomtoSelectionAction.setWhatsThis( setViewZoomtoSelectionActionText)
 
     # Pan Tool
 
@@ -341,9 +401,20 @@ def createWhatsThisTextForMainWindowWidgets(win):
                     "</p>"
 
     win.rotateToolAction.setWhatsThis( setrotateToolActionText )
+    
+     
+    #Standard Views
+    standardViews_btnText = \
+            "<u><b>Standard Views</b></u><br>"\
+            "<p>"\
+            "<img source=\"ui/actions/View/Modify/Standard_Views.png\"><br> "\
+            "Displays the Standards Views Menu "\
+            "</p>"
 
+    win.standardViews_btn.setWhatsThis( standardViews_btnText )
+    
     # Orthographic Projection
-
+    
     setViewOrthoActionText = \
                            "<u><b>Orthographic Projection</b></u><br>"\
                            "<p>"\
@@ -519,14 +590,26 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.viewRotateMinus90Action.setWhatsThis( viewRotateMinus90ActionText )
 
+    # Orientation Window
+    
+    viewOrientationActionText = \
+                    "<u><b>Orientation Window</b></u><br>"\
+                    "<p>"\
+                    "<img source=\"ui/actions/View/Modify/Orientation.png\"><br> "\
+                    "Opens the Orientation Menu "\
+                    "</p>"
+                    
+
+    win.viewOrientationAction.setWhatsThis( viewOrientationActionText )
+
     # QuteMol
 
     viewQuteMolActionText = \
                     "<u><b>QuteMol</b></u><br>"\
                     "<p>"\
                     "<img source=\"ui/actions/View/Display/QuteMol.png\"><br> "\
-                    "Starts QuteMol and loads a PDB file of the "\
-                    "current model."\
+                    "Opens the QuteMol Properties Manager where the user can "\
+                    "alter rendering styles and launch Qutemol."\
                     "</p>" \
                     "QuteMol must be installed and enabled as a "\
                     "plug-in from <b>Preferences > Plug-ins</b> for "\
@@ -1183,30 +1266,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win. toolsSelectMoleculesAction.setWhatsThis( toolsSelectMoleculesActionText )
 
 
-    # Move Chunks
-
-    toolsMoveMoleculeActionText =\
-    "<u><b>Move Chunks</b></u><!-- [[Feature:Move Chunks Mode]] --><br>"\
-    "<p>"\
-    "<img source=\"ui/actions/Toolbars/Standard/64.png\"><br> "\
-    "Activates <b>Move Chunks</b> mode, allowing "\
-    "you to select, move and rotate one of more "\
-    "chunks with the mouse.</p>"\
-    "<p>"\
-    "<b><u>Mouse/Key Combinations</u></b></p>"\
-    "<p><b>Left Drag</b> - moves the selected "\
-    "chunk(s).</p>"\
-    "<p>"\
-    "<b>Ctrl+Left Drag</b> - freely rotates "\
-    "selected chunk(s).</p>"\
-    "<p>"\
-    "<b>Shift+Left Drag</b> - constrained "\
-    "movement and rotation of a chunk about "\
-    "its own axis."\
-    "</p>"
-
-    win. toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText )
-
+   
     # Build Atoms
 
     toolsDepositAtomActionText = \
@@ -1323,6 +1383,19 @@ def createWhatsThisTextForMainWindowWidgets(win):
             "into if lowered to zero Kelvin. </p>"
 
     win. simMinimizeEnergyAction.setWhatsThis( simMinimizeEnergyActionText )
+
+    # Change Chunk Color
+    
+    dispObjectColorActionText = \
+                        "<u><b>Edit Chunk Color</b></u><br>"\
+                        "<p>"\
+                        "<img source=\"ui/actions/Edit/Edit_Color.png\"><br> "\
+                        "Allows the user to customize chunk color"\
+                        "</p>"
+             
+                
+                
+    win.dispObjectColorAction.setWhatsThis(  dispObjectColorActionText )
 
     # Run Dynamics (was NanoDynamics-1). Mark 060807.
 
