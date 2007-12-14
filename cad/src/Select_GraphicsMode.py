@@ -791,7 +791,6 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
             # needed to do for moving selectAtomsMode.update_selobj to here 
             # and getting rid of mostly duplicated code in selectMolsMode and
             # selectAtomsMode -- Ninad 2007-10-12. 	
-            print "***self.water_enabled", self.water_enabled
             if self.water_enabled:
                 # compare to water surface depth
                 cov = - glpane.pov # center_of_view (kluge: we happen to know this is where the water surface is drawn)
@@ -1118,7 +1117,6 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # self.hover_highlighting_enabled. [bruce 060726 comment]
 
         if isinstance(selobj, Atom):
-            print "*** highlight color = ",  self._getAtomHighlightColor(selobj)
             return self._getAtomHighlightColor(selobj)
         elif isinstance(selobj, Bond):
             return self._getBondHighlightColor(selobj)
@@ -1179,7 +1177,6 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         # (if it wasn't nim for that kind of selobj)?  I don't know.)
         # [bruce 060722 new feature; revised comment 060726]
         method = getattr(selobj, 'highlight_color_for_modkeys', None)
-        print "***_getObjectDefinedHighlightColor = ", method
         if method:
             return method(self.o.modkeys)
             # Note: this API might be revised; it only really makes sense 
