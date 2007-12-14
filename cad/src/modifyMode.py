@@ -23,7 +23,6 @@ from selectMolsMode import selectMolsMode
 from utilities.Log import redmsg
 
 from MovePropertyManager import MovePropertyManager
-from modes import basicMode
 from icon_utilities import geticon
 
 from debug import print_compact_traceback
@@ -145,7 +144,7 @@ class modifyMode(selectMolsMode):
 
             commandSequencer = self.commandSequencer
             currentCommand = commandSequencer.currentCommand
-
+            
             if currentCommand.modename != "LineMode":
                 commandSequencer.userEnterTemporaryCommand(
                     'LineMode')
@@ -166,6 +165,7 @@ class modifyMode(selectMolsMode):
             #This is the number of mouse clicks that the temporary mode accepts
             mouseClickLimit = 2
             return (mouseClickLimit)
+        
 
     def acceptParamsFromTemporaryMode(self, temporaryModeName, params):
         """
@@ -257,7 +257,7 @@ class modifyMode(selectMolsMode):
 
 
     def keyPress(self,key):           
-        basicMode.keyPress(self, key)        
+        selectMolsMode.keyPress(self, key)        
         # For these key presses, we toggle the Action item, which will send 
         # an event to changeMoveMode, where the business is done.
         # Mark 050410
@@ -274,7 +274,7 @@ class modifyMode(selectMolsMode):
 
 
     def keyRelease(self,key):
-        basicMode.keyRelease(self, key)        
+        selectMolsMode.keyRelease(self, key)        
 
         if key in [Qt.Key_X, Qt.Key_Y, Qt.Key_Z, Qt.Key_A]:
             self.movingPoint = None # Fixes bugs 583 and 674 along with change in leftDrag().  Mark 050623
@@ -523,7 +523,6 @@ class modifyMode(selectMolsMode):
                 # this might be obsolete, since leftADrag now tries to handle 
                 #this (untested) [bruce 070605 comment]
                 print "Key A pressed after Left Down. controlled translation will not be performed"
-                pass
 
         if self.propMgr.isTranslateGroupBoxActive:
             if self.leftDownType in ['TRANSLATE', 'A_TRANSLATE']:
