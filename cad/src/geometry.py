@@ -1,21 +1,24 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 geometry.py -- miscellaneous purely geometric routines.
 
-$Id$
+@author: Josh
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
 - Made by bruce 060119 from code (mostly by Josh) split out of other files.
 
-'''
-__author__ = "Josh"
+"""
 
-
-# (If you think you need to import Atom, Chunk, etc, you're probably adding code to the wrong file.
-#  The code here should only deal in points, not (for example) Atoms -- let the callers turn atoms
-#  into their positions, generate history warnings, make up default axes based on the screen direction,
-#  etc -- not the code in this file, which should remain purely geometric.)
+# Note: this module should not import from model modules
+# (such as those defining class Atom or Chunk). Callers
+# should handle model or ui dependent features themselves,
+# e.g. extract geometric info from model objects before
+# passing it here, or generate history warnings, or make up
+# default axes based on the screen direction. The code in
+# this file should remain purely geometric.
 
 import math
 from Numeric import transpose, minimum, maximum, remainder, size, add
@@ -26,7 +29,8 @@ import platform # for atom_debug
 from VQT import V, A, cat, norm, cross, X_AXIS, Y_AXIS
 
 def selection_polyhedron(basepos, borderwidth = 1.8):
-    """Given basepos (a Numeric array of 3d positions), compute and return (as a list of vertices, each pair being an edge to draw)
+    """
+    Given basepos (a Numeric array of 3d positions), compute and return (as a list of vertices, each pair being an edge to draw)
     a simple bounding polyhedron, convenient for designating the approximate extent of this set of points.
     (This is used on the array of atom and open bond positions in a chunk to designate a selected chunk.)
        Make every face farther out than it needs to be to enclose all points in basepos, by borderwidth (default 1.8).
@@ -146,7 +150,8 @@ def trialMakePolyList(v): # [i think this is experimental code by Huaicai, never
 # ==
 
 def inertia_eigenvectors(basepos, already_centered = False):
-    """Given basepos (an array of positions),
+    """
+    Given basepos (an array of positions),
     compute and return (as a 2-tuple) the lists of eigenvalues and
     eigenvectors of the inertia tensor (computed as if all points had the same
     mass). These lists are always length 3, even for len(basepos) of 0,1, or 2,
@@ -189,7 +194,10 @@ if 0: # self-test; works fine as of 060119
 # ==
 
 def unzip(pairs):
-    "inverse of zip, for a list of pairs. [#e should generalize.] [#e probably there's a simple general implem - transpose?]"
+    """
+    inverse of zip, for a list of pairs. [#e should generalize.]
+    [#e probably there's a simple general implem - transpose?]
+    """
     return [pair[0] for pair in pairs], [pair[1] for pair in pairs]
 
 def compute_heuristic_axis( basepos, type,
@@ -198,7 +206,8 @@ def compute_heuristic_axis( basepos, type,
                             near1 = None, near2 = None, nears = (), dflt = None ):
     #bruce 060120 adding nears; will doc this and let it fully replace near1 and near2, but not yet,
     # since Mark is right now adding code that calls this with near1 and near2 ###@@@
-    """Given basepos (an array of positions),
+    """
+    Given basepos (an array of positions),
     compute and return an axis in one of various ways according to 'type' (choices are listed below),
     optionally adjusting the algorithm using aspect_threshhold (when are two dimensions close enough to count as circular),
     and numeric_threshhold (roughly, precision of coordinate values) (numeric_threshhold might be partly nim ###).
@@ -300,7 +309,10 @@ def compute_heuristic_axis( basepos, type,
 # == helper functions for compute_heuristic_axis (likely to also be generally useful)
 
 def aspect_too_close( dim1, dim2, aspect_threshhold ):
-    "Are dim1 and dim2 (positive or zero real numbers) as close to 1:1 ratio as aspect_threshhold is to 1.0?"
+    """
+    Are dim1 and dim2 (positive or zero real numbers) as close to 1:1 ratio
+    as aspect_threshhold is to 1.0?
+    """
     # make sure it doesn't matter whether aspect_threshhold or 1/aspect_threshhold is passed
     aspect_threshhold = float(aspect_threshhold)
     if aspect_threshhold > 1:
@@ -310,7 +322,8 @@ def aspect_too_close( dim1, dim2, aspect_threshhold ):
     return dim1 >= (dim2 * aspect_threshhold)
 
 def best_sign_on_vector(vec, goodvecs, numeric_threshhold):
-    """vec is an arbitrary vector, and goodvecs is a list of unit vectors or (ignored) zero vectors or Nones;
+    """
+    vec is an arbitrary vector, and goodvecs is a list of unit vectors or (ignored) zero vectors or Nones;
     return vec or - vec, whichever is more in the same direction as the first goodvec
     which helps determine this (i.e. which is not zero or None, and is not perpendicular to vec, using numeric_threshhold
     to determine what's too close to call). If none of the goodvecs help, just return vec
@@ -326,7 +339,8 @@ def best_sign_on_vector(vec, goodvecs, numeric_threshhold):
     return vec
 
 def sign_with_threshhold( num, thresh ):
-    """Return -1, 0, or 1 as num is << 0, close to 0, or >> 0,
+    """
+    Return -1, 0, or 1 as num is << 0, close to 0, or >> 0,
     where "close to 0" means abs(num) <= thresh.
     """
     if abs(num) <= thresh:
@@ -334,7 +348,8 @@ def sign_with_threshhold( num, thresh ):
     return sign(num)
 
 def best_vector_in_plane( axes, goodvecs, numeric_threshhold ):
-    """axes is a list of two orthonormal vectors defining a plane,
+    """
+    axes is a list of two orthonormal vectors defining a plane,
     and goodvecs is a list of unit vectors or (ignored) zero vectors or Nones;
     return whichever unit vector in the plane defined by axes is closest in direction
     to the first goodvec which helps determine this (i.e. which is not zero or None,
@@ -352,7 +367,8 @@ def best_vector_in_plane( axes, goodvecs, numeric_threshhold ):
     return None
     
 def arbitrary_perpendicular( vec, nicevecs = [] ): #bruce 060608, probably duplicates other code somewhere (check in VQT?)
-    """Return an arbitrary unit vector perpendicular to vec (a Numeric array, 3 floats),
+    """
+    Return an arbitrary unit vector perpendicular to vec (a Numeric array, 3 floats),
     making it from vec and as-early-as-possible nicevecs (if any are passed).
     """
     nicevecs = map(norm, nicevecs) + [X_AXIS, Y_AXIS]
@@ -368,7 +384,8 @@ def arbitrary_perpendicular( vec, nicevecs = [] ): #bruce 060608, probably dupli
     return nicevecs[0] # should never happen
 
 def matrix_putting_axis_at_z(axis): #bruce 060608
-    """Return an orthonormal matrix which can be used (via dot(points, matrix) for a Numeric array of 3d points)
+    """
+    Return an orthonormal matrix which can be used (via dot(points, matrix) for a Numeric array of 3d points)
     to transform points so that axis transforms to the z axis.
     (Not sure if it has determinant 1 or -1. If you're sure, change it to always be determinant 1.)
     """
@@ -380,7 +397,7 @@ def matrix_putting_axis_at_z(axis): #bruce 060608
     return matrix
 
 
-'''
+"""
 notes, 060119, probably can be removed soon:
 
 motor axis - use 'view normal to' algorithm
@@ -402,6 +419,6 @@ so the options are:
 - normal, parallel, or chunk
 - aspect_threshhold 0.95
 - numeric_threshhold 0.0001
-'''
+"""
 
 #end

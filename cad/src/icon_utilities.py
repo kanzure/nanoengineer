@@ -12,7 +12,15 @@ by bruce 070831.
 WARNING: most code still imports these functions from Utility.py.
 This should be cleaned up when practical.
 
-TODO: most of the code in these functions could probably be merged.
+TODO:
+
+Most of the code in these functions could probably be merged
+into fewer functions.
+
+Module classification: these are used for both widgets and 3d graphics,
+so they need to be classified lower than either. The file might be
+considered a utility, but it does a lot of io, so we can classify it
+as io for now. (Another possibility would be platform.) [bruce 071214]
 """
 
 import os, sys
@@ -21,7 +29,13 @@ from PyQt4 import QtGui
 import Initialize
 import EndUser
 
-# This is the subdirectory component "ui" at the end of "cad/src/ui".
+# This is the subdirectory component "ui" at the end of "cad/src/ui",
+# in which we store most icons and similar image files.
+#
+# (WARNING: it is also hardcoded into longer string literals in
+#  many places throughout the source code. In most of them it occurs
+#  as "ui/", but probably not in all.)
+
 UI_SUBDIRECTORY_COMPONENT = "ui"
 
 # these private global dictionaries are used to cache
@@ -56,9 +70,11 @@ def initialize():
 #initialize() ### TODO: call this from another file, not from first import of this one
 
 def image_directory(): #bruce 070604
-    """Return the full pathname of the directory in which the image files
+    """
+    Return the full pathname of the directory in which the image files
     (mostly icons) with names like ui/<subdir>/<file> exist.
-       Note: As of 070604, for developers this path ends with cad/src
+
+    @note: As of 070604, for developers this path ends with cad/src
     and is also the main source directory, but in built releases it
     might be something different and might be platform-dependent or even
     build-system-dependent.
@@ -76,7 +92,6 @@ def geticon(name):
     @return: QIcon object for the given image path.
     @rtype:  QIcon object. 
     """
-  
     root, ext = os.path.splitext(name)
     if not ext:
         name = name + '.png'

@@ -1,19 +1,21 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 generator_button_images.py -- A few hardcoded images useful in generator dialogs.
 
-(These should probably be replaced with files in cad/images.)
+(These should probably be replaced with files in cad/images. Or, they might
+become obsolete sometime soon.)
 
-$Id$
-'''
-__author__ = "Mark"
+@author: Mark
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+"""
 
+# FYI, this is where this file originally came from:
+#
 # Form implementation generated from reading ui file '...\nanotube_mac.ui'
 #
 # Created: Tue May 16 12:05:20 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
-#
-# WARNING! All changes made in this file will be lost!
 
 image0_data = [
 "20 20 3 1",

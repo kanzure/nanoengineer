@@ -5,6 +5,13 @@ GamessJob.py -- This is the GAMESS Job parms default settings.
 @author: Mark
 @version: $Id$
 @copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+
+Module classification: this is a kind of SimJob specialized
+for running a GAMESS simulation. So it is probably an operation,
+though it has a progress dialog, and does recursive event processing
+(which could be considered higher-level), and contains io code
+(which might be desirable to move to a gamess_io module or package).
+[bruce 071213 comment]
 """
 
 import os, sys, time, re
@@ -31,7 +38,7 @@ from GamessProp import GamessProp
 from files_gms import writegms_inpfile
 ##from files_gms import writegms_batfile
 import preferences
-import env
+import env # for setting prefs and doing recursive event processing
 from icon_utilities import geticon
 
 from prefs_constants import gmspath_prefs_key
@@ -41,11 +48,17 @@ failpat = re.compile("-ABNORMALLY-")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")
 
 class GamessJob(SimJob):
-    """A Gamess job is a setup used to run Gamess simulation. Two ways exist to create a Gamess Job: (1). Create a Gamess Jig. (2). A
-    gamess job coming from a set of existing files in a particular location. 
-     """
+    """
+    A Gamess job is a setup used to run Gamess simulation.
+    Two ways exist to create a Gamess Job:
+    (1). Create a Gamess Jig.
+    (2). A gamess job coming from a set of existing files
+    in a particular location. 
+    """
     def __init__(self,  job_parms, **job_prop):
-        """To support the 2 ways of  gamess job creation."""
+        """
+        To support the 2 ways of  gamess job creation.
+        """
         name = "Gamess Job 1"
         [self.job_batfile, self.job_outputfile] = job_prop.get('job_from_file', [None, None])
         if self.job_outputfile: self.job_outputfile = self.job_outputfile.strip('"')
@@ -62,7 +75,7 @@ class GamessJob(SimJob):
         self.edit_cntl = GamessProp()
         
         #Huaicai 7/6/05: try to fix the problem when run a gamess jig coming from mmp file 
-        #and without openning the jig property windows and save it.
+        #and without opening the jig property windows and save it.
         if not self.__dict__.has_key('server'):
             from ServerManager import ServerManager
             sManager = ServerManager()
@@ -74,11 +87,12 @@ class GamessJob(SimJob):
         self.edit_cntl.showDialog(self)
     
     def launch(self):
-        '''Launch GAMESS job.
+        """
+        Launch GAMESS job.
         Returns: 0 = Success
                        1 = Cancelled
                        2 = Failed
-        '''
+        """
 
         # Get a unique Job Id and the Job Id directory for this run.
         from JobManager import get_job_manager_job_id_and_dir
@@ -126,7 +140,8 @@ class GamessJob(SimJob):
 
 
     def _validate_gamess_program(self):
-        '''Private method:
+        """
+        Private method:
         Checks that the GAMESS program path exists in the user pref database
         and that the file it points to exists.  If the GAMESS path does not exist, the
         user will be prompted with the file chooser to select the GAMESS executable.
@@ -134,7 +149,7 @@ class GamessJob(SimJob):
         or if it is the correct version of GAMESS for this platform (i.e. PC GAMESS for Windows).
         Returns:  0 = Valid
                         1 = Invalid
-        '''
+        """
         # Get GAMESS executable path from the user preferences
         prefs = preferences.prefs_context()
         self.server.program = prefs.get(gmspath_prefs_key)
@@ -173,7 +188,9 @@ class GamessJob(SimJob):
 
     
     def _readFromStdout(self):
-        '''Slot method to read stdout of the gamess process '''
+        """
+        Slot method to read stdout of the gamess process
+        """
         #while self.process.canReadLineStdout():
         #    lineStr = str(self.process.readLineStdout()) + '\n'
         #    self.outputFile.write(lineStr)
@@ -246,7 +263,7 @@ class GamessJob(SimJob):
         ####self.process.setCommunication(QProcess.Stdout)
         print "The params for the QProcess run are: ", args
             
-        ####self.fwThread = FileWriting(self.outputFile)
+        ####self.fwThread = _FileWriting(self.outputFile)
         self.jobTimer = QTimer(self)
         
         self.progressDialog = JobProgressDialog(self.process, self.Calculation)
@@ -283,7 +300,8 @@ class GamessJob(SimJob):
         
         
     def _launch_pcgamess(self):
-        '''Run PC GAMESS (Windows only).
+        """
+        Run PC GAMESS (Windows only).
         PC GAMESS creates 2 output files:
           - the DAT file, called "PUNCH", is written to the directory from which
             PC GAMESS is started.  This is why we chdir to the Gamess temp directory
@@ -292,12 +310,12 @@ class GamessJob(SimJob):
         Returns: 0 = Success
                        1 = Cancelled
                        2 = Failed
-        '''
+        """
         oldir = os.getcwd() # Save current directory
         
         jobDir = os.path.dirname(self.job_batfile)
         os.chdir(jobDir) # Change directory to the GAMESS temp directory.
-#        print "Current directory is: ", jobDir
+##        print "Current directory is: ", jobDir
         
         DATfile = os.path.join(jobDir, "PUNCH")
         if os.path.exists(DATfile): # Remove any previous DAT (PUNCH) file.
@@ -363,7 +381,9 @@ class GamessJob(SimJob):
 
 
     def showProgress(self, modal = True):
-        '''Open the progress dialog to show the current job progress. '''
+        """
+        Open the progress dialog to show the current job progress.
+        """
         #Replace "self.edit_cntl.win" with "None
         #---Huaicai 7/7/05: To fix bug 751, the "win" may be none.
         #Feel awkward for the design of our code.        
@@ -389,7 +409,7 @@ class GamessJob(SimJob):
         
         return simProgressDialog
 
-# Added by Mark 050919 for bug #915.  Not used yet.   
+    # Added by Mark 050919 for bug #915.  Not used yet.   
     def _job_cancelation_confirmed(self):
         ret = QMessageBox.warning( None, "Confirm",
             "Please confirm you want to abort the GAMESS simulation.\n",
@@ -461,55 +481,58 @@ class JobProgressDialog(QDialog):
         self.show()
         
         while 1:
-                env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
-                if self.Rejected:
-                    break
-                
-                duration = time.time() - stime
-                from PlatformDependent import hhmmss_str
-                elapmsg = "Elapsed Time: " + hhmmss_str(int(duration))
-                self.msgLabel2.setText(elapmsg) 
-        
-                time.sleep(0.01)
+            env.call_qApp_processEvents()
+            if self.Rejected:
+                break
 
-try:
-  # bruce 050701 (committed 050910) put this inside a try/except clause,
-  # so this file can be imported by developers whose Qt installations
-  # don't have QThread compiled in, even though it won't run there.
-  class FileWriting(QThread):
-    def __init__(self, output):
-        QThread.__init__(self)
-        self.output = output
-        self.end = False
-        self.mutex = QMutex()
-        self.data = None
-    
-    def run(self):
-        while not self.end:
-            self.mutex.lock()
-            if self.data:
-                self.output.writeBlock(self.data)
-                self.output.flush()
-            self.data = None
-            self.mutex.unlock()
-            
-            self.sleep(0.01)
-    
-    
-    def putData(self, data):
-        self.mutex.lock()
-        self.data = data
-        self.mutex.unlock()
-            
-        
-    def stop(self):
-        self.end = True        
-    pass # end of class FileWriting
+            duration = time.time() - stime
+            from PlatformDependent import hhmmss_str
+            elapmsg = "Elapsed Time: " + hhmmss_str(int(duration))
+            self.msgLabel2.setText(elapmsg) 
 
-except:
-  print
-  print "WARNING: unable to define class FileWriting(QThread) in this Qt installation."
-  print "Some GamessJob functions won't work."
-  pass
+            time.sleep(0.01)
+
+# define class _FileWriting(QThread), when QThread is available;
+# no longer used [noticed by bruce 071213, so commenting this out]
+#
+##try:
+##  # bruce 050701 (committed 050910) put this inside a try/except clause,
+##  # so this file can be imported by developers whose Qt installations
+##  # don't have QThread compiled in, even though it won't run there.
+##  class _FileWriting(QThread):
+##    def __init__(self, output):
+##        QThread.__init__(self)
+##        self.output = output
+##        self.end = False
+##        self.mutex = QMutex()
+##        self.data = None
+##    
+##    def run(self):
+##        while not self.end:
+##            self.mutex.lock()
+##            if self.data:
+##                self.output.writeBlock(self.data)
+##                self.output.flush()
+##            self.data = None
+##            self.mutex.unlock()
+##            
+##            self.sleep(0.01)
+##    
+##    
+##    def putData(self, data):
+##        self.mutex.lock()
+##        self.data = data
+##        self.mutex.unlock()
+##            
+##        
+##    def stop(self):
+##        self.end = True        
+##    pass # end of class _FileWriting
+##
+##except:
+##  print
+##  print "WARNING: unable to define class _FileWriting(QThread) in this Qt installation."
+##  print "Some GamessJob functions won't work."
+##  pass
 
 # end

@@ -2,9 +2,25 @@
 """
 JobManager.py
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+
+Module classification:
+
+This contains ui code, operations code (on a set of jobs stored
+partly in the filesystem, I think), and io code. If it became
+real, it would become a separate major component of NE1 and
+get factored into those separate parts. I think it is not
+real at the moment -- really a scratch file (but I'm not sure).
+
+So I will classify it as some sort of ui file for now.
+We can reconsider this when we discuss its status.
+It might make sense to classify it into a separate component
+even now, though it's a single file and a stub.
+[bruce 071214]
+
 """
-__author__ = "Mark"
 
 import os
 
@@ -13,15 +29,16 @@ from PyQt4.Qt import SIGNAL
 
 from utilities.Log import redmsg
 
-def touch_job_id_status_file(job_id, Status='Queued'):
-    '''Creates the status file for a given job provided the job_id and status.
+def touch_job_id_status_file(job_id, Status = 'Queued'):
+    """
+    Creates the status file for a given job provided the job_id and status.
     It will remove any existing status file(s) in the directory.
     Status must be one of: Queued, Running, Completed, Suspended or Failed.
     Return values:
         0 = Status file created in the Job Id directory.
         1 = Job Id directory did not exists.  Status file was not created.
         2 = Invalid Status.
-    '''
+    """
     
     # Get the Job Manager directory
     from PlatformDependent import find_or_make_Nanorex_subdir
@@ -56,9 +73,10 @@ def touch_job_id_status_file(job_id, Status='Queued'):
     return 0
     
 def get_job_manager_job_id_and_dir():
-    '''Returns a unique Job Id number and JobManager subdirectory for this Job Id.  
+    """
+    Returns a unique Job Id number and JobManager subdirectory for this Job Id.  
     The Job Id is stored in the User Preference db.
-    '''
+    """
     from preferences import prefs_context
     prefs = prefs_context()
     job_id = prefs.get('JobId')
@@ -122,7 +140,8 @@ class JobManager(QWidget, Ui_JobManagerDialog):
 
 
     def setup(self):
-        """ Setup widgets to default (or default) values. Return true on error (not yet possible).
+        """
+        Setup widgets to default (or default) values. Return true on error (not yet possible).
         This is not implemented yet.
         """
         self.refresh_job_table() # Rebuild the job table from scratch.
@@ -171,7 +190,8 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         
         
     def refresh_job_table(self):
-        """Refreshes the Job Manager table based on the current Job Manager directory.
+        """
+        Refreshes the Job Manager table based on the current Job Manager directory.
         This method removes all rows in the existing table and rebuilds everything from
         scratch by reading the ~/Nanorex/JobManager/ directory.
         """
@@ -183,7 +203,8 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         self.jobInfoList = self.build_job_list()
         
         numjobs = len(self.jobInfoList) # One row for each job.
-        tabTitles = ['Name', 'Engine', 'Calculation', 'Description', 'Status', 'Server_id', 'Job_id', 'Time'] # The number of columns in the job table (change this if you add/remove columns).
+        tabTitles = ['Name', 'Engine', 'Calculation', 'Description', 'Status', 'Server_id', 'Job_id', 'Time']
+            # The number of columns in the job table (change this if you add/remove columns).
 
         self.jobs = []
         for row in range(numjobs):
@@ -200,13 +221,17 @@ class JobManager(QWidget, Ui_JobManagerDialog):
     
     
     def startJob(self):
-        """ Run current job"""
+        """
+        Run current job
+        """
         currentJobRow = self.job_table.currentRow()
         self.jobs[currentJobRow].start_job()
         
     
     def build_job_list(self):
-        """ Scan Job manager directories to find and return all the list of jobs"""
+        """
+        Scan Job manager directories to find and return all the list of jobs
+        """
         import os
 
         from PlatformDependent import find_or_make_Nanorex_directory
@@ -259,7 +284,9 @@ class JobManager(QWidget, Ui_JobManagerDialog):
 
 
     def __createJobs(self, jobInfoList):
-        """Create SimJob objects, return the list of job objects"""
+        """
+        Create SimJob objects, return the list of job objects
+        """
         jobs = []
         for j in jobInfoList:
             if j[0]['Engine'] in ['GAMESS', 'PC GAMESS']:

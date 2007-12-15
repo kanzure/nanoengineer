@@ -28,7 +28,10 @@ from debug import print_compact_traceback #bruce 061128
 
 class nEImageOps:
     """
-    Common image operations like, get rgb data, flip, mirror, rotation, filter, resize, etc.
+    Common image operations, such as get rgb data, flip, mirror,
+    rotate, filter, resize, etc.
+
+    Initialized from a filename readable by PIL.
     """
     ## ideal_wd = ideal_ht = 256
     # note: bruce 061127 renamed these to ideal_width, ideal_height, as public self attrs and __init__ options
@@ -255,9 +258,10 @@ class nEImageOps:
         """
         Update the image object.
         """
-        #Without saving/openning, 'tostring()' is not working right.
-        # [bruce guess 061127 about the cause: maybe related to ops that don't work before or after image is loaded.
-        #  The docs mentioned elsewhere are not very clear about this.] 
+        # Without saving/opening, 'tostring()' is not working right.
+        # [bruce guess 061127 about the cause: maybe related to ops that don't
+        #  work before or after image is loaded. The docs mentioned elsewhere
+        #  are not very clear about this.] 
         import os
         from PlatformDependent import find_or_make_Nanorex_subdir
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")

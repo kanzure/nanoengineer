@@ -16,7 +16,9 @@ from GeneratorBaseClass import GeneratorBaseClass
 import time
 
 class PM_Dialog_with_example_widgets( PM_Dialog):
-    "[private] PM_Dialog with some PM widgets common to several examples here"
+    """
+    [private] PM_Dialog with some PM widgets common to several examples here
+    """
     # NOTE: contains some code copied (and perhaps modified) from AtomGeneratorDialog.py
 
     # these class constants should be defined by each specific PM subclass
@@ -97,7 +99,9 @@ class PM_Dialog_with_example_widgets( PM_Dialog):
 # ==
 
 class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are needed (but 'object' is evidently not needed)
-    """Property Manager for Example Command 1 -- simplest that doesn't use GBC; buttons are noops"""
+    """
+    Property Manager for Example Command 1 -- simplest that doesn't use GBC; buttons are noops
+    """
     
     # <title> - the title that appears in the property manager header.
     title = "Example Command 1"
@@ -139,7 +143,9 @@ class ExampleCommand1_PM( PM_Dialog_with_example_widgets): # these supers are ne
     pass # end of class ExampleCommand1_PM
 
 class ExampleCommand2_PM( PM_Dialog_with_example_widgets, GeneratorBaseClass):
-    """Property Manager for Example Command 2 -- simplest that uses GBC; generates a comment (ignores widget values)"""
+    """
+    Property Manager for Example Command 2 -- simplest that uses GBC; generates a comment (ignores widget values)
+    """
     
     title = "Example Command 2"
     pmName = "pm" + title
@@ -161,7 +167,8 @@ class ExampleCommand2_PM( PM_Dialog_with_example_widgets, GeneratorBaseClass):
         return (1,2) ###e not yet grabbed from the widgets
 
     def build_struct(self, name, params, position):
-        """ ... The return value should be the new structure, i.e. some flavor of a Node,
+        """
+        ... The return value should be the new structure, i.e. some flavor of a Node,
         which has not yet been added to the model. ...
            By convention ... the new node's name should be set to self.name,
         which the caller will have set to self.prefix appended with a serial number.

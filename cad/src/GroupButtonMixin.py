@@ -4,11 +4,21 @@ GroupButtonMixin.py
 
 $Id$
 
+History and status:
+
 Written by Will in GeneratorBaseClass.py, but no longer used there
 or by anything that uses it.
 
 bruce 070619 moved this from GeneratorBaseClass.py to its own file. It is deprecated;
-its uses should be replaced by making its callers use PropMgrBaseClass.
+its uses should be replaced by rewriting its callers to use the PM package.
+
+Module classification:
+
+As of 071214, it is used only by MinimizeEnergyProp and PovraySceneProp,
+which should be rewritten to use PM_Dialog and get things like this file
+provides from PM package, so I am classifying it as if it was part
+of the PM package. [bruce 071214]
+
 """
 
 __author__ = "Will"
@@ -64,11 +74,13 @@ _down_arrow_data = \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class GroupButtonMixin: 
-    """Mixin class for providing the method toggle_groupbox_in_dialogs,
+    """
+    Mixin class for providing the method toggle_groupbox_in_dialogs,
     suitable as part of a slot method for toggling the state of a dialog GroupBox.
     (Current implementation uses open/close icons which look good on Linux and
      Windows but don't look good on the Mac.)
-       [DEPRECATED. New code should avoid using this, and should instead
+
+    [DEPRECATED. New code should avoid using this, and should instead
     use the groupboxes provided by PropMgrBaseClass if possible.]
     """
     # Note: this is only used by a couple of non-generator dialogs,
@@ -82,7 +94,8 @@ class GroupButtonMixin:
     initialize = staticmethod(initialize)
     
     def toggle_groupbox_in_dialogs(self, button, *things):
-        """This is intended to be part of the slot method for clicking on an open/close icon
+        """
+        This is intended to be part of the slot method for clicking on an open/close icon
         of a dialog GroupBox. The arguments should be the button (whose icon will be altered here)
         and the child widgets in the groupbox whose visibility should be toggled.
         """

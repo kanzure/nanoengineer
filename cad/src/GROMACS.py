@@ -1,8 +1,11 @@
-
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
-
 """
-CLASS: GROMACS
+GROMACS.py - defines class GROMACS, for a temporary demo of
+atomic-level-DNA GROMACS simulation
+
+@author: Brian
+@version: $Id$
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 Encapsulates the running of energy minimizations and molecular dynamics
 simulations from NE1 using GROMACS and HK_Simulation (the visualization window

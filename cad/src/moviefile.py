@@ -23,7 +23,8 @@ from debug import print_compact_stack, print_compact_traceback
 import env
 
 def MovieFile(filename): #bruce 050913 removed history arg, since all callers passed env.history
-    """Given the name of an existing old-format movie file,
+    """
+    Given the name of an existing old-format movie file,
     return an object which can read frames from it
     (perhaps only after receiving further advice from its client code,
      like the absolute atom positions for one specific frame).
@@ -43,7 +44,8 @@ def MovieFile(filename): #bruce 050913 removed history arg, since all callers pa
         return None
     return OldFormatMovieFile( reader)
 
-class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to recheck header later, and big one needs invalid state anyway
+class OldFormatMovieFile_startup:
+    #e maybe make these same obj, so easier to recheck header later, and big one needs invalid state anyway
     def __init__(self, filename): #bruce 050913 removed history arg
         self.filename = filename
         self.fileobj = None
@@ -79,7 +81,9 @@ class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to r
         env.history.message( redmsg( msg))
         return
     def delta_frame_bytes(self, n):
-        "return the bytes of the delta frame which has index n (assuming our file is open and n is within legal range)"
+        """
+        return the bytes of the delta frame which has index n (assuming our file is open and n is within legal range)
+        """
         # note: the first one has index 1 (since it gives delta from time 0 to time 1).
         assert n > 0
         nbytes = self.natoms * 3 # number of bytes in frame (if complete) -- no relation to frame index n
@@ -110,7 +114,8 @@ class OldFormatMovieFile_startup:   #e maybe make these same obj, so easier to r
     pass 
 
 class OldFormatMovieFile: #bruce 050426 
-    """Know the filename and format of an existing moviefile, and enough about it to read requested frames from it
+    """
+    Know the filename and format of an existing moviefile, and enough about it to read requested frames from it
     and report absolute atom positions (even if those frames, or all frames in the file, are differential frames).
        Provide methods for renaming it (actually moving or copying the file), when this is safe.
        Sometimes keep it open with a known file pointer, for speed.
@@ -172,9 +177,11 @@ class OldFormatMovieFile: #bruce 050426
         return 0 <= n <= self.totalFramesActual # I think inclusive at both ends is correct...
 
     def ref_to_transient_frame_n(self, n):
-        """[This is meant to be the main external method for retrieving our atom positions,
-            when the caller cares about speed but doesn't need to keep this array
-            (e.g. when it's playing us as a movie).]
+        """
+        [This is meant to be the main external method for retrieving our atom positions,
+         when the caller cares about speed but doesn't need to keep this array
+         (e.g. when it's playing us as a movie).]
+        
         Return a Numeric array containing the absolute atom positions for frame n.
         Caller promises not to modify this array, and to never use it again after
         the next time anything calls any(??) method of this object. (Since we might
@@ -196,7 +203,8 @@ class OldFormatMovieFile: #bruce 050426
         return res
     
     def copy_of_frame(self, n):
-        """Return the array of absolute atom positions corresponding to
+        """
+        Return the array of absolute atom positions corresponding to
         the specified frame-number (0 = array of initial positions).
         If necessary, scan through the file as needed (from a key frame, in future format,
         or from the position of a frame whose abs posns we have cached, in old format)
@@ -239,7 +247,8 @@ class OldFormatMovieFile: #bruce 050426
         return frame0
 
     def donate_mutable_known_frame(self, n, frame):
-        """Caller has a frame of absolute atom positions it no longer needs --
+        """
+        Caller has a frame of absolute atom positions it no longer needs --
         add this to our cache of known frames, marked as able to be modified further as needed
         (i.e. as its data not needing to be retained in self after it's next returned by copy_of_known_frame_or_None).
         This optimizes serial scans of the file, since the donated frame tends to be one frame away
@@ -252,7 +261,8 @@ class OldFormatMovieFile: #bruce 050426
         return
 
     def donate_immutable_cached_frame(self, n, frame): # (this is how client code can tell us abs posns to start with)
-        """Caller gives us the frame of abs positions for frame-index n,
+        """
+        Caller gives us the frame of abs positions for frame-index n,
         which we can keep and will never modify (in case caller wants to keep using it too),
         and caller also promises to never modify it (so we can keep trusting and copying it).
         This is the only way for client code using us on an all-differential file
@@ -269,7 +279,8 @@ class OldFormatMovieFile: #bruce 050426
         return
     
     def copy_of_known_frame_or_None(self, n):
-        """If we have a mutable known frame at index n, return it
+        """
+        If we have a mutable known frame at index n, return it
         (and forget it internally since caller is allowed to modify it).
         If not, we should have an immutable one, or the file should have one (i.e. a key frame).
         Make a copy and return it.
@@ -288,7 +299,8 @@ class OldFormatMovieFile: #bruce 050426
         pass
 
     def nearest_knownposns_frame_index(self, n):
-        """Figure out and return n0, the nearest frame index to n
+        """
+        Figure out and return n0, the nearest frame index to n
         for which we already know the absolute positions, either since it's a key frame in the file
         or since we've kept a cached copy of the positions (or been given those positions by our client code) --
         either a mutable copy or an immutable one.
@@ -337,7 +349,9 @@ class OldFormatMovieFile: #bruce 050426
         pass
 
     def delta_frame(self, n):
-        "return the delta frame with index n, as an appropriately-typed Numeric array"
+        """
+        return the delta frame with index n, as an appropriately-typed Numeric array
+        """
         bytes = self.filereader.delta_frame_bytes(n)
         ## older code: delta = A(unpack('bbb',file.read(3)))*0.01
         # (with luck, reading the whole frame at once will be a nice speedup for fast-forwarding...)

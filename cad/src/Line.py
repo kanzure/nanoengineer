@@ -1,6 +1,6 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-@author: Ninad,
+@author: Ninad
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @version:$Id$
 
@@ -8,9 +8,6 @@ History:
 Ninad 20070703 : Created 
 Ninad 20070706 : Added support for resizing a poly-line. 
 """
-
-__author__ = "Ninad"
-
 
 import env
 
@@ -30,7 +27,8 @@ from ReferenceGeometry import ReferenceGeometry
 
 
 class Line(ReferenceGeometry):
-    
+    """
+    """
     sym = "Line" 
     is_movable = True 
     icon_names = ["modeltree/plane.png", "modeltree/plane-hide.png"]
@@ -103,7 +101,9 @@ class Line(ReferenceGeometry):
         self.updateControlPoints(movedHandle, handle_NewPt)
         
     def updateControlPoints(self, hdl, hdl_NewPt):
-        ''' Update the control point list of the line. '''
+        """
+        Update the control point list of the line.
+        """
         #@@TODO No need to clear all the list. Need to make sure that only 
         #the changed point in the list is updated -- Ninad20070706
         movedHandle = hdl
@@ -116,7 +116,9 @@ class Line(ReferenceGeometry):
     
     
     def updateControlPoints_EXPERIMENTAL(self, hdl, hdl_NewPt):
-        ''' Experimental stuff in this method. Not used anywhere. Ignore'''
+        """
+        Experimental stuff in this method. Not used anywhere. Ignore
+        """
         movedHandle = hdl
         handle_NewPt = hdl_NewPt
         

@@ -1,18 +1,24 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 GeneratorController.py
 
-$Id$
-'''
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 
-__author__ = "bruce"
+Note: this is presently used only by features that never got fully ported
+to Qt4, and which should be heavily rewritten when they do get ported.
+However, until that happens, this file should remain in the source code
+so it can be maintained in trivial ways (imports, external method names).
+"""
 
 import env
 
 from GeneratorBaseClass import GeneratorBaseClass
 
 class GeneratorController(GeneratorBaseClass):
-    """Provide the slot methods from GeneratorBaseClass to receive button clicks from a generator dialog,
+    """
+    Provide the slot methods from GeneratorBaseClass to receive button clicks from a generator dialog,
     and let it run the sponsor button image in that dialog,
     but to set parameters for GeneratorBaseClass or to actually generate something,
     ask our own plugin_generator (an init argument) what to do.
@@ -41,7 +47,8 @@ class GeneratorController(GeneratorBaseClass):
         return
     
     def meet_dialog(self, dialog):
-        """Start controlling this dialog's appearance and implementing its buttons.
+        """
+        Start controlling this dialog's appearance and implementing its buttons.
         [This is a callback from dialog set_controller().]
         """
         self.dialog = dialog
@@ -50,7 +57,9 @@ class GeneratorController(GeneratorBaseClass):
         #k not sure if we need this anymore as a separate method -- it's just a callback from set_controller
         return
     def forget_dialog(self, dialog):
-        """Stop controlling this dialog in any way."""
+        """
+        Stop controlling this dialog in any way.
+        """
         if self.dialog is dialog:
             self.sponsor_btn = None
             self.dialog = None
@@ -60,7 +69,10 @@ class GeneratorController(GeneratorBaseClass):
         return
 
     def destroy(self):
-        "To be called from the owning generator, only." ####@@@@ but it's also called below
+        """
+        To be called from the owning generator, only.
+        """
+        ####@@@@ but it's also called below
         if self.dialog:
             self.dialog.set_controller(None) # calls self.forget_dialog
         self.gen = None
