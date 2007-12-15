@@ -1386,12 +1386,19 @@ class Node( StateMixin):
 
         If this node is a leaf node which must come after some other leaf nodes
         due to limitations in the mmp file format, then return a list of those nodes
-        it must follow; otherwise return []. For all Groups, return [].
-        If we upgrade the mmp file format to permit forward refs to atoms,
-        then this function could return [] for all nodes
+        it must follow; otherwise return (). For all Groups, return ().
+
+        Note:
+        
+        If we upgrade the mmp file format to permit forward refs to atoms
+        (not just to whole leaf nodes, as it does now),
+        then this function could legally return () for all nodes
         (unless by then there are nodes needing prior-refs to things other than atoms).
+        
+        However, it probably shouldn't, since it is also used for placement of nodes
+        which refer to other nodes in a logical relative position in the model tree.
         """
-        return []
+        return () #bruce 071214 optim: return (), not []
 
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         """
