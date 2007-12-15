@@ -62,6 +62,7 @@ from BoundingBox import BBox
 
 from chunk import Chunk
 from jigs import Jig
+from node_indices import fix_one_or_complain
 
 from constants import diINVISIBLE
 
@@ -1035,23 +1036,25 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 	The line generation options will be heavily revised after Command
 	Sequencer implementation. 
 	"""
-        #Insert a line 
+        # Insert a line 
 	lst = self.getOnlyAtomsSelectedByUser()
 	line = Line(self.w, lst = lst)
 		    
     def place_new_geometry(self, plane):
         self.ensure_toplevel_group()
         self.addnode(plane)
-        from node_indices import fix_one_or_complain
+        # note: fix_one_or_complain will do nothing
+        # (and return 0) as long as plane has no atoms,
+        # which I think is true for all ref. geometry, for now anyway
+        # [bruce 071214 comment]
         def errfunc(msg):
             "local function for error message output"
-            # Bruce thinks this should never happen
+            # I think this will never happen [bruce 071214]
             env.history.message( redmsg( "Internal error making new geometry: " + msg))
-        fix_one_or_complain( plane, self.topnode, errfunc)	
+        fix_one_or_complain( plane, self.topnode, errfunc)
         self.assy.changed() 
         self.w.win_update()    
 	return
-        
 
     def place_new_jig(self, jig): #bruce 050415, split from all jig makers, extended, bugfixed
         """
@@ -1072,10 +1075,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # BTW, this is probably still good to do, even though it's no longer necessary to do
         # whenever we save the file (by workaround_for_bug_296, now removed),
         # i.e. even though the mmp format now permits forward refs to jigs. [bruce 051115 revised comment]
-        from node_indices import fix_one_or_complain
         def errfunc(msg):
             "local function for error message output"
-            # I think this should never happen
+            # I think this should never happen [bruce ca. 050415]
             env.history.message( redmsg( "Internal error making new jig: " + msg))
         fix_one_or_complain( jig, self.topnode, errfunc)
         return

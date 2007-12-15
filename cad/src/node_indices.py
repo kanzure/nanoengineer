@@ -15,11 +15,14 @@ on the node tree.)
 
 Some of this should perhaps become Node and Group methods,
 but most of it probably makes sense to leave here in its own module,
-so Utility.py can stay small and to the point.
+so those classes can stay small and to the point.
+
+Module classification: in foundation, since deals with
+Node trees in a sufficiently general way. [bruce 071214]
 """
 
-from Group import Group # for isinstance
-from jigs import Jig # for isinstance
+from Group import Group # for isinstance in assertion
+##from jigs import Jig # for isinstance [bruce 071214 removed this]
 
 # quick try at fixing bug 296 for josh emergency use!
 # doing it all in this file, though ideally some small part of this code
@@ -29,7 +32,8 @@ from jigs import Jig # for isinstance
 # [bruce 050111]
 
 def node_position( node, root, inner_indices = []):
-    """given a node which is somewhere in the node-subtree rooted at root, return its "extended index",
+    """
+    Given a node which is somewhere in the node-subtree rooted at root, return its "extended index",
     i.e. a list of 0 or more indices of subtrees in their dads,
     from outer to inner (like a URL with components being individual indices).
     If node is root, this extended index will be [].
@@ -50,7 +54,8 @@ def node_position( node, root, inner_indices = []):
     return node_position( node.dad, root, [ourindex] + inner_indices)
 
 def node_new_index(node, root, after_these):
-    """If the given node is not already after all the nodes in after_these (a list of nodes),
+    """
+    If the given node is not already after all the nodes in after_these (a list of nodes),
     return the new position it should have (expressed in terms of current indices --
     the extended index might be different after the original node is moved,
     leaving a hole where the node used to be!). Note that this could be, but is not,
@@ -99,7 +104,8 @@ def node_new_index(node, root, after_these):
     return res
 
 def common_prefix( seq1, seq2 ):
-    """given two python sequences, return the initial common prefix of them
+    """
+    Given two python sequences, return the initial common prefix of them
     (as a list and/or the sequence type of either of these sequences --
      which of these sequence types to use is not defined by this fuction's
      specification, but it will be one of those three types)
@@ -114,7 +120,8 @@ def common_prefix( seq1, seq2 ):
     return seq1[0:maxlen] # might be all or part of seq1
     
 def just_after(extended_index): # not presently used
-    """return the index of the position (which may not presently exist)
+    """
+    return the index of the position (which may not presently exist)
     just after the given one, but at the same level
     """
     assert is_list_of_ints(extended_index)
@@ -122,26 +129,42 @@ def just_after(extended_index): # not presently used
     return extended_index[0:-1] + [extended_index[-1] + 1]
 
 def fix_one_node(node, root):
-    """Given node somewhere under root, see if it needs moving
-    (after some other nodes under root), and if so, move it.
+    """
+    Given node somewhere under root, ask it whether it needs moving
+    (to be after some other nodes under root), and if so, move it.
+    Return value says whether we moved it.
+    
     Error if it needs moving after some nodes *not* under root;
     in that case, raise ValueError with a suitable error message.
-    Note that moving this node changes the indices in the tree of many other nodes.
-    Return 1 if we moved it, 0 if we did not. (Numbers, not booleans!)
+
+    @param node: a Node which might say it must follow certain other
+                 nodes in the internal model tree (by returning them from
+                 node.node_must_follow_what_nodes())
+    @type: Node
+
+    @param root: top of a Node tree which caller says node is in and belongs in
+    @type: Node (usually or always a Group)
+    
+    @note: moving this node changes the indices in the tree of many other nodes.
+    
+    @return: 1 if we moved it, 0 if we did not. (Numbers, not booleans!)
     """
     after_these = node.node_must_follow_what_nodes()
-    newpos = node_new_index( node, root, after_these) # might raise ValueError, that's fine
+    newpos = node_new_index( node, root, after_these)
+        # might raise ValueError -- that's fine, since it implements
+        # the part of our contract related to that (see its & our docstring)
     if newpos is None:
         return 0
     move_one_node(node, root, newpos)
     return 1
 
 def move_one_node(node, root, newpos):
-    """move node to newpos as measured under root;
+    """
+    Move node to newpos as measured under root;
     error if node or newpos is not under root
     (but we don't promise to check whether node is);
-    newpos is the old position, may not be the new one
-    since removing the node will change indices in the tree
+    newpos is the old position, but it might not be the new one,
+    since removing the node will change indices in the tree.
     """
     assert is_list_of_ints(newpos)
     # First find a node to move it just before,
@@ -191,7 +214,8 @@ def is_list_of_ints(thing):
                 (type(min(thing)) == type(1) == type(max(thing))))
 
 def node_at(root, pos):
-    """return the node at extended index pos, relative to root,
+    """
+    Return the node at extended index pos, relative to root,
     or raise IndexError if nothing is there but the group
     containing that position exists,
     or if the index goes too deep
@@ -208,30 +232,60 @@ def node_at(root, pos):
         raise IndexError, "nothing at that position in group"
     return node_at(child, rest)
 
-def fix_one_or_complain(node, root, msgfunc): #bruce 050415: fyi: this is now called by external code
+def fix_one_or_complain(node, root, errmsgfunc): # TODO: rename
+    """
+    [public]
+    
+    Move node to a different position under root, if it says it needs
+    to come after certain other nodes under root. See self.fix_one_node
+    for details. Return 1 if we moved it, 0 if we did not.
+
+    Unlike fix_one_node (which we call to do most of our work),
+    report errors by passing an error message string to errmsgfunc
+    rather than by raising ValueError.
+
+    @param node: a Node which might say it must follow certain other
+                 nodes in the internal model tree (by returning them from
+                 node.node_must_follow_what_nodes())
+    @type: Node
+
+    @param root: top of a Node tree which caller says node is in and belongs in
+    @type: Node (usually or always a Group)
+
+    @param errmsgfunc: function for error message output; will be passed an
+                       error message string if an error occurs
+
+    @note: external code calls this to help place a new Jig, including a Plane
+           (a Jig subclass with no atoms). The Plane call is not needed (as long
+           as planes have no atoms) but is harmless. [info as of 071214]
+    """
     try:
         return fix_one_node(node, root)
     except ValueError, msg:
-        # redundant check to avoid disaster from bugs in this new code:
-        assert isinstance(node, Jig), "bug in new code for move_jigs_if_needed -- it wants to delete non-Jig %r!" % node
+# removing this assert, since no longer needed, and has import issues
+# re package classification: [bruce 071214]
+##        # redundant check to avoid disaster from bugs in this new code:
+##        assert isinstance(node, Jig), "bug in new code for move_jigs_if_needed -- it wants to delete non-Jig %r!" % node
         if type(msg) != type(""):
             msg = "error moving %r, deleting it instead" % msg #e improve this, or include error msg string in the exception
-        msgfunc(msg)
+                # REVIEW: if msg is not a string, why does this code think it is what we were moving?
+                # Is it using ValueError for what ought to be a custom exception class? [bruce 071214 Q]
+        errmsgfunc(msg)
         node.kill() # delete it
         return 0
     pass
 
 #bruce 051115 removed the following since it's no longer ever called (since workaround_for_bug_296 became a noop)
-##def move_jigs_if_needed(root, msgfunc): # (this was the entry point for workaround_for_bug_296)
+##def move_jigs_if_needed(root, errmsgfunc): # (this was the entry point for workaround_for_bug_296)
 ##    """move all necessary jigs under root later in the tree under root;
 ##    emit error messages for ones needing to go out of tree
-##    (by calling msgfunc on error msg strings),
+##    (by calling errmsgfunc on error msg strings),
 ##    and delete them entirely;
 ##    return count of how many were moved (without error).
 ##    """
 ##    count = 0
 ##    for jig in find_all_jigs_under( root):
-##        count += fix_one_or_complain(jig, root, msgfunc)
+##        count += fix_one_or_complain(jig, root, errmsgfunc)
 ##    return count
 ##
 ##def find_all_jigs_under( root):
