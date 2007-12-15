@@ -1,15 +1,22 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-PlatformDependent.py -- module for platform-specific code,
-especially for such code that needs to be called from various other modules.
+PlatformDependent.py -- module for platform-specific utilities and constants.
 
-Also includes some other code that might conceivably vary by platform,
+Also includes various code that might conceivably vary by platform,
 but mainly is here since it had no better place to live. In fact, by 060106
 most of its code is like that, and a lot of it has something to do with messages
 or the screen or files, that is, issues having to do with both the UI and the
 OS interface.
 
-$Id$
+@author: Bruce, Mark, maybe others
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+
+Module classification:
+
+A mix of things. Some are platform dependent. Some are utilities
+(and of those, some would make sense within utilities.Log).
+Some are io.
 """
 __author__ = "bruce" # and others
 
@@ -17,13 +24,17 @@ import sys, os, time
 from PyQt4.Qt import Qt, QDesktopWidget, QRect
 import env
 import platform
+from debug import print_compact_traceback
+from debug import print_compact_stack
+from utilities.Log import redmsg
 
 # == constants (or variables settable by a debugger) read by code in other modules
 
 # == file utilities
 
 def mkdirs_in_filename(filename):
-    """Make all directories needed for the directory part of this filename,
+    """
+    Make all directories needed for the directory part of this filename,
     if nothing exists there. Never make the filename itself (even if it's
     intended to be a directory, which we have no way of knowing anyway).
     If something other than a directory exists at one of the dirs we might
@@ -44,9 +55,10 @@ def is_macintosh():
     return sys.platform in ['darwin']
 
 def filter_key(key, debug_keys = 0): #bruce revised this 070517 to fix Mac-specific delete key bug which resurfaced in Qt4
-    """given a Qt keycode key, usually return it unchanged,
-       but return a different keycode if that would help fix platform-specific bugs in Qt keycodes
-       or in our use of them.
+    """
+    Given a Qt keycode key, usually return it unchanged,
+    but return a different keycode if that would help fix platform-specific bugs in Qt keycodes
+    or in our use of them.
     """
     if is_macintosh():
         # Help fix Qt's Mac-specific Delete key bug, bug 93.
@@ -70,7 +82,8 @@ def filter_key(key, debug_keys = 0): #bruce revised this 070517 to fix Mac-speci
     return key
 
 def wrap_key_event( qt_event): #bruce 070517 renamed this
-    """Return our own event object in place of (or wrapping) the given Qt event.
+    """
+    Return our own event object in place of (or wrapping) the given Qt event.
     Fix bugs in Qt events, and someday provide new features to help in history-tracking.
     So far [041220] this only handles key events, and does no more than fix the Mac-specific
     bug in the Delete key (bug 93).
@@ -78,7 +91,9 @@ def wrap_key_event( qt_event): #bruce 070517 renamed this
     return _wrapped_KeyEvent(qt_event)
 
 class _wrapped_KeyEvent: #bruce 070517 renamed this
-    "Our own event type. API should be non-Qt-specific (but isn't really)."
+    """
+    Our own event type. API should be non-Qt-specific (but isn't really).
+    """
     # presently used only for GLPane key events;
     # not all methods work in Qt4, but the nonworking ones aren't used
     # [bruce 070517 comment]
@@ -87,21 +102,18 @@ class _wrapped_KeyEvent: #bruce 070517 renamed this
     def key(self):
         return filter_key( self._qt_event.key() )
     def ascii(self):
-        from debug import print_compact_stack
         try:
             return filter_key( self._qt_event.ascii() ) #k (does filter_key matter here?)
         except:
             print_compact_stack( "bug: event.ascii() not available in Qt4, returning -1: ")
             return -1 ### BUG: need to fix in some better way [070811]
     def state(self):
-        from debug import print_compact_stack
         try:
             return self._qt_event.state()
         except:
             print_compact_stack( "bug: event.state() not available in Qt4, returning -1: ")
             return -1 ### BUG; need to fix in some better way [070811]
     def stateAfter(self):
-        from debug import print_compact_stack
         try:
             return self._qt_event.stateAfter()
         except:
@@ -119,11 +131,15 @@ class _wrapped_KeyEvent: #bruce 070517 renamed this
 # in messages visible to the user.
 
 def shift_name():
-    "name of Shift modifier key"
+    """
+    Return name of the Shift modifier key.
+    """
     return "Shift"
 
 def control_name():
-    "name of Control modifier key"
+    """
+    Return name of the (so-called) Control modifier key.
+    """
     if is_macintosh():
         return "Command"
     else:
@@ -131,7 +147,9 @@ def control_name():
     pass
 
 def context_menu_prefix():
-    """what to say instead of "context" in the phrase "context menu" """
+    """
+    what to say instead of "context" in the phrase "context menu"
+    """
     if is_macintosh():
         return "Control"
     else:
@@ -139,7 +157,8 @@ def context_menu_prefix():
     pass
 
 def middle_button_prefix():
-    """what to say instead of "middle" as a prefix for press or click,
+    """
+    what to say instead of "middle" as a prefix for press or click,
     for middle mouse button actions
     """
     if is_macintosh():
@@ -364,8 +383,9 @@ def find_or_make_Nanorex_directory():
     return _tmpFilePath
 
 def _find_or_make_nanorex_dir_0():
-    """private helper function for find_or_make_Nanorex_directory"""
-    
+    """
+    private helper function for find_or_make_Nanorex_directory
+    """
     #Create the temporary file directory if not exist [by huaicai ~041201]
     # bruce 041202 comments about future changes to this code:
     # - we'll probably rename this, sometime before Alpha goes out,
@@ -383,7 +403,6 @@ def _find_or_make_nanorex_dir_0():
     #   enough test.
     tmpFilePath = os.path.normpath(os.path.expanduser("~/Nanorex/"))
     if not os.path.exists(tmpFilePath):
-        from debug import print_compact_traceback
         try:
             os.mkdir(tmpFilePath)
         except:
@@ -397,9 +416,11 @@ def _find_or_make_nanorex_dir_0():
     return tmpFilePath
 
 def path_of_Nanorex_subdir(subdir): #bruce 060614
-    """Return the full pathname which should be used for the given ~/Nanorex subdirectory,
+    """
+    Return the full pathname which should be used for the given ~/Nanorex subdirectory,
     without checking whether it exists.
-       WARNING: as a kluge, the current implem may create ~/Nanorex itself.
+
+    WARNING: as a kluge, the current implem may create ~/Nanorex itself.
     This might be necessary (rather than a kluge) if the name can only be determined by creating it
     (as the current code for creating it assumes, but whose true status is unknown).
     """
@@ -408,7 +429,8 @@ def path_of_Nanorex_subdir(subdir): #bruce 060614
     return nanorex_subdir
     
 def find_or_make_Nanorex_subdir(subdir, make = True): #bruce 060614 added make arg; revised implem (so subdir can be >1 level deep)
-    """Find or make a given subdirectory under ~/Nanorex/. It's allowed to be more than one level deep, using '/' separator.
+    """
+    Find or make a given subdirectory under ~/Nanorex/. It's allowed to be more than one level deep, using '/' separator.
     (This assumes '/' is an acceptable file separator on all platforms. I think it is, but haven't fully verified it. [bruce 060614])
     (If make = False, never make it; return None if it's not there.)
     Return the full path of the Nanorex subdirectory, whether it already exists or was made here.
@@ -424,14 +446,14 @@ def find_or_make_Nanorex_subdir(subdir, make = True): #bruce 060614 added make a
     return path_or_errortext
 
 def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #bruce 060614
-    """Find or make the given directory, making containing directories as needed unless make_higher_dirs is False.
+    """
+    Find or make the given directory, making containing directories as needed unless make_higher_dirs is False.
     If <make> is False, don't make it, only find it, and make sure it's really a directory.
     
     Return (errorcode, message), where:
         - on success, return (0, the full and normalized path of <dirname>), 
             or if <make> is False and <dirname> does not exist, return (0, None).
         - on error, return (1, errormsg).
-        
     """
     ###e once this works, redefine some other functions in terms of it, here and in callers of functions here.
     dirname = os.path.abspath(os.path.normpath(dirname)) #k might be redundant, in wrong order, etc
@@ -466,7 +488,8 @@ def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #
 # ==
 
 def builtin_plugins_dir(): # modified from sim_bin_dir_path in runSim.py; should move both that and this to platform.py ###e
-    """Return pathname of built-in plugins directory. Should work for either developers or end-users on all platforms.
+    """
+    Return pathname of built-in plugins directory. Should work for either developers or end-users on all platforms.
     (Doesn't check whether it exists.)
     """
     # filePath = the current directory NE-1 is running from.
@@ -474,12 +497,15 @@ def builtin_plugins_dir(): # modified from sim_bin_dir_path in runSim.py; should
     return os.path.normpath(filePath + '/../plugins')
 
 def user_plugins_dir():
-    """Return pathname of user custom plugins directory, or None if it doesn't exist."""
+    """
+    Return pathname of user custom plugins directory, or None if it doesn't exist.
+    """
     return find_or_make_Nanorex_subdir( 'Plugins', make = False)
 
 def find_plugin_dir(plugin_name):
-    "Return (True, dirname) or (False, errortext), with errortext wording chosen as if the requested plugin ought to exist."
-    from debug import print_compact_traceback
+    """
+    Return (True, dirname) or (False, errortext), with errortext wording chosen as if the requested plugin ought to exist.
+    """
     try:
         userdir = user_plugins_dir()
         if userdir and os.path.isdir(userdir):
@@ -512,7 +538,8 @@ _histfile_timestamp_string = None
     # earlier during startup, and be 100% sure it's unique (include pid, use O_EXCL, or test in some manner).
 
 def make_history_filename():
-    """[private method for history init code]
+    """
+    [private method for history init code]
     Return a suitable name for a new history file (not an existing filename).
     Note: this does not actually create the file! It's assumed the caller will do that immediately
     (and we don't provide perfect protection against two callers doing this at the same time).
@@ -553,7 +580,8 @@ _tempfiles_dir = None # this is assigned if and only if we ever create that dir,
 _tempfiles_dir_has_moved = False
 
 def tempfiles_dir(make = True): #bruce 060614
-    """Return (and by default, make if necessary) the pathname of the subdir for this process's temporary files.
+    """
+    Return (and by default, make if necessary) the pathname of the subdir for this process's temporary files.
     If make is false and this dir is not there, return None rather than its intended name.
        [All temporary files created by this process should go into the subdir we return,
     and upon normal exit it should be moved to a different location or name that marks it as "Old",
@@ -579,7 +607,8 @@ def tempfiles_dir(make = True): #bruce 060614
     return _tempfiles_dir
 
 def move_tempfiles_dir_when_quitting(): #bruce 060614 ###@@@ need to call this when nE-1 quits
-    """If tempfiles_dir actually created a directory during this session,
+    """
+    If tempfiles_dir actually created a directory during this session,
     move it to where old ones belong. (Also reset variables so that if some bug makes someone
     call tempfiles_dir again, it will complain, but then return the moved directory
     rather than a now-invalid pathname.)
@@ -610,14 +639,15 @@ def move_tempfiles_dir_when_quitting(): #bruce 060614 ###@@@ need to call this w
 # this file, but there is not yet a better place for them. [bruce 041018]
 
 def fix_plurals(text, between = 1):
-    """Fix plurals in text (a message for the user) by changing:
+    """
+    Fix plurals in text (a message for the user) by changing:
       1 thing(s) -> 1 thing
       2 thing(s) -> 2 things
     permitting at most 'between' extra words in between,
     e.g. by default
       2 green thing(s) -> 2 green things.
        Also, if the subsequent word is (literally) were/was or was/were, replace it with the correct form.
-    #"""
+    """
     words = text.split(" ")
     numpos = -1
     count = 0
@@ -671,7 +701,8 @@ def fix_plurals(text, between = 1):
     return " ".join(words)
 
 def th_st_nd_rd(val): # mark 060927 wrote this. bruce 060927 split it out of its caller & wrote docstring.
-    """Return the correct suffix (th, st, nd, or rd) to append to any nonnegative integer in decimal,
+    """
+    Return the correct suffix (th, st, nd, or rd) to append to any nonnegative integer in decimal,
     to make an abbreviation such as 0th, 1st, 2nd, 3rd, or 4th.
     """
     suffix = "th"
@@ -689,7 +720,9 @@ def th_st_nd_rd(val): # mark 060927 wrote this. bruce 060927 split it out of its
     return suffix
 
 def hhmmss_str(secs):
-    """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
+    """
+    Given the number of seconds, return the elapsed time as a string in hh:mm:ss format
+    """
     # [bruce 050415 comment: this is sometimes called from external code
     #  after the progressbar is hidden and our launch method has returned.]
     # bruce 050415 revising this to use pure int computations (so bugs from
@@ -711,7 +744,8 @@ def hhmmss_str(secs):
 #e (I should also pull in some more related code from main.py...)
 
 def screen_pos_size(): ###e this copies code in main.py -- main.py should call this
-    """Return (x,y),(w,h), where the main screen area
+    """
+    Return (x,y),(w,h), where the main screen area
     (not including menubar, for Mac) is in a rect of size w,h,
     topleft at x,y. Note that x,y is 0,0 except for Mac.
     Current implementation guesses Mac menubar size since it doesn't
@@ -744,15 +778,12 @@ def screen_pos_size(): ###e this copies code in main.py -- main.py should call t
 # ==
 
 def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
-    """Opens a file in a standard text editor.
+    """
+    Opens a file in a standard text editor.
     Error messages go to console and (unless hflag is false) to env.history.
     """
     #bruce 050913 replaced history arg with hflag = True, since all callers passed env.history to history arg.
     file = os.path.normpath(file)
-    
-    if hflag:
-        from utilities.Log import redmsg
-    
     if not os.path.exists(file):
         msg = "File does not exist: " + file
         print msg
@@ -770,12 +801,6 @@ def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
         if platform.atom_debug:
             print  "editor = ",editor
             print  "Spawnv args are %r" % (args,)
-
-        try: #bruce 050704
-            from debug import print_compact_traceback
-        except:
-            def noop(*args): pass
-            print_compact_traceback = noop
         try:
             # Spawn the editor.
             kid = os.spawnv(os.P_NOWAIT, editor, args)
@@ -792,7 +817,8 @@ def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
     return
             
 def get_text_editor(): #bruce 050704 revised API
-    """Returns a list of the name and required initial shell-command-line arguments (if any) of a text editor for this platform.
+    """
+    Returns a list of the name and required initial shell-command-line arguments (if any) of a text editor for this platform.
     The editor can be caused to open a file by launching it using these args plus the filename.
     """
     args = [] # might be modified below
@@ -807,7 +833,8 @@ def get_text_editor(): #bruce 050704 revised API
     return [editor] + args
 
 def get_rootdir():
-    """Returns the root directory for this platform.
+    """
+    Returns the root directory for this platform.
     """
     if sys.platform == 'win32': # Windows
         rootdir = "C:/"
@@ -817,8 +844,9 @@ def get_rootdir():
     return rootdir
 
 def get_gms_name():
-    '''Returns either GAMESS (Linux or MacOS) or PC GAMESS (Windows). 
-    '''
+    """
+    Returns either GAMESS (Linux or MacOS) or PC GAMESS (Windows). 
+    """
     if sys.platform == 'win32': # Windows
         gms_name = "PC GAMESS"
     else: # Linux and MacOS
@@ -827,7 +855,7 @@ def get_gms_name():
     return gms_name
 
 def find_pyrexc():
-    import Pyrex
+    import Pyrex # not a toplevel import -- module not present for most users
     if sys.platform == 'darwin':
         x = os.path.dirname(Pyrex.__file__).split('/')
         return '/'.join(x[:-4] + ['bin', 'pyrexc'])
@@ -841,15 +869,11 @@ def find_pyrexc():
         # windows
         return 'python c:/Python' + sys.version[:3] + '/Scripts/pyrexc.py'
 
-# ==
-
-#bruce 051201 moved wiki help code from here to new file wiki_help.py
-
 # == test code
 
-if __name__ == "__main__":
-    msg = 'Dehydrogenate: removed 4 atom(s) from 1 molecule(s) (1 selected molecule(s) had no hydrogens)'
-    msg2 = 'Dehydrogenate: removed 4 atoms from 1 molecule (1 selected molecule had no hydrogens)'
+if __name__ == '__main__':
+    msg = "Dehydrogenate: removed 4 atom(s) from 1 molecule(s) (1 selected molecule(s) had no hydrogens)"
+    msg2 = "Dehydrogenate: removed 4 atoms from 1 molecule (1 selected molecule had no hydrogens)"
     assert fix_plurals(msg) == msg2
     print "test done"
 

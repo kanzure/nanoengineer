@@ -42,16 +42,21 @@ import platform
 from PlatformDependent import find_or_make_Nanorex_subdir
 
 from model.assembly import assembly
+
 from files_pdb import readpdb, insertpdb, writepdb
 from files_gms import insertgms
 from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
-from debug import print_compact_traceback
 from fileIO import writepovfile
 from fileIO import writemdlfile
+
+from debug import print_compact_traceback
+from debug import linenum
+
 from utilities.Log import greenmsg, redmsg, orangemsg, _graymsg
 
 from prefs_constants import getDefaultWorkingDirectory
 from prefs_constants import workingDirectory_prefs_key
+from prefs_constants import toolbar_state_prefs_key
 
 from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref
@@ -60,24 +65,27 @@ debug_babel = False   # DO NOT COMMIT with True
 
 debug_recent_files = False  # Do not commit with True
 
-recentfiles_use_QSettings = True #bruce 050919 debug flag (replacing use of __debug__) ###@@@
+recentfiles_use_QSettings = True #bruce 050919 debug flag
+_RECENTFILES_KEY = '/Nanorex/nE-1/recentFiles' # key for QSettings
 
 if debug_recent_files:
     def debug_fileList(fileList):
-        qt4here(show_traceback=True)
-        print 'BEGIN fileList'
+        qt4here(show_traceback = True)
+        print "BEGIN fileList"
         for x in fileList:
             print x
-        print 'END fileList'
+        print "END fileList"
 else:
     def debug_fileList(fileList):
         pass
 
 
 def set_waitcursor(on_or_off):
-    """For on_or_off True, set the main window waitcursor.
+    """
+    For on_or_off True, set the main window waitcursor.
     For on_or_off False, revert to the prior cursor.
-    [It might be necessary to always call it in matched pairs, I don't know [bruce 050401]. #k]
+    [It might be necessary to always call it in matched pairs,
+     I don't know [bruce 050401].]
     """
     if on_or_off:
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
@@ -85,7 +93,7 @@ def set_waitcursor(on_or_off):
         QApplication.restoreOverrideCursor() # Restore the cursor
     return
 
-debug_part_files = False #&&& Debug prints to history. Change to False after QA. Mark 060703 [revised by bruce 060704]
+debug_part_files = False #&&& Debug prints to history. Change to False after QA. [Mark 060703]
 
 def _fileparse(name):
     """
@@ -116,7 +124,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     """
 
     def fileImport(self): # Code copied from fileInsert() slot method. Mark 060731. 
-        """Slot method for 'File > Import'.
+        """
+        Slot method for 'File > Import'.
         """
         cmd = greenmsg("Import File: ")
         
@@ -186,8 +195,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                                  ) 
         
         if not import_filename:
-             env.history.message(cmd + "Cancelled")
-             return
+            env.history.message(cmd + "Cancelled")
+            return
         
         if import_filename:
             import_filename = str(import_filename)
@@ -227,8 +236,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 dir, fil, ext = _fileparse(import_filename)
                 tmpdir = find_or_make_Nanorex_subdir('temp')
                 mmpfile = os.path.join(tmpdir, fil + ".mmp")
-                result = self.launch_ne1_openbabel(in_format=ext[1:], infile=import_filename, 
-                                                   out_format="mmp", outfile=mmpfile)
+                result = self.launch_ne1_openbabel(in_format = ext[1:], infile = import_filename, 
+                                                   out_format = "mmp", outfile = mmpfile)
                 if result:
                     insertmmp(self.assy, mmpfile)
                     # Theoretically, we have successfully imported the file at this point.
@@ -239,7 +248,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     env.history.message(msg)
 
                 else:
-                    print 'NE1 babel had problem converting ', import_filename, '->', mmpfile
+                    print "NE1 babel had problem converting ", import_filename, "->", mmpfile
                     env.history.message(cmd + redmsg("File translation failed."))
             
             self.glpane.scale = self.assy.bbox.scale()
@@ -253,19 +262,18 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             #self.setCurrentWorkingDirectory(dir)
             
     def fileExport(self): # Fixed up by Mark. 2007-06-05
-        """Slot method for 'File > Export'.
+        """
+        Slot method for 'File > Export'.
         Exported files contain all atoms, including invisible and hidden atoms.
         This is considered a bug.
         """
-        
         # To Do: Mark 2007-06-05
         #
         # - Export only visible atoms, etc.
 
         if platform.atom_debug:
-            from debug import linenum
             linenum()
-            print 'start fileExport()'
+            print "start fileExport()"
             
         cmd = greenmsg("Export File: ")
         
@@ -355,13 +363,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                                         self.currentWorkingDirectory, 
                                         formats,
                                         sfilter
-                                        )
-
+                                       )
         if not export_filename:
             env.history.message(cmd + "Cancelled")
             if platform.atom_debug:
                 linenum()
-                print 'fileExport cancelled because user cancelled'
+                print "fileExport cancelled because user cancelled"
             return
         export_filename = str(export_filename)
 
@@ -373,11 +380,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         if platform.atom_debug:
             linenum()
-            print 'export_filename', repr(export_filename)
+            print "export_filename", repr(export_filename)
 
         dir, fil, ext = _fileparse(export_filename)
         if ext == ".mmp":
-            self.save_mmp_file(export_filename, brag=True)
+            self.save_mmp_file(export_filename, brag = True)
         else:
             # Anything that isn't an MMP file we will export with Open Babel.
             # Its coverage of MMP files is imperfect so it makes mistakes, but
@@ -385,32 +392,32 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             dir, fil, ext = _fileparse(export_filename)
             if platform.atom_debug:
                 linenum()
-                print 'dir, fil, ext :', repr(dir), repr(fil), repr(ext)
+                print "dir, fil, ext :", repr(dir), repr(fil), repr(ext)
             
             tmpdir = find_or_make_Nanorex_subdir('temp')
             tmp_mmp_filename = os.path.join(tmpdir, fil + ".mmp")
             
             if platform.atom_debug:
                 linenum()
-                print 'tmp_mmp_filename :', repr(tmp_mmp_filename)
+                print "tmp_mmp_filename :", repr(tmp_mmp_filename)
                 
             # We simply want to save a copy of the MMP file, not its Part Files, too.
-            # savePartFiles=False does this. Mark 2007-06-05
-            self.saveFile(tmp_mmp_filename, brag=False, savePartFiles=False)
+            # savePartFiles = False does this. Mark 2007-06-05
+            self.saveFile(tmp_mmp_filename, brag = False, savePartFiles = False)
             
-            result = self.launch_ne1_openbabel(in_format="mmp", infile=tmp_mmp_filename, 
-                                               out_format=sext[1:], outfile=export_filename)
+            result = self.launch_ne1_openbabel(in_format = "mmp", infile = tmp_mmp_filename, 
+                                               out_format = sext[1:], outfile = export_filename)
             
             if result and os.path.exists(export_filename):
                 if platform.atom_debug:
                     linenum()
-                    print 'file translation OK'
+                    print "file translation OK"
                 env.history.message( cmd + "File exported: [ " + export_filename + " ]" )
             else:
                 if platform.atom_debug:
                     linenum()
-                    print 'file translation failed'
-                print 'Problem translating ', tmp_mmp_filename, '->', export_filename
+                    print "file translation failed"
+                print "Problem translating ", tmp_mmp_filename, '->', export_filename
                 env.history.message(cmd + redmsg("File translation failed."))
 
         self.glpane.scale = self.assy.bbox.scale()
@@ -419,10 +426,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         if platform.atom_debug:
             linenum()
-            print 'finish fileExport()'
+            print "finish fileExport()"
 
     def launch_ne1_openbabel(self, in_format, infile, out_format, outfile):
-        """Runs NE1's own version of Open Babel for translating to/from MMP and
+        """
+        Runs NE1's own version of Open Babel for translating to/from MMP and
         many chemistry file formats. It will not work with other versions of
         Open Babel since they to not support MMP file format (yet).
         
@@ -435,7 +443,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         Example: babel -immp methane.mmp -oxyz methane.xyz
         """
-
         # filePath = the current directory NE-1 is running from.
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         
@@ -452,8 +459,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # Will (Ware) had this debug arg for our version of Open Babel, but
         # I've no idea if it works now or what it does. Mark 2007-06-05.
         if platform.atom_debug:
-            debugvar = 'WWARE_DEBUG=1'
-            print 'debugvar =', debugvar
+            debugvar = "WWARE_DEBUG=1"
+            print "debugvar =", debugvar
         else:
             debugvar = None
         
@@ -469,9 +476,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         arguments = QStringList()
         i = 0
         for arg in [in_format, infile, out_format, outfile, debugvar]:
-            if not arg: continue # For debugvar.
+            if not arg:
+                continue # For debugvar.
             if platform.atom_debug:
-                print 'argument', i, " :", repr(arg)
+                print "argument", i, " :", repr(arg)
             i += 1
             arguments.append(arg)
                     
@@ -506,14 +514,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         exitStatus = proc.exitStatus()
         stderr = str(proc.readAllStandardError())[:-1]
         if platform.atom_debug:
-            print 'exit status', exitStatus
-            print 'stderr says', stderr
-            print 'finish launch_ne1_openbabel(%s, %s)' % (repr(infile), repr(outfile))
+            print "exit status", exitStatus
+            print "stderr says", stderr
+            print "finish launch_ne1_openbabel(%s, %s)" % (repr(infile), repr(outfile))
         stderr = stderr.split(os.linesep)[-1]
         return exitStatus == 0 and stderr == "1 molecule converted"
 
     def fileInsert(self):
-        """Slot method for 'File > Insert'.
+        """
+        Slot method for 'File > Insert'.
         """
         
         env.history.message(greenmsg("Insert File:"))
@@ -530,8 +539,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                                          formats)
                         
         if not fn:
-             env.history.message("Cancelled")
-             return
+            env.history.message("Cancelled")
+            return
         
         if fn:
             fn = str(fn)
@@ -585,10 +594,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
 
     def fileOpen(self, recentFile = None):
-        """Slot method for 'File > Open'.
+        """
+        Slot method for 'File > Open'.
         By default, users open a file through 'Open File' dialog. If <recentFile> is provided, it means user
         is opening a file named <recentFile> through the 'Recent Files' menu list. The file may or may not exist.
         """
+        
         env.history.message(greenmsg("Open File:"))
         
         if self.assy.has_changed():
@@ -676,7 +687,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 _openmsg = "PDB file opened: [ " + os.path.normpath(fn) + " ]"
 
             dir, fil, ext = _fileparse(fn)
-            ###@@@e could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
+            # maybe: could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
             self.assy.name = fil
             self.assy.filename = fn
             self.assy.reset_changed() # The file and the part are now the same
@@ -693,7 +704,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 
             self.assy.clear_undo_stack() #bruce 060126, fix bug 1398
 
-            self.glpane.gl_update_duration(new_part=True) #mark 060116.
+            self.glpane.gl_update_duration(new_part = True) #mark 060116.
             
             self.mt.mt_update()
             
@@ -706,7 +717,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     def fileSave(self):
-        """Slot method for 'File > Save'.
+        """
+        Slot method for 'File > Save'.
         """
         env.history.message(greenmsg("Save File:"))
         
@@ -721,7 +733,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return False #bruce 050927 added this line (should be equivalent to prior implicit return None)
 
     def fileSaveAs(self): #bruce 050927 revised this
-        """Slot method for 'File > Save As'.
+        """
+        Slot method for 'File > Save As'.
         """
         safile = self.fileSaveAs_filename()
         # fn will be None or a Python string
@@ -735,7 +748,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     def fileSaveAs_filename(self, images_ok = True):
         #bruce 050927 split this out of fileSaveAs, added some comments, added images_ok option
-        """Ask user to choose a save-as filename (and file type) based on the current main filename.
+        """
+        Ask user to choose a save-as filename (and file type) based on the current main filename.
         If file exists, ask them if they want to overwrite that file.
         If user cancels either dialog, or if some error occurs,
         emit a history message and return None.
@@ -841,7 +855,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             return None ## User canceled.
 
     def fileSaveSelection(self): #bruce 050927
-        """Slot method for 'File > Save Selection'.
+        """
+        Slot method for 'File > Save Selection'.
         """
         env.history.message(greenmsg("Save Selection:"))
             # print this before counting up what selection contains, in case that's slow or has bugs
@@ -869,8 +884,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         killfunc()
         return
 
-    def saveFile(self, safile, brag=True, savePartFiles=True):
-        """Save the current model. <safile> is the filename to save the part under.
+    def saveFile(self, safile, brag = True, savePartFiles = True):
+        """
+        Save the current model. <safile> is the filename to save the part under.
         <savePartFiles> : True (default) means save any part files if this MMP file has a
                           Part Files directory.
                           False means just save the MMP file and don't worry about 
@@ -881,7 +897,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             #e only ext needed in most cases here, could replace with os.path.split [bruce 050907 comment]
                     
         if ext == ".mmp" : # Write MMP file.
-            self.save_mmp_file(safile, brag=brag, savePartFiles=savePartFiles)
+            self.save_mmp_file(safile, brag = brag, savePartFiles = savePartFiles)
             self.setCurrentWorkingDirectory() # Update the CWD.
 
         elif ext == ".pdb": # Write PDB file.
@@ -901,12 +917,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     def savePartInSeparateFile( self, part, safile): #bruce 050927 added part arg, renamed method
-        """Save some aspect of part (which might or might not be self.assy.part) in a separate file, named safile,
+        """
+        Save some aspect of part (which might or might not be self.assy.part) in a separate file, named safile,
         without resetting self.assy's changed flag or filename. For some filetypes, use display attributes from self.glpane.
         For JPG and PNG, assert part is the glpane's current part, since current implem only works then.
         """
         #e someday this might become a method of a "saveable object" (open file) or a "saveable subobject" (part, selection).
-        from debug import linenum
         linenum()
         dir, fil, ext = _fileparse(safile)
             #e only ext needed in most cases here, could replace with os.path.split [bruce 050908 comment]
@@ -967,9 +983,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 env.history.message( "%s file saved: " % type + safile )
         return
 
-    def save_mmp_file(self, safile, brag=True, savePartFiles=True):
+    def save_mmp_file(self, safile, brag = True, savePartFiles = True):
         # bruce 050907 split this out of saveFile; maybe some of it should be moved back into caller ###@@@untested
-        """Save the current part as a MMP file under the name <safile>.
+        """
+        Save the current part as a MMP file under the name <safile>.
         If we are saving a part (assy) that already exists and it has an (old) Part Files directory, 
         copy those files to the new Part Files directory (i.e. '<safile> Files').
         """
@@ -1035,7 +1052,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
     
     def copy_part_files_dir(self, oldPartFilesDir): # Mark 060703. NFR bug 2042. Revised by bruce 060704 for user safety, history.
-        """Recursively copy the entire directory tree rooted at oldPartFilesDir to the assy's (new) Part Files directory.
+        """
+        Recursively copy the entire directory tree rooted at oldPartFilesDir to the assy's (new) Part Files directory.
         Return errorcode, message (message might be for error or for success, but is not needed for success except for debugging).
         Might also print history messages (and in future, maintain progress indicators) about progress.
         """
@@ -1112,7 +1130,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return 0, 'Part files copied from "' + oldPartFilesDir + '" to "' + newPartFilesDir + '"'
 
     def saved_main_file(self, safile, fil): #bruce 050907 split this out of mmp and pdb saving code
-        """Record the fact that self.assy itself is now saved into (the same or a new) main file
+        """
+        Record the fact that self.assy itself is now saved into (the same or a new) main file
         (and will continue to be saved into that file, until further notice)
         (as opposed to part or all of it being saved into some separate file, with no change in status of main file).
         Do necessary changes (filename, window caption, assy.changed status) and updates, but emit no history message.
@@ -1132,7 +1151,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
         
     def prepareToCloseAndExit(self): #bruce 070618 revised/renamed #e SHOULD RENAME to not imply side effects other than file save
-        """The user has asked NE1 to close the main window and exit; if any files are modified,
+        """
+        The user has asked NE1 to close the main window and exit; if any files are modified,
         ask the user whether to save them, discard them, or cancel the exit.
            If the user wants any files saved, save them. (In the future there might be more than one
         open file, and this would take care of them all, even though some but not all might get saved.)
@@ -1173,8 +1193,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     __exiting = False #bruce 070618 for bug 2444
     
     def closeEvent(self, ce):
-        """slot method for closing main window (and exiting NE1), called via File > Exit or clicking X titlebar button"""
-
+        """
+        slot method for closing main window (and exiting NE1),
+        called via File > Exit or clicking X titlebar button
+        """
         # Note about bug 2444 and its fix here:
         #
         # For unknown reasons, Qt can send us two successive closeEvents.
@@ -1223,7 +1245,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if not duplicate:
                 print "exiting" # leave this in until changes fully tested [bruce 070618]
                 self.cleanUpBeforeExiting()
-            from prefs_constants import toolbar_state_prefs_key
+            
             #Not doing the following in 'cleanupBeforeExiting? 
             #as it is not a 'clean up'. Adding it below for now --ninad 20070702
             
@@ -1246,9 +1268,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     def fileClose(self):
-        """Slot method for 'File > Close'.
         """
-        
+        Slot method for 'File > Close'.
+        """
         env.history.message(greenmsg("Close File:"))
         
         isFileSaved = True
@@ -1276,12 +1298,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     def fileSetWorkDir(self):
-        """Slot for 'File > Set Working Directory', which prompts the user to select a
+        """
+        Slot for 'File > Set Working Directory', which prompts the user to select a
         new NE1 working directory via a directory chooser dialog.
         
         Note: This is no longer used as of Alpha 9. Mark 2007-06-18.
         """
-
         env.history.message(greenmsg("Set Working Directory:"))
     
         workdir = env.prefs[workingDirectory_prefs_key]
@@ -1294,8 +1316,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         self.setCurrentWorkingDirectory(workdir)
         
-    def setCurrentWorkingDirectory(self, dir=None): # Mark 060729.
-        """Sets the current working directory (CWD) to <dir>. If <dir> is None, the CWD is set
+    def setCurrentWorkingDirectory(self, dir = None): # Mark 060729.
+        """
+        Sets the current working directory (CWD) to <dir>. If <dir> is None, the CWD is set
         to the directory of the current assy filename (i.e. the directory of the current part). 
         If <dir> is None and there is no current assy filename, set the CWD to the default working directory.
         """
@@ -1310,11 +1333,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             
         #print "setCurrentWorkingDirectory(): dir=",dir
         
-    def setWorkDir(self, workdir=None):
-        """Sets the working directory in the preferences db to <workdir>.
+    def setWorkDir(self, workdir = None):
+        """
+        Sets the working directory in the preferences db to <workdir>.
         If <workdir> is None, there is no change to the working directory.
         """
-        
         if not workdir:
             return
         
@@ -1344,18 +1367,20 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     _MWsemantics__clear = __clear #bruce 060127 kluge so it can be called as __clear from inside class MWsemantics itself.
-    
+
     def _updateRecentFileList(self, fileName):
-        '''Add the <fileName> into the recent file list '''
+        """ 
+        Add the <fileName> into the recent file list
+        """
         LIST_CAPACITY = 4 #This could be set by user preference, not added yet
         
         if recentfiles_use_QSettings:
             prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
-            fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
+            fileList = prefsSetting.value(_RECENTFILES_KEY).toStringList()
         else:
             fileName = str(fileName)
             prefsSetting = preferences.prefs_context()
-            fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
+            fileList = prefsSetting.get(_RECENTFILES_KEY, [])
         
         debug_fileList(fileList)
         
@@ -1378,16 +1403,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         debug_fileList(fileList)
         if recentfiles_use_QSettings:
             assert isinstance(prefsSetting, QSettings)
-            prefsSetting.setValue('/Nanorex/nE-1/recentFiles', QVariant(fileList))
+            prefsSetting.setValue(_RECENTFILES_KEY, QVariant(fileList))
             if debug_recent_files:
                 # confirm that the information really made it into the QSetting.
-                fileListTest = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
+                fileListTest = prefsSetting.value(_RECENTFILES_KEY).toStringList()
                 fileListTest = map(str, list(fileListTest))
                 assert len(fileListTest) == len(fileList)
                 for i in range(len(fileList)):
                     assert str(fileList[i]) == str(fileListTest[i])
         else:
-            prefsSetting['/Nanorex/nE-1/recentFiles'] = fileList 
+            prefsSetting[_RECENTFILES_KEY] = fileList 
         
         del prefsSetting
         
@@ -1395,7 +1420,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     def _openRecentFile(self, idx):
-        '''Slot method when user choose from the recently opened files submenu. '''
+        """
+        Slot method when user choose from the recently opened files submenu.
+        """
         text = str(idx.text())
         selectedFile = text[text.index("  ")+2:]
         if False:
@@ -1405,10 +1432,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # the latter.
             if recentfiles_use_QSettings:
                 prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
-                fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
+                fileList = prefsSetting.value(_RECENTFILES_KEY).toStringList()
             else:
                 prefsSetting = preferences.prefs_context()
-                fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
+                fileList = prefsSetting.get(_RECENTFILES_KEY, [])
 
             print idx, len(fileList)
             assert idx >= 0 and idx <= len(fileList)
@@ -1417,7 +1444,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
         
     def _createRecentFilesList(self):
-        '''Dynamically construct the list of recently opened files submenus '''
+        """
+        Dynamically construct the list of recently opened files submenus
+        """
         if hasattr(self.assy.w, "recentFileMenu"):
             # Remove the previous recent-file menu
             recentFileMenu = self.assy.w.recentFileMenu
@@ -1429,13 +1458,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         if recentfiles_use_QSettings:
             prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
-            fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
+            fileList = prefsSetting.value(_RECENTFILES_KEY).toStringList()
         else:
             prefsSetting = preferences.prefs_context()
-            fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
+            fileList = prefsSetting.get(_RECENTFILES_KEY, [])
         debug_fileList(fileList)
         
-        #self.assy.w.recentFileMenu = rfm = QMenu("Open Recent Files", self)
+        ## self.assy.w.recentFileMenu = rfm = QMenu("Open Recent Files", self)
         recentFileMenu.clear()
         for ii in range(len(fileList)):
             recentFilename = os.path.normpath(str(fileList[ii])) # Fixes bug 2193. Mark 060808.
@@ -1452,16 +1481,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     pass # end of class fileSlotsMixin
 
-# end
+# ==
 
-
-## Test code--By cleaning the recent files list of QSettings###
+## Test code -- By cleaning the recent files list of QSettings
 if __name__ == '__main__':
     prefs = QSettings()
-    from PyQt4.Qt import QStringList
     emptyList = QStringList()
-    prefs.writeEntry('/Nanorex/nE-1/recentFiles', emptyList)
-    
+    prefs.writeEntry("/Nanorex/nE-1/recentFiles", emptyList)
     
     del prefs
-    
+
+# end

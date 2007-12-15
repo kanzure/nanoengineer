@@ -1,16 +1,14 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-NanoHive.py
+"""
+NanoHive.py - dialog and control code for running ESP (and other?)
+calculations using NanoHive
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
-History:
-
-Created by Mark.
-'''
-__author__ = "Mark"
-
-import os
+Module classification: has ui/control/ops code; put in ui for now.
+"""
 
 from PyQt4.Qt import QWidget
 from PyQt4.Qt import SIGNAL
@@ -23,13 +21,13 @@ from constants import filesplit
 
 from NanoHiveDialog import Ui_NanoHiveDialog
 from utilities.Log import redmsg, greenmsg, orangemsg
-from jigs_planes import ESPImage
+from jigs_planes import ESPImage # cyclic import, not trivial to remove
 from NanoHiveUtils import run_nh_simulation
 
-debug_nanohive = 0 # DO NOT COMMIT with 1
-    #bruce 051115: renamed debug_sim -> debug_nanohive, to avoid confusion between this variable (apparently never used)
-    # and the debug_sim global in runSim.py.
-    # (If nanohive code can call code in runSim.py, this renaming might be wrong, but as far as I know that never happens.)
+##debug_nanohive = 0 # DO NOT COMMIT with 1
+##    #bruce 051115: renamed debug_sim -> debug_nanohive, to avoid confusion between this variable (apparently never used)
+##    # and the debug_sim global in runSim.py.
+##    # (If nanohive code can call code in runSim.py, this renaming might be wrong, but as far as I know that never happens.)
 
 cmd = greenmsg("Nano-Hive: ")
 
@@ -38,7 +36,10 @@ class NH_Sim_Parameters:
     
 # get_partname() should be a global function.  Mark 050915.
 def get_partname(assy):
-    'Returns the base name of the part.  If the filename is None, returns'
+    """
+    Returns the base name of the part.  If the filename is not set,
+    returns "Untitled".
+    """
     if assy.filename:
         junk, basename, ext = filesplit(assy.filename)
         return basename
@@ -46,8 +47,9 @@ def get_partname(assy):
         return "Untitled"
 
 def find_all_ESP_image_jigs_under( root):
-    '''Returns a list of ESP Image jigs.
-    '''
+    """
+    Returns a list of ESP Image jigs.
+    """
     # Code copied from node_indices.find_all_jigs_under().  Mark 050919.
     res = []
     def grab_if_ESP_Image_jig(node):
@@ -57,9 +59,9 @@ def find_all_ESP_image_jigs_under( root):
     return res
 
 class NanoHive(QWidget, Ui_NanoHiveDialog):
-    '''The Nano-Hive dialog
-    '''
-       
+    """
+    The Nano-Hive dialog
+    """
     def __init__(self, assy):
         QWidget.__init__(self)
         self.setupUi(self)
@@ -82,7 +84,9 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         return
 
     def showDialog(self, assy):
-        '''Display the dialog '''
+        """
+        Display the dialog
+        """
         self.assy=assy
         self.part=assy.part
         
@@ -116,19 +120,24 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
 # == Slots for Nano-Hive Dialog
                 
     def accept(self):
-        '''The slot method for the 'OK' button.'''
+        """
+        The slot method for the 'OK' button.
+        """
         if self.run_nanohive():
             return
         QDialog.accept(self)
         
         
     def reject(self):
-        '''The slot method for the "Cancel" button.'''
+        """
+        The slot method for the "Cancel" button.
+        """
         QDialog.reject(self)
         
     def update_ESP_image_combox(self, toggle):
-        '''Enables/disables the ESP Image combo box.
-        '''
+        """
+        Enables/disables the ESP Image combo box.
+        """
         if self.esp_image_list:
             self.ESP_image_combox.setEnabled(toggle)
         else:
@@ -137,8 +146,9 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
             self.ESP_image_combox.setEnabled(False)
         
     def populate_ESP_image_combox(self):
-        '''Populates the ESP Image combo box with the names of all ESP Image jigs in the current part.
-        '''
+        """
+        Populates the ESP Image combo box with the names of all ESP Image jigs in the current part.
+        """
         self.esp_image_list = find_all_ESP_image_jigs_under(self.assy.tree)
         
         self.ESP_image_combox.clear()
@@ -155,8 +165,9 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
             self.ESP_image_combox.setEnabled(False)
             
     def set_ESP_image(self, indx):
-        '''Slot for the ESP Image combo box.
-        '''
+        """
+        Slot for the ESP Image combo box.
+        """
         print "Index = ", indx
         
         if indx:
@@ -167,21 +178,24 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
             print "ESP Image Name =", self.esp_image
         
     def update_MPQC_GD_options_btn(self, toggle):
-        '''Enables/disables the MPQC Gradient Dynamics Options button.
-        '''
+        """
+        Enables/disables the MPQC Gradient Dynamics Options button.
+        """
         self.MPQC_GD_options_btn.setEnabled(toggle)
         
     def show_MPQC_GD_options_dialog(self):
-        '''Show the MPQC Gradient Dynamics Options dialog.
-        '''
+        """
+        Show the MPQC Gradient Dynamics Options dialog.
+        """
         print "MPQC Gradient Dynamics Options dialog is not implemented yet."
         
 # ==
 
     def get_sim_id(self):
-        '''Return the simulation id (name) from the dialog's Name widget.
+        """
+        Return the simulation id (name) from the dialog's Name widget.
         If it is empty, return "Untitled" as the sim_name.
-        '''
+        """
         name = QString(self.name_linedit.text())
         bname = name.stripWhiteSpace() # make sure suffix is not just whitespaces
 
@@ -197,8 +211,9 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         return sim_name
         
     def get_sims_to_run(self):
-        '''Returns a list of the simulations to run.
-        '''
+        """
+        Returns a list of the simulations to run.
+        """
         sims_to_run = []
         
         if self.MPQC_ESP_checkbox.isChecked():
@@ -213,8 +228,9 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         return sims_to_run
         
     def get_results_to_save(self):
-        '''Returns a list of the simulations to run.
-        '''
+        """
+        Returns a list of the simulations to run.
+        """
         results_to_save = []
         
         if self.Measurements_to_File_checkbox.isChecked():
@@ -230,8 +246,9 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         return results_to_save
         
     def get_sim_data(self):
-        '''Return the set of parameters and data needed to run the Nano-Hive simulation.
-        '''
+        """
+        Return the set of parameters and data needed to run the Nano-Hive simulation.
+        """
         sp = NH_Sim_Parameters()
         
         sp.desc = self.description_textedit.toPlainText()
@@ -243,8 +260,9 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         return sp
          
     def run_nanohive(self):
-        '''Slot for "Run Simulation" button.
-        '''
+        """
+        Slot for "Run Simulation" button.
+        """
         sim_name = self.get_sim_name()
         sim_parms = self.get_sim_data()
         sims_to_run = self.get_sims_to_run()

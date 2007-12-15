@@ -3,12 +3,19 @@
 parse_utils.py -- utilities for general parsing, and for parsing streams of python tokens.
 Also a prototype "description class" which can be used to represent results of parsing a "description".
 Also an example grammar, which can be used for parsing "parameter-set description files".
-(Some of these things ought to be split into their own files and/or improved/generalized.)
+(FYI: All these things are used to parse "parameter dialog description files", *.desc.)
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+
+TODO:
+
+This ought to be split into several files, and generalized, and ThingData renamed
+and cleaned up. And optimized (easy), since the parser is probably quadratic time
+in input file size, at least when used in the usual way, on a list that comes
+from generate_tokens.
 """
-__author__ = "bruce"
-
 
 from tokenize import generate_tokens
 from tokenize import tok_name
@@ -22,7 +29,9 @@ class ParseFail(Exception): pass #e make it a more specific kind of exception?
 class SyntaxError(Exception): pass
 
 def parse(pat, rest):
-    "either return (res, newrest), or raise ParseFail or SyntaxError"
+    """
+    either return (res, newrest), or raise ParseFail or SyntaxError
+    """
 ##    if type(pat) == type(""):
 ##        pass
     #e other python types with special meanings, like list?
@@ -61,7 +70,9 @@ def parse_top(pat, rest):
     pass
 
 class ParseRule:
-    "subclasses are specific parse-rule constructors; their instances are therefore parse rules"
+    """
+    subclasses are specific parse-rule constructors; their instances are therefore parse rules
+    """
     def __init__(self, *args, **kws):
         self.args = args
         self.kws = kws
@@ -106,7 +117,8 @@ class Alt(ParseRule):
 # == higher-level general parser utilities
 
 class ForwardDef(ParseRule):
-    """For defining placeholders for recursive patterns;
+    """
+    For defining placeholders for recursive patterns;
     by convention, arg0 (optional) is some sort of debug name;
     self.pat must be set by caller before use
     """
@@ -115,7 +127,9 @@ class ForwardDef(ParseRule):
     pass
 
 def ListOf(pat):
-    "0 or more pats"
+    """
+    0 or more pats
+    """
     res = ForwardDef()
     res.pat = Optional(Seq(pat, res,
                             result = lambda (p,r): [p] + r # fix retval format to be a single list (warning: quadratic time)
@@ -141,7 +155,9 @@ Nothing = NothingClass()
 # depending on how python lists implement the [1:] operation.
 
 def describe_where(rest):
-    "assume rest is a list of token 5-tuples as returned by generate_tokens"
+    """
+    assume rest is a list of token 5-tuples as returned by generate_tokens
+    """
     if not rest:
         return "end of input"
     toktype, tokstring, (srow, scol), (erow, ecol), line = rest[0]
@@ -179,7 +195,9 @@ class TokenType(ParseRule):
         except IndexError:
             self.cond = lambda tokstring: True
     def parse(self, rest):
-        "assume rest is a list of token 5-tuples as returned by generate_tokens"
+        """
+        assume rest is a list of token 5-tuples as returned by generate_tokens
+        """
         while rest and token_name(rest) in IGNORED_TOKNAMES:
             rest = rest[1:] # this might be inefficient for long inputs, and for that matter, so might everything else here be
             # note, this filtering is wasted (redone many times at same place) if we end up parsefailing, but that's tolerable for now
@@ -278,7 +296,10 @@ class Info:
     pass
 
 class ThingData(Info):
-    "the data in a thing" # could this be Thing -- that symbol's value would be both a constructor and a parserule... not sure...
+    """
+    #doc...
+    the data in a thing
+    """# could this be Thing -- that symbol's value would be both a constructor and a parserule... not sure...
     options = {} # save RAM & time by sharing this when surely empty... could cause bugs if it's altered directly by outside code
     option_attrs = attr_interface_to_dict(options) # also shared, also must be replaced if nonempty
     def init(self):
@@ -307,7 +328,9 @@ class ThingData(Info):
         ## print "options:",self.options
         return
     def maybe_set_self_as_option_in(self, dict1):
-        "If self is an option setting, set it in dict1"
+        """
+        If self is an option setting, set it in dict1
+        """
         #e in future might need more args, like an env, or might need to store a formula
         # (which might indicate switching to getattr interface?)
         if not self.subthings and len(self.thingargs) == 1:
@@ -335,7 +358,9 @@ class ThingData(Info):
                 res.append(kid)
         return res
     def isa(self, kind, **conds):
-        "Predicate: are we of this kind, and do we match conditions like xxx=yyy for our option xxx being yyy?"
+        """
+        Predicate: are we of this kind, and do we match conditions like xxx=yyy for our option xxx being yyy?
+        """
         #### LOGIC BUG: for symbolic options, the stored value is a string, the match is a string, all ok.
         # but for booleans, the stored val is 'true' or 'false' -- not ok. How do we get best of all these worlds?? ####
         if self.name != kind:
@@ -353,7 +378,9 @@ class ThingData(Info):
         return paramval == valpattern or (type(valpattern) == type(()) and paramval in valpattern)
             # note: 'in' is not using recursive match, just ==
     def as_expr(self):
-        "Return an Expr form of self. (Only call after it's fully parsed, since parsing is destructive.)"
+        """
+        Return an Expr form of self. (Only call after it's fully parsed, since parsing is destructive.)
+        """
         # 070330, experimental. Will require exprs module. Not yet called. For now, advise don't call except when a debug_pref is set.
         #e name -> exprhead? using an env? via a Symbol?
         pass
@@ -361,7 +388,8 @@ class ThingData(Info):
     pass
 
 def makeThing(name, args, subthings):
-    """#doc...
+    """
+    #doc...
     Note: we don't yet know if the ThingData we return will end up as a subobject
     or an option-value-setting of its parent... its parent will call
     thingdata.maybe_set_self_as_option_in(parent) to make and execute that decision.

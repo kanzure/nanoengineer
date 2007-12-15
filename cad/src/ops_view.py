@@ -12,19 +12,18 @@ not for MWsemantics like this one.
 History:
 
 mark 060120 split this out of MWsemantics.py.
-
 """
 
 import math
 from Numeric import dot
-
+from geometry import compute_heuristic_axis
 import env
 from VQT import V, Q, A, norm, vlen
 from utilities.Log import greenmsg, redmsg, orangemsg
-from qutemol import launch_qutemol, write_qutemol_files
 from prefs_constants import ORTHOGRAPHIC
 from prefs_constants import PERSPECTIVE
 from Csys import Csys
+from PovrayScene import PovrayScene
 
 class viewSlotsMixin:
     """
@@ -87,8 +86,6 @@ class viewSlotsMixin:
         else:
             self.showNormal()
         
-        
-
     def setViewFitToWindow(self):
         """
         Fit to Window
@@ -106,7 +103,6 @@ class viewSlotsMixin:
         info = ''
         env.history.message(cmd + info)
         self.glpane.setViewZoomToSelection()
-
 
     def setViewHomeToCurrent(self):
         """
@@ -264,7 +260,6 @@ class viewSlotsMixin:
         if len(atoms):
             pos = A( map( lambda a: a.posn(), atoms ) )
             nears = [ self.glpane.out, self.glpane.up ]
-            from geometry import compute_heuristic_axis
             axis = compute_heuristic_axis( pos, 'normal', already_centered = False, nears = nears, dflt = None )
         else: # We have a jig with no atoms.
             axis = jigs[0].getaxis() # Get the jig's axis.
@@ -311,7 +306,6 @@ class viewSlotsMixin:
 
         pos = A( map( lambda a: a.posn(), atoms ) ) # build list of atom xyz positions.
         nears = [ self.glpane.out, self.glpane.up ]
-        from geometry import compute_heuristic_axis
         axis = compute_heuristic_axis( pos, 'normal', already_centered = False, nears = nears, dflt = None )
 
         if not axis:
@@ -450,7 +444,7 @@ class viewSlotsMixin:
         self.assy.addnode(csys)
 
         self.mt.mt_update()
-
+        return
 
     def getNamedViewList(self):
         """
@@ -503,26 +497,23 @@ class viewSlotsMixin:
         the current part and/or delete unwanted nodes from the model tree. If the user wants to add the 
         node to the model tree, the user must use 'Insert > POV-Ray Scene'.
         """
-
         assy = self.assy
         glpane = self.glpane
 
-        from PovrayScene import PovrayScene
         #pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
         pov = PovrayScene(assy, None)
         pov.raytrace_scene(tmpscene=True) # this emits whatever history messages are needed [bruce 060710 comment]
 
 ##    def viewRaytraceScene_ORIG(self):
-##        """Slot for 'View > Raytrace Scene'.
+##        """
+##        Slot for 'View > Raytrace Scene'.
 ##        Raytraces the current scene. This version adds a POV-Ray Scene node to the model tree.
 ##        """
-##        
 ##        cmd = greenmsg("Raytrace Scene: ")
 ##        
 ##        assy = self.assy
 ##        glpane = self.glpane
 ##        
-##        from PovrayScene import PovrayScene
 ##        pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
 ##        #bruce 060620 comment: I doubt it's correct to render the image before adding the node,
 ##        # in case rendering it takes a long time. Also, if the rendering is aborted, the node

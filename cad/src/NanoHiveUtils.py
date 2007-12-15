@@ -1,16 +1,21 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 NanoHiveUtils.py
 
-$Id$
+@author: Brian, Mark
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
     
-    Brian wrote the NH_Connection class
-    Mark wrote everything else
+Brian wrote the NH_Connection class.
+Mark wrote everything else.
 
-'''
-__author__ = "Brian"
+Module classification:
+
+Mostly control & io code. Some model & ui code (via assy arg & assy.w).
+Probably "simulation". [bruce 071214]
+"""
 
 import env, os, sys, time
 from PlatformDependent import find_or_make_Nanorex_subdir
@@ -18,8 +23,9 @@ from prefs_constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
 from PyQt4.Qt import Qt, QApplication, QCursor
 
 def get_nh_simspec_filename(basename):
-    '''Return the full path of the Nano-Hive simulation specification file.
-    '''
+    """
+    Return the full path of the Nano-Hive simulation specification file.
+    """
     if basename:
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         fn = os.path.normpath(os.path.join(nhdir,str(basename)+"-sim.xml"))
@@ -29,8 +35,9 @@ def get_nh_simspec_filename(basename):
         return None
 
 def get_nh_workflow_filename(basename):
-    '''Return the full path of the Nano-Hive workflow file.
-    '''
+    """
+    Return the full path of the Nano-Hive workflow file.
+    """
     if basename:
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         fn = os.path.normpath(os.path.join(nhdir,str(basename)+"-flow.tcl"))
@@ -40,8 +47,9 @@ def get_nh_workflow_filename(basename):
         return None
 
 def get_nh_mmp_filename(basename):
-    '''Return the full path of the Nano-Hive MMP input file.
-    '''
+    """
+    Return the full path of the Nano-Hive MMP input file.
+    """
     if basename:
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         fn = os.path.normpath(os.path.join(nhdir,str(basename)+".mmp"))
@@ -51,7 +59,8 @@ def get_nh_mmp_filename(basename):
         return None
 
 def get_nh_espimage_filename(assy, jigname):
-    """Returns the filename of the ESP Image's png given assy and ESP Image's jigname,
+    """
+    Returns the filename of the ESP Image's png given assy and ESP Image's jigname,
     to be stored in the ESP Image's MMP info record.
     The filename format is "assyname-jigname.png"
     """
@@ -59,8 +68,9 @@ def get_nh_espimage_filename(assy, jigname):
     return os.path.normpath(cwd)
         
 def get_nh_home_ORIG():    
-    '''Return the Nano-Hive home directory'''
-    
+    """
+    Return the Nano-Hive home directory
+    """
     nanohive_exe = env.prefs[nanohive_path_prefs_key]
     
     # On Windows, the default location of the Nano-Hive executable is 
@@ -75,8 +85,9 @@ def get_nh_home_ORIG():
     return nh_home
     
 def get_nh_home():
-    '''Returns the Nano-Hive home (base) directory for each platform, if it exists. Otherwise, return None.
-    '''
+    """
+    Returns the Nano-Hive home (base) directory for each platform, if it exists. Otherwise, return None.
+    """
     if sys.platform == "win32": # Windows
         basedir = "C:\Program Files\Nano-Hive"
     else: # Linux and MacOS
@@ -86,8 +97,9 @@ def get_nh_home():
     return basedir
     
 def get_nh_config_filename():
-    '''Return the full path of the Nano-Hive config.txt file.
-    '''
+    """
+    Return the full path of the Nano-Hive config.txt file.
+    """
     if sys.platform == "win32": # Windows
         fn = os.path.normpath(get_nh_home() + "/conf/configs.txt")
     else: # Linxus and MacOS
@@ -97,7 +109,8 @@ def get_nh_config_filename():
     return fn
 
 def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
-    """Run a Nano-Hive simulation on the part (assy).  Only the MPQC_ESP plug-in
+    """
+    Run a Nano-Hive simulation on the part (assy).  Only the MPQC_ESP plug-in
     used for creating an ESP Image file is supported in A7.
     
     sim_id is the simulation id of the simulation.  It is used to construct the 
@@ -124,7 +137,6 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
         7 = "run" command failed
         8 = Simulation aborted
     """
-    
     if not sims_to_run:
         return # No simulations to run in the list.
         
@@ -221,11 +233,11 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
     return 0
 
 def activate_nh_plugin(win):
-    '''Opens a message box informing the user that the Nano-Hive plugin
+    """
+    Opens a message box informing the user that the Nano-Hive plugin
     needs to be enabled and asking if they wish to do so.
     win is the main window object.
-    '''
-
+    """
     from PyQt4.Qt import QMessageBox
     ret = QMessageBox.warning( win, "Activate Nano-Hive Plug-in",
         "Nano-Hive plug-in not enabled. Please select <b>OK</b> to \n" \
@@ -244,19 +256,20 @@ def activate_nh_plugin(win):
     return 0
 
 def verify_nh_program():
-    '''Returns 0 if nanohive_path_prefs_key is the path to the Nano-Hive v1.2b executable.
+    """
+    Returns 0 if nanohive_path_prefs_key is the path to the Nano-Hive v1.2b executable.
     Otherwise, returns 1.
-    '''
+    """
     vstring = "Nano-Hive version 1.2.0-beta-1 Copyright (C) 2004,2005 Nano-Hive, LLC"
     r = verify_program(env.prefs[nanohive_path_prefs_key], '-v', vstring)
     return r
     
 # This is a general function that should be moved to platform.py or other file.  Mark 2006-01-05.
 def verify_program(program, version_flag, vstring):
-    '''Verifies a program by running it with the version_flag and matching the output to vstring.
+    """
+    Verifies a program by running it with the version_flag and matching the output to vstring.
     Returns 0 if there is a match.  Otherwise, returns 1
-    '''
-    
+    """
     if not program:
         return 1
     
@@ -294,10 +307,11 @@ def verify_program(program, version_flag, vstring):
         return 0 # Match found.
     
 def start_nh():
-    '''Starts Nano-Hive server in the background.
+    """
+    Starts Nano-Hive server in the background.
     Returns 1 if Nano-Hive path is not set or if the path does not exist.
     Returns 2 if Nano-Hive config file does not exist.
-    '''
+    """
     # Get Nano-Hive executable path from the prefs db.
     nanohive_exe = env.prefs[nanohive_path_prefs_key]
     
@@ -329,18 +343,20 @@ def start_nh():
     return 0
 
 def stop_nh_sim(nh_socket, sim_id=None):
-    '''Stops a running Nano-Hive simulation.
+    """
+    Stops a running Nano-Hive simulation.
     <sim_id> - the id (name) of the simulator to stop.
-    '''
+    """
     if nh_socket:
         if sim_id:
             success, response = nh_socket.sendCommand("stop " + sim_id) # Send "stop" command.
     QApplication.restoreOverrideCursor() # Restore the cursor
         
 def exit_nh(nh_socket, kill_nh):
-    '''Exits (kills) the Nano-Hive instance if kill_nh is True, 
+    """
+    Exits (kills) the Nano-Hive instance if kill_nh is True, 
     closes the socket and restores the cursor."
-    '''
+    """
     if nh_socket:
         if kill_nh:
             success, response = nh_socket.sendCommand("exit") # Send "exit" command.
@@ -348,10 +364,10 @@ def exit_nh(nh_socket, kill_nh):
     QApplication.restoreOverrideCursor() # Restore the cursor
 
 def connect_to_nh():
-    '''Connects to a Nano-Hive instance.  
+    """
+    Connects to a Nano-Hive instance.  
     Returns NH_Connection socket if successful, None if failure.
-    '''
-
+    """
     hostIP = "127.0.0.1"
     port = 3000 # Nano-Hive 1.2b uses port 3000, not 3002 as 1.2a did.  mark 2006-01-04.
     serverTimeout = 5.0
@@ -390,8 +406,9 @@ def connect_to_nh():
 import socket
 
 class NH_Connection:
-    "A sockets connection to a Nano-Hive instance."
-        
+    """
+    A sockets connection to a Nano-Hive instance.
+    """    
     def connect(self, hostIP, port, serverTimeout, clientTimeout):
         """
         Connects to the specified N-H instance.
@@ -452,8 +469,7 @@ class NH_Connection:
                 description of the error if unsuccessful. The encoded response
                 can be decoded with the
                 Nano-Hive/data/local/en_resultCodes.txt file
-        """
-                        
+        """          
         # Send command
         success = 1
         try:
