@@ -852,8 +852,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             if menuItem is not None: menuItem.setEnabled(False)
 
         # Create the Help dialog. Mark 050812
-        from help import Help
-        self.help = Help()
+        from help import Ne1HelpDialog
+        self.help = Ne1HelpDialog()
         
         # Create the NE1 Progress Dialog. mark 2007-12-06
         self.createProgressDialog()

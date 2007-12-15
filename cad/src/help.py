@@ -1,11 +1,21 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
+help.py - help dialog used for mouse controls and keyboard shortcuts
+
 $Id$
 
 History:
 
-Rewritten by Mark as a mininal help facility for Alpha 6.
+Rewritten by Mark as a minimal help facility for Alpha 6.
 
+bruce 071214 renamed class Help -> Ne1HelpDialog,
+so uses are findable by text search. The name HelpDialog
+was taken (as the module from which we import Ui_HelpDialog).
+
+TODO:
+
+The module should also be renamed, in case we want to use "help"
+in a more general way, e.g. as a package name. [bruce 071214 comment]
 """
 
 __author__ = "Josh"
@@ -19,10 +29,10 @@ from PyQt4.Qt import SIGNAL
 from HelpDialog import Ui_HelpDialog
 from icon_utilities import geticon
 
-class Help(QWidget, Ui_HelpDialog):
-    '''The Help dialog used for mouse controls and keyboard shortcuts
-    '''
-       
+class Ne1HelpDialog(QWidget, Ui_HelpDialog):
+    """
+    The Help dialog used for mouse controls and keyboard shortcuts
+    """
     def __init__(self):
         QWidget.__init__(self)
         self.setupUi(self)
@@ -36,11 +46,12 @@ class Help(QWidget, Ui_HelpDialog):
         return
     
     def showDialog(self, pagenum):
-        '''Display the Help dialog with either the Mouse Controls or Keyboard Shortcuts page
+        """
+        Display the Help dialog with either the Mouse Controls or Keyboard Shortcuts page
         pagenum is the page number, where:
         0 = Mouse Controls
         1 = Keyboard Shortcuts
-        '''
+        """
         self.help_tab.setCurrentIndex(pagenum) # Sends signal to setup_current_page()
         
         # To make sure the Help dialog is displayed on top, we hide, then show it.
@@ -51,8 +62,9 @@ class Help(QWidget, Ui_HelpDialog):
     ###### Private methods ###############################
     
     def _setup_mouse_controls_page(self):
-        ''' Setup the Mouse Controls help page.
-        '''
+        """
+        Setup the Mouse Controls help page.
+        """
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         if sys.platform == 'darwin':
             htmlDoc = os.path.normpath(filePath + '/../doc/mousecontrols-mac.htm')
@@ -67,8 +79,9 @@ class Help(QWidget, Ui_HelpDialog):
             self.mouse_controls_textbrowser.setPlainText(msg)
 
     def _setup_keyboard_shortcuts_page(self):
-        ''' Setup the Keyboard Shortcuts help page.
-        '''
+        """
+        Setup the Keyboard Shortcuts help page.
+        """
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
         
         if sys.platform == 'darwin':
