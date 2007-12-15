@@ -30,8 +30,10 @@ packageColors = { # needs geometry, platform
 # missing modules should be classified as themselves, so they are very visible in the graph
 # and so the arcs you see help you classify them properly.
 #
-###### ne1 package, for overall layout of ne1 as opposed some other app made from same pieces incl ui pieces
-### use ccodetype/topic and have an option to ignore the /topic part when graphing
+# ne1 package, for overall layout of ne1 as opposed some other app made from same pieces incl ui pieces
+# (eg a small app for testing or script-running)
+#
+# use codetype/topic and have an option to ignore the /topic part when graphing
 #
 ### simulation package, subdirs for gromacs, gamess, nd1, general? runsim too. some io code not separated.
 # replaces some "operations" classifications; essentially a type of ops and io combined.
@@ -280,44 +282,50 @@ packageMapping = {
     "movieMode"                        : "ui",
     "MoviePropertyManager"             : "ui/propmgr",
     "MWsemantics"                      : "ui",
-    "NanoHive"                         : "ui", #? #@@@ got uptobfr N in file, and thru all N on paper. @@@
-    "NanoHiveDialog"                   : "ui", 
-    "NanoHiveUtils"                    : "io", #?
+    
+    "NanoHive"                         : "ui", # for ESP package; ui/control/ops for running ESP (etc?) calcs using NanoHive. ui for now.
+    "NanoHiveDialog"                   : "ui", # for ESP package
+    "NanoHiveUtils"                    : "simulation", # for ESP package; Mostly control & io code. Some model & ui code (via assy arg & assy.w).
     "NanotubeGenerator"                : "ui/controller",
     "NanotubeGeneratorPropertyManager" : "ui/propmgr",
-    "NE1ToolBar"                       : "ui", #?
+    "NE1ToolBar"                       : "ui/widgets", # Variant of QToolBar
     "Node_as_MT_DND_Target"            : "model_tree", # controller for model_tree package
-    "node_indices"                     : "foundation", #(ok) - where i am - put ?s on some N's, now need to study them @@@
-    "objectBrowse"                     : "utilities",
-    "ops_atoms"                        : "model",
-    "ops_connected"                    : "model",
-    "ops_copy"                         : "model", # parts may be foundation
-    "ops_files"                        : "io",
-    "ops_motion"                       : "model",
-    "ops_rechunk"                      : "model",
-    "ops_select"                       : "model",
-    "ops_view"                         : "ui", # parts may be graphics
-    "op_select_doubly"                 : "model",
+    "node_indices"                     : "foundation",
+
+    "objectBrowse"                     : "utilities", # debug
+    "ops_atoms"                        : "operations",
+    "ops_connected"                    : "operations",
+    "ops_copy"                         : "operations", # parts may be foundation
+    "ops_files"                        : "operations", # also has some io
+    "ops_motion"                       : "operations",
+    "ops_rechunk"                      : "operations",
+    "ops_select"                       : "operations", # for a selection package??
+    "ops_view"                         : "operations", # for a view package???
+    "op_select_doubly"                 : "operations",
+    
     "PanMode"                          : "ui",
     "ParameterDialog"                  : "ui",
-    "parse_utils"                      : "io",
-    "part"                             : "foundation", # model, graphics?
+    "parse_utils"                      : "utilities",
+    "part"                             : "model", #? - foundation (if clipboard is), but knows lots of model & operations too
     "PartLibPropertyManager"           : "ui/propmgr",
     "PartLibraryMode"                  : "ui",
     "PartProp"                         : "ui",
     "PartPropDialog"                   : "ui",
-    "pastables"                        : "model", # supports pasting operations
+    "pastables"                        : "operations", # supports pasting operations
     "PasteMode"                        : "ui",
     "PastePropertyManager"             : "ui/propmgr",
+    
     "pi_bond_sp_chain"                 : "model",
-    "Plane"                            : "ui", # geometry, model? [model]
+    "Plane"                            : "model",
     "PlaneEditController"              : "ui/controller",
     "PlanePropertyManager"             : "ui/propmgr",
-    "platform"                         : "utilities",
-    "PlatformDependent"                : "platform",
+    "platform"                         : "utilities", # debug
+    "PlatformDependent"                : "platform", # ok, but really it's a mix of platform, utilities, io.
+    # @@@ where i am in file is up to here, and paper too
     "PlotTool"                         : "ui",
     "PlotToolDialog"                   : "ui",
     "Plugins"                          : "ui", # ?
+    
     "povheader"                        : "io",
     "povray"                           : "io",
     "PovrayScene"                      : "model", # ?
@@ -330,9 +338,11 @@ packageMapping = {
     "Process"                          : "io",
     "PropMgr_Constants"                : "PM",
     "pyrex_test"                       : "top_level",
+    
     "qt4transition"                    : "utilities",
     "qutemol"                          : "io",
     "QuteMolPropertyManager"           : "ui/propmgr",
+    
     "ReferenceGeometry"                : "ui", # geometry, model?
     "reposition_baggage"               : "model",
     "ResizeHandle"                     : "ui", # interactive graphics - package will be revised
@@ -340,6 +350,7 @@ packageMapping = {
     "RotaryMotorPropertyManager"       : "ui/propmgr",
     "RotateMode"                       : "ui",
     "runSim"                           : "simulation",
+    
     "selectAtomsMode"                  : "ui",
     "SelectAtoms_Command.py"           : "?", #?
     "SelectAtoms_GraphicsMode.py"      : "?", #?
@@ -370,6 +381,7 @@ packageMapping = {
     "StatPropDialog"                   : "ui",
     "StatusBar"                        : "ui",
     "SurfaceChunks"                    : "geometry",
+    
     "TemporaryCommand"                 : "ui",
     "testdraw"                         : "test",
     "testmode"                         : "test",
@@ -384,6 +396,7 @@ packageMapping = {
     "ThermoProp"                       : "ui",
     "ThermoPropDialog"                 : "ui",
     "ThumbView"                        : "graphics_widgets",
+    
     "Ui_BuildAtomsPropertyManager"     : "ui/propmgr",
     "Ui_BuildStructuresMenu"           : "ui",
     "Ui_BuildStructuresToolBar"        : "ui",
@@ -418,13 +431,16 @@ packageMapping = {
     "UserPrefs"                        : "ui",
     "UserPrefsDialog"                  : "ui",
     "Utility"                          : "foundation", # some model code?
+    
     "version"                          : "utilities",
     "ViewOrientationWindow"            : "ui",
     "VQT"                              : "geometry",
+    
     "whatsthis"                        : "ui",
     "widgets"                          : "ui",
     "widget_controllers"               : "ui",
     "wiki_help"                        : "ui", # some io?
+    
     "ZoomMode"                         : "ui",
     }
 
