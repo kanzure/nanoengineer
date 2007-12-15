@@ -24,6 +24,19 @@ packageColors = { # needs geometry, platform
     "top"             : "#ff3090",
     }
 
+
+# NFR: @@@
+#
+# missing modules should be classified as themselves, so they are very visible in the graph
+# and so the arcs you see help you classify them properly.
+#
+###### ne1 package, for overall layout of ne1 as opposed some other app made from same pieces incl ui pieces
+### use ccodetype/topic and have an option to ignore the /topic part when graphing
+#
+### simulation package, subdirs for gromacs, gamess, nd1, general? runsim too. some io code not separated.
+# replaces some "operations" classifications; essentially a type of ops and io combined.
+# levels: sim over ops over model, but we expect arcs in all directions in there, for now.
+
 packageLevels = {
     "top"         : 7,
     "test"        : 7,
@@ -45,15 +58,21 @@ packageLevels = {
 # just the ones that we might be tempted to use otherwise.
 #
 # Note: on Mac, python import seems to be case-sensitive even though you can't
-# have two filesystem-directory entries differing only by case. If we can rely
-# on this, we can permit ourselves to have packages named opengl and Build,
-# even though OpenGL is an extension module and build is a reserved directory
-# name.
+# have two filesystem-directory entries differing only by case.
+#
+# If we can rely
+# on this, we can change the rules which use the names below to permit a package
+# named opengl, even though OpenGL is an extension module.
+
+# Unfortunately, we'd still have
+# to rule out a toplevel package named Build, since build is a reserved
+# directory name -- import might not be confused, but the code which wants
+# to locally create and use the "build" subdirectory would be.
 
 # Package names we can't use at the top level:
 disallowedToplevelPackageNames = {
-    "build"        : "temporary directory for compiling some .pyx files", # probably ok except at toplevel, and we might want Build
-    "ui"           : "name of subdirectory for icons/images", # should be renamed
+    "build"        : "temporary directory for compiling some .pyx files", # can this be renamed? (see setup*.py or extensions.py)
+    "ui"           : "name of subdirectory for icons/images", # should be renamed, but hard to do
     "main"         : "reserved for main.py",
 }
 
@@ -111,8 +130,8 @@ disallowedModuleNames = {
 packageMapping = {
     "assembly"                         : "model", # (some foundation, but knows part.py which knows lots of ops & model constructors)
                                                   # (also: knows about selection, undo state, change counting, open file)
-    "Assembly_API"                     : "foundation", # put all _API in foundation for now
-    "AtomGenerator"                    : "ui/command/generator",
+    "Assembly_API"                     : "foundation_api", # not legit to be used below foundation
+    "AtomGenerator"                    : "ui/controller",
     "AtomGeneratorPropertyManager"     : "ui/propmgr",
     "atomtypes"                        : "model", # or chemistry?
     "bonds"                            : "model", # Bond
@@ -120,7 +139,7 @@ packageMapping = {
     "bond_chains"                      : "operation",
     "bond_constants"                   : "model",
     "bond_drawer"                      : "graphics",
-    "bond_updater"                     : "updater",
+    "bond_updater"                     : "model_updater",
     "bond_utils"                       : "operation", # maybe also some ui
     "BoundingBox"                      : "model", # mostly geometry, some graphics, some hardcoded distance constants
     "BuildAtomsPropertyManager"        : "ui/propmgr",
@@ -141,10 +160,10 @@ packageMapping = {
     "CommentPropDialog"                : "ui",
     "confirmation_corner"              : "graphics_behavior",#? a MouseEventHandler; like a GraphicsMode or DragHandler; graphics_what?
     "constants"                        : "utilities",
-    "CoNTubGenerator"                  : "ui",
+    "CoNTubGenerator"                  : "ui/controller",###?? @@@
     "CookieCtrlPanel"                  : "ui",
     "cookieMode"                       : "ui",
-    "CookiePropertyManager"            : "ui",
+    "CookiePropertyManager"            : "ui/propmgr",
     "crossovers"                       : "operation",
     "Csys"                             : "model",
     "cursors"                          : "ui",
@@ -160,7 +179,7 @@ packageMapping = {
     "DnaDuplex"                        : "operation", # class to help construct model objects defined elsewhere
     "DnaDuplexEditController"          : "ui/controller",
     "DnaDuplexPropertyManager"         : "ui/propmgr",
-    "DnaGenerator"                     : "ui", # obs?
+    "DnaGenerator"                     : "ui/controller", # obs?
     "DnaGeneratorPropertyManager"      : "ui/propmgr", # obs?
     "DnaLineMode"                      : "ui",#?
     "Dna_Constants"                    : "model",#?
@@ -191,83 +210,84 @@ packageMapping = {
     "ExtrudePropertyManager"           : "ui/propmgr",
     "fileIO"                           : "graphics_io", # should be split into files_mdl and files_povray
     "files_gms"                        : "io", # for a gamess package
-    "files_mmp"                        : "io", # perhaps for an mmp_io package?
+    "files_mmp"                        : "io", # perhaps for an mmp_io package, along with a sibling doc file?
     "files_nh"                         : "io", # for a nanohive esp package
-    "files_pdb"                        : "io",
+    "files_pdb"                        : "io", # perhaps for a pdb_io package, if any other files would be in it
     "Font3D"                           : "graphics",
     "fusechunksMode"                   : "ui",
-    "FusePropertyManager"              : "ui",
-    "GamessJob"                        : "io",
-    "GamessProp"                       : "ui",
-    "GamessPropDialog"                 : "ui",
-    "GeneratorBaseClass"               : "ui",
-    "GeneratorController"              : "ui",
-    "generator_button_images"          : "ui",
+    "FusePropertyManager"              : "ui/propmgr",
+    "GamessJob"                        : "simulation", # for a gamess package; contains operations and io
+    "GamessProp"                       : "ui/dialog", # for a gamess package
+    "GamessPropDialog"                 : "ui/dialog", # for a gamess package
+    "GeneratorBaseClass"               : "ui/propmgr", # or as itself, so whatever imports it won't import propmgr just from that??
+        # should split subclasses so this can be superceded by EditController and EditController_PM
+    "GeneratorController"              : "ui/controller", #? @@@ ui/controller that are subclassing ui/propmgr may need reclassification
+    "generator_button_images"          : "ui/dialog", #?
     "geometry"                         : "geometry",
-    "GlobalPreferences"                : "utilities",
-    "global_model_changedicts"         : "model", #?
-    "GLPane"                           : "graphics",
-    "GLPane_minimal"                   : "graphics",
+    "GlobalPreferences"                : "utilities", #? - imports things that are dubious to let remain in utilities
+    "global_model_changedicts"         : "model",
+    "GLPane"                           : "graphics_widgets",
+    "GLPane_minimal"                   : "graphics_widgets",
     "gpl_only"                         : "platform",
-    "GrapheneGenerator"                : "ui",
-    "GrapheneGeneratorPropertyManager" : "ui",
-    "GraphicsMode"                     : "ui",
-    "GraphicsMode_API"                 : "ui",
-    "GridPlaneProp"                    : "ui",
-    "GridPlanePropDialog"              : "ui",
-    "GROMACS"                          : "io",
+    "GrapheneGenerator"                : "ui/controller",
+    "GrapheneGeneratorPropertyManager" : "ui/propmgr",
+    "GraphicsMode"                     : "graphics_modes",
+    "GraphicsMode_API"                 : "ui_api", # not legit to be needed by anything below ui, i think
+    "GridPlaneProp"                    : "ui/dialog",
+    "GridPlanePropDialog"              : "ui/dialog",
+    "GROMACS"                          : "simulation", #? - old demo code. runs a GROMACS process. contains io. for gromacs package.
     "Group"                            : "foundation", # some model code?
-    "GroupButtonMixin"                 : "ui",
-    "GroupProp"                        : "ui",
-    "GroupPropDialog"                  : "ui",
-    "handles"                          : "ui",
-    "help"                             : "ui",
-    "HelpDialog"                       : "ui",
-    "HistoryWidget"                    : "ui",
-    "icon_utilities"                   : "io",
-    "ImageUtils"                       : "io",
+    "GroupButtonMixin"                 : "PM", # (deprecated, and its only callers should use things from PM instead)
+    "GroupProp"                        : "ui/dialog",
+    "GroupPropDialog"                  : "ui/dialog",
+    "handles"                          : "graphics_behavior", # graphical handles (for Extrude, but could be general)
+    "help"                             : "ui/dialog", # ui_help package?
+    "HelpDialog"                       : "ui/dialog", # ui_help package?
+    "HistoryWidget"                    : "ui", # for History package (as a major ui component)?
+    "icon_utilities"                   : "io", #? - could be considered utilities, io, or platform, or maybe images
+    "ImageUtils"                       : "graphics_images", # graphics_images? images?
     "_import_roots"                    : "top_level",
     "Initialize"                       : "utilities",
     "inval"                            : "foundation",
-    "jigmakers_Mixin"                  : "model", # tells Part how to create & edit various Jigs (some ui?)
-    "JigProp"                          : "ui",
-    "JigPropDialog"                    : "ui",
-    "jigs"                             : "model",
+    "jigmakers_Mixin"                  : "operations", # tells Part how to create & edit various Jigs (some ui?)
+    "JigProp"                          : "ui/propmgr", #? - guess
+    "JigPropDialog"                    : "ui/propmgr",
+    "jigs"                             : "model", # class Jig, and a few subclasses
     "jigs_measurements"                : "model",
     "jigs_motors"                      : "model",
     "jigs_planes"                      : "model",
-    "jig_Gamess"                       : "model",
-    "JobManager"                       : "ui",
-    "JobManagerDialog"                 : "ui",
-    "Line"                             : "ui", # geometry, model?
-    "LinearMotorEditController"        : "ui",
-    "LinearMotorPropertyManager"       : "ui",
-    "LineMode"                         : "ui",
+    "jig_Gamess"                       : "model", # for gamess package?
+    "JobManager"                       : "ui", # ui/operations/io; scratch; needs refactoring; job_manager package?
+    "JobManagerDialog"                 : "ui", 
+    "Line"                             : "model",
+    "LinearMotorEditController"        : "ui/controller",
+    "LinearMotorPropertyManager"       : "ui/propmgr",
+    "LineMode"                         : "ui/temporary_mode",#? a temporary command and gm...
     "main"                             : "top_level",
     "MainWindowUI"                     : "ui",
-    "master_model_updater"             : "model",
-    "mdldata"                          : "io",
-    "MinimizeEnergyProp"               : "ui",
-    "MinimizeEnergyPropDialog"         : "ui",
-    "modelTree"                        : "ui",
-    "modelTreeGui"                     : "ui",
+    "master_model_updater"             : "model_updater",
+    "mdldata"                          : "graphics_io",
+    "MinimizeEnergyProp"               : "ui",#?
+    "MinimizeEnergyPropDialog"         : "ui",#?
+    "modelTree"                        : "model_tree", # for model_tree package; a model which implems the api class for modelTreeGui
+    "modelTreeGui"                     : "model_tree", # for model_tree package; a widget with view & maybe some control code
     "modes"                            : "ui",
     "modifyMode"                       : "ui",
-    "MotorPropertyManager"             : "ui",
-    "MovePropertyManager"              : "ui",
-    "movie"                            : "ui", # mixture of stuff
+    "MotorPropertyManager"             : "ui/propmgr",
+    "MovePropertyManager"              : "ui/propmgr",
+    "movie"                            : "simulation", #? hold simparams, or open moviefile - internal model, some ui/control/ops/io
     "moviefile"                        : "io",
     "movieMode"                        : "ui",
-    "MoviePropertyManager"             : "ui",
+    "MoviePropertyManager"             : "ui/propmgr",
     "MWsemantics"                      : "ui",
-    "NanoHive"                         : "ui",
-    "NanoHiveDialog"                   : "ui",
-    "NanoHiveUtils"                    : "io",
-    "NanotubeGenerator"                : "ui",
-    "NanotubeGeneratorPropertyManager" : "ui",
-    "NE1ToolBar"                       : "ui",
-    "Node_as_MT_DND_Target"            : "ui",
-    "node_indices"                     : "foundation",
+    "NanoHive"                         : "ui", #? #@@@ got uptobfr N in file, and thru all N on paper. @@@
+    "NanoHiveDialog"                   : "ui", 
+    "NanoHiveUtils"                    : "io", #?
+    "NanotubeGenerator"                : "ui/controller",
+    "NanotubeGeneratorPropertyManager" : "ui/propmgr",
+    "NE1ToolBar"                       : "ui", #?
+    "Node_as_MT_DND_Target"            : "model_tree", # controller for model_tree package
+    "node_indices"                     : "foundation", #(ok) - where i am - put ?s on some N's, now need to study them @@@
     "objectBrowse"                     : "utilities",
     "ops_atoms"                        : "model",
     "ops_connected"                    : "model",
@@ -282,17 +302,17 @@ packageMapping = {
     "ParameterDialog"                  : "ui",
     "parse_utils"                      : "io",
     "part"                             : "foundation", # model, graphics?
-    "PartLibPropertyManager"           : "ui",
+    "PartLibPropertyManager"           : "ui/propmgr",
     "PartLibraryMode"                  : "ui",
     "PartProp"                         : "ui",
     "PartPropDialog"                   : "ui",
     "pastables"                        : "model", # supports pasting operations
     "PasteMode"                        : "ui",
-    "PastePropertyManager"             : "ui",
+    "PastePropertyManager"             : "ui/propmgr",
     "pi_bond_sp_chain"                 : "model",
     "Plane"                            : "ui", # geometry, model? [model]
-    "PlaneEditController"              : "ui",
-    "PlanePropertyManager"             : "ui",
+    "PlaneEditController"              : "ui/controller",
+    "PlanePropertyManager"             : "ui/propmgr",
     "platform"                         : "utilities",
     "PlatformDependent"                : "platform",
     "PlotTool"                         : "ui",
@@ -312,17 +332,25 @@ packageMapping = {
     "pyrex_test"                       : "top_level",
     "qt4transition"                    : "utilities",
     "qutemol"                          : "io",
-    "QuteMolPropertyManager"           : "ui",
+    "QuteMolPropertyManager"           : "ui/propmgr",
     "ReferenceGeometry"                : "ui", # geometry, model?
     "reposition_baggage"               : "model",
     "ResizeHandle"                     : "ui", # interactive graphics - package will be revised
-    "RotaryMotorEditController"        : "ui",
-    "RotaryMotorPropertyManager"       : "ui",
+    "RotaryMotorEditController"        : "ui/controller",
+    "RotaryMotorPropertyManager"       : "ui/propmgr",
     "RotateMode"                       : "ui",
-    "runSim"                           : "io",
+    "runSim"                           : "simulation",
     "selectAtomsMode"                  : "ui",
+    "SelectAtoms_Command.py"           : "?", #?
+    "SelectAtoms_GraphicsMode.py"      : "?", #?
+    "SelectChunks_Command.py"          : "?", #?
+    "SelectChunks_GraphicsMode.py"     : "?", #?
     "selectMode"                       : "ui",
     "selectMolsMode"                   : "ui",
+    "Select_Command.py"                : "?", #?
+    "Select_GraphicsMode.py"           : "?", #?
+    "Select_GraphicsMode_DrawMethod_preMixin.py" : "?", #?
+    "Select_GraphicsMode_MouseHelpers_preMixin.py" : "?", #?
     "Selobj"                           : "ui", # graphics?
     "SequenceEditor"                   : "ui",
     "ServerManager"                    : "ui",
@@ -346,32 +374,32 @@ packageMapping = {
     "testdraw"                         : "test",
     "testmode"                         : "test",
     "test_commands"                    : "test",
-    "test_commands_init"               : "test", # all these test* modules might be reclassified
-    "test_command_PMs"                 : "test",
+    "test_commands_init"               : "test", # all these test* modules might be reclassified @@@
+    "test_command_PMs"                 : "ui/propmgr", # for test/example/scratch?
     "test_connectWithState"            : "test",
     "test_connectWithState_constants"  : "test",
-    "test_connectWithState_PM"         : "test",
+    "test_connectWithState_PM"         : "ui/propmgr", # for test/example/scratch?
     "texture_fonts"                    : "graphics",
     "texture_helpers"                  : "graphics",
     "ThermoProp"                       : "ui",
     "ThermoPropDialog"                 : "ui",
-    "ThumbView"                        : "graphics",
-    "Ui_BuildAtomsPropertyManager"     : "ui",
+    "ThumbView"                        : "graphics_widgets",
+    "Ui_BuildAtomsPropertyManager"     : "ui/propmgr",
     "Ui_BuildStructuresMenu"           : "ui",
     "Ui_BuildStructuresToolBar"        : "ui",
     "Ui_BuildToolsMenu"                : "ui",
     "Ui_BuildToolsToolBar"             : "ui",
     "Ui_CommandManager"                : "ui",
-    "Ui_CookiePropertyManager"         : "ui",
+    "Ui_CookiePropertyManager"         : "ui/propmgr",
     "Ui_DimensionsMenu"                : "ui",
     "Ui_DnaFlyout"                     : "ui",
     "Ui_EditMenu"                      : "ui",
-    "Ui_ExtrudePropertyManager"        : "ui",
+    "Ui_ExtrudePropertyManager"        : "ui/propmgr",
     "Ui_FileMenu"                      : "ui",
     "Ui_HelpMenu"                      : "ui",
     "Ui_InsertMenu"                    : "ui",
-    "Ui_MovePropertyManager"           : "ui",
-    "Ui_MoviePropertyManager"          : "ui",
+    "Ui_MovePropertyManager"           : "ui/propmgr",
+    "Ui_MoviePropertyManager"          : "ui/propmgr",
     "Ui_PartWindow"                    : "ui",
     "Ui_SelectMenu"                    : "ui",
     "Ui_SelectToolBar"                 : "ui",
