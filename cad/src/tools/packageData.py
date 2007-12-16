@@ -163,9 +163,12 @@ packageMapping = {
     "confirmation_corner"              : "graphics_behavior",#? a MouseEventHandler; like a GraphicsMode or DragHandler; graphics_what?
     "constants"                        : "utilities",
     "CoNTubGenerator"                  : "ui/controller",###?? @@@
+
     "CookieCtrlPanel"                  : "ui",
     "cookieMode"                       : "ui",
     "CookiePropertyManager"            : "ui/propmgr",
+    "CookieShape"                      : "command", # see docstring for reasons and caveats
+
     "crossovers"                       : "operation",
     "Csys"                             : "model",
     "cursors"                          : "ui",
@@ -287,6 +290,8 @@ packageMapping = {
     "NanoHive"                         : "ui", # for ESP package; ui/control/ops for running ESP (etc?) calcs using NanoHive. ui for now.
     "NanoHiveDialog"                   : "ui", # for ESP package
     "NanoHiveUtils"                    : "simulation", # for ESP package; Mostly control & io code. Some model & ui code (via assy arg & assy.w).
+    "NanoHive_SimParameters"           : "model", # for ESP package
+
     "NanotubeGenerator"                : "ui/controller",
     "NanotubeGeneratorPropertyManager" : "ui/propmgr",
     "NE1ToolBar"                       : "ui/widgets", # Variant of QToolBar
@@ -379,7 +384,6 @@ packageMapping = {
     "setup2"                           : "tools", # build
     
     "shape"                            : "graphics_behavior", # tentative, maybe risky; see docstring
-    "CookieShape"                      : "command", # see docstring for reasons and caveats [### @@@ put in alpha order]
     "Slab"                             : "geometry",
 
     # @@@ where i am in file is up to here, and paper too

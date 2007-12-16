@@ -18,23 +18,18 @@ from PyQt4.Qt import QString
 import env
 
 from constants import filesplit
+from utilities.Log import redmsg, greenmsg, orangemsg
 
 from NanoHiveDialog import Ui_NanoHiveDialog
-from utilities.Log import redmsg, greenmsg, orangemsg
-from ESPImage import ESPImage # cyclic import, not trivial to remove w/o kluges
+from ESPImage import ESPImage # no longer a cyclic import [bruce 071215]
 from NanoHiveUtils import run_nh_simulation
 
-##debug_nanohive = 0 # DO NOT COMMIT with 1
-##    #bruce 051115: renamed debug_sim -> debug_nanohive, to avoid confusion between this variable (apparently never used)
-##    # and the debug_sim global in runSim.py.
-##    # (If nanohive code can call code in runSim.py, this renaming might be wrong, but as far as I know that never happens.)
+from NanoHive_SimParameters import NanoHive_SimParameters
 
 cmd = greenmsg("Nano-Hive: ")
 
-class NH_Sim_Parameters:
-    pass
-    
 # get_partname() should be a global function.  Mark 050915.
+# [or, better, an assy method. bruce 071215]
 def get_partname(assy):
     """
     Returns the base name of the part.  If the filename is not set,
@@ -65,14 +60,14 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
     def __init__(self, assy):
         QWidget.__init__(self)
         self.setupUi(self)
-        self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
-        self.connect(self.MPQC_ESP_checkbox,SIGNAL("toggled(bool)"),self.update_ESP_window_combox)
-        self.connect(self.MPQC_GD_checkbox,SIGNAL("toggled(bool)"),self.update_MPQC_GD_options_btn)
-        self.connect(self.ESP_image_combox,SIGNAL("activated(int)"),self.set_ESP_window)
-        self.connect(self.MPQC_GD_options_btn,SIGNAL("clicked()"),self.show_MPQC_GD_options_dialog)
+        self.connect(self.run_sim_btn, SIGNAL("clicked()"), self.accept)
+        self.connect(self.cancel_btn, SIGNAL("clicked()"), self.reject)
+        self.connect(self.MPQC_ESP_checkbox, SIGNAL("toggled(bool)"), self.update_ESP_window_combox)
+        self.connect(self.MPQC_GD_checkbox, SIGNAL("toggled(bool)"), self.update_MPQC_GD_options_btn)
+        self.connect(self.ESP_image_combox, SIGNAL("activated(int)"), self.set_ESP_window)
+        self.connect(self.MPQC_GD_options_btn, SIGNAL("clicked()"), self.show_MPQC_GD_options_dialog)
         self.assy = assy
-        self.part=assy.part
+        self.part = assy.part
         self.esp_image_list = [] # List of ESP Image jigs.
         self.esp_image = None # The currently selected ESP Image.
         
@@ -87,8 +82,8 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         """
         Display the dialog
         """
-        self.assy=assy
-        self.part=assy.part
+        self.assy = assy
+        self.part = assy.part
         
         # Make sure there is something to simulate.
         if not self.part.molecules: # Nothing in the part to simulate.
@@ -249,7 +244,7 @@ class NanoHive(QWidget, Ui_NanoHiveDialog):
         """
         Return the set of parameters and data needed to run the Nano-Hive simulation.
         """
-        sp = NH_Sim_Parameters()
+        sp = NanoHive_SimParameters()
         
         sp.desc = self.description_textedit.toPlainText()
         sp.iterations = self.nframes_spinbox.value() # Iterations = Frames

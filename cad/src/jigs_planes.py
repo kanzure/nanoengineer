@@ -42,6 +42,10 @@ from constants import gray
 from prefs_constants import SQUARE_GRID
 from prefs_constants import SOLID_LINE
 
+from BoundingBox import BBox
+
+from GridPlaneProp import GridPlaneProp
+
 # == RectGadget
 
 class RectGadget(Jig):
@@ -95,8 +99,6 @@ class RectGadget(Jig):
         """
         Compute current bounding box.
         """
-        from BoundingBox import BBox
-        
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
         abs_pos = []
@@ -259,7 +261,6 @@ class GridPlane(RectGadget):
         stats.num_gridplane += 1  
 
     def set_cntl(self):
-        from GridPlaneProp import GridPlaneProp
         self.cntl = GridPlaneProp(self, self.assy.o)
         
     def make_selobj_cmenu_items(self, menu_spec):

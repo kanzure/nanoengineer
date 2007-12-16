@@ -25,6 +25,7 @@ and perhaps other code. Probably part of an ESP package.
 
 import os
 import math
+import shutil
 
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
@@ -86,6 +87,13 @@ from constants import SUBTRACT_FROM_SELECTION
 
 from jigs_planes import RectGadget
 from jigs_planes import povStrVec
+
+from ESPImageProp import ESPImageProp
+from PlatformDependent import find_or_make_Nanorex_subdir
+
+from NanoHiveUtils import get_nh_espimage_filename
+from NanoHiveUtils import run_nh_simulation
+from NanoHive_SimParameters import NanoHive_SimParameters
 
 # ==
 
@@ -244,7 +252,6 @@ class ESPImage(RectGadget):
         stats.num_espimage += 1  
       
     def set_cntl(self):
-        from ESPImageProp import ESPImageProp
         self.cntl = ESPImageProp(self, self.assy.o)
     
     def _createShape(self, selSense = START_NEW_SELECTION):
@@ -458,8 +465,7 @@ class ESPImage(RectGadget):
         return
 
     def get_sim_parms(self):
-        from NanoHive import NH_Sim_Parameters # cyclic import, not sure whether trivial to remove
-        sim_parms = NH_Sim_Parameters()
+        sim_parms = NanoHive_SimParameters()
         
         sim_parms.desc = 'ESP Calculation from MT Context Menu for ' + self.name
         sim_parms.iterations = 1
@@ -493,18 +499,15 @@ class ESPImage(RectGadget):
         results_to_save = [] # Results info included in write_nh_mpqc_esp_rec()
         
         # Temporary file name of ESP image file.
-        from PlatformDependent import find_or_make_Nanorex_subdir
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         tmp_espimage_file = os.path.join(nhdir, "%s.png" % (self.name))
         
         # Destination (permanent) file name of ESP image file.
-        from NanoHiveUtils import get_nh_espimage_filename
         espimage_file = get_nh_espimage_filename(self.assy, self.name)
         
         msg = "Running ESP calculation on [%s]. Results will be written to: [%s]" % (self.name, espimage_file)
         env.history.message( cmd + msg ) 
         
-        from NanoHiveUtils import run_nh_simulation
         r = run_nh_simulation(self.assy, 'CalcESP', sim_parms, sims_to_run, results_to_save)
         
         if r:
@@ -517,7 +520,6 @@ class ESPImage(RectGadget):
         
         # Move tmp file to permanent location.  Make sure the tmp file is there.
         if os.path.exists(tmp_espimage_file):
-            import shutil
             shutil.move(tmp_espimage_file, espimage_file)
         else:
             print "Temporary ESP Image file ", tmp_espimage_file," does not exist. Image not loaded."
