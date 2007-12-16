@@ -6,7 +6,9 @@ shape.py -- handle freehand curves for selection and cookie-cutting
 @version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
-Note: this needs to be split into several modules, since its different
+Module classification and refactoring:
+
+This needs to be split into several modules, since its different
 classes naturally belong in different packages. It looks like this
 split would be easy. For now, if it's classified as "model" the import
 situation will be ok, even though it contains some code that more
@@ -42,7 +44,7 @@ import platform
 
 from BoundingBox import BBox
 
-def get_selCurve_color(selSense, bgcolor=white):
+def get_selCurve_color(selSense, bgcolor = white):
     """
     Returns line color of the selection curve. 
     Returns <black> for light colored backgrounds (and Sky Blue).
@@ -75,51 +77,51 @@ class Slab:
         self.thickness = thickness
 
     def isin(self, point):
-        d = dot(point-self.point, self.normal)
+        d = dot(point - self.point, self.normal)
         return d>=0 and d<= self.thickness
 
     def __str__(self):
         return '<slab of '+`self.thickness`+' at '+`self.point`+'>'
 
 
-def fill(mat,p,dir):
+def fill(mat, p, dir):
     """
     Fill a curve drawn in matrix mat, as 1's over a background of 0's, with 1's.
-    p is V(i,j) of a point to fill from. dir is 1 or -1 for the
+    p is V(i, j) of a point to fill from. dir is 1 or -1 for the
     standard recursive fill algorithm.
 
     Here is an explanation of how this is used and how it works then, by Huaicai:
     This function is used to fill the area between the rectangle bounding box and the boundary
     of the curve with 1's. The bounding box is extended by (lower left corner -2, right top corner + 2). 
-    The curve boundary is filled with 1's. So mat[1,:] = 0, mat[-1,:]=0, mat[:, 1]=0;
-    mat[:, -1]=0, which means the area is connected. If we start from mat[1,1], dir =1, then we scan the 
+    The curve boundary is filled with 1's. So mat[1,:] = 0, mat[-1,:] = 0, mat[:, 1] = 0;
+    mat[:, -1]=0, which means the area is connected. If we start from mat[1, 1], dir = 1, then we scan the 
     first line from left to right. If it's 0, fill it as 1 until we touch 1. For each element in the line, we also 
     check it's neighbor above and below. For the neighbor elements, if the neighbor touches 1 but 
     previous neighbor is 0, then scan the neighbor line in the reverse order. I think this algorithm is better
-    than the simple recursive flood filling algorithm. The seed mat[1,1] is always inside the area, and 
+    than the simple recursive flood filling algorithm. The seed mat[1, 1] is always inside the area, and 
     most probably this filling area is smaller than that inside the curve. I think it also reduces repeated 
     checking/filling of the classical algorithm.
     """
     if mat[p]: return
     up = dn = 0
-    o1 = array([1,0])
+    o1 = array([1, 0])
     od = array([0, dir])
-    while not mat[p-od]: p -= od
+    while not mat[p - od]: p -= od
     while not mat[p]:
         mat[p] = 1
-        if mat[p-o1]:
+        if mat[p - o1]:
             if up:
-                fill(mat, p-[1,dir], -dir)
+                fill(mat, p - [1, dir], -dir)
                 up = 0
         else: up = 1
-        if mat[p+o1]:
+        if mat[p + o1]:
             if dn:
-                fill(mat, p+[1,-dir], -dir)
+                fill(mat, p + [1, -dir], -dir)
                 dn = 0
         else: dn = 1
         p += od
-    fill(mat, p-od+o1, -dir)
-    fill(mat, p-od-o1, -dir) # note: we have (probably) seen recursion limit errors from this line. [bruce 070605 comment]
+    fill(mat, p - od + o1, -dir)
+    fill(mat, p - od - o1, -dir) # note: we have (probably) seen recursion limit errors from this line. [bruce 070605 comment]
 
 
 #bruce 041214 made a common superclass for curve and rectangle classes,
@@ -181,7 +183,7 @@ class simple_shape_2d:
         # 3d world coordinates.
         if self.slab:
             x, y = self.right, self.up
-            self.bbox = BBox(V(bboxlo, bboxhi), V(x,y), self.slab)
+            self.bbox = BBox(V(bboxlo, bboxhi), V(x, y), self.slab)
         else:
             self.bbox = BBox()
         return
@@ -192,7 +194,7 @@ class simple_shape_2d:
            
         Huaicai 4/20/05: This is just to project pt into a 2d coordinate 
         system (self.right, self.up) on a plane through pt and parallel to the screen 
-        plane. For perspective projection, (x,y) on this plane is different than that on the plane 
+        plane. For perspective projection, (x, y) on this plane is different than that on the plane 
         through pov.
         """
         x, y = self.right, self.up
@@ -275,15 +277,15 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         simple_shape_2d.__init__( self, shp, ptlist, origin, selSense, opts)
         
         # bounding rectangle, in integers (scaled 8 to the angstrom)
-        ibbhi = array(map(int,ceil(8*self.bboxhi)+2))
-        ibblo = array(map(int,floor(8*self.bboxlo)-2))
+        ibbhi = array(map(int, ceil(8 * self.bboxhi)+2))
+        ibblo = array(map(int, floor(8 * self.bboxlo)-2))
         bboxlo = self.bboxlo
         
         # draw the curve in these matrices and fill it
         # [bruce 041214 adds this comment: this might be correct but it's very
         # inefficient -- we should do it geometrically someday. #e]
-        mat = zeros(ibbhi-ibblo)
-        mat1 = zeros(ibbhi-ibblo)
+        mat = zeros(ibbhi - ibblo)
+        mat1 = zeros(ibbhi - ibblo)
         mat1[0,:] = 1
         mat1[-1,:] = 1
         mat1[:,0] = 1
@@ -291,20 +293,20 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         pt2d = self.pt2d
         pt0 = pt2d[0]
         for pt in pt2d[1:]:
-            l=ceil(vlen(pt-pt0)*8)
+            l = ceil(vlen(pt - pt0)*8)
             if l<0.01: continue
-            v=(pt-pt0)/l
-            for i in range(1+int(l)):
-                ij=2+array(map(int,floor((pt0+v*i-bboxlo)*8)))
+            v=(pt - pt0)/l
+            for i in range(1 + int(l)):
+                ij = 2 + array(map(int, floor((pt0 + v * i - bboxlo)*8)))
                 mat[ij]=1
             pt0 = pt
         mat1 += mat
         
-        fill(mat1,array([1,1]),1)
+        fill(mat1, array([1, 1]),1)
         mat1 -= mat #Which means boundary line is counted as inside the shape.
         # boolean raster of filled-in shape
         self.matrix = mat1  ## For any element inside the matrix, if it is 0, then it's inside.
-        # where matrix[0,0] is in x,y space
+        # where matrix[0, 0] is in x, y space
         self.matbase = ibblo
 
         # axes of the plane; only used for debugging
@@ -328,7 +330,7 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
                and p[0]<=self.bboxhi[0] and p[1]<=self.bboxhi[1]
         if not in_bbox:
             return False
-        ij = map(int,p*8)-self.matbase
+        ij = map(int, p * 8)-self.matbase
         return not self.matrix[ij]
 
     def xdraw(self):
@@ -336,16 +338,16 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         draw the actual grid of the matrix in 3-space.
         Used for debugging only.
         """
-        col=(0.0,0.0,0.0)
+        col = (0.0, 0.0, 0.0)
         dx = self.x/8.0
         dy = self.y/8.0
         for i in range(self.matrix.shape[0]):
             for j in range(self.matrix.shape[1]):
-                if not self.matrix[i,j]:
-                    p= (V(i,j)+self.matbase)/8.0
-                    p=p[0]*self.x + p[1]*self.y + self.z
-                    drawline(col,p,p+dx+dy)
-                    drawline(col,p+dx,p+dy)
+                if not self.matrix[i, j]:
+                    p = (V(i, j)+self.matbase)/8.0
+                    p = p[0]*self.x + p[1]*self.y + self.z
+                    drawline(col, p, p + dx + dy)
+                    drawline(col, p + dx, p + dy)
 
     def draw(self):
         """
@@ -358,16 +360,16 @@ class curve(simple_shape_2d): # bruce 041214 factored out simple_shape_2d
         color = get_selCurve_color(self.selSense)
         pl = zip(self.ptlist[:-1],self.ptlist[1:])
         for p in pl:
-            drawline(color,p[0],p[1])
+            drawline(color, p[0],p[1])
         
         # for debugging
         #self.bbox.draw()
         #if self.eyeball:
         #    for p in self.ptlist:
-        #        drawline(red,self.eyeball,p)
-        #drawline(white,self.org,self.org+10*self.z)
-        #drawline(white,self.org,self.org+10*self.x)
-        #drawline(white,self.org,self.org+10*self.y)
+        #        drawline(red, self.eyeball, p)
+        #drawline(white, self.org, self.org + 10 * self.z)
+        #drawline(white, self.org, self.org + 10 * self.x)
+        #drawline(white, self.org, self.org + 10 * self.y)
 
     pass # end of class curve
 
@@ -413,9 +415,10 @@ class Circle(simple_shape_2d):
         bblo = self.cirCenter - V(self.rad, self.rad)
         
         x, y = self.right, self.up
-        self.bbox = BBox(V(bblo, bbhi), V(x,y), self.slab)
+        self.bbox = BBox(V(bblo, bbhi), V(x, y), self.slab)
         
-    
+    pass
+
 class shape:
     """
     Represents a sequence of curves, each of which may be
@@ -456,208 +459,222 @@ class shape:
         return "<Shape of " + `len(self.curves)` + ">"
 
     pass # end of class shape
-    
+
+# ==
+
 class SelectionShape(shape):
-        # TODO: fix indent levels.
-        """
-        This is used to construct shape for atoms/chunks selection.
-        A curve or rectangle will be created, which is used as an area
-        selection of all the atoms/chunks
-        """
-        def pickline(self, ptlist, origin, selSense, **xx):
-            self.curve = shape.pickline(self, ptlist, origin, selSense, **xx)
-   
-        def pickrect(self, pt1, pt2, org, selSense, **xx):
-            self.curve = shape.pickrect(self, pt1, pt2, org, selSense, **xx)
-            
-        def select(self, assy):
-            """
-            Loop thru all the atoms that are visible and select any
-            that are 'in' the shape, ignoring the thickness parameter.
-            """
-            #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
-            # also added .hidden check to the last of 3 cases. Left everything else
-            # as I found it. This code ought to be cleaned up to make it clear that
-            # it uses the same way of finding the selection-set of atoms, for all
-            # three selSense cases in each of select and partselect. If anyone adds
-            # back any differences, this needs to be explained and justified in a
-            # comment; lacking that, any such differences should be considered bugs.
-            #
-            # (BTW I don't know whether it's valid to care about selSense of only the
-            # first curve in the shape, as this code does.)
-            # Huaicai 04/23/05: For selection, every shape only has one curve, so 
-            # the above worry by Bruce is not necessary. The reason of not reusing
-            # shape is because after each selection user may change view orientation,
-            # which requires a new shape creation.
+    """
+    This is used to construct shape for atoms/chunks selection.
+    A curve or rectangle will be created, which is used as an area
+    selection of all the atoms/chunks
+    """
+    def pickline(self, ptlist, origin, selSense, **xx):
+        self.curve = shape.pickline(self, ptlist, origin, selSense, **xx)
+
+    def pickrect(self, pt1, pt2, org, selSense, **xx):
+        self.curve = shape.pickrect(self, pt1, pt2, org, selSense, **xx)
         
-            if assy.selwhat:
-                self._chunksSelect(assy)
-            else:
-                if self.curve.selSense == START_NEW_SELECTION: 
-                    # New selection curve. Consistent with Select Chunks behavior.
-                    assy.unpickall_in_GLPane() # was unpickatoms and unpickparts [bruce 060721]
+    def select(self, assy):
+        """
+        Loop thru all the atoms that are visible and select any
+        that are 'in' the shape, ignoring the thickness parameter.
+        """
+        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
+        # also added .hidden check to the last of 3 cases. Left everything else
+        # as I found it. This code ought to be cleaned up to make it clear that
+        # it uses the same way of finding the selection-set of atoms, for all
+        # three selSense cases in each of select and partselect. If anyone adds
+        # back any differences, this needs to be explained and justified in a
+        # comment; lacking that, any such differences should be considered bugs.
+        #
+        # (BTW I don't know whether it's valid to care about selSense of only the
+        # first curve in the shape, as this code does.)
+        # Huaicai 04/23/05: For selection, every shape only has one curve, so 
+        # the above worry by Bruce is not necessary. The reason of not reusing
+        # shape is because after each selection user may change view orientation,
+        # which requires a new shape creation.
+    
+        if assy.selwhat:
+            self._chunksSelect(assy)
+        else:
+            if self.curve.selSense == START_NEW_SELECTION: 
+                # New selection curve. Consistent with Select Chunks behavior.
+                assy.unpickall_in_GLPane() # was unpickatoms and unpickparts [bruce 060721]
 ##                    assy.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
 ##                    assy.unpickatoms() # Fixed bug 1598. Mark 060303.
-                self._atomsSelect(assy)   
-        
-        def _atomsSelect(self, assy):
-            """
-            Select all atoms inside the shape according to its selection selSense.
-            """    
-            c = self.curve
-            if c.selSense == ADD_TO_SELECTION:
-                for mol in assy.molecules:
-                    if mol.hidden: continue
-                    disp = mol.get_dispdef()
-                    for a in mol.atoms.itervalues():
-                        if c.isin(a.posn()) and a.visible(disp):
-                            a.pick()
-            elif c.selSense == START_NEW_SELECTION:
-                for mol in assy.molecules:
-                    if mol.hidden: continue
-                    disp = mol.get_dispdef()
-                    for a in mol.atoms.itervalues():
-                        if c.isin(a.posn()) and a.visible(disp):
-                            a.pick()
-                        else:
-                            a.unpick()
-            elif c.selSense == SUBTRACT_FROM_SELECTION:
-                for a in assy.selatoms.values():
-                    if a.molecule.hidden: continue #bruce 041214
-                    if c.isin(a.posn()) and a.visible():
-                        a.unpick()
-            elif c.selSense == DELETE_SELECTION:
-                todo = []
-                for mol in assy.molecules:
-                    if mol.hidden: continue
-                    disp = mol.get_dispdef()
-                    for a in mol.atoms.itervalues():
-                        if c.isin(a.posn()) and a.visible(disp):
-                            if a.is_singlet(): continue
-                            todo.append(a)
-                for a in todo[:]:
-                    if a.filtered(): continue
-                    a.kill()
-            else:
-                print "Error in shape._atomsSelect(): Invalid selSense=", c.selSense
-                #& debug method. mark 060211.
-
-        def _chunksSelect(self, assy):
-            """
-            Loop thru all the atoms that are visible and select any
-            that are 'in' the shape, ignoring the thickness parameter.
-            pick the parts that contain them
-            """
-
-            #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
-            # also added .hidden check to the last of 3 cases. Same in self.select().
-            c = self.curve
-            if c.selSense == START_NEW_SELECTION:
-                # drag selection: unselect any selected Chunk not in the area, 
-                # modified by Huaicai to fix the selection bug 10/05/04
-                for m in assy.selmols[:]:
-                    m.unpick()
-                            
-            if c.selSense == ADD_TO_SELECTION or c.selSense == START_NEW_SELECTION:
-                for mol in assy.molecules:
-                    if mol.hidden: continue
-                    disp = mol.get_dispdef()
-                    for a in mol.atoms.itervalues():
-                        if c.isin(a.posn()) and a.visible(disp):
-                            a.molecule.pick()
-                            break
+            self._atomsSelect(assy)   
     
-            if c.selSense == SUBTRACT_FROM_SELECTION:
-                for m in assy.selmols[:]:
-                    if m.hidden: continue #bruce 041214
-                    disp = m.get_dispdef()
-                    for a in m.atoms.itervalues():
-                        if c.isin(a.posn()) and a.visible(disp):
-                            m.unpick()
-                            break   
-                                    
-            if c.selSense == DELETE_SELECTION: # mark 060220.
-                todo = []
-                for mol in assy.molecules:
-                    if mol.hidden: continue
-                    disp = mol.get_dispdef()
-                    for a in mol.atoms.itervalues():
-                        #bruce 060405 comment/bugfix: this use of itervalues looked dangerous (since mol was killed inside the loop),
-                        # but since the iterator is not continued after that, I suppose it was safe (purely a guess).
-                        # It would be safer (or more obviously safe) to build up a todo list of mols to kill after the loop.
-                        # More importantly, assy.molecules was not copied in the outer loop -- that could be a serious bug,
-                        # if it's incrementally modified. I'm fixing that now, using the todo list.
-                        if c.isin(a.posn()) and a.visible(disp):
-                            ## a.molecule.kill()
-                            todo.append(mol) #bruce 060405 bugfix
-                            break
-                for mol in todo:
-                    mol.kill()
-            return
+    def _atomsSelect(self, assy):
+        """
+        Select all atoms inside the shape according to its selection selSense.
+        """    
+        c = self.curve
+        if c.selSense == ADD_TO_SELECTION:
+            for mol in assy.molecules:
+                if mol.hidden:
+                    continue
+                disp = mol.get_dispdef()
+                for a in mol.atoms.itervalues():
+                    if c.isin(a.posn()) and a.visible(disp):
+                        a.pick()
+        elif c.selSense == START_NEW_SELECTION:
+            for mol in assy.molecules:
+                if mol.hidden:
+                    continue
+                disp = mol.get_dispdef()
+                for a in mol.atoms.itervalues():
+                    if c.isin(a.posn()) and a.visible(disp):
+                        a.pick()
+                    else:
+                        a.unpick()
+        elif c.selSense == SUBTRACT_FROM_SELECTION:
+            for a in assy.selatoms.values():
+                if a.molecule.hidden:
+                    continue #bruce 041214
+                if c.isin(a.posn()) and a.visible():
+                    a.unpick()
+        elif c.selSense == DELETE_SELECTION:
+            todo = []
+            for mol in assy.molecules:
+                if mol.hidden:
+                    continue
+                disp = mol.get_dispdef()
+                for a in mol.atoms.itervalues():
+                    if c.isin(a.posn()) and a.visible(disp):
+                        if a.is_singlet():
+                            continue
+                        todo.append(a)
+            for a in todo[:]:
+                if a.filtered():
+                    continue
+                a.kill()
+        else:
+            print "Error in shape._atomsSelect(): Invalid selSense =", c.selSense
+            #& debug method. mark 060211.
+
+    def _chunksSelect(self, assy):
+        """
+        Loop thru all the atoms that are visible and select any
+        that are 'in' the shape, ignoring the thickness parameter.
+        pick the parts that contain them
+        """
+        #bruce 041214 conditioned this on a.visible() to fix part of bug 235;
+        # also added .hidden check to the last of 3 cases. Same in self.select().
+        c = self.curve
+        if c.selSense == START_NEW_SELECTION:
+            # drag selection: unselect any selected Chunk not in the area, 
+            # modified by Huaicai to fix the selection bug 10/05/04
+            for m in assy.selmols[:]:
+                m.unpick()
+                        
+        if c.selSense == ADD_TO_SELECTION or c.selSense == START_NEW_SELECTION:
+            for mol in assy.molecules:
+                if mol.hidden:
+                    continue
+                disp = mol.get_dispdef()
+                for a in mol.atoms.itervalues():
+                    if c.isin(a.posn()) and a.visible(disp):
+                        a.molecule.pick()
+                        break
+
+        if c.selSense == SUBTRACT_FROM_SELECTION:
+            for m in assy.selmols[:]:
+                if m.hidden:
+                    continue #bruce 041214
+                disp = m.get_dispdef()
+                for a in m.atoms.itervalues():
+                    if c.isin(a.posn()) and a.visible(disp):
+                        m.unpick()
+                        break   
+                                
+        if c.selSense == DELETE_SELECTION: # mark 060220.
+            todo = []
+            for mol in assy.molecules:
+                if mol.hidden:
+                    continue
+                disp = mol.get_dispdef()
+                for a in mol.atoms.itervalues():
+                    #bruce 060405 comment/bugfix: this use of itervalues looked dangerous (since mol was killed inside the loop),
+                    # but since the iterator is not continued after that, I suppose it was safe (purely a guess).
+                    # It would be safer (or more obviously safe) to build up a todo list of mols to kill after the loop.
+                    # More importantly, assy.molecules was not copied in the outer loop -- that could be a serious bug,
+                    # if it's incrementally modified. I'm fixing that now, using the todo list.
+                    if c.isin(a.posn()) and a.visible(disp):
+                        ## a.molecule.kill()
+                        todo.append(mol) #bruce 060405 bugfix
+                        break
+            for mol in todo:
+                mol.kill()
+        return
+    
+    def findObjInside(self, assy):
+        """
+        Find atoms/chunks that are inside the shape.
+        """
+        rst = []
         
-        def findObjInside(self, assy):
-            """
-            Find atoms/chunks that are inside the shape.
-            """
-            rst = []
-            
-            c = self.curve
-            
-            if assy.selwhat: ##Chunks
-               rstMol = {} 
-               for mol in assy.molecules:
-                    if mol.hidden: continue
-                    disp = mol.get_dispdef()
-                    for a in mol.atoms.itervalues():
-                        if c.isin(a.posn()) and a.visible(disp):
-                                rstMol[id(a.molecule)] = a.molecule
-                                break 
-               rst.extend(rstMol.itervalues())
-            else: ##Atoms
-               for mol in assy.molecules:
-                    if mol.hidden: continue
-                    disp = mol.get_dispdef()
-                    for a in mol.atoms.itervalues():
-                       if c.isin(a.posn()) and a.visible(disp):
-                         rst += [a] 
-            return rst
-           
+        c = self.curve
+        
+        if assy.selwhat: ##Chunks
+           rstMol = {} 
+           for mol in assy.molecules:
+                if mol.hidden:
+                    continue
+                disp = mol.get_dispdef()
+                for a in mol.atoms.itervalues():
+                    if c.isin(a.posn()) and a.visible(disp):
+                            rstMol[id(a.molecule)] = a.molecule
+                            break 
+           rst.extend(rstMol.itervalues())
+        else: ##Atoms
+           for mol in assy.molecules:
+                if mol.hidden:
+                    continue
+                disp = mol.get_dispdef()
+                for a in mol.atoms.itervalues():
+                   if c.isin(a.posn()) and a.visible(disp):
+                     rst += [a] 
+        return rst
+    
+    pass # end of class SelectionShape
+
+# ==
+
 class CookieShape(shape):
     """
     This class is used to create cookies. It supports multiple parallel layers, each curve sits on a particular layer.
     """
-    # TODO: fix indent levels in methods.
     def __init__(self, right, up, normal, mode, latticeType):
-            shape.__init__(self, right, up, normal)
-            ##Each element is a dictionary object storing "carbon" info for a layer
-            self.carbonPosDict = {} 
-            self.hedroPosDict = {}
-            self.markedAtoms = {}
-            #Each element is a dictionary for the bonds info for a layer
-            self.bondLayers = {} 
-            
-            self.displist = glGenLists(1)
-            self.havelist = 0
-            self.dispMode = mode
-            self.latticeType = latticeType
-            self.layerThickness = {}
-            self.layeredCurves = {} #A list of (merged bb, curves) for each layer
+        shape.__init__(self, right, up, normal)
+        # Each element is a dictionary object storing "carbon" info for a layer
+        self.carbonPosDict = {} 
+        self.hedroPosDict = {}
+        self.markedAtoms = {}
+        # Each element is a dictionary for the bonds info for a layer
+        self.bondLayers = {} 
+
+        self.displist = glGenLists(1)
+        self.havelist = 0
+        self.dispMode = mode
+        self.latticeType = latticeType
+        self.layerThickness = {}
+        self.layeredCurves = {} # A list of (merged bb, curves) for each layer
 
     def pushdown(self, lastLayer):
-            """
-            Put down one layer from last layer
-            """
-            th, n = self.layerThickness[lastLayer]
-            #print "th, n", th, n
-            return th*n
+        """
+        Put down one layer from last layer
+        """
+        th, n = self.layerThickness[lastLayer]
+        #print "th, n", th, n
+        return th * n
 
     def _saveMaxThickness(self, layer, thickness, normal):
-            if layer not in self.layerThickness:
-                self.layerThickness[layer] = (thickness, normal)
-            elif thickness > self.layerThickness[layer][0]:
-                self.layerThickness[layer] = (thickness, normal)
+        if layer not in self.layerThickness:
+            self.layerThickness[layer] = (thickness, normal)
+        elif thickness > self.layerThickness[layer][0]:
+            self.layerThickness[layer] = (thickness, normal)
     
-    def isin(self, pt, curves=None):
+    def isin(self, pt, curves = None):
         """
         returns 1 if <pt> is properly enclosed by the curves.
         """
@@ -681,7 +698,7 @@ class CookieShape(shape):
         """
         Add a new circle to the shape.
         """
-        c = Circle(self, ptlist, origin, selSense, slab=slabC)
+        c = Circle(self, ptlist, origin, selSense, slab = slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
         self._cutCookie(layer, c)
         self._addCurve(layer, c)
@@ -692,7 +709,7 @@ class CookieShape(shape):
         Args define the curve (see curve) and the selSense operator
         for the curve telling whether it adds or removes material.
         """
-        c = shape.pickline(self, ptlist, origin, selSense, slab=slabC)
+        c = shape.pickline(self, ptlist, origin, selSense, slab = slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
         self._cutCookie(layer, c)
         self._addCurve(layer, c)
@@ -703,14 +720,14 @@ class CookieShape(shape):
         Args define the rectangle and the selSense operator
         for the curve telling whether it adds or removes material.
         """
-        c = shape.pickrect(self, pt1, pt2, org, selSense, slab=slabC)
+        c = shape.pickrect(self, pt1, pt2, org, selSense, slab = slabC)
         self._saveMaxThickness(layer, slabC.thickness, slabC.normal)
         self._cutCookie(layer, c)
         self._addCurve(layer, c)
 
     def _updateBBox(self, curveList):
         """
-        Re-compute the bounding box for the list of curves
+        Recompute the bounding box for the list of curves
         """
         bbox = BBox()
         for c in curveList[1:]:
@@ -768,7 +785,7 @@ class CookieShape(shape):
                 self.curves += cbs[1:]
    
     def _hashAtomPos(self, pos):
-        return int(dot(V(1000000, 1000,1),floor(pos*1.2)))
+        return int(dot(V(1000000, 1000, 1), floor(pos * 1.2)))
     
     def _addCurve(self, layer, c):
         """
@@ -779,17 +796,19 @@ class CookieShape(shape):
         if not layer in self.layeredCurves:
             bbox = BBox()
             self.layeredCurves[layer] = [bbox, c]
-        else: self.layeredCurves[layer] += [c]
+        else:
+            self.layeredCurves[layer] += [c]
         self.layeredCurves[layer][0].merge(c.bbox)
     
     def _cellDraw(self, color, p0, p1):
         hasSinglet = False
         if type(p1) == type((1,)): 
-                v1 = p1[0]
-                hasSinglet = True
-        else: v1 = p1
+            v1 = p1[0]
+            hasSinglet = True
+        else:
+            v1 = p1
         if self.dispMode == 'Tubes':
-             drawcylinder(color, p0, v1, 0.2)
+            drawcylinder(color, p0, v1, 0.2)
         else:
             drawsphere(color, p0, 0.5, 1)
             if hasSinglet:
@@ -809,12 +828,14 @@ class CookieShape(shape):
         for layer in self.layeredCurves.keys():
             bbox = self.layeredCurves[layer][0]
             curves = self.layeredCurves[layer][1:]
-            if not curves: continue
+            if not curves:
+                continue
             color = layerColor[layer]
-            for c in curves: c.draw()
+            for c in curves:
+                c.draw()
             try:
                 bblo, bbhi = bbox.data[1], bbox.data[0]
-                allCells = genDiam(bblo-1.6, bbhi+1.6, self.latticeType)
+                allCells = genDiam(bblo - 1.6, bbhi + 1.6, self.latticeType)
                 for cell in allCells:
                     for pp in cell:
                         p1 = p2 = None
@@ -824,17 +845,18 @@ class CookieShape(shape):
                             else: 
                                 p1 = pp[0]; p2 = ((pp[1]+pp[0])/2, )
                         elif self.isin(pp[1], curves):
-                                p1 = pp[1]; p2 = ((pp[1]+pp[0])/2, )
-                        if p1 and p2: self._cellDraw(color, p1, p2) 
+                            p1 = pp[1]; p2 = ((pp[1]+pp[0])/2, )
+                        if p1 and p2:
+                            self._cellDraw(color, p1, p2) 
             except:
-            # bruce 041028 -- protect against exceptions while making display
-            # list, or OpenGL will be left in an unusable state (due to the lack
-            # of a matching glEndList) in which any subsequent glNewList is an
-            # invalid operation. (Also done in chem.py; see more comments there.)
+                # bruce 041028 -- protect against exceptions while making display
+                # list, or OpenGL will be left in an unusable state (due to the lack
+                # of a matching glEndList) in which any subsequent glNewList is an
+                # invalid operation. (Also done in chem.py; see more comments there.)
                 print_compact_traceback( "bug: exception in shape.draw's displist; ignored: ")
         glEndList()
         self.havelist = 1 #
-    
+        return
     
     def _cutCookie(self, layer, c):
         """
@@ -845,18 +867,21 @@ class CookieShape(shape):
         
         bblo, bbhi = c.bbox.data[1], c.bbox.data[0]
         #Without +(-) 1.6, cookie for lonsdaileite may not be right
-        allCells = genDiam(bblo-1.6, bbhi+1.6, self.latticeType)
+        allCells = genDiam(bblo - 1.6, bbhi + 1.6, self.latticeType)
         if self.carbonPosDict.has_key(layer):
             carbons = self.carbonPosDict[layer]
-        else: carbons = {}
+        else:
+            carbons = {}
         
         if self.hedroPosDict.has_key(layer):
             hedrons = self.hedroPosDict[layer]
-        else: hedrons = {}
+        else:
+            hedrons = {}
         
         if c.selSense == SUBTRACT_FROM_SELECTION:
             markedAtoms = self.markedAtoms
-            if not self.bondLayers or not self.bondLayers.has_key(layer): return
+            if not self.bondLayers or not self.bondLayers.has_key(layer):
+                return
             else:
                 bonds = self.bondLayers[layer]
                 for cell in allCells:
@@ -867,11 +892,10 @@ class CookieShape(shape):
                                 ppInside[ii] = True
                        if ppInside[0] or ppInside[1]:
                             self._logic0Bond(carbons, bonds, markedAtoms, hedrons, ppInside, pp)
-                self. _removeMarkedAtoms(bonds, markedAtoms, 
-                                                                            carbons, hedrons)
+                self. _removeMarkedAtoms(bonds, markedAtoms, carbons, hedrons)
         
         elif c.selSense == OUTSIDE_SUBTRACT_FROM_SELECTION:
-            #& This differs from the standard selection scheme for Shift+Drag. mark 060211.
+            #& This differs from the standard selection scheme for Shift + Drag. mark 060211.
             #& This is marked for removal.  mark 060320.
             if not self.bondLayers or not self.bondLayers.has_key(layer): return
             bonds = self.bondLayers[layer]
@@ -894,7 +918,8 @@ class CookieShape(shape):
                             newHedrons[pph[0]] = pp[0]
                             if not newBonds.has_key(pph[0]):
                                 newBonds[pph[0]] = [(pph[1], 1)]
-                            else: newBonds[pph[0]] += [(pph[1], 1)]
+                            else:
+                                newBonds[pph[0]] += [(pph[1], 1)]
             if insideAtoms:
                 self._logic2Bond(carbons, bonds, hedrons, insideAtoms, newStorage)
             bonds, carbons, hedrons = newStorage
@@ -938,152 +963,167 @@ class CookieShape(shape):
         
         #print "bonds", bonds   
         self.havelist = 1
-    
+        return
     
     def _logic0Bond(self, carbons, bonds, markedAtoms, hedrons, ppInside, pp):
-            # TODO: fix indent levels.
+        """
+        For each pair of points<pp[0], pp[1]>, if both points are inside the
+        curve and are existed carbons, delete the bond, and mark the 
+        'should be' removed atoms. Otherwise, delete half bond or 
+        change full to half bond accoringly.
+        """
+        
+        def _deleteHalfBond(which_in):
             """
-            For each pair of points<pp[0], pp[1]>, if both points are inside the
-            curve and are existed carbons, delete the bond, and mark the 
-            'should be' removed atoms. Otherwise, delete half bond or 
-            change full to half bond accoringly.
+            Internal function: when the value-- carbon atom is removed from an half bond, delete the half bond.
             """
+            markedAtoms[pph[which_in]] = pp[which_in]    
+            try:
+                values = bonds[pph[0]]
+                values.remove((pph[1], which_in))
+                bonds[pph[0]] = values
+                if len(values) == 0:
+                    del bonds[pph[0]]
+                #print "Delete half bond: ", pph[0], (pph[1], which_in)
+            except:
+                print "No such half bond: ", pph[0], (pph[1], which_in)
             
-            def _deleteHalfBond(which_in):
-                """
-                Internal function: when the value-- carbon atom is removed from an half bond, delete the half bond.
-                """
-                markedAtoms[pph[which_in]] = pp[which_in]    
-                try:
-                    values = bonds[pph[0]]
-                    values.remove((pph[1], which_in))
-                    bonds[pph[0]] = values
-                    if len(values) == 0: del bonds[pph[0]]
-                    #print "Delete half bond: ", pph[0], (pph[1], which_in)
-                except:
-                    print "No such half bond: ", pph[0], (pph[1], which_in)
-                
-            def _changeFull2Half(del_id, which_in):
-                """
-                internal function: If there is a full bond and when the value (2nd in a bond pair)
-                carbon atom is removed, change it to half bond
-                """
-                if not hedrons.has_key(pph[del_id]): hedrons[pph[del_id]] = pp[del_id]
-                markedAtoms[pph[del_id]] = pp[del_id]
-                if bonds.has_key(pph[0]):
-                    values = bonds[pph[0]]
-                    idex = values.index(pph[1])
-                    values[idex] = (pph[1], which_in)
-                    bonds[pph[0]] = values
-                    #print "Change full to half bond: ", pph[0], (pph[1], which_in)
-                
-            pph = []
-            pph += [self._hashAtomPos(pp[0])]
-            pph += [self._hashAtomPos(pp[1])]
-            if ppInside[0] and ppInside[1]:
-                # Delete full bond
-                if carbons.has_key(pph[0]) and carbons.has_key(pph[1]):
-                    markedAtoms[pph[0]] = pp[0]
-                    markedAtoms[pph[1]] = pp[1]
-                    values = bonds[pph[0]]
-                    values.remove(pph[1])
-                    bonds[pph[0]] = values
-                    if len(values) == 0: del bonds[pph[0]]
-                # Delete half bond                              
-                elif carbons.has_key(pph[0]):
-                    #markedAtoms[pph[0]] = pp[0]
-                    _deleteHalfBond(0)
-                # Delete half bond
-                elif carbons.has_key(pph[1]):
-                    _deleteHalfBond(1)
-            elif ppInside[0]:
-                # Full bond becomes half bond, carbon becomes hedron
-                if carbons.has_key(pph[0]) and carbons.has_key(pph[1]):
-                    markedAtoms[pph[0]] = pp[0]
-                    #_changeFull2Half(0, 1)
-                # Delete half bond    
-                elif carbons.has_key(pph[0]):
-                    #markedAtoms[pph[0]] = pp[0]
-                    _deleteHalfBond(0)
-            elif ppInside[1]:
-                # Full bond becomes half bond, carbon becomes hedron
-                if carbons.has_key(pph[1]) and carbons.has_key(pph[0]):
-                    _changeFull2Half(1, 0)
-                # Delete half bond    
-                elif carbons.has_key(pph[1]):
-                    _deleteHalfBond(1)
+        def _changeFull2Half(del_id, which_in):
+            """
+            internal function: If there is a full bond and when the value (2nd in a bond pair)
+            carbon atom is removed, change it to half bond
+            """
+            if not hedrons.has_key(pph[del_id]):
+                hedrons[pph[del_id]] = pp[del_id]
+            markedAtoms[pph[del_id]] = pp[del_id]
+            if bonds.has_key(pph[0]):
+                values = bonds[pph[0]]
+                idex = values.index(pph[1])
+                values[idex] = (pph[1], which_in)
+                bonds[pph[0]] = values
+                ## print "Change full to half bond: ", pph[0], (pph[1], which_in)
+            
+        pph = []
+        pph += [self._hashAtomPos(pp[0])]
+        pph += [self._hashAtomPos(pp[1])]
+        if ppInside[0] and ppInside[1]:
+            # Delete full bond
+            if carbons.has_key(pph[0]) and carbons.has_key(pph[1]):
+                markedAtoms[pph[0]] = pp[0]
+                markedAtoms[pph[1]] = pp[1]
+                values = bonds[pph[0]]
+                values.remove(pph[1])
+                bonds[pph[0]] = values
+                if len(values) == 0:
+                    del bonds[pph[0]]
+            # Delete half bond                              
+            elif carbons.has_key(pph[0]):
+                #markedAtoms[pph[0]] = pp[0]
+                _deleteHalfBond(0)
+            # Delete half bond
+            elif carbons.has_key(pph[1]):
+                _deleteHalfBond(1)
+        elif ppInside[0]:
+            # Full bond becomes half bond, carbon becomes hedron
+            if carbons.has_key(pph[0]) and carbons.has_key(pph[1]):
+                markedAtoms[pph[0]] = pp[0]
+                #_changeFull2Half(0, 1)
+            # Delete half bond    
+            elif carbons.has_key(pph[0]):
+                #markedAtoms[pph[0]] = pp[0]
+                _deleteHalfBond(0)
+        elif ppInside[1]:
+            # Full bond becomes half bond, carbon becomes hedron
+            if carbons.has_key(pph[1]) and carbons.has_key(pph[0]):
+                _changeFull2Half(1, 0)
+            # Delete half bond    
+            elif carbons.has_key(pph[1]):
+                _deleteHalfBond(1)
                            
     
     def _logic1Bond(self, carbons, hedrons, bonds, pp, pph, ppInside):
-            # TODO: fix indent levels.
-            """
-            For each pair of points <pp[0], pp[1]>, create a full bond if 
-            necessary and if both points are inside the curve ; otherwise, 
-            if one point is in while the other is not, create a half bond if 
-            necessary.
-            """
-            if ppInside[0] and ppInside[1]:
-                if (not pph[0] in carbons) and (not pph[1] in carbons):
-                    if pph[0] in hedrons: del hedrons[pph[0]]
-                    if pph[1] in hedrons: del hedrons[pph[1]]
-                    carbons[pph[0]] = pp[0]
-                    carbons[pph[1]] = pp[1]
-                    # create a new full bond
-                    self._createBond(bonds, pph[0], pph[1], -1, True) 
-                elif not pph[0] in carbons:
-                    if pph[0] in hedrons: del hedrons[pph[0]]
-                    carbons[pph[0]] = pp[0]
-                    # update half bond to full bond
-                    self._changeHf2FullBond(bonds, pph[0], pph[1], 1) 
-                elif not pph[1] in carbons:
-                    if pph[1] in hedrons: del hedrons[pph[1]]
-                    carbons[pph[1]] = pp[1]
-                    # update half bond to full bond
-                    self._changeHf2FullBond(bonds, pph[0], pph[1], 0) 
-                # create full bond
-                else: self._createBond(bonds, pph[0], pph[1])
-                
-            elif ppInside[0]:
-                if (not pph[0] in carbons) and (not pph[1] in carbons):
-                    if pph[0] in hedrons: del hedrons[pph[0]]
-                    carbons[pph[0]] = pp[0]
-                    if not pph[1] in hedrons: hedrons[pph[1]] = pp[1]
-                    # create new half bond
-                    self._createBond(bonds, pph[0], pph[1], 0, True) 
-                elif not pph[0] in carbons:
-                    if pph[0] in hedrons: del hedrons[pph[0]]
-                    carbons[pph[0]] = pp[0]
-                    #update half bond to full bond
-                    self._changeHf2FullBond(bonds, pph[0], pph[1], 1) 
-                elif not pph[1] in carbons:
-                    if not pph[1] in hedrons: hedrons[pph[1]] = pp[1]
-                    # create half bond, with 0 in, 1 out
-                    self._createBond(bonds, pph[0], pph[1], 0) 
-                # create full bond
-                else: self._createBond(bonds, pph[0], pph[1])
-                
-            elif ppInside[1]:
-                if (not pph[0] in carbons) and (not pph[1] in carbons):
-                    if pph[1] in hedrons: del hedrons[pph[1]]
-                    carbons[pph[1]] = pp[1]
-                    if not pph[0] in hedrons: hedrons[pph[0]] = pp[0]
-                    # create new half bond, with 1 in, 0 out
-                    self._createBond(bonds, pph[0], pph[1], 1, True) 
-                elif not pph[0] in carbons:
-                    if not pph[0] in hedrons: hedrons[pph[0]] = pp[0]
-                    # create half bond, with 1 in, 0 out
-                    self._createBond(bonds, pph[0], pph[1], 1) 
-                elif not pph[1] in carbons:
-                    if pph[1] in hedrons: del hedrons[pph[1]]
-                    carbons[pph[1]] = pp[1]
-                    #update half bond to full bond
-                    self._changeHf2FullBond(bonds, pph[0], pph[1], 0) 
-                # create full bond
-                else: self._createBond(bonds, pph[0], pph[1])      
+        """
+        For each pair of points <pp[0], pp[1]>, create a full bond if 
+        necessary and if both points are inside the curve ; otherwise, 
+        if one point is in while the other is not, create a half bond if 
+        necessary.
+        """
+        if ppInside[0] and ppInside[1]:
+            if (not pph[0] in carbons) and (not pph[1] in carbons):
+                if pph[0] in hedrons:
+                    del hedrons[pph[0]]
+                if pph[1] in hedrons:
+                    del hedrons[pph[1]]
+                carbons[pph[0]] = pp[0]
+                carbons[pph[1]] = pp[1]
+                # create a new full bond
+                self._createBond(bonds, pph[0], pph[1], -1, True) 
+            elif not pph[0] in carbons:
+                if pph[0] in hedrons:
+                    del hedrons[pph[0]]
+                carbons[pph[0]] = pp[0]
+                # update half bond to full bond
+                self._changeHf2FullBond(bonds, pph[0], pph[1], 1) 
+            elif not pph[1] in carbons:
+                if pph[1] in hedrons:
+                    del hedrons[pph[1]]
+                carbons[pph[1]] = pp[1]
+                # update half bond to full bond
+                self._changeHf2FullBond(bonds, pph[0], pph[1], 0) 
+            # create full bond
+            else:
+                self._createBond(bonds, pph[0], pph[1])
+            
+        elif ppInside[0]:
+            if (not pph[0] in carbons) and (not pph[1] in carbons):
+                if pph[0] in hedrons:
+                    del hedrons[pph[0]]
+                carbons[pph[0]] = pp[0]
+                if not pph[1] in hedrons:
+                    hedrons[pph[1]] = pp[1]
+                # create new half bond
+                self._createBond(bonds, pph[0], pph[1], 0, True) 
+            elif not pph[0] in carbons:
+                if pph[0] in hedrons:
+                    del hedrons[pph[0]]
+                carbons[pph[0]] = pp[0]
+                #update half bond to full bond
+                self._changeHf2FullBond(bonds, pph[0], pph[1], 1) 
+            elif not pph[1] in carbons:
+                if not pph[1] in hedrons:
+                    hedrons[pph[1]] = pp[1]
+                # create half bond, with 0 in, 1 out
+                self._createBond(bonds, pph[0], pph[1], 0) 
+            # create full bond
+            else:
+                self._createBond(bonds, pph[0], pph[1])
+            
+        elif ppInside[1]:
+            if (not pph[0] in carbons) and (not pph[1] in carbons):
+                if pph[1] in hedrons:
+                    del hedrons[pph[1]]
+                carbons[pph[1]] = pp[1]
+                if not pph[0] in hedrons:
+                    hedrons[pph[0]] = pp[0]
+                # create new half bond, with 1 in, 0 out
+                self._createBond(bonds, pph[0], pph[1], 1, True) 
+            elif not pph[0] in carbons:
+                if not pph[0] in hedrons:
+                    hedrons[pph[0]] = pp[0]
+                # create half bond, with 1 in, 0 out
+                self._createBond(bonds, pph[0], pph[1], 1) 
+            elif not pph[1] in carbons:
+                if pph[1] in hedrons:
+                    del hedrons[pph[1]]
+                carbons[pph[1]] = pp[1]
+                # update half bond to full bond
+                self._changeHf2FullBond(bonds, pph[0], pph[1], 0) 
+            # create full bond
+            else:
+                self._createBond(bonds, pph[0], pph[1])      
+        return
     
-    
-    def _logic2Bond(self, carbons, bonds, hedrons, insideAtoms,  \
-                                                         newStorage):
+    def _logic2Bond(self, carbons, bonds, hedrons, insideAtoms, newStorage):
         """
         Processing all bonds having key inside the current selection curve.
         For a bond with the key outside, the value inside the selection 
@@ -1144,17 +1184,17 @@ class CookieShape(shape):
         """
         for ph in markedAtoms.keys(): 
              if carbons.has_key(ph):
-                #print "Remove carbon: ", ph    
+                ## print "Remove carbon: ", ph    
                 if bonds.has_key(ph):
                     values = bonds[ph]
                     for b in values[:]:
                         if type(b) == type(1):
                             idex = values.index(b)
                             values[idex]  = (b, 1)
-                            #print "Post processing: Change full to half bond: ", ph, values[idex]
+                            ## print "Post processing: Change full to half bond: ", ph, values[idex]
                         else:
                             values.remove(b)
-                            # print "Erase half bond:", ph, b # commented out.  Mark 060205.
+                            ## print "Erase half bond:", ph, b # commented out.  Mark 060205.
                     bonds[ph] = values        
                     if len(values) == 0:
                         del bonds[ph]
@@ -1164,67 +1204,67 @@ class CookieShape(shape):
     
     
     def _changeHf2FullBond(self, bonds, key, value, which_in):
-            # TODO: fix indent levels.
-            """
-            If there is a half bond, change it to full bond. Otherwise, create
-            a new full bond. 
-            <which_in>: the atom which exists before.
-            """
-            foundHalfBond = False
-            
-            if bonds.has_key(key):
-                values = bonds[key]
-                for ii in range(len(values)):
-                    if type(values[ii]) == type((1,1)) and values[ii][0] == value:
-                        values[ii] = value
-                        foundHalfBond = True                
-                        break
-                if not foundHalfBond: values += [value]
-                #bonds[key] = values
-            elif not bonds.has_key(key):
-                bonds[key] = [value]
+        """
+        If there is a half bond, change it to full bond. Otherwise, create
+        a new full bond. 
+        <which_in>: the atom which exists before.
+        """
+        foundHalfBond = False
+        
+        if bonds.has_key(key):
+            values = bonds[key]
+            for ii in range(len(values)):
+                if type(values[ii]) == type((1, 1)) and values[ii][0] == value:
+                    values[ii] = value
+                    foundHalfBond = True                
+                    break
+            if not foundHalfBond:
+                values += [value]
+            ## bonds[key] = values
+        elif not bonds.has_key(key):
+            bonds[key] = [value]
                 
                                   
     def _createBond(self, dict, key, value, half_in = -1, new_bond = False):
-            # TODO: fix indent levels.
-            """
-            Create a new bond if <new_bond> is True. Otherwise, search if
-            there is such a full/half bond, change it appropriately if found. 
-            Otherwise, create a new bond.
-            If <half_in> == -1, it's a full bond; otherwise, it means a half 
-            bond with the atom of <half_in> is inside.
-            """
-            if not key in dict:
-                if half_in < 0:
-                   dict[key] = [value]
-                else: dict[key] = [(value, half_in)]
+        """
+        Create a new bond if <new_bond> is True. Otherwise, search if
+        there is such a full/half bond, change it appropriately if found. 
+        Otherwise, create a new bond.
+        If <half_in> == -1, it's a full bond; otherwise, it means a half 
+        bond with the atom of <half_in> is inside.
+        """
+        if not key in dict:
+            if half_in < 0:
+               dict[key] = [value]
             else:
-                values = dict[key]
-                if half_in < 0:
-                    if new_bond:
-                        values += [value]
-                    else:
-                        found = False
-                        for ii in range(len(values)):
-                            if type(values[ii]) == type(1):
-                                if value == values[ii]:
-                                    found = True
-                                    break
-                            elif value == values[ii][0]:
-                                values[ii] = value
+                dict[key] = [(value, half_in)]
+        else:
+            values = dict[key]
+            if half_in < 0:
+                if new_bond:
+                    values += [value]
+                else:
+                    found = False
+                    for ii in range(len(values)):
+                        if type(values[ii]) == type(1):
+                            if value == values[ii]:
                                 found = True
                                 break
-                        if not found:
-                            values += [value]     
+                        elif value == values[ii][0]:
+                            values[ii] = value
+                            found = True
+                            break
+                    if not found:
+                        values += [value]     
+            else:
+                if new_bond:
+                    values +=[(value, half_in)]
                 else:
-                    if new_bond:
-                        values +=[(value, half_in)]
-                    else:
-                        try:
-                            idex = values.index((value, half_in))
-                        except:
-                            values += [(value, half_in)]
-                dict[key] = values
+                    try:
+                        idex = values.index((value, half_in))
+                    except:
+                        values += [(value, half_in)]
+            dict[key] = values
                 
    
     def changeDisplayMode(self, mode):
@@ -1373,7 +1413,7 @@ class CookieShape(shape):
                     if bKey in allBonds:
                         existValues = allBonds[bKey]
                         for bValue in bValues:
-                            if type(bValue) == type((1,1)):
+                            if type(bValue) == type((1, 1)):
                                 if bValue[1]: ctValue = (bValue[0], 0)
                                 else: ctValue = (bValue[0], 1)
                                 if ctValue in existValues:
@@ -1399,11 +1439,13 @@ class CookieShape(shape):
                                 if not bKey in carbonAtoms:
                                     keyAtom = Atom("C", allCarbons[bKey], mol) 
                                     carbonAtoms[bKey] = keyAtom
-                                else: keyAtom = carbonAtoms[bKey]
+                                else:
+                                    keyAtom = carbonAtoms[bKey]
                                 keyHedron = False
                         
                         if keyHedron:    
-                            if type(bond) != type((1,1)): raise ValueError, (bKey, bond, bBonds)
+                            if type(bond) != type((1, 1)):
+                                raise ValueError, (bKey, bond, bBonds)
                             else:
                                 xp = (allCarbons[bKey] + allCarbons[bond[0]])/2.0
                                 keyAtom = Atom("X", xp, mol)         
