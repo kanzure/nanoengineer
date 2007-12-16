@@ -8,6 +8,7 @@ History:
 
 050927. Split off Plane jigs from jigs.py into this file. Mark
 
+TODO: split into several modules.
 """
 
 import os
@@ -100,13 +101,16 @@ class RectGadget(Jig):
 
     def _um_initargs(self):
         #bruce 051013 [as of 060209 this is probably well-defined and correct (for most Jig subclasses), but not presently used]
-        """Return args and kws suitable for __init__.
+        """
+        Return args and kws suitable for __init__.
         [Overrides Jig._um_initargs; see its docstring.]
         """
         return (self.assy, self.atoms, True), {}
 
     def setAtoms(self, atomlist):
-        """Override the version from Jig. Removed adding jig to atoms"""
+        """
+        Override the version from Jig. Removed adding jig to atoms
+        """
         if self.atoms:
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
         self.atoms = list(atomlist) # bruce 050316 (in super method): copy the list
@@ -120,10 +124,11 @@ class RectGadget(Jig):
         planeNorm = self._getPlaneOrientation(self.atomPos)
         self.quat = Q(V(0.0, 0.0, 1.0), planeNorm)
         self.center = add.reduce(self.atomPos)/len(self.atomPos)
-
     
     def __computeBBox(self):
-        '''Compute current bounding box. '''
+        """
+        Compute current bounding box.
+        """
         from BoundingBox import BBox
         
         hw = self.width/2.0; hh = self.height/2.0
@@ -133,7 +138,6 @@ class RectGadget(Jig):
             abs_pos += [self.quat.rot(pos) + self.center]
         
         return BBox(abs_pos)
-
     
     def __getattr__(self, name): # in class RectGadget
         if name == 'bbox':
@@ -145,29 +149,31 @@ class RectGadget(Jig):
         elif name == 'up':
             return self.quat.rot(V(0.0, 1.0, 0.0))
         else:
-            raise AttributeError, 'RectGadget has no "%s"' % name #bruce 060209 revised text
-
+            raise AttributeError, 'RectGadget has no "%s"' % name
+                #bruce 060209 revised text
         
     def getaxis(self):
         return self.planeNorm # axis is normal to plane of RectGadget.  Mark 060120
-      
         
     def move(self, offset):
-        '''Move the plane by <offset>, which is a 'V' object. '''
+        """
+        Move the plane by <offset>, which is a 'V' object.
+        """
         ###k NEEDS REVIEW: does this conform to the new Node API method 'move',
-        # or should it do more invalidations / change notifications / updates? [bruce 070501 question]
+        # or should it do more invalidations / change notifications / updates?
+        # [bruce 070501 question]
         self.center += offset
 
     
     def rot(self, q):
         self.quat += q
-
         
     def needs_atoms_to_survive(self): # [Huaicai 9/30/05]
-        '''Overrided method inherited from Jig. This is used to tell if the jig can be copied even
-           it doesn't have atoms.'''
+        """
+        Overrided method inherited from Jig. This is used to tell if the jig
+        can be copied even if it doesn't have atoms.
+        """
         return False
-    
         
     def _getPlaneOrientation(self, atomPos):
         assert len(atomPos) >= 3
@@ -175,14 +181,14 @@ class RectGadget(Jig):
         v2 = atomPos[-3] - atomPos[-1]
         
         return cross(v1, v2)
-
     
     def _mmp_record_last_part(self, mapping):
         return ""
     
-    #def is_disabled(self):
-        #''' '''
-        #return False
+##    def is_disabled(self):
+##        """
+##        """
+##        return False
 
     ###[Huaicai 9/29/05: The following two methods are temporarally copied here, this is try to fix jig copy related bugs
     ### not fully analynized how the copy works yet. It fixed some problems, but not sure if it's completely right.
@@ -206,7 +212,8 @@ class RectGadget(Jig):
         return new
     
     def _copy_fixup_at_end(self): # warning [bruce 050704]: some of this code is copied in jig_Gamess.py's Gamess.cm_duplicate method.
-        """[Private method]
+        """
+        [Private method]
         This runs at the end of a copy operation to copy attributes from the old jig
         (which could have been done at the start but might as well be done now for most of them)
         and copy atom refs (which has to be done now in case some atoms were not copied when the jig itself was).
@@ -245,7 +252,8 @@ class RectGadget(Jig):
 # == GridPlane
         
 class GridPlane(RectGadget):
-    ''' '''
+    """
+    """
     #bruce 060212 include superclass mutables (might fix some bugs); see analogous ESPImage comments for more info
     own_mutable_attrs = ('grid_color', )
     mutable_attrs = own_mutable_attrs + RectGadget.mutable_attrs
@@ -256,7 +264,7 @@ class GridPlane(RectGadget):
     mmp_record_name = "gridplane"
     featurename = "Grid Plane" #bruce 051203
     
-    def __init__(self, assy, list, READ_FROM_MMP=False):
+    def __init__(self, assy, list, READ_FROM_MMP = False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
         
         self.color = black # Border color
@@ -289,17 +297,19 @@ class GridPlane(RectGadget):
         self.cntl = GridPlaneProp(self, self.assy.o)
         
     def make_selobj_cmenu_items(self, menu_spec):
-        '''Add GridPlane specific context menu items to <menu_spec> list when self is the selobj.
-        '''
+        """
+        Add GridPlane specific context menu items to <menu_spec> list when self is the selobj.
+        """
         item = ('Hide', self.Hide)
         menu_spec.append(item)
         menu_spec.append(None) # Separator
         item = ('Properties...', self.edit)
         menu_spec.append(item)
         
-    def _draw_jig(self, glpane, color, highlighted=False):
-        '''Draw a Grid Plane jig as a set of grid lines.
-        '''
+    def _draw_jig(self, glpane, color, highlighted = False):
+        """
+        Draw a Grid Plane jig as a set of grid lines.
+        """
         glPushMatrix()
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -330,7 +340,9 @@ class GridPlane(RectGadget):
     
     
     def mmp_record_jigspecific_midpart(self):
-        '''format: width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb)  '''
+        """
+        format: width height (cx, cy, cz) (w, x, y, z) grid_type line_type x_space y_space (gr, gg, gb)
+        """
         color = map(int,A(self.grid_color)*255)
         
         dataline = "%.2f %.2f (%f, %f, %f) (%f, %f, %f, %f) %d %d %.2f %.2f (%d, %d, %d)" % \
@@ -341,8 +353,10 @@ class GridPlane(RectGadget):
     
     
     def writepov(self, file, dispdef):
-        if self.hidden: return
-        if self.is_disabled(): return #bruce 050421
+        if self.hidden:
+            return
+        if self.is_disabled():
+            return #bruce 050421
         
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
@@ -396,7 +410,7 @@ class ESPImage(RectGadget):
         # so it doesn't require two complete drawing passes over the model tree.
         # [bruce 071026 comment]
     
-    def __init__(self, assy, list, READ_FROM_MMP=False):
+    def __init__(self, assy, list, READ_FROM_MMP = False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
         self.assy = assy
         self.color = black # Border color
@@ -413,7 +427,7 @@ class ESPImage(RectGadget):
         self.image_offset = 1.0
         # the edge offset used to create the edge boundary of the bbox
         self.edge_offset = 1.0 
-        # opacity, a range between 0-1 where: 0=fully transparent, 1= fully opaque
+        # opacity, a range between 0-1 where: 0 = fully transparent, 1= fully opaque
         self.opacity = 0.6
         self.image_obj = None # helper object for texture image, or None if no texture is ready [bruce 060207 revised comment]
         self.image_mods = image_mod_record() # accumulated modifications to the file's image [bruce 060210 bugfix]
@@ -426,7 +440,7 @@ class ESPImage(RectGadget):
         self.yaxis_orient = 0 # ESP Image Y Axis orientation
         self.multiplicity = 1 # Multiplicity of atoms within this jig's bbox volume
        
-        self.pickCheckOnly=False #This is used to notify drawing code if it's just for picking purpose
+        self.pickCheckOnly = False #This is used to notify drawing code if it's just for picking purpose
         
         
     def _initTextureEnv(self): # called during draw method
@@ -451,15 +465,18 @@ class ESPImage(RectGadget):
 
 
     def _create_PIL_image_obj_from_espimage_file(self):
-        '''Creates a PIL image object from the jig's ESP image (png) file. '''
-        
+        """
+        Creates a PIL image object from the jig's ESP image (png) file.
+        """
         if self.espimage_file:
             self.image_obj = nEImageOps(self.espimage_file)
             self.image_mods.do_to( self.image_obj) #bruce 060210 bugfix: stored image_mods in mmp file, so we can reuse them here
         return
          
     def _loadTexture(self):
-        '''Load texture data from current image object '''
+        """
+        Load texture data from current image object
+        """
         ix, iy, image = self.image_obj.getTextureData() 
 
         # allocate texture object if never yet done [bruce 060207 revised all related code, to fix bug 1059]
@@ -487,7 +504,9 @@ class ESPImage(RectGadget):
         
     
     def setProps(self, name, border_color, width, height, resolution, center, wxyz, trans, fill_color,show_bbox, win_offset, edge_offset):
-        '''Set the properties for a ESP Image read from a (MMP) file. '''
+        """
+        Set the properties for a ESP Image read from a (MMP) file.
+        """
         self.name = name; self.color = self.normcolor = border_color;
         self.width = width; self.height = height; self.resolution = resolution; 
         self.center = center;  
@@ -520,43 +539,51 @@ class ESPImage(RectGadget):
 
     
     def _createShape(self, selSense = START_NEW_SELECTION):
-        ''' '''
+        """
+        """
         hw = self.width/2.0; wo = self.image_offset; eo = self.edge_offset
         
         shape = SelectionShape(self.right, self.up, self.planeNorm)
         slab = Slab(self.center - self.planeNorm * wo, self.planeNorm, 2 * wo)
-        pos = [V(-hw-eo, hw+eo, 0.0), V(hw+eo, -hw-eo, 0.0)]
+        pos = [V(-hw - eo, hw + eo, 0.0), V(hw + eo, -hw - eo, 0.0)]
         p3d = []         
         for p in pos:   
             p3d += [self.quat.rot(p) + self.center]
         
         # selSense used to highlight (not select) atoms inside the jig's volume.
-        shape.pickrect(p3d[0], p3d[1], self.center, selSense, slab=slab)
+        shape.pickrect(p3d[0], p3d[1], self.center, selSense, slab = slab)
 
         return shape
     
         
     def pickSelected(self, pick):
-        '''
+        """
         Select atoms inside the ESP Image bounding box. Actually this works for chunk too.
-        '''
+        """
         # selSense is used to highlight (not select) atoms inside the jig's volume.
-        if not pick: selSense = SUBTRACT_FROM_SELECTION
-        else: selSense = START_NEW_SELECTION
+        if not pick:
+            selSense = SUBTRACT_FROM_SELECTION
+        else:
+            selSense = START_NEW_SELECTION
         
         shape = self._createShape(selSense)
         shape.select(self.assy)
 
         
     def findObjsInside(self):
-        '''Find objects [atoms or chunks] inside the shape '''
+        """
+        Find objects [atoms or chunks] inside the shape
+        """
         shape = self._createShape()
         return shape.findObjInside(self.assy)
 
 
     def highlightAtomChunks(self):
-        '''highlight atoms '''
-        if not self.highlightChecked: return 
+        """
+        highlight atoms
+        """
+        if not self.highlightChecked:
+            return 
         
         atomChunks = self.findObjsInside()
         for m in atomChunks:
@@ -579,9 +606,10 @@ class ESPImage(RectGadget):
         Jig.edit(self)
         
     def make_selobj_cmenu_items(self, menu_spec):
-        '''Add ESP Image specific context menu items to <menu_spec> list when self is the selobj.
+        """
+        Add ESP Image specific context menu items to <menu_spec> list when self is the selobj.
         Currently not working since ESP Image jigs do not get highlighted. mark 060312.
-        '''
+        """
         item = ('Hide', self.Hide)
         menu_spec.append(item)
         menu_spec.append(None) # Separator
@@ -612,9 +640,10 @@ class ESPImage(RectGadget):
             color = '%s %f>' % (povStrVec(self.fill_color), self.opacity)
             file.write('esp_plane_color(' + strPts + ', ' + color + ') \n')
             
-    def _draw_jig(self, glpane, color, highlighted=False):
-        '''Draw a ESP Image jig as a plane with an edge and a bounding box.
-        '''
+    def _draw_jig(self, glpane, color, highlighted = False):
+        """
+        Draw a ESP Image jig as a plane with an edge and a bounding box.
+        """
         glPushMatrix()
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
@@ -628,7 +657,8 @@ class ESPImage(RectGadget):
             self._initTextureEnv() # sets texture params the way we want them
         else:
             textureReady = False
-        drawPlane(self.fill_color, self.width, self.width, textureReady, self.opacity, SOLID=True, pickCheckOnly=self.pickCheckOnly)
+        drawPlane(self.fill_color, self.width, self.width, textureReady, self.opacity,
+                  SOLID = True, pickCheckOnly = self.pickCheckOnly)
         
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
@@ -638,7 +668,7 @@ class ESPImage(RectGadget):
         if self.show_esp_bbox:
             wo = self.image_offset
             eo = self.edge_offset
-            drawwirecube(color, V(0.0, 0.0, 0.0), V(hw+eo, hw+eo, wo), 1.0) #drawwirebox
+            drawwirecube(color, V(0.0, 0.0, 0.0), V(hw + eo, hw + eo, wo), 1.0) #drawwirebox
             
             # This is for debugging purposes.  This draws a green normal vector using
             # local space coords.  Mark 050930
@@ -656,7 +686,9 @@ class ESPImage(RectGadget):
             drawline(yellow, self.center, self.center + self.planeNorm, 0, 3)
  
     def writemmp(self, mapping):
-        "[extends Jig method]"
+        """
+        [extends Jig method]
+        """
         super = Jig
         super.writemmp(self, mapping)
         # Write espimage "info" record.
@@ -679,7 +711,8 @@ class ESPImage(RectGadget):
         return " " + dataline
         
     def readmmp_info_espimage_setitem( self, key, val, interp ):
-        """This is called when reading an mmp file, for each "info espimage" record
+        """
+        This is called when reading an mmp file, for each "info espimage" record
         which occurs right after this node is read and no other (espimage jig) node has been read.
            Key is a list of words, val a string; the entire record format
         is presently [060108] "info espimage <key> = <val>", and there is exactly
@@ -736,14 +769,15 @@ class ESPImage(RectGadget):
         
         cmd = greenmsg("Calculate ESP: ")
         
-        errmsgs = ["Error: Nano-Hive plug-in not enabled.",
-                            "Error: Nano-Hive Plug-in path is empty.",
-                            "Error: Nano-Hive plug-in path points to a file that does not exist.",
-                            "Error: Nano-Hive plug-in is not Version 1.2b.",
-                            "Error: Couldn't connect to Nano-Hive instance.",
-                            "Error: Load command failed.",
-                            "Error: Run command failed.",
-                            "Simulation Aborted"]
+        errmsgs = [ "Error: Nano-Hive plug-in not enabled.",
+                    "Error: Nano-Hive Plug-in path is empty.",
+                    "Error: Nano-Hive plug-in path points to a file that does not exist.",
+                    "Error: Nano-Hive plug-in is not Version 1.2b.",
+                    "Error: Couldn't connect to Nano-Hive instance.",
+                    "Error: Load command failed.",
+                    "Error: Run command failed.",
+                    "Simulation Aborted"
+                   ]
         
         sim_parms = self.get_sim_parms()
         sims_to_run = ["MPQC_ESP"]
@@ -765,7 +799,7 @@ class ESPImage(RectGadget):
         r = run_nh_simulation(self.assy, 'CalcESP', sim_parms, sims_to_run, results_to_save)
         
         if r:
-            msg = redmsg(errmsgs[r-1])
+            msg = redmsg(errmsgs[r - 1])
             env.history.message( cmd + msg )
             return
             
@@ -789,25 +823,29 @@ class ESPImage(RectGadget):
       
     
     def __CM_Calculate_ESP(self):
-        '''Method for "Calculate ESP" context menu'''
+        """
+        Method for "Calculate ESP" context menu
+        """
         self.calculate_esp()
-
         
     def __CM_Load_ESP_Image(self):
-        '''Method for "Load ESP Image" context menu'''
+        """
+        Method for "Load ESP Image" context menu
+        """
         self.load_espimage_file()
    
-        
     def load_espimage_file(self, choose_new_image = False, parent = None):
-        '''Load the ESP (.png) image file pointed to by self.espimage_file.
+        """
+        Load the ESP (.png) image file pointed to by self.espimage_file.
         If the file does not exist, or if choose_new_image is True, the
         user will be prompted to choose a new image, and if the file chooser dialog is not
         cancelled, the new image will be loaded and its pathname stored in self.espimage_file.
         Return value is None if user cancels the file chooser, but is self.espimage_file
         (which has just been reloaded, and a history message emitted, whether or not
         it was newly chosen) in all other cases.
-           If self.espimage_file is changed (to a different value), this marks assy as changed.
-        '''
+
+        If self.espimage_file is changed (to a different value), this marks assy as changed.
+        """
         #bruce 060207 revised docstring. I suspect this routine has several distinct
         # purposes which should not be so intimately mixed (i.e. it should be several
         # routines). Nothing presently uses the return value.
@@ -870,7 +908,9 @@ class ESPImage(RectGadget):
     
     
     def clear_esp_image(self):
-        '''Clears the image in the ESP Image.'''
+        """
+        Clears the image in the ESP Image.
+        """
         self.image_obj = None
         # don't self.image_mods.reset(); but when we load again, that might clear it
         self.assy.o.gl_update()
@@ -924,23 +964,39 @@ def getMultiplicity(objList):
 
 
 class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
-    "record the mirror/flip/rotate history of an image in a short canonical form, and be able to write/read/do this"
+    """
+    record the mirror/flip/rotate history of an image in a short canonical form,
+    and be able to write/read/do this
+    """
     def __init__(self, mirror = False, ccwdeg = 0):
-        "whether to mirror it, and (then) how much to rotate it counterclockwise, in degrees"
+        """
+        whether to mirror it, and (then) how much to rotate it
+        counterclockwise, in degrees
+        """
             #k haven't verified it's ccw and not cw, in terms of how it's used, but this code should work either way
         self.mirrorQ = not not mirror # boolean
         self.rot = ccwdeg % 360 # float or int (I think)
+
     def reset(self):
-        "reset self to default values"
+        """reset self to default values"""
         self.mirrorQ = False
         self.rot = 0
+
     def __str__(self):
-        "[WARNING (kluge, sorry): this format is required by the code, which uses it to print parts of mmp records]"
+        """
+        [WARNING (kluge, sorry): this format is required by the code,
+         which uses it to print parts of mmp records]
+        """
         return "%s %s" % (self.mirrorQ, self.rot)
+
     def __repr__(self):
         return "<%s at %#x; mirrorQ, rot == %r>" % (self.__class__.__name__, id(self), (self.mirrorQ, self.rot))
+
     def set_to_str(self, str1):
-        "set self to the values encoded in the given string, which should have been produced by str(self); debug print on syntax error"
+        """
+        set self to the values encoded in the given string, which should
+        have been produced by str(self); debug print on syntax error
+        """
         try:
             mir, rot = str1.split() # e.g. "False", "180"
             ## mir = bool(mir) # wrong -- bool("False") is True!!!
@@ -953,34 +1009,49 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py
             self.mirrorQ = mir
             self.rot = rot
         return
+
     def mirror(self):
-        "left-right mirroring"
+        """
+        left-right mirroring
+        """
         self.mirrorQ = not self.mirrorQ
         self.rot = (- self.rot) % 360
+
     def flip(self):
-        "vertical flip (top-bottom mirroring)"
+        """
+        vertical flip (top-bottom mirroring)
+        """
         self.rotate(90)
         self.mirror()
         self.rotate(-90)
+
     def rotate(self, deg):
         self.rot = (self.rot + deg) % 360
+
     def do_to(self, similar):
-        "do your mods to another object that also has mirror/flip/rotate methods"
+        """
+        do your mods to another object that also has mirror/flip/rotate methods
+        """
         if self.mirrorQ:
             similar.mirror()
         if self.rot:
             similar.rotate(self.rot)
         return
+
     def __nonzero__(self):
         # Python requires this to return an int; i think a boolean should be ok
         return not not (self.mirrorQ or self.rot) # only correct since we always canonicalize rot by % 360
+
     def _s_deepcopy(self, copyfunc): # (in class image_mod_record [bruce circa 060210])
         # ignores copyfunc
         return self.__class__(self.mirrorQ, self.rot)
+
     def __eq__(self, other): #bruce 060222 for Undo; but had a bug until we defined __ne__, since != never calls __eq__ on its own.
         return self.__class__ is other.__class__ and (self.mirrorQ, self.rot) == (other.mirrorQ, other.rot)
+
     def __ne__(self, other): #bruce 060228
         return not (self == other)
+    
     pass # end of class image_mod_record
 
 # == test code
@@ -989,7 +1060,11 @@ if __name__ == '__main__':
 
     nopos = V(0,0,0) #bruce 060308 replaced 'no' with nopos (w/o knowing if it was correct in the first place)
     
-    alist = [Atom('C', nopos, None), Atom('C', nopos, None), Atom('H', nopos, None), Atom('O', nopos, None), ]
+    alist = [Atom('C', nopos, None),
+             Atom('C', nopos, None),
+             Atom('H', nopos, None),
+             Atom('O', nopos, None),
+            ]
     
     assert getMultiplicity(alist) == 2
     
