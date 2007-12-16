@@ -6,6 +6,27 @@ preferences.py -- Preferences system.
 @version: $Id$
 @copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
+Module classification:
+
+At least foundation, due to integral use of "from changes import UsageTracker".
+But also could be construed to have lots of app-specific knowledge,
+due to "from prefs_constants import prefs_table". But for now, experiment
+with pretending that's not app-specific, which we can get away with since
+it's pure data... and this might even make sense, if different apps
+share code which references the same prefs_keys from that table,
+as long as we make sure they can use different (per-app) prefs files.
+(For the same reason, we'll also classify prefs_constants as foundation
+or lower. In fact, it'll be utilities or constants for now, as explained
+in its docstring.)
+
+A desirable refactoring might be to classify prefs_constants higher
+(model or a specific app) and pass it to a prefs singleton as an argument.
+Then it'd be more clearly ok to call this module "foundation", but let
+prefs_constants be higher. OTOH, the reason explained above may make it
+perfectly ok for prefs_constants to be very low.
+
+[classification comment by bruce 071215]
+
 ==
 
 Prototype for Alpha.
@@ -39,15 +60,21 @@ BUT WE SHOULD LOOK INTO THE LICENSE TO MAKE SURE IT'S OK!
  and confirmed that it is.)
 """
 
-import os, time
-import platform
+import os
+import time
 
+import platform
 from PlatformDependent import mkdirs_in_filename
 from PlatformDependent import find_or_make_Nanorex_directory
+import env
+import EndUser
+from debug import print_compact_traceback
+
 from changes import UsageTracker
 
 from prefs_constants import prefs_table
-import EndUser
+
+# some imports remain lower down, for now: bsddb and shelve
 
 
 """
@@ -548,8 +575,6 @@ def declare_pref( attrname, typecode, prefskey, dflt = None ): # arg format is s
     return
 
 def init_prefs_table( prefs_table): # sets env.prefs
-    from debug import print_compact_traceback
-
     for prefrec in prefs_table:
         try:
             declare_pref(*prefrec)
@@ -557,7 +582,6 @@ def init_prefs_table( prefs_table): # sets env.prefs
             print_compact_traceback( "ignoring prefs_table entry %r with this exception: " % (prefrec,) )
         pass
     
-    import env
     env.prefs = prefs_context() # this is only ok because all modules use the same prefs context.
     
     if 0 and platform.atom_debug:

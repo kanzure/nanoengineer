@@ -5,15 +5,24 @@ checking and/or verifying that a plugin is enabled and that the path pointed
 to by its pref_key is the plugin.
 
 @version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
 mark 2007-12-01
 - split out of qutemol.py
+
+Module classification:
+
+Contains ui, operations or utility, and io code.
+For now, classified as ui, somewhat arbitrarily.
+[bruce 071215]
 """
 
-import env, os
+import env
+import os
 from PyQt4.Qt import QMessageBox
+from Process import Process    
 
 def _dialogToOfferPluginPrefsFixup(caption, text):
     """
@@ -131,10 +140,10 @@ def checkPluginPreferences(plugin_name, plugin_prefs_keys, ask_for_help = True):
                 return errorcode, errortext_or_path
             ret = _fixPluginProblem(plugin_name, errortext_or_path)
 
-            if ret==0: # Subroutine has shown Preferences | Plug-in.
+            if ret == 0: # Subroutine has shown Preferences | Plug-in.
                 continue # repeat the checks, to figure out whether user fixed
                          # the problem.
-            elif ret==1: # User declined to try to fix it now
+            elif ret == 1: # User declined to try to fix it now
                 return errorcode, errortext_or_path
         else:
             return 0, errortext_or_path
@@ -159,9 +168,6 @@ def verifyPluginUsingVersionFlag(plugin_path, version_flag, vstring):
         return 1
         
     args = [version_flag]
-    
-    from Process import Process
-        # (this import should be moved to toplevel [--bruce 071012])
     
     arguments = []
     for arg in args:

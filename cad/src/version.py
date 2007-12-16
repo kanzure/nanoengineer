@@ -3,13 +3,35 @@
 version.py -- provide version information for NanoEngineer-1,
 including author list, program name, release info, etc.
 
-$Id$
+@author: Will, Mark
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 NOTE: this is copied and imported by autoBuild.py in a directory
 which contains no other files, so it needs to be completely self-contained.
 (I.e. it should not import anything else in its source directory,
 only builtin Python modules.)
+
+Module classification, and refactoring needed:
+
+This should be given a less generic name, and also split into a
+high-level module (since it would differ for different applications
+built from the same code base) and low-level global access to the
+"currently running app's name and version info"
+(perhaps implemented similarly to EndUser)
+for uses like printing version info into output files
+(as in our caller in files_pdb).
+
+In the meantime, to avoid package import cycles, we pretend this is
+entirely low-level and classify it as either utilities or constants.
+[bruce 071215]
 """
+
+# Note: __copyright__ and __author__ below are about NE1 as a whole,
+# not about this specific file. (In some source files, __author__
+# is defined and is about that specific file. That usage of
+# __author__ is deprecated, superceded by an @author line in the
+# module docstring. [bruce 071215 comment])
 
 __copyright__ = "Copyright 2004-2007, Nanorex, Inc."
 
@@ -26,7 +48,8 @@ Bruce Smith
 Will Ware"""
 
 class Version:
-    """Example usage:
+    """
+    Example usage:
     from version import Version
     v = Version()
     print v, v.product, v.authors

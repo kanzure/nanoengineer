@@ -1,11 +1,13 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 prefs_constants.py
 
 Constants and utilities related to user preferences,
 which need to be defined immediately upon startup.
 
-$Id$
+@author: Mark, Bruce, Ninad
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -14,13 +16,29 @@ in UserPrefs.py, into constants.py.
 
 Bruce 050805 moved those into this new file, and added more.
 
-'''
-__author__ = "Mark, Bruce"
+Module classification:
+
+"utilities" or perhaps "constants" for now, even though it can be
+thought of as containing app-specific knowledge; for reasons and caveats
+and desirable refactoring, see preferences.py docstring. The reason it
+is even lower than foundation is to avoid package import cycles, e.g. if
+foundation -> io -> this, or if utilities.GlobalPreferences imports this.
+[bruce 071215]
+
+Refactoring needed:
+
+- See preferences.py docstring.
+
+- Has a few functions that ought to be split out, like
+getDefaultWorkingDirectory.
+"""
 
 ### do no imports that would not be ok for constants.py to do! ###
 
 from constants import yellow, pink, red, black, magenta, blue, gray, white, green
 from constants import ave_colors, diTUBES
+
+import sys, os # for getDefaultWorkingDirectory
 
 # ==
 
@@ -28,6 +46,7 @@ from constants import ave_colors, diTUBES
 # for the compass position and relate directly to the radio button group values for the options 
 # presented in the Prefences/General dialog.  Do not change the value of these 4 constants!
 # Mark 050919.
+# (Note: they are also used for other, analogous purposes. [bruce 071215 comment])
 # UPPER_RIGHT will conflict with the Confirmation Corner when it is implemented in A10.
 UPPER_RIGHT = 0 # May need to remove this option in A10. Mark 2007-05-07.
 UPPER_LEFT = 1
@@ -289,13 +308,16 @@ _default_bondVaneColor = _compute_default_bondVaneColor()
 
 _default_bondColor = (0.25, 0.25, 0.25)
 
-# Do not move getDefaultWorkingDirectory() to platform.py since it might create a recursive import problem. 
-# Mark 060730.
+# Do not move getDefaultWorkingDirectory() to platform.py since it might
+# create a recursive import problem. [Mark 060730.]
+# [However, it probably doesn't belong in this file either.
+#  Sometime try putting it into a file in a platform-dependent package.
+#  bruce 071215 comment]
 def getDefaultWorkingDirectory(): 
-    """Returns the default Working Directory.
     """
-    import sys, os
-    wd = ''
+    Returns the default Working Directory.
+    """
+    wd = ""
     if sys.platform == 'win32': # Windows
         # e.g. "C:\Documents and Settings\Mark\My Documents"
         wd = os.path.normpath(os.path.expanduser("~/My Documents"))

@@ -7,6 +7,10 @@ to detect whether the mouse touches them, i.e. mainly for
 objects are stored in glpane.selobj (since they are actually under the
 mouse).
 
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+
 ### REVIEW: is that really two different interfaces? The GLPane,
 finding the selobj via glname, could ask it to return the value
 to actually store in glpane.selobj.
@@ -19,8 +23,6 @@ sort of like a mouse-sensitive drawable vs a mouse-handling model object...
 or a mouse event handler for a model object... or for a drawable (or a
 nested chain of them, depending on glname nesting for e.g. stereo, or
 repeated identical parts)
-
-$Id$
 
 Note: a drag-handler (see DragHandler.py) and a "selobj" are often the same
 object, but obeying a different API; drag_handlers are return values from
@@ -59,8 +61,12 @@ this and should be revised. See also scratch/Drawable.py.
 
 Some documentation about this interface exists in exprs/Highlightable.py and
 GLPane.py.
+
+Module classification:
+
+Seems most like graphics_behavior_api, but revisit when it's done.
+[bruce 071215]
 """
-__author__ = "bruce"
 
 # possible names for this class:
 # - class MouseSensor_interface (in file MouseSensor.py? or MouseSensor_interface.py?)

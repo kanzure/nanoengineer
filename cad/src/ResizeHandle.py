@@ -1,12 +1,11 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-ResizeHandle.py
-This class provides Handles for resizing the parent object. The parent 
+ResizeHandle.py - provides Handles for resizing the parent object. The parent 
 object in most cases is a reference geometry model object (e.g. Plane, Line etc) 
 
 @author: Ninad
+@version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
 
 History:
 Ninad 2007-10-16: Originally created and modified in Plane.py, while working

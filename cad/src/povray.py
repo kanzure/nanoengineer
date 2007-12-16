@@ -1,8 +1,10 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-povray.py provides routines to support POV-Ray rendering in nE-1.
+"""
+povray.py - routines to support POV-Ray rendering in nE-1.
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -11,8 +13,10 @@ mark 060529 - Created file to support "View > Raytrace Scene".
 bruce 060711 major code clean up / bugfixing, in order to support
 direct include_dir prefs setting for Mac A8
 
-'''
-__author__ = "Mark"
+Module classification: has ui and graphics_io code, related
+to external processes. Not sure what's best, ui or graphics_io.
+For now, call this "graphics_io". [bruce 071215]
+"""
 
 import os, sys
 
@@ -29,8 +33,11 @@ from prefs_constants import povray_path_prefs_key
 from prefs_constants import povdir_enabled_prefs_key
 from prefs_constants import povdir_path_prefs_key
 
-def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 060710
-    "Offer the user a chance to fix a problem. Return 0 if they accept (after letting them try), 1 if they decline."
+def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 060710 [use Plugin.py instead?]
+    """
+    Offer the user a chance to fix a problem.
+    Return 0 if they accept (after letting them try), 1 if they decline.
+    """
     # modified from (now-removed) activate_plugin() which had similar code
     macwarning = ""
     if sys.platform == 'darwin' and macwarning_ok:
@@ -41,10 +48,10 @@ def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 0607
     ret = QMessageBox.warning( win, caption, text + macwarning, 
                                "&OK", "Cancel", "",
                                0, 1 )
-    if ret==0: # OK
+    if ret == 0: # OK
         win.userPrefs.showDialog('Plug-ins') # Show Preferences | Plug-in.
         return 0 # let caller figure out whether user fixed the problem
-    elif ret==1: # Cancel
+    elif ret == 1: # Cancel
         return 1
     pass
 
@@ -59,7 +66,8 @@ def fix_plugin_problem(win, name, errortext, macwarning_ok):
 # ==
 
 def decode_povray_prefs(win, ask_for_help, greencmd = None): #bruce 060710 ###@@@ review docstring
-    """Look at the current state of Plugin Prefs (about POV-Ray and MegaPOV) to determine:
+    """
+    Look at the current state of Plugin Prefs (about POV-Ray and MegaPOV) to determine:
     - whether the user wants us to launch MegaPOV, POV-Ray, or neither [see below for retval format] 
     - whether we can do what they ask
     Assume it's an error if we can't launch one of them, and return errorcode, errortext as appropriate.
@@ -94,9 +102,9 @@ def decode_povray_prefs(win, ask_for_help, greencmd = None): #bruce 060710 ###@@
                 return errorcode, errortext_or_info
             ret = fix_plugin_problem(win, name, errortext_or_info, macwarning_ok)
             macwarning_ok = False
-            if ret==0: # Subroutine has shown Preferences | Plug-in.
+            if ret == 0: # Subroutine has shown Preferences | Plug-in.
                 continue # repeat the checks, to figure out whether user fixed the problem
-            elif ret==1: # User declined to try to fix it now
+            elif ret == 1: # User declined to try to fix it now
                 return errorcode, errortext_or_info
         else:
             (program_nickname, program_path, include_dir) = errortext_or_info # verify format (since it's in our docstring)
@@ -104,8 +112,9 @@ def decode_povray_prefs(win, ask_for_help, greencmd = None): #bruce 060710 ###@@
     pass # end of decode_povray_prefs
 
 def decode_povray_prefs_0(win, greencmd): #bruce 060710
-    "[private helper for decode_povray_prefs]"
-
+    """
+    [private helper for decode_povray_prefs]
+    """
     # The one they want to use is the first one enabled out of MegaPOV or POV-Ray (in that order).
     if env.prefs[megapov_enabled_prefs_key]:
         want = "MegaPOV"
@@ -142,7 +151,8 @@ def this_platform_can_guess_include_dir_from_povray_path():
     return sys.platform != 'darwin'
 
 def default_include_dir(): #bruce 060710 split out and revised Mark's & Will's code for this in write_povray_ini_file
-    """The user did not specify an include dir, so guess one from the POV-Ray path (after verifying it's set).
+    """
+    The user did not specify an include dir, so guess one from the POV-Ray path (after verifying it's set).
     Return 0, include_dir or errorcode, errortext.
     If not having one is deemed worthy of only a warning, not an error, emit the warning and return 0 [nim].
     """
@@ -184,7 +194,9 @@ def default_include_dir(): #bruce 060710 split out and revised Mark's & Will's c
     pass
 
 def include_dir_ok(include_dir):
-    "Is this include_dir acceptable (or maybe acceptable)? Return (0, "") or (errorcode, errortext)."
+    """
+    Is this include_dir acceptable (or maybe acceptable)? Return (0, "") or (errorcode, errortext).
+    """
     if env.debug():
         print "debug: include_dir_ok(include_dir = %r)" % (include_dir,)
     if os.path.isdir(include_dir):
@@ -204,7 +216,8 @@ def include_dir_ok(include_dir):
 # ==
 
 def write_povray_ini_file(ini, pov, out, info, width, height, output_type = 'png'): #bruce 060711 revised this extensively for Mac A8
-    """Write the povray_ini file, <ini>, containing the commands necessary to render the povray scene file <pov>
+    """
+    Write the povray_ini file, <ini>, containing the commands necessary to render the povray scene file <pov>
     to produce an image in the output file <out>, using the rendering options width, height, output_type,
     and the renderer info <info> (as returned fom decode_povray_prefs).
        All these filenames should be given as absolute pathnames, as if returned from get_povfile_trio() in PovrayScene.
@@ -260,7 +273,8 @@ def write_povray_ini_file(ini, pov, out, info, width, height, output_type = 'png
     return # from write_povray_ini_file
 
 def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised this extensively for Mac A8
-    """Try to launch POV-Ray or MegaPOV, as specified in <info> (as returned from decode_povray_prefs, assumed already checked),
+    """
+    Try to launch POV-Ray or MegaPOV, as specified in <info> (as returned from decode_povray_prefs, assumed already checked),
     on the given <povray_ini> file (which should already exist), and running in the directory of that file
     (this is required, since it may contain relative pathnames).
     <win> must be the main window object (used for .glpane.is_animating).
@@ -373,10 +387,11 @@ def launch_povray_or_megapov(win, info, povray_ini): #bruce 060707/11 revised th
     return 0, "Rendering finished" # from launch_povray_or_megapov
 
 def verify_povray_program(): # not yet used, not yet correctly implemented
-    '''Returns 0 if povray_path_prefs_key is the path to the POV-Ray 3.6 executable.
+    """
+    Returns 0 if povray_path_prefs_key is the path to the POV-Ray 3.6 executable.
     Otherwise, returns 1. 
     Always return 0 for now until I figure out a way to verify POV-Ray. Mark 060527.
-    '''
+    """
     vstring = "POV-Ray 3.6" # or somthing like this.os
     #r = verify_program(env.prefs[povray_path_prefs_key], '-v', vstring)
     #return r
@@ -387,7 +402,8 @@ def verify_povray_program(): # not yet used, not yet correctly implemented
 # This should probably be moved to somewhere else like Plugins.py
 # Talk to Bruce about pros/cons of this.  Mark 060529.
 def get_default_plugin_path(win32_path, darwin_path, linux_path):
-    """Returns the plugin (executable) path to the standard location for each platform
+    """
+    Returns the plugin (executable) path to the standard location for each platform
     (taken from the appropriate one of the three platform-specific arguments),
     but only if a file or dir exists there.
     Otherwise, returns an empty string.

@@ -1,7 +1,6 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 prefs_widgets.py -- Utilities related to both user preferences and Qt widgets.
-
 Note: also includes some code related to "connect with state"
 which should be refiled.
 
@@ -12,6 +11,16 @@ which should be refiled.
 History:
 
 Bruce 050805 started this module.
+
+Module classification, and refactoring needed:
+
+Needs splitting into at least two files. One of them is some widgets
+or widget helpers. The other is some "connect with state" facilities.
+Those might be used for pure model state someday (with at least some
+of them getting classified in foundation and used in model), but for now,
+they are probably only used with widgets, so we might get away with
+calling this a "ui/widgets" module without splitting it -- we'll see.
+[bruce 071215 comment]
 """
 
 import env # for env.prefs
@@ -25,7 +34,9 @@ from PyQt4.Qt import QPalette
 
 from widgets import wrap_callable_for_undo
 
-# public helper functions ### colorframe prefs are UNTESTED since local old funcs rewritten to use these
+# public helper functions
+
+# [this comment is probably obs:] ### colorframe prefs are UNTESTED since local old funcs rewritten to use these
 
 def widget_destroyConnectionWithState(widget):
     """
@@ -130,7 +141,6 @@ def connect_colorpref_to_colorframe( prefs_key, colorframe ): #bruce 050805; rev
     Cause the bgcolor of the given Qt "color frame" to be set to
     each new legal color value stored in the given pref.
     """
-
     # first destroy any prior connection trying to control the same colorframe widget
     widget_destroyConnectionWithState( colorframe)
     
@@ -174,7 +184,10 @@ def connect_colorpref_to_colorframe( prefs_key, colorframe ): #bruce 050805; rev
     return
 
 class destroyable_Qt_connection:
-    "holds a Qt signal/slot connection, but has a destroy method which disconnects it [#e no way to remain alive but discon/con it]"
+    """
+    holds a Qt signal/slot connection, but has a destroy method which
+    disconnects it [#e no way to remain alive but discon/con it]
+    """
     def __init__(self, sender, signal, slot, owner = None):
         if owner is None:
             owner = sender # I hope that's ok -- not sure it is -- if not, put owner first in arglist, or, use topLevelWidget
@@ -187,7 +200,9 @@ class destroyable_Qt_connection:
     pass
 
 class list_of_destroyables:
-    "hold 0 or more objects, so that when we're destroyed, so are they"
+    """
+    hold 0 or more objects, so that when we're destroyed, so are they
+    """
     def __init__(self, *objs):
         self.objs = objs
     def destroy(self):
@@ -198,7 +213,8 @@ class list_of_destroyables:
     pass
 
 def connect_checkbox_with_boolean_pref_OLD( qcheckbox, prefs_key ): #bruce 050810, slightly revised 070814, DEPRECATED since being replaced
-    """Cause the checkbox to track the value of the given boolean preference,
+    """
+    Cause the checkbox to track the value of the given boolean preference,
     and cause changes to the checkbox to change the preference.
     (Use of the word "with" in the function name, rather than "to" or "from",
      is meant to indicate that this connection is two-way.)
@@ -331,7 +347,8 @@ def ObjAttr_StateRef( obj, attr, *moreattrs): #bruce 070815 experimental; plan: 
 ### TODO:  val = not not val   before setting pref  - ie val = boolean(val), or pass boolean as type coercer
 
 def connect_checkbox_with_boolean_pref( qcheckbox, prefs_key ): #bruce 050810, rewritten 070814
-    """Cause the checkbox to track the value of the given boolean preference,
+    """
+    Cause the checkbox to track the value of the given boolean preference,
     and cause changes to the checkbox to change the preference.
     (Use of the word "with" in the function name, rather than "to" or "from",
      is meant to indicate that this connection is two-way.)
@@ -347,12 +364,14 @@ def connect_checkbox_with_boolean_pref( qcheckbox, prefs_key ): #bruce 050810, r
 class _twoway_Qt_connection: #bruce 070814, experimental, modified from destroyable_Qt_connection
     ### TODO: RENAME; REVISE init arg order
     ### TODO: try to make destroyable_Qt_connection a super of this class
-    """Private helper class for various "connect widget with state" features (TBD).
+    """
+    Private helper class for various "connect widget with state" features (TBD).
     Holds a Qt signal/slot connection, with a destroy method which disconnects it,
     but also makes a connection in the other direction, using additional __init__ args,
     which disables the first connection during use.
     Only certified for use when nothing else is similarly connected to the same widget.
-       Main experimental aspect of API is the StateRef_API used by the stateref arg...
+
+    Main experimental aspect of API is the StateRef_API used by the stateref arg...
     """
     def __init__(self, widget, signal, stateref, widget_setter, owner = None):
         """

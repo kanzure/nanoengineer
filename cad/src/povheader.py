@@ -2,9 +2,10 @@
 """
 povheader.py
 
-$Id$
+@author: Josh
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-__author__ = "Josh"
 
 #bruce 050413: moved povpoint from 4 other modules (identical copies) into this one.
 # (I'd leave it in fileIO except that would cause a recursive import problem.)

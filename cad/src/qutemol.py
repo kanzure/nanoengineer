@@ -1,29 +1,48 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-qutemol.py provides routines to support QuteMol as a plug-in.
+qutemol.py - provides routines to support QuteMol as a plug-in.
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 mark 2007-06-02
 - Created file. Much of the plug-in checking code was copied from 
 povray.py, written by Bruce.
-"""
-__author__ = "Mark"
 
-import env, os, sys
-from prefs_constants import qutemol_enabled_prefs_key, qutemol_path_prefs_key
+Module classification:
+
+Looks like operations and io code. Similar to "simulation" code
+but is not about simulation -- maybe that category is misconceived
+and what we want instead is an "external process" category of code.
+For now, call this "io". [bruce 071215]
+"""
+
+import env
+import os
+import sys
 from PyQt4.Qt import QString, QStringList, QProcess
+
+from prefs_constants import qutemol_enabled_prefs_key, qutemol_path_prefs_key
 from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_True
 from constants import properDisplayNames, TubeRadius, diBALL_SigmaBondRadius
 from files_pdb import writePDB_Header, writepdb, EXCLUDE_HIDDEN_ATOMS
-from prefs_constants import cpkScaleFactor_prefs_key, \
-                            diBALL_AtomRadius_prefs_key
 from elements import PeriodicTable
 
+from prefs_constants import cpkScaleFactor_prefs_key
+from prefs_constants import diBALL_AtomRadius_prefs_key
+from prefs_constants import backgroundGradient_prefs_key
+from prefs_constants import backgroundColor_prefs_key
+from prefs_constants import diBALL_BondCylinderRadius_prefs_key
+
 from Plugins import checkPluginPreferences
+
+from Process import Process
+from GroupProp import Statistics
+from PlatformDependent import find_or_make_Nanorex_subdir
 
 def launch_qutemol(pdb_file):
     """
@@ -72,8 +91,7 @@ def launch_qutemol(pdb_file):
         for arg in args:
             if arg != "":
                 arguments.append(arg)
-    
-        from Process import Process
+        
         p = Process()
         
         # QuteMol must run from the directory its executable lives. Otherwise,  
@@ -181,10 +199,6 @@ def write_qutemol_pdb_file(part, filename, excludeFlags):
     
     f = open(filename, "w")
     
-    from prefs_constants import backgroundGradient_prefs_key
-    from prefs_constants import backgroundColor_prefs_key
-    from prefs_constants import diBALL_BondCylinderRadius_prefs_key
-    
     skyBlue = env.prefs[ backgroundGradient_prefs_key ]
         
     bgcolor = env.prefs[ backgroundColor_prefs_key ]
@@ -253,7 +267,7 @@ REMARK   7\n""")
     
     f.close()
     
-    # Write the "body" of PDB file.
+    # Write the "body" of PDB file (appending it to what we just wrote).
     writepdb(part, filename, mode = 'a', excludeFlags = excludeFlags)
     
 def write_qutemol_files(part, excludeFlags = EXCLUDE_HIDDEN_ATOMS):
@@ -279,7 +293,6 @@ def write_qutemol_files(part, excludeFlags = EXCLUDE_HIDDEN_ATOMS):
     
     # Is there a better way to get the number of atoms in <part>.? 
     # Mark 2007-06-02
-    from GroupProp import Statistics
     stats = Statistics(part.tree) 
         
     if 0:
@@ -298,7 +311,6 @@ def write_qutemol_files(part, excludeFlags = EXCLUDE_HIDDEN_ATOMS):
     pdb_basename = "qutemol.pdb"
     
     # Make full pathnames for the PDB file (in ~/Nanorex/temp/)
-    from PlatformDependent import find_or_make_Nanorex_subdir
     tmpdir = find_or_make_Nanorex_subdir('temp')
     qutemol_pdb_file = os.path.join(tmpdir, pdb_basename)
     

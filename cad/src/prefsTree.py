@@ -11,6 +11,13 @@ user preferences in the model tree
 History:
 
 bruce 050613 started this.
+
+Module classification:
+
+Tentatively, "model", though arguably it also contains ui code.
+Used by model_tree but also in assembly (which is in "model").
+Perhaps ought to be split into two files?
+[bruce 071215 classification comment]
 """
 
 import os
@@ -23,7 +30,10 @@ import env
 debug_prefstree = 1 ###@@@ safe for commit even when 1
 
 class PrefNode(Node):
-    "Leaf node for storing a local change to a single preference attribute" #e or is PrefsGroup the same class? not sure...
+    """
+    Leaf node for storing a local change to a single preference attribute
+    """
+    #e or is PrefsGroup the same class? not sure...
     ## no_selgroup_is_ok = True
     def __init__(self, assy, name = "prefnode"):
         Node.__init__(self, assy, name)
@@ -33,7 +43,10 @@ class PrefNode(Node):
     pass
 
 class PrefChoiceNode(PrefNode):
-    "A PrefNode which lets the user choose one of a small finite set of choices using its cmenu (or maybe in other ways too?)"
+    """
+    A PrefNode which lets the user choose one of a small finite set of choices
+    using its cmenu (or maybe in other ways too?)
+    """
     def __init__(self, assy, name, choices = None, default_name = None, defaultValue = None, typename = None ):
         PrefNode.__init__(self, assy, name)
         self.choices = choices or [('No choices!', None)]
@@ -85,7 +98,9 @@ dispmode_choice = [ PrefChoiceNode, opts(
 # ==
 
 class PrefsGroup(Group):
-    "Group node for storing a set of local changes to preference attributes"
+    """
+    Group node for storing a set of local changes to preference attributes
+    """
     ## no_selgroup_is_ok = True
     def __init__(self, assy, name): # arg order is like Node, not like Group
         dad = None
@@ -109,10 +124,13 @@ class MainPrefsGroup(PrefsGroup): # kind of like PartGroup; where do we say it's
     def drag_move_ok(self): return False
     def permits_ungrouping(self): return False
     def description_for_history(self):
-        """[overridden from Group method]"""
+        """
+        [overridden from Group method]
+        """
         return "Preferences"
     def __CM_Save_Prefs(self):
-        """[temporary kluge, should autosave whenever changed, or from dialog buttons]
+        """
+        [temporary kluge, should autosave whenever changed, or from dialog buttons]
         save this node's part into a constant-named mmp file in prefs dir
         (for now -- details of where/how it saves them is private and might change)
         """
@@ -126,7 +144,9 @@ class MainPrefsGroup(PrefsGroup): # kind of like PartGroup; where do we say it's
     pass
 
 class MainPrefsGroupPart(Part):
-    "[public, meant to be imported and used by code in assembly.py]"
+    """
+    [public, meant to be imported and used by code in assembly.py]
+    """
     def immortal(self): return True
     def glpane_text(self):
         return "(preferences area; not in the mmp file)"
@@ -138,7 +158,10 @@ class MainPrefsGroupPart(Part):
     pass
 
 def prefsTree(assy):
-    "Make or return the prefsTree object for the given assy" #e really there should be a single one per session, but this should work
+    """
+    Make or return the prefsTree object for the given assy
+    """
+    #e really there should be a single one per session, but this should work
     try:
         ## assert isinstance(assy.prefsTree, prefsTree_class) # multiple ways this can fail, and that's normal
         # above messes up reloading, so do this instead:
@@ -192,9 +215,10 @@ def read_mmp_single_part(assy, filename):
 # and can load their state from it or save their state to it.
 # it might also be nodes, not sure
 
-# end
+# ==
 
 # remaking nodes destroys any renames I did for them, would mess up DND results too --
 # need to keep them around and update them instead (ok if I remake the owner object, though)
 # or perhaps let them be proxies for other state (harder, but might be needed anyway, to save that state)
 
+# end

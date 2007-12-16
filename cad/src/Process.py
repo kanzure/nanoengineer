@@ -5,11 +5,15 @@ Process.py
 Provides class Process, a QProcess subclass which is more convenient to use,
 and a convenience function run_command() for using it to run external commands.
 
-$Id$
+@author: Bruce, EricM
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
 bruce 050902 made this, using Qt doc and existing QProcess calls for guidance.
+
+ericm 0712xx apparently ported it to Qt 4 (?), and added some features.
 
 Future plans:
 
@@ -20,8 +24,6 @@ running multiple processes concurrently.
 And it might as well be extended enough to replace some existing uses of QProcess
 with uses of this class, if that would simplify them (but I'm not sure whether it would).
 """
-
-__author__ = 'bruce'
 
 from PyQt4.Qt import QProcess, QStringList, qApp, SIGNAL, QDir, QString
 import time
@@ -48,11 +50,14 @@ def ensure_QDir(arg):
 super = QProcess
 
 class Process(QProcess):
-    "Subclass of QProcess which is able to capture and record stdout/stderr, and has other convenience methods."
+    """
+    Subclass of QProcess which is able to capture and record stdout/stderr,
+    and has other convenience methods.
+    """
     stdout = stderr = None
     def __init__(self, *args):
-        """Like QProcess.__init__, but the form with arguments might not be usable with a Python list.
-        
+        """
+        Like QProcess.__init__, but the form with arguments might not be usable with a Python list.
         """
         super.__init__(self, *args)
         # I don't know if we'd need to use these signals if we wanted to discard the data.
@@ -109,7 +114,8 @@ class Process(QProcess):
         ##super.setWorkingDirectory(self, arg)
 
     def set_stdout(self, stdout):
-        """Cause stdout from this process to be written to the given file-like object
+        """
+        Cause stdout from this process to be written to the given file-like object
         (which must have write method, and whose flush method is also used if it exists).
         This should be called before starting the process.
         If it's never called, stdout from the process will be read and discarded.
@@ -120,7 +126,9 @@ class Process(QProcess):
         self.stdout = stdout
 
     def set_stderr(self, stderr):
-        "Like set_stdout but for stderr."
+        """
+        Like set_stdout but for stderr.
+        """
         if (self.stderr and self.stderrRedirected):
             self.stderr.close()
         self.stderrRedirected = False
@@ -194,7 +202,8 @@ class Process(QProcess):
         return state + "[" + err + "]"
         
     def wait_for_exit(self):
-        """Wait for the process to exit (sleeping by 0.05 seconds in a loop).
+        """
+        Wait for the process to exit (sleeping by 0.05 seconds in a loop).
         Return its exitcode.
         Call this only after the process was successfully started using self.start() or self.launch().
         """
@@ -206,14 +215,17 @@ class Process(QProcess):
         return self.exitCode()
 
     def getExitValue(self):
-        "Return the exitcode, or -2 if it crashed or was terminated. Only call this after it exited."
+        """
+        Return the exitcode, or -2 if it crashed or was terminated. Only call this after it exited.
+        """
         code = self.wait_for_exit()
         if (self.exitStatus() == QProcess.NormalExit):
             return code
         return -2
 
     def run(self, program, args = None, background = False):
-        """Do everything needed to run the process with these args
+        """
+        Do everything needed to run the process with these args
         (a list of strings, starting with program name or path),
         except for the setX methods which caller might want to call first,
         like set_stdout, set_stderr, setWorkingDirectory,
@@ -231,7 +243,8 @@ class Process(QProcess):
     pass
 
 def run_command( program, args = [], stdout = None, stderr = None, cwd = None ):
-    """Run program, with optional args, as a separate process,
+    """
+    Run program, with optional args, as a separate process,
     optionally capturing its stdout and stderr to the given file-like objects
     (or discarding it if those are not provided),
     optionally changing its current working directory to the specified directory cwd.
