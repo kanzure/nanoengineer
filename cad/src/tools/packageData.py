@@ -2,7 +2,7 @@
 """
 packageData.py -- data about modules and packages, for PackageDependency.py
 
-@author: Eric M
+@author: Eric M, Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
@@ -226,14 +226,14 @@ packageMapping = {
     "GeneratorController"              : "ui/controller", #? @@@ ui/controller that are subclassing ui/propmgr may need reclassification
     "generator_button_images"          : "ui/dialog", #?
     "geometry"                         : "geometry",
-    "GlobalPreferences"                : "utilities", #? - imports things that are dubious to let remain in utilities
+    "GlobalPreferences"                : "utilities", #? - imports debug_prefs & prefs_constants, dubious for utilities; or constants??
     "global_model_changedicts"         : "model",
     "GLPane"                           : "graphics_widgets",
     "GLPane_minimal"                   : "graphics_widgets",
     "gpl_only"                         : "platform",
     "GrapheneGenerator"                : "ui/controller",
     "GrapheneGeneratorPropertyManager" : "ui/propmgr",
-    "GraphicsMode"                     : "graphics_modes",
+    "GraphicsMode"                     : "graphics_mode",
     "GraphicsMode_API"                 : "ui_api", # not legit to be needed by anything below ui, i think
     "GridPlaneProp"                    : "ui/dialog",
     "GridPlanePropDialog"              : "ui/dialog",
@@ -319,82 +319,99 @@ packageMapping = {
     "Plane"                            : "model",
     "PlaneEditController"              : "ui/controller",
     "PlanePropertyManager"             : "ui/propmgr",
-    "platform"                         : "utilities", # debug
+    "platform"                         : "utilities", # debug; rename platform.atom_debug -> debug_flags.debug ??
     "PlatformDependent"                : "platform", # ok, but really it's a mix of platform, utilities, io.
-    # @@@ where i am in file is up to here, and paper too
     "PlotTool"                         : "ui",
     "PlotToolDialog"                   : "ui",
-    "Plugins"                          : "ui", # ?
+    "Plugins"                          : "ui", # ui, operations or utility, and io;
+        # relates to "external processes" - we might add a classification for that
     
-    "povheader"                        : "io",
-    "povray"                           : "io",
-    "PovrayScene"                      : "model", # ?
-    "PovraySceneProp"                  : "ui",
-    "PovrayScenePropDialog"            : "ui",
-    "preferences"                      : "utilities",
-    "prefsTree"                        : "ui",
-    "prefs_constants"                  : "utilities",
-    "prefs_widgets"                    : "ui",
+    "povheader"                        : "graphics_io", # for povray package
+    "povray"                           : "graphics_io", # also has ui code; for povray package, maybe
+    "PovrayScene"                      : "model", # for povray package, maybe
+    "PovraySceneProp"                  : "ui", # for povray package, maybe
+    "PovrayScenePropDialog"            : "ui", # for povray package, maybe
+    
+    "preferences"                      : "foundation", # see module docstring for explanation
+    "prefsTree"                        : "model", # see docstring for caveats
+    "prefs_constants"                  : "utilities", # or constants? see module docstring for explanation
+
+    "prefs_widgets"                    : "ui/widgets", #? - might not work -- needs splitting, some goes in foundation
     "Process"                          : "io",
     "PropMgr_Constants"                : "PM",
-    "pyrex_test"                       : "top_level",
+    "pyrex_test"                       : "top_level", #? I don't know if this matters - pyrex_test only exists as .c and .pyx and .so
     
     "qt4transition"                    : "utilities",
-    "qutemol"                          : "io",
-    "QuteMolPropertyManager"           : "ui/propmgr",
+    "qutemol"                          : "io", # graphics_io?? for a qutemol package?
+        # relates to "external processes" - we might add a classification for that
     
-    "ReferenceGeometry"                : "ui", # geometry, model?
-    "reposition_baggage"               : "model",
-    "ResizeHandle"                     : "ui", # interactive graphics - package will be revised
+    "QuteMolPropertyManager"           : "ui/propmgr", # for a qutemol package??
+    
+    "ReferenceGeometry"                : "model", 
+    "reposition_baggage"               : "operations",
+    "ResizeHandle"                     : "graphics_behavior", # (a DragHandler)
     "RotaryMotorEditController"        : "ui/controller",
     "RotaryMotorPropertyManager"       : "ui/propmgr",
     "RotateMode"                       : "ui",
-    "runSim"                           : "simulation",
+    "runSim"                           : "simulation", # includes perhaps ui, controller, io
     
-    "selectAtomsMode"                  : "ui",
-    "SelectAtoms_Command.py"           : "?", #?
-    "SelectAtoms_GraphicsMode.py"      : "?", #?
-    "SelectChunks_Command.py"          : "?", #?
-    "SelectChunks_GraphicsMode.py"     : "?", #?
-    "selectMode"                       : "ui",
-    "selectMolsMode"                   : "ui",
-    "Select_Command.py"                : "?", #?
-    "Select_GraphicsMode.py"           : "?", #?
-    "Select_GraphicsMode_DrawMethod_preMixin.py" : "?", #?
-    "Select_GraphicsMode_MouseHelpers_preMixin.py" : "?", #?
-    "Selobj"                           : "ui", # graphics?
-    "SequenceEditor"                   : "ui",
+    "selectAtomsMode"                  : "unsplit_mode",
+    "SelectAtoms_Command.py"           : "command",
+    "SelectAtoms_GraphicsMode.py"      : "graphics_mode",
+    "SelectChunks_Command.py"          : "command",
+    "SelectChunks_GraphicsMode.py"     : "graphics_mode",
+    "selectMode"                       : "unsplit_mode",
+    "selectMolsMode"                   : "unsplit_mode",
+    "Select_Command.py"                : "command",
+    "Select_GraphicsMode.py"           : "graphics_mode",
+    "Select_GraphicsMode_DrawMethod_preMixin.py" : "graphics_mode",
+    "Select_GraphicsMode_MouseHelpers_preMixin.py" : "graphics_mode",
+    
+    "Selobj"                           : "graphics_behavior_api", # (revisit when done)
+    
+    "SequenceEditor"                   : "ui", # a major ui component, and maybe a widget (guess, didn't look at code)
+    
     "ServerManager"                    : "ui",
     "ServerManagerDialog"              : "ui",
-    "setup"                            : "tools",
-    "setup2"                           : "tools",
-    "shape"                            : "ui", # geometry, graphics?
+    
+    "setup"                            : "tools", # build (part of tools)
+    "setup2"                           : "tools", # build
+    # @@@ where i am in file is up to here, and paper too
+    
+    "shape"                            : "ui", # geometry, graphics? [module to be split, shortly]
     "SimJob"                           : "io",
     "SimServer"                        : "io",
     "SimSetup"                         : "ui",
     "SimSetupDialog"                   : "ui",
     "Sponsors"                         : "ui",
+    
     "state_constants"                  : "foundation",
     "state_utils"                      : "foundation",
     "state_utils_unset"                : "foundation",
+    
     "StatProp"                         : "ui",
     "StatPropDialog"                   : "ui",
     "StatusBar"                        : "ui",
     "SurfaceChunks"                    : "geometry",
     
     "TemporaryCommand"                 : "ui",
+    
     "testdraw"                         : "test",
     "testmode"                         : "test",
+    
     "test_commands"                    : "test",
     "test_commands_init"               : "test", # all these test* modules might be reclassified @@@
     "test_command_PMs"                 : "ui/propmgr", # for test/example/scratch?
     "test_connectWithState"            : "test",
     "test_connectWithState_constants"  : "test",
     "test_connectWithState_PM"         : "ui/propmgr", # for test/example/scratch?
+    
     "texture_fonts"                    : "graphics",
     "texture_helpers"                  : "graphics",
+    
     "ThermoProp"                       : "ui",
     "ThermoPropDialog"                 : "ui",
+    
     "ThumbView"                        : "graphics_widgets",
     
     "Ui_BuildAtomsPropertyManager"     : "ui/propmgr",
@@ -424,6 +441,7 @@ packageMapping = {
     "Ui_ViewMenu"                      : "ui",
     "Ui_ViewOrientation"               : "ui",
     "Ui_ViewToolBar"                   : "ui",
+    
     "undo"                             : "foundation",
     "undo_archive"                     : "foundation",
     "undo_manager"                     : "foundation",
@@ -432,7 +450,7 @@ packageMapping = {
     "UserPrefsDialog"                  : "ui",
     "Utility"                          : "foundation", # some model code?
     
-    "version"                          : "utilities",
+    "version"                          : "utilities", # or constants? see docstring for caveats
     "ViewOrientationWindow"            : "ui",
     "VQT"                              : "geometry",
     
