@@ -21,7 +21,7 @@ from constants import filesplit
 
 from NanoHiveDialog import Ui_NanoHiveDialog
 from utilities.Log import redmsg, greenmsg, orangemsg
-from jigs_planes import ESPImage # cyclic import, not trivial to remove
+from ESPImage import ESPImage # cyclic import, not trivial to remove w/o kluges
 from NanoHiveUtils import run_nh_simulation
 
 ##debug_nanohive = 0 # DO NOT COMMIT with 1

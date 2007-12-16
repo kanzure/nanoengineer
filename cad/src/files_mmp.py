@@ -130,7 +130,7 @@ from jigs import Thermo
 from jigs_motors import RotaryMotor
 from jigs_motors import LinearMotor
 from jigs_planes import GridPlane
-from jigs_planes import ESPImage
+from ESPImage import ESPImage
 from jigs_measurements import MeasureAngle
 from jigs_measurements import MeasureDihedral
 from VQT import V, Q, A

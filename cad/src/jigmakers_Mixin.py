@@ -231,7 +231,7 @@ class jigmakers_Mixin:
             env.history.message(cmd + redmsg(msg))
             return
         
-        from jigs_planes import ESPImage
+        from ESPImage import ESPImage
         m = ESPImage(self.assy, atoms)
         m.edit()
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.

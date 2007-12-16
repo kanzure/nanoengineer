@@ -203,8 +203,9 @@ packageMapping = {
     "elements_data_PAM5"               : "model", # in dna
     "EndUser"                          : "utilities",
     "env"                              : "foundation", # not utilities - only meant to be used from foundation or above
+    "ESPImage"                         : "model", # for ESP package?
     "ESPImageProp"                     : "ui/dialog", # question: is this a property manager? are ui/dialog and ui/propmgr the same?
-    "ESPImagePropDialog"               : "ui/dialog", 
+    "ESPImagePropDialog"               : "ui/dialog", # for ESP package?
     "example_expr_command"             : "examples",#?
     "ExecSubDir"                       : "top_level",
     "extensions"                       : "top_level", # (someday, find a way to move it into a subdir)

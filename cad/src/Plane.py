@@ -107,7 +107,7 @@ class Plane(ReferenceGeometry):
         self.directionArrow =  None
                 
         # This is used to notify drawing code if it's just for picking purpose
-        # copied from jig_planes.ESPImage 
+        # copied from class ESPImage 
         self.pickCheckOnly  = False 
         
         self.editController      =  editController
