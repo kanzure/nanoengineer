@@ -61,7 +61,7 @@ from draw_grid_lines import drawSiCGrid
 from VQT import V, Q, A, cross
 from povheader import povpoint
 from shape import SelectionShape
-from shape import Slab
+from Slab import Slab
 from constants import SUBTRACT_FROM_SELECTION
 
 from utilities.Log import redmsg, greenmsg
@@ -524,8 +524,9 @@ class ESPImage(RectGadget):
         hw = self.width/2.0; wo = self.image_offset; eo = self.edge_offset
         
         shape = SelectionShape(self.right, self.up, self.planeNorm)
-        slab = Slab(self.center-self.planeNorm*wo, self.planeNorm, 2*wo)
-        pos = [V(-hw-eo, hw+eo, 0.0), V(hw+eo, -hw-eo, 0.0)];  p3d = []         
+        slab = Slab(self.center - self.planeNorm * wo, self.planeNorm, 2 * wo)
+        pos = [V(-hw-eo, hw+eo, 0.0), V(hw+eo, -hw-eo, 0.0)]
+        p3d = []         
         for p in pos:   
             p3d += [self.quat.rot(p) + self.center]
         
@@ -536,8 +537,9 @@ class ESPImage(RectGadget):
     
         
     def pickSelected(self, pick):
-        '''Select atoms inside the ESP Image bounding box. Actually this works for chunk too.'''
-        
+        '''
+        Select atoms inside the ESP Image bounding box. Actually this works for chunk too.
+        '''
         # selSense is used to highlight (not select) atoms inside the jig's volume.
         if not pick: selSense = SUBTRACT_FROM_SELECTION
         else: selSense = START_NEW_SELECTION

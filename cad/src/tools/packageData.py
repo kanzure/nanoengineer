@@ -376,9 +376,13 @@ packageMapping = {
     
     "setup"                            : "tools", # build (part of tools)
     "setup2"                           : "tools", # build
-    # @@@ where i am in file is up to here, and paper too
     
-    "shape"                            : "ui", # geometry, graphics? [module to be split, shortly]
+    "shape"                            : "graphics_behavior", # tentative, maybe risky; see docstring
+    "CookieShape"                      : "command", # see docstring for reasons and caveats [### @@@ put in alpha order]
+    "Slab"                             : "geometry",
+
+    # @@@ where i am in file is up to here, and paper too
+
     "SimJob"                           : "io",
     "SimServer"                        : "io",
     "SimSetup"                         : "ui",

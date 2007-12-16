@@ -37,9 +37,11 @@ from modes import basicMode
 from CookieCtrlPanel import CookieCtrlPanel
 from utilities.Log import orangemsg
 from utilities.Log import redmsg
-from shape import CookieShape
-from shape import Slab
+
 from shape import get_selCurve_color
+from Slab import Slab
+from CookieShape import CookieShape
+
 import drawer
 from drawer import DiGridSp
 from drawer import genDiam
@@ -704,7 +706,8 @@ class cookieMode(basicMode):
                                   self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
                                   
         elif self.selectionShape == 'CIRCLE':
-            self.o.shape.pickCircle(self.o.selArea_List, -self.o.pov, self.selSense, self.currentLayer, Slab(-self.o.pov, self.o.out, self.thickness))
+            self.o.shape.pickCircle(self.o.selArea_List, -self.o.pov, self.selSense, self.currentLayer,
+                                    Slab(-self.o.pov, self.o.out, self.thickness))
         
         if self.currentLayer < (self.MAX_LAYERS - 1) and self.currentLayer == len(self.layers) - 1:
                 self.propMgr.addLayerButton.setEnabled(True)
