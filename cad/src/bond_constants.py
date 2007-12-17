@@ -99,7 +99,31 @@ DIRBOND_ERROR = 'error'
 
 # ==
 
-# [I'll probably move find_bond and friends from bonds.py to here - bruce 071216]
+# [Note: the functions atoms_are_bonded and find_bond, were moved
+#  from bonds.py to here (to remove an import cycle) by bruce 071216;
+#  I also removed the old alias 'bonded' for atoms_are_bonded,
+#  since 'bonded' is too generic to be searched for.]
+
+def atoms_are_bonded(a1, a2):
+    """
+    Are these atoms (or singlets) already directly bonded?
+    [AssertionError if they are the same atom.]
+    """
+    #bruce 041119 #e optimized by bruce 050502 (which indirectly added "assert a1 is not a2")
+    ## return a2 in a1.neighbors()
+    return not not find_bond(a1, a2)
+
+def find_bond(a1, a2):
+    """
+    If a1 and a2 are bonded, return their Bond object; if not, return None.
+    [AssertionError if they are the same atom.]
+    """
+    #bruce 050502; there might be an existing function in some other file, to merge this with
+    assert a1 is not a2
+    for bond in a1.bonds:
+        if bond.atom1 is a2 or bond.atom2 is a2:
+            return bond
+    return None
 
 # ==
 

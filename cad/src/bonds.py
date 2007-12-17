@@ -51,6 +51,8 @@ from bond_constants import BOND_VALENCES_HIGHEST_FIRST
 from bond_constants import bond_params
 from bond_constants import bonded_atoms_summary
 from bond_constants import bond_type_names
+from bond_constants import atoms_are_bonded
+from bond_constants import find_bond
 
 from bond_chains import grow_directional_bond_chain
 
@@ -105,31 +107,8 @@ except ImportError:
 
 # ==
 
-# [I'll probably move the following find_bond and friends to bond_constants.py - bruce 071216]
-
-def bonded(a1, a2): #bruce 041119 #e optimized by bruce 050502 (this indirectly added "assert a1 != a2")
-    """
-    are these atoms (or singlets) already directly bonded?
-    [AssertionError if they are the same atom.]
-    """
-    ## return a2 in a1.neighbors()
-    return not not find_bond(a1, a2)
-
-atoms_are_bonded = bonded # this is a better name (given that it only works for atoms, not e.g. for chunks) --
-    # we should replace the old name with it sometime #bruce 070601
-    # [as of 071216: bonded is used only in bonds_from_atoms, and twice in this file.
-    #  atoms_are_bonded is used in 2 files. It's clearly a better name since bonded is too generic to be searched for.]
-
-def find_bond(a1, a2): #bruce 050502; there might be an existing function in some other file, to merge this with
-    """
-    If a1 and a2 are bonded, return their Bond object; if not, return None.
-    [AssertionError if they are the same atom.]
-    """
-    assert a1 is not a2
-    for bond in a1.bonds:
-        if bond.atom1 is a2 or bond.atom2 is a2:
-            return bond
-    return None
+# [Note: the functions atoms_are_bonded (aka bonded), and find_bond, were moved
+#  from here to bond_constants.py (to remove an import cycle) by bruce 071216]
 
 # ==
 
@@ -341,7 +320,7 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     
     # quick hack for new version, using optimized/stricter old version
     ## assert vnew in BOND_VALENCES
-    assert not bonded(a1,a2)
+    assert not atoms_are_bonded(a1,a2)
     assert s1 is None or not s1._Atom__killed
     assert s2 is None or not s2._Atom__killed
     assert not a1._Atom__killed
@@ -1859,7 +1838,7 @@ class bonder_at_singlets:
                 return do_error("can't bond an atom (%r) to itself" % a1,
                   "asked to bond atom %r to itself,\n"
                   " from different singlets, %r and %r." % (a1, s1, s2))
-        if bonded(a1,a2):
+        if atoms_are_bonded(a1,a2):
             #bruce 041119, part of fix for bug #121
             # not an error (so arg2 is None)
             if self.increase_bond_order and a1.can_reduce_numbonds() and a2.can_reduce_numbonds():

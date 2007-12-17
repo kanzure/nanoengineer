@@ -46,7 +46,7 @@ A ladder will be fully visible to copy and undo (i.e. it will
 contain undoable state), but will not be stored in the mmp file.
 """
 
-from bonds import atoms_are_bonded
+from bond_constants import atoms_are_bonded
 
 from DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
 

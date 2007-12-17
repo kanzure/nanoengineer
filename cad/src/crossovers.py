@@ -2,11 +2,13 @@
 """
 crossovers.py -- support for DNA crossovers, modelled at various levels
 
-@author: bruce
+@author: Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 Includes Make Crossover and Remove Crossover Pl-atom-pair context menu commands.
+
+TODO: make it work for PAM3 as well as PAM5.
 """
 
 ###BUGS:
@@ -15,8 +17,9 @@ Includes Make Crossover and Remove Crossover Pl-atom-pair context menu commands.
 # - Undo and Feature Help cmdnames are wrong (not working)
 
 from constants import noop, average_value
-from bonds import atoms_are_bonded, find_bond, bond_atoms_faster, bond_direction ##, bond_atoms
 from bond_constants import V_SINGLE
+from bond_constants import atoms_are_bonded, find_bond
+from bonds import bond_atoms_faster, bond_direction ##, bond_atoms
 from utilities.Log import redmsg, greenmsg, quote_html ##, orangemsg
 ##from debug_prefs import debug_pref, Choice
 import env

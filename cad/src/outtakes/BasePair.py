@@ -20,7 +20,7 @@ from chem import Atom # for isinstance
 
 ## see also crossovers.py
 
-from bonds import atoms_are_bonded, find_bond
+from bond_constants import atoms_are_bonded, find_bond
 
 # ==
 

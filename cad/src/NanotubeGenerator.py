@@ -24,12 +24,13 @@ from chunk import Chunk
 
 from elements import PeriodicTable
 
-import bonds
+from bonds import bond_atoms
 from bonds import NeighborhoodGenerator
 
 from bond_constants import V_GRAPHITE, V_SINGLE
 ##from bonds_from_atoms import make_bonds
 ##from buckyball import BuckyBall
+from bond_constants import atoms_are_bonded
 
 from NanotubeGeneratorPropertyManager import NanotubeGeneratorPropertyManager
 from GeneratorBaseClass import GeneratorBaseClass
@@ -161,11 +162,11 @@ class Chirality:
                 for n2, m2 in bondDict[atm]:
                     try:
                         atm2 = dict2[(n2, m2)]
-                        if not bonds.bonded(atm, atm2):
+                        if not atoms_are_bonded(atm, atm2):
                             if bn_members:
-                                bonds.bond_atoms(atm, atm2, V_SINGLE)
+                                bond_atoms(atm, atm2, V_SINGLE)
                             else:
-                                bonds.bond_atoms(atm, atm2, V_GRAPHITE)
+                                bond_atoms(atm, atm2, V_GRAPHITE)
                     except KeyError:
                         pass
 
@@ -264,7 +265,7 @@ def addEndcap(mol, length, radius, bondlength):
                         nudge = ((0.7 * bondlength - rlen) / rlen) * r
                         oldguy.setposn(oldguy.posn() + 0.5 * r)
                         newguy.setposn(newguy.posn() - 0.5 * r)
-                    bonds.bond_atoms(newguy, oldguy, V_GRAPHITE)
+                    bond_atoms(newguy, oldguy, V_GRAPHITE)
                     cleanupSinglets(newguy)
                     cleanupSinglets(oldguy)
             if len(newguy.realNeighbors()) > 3:

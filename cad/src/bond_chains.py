@@ -298,8 +298,8 @@ class abstract_bond_chain_analyzer:
          rather than this method]
         """
         assert len(listb) == len(lista)
-        if 'debug, but REMOVE WHEN WORKS':
-            from bonds import find_bond # this causes an import cycle!
+        if 'debug, but REMOVE WHEN WORKS': ### TODO: OPTIM: REMOVE SOON -- SLOW!
+            from bond_constants import find_bond # I hope this no longer causes an import cycle!
             for i in range(len(listb)):
                 assert find_bond(lista[i] , lista[(i+1) % len(lista)]) is listb[i]
             print "remove when works! in _found_ring len %d" % len(lista)####

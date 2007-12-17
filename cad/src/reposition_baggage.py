@@ -2,15 +2,16 @@
 """
 reposition_baggage.py -- help reposition baggage atoms after real neighbor atoms have moved
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-__author__ = 'bruce'
 
 import math
 
 import platform
 from VQT import V, norm, cross, vlen
-from bonds import find_bond
+from bond_constants import find_bond
 from bond_constants import V_SINGLE
 
 from geometry import arbitrary_perpendicular
@@ -22,7 +23,8 @@ coef1, coef2 = norm( V( 1, math.sqrt(2) ) )
 coef1 = - coef1
 
 def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None): #bruce 060629 for bondpoint problem
-    """Your baggage atoms (or the given subset of them) might no longer be sensibly located,
+    """
+    Your baggage atoms (or the given subset of them) might no longer be sensibly located,
     since you and/or some neighbor atoms have moved (or are about to move, re planned_atom_nupos as explained below),
     so fix up their positions based on your other neighbors' positions, using old baggage positions only as hints.
        BUT one of your other neighbors (but not self) might be about to move (rather than already having moved) --

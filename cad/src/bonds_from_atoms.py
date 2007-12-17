@@ -3,7 +3,9 @@
 bonds_from_atoms.py -- experimental code for inferring bonds from
 atom positions and elements alone
 
-$Id$
+@author: Dr. K. Eric Drexler
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -33,8 +35,12 @@ import math
 
 from VQT import vlen
 from VQT import atom_angle_radians
+
 import env
-from bonds import bonded, bond_atoms_faster, NeighborhoodGenerator
+
+from bonds import bond_atoms_faster, NeighborhoodGenerator
+
+from bond_constants import atoms_are_bonded # was: from bonds import bonded
 from bond_constants import V_SINGLE
 from bond_constants import bond_params
 
@@ -58,7 +64,8 @@ atm_angle = atom_angle_radians # args are three atoms
 
 # utility for creating mutable linked lists in Python
 def linked_list( lis1, func = None ):
-    """Given a list of 0 or more elements (e.g. [a,b,c,d]),
+    """
+    Given a list of 0 or more elements (e.g. [a,b,c,d]),
     return a "python mutable linked list" of the form [a, [b, [c, [d, None]]]].
        If func is supplied, apply it to each element of the original list
     (e.g. return [f(a),[f(b),[f(c),[f(d),None]]]] for f = func).
@@ -78,7 +85,8 @@ def linked_list( lis1, func = None ):
 #e unlink_list?
 
 def idealBondLength(atm1, atm2):
-    """Return the ideal length of a single bond between atm1 and atm2,
+    """
+    Return the ideal length of a single bond between atm1 and atm2,
     assuming they have their current elements but their default atomtypes
     (ignoring their current atomtypes).
     """
@@ -96,7 +104,8 @@ def max_atom_bonds(atom, special_cases={'H':  1,
                                         'P':  5,
                                         'S':  4,
                                         'Cl': 1}):   # coded differently for nE-1
-    """Return max number of bonds permitted on this atom, based only on its element
+    """
+    Return max number of bonds permitted on this atom, based only on its element
     (for any atomtype, ignoring current atomtype of atom). (Returns 0 for noble gases.)
     """
     elt = atom.element
@@ -111,7 +120,8 @@ def max_atom_bonds(atom, special_cases={'H':  1,
         return maxbonds
 
 def min_atom_bonds(atom): # coded differently for nE-1
-    """Return min number of bonds permitted on this atom, based only on its element
+    """
+    Return min number of bonds permitted on this atom, based only on its element
     (for any atomtype, ignoring current atomtype of atom). (Returns 0 for noble gases.)
     That is, find the atomtype with the smallest number of bonds (e.g. sp for carbon,
     which can have just two double bonds) and return that number of bonds. This is the
@@ -184,7 +194,8 @@ def max_dist_ratio(atm1, atm2):
         return MAX_DIST_RATIO_NON_HUNGRY
 
 def bondable_atm(atom): # coded differently for nE-1 due to open bonds
-    """Could this atom accept any more bonds
+    """
+    Could this atom accept any more bonds
     (assuming it could have any of its atomtypes,
      and ignoring positions and elements of atoms it's already bonded to,
      and ignoring open bonds,
@@ -196,7 +207,8 @@ def bondable_atm(atom): # coded differently for nE-1 due to open bonds
     return len(atom.realNeighbors()) < max_atom_bonds(atom)
 
 def bond_angle_cost(angle, accept, bond_length_ratio):
-    """Return the cost of the given angle, or None if that cost is infinite.
+    """
+    Return the cost of the given angle, or None if that cost is infinite.
     Note that the return value can be 0.0, so callers should only
     test it for "is None", not for its boolean value.
        If accept is true, don't use the minimum-angle cutoff (i.e. no angle
@@ -215,7 +227,8 @@ def bond_angle_cost(angle, accept, bond_length_ratio):
         return 2.0 * square
 
 def atm_angle_cost(atm1, atm2, ratio):
-    """Return total cost of all bond-angles which include the atm1-atm2 bond
+    """
+    Return total cost of all bond-angles which include the atm1-atm2 bond
     (where one bond angle is said to include the two bonds whose angle it describes);
     None means infinite cost.
     """
@@ -242,7 +255,9 @@ covrad_table = dict( [
  ])
 
 def covalent_radius(atm):
-    "Return atm's covalent radius (assuming default atomtype, not its current one), always as a float."
+    """
+    Return atm's covalent radius (assuming default atomtype, not its current one), always as a float.
+    """
     try:
         return float( covrad_table[atm.element.symbol] ) # use radius from contributed code, if defined
     except KeyError:
@@ -251,7 +266,9 @@ def covalent_radius(atm):
     pass
 
 def atm_distance_cost(atm1, atm2, ratio):
-    "Return cost (due to length alone) of a hypothetical bond between two atoms; None means infinite"
+    """
+    Return cost (due to length alone) of a hypothetical bond between two atoms; None means infinite
+    """
     if not (ratio < max_dist_ratio(atm1, atm2)):
         return None
     if ratio < 1.0:
@@ -265,17 +282,21 @@ def atm_distance_cost(atm1, atm2, ratio):
 _enegs = ['F', 'Cl', 'O', 'S', 'N', 'P']
 
 def bond_element_cost(atm1, atm2, _enegs=_enegs):
-    "Avoid bonding a pair of electronegative atoms"
+    """
+    Avoid bonding a pair of electronegative atoms
+    """
     if atm1.element.symbol in _enegs and atm2.element.symbol in _enegs:
         return 1.0
     else:
         return 0.0
 
 def bond_cost(atm1, atm2):
-    "Return total cost of hypothetical new bond between two atoms, or None if bond is not permitted or already there"
+    """
+    Return total cost of hypothetical new bond between two atoms, or None if bond is not permitted or already there
+    """
     if not (bondable_atm(atm1) and bondable_atm(atm2)): # check valence of existing bonds
         return None
-    if bonded(atm1, atm2): # already bonded? (redundant after list-potential-bonds) ###
+    if atoms_are_bonded(atm1, atm2): # already bonded? (redundant after list-potential-bonds) ###
         return None
     distance = atm_distance(atm1, atm2)
     # note the assumption that we are talking about SINGLE bonds, which runs throughout this code
@@ -296,7 +317,8 @@ def bond_cost(atm1, atm2):
     return ac + dc + ec
 
 def list_potential_bonds(atmlist0):
-    """Given a list of atoms, return a list of triples (cost, atm1, atm2) for all bondable pairs of atoms in the list.
+    """
+    Given a list of atoms, return a list of triples (cost, atm1, atm2) for all bondable pairs of atoms in the list.
     Each pair of atoms is considered separately, as if only it would be bonded, in addition to all existing bonds.
     In other words, the returned bonds can't necessarily all be made (due to atom valence), but any one alone can be made,
     in addition to whatever bonds the atoms currently have.
@@ -323,7 +345,8 @@ def list_potential_bonds(atmlist0):
     return lst
 
 def make_bonds(atmlist, bondtyp = V_SINGLE):
-    """Make some bonds between the given atoms. At any moment make the cheapest permitted unmade bond;
+    """
+    Make some bonds between the given atoms. At any moment make the cheapest permitted unmade bond;
     stop only when no more bonds are permitted (i.e. all potential bonds have infinite cost).
        Assume that newly made bonds can never decrease the cost of potential bonds.
     (This is needed to justify the algorithm, which moves potential bonds later in an ordered list
@@ -402,7 +425,8 @@ def inferBonds(mol): # [probably by Will; TODO: needs docstring]
 from debug import register_debug_menu_command
 
 def remake_bonds_in_selection( glpane ):
-    """Remake all bonds between selected atoms (or between atoms in selected chunks),
+    """
+    Remake all bonds between selected atoms (or between atoms in selected chunks),
     in the given Selection object (produced by e.g. selection_from_part),
     by destroying all old bonds between selected atoms and all open bonds on them,
     changing all selected atoms to their default atomtype,

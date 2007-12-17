@@ -137,7 +137,6 @@ from VQT import V, Q, A
 from utilities.Log import redmsg
 from elements import PeriodicTable
 from bonds import bond_atoms
-from bonds import find_bond
 from chunk import Chunk
 from Utility import Node
 from Group import Group
@@ -148,6 +147,8 @@ from debug import print_compact_stack
 
 from constants import gensym
 from constants import dispNames
+
+from bond_constants import find_bond
 from bond_constants import V_SINGLE
 from bond_constants import V_DOUBLE
 from bond_constants import V_TRIPLE
