@@ -1,36 +1,38 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-VQT.py 
-
-Vectors, Quaternions, and Trackballs
+VQT.py - Vectors, Quaternions, and Trackballs
 
 Vectors are a simplified interface to the Numeric arrays.
-A relatively full implementation of Quaternions.
+
+A relatively full implementation of Quaternions
+(but note that we use the addition operator to multiply them).
+
 Trackball produces incremental quaternions using a mapping of the screen
 onto a sphere, tracking the cursor on the sphere.
 
-$Id$
-
-
+@author: Josh
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 """
-
-__author__ = "Josh"
 
 import math
 import platform
-import env #ninad 060906
+import env
 
 import Numeric
 import prefs_constants
 
-debug_quats = 1 #bruce 050518; I'll leave this turned on in the main sources for awhile
+DEBUG_QUATS = 1 #bruce 050518; I'll leave this turned on in the main sources for awhile
 
 intType = type(2)
 floType = type(2.0)
 numTypes = [intType, floType]
 
-def V(*v): return Numeric.array(v, Numeric.Float)
-def A(a):  return Numeric.array(a, Numeric.Float)
+def V(*v):
+    return Numeric.array(v, Numeric.Float)
+
+def A(a):
+    return Numeric.array(a, Numeric.Float)
 
 def cross(v1, v2):
     #bruce 050518 comment: for int vectors, this presumably gives an int vector result
@@ -59,7 +61,8 @@ def norm(v1):
         return v1 / lng
         # bruce 041012 optimized this by using lng instead of
         # recomputing vlen(v1) -- code was v1 / vlen(v1)
-    else: return v1+0
+    else:
+        return v1 + 0
 
 def angleBetween(vec1, vec2):
     """
@@ -95,7 +98,7 @@ def angleBetween(vec1, vec2):
         return 0.0
     if dprod <= -1.0:
         return 180.0
-    return (180/math.pi) * math.acos(dprod)
+    return (180 / math.pi) * math.acos(dprod)
 
 def threepoint_angle_in_radians(p1, p2, p3):
     """
@@ -108,7 +111,7 @@ def threepoint_angle_in_radians(p1, p2, p3):
     # Also compare with def angle in jigs_motors.
     v1 = norm(p1 - p2)
     v2 = norm(p3 - p2)
-    dotprod = Numeric.dot(v1,v2)
+    dotprod = Numeric.dot(v1, v2)
     if dotprod > 1.0:
         #bruce 050414 investigating bugs 361 and 498 (probably the same underlying bug);
         # though (btw) it would probably be better to skip this [now caller's] angle-printing entirely ###e
@@ -143,8 +146,8 @@ def atom_angle_radians(atom1, atom2, atom3):
 #  distance from p2 to the p1-v1 line.
 # v1 should be a unit vector.
 def orthodist(p1, v1, p2):
-    dist = Numeric.dot(v1, p2-p1)
-    wid = vlen(p1+dist*v1-p2)
+    dist = Numeric.dot(v1, p2 - p1)
+    wid = vlen(p1 + dist * v1 - p2)
     return (dist, wid)
 
 #bruce 050518 added these:
@@ -153,7 +156,8 @@ Y_AXIS = V(0,1,0)
 Z_AXIS = V(0,0,1)
 
 class Q: # by Josh; some comments and docstring revised by bruce 050518
-    """Q(W, x, y, z) is the quaternion with axis vector x,y,z
+    """
+    Q(W, x, y, z) is the quaternion with axis vector x,y,z
     and sin(theta/2) = W
     (e.g. Q(1,0,0,0) is no rotation [used a lot])
     [Warning: the python argument names are not in the same order as in
@@ -176,7 +180,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
     """
     counter = 50 # initial value of instance variable
         # [bruce 050518 moved it here, fixing bug in which it sometimes didn't get inited]
-    def __init__(self, x, y=None, z=None, w=None):
+    def __init__(self, x, y = None, z = None, w = None):
         if w is not None: # 4 numbers
             # [bruce comment 050518: note than ints are not turned to floats,
             #  and no checking (of types or values) or normalization is done,
@@ -193,7 +197,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             #    (not just returning the inverse quat as I initially thought);
             #    so I fixed it.
             #  - The old code sometimes used 'z' but the new code never does
-            #    (except to decide to use this case, and when debug_quats to check the results).
+            #    (except to decide to use this case, and when DEBUG_QUATS to check the results).
             
             # Q(x, y, z) where x, y, and z are three orthonormal vectors
             # is the quaternion that rotates the standard axes into that
@@ -205,12 +209,12 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             yfixer = twistor( x, y_axis_2, y)
             res = xfixer
             res += yfixer # warning: modifies res -- xfixer is no longer what it was
-            if debug_quats:
+            if DEBUG_QUATS:
                 check_posns_near( res.rot(X_AXIS), x, "x" )
                 check_posns_near( res.rot(Y_AXIS), y, "y" )
                 check_posns_near( res.rot(Z_AXIS), z, "z" )
             self.vec = res.vec
-            if debug_quats:
+            if DEBUG_QUATS:
                 res = self # sanity check
                 check_posns_near( res.rot(X_AXIS), x, "sx" )
                 check_posns_near( res.rot(Y_AXIS), y, "sy" )
@@ -220,8 +224,8 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             
         elif type(y) in numTypes:
             # axis vector and angle [used often]
-            v = (x / vlen(x)) * Numeric.sin(y*0.5)
-            self.vec = V(Numeric.cos(y*0.5), v[0], v[1], v[2])
+            v = (x / vlen(x)) * Numeric.sin(y * 0.5)
+            self.vec = V(Numeric.cos(y * 0.5), v[0], v[1], v[2])
             
         elif y is not None:
             # rotation between 2 vectors [used often]
@@ -239,11 +243,11 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             v = cross(x, y)
             vl = Numeric.dot(v, v) ** .5
             if vl<0.000001:
-                # x,y are very close, or very close to opposite, or one of them is zero
+                # x, y are very close, or very close to opposite, or one of them is zero
                 if dotxy < 0:
                     # close to opposite; treat as actually opposite (same as pre-050730 code)
-                    ax1 = cross(x,V(1,0,0))
-                    ax2 = cross(x,V(0,1,0))
+                    ax1 = cross(x, V(1,0,0))
+                    ax2 = cross(x, V(0,1,0))
                     if vlen(ax1)>vlen(ax2):
                         self.vec = norm(V(0, ax1[0],ax1[1],ax1[2]))
                     else:
@@ -253,28 +257,28 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
                     # more accurate than that -- vl is sin of desired theta, so vl/2 is approximately sin(theta/2)
                     # (##e could improve this further by using a better formula to relate sin(theta/2) to sin(theta)),
                     # so formula for xyz part is v/vl * vl/2 == v/2 [bruce 050730]
-                    xyz = v/2.0
-                    sintheta2 = vl/2.0 # sin(theta/2)
-                    costheta2 = (1-sintheta2**2) ** .5 # cos(theta/2)
+                    xyz = v / 2.0
+                    sintheta2 = vl / 2.0 # sin(theta/2)
+                    costheta2 = (1 - sintheta2**2) ** .5 # cos(theta/2)
                     self.vec = V(costheta2, xyz[0], xyz[1], xyz[2])
             else:
                 # old code's method is numerically unstable if abs(dotxy) is close to 1. I didn't fix this.
                 # I also didn't review this code (unchanged from old code) for correctness. [bruce 050730]
-                theta = math.acos(min(1.0,max(-1.0,dotxy)))
+                theta = math.acos(min(1.0, max(-1.0, dotxy)))
                 if Numeric.dot(y, cross(x, v)) > 0.0:
                     theta = 2.0 * math.pi - theta
-                w=Numeric.cos(theta*0.5)
-                s=((1-w**2)**.5)/vl
-                self.vec=V(w, v[0]*s, v[1]*s, v[2]*s)
+                w = Numeric.cos(theta * 0.5)
+                s = ((1 - w**2)**.5) / vl
+                self.vec = V(w, v[0]*s, v[1]*s, v[2]*s)
             pass
         
         elif type(x) in numTypes:
             # just one number [#k is this ever used?]
-            self.vec=V(1, 0, 0, 0)
+            self.vec = V(1, 0, 0, 0)
         
         else:
             #bruce 050518 comment: a copy of the quat x, or of any length-4 sequence [both forms are used]
-            self.vec=V(x[0], x[1], x[2], x[3])
+            self.vec = V(x[0], x[1], x[2], x[3])
         return # from Q.__init__
 
     def _s_deepcopy(self, copyfunc): #bruce 051003, for use by state_utils.copy_val (in class Q)
@@ -293,7 +297,7 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         elif attr in ('z', 'k'):
             return self.vec[3]
         elif attr == 'angle':
-            if -1.0<self.vec[0]<1.0: return 2.0*math.acos(self.vec[0])
+            if -1.0<self.vec[0]<1.0: return 2.0 * math.acos(self.vec[0])
             else: return 0.0
         elif attr == 'axis':
             return V(self.vec[1], self.vec[2], self.vec[3])
@@ -310,15 +314,15 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             #  This will optimize it too (avoiding 42 __getattr__ calls!).
             # ]
             w, x, y, z = self.vec
-            self.__dict__['matrix'] = mat = Numeric.array([\
-                    [1.0 - 2.0*(y**2 + z**2),
-                     2.0*(x*y + z*w),
-                     2.0*(z*x - y*w)],
-                    [2.0*(x*y - z*w),
-                     1.0 - 2.0*(z**2 + x**2),
-                     2.0*(y*z + x*w)],
-                    [2.0*(z*x + y*w),
-                     2.0*(y*z - x*w),
+            self.__dict__['matrix'] = mat = Numeric.array([
+                    [1.0 - 2.0 * (y**2 + z**2),
+                     2.0 * (x*y + z*w),
+                     2.0 * (z*x - y*w)],
+                    [2.0 * (x*y - z*w),
+                     1.0 - 2.0 * (z**2 + x**2),
+                     2.0 * (y*z + x*w)],
+                    [2.0 * (z*x + y*w),
+                     2.0 * (y*z - x*w),
                      1.0 - 2.0 * (y**2 + x**2)]])
             return mat
         raise AttributeError, 'No %r in Quaternion' % (attr,)
@@ -347,10 +351,11 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         return self.vec[num]
 
     def setangle(self, theta):
-        """Set the quaternion's rotation to theta (destructive modification).
+        """
+        Set the quaternion's rotation to theta (destructive modification).
         (In the same direction as before.)
         """
-        theta = Numeric.remainder(theta/2.0, math.pi)
+        theta = Numeric.remainder(theta / 2.0, math.pi)
         self.vec[1:] = norm(self.vec[1:]) * Numeric.sin(theta)
         self.vec[0] = Numeric.cos(theta)
         self.__reset()
@@ -362,17 +367,23 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
 
     def __setattr__(self, attr, value):
         #bruce comment 050518: possible bug (depends on usage, unknown): this doesn't call __reset
-        if attr=="w": self.vec[0] = value
-        elif attr=="x": self.vec[1] = value
-        elif attr=="y": self.vec[2] = value
-        elif attr=="z": self.vec[3] = value
-        else: self.__dict__[attr] = value
+        if attr == "w":
+            self.vec[0] = value
+        elif attr == "x":
+            self.vec[1] = value
+        elif attr == "y":
+            self.vec[2] = value
+        elif attr == "z":
+            self.vec[3] = value
+        else:
+            self.__dict__[attr] = value
 
     def __len__(self):
         return 4
 
-    def __add__(self, q1):
-        """Q + Q1 is the quaternion representing the rotation achieved
+    def __add__(self, q1): # TODO: optimize using self.vec, q1.vec
+        """
+        Q + Q1 is the quaternion representing the rotation achieved
         by doing Q and then Q1.
         """
         return Q(q1.w*self.w - q1.x*self.x - q1.y*self.y - q1.z*self.z,
@@ -380,14 +391,15 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
                  q1.w*self.y - q1.x*self.z + q1.y*self.w + q1.z*self.x,
                  q1.w*self.z + q1.x*self.y - q1.y*self.x + q1.z*self.w)
 
-    def __iadd__(self, q1):
-        """this is self += q1
+    def __iadd__(self, q1): # TODO: optimize using self.vec, q1.vec
         """
-        temp=V(q1.w*self.w - q1.x*self.x - q1.y*self.y - q1.z*self.z,
-               q1.w*self.x + q1.x*self.w + q1.y*self.z - q1.z*self.y,
-               q1.w*self.y - q1.x*self.z + q1.y*self.w + q1.z*self.x,
-               q1.w*self.z + q1.x*self.y - q1.y*self.x + q1.z*self.w)
-        self.vec=temp
+        this is self += q1
+        """
+        temp = V(q1.w*self.w - q1.x*self.x - q1.y*self.y - q1.z*self.z,
+                 q1.w*self.x + q1.x*self.w + q1.y*self.z - q1.z*self.y,
+                 q1.w*self.y - q1.x*self.z + q1.y*self.w + q1.z*self.x,
+                 q1.w*self.z + q1.x*self.y - q1.y*self.x + q1.z*self.w)
+        self.vec = temp
         
         self.counter -= 1
         if self.counter <= 0:
@@ -404,15 +416,18 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         return self.__iadd__(-q1)
 
     def __mul__(self, n):
-        """multiplication by a scalar, i.e. Q1 * 1.3, defined so that
-        e.g. Q1 * 2 == Q1 + Q1, or Q1 = Q1*0.5 + Q1*0.5
+        """
+        multiplication by a scalar, i.e. Q1 * 1.3, defined so that
+        e.g. Q1 * 2 == Q1 + Q1, or Q1 = Q1 * 0.5 + Q1 * 0.5
         Python syntax makes it hard to do n * Q, unfortunately.
         """
-        #e note: couldn't __rmul__ be used to do n * Q? in theory yes,
+        # review: couldn't __rmul__ be used to do n * Q? in theory yes,
         # but was some other problem referred to, e.g. in precedence? I don't know. [bruce 070227 comment]
+        # [update, bruce 071216: I think n * Q has been found to work by test -- not sure.
+        # Maybe Python now uses this def to do it?]
         if type(n) in numTypes:
-            nq = +self
-            nq.setangle(n*self.angle)
+            nq = + self # scalar '+' to copy self
+            nq.setangle(n * self.angle)
             return nq
         else:
             raise ValueError, "can't multiply %r by %r" % (self, n) #bruce 070619 revised this (untested)
@@ -420,14 +435,16 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
     def __imul__(self, n):
         #bruce 051107 bugfix (untested): replace arg q2 with n, since body used n (old code must have never been tested either)
         if type(n) in numTypes:
-            self.setangle(n*self.angle)
+            self.setangle(n * self.angle)
             self.__reset()
             return self
         else:
             raise ValueError, "can't multiply %r by %r" % (self, n) #bruce 070619 revised this (untested)
 
     def __div__(self, q2):
-        "Return this quat divided by a number, or (untested, might not work) another quat."
+        """
+        Return this quat divided by a number, or (untested, might not work) another quat.
+        """
         #bruce 051107: revised docstring. permit q2 to be a number (new feature).
         # Warning: the old code (for q2 a quat) is suspicious, since it appears to multiply two quats,
         # but that multiplication is not presently implemented, if I understand the __mul__ implem above!
@@ -436,18 +453,19 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             #bruce 051107 new feature
             return self * (1.0 / q2)
         # old code (looks like it never could have worked, but this is not verified [bruce 051107]):
-        return self*q2.conj()*(1.0/(q2*q2.conj()).w)
+        return self * q2.conj()*(1.0/(q2 * q2.conj()).w)
 
     def __repr__(self):
         return 'Q(%g, %g, %g, %g)' % (self.w, self.x, self.y, self.z)
 
     def __str__(self):
-        a= "<q:%6.2f @ " % (2.0*math.acos(self.w)*180/math.pi)
+        a= "<q:%6.2f @ " % (2.0 * math.acos(self.w) * 180 / math.pi)
         l = Numeric.sqrt(self.x**2 + self.y**2 + self.z**2)
         if l:
-            z=V(self.x, self.y, self.z)/l
+            z = V(self.x, self.y, self.z) / l
             a += "[%4.3f, %4.3f, %4.3f] " % (z[0], z[1], z[2])
-        else: a += "[%4.3f, %4.3f, %4.3f] " % (self.x, self.y, self.z)
+        else:
+            a += "[%4.3f, %4.3f, %4.3f] " % (self.x, self.y, self.z)
         a += "|%8.6f|>" % vlen(self.vec)
         return a
 
@@ -461,33 +479,35 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
         return Q(self.w, -self.x, -self.y, -self.z)
 
     def normalize(self):
-        w=self.vec[0]
-        v=V(self.vec[1],self.vec[2],self.vec[3])
+        w = self.vec[0]
+        v = V(self.vec[1],self.vec[2],self.vec[3])
         length = Numeric.dot(v, v) ** .5
         if length:
-            s=((1.0-w**2)**.5)/length
+            s = ((1.0 - w**2)**0.5) / length
             self.vec = V(w, v[0]*s, v[1]*s, v[2]*s)
-        else: self.vec = V(1,0,0,0)
+        else:
+            self.vec = V(1,0,0,0)
         return self
 
-    def unrot(self,v):
-        return Numeric.matrixmultiply(self.matrix,v)
+    def unrot(self, v):
+        return Numeric.matrixmultiply(self.matrix, v)
 
-    def vunrot(self,v):
+    def vunrot(self, v):
         # for use with row vectors
         # [bruce comment 050518: the above old comment by Josh seems to contradict
         #  the comment about 'matrix' in __getattr__ (also old and by Josh)
         #  that it's the transpose of the normal form so it can be used for row vectors.
         #  See the other comment for more info.]
-        return Numeric.matrixmultiply(v,Numeric.transpose(self.matrix))
+        return Numeric.matrixmultiply(v, Numeric.transpose(self.matrix))
 
-    def rot(self,v):
-        return Numeric.matrixmultiply(v,self.matrix)
+    def rot(self, v):
+        return Numeric.matrixmultiply(v, self.matrix)
 
     pass # end of class Q
 
 def twistor(axis, pt1, pt2): #bruce 050724 revised code (should not change the result)
-    """return the quaternion that, rotating around axis, will bring pt1 closest to pt2.
+    """
+    Return the quaternion that, rotating around axis, will bring pt1 closest to pt2.
     """
     #bruce 050518 comment: now using this in some cases of Q.__init__; not the ones this uses!
     theta = twistor_angle(axis, pt1, pt2)
@@ -499,7 +519,7 @@ def twistor_angle(axis, pt1, pt2): #bruce 050724 split this out of twistor()
     pt2 = q.rot(pt2)
     a1 = math.atan2(pt1[1],pt1[0])
     a2 = math.atan2(pt2[1],pt2[0])
-    theta = a2-a1
+    theta = a2 - a1
     return theta
 
 # project a point from a tangent plane onto a unit sphere
@@ -507,11 +527,15 @@ def proj2sphere(x, y):
     d = (x*x + y*y) ** .5
     theta = math.pi * 0.5 * d
     s = Numeric.sin(theta)
-    if d > 0.0001: return V(s*x/d, s*y/d, Numeric.cos(theta))
-    else: return V(0.0, 0.0, 1.0)
+    if d > 0.0001:
+        return V(s*x/d, s*y/d, Numeric.cos(theta))
+    else:
+        return V(0.0, 0.0, 1.0)
 
 class Trackball:
-    """A trackball object."""
+    """
+    A trackball object.
+    """
     #bruce 060514 revisions:
     # - add/revise some docstrings and comments
     # - compare vectors and quats to None rather than using boolean tests (possible bugfix)
@@ -520,7 +544,8 @@ class Trackball:
     # (In principle, that should be supplied by the caller, since it's associated with
     #  the interface in which the trackball is being used.)
     def __init__(self, wide, high):
-        """Create a Trackball object.
+        """
+        Create a Trackball object.
         Arguments are window width and height in pixels (the same as for self.rescale()),
         or can be guesses if the caller will call self.rescale() with correct arguments
         before the trackball is used.
@@ -534,26 +559,29 @@ class Trackball:
         
         
     def rescale(self, wide, high):
-        """This should be called when the trackball's window or pane has been resized
+        """
+        This should be called when the trackball's window or pane has been resized
         to the given values (window width and height in pixels).
         """
-        self.w2 = wide/2.0
-        self.h2 = high/2.0
-        self.scale = 1.1 / min(wide/2.0, high/2.0)
+        self.w2 = wide / 2.0
+        self.h2 = high / 2.0
+        self.scale = 1.1 / min(wide / 2.0, high / 2.0)
 
     def start(self, px, py):
-        """This should be called in a mouseDown binding, with window coordinates of the mouse."""
-        
+        """
+        This should be called in a mouseDown binding, with window coordinates of the mouse.
+        """
         # ninad060906 initializing the factor 'mouse speed during rotation' here instead of init 
         #so that it will come to effect  immediately
         self.mouseSpeedDuringRotation = env.prefs[
             prefs_constants.mouseSpeedDuringRotation_prefs_key] 
         
-        self.oldmouse = proj2sphere( (px - self.w2)*self.scale*self.mouseSpeedDuringRotation,
-                                     (self.h2 - py)*self.scale*self.mouseSpeedDuringRotation )
+        self.oldmouse = proj2sphere( (px - self.w2) * self.scale * self.mouseSpeedDuringRotation,
+                                     (self.h2 - py) * self.scale * self.mouseSpeedDuringRotation )
 
     def update(self, px, py, uq = None):
-        """This should be called in a mouseDrag binding, with window coordinates of the mouse;
+        """
+        This should be called in a mouseDrag binding, with window coordinates of the mouse;
         return value is an incremental quat, to be used in conjunction with uq as explained below.
            For trackballing the entire model space (whose orientation is stored in (for example) glpane.quat),
         caller should not pass uq, and should increment glpane.quat by the return value (i.e. glpane.quat += retval).
@@ -566,8 +594,8 @@ class Trackball:
         #ninad 060906 added 'rotation sensitivity to this formula. the rotation sensitivity will be used 
         #while middle drag rotating the model. By default a lower value is set for this and can be adjusted 
         #via a user preference. This helps mitigate bug 1856
-        newmouse = proj2sphere((px-self.w2)*self.scale*self.mouseSpeedDuringRotation,
-                               (self.h2-py)*self.scale*self.mouseSpeedDuringRotation) 
+        newmouse = proj2sphere((px - self.w2) * self.scale * self.mouseSpeedDuringRotation,
+                               (self.h2 - py) * self.scale * self.mouseSpeedDuringRotation) 
         if self.oldmouse is not None:
             quat = Q(self.oldmouse, newmouse)
             if uq is not None:
@@ -581,82 +609,97 @@ class Trackball:
 
 
 def ptonline(xpt, lpt, ldr):
-    """return the point on a line (point lpt, direction ldr)
+    """
+    return the point on a line (point lpt, direction ldr)
     nearest to point xpt
     """
     ldr = norm(ldr)
-    return Numeric.dot(xpt-lpt,ldr)*ldr + lpt
+    return Numeric.dot(xpt - lpt, ldr) * ldr + lpt
 
 def planeXline(ppt, pv, lpt, lv):
-    """Find the intersection of a line (point lpt on line, unit vector lv along line)
+    """
+    Find the intersection of a line (point lpt on line, unit vector lv along line)
     with a plane (point ppt on plane, unit vector pv perpendicular to plane).
     Return the intersection point, or None if the line and plane are (almost) parallel.
        WARNING: don't use a boolean test on the return value, since V(0,0,0) is a real point
     but has boolean value False. Use "point is not None" instead.
     """
-    d=Numeric.dot(lv,pv)
-    if abs(d)<0.000001: return None
-    return lpt+lv*(Numeric.dot(ppt-lpt,pv)/d)
+    d = Numeric.dot(lv, pv)
+    if abs(d) < 0.000001:
+        return None
+    return lpt + lv * (Numeric.dot(ppt - lpt, pv) / d)
 
-def cat(a,b):
-    """concatenate two arrays (the Numeric Python version is a mess)
+def cat(a, b):
+    """
+    concatenate two arrays (the Numeric Python version is a mess)
     """
     #bruce comment 050518: these boolean tests look like bugs!
     # I bet they should be testing the number of entries being 0, or so.
     # So I added some debug code to warn us if this happens.
     if not a:
-        if (debug_quats or platform.atom_debug):
-            print "debug_quats: cat(a,b) with false a -- is it right?",a
+        if (DEBUG_QUATS or platform.atom_debug):
+            print "DEBUG_QUATS: cat(a, b) with false a -- is it right?", a
         return b
     if not b:
-        if (debug_quats or platform.atom_debug):
-            print "debug_quats: cat(a,b) with false b -- is it right?",b
+        if (DEBUG_QUATS or platform.atom_debug):
+            print "DEBUG_QUATS: cat(a, b) with false b -- is it right?", b
         return a
     r1 = Numeric.shape(a)
     r2 = Numeric.shape(b)
-    if len(r1) == len(r2): return Numeric.concatenate((a,b))
-    if len(r1)<len(r2):
-        return Numeric.concatenate((Numeric.reshape(a,(1,)+r1), b))
-    else: return Numeric.concatenate((a,Numeric.reshape(b,(1,)+r2)))
+    if len(r1) == len(r2):
+        return Numeric.concatenate((a, b))
+    if len(r1) < len(r2):
+        return Numeric.concatenate((Numeric.reshape(a,(1,) + r1), b))
+    else:
+        return Numeric.concatenate((a, Numeric.reshape(b,(1,) + r2)))
 
 def Veq(v1, v2):
-    "tells if v1 is all equal to v2"
-    return Numeric.logical_and.reduce(v1==v2)
+    """
+    tells if v1 is all equal to v2
+    """
+    return Numeric.logical_and.reduce(v1 == v2)
     #bruce comment 050518: I guess that not (v1 != v2) would also work (and be slightly faster)
     # (in principle it would work, based on my current understanding of Numeric...)
 
 # == bruce 050518 moved the following here from extrudeMode.py (and bugfixed/docstringed them)
     
-def floats_near(f1,f2): #bruce, circa 040924, revised 050518 to be relative, 050520 to be absolute for small numbers.
-    """Say whether two floats are "near" in value (just for use in sanity-check assertions).
+def floats_near(f1, f2): #bruce, circa 040924, revised 050518 to be relative, 050520 to be absolute for small numbers.
     """
-    ## return abs( f1-f2 ) <= 0.0000001
-    ## return abs( f1-f2 ) <= 0.000001 * max(abs(f1),abs(f2))
-    return abs( f1-f2 ) <= 0.000001 * max( abs(f1), abs(f2), 0.1) #e maybe let callers pass a different "scale" than 0.1?
+    Say whether two floats are "near" in value (just for use in sanity-check assertions).
+    """
+    ## return abs( f1 - f2 ) <= 0.0000001
+    ## return abs( f1 - f2 ) <= 0.000001 * max(abs(f1),abs(f2))
+    return abs( f1 - f2 ) <= 0.000001 * max( abs(f1), abs(f2), 0.1) #e maybe let callers pass a different "scale" than 0.1?
 
-def check_floats_near(f1,f2,msg = ""): #bruce, circa 040924
-    "Complain to stdout if two floats are not near; return whether they are."
-    if floats_near(f1,f2):
+def check_floats_near(f1, f2, msg = ""): #bruce, circa 040924
+    """
+    Complain to stdout if two floats are not near; return whether they are.
+    """
+    if floats_near(f1, f2):
         return True # means good (they were near)
     if msg:
         fmt = "not near (%s):" % msg
     else:
         fmt = "not near:"
     # fmt is not a format but a prefix
-    print fmt,f1,f2
+    print fmt, f1, f2
     return False # means bad
 
-def check_posns_near(p1,p2,msg=""): #bruce, circa 040924
-    "Complain to stdout if two length-3 float vectors are not near; return whether they are."
+def check_posns_near(p1, p2, msg=""): #bruce, circa 040924
+    """
+    Complain to stdout if two length-3 float vectors are not near; return whether they are.
+    """
     res = True #bruce 050518 bugfix -- was False (which totally disabled this)
-    for i in [0,1,2]:
+    for i in [0, 1, 2]:
         res = res and check_floats_near(p1[i],p2[i],msg+"[%d]"%i)
     return res
 
-def check_quats_near(q1,q2,msg=""): #bruce, circa 040924
-    "Complain to stdout if two quats are not near; return whether they are."
+def check_quats_near(q1, q2, msg=""): #bruce, circa 040924
+    """
+    Complain to stdout if two quats are not near; return whether they are.
+    """
     res = True #bruce 050518 bugfix -- was False (which totally disabled this)
-    for i in [0,1,2,3]:
+    for i in [0, 1, 2, 3]:
         res = res and check_floats_near(q1[i],q2[i],msg+"[%d]"%i)
     return res
 
@@ -667,7 +710,7 @@ if __name__ == '__main__':
     print "tests started"
     q1 = Q(1,0,0,0)
     print q1, `q1`
-    q2 = Q(V(.6,.8,0), 1)
+    q2 = Q(V(0.6, 0.8, 0), 1)
     print q2, `q2`
     assert not (q1 == q2), "different quats equal!" # this bug was fixed on 070227
     assert q1 != V(0,0,0) # this did print_compact_traceback after that was fixed; now that's fixed too
