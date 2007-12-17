@@ -1,6 +1,6 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-JobManager.py
+JobManager.py - 
 
 @author: Mark
 @version: $Id$
@@ -19,7 +19,6 @@ We can reconsider this when we discuss its status.
 It might make sense to classify it into a separate component
 even now, though it's a single file and a stub.
 [bruce 071214]
-
 """
 
 import os
@@ -28,6 +27,10 @@ from PyQt4.Qt import QWidget
 from PyQt4.Qt import SIGNAL
 
 from utilities.Log import redmsg
+
+# WARNING: lots of imports occur lower down.
+# Most or all of them should be moved up here.
+# [bruce 071216 comment]
 
 def touch_job_id_status_file(job_id, Status = 'Queued'):
     """
@@ -122,8 +125,12 @@ from GamessJob import GamessJob
 from JobManagerDialog import Ui_JobManagerDialog
 
 class JobManager(QWidget, Ui_JobManagerDialog):
+    """
+    """
     jobType = {"GAMESS": GamessJob, "nanoSIM-1": None}
     def __init__(self, parent):
+        """
+        """
         QWidget.__init__(self, parent)
         self.setupUi(self)
         self.connect(self.close_btn,SIGNAL("clicked()"),self.close)
@@ -137,8 +144,8 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         self.jobs = [] # The job object, currently selected in the job table.
         self.setup()
         self.exec_()
-
-
+        return
+    
     def setup(self):
         """
         Setup widgets to default (or default) values. Return true on error (not yet possible).
@@ -148,6 +155,8 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         self.cell_clicked(0,0,1,0) # This selects row no. 1 as the current job.
 
     def cell_clicked(self, row, col, button, mouse):
+        """
+        """
         print "row =", row, ", column =", col, ", button =", button
         
         # Enable/disable the buttons in the Job Manager based on the Status field.
@@ -187,8 +196,8 @@ class JobManager(QWidget, Ui_JobManagerDialog):
             self.view_btn.setEnabled(1)
             self.delete_btn.setEnabled(1)
             self.move_btn.setEnabled(0)
-        
-        
+        return
+    
     def refresh_job_table(self):
         """
         Refreshes the Job Manager table based on the current Job Manager directory.
@@ -214,11 +223,13 @@ class JobManager(QWidget, Ui_JobManagerDialog):
                 self.job_table.setText(row , col, self.jobInfoList[row][0][tabTitles[col]])
                 
         self.jobs = self.__createJobs(self.jobInfoList)     
-                
+        return
         
     def delete_job(self):
+        """
+        """
         self.job_table.removeRow(self.job_table.currentRow())
-    
+        return
     
     def startJob(self):
         """
@@ -226,14 +237,12 @@ class JobManager(QWidget, Ui_JobManagerDialog):
         """
         currentJobRow = self.job_table.currentRow()
         self.jobs[currentJobRow].start_job()
-        
+        return
     
     def build_job_list(self):
         """
         Scan Job manager directories to find and return all the list of jobs
         """
-        import os
-
         from PlatformDependent import find_or_make_Nanorex_directory
         tmpFilePath = find_or_make_Nanorex_directory()
         managerDir = os.path.join(tmpFilePath, "JobManager")
@@ -282,7 +291,6 @@ class JobManager(QWidget, Ui_JobManagerDialog):
            print "Exception: build job lists failed. check the directory/files."
            return None                                
 
-
     def __createJobs(self, jobInfoList):
         """
         Create SimJob objects, return the list of job objects
@@ -297,3 +305,7 @@ class JobManager(QWidget, Ui_JobManagerDialog):
                 pass
                 
         return jobs
+
+    pass # end of class JobManager
+
+# end

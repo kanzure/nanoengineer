@@ -1,19 +1,23 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 SimJob.py
 
-$Id$
-'''
-__author__ = "Mark"
+@author: Mark
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 
 import time
 import sys
 from PyQt4.Qt import QObject
 
 class SimJob(QObject):
-    """The base class for a simulation job"""
-    
+    """
+    The base class for a simulation job
+    """
     def __init__(self, name, parms):
+        """
+        """
         QObject.__init__(self)
         
         # The parameters (parms) for the SimJob object are provided in a dictionary in key:value pairs
@@ -42,21 +46,29 @@ class SimJob(QObject):
 #        self.server = SimServer() # The Server.  Moved to Gamess Jig.
 
     def start_job(self):
-        '''Starts the job if it is queued.'''
+        """
+        Starts the job if it is queued.
+        """
         self.starttime = time.time()
         
     def stop_job(self):
-        '''Stops the job if it is running.'''
+        """
+        Stops the job if it is running.
+        """
         if self.status != 'Running':
             return
 
     def suspend_job(self):
-        '''Suspends the job if it is running.'''
+        """
+        Suspends the job if it is running.
+        """
         if self.status != 'Running':
             return
         
     def resume_job(self):
-        '''Resumes the job if it is suspended.'''
+        """
+        Resumes the job if it is suspended.
+        """
         if self.status != 'Suspended':
             return
         
@@ -70,8 +82,9 @@ class SimJob(QObject):
             return '# ' # Script file comment for Linux and Mac    
         
     def write_parms(self, f):
-        'Write job parms to file f'
-        
+        """
+        Write job parms to file f
+        """
         rem = self.get_comment_character()
         
         f.write (rem + '\n' + rem +  'Job Parameters\n' + rem + '\n')
@@ -80,4 +93,18 @@ class SimJob(QObject):
             phrase = rem + k + ': ' + str(self.__dict__[k])
             f.write (phrase + '\n')
         f.write (rem+'\n')
-        
+        return
+
+    # TODO: probably we also want to define launch, for subclass to implement,
+    # and maybe pass it something... see comments in our existing subclass,
+    # GamessJob.
+    #
+    # def launch(self):
+    #     pass
+    #
+    # [bruce 071216 comment]
+    
+    pass # end of class SimJob
+
+# end
+

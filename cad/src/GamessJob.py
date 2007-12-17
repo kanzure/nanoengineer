@@ -33,19 +33,26 @@ from PyQt4.Qt import QThread
 from PyQt4.Qt import QMutex
 
 from SimJob import SimJob
-##from SimServer import SimServer
 from GamessProp import GamessProp
 from files_gms import writegms_inpfile
-##from files_gms import writegms_batfile
+## from files_gms import writegms_batfile
 import preferences
 import env # for setting prefs and doing recursive event processing
 from icon_utilities import geticon
+
+from ServerManager import ServerManager
+## from PlatformDependent import open_file_in_editor
+from debug import print_compact_traceback
+from UserPrefs import get_filename_and_save_in_prefs
+from PlatformDependent import hhmmss_str
 
 from prefs_constants import gmspath_prefs_key
 from prefs_constants import gamess_enabled_prefs_key
 
 failpat = re.compile("-ABNORMALLY-")
 irecpat = re.compile(" (\w+) +\d+\.\d* +([\d\.E+-]+) +([\d\.E+-]+) +([\d\.E+-]+)")
+
+# ==
 
 class GamessJob(SimJob):
     """
@@ -57,18 +64,19 @@ class GamessJob(SimJob):
     """
     def __init__(self,  job_parms, **job_prop):
         """
-        To support the 2 ways of  gamess job creation.
+        To support the 2 ways of gamess job creation.
         """
         name = "Gamess Job 1"
         [self.job_batfile, self.job_outputfile] = job_prop.get('job_from_file', [None, None])
-        if self.job_outputfile: self.job_outputfile = self.job_outputfile.strip('"')
+        if self.job_outputfile:
+            self.job_outputfile = self.job_outputfile.strip('"')
         self.gamessJig = job_prop.get('jig', None)
         
         if self.job_batfile:
             server_id = job_parms['Server_id']
-            from ServerManager import ServerManager
             self.server = ServerManager().getServerById(int(server_id))
-            if not self.server: raise ValueError, "The server of %d can't be found." % server_id  
+            if not self.server:
+                raise ValueError, "The server of %d can't be found." % server_id  
         
         SimJob.__init__(self, name, job_parms)
         
@@ -77,25 +85,26 @@ class GamessJob(SimJob):
         #Huaicai 7/6/05: try to fix the problem when run a gamess jig coming from mmp file 
         #and without opening the jig property windows and save it.
         if not self.__dict__.has_key('server'):
-            from ServerManager import ServerManager
             sManager = ServerManager()
             self.server = sManager.getServers()[0]
-    
-        
+        return
         
     def edit(self):
         self.edit_cntl.showDialog(self)
+        return
     
-    def launch(self):
+    def launch(self): # this method should probably exist in the superclass API too [bruce 071216 comment]
         """
         Launch GAMESS job.
         Returns: 0 = Success
-                       1 = Cancelled
-                       2 = Failed
+                 1 = Cancelled
+                 2 = Failed
         """
-
         # Get a unique Job Id and the Job Id directory for this run.
         from JobManager import get_job_manager_job_id_and_dir
+            ### this causes an import cycle.
+            ### FIX - pass in an obj providing this func? or just move this func into SimJob.py?
+            # [bruce 071216 comment]
         job_id, job_id_dir = get_job_manager_job_id_and_dir()
         self.Job_id = job_id
         self.Status = 'Queued'
@@ -113,11 +122,10 @@ class GamessJob(SimJob):
         writegms_inpfile(self.job_inputfile, self.gamessJig)
         
         # Create BAT file (in ~/Nanorex/JobManager/Job Id subdirectory)
-        #writegms_batfile(self.job_batfile, self)
+        ## writegms_batfile(self.job_batfile, self)
         
         # Open INP file in editor if user checked checkbox in GAMESS jig properties UI.
 #        if self.edit_cntl.edit_input_file_cbox.isChecked():
-#            from PlatformDependent import open_file_in_editor
 #            open_file_in_editor(self.job_inputfile)
 
         self.starttime = time.time() # Save the start time for this job.
@@ -127,8 +135,7 @@ class GamessJob(SimJob):
         
         if r: # Gamess program was not valid.
             return 1 # Job Cancelled.
-        
-        from debug import print_compact_traceback    
+           
         try:
             if sys.platform == 'win32': # Windows
                 return self._launch_pcgamess()
@@ -136,9 +143,8 @@ class GamessJob(SimJob):
                 return self._launch_gamess()
         except:
              print_compact_traceback("Exception happened when run gamess")    
-            
-
-
+        return
+    
     def _validate_gamess_program(self):
         """
         Private method:
@@ -148,7 +154,7 @@ class GamessJob(SimJob):
         This function does not check whether the GAMESS path is actually GAMESS 
         or if it is the correct version of GAMESS for this platform (i.e. PC GAMESS for Windows).
         Returns:  0 = Valid
-                        1 = Invalid
+                  1 = Invalid
         """
         # Get GAMESS executable path from the user preferences
         prefs = preferences.prefs_context()
@@ -168,25 +174,21 @@ class GamessJob(SimJob):
             msg + "Please select OK to set the location of GAMESS for this computer.",
             "&OK", "Cancel", "",
             0, 1 )
-                
-        if ret==0: # OK
-            #from UserPrefs import get_gamess_path
-            #self.server.program = get_gamess_path(parent)
-            from UserPrefs import get_filename_and_save_in_prefs
+        
+        if ret == 0: # OK
             self.server.program = \
-                get_filename_and_save_in_prefs(parent, gmspath_prefs_key, 'Choose GAMESS Executable')
+                get_filename_and_save_in_prefs(parent, gmspath_prefs_key, "Choose GAMESS Executable")
             if not self.server.program:
                 return 1 # Cancelled from file chooser.
             
             # Enable GAMESS Plug-in. Mark 060112.
             env.prefs[gamess_enabled_prefs_key] = True
-            
-        elif ret==1: # Cancel
+        
+        elif ret == 1: # Cancel
             return 1
 
         return 0
 
-    
     def _readFromStdout(self):
         """
         Slot method to read stdout of the gamess process
@@ -196,14 +198,17 @@ class GamessJob(SimJob):
         #    self.outputFile.write(lineStr)
         bytes = self.process.readStdout()
         self.outputFile.writeBlock(bytes)
+        return
     
     def startFileWriting(self):
         self.fwThread.start()
+        return
     
     def readOutData(self):
         bytes = self.process.readStdout()
         if bytes:
            self.fwThread.putData(bytes)
+        return
     
     def processTimeout(self):
         if self.process.isRunning():
@@ -212,14 +217,13 @@ class GamessJob(SimJob):
                 
             msgLabel = self.progressDialog.getMsgLabel()
             duration = time.time() - self.stime
-            from PlatformDependent import hhmmss_str
             elapmsg = "Elapsed Time: " + hhmmss_str(int(duration))
             msgLabel.setText(elapmsg)
             
             ####bytes = self.process.readStdout()
             ####if bytes:
             ####    self.fwThread.putData(bytes)
-                
+        return
     
     def processDone(self):
         #self.fwThread.stop()
@@ -231,7 +235,8 @@ class GamessJob(SimJob):
         else:
             print "The process is cancelled!"
             QDialog.reject(self.progressDialog)
-
+        return
+    
     def _launch_gamess(self):
         oldir = os.getcwd() # Save current directory
         
@@ -281,8 +286,10 @@ class GamessJob(SimJob):
         self.jobTimer.start(1)
         
         ret = self.progressDialog.exec_()
-        if ret == QDialog.Accepted: retValue = 0
-        else: retValue = 1
+        if ret == QDialog.Accepted:
+            retValue = 0
+        else:
+            retValue = 1
         
         ####self.fwThread.wait()        
         ####bytes = self.process.readStdout()
@@ -297,7 +304,6 @@ class GamessJob(SimJob):
         self.gamessJig.outputfile = self.job_outputfile
                 
         return retValue
-        
         
     def _launch_pcgamess(self):
         """
@@ -344,33 +350,34 @@ class GamessJob(SimJob):
             
         process = QProcess()
         process.start(self.server.program, args)
-        #Blocks for n millisconds until the process has started and started() 
-        #signal is emitted.Returns true if the process was started successfullly. 
+        # Blocks for n millisconds until the process has started and started() 
+        # signal is emitted. Returns true if the process was started successfullly. 
         if not process.waitForStarted(2000): 
-                print "The process can't be started."
-                return 2
+            print "The process can't be started."
+            return 2
         progressDialog = self.showProgress()
         progressDialog.show()
-        i = 55; pInc = True
-        while  process.state() == QProcess.Running:
-                env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
-                if  progressDialog.wasCanceled():
-                    process.kill()
-                    os.chdir(oldir)
-                    return 1 # Job cancelled.
-                               
-                progressDialog.setValue(i)
-                if pInc:
-                    if i < 75: i += 1
-                    else: pInc = False
-                else:
-                    if i > 55:  i -= 1
-                    else: pInc = True
-                #Do sth here
-                time.sleep(0.05)
-                if not process.state() == QProcess.Running:
-                     break
-                  
+        i = 55
+        pInc = True
+        while process.state() == QProcess.Running:
+            env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
+            if progressDialog.wasCanceled():
+                process.kill()
+                os.chdir(oldir)
+                return 1 # Job cancelled.
+                           
+            progressDialog.setValue(i)
+            if pInc:
+                if i < 75: i += 1
+                else: pInc = False
+            else:
+                if i > 55:  i -= 1
+                else: pInc = True
+            # Do sth here
+            time.sleep(0.05)
+            if not process.state() == QProcess.Running:
+                 break
+              
         progressDialog.setValue(100)
         progressDialog.accept()
         
@@ -379,12 +386,11 @@ class GamessJob(SimJob):
         
         return 0 # Success
 
-
     def showProgress(self, modal = True):
         """
         Open the progress dialog to show the current job progress.
         """
-        #Replace "self.edit_cntl.win" with "None
+        #Replace "self.edit_cntl.win" with "None"
         #---Huaicai 7/7/05: To fix bug 751, the "win" may be none.
         #Feel awkward for the design of our code.        
         simProgressDialog = QProgressDialog()
@@ -395,7 +401,6 @@ class GamessJob(SimJob):
             simProgressDialog.setWindowTitle("Calculating Energy ...Please Wait")
         else:
             simProgressDialog.setWindowTitle("Optimizing ...Please Wait")
-        
        
         progBar = QProgressBar(simProgressDialog)
         progBar.setMaximum(0)
@@ -405,7 +410,6 @@ class GamessJob(SimJob):
         simProgressDialog.setBar(progBar)
         simProgressDialog.setAutoReset(False)
         simProgressDialog.setAutoClose(False)
-        
         
         return simProgressDialog
 
@@ -425,12 +429,18 @@ class GamessJob(SimJob):
         else:
             "CANCELLED"
             return False
-            
 
-class JobProgressDialog(QDialog):
-    
+    pass # end of class GamessJob
+
+# ==
+
+class JobProgressDialog(QDialog): # review: should any of this be refiled into SimJob? [bruce 071216 Q]
+    """
+    """
     def __init__(self, process, calculation):
-        QDialog.__init__(self, None, None,True) 
+        """
+        """
+        QDialog.__init__(self, None, None, True) 
         
         self.process = process
         
@@ -440,7 +450,6 @@ class JobProgressDialog(QDialog):
 
         msgLabel = QLabel(self,"msgLabel")
         msgLabel.setAlignment(QLabel.AlignCenter)
-        
         
         if calculation == 'Energy':
             msgLabel.setText("Calculating Energy ...")
@@ -462,35 +471,39 @@ class JobProgressDialog(QDialog):
         
         self.resize(QSize(248,146).expandedTo(self.minimumSizeHint()))
         self.connect(cancelButton, SIGNAL("clicked()"), self.reject)
-        
+        return
+    
     def reject(self):
+        """
+        """
         if self.process.isRunning():
             self.process.tryTerminate()
             QTimer.singleShot( 5000, self.process, SLOT('kill()') )
             #self.process.kill()
             print "I asked to kill the process."
-        
+        return
         
     def getMsgLabel(self):
         return self.msgLabel2
     
-    
     def launchProgressDialog(self):
+        """
+        """
         stime = time.time()
-        
         self.show()
-        
         while 1:
             env.call_qApp_processEvents()
             if self.Rejected:
                 break
-
             duration = time.time() - stime
-            from PlatformDependent import hhmmss_str
             elapmsg = "Elapsed Time: " + hhmmss_str(int(duration))
             self.msgLabel2.setText(elapmsg) 
-
             time.sleep(0.01)
+        return
+    
+    pass # end of class JobProgressDialog
+
+# == no code after this
 
 # define class _FileWriting(QThread), when QThread is available;
 # no longer used [noticed by bruce 071213, so commenting this out]
