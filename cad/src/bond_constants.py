@@ -1,8 +1,11 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-bond_constants.py -- constants for higher-order bonds, and related simple functions.
+"""
+bond_constants.py -- constants and simple functions for use with class Bond
+(which can be defined without importing that class).
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -13,16 +16,23 @@ History:
 Many of them are still imported via bonds module, by code in other modules.
 
 050920 - Full mmp support for Carbomeric bonds.
-[FYI: As of today, sim executable reportedly accepts them and uses same params as for bond2.]
+[FYI: As of today, sim executable reportedly accepts them and uses same params
+as for bond2.]
+"""
 
-'''
-__author__ = 'bruce'
+from math import floor, ceil
 
-import platform
 from VQT import Q
-from math import floor, ceil #guess
+from debug import print_compact_traceback    
+import platform
+import env
+
+# ==
 
 MAX_ELEMENT = 109
+    # review: MAX_ELEMENT is no longer used (it's exceeded by PAM pseudoatoms);
+    # is it useful?? [bruce 071216 Q]
+
 # Bond valence constants -- exact ints, 6 times the numeric valence they represent.
 # If these need an order, their standard order is the same as the order of their numeric valences
 # (as in the constant list BOND_VALENCES).
@@ -89,16 +99,23 @@ DIRBOND_ERROR = 'error'
 
 # ==
 
+# [I'll probably move find_bond and friends from bonds.py to here - bruce 071216]
+
+# ==
 
 def min_max_valences_from_v6(v6):
     return BOND_MIN_VALENCES[v6], BOND_MAX_VALENCES[v6]
 
 def valence_to_v6(valence): #bruce 051215
-    "Given a valence (int or float, single bond is 1 or 1.0), return it as a v6, being careful about rounding errors."
+    """
+    Given a valence (int or float, single bond is 1 or 1.0),
+    return it as a v6, being careful about rounding errors.
+    """
     return int(valence * V_SINGLE + 0.01) # kluge: 0.01 is based on knowledge of scale of V_SINGLE (must be > 0, < 1/V_SINGLE)
 
 def bond_letter_from_v6(v6): #bruce 050705
-    """Return a bond letter summarizing the given v6,
+    """
+    Return a bond letter summarizing the given v6,
     which for legal values is one of 1 2 3 a g b,
     and for illegal values is one of - 0 ? +
     """
@@ -114,7 +131,8 @@ def bond_letter_from_v6(v6): #bruce 050705
     return ltr
 
 def btype_from_v6(v6): #bruce 050705
-    """Given a legal v6, return 'single', 'double', etc.
+    """
+    Given a legal v6, return 'single', 'double', etc.
     For illegal values, return 'unknown'.
     For V_CARBOMERIC this returns 'carbomeric', not 'aromatic'.
     """
@@ -135,7 +153,10 @@ def invert_dict(dict1): #bruce 050705
 bond_type_names_inverted = invert_dict(bond_type_names)
 
 def v6_from_btype(btype): #bruce 050705
-    "Return the v6 corresponding to the given bond-type name ('single', 'double', etc). Exception if name not legal."
+    """
+    Return the v6 corresponding to the given bond-type name
+    ('single', 'double', etc). Exception if name not legal.
+    """
     return bond_type_names_inverted[btype]
 
 _bond_arrows = {
@@ -145,7 +166,8 @@ _bond_arrows = {
 }
     
 def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705; direction feature, bruce 070414. ###e SHOULD CALL bond_left_atom
-    """Given a bond, and an optional quat describing the orientation it's shown in,
+    """
+    Given a bond, and an optional quat describing the orientation it's shown in,
     order the atoms left to right based on that quat,
     and return a text string summarizing the bond
     in the form C26(sp2) <-2-> C34(sp3) or so,
@@ -168,7 +190,8 @@ def bonded_atoms_summary(bond, quat = Q(1,0,0,0)): #bruce 050705; direction feat
     return "%s %s%s%s %s" % (a1s, arrows[0], bondletter, arrows[1], a2s)
     
 def bond_left_atom(bond, quat = Q(1,0,0,0)): #bruce 070415, modified from bonded_atoms_summary, which ought to call this now ##e
-    """Given a bond, and an optional quat describing the orientation it's shown in,
+    """
+    Given a bond, and an optional quat describing the orientation it's shown in,
     order the atoms left to right based on that quat
     (i.e. as the bond would be shown on the screen using it),
     and return the leftmost atom.
@@ -207,7 +230,8 @@ def describe_atom_and_atomtype(atom): #bruce 050705, revised 050727 #e refile?
 _bond_params = {} # maps triple of atomtype codes and v6 to (rcov1, rcov2) pairs
 
 def bond_params(atomtype1, atomtype2, v6): #bruce 060324 for bug 900
-    """Given two atomtypes and a bond order encoded as v6,
+    """
+    Given two atomtypes and a bond order encoded as v6,
     look up or compute the parameters for that kind of bond.
     For now, the return value is just a pair of numbers, rcov1 and rcov2,
     for use as the covalent radii for atom1 and atom2 respectively for this kind of bond
@@ -223,10 +247,10 @@ def bond_params(atomtype1, atomtype2, v6): #bruce 060324 for bug 900
     pass
 
 def _compute_bond_params(atomtype1, atomtype2, v6):
-    "[private helper function for bond_params]"
+    """
+    [private helper function for bond_params]
+    """
     # this doesn't need to be fast, since its results for given arguments are cached for the entire session
-    import env
-    from debug import print_compact_traceback    
     # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
     #  etc, so for nonsense bonds like He-He the entire bond is drawn as if "too long".)
     rcov1 = atomtype1.rcovalent
@@ -241,7 +265,7 @@ def _compute_bond_params(atomtype1, atomtype2, v6):
 ##        if (elementNumber2 > MAX_ELEMENT):
 ##            elementNumber2 = MAX_ELEMENT
         ltr = bond_letter_from_v6(v6)
-        import sim
+        import sim # this import must not be moved to toplevel! (it fails for some developers)
         pm = sim.getEquilibriumDistanceForBond(elementNumber1, elementNumber2, ltr) # C-C is (6, 6, '1')
         assert pm > 2.0, "too-low pm %r for getEquilibriumDistanceForBond%r" % (pm, (elementNumber1, elementNumber2, ltr))
             # 1.0 means an error occurred; 2.0 is still ridiculously low [not as of 070410]; btw what will happen for He-He??

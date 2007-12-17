@@ -38,6 +38,7 @@ from Numeric import floor
 from VQT import Q, vlen, norm
 
 from debug import print_compact_stack, compact_stack, print_compact_traceback
+from debug import reload_once_per_event
 
 import platform
 
@@ -63,6 +64,8 @@ from utilities.Log import redmsg, quote_html #bruce 070601
 
 from state_constants import S_CACHE, S_DATA, S_PARENT, UNDO_SPECIALCASE_BOND
 
+from bond_drawer import writepov_bond
+
 # Linus Pauling
 # http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148
 CC_GRAPHITIC_BONDLENGTH = 1.421   # page 1647
@@ -71,7 +74,7 @@ BN_GRAPHITIC_BONDLENGTH = 1.446   # page 1650
 # ==
 
 try:
-    if not debug_pref('Enable pyrex atoms next time',
+    if not debug_pref("Enable pyrex atoms next time",
                       Choice_boolean_False,
                       prefs_key = True ):
         raise ImportError
@@ -102,6 +105,8 @@ except ImportError:
 
 # ==
 
+# [I'll probably move the following find_bond and friends to bond_constants.py - bruce 071216]
+
 def bonded(a1, a2): #bruce 041119 #e optimized by bruce 050502 (this indirectly added "assert a1 != a2")
     """
     are these atoms (or singlets) already directly bonded?
@@ -112,6 +117,8 @@ def bonded(a1, a2): #bruce 041119 #e optimized by bruce 050502 (this indirectly 
 
 atoms_are_bonded = bonded # this is a better name (given that it only works for atoms, not e.g. for chunks) --
     # we should replace the old name with it sometime #bruce 070601
+    # [as of 071216: bonded is used only in bonds_from_atoms, and twice in this file.
+    #  atoms_are_bonded is used in 2 files. It's clearly a better name since bonded is too generic to be searched for.]
 
 def find_bond(a1, a2): #bruce 050502; there might be an existing function in some other file, to merge this with
     """
@@ -124,7 +131,9 @@ def find_bond(a1, a2): #bruce 050502; there might be an existing function in som
             return bond
     return None
 
-bond_atoms_oldversion_noops_seen = {} #bruce 051216
+# ==
+
+_bond_atoms_oldversion_noops_seen = {} #bruce 051216
 
 def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it's called from the newer version of bond_atoms
     """
@@ -178,11 +187,11 @@ def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it
             #e refile this code -- only print warning once for each place in the code it can happen from
             blame = compact_stack() # slow, but should be ok since this case should be rare
                 # known cases as of 051216 include only one: reading pdb files with redundant CONECT records
-            if not bond_atoms_oldversion_noops_seen.has_key(blame):
+            if not _bond_atoms_oldversion_noops_seen.has_key(blame):
                 print_compact_stack( "atom_debug: note: bond_atoms_oldversion doing nothing since %r and %r already bonded: " % (a1,a2))
-                if not bond_atoms_oldversion_noops_seen:
+                if not _bond_atoms_oldversion_noops_seen:
                     print "(above message (bond_atoms_oldversion noop) is only printed once for each compact_stack that calls it)"
-                bond_atoms_oldversion_noops_seen[blame] = None
+                _bond_atoms_oldversion_noops_seen[blame] = None
             pass
         return
     b = Bond(a1,a2) # (this does all necessary invals, including a1 and a2._changed_structure())
@@ -1383,8 +1392,8 @@ class Bond(BondBase, StateMixin):
            If computed, and if it's partly arbitrary, **kws (out/up) might be used.
         """
         if platform.atom_debug:
-            import pi_bond_sp_chain, debug
-            debug.reload_once_per_event(pi_bond_sp_chain) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
+            import pi_bond_sp_chain
+            reload_once_per_event(pi_bond_sp_chain) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
         from pi_bond_sp_chain import bond_get_pi_info
         return bond_get_pi_info(self, **kws) # no need to pass an index -- that method can find one on self if it stored one
     
@@ -1643,8 +1652,8 @@ class Bond(BondBase, StateMixin):
         # As of 041109 this is now handled by bond.__getattr__.
         # The attr toolong is new as of 041112.
         if platform.atom_debug:
-            import bond_drawer, debug
-            debug.reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
+            import bond_drawer
+            reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
         from bond_drawer import draw_bond
         draw_bond( self, glpane, dispdef, col, level, highlighted, bool_fullBondLength)
         return
@@ -1714,7 +1723,6 @@ class Bond(BondBase, StateMixin):
         Write this bond to a povray file (always using absolute coords, 
         even for internal bonds).
         """
-        from bond_drawer import writepov_bond
         writepov_bond(self, file, dispdef, col)
         return
 
