@@ -2,7 +2,12 @@
 """
 BasePair.py - BasePair, StackedBasePairs flyweight objects
 
-WARNING -- this is not yet used; it's really just a scratch file. [bruce 071205]
+WARNING -- this is not yet used; it's really just a scratch file.
+Furthermore, it will probably never be used, since the recognition
+of base pairs by the dna updater will occur differently, but once
+it's happened, the scanning of them can occur more efficiently
+by using the already-recognized DnaLadders. So I'll probably move
+it to outtakes soon. In fact, why not now? Ok, moving it now.
 
 @author: Bruce
 @version: $Id$
