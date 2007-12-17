@@ -7,7 +7,51 @@ packageData.py -- data about modules and packages, for PackageDependency.py
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-packageColors = { # needs geometry, platform
+# ==
+
+# NFRs for packageDependency.py: @@@
+
+
+# unrecognized modules should be classified as alone in a package,
+# so they are very visible in the graph
+# and so the arcs you see help you classify them properly.
+
+
+# classification can be "layer|topic", e.g. "model|simulation/gamess",
+# with options to use either or both parts (before/after the '|') as part of the package name;
+# if no "|" then assume it's just the layer;
+# the layers are what we have now (ui, model, etc)
+# but note that in the current table [bruce 071217 2pm] I've also used ui/whatever in the layer
+# in an experimental way re finer layer divisions.
+#
+# layer = general type of code;
+# topic = topic of feature re user point of view (ie "which plugin it would be part of")
+#
+# interaction with colors: just use the layer in the color table, i think.
+# (at least do that if the whole thing, layer|topic, is not listed there;
+#  might fall back to topic for color lookup if necessary)
+#
+# interaction with good/bad arcs (packageLevel): ideally we have a separate table of levels
+# for layer and topic, and each one is a partial order or specific DAG.
+# But for now, numerical scheme only makes sense for layer, not for topic, so just use layer for this.
+
+
+# lower priority: warnings based on the "disallowed" tables below
+
+# ==
+
+# plans for specific classifications:
+
+# ne1 package, for overall layout of ne1, as opposed some other app made from same pieces incl ui pieces
+# (eg a small app for testing or script-running)
+
+# simulation package, subdirs for gromacs, gamess, nd1, general? runsim too. some io code not separated.
+# replaces some "operations" classifications; essentially a type of ops and io combined.
+# levels: sim over ops over model, but we expect arcs in all directions in there, for now.
+
+# ==
+
+packageColors = { # needs geometry, platform, and whatever new classifications we add below
     "ui"              : "#8050ff",
     "PM"              : "#8070ff",
     "graphics"        : "#80a0ff",
@@ -24,20 +68,7 @@ packageColors = { # needs geometry, platform
     "top"             : "#ff3090",
     }
 
-
-# NFR: @@@
-#
-# missing modules should be classified as themselves, so they are very visible in the graph
-# and so the arcs you see help you classify them properly.
-#
-# ne1 package, for overall layout of ne1 as opposed some other app made from same pieces incl ui pieces
-# (eg a small app for testing or script-running)
-#
-# use codetype/topic and have an option to ignore the /topic part when graphing
-#
-### simulation package, subdirs for gromacs, gamess, nd1, general? runsim too. some io code not separated.
-# replaces some "operations" classifications; essentially a type of ops and io combined.
-# levels: sim over ops over model, but we expect arcs in all directions in there, for now.
+# ==
 
 packageLevels = {
     "top"         : 7,
@@ -108,8 +139,9 @@ disallowedModuleNames = {
     "math"         : "Python library module",
 }
 
+# ==
 
-# status as of 071210:
+# status of packageMapping as of 071210:
 
 # virtual packages named below but not yet listed above:
 # "?" - unclassified [maybe none at present]
@@ -128,6 +160,12 @@ disallowedModuleNames = {
 #   assembly - now in model/
 #   pyrex_test - exists as .c .pyx .so but not as .py
 #   whatsthis - now in gui/
+
+# update, 071217 2pm:
+# the layer|topic is only used in a few entries; the others are "layer" with topic mentioned in the comment.
+# look for @@@ to see a few things to review, and the place i got to in my overall scan.
+# when done i need to review all at once the "simulation", *mode*, "ui", and *dialog entries.
+
 
 packageMapping = {
     "assembly"                         : "model", # (some foundation, but knows part.py which knows lots of ops & model constructors)
