@@ -222,9 +222,9 @@ packageMapping = {
     "Font3D"                           : "graphics",
     "fusechunksMode"                   : "ui",
     "FusePropertyManager"              : "ui/propmgr",
-    "GamessJob"                        : "simulation", # for a gamess package; contains operations and io
-    "GamessProp"                       : "ui/dialog", # for a gamess package
-    "GamessPropDialog"                 : "ui/dialog", # for a gamess package
+    "GamessJob"                        : "operations|simulation/gamess", # for a gamess package; contains operations and io
+    "GamessProp"                       : "ui|simulation/gamess", # for a gamess package
+    "GamessPropDialog"                 : "ui|simulation/gamess", # for a gamess package
     "GeneratorBaseClass"               : "ui/propmgr", # or as itself, so whatever imports it won't import propmgr just from that??
         # should split subclasses so this can be superceded by EditController and EditController_PM
     "GeneratorController"              : "ui/controller", #? @@@ ui/controller that are subclassing ui/propmgr may need reclassification
@@ -241,7 +241,7 @@ packageMapping = {
     "GraphicsMode_API"                 : "ui_api", # not legit to be needed by anything below ui, i think
     "GridPlaneProp"                    : "ui/dialog",
     "GridPlanePropDialog"              : "ui/dialog",
-    "GROMACS"                          : "simulation", #? - old demo code. runs a GROMACS process. contains io. for gromacs package.
+    "GROMACS"                          : "io|simulation", #? - old demo code. runs a GROMACS process. contains io. for gromacs package.
     "Group"                            : "foundation", # some model code?
     "GroupButtonMixin"                 : "PM", # (deprecated, and its only callers should use things from PM instead)
     "GroupProp"                        : "ui/dialog",
@@ -377,8 +377,8 @@ packageMapping = {
     
     "SequenceEditor"                   : "ui", # a major ui component, and maybe a widget (guess, didn't look at code)
     
-    "ServerManager"                    : "ui",
-    "ServerManagerDialog"              : "ui",
+    "ServerManager"                    : "ui|simulation", #? for simulation or gamess?? persistent db/UI for servers list
+    "ServerManagerDialog"              : "ui|simulation",
     
     "setup"                            : "tools", # build (part of tools)
     "setup2"                           : "tools", # build
@@ -386,13 +386,13 @@ packageMapping = {
     "shape"                            : "graphics_behavior", # tentative, maybe risky; see docstring
     "Slab"                             : "geometry",
 
-    # @@@ where i am in file is up to here, and paper too
+    "SimJob"                           : "model|simulation", #? only subclass is GamessJob; unclear whether specific to GAMESS; io too
+    "SimServer"                        : "model|simulation", # hold attrs for a sim server (unclear whether specific to GAMESS); io too
+    "SimSetup"                         : "ui|simulation",
+    "SimSetupDialog"                   : "ui|simulation",
+    "Sponsors"                         : "ui|sponsors", # contains lots, exports widgets, but belongs in own toplevel package
 
-    "SimJob"                           : "io",
-    "SimServer"                        : "io",
-    "SimSetup"                         : "ui",
-    "SimSetupDialog"                   : "ui",
-    "Sponsors"                         : "ui",
+    # @@@ where i am in file is up to here, and paper too
     
     "state_constants"                  : "foundation",
     "state_utils"                      : "foundation",

@@ -1,10 +1,13 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-ServerManager.py
+"""
+ServerManager.py - persistent db and UI for list of servers & current server.
+Unclear whether or not this is GAMESS-specific.
+[bruce 071217 guess at description]
 
-$Id$
-'''
-__author__ = "Huaicai"
+@author: Huaicai
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+"""
 
 from ServerManagerDialog import Ui_ServerManagerDialog
 from PyQt4.Qt import QDialog, QStringList, SIGNAL, QMessageBox
@@ -13,11 +16,17 @@ import os
 import cPickle as pickle
 from debug import print_compact_stack
 from qt4transition import qt4todo
-
+from PlatformDependent import find_or_make_Nanorex_directory
 
 class ServerManager(QDialog, Ui_ServerManagerDialog):
+    """
+    Persistent db and UI for list of servers & current server.
+    
+    #doc more
+
+    The servers in our list are SimServer objects.
+    """
     serverFile = 'serverList'
-    from PlatformDependent import find_or_make_Nanorex_directory
     
     tmpFilePath = find_or_make_Nanorex_directory()
     serverFile = os.path.join(tmpFilePath, "JobManager", serverFile)
@@ -33,13 +42,14 @@ class ServerManager(QDialog, Ui_ServerManagerDialog):
         qt4todo('self.server_listview.setSorting(-1)')
         ## The ordered server list
         self.servers = self._loadServerList()
-        
+        return
      
     def showDialog(self, selectedServer = 0):
-        if not selectedServer: selectedServer = self.servers[0]
+        if not selectedServer:
+            selectedServer = self.servers[0]
         self.setup(selectedServer)
         self.exec_()    
-    
+        return
     
     def _fillServerProperties(self, s):
         """Display current server properties"""
@@ -51,7 +61,7 @@ class ServerManager(QDialog, Ui_ServerManagerDialog):
         self.program_linedit.setText(s.program)
         self.username_linedit.setText(s.username)
         self.password_linedit.setText(s.password)
-    
+        return
     
     def setup(self, selectedServer):
         self.server_listview.clear()
@@ -72,7 +82,7 @@ class ServerManager(QDialog, Ui_ServerManagerDialog):
         self.server_listview.setCurrentIndex(selectedItem)
         
         self._fillServerProperties(selectedServer)
-        
+        return
         
     def _applyChange(self):
         """Apply server property changes"""
@@ -89,48 +99,50 @@ class ServerManager(QDialog, Ui_ServerManagerDialog):
         item.setText(1, s['engine'])
         
         self.servers[self.items.index(item)].set_parms(s)
-     
+        return
     
     def engineChanged(self, newItem):
         item = self.server_listview.currentIndex()
         sevr = self.servers[self.items.index(item)]
         sevr.engine = str(newItem) 
         item.setText(1, sevr.engine)       
-    
+        return
                  
     def addServer(self):
         """Add a new server. """
         server = SimServer()
         self.servers[:0] = [server]
         self.setup(server)
-    
+        return
     
     def deleteServer(self):
         """Delete a server. """
         if len(self.servers) == 1:
-            QMessageBox.information(self, "Deleting a server",
-                "At least 1 server is needed to exist, after deleting the last one, a default new server will be created.",
-                                    QMessageBox.Ok) 
-        
+            msg = "At least 1 server must exist. After deleting the last one, "\
+                  "a default new server will be created."
+            QMessageBox.information(self,
+                                    "Deleting a server",
+                                    msg,
+                                    QMessageBox.Ok )
         item = self.server_listview.currentIndex()
         self.server_listview.takeItem(item)
         del self.servers[self.items.index(item)]
         self.items.remove(item)
-        
         print "After deleting."
-     
-        
+        return
     
     def changeServer(self, curItem):
         """Select a different server to display"""
         #print "curItem: ", curItem
         #print "servers: ", self.servers
         self._fillServerProperties(self.servers[self.items.index(curItem)])
+        return
     
-     
     def closeEvent(self, event):
-        """This is the closeEvent handler, it's called when press 'X' button
-        on the title bar or 'Esc' key or 'Exit' button in the dialog """ 
+        """
+        This is the closeEvent handler, it's called when press 'X' button
+        on the title bar or 'Esc' key or 'Exit' button in the dialog
+        """ 
         try:
             self._applyChange()
             self._saveServerList()
@@ -139,17 +151,18 @@ class ServerManager(QDialog, Ui_ServerManagerDialog):
             self.accept()   
             
         self.accept()
-    
+        return
     
     def getServer(self, indx):
-        """Return the server for <indx>, the index of the server in 
-        the server list. """
+        """
+        Return the server for <indx>, the index of the server in 
+        the server list.
+        """
         #self._applyChange()
         assert type(indx) == type(1)
         
         assert  indx in range(len(self.servers))
         return self.servers[indx]
-    
     
     def getServerById(self, ids):
         """Return the server with the server_id = ids """
@@ -159,12 +172,10 @@ class ServerManager(QDialog, Ui_ServerManagerDialog):
                 return s
         return None
     
-    
     def getServers(self):
         """Return the list of servers."""
         #self._applyChange()
         return self.servers
-    
     
     def _loadServerList(self):
         """Return the list of servers available, otherwise, create a default one. """
@@ -176,8 +187,7 @@ class ServerManager(QDialog, Ui_ServerManagerDialog):
                 print_compact_stack("Unpickle exception.")
                 return [SimServer()]
         else:
-              return [SimServer()]                   
-    
+            return [SimServer()]
         
     def _saveServerList(self):
         """Save the server list for future use when exit from current dialog."""
@@ -185,9 +195,13 @@ class ServerManager(QDialog, Ui_ServerManagerDialog):
         file = open(self.serverFile, "wb")
         pickle.dump(self.servers, file, pickle.HIGHEST_PROTOCOL)
         file.close()
+        return
 
-##Test code
+    pass # end of class ServerManager
+
+# == Test code [stub]
+
 if __name__ == '__main__':
-        from PyQt4.Qt import QApplication, QDialog
+    from PyQt4.Qt import QApplication, QDialog
         
-        
+# end

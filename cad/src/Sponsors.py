@@ -1,8 +1,12 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Sponsors.py
+Sponsors.py - sponsors system, exporting PermissionDialog and SponsorableMixin
 
-$Id$
+@author: Will
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+
+Motivation and design rationale:
 
 We want to recoup some of the costs of developing NanoEngineer-1 in a
 way consistent with its GPL licensing. One way to do that is to have
@@ -18,9 +22,12 @@ sponsor information from our server. We don't want this to annoy the
 user, in terms of either network bandwidth or privacy concerns, so
 we have a permission dialog that explains what we're doing and asks
 the user for permission to do it.
-"""
 
-__author__ = "Will"
+Module classification:
+
+Contains many levels of code, but exports only a widget and a widget-helper.
+Still, functionally it may belong in its own toplevel package. [bruce 071217]
+"""
 
 import base64
 import md5
@@ -68,7 +75,7 @@ _sponsor_servers = \
      'http://nanohive-1.org/NE1_Sponsors/']
 
 
-def fixHtml(rc):
+def _fixHtml(rc): #bruce 071217 renamed this to be private
     startUrl=re.compile('\[')
     middleUrl=re.compile(' ')
     finishUrl=re.compile('\]')
@@ -89,7 +96,9 @@ def fixHtml(rc):
         mid = "<a href=\"%s\">%s</a>" % (rc[e:s2], rc[e2:s3])
         rc = rc[:s] + mid + rc[e3:]
 
-class Sponsor:
+class _Sponsor: #bruce 071217 renamed this to be private
+    """
+    """
     def __init__(self, name, text, imgfile):
         self.name = name
         self.text = text
@@ -178,12 +187,12 @@ def _load_sponsor_info(xmlfile, win):
                 sp_keywords = getXmlText(sp_info, 'keywords')
                 sp_keywords = map(lambda x: x.strip(),
                                   sp_keywords.split(','))
-                sp_text = fixHtml(getXmlText(sp_info, 'text'))
+                sp_text = _fixHtml(getXmlText(sp_info, 'text'))
                 if not os.path.exists(sp_imgfile) or \
                    os.path.getctime(sp_imgfile) < os.path.getctime(xmlfile):
                     sp_png = base64.decodestring(getXmlText(sp_info, 'logo'))
                     open(sp_imgfile, 'wb').write(sp_png)
-                sp = Sponsor(sp_name, sp_text, sp_imgfile)
+                sp = _Sponsor(sp_name, sp_text, sp_imgfile)
                 for keyword in sp_keywords:
                     if not _sponsors.has_key(keyword):
                         _sponsors[keyword] = [ ]
@@ -341,6 +350,8 @@ class PermissionDialog(QDialog, threading.Thread):
     def finish(self):
         _load_sponsor_info(self.xmlfile, self.win)
 
+    pass
+
 ###############################################
 
 _nanorexLogo = '''iVBORw0KGgoAAAANSUhEUgAAAH0AAAApCAIAAACX/bGTAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
@@ -423,14 +434,15 @@ Please see http://www.nanoengineer-1.com for more information."""
 _defsp_png = base64.decodestring(_nanorexLogo)
 _defsp_imgfile = os.path.join(_sponsordir, 'logo_Nanorex.png')
 open(_defsp_imgfile, 'wb').write(_defsp_png)
-_defaultSponsor = Sponsor('Nanorex', fixHtml(_nanorexText), _defsp_imgfile)
+_defaultSponsor = _Sponsor('Nanorex', _fixHtml(_nanorexText), _defsp_imgfile)
 
 ###############################################
 
 class SponsorableMixin:
     """
-    To use this mixin class, instances of a main class which
-    inherits it should provide:
+    To use this mixin class, instances of a main class which inherits it
+    (which is typically a QDialog and/or a Property Manager pane)
+    should provide:
     
         - an attribute sponsor_keyword, which can be None, or a keyword
           string, or a list or tuple of sponsor keyword strings.
@@ -471,3 +483,6 @@ class SponsorableMixin:
         self.__sponsor.wikiHelp()
     def open_sponsor_homepage(self):
         self.__sponsor.wikiHelp()
+    pass
+
+# end

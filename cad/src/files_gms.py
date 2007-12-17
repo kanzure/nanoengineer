@@ -352,8 +352,7 @@ def writegms_inpfile(filename, gamessJig):
         
     # Schoenflies symbol
     f.write("C1\n")
-        
-#    from jigs import povpoint
+    
     for a in gamessJig.atoms:
         pos = a.posn()
         fpos = (float(pos[0]), float(pos[1]), float(pos[2]))
@@ -382,7 +381,7 @@ def writegms_batfile(filename, gamessJob):
     f.write(timestr)
     f.write (rem + '\n')
         
-    gamessJob.write_parms(f) # write_parms is located in superclass (SimJob)
+    gamessJob.write_parms(f) # write_parms is a method in superclass (SimJob)
         
     if gamessJob.server.engine == 'PC GAMESS': # Windows
         f.write(gamessJob.server.program + ' -i ' + gamessJob.job_inputfile + ' -o ' + gamessJob.job_outputfile + '\n')

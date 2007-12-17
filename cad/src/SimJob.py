@@ -1,6 +1,7 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-SimJob.py
+SimJob.py - The base class for a simulation job.
+(Used only for GAMESS, but unclear whether the code is specific to GAMESS.)
 
 @author: Mark
 @version: $Id$
@@ -39,11 +40,9 @@ class SimJob(QObject):
         
         # WARNING: Bugs will be caused if any of SimJob's own methods or 
         # instance variables had the same name as any of the parameter ('k') values.
-
         for k in parms:
             self.__dict__[k] = parms[k]
-            
-#        self.server = SimServer() # The Server.  Moved to Gamess Jig.
+        return
 
     def start_job(self):
         """
