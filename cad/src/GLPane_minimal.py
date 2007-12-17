@@ -16,7 +16,8 @@ from OpenGL.GL import glDepthRange
 from PyQt4.Qt import QGLFormat
 from PyQt4.Qt import QGLWidget
 
-from VQT import V, Q, Trackball
+from VQT import V, Q
+from Trackball import Trackball
 from Csys import Csys
 
 from prefs_constants import undoRestoreView_prefs_key

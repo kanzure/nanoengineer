@@ -401,7 +401,7 @@ packageMapping = {
     "StatProp"                         : "ui",
     "StatPropDialog"                   : "ui",
     "StatusBar"                        : "ui",
-    "SurfaceChunks"                    : "geometry",
+    "SurfaceChunks"                    : "graphics_view",
     
     "TemporaryCommand"                 : "ui",
     
@@ -422,6 +422,7 @@ packageMapping = {
     "ThermoPropDialog"                 : "ui",
     
     "ThumbView"                        : "graphics_widgets",
+    "Trackball"                        : "graphics_behavior",
     
     "Ui_BuildAtomsPropertyManager"     : "ui/propmgr",
     "Ui_BuildStructuresMenu"           : "ui",
