@@ -192,7 +192,7 @@ packageMapping = {
     "ChunkProp"                        : "ui",
     "ChunkPropDialog"                  : "ui",
     "CmdMgr_Constants"                 : "ui",
-    "Command"                          : "ui",
+    "Command"                          : "command",
     "CommandManager"                   : "ui",
     "CommandSequencer"                 : "ui",
     "Comment"                          : "model",
@@ -202,10 +202,10 @@ packageMapping = {
     "constants"                        : "utilities",
     "CoNTubGenerator"                  : "ui/controller",###?? @@@
 
-    "CookieCtrlPanel"                  : "ui",
-    "cookieMode"                       : "ui",
-    "CookiePropertyManager"            : "ui/propmgr",
-    "CookieShape"                      : "command", # see docstring for reasons and caveats
+    "CookieCtrlPanel"                  : "ui|Build Crystal",
+    "cookieMode"                       : "unsplit_mode|Build Crystal",
+    "CookiePropertyManager"            : "ui/propmgr|Build Crystal",
+    "CookieShape"                      : "command|Build Crystal", # see docstring for reasons and caveats
 
     "crossovers"                       : "operation",
     "Csys"                             : "model",
@@ -214,7 +214,7 @@ packageMapping = {
     "debug"                            : "utilities",
     "DebugMenuMixin"                   : "ui", # menu spec and ops for debug menu
     "debug_prefs"                      : "utilities", # (foundation? nah)
-    "depositMode"                      : "ui", # Build Atoms Command and GraphicsMode
+    "depositMode"                      : "unsplit_mode|Build Atoms", # Build Atoms Command and GraphicsMode
     "dimensions"                       : "graphics", # graphics output, not opengl-specific in principle
     "DirectionArrow"                   : "graphics_behavior", # a kind of DragHandler (drawable with behavior); graphics_what?
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
@@ -430,37 +430,37 @@ packageMapping = {
     "SimSetupDialog"                   : "ui|simulation",
     "Sponsors"                         : "ui|sponsors", # contains lots, exports widgets, but belongs in own toplevel package
 
-    # @@@ where i am in file is up to here, and paper too
-    
     "state_constants"                  : "foundation",
-    "state_utils"                      : "foundation",
+    "state_utils"                      : "foundation", # note: utilities/Comparison.py and samevals.c might go with this too
     "state_utils_unset"                : "foundation",
     
     "StatProp"                         : "ui",
     "StatPropDialog"                   : "ui",
-    "StatusBar"                        : "ui",
+    "StatusBar"                        : "ui/widgets|statusbar", # a specific part of the NE1 main window
     "SurfaceChunks"                    : "graphics_view",
     
-    "TemporaryCommand"                 : "ui",
+    "TemporaryCommand"                 : "command",
     
-    "testdraw"                         : "test",
-    "testmode"                         : "test",
+    "testdraw"                         : "graphics_mode|exprs/prototype", # (also has some exprs framework code)
+    "testmode"                         : "unsplit_mode|exprs/prototype", # (also has some exprs framework code)
     
-    "test_commands"                    : "test",
-    "test_commands_init"               : "test", # all these test* modules might be reclassified @@@
-    "test_command_PMs"                 : "ui/propmgr", # for test/example/scratch?
-    "test_connectWithState"            : "test",
-    "test_connectWithState_constants"  : "test",
-    "test_connectWithState_PM"         : "ui/propmgr", # for test/example/scratch?
+    "test_commands"                    : "command|prototype", #? but what actual package directory? xxx.prototype?
+    "test_commands_init"               : "command|prototype",
+    "test_command_PMs"                 : "ui/propmgr|prototype",
+    "test_connectWithState"            : "command|prototype",
+    "test_connectWithState_constants"  : "command|prototype",
+    "test_connectWithState_PM"         : "ui/propmgr|prototype",
     
     "texture_fonts"                    : "graphics",
-    "texture_helpers"                  : "graphics",
+    "texture_helpers"                  : "graphics", #? also graphics_io - split it?
     
     "ThermoProp"                       : "ui",
     "ThermoPropDialog"                 : "ui",
     
     "ThumbView"                        : "graphics_widgets",
     "Trackball"                        : "graphics_behavior",
+
+    # @@@ where i am in file is up to here, and paper too
     
     "Ui_BuildAtomsPropertyManager"     : "ui/propmgr",
     "Ui_BuildStructuresMenu"           : "ui",
@@ -468,7 +468,7 @@ packageMapping = {
     "Ui_BuildToolsMenu"                : "ui",
     "Ui_BuildToolsToolBar"             : "ui",
     "Ui_CommandManager"                : "ui",
-    "Ui_CookiePropertyManager"         : "ui/propmgr",
+    "Ui_CookiePropertyManager"         : "ui/propmgr|Build Crystal",
     "Ui_DimensionsMenu"                : "ui",
     "Ui_DnaFlyout"                     : "ui",
     "Ui_EditMenu"                      : "ui",
