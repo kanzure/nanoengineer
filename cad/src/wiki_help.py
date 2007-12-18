@@ -4,16 +4,23 @@ wiki_help.py -- associate webpages (typically in a wiki) with program features,
 and provide access to them. Pages typically contain feature-specific help info,
 FAQ, forum, etc.
 
-$Id$
+@author: Will, Bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+
+Module classification:
+
+Mostly ui code; a subsystem of the help system.
 
 Terminology note:
 
-We use "web help" rather than "wiki help" in menu command text,
-since more users will know what it means,
-and since nothing in principle forces the web pages accessed this way to be wiki pages.
+We use "web help" rather than "wiki help" in menu command text, since more users
+will know what it means, and since nothing in principle forces the web pages
+accessed this way to be wiki pages.
 
-But we use "wiki help" in history messages, since we want people to think of the wiki
-(rather than a rarely-changing web page) as an integral part of the idea.
+But we use "wiki help" in history messages, since we want people to think of
+the wiki (rather than a rarely-changing web page) as an integral part of the
+idea.
 
 History:
 
@@ -23,9 +30,9 @@ will 051010 added wiki help feature to Mode classes
 
 bruce 051130 revised it
 
-bruce 051201 made new source file for it, extended it to other kinds of objects (so far, some Node subclasses)
+bruce 051201 made new source file for it, extended it to other kinds of objects
+(so far, some Node subclasses)
 """
-__author__ = "Will, Bruce"
 
 from PyQt4 import QtGui
 from PyQt4.Qt import QToolBar
@@ -46,7 +53,7 @@ import env
 import webbrowser
 from debug import print_compact_traceback
 from utilities.Log import redmsg
-from qt4transition import qt4todo
+##from qt4transition import qt4todo
 
 def webbrowser_open(url):
     if len(webbrowser._tryorder) == 0:
@@ -89,7 +96,8 @@ def webbrowser_open(url):
 
 def open_wiki_help_dialog( featurename, actually_open = True ):
     #e actually_open = False is presently disabled in the implem
-    """Show a dialog containing a link which can
+    """
+    Show a dialog containing a link which can
     open the wiki help page corresponding to the named nE-1 feature, in ways influenced by user preferences.
     Assume the featurename might contain blanks, but contains no other characters needing URL-encoding.
     [In the future, we might also accept options about the context or specific instance of the feature,
@@ -131,7 +139,8 @@ def open_wiki_help_dialog( featurename, actually_open = True ):
     return
 
 def open_wiki_help_URL(url, whosdoingthis = "Wiki help"): #bruce 051229 split this out of open_wiki_help_dialog
-    """Try to open the given url in the user's browser (unless they've set preferences to prevent this (NIM)),
+    """
+    Try to open the given url in the user's browser (unless they've set preferences to prevent this (NIM)),
     first emitting a history message containing the url
     (which is described as coming from whosdoingthis, which should be a capitalized string).
     Return True if there's no evidence of an error; print error message to history and return False if it definitely failed.
@@ -158,14 +167,16 @@ def open_wiki_help_URL(url, whosdoingthis = "Wiki help"): #bruce 051229 split th
     return worked
     
 def wiki_prefix():
-    """Return the prefix to which wiki page titles should be appended, to form their urls.
+    """
+    Return the prefix to which wiki page titles should be appended, to form their urls.
     """
     from prefs_constants import wiki_help_prefix_prefs_key
     prefix = env.prefs[wiki_help_prefix_prefs_key]
     return prefix
 
 def wiki_help_url( featurename):
-    """Return a URL at which the wiki help page for the named feature (e.g. "Rotary Motor" or "Build Mode")
+    """
+    Return a URL at which the wiki help page for the named feature (e.g. "Rotary Motor" or "Build Mode")
     might be found (or should be created), or '' if this is not a valid featurename for this purpose [NIM - validity not yet checked].
     Assume the featurename might contain blanks, but contains no other characters needing URL-encoding.
     [Note: in future, user prefs might include a series of wiki prefixes to try,
@@ -182,7 +193,8 @@ def wiki_help_url( featurename):
 # ==
 
 def featurename_for_object(object):
-    """Return the standard "feature name" for the type of this object
+    """
+    Return the standard "feature name" for the type of this object
     (usually for its class), or "" if none can be found.
        This is presently [051201] only used for wiki help,
     but in future might be used for other things requiring permanent feature names,
@@ -195,11 +207,15 @@ def featurename_for_object(object):
     return method()
 
 def wiki_help_menutext( featurename):
-    "Return the conventional menu text for offering wiki help for the feature with the given name."
+    """
+    Return the conventional menu text for offering wiki help for the feature with the given name.
+    """
     return "web help: " + featurename # see module docstring re "wiki help" vs. "web help"
 
 def wiki_help_lambda( featurename):
-    "Return a callable for use as a menuspec command, which provides wiki help for featurename."
+    """
+    Return a callable for use as a menuspec command, which provides wiki help for featurename.
+    """
     def res(arg1=None, arg2=None, featurename = featurename):
         #k what args come in, if any? args of res might not be needed (though they would be if it was a lambda...)
         open_wiki_help_dialog( featurename)
@@ -230,7 +246,8 @@ class QToolBar_WikiHelp(QToolBar):
         return QToolBar.event(self, evt)
 
 class WikiHelpBrowser(QDialog):
-    """The WikiHelpBrowser Dialog.
+    """
+    The WikiHelpBrowser Dialog.
     """
     def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
         QDialog.__init__(self,parent)
@@ -263,18 +280,18 @@ class WikiHelpBrowser(QDialog):
         self.resize(QSize(300, 300).expandedTo(self.minimumSizeHint()))
   
         self.connect(self.close_button,SIGNAL("clicked()"),self.close)
-        
+    pass
 
-class WikiHelpBrowser_ORIG(QTextBrowser): # this is being used in real code as of bruce 051215
-    def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
-        QTextBrowser.__init__(self,parent)
-        self.setMinimumSize(400, 300)
-        self.setCaption(caption) #bruce 051219 (fixes bug 1234)
-        # make it pale yellow like a post-it note
-        self.setText("<qt bgcolor=\"#FFFF80\">" + text)
-        #self.mf = mf = MimeFactory()
-        #mf.owner = self
-        qt4todo('self.setMimeSourceFactory(mf)')
+##class WikiHelpBrowser_ORIG(QTextBrowser):
+##    def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
+##        QTextBrowser.__init__(self,parent)
+##        self.setMinimumSize(400, 300)
+##        self.setCaption(caption) #bruce 051219 (fixes bug 1234)
+##        # make it pale yellow like a post-it note
+##        self.setText("<qt bgcolor=\"#FFFF80\">" + text)
+##        #self.mf = mf = MimeFactory()
+##        #mf.owner = self
+##        qt4todo('self.setMimeSourceFactory(mf)')
 
 def wiki_url_for_topic(topic, wikiprefix = None):
     wikiprefix = wikiprefix or "http://www.nanoengineer-1.net/mediawiki/index.php?title="
@@ -292,6 +309,8 @@ def wikiPageHtmlLink(topic, text = None, wikiprefix = None):
 def HTML_link(url, text): #e might need to do some encoding in url, don't know; certainly needs to in text, in principle
     # this is being used in real code as of bruce 051215
     return "<a href=\"" + url + "\">" + text + "</a>"
+
+# == test code
 
 def __testWikiHelpBrowser():
     import sys

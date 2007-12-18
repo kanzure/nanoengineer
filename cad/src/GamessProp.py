@@ -539,15 +539,15 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
                 "&UHF", "&ROHF", "Cancel",
                 0, 2 )
             
-            if ret==0: # UHF
+            if ret == 0: # UHF
                 self.uhf_radiobtn.toggle()
                 self.rhf_radiobtn.setEnabled(0)
                 
-            elif ret==1: # ROHF
+            elif ret == 1: # ROHF
                 self.rohf_radiobtn.toggle()
                 self.rhf_radiobtn.setEnabled(0)
             
-            elif ret==2: # Cancel
+            elif ret == 2: # Cancel
                 self.multi_combox.setCurrentIndex(0)
         
         elif val == 0:
@@ -612,11 +612,11 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         # 2 = job failed.
         r = self.job.launch()
         
-        if r==1: # Job was cancelled
+        if r == 1: # Job was cancelled
             env.history.message( redmsg( "GAMESS job cancelled."))
             return
             
-        if r==2: # Job failed.
+        if r == 2: # Job failed.
             env.history.message( redmsg( "GAMESS job failed. Maybe you didn't set the right Gamess executable file. Make sure you can run the same job manually."))
             return
         

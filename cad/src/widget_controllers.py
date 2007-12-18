@@ -1,6 +1,6 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-widget_controllers.py
+widget_controllers.py - miscellaneous widget-controller classes
 
 @author: bruce
 @version: $Id$
@@ -21,7 +21,7 @@ from qt4transition import qt4todo
 import env
 
 
-def env_imagename_to_QIcon(imagename, _cache = {}): ### to be replaced with env.imagename_to_QIcon for global env or an arg env
+def _env_imagename_to_QIcon(imagename, _cache = {}): ### to be replaced with env.imagename_to_QIcon for global env or an arg env
     try:
         return _cache[imagename]
     except KeyError:
@@ -79,7 +79,12 @@ class CollapsibleGroupController_Qt:
         self.set_children_shown( self.open )
         return
     def set_openclose_icon(self, open):
-        "open is a boolean"
+        """
+        #doc
+        
+        @param open:
+        @type open: boolean
+        """
         #e do we want to add a provision for not being collapsible at all?
         collapsed = not open
         if self.style == 'Mac':
@@ -94,7 +99,7 @@ class CollapsibleGroupController_Qt:
                 imagename = "win_expand_icon.png" 
             else:
                 imagename = "win_collapse_icon.png"
-        iconset = env_imagename_to_QIcon(imagename) # memoized
+        iconset = _env_imagename_to_QIcon(imagename) # memoized
         self.groupbutton.setIcon(iconset)
         return
     def set_children_shown(self, open):
@@ -150,9 +155,12 @@ class FloatLineeditController_Qt:
     pass
 
 class realtime_update_controller: #bruce 060705, consolidate code from runSim.py, SimSetup.py, and soon MinimizeEnergyProp.py
-    "#doc"
+    """
+    #doc
+    """
     def __init__(self, widgets, checkbox = None, checkbox_prefs_key = None):
-        """Set the data widgets, and if given, the checkbox widget and its prefs key, both optional.
+        """
+        Set the data widgets, and if given, the checkbox widget and its prefs key, both optional.
         If checkbox and its prefs_key are both there, connect them. If neither is provided, always update.
         """
         self.update_btngrp, self.update_number_spinbox, self.update_units_combobox = widgets

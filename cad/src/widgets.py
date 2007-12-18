@@ -1,12 +1,18 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-widgets.py
+widgets.py - helpers for creating widgets, and some simple custom widgets.
 
-helpers for creating widgets, and some simple custom widgets
+@author: Bruce, Mark, Josh, perhaps others
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
-$Id$
+TODO:
+
+Probably should be split into a few modules (e.g. has several color-related
+helpers).
+
+Some things in here might be no longer used.
 """
-__author__ = "bruce"
 
 from PyQt4 import QtGui
 from PyQt4.Qt import QGroupBox, QSpinBox, QCheckBox, QDialog
@@ -36,14 +42,16 @@ import platform
 QVBox, QHBox = range(2)
 
 class widget_filler:
-    """Helper class to make it more convenient to revise the code
+    """
+    Helper class to make it more convenient to revise the code
     which creates nested widget structures (vbox, hbox, splitters, etc).
     For example of use, see extrudeMode.py.
     In the future we might also give this the power to let user prefs
     override the requested structure.
     """
     def __init__(self, parent, label_prefix = None, textfilter = None):
-        """Parent should be the widget or megawidget to be filled with
+        """
+        Parent should be the widget or megawidget to be filled with
         subwidgets using this widget_filler instance.
         """
         self.where = [parent]
@@ -56,7 +64,8 @@ class widget_filler:
         self.textfilter = textfilter
         self.layoutstack = [ ]
     def parent(self):
-        """To use this widget_filler, create new widgets whose parent is what
+        """
+        To use this widget_filler, create new widgets whose parent is what
         this method returns (always a qt widget, not a megawidget)
         [#e we might need a raw_parent method to return megawidgets directly]
         """
@@ -67,7 +76,11 @@ class widget_filler:
         pass
 
     def begin(self, thing):
-        "use this to start a QVBox or QHBox, or a splitter; thing is the Qt widget class" #e or megawidget?
+        """
+        use this to start a QVBox or QHBox, or a splitter;
+        thing is the Qt widget class
+        """
+        # someday: or can thing be a megawidget?
         assert thing in (QVBox, QHBox)
         if len(self.layoutstack) == len(self.where):
             grpbox = self.MyGroupBox()
@@ -114,7 +127,9 @@ class widget_filler:
 # these custom widgets were originally defined at the top of extrudeMode.py.
 
 class FloatSpinBox(QSpinBox):
-    "spinbox for a coordinate in angstroms -- permits negatives, floats"
+    """
+    spinbox for a coordinate in angstroms -- permits negatives, floats
+    """
     range_angstroms = 1000.0 # value can go to +- this many angstroms
     precision_angstroms = 100 # with this many detectable units per angstrom
     min_length = 0.1 # prevent problems with 0 or negative lengths provided by user
@@ -165,7 +180,9 @@ class FloatSpinBox(QSpinBox):
     pass
 
 class TogglePrefCheckBox(QCheckBox):
-    "checkbox, with configurable sense of whether checked means True or False"
+    """
+    checkbox, with configurable sense of whether checked means True or False
+    """
     def __init__(self, *args, **kws):
         self.sense = kws.pop('sense', True) # whether checking the box makes our value (seen by callers) True or False
         self.default = kws.pop('default', True) # whether our default value (*not* default checked-state) is True or False
@@ -221,10 +238,12 @@ def _do_callable_for_undo(func, cmdname): #bruce 060324
     return res
     
 def wrap_callable_for_undo(func, cmdname = "menu command"): #bruce 060324
-    """Wrap a callable object func so that begin and end undo checkpoints are performed for it,
+    """
+    Wrap a callable object func so that begin and end undo checkpoints are performed for it,
     and be sure the returned object can safely be called at any time in the future
     (even if various things have changed in the meantime).
-       WARNING: If a reference needs to be kept to the returned object, that's the caller's responsibility.
+
+    WARNING: If a reference needs to be kept to the returned object, that's the caller's responsibility.
     """
     # use 3 guards in case PyQt passes up to 3 unwanted args to menu callables,
     # and don't trust Python to preserve func and cmdname except in the lambda default values
@@ -236,10 +255,11 @@ def wrap_callable_for_undo(func, cmdname = "menu command"): #bruce 060324
 
 # helper for making popup menus from our own "menu specs" description format,
 # consisting of nested lists of text, callables or submenus, options.
-# [moved here from GLPane.py -- bruce 050112]
+# [moved here from GLPane.py; probably originally by Josh -- bruce 050112]
 
 def makemenu_helper(widget, menu_spec, menu = None):
-    """Make and return a reusable or one-time-use (at caller's option)
+    """
+    Make and return a reusable or one-time-use (at caller's option)
     popup menu whose structure is specified by menu_spec,
     which is a list of menu item specifiers, each of which is either None
     (for a separator) or a tuple of the form (menu text, callable or submenu,
@@ -338,7 +358,8 @@ def makemenu_helper(widget, menu_spec, menu = None):
     return menu # from makemenu_helper
 
 def insert_command_into_menu(menu, menutext, command, options = (), position = -1, raw_command = False, undo_cmdname = None): 
-    """[This was part of makemenu_helper in the Qt3 version; in Qt4 it's only used for the disabled case,
+    """
+    [This was part of makemenu_helper in the Qt3 version; in Qt4 it's only used for the disabled case,
      presumably for some good reason but not one which has been documented.]
     Insert a new item into menu (a QMenu), whose menutext, command, and options are as given,
     with undo_cmdname defaulting to menutext (used only if raw_command is false), 
@@ -425,9 +446,10 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
 # ==
 
 def double_fixup(validator, text, prevtext):
-    '''Returns a string that represents a float which meets the requirements of validator.
+    """
+    Returns a string that represents a float which meets the requirements of validator.
     text is the input string to be checked, prevtext is returned if text is not valid.
-    '''
+    """
     r, c = validator.validate(QString(text), 0)
 
     if r == QValidator.Invalid:
@@ -447,7 +469,10 @@ def double_fixup(validator, text, prevtext):
 # Maybe some of them should all go into a new file specifically for colors. #e
 
 def colorchoose(self, r, g, b):
-    "#doc -- note that the args r,g,b should be ints, but the retval is a 3-tuple of floats. (Sorry, that's how I found it.)"
+    """
+    #doc -- note that the args r,g,b should be ints, but the retval
+    is a 3-tuple of floats. (Sorry, that's how I found it.)
+    """
     # r, g, b is the default color displayed in the QColorDialog window.
     from PyQt4.Qt import QColorDialog
     color = QColorDialog.getColor(QColor(r, g, b), self, "choose") #k what does "choose" mean?
@@ -458,7 +483,9 @@ def colorchoose(self, r, g, b):
     pass
 
 def RGBf_to_QColor(fcolor): # by Mark 050730
-    "Converts RGB float to QColor."
+    """
+    Converts RGB float to QColor.
+    """
     # moved here by bruce 050805 since it requires QColor and is only useful with Qt widgets
     r = int (fcolor[0]*255 + 0.5) # (same formula as in elementSelector.py)
     g = int (fcolor[1]*255 + 0.5)
@@ -466,12 +493,16 @@ def RGBf_to_QColor(fcolor): # by Mark 050730
     return QColor(r, g, b)
 
 def QColor_to_RGBf(qcolor): # by Mark 050921
-    "Converts QColor to RGB float."
+    """
+    Converts QColor to RGB float.
+    """
     return qcolor.red()/255.0, qcolor.green()/255.0, qcolor.blue()/255.0
 
 def get_widget_with_color_palette(frame, color):
-    ''' Return the widget with the background palette set to the 
-    Qcolor provided by the user'''
+    """
+    Return the widget with the background palette set to the 
+    Qcolor provided by the user
+    """
     #ninad070502: This is used in many dialogs which show a colored frame 
     #that represents the current color of the object in the glpane. 
     #Example, in Rotary motor prop dialog, you will find a colored frame 
@@ -487,7 +518,8 @@ def get_widget_with_color_palette(frame, color):
 # ==
 
 class TextMessageBox(QDialog):
-    """The TextMessageBox class provides a modal dialog with a textedit widget 
+    """
+    The TextMessageBox class provides a modal dialog with a textedit widget 
     and a close button.  It is used as an option to QMessageBox when displaying 
     a large amount of text.  It also has the benefit of allowing the user to copy and 
     paste the text from the textedit widget.
@@ -530,13 +562,14 @@ class TextMessageBox(QDialog):
 #==
 
 def PleaseConfirmMsgBox(text='Please Confirm.'): # mark 060302.
-    '''Prompts the user to confirm/cancel by pressing a 'Confirm' or 'Cancel' button in a QMessageBox.
+    """
+    Prompts the user to confirm/cancel by pressing a 'Confirm' or 'Cancel' button in a QMessageBox.
     <text> is the confirmation string to explain what the user is confirming.
     
     Returns:
         True - if the user pressed the Confirm button
         False - if the user pressed the Cancel button (or Enter, Return or Escape)
-    '''
+    """
     ret = QMessageBox.warning( None, "Please Confirm",
             str(text) + "\n",
             "Confirm",
@@ -545,7 +578,7 @@ def PleaseConfirmMsgBox(text='Please Confirm.'): # mark 060302.
             1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
             1)  # Escape (1= Cancel)
           
-    if ret==0: 
+    if ret == 0: 
         return True # Confirmed
     else:
         return False # Cancelled

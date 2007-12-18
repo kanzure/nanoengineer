@@ -423,11 +423,11 @@ class GamessJob(SimJob):
             1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
             1)  # Escape (1= Cancel)
           
-        if ret==0: # Confirmed
+        if ret == 0: # Confirmed
             print "CONFIRMED"
             return True
         else:
-            "CANCELLED"
+            print "CANCELLED"
             return False
 
     pass # end of class GamessJob

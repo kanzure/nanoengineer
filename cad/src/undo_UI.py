@@ -18,17 +18,12 @@ TODO:
 WARNING: most comments have not been not reviewed since this code was moved
 out of undo_manager.py [as of 071025], so they may be misleadingly out of
 context.
-
 """
-
-# TODO: some imports may not be needed
 
 from debug import print_compact_traceback
 
 import env
 from utilities.Log import greenmsg, redmsg, _graymsg
-
-##from undo_manager import ... ###e and more -- FIX ############
 
 from widgets import PleaseConfirmMsgBox
 

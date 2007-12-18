@@ -1,10 +1,18 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-undo.py
+undo.py - low-level Undo support -- wrapping Qt calls of our slot methods.
 
-Undo-related code.
+THIS MODULE NEEDS RENAMING.
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+
+Module classification:
+
+foundation/undo.
+
+==
 
 Status as of 060117:
 
@@ -26,8 +34,6 @@ A result of the mess of modules might be that too much gets imported
 at app-startup time (even before .atom-debug-rc gets to run).
 This needs to be cleaned up, but it's probably not urgent.
 """
-
-__author__ = 'bruce'
 
 # TODO: import this module from a better place than we do now! [is this an obs comment?]
 
@@ -746,7 +752,5 @@ def args_info(func1): #bruce 071004 revised implem and return value format
     # if we didn't return something above, just return the stub value
     # which represents complete uncertainty
     return DEFAULT_RETVAL
-
-# ==
 
 #end
