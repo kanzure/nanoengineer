@@ -120,7 +120,7 @@ class Stopwatch:
     def now(self):
         return time.time() - self.__start
 
-def time_taken(func): #bruce 051202 moved this here from undo.py
+def time_taken(func): #bruce 051202 moved this here
     """
     call func and measure how long this takes.
 
@@ -133,7 +133,7 @@ def time_taken(func): #bruce 051202 moved this here from undo.py
     t2t = time.time()
     return (t2t - t1t, t2c - t1c, res)
 
-def call_func_with_timing_histmsg( func): #bruce 051202 moved this here from undo.py
+def call_func_with_timing_histmsg( func): #bruce 051202 moved this here
     realtime, cputime, res = time_taken(func)
     env.history.message( "done; took %0.4f real secs, %0.4f cpu secs" % (realtime, cputime) )
     return res

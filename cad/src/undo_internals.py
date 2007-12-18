@@ -1,41 +1,17 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-undo.py - low-level Undo support -- wrapping Qt calls of our slot methods.
+undo_internals.py - wrap our Qt slot methods with Undo checkpoints.
 
-THIS MODULE NEEDS RENAMING.
+See also: undo_archive.py, undo_manager.py, undo_UI.py,
+def wrap_callable_for_undo, and perhaps some undo-related
+code in env.py, changes.py, HistoryWidget.py.
 
 @author: Bruce
 @version: $Id$
 @copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
-Module classification:
-
-foundation/undo.
-
-==
-
-Status as of 060117:
-
-- contains some timing test commands still cluttering up the debug menu, 
-
-- and some real code that wraps Qt slot calls and which will probably remain in the release
-for helping identify commands, make their undo checkpoints, etc.
-
-See also undo_archive.py, undo_manager.py.
-
-Older:
-
-At present [050922], a lot of new undo-related code is being added here
-even though some of it belongs in other modules (existing or new).
-Conversely, some new undo-related code can be found in env.py, changes.py,
-and perhaps HistoryWidget.py.
-
-A result of the mess of modules might be that too much gets imported
-at app-startup time (even before .atom-debug-rc gets to run).
-This needs to be cleaned up, but it's probably not urgent.
+Module classification: foundation.
 """
-
-# TODO: import this module from a better place than we do now! [is this an obs comment?]
 
 import env
 from debug import register_debug_menu_command
@@ -102,21 +78,24 @@ if EndUser.enableDeveloperFeatures():
 
 # ==
 
-def reload_undo(target=None):
+def reload_undo(target = None):
+    # does this work at all, now that undo_UI was split out of undo_manager? [bruce 071217 Q]
     import undo_archive
     reload(undo_archive)
     import undo_manager
     reload(undo_manager)
-    import undo
-    reload(undo)
-    print "\nreloaded undo.py and two others; open a new file and we'll use them\n" #e (works, but should make reopen automatic)
+    import undo_internals
+    reload(undo_internals)
+    print "\nreloaded 3 out of 4 undo_*.py files; open a new file and we'll use them\n" #e (works, but should make reopen automatic)
 
-register_debug_menu_command("reload undo.py", reload_undo)
+register_debug_menu_command("reload undo", reload_undo)
 
 # ==
 
 def keep_under_key(thing, key, obj, attr):
-    "obj.attr[key] = thing, creating obj.attr dict if necessary"
+    """
+    obj.attr[key] = thing, creating obj.attr dict if necessary
+    """
     if DEBUG_PRINT_UNDO and 0:
         print "keepkey:",key,"keepon_obj:",obj # also print attr to be complete
             # This shows unique keys, but just barely (name is deleg for lots of QActions)
@@ -131,7 +110,8 @@ def keep_under_key(thing, key, obj, attr):
 
 class wrappedslot:
     """
-       WARNING: the details in this docstring are obsolete as of sometime before 071004.
+    WARNING: the details in this docstring are obsolete as of sometime before 071004.
+
        Hold a boundmethod for a slot, and return callables (for various arglists)
     which call it with our own code wrapping the call.
        We don't just return a callable which accepts arbitrary args, and pass them on,
@@ -204,7 +184,9 @@ class wrappedslot:
         self.__signal = signal #060320 for debugging
         return # from __init__
     def fbmethod_0args(self, *args, **kws):
-        "fake bound method with 0 args" ###@@@ no, any number of args - redoc ###@@@
+        """
+        fake bound method with any number of args (misnamed)
+        """
         slotboundmethod = self.slotboundmethod
         #e we'll replace these prints with our own begin/end code that's standard for slots;
         # or we might call methods passed to us, or of known names on an obj passed to us;
@@ -373,7 +355,9 @@ class wrappedslot:
         ## return cp_fn, mc  #060123 revised retval
         return mc
     def error(self):
-        "called when an exception occurs during our slot method call"
+        """
+        called when an exception occurs during our slot method call
+        """
         ###e mark the op_run as having an error, or at least print something
         if platform.atom_debug:
             print "atom_debug: unmatched begin_op??"
@@ -391,7 +375,8 @@ class wrappedslot:
     pass
 
 class hacked_connect_method_installer: #e could be refactored into hacked-method-installer and hacked-method-code to call origmethod
-    """Provide methods which can hack the connect and disconnect methods of some class (assumed to be QWidget or QObject)
+    """
+    Provide methods which can hack the connect and disconnect methods of some class (assumed to be QWidget or QObject)
     by replacing them with our own version, which calls original version but perhaps with modified args.
     Other methods or public attrs let the client control what we do
     or see stats about how many times we intercepted a connect-method call.
@@ -399,13 +384,17 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
     def __init__(self):
         self.conns = {} # place to keep stats for debug
     def hack_connect_method(self, qclass):
-        "Call this on QWidget or QObject class -- ONLY ONCE -- to hack its connect method." #e in __init__?
+        """
+        Call this on QWidget or QObject class -- ONLY ONCE -- to hack its connect method.
+        """
+        #e in __init__?
         self.qclass = qclass #k not yet used in subsequent methods, only in this one
         replace_static_method_in_class( qclass, 'connect', self.fake_connect_method )
         replace_static_method_in_class( qclass, 'disconnect', self.fake_disconnect_method )
         return
     def fake_connect_method(self, origmethod, *args):
-        """ This gets called on all QWidgets instead of the static method QObject.connect,
+        """
+        This gets called on all QWidgets instead of the static method QObject.connect,
         with the original implem of that method followed by the args from the call
         (not including the instance it was called on, since it replaces a static method),
         and must pretend to do the same thing, but it actually modifies some of the args
@@ -479,7 +468,8 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
         if DEBUG_PRINT_UNDO:
             print "hcmi %r: %r" % (self.stage, self.conns)
     def maybe_wrapslot(self, sender, signal, slotboundmethod, keepcache_object = None):
-        """Caller is about to make a connection from sender's signal to slotboundmethod.
+        """
+        Caller is about to make a connection from sender's signal to slotboundmethod.
         Based on sender and signal, decide whether we want to wrap slotboundmethod with our own code.
            If so, return the wrapped slot (a python callable taking same args as slotboundmethod),
         but first make sure it won't be dereferenced too early, by storing it in a dict
@@ -512,7 +502,9 @@ class hacked_connect_method_installer: #e could be refactored into hacked-method
         # return the wrapped slotboundmethod
         return method
     def decide(self, sender, signal):
-        "should we wrap the slot for this signal when it's sent from this sender?"
+        """
+        should we wrap the slot for this signal when it's sent from this sender?
+        """
         if 'treeChanged' in str(signal): ###@@@ kluge: knowing this [bruce 060320 quick hack to test-optimize Undo checkpointing]
             if env.debug():
                 ###@@@ kluge: assuming what we're used for, in this message text
@@ -575,14 +567,17 @@ def just_before_mainwindow_init_returns():
 # (or even permitted) to pass to the origmethod.
 
 class fake_static_method_supplier:
-    "[private helper class for replace_static_method_in_class]"
+    """
+    [private helper class for replace_static_method_in_class]
+    """
     def __init__(self, origmethod, insertedfunc):
         self.args = origmethod, insertedfunc
         self.fsm = self._fake_static_method_implem
             # memoize one copy of this self-bound method,
             # which pretends to be another class's static method
     def fake_static_method_and_keep_these(self):
-        """Return the pair (fake_static_method, keep_these) [see calling code for explanation].
+        """
+        Return the pair (fake_static_method, keep_these) [see calling code for explanation].
         fake_static_method need not be wrapped in staticmethod since it's not a user-defined function
         or any other object which will be turned into a bound method when retrieved from the class it
         will be installed in. (If things change and use of staticmethod becomes necessary, it should
@@ -596,13 +591,16 @@ class fake_static_method_supplier:
             # if we remade self.fsm on each call, we'd have to return both in keep_these.
             # (Presumably even self.fsm would be enough for caller to keep.)
     def _fake_static_method_implem(self, *args, **kws):
-        "this is what runs in place of origmethod(*args, **kws)"
+        """
+        this is what runs in place of origmethod(*args, **kws)
+        """
         origmethod, insertedfunc = self.args
         return insertedfunc(origmethod, *args, **kws) # or pass on any exceptions it might raise
     pass
 
 def replace_static_method_in_class(clas, methodname, insertedfunc):
-    """Replace a class's static instance-method (clas.methodname) with a new one (created herein)
+    """
+    Replace a class's static instance-method (clas.methodname) with a new one (created herein)
     which intercepts all calls meant for the original method --
     these have the form instance.methodname(*args, **kws) for some instance of clas or a subclass,
     and like all static methods would have been called like origmethod(*args, **kws)
@@ -623,7 +621,9 @@ def replace_static_method_in_class(clas, methodname, insertedfunc):
 # ==
 
 def normalize_signal(signal):
-    "normalize whitespace in signal string, which should be SIGNAL(xx) or (untested) PYSIGNAL(xx)"
+    """
+    normalize whitespace in signal string, which should be SIGNAL(xx) or (untested) PYSIGNAL(xx)
+    """
     try:
         # this fails with AttributeError: normalizeSignalSlot [bruce 050921]
         return QObject.normalizeSignalSlot(signal)
@@ -652,7 +652,9 @@ def normalize_signal(signal):
 # ==
 
 def _count(substring, signal):
-    "return the number of times substring occurs in signal"
+    """
+    return the number of times substring occurs in signal
+    """
     return len(signal.split(substring)) - 1
 
 def guess_signal_argcount(signal):
@@ -753,4 +755,4 @@ def args_info(func1): #bruce 071004 revised implem and return value format
     # which represents complete uncertainty
     return DEFAULT_RETVAL
 
-#end
+# end

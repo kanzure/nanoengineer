@@ -73,7 +73,7 @@ from ops_view import viewSlotsMixin
 from changes import register_postinit_object
 import preferences
 import env 
-import undo
+import undo_internals
 
 from prefs_constants import nanohive_enabled_prefs_key
 from prefs_constants import gamess_enabled_prefs_key
@@ -163,7 +163,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         #at the end of self.showNormal
         self._widgetToHideDuringFullScreenMode = []
 
-        undo.just_before_mainwindow_super_init()
+        undo_internals.just_before_mainwindow_super_init()
 
         qt4warning('MainWindow.__init__(self, parent, name, Qt.WDestructiveClose) - what is destructive close?')
         QMainWindow.__init__(self, parent)
@@ -443,7 +443,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # mark 060105 commented out self.make_buttons_not_in_UI_file()
         #self.make_buttons_not_in_UI_file()
 
-        undo.just_after_mainwindow_super_init()
+        undo_internals.just_after_mainwindow_super_init()
 
         # bruce 050104 moved this here so it can be used earlier
         # (it might need to be moved into main.py at some point)
@@ -1038,7 +1038,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             # Note: this might depend on self's geometry in choosing dialog placement, so it shouldn't be done in __init__.
 
         self.win_update() # bruce 041222
-        undo.just_before_mainwindow_init_returns() # (this is now misnamed, now that it's not part of __init__)
+        undo_internals.just_before_mainwindow_init_returns() # (this is now misnamed, now that it's not part of __init__)
         return
 
     __did_cleanUpBeforeExiting = False #bruce 070618

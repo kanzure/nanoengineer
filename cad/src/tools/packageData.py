@@ -170,7 +170,7 @@ disallowedModuleNames = {
 packageMapping = {
     "assembly"                         : "model", # (some foundation, but knows part.py which knows lots of ops & model constructors)
                                                   # (also: knows about selection, undo state, change counting, open file)
-    "Assembly_API"                     : "foundation_api", # not legit to be used below foundation
+    "Assembly_API"                     : "foundation", # since not legit to be used below foundation
     "AtomGenerator"                    : "ui/controller",
     "AtomGeneratorPropertyManager"     : "ui/propmgr",
     "atomtypes"                        : "model", # or chemistry?
@@ -213,7 +213,7 @@ packageMapping = {
     "CylinderChunks"                   : "graphics_view",#? a ChunkDisplayMode; graphics_what? _view? _style?
     "debug"                            : "utilities",
     "DebugMenuMixin"                   : "ui", # menu spec and ops for debug menu
-    "debug_prefs"                      : "utilities", # (foundation? nah)
+    "debug_prefs"                      : "utilities",
     "depositMode"                      : "unsplit_mode|Build Atoms", # Build Atoms Command and GraphicsMode
     "dimensions"                       : "graphics", # graphics output, not opengl-specific in principle
     "DirectionArrow"                   : "graphics_behavior", # a kind of DragHandler (drawable with behavior); graphics_what?
@@ -490,10 +490,10 @@ packageMapping = {
     "Ui_ViewOrientation"               : "ui",
     "Ui_ViewToolBar"                   : "ui",
     
-    "undo"                             : "foundation/undo",
-    "undo_archive"                     : "foundation/undo",
-    "undo_manager"                     : "foundation/undo",
-    "undo_UI"                          : "operations", # or operations/undo? any way to group this with the other undo code?
+    "undo_internals"                   : "foundation",
+    "undo_archive"                     : "foundation",
+    "undo_manager"                     : "foundation",
+    "undo_UI"                          : "operations", # or operations/undo?
     
     "UserPrefs"                        : "ui",
     "UserPrefsDialog"                  : "ui",
