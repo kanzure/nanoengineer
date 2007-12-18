@@ -734,9 +734,12 @@ class SimRunner:
 
         # "formarg" = File format argument -- we need this even when use_dylib,
         # since it's also used as an internal flag via self._formarg
-        if ext == ".dpb": formarg = ''
-        elif ext == ".xyz": formarg = "-x" #SIMOPT (value also used as internal flag)
-        else: assert 0
+        if ext == ".dpb":
+            formarg = ''
+        elif ext == ".xyz":
+            formarg = "-x" #SIMOPT (value also used as internal flag)
+        else:
+            assert 0
         self._formarg = formarg # kluge
         # the use_dylib code for formarg is farther below
 
@@ -1540,8 +1543,8 @@ class SimRunner:
             if self.abortHandler and self.abortHandler.getPressCount() > 0:
                 # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
                 self.abort_sim_run("got real  abort at frame %d" % frame_number) # this sets self.aborting flag
-            # mflag=1 -> minimize, user preference determines whether we watch it in real time
-            # mflag=0 -> dynamics, watch_motion (from movie setup dialog) determines real time
+##            # mflag == 1 => minimize, user preference determines whether we watch it in real time
+##            # mflag == 0 => dynamics, watch_motion (from movie setup dialog) determines real time
 ##            elif ((not self.mflag and self._movie.watch_motion) or
 ##                  (self.mflag and env.prefs[Adjust_watchRealtimeMinimization_prefs_key])):
             elif self._movie.watch_motion:

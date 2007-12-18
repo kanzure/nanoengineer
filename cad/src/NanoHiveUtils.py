@@ -247,12 +247,12 @@ def activate_nh_plugin(win):
         "&OK", "Cancel", "",
         0, 1 )
             
-    if ret==0: # OK
+    if ret == 0: # OK
         win.userPrefs.showDialog('Plug-ins') # Show Prefences | Plug-in.
         if not env.prefs[nanohive_enabled_prefs_key]:
             return 1 # Nano-Hive was not enabled by user.
         
-    elif ret==1: # Cancel
+    elif ret == 1: # Cancel
         return 1
 
     return 0

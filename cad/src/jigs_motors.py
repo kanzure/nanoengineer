@@ -398,7 +398,7 @@ class RotaryMotor(Motor):
             self._initial_quats = None # compute these the first time they're needed (since maybe never needed)
             return 0.0 # returning this now (rather than computing it below) is just an optim, in theory
         assert len(self._initial_posns) == len(posns), "bug in invalidating self._initial_posns when rmotor atoms change"
-        if not (self._initial_posns != posns): # have to use not(x!=y) rather than (x==y) due to Numeric semantics!
+        if not (self._initial_posns != posns): # have to use not (x != y) rather than (x == y) due to Numeric semantics!
             # no (noticable) change in positions - return quickly
             # (but don't change stored posns, in case this misses tiny changes which could accumulate over time)
             # (we do this before the subsequent stuff, to not waste redraw time when posns don't change;

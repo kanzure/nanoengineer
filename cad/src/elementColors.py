@@ -111,8 +111,9 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.alterButton.setWhatsThis("""Set element colors to the alternate color set.""")
         
     def closeEvent(self, e):
-        """When user closes dialog by clicking the 'X' button on the dialog title bar, this method
-            is called
+        """
+        When user closes dialog by clicking the 'X' button on the dialog title bar, this method
+        is called
         """
         self.ok()
         
@@ -125,7 +126,9 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.connect(self.greenSpinBox,SIGNAL("valueChanged(int)"),self.changeSliderGreen)
     
     def loadDefaultProp(self):
-        """Load default set of color/rvdw for the current periodic table """    
+        """
+        Load default set of color/rvdw for the current periodic table
+        """    
         self.elemTable.loadDefaults()
         self._updateModelDisplay()
         elemNum =  self.elementButtonGroup.checkedId()
@@ -133,7 +136,9 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.isElementModified = True
         
     def loadAlterProp(self):
-        """Load alternate set of color/rvdw for the current periodic table """ 
+        """
+        Load alternate set of color/rvdw for the current periodic table
+        """ 
         self.elemTable.loadAlternates()
         self._updateModelDisplay()
         elemNum =  self.elementButtonGroup.checkedId()
@@ -141,7 +146,9 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.isElementModified = True
     
     def changeDisplayMode(self, value):
-        """Called when any of the display mode radioButton clicked. Obsolete."""
+        """
+        Called when any of the display mode radioButton clicked. Obsolete.
+        """
         assert value in [0, 1, 2]
         newMode = self._displayList[value]
         if newMode != self.displayMode:
@@ -151,7 +158,9 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
             self.elemGLPane.refreshDisplay(elm, self.displayMode)
  
     def setElementInfo(self,value):
-        '''Called as a slot from an element button push. '''
+        """
+        Called as a slot from an element button push.
+        """
         self.setDisplay(value)
         
     def setDisplay(self, value):
@@ -172,8 +181,10 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.blueSpinBox.setValue(color.blue())
         
     def updateElemGraphDisplay(self):
-        """Update non user interactive controls display for current selected element:
-        element label info and element graphics info """
+        """
+        Update non user interactive controls display for current selected element:
+        element label info and element graphics info
+        """
         elemNum =  self.elementButtonGroup.checkedId()
         self.color = self.elemTable.getElemColor(elemNum)       
         elm = self.elemTable.getElement(elemNum)
@@ -182,7 +193,9 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
  
     
     def updateElemColorDisplay(self):
-        '''Update GL display for user\'s color change. '''
+        """
+        Update GL display for user's color change.
+        """
         elemNum =  self.elementButtonGroup.checkedId()
         self.color = self.elemTable.getElemColor(elemNum)
         
@@ -192,8 +205,10 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.restorePB.setEnabled(1) # Enable Restore button.
         
     def read_element_rgb_table(self):
-        """Open file browser to select a file to read from, read the data,
-        update elements color in the selector dialog and also the display models """
+        """
+        Open file browser to select a file to read from, read the data,
+        update elements color in the selector dialog and also the display models
+        """
         # Determine what directory to open.
         import os
         if self.w.assy.filename: 
@@ -201,12 +216,12 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         else: 
             from prefs_constants import workingDirectory_prefs_key
             odir = env.prefs[workingDirectory_prefs_key]
-        self.fileName = str(QFileDialog.getOpenFileName(
-                                                         self,
-                                                        "Load Element Color",
-                                                        odir,
-                                                        "Elements color file (*.txt);;All Files (*.*);;"
-                                                         ))
+        self.fileName = str( QFileDialog.getOpenFileName(
+                                self,
+                                "Load Element Color",
+                                odir,
+                                "Elements color file (*.txt);;All Files (*.*);;"
+                                 ))
         if self.fileName:
             colorTable = readElementColors(self.fileName)
             
@@ -226,8 +241,10 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         
         
     def write_element_rgb_table(self):
-        """Save the current set of element preferences into an external file---
-        currently only r,g,b color of each element will be saved."""
+        """
+        Save the current set of element preferences into an external file --
+        currently only r,g,b color of each element will be saved.
+        """
         if not self.fileName:
            from prefs_constants import workingDirectory_prefs_key   
            sdir = env.prefs[workingDirectory_prefs_key]
@@ -249,13 +266,14 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
             import os    
             if os.path.exists(fn): # ...and if the "Save As" file exists...
                     # ... confirm overwrite of the existing file.
-                    ret = QMessageBox.warning( self, "Save Element Colors...", "The file \"" + fn + "\" already exists.\n"\
-                        "Do you want to overwrite the existing file or cancel?",
+                    ret = QMessageBox.warning( self, "Save Element Colors...",
+                        "The file \"" + fn + "\" already exists.\n"
+                          "Do you want to overwrite the existing file or cancel?",
                         "&Overwrite", "&Cancel", "",
                         0,      # Enter == button 0
                         1 )     # Escape == button 1
 
-                    if ret==1: # The user cancelled
+                    if ret == 1: # The user cancelled
                         return 
                     
             # write the current set of element colors into a file    
@@ -319,15 +337,17 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         self.greenSlider.blockSignals(False)
         
     def preview_color_change(self): # mark 060129.
-        '''Slot for Preview button.  Applies color changes for the current element in the GLPane,
+        """
+        Slot for Preview button.  Applies color changes for the current element in the GLPane,
         allowing the user to preview the color changes in the model before saving.
-        '''
+        """
         self.w.glpane.gl_update()
         
     def restore_current_color(self): # mark 060129.
-        '''Slot for the Restore button.  Restores the current element color to the 
+        """
+        Slot for the Restore button.  Restores the current element color to the 
         original (previous) color before any color change was made.
-        '''
+        """
         self.update_sliders_and_spinboxes(RGBf_to_QColor(self.original_color))
         self.w.glpane.gl_update()
         
@@ -345,8 +365,10 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
         
         
     def reject(self):
-        """ If elements modified or external file loaded, restore
-        current pref to originial since our dialog is reused """
+        """
+        If elements modified or external file loaded, restore
+        current pref to originial since our dialog is reused
+        """
         if self.isElementModified or self.fileName:  
             self.elemTable.resetElemTable(self.oldTable)
             self._updateModelDisplay()
@@ -355,7 +377,9 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
     
     
     def _updateModelDisplay(self):
-        """Update model display """
+        """
+        Update model display
+        """
         for mol in self.w.assy.molecules: 
             mol.changeapp(1)
         
@@ -371,7 +395,8 @@ class elementColors(QDialog, Ui_ElementColorsDialog):
 # history widget, not sys.stdout.
 
 def readElementColors(fileName):
-    """Read element colors (ele #, r, g, b) from a text file.
+    """
+    Read element colors (ele #, r, g, b) from a text file.
     Each element is on a new line. A line starting '#' is a comment line.
     <Parameter> fileName: a string for the input file name
     <Return>:  A list of quardral tuples--(ele #, r, g, b) if succeed, otherwise 'None'
@@ -404,7 +429,8 @@ def readElementColors(fileName):
 
 
 def saveElementColors(fileName, elemTable):
-    """Write element colors (ele #, r, g, b) into a text file.
+    """
+    Write element colors (ele #, r, g, b) into a text file.
     Each element is on a new line.  A line starting '#' is a comment line.
     <Parameter> fileName: a string for the input file name
     <Parameter> elemTable: A dictionary object of all elements in our periodical table 
@@ -449,20 +475,23 @@ if 0:
            glEnable(GL_LIGHTING)        
       
         
-### Test code #########
-import sys        
-if __name__=='__main__':
-  QApplication.setColorSpec(QApplication.CustomColor)
-  app=QApplication(sys.argv)
+# == Test code
 
-  if not QGLFormat.hasOpenGL():
-    raise 'No Qt OpenGL support.'
+import sys
 
-  w = elementColors(None)
-  app.setMainWidget(w)
-  w.resize(400,350)
-  w.show()
-  w.setCaption('box')
-  app.exec_()        
+if __name__ == '__main__':
+
+    QApplication.setColorSpec(QApplication.CustomColor)
+    app=QApplication(sys.argv)
+
+    if not QGLFormat.hasOpenGL():
+        raise 'No Qt OpenGL support.'
+
+    w = elementColors(None)
+    app.setMainWidget(w)
+    w.resize(400,350)
+    w.show()
+    w.setCaption('box')
+    app.exec_()        
 
 

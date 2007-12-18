@@ -237,11 +237,11 @@ class Reindenter:
 
     # Line-eater for tokenize.
     def tokeneater(self, type, token, (sline, scol), end, line,
-                   INDENT=tokenize.INDENT,
-                   DEDENT=tokenize.DEDENT,
-                   NEWLINE=tokenize.NEWLINE,
-                   COMMENT=tokenize.COMMENT,
-                   NL=tokenize.NL):
+                   INDENT = tokenize.INDENT,
+                   DEDENT = tokenize.DEDENT,
+                   NEWLINE = tokenize.NEWLINE,
+                   COMMENT = tokenize.COMMENT,
+                   NL = tokenize.NL):
 
         if type == NEWLINE:
             # A program statement, or ENDMARKER, will eventually follow,

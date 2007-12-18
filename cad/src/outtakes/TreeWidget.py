@@ -1325,7 +1325,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 messed_up_retval = self.drag_handler.one_of_yours_Q( event, text) # False, or a tuple of useful data #e revise!
                 if messed_up_retval:
                     # return "true" whether or not it accepts the drag! (once it has that choice) (i mean return "recognized"
-                    # not just "accepted". it could return (recognized, type, nodes) with type==None meaning rejected.
+                    # not just "accepted". it could return (recognized, type, nodes) with type == None meaning rejected.
                     # when it always does that we can change the call to immediately assign the reval to the tuple, if we want.
                     recognized_Q, drag_type, nodes = messed_up_retval
                     # but for now we can only handle the following:

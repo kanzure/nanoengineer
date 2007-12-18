@@ -90,7 +90,7 @@ class StatusBar(QStatusBar):
                                    1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
                                    1)  # Escape (1= Cancel)
 
-        if ret==0: # Confirmed
+        if ret == 0: # Confirmed
             for abortHandler in self.abortableCommands.values():
                 abortHandler.pressed()
 
@@ -208,7 +208,7 @@ class NanoHiveProgressReporter(object):
         self.nanoHiveSocket = nanoHiveSocket
         self.simulationID = simulationID
         self.responseCode = -1
-        self.lastPrecent = 0
+        self.lastPercent = 0
 
     def getProgress(self):
         success, response = self.nanoHiveSocket.sendCommand("status " + self.simulationID)
@@ -219,9 +219,9 @@ class NanoHiveProgressReporter(object):
         # Need to do this since we only get a percent value when responseCode == 5 (sim is running).
         # If responseCode != 5, p can be None (r=10) or a whitespace char (r=4).
         if self.responseCode == 5:
-            self.lastPrecent = int(percent)
+            self.lastPercent = int(percent)
 
-        return self.lastPrecent
+        return self.lastPercent
 
     def getMaxProgress(self):
         return 100

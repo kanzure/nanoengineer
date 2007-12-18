@@ -399,9 +399,9 @@ class testmode(superclass):
         # WARNING: This code is duplicated in depositMode.makeMenus(). mark 060314.
         if selatom is not None and not selatom.is_singlet() and self.w.simSetupAction.isEnabled():
             # see comments in depositMode version
-            self.Menu_spec.append(( 'Adjust atom %s' % selatom, lambda e1=None,a=selatom: self.localmin(a,0) ))
-            self.Menu_spec.append(( 'Adjust 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
-            self.Menu_spec.append(( 'Adjust 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
+            self.Menu_spec.append(( 'Adjust atom %s' % selatom, lambda e1 = None, a = selatom: self.localmin(a,0) ))
+            self.Menu_spec.append(( 'Adjust 1 layer', lambda e1 = None, a = selatom: self.localmin(a,1) ))
+            self.Menu_spec.append(( 'Adjust 2 layers', lambda e1 = None, a = selatom: self.localmin(a,2) ))
             ditch_generic = True #bruce 070228
             
         # selobj-specific menu items. [revised by bruce 060405; for more info see the same code in depositMode]

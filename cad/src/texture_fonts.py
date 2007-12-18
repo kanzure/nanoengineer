@@ -253,8 +253,8 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
 
     if 1: #### for n in range(65): # simulate the delay of doing a whole page of chars
       # note, this is significantly slow even if we just draw 5x as many chars!
-      for i in range(-1,charheight-1): # (range was -1,tex_ny==8, length 9) - note, increasing i goes up on screen, not down!
-        for j in range(charwidth): # was tex_nx==16
+      for i in range(-1, charheight - 1): # (range was -1,tex_ny == 8, length 9) - note, increasing i goes up on screen, not down!
+        for j in range(charwidth): # was tex_nx == 16
             origin, dx, dy = gg(i,j) # where to draw this char ###k
             tex_origin, ltex_dx, ltex_dy = ff(i,j) # still in pixel ints # what tex coords to use to find it
             tex_origin, ltex_dx, ltex_dy = 1.0/tex_size[0] * V(tex_origin, ltex_dx, ltex_dy) # kluge until i look up how to use pixels directly

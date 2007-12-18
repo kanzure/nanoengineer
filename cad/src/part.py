@@ -222,7 +222,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # e.g. molecules, bbox, center, drawLevel, alist, selatoms, selmols
                 
         # movie ID, for future use. [bruce 050324 commenting out movieID until it's used; strategy for this will change, anyway.]
-        ## self.movieID=0
+        ## self.movieID = 0
         
         # ppa = previous picked atoms. ###@@@ not sure these are per-part; should reset when change mode or part
         self.ppa2 = self.ppa3 = self.ppm = None

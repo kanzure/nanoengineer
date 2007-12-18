@@ -622,7 +622,7 @@ once they are formalized.
 # == test code (very incomplete) [revised 050804 since it was out of date]
 
 if __name__ == '__main__':
-##    defaults = dict(hi=2,lo=1)
+##    defaults = dict(hi = 2, lo = 1)
 ##    print "grabbing %r, got %r" % (defaults, grab_some_prefs_from_cache(defaults))
 ##    new = dict(hi = time.asctime())
 ##    print "now will store new values %r" % new

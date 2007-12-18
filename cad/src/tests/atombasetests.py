@@ -57,7 +57,7 @@ class Structure:
     def __len__(self):
         return len(self.atomset.keys())
 
-def water(x=0.0, y=0.0, z=0.0):
+def water(x = 0.0, y = 0.0, z = 0.0):
     w = Structure()
     posns = (
         (Numeric.array((x - 0.983, y - 0.008, z + 0.000)),  # hydrogen

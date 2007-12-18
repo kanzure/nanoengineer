@@ -2,7 +2,9 @@
 """
 UserPrefs.py
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -10,8 +12,9 @@ Created by Mark.
 
 Modified somewhat by Bruce 050805 for bond color prefs,
 and 050810 to fix bugs 785 (partly in MWsemantics.py) and 881 for Alpha6.
+
+Many mods since then by Mark, Bruce, Ninad, perhaps others.
 """
-__author__ = "Mark"
 
 import os, sys
 
@@ -363,11 +366,11 @@ def validate_gamess_path(parent, gmspath):
     @return:  "gmspath" if it is validated or if the user does not want to 
               change it for any reason, or
               "new_gmspath" if gmspath is invalid and the user selected a new
-              GAMESS executable.
+              GAMESS executable. Return value might be "".
     """
 
     if not gmspath: # It is OK if gmspath is empty.
-        return ''
+        return ""
     elif os.path.exists(gmspath):
         return gmspath
     else:
@@ -376,7 +379,7 @@ def validate_gamess_path(parent, gmspath):
                                    "&Yes", "&No", "",
                                    0, 1 )
 
-        if ret==0: # Yes
+        if ret == 0: # Yes
             new_gmspath = get_gamess_path(parent)
             if not new_gmspath:
                 return gmspath # Cancelled from file chooser.  Just return the original gmspath.

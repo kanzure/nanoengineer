@@ -298,7 +298,7 @@ class AtomType:
         if not res:
             return
         if 0 and platform.atom_debug:
-            print "atom_debug: (%d) %s permits these v6's besides single==6: %r" % (self.element.eltnum, self.fullname, res)
+            print "atom_debug: (%d) %s permits these v6's besides single(6): %r" % (self.element.eltnum, self.fullname, res)
         res.append(V_SINGLE)
             # Note: we do this even for O(sp2) and S(sp2), even though a bond1 as their sole bond is always a valence error.
             # Valence errors have to be treated separately anyway, so it's probably ok to not catch these special cases here.

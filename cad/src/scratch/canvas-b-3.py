@@ -370,10 +370,10 @@ class BouncyLogo(QCanvasSprite):
         self.setVelocity(d*speed*2-speed, (1-d)*speed*2-speed)
 
     def advance(self,stage):
-        if stage==0:
+        if stage == 0:
             vx=self.xVelocity()
             vy=self.yVelocity()
-            if (vx==0.0) & (vy==0.0):
+            if (vx == 0.0) & (vy == 0.0):
                 self.initSpeed()
                 vx=self.xVelocity()
                 vy=self.yVelocity()
@@ -390,14 +390,14 @@ class BouncyLogo(QCanvasSprite):
                 l=self.collisions(False)
                 for hit in l:
                     if (hit.rtti()==1234) & (hit.collidesWith(self)):
-                        if bounce==0:
+                        if bounce == 0:
                             vx=-vx
-                        elif bounce==1:
+                        elif bounce == 1:
                             vy=-vy
                             vx=-vx
-                        elif bounce==2:
+                        elif bounce == 2:
                             vx=-vx
-                        elif bounce==3:
+                        elif bounce == 3:
                             vx=0
                             vy=0
                         self.setVelocity(vx,vy)
@@ -409,7 +409,7 @@ class BouncyLogo(QCanvasSprite):
                 vy=0
 
             self.setVelocity(vx,vy)
-        elif stage==1:
+        elif stage == 1:
             QCanvasItem.advance(self,stage)
 
 
@@ -820,7 +820,8 @@ class Main (QMainWindow):
         i.show()
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
+    
     app=QApplication(sys.argv)
 
     if len(sys.argv) > 1:

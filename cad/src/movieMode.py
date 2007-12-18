@@ -710,7 +710,7 @@ class movieDashboardSlotsMixin:
                         0,      # Enter == button 0
                         1 )     # Escape == button 1
 
-                if ret==1: # The user cancelled
+                if ret == 1: # The user cancelled
                     env.history.message( "Cancelled.  File not saved." )
                     return # Cancel clicked or Alt+C pressed or Escape pressed
             

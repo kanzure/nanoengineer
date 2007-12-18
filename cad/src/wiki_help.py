@@ -216,7 +216,7 @@ def wiki_help_lambda( featurename):
     """
     Return a callable for use as a menuspec command, which provides wiki help for featurename.
     """
-    def res(arg1=None, arg2=None, featurename = featurename):
+    def res(arg1 = None, arg2 = None, featurename = featurename):
         #k what args come in, if any? args of res might not be needed (though they would be if it was a lambda...)
         open_wiki_help_dialog( featurename)
     return res
@@ -249,7 +249,7 @@ class WikiHelpBrowser(QDialog):
     """
     The WikiHelpBrowser Dialog.
     """
-    def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
+    def __init__(self, text, parent = None, clicked_func = None, caption = "(caption)"):
         QDialog.__init__(self,parent)
         
         self.setWindowTitle(caption)
@@ -283,7 +283,7 @@ class WikiHelpBrowser(QDialog):
     pass
 
 ##class WikiHelpBrowser_ORIG(QTextBrowser):
-##    def __init__(self, text, parent=None, clicked_func = None, caption = "(caption)"):
+##    def __init__(self, text, parent = None, clicked_func = None, caption = "(caption)"):
 ##        QTextBrowser.__init__(self,parent)
 ##        self.setMinimumSize(400, 300)
 ##        self.setCaption(caption) #bruce 051219 (fixes bug 1234)
@@ -323,7 +323,7 @@ def __testWikiHelpBrowser():
                 app, SLOT("quit()"))
     app.exec_()
 
-if __name__=="__main__":
+if __name__ == "__main__":
     __testWikiHelpBrowser()
     
 # end

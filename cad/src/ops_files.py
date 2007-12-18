@@ -838,7 +838,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                         0,      # Enter == button 0
                         1 )     # Escape == button 1
 
-                    if ret==1: # The user cancelled
+                    if ret == 1: # The user cancelled
                         env.history.message( "Cancelled.  Part not saved." )
                        
                         return None # Cancel clicked or Alt+C pressed or Escape pressed
@@ -1093,7 +1093,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                         0,      # Enter == button 0
                         1 )     # Escape == button 1
 
-                    if ret==1: # The user wants to skip copying the part files
+                    if ret == 1: # The user wants to skip copying the part files
                         msg = "Not copying Part Files; preexisting Part Files directory at new name [%s] will be used unless renamed." % newPartFilesDir
                         env.history.message( orangemsg( msg ) )
                         return 0, "Nothing copied since user skipped overwriting existing part files directory"
@@ -1282,10 +1282,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
             
-            if ret==0: isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
-            elif ret==1:
+            if ret == 0: isFileSaved = self.fileSave() # Save clicked or Alt+S pressed or Enter pressed.
+            elif ret == 1:
                 env.history.message("Changes discarded.")
-            elif ret==2: 
+            elif ret == 2: 
                 env.history.message("Cancelled.")
                 return # Cancel clicked or Alt+C pressed or Escape pressed
         
