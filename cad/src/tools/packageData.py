@@ -285,8 +285,8 @@ packageMapping = {
     "GroupProp"                        : "ui/dialog",
     "GroupPropDialog"                  : "ui/dialog",
     "handles"                          : "graphics_behavior", # graphical handles (for Extrude, but could be general)
-    "help"                             : "ui/dialog", # ui_help package?
-    "HelpDialog"                       : "ui/dialog", # ui_help package?
+    "help"                             : "ui/dialog|help", # ui_help package?
+    "HelpDialog"                       : "ui/dialog|help", # ui_help package?
     "HistoryWidget"                    : "ui", # for History package (as a major ui component)?
     "icon_utilities"                   : "io", #? - could be considered utilities, io, or platform, or maybe images
     "ImageUtils"                       : "graphics_images", # graphics_images? images?
@@ -460,7 +460,7 @@ packageMapping = {
     "ThumbView"                        : "graphics_widgets",
     "Trackball"                        : "graphics_behavior",
 
-    # @@@ where i am in file is up to here, and paper too
+    # classify Ui_* later, probably get help from Ninad @@@
     
     "Ui_BuildAtomsPropertyManager"     : "ui/propmgr",
     "Ui_BuildStructuresMenu"           : "ui",
@@ -474,7 +474,7 @@ packageMapping = {
     "Ui_EditMenu"                      : "ui",
     "Ui_ExtrudePropertyManager"        : "ui/propmgr",
     "Ui_FileMenu"                      : "ui",
-    "Ui_HelpMenu"                      : "ui",
+    "Ui_HelpMenu"                      : "ui|help",
     "Ui_InsertMenu"                    : "ui",
     "Ui_MovePropertyManager"           : "ui/propmgr",
     "Ui_MoviePropertyManager"          : "ui/propmgr",
@@ -490,10 +490,11 @@ packageMapping = {
     "Ui_ViewOrientation"               : "ui",
     "Ui_ViewToolBar"                   : "ui",
     
-    "undo"                             : "foundation",
-    "undo_archive"                     : "foundation",
-    "undo_manager"                     : "foundation",
-    "undo_UI"                          : "ui",
+    "undo"                             : "foundation/undo",
+    "undo_archive"                     : "foundation/undo",
+    "undo_manager"                     : "foundation/undo",
+    "undo_UI"                          : "operations", # or operations/undo? any way to group this with the other undo code?
+    
     "UserPrefs"                        : "ui",
     "UserPrefsDialog"                  : "ui",
     "Utility"                          : "foundation", # some model code?
@@ -503,9 +504,11 @@ packageMapping = {
     "VQT"                              : "geometry",
     
     "whatsthis"                        : "ui",
-    "widgets"                          : "ui",
-    "widget_controllers"               : "ui",
-    "wiki_help"                        : "ui", # some io?
+    "widgets"                          : "ui/widgets",
+    "widget_controllers"               : "ui/widgets",
+
+    # @@@ where i am in file is up to here, and paper too
+    "wiki_help"                        : "ui|help", # some io? a subsystem of the help system.
     
     "ZoomMode"                         : "ui",
     }
