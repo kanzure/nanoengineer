@@ -32,6 +32,7 @@ def setupUi(win):
     win.simulationJigsAction = QtGui.QAction(MainWindow)
     win.simulationJigsAction.setIcon(geticon("ui/actions/Simulation/Simulation_Jigs.png"))
     win.simulationJigsAction.setObjectName("simulationJigsAction")
+    win.simulationJigsAction.setToolTip("Simulation Jigs")
     
     win.simulationJigsAction.setMenu(win.simulationJigsMenu)
     

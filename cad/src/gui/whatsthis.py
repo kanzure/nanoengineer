@@ -1410,6 +1410,19 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win. simSetupAction.setWhatsThis( simSetupActionText )
 
+
+    # Simulation Jigs
+    
+    simulationJigsActionText = \
+            "<u><b>Simulation Jigs</b></u><br>"\
+            "<p>"\
+            "<img source=\"ui/actions/Simulation/Simulation_Jigs.png\"><br> "\
+            "Drop down menu for adding rotary motors, linear motors and "\
+            "other jigs used to simulate structures"\
+            "</p>"
+    win.simulationJigsAction.setWhatsThis(  simulationJigsActionText )
+    
+    
     # Play Movie (was Movie Player) Mark 060807.
 
     simMoviePlayerActionText = \
