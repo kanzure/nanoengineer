@@ -269,7 +269,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     "commands of the Move Properties Manager." 
     "</p>"
         
-    #Thimins appears to have the same problem as translate, no wiki link 
+    #This appears to have the same problem as translate, no wiki link 
     
     win.rotateComponentsAction.setWhatsThis( rotateComponentsActionText )
     
@@ -1210,10 +1210,8 @@ def createWhatsThisTextForMainWindowWidgets(win):
                 "<p>"\
                 "<img source=\"ui/actions/Tools/Build Tools/Mirror.png\"><br> "\
                 "Mirrors the selected <b> chunks </b> about a "\
-                "reference Grid Plane.<br>"\
-                "<font color=\"#808080\">Note: In this version, it "\
-                "doesn't mirror jigs or individual "\
-                "atoms.</font> </p>"
+                "reference Grid or Plane.<br>"
+                
 
     win.modifyMirrorAction.setWhatsThis(modifyMirrorActionText )  
 
