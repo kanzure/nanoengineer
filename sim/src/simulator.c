@@ -230,6 +230,7 @@ main(int argc, char **argv)
     int opt, n;
     int dump_part = 0;
     int printStructurePotentialEnergy = 0;
+    int needVDW = 1;
     char *printPotential = NULL;
     double printPotentialInitial = -1; // pm
     double printPotentialIncrement = -1; // pm
@@ -455,10 +456,13 @@ main(int argc, char **argv)
     if (EXCEPTION) {
         exit(1);
     }
-    initializePart(part);
+    if (GromacsOutputBaseName != NULL) {
+        needVDW = 0;
+    }
+    initializePart(part, needVDW);
     createPatterns();
     matchPartToAllPatterns(part);
-
+    
     if (printStructurePotentialEnergy) {
         struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
         double potentialEnergy = calculatePotential(part, part->positions);

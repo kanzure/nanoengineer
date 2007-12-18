@@ -327,7 +327,8 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.w.cookieSelectDashboard.hide()
             
         #Restore display style status message
-        self.w.dispbarLabel.setText( "Current Display: " + dispLabel[self.w.glpane.displayMode] )
+        self.w.statusBar().dispbarLabel.setText( "Current Display: " +
+                                                 dispLabel[self.w.glpane.displayMode] )
             
         # Restore view projection, enable them.
         self.w.setViewOrthoAction.setEnabled(True)

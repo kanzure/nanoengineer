@@ -12,328 +12,255 @@ by mark on 060105.
 __author__ = "Mark"
 
 import os, time
-from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL, QMessageBox
+from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL, QMessageBox, QStatusBar
 import platform
 from PlatformDependent import hhmmss_str #bruce 060106 moved that function there
 import env
+from icon_utilities import geticon
 from utilities.Log import redmsg #bruce 060208 fix bug in traceback printing re bug 1263 (doesn't fix 1263 itself)
 from qt4transition import qt4todo, lineage
 from debug import print_compact_traceback
 
-def do_what_MainWindowUI_should_do(win):
-    """Create some widgets inside the Qt-supplied statusbar, self.statusBar()."""
-    # (see also env.history.message())
+class StatusBar(QStatusBar):
+    def __init__(self, win):
+        QStatusBar.__init__(self, win)
+        self.statusMsgLabel = QLabel()
     
-    # Create a status message bar. Bug 1343, wware 060309
-    win.statusMsgLabel = QLabel()
+        self.statusMsgLabel.setMinimumWidth(200)
+        self.statusMsgLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.addPermanentWidget(self.statusMsgLabel)
     
-    win.statusMsgLabel.setMinimumWidth(200)
-    win.statusMsgLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-    win.statusBar().addPermanentWidget(win.statusMsgLabel)
+        self.progressBar = QProgressBar(win)
+        self.progressBar.setMaximumWidth(250)
+        qt4todo('StatusBar.progressBar.setCenterIndicator(True)')
+        self.addPermanentWidget(self.progressBar)
+        self.progressBar.hide()
     
-    # Create progressbar.
-    win.status_pbar = QProgressBar(win)
-    win.status_pbar.setMaximumWidth(250)
-    qt4todo('win.status_pbar.setCenterIndicator(True)')
-    win.statusBar().addPermanentWidget(win.status_pbar)
-    win.status_pbar.hide()
-    
-    # Create sim abort (stop) button.
-    win.simAbortButton = QToolButton(win)
-    from icon_utilities import geticon
-    pixmap = geticon("ui/actions/Simulation/Stopsign.png")
-    win.simAbortButton.setIcon(QIcon(pixmap))
-    win.simAbortButton.setMaximumWidth(32)
-    win.statusBar().addPermanentWidget(win.simAbortButton)
-    win.connect(win.simAbortButton,SIGNAL("clicked()"),win.simAbort)
-        # as of 060106 this puts up confirmation dialog,
-        # then does self.sim_abort_button_pressed = True (if user confirms)
-    win.simAbortButton.hide()
+        self.simAbortButton = QToolButton(win)
+        pixmap = geticon("ui/actions/Simulation/Stopsign.png")
+        self.simAbortButton.setIcon(QIcon(pixmap))
+        self.simAbortButton.setMaximumWidth(32)
+        self.addPermanentWidget(self.simAbortButton)
+        self.connect(self.simAbortButton,SIGNAL("clicked()"),self.simAbort)
+        self.simAbortButton.hide()
 
-    # Create (current) display mode bar.
-    win.dispbarLabel = QLabel()
-    win.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-    win.statusBar().addPermanentWidget(win.dispbarLabel)
-    
-    # Create (current) mode bar.        
-    win.modebarLabel = QLabel()
-    win.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
-    win.statusBar().addPermanentWidget(win.modebarLabel)
+        self.dispbarLabel = QLabel()
+        self.dispbarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.addPermanentWidget(self.dispbarLabel)
 
-    win._duration = 0 # Seconds that the progress bar takes to complete
-        # [bruce 050415 comment: 'duration' is a public attribute, used by external code
-        #  after the progress bar is hidden and the launch method has returned.]
-        # [bruce 060103: I've now removed that kluge from runSim.py.
-        #  This attr should now be considered private.
-        #  I think I'll rename it to '_duration' to verify that. ####@@@@
+        # Only use of this appears to be commented out in MWsemantics as of 2007/12/14
+        self.modebarLabel = QLabel()
+        self.modebarLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
+        self.addPermanentWidget(self.modebarLabel)
+        self.abortableCommands = {}
+
+    def makeCommandNameUnique(self, commandName):
+        index = 1
+        trial = commandName
+        while (self.abortableCommands.has_key(trial)):
+            trial = "%s [%d]" % (commandName, index)
+            index += 1
+        return trial
+
+    def addAbortableCommand(self, commandName, abortHandler):
+        uniqueCommandName = self.makeCommandNameUnique(commandName)
+        self.abortableCommands[uniqueCommandName] = abortHandler
+        return uniqueCommandName
+
+    def removeAbortableCommand(self, commandName):
+        del self.abortableCommands[commandName]
         
-    return
+    def simAbort(self):
+        """
+        Slot for Abort button.
+        """
+        if platform.atom_debug and self.sim_abort_button_pressed: #bruce 060106
+            print "atom_debug: self.sim_abort_button_pressed is already True before we even put up our dialog"
 
+        # Added confirmation before aborting as part of fix to bug 915. Mark 050824.
+        # Bug 915 had to do with a problem if the user accidently hit the space bar or espace key,
+        # which would call this slot and abort the simulation.  This should no longer be an issue here
+        # since we aren't using a dialog.  I still like having this confirmation anyway.  
+        # IMHO, it should be kept. Mark 060106. 
+        ret = QMessageBox.warning( self, "Confirm",
+                                   "Please confirm you want to abort.\n",
+                                   "Confirm",
+                                   "Cancel", 
+                                   "", 
+                                   1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
+                                   1)  # Escape (1= Cancel)
 
-def show_progressbar_and_stop_button(win, nsteps, filename = '', cmdname = "<unknown command>", show_duration = 0):
-    # misnamed, since specialized for watching a growing file, and since also waits for progress to be done... [bruce 060106 comment]
-    """Display the statusbar's progressbar and stop button, and update it while a file is 
-    being written by some other process, to show the size of that file as progress, while 
-    waiting for that size to reach a given value; when it does, hide the progressbar and stop
-    button and return 0. If the user first presses the Stop button on the statusbar, hide the 
-    progressbar and stop button and return 1.
-    Parameters:
-        win - the main window
-        nsteps - total steps for the progress bar (final size in bytes of filename)
-        filename - name of file we are waiting for.
+        if ret==0: # Confirmed
+            for abortHandler in self.abortableCommands.values():
+                abortHandler.pressed()
+
+    def show_indeterminate_progress(self):
+        value = self.progressBar.value()
+        self.progressBar.setValue(value)
+
+    def possibly_hide_progressbar_and_stop_button(self):
+        if (len(self.abortableCommands) <= 0):
+            self.progressBar.reset()
+            self.progressBar.hide()
+            self.simAbortButton.hide()
+            
+
+    def show_progressbar_and_stop_button(self,
+                                         progressReporter,
+                                         cmdname = "<unknown command>",
+                                         showElapsedTime = False):
+        """
+        Display the statusbar's progressbar and stop button, and
+        update it based on calls to the progressReporter.
+
+        When the progressReporter indicates completion, hide the
+        progressbar and stop button and return 0. If the user first
+        presses the Stop button on the statusbar, hide the progressbar
+        and stop button and return 1.
+
+        Parameters:
+        progressReporter - See potential implementations below.
         cmdname - name of command (used in some messages and in abort button tooltip)
-        show_duration - if True, display duration (in seconds) below progressbar
-    Return value: 0 if file reached desired size, 1 if user hit abort button.
-    """
-    # (note: mark circa 060105 made this by copying and modifying ProgressBar.launch(). bruce 060112 added cmdname.)
-    
-    #bruce 060106 splitting this into pieces so Pyrex sim interface can share some of its code.
-    # (These pieces are global functions, but should really be methods of a new class, but that can wait. #e)
-    
-    ## win.sim_abort_button_pressed = False # moved into AbortButtonForOneTask.start
-    filesize = 0
-    sinc = .1
-    
-    ###e the following is WRONG if there is more than one task at a time... [bruce 060106 comment]
-    win.stime = time.time() 
-    win.status_pbar.reset()
-    win.status_pbar.setMaximum(nsteps)
-    win.status_pbar.setValue(0)
-    win.status_pbar.show() 
-    
-    ## win.simAbortButton.show() # moved into AbortButtonForOneTask.start
+        showElapsedTime - if True, display duration (in seconds) below progress bar
 
-    abortbutton = AbortButtonForOneTask( cmdname)
-        #bruce 060106 moved some code from this loop into that class (so pyrex sim can use it too)
-    abortbutton.start()
-    
-    # Main loop
-    while filesize < nsteps:
-        if os.path.exists(filename): filesize = os.path.getsize(filename)
-        win.status_pbar.setValue( filesize )
-        import env
-        env.call_qApp_processEvents()
+        Return value: 0 if file reached desired size, 1 if user hit abort button.
+
+        """
+
+        updateInterval = .1 # seconds
+        startTime = time.time()
+        elapsedTime = 0
+        displayedElapsedTime = 0
+
+        ###e the following is WRONG if there is more than one task at a time... [bruce 060106 comment]
+        self.progressBar.reset()
+        self.progressBar.setMaximum(progressReporter.getMaxProgress())
+        self.progressBar.setValue(0)
+        self.progressBar.show() 
+
+        abortHandler = AbortHandler(self, cmdname)
+
+        # Main loop
+        while progressReporter.notDoneYet():
+            self.progressBar.setValue(progressReporter.getProgress())
+            env.call_qApp_processEvents()
             # Process queued events (e.g. clicking Abort button,
             # but could be anything -- no modal dialog involved anymore).
-        
-        if show_duration: # Display duration.
-            elapsedtime = win._duration
-            win._duration = time.time() - win.stime
-            if elapsedtime == win._duration: continue
-            elapmsg = "Elapsed Time: " + hhmmss_str(int(win._duration))
-            # Display the duration, bug 1343 wware 060310
-            env.history.progress_msg(elapmsg)
-                #e if this is a non-modal background task, that statusbar_msg
-                # might mess up more important ones from foreground operations --
-                # need to reconsider this (even if we prohibit other long-running
-                # tasks from being launched during this time). [bruce 060106 comment]
 
-        abortbutton.step()
-        if abortbutton.status == ABORTING:
-        ## if win.sim_abort_button_pressed: # User hit abort button
-            ## win.sim_abort_button_pressed = False #bruce 060106 -- make sure at most one task responds [not sure this is good]
-                # I decided not to add that, since until we have a better/safer way to control multiple long running tasks,
-                # we might as well let 'abort' clear out all the ongoing tasks at once! Chnces are the user didn't even
-                # realize there was more than one, and furthermore, if they continue they might mess things up more than
-                # this one (running inside them and effectively suspending them) has already done!
-                # [bruce 060106]
-            win.status_pbar.hide()
-            abortbutton.finish()
-            ## win.simAbortButton.hide()
-            env.history.statusbar_msg("Aborted.")
-            return 1
+            if showElapsedTime:
+                elapsedTime = int(time.time() - startTime)
+                if (elapsedTime != displayedElapsedTime):
+                    displayedElapsedTime = elapsedTime
+                    env.history.progress_msg("Elapsed Time: " +
+                                             hhmmss_str(displayedElapsedTime))
 
-        time.sleep(sinc) # Take a rest
-        
-    # End of Main loop (this only runs if it ended without being aborted)
-    win.status_pbar.setValue(nsteps)
-    win._duration = time.time() - win.stime
-    time.sleep(0.1)  # Give the progress bar a moment to show 100%
-    win.status_pbar.hide()
-    abortbutton.finish()
-    ## win.simAbortButton.hide()
-    env.history.statusbar_msg("Done.")
-    return 0
+            if abortHandler.getPressCount() > 0:
+                env.history.statusbar_msg("Aborted.")
+                abortHandler.finish()
+                return 1
 
-def show_pbar_and_stop_button_for_esp_calculation(win, sim_id, nh_socket, show_duration = 0):
-    """Display the statusbar's progressbar and stop button, and update it while an ESP calculation
-    is being run by Nano-Hive.
-    Parameters:
-        win - the main window
-        sim_id - simulation Id
-        nh_socket - the Nano-Hive socket
-        show_duration - if True, display duration (in seconds) below progressbar
-    Return value: 0 if Nano-Hive finished, 1 if user hit abort button.
+            time.sleep(updateInterval) # Take a rest
+
+        # End of Main loop (this only runs if it ended without being aborted)
+        self.progressBar.setValue(progressReporter.getMaxProgress())
+        time.sleep(updateInterval)  # Give the progress bar a moment to show 100%
+        env.history.statusbar_msg("Done.")
+        abortHandler.finish()
+        return 0
+
+class FileSizeProgressReporter(object):
     """
+    Report progress of sub-process for
+    StatusBar.show_progressbar_and_stop_button().
+
+    This class reports progress based on the growth of a file on disk.
+    It's used to show the progress of a dynamics simulation, where the
+    output file will grow by a fixed amount each timestep until it
+    reaches a final size which is known in advance.
+    """
+    def __init__(self, fileName, expectedSize):
+        self.fileName = fileName
+        self.expectedSize = expectedSize
+        self.currentSize = 0
+
+    def getProgress(self):
+        if os.path.exists(self.fileName):
+            self.currentSize = os.path.getsize(self.fileName)
+        else:
+            self.currentSize = 0
+        return self.currentSize
+
+    def getMaxProgress(self):
+        return self.expectedSize
         
-    win.sim_abort_button_pressed = False
-    sinc = .1
-    win.stime = time.time()
-        
-    win.status_pbar.reset()
-    win.status_pbar.setMaximum(100) # 0-100 percent
-    win.status_pbar.setValue(0)
-    win.status_pbar.show()
-        
-    win.simAbortButton.show()
-        
-    done = False
-    percentDone = 0
-        
-    # Main loop
-    while not done:
-            
-        success, response = nh_socket.sendCommand("status " + sim_id) # Send "status" command.
-        #print success, response
-        r, p = response.split(sim_id)
-        #print "responseCode=", r,", percent=", p
-            
-        responseCode = int(r)
-        
+    def notDoneYet(self):
+        return self.currentSize < self.expectedSize
+
+class NanoHiveProgressReporter(object):
+    """
+    Report progress of sub-process for
+    StatusBar.show_progressbar_and_stop_button().
+
+    This class talks to the sub-process directly, and asks for a
+    status report including the percent complete.
+    """
+    def __init__(self, nanoHiveSocket, simulationID):
+        self.nanoHiveSocket = nanoHiveSocket
+        self.simulationID = simulationID
+        self.responseCode = -1
+        self.lastPrecent = 0
+
+    def getProgress(self):
+        success, response = self.nanoHiveSocket.sendCommand("status " + self.simulationID)
+        responseCode, percent = response.split(self.simulationID)
+
+        self.responseCode = int(responseCode)
+
         # Need to do this since we only get a percent value when responseCode == 5 (sim is running).
         # If responseCode != 5, p can be None (r=10) or a whitespace char (r=4).
-        if responseCode == 5: #
-            percentDone = int(p)
+        if self.responseCode == 5:
+            self.lastPrecent = int(percent)
 
-        #print "responseCode =", responseCode,", percentDone =", percentDone
+        return self.lastPrecent
 
-        win.status_pbar.setValue( percentDone )
-        import env
-        env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
-        # Process queued events (i.e. clicking Abort button).
-            
-        if show_duration: # Display duration.
-            elapsedtime = win._duration
-            win._duration = time.time() - win.stime
-            if elapsedtime == win._duration: continue
-            elapmsg = "Elapsed Time: " + hhmmss_str(int(win._duration))
-            # bug 1343 wware 060310
-            env.history.progress_msg(elapmsg)
-                
-        if responseCode == 4: # 5 == Sim is Idle (Done)
-            done = True
-            
-        if win.sim_abort_button_pressed: # User hit abort button
-            win.status_pbar.hide()
-            win.simAbortButton.hide()
-            env.history.statusbar_msg("Aborted.")
-            return 1
+    def getMaxProgress(self):
+        return 100
 
-        time.sleep(sinc) # Take a rest
-            
-    # End of Main loop
-    win.status_pbar.setValue(100) # 100 percent
-    win._duration = time.time() - win.stime
-    time.sleep(0.1)  # Give the progress bar a moment to show 100%
-    win.status_pbar.hide()
-    win.simAbortButton.hide()
-    env.history.statusbar_msg("Done.")
-    return 0
+    def notDoneYet(self):
+        return self.responseCode != 4
 
 # ==
 
-abortables = [] #bruce 060112 quick fix to prevent more than one task at a time from owning the stopsign button
-    ########@@@@@@@ partly NIM
+class AbortHandler:
+    def __init__(self, statusBar, commandName):
+        self.statusBar = statusBar
+        name = commandName or '<unknown command>' # required argument
+        self.commandName = statusBar.addAbortableCommand(name, self)
+        self.pressCount = 0
+        statusBar.simAbortButton.show()
 
-def cmdname_already_running():
-    if not abortables:
-        return "" # nothing is running
-    cmdname = abortables[-1].cmdname # command name of what's running (which is why a new command can't start)
-    return cmdname or "<some command>" # ensure this retval is True (bug if cmdname is not, but don't bother to catch that here)
+    def pressed(self):
+        self.pressCount += 1
+        # could call a callback here
 
-def ok_to_start(cmdname, explain_why_not = False):
-    """Is it ok to start a new task of the command of the given name? If yes return True,
-    if no return False. If no and explain_why_not is true, first emit a standard
-    history message explaining why not.
-    """
-    old = cmdname_already_running()
-    ok = not old
-    if not ok and explain_why_not:
-        env.history.message(redmsg("%s is not allowed while %s is still running" % (cmdname, old) ))
-    return ok
+    def getPressCount(self):
+        self.statusBar.show_indeterminate_progress()
+        return self.pressCount
 
-class AbortButtonForOneTask: #bruce 060106; will become a subclass of something like "subtask with its own start/step/finish methods"
-    "initial stub or kluge -- all tasks use the same abort button -- will probably mess up if more than one task is run at once"
-    #e a task name (for tooltip, history, etc) should be passed to some method here...
-    #e note: if this would create its own copy of the stopsign button, with a custom tooltip, and its own signal/slot/flag,
-    # then we'd have (1) visible warning of multiple tasks, (2) prototype of "task icons on sbar" proposal,
-    # (3) better chance of avoiding bugs from multiple tasks.
-    def __init__(self, cmdname):
-        self.cmdname = cmdname or '<unknown command>' # required argument
-        self.win = env.mainwindow()
-            # used for the global flag self.win.sim_abort_button_pressed (shared among all tasks for now)
-        self.abortButton = self.win.simAbortButton
-        self.status = None
-        self.error = None
-        self.force_quit = False
-    def ok_to_start(self, explain_why_not = False):
-        return ok_to_start(self.cmdname, explain_why_not = explain_why_not)
-    def start(self):
-        ok = self.ok_to_start(explain_why_not = True)
-        assert ok, "self == %r should have checked self.ok_to_start() before calling start"
-        abortables.append(self)
-        self.win.sim_abort_button_pressed = False
-            # This is very dubious if there is more than one task at a time... [bruce 060106 comment]
-        self.status = STARTED
-        self.set_tooltip("Abort %s" % self.cmdname)
-        self.abortButton.show()
-    def set_tooltip(self, text):
-##        if env.debug():
-##            print "debug: set tooltip for abort button is nim:",text ####@@@@
-        pass ### self.abortButton.setText(text) ###k setTooltip ok for Action, but not Button... what is correct?
-    def step(self):
-        assert not self.force_quit # purpose of this is to raise an exception to force caller to quit! KeyboardInterrupt might be better
-        if self.win.sim_abort_button_pressed: # User hit abort button [and main window slot method noticed that and set this flag]
-            self.win.sim_abort_button_pressed = False # so we can detect if it's pressed again
-            if self.status in [None, FINISHED]:
-                print "unexpected status %d in %r.step()" % (self.status, self)
-            if self.status in [ABORTING, FINISHED]:
-                # pressed more than once
-                self.force_quit()
-            elif self.status in [STARTED,None]:
-                self.abort()
-            pass
-        return
-    def abort(self):
-        self.status = ABORTING # client can notice this (or in future, subscribe to it #e)
-        self.error = 'abort button pressed' ###@@@ not yet used??
-        self.set_tooltip("Force Quit %s" % self.cmdname) # only seen if the abort fails (I hope)
-        ###e history message good here?
-        return
-    def aborting(self):
-        "[specialized method for only this subclass -- i think -- or one which generates internal aborts, anyway ##k]"
-        self.step()
-        return self.status == ABORTING
-    def force_quit(self):
-        # ideally this should never happen, but it might if system gets slow and user gets impatient
-        self.set_tooltip("Force Quit already done on %s" % self.cmdname)
-        self.force_quit = True
-        print "force quit",self
-        env.history.message(redmsg("Force Quit %s (since it didn't respond to first abort)" % self.cmdname))
-        self.finish()
-        return
     def finish(self):
         """This should be called when the task it's about ends for any reason,
         whether success or error or abort or even crash;
         if not called it will prevent all other abortable tasks from running!
         """
+
         ####e should try to figure out a way to auto-call it for tasks that user clicked abort for but that failed to call it...
         # for example, if user clicks abort button twice for same task. or if __del__ called (have to not save .win). #####@@@@@
+
         try:
-            abortables.remove(self)
+            self.statusBar.removeAbortableCommand(self.commandName)
         except:
             if platform.atom_debug:
-                print_compact_traceback("atom_debug: bug: failure in abortables.remove(self): ")
-            pass
-        if not abortables: # (could just as well be 'if 1' until we permit more than one abortable object)
-            self.abortButton.hide()
-                # this is very dubious if there is more than one task, in fact it's VERY WRONG for success of subtask
-                # and MIGHT NOT HAVE BEEN AS BAD IN THE OLD CODE (if it didn't happen for all finishes but only aborting ones) (???),
-                # but at least the current code will try to abort them all at once
-                # when the abort button is pressed once. [bruce 060106 comment]
-        self.status = FINISHED # whether or not it was ABORTING earlier
-    pass
-
-_junk, STARTED, ABORTING, FINISHED = range(4)
+                print_compact_traceback("atom_debug: bug: failure in StatusBar.removeAbortableCommand(): ")
+        self.statusBar.possibly_hide_progressbar_and_stop_button()
 
 # end

@@ -201,29 +201,40 @@ class Process(QProcess):
             err = ""
         return state + "[" + err + "]"
         
-    def wait_for_exit(self):
+    def wait_for_exit(self, abortHandler):
         """
         Wait for the process to exit (sleeping by 0.05 seconds in a loop).
         Return its exitcode.
         Call this only after the process was successfully started using self.start() or self.launch().
         """
+        abortPressCount = 0
         while (not self.state() == QProcess.NotRunning):
+            if (abortHandler):
+                pc = abortHandler.getPressCount()
+                if (pc > abortPressCount):
+                    abortPressCount = pc
+                    if (abortPressCount > 1):
+                        self.terminate()
+                    else:
+                        self.kill()
             env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
                 #k is this required for us to get the slot calls for stdout / stderr ?
                 # I don't know, but we want it even if not.
             time.sleep(0.05)
+        if (abortHandler):
+            abortHandler.finish()
         return self.exitCode()
 
-    def getExitValue(self):
+    def getExitValue(self, abortHandler):
         """
         Return the exitcode, or -2 if it crashed or was terminated. Only call this after it exited.
         """
-        code = self.wait_for_exit()
+        code = self.wait_for_exit(abortHandler)
         if (self.exitStatus() == QProcess.NormalExit):
             return code
         return -2
 
-    def run(self, program, args = None, background = False):
+    def run(self, program, args = None, background = False, abortHandler = None):
         """
         Do everything needed to run the process with these args
         (a list of strings, starting with program name or path),
@@ -239,7 +250,7 @@ class Process(QProcess):
 
         if (background):
             return 0
-        return self.getExitValue()
+        return self.getExitValue(abortHandler)
     pass
 
 def run_command( program, args = [], stdout = None, stderr = None, cwd = None ):

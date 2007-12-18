@@ -21,6 +21,7 @@ import env, os, sys, time
 from PlatformDependent import find_or_make_Nanorex_subdir
 from prefs_constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
 from PyQt4.Qt import Qt, QApplication, QCursor
+from StatusBar import NanoHiveProgressReporter
 
 def get_nh_simspec_filename(basename):
     """
@@ -220,8 +221,9 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
         exit_nh(nh_socket, kill_nh)
         return 7 # "run" command failed
     
-    from StatusBar import show_pbar_and_stop_button_for_esp_calculation
-    r = show_pbar_and_stop_button_for_esp_calculation(assy.w, sim_id, nh_socket, 1)
+    statusBar = assy.w.statusBar()
+    progressReporter = NanoHiveProgressReporter(nh_socket, sim_id)
+    r = statusBar.show_progressbar_and_stop_button(progressReporter, "NanoHive", True)
     
     if r:
         stop_nh_sim(sim_id)

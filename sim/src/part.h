@@ -391,7 +391,7 @@ extern void destroyPart(struct part *p);
 
 extern struct part *endPart(struct part *p);
 
-extern void initializePart(struct part *p);
+extern void initializePart(struct part *p, int needVDW);
 
 extern void generateStretches(struct part *p);
 

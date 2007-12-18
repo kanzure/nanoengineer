@@ -376,6 +376,7 @@ static PyObject *
 everythingElse(void) // WARNING: this duplicates some code from simulator.c
 {
     char *problem;
+    int needVDW = 1;
     
     // wware 060109  python exception handling
     start_python_call();
@@ -405,7 +406,10 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 	set_py_exc_str(__FILE__, __LINE__, "part is null");
 	PYBAIL();
     }
-    initializePart(part);
+    if (GromacsOutputBaseName != NULL && GromacsOutputBaseName[0] != '\0') {
+        needVDW = 0;
+    }
+    initializePart(part, needVDW);
     PYBAIL();
     createPatterns();
     matchPartToAllPatterns(part);

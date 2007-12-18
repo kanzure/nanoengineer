@@ -473,8 +473,8 @@ class HistoryWidget:
         return
     
     def progress_msg(self, msg_text): # Bug 1343, wware 060310
-        win = self.widget.topLevelWidget()
-        win.statusMsgLabel.setText(msg_text)
+        statusBar = self.widget.topLevelWidget().statusBar()
+        statusBar.statusMsgLabel.setText(msg_text)
     
     def widget_msg(self, msg, options):
         #e improved timestamp?

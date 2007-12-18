@@ -289,9 +289,11 @@ endPart(struct part *p)
 }
 
 void
-initializePart(struct part *p)
+initializePart(struct part *p, int needVDW)
 {
-    updateVanDerWaals(p, NULL, p->positions); BAIL();
+    if (needVDW) {
+        updateVanDerWaals(p, NULL, p->positions); BAIL();
+    }
     generateStretches(p); BAIL();
     generateBends(p); BAIL();
     generateTorsions(p); BAIL();

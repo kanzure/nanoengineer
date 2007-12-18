@@ -50,6 +50,8 @@ from icon_utilities import geticon
 from PlatformDependent import find_or_make_Nanorex_directory
 from PlatformDependent import make_history_filename
 
+from StatusBar import StatusBar
+
 from elementColors import elementColors 
 
 from ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
@@ -439,7 +441,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.viewMenu.addMenu(toolbarMenu)
 
         # mark 060105 commented out self.make_buttons_not_in_UI_file()
-        # Now done below: _StatusBar.do_what_MainWindowUI_should_do(self)
         #self.make_buttons_not_in_UI_file()
 
         undo.just_after_mainwindow_super_init()
@@ -463,8 +464,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
         # (see also env.history.message())
-        import StatusBar as _StatusBar
-        _StatusBar.do_what_MainWindowUI_should_do(self)
+        self.setStatusBar(StatusBar(self))
 
         env.setMainWindow(self)
 
@@ -1110,31 +1110,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             print_compact_traceback( "exception (ignored) in postinit_item(%r): " % item )
         return
 
-    sim_abort_button_pressed = False #bruce 060106
-
-    def simAbort(self):
-        """
-        Original slot for Abort button.
-        """
-        if platform.atom_debug and self.sim_abort_button_pressed: #bruce 060106
-            print "atom_debug: self.sim_abort_button_pressed is already True before we even put up our dialog"
-
-        # Added confirmation before aborting as part of fix to bug 915. Mark 050824.
-        # Bug 915 had to do with a problem if the user accidently hit the space bar or espace key,
-        # which would call this slot and abort the simulation.  This should no longer be an issue here
-        # since we aren't using a dialog.  I still like having this confirmation anyway.  
-        # IMHO, it should be kept. Mark 060106. 
-        ret = QMessageBox.warning( self, "Confirm",
-                                   "Please confirm you want to abort.\n",
-                                   "Confirm",
-                                   "Cancel", 
-                                   "", 
-                                   1,  # The "default" button, when user presses Enter or Return (1 = Cancel)
-                                   1)  # Escape (1= Cancel)
-
-        if ret==0: # Confirmed
-            self.sim_abort_button_pressed = True
-
     def update_mode_status(self, mode_obj = None):
         """
         [by bruce 040927]
@@ -1188,9 +1163,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # the flag and always update, i.e. to use method (2).
 
         try:
-            widget = self.modebarLabel
+            widget = self.statusBar().modebarLabel
         except AttributeError:
-            print "Caught <AttributeError: self.modebarLabel>, normal behavior, not a bug"
+            print "Caught <AttributeError: self.statusBar().modebarLabel>, normal behavior, not a bug"
             pass # this is normal, before the widget exists
         else:
             mode_obj = mode_obj or self.currentCommand

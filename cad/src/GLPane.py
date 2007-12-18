@@ -499,7 +499,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # this is here in anticipation of being able to have multiple windows on the same assembly.
         # Start the GLPane's current display mode in "Default Display Mode" (pref).
         self.displayMode = env.prefs[defaultDisplayMode_prefs_key]
-        #self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.displayMode] )
+        #self.win.statusBar().dispbarLabel.setText( "Current Display: " + dispLabel[self.displayMode] )
 
         ###### End of User Preference initialization ########################## 
 
@@ -2282,10 +2282,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.displayMode = disp
         ##Huaicai 3/29/05: Add the condition to fix bug 477
         if self.currentCommand.modename == 'COOKIE':
-            self.win.dispbarLabel.setText("    ")
+            self.win.statusBar().dispbarLabel.setText("    ")
         else:    
-            #self.win.dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
-            self.win.dispbarLabel.setText( header + dispLabel[disp] )
+            #self.win.statusBar().dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
+            self.win.statusBar().dispbarLabel.setText( header + dispLabel[disp] )
         #bruce 050415: following should no longer be needed
         # (and it wasn't enough, anyway, since missed mols in non-current parts;
         #  see comments in chunk.py about today's bugfix in molecule.draw for

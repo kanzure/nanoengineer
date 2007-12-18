@@ -50,6 +50,7 @@ from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_
 from constants import filesplit
 from Process import Process
 from Plugins import checkPluginPreferences
+from StatusBar import StatusBar, AbortHandler
 
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
@@ -231,6 +232,7 @@ class SimRunner:
                 self.errcode = _FAILURE_ALREADY_DOCUMENTED
                 return
         self.set_waitcursor(True)
+        progressBar = self.win.statusBar().progressBar
 
         # Disable some QActions (menu items/toolbar buttons) while the sim is running.
         self.win.disable_QActions_for_sim(True)
@@ -245,6 +247,9 @@ class SimRunner:
                 # into part, either in real time or when done.
                 # result error code (or abort button flag) stored in self.errcode
             if (self.mflag == 1 and self.useGromacs):
+                progressBar.setRange(0, 0)
+                progressBar.reset()
+                progressBar.show()
                 if (sys.platform == 'win32'):
                     dot_exe = ".exe"
                 else:
@@ -287,13 +292,18 @@ class SimRunner:
                 environmentVariables = gromacsProcess.environment()
                 environmentVariables += "GMXLIB=%s" % gromacs_topo_dir
                 gromacsProcess.setEnvironment(environmentVariables)
-                
-                errorCode = gromacsProcess.run(grompp, gromppArgs)
+
+                abortHandler = AbortHandler(self.win.statusBar(), "grompp")
+                errorCode = gromacsProcess.run(grompp, gromppArgs, False, abortHandler)
+                abortHandler = None
                 if (errorCode != 0):
                     msg = redmsg("Gromacs minimization failed, grompp returned %d" % errorCode)
                     env.history.message(self.cmdname + ": " + msg)
                     self.errcode = 2;
                 else:
+                    progressBar.setRange(0, 0)
+                    progressBar.reset()
+                    progressBar.show()
                     gromacsProcess.setProcessName("mdrun")
                     gromacsProcess.prepareForMdrun()
                     gromacsProcess.redirect_stdout_to_file \
@@ -312,8 +322,13 @@ class SimRunner:
                         "-c", "%s-out.gro" % gromacsBaseFileName,
                         "-g", "%s-mdrun.log" % gromacsBaseFileName,
                         ]
+                    if (self.background):
+                        abortHandler = None
+                    else:
+                        abortHandler = AbortHandler(self.win.statusBar(), "mdrun")
                     errorCode = \
-                        gromacsProcess.run(mdrun, mdrunArgs, self.background)
+                              gromacsProcess.run(mdrun, mdrunArgs, self.background, abortHandler)
+                    abortHandler = None
                     if (errorCode != 0):
                         msg = redmsg("Gromacs minimization failed, mdrun returned %d" % errorCode)
                         env.history.message(self.cmdname + ": " + msg)
@@ -1096,13 +1111,12 @@ class SimRunner:
             # only side effect: history message [bruce 060103 comment]
         # pbarCaption and pbarMsg are not used any longer.  [mark 060105 comment]
         # (but they or similar might be used again soon, eg for cmdname in tooltip -- bruce 060112 comment)
-        from StatusBar import show_progressbar_and_stop_button
-        self.errcode = show_progressbar_and_stop_button(
-            self.win,
-            filesize,
-            filename = movie.filename,
+        statusBar = self.win.statusBar()
+        progressReporter = FileSizeProgressReporter(movie.filename, filesize)
+        self.errcode = statusBar.show_progressbar_and_stop_button(
+            progressReporter,
             cmdname = self.cmdname, #bruce 060112
-            show_duration = 1 )
+            showElapsedTime = True )
             # that 'launch' method is misnamed, since it also waits for completion;
             # its only side effects [as of bruce 060103] are showing/updating/hiding progress dialog, abort button, etc.
         return
@@ -1190,17 +1204,18 @@ class SimRunner:
             #e this could be slow, and the simobj already knows it, but I don't think getFrame has access to it [bruce 060112]
         simopts = self._simopts
         simobj = self._simobj
-        if not self.mflag:
-            # wware 060310, bug 1294
+
+        if self.mflag:
+            numframes = 0
+        else:
             numframes = simopts.NumFrames
-            self.win.status_pbar.reset()
-            self.win.status_pbar.setRange(0, numframes)
-            self.win.status_pbar.setValue(0)
-            self.win.status_pbar.show()
-        from StatusBar import AbortButtonForOneTask
-            #bruce 060106 try to let pyrex sim share some abort button code with non-pyrex sim
-        self.abortbutton_controller = abortbutton = AbortButtonForOneTask(self.cmdname)
-        abortbutton.start()
+        progressBar = self.win.statusBar().progressBar
+        progressBar.reset()
+        progressBar.setRange(0, numframes)
+        progressBar.setValue(0)
+        progressBar.show()
+
+        self.abortHandler = AbortHandler(self.win.statusBar(), self.cmdname)
 
         try:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
@@ -1234,7 +1249,7 @@ class SimRunner:
             # wware 060309, bug 1343
             self.startTime = start = time.time()
 
-            if not abortbutton.aborting():
+            if self.abortHandler.getPressCount() < 1:
                 # checked here since above processEvents can take time, include other tasks
 
                 # do these before entering the "try" clause
@@ -1288,7 +1303,7 @@ class SimRunner:
                     if self.PREPARE_TO_CLOSE:
                         # wware 060406 bug 1263 - exiting the program is an acceptable way to leave this loop
                         self.errcode = -1
-                    elif not abortbutton.aborting():
+                    elif self.abortHandler.getPressCount() < 1:
                         if not debug_sim_exceptions:
                             #bruce 060712
                             print_compact_traceback("fyi: sim.go aborted with this: ")
@@ -1296,9 +1311,8 @@ class SimRunner:
                         env.history.message(redmsg(msg3)) #bruce 060712
                         print "error: abort without abortbutton doing it (did a subtask intervene and finish it?)"
                         print " (or this can happen due to sim bug in which callback exceptions turn into RuntimeErrors)"####@@@@
-                        from StatusBar import ABORTING #bruce 060111 9:16am PST bugfix of unreported bug
-                        abortbutton.status = ABORTING ###@@@ kluge, should clean up, or at least use a method and store an error string too
-                        assert abortbutton.aborting()
+                        self.abortHandler.finish()
+                        self.abortHandler = None
                     ## bug: this fails to cause an abort to be reported by history. might relate to bug 1303.
                     # or might only occur due to current bugs in the pyrex sim, since I think user abort used to work. [bruce 060111]
                     # Initial attempt to fix that -- need to improve errcode after reviewing them all
@@ -1321,18 +1335,15 @@ class SimRunner:
             msg = redmsg("%s: %s" % (type, value))
             env.history.message(msg)
             self.errcode = _FAILURE_ALREADY_DOCUMENTED
-            abortbutton.finish() # whether or not there was an exception and/or it aborted
+            self.abortHandler.finish() # whether or not there was an exception and/or it aborted
+            self.abortHandler = None
             return
 
-        if not self.mflag:
-            # wware 060310, bug 1294
-            self.win.status_pbar.setValue(numframes)
-            self.win.status_pbar.reset()
-            self.win.status_pbar.hide()
         env.history.progress_msg("") # clear out elapsed time messages
         env.history.statusbar_msg("Done.") # clear out transient statusbar messages
 
-        abortbutton.finish() # whether or not there was an exception and/or it aborted
+        self.abortHandler.finish() # whether or not there was an exception and/or it aborted
+        self.abortHandler = None
         return
 
     __last_3dupdate_time = -1
@@ -1461,9 +1472,10 @@ class SimRunner:
                     msg = (("Frame %d/%d, T=" % (self.__frame_number, self.totalFramesRequested)) +
                            hhmmss_str(int(time.time() - self.startTime)))
                 env.history.progress_msg(msg)
-                if not self.mflag:
-                    # wware 060310, bug 1294
-                    self.win.status_pbar.setValue(self.__frame_number)
+                if self.mflag:
+                    self.win.statusBar().progressBar.setValue(0)
+                else:
+                    self.win.statusBar().progressBar.setValue(self.__frame_number)
                 pass
 
             # do the Qt redrawing for either the GLPane or the status bar (or anything else that might need it),
@@ -1525,7 +1537,7 @@ class SimRunner:
         + gl_update
         """
         if not self.aborting: #bruce 060601 replaced 'if 1'
-            if self.abortbutton_controller.aborting():
+            if self.abortHandler and self.abortHandler.getPressCount() > 0:
                 # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
                 self.abort_sim_run("got real  abort at frame %d" % frame_number) # this sets self.aborting flag
             # mflag=1 -> minimize, user preference determines whether we watch it in real time
@@ -1571,7 +1583,7 @@ class SimRunner:
             env.call_qApp_processEvents()
             self.need_process_events = False # might not be needed; precaution in case of recursion
             #e see if user aborted
-            if self.abortbutton_controller.aborting():
+            if self.abortHandler and self.abortHandler.getPressCount() > 0:
                 self.abort_sim_run("frame %d" % self.__frame_number) # this also sets self.aborting [bruce 06061 revised text]
         return
 
