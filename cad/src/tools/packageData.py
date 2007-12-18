@@ -71,13 +71,15 @@ packageColors = { # needs geometry, platform, and whatever new classifications w
 # ==
 
 packageLevels = {
+    # plan: for each entry, review it, revise subclassifications. @@@
+    # put in basic topics like dna, whatever fits "for xxx". @@@
     "top"         : 7,
-    "test"        : 7,
-    "examples"    : 7,
-    "ui"          : 6,
+    "test"        : 7, # none left!
+    "examples"    : 7, # DEPRECATED as a layer, revise it (could be a topic but not sure if we have any yet) @@@
+    "ui"          : 6, # has 137 instances - half the modules. (not counting new ones like command, unsplit_mode, simulation)
     "PM"          : 6,
-    "io"          : 5,
-    "model"       : 4,
+    "io"          : 5, # hmm, so high?
+    "model"       : 4, # wants subdivision? not urgent...
     "graphics"    : 4,
     "foundation"  : 3,
     "exprs"       : 3,
@@ -289,7 +291,7 @@ packageMapping = {
     "HelpDialog"                       : "ui/dialog|help", # ui_help package?
     "HistoryWidget"                    : "ui", # for History package (as a major ui component)?
     "icon_utilities"                   : "io", #? - could be considered utilities, io, or platform, or maybe images
-    "ImageUtils"                       : "graphics_images", # graphics_images? images?
+    "ImageUtils"                       : "graphics_images", # graphics_images? images? graphics? graphics_io? (only use of graphics_images)
     "_import_roots"                    : "top_level",
     "Initialize"                       : "utilities",
     "inval"                            : "foundation",
@@ -411,7 +413,7 @@ packageMapping = {
     "Select_GraphicsMode_DrawMethod_preMixin.py" : "graphics_mode",
     "Select_GraphicsMode_MouseHelpers_preMixin.py" : "graphics_mode",
     
-    "Selobj"                           : "graphics_behavior_api", # (revisit when done)
+    "Selobj"                           : "graphics_behavior_api", # (revisit when done, or when anything uses it)
     
     "SequenceEditor"                   : "ui", # a major ui component, and maybe a widget (guess, didn't look at code)
     
