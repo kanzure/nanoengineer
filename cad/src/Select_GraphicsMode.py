@@ -106,6 +106,9 @@ from debug import print_compact_stack
 from prefs_constants import bondHighlightColor_prefs_key
 from prefs_constants import deleteBondHighlightColor_prefs_key
 
+from prefs_constants import atomHighlightColor_prefs_key
+from prefs_constants import deleteAtomHighlightColor_prefs_key
+
 import platform
 
 
@@ -1152,10 +1155,13 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         """
 	Return the Atom highlight color 
 	@return: Highlight color of the object (Atom or Singlet)
-	The default implementation returns 'None' . Subclasses should override
-	this method if they need atom highlight color.
 	""" 
-        return None
+        assert isinstance(selobj, Atom)
+        
+        if self.o.modkeys == 'Shift+Control':
+            return env.prefs[deleteAtomHighlightColor_prefs_key]
+        else:
+            return env.prefs[atomHighlightColor_prefs_key]
 
     def _getBondHighlightColor(self, selobj):
         """
