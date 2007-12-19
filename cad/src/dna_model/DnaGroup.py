@@ -43,6 +43,18 @@ class DnaGroup(Block):
         Return a list of all our DnaSegment objects.
         """
         return self.get_subnodes_of_class("DnaSegment") # IMPLEM get_subnodes_of_class
-    pass
+    
+    
+    #Following methods are NOT IMPLEMENTED YET =================================
+    def addSegment(self, endPoints):
+        """
+        Creates a new segment object for this dnaGroup
+        @param endPoints: The two axis endPoints of the segment to be created.
+        @type: list        
+        @see: B{DnaSegment}
+        """
+        #NIY
+        #Need to maintain an internal segmentList? (e.g. self._segmentList
+        assert 0
 
 # end
