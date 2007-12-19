@@ -5,9 +5,7 @@ packageData.py -- data about modules and packages, for PackageDependency.py
 @author: Eric M, Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
-"""
 
-# ==
 
 # NFRs for packageDependency.py: @@@
 
@@ -17,7 +15,7 @@ packageData.py -- data about modules and packages, for PackageDependency.py
 # and so the arcs you see help you classify them properly.
 
 
-# classification can be "layer|topic", e.g. "model|simulation/gamess",
+# classification can be "layer|topic", e.g. "model|gamess",
 # with options to use either or both parts (before/after the '|') as part of the package name;
 # if no "|" then assume it's just the layer;
 # the layers are what we have now (ui, model, etc)
@@ -37,56 +35,9 @@ packageData.py -- data about modules and packages, for PackageDependency.py
 
 
 # lower priority: warnings based on the "disallowed" tables below
+"""
 
-# ==
-
-# plans for specific classifications:
-
-# ne1 package, for overall layout of ne1, as opposed some other app made from same pieces incl ui pieces
-# (eg a small app for testing or script-running)
-
-# simulation package, subdirs for gromacs, gamess, nd1, general? runsim too. some io code not separated.
-# replaces some "operations" classifications; essentially a type of ops and io combined.
-# levels: sim over ops over model, but we expect arcs in all directions in there, for now.
-
-# ==
-
-packageColors = { # needs geometry, platform, and whatever new classifications we add below
-    "ui"              : "#8050ff",
-    "PM"              : "#8070ff",
-    "graphics"        : "#80a0ff",
-
-    "model"           : "#80ff50",
-    "foundation"      : "#80ff70",
-    "exprs"           : "#80ffa0",
-
-    "io"              : "#ffff80",
-    "utilities"       : "#ffa080",
-
-    "examples"        : "#ff3030",
-    "test"            : "#ff3060",
-    "top"             : "#ff3090",
-    }
-
-# ==
-
-packageLevels = {
-    # plan: for each entry, review it, revise subclassifications. @@@
-    # put in basic topics like dna, whatever fits "for xxx". @@@
-    "top"         : 7,
-    "test"        : 7, # none left!
-    "examples"    : 7, # DEPRECATED as a layer, revise it (could be a topic but not sure if we have any yet) @@@
-    "ui"          : 6, # has 137 instances - half the modules. (not counting new ones like command, unsplit_mode, simulation)
-    "PM"          : 6,
-    "io"          : 5, # hmm, so high?
-    "model"       : 4, # wants subdivision? not urgent...
-    "graphics"    : 4,
-    "foundation"  : 3,
-    "exprs"       : 3,
-    "geometry"    : 3,
-    "utilities"   : 2,
-    "platform"    : 1,
-    }
+# disallowed names
 
 # NIM: warn or enforce the non-use of the following names (case-insensitively?)
 # We don't list every possible disallowed name,
@@ -141,7 +92,7 @@ disallowedModuleNames = {
     "math"         : "Python library module",
 }
 
-# ==
+# ===
 
 # status of packageMapping as of 071210:
 
@@ -163,11 +114,79 @@ disallowedModuleNames = {
 #   pyrex_test - exists as .c .pyx .so but not as .py
 #   whatsthis - now in gui/
 
+
+
+# plans for specific classifications:
+
+# ne1 package, for overall layout of ne1, as opposed some other app made from same pieces incl ui pieces
+# (eg a small app for testing or script-running)
+
+# simulation or analysis package, subdirs for gromacs, gamess, nd1, general? runsim too. some io code not separated.
+# replaces some "operations" classifications; essentially a type of ops and io combined.
+# levels: sim over ops over model, but we expect arcs in all directions in there, for now.
+
+
 # update, 071217 2pm:
 # the layer|topic is only used in a few entries; the others are "layer" with topic mentioned in the comment.
 # look for @@@ to see a few things to review, and the place i got to in my overall scan.
 # when done i need to review all at once the "simulation", *mode*, "ui", and *dialog entries.
 
+
+packageColors = { # needs geometry, platform, and whatever new classifications we add below
+    "ui"              : "#8050ff",
+    "PM"              : "#8070ff",
+    "graphics"        : "#80a0ff",
+
+    "model"           : "#80ff50",
+    "foundation"      : "#80ff70",
+    "exprs"           : "#80ffa0",
+
+    "io"              : "#ffff80",
+    "utilities"       : "#ffa080",
+
+    "examples"        : "#ff3030",
+    "test"            : "#ff3060",
+    "top"             : "#ff3090",
+    }
+
+# ==
+
+packageLevels = {
+    # plan: for each entry, review it, revise subclassifications. @@@
+    # put in basic topics like dna, whatever fits "for xxx". @@@
+    "top"         : 7,
+    "test"        : 7, # none left!
+    "examples"    : 7, # DEPRECATED as a layer, revise it (could be a topic but not sure if we have any yet) @@@
+    "ui"          : 6, # has 137 instances - half the modules. (not counting new ones like command, unsplit_mode, simulation)
+    "PM"          : 6,
+    "io"          : 5, # hmm, so high?
+    "model"       : 4, # wants subdivision? not urgent...
+    "graphics"    : 4,
+    "foundation"  : 3,
+    "exprs"       : 3,
+    "geometry"    : 3,
+    "utilities"   : 2,
+    "platform"    : 1,
+    }
+
+_levels_highest_first = [ # TODO: finish, then use this to compute the above; in future make it a general DAG (not urgent)
+    ["top",
+     "test",
+     "examples",
+     ],
+
+    ["ui",
+     "PM",
+     ],
+
+    ["io",
+     ],
+    # ... more
+ ]
+    
+    
+    
+# ==
 
 packageMapping = {
     "assembly"                         : "model", # (some foundation, but knows part.py which knows lots of ops & model constructors)
@@ -184,8 +203,8 @@ packageMapping = {
     "bond_updater"                     : "model_updater",
     "bond_utils"                       : "operation", # maybe also some ui
     "BoundingBox"                      : "model", # mostly geometry, some graphics, some hardcoded distance constants
-    "BuildAtomsPropertyManager"        : "ui/propmgr",
-    "build_utils"                      : "operation", # AtomDepositionTool
+    "BuildAtomsPropertyManager"        : "ui/propmgr|Build Atoms",
+    "build_utils"                      : "operation|Build Atoms", # AtomDepositionTool
     "changedicts"                      : "foundation",
     "changes"                          : "foundation",
     "chem"                             : "model",
@@ -220,14 +239,14 @@ packageMapping = {
     "dimensions"                       : "graphics", # graphics output, not opengl-specific in principle
     "DirectionArrow"                   : "graphics_behavior", # a kind of DragHandler (drawable with behavior); graphics_what?
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
-    "Dna"                              : "operation", # obs?
-    "DnaDuplex"                        : "operation", # class to help construct model objects defined elsewhere
-    "DnaDuplexEditController"          : "ui/controller",
-    "DnaDuplexPropertyManager"         : "ui/propmgr",
-    "DnaGenerator"                     : "ui/controller", # obs?
-    "DnaGeneratorPropertyManager"      : "ui/propmgr", # obs?
-    "DnaLineMode"                      : "ui",#?
-    "Dna_Constants"                    : "model",#?
+    "Dna"                              : "operation|dna", # obs?
+    "DnaDuplex"                        : "operation|dna", # class to help construct model objects defined elsewhere
+    "DnaDuplexEditController"          : "ui/controller|dna",
+    "DnaDuplexPropertyManager"         : "ui/propmgr|dna",
+    "DnaGenerator"                     : "ui/controller|dna", # obs?
+    "DnaGeneratorPropertyManager"      : "ui/propmgr|dna", # obs?
+    "DnaLineMode"                      : "ui|dna",#?
+    "Dna_Constants"                    : "model|dna",#?
     "DragHandler"                      : "graphics_behavior",
     "drawer"                           : "graphics",
     "draw_bond_vanes"                  : "graphics",
@@ -242,29 +261,32 @@ packageMapping = {
     "elementSelector"                  : "ui/dialog",
     "ElementSelectorDialog"            : "ui/dialog",
     "elements_data"                    : "model", # model_data? like some constants?
-    "elements_data_PAM3"               : "model", # in dna
-    "elements_data_PAM5"               : "model", # in dna
+    "elements_data_PAM3"               : "model|dna",
+    "elements_data_PAM5"               : "model|dna",
     "EndUser"                          : "utilities",
     "env"                              : "foundation", # not utilities - only meant to be used from foundation or above
-    "ESPImage"                         : "model", # for ESP package?
-    "ESPImageProp"                     : "ui/dialog", # question: is this a property manager? are ui/dialog and ui/propmgr the same?
-    "ESPImagePropDialog"               : "ui/dialog", # for ESP package?
-    "example_expr_command"             : "examples",#?
+    
+    "ESPImage"                         : "model|ESP", # (but all ESPImage code should be refactored for more general images)
+    "ESPImageProp"                     : "ui/dialog|ESP", # question: is this a property manager? are ui/dialog and ui/propmgr the same?
+    "ESPImagePropDialog"               : "ui/dialog|ESP",
+    
+    "example_expr_command"             : "?",#??@@@ [was: examples]
+    
     "ExecSubDir"                       : "top_level",
     "extensions"                       : "top_level", # (someday, find a way to move it into a subdir)
     "extrudeMode"                      : "ui",
     "ExtrudePropertyManager"           : "ui/propmgr",
     "fileIO"                           : "graphics_io", # should be split into files_mdl and files_povray
-    "files_gms"                        : "io", # for a gamess package
+    "files_gms"                        : "io|gamess", # put this gamess package in analysis/gamess?
     "files_mmp"                        : "io", # perhaps for an mmp_io package, along with a sibling doc file?
-    "files_nh"                         : "io", # for a nanohive esp package
+    "files_nh"                         : "io|ESP", # for a nanohive esp package -- in analysis/ESP?
     "files_pdb"                        : "io", # perhaps for a pdb_io package, if any other files would be in it
     "Font3D"                           : "graphics",
     "fusechunksMode"                   : "ui",
     "FusePropertyManager"              : "ui/propmgr",
-    "GamessJob"                        : "operations|simulation/gamess", # for a gamess package; contains operations and io
-    "GamessProp"                       : "ui|simulation/gamess", # for a gamess package
-    "GamessPropDialog"                 : "ui|simulation/gamess", # for a gamess package
+    "GamessJob"                        : "operations|gamess", # contains operations and io
+    "GamessProp"                       : "ui|gamess",
+    "GamessPropDialog"                 : "ui|gamess",
     "GeneratorBaseClass"               : "ui/propmgr", # or as itself, so whatever imports it won't import propmgr just from that??
         # should split subclasses so this can be superceded by EditController and EditController_PM
     "GeneratorController"              : "ui/controller", #? @@@ ui/controller that are subclassing ui/propmgr may need reclassification
@@ -281,7 +303,7 @@ packageMapping = {
     "GraphicsMode_API"                 : "ui_api", # not legit to be needed by anything below ui, i think
     "GridPlaneProp"                    : "ui/dialog",
     "GridPlanePropDialog"              : "ui/dialog",
-    "GROMACS"                          : "io|simulation", #? - old demo code. runs a GROMACS process. contains io. for gromacs package.
+    "GROMACS"                          : "io|GROMACS", #? - old demo code. runs a GROMACS process. contains io.
     "Group"                            : "foundation", # some model code?
     "GroupButtonMixin"                 : "PM", # (deprecated, and its only callers should use things from PM instead)
     "GroupProp"                        : "ui/dialog",
@@ -302,7 +324,7 @@ packageMapping = {
     "jigs_measurements"                : "model",
     "jigs_motors"                      : "model",
     "jigs_planes"                      : "model",
-    "jig_Gamess"                       : "model", # for gamess package?
+    "jig_Gamess"                       : "model|gamess",
     "JobManager"                       : "ui", # ui/operations/io; scratch; needs refactoring; job_manager package?
     "JobManagerDialog"                 : "ui", 
     "Line"                             : "model",
@@ -327,10 +349,10 @@ packageMapping = {
     "MoviePropertyManager"             : "ui/propmgr",
     "MWsemantics"                      : "ui",
     
-    "NanoHive"                         : "ui", # for ESP package; ui/control/ops for running ESP (etc?) calcs using NanoHive. ui for now.
-    "NanoHiveDialog"                   : "ui", # for ESP package
-    "NanoHiveUtils"                    : "simulation", # for ESP package; Mostly control & io code. Some model & ui code (via assy arg & assy.w).
-    "NanoHive_SimParameters"           : "model", # for ESP package
+    "NanoHive"                         : "ui|ESP", # ui/control/ops for running ESP (etc?) calcs using NanoHive. ui for now.
+    "NanoHiveDialog"                   : "ui|ESP",
+    "NanoHiveUtils"                    : "?|ESP", # Mostly control & io code. Some model & ui code (via assy arg & assy.w).
+    "NanoHive_SimParameters"           : "model|ESP",
 
     "NanotubeGenerator"                : "ui/controller",
     "NanotubeGeneratorPropertyManager" : "ui/propmgr",
@@ -417,8 +439,8 @@ packageMapping = {
     
     "SequenceEditor"                   : "ui", # a major ui component, and maybe a widget (guess, didn't look at code)
     
-    "ServerManager"                    : "ui|simulation", #? for simulation or gamess?? persistent db/UI for servers list
-    "ServerManagerDialog"              : "ui|simulation",
+    "ServerManager"                    : "ui|processes", #? specific to gamess? maybe, but shouldn't. persistent db/UI for servers list
+    "ServerManagerDialog"              : "ui|processes",
     
     "setup"                            : "tools", # build (part of tools)
     "setup2"                           : "tools", # build
@@ -464,33 +486,33 @@ packageMapping = {
 
     # classify Ui_* later, probably get help from Ninad @@@
     
-    "Ui_BuildAtomsPropertyManager"     : "ui/propmgr",
-    "Ui_BuildStructuresMenu"           : "ui",
-    "Ui_BuildStructuresToolBar"        : "ui",
-    "Ui_BuildToolsMenu"                : "ui",
-    "Ui_BuildToolsToolBar"             : "ui",
-    "Ui_CommandManager"                : "ui",
+    "Ui_BuildAtomsPropertyManager"     : "ui/propmgr|Build Atoms",
+    "Ui_BuildStructuresMenu"           : "ui/menu",
+    "Ui_BuildStructuresToolBar"        : "ui/toolbar",
+    "Ui_BuildToolsMenu"                : "ui/menu",
+    "Ui_BuildToolsToolBar"             : "ui/toolbar",
+    "Ui_CommandManager"                : "ui/toolbar",#?
     "Ui_CookiePropertyManager"         : "ui/propmgr|Build Crystal",
-    "Ui_DimensionsMenu"                : "ui",
-    "Ui_DnaFlyout"                     : "ui",
-    "Ui_EditMenu"                      : "ui",
+    "Ui_DimensionsMenu"                : "ui/menu",#?
+    "Ui_DnaFlyout"                     : "ui/toolbar|dna",
+    "Ui_EditMenu"                      : "ui/menu",
     "Ui_ExtrudePropertyManager"        : "ui/propmgr",
-    "Ui_FileMenu"                      : "ui",
-    "Ui_HelpMenu"                      : "ui|help",
-    "Ui_InsertMenu"                    : "ui",
+    "Ui_FileMenu"                      : "ui/menu",
+    "Ui_HelpMenu"                      : "ui/menu|help",
+    "Ui_InsertMenu"                    : "ui/menu",
     "Ui_MovePropertyManager"           : "ui/propmgr",
     "Ui_MoviePropertyManager"          : "ui/propmgr",
-    "Ui_PartWindow"                    : "ui",
-    "Ui_SelectMenu"                    : "ui",
-    "Ui_SelectToolBar"                 : "ui",
-    "Ui_SequenceEditor"                : "ui",
-    "Ui_SimulationMenu"                : "ui",
-    "Ui_SimulationToolBar"             : "ui",
-    "Ui_StandardToolBar"               : "ui",
-    "Ui_ToolsMenu"                     : "ui",
-    "Ui_ViewMenu"                      : "ui",
-    "Ui_ViewOrientation"               : "ui",
-    "Ui_ViewToolBar"                   : "ui",
+    "Ui_PartWindow"                    : "ui/widget", #?
+    "Ui_SelectMenu"                    : "ui/menu",
+    "Ui_SelectToolBar"                 : "ui/toolbar",
+    "Ui_SequenceEditor"                : "ui/widget|dna/Sequence Editor", #?
+    "Ui_SimulationMenu"                : "ui/menu",
+    "Ui_SimulationToolBar"             : "ui/toolbar",
+    "Ui_StandardToolBar"               : "ui/toolbar",
+    "Ui_ToolsMenu"                     : "ui/menu",
+    "Ui_ViewMenu"                      : "ui/menu",
+    "Ui_ViewOrientation"               : "ui",#?
+    "Ui_ViewToolBar"                   : "ui/toolbar",
     
     "undo_internals"                   : "foundation",
     "undo_archive"                     : "foundation",
@@ -515,4 +537,25 @@ packageMapping = {
     "ZoomMode"                         : "ui",
     }
 
+# some topics above:
+    # gamess -> analysis/GAMESS
+    # ESP -> analysis/ESP; maybe io part (if more general) would be processes/NanoHive
+    # GROMACS -> analysis/GROMACS or simulation/GROMACS
+    # help -> a major ui aspect? ne1/help? not sure, wiki_help is more general than that, could even be in foundation; so its own pkg?
+'''
+    Build Crystal
+    Build Atoms
+    dna
+    ESP
+    exprs/prototype
+    gamess
+    GROMACS
+    help
+    processes
+    prototype
+    simulation
+    sponsors
+    statusbar
+'''
+    
 # end
