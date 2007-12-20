@@ -328,7 +328,9 @@ class PlanePropertyManager(EditController_PM):
         EditController_PM.update_props_if_needed_before_closing(self)
         
         #Don't draw the direction arrow when the object is finalized. 
-        if self.editController.struct.offsetParentGeometry:
+        if self.editController.struct and \
+           self.editController.struct.offsetParentGeometry:
+            
             dirArrow = self.editController.struct.offsetParentGeometry.directionArrow 
             dirArrow.setDrawRequested(False)
     
