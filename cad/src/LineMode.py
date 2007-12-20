@@ -18,15 +18,13 @@ TODOs:
 
 """
 
-from TemporaryCommand import TemporaryCommand_Overdrawing
+from Select_Command import Select_Command
+from Select_GraphicsMode import Select_GraphicsMode
 
 from drawer import drawline, drawsphere
 from constants import black, darkred, blue
 
-from OpenGL.GL import glPopMatrix
-from OpenGL.GL import glPushMatrix
-
-from VQT import vlen, Q, norm, angleBetween, V, ptonline
+from VQT import vlen, norm, angleBetween, V, ptonline
 
 
 STARTPOINT_SPHERE_RADIUS = 1.0
@@ -34,7 +32,9 @@ STARTPOINT_SPHERE_DRAWLEVEL = 2
 
 # == GraphicsMode part
 
-class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
+_superclass_for_GM = Select_GraphicsMode
+
+class LineMode_GM( Select_GraphicsMode ):
     """
     Custom GraphicsMode for use as a component of LineMode.
     
@@ -89,8 +89,14 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         # begins supporting highlighting, we can also add feature to use 
         # coordinates of a highlighted object (e.g. atom center) as endpoints 
         # of the line
-        farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( event)  
+        farQ_junk, self.endPoint1 = self.dragstart_using_GL_DEPTH( event)
         
+        ##NIY code that accepts highlighted atom center as the endPoint instead 
+        ## of always using the glpane depth. To be  implemented
+        ##if self.glpane.selobj is not None:
+            ## if isinstance(selobj, Atom):
+                 ##self.endPoint1 = self.glpane.selobj.posn()
+   
         if self._snapOn and self.endPoint2 is not None:
             # This fixes a bug. Example: Suppose the dna line is snapped to a 
             # constraint during the bare motion and the second point is clicked
@@ -114,6 +120,8 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
             self.endPoint2 = self.snapLineEndPoint()  
             self.update_cursor_for_no_MB()
             self.glpane.gl_update()    
+        
+        _superclass_for_GM.bareMotion(self,event)
         
         return
     
@@ -235,8 +243,7 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
                                  V(0, 0, 0), 
                                  self._standardAxisVectorForDrawingSnapReference)
         else:
-            self._standardAxisVectorForDrawingSnapReference = None
-            
+            self._standardAxisVectorForDrawingSnapReference = None            
                     
         return endPoint2
     
@@ -268,9 +275,10 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         Draw method for this temporary mode. 
         """
-        TemporaryCommand_Overdrawing.GraphicsMode_class.Draw(self)
+        _superclass_for_GM.Draw(self)
+        
         if self.endPoint2 is not None:
-            glPushMatrix()  
+            
             if self.endPoint1:
                 drawsphere(self.endPoint1_sphereColor, 
                            self.endPoint1, 
@@ -285,12 +293,20 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
                  dashEnabled = True)         
             
             self._drawSnapReferenceLines()
-            glPopMatrix()            
+            
     
     def leftUp(self, event):
         """
         Event handler for Left Mouse button left-up event
-        """      
+        """     
+        if  self.command.mouseClickLimit is None:
+            if len(self.command.mouseClickPoints) == 2:
+                self.endPoint2 = None
+                self.command.restore_gui()
+                self.glpane.gl_update()            
+            return
+                
+            
         assert len(self.command.mouseClickPoints) <= self.command.mouseClickLimit
                         
         if len(self.command.mouseClickPoints) == self.command.mouseClickLimit:
@@ -328,12 +344,10 @@ class LineMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
         """
         self.endPoint1 = None
         self.endPoint2 = None
-    
-    
-            
+ 
 # == Command part
 
-class LineMode(TemporaryCommand_Overdrawing): 
+class LineMode(Select_Command): 
     """
     Encapsulates the LineMode tool functionality.
     """
@@ -350,6 +364,11 @@ class LineMode(TemporaryCommand_Overdrawing):
     # because in LineMode_GM.bareMotion, it does a check using
     # len(mouseClickPoints)
     mouseClickPoints = ()
+    
+    command_can_be_suspended = False
+    command_should_resume_prevMode = True 
+    command_has_its_own_gui = False
+
     
     def init_gui(self):
         """
@@ -385,6 +404,18 @@ class LineMode(TemporaryCommand_Overdrawing):
             self.mouseClickPoints = []       
         
         self.graphicsMode.resetVariables()
-       
+               
         return
     
+    def EXPERIMENTAL_restore_gui_for_adding_dna_segment(self):
+        """
+        Not implemented/ or used. Experimental method.  
+        code in self.graphicsmode.leftUp. 
+        """
+        prevMode = self.commandSequencer.prevMode
+        if hasattr(prevMode, 'addSegment'):
+            prevMode.addSegment(
+                self.mouseClickPoints)
+            #clear the list
+            self.mouseClickPoints = [] 
+            self.graphicsMode.resetVariables()
