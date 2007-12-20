@@ -36,6 +36,7 @@ from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
+from PM.PM_WhatsThisText  import whatsThis_DnaDuplexPropertyManager
 
 from DebugMenuMixin import DebugMenuMixin
 from EditController_PM import EditController_PM
@@ -263,9 +264,8 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         As of 2007-11-20, it also shows the Sequence Editor widget and hides 
         the history widget. This implementation may change in the near future
         """
-        EditController_PM.show(self)            
-                
-        self.updateStrandListWidget()
+        EditController_PM.show(self) 
+        self.updateStrandListWidget()    
     
     def _showSequenceEditor(self):
         if self.sequenceEditor:
@@ -530,12 +530,9 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
 
         @note: Many PM widgets are still missing their "What's This" text.
         """
-        txt_conformationComboBox = "<b>Conformation</b> <p>DNA exists in "\
-                                 "several possible conformations, with A-DNA, "\
-                                 "B-DNA, and Z-DNA being the most common. <br>"\
-                                 "Only B-DNA is currently supported in "\
-                                 "NanoEngineer-1.</p>"
-        self.conformationComboBox.setWhatsThis(txt_conformationComboBox)
+        whatsThis_DnaDuplexPropertyManager(self)
+        
+        
 
     def conformationComboBoxChanged( self, inIndex ):
         """
