@@ -43,8 +43,11 @@ def setupUi(win):
     win.buildStructuresMenu.addAction(win.insertNanotubeAction)
     win.buildStructuresMenu.addAction(win.insertGrapheneAction)
     win.buildStructuresMenu.addAction(MainWindow.toolsCookieCutAction)
-
-    Ui_DnaFlyout.setupUi(MainWindow)
+    
+    #Disabling Ui_DnaFlyout -- It is initialized by the DNA_DUPLEX command 
+    #instead.  Command Toolbar code to be revised and 
+    #integrated with the commandSequencer -- Ninad 2007-12-19.
+    ##Ui_DnaFlyout.setupUi(MainWindow)
     
     # Atom Generator (Developer Example). Mark 2007-06-08
     win.insertAtomAction = QtGui.QWidgetAction(MainWindow)

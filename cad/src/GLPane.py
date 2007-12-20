@@ -104,21 +104,22 @@ from VQT import V, Q, A, norm, vlen
 from Numeric import dot
 import drawer
 
-from modifyMode import modifyMode
-from cookieMode import cookieMode 
-from extrudeMode import extrudeMode
-from fusechunksMode import fusechunksMode
-from selectMolsMode import selectMolsMode
+from modifyMode      import modifyMode
+from cookieMode      import cookieMode 
+from extrudeMode     import extrudeMode
+from fusechunksMode  import fusechunksMode
+from selectMolsMode  import selectMolsMode
 from selectAtomsMode import selectAtomsMode
-from depositMode import depositMode
-from PasteMode   import PasteMode
+from depositMode     import depositMode
+from PasteMode       import PasteMode
 from PartLibraryMode import PartLibraryMode
-from movieMode import movieMode
-from ZoomMode import ZoomMode
-from PanMode import PanMode
-from RotateMode import RotateMode
-from LineMode import LineMode
-from DnaLineMode    import DnaLineMode
+from movieMode       import movieMode
+from ZoomMode        import ZoomMode
+from PanMode         import PanMode
+from RotateMode      import RotateMode
+from LineMode        import LineMode
+from DnaLineMode     import DnaLineMode
+from DnaDuplexEditController import DnaDuplexEditController
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 from CommandSequencer import modeMixin
 
@@ -357,7 +358,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     cookieMode, extrudeMode, fusechunksMode,
                     movieMode, ZoomMode, PanMode, RotateMode, 
                     PasteMode, PartLibraryMode, 
-                    LineMode, DnaLineMode]
+                    LineMode, DnaLineMode, DnaDuplexEditController]
                     ##SketchMode] #Sketchmode not implemented yet
 
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
@@ -2339,6 +2340,30 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         if more_info:
             return farQ, point, wX, wY, depth, farZ
         return farQ, point
+    
+    def dragstart_using_plane_depth(self, event, plane, more_info = False):
+        """
+        NOT USED YET,  DOESNT WORK, intended first use in LineMode.leftDown
+        """
+        #First compute the intersection point of the mouseray with the plane 
+        #This will be our first self.handle_MovePt upon left down. 
+        #This value is further used in handleLeftDrag. -- Ninad 20070531
+        p1, p2     = self.mousepoints(event)
+        linePoint  = p2
+        lineVector = norm(p2 - p1)
+        planeAxis  = plane.getaxis()
+        planeNorm  = norm(planeAxis)
+        planePoint = plane.center
+        from VQT import planeXline, ptonline
+        #Find out intersection of the mouseray with the plane. 
+        intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
+        if intersection is None:
+            intersection =  ptonline(planePoint, linePoint, lineVector)
+            
+        point = intersection
+        
+        return point
+        
 
     def rescale_around_point(self, factor, point = None): #bruce 060829; 070402 moved user prefs functionality into caller
         """

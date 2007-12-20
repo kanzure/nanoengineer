@@ -110,7 +110,8 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         As of 2007-11-20: This feature (sequence editor) is waiting 
         for the ongoing dna model work to complete.
         """
-        self.sequenceEditor = self.win.createSequenceEditorIfNeeded()        
+        self.sequenceEditor = self.win.createSequenceEditorIfNeeded() 
+        self.sequenceEditor.hide()
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -145,6 +146,10 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                      SIGNAL("toggled(bool)"), 
                      self.editController.enterDnaLineMode)
         
+        change_connect(self.editStrandPropertiesButton,
+                      SIGNAL("clicked()"),
+                      self._showSequenceEditor)
+        
         
     def model_changed(self):
         """
@@ -176,7 +181,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         self.previousSelectionParams = newSelectionParams   
         #subclasses of BuildAtomsPM may not define self.selectedAtomPosGroupBox
         #so do the following check.
-        if newSelectionParams[0]:            
+        if newSelectionParams:
             self.editStrandPropertiesButton.setEnabled(True) 
         else:
             self.editStrandPropertiesButton.setEnabled(False) 
@@ -215,6 +220,25 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         else: 
             return (None)
     
+    
+    def ok_btn_clicked(self):
+        """
+        Slot for the OK button
+        """   
+        if self.editController:
+            self.editController.preview_or_finalize_structure(previewing = False)
+            env.history.message(self.editController.logMessage)        
+        self.win.toolsDone()
+    
+    def cancel_btn_clicked(self):
+        """
+        Slot for the Cancel button.
+        """
+        if self.editController:
+            self.editController.cancelStructure()            
+        self.win.toolsCancel()
+        
+    
     def close(self):
         """
         Closes the Property Manager. Overrided EditController_PM.close()
@@ -239,7 +263,11 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         As of 2007-11-20, it also shows the Sequence Editor widget and hides 
         the history widget. This implementation may change in the near future
         """
-        EditController_PM.show(self)
+        EditController_PM.show(self)            
+                
+        self.updateStrandListWidget()
+    
+    def _showSequenceEditor(self):
         if self.sequenceEditor:
             #hide the history widget first
             #(It will be shown back during self.close)
@@ -254,9 +282,8 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
             else:
                 self.win.activePartWindow().history_object.collapseWidget()
             #Show the sequence editor
-            self.sequenceEditor.show()
-        
-        self.updateStrandListWidget()
+            self.sequenceEditor.show()           
+    
         
     def _update_widgets_in_PM_before_show(self):
         """
@@ -347,6 +374,8 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         
         self._pmGroupBox3 = PM_GroupBox( self, title = "Endpoints" )
         self._loadGroupBox3( self._pmGroupBox3 )
+        
+        self._pmGroupBox3.hide()
         
         self._pmGroupBox4 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox4( self._pmGroupBox4 )
@@ -577,7 +606,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                 self.endPoint1, 
                 self.endPoint2)
 
-    def updateCommandManager(self, bool_entering = True):
+    def DISABLED_TEMPORARILY_updateCommandManager(self, bool_entering = True):
         """
 	Update the command manager flyout toolbar 
 	"""

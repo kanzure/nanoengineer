@@ -34,7 +34,7 @@ class EditController_PM(PM_Dialog):
     # The relative path to the PNG file that appears in the header
     iconPath = ""
 
-    def __init__(self, win, editController):
+    def __init__(self, win, editController = None):
         """
         Constructor for the EditController_PM
         """
@@ -98,7 +98,6 @@ class EditController_PM(PM_Dialog):
         self.updateCommandManager(bool_entering = False)
         PM_Dialog.close(self) 
 
-
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -128,7 +127,6 @@ class EditController_PM(PM_Dialog):
         @see: self.show where it is called. 
         """
         pass
-
 
     def update_props_if_needed_before_closing(self):
         """
@@ -180,7 +178,6 @@ class EditController_PM(PM_Dialog):
         """
         raise AbstractMethod()
 
-
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -190,7 +187,6 @@ class EditController_PM(PM_Dialog):
             env.history.message(self.editController.logMessage)
 
         self.accept() 
-
         self.close() # Close the property manager.        
 
         # The following reopens the property manager of the mode after 
@@ -218,6 +214,7 @@ class EditController_PM(PM_Dialog):
         """
         if self.editController:
             self.editController.cancelStructure()
+          
         self.reject() 
         self.close() 
 
@@ -240,7 +237,6 @@ class EditController_PM(PM_Dialog):
         """
         self.editController.preview_or_finalize_structure(previewing = True)
         env.history.message(self.editController.logMessage)
-
 
     def abort_btn_clicked(self):
         """

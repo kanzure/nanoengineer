@@ -42,7 +42,7 @@ class PlaneEditController(EditController):
     command_has_its_own_gui = True
     
     
-    def __init__(self, win, struct = None):
+    def __init__(self, commandSequencer, struct = None):
         """
         Constructs an Edit Controller Object. The editController, 
         depending on what client code needs it to do, may create a new plane 
@@ -59,7 +59,7 @@ class PlaneEditController(EditController):
         
         @see: L{Plane.__init__}
         """     
-        EditController.__init__(self, win)
+        EditController.__init__(self, commandSequencer)
         self.struct = struct      
         
     def _createPropMgrObject(self):

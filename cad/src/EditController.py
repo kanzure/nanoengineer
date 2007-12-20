@@ -38,8 +38,10 @@ from utilities.Comparison import same_vals
 from constants            import permit_gensym_to_reuse_name
 from GeneratorBaseClass   import AbstractMethod
 
+from Select_Command import Select_Command
 
-class EditController:
+
+class EditController(Select_Command):
     """
     EditController class that provides a editcontroller object. 
     The client can call three public methods defined in this class to acheive 
@@ -67,41 +69,58 @@ class EditController:
     cmdname  =  "" 
     _gensym_data_for_reusing_name = None
     propMgr = None
+    modename = 'EditController'
+    default_mode_status_text = ""
 
-    def __init__(self, win):
+    def __init__(self, commandSequencer):
         """
         Constructor for the class EditController.        
         """
-        self.win = win
+        self.win = commandSequencer.win
         self.previousParams       =  None
         self.old_props            =  None
         self.logMessage           = ''
         
         self.struct               =  None
         self.existingStructForEditing  =  False
-    
-        #bruce 060616 added the following kluge to make sure both cmdname 
-        #and cmd are set properly.
-        if not self.cmdname and not self.cmd:
-            self.cmdname = "Generate something"
-        if self.cmd and not self.cmdname:
-            # deprecated but common, as of 060616
-            self.cmdname = self.cmd # fallback
-            try:
-                cmdname = self.cmd.split('>')[1]
-                cmdname = cmdname.split('<')[0]
-                cmdname = cmdname.split(':')[0]
-                self.cmdname = cmdname
-            except:
-                if platform.atom_debug:
-                    print "fyi: %r guessed wrong \
-                    about format of self.cmd == %r" % (self, self.cmd,)
+            
+        ##bruce 060616 added the following kluge to make sure both cmdname 
+        ##and cmd are set properly.
+        #if not self.cmdname and not self.cmd:
+            #self.cmdname = "Generate something"
+        #if self.cmd and not self.cmdname:
+            ## deprecated but common, as of 060616
+            #self.cmdname = self.cmd # fallback
+            #try:
+                #cmdname = self.cmd.split('>')[1]
+                #cmdname = cmdname.split('<')[0]
+                #cmdname = cmdname.split(':')[0]
+                #self.cmdname = cmdname
+            #except:
+                #if platform.atom_debug:
+                    #print "fyi: %r guessed wrong \
+                    #about format of self.cmd == %r" % (self, self.cmd,)
                 
-        elif self.cmdname and not self.cmd:
-            # this is intended to be the usual situation, but isn't yet, 
-            #as of 060616
-            self.cmd = greenmsg(self.cmdname + ": ")
+        #elif self.cmdname and not self.cmd:
+            ## this is intended to be the usual situation, but isn't yet, 
+            ##as of 060616
+            #self.cmd = greenmsg(self.cmdname + ": ")
+        
+        Select_Command.__init__(self, commandSequencer)
         return
+    
+    
+    def init_gui(self):
+        """
+        """
+        self.create_and_or_show_PM_if_wanted()  
+      
+    def restore_gui(self):
+        """
+        """
+        if self.propMgr:
+            self.propMgr.close()
+            
     
     def runController(self):
         """        
@@ -123,14 +142,13 @@ class EditController:
         @param showPropMgr: If True, show the property manager 
         @type showPropMgr: boolean
         """
-        
         if not self.propMgr:                 
             self.propMgr = self._createPropMgrObject()
             #IMPORTANT keep this propMgr permanently -- needed to fix bug 2563
             changes.keep_forever(self.propMgr)
-                
+                        
         if not showPropMgr:
-            return         
+            return     
                 
         self.propMgr.show()
      
@@ -176,7 +194,7 @@ class EditController:
             self.win.assy.place_new_geometry(self.struct)
     
             
-    def editStructure(self):
+    def editStructure(self, struct = None):
         """
         Default implementation of editStructure method. Might be overridden in 
         subclasses. It facilitates editing an existing object 
@@ -195,19 +213,31 @@ class EditController:
         @see: L{Plane.edit} and L{PlaneEditController._createPropMgrObject} 
         """
         
+        if struct:
+            self.struct = struct
+            self.propMgr = None
+            
         assert self.struct
 
         if not self.propMgr:
             self.propMgr = self._createPropMgrObject()
         
         assert self.propMgr
-        
+      
         #Following is needed to make sure that when a dna line is drawn 
         #(using DNA Line mode), it takes input and gives output to the 
         # currently active editController 
         #(see selectMolsMode.provideParametersForTemporaryMode where we are 
         # using self.win.dnaEditController) Fixes bug 2588
-        self.win.dnaEditController = self
+        
+        #Following line of code that fixed bug 2588 mentioned in above comment 
+        # was disabled on 2007-12-20, aftter dnaDuplexEditController was 
+        #converted in to a command on command sequencer. The bug doesn't appear
+        # right now. (but there is another unrelated bug due to the missing 
+        # 'endpoints' because of which the propMgr always reset its values
+        #even when editing an existing structure. It will be fixed after dna 
+        #data model implementation
+        ##self.win.dnaEditController = self
         
         #Important to set the edit controller for the property manager 
         #because we are reusing the propMgr object so it needs to know the 

@@ -1,6 +1,15 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 $Id$
+
+TODO: 
+- Does the parentWidget for the DnaFlyout always needs to be a propertyManager
+  The parentWidget is the propertyManager object of the currentCommand on the 
+  commandSequencer. What if the currentCommand doesn't have a PM but it wants 
+  its own commandToolbar?  Use the mainWindow as its parentWidget? 
+- The implementation may change after Command Manager (Command toolbar) code 
+  cleanup. The implementation as of 2007-12-20 is an attempt to define 
+  flyouttoolbar object in the 'Command.
 """
 
 import env
@@ -11,6 +20,12 @@ from icon_utilities import geticon
 from utilities.Log import greenmsg
 
 _theDnaFlyout = None
+
+#NOTE: global methods setupUi, activateDnaFlyout are not called as of 2007-12-19
+#Use methods like DnaFlyout.activateFlyoutToolbar instead. 
+#Command toolbar needs to be integrated with the commandSequencer. 
+#See DnaDuplexEditController.init_gui for an example. (still experimental)
+
 
 def setupUi(mainWindow):
     """
@@ -24,13 +39,27 @@ def setupUi(mainWindow):
 # probably needs a retranslateUi to add tooltips too...
 
 def activateDnaFlyout(mainWindow):
-    mainWindow.commandManager.updateCommandManager(mainWindow.buildDnaAction, _theDnaFlyout)
+    mainWindow.commandManager.updateCommandManager(mainWindow.buildDnaAction, 
+                                                   _theDnaFlyout)
 
     
-class DnaFlyout(object):
-    def __init__(self, parentWindow):
-        self.parentWindow = parentWindow
-        self._createActions(parentWindow)
+class DnaFlyout:    
+    def __init__(self, mainWindow, parentWidget):
+        """
+        Create necessary flyoot action list and update the flyout toolbar
+        in the command manager (command toolbar) with the actions provided by 
+        the object of this class.
+        @param mainWindow: The mainWindow object
+        @type mainWindow: B{MWsemantics} 
+        @param parentWidget: The parentWidget to which actions defined by this 
+                             object belong to. This needs to be revised.
+                             
+        """
+        
+        self.parentWidget = parentWidget
+        self.win = mainWindow
+        self._isActive = False
+        self._createActions(self.parentWidget)
 
     def getFlyoutActionList(self):
         """
@@ -47,7 +76,7 @@ class DnaFlyout(object):
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
         subControlAreaActionList.append(self.exitDnaAction)
-        separator = QtGui.QAction(self.parentWindow)
+        separator = QtGui.QAction(self.parentWidget)
         separator.setSeparator(True)
         subControlAreaActionList.append(separator) 
         subControlAreaActionList.append(self.dnaDuplexAction)
@@ -66,44 +95,98 @@ class DnaFlyout(object):
         
         return params
 
-    def _createActions(self, parentWindow):
-        self.exitDnaAction = QtGui.QWidgetAction(parentWindow)
+    def _createActions(self, parentWidget):
+        self.exitDnaAction = QtGui.QWidgetAction(parentWidget)
         self.exitDnaAction.setText("Exit DNA")
         self.exitDnaAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
         self.exitDnaAction.setCheckable(True)
-        self.exitDnaAction.setChecked(True)
-
-        self.dnaDuplexAction = QtGui.QWidgetAction(parentWindow)
+        
+        self.dnaDuplexAction = QtGui.QWidgetAction(parentWidget)
         self.dnaDuplexAction.setText("Duplex")
+        self.dnaDuplexAction.setCheckable(True)        
         self.dnaDuplexAction.setIcon(geticon("ui/actions/Tools/Build Structures/Duplex"))
 
-        self.dnaOrigamiAction = QtGui.QWidgetAction(parentWindow)
+        self.dnaOrigamiAction = QtGui.QWidgetAction(parentWidget)
         self.dnaOrigamiAction.setText("Origami")
         self.dnaOrigamiAction.setIcon(geticon("ui/actions/Tools/Build Structures/DNA_Origami"))
 
-        parentWindow.connect(self.exitDnaAction, SIGNAL("triggered()"),
-                             self.activateExitDna)
-        parentWindow.connect(self.dnaDuplexAction, SIGNAL("triggered()"),
-                             self.activateDnaDuplexEditController)
-        parentWindow.connect(self.dnaOrigamiAction, SIGNAL("triggered()"),
-                             self.activateDnaOrigamiEditController)
-        
         # Add tooltips
         self.dnaDuplexAction.setToolTip("Duplex")
         self.dnaOrigamiAction.setToolTip("Origami")
+    
+    def connect_or_disconnet_signals(self, isConnect):
+        """
+        Connect or disconnect widget signals sent to their slot methods.
+        This can be overridden in subclasses. By default it does nothing.
+        @param isConnect: If True the widget will send the signals to the slot 
+                          method. 
+        @type  isConnect: boolean
+        
+        @see: self.activateFlyoutToolbar, self.deActivateFlyoutToolbar
+        """
+        if isConnect:
+            change_connect = self.win.connect
+        else:
+            change_connect = self.win.disconnect 
+            
+        change_connect(self.exitDnaAction, 
+                       SIGNAL("triggered(bool)"),
+                       self.activateExitDna)
+        
+        change_connect(self.dnaDuplexAction, 
+                             SIGNAL("triggered(bool)"),
+                             self.activateDnaDuplexEditController)
+        
+        change_connect(self.dnaOrigamiAction, 
+                             SIGNAL("triggered()"),
+                             self.activateDnaOrigamiEditController)
+    
+    
+    def activateFlyoutToolbar(self):
+        """
+        Updates the flyout toolbar with the actions this class provides. 
+        """    
+        if self._isActive:
+            return
+        
+        self._isActive = True
+        self.win.commandManager.updateCommandManager(self.win.buildDnaAction,
+                                                     self)
+        self.exitDnaAction.setChecked(True)
+        self.connect_or_disconnet_signals(True)
+    
+    def deActivateFlyoutToolbar(self):
+        """
+        Updates the flyout toolbar with the actions this class provides.
+        """
+        if not self._isActive:
+            return 
+        
+        self._isActive = False
+        
+        if self.dnaDuplexAction.isChecked():
+            self.dnaDuplexAction.setChecked(False)
+            
+        self.connect_or_disconnet_signals(False)    
+        self.win.commandManager.updateCommandManager(self.win.buildDnaAction,
+                                                     self,
+                                                     entering = False)
 
-    def activateExitDna(self):
+    def activateExitDna(self, isChecked):
         """
         Slot for B{Exit DNA} action.
-        """
-        self.parentWindow.commandManager.updateCommandManager(
-            self.parentWindow.buildDnaAction, _theDnaFlyout, entering=False)
+        """     
+        #@TODO: This needs to be revised. 
         
-    def activateDnaDuplexEditController(self):
+        if hasattr(self.parentWidget, 'ok_btn_clicked'):
+            if not isChecked:
+                self.parentWidget.ok_btn_clicked()
+        
+    def activateDnaDuplexEditController(self, isChecked):
         """
         Slot for B{Duplex} action.
         """
-        self.parentWindow.insertDna()
+        self.win.insertDna(isChecked)
 
     def activateDnaOrigamiEditController(self):
         """
@@ -112,4 +195,4 @@ class DnaFlyout(object):
         msg1 = greenmsg("DNA Origami: ")
         msg2 = " Not implemented yet"
         final_msg = msg1 + msg2
-        env.history.message(final_msg)
+        env.history.message(final_msg)        

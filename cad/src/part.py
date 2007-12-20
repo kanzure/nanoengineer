@@ -97,7 +97,7 @@ debug_1855 = False # DO NOT COMMIT WITH TRUE [bruce 060415]
 class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             ops_atoms_Mixin, ops_connected_Mixin, ops_copy_Mixin,
             ops_motion_Mixin, ops_rechunk_Mixin, ops_select_Mixin
-           ):
+            ):
     """
     One Part object is created to hold any set of chunks and jigs whose
     coordinates are intended to lie in the same physical space.
@@ -118,7 +118,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # rather than autogenerating another name.
         # It would also be useful if there was a Part Tree Widget...
     alive = False # set to True at end of __init__, and again to False if we're destroyed(??#k)
-    
+
     # state decls (for attrs set in __init__) [bruce 060224]
     _s_attr_name = S_DATA
     _s_attr_topnode = S_PARENT
@@ -133,13 +133,14 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     _s_attr_alive = S_DATA # needed since the part can be destroyed, which sets alive to False
 
     # default values of instance variables:
-    
+
     # repeated_bonds_dict is a dict during calls of self.draw,
     # but is intentionally not a dict outside of those calls,
     # so that erroneous use of it is noticed as an error.
     # For intended use, see comments where it's used. [bruce 070928]
     repeated_bonds_dict = None
     
+
     def _undo_update_always(self): #bruce 060224
         """
         This is run on every Part still around after an Undo or Redo op, whether or not it was modified by that op.
@@ -154,7 +155,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # don't call this, it can't be allowed to exist (I think):
         ## StateMixin._undo_update_always(self)
         return
-    
+
     def __init__(self, assy, topnode):
         self.init_InvalMixin()
         self.assy = assy
@@ -196,15 +197,15 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # assume topnode's kids will all be added, though for now this might be true -- not sure).
             self.homeCsys = Csys(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
             self.lastCsys = Csys(self.assy, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
-            
+
         self.add(topnode)
         # for now:
         assert isinstance(assy, Assembly_API)
         assert isinstance(topnode, Node)
-        
+
         # self._modified?? not yet needed for individual parts, but will be later.
 
-        
+
         ##bruce 050417 zapping all Datum objects, since this will have no important effect,
         ## even when old code reads our mmp files.
         ## More info about this can be found in other comments/emails.
@@ -217,13 +218,13 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 ##        self.viewdata = Group("View Data", self.assy, None, grpl1) #bruce 050418 renamed this; not a user-visible change
 ##        self.viewdata.open = False
 
-                
+
         # some attrs are recomputed as needed (see below for their _recompute_ or _get_ methods):
         # e.g. molecules, bbox, center, drawLevel, alist, selatoms, selmols
-                
+
         # movie ID, for future use. [bruce 050324 commenting out movieID until it's used; strategy for this will change, anyway.]
         ## self.movieID = 0
-        
+
         # ppa = previous picked atoms. ###@@@ not sure these are per-part; should reset when change mode or part
         self.ppa2 = self.ppa3 = self.ppm = None
 
@@ -261,7 +262,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         update whatever glpane is showing this part (more than one, if necessary)
         """
         self.assy.o.gl_update()
-    
+
     # == membership maintenance
 
     # Note about selection of nodes moving between parts:
@@ -295,7 +296,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # Therefore, in the absence of bugs and at the start of any user event handler,
         # self.topnode should serve as a comprehensive tree of this part's nodes.
         return
-    
+
     def remove(self, node):
         """
         Remove node (a member of this part) from this part's lists and stats;
@@ -328,7 +329,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             assert not self.topnode
             self.destroy()
         return
-    
+
     def destroy_with_topnode(self): #bruce 050927; consider renaming this to destroy, and destroy to something else
         """
         destroy self.topnode and then self; assertionerror if self still has nodes after topnode is destroyed
@@ -338,7 +339,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             self.topnode.kill() # use kill, since Node.destroy is NIM [#e this should be fixed, might cause memory leaks]
         self.destroy()
         return
-    
+
     def destroy(self): #bruce 050428 making this much more conservative for Alpha5 release and to fix bug 573 
         """
         forget enough to prevent memory leaks; only valid if we have no nodes left; MUST NOT forget views!
@@ -379,7 +380,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
 
     # incremental update methods
-    
+
     def selmols_append(self, mol):
         if self.__dict__.has_key('selmols'):
             assert mol not in self.selmols
@@ -404,11 +405,11 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         if self.__dict__.has_key('natoms'):
             self.natoms += delta
         return
-    
+
     # == compatibility methods
 
     #####@@@@@ find and fix all sets of .tree or .root or .data (old name, should all be renamed now) or .viewdata (new name) or .shelf
-    
+
     def _get_tree(self): #k this would run for part.tree; does that ever happen?
         print_compact_stack("_get_tree is deprecated: ")
         return self.topnode
@@ -416,9 +417,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def _get_root(self): #k needed?
         print_compact_stack("_get_root is deprecated: ")
         return self.topnode
-    
+
     # == properties that might be overridden by subclasses
-    
+
     def immortal(self):
         """
         Should this Part be undeletable from the UI (by cut or delete operations)?
@@ -429,7 +430,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return False # simplest value used as default
 
     # == attributes which should be delegated to self.assy
-    
+
     # attrnames to delegate to self.assy (ideally for writing as well as reading, until all using-code is upgraded)
     assy_attrs = ['w','o','mt','selwhat','win'] #bruce 071008 added 'win'
         ### TODO: add glpane, once we have it in assy and verify not already used here [bruce 071008 comment]
@@ -443,7 +444,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         #e in future, we'll split out our own methods for some of these, incl .changed
         #e and for others we'll edit our own methods' code to not call them on self but on self.assy (incl selwhat).
     assy_attrs_all = assy_attrs + assy_attrs_temporary + assy_attrs_review
-    
+
     def __getattr__(self, attr): # in class Part
         """
         [overrides InvalMixin.__getattr__]
@@ -546,7 +547,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     #  done by self.computeBoundingBox(), so its "auto-maintained" aspect is not being used
     #  by that.)
     # [bruce 070919 question]
-    
+
     def computeBoundingBox(self):
         """
         Compute the bounding box for this Part. This should be
@@ -561,9 +562,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def _recompute_bbox(self):
         self.bbox = BBox()
         for mol in self.molecules:
-              self.bbox.merge(mol.bbox)
+            self.bbox.merge(mol.bbox)
         self.center = self.bbox.center()
-    
+
     _inputs_for_center = ['molecules']
     _recompute_center = _recompute_bbox
 
@@ -601,7 +602,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
           some changes in the caller.)
         """
         movables = self.getSelectedMovables()
-        
+
         #We will compute a Bbox with a point list. 
         #Approach to fix bug 2250. ninad060905
         pointList = []
@@ -614,7 +615,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
                 #and you are now allowing zoom to selection. Same is true for invisible chunks. 
                     continue
                 pointList.append(atm.posn())
-        
+
         if movables:
             for obj in movables:
                 if obj.hidden:
@@ -630,13 +631,13 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         else:
             if not selatoms_list:
                 return None
-        
+
         bbox = BBox(pointList)
 
         return bbox
 
     # ==
-    
+
     _inputs_for_alist = [] # only invalidated directly. Not sure if we'll inval this whenever we should, or before uses. #####@@@@@
     def _recompute_alist(self):
         """
@@ -671,7 +672,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
 
     # == do the selmols and selatoms recomputers belong in ops_select??
-    
+
     _inputs_for_selmols = [] # only inval directly, since often stays the same when molecules changes, and might be incrly updated
     def _recompute_selmols(self):
         #e not worth optimizing for selwhat... but assert it was consistent, below.
@@ -765,9 +766,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
                     if not atom.is_singlet():
                         res.append(atom)
         return res
-    
+
     # ==
-    
+
     def addmol(self, mol): #bruce 050228 revised this for Part (was on assy) and for inval/update of part-summary attrs.
         """
         (Public method:)
@@ -782,7 +783,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # just call mol.moveto when you're done, like [some code in files_mmp.py] does.
         ## done in addchild->changed_dad->inherit_part->Part.add:
         ## self.invalidate_attrs(['natoms','molecules']) # this also invals bbox and center, via molecules
-        
+
         #bruce 050321 disabling the following debug code, since not yet ok for all uses of _readmmp;
         # btw does readmmp even need to call addmol anymore??
         #bruce 050322 now readmmp doesn't call addmol so I'll try reenabling this debug code:
@@ -827,9 +828,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         if platform.atom_debug:
             self.assy.checkparts()
         return self.topnode
-    
+
     # ==
-    
+
     def draw(self, glpane):
         """
         Draw all of self's visible model objects
@@ -896,7 +897,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # from being freed.
         assert self.repeated_bonds_dict is None
         pass
-    
+
     def draw_text_label(self, glpane):
         """
         #doc; called from GLPane.paintGL just after it calls mode.Draw()
@@ -939,9 +940,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         finally:
             del self.repeated_bonds_dict
         return
-    
+
     # ==
-    
+
     # for debugging
     def prin(self):
         for a in self.selatoms.itervalues():
@@ -961,11 +962,11 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         return
 
     # == these are event handlers which do their own full UI updates at the end
-    
+
     # bruce 050201 for Alpha:
     #    Like I did to fix bug 370 for Delete (and cut and copy),
     # make Hide and Unhide work on jigs even when in selatoms mode.
-    
+
     def Hide(self):
         """
         Hide all selected chunks and jigs
@@ -979,20 +980,20 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         """
         self.topnode.apply2picked(lambda x: x.unhide())
         self.w.win_update()
-         
+
 
     # ==
-    
+
     def createPlane(self):
         """
 	Creates a new Plane. 
 	"""
-	editController = self.createPlaneEditController()
-	#Create the plane object
-	editController.createStructure()
+        editController = self.createPlaneEditController()
+        #Create the plane object
+        editController.createStructure()
 
     def createPlaneEditController(self, plane = None):
-	"""
+        """
 	Returns a new L{PlaneEditController} object.	
 	@param plane:  This parameter is passed as an init argument for 
 	               the PlaneEditController that this method creates 
@@ -1000,11 +1001,11 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 	@type plane:  B{Plane} or None
 	@see: L{Plane.__init__} , L{Plane.edit}, L{PlaneEditController.__init__}
 	"""
-	from PlaneEditController import PlaneEditController	    
-	return PlaneEditController(self.w, plane)
-    
+        from PlaneEditController import PlaneEditController	    
+        return PlaneEditController(self.w.glpane, plane)
+
     def createRMotorEditController(self, rotaryMotor = None):
-	"""
+        """
 	Returns a new L{RotaryMotorEditController} object.	
 	@param rotaryMotor: This parameter is passed as an init argument for 
 			    the RotaryMotorEditController that this method 
@@ -1013,11 +1014,12 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 	@see: L{RotaryMotor.__init__} , L{RotaryMotor.edit}, 
 	      L{RotaryMotorEditController.__init__}
 	"""
-	from RotaryMotorEditController import RotaryMotorEditController
-	return RotaryMotorEditController(self.w, rotaryMotor)
-    
+        from RotaryMotorEditController import RotaryMotorEditController
+        return RotaryMotorEditController(self.w.glpane, rotaryMotor)
+
+
     def createLMotorEditController(self, linearMotor = None):
-	"""
+        """
 	Returns a new L{LinearMotorEditController} object.	
 	@param linearMotor: This parameter is passed as an init argument for 
 			    the LinearMotorEditController that this method 
@@ -1026,20 +1028,20 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 	@see: L{LinearMotor.__init__} , L{LinearMotor.edit}, 
 	      L{LinearMotorEditController.__init__}
 	"""
-	from LinearMotorEditController import LinearMotorEditController
-	return LinearMotorEditController(self.w, linearMotor)
-    	
+        from LinearMotorEditController import LinearMotorEditController
+        return LinearMotorEditController(self.w.glpane, linearMotor)
+
     def createLine(self):
-	"""
+        """
 	Create a line passing through the center of the selected atoms. 
 	TODO: This feature is available only as a debug option as of 20070726. 
 	The line generation options will be heavily revised after Command
 	Sequencer implementation. 
 	"""
         # Insert a line 
-	lst = self.getOnlyAtomsSelectedByUser()
-	line = Line(self.w, lst = lst)
-		    
+        lst = self.getOnlyAtomsSelectedByUser()
+        line = Line(self.w, lst = lst)
+
     def place_new_geometry(self, plane):
         self.ensure_toplevel_group()
         self.addnode(plane)
@@ -1054,7 +1056,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         fix_one_or_complain( plane, self.topnode, errfunc)
         self.assy.changed() 
         self.w.win_update()    
-	return
+        return
 
     def place_new_jig(self, jig): #bruce 050415, split from all jig makers, extended, bugfixed
         """
@@ -1081,9 +1083,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             env.history.message( redmsg( "Internal error making new jig: " + msg))
         fix_one_or_complain( jig, self.topnode, errfunc)
         return
-    
+
     # ==
-    
+
     def resetAtomsDisplay(self):
         """
         Resets the display mode for each atom in the selected chunks 
@@ -1116,7 +1118,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         #bruce 051209  -- now it only does that if **mapping_options ask it to.
         from files_mmp import writemmpfile_part
         writemmpfile_part( self, filename, **mapping_options)
-        
+
     pass # end of class Part
 
 # == subclasses of Part

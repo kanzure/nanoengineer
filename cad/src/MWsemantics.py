@@ -137,15 +137,15 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self._activepw = None
 
         self.orientationWindow = None     
-       
+
         self.sequenceEditor = None  #see self.createSequenceEditrIfNeeded 
                                     #for details
-        
+
         self.rotaryMotorPropMgr = None
         self.linearMotorPropMgr = None
         self.dnaDuplexPropMgr   = None
         self.planePropMgr = None
-        
+
         # These boolean flags, if True, stop the execution of slot 
         # methods that are called because the state of 'self.viewFullScreenAction
         # or self.viewSemiFullScreenAction is changed. May be there is a way to 
@@ -230,14 +230,14 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.partLibAction, 
                      SIGNAL("triggered()"),
                      self.insertPartFromPartLib)
-        
+
         self.connect(self.viewFullScreenAction, 
                      SIGNAL("toggled(bool)"), 
                      self.setViewFullScreen)
         self.connect(self.viewSemiFullScreenAction, 
                      SIGNAL("toggled(bool)"), 
                      self.setViewSemiFullScreen)
-                     
+
 
         self.connect(self.editPrefsAction,SIGNAL("triggered()"),self.editPrefs)
         self.connect(self.editRedoAction,SIGNAL("triggered()"),self.editRedo)
@@ -618,10 +618,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	"""
         menu = QMenu(self)
         contextMenuToolBars = \
-                        [self.standardToolBar, self.viewToolBar,
-                         self.standardViewsToolBar, self.displayStylesToolBar,
-                         self.simulationToolBar, self.buildToolsToolBar,
-                         self.selectToolBar, self.buildStructuresToolBar]
+                            [self.standardToolBar, self.viewToolBar,
+                             self.standardViewsToolBar, self.displayStylesToolBar,
+                             self.simulationToolBar, self.buildToolsToolBar,
+                             self.selectToolBar, self.buildStructuresToolBar]
         for toolbar in contextMenuToolBars:
             menu.addAction(toolbar.toggleViewAction())
         return menu
@@ -633,7 +633,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         if self.numParts == 0:
             self.cmdManagerControlArea.hide()
         # [bruce 070503 question: why do we not worry about whether pw == self._activepw?]
-    
+
     def showFullScreen(self):
         """
         Full screen mode. (maximize the glpane real estate by hiding/ collapsing
@@ -645,7 +645,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
          - ModelTree/PM area,
          - History Widget,
          - Statusbar         
-        
+
         @param val: The state of the QAction (checked or uncheced) If True, it 
                     will show the main window full screen , otherwise show it 
                     with its regular size
@@ -653,28 +653,28 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         @see: self.showSemiFullScreen, self.showNormal
         @see: ops_view.viewSlotsMixin.setViewFullScreen
         """
-        
+
         if self._block_viewFullScreenAction_event:
             #see self.__init__ for a detailed comment about this instance 
             #variable
             return
-        
+
         self._block_viewFullScreenAction_event = False
-        
+
         if self.viewSemiFullScreenAction.isChecked():
             self._block_viewSemiFullScreenAction_event = True
             self.viewSemiFullScreenAction.setChecked(False)
             self._block_viewSemiFullScreenAction_event = False            
-            
+
         self._showFullScreenCommonCode()
         for  widget in self.children():
             if isinstance(widget, QToolBar):
                 if widget.isVisible():
                     widget.hide()
                     self._widgetToHideDuringFullScreenMode.append(widget)
-        
+
         self.commandManager.cmdManager.hide()
-        
+
     def _showFullScreenCommonCode(self):
         """
         The common code for making the Mainwindow full screen (maximimzing the
@@ -691,7 +691,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 if widget.isVisible():
                     widget.hide()
                     self._widgetToHideDuringFullScreenMode.append(widget)      
-        
+
         self.activePartWindow().collapseModelTreeArea()        
         self.activePartWindow().collapseHistoryWidget()
 
@@ -704,7 +704,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
          - ModelTree/PM area,
          - History Widget,
          - Statusbar         
-        
+
         @param val: The state of the QAction (checked or uncheced) If True, it 
                     will show the main window full screen , otherwise show it 
                     with its regular size
@@ -716,30 +716,30 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             #see self.__init__ for a detailed comment about this instance 
             #variable
             return
-        
+
         self._block_viewSemiFullScreenAction_event = False
-        
+
         if self.viewFullScreenAction.isChecked():
             self._block_viewFullScreenAction_event = True
             self.viewFullScreenAction.setChecked(False)
             self._block_viewFullScreenAction_event = False
-        
+
         self._showFullScreenCommonCode()
-        
-            
-    
+
+
+
     def showNormal(self):
         QMainWindow.showNormal(self)
         self.activePartWindow().expandModelTreeArea()
         self.activePartWindow().expandHistoryWidget()
-        
+
         for  widget in self._widgetToHideDuringFullScreenMode:           
             widget.show()
-        
+
         self.commandManager.cmdManager.show()
         #Clear the list of hidden widgets (those are no more hidden)
         self._widgetToHideDuringFullScreenMode = [] 
-               
+
     def addPartWindow(self, assy):
         # This should be associated with fileOpen (ops_files.py) or with creating a new structure
         # from scratch.
@@ -818,7 +818,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # Create the Help dialog. Mark 050812
         from help import Ne1HelpDialog
         self.help = Ne1HelpDialog()
-        
+
         # Create the NE1 Progress Dialog. mark 2007-12-06
         self.createProgressDialog()
 
@@ -842,7 +842,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
             print "Using new DNA Duplex command (supports PAM-3 only)."
             from DnaDuplexEditController import DnaDuplexEditController
-            self.dnaEditController = DnaDuplexEditController(self)	
+            self.dnaEditController = DnaDuplexEditController(self.glpane)	
             self.dnacntl = self.dnaEditController
 
         from PovraySceneProp import PovraySceneProp
@@ -857,7 +857,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         #@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
         from AtomGenerator import AtomGenerator
         self.atomcntl = AtomGenerator(self)
-        
+
         # QuteMol Property Manager. Mark 2007-12-02.
         from QuteMolPropertyManager import QuteMolPropertyManager
         self.qutemolPM = QuteMolPropertyManager(self)
@@ -1410,16 +1410,16 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         """
         Sets the color of the selected chunks and/or jigs to a color the user 
         chooses.
-        
+
         @param initialColor: the initial color to display in the color chooser
                              dialog. The default initial color is white.
         @type  initialColor: QColor
-        
+
         @note: Need better method name (i.e. setObjectColor()).
         """
-        
+
         _cmd = greenmsg("Change Color: ")
-        
+
         from ops_select import objectSelected, ATOMS, CHUNKS, JIGS
         if not objectSelected(self.assy, objectFlags = CHUNKS | JIGS):
             if objectSelected(self.assy, objectFlags = ATOMS):
@@ -1428,10 +1428,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 _msg = redmsg("Nothing selected.")
             env.history.message(_cmd + _msg)
             return
-        
+
         _numSelectedObjects = self.assy.getNumberOfSelectedChunks() \
                             + self.assy.getNumberOfSelectedJigs()
-        
+
         if _numSelectedObjects == 1 and self.assy.getNumberOfSelectedChunks() == 1:
             # If only one object is selected, and its a chunk, 
             # assign initialColor its color.
@@ -1439,7 +1439,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             if _selectedChunkColor:
                 from widgets import RGBf_to_QColor
                 initialColor = RGBf_to_QColor(_selectedChunkColor)
-        
+
         elif _numSelectedObjects == 1 and self.assy.getNumberOfSelectedJigs() == 1:
             # If only one object is selected, and its a jig, 
             # assign initialColor its color.
@@ -1448,7 +1448,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             if _selectedJigColor:
                 from widgets import RGBf_to_QColor
                 initialColor = RGBf_to_QColor(_selectedJigColor)
-                
+
         _c = QColorDialog.getColor(initialColor, self)
         if _c.isValid():
             from widgets import QColor_to_RGBf
@@ -1457,7 +1457,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             for ob in self.assy.selmols:
                 ob.setcolor(_newColor)
                 list.append(ob)
-                
+
             for ob in self.assy.getSelectedJigs():
                 ob.color = _newColor # Need jig.setColor() method! --mark
                 ob.normcolor =  _newColor
@@ -2057,19 +2057,44 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.nanotubecntl.show()
 
     def activateDnaTool(self):
-        Ui_DnaFlyout.activateDnaFlyout(self)
+        """
+        Enter the DnaDuplexEditController command. 
+        @see:B{self.insertDna}
+        """
+        commandSequencer = self.commandSequencer        
+        if commandSequencer.currentCommand.modename != 'DNA_DUPLEX':
+            commandSequencer.userEnterCommand('DNA_DUPLEX')
+        
+        assert self.commandSequencer.currentCommand.modename == 'DNA_DUPLEX'
+        
+        self.commandSequencer.currentCommand.runController()
 
-    def insertDna(self):
-        self.ensureInCommand('SELECTMOLS')
+    def insertDna(self, isChecked = False):
+        """
+        @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is 
+                          checked, enter DnaLineMode. (provided you are 
+                          using the new DNADuplexEditController command. 
+        @type  isChecked: boolean
+        @see: B{Ui_DnaFlyout.activateDnaDuplexEditController}
+        """
+        
         if debug_pref("Use old 'Build > DNA' generator? (next session)", 
                       Choice_boolean_False, 
                       non_debug = True,
                       prefs_key = "A9 devel/DNA Duplex"):
-
-            self.dnacntl.show()
+            if isChecked:
+                self.dnacntl.show()
         else:
-            self.dnaEditController = self._createDnaDuplexEditController()
-            self.dnaEditController.runController()
+            commandSequencer = self.commandSequencer
+            currentCommand = commandSequencer.currentCommand
+            if currentCommand.modename != "DNA_LINE_MODE":
+                commandSequencer.userEnterTemporaryCommand(
+                    'DNA_LINE_MODE')
+            else:        
+                currentCommand = self.commandSequencer.currentCommand
+                if currentCommand.modename == 'DNA_LINE_MODE':
+                    currentCommand.Done(exit_using_done_or_cancel_button = False)
+            
 
     def _createDnaDuplexEditController(self, dnaDuplex = None):
         """
@@ -2085,8 +2110,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 	      controllers. Right now it creates different ones. 
         """
         from DnaDuplexEditController import DnaDuplexEditController
-        return DnaDuplexEditController(self, dnaDuplex)
-    
+        return DnaDuplexEditController(self.glpane, dnaDuplex)
+
     def createSequenceEditorIfNeeded(self):
         """
         Returns a Sequence editor object (a dockwidget).
@@ -2109,9 +2134,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             self.sequenceEditor.setObjectName("sequence_editor")
             #Should changes.keep_forevenr be called here? 
             #doesn't look necessary at the moment -- ninad 2007-11-21
-        
+
         return self.sequenceEditor   
-    
+
     def createRotaryMotorPropMgr_if_needed(self, editController):
         """
         Create the Rotary motor PM object (if one doesn't exist) 
@@ -2127,10 +2152,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 RotaryMotorPropertyManager(self, editController)  
         else:
             self.rotaryMotorPropMgr.setEditController(editController)        
-        
+
         return self.rotaryMotorPropMgr   
-    
-    
+
+
     def createLinearMotorPropMgr_if_needed(self, editController):
         """
         Create the Linear motor PM object (if one doesn't exist) 
@@ -2146,9 +2171,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 LinearMotorPropertyManager( self, editController)  
         else:
             self.linearMotorPropMgr.setEditController(editController)        
-        
+
         return self.linearMotorPropMgr
-    
+
     def createPlanePropMgr_if_needed(self, editController):
         """
         Create the Plane PM object (if one doesn't exist) 
@@ -2164,9 +2189,9 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 PlanePropertyManager(self, editController)  
         else:
             self.planePropMgr.setEditController(editController)        
-        
+
         return self.planePropMgr
-    
+
     def createDnaDuplexPropMgr_if_needed(self, editController):
         """
         THIS METHOD IS NOT USED AS OF 2007-12-04
@@ -2176,7 +2201,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         in the dna group. The new dna data model will store the axis end points
         Once thats done this method will be used to create only a single 
         PM object and reusing it as needed. 
-        
+
         Create the DNA Duplex PM object (if one doesn't exist) 
         If this object is already present, then set its editcontroller to this
         parameter
@@ -2189,7 +2214,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                 DnaDuplexPropertyManager(self, editController)
         else:
             self.dnaDuplexPropMgr.setEditController(editController)
-            
+
         return self.dnaDuplexPropMgr
 
     def insertPovrayScene(self):
@@ -2435,24 +2460,24 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.setWindowTitle(self.trUtf8("NanoEngineer-1" + " - " +prefix + "[" + partname + "]" + suffix))
         self.setWindowIcon(geticon("ui/border/MainWindow"))
         return
-    
+
     def createProgressDialog(self):
         """
         Creates the main window's Progress Dialog, which can be used to 
         display a progress dialog at any time. It is modal by default.
-        
+
         @see: _readmmp() for an example of use.
         @see: U{B{QProgressDialog}<http://doc.trolltech.com/4/qprogressdialog.html>}
-        
+
         """
         from PyQt4.Qt import QProgressDialog
         self.progressDialog = QProgressDialog(self)
         self.progressDialog.setWindowModality(Qt.WindowModal)
         self.progressDialog.setWindowTitle("NanoEngineer-1")
-        
+
         # setMinimumDuration() doesn't work. Qt bug?
         self.progressDialog.setMinimumDuration(500) # 500 ms = 0.5 seconds
-    
+
     pass # end of class MWsemantics
 
 # end

@@ -33,7 +33,7 @@ class RotaryMotorEditController(EditController):
     sponsor_keyword = 'Rotary Motor'
     propMgr = None
     
-    def __init__(self, win, struct = None):
+    def __init__(self, commandSequencer, struct = None):
         """
         Constructs an Edit Controller Object. The editController, 
         depending on what client code needs it to do, may create a new 
@@ -50,7 +50,7 @@ class RotaryMotorEditController(EditController):
         
         @see: L{RotaryMotor.__init__}
         """ 
-        EditController.__init__(self, win)
+        EditController.__init__(self, commandSequencer)
         self.struct = struct
             
     def _gatherParameters(self):

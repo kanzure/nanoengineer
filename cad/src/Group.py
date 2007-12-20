@@ -39,7 +39,7 @@ class Group(Node):
         # but maybe a better system would be to let user turn it off for specific classes they're familiar with,
         # or to relegate it to a help submenu rather than MT context menu, or in some other way make it less visible...
         # [bruce 051201]
-    
+
     _s_attr_members = S_CHILDREN
 
     def __init__(self, name, assy, dad, members = (), editController = None): ###@@@ review inconsistent arg order
@@ -49,13 +49,14 @@ class Group(Node):
         self.open = True
         for ob in members:
             self.addchild(ob)
-	
-	#@WARNING: Following (self.editController) is a temporary code that 
-	# allows editing of DNA Duplex which is, at the moment, same as a 
-	# group in the MT. Once we have a DNA object model ready, 
-	# the following should be removed/ revised . 
-	# See also self.edit where this is being used. -- Ninad 2007-10-26
+
+        #@WARNING: Following (self.editController) is a temporary code that 
+        # allows editing of DNA Duplex which is, at the moment, same as a 
+        # group in the MT. Once we have a DNA object model ready, 
+        # the following should be removed/ revised . 
+        # See also self.edit where this is being used. -- Ninad 2007-10-26
         self.editController = editController
+
         return
 
     def _um_initargs(self): #bruce 051013 [in class Group]
@@ -115,10 +116,10 @@ class Group(Node):
 
     def drag_move_ok(self):
         return True # same as for Node
-    
+
     def drag_copy_ok(self):
         return True # for my testing... maybe make it False for Alpha though ###e ####@@@@ 050201
-    
+
     def is_selection_group_container(self): #bruce 050131 for Alpha
         """
         Whether this group causes each of its direct members to be treated
@@ -139,7 +140,7 @@ class Group(Node):
             if m.haspicked():
                 return True
         return False
-    
+
     def changed_members(self): #bruce 050121 new feature, now needed by depositMode
         """
         Whenever something changes self.members in any way (insert, delete, reorder),
@@ -194,7 +195,7 @@ class Group(Node):
         if only_if_new and (func in self.__cmfuncs):
             return
         self.__cmfuncs.append( func) # might occur during use of same func!
-    
+
     def openable(self): # overrides Node.openable()
         """
         whether tree widgets should permit the user to open/close their view of this node
@@ -316,7 +317,7 @@ class Group(Node):
             # make this a detected error and no longer tolerate it.
             if platform.atom_debug:
                 msg = "atom_debug: addchild setting newchild.dad to None " \
-                      "since newchild not in dad's members: %s, %s" % (self, newchild)
+                    "since newchild not in dad's members: %s, %s" % (self, newchild)
                 print_compact_stack(msg)
             newchild.dad = None
         if newchild.is_ascendant(self):
@@ -344,8 +345,8 @@ class Group(Node):
                           "within self.members, might need special cases", self, newchild
                     print "...options: top = %r, after = %r, before = %r" % (top , after , before)
                 if type(before) is type(1):
-                     # indices will change, use real nodes instead
-                     # (ok even if real node is 'newchild'! we detect that below)
+                        # indices will change, use real nodes instead
+                        # (ok even if real node is 'newchild'! we detect that below)
                     before = self.members[before]
                 if type(after) is type(1):
                     after = self.members[after]
@@ -361,7 +362,7 @@ class Group(Node):
             newchild.dad.delmember(newchild) # this sets newchild.dad to None, but doesn't mess with its .part, .assy, etc
         # Only now will we actually insert newchild into self.
         # [end of this part of bruce 050205 changes]
-        
+
         ## self.assy.changed() # now done by changed_members below
             #e (and what about informing the model tree, if it's displaying us?
             #   probably we need some subscription-to-changes or modtime system...)
@@ -456,7 +457,7 @@ class Group(Node):
         [some subclasses should override this]
         """
         return "Group Name: [" + self.name +"]"
-    
+
     def unpick(self):
         """
         unselect the Group -- and all its members! [see also unpick_top]
@@ -505,7 +506,7 @@ class Group(Node):
     def unhide(self):
         for ob in self.members:
             ob.unhide()
-                
+
     def apply2all(self, fn):
         """
         Apply fn to self and (as overridden here in Group) all its members.
@@ -527,7 +528,7 @@ class Group(Node):
         fn(self)
         for ob in self.members[:]:
             ob.apply2tree(fn)
-             
+
     def apply2picked(self, fn):
         """
         Apply fn to the topmost picked nodes under (or equal to) self.
@@ -560,7 +561,7 @@ class Group(Node):
                 return self
             node = node or h
         return node
- 
+
     def permits_ungrouping(self):
         """
         Should the user interface permit users to dissolve this Group
@@ -568,7 +569,7 @@ class Group(Node):
         [Some subclasses should override this.]
         """
         return True # yes, for normal groups.
-    
+
     def ungroup(self):
         """
         If this Node is a Group, dissolve it, letting its members
@@ -627,7 +628,7 @@ class Group(Node):
         return new
 
     # ==
-    
+
     def kill(self): # in class Group
         #bruce 050214: called Node.kill instead of inlining it; enhanced Node.kill;
         # and fixed bug 381 by killing all members first.
@@ -654,7 +655,7 @@ class Group(Node):
             m.reset_subtree_part_assy()
         Node.reset_subtree_part_assy(self)
         return
-    
+
     def is_ascendant(self, node):
         """
         [overrides Node.is_ascendant, which is a very special case of the same semantics]
@@ -670,7 +671,7 @@ class Group(Node):
                 return True
             node = node.dad
         return False
-        
+
     def nodespicked(self):
         """
         Return the number of nodes currently selected in this subtree.
@@ -684,7 +685,7 @@ class Group(Node):
         for ob in self.members: 
             npick += ob.nodespicked()
         return npick
-        
+
     def node_icon(self, display_prefs):
         open = display_prefs.get('open', False)
         if open:
@@ -719,18 +720,22 @@ class Group(Node):
         # order (which I fixed yesterday).
         # [bruce 050110 inference from addmember implems/usage]
         return list(self.members)
-    
+
     def edit(self):
         """
         [this is overridden in some subclasses of Group]
         """
         if self.editController:
-            self.editController.editStructure()
+            commandSequencer = self.assy.w.commandSequencer
+            commandSequencer.userEnterCommand('DNA_DUPLEX')
+            currentCommand = commandSequencer.currentCommand
+            assert currentCommand.modename == 'DNA_DUPLEX'
+            currentCommand.editStructure(self)
         else:
             cntl = GroupProp(self) # Normal group prop
             cntl.exec_()
             self.assy.mt.mt_update()
-    
+
     def getProps(self):
         """
 	Temporary method to support Dna duplex editing. see Group.__init__ for 
@@ -739,14 +744,14 @@ class Group(Node):
         if self.editController:
             props = ()
             return props
-	
+
     def setProps(self, props):
         """
 	Temporary method to support Dna duplex editing. see Group.__init__ for 
 	a comment
 	"""
         pass
-	
+
     def dumptree(self, depth = 0):
         print depth * "...", self.name
         for x in self.members:
@@ -754,7 +759,7 @@ class Group(Node):
                 print "bad thread:", x, self, x.dad
             x.dumptree(depth + 1)
         return
-        
+
     def draw(self, glpane, dispdef): #bruce 050615, 071026 revised this
         if self.hidden:
             #k does this ever happen? This state might only be stored on the kids... [bruce 050615 question]
@@ -794,7 +799,7 @@ class Group(Node):
          and which might be subject to numerical errors).
         """
         pass
-    
+
     def getstatistics(self, stats):
         """
         add group to part stats
@@ -802,7 +807,7 @@ class Group(Node):
         stats.ngroups += 1
         for ob in self.members:
             ob.getstatistics(stats)
-  
+
     def writemmp(self, mapping): #bruce 050322 revised interface
         mapping.write("group (" + mapping.encode_name(self.name) + ")\n")
         mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False")) #bruce 050421
@@ -817,7 +822,7 @@ class Group(Node):
             for xx in mapping.pop_forwarded_nodes_after_child(x):
                 mapping.write_forwarded_node_for_real(xx)
         mapping.write("egroup (" + mapping.encode_name(self.name) + ")\n")
-        
+
     def writepov(self, f, dispdef):
         if self.hidden:
             return
@@ -829,7 +834,7 @@ class Group(Node):
             return
         for x in self.members:
             x.writemdl(alist, f, dispdef)
-            
+
     def __str__(self):
         return "<group " + self.name +">"
 
@@ -840,7 +845,7 @@ class Group(Node):
         for m in self.members:
             m.move(offset)
         return
-    
+
     def pickatoms(self): # in Group [bruce 070501 added this to Node API]
         """
         [overrides Node method]
@@ -851,5 +856,5 @@ class Group(Node):
         return npicked
 
     pass # end of class Group
-    
+
 # end
