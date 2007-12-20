@@ -83,12 +83,13 @@ class Ui_CookiePropertyManager(PM_Dialog):
     
     def _addGroupBoxes(self):
         """
-        Add various group boxes to the Extrude Property manager. 
+        Add various group boxes to the Property manager. 
         """
         self._addCrystalSpecsGroupbox()
         self._addLayerPropertiesGroupBox()
         self._addDisplayOptionsGroupBox()
         self._addAdvancedOptionsGroupBox()
+        self._addWhatsThisText()
     
     def _addCrystalSpecsGroupbox(self):
         """
@@ -315,3 +316,34 @@ class Ui_CookiePropertyManager(PM_Dialog):
                                             text = "Show model",
                                             widgetColumn = 0,
                                             state        = Qt.Unchecked)
+        
+    def _addWhatsThisText(self):
+        """
+        Add "What's This" text for the widgets in the Property Manager.
+        """
+        
+        self.surface100_btn.setWhatsThis(\
+            "<b>Surface 100</b>"\
+            "<p>"\
+            "Reorients the view to the nearest angle that would "\
+            "look straight into a (1,0,0) surface of a "\
+            "diamond lattice."\
+            "</p>")
+        
+        # Surface 110
+        self.surface110_btn.setWhatsThis(\
+            "<u><b>Surface 110</b></u>"\
+            "<p>"\
+            "Reorients the view to the nearest angle that would "\
+            "look straight into a (1,1,0) surface of a "\
+            "diamond lattice."\
+            "</p>")
+    
+        # Surface 111
+        self.surface111_btn.setWhatsThis(\
+            "<u><b>Surface 111</b></u>"\
+            "<p>"\
+            "Reorients the view to the nearest angle that would "\
+            "look straight into a (1,1,1) surface of a "\
+            "diamond lattice."\
+            "</p>")

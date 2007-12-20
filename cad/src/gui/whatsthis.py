@@ -626,49 +626,6 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.viewRaytraceSceneAction.setWhatsThis( viewRaytraceSceneActionText )
 
     #
-    # Grids Toolbar
-    #
-
-    # Surface 100
-
-    orient100ActionText = \
-        "<u><b>Surface 100</b></u>"\
-        "<p>"\
-        "<img source=\"ui\actions\Properties Manager/Surface100.png\"><br> "\
-        "Reorients the view to the nearest angle that would "\
-        "look straight into a (1,0,0) surface of a "\
-        "diamond lattice."\
-        "</p>"
-
-    win.orient100Action.setWhatsThis(orient100ActionText )
-
-    # Surface 110
-
-    orient110ActionText = \
-        "<u><b>Surface 110</b></u>"\
-        "<p>"\
-        "<img source=\"ui\actions\Properties Manager/Surface110.png\"><br> "\
-        "Reorients the view to the nearest angle that would "\
-        "look straight into a (1,1,0) surface of a "\
-        "diamond lattice."\
-        "</p>"
-
-    win.orient110Action.setWhatsThis(orient110ActionText )
-
-    # Surface 111
-
-    orient111ActionText = \
-        "<u><b>Surface 111</b></u>"\
-        "<p>"\
-        "<img source=\"ui\actions\Properties Manager/Surface111.png\"><br> "\
-        "Reorients the view to the nearest angle that would "\
-        "look straight into a (1,1,1) surface of a "\
-        "diamond lattice."\
-        "</p>"
-
-    win.orient111Action.setWhatsThis(orient111ActionText )
-
-    #
     # Insert toolbar
     #
 

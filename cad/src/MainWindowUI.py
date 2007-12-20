@@ -5,8 +5,6 @@ $Id$
 
 # -*- coding: utf-8 -*-
 
-
-
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 
@@ -30,10 +28,16 @@ from icon_utilities import geticon
 from constants import MULTIPANE_GUI
 
 class Ui_MainWindow(object):
+    """
+    The Ui_MainWindow class creates the QAction widgets, including the menus
+    and toolbars that use them.
+    """
     def setupUi(self, MainWindow):
+        """
+        Sets up the main window QActions (buttons), menus and toolbar.
+        """
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
-        #MainWindow.resize(QtCore.QSize(QtCore.QRect(0,0,1014,688).size()).expandedTo(MainWindow.minimumSizeHint()))
 
         if MULTIPANE_GUI:
             self.widget = self.centralWidget()
@@ -43,9 +47,9 @@ class Ui_MainWindow(object):
             self.widget.setObjectName("widget")
             MainWindow.setCentralWidget(self.widget)
          
-        ###########################
-               #### DASHBOARDS  ####
-        ###########################
+        # Dashboards. All dashboards are depricated and code for them should
+        # be removed after confirming this with Ninad and Bruce. 
+        # Mark 2007-12-19.
 
         self.cookieCutterDashboard = QtGui.QToolBar(MainWindow)
         self.cookieCutterDashboard.setEnabled(True)
@@ -89,24 +93,18 @@ class Ui_MainWindow(object):
         self.dashboardHolder.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
         MainWindow.addDockWidget(Qt.BottomDockWidgetArea, self.dashboardHolder)
        
-
         self.cookieSelectDashboard = QtGui.QToolBar(MainWindow)
         self.cookieSelectDashboard.setEnabled(True)
         self.cookieSelectDashboard.setGeometry(QtCore.QRect(373,47,109,20))
         self.cookieSelectDashboard.setObjectName("cookieSelectDashboard")
         MainWindow.addToolBar(Qt.BottomToolBarArea, self.cookieSelectDashboard)
         
-        
-        
-
         self.MenuBar = QtGui.QMenuBar(MainWindow)
         self.MenuBar.setEnabled(True)
         self.MenuBar.setGeometry(QtCore.QRect(0,0,1014,28))
         self.MenuBar.setObjectName("MenuBar")
         
-        ###########################
-               #### MAIN MENUS  ####
-        ###########################
+        # Set up the menus for the main menu bar.
         
         Ui_FileMenu.setupUi(self)
         Ui_EditMenu.setupUi(self)
@@ -116,25 +114,17 @@ class Ui_MainWindow(object):
         Ui_SimulationMenu.setupUi(self)
         Ui_HelpMenu.setupUi(self)
         
-        #########################
-        ######TOOLBARS#########
-        #########################
+        # Set up the toolbars for the main window.
         
         Ui_StandardToolBar.setupUi(self)       
         Ui_ViewToolBar.setupUi(self)       
-        
         Ui_BuildToolsToolBar.setupUi(self)
         Ui_BuildStructuresToolBar.setupUi(self)
         Ui_SelectToolBar.setupUi(self)
         Ui_SimulationToolBar.setupUi(self)
-                    
-        self.animatorMenu = QtGui.QMenu(self.MenuBar)
-        self.animatorMenu.setObjectName("Animator")
-        
+                
         self.windowMenu = QtGui.QMenu(self.MenuBar)
-        self.windowMenu.setObjectName("Window")   
-
-        
+        self.windowMenu.setObjectName("Window")
               
         ###Following will become outdated for Alpha9 Start#####
 
@@ -148,9 +138,7 @@ class Ui_MainWindow(object):
        
         MainWindow.setMenuBar(self.MenuBar)
         
-        ###########################
-               #### SUB-MENU ITEMS  ####
-        ########################### 
+        # Sub-menu items 
      
         ##### OTHERS Start #####
         
@@ -175,8 +163,9 @@ class Ui_MainWindow(object):
             "ui/actions/Properties Manager/Cancel"))
         self.toolsCancelAction.setObjectName("toolsCancelAction")
         
+        # Toggle ToolBars. I believe these can be removed since they aren't
+        # used. I'll check with Ninad. --mark 2007-12-20.
         
-        # Toggle ToolBars 
         self.toggleStandardToolBarAction = QtGui.QAction(MainWindow)
         self.toggleStandardToolBarAction.setCheckable(True)
         self.toggleStandardToolBarAction.setChecked(True)
@@ -247,22 +236,7 @@ class Ui_MainWindow(object):
     
         
          ##### UNUSED Menu End #####
-         
-        self.orient100Action = QtGui.QAction(MainWindow)
-        self.orient100Action.setCheckable(True)
-        self.orient100Action.setIcon(geticon("ui/actions/Properties Manager/Surface100"))
-        self.orient100Action.setObjectName("orient100Action")
-
-        self.orient110Action = QtGui.QAction(MainWindow)
-        self.orient110Action.setCheckable(True)
-        self.orient110Action.setIcon(geticon("ui/actions/Properties Manager/Surface110"))
-        self.orient110Action.setObjectName("orient110Action")
-
-        self.orient111Action = QtGui.QAction(MainWindow)
-        self.orient111Action.setCheckable(True)
-        self.orient111Action.setIcon(geticon("ui/actions/Properties Manager/Surface111"))
-        self.orient111Action.setObjectName("orient111Action")
-
+        
         self.toolsStartOverAction = QtGui.QAction(MainWindow)
         self.toolsStartOverAction.setIcon(geticon("ui/actions/Properties Manager/Startover"))
         self.toolsStartOverAction.setObjectName("toolsStartOverAction")
@@ -327,7 +301,6 @@ class Ui_MainWindow(object):
         self.movieInfoAction = QtGui.QAction(MainWindow)
         self.movieInfoAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Info"))
         self.movieInfoAction.setObjectName("movieInfoAction")
-
         
         self.panDoneAction = QtGui.QAction(MainWindow)
         self.panDoneAction.setIcon(geticon("ui/actions/Properties Manager/Done"))
@@ -370,13 +343,11 @@ class Ui_MainWindow(object):
         self.rotateThetaPlusAction = QtGui.QAction(MainWindow)
         self.rotateThetaPlusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Theta_Plus"))
         self.rotateThetaPlusAction.setObjectName("rotateThetaPlusAction")
-
                 
-        #######Dashboard Actions End ############
+        # Dashboard Actions End ############
              
         # All the stuff below should be moved out of the MainWindowUI.ui/py world, and out
         # into Nanorex-defined source files.
-               
         
         self.cookieSelectDashboard.addAction(MainWindow.DefaultSelAction)
         self.cookieSelectDashboard.addAction(MainWindow.LassoSelAction)
@@ -386,22 +357,7 @@ class Ui_MainWindow(object):
         self.cookieSelectDashboard.addAction(MainWindow.TriangleSelAction)
         self.cookieSelectDashboard.addAction(MainWindow.DiamondSelAction)
         self.cookieSelectDashboard.addAction(MainWindow.CircleSelAction)
-        self.cookieSelectDashboard.addAction(MainWindow.HexagonSelAction)    
-        
-        
-              
-        """ A8 Display menu items Disabled temporarily 061030
-        self.displayMenu.addSeparator()
-        self.displayMenu.addAction(self.dispObjectColorAction)
-        self.displayMenu.addAction(self.dispResetChunkColorAction)
-        self.displayMenu.addAction(self.dispResetAtomsDisplayAction)
-        self.displayMenu.addAction(self.dispShowInvisAtomsAction)
-        self.displayMenu.addSeparator()
-        self.displayMenu.addAction(self.changeBackgroundColorAction)
-        self.displayMenu.addSeparator()
-        self.displayMenu.addAction(self.dispElementColorSettingsAction)
-        self.displayMenu.addAction(self.dispLightingAction)
-        """
+        self.cookieSelectDashboard.addAction(MainWindow.HexagonSelAction)
                                
         self.jigsMenu.addAction(self.jigsESPImageAction)
         self.jigsMenu.addAction(self.jigsGamessAction)
@@ -409,16 +365,12 @@ class Ui_MainWindow(object):
         self.jigsMenu.addAction(self.jigsAtomSetAction)        
         self.simulationMenu.addAction(self.simNanoHiveAction)      
         
-       
-        
         #ADD MAIN MENUS TO THE MENUBAR
         self.MenuBar.addAction(self.fileMenu.menuAction())
         self.MenuBar.addAction(self.editMenu.menuAction())
         self.MenuBar.addAction(self.viewMenu.menuAction())
         self.MenuBar.addAction(self.Insert.menuAction())
         self.MenuBar.addAction(self.toolsMenu.menuAction())
-        #Main menu 'Animator' disabled for A9 
-        ##self.MenuBar.addAction(self.animatorMenu.menuAction())
         self.MenuBar.addAction(self.simulationMenu.menuAction())
         #Main menu 'Window' disabled for A9 
         ##self.MenuBar.addAction(self.windowMenu.menuAction())
@@ -436,7 +388,16 @@ class Ui_MainWindow(object):
         return
 
     def retranslateUi(self, MainWindow):
+        """
+        This method centralizes all calls that set UI text for the purpose of 
+        making it easier for the programmer to translate the UI into other 
+        languages.
         
+        @param MainWindow: The main window
+        @type  MainWindow: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+        
+        @see: U{B{THE Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
+        """
         MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "NanoEngineer-1", None, QtGui.QApplication.UnicodeUTF8))
         
         self.cookieCutterDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Cookie Cutter", None, QtGui.QApplication.UnicodeUTF8))
@@ -450,9 +411,7 @@ class Ui_MainWindow(object):
         self.textLabel1_3.setText(QtGui.QApplication.translate("MainWindow", "Fuse Chunks", None, QtGui.QApplication.UnicodeUTF8))
         self.cookieSelectDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Toolbar", None, QtGui.QApplication.UnicodeUTF8))
                
-        
-        #Menus and SubMenus
-        
+        # Menus and SubMenus
         Ui_FileMenu.retranslateUi(self)
         Ui_EditMenu.retranslateUi(self)
         Ui_ViewMenu.retranslateUi(self)     
@@ -461,8 +420,7 @@ class Ui_MainWindow(object):
         Ui_SimulationMenu.retranslateUi(self)
         Ui_HelpMenu.retranslateUi(self)
         
-        #Toolbars
-        
+        # Toolbars
         Ui_StandardToolBar.retranslateUi(self)
         Ui_ViewToolBar.retranslateUi(self)
         Ui_BuildStructuresToolBar.retranslateUi(self)
@@ -470,12 +428,11 @@ class Ui_MainWindow(object):
         Ui_SelectToolBar.retranslateUi(self)
         Ui_SimulationToolBar.retranslateUi(self)
         
-        self.animatorMenu.setTitle(QtGui.QApplication.translate("MainWindow", "&Animator", None, QtGui.QApplication.UnicodeUTF8))
         self.windowMenu.setTitle(QtGui.QApplication.translate("MainWindow", "&Window", None, QtGui.QApplication.UnicodeUTF8))
                                 
-        #Menu Item (Action items) text and icons
+        # Menu Item (Action items) text and icons
                        
-        #UNUSED MENU ITEMS 
+        # UNUSED MENU ITEMS.
         self.viewDefviewAction.setText(QtGui.QApplication.translate("MainWindow", "Orientations", None, QtGui.QApplication.UnicodeUTF8))
         self.viewDefviewAction.setIconText(QtGui.QApplication.translate("MainWindow", "Orientations", None, QtGui.QApplication.UnicodeUTF8))
         self.viewDefviewAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Default Views", None, QtGui.QApplication.UnicodeUTF8))
@@ -515,13 +472,6 @@ class Ui_MainWindow(object):
         self.jigsHeatsinkAction.setIconText(QtGui.QApplication.translate("MainWindow", "Heatsin&k", None, QtGui.QApplication.UnicodeUTF8))
         self.jigsHandleAction.setText(QtGui.QApplication.translate("MainWindow", "&Handle", None, QtGui.QApplication.UnicodeUTF8))
         self.jigsHandleAction.setIconText(QtGui.QApplication.translate("MainWindow", "Handle", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.orient100Action.setText(QtGui.QApplication.translate("MainWindow", "Surface 100", None, QtGui.QApplication.UnicodeUTF8))
-        self.orient100Action.setIconText(QtGui.QApplication.translate("MainWindow", "Surface 100", None, QtGui.QApplication.UnicodeUTF8))
-        self.orient110Action.setText(QtGui.QApplication.translate("MainWindow", "Surface 110", None, QtGui.QApplication.UnicodeUTF8))
-        self.orient110Action.setIconText(QtGui.QApplication.translate("MainWindow", "Surface 110", None, QtGui.QApplication.UnicodeUTF8))
-        self.orient111Action.setText(QtGui.QApplication.translate("MainWindow", "Surface 111", None, QtGui.QApplication.UnicodeUTF8))
-        self.orient111Action.setIconText(QtGui.QApplication.translate("MainWindow", "Surface 111", None, QtGui.QApplication.UnicodeUTF8))
                 
         self.toolsStartOverAction.setText(QtGui.QApplication.translate("MainWindow", "Start Over", None, QtGui.QApplication.UnicodeUTF8))
         self.toolsStartOverAction.setIconText(QtGui.QApplication.translate("MainWindow", "Start Over", None, QtGui.QApplication.UnicodeUTF8))
