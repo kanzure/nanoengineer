@@ -922,8 +922,14 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # whatthis text should be created before this line. [If this is not possible,
         # we'll need to split out some functions within this one which can be called
         # later on individual QActions and/or QWidgets. bruce 060319]
-        fix_whatsthis_text_and_links(self, refix_later = (self.editMenu,)) # (main call) Fixes bug 1136.  Mark 051126.
+        fix_whatsthis_text_and_links(self, refix_later = (self.editMenu,)) 
+            # (main call) Fixes bug 1136.  Mark 051126.
             # [bruce 060319 added refix_later as part of fixing bug 1421]
+        fix_whatsthis_text_and_links(self.toolsMoveRotateActionGroup)
+            # This is needed to add links to the "Translate" and "Rotate"
+            # QAction widgets on the standard toolbar, since those two
+            # widgets are not direct children of the main window. 
+            # Fixes one of the many bugs listed in bug 2412. Mark 2007-12-19
 
         if not MULTIPANE_GUI:
 
