@@ -47,6 +47,10 @@ def setupUi(win):
 
     win.fileExitAction = QtGui.QAction(MainWindow)
     win.fileExitAction.setObjectName("fileExitAction")
+    
+    # "Save Selection" is not implemented yet (NIY). Mark 2007-12-20.
+    win.fileSaveSelectionAction = QtGui.QAction(MainWindow)
+    win.fileSaveSelectionAction.setObjectName("fileSaveSelectionAction")
 
     # Add action (menu) items to the file menu.
     win.fileMenu.addAction(win.fileOpenAction)

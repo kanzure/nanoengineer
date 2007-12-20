@@ -90,6 +90,14 @@ def setupUi(win):
     win.simulationMeasurementsMenu.addAction(win.jigsAngleAction)
     win.simulationMeasurementsMenu.addAction(win.jigsDihedralAction)
     win.simulationMenu.addSeparator()
+
+    # This only shows up if the user enables the NH1 plugin (via Preferences)
+    # which is hidden since NH1 doesn't work with NE1.
+    # See UserPrefs.enable_nanohive().
+    win.simNanoHiveAction = QtGui.QAction(MainWindow)
+    win.simNanoHiveAction.setVisible(False)
+    win.simNanoHiveAction.setObjectName("simNanoHiveAction")
+    win.simulationMenu.addAction(win.simNanoHiveAction)  
     
     #NOTE: The GAMESS and ESPImage options are intentionally disabled
     #Disabling these items from the UI was a rattlesnake backlog item. 

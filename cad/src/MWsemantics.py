@@ -221,7 +221,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.editCopyAction,SIGNAL("triggered()"),self.editCopy)
         self.connect(self.editCutAction,SIGNAL("triggered()"),self.editCut)
         self.connect(self.editDeleteAction,SIGNAL("triggered()"),self.killDo)
-        #self.connect(self.editFindAction,SIGNAL("triggered()"),self.editFind)
         self.connect(self.editMakeCheckpointAction,SIGNAL("triggered()"),self.editMakeCheckpoint)
         self.connect(self.editPasteAction,SIGNAL("triggered()"),self.editPaste)
         self.connect(self.pasteFromClipboardAction, 
@@ -243,10 +242,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.editPrefsAction,SIGNAL("triggered()"),self.editPrefs)
         self.connect(self.editRedoAction,SIGNAL("triggered()"),self.editRedo)
         self.connect(self.editUndoAction,SIGNAL("triggered()"),self.editUndo)
-        #self.connect(self.fileClearAction,SIGNAL("triggered()"),self.fileClear)
         self.connect(self.fileCloseAction,SIGNAL("triggered()"),self.fileClose)
         self.connect(self.fileExitAction,SIGNAL("triggered()"), self.close)
-        #self.connect(self.fileImageAction,SIGNAL("triggered()"),self.fileImage)
         self.connect(self.fileInsertAction,SIGNAL("triggered()"),self.fileInsert)
         self.connect(self.fileOpenAction,SIGNAL("triggered()"),self.fileOpen)
         self.connect(self.fileOpenMovieAction,SIGNAL("triggered()"),self.fileOpenMovie)
@@ -258,7 +255,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         #self.connect(self.frameNumberSB,SIGNAL("valueChanged(int)"),self.moviePlayFrame)
         #self.connect(self.frameNumberSL,SIGNAL("valueChanged(int)"),self.movieSlider)
         self.connect(self.helpAboutAction,SIGNAL("triggered()"),self.helpAbout)
-        #self.connect(self.helpContentsAction,SIGNAL("triggered()"),self.helpContents)
         self.connect(self.helpGraphicsCardAction,SIGNAL("triggered()"),self.helpGraphicsCard)
         self.connect(self.helpKeyboardShortcutsAction,SIGNAL("triggered()"),self.helpKeyboardShortcuts)
         self.connect(self.helpMouseControlsAction,SIGNAL("triggered()"),self.helpMouseControls)
@@ -272,10 +268,8 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.jigsAnchorAction,SIGNAL("triggered()"),self.makeAnchor)
         self.connect(self.jigsAngleAction,SIGNAL("triggered()"),self.makeMeasureAngle)
         self.connect(self.jigsAtomSetAction,SIGNAL("triggered()"),self.makeAtomSet)
-        #self.connect(self.jigsBearingAction,SIGNAL("triggered()"),self.makeBearing)
         self.connect(self.jigsDihedralAction,SIGNAL("triggered()"),self.makeMeasureDihedral)
         self.connect(self.jigsDistanceAction,SIGNAL("triggered()"),self.makeMeasureDistance)
-        #self.connect(self.jigsDynoAction,SIGNAL("triggered()"),self.makeDyno)
         self.connect(self.jigsESPImageAction,SIGNAL("triggered()"),self.makeESPImage)
         self.connect(self.jigsGamessAction,SIGNAL("triggered()"),self.makeGamess)
         self.connect(self.jigsGridPlaneAction,SIGNAL("triggered()"),self.makeGridPlane)
@@ -285,9 +279,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.referenceLineAction,SIGNAL("triggered()"),
                      self.createPolyLine)
 
-        #self.connect(self.jigsHandleAction,SIGNAL("triggered()"),self.makeHandle)
-        #self.connect(self.jigsHeatsinkAction,SIGNAL("triggered()"),self.makeHeatsink)
-
         self.connect(self.jigsLinearMotorAction,
                      SIGNAL("triggered()"),
                      self.makeLinearMotor)
@@ -296,7 +287,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                      SIGNAL("triggered()"),
                      self.makeRotaryMotor)
 
-        #self.connect(self.jigsSpringAction,SIGNAL("triggered()"),self.makeSpring)
         self.connect(self.jigsStatAction,SIGNAL("triggered()"),self.makeStat)
         self.connect(self.jigsThermoAction,SIGNAL("triggered()"),self.makeThermo)
         self.connect(self.modifyAlignCommonAxisAction,SIGNAL("triggered()"),self.modifyAlignCommonAxis)
@@ -308,21 +298,17 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.modifyMergeAction,SIGNAL("triggered()"),self.modifyMerge)
         self.connect(self.makeChunkFromSelectedAtomsAction,
                      SIGNAL("triggered()"),self.makeChunkFromAtom)
-
-
         self.connect(self.modifyAdjustAllAction,SIGNAL("triggered()"),self.modifyAdjustAll)
         self.connect(self.modifyAdjustSelAction,SIGNAL("triggered()"),self.modifyAdjustSel)
         self.connect(self.modifyPassivateAction,SIGNAL("triggered()"),self.modifyPassivate)
         self.connect(self.modifySeparateAction,SIGNAL("triggered()"),self.modifySeparate)
         self.connect(self.modifyStretchAction,SIGNAL("triggered()"),self.modifyStretch)
-        #self.connect(self.movieDoneAction,SIGNAL("triggered()"),self.movieDone)
         self.connect(self.movieInfoAction,SIGNAL("triggered()"),self.movieInfo)
         self.connect(self.movieMoveToEndAction,SIGNAL("triggered()"),self.movieMoveToEnd)
         self.connect(self.moviePauseAction,SIGNAL("triggered()"),self.moviePause)
         self.connect(self.moviePlayAction,SIGNAL("triggered()"),self.moviePlay)
         self.connect(self.moviePlayRevAction,SIGNAL("triggered()"),self.moviePlayRev)
         self.connect(self.movieResetAction,SIGNAL("triggered()"),self.movieReset)
-        #self.connect(self.panDoneAction,SIGNAL("triggered()"),self.panDone)
         self.connect(self.panToolAction,SIGNAL("toggled(bool)"),self.panTool)
         self.connect(self.rotateToolAction,SIGNAL("toggled(bool)"),self.rotateTool)
         self.connect(self.saveNamedViewAction,SIGNAL("triggered()"),self.saveNamedView)
@@ -336,8 +322,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.serverManagerAction,SIGNAL("triggered()"),self.serverManager)
 
         self.connect(self.viewOrientationAction,SIGNAL("triggered()"),self.showOrientationWindow) #ninad061114
-
-
 
         ##When Standard Views button is clicked, show its QMenu.-- By default, nothing happens if you click on the 
         ##toolbutton with submenus. The menus are displayed only when you click on the small downward arrow 
@@ -367,16 +351,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.simNanoHiveAction,SIGNAL("triggered()"),self.simNanoHive)
         self.connect(self.simPlotToolAction,SIGNAL("triggered()"),self.simPlot)
         self.connect(self.simSetupAction,SIGNAL("triggered()"),self.simSetup)
-        #self.connect(self.toggleDatumDispTbarAction,SIGNAL("triggered()"),self.toggleDatumDispTbar)
-        #self.connect(self.toggleEditTbarAction,SIGNAL("triggered()"),self.toggleEditTbar)
-        #self.connect(self.toggleFileTbarAction,SIGNAL("triggered()"),self.toggleFileTbar)
-        #self.connect(self.toggleModelDispTbarAction,SIGNAL("triggered()"),self.toggleModelDispTbar)
-        #self.connect(self.toggleModifyTbarAction,SIGNAL("triggered()"),self.toggleModifyTbar)
-        #self.connect(self.toggleSelectTbarAction,SIGNAL("triggered()"),self.toggleSelectTbar)
-        #self.connect(self.toggleToolsTbarAction,SIGNAL("triggered()"),self.toggleToolsTbar)
-        #self.connect(self.toggleViewTbarAction,SIGNAL("triggered()"),self.toggleViewTbar)
-        self.connect(self.toolsBackUpAction,SIGNAL("triggered()"),self.toolsBackUp)
-        self.connect(self.toolsCancelAction,SIGNAL("triggered()"),self.toolsCancel)
         self.connect(self.toolsCookieCutAction,SIGNAL("triggered()"),self.toolsCookieCut)
 
         self.connect(self.toolsDepositAtomAction,
@@ -395,7 +369,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
 
         self.connect(self.toolsSelectAtomsAction,SIGNAL("triggered()"),self.toolsSelectAtoms)
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("triggered()"),self.toolsSelectMolecules)
-        self.connect(self.toolsStartOverAction,SIGNAL("triggered()"),self.toolsStartOver)
         self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
         self.connect(self.viewZoomAboutScreenCenterAction,SIGNAL("toggled(bool)"),
                      self.changeZoomBehavior)

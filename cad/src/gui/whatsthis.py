@@ -1419,50 +1419,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "default mode."\
         "</p>"
 
-    win.toolsDoneAction.setWhatsThis( toolsDoneActionText )  
-
-    # Cancel
-
-    toolsCancelActionText = \
-        "<u><b>Cancel</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Properties Manager/Cancel.png\"><br> "\
-        "Cancels the current operation and enters the "\
-        "default mode."\
-        "</p>"
-
-    win.toolsCancelAction.setWhatsThis( toolsCancelActionText ) 
-
-    # Back up
-
-    toolsBackUpActionText = \
-        "<u><b>Back Up</b></u>"\
-        "Undoes the previous operation."\
-        "</p>"
-
-    win.toolsBackUpAction.setWhatsThis( toolsBackUpActionText ) 
-
-    # Start Over
-
-    toolsStartOverActionText = \
-        "<u><b>Start Over</b></u>"\
-        "Cancels the current operation, leaving the user "\
-        "in the current mode."\
-        "</p>"
-
-    win.toolsStartOverAction.setWhatsThis(toolsStartOverActionText ) 
-
-    # Add Layers
-
-    ccAddLayerActionText = \
-        "<u><b>Add Layer</b></u>"\
-        "<p>"\
-        "<img source=\"ui/actions/Properties Manager/addlayer.png\"><br> "\
-        "Adds a new layer of diamond lattice to the existing "\
-        "layer."\
-        "</p>"
-
-    win.ccAddLayerAction.setWhatsThis(ccAddLayerActionText ) 
+    win.toolsDoneAction.setWhatsThis( toolsDoneActionText )
 
     #
     # Jigs

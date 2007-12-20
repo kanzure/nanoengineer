@@ -2414,6 +2414,8 @@ restored when the user undoes a structural change.</p>
         
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
+        
+        @attention: This is disabled since the NH1 plugin doesn't work yet.
         """
         if enable:
             self.nanohive_path_linedit.setEnabled(1)

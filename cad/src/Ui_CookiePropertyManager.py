@@ -347,3 +347,10 @@ class Ui_CookiePropertyManager(PM_Dialog):
             "look straight into a (1,1,1) surface of a "\
             "diamond lattice."\
             "</p>")
+        
+        self.addLayerButton.setWhatsThis(\
+            "<u><b>Add Layer</b></u>"\
+            "<p>"\
+            "Adds a new layer of diamond lattice to the existing "\
+            "layer."\
+            "</p>")

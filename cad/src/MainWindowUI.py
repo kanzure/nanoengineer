@@ -47,13 +47,13 @@ class Ui_MainWindow(object):
             self.widget.setObjectName("widget")
             MainWindow.setCentralWidget(self.widget)
         
+        # Create the main menu bar.
         self.MenuBar = QtGui.QMenuBar(MainWindow)
         self.MenuBar.setEnabled(True)
         self.MenuBar.setGeometry(QtCore.QRect(0,0,1014,28))
         self.MenuBar.setObjectName("MenuBar")
         
         # Set up the menus for the main menu bar.
-        
         Ui_FileMenu.setupUi(self)
         Ui_EditMenu.setupUi(self)
         Ui_ViewMenu.setupUi(self)
@@ -62,148 +62,68 @@ class Ui_MainWindow(object):
         Ui_SimulationMenu.setupUi(self)
         Ui_HelpMenu.setupUi(self)
         
-        # Set up the toolbars for the main window.
+        # Add menus to the main menu bar.
+        self.MenuBar.addAction(self.fileMenu.menuAction())
+        self.MenuBar.addAction(self.editMenu.menuAction())
+        self.MenuBar.addAction(self.viewMenu.menuAction())
+        self.MenuBar.addAction(self.Insert.menuAction())
+        self.MenuBar.addAction(self.toolsMenu.menuAction())
+        self.MenuBar.addAction(self.simulationMenu.menuAction())
+        self.MenuBar.addAction(self.helpMenu.menuAction())
         
+        # Add MenuBar to the main window.
+        MainWindow.setMenuBar(self.MenuBar)
+        
+        # Set up the toolbars for the main window.
         Ui_StandardToolBar.setupUi(self)       
         Ui_ViewToolBar.setupUi(self)       
         Ui_BuildToolsToolBar.setupUi(self)
         Ui_BuildStructuresToolBar.setupUi(self)
         Ui_SelectToolBar.setupUi(self)
         Ui_SimulationToolBar.setupUi(self)
-                
-        self.windowMenu = QtGui.QMenu(self.MenuBar)
-        self.windowMenu.setObjectName("Window")
-              
-        ###Following will become outdated for Alpha9 Start#####
+        
+        # Miscellaneous stuff.
 
-        self.Modes = QtGui.QMenu(self.MenuBar)
-        self.Modes.setObjectName("Modes")
-
-        self.jigsMenu = QtGui.QMenu(self.MenuBar)
-        self.jigsMenu.setObjectName("jigsMenu")
-        
-        ###Following will become outdated for Alpha9 Start#####
-       
-        MainWindow.setMenuBar(self.MenuBar)
-        
-        # Sub-menu items 
-     
-        ##### OTHERS Start #####
-        
-        self.nullAction = QtGui.QAction(MainWindow)
-        self.nullAction.setEnabled(False)
-        self.nullAction.setIcon(geticon("ui/actions/MainWindowUI_image79"))
-        self.nullAction.setVisible(True)
-        self.nullAction.setObjectName("nullAction")
-        
-        self.ccAddLayerAction = QtGui.QAction(MainWindow)
-        self.ccAddLayerAction.setEnabled(False)
-        self.ccAddLayerAction.setIcon(geticon("ui/actions/"))
-        self.ccAddLayerAction.setObjectName("ccAddLayerAction")
-
+        # This needs to stay until I talk with Bruce about UpdateDashboard(),
+        # which calls a method of toolsDoneAction in Command.py. Mark 2007-12-20
         self.toolsDoneAction = QtGui.QAction(MainWindow)
         self.toolsDoneAction.setIcon(geticon(
             "ui/actions/Properties Manager/Done"))
         self.toolsDoneAction.setObjectName("toolsDoneAction")
+        
+        # The server manager and sim job manager actions. 
+        # They are NIY and probably never will be. 
+        # If you have questions about them, you can ask me. Mark 2007-12-20.
+        self.serverManagerAction = QtGui.QAction(MainWindow)
+        self.serverManagerAction.setIcon(geticon("ui/actions/MainWindowUI_image119"))
+        self.serverManagerAction.setObjectName("serverManagerAction")
+        
+        self.simJobManagerAction = QtGui.QAction(MainWindow)
+        self.simJobManagerAction.setIcon(geticon("ui/actions/MainWindowUI_image118"))
+        self.simJobManagerAction.setObjectName("simJobManagerAction")
 
-        self.toolsCancelAction = QtGui.QAction(MainWindow)
-        self.toolsCancelAction.setIcon(geticon(
-            "ui/actions/Properties Manager/Cancel"))
-        self.toolsCancelAction.setObjectName("toolsCancelAction")
+        self.createMoviePlayerActions(MainWindow)
         
-        # Toggle ToolBars. I believe these can be removed since they aren't
-        # used. I'll check with Ninad. --mark 2007-12-20.
+        self.retranslateUi(MainWindow)
         
-        self.toggleStandardToolBarAction = QtGui.QAction(MainWindow)
-        self.toggleStandardToolBarAction.setCheckable(True)
-        self.toggleStandardToolBarAction.setChecked(True)
-        self.toggleStandardToolBarAction.setObjectName("toggleStandardToolBarAction")
+        QtCore.QObject.connect(self.fileExitAction,
+                               QtCore.SIGNAL("activated()"),
+                               MainWindow.close)
+
+        # bruce 071008 removed this call of connectSlotsByName, since
+        # we don't appear to be taking advantage of it
+        # (since we have no slots named on_<widgetname>_<signalname>)
+##        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+        return
     
-        self.toggleViewToolBarAction = QtGui.QAction(MainWindow)
-        self.toggleViewToolBarAction.setCheckable(True)
-        self.toggleViewToolBarAction.setChecked(True)
-        self.toggleViewToolBarAction.setObjectName("toggleViewToolBarAction")
-       
-        ##### OTHERS End #####
-
-        ##### UNUSED Menu Start #####
-        
-        self.fileImageAction = QtGui.QAction(MainWindow)
-        self.fileImageAction.setIcon(geticon("ui/actions/MainWindowUI_image3"))
-        self.fileImageAction.setObjectName("fileImageAction")
-        
-        self.editFindAction = QtGui.QAction(MainWindow)
-        self.editFindAction.setIcon(geticon("ui/actions/MainWindowUI_image9"))
-        self.editFindAction.setObjectName("editFindAction")
-        
-        self.jigsBearingAction = QtGui.QAction(MainWindow)
-        self.jigsBearingAction.setIcon(geticon("ui/actions/MainWindowUI_image26"))
-        self.jigsBearingAction.setObjectName("jigsBearingAction")
-
-        self.jigsSpringAction = QtGui.QAction(MainWindow)
-        self.jigsSpringAction.setIcon(geticon("ui/actions/MainWindowUI_image27"))
-        self.jigsSpringAction.setObjectName("jigsSpringAction")
-
-        self.jigsDynoAction = QtGui.QAction(MainWindow)
-        self.jigsDynoAction.setIcon(geticon("ui/actions/MainWindowUI_image28"))
-        self.jigsDynoAction.setObjectName("jigsDynoAction")
-
-        self.jigsHeatsinkAction = QtGui.QAction(MainWindow)
-        self.jigsHeatsinkAction.setIcon(geticon("ui/actions/MainWindowUI_image29"))
-        self.jigsHeatsinkAction.setObjectName("jigsHeatsinkAction")
-
-        self.jigsHandleAction = QtGui.QAction(MainWindow)
-        self.jigsHandleAction.setIcon(geticon("ui/actions/MainWindowUI_image31"))
-        self.jigsHandleAction.setObjectName("jigsHandleAction")
-        
-        self.fileClearAction = QtGui.QAction(MainWindow)
-        self.fileClearAction.setObjectName("fileClearAction")
-        
-        self.simNanoHiveAction = QtGui.QAction(MainWindow)
-        self.simNanoHiveAction.setIcon(geticon("ui/actions/MainWindowUI_image124"))
-        self.simNanoHiveAction.setVisible(False)
-        self.simNanoHiveAction.setObjectName("simNanoHiveAction")
-
-        self.fileSaveSelectionAction = QtGui.QAction(MainWindow)
-        self.fileSaveSelectionAction.setObjectName("fileSaveSelectionAction")
-        
-        self.movieNextFrameAction = QtGui.QAction(MainWindow)
-        self.movieNextFrameAction.setIcon(geticon("ui/actions/Properties Manager/MainWindowUI_image89"))
-        self.movieNextFrameAction.setObjectName("movieNextFrameAction")
-
-        self.moviePrevFrameAction = QtGui.QAction(MainWindow)
-        self.moviePrevFrameAction.setIcon(geticon("ui/actions/Properties Manager/MainWindowUI_image90"))
-        self.moviePrevFrameAction.setObjectName("moviePrevFrameAction")
-        
-        self.rotateWindowAction = QtGui.QAction(MainWindow)
-        self.rotateWindowAction.setIcon(geticon("ui/actions/MainWindowUI_image95"))
-        self.rotateWindowAction.setObjectName("rotateWindowAction")
-        
-        self.helpContentsAction = QtGui.QAction(MainWindow)
-        self.helpContentsAction.setObjectName("helpContentsAction")
-    
-        
-         ##### UNUSED Menu End #####
-        
-        self.toolsStartOverAction = QtGui.QAction(MainWindow)
-        self.toolsStartOverAction.setIcon(geticon("ui/actions/Properties Manager/Startover"))
-        self.toolsStartOverAction.setObjectName("toolsStartOverAction")
-
-        self.toolsBackUpAction = QtGui.QAction(MainWindow)
-        self.toolsBackUpAction.setIcon(geticon("ui/actions/Properties Manager/Backup"))
-        self.toolsBackUpAction.setObjectName("toolsBackUpAction")
-
-        self.toggleDatumDispTbarAction = QtGui.QAction(MainWindow)
-        self.toggleDatumDispTbarAction.setCheckable(True)
-        self.toggleDatumDispTbarAction.setChecked(False)
-        self.toggleDatumDispTbarAction.setObjectName("toggleDatumDispTbarAction")
-
-        self.toggleGridsTbarAction = QtGui.QAction(MainWindow)
-        self.toggleGridsTbarAction.setCheckable(True)
-        self.toggleGridsTbarAction.setChecked(True)
-        self.toggleGridsTbarAction.setObjectName("toggleGridsTbarAction")
-
-        #######Dashboard Actions Start ############
+    def createMoviePlayerActions(self, MainWindow):
+        """
+        Creates many of the movie player actions for the PM.
+        This code should be moved to Ui_MoviePropertyManager.py.
+        """
+        # These actions appear to be used in the Movie Player PM. These should
+        # probably be moved to Ui_MoviePropertyManager.py. Mark 2007-12-20.
         
         self.movieResetAction = QtGui.QAction(MainWindow)
         self.movieResetAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Reset"))
@@ -226,10 +146,6 @@ class Ui_MainWindow(object):
         self.moviePlayActiveAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Play_Forward_Active"))
         self.moviePlayActiveAction.setObjectName("moviePlayActiveAction")
 
-        self.movieDoneAction = QtGui.QAction(MainWindow)
-        self.movieDoneAction.setIcon(geticon("ui/actions/Properties Manager/Properties Manager/Done"))
-        self.movieDoneAction.setObjectName("movieDoneAction")
-
         self.fileSaveMovieAction = QtGui.QAction(MainWindow)
         self.fileSaveMovieAction.setIcon(geticon("ui/actions/Properties Manager/Save"))
         self.fileSaveMovieAction.setObjectName("fileSaveMovieAction")
@@ -249,80 +165,7 @@ class Ui_MainWindow(object):
         self.movieInfoAction = QtGui.QAction(MainWindow)
         self.movieInfoAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Info"))
         self.movieInfoAction.setObjectName("movieInfoAction")
-        
-        self.panDoneAction = QtGui.QAction(MainWindow)
-        self.panDoneAction.setIcon(geticon("ui/actions/Properties Manager/Done"))
-        self.panDoneAction.setObjectName("panDoneAction")
-        
-        self.moveDeltaPlusAction = QtGui.QAction(MainWindow)
-        self.moveDeltaPlusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Delta_Plus"))
-        self.moveDeltaPlusAction.setObjectName("moveDeltaPlusAction")
-
-        self.moveAbsoluteAction = QtGui.QAction(MainWindow)
-        self.moveAbsoluteAction.setIcon(geticon("ui/actions/Properties Manager/Move_Absolute"))
-        self.moveAbsoluteAction.setObjectName("moveAbsoluteAction")
-
-        self.moveDeltaMinusAction = QtGui.QAction(MainWindow)
-        self.moveDeltaMinusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Delta_Minus"))
-        self.moveDeltaMinusAction.setObjectName("moveDeltaMinusAction")
-
-        self.rotateClockwiseAction = QtGui.QAction(MainWindow)
-        self.rotateClockwiseAction.setCheckable(False)
-        self.rotateClockwiseAction.setIcon(geticon("ui/actions/Properties Manager/Rotate_Clockwise"))
-        self.rotateClockwiseAction.setObjectName("rotateClockwiseAction")
-
-        self.rotateCounterClockwiseAction = QtGui.QAction(MainWindow)
-        self.rotateCounterClockwiseAction.setCheckable(False)
-        self.rotateCounterClockwiseAction.setIcon(geticon("ui/actions/Properties Manager/Rotate_Counter_Clockwise"))
-        self.rotateCounterClockwiseAction.setObjectName("rotateCounterClockwiseAction")
-               
-        self.simJobManagerAction = QtGui.QAction(MainWindow)
-        self.simJobManagerAction.setIcon(geticon("ui/actions/MainWindowUI_image118"))
-        self.simJobManagerAction.setObjectName("simJobManagerAction")
-
-        self.serverManagerAction = QtGui.QAction(MainWindow)
-        self.serverManagerAction.setIcon(geticon("ui/actions/MainWindowUI_image119"))
-        self.serverManagerAction.setObjectName("serverManagerAction")
-
-        self.rotateThetaMinusAction = QtGui.QAction(MainWindow)
-        self.rotateThetaMinusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Theta_Minus"))
-        self.rotateThetaMinusAction.setObjectName("rotateThetaMinusAction")
-
-        self.rotateThetaPlusAction = QtGui.QAction(MainWindow)
-        self.rotateThetaPlusAction.setIcon(geticon("ui/actions/Properties Manager/Move_Theta_Plus"))
-        self.rotateThetaPlusAction.setObjectName("rotateThetaPlusAction")
                 
-        # Dashboard Actions End ############
-             
-        # All the stuff below should be moved out of the MainWindowUI.ui/py world, and out
-        # into Nanorex-defined source files.
-            
-        self.jigsMenu.addAction(self.jigsESPImageAction)
-        self.jigsMenu.addAction(self.jigsGamessAction)
-        self.jigsMenu.addAction(self.jigsGridPlaneAction)
-        self.jigsMenu.addAction(self.jigsAtomSetAction)        
-        self.simulationMenu.addAction(self.simNanoHiveAction)      
-        
-        #ADD MAIN MENUS TO THE MENUBAR
-        self.MenuBar.addAction(self.fileMenu.menuAction())
-        self.MenuBar.addAction(self.editMenu.menuAction())
-        self.MenuBar.addAction(self.viewMenu.menuAction())
-        self.MenuBar.addAction(self.Insert.menuAction())
-        self.MenuBar.addAction(self.toolsMenu.menuAction())
-        self.MenuBar.addAction(self.simulationMenu.menuAction())
-        #Main menu 'Window' disabled for A9 
-        ##self.MenuBar.addAction(self.windowMenu.menuAction())
-        self.MenuBar.addAction(self.helpMenu.menuAction())
-
-        self.retranslateUi(MainWindow)
-        
-        QtCore.QObject.connect(self.fileExitAction,QtCore.SIGNAL("activated()"),MainWindow.close)
-
-        # bruce 071008 removed this call of connectSlotsByName, since
-        # we don't appear to be taking advantage of it
-        # (since we have no slots named on_<widgetname>_<signalname>)
-##        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
         return
 
     def retranslateUi(self, MainWindow):
@@ -334,7 +177,7 @@ class Ui_MainWindow(object):
         @param MainWindow: The main window
         @type  MainWindow: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
         
-        @see: U{B{THE Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
+        @see: U{B{The Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
         """
         MainWindow.setWindowTitle(QtGui.QApplication.translate(
             "MainWindow", 
@@ -358,8 +201,6 @@ class Ui_MainWindow(object):
         Ui_BuildToolsToolBar.retranslateUi(self)
         Ui_SelectToolBar.retranslateUi(self)
         Ui_SimulationToolBar.retranslateUi(self)
-        
-        self.windowMenu.setTitle(QtGui.QApplication.translate("MainWindow", "&Window", None, QtGui.QApplication.UnicodeUTF8))
                                 
         # Menu Item (Action items) text and icons
                        
@@ -369,45 +210,9 @@ class Ui_MainWindow(object):
         self.viewDefviewAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Default Views", None, QtGui.QApplication.UnicodeUTF8))
         self.changeBackgroundColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Background Color...", None, QtGui.QApplication.UnicodeUTF8))
         self.changeBackgroundColorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Background Color...", None, QtGui.QApplication.UnicodeUTF8))
-        self.editFindAction.setText(QtGui.QApplication.translate("MainWindow", "&Find...", None, QtGui.QApplication.UnicodeUTF8))
-        self.editFindAction.setIconText(QtGui.QApplication.translate("MainWindow", "Find", None, QtGui.QApplication.UnicodeUTF8))
-       
-        self.fileClearAction.setText(QtGui.QApplication.translate("MainWindow", "C&lear", None, QtGui.QApplication.UnicodeUTF8))
-        self.fileClearAction.setIconText(QtGui.QApplication.translate("MainWindow", "Clear", None, QtGui.QApplication.UnicodeUTF8))
         
-        self.ccAddLayerAction.setText(QtGui.QApplication.translate("MainWindow", "Add Layer", None, QtGui.QApplication.UnicodeUTF8))
-        self.ccAddLayerAction.setIconText(QtGui.QApplication.translate("MainWindow", "Add Layer", None, QtGui.QApplication.UnicodeUTF8))
-        self.ccAddLayerAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Add a new layer.(Maximum is 6 layer)", None, QtGui.QApplication.UnicodeUTF8))
         self.toolsDoneAction.setText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
         self.toolsDoneAction.setIconText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolsCancelAction.setText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolsCancelAction.setIconText(QtGui.QApplication.translate("MainWindow", "Cancel", None, QtGui.QApplication.UnicodeUTF8))
-        
- 
-        self.toggleStandardToolBarAction.setText(QtGui.QApplication.translate("MainWindow", "Standard", None, QtGui.QApplication.UnicodeUTF8))
-        self.toggleStandardToolBarAction.setIconText(QtGui.QApplication.translate("MainWindow", "Standard", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.toggleViewToolBarAction.setText(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
-        self.toggleViewToolBarAction.setIconText(QtGui.QApplication.translate("MainWindow", "View", None, QtGui.QApplication.UnicodeUTF8))
-      
-        #self.fileSetWorkDirAction.setText(QtGui.QApplication.translate("MainWindow", "Set &Working Directory...", None, QtGui.QApplication.UnicodeUTF8))
-        #self.fileSetWorkDirAction.setIconText(QtGui.QApplication.translate("MainWindow", "Set Working Directory...", None, QtGui.QApplication.UnicodeUTF8))
-               
-        self.jigsBearingAction.setText(QtGui.QApplication.translate("MainWindow", "&Bearing", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsBearingAction.setIconText(QtGui.QApplication.translate("MainWindow", "Bearing", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsSpringAction.setText(QtGui.QApplication.translate("MainWindow", "&Spring", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsSpringAction.setIconText(QtGui.QApplication.translate("MainWindow", "Spring", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsDynoAction.setText(QtGui.QApplication.translate("MainWindow", "&Dyno", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsDynoAction.setIconText(QtGui.QApplication.translate("MainWindow", "Dyno", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsHeatsinkAction.setText(QtGui.QApplication.translate("MainWindow", "Heatsin&k", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsHeatsinkAction.setIconText(QtGui.QApplication.translate("MainWindow", "Heatsin&k", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsHandleAction.setText(QtGui.QApplication.translate("MainWindow", "&Handle", None, QtGui.QApplication.UnicodeUTF8))
-        self.jigsHandleAction.setIconText(QtGui.QApplication.translate("MainWindow", "Handle", None, QtGui.QApplication.UnicodeUTF8))
-                
-        self.toolsStartOverAction.setText(QtGui.QApplication.translate("MainWindow", "Start Over", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolsStartOverAction.setIconText(QtGui.QApplication.translate("MainWindow", "Start Over", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolsBackUpAction.setText(QtGui.QApplication.translate("MainWindow", "Back Up", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolsBackUpAction.setIconText(QtGui.QApplication.translate("MainWindow", "Back Up", None, QtGui.QApplication.UnicodeUTF8))
                 
         self.modifyStretchAction.setText(QtGui.QApplication.translate("MainWindow", "S&tretch", None, QtGui.QApplication.UnicodeUTF8))
         self.modifyStretchAction.setIconText(QtGui.QApplication.translate("MainWindow", "Stretch", None, QtGui.QApplication.UnicodeUTF8))      
@@ -431,12 +236,6 @@ class Ui_MainWindow(object):
         self.dispSetEltable1Action.setIconText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Default", None, QtGui.QApplication.UnicodeUTF8))
         self.dispSetEltable2Action.setText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Alternate", None, QtGui.QApplication.UnicodeUTF8))
         self.dispSetEltable2Action.setIconText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Alternate", None, QtGui.QApplication.UnicodeUTF8))
-        self.movieDoneAction.setText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
-        self.movieDoneAction.setIconText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
-        self.movieNextFrameAction.setText(QtGui.QApplication.translate("MainWindow", "Next", None, QtGui.QApplication.UnicodeUTF8))
-        self.movieNextFrameAction.setIconText(QtGui.QApplication.translate("MainWindow", "Next", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePrevFrameAction.setText(QtGui.QApplication.translate("MainWindow", "Prev", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePrevFrameAction.setIconText(QtGui.QApplication.translate("MainWindow", "Prev", None, QtGui.QApplication.UnicodeUTF8))
         self.fileSaveMovieAction.setText(QtGui.QApplication.translate("MainWindow", "Save Movie File...", None, QtGui.QApplication.UnicodeUTF8))
         self.fileSaveMovieAction.setIconText(QtGui.QApplication.translate("MainWindow", "Save Movie File...", None, QtGui.QApplication.UnicodeUTF8))
         self.moviePlayRevAction.setText(QtGui.QApplication.translate("MainWindow", "Play Reverse", None, QtGui.QApplication.UnicodeUTF8))
@@ -445,12 +244,6 @@ class Ui_MainWindow(object):
         self.fileOpenMovieAction.setIconText(QtGui.QApplication.translate("MainWindow", "Open Movie File...", None, QtGui.QApplication.UnicodeUTF8))
         self.movieInfoAction.setText(QtGui.QApplication.translate("MainWindow", "Movie Information", None, QtGui.QApplication.UnicodeUTF8))
         self.movieInfoAction.setIconText(QtGui.QApplication.translate("MainWindow", "Movie Information", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.rotateWindowAction.setText(QtGui.QApplication.translate("MainWindow", "Action", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateWindowAction.setIconText(QtGui.QApplication.translate("MainWindow", "Action", None, QtGui.QApplication.UnicodeUTF8))
-       
-        self.panDoneAction.setText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
-        self.panDoneAction.setIconText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
         
         self.dispElementColorSettingsAction.setText(QtGui.QApplication.translate("MainWindow", "Element Color Settings...", None, QtGui.QApplication.UnicodeUTF8))
         self.dispElementColorSettingsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Element Color Settings...", None, QtGui.QApplication.UnicodeUTF8))
@@ -462,27 +255,10 @@ class Ui_MainWindow(object):
         self.dispShowInvisAtomsAction.setText(QtGui.QApplication.translate("MainWindow", "Show Invisible Atoms", None, QtGui.QApplication.UnicodeUTF8))
         self.dispShowInvisAtomsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Show Invisible Atoms", None, QtGui.QApplication.UnicodeUTF8))
         
-        self.moveDeltaPlusAction.setText(QtGui.QApplication.translate("MainWindow", "Move Delta (+)", None, QtGui.QApplication.UnicodeUTF8))
-        self.moveDeltaPlusAction.setIconText(QtGui.QApplication.translate("MainWindow", "Move Delta (+)", None, QtGui.QApplication.UnicodeUTF8))
-        self.moveAbsoluteAction.setText(QtGui.QApplication.translate("MainWindow", "Move Absolute", None, QtGui.QApplication.UnicodeUTF8))
-        self.moveAbsoluteAction.setIconText(QtGui.QApplication.translate("MainWindow", "Move Absolute", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.moveDeltaMinusAction.setText(QtGui.QApplication.translate("MainWindow", "Move Delta (-)", None, QtGui.QApplication.UnicodeUTF8))
-        self.moveDeltaMinusAction.setIconText(QtGui.QApplication.translate("MainWindow", "Move Delta (-)", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.rotateClockwiseAction.setText(QtGui.QApplication.translate("MainWindow", "Rotate Clockwise", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateClockwiseAction.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate Clockwise", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateCounterClockwiseAction.setText(QtGui.QApplication.translate("MainWindow", "Rotate Counter Clockwise", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateCounterClockwiseAction.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate Counter Clockwise", None, QtGui.QApplication.UnicodeUTF8))
-        
         self.simJobManagerAction.setText(QtGui.QApplication.translate("MainWindow", "Job Manager...", None, QtGui.QApplication.UnicodeUTF8))
         self.simJobManagerAction.setIconText(QtGui.QApplication.translate("MainWindow", "Job Manager...", None, QtGui.QApplication.UnicodeUTF8))
         self.serverManagerAction.setText(QtGui.QApplication.translate("MainWindow", "Server Manager...", None, QtGui.QApplication.UnicodeUTF8))
         self.serverManagerAction.setIconText(QtGui.QApplication.translate("MainWindow", "Server Manager...", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateThetaMinusAction.setText(QtGui.QApplication.translate("MainWindow", "Rotate Theta (-)", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateThetaMinusAction.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate Theta (-)", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateThetaPlusAction.setText(QtGui.QApplication.translate("MainWindow", "Rotate Theta (+)", None, QtGui.QApplication.UnicodeUTF8))
-        self.rotateThetaPlusAction.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate Theta (+)", None, QtGui.QApplication.UnicodeUTF8))
    
         self.simNanoHiveAction.setText(QtGui.QApplication.translate("MainWindow", "Nano-Hive...", None, QtGui.QApplication.UnicodeUTF8))
         self.simNanoHiveAction.setIconText(QtGui.QApplication.translate("MainWindow", "Nano-Hive", None, QtGui.QApplication.UnicodeUTF8))

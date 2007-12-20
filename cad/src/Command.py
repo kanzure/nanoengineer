@@ -738,6 +738,9 @@ class basicCommand(anyCommand):
 
         Multiple calls per event are ok (but in the initial implem might
         be slow). Subclasses should not override this; for that, see update_gui().
+        
+        @attention: Need to ask Bruce is this method can be removed since
+        there are no longer any dashboards.
         """
         # For now, this method just updates the dashboard immediately.
         # This might be too slow if it's called many times per event, so someday

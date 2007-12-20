@@ -40,12 +40,20 @@ def setupUi(win):
     win.helpMenu.addAction(win.helpAboutAction)
     
 def retranslateUi(win):
+    """
+    This function centralizes all calls that set UI text for the purpose of 
+    making it easier for the programmer to translate the UI into other 
+    languages.
+    
+    @param MainWindow: The main window
+    @type  MainWindow: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    
+    @see: U{B{The Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
+    """
     
     win.helpMenu.setTitle(QtGui.QApplication.translate("MainWindow", "&Help", None, QtGui.QApplication.UnicodeUTF8))
     
-    #HELP MENU ITEMS
-    win.helpContentsAction.setText(QtGui.QApplication.translate("MainWindow", "&Contents...", None, QtGui.QApplication.UnicodeUTF8))
-    win.helpContentsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Contents", None, QtGui.QApplication.UnicodeUTF8))
+    # "Help" menu items
     win.helpAboutAction.setText(QtGui.QApplication.translate("MainWindow", "&About NanoEngineer-1", None, QtGui.QApplication.UnicodeUTF8))
     win.helpAboutAction.setIconText(QtGui.QApplication.translate("MainWindow", "About NanoEngineer-1", None, QtGui.QApplication.UnicodeUTF8))
     
