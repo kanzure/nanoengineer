@@ -401,7 +401,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     standardViews_btnText = \
         "<u><b>Standard Views</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/View/Modify/Standard_Views.png\"><br> "\
+        "<img source=\"ui/actions/View/Standard_Views.png\"><br> "\
         "Displays the Standards Views Menu "\
         "</p>"
 
@@ -1176,7 +1176,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
        ( modifyAlignCommonAxisActionText )
 
     #Center on Common Axis 
-    modifyCenterCommonAxisActionText= \
+    modifyCenterCommonAxisActionText = \
         "<u><b>Center On Common Axis</b></u>"\
         "<p>"\
         "<b> Moves</b> all selected chunks to "\
