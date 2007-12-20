@@ -68,7 +68,6 @@ class SelectChunks_basicCommand(Select_basicCommand):
         """
         """
         self.w.toolsSelectMoleculesAction.setChecked(True)
-        self.w.dashboardHolder.hide()
  
     def restore_gui(self):
         """

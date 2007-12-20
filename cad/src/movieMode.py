@@ -162,8 +162,6 @@ class movieMode(basicMode):
         self.w.frameNumberSB.setValue(frameno) # SB = Spinbox [bruce 050428 question: does this call our slot method?? ###k]
         self.w.moviePlayActiveAction.setVisible(0)
         self.w.moviePlayRevActiveAction.setVisible(0)
-        self.w.dashboardHolder.setWidget(self.w.moviePlayerDashboard)
-        self.w.moviePlayerDashboard.show()
         
         if self.might_be_playable(): # We have a movie file ready.  It's showtime! [bruce 050426 changed .filename -> .might_be_playable()]
             movie._setup() # Cue movie. [bruce 050501 comment: I don't think this actually starts playing it, and I hope not.]
@@ -344,7 +342,6 @@ class movieMode(basicMode):
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
 
-        self.w.moviePlayerDashboard.hide()
 	self.updateCommandManager(bool_entering = False)
         self.w.disable_QActions_for_movieMode(False)
 	

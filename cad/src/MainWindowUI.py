@@ -46,58 +46,6 @@ class Ui_MainWindow(object):
             self.widget.setGeometry(QtCore.QRect(0,95,1014,593))
             self.widget.setObjectName("widget")
             MainWindow.setCentralWidget(self.widget)
-         
-        # Dashboards. All dashboards are depricated and code for them should
-        # be removed after confirming this with Ninad and Bruce. 
-        # Mark 2007-12-19.
-
-        self.cookieCutterDashboard = QtGui.QToolBar(MainWindow)
-        self.cookieCutterDashboard.setEnabled(True)
-        #self.cookieCutterDashboard.setGeometry(QtCore.QRect(667,0,94,20))
-        self.cookieCutterDashboard.setObjectName("cookieCutterDashboard")
-
-        self.ccLabel = QtGui.QLabel(self.cookieCutterDashboard)
-        self.ccLabel.setObjectName("ccLabel")
-        #MainWindow.addDockWidget(self.cookieCutterDashboard)
-
-        self.moveChunksDashboard = QtGui.QToolBar(MainWindow)
-        
-        self.moveChunksDashboard.setEnabled(True)
-        self.moveChunksDashboard.setObjectName("moveChunksDashboard")
-
-        self.textLabel1 = QtGui.QLabel(self.moveChunksDashboard)
-        self.textLabel1.setObjectName("textLabel1")
-
-        self.moviePlayerDashboard = QtGui.QToolBar(MainWindow)
-        self.moviePlayerDashboard.setEnabled(True)
-        self.moviePlayerDashboard.setGeometry(QtCore.QRect(0,20,864,27))
-        self.moviePlayerDashboard.setObjectName("moviePlayerDashboard")
-        
-        self.selectMolDashboard = QtGui.QToolBar(MainWindow)
-        
-        self.selectMolDashboard.setEnabled(True)
-        self.selectMolDashboard.setObjectName("selectMolDashboard")
-
-        self.textLabel1_2 = QtGui.QLabel(self.selectMolDashboard)
-        self.textLabel1_2.setObjectName("textLabel1_2")
-
-        self.fuseChunksDashboard = QtGui.QToolBar(MainWindow)
-        self.fuseChunksDashboard.setEnabled(True)
-        self.fuseChunksDashboard.setObjectName("fuseChunksDashboard")
-
-        self.textLabel1_3 = QtGui.QLabel(self.fuseChunksDashboard)
-        self.textLabel1_3.setObjectName("textLabel1_3")
-
-        self.dashboardHolder = QtGui.QDockWidget(MainWindow)
-        self.dashboardHolder.setObjectName('dashboardholder')
-        self.dashboardHolder.setFeatures(QtGui.QDockWidget.DockWidgetMovable)
-        MainWindow.addDockWidget(Qt.BottomDockWidgetArea, self.dashboardHolder)
-       
-        self.cookieSelectDashboard = QtGui.QToolBar(MainWindow)
-        self.cookieSelectDashboard.setEnabled(True)
-        self.cookieSelectDashboard.setGeometry(QtCore.QRect(373,47,109,20))
-        self.cookieSelectDashboard.setObjectName("cookieSelectDashboard")
-        MainWindow.addToolBar(Qt.BottomToolBarArea, self.cookieSelectDashboard)
         
         self.MenuBar = QtGui.QMenuBar(MainWindow)
         self.MenuBar.setEnabled(True)
@@ -348,17 +296,7 @@ class Ui_MainWindow(object):
              
         # All the stuff below should be moved out of the MainWindowUI.ui/py world, and out
         # into Nanorex-defined source files.
-        
-        self.cookieSelectDashboard.addAction(MainWindow.DefaultSelAction)
-        self.cookieSelectDashboard.addAction(MainWindow.LassoSelAction)
-        self.cookieSelectDashboard.addAction(MainWindow.RectCornerSelAction)
-        self.cookieSelectDashboard.addAction(MainWindow.RectCtrSelAction)
-        self.cookieSelectDashboard.addAction(MainWindow.SquareSelAction)
-        self.cookieSelectDashboard.addAction(MainWindow.TriangleSelAction)
-        self.cookieSelectDashboard.addAction(MainWindow.DiamondSelAction)
-        self.cookieSelectDashboard.addAction(MainWindow.CircleSelAction)
-        self.cookieSelectDashboard.addAction(MainWindow.HexagonSelAction)
-                               
+            
         self.jigsMenu.addAction(self.jigsESPImageAction)
         self.jigsMenu.addAction(self.jigsGamessAction)
         self.jigsMenu.addAction(self.jigsGridPlaneAction)
@@ -398,18 +336,11 @@ class Ui_MainWindow(object):
         
         @see: U{B{THE Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
         """
-        MainWindow.setWindowTitle(QtGui.QApplication.translate("MainWindow", "NanoEngineer-1", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.cookieCutterDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Cookie Cutter", None, QtGui.QApplication.UnicodeUTF8))
-        self.ccLabel.setText(QtGui.QApplication.translate("MainWindow", "Cookie Cutter", None, QtGui.QApplication.UnicodeUTF8))
-        self.moveChunksDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Move Chunks", None, QtGui.QApplication.UnicodeUTF8))
-        self.textLabel1.setText(QtGui.QApplication.translate("MainWindow", "Move Chunks", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayerDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Movie Player Dashboard", None, QtGui.QApplication.UnicodeUTF8))
-        self.selectMolDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Select Molecule", None, QtGui.QApplication.UnicodeUTF8))
-        self.textLabel1_2.setText(QtGui.QApplication.translate("MainWindow", "Select Chunks", None, QtGui.QApplication.UnicodeUTF8))
-        self.fuseChunksDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Fuse Chunks", None, QtGui.QApplication.UnicodeUTF8))
-        self.textLabel1_3.setText(QtGui.QApplication.translate("MainWindow", "Fuse Chunks", None, QtGui.QApplication.UnicodeUTF8))
-        self.cookieSelectDashboard.setWindowTitle(QtGui.QApplication.translate("MainWindow", "Toolbar", None, QtGui.QApplication.UnicodeUTF8))
+        MainWindow.setWindowTitle(QtGui.QApplication.translate(
+            "MainWindow", 
+            "NanoEngineer-1", 
+            None, 
+            QtGui.QApplication.UnicodeUTF8))
                
         # Menus and SubMenus
         Ui_FileMenu.retranslateUi(self)

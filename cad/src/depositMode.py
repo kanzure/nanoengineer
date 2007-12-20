@@ -195,11 +195,6 @@ class depositMode(selectAtomsMode):
         
         self.connect_or_disconnect_signals(True)      
         
-        #@@ ninad 070104  Once all the dashboards become Property Managers,
-        #the w.dashBoardHolder (dockwidget) will be removed completely. 
-        #So following is a temporary call
-        self.w.dashboardHolder.hide() 
-        
         self.dont_update_gui = False
         
         self.propMgr.updateMessage()

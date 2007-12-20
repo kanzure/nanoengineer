@@ -454,11 +454,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         from cursors import loadCursors
         loadCursors(self)
 
-        # Hide all dashboards
-        self.hideDashboards()
-
-        #qt4todo('just a hack'); print self.moviePlayerDashboard; self.moviePlayerDashboard.show()
-
         # Create our 2 status bar widgets - msgbarLabel and modebarLabel
         # (see also env.history.message())
         self.setStatusBar(StatusBar(self))
@@ -588,7 +583,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
             self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
 
             self.currentWorkingDirectory = ''
-            self.hideDashboards()
             self.setWindowTitle("My Main Window")
             MAIN_WINDOW_SIZE = (800, 600)
             self.setMinimumWidth(MAIN_WINDOW_SIZE[0])
@@ -2315,7 +2309,7 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         # the last widget we clicked on (or more likely, the one with the keyfocus).
         return
 
-#######  Load IconSets #########################################
+    # Load IconSets #########################################
     def load_icons_to_iconsets(self): ### REVIEW (Mark): is this still needed? [bruce 070820]
         """
         Load additional icons to QAction icon sets that are used in MainWindow
@@ -2328,19 +2322,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         editRedoIconSet = self.editRedoAction.iconSet()
         editRedoIconSet.setPixmap ( small_disabled_on_icon_fname, QIcon.Small, QIcon.Disabled, QIcon.Off )
         self.editRedoAction.setIcon ( editRedoIconSet )
-        return
-
-    def hideDashboards(self):
-        """
-        """
-        # [bruce 050408 comment: this list should be recoded somehow so that it
-        #  lists what to show, not what to hide. ##e]
-        self.cookieCutterDashboard.hide()
-        self.selectMolDashboard.hide()
-        self.moveChunksDashboard.hide()
-        self.moviePlayerDashboard.hide()
-        self.fuseChunksDashboard.hide()
-        self.cookieSelectDashboard.hide()
         return
 
     def enableViews(self, enableFlag = True):

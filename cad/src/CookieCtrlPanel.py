@@ -255,9 +255,6 @@ class CookieCtrlPanel(CookiePropertyManager):
         # and I am only guessing that it meant "every time the command becomes active".
         # [bruce 071009]
         
-        self.w.dashboardHolder.hide() #@@ ninad 070104  Once all the dashboards become Property Managers,
-        #the w.dashBoardHolder (dockwidget) will be removed completely. So this is a temporary code. (see also restoreGui)
-        
         self.w.toolsCookieCutAction.setChecked(1) # toggle on the Cookie Cutter icon 
         
         #always show Exit Crystal button checked. (this implementation may change in future --ninad 070131)
@@ -297,20 +294,18 @@ class CookieCtrlPanel(CookiePropertyManager):
 
         # Set acceleration keys for auto-selection shape
         self._setAutoShapeAcclKeys(True)
-
-        self.w.dashboardHolder.setWidget(self.w.cookieCutterDashboard)
       
     
     def restoreGui(self):
-        """Restore GUI items when exit from the cookie-cutter command. """
+        """
+        Restore GUI items when exiting from the PM (command).
+        """
                 
         self.updateCommandManager(bool_entering = False)
                 
         self.w.toolsCookieCutAction.setChecked(0) # Toggle cookie cutter icon
         
         self.close() 
-
-        self.w.cookieCutterDashboard.hide()
             
         self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
         self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
@@ -322,9 +317,6 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.w.simulationToolBar.setEnabled(True)
         # Enable all those view options
         self.enableViewChanges(True)
-        
-        #Hide the Cookie Selection Dashboard
-        self.w.cookieSelectDashboard.hide()
             
         #Restore display style status message
         self.w.statusBar().dispbarLabel.setText( "Current Display: " +
