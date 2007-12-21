@@ -18,8 +18,8 @@ ninad 2007-09-11: Code clean up to use PM module classes
 #dashboard and Movie dashboard defined them this way -- ninad 2007-05-07
 """
 
-
-from PyQt4.Qt      import Qt
+from PyQt4               import QtGui
+from PyQt4.Qt            import Qt
 
 from PM.PM_Dialog        import PM_Dialog
 from PM.PM_GroupBox      import PM_GroupBox
@@ -34,7 +34,7 @@ from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 
 from NE1ToolBar          import NE1ToolBar
-
+from icon_utilities      import geticon
 
 class Ui_MoviePropertyManager(PM_Dialog):
     """
@@ -86,7 +86,8 @@ class Ui_MoviePropertyManager(PM_Dialog):
     def _addGroupBoxes(self):
         """
         Add various group boxes to the Movie Property manager. 
-        """     
+        """
+        self._createAllActionWidgets()
         self._addMovieControlsGroupBox()
         self._addMovieOptionsGroupBox()
         self._addMovieFilesGroupBox()
@@ -127,33 +128,34 @@ class Ui_MoviePropertyManager(PM_Dialog):
         @type  inPmGroupBox: L{PM_GroupBox} 
         """
         #Movie Slider
-        self.w.frameNumberSL = \
+        self.frameNumberSlider = \
             PM_Slider( inPmGroupBox,
                        currentValue = 0,
                        minimum      = 0,
                        maximum      = 999999,
                        label        = 'Current Frame: 0/900'
                      )
-        self.w.movieFrameUpdateLabel = self.w.frameNumberSL.labelWidget
+        
+        self.movieFrameUpdateLabel = self.frameNumberSlider.labelWidget
         
         #Movie Controls
         
         self.movieButtonsToolBar = NE1ToolBar(inPmGroupBox)
         
-        movieActionList = [self.w.movieResetAction,
-                           self.w.moviePlayRevActiveAction,
-                           self.w.moviePlayRevAction,
-                           self.w.moviePauseAction,
-                           self.w.moviePlayAction,
-                           self.w.moviePlayActiveAction,
-                           self.w.movieMoveToEndAction
-                           ]
+        _movieActionList = [self.movieResetAction,
+                            self.moviePlayRevActiveAction,
+                            self.moviePlayRevAction,
+                            self.moviePauseAction,
+                            self.moviePlayAction,
+                            self.moviePlayActiveAction,
+                            self.movieMoveToEndAction
+                            ]
         
-        for action in movieActionList:
-            self.movieButtonsToolBar.addAction(action)
+        for _action in _movieActionList:
+            self.movieButtonsToolBar.addAction(_action)
                 
-        self.w.moviePlayActiveAction.setVisible(0)
-        self.w.moviePlayRevActiveAction.setVisible(0)
+        self.moviePlayActiveAction.setVisible(0)
+        self.moviePlayRevActiveAction.setVisible(0)
         
         WIDGET_LIST = [("PM_", self.movieButtonsToolBar, 0)]
         
@@ -161,25 +163,10 @@ class Ui_MoviePropertyManager(PM_Dialog):
                                                    widgetList = WIDGET_LIST,
                                                    spanWidth = True)
         
-        self.w.movieLoop_checkbox = PM_CheckBox(inPmGroupBox,
-                                                text = "Loop",
-                                                widgetColumn = 0,
-                                                state = Qt.Unchecked) 
-        
-
-    def _loadMovieFilesGroupBox(self, inPmGroupBox):
-        """
-        Load widgets in the Open/Save Movie Files group box.
-        @param inPmGroupBox: The Open/Save Movie Files groupbox in the PM
-        @type  inPmGroupBox: L{PM_GroupBox} 
-        """
-        
-        for action in self.w.fileOpenMovieAction, self.w.fileSaveMovieAction:
-            btn = PM_ToolButton(inPmGroupBox,
-                                text = str(action.text()),
-                                spanWidth = True)
-            btn.setDefaultAction(action)
-            btn.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        self.movieLoop_checkbox = PM_CheckBox(inPmGroupBox,
+                                              text = "Loop",
+                                              widgetColumn = 0,
+                                              state = Qt.Unchecked)
           
     def _loadMovieOptionsGroupBox(self, inPmGroupBox):
         """
@@ -188,17 +175,101 @@ class Ui_MoviePropertyManager(PM_Dialog):
         @type  inPmGroupBox: L{PM_GroupBox} 
         """
         
-        self.w.frameNumberSB = PM_SpinBox(inPmGroupBox,
-                                          label         =  "Go To Frame:",
-                                          labelColumn   =  0,
-                                          value         =  0,
-                                          minimum       =  1,
-                                          maximum       =  999999)
+        self.frameNumberSpinBox = PM_SpinBox(inPmGroupBox,
+                                             label         =  "Go To Frame:",
+                                             labelColumn   =  0,
+                                             value         =  0,
+                                             minimum       =  1,
+                                             maximum       =  999999)
         
-        self.w.skipSB = PM_SpinBox(inPmGroupBox,
+        self.frameSkipSpinBox = PM_SpinBox(inPmGroupBox,
                                           label         =  "Skip:",
                                           labelColumn   =  0,
                                           value         =  0,
                                           minimum       =  1,
                                           maximum       =  9999,
                                           suffix        = ' Frame(s)')
+    
+    def _loadMovieFilesGroupBox(self, inPmGroupBox):
+        """
+        Load widgets in the Open/Save Movie Files group box.
+        @param inPmGroupBox: The Open/Save Movie Files groupbox in the PM
+        @type  inPmGroupBox: L{PM_GroupBox} 
+        """
+        
+        for action in self.fileOpenMovieAction, self.fileSaveMovieAction:
+            btn = PM_ToolButton(inPmGroupBox,
+                                text = str(action.text()),
+                                spanWidth = True)
+            btn.setDefaultAction(action)
+            btn.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+            
+    def _createAllActionWidgets(self):
+        """
+        Creates all the QAction widgets that will end up as buttons in the PM.
+        """
+        self.movieResetAction = QtGui.QAction(self)
+        self.movieResetAction.setObjectName("movieResetAction")
+        self.movieResetAction.setIcon(
+            geticon("ui/actions/Properties Manager/Movie_Reset"))
+        
+        self.moviePlayRevActiveAction = QtGui.QAction(self)
+        self.moviePlayRevActiveAction.setObjectName("moviePlayRevActiveAction")
+        self.moviePlayRevActiveAction.setIcon(
+            geticon("ui/actions/Properties Manager/Movie_Play_Reverse_Active"))
+        
+        self.moviePlayRevAction = QtGui.QAction(self)
+        self.moviePlayRevAction.setObjectName("moviePlayRevAction")
+        self.moviePlayRevAction.setIcon(
+            geticon("ui/actions/Properties Manager/Movie_Play_Reverse"))
+        
+        self.moviePauseAction = QtGui.QAction(self)
+        self.moviePauseAction.setObjectName("moviePauseAction")
+        self.moviePauseAction.setIcon(
+            geticon("ui/actions/Properties Manager/Movie_Pause"))
+        
+        self.moviePlayAction = QtGui.QAction(self)
+        self.moviePlayAction.setObjectName("moviePlayAction")
+        self.moviePlayAction.setVisible(True)
+        self.moviePlayAction.setIcon(
+            geticon("ui/actions/Properties Manager/Movie_Play_Forward"))
+        
+        self.moviePlayActiveAction = QtGui.QAction(self)
+        self.moviePlayActiveAction.setObjectName("moviePlayActiveAction")
+        self.moviePlayActiveAction.setIcon(
+            geticon("ui/actions/Properties Manager/Movie_Play_Forward_Active"))
+        
+        self.movieMoveToEndAction = QtGui.QAction(self)
+        self.movieMoveToEndAction.setObjectName("movieMoveToEndAction")
+        self.movieMoveToEndAction.setIcon(
+            geticon("ui/actions/Properties Manager/Movie_Move_To_End"))
+        
+        self.fileOpenMovieAction = QtGui.QAction(self)
+        self.fileOpenMovieAction.setObjectName("fileOpenMovieAction")
+        self.fileOpenMovieAction.setIcon(
+            geticon("ui/actions/Properties Manager/Open"))
+        
+        self.fileSaveMovieAction = QtGui.QAction(self)
+        self.fileSaveMovieAction.setObjectName("fileSaveMovieAction")
+        self.fileSaveMovieAction.setIcon(
+            geticon("ui/actions/Properties Manager/Save"))
+        
+        self.fileSaveMovieAction.setText(
+            QtGui.QApplication.translate("MainWindow", 
+                                         "Save Movie File...", 
+                                         None, 
+                                         QtGui.QApplication.UnicodeUTF8))
+        
+        self.fileOpenMovieAction.setText(
+            QtGui.QApplication.translate("MainWindow", 
+                                         "Open Movie File...", 
+                                         None, 
+                                         QtGui.QApplication.UnicodeUTF8))
+
+        # This isn't currently in the PM. It's connected and ready to go.
+        self.movieInfoAction = QtGui.QAction(self)
+        self.movieInfoAction.setObjectName("movieInfoAction")
+        self.movieInfoAction.setIcon(
+            geticon("ui/actions/Properties Manager/Movie_Info"))
+        
+        return

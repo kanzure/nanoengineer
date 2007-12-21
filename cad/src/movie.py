@@ -38,27 +38,6 @@ playDirection = { FWD : "Forward", REV : "Reverse" }
 
 # ==
 
-def movie_controls_setEnabled(win, enabled = True):
-    """
-    Enable or disable movie controls on movieMode dashboard.
-    """
-    #bruce 071030 renamed this from _controls to movie_controls_setEnabled,
-    # and moved it from movieMode.py into movie.py to cure an import loop
-    # (they both use it). (In theory it should be a method on an owning object
-    # of these controls, but right now that owner is just win, and adding
-    # more code to MWsemantics doesn't make sense to me now.)
-    win.movieResetAction.setEnabled(enabled)
-    win.moviePlayRevAction.setEnabled(enabled)
-    win.moviePauseAction.setEnabled(enabled)
-    win.moviePlayAction.setEnabled(enabled)
-    win.movieMoveToEndAction.setEnabled(enabled)
-    win.frameNumberSL.setEnabled(enabled)
-    win.frameNumberSB.setEnabled(enabled)
-    win.fileSaveMovieAction.setEnabled(enabled)
-    return
-
-# ==
-
 class Movie:
     """
     Movie object.
@@ -433,16 +412,22 @@ class Movie:
             return False
         # change current part and/or arrange to warn if user does that? No, this is done later when we _play.
         return True
-
-    def movie_controls_setEnabled(self, enabled = True):
-        movie_controls_setEnabled(self.assy.w, enabled)
-        #e perhaps we should not control dashboard directly from this object at all,
-        # but rather have observers we can update
     
-    def _setup(self, hflag = True): #bruce 060112 revised retval documentation and specific values
+    def cueMovie(self, propMgr = None, hflag = True): #bruce 060112 revised retval documentation and specific values
         """
-        Setup this movie for playing; return False if this worked,
-        True if it failed (warning: reverse of common boolean retvals).
+        Setup this movie for playing.
+        
+        @param propMgr: The movie property manager.
+        @type  propMgr: MoviePropertyManager
+        
+        @param hflag: The history message flag. If True, print a history 
+                      message.
+        @type  hflag: boolean
+        
+        @return: False if this worked, True if it failed 
+                 (warning: reverse of common boolean retvals).
+        @rtype:  boolean
+        
         [#doc whether it always prints error msg to history if it failed.]
         """
         # bruce 050427 comment:
@@ -456,8 +441,10 @@ class Movie:
         # - history info: if hflag: self._info()
         # - self.startFrame = self.currentFrame
         if DEBUG1:
-            print "movie._setup() called. filename = [" + self.filename + "]"
+            print "movie.cueMovie() called. filename = [" + self.filename + "]"
 
+        self.propMgr = propMgr
+        
         if self.isOpen and platform.atom_debug:
             env.history.message( redmsg( "atom_debug: redundant _setup? bug if it means atoms are still frozen"))
 
@@ -467,11 +454,8 @@ class Movie:
         if not ok:
             # bruce 050427 doing the following disable under more circumstances than before
             # (since old code's errcodes 'r' 1 or 2 are no longer distinguished here, they're just both False) -- is that ok?
-            self.movie_controls_setEnabled(False)
             self.isOpen = False #bruce 050427 added this
             return True
-            
-        self.movie_controls_setEnabled(True)
 
         #bruce 050427 extensively rewrote the following (and moved some of what was here into OldFormatMovieFile_startup)
 
@@ -480,8 +464,6 @@ class Movie:
 
         self.totalFramesActual = self.alist_and_moviefile.get_totalFramesActual() # needed for dashboard controls
         self.natoms = len(self.alist) # needed for _info
-
-        self.update_dashboard_frame_controls() #bruce 050427 split this out
 
         if hflag:
             self._info() # prints info to history
@@ -502,44 +484,6 @@ class Movie:
 ##            msg = "Current frame:" + str(self.currentFrame) ## + ", filepos =" + str(filepos)
 ##            env.history.message(msg)
 ##        return False
-        
-    def update_dashboard_currentFrame(self):
-        "update dashboard controls which show self.currentFrame, except for the ones being used to change it"
-        #bruce 050428 split this out too, added all conditions/flags; ##e it should become a method of movieDashboardSlotsMixin
-        old = self.win._movieDashboard_ignore_slider_and_spinbox # not sure if this is ever True here
-        self.win._movieDashboard_ignore_slider_and_spinbox = True
-        try:
-            dont_update_slider = self.win._movieDashboard_in_valuechanged_SL
-            dont_update_spinbox = self.win._movieDashboard_in_valuechanged_SB
-            if not dont_update_slider:
-                self.win.frameNumberSL.setValue(self.currentFrame) # SL = Slider
-                currentFrameLbl = str(self.win.frameNumberSL.value())
-                totalFrameLbl = str(self.totalFramesActual)
-                flabel = "Current Frame: " + currentFrameLbl + "/" + \
-                       totalFrameLbl                
-                self.win.movieFrameUpdateLabel.setText(flabel)
-            if not dont_update_spinbox:
-                self.win.frameNumberSB.setValue(self.currentFrame) # Spinbox
-        finally:
-            self.win._movieDashboard_ignore_slider_and_spinbox = old
-        return
-    
-    def update_dashboard_frame_controls(self): #bruce 050427 split this out of _setup; ##e it should become a method of movieDashboardSlotsMixin
-        "update dashboard controls which show self.currentFrame or self.totalFramesActual"
-        self.win.frameNumberSL.setMaximum(self.totalFramesActual)      
-
-#        self.win.movieProgressBar.setTotalSteps(self.totalFramesActual) # Progress bar
-#        self.win.movieProgressBar.setProgress(self.currentFrame)
-
-        self.win.frameNumberSB.setMaximum(self.totalFramesActual)
-        
-        self.win.skipSB.setMaximum(self.totalFramesActual) #ninad060928 fixed bug 2285
-        
-        self.update_dashboard_currentFrame()
-      
-        flabel = "Frame (" + str(self.totalFramesActual) + " total):"
-        
-        return
 
     # ==
 
@@ -581,7 +525,8 @@ class Movie:
         env.history.message( orangemsg( "Warning: " + text))
         
     def _close(self):
-        """Close movie file and adjust atom positions.
+        """
+        Close movie file and adjust atom positions.
         """
         #bruce 050427 comment: what this did in old code:
         # - if already closed, noop.
@@ -607,7 +552,8 @@ class Movie:
         return
         
     def _play(self, direction = FWD):
-        """Start playing movie from the current frame.
+        """
+        Start playing movie from the current frame.
         """
         #bruce 050427 comment: not changing this much
         
@@ -666,7 +612,9 @@ class Movie:
         # Writes the POV-Ray series starting at the current frame until the last frame, 
         # skipping frames if "Skip" (on the dashboard) is != 0.  Mark 050908
         nfiles = 0
-        for i in range(self.currentFrame, self.totalFramesActual+1, self.win.skipSB.value()):
+        for i in range(self.currentFrame, 
+                       self.totalFramesActual+1, 
+                       self.propMgr.frameSkipSpinBox.value()):
             self.alist_and_moviefile.play_frame(i)
             filename = "%s.%06d.pov" % (name,i)
             # For 100s of files, printing a history message for each file is undesired. 
@@ -696,7 +644,8 @@ class Movie:
         # In case the movie is already playing (usually the other direction).
         self._pause(0) 
         
-        if hflag: env.history.message("Movie continued: " + playDirection[ self.playDirection ])
+        if hflag: 
+            env.history.message("Movie continued: " + playDirection[ self.playDirection ])
 
         self.warn_if_other_part(self.assy.part) #bruce 050427
         
@@ -715,7 +664,7 @@ class Movie:
                 return
         
         # If "Loop" is checked, continue playing until user hits pause.  Mark 051101.
-        while self.win.movieLoop_checkbox.isChecked():
+        while self.propMgr.movieLoop_checkbox.isChecked():
             if self.playDirection == FWD:
                 self._reset() # Resets currentFrame to 0
                 self.showEachFrame = True # _pause(), called by _playToFrame(), reset this to False.
@@ -732,7 +681,8 @@ class Movie:
                     break
 
     def _pause(self, hflag = True):
-        """Pause movie.
+        """
+        Pause movie.
         hflag - if True, print history message
         """
         #bruce 050428 comment: I suspect it's required to call this in almost every event,
@@ -745,11 +695,10 @@ class Movie:
         self.win.movie_is_playing = False
         self.showEachFrame = False
         self.moveToEnd = False
-        self.win.moviePlayActiveAction.setVisible(0)
-        self.win.moviePlayAction.setVisible(1)
-        self.win.moviePlayRevActiveAction.setVisible(0)
-        self.win.moviePlayRevAction.setVisible(1)
-#        self.update_dashboard_currentFrame()
+        self.propMgr.moviePlayActiveAction.setVisible(0)
+        self.propMgr.moviePlayAction.setVisible(1)
+        self.propMgr.moviePlayRevActiveAction.setVisible(0)
+        self.propMgr.moviePlayRevAction.setVisible(1)
         if hflag: env.history.message("Movie paused.")
         self.debug_dump("_pause call done")
 
@@ -765,7 +714,8 @@ class Movie:
 
     def _playToFrame(self, fnum, from_slider = False):
         #bruce 050428 renamed this from _playFrame, since it plays all frames from current to fnum.
-        """Main method for movie playing.
+        """
+        Main method for movie playing.
         When called due to the user sliding the movie dashboard frame-number slider, from_slider should be True.
         If "self.showEachFrame = True", it will play each frame of the movie between "fnum" and "currentFrame"
         (except for skipped frames due to the skip control on the dashboard).
@@ -834,13 +784,13 @@ class Movie:
         if fnum > self.currentFrame: 
             inc = FWD
             if not from_slider:
-                self.win.moviePlayActiveAction.setVisible(1)
-                self.win.moviePlayAction.setVisible(0)
+                self.propMgr.moviePlayActiveAction.setVisible(1)
+                self.propMgr.moviePlayAction.setVisible(0)
         else: 
             inc = REV
             if not from_slider:
-                self.win.moviePlayRevActiveAction.setVisible(1)
-                self.win.moviePlayRevAction.setVisible(0)
+                self.propMgr.moviePlayRevActiveAction.setVisible(1)
+                self.propMgr.moviePlayRevAction.setVisible(0)
 
         # This addresses the situation when the movie file is large (> 1000 frames)
         # and the user drags the slider quickly, creating a large delta between
@@ -911,7 +861,7 @@ class Movie:
             # (Unless the surrounding code fails to check currentFrame well enough... I'm not sure! ###k)
             # We only need to worry about whether we reach fnum or not.
             
-            skip_n = self.win.skipSB.value() - 1 # Mark 060927
+            skip_n = self.propMgr.frameSkipSpinBox.value() - 1 # Mark 060927
             if not self.showEachFrame:
                 #bruce 050428 adding this to see if it speeds up "forward to end"
                 ###e potential optim: increase skip, as long as time passed will not be too bad
@@ -923,7 +873,7 @@ class Movie:
                     break
             # now self.currentFrame needs to be shown
             if 1: ## self.showEachFrame: ####@@@@ old code said if 1 for this... what's best? maybe update them every 0.1 sec?
-                self.update_dashboard_currentFrame()
+                self.propMgr.updateCurrentFrame()
             if 1:
                 self.alist_and_moviefile.play_frame( self.currentFrame) # doing this every time makes it a lot slower, vs doing nothing!
                 ###e [bruce 050428 comments:]
@@ -935,14 +885,6 @@ class Movie:
                 # conditioned on how much time had passed, if they're always done at the end if needed.
             if self.showEachFrame:
                 self.glpane.gl_update()
-
-            ## bruce 050427: the following is useless since we just updated the dashboard above, in all cases!
-            ## not sure if this is intended or not, but for now I'll remove it and be equivalent to old code.
-##            # Updating MP dashboard widgets will slow down slider control.
-##            # Only update when "Move To End" button 
-##            if self.moveToEnd:
-## ##                self.win.movieProgressBar.setProgress(self.currentFrame) # Progress bar
-##                self.update_dashboard_currentFrame()
                         
             # Process queued events [bruce comment 050516: note that this will do a paintGL from our earlier gl_update above ####@@@@]
             env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
@@ -957,7 +899,7 @@ class Movie:
             QApplication.restoreOverrideCursor() # Restore the cursor
             self.waitCursor = False
         
-        self.update_dashboard_currentFrame( )
+        self.propMgr.updateCurrentFrame( )
             # [bruce 050428 comment: old code only updated slider here, but it did both SL and SB in loop above;
             #  now the update method decides which ones to update]
         
@@ -1000,7 +942,7 @@ class Movie:
         # Restore atom positions.
         self.alist_and_moviefile.play_frame( self.currentFrame)
         
-        self.update_dashboard_currentFrame()
+        self.propMgr.updateCurrentFrame()
         self._pause(0)
         self.glpane.gl_update()
         
@@ -1043,7 +985,18 @@ class Movie:
         numOfAtoms  = str(self.natoms)
         
         return (fileName, numOfFrames, numOfAtoms)
-        
+    
+    def getCurrentFrame(self):
+        """
+        Returns the current frame of the movie.
+        """
+        return self.currentFrame
+    
+    def getTotalFrames(self):
+        """
+        Returns the total frames of the movie.
+        """
+        return self.totalFramesActual
 
     def get_trace_filename(self):
         """Returns the trace filename for the current movie.

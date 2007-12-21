@@ -22,7 +22,7 @@ import os
 
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QDialog, QGridLayout, QPushButton, QTextBrowser, SIGNAL, QCursor
-from PyQt4.Qt import QFileDialog, QMessageBox, QString, QWidgetAction, QAction
+from PyQt4.Qt import QMessageBox, QString, QWidgetAction, QAction
 
 import env
 import changes
@@ -35,14 +35,7 @@ from utilities.Log import redmsg, orangemsg
 from MoviePropertyManager import MoviePropertyManager
 from icon_utilities import geticon
 
-from constants import filesplit
-
 from prefs_constants import workingDirectory_prefs_key
-
-auto_play = False # whether to automatically start playing the movie when you enter the mode
-    # bruce 050510 disabling automatic play per Mark urgent request (this is also a bug or NFR in bugzilla).
-    # Not sure whether this will need to be added back under certain conditions,
-    # therefore I'm adding this flag, so it's easy to review all the places that might need changing.
 
 class MovieRewindDialog(QDialog):
 
@@ -142,29 +135,32 @@ class movieMode(basicMode):
         #  but I won't revise these for now.]
         self.w.disable_QActions_for_movieMode(True)
             #  Actions marked #k are now in disable_QActions_for_movieMode(). mark 060314)
-
+        
         # MP dashboard initialization.
-        self.movie_controls_setEnabled(False)
+        self.enableMovieControls(False)
             #bruce 050428 precaution (has no noticable effect but seems safer in theory)
         #bruce 050428, working on bug 395: I think some undesirable state is left in the dashboard, so let's reinit it
         # (and down below we might like to init it from the movie if possible, but it's not always possible).
-        self.w._movieDashboard_reinit() ###e could pass frameno? is max frames avail yet in all playable movies? not sure.
+        self.propMgr._moviePropMgr_reinit() ###e could pass frameno? is max frames avail yet in all playable movies? not sure.
         # [bruce 050426 comment: probably this should just be a call of an update method, also used during the mode ###e]
         movie = self.o.assy.current_movie # might be None, but might_be_playable() true implies it's not
         if self.might_be_playable(): #bruce 050426 added condition
             frameno = movie.currentFrame
         else:
             frameno = 0 #bruce 050426 guessed value
-        self.w.frameNumberSB.setValue(frameno) # SB = Spinbox [bruce 050428 question: does this call our slot method?? ###k]
-        self.w.moviePlayActiveAction.setVisible(0)
-        self.w.moviePlayRevActiveAction.setVisible(0)
+            
+        self.propMgr.frameNumberSpinBox.setValue(frameno) # bruce 050428 question: does this call our slot method?? ###k
+        self.propMgr.moviePlayActiveAction.setVisible(0)
+        self.propMgr.moviePlayRevActiveAction.setVisible(0)
 
         if self.might_be_playable(): # We have a movie file ready.  It's showtime! [bruce 050426 changed .filename -> .might_be_playable()]
-            movie._setup() # Cue movie. [bruce 050501 comment: I don't think this actually starts playing it, and I hope not.]
+            movie.cueMovie(propMgr = self.propMgr) # Cue movie.
+            self.enableMovieControls(True)
+            self.propMgr.updateFrameInformation()
             if movie.filename: #k not sure this cond is needed or what to do if not true [bruce 050510]
                 env.history.message( "Movie file ready to play: %s" % movie.filename) #bruce 050510 added this message
         else:
-            self.movie_controls_setEnabled(False)
+            self.enableMovieControls(False)
 
         #Need to do this after calling movie._setUp (propMgr displays movie 
         #information in its msg groupbox.  All this will be cleaned up when we 
@@ -182,7 +178,6 @@ class movieMode(basicMode):
             # this makes Undo menu commands and tooltips look like "Undo (not permitted in Movie Player)" (and similarly for Redo)
         self.connect_or_disconnect_signals(True)
 
-
     def connect_or_disconnect_signals(self, connect): 
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -195,17 +190,11 @@ class movieMode(basicMode):
         else:
             change_connect = self.w.disconnect
 
-        change_connect(self.w.frameNumberSL,
-                       SIGNAL("valueChanged(int)"),
-                       self.w.movieSlider)
-
-        change_connect(self.w.frameNumberSB,
-                       SIGNAL("valueChanged(int)"),
-                       self.w.moviePlayFrame)
-
-        change_connect(self.exitMovieAction, SIGNAL("triggered()"), 
+        change_connect(self.exitMovieAction, 
+                       SIGNAL("triggered()"), 
                        self.w.toolsDone)
-
+        
+        self.propMgr.connect_or_disconnect_signals(connect)
 
     def getFlyoutActionList(self): #Ninad 20070618
         """ 
@@ -270,10 +259,8 @@ class movieMode(basicMode):
                                                    entering = bool_entering)
         return
 
-    def movie_controls_setEnabled(self, enabled = True):
-        from movie import movie_controls_setEnabled
-            ### TODO: import this at toplevel if possible
-        movie_controls_setEnabled( self.w, enabled)
+    def enableMovieControls(self, enabled = True):
+        self.propMgr.enableMovieControls(enabled)
 
     def might_be_playable(self):
         """
@@ -282,11 +269,11 @@ class movieMode(basicMode):
         movie = self.o.assy.current_movie
         return movie and movie.might_be_playable()
 
-    def update_dashboard(self): #bruce 050426 pieced this together from other code ####@@@@ call it
+    def update_dashboard_OBS(self): #bruce 050426 pieced this together from other code ####@@@@ call it
         """
         Update our dashboard to reflect the state of assy.current_movie.
         """
-        self.movie_controls_setEnabled( self.might_be_playable() )
+        self.enableMovieControls( self.might_be_playable() )
         ###e need to do more here, like the stuff in init_gui and maybe elsewhere
         return
 
@@ -414,8 +401,6 @@ def simMoviePlayer(assy):
 
     if assy.current_movie and assy.current_movie.might_be_playable():
         win.commandSequencer.userEnterCommand('MOVIE')
-        if auto_play:
-            win.moviePlay() # [bruce 050427 guess: simulate pressing the play button]
         return
 
     # no valid current movie, look for saved one with same name as assy
@@ -441,10 +426,8 @@ def simMoviePlayer(assy):
             # No current way to tell how to do that, and this might be done even if it's not valid
             # for any loaded Part. So let's not... tho we might presume (from filename choice we used)
             # it was valid for Main Part. Maybe print warning for clip item, and for not valid? #e
-            env.history.message("Movie Player: %s previously saved movie for this part." % (auto_play and "playing" or "loading"))
+            env.history.message("Movie Player: %s previously saved movie for this part." % ("playing" or "loading"))
             win.commandSequencer.userEnterCommand('MOVIE')
-            if auto_play:
-                win.moviePlay()
             return
     # else if no assy.filename or no movie found from that:
     # bruce 050327 comment -- do what the old code did, except for the moviePlay
@@ -452,305 +435,6 @@ def simMoviePlayer(assy):
     assy.current_movie = Movie(assy)
         # temporary kluge until bugs in movieMode for no assy.current_movie are fixed
     win.commandSequencer.userEnterCommand('MOVIE')
-    ## win.moviePlay()
-        # [bruce 0505010 comment: not sure if this one would need auto_play, if it worked again]
     return
-
-# ==
-
-#bruce 050413: try to move most of movie dashboard slot method code
-# out of MWsemantics, without changing the basic fact that the .ui file
-# wants to send the button signals into methods of MWsemantics
-# (and these methods probably have to exist, unchanging, from the time
-#  the MWsemantics object is initialized).
-
-class movieDashboardSlotsMixin:
-    """
-    Mixin class for letting MWsemantics have the movieMode dashboard slot 
-    methods.
-    """
-    # bruce 050428: these attrs say when we're processing a valueChanged signal from slider or spinbox
-    _movieDashboard_in_valuechanged_SL = False
-    _movieDashboard_in_valuechanged_SB = False
-    # bruce 050428: this says whether to ignore signals from slider and spinbox, since they're being changed
-    # by the program rather than by the user. (#e The Movie method that sets it should be made a method of this class.)
-    _movieDashboard_ignore_slider_and_spinbox = False
-    def _movieDashboard_reinit(self):
-        self._movieDashboard_ignore_slider_and_spinbox = True
-        try:
-            self.frameNumberSB.setMaximum(999999) # in UI.py code
-            self.frameNumberSL.setMaximum(999999) # guess
-            self.frameNumberSB.setValue(0) # guess
-            self.frameNumberSL.setValue(0) # guess
-        finally:
-            self._movieDashboard_ignore_slider_and_spinbox = False
-        return
-    
-    def moviePlay(self):
-        """
-        Play current movie foward from current position.
-        """
-        if self.assy.current_movie: #bruce 050427 added this condition in all these slot methods
-            self.assy.current_movie._play(1)
-
-    def moviePause(self):
-        """
-        Pause movie.
-        """
-        if self.assy.current_movie:
-            self.assy.current_movie._pause()
-
-    def moviePlayRev(self):
-        """
-        Play current movie in reverse from current position.
-        """
-        if self.assy.current_movie:
-            self.assy.current_movie._play(-1)
-
-    def movieReset(self):
-        """
-        Move current frame position to frame 0 (beginning) of the movie.
-        """
-        if self.assy.current_movie:
-            self.assy.current_movie._reset()
-
-    def movieMoveToEnd(self):
-        """
-        Move frame position to the last frame (end) of the movie.
-        """
-        if self.assy.current_movie:
-            self.assy.current_movie._moveToEnd()
-
-    def moviePlayFrame(self, fnum):
-        """
-        Show frame fnum in the current movie. This slot receives 
-        valueChanged(int) signal from self.frameNumberSB.
-        """
-        if not self.assy.current_movie:
-            return
-        if self._movieDashboard_ignore_slider_and_spinbox:
-            return
-        ## next line is redundant, so I removed it [bruce 050428]
-        ## if fnum == self.assy.current_movie.currentFrame: return
-
-        self._movieDashboard_in_valuechanged_SB = True
-        try:
-            self.assy.current_movie._playToFrame(fnum)
-        finally:
-            self._movieDashboard_in_valuechanged_SB = False
-        return
-
-    def movieSlider(self, fnum):
-        """
-        Show frame fnum in the current movie. This slot receives 
-        valueChanged(int) signal from self.frameNumberSL.
-        """
-        if not self.assy.current_movie:
-            return
-        if self._movieDashboard_ignore_slider_and_spinbox:
-            return
-        ## next line is redundant, so I removed it [bruce 050428]
-        ## if fnum == self.assy.current_movie.currentFrame: return
-
-        self._movieDashboard_in_valuechanged_SL = True
-        try:
-            self.assy.current_movie._playSlider(fnum)
-        finally:
-            self._movieDashboard_in_valuechanged_SL = False
-        return
-
-    def movieInfo(self):
-        """
-        Prints information about the current movie to the history widget.
-        """
-        if not self.assy.current_movie:
-            return
-        env.history.message(greenmsg("Movie Information"))
-        self.assy.current_movie._info()
-
-    def fileOpenMovie(self):
-        """
-        Open a movie file to play.
-        """
-        # bruce 050327 comment: this is not yet updated for "multiple movie objects"
-        # and bugfixing of bugs introduced by that is in progress (only done in a klugy
-        # way so far). ####@@@@
-        env.history.message(greenmsg("Open Movie File:"))
-        assert self.assy.current_movie
-            # (since (as a temporary kluge) we create an empty one, if necessary, before entering
-            #  Movie Mode, of which this is a dashboard method [bruce 050328])
-        if self.assy.current_movie and self.assy.current_movie.currentFrame != 0:
-            ###k bruce 060108 comment: I don't know if this will happen when currentFrame != 0 due to bug 1273 fix... #####@@@@@
-            env.history.message(redmsg("Current movie must be reset to frame 0 to load a new movie."))
-            return
-
-        # Determine what directory to open. [bruce 050427 comment: if no moviefile, we should try assy.filename's dir next ###e]
-        if self.assy.current_movie and self.assy.current_movie.filename:
-            odir, fil, ext = filesplit(self.assy.current_movie.filename)
-            del fil, ext #bruce 050413
-        else:
-            odir = self.currentWorkingDirectory # Fixes bug 291 (comment #4). Mark 060729.
-
-
-        fn = QFileDialog.getOpenFileName(
-            self, 
-            "Differential Position Bytes Format (*.dpb)",
-            odir)
-
-        if not fn:
-            env.history.message("Cancelled.")
-            return
-
-        fn = str(fn)
-
-        # Check if file with name fn is a movie file which is valid for the current Part
-        # [bruce 050324 made that a function and made it print the history messages
-        #  which I've commented out below.]
-        from movie import _checkMovieFile
-        r = _checkMovieFile(self.assy.part, fn)
-
-        if r == 1:
-##            msg = redmsg("Cannot play movie file [" + fn + "]. It does not exist.")
-##            env.history.message(msg)
-            return
-        elif r == 2: 
-##            msg = redmsg("Movie file [" + fn + "] not valid for the current part.")
-##            env.history.message(msg)
-            if self.assy.current_movie and self.assy.current_movie.might_be_playable(): #bruce 050427 isOpen -> might_be_playable()
-                msg = "(Previous movie file [" + self.assy.current_movie.filename + "] is still open.)"
-                env.history.message(msg)
-            return
-
-        #bruce 050427 rewrote the following to use a new Movie object
-        new_movie = find_saved_movie( self.assy, fn )
-        if new_movie:
-            new_movie.set_alist_from_entire_part(self.assy.part) # kluge? might need changing...
-            if self.assy.current_movie: #bruce 050427 no longer checking isOpen here
-                self.assy.current_movie._close()
-            self.assy.current_movie = new_movie
-            self.assy.current_movie._setup()
-            self._updateMessageInModePM()
-        else:
-            # should never happen due to _checkMovieFile call, so this msg is ok
-            # (but if someday we do _checkMovieFile inside find_saved_movie and not here,
-            #  then this will happen as an error return from find_saved_movie)
-            msg = redmsg("Internal error in fileOpenMovie")
-            self._updateMessageInModePM(msg)
-            env.history.message(msg)
-        return
-
-    def _updateMessageInModePM(self, msg = ''):
-        """
-	Updates the message box in the Movie Property Manager with the 
-	information about the opened movie file. 
-	@WARNING: This is a temporary method. Likely to be moved/ modified 
-	when movieMode.py is cleaned up. See bug 2428 for details. 
-	"""
-        #@WARNING: Following updates  the Movie property manager's message 
-        #groupbox. This should be done in a better way. At present there 
-        # is no obvious way to tell the Movie Property manager that the 
-        # movie has changed. So this is a kludge. 
-        # See bug 2428 comment 8 for further details -- Ninad 2007-10-02
-        currentCommand = self.assy.o.currentCommand
-        if currentCommand.modename == "MOVIE":
-            if currentCommand.propMgr:
-                if not msg:
-                    msg = currentCommand.propMgr.getOpenMovieFileInfo()
-                currentCommand.propMgr.updateMessage(msg)
-
-    def fileSaveMovie(self):
-        """
-        Save a copy of the current movie file loaded in the Movie Player.
-        """
-        # Make sure there is a moviefile to save.
-        if not self.assy.current_movie or not self.assy.current_movie.filename \
-           or not os.path.exists(self.assy.current_movie.filename):
-
-            msg = redmsg("Save Movie File: No movie file to save.")
-            env.history.message(msg)
-            msg = "To create a movie, click on the <b>Simulator</b> <img source=\"simicon\"> icon."
-            #QMimeSourceFactory.defaultFactory().setPixmap( "simicon", 
-            #            self.simSetupAction.iconSet().pixmap() )
-            env.history.message(msg)
-            return
-
-        env.history.message(greenmsg("Save Movie File:"))
-
-        if self.assy.filename: sdir = self.assy.filename
-        else: sdir = env.prefs[workingDirectory_prefs_key]
-
-        sfilter = QString("Differential Position Bytes Format (*.dpb)")
-
-        # Removed .xyz as an option in the sfilter since the section of code below 
-        # to save XYZ files never worked anyway.  This also fixes bug 492.  Mark 050816.
-
-        fn = QFileDialog.getSaveFileName(
-            self,
-            "Save As",
-            sdir,
-            "Differential Position Bytes Format (*.dpb);;POV-Ray Series (*.pov)",
-            sfilter)
-
-
-        if not fn:
-            env.history.message("Cancelled.")
-            return
-        else:
-            fn = str(fn)
-            dir, fil, ext2 = filesplit(fn)
-            del ext2 #bruce 050413
-            ext = str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
-                #bruce 050413 comment: the above assumes that len(ext) is always 4 (.xxx).
-                # I'm speculating that this is ok for now since it has to be one of the ones
-                # provided to the getSaveFileName method above.
-            # Changed os.path.join > os.path.normpath to partially fix bug #956.  Mark 050911.
-            safile = os.path.normpath(dir+"/"+fil+ext) # full path of "Save As" filename
-
-            if os.path.exists(safile): # ...and if the "Save As" file exists...
-
-                # ... confirm overwrite of the existing file.
-                ret = QMessageBox.warning( self, self.name(),
-                                           "The file \"" + fil + ext + "\" already exists.\n"\
-                                           "Do you want to overwrite the existing file or cancel?",
-                                           "&Overwrite", "&Cancel", "",
-                                           0,      # Enter == button 0
-                                           1 )     # Escape == button 1
-
-                if ret == 1: # The user cancelled
-                    env.history.message( "Cancelled.  File not saved." )
-                    return # Cancel clicked or Alt+C pressed or Escape pressed
-
-            if ext == '.dpb':
-#                print "fileSaveMovie(): Saving movie file", safile
-#                print "fileSaveMovie(). self.assy.current_movie.isOpen =", self.assy.current_movie.isOpen
-                self.assy.current_movie._close()
-                import shutil
-                shutil.copy(self.assy.current_movie.filename, safile)
-
-                # Get the trace file name.
-                tfile1 = self.assy.current_movie.get_trace_filename()
-
-                # Copy the tracefile
-                if os.path.exists(tfile1): 
-                    fullpath, ext = os.path.splitext(safile)
-                    tfile2 = fullpath + "-trace.txt"
-                    shutil.copy(tfile1, tfile2)
-
-                env.history.message("DPB movie file saved: " + safile)
-                # note that we are still playing it from the old file and filename... does it matter? [bruce 050427 question]
-
-                # Added "hflag=False" to suppress history msg, fixing bug #956.  Mark 050911.
-                self.assy.current_movie._setup(hflag=False) # Do not print info to history widget.
-
-            elif ext == '.pov':
-                self.assy.current_movie._write_povray_series( os.path.normpath(dir+"/"+fil))
-
-            else: #.xyz (or something unexpected)
-                #bruce 051115 added warning and immediate return, to verify that this code is never called
-                QMessageBox.warning(self, "ERROR", "internal error: unsupported file extension %r" % (ext,) ) # args are title, content
-
-        return # from fileSaveMovie
-
-    pass # end of class movieDashboardSlotsMixin
 
 # end

@@ -66,7 +66,6 @@ import Ui_DnaFlyout
 
 from gui.whatsthis import createWhatsThisTextForMainWindowWidgets, fix_whatsthis_text_and_links
 
-from movieMode import movieDashboardSlotsMixin
 from ops_files import fileSlotsMixin
 from ops_files import recentfiles_use_QSettings
 from ops_view import viewSlotsMixin 
@@ -109,14 +108,19 @@ for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
 
 ########################################################################
 
-class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Ui_MainWindow, object):
-    "The single Main Window object."
+class MWsemantics(QMainWindow, 
+                  fileSlotsMixin, 
+                  viewSlotsMixin, 
+                  Ui_MainWindow, 
+                  object):
+    """
+    The single Main Window object.
+    """
     #bruce 071008 added object superclass
 
-    #bruce 050413 split out movieDashboardSlotsMixin, which needs to come before MainWindow
-    # in the list of superclasses, since MainWindow overrides its methods with "NIM stubs".
-    #bruce 050906: same for fileSlotsMixin.
-    #mark 060120: same for viewSlotsMixin.
+    # bruce 050413 fileSlotsMixin needs to come before MainWindow in the list
+    # of superclasses, since MainWindow overrides its methods with "NIM stubs".
+    # mark 060120: same for viewSlotsMixin.
 
     initialised = 0 #bruce 041222
     _ok_to_autosave_geometry_changes = False #bruce 051218
@@ -238,7 +242,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
                      SIGNAL("toggled(bool)"), 
                      self.setViewSemiFullScreen)
 
-
         self.connect(self.editPrefsAction,SIGNAL("triggered()"),self.editPrefs)
         self.connect(self.editRedoAction,SIGNAL("triggered()"),self.editRedo)
         self.connect(self.editUndoAction,SIGNAL("triggered()"),self.editUndo)
@@ -246,14 +249,10 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.fileExitAction,SIGNAL("triggered()"), self.close)
         self.connect(self.fileInsertAction,SIGNAL("triggered()"),self.fileInsert)
         self.connect(self.fileOpenAction,SIGNAL("triggered()"),self.fileOpen)
-        self.connect(self.fileOpenMovieAction,SIGNAL("triggered()"),self.fileOpenMovie)
         self.connect(self.fileSaveAction,SIGNAL("triggered()"),self.fileSave)
         self.connect(self.fileSaveAsAction,SIGNAL("triggered()"),self.fileSaveAs)
-        self.connect(self.fileSaveMovieAction,SIGNAL("triggered()"),self.fileSaveMovie)
         self.connect(self.fileSaveSelectionAction,SIGNAL("triggered()"),self.fileSaveSelection)
         self.connect(self.fileSetWorkDirAction,SIGNAL("triggered()"),self.fileSetWorkDir)
-        #self.connect(self.frameNumberSB,SIGNAL("valueChanged(int)"),self.moviePlayFrame)
-        #self.connect(self.frameNumberSL,SIGNAL("valueChanged(int)"),self.movieSlider)
         self.connect(self.helpAboutAction,SIGNAL("triggered()"),self.helpAbout)
         self.connect(self.helpGraphicsCardAction,SIGNAL("triggered()"),self.helpGraphicsCard)
         self.connect(self.helpKeyboardShortcutsAction,SIGNAL("triggered()"),self.helpKeyboardShortcuts)
@@ -303,12 +302,6 @@ class MWsemantics(QMainWindow, fileSlotsMixin, viewSlotsMixin, movieDashboardSlo
         self.connect(self.modifyPassivateAction,SIGNAL("triggered()"),self.modifyPassivate)
         self.connect(self.modifySeparateAction,SIGNAL("triggered()"),self.modifySeparate)
         self.connect(self.modifyStretchAction,SIGNAL("triggered()"),self.modifyStretch)
-        self.connect(self.movieInfoAction,SIGNAL("triggered()"),self.movieInfo)
-        self.connect(self.movieMoveToEndAction,SIGNAL("triggered()"),self.movieMoveToEnd)
-        self.connect(self.moviePauseAction,SIGNAL("triggered()"),self.moviePause)
-        self.connect(self.moviePlayAction,SIGNAL("triggered()"),self.moviePlay)
-        self.connect(self.moviePlayRevAction,SIGNAL("triggered()"),self.moviePlayRev)
-        self.connect(self.movieResetAction,SIGNAL("triggered()"),self.movieReset)
         self.connect(self.panToolAction,SIGNAL("toggled(bool)"),self.panTool)
         self.connect(self.rotateToolAction,SIGNAL("toggled(bool)"),self.rotateTool)
         self.connect(self.saveNamedViewAction,SIGNAL("triggered()"),self.saveNamedView)

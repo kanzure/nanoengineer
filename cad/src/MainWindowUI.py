@@ -101,8 +101,6 @@ class Ui_MainWindow(object):
         self.simJobManagerAction = QtGui.QAction(MainWindow)
         self.simJobManagerAction.setIcon(geticon("ui/actions/MainWindowUI_image118"))
         self.simJobManagerAction.setObjectName("simJobManagerAction")
-
-        self.createMoviePlayerActions(MainWindow)
         
         self.retranslateUi(MainWindow)
         
@@ -115,57 +113,6 @@ class Ui_MainWindow(object):
         # (since we have no slots named on_<widgetname>_<signalname>)
 ##        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        return
-    
-    def createMoviePlayerActions(self, MainWindow):
-        """
-        Creates many of the movie player actions for the PM.
-        This code should be moved to Ui_MoviePropertyManager.py.
-        """
-        # These actions appear to be used in the Movie Player PM. These should
-        # probably be moved to Ui_MoviePropertyManager.py. Mark 2007-12-20.
-        
-        self.movieResetAction = QtGui.QAction(MainWindow)
-        self.movieResetAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Reset"))
-        self.movieResetAction.setObjectName("movieResetAction")
-
-        self.movieMoveToEndAction = QtGui.QAction(MainWindow)
-        self.movieMoveToEndAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Move_To_End"))
-        self.movieMoveToEndAction.setObjectName("movieMoveToEndAction")
-
-        self.moviePauseAction = QtGui.QAction(MainWindow)
-        self.moviePauseAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Pause"))
-        self.moviePauseAction.setObjectName("moviePauseAction")
-
-        self.moviePlayAction = QtGui.QAction(MainWindow)
-        self.moviePlayAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Play_Forward"))
-        self.moviePlayAction.setVisible(True)
-        self.moviePlayAction.setObjectName("moviePlayAction")
-        
-        self.moviePlayActiveAction = QtGui.QAction(MainWindow)
-        self.moviePlayActiveAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Play_Forward_Active"))
-        self.moviePlayActiveAction.setObjectName("moviePlayActiveAction")
-
-        self.fileSaveMovieAction = QtGui.QAction(MainWindow)
-        self.fileSaveMovieAction.setIcon(geticon("ui/actions/Properties Manager/Save"))
-        self.fileSaveMovieAction.setObjectName("fileSaveMovieAction")
-
-        self.moviePlayRevAction = QtGui.QAction(MainWindow)
-        self.moviePlayRevAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Play_Reverse"))
-        self.moviePlayRevAction.setObjectName("moviePlayRevAction")
-        
-        self.moviePlayRevActiveAction = QtGui.QAction(MainWindow)
-        self.moviePlayRevActiveAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Play_Reverse_Active"))
-        self.moviePlayRevActiveAction.setObjectName("moviePlayRevActiveAction")
-
-        self.fileOpenMovieAction = QtGui.QAction(MainWindow)
-        self.fileOpenMovieAction.setIcon(geticon("ui/actions/Properties Manager/Open"))
-        self.fileOpenMovieAction.setObjectName("fileOpenMovieAction")
-
-        self.movieInfoAction = QtGui.QAction(MainWindow)
-        self.movieInfoAction.setIcon(geticon("ui/actions/Properties Manager/Movie_Info"))
-        self.movieInfoAction.setObjectName("movieInfoAction")
-                
         return
 
     def retranslateUi(self, MainWindow):
@@ -217,33 +164,10 @@ class Ui_MainWindow(object):
         self.modifyStretchAction.setText(QtGui.QApplication.translate("MainWindow", "S&tretch", None, QtGui.QApplication.UnicodeUTF8))
         self.modifyStretchAction.setIconText(QtGui.QApplication.translate("MainWindow", "Stretch", None, QtGui.QApplication.UnicodeUTF8))      
                 
-        self.movieResetAction.setText(QtGui.QApplication.translate("MainWindow", "Reset Movie", None, QtGui.QApplication.UnicodeUTF8))
-        self.movieResetAction.setIconText(QtGui.QApplication.translate("MainWindow", "Reset Movie", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayRevActiveAction.setText(QtGui.QApplication.translate("MainWindow", "Play Reverse", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayRevActiveAction.setIconText(QtGui.QApplication.translate("MainWindow", "Play Reverse", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayActiveAction.setText(QtGui.QApplication.translate("MainWindow", "Play Forward", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayActiveAction.setIconText(QtGui.QApplication.translate("MainWindow", "Play Forward", None, QtGui.QApplication.UnicodeUTF8))
-        self.movieMoveToEndAction.setText(QtGui.QApplication.translate("MainWindow", "Advance To End", None, QtGui.QApplication.UnicodeUTF8))
-        self.movieMoveToEndAction.setIconText(QtGui.QApplication.translate("MainWindow", "Advance To End", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePauseAction.setText(QtGui.QApplication.translate("MainWindow", "Pause", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePauseAction.setIconText(QtGui.QApplication.translate("MainWindow", "Pause", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayAction.setText(QtGui.QApplication.translate("MainWindow", "Play Forward", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayAction.setIconText(QtGui.QApplication.translate("MainWindow", "Play Forward", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Play Forward", None, QtGui.QApplication.UnicodeUTF8))
-        
-        
         self.dispSetEltable1Action.setText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Default", None, QtGui.QApplication.UnicodeUTF8))
         self.dispSetEltable1Action.setIconText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Default", None, QtGui.QApplication.UnicodeUTF8))
         self.dispSetEltable2Action.setText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Alternate", None, QtGui.QApplication.UnicodeUTF8))
         self.dispSetEltable2Action.setIconText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Alternate", None, QtGui.QApplication.UnicodeUTF8))
-        self.fileSaveMovieAction.setText(QtGui.QApplication.translate("MainWindow", "Save Movie File...", None, QtGui.QApplication.UnicodeUTF8))
-        self.fileSaveMovieAction.setIconText(QtGui.QApplication.translate("MainWindow", "Save Movie File...", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayRevAction.setText(QtGui.QApplication.translate("MainWindow", "Play Reverse", None, QtGui.QApplication.UnicodeUTF8))
-        self.moviePlayRevAction.setIconText(QtGui.QApplication.translate("MainWindow", "Play Reverse", None, QtGui.QApplication.UnicodeUTF8))
-        self.fileOpenMovieAction.setText(QtGui.QApplication.translate("MainWindow", "Open Movie File...", None, QtGui.QApplication.UnicodeUTF8))
-        self.fileOpenMovieAction.setIconText(QtGui.QApplication.translate("MainWindow", "Open Movie File...", None, QtGui.QApplication.UnicodeUTF8))
-        self.movieInfoAction.setText(QtGui.QApplication.translate("MainWindow", "Movie Information", None, QtGui.QApplication.UnicodeUTF8))
-        self.movieInfoAction.setIconText(QtGui.QApplication.translate("MainWindow", "Movie Information", None, QtGui.QApplication.UnicodeUTF8))
         
         self.dispElementColorSettingsAction.setText(QtGui.QApplication.translate("MainWindow", "Element Color Settings...", None, QtGui.QApplication.UnicodeUTF8))
         self.dispElementColorSettingsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Element Color Settings...", None, QtGui.QApplication.UnicodeUTF8))
