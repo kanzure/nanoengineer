@@ -115,12 +115,12 @@ class Movie:
       correspondence is created, and if this works the file is never again
       fully reparsed, though it might be rechecked later to ensure it hasn't
       been overwritten.
-      #####@@@@@ is it ok to do this for each existing call of _setup?
+      #####@@@@@ is it ok to do this for each existing call of cueMovie()?
 
     - might_be_playable() returns True if this object *might* be playable, 
       provided cueMovie() has not yet been called and succeeded 
       (i.e. if we don't yet have an alist_and_moviefile object); 
-      but after _setup has once succeeded, it returns True iff the alist
+      but after cueMovie() has once succeeded, it returns True iff the alist
       is currently ok to try to play from the file (according to our 
       alist_and_moviefile).
       (This might always be True, depending on our policy for atoms moved 
@@ -180,7 +180,7 @@ class Movie:
         self.realtime_played_framenumber = 0
         # the starting (current) frame number when we last entered MOVIE mode   ###k
         self.startFrame = 0
-        # a flag that indicates whether this Movie has been _setup since the last _close
+        # a flag that indicates whether this Movie has been cueMovie() since the last _close
         # [*not* whether moviefile is open or closed, like it indicated before bruce 050427]
         self.isOpen = False
         # a flag that indicates the current direction the movie is playing
@@ -374,7 +374,7 @@ class Movie:
     #  One of the methods does recursive processing of QEvents and doesn't return until the movie is paused (I think).
     # ]
 
-    def _setup_check(self): #bruce 050427
+    def _cueMovieCheck(self): #bruce 050427
         """
         Checks movie file to determine that its playable and that it's ok to 
         start playing it.
@@ -480,11 +480,11 @@ class Movie:
         self.propMgr = propMgr
 
         if self.isOpen and platform.atom_debug:
-            env.history.message( redmsg( "atom_debug: redundant _setup? bug if it means atoms are still frozen"))
+            env.history.message( redmsg( "atom_debug: redundant cueMovie()? bug if it means atoms are still frozen"))
 
         kluge_ensure_natoms_correct( self.assy.part) # matters for some warn_if_other_part messages, probably not for anything else
 
-        ok = self._setup_check()
+        ok = self._cueMovieCheck()
         if not ok:
             # bruce 050427 doing the following disable under more circumstances than before
             # (since old code's errcodes 'r' 1 or 2 are no longer distinguished here, they're just both False) -- is that ok?
@@ -551,7 +551,7 @@ class Movie:
                     self.warning( "some of this movie's atoms have been moved to another Part (maybe one on the clipboard). " \
                                   "Playing it moves its atoms in whichever Parts they reside in." )
                 if yes < part.natoms:
-                    # (this assumes part.natoms has been properly updated by the caller; _setup does this.)
+                    # (this assumes part.natoms has been properly updated by the caller; cueMovie() does this.)
                     self.warning( "some displayed atoms are not in this movie, and stay fixed while it plays.")
         return
 
