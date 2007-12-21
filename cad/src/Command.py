@@ -729,19 +729,47 @@ class basicCommand(anyCommand):
         """
         Public method, meant to be called only on the current command object:
 
-        Make sure this command's dashboard is updated before the processing of
-        the current user event is finished.
+        Make sure this command's UI is updated before the processing of
+        the current user event is finished, by calling its update_gui method
+        (and perhaps doing a few other things).
 
-        External code that might change things which some modes
-        need to reflect in their dashboard should call this one or more times
+        External code that might change things which some commands
+        need to reflect in their UI should call this one or more times
         after any such changes, before the end of the same user event.
 
         Multiple calls per event are ok (but in the initial implem might
         be slow). Subclasses should not override this; for that, see update_gui().
-        
-        @attention: Need to ask Bruce is this method can be removed since
-        there are no longer any dashboards.
+
+        @note: this method is misnamed, since commands now have PMs rather
+        than dashboards, but it applies to any sort of UI except the GLPane.
+
+        @note: overriding update_gui is now deprecated -- new Commands
+        should define one of selection_changed, model_changed, or related
+        new methods, instead -- but until we revise depositMode and its
+        subclasses to define one or more of those instead of update_gui
+        (which is a good cleanup to do when we have time),
+        we can't remove updateDashboard or existing calls to it. [bruce 071221]
         """
+        # @attention: Need to ask Bruce whether this method can be removed since
+        # there are no longer any dashboards. [--mark]
+        #
+        # Reply:
+        # I looked into this, and it can't yet be removed -- depositMode
+        # and some of its subclasses are relying on it (it calls update_gui,
+        # and they rely on that to set up and maintain a list of
+        # pastable objects, and perhaps for other reasons).
+        #
+        # See also my additions to the docstring.
+        #
+        # However, it's possible that this method's effect on
+        # self.w.toolsDoneAction could be removed; I don't know.
+        # If that makes a visible difference that we rely on
+        # (in any commands, not just depositMode), then it can't
+        # be removed (until we reimplement that effect in some
+        # other way), but I have not tried to find out whether it does.
+        #
+        # [bruce 071221]
+        
         # For now, this method just updates the dashboard immediately.
         # This might be too slow if it's called many times per event, so someday
         # we might split this into separate invalidation and update code;
@@ -755,9 +783,11 @@ class basicCommand(anyCommand):
             self.w.toolsDoneAction.setVisible(0)
         else:
             self.w.toolsDoneAction.setVisible(1)
-        
+
+        # call update_gui if legal
         if self.isCurrentCommand(): #bruce 050122 added this condition
             self.update_gui()
+        
         return
 
     def update_mode_status_text(self):        
