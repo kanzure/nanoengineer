@@ -42,70 +42,93 @@ class Movie:
     """
     Movie object.
 
-    Multiple purposes (which ought to be split into separate objects more than they have been so far):
+    Multiple purposes (which ought to be split into separate objects more than 
+    they have been so far):
     - Holds state of one playable or playing movie,
       and provides methods for playing it,
       and has moviefile name and metainfo;
     - also (before its moviefile is made) holds parameters needed
       for setting up a new simulator run
       (even for Minimize, though it might never make a moviefile);
-    - those parameters might be used as defaults (by external code) for setting up another sim run.
+    - those parameters might be used as defaults (by external code) for setting
+      up another sim run.
 
     Warnings:
-    - methods related to playing are intimately tied to movieMode.py's dashboard widget;
+    - methods related to playing are intimately tied to movieMode.py's
+      Property Manager;
     - so far, only supports playing one movie at a time;
-    - so far, provisions/checks for changing Parts during movie playing are limited.
+    - so far, provisions/checks for changing Parts during movie playing are
+      limited.
 
-    Movie lifecycle [bruce 050427 intention -- some details are obs or need review #####@@@@@]:
-    
-    - If we make the movie in this session (or someday, if we read a movie node from an mmp file),
-    we give it an alist, and we should never change that alist after that,
-    but we'll need to check it sometimes, in case of atoms changing Parts or being killed.
+    Movie lifecycle 
+    [bruce 050427 intention -- some details are obs or need review #####@@@@@]:
 
-      If we make the movie as a way of playing the trajectory in an existing file, then when we do that
-    (or when needed) we come up with an alist, and likewise never change the alist after that.
+    - If we make the movie in this session (or someday, if we read a movie 
+      node from an mmp file), we give it an alist, and we should never change
+      that alist after that, but we'll need to check it sometimes, in case of
+      atoms changing Parts or being killed.
 
-      (In the future, if there's a "play on selection" option, this only affects which atoms move when
-    we play the movie -- it doesn't alter the alist, which is needed in its original form
-    for interpreting frames in the moviefile.)
+      If we make the movie as a way of playing the trajectory in an existing
+      file, then when we do that (or when needed) we come up with an alist,
+      and likewise never change the alist after that.
 
-      Maybe the Movie is not meant to be ever played (e.g. it's just for holding sim params, perhaps for Minimize),
-    but if it is, then external code optionally queries might_be_playable() to decide whether to try
-    playing it (e.g. when entering Movie Mode), calls _setup before actually starting to play it
-    (this verifies it has a valid alist (or that one can be constructed) which is playable now,
-     attaches it to movieMode dashboard, freezes its atoms for efficient playing, and perhaps changes
-     current Part so the playing movie will be visible),
-    then calls other methods to control the playing,
-    then calls _close when the playing is done
-    (which unfreezes atoms and disables some movieMode dashboard controls).
+      (In the future, if there's a "play on selection" option, this only 
+      affects which atoms move when we play the movie -- it doesn't alter the
+      alist, which is needed in its original form for interpreting frames in
+      the moviefile.)
 
-      But even between _close and the next _setup, the alist is maintained -- switching Parts is not enough
-    to try reloading the movie for playing on different atoms. If changing it to play on different atoms is
-    ever needed, we'll add specific support for that. Not only is alist maintained, so is valuable info
-    about the moviefile, like cached frames. The file might be closed (to save on open files for when we
-    have multiple loaded movies, and to help us detect whether the file gets overwritten with new data);
-    if closed, it's reopened on the next _setup, and it's always rechecked on _setup for being overwritten. #####@@@@@ doit or testit
+      Maybe the Movie is not meant to be ever played (e.g. it's just for
+      holding sim params, perhaps for Minimize), but if it is, then external
+      code optionally queries might_be_playable() to decide whether to try
+      playing it (e.g. when entering "Play Movie"), calls cueMovie() before
+      actually starting to play it (this verifies it has a valid alist (or that
+      one can be constructed) which is playable now, freezes its atoms for 
+      efficient playing, and perhaps changes the current Part so the playing 
+      movie will be visible), then calls other methods to control the playing,
+      then calls _close when the playing is done
+      (which unfreezes atoms and disables some movieMode PM controls).
 
-      State variables involved in all this (incomplete list, there's also currentFrame and a few others in the playing-state):
+      But even between _close and the next cueMovie(), the alist is maintained
+      -- switching Parts is not enough to try reloading the movie for 
+      playing on different atoms. If changing it to play on different 
+      atoms is ever needed, we'll add specific support for that. 
+      Not only is alist maintained, so is valuable info about the moviefile,
+      like cached frames. The file might be closed (to save on open files
+      for when we have multiple loaded movies, and to help us detect 
+      whether the file gets overwritten with new data); if closed, 
+      it's reopened on the next cueMovie(), and it's always rechecked on
+      cueMovie() for being overwritten. #####@@@@@ doit or testit
 
-    - isOpen tells whether we're between _setup and _close. (It has no guaranteed relation
-    to whether any file object is open, though in practice it might coincide with that for the moviefile.)
-    
-    - alist is None or a valid list of atoms (this might be replaced by an object for holding that list)
+    State variables involved in all this (incomplete list, there's also 
+    currentFrame and a few others in the playing-state):
 
-    - the first time _setup is called, the movie file header is parsed, and an alist
-    is assigned if possible and not already known, and an "alist_and_moviefile" object to hold both of them
-    and keep them in correspondence is created, and if this works the file is never again fully reparsed,
-    though it might be rechecked later to ensure it hasn't been overwritten.
-    #####@@@@@ is it ok to do this for each existing call of _setup?
+    - isOpen() tells whether we're between cueMovie() and _close. (It has no
+      guaranteed relation to whether any file object is open, though in 
+      practice it might coincide with that for the moviefile.)
 
-    - might_be_playable() returns True if this object *might* be playable, provided _setup has not yet been called
-    and succeeded (i.e. if we don't yet have an alist_and_moviefile object); but after _setup has once succeeded,
-    it returns True iff the alist is currently ok to try to play from the file (according to our alist_and_moviefile).
-    (This might always be True, depending on our policy for atoms moved to other parts or killed, but it might
-    trigger history warnings in some cases -- not yet decided #####@@@@@).
-    It won't actually recheck the file (to detect overwrites) until _setup is called.
-    (The goal is for might_be_playable to be fast enough to use in e.g. updating a node-icon in the MT, in the future.)
+    - alist is None or a valid list of atoms (this might be replaced by 
+      an object for holding that list)
+
+    - the first time cueMovie() is called, the movie file header is parsed,
+      and an alist is assigned if possible and not already known, and an 
+      "alist_and_moviefile" object to hold both of them and keep them in 
+      correspondence is created, and if this works the file is never again
+      fully reparsed, though it might be rechecked later to ensure it hasn't
+      been overwritten.
+      #####@@@@@ is it ok to do this for each existing call of _setup?
+
+    - might_be_playable() returns True if this object *might* be playable, 
+      provided cueMovie() has not yet been called and succeeded 
+      (i.e. if we don't yet have an alist_and_moviefile object); 
+      but after _setup has once succeeded, it returns True iff the alist
+      is currently ok to try to play from the file (according to our 
+      alist_and_moviefile).
+      (This might always be True, depending on our policy for atoms moved 
+      to other parts or killed, but it might trigger history warnings in 
+      some cases -- not yet decided #####@@@@@).
+      It won't actually recheck the file (to detect overwrites) until 
+      cueMovie() is called. (The goal is for might_be_playable to be fast 
+      enough to use in e.g. updating a node-icon in the MT, in the future.)
     """
     #bruce 050324 comment: note that this class is misnamed --
     # it's really a SimRunnerAndResultsUser... which might
@@ -125,19 +148,20 @@ class Movie:
     ref_frame = None # None or (frame_number, sim_posn_array) for a reference frame for use in playing the movie
         # from purely differential data in old-format moviefiles (to finish fixing bug 1297; someday can help improve fix to 1273)
         # (see comments in get_sim_posns for relevant info and caveats) [bruce 060112]
-    
+
     ignore_slider_and_spinbox = False # (in case needed before init done)
     minimize_flag = False # whether we're doing some form of Minimize [bruce 060112]
     def __init__(self, assy, name=None):
-        """###doc; note that this Movie might be made to hold params for a sim run,
+        """
+        ###doc; note that this Movie might be made to hold params for a sim run,
         and then be told its filename, or to read a previously saved file;
-        pre-050326 code always stored filename from outside and didn't tell this object
-        how it was becoming valid, etc...
+        pre-050326 code always stored filename from outside and didn't tell 
+        this object how it was becoming valid, etc...
         """
         self.assy = assy
         self.win = self.assy.w
         self.glpane = self.assy.o ##e if in future there's more than one glpane, recompute this whenever starting to play the movie
-        
+
         # for future use: name of the movie that appears in the modelTree. 
         self.name = name or "" # assumed to be a string by some code
         # the name of the movie file
@@ -219,7 +243,8 @@ class Movie:
 ##    why_not_playable = ""
 ##        # reason why we're not playable (when we're not), if known (always a string; a phrase; never used if truly playable)
     def might_be_playable(self): #bruce 050427
-        """Is it reasonable to try to play this movie?
+        """
+        Is it reasonable to try to play this movie?
         This does NOT check whether it's still valid for its atoms or the current part;
         if the caller then tries to play it, we'll check that and complain.
         BUT if it has been previously checked and found invalid, this should return False or perhaps redo the check.
@@ -245,7 +270,8 @@ class Movie:
 
     file_trashed = False
     def fyi_reusing_your_moviefile( self, moviefile):
-        """If moviefile happens to be the name of our own moviefile,
+        """
+        If moviefile happens to be the name of our own moviefile,
         know that it's being trashed and we'll never again be playable
         (unless we have not yet read any data from it,
          in which case we're no worse off than before, I suppose).
@@ -257,7 +283,7 @@ class Movie:
             self.file_trashed = True
 ##            self.why_not_playable = "moviefile overwritten by a more recent simulation" #e or get more detail from an arg?
         return
-    
+
     def __getattr__(self, attr): # in class Movie
         if attr == 'history':
             #bruce 050913 revised this; I suspect it's not needed and could be removed
@@ -284,9 +310,13 @@ class Movie:
     # == methods for letting this object (just after __init__) represent a previously saved movie file
 
     def represent_this_moviefile( self, mfile, part = None): #bruce 050326
-        """Try to start representing the given moviefile (which must end with '.dpb');
-        return true iff this succeeds; if it fails DON'T emit error message.
-        if part is supplied, also [NIM] make sure mfile is valid for current state of that part.
+        """
+        Try to start representing the given moviefile (which must end 
+        with '.dpb');
+        
+        Return true iff this succeeds; if it fails DON'T emit error message.
+        if part is supplied, also [NIM] make sure mfile is valid for current 
+        state of that part.
         """
         #e should the checking be done in the caller (a helper function)?
         assert mfile.endswith(".dpb") # for now
@@ -302,15 +332,16 @@ class Movie:
         pass
 
     # == methods for letting this object represent a movie (or xyz) file we're about to make, or just did make
-    
+
     def set_alist(self, alist): #bruce 050325
-        """Verify this list of atoms is legal (as an alist to make a movie from),
-        and set it as this movie's alist. This only makes sense before making a moviefile,
-        or after reading one we didn't make in the same session (or whose alist we lost)
-        and figuring out somehow what existing atoms it should apply to.
-        But nothing is checked about whether this alist fits the movie file,
-        if we have one, and/or the other params we have --
-        that's assumed done by the caller.
+        """
+        Verify this list of atoms is legal (as an alist to make a movie from),
+        and set it as this movie's alist. This only makes sense before making 
+        a moviefile, or after reading one we didn't make in the same session
+        (or whose alist we lost) and figuring out somehow what existing 
+        atoms it should apply to. But nothing is checked about whether this 
+        alist fits the movie file, if we have one, and/or the other params 
+        we have -- that's assumed done by the caller.
         """
         alist = list(alist) # make our own copy (in case caller modifies its copy), and ensure type is list
         atm0 = alist[0]
@@ -323,7 +354,8 @@ class Movie:
         return
 
     def set_alist_from_entire_part(self, part):
-        """Set self.alist to a list of all atoms of the given Part,
+        """
+        Set self.alist to a list of all atoms of the given Part,
         in the order in which they would be written to a new mmp file.
         """
         # force recompute of part.alist, since it's not yet invalidated when it needs to be
@@ -335,7 +367,7 @@ class Movie:
         return
 
     # == methods for playing the movie file we know about (ie the movie we represent)
-    
+
     # [bruce 050427 comments/warnings:
     #  These methods need to be refactored, since they intimately know about movieMode's dashboard (they update it).
     #  They also use and maintain state-of-playing variables in self (which might be useful for any manner of playing the movie).
@@ -343,9 +375,11 @@ class Movie:
     # ]
 
     def _setup_check(self): #bruce 050427
-        """Is our movie file so playable that it's ok to start actually playing it?
-        If not, emit complaints on history widget, don't set our state variables; return False.
-        If so, return True.
+        """
+        Checks movie file to determine that its playable and that it's ok to 
+        start playing it.
+        If not, emit complaints on history widget, don't set our state
+        variables; return False. If so, return True.
         """
         # remember what to unset if things don't work when we return
         we_set_alist = False
@@ -412,22 +446,22 @@ class Movie:
             return False
         # change current part and/or arrange to warn if user does that? No, this is done later when we _play.
         return True
-    
+
     def cueMovie(self, propMgr = None, hflag = True): #bruce 060112 revised retval documentation and specific values
         """
         Setup this movie for playing.
-        
+
         @param propMgr: The movie property manager.
         @type  propMgr: MoviePropertyManager
-        
+
         @param hflag: The history message flag. If True, print a history 
                       message.
         @type  hflag: boolean
-        
+
         @return: False if this worked, True if it failed 
                  (warning: reverse of common boolean retvals).
         @rtype:  boolean
-        
+
         [#doc whether it always prints error msg to history if it failed.]
         """
         # bruce 050427 comment:
@@ -444,12 +478,12 @@ class Movie:
             print "movie.cueMovie() called. filename = [" + self.filename + "]"
 
         self.propMgr = propMgr
-        
+
         if self.isOpen and platform.atom_debug:
             env.history.message( redmsg( "atom_debug: redundant _setup? bug if it means atoms are still frozen"))
 
         kluge_ensure_natoms_correct( self.assy.part) # matters for some warn_if_other_part messages, probably not for anything else
-        
+
         ok = self._setup_check()
         if not ok:
             # bruce 050427 doing the following disable under more circumstances than before
@@ -467,12 +501,12 @@ class Movie:
 
         if hflag:
             self._info() # prints info to history
-        
+
         # startFrame and currentFrame are compared in _close to determine if the assy has changed due to playing this movie. ###k
         self.startFrame = self.currentFrame
-        
+
         return False
-        
+
 ##        # Debugging Code [to enable, uncomment and remove prior 'return' statement]
 ##        if DEBUG1:
 ##            msg = "Movie Ready: Number of Frames: " + str(self.totalFramesActual) + \
@@ -523,7 +557,7 @@ class Movie:
 
     def warning(self, text):
         env.history.message( orangemsg( "Warning: " + text))
-        
+
     def _close(self):
         """
         Close movie file and adjust atom positions.
@@ -550,13 +584,13 @@ class Movie:
                 # only helps if nothing else in playing a movie does this...
                 # I'm not sure if that's still true (or if it was in the older code, either).
         return
-        
+
     def _play(self, direction = FWD):
         """
         Start playing movie from the current frame.
         """
         #bruce 050427 comment: not changing this much
-        
+
         if DEBUG0: print "movie._play() called.  Direction = ", playDirection[ direction ]
 
         if not self.isOpen: #bruce 050428 not sure if this is the best condition to use here ###@@@
@@ -566,12 +600,12 @@ class Movie:
                 msg = "Movie file is not presently playable." ###e needs more detail, especially when error happened long before.
             env.history.message( redmsg( msg )) #bruce 050425 mitigates bug 519 [since then, it got fixed -- bruce 050428]
             return
-        
+
         if direction == FWD and self.currentFrame == self.totalFramesActual: return
         if direction == REV and self.currentFrame == 0: return
-        
+
         self.playDirection = direction
-        
+
         if self.currentFrame in [0, self.realtime_played_framenumber]:
             #bruce 060108 added realtime_played_framenumber; probably more correct would be only it, or a flag to emit this once
             env.history.message("Playing movie file [" + self.filename + "]")
@@ -584,21 +618,28 @@ class Movie:
     # I plan to write a special Movie Maker dialog that would call this with arguments.
     # Mark 050908
     def _write_povray_series(self, name):
-        """Writes the movie out as a series of POV-Ray files, starting with the current frame
-        until the last frame, skipping frames using the "Skip" value from the dashboard.
+        """
+        Writes the movie out as a series of POV-Ray files, starting with the
+        current frame until the last frame, skipping frames using the 
+        "Skip" value from the dashboard.
+
+        If your trajectory file was foobar.dpb, this will write, e.g., 
+        foobar.000000.pov thru foobar.000999.pov (assuming your movie has
+        1000 frames).
         
-        If your trajectory file was foobar.dpb, this will write, e.g., foobar.000000.pov thru 
-        foobar.000999.pov (assuming your movie has 1000 frames).
         If you have bash, you may then run:
             for FN in foobar.000*.pov; { povray +W800 +H600 +A -D $FN; } &> /dev/null &
         to generate the .png files. 
-        This is not to be done under nE1 because it typically takes several hours
-        and will be best done on a renderfarm with commands appropriate to the renderfarm.
-        you may then make a move of it with:
+        
+        This is not to be done under NE1 because it typically takes several
+        hours and will be best done on a renderfarm with commands appropriate
+        to the renderfarm. 
+        
+        You may then make a move of it with:
             mencoder "mf://*.png" -mf fps=25 -o output.avi -ovc lavc -lavcopts vcodec=mpeg4
         """
         from fileIO import writepovfile
-        
+
         if not self.isOpen: #bruce 050428 not sure if this is the best condition to use here ###@@@
             if (not self.might_be_playable()) and 0: ## self.why_not_playable:
                 msg = "Movie file is not presently playable: %s." ## % (self.why_not_playable,)
@@ -623,32 +664,35 @@ class Movie:
             writepovfile(self.assy.part, self.assy.o, filename) #bruce 050927 revised arglist
             nfiles += 1
             self.framecounter  =  i #  gets the the last frame number of the file written. This will be passed in the history message ninad060809
-        
+
         # Return to currentFrame. Fixes bug 1025.  Mark 051119
         self.alist_and_moviefile.play_frame(self.currentFrame) 
-        
+
         # Summary msgs tell user number of files saved and where they are located.
         msg = fix_plurals("%d file(s) written." % nfiles)
         env.history.message(msg)
         filenames = "%s.%06d.pov - %06d.pov" % (name, self.currentFrame, self.framecounter)#ninad060809 fixed bugs 2147 and 2148 
         msg = "Files are named %s." % filenames
         env.history.message(msg)
-        
+
 
     def _continue(self, hflag = True): # [bruce 050427 comment: only called from self._play]
-        """Continue playing movie from current position.
-        hflag - if True, print history message
+        """
+        Continue playing movie from current position.
+        
+        @param hflag: if True, print history message
+        @type  hflag: boolean
         """
         if DEBUG0: print "movie._continue() called. Direction = ", playDirection[ self.playDirection ]
-        
+
         # In case the movie is already playing (usually the other direction).
         self._pause(0) 
-        
+
         if hflag: 
             env.history.message("Movie continued: " + playDirection[ self.playDirection ])
 
         self.warn_if_other_part(self.assy.part) #bruce 050427
-        
+
         self.showEachFrame = True #bruce 050428 comment: this is the only set of this var to True.
 
         # Continue playing movie.
@@ -662,7 +706,7 @@ class Movie:
             # If the pause button was pressed by the user, then this condition is True.
             if self.currentFrame != 0:
                 return
-        
+
         # If "Loop" is checked, continue playing until user hits pause.  Mark 051101.
         while self.propMgr.movieLoop_checkbox.isChecked():
             if self.playDirection == FWD:
@@ -707,7 +751,7 @@ class Movie:
         if heading:
             print "\n  %s:" % heading
         print "    movie_is_playing = %r, isPaused = %r, showEachFrame = %r, moveToEnd = %r, totalFramesActual = %r, currentFrame = %r, playDirection = %r" \
-           % (self.win.movie_is_playing, self.isPaused, self.showEachFrame, self.moveToEnd, self.totalFramesActual, self.currentFrame, self.playDirection )
+              % (self.win.movie_is_playing, self.isPaused, self.showEachFrame, self.moveToEnd, self.totalFramesActual, self.currentFrame, self.playDirection )
         if kws:
             print "  other args: %r" % kws
         print_compact_stack("    stack at that time: ", skip_innermost_n = 3) # skips this lineno and 2 internal ones (#e should revise meaning to -2)
@@ -734,12 +778,12 @@ class Movie:
         #bruce 050427 comment: added an isOpen check, in case of bugs in callers (this has lots of calls)
         if not self.isOpen:
             return
-        
+
         if not from_slider: #bruce 050427 comment: I'm suspicious of this condition.
             self.isPaused = False
             self.win.movie_is_playing = True # In case Bruce's suspicion is true.  Mark 051209.
             self.debug_dump()
-        
+
         # Return immediately if already at desired frame.
         if fnum == self.currentFrame:
             if not from_slider: #bruce 050427 comment: I'm suspicious of this condition.
@@ -747,7 +791,7 @@ class Movie:
                 self.win.movie_is_playing = False # May not be needed.  Doing it anyway. Mark 051209.
                 self.debug_dump("fnum == self.currentFrame so paused", fnum = fnum)
             return
-           
+
         # Don't let movie run out of bounds.
         if fnum < 0 or fnum > self.totalFramesActual:
             print "Warning: Slider or other fnum out of bounds.  fnum value =",fnum,", Number of frames =", self.totalFramesActual
@@ -824,9 +868,9 @@ class Movie:
         if waitCursor:
             self.waitCursor = True
             QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        
+
         if DEBUG0: print "BEGIN LOOP: fnum = ", fnum, ", currentFrame =", self.currentFrame, ", inc =",inc
-    
+
         # This is the main loop to compute atom positions from the current frame to "fnum".
         # After this loop completes, we paint the model -- but also during it.
         # We also recursively process QEvents during it. [bruce 050427 revised this comment]
@@ -839,19 +883,19 @@ class Movie:
             self.alist_and_moviefile.play_frame( self.currentFrame)
             self.debug_dump("just after play_frame for slider", fnum = fnum, inc = inc)
         # else...
-        
+
         self.win.movie_is_playing = True # Starting the Movie...
-        
+
         # Top of Main loop...
         while self.currentFrame != fnum:
 
             self.debug_dump("top of while loop body", fnum = fnum, inc = inc)
             assert not from_slider
-            
+
             if self.isPaused:
                 self.win.movie_is_playing = False # Probably not needed.  Doing it anyway. mark 051209.
                 break
-                
+
             ## self.currentFrame += inc -- doing this below [bruce 050427]
 
             if DEBUG0: print "IN LOOP1: fnum = ", fnum, ", currentFrame =", self.currentFrame, ", inc =",inc
@@ -860,7 +904,7 @@ class Movie:
             # Note that we needn't worry about valid range of frames, since both currentFrame and fnum should be within range.
             # (Unless the surrounding code fails to check currentFrame well enough... I'm not sure! ###k)
             # We only need to worry about whether we reach fnum or not.
-            
+
             skip_n = self.propMgr.frameSkipSpinBox.value() - 1 # Mark 060927
             if not self.showEachFrame:
                 #bruce 050428 adding this to see if it speeds up "forward to end"
@@ -885,24 +929,24 @@ class Movie:
                 # conditioned on how much time had passed, if they're always done at the end if needed.
             if self.showEachFrame:
                 self.glpane.gl_update()
-                        
+
             # Process queued events [bruce comment 050516: note that this will do a paintGL from our earlier gl_update above ####@@@@]
             env.call_qApp_processEvents() #bruce 050908 replaced qApp.processEvents()
                 #e bruce 050427 comment: should we check to see if the user changed the controls,
                 # and (if so) change the fnum we're heading for?? ###@@@
-                
+
         # End of loop
         self.debug_dump("after playToFrame loop", fnum = fnum, inc = inc)
-        
+
         # Update cursor, slider and show frame.
         if self.waitCursor: 
             QApplication.restoreOverrideCursor() # Restore the cursor
             self.waitCursor = False
-        
+
         self.propMgr.updateCurrentFrame( )
             # [bruce 050428 comment: old code only updated slider here, but it did both SL and SB in loop above;
             #  now the update method decides which ones to update]
-        
+
         # Set movie_is_playing to False right before it draws the last frame (fnum).    
         self.win.movie_is_playing = False
         # This is the last frame (fnum).
@@ -913,11 +957,12 @@ class Movie:
             if DEBUG0: print "movie._playToFrame(): Calling _pause"
             self._pause(0) # Force pause. Takes care of variable and dashboard maintenance.
             if DEBUG0: print "movie._playToFrame(): BYE!"
-            
+
         return # from _playToFrame
 
     def _playSlider(self, fnum):
-        """Slot for movie slider control.
+        """
+        Slot for movie slider control.
         It will advance the movie to "fnum" from "currentFrame".
         fnum - frame number to advance to.
         """
@@ -926,26 +971,27 @@ class Movie:
         self.debug_dump("_playSlider", fnum = fnum)
         self._playToFrame(fnum, from_slider = True) #bruce 050427 merged _playSlider into _playToFrame method, using from_slider arg
 
-                
+
     def _reset(self):
-        """Resets the movie to the beginning (frame 0).
+        """
+        Resets the movie to the beginning (frame 0).
         """
         if DEBUG0: "movie._reset() called"
         if self.currentFrame == 0: return
-        
+
         #bruce 050427 comment: added an isOpen check, in case of bugs in callers
         if not self.isOpen:
             return
-        
+
         self.currentFrame = 0
 
         # Restore atom positions.
         self.alist_and_moviefile.play_frame( self.currentFrame)
-        
+
         self.propMgr.updateCurrentFrame()
         self._pause(0)
         self.glpane.gl_update()
-        
+
     def _moveToEnd(self):
         """
         """
@@ -955,27 +1001,31 @@ class Movie:
         #bruce 050427 comment: added an isOpen check, in case of bugs in callers
         if not self.isOpen:
             return
-        
+
         self._pause(0)
         self.moveToEnd = True
         self._playToFrame(self.totalFramesActual)
 
     # ==
-    
+
     def _info(self):
-        """Print info about movie
+        """
+        Print info about movie to the history widget.
         """
         if DEBUG0: print "movie._info() called."
         if not self.filename:
             env.history.message("No movie file loaded.")
             return
         env.history.message("Filename: [" + self.filename + "]")
-        msg = "Number of Frames: " + str(self.totalFramesActual) + ".  Number of Atoms: " + str(self.natoms)
+        
+        msg = "Number of Frames: " +  str(self.totalFramesActual) + \
+            ".  Number of Atoms: " +  str(self.natoms)
+        
         env.history.message(msg)
 #        env.history.message("Temperature:" + str(self.temp) + "K")
 #        env.history.message("Steps per Frame:" + str(self.stepsper))
 #        env.history.message("Time Step:" + str(self.stepsper))
-    
+
     def getMovieInfo(self):
         """
         Return the information about this movie. 
@@ -983,15 +1033,15 @@ class Movie:
         fileName    = str(self.filename)
         numOfFrames = str(self.totalFramesActual)
         numOfAtoms  = str(self.natoms)
-        
+
         return (fileName, numOfFrames, numOfAtoms)
-    
+
     def getCurrentFrame(self):
         """
         Returns the current frame of the movie.
         """
         return self.currentFrame
-    
+
     def getTotalFrames(self):
         """
         Returns the total frames of the movie.
@@ -999,7 +1049,8 @@ class Movie:
         return self.totalFramesActual
 
     def get_trace_filename(self):
-        """Returns the trace filename for the current movie.
+        """
+        Returns the trace filename for the current movie.
         """
         fullpath, ext = os.path.splitext(self.filename)
         if ext == '.xyz':
@@ -1009,18 +1060,22 @@ class Movie:
         else:
             suffix = "-trace.txt"
         return fullpath + suffix
-        
+
     def get_GNUplot_filename(self):
-        """Returns the GNUplot filename for the current movie.
+        """
+        Returns the GNUplot filename for the current movie.
         """
         fullpath, ext = os.path.splitext(self.filename)
         return fullpath + "-plot.txt"
-    
+
     def moveAtoms(self, newPositions): # used when reading xyz files
-        """Huaicai 1/20/05: Move a list of atoms to newPosition. After 
-            all atoms moving [and singlet positions updated], bond updated, update display once.
-           <parameter>newPosition is a list of atom absolute position,
-           the list order is the same as self.alist
+        """
+        Move a list of atoms to newPosition. After all atoms moving 
+        [and singlet positions updated], bond updated, update display once.
+        
+        @param newPosition: a list of atom absolute position,
+                            the list order is the same as self.alist
+        @type  newPosition: list
         """   
         if len(newPositions) != len(self.alist):
             #bruce 050225 added some parameters to this error message
@@ -1028,7 +1083,7 @@ class Movie:
             # so I won't bother to print it to history here. But leaving it in is good for safety.
             #bruce 060108: it can come out for realtime minimize if you edit the model. hopefully we'll fix that soon.
             msg = "moveAtoms: The number of atoms from XYZ file (%d) is not matching with that of the current model (%d)" % \
-                  (len(newPositions), len(self.alist))
+                (len(newPositions), len(self.alist))
             print msg
             raise ValueError, msg
                 #bruce 060108 reviewed/revised all 2 calls, added this exception to preexisting noop/errorprint (untested)
@@ -1041,18 +1096,24 @@ class Movie:
 # ==
 
 class MovableAtomList: #bruce 050426 splitting this out of class Movie... except it's entirely new code, as it turns out.
-    """A list of atoms within an assy (perhaps in more than one Part or even including killed atoms),
-    with methods for quickly and safely changing all their positions at once, updating their display,
-    for "owning" those atoms or their chunks as needed to make it safe to reset their positions,
-    and for tracking external changes to their structure relevant to safety and validity of resetting
-    their positions. [For Alpha5 we're mainly worrying about safety from tracebacks rather than validity.]
-       [Not yet handled here: ability to be told to move an H to one position, but to actually move a singlet
-    into a different position computed from that (re bug 254). Caller might help by ordering singlets after
-    their base atoms, or even by doing this work itself (none of that is decided yet). #e]
+    """
+    A list of atoms within an assy (perhaps in more than one Part or even 
+    including killed atoms), with methods for quickly and safely changing 
+    all their positions at once, updating their display, for "owning" 
+    those atoms or their chunks as needed to make it safe to reset their
+    positions, and for tracking external changes to their structure relevant
+    to safety and validity of resetting their positions. [For Alpha5 we're 
+    mainly worrying about safety from tracebacks rather than validity.]
+    
+    [Not yet handled here: ability to be told to move an H to one position, 
+    but to actually move a singlet into a different position computed
+    from that (re bug 254). Caller might help by ordering singlets after
+    their base atoms, or even by doing this work itself (none of that is
+    decided yet). #e]
     """
     #e the plan is to later optimize this greatly
     # by making it totally own the involved atoms' posns and do its own fast redisplay.
-    
+
     def __init__(self, assy, alist):
         self.assy = assy
         self.glpane = assy.o
@@ -1063,10 +1124,14 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
     def get_sim_posns(self): #bruce 060111 renamed and revised this from get_posns, for use in approximate fix of bug 1297
         # note: this method is no longer called as of bruce 060112, but its comments are relevant and are referred to
         # from several files using the name of this method. It's also still correctly implemented, so we can leave it in for now.
-        """Return an Array (mutable and owned by caller) of current positions-for-simulator of our atoms
-        (like positions, except singlets pretend they're H's and correct their posns accordingly).
-        (This must work even if some of our atoms have been killed, or moved into different Parts,
-        since we were made, though the positions returned for killed atoms probably don't matter (#k not sure).)
+        """
+        Return an Array (mutable and owned by caller) of current 
+        positions-for-simulator of our atoms (like positions, except 
+        singlets pretend they're H's and correct their posns accordingly).
+        (This must work even if some of our atoms have been killed, 
+        or moved into different Parts, since we were made, though the 
+        positions returned for killed atoms probably don't matter 
+        (#k not sure).)
         """
         # Problem: to fully fix bug 1297, we need to return the H position actually used in the sim, not the equilibrium H position
         # like a.sim_posn returns. For frame 0 it's the same; for other frames the only source for that info is the frame
@@ -1078,11 +1143,15 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
         # DPB file format. ####@@@@
         res = map( lambda a: a.sim_posn(), self.alist )
         return A(res)
-            
+
     def set_posns(self, newposns): #bruce 060111 comment: should probably be renamed set_sim_posns since it corrects singlet posns
-        """set our atoms' positions (even killed ones) to those in the given array (but correct singlet positions);
-        do all required invals but no redisplay
-        [#e someday we might have a version which only does this for the atoms now in a given Part]
+        """
+        Set our atoms' positions (even killed ones) to those in the given 
+        array (but correct singlet positions); do all required invals but
+        no redisplay 
+        
+        @note: someday we might have a version which only does this for the 
+        atoms now in a given Part.
         """
         #e later we'll optimize this by owning atoms and speeding up or eliminating invals
         #bruce 060109 replaced prior code with this recently split out routine, so that singlet correction is done on every frame;
@@ -1107,7 +1176,7 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
             if m.part is not None: # not for killed ones!
                 m.freeze()        
         return
-    
+
     def release_atoms(self): #bruce 050427 made this from movend
         # terrible hack for singlets in simulator, which treats them as H
         for a in self.alist:
@@ -1137,37 +1206,54 @@ class MovableAtomList: #bruce 050426 splitting this out of class Movie... except
 # ==
 
 class alist_and_moviefile:
-    """Set up and maintain a corresponding MovableAtomList and a MovieFile,
+    """
+    Set up and maintain a corresponding MovableAtomList and a MovieFile,
     and be able to move the atoms using the moviefile
     and know the state of their relationship at all times.
     (But let the two subobjects we create do most of the work.)
-       Assume that we know the current valid frame better than the atoms do...
-    even if something else moves them (unless it's another copy of the same movie,
-    which we assume won't happen)... but this will become wrong once there's an Undo feature!
-    So then, we'd want to advise the atom-state of this value (keyed to this object's moviefile-contents),
-    so it'd be a part of the undone state. I'm not sure if I'll do that, or ignore it for now. ###k
-    Or I might do *both*, by designating this object as the way the atom's real owner (their assy) remembers that state!
-    In other words, this "playable movie" is sitting in the atoms as a "slidable handle" (metaphorically at least)
-    to let anything adjust their posns using it,
+    
+    Assume that we know the current valid frame better than the atoms do...
+    even if something else moves them (unless it's another copy of the same 
+    movie, which we assume won't happen)... but this will become wrong once
+    there's an Undo feature!
+    So then, we'd want to advise the atom-state of this value (keyed to 
+    this object's moviefile-contents), so it'd be a part of the undone state.
+    I'm not sure if I'll do that, or ignore it for now. ###k
+    Or I might do *both*, by designating this object as the way the atom's
+    real owner (their assy) remembers that state! In other words, this 
+    "playable movie" is sitting in the atoms as a "slidable handle" 
+    (metaphorically at least) to let anything adjust their posns using it,
     including (example 1) the moviemode dashboard controls
     (once it decides which movie object it wants to display and adjust)
-    or (example 2) various cmenu ops (or even MT-embedded sliders?) on movie nodes in the MT.
-       This class might be small enough to use as a Jig for actually being in the MT...
-    or it might still be better to let that be a separate object which represents one of these. #k
+    or (example 2) various cmenu ops (or even MT-embedded sliders?) on 
+    movie nodes in the MT. 
+    
+    This class might be small enough to use as a Jig for actually being in
+    the MT..., or it might still be better to let that be a separate object
+    which represents one of these. #k
     """
     _valid = False
     def __init__(self, assy, alist, filename, ref_frame = None): #bruce 060112 removed curframe_in_alist, added ref_frame
-        """Caller promises that filename exists. If it matches alist well enough to use with it,
-        we set self.valid() true and fully init ourselves, i.e. set up the file/alist relationship
-        and get ready to play specific frames (i.e. copy posns from file into alist's atoms) on request.
+        """
+        Caller promises that filename exists. If it matches alist well enough
+        to use with it, we set self.valid() true and fully init ourselves, 
+        i.e. set up the file/alist relationship and get ready to play 
+        specific frames (i.e. copy posns from file into alist's atoms) 
+        on request.
+        
         If file doesn't match alist, we set self.valid() false and return early
-        (but we might still be usable later if the file changes and some recheck method (NIM) is called (#e)).
-           If provided, ref_frame is (frame_number, sim_posn_array) for some frame of the movie,
-        which we should use as a reference for interpreting a purely-differential moviefile.
+        (but we might still be usable later if the file changes and some
+        recheck method (NIM) is called (#e)).
+        
+        If provided, ref_frame is (frame_number, sim_posn_array) for some 
+        frame of the movie, which we should use as a reference for 
+        interpreting a purely-differential moviefile.
         Such moviefiles require that this argument be provided.
-        [I'm not sure when this is checked -- leaving it out might cause later exception or (unlikely) wrong positions.]
+        [I'm not sure when this is checked -- leaving it out might cause
+        later exception or (unlikely) wrong positions.]
         If the moviefile has its own abs positions, we can ignore this argument
-        (#e but in future we might decide instead to check it, or to use it in some other way...).
+        (#e but in future we might decide instead to check it, or to 
+        use it in some other way...).
         """
         self.alist = alist # needed for rechecking the match
         ## self.history = env.history # not yet used, but probably will be used for error messages [bruce 050913 removed this]
@@ -1226,7 +1312,8 @@ class alist_and_moviefile:
     def release_atoms(self):
         self.movable_atoms.release_atoms()
     def play_frame(self, n):
-        """Try to set atoms to positions in frame n.
+        """
+        Try to set atoms to positions in frame n.
         Return true if this works, false if n went beyond either end of moviefile.
         (For other errors, print some sort of error message and return false,
          or perhaps just raise an exception. #k)
@@ -1262,7 +1349,8 @@ def find_saved_movie( assy, mfile):
     return None
 
 def _checkMovieFile(part, filename): #bruce 050913 removed history arg since all callers pass env.history
-    """Returns 0 if filename is (or might be) a valid movie file for the specified part.
+    """
+    Returns 0 if filename is (or might be) a valid movie file for the specified part.
     Returns 1 if filename does not exist.
     Returns 2 if the movie file does not match the part.
     Prints error messages to env.history
@@ -1281,9 +1369,9 @@ def _checkMovieFile(part, filename): #bruce 050913 removed history arg since all
     # from either file keys or movie ids or atom positions) or movies made from
     # a possible future "simulate selection" operation.
     print_errors = True
-    
+
     if DEBUG1: print "movie._checkMovieFile() function called. filename = ", filename
-    
+
     assert filename #bruce 050324
     if not os.path.exists(filename):
         if print_errors:
@@ -1308,18 +1396,18 @@ def _checkMovieFile(part, filename): #bruce 050913 removed history arg since all
 
     # start of code that should be moved into moviefile.py and merged with similar code there
     filesize = os.path.getsize(filename) - 4
-    
+
     fp = open(filename,'rb')
-    
+
     # Read header (4 bytes) from file containing the number of frames in the movie.
     nframes = unpack('i',fp.read(4))[0]
     fp.close()
-    
+
     natoms = int(filesize/(nframes*3))
     # end of code that should be moved into moviefile.py
 
     kluge_ensure_natoms_correct( part)
-    
+
     if natoms == part.natoms: ## bruce 050324 changed this from natoms == len(self.assy.alist)
         return 0
     else:
