@@ -1,6 +1,12 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-whatsthis.py
+WhatsThisText_for_MainWindow.py
+
+This file provides functions for setting the "What's This" and tooltip text
+for widgets in the NE1 Main Window, except widgets in Property Managers.
+
+Edit WhatsThisText_for_PropertyManagers.py to set "What's This" and tooltip
+text for widgets in the NE1 Property Managers.
 
 $Id$
  

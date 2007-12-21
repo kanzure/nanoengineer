@@ -660,7 +660,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
 
         # This is where What's This descriptions should go for UserPrefs.
         # Mark 050831.
-        from gui.whatsthis import create_whats_this_descriptions_for_UserPrefs_dialog
+        from gui.WhatsThisText_for_MainWindow import create_whats_this_descriptions_for_UserPrefs_dialog
         create_whats_this_descriptions_for_UserPrefs_dialog(self)
 
         self.display_origin_axis_checkbox.setWhatsThis("""<p><b>Display Origin Axis</b></p>Shows/Hides the Origin Axis""")

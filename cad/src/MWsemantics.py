@@ -64,7 +64,7 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 
 import Ui_DnaFlyout
 
-from gui.whatsthis import createWhatsThisTextForMainWindowWidgets, fix_whatsthis_text_and_links
+from gui.WhatsThisText_for_MainWindow import createWhatsThisTextForMainWindowWidgets, fix_whatsthis_text_and_links
 
 from ops_files import fileSlotsMixin
 from ops_files import recentfiles_use_QSettings

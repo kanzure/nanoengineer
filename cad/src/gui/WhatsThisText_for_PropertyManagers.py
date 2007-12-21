@@ -1,6 +1,12 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-PM_WhatsThisText.py
+WhatsThisText_for_PropertyManagers.py
+
+This file provides functions for setting the "What's This" and tooltip text
+for widgets in all NE1 Property Managers only. 
+
+Edit WhatsThisText_for_MainWindow.py to set "What's This" and tooltip text 
+for widgets in the Main Window.
 
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -9,7 +15,7 @@ PM_WhatsThisText.py
 
 def whatsThis_DnaDuplexPropertyManager(propMgr):
     """
-    Whats this text for the DnaDuplex Property Manager
+    Whats This text for the DnaDuplex Property Manager
     @see: B{DnaDuplexPropertyManager._addWhatsThisText}
     """
     
@@ -25,7 +31,7 @@ def whatsThis_DnaDuplexPropertyManager(propMgr):
         
 def whatsThis_MovePropertyManager(propMgr):
     """
-    What's This text he widgets in the Move Property Manager.
+    U{What's This text for widgets in the Move Property Manager.
     """
 
     # Translate group box widgets ################################
