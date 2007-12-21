@@ -87,6 +87,10 @@ COMMONOBJS=\
 	rigid-ode.o \
 	structcompare.o \
 	writemovie.o
+	
+ifeq ($(OS),Windows_NT)
+	COMMONOBJS+= strtok_r.o
+endif
 
 PYREXSRCS=$(COMMONOBJS:.o=.c)
 
