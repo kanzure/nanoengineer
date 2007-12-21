@@ -25,7 +25,8 @@ from PM.PM_ToolButton      import PM_ToolButton
 from PM.PM_LineEdit        import PM_LineEdit
 from PM.PM_LabelRow        import PM_LabelRow
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
-from PM.PM_WhatsThisText    import whatsThis_MovePropertyManager
+from gui.WhatsThisText_for_PropertyManagers \
+     import whatsThis_MovePropertyManager
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
@@ -58,6 +59,7 @@ class Ui_MovePropertyManager( PM_Dialog ):
         self.win = self.parentMode.w
         self.o = self.parentMode.o
         self.pw = self.parentMode.pw
+
         
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)        
         self.showTopRowButtons(pmDoneButton | pmWhatsThisButton)

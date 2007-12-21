@@ -134,7 +134,13 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         #QMetaObject.connectSlotsByName(self)
         
         self._addGroupBoxes()
-        self._addWhatsThisText()
+        
+        try:
+            self._addWhatsThisText()
+        except:
+            print_compact_traceback("error loading whatsthis text for this " \
+                                    "property manager.")
+                                    
     
     def _addGroupBoxes(self):
         """

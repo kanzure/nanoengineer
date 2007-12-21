@@ -36,7 +36,8 @@ from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
-from PM.PM_WhatsThisText  import whatsThis_DnaDuplexPropertyManager
+from gui.WhatsThisText_for_PropertyManagers \
+     import whatsThis_DnaDuplexPropertyManager
 
 from DebugMenuMixin import DebugMenuMixin
 from EditController_PM import EditController_PM
