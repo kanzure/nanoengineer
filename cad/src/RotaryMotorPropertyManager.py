@@ -271,36 +271,12 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
             PM_PushButton(pmGroupBox,
                           label = "Color :",
                           text = "Choose...")
-               
-
+    
     def _addWhatsThisText(self):
         """
-        What's This text for some of the widgets in the Property Manager.
+        What's This text for widgets in this Property Manager.  
         """
-        
-        # Removed name field from property manager. Mark 2007-05-28
-        #self.nameLineEdit.setWhatsThis("""<b>Name</b><p>Name of Rotary Motor 
-        #that appears in the Model Tree</p>""")
-        
-        self.torqueDblSpinBox.setWhatsThis("""<b>Torque </b><p>Simulations 
-        will begin with the motor's torque set to this value.</p>""")
-        
-        self.initialSpeedDblSpinBox.setWhatsThis("""<b>Initial Speed</b> 
-        <p>Simulations will begin with the motor's flywheel rotating at 
-        this velocity.</p>""")
-        
-        self.finalSpeedDblSpinBox.setWhatsThis("""<b>Final Speed</b><p>The final
-        velocity of the motor's flywheel during simulations.</p>""")
-        
-        self.dampersCheckBox.setWhatsThis("""<b>Dampers</b><p>If checked, 
-        the dampers are enabled for this motor during a simulation. 
-        See the Rotary Motor web page on the NanoEngineer-1 Wiki for 
-        more information.</p>""")
-        
-        self.enableMinimizeCheckBox.setWhatsThis("""<b>Enable in Minimize 
-        <i>(experimental)</i></b>
-        <p>If checked, the torque specified above will be applied to the 
-        motor atoms during a structure minimization.  While intended to 
-        allow simulations to begin with rotary motors running at speed, 
-        this feature requires more work to be useful.</p>""")
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_RotaryMotorPropertyManager
+        whatsThis_RotaryMotorPropertyManager(self)
+    
 

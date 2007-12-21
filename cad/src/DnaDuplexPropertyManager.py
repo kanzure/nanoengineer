@@ -36,8 +36,6 @@ from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
-from gui.WhatsThisText_for_PropertyManagers \
-     import whatsThis_DnaDuplexPropertyManager
 
 from DebugMenuMixin import DebugMenuMixin
 from EditController_PM import EditController_PM
@@ -521,20 +519,15 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                         state        = Qt.Checked
                         )
         
-        
-        
-
     def _addWhatsThisText( self ):
         """
-        What's This text for some of the widgets in the 
-        DNA Property Manager.  
+        What's This text for widgets in the DNA Property Manager.  
 
         @note: Many PM widgets are still missing their "What's This" text.
         """
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_DnaDuplexPropertyManager
         whatsThis_DnaDuplexPropertyManager(self)
         
-        
-
     def conformationComboBoxChanged( self, inIndex ):
         """
         Slot for the Conformation combobox. It is called whenever the

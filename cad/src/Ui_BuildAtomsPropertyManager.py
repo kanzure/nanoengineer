@@ -365,6 +365,13 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
                 checkedId    = 0,
                 setAsDefault = True )
     
+    def _addWhatsThisText(self):
+        """
+        "What's This" text for widgets in this Property Manager.
+        """
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_BuildAtomsPropertyManager
+        whatsThis_BuildAtomsPropertyManager(self)
+        
     def toggle_selectedAtomPosGroupBox(self, show = 0):
         """
         Show or hide L{self.selectedAtomPosGroupBox} depending on the state of

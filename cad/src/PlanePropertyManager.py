@@ -164,19 +164,15 @@ class PlanePropertyManager(EditController_PM):
             self.aspectRatioSpinBox.setEnabled(True)
         else:
             self.aspectRatioSpinBox.setEnabled(False)
-                
+    
     def _addWhatsThisText(self):
         """
-        Add "What's This" text for all widgets in this Property Manager.
-        """    
-        self.heightDblSpinBox.setWhatsThis("""<b>Height</b>
-        <p>The height of the Plane in angstroms.
-        (up to 200 Angstroms)</p>""")
-        
-        self.widthDblSpinBox.setWhatsThis("""<b>Width</b>
-        <p>The width of the Plane in angstroms.
-        (up to 200 Angstroms)</p>""")
-        pass
+        What's This text for some of the widgets in this Property Manager.  
+
+        @note: Many PM widgets are still missing their "What's This" text.
+        """
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_PlanePropertyManager
+        whatsThis_PlanePropertyManager(self)
         
     def show(self):
         """

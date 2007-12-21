@@ -323,38 +323,9 @@ class Ui_CookiePropertyManager(PM_Dialog):
         
     def _addWhatsThisText(self):
         """
-        Add "What's This" text for the widgets in the Property Manager.
+        What's This text for widgets in this Property Manager.  
+
+        @note: Many PM widgets are still missing their "What's This" text.
         """
-        
-        self.surface100_btn.setWhatsThis(\
-            "<b>Surface 100</b>"\
-            "<p>"\
-            "Reorients the view to the nearest angle that would "\
-            "look straight into a (1,0,0) surface of a "\
-            "diamond lattice."\
-            "</p>")
-        
-        # Surface 110
-        self.surface110_btn.setWhatsThis(\
-            "<u><b>Surface 110</b></u>"\
-            "<p>"\
-            "Reorients the view to the nearest angle that would "\
-            "look straight into a (1,1,0) surface of a "\
-            "diamond lattice."\
-            "</p>")
-    
-        # Surface 111
-        self.surface111_btn.setWhatsThis(\
-            "<u><b>Surface 111</b></u>"\
-            "<p>"\
-            "Reorients the view to the nearest angle that would "\
-            "look straight into a (1,1,1) surface of a "\
-            "diamond lattice."\
-            "</p>")
-        
-        self.addLayerButton.setWhatsThis(\
-            "<u><b>Add Layer</b></u>"\
-            "<p>"\
-            "Adds a new layer of diamond lattice to the existing "\
-            "layer."\
-            "</p>")
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_CookiePropertyManager
+        whatsThis_CookiePropertyManager(self)

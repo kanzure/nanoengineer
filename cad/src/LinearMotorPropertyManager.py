@@ -235,23 +235,9 @@ class LinearMotorPropertyManager(MotorPropertyManager):
                           label = "Color :",
                           text = "Choose...")
         
-        
-    
     def _addWhatsThisText(self):
         """
-        What's This text for some of the widgets in the Property Manager.
+        What's This text for widgets in this Property Manager.  
         """
-        
-        # Removed name field from property manager. Mark 2007-05-28
-        #self.nameLineEdit.setWhatsThis("""<b>Name</b><p>Name of Linear Motor 
-        #that appears in the Model Tree</p>""")
-        
-        self.forceDblSpinBox.setWhatsThis("""<b>Force </b><p>Simulations 
-        will begin with the motor's force set to this value.</p>""")
-        
-        self.enableMinimizeCheckBox.setWhatsThis("""<b>Enable in Minimize 
-        <i>(WARNING: THIS IS EXPERIMENTAL FEATURE)</i></b>
-        <p>If checked, the torque specified above will be applied to the 
-        motor atoms during a structure minimization.  While intended to 
-        allow simulations to begin with Linear motors running at speed, 
-        this feature requires more work to be useful.</p>""")
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_LinearMotorPropertyManager
+        whatsThis_LinearMotorPropertyManager(self)

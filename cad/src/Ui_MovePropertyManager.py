@@ -25,8 +25,6 @@ from PM.PM_ToolButton      import PM_ToolButton
 from PM.PM_LineEdit        import PM_LineEdit
 from PM.PM_LabelRow        import PM_LabelRow
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
-from gui.WhatsThisText_for_PropertyManagers \
-     import whatsThis_MovePropertyManager
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
@@ -546,6 +544,6 @@ class Ui_MovePropertyManager( PM_Dialog ):
 
         @note: Many PM widgets are still missing their "What's This" text.
         """
-
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_MovePropertyManager
         whatsThis_MovePropertyManager(self)
             

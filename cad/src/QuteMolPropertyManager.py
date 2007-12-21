@@ -135,14 +135,10 @@ class QuteMolPropertyManager(PM_Dialog):
         
     def _addWhatsThisText(self):
         """
-        Add "What's This" text for all widgets in this Property Manager.
-        """    
-        #self.pmRenderingStyle is not defined. So commenting out the following 
-        #line 
-        ##self.pmRenderingStyle.setWhatsThis("""<b>Rendering Style</b>
-        ##<p>The QuteMol rendering style""")
-        
-        pass
+        "What's This" text for widgets in this Property Manager.
+        """
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_QuteMolPropertyManager
+        whatsThis_QuteMolPropertyManager(self)
     
     def show(self):
         """

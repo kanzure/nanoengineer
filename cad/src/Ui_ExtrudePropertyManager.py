@@ -295,74 +295,13 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               suffix        =  ' Angstroms'
                           ) 
     
-    def _addWhatsThisText( self ):
+    def _addWhatsThisText(self):
         """
-        What's This text for some of the widgets in the 
-        Extrude Property Manager.
+        What's This text for widgets in this Property Manager.  
+
+        @note: Many PM widgets are still missing their "What's This" text.
         """
-        self.extrude_productTypeComboBox.setWhatsThis(
-            """<b>Final product</b>
-            <p>The type of product to create. Options are:</p>
-            <p><b>Rod</b>: a straight rod.<br>
-            <b>Ring</b>: a closed ring.
-            </p>""")
-        
-        self.extrudeSpinBox_n.setWhatsThis(
-            """<b>Number of copies</b>
-            <p>The total number of copies, including the originally selected 
-            chunk(s).
-            </p>""")
-        
-        self.showEntireModelCheckBox.setWhatsThis(
-            """<b>Show Entire Model</b>
-            <p>Normally, only the selection and their copies are displayed 
-            during the Extrude command. Checking this option displays 
-            everything in the current model.
-            </p>""")
-            
-        self.makeBondsCheckBox.setWhatsThis(
-            """<b>Make Bonds</b>
-            <p>When checked, bonds will be made between pairs of bondpoints
-            highlighted in blue and green after clicking <b>Done</b>.
-            </p>""")
-        
-        self.extrudeBondCriterionSlider.setWhatsThis(
-            """<b>Tolerance slider</b>
-            <p>Sets the bond criterion tolerance. The larger the tolerance 
-            value, the further bonds will be formed between pairs of 
-            bondpoints.
-            </p>""")
-        
-        self.extrudePrefMergeSelection.setWhatsThis(
-            """<b>Merge Selection</b>
-            <p>Merges the selected chunks into a single chunk after 
-            clicking <b>Done</b>.
-            </p>""")
-            
-        self.mergeCopiesCheckBox.setWhatsThis(
-            """<b>Merge Copies</b>
-            <p>When checked, copies are merged with the original chunk
-            after clicking <b>Done</b>.
-            </p>""")
-        
-        self.extrudeSpinBox_length.setWhatsThis(
-            """<b>Total Offset</b>
-            <p>The total offset distance between copies.
-            </p>""")
-        
-        self.extrudeSpinBox_x.setWhatsThis(
-            """<b>X Offset</b>
-            <p>The X offset distance between copies.
-            </p>""")
-            
-        self.extrudeSpinBox_y.setWhatsThis(
-            """<b>Y Offset</b>
-            <p>The Y offset distance between copies.
-            </p>""")
-            
-        self.extrudeSpinBox_z.setWhatsThis(
-            """<b>Z Offset</b>
-            <p>The Z offset distance between copies.
-            </p>""")
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_ExtrudePropertyManager
+        whatsThis_ExtrudePropertyManager(self)
         
         return

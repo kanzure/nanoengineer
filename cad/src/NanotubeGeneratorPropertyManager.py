@@ -41,8 +41,8 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
         """Construct the Graphene Property Manager.
         """
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-        self.addGroupBoxes()
-        self.add_whats_this_text()
+        #@self.addGroupBoxes()
+        #@self.add_whats_this_text()
         self.updateMessageGroupBox()
         
     def updateMessageGroupBox(self):
@@ -66,7 +66,7 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
 
         
-    def addGroupBoxes(self):
+    def _addGroupBoxes(self):
         """
         Add the 3 group boxes to the Nanotube Property Manager dialog.
         """
@@ -83,11 +83,11 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
                          title          = "Multi-Walled Nanotubes" )
 
         # Add group box widgets.
-        self.loadGroupBox1(self.pmGroupBox1)
-        self.loadGroupBox2(self.pmGroupBox2)
-        self.loadGroupBox3(self.pmGroupBox3)
+        self._loadGroupBox1(self.pmGroupBox1)
+        self._loadGroupBox2(self.pmGroupBox2)
+        self._loadGroupBox3(self.pmGroupBox3)
         
-    def loadGroupBox1(self, inPmGroupBox):
+    def _loadGroupBox1(self, inPmGroupBox):
         """
         Load widgets in group box 1.
         """
@@ -161,7 +161,7 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
                          setAsDefault = True,
                          spanWidth    = False )
         
-    def loadGroupBox2(self, inPmGroupBox):
+    def _loadGroupBox2(self, inPmGroupBox):
         """
         Load widgets in group box 2.
         """
@@ -207,7 +207,7 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
                         maximum      = 360,
                         suffix       = " deg" )
     
-    def loadGroupBox3(self, inPmGroupBox):
+    def _loadGroupBox3(self, inPmGroupBox):
         """
         Load widgets in group box 3.
         """
@@ -236,96 +236,12 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
                               decimals     = 3, 
                               suffix       = " Angstroms" )
     
-    def add_whats_this_text(self):
+    def _addWhatsThisText(self):
         """
-        What's This text for the widgets in the Property Manager.
+        What's This text for widgets in this Property Manager.  
         """
-        
-        self.chiralityNSpinBox.setWhatsThis(
-            """<b>Chirality (n)</b>
-            <p>Specifies <i>n</i> of the chiral vector
-            (n, m), where n and m are integers of the vector equation 
-            R = na1 + ma2 .
-            </p>""")
-        
-        self.chiralityMSpinBox.setWhatsThis(
-            """<b>Chirality (m)</b>
-            <p>Specifies <i>m</i> of the chiral vector
-            (n, m), where n and m are integers of the vector equation 
-            R = na1 + ma2 .
-            </p>""")
-                
-        self.typeComboBox.setWhatsThis(
-            """<b>Type</b>
-            <p>Specifies the type of nanotube to generate.</p>
-            <p>Selecting
-            <b>Carbon</b> creates a carbon nanotube (CNT) made entirely of carbon atoms.
-            <p>Selecting <b>Boron nitride</b> creates a
-            boron nitride (BN) nanotube made of boron and nitrogen atoms.
-            </p>""")
-        
-        self.endingsComboBox.setWhatsThis(
-            """<b>Endings</b>
-            <p>Specify how to deal with bondpoints on the
-            two ends of the nanotube.</p>
-            <p>Selecting <b>None</b> does nothing, leaving bondpoints on the ends.</p>
-            <p>Selecting <b>Hydrogen
-            </b>terminates the bondpoints using hydrogen atoms.</p>
-            <p>Selecting <b>Nitrogen </b>transmutes atoms with bondpoints into
-            nitrogen atoms.
-            </p>""")
-        
-        self.lengthField.setWhatsThis(
-            """<b>Length</b>
-            <p>Specify the length of the nanotube in angstroms.
-            </p>""")
-        
-        self.bondLengthField.setWhatsThis(
-            """<b>Bond Length</b>
-            <p>Specify the bond length between atoms in
-            angstroms.</p>""")
-        
-        self.twistSpinBox.setWhatsThis(
-            """<b>Twist</b>
-            <p>Introduces a twist along the length of the nanotube
-            specified in degrees/angstrom.
-            </p>""")
-        
-        self.zDistortionField.setWhatsThis(
-            """<b>Z-distortion</b>
-            <p>Distorts the bond length between atoms
-            along the length of the nanotube by this amount in angstroms.
-            </p>""")
-        
-        self.bendSpinBox.setWhatsThis(
-            """<b>Bend</b>
-            <p>Bend the nanotube by the specified number of degrees.
-            </p>""")
-        
-        self.xyDistortionField.setWhatsThis(
-            """<b>XY-distortion</b>
-            <p>Distorts the tube's cross-section so
-            that the width in the X direction is this many angstroms greater than 
-            the width in the Y direction. Some distortion  of bond
-            lengths results.
-            </p>""")
-        
-        self.mwntCountSpinBox.setWhatsThis(
-            """<b>Number of Nanotubes</b>
-            <p>Specifies the number or Multi-Walled
-            Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric 
-            tubes 
-            wrapped one inside another.</p>
-            <p>The specified
-            chirality applies only to the innermost nanotube. The others, being 
-            larger, 
-            will have larger chiralities.
-            </p>""")
-        
-        self.mwntSpacingField.setWhatsThis(
-            """<b>Spacing</b>
-            <p>Specify the spacing between nanotubes in angstroms.
-            </p>""")     
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_NanotubeGeneratorPropertyManager
+        whatsThis_NanotubeGeneratorPropertyManager(self)
         
     def chirality_fixup(self, spinBoxValueJunk = None):
         """

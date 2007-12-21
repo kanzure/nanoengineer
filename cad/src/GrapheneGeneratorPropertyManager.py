@@ -39,8 +39,8 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
         Construct the "Build Graphene" Property Manager.
         """
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
-        self.addGroupBoxes() 
-        self.add_whats_this_text()
+        #@self._addGroupBoxes() 
+        #@self.add_whats_this_text()
         
         msg = "Edit the Graphene sheet parameters and select <b>Preview</b> to \
         preview the structure. Click <b>Done</b> to insert it into the model."
@@ -50,7 +50,7 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
         # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
         
-    def addGroupBoxes(self):
+    def _addGroupBoxes(self):
         """
         Add the group boxes to the Graphene Property Manager dialog.
         """
@@ -58,9 +58,9 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
             PM_GroupBox( self, 
                          title = "Graphene Parameters" )
         
-        self.loadGroupBox1(self.pmGroupBox1)
+        self._loadGroupBox1(self.pmGroupBox1)
               
-    def loadGroupBox1(self, pmGroupBox):
+    def _loadGroupBox1(self, pmGroupBox):
         """
         Load widgets in groubox 1.
         """
@@ -108,25 +108,10 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
                          setAsDefault = True,
                          spanWidth    = False )
         
-    def add_whats_this_text(self):
+    def _addWhatsThisText(self):
         """
-        What's This text for some of the widgets in the Property Manager.
+        What's This text for widgets in this Property Manager.  
         """
-        
-        self.heightField.setWhatsThis("""<b>Height</b>
-        <p>The height (up to 50 Angstroms) of the graphite sheet 
-        in angstroms.</p>""")
-        
-        self.widthField.setWhatsThis("""<b>Width</b>
-        <p>The width (up to 50 Angstroms) of the graphene sheet 
-        in angstroms.</p>""")
-        
-        self.bondLengthField.setWhatsThis("""<b>Bond length</b>
-        <p>You can change the bond lengths (1.0-3.0 Angstroms) in the
-        graphene sheet. We believe the default value is accurate for sp
-        <sup>2</sup>-hybridized carbons.</p>""")
-        
-        self.endingsComboBox.setWhatsThis("""<b>Endings</b>
-        <p>Graphene sheets can be unterminated (dangling
-        bonds), or terminated with hydrogen atoms or nitrogen atoms.</p>""")
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_GrapheneGeneratorPropertyManager
+        whatsThis_GrapheneGeneratorPropertyManager(self)
         

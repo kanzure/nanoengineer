@@ -20,25 +20,161 @@ def whatsThis_DnaDuplexPropertyManager(propMgr):
     """
     
     propMgr.conformationComboBox.setWhatsThis(
-        """"<b>Conformation</b>
-        <p>DNA exists in several possible conformations,
-        with A-DNA, B-DNA, and Z-DNA being the most common. <br>
-        Only B-DNA is currently supported in "\
-        NanoEngineer-1.
+        """<b>Conformation</b>
+        <p>
+        DNA exists in several possible conformations, with
+        A-DNA, B-DNA, and Z-DNA being the most common. 
+        <br>
+        Only B-DNA is currently supported in NanoEngineer-1.
         </p>""")
     
     return # End of whatsThis_DnaDuplexPropertyManager
+
+def whatsThis_NanotubeGeneratorPropertyManager(propMgr):
+    """
+    "Whats This" text for widgets in the Nanotube Property Manager.
+    """
         
+    propMgr.chiralityNSpinBox.setWhatsThis(
+        """<b>Chirality (n)</b>
+        <p>
+        Specifies <i>n</i> of the chiral vector
+        (n, m), where n and m are integers of the vector equation 
+        R = na1 + ma2 .
+        </p>""")
+    
+    propMgr.chiralityMSpinBox.setWhatsThis(
+        """<b>Chirality (m)</b>
+        <p>
+        Specifies <i>m</i> of the chiral vector
+        (n, m), where n and m are integers of the vector equation 
+        R = na1 + ma2 .
+        </p>""")
+            
+    propMgr.typeComboBox.setWhatsThis(
+        """<b>Type</b>
+        <p>
+        Specifies the type of nanotube to generate.</p>
+        <p>
+        Selecting <b>Carbon</b> creates a carbon nanotube (CNT) made 
+        entirely of carbon atoms.
+        <p>
+        Selecting <b>Boron nitride</b> creates a boron nitride (BN) nanotube
+        made of boron and nitrogen atoms.
+        </p>""")
+    
+    propMgr.endingsComboBox.setWhatsThis(
+        """<b>Endings</b>
+        <p>
+        Specify how to deal with bondpoints on the two ends of the nanotube.</p>
+        <p>
+        Selecting <b>None</b> does nothing, leaving bondpoints on the ends.</p>
+        <p>
+        Selecting <b>Hydrogen</b>terminates the bondpoints using hydrogen 
+        atoms.</p>
+        <p>
+        Selecting <b>Nitrogen </b>transmutes atoms with bondpoints into
+        nitrogen atoms.
+        </p>""")
+    
+    propMgr.lengthField.setWhatsThis(
+        """<b>Length</b>
+        <p>
+        Specify the length of the nanotube in angstroms.
+        </p>""")
+    
+    propMgr.bondLengthField.setWhatsThis(
+        """<b>Bond Length</b>
+        <p>
+        Specify the bond length between atoms in angstroms.</p>""")
+    
+    propMgr.twistSpinBox.setWhatsThis(
+        """<b>Twist</b>
+        <p>
+        Introduces a twist along the length of the nanotube specified in 
+        degrees/angstrom.
+        </p>""")
+    
+    propMgr.zDistortionField.setWhatsThis(
+        """<b>Z-distortion</b>
+        <p>
+        Distorts the bond length between atoms along the length of the
+        nanotube by this amount in angstroms.
+        </p>""")
+    
+    propMgr.bendSpinBox.setWhatsThis(
+        """<b>Bend</b>
+        <p>
+        Bend the nanotube by the specified number of degrees.
+        </p>""")
+    
+    propMgr.xyDistortionField.setWhatsThis(
+        """<b>XY-distortion</b>
+        <p>
+        Distorts the tube's cross-section so that the width in the X direction
+        is this many angstroms greater than the width in the Y direction. 
+        Some distortion  of bond lengths results.
+        </p>""")
+    
+    propMgr.mwntCountSpinBox.setWhatsThis(
+        """<b>Number of Nanotubes</b>
+        <p>
+        Specifies the number or Multi-Walled Nanotubes. Multi-Walled nanotubes
+        (MWNT) consist of many concentric tubes wrapped one inside another.</p>
+        <p>
+        The specified chirality applies only to the innermost nanotube. 
+        The others, being larger, will have larger chiralities.
+        </p>""")
+    
+    propMgr.mwntSpacingField.setWhatsThis(
+        """<b>Spacing</b>
+        <p>
+        Specify the spacing between nanotubes in angstroms.
+        </p>""")
+
+def whatsThis_GrapheneGeneratorPropertyManager(propMgr):
+    """
+    "What's This" text for widgets in the Graphene Property Manager.
+    """
+    
+    propMgr.heightField.setWhatsThis(
+        """<b>Height</b>
+        <p>
+        The height (up to 50 Angstroms) of the graphite sheet in angstroms.
+        </p>""")
+    
+    propMgr.widthField.setWhatsThis(
+        """<b>Width</b>
+        <p>
+        The width (up to 50 Angstroms) of the graphene sheet in angstroms.
+        </p>""")
+    
+    propMgr.bondLengthField.setWhatsThis(
+        """<b>Bond length</b>
+        <p>
+        You can change the bond lengths (1.0-3.0 Angstroms) in the
+        graphene sheet. We believe the default value is accurate for sp
+        <sup>2</sup>-hybridized carbons.
+        </p>""")
+    
+    propMgr.endingsComboBox.setWhatsThis(
+        """<b>Endings</b>
+        <p>
+        Graphene sheets can be unterminated (dangling bonds), 
+        or terminated with hydrogen atoms or nitrogen atoms.
+        </p>""")
+            
 def whatsThis_MovePropertyManager(propMgr):
     """
-    U{What's This text for widgets in the Move Property Manager.
+    "What's This" text for widgets in the Move Property Manager.
     """
 
     # Translate group box widgets ################################
 
     propMgr.translateComboBox.setWhatsThis(
         """<b>Translation Options</b>
-        <p>This menu provides different options for translating the
+        <p>
+        This menu provides different options for translating the
         current selection where:</p>
         <p>
         <b>Free Drag</b>: translates the selection by dragging the mouse
@@ -54,17 +190,20 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.transFreeButton.setWhatsThis(
         """<b>Unconstrained Translation</b>
-        <p>Translates the selection freely within the plane of the screen.
+        <p>
+        Translates the selection freely within the plane of the screen.
         </p>""")
 
     propMgr.transXButton.setWhatsThis(
         """<b>X Translation</b>
-        <p>Constrains translation of the selection to the X axis.
+        <p>
+        Constrains translation of the selection to the X axis.
         </p>""")
 
     propMgr.transYButton.setWhatsThis(
         """<b>Y Translation</b>
-        <p>Constrains translation of the selection to the Y axis.
+        <p>
+        Constrains translation of the selection to the Y axis.
         </p>""")
 
     propMgr.transZButton.setWhatsThis(
@@ -74,7 +213,8 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.transAlongAxisButton.setWhatsThis(
         """<b>Axial Translation/Rotation</b>
-        <p>Constrains both translation and rotation of the selection along
+        <p>
+        Constrains both translation and rotation of the selection along
         the central axis of the selected object(s). This is especially
         useful for translating and rotating DNA duplexes along their
         own axis.
@@ -84,25 +224,29 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.moveDeltaXSpinBox.setWhatsThis(
         """<b>Delta X</b>
-        <p>The X offset distance the selection is moved when 
+        <p>
+        The X offset distance the selection is moved when 
         clicking the +/- Delta buttons.
         </p>""")
 
     propMgr.moveDeltaYSpinBox.setWhatsThis(
         """<b>Delta Y</b>
-        <p>The Y offset distance the selection is moved when 
+        <p>
+        The Y offset distance the selection is moved when 
         clicking the +/- Delta buttons.
         </p>""")
 
     propMgr.moveDeltaZSpinBox.setWhatsThis(
         """<b>Delta Z</b>
-        <p>The Z offset distance the selection is moved when 
+        <p>
+        The Z offset distance the selection is moved when 
         clicking the +/- Delta buttons.
         </p>""")
 
     propMgr.transDeltaPlusButton.setWhatsThis(
         """<b>Delta +</b>
-        <p>Moves the current selection by an offset
+        <p>
+        Moves the current selection by an offset
         specified by the Delta X, Y and Z spinboxes.
         </p>""")
 
@@ -111,7 +255,8 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.transDeltaMinusButton.setWhatsThis(
         """<b>Delta -</b>
-        <p>Moves the current selection by an offset opposite of that 
+        <p>
+        Moves the current selection by an offset opposite of that 
         specified by the Delta X, Y and Z spinboxes.
         </p>""")
 
@@ -122,25 +267,29 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.moveXSpinBox.setWhatsThis(
         """<b>X</b>
-        <p>The X coordinate the selection is moved when 
+        <p>
+        The X coordinate the selection is moved when 
         clicking the +/- Delta buttons.
         </p>""")
 
     propMgr.moveYSpinBox.setWhatsThis(
         """<b>Y</b>
-        <p>The Y coordinate the selection is moved when 
+        <p>
+        The Y coordinate the selection is moved when 
         clicking the +/- Delta buttons.
         </p>""")
 
     propMgr.moveZSpinBox.setWhatsThis(
         """<b>Z</b>
-        <p>The Z coordinate the selection is moved when 
+        <p>
+        The Z coordinate the selection is moved when 
         clicking the <b>Move to Absolute Position</b> button.
         </p>""")
 
     propMgr.moveAbsoluteButton.setWhatsThis(
         """<b>Move to Absolute Position</b>
-        <p>Moves the current selection to the position
+        <p>
+        Moves the current selection to the position
         specified by the X, Y and Z spinboxes. The selection's centroid
         is used compute how the selection is moved.
         </p>""")
@@ -152,7 +301,8 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.rotateComboBox.setWhatsThis(
         """<b>Rotate Options</b>
-        <p>This menu provides different options for rotating the
+        <p>
+        This menu provides different options for rotating the
         current selection where:</p>
         <p>
         <b>Free Drag</b>: rotates the selection by dragging the mouse
@@ -166,27 +316,32 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.rotateFreeButton.setWhatsThis(
         """<b>Unconstrained Rotation</b>
-        <p>Rotates the selection freely about its centroid.
+        <p>
+        Rotates the selection freely about its centroid.
         </p>""")
 
     propMgr.rotateXButton.setWhatsThis(
         """<b>X Rotation</b>
-        <p>Constrains rotation of the selection to the X axis.
+        <p>
+        Constrains rotation of the selection to the X axis.
         </p>""")
 
     propMgr.rotateYButton.setWhatsThis(
         """<b>Y Rotation</b>
-        <p>Constrains rotation of the selection to the Y axis.
+        <p>
+        Constrains rotation of the selection to the Y axis.
         </p>""")
 
     propMgr.rotateZButton.setWhatsThis(
         """<b>Z Rotation</b>
-        <p>Constrains rotation of the selection to the Z axis.
-    </p>""")
+        <p>
+        Constrains rotation of the selection to the Z axis.
+        </p>""")
 
     propMgr.rotAlongAxisButton.setWhatsThis(
         """<b>Axial Translation/Rotation</b>
-        <p>Constrains both translation and rotation of the selection along
+        <p>
+        Constrains both translation and rotation of the selection along
         the central axis of the selected object(s). This is especially
         useful for translating and rotating DNA duplexes along their
         own axis.
@@ -194,7 +349,8 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.rotateAsUnitCB.setWhatsThis(
         """<b>Rotate as unit</b>
-        <p>When <b>checked</b>, the selection is rotated as a unit about its
+        <p>
+        When <b>checked</b>, the selection is rotated as a unit about its
         collective centroid.<br>
         When <b>unchecked</b>, the selected objects are rotated about their 
         own individual centroids.
@@ -204,7 +360,8 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.rotateXButton.setWhatsThis(
         """<b>Rotate about X axis</b>
-        <p>Constrains rotation about the X axis.
+        <p>
+        Constrains rotation about the X axis.
         </p>""")
 
     propMgr.rotateXButton.setToolTip(
@@ -212,7 +369,8 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.rotateYButton.setWhatsThis(
         """<b>Rotate about Y axis</b>
-        <p>Constrains rotation about the Y axis.
+        <p>
+        Constrains rotation about the Y axis.
         </p>""")
 
     propMgr.rotateYButton.setToolTip(
@@ -220,7 +378,8 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.rotateZButton.setWhatsThis(
         """<b>Rotate about Z axis</b>
-        <p>Constrains rotation about the Z axis.
+        <p>
+        Constrains rotation about the Z axis.
         </p>""")
 
     propMgr.rotateZButton.setToolTip(
@@ -228,7 +387,8 @@ def whatsThis_MovePropertyManager(propMgr):
 
     propMgr.rotateThetaSpinBox.setWhatsThis(
         """<b>Rotation angle</b>
-        <p>Specifies the angle of rotation.
+        <p>
+        Specifies the angle of rotation.
         </p>""")
 
     propMgr.rotateThetaSpinBox.setToolTip(
@@ -238,13 +398,246 @@ def whatsThis_MovePropertyManager(propMgr):
     # I don't understand why not. Mark 2007-06-25.
     propMgr.rotateThetaPlusButton.setWhatsThis(
         """<b>Rotate</b>
-        <p>Rotates the selection by the specified angle.
+        <p>
+        Rotates the selection by the specified angle.
         </p>""")
 
     propMgr.rotateThetaMinusButton.setWhatsThis(
         """<b>Rotate (minus)</b>
-        <p>Rotates the selection by the specified angle 
+        <p>
+        Rotates the selection by the specified angle 
         (in the opposite direction).
         </p>""")
     
     return # End of whatsThis_DnaDuplexPropertyManager
+
+def whatsThis_ExtrudePropertyManager(propMgr):
+    """
+    "What's This" text for widgets in the Extrude Property Manager.
+    """
+    propMgr.extrude_productTypeComboBox.setWhatsThis(
+        """<b>Final product</b>
+        <p>
+        The type of product to create. Options are:</p>
+        <p>
+        <b>Rod</b>: a straight rod.
+        <br>
+        <b>Ring</b>: a closed ring.
+        </p>""")
+    
+    propMgr.extrudeSpinBox_n.setWhatsThis(
+        """<b>Number of copies</b>
+        <p>
+        The total number of copies, including the originally selected 
+        chunk(s).
+        </p>""")
+    
+    propMgr.showEntireModelCheckBox.setWhatsThis(
+        """<b>Show Entire Model</b>
+        <p>
+        Normally, only the selection and their copies are displayed 
+        during the Extrude command. Checking this option displays 
+        everything in the current model.
+        </p>""")
+        
+    propMgr.makeBondsCheckBox.setWhatsThis(
+        """<b>Make Bonds</b>
+        <p>
+        When checked, bonds will be made between pairs of bondpoints
+        highlighted in blue and green after clicking <b>Done</b>.
+        </p>""")
+    
+    propMgr.extrudeBondCriterionSlider.setWhatsThis(
+        """<b>Tolerance slider</b>
+        <p>
+        Sets the bond criterion tolerance. The larger the tolerance 
+        value, the further bonds will be formed between pairs of 
+        bondpoints.
+        </p>""")
+    
+    propMgr.extrudePrefMergeSelection.setWhatsThis(
+        """<b>Merge Selection</b>
+        <p>
+        Merges the selected chunks into a single chunk after 
+        clicking <b>Done</b>.
+        </p>""")
+        
+    propMgr.mergeCopiesCheckBox.setWhatsThis(
+        """<b>Merge Copies</b>
+        <p>
+        When checked, copies are merged with the original chunk
+        after clicking <b>Done</b>.
+        </p>""")
+    
+    propMgr.extrudeSpinBox_length.setWhatsThis(
+        """<b>Total Offset</b>
+        <p>
+        The total offset distance between copies.
+        </p>""")
+    
+    propMgr.extrudeSpinBox_x.setWhatsThis(
+        """<b>X Offset</b>
+        <p>
+        The X offset distance between copies.
+        </p>""")
+        
+    propMgr.extrudeSpinBox_y.setWhatsThis(
+        """<b>Y Offset</b>
+        <p>
+        The Y offset distance between copies.
+        </p>""")
+        
+    propMgr.extrudeSpinBox_z.setWhatsThis(
+        """<b>Z Offset</b>
+        <p>
+        The Z offset distance between copies.
+        </p>""")
+    
+    
+def whatsThis_CookiePropertyManager(propMgr):
+    """
+    "What's This" text for widgets in the Crystal (Cookie) Property Manager.
+    """
+    
+    propMgr.surface100_btn.setWhatsThis(\
+        "<b>Surface 100</b>"\
+        "<p>"\
+        "Reorients the view to the nearest angle that would "\
+        "look straight into a (1,0,0) surface of a "\
+        "diamond lattice."\
+        "</p>")
+    
+    # Surface 110
+    propMgr.surface110_btn.setWhatsThis(\
+        "<u><b>Surface 110</b></u>"\
+        "<p>"\
+        "Reorients the view to the nearest angle that would "\
+        "look straight into a (1,1,0) surface of a "\
+        "diamond lattice."\
+        "</p>")
+
+    # Surface 111
+    propMgr.surface111_btn.setWhatsThis(\
+        "<u><b>Surface 111</b></u>"\
+        "<p>"\
+        "Reorients the view to the nearest angle that would "\
+        "look straight into a (1,1,1) surface of a "\
+        "diamond lattice."\
+        "</p>")
+    
+    propMgr.addLayerButton.setWhatsThis(\
+        "<u><b>Add Layer</b></u>"\
+        "<p>"\
+        "Adds a new layer of diamond lattice to the existing "\
+        "layer."\
+        "</p>")
+    
+def whatsThis_RotaryMotorPropertyManager(propMgr):
+    """
+    What's This text for some of the widgets in the Property Manager.
+    """
+    
+    # Removed name field from property manager. Mark 2007-05-28
+    #propMgr.nameLineEdit.setWhatsThis("""<b>Name</b><p>Name of Rotary Motor 
+    #that appears in the Model Tree</p>""")
+    
+    propMgr.torqueDblSpinBox.setWhatsThis(
+        """<b>Torque </b>
+        <p>
+        Simulations will begin with the motor's torque set to this value.
+        </p>""")
+    
+    propMgr.initialSpeedDblSpinBox.setWhatsThis(
+        """<b>Initial Speed</b> 
+        <p>
+        Simulations will begin with the motor's flywheel rotating at 
+        this velocity.
+        </p>""")
+    
+    propMgr.finalSpeedDblSpinBox.setWhatsThis(
+        """<b>Final Speed</b>
+        <p>
+        The final velocity of the motor's flywheel during simulations.
+        </p>""")
+    
+    propMgr.dampersCheckBox.setWhatsThis(
+        """<b>Dampers</b>
+        <p>
+        If checked, the dampers are enabled for this motor during a simulation. 
+        See the Rotary Motor web page on the NanoEngineer-1 Wiki for 
+        more information.
+        </p>""")
+    
+    propMgr.enableMinimizeCheckBox.setWhatsThis(
+        """<b>Enable in Minimize <i>(experimental)</i></b>
+        <p>
+        If checked, the torque specified above will be applied to the 
+        motor atoms during a structure minimization.  While intended to 
+        allow simulations to begin with rotary motors running at speed, 
+        this feature requires more work to be useful.
+        </p>""")
+    
+def whatsThis_LinearMotorPropertyManager(propMgr):
+    """
+    What's This text for widgets in the Linear Motor Property Manager.
+    """
+    
+    propMgr.forceDblSpinBox.setWhatsThis(
+        """<b>Force </b>
+        <p>
+        Simulations will begin with the motor's force set to this value.
+        </p>""")
+    
+    propMgr.enableMinimizeCheckBox.setWhatsThis(
+        """<b>Enable in Minimize <i>(WARNING: EXPERIMENTAL FEATURE)</i></b>
+        <p>
+        If checked, the torque specified above will be applied to the 
+        motor atoms during a structure minimization.  While intended to 
+        allow simulations to begin with Linear motors running at speed, 
+        this feature requires more work to be useful.
+        </p>""")
+        
+def whatsThis_PlanePropertyManager(propMgr):
+    """
+    Add "What's This" text for widgets in the Plane Property Manager.
+    """    
+    propMgr.heightDblSpinBox.setWhatsThis(
+        """<b>Height</b>
+        <p>
+        The height of the Plane in angstroms. (up to 200 Angstroms)
+        </p>""")
+    
+    propMgr.widthDblSpinBox.setWhatsThis(
+        """<b>Width</b>
+        <p>
+        The width of the Plane in angstroms. (up to 200 Angstroms)
+        </p>""")
+    
+def whatsThis_QuteMolPropertyManager(propMgr):
+    """
+    Add "What's This" text for widgets in the QuteMol Property Manager.
+    """
+    propMgr.launchQuteMolButton.setWhatsThis(
+        """
+        <b>Launch QuteMol</b>
+        <p>
+        Pressing this button launches QuteMol.
+        </p>""")
+
+def whatsThis_BuildAtomsPropertyManager(propMgr):
+    """
+    Add "What's This" text for widgets in the QuteMol Property Manager.
+    """
+    propMgr.selectionFilterCheckBox.setWhatsThis(
+        """<b>Enable Selection Filter Checkbox</b>
+        <p>
+        When checked, the selection filteris enabled and only atom
+        types listed in the Selection Filter Field ield are selectable.
+        </p>""")
+    
+    propMgr.filterlistLE.setWhatsThis(
+        """<b>Selection Filter Field</b>
+        <p>
+        TOM MOORE TO FILL THIS IN.
+        </p>""")
+    return
