@@ -35,17 +35,22 @@ class MovePropertyManager(Ui_MovePropertyManager):
         Ui_MovePropertyManager.__init__(self)     
         self.parentMode = parentMode
 
+        #@ These 4 lines will be moved to Ui_
         self.w = self.parentMode.w
         self.win = self.parentMode.w
         self.o = self.parentMode.o
         self.pw = self.parentMode.pw
-        self._addGroupBoxes()  
+        
+        #@ These two lines of code will be removed once Ninad add the methods
+        #@ to the PM_Dialog (super) class' __init__() method.
+        self._addGroupBoxes()
+        self._addWhatsThisText()
+        
         self.lastCheckedRotateButton = None 
         self.lastCheckedTranslateButton = None
         self.isTranslateGroupBoxActive = None                         
         self.updateMessage()
-        self.add_whats_this_text()
-
+        
     def connect_or_disconnect_signals(self, connect):
         """
         Connect the slots in Move Property Manager. 
@@ -615,222 +620,3 @@ class MovePropertyManager(Ui_MovePropertyManager):
                 Rotate options are available below."
 
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )
-
-    def add_whats_this_text( self ):
-        """What's This text for some of the widgets in the 
-        Move Property Manager.
-        """
-
-        # Translate group box widgets ################################
-
-        self.translateComboBox.setWhatsThis(
-            """<b>Translation Options</b>
-            <p>This menu provides different options for translating the
-            current selection where:</p>
-            <p>
-            <b>Free Drag</b>: translates the selection by dragging the mouse
-            while holding down the left mouse button (LMB).</p>
-            <p>
-            <b>By Delta XYZ</b>: tranlates the selection by a specified 
-            offset.</p>
-            <p>
-            <b>To XYZ Position</b>: moves the selection to an absolute XYZ
-            coordinate. The <i>centroid</i> of the selection is used for
-            this operation.
-        </p>""")
-
-        self.transFreeButton.setWhatsThis(
-            """<b>Unconstrained Translation</b>
-            <p>Translates the selection freely within the plane of the screen.
-        </p>""")
-
-        self.transXButton.setWhatsThis(
-            """<b>X Translation</b>
-            <p>Constrains translation of the selection to the X axis.
-        </p>""")
-
-        self.transYButton.setWhatsThis(
-            """<b>Y Translation</b>
-            <p>Constrains translation of the selection to the Y axis.
-        </p>""")
-
-        self.transZButton.setWhatsThis(
-            """<b>Z Translation</b>
-            <p>Constrains translation of the selection to the Z axis.
-        </p>""")
-
-        self.transAlongAxisButton.setWhatsThis(
-            """<b>Axial Translation/Rotation</b>
-            <p>Constrains both translation and rotation of the selection along
-            the central axis of the selected object(s). This is especially
-            useful for translating and rotating DNA duplexes along their
-            own axis.
-        </p>""")
-
-        # By Delta XYZ widgets
-
-        self.moveDeltaXSpinBox.setWhatsThis(
-            """<b>Delta X</b>
-            <p>The X offset distance the selection is moved when 
-            clicking the +/- Delta buttons.
-        </p>""")
-
-        self.moveDeltaYSpinBox.setWhatsThis(
-            """<b>Delta Y</b>
-            <p>The Y offset distance the selection is moved when 
-            clicking the +/- Delta buttons.
-        </p>""")
-
-        self.moveDeltaZSpinBox.setWhatsThis(
-            """<b>Delta Z</b>
-            <p>The Z offset distance the selection is moved when 
-            clicking the +/- Delta buttons.
-        </p>""")
-
-        self.transDeltaPlusButton.setWhatsThis(
-            """<b>Delta +</b>
-            <p>Moves the current selection by an offset
-            specified by the Delta X, Y and Z spinboxes.
-        </p>""")
-
-        self.transDeltaPlusButton.setToolTip(
-            "Move selection by + (plus) delta XYZ")
-
-        self.transDeltaMinusButton.setWhatsThis(
-            """<b>Delta -</b>
-            <p>Moves the current selection by an offset opposite of that 
-            specified by the Delta X, Y and Z spinboxes.
-        </p>""")
-
-        self.transDeltaMinusButton.setToolTip(
-            "Move selection by - (minus) delta XYZ")
-
-        # To XYZ Position widgets
-
-        self.moveXSpinBox.setWhatsThis(
-            """<b>X</b>
-            <p>The X coordinate the selection is moved when 
-            clicking the +/- Delta buttons.
-        </p>""")
-
-        self.moveYSpinBox.setWhatsThis(
-            """<b>Y</b>
-            <p>The Y coordinate the selection is moved when 
-            clicking the +/- Delta buttons.
-        </p>""")
-
-        self.moveZSpinBox.setWhatsThis(
-            """<b>Z</b>
-            <p>The Z coordinate the selection is moved when 
-            clicking the <b>Move to Absolute Position</b> button.
-        </p>""")
-
-        self.moveAbsoluteButton.setWhatsThis(
-            """<b>Move to Absolute Position</b>
-            <p>Moves the current selection to the position
-            specified by the X, Y and Z spinboxes. The selection's centroid
-            is used compute how the selection is moved.
-        </p>""")
-
-        self.moveAbsoluteButton.setToolTip(
-            "Move selection to absolute XYZ position")
-
-
-        # Rotate group box widgets ############################
-
-        self.rotateComboBox.setWhatsThis(
-            """<b>Rotate Options</b>
-            <p>This menu provides different options for rotating the
-            current selection where:</p>
-            <p>
-            <b>Free Drag</b>: rotates the selection by dragging the mouse
-            while holding down the left mouse button (LMB).</p>
-            <p>
-            <b>By Specified Angle</b>: rotates the selection by a specified 
-            angle.
-        </p>""")
-
-        # Free Drag widgets.
-
-        self.rotateFreeButton.setWhatsThis(
-            """<b>Unconstrained Rotation</b>
-            <p>Rotates the selection freely about its centroid.
-        </p>""")
-
-        self.rotateXButton.setWhatsThis(
-            """<b>X Rotation</b>
-            <p>Constrains rotation of the selection to the X axis.
-        </p>""")
-
-        self.rotateYButton.setWhatsThis(
-            """<b>Y Rotation</b>
-            <p>Constrains rotation of the selection to the Y axis.
-        </p>""")
-
-        self.rotateZButton.setWhatsThis(
-            """<b>Z Rotation</b>
-            <p>Constrains rotation of the selection to the Z axis.
-        </p>""")
-
-        self.rotAlongAxisButton.setWhatsThis(
-            """<b>Axial Translation/Rotation</b>
-            <p>Constrains both translation and rotation of the selection along
-            the central axis of the selected object(s). This is especially
-            useful for translating and rotating DNA duplexes along their
-            own axis.
-        </p>""")
-
-        self.rotateAsUnitCB.setWhatsThis(
-            """<b>Rotate as unit</b>
-            <p>When <b>checked</b>, the selection is rotated as a unit about its
-            collective centroid.<br>
-            When <b>unchecked</b>, the selected objects are rotated about their 
-            own individual centroids.
-        </p>""")
-
-        # By Specified Angle widgets
-
-        self.rotateXButton.setWhatsThis(
-            """<b>Rotate about X axis</b>
-            <p>Constrains rotation about the X axis.
-        </p>""")
-
-        self.rotateXButton.setToolTip(
-            "Rotate about X axis")
-
-        self.rotateYButton.setWhatsThis(
-            """<b>Rotate about Y axis</b>
-            <p>Constrains rotation about the Y axis.
-        </p>""")
-
-        self.rotateYButton.setToolTip(
-            "Rotate about Y axis")
-
-        self.rotateZButton.setWhatsThis(
-            """<b>Rotate about Z axis</b>
-            <p>Constrains rotation about the Z axis.
-        </p>""")
-
-        self.rotateZButton.setToolTip(
-            "Rotate about Z axis")
-
-        self.rotateThetaSpinBox.setWhatsThis(
-            """<b>Rotation angle</b>
-            <p>Specifies the angle of rotation.
-        </p>""")
-
-        self.rotateThetaSpinBox.setToolTip(
-            "Angle of rotation")
-
-        # These next two aren't working. 
-        # I don't understand why not. Mark 2007-06-25.
-        self.rotateThetaPlusButton.setWhatsThis(
-            """<b>Rotate</b>
-            <p>Rotates the selection by the specified angle.
-        </p>""")
-
-        self.rotateThetaMinusButton.setWhatsThis(
-            """<b>Rotate (minus)</b>
-            <p>Rotates the selection by the specified angle 
-            (in the opposite direction).
-        </p>""")
