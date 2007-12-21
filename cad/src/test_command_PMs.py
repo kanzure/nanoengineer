@@ -38,9 +38,7 @@ class PM_Dialog_with_example_widgets( PM_Dialog):
 
     def __init__(self):
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
-        self._addGroupBoxes()
-        self._addWhatsThisText()
-        
+               
         msg = "Example command created at %s" % time.asctime()
         
         # This causes the "Message" box to be displayed as well.

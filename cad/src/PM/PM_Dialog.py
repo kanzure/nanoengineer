@@ -132,6 +132,24 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         # I may want to use it now that I understand it.
         # Mark 2007-05-17.
         #QMetaObject.connectSlotsByName(self)
+        
+        self._addGroupBoxes()
+        self._addWhatsThisText()
+    
+    def _addGroupBoxes(self):
+        """
+        Add various group boxes to this PM. Subclasses should override this 
+        method. 
+         
+        """
+        pass
+
+    def _addWhatsThisText(self):
+        """
+        Add what's this text. 
+        Subclasses should override this  method. 
+        """
+        pass
             
     def show(self):
         """

@@ -30,19 +30,19 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
     """
     The Ui_ExtrudePropertyManager class defines UI elements for the Property 
     Manager of the B{Extrude mode}.
-    
+
     @ivar title: The title that appears in the property manager header.
     @type title: str
-    
+
     @ivar pmName: The name of this property manager. This is used to set
                   the name of the PM_Dialog object via setObjectName().
     @type name: str
-    
+
     @ivar iconPath: The relative path to the PNG file that contains a
                     22 x 22 icon image that appears in the PM header.
     @type iconPath: str
     """
-       
+
     # The title that appears in the Property Manager header        
     title = "Extrude"
     # The name of this Property Manager. This will be set to
@@ -50,41 +50,46 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
     pmName = title
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Properties Manager/Extrude.png"
-    
+
     def __init__(self, parentMode):
         """
         Constructor for the B{Extrude} property manager class that defines 
         its UI.
-        
+
         @param parentMode: The parent mode where this Property Manager is used
         @type  parentMode: L{extrudeMode}        
         """
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-        
-        self.showTopRowButtons( pmDoneButton | \
-				pmCancelButton | \
-				pmWhatsThisButton)
-        
         self.parentMode = parentMode
-        self.o = self.parentMode.w.glpane 
+        self.w = self.parentMode.w
+        self.win = self.parentMode.w
+        self.pw = self.parentMode.pw        
+        self.o = self.win.glpane         
+        
+        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+
+        self.showTopRowButtons( pmDoneButton | \
+                                pmCancelButton | \
+                                pmWhatsThisButton)
+
+        
         msg = ''
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
-    
+
     def _addGroupBoxes(self):
         """
         Add various group boxes to the Extrude Property manager. 
         """
-	
-	self._addProductSpecsGroupBox()
-	self._addAdvancedOptionsGroupBox()
-    
+
+        self._addProductSpecsGroupBox()
+        self._addAdvancedOptionsGroupBox()
+
     def _addProductSpecsGroupBox(self):
+        """
 	"""
-	"""
-	self.productSpecsGroupBox = \
+        self.productSpecsGroupBox = \
             PM_GroupBox( self, title = "Product Specifications" )          
         self._loadProductSpecsGroupBox(self.productSpecsGroupBox)
-    
+
     def _addAdvancedOptionsGroupBox(self):
         """
         Add 'Advanced Options' groupbox
@@ -92,94 +97,94 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
         self.advancedOptionsGroupBox = \
             PM_GroupBox( self, title = "Advanced Options" )          
         self._loadAdvancedOptionsGroupBox(self.advancedOptionsGroupBox)
-    
+
     def _loadProductSpecsGroupBox(self, inPmGroupBox):
         """
         Load widgets in the Product specifications group box.
         @param inPmGroupBox: The roduct specifications box in the PM
         @type  inPmGroupBox: L{PM_GroupBox} 
         """
-	
-	productChoices = ['rod', 'ring']
-	
-	self.extrude_productTypeComboBox = \
+
+        productChoices = ['rod', 'ring']
+
+        self.extrude_productTypeComboBox = \
             PM_ComboBox( inPmGroupBox,
                          label        = 'Final Product:', 
-			 labelColumn  = 0,
+                         labelColumn  = 0,
                          choices      = productChoices, 
                          index        = 0, 
                          setAsDefault = True,
                          spanWidth    = False )
-	
-	# names used in the code, same order
-	#if you comment out items from combobox, you also have to remove them
-	# from this list unless they are at the end!!!
+
+        # names used in the code, same order
+        #if you comment out items from combobox, you also have to remove them
+        # from this list unless they are at the end!!!
         self.extrude_productTypeComboBox_ptypes = ["straight rod", \
-						   "closed ring", \
-						   "corkscrew"] 
-	
-	self.extrudeSpinBox_n = \
-	    PM_SpinBox( inPmGroupBox,
-			label         =  "Number of Copies:",
-			labelColumn   =  0,
-			value         =  3,
-			minimum       =  1,
-			maximum       =  99
-		      )
-	#@WARNING: This method initializes some instance varaiables for various
-	#checkboxes. (Example: self.mergeCopiesCheckBox.default = False). 
-	#These values are needed in extrudemode.py. This 
-	#won't be needed once extrudeMode.py is cleaned up. -- ninad 2007-09-10
-	
-	self.extrudeBondCriterionSlider =  \
-	    PM_Slider( inPmGroupBox,
-		       currentValue = 100,
-		       minimum      = 0,
-		       maximum      = 300,
-		       label        = 'Tolerence'
-		     )
-	self.extrudeBondCriterionLabel = \
-	    self.extrudeBondCriterionSlider.labelWidget
-	
-	self.extrudeBondCriterionSlider_dflt = 100
-	self.extrudeBondCriterionSlider.setPageStep(5) 
-	
-	self.makeBondsCheckBox = \
+                                                   "closed ring", \
+                                                   "corkscrew"] 
+
+        self.extrudeSpinBox_n = \
+            PM_SpinBox( inPmGroupBox,
+                        label         =  "Number of Copies:",
+                        labelColumn   =  0,
+                        value         =  3,
+                        minimum       =  1,
+                        maximum       =  99
+                    )
+        #@WARNING: This method initializes some instance varaiables for various
+        #checkboxes. (Example: self.mergeCopiesCheckBox.default = False). 
+        #These values are needed in extrudemode.py. This 
+        #won't be needed once extrudeMode.py is cleaned up. -- ninad 2007-09-10
+
+        self.extrudeBondCriterionSlider =  \
+            PM_Slider( inPmGroupBox,
+                       currentValue = 100,
+                       minimum      = 0,
+                       maximum      = 300,
+                       label        = 'Tolerence'
+                   )
+        self.extrudeBondCriterionLabel = \
+            self.extrudeBondCriterionSlider.labelWidget
+
+        self.extrudeBondCriterionSlider_dflt = 100
+        self.extrudeBondCriterionSlider.setPageStep(5) 
+
+        self.makeBondsCheckBox = \
             PM_CheckBox(inPmGroupBox,
                         text         = 'Make Bonds' ,
                         widgetColumn = 0,
                         state        = Qt.Checked
-                        )
-	self.makeBondsCheckBox.default = True
-	self.makeBondsCheckBox.attr = 'whendone_make_bonds'
-	self.makeBondsCheckBox.repaintQ = False
-	
- 
+                    )
+        self.makeBondsCheckBox.default = True
+        self.makeBondsCheckBox.attr = 'whendone_make_bonds'
+        self.makeBondsCheckBox.repaintQ = False
+
+
     def _loadAdvancedOptionsGroupBox(self, inPmGroupBox):
         """
         Load widgets in the Advanced Options group box.
         @param inPmGroupBox: The Advanced Options box in the PM
         @type  inPmGroupBox: L{PM_GroupBox} 
-	 
+
         """
-	
-	self.mergeOptionsGroupBox = PM_GroupBox(inPmGroupBox, 
-						title = 'Merge Options:' )
-	self._loadMergeOptionsGroupBox(self.mergeOptionsGroupBox)
-	
-	self.displayOptionsGroupBox = PM_GroupBox(inPmGroupBox, 
-						  title = 'Display Options:')
-	self._loadDisplayOptionsGroupBox(self.displayOptionsGroupBox)
-	
-	
-	self.offsetSpecsGroupBox = PM_GroupBox(inPmGroupBox, 
-						title = 'Offset Between Copies:'
-						)
-	self._loadOffsetSpecsGroupBox(self.offsetSpecsGroupBox)
+
+        self.mergeOptionsGroupBox = PM_GroupBox(inPmGroupBox, 
+                                                title = 'Merge Options:' )
+        self._loadMergeOptionsGroupBox(self.mergeOptionsGroupBox)
+
+        self.displayOptionsGroupBox = PM_GroupBox(inPmGroupBox, 
+                                                  title = 'Display Options:')
+        self._loadDisplayOptionsGroupBox(self.displayOptionsGroupBox)
+
+
+        self.offsetSpecsGroupBox = PM_GroupBox(inPmGroupBox, 
+                                               title = 'Offset Between Copies:'
+                                           )
+        self._loadOffsetSpecsGroupBox(self.offsetSpecsGroupBox)
 
 
     def _loadDisplayOptionsGroupBox(self, inPmGroupBox):
-	"""
+        """
 	Load widgets in the Display Options groupbox (which is a groupbox within
 	the B{Advanced Options group box} ) .
         @param inPmGroupBox: The Display Options groupbox 
@@ -188,28 +193,28 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 	checkboxes. (Example: self.mergeCopiesCheckBox.default = False). This 
 	won't be needed once extrudeMode.py is cleaned up.
 	"""
-	self.showEntireModelCheckBox = \
+        self.showEntireModelCheckBox = \
             PM_CheckBox(inPmGroupBox,
                         text         = 'Show Entire Model' ,
                         widgetColumn = 1,
                         state        = Qt.Unchecked
-                        )
-	self.showEntireModelCheckBox.default = False
-	self.showEntireModelCheckBox.attr = 'show_entire_model'
-	self.showEntireModelCheckBox.repaintQ = True
-	
-	self.showBondOffsetCheckBox = \
+                    )
+        self.showEntireModelCheckBox.default = False
+        self.showEntireModelCheckBox.attr = 'show_entire_model'
+        self.showEntireModelCheckBox.repaintQ = True
+
+        self.showBondOffsetCheckBox = \
             PM_CheckBox(inPmGroupBox,
                         text         = 'Show Bond-offset Spheres' ,
                         widgetColumn = 1,
                         state        = Qt.Unchecked
-                        )
-	self.showBondOffsetCheckBox.default = False
-	self.showBondOffsetCheckBox.attr = 'show_bond_offsets'
-	self.showBondOffsetCheckBox.repaintQ = True
-    
+                    )
+        self.showBondOffsetCheckBox.default = False
+        self.showBondOffsetCheckBox.attr = 'show_bond_offsets'
+        self.showBondOffsetCheckBox.repaintQ = True
+
     def _loadMergeOptionsGroupBox(self, inPmGroupBox):
-	"""
+        """
 	Load widgets in the Merge Options groupbox (which is a groupbox within 
 	the B{Advanced Options group box}).
         @param inPmGroupBox: The Merge Options groupbox 
@@ -218,36 +223,36 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
 	checkboxes. (Example: self.mergeCopiesCheckBox.default = False). This 
 	won't be needed once extrudeMode.py is cleaned up.
 	"""
-	self.mergeCopiesCheckBox = \
+        self.mergeCopiesCheckBox = \
             PM_CheckBox(inPmGroupBox,
                         text         = 'Merge Copies' ,
                         widgetColumn = 1,
                         state        = Qt.Unchecked
-                        )
-	self.mergeCopiesCheckBox.default = False
-	self.mergeCopiesCheckBox.attr = 'whendone_all_one_part'
-	self.mergeCopiesCheckBox.repaintQ = False
-		
-        
+                    )
+        self.mergeCopiesCheckBox.default = False
+        self.mergeCopiesCheckBox.attr = 'whendone_all_one_part'
+        self.mergeCopiesCheckBox.repaintQ = False
+
+
         self.extrudePrefMergeSelection = \
-	    PM_CheckBox(inPmGroupBox,
+            PM_CheckBox(inPmGroupBox,
                         text         = 'Merge Selection' ,
                         widgetColumn = 1,
                         state        = Qt.Unchecked
-                        )
-	self.extrudePrefMergeSelection.default = False
-	self.extrudePrefMergeSelection.attr = 'whendone_merge_selection'
-	self.extrudePrefMergeSelection.repaintQ = False
-	
+                    )
+        self.extrudePrefMergeSelection.default = False
+        self.extrudePrefMergeSelection.attr = 'whendone_merge_selection'
+        self.extrudePrefMergeSelection.repaintQ = False
+
     def _loadOffsetSpecsGroupBox(self, inPmGroupBox):
-	"""
+        """
 	Load widgets in the Offset specs groupbox (which is a groupbox within 
 	the B{Advanced Options group box}).
         @param inPmGroupBox: The Offset Specs gropbox box 
         @type  inPmGroupBox: L{PM_GroupBox} 
 	"""
-	self.extrudeSpinBox_length = \
-	    PM_DoubleSpinBox( inPmGroupBox,
+        self.extrudeSpinBox_length = \
+            PM_DoubleSpinBox( inPmGroupBox,
                               label         =  "Total Offset",
                               value         =  7.0,
                               setAsDefault  =  True,
@@ -255,38 +260,109 @@ class Ui_ExtrudePropertyManager(PM_Dialog):
                               maximum       =  2000.0,
                               singleStep    =  1,
                               decimals      =  3,
-			      suffix        =  ' Angstroms'
-                             )   
-	
-	self.extrudeSpinBox_x = \
-	    PM_DoubleSpinBox( inPmGroupBox,
+                              suffix        =  ' Angstroms'
+                          )   
+
+        self.extrudeSpinBox_x = \
+            PM_DoubleSpinBox( inPmGroupBox,
                               label         =  "X Offset",
                               value         =  0,
                               minimum       =  -1000.0,
                               maximum       =  1000.0,
                               singleStep    =  1,
                               decimals      =  3,
-			      suffix        =  ' Angstroms'
-                             )   
-	
-	self.extrudeSpinBox_y = \
-	    PM_DoubleSpinBox( inPmGroupBox,
+                              suffix        =  ' Angstroms'
+                          )   
+
+        self.extrudeSpinBox_y = \
+            PM_DoubleSpinBox( inPmGroupBox,
                               label         =  "Y Offset",
                               value         =  0,
                               minimum       =  -1000.0,
                               maximum       =  1000.0,
                               singleStep    =  1,
                               decimals      =  3,
-			      suffix        =  ' Angstroms'
-                             ) 
-	self.extrudeSpinBox_z = \
-	    PM_DoubleSpinBox( inPmGroupBox,
+                              suffix        =  ' Angstroms'
+                          ) 
+        self.extrudeSpinBox_z = \
+            PM_DoubleSpinBox( inPmGroupBox,
                               label         =  "Z Offset",
                               value         =  0,
                               minimum       =  -1000.0,
                               maximum       =  1000.0,
                               singleStep    =  1,
                               decimals      =  3,
-			      suffix        =  ' Angstroms'
-                             ) 
-	
+                              suffix        =  ' Angstroms'
+                          ) 
+    
+    def _addWhatsThisText( self ):
+        """
+        What's This text for some of the widgets in the 
+        Extrude Property Manager.
+        """
+        self.extrude_productTypeComboBox.setWhatsThis(
+            """<b>Final product</b>
+            <p>The type of product to create. Options are:</p>
+            <p><b>Rod</b>: a straight rod.<br>
+            <b>Ring</b>: a closed ring.
+            </p>""")
+        
+        self.extrudeSpinBox_n.setWhatsThis(
+            """<b>Number of copies</b>
+            <p>The total number of copies, including the originally selected 
+            chunk(s).
+            </p>""")
+        
+        self.showEntireModelCheckBox.setWhatsThis(
+            """<b>Show Entire Model</b>
+            <p>Normally, only the selection and their copies are displayed 
+            during the Extrude command. Checking this option displays 
+            everything in the current model.
+            </p>""")
+            
+        self.makeBondsCheckBox.setWhatsThis(
+            """<b>Make Bonds</b>
+            <p>When checked, bonds will be made between pairs of bondpoints
+            highlighted in blue and green after clicking <b>Done</b>.
+            </p>""")
+        
+        self.extrudeBondCriterionSlider.setWhatsThis(
+            """<b>Tolerance slider</b>
+            <p>Sets the bond criterion tolerance. The larger the tolerance 
+            value, the further bonds will be formed between pairs of 
+            bondpoints.
+            </p>""")
+        
+        self.extrudePrefMergeSelection.setWhatsThis(
+            """<b>Merge Selection</b>
+            <p>Merges the selected chunks into a single chunk after 
+            clicking <b>Done</b>.
+            </p>""")
+            
+        self.mergeCopiesCheckBox.setWhatsThis(
+            """<b>Merge Copies</b>
+            <p>When checked, copies are merged with the original chunk
+            after clicking <b>Done</b>.
+            </p>""")
+        
+        self.extrudeSpinBox_length.setWhatsThis(
+            """<b>Total Offset</b>
+            <p>The total offset distance between copies.
+            </p>""")
+        
+        self.extrudeSpinBox_x.setWhatsThis(
+            """<b>X Offset</b>
+            <p>The X offset distance between copies.
+            </p>""")
+            
+        self.extrudeSpinBox_y.setWhatsThis(
+            """<b>Y Offset</b>
+            <p>The Y offset distance between copies.
+            </p>""")
+            
+        self.extrudeSpinBox_z.setWhatsThis(
+            """<b>Z Offset</b>
+            <p>The Z offset distance between copies.
+            </p>""")
+        
+        return

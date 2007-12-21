@@ -32,20 +32,8 @@ class MovePropertyManager(Ui_MovePropertyManager):
     isAlreadyConnected = False
 
     def __init__(self, parentMode):
-        Ui_MovePropertyManager.__init__(self)     
-        self.parentMode = parentMode
-
-        #@ These 4 lines will be moved to Ui_
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.o = self.parentMode.o
-        self.pw = self.parentMode.pw
-        
-        #@ These two lines of code will be removed once Ninad add the methods
-        #@ to the PM_Dialog (super) class' __init__() method.
-        self._addGroupBoxes()
-        self._addWhatsThisText()
-        
+        Ui_MovePropertyManager.__init__(self, parentMode) 
+                
         self.lastCheckedRotateButton = None 
         self.lastCheckedTranslateButton = None
         self.isTranslateGroupBoxActive = None                         

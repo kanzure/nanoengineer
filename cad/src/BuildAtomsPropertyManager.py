@@ -44,16 +44,9 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         @param parentMode: The parent mode where this Property Manager is used
         @type  parentMode: L{depositMode} 
         """
+        self.previousSelectionParams = None
         Ui_BuildAtomsPropertyManager.__init__(self, parentMode)
         
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.pw = self.parentMode.pw
-        
-        self.previousSelectionParams = None
-                
-        self._addGroupBoxes()
-                
         # It is essential to make the following flag 'True' instead of False. 
         # Program enters self._moveSelectedAtom method first after init, and 
         # there and this flag ensures that it returns from that method 

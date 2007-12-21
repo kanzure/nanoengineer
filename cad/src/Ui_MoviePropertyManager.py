@@ -69,17 +69,19 @@ class Ui_MoviePropertyManager(PM_Dialog):
         @param parentMode: The parent mode where this Property Manager is used
         @type  parentMode: L{movieMode}        
         """
+        self.parentMode = parentMode
+        self.w = self.parentMode.w
+        self.win = self.parentMode.w
+        self.o = self.win.glpane
+        self.pw = self.parentMode.pw
+        
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
                                 pmWhatsThisButton)
         
-        self.parentMode = parentMode
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.o = self.parentMode.o
-        self.pw = self.parentMode.pw
+        
         msg = ''
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
     

@@ -6,7 +6,7 @@ The QuteMol Property Manager.
 
 @author: Mark
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id:$
+@version:$Id$
 
 History:
 mark 20071202: Created.
@@ -79,8 +79,6 @@ class QuteMolPropertyManager(PM_Dialog):
         
         # Hide Preview and Restore defaults button for Alpha9.
         self.hideTopRowButtons(pmRestoreDefaultsButton | pmPreviewButton)
-        
-        self._addGroupBoxes()
 
     def _addGroupBoxes(self):
         """
@@ -139,8 +137,10 @@ class QuteMolPropertyManager(PM_Dialog):
         """
         Add "What's This" text for all widgets in this Property Manager.
         """    
-        self.pmRenderingStyle.setWhatsThis("""<b>Rendering Style</b>
-        <p>The QuteMol rendering style""")
+        #self.pmRenderingStyle is not defined. So commenting out the following 
+        #line 
+        ##self.pmRenderingStyle.setWhatsThis("""<b>Rendering Style</b>
+        ##<p>The QuteMol rendering style""")
         
         pass
     

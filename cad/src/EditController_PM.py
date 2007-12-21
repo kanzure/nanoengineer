@@ -64,10 +64,9 @@ class EditController_PM(PM_Dialog):
                            self.iconPath, 
                            self.title
                        )
-        self._addGroupBoxes()
+        
         self._createFlyoutActions()
-        self._addWhatsThisText()
-    
+            
     def setEditController(self, editController):
         """
         """

@@ -6,15 +6,9 @@ $Id$
 from Ui_CookiePropertyManager import Ui_CookiePropertyManager
 
 class CookiePropertyManager(Ui_CookiePropertyManager):
-        
     def __init__(self, parentMode):
         Ui_CookiePropertyManager.__init__(self, parentMode)
-        self.w = self.parentMode.w
-        self.win = self.parentMode.w
-        self.pw = self.parentMode.pw
-        
-        self._addGroupBoxes()           
-        self.updateMessage() 
+        self.updateMessage()           
     
     def ok_btn_clicked(self):
         """

@@ -74,14 +74,12 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         @param parentMode: The parent mode where this Property Manager is used
         @type  parentMode: L{depositMode}        
         """
-        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
-        
-        self.showTopRowButtons(pmDoneButton | pmWhatsThisButton)
-        
         self.parentMode = parentMode
-        self.o = self.parentMode.w.glpane 
-        msg = ''
-        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+        self.w = self.parentMode.w
+        self.win = self.parentMode.w
+        self.pw = self.parentMode.pw        
+        self.o = self.win.glpane 
+        
         
         self.previewGroupBox = None
         self.regularElementChooser = None
@@ -100,6 +98,12 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         self.selectedAtomPosGroupBox = None
         self.showSelectedAtomInfoCheckBox = None
         
+        PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
+        
+        self.showTopRowButtons(pmDoneButton | pmWhatsThisButton)        
+        msg = ''
+        self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
+
     def _addGroupBoxes(self):
         """
         Add various group boxes to the Build Atoms Property manager. 

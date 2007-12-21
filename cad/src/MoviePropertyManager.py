@@ -35,7 +35,6 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         @type  parentMode: L{movieMode} 
         """
         Ui_MoviePropertyManager.__init__(self, parentMode)
-        self._addGroupBoxes() 
         ##self.updateMessage(msg) 
 
     def connect_or_disconnect_signals(self, connect):

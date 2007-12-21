@@ -25,6 +25,7 @@ from PM.PM_ToolButton      import PM_ToolButton
 from PM.PM_LineEdit        import PM_LineEdit
 from PM.PM_LabelRow        import PM_LabelRow
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
+from PM.PM_WhatsThisText    import whatsThis_MovePropertyManager
 
 from PM.PM_Constants       import pmDoneButton
 from PM.PM_Constants       import pmWhatsThisButton
@@ -51,7 +52,13 @@ class Ui_MovePropertyManager( PM_Dialog ):
     translateIconPath = "ui/actions/Properties Manager/Translate_Components.png"
     rotateIconPath = "ui/actions/Properties Manager/Rotate_Components.png"
     
-    def __init__(self):
+    def __init__(self, parentMode):        
+        self.parentMode = parentMode
+        self.w = self.parentMode.w
+        self.win = self.parentMode.w
+        self.o = self.parentMode.o
+        self.pw = self.parentMode.pw
+        
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)        
         self.showTopRowButtons(pmDoneButton | pmWhatsThisButton)
     
@@ -530,4 +537,13 @@ class Ui_MovePropertyManager( PM_Dialog ):
              method
         """
         pass
+    
+    def _addWhatsThisText(self):
+        """
+        What's This text for some of the widgets in this Property Manager.  
+
+        @note: Many PM widgets are still missing their "What's This" text.
+        """
+
+        whatsThis_MovePropertyManager(self)
             

@@ -70,14 +70,19 @@ class Ui_CookiePropertyManager(PM_Dialog):
         @param parentMode: The parent mode where this Property Manager is used
         @type  parentMode: L{cookieMode}  
         """
+        self.parentMode = parentMode
+        self.w = self.parentMode.w
+        self.win = self.parentMode.w
+        self.pw = self.parentMode.pw        
+        self.o = self.parentMode.o
+        
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
                                 pmWhatsThisButton)
         
-        self.parentMode = parentMode
-        self.o = self.parentMode.o
+        
         msg = ''
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=False)
     
@@ -89,7 +94,6 @@ class Ui_CookiePropertyManager(PM_Dialog):
         self._addLayerPropertiesGroupBox()
         self._addDisplayOptionsGroupBox()
         self._addAdvancedOptionsGroupBox()
-        self._addWhatsThisText()
     
     def _addCrystalSpecsGroupbox(self):
         """

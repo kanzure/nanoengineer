@@ -65,10 +65,12 @@ class PM_WidgetsDemoPropertyManager(PM_Dialog, GeneratorBaseClass):
     iconPath = "ui/actions/Properties Manager/info.png"
 
     def __init__(self, win, commandrun = None):
+       
+        self.win = win
+                
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
         GeneratorBaseClass.__init__( self, win)    
-        self._addGroupBoxes()
-        
+                
         msg = "This Property Manager (PM) is used to display and/or test new \
                PM widgets avaiable in NanoEngineer-1's PM module."
         
