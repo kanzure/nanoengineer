@@ -2551,8 +2551,9 @@ class Minimize_CommandRun(CommandRun):
             # before trying to play it (or might be a side effect of playing it, this is not reviewed either).
             ###e bruce 050428 comment: if self.assy.current_movie exists, should do something like close or destroy it... need to review
             self.assy.current_movie = movie
-            # If _setup() returns a non-zero value, something went wrong loading the movie.
-            if movie._setup(): return
+            # If cueMovie() returns a non-zero value, something went wrong loading the movie.
+            if movie.cueMovie(): 
+                return
             movie._play()
             movie._close()
         return
