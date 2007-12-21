@@ -324,7 +324,7 @@ class basicCommand(anyCommand):
         self.glpane.commandTable[self.modename] = self
             # note: this can overwrite a prior instance of the same command,
             # e.g. when setAssy is called.
-
+            
         return # from basicCommand.__init__
 
     # ==
@@ -1087,12 +1087,12 @@ class basicCommand(anyCommand):
             # TODO: review whether to do this somewhere else, so it also covers Cancel;
             # and/or refactor it further so the Command Sequencer fully handles it
             # (as said just above). # [bruce 071011 change and comment]
-            assert not suspend_old_mode # bruce 071011 added this; old code just pretended it was false
+            ##assert not suspend_old_mode # bruce 071011 added this; old code just pretended it was false
             
             if new_mode is None:
                 try:
-                    new_mode = self.commandSequencer.prevMode                    
-                    if new_mode:
+                    new_mode = self.commandSequencer.prevMode 
+                    if new_mode and not self.command_has_its_own_gui:
                         if exit_using_done_or_cancel_button:                           
                             # This fixes bugs like 2566, 2565 
                             # @bug: But it doesn't fix the
@@ -1117,6 +1117,21 @@ class basicCommand(anyCommand):
                             resuming = True
                 except:
                     print_compact_traceback("bug, ignoring: ") #bruce 071011 added this
+            else:
+                #TEMPORARY FIX FOR BUG 2593 NEEDS CLEANUP
+                # This code is not copied in Cancel 
+                # method as it seems unncessary to do so (as of 2007-12-21) 
+                #(This part of the code is reached only when user explicitely 
+                #invokes a new command and before entering that command, we
+                #execute 'autoDone' on the current command
+                #If the current command is a temporary command, it is necessary
+                #to properly exit the previous command from which it was invoked. 
+                #before entering the 'new_mode' (not 'None' in this elase 
+                #statement) The new_mode  is supplied to the this method as a 
+                #parameter, This fixes bugs like 2593.  
+                previous_command = self.commandSequencer.prevMode
+                if previous_command is not new_mode:
+                    self._exit_previous_command(exit_using_done_or_cancel_button)
             if resuming:
                 new_mode_options['resuming'] = True
                 new_mode_options['has_its_own_gui'] = self.command_has_its_own_gui
@@ -1145,6 +1160,28 @@ class basicCommand(anyCommand):
                 print "warning: failed to enter", new_mode # remove if fully redundant
         return
     
+    
+    def _exit_previous_command(self, exit_using_done_or_cancel_button):
+        """
+        
+        NEEDS CLEANUP. Called in self.Done, When a new command to enter 
+        is specified Example: when a temporary command is not going to resume
+        a previous command but rather enter a new command invoked by the user, 
+        this function first exits any pending previous mode commands. 
+        @see: comment in self.Done. 
+        """
+        previous_command = self.commandSequencer.prevMode                
+        if previous_command and not self.command_has_its_own_gui:            
+            if exit_using_done_or_cancel_button:
+                if previous_command.command_has_its_own_gui:
+                    previous_command.Done()
+                else:
+                    #new Command is a temporary mode with no special
+                    #ui to exit it.
+                    previous_command.Done(
+                        exit_using_done_or_cancel_button = False)    
+    
+        
     def StateDone(self):
         """
         Mode objects (e.g. cookieMode) which might have accumulated
@@ -1458,6 +1495,7 @@ class Command(basicCommand):
     def _create_GraphicsMode(self):
         GM_class = self.GraphicsMode_class # TODO: let caller pass something to replace this?
         assert issubclass(GM_class, GraphicsMode_API)
+
         args = [self] # the command is the only ordinary init argument
         kws = {} # TODO: let subclasses add kws to this
         # NOT TODO [see end of comment for why not]:
@@ -1470,6 +1508,7 @@ class Command(basicCommand):
         # We'd have to reset it with every delegation, or pass it as an argument
         # into every method (or attr get) -- definitely worse than the benefit,
         # so NEVERMIND. Instead, just share anything expensive that a GM sets up.
+        
         self.graphicsMode = GM_class(*args, **kws)
         pass
 
