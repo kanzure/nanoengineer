@@ -3,120 +3,53 @@
 $Id$
 """
 
-from PyQt4 import QtCore, QtGui
-from PyQt4.Qt import Qt
-from icon_utilities import geticon
+from PyQt4 import QtGui
 from debug_prefs import debug_pref, Choice_boolean_False
 
-
 def setupUi(win):
-    
-    MainWindow = win
-      
-    win.Insert = QtGui.QMenu(win.MenuBar)
-    win.Insert.setObjectName("Insert")
-    
-    win.jigsAtomSetAction = QtGui.QWidgetAction(MainWindow)
-    win.jigsAtomSetAction.setIcon(geticon("ui/actions/Tools/Atom_Set"))
-    win.jigsAtomSetAction.setObjectName("jigsAtomSetAction")
-    
-    win.fileInsertAction = QtGui.QAction(MainWindow)
-    win.fileInsertAction.setObjectName("fileInsertAction")
-    
-    win.partLibAction = QtGui.QAction(MainWindow)
-    win.partLibAction.setObjectName("partLibAction")
-    win.partLibAction.setText("Part from partlib...")    
-    win.partLibAction.setIcon(geticon('ui/actions/Insert/Partlib'))
-    
-    win.insertCommentAction = QtGui.QAction(MainWindow)
-    win.insertCommentAction.setIcon(geticon("ui/actions/Insert/Comment"))
-    win.insertCommentAction.setObjectName("insertCommentAction")
-    
-    win.insertPovraySceneAction = QtGui.QAction(MainWindow)
-    win.insertPovraySceneAction.setIcon(geticon("ui/actions/Insert/POV-Ray_Scene"))
-    win.insertPovraySceneAction.setObjectName("insertPovraySceneAction")
-    
-    
-    win.jigsGridPlaneAction = QtGui.QAction(MainWindow)
-    win.jigsGridPlaneAction.setIcon(geticon("ui/actions/Insert/Reference Geometry/Grid_Plane"))
-    win.jigsGridPlaneAction.setObjectName("jigsGridPlaneAction")
-    
-    win.referencePlaneAction = QtGui.QAction(MainWindow)
-    win.referencePlaneAction.setIcon(geticon(
-        "ui/actions/Insert/Reference Geometry/Plane"))
-    win.referencePlaneAction.setObjectName("referencePlaneAction")
-    
-    win.referenceLineAction = QtGui.QAction(MainWindow)
-    win.referenceLineAction.setIcon(geticon(
-        "ui/actions/Insert/Reference Geometry/Plane"))
-    win.referenceLineAction.setObjectName("referenceLineAction")
-    win.referenceLineAction.setText("Line...")
-            
-    win.referenceGeometryMenu = win.Insert.addMenu("Reference Geometry")
-    
-    #Add Actions
-    
+    """
+    Creates and populates the "Insert" menu in the main menubar.
+
+    @param win: NE1's main window object.
+    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    """
+
+    # Create the "Insert" menu.
+    win.insertMenu = QtGui.QMenu(win.MenuBar)
+    win.insertMenu.setObjectName("Insert")
+
+    # Create, populate and add the "Reference Geometry" menu as a submenu
+    # to the "Insert" menu.
+    win.referenceGeometryMenu = win.insertMenu.addMenu("Reference Geometry")
     win.referenceGeometryMenu.addAction(win.referencePlaneAction)        
     win.referenceGeometryMenu.addAction(win.jigsGridPlaneAction)
     if debug_pref("Show Insert > Line option",
                   Choice_boolean_False,
                   prefs_key=True):
         win.referenceGeometryMenu.addAction(win.referenceLineAction)  
-        
-    win.Insert.addAction(win.jigsAtomSetAction)
-    win.Insert.addSeparator()
-    win.Insert.addAction(win.fileInsertAction)
-    win.Insert.addAction(win.partLibAction)
-    win.Insert.addSeparator()    
-    win.Insert.addAction(win.insertCommentAction)
+
+    # Populate the rest of the "Insert" menu.
+    win.insertMenu.addAction(win.jigsAtomSetAction)
+    win.insertMenu.addSeparator()
+    win.insertMenu.addAction(win.fileInsertAction)
+    win.insertMenu.addAction(win.partLibAction)
+    win.insertMenu.addSeparator()
+    win.insertMenu.addAction(win.insertCommentAction)
+
     #Commenting out the following to 'fix' bug 2455
     #(we decided to remove this from the UI for alpha9.1 Only commenting it out 
     #so that it can be reimplemented in future if we decide to do so. (and 
     #thus it won't be 'forgotton' completely) -- ninad 20070619
-    ##win.Insert.addSeparator()
-    ##win.Insert.addAction(win.insertPovraySceneAction) 
-    
-    
+    ##win.insertMenu.addSeparator()
+    ##win.insertMenu.addAction(win.insertPovraySceneAction) 
+
 def retranslateUi(win):
-    
-    win.Insert.setTitle(QtGui.QApplication.translate(
+    """
+    Sets text related attributes for the "Insert" menu.
+
+    @param win: NE1's mainwindow object.
+    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    """
+    win.insertMenu.setTitle(QtGui.QApplication.translate(
         "MainWindow", "&Insert", 
         None, QtGui.QApplication.UnicodeUTF8))
-    
-    win.jigsAtomSetAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow",  "Atom Set",  None, QtGui.QApplication.UnicodeUTF8))
-        
-    win.fileInsertAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "Part...", 
-        None, QtGui.QApplication.UnicodeUTF8))
-    
-    win.fileInsertAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Insert Part...", 
-        None, QtGui.QApplication.UnicodeUTF8))
-    
-    win.fileInsertAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert Part", 
-        None, QtGui.QApplication.UnicodeUTF8))
-    
-    win.insertCommentAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Comment", 
-        None,  QtGui.QApplication.UnicodeUTF8))
-    
-    win.insertPovraySceneAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "POV-Ray Scene", 
-        None, QtGui.QApplication.UnicodeUTF8))
-    
-    win.insertPovraySceneAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert POV-Ray Scene file", 
-        None, QtGui.QApplication.UnicodeUTF8))
-    
-    win.jigsGridPlaneAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Grid Plane...", 
-        None, QtGui.QApplication.UnicodeUTF8))
-    
-    win.referencePlaneAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Plane...", 
-        None, QtGui.QApplication.UnicodeUTF8))
-    
-
-               

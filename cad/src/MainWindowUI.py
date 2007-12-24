@@ -8,6 +8,9 @@ $Id$
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 
+import Ui_MainWindowWidgets
+import Ui_MainWindowWidgetConnections
+
 import Ui_FileMenu
 import Ui_EditMenu
 import Ui_ViewMenu
@@ -34,26 +37,30 @@ class Ui_MainWindow(object):
     """
     def setupUi(self, MainWindow):
         """
-        Sets up the main window QActions (buttons), menus and toolbar.
+        Sets up the main window menus and toolbars in the following way:
+        - Create all main window QActions used by menus and/or toolbars.
+        - Create main menu bar and its menus
+        - Create main toolbars
         """
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
 
-        if MULTIPANE_GUI:
-            self.widget = self.centralWidget()
-        else:
-            self.widget = QtGui.QWidget(MainWindow)
-            self.widget.setGeometry(QtCore.QRect(0,95,1014,593))
-            self.widget.setObjectName("widget")
-            MainWindow.setCentralWidget(self.widget)
+        # Create all widgets for all main menus and toolbars.
+        # To do: Move all widgets from the toolbar setupUi()
+        # functions into Ui_MainWindowWidgets. Mark 2007-12-23
+        Ui_MainWindowWidgets.setupUi(self)
         
+        # This should be uncommented once all main window widgets
+        # are moved into Ui_MainWindowWidgets. 
+        #@Ui_MainWindowWidgetConnections.setupUi(self)
+
         # Create the main menu bar.
         self.MenuBar = QtGui.QMenuBar(MainWindow)
         self.MenuBar.setEnabled(True)
         self.MenuBar.setGeometry(QtCore.QRect(0,0,1014,28))
         self.MenuBar.setObjectName("MenuBar")
-        
-        # Set up the menus for the main menu bar.
+
+        # Create the menus for NE1's main menu bar.
         Ui_FileMenu.setupUi(self)
         Ui_EditMenu.setupUi(self)
         Ui_ViewMenu.setupUi(self)
@@ -61,19 +68,19 @@ class Ui_MainWindow(object):
         Ui_ToolsMenu.setupUi(self)
         Ui_SimulationMenu.setupUi(self)
         Ui_HelpMenu.setupUi(self)
-        
-        # Add menus to the main menu bar.
+
+        # Add menus to NE1's main menu bar.
         self.MenuBar.addAction(self.fileMenu.menuAction())
         self.MenuBar.addAction(self.editMenu.menuAction())
         self.MenuBar.addAction(self.viewMenu.menuAction())
-        self.MenuBar.addAction(self.Insert.menuAction())
+        self.MenuBar.addAction(self.insertMenu.menuAction())
         self.MenuBar.addAction(self.toolsMenu.menuAction())
         self.MenuBar.addAction(self.simulationMenu.menuAction())
         self.MenuBar.addAction(self.helpMenu.menuAction())
-        
+
         # Add MenuBar to the main window.
         MainWindow.setMenuBar(self.MenuBar)
-        
+
         # Set up the toolbars for the main window.
         Ui_StandardToolBar.setupUi(self)       
         Ui_ViewToolBar.setupUi(self)       
@@ -82,37 +89,13 @@ class Ui_MainWindow(object):
         Ui_SelectToolBar.setupUi(self)
         Ui_SimulationToolBar.setupUi(self)
         
-        # Miscellaneous stuff.
+        # This should be moved above once all main window widgets are moved
+        # from the toolbar files into Ui_MainWindowWidgets. mark 2007-12-23
+        Ui_MainWindowWidgetConnections.setupUi(self)
 
-        # This needs to stay until I talk with Bruce about UpdateDashboard(),
-        # which calls a method of toolsDoneAction in Command.py. Mark 2007-12-20
-        self.toolsDoneAction = QtGui.QAction(MainWindow)
-        self.toolsDoneAction.setIcon(geticon(
-            "ui/actions/Properties Manager/Done"))
-        self.toolsDoneAction.setObjectName("toolsDoneAction")
-        
-        # The server manager and sim job manager actions. 
-        # They are NIY and probably never will be. 
-        # If you have questions about them, you can ask me. Mark 2007-12-20.
-        self.serverManagerAction = QtGui.QAction(MainWindow)
-        self.serverManagerAction.setIcon(geticon("ui/actions/MainWindowUI_image119"))
-        self.serverManagerAction.setObjectName("serverManagerAction")
-        
-        self.simJobManagerAction = QtGui.QAction(MainWindow)
-        self.simJobManagerAction.setIcon(geticon("ui/actions/MainWindowUI_image118"))
-        self.simJobManagerAction.setObjectName("simJobManagerAction")
-        
+        # Now set all UI text for main window widgets.
         self.retranslateUi(MainWindow)
         
-        QtCore.QObject.connect(self.fileExitAction,
-                               QtCore.SIGNAL("activated()"),
-                               MainWindow.close)
-
-        # bruce 071008 removed this call of connectSlotsByName, since
-        # we don't appear to be taking advantage of it
-        # (since we have no slots named on_<widgetname>_<signalname>)
-##        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
         return
 
     def retranslateUi(self, MainWindow):
@@ -120,10 +103,10 @@ class Ui_MainWindow(object):
         This method centralizes all calls that set UI text for the purpose of 
         making it easier for the programmer to translate the UI into other 
         languages.
-        
+
         @param MainWindow: The main window
         @type  MainWindow: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
-        
+
         @see: U{B{The Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
         """
         MainWindow.setWindowTitle(QtGui.QApplication.translate(
@@ -131,8 +114,11 @@ class Ui_MainWindow(object):
             "NanoEngineer-1", 
             None, 
             QtGui.QApplication.UnicodeUTF8))
-               
-        # Menus and SubMenus
+
+        # QActions
+        Ui_MainWindowWidgets.retranslateUi(self)
+
+        # Menus and submenus
         Ui_FileMenu.retranslateUi(self)
         Ui_EditMenu.retranslateUi(self)
         Ui_ViewMenu.retranslateUi(self)     
@@ -140,7 +126,7 @@ class Ui_MainWindow(object):
         Ui_ToolsMenu.retranslateUi(self)
         Ui_SimulationMenu.retranslateUi(self)
         Ui_HelpMenu.retranslateUi(self)
-        
+
         # Toolbars
         Ui_StandardToolBar.retranslateUi(self)
         Ui_ViewToolBar.retranslateUi(self)
@@ -148,53 +134,3 @@ class Ui_MainWindow(object):
         Ui_BuildToolsToolBar.retranslateUi(self)
         Ui_SelectToolBar.retranslateUi(self)
         Ui_SimulationToolBar.retranslateUi(self)
-                                
-        # Menu Item (Action items) text and icons
-                       
-        # UNUSED MENU ITEMS.
-        self.viewDefviewAction.setText(QtGui.QApplication.translate("MainWindow", "Orientations", None, QtGui.QApplication.UnicodeUTF8))
-        self.viewDefviewAction.setIconText(QtGui.QApplication.translate("MainWindow", "Orientations", None, QtGui.QApplication.UnicodeUTF8))
-        self.viewDefviewAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Default Views", None, QtGui.QApplication.UnicodeUTF8))
-        self.changeBackgroundColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Background Color...", None, QtGui.QApplication.UnicodeUTF8))
-        self.changeBackgroundColorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Background Color...", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.toolsDoneAction.setText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolsDoneAction.setIconText(QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
-                
-        self.modifyStretchAction.setText(QtGui.QApplication.translate("MainWindow", "S&tretch", None, QtGui.QApplication.UnicodeUTF8))
-        self.modifyStretchAction.setIconText(QtGui.QApplication.translate("MainWindow", "Stretch", None, QtGui.QApplication.UnicodeUTF8))      
-                
-        self.dispSetEltable1Action.setText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Default", None, QtGui.QApplication.UnicodeUTF8))
-        self.dispSetEltable1Action.setIconText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Default", None, QtGui.QApplication.UnicodeUTF8))
-        self.dispSetEltable2Action.setText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Alternate", None, QtGui.QApplication.UnicodeUTF8))
-        self.dispSetEltable2Action.setIconText(QtGui.QApplication.translate("MainWindow", "Set Atom Colors to Alternate", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.dispElementColorSettingsAction.setText(QtGui.QApplication.translate("MainWindow", "Element Color Settings...", None, QtGui.QApplication.UnicodeUTF8))
-        self.dispElementColorSettingsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Element Color Settings...", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.dispLightingAction.setText(QtGui.QApplication.translate("MainWindow", "Lighting...", None, QtGui.QApplication.UnicodeUTF8))
-        self.dispLightingAction.setIconText(QtGui.QApplication.translate("MainWindow", "Lighting", None, QtGui.QApplication.UnicodeUTF8))
-        self.dispResetAtomsDisplayAction.setText(QtGui.QApplication.translate("MainWindow", "Reset Atoms Display", None, QtGui.QApplication.UnicodeUTF8))
-        self.dispResetAtomsDisplayAction.setIconText(QtGui.QApplication.translate("MainWindow", "Reset Atoms Display", None, QtGui.QApplication.UnicodeUTF8))
-        self.dispShowInvisAtomsAction.setText(QtGui.QApplication.translate("MainWindow", "Show Invisible Atoms", None, QtGui.QApplication.UnicodeUTF8))
-        self.dispShowInvisAtomsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Show Invisible Atoms", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.simJobManagerAction.setText(QtGui.QApplication.translate("MainWindow", "Job Manager...", None, QtGui.QApplication.UnicodeUTF8))
-        self.simJobManagerAction.setIconText(QtGui.QApplication.translate("MainWindow", "Job Manager...", None, QtGui.QApplication.UnicodeUTF8))
-        self.serverManagerAction.setText(QtGui.QApplication.translate("MainWindow", "Server Manager...", None, QtGui.QApplication.UnicodeUTF8))
-        self.serverManagerAction.setIconText(QtGui.QApplication.translate("MainWindow", "Server Manager...", None, QtGui.QApplication.UnicodeUTF8))
-   
-        self.simNanoHiveAction.setText(QtGui.QApplication.translate("MainWindow", "Nano-Hive...", None, QtGui.QApplication.UnicodeUTF8))
-        self.simNanoHiveAction.setIconText(QtGui.QApplication.translate("MainWindow", "Nano-Hive", None, QtGui.QApplication.UnicodeUTF8))
- 
-        self.fileSaveSelectionAction.setIconText(QtGui.QApplication.translate("MainWindow", "Save Selection...", None, QtGui.QApplication.UnicodeUTF8))
-        self.viewRotatePlus90Action.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate View +90", None, QtGui.QApplication.UnicodeUTF8))
-        self.viewRotateMinus90Action.setIconText(QtGui.QApplication.translate("MainWindow", "Rotate View -90", None, QtGui.QApplication.UnicodeUTF8))
-                
-        self.viewNormalToAction.setIconText(QtGui.QApplication.translate("MainWindow", "Set View Normal To", None, QtGui.QApplication.UnicodeUTF8))
-        self.viewNormalToAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Set View Normal To", None, QtGui.QApplication.UnicodeUTF8))
-        self.viewParallelToAction.setIconText(QtGui.QApplication.translate("MainWindow", "Set View Parallel To", None, QtGui.QApplication.UnicodeUTF8))
-        self.viewParallelToAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Set View Parallel To", None, QtGui.QApplication.UnicodeUTF8))
-        
-        self.viewQuteMolAction.setIconText(QtGui.QApplication.translate("MainWindow", "QuteMol", None, QtGui.QApplication.UnicodeUTF8))
-        self.viewRaytraceSceneAction.setIconText(QtGui.QApplication.translate("MainWindow", "POV-Ray", None, QtGui.QApplication.UnicodeUTF8))

@@ -105,8 +105,7 @@ eCCBtab2 = {}
 for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
 
-
-########################################################################
+# #######################################################################
 
 class MWsemantics(QMainWindow, 
                   fileSlotsMixin, 
@@ -173,214 +172,9 @@ class MWsemantics(QMainWindow,
         QMainWindow.__init__(self, parent)
 
         self.defaultFont = QFont(self.font()) # Makes copy of app's default font.
-
-        self.DefaultSelAction = QAction(self)
-        self.LassoSelAction = QAction(self)
-        self.RectCornerSelAction = QAction(self)
-        self.RectCtrSelAction = QAction(self)
-        self.SquareSelAction = QAction(self)
-        self.TriangleSelAction = QAction(self)
-        self.DiamondSelAction = QAction(self)
-        self.CircleSelAction = QAction(self)
-        self.HexagonSelAction = QAction(self)
-
-        self.orthoPerpActionGroup = QtGui.QActionGroup(self)  
-        self.orthoPerpActionGroup.setExclusive(True)
-
-        self.setViewPerspecAction = QAction(self)
-        self.setViewPerspecAction.setText(QtGui.QApplication.translate("MainWindow", "Perspective",
-                                                                       None, QtGui.QApplication.UnicodeUTF8))
-        self.setViewPerspecAction.setCheckable(True)
-
-        self.setViewOrthoAction = QAction(self)
-        self.setViewOrthoAction.setText(QtGui.QApplication.translate("MainWindow", "Orthographic",
-                                                                     None, QtGui.QApplication.UnicodeUTF8))
-        self.setViewOrthoAction.setCheckable(True)
-
-        self.orthoPerpActionGroup.addAction(self.setViewPerspecAction)
-        self.orthoPerpActionGroup.addAction(self.setViewOrthoAction)
-
-
-        self.toolsSelectAtomsAction = QAction(self)
-        self.simMoviePlayerAction = QAction(self)
-        self.setupUi(self)	         
-
-        self.connect(self.changeBackgroundColorAction,SIGNAL("triggered()"),self.changeBackgroundColor)
-        self.connect(self.dispBallAction,SIGNAL("triggered()"),self.dispBall)
-        self.connect(self.dispDefaultAction,SIGNAL("triggered()"),self.dispDefault)
-        self.connect(self.dispElementColorSettingsAction,SIGNAL("triggered()"),self.dispElementColorSettings)
-        self.connect(self.dispInvisAction,SIGNAL("triggered()"),self.dispInvis)
-        self.connect(self.dispLightingAction,SIGNAL("triggered()"),self.dispLighting)
-        self.connect(self.dispLinesAction,SIGNAL("triggered()"),self.dispLines)
-        self.connect(self.dispObjectColorAction,SIGNAL("triggered()"),self.dispObjectColor)
-        self.connect(self.dispResetAtomsDisplayAction,SIGNAL("triggered()"),self.dispResetAtomsDisplay)
-        self.connect(self.dispResetChunkColorAction,SIGNAL("triggered()"),self.dispResetChunkColor)
-        self.connect(self.dispShowInvisAtomsAction,SIGNAL("triggered()"),self.dispShowInvisAtoms)
-        self.connect(self.dispTubesAction,SIGNAL("triggered()"),self.dispTubes)
-        self.connect(self.dispCPKAction,SIGNAL("triggered()"),self.dispCPK)
-        self.connect(self.dispHybridAction,SIGNAL("triggered()"),self.dispHybrid)
-
-        self.connect(self.editAutoCheckpointingAction,SIGNAL("toggled(bool)"),self.editAutoCheckpointing)
-        self.connect(self.editClearUndoStackAction,SIGNAL("triggered()"),self.editClearUndoStack)
-        self.connect(self.editCopyAction,SIGNAL("triggered()"),self.editCopy)
-        self.connect(self.editCutAction,SIGNAL("triggered()"),self.editCut)
-        self.connect(self.editDeleteAction,SIGNAL("triggered()"),self.killDo)
-        self.connect(self.editMakeCheckpointAction,SIGNAL("triggered()"),self.editMakeCheckpoint)
-        self.connect(self.editPasteAction,SIGNAL("triggered()"),self.editPaste)
-        self.connect(self.pasteFromClipboardAction, 
-                     SIGNAL("triggered()"),
-                     self.editPasteFromClipboard )
-
-        self.connect(self.partLibAction, 
-                     SIGNAL("triggered()"),
-                     self.insertPartFromPartLib)
-
-        self.connect(self.viewFullScreenAction, 
-                     SIGNAL("toggled(bool)"), 
-                     self.setViewFullScreen)
-        self.connect(self.viewSemiFullScreenAction, 
-                     SIGNAL("toggled(bool)"), 
-                     self.setViewSemiFullScreen)
-
-        self.connect(self.editPrefsAction,SIGNAL("triggered()"),self.editPrefs)
-        self.connect(self.editRedoAction,SIGNAL("triggered()"),self.editRedo)
-        self.connect(self.editUndoAction,SIGNAL("triggered()"),self.editUndo)
-        self.connect(self.fileCloseAction,SIGNAL("triggered()"),self.fileClose)
-        self.connect(self.fileExitAction,SIGNAL("triggered()"), self.close)
-        self.connect(self.fileInsertAction,SIGNAL("triggered()"),self.fileInsert)
-        self.connect(self.fileOpenAction,SIGNAL("triggered()"),self.fileOpen)
-        self.connect(self.fileSaveAction,SIGNAL("triggered()"),self.fileSave)
-        self.connect(self.fileSaveAsAction,SIGNAL("triggered()"),self.fileSaveAs)
-        self.connect(self.fileSaveSelectionAction,SIGNAL("triggered()"),self.fileSaveSelection)
-        self.connect(self.fileSetWorkDirAction,SIGNAL("triggered()"),self.fileSetWorkDir)
-        self.connect(self.helpAboutAction,SIGNAL("triggered()"),self.helpAbout)
-        self.connect(self.helpGraphicsCardAction,SIGNAL("triggered()"),self.helpGraphicsCard)
-        self.connect(self.helpKeyboardShortcutsAction,SIGNAL("triggered()"),self.helpKeyboardShortcuts)
-        self.connect(self.helpMouseControlsAction,SIGNAL("triggered()"),self.helpMouseControls)
-        self.connect(self.helpWhatsThisAction,SIGNAL("triggered()"),self.helpWhatsThis)
-        #self.connect(self.buildDnaAction,SIGNAL("triggered()"),self.insertDna)
-        self.connect(self.buildDnaAction,SIGNAL("triggered()"),self.activateDnaTool)
-        self.connect(self.insertCommentAction,SIGNAL("triggered()"),self.insertComment)
-        self.connect(self.insertNanotubeAction,SIGNAL("triggered()"),self.insertNanotube)
-        self.connect(self.insertGrapheneAction,SIGNAL("triggered()"),self.insertGraphene)
-
-        self.connect(self.jigsAnchorAction,SIGNAL("triggered()"),self.makeAnchor)
-        self.connect(self.jigsAngleAction,SIGNAL("triggered()"),self.makeMeasureAngle)
-        self.connect(self.jigsAtomSetAction,SIGNAL("triggered()"),self.makeAtomSet)
-        self.connect(self.jigsDihedralAction,SIGNAL("triggered()"),self.makeMeasureDihedral)
-        self.connect(self.jigsDistanceAction,SIGNAL("triggered()"),self.makeMeasureDistance)
-        self.connect(self.jigsESPImageAction,SIGNAL("triggered()"),self.makeESPImage)
-        self.connect(self.jigsGamessAction,SIGNAL("triggered()"),self.makeGamess)
-        self.connect(self.jigsGridPlaneAction,SIGNAL("triggered()"),self.makeGridPlane)
-
-        self.connect(self.referencePlaneAction,SIGNAL("triggered()"),
-                     self.createPlane)
-        self.connect(self.referenceLineAction,SIGNAL("triggered()"),
-                     self.createPolyLine)
-
-        self.connect(self.jigsLinearMotorAction,
-                     SIGNAL("triggered()"),
-                     self.makeLinearMotor)
-
-        self.connect(self.jigsMotorAction,
-                     SIGNAL("triggered()"),
-                     self.makeRotaryMotor)
-
-        self.connect(self.jigsStatAction,SIGNAL("triggered()"),self.makeStat)
-        self.connect(self.jigsThermoAction,SIGNAL("triggered()"),self.makeThermo)
-        self.connect(self.modifyAlignCommonAxisAction,SIGNAL("triggered()"),self.modifyAlignCommonAxis)
-        self.connect(self.modifyCenterCommonAxisAction,SIGNAL("triggered()"),self.modifyCenterCommonAxis)
-        self.connect(self.modifyDehydrogenateAction,SIGNAL("triggered()"),self.modifyDehydrogenate)
-        self.connect(self.modifyDeleteBondsAction,SIGNAL("triggered()"),self.modifyDeleteBonds)
-        self.connect(self.modifyHydrogenateAction,SIGNAL("triggered()"),self.modifyHydrogenate)
-        self.connect(self.modifyInvertAction,SIGNAL("triggered()"),self.modifyInvert)
-        self.connect(self.modifyMergeAction,SIGNAL("triggered()"),self.modifyMerge)
-        self.connect(self.makeChunkFromSelectedAtomsAction,
-                     SIGNAL("triggered()"),self.makeChunkFromAtom)
-        self.connect(self.modifyAdjustAllAction,SIGNAL("triggered()"),self.modifyAdjustAll)
-        self.connect(self.modifyAdjustSelAction,SIGNAL("triggered()"),self.modifyAdjustSel)
-        self.connect(self.modifyPassivateAction,SIGNAL("triggered()"),self.modifyPassivate)
-        self.connect(self.modifySeparateAction,SIGNAL("triggered()"),self.modifySeparate)
-        self.connect(self.modifyStretchAction,SIGNAL("triggered()"),self.modifyStretch)
-        self.connect(self.panToolAction,SIGNAL("toggled(bool)"),self.panTool)
-        self.connect(self.rotateToolAction,SIGNAL("toggled(bool)"),self.rotateTool)
-        self.connect(self.saveNamedViewAction,SIGNAL("triggered()"),self.saveNamedView)
-        self.connect(self.selectAllAction,SIGNAL("triggered()"),self.selectAll)
-        self.connect(self.selectConnectedAction,SIGNAL("triggered()"),self.selectConnected)
-        self.connect(self.selectContractAction,SIGNAL("triggered()"),self.selectContract)
-        self.connect(self.selectDoublyAction,SIGNAL("triggered()"),self.selectDoubly)
-        self.connect(self.selectExpandAction,SIGNAL("triggered()"),self.selectExpand)
-        self.connect(self.selectInvertAction,SIGNAL("triggered()"),self.selectInvert)
-        self.connect(self.selectNoneAction,SIGNAL("triggered()"),self.selectNone)
-        self.connect(self.serverManagerAction,SIGNAL("triggered()"),self.serverManager)
-
-        self.connect(self.viewOrientationAction,SIGNAL("triggered()"),self.showOrientationWindow) #ninad061114
-
-        ##When Standard Views button is clicked, show its QMenu.-- By default, nothing happens if you click on the 
-        ##toolbutton with submenus. The menus are displayed only when you click on the small downward arrow 
-        ## of the tool button. Therefore the following slot is added. Also QWidgetAction is used 
-        ## for it to add this feature (see Ui_ViewToolBar for details) ninad 070109 
-        self.connect(self.standardViews_btn,SIGNAL("pressed()"),self.showStandardViewsMenu)
-
-        self.connect(self.viewBackAction,SIGNAL("triggered()"),self.viewBack)
-        self.connect(self.viewBottomAction,SIGNAL("triggered()"),self.viewBottom)
-        self.connect(self.setViewFitToWindowAction,SIGNAL("triggered()"),self.setViewFitToWindow)
-        self.connect(self.viewFrontAction,SIGNAL("triggered()"),self.viewFront)
-        self.connect(self.setViewHomeAction,SIGNAL("triggered()"),self.setViewHome)
-        self.connect(self.setViewHomeToCurrentAction,SIGNAL("triggered()"),self.setViewHomeToCurrent)
-        self.connect(self.viewLeftAction,SIGNAL("triggered()"),self.viewLeft)
-        self.connect(self.viewRotateMinus90Action,SIGNAL("triggered()"),self.viewRotateMinus90)
-        self.connect(self.viewNormalToAction,SIGNAL("triggered()"),self.viewNormalTo)
-        self.connect(self.viewRotate180Action,SIGNAL("triggered()"),self.viewRotate180)
-        self.connect(self.setViewOrthoAction,SIGNAL("triggered()"),self.setViewOrtho)
-        self.connect(self.viewParallelToAction,SIGNAL("triggered()"),self.viewParallelTo)
-        self.connect(self.setViewPerspecAction,SIGNAL("triggered()"),self.setViewPerspec)
-        self.connect(self.viewRotatePlus90Action,SIGNAL("triggered()"),self.viewRotatePlus90)
-        self.connect(self.setViewRecenterAction,SIGNAL("triggered()"),self.setViewRecenter)
-        self.connect(self.viewRightAction,SIGNAL("triggered()"),self.viewRight)
-        self.connect(self.viewTopAction,SIGNAL("triggered()"),self.viewTop)
-        self.connect(self.simJobManagerAction,SIGNAL("triggered()"),self.JobManager)
-        self.connect(self.simMoviePlayerAction,SIGNAL("triggered()"),self.simMoviePlayer)
-        self.connect(self.simNanoHiveAction,SIGNAL("triggered()"),self.simNanoHive)
-        self.connect(self.simPlotToolAction,SIGNAL("triggered()"),self.simPlot)
-        self.connect(self.simSetupAction,SIGNAL("triggered()"),self.simSetup)
-        self.connect(self.toolsCookieCutAction,SIGNAL("triggered()"),self.toolsCookieCut)
-
-        self.connect(self.toolsDepositAtomAction,
-                     SIGNAL("triggered()"),
-                     self.toolsBuildAtoms)
-
-        self.connect(self.toolsDoneAction,SIGNAL("triggered()"),self.toolsDone)
-        self.connect(self.toolsExtrudeAction,SIGNAL("triggered()"),self.toolsExtrude)
-        ###self.connect(self.toolsFuseAtomsAction,SIGNAL("triggered()"),self.toolsFuseAtoms)
-        self.connect(self.toolsFuseChunksAction,SIGNAL("triggered()"),self.toolsFuseChunks)
-        ###self.connect(self.toolsMirrorAction,SIGNAL("triggered()"),self.toolsMirror)
-        ###self.connect(self.toolsMirrorCircularBoundaryAction,SIGNAL("triggered()"),self.toolsMirrorCircularBoundary)
-        #Move and Rotate Components mode
-        self.connect(self.toolsMoveMoleculeAction,SIGNAL("triggered()"),self.toolsMoveMolecule)
-        self.connect(self.rotateComponentsAction,SIGNAL("triggered()"),self.toolsRotateComponents)
-
-        self.connect(self.toolsSelectAtomsAction,SIGNAL("triggered()"),self.toolsSelectAtoms)
-        self.connect(self.toolsSelectMoleculesAction,SIGNAL("triggered()"),self.toolsSelectMolecules)
-        self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
-        self.connect(self.viewZoomAboutScreenCenterAction,SIGNAL("toggled(bool)"),
-                     self.changeZoomBehavior)
-        self.connect(self.viewQuteMolAction,SIGNAL("triggered()"),self.viewQuteMol)
-        self.connect(self.viewRaytraceSceneAction,SIGNAL("triggered()"),self.viewRaytraceScene)
-        self.connect(self.insertPovraySceneAction,SIGNAL("triggered()"),self.insertPovrayScene)
-        self.connect(self.dispSurfaceAction,SIGNAL("triggered()"),self.dispSurface)
-        self.connect(self.dispCylinderAction,SIGNAL("triggered()"),self.dispCylinder)
-        self.connect(self.simMinimizeEnergyAction,SIGNAL("triggered()"),self.simMinimizeEnergy)
-        self.connect(self.fileImportAction,SIGNAL("triggered()"),self.fileImport)
-        self.connect(self.fileExportAction,SIGNAL("triggered()"),self.fileExport)
-        self.connect(self.viewIsometricAction,SIGNAL("triggered()"),self.viewIsometric)
-        self.connect(self.modifyMirrorAction,SIGNAL("triggered()"),self.modifyMirror)
-        self.connect(self.setViewZoomtoSelectionAction,SIGNAL("triggered()"),self.setViewZoomToSelection)
-
-        # Atom Generator example for developers. Mark and Jeff. 2007-06-13
-        #@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
-        self.connect(self.insertAtomAction,SIGNAL("triggered()"),self.insertAtom)
-
+        
+        # This creates all main window widgets and connects them to their slots.
+        self.setupUi(self)
 
         from prefs_constants import toolbar_state_prefs_key
         #This fixes bug 2482 
@@ -550,26 +344,35 @@ class MWsemantics(QMainWindow,
 
             self.currentWorkingDirectory = ''
             self.setWindowTitle("My Main Window")
-            MAIN_WINDOW_SIZE = (800, 600)
+            
+            # Set minimum width and height of the main window.
+            #@ MAIN_WINDOW_SIZE = (800, 600) # Marked for removal.
+            # Should be 1024 x 768, so I changed it. mark 2007-12-23
+            MAIN_WINDOW_SIZE = (1024, 768) # Mark 2007-12-23
             self.setMinimumWidth(MAIN_WINDOW_SIZE[0])
             self.setMinimumHeight(MAIN_WINDOW_SIZE[1])
 
             ##############################################
 
+            # The following code is difficult to follow. It needs better
+            # comments explaining what is going on and better attr names. 
+            # I'm asking Ninad to do this since I believe he wrote it.
+            # mark 2007-12-23
             centralwidget = QWidget()
             self.setCentralWidget(centralwidget)
-            layout = QVBoxLayout(centralwidget)
+            layout = QVBoxLayout(centralwidget) # <layout> is too generic a name.
             layout.setMargin(0)
             layout.setSpacing(0)
             middlewidget = QWidget()
 
-
+            # Add the Command Toolbar (Manager).
+            # To do: The Command Manager needs to be renamed from 
+            # CommandManager to CommandToolbar (both file and class names). 
+            # mark 2007-12-23
             from CommandManager import CommandManager
-
             self.commandManager = CommandManager(self)
             self.cmdManager = self.commandManager.cmdManager  
             layout.addWidget(self.cmdManager)	    
-
 
             layout.addWidget(middlewidget)
             self.layout = QGridLayout(middlewidget)
