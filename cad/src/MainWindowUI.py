@@ -21,6 +21,8 @@ import Ui_HelpMenu
 
 import Ui_StandardToolBar
 import Ui_ViewToolBar
+import Ui_StandardViewsToolBar
+import Ui_DisplayStylesToolBar
 import Ui_SelectToolBar
 import Ui_SimulationToolBar
 import Ui_BuildToolsToolBar
@@ -38,7 +40,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         """
         Sets up the main window menus and toolbars in the following way:
-        - Create all main window QActions used by menus and/or toolbars.
+        - Create all main window widgets used by menus and/or toolbars.
         - Create main menu bar and its menus
         - Create main toolbars
         """
@@ -46,13 +48,10 @@ class Ui_MainWindow(object):
         MainWindow.setEnabled(True)
 
         # Create all widgets for all main menus and toolbars.
-        # To do: Move all widgets from the toolbar setupUi()
-        # functions into Ui_MainWindowWidgets. Mark 2007-12-23
         Ui_MainWindowWidgets.setupUi(self)
         
-        # This should be uncommented once all main window widgets
-        # are moved into Ui_MainWindowWidgets. 
-        #@Ui_MainWindowWidgetConnections.setupUi(self)
+        # Set up all main window widget connections to their slots.
+        Ui_MainWindowWidgetConnections.setupUi(self)
 
         # Create the main menu bar.
         self.MenuBar = QtGui.QMenuBar(MainWindow)
@@ -83,15 +82,13 @@ class Ui_MainWindow(object):
 
         # Set up the toolbars for the main window.
         Ui_StandardToolBar.setupUi(self)       
-        Ui_ViewToolBar.setupUi(self)       
+        Ui_ViewToolBar.setupUi(self)
+        Ui_StandardViewsToolBar.setupUi(self)
+        Ui_DisplayStylesToolBar.setupUi(self)
         Ui_BuildToolsToolBar.setupUi(self)
         Ui_BuildStructuresToolBar.setupUi(self)
         Ui_SelectToolBar.setupUi(self)
         Ui_SimulationToolBar.setupUi(self)
-        
-        # This should be moved above once all main window widgets are moved
-        # from the toolbar files into Ui_MainWindowWidgets. mark 2007-12-23
-        Ui_MainWindowWidgetConnections.setupUi(self)
 
         # Now set all UI text for main window widgets.
         self.retranslateUi(MainWindow)
@@ -130,6 +127,8 @@ class Ui_MainWindow(object):
         # Toolbars
         Ui_StandardToolBar.retranslateUi(self)
         Ui_ViewToolBar.retranslateUi(self)
+        Ui_StandardViewsToolBar.retranslateUi(self)
+        Ui_DisplayStylesToolBar.retranslateUi(self)
         Ui_BuildStructuresToolBar.retranslateUi(self)
         Ui_BuildToolsToolBar.retranslateUi(self)
         Ui_SelectToolBar.retranslateUi(self)

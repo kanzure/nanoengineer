@@ -3,32 +3,33 @@
 $Id$
 """
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 from PyQt4.Qt import Qt
 from wiki_help import QToolBar_WikiHelp
 
 def setupUi(win):
     """
-    Creates and populates the "Build Structures" toolbar.
+    Creates and populates the "Build Structures" toolbar in the main window.
+
+    @param win: NE1's main window object.
+    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
     """
-    MainWindow = win
     
-    win.buildStructuresToolBar = QToolBar_WikiHelp(MainWindow)
+    # Create the "Build Structures" toolbar.
+    win.buildStructuresToolBar = QToolBar_WikiHelp(win)
     win.buildStructuresToolBar.setEnabled(True)
-    win.buildStructuresToolBar.setGeometry(QtCore.QRect(458,0,89,20))
     win.buildStructuresToolBar.setObjectName("buildStructuresToolBar")
+    win.addToolBar(Qt.RightToolBarArea, win.buildStructuresToolBar)
     
-    win.buildStructuresToolBar.addAction(MainWindow.toolsDepositAtomAction)
+    # Populate the "Build Structures" toolbar.
+    win.buildStructuresToolBar.addAction(win.toolsDepositAtomAction)
     win.buildStructuresToolBar.addAction(win.buildDnaAction)
     win.buildStructuresToolBar.addAction(win.insertGrapheneAction)
     win.buildStructuresToolBar.addAction(win.insertNanotubeAction)
-    win.buildStructuresToolBar.addAction(MainWindow.toolsCookieCutAction)
+    win.buildStructuresToolBar.addAction(win.toolsCookieCutAction)
     
-    # Atom Generator example for developers. Mark and Jeff. 2007-06-13
-    #@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
+    # This adds the Atom Generator example for developers.
     win.buildStructuresToolBar.addAction(win.insertAtomAction)
-    
-    MainWindow.addToolBar(Qt.RightToolBarArea, win.buildStructuresToolBar)
     
 def retranslateUi(win):
     """
@@ -38,5 +39,6 @@ def retranslateUi(win):
     popup menu under "View > Toolbars".
     """
     win.buildStructuresToolBar.setWindowTitle(
-        QtGui.QApplication.translate("MainWindow", "Build Structures", 
-                                     None, QtGui.QApplication.UnicodeUTF8))
+        QtGui.QApplication.translate(
+            "MainWindow", "Build Structures", 
+            None, QtGui.QApplication.UnicodeUTF8))

@@ -8,7 +8,7 @@ Creates all widgets use by the Main Window, including:
 - QAction for the Command toolbar
 
 @author: Mark
-@version: $Id:$
+@version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
@@ -17,6 +17,7 @@ History:
 """
 
 from PyQt4 import QtGui
+from PyQt4.Qt import QToolButton
 from icon_utilities import geticon
 
 def setupUi(win):
@@ -78,6 +79,8 @@ def setupUi(win):
     win.editMakeCheckpointAction.setIcon(
         geticon("ui/actions/Edit/Make_Checkpoint"))
     win.editMakeCheckpointAction.setObjectName("editMakeCheckpointAction")
+    # Hide the "Make Checkpoint" toolbar button/menu item. mark 060302.
+    win.editMakeCheckpointAction.setVisible(False)
 
     win.editAutoCheckpointingAction = QtGui.QAction(MainWindow)
     win.editAutoCheckpointingAction.setCheckable(True)
@@ -576,6 +579,11 @@ def setupUi(win):
     win.jigsAnchorAction = QtGui.QWidgetAction(MainWindow)
     win.jigsAnchorAction.setIcon(geticon("ui/actions/Simulation/Anchor"))
     win.jigsAnchorAction.setObjectName("jigsAnchorAction")
+    
+    win.simulationJigsAction = QtGui.QAction(win)
+    win.simulationJigsAction.setIcon(
+        geticon("ui/actions/Simulation/Simulation_Jigs.png"))
+    win.simulationJigsAction.setObjectName("simulationJigsAction")
 
     win.jigsGamessAction = QtGui.QWidgetAction(MainWindow)
     win.jigsGamessAction.setEnabled(True)
@@ -609,6 +617,58 @@ def setupUi(win):
 
     win.helpAboutAction = QtGui.QAction(MainWindow)
     win.helpAboutAction.setObjectName("helpAboutAction")
+    
+    #= Widgets for toolbars
+    
+    # "Standard" toolbar widgets.
+    
+    # Action items from the Tools menu  @@@ninad061110
+    # Not decided whether select chunks and move chunks options
+    # will be a part of Tools Menu
+    
+    win.toolsSelectMoleculesAction = QtGui.QAction(MainWindow)
+    win.toolsSelectMoleculesAction.setCheckable(1) # make the select chunks button checkable
+    win.toolsSelectMoleculesAction.setIcon(geticon("ui/actions/Toolbars/Standard/Select_Chunks"))
+    
+    # Define an action grop for move molecules (translate and rotate components)
+    # actions ...to make them mutually exclusive. 
+    # -- ninad 070309
+    win.toolsMoveRotateActionGroup = QtGui.QActionGroup(MainWindow)
+    win.toolsMoveRotateActionGroup.setExclusive(True)
+    
+    win.toolsMoveMoleculeAction = QtGui.QWidgetAction(win.toolsMoveRotateActionGroup)
+    win.toolsMoveMoleculeAction.setCheckable(1) # make the Move mode button checkable
+    win.toolsMoveMoleculeAction.setIcon(geticon("ui/actions/Toolbars/Standard/Move_Chunks"))
+       
+    win.rotateComponentsAction = QtGui.QWidgetAction(win.toolsMoveRotateActionGroup)
+    win.rotateComponentsAction.setCheckable(1) # make the Move mode button checkable
+    win.rotateComponentsAction.setIcon(geticon("ui/actions/Toolbars/Standard/Rotate_Components"))
+
+    #= "View" toolbars.
+    
+    # Create "Standard Views" dropdown menu for the "View" toolbar.
+    win.standardViewsMenu = QtGui.QMenu("Standard Views")
+
+    # Populate the "Standard Views" menu.
+    win.standardViewsMenu.addAction(win.viewFrontAction)
+    win.standardViewsMenu.addAction(win.viewBackAction)
+    win.standardViewsMenu.addAction(win.viewLeftAction)
+    win.standardViewsMenu.addAction(win.viewRightAction)
+    win.standardViewsMenu.addAction(win.viewTopAction)
+    win.standardViewsMenu.addAction(win.viewBottomAction)
+    win.standardViewsMenu.addAction(win.viewIsometricAction)
+    
+    win.standardViewsAction = QtGui.QWidgetAction(MainWindow)
+    win.standardViewsAction.setEnabled(True)
+    win.standardViewsAction.setIcon(geticon("ui/actions/View/Standard_Views"))
+    win.standardViewsAction.setObjectName("standardViews")
+    win.standardViewsAction.setText("Standard Views")
+    win.standardViewsAction.setMenu(win.standardViewsMenu)
+
+    win.standardViews_btn = QtGui.QToolButton()            
+    win.standardViews_btn.setPopupMode(QToolButton.MenuButtonPopup)
+    win.standardViewsAction.setDefaultWidget(win.standardViews_btn)
+    win.standardViews_btn.setDefaultAction(win.standardViewsAction)
 
     # Miscellaneous QActions.
     
@@ -1241,6 +1301,8 @@ def retranslateUi(win):
         "MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
     win.jigsESPImageAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", "ESP Image", None, QtGui.QApplication.UnicodeUTF8))
+    win.simulationJigsAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", "Simulation Jigs", None, QtGui.QApplication.UnicodeUTF8))
 
     import sys
     if sys.platform == "win32":
@@ -1343,3 +1405,25 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Orthographic",
             None, QtGui.QApplication.UnicodeUTF8))
+    
+    #= Toolbar stuff
+    
+    #= "Standard" toolbar widgets
+    win.toolsSelectMoleculesAction.setText(
+        QtGui.QApplication.translate("MainWindow", "Select Chunks",
+                                     None, QtGui.QApplication.UnicodeUTF8))
+    win.toolsSelectMoleculesAction.setToolTip(
+        QtGui.QApplication.translate("MainWindow", "Select Chunks", 
+                                     None, QtGui.QApplication.UnicodeUTF8))
+    win.toolsMoveMoleculeAction.setText(
+        QtGui.QApplication.translate("MainWindow", "Translate",
+                                     None, QtGui.QApplication.UnicodeUTF8))
+    win.toolsMoveMoleculeAction.setToolTip(
+        QtGui.QApplication.translate("MainWindow", "Translate",
+                                     None, QtGui.QApplication.UnicodeUTF8))
+    win.rotateComponentsAction.setText(
+        QtGui.QApplication.translate("MainWindow", "Rotate",
+                                     None, QtGui.QApplication.UnicodeUTF8))
+    win.rotateComponentsAction.setToolTip(
+        QtGui.QApplication.translate("MainWindow", "Rotate",
+                                    None, QtGui.QApplication.UnicodeUTF8))

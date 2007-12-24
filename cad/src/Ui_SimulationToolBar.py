@@ -3,43 +3,55 @@
 $Id$
 """
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtGui
 from PyQt4.Qt import Qt
 from wiki_help import QToolBar_WikiHelp
-from icon_utilities import geticon
 
 def setupUi(win):
     """
-    Creates and populates the "Simulation" toolbar.
+    Creates and populates the "Simulation" toolbar in the main window.
+
+    @param win: NE1's main window object.
+    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
     """
-    MainWindow = win
     
-    win.simulationToolBar = QToolBar_WikiHelp(MainWindow)
+    # Create the "Simulation" toolbar.
+    win.simulationToolBar = QToolBar_WikiHelp(win)
     win.simulationToolBar.setEnabled(True)
-    win.simulationToolBar.setGeometry(QtCore.QRect(703,47,69,20))
     win.simulationToolBar.setObjectName("simulationToolBar")
+    win.addToolBar(Qt.RightToolBarArea, win.simulationToolBar)
     
-    MainWindow.addToolBar(Qt.RightToolBarArea, win.simulationToolBar)
-    
-    win.simulationJigsMenu = QtGui.QMenu()
-    win.simulationJigsMenu.setObjectName("simulationJigsMenu")
-    
-    win.simulationJigsMenu.addAction(win.jigsMotorAction)
-    win.simulationJigsMenu.addAction(win.jigsLinearMotorAction)
-    win.simulationJigsMenu.addAction(win.jigsAnchorAction)
-    win.simulationJigsMenu.addAction(win.jigsStatAction)
-    
-    win.simulationJigsAction = QtGui.QAction(MainWindow)
-    win.simulationJigsAction.setIcon(geticon("ui/actions/Simulation/Simulation_Jigs.png"))
-    win.simulationJigsAction.setObjectName("simulationJigsAction")
-    win.simulationJigsAction.setToolTip("Simulation Jigs")
-    
-    win.simulationJigsAction.setMenu(win.simulationJigsMenu)
-    
+    # Populate the "Simulation" toolbar.
     win.simulationToolBar.addAction(win.simSetupAction)
-    win.simulationToolBar.addAction(win.simulationJigsAction)
-    win.simulationToolBar.addAction(MainWindow.simMoviePlayerAction)
-    win.simulationToolBar.addAction(win.simPlotToolAction)
+    win.simulationToolBar.addAction(win.simMoviePlayerAction)
+    win.simulationToolBar.addSeparator()
+    win.simulationToolBar.addAction(win.jigsMotorAction)
+    win.simulationToolBar.addAction(win.jigsLinearMotorAction)
+    win.simulationToolBar.addAction(win.jigsAnchorAction)
+    win.simulationToolBar.addAction(win.jigsStatAction)
+    
+    # Create the "Simulation Jigs" menu, to be added to the Simuation toolbar.
+    #win.simulationJigsMenu = QtGui.QMenu()
+    #win.simulationJigsMenu.setObjectName("simulationJigsMenu")
+    #win.simulationJigsAction.setMenu(win.simulationJigsMenu)
+    
+    # Populate the "Simulation Jigs" menu.
+    #win.simulationJigsMenu.addAction(win.jigsMotorAction)
+    #win.simulationJigsMenu.addAction(win.jigsLinearMotorAction)
+    #win.simulationJigsMenu.addAction(win.jigsAnchorAction)
+    #win.simulationJigsMenu.addAction(win.jigsStatAction)
+    
+    #win.simulationToolBar.addAction(win.simulationJigsAction)
+    
+    # To do: The simulation measurement menu that appears in the 
+    # "Simulation" menu and command toolbar is missing from the "Simulation"
+    # toolbar. This isn't hard to fix, but it isn't important to do now.
+    # To fix, search for "simulationMeasurementsMenu" in 
+    # Ui_SimulationMenu.py. That code needs work to look more like the
+    # code above that creates and populates the "Simulation Jigs" menu,
+    # which I've commented out since I don't think it is necessary
+    # (i.e. just place all the jig options on the toolbar, not in a menu).
+    # Mark 2007-12-24
     
 def retranslateUi(win):
     """
@@ -49,5 +61,6 @@ def retranslateUi(win):
     menu under "View > Toolbars".
     """
     win.simulationToolBar.setWindowTitle(
-        QtGui.QApplication.translate("MainWindow", "Simulation", 
-                                     None, QtGui.QApplication.UnicodeUTF8))
+        QtGui.QApplication.translate(
+            "MainWindow", "Simulation", 
+            None, QtGui.QApplication.UnicodeUTF8))

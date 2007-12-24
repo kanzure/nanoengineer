@@ -671,9 +671,6 @@ class MWsemantics(QMainWindow,
         # the glpane. This doesn't prevent other subwidgets from having focus.]
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
-        # Hide the "Make Checkpoint" toolbar button/menu item. mark 060302.
-        self.editMakeCheckpointAction.setVisible(False)
-
         # Create the "What's This?" online help system.
         if not MULTIPANE_GUI:
             createWhatsThisTextForMainWindowWidgets(self)

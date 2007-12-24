@@ -18,7 +18,7 @@ def setupUi(win):
     win.editMenu.setObjectName("editMenu")
 
     # Populate the "Edit" menu.
-    win.editMenu.addAction(win.editMakeCheckpointAction)
+    win.editMenu.addAction(win.editMakeCheckpointAction) # hidden by default.
     win.editMenu.addAction(win.editUndoAction)
     win.editMenu.addAction(win.editRedoAction)
     win.editMenu.addAction(win.editAutoCheckpointingAction)
