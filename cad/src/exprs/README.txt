@@ -3,6 +3,49 @@ cad/src/exprs/README.txt
  Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 # $Id$
 
+This exprs package is an experimental module (working, but incomplete, and in need
+of optimization and refactoring) to support a higher-level programming
+style for creating patterns of cooperating objects described by
+expression-like data (also called "exprs").
+
+So far [071219], it is only used in NE1 for drawing textured images, but it has
+working examples of various kinds of interactive graphical behaviors
+(many of which are more complex than what is so far available in NE1),
+so it might also be used to help implement graphical handles and the
+like (e.g. for rotating a helix around a curved axis).
+
+Farther in the future, it could help with implementing various kinds
+of "relations" between model objects, with reconfigurable UI elements,
+and ultimately with many other things. (Or we might refactor it so
+that the parts that would most help with those things, e.g. its
+integrated first-class formulae and change-tracked attributes, were
+more readily available to other classes. This has been done
+experimentally in test_connectWithState.)
+
+It is listed just above graphics in the package ordering, because most of
+its example exprs involve graphics and need to import graphics code.
+Ideally it would be refactored into (at least) a graphics.exprs
+module, a geometry.exprs module, and a lower-level "foundational"
+exprs module that could go into foundation or (if changes.py went with
+it) utilities.
+
+General features:
+* instantiate expression-like descriptions of patterns of cooperating objects ("exprs")
+* easily customize those descriptions as a way of configuring the objects they'd create
+* the descriptions are first-class data objects, permitting (when implemented)
+saving them in files, applying replacement rules, etc.
+
+Specific support for:
+* integrated change-tracked attributes, defined by formula or method, or as mutable state 
+** nim: state of declared types
+** nim: arguments and options meeting declared interfaces
+* toplevel formulae as exprs
+
+====
+
+Older notes, partly obsolete:
+
+
 Note: this directory cad/src/exprs will someday become a python package in NE1,
 but for now, it's still experimental, is never loaded by default, and perhaps not all its
 source files have been committed.
