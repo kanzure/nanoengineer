@@ -28,17 +28,20 @@ from debug import print_compact_traceback
 
 class CommandToolbar(Ui_CommandToolbar):
     """
-    Command Toolbar is the big toolbar at the top of the 3D graphics area and
-    the model tree. It is divided into three areas:  'Control Area', 
-    and Flyout Toolbar Area' (which , in turn, includes  'SubControl Area' 
-    and 'Command Area'. )
-    The  'Control Area' is a fixed toolbar on the left hand side. It has a 
-    default purple background color and contains command buttons with menus
-    When you click on a command button, the Flyout toolbar updates and displays
-    the Menu of that command button (in most cases). The flyout toolbar can be
-    divided into two areas: Subcontrol Area (greenish color)
-    and Command Area. The 'Command Area' shows commands based on the 
-    checked SubControl Area button.  Thus it could be empty in some situations. 
+    Command Toolbar is the big toolbar above the 3D graphics area and
+    the model tree. It is divided into the B{Control Area} and the 
+    B{Flyout Toolbar Area}.
+    
+    The  B{Control Area} is a fixed toolbar on the left hand side with a
+    purple background color and contains buttons with drop down menus. 
+    When you click on a button in the Control Area, the Flyout Toolbar Area
+    is updated and displays the menu of that button (in most cases). 
+    
+    The B{Flyout Toolbar Area} is divided into two areas, the 
+    B{Subcontrol Area} (light olive background color) and the 
+    B{Command Area} (light gray background color). 
+    The Command Area shows commands based on the checked 
+    SubControl Area button.  Thus it could be empty in some situations.
     """
     
     def __init__(self, win):
@@ -61,19 +64,25 @@ class CommandToolbar(Ui_CommandToolbar):
         self._updateFlyoutToolBar(self.cmdButtonGroup.checkedId())      
                 
     def _makeConnections(self):
-        """connect signals to slots"""
+        """
+        Connect signals to slots.
+        """
         self.win.connect(self.cmdButtonGroup, SIGNAL("buttonClicked(int)"), 
                          self.controlButtonChecked)  
         
     def controlButtonChecked(self, btnId):
-        """Updates the flyout toolbar based on the button checked in the 
-        control area""" 
+        """
+        Updates the flyout toolbar based on the button checked in the 
+        control area.
+        """ 
         self._updateFlyoutToolBar(btnId, self.in_a_mode)
    
     def _updateFlyoutToolBar(self, btnId =0, in_a_mode = False):
-        """ Update the Flyout toolbar commands based on the checked button 
+        """
+        Update the Flyout toolbar commands based on the checked button 
         in the control area and the checked action in the 'subcontrol' area 
-        of the flyout toolbar """
+        of the flyout toolbar.
+        """
         ##in_a_mode : inside a mode or while editing a feature etc. 
         
         if self.currentAction:      
@@ -174,11 +183,13 @@ class CommandToolbar(Ui_CommandToolbar):
         self.flyoutToolBar.addActions(menu.actions())
                     
     def updateCommandToolbar(self, action, obj, entering = True): #Ninad 070125
-        """ Update the command toolbar (i.e. show the appropriate toolbar) 
+        """
+        Update the command toolbar (i.e. show the appropriate toolbar) 
         depending upon, the command button pressed . 
         It calls a private method that updates the SubcontrolArea and flyout 
         toolbar based on the ControlArea button checked and also based on the 
         SubcontrolArea button checked. 
+        
         @param obj: Object that requests its own Command Manager flyout toolbar
                     This can be a B{mode} or a B{generator}. 
         """     
@@ -193,11 +204,15 @@ class CommandToolbar(Ui_CommandToolbar):
                                       in_a_mode = self.in_a_mode )
     
     def _createFlyoutDictionary(self, params):
-        ''' Create the dictonary objet with subcontrol area actions as its 
+        """
+        Create the dictonary objet with subcontrol area actions as its 
         'keys' and corresponding command actions as the key 'values'. 
+        
         @param params: A tuple that contains 3 lists: 
         (subControlAreaActionList, commandActionLists, allActionsList)
-        @return: flyoutDictionary (dictionary object)'''
+        
+        @return: flyoutDictionary (dictionary object)
+        """
         
         subControlAreaActionList, commandActionLists, allActionsList = params
         #The subcontrol area button and its command list form a 'key:value pair
@@ -218,7 +233,9 @@ class CommandToolbar(Ui_CommandToolbar):
         
             
     def _createFlyoutToolBar(self, obj):
-        '''Creates the flyout tool bar in the Command Manager '''
+        """
+        Creates the flyout tool bar in the Command Manager.
+        """
         
         #This was earlier defined in each mode needing a flyout toolbar
 
@@ -297,20 +314,22 @@ class CommandToolbar(Ui_CommandToolbar):
         """
         if bool_show:
             self.flyoutToolBar.show()
-            self.cmdManager.layout().removeItem(self.spacerItem)
+            self.layout().removeItem(self.spacerItem)
         else:
             self.flyoutToolBar.hide()
-            self.cmdManager.layout().addItem(self.spacerItem)
-            
+            self.layout().addItem(self.spacerItem)
+    
     def _setFlyoutDictionary(self, dictionary):
-        ''' set the flyout dictionary that stores subcontrol area buttons in the
+        """
+        Set the flyout dictionary that stores subcontrol area buttons in the
         flyout toolbar as the keys and their corresponding command buttons 
         as values
         @param dictionary: dictionary object. 
         Its key is of the type (counter, subcontrolAreaAction). The counter is 
         used to sort the keys in the order in which they were created. 
         and value is the 'list of commands'  corresponding to the 
-        sub control button'''           
+        sub control button.
+        """           
         if isinstance(dictionary, dict):
             self.flyoutDictionary = dictionary
         else:
@@ -318,27 +337,29 @@ class CommandToolbar(Ui_CommandToolbar):
             self.flyoutDictionary = None
     
     def _getFlyoutDictonary(self):
-        ''' Returns the flyout dictonary object. 
+        """
+        Returns the flyout dictonary object. 
         @return: self.flyoutDictionary whose
         key : is of the type (counter, subcontrolAreaAction). The counter is 
         used to sort the keys in the order in which they were created. 
         and value is the 'list of commands'  corresponding to the 
-        sub control button'''
+        sub control button.
+        """
         if self.flyoutDictionary:
             return self.flyoutDictionary
         else:
             print "fyi: flyoutDictionary doesn't exist. Returning None" 
             return self.flyoutDictionary
-        
     
     def getOrderedKeyList(self, dictionary):
-        ''' Orders the keys of a dictionary and returns it as a list. 
+        """
+        Orders the keys of a dictionary and returns it as a list. 
         Effective only when the dictonary key is a tuple of format 
         (counter, key)
         @param: dictinary object 
         @return: a list object which contains ordered keys of the dictionary 
-        object
-        '''
+        object.
+        """
         keyList = dictionary.keys()
         keyList.sort()
         return [keys for (counter, keys) in keyList]

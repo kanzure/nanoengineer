@@ -344,8 +344,7 @@ class MWsemantics(QMainWindow,
             # Add the Command Toolbar.
             from CommandToolbar import CommandToolbar
             self.commandToolbar = CommandToolbar(self)
-            self.cmdManager = self.commandToolbar.cmdManager
-            layout.addWidget(self.cmdManager)	    
+            layout.addWidget(self.commandToolbar)   
 
             layout.addWidget(middlewidget)
             self.layout = QGridLayout(middlewidget)
@@ -459,7 +458,7 @@ class MWsemantics(QMainWindow,
                     widget.hide()
                     self._widgetToHideDuringFullScreenMode.append(widget)
 
-        self.commandToolbar.cmdManager.hide()
+        self.commandToolbar.hide()
 
     def _showFullScreenCommonCode(self):
         """
@@ -520,7 +519,7 @@ class MWsemantics(QMainWindow,
         for  widget in self._widgetToHideDuringFullScreenMode:           
             widget.show()
 
-        self.commandToolbar.cmdManager.show()
+        self.commandToolbar.show()
         #Clear the list of hidden widgets (those are no more hidden)
         self._widgetToHideDuringFullScreenMode = [] 
 
@@ -530,7 +529,7 @@ class MWsemantics(QMainWindow,
         # [bruce 070503 question: why do we get passed an assy, and use it for some things and self.assy for others?]
         if self.numParts == 0:
             #self.cmdToolbarControlArea.show()
-            self.cmdManager.show()
+            self.commandToolbar.show()
         self.numParts += 1
         pw = PartWindow(assy, self)
         row, col = self.gridPosition.next(pw)

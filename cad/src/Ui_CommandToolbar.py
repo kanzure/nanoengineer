@@ -36,7 +36,7 @@ from CommandToolbar_Constants import cmdTbarCmdAreaBtnColor
 
 from PM.PM_Colors import getPalette
 
-class Ui_CommandToolbar:
+class Ui_CommandToolbar( QWidget ):
     """ 
     This provides most of the User Interface for the command toolbar 
     called in CommandToolbar class.
@@ -47,29 +47,27 @@ class Ui_CommandToolbar:
         @param win: Mainwindow object
         @type  win: L{MWsemantics}
         """
+        QWidget.__init__(self)
+        
         self.win = win
     
     def setupUi(self):
         """
         Setup the UI for the command toolbar.
         """
-        # To do: remove attr cmdManager. IIRC, this isn't needed if 
-        # we subclass QWidget.
-        
-        self.cmdManager = QWidget()
         #ninad 070123 : Its important to set the Vertical size policy of the 
-        # cmd manager widget. otherwise the flyout QToolbar messes up the 
+        # cmd toolbar widget. otherwise the flyout QToolbar messes up the 
         #layout (makes the command toolbar twice as big) 
         #I have set the vertical policy as fixed. Works fine. There are some 
         # MainWindow resizing problems for but those are not due to this 
         #size policy AFAIK        
-        self.cmdManager.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
                 
-        layout_cmd_mgr = QHBoxLayout(self.cmdManager)
-        layout_cmd_mgr.setMargin(2)
-        layout_cmd_mgr.setSpacing(2)
+        layout_cmdtoolbar = QHBoxLayout(self)
+        layout_cmdtoolbar.setMargin(2)
+        layout_cmdtoolbar.setSpacing(2)
                                     
-        self.cmdToolbarControlArea = QToolBar_WikiHelp(self.cmdManager)             
+        self.cmdToolbarControlArea = QToolBar_WikiHelp(self)             
         self.cmdToolbarControlArea.setAutoFillBackground(True)
                 
         self.ctrlAreaPalette = self.getCmdMgrCtrlAreaPalette()  
@@ -107,10 +105,10 @@ class Ui_CommandToolbar:
             
             #self.cmdToolbarControlArea.addWidget(btn)      
         
-        layout_cmd_mgr.addWidget(self.cmdToolbarControlArea) 
+        layout_cmdtoolbar.addWidget(self.cmdToolbarControlArea) 
         
         #Flyout Toolbar in the command toolbar  
-        self.flyoutToolBar = QToolBar_WikiHelp(self.cmdManager) 
+        self.flyoutToolBar = QToolBar_WikiHelp(self) 
         self.flyoutToolBar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.flyoutToolBar.addSeparator()
         self.flyoutToolBar.setAutoFillBackground(True)
@@ -118,7 +116,7 @@ class Ui_CommandToolbar:
         self.commandAreaPalette = self.getCmdMgrCommandAreaPalette()
         self.flyoutToolBar.setPalette(self.commandAreaPalette)
         
-        layout_cmd_mgr.addWidget(self.flyoutToolBar)   
+        layout_cmdtoolbar.addWidget(self.flyoutToolBar)   
         
         #ninad 070116: Define a spacer item. It will have the exact geometry 
         # as that of the flyout toolbar. it is added to the command toolbar 
@@ -240,7 +238,7 @@ class Ui_CommandToolbar:
         #'word wrap' but OK for now. 
         
         #@@@ ninad 070126. Not calling this method as it is creating an annoying
-        #resizing problem in the Command manager layout. Possible solution is 
+        #resizing problem in the Command toolbar layout. Possible solution is 
         #to add a spacer item in a vbox layout to the command toolbar layout
         
         stringlist = text.split(" ", QString.SkipEmptyParts)
