@@ -100,10 +100,6 @@ disallowedModuleNames = {
 # "?" - unclassified [maybe none at present]
 # "operation" - tentative, for ops on model, could be model or controller
 # "tools"
-# "top_level"
-
-# ... listed above but not yet used below (and not a Python package):
-# "top"
 
 # names of existing Python packages (in theory all should appear above)
 # - appearing above: exprs, PM, utilities, model
@@ -146,7 +142,9 @@ packageColors = { # needs geometry, platform, and whatever new classifications w
 
     "examples"        : "#ff3030",
     "test"            : "#ff3060",
-    "top"             : "#ff3090",
+    
+    "top_level"       : "#ff3090",
+    "root"            : "#ff3090",
     }
 
 # ==
@@ -154,13 +152,14 @@ packageColors = { # needs geometry, platform, and whatever new classifications w
 packageLevels = {
     # plan: for each entry, review it, revise subclassifications. @@@
     # put in basic topics like dna, whatever fits "for xxx". @@@
-    "top"         : 7,
-    "test"        : 7, # none left!
-    "examples"    : 7, # DEPRECATED as a layer, revise it (could be a topic but not sure if we have any yet) @@@
+    "top_level"   : 7, # files that need to stay at top level for technical reasons (we'll put them at top of import graph)
+    "root"        : 7, # other files that belong at top of import graph (but that might be moved into subdirs)
+    "test"        : 7, ### none left!
+    "examples"    : 7, ### DEPRECATED as a layer, revise it (could be a topic but not sure if we have any yet) @@@
     "ui"          : 6, # has 137 instances - half the modules. (not counting new ones like command, unsplit_mode, simulation)
     "PM"          : 6,
-    "io"          : 5, # hmm, so high?
-    "model"       : 4, # wants subdivision? not urgent...
+    "io"          : 5, #? hmm, so high?
+    "model"       : 4, #k wants subdivision? not urgent...
     "graphics"    : 4,
     "foundation"  : 3,
     "exprs"       : 3,
@@ -170,7 +169,8 @@ packageLevels = {
     }
 
 _levels_highest_first = [ # TODO: finish, then use this to compute the above; in future make it a general DAG (not urgent)
-    ["top",
+    ["top_level",
+     "root",
      "test",
      "examples",
      ],
@@ -183,12 +183,30 @@ _levels_highest_first = [ # TODO: finish, then use this to compute the above; in
      ],
     # ... more
  ]
-    
-    
-    
+
 # ==
 
-packageMapping = {
+packageMapping_for_packages = {
+    # existing packages (in each case so far, all files now in them have the same fate)
+
+    "dna_model"                        : "model|dna/model",
+    "dna_updater"                      : "model_updater|dna/updater", ###?? be consistent with what we do for other model_updater code
+    "exprs"                            : "exprs", # (someday will be refactored and split)
+    "gui"                              : "ui|ne1_ui", # along with other files (or into a whatsthis subpackage?)
+    "model"                            : "model", # along with other files
+    "PM"                               : "ui/widgets|PM",
+    "startup"                          : "root|ne1_startup",
+    "utilities"                        : "utilities",
+}
+
+packageMapping_for_files = {
+    # files presently at toplevel (except for a few that are already moved)
+    
+    # Note: of these modules, Dna.py and platform.py are in the way of proposed new package names,
+    # so they need to be renamed, but they are listed here in the usual way.
+    # We also want to rename main.py -> ne1_main.py, but that's not urgent.
+    # For all other module renamings, we can wait a bit; see a wiki page about them.
+    
     "assembly"                         : "model", # (some foundation, but knows part.py which knows lots of ops & model constructors)
                                                   # (also: knows about selection, undo state, change counting, open file)
     "Assembly_API"                     : "foundation", # since not legit to be used below foundation
@@ -505,7 +523,7 @@ packageMapping = {
     "Ui_PartWindow"                    : "ui/widget", #?
     "Ui_SelectMenu"                    : "ui/menu",
     "Ui_SelectToolBar"                 : "ui/toolbar",
-    "Ui_SequenceEditor"                : "ui/widget|dna/Sequence Editor", #?
+    "Ui_SequenceEditor"                : "ui/widget|dna/Sequence Editor", #??
     "Ui_SimulationMenu"                : "ui/menu",
     "Ui_SimulationToolBar"             : "ui/toolbar",
     "Ui_StandardToolBar"               : "ui/toolbar",
@@ -533,17 +551,27 @@ packageMapping = {
     "ViewOrientationWindow"            : "ui",
     "VQT"                              : "geometry",
     
-##    "whatsthis"                        : "ui",
     "whatsthis_utilities"              : "utilities?", #? guess (file to be split out of gui/whatsthis; imports are foundation or above)
         # this file will import env (for win; could be refactored to not do so, eg use an arg), nothing else high up.
     "widgets"                          : "ui/widgets",
     "widget_controllers"               : "ui/widgets",
 
-    # @@@ where i am in file is up to here, and paper too
     "wiki_help"                        : "ui|help", # some io? a subsystem of the help system.
     
     "ZoomMode"                         : "ui",
     }
+
+
+# now combine those into one dict for use by current code in packageDependency.py
+
+for package_name in packageMapping_for_packages.keys():
+    assert not packageMapping_for_files.has_key( package_name)
+
+packageMapping = dict( packageMapping_for_files)
+
+packageMapping.update( packageMapping_for_packages)
+
+# ==
 
 # some topics above:
     # gamess -> analysis/GAMESS
