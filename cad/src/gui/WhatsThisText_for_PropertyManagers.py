@@ -577,6 +577,39 @@ def whatsThis_RotaryMotorPropertyManager(propMgr):
         this feature requires more work to be useful.
         </p>""")
     
+    propMgr.motorLengthDblSpinBox.setWhatsThis(
+        """<b>Motor Length</b>
+        <p>
+        The motor jig is drawn as a cylinder. This is the
+        dimensions of the solid's length, measured in angstroms.
+        </p>""")
+    
+    propMgr.motorRadiusDblSpinBox.setWhatsThis(
+        """<b>Motor Radius</b>
+        <p>
+        The motor jig is drawn as a cylinder. This is the
+        radius of the cylinder, measured in angstroms.
+        </p>""")
+    
+    propMgr.spokeRadiusDblSpinBox.setWhatsThis(
+        """<b>Spoke Radius</b>
+        <p>
+        Atoms are connected to the motor body by spokes, and this is the 
+        radius of the spokes, measured in angstroms. 
+        </p>""")
+    
+    propMgr.colorPushButton.setWhatsThis(
+        """<b>Color</b>
+        <p>
+        Allows you to change the color of the motor body and spokes
+        </p>""")
+    
+    propMgr.directionPushButton.setWhatsThis(
+        """<b>Change Direction</b>
+        <p>
+        Changes direction of the motor
+        </p>""")
+    
 def whatsThis_LinearMotorPropertyManager(propMgr):
     """
     What's This text for widgets in the Linear Motor Property Manager.
@@ -596,6 +629,53 @@ def whatsThis_LinearMotorPropertyManager(propMgr):
         allow simulations to begin with Linear motors running at speed, 
         this feature requires more work to be useful.
         </p>""")
+    
+    propMgr.stiffnessDblSpinBox.setWhatsThis(
+        """<b>Stiffness</b>
+        <p>
+        If non-zero, this parameter will modify the motor's force according 
+        to its position, as though the motor were a spring.</p>
+        <p>
+        When stiffness = 0, the motor's force is constant and will have the
+        same direction and magnitude regardless of atom position.
+        </p>""")
+    
+    propMgr.motorLengthDblSpinBox.setWhatsThis(
+        """<b>Motor Length</b>
+        <p>
+        The body of the motor jig is drawn as a rectangular solid, with the
+        long dimension in the direction of the motor's motion. This is the
+        dimensions of the solid's length, measured in angstroms.
+        </p>""")
+    
+    propMgr.motorWidthDblSpinBox.setWhatsThis(
+        """<b>Motor Width</b>
+        <p>
+        The body of the motor jig is drawn as a rectangular solid, with the
+        long dimension in the direction of the motor's motion. This is the
+        dimensions of the solid's width, measured in angstroms.
+        </p>""")
+    
+    propMgr.spokeRadiusDblSpinBox.setWhatsThis(
+        """<b>Spoke Radius</b>
+        <p>
+        Atoms are connected to the motor body by spokes, and this is the 
+        radius of the spokes, measured in angstroms.
+        </p>""")
+    
+    propMgr.colorPushButton.setWhatsThis(
+        """<b>Color</b>
+        <p>
+        Allows you to change the color of the motor body and spokes
+        </p>""")
+    
+    propMgr.directionPushButton.setWhatsThis(
+        """<b>Change Direction</b>
+        <p>
+        Changes direction of the linear motor
+        </p>""")
+        
+        
         
 def whatsThis_PlanePropertyManager(propMgr):
     """
@@ -638,6 +718,36 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
     propMgr.filterlistLE.setWhatsThis(
         """<b>Selection Filter Field</b>
         <p>
-        TOM MOORE TO FILL THIS IN.
+        Lists the current atom type the user may select while Selection 
+        Filter is checked
         </p>""")
+    
+    propMgr.autoBondCheckBox.setWhatsThis(
+        """<b>Autobond</b>
+        <p>
+        When enabled, additional bonds are formed automatically with the
+        deposited atom if possile
+        </p>""")
+    
+    propMgr.waterCheckBox.setWhatsThis(
+        """<b>Water</b>
+        <p>
+       Enables/disables the Water Surface selection filter
+       </p>""")
+    
+    propMgr.highlightingCheckBox.setWhatsThis(
+        """<b>Highlighting</b>
+        <p>
+        Enables/disables Hover Highlighting. When enabled, atoms and bonds
+        under the cursor are highlighted to indicate what would be selected 
+        if the user clicks the left mouse button. 
+        </p>""")
+    
+    propMgr.showSelectedAtomInfoCheckBox.setWhatsThis(
+        """<b>Show Selected Atoms's Info</b>
+        <p>
+        When checked an atom's position is displayed as X Y Z coordinates.
+        These coordinates can also be adjusted with provided spin boxes.
+        </p>""")
+    
     return
