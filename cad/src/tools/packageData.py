@@ -496,7 +496,7 @@ packageMapping = {
     "Ui_DimensionsMenu"                : "ui/menu",#?
     "Ui_DnaFlyout"                     : "ui/toolbar|dna",
     "Ui_EditMenu"                      : "ui/menu",
-    "Ui_ExtrudePropertyManager"        : "ui/propmgr",
+    "Ui_ExtrudePropertyManager"        : "ui/propmgr|Extrude",
     "Ui_FileMenu"                      : "ui/menu",
     "Ui_HelpMenu"                      : "ui/menu|help",
     "Ui_InsertMenu"                    : "ui/menu",
@@ -513,6 +513,12 @@ packageMapping = {
     "Ui_ViewMenu"                      : "ui/menu",
     "Ui_ViewOrientation"               : "ui",#?
     "Ui_ViewToolBar"                   : "ui/toolbar",
+
+    # these next 4 are new and not yet alphabetized
+    "Ui_MainWindowWidgets"             : "ui|ne1_ui",
+    "Ui_MainWindowWidgetConnections"   : "ui|ne1_ui",
+    "Ui_StandardViewsToolBar"          : "ui/toolbar|ne1_ui",
+    "Ui_DisplayStylesToolBar"          : "ui/toolbar|ne1_ui",
     
     "undo_internals"                   : "foundation",
     "undo_archive"                     : "foundation",
@@ -527,7 +533,9 @@ packageMapping = {
     "ViewOrientationWindow"            : "ui",
     "VQT"                              : "geometry",
     
-    "whatsthis"                        : "ui",
+##    "whatsthis"                        : "ui",
+    "whatsthis_utilities"              : "utilities?", #? guess (file to be split out of gui/whatsthis; imports are foundation or above)
+        # this file will import env (for win; could be refactored to not do so, eg use an arg), nothing else high up.
     "widgets"                          : "ui/widgets",
     "widget_controllers"               : "ui/widgets",
 
@@ -548,6 +556,7 @@ packageMapping = {
     dna
     ESP
     exprs/prototype
+    Extrude (not listed in all places that need it)
     gamess
     GROMACS
     help
