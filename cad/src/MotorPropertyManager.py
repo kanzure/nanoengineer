@@ -63,7 +63,9 @@ class MotorPropertyManager(EditController_PM):
         #EditController_PM.show, the 'preview' properties are not updated 
         #when you are editing an existing R.Motor. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
-        self.editController.struct.updateCosmeticProps(previewing = True)
+        if self.editController and self.editController.struct:
+            self.editController.struct.updateCosmeticProps(previewing = True)
+            
         self.updateAttachedAtomListWidget()
 
     def connect_or_disconnect_signals(self, isConnect):
@@ -117,7 +119,7 @@ class MotorPropertyManager(EditController_PM):
         Slot method to change the jig's color.
         """
         color = QColorDialog.getColor(self.jig_QColor, self)
-
+    
         if color.isValid():
             self.jig_QColor = color
             
@@ -141,20 +143,22 @@ class MotorPropertyManager(EditController_PM):
         Slot for reverse direction button.
         Reverses the direction of the motor.
         """
-        self.editController.struct.reverse_direction()
-        self.glpane.gl_update()
+        if self.editController.struct:
+            self.editController.struct.reverse_direction()            
+            self.glpane.gl_update()
     
     def updateAttachedAtomListWidget(self, atomList = None):
         """
         Update the list of attached atoms in the self.selectedAtomsListWidget
         """
-              
-        if not atomList:
+                     
+        if atomList is None:
             if self.editController.struct:
                 atomList = self.editController.struct.atoms[:]
-                         
-        self.attachedAtomsListWidget.insertItems(row = 0, 
-                                                 items = atomList )
+        
+        if atomList is not None:
+            self.attachedAtomsListWidget.insertItems(row = 0, 
+                                                     items = atomList )
         
             
     def updateMessage(self, message = ''):

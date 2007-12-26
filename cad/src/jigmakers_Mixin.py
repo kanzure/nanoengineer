@@ -37,16 +37,26 @@ class jigmakers_Mixin:
         Creates a Rotary Motor edit controller, whhich in turn creates a
         rotory motor connected to the selected atoms.
         """    
-        motorEditController = self.assy.part.createRMotorEditController()
-        motorEditController.createStructure()        
+        commandSequencer = self.assy.w.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "ROTARY_MOTOR":
+            commandSequencer.userEnterTemporaryCommand('ROTARY_MOTOR')
+            
+        assert self.assy.w.commandSequencer.currentCommand.commandName == "ROTARY_MOTOR"      
+        self.assy.w.commandSequencer.currentCommand.runController()	        
       
     def makeLinearMotor(self):
         """
         Creates a Linear Motor edit controller, whhich in turn creates a
         linear motor connected to the selected atoms.
         """ 
-        motorEditController = self.assy.part.createLMotorEditController()
-        motorEditController.createStructure() 
+        commandSequencer = self.assy.w.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "LINEAR_MOTOR":
+            commandSequencer.userEnterTemporaryCommand('LINEAR_MOTOR')
+            
+        assert self.assy.w.commandSequencer.currentCommand.commandName == "LINEAR_MOTOR"      
+        self.assy.w.commandSequencer.currentCommand.runController()
         
 
     def makegamess(self):

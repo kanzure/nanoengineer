@@ -121,6 +121,8 @@ from LineMode        import LineMode
 from DnaLineMode     import DnaLineMode
 from DnaDuplexEditController import DnaDuplexEditController
 from PlaneEditController     import PlaneEditController
+from RotaryMotorEditController import RotaryMotorEditController
+from LinearMotorEditController import LinearMotorEditController
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 from CommandSequencer import modeMixin
 
@@ -360,7 +362,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     movieMode, ZoomMode, PanMode, RotateMode, 
                     PasteMode, PartLibraryMode, 
                     LineMode, DnaLineMode, DnaDuplexEditController,
-                    PlaneEditController]
+                    PlaneEditController,
+                    LinearMotorEditController,
+                    RotaryMotorEditController]
                     ##SketchMode] #Sketchmode not implemented yet
 
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView

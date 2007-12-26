@@ -182,53 +182,17 @@ class EditController_PM(PM_Dialog):
         """   
         if self.editController:
             self.editController.preview_or_finalize_structure(previewing = False)
-            env.history.message(self.editController.logMessage)
-
-        self.accept() 
-        self.close() # Close the property manager.        
-
-        # The following reopens the property manager of the mode after 
-        # when the PM of the reference geometry is closed. -- Ninad 20070603 
-        # Note: the value of self.modePropertyManager can be None
-        # @see: anyMode.propMgr
-        #
-        # (Note: once we have a real command sequencer, it will be
-        #  handling this kind of thing itself, and the situation
-        #  in which the currentCommand does not correspond to
-        #  the current PM (as is true here while this separate PM
-        #  is open, since it's not currentCommand.propMgr)
-        #  will be deprecated or impossible. [bruce 071011 comment])
-        self.modePropertyManager = self.win.currentCommand.propMgr
-
-        if self.modePropertyManager:
-            #@self.openPropertyManager(self.modePropertyManager)
-            # (re)open the PM of the current command (i.e. "Build > Atoms").
-            self.open(self.modePropertyManager)
-        return 
-
+            env.history.message(self.editController.logMessage)        
+        self.win.toolsDone()
+    
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.
         """
         if self.editController:
-            self.editController.cancelStructure()
-          
-        self.reject() 
-        self.close() 
-
-        # The following reopens the property manager of the command after
-        # the PM of the reference geometry editController (i.e. Plane) is closed.
-        # Note: the value of self.modePropertyManager can be None.
-        # See anyMode.propMgr
-        # (See similar code in ok_btn_clicked [bruce 071011 comment])
-        self.modePropertyManager = self.win.currentCommand.propMgr
-
-        if self.modePropertyManager:
-            #@self.openPropertyManager(self.modePropertyManager)
-            # (re)open the PM of the current command (i.e. "Build > Atoms").
-            self.open(self.modePropertyManager)
-        return
-
+            self.editController.cancelStructure()            
+        self.win.toolsCancel()
+        
     def preview_btn_clicked(self):
         """
         Slot for the Preview button.

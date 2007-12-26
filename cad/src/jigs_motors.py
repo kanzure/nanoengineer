@@ -291,10 +291,18 @@ class RotaryMotor(Motor):
         """
         Overrides jig.edit. 
         """
-        if not self.editController:
-            self.editController = \
-                self.assy.part.createRMotorEditController(self)            
-        self.editController.editStructure()
+        commandSequencer = self.assy.w.commandSequencer
+        commandSequencer.userEnterTemporaryCommand('ROTARY_MOTOR')
+        currentCommand = commandSequencer.currentCommand
+        assert currentCommand.commandName == 'ROTARY_MOTOR'
+        #When a Plane object read from an mmp file is edited, we need to assign 
+        #it an editcontroller. So, when it is resized, the propMgr spinboxes
+        #are properly updated. See self.resizeGeometry. 
+        if self.editController is None:
+            self.editController = currentCommand
+            
+        currentCommand.editStructure(self)
+        
         if self is self.assy.o.selobj:
             self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
             # If the Properties dialog was selected from the GLPane's context menu, set selobj = None
@@ -623,10 +631,18 @@ class LinearMotor(Motor):
         """
         Overrides jig.edit. 
         """
-        if not self.editController:
-            self.editController = \
-                self.assy.part.createLMotorEditController(self)            
-        self.editController.editStructure()
+        commandSequencer = self.assy.w.commandSequencer
+        commandSequencer.userEnterTemporaryCommand('LINEAR_MOTOR')
+        currentCommand = commandSequencer.currentCommand
+        assert currentCommand.commandName == 'LINEAR_MOTOR'
+        #When a Plane object read from an mmp file is edited, we need to assign 
+        #it an editcontroller. So, when it is resized, the propMgr spinboxes
+        #are properly updated. See self.resizeGeometry. 
+        if self.editController is None:
+            self.editController = currentCommand
+            
+        currentCommand.editStructure(self)
+        
         if self is self.assy.o.selobj:
             self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
             # If the Properties dialog was selected from the GLPane's context menu, set selobj = None

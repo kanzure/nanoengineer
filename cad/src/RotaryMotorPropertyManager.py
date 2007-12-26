@@ -62,7 +62,7 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect
-        
+                
         MotorPropertyManager.connect_or_disconnect_signals(self, isConnect)
         
         change_connect(self.directionPushButton, 

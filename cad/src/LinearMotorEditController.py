@@ -33,6 +33,12 @@ class LinearMotorEditController(EditController):
     sponsor_keyword = 'Linear Motor'
     propMgr = None
     
+    #See Command.anyCommand for details about the following flags
+    command_should_resume_prevMode = True
+    command_has_its_own_gui = True
+    commandName = 'LINEAR_MOTOR'
+    
+    
     def __init__(self, commandSequencer, struct = None):
         """
         Constructs an Edit Controller Object. The editController, 
@@ -52,6 +58,26 @@ class LinearMotorEditController(EditController):
         """ 
         EditController.__init__(self, commandSequencer)
         self.struct = struct
+    
+    def init_gui(self):
+        """
+        NOT IMPLEMENTED YET.
+        TODO: Move calls that create/ show PM  in Editcontroller.createStructure
+              out of that method. (That code was written before converting the 
+              editcontrollers into 'Commands'. After this conversion, a better 
+              implementation is necessary, in which PM creation and 
+              display will be handled  in init_gui method.
+        """
+        #Note: This method overrides EditController.init_gui. This is just to 
+        #prevent the call of self.create_and_or_show_PM_if_wanted. , As that 
+        # method is called in self.createStructure. (to be cleaned up)
+        pass 
+      
+    def restore_gui(self):
+        """
+        """
+        if self.propMgr:
+            self.propMgr.close()
     
     def _gatherParameters(self):
         """
@@ -154,7 +180,7 @@ class LinearMotorEditController(EditController):
         
                 
         if numberOfAtoms == 0:
-            logMessage = "No Atoms selected to create a %s" %(self.cmdname)
+            logMessage = "No Atoms selected to create a Linear Motor. " 
             isAtomRequirementMet = False
             return (isAtomRequirementMet, logMessage)        
         

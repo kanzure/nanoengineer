@@ -1427,9 +1427,7 @@ class MWsemantics(QMainWindow,
                 commandSequencer.userEnterTemporaryCommand(
                     'REFERENCE_PLANE')
                 
-        self.commandSequencer.currentCommand.runController()
-        
-        ##elf.assy.createPlane()	
+        self.commandSequencer.currentCommand.runController()	
 
     def makeGridPlane(self):
         self.assy.makeGridPlane()

@@ -570,7 +570,7 @@ class Plane(ReferenceGeometry):
         """
         
         commandSequencer = self.win.commandSequencer
-        commandSequencer.userEnterCommand('REFERENCE_PLANE')
+        commandSequencer.userEnterTemporaryCommand('REFERENCE_PLANE')
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'REFERENCE_PLANE'
         #When a Plane object read from an mmp file is edited, we need to assign 

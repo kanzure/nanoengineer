@@ -63,25 +63,7 @@ class PlaneEditController(EditController):
         """     
         EditController.__init__(self, commandSequencer)
         self.struct = struct      
-    
-    def Enter(self):
-        """
-        """
-        #@@TODO: Should the structure always be reset while entering 
-        #PlaneEditController PM? The client must explicitely use, 
-        #for example, editController.editStructre(self) so that this command
-        #knows what to edit. But that must be done after entering the command. 
-        #see Plane.edit for example.
-        #setting self.struct to None is needed in Enter as
-        #update_props_if_needed_before_closing is called which may update 
-        #the cosmetic props of the old structure from some previous run. 
-        #This will be cleaned up (the update_props_... method was designed 
-        # for the 'guest Property Managers' i.e. at the time when the 
-        #editController was not a 'command'. ) -- Ninad 2007-12-26
-        if self.struct:
-            self.struct = None
-        EditController.Enter(self)
-        
+
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 

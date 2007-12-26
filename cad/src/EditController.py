@@ -38,10 +38,10 @@ from utilities.Comparison import same_vals
 from constants            import permit_gensym_to_reuse_name
 from GeneratorBaseClass   import AbstractMethod
 
-from SelectChunks_Command import SelectChunks_Command
+from Select_Command import Select_Command
 
 
-class EditController(SelectChunks_Command):
+class EditController(Select_Command):
     """
     EditController class that provides a editcontroller object. 
     The client can call three public methods defined in this class to acheive 
@@ -108,9 +108,27 @@ class EditController(SelectChunks_Command):
             ##as of 060616
             #self.cmd = greenmsg(self.cmdname + ": ")
         
-        SelectChunks_Command.__init__(self, commandSequencer)
+        Select_Command.__init__(self, commandSequencer)
         return
     
+    def Enter(self):
+        """
+        
+        """
+        #@@TODO: Should the structure always be reset while entering,
+        #(for instance), PlaneEditController PM? The client must explicitely use, 
+        #for example, editController.editStructre(self) so that this command
+        #knows what to edit. But that must be done after entering the command. 
+        #see Plane.edit for example.
+        #setting self.struct to None is needed in Enter as
+        #update_props_if_needed_before_closing is called which may update 
+        #the cosmetic props of the old structure from some previous run. 
+        #This will be cleaned up (the update_props_... method was designed 
+        # for the 'guest Property Managers' i.e. at the time when the 
+        #editController was not a 'command'. ) -- Ninad 2007-12-26
+        if self.struct:
+            self.struct = None                    
+        Select_Command.Enter(self)
     
     def init_gui(self):
         """

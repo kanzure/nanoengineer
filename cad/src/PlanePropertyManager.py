@@ -83,23 +83,6 @@ class PlanePropertyManager(EditController_PM):
         # Hide Preview and Restore defaults button for Alpha9.
         self.hideTopRowButtons(pmRestoreDefaultsButton)
     
-    def ok_btn_clicked(self):
-        """
-        Slot for the OK button
-        """   
-        if self.editController:
-            self.editController.preview_or_finalize_structure(previewing = False)
-            env.history.message(self.editController.logMessage)        
-        self.win.toolsDone()
-    
-    def cancel_btn_clicked(self):
-        """
-        Slot for the Cancel button.
-        """
-        if self.editController:
-            self.editController.cancelStructure()            
-        self.win.toolsCancel()
-
     def _addGroupBoxes(self):
         """
         Add the 1st group box to the Property Manager.
