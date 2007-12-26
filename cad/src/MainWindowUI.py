@@ -98,7 +98,6 @@ class Ui_MainWindow(object):
         # Create the main menu bar.
         self.MenuBar = QtGui.QMenuBar(MainWindow)
         self.MenuBar.setEnabled(True)
-        self.MenuBar.setGeometry(QtCore.QRect(0,0,1014,28))
         self.MenuBar.setObjectName("MenuBar")
 
         # Create the menus for NE1's main menu bar.
