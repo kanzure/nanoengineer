@@ -106,16 +106,16 @@ class ESPImage(RectGadget):
     own_mutable_attrs = ('fill_color', 'image_mods', )
     mutable_attrs = RectGadget.mutable_attrs + own_mutable_attrs
     copyable_attrs = RectGadget.copyable_attrs + own_mutable_attrs + \
-                     ('resolution', 'opacity', 'show_esp_bbox', 'image_offset', 'edge_offset',
-                      'espimage_file', 'highlightChecked', 'xaxis_orient', 'yaxis_orient', 'multiplicity')
+                   ('resolution', 'opacity', 'show_esp_bbox', 'image_offset', 'edge_offset',
+                    'espimage_file', 'highlightChecked', 'xaxis_orient', 'yaxis_orient', 'multiplicity')
         #bruce 060212 added 'espimage_file', 'highlightChecked', 'xaxis_orient', 'yaxis_orient', 'multiplicity'
         # (not sure adding 'multiplicity' is correct)
-    
+
     sym = "ESPImage" #bruce 070604 removed space (per Mark decision)
     icon_names = ["modeltree/ESP_Image.png", "modeltree/ESP_Image-hide.png"]
     mmp_record_name = "espimage"
     featurename = "ESP Image" #Renamed from ESP Window. mark 060108
-    
+
     draw_later_due_to_translucency = True # overrides Node default [bruce 071026]
         # Note: all code which treats ESPImage specially due to its being translucent
         # now uses this class-constant flag to identify it. But ESPImage has several
@@ -127,14 +127,14 @@ class ESPImage(RectGadget):
         # TODO: the algorithm for honoring this attribute should be made more efficient
         # so it doesn't require two complete drawing passes over the model tree.
         # [bruce 071026 comment]
-    
+
     def __init__(self, assy, list, READ_FROM_MMP = False):
         RectGadget.__init__(self, assy, list, READ_FROM_MMP)
         self.assy = assy
         self.color = black # Border color
         self.normcolor = black
         self.fill_color = 85/255.0, 170/255.0, 255/255.0 # The fill color, a nice blue
-        
+
         # This specifies the resolution of the ESP Image. 
         # The total number of ESP data points in the image will number resolution^2. 
         self.resolution = 32 # Keep it small so sim run doesn't take so long. Mark 050930.
@@ -157,10 +157,10 @@ class ESPImage(RectGadget):
         self.xaxis_orient = 0 # ESP Image X Axis orientation [bruce comment 060212: this is used by external code in files_nh.py]
         self.yaxis_orient = 0 # ESP Image Y Axis orientation
         self.multiplicity = 1 # Multiplicity of atoms within this jig's bbox volume
-       
+
         self.pickCheckOnly = False #This is used to notify drawing code if it's just for picking purpose
         return
-        
+
     def _initTextureEnv(self): # called during draw method
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
             # [looks like a bug that we overwrite clamp with repeat, just below? bruce 060212 comment]
@@ -190,7 +190,7 @@ class ESPImage(RectGadget):
             self.image_obj = nEImageOps(self.espimage_file)
             self.image_mods.do_to( self.image_obj) #bruce 060210 bugfix: stored image_mods in mmp file, so we can reuse them here
         return
-         
+
     def _loadTexture(self):
         """
         Load texture data from current image object
@@ -202,25 +202,25 @@ class ESPImage(RectGadget):
             self.tex_name = glGenTextures(1)
             # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
             # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
-        
+
         # initialize texture data
         glBindTexture(GL_TEXTURE_2D, self.tex_name)   # 2d texture (x and y size)
-    
+
         glPixelStorei(GL_UNPACK_ALIGNMENT,1)
         self.have_mipmaps = False
         if debug_pref("smoother tiny textures", Choice_boolean_False, prefs_key = True):
             #bruce 060212 new feature; only takes effect when image is reloaded for some reason (like "load image" button)
-	    gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ix, iy, GL_RGBA, GL_UNSIGNED_BYTE, image)
+            gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, ix, iy, GL_RGBA, GL_UNSIGNED_BYTE, image)
             self.have_mipmaps = True
-	else:
+        else:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ix, iy, 0, GL_RGBA, GL_UNSIGNED_BYTE, image)
                 # 0 is mipmap level, GL_RGBA is internal format, ix, iy is size, 0 is borderwidth,
                 # and (GL_RGBA, GL_UNSIGNED_BYTE, image) describe the external image data. [bruce 060212 comment]
-    
+
         ## self._initTextureEnv() #bruce 060207 do this in draw method, not here
         self.assy.o.gl_update()
         return
-    
+
     def setProps(self, name, border_color, width, height, resolution, center, wxyz, trans, fill_color,show_bbox, win_offset, edge_offset):
         """
         Set the properties for a ESP Image read from a (MMP) file.
@@ -230,47 +230,47 @@ class ESPImage(RectGadget):
         self.center = center;  
 
         self.quat = Q(wxyz[0], wxyz[1], wxyz[2], wxyz[3])
-        
+
         self.opacity = trans;  self.fill_color = fill_color
         self.show_esp_bbox = show_bbox; self.image_offset = win_offset; self.edge_offset = edge_offset
 
     def _getinfo(self):
-        
+
         c = self.center * 1e-10
         ctr_pt = (float(c[0]), float(c[1]), float(c[2]))
         centerPoint = '%1.2e %1.2e %1.2e' % ctr_pt
-        
+
         n = c + (self.planeNorm * 1e-10)
         np = (float(n[0]), float(n[1]), float(n[2]))
         normalPoint = '%1.2e %1.2e %1.2e' % np
-        
+
         return  "[Object: ESP Image] [Name: " + str(self.name) + "] " + \
-                    "[centerPoint = " + centerPoint + "] " + \
-                    "[normalPoint = " + normalPoint + "]"
+                "[centerPoint = " + centerPoint + "] " + \
+                "[normalPoint = " + normalPoint + "]"
 
     def getstatistics(self, stats):
         stats.num_espimage += 1  
-      
+
     def set_cntl(self):
         self.cntl = ESPImageProp(self, self.assy.o)
-    
+
     def _createShape(self, selSense = START_NEW_SELECTION):
         """
         """
         hw = self.width/2.0; wo = self.image_offset; eo = self.edge_offset
-        
+
         shape = SelectionShape(self.right, self.up, self.planeNorm)
         slab = Slab(self.center - self.planeNorm * wo, self.planeNorm, 2 * wo)
         pos = [V(-hw - eo, hw + eo, 0.0), V(hw + eo, -hw - eo, 0.0)]
         p3d = []         
         for p in pos:   
             p3d += [self.quat.rot(p) + self.center]
-        
+
         # selSense used to highlight (not select) atoms inside the jig's volume.
         shape.pickrect(p3d[0], p3d[1], self.center, selSense, slab = slab)
 
         return shape
-    
+
     def pickSelected(self, pick):
         """
         Select atoms inside the ESP Image bounding box. Actually this works for chunk too.
@@ -280,11 +280,11 @@ class ESPImage(RectGadget):
             selSense = SUBTRACT_FROM_SELECTION
         else:
             selSense = START_NEW_SELECTION
-        
+
         shape = self._createShape(selSense)
         shape.select(self.assy)
         return
-        
+
     def findObjsInside(self):
         """
         Find objects [atoms or chunks] inside the shape
@@ -298,7 +298,7 @@ class ESPImage(RectGadget):
         """
         if not self.highlightChecked:
             return 
-        
+
         atomChunks = self.findObjsInside()
         for m in atomChunks:
             if isinstance(m, Chunk):
@@ -307,7 +307,7 @@ class ESPImage(RectGadget):
             else:
                 m.overdraw_with_special_color(ave_colors( 0.8, green, black))
         return
-    
+
     def edit(self): # in class ESPImage
         """
         Force into 'Build' mode before opening the dialog
@@ -315,10 +315,10 @@ class ESPImage(RectGadget):
         #bruce 060403 changes: force Build, not Select Atoms as before; only do this if current mode is not Build.
         # (But why do we need to force it into any particular mode? I don't know. [bruce 070608])
         commandSequencer = self.assy.w.commandSequencer #bruce 071008
-        if commandSequencer.currentCommand.modename != 'DEPOSIT':
+        if commandSequencer.currentCommand.commandName != 'DEPOSIT':
             commandSequencer.userEnterCommand('DEPOSIT')
         Jig.edit(self)
-        
+
     def make_selobj_cmenu_items(self, menu_spec):
         """
         Add ESP Image specific context menu items to <menu_spec> list when self is the selobj.
@@ -334,13 +334,13 @@ class ESPImage(RectGadget):
         item = ('Load ESP Image', self.__CM_Load_ESP_Image)
         menu_spec.append(item)
         return
-        
+
     def writepov(self, file, dispdef):
         if self.hidden:
             return
         if self.is_disabled():
             return #bruce 050421
-        
+
         hw = self.width/2.0; wo = self.image_offset; eo = self.edge_offset
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
         povPlaneCorners = []
@@ -356,7 +356,7 @@ class ESPImage(RectGadget):
             color = '%s %f>' % (povStrVec(self.fill_color), self.opacity)
             file.write('esp_plane_color(' + strPts + ', ' + color + ') \n')
         return
-    
+
     def _draw_jig(self, glpane, color, highlighted = False):
         """
         Draw a ESP Image jig as a plane with an edge and a bounding box.
@@ -376,17 +376,17 @@ class ESPImage(RectGadget):
             textureReady = False
         drawPlane(self.fill_color, self.width, self.width, textureReady, self.opacity,
                   SOLID = True, pickCheckOnly = self.pickCheckOnly)
-        
+
         hw = self.width/2.0
         corners_pos = [V(-hw, hw, 0.0), V(-hw, -hw, 0.0), V(hw, -hw, 0.0), V(hw, hw, 0.0)]
         drawLineLoop(color, corners_pos)  
-        
+
         # Draw the ESP Image bbox.
         if self.show_esp_bbox:
             wo = self.image_offset
             eo = self.edge_offset
             drawwirecube(color, V(0.0, 0.0, 0.0), V(hw + eo, hw + eo, wo), 1.0) #drawwirebox
-            
+
             # This is for debugging purposes.  This draws a green normal vector using
             # local space coords.  Mark 050930
             if 0:
@@ -394,14 +394,14 @@ class ESPImage(RectGadget):
                 drawline(green, V(0.0, 0.0, 0.0), V(0.0, 0.0, 1.0), 0, 3)
 
         glPopMatrix()
-        
+
         # This is for debugging purposes. This draws a yellow normal vector using 
         # model space coords.  Mark 050930
         if 0:
             from drawer import drawline
             from constants import yellow
             drawline(yellow, self.center, self.center + self.planeNorm, 0, 3)
- 
+
     def writemmp(self, mapping):
         """
         [extends Jig method]
@@ -416,17 +416,17 @@ class ESPImage(RectGadget):
             line = "info espimage image_mods = %s\n" % (self.image_mods,)
             mapping.write(line)
         return
- 
+
     def mmp_record_jigspecific_midpart(self):
         color = map(int,A(self.fill_color)*255)
-        
+
         dataline = "%.2f %.2f %d (%f, %f, %f) (%f, %f, %f, %f) %.2f (%d, %d, %d) %d %.2f %.2f" % \
-           (self.width, self.height, self.resolution, 
-            self.center[0], self.center[1], self.center[2], 
-            self.quat.w, self.quat.x, self.quat.y, self.quat.z, 
-            self.opacity, color[0], color[1], color[2], self.show_esp_bbox, self.image_offset, self.edge_offset)
+                 (self.width, self.height, self.resolution, 
+                  self.center[0], self.center[1], self.center[2], 
+                  self.quat.w, self.quat.x, self.quat.y, self.quat.z, 
+                  self.opacity, color[0], color[1], color[2], self.show_esp_bbox, self.image_offset, self.edge_offset)
         return " " + dataline
-        
+
     def readmmp_info_espimage_setitem( self, key, val, interp ):
         """
         This is called when reading an mmp file, for each "info espimage" record
@@ -466,24 +466,24 @@ class ESPImage(RectGadget):
 
     def get_sim_parms(self):
         sim_parms = NanoHive_SimParameters()
-        
+
         sim_parms.desc = 'ESP Calculation from MT Context Menu for ' + self.name
         sim_parms.iterations = 1
         sim_parms.spf = 1e-17 # Steps per Frame
         sim_parms.temp = 300 # Room temp
-        
+
         # Get updated multiplicity from this ESP image jig bbox
         atomList = self.findObjsInside()
         self.multiplicity = getMultiplicity(atomList)        
-       
+
         sim_parms.esp_image = self
-        
+
         return sim_parms
-    
+
     def calculate_esp(self):
-        
+
         cmd = greenmsg("Calculate ESP: ")
-        
+
         errmsgs = [ "Error: Nano-Hive plug-in not enabled.",
                     "Error: Nano-Hive Plug-in path is empty.",
                     "Error: Nano-Hive plug-in path points to a file that does not exist.",
@@ -492,59 +492,59 @@ class ESPImage(RectGadget):
                     "Error: Load command failed.",
                     "Error: Run command failed.",
                     "Simulation Aborted"
-                   ]
-        
+                ]
+
         sim_parms = self.get_sim_parms()
         sims_to_run = ["MPQC_ESP"]
         results_to_save = [] # Results info included in write_nh_mpqc_esp_rec()
-        
+
         # Temporary file name of ESP image file.
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
         tmp_espimage_file = os.path.join(nhdir, "%s.png" % (self.name))
-        
+
         # Destination (permanent) file name of ESP image file.
         espimage_file = get_nh_espimage_filename(self.assy, self.name)
-        
+
         msg = "Running ESP calculation on [%s]. Results will be written to: [%s]" % (self.name, espimage_file)
         env.history.message( cmd + msg ) 
-        
+
         r = run_nh_simulation(self.assy, 'CalcESP', sim_parms, sims_to_run, results_to_save)
-        
+
         if r:
             msg = redmsg(errmsgs[r - 1])
             env.history.message( cmd + msg )
             return
-            
+
         msg = "ESP calculation on [%s] finished." % (self.name)
         env.history.message( cmd + msg ) 
-        
+
         # Move tmp file to permanent location.  Make sure the tmp file is there.
         if os.path.exists(tmp_espimage_file):
             shutil.move(tmp_espimage_file, espimage_file)
         else:
             print "Temporary ESP Image file ", tmp_espimage_file," does not exist. Image not loaded."
             return
-        
+
         self.espimage_file = espimage_file
         self.load_espimage_file()
         self.assy.changed()
         self.assy.w.win_update()
-        
+
         return
-      
-    
+
+
     def __CM_Calculate_ESP(self):
         """
         Method for "Calculate ESP" context menu
         """
         self.calculate_esp()
-        
+
     def __CM_Load_ESP_Image(self):
         """
         Method for "Load ESP Image" context menu
         """
         self.load_espimage_file()
-   
+
     def load_espimage_file(self, choose_new_image = False, parent = None):
         """
         Load the ESP (.png) image file pointed to by self.espimage_file.
@@ -562,62 +562,62 @@ class ESPImage(RectGadget):
         # routines). Nothing presently uses the return value.
 
         old_espimage_file = self.espimage_file
-        
+
         if not parent:
             parent = self.assy.w
-        
+
         cmd = greenmsg("Load ESP Image: ")
-        
+
         ## print "load_espimage_file(): espimage_file = ", self.espimage_file
 
         if choose_new_image or not self.espimage_file:
             choose_new_image = True
-            
+
         elif not os.path.exists(self.espimage_file):
             msg = "The ESP image file:\n" + self.espimage_file + "\ndoes not exist.\n\nWould you like to select one?"
             choose_new_image = True
             QMessageBox.warning( parent, "Choose ESP Image", \
-                    msg, QMessageBox.Ok, QMessageBox.Cancel)
+                                 msg, QMessageBox.Ok, QMessageBox.Cancel)
             #bruce 060207 question: shouldn't we check here whether they said ok or cancel?? Looks like a bug. ####@@@@
-        
+
         if choose_new_image: 
             cwd = self.assy.get_cwd()
-    
+
             fn = QFileDialog.getOpenFileName(
-		parent,
-		"Load an ESP Image File",
-		cwd,
-		"Portable Network Graphics (*.png);;All Files (*.*);;" 
-		) #bruce 060212 added All Files option
-	    
-            	    
+                parent,
+                "Load an ESP Image File",
+                cwd,
+                "Portable Network Graphics (*.png);;All Files (*.*);;" 
+                ) #bruce 060212 added All Files option
+
+
             if not fn:
                 env.history.message(cmd + "Cancelled.") #bruce 060212 bugfix: included cmd
                 return None
-                
+
             self.espimage_file = str(fn)
             if old_espimage_file != self.espimage_file:
                 self.changed() #bruce 060207 fix of perhaps-previously-unreported bug
             pass
-        
+
         if self.image_mods:
             self.image_mods.reset()
             self.changed()
-        
+
         self._create_PIL_image_obj_from_espimage_file()
         self._loadTexture()
             #bruce 060212 comment: this does gl_update, but when we're called from dialog's open file button,
             # the glpane doesn't show the new texture until the dialog is closed (which is a bug, IMHO),
             # even if we call env.call_qApp_processEvents() before returning from this method (load_espimage_file).
             # I don't know why.
-        
+
         # Bug fix 1041-1.  Mark 051003
         msg = "ESP image loaded: [" + self.espimage_file + "]"
         env.history.message(cmd + msg)
-        
+
         return self.espimage_file
-    
-    
+
+
     def clear_esp_image(self):
         """
         Clears the image in the ESP Image.
@@ -632,14 +632,14 @@ class ESPImage(RectGadget):
             self.image_mods.flip() #bruce 060210
             self.changed() #bruce 060210
             self._loadTexture()
-    
+
     def mirror_esp_image(self):
         if self.image_obj:
             self.image_obj.mirror()
             self.image_mods.mirror() #bruce 060210
             self.changed() #bruce 060210
             self._loadTexture()
-            
+
     def rotate_esp_image(self, deg):
         if self.image_obj:
             self.image_obj.rotate(deg)
@@ -666,7 +666,7 @@ def getMultiplicity(objList): # only used in this file
         elif isinstance(m, Chunk):
             for a in m.atoms.itervalues():
                 numElectrons += a.element.eltnum
-    
+
     if numElectrons % 2:
         return 2
     else:
@@ -762,7 +762,7 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py,
 
     def __ne__(self, other): #bruce 060228
         return not (self == other)
-    
+
     pass # end of class image_mod_record
 
 # == test code
@@ -770,19 +770,19 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py,
 if __name__ == '__main__':
 
     nopos = V(0,0,0) #bruce 060308 replaced 'no' with nopos (w/o knowing if it was correct in the first place)
-    
+
     alist = [Atom('C', nopos, None),
              Atom('C', nopos, None),
              Atom('H', nopos, None),
              Atom('O', nopos, None),
-            ]
-    
+         ]
+
     assert getMultiplicity(alist) == 2
-    
+
     alist += [Atom('N', nopos, None),]
     assert getMultiplicity(alist) == 1
-    
+
     print "Test succeed, no assertion error."
-    
+
 
 #end

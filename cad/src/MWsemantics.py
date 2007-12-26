@@ -1025,13 +1025,13 @@ class MWsemantics(QMainWindow,
             commandSequencer = self.commandSequencer
             currentCommand = commandSequencer.currentCommand
 
-            if currentCommand.modename != "PASTE":
+            if currentCommand.commandName != "PASTE":
 ##		#Make sure that previous command (commandSequencer.prevMode) never
 ##		#stores a 'temporary command' i.e. after exiting Paste Command, the 
 ##		#command NE1 enters is not one of the following -- 
 ##		# ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
 ##		
-##		if currentCommand.modename not in ['PASTE', 'PARTLIB',
+##		if currentCommand.commandName not in ['PASTE', 'PARTLIB',
 ##					           'ZOOM', 'PAN', 'ROTATE']:		    
 ##		    commandSequencer.prevMode = currentCommand
 ##		    
@@ -1051,12 +1051,12 @@ class MWsemantics(QMainWindow,
         """
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
-        if currentCommand.modename != "PARTLIB":
+        if currentCommand.commandName != "PARTLIB":
 ##	    #Make sure that previous command (commandSequencer.prevMode) never
 ##	    #stores a 'temporary command' i.e. after exiting Paste Command, the 
 ##	    #command NE1 enters is not one of the following -- 
 ##	    # ('PASTE', 'PARTLIB', 'ZOOM', 'PAN', 'ROTATE')
-##	    if currentCommand.modename not in ['PASTE', 'PARTLIB',
+##	    if currentCommand.commandName not in ['PASTE', 'PARTLIB',
 ##					       'ZOOM', 'PAN', 'ROTATE']:
 ##		commandSequencer.prevMode = currentCommand
 ##		
@@ -1423,7 +1423,7 @@ class MWsemantics(QMainWindow,
     def createPlane(self):
         commandSequencer = self.commandSequencer
         currentCommand = commandSequencer.currentCommand
-        if currentCommand.modename != "REFERENCE_PLANE":
+        if currentCommand.commandName != "REFERENCE_PLANE":
                 commandSequencer.userEnterTemporaryCommand(
                     'REFERENCE_PLANE')
                 
@@ -1773,9 +1773,9 @@ class MWsemantics(QMainWindow,
     # Insert Menu/Toolbar Slots
     ###################################
 
-    def ensureInCommand(self, modename): #bruce 071009
+    def ensureInCommand(self, commandName): #bruce 071009
         """
-        If the current command's .modename differs from the one given, change
+        If the current command's .commandName differs from the one given, change
         to that command.
 
         @note: it's likely that this method is not needed since
@@ -1793,8 +1793,8 @@ class MWsemantics(QMainWindow,
          but maybe not using this method in particular.)
         """
         commandSequencer = self.commandSequencer
-        if commandSequencer.currentCommand.modename != modename:
-            commandSequencer.userEnterCommand(modename)
+        if commandSequencer.currentCommand.commandName != commandName:
+            commandSequencer.userEnterCommand(commandName)
             # note: this changes the value of .currentCommand
         return
 
@@ -1816,10 +1816,10 @@ class MWsemantics(QMainWindow,
         @see:B{self.insertDna}
         """
         commandSequencer = self.commandSequencer        
-        if commandSequencer.currentCommand.modename != 'DNA_DUPLEX':
+        if commandSequencer.currentCommand.commandName != 'DNA_DUPLEX':
             commandSequencer.userEnterCommand('DNA_DUPLEX')
         
-        assert self.commandSequencer.currentCommand.modename == 'DNA_DUPLEX'
+        assert self.commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
         
         self.commandSequencer.currentCommand.runController()
 
@@ -1841,12 +1841,12 @@ class MWsemantics(QMainWindow,
         else:
             commandSequencer = self.commandSequencer
             currentCommand = commandSequencer.currentCommand
-            if currentCommand.modename != "DNA_LINE_MODE":
+            if currentCommand.commandName != "DNA_LINE_MODE":
                 commandSequencer.userEnterTemporaryCommand(
                     'DNA_LINE_MODE')
             else:        
                 currentCommand = self.commandSequencer.currentCommand
-                if currentCommand.modename == 'DNA_LINE_MODE':
+                if currentCommand.commandName == 'DNA_LINE_MODE':
                     currentCommand.Done(exit_using_done_or_cancel_button = False)
             
 

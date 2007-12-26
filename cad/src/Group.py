@@ -729,7 +729,7 @@ class Group(Node):
             commandSequencer = self.assy.w.commandSequencer
             commandSequencer.userEnterCommand('DNA_DUPLEX')
             currentCommand = commandSequencer.currentCommand
-            assert currentCommand.modename == 'DNA_DUPLEX'
+            assert currentCommand.commandName == 'DNA_DUPLEX'
             currentCommand.editStructure(self)
         else:
             cntl = GroupProp(self) # Normal group prop

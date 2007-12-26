@@ -52,8 +52,7 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
     """
     abstract superclass for all Command objects, including nullCommand
     """
-    # TODO: revise 'mode' term in modename, msg_modename attributes.
-    
+        
     # default values for command-object attributes.  external code
     # assumes every command has these attributes, but it should pretend
     # they're read-only; command-related code (in this file) can override
@@ -63,9 +62,9 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
     
     # internal name of command, e.g. 'DEPOSIT',
     # only seen by users in "debug" error messages
-    modename = "(bug: missing modename 1)" 
+    commandName = "(bug: missing commandName 1)" 
     # name of command to be shown to users, as a phrase, e.g. 'sketch command'
-    msg_modename = "(bug: unknown command)"
+    msg_commandName = "(bug: unknown command)"
     
     # Command's property manager. Subclasses should initialize the propMgr object 
     # if they need one.     
@@ -190,8 +189,8 @@ class nullCommand(anyCommand):
 
     is_null = True
     
-    modename = 'nullCommand'
-    msg_modename = 'nullCommand'
+    commandName = 'nullCommand'
+    msg_commandName = 'nullCommand'
         # this will be overwritten in the nullCommand instance
         # when the currentCommand is changing [bruce 050106]
     
@@ -224,13 +223,13 @@ class basicCommand(anyCommand):
     # and normally need no __init__ method.
     # If they have an __init__ method, it must call Command.__init__
     # and pass the CommandSequencer in which this command can run.
-    modename = "(bug: missing modename)"
-    msg_modename = "(bug: unknown command)"
+    commandName = "(bug: missing commandName)"
+    msg_commandName = "(bug: unknown command)"
     default_mode_status_text = "(bug: missing command status text)"
 
     command_can_be_suspended = True # good default value for most commands [bruce 071011]
     
-    def user_modename(self): #bruce 051130 (apparently this is new; it can be the official user-visible-modename method for now)
+    def user_commandName(self): #bruce 051130 (apparently this is new; it can be the official user-visible-commandName method for now)
         """
         Return a string such as 'Move Mode' or 'Build Mode' --
         the name of this command for users; or '' if unknown.
@@ -255,7 +254,7 @@ class basicCommand(anyCommand):
         twice when we open a new file, or once when we use file->close.
 
         This method sets up that command to be available (but not yet active)
-        in that commandSequencer's commandTable (mapping modename to command object
+        in that commandSequencer's commandTable (mapping commandName to command object
         for reusable command objects -- for now that means all of them, by default --
         TODO, revise this somehow, maybe control it by a per-Command class constant).
 
@@ -271,17 +270,17 @@ class basicCommand(anyCommand):
 
         #} got to here in this method
         
-        # init or verify modename and msg_modename
-        name = self.modename
+        # init or verify commandName and msg_commandName
+        name = self.commandName
         assert not name.startswith('('), \
-            "bug: modename class constant missing from subclass %s" % self.__class__.__name__
-        if self.msg_modename.startswith('('):
-            self.msg_modename = name[0:1].upper() + name[1:].lower() + ' Mode'
+            "bug: commandName class constant missing from subclass %s" % self.__class__.__name__
+        if self.msg_commandName.startswith('('):
+            self.msg_commandName = name[0:1].upper() + name[1:].lower() + ' Mode'
                 # Capitalized 'Mode'. Fixes bug 612. mark 060323
                 # [bruce 050106 capitalized first letter above]
             if 0: # bruce 040923 never mind this suggestion
-                print "fyi: it might be better to define 'msg_modename = %r' as a class constant in %s" % \
-                  (self.msg_modename, self.__class__.__name__)
+                print "fyi: it might be better to define 'msg_commandName = %r' as a class constant in %s" % \
+                  (self.msg_commandName, self.__class__.__name__)
         
         # check whether subclasses override methods we don't want them to
         # (after this works I might remove it, we'll see)
@@ -321,7 +320,7 @@ class basicCommand(anyCommand):
         
         # store ourselves in our command sequencer/glpane's commandTable ### TODO: store in commandSequencer instead
         ###REVIEW whether this is used for anything except changing to new command by name [bruce 070613 comment]
-        self.glpane.commandTable[self.modename] = self
+        self.glpane.commandTable[self.commandName] = self
             # note: this can overwrite a prior instance of the same command,
             # e.g. when setAssy is called.
             
@@ -412,7 +411,7 @@ class basicCommand(anyCommand):
         
         #bruce 050416: give it a default menu; for modes we have now, this won't ever be seen unless there are bugs
         #bruce 060407 update: improve the text, re bug 1739 comment #3, since it's now visible for zoom/pan/rotate tools
-        self.Menu_spec = [("%s" % self.user_modename(), noop, 'disabled')]
+        self.Menu_spec = [("%s" % self.user_commandName(), noop, 'disabled')]
         self.makeMenus() # bruce 040923 moved this here, from the subclasses; for most modes, it replaces self.Menu_spec
         # bruce 041103 changed details of what self.makeMenus() should do
         
@@ -479,7 +478,7 @@ class basicCommand(anyCommand):
                 self.Menu_spec.append( None )
                 self.Menu_spec.extend( ms )
         else:
-            featurename = self.user_modename()
+            featurename = self.user_commandName()
             if featurename:
                 from wiki_help import wiki_help_menuspec_for_featurename
                 ms = wiki_help_menuspec_for_featurename( featurename )
@@ -487,7 +486,7 @@ class basicCommand(anyCommand):
                     self.Menu_spec.append( None ) # there's a bug in this separator, for cookiemode...
                         # [did I fix that? I vaguely recall fixing a separator logic bug in the menu_spec processor... bruce 071009]
                     # might this look better before the above submenus, with no separator?
-                    ## self.Menu_spec.append( ("web help: " + self.user_modename(), self.menucmd_open_wiki_help_page) )
+                    ## self.Menu_spec.append( ("web help: " + self.user_commandName(), self.menucmd_open_wiki_help_page) )
                     self.Menu_spec.extend( ms )
         return # from setup_graphics_menu_specs
 
@@ -779,7 +778,7 @@ class basicCommand(anyCommand):
         # This shows the Done button on the dashboard unless the current command is the 
         # Default command. Resolves bug #958 and #959. Mark 050922.
         import UserPrefs
-        if self.modename == UserPrefs.default_modename(): #bruce 060403 revised this
+        if self.commandName == UserPrefs.default_commandName(): #bruce 060403 revised this
             self.w.toolsDoneAction.setVisible(0)
         else:
             self.w.toolsDoneAction.setVisible(1)
@@ -995,24 +994,24 @@ class basicCommand(anyCommand):
 
     # methods for changing to some other command
     
-    def _f_userEnterCommand(self, modename, **options): # renamed from userSetMode [bruce 071011]
+    def _f_userEnterCommand(self, commandName, **options): # renamed from userSetMode [bruce 071011]
         """
         [friend method, to be called only by self.commandSequencer]
         
-        User has asked to change to the command with the given modename;
+        User has asked to change to the command with the given commandName;
         we might or might not permit this, depending on our own state.
         If we permit it, do it (after appropriate cleanup, depending on
         options, which can include suspend_old_mode); if not, show an
         appropriate error message. Exception: if we're already in the
         requested command, do nothing.
 
-        Special case: modename can be an actual command instance object,
+        Special case: commandName can be an actual command instance object,
         not a command name. In that case we switch to it (if we permit
         ourselves switching to anything like it) even if it has the same
         commandname as self.
         """
-        if self.modename == modename:
-            # note that this implies modename is a string, not a command instance
+        if self.commandName == commandName:
+            # note that this implies commandName is a string, not a command instance
             if self.isCurrentCommand():
                 # changing from the active command to itself -- do nothing
                 # (special case, not equivalent to behavior without it)
@@ -1020,12 +1019,12 @@ class basicCommand(anyCommand):
             else:
                 # I don't think this can happen, but if it does,
                 # it's either a bug or we're some fake command like nullMode. #k
-                print "fyi (for developers): self.modename == modename %r " \
-                      "but not self.isCurrentCommand() (probably ok)" % modename
+                print "fyi (for developers): self.commandName == commandName %r " \
+                      "but not self.isCurrentCommand() (probably ok)" % commandName
                 # but fall through to change commands in the normal way
         # bruce 041007 removing code for warning about changes and requiring
         # explicit Done or Cancel if self.haveNontrivialState()
-        self.Done( modename, **options)
+        self.Done( commandName, **options)
         return
 
     # methods for leaving this command (from a dashboard tool or an
@@ -1326,7 +1325,7 @@ class basicCommand(anyCommand):
         any internal state it might have without checking whether
         that's ok (if that check might be needed, we assume it
         already happened).  Ask our command sequencer to change to new_mode
-        (which might be a modename or a command object or None), if provided
+        (which might be a commandName or a command object or None), if provided
         (and if that command accepts being the new currentCommand), otherwise to
         its default command.  Unlikely to be overridden by subclasses.
         """
@@ -1361,12 +1360,12 @@ class basicCommand(anyCommand):
         """
         if self.haveNontrivialState():
             msg = "%s with changes is being forced to abandon those changes!\n" \
-                  "Sorry, no choice for now." % (self.msg_modename,)
+                  "Sorry, no choice for now." % (self.msg_commandName,)
             self.o.warning( msg, bother_user_with_dialog = 1 )
         # don't do self._exitMode(), since it sets a new current command and
         #ultimately asks command sequencer to update for that... which is
         #premature now.  #e should we extend _exitMode to accept
-        #modenames of 'nullMode', and not update? also 'default'?
+        #commandNames of 'nullMode', and not update? also 'default'?
         #probably not...
         self._cleanup()
 
@@ -1444,7 +1443,7 @@ class basicCommand(anyCommand):
         Start Over tool in dashboard (used to be called Restart);
         subclasses should NOT override this
         """
-        self.Cancel(new_mode = self.modename)
+        self.Cancel(new_mode = self.commandName)
             #### works, but has wrong error message when nim in sketch command -- fix later
 
     def Backup(self):
@@ -1452,7 +1451,7 @@ class basicCommand(anyCommand):
         Backup tool in dashboard; subclasses should override this
         """
         # note: it looks like only cookieMode tries to do this [bruce 040923]
-        print "%s: Backup not implemented yet" % self.msg_modename
+        print "%s: Backup not implemented yet" % self.msg_commandName
 
     # compatibility methods -- remove these after we fix
     # MWSemantics.py to use only their new names

@@ -100,7 +100,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self._init_time = time.asctime() # for debugging; do before DebugMenuMixin._init1
         DebugMenuMixin._init1(self) ###e will this be too early re subclass init actions??
 
-	qt4todo('no such method')
+        qt4todo('no such method')
         #self.setDefaultRenameAction(QListView.Accept)
             # I don't think this has any effect, now that we're depriving
             # QListView of mouse events, but I'm setting it anyway just in case.
@@ -113,10 +113,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return # from TreeWidget.__init__
 
     # helper functions
-    
+
     def fix_buttons(self, but, when):
         return fix_buttons_helper(self, but, when)
-    
+
     def makemenu(self, menu_spec):
         # this overrides the one from DebugMenuMixin (with the same code), but that's ok,
         # since we want to be self-contained in case someone later removes that mixin class.
@@ -138,14 +138,14 @@ class TreeWidget(TreeView, DebugMenuMixin):
         ####@@@@ #e will split from below
         # this is where i am now 710pm 050201
 
-    
+
     # mouse event handlers (except for drag & drop, those are farther below)
 
     # helper variable for knowing if you might be inside an external-source drag, not now in the widget...
     # might need revision to store more than just the last single event of all types together... #####@@@@@ revise, use [050201]
 
     last_event_type = "none" #k or imitate some other one?
-    
+
     def contentsMouseDoubleClickEvent(self, event):
         "[called by Qt]"
         return self.contentsMousePressEvent(event, dblclick = 1)
@@ -157,15 +157,15 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.last_event_type = "press"
 
         self.checkpoint_before_drag(event) #bruce 060328 fix bug 1773
-        
+
         # figure out position and item of click (before doing any side effects)
         #e this might be split into a separate routine if it's useful during drag
-        
+
         cpos = event.pos() # this is in contents coords;
             # y=1 is just under column label (which does not scroll with content)
         vpos = self.contentsToViewport(cpos)
         item = self.itemAt(vpos)
-        
+
         # before anything else (except above -- in case this scrolls for some reason),
         # let this click finish an in-place renaming, if there was one.
         # [050131, added protection against item being deleted during renaming]
@@ -212,7 +212,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             pass
         else:
             col0_left_x = x_past_openclose = -1000 # debug kluge
-        
+
         # If this click's data differs from the prior one, this event shouldn't
         # be counted as a double click. Or the same, if too much time passed since prior click,
         # which would mean Qt erred and called this a double click even though its first click
@@ -225,11 +225,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.clicked( event, vpos, item, part, dblclick)
 
         self.update_select_mode() # change user-visible mode to selectMolsMode iff necessary
-        
+
         return # from contentsMousePressedEvent
 
     # == DUPLICATING THE FOLLOWING CODE IN TreeWidget.py and GLPane.py -- should clean up ####@@@@ [bruce 060328]
-    
+
     __pressEvent = None
     __flag_and_begin_retval = None
 
@@ -259,7 +259,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         return
 
     # == END OF DUPLICATED CODE (whose comments were left only in the original in GLPane) [bruce 060328]
-    
+
     drag_handler = None # this can be set by selection_click()
     def contentsMouseMoveEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
@@ -278,7 +278,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 self.drag_handler.mouseMoveEvent( event) #k worry about coords?
         self.fillInToolTip()   # wware 051014 fixing bug 1063
         pass
-    
+
     def contentsMouseReleaseEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
         self.last_event_type = "release"
@@ -310,7 +310,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         env.history.statusbar_msg( msg)
 
     # external update methods
-    
+
     def update_select_mode(self): #bruce 050124; should generalize and refile; should be used for more or for all events ###@@@
         #bruce 060403 revised this but didn't update docstring; now it can change from *Chunk modes to Build, only, I think
         """This should be called at the end of event handlers which might have
@@ -355,8 +355,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         if isinstance( mode, selectMolsMode):
             selwhat_from_mode = SELWHAT_CHUNKS
         #bruce 060403 commenting out the following, in advance of proposed removal of Select Atoms mode entirely:
-##        elif isinstance( mode, selectAtomsMode) and mode.modename == selectAtomsMode.modename:
-##            #bruce 060210 added modename condition to fix bug when current mode is Build (now a subclass of Select Atoms)
+##        elif isinstance( mode, selectAtomsMode) and mode.commandName == selectAtomsMode.commandName:
+##            #bruce 060210 added commandName condition to fix bug when current mode is Build (now a subclass of Select Atoms)
 ##            selwhat_from_mode = SELWHAT_ATOMS
         change_mode_to_fit = (selwhat_from_mode is not None) # used later; someday some modes won't follow this
         # 0c. What does current selection itself think it needs to be?
@@ -426,7 +426,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # or must we inval something too??
         # [new comment, 050127:] it seems to work... needs a bit more testing,
         # then can be moved into GLPane as the new implem of gl_update.
-    
+
     # command bindings for clicks on various parts of tree items
     # are hardcoded in the 'clicked' method:
 
@@ -452,7 +452,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             debug._event_state = event.state()
             debug._event_stateAfter = event.stateAfter()        
         # handle debug menu; canonicalize buttons and modifier keys.
-        
+
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
             return
         but = event.stateAfter()
@@ -473,7 +473,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # and doing whatever inval or update is needed within the tree widget itself,
         # but not necessarily all needed external updates (some of these are done
         # by our caller).
-        
+
         # handle context menu request.
         # no need - QTreeWidget recognizes context menu events without our help
 
@@ -482,7 +482,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         #  about the parent items, letting you close any of those? ##e)
         if part == 'left':
             part = item = None
-        
+
         # handle open/close toggling. (ignores modifier keys, mouse buttons, dblclick)
         if part == 'openclose':
             # this can only happen for a non-leaf item!
@@ -490,7 +490,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             return
 
         # handle in-place editing of the item text, on double-click
-        
+
         #e (someday this might be extended to edit a variant of the text,
         #   if some of it is a fixed label or addendum... to implem that,
         #   just call item.setText first, within the subroutine.)
@@ -521,7 +521,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         # after this point, double click acts just like two single clicks
         # (since dblclick flag is ignored).
-        
+
         # if buttons are not what we expect, return now (thus avoiding bad effects
         # from some possible bugs in the above code)
         if (but & allButtons) not in [leftButton, midButton]:
@@ -540,11 +540,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # note: the same selection_click method, called differently,
             # also determines the selection for context menus.
             # It does all needed invals/updates except for update_select_mode.
-        
+
         return # from clicked
 
     # context menu requests (the menu items themselves are defined by our subclass)
-    
+
     def menuReq(self, item, pos, modifier, optflag):
         """Context menu items function handler for the Model Tree View
         [interface is mostly compatible with a related QListView signal,
@@ -603,7 +603,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         #e correct item to be None if we were not really on the item acc'd to above?
         # no, let the caller do that, if it needs to be done.
-        
+
         self.selection_click( item, modifier = modifier, group_select_kids = True, permit_drag_type = None)
             # this does all needed invals/updates except update_select_mode
             # bruce 050126: group_select_kids changed to True after discussion with Josh...
@@ -616,10 +616,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # implies selected members", assuming the command are coded to operate on
             # all members of groups (when that makes sense).
         menu = self.make_cmenu_for_set( nodeset, optflag)
-        
+
         menu.exec_(pos) # was menu.popup before 050126
             #e should we care about which item to put where (e.g. popup(pos,1))?
-        
+
         # the menu commands will do their own updates within this widget (and to glpane),
         # but we used exec_ (which does not return until the menu command has run)
         # so we can do necessary external updates here. (We might later have to change back
@@ -628,7 +628,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.update_select_mode() #k is this done redundantly by our caller? if not, move it there?
 
         return # from menuReq
-    
+
     def make_cmenu_for_set(self, nodeset, optflag):
         """Return a context menu (QPopupMenu object #k)
         to show for the given set of (presumably selected) items.
@@ -636,8 +636,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         and better for them to override make_cmenuspec_for_set instead.]
         """
         spec = self.make_cmenuspec_for_set(nodeset, optflag)  \
-               or self.make_cmenuspec_for_set([], optflag)  \
-               or [('(empty context menu)',noop,'disabled')]
+             or self.make_cmenuspec_for_set([], optflag)  \
+             or [('(empty context menu)',noop,'disabled')]
         return self.makemenu( spec)
 
     def make_cmenuspec_for_set(self, nodeset, optflag):
@@ -656,10 +656,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
 
     # sets of selected items or nodes
-    
+
     #e [do we also want versions with node arguments, which search only in subtrees?
     #   if so, those should just be (or call) Node methods.]
-    
+
     def selected_nodes(self): #bruce 050202 comment: this is not presently used
         "return a list of all currently selected nodes (perhaps including both groups and some of their members)"
         # For now, it's ok if this is slow, since it's only used to help make a context menu.
@@ -705,7 +705,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def unpick_all(self):
         for node in self.topnodes:
             node.unpick()
-        
+
     def selection_click(self, item, _guard_ = 67548, \
                         group_select_kids = True, modifier = None, permit_drag_type = None, event = None):
         """Perform the ordinary selection-modifying behavior for one click on this item (might be None).
@@ -714,20 +714,20 @@ class TreeWidget(TreeView, DebugMenuMixin):
         updating tree-item highlighting (but not anything else in the application -- those will be updated when Qt resumes
          event processing after we return from handling this click ###@@@ so we need to inval the glpane to make that work!
          until then, it won't update til... when? the next paintGL call. hmm. I guess we just have to fix this now.).
-    
+
         If permit_drag_type is not None, this click might become the start of a drag of the same set of items it
         causes to be selected; but this routine only sets some instance variables to help a mouse move method decide whether
         to do that. The value of permit_drag_type should be 'move' or 'copy' according to which type of drag should be done
         if it's done within this widget. (If the drop occurs outside this widget, ... #doc)
-        
+
         #doc elsewhere: for a single plain click on a selected item, this should not unselect the other items!
         # at least finder doesn't (for sel or starting a drag)
         # and we need it to not do that for this use as well.
         """
         assert _guard_ == 67548, "you passed too many positional arguments to this function!"
-        
+
         ###@@@ maybe some of this (or its callers) belongs in the subclass?
-        
+
         # Note: the following behavior uses Shift and Control sort of like the
         # GLPane (and original modelTree) do, but in some ways imitates the Mac
         # and/or the QListView behavior; in general the Mac behavior is probably
@@ -755,7 +755,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 print_compact_traceback("self.drag_handler.cleanup(self): ")
             pass
         self.drag_handler = None # might be set to an appropriate drag_handler below
-        
+
 ##        # store info about this click for subsequent mouseMoveEvents, so they can
 ##        # decide whether to start a drag of some kind (for extending a selection, drag & drop, etc).
 ##        #e not clear if it's cleaner to decide that right here, or when this info is used;
@@ -766,7 +766,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 ##            self.drag_info = drag_and_drop_handler( 
 ##        self.drag_info = attrholder()
 ##        self.drag_info.permit_drag_type = permit_drag_type # whether or not it's None
-        
+
         ###DOC - some comments below are WRONG, they're from before group_select_kids option was honored ####@@@@
 
         if modifier == 'ShiftCntl': # bruce 050124 new behavior [or use Option key? #e]
@@ -823,7 +823,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 # no item
                 self.unpick_all()
         # that should do it!
-        
+
         ##e only sometimes do the following? have our own inval flags for these?
         ## do in subsets? do first on items changed above?
         ## [latter might be needed soon, for speed of visual feedback]
@@ -835,7 +835,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     # selection dragging methods [#e not yet implemented] would go here
 
-    
+
     # drag and drop event handlers and helpers
     # (some might be relevant whether the dragsource is self or something external)
 
@@ -907,7 +907,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     # And this is the last "ok flag" for a drag enter or move event, set False by a dragLeave;
     # not sure if this is needed, but maybe it's anded with whether last_dragMove_cpos is set... #doc
     last_dragMove_ok = False
-    
+
     def contentsDragEnterEvent(self, event):
         self.last_event_type = "dragenter"
         # warning: for unknown reasons, this is sometimes called twice when i'd expect it to be called once.
@@ -944,7 +944,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         """
         ## want one of these?? self.last_event_type = "_contentsMoving"
         self.last_scrollpos = (x,y)
-        
+
         # Now, in case we're in a drag (after a dragMove), reset the drag position
         # to None, just as a dragLeave would do, so as to disable a drop
         # (and drop-point highlighting) during autoscrolling. (Note that any
@@ -955,7 +955,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # highlighting properly during autoscroll (and for the details of that
         # difficulty and ideas for solving it), see removed comments in this method
         # dated 050130 (in rev 1.21 in cvs).
-        
+
         # The following code is similar in dragLeave and Drop and _contentsMoving,
         # not sure if identical:
         self.last_dragMove_ok = False # not needed right now, but might matter
@@ -967,7 +967,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.drop_disabled_because = "drop disabled by autoscroll, until mouse moves" #k still too long?? ###@@@ comes out at wrong time
         self.update_drop_point_highlighting()
         return
-    
+
     def contentsDragMoveEvent(self, event):
         self.last_event_type = "dragmove"
         # we can re-accept it (they suggest letting this depend on event.pos())...
@@ -987,7 +987,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.last_dragMove_scrollpos = self.last_scrollpos
         self.update_drop_point_highlighting() # call whether or not self.last_dragMove_ok in case it just changed to False somehow
         return
-        
+
     def contentsDragLeaveEvent(self, event):
         self.last_event_type = "dragleave"
 ##        if debug_dragstuff:
@@ -1001,7 +1001,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         self.drop_disabled_because = "(drop outside model tree -- not yet supported)"
         self.update_drop_point_highlighting()
         return
-    
+
     def dragLeaveEvent(self, event):
         self.last_event_type = "dragleave" ###k ok here too?
         if debug_dragstuff:
@@ -1010,7 +1010,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     true_dragMove_cpos = None
     drop_disabled_because = ""
-    
+
     def update_drop_point_highlighting(self, undo_only = False):
         #k undo_only might not be needed once a clipping issue is solved -- see call that uses/used it, comments near it
         """###OBS - some of this is wrong since we no longer use viewportPaintEvent as much -- 050131.
@@ -1154,9 +1154,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         ### got about this far when the alpha deadline hit...
 
         # now undo old drawing and do new drawing. #####@@@@@
-        
+
         if not debug_dragstuff: return  #e remove soon, when next stuff is not a stub
-        
+
         ###stub for debugging: draw white to undo and blue to do, of a symbol just showing where this point is.
         # always undo first, in case there's an overlap! (might never happen once we're doing real highlighting, not sure)
         # for real highlighting some of it will be redrawing of items in different ways, instead of new drawing.
@@ -1178,7 +1178,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # or a circle just outside the icon level...
         vpos = self.contentsToViewport(QPoint(x,y)) # or QPointFromTuple((x,y)) #k or i bet QPoint could be left out entirely
         return self.itemAt(vpos) # might be None
-    
+
     def draw_stubsymbol_at_cpos_in_viewport(self, painter, cpos, color = Qt.red, blot = False):
         if cpos is None:
             # warning: other code in this file just says "if cpos",
@@ -1245,7 +1245,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 ##            self.do_update_drop_point_highlighting_in_next_viewportPaintEvent = False
 ##            self.update_drop_point_highlighting()
         return res
-    
+
         #e change highlighting/indicating of possible drop points (gaps or items) (e.g. darken icons of items)
         #e should we also change whether we accept the drop or not based on where it is? [i think not. surely not for alpha.]
         # - do we want to?
@@ -1253,7 +1253,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # - does it work, semantically?
         # ...also is it possible to actually examine the text being offered, to decide whether to accept it?
         # (that way we can tell if it's from inside or outside this app. this would not be needed for alpha.)
-        
+
         # [later solved that: get a contentsMoving signal.]
         # so i'd better use the advice above about returning the empty rect!
 ##        # following is not right, we want to try doing this inside the contents.
@@ -1271,19 +1271,19 @@ class TreeWidget(TreeView, DebugMenuMixin):
         x,y=wpos.x(),wpos.y() # this works, scrolled or not, at least with unclipped = True
         listview.drawbluething( painter, (x,y)) # guess: this wants viewport coords (ie those of widget). yes.
         listview.update() #k needed?
-        
+
     def contentsDropEvent(self, event):
         self.last_event_type = "drop"
         if debug_dragstuff:
             print "contentsDropEvent, event == %r" % event
 
         # should we disable the drag_handler, or rely on mouseRelease to do that? ###e ####@@@@
-        
+
         # We might be inside autoscroll, with drop-point highlighting disabled...
         # detectable by self.last_dragMove_cpos is None. In that case we should
         # refuse the drop. Ideally we'd report what the drop would have been into...
         # not for now since computing that is nim even for an accepted drop! ###e revisit
-        
+
         disabled = (self.last_dragMove_cpos is None) # used more than once below
 
         # the following code is similar in dragLeave and Drop, not sure if identical
@@ -1301,7 +1301,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.redmsg( "drop refused due to autoscrolling (and no subsequent mouse motion) -- too dangerous.")
             event.ignore()
             return
-        
+
         oktext = QTextDrag.canDecode(event)
             #e in future even this part (choice of dropped data type to look for)
             # should be delegated to the current drag_handler if it recognizes it
@@ -1407,13 +1407,13 @@ class TreeWidget(TreeView, DebugMenuMixin):
             return
 
         oldpart = nodes[0].part #bruce 060203
-        
+
         if drag_type == 'move':
             #bruce 060203 see if this helps implement NFR/bug 932 (which says, don't pick moved nodes or open their drop target);
             # do this first to make sure they're not picked when we move them... which might change current part [unverified claim].
             for node1 in nodes:
                 node1.unpick()
-        
+
         copiednodes = targetnode.drop_on(drag_type, nodes) # implems untested! well, now tested for a day or so, for assy.tree ... 050202
         #bruce 050203: copiednodes is a list of copied nodes made by drop_on (toplevel only, when groups are copied).
         # for a move, it's []. We use it to select the copies, below.
@@ -1463,7 +1463,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 if node1.part is oldpart:
                     node1.pick()
             pass
-            
+
         ## print "did it!"
         # ... too common for a history message, i guess...
         msg = "dragged and dropped %d item(s) onto %r" % (len(nodes), node_name(targetnode))
@@ -1474,9 +1474,9 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # (which can happen as a side effect of nodes moving under new dads in the tree)
         self.win.win_update()
         return
-    
+
     # key event handlers
-    
+
     def keyPressEvent(self, event): ####@@@@ Delete might need revision, and belongs in the subclass
         key = event.key()
         if debug_keys:
@@ -1538,7 +1538,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         if not nodeset:
             return # avoids win_update
         visibles = list(self.assy.tree.genvisibleleaves(include_parents = True)) + \
-                   list(self.assy.shelf.genvisibleleaves(include_parents = True))
+                 list(self.assy.shelf.genvisibleleaves(include_parents = True))
             #e more correctly, I should use the attr for listing our toplevel tree items... #e
         if self.assy.shelf in visibles:
             visibles.remove(self.assy.shelf) #e more correctly, remove unpickable nodes
@@ -1571,7 +1571,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 #e known bug: what happens now is that the icon for a closed group looks a bit different after this!
                 node.pick()
         self.win.win_update()
-    
+
     def moveleft(self): #bruce 060219
         "Select the Group or Groups containing the selected node or nodes"
         nodeset = self.topmost_selected_nodes()
@@ -1620,7 +1620,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
     # == in-place editing of item text
 
     renaming_this_item = None
-    
+
     def maybe_beginrename(self, item, pos, col):
         """Calls the Qt method necessary to start in-place editing of the given item's name.
         Meant to be called as an event-response; presently called for double-click on the name.
@@ -1762,11 +1762,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
         usual = super.debug_menu_items(self)
             # list of (text, callable) pairs, None for separator
         ours = [
-                ("reload modules and remake widget", self._reload_and_remake),
-                ("(treewidget instance created %s)" % self._init_time, lambda x:None, 'disabled'),
-                ("call win_update()", self._call_win_update),
-                ("call mt_update()", self._call_mt_update),
-                ]
+            ("reload modules and remake widget", self._reload_and_remake),
+            ("(treewidget instance created %s)" % self._init_time, lambda x:None, 'disabled'),
+            ("call win_update()", self._call_win_update),
+            ("call mt_update()", self._call_mt_update),
+        ]
         ours.append(None)
         ours.extend(usual)
         return ours
@@ -1776,7 +1776,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     def _call_mt_update(self):
         self.mt_update()
-        
+
     def _reload_and_remake(self):  ###e needs rewriting to let subclass help with the details...
         """reload all necessary modules (not just this one), and replace the existing tree widget
         (an instance of some subclass of this class)
@@ -1798,7 +1798,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             from TreeView import TreeView
             if class1 == TreeView:
                 break # beyond that we get things whose modules print as:
-                      # constants (lots of times), sip, and __builtin__
+                        # constants (lots of times), sip, and __builtin__
             super = bases[0] # ignore mixins, if any
             classes.append(super)
             class1 = super

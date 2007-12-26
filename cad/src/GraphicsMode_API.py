@@ -16,7 +16,7 @@ TODO:
 Add all the attributes and methods in the true GraphicsMode API
 to this class (to fully document the API). Use null methods and
 values (legal to use, which do nothing) unless no real GraphicsMode
-can be correct without overriding them (like for Command.modename).
+can be correct without overriding them (like for Command.commandName).
 
 See also the TODO comment in module GraphicsMode.
 """

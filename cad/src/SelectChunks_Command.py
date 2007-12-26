@@ -46,7 +46,7 @@ class SelectChunks_basicCommand(Select_basicCommand):
       and the code is still clean, *and* no command-half subclass needs
       to override them).
     """
-    modename = 'SELECTMOLS'
+    commandName = 'SELECTMOLS'
     default_mode_status_text = "Mode: Select Chunks"    
     hover_highlighting_enabled = True
     

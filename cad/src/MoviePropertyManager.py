@@ -351,7 +351,7 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         # movie has changed. So this is a kludge. 
         # See bug 2428 comment 8 for further details -- Ninad 2007-10-02
         currentCommand = self.w.assy.o.currentCommand
-        if currentCommand.modename == "MOVIE":
+        if currentCommand.commandName == "MOVIE":
             if currentCommand.propMgr:
                 if not msg:
                     msg = currentCommand.propMgr.getOpenMovieFileInfo()

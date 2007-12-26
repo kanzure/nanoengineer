@@ -42,8 +42,8 @@ class PartLibraryMode(PasteMode):
     of an existing model.  User can return to previous mode by hitting  'Escape' 
     key or pressing 'Done' button in this mode. 
     """
-    modename = 'PARTLIB'
-    msg_modename = "Part Library" 
+    commandName = 'PARTLIB'
+    msg_commandName = "Part Library" 
     default_mode_status_text = "Part Library"
     
     def __init__(self, glpane):

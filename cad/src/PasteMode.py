@@ -36,11 +36,11 @@ class PasteMode(depositMode):
     current selected item in its 'Preview' box. User can return to previous mode 
     by hitting 'Escape' key  or pressing 'Done' button in the Paste mode. 
     """
-    modename = 'PASTE' 
-    msg_modename = "Paste Mode" 
+    commandName = 'PASTE' 
+    msg_commandName = "Paste Mode" 
     default_mode_status_text = "Mode: Paste"
 
-    command_can_be_suspended = False #bruce 071011, GUESS ### REVIEW whether correct when entering Zoom/Pan/Rotate
+    command_can_be_suspended = True #bruce 071011, GUESS ### REVIEW whether correct when entering Zoom/Pan/Rotate
     command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)
     
     #See Command.anyCommand for details about the following flag
@@ -130,7 +130,7 @@ class PasteMode(depositMode):
         """
         # Exit Paste mode.
         if key == Qt.Key_Escape: 
-            self.Done()
+            self.Done(exit_using_done_or_cancel_button = False)
             # REVIEW: should we also do assy.selectNone? The lack of 'else' here
             # means we will, in superclass method. [bruce comment 071012]
         depositMode.keyPress(self, key) 

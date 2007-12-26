@@ -572,10 +572,10 @@ class Plane(ReferenceGeometry):
         commandSequencer = self.win.commandSequencer
         commandSequencer.userEnterCommand('REFERENCE_PLANE')
         currentCommand = commandSequencer.currentCommand
-        assert currentCommand.modename == 'REFERENCE_PLANE'
+        assert currentCommand.commandName == 'REFERENCE_PLANE'
         #When a Plane object read from an mmp file is edited, we need to assign 
         #it an editcontroller. So, when it is resized, the propMgr spinboxes
-        #are properly updates. See self.resizeGeometry. 
+        #are properly updated. See self.resizeGeometry. 
         if self.editController is None:
             self.editController = currentCommand
             

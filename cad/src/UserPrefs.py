@@ -153,50 +153,50 @@ modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', '
 
 #ninad070430, 070501 For A9 , startup mode = default mode = SELECTMOLS mode 
 #but not changing the values in the list per Bruc's suggestions. 
-#instead, default_modename and startup_modename will return 'SELMOLS'
+#instead, default_commandName and startup_commandName will return 'SELMOLS'
 #Although the following lists contain "illegal values",
 #there is code that cares about their indices in the lists.
 
 default_modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT']
 startup_modes = ['$DEFAULT_MODE', 'DEPOSIT']
 
-def fix_modename_pref( modename, modename_list, modename_fallback = None): #bruce 060403
+def fix_commandName_pref( commandName, commandName_list, commandName_fallback = None): #bruce 060403
     """
-    modename came from prefs db; if it's in modename_list, return it unchanged,
-    but if not, return one of the modenames in modename_list to be used in place of it, or modename_fallback.
-    This is REQUIRED for decoding any modename-valued prefs value.
+    commandName came from prefs db; if it's in commandName_list, return it unchanged,
+    but if not, return one of the commandNames in commandName_list to be used in place of it, or commandName_fallback.
+    This is REQUIRED for decoding any commandName-valued prefs value.
     """
-    assert len(modename_list) > 0 or modename_fallback
-    if modename in modename_list:
-        return modename
+    assert len(commandName_list) > 0 or commandName_fallback
+    if commandName in commandName_list:
+        return commandName
     # handle SELECTATOMS being superseded by DEPOSIT
-    if modename == 'SELECTATOMS' and 'DEPOSIT' in modename_list:
+    if commandName == 'SELECTATOMS' and 'DEPOSIT' in commandName_list:
         return 'DEPOSIT'
     # handle future modes not yet supported by current code
     # (at this point it might be better to return the user's default mode;
-    #  callers wanting this can pass it as modename_fallback)
-    return modename_fallback or modename_list[-1]
+    #  callers wanting this can pass it as commandName_fallback)
+    return commandName_fallback or commandName_list[-1]
         # could use any arbitrary element rather than the last one (at -1),
         # but in the list constants above, the last choices seem to be best
 
-def default_modename(): #bruce 060403
+def default_commandName(): #bruce 060403
     """
-    Return the modename string of the user's default mode.
+    Return the commandName string of the user's default mode.
     External code should use this, rather than directly using env.prefs[ defaultMode_prefs_key ].
     """
     #ninad070501 For A9 , startup mode = default mode = SELECTMOLS mode
     return 'SELECTMOLS'
-    ##return fix_modename_pref( env.prefs[ defaultMode_prefs_key ], default_modes)
+    ##return fix_commandName_pref( env.prefs[ defaultMode_prefs_key ], default_modes)
 
-def startup_modename(): #bruce 060403
+def startup_commandName(): #bruce 060403
     """
-    Return the modename string (literal or symbolic, e.g. '$DEFAULT_MODE') 
+    Return the commandName string (literal or symbolic, e.g. '$DEFAULT_MODE') 
     of the user's startup mode. External code should use this, rather than 
     directly using env.prefs[ startupMode_prefs_key ].
     """
     #ninad 070501 For A9 , startup mode = default mode = SELECTMOLS mode
     return 'SELECTMOLS'
-    ##return fix_modename_pref( env.prefs[ startupMode_prefs_key ], startup_modes, startup_modes[0] )
+    ##return fix_commandName_pref( env.prefs[ startupMode_prefs_key ], startup_modes, startup_modes[0] )
 
 def parentless_open_dialog_pref(): #bruce 060710 for Mac A8
     # see if setting this True fixes the Mac-specific bugs in draggability of this dialog, and CPU usage while it's up
@@ -1115,11 +1115,11 @@ restored when the user undoes a structural change.</p>
         #(== select chunks) so following is disabled
 
         # Update the "Default Mode" and "Startup Mode" combo boxes.
-        ##self.default_mode_combox.setCurrentIndex( default_modes.index( default_modename() )) #bruce 060403 revised this
+        ##self.default_mode_combox.setCurrentIndex( default_modes.index( default_commandName() )) #bruce 060403 revised this
 
         # Fix for bug 1008. Mark 050924. [use '$DEFAULT_MODE' == startup_modes[0] if smode not in startup_modes]
         # [then bruce 060403 revised this to do same thing in a different way]
-        smode = startup_modename()
+        smode = startup_commandName()
 ##        smode = env.prefs[ startupMode_prefs_key ]
 ##        if smode not in startup_modes:
 ##            smode = startup_modes[0] # = Default Mode

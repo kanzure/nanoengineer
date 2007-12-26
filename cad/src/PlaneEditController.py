@@ -41,7 +41,7 @@ class PlaneEditController(EditController):
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
     
-    modename = 'REFERENCE_PLANE'
+    commandName = 'REFERENCE_PLANE'
     
     
     def __init__(self, commandSequencer, struct = None):

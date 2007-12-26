@@ -148,7 +148,7 @@ class extrudeMode(basicMode):
     """
     # class constants
     is_revolve = 0
-    modename = 'EXTRUDE'
+    commandName = 'EXTRUDE'
     default_mode_status_text = "Mode: Extrude"
     keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
 
@@ -267,7 +267,7 @@ class extrudeMode(basicMode):
             whynot = mol
             if warn:
                 from utilities.Log import redmsg
-                env.history.message(redmsg("%s refused: %r" % (self.msg_modename, whynot,)))
+                env.history.message(redmsg("%s refused: %r" % (self.msg_commandName, whynot,)))
                     # Fixes bug 444. mark 060323
             self.w.toolsExtrudeAction.setChecked(False)
             return 1
@@ -277,7 +277,7 @@ class extrudeMode(basicMode):
         pass
 
     def Enter(self):
-        self.status_msg("preparing to enter %s..." % self.msg_modename)
+        self.status_msg("preparing to enter %s..." % self.msg_commandName)
             # this msg won't last long enough to be seen, if all goes well
         self.clear() ##e see comment there
         self.initial_down = self.o.down
@@ -303,7 +303,7 @@ class extrudeMode(basicMode):
         if not ok:
             # after 041222 this should no longer happen, since checked in refuseEnter
             whynot = mol
-            self.status_msg("%s refused: %r" % (self.msg_modename, whynot,))
+            self.status_msg("%s refused: %r" % (self.msg_commandName, whynot,))
             return 1 # refused!
         assert isinstance(mol, fake_merged_mol) #bruce 070412
         self.basemol = mol
@@ -354,7 +354,7 @@ class extrudeMode(basicMode):
         except:
             msg = "in Enter, exception in recompute_for_new_unit"
             print_compact_traceback(msg + ": ")
-            self.status_msg("%s refused: %s" % (self.msg_modename, msg,))
+            self.status_msg("%s refused: %s" % (self.msg_commandName, msg,))
             return 1 # refused!
 
         #e is this obs? or just nim?? [041017 night]
@@ -1055,7 +1055,7 @@ class extrudeMode(basicMode):
     def init_gui(self):
 
         self.propMgr.show()
-        ##print "hi my msg_modename is",self.msg_modename
+        ##print "hi my msg_commandName is",self.msg_commandName
         self.o.setCursor(QCursor(Qt.ArrowCursor)) #bruce 041011 copying a change from cookieMode, choice of cursor not reviewed ###
 
         # Disable some QActions that will conflict with this mode.
@@ -1129,13 +1129,13 @@ class extrudeMode(basicMode):
         if not cancelling:
             desc = " (N = %d)" % self.ncopies  #e later, also include circle_n if different and matters; and more for other product_types
             ##self.final_msg_accum = "extrude done: "
-            self.final_msg_accum = "%s making %s%s: " % (self.msg_modename.split()[0], self.product_type, desc) # first word of modename
+            self.final_msg_accum = "%s making %s%s: " % (self.msg_commandName.split()[0], self.product_type, desc) # first word of commandName
             msg0 = "leaving mode, finalizing product..." # if this lasts long enough to read, something went wrong
             self.status_msg(self.final_msg_accum + msg0)
             # bruce 070407 not printing this anymore:
             ## print "fyi: extrude params not mentioned in statusbar: offset = %r, tol = %r" % (self.offset, self.bond_tolerance)
         else:
-            msg = "%s cancelled (alpha warning: might not fully restore initial state)" % (self.msg_modename.split()[0],)
+            msg = "%s cancelled (alpha warning: might not fully restore initial state)" % (self.msg_commandName.split()[0],)
             self.status_msg( msg)
 
         if self.whendone_make_bonds and not cancelling:
@@ -1779,7 +1779,7 @@ class extrudeMode(basicMode):
         print "about to reinit modes"
         self.commandSequencer._reinit_modes() # leaves mode as nullmode as of 050911
         self.commandSequencer.start_using_mode( '$DEFAULT_MODE' )
-            ###e or could use modename of prior self.commandSequencer.currentCommand 
+            ###e or could use commandName of prior self.commandSequencer.currentCommand 
         print "done with reinit modes, now see if you can select the reloaded mode"
         return
 
@@ -2237,8 +2237,8 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
 ##    "revolve, a slightly different version of Extrude, someday with a different dashboard"
 ##
 ##    # class constants
-##    modename = 'REVOLVE'
-##    msg_modename = "revolve mode" #e need to fix up anything else?
+##    commandName = 'REVOLVE'
+##    msg_commandName = "revolve mode" #e need to fix up anything else?
 ##    default_mode_status_text = "Mode: Revolve"
 ##    is_revolve = 1
 ##    pass

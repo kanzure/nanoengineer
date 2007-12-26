@@ -51,7 +51,7 @@ class SelectAtoms_basicCommand(Select_basicCommand):
       and the code is still clean, *and* no command-half subclass needs
       to override them).
     """
-    modename = 'SELECTATOMS'
+    commandName = 'SELECTATOMS'
     default_mode_status_text = "Mode: Select Atoms"
     # Don't highlight singlets in selectAtomsMode. Fixes bug 1540.mark 060220.
     highlight_singlets = False         

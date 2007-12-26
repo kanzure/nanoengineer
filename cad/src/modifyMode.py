@@ -51,7 +51,7 @@ class modifyMode(selectMolsMode):
     """
     # class constants
     gridColor = 52/255.0, 128/255.0, 26/255.0
-    modename = 'MODIFY'
+    commandName = 'MODIFY'
     default_mode_status_text = "Mode: Move Chunks"
 
     MOVEOPTS = [ 'MOVEDEFAULT', 'TRANSX', 'TRANSY', 'TRANSZ' ]
@@ -145,7 +145,7 @@ class modifyMode(selectMolsMode):
             commandSequencer = self.commandSequencer
             currentCommand = commandSequencer.currentCommand
             
-            if currentCommand.modename != "LineMode":
+            if currentCommand.commandName != "LineMode":
                 commandSequencer.userEnterTemporaryCommand(
                     'LineMode')
                 return

@@ -100,8 +100,8 @@ class depositMode(selectAtomsMode):
     
     # class constants
     gridColor = 74/255.0, 186/255.0, 226/255.0
-    modename = 'DEPOSIT' 
-    msg_modename = "Build Mode" # Capitalized 'Mode'. Fixes bugs 612-1.2 and 1.3. mark 060323
+    commandName = 'DEPOSIT' 
+    msg_commandName = "Build Mode" # Capitalized 'Mode'. Fixes bugs 612-1.2 and 1.3. mark 060323
     default_mode_status_text = "Mode: Build Atoms"
     highlight_singlets = True # Always highlight singlets in depositMode. Mark 060220.
 
@@ -705,7 +705,7 @@ class depositMode(selectAtomsMode):
         change_desc = "your changes are"
         msg = "%s Cancel not implemented -- %s still there.\n\
         You can only leave this mode via Done." % \
-              ( self.msg_modename, change_desc )
+              ( self.msg_commandName, change_desc )
         self.warning( msg, bother_user_with_dialog = 1)
         return True # refuse the Cancel
     
@@ -1737,7 +1737,7 @@ class depositMode(selectAtomsMode):
                          print_error_details = print_error_details, increase_bond_order = True)
 
         # we ignore flag, which says whether it's ok, warning, or error
-        env.history.message("%s: %s" % (self.msg_modename, status))
+        env.history.message("%s: %s" % (self.msg_commandName, status))
         return
 
 

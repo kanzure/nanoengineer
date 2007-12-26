@@ -144,7 +144,7 @@ class _test_connectWithState_GM(ExampleCommand.GraphicsMode_class):
 class test_connectWithState(State_preMixin, ExampleCommand):
 
     # class constants needed by mode API for example commands
-    modename = 'test_connectWithState-modename'
+    commandName = 'test_connectWithState-commandName'
     default_mode_status_text = "test_connectWithState"
     PM_class = test_connectWithState_PM
 

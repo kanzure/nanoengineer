@@ -161,7 +161,7 @@ class viewSlotsMixin:
         """
         self._zoomPanRotateTool(val, 'ROTATE', "Rotate Tool")
 
-    def _zoomPanRotateTool(self, val, modename, user_mode_name):
+    def _zoomPanRotateTool(self, val, commandName, user_mode_name):
         """
         Common code for Zoom, Pan, and Rotate tools.
         """
@@ -184,8 +184,8 @@ class viewSlotsMixin:
             # which is overridden in these commands to do that).
             command = commandSequencer.currentCommand
 
-            if command.modename == modename: #bruce 071011 change, an educated guess, may increase prints, may cause bugs ### TEST
-            ## if command.modename in modes_we_are_called_for:
+            if command.commandName == commandName: #bruce 071011 change, an educated guess, may increase prints, may cause bugs ### TEST
+            ## if command.commandName in modes_we_are_called_for:
                 # we're now in the command being turned off, as expected.
                 command.Done(exit_using_done_or_cancel_button = False)
                 ### REVIEW: Can this ever happen if we just now entered that command,
@@ -206,7 +206,7 @@ class viewSlotsMixin:
         else:
             # The Zoom/Pan/Rotate button was toggled on.
 
-            commandSequencer.userEnterTemporaryCommand(modename)
+            commandSequencer.userEnterTemporaryCommand(commandName)
                 #bruce 071011, encapsulating the prevMode code that was here before
 
             # Emit a help message on entering the new temporary command. Ideally this

@@ -68,7 +68,7 @@ class EditController(SelectChunks_Command):
     cmd      =  "" 
     cmdname  =  "" 
     _gensym_data_for_reusing_name = None
-    modename = 'EditController'
+    commandName = 'EditController'
     default_mode_status_text = ""    
     
     propMgr = None

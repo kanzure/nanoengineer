@@ -41,7 +41,7 @@ NullDrawable = Spacer() # kluge; should refile
 
 class test_polyline_drag(State_preMixin, ExampleCommand):
     # class constants needed by mode API for example commands
-    modename = 'test_polyline_drag-modename'
+    commandName = 'test_polyline_drag-commandName'
     default_mode_status_text = "test_polyline_drag"
 ##    PM_class = test_polyline_drag_PM
 

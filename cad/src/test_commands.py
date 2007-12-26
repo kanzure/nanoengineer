@@ -96,7 +96,7 @@ class ExampleCommand(_superclass):
     """
     Abstract superclass for the example commands in this file.
     Specific command subclasses need to define the following class constants:
-    modename, default_mode_status_text, and PM_class.
+    commandName, default_mode_status_text, and PM_class.
     Some of them also need to override mode methods, such as Draw.
     """
     test_commands_start_as_temporary_command = False
@@ -146,9 +146,9 @@ class ExampleCommand1(ExampleCommand):
     Example command, which uses behavior similar to selectAtomsMode [but, _superclass is now revised...]. 
     [Which in future may inherit class Command.]
     """
-    modename = 'ExampleCommand1-modename' # internal #e fix init code in basicMode to get it from classname?
+    commandName = 'ExampleCommand1-commandName' # internal #e fix init code in basicMode to get it from classname?
     default_mode_status_text = "ExampleCommand1"
-    #e define msg_modename, or fix init code in basicMode to get it from default_mode_status_text or classname or...
+    #e define msg_commandName, or fix init code in basicMode to get it from default_mode_status_text or classname or...
     # note: that init code won't even run now, since superclass defs it i think -- actually, not sure abt that, probably it doesn't
     PM_class = ExampleCommand1_PM
     
@@ -162,7 +162,7 @@ class ExampleCommand2( Example_TemporaryCommand_useParentPM): # WRONG: this has 
     Like ExampleCommand1, but use GBC (GeneratorBaseClass).
     (This difference shows up only in our PM class.)
     """
-    modename = 'ExampleCommand2-modename'
+    commandName = 'ExampleCommand2-commandName'
     default_mode_status_text = "ExampleCommand2"
     PM_class = ExampleCommand2_PM
     
@@ -178,7 +178,7 @@ class PM_WidgetDemo(ExampleCommand):
     """
     # Note: this is no longer added to the UI. I don't know why it was removed.
     # I know that for awhile it was broken due to a bug. [bruce 071030 comment]
-    modename = 'PM_WidgetDemo-modename'
+    commandName = 'PM_WidgetDemo-commandName'
     default_mode_status_text = "PM_Widgets Demo"
     PM_class = PM_WidgetsDemoPropertyManager
     pass

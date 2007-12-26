@@ -354,7 +354,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # Of the attributes mentioned, only self.graphicsMode will remain in GLPane.
     # [bruce 071011]
 
-    # class constants (needed by modeMixin to map modenames to mode classes):
+    # class constants (needed by modeMixin to map commandNames to mode classes):
     mode_classes = [selectMolsMode, selectAtomsMode, modifyMode, depositMode,
                     cookieMode, extrudeMode, fusechunksMode,
                     movieMode, ZoomMode, PanMode, RotateMode, 
@@ -2284,7 +2284,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # not sure if that holds for all init code, so being safe for now.
         self.displayMode = disp
         ##Huaicai 3/29/05: Add the condition to fix bug 477
-        if self.currentCommand.modename == 'COOKIE':
+        if self.currentCommand.commandName == 'COOKIE':
             self.win.statusBar().dispbarLabel.setText("    ")
         else:    
             #self.win.statusBar().dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
@@ -3717,10 +3717,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # submenu for available custom modes [bruce 050515]
             #e should add special text to the item for current mode (if any) saying we'll reload it
             modemenu = []
-            for modename, modefile in self.custom_mode_names_files():
-                modemenu.append(( modename,
-                                  lambda arg1 = None, arg2 = None, modename = modename, modefile = modefile:
-                                  self.enter_custom_mode(modename, modefile) # not sure how many args are passed
+            for commandName, modefile in self.custom_mode_names_files():
+                modemenu.append(( commandName,
+                                  lambda arg1 = None, arg2 = None, commandName = commandName, modefile = modefile:
+                                  self.enter_custom_mode(commandName, modefile) # not sure how many args are passed
                               ))
             if modemenu:
                 ours.append(("custom modes", modemenu))
@@ -3753,20 +3753,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             if os.path.isdir( modes_dir):
                 for file in os.listdir( modes_dir):
                     if file.endswith('.py') and '-' not in file:
-                        modename, ext = os.path.splitext(file)
+                        commandName, ext = os.path.splitext(file)
                         modefile = os.path.join( modes_dir, file)
-                        res.append(( modename, modefile ))
+                        res.append(( commandName, modefile ))
             pass
         res.sort()
         return res
 
-    def enter_custom_mode( self, modename, modefile): #bruce 050515
+    def enter_custom_mode( self, commandName, modefile): #bruce 050515
         # TODO: move to CommandSequencer.py, and call on self.win.commandSequencer rather than on self
         fn = modefile
-        if not os.path.exists(fn) and modename != 'testmode':
+        if not os.path.exists(fn) and commandName != 'testmode':
             env.history.message("should never happen: file does not exist: [%s]" % fn)
             return
-        if modename == 'testmode':
+        if commandName == 'testmode':
             #bruce 070429 explicit import probably needed for sake of py2app (so an explicit --include is not needed for it)
             # (but this is apparently still failing to let the testmode item work in a built release -- I don't know why ###FIX)
             print "enter_custom_mode specialcase for testmode" #e remove this print, when it works in a built release
@@ -3777,7 +3777,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         else:
             dir, file = os.path.split(fn)
             base, ext = os.path.splitext(file)
-            ## modename = base
+            ## commandName = base
             ###e need better way to import from this specific file!
             # (Like using an appropriate function in the import-related Python library module.)
             # This kluge is not protected against weird chars in base.
@@ -3797,8 +3797,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             sys.path = oldpath
         modeobj = _modeclass(self) # this should put it into self.commandTable under the name defined in the mode module
             # note: this self is probably supposed to be the command sequencer
-        self.commandTable[modename] = modeobj # also put it in under this name, if different [### will this cause bugs?]
-        self.userEnterCommand(modename)
+        self.commandTable[commandName] = modeobj # also put it in under this name, if different [### will this cause bugs?]
+        self.userEnterCommand(commandName)
             # note: self is acting as the command sequencer here; in future we'll get it from somewhere,
             # e.g. self.win.commandSequencer, or just move this whole method there (and get cmdseq from win when we call it)
         return

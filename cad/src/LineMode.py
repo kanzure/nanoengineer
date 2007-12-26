@@ -353,7 +353,7 @@ class LineMode(Select_Command):
     """
     # class constants
     
-    modename = 'LineMode'
+    commandName = 'LineMode'
     default_mode_status_text = ""
     hover_highlighting_enabled = True
     GraphicsMode_class = LineMode_GM
@@ -380,7 +380,7 @@ class LineMode(Select_Command):
         self.glpane.gl_update()
         
         if hasattr(prevMode, 'provideParamsForTemporaryMode'):
-            params = prevMode.provideParamsForTemporaryMode(self.modename)
+            params = prevMode.provideParamsForTemporaryMode(self.commandName)
             self.setParams(params)
         return   
     
@@ -398,7 +398,7 @@ class LineMode(Select_Command):
         prevMode = self.commandSequencer.prevMode
         if hasattr(prevMode, 'acceptParamsFromTemporaryMode'): 
             prevMode.acceptParamsFromTemporaryMode(
-                self.modename, 
+                self.commandName, 
                 self.mouseClickPoints)
             #clear the list
             self.mouseClickPoints = []       

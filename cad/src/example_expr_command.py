@@ -134,7 +134,7 @@ class ExampleCommand2E( ExampleCommand2, object):
     # object superclass should not come first, or it overrides __new__
     # (maybe could fix using def __init__ -- not tried, since object coming last works ok)
 
-    modename = 'ExampleCommand2E-modename'
+    commandName = 'ExampleCommand2E-commandName'
     default_mode_status_text = "ExampleCommand2E"
     PM_class = ExampleCommand2E_PM
 

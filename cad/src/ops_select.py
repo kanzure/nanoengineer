@@ -448,7 +448,7 @@ class ops_select_Mixin:
         #  So we can't just inline this into it.)
         # [bruce 071008]
         commandSequencer = self.win.commandSequencer
-        if commandSequencer.currentCommand.modename == 'DEPOSIT':
+        if commandSequencer.currentCommand.commandName == 'DEPOSIT':
             return True
         else:
             return False

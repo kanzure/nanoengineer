@@ -126,7 +126,7 @@ def writepovfile(part, glpane, filename):
     ## f.write("             plane { " + povpoint(glpane.out) + ", " + str(dot(pov_out, pov_near)) + " } }\n")
 
 # [and what was this for? bruce question 071009]
-##    if glpane.currentCommand.modename == 'DEPOSIT':
+##    if glpane.currentCommand.commandName == 'DEPOSIT':
 ##        dt = -glpane.quat
 ##        degY = dt.angle*180.0/pi
 ##        f.write("plane { \n" +

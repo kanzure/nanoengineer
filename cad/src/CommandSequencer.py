@@ -217,10 +217,10 @@ class modeMixin(object):
             # mode can be mode name (perhaps symbolic) or mode object
             try:
                 entering_msg = "entering/resuming some mode" # only used in case of unlikely bugs
-                modename = '???' # in case of exception before (or when) we set it from mode object
+                commandName = '???' # in case of exception before (or when) we set it from mode object
                 mode = self._find_mode(mode) # figure out which mode object to use
                     # [#k can this ever fail?? should it know default mode?##]
-                modename = mode.modename # store this now, so we can handle exceptions later or one from this line
+                commandName = mode.commandName # store this now, so we can handle exceptions later or one from this line
                 if id(mode) in map(id, mode_objects):
                     continue
                 entering_msg = self.__Entering_Mode_message( mode, resuming = resuming) # value saved only for error messages
@@ -276,7 +276,7 @@ class modeMixin(object):
             env.history.message( greenmsg( msg), norepeat_id = msg )
         return msg
     
-    def _find_mode(self, modename_or_obj = None): #bruce 050911 and 060403 revised this
+    def _find_mode(self, commandName_or_obj = None): #bruce 050911 and 060403 revised this
         """
         Internal method: look up the specified internal mode name (e.g. 'MODIFY' for Move mode)
         or mode-role symbolic name (e.g. '$DEFAULT_MODE') in self.commandTable, and return the mode object found.
@@ -287,47 +287,47 @@ class modeMixin(object):
         never return some other mode than asked for -- let caller do that if desired.
         """
         import UserPrefs #bruce 060403
-        assert modename_or_obj, "mode arg should be a mode object or mode name, not None or whatever it is here: %r" % (modename_or_obj,)
-        if type(modename_or_obj) == type(''):
-            # usual case - internal or symbolic modename string
-            modename = modename_or_obj
-            if modename == '$SAFE_MODE':
-                modename = 'SELECTMOLS' #k
-            elif modename == '$STARTUP_MODE':
-                ## modename = env.prefs[startupMode_prefs_key]
-                modename = UserPrefs.startup_modename()
+        assert commandName_or_obj, "mode arg should be a mode object or mode name, not None or whatever it is here: %r" % (commandName_or_obj,)
+        if type(commandName_or_obj) == type(''):
+            # usual case - internal or symbolic commandName string
+            commandName = commandName_or_obj
+            if commandName == '$SAFE_MODE':
+                commandName = 'SELECTMOLS' #k
+            elif commandName == '$STARTUP_MODE':
+                ## commandName = env.prefs[startupMode_prefs_key]
+                commandName = UserPrefs.startup_commandName()
                 # Needed when Preferences | Modes | Startup Mode = Default Mode.  
                 # Mark 050921.
-                if modename == '$DEFAULT_MODE':
-                    ## modename = env.prefs[defaultMode_prefs_key]
-                    modename = UserPrefs.default_modename()
-            elif modename == '$DEFAULT_MODE':
-                ## modename = env.prefs[defaultMode_prefs_key]
-                modename = UserPrefs.default_modename()
-            return self.commandTable[ modename]
+                if commandName == '$DEFAULT_MODE':
+                    ## commandName = env.prefs[defaultMode_prefs_key]
+                    commandName = UserPrefs.default_commandName()
+            elif commandName == '$DEFAULT_MODE':
+                ## commandName = env.prefs[defaultMode_prefs_key]
+                commandName = UserPrefs.default_commandName()
+            return self.commandTable[ commandName]
         else:
             # assume it's a mode object; make sure it's legit
-            mode0 = modename_or_obj
-            modename = mode0.modename
-            mode1 = self.commandTable[modename] # the one we'll return
+            mode0 = commandName_or_obj
+            commandName = mode0.commandName
+            mode1 = self.commandTable[commandName] # the one we'll return
             if mode1 is not mode0:
                 # this should never happen
-                print "bug: invalid internal mode; using mode %r" % (modename,)
+                print "bug: invalid internal mode; using mode %r" % (commandName,)
             return mode1
         pass
 
     # user requests a specific new mode.
 
-    def userEnterCommand(self, modename, **options): # renamed from setMode [bruce 071011]
+    def userEnterCommand(self, commandName, **options): # renamed from setMode [bruce 071011]
         """
         Public method, called from the UI when the user asks to enter
-        a specific command (named by modename), e.g. using a toolbutton
+        a specific command (named by commandName), e.g. using a toolbutton
         or menu item. It can also be called inside commands which want to
         change to another command.
 
-        The modename argument can be a modename string, e.g. 'DEPOSIT',
+        The commandName argument can be a commandName string, e.g. 'DEPOSIT',
         or a symbolic name like '$DEFAULT_MODE', or [### VERIFY THIS]
-        a command instance object. (Details of modename, and all options,
+        a command instance object. (Details of commandName, and all options,
         are documented in Command._f_userEnterCommand.)
 
         The current command has to exit (or be suspended) before the new one
@@ -355,7 +355,7 @@ class modeMixin(object):
         # Note: we don't have a special case for already being in the same
         # command; individual commands can implement that if they wish.
         try:
-            self.currentCommand._f_userEnterCommand(modename, **options)
+            self.currentCommand._f_userEnterCommand(commandName, **options)
 
             # REVIEW: the following update_after_new_mode looks redundant with
             # the one at the end of start_using_mode, if that one has always
@@ -369,7 +369,7 @@ class modeMixin(object):
             # so don't bother trying to get into the user's requested
             # command, just get into a safe state.
             print_compact_traceback("_f_userEnterCommand: ")
-            print "bug: _f_userEnterCommand(%r) had bug when in mode %r; changing back to default mode" % (modename, self.currentCommand,)
+            print "bug: _f_userEnterCommand(%r) had bug when in mode %r; changing back to default mode" % (commandName, self.currentCommand,)
             # For some bugs, the old mode will have left its toolbar
             # up; we should probably try to call its restore_gui
             # method directly... ok, I added this, though it's
@@ -387,9 +387,9 @@ class modeMixin(object):
             self.start_using_mode( '$DEFAULT_MODE' )
         return
 
-    def userEnterTemporaryCommand(self, modename): #bruce 071011
+    def userEnterTemporaryCommand(self, commandName): #bruce 071011
         """
-        Temporarily enter the command with the given modename [TODO: or the given command object?],
+        Temporarily enter the command with the given commandName [TODO: or the given command object?],
         suspending the prior command for resumption after the new one exits,
         unless the prior command.command_can_be_suspended is false
         (usually the case if it too is a temporary command),
@@ -462,8 +462,8 @@ class modeMixin(object):
             assert prior_command.command_can_be_suspended # also implies it's not null
         
         # Set self.prevMode (our depth-1 suspended command stack)
-        self.prevMode = prior_command # bruce 070813 save command object, not modename
-        self.userEnterCommand(modename, suspend_old_mode = True)
+        self.prevMode = prior_command # bruce 070813 save command object, not commandName
+        self.userEnterCommand(commandName, suspend_old_mode = True)
             # TODO: if this can become the only use of suspend_old_mode, make it a private option _suspend_old_mode.
             # Indeed, it's now the only use except for internal and commented out ones... [071011 eve]
         return

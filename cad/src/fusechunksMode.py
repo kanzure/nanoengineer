@@ -273,7 +273,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
     """
 
     # class constants
-    modename = 'FUSECHUNKS'
+    commandName = 'FUSECHUNKS'
     default_mode_status_text = "Mode: Fuse Chunks"
 
 

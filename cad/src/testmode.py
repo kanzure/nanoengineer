@@ -57,7 +57,7 @@ class testmode(superclass):
 
     # for Command
     
-    modename = 'TEST'
+    commandName = 'TEST'
     default_mode_status_text = "Mode: Test"
 
     # for GraphicsMode

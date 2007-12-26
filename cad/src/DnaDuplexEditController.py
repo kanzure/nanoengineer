@@ -53,7 +53,7 @@ class DnaDuplexEditController(EditController):
     sponsor_keyword  =  'DNA'
     prefix           =  'DNA-'   # used for gensym
     cmdname          = "Duplex"
-    modename         = 'DNA_DUPLEX'
+    commandName         = 'DNA_DUPLEX'
     
     command_should_resume_prevMode = False
     command_has_its_own_gui = True
@@ -308,7 +308,7 @@ class DnaDuplexEditController(EditController):
         self.struct = self._createStructure()
         return 
 
-    def acceptParamsFromTemporaryMode(self, modename, params):
+    def acceptParamsFromTemporaryMode(self, commandName, params):
         """
         NOTE: This also needs to be a general API method. There are situations 
         when user enters a temporary mode , does somethoing there and 
@@ -561,7 +561,7 @@ class DnaDuplexEditController(EditController):
             commandSequencer = self.win.commandSequencer
             currentCommand = commandSequencer.currentCommand
 
-            if currentCommand.modename != "DNA_LINE_MODE":
+            if currentCommand.commandName != "DNA_LINE_MODE":
                 commandSequencer.userEnterTemporaryCommand(
                     'DNA_LINE_MODE')
                 return

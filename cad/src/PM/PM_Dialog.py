@@ -189,7 +189,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         """
         if 1:
             commandSequencer = self.win.commandSequencer #bruce 071008
-            commandName = commandSequencer.currentCommand.modename
+            commandName = commandSequencer.currentCommand.commandName
                 # that's an internal name, but this is just for a debug print
             print "PM_Dialog.open(): Reopening the PM for command:", commandName
         

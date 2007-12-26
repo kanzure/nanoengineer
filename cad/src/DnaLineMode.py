@@ -150,7 +150,7 @@ class DnaLineMode(LineMode):
     """
     
     # class constants    
-    modename = 'DNA_LINE_MODE'    
+    commandName = 'DNA_LINE_MODE'    
     
     GraphicsMode_class = DnaLine_GM
         

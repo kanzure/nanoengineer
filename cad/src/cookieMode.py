@@ -68,7 +68,7 @@ class cookieMode(basicMode):
     backgroundColor = 0/255.0, 0/255.0, 0/255.0
     backgroundGradient = False # Mark 051029.
     gridColor = 222/255.0, 148/255.0, 0/255.0
-    modename = 'COOKIE'
+    commandName = 'COOKIE'
     default_mode_status_text = "Mode: Build Crystal"
     displayMode = diTUBES 
         # displayMode isn't used except for updating the 'Display Mode' combobox in the Preference dialog.

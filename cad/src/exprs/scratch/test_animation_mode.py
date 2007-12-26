@@ -1212,7 +1212,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
 
     # class constants needed by mode API
     backgroundColor = 103/256.0, 124/256.0, 53/256.0
-    modename = 'TEST_ANIMATION'
+    commandName = 'TEST_ANIMATION'
     default_mode_status_text = "Mode: test animation"
     
     # other class constants
