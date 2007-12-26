@@ -46,6 +46,12 @@ class Ui_MainWindow(object):
         """
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
+        
+        # Set minimum width and height of the main window.
+        # To do: Check that the current screen size is at least 1024 x 768.
+        MAIN_WINDOW_SIZE = (1024, 768) # Mark 2007-12-23
+        self.setMinimumWidth(MAIN_WINDOW_SIZE[0])
+        self.setMinimumHeight(MAIN_WINDOW_SIZE[1])
 
         # Create all widgets for all main menus and toolbars.
         Ui_MainWindowWidgets.setupUi(self)
@@ -58,6 +64,26 @@ class Ui_MainWindow(object):
         
         # Now set all UI text for main window widgets.
         self.retranslateUi(MainWindow)
+        
+        # =
+    
+        # Create the "What's This?" text for.
+        from gui.WhatsThisText_for_MainWindow import createWhatsThisTextForMainWindowWidgets
+        createWhatsThisTextForMainWindowWidgets(self)
+        
+        # IMPORTANT: All main window widgets and their "What's This" text should 
+        # be created before this line. [If this is not possible, we'll need to 
+        # split out some functions within this one which can be called
+        # later on individual QActions and/or QWidgets. bruce 060319]
+        from gui.WhatsThisText_for_MainWindow import fix_whatsthis_text_and_links
+        fix_whatsthis_text_and_links(self, refix_later = (self.editMenu,)) 
+            # (main call) Fixes bug 1136.  Mark 051126.
+            # [bruce 060319 added refix_later as part of fixing bug 1421]
+        fix_whatsthis_text_and_links(self.toolsMoveRotateActionGroup)
+            # This is needed to add links to the "Translate" and "Rotate"
+            # QAction widgets on the standard toolbar, since those two
+            # widgets are not direct children of the main window. 
+            # Fixes one of the many bugs listed in bug 2412. Mark 2007-12-19
     
     def setupToolbars(self, MainWindow):
         """

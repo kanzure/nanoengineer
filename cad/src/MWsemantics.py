@@ -64,8 +64,6 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 
 import Ui_DnaFlyout
 
-from gui.WhatsThisText_for_MainWindow import createWhatsThisTextForMainWindowWidgets, fix_whatsthis_text_and_links
-
 from ops_files import fileSlotsMixin
 from ops_files import recentfiles_use_QSettings
 from ops_view import viewSlotsMixin 
@@ -305,8 +303,6 @@ class MWsemantics(QMainWindow,
 
 
         if MULTIPANE_GUI:
-            # Create the "What's This?" online help system.
-            createWhatsThisTextForMainWindowWidgets(self)
 
             # This is only used by the Atom Color preference dialog, not the
             # molecular modeling kit in Build Atom (deposit mode), etc.
@@ -321,13 +317,6 @@ class MWsemantics(QMainWindow,
             self.currentWorkingDirectory = ''
             self.setWindowTitle("My Main Window")
             
-            # Set minimum width and height of the main window.
-            #@ MAIN_WINDOW_SIZE = (800, 600) # Marked for removal.
-            # Should be 1024 x 768, so I changed it. mark 2007-12-23
-            MAIN_WINDOW_SIZE = (1024, 768) # Mark 2007-12-23
-            self.setMinimumWidth(MAIN_WINDOW_SIZE[0])
-            self.setMinimumHeight(MAIN_WINDOW_SIZE[1])
-
             ##############################################
 
             # The following code is difficult to follow. It needs better
@@ -645,35 +634,12 @@ class MWsemantics(QMainWindow,
         from QuteMolPropertyManager import QuteMolPropertyManager
         self.qutemolPM = QuteMolPropertyManager(self)
 
-        if not MULTIPANE_GUI:
-            # do here to avoid a circular dependency
-            # note: as of long before now, this doesn't normally run [bruce 070503 comment]
-            self.assy.o = self.glpane
-            self.assy.mt = self.mt
-
         # We must enable keyboard focus for a widget if it processes
         # keyboard events. [Note added by bruce 041223: I don't know if this is
         # needed for this window; it's needed for some subwidgets, incl. glpane,
         # and done in their own code. This window forwards its own key events to
         # the glpane. This doesn't prevent other subwidgets from having focus.]
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
-
-        # Create the "What's This?" online help system.
-        if not MULTIPANE_GUI:
-            createWhatsThisTextForMainWindowWidgets(self)
-
-        # IMPORTANT: All widget creation (i.e. dashboards, dialogs, etc.) and their 
-        # whatthis text should be created before this line. [If this is not possible,
-        # we'll need to split out some functions within this one which can be called
-        # later on individual QActions and/or QWidgets. bruce 060319]
-        fix_whatsthis_text_and_links(self, refix_later = (self.editMenu,)) 
-            # (main call) Fixes bug 1136.  Mark 051126.
-            # [bruce 060319 added refix_later as part of fixing bug 1421]
-        fix_whatsthis_text_and_links(self.toolsMoveRotateActionGroup)
-            # This is needed to add links to the "Translate" and "Rotate"
-            # QAction widgets on the standard toolbar, since those two
-            # widgets are not direct children of the main window. 
-            # Fixes one of the many bugs listed in bug 2412. Mark 2007-12-19
 
         if not MULTIPANE_GUI:
 
