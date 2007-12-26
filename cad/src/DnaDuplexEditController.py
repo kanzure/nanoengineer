@@ -61,9 +61,8 @@ class DnaDuplexEditController(EditController):
     # Generators for DNA, nanotubes and graphene have their MT name 
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
-    _segmentList = []
     
-    flyoutToolbar = None
+    _segmentList = []
 
     def __init__(self, commandSequencer, struct = None):
         """
@@ -341,7 +340,7 @@ class DnaDuplexEditController(EditController):
 	 -- [Ninad 2007-10-25 comment]	
 
         """
-        if len(params) == 0:
+        if len(params) < 2:
             return
         self.propMgr.endPoint1 = params[0]
         self.propMgr.endPoint2 = params[1]

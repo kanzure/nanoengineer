@@ -138,8 +138,6 @@ class DnaGeneratorPropertyManager( PM_Dialog, DebugMenuMixin ):
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
         DebugMenuMixin._init1( self )
 
-        self._addGroupBoxes()
-        self._addWhatsThisText()
         
         msg = "Edit the DNA parameters and select <b>Preview</b> to \
         preview the structure. Click <b>Done</b> to insert it into \
