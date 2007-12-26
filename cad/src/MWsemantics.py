@@ -151,7 +151,7 @@ class MWsemantics(QMainWindow,
 
         # These boolean flags, if True, stop the execution of slot 
         # methods that are called because the state of 'self.viewFullScreenAction
-        # or self.viewSemiFullScreenAction is changed. May be there is a way to 
+        # or self.viewSemiFullScreenAction is changed. Maybe there is a way to 
         # do this using QActionGroup (which make the actions mutually exclusive)
         #.. tried that but it didn't work. After doing this when I tried to 
         #  toggle the checked action in the action group, it didn't work
@@ -160,10 +160,11 @@ class MWsemantics(QMainWindow,
         # self.showSemiFullScreen where they are used. -- Ninad 2007-12-06
         self._block_viewFullScreenAction_event = False
         self._block_viewSemiFullScreenAction_event = False
-        #The following maintains a list of all widgets that are hidden during
-        #the FullScreen or semiFullScreen mode. Thislist is then used in 
-        #self.showNormal to show the hidden widgets if any. The list is cleared 
-        #at the end of self.showNormal
+        
+        # The following maintains a list of all widgets that are hidden during
+        # the FullScreen or semiFullScreen mode. This list is then used in 
+        # self.showNormal to show the hidden widgets if any. The list is cleared 
+        # at the end of self.showNormal
         self._widgetToHideDuringFullScreenMode = []
 
         undo_internals.just_before_mainwindow_super_init()
@@ -173,39 +174,14 @@ class MWsemantics(QMainWindow,
 
         self.defaultFont = QFont(self.font()) # Makes copy of app's default font.
         
-        # This creates all main window widgets and connects them to their slots.
+        # Setup the NE1 user interface.
         self.setupUi(self)
-
-        from prefs_constants import toolbar_state_prefs_key
-        #This fixes bug 2482 
-        if not env.prefs[toolbar_state_prefs_key] == 'defaultToolbarState':
-            toolBarState = QtCore.QByteArray(env.prefs[toolbar_state_prefs_key])
-            self.restoreState(toolBarState)
-        else:
-            #hide these toolbars by default 
-            self.buildStructuresToolBar.hide()
-            self.buildToolsToolBar.hide()
-            self.selectToolBar.hide()
-            self.simulationToolBar.hide()
-
-        #Add Toolbar menu item to the View Menu. 
-        #Adding menuitems to View menu is done in Ui_ViewMenu but adding the 
-        #toolbar menu is done here as it uses 'createPopupMenu' to retrieve 
-        #toolbar information. Note: Toolbars are declared after declaring menus as
-        #some of them use menu items (action list) . 
-        toolbarMenu = self.createPopupMenu()
-        toolbarMenu.setTitle('Toolbars')
-        self.viewMenu.addMenu(toolbarMenu)
-
-        # mark 060105 commented out self.make_buttons_not_in_UI_file()
-        #self.make_buttons_not_in_UI_file()
-
+        
         undo_internals.just_after_mainwindow_super_init()
 
         # bruce 050104 moved this here so it can be used earlier
         # (it might need to be moved into main.py at some point)
         self.tmpFilePath = find_or_make_Nanorex_directory()
-
 
         # Load additional icons to QAction iconsets.
         # self.load_icons_to_iconsets() # Uncomment this line to test if Redo button has custom icon when disabled. mark 060427
@@ -406,20 +382,37 @@ class MWsemantics(QMainWindow,
         self.currentCommand.state_may_have_changed()
         return
 
-    def createPopupMenu(self): #Ninad 070328
+    def createPopupMenu(self): # Ninad 070328
         """
-	Reimplemented createPopPupMenu method that allows 
-	display of custom context menu (toolbars and dockwidgets) 
-	when you rightclick on QMainWindow widget.
-	"""
+        Returns a popup menu containing checkable entries for the toolbars
+        and dock widgets present in the main window.
+        
+        This function is called by the main window every time the user
+        activates a context menu, typically by right-clicking on a toolbar or
+        a dock widget.
+        
+        This reimplements QMainWindow's createPopupMenu() method.
+        
+        @return: The popup menu.
+        @rtype: U{B{QMenu}<http://doc.trolltech.com/4/qmenu.html>}
+        
+        @note: All main window toolbars must be created before calling 
+        createPopupMenu().
+        
+        @see: U{B{QMainWindow.createPopupMenu}
+        <http://doc.trolltech.com/4.3/qmainwindow.html#createPopupMenu>}
+        """
         menu = QMenu(self)
+        
         contextMenuToolBars = \
-                            [self.standardToolBar, self.viewToolBar,
-                             self.standardViewsToolBar, self.displayStylesToolBar,
-                             self.simulationToolBar, self.buildToolsToolBar,
-                             self.selectToolBar, self.buildStructuresToolBar]
+            [self.standardToolBar, self.viewToolBar,
+             self.standardViewsToolBar, self.displayStylesToolBar,
+             self.simulationToolBar, self.buildToolsToolBar,
+             self.selectToolBar, self.buildStructuresToolBar]
+        
         for toolbar in contextMenuToolBars:
             menu.addAction(toolbar.toggleViewAction())
+            
         return menu
 
     def removePartWindow(self, pw):

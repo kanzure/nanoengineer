@@ -30,7 +30,7 @@ import Ui_BuildStructuresToolBar
 
 from icon_utilities import geticon
 
-from constants import MULTIPANE_GUI
+import env
 
 class Ui_MainWindow(object):
     """
@@ -52,7 +52,49 @@ class Ui_MainWindow(object):
         
         # Set up all main window widget connections to their slots.
         Ui_MainWindowWidgetConnections.setupUi(self)
-
+        
+        self.setupToolbars(MainWindow) # Toolbars must come before menus.
+        self.setupMenus(MainWindow)
+        
+        # Now set all UI text for main window widgets.
+        self.retranslateUi(MainWindow)
+    
+    def setupToolbars(self, MainWindow):
+        """
+        Create and populate all Main Window toolbars. 
+        Also restores the state of toolbars from the NE1 last session.
+        """
+        
+        # Set up the toolbars for the main window.
+        Ui_StandardToolBar.setupUi(self)       
+        Ui_ViewToolBar.setupUi(self)
+        Ui_StandardViewsToolBar.setupUi(self)
+        Ui_DisplayStylesToolBar.setupUi(self)
+        Ui_BuildToolsToolBar.setupUi(self)
+        Ui_BuildStructuresToolBar.setupUi(self)
+        Ui_SelectToolBar.setupUi(self)
+        Ui_SimulationToolBar.setupUi(self)
+        
+        from prefs_constants import toolbar_state_prefs_key
+        # This fixes bug 2482.
+        if not env.prefs[toolbar_state_prefs_key] == 'defaultToolbarState':
+            # Restore the state of the toolbars from the last session.
+            toolBarState = QtCore.QByteArray(env.prefs[toolbar_state_prefs_key])
+            self.restoreState(toolBarState)
+        else:
+            # No previous session. Hide only these toolbars by default.
+            self.buildStructuresToolBar.hide()
+            self.buildToolsToolBar.hide()
+            self.selectToolBar.hide()
+            self.simulationToolBar.hide()
+        
+        return
+    
+    def setupMenus(self, MainWindow):
+        """
+        Create and populate all main window menus and setup the main menu bar.
+        """
+        
         # Create the main menu bar.
         self.MenuBar = QtGui.QMenuBar(MainWindow)
         self.MenuBar.setEnabled(True)
@@ -79,19 +121,6 @@ class Ui_MainWindow(object):
 
         # Add MenuBar to the main window.
         MainWindow.setMenuBar(self.MenuBar)
-
-        # Set up the toolbars for the main window.
-        Ui_StandardToolBar.setupUi(self)       
-        Ui_ViewToolBar.setupUi(self)
-        Ui_StandardViewsToolBar.setupUi(self)
-        Ui_DisplayStylesToolBar.setupUi(self)
-        Ui_BuildToolsToolBar.setupUi(self)
-        Ui_BuildStructuresToolBar.setupUi(self)
-        Ui_SelectToolBar.setupUi(self)
-        Ui_SimulationToolBar.setupUi(self)
-
-        # Now set all UI text for main window widgets.
-        self.retranslateUi(MainWindow)
         
         return
 
@@ -114,16 +143,7 @@ class Ui_MainWindow(object):
 
         # QActions
         Ui_MainWindowWidgets.retranslateUi(self)
-
-        # Menus and submenus
-        Ui_FileMenu.retranslateUi(self)
-        Ui_EditMenu.retranslateUi(self)
-        Ui_ViewMenu.retranslateUi(self)     
-        Ui_InsertMenu.retranslateUi(self)
-        Ui_ToolsMenu.retranslateUi(self)
-        Ui_SimulationMenu.retranslateUi(self)
-        Ui_HelpMenu.retranslateUi(self)
-
+        
         # Toolbars
         Ui_StandardToolBar.retranslateUi(self)
         Ui_ViewToolBar.retranslateUi(self)
@@ -133,3 +153,12 @@ class Ui_MainWindow(object):
         Ui_BuildToolsToolBar.retranslateUi(self)
         Ui_SelectToolBar.retranslateUi(self)
         Ui_SimulationToolBar.retranslateUi(self)
+
+        # Menus and submenus
+        Ui_FileMenu.retranslateUi(self)
+        Ui_EditMenu.retranslateUi(self)
+        Ui_ViewMenu.retranslateUi(self)     
+        Ui_InsertMenu.retranslateUi(self)
+        Ui_ToolsMenu.retranslateUi(self)
+        Ui_SimulationMenu.retranslateUi(self)
+        Ui_HelpMenu.retranslateUi(self)

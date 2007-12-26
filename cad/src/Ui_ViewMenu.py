@@ -14,8 +14,8 @@ SHOW_HYBRID_DISPLAY_MENU = 0
 
 def setupUi(win):    
     """
-    Creates and populates the "View" menu (incuding its "Display" and "Modify"
-    submenus) in the main menu bar.
+    Creates and populates the "View" menu (including its "Display" and "Modify"
+    submenus) that appears in the main menu bar.
 
     @param win: NE1's main window object.
     @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
@@ -25,7 +25,7 @@ def setupUi(win):
     win.viewMenu = QtGui.QMenu(win.MenuBar)
     win.viewMenu.setObjectName("viewMenu")
 
-    # Create and add the "Display" and "Modify" submenus to the View menu.
+    # Create and add the "Display" and "Modify" submenus to the "View" menu.
     win.displayMenu = win.viewMenu.addMenu("Display")      
     win.ModifyMenu = win.viewMenu.addMenu("Modify")
 
@@ -33,7 +33,11 @@ def setupUi(win):
     win.viewMenu.addSeparator()
     win.viewMenu.addAction(win.viewSemiFullScreenAction)
     win.viewMenu.addAction(win.viewFullScreenAction)
-
+    
+    # Create and add the "Toolbar" submenu to the "View" menu.
+    win.toolbarMenu = win.createPopupMenu()
+    win.viewMenu.addMenu(win.toolbarMenu)
+    
     # Populate the "Display" submenu.
     win.displayMenu.addAction(win.dispDefaultAction)
     win.displayMenu.addAction(win.dispInvisAction)
@@ -78,10 +82,18 @@ def retranslateUi(win):
     """
     win.viewMenu.setTitle(
         QtGui.QApplication.translate(
-            "MainWindow", "&View", None, QtGui.QApplication.UnicodeUTF8))
+            "MainWindow", "&View", 
+            None, QtGui.QApplication.UnicodeUTF8))
     win.displayMenu.setTitle(
         QtGui.QApplication.translate(
-            "MainWindow", "&Display", None, QtGui.QApplication.UnicodeUTF8))
+            "MainWindow", "&Display", 
+            None, QtGui.QApplication.UnicodeUTF8))
     win.ModifyMenu.setTitle(
         QtGui.QApplication.translate(
-            "MainWindow", "M&odify", None, QtGui.QApplication.UnicodeUTF8))
+            "MainWindow", "M&odify", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.toolbarMenu.setTitle(
+        QtGui.QApplication.translate(
+            "MainWindow", "Toolbars", 
+            None, QtGui.QApplication.UnicodeUTF8))
