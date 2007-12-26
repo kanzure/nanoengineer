@@ -143,7 +143,14 @@ When everything above has been fixed, the import statements should
 accurately reflect the import dependencies between all modules.  At
 this point, it's time to try graphing that structure.
 
-$ tools/PackageDependency.py `tools/AllPyFiles.sh` --justCycles > depend.dot 2> packageloopcounts
+$ tools/PackageDependency.py `tools/AllPyFiles.sh` --justCycles > depend.dot
+
+(Optionally add "2> packageloopcounts" to capture the package loop counts
+from stderr, but this may hide error messages printed to stderr,
+including some we are about to add for imports with continuation lines
+or without fully qualified module names. BTW the loop counts are no longer 
+very useful, so they might be removed or made optional. 
+[--bruce 072126 update])
 
 If you have the GraphViz package installed, the results can be plotted
 with:
