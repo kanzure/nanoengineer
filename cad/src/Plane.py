@@ -1,6 +1,6 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-@author: Ninad,
+@author: Ninad
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @version:$Id$
 
@@ -15,8 +15,6 @@ TODO:
 - Need to implement some grid plane features. 
 
 """
-
-__author__ = "Ninad"
 
 from math import pi, atan, cos, sin
 from Numeric import add, dot
@@ -569,14 +567,13 @@ class Plane(ReferenceGeometry):
         """
         Overrides node.edit and shows the property manager.
         """
-        #If the Plane is created simply by reading in the mmp file, then 
-        #it won't have a 'editController' . So create one here.
-        # Fixes bug 2554
-        if not self.editController:
-            self.editController = self.assy.part.createPlaneEditController(self)
-            
-        self.editController.editStructure()
-  
+        
+        commandSequencer = self.win.commandSequencer
+        commandSequencer.userEnterCommand('REFERENCE_PLANE')
+        currentCommand = commandSequencer.currentCommand
+        assert currentCommand.modename == 'REFERENCE_PLANE'
+        currentCommand.editStructure(self)
+         
     def setup_quat_center(self, atomList = None):
         """
         Setup the plane's quat using a list of atoms.

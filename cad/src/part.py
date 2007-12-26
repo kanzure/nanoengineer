@@ -983,27 +983,6 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
 
     # ==
-
-    def createPlane(self):
-        """
-	Creates a new Plane. 
-	"""
-        editController = self.createPlaneEditController()
-        #Create the plane object
-        editController.createStructure()
-
-    def createPlaneEditController(self, plane = None):
-        """
-	Returns a new L{PlaneEditController} object.	
-	@param plane:  This parameter is passed as an init argument for 
-	               the PlaneEditController that this method creates 
-		       and returns.
-	@type plane:  B{Plane} or None
-	@see: L{Plane.__init__} , L{Plane.edit}, L{PlaneEditController.__init__}
-	"""
-        from PlaneEditController import PlaneEditController	    
-        return PlaneEditController(self.w.glpane, plane)
-
     def createRMotorEditController(self, rotaryMotor = None):
         """
 	Returns a new L{RotaryMotorEditController} object.	

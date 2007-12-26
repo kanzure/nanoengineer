@@ -158,7 +158,6 @@ class EditController_PM(PM_Dialog):
         Enable or disable some gui actions when this property manager is 
         opened or closed, depending on the bool_enable. 
         Subclasses can override this method. 
-
         """
         pass
 

@@ -38,10 +38,10 @@ from utilities.Comparison import same_vals
 from constants            import permit_gensym_to_reuse_name
 from GeneratorBaseClass   import AbstractMethod
 
-from Select_Command import Select_Command
+from SelectChunks_Command import SelectChunks_Command
 
 
-class EditController(Select_Command):
+class EditController(SelectChunks_Command):
     """
     EditController class that provides a editcontroller object. 
     The client can call three public methods defined in this class to acheive 
@@ -68,9 +68,11 @@ class EditController(Select_Command):
     cmd      =  "" 
     cmdname  =  "" 
     _gensym_data_for_reusing_name = None
-    propMgr = None
     modename = 'EditController'
-    default_mode_status_text = ""
+    default_mode_status_text = ""    
+    
+    propMgr = None
+    flyoutToolbar = None
 
     def __init__(self, commandSequencer):
         """
@@ -106,7 +108,7 @@ class EditController(Select_Command):
             ##as of 060616
             #self.cmd = greenmsg(self.cmdname + ": ")
         
-        Select_Command.__init__(self, commandSequencer)
+        SelectChunks_Command.__init__(self, commandSequencer)
         return
     
     
@@ -133,6 +135,9 @@ class EditController(Select_Command):
         Default implementation, subclasses should override this method.
         NEED TO DOCUMENT THIS FURTHER ?
         """
+        self.existingStructForEditing = False
+        if self.struct:
+            self.struct = None
         self.createStructure()
     
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):

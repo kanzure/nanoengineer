@@ -82,6 +82,23 @@ class PlanePropertyManager(EditController_PM):
         
         # Hide Preview and Restore defaults button for Alpha9.
         self.hideTopRowButtons(pmRestoreDefaultsButton)
+    
+    def ok_btn_clicked(self):
+        """
+        Slot for the OK button
+        """   
+        if self.editController:
+            self.editController.preview_or_finalize_structure(previewing = False)
+            env.history.message(self.editController.logMessage)        
+        self.win.toolsDone()
+    
+    def cancel_btn_clicked(self):
+        """
+        Slot for the Cancel button.
+        """
+        if self.editController:
+            self.editController.cancelStructure()            
+        self.win.toolsCancel()
 
     def _addGroupBoxes(self):
         """
@@ -184,7 +201,9 @@ class PlanePropertyManager(EditController_PM):
         #EditController_PM.show, the 'preview' properties are not updated 
         #when you are editing an existing plane. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
-        self.editController.struct.updateCosmeticProps(previewing = True)
+        
+        if self.editController.struct:
+            self.editController.struct.updateCosmeticProps(previewing = True)
         
                 
     def change_plane_width(self, newWidth):

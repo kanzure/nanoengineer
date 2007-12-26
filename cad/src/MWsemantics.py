@@ -1421,7 +1421,15 @@ class MWsemantics(QMainWindow,
         self.assy.makeLinearMotor()
 
     def createPlane(self):
-        self.assy.createPlane()	
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.modename != "REFERENCE_PLANE":
+                commandSequencer.userEnterTemporaryCommand(
+                    'REFERENCE_PLANE')
+                
+        self.commandSequencer.currentCommand.runController()
+        
+        ##elf.assy.createPlane()	
 
     def makeGridPlane(self):
         self.assy.makeGridPlane()
