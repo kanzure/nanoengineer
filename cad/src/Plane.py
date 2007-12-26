@@ -560,7 +560,8 @@ class Plane(ReferenceGeometry):
             
         self.recomputeCenter(totalOffset)
         #update the width,height spinboxes(may be more in future)--Ninad20070601
-        self.editController.propMgr.update_spinboxes()
+        if self.editController and self.editController.propMgr:
+            self.editController.propMgr.update_spinboxes()
      
         
     def edit(self):
@@ -572,6 +573,12 @@ class Plane(ReferenceGeometry):
         commandSequencer.userEnterCommand('REFERENCE_PLANE')
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.modename == 'REFERENCE_PLANE'
+        #When a Plane object read from an mmp file is edited, we need to assign 
+        #it an editcontroller. So, when it is resized, the propMgr spinboxes
+        #are properly updates. See self.resizeGeometry. 
+        if self.editController is None:
+            self.editController = currentCommand
+            
         currentCommand.editStructure(self)
          
     def setup_quat_center(self, atomList = None):
