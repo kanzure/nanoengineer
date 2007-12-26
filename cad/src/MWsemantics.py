@@ -341,13 +341,10 @@ class MWsemantics(QMainWindow,
             layout.setSpacing(0)
             middlewidget = QWidget()
 
-            # Add the Command Toolbar (Manager).
-            # To do: The Command Manager needs to be renamed from 
-            # CommandManager to CommandToolbar (both file and class names). 
-            # mark 2007-12-23
-            from CommandManager import CommandManager
-            self.commandManager = CommandManager(self)
-            self.cmdManager = self.commandManager.cmdManager  
+            # Add the Command Toolbar.
+            from CommandToolbar import CommandToolbar
+            self.commandToolbar = CommandToolbar(self)
+            self.cmdManager = self.commandToolbar.cmdManager
             layout.addWidget(self.cmdManager)	    
 
             layout.addWidget(middlewidget)
@@ -420,7 +417,7 @@ class MWsemantics(QMainWindow,
         self.gridPosition.removeWidget(pw)
         self.numParts -= 1
         if self.numParts == 0:
-            self.cmdManagerControlArea.hide()
+            self.cmdToolbarControlArea.hide()
         # [bruce 070503 question: why do we not worry about whether pw == self._activepw?]
 
     def showFullScreen(self):
@@ -462,7 +459,7 @@ class MWsemantics(QMainWindow,
                     widget.hide()
                     self._widgetToHideDuringFullScreenMode.append(widget)
 
-        self.commandManager.cmdManager.hide()
+        self.commandToolbar.cmdManager.hide()
 
     def _showFullScreenCommonCode(self):
         """
@@ -515,8 +512,6 @@ class MWsemantics(QMainWindow,
 
         self._showFullScreenCommonCode()
 
-
-
     def showNormal(self):
         QMainWindow.showNormal(self)
         self.activePartWindow().expandModelTreeArea()
@@ -525,7 +520,7 @@ class MWsemantics(QMainWindow,
         for  widget in self._widgetToHideDuringFullScreenMode:           
             widget.show()
 
-        self.commandManager.cmdManager.show()
+        self.commandToolbar.cmdManager.show()
         #Clear the list of hidden widgets (those are no more hidden)
         self._widgetToHideDuringFullScreenMode = [] 
 
@@ -534,7 +529,7 @@ class MWsemantics(QMainWindow,
         # from scratch.
         # [bruce 070503 question: why do we get passed an assy, and use it for some things and self.assy for others?]
         if self.numParts == 0:
-            #self.cmdManagerControlArea.show()
+            #self.cmdToolbarControlArea.show()
             self.cmdManager.show()
         self.numParts += 1
         pw = PartWindow(assy, self)

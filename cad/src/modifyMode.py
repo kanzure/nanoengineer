@@ -93,7 +93,7 @@ class modifyMode(selectMolsMode):
             changes.keep_forever(self.propMgr)
 
         self.propMgr.show()                	
-        self.updateCommandManager(bool_entering = True)
+        self.updateCommandToolbar(bool_entering = True)
 
         # connect signals (these all need to be disconnected in restore_gui)                
         self.connect_or_disconnect_signals(True)
@@ -114,7 +114,7 @@ class modifyMode(selectMolsMode):
 
     def restore_gui(self):
         # disconnect signals which were connected in init_gui [bruce 050728]
-        self.updateCommandManager(bool_entering = False)
+        self.updateCommandToolbar(bool_entering = False)
         self.w.toolsMoveMoleculeAction.setChecked(False) # toggle on the Move Chunks icon
         self.w.rotateComponentsAction.setChecked(False)
         self.connect_or_disconnect_signals(False)        
@@ -188,7 +188,7 @@ class modifyMode(selectMolsMode):
     def getFlyoutActionList(self): #Ninad 20070618
         """ Returns a tuple that contains mode spcific actionlists in the 
 	added in the flyout toolbar of the mode. 
-	CommandManager._createFlyoutToolBar method calls this 
+	CommandToolbar._createFlyoutToolBar method calls this 
 	@return: params: A tuple that contains 3 lists: 
 	(subControlAreaActionList, commandActionLists, allActionsList)"""	
 
@@ -236,8 +236,10 @@ class modifyMode(selectMolsMode):
         return params
 
 
-    def updateCommandManager(self, bool_entering = True):#Ninad 20070618
-        ''' Update the command manager '''
+    def updateCommandToolbar(self, bool_entering = True):#Ninad 20070618
+        """
+        Update the command toolbar.
+        """
         if bool_entering:
             try:
                 action = self.w.toolsMoveRotateActionGroup.checkedAction()
@@ -251,7 +253,7 @@ class modifyMode(selectMolsMode):
         #the mode itself. 
         obj = self  
 
-        self.w.commandManager.updateCommandManager(action,
+        self.w.commandToolbar.updateCommandToolbar(action,
                                                    obj, 
                                                    entering = bool_entering)
 

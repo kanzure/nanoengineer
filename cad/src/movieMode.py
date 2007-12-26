@@ -124,7 +124,7 @@ class movieMode(basicMode):
 
         #@NOTE: self.propMgr.show() is called later in this (init_gui) method. 
 
-        self.updateCommandManager(bool_entering = True)
+        self.updateCommandToolbar(bool_entering = True)
 
         self.w.simMoviePlayerAction.setChecked(1) # toggle on the Movie Player icon+
 
@@ -245,16 +245,16 @@ class movieMode(basicMode):
 
         return params
 
-    def updateCommandManager(self, bool_entering = True):#Ninad 20070618
+    def updateCommandToolbar(self, bool_entering = True):#Ninad 20070618
         """
-	Update the command manager.
+	Update the command toolbar.
 	"""	
         # object that needs its own flyout toolbar. In this case it is just 
         #the mode itself. 
 
         action = self.w.simMoviePlayerAction
         obj = self  	    	    
-        self.w.commandManager.updateCommandManager(action,
+        self.w.commandToolbar.updateCommandToolbar(action,
                                                    obj, 
                                                    entering = bool_entering)
         return
@@ -325,7 +325,7 @@ class movieMode(basicMode):
             # (somewhat of a kluge, and whether this is the best place to do it is unknown;
             #  without this the cmdname is "Done")
 
-        self.updateCommandManager(bool_entering = False)
+        self.updateCommandToolbar(bool_entering = False)
         self.w.disable_QActions_for_movieMode(False)
 
         self.connect_or_disconnect_signals(False)

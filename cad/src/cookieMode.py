@@ -160,7 +160,7 @@ class cookieMode(basicMode):
        
         #Show the flyout toolbar
         
-        #self.w.commandManager.updateCommandManager(self.propMgr.btn_list, entering =True)        
+        #self.w.commandToolbar.updateCommandToolbar(self.propMgr.btn_list, entering =True)        
         
         self.selectionShape = self.propMgr.getSelectionShape()
         

@@ -328,7 +328,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         
         self.w.toolsFuseChunksAction.setChecked(1) 
 
-        self.updateCommandManager(bool_entering = True)
+        self.updateCommandToolbar(bool_entering = True)
 
         # connect signals 
         #(these all need to be disconnected in restore_gui) [mark 050901]
@@ -346,7 +346,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
             self.rotateOption = 'ROTATEDEFAULT'
 
     def restore_gui(self):
-        self.updateCommandManager(bool_entering = False)
+        self.updateCommandToolbar(bool_entering = False)
         self.connect_or_disconnect_signals(False)
         self.w.toolsFuseChunksAction.setChecked(False)
         self.propMgr.close()
@@ -369,7 +369,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         """
 	Returns a tuple that contains mode spcific actionlists in the 
 	added in the flyout toolbar of the mode. 
-	CommandManager._createFlyoutToolBar method calls this 
+	CommandToolbar._createFlyoutToolBar method calls this 
 	@return: params: A tuple that contains 3 lists: 
 	(subControlAreaActionList, commandActionLists, allActionsList)
 	"""	
@@ -413,16 +413,16 @@ class fusechunksMode(modifyMode, fusechunksBase):
 
         return params
 
-    def updateCommandManager(self, bool_entering = True):#Ninad 20070618
+    def updateCommandToolbar(self, bool_entering = True):#Ninad 20070618
         """
-	Update the command manager
+	Update the command toolbar
 	"""	
         # object that needs its own flyout toolbar. In this case it is just 
         #the mode itself. 
 
         action = self.w.toolsFuseChunksAction
         obj = self  	    	    
-        self.w.commandManager.updateCommandManager(action,
+        self.w.commandToolbar.updateCommandToolbar(action,
                                                    obj, 
                                                    entering =bool_entering)
 

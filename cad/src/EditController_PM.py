@@ -82,7 +82,7 @@ class EditController_PM(PM_Dialog):
         PM_Dialog.show(self)
         self.connect_or_disconnect_signals(isConnect = True)
         self.enable_or_disable_gui_actions(bool_enable = False)
-        self.updateCommandManager(bool_entering = True)
+        self.updateCommandToolbar(bool_entering = True)
 
     def close(self):
         """
@@ -94,7 +94,7 @@ class EditController_PM(PM_Dialog):
             currentCommand.Done()
         self.connect_or_disconnect_signals(False)
         self.enable_or_disable_gui_actions(bool_enable = True)
-        self.updateCommandManager(bool_entering = False)
+        self.updateCommandToolbar(bool_entering = False)
         PM_Dialog.close(self) 
 
     def connect_or_disconnect_signals(self, isConnect):
@@ -307,9 +307,9 @@ class EditController_PM(PM_Dialog):
 
         return params
 
-    def updateCommandManager(self, bool_entering = True):
+    def updateCommandToolbar(self, bool_entering = True):
         """
-	Update the command manager
+	Update the command toolbar
 	Subclasses should override this method if they need their flyout toolbar
 	"""	
 

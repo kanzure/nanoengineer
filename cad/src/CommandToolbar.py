@@ -1,6 +1,7 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-CommandManager.py
+CommandToolbar.py
+
 @author: Ninad
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -8,10 +9,11 @@ CommandManager.py
 History: 
 ninad 20070109: created this in QT4 branch and subsequently modified it.
 ninad 20070125: moved ui generation code to a new file Ui_CommandManager
-ninad 20070403: implemented 'Subcontrol Area'  in the command manager, related 
+ninad 20070403: implemented 'Subcontrol Area'  in the command toolbar, related 
              changes (mainly revised _updateFlyoutToolBar,_setFlyoutDictionary) 
              and added/modified several docstrings  
 ninad 20070623:Moved _createFlyoutToolbar from modes to here and related changes
+mark 20071226: Renamed CommandManager to CommandToolbar.
 """
 
 __author__ = "Ninad"
@@ -21,14 +23,12 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QToolButton
 
-from Ui_CommandManager import Ui_CommandManager
+from Ui_CommandToolbar import Ui_CommandToolbar
 from debug import print_compact_traceback
 
-
-
-class CommandManager(Ui_CommandManager):
+class CommandToolbar(Ui_CommandToolbar):
     """
-    Command Manager is the big toolbar at the top of the 3D graphics area and
+    Command Toolbar is the big toolbar at the top of the 3D graphics area and
     the model tree. It is divided into three areas:  'Control Area', 
     and Flyout Toolbar Area' (which , in turn, includes  'SubControl Area' 
     and 'Command Area'. )
@@ -43,13 +43,13 @@ class CommandManager(Ui_CommandManager):
     
     def __init__(self, win):
         """
-        Contructor for the class CommandManager. 
+        Contructor for class CommandToolbar. 
         @param win: Mainwindow object
         @type  win: L{MWsemantics}
         """        
         self.flyoutDictionary = None
         
-        Ui_CommandManager.__init__(self, win)        
+        Ui_CommandToolbar.__init__(self, win)        
         self.setupUi()          
         self._makeConnections() 
         
@@ -85,13 +85,13 @@ class CommandManager(Ui_CommandManager):
             self._showFlyoutToolBar(True)  
             self.flyoutToolBar.clear()  
             #Menu of the checked button in the Control Area of the 
-            #command manager
+            #command toolbar
             menu = self.cmdButtonGroup.checkedButton().menu()
             
             if menu:
                 for a in menu.actions():
                     # 'action' is self.currentAction which is obtained 
-                    #when the 'updateCommandManager method is called
+                    #when the 'updateCommandToolbar method is called
                     #while entering a mode , for instance.
                     if a is action :
                         flyoutActionList = []                   
@@ -173,8 +173,8 @@ class CommandManager(Ui_CommandManager):
                 
         self.flyoutToolBar.addActions(menu.actions())
                     
-    def updateCommandManager(self, action, obj, entering = True): #Ninad 070125
-        """ Update the command manager (i.e. show the appropriate toolbar) 
+    def updateCommandToolbar(self, action, obj, entering = True): #Ninad 070125
+        """ Update the command toolbar (i.e. show the appropriate toolbar) 
         depending upon, the command button pressed . 
         It calls a private method that updates the SubcontrolArea and flyout 
         toolbar based on the ControlArea button checked and also based on the 
@@ -274,7 +274,7 @@ class CommandManager(Ui_CommandManager):
                     if text:    
                         action.setText(text)    
                 #Set a different color palette for the 'SubControl' buttons in 
-                #the command manager. 
+                #the command toolbar. 
                 if [key for (counter, key) in flyoutDictionary.keys() 
                     if key is action]:
                     btn.setAutoFillBackground(True)     
@@ -290,9 +290,11 @@ class CommandManager(Ui_CommandManager):
            
                     
     def _showFlyoutToolBar(self, bool_show):
-        """ Hide or show flyout toolbar depending upon what is requested. 
+        """
+        Hide or show flyout toolbar depending upon what is requested. 
         At the same time toggle the display of the spacer item 
-        (show it when the toolbar is hidden)"""
+        (show it when the toolbar is hidden).
+        """
         if bool_show:
             self.flyoutToolBar.show()
             self.cmdManager.layout().removeItem(self.spacerItem)

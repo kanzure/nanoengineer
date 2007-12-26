@@ -39,18 +39,20 @@ def setupUi(mainWindow):
 # probably needs a retranslateUi to add tooltips too...
 
 def activateDnaFlyout(mainWindow):
-    mainWindow.commandManager.updateCommandManager(mainWindow.buildDnaAction, 
+    mainWindow.commandToolbar.updateCommandToolbar(mainWindow.buildDnaAction, 
                                                    _theDnaFlyout)
 
     
 class DnaFlyout:    
     def __init__(self, mainWindow, parentWidget):
         """
-        Create necessary flyoot action list and update the flyout toolbar
-        in the command manager (command toolbar) with the actions provided by 
-        the object of this class.
+        Create necessary flyoot action list and update the flyout toolbar in
+        the command toolbar with the actions provided by the object of this
+        class.
+        
         @param mainWindow: The mainWindow object
-        @type mainWindow: B{MWsemantics} 
+        @type  mainWindow: B{MWsemantics} 
+        
         @param parentWidget: The parentWidget to which actions defined by this 
                              object belong to. This needs to be revised.
                              
@@ -65,7 +67,7 @@ class DnaFlyout:
         """
         Returns a tuple that contains lists of actions used to create
         the flyout toolbar. 
-        Called by CommandManager._createFlyoutToolBar().
+        Called by CommandToolbar._createFlyoutToolBar().
         @return: params: A tuple that contains 3 lists: 
         (subControlAreaActionList, commandActionLists, allActionsList)
         """
@@ -150,7 +152,7 @@ class DnaFlyout:
             return
         
         self._isActive = True
-        self.win.commandManager.updateCommandManager(self.win.buildDnaAction,
+        self.win.commandToolbar.updateCommandToolbar(self.win.buildDnaAction,
                                                      self)
         self.exitDnaAction.setChecked(True)
         self.connect_or_disconnet_signals(True)
@@ -168,7 +170,7 @@ class DnaFlyout:
             self.dnaDuplexAction.setChecked(False)
             
         self.connect_or_disconnet_signals(False)    
-        self.win.commandManager.updateCommandManager(self.win.buildDnaAction,
+        self.win.commandToolbar.updateCommandToolbar(self.win.buildDnaAction,
                                                      self,
                                                      entering = False)
 

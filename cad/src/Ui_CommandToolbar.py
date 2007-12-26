@@ -1,6 +1,6 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Ui_CommandManager.py
+Ui_CommandToolbar.py
 
 $Id$
 
@@ -8,6 +8,7 @@ History:
 
 ninad 070125: created this file, moved and modified relevant code from 
 CommandManager to this file. 
+mark 20071226: renamed from Ui_CommandManager to Ui_CommandToolbar.
 
 TODO: Code cleanup planned for Alpha 10 (lower priority) -- Ninad 2007-09-11
 
@@ -29,20 +30,20 @@ from PyQt4.Qt import QPalette
 
 from icon_utilities import geticon
 from wiki_help import QToolBar_WikiHelp
-from CmdMgr_Constants import cmdMgrCntrlAreaBtnColor
-from CmdMgr_Constants import cmdMgrSubCntrlAreaBtnColor
-from CmdMgr_Constants import cmdMgrCmdAreaBtnColor
+from CommandToolbar_Constants import cmdTbarCntrlAreaBtnColor
+from CommandToolbar_Constants import cmdTbarSubCntrlAreaBtnColor
+from CommandToolbar_Constants import cmdTbarCmdAreaBtnColor
 
 from PM.PM_Colors import getPalette
 
-class Ui_CommandManager:
+class Ui_CommandToolbar:
     """ 
-    This provides most of the User Interface for the command manager 
-    toolbar Called in CommandManager class
+    This provides most of the User Interface for the command toolbar 
+    called in CommandToolbar class.
     """
     def __init__(self, win):
         """
-        Contructor for the class Ui_CommandManager. 
+        Contructor for class Ui_CommandToolbar. 
         @param win: Mainwindow object
         @type  win: L{MWsemantics}
         """
@@ -50,12 +51,15 @@ class Ui_CommandManager:
     
     def setupUi(self):
         """
-        Setup the UI for command manager toolbar
+        Setup the UI for the command toolbar.
         """
+        # To do: remove attr cmdManager. IIRC, this isn't needed if 
+        # we subclass QWidget.
+        
         self.cmdManager = QWidget()
         #ninad 070123 : Its important to set the Vertical size policy of the 
         # cmd manager widget. otherwise the flyout QToolbar messes up the 
-        #layout (makes the command manager twice as big) 
+        #layout (makes the command toolbar twice as big) 
         #I have set the vertical policy as fixed. Works fine. There are some 
         # MainWindow resizing problems for but those are not due to this 
         #size policy AFAIK        
@@ -65,22 +69,22 @@ class Ui_CommandManager:
         layout_cmd_mgr.setMargin(2)
         layout_cmd_mgr.setSpacing(2)
                                     
-        self.cmdManagerControlArea = QToolBar_WikiHelp(self.cmdManager)             
-        self.cmdManagerControlArea.setAutoFillBackground(True)
+        self.cmdToolbarControlArea = QToolBar_WikiHelp(self.cmdManager)             
+        self.cmdToolbarControlArea.setAutoFillBackground(True)
                 
         self.ctrlAreaPalette = self.getCmdMgrCtrlAreaPalette()  
-        self.cmdManagerControlArea.setPalette(self.ctrlAreaPalette)
+        self.cmdToolbarControlArea.setPalette(self.ctrlAreaPalette)
                 
-        self.cmdManagerControlArea.setMinimumHeight(62)
-        self.cmdManagerControlArea.setMinimumWidth(310)
-        self.cmdManagerControlArea.setSizePolicy(QSizePolicy.Fixed, 
+        self.cmdToolbarControlArea.setMinimumHeight(62)
+        self.cmdToolbarControlArea.setMinimumWidth(310)
+        self.cmdToolbarControlArea.setSizePolicy(QSizePolicy.Fixed, 
                                                  QSizePolicy.Fixed)  
         
         self.cmdButtonGroup = QButtonGroup()    
         btn_index = 0
         
         for name in ('Build', 'Tools', 'Move', 'Simulation'):
-            btn = QToolButton(self.cmdManagerControlArea)           
+            btn = QToolButton(self.cmdToolbarControlArea)           
             btn.setObjectName(name)
             btn.setMinimumWidth(75)
             btn.setMaximumWidth(75)
@@ -96,16 +100,16 @@ class Ui_CommandManager:
             btn.setPalette(self.ctrlAreaPalette)
             self.cmdButtonGroup.addButton(btn, btn_index)
             btn_index += 1           
-            self.cmdManagerControlArea.layout().addWidget(btn)
+            self.cmdToolbarControlArea.layout().addWidget(btn)
             
             #following has issues. so not adding widget directly to the 
             #toolbar. (instead adding it in its layout)-- ninad 070124 
             
-            #self.cmdManagerControlArea.addWidget(btn)      
+            #self.cmdToolbarControlArea.addWidget(btn)      
         
-        layout_cmd_mgr.addWidget(self.cmdManagerControlArea) 
+        layout_cmd_mgr.addWidget(self.cmdToolbarControlArea) 
         
-        #Flyout Toolbar in the command manager  
+        #Flyout Toolbar in the command toolbar  
         self.flyoutToolBar = QToolBar_WikiHelp(self.cmdManager) 
         self.flyoutToolBar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         self.flyoutToolBar.addSeparator()
@@ -117,7 +121,7 @@ class Ui_CommandManager:
         layout_cmd_mgr.addWidget(self.flyoutToolBar)   
         
         #ninad 070116: Define a spacer item. It will have the exact geometry 
-        # as that of the flyout toolbar. it is added to the command manager 
+        # as that of the flyout toolbar. it is added to the command toolbar 
         # layout only when the Flyout Toolbar is hidden. It is required
         # to keep the 'Control Area' widget fixed in its place (otherwise, 
         #after hiding the flyout toolbar, the layout adjusts the position of 
@@ -134,16 +138,16 @@ class Ui_CommandManager:
                 btn.setMenu(self.win.buildStructuresMenu)
                 btn.setPopupMode(QToolButton.MenuButtonPopup)
             if str(btn.objectName()) == 'Tools':
-                #fyi: cmt stands for 'command manager toolbar' - ninad070406
-                self.win.cmtToolsMenu = QtGui.QMenu(self.win)
-                self.win.cmtToolsMenu.addAction(self.win.toolsExtrudeAction) 
-                self.win.cmtToolsMenu.addAction(self.win.toolsFuseChunksAction)
-                self.win.cmtToolsMenu.addSeparator()
-                self.win.cmtToolsMenu.addAction(self.win.modifyMergeAction)
-                self.win.cmtToolsMenu.addAction(self.win.modifyMirrorAction)
-                self.win.cmtToolsMenu.addAction(self.win.modifyInvertAction)
-                self.win.cmtToolsMenu.addAction(self.win.modifyStretchAction)
-                btn.setMenu(self.win.cmtToolsMenu)
+                #fyi: cmd stands for 'command toolbar' - ninad070406
+                self.win.cmdToolsMenu = QtGui.QMenu(self.win)
+                self.win.cmdToolsMenu.addAction(self.win.toolsExtrudeAction) 
+                self.win.cmdToolsMenu.addAction(self.win.toolsFuseChunksAction)
+                self.win.cmdToolsMenu.addSeparator()
+                self.win.cmdToolsMenu.addAction(self.win.modifyMergeAction)
+                self.win.cmdToolsMenu.addAction(self.win.modifyMirrorAction)
+                self.win.cmdToolsMenu.addAction(self.win.modifyInvertAction)
+                self.win.cmdToolsMenu.addAction(self.win.modifyStretchAction)
+                btn.setMenu(self.win.cmdToolsMenu)
                 btn.setPopupMode(QToolButton.MenuButtonPopup)
             if str(btn.objectName()) == 'Move':
                 self.win.moveMenu = QtGui.QMenu(self.win)
@@ -237,7 +241,7 @@ class Ui_CommandManager:
         
         #@@@ ninad 070126. Not calling this method as it is creating an annoying
         #resizing problem in the Command manager layout. Possible solution is 
-        #to add a spacer item in a vbox layout to the command manager layout
+        #to add a spacer item in a vbox layout to the command toolbar layout
         
         stringlist = text.split(" ", QString.SkipEmptyParts)
         text2 = QString()
@@ -250,34 +254,34 @@ class Ui_CommandManager:
         return None
     
     ##==================================================================##
-    #color palettes (UI stuff) for different command manager areas
+    #color palettes (UI stuff) for different command toolbar areas
    
     def getCmdMgrCtrlAreaPalette(self): 
         """ Return a palette for Command Manager control area 
-        (Palette for Tool Buttons in command manager control area)
+        (Palette for Tool Buttons in command toolbar control area)
         """
         return getPalette(None,
                           QPalette.Button,
-                          cmdMgrCntrlAreaBtnColor
+                          cmdTbarCntrlAreaBtnColor
                           )
     
     def getCmdMgrSubCtrlAreaPalette(self):
         """ Return a palette for Command Manager sub control area 
-        (Palette for Tool Buttons in command manager sub control area)
+        (Palette for Tool Buttons in command toolbar sub control area)
         """
         #Define the color role. Make sure to apply color to QPalette.Button 
         #instead of QPalette.Window as it is a QToolBar. - ninad 20070619
         
         return getPalette(None,
                           QPalette.Button,
-                          cmdMgrSubCntrlAreaBtnColor
+                          cmdTbarSubCntrlAreaBtnColor
                           )
     
     def getCmdMgrCommandAreaPalette(self):
         """ Return a palette for Command Manager 'Commands area'(flyout toolbar)
-        (Palette for Tool Buttons in command manager command area)
+        (Palette for Tool Buttons in command toolbar command area)
         """
         return getPalette(None,
                           QPalette.Button,
-                          cmdMgrCmdAreaBtnColor
+                          cmdTbarCmdAreaBtnColor
                           )

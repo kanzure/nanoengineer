@@ -212,9 +212,9 @@ packageMapping = {
     "chunk"                            : "model",
     "ChunkProp"                        : "ui",
     "ChunkPropDialog"                  : "ui",
-    "CmdMgr_Constants"                 : "ui",
+    "CommandToolbar_Constants"         : "ui",
     "Command"                          : "command",
-    "CommandManager"                   : "ui",
+    "CommandToolbar"                   : "ui",
     "CommandSequencer"                 : "ui",
     "Comment"                          : "model",
     "CommentProp"                      : "ui",
@@ -491,7 +491,7 @@ packageMapping = {
     "Ui_BuildStructuresToolBar"        : "ui/toolbar",
     "Ui_BuildToolsMenu"                : "ui/menu",
     "Ui_BuildToolsToolBar"             : "ui/toolbar",
-    "Ui_CommandManager"                : "ui/toolbar",#?
+    "Ui_CommandToolbar"                : "ui/toolbar",#?
     "Ui_CookiePropertyManager"         : "ui/propmgr|Build Crystal",
     "Ui_DimensionsMenu"                : "ui/menu",#?
     "Ui_DnaFlyout"                     : "ui/toolbar|dna",

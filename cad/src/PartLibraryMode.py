@@ -83,7 +83,7 @@ class PartLibraryMode(PasteMode):
         self.propMgr.show()     
         
         self.connect_or_disconnect_signals(True)
-        self.updateCommandManager(bool_entering = True)
+        self.updateCommandToolbar(bool_entering = True)
         
         self.dont_update_gui = False
         

@@ -179,7 +179,7 @@ class depositMode(selectAtomsMode):
             
         self.propMgr.show()
         
-        self.updateCommandManager(bool_entering = True)
+        self.updateCommandToolbar(bool_entering = True)
         
         
         if self.depositAtomsAction.isChecked():
@@ -324,7 +324,7 @@ class depositMode(selectAtomsMode):
         
         change_connect(self.subControlActionGroup, 
                        SIGNAL("triggered(QAction *)"),
-                       self.updateCommandManager)
+                       self.updateCommandToolbar)
         
         change_connect(self.transmuteBondsAction, 
                        SIGNAL("triggered()"), 
@@ -353,7 +353,7 @@ class depositMode(selectAtomsMode):
         """
         Returns a tuple that contains mode spcific actionlists in the 
         added in the flyout toolbar of the mode. 
-        CommandManager._createFlyoutToolBar method calls this 
+        CommandToolbar._createFlyoutToolBar method calls this 
         @return: params: A tuple that contains 3 lists: 
         (subControlAreaActionList, commandActionLists, allActionsList)
         """
@@ -444,12 +444,12 @@ class depositMode(selectAtomsMode):
         
         return params
     
-    def updateCommandManager(self, bool_entering = True):
+    def updateCommandToolbar(self, bool_entering = True):
         """
-        Update the command manager
+        Update the command toolbar.
         """        
         obj = self
-        self.w.commandManager.updateCommandManager(self.w.toolsDepositAtomAction,
+        self.w.commandToolbar.updateCommandToolbar(self.w.toolsDepositAtomAction,
                                                    obj, 
                                                    entering = bool_entering)
         return
@@ -719,7 +719,7 @@ class depositMode(selectAtomsMode):
         self.w.toolsDepositAtomAction.setChecked(False)
         self.connect_or_disconnect_signals(False)
         self.enable_gui_actions(True)
-        self.updateCommandManager(bool_entering = False)
+        self.updateCommandToolbar(bool_entering = False)
         self.propMgr.close()
         
                                 

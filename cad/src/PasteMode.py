@@ -79,7 +79,7 @@ class PasteMode(depositMode):
         self.propMgr.show()     
         
         self.connect_or_disconnect_signals(True)
-        self.updateCommandManager(bool_entering = True)
+        self.updateCommandToolbar(bool_entering = True)
         
         #Following is required to make sure that the 
         #clipboard groupbox in paste mode is updated 
@@ -119,7 +119,7 @@ class PasteMode(depositMode):
         self.propMgr.close()
         self.connect_or_disconnect_signals(False)
         self.enable_gui_actions(True)
-        self.updateCommandManager(bool_entering = False)
+        self.updateCommandToolbar(bool_entering = False)
             
     def keyPress(self, key):
         """
@@ -154,7 +154,7 @@ class PasteMode(depositMode):
         @return: A tuple that contains 3 lists: subControlAreaActionList, 
                commandActionLists and allActionsList
         @rtype: tuple
-        @see: L{CommandManager._createFlyoutToolBar} which calls this. 
+        @see: L{CommandToolbar._createFlyoutToolBar} which calls this. 
         """
         
         subControlAreaActionList = []

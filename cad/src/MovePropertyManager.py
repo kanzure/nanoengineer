@@ -193,10 +193,11 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
 
     def activate_translateGroupBox(self):
-        """Show contents of this groupbox, deactivae the other groupbox. 
+        """
+        Show contents of this groupbox, deactivae the other groupbox. 
         Also check the button that was checked when this groupbox  was active 
         last time. (if applicable) This button is called when 
-        toolsMoveMoleculeAction is checked from the toolbar or command manager. 
+        toolsMoveMoleculeAction is checked from the toolbar or command toolbar. 
         see also: activate_translateGroupBox_using_groupButton
         """
 
@@ -235,7 +236,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         """Show contents of this groupbox, deactivae the other groupbox. 
         Also check the button that was checked when this groupbox  was active 
         last time. (if applicable). This button is called when 
-        rotateComponentsAction is checked from the toolbar or command manager. 
+        rotateComponentsAction is checked from the toolbar or command toolbar. 
         @see: L{self.activate_rotateGroupBox_using_groupButton}
         """
 

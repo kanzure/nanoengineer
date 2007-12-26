@@ -372,7 +372,7 @@ class extrudeMode(basicMode):
         """
         Returns a tuple that contains mode specific actionlists in the 
 	added in the flyout toolbar of the mode. 
-	CommandManager._createFlyoutToolBar method calls this 
+	CommandToolbar._createFlyoutToolBar method calls this 
         
 	@return: params: A tuple that contains 3 lists: 
 	(subControlAreaActionList, commandActionLists, allActionsList).
@@ -417,16 +417,16 @@ class extrudeMode(basicMode):
 
         return params
 
-    def updateCommandManager(self, bool_entering = True): #Ninad 20070622
+    def updateCommandToolbar(self, bool_entering = True): #Ninad 20070622
         """
-        Update the command manager.
+        Update the command toolbar.
         """	
         # object that needs its own flyout toolbar. In this case it is just 
         #the mode itself. 
 
         action = self.w.toolsFuseChunksAction
         obj = self  	    	    
-        self.w.commandManager.updateCommandManager(action,
+        self.w.commandToolbar.updateCommandToolbar(action,
                                                    obj, 
                                                    entering = bool_entering)
         return
@@ -1078,7 +1078,7 @@ class extrudeMode(basicMode):
             # this makes Undo menu commands and tooltips look like "Undo (not permitted during Extrude)" (and similarly for Redo)
 
         # bruce 070813 moved this here from Enter:
-        self.updateCommandManager(bool_entering = True) #ninad20070622
+        self.updateCommandToolbar(bool_entering = True) #ninad20070622
         self.connect_or_disconnect_signals(True)
         ## i think this is safer *after* the first update_from_controls, not before it...
         # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
@@ -1328,7 +1328,7 @@ class extrudeMode(basicMode):
         # [bruce 060414 moved this earlier in the method]
         self.w.disable_QActions_for_extrudeMode(False)
 
-        self.updateCommandManager(bool_entering = False)
+        self.updateCommandToolbar(bool_entering = False)
 
         self.connect_or_disconnect_signals(False) #bruce 060412, hoping it helps with bug 1750
 

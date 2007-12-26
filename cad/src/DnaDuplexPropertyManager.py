@@ -597,12 +597,12 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
                 self.endPoint1, 
                 self.endPoint2)
 
-    def DISABLED_TEMPORARILY_updateCommandManager(self, bool_entering = True):
+    def DISABLED_TEMPORARILY_updateCommandToolbar(self, bool_entering = True):
         """
-	Update the command manager flyout toolbar 
+	Update the flyout toolbar 
 	"""
         #self.win.buildDnaAction is the action in Build menu in the control 
-        # area. So when the Build button is checked, the command manager will 
+        # area. So when the Build button is checked, the command toolbar will 
         # show a custom flyout toolbar. 
         # Note to Eric M:
         # This needs cleanup. It's a temporary implementation --ninad20071025
@@ -610,6 +610,6 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         action = self.win.buildDnaAction
 
         obj = self  	    	    
-        self.win.commandManager.updateCommandManager(action,
+        self.win.commandToolbar.updateCommandToolbar(action,
                                                      obj, 
                                                      entering =bool_entering)

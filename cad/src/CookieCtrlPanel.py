@@ -127,11 +127,13 @@ class CookieCtrlPanel(CookiePropertyManager):
 
                                         
     def getFlyoutActionList(self):
-        """ Returns a tuple that contains mode-specific actionlists in the 
+        """
+        Returns a tuple that contains mode-specific actionlists in the 
         added in the flyout toolbar of the mode. 
-        CommandManager._createFlyoutToolBar method calls this 
+        CommandToolbar._createFlyoutToolBar method calls this 
         @return: params: A tuple that contains 3 lists: 
-        (subControlAreaActionList, commandActionLists, allActionsList)"""       
+        (subControlAreaActionList, commandActionLists, allActionsList).
+        """       
         
         #'allActionsList' returns all actions in the flyout toolbar 
         #including the subcontrolArea actions
@@ -176,8 +178,10 @@ class CookieCtrlPanel(CookiePropertyManager):
         return params
     
     
-    def updateCommandManager(self, bool_entering = True):
-        ''' Update the Command Manager '''
+    def updateCommandToolbar(self, bool_entering = True):
+        """
+        Update the Command Toolbar.
+        """
         if bool_entering:
             action = self.w.toolsCookieCutAction        
         else:
@@ -188,7 +192,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         #  now say, instead of 'mode'?] 
         obj = self  
                     
-        self.w.commandManager.updateCommandManager(action,
+        self.w.commandToolbar.updateCommandToolbar(action,
                                                    obj, 
                                                    entering = bool_entering)
     
@@ -262,7 +266,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         
         self.show()
 
-        self.updateCommandManager(bool_entering = True)
+        self.updateCommandToolbar(bool_entering = True)
                         
         self.latticeCBox.setEnabled(True)
 
@@ -301,7 +305,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         Restore GUI items when exiting from the PM (command).
         """
                 
-        self.updateCommandManager(bool_entering = False)
+        self.updateCommandToolbar(bool_entering = False)
                 
         self.w.toolsCookieCutAction.setChecked(0) # Toggle cookie cutter icon
         
