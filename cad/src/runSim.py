@@ -37,8 +37,8 @@ from PlatformDependent import hhmmss_str
 import os, sys, time
 from math import sqrt
 from SimSetup import SimSetup
-from PyQt4.Qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject,\
-    QFileInfo, SIGNAL
+from PyQt4.Qt import QApplication, QCursor, Qt, QStringList
+from PyQt4.Qt import QProcess, QObject, QFileInfo, SIGNAL
 from movie import Movie
 from utilities.Log import redmsg, greenmsg, orangemsg, quote_html, _graymsg
 import env

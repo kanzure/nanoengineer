@@ -29,8 +29,9 @@ import env
 
 from utilities.Log import greenmsg
 from qutemol import launch_qutemol, write_qutemol_files
-from files_pdb import EXCLUDE_HIDDEN_ATOMS, EXCLUDE_DNA_AXIS_BONDS, \
-     EXCLUDE_DNA_AXIS_ATOMS
+from files_pdb import EXCLUDE_HIDDEN_ATOMS
+from files_pdb import EXCLUDE_DNA_AXIS_BONDS
+from files_pdb import EXCLUDE_DNA_AXIS_ATOMS
 
 class QuteMolPropertyManager(PM_Dialog):
     """

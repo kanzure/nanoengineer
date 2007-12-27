@@ -208,10 +208,13 @@ def importsInFile(fileName):
     importSet = set([])
     fromModuleName = fileNameToModuleName(fileName)
     fromModule = moduleToDotNode(fromModuleName, optionByPackage)
+    continuationWarning = False
     f = open(fileName)
     for line in f:
         m = fromImportLineRegex.match(line)
         if (m):
+            if (continuationWarning or line.rstrip().endswith("\\")):
+                continuationWarning = True
             if (isPackage(m.group(1))):
                 packageName = m.group(1)
                 moduleImportList = m.group(2).strip().split(',')
@@ -233,6 +236,8 @@ def importsInFile(fileName):
             continue
         m = importLineRegex.match(line)
         if (m):
+            if (continuationWarning or line.rstrip().endswith("\\")):
+                continuationWarning = True
             toModuleList = m.group(1).strip().split(',')
             for toModuleName in toModuleList:
                 toModuleName = toModuleName.strip()
@@ -244,6 +249,8 @@ def importsInFile(fileName):
                     importSet.add(toModule)
                     printPackage(fromModule, toModule, fromModuleName, toModuleName)
     f.close()
+    if (continuationWarning):
+        print >>sys.stderr, "WARNING: continued import statement in " + fileName
     if (moduleNameToImportList.has_key(fromModule)):
         # this happens if we're operating by package
         importSet = importSet.union(moduleNameToImportList[fromModule])
