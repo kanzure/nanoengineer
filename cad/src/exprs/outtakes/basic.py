@@ -97,8 +97,8 @@ reload_once(exprs.attr_decl_macros)
 
 import exprs.instance_helpers
 reload_once(exprs.instance_helpers)
-from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin, DelegatingInstanceOrExpr, InstanceMacro, \
-     _this, ModelObject, WithModelType, WithAttributes
+from exprs.instance_helpers import InstanceOrExpr, DelegatingMixin, DelegatingInstanceOrExpr, InstanceMacro
+from exprs.instance_helpers import _this, ModelObject, WithModelType, WithAttributes
 
 import exprs.If_expr # 061128
 reload_once(exprs.If_expr)
