@@ -1138,7 +1138,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     modifyMergeActionText = \
         "<u><b>Merge Chunks</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/Tools/Build Tools/Merge.png\"><br> "\
+        "<img source=\"ui/actions/Tools/Build Tools/Combine_Chunks.png\"><br> "\
         "Merges two or more chunks into a single chunk.</p>"
 
     win.modifyMergeAction.setWhatsThis(modifyMergeActionText )  
