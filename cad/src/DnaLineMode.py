@@ -152,9 +152,9 @@ class DnaLineMode(LineMode):
     # class constants    
     commandName = 'DNA_LINE_MODE'    
     featurename = "DNA Line Mode"
-        # (I don't know if this featurename is ever user-visible;
-        #  if it is, it's probably wrong -- see comments in LineMode
-        #  for more info. [bruce 071227])
+        # (This featurename is sometimes user-visible,
+        #  but is probably not useful. See comments in LineMode
+        #  for more info and how to fix. [bruce 071227])
     
     GraphicsMode_class = DnaLine_GM
         

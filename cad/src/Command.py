@@ -52,7 +52,7 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
     """
     abstract superclass for all Command objects, including nullCommand
     """
-        
+    
     # default values for command-object attributes.  external code
     # assumes every command has these attributes, but it should pretend
     # they're read-only; command-related code (in this file) can override
@@ -65,6 +65,8 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
     commandName = "(bug: missing commandName 1)" 
     # name of command to be shown to users, as a phrase, e.g. 'sketch command'
     msg_commandName = "(bug: unknown command)"
+
+    featurename = ""
     
     # Command's property manager. Subclasses should initialize the propMgr object 
     # if they need one.     
@@ -152,6 +154,9 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
         # at an early stage of startup, before the usual method would work.
         return False
 
+    def get_featurename(self):
+        return ""
+    
     pass # end of class anyCommand
 
 
@@ -320,7 +325,7 @@ class basicCommand(anyCommand):
 
     # ==
     
-    def _user_commandName(self):
+    def _user_commandName(self): # remove this and its only use in a couple days [bruce 071227]
         """
         Return a string such as "Move Mode" or "Build Atoms Mode" --
         the name of this command for showing to users; or "" if unknown.
@@ -369,25 +374,6 @@ class basicCommand(anyCommand):
                   (self.__class__.__name__, res, self._user_commandName())
             if not env.seen_before(msg):
                 print msg
-
-# remove after commit: this approach doesn't work, e.g. for
-# SelectChunks_Command inheriting SelectChunks_basicCommand
-##        # if same as in any superclass, print warning and append classname
-##        same = False
-##        for superclass in self.__class__.__bases__:
-##            super_featurename = getattr(superclass, 'featurename', "")
-##            if super_featurename and super_featurename == res:
-##                same = True
-##                # TODO: if this ever happens routinely, provide a way to turn
-##                # off the print and appended classname -- or (easier) just
-##                # require the affected class to override this method.
-##                msg = "developer warning: in class %r, .featurename %r is same"\
-##                      " as in superclass %r (should be overridden)" % \
-##                      (self.__class__.__name__, res, superclass)
-##                if not env.seen_before(msg):
-##                    print msg
-##                break
-##            continue
         
         # if same as in any other class, print warning and append classname
         # (todo: if this ever happens routinely, provide a way to turn

@@ -202,7 +202,7 @@ def featurename_for_object(object):
     """
     try:
         method = object.get_featurename
-    except:
+    except AttributeError:
         return ""
     return method()
 
