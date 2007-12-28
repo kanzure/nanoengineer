@@ -138,7 +138,13 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         try:
             self._addWhatsThisText()
         except:
-            print_compact_traceback("error loading whatsthis text for this " \
+            print_compact_traceback("Error loading whatsthis text for this " \
+                                    "property manager.")
+        
+        try:
+            self._addToolTipText()
+        except:
+            print_compact_traceback("Error loading tool tip text for this " \
                                     "property manager.")
                                     
     
@@ -153,6 +159,13 @@ class PM_Dialog( QDialog, SponsorableMixin ):
     def _addWhatsThisText(self):
         """
         Add what's this text. 
+        Subclasses should override this  method. 
+        """
+        pass
+    
+    def _addToolTipText(self):
+        """
+        Add Tool tip text. 
         Subclasses should override this  method. 
         """
         pass
