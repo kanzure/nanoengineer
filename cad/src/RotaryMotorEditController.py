@@ -11,12 +11,12 @@ ninad 2007-10-09: Created. This deprecates 'RotoryMotorGenerator'
 """
 
 import env
-from utilities.Log import redmsg, greenmsg, orangemsg
-from jigs_motors import RotaryMotor
+from utilities.Log   import redmsg, greenmsg, orangemsg
+from jigs_motors     import RotaryMotor
 from jigmakers_Mixin import atom_limit_exceeded_and_confirmed
+from EditController  import EditController
 
-from EditController import EditController
-from RotaryMotorPropertyManager import RotaryMotorPropertyManager
+from SelectAtoms_GraphicsMode   import SelectAtoms_GraphicsMode
 
 class RotaryMotorEditController(EditController):
     """
@@ -38,6 +38,8 @@ class RotaryMotorEditController(EditController):
     command_has_its_own_gui = True
     commandName = 'ROTARY_MOTOR'
     
+    GraphicsMode_class = SelectAtoms_GraphicsMode
+    
     def __init__(self, commandSequencer, struct = None):
         """
         Constructs an Edit Controller Object. The editController, 
@@ -57,6 +59,10 @@ class RotaryMotorEditController(EditController):
         """ 
         EditController.__init__(self, commandSequencer)
         self.struct = struct
+    
+    def Enter(self):
+        EditController.Enter(self)
+        self.o.assy.permit_pick_atoms()
     
     def init_gui(self):
         """

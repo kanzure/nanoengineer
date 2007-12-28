@@ -11,12 +11,12 @@ ninad 2007-10-09: Created.
 """
 
 import env
-from utilities.Log import redmsg, greenmsg, orangemsg
-from jigs_motors import LinearMotor
+from utilities.Log   import redmsg, greenmsg, orangemsg
+from jigs_motors     import LinearMotor
 from jigmakers_Mixin import atom_limit_exceeded_and_confirmed
+from EditController  import EditController
 
-from EditController import EditController
-from LinearMotorPropertyManager import LinearMotorPropertyManager
+from SelectAtoms_GraphicsMode   import SelectAtoms_GraphicsMode
 
 class LinearMotorEditController(EditController):
     """
@@ -38,6 +38,7 @@ class LinearMotorEditController(EditController):
     command_has_its_own_gui = True
     commandName = 'LINEAR_MOTOR'
     
+    GraphicsMode_class = SelectAtoms_GraphicsMode    
     
     def __init__(self, commandSequencer, struct = None):
         """

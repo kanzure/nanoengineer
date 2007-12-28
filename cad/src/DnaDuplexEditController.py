@@ -43,6 +43,7 @@ from Ui_DnaFlyout import DnaFlyout
 
 from Dna_Constants import getNumberOfBasePairsFromDuplexLength, getDuplexRise
 from Dna_Constants import getDuplexLength
+from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 
 class DnaDuplexEditController(EditController):
     """
@@ -54,6 +55,8 @@ class DnaDuplexEditController(EditController):
     prefix           =  'DNA-'   # used for gensym
     cmdname          = "Duplex"
     commandName         = 'DNA_DUPLEX'
+    
+    GraphicsMode_class = SelectChunks_GraphicsMode
     
     command_should_resume_prevMode = False
     command_has_its_own_gui = True
@@ -90,6 +93,7 @@ class DnaDuplexEditController(EditController):
             self.flyoutToolbar = DnaFlyout(self.win, self.propMgr)
         
         self.flyoutToolbar.activateFlyoutToolbar()
+        print "***self.graphicsMode =", self.graphicsMode.__class__.__name__
     
     def restore_gui(self):
         """
