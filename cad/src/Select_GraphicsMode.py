@@ -323,28 +323,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
         return
     
-    def update_cursor_for_no_MB(self):
-        """
-        Update the cursor for Select mode (Default implementation).
-        """
-
-        # print "selectMolsMode.update_cursor_for_no_MB(): button=",\
-        #  self.o.button,"modkeys=",self.o.modkeys
-
-        if self.o.modkeys is None:
-            ##print "seeing modkeys is None",self.w.MolSelCursor #bruce 070628
-            ##self.o.gl_update()  #bruce 070628, didn't help
-            self.o.setCursor(self.w.MolSelCursor)
-        elif self.o.modkeys == 'Shift':
-            self.o.setCursor(self.w.MolSelAddCursor)
-        elif self.o.modkeys == 'Control':
-            self.o.setCursor(self.w.MolSelSubCursor)
-        elif self.o.modkeys == 'Shift+Control':
-            self.o.setCursor(self.w.DeleteCursor)
-        else:
-            print "Error in update_cursor_for_no_MB(): " \
-                  "Invalid modkey=", self.o.modkeys
-        return
+    
 
     # == drag_handler event handler methods [bruce 060728]======================
 
@@ -1153,15 +1132,11 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
 
     def _getAtomHighlightColor(self, selobj):
         """
-	Return the Atom highlight color 
+	Return the Atom highlight color. Default implementation returns 'None' 
+        Overridden in subclasses. 
 	@return: Highlight color of the object (Atom or Singlet)
 	""" 
-        assert isinstance(selobj, Atom)
-        
-        if self.o.modkeys == 'Shift+Control':
-            return env.prefs[deleteAtomHighlightColor_prefs_key]
-        else:
-            return env.prefs[atomHighlightColor_prefs_key]
+        return None
 
     def _getBondHighlightColor(self, selobj):
         """

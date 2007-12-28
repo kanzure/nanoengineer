@@ -57,6 +57,10 @@ class Select_basicCommand(basicCommand):
     hover_highlighting_enabled = True
     # Set this to False if you want to disable hover highlighting.
     
+    # Don't highlight singlets. (This attribute is set to True in
+    # SelectAtoms_Command)
+    highlight_singlets = False
+    
     def __init__(self, commandSequencer):
         """
         ...

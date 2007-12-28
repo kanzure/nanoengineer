@@ -17,6 +17,7 @@ from utilities.Log import greenmsg
 from EditCommand import EditCommand
 from PlanePropertyManager import PlanePropertyManager
 from Plane import  Plane
+from SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
 
 class Plane_EditCommand(EditCommand):
@@ -42,6 +43,8 @@ class Plane_EditCommand(EditCommand):
     command_has_its_own_gui = True
     
     commandName = 'REFERENCE_PLANE'
+    
+    GraphicsMode_class = SelectAtoms_GraphicsMode
     
     
     def __init__(self, commandSequencer, struct = None):
