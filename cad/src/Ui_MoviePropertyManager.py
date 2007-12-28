@@ -273,5 +273,13 @@ class Ui_MoviePropertyManager(PM_Dialog):
         self.movieInfoAction.setObjectName("movieInfoAction")
         self.movieInfoAction.setIcon(
             geticon("ui/actions/Properties Manager/Movie_Info"))
-        
-        return
+
+
+            
+    def _addWhatsThisText(self):
+            """
+            What's This text for widgets in this Property Manager.  
+    
+            """
+            from gui.WhatsThisText_for_PropertyManagers import whatsThis_MoviePropertyManager
+            whatsThis_MoviePropertyManager(self)

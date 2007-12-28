@@ -23,9 +23,48 @@ def whatsThis_DnaDuplexPropertyManager(propMgr):
         """<b>Conformation</b>
         <p>
         DNA exists in several possible conformations, with
-        A-DNA, B-DNA, and Z-DNA being the most common. 
-        <br>
+        A-DNA, B-DNA, and Z-DNA being the most common.</p> 
+        <p>
         Only B-DNA is currently supported in NanoEngineer-1.
+        </p>""")
+    
+    propMgr.dnaModelComboBox.setWhatsThis(
+        """<b>Model Choice</b>
+        <p>
+        Selects between the model types supported by NanoEngineer-1: PAM3,
+        PAM5, and atomistic representations of DNA.
+        </p>""")
+    
+    propMgr.numberOfBasePairsSpinBox.setWhatsThis(
+        """<b>Base Pairs</b>
+        <p>
+        Allows the user to create a duplex by specifying the number 
+        of base pairs
+        </p>""")
+    
+    propMgr.basesPerTurnDoubleSpinBox.setWhatsThis(
+           """<b>Bases Per Turn</b>
+        <p>
+        Allows the user to specifying the number of base pairs between one full 
+        turn of the DNA helix
+        </p>""")
+    
+    propMgr.duplexLengthLineEdit.setWhatsThis(
+        """<b>Duplex Length</b>
+        <p>
+        Displays the length of the DNA duplex in Angstroms
+        </p>""")
+    
+    propMgr.dnaRubberBandLineDisplayComboBox.setWhatsThis(
+        """<b>Display As</b>
+        <p>
+        Selects between Ribbon and Ladder display styles
+        </p>""")
+    
+    propMgr.lineSnapCheckBox.setWhatsThis(
+     """<b>Enable Line Snap</b>
+        <p>
+        When checked a duplex will be constrained to a grid
         </p>""")
     
     return # End of whatsThis_DnaDuplexPropertyManager
@@ -411,6 +450,140 @@ def whatsThis_MovePropertyManager(propMgr):
     
     return # End of whatsThis_DnaDuplexPropertyManager
 
+def whatsThis_MoviePropertyManager(propMgr):
+    """
+    "What's This" text for widgets in the Movie Property Manager.
+    """
+    propMgr.frameNumberSpinBox.setWhatsThis(
+        """<b>Frame Number</b>
+        <p>
+        Advances the movie to a specified frame 
+        </p>""")
+    
+    propMgr.movieLoop_checkbox.setWhatsThis(
+          """<b>Loop</b>
+        <p>
+        Displays the movie as a continuous loop. When enabled the movie player
+        will automatically reset to the first frame after the last frame 
+        is shown and replay the movie. 
+        </p>""")
+    
+    propMgr.frameSkipSpinBox.setWhatsThis(
+        """<b>Skip</b>
+        <p>
+        Allows you to skip the entered amount of frames during movie playback.
+        </p>""")
+    
+    propMgr.fileOpenMovieAction.setWhatsThis(
+          """<b>Open Movie File</b>
+        <p>
+        Loads an exsisting movie from file
+        </p>""")
+    
+    propMgr.fileSaveMovieAction.setWhatsThis(
+          """<b>Save Movie File</b>
+        <p>
+        Loads and exsisting movie file or saves the file as a POV-ray series 
+        to be used in an animation
+        </p>""")
+    
+    propMgr.moviePlayRevAction.setWhatsThis(
+        """<b>Play Reverse</b>
+        <p>
+        Plays the movie backward in time
+        </p>""")
+    
+    propMgr.moviePlayAction.setWhatsThis(
+     """<b>Play Forward</b>
+        <p>
+        Plays the movie forward in time
+        </p>""")
+    
+    propMgr.moviePauseAction.setWhatsThis(
+        """<b>Pause Movie</b>
+        <p>
+        Pauses movie on current frame
+        </p>""")
+    
+    propMgr.movieMoveToEndAction.setWhatsThis(
+        """<b>Advance to End</b>
+        <p>
+        Advances movie to last frame
+        </p>""")
+    
+    propMgr.movieResetAction.setWhatsThis(
+         """<b>Reset Movie</b>
+        <p>
+        Advances movie to first frame
+        </p>""")
+    
+    propMgr.frameNumberSlider.setWhatsThis(
+        """<b>Advance Frame</b>
+        <p>
+       Dragging the slider advances the movie
+        </p>""")
+
+def whatsThis_SequenceEditor(propMgr):
+    """
+    "What's This" text for widgets in the DNA Sequence Editor.
+    """
+    propMgr.loadSequenceButton.setWhatsThis(
+        """<b>Load Sequence File</b>
+        <p>
+       Loads and existing strand sequence from a text file
+        </p>""")
+    
+    propMgr.sequenceTextEdit.setWhatsThis(
+        """<b>Edit Sequence </b>
+        <p>
+       Allows the user to edit a strand sequence 
+        </p>""")
+    
+    propMgr.saveSequenceButton.setWhatsThis(
+        """<b>Save Sequence </b>
+        <p>
+       Saves a strand sequence as a text file
+        </p>""")
+    
+    propMgr.baseDirectionChoiceComboBox.setWhatsThis(
+        """<b>Strand Directon </b>
+        <p>
+       Sets sequence direction between three prime and five prime strand ends
+        </p>""")
+    
+    propMgr.findLineEdit.setWhatsThis(
+        """<b>Find Sequence </b>
+        <p>
+       Searches for a specific sequence within the strand
+        </p>""")
+    
+    propMgr.findPreviousToolButton.setWhatsThis(
+        """<b>Find Previous </b>
+        <p>
+       Searches for the previous occurrence of given sequence along the strand
+        </p>""")
+    
+    propMgr.findNextToolButton.setWhatsThis(
+        """<b>Find Next </b>
+        <p>
+       Searches for the next occurrence of given sequence along the strand
+        </p>""")
+    
+    propMgr.replacePushButton.setWhatsThis(
+        """<b>Replace </b>
+        <p>
+       Allows user to edit the strand sequence returned by the <b>Find</b>
+       command 
+        </p>""")
+    
+    propMgr.sequenceTextEdit_mate.setWhatsThis(
+        """<b>Mate </b>
+        <p>
+       Shows the complementary strand sequence
+        </p>""")
+    
+            
+
 def whatsThis_ExtrudePropertyManager(propMgr):
     """
     "What's This" text for widgets in the Extrude Property Manager.
@@ -509,7 +682,7 @@ def whatsThis_CookiePropertyManager(propMgr):
     
     # Surface 110
     propMgr.surface110_btn.setWhatsThis(\
-        "<u><b>Surface 110</b></u>"\
+        "<b>Surface 110</b>"\
         "<p>"\
         "Reorients the view to the nearest angle that would "\
         "look straight into a (1,1,0) surface of a "\
@@ -518,7 +691,7 @@ def whatsThis_CookiePropertyManager(propMgr):
 
     # Surface 111
     propMgr.surface111_btn.setWhatsThis(\
-        "<u><b>Surface 111</b></u>"\
+        "<b>Surface 111</b>"\
         "<p>"\
         "Reorients the view to the nearest angle that would "\
         "look straight into a (1,1,1) surface of a "\
@@ -526,12 +699,83 @@ def whatsThis_CookiePropertyManager(propMgr):
         "</p>")
     
     propMgr.addLayerButton.setWhatsThis(\
-        "<u><b>Add Layer</b></u>"\
+        "<b>Add Layer</b>"\
         "<p>"\
         "Adds a new layer of diamond lattice to the existing "\
         "layer."\
         "</p>")
     
+    propMgr.latticeCBox.setWhatsThis(
+        "<b>Lattice Type</b>"\
+        "<p>"\
+        "Selects which lattice structure is displayed, either "\
+        "Diamond or Lonsdaleite"\
+        "</p>")
+    
+    propMgr.rotateGridByAngleSpinBox.setWhatsThis(
+        "<b>Rotate By</b>"\
+        "<p>"\
+        "Allows you to select the degree of rotation"\
+        "</p>")
+    
+    propMgr.rotGridAntiClockwiseButton.setWhatsThis(
+        "<b>Rotate Counter Clockwise</b>"\
+        "<p>"\
+        "Rotates the current view in a counter-clockwise direction"\
+        "</p>")
+    
+    propMgr.rotGridClockwiseButton.setWhatsThis(
+        "<b>Rotate Clockwise</b>"\
+        "<p>"\
+        "Rotates the current view in a clockwise direction"\
+        "</p>")
+    
+    propMgr.layerCellsSpinBox.setWhatsThis(
+        "<b>Lattice Cells</b>"\
+        "<p>"\
+        "Determines the thickness of the crystal layer"\
+        "</p>")
+    
+    propMgr.dispModeComboBox.setWhatsThis (
+        "<b>Display Style</b>"\
+        "<p>"\
+        "Lets you select the format in which your crystal selection "
+        "is displayed"\
+        "</p>")
+    
+    propMgr.layerThicknessLineEdit.setWhatsThis(
+        "<b>Thickness</b>"\
+        "<p>"\
+        "Thickness of layer in Angstroms is displayed"\
+        "</p>")
+    
+    propMgr.gridLineCheckBox.setWhatsThis(
+        "<b>Show Grid</b>"\
+        "<p>"\
+        "Allows you to turn on/off the orange lattice grid lines"\
+        "</p>")
+    
+    propMgr.fullModelCheckBox.setWhatsThis(
+        "<b>Show Model</b>"\
+        "<p>"\
+        "Allows you to view your current model from the Graphics Area in "\
+        "overlay with the Cookie Cutter lattice view"\
+        "</p>")
+        
+    propMgr.snapGridCheckBox.setWhatsThis(
+        "<b>Snap Grid</b>"\
+        "<p>"\
+        "Makes your lattice selection correspond with the grid lines "\
+        "</p>")
+    
+    propMgr.freeViewCheckBox.setWhatsThis(
+        "<b>Free View</b>"\
+        "<p>"\
+        "Allows you to change the current view of the lattice structure so "\
+        "that it can be viewed from any angle. This can be done by using the "\
+        "middle mouse button."\
+        "</p>")
+        
 def whatsThis_RotaryMotorPropertyManager(propMgr):
     """
     What's This text for some of the widgets in the Property Manager.
@@ -702,6 +946,22 @@ def whatsThis_QuteMolPropertyManager(propMgr):
         <b>Launch QuteMol</b>
         <p>
         Pressing this button launches QuteMol.
+        </p>""")
+    
+    propMgr.axesCombobox.setWhatsThis(
+        """
+        <b>Render Axes</b>
+        <p>
+        Allows the user to select between rendering and hiding the 
+        DNA axis pseudo atoms
+        </p>""")
+    
+    propMgr.basesCombobox.setWhatsThis(
+        """
+        <b>Render Bases</b>
+        <p>
+        Allows the user to select between rendering and hiding the 
+        DNA strand bases
         </p>""")
 
 def whatsThis_BuildAtomsPropertyManager(propMgr):

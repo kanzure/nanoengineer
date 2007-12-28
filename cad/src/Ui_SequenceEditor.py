@@ -52,6 +52,7 @@ class Ui_SequenceEditor(PM_DockWidget):
         PM_DockWidget.__init__(self, parentWidget, title = self._title)
         
         self.setFixedHeight(90)
+        self._addWhatsThisText()
     
     def _loadWidgets(self):
         """
@@ -231,4 +232,10 @@ class Ui_SequenceEditor(PM_DockWidget):
         
         self.findOptionsToolButton.setMenu(self.findOptionsMenu)
         
-        
+    def _addWhatsThisText(self):
+            """
+            What's This text for widgets in this Property Manager.  
+    
+            """
+            from gui.WhatsThisText_for_PropertyManagers import whatsThis_SequenceEditor
+            whatsThis_SequenceEditor(self)

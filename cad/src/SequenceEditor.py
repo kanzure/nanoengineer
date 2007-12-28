@@ -637,3 +637,5 @@ class SequenceEditor(Ui_SequenceEditor):
         
         #Find the next occurance of the 'seqrchString' in the sequence.
         self.findNext()
+        
+    
