@@ -776,6 +776,17 @@ class basicCommand(anyCommand):
         """
         self.UpdateDashboard() # Added to hide Done button for Default command. Mark 050922.
         
+        # TODOs: 
+        # - We are likely to create a Enter_Command method instaed of just
+        #  the 'Enter' method
+        # - An example of the worry in current scheme -- what if that 
+        #   update_cursorcall in basicGraphicsMode.Enter_GraphicsMode tries to 
+        #   use some Command attrs to decide on the cursor which are only 
+        #  initialized in the subclass command.Enter? 
+        # - May be we should call Enter_GraphicsMode in or after method 
+        #  CommandSequencer.start_using_mode? Not sure if that method actually 
+        #  uses some things from graphicsMode.Enter. 
+        
         self.graphicsMode.Enter_GraphicsMode()
         
         return None

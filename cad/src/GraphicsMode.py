@@ -166,6 +166,8 @@ class basicGraphicsMode(GraphicsMode_API):
         self.command.Enter
         @see: B{basicCommand.Enter}
         """
+        #NOTE: See a comment in basicCommand.Enter for things still needed 
+        # to be done
         
         self.picking = False
         self.update_cursor()
