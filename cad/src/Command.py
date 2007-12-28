@@ -355,6 +355,7 @@ class basicCommand(anyCommand):
         #  by object type -- optionally as wiki help links, for testing)
 
         res = self.featurename
+        class0 = self.__class__
         
         # make sure no surrounding whitespace
         res0 = res
@@ -362,7 +363,7 @@ class basicCommand(anyCommand):
         if res != res0:
             msg = "developer warning: in class %r, .featurename %r had " \
                   "whitespace we had to strip" % \
-                  (self.__class__.__name__, res0)
+                  (class0.__name__, res0)
             if not env.seen_before(msg):
                 print msg
         
@@ -371,27 +372,36 @@ class basicCommand(anyCommand):
         # remove that when this is removed, in a couple days [bruce 071227]
         if res != self._user_commandName() and self._user_commandName():
             msg = "developer warning (temporary): in class %r, %r != %r" % \
-                  (self.__class__.__name__, res, self._user_commandName())
+                  (class0.__name__, res, self._user_commandName())
             if not env.seen_before(msg):
                 print msg
         
-        # if same as in any other class, print warning and append classname
+        # if same as in any other class, *or* if the name starts with
+        # "Undocumented ", print a warning and append classname
         # (todo: if this ever happens routinely, provide a way to turn
         #  off the print and appended classname -- or (easier) just
         #  require the affected class to override this method)
-        same = False
-        class1 = _featurename_to_command_class.setdefault( res, self.__class__)
-        if class1.__name__ != self.__class__.__name__:
-            # (permit different class with same name, in case of reloading)
-            same = True
-            msg = "developer warning: in class %r, .featurename %r is same"\
-                  " as in class %r (override, or assign uniquely)" % \
-                  (self.__class__.__name__, res, class1.__name__)
+        
+        same = False # might be changed below
+        undoc = res.startswith("Undocumented ")
+        if undoc:
+            msg = "developer warning: class %r needs a featurename assigned" % \
+                  (class0.__name__, )
             if not env.seen_before(msg):
                 print msg
-            
-        if same:
-            res = res + " (%s)" % self.__class__.__name__
+        else:
+            class1 = _featurename_to_command_class.setdefault( res, class0)
+            if class1.__name__ != class0.__name__:
+                # (permit different class with same name, in case of reloading)
+                same = True
+                msg = "developer warning: in class %r, .featurename %r is same"\
+                      " as in class %r (override, or assign uniquely)" % \
+                      (class0.__name__, res, class1.__name__)
+                if not env.seen_before(msg):
+                    print msg
+        
+        if same or undoc:
+            res = res + " (%s)" % class0.__name__
         
         return res # from get_featurename
     
