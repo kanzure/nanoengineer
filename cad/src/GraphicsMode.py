@@ -1005,10 +1005,12 @@ class basicGraphicsMode(GraphicsMode_API):
 
     def update_cursor_for_no_MB(self): # mark 060228
         """
-        Update the cursor for operations when no mouse button is pressed
+        Update the cursor for operations when no mouse button is pressed.
+        The default implementation just sets it to a simple arrow cursor
+        (arrow cursor seen in selectMolsMode) 
         """
-        pass
-
+        self.o.setCursor(self.w.MolSelCursor)
+        
     def update_cursor_for_LMB(self): # mark 060228
         """
         Update the cursor for operations when the left mouse button (LMB) is pressed
