@@ -15,6 +15,7 @@ file and renamed it PM_LineEdit.
 from PyQt4.Qt import QLabel
 from PyQt4.Qt import QLineEdit
 from PyQt4.Qt import QWidget
+from PyQt4.Qt import Qt
 
 class PM_LineEdit( QLineEdit ):
     """
@@ -109,6 +110,10 @@ class PM_LineEdit( QLineEdit ):
         # Set default value
         self.defaultText = text
         self.setAsDefault = setAsDefault
+        
+        #Focus Policy
+        self.setFocusPolicy(Qt.ClickFocus)
+        
             
         parentWidget.addPmWidget(self)
         
@@ -138,5 +143,43 @@ class PM_LineEdit( QLineEdit ):
         QWidget.show(self)
         if self.labelWidget: 
             self.labelWidget.show()
+    
+    def _getSequenceEditorStyleSheet(self):
+        """
+        Return the style sheet for the groupbox. This sets the following 
+        properties only:
+         - border style
+         - border width
+         - border color
+         - border radius (on corners)
+        The background color for a groupbox is set using getPalette().
+        
+        @return: The group box style sheet.
+        @rtype:  str
+        
+        """
+        styleSheet = \
+                   "QLineEdit {border-width: 2px;\
+                   border-style: solid; \
+                   border-color: darkgreen;\
+                   background-color: rgb(255, 255, 255)\
+                   }"
+        #Not used:
+        #  background-color: rgb(217, 255, 216)\ 
+      
+
+        return styleSheet
+    
+    def zfocusInEvent(self, event):
+        """
+        """
+        ##self.setStyleSheet(self._getSequenceEditorStyleSheet()) 
+        pass
+                    
+    def zfocusOutEvent(self, event):
+        """
+        """  
+        self.setStyleSheet("")     
+                
             
 # End of PM_LineEdit ############################

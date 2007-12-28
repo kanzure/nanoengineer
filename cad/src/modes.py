@@ -37,7 +37,7 @@ separate object, independently from everything else. For now
 it's still called nullMode (and it's created and stored by modeMixin)
 but that will be revised.)
 
-But that doesn't remove the fact that generators (maybe even when based on EditController)
+But that doesn't remove the fact that generators (maybe even when based on EditCommand)
 still sort of treat their PM as a guest in some mode and as the "current command".
 So "make generators their own command" will be a refactoring we need soon,
 perhaps before "split old modes into their Command and GraphicsMode pieces".

@@ -26,7 +26,7 @@ from constants import gray
 class LinearMotorPropertyManager(MotorPropertyManager):
     """
     The LinearMotorProperty manager class provides UI and propMgr object for the
-    LinearMotorEditController.
+    LinearMotor_EditCommand.
     """
     # The title that appears in the Property Manager header.
     title = "Linear Motor"
@@ -36,14 +36,14 @@ class LinearMotorPropertyManager(MotorPropertyManager):
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Simulation/Linear_Motor.png"
     
-    def __init__(self, win, motorEditController):
+    def __init__(self, win, motorEditCommand):
         """
         Construct the Linear Motor Property Manager.    
         """
                 
         MotorPropertyManager.__init__( self, 
                                        win,
-                                       motorEditController) 
+                                       motorEditCommand) 
     
     def connect_or_disconnect_signals(self, isConnect):
         """

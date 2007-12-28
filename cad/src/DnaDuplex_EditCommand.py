@@ -15,7 +15,7 @@ Ninad 2007-12-20: Converted this editController as a command on the
 TODO: 
 - Need to cleanup docstrings. 
 - Methods such as createStructure do nothing. Need to clean this up a bit in 
-  this class and in the EditController superclass
+  this class and in the EditCommand superclass
 - Method editStructure is not implemented. It will be implemented after 
   the DNA object model gets implemented. 
 - Editing existing structures is not done correctly (broken) after converting 
@@ -24,7 +24,7 @@ TODO:
   necessary to correctly edit the dna structure ad this problem will
   be fixed -- Ninad 2007-12-20
 """
-from EditController import EditController
+from EditCommand import EditCommand
 
 from Group          import Group
 
@@ -45,9 +45,9 @@ from Dna_Constants import getNumberOfBasePairsFromDuplexLength, getDuplexRise
 from Dna_Constants import getDuplexLength
 from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 
-class DnaDuplexEditController(EditController):
+class DnaDuplex_EditCommand(EditCommand):
     """
-    DnaDuplexEditController that provides an editController object for 
+    DnaDuplex_EditCommand that provides an editController object for 
     generating DNA Duplex 
     """
     cmd              =  greenmsg("Build DNA: ")
@@ -69,9 +69,9 @@ class DnaDuplexEditController(EditController):
 
     def __init__(self, commandSequencer, struct = None):
         """
-        Contructor for DnaDuplexEditController
+        Contructor for DnaDuplex_EditCommand
         """
-        EditController.__init__(self, commandSequencer)
+        EditCommand.__init__(self, commandSequencer)
         self.struct = struct
     
     
@@ -87,7 +87,7 @@ class DnaDuplexEditController(EditController):
         
         @see: L{self.restore_gui}
         """
-        EditController.init_gui(self)
+        EditCommand.init_gui(self)
         
         if self.flyoutToolbar is None:
             self.flyoutToolbar = DnaFlyout(self.win, self.propMgr)
@@ -103,14 +103,14 @@ class DnaDuplexEditController(EditController):
         command toolbar is handled in those classes.
         @see: L{self.init_gui}
         """
-        EditController.restore_gui(self)
+        EditCommand.restore_gui(self)
         if self.flyoutToolbar:
             self.flyoutToolbar.deActivateFlyoutToolbar()
         
     
-    def runController(self):
+    def runCommand(self):
         """
-        Overrides EditController.runController
+        Overrides EditCommand.runCommand
         """
         self.struct = None     
 
@@ -121,7 +121,7 @@ class DnaDuplexEditController(EditController):
         @param showPropMgr: If True, show the property manager 
         @type showPropMgr: boolean
         """
-        EditController.create_and_or_show_PM_if_wanted(
+        EditCommand.create_and_or_show_PM_if_wanted(
             self,
             showPropMgr = showPropMgr)
         
@@ -277,7 +277,7 @@ class DnaDuplexEditController(EditController):
     def _modifyStructure(self, params):
         """
         Modify the structure based on the parameters specified. 
-        Overrides EditController._modifystructure. This method removes the old 
+        Overrides EditCommand._modifystructure. This method removes the old 
         structure and creates a new one using self._createStructure. This 
         was needed for the structures like this (Dna, Nanotube etc) . .
         See more comments in the method.
@@ -298,7 +298,7 @@ class DnaDuplexEditController(EditController):
                 #  made with)
             name = self.name
             
-        #@NOTE: Unlike editcontrollers such as PlaneEditController, this 
+        #@NOTE: Unlike editcontrollers such as Plane_EditCommand, this 
         #editcontroller actually removes the structure and creates a new one 
         #when its modified. We don't yet know if the DNA object model 
         # will solve this problem. (i.e. reusing the object and just modifying
@@ -331,7 +331,7 @@ class DnaDuplexEditController(EditController):
 	TODO: 
 	- This needs to be a more general method in mode API. 
 	- Right now it is used only for creating a DNA line. It is assumed
-	 that the DNADuplxEditController is invoked while in selectMolsMode. 
+	 that the DNADuplxEditCommand is invoked while in selectMolsMode. 
 	 If we decide to define a new DnaMode, then this method needs to go 
 	 there. 
 	 - Even better if the commandSequencer API starts supporting 

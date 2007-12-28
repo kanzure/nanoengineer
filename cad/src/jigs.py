@@ -176,7 +176,7 @@ class Jig(Node):
         @param atomList: List of atoms to which this jig needs to be attached. 
         @type  atomList: list
         @see: L{self._remove_all_atoms}
-        @see: L{RotaryMotorEditController._modifyStructure} for an example use
+        @see: L{RotaryMotor_EditCommand._modifyStructure} for an example use
         @see: L{self.setShaft}
         """
         # [as of 050415 (and long before) this is only used for 

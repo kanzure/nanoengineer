@@ -14,13 +14,13 @@ import env
 from utilities.Log   import redmsg, greenmsg, orangemsg
 from jigs_motors     import RotaryMotor
 from jigmakers_Mixin import atom_limit_exceeded_and_confirmed
-from EditController  import EditController
+from EditCommand  import EditCommand
 
 from SelectAtoms_GraphicsMode   import SelectAtoms_GraphicsMode
 
-class RotaryMotorEditController(EditController):
+class RotaryMotor_EditCommand(EditCommand):
     """
-    The RotaryMotorEditController class  provides an editController Object.
+    The RotaryMotor_EditCommand class  provides an editController Object.
     The editController, depending on what client code needs it to do, may create
     a new rotary motor or it may be used for an existing rotary motor. 
     """
@@ -50,18 +50,18 @@ class RotaryMotorEditController(EditController):
         @type  win: QMainWindow
         
         @param struct: The model object (in this case a 'rotary motor') that the
-                       this EditController may create and/or edit
+                       this EditCommand may create and/or edit
                        If struct object is specified, it means this 
                        editController will be used to edit that struct. 
         @type  struct: L{RotaryMotor} or None
         
         @see: L{RotaryMotor.__init__}
         """ 
-        EditController.__init__(self, commandSequencer)
+        EditCommand.__init__(self, commandSequencer)
         self.struct = struct
     
     def Enter(self):
-        EditController.Enter(self)
+        EditCommand.Enter(self)
         self.o.assy.permit_pick_atoms()
     
     def init_gui(self):
@@ -73,7 +73,7 @@ class RotaryMotorEditController(EditController):
               implementation is necessary, in which PM creation and 
               display will be handled  in init_gui method.
         """
-        #Note: This method overrides EditController.init_gui. This is just to 
+        #Note: This method overrides EditCommand.init_gui. This is just to 
         #prevent the call of self.create_and_or_show_PM_if_wanted. , As that 
         # method is called in self.createStructure. (to be cleaned up)
         pass 
@@ -131,7 +131,7 @@ class RotaryMotorEditController(EditController):
         Modifies the structure (Rotary Motor) using the provided params.
         @param params: The parameters used as an input to modify the structure
                        (Rotary Motor created using this 
-                       RotaryMotorEditController) 
+                       RotaryMotor_EditCommand) 
         @type  params: tuple
         """
         assert self.struct

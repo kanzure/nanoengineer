@@ -43,7 +43,7 @@ class jigmakers_Mixin:
             commandSequencer.userEnterTemporaryCommand('ROTARY_MOTOR')
             
         assert self.assy.w.commandSequencer.currentCommand.commandName == "ROTARY_MOTOR"      
-        self.assy.w.commandSequencer.currentCommand.runController()	        
+        self.assy.w.commandSequencer.currentCommand.runCommand()	        
       
     def makeLinearMotor(self):
         """
@@ -56,7 +56,7 @@ class jigmakers_Mixin:
             commandSequencer.userEnterTemporaryCommand('LINEAR_MOTOR')
             
         assert self.assy.w.commandSequencer.currentCommand.commandName == "LINEAR_MOTOR"      
-        self.assy.w.commandSequencer.currentCommand.runController()
+        self.assy.w.commandSequencer.currentCommand.runCommand()
         
 
     def makegamess(self):

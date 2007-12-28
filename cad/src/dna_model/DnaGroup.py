@@ -65,8 +65,8 @@ class DnaGroup(Block):
             ##File "C:\Atom\cad\src\MWsemantics.py", line 40, in ?
               ##from GLPane import GLPane
             ##File "C:\Atom\cad\src\GLPane.py", line 122, in ?
-              ##from DnaDuplexEditController import DnaDuplexEditController
-            ##File "C:\Atom\cad\src\DnaDuplexEditController.py", line 31, in ?
+              ##from DnaDuplex_EditCommand import DnaDuplex_EditCommand
+            ##File "C:\Atom\cad\src\DnaDuplex_EditCommand.py", line 31, in ?
               ##from dna_model.DnaSegment import DnaSegment
             ##File "C:\Atom\cad\src\dna_model\DnaSegment.py", line 10, in ?
               ##from dna_model.DnaStrandOrSegment import DnaStrandOrSegment

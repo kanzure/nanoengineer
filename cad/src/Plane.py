@@ -81,11 +81,11 @@ class Plane(ReferenceGeometry):
         @param editController: The Plane Edit Controller object. 
                           If this is None, it means the Plane is created by 
                           reading the data from the MMP file and it doesn't 
-                          have  an EditController assigned. 
-                          The EditController may be created at a later stage 
+                          have  an EditCommand assigned. 
+                          The EditCommand may be created at a later stage 
                           in this case. 
                           See L{self.edit} for an example. 
-        @type  editController: B{PlaneEditController} or None                          
+        @type  editController: B{Plane_EditCommand} or None                          
         
         @param atomList: List of atoms.
         @type  atomList: list

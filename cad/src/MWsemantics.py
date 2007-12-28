@@ -613,9 +613,9 @@ class MWsemantics(QMainWindow,
             # removed. - Mark
 
             print "Using new DNA Duplex command (supports PAM-3 only)."
-            from DnaDuplexEditController import DnaDuplexEditController
-            self.dnaEditController = DnaDuplexEditController(self.glpane)	
-            self.dnacntl = self.dnaEditController
+            from DnaDuplex_EditCommand import DnaDuplex_EditCommand
+            self.dnaEditCommand = DnaDuplex_EditCommand(self.glpane)	
+            self.dnacntl = self.dnaEditCommand
 
         from PovraySceneProp import PovraySceneProp
         self.povrayscenecntl = PovraySceneProp(self)
@@ -1427,7 +1427,7 @@ class MWsemantics(QMainWindow,
                 commandSequencer.userEnterTemporaryCommand(
                     'REFERENCE_PLANE')
                 
-        self.commandSequencer.currentCommand.runController()	
+        self.commandSequencer.currentCommand.runCommand()	
 
     def makeGridPlane(self):
         self.assy.makeGridPlane()
@@ -1810,7 +1810,7 @@ class MWsemantics(QMainWindow,
 
     def activateDnaTool(self):
         """
-        Enter the DnaDuplexEditController command. 
+        Enter the DnaDuplex_EditCommand command. 
         @see:B{self.insertDna}
         """
         commandSequencer = self.commandSequencer        
@@ -1819,15 +1819,15 @@ class MWsemantics(QMainWindow,
         
         assert self.commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
         
-        self.commandSequencer.currentCommand.runController()
+        self.commandSequencer.currentCommand.runCommand()
 
     def insertDna(self, isChecked = False):
         """
         @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is 
                           checked, enter DnaLineMode. (provided you are 
-                          using the new DNADuplexEditController command. 
+                          using the new DNADuplexEditCommand command. 
         @type  isChecked: boolean
-        @see: B{Ui_DnaFlyout.activateDnaDuplexEditController}
+        @see: B{Ui_DnaFlyout.activateDnaDuplex_EditCommand}
         """
         
         if debug_pref("Use old 'Build > DNA' generator? (next session)", 
@@ -1848,21 +1848,21 @@ class MWsemantics(QMainWindow,
                     currentCommand.Done(exit_using_done_or_cancel_button = False)
             
 
-    def _createDnaDuplexEditController(self, dnaDuplex = None):
+    def _createDnaDuplex_EditCommand(self, dnaDuplex = None):
         """
-	Returns a new L{DnaDuplexEditController} object.	
+	Returns a new L{DnaDuplex_EditCommand} object.	
 	@param dnaDuplex: This parameter is passed as an init argument for 
-			    the LinearMotorEditController that this method 
+			    the LinearMotor_EditCommand that this method 
 			    creates and returns.
 	@type dnaDuplex:  B{Group} or None  (instead of a Group it will be a 
 	                  separate DNA object in future. 
 	@see: L{Group.__init__} , L{Group.edit}, 
-	      L{DnaDuplexEditController.__init__}
+	      L{DnaDuplex_EditCommand.__init__}
 	TODO: Need to use the same property manager object for all dna edit 
 	      controllers. Right now it creates different ones. 
         """
-        from DnaDuplexEditController import DnaDuplexEditController
-        return DnaDuplexEditController(self.glpane, dnaDuplex)
+        from DnaDuplex_EditCommand import DnaDuplex_EditCommand
+        return DnaDuplex_EditCommand(self.glpane, dnaDuplex)
 
     def createSequenceEditorIfNeeded(self):
         """
@@ -1895,15 +1895,15 @@ class MWsemantics(QMainWindow,
         If this object is already present, then set its editcontroller to this
         parameter
         @parameter editController: The edit controller object for this PM 
-        @type editController: B{RotaryMotorEditController}
-        @see: B{RotaryMotorEditController._createPropMgrObject}
+        @type editController: B{RotaryMotor_EditCommand}
+        @see: B{RotaryMotor_EditCommand._createPropMgrObject}
         """
         from RotaryMotorPropertyManager import RotaryMotorPropertyManager
         if self.rotaryMotorPropMgr is None:
             self.rotaryMotorPropMgr = \
                 RotaryMotorPropertyManager(self, editController)  
         else:
-            self.rotaryMotorPropMgr.setEditController(editController)        
+            self.rotaryMotorPropMgr.setEditCommand(editController)        
 
         return self.rotaryMotorPropMgr   
 
@@ -1914,15 +1914,15 @@ class MWsemantics(QMainWindow,
         If this object is already present, then set its editcontroller to this
         parameter
         @parameter editController: The edit controller object for this PM 
-        @type editController: B{LinearMotorEditController}
-        @see: B{LinearMotorEditController._createPropMgrObject}
+        @type editController: B{LinearMotor_EditCommand}
+        @see: B{LinearMotor_EditCommand._createPropMgrObject}
         """
         from LinearMotorPropertyManager import LinearMotorPropertyManager
         if self.linearMotorPropMgr is None:
             self.linearMotorPropMgr = \
                 LinearMotorPropertyManager( self, editController)  
         else:
-            self.linearMotorPropMgr.setEditController(editController)        
+            self.linearMotorPropMgr.setEditCommand(editController)        
 
         return self.linearMotorPropMgr
 
@@ -1932,15 +1932,15 @@ class MWsemantics(QMainWindow,
         If this object is already present, then set its editcontroller to this
         parameter
         @parameter editController: The edit controller object for this PM 
-        @type editController: B{RotaryMotorEditController}
-        @see: B{PlaneEditController._createPropMgrObject}
+        @type editController: B{RotaryMotor_EditCommand}
+        @see: B{Plane_EditCommand._createPropMgrObject}
         """
         from PlanePropertyManager import PlanePropertyManager
         if self.planePropMgr is None:
             self.planePropMgr = \
                 PlanePropertyManager(self, editController)  
         else:
-            self.planePropMgr.setEditController(editController)        
+            self.planePropMgr.setEditCommand(editController)        
 
         return self.planePropMgr
 
@@ -1958,14 +1958,14 @@ class MWsemantics(QMainWindow,
         If this object is already present, then set its editcontroller to this
         parameter
         @parameter editController: The edit controller object for this PM 
-        @type editController: B{DnaDuplexEditController}
+        @type editController: B{DnaDuplex_EditCommand}
         """
         from DnaDuplexPropertyManager import DnaDuplexPropertyManager
         if self.dnaDuplexPropMgr is None:
             self.dnaDuplexPropMgr = \
                 DnaDuplexPropertyManager(self, editController)
         else:
-            self.dnaDuplexPropMgr.setEditController(editController)
+            self.dnaDuplexPropMgr.setEditCommand(editController)
 
         return self.dnaDuplexPropMgr
 

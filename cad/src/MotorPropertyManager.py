@@ -16,15 +16,15 @@ from PM.PM_Constants     import pmRestoreDefaultsButton
 from widgets             import QColor_to_RGBf
 
 from GeneratorBaseClass  import AbstractMethod
-from EditController_PM   import EditController_PM
+from EditCommand_PM   import EditCommand_PM
 
 
 from debug               import print_compact_traceback
 
-class MotorPropertyManager(EditController_PM):
+class MotorPropertyManager(EditCommand_PM):
     """
     The MotorProperty manager class provides UI and propMgr object for the
-    MotorEditController.
+    MotorEditCommand.
     """
     # The title that appears in the Property Manager header.
     title = "Motor"
@@ -35,14 +35,14 @@ class MotorPropertyManager(EditController_PM):
     #This should be overridden in subclasses
     iconPath = "ui/actions/Simulation/Motor_JUNK.png"
     
-    def __init__(self, win, motorEditController):
+    def __init__(self, win, motorEditCommand):
         """
         Construct the  Motor Property Manager.    
         """
                 
-        EditController_PM.__init__( self, 
+        EditCommand_PM.__init__( self, 
                                     win,
-                                    motorEditController) 
+                                    motorEditCommand) 
                 
         msg = "Attach a " + self.title + " to the selected atoms"
         
@@ -58,9 +58,9 @@ class MotorPropertyManager(EditController_PM):
         """
         Show the  motor Property Manager.
         """
-        EditController_PM.show(self)
+        EditCommand_PM.show(self)
         #It turns out that if updateCosmeticProps is called before 
-        #EditController_PM.show, the 'preview' properties are not updated 
+        #EditCommand_PM.show, the 'preview' properties are not updated 
         #when you are editing an existing R.Motor. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
         if self.editController and self.editController.struct:
@@ -82,7 +82,7 @@ class MotorPropertyManager(EditController_PM):
             change_connect = self.win.disconnect 
         
         
-        EditController_PM.connect_or_disconnect_signals(self, isConnect)
+        EditCommand_PM.connect_or_disconnect_signals(self, isConnect)
         
         self.attachedAtomsListWidget.connect_or_disconnect_signals(isConnect)
 
@@ -93,7 +93,7 @@ class MotorPropertyManager(EditController_PM):
         """
         if self.attachedAtomsListWidget:
             self.attachedAtomsListWidget.clearTags()            
-        EditController_PM.close(self)
+        EditCommand_PM.close(self)
 
 
     def enable_or_disable_gui_actions(self, bool_enable = False):

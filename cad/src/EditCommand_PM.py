@@ -6,7 +6,7 @@
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
 This is a superclass for the property managers of various objects that use 
-EditController for generating the object. e.g. PlanePropertyManager inherits 
+EditCommand for generating the object. e.g. PlanePropertyManager inherits 
 from this class to use common methods such as ok_btn_cliked. 
 
 """
@@ -20,10 +20,10 @@ from PyQt4.Qt import SIGNAL
 from GeneratorBaseClass import AbstractMethod
 from icon_utilities import geticon
 
-class EditController_PM(PM_Dialog):
+class EditCommand_PM(PM_Dialog):
     """    
     This is a superclass for the property managers of various objects that use 
-    EditController for generating the object. e.g. PlanePropertyManager 
+    EditCommand for generating the object. e.g. PlanePropertyManager 
     inherits from this class to use common methods 
     """
     # The title that appears in the Property Manager header.
@@ -36,7 +36,7 @@ class EditController_PM(PM_Dialog):
 
     def __init__(self, win, editController = None):
         """
-        Constructor for the EditController_PM
+        Constructor for the EditCommand_PM
         """
         # pw = part window. 
         # Its subclasses will create their partwindow objects 
@@ -67,7 +67,7 @@ class EditController_PM(PM_Dialog):
         
         self._createFlyoutActions()
             
-    def setEditController(self, editController):
+    def setEditCommand(self, editController):
         """
         """
         assert editController
@@ -110,8 +110,8 @@ class EditController_PM(PM_Dialog):
         else:
             change_connect = self.win.disconnect
 
-        if self.exitEditControllerAction:	    
-            change_connect(self.exitEditControllerAction, 
+        if self.exitEditCommandAction:	    
+            change_connect(self.exitEditCommandAction, 
                            SIGNAL("triggered()"), 
                            self.close)
     
@@ -231,14 +231,14 @@ class EditController_PM(PM_Dialog):
                                                minLines     = 5)  
 
     def _createFlyoutActions(self):
-        self.exitEditControllerAction = QWidgetAction(self.win)
+        self.exitEditCommandAction = QWidgetAction(self.win)
         if self.editController:
             text = "Exit " + self.editController.cmdname
         else:
             text = "Exit"
-        self.exitEditControllerAction.setText(text)
-        self.exitEditControllerAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
-        self.exitEditControllerAction.setCheckable(True)
+        self.exitEditCommandAction.setText(text)
+        self.exitEditCommandAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitEditCommandAction.setCheckable(True)
 
     def getFlyoutActionList(self): 
         """ 

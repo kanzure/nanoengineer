@@ -145,8 +145,8 @@ class DnaLineMode(LineMode):
     @see: L{LineMode}
     @see: selectMolsMode.provideParamsForTemporaryMode comments for 
           related  TODOs.
-    @see: DnaDuplexEditController.provideParamsForTemporaryMode
-    @see: DnaDuplexEditController.getCursorTextForTemporaryMode
+    @see: DnaDuplex_EditCommand.provideParamsForTemporaryMode
+    @see: DnaDuplex_EditCommand.getCursorTextForTemporaryMode
     """
     
     # class constants    

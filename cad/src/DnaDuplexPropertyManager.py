@@ -10,7 +10,7 @@ Mark 2007-10-18:
 - Created. Major rewrite of DnaGeneratorPropertyManager.py.
 
 Ninad 2007-10-24:
-- Another major rewrite to a) use EditController_PM superclass and b) Implement
+- Another major rewrite to a) use EditCommand_PM superclass and b) Implement
 feature to generate Dna using endpoints of a line.
 """
 
@@ -38,7 +38,7 @@ from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
 
 from DebugMenuMixin import DebugMenuMixin
-from EditController_PM import EditController_PM
+from EditCommand_PM import EditCommand_PM
 from VQT import V
 
 from PM.PM_Constants     import pmDoneButton
@@ -51,7 +51,7 @@ from utilities.Comparison import same_vals
 
 from PM.PM_DockWidget     import PM_DockWidget
 
-class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
+class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
     The DnaDuplexPropertyManager class provides a Property Manager 
     for the B{Build > DNA > Duplex} command.
@@ -88,7 +88,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         """
         Constructor for the DNA Duplex property manager.
         """
-        EditController_PM.__init__( self, 
+        EditCommand_PM.__init__( self, 
                                     win,
                                     editController)
 
@@ -127,7 +127,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
             change_connect = self.win.disconnect 
         
         
-        EditController_PM.connect_or_disconnect_signals(self, isConnect)
+        EditCommand_PM.connect_or_disconnect_signals(self, isConnect)
         
         self.strandListWidget.connect_or_disconnect_signals(isConnect)
         
@@ -241,7 +241,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
     
     def close(self):
         """
-        Closes the Property Manager. Overrided EditController_PM.close()
+        Closes the Property Manager. Overrided EditCommand_PM.close()
         """
         #Clear tags, if any, due to the selection in the self.strandListWidget.
         if self.strandListWidget:
@@ -255,7 +255,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
             else:
                 self.win.activePartWindow().history_object.expandWidget()
            
-        EditController_PM.close(self)
+        EditCommand_PM.close(self)
     
     def show(self):
         """
@@ -263,7 +263,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         As of 2007-11-20, it also shows the Sequence Editor widget and hides 
         the history widget. This implementation may change in the near future
         """
-        EditController_PM.show(self) 
+        EditCommand_PM.show(self) 
         self.updateStrandListWidget()    
     
     def _showSequenceEditor(self):
@@ -336,8 +336,8 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
 
         subControlAreaActionList =[] 
 
-        self.exitEditControllerAction.setChecked(True)
-        subControlAreaActionList.append(self.exitEditControllerAction)
+        self.exitEditCommandAction.setChecked(True)
+        subControlAreaActionList.append(self.exitEditCommandAction)
 
         separator = QAction(self.w)
         separator.setSeparator(True)
@@ -567,7 +567,7 @@ class DnaDuplexPropertyManager( EditController_PM, DebugMenuMixin ):
         to be used to create the DNA duplex. 
         @return: A tuple containing the parameters
         @rtype: tuple
-        @see: L{DnaDuplexEditController._gatherParameters} where this is used 
+        @see: L{DnaDuplex_EditCommand._gatherParameters} where this is used 
         """
         numberOfBases = self.numberOfBasePairsSpinBox.value()
         dnaForm  = str(self.conformationComboBox.currentText())

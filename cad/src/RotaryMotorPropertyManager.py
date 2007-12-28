@@ -12,7 +12,7 @@ Mark 2007-05-28: Created as RotaryMotorGeneratorDialog.py
 Ninad 2007-10-09: 
        - Deprecated RotaryMotorGeneratorDialog class
        - Created RotaryMotorPropertyManager class to match the 
-         EditController API. (and related changes)
+         EditCommand API. (and related changes)
          
 """
 
@@ -31,7 +31,7 @@ from MotorPropertyManager import MotorPropertyManager
 class RotaryMotorPropertyManager(MotorPropertyManager):
     """
     The RotaryMotorProperty manager class provides UI and propMgr object for the
-    RotaryMotorEditController.
+    RotaryMotor_EditCommand.
     """
     # The title that appears in the Property Manager header.
     title = "Rotary Motor"
@@ -41,14 +41,14 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Simulation/Rotary_Motor.png"
     
-    def __init__(self, win, motorEditController):
+    def __init__(self, win, motorEditCommand):
         """
         Construct the Rotary Motor Property Manager.    
         """
                 
         MotorPropertyManager.__init__( self, 
                                        win,
-                                       motorEditController) 
+                                       motorEditCommand) 
     
     def connect_or_disconnect_signals(self, isConnect):
         """

@@ -24,7 +24,7 @@ _theDnaFlyout = None
 #NOTE: global methods setupUi, activateDnaFlyout are not called as of 2007-12-19
 #Use methods like DnaFlyout.activateFlyoutToolbar instead. 
 #Command toolbar needs to be integrated with the commandSequencer. 
-#See DnaDuplexEditController.init_gui for an example. (still experimental)
+#See DnaDuplex_EditCommand.init_gui for an example. (still experimental)
 
 
 def setupUi(mainWindow):
@@ -137,11 +137,11 @@ class DnaFlyout:
         
         change_connect(self.dnaDuplexAction, 
                              SIGNAL("triggered(bool)"),
-                             self.activateDnaDuplexEditController)
+                             self.activateDnaDuplex_EditCommand)
         
         change_connect(self.dnaOrigamiAction, 
                              SIGNAL("triggered()"),
-                             self.activateDnaOrigamiEditController)
+                             self.activateDnaOrigamiEditCommand)
     
     
     def activateFlyoutToolbar(self):
@@ -184,13 +184,13 @@ class DnaFlyout:
             if not isChecked:
                 self.parentWidget.ok_btn_clicked()
         
-    def activateDnaDuplexEditController(self, isChecked):
+    def activateDnaDuplex_EditCommand(self, isChecked):
         """
         Slot for B{Duplex} action.
         """
         self.win.insertDna(isChecked)
 
-    def activateDnaOrigamiEditController(self):
+    def activateDnaOrigamiEditCommand(self):
         """
         Slot for B{Origami} action.
         """

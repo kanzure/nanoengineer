@@ -70,7 +70,7 @@ class selectMolsMode(SelectChunks_basicCommand,
             #This is the number of mouse clicks that the temporary mode accepts
             # When this limit is reached, the temporary mode will return to the
             #previous mode.	    
-            dnaEditCntl = self.win.dnaEditController
+            dnaEditCntl = self.win.dnaEditCommand
             if dnaEditCntl:
                 params = dnaEditCntl.provideParamsForTemporaryMode(
                     temporaryModeName) 
@@ -100,7 +100,7 @@ class selectMolsMode(SelectChunks_basicCommand,
 	TODO: 
 	- This needs to be a more general method in mode API. 
 	- Right now it is used only for creating a DNA line. It is assumed
-	 that the DNADuplxEditController is invoked while in selectMolsMode. 
+	 that the DNADuplxEditCommand is invoked while in selectMolsMode. 
 	 If we decide to define a new DnaMode, then this method needs to go 
 	 there. 
 	 - Even better if the commandSequencer API starts supporting 
@@ -108,7 +108,7 @@ class selectMolsMode(SelectChunks_basicCommand,
 	 where, the previousCommand can be an editController or mode, then 
 	 it would be good to define this API method in that mode or 
 	 editcontroller class  itself. In the above example, this method would 
-	 then belong to DnaDuplexEditController. 
+	 then belong to DnaDuplex_EditCommand. 
 	 -- [Ninad 2007-10-25 comment]	
         """
 
@@ -117,9 +117,9 @@ class selectMolsMode(SelectChunks_basicCommand,
         #only when you have got 2 points!  Ninad 2007-10-16
         if 1:
             if len(params) == 2:	    
-                dnaEditController = self.win.dnaEditController
-                if dnaEditController:
-                    dnaEditController.acceptParamsFromTemporaryMode(params)
+                dnaEditCommand = self.win.dnaEditCommand
+                if dnaEditCommand:
+                    dnaEditCommand.acceptParamsFromTemporaryMode(params)
 
     def selectConnectedChunks(self):
         """

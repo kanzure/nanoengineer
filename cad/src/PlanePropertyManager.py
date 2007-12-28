@@ -28,7 +28,7 @@ from PM.PM_RadioButtonList import PM_RadioButtonList
 
 from PM.PM_Constants     import pmRestoreDefaultsButton
 
-from EditController_PM import EditController_PM
+from EditCommand_PM import EditCommand_PM
 
 import env
 
@@ -41,7 +41,7 @@ PLACEMENT_OPTIONS_BUTTON_LIST = [ \
     ( 3, "Custom",                 "Custom"                 )
 ]
     
-class PlanePropertyManager(EditController_PM):
+class PlanePropertyManager(EditCommand_PM):
     """
     The PlanePropertyManager class provides a Property Manager for a 
     (reference) Plane.
@@ -55,7 +55,7 @@ class PlanePropertyManager(EditController_PM):
     # The relative path to the PNG file that appears in the header
     iconPath = "ui/actions/Insert/Reference Geometry/Plane.png"
     
-    def __init__(self, win, planeEditController):
+    def __init__(self, win, planeEditCommand):
         """
         Construct the Plane Property Manager.
         
@@ -63,9 +63,9 @@ class PlanePropertyManager(EditController_PM):
         @type  plane: L{Plane}
         """
              
-        EditController_PM.__init__( self, 
+        EditCommand_PM.__init__( self, 
                                        win,
-                                       planeEditController) 
+                                       planeEditCommand) 
                 
      
         
@@ -179,9 +179,9 @@ class PlanePropertyManager(EditController_PM):
         Show the Plane Property Manager.
         """
         self.update_spinboxes() 
-        EditController_PM.show(self)
+        EditCommand_PM.show(self)
         #It turns out that if updateCosmeticProps is called before 
-        #EditController_PM.show, the 'preview' properties are not updated 
+        #EditCommand_PM.show, the 'preview' properties are not updated 
         #when you are editing an existing plane. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
         
@@ -323,7 +323,7 @@ class PlanePropertyManager(EditController_PM):
         
         #called in updatePropertyManager in MWsemeantics.py --(Partwindow class)
 
-        EditController_PM.update_props_if_needed_before_closing(self)
+        EditCommand_PM.update_props_if_needed_before_closing(self)
         
         #Don't draw the direction arrow when the object is finalized. 
         if self.editController.struct and \

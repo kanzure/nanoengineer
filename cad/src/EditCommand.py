@@ -1,33 +1,36 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-EditController.py
+EditCommand.py
 
 @author: Bruce Smith, Mark Sims, Ninad Sathaye, Will Ware
 @version: $Id$
 
 History:
 
-Originally created as 'GeometryGeneratorBaseClass'. It shared common code with 
+- Originally created as 'GeometryGeneratorBaseClass'. It shared common code with 
 GeneratorBaseClass but had some extra features to support creation and edition 
 of a 'Plane' [June-Sept 2007]. It was split out of ReferenceGeometry.py
+- Before 2007-12-28, Editcommand was known as 'EditController' 
+
 
 Ninad 2007-09-17: Code cleanup to split ui part out of this class. 
 Ninad 2007-10-05: Major changes. Refactored GeometryGeneratorBaseClass 
                   and surrounding code. Also renamed GeometryGeneratorBaseClass 
-                  to EditController, similar changes in surrounding code
+                  to EditCommand, similar changes in surrounding code
 Ninad 2007-10-24: Changes to convert the old structure generators
                   such as DnaGenerator / DnaDuplexGenerator to use the 
-                  EditController class (and their PMs to use EditController_PM)
+                  EditCommand class (and their PMs to use EditCommand_PM)
+Ninad 2007-12-26: Converted editControllers into Commands on commandSequencer
                                      
 TODO:
 - Need to cleanup docstrings. 
-- In subclasses such as DnaDuplexEditController, the method createStructure do 
+- In subclasses such as DnaDuplex_EditCommand, the method createStructure do 
   nothing (user is not immediately creating a structure) .
   Need to clean this up a bit in this class and in the  surrounding code
-- New subclass DnaDuplexEditController adds the structure as a node in the MT 
+- New subclass DnaDuplex_EditCommand adds the structure as a node in the MT 
   in its _createStructure method. This should also be implemented for 
-  following sublasses:  PlaneEditController, LineEditController, motor
-  edit controller classes.
+  following sublasses:  Plane_EditCommand, LineEditCommand, motor
+  editcommand classes.
 """
 
 import platform
@@ -41,23 +44,23 @@ from GeneratorBaseClass   import AbstractMethod
 from Select_Command import Select_Command
 
 
-class EditController(Select_Command):
+class EditCommand(Select_Command):
     """
-    EditController class that provides a editcontroller object. 
+    EditCommand class that provides a editcontroller object. 
     The client can call three public methods defined in this class to acheive 
     various things. 
-    1. runController -- Used to run this editController . Depending upon the
+    1. runCommand -- Used to run this editController . Depending upon the
        type of editController it is, it does various things. The most common 
        thing it does is to create and show  a property manager (PM) The PM 
        is used by the editController to define the UI for the model
        which this editController creates/edits. 
-       See DnaDuplexEditController.runController for an example 
+       See DnaDuplex_EditCommand.runCommand for an example 
     2. createStructure -- Used directly by the client when it already knows 
        input parameters for the structure being generated. This facilitates 
        imeediate preview of the model being created when you execute this 
        command. 
        See self.createStructure  which is the default implementation used
-       by many subclasses such as RotaryMotorEditController etc. 
+       by many subclasses such as RotaryMotor_EditCommand etc. 
     3. editStructure -- Used directly by the client when it needs to edit 
        an already created structure. 
        See self.editStructure for details.
@@ -69,7 +72,7 @@ class EditController(Select_Command):
     cmd      =  "" 
     cmdname  =  "" 
     _gensym_data_for_reusing_name = None
-    commandName = 'EditController'
+    commandName = 'EditCommand'
     default_mode_status_text = ""
     featurename = "Undocumented Edit Command" # default wiki help featurename
     
@@ -78,7 +81,7 @@ class EditController(Select_Command):
 
     def __init__(self, commandSequencer):
         """
-        Constructor for the class EditController.        
+        Constructor for the class EditCommand.        
         """
         self.win = commandSequencer.win
         self.previousParams       =  None
@@ -118,7 +121,7 @@ class EditController(Select_Command):
         
         """
         #@@TODO: Should the structure always be reset while entering,
-        #(for instance), PlaneEditController PM? The client must explicitely use, 
+        #(for instance), Plane_EditCommand PM? The client must explicitely use, 
         #for example, editController.editStructre(self) so that this command
         #knows what to edit. But that must be done after entering the command. 
         #see Plane.edit for example.
@@ -144,14 +147,14 @@ class EditController(Select_Command):
             self.propMgr.close()
             
     
-    def runController(self):
+    def runCommand(self):
         """        
         Used to run this editController . Depending upon the
         type of editController it is, it does various things. The most common 
         thing it does is to create and show  a property manager (PM) The PM 
         is used by the editController to define the UI for the model
         which this editController creates/edits. 
-        See DnaDuplexEditController.runController for an example
+        See DnaDuplex_EditCommand.runCommand for an example
         Default implementation, subclasses should override this method.
         NEED TO DOCUMENT THIS FURTHER ?
         """
@@ -194,7 +197,6 @@ class EditController(Select_Command):
         
         @see: L{self.editStructure} (another top level command that facilitates
               editing an existing object (existing structure). 
-        @see: L{part.createPlaneEditController} for an example use.
         """
         
         assert not self.struct
@@ -235,7 +237,7 @@ class EditController(Select_Command):
         @see: L{self.createStructure} (another top level command that 
               facilitates creation of a model object created by this 
               editController
-        @see: L{Plane.edit} and L{PlaneEditController._createPropMgrObject} 
+        @see: L{Plane.edit} and L{Plane_EditCommand._createPropMgrObject} 
         """
         
         if struct:
@@ -253,21 +255,21 @@ class EditController(Select_Command):
         #(using DNA Line mode), it takes input and gives output to the 
         # currently active editController 
         #(see selectMolsMode.provideParametersForTemporaryMode where we are 
-        # using self.win.dnaEditController) Fixes bug 2588
+        # using self.win.dnaEditCommand) Fixes bug 2588
         
         #Following line of code that fixed bug 2588 mentioned in above comment 
-        # was disabled on 2007-12-20, aftter dnaDuplexEditController was 
+        # was disabled on 2007-12-20, aftter dnaDuplexEditCommand was 
         #converted in to a command on command sequencer. The bug doesn't appear
         # right now. (but there is another unrelated bug due to the missing 
         # 'endpoints' because of which the propMgr always reset its values
         #even when editing an existing structure. It will be fixed after dna 
         #data model implementation
-        ##self.win.dnaEditController = self
+        ##self.win.dnaEditCommand = self
         
         #Important to set the edit controller for the property manager 
         #because we are reusing the propMgr object so it needs to know the 
         # current edit controller. 
-        self.propMgr.setEditController(self)
+        self.propMgr.setEditCommand(self)
         
         self.existingStructForEditing = True
         self.old_props = self.struct.getProps()
@@ -277,7 +279,7 @@ class EditController(Select_Command):
         """
         Create the model object which this edit controller  creates) 
         Abstract method.         
-        @see: L{PlaneEditController._createStructure}
+        @see: L{Plane_EditCommand._createStructure}
         """
         raise AbstractMethod()
     
@@ -295,7 +297,7 @@ class EditController(Select_Command):
         @param params: The parameters used as an input to modify the structure
                        (object created using this editcontroller) 
         @type  params: tuple
-        @see: L{PlaneEditController._modifyStructure}
+        @see: L{Plane_EditCommand._modifyStructure}
         """
         raise AbstractMethod()
 
@@ -319,7 +321,7 @@ class EditController(Select_Command):
         #For certain edit controllers, it is possible that self.struct is 
         #not created. If so simply return (don't use assert self.struct)
         ##This is a commented out stub code for the edit controllers 
-        ##such as DNAEditController which take input from the user before 
+        ##such as DNAEditCommand which take input from the user before 
         ##creating the struct. TO BE REVISED -- Ninad20071009
         #The following code is now used.  Need to improve comments and 
         # some refactoring -- Ninad 2007-10-24

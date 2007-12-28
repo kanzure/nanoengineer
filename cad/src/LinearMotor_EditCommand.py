@@ -14,13 +14,13 @@ import env
 from utilities.Log   import redmsg, greenmsg, orangemsg
 from jigs_motors     import LinearMotor
 from jigmakers_Mixin import atom_limit_exceeded_and_confirmed
-from EditController  import EditController
+from EditCommand  import EditCommand
 
 from SelectAtoms_GraphicsMode   import SelectAtoms_GraphicsMode
 
-class LinearMotorEditController(EditController):
+class LinearMotor_EditCommand(EditCommand):
     """
-    The LinearMotorEditController class  provides an editController Object.
+    The LinearMotor_EditCommand class  provides an editController Object.
     The editController, depending on what client code needs it to do, may create
     a new linear motor or it may be used for an existing linear motor. 
     """
@@ -50,14 +50,14 @@ class LinearMotorEditController(EditController):
         @type  win: QMainWindow
         
         @param struct: The model object (in this case a 'linear motor') that the
-                       this EditController may create and/or edit
+                       this EditCommand may create and/or edit
                        If struct object is specified, it means this 
                        editController will be used to edit that struct. 
         @type  struct: L{LinearMotor} or None
         
         @see: L{LinearMotor.__init__}
         """ 
-        EditController.__init__(self, commandSequencer)
+        EditCommand.__init__(self, commandSequencer)
         self.struct = struct
     
     def init_gui(self):
@@ -69,7 +69,7 @@ class LinearMotorEditController(EditController):
               implementation is necessary, in which PM creation and 
               display will be handled  in init_gui method.
         """
-        #Note: This method overrides EditController.init_gui. This is just to 
+        #Note: This method overrides EditCommand.init_gui. This is just to 
         #prevent the call of self.create_and_or_show_PM_if_wanted. , As that 
         # method is called in self.createStructure. (to be cleaned up)
         pass 
@@ -121,7 +121,7 @@ class LinearMotorEditController(EditController):
         """
         Modifies the structure (Plane) using the provided params.
         @param params: The parameters used as an input to modify the structure
-                       (Plane created using this PlaneEditController) 
+                       (Plane created using this Plane_EditCommand) 
         @type  params: tuple
         """
         assert self.struct

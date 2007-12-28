@@ -259,7 +259,7 @@ packageMapping_for_files = {
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
     "Dna"                              : "operation|dna", # obs?
     "DnaDuplex"                        : "operation|dna", # class to help construct model objects defined elsewhere
-    "DnaDuplexEditController"          : "ui/controller|dna",
+    "DnaDuplex_EditCommand"          : "ui/controller|dna",
     "DnaDuplexPropertyManager"         : "ui/propmgr|dna",
     "DnaGenerator"                     : "ui/controller|dna", # obs?
     "DnaGeneratorPropertyManager"      : "ui/propmgr|dna", # obs?
@@ -270,8 +270,8 @@ packageMapping_for_files = {
     "draw_bond_vanes"                  : "graphics",
     "draw_grid_lines"                  : "graphics",
     "DynamicTip"                       : "graphics_widgets", # but some should be refactored into GraphicsMode
-    "EditController"                   : "ui/controller",
-    "EditController_PM"                : "ui/propmgr",
+    "EditCommand"                   : "ui/controller",
+    "EditCommand_PM"                : "ui/propmgr",
     "Elem"                             : "model", # chemistry?
     "elementColors"                    : "ui/dialog",
     "ElementColorsDialog"              : "ui/dialog",
@@ -307,7 +307,7 @@ packageMapping_for_files = {
     "GamessProp"                       : "ui|gamess",
     "GamessPropDialog"                 : "ui|gamess",
     "GeneratorBaseClass"               : "ui/propmgr", # or as itself, so whatever imports it won't import propmgr just from that??
-        # should split subclasses so this can be superceded by EditController and EditController_PM
+        # should split subclasses so this can be superceded by EditCommand and EditCommand_PM
     "GeneratorController"              : "ui/controller", #? @@@ ui/controller that are subclassing ui/propmgr may need reclassification
     "generator_button_images"          : "ui/dialog", #?
     "geometry"                         : "geometry",
@@ -347,7 +347,7 @@ packageMapping_for_files = {
     "JobManager"                       : "ui", # ui/operations/io; scratch; needs refactoring; job_manager package?
     "JobManagerDialog"                 : "ui", 
     "Line"                             : "model",
-    "LinearMotorEditController"        : "ui/controller",
+    "LinearMotor_EditCommand"        : "ui/controller",
     "LinearMotorPropertyManager"       : "ui/propmgr",
     "LineMode"                         : "temporary_command", #?? a temporary command and gm... apparently can be used directly?
     "main"                             : "top_level",
@@ -404,7 +404,7 @@ packageMapping_for_files = {
     
     "pi_bond_sp_chain"                 : "model",
     "Plane"                            : "model",
-    "PlaneEditController"              : "ui/controller",
+    "Plane_EditCommand"              : "ui/controller",
     "PlanePropertyManager"             : "ui/propmgr",
     "platform"                         : "utilities", # debug; rename platform.atom_debug -> debug_flags.debug ??
     "PlatformDependent"                : "platform", # ok, but really it's a mix of platform, utilities, io.
@@ -437,7 +437,7 @@ packageMapping_for_files = {
     "ReferenceGeometry"                : "model", 
     "reposition_baggage"               : "operations",
     "ResizeHandle"                     : "graphics_behavior", # (a DragHandler)
-    "RotaryMotorEditController"        : "ui/controller",
+    "RotaryMotor_EditCommand"        : "ui/controller",
     "RotaryMotorPropertyManager"       : "ui/propmgr",
     "RotateMode"                       : "temporary_command",
     "runSim"                           : "simulation", # includes perhaps ui, controller, io

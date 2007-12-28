@@ -8,20 +8,20 @@ PlaneEditcontroller.py
 
 History:
 ninad 20070606: Created.
-ninad 2007-10-05: Refactored, Also renamed PlaneGenerator to PlaneEditController
+ninad 2007-10-05: Refactored, Also renamed PlaneGenerator to Plane_EditCommand
                   while refactoring the old GeometryGeneratorBaseClass
-ninad 2007-12-26: Changes to make PlaneEditController a command on command stack
+ninad 2007-12-26: Changes to make Plane_EditCommand a command on command stack
 """
 
 from utilities.Log import greenmsg
-from EditController import EditController
+from EditCommand import EditCommand
 from PlanePropertyManager import PlanePropertyManager
 from Plane import  Plane
 
 
-class PlaneEditController(EditController):
+class Plane_EditCommand(EditCommand):
     """
-    The PlaneEditController class  provides an editController Object.
+    The Plane_EditCommand class  provides an editController Object.
     The editController, depending on what client code needs it to do, may create 
     a new plane or it may be used for an existing plane. 
     """
@@ -54,14 +54,14 @@ class PlaneEditController(EditController):
         @type  win: QMainWindow
         
         @param struct: The model object (in this case plane) that the 
-                       PlaneEditController may create and/or edit
+                       Plane_EditCommand may create and/or edit
                        If struct object is specified, it means this 
                        editController will be used to edit that struct. 
         @type  struct: L{Plane} or None
         
         @see: L{Plane.__init__}
         """     
-        EditController.__init__(self, commandSequencer)
+        EditCommand.__init__(self, commandSequencer)
         self.struct = struct      
 
     def _createPropMgrObject(self):
@@ -141,7 +141,7 @@ class PlaneEditController(EditController):
         """
         Modifies the structure (Plane) using the provided params.
         @param params: The parameters used as an input to modify the structure
-                       (Plane created using this PlaneEditController) 
+                       (Plane created using this Plane_EditCommand) 
         @type  params: tuple
         """
         assert self.struct
