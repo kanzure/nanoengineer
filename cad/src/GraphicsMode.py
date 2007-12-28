@@ -158,6 +158,17 @@ class basicGraphicsMode(GraphicsMode_API):
         self._setup_menus_in_init()
 
         return # from basicGraphicsMode.__init__
+    
+    def Enter_GraphicsMode(self):
+        """
+        Things such as updating cursor, setting some attributes etc , needed 
+        while enteirng the GraphicsMode. This method is called in 
+        self.command.Enter
+        @see: B{basicCommand.Enter}
+        """
+        
+        self.picking = False
+        self.update_cursor()
 
     def isCurrentGraphicsMode(self): #bruce 071010, for GraphicsMode API
         """

@@ -213,7 +213,7 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         #  the graphics-related attrs of self, in the mixed case, but are
         #  referred to as self.graphicsMode.attr so this will work in the split
         #  case as well), which is a kluge.)
-        return
+        return    
     
     def reset_drag_vars(self):
         """

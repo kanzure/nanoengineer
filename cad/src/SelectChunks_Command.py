@@ -60,10 +60,7 @@ class SelectChunks_basicCommand(Select_basicCommand):
         return
     
     def Enter(self): 
-        Select_basicCommand.Enter(self)
-        self.graphicsMode.update_cursor()
-        self.o.assy.selectChunksWithSelAtoms_noupdate()
-            # josh 10/7 to avoid race in assy init     
+        Select_basicCommand.Enter(self)           
         self.hover_highlighting_enabled = True
 
     def init_gui(self):
