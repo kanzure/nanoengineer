@@ -776,7 +776,7 @@ class basicCommand(anyCommand):
         """
         self.UpdateDashboard() # Added to hide Done button for Default command. Mark 050922.
         
-        # TODOs: 
+        # TODOs: [2007-12-28]
         # - We are likely to create a Enter_Command method instaed of just
         #  the 'Enter' method
         # - An example of the worry in current scheme -- what if that 
@@ -786,6 +786,18 @@ class basicCommand(anyCommand):
         # - May be we should call Enter_GraphicsMode in or after method 
         #  CommandSequencer.start_using_mode? Not sure if that method actually 
         #  uses some things from graphicsMode.Enter. 
+        # - [bruce writes]: If calls to methods such as update_cursor (done in 
+        #   Enter_GraphicsMode part)  need some command attrs to be set, then,
+        #   maybe in the Enter_Command scheme, the default Enter would do 
+        #   3 things: 
+        #  Enter_Command, Enter_GM, and whatever update calls are then needed, 
+        #  like update_cursor . Or whoever calls Enter could do it. 
+        # - NOTE, the split Enter method (Enter_GreaphicsMode and proposed 
+        #   Enter_Command method) scheme doesn't consider the effect 
+        #  on the non-split modes such as modifyMode. But some basic tests 
+        #  indicate that this may not be an issue. (looks safe) 
+        
+
         
         self.graphicsMode.Enter_GraphicsMode()
         

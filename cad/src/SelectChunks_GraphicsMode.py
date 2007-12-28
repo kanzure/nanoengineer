@@ -61,10 +61,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
     
     def Enter_GraphicsMode(self):
         """
-        Things such as updating cursor, setting some attributes etc , needed 
-        while enteirng the GraphicsMode. This method is called in 
-        self.command.Enter
-        @see: B{SelectChunks_basicCommand.Enter} B{basicCpmmand.Enter}
+        Things needed while entering the GraphicsMode (e.g. updating cursor, 
+        setting some attributes etc). 
+        This method is called in self.command.Enter
+        @see: B{SelectChunks_basicCommand.Enter}, B{basicCommand.Enter}
         """
         _superclass.Enter_GraphicsMode(self)        
         self.o.assy.selectChunksWithSelAtoms_noupdate()

@@ -161,9 +161,9 @@ class basicGraphicsMode(GraphicsMode_API):
     
     def Enter_GraphicsMode(self):
         """
-        Things such as updating cursor, setting some attributes etc , needed 
-        while enteirng the GraphicsMode. This method is called in 
-        self.command.Enter
+        Things needed while entering the GraphicsMode (e.g. updating cursor, 
+        setting some attributes etc). 
+        This method is called in self.command.Enter
         @see: B{basicCommand.Enter}
         """
         #NOTE: See a comment in basicCommand.Enter for things still needed 
