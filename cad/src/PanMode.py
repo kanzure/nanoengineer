@@ -52,6 +52,7 @@ class PanMode(TemporaryCommand_Overdrawing): # TODO: rename to PanTool or PanCom
     
     commandName = 'PAN'
     default_mode_status_text = "Tool: Pan"
+    featurename = "Pan Tool"
 
     GraphicsMode_class = PanMode_GM
 

@@ -275,7 +275,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
     # class constants
     commandName = 'FUSECHUNKS'
     default_mode_status_text = "Mode: Fuse Chunks"
-
+    featurename = "Fuse Chunks Mode"
 
     something_was_picked = False
         # 'something_was_picked' is a special boolean flag needed by Draw() 

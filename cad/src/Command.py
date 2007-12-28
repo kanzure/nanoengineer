@@ -35,7 +35,7 @@ from PlatformDependent import shift_name
 from PlatformDependent import control_name
 from PlatformDependent import context_menu_prefix
 
-# import env # not used as of 071010 morning
+import env
 from state_utils import StateMixin
 
 from constants import noop, GLPANE_IS_COMMAND_SEQUENCER
@@ -201,6 +201,7 @@ class nullCommand(anyCommand):
     
     pass # end of class nullCommand
 
+_featurename_to_command_class = {}
 
 class basicCommand(anyCommand):
     """
@@ -226,22 +227,10 @@ class basicCommand(anyCommand):
     commandName = "(bug: missing commandName)"
     msg_commandName = "(bug: unknown command)"
     default_mode_status_text = "(bug: missing command status text)"
+    featurename = "Undocumented Command"
 
     command_can_be_suspended = True # good default value for most commands [bruce 071011]
-    
-    def user_commandName(self): #bruce 051130 (apparently this is new; it can be the official user-visible-commandName method for now)
-        """
-        Return a string such as 'Move Mode' or 'Build Mode' --
-        the name of this command for users; or '' if unknown.
-        """
-        ### TODO: move below __init__ or make it a property or so
-        if self.default_mode_status_text.startswith("Mode: "):
-            return self.default_mode_status_text[len("Mode: "):] + " Mode"
-        if self.default_mode_status_text.startswith("Tool: "): 
-            # Added for Pan, Rotate and Zoom Tools. Fixes bug 1298. mark 060323
-            return self.default_mode_status_text[len("Tool: "):] + " Tool"
-        return ''
-    
+
     def __init__(self, commandSequencer):
         """
         This is called once on each newly constructed Command.
@@ -323,9 +312,103 @@ class basicCommand(anyCommand):
         self.glpane.commandTable[self.commandName] = self
             # note: this can overwrite a prior instance of the same command,
             # e.g. when setAssy is called.
+
+        # exercise self.get_featurename(), just for its debug prints
+        self.get_featurename()
             
         return # from basicCommand.__init__
 
+    # ==
+    
+    def _user_commandName(self):
+        """
+        Return a string such as "Move Mode" or "Build Atoms Mode" --
+        the name of this command for showing to users; or "" if unknown.
+
+        DEPRECATED. Will be removed soon. Used only in get_featurename
+        for debug messages to make sure it's implemented properly.
+        In new code use get_featurename instead. [bruce 071227]
+        """
+        #bruce 051130 (apparently this is new; it can be the official
+        # user-visible-commandName method for now)
+        if self.default_mode_status_text.startswith("Mode: "):
+            return self.default_mode_status_text[len("Mode: "):] + " Mode"
+        if self.default_mode_status_text.startswith("Tool: "): 
+            # Added for Pan, Rotate and Zoom Tools. Fixes bug 1298. mark 060323
+            return self.default_mode_status_text[len("Tool: "):] + " Tool"
+        return ""
+
+    def get_featurename(self): #bruce 071227
+        """
+        Return the "feature name" to be used for the wiki help feature page
+        (not including the initial "Feature:" prefix).
+
+        Usually, this is one or a few space-separated capitalized words.
+        """
+        
+        # (someday: add debug command to list all known featurenames,
+        #  by object type -- optionally as wiki help links, for testing)
+
+        res = self.featurename
+        
+        # make sure no surrounding whitespace
+        res0 = res
+        res = res.strip()
+        if res != res0:
+            msg = "developer warning: in class %r, .featurename %r had " \
+                  "whitespace we had to strip" % \
+                  (self.__class__.__name__, res0)
+            if not env.seen_before(msg):
+                print msg
+        
+        # TEMPORARY: warn developers if different from _user_commandName;
+        # this is the last remaining use of self._user_commandName(), so
+        # remove that when this is removed, in a couple days [bruce 071227]
+        if res != self._user_commandName() and self._user_commandName():
+            msg = "developer warning (temporary): in class %r, %r != %r" % \
+                  (self.__class__.__name__, res, self._user_commandName())
+            if not env.seen_before(msg):
+                print msg
+
+# remove after commit: this approach doesn't work, e.g. for
+# SelectChunks_Command inheriting SelectChunks_basicCommand
+##        # if same as in any superclass, print warning and append classname
+##        same = False
+##        for superclass in self.__class__.__bases__:
+##            super_featurename = getattr(superclass, 'featurename', "")
+##            if super_featurename and super_featurename == res:
+##                same = True
+##                # TODO: if this ever happens routinely, provide a way to turn
+##                # off the print and appended classname -- or (easier) just
+##                # require the affected class to override this method.
+##                msg = "developer warning: in class %r, .featurename %r is same"\
+##                      " as in superclass %r (should be overridden)" % \
+##                      (self.__class__.__name__, res, superclass)
+##                if not env.seen_before(msg):
+##                    print msg
+##                break
+##            continue
+        
+        # if same as in any other class, print warning and append classname
+        # (todo: if this ever happens routinely, provide a way to turn
+        #  off the print and appended classname -- or (easier) just
+        #  require the affected class to override this method)
+        same = False
+        class1 = _featurename_to_command_class.setdefault( res, self.__class__)
+        if class1.__name__ != self.__class__.__name__:
+            # (permit different class with same name, in case of reloading)
+            same = True
+            msg = "developer warning: in class %r, .featurename %r is same"\
+                  " as in class %r (override, or assign uniquely)" % \
+                  (self.__class__.__name__, res, class1.__name__)
+            if not env.seen_before(msg):
+                print msg
+            
+        if same:
+            res = res + " (%s)" % self.__class__.__name__
+        
+        return res # from get_featurename
+    
     # ==
     
     def _get_commandSequencer(self):
@@ -411,7 +494,7 @@ class basicCommand(anyCommand):
         
         #bruce 050416: give it a default menu; for modes we have now, this won't ever be seen unless there are bugs
         #bruce 060407 update: improve the text, re bug 1739 comment #3, since it's now visible for zoom/pan/rotate tools
-        self.Menu_spec = [("%s" % self.user_commandName(), noop, 'disabled')]
+        self.Menu_spec = [("%s" % self.get_featurename(), noop, 'disabled')]
         self.makeMenus() # bruce 040923 moved this here, from the subclasses; for most modes, it replaces self.Menu_spec
         # bruce 041103 changed details of what self.makeMenus() should do
         
@@ -478,7 +561,7 @@ class basicCommand(anyCommand):
                 self.Menu_spec.append( None )
                 self.Menu_spec.extend( ms )
         else:
-            featurename = self.user_commandName()
+            featurename = self.get_featurename()
             if featurename:
                 from wiki_help import wiki_help_menuspec_for_featurename
                 ms = wiki_help_menuspec_for_featurename( featurename )
@@ -486,7 +569,7 @@ class basicCommand(anyCommand):
                     self.Menu_spec.append( None ) # there's a bug in this separator, for cookiemode...
                         # [did I fix that? I vaguely recall fixing a separator logic bug in the menu_spec processor... bruce 071009]
                     # might this look better before the above submenus, with no separator?
-                    ## self.Menu_spec.append( ("web help: " + self.user_commandName(), self.menucmd_open_wiki_help_page) )
+                    ## self.Menu_spec.append( ("web help: " + self.get_featurename(), self.menucmd_open_wiki_help_page) )
                     self.Menu_spec.extend( ms )
         return # from setup_graphics_menu_specs
 

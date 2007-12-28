@@ -45,6 +45,7 @@ class PartLibraryMode(PasteMode):
     commandName = 'PARTLIB'
     msg_commandName = "Part Library" 
     default_mode_status_text = "Part Library"
+    featurename = "Part Library"
     
     def __init__(self, glpane):
         """
@@ -66,11 +67,11 @@ class PartLibraryMode(PasteMode):
     def init_gui(self):
         """
         Do changes to the GUI while entering this mode. This includes opening 
-        the property manager, updating the command explorer , connecting widget 
-        slots etc. 
+        the property manager, updating the command toolbar, connecting widget 
+        slots, etc. 
         
         Called once each time the mode is entered; should be called only by code 
-        in modes.py
+        in modes.py.
         
         @see: L{self.restore_gui}
         """

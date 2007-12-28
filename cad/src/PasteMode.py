@@ -39,6 +39,7 @@ class PasteMode(depositMode):
     commandName = 'PASTE' 
     msg_commandName = "Paste Mode" 
     default_mode_status_text = "Mode: Paste"
+    featurename = "Paste"
 
     command_can_be_suspended = True #bruce 071011, GUESS ### REVIEW whether correct when entering Zoom/Pan/Rotate
     command_should_resume_prevMode = True #bruce 071011, to be revised (replaces need for customized Done method)

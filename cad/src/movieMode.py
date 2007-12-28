@@ -91,6 +91,7 @@ class movieMode(basicMode):
     # class constants
     commandName = 'MOVIE'
     default_mode_status_text = "Mode: Movie Player"
+    featurename = "Movie Player Mode"
 
     # methods related to entering this mode
 

@@ -355,10 +355,19 @@ class LineMode(Select_Command):
     
     commandName = 'LineMode'
     default_mode_status_text = ""
+    featurename = "Line Mode"
+        # (I don't know if this featurename is ever user-visible;
+        #  if it is, it's probably wrong -- consider overriding
+        #  self.get_featurename() to return the value from the
+        #  prior command, if this is used as a temporary command.
+        #  The default implementation returns this constant
+        #  or (if it's not overridden in subclasses) something
+        #  derived from it. [bruce 071227])
+    
     hover_highlighting_enabled = True
     GraphicsMode_class = LineMode_GM
     
-    # Initial vale for the instance variable. (Note that although it is assigned 
+    # Initial value for the instance variable. (Note that although it is assigned 
     # an empty tuple, later it is assigned a list.) Empty tuple is just for 
     # the safer implementation than an empty list. Also, it is not 'None' 
     # because in LineMode_GM.bareMotion, it does a check using

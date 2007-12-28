@@ -101,7 +101,8 @@ class ExampleCommand(_superclass):
     """
     test_commands_start_as_temporary_command = False
     PM_class = None # if not overridden, means we need no PM (BUG: we'll still get a PM tab)
-    
+    featurename = "Prototype: Undocumented Example Command"
+
     def init_gui(self):
         print "init_gui in", self ###
         win = self.win
@@ -148,6 +149,7 @@ class ExampleCommand1(ExampleCommand):
     """
     commandName = 'ExampleCommand1-commandName' # internal #e fix init code in basicMode to get it from classname?
     default_mode_status_text = "ExampleCommand1"
+    featurename = "Prototype: Example Command 1"
     #e define msg_commandName, or fix init code in basicMode to get it from default_mode_status_text or classname or...
     # note: that init code won't even run now, since superclass defs it i think -- actually, not sure abt that, probably it doesn't
     PM_class = ExampleCommand1_PM
@@ -164,6 +166,7 @@ class ExampleCommand2( Example_TemporaryCommand_useParentPM): # WRONG: this has 
     """
     commandName = 'ExampleCommand2-commandName'
     default_mode_status_text = "ExampleCommand2"
+    featurename = "Prototype: Example Command 2"
     PM_class = ExampleCommand2_PM
     
     pass
@@ -180,6 +183,7 @@ class PM_WidgetDemo(ExampleCommand):
     # I know that for awhile it was broken due to a bug. [bruce 071030 comment]
     commandName = 'PM_WidgetDemo-commandName'
     default_mode_status_text = "PM_Widgets Demo"
+    featurename = "Test Command: PM_Widgets Demo"
     PM_class = PM_WidgetsDemoPropertyManager
     pass
 

@@ -1214,7 +1214,8 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
     backgroundColor = 103/256.0, 124/256.0, 53/256.0
     commandName = 'TEST_ANIMATION'
     default_mode_status_text = "Mode: test animation"
-    
+    featurename = "Prototype: Example Animation Mode"
+
     # other class constants
     PM_class = test_animation_mode_PM
 

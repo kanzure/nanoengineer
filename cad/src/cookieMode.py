@@ -70,6 +70,8 @@ class cookieMode(basicMode):
     gridColor = 222/255.0, 148/255.0, 0/255.0
     commandName = 'COOKIE'
     default_mode_status_text = "Mode: Build Crystal"
+    featurename = "Build Crystal Mode"
+
     displayMode = diTUBES 
         # displayMode isn't used except for updating the 'Display Mode' combobox in the Preference dialog.
         # Cookie mode uses its own attr <cookieDisplayMode> to display Tubes (default) or Spheres.

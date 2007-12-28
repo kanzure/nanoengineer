@@ -103,6 +103,8 @@ class depositMode(selectAtomsMode):
     commandName = 'DEPOSIT' 
     msg_commandName = "Build Mode" # Capitalized 'Mode'. Fixes bugs 612-1.2 and 1.3. mark 060323
     default_mode_status_text = "Mode: Build Atoms"
+    featurename = "Build Atoms Mode"
+
     highlight_singlets = True # Always highlight singlets in depositMode. Mark 060220.
 
     def __init__(self, glpane):

@@ -64,12 +64,14 @@ class EditController(Select_Command):
        
     TODO: NEED TO IMPROVE DOCSTRING FURTHER
     """
-    # see definition details in GeneratorBaseClass
+    # see definition details in GeneratorBaseClass;
+    # most of these should be overridden by each specific subclass
     cmd      =  "" 
     cmdname  =  "" 
     _gensym_data_for_reusing_name = None
     commandName = 'EditController'
-    default_mode_status_text = ""    
+    default_mode_status_text = ""
+    featurename = "Undocumented Edit Command" # default wiki help featurename
     
     propMgr = None
     flyoutToolbar = None

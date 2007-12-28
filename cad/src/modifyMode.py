@@ -53,6 +53,7 @@ class modifyMode(selectMolsMode):
     gridColor = 52/255.0, 128/255.0, 26/255.0
     commandName = 'MODIFY'
     default_mode_status_text = "Mode: Move Chunks"
+    featurename = "Move Chunks Mode"
 
     MOVEOPTS = [ 'MOVEDEFAULT', 'TRANSX', 'TRANSY', 'TRANSZ' ]
 

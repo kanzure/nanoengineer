@@ -43,6 +43,7 @@ class test_polyline_drag(State_preMixin, ExampleCommand):
     # class constants needed by mode API for example commands
     commandName = 'test_polyline_drag-commandName'
     default_mode_status_text = "test_polyline_drag"
+    featurename = "Prototype: Example Polyline Drag Command"
 ##    PM_class = test_polyline_drag_PM
 
     # tracked state

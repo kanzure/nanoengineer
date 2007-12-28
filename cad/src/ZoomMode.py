@@ -200,6 +200,7 @@ class ZoomMode(TemporaryCommand_Overdrawing):
     # class constants
     commandName = 'ZOOM'
     default_mode_status_text = "Tool: Zoom"
+    featurename = "Zoom Tool"
 
     GraphicsMode_class = ZoomMode_GM
     

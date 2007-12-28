@@ -137,6 +137,7 @@ class ExampleCommand2E( ExampleCommand2, object):
     commandName = 'ExampleCommand2E-commandName'
     default_mode_status_text = "ExampleCommand2E"
     PM_class = ExampleCommand2E_PM
+    featurename = "Prototype: ExampleCommand2E"
 
     GraphicsMode_class = ExampleCommand2E_GM
 

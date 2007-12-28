@@ -59,6 +59,7 @@ class testmode(superclass):
     
     commandName = 'TEST'
     default_mode_status_text = "Mode: Test"
+    featurename = "Test Command: Exprs Package"
 
     # for GraphicsMode
 

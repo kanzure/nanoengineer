@@ -236,6 +236,10 @@ class Node( StateMixin):
         Return the wiki-help featurename for this object's class,
         or '' if there isn't one.
         """
+        # TODO: add superclass-override checks and an "Undocumented Node"
+        # default value, like in Command.get_featurename, except permit
+        # specific classes to turn it off, at least for use in the MT cmenu,
+        # like they do now by leaving it as "". [bruce 071227 comment]
         return self.__class__.featurename
             # that's intended to be a per-subclass constant...
             # so enforce that until we need to permit it to be otherwise

@@ -932,7 +932,7 @@ class basicGraphicsMode(GraphicsMode_API):
         # See bug 1171 for more info about different platforms -- this should be revised to match.
         # Also the menu item should mention this accel key, but doesn't.
         elif key == Qt.Key_F1:
-            featurename = self.command.user_commandName()
+            featurename = self.command.get_featurename()
             if featurename:
                 from wiki_help import open_wiki_help_dialog
                 open_wiki_help_dialog( featurename)

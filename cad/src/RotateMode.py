@@ -51,6 +51,7 @@ class RotateMode(TemporaryCommand_Overdrawing): # TODO: rename to RotateTool or 
     # class constants
     commandName = 'ROTATE'
     default_mode_status_text = "Tool: Rotate"
+    featurename = "Rotate Tool"
 
     GraphicsMode_class = RotateMode_GM
 

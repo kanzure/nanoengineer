@@ -111,7 +111,16 @@ class TemporaryCommand_Overdrawing( TemporaryCommand_preMixin,
     GraphicsMode component from GraphicsMode.
     """
     GraphicsMode_class = _TemporaryCommand_Overdrawing_GM
-    
+    featurename = "Undocumented Temporary Command"
+        # (I don't know if this featurename is ever user-visible;
+        #  if it is, it's probably wrong -- consider overriding
+        #  self.get_featurename() to return the value from the
+        #  prior command.
+        #  The default implementation returns this constant
+        #  or (if it's not overridden in subclasses) something
+        #  derived from it. [bruce 071227])
+    pass
+
     
 # keep this around for awhile, to show how to set it up when we want the
 # same thing while converting larger old modes:

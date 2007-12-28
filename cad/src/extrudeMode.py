@@ -150,6 +150,8 @@ class extrudeMode(basicMode):
     is_revolve = 0
     commandName = 'EXTRUDE'
     default_mode_status_text = "Mode: Extrude"
+    featurename = "Extrude Mode"
+
     keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
 
     # no __init__ method needed
@@ -2240,6 +2242,7 @@ class fake_copied_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_copy_h
 ##    commandName = 'REVOLVE'
 ##    msg_commandName = "revolve mode" #e need to fix up anything else?
 ##    default_mode_status_text = "Mode: Revolve"
+##    featurename = "Revolve Mode"
 ##    is_revolve = 1
 ##    pass
 

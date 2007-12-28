@@ -1,8 +1,10 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-displaymodes.py -- support for new modular display modes. [Not fully implemented, as of 060608.]
+displaymodes.py -- support for new modular display modes.
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
 Initially this only handles ChunkDisplayModes, which draw entire chunks (even if they are
 highlighted or selected) without drawing their atoms or bonds in the usual way. (Such a
@@ -15,8 +17,6 @@ of atoms and bonds. These are not yet implemented.
 To make a new chunk display mode, make a new file which defines and registers a subclass
 of our class ChunkDisplayMode. For an example, see CylinderChunks.py.
 """
-
-__author__ = 'bruce'
 
 # to make a new display mode for whole chunks, see the instructions in the module docstring above.
 
@@ -39,11 +39,21 @@ class DisplayMode:
     abstract class for any sort of display mode
     (except the 6 original built-in ones defined in constants.py)
     """
+    
+    # Note: some subclasses assign a class constant featurename,
+    # but as far as I know, this is not yet used. TODO: add a
+    # get_featurename method like in class Command (or basicCommand)
+    # and add code to use it (not sure where in the UI).
+    # [bruce 071227 comment]
+    featurename = ""
+    
     chunk_only = False # default value of class constant; some subclasses override this (in fact, not doing so is not yet supported)
+
     def __init__(self, ind):
         self.ind = ind
         self._icon_name = getattr(self, "icon_name", "junk.png")
         self._hide_icon_name = getattr(self, "hide_icon_name", self._icon_name)
+
     def get_icon(self, hidden):
         from icon_utilities import imagename_to_pixmap
         if hidden:
@@ -51,6 +61,7 @@ class DisplayMode:
         else:
             return imagename_to_pixmap( self._icon_name)
         pass
+
     def _register_for_readmmp(clas): # staticmethod; name is misleading, but required by other code in this file
         """
         private method called when setting up mmp reading code:
@@ -77,7 +88,9 @@ class DisplayMode:
         _display_mode_handlers[ind] = inst #k are both of these needed??
         return
     _register_for_readmmp = staticmethod( _register_for_readmmp)
+    
     #e some of ChunkDisplayMode's code probably belongs in this class
+    
     pass # end of class DisplayMode
 
 class ChunkDisplayMode(DisplayMode): 
@@ -85,6 +98,7 @@ class ChunkDisplayMode(DisplayMode):
     abstract class for display modes which only work for entire chunks
     """
     chunk_only = True
+    
     def register_display_mode_class(clas): # staticmethod
         """
         Register the given subclass of ChunkDisplayMode as a new display mode for whole chunks,
@@ -120,12 +134,14 @@ class ChunkDisplayMode(DisplayMode):
         ##e should we do something so users can use it as a prefs value for preferred display mode, too?
         return
     register_display_mode_class = staticmethod( register_display_mode_class)
+
     def setDisplay_command(self, widget):
         win = env.mainwindow()
         win.setDisplay(self.ind)
         if env.debug():
             print "setDisplay to %r.ind == %r" % (self, self.ind)
         return
+
     def _drawchunk(self, glpane, chunk, highlighted = False):
         """
         [private method for use only by Chunk.draw]
@@ -139,6 +155,7 @@ class ChunkDisplayMode(DisplayMode):
         #e pushname
         self.drawchunk( glpane, chunk, memo, highlighted = highlighted)
         return
+
     def _drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, highlighted = False):
         """
         Call the subclass's drawchunk with the same arguments (but supplying memo ourselves), in the proper way
@@ -149,6 +166,7 @@ class ChunkDisplayMode(DisplayMode):
         #e highlight color for selection frame itself??
         self.drawchunk_selection_frame( glpane, chunk, selection_frame_color, memo, highlighted = highlighted)
         return
+
     def getmemo(self, chunk):
         """
         [needs doc]
@@ -170,6 +188,7 @@ class ChunkDisplayMode(DisplayMode):
             memoplace['memo_validity_data'] = memo_validity_data
             memoplace['memo'] = memo
         return memoplace['memo']
+    
     pass # end of class ChunkDisplayMode
     
 # end

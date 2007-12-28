@@ -47,7 +47,9 @@ class SelectChunks_basicCommand(Select_basicCommand):
       to override them).
     """
     commandName = 'SELECTMOLS'
-    default_mode_status_text = "Mode: Select Chunks"    
+    default_mode_status_text = "Mode: Select Chunks"
+    featurename = "Select Chunks Mode"
+
     hover_highlighting_enabled = True
     
     def __init__(self, commandSequencer):
