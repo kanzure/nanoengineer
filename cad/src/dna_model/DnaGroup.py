@@ -7,7 +7,9 @@ DnaGroup.py - ...
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from Block import Block
+from dna_model.Block import Block
+#Following import is disabled. See addSegment method for reason.
+##from dna_model.DnaSegment import DnaSegment
 
 class DnaGroup(Block):
     """
@@ -44,17 +46,39 @@ class DnaGroup(Block):
         """
         return self.get_subnodes_of_class("DnaSegment") # IMPLEM get_subnodes_of_class
     
-    
-    #Following methods are NOT IMPLEMENTED YET =================================
-    def addSegment(self, endPoints):
+
+    def addSegment(self, segment):
         """
         Creates a new segment object for this dnaGroup
-        @param endPoints: The two axis endPoints of the segment to be created.
-        @type: list        
-        @see: B{DnaSegment}
+        @param segment: The DnaSegment to be added to this DnaGroup object
+        @type: B{DnaSegment}  
         """
-        #NIY
-        #Need to maintain an internal segmentList? (e.g. self._segmentList
-        assert 0
+        #importing DnaSegment created an import cycle which throws error. 
+        #So the isinstance check is is disabled for now. -- Here is the error
+        ##Traceback (most recent call last):
+            ##File "main.py", line 137, in ?
+              ##_start_NE1()
+            ##File "main.py", line 132, in _start_NE1
+              ##startup_script( _main_globals )
+            ##File "C:\Atom\cad\src\startup\main_startup.py", line 119, in startup_script
+              ##from MWsemantics import MWsemantics
+            ##File "C:\Atom\cad\src\MWsemantics.py", line 40, in ?
+              ##from GLPane import GLPane
+            ##File "C:\Atom\cad\src\GLPane.py", line 122, in ?
+              ##from DnaDuplexEditController import DnaDuplexEditController
+            ##File "C:\Atom\cad\src\DnaDuplexEditController.py", line 31, in ?
+              ##from dna_model.DnaSegment import DnaSegment
+            ##File "C:\Atom\cad\src\dna_model\DnaSegment.py", line 10, in ?
+              ##from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
+            ##File "C:\Atom\cad\src\dna_model\DnaStrandOrSegment.py", line 11, in ?
+              ##from dna_model.DnaGroup import DnaGroup
+            ##File "C:\Atom\cad\src\dna_model\DnaGroup.py", line 11, in ?
+              ##from dna_model.DnaSegment import DnaSegment
+          ##ImportError: cannot import name DnaSegment
+        
+        ##assert isinstance(segment, DnaSegment)
+        
+        
+        self.addchild(segment)
 
 # end
