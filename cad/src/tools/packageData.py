@@ -350,7 +350,6 @@ packageMapping_for_files = {
     "LinearMotorPropertyManager"       : "ui/propmgr",
     "LineMode"                         : "temporary_command", #?? a temporary command and gm... apparently can be used directly?
     "main"                             : "top_level",
-    "MainWindowUI"                     : "ui",
     "master_model_updater"             : "model_updater",
     "mdldata"                          : "graphics_io",
     "MinimizeEnergyProp"               : "ui",#?
@@ -520,6 +519,7 @@ packageMapping_for_files = {
     "Ui_FileMenu"                      : "ui/menu",
     "Ui_HelpMenu"                      : "ui/menu|help",
     "Ui_InsertMenu"                    : "ui/menu",
+    "Ui_MainWindow"                    : "ui",
     "Ui_MovePropertyManager"           : "ui/propmgr|commands/Move",
     "Ui_MoviePropertyManager"          : "ui/propmgr|commands/PlayMovie",
     "Ui_PartWindow"                    : "widget|ne1_ui", #?

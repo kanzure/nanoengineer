@@ -61,7 +61,7 @@ from ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_False
 
-from MainWindowUI import Ui_MainWindow
+from Ui_MainWindow import Ui_MainWindow
 from utilities.Log import greenmsg, redmsg, orangemsg
 
 import Ui_DnaFlyout
