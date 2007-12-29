@@ -194,7 +194,7 @@ packageMapping_for_packages = {
     "exprs"                            : "exprs", # (someday will be refactored and split)
     "gui"                              : "ui|ne1_ui", # along with other files (or into a whatsthis subpackage?)
     "model"                            : "model", # along with other files
-    "PM"                               : "ui/widgets|PM",
+    "PM"                               : "widgets|PM",
     "startup"                          : "root|ne1_startup",
     "utilities"                        : "utilities",
 }
@@ -210,8 +210,8 @@ packageMapping_for_files = {
     "assembly"                         : "model", # (some foundation, but knows part.py which knows lots of ops & model constructors)
                                                   # (also: knows about selection, undo state, change counting, open file)
     "Assembly_API"                     : "foundation", # since not legit to be used below foundation
-    "AtomGenerator"                    : "ui/controller",
-    "AtomGeneratorPropertyManager"     : "ui/propmgr",
+    "AtomGenerator"                    : "command|commands/BuildAtom",
+    "AtomGeneratorPropertyManager"     : "ui/propmgr|commands/BuildAtom",
     "atomtypes"                        : "model", # or chemistry?
     "bonds"                            : "model", # Bond
     "bonds_from_atoms"                 : "operation",
@@ -230,16 +230,16 @@ packageMapping_for_files = {
     "chunk"                            : "model",
     "ChunkProp"                        : "ui",
     "ChunkPropDialog"                  : "ui",
-    "CommandToolbar_Constants"         : "ui",
+    "CommandToolbar_Constants"         : "widget|CommandToolbar", # see module docstring for why
     "Command"                          : "command",
-    "CommandToolbar"                   : "ui",
-    "CommandSequencer"                 : "ui",
+    "CommandToolbar"                   : "widget|CommandToolbar", # controls the main hierarchical toolbar
+    "CommandSequencer"                 : "ui", ### @@@
     "Comment"                          : "model",
     "CommentProp"                      : "ui",
     "CommentPropDialog"                : "ui",
     "confirmation_corner"              : "graphics_behavior",#? a MouseEventHandler; like a GraphicsMode or DragHandler; graphics_what?
     "constants"                        : "utilities",
-    "CoNTubGenerator"                  : "ui/controller",###?? @@@
+    "CoNTubGenerator"                  : "command",###?? @@@
 
     "CookieCtrlPanel"                  : "ui|commands/BuildCrystal",
     "cookieMode"                       : "unsplit_mode|commands/BuildCrystal",
@@ -259,9 +259,9 @@ packageMapping_for_files = {
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
     "Dna"                              : "operation|dna", # obs?
     "DnaDuplex"                        : "operation|dna", # class to help construct model objects defined elsewhere
-    "DnaDuplex_EditCommand"          : "ui/controller|dna",
+    "DnaDuplex_EditCommand"            : "command|dna",
     "DnaDuplexPropertyManager"         : "ui/propmgr|dna",
-    "DnaGenerator"                     : "ui/controller|dna", # obs?
+    "DnaGenerator"                     : "command|dna", # obs?
     "DnaGeneratorPropertyManager"      : "ui/propmgr|dna", # obs?
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
     "Dna_Constants"                    : "model|dna",#?
@@ -270,8 +270,8 @@ packageMapping_for_files = {
     "draw_bond_vanes"                  : "graphics",
     "draw_grid_lines"                  : "graphics",
     "DynamicTip"                       : "graphics_widgets", # but some should be refactored into GraphicsMode
-    "EditCommand"                   : "ui/controller",
-    "EditCommand_PM"                : "ui/propmgr",
+    "EditCommand"                      : "command",
+    "EditCommand_PM"                   : "ui/propmgr",
     "Elem"                             : "model", # chemistry?
     "elementColors"                    : "ui/dialog",
     "ElementColorsDialog"              : "ui/dialog",
@@ -292,8 +292,7 @@ packageMapping_for_files = {
     
     "ExecSubDir"                       : "top_level",
     "extensions"                       : "top_level", # (someday, find a way to move it into a subdir)
-    "extrudeMode"                      : "unsplit_mode|commands/Extrude", #? Extrude Tool? might future scripts
-        # have Extrude and Extrude Tool with different behavior? (I doubt it -- could use "interactive" flag instead.)
+    "extrudeMode"                      : "unsplit_mode|commands/Extrude",
     "ExtrudePropertyManager"           : "ui/propmgr|commands/Extrude",
     "fileIO"                           : "graphics_io", # should be split into files_mdl and files_povray
     "files_gms"                        : "io|gamess", # put this gamess package in analysis/gamess?
@@ -301,14 +300,14 @@ packageMapping_for_files = {
     "files_nh"                         : "io|ESP", # for a nanohive esp package -- in analysis/ESP?
     "files_pdb"                        : "io", # perhaps for a pdb_io package, if any other files would be in it
     "Font3D"                           : "graphics",
-    "fusechunksMode"                   : "unsplit_mode|commands/Fuse", #? Fuse Tool??? (probably not; see comment for Extrude)
+    "fusechunksMode"                   : "unsplit_mode|commands/Fuse",
     "FusePropertyManager"              : "ui/propmgr|commands/Fuse",
     "GamessJob"                        : "operations|gamess", # contains operations and io
     "GamessProp"                       : "ui|gamess",
     "GamessPropDialog"                 : "ui|gamess",
     "GeneratorBaseClass"               : "ui/propmgr", # or as itself, so whatever imports it won't import propmgr just from that??
         # should split subclasses so this can be superceded by EditCommand and EditCommand_PM
-    "GeneratorController"              : "ui/controller", #? @@@ ui/controller that are subclassing ui/propmgr may need reclassification
+    "GeneratorController"              : "command?", #?
     "generator_button_images"          : "ui/dialog", #?
     "geometry"                         : "geometry",
     "GlobalPreferences"                : "utilities", #? - imports debug_prefs & prefs_constants, dubious for utilities; or constants??
@@ -316,7 +315,7 @@ packageMapping_for_files = {
     "GLPane"                           : "graphics_widgets",
     "GLPane_minimal"                   : "graphics_widgets",
     "gpl_only"                         : "platform",
-    "GrapheneGenerator"                : "ui/controller",
+    "GrapheneGenerator"                : "command",
     "GrapheneGeneratorPropertyManager" : "ui/propmgr",
     "GraphicsMode"                     : "graphics_mode",
     "GraphicsMode_API"                 : "ui_api", # not legit to be needed by anything below ui, i think
@@ -347,7 +346,7 @@ packageMapping_for_files = {
     "JobManager"                       : "ui", # ui/operations/io; scratch; needs refactoring; job_manager package?
     "JobManagerDialog"                 : "ui", 
     "Line"                             : "model",
-    "LinearMotor_EditCommand"        : "ui/controller",
+    "LinearMotor_EditCommand"          : "command",
     "LinearMotorPropertyManager"       : "ui/propmgr",
     "LineMode"                         : "temporary_command", #?? a temporary command and gm... apparently can be used directly?
     "main"                             : "top_level",
@@ -356,16 +355,16 @@ packageMapping_for_files = {
     "mdldata"                          : "graphics_io",
     "MinimizeEnergyProp"               : "ui",#?
     "MinimizeEnergyPropDialog"         : "ui",#?
-    "modelTree"                        : "model_tree", # for model_tree package; a model which implems the api class for modelTreeGui
-    "modelTreeGui"                     : "model_tree", # for model_tree package; a widget with view & maybe some control code
+    "modelTree"                        : "model|ModelTree", # a model which implems the api class for modelTreeGui
+    "modelTreeGui"                     : "widget|ModelTree", # a widget with view & maybe some control code
     "modes"                            : "unsplit_mode",
     "modifyMode"                       : "unsplit_mode|commands/Move", #? MoveChunks?? probably not, we'll deemphasize Chunks to users
     "MotorPropertyManager"             : "ui/propmgr|??", #@@?? @@@
     "MovePropertyManager"              : "ui/propmgr|commands/Move",
     "movie"                            : "simulation", #? hold simparams, or open moviefile - internal model, some ui/control/ops/io
     "moviefile"                        : "io",
-    "movieMode"                        : "unsplit_mode|commands/MoviePlayer",
-    "MoviePropertyManager"             : "ui/propmgr|commands/MoviePlayer",
+    "movieMode"                        : "unsplit_mode|commands/PlayMovie",
+    "MoviePropertyManager"             : "ui/propmgr|commands/PlayMovie",
     "MWsemantics"                      : "ui|ne1_ui",
     
     "NanoHive"                         : "ui|ESP", # ui/control/ops for running ESP (etc?) calcs using NanoHive. ui for now.
@@ -373,10 +372,10 @@ packageMapping_for_files = {
     "NanoHiveUtils"                    : "?|ESP", # Mostly control & io code. Some model & ui code (via assy arg & assy.w).
     "NanoHive_SimParameters"           : "model|ESP",
 
-    "NanotubeGenerator"                : "ui/controller",
+    "NanotubeGenerator"                : "command",
     "NanotubeGeneratorPropertyManager" : "ui/propmgr",
-    "NE1ToolBar"                       : "ui/widgets", # Variant of QToolBar
-    "Node_as_MT_DND_Target"            : "model_tree", # controller for model_tree package
+    "NE1ToolBar"                       : "widget", # Variant of QToolBar
+    "Node_as_MT_DND_Target"            : "controller|ModelTree",
     "node_indices"                     : "foundation",
 
     "objectBrowse"                     : "utilities", # debug
@@ -404,7 +403,7 @@ packageMapping_for_files = {
     
     "pi_bond_sp_chain"                 : "model",
     "Plane"                            : "model",
-    "Plane_EditCommand"              : "ui/controller",
+    "Plane_EditCommand"                : "command",
     "PlanePropertyManager"             : "ui/propmgr",
     "platform"                         : "utilities", # debug; rename platform.atom_debug -> debug_flags.debug ??
     "PlatformDependent"                : "platform", # ok, but really it's a mix of platform, utilities, io.
@@ -423,7 +422,7 @@ packageMapping_for_files = {
     "prefsTree"                        : "model", # see docstring for caveats
     "prefs_constants"                  : "utilities", # or constants? see module docstring for explanation
 
-    "prefs_widgets"                    : "ui/widgets", #? - might not work -- needs splitting, some goes in foundation
+    "prefs_widgets"                    : "widgets", #? - might not work -- ### needs splitting, some goes in foundation
     "Process"                          : "io",
     "PropMgr_Constants"                : "PM",
     "pyrex_test"                       : "top_level", #? I don't know if this matters - pyrex_test only exists as .c and .pyx and .so
@@ -437,8 +436,8 @@ packageMapping_for_files = {
     "ReferenceGeometry"                : "model", 
     "reposition_baggage"               : "operations",
     "ResizeHandle"                     : "graphics_behavior", # (a DragHandler)
-    "RotaryMotor_EditCommand"        : "ui/controller",
-    "RotaryMotorPropertyManager"       : "ui/propmgr",
+    "RotaryMotor_EditCommand"          : "command|commands/EditRotaryMotor", ###?? to fit VerbNoun, and not conflict with model class @@@
+    "RotaryMotorPropertyManager"       : "ui/propmgr|commands/EditRotaryMotor",
     "RotateMode"                       : "temporary_command",
     "runSim"                           : "simulation", # includes perhaps ui, controller, io
     
@@ -458,7 +457,7 @@ packageMapping_for_files = {
     
     "Selobj"                           : "graphics_behavior_api", # (revisit when done, or when anything uses it)
     
-    "SequenceEditor"                   : "ui", # a major ui component, and maybe a widget (guess, didn't look at code)
+    "SequenceEditor"                   : "widget|SequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
     
     "ServerManager"                    : "ui|processes", #? specific to gamess? maybe, but shouldn't. persistent db/UI for servers list
     "ServerManagerDialog"              : "ui|processes",
@@ -481,7 +480,7 @@ packageMapping_for_files = {
     
     "StatProp"                         : "ui",
     "StatPropDialog"                   : "ui",
-    "StatusBar"                        : "ui/widgets|statusbar", # a specific part of the NE1 main window
+    "StatusBar"                        : "widget", # used as a specific part of the NE1 main window, but general-purpose code
     "SurfaceChunks"                    : "graphics_view",
     
     "TemporaryCommand"                 : "temporary_command",
@@ -512,7 +511,7 @@ packageMapping_for_files = {
     "Ui_BuildStructuresToolBar"        : "ui/toolbar",
     "Ui_BuildToolsMenu"                : "ui/menu",
     "Ui_BuildToolsToolBar"             : "ui/toolbar",
-    "Ui_CommandToolbar"                : "ui/toolbar",#?
+    "Ui_CommandToolbar"                : "ui/toolbar|ne1_ui", # UI and content/layout for Command Toolbar
     "Ui_CookiePropertyManager"         : "ui/propmgr|commands/BuildCrystal",
     "Ui_DimensionsMenu"                : "ui/menu",#?
     "Ui_DnaFlyout"                     : "ui/toolbar|dna",
@@ -522,11 +521,11 @@ packageMapping_for_files = {
     "Ui_HelpMenu"                      : "ui/menu|help",
     "Ui_InsertMenu"                    : "ui/menu",
     "Ui_MovePropertyManager"           : "ui/propmgr|commands/Move",
-    "Ui_MoviePropertyManager"          : "ui/propmgr|commands/MoviePlayer",
-    "Ui_PartWindow"                    : "ui/widget|ne1_ui", #?
+    "Ui_MoviePropertyManager"          : "ui/propmgr|commands/PlayMovie",
+    "Ui_PartWindow"                    : "widget|ne1_ui", #?
     "Ui_SelectMenu"                    : "ui/menu",
     "Ui_SelectToolBar"                 : "ui/toolbar",
-    "Ui_SequenceEditor"                : "ui/widget|dna/Sequence Editor", #??
+    "Ui_SequenceEditor"                : "widget|SequenceEditor", # in dna/  ??
     "Ui_SimulationMenu"                : "ui/menu",
     "Ui_SimulationToolBar"             : "ui/toolbar",
     "Ui_StandardToolBar"               : "ui/toolbar",
@@ -556,8 +555,8 @@ packageMapping_for_files = {
     
     "whatsthis_utilities"              : "utilities?", #? guess (file to be split out of gui/whatsthis; imports are foundation or above)
         # this file will import env (for win; could be refactored to not do so, eg use an arg), nothing else high up.
-    "widgets"                          : "ui/widgets",
-    "widget_controllers"               : "ui/widgets",
+    "widgets"                          : "widgets",
+    "widget_controllers"               : "widgets",
 
     "wiki_help"                        : "ui|help", # some io? a subsystem of the help system.
     
@@ -587,7 +586,7 @@ packageMapping.update( packageMapping_for_packages)
     commands/Extrude
     commands/Fuse
     commands/Move
-    commands/MoviePlayer
+    commands/PlayMovie
     commands/... (a few others)
     dna
     ESP
@@ -600,7 +599,7 @@ packageMapping.update( packageMapping_for_packages)
     prototype
     simulation
     sponsors
-    statusbar
+    
 '''
     
 # end
