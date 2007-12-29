@@ -10,11 +10,8 @@ def setupUi(win):
     Populates the "Build Tools" menu, a submenu of the "Tools" menu.
 
     @param win: NE1's main window object.
-    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    @type  win: Ui_MainWindow
     """
-    
-    # Create and add the "Build Tools" to the View menu.
-    win.buildToolsMenu = win.toolsMenu.addMenu("Build Tools")
 
     # Populate the "Build Structures" menu.
     win.buildToolsMenu.addAction(win.modifyHydrogenateAction)

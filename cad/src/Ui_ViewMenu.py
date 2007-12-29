@@ -14,29 +14,12 @@ SHOW_HYBRID_DISPLAY_MENU = 0
 
 def setupUi(win):    
     """
-    Creates and populates the "View" menu (including its "Display" and "Modify"
-    submenus) that appears in the main menu bar.
+    Populates the "View" menu (including its "Display", "Modify" and "Toolbars"
+    submenus) which appears in the main window menu bar.
 
     @param win: NE1's main window object.
-    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
-    """  
-
-    # Create the "View" menu.
-    win.viewMenu = QtGui.QMenu(win.MenuBar)
-    win.viewMenu.setObjectName("viewMenu")
-
-    # Create and add the "Display" and "Modify" submenus to the "View" menu.
-    win.displayMenu = win.viewMenu.addMenu("Display")      
-    win.ModifyMenu = win.viewMenu.addMenu("Modify")
-
-    # Populate the rest of the View menu.
-    win.viewMenu.addSeparator()
-    win.viewMenu.addAction(win.viewSemiFullScreenAction)
-    win.viewMenu.addAction(win.viewFullScreenAction)
-    
-    # Create and add the "Toolbar" submenu to the "View" menu.
-    win.toolbarMenu = win.createPopupMenu()
-    win.viewMenu.addMenu(win.toolbarMenu)
+    @type  win: Ui_MainWindow
+    """
     
     # Populate the "Display" submenu.
     win.displayMenu.addAction(win.dispDefaultAction)
@@ -54,31 +37,44 @@ def setupUi(win):
     win.displayMenu.addAction(win.viewQuteMolAction)
     win.displayMenu.addAction(win.viewRaytraceSceneAction)
     
-    # Populate the "Modify" submenu.
-    win.ModifyMenu.addAction(win.viewOrientationAction)
-    win.ModifyMenu.addAction(win.setViewFitToWindowAction)
-    win.ModifyMenu.addAction(win.setViewZoomtoSelectionAction)
-    win.ModifyMenu.addAction(win.viewZoomAboutScreenCenterAction)
-    win.ModifyMenu.addAction(win.zoomToolAction)        
-    win.ModifyMenu.addAction(win.setViewRecenterAction)
-    win.ModifyMenu.addSeparator()
-    win.ModifyMenu.addAction(win.rotateToolAction)    
-    win.ModifyMenu.addAction(win.panToolAction) 
-    win.ModifyMenu.addSeparator()
-    win.ModifyMenu.addAction(win.setViewHomeAction)
-    win.ModifyMenu.addAction(win.setViewHomeToCurrentAction)
-    win.ModifyMenu.addAction(win.saveNamedViewAction)
-
     # Temporary. See comments at top of this file.
     if SHOW_HYBRID_DISPLAY_MENU:
         win.displayMenu.addAction(win.dispHybridAction)
-
+    
+    # Populate the "Modify" submenu.
+    win.modifyMenu.addAction(win.viewOrientationAction)
+    win.modifyMenu.addAction(win.setViewFitToWindowAction)
+    win.modifyMenu.addAction(win.setViewZoomtoSelectionAction)
+    win.modifyMenu.addAction(win.viewZoomAboutScreenCenterAction)
+    win.modifyMenu.addAction(win.zoomToolAction)        
+    win.modifyMenu.addAction(win.setViewRecenterAction)
+    win.modifyMenu.addSeparator()
+    win.modifyMenu.addAction(win.rotateToolAction)    
+    win.modifyMenu.addAction(win.panToolAction) 
+    win.modifyMenu.addSeparator()
+    win.modifyMenu.addAction(win.setViewHomeAction)
+    win.modifyMenu.addAction(win.setViewHomeToCurrentAction)
+    win.modifyMenu.addAction(win.saveNamedViewAction)
+        
+    # Create and populate the "Toolbar" submenu. 
+    # This is done here since the main window toolbar widgets must be 
+    # created first. Mark 2007-12-27
+    win.toolbarMenu = win.createPopupMenu()
+    
+    # Populate the "View" menu.
+    win.viewMenu.addMenu(win.displayMenu)
+    win.viewMenu.addMenu(win.modifyMenu)
+    win.viewMenu.addSeparator()
+    win.viewMenu.addAction(win.viewSemiFullScreenAction)
+    win.viewMenu.addAction(win.viewFullScreenAction)
+    win.viewMenu.addMenu(win.toolbarMenu)
+    
 def retranslateUi(win):
     """
     Sets text related attributes for the "View", "Display" and "Modify" menus.
 
     @param win: NE1's mainwindow object.
-    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    @type  win: Ui_MainWindow
     """
     win.viewMenu.setTitle(
         QtGui.QApplication.translate(
@@ -88,11 +84,10 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "&Display", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.ModifyMenu.setTitle(
+    win.modifyMenu.setTitle(
         QtGui.QApplication.translate(
             "MainWindow", "M&odify", 
-            None, QtGui.QApplication.UnicodeUTF8))
-    
+            None, QtGui.QApplication.UnicodeUTF8)) 
     win.toolbarMenu.setTitle(
         QtGui.QApplication.translate(
             "MainWindow", "Toolbars", 

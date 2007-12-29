@@ -5,7 +5,7 @@ Ui_MainWindowWidgetConnects.py
 Creates all connects for all Main Window widgets used in menus and toolbars.
 
 @author: Mark
-@version: $Id:$
+@version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
@@ -64,14 +64,34 @@ def setupUi(win):
     win.connect(win.editPrefsAction,SIGNAL("triggered()"),win.editPrefs)
     win.connect(win.editRedoAction,SIGNAL("triggered()"),win.editRedo)
     win.connect(win.editUndoAction,SIGNAL("triggered()"),win.editUndo)
-    win.connect(win.fileCloseAction,SIGNAL("triggered()"),win.fileClose)
-    win.connect(win.fileExitAction,SIGNAL("triggered()"), win.close)
-    win.connect(win.fileInsertAction,SIGNAL("triggered()"),win.fileInsert)
-    win.connect(win.fileOpenAction,SIGNAL("triggered()"),win.fileOpen)
-    win.connect(win.fileSaveAction,SIGNAL("triggered()"),win.fileSave)
-    win.connect(win.fileSaveAsAction,SIGNAL("triggered()"),win.fileSaveAs)
-    win.connect(win.fileSaveSelectionAction,SIGNAL("triggered()"),win.fileSaveSelection)
-    win.connect(win.fileSetWorkDirAction,SIGNAL("triggered()"),win.fileSetWorkDir)
+    
+    #= Connections for the "File" menu and toolbar widgets.
+    
+    win.connect(win.fileCloseAction,
+                SIGNAL("triggered()"),
+                win.fileClose)
+    win.connect(win.fileExitAction,
+                SIGNAL("triggered()"),
+                win.close)
+    win.connect(win.fileInsertAction,
+                SIGNAL("triggered()"),
+                win.fileInsert)
+    win.connect(win.fileOpenAction,
+                SIGNAL("triggered()"),
+                win.fileOpen)
+    win.connect(win.fileSaveAction,
+                SIGNAL("triggered()"),
+                win.fileSave)
+    win.connect(win.fileSaveAsAction,
+                SIGNAL("triggered()"),
+                win.fileSaveAs)
+    win.connect(win.fileSaveSelectionAction,
+                SIGNAL("triggered()"),
+                win.fileSaveSelection)
+    win.connect(win.fileSetWorkDirAction,
+                SIGNAL("triggered()"), 
+                win.fileSetWorkDir)
+    
     win.connect(win.helpAboutAction,SIGNAL("triggered()"),win.helpAbout)
     win.connect(win.helpGraphicsCardAction,SIGNAL("triggered()"),win.helpGraphicsCard)
     win.connect(win.helpKeyboardShortcutsAction,SIGNAL("triggered()"),win.helpKeyboardShortcuts)

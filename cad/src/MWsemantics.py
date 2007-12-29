@@ -30,6 +30,8 @@ from PyQt4.Qt import QVBoxLayout
 from PyQt4.Qt import QGridLayout
 from PyQt4.Qt import QMenu
 from PyQt4.Qt import QIcon
+from PyQt4.Qt import QSettings
+from PyQt4.Qt import QVariant
 
 from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QWidget
 from PyQt4.Qt import QSplitter, QMessageBox
@@ -65,7 +67,6 @@ from utilities.Log import greenmsg, redmsg, orangemsg
 import Ui_DnaFlyout
 
 from ops_files import fileSlotsMixin
-from ops_files import recentfiles_use_QSettings
 from ops_view import viewSlotsMixin 
 from changes import register_postinit_object
 import preferences
@@ -103,6 +104,23 @@ eCCBtab2 = {}
 for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
 
+# Debugging for "Open Recent Files" menu. Mark 2007-12-28
+debug_recent_files = False  # Do not commit with True
+recentfiles_use_QSettings = True # bruce 050919 debug flag
+_RECENTFILES_KEY = '/Nanorex/NE1/recentFiles' # key for QSettings
+
+if debug_recent_files:
+    def debug_fileList(fileList):
+        #@from qt4transition import qt4here
+        #@qt4here(show_traceback = True)
+        print "BEGIN fileList"
+        for x in fileList:
+            print x
+        print "END fileList"
+else:
+    def debug_fileList(fileList):
+        pass
+
 # #######################################################################
 
 class MWsemantics(QMainWindow, 
@@ -121,9 +139,6 @@ class MWsemantics(QMainWindow,
 
     initialised = 0 #bruce 041222
     _ok_to_autosave_geometry_changes = False #bruce 051218
-
-    # This determines the location of "Open Recent Files" menu item in the File Menu. Mark 060807.
-    RECENT_FILES_MENU_ITEM = None
 
     # The default font for the main window. If I try to set defaultFont using QApplition.font() here,
     # it returns Helvetica pt12 (?), so setting it below in the constructor is a workaround.
@@ -550,8 +565,6 @@ class MWsemantics(QMainWindow,
     def _init_part_two(self):
         # Create the Preferences dialog widget.
         # Mark 050628
-        if not MULTIPANE_GUI:
-            self.assy.o = self.glpane
         from UserPrefs import UserPrefs
         self.userPrefs = UserPrefs(self.assy)
 
@@ -565,27 +578,6 @@ class MWsemantics(QMainWindow,
         #Zoom behavior setting  (View > Zoom About Screen Center)
         self.viewZoomAboutScreenCenterAction.setChecked(
             env.prefs[zoomAboutScreenCenter_prefs_key])
-
-        #Huaicai 9/14/05: Initialization for the 'Recently opened files' feature
-        from PyQt4.Qt import QSettings, QWhatsThis
-        menuItem = self.RECENT_FILES_MENU_ITEM
-        if recentfiles_use_QSettings:
-            prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
-        else:
-            prefsSetting = preferences.prefs_context()
-
-        if recentfiles_use_QSettings:
-            # Qt3: fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
-            fileList = prefsSetting.value('/Nanorex/nE-1/recentFiles').toStringList()
-        else:
-            fileList = prefsSetting.get('/Nanorex/nE-1/recentFiles', [])
-        if len(fileList):  
-            qt4warning('self.fileMenu.setItemEnabled(menuItem, True)')
-            if menuItem is not None: menuItem.setEnabled(True)
-            self._createRecentFilesList()
-        else:
-            qt4warning('self.fileMenu.setItemEnabled(menuItem, False)')
-            if menuItem is not None: menuItem.setEnabled(False)
 
         # Create the Help dialog. Mark 050812
         from help import Ne1HelpDialog
@@ -2229,7 +2221,115 @@ class MWsemantics(QMainWindow,
 
         # setMinimumDuration() doesn't work. Qt bug?
         self.progressDialog.setMinimumDuration(500) # 500 ms = 0.5 seconds
+    
+    
+    #= Methods for "Open Recent Files" menu, a submenu of the "Files" menu.
+    
+    def getRecentFilesListAndPrefsSetting(self):
+        """
+        Returns the list of recent files that appears in the "Open Recent Files"
+        menu and the preference settings object.
+        
+        @return: List of recent files, preference settings.
+        @rtype:  list, QSettings
+        
+        @see: U{B{QSettings}<http://doc.trolltech.com/4/qsettings.html>}
+        """
+        if recentfiles_use_QSettings:
+            prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
+            fileList = prefsSetting.value(_RECENTFILES_KEY).toStringList()
+        else:
+            prefsSetting = preferences.prefs_context()
+            fileList = prefsSetting.get(_RECENTFILES_KEY, [])
+        
+        return fileList, prefsSetting
 
+    def updateRecentFileList(self, fileName):
+        """ 
+        Add I{filename} into the recent file list.
+        
+        @param filename: The filename to add to the recently opened files list.
+        @type  filename: string
+        """
+        
+        # LIST_CAPACITY could be set by user preference (NIY).
+        LIST_CAPACITY = 4
+            # Warning: Potential bug if number of recent files >= 10
+            # (i.e. LIST_CAPACITY >= 10). See fileSlotsMixin.openRecentFile().
+        
+        fileName = os.path.normpath(str(fileName))
+        
+        fileList, prefsSetting = self.getRecentFilesListAndPrefsSetting()
+        
+        if len(fileList) > 0:
+            # If filename is already in fileList, delete it from the list.
+            # filename will be added to the top of the list later.
+            for ii in range(len(fileList)):
+                if str(fileName) == str(fileList[ii]):
+                    del fileList[ii]
+                    break
+            
+        if recentfiles_use_QSettings:
+            fileList.prepend(fileName) 
+        else:
+            fileList.insert(0, fileName)
+            
+        fileList = fileList[:LIST_CAPACITY]
+
+        if recentfiles_use_QSettings:
+            assert isinstance(prefsSetting, QSettings)
+            prefsSetting.setValue(_RECENTFILES_KEY, QVariant(fileList))
+            
+            if 0: #debug_recent_files:
+                # confirm that the information really made it into the QSetting.
+                fileListTest = prefsSetting.value(_RECENTFILES_KEY).toStringList()
+                fileListTest = map(str, list(fileListTest))
+                assert len(fileListTest) == len(fileList)
+                for i in range(len(fileList)):
+                    assert str(fileList[i]) == str(fileListTest[i])
+        else:
+            prefsSetting[_RECENTFILES_KEY] = fileList 
+        
+        del prefsSetting
+        
+        self.createOpenRecentFilesMenu()
+        return
+    
+    def createOpenRecentFilesMenu(self):
+        """
+        Creates the "Open Recent Files" menu, a submenu of the "File" menu.
+        
+        This is called whenever a new file is opened or the current file 
+        is renamed.
+        """
+        if hasattr(self, "openRecentFilesMenu"):
+            # Remove the current "Open Recent Files" menu.
+            # It will be recreated below.
+            self.fileMenu.removeAction(self.openRecentFilesMenuAction)
+
+        # Create a new "Open Recent Files" menu from the current list.  
+        self.openRecentFilesMenu = QMenu("Open Recent Files", self)
+            
+        fileList, prefsSetting = self.getRecentFilesListAndPrefsSetting()
+        
+        self.openRecentFilesMenu.clear()
+        for ii in range(len(fileList)):
+            _recent_filename = os.path.normpath(str(fileList[ii])) # Fixes bug 2193. Mark 060808.
+            self.openRecentFilesMenu.addAction(
+                QtGui.QApplication.translate(
+                    "Main Window",
+                    "&" + str(ii + 1) + "  " + _recent_filename, None))
+        
+        # Insert the "Open Recent Files" menu above "File > Close".
+        self.openRecentFilesMenuAction = \
+            self.fileMenu.insertMenu(self.fileCloseAction, 
+                                     self.openRecentFilesMenu)
+
+        self.connect(self.openRecentFilesMenu, 
+                     SIGNAL('triggered(QAction*)'), 
+                     self.openRecentFile)
+        return
+    
     pass # end of class MWsemantics
 
 # end

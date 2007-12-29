@@ -7,15 +7,11 @@ from PyQt4 import QtGui
 
 def setupUi(win):
     """
-    Creates and populates the "File" menu in the main menubar.
+    Populates the "Help" menu which appears in the main window menu bar.
 
     @param win: NE1's main window object.
-    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    @type  win: Ui_MainWindow
     """
-
-    # Create the "Help" menu.
-    win.helpMenu = QtGui.QMenu(win.MenuBar)
-    win.helpMenu.setObjectName("helpMenu")
     
     # Populate the "Help" menu.
     win.helpMenu.addAction(win.helpKeyboardShortcutsAction)

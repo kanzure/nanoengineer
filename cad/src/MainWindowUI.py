@@ -44,8 +44,8 @@ class Ui_MainWindow(object):
         - Create main menu bar and its menus
         - Create main toolbars
         """
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.setEnabled(True)
+        self.setObjectName("MainWindow")
+        self.setEnabled(True)
         
         # Set minimum width and height of the main window.
         # To do: Check that the current screen size is at least 1024 x 768.
@@ -59,15 +59,18 @@ class Ui_MainWindow(object):
         # Set up all main window widget connections to their slots.
         Ui_MainWindowWidgetConnections.setupUi(self)
         
-        self.setupToolbars(MainWindow) # Toolbars must come before menus.
-        self.setupMenus(MainWindow)
+        # Toolbars should come before menus. The only reason this is necessary
+        # is that the "View > Toolbars" submenu needs the main window toolbars
+        # to be created before it is created (in 
+        self.setupToolbars() 
+        self.setupMenus()
         
         # Now set all UI text for main window widgets.
-        self.retranslateUi(MainWindow)
+        self.retranslateUi()
         
         # =
     
-        # Create the "What's This?" text for.
+        # Create the "What's This?" text for all main window widgets.
         from gui.WhatsThisText_for_MainWindow import createWhatsThisTextForMainWindowWidgets
         createWhatsThisTextForMainWindowWidgets(self)
         
@@ -85,9 +88,9 @@ class Ui_MainWindow(object):
             # widgets are not direct children of the main window. 
             # Fixes one of the many bugs listed in bug 2412. Mark 2007-12-19
     
-    def setupToolbars(self, MainWindow):
+    def setupToolbars(self):
         """
-        Create and populate all Main Window toolbars. 
+        Populates all Main Window toolbars. 
         Also restores the state of toolbars from the NE1 last session.
         """
         
@@ -116,17 +119,12 @@ class Ui_MainWindow(object):
         
         return
     
-    def setupMenus(self, MainWindow):
+    def setupMenus(self):
         """
-        Create and populate all main window menus and setup the main menu bar.
+        Populates all main window menus and adds them to the main menu bar.
         """
-        
-        # Create the main menu bar.
-        self.MenuBar = QtGui.QMenuBar(MainWindow)
-        self.MenuBar.setEnabled(True)
-        self.MenuBar.setObjectName("MenuBar")
 
-        # Create the menus for NE1's main menu bar.
+        # Populate the menus that appear in the main window menu bar.
         Ui_FileMenu.setupUi(self)
         Ui_EditMenu.setupUi(self)
         Ui_ViewMenu.setupUi(self)
@@ -135,7 +133,7 @@ class Ui_MainWindow(object):
         Ui_SimulationMenu.setupUi(self)
         Ui_HelpMenu.setupUi(self)
 
-        # Add menus to NE1's main menu bar.
+        # Add menus to the main window menu bar.
         self.MenuBar.addAction(self.fileMenu.menuAction())
         self.MenuBar.addAction(self.editMenu.menuAction())
         self.MenuBar.addAction(self.viewMenu.menuAction())
@@ -144,27 +142,22 @@ class Ui_MainWindow(object):
         self.MenuBar.addAction(self.simulationMenu.menuAction())
         self.MenuBar.addAction(self.helpMenu.menuAction())
 
-        # Add MenuBar to the main window.
-        MainWindow.setMenuBar(self.MenuBar)
+        # Add the MenuBar to the main window.
+        self.setMenuBar(self.MenuBar)
         
         return
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self):
         """
         This method centralizes all calls that set UI text for the purpose of 
         making it easier for the programmer to translate the UI into other 
         languages.
 
-        @param MainWindow: The main window
-        @type  MainWindow: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
-
         @see: U{B{The Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
         """
-        MainWindow.setWindowTitle(QtGui.QApplication.translate(
-            "MainWindow", 
-            "NanoEngineer-1", 
-            None, 
-            QtGui.QApplication.UnicodeUTF8))
+        self.setWindowTitle(QtGui.QApplication.translate(
+            "MainWindow", "NanoEngineer-1", 
+            None, QtGui.QApplication.UnicodeUTF8))
 
         # QActions
         Ui_MainWindowWidgets.retranslateUi(self)

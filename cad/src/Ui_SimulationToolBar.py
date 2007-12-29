@@ -46,7 +46,7 @@ def setupUi(win):
     # To do: The simulation measurement menu that appears in the 
     # "Simulation" menu and command toolbar is missing from the "Simulation"
     # toolbar. This isn't hard to fix, but it isn't important to do now.
-    # To fix, search for "simulationMeasurementsMenu" in 
+    # To fix, search for "measurementsMenu" in 
     # Ui_SimulationMenu.py. That code needs work to look more like the
     # code above that creates and populates the "Simulation Jigs" menu,
     # which I've commented out since I don't think it is necessary

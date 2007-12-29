@@ -7,15 +7,11 @@ from PyQt4 import QtGui
 
 def setupUi(win):
     """
-    Creates and populates the "File" menu in the main menubar.
+    Populates the "File" menu which appears in the main window menu bar.
 
     @param win: NE1's main window object.
-    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    @type  win: Ui_MainWindow
     """
-
-    # Create the "File" menu.
-    win.fileMenu = QtGui.QMenu(win.MenuBar)
-    win.fileMenu.setObjectName("fileMenu")
 
     # Populate the "File" menu.
     win.fileMenu.addAction(win.fileOpenAction)
@@ -28,6 +24,9 @@ def setupUi(win):
     win.fileMenu.addAction(win.fileExportAction)
     win.fileMenu.addSeparator()
     win.fileMenu.addAction(win.fileExitAction)
+    
+    # Create and add the "Open Recent Files" submenu.
+    win.createOpenRecentFilesMenu()
 
 def retranslateUi(win):
     """
@@ -39,4 +38,8 @@ def retranslateUi(win):
     win.fileMenu.setTitle(
         QtGui.QApplication.translate(
             "MainWindow", "&File", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.openRecentFilesMenu.setTitle(
+        QtGui.QApplication.translate(
+            "MainWindow", "Open Recent Files", 
             None, QtGui.QApplication.UnicodeUTF8))

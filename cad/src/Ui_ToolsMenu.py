@@ -12,29 +12,25 @@ import Ui_DimensionsMenu
 
 def setupUi(win):
     """
-    Creates and populates the "Tools" menu in the main menubar.
+    Populates the "Tools" menu which appears in the main window menu bar.
 
     @param win: NE1's main window object.
-    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    @type  win: Ui_MainWindow
     """
-
-    # Create the "Tools" menu.
-    win.toolsMenu = QtGui.QMenu(win.MenuBar)
-    win.toolsMenu.setObjectName("Tools")
+    
+    # Populate all "Tools" submenus.
+    Ui_BuildStructuresMenu.setupUi(win)
+    Ui_BuildToolsMenu.setupUi(win)
+    Ui_DimensionsMenu.setupUi(win)
+    Ui_SelectMenu.setupUi(win)
 
     # Populate the "Tools" menu.
     win.toolsMenu.addAction(win.modifyAdjustSelAction)
     win.toolsMenu.addAction(win.modifyAdjustAllAction)
     win.toolsMenu.addAction(win.simMinimizeEnergyAction)
     win.toolsMenu.addSeparator()
-
-    # Create and add the "Build Structures" menu as a submenu to the Tools menu.
-    Ui_BuildStructuresMenu.setupUi(win)
-    
-    # Create and add the "Build Tools" menu as a submenu to the "Tools" menu.
-    Ui_BuildToolsMenu.setupUi(win)
-    
-    # Continue populating the rest of the Tools menu.
+    win.toolsMenu.addMenu(win.buildStructuresMenu)
+    win.toolsMenu.addMenu(win.buildToolsMenu)
     win.toolsMenu.addSeparator()
     win.toolsMenu.addAction(win.toolsExtrudeAction)
     win.toolsMenu.addAction(win.toolsFuseChunksAction)
@@ -43,16 +39,10 @@ def setupUi(win):
     win.toolsMenu.addAction(win.modifyInvertAction)
     win.toolsMenu.addAction(win.modifyStretchAction)
     win.toolsMenu.addSeparator()
-    
-    # Create and add the "Dimensions" menu as a submenu to the "Tools" menu.
-    Ui_DimensionsMenu.setupUi(win)
-    
-    # Create and add the "Select" menu as a submenu to the "Tools" menu.
-    Ui_SelectMenu.setupUi(win)
-
-    # Add "Preferences" to the bottom of the View menu.
+    win.toolsMenu.addMenu(win.dimensionsMenu)
+    win.toolsMenu.addMenu(win.selectionMenu)
     win.toolsMenu.addSeparator()
-    win.toolsMenu.addAction(win.editPrefsAction) 
+    win.toolsMenu.addAction(win.editPrefsAction)
 
 def retranslateUi(win):
     """
@@ -65,7 +55,7 @@ def retranslateUi(win):
         "MainWindow", "&Tools",
         None, QtGui.QApplication.UnicodeUTF8))
 
-    # Set text for the View submenus.
+    # Set text for the submenus.
     Ui_BuildStructuresMenu.retranslateUi(win)
     Ui_BuildToolsMenu.retranslateUi(win)
     Ui_SelectMenu.retranslateUi(win)

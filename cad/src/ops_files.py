@@ -63,23 +63,6 @@ from debug_prefs import debug_pref
 
 debug_babel = False   # DO NOT COMMIT with True
 
-debug_recent_files = False  # Do not commit with True
-
-recentfiles_use_QSettings = True #bruce 050919 debug flag
-_RECENTFILES_KEY = '/Nanorex/nE-1/recentFiles' # key for QSettings
-
-if debug_recent_files:
-    def debug_fileList(fileList):
-        qt4here(show_traceback = True)
-        print "BEGIN fileList"
-        for x in fileList:
-            print x
-        print "END fileList"
-else:
-    def debug_fileList(fileList):
-        pass
-
-
 def set_waitcursor(on_or_off):
     """
     For on_or_off True, set the main window waitcursor.
@@ -652,7 +635,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 return
 
         if fn:
-            self._updateRecentFileList(fn)
+            self.assy.w.updateRecentFileList(fn)
 
             self.__clear()
             self.commandSequencer.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
@@ -1143,8 +1126,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.assy.name = fil
         self.assy.reset_changed() # The file and the part are now the same.
 #                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-        self._updateRecentFileList(safile)
-            #bruce 050927 code cleanup: moved _updateRecentFileList here (before, it preceded each call of this method)        
+        self.assy.w.updateRecentFileList(safile)
+            #bruce 050927 code cleanup: moved updateRecentFileList here (before, it preceded each call of this method)        
         self.update_mainwindow_caption()
         self.mt.mt_update() # since it displays self.assy.name [bruce comment 050907; a guess]
             # [note, before this routine was split out, the mt_update happened after the history message printed by our callers]
@@ -1368,115 +1351,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     _MWsemantics__clear = __clear #bruce 060127 kluge so it can be called as __clear from inside class MWsemantics itself.
 
-    def _updateRecentFileList(self, fileName):
-        """ 
-        Add the <fileName> into the recent file list
+    def openRecentFile(self, idx):
         """
-        LIST_CAPACITY = 4 #This could be set by user preference, not added yet
-        
-        if recentfiles_use_QSettings:
-            prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
-            fileList = prefsSetting.value(_RECENTFILES_KEY).toStringList()
-        else:
-            fileName = str(fileName)
-            prefsSetting = preferences.prefs_context()
-            fileList = prefsSetting.get(_RECENTFILES_KEY, [])
-        
-        debug_fileList(fileList)
-        
-        if len(fileList) > 0:
-           if fileName == fileList[0]:
-               return
-           else:
-               for ii in range(len(fileList)):
-                   if fileList[ii] == fileName: ## Put this one at the top
-                       del fileList[ii]
-                       break
-        
-        if recentfiles_use_QSettings:
-            fileList.prepend(fileName) 
-        else:
-            fileList.insert(0, fileName)
-            
-        fileList = fileList[:LIST_CAPACITY]
-
-        debug_fileList(fileList)
-        if recentfiles_use_QSettings:
-            assert isinstance(prefsSetting, QSettings)
-            prefsSetting.setValue(_RECENTFILES_KEY, QVariant(fileList))
-            if debug_recent_files:
-                # confirm that the information really made it into the QSetting.
-                fileListTest = prefsSetting.value(_RECENTFILES_KEY).toStringList()
-                fileListTest = map(str, list(fileListTest))
-                assert len(fileListTest) == len(fileList)
-                for i in range(len(fileList)):
-                    assert str(fileList[i]) == str(fileListTest[i])
-        else:
-            prefsSetting[_RECENTFILES_KEY] = fileList 
-        
-        del prefsSetting
-        
-        self._createRecentFilesList()
-        return
-
-    def _openRecentFile(self, idx):
-        """
-        Slot method when user choose from the recently opened files submenu.
+        Slot method for the "Open Recent File" menu, 
+        a submenu of the "File" menu.
         """
         text = str(idx.text())
-        selectedFile = text[text.index("  ")+2:]
-        if False:
-            # Do we want this stuff from Qt 3 days? Or shall we just
-            # trust that when the "Open Recent Files" menu was set up,
-            # it had the correct list of recent files? For now, assume
-            # the latter.
-            if recentfiles_use_QSettings:
-                prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
-                fileList = prefsSetting.value(_RECENTFILES_KEY).toStringList()
-            else:
-                prefsSetting = preferences.prefs_context()
-                fileList = prefsSetting.get(_RECENTFILES_KEY, [])
-
-            print idx, len(fileList)
-            assert idx >= 0 and idx <= len(fileList)
-            selectedFile = str(fileList[idx])
+        selectedFile = text[text.index("  ") + 2:] 
+            # Warning: Potential bug if number of recent files >= 10
+            # (i.e. LIST_CAPACITY >= 10)
         self.fileOpen(selectedFile)
-        return
-        
-    def _createRecentFilesList(self):
-        """
-        Dynamically construct the list of recently opened files submenus
-        """
-        if hasattr(self.assy.w, "recentFileMenu"):
-            # Remove the previous recent-file menu
-            recentFileMenu = self.assy.w.recentFileMenu
-            self.fileMenu.removeAction(self.recentFileMenuAction)
-
-        # Create a new recent-file menu from the updated recent file list.
-        recentFileMenu = QMenu("Open Recent Files", self)
-        self.assy.w.recentFileMenu = recentFileMenu
-        
-        if recentfiles_use_QSettings:
-            prefsSetting = QSettings("Nanorex", "NanoEngineer-1")
-            fileList = prefsSetting.value(_RECENTFILES_KEY).toStringList()
-        else:
-            prefsSetting = preferences.prefs_context()
-            fileList = prefsSetting.get(_RECENTFILES_KEY, [])
-        debug_fileList(fileList)
-        
-        ## self.assy.w.recentFileMenu = rfm = QMenu("Open Recent Files", self)
-        recentFileMenu.clear()
-        for ii in range(len(fileList)):
-            recentFilename = os.path.normpath(str(fileList[ii])) # Fixes bug 2193. Mark 060808.
-            recentFileMenu.addAction(QtGui.QApplication.translate("Main Window",
-                                                                  "&" + str(ii+1) + "  " + recentFilename, None))
-        
-        menuItem = self.RECENT_FILES_MENU_ITEM
-        self.fileMenu.removeAction(menuItem)
-        act = self.fileMenu.insertMenu(self.fileCloseAction, recentFileMenu)
-        self.recentFileMenuAction = act
-        act.setText(QtGui.QApplication.translate("Main Window", "Open Recent Files", None))
-        self.connect(recentFileMenu, SIGNAL('triggered(QAction*)'), self._openRecentFile)
         return
 
     pass # end of class fileSlotsMixin
@@ -1487,7 +1371,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 if __name__ == '__main__':
     prefs = QSettings()
     emptyList = QStringList()
-    prefs.writeEntry("/Nanorex/nE-1/recentFiles", emptyList)
+    prefs.writeEntry("/Nanorex/NE1/recentFiles", emptyList)
     
     del prefs
 

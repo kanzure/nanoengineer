@@ -29,8 +29,17 @@ def setupUi(win):
     """
 
     MainWindow = win
+    
+    # Create the NE1 main menu bar.
+    win.MenuBar = QtGui.QMenuBar(MainWindow)
+    win.MenuBar.setEnabled(True)
+    win.MenuBar.setObjectName("MenuBar")
 
-    #= File (menu and toolbar) actions.
+    #= File (menu and toolbar) widgets.
+    
+    # Create the "File" menu.
+    win.fileMenu = QtGui.QMenu(win.MenuBar)
+    win.fileMenu.setObjectName("fileMenu")
 
     win.fileOpenAction = QtGui.QAction(MainWindow)
     win.fileOpenAction.setIcon(geticon("ui/actions/File/Open"))
@@ -62,7 +71,11 @@ def setupUi(win):
     win.fileSaveSelectionAction = QtGui.QAction(MainWindow)
     win.fileSaveSelectionAction.setObjectName("fileSaveSelectionAction")
 
-    #= Edit (menu and toolbar) actions.
+    #= Edit (menu and toolbar) widgets.
+    
+    # Create the "Edit" menu.
+    win.editMenu = QtGui.QMenu(win.MenuBar)
+    win.editMenu.setObjectName("editMenu")
 
     win.editUndoAction = QtGui.QAction(MainWindow)
     win.editUndoAction.setIcon(geticon("ui/actions/Edit/Undo"))
@@ -120,6 +133,20 @@ def setupUi(win):
     win.dispObjectColorAction.setObjectName("dispObjectColorAction")
 
     #= View (menu and toolbar) actions.
+    
+    # Create the "View" menu.
+    win.viewMenu = QtGui.QMenu(win.MenuBar)
+    win.viewMenu.setObjectName("viewMenu")
+
+    # Create the "Display" menu, a submenu of the "View" menu.
+    win.displayMenu = QtGui.QMenu(win.viewMenu)
+    win.displayMenu.setObjectName("displayMenu")
+    
+    # Create the "Modify" menu, a submenu of the "View" menu.
+    win.modifyMenu = QtGui.QMenu(win.viewMenu)
+    win.modifyMenu.setObjectName("viewMenu")
+    
+    # Note: The "Toolbars" submenu is created in Ui_ViewMenu.setupIu().
 
     #== View > Modify (menu and toolbar) actions.
     win.viewOrientationAction = QtGui.QAction(MainWindow)
@@ -270,7 +297,7 @@ def setupUi(win):
     win.dispCylinderAction.setIcon(geticon("ui/actions/View/Display/Cylinder"))
     win.dispCylinderAction.setObjectName("dispCylinderAction")
 
-    # Unused.
+    # This is currently NIY. Mark 2007-12-28
     win.dispSurfaceAction = QtGui.QAction(MainWindow)
     win.dispSurfaceAction.setIcon(geticon("ui/actions/View/Display/Surface"))
     win.dispSurfaceAction.setObjectName("dispSurfaceAction")
@@ -335,9 +362,15 @@ def setupUi(win):
     win.viewFullScreenAction.setChecked(False)
     win.viewFullScreenAction.setShortcut('F12')
 
-    #= Insert (menu and toolbar) actions.
-
-    #== Insert > ... (menu and toolbar) actions. 
+    #= Insert (menu and toolbar) widgets.
+    
+    # Create the "Insert" menu.
+    win.insertMenu = QtGui.QMenu(win.MenuBar)
+    win.insertMenu.setObjectName("Insert")
+    
+    # Create the "Display" menu, a submenu of the "View" menu.
+    win.referenceGeometryMenu = QtGui.QMenu(win.insertMenu)
+    win.referenceGeometryMenu.setObjectName("referenceGeometryMenu")
 
     win.jigsAtomSetAction = QtGui.QWidgetAction(MainWindow)
     win.jigsAtomSetAction.setIcon(geticon("ui/actions/Tools/Atom_Set"))
@@ -374,7 +407,27 @@ def setupUi(win):
     win.referenceLineAction.setObjectName("referenceLineAction")
     win.referenceLineAction.setText("Line...")
 
-    #= Tools (menu and toolbar) actions.
+    #= Tools (menu and toolbar) widgets.
+    
+    # Create the "Tools" menu.
+    win.toolsMenu = QtGui.QMenu(win.MenuBar)
+    win.toolsMenu.setObjectName("Tools")
+    
+    # Create the "Build Structures" menu, a submenu of the "Tools" menu.
+    win.buildStructuresMenu = QtGui.QMenu(win.toolsMenu)
+    win.buildStructuresMenu.setObjectName("buildStructuresMenu")
+    
+    # Create the "Build Tools" menu, a submenu of the "Tools" menu.
+    win.buildToolsMenu = QtGui.QMenu(win.toolsMenu)
+    win.buildToolsMenu.setObjectName("buildToolsMenu")
+    
+    # Create the "Dimensions" menu, a submenu of the "Tools" menu.
+    win.dimensionsMenu = QtGui.QMenu(win.toolsMenu)
+    win.dimensionsMenu.setObjectName("dimensionsMenu")
+    
+    # Create the "Selection" menu, a submenu of the "Tools" menu.
+    win.selectionMenu = QtGui.QMenu(win.toolsMenu)
+    win.selectionMenu.setObjectName("selectionMenu")
 
     win.editPrefsAction = QtGui.QWidgetAction(MainWindow)
     win.editPrefsAction.setIcon(geticon("ui/actions/Tools/Options"))
@@ -413,7 +466,8 @@ def setupUi(win):
     win.modifyStretchAction.setIcon(geticon("ui/actions/Tools/Build Tools/Stretch"))
     win.modifyStretchAction.setObjectName("modifyStretchAction")
 
-    #== "Tools > Build Structures" (menu and toolbar) actions.
+    #== "Tools > Build Structures" (menu and toolbar) widgets.
+    
     win.toolsDepositAtomAction = QtGui.QWidgetAction(MainWindow)
     win.toolsDepositAtomAction.setCheckable(1) # make the build button checkable
     win.toolsDepositAtomAction.setIcon(
@@ -445,7 +499,8 @@ def setupUi(win):
         geticon("ui/actions/Toolbars/Smart/Deposit_Atoms.png"))
     win.insertAtomAction.setObjectName("insertAtomAction")
 
-    #== "Tools > Build Tools" (menu and toolbar) actions.
+    #== "Tools > Build Tools" (menu and toolbar) widgets.
+    
     win.modifyHydrogenateAction = QtGui.QWidgetAction(MainWindow)
     win.modifyHydrogenateAction.setIcon(
         geticon("ui/actions/Tools/Build Tools/Hydrogenate"))
@@ -491,7 +546,8 @@ def setupUi(win):
     win.modifyCenterCommonAxisAction.setObjectName(
         "modifyCenterCommonAxisAction")
 
-    #= "Tools > Dimensions" (menu and toolbar) actions.
+    #= "Tools > Dimensions" (menu and toolbar) widgets.
+    
     win.jigsDistanceAction = QtGui.QWidgetAction(MainWindow)
     win.jigsDistanceAction.setIcon(geticon("ui/actions/Tools/Dimensions/Measure_Distance"))
     win.jigsDistanceAction.setObjectName("jigsDistanceAction")
@@ -504,7 +560,8 @@ def setupUi(win):
     win.jigsDihedralAction.setIcon(geticon("ui/actions/Tools/Dimensions/Measure_Dihedral"))
     win.jigsDihedralAction.setObjectName("jigsDihedralAction")
 
-    #= "Tools > Select" (menu and toolbar) actions.
+    #= "Tools > Select" (menu and toolbar) widgets.
+    
     win.selectAllAction = QtGui.QAction(MainWindow)
     win.selectAllAction.setEnabled(True)
     win.selectAllAction.setIcon(
@@ -541,7 +598,18 @@ def setupUi(win):
         geticon("ui/actions/Tools/Select/Contract"))
     win.selectContractAction.setObjectName("selectContractAction")
 
-    #= "Simulation" (menu and toolbar) actions.
+    #= "Simulation" (menu and toolbar) widgets.
+    
+    # Create the "Simulation" menu
+    win.simulationMenu = QtGui.QMenu(win.MenuBar)
+    win.simulationMenu.setObjectName("simulationMenu")
+    
+    # Create the "Measurements" menu. #@ Not used??? MAS
+    win.measurementsMenu = QtGui.QMenu()
+    win.measurementsMenu.setObjectName("measurementsMenu")
+    win.measurementsMenu.setIcon(geticon(
+        "ui/actions/Toolbars/Smart/Dimension"))
+    
     win.simSetupAction = QtGui.QWidgetAction(MainWindow)
     win.simSetupAction.setCheckable(True)
     win.simSetupAction.setChecked(False)
@@ -601,7 +669,11 @@ def setupUi(win):
     win.simNanoHiveAction.setVisible(False)
     win.simNanoHiveAction.setObjectName("simNanoHiveAction")
 
-    #= "Help" (menu and toolbar) actions.
+    #= "Help" (menu and toolbar) widgets.
+
+    win.helpMenu = QtGui.QMenu(win.MenuBar)
+    win.helpMenu.setObjectName("helpMenu")
+    
     win.helpMouseControlsAction = QtGui.QAction(MainWindow)
     win.helpMouseControlsAction.setObjectName("helpMouseControlsAction")
 

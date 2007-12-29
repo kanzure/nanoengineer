@@ -10,11 +10,8 @@ def setupUi(win):
     Populates the "Dimensions" menu, a submenu of the "Tools" menu.
 
     @param win: NE1's main window object.
-    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    @type  win: Ui_MainWindow
     """
-
-    # Create and add the "Dimensions" to the Tool menu.
-    win.dimensionsMenu = win.toolsMenu.addMenu("Dimensions")
     
     # Populate the "Dimensions" menu.
     win.dimensionsMenu.addAction(win.jigsDistanceAction)

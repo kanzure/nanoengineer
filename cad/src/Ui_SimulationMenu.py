@@ -9,17 +9,19 @@ from debug_prefs  import debug_pref, Choice_boolean_False
 
 def setupUi(win):
     """
-    Creates and populates the "View" menu (incuding its "Display" and "Modify"
-    submenus) in the main menu bar.
+    Populates the "Simulation" menu (incuding its "Measurement" submenu) 
+    which appears in the main window menu bar.
 
     @param win: NE1's main window object.
-    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    @type  win: Ui_MainWindow
     """
     
-    # Create the "Simulation" menu
-    win.simulationMenu = QtGui.QMenu(win.MenuBar)
-    win.simulationMenu.setObjectName("simulationMenu")
-
+    # Populate the "Measurements" submenu.
+    win.measurementsMenu.addAction(win.jigsThermoAction)
+    win.measurementsMenu.addAction(win.jigsDistanceAction)
+    win.measurementsMenu.addAction(win.jigsAngleAction)
+    win.measurementsMenu.addAction(win.jigsDihedralAction)
+    
     # Populate the "Simulation" menu.
     win.simulationMenu.addAction(win.simSetupAction) # "Run Dynamics"
     win.simulationMenu.addAction(win.simMoviePlayerAction) # "Play Movie"  
@@ -28,20 +30,6 @@ def setupUi(win):
     win.simulationMenu.addAction(win.jigsLinearMotorAction)
     win.simulationMenu.addAction(win.jigsAnchorAction)
     win.simulationMenu.addAction(win.jigsStatAction)
-    win.simulationMenu.addSeparator()
-
-    # Create, populate and add the "Measurements" menu as a submenu of the 
-    # "Simulation" menu.
-    win.simulationMeasurementsMenu = win.simulationMenu.addMenu("Measurements")  
-    win.simulationMeasurementsMenu.setIcon(geticon(
-        "ui/actions/Toolbars/Smart/Dimension"))  
-    win.simulationMeasurementsMenu.addAction(win.jigsThermoAction)
-    #@@@ Following menu items (dimensions) are also provided in Tools > Dimensions. 
-    #Need reconsideration. OK for now -- ninad061107
-    win.simulationMeasurementsMenu.addAction(win.jigsDistanceAction)
-    win.simulationMeasurementsMenu.addAction(win.jigsAngleAction)
-    win.simulationMeasurementsMenu.addAction(win.jigsDihedralAction)
-    
     win.simulationMenu.addSeparator()
     win.simulationMenu.addAction(win.simNanoHiveAction)
     
@@ -68,4 +56,8 @@ def retranslateUi(win):
     win.simulationMenu.setTitle(
         QtGui.QApplication.translate(
             "MainWindow", "Simulation", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.measurementsMenu.setTitle(
+        QtGui.QApplication.translate(
+            "MainWindow", "Measurements", 
             None, QtGui.QApplication.UnicodeUTF8))

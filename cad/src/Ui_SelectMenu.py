@@ -7,23 +7,20 @@ from PyQt4 import QtGui
 
 def setupUi(win):
     """
-    Populates the "Select" menu, a submenu of the "Tools" menu.
+    Populates the "Selection" menu, a submenu of the "Tools" menu.
 
     @param win: NE1's main window object.
-    @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    @type  win: Ui_MainWindow
     """
     
-    # Create and add the "Select" to the Tool menu.
-    win.selectMenu = win.toolsMenu.addMenu("Select")
-    
     # Populate the "Select" menu.
-    win.selectMenu.addAction(win.selectAllAction)
-    win.selectMenu.addAction(win.selectNoneAction)
-    win.selectMenu.addAction(win.selectInvertAction)
-    win.selectMenu.addAction(win.selectConnectedAction)
-    win.selectMenu.addAction(win.selectDoublyAction)
-    win.selectMenu.addAction(win.selectExpandAction)
-    win.selectMenu.addAction(win.selectContractAction)
+    win.selectionMenu.addAction(win.selectAllAction)
+    win.selectionMenu.addAction(win.selectNoneAction)
+    win.selectionMenu.addAction(win.selectInvertAction)
+    win.selectionMenu.addAction(win.selectConnectedAction)
+    win.selectionMenu.addAction(win.selectDoublyAction)
+    win.selectionMenu.addAction(win.selectExpandAction)
+    win.selectionMenu.addAction(win.selectContractAction)
     
 def retranslateUi(win):
     """
@@ -33,7 +30,7 @@ def retranslateUi(win):
     @param win: NE1's mainwindow object.
     @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
     """
-    win.selectMenu.setTitle(
+    win.selectionMenu.setTitle(
         QtGui.QApplication.translate(
             "MainWindow", "&Selection", 
             None, QtGui.QApplication.UnicodeUTF8))
