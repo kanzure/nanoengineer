@@ -1,22 +1,80 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-CommandToolbar.py
+CommandToolbar.py - controls the main hierarchical toolbar for giving commands
 
 @author: Ninad
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 
-History: 
+
+Module classification: [bruce 071228]
+
+This mainly contains control logic (especially regarding flyout
+toolbar behavior and appearance) for any hierarchical
+command toolbar which operates like NE1's main Command Toolbar.
+
+Accordingly, after future refactoring, it could be part of a
+general-purpose "command toolbar widget" package. But at the
+moment, it inherits a hardcoding of NE1's specific Command Toolbar
+layout and contents, via its superclass Ui_CommandToolbar,
+which is what actually needs to be refactored.
+
+So we have two imperfect choices for classifying it:
+
+(1) put it in ne1_ui just because of its superclass; or
+
+(2) classify it as a widget independent of ne1_ui,
+but tolerate an import in it from ne1_ui for now,
+until the superclass gets refactored (which might
+not happen soon).
+
+I think it's best to classify it "optimisitically"
+using scheme (2), and let the wrong-direction import
+remind us that the superclass needs refactoring.
+
+I am assuming that will cause no inter-package import cycle,
+since no cycle has been reported involving this module.
+
+So for now, the superclass is in "ne1_ui", but this module
+can go into its own toplevel "CommandToolbar" package.
+(Not just into "widgets" or a subpackage, since it is a major
+component of an app, and might still assume it's a singleton
+or have client code which assumes that. In future, we can
+consider making the general part non-singleton and putting
+it into its own subpackage of "widgets".)
+
+After future refactoring of the superclass Ui_CommandToolbar
+(described in its module classification comment), its general
+part would join this module as part of the same package
+for a "general command toolbar widget".
+
+BTW, I think it should be the case, and might already
+be the case, that whatever state this class needs to help
+maintain (even given its not-yet-refactored superclass)
+will actually reside in the Command Sequencer and/or
+in running commands, along with the logic for how
+to modify that state. This class's object is just the
+UI that makes the Command Sequencer state visible
+and user-controllable.
+
+BTW2, another needed refactoring (perhaps more related
+to Ui_CommandToolbar than to this module) is to make
+sure commands don't need to update their own UI elements
+in various ways; for more on this see
+
+http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_module/package_organization#Command_Toolbar
+
+
+History:
+
 ninad 20070109: created this in QT4 branch and subsequently modified it.
 ninad 20070125: moved ui generation code to a new file Ui_CommandManager
 ninad 20070403: implemented 'Subcontrol Area'  in the command toolbar, related 
              changes (mainly revised _updateFlyoutToolBar,_setFlyoutDictionary) 
              and added/modified several docstrings  
-ninad 20070623:Moved _createFlyoutToolbar from modes to here and related changes
+ninad 20070623: Moved _createFlyoutToolbar from modes to here and related changes
 mark 20071226: Renamed CommandManager to CommandToolbar.
 """
-
-__author__ = "Ninad"
 
 from PyQt4 import QtGui
 from PyQt4.Qt import Qt
@@ -46,7 +104,8 @@ class CommandToolbar(Ui_CommandToolbar):
     
     def __init__(self, win):
         """
-        Contructor for class CommandToolbar. 
+        Constructor for class CommandToolbar.
+        
         @param win: Mainwindow object
         @type  win: L{MWsemantics}
         """        

@@ -37,14 +37,20 @@ separate object, independently from everything else. For now
 it's still called nullMode (and it's created and stored by modeMixin)
 but that will be revised.)
 
-But that doesn't remove the fact that generators (maybe even when based on EditCommand)
-still sort of treat their PM as a guest in some mode and as the "current command".
-So "make generators their own command" will be a refactoring we need soon,
-perhaps before "split old modes into their Command and GraphicsMode pieces".
+But that doesn't remove the fact that generators (maybe even when based
+on EditCommand [update 071228 - this issue was recently fixed for EditCommand)
+still sort of treat their PM as a guest in some mode and as the "current
+command". So "make generators their own command" will be a refactoring we
+need soon, perhaps before "split old modes into their Command and
+GraphicsMode pieces". [update 071228 - Ninad was able to split them
+before fixing this, and has then fixed this for EditCommand, though
+not yet for GeneratorBaseClass.]
 
 But when we "make generators their own command", what GM will they use?
 We might have to split one out of the old modes for that purpose
 even though it can't yet replace the ones it splits out of.
+[update 071228 - they can probably use one of Select*_GraphicsMode
+since those are all split now.]
 """
 
 from constants import GLPANE_IS_COMMAND_SEQUENCER

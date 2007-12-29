@@ -398,7 +398,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         load widgets in groupbox2
         """
         #TODO: Following list widget will be a part of the default PM of 
-        #DNA Mode and not a part of DnaDuplx PM, this is work in progress, 
+        #DNA Mode and not a part of DnaDuplex PM, this is work in progress, 
         #to be revised soon (once dna object model is implemented)
         # -- Ninad 2007-11-12
         self.strandListWidget = PM_SelectionListWidget(pmGroupBox,

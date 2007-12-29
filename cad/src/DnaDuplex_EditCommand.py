@@ -69,7 +69,7 @@ class DnaDuplex_EditCommand(EditCommand):
 
     def __init__(self, commandSequencer, struct = None):
         """
-        Contructor for DnaDuplex_EditCommand
+        Constructor for DnaDuplex_EditCommand
         """
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
@@ -331,11 +331,11 @@ class DnaDuplex_EditCommand(EditCommand):
 	TODO: 
 	- This needs to be a more general method in mode API. 
 	- Right now it is used only for creating a DNA line. It is assumed
-	 that the DNADuplxEditCommand is invoked while in selectMolsMode. 
+	 that the DNADuplexEditCommand is invoked while in selectMolsMode. 
 	 If we decide to define a new DnaMode, then this method needs to go 
 	 there. 
 	 - Even better if the commandSequencer API starts supporting 
-	 sommandSequencer.previousCommand (like it does for previous mode) 
+	 commandSequencer.previousCommand (like it does for previous mode) 
 	 where, the previousCommand can be an editController or mode, then 
 	 it would be good to define this API method in that mode or 
 	 editcontroller class  itself.  So, this method will be directly called 

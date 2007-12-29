@@ -1,15 +1,33 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
-StatusBar.py - status bar widgets and their methods.
+"""
+StatusBar.py - status bar widgets, AbortHandler, ProgressReporters
 
-$Id$
+@author: Mark, EricM
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
 
-History: Started with ProgressBar.py and widdled it down, replacing the original
-progressbar dialog with the new MainWindow progress bar and simAbort "Stop Sign" button.
-by mark on 060105.
 
-'''
-__author__ = "Mark"
+Module classification: [bruce 071228]
+
+It appears to have no requirement of being a singleton and to be
+general purpose, and it's just one file, so I'll just put it into
+"widgets" rather than into its own toplevel module StatusBar
+or into ne1_ui.
+
+TODO:
+
+Needs refactoring to move NanoHiveProgressReporter elsewhere.,
+probably into its sole user, NanoHiveUtils. [bruce comment 071228]
+
+
+History:
+
+Started with ProgressBar.py and widdled it down, replacing the original
+progressbar dialog with the new MainWindow progress bar and simAbort
+"Stop Sign" button. by mark on 060105.
+
+Majorly rewritten/refactored by Eric M circa 12/2007 [bruce comment 071228]
+"""
 
 import os, time
 from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL, QMessageBox, QStatusBar

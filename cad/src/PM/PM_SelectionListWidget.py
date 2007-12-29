@@ -41,7 +41,7 @@ TODO:
   **Comments/Questions: Implementation of this callback function 
   -- where should this be  defined? In the propMgr that initializes this list 
   widget? If so, it needs to be defined in each propMgr that will define this 
-  listwidget (example: MotorPM and SDnaDuplxPM each will need to define the 
+  listwidget (example: MotorPM and DnaDuplexPM each will need to define the 
   callback methods. In the current implementation, they just set a 
   'tag instruction' for this widget.)What if propMgr.model_changed also calls a 
   model_changed method defined in this widget? 

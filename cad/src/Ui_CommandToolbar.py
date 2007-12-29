@@ -1,20 +1,47 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Ui_CommandToolbar.py
+Ui_CommandToolbar.py - UI and hardcoded content for the Command Toolbar
 
-$Id$
+@author: Ninad
+@version: $Id$
+@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+
+
+Module classification: [bruce 071228]
+
+At present, this hardcodes the set of main toolbuttons
+('Build', 'Tools', etc) and at least some of the specific list
+of subcommands under each one.
+
+So clearly it belongs in ne1_ui, even though it ought to be
+refactored into that part (the specific contents of NE1's
+CommandToolbar, in ne1_ui) and a more general part (probably
+for a toplevel 'CommandToolbar' package) which could set up any similar
+toolbutton hierarchy, given a specification for its content and
+ordering (or leave some of that to be added later by external calls --
+it may do some of that now, but I can't tell from the code or comments).
+
+(After this future refactoring, the general part, either a QWidget subclass
+like now, or owning one, would construct the toolbutton hierarchy
+semi-automatically from a known set of command modules, either specified to it
+as a constructor argument or passed to a later setup method (all at once or
+incrementally).)
+
+Accordingly, due to the hardcoded UI layout and contents,
+this is classified into ne1_ui for now, though its subclass is not
+(see comments there).
+
 
 History:
 
 ninad 070125: created this file, moved and modified relevant code from 
-CommandManager to this file. 
+CommandManager to this file.
+
 mark 20071226: renamed from Ui_CommandManager to Ui_CommandToolbar.
 
 TODO: Code cleanup planned for Alpha 10 (lower priority) -- Ninad 2007-09-11
 
 """
-
-__author__ = "Ninad"
 
 from PyQt4    import QtGui
 from PyQt4.Qt import QWidget
@@ -43,7 +70,8 @@ class Ui_CommandToolbar( QWidget ):
     """
     def __init__(self, win):
         """
-        Contructor for class Ui_CommandToolbar. 
+        Constructor for class Ui_CommandToolbar.
+        
         @param win: Mainwindow object
         @type  win: L{MWsemantics}
         """
@@ -55,7 +83,7 @@ class Ui_CommandToolbar( QWidget ):
         """
         Setup the UI for the command toolbar.
         """
-        #ninad 070123 : Its important to set the Vertical size policy of the 
+        #ninad 070123 : It's important to set the Vertical size policy of the 
         # cmd toolbar widget. otherwise the flyout QToolbar messes up the 
         #layout (makes the command toolbar twice as big) 
         #I have set the vertical policy as fixed. Works fine. There are some 
@@ -125,10 +153,10 @@ class Ui_CommandToolbar( QWidget ):
         #after hiding the flyout toolbar, the layout adjusts the position of 
         #remaining widget items) 
         
-        self.spacerItem =QSpacerItem(0, 
-                                     0, 
-                                     QtGui.QSizePolicy.Expanding, 
-                                     QtGui.QSizePolicy.Minimum)
+        self.spacerItem = QSpacerItem(0, 
+                                      0, 
+                                      QtGui.QSizePolicy.Expanding, 
+                                      QtGui.QSizePolicy.Minimum)
         self.spacerItem.setGeometry = self.flyoutToolBar.geometry()
         
         for btn in self.cmdButtonGroup.buttons():
@@ -180,7 +208,7 @@ class Ui_CommandToolbar( QWidget ):
                         btn.setMaximumWidth(68)
                         btn.setMinimumHeight(62)                                            
                         #ninad 070125: make sure to a) define *default action* 
-                        # of button to  action and 
+                        # of button to action and 
                         #b) *default widget* of *action* to 'button' 
                         #(a) ensures button has got action's signals, icon,  
                         #    text and other properties
