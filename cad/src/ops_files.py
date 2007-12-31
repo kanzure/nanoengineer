@@ -1280,12 +1280,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self.win_update()
         return
 
-    def fileSetWorkDir(self):
+    def fileSetWorkingDirectory(self):
         """
-        Slot for 'File > Set Working Directory', which prompts the user to select a
-        new NE1 working directory via a directory chooser dialog.
+        Slot for 'File > Set Working Directory', which prompts the user to
+        select a new NE1 working directory via a directory chooser dialog.
         
-        Note: This is no longer used as of Alpha 9. Mark 2007-06-18.
+        @deprecated: The 'Set Working Directory' menu item that calls this slot
+        has been removed from the File menu as of Alpha 9.  Mark 2007-06-18.
         """
         env.history.message(greenmsg("Set Working Directory:"))
     
@@ -1301,25 +1302,34 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
     def setCurrentWorkingDirectory(self, dir = None): # Mark 060729.
         """
-        Sets the current working directory (CWD) to <dir>. If <dir> is None, the CWD is set
-        to the directory of the current assy filename (i.e. the directory of the current part). 
-        If <dir> is None and there is no current assy filename, set the CWD to the default working directory.
+        Set the current working directory (CWD). 
+        
+        @param dir: The
+        If I{dir} is None, the CWD is set to the directory of the current assy 
+        filename (i.e. the directory of the current part). If there is no 
+        current assy filename, sets the CWD to the default working directory.
+        
+        @see: L{getDefaultWorkingDirectory()}
         """
         if not dir:
             dir, fil = os.path.split(self.assy.filename)
         
         if os.path.isdir(dir):
             self.currentWorkingDirectory = dir
-            self.setWorkDir(dir)
+            self._setWorkingDirectoryInPrefsDB(dir)
         else:
             self.currentWorkingDirectory =  getDefaultWorkingDirectory()
             
         #print "setCurrentWorkingDirectory(): dir=",dir
         
-    def setWorkDir(self, workdir = None):
+    def _setWorkingDirectoryInPrefsDB(self, workdir = None):
         """
-        Sets the working directory in the preferences db to <workdir>.
-        If <workdir> is None, there is no change to the working directory.
+        [private method]
+        Set the working directory in the user preferences database.
+        
+        @param workdir: The fullpath directory to write to the user pref db.
+        If I{workdir} is None (default), there is no change.
+        @type  workdir: string
         """
         if not workdir:
             return

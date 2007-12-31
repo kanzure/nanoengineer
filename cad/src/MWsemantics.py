@@ -52,8 +52,6 @@ from icon_utilities import geticon
 from PlatformDependent import find_or_make_Nanorex_directory
 from PlatformDependent import make_history_filename
 
-from StatusBar import StatusBar
-
 from elementColors import elementColors 
 
 from ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
@@ -157,9 +155,14 @@ class MWsemantics(QMainWindow,
         self.sequenceEditor = None  #see self.createSequenceEditrIfNeeded 
                                     #for details
 
+        # Initialize all Property Managers used in NE1 to "None".
+        # Do we really need to do this? Can't create*PropMgr_if_needed()
+        # use "hasattr(self, *PropMgr) to determine if the PM in question
+        # exists? Then these 4 lines could be removed.
+        # Ask Bruce is this would be a better way. Mark 2007-12-30.
         self.rotaryMotorPropMgr = None
         self.linearMotorPropMgr = None
-        self.dnaDuplexPropMgr   = None
+        self.dnaDuplexPropMgr = None
         self.planePropMgr = None
 
         # These boolean flags, if True, stop the execution of slot 
@@ -187,8 +190,8 @@ class MWsemantics(QMainWindow,
 
         self.defaultFont = QFont(self.font()) # Makes copy of app's default font.
         
-        # Setup the NE1 user interface.
-        self.setupUi(self)
+        # Setup the NE1 graphical user interface.
+        self.setupUi() # Ui_MainWindow.setupUi()
         
         undo_internals.just_after_mainwindow_super_init()
 
@@ -203,23 +206,20 @@ class MWsemantics(QMainWindow,
         from cursors import loadCursors
         loadCursors(self)
 
-        # Create our 2 status bar widgets - msgbarLabel and modebarLabel
-        # (see also env.history.message())
-        self.setStatusBar(StatusBar(self))
-
+        #@ This needs a good comment. Mark 2007-12-30
         env.setMainWindow(self)
 
-        if name == None:
-            self.setWindowTitle("NanoEngineer-1") # Mark 11-05-2004
-
-        # start with empty window 
+        # Start NE1 with an empty document called "Untitled".
+        # Note: It is very desirable to change this startup behavior so that
+        # the user must select "File > New" to open an empty document after
+        # NE1 starts. Mark 2007-12-30.
         self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
             #bruce 060127 added own_window_UI flag to help fix bug 1403
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
 
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
-        self.update_mainwindow_caption()	    
+        self.update_mainwindow_caption()
 
         # hsplitter and vsplitter reimplemented. mark 060222.
         # Create the horizontal-splitter between the model tree (left) and the glpane 
@@ -328,9 +328,6 @@ class MWsemantics(QMainWindow,
             self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
             self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
             self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
-
-            self.currentWorkingDirectory = ''
-            self.setWindowTitle("My Main Window")
             
             ##############################################
 
@@ -633,18 +630,6 @@ class MWsemantics(QMainWindow,
         # the glpane. This doesn't prevent other subwidgets from having focus.]
         self.setFocusPolicy(QtCore.Qt.StrongFocus)
 
-        if not MULTIPANE_GUI:
-
-            # This is only used by the Atom Color preference dialog, not the
-            # molecular modeling kit in Build Atom (deposit mode), etc.
-            start_element = 6 # Carbon
-            self.Element = start_element
-
-            # Attr/list for Atom Selection Filter. mark 060401
-            self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
-            self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
-            self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
-
         # 'depositState' is used by depositMode and MMKit to synchonize the 
         # depositMode dashboard (Deposit and Paste toggle buttons) and the MMKit pages (tabs).
         # It is also used to determine what type of object (atom, clipboard chunk or library part)
@@ -660,31 +645,36 @@ class MWsemantics(QMainWindow,
         self.depositState = 'Atoms'
 
         self.assy.reset_changed() #bruce 050429, part of fixing bug 413
-
-        # Movie Player Flag.  Mark 051209.
-        # 'movie_is_playing' is a flag that indicates a movie is playing. It is used by other code to
-        # speed up rendering times by disabling the (re)building of display lists for each frame
-        # of the movie.
+        
+        # 'movie_is_playing' is a flag that indicates a movie is playing. It is 
+        # used by other code to speed up rendering times by disabling the 
+        # (re)building of display lists for each frame of the movie.
         self.movie_is_playing = False
-
+        
         # Current Working Directory (CWD).
-        # When NE1 starts, the CWD is set to the Working Directory (WD) pref from the prefs db. 
-        # Every time the user opens or inserts a file during a session, the CWD changes to the directory containing
-        # that file. When the user closes the current file and then attempts to open a new file, the CWD will still
-        # be the directory of the last file opened or inserted. 
-        # If the user changes the WD via 'File > Set Working Directory' when a file is open, 
-        # the CWD will not be changed to the new WD. (This rule may change. Need to discuss with Ninad).
-        # On the other hand, if there is no part open, the CWD will be changed to the new WD.  Mark 060729.
+        # When NE1 starts, the CWD is set to the Working Directory (WD) 
+        # preference from the user prefs db. Every time the user opens or 
+        # inserts a file during a session, the CWD changes to the directory 
+        # containing that file. When the user closes the current file and then
+        # attempts to open a new file, the CWD will still be the directory of
+        # the last file opened or inserted. 
+        # If the user changes the WD via 'File > Set Working Directory' when 
+        # a file is open, the CWD will not be changed to the new WD. (This 
+        # rule may change. Need to discuss with Ninad).
+        # On the other hand, if there is no part open, the CWD will be 
+        # changed to the new WD.  Mark 060729.
         self.currentWorkingDirectory = ''
-
-        # Before setting the CWD, make sure the WD from the prefs db exists (it might have been deleted). 
-        # If not, set the CWD to the default WD.
+        
+        # Make sure the working directory from the user prefs db exists since
+        # it might have been deleted.
         if os.path.isdir(env.prefs[workingDirectory_prefs_key]): 
             self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
         else:
+            # The CWD does not exist, so set it to the default working dir.
             self.currentWorkingDirectory = getDefaultWorkingDirectory()
-
-        #bruce 050810 replaced user preference initialization with this, and revised update_mainwindow_caption to match
+        
+        # bruce 050810 replaced user preference initialization with this,
+        # and revised update_mainwindow_caption to match
         from changes import Formula
         self._caption_formula = Formula(
             # this should depend on whatever update_mainwindow_caption_properly depends on;

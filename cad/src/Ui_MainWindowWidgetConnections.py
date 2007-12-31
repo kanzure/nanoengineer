@@ -88,9 +88,9 @@ def setupUi(win):
     win.connect(win.fileSaveSelectionAction,
                 SIGNAL("triggered()"),
                 win.fileSaveSelection)
-    win.connect(win.fileSetWorkDirAction,
+    win.connect(win.fileSetWorkingDirectoryAction,
                 SIGNAL("triggered()"), 
-                win.fileSetWorkDir)
+                win.fileSetWorkingDirectory)
     
     win.connect(win.helpAboutAction,SIGNAL("triggered()"),win.helpAbout)
     win.connect(win.helpGraphicsCardAction,SIGNAL("triggered()"),win.helpGraphicsCard)

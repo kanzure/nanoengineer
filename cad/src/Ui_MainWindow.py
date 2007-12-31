@@ -28,24 +28,25 @@ import Ui_SimulationToolBar
 import Ui_BuildToolsToolBar
 import Ui_BuildStructuresToolBar
 
-from icon_utilities import geticon
+from StatusBar import StatusBar
 
 import env
 
 class Ui_MainWindow(object):
     """
-    The Ui_MainWindow class creates the QAction widgets, including the menus
-    and toolbars that use them.
+    The Ui_MainWindow class creates the main window and all its widgets.
     """
-    def setupUi(self, MainWindow):
+    def setupUi(self):
         """
-        Sets up the main window menus and toolbars in the following way:
+        Sets up the main window UI in the following order:
         - Create all main window widgets used by menus and/or toolbars.
         - Create main menu bar and its menus
         - Create main toolbars
+        - Create the statusbar
         """
         self.setObjectName("MainWindow")
         self.setEnabled(True)
+        self.setWindowTitle("NanoEngineer-1")
         
         # Set minimum width and height of the main window.
         # To do: Check that the current screen size is at least 1024 x 768.
@@ -53,7 +54,7 @@ class Ui_MainWindow(object):
         self.setMinimumWidth(MAIN_WINDOW_SIZE[0])
         self.setMinimumHeight(MAIN_WINDOW_SIZE[1])
 
-        # Create all widgets for all main menus and toolbars.
+        # Create all widgets for all main window menus and toolbars.
         Ui_MainWindowWidgets.setupUi(self)
         
         # Set up all main window widget connections to their slots.
@@ -64,6 +65,9 @@ class Ui_MainWindow(object):
         # to be created before it is created (in 
         self.setupToolbars() 
         self.setupMenus()
+        
+        # Create the statusbar for the main window.
+        self.setStatusBar(StatusBar(self))
         
         # Now set all UI text for main window widgets.
         self.retranslateUi()

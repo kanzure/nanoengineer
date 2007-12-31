@@ -315,7 +315,13 @@ _default_bondColor = (0.25, 0.25, 0.25)
 #  bruce 071215 comment]
 def getDefaultWorkingDirectory(): 
     """
-    Returns the default Working Directory.
+    Get the default Working Directory.
+    
+    @return: The default working directory, which is platform dependent:
+    - Windows: $HOME\My Documents
+    - MacOS and Linux: $HOME
+    If the default working directory doesn't exist, return ".".
+    @rtype: string
     """
     wd = ""
     if sys.platform == 'win32': # Windows

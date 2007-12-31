@@ -61,8 +61,11 @@ def setupUi(win):
     win.fileExportAction = QtGui.QAction(MainWindow)
     win.fileExportAction.setObjectName("fileExportAction")
 
-    win.fileSetWorkDirAction = QtGui.QAction(MainWindow)
-    win.fileSetWorkDirAction.setObjectName("fileSetWorkDirAction")
+    # This action (i.e. the "Set Working Directory" menu item) was removed from 
+    # the File menu for Alpha 9 since it was deemed undesireable.
+    # If you want a full explanation, ask me. Mark 2007-12-30.
+    win.fileSetWorkingDirectoryAction = QtGui.QAction(MainWindow)
+    win.fileSetWorkingDirectoryAction.setObjectName("fileSetWorkingDirectoryAction")
 
     win.fileExitAction = QtGui.QAction(MainWindow)
     win.fileExitAction.setObjectName("fileExitAction")
