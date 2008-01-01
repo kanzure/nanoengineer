@@ -12,12 +12,13 @@ History:
 
 Jeff 2007-06-13:
 - Moved Dna class (and subclasses) to file Dna.py.
+  [subsequently renamed DnaGenHelper.py]
 
 Mark 2007-08-23:
 - Heavily restructured and cleaned up.
 
 Mark 2007-10-18: 
-- Major rewrite of this module, superseding it --
+- Did a major rewrite of this module, superseding it --
   DnaDuplexGenerator.py.
 """
 
@@ -38,8 +39,8 @@ from chunk          import Chunk
 from constants      import gensym    
 
 from Dna_Constants  import basesDict, getReverseSequence
-from Dna            import B_Dna_PAM3, B_Dna_PAM5
-from Dna            import basepath_ok
+from DnaGenHelper   import B_Dna_PAM3, B_Dna_PAM5
+from DnaGenHelper   import basepath_ok
 
 from GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
 from DnaGeneratorPropertyManager import DnaGeneratorPropertyManager

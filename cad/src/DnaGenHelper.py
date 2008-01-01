@@ -1,8 +1,9 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Dna.py -- DNA generator helper classes, based on empirical data.
+DnaGenHelper.py -- DNA generator helper classes, based on empirical data.
 
 WARNING: this file has been mostly superseded by DnaDuplex.py.
+It is used only in DnaGenerator.py, also superseded.
 
 @author: Will Ware
 @version: $Id$
@@ -25,9 +26,12 @@ Mark 2007-08-17:
   - Implemented Standard IUB Codes (see Dna_Constants.py)
 
 Mark 2007-10-18: 
-- Major rewrite of this module, superseding it --
+- Did a major rewrite of this module, superseding it --
   DnaDuplex.py.
 
+Bruce 2008-1-1:
+- renamed this from Dna.py to DnaGenHelper.py so it's
+  not in a way of a proposed "dna" package.
 """
 
 # To do:

@@ -257,7 +257,7 @@ packageMapping_for_files = {
     "dimensions"                       : "graphics", # graphics output, not opengl-specific in principle
     "DirectionArrow"                   : "graphics_behavior", # a kind of DragHandler (drawable with behavior); graphics_what?
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
-    "Dna"                              : "operation|dna", # obs?
+    "DnaGenHelper"                     : "operation|dna", # obs?
     "DnaDuplex"                        : "operation|dna", # class to help construct model objects defined elsewhere
     "DnaDuplex_EditCommand"            : "command|dna",
     "DnaDuplexPropertyManager"         : "ui/propmgr|dna",
