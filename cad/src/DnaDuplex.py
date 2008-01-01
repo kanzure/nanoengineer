@@ -9,7 +9,7 @@ DnaDuplex.py -- DNA duplex generator helper classes, based on empirical data.
 History:
 
 Mark 2007-10-18:
-- Created. Major rewrite of Dna.py.
+- Created. Major rewrite of DnaGenHelper.py.
 """
 
 import env

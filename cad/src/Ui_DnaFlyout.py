@@ -46,7 +46,7 @@ def activateDnaFlyout(mainWindow):
 class DnaFlyout:    
     def __init__(self, mainWindow, parentWidget):
         """
-        Create necessary flyoot action list and update the flyout toolbar in
+        Create necessary flyout action list and update the flyout toolbar in
         the command toolbar with the actions provided by the object of this
         class.
         
@@ -116,7 +116,7 @@ class DnaFlyout:
         self.dnaDuplexAction.setToolTip("Duplex")
         self.dnaOrigamiAction.setToolTip("Origami")
     
-    def connect_or_disconnet_signals(self, isConnect):
+    def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
         This can be overridden in subclasses. By default it does nothing.
@@ -155,7 +155,7 @@ class DnaFlyout:
         self.win.commandToolbar.updateCommandToolbar(self.win.buildDnaAction,
                                                      self)
         self.exitDnaAction.setChecked(True)
-        self.connect_or_disconnet_signals(True)
+        self.connect_or_disconnect_signals(True)
     
     def deActivateFlyoutToolbar(self):
         """
@@ -169,7 +169,7 @@ class DnaFlyout:
         if self.dnaDuplexAction.isChecked():
             self.dnaDuplexAction.setChecked(False)
             
-        self.connect_or_disconnet_signals(False)    
+        self.connect_or_disconnect_signals(False)    
         self.win.commandToolbar.updateCommandToolbar(self.win.buildDnaAction,
                                                      self,
                                                      entering = False)

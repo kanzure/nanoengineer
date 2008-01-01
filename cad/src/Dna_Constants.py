@@ -3,8 +3,8 @@
 Dna_Constants.py -- constants for Dna.
 
 Note: these are used both by the newer DnaDuplex.py,
-and the older Dna.py which it supersedes (and their
-associated files).
+and the older DnaGenHelper.py which it supersedes
+(and their associated files).
 
 @author: Mark Sims
 @version: $Id$
@@ -18,9 +18,8 @@ associated files).
 
 History:
 
-2007-08-19 - Started out as part of Dna.py.
+2007-08-19 - Started out as part of DnaGenHelper.py
 """
-__author__ = 'mark'
 
 from constants import purple, brass, steelblue, orange, darkgray, lightblue
 from constants import darkorange, violet, copper, olive, gray
@@ -158,10 +157,12 @@ def getComplementSequence(inSequence):
     Returns the complement of the DNA sequence I{inSequence}.
     
     @param inSequence: The original DNA sequence.
-    @type  inSequence: str
+    @type  inSequence: str (possible error: the code looks more like it
+                       requires a QString [bruce 080101 comment])
     
     @return: The complement DNA sequence.
-    @rtype:  str
+    @rtype:  str (possible error: the code looks more like it
+                  might return a QString [bruce 080101 comment])
     """
     #If user enters an empty 'space' or 'tab key', treat it as an empty space 
     #in the complement sequence. (don't convert it to 'N' base) 
@@ -172,7 +173,6 @@ def getComplementSequence(inSequence):
     assert isinstance(inSequence, str)
     outSequence = ""
     for baseLetter in inSequence:
-                
         if baseLetter not in basesDict.keys():
             if baseLetter in validSpaceSymbol:
                 pass

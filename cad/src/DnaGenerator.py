@@ -11,8 +11,8 @@ WARNING: this file has been mostly superseded by DnaDuplexGenerator.py.
 History:
 
 Jeff 2007-06-13:
-- Moved Dna class (and subclasses) to file Dna.py.
-  [subsequently renamed DnaGenHelper.py]
+- Moved Dna class (and subclasses) to file Dna.py
+  [subsequently renamed DnaGenHelper.py].
 
 Mark 2007-08-23:
 - Heavily restructured and cleaned up.

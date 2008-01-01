@@ -188,6 +188,7 @@ _levels_highest_first = [ # TODO: finish, then use this to compute the above; in
 
 packageMapping_for_packages = {
     # existing packages (in each case so far, all files now in them have the same fate)
+    # (in two cases, gui and startup, they should first just be renamed, then new files moved into them)
 
     "dna_model"                        : "model|dna/model",
     "dna_updater"                      : "model_updater|dna/updater", ###?? be consistent with what we do for other model_updater code
@@ -202,8 +203,8 @@ packageMapping_for_packages = {
 packageMapping_for_files = {
     # files presently at toplevel (except for a few that are already moved)
     
-    # Note: of these modules, Dna.py and platform.py are in the way of proposed new package names,
-    # so they need to be renamed, but they are listed here in the usual way.
+    # Note: of these modules, platform.py is in the way of proposed new package names,
+    # so it needs to be renamed, but it is listed here in the usual way.
     # We also want to rename main.py -> ne1_main.py, but that's not urgent.
     # For all other module renamings, we can wait a bit; see a wiki page about them.
     
@@ -257,14 +258,14 @@ packageMapping_for_files = {
     "dimensions"                       : "graphics", # graphics output, not opengl-specific in principle
     "DirectionArrow"                   : "graphics_behavior", # a kind of DragHandler (drawable with behavior); graphics_what?
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
-    "DnaGenHelper"                     : "operation|dna", # obs?
-    "DnaDuplex"                        : "operation|dna", # class to help construct model objects defined elsewhere
-    "DnaDuplex_EditCommand"            : "command|dna",
-    "DnaDuplexPropertyManager"         : "ui/propmgr|dna",
-    "DnaGenerator"                     : "command|dna", # obs?
-    "DnaGeneratorPropertyManager"      : "ui/propmgr|dna", # obs?
+    "DnaGenHelper"                     : "operation|dna/commands/BuildDuplex_obs",
+    "DnaDuplex"                        : "operation|dna/commands/BuildDuplex", # class to help construct model objects defined elsewhere
+    "DnaDuplex_EditCommand"            : "command|dna/commands/BuildDuplex",
+    "DnaDuplexPropertyManager"         : "ui/propmgr|dna/commands/BuildDuplex",
+    "DnaGenerator"                     : "command|dna/commands/BuildDuplex_obs",
+    "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_obs",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
-    "Dna_Constants"                    : "model|dna",#?
+    "Dna_Constants"                    : "model|dna/model", # (since used by lots of files in several dna-related commands)
     "DragHandler"                      : "graphics_behavior",
     "drawer"                           : "graphics",
     "draw_bond_vanes"                  : "graphics",
@@ -279,8 +280,8 @@ packageMapping_for_files = {
     "elementSelector"                  : "ui/dialog",
     "ElementSelectorDialog"            : "ui/dialog",
     "elements_data"                    : "model", # model_data? like some constants?
-    "elements_data_PAM3"               : "model|dna",
-    "elements_data_PAM5"               : "model|dna",
+    "elements_data_PAM3"               : "model|dna/model",
+    "elements_data_PAM5"               : "model|dna/model",
     "EndUser"                          : "utilities",
     "env"                              : "foundation", # not utilities - only meant to be used from foundation or above
     
@@ -513,7 +514,7 @@ packageMapping_for_files = {
     "Ui_CommandToolbar"                : "ui/toolbar|ne1_ui", # UI and content/layout for Command Toolbar
     "Ui_CookiePropertyManager"         : "ui/propmgr|commands/BuildCrystal",
     "Ui_DimensionsMenu"                : "ui/menu",#?
-    "Ui_DnaFlyout"                     : "ui/toolbar|dna",
+    "Ui_DnaFlyout"                     : "ui/toolbar|ne1_ui", # I'm guessing this has to be in ne1_ui, not dna
     "Ui_EditMenu"                      : "ui/menu",
     "Ui_ExtrudePropertyManager"        : "ui/propmgr|commands/Extrude",
     "Ui_FileMenu"                      : "ui/menu",
