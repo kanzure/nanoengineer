@@ -21,13 +21,15 @@ from PyQt4.Qt import Qt
 import env
 import changes
 
-from utilities.Log import orangemsg
+from utilities.Log import orangemsg, redmsg
 from chem          import Atom
 from elements      import Singlet
 from pastables     import is_pastable
 from depositMode   import depositMode
 
 from PastePropertyManager import PastePropertyManager
+
+_superclass = depositMode
 
 class PasteMode(depositMode):
     """
@@ -89,7 +91,7 @@ class PasteMode(depositMode):
         #self.pastable_list which is needed to paste items! This needs a 
         #separate code clean up in depositmode.py -- Ninad 20070827
         self.dont_update_gui = False
-        
+                
                 
     def connect_or_disconnect_signals(self, isConnect): 
         """
@@ -250,5 +252,31 @@ class PasteMode(depositMode):
         except: # various causes, mostly not errors
             self.pastable = None        
         return 
+    
+    def MMKit_clipboard_part(self): #bruce 060412; implem is somewhat of a guess, based on the code of self.deposit_from_MMKit
+        """
+        If the MMKit is currently set to a clipboard item, return that item's Part, else return None.
+        """
+        if not self.pastable:
+            return None
+        return self.pastable.part
+    
+    def transdepositPreviewedItem(self, singlet):
+        """
+        Trans-deposit the current object in the preview groupbox of the 
+        property manager  on all singlets reachable through 
+        any sequence of bonds to the singlet <singlet>.
+        """
+       
+        # bruce 060412: fix bug 1677 (though this fix's modularity should be improved;
+        #  perhaps it would be better to detect this error in deposit_from_MMKit).
+        # See also other comments dated today about separate fixes of some parts of that bug.
+        mmkit_part = self.MMKit_clipboard_part() # a Part or None
+        if mmkit_part and self.o.assy.part is mmkit_part:
+            env.history.message(redmsg("Can't transdeposit the MMKit's current"\
+                                       " clipboard item onto itself."))
+            return
+        
+        _superclass.transdepositPreviewedItem(self, singlet)
     
    

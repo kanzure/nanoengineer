@@ -842,6 +842,9 @@ class depositMode(selectAtomsMode):
 
     _pastable_atomtype = None
     def set_pastable_atomtype(self, name):
+        #@attention: No code calls this method as of 2008-01-02. 
+        # So it should be removed.  See also self.set_pastable method
+        #-- Ninad 2008-01-02
         current_element = self.pastable_element()
         self._pastable_atomtype = current_element.find_atomtype(name)
             # store entire atomtype object; only used if element remains correct (not an error if it doesn't)
@@ -952,148 +955,7 @@ class depositMode(selectAtomsMode):
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
         return
     
-    def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): # probably by Huaicai; revised by bruce 051227, 060627, 070501
-        """
-        This method serves as an overloaded method, <atom_or_pos> is 
-        the Singlet atom or the empty position that the new part <newPart>
-        [which is an assy, at least sometimes] will be attached to or placed at.
-        [If <atom_or_pos> is a singlet, <hotspotAtom> should be an atom in some chunk in <newPart>.]
-        Currently, it doesn't consider group or jigs in the <newPart>. Not so sure if my attempt to copy a part into
-        another assembly is all right. [It wasn't, so bruce 051227 revised it.]
-        Copies all molecules in the <newPart>, change their assy attribute to current assembly, move them into <pos>.
-        [bruce 051227 new feature:] return a list of new nodes created, and a message for history (currently almost a stub).
-        [not sure if subrs ever print history messages... if they do we'd want to return those instead.]
-        """
-        attach2Bond = False
-        stuff = [] # list of deposited nodes [bruce 051227 new feature]
-        
-        if isinstance(atom_or_pos, Atom):
-            attch2Singlet = atom_or_pos
-            if hotspotAtom and hotspotAtom.is_singlet() and attch2Singlet .is_singlet():
-                newMol = hotspotAtom.molecule.copy(None) # [this can break interchunk bonds, thus it still has bug 2028]
-                newMol.setAssy(self.o.assy) #bruce 051227 revised this
-                hs = newMol.hotspot
-                ha = hs.singlet_neighbor() # hotspot neighbor atom
-                attch2Atom = attch2Singlet.singlet_neighbor() # attach to atom
-
-                rotCenter = newMol.center
-                rotOffset = Q(ha.posn()-hs.posn(), attch2Singlet.posn()-attch2Atom.posn())
-                newMol.rot(rotOffset)
-                
-                moveOffset = attch2Singlet.posn() - hs.posn()
-                newMol.move(moveOffset)
-                
-                self.__createBond(hs, ha, attch2Singlet, attch2Atom)
-                
-                self.o.assy.addmol(newMol)
-                stuff.append(newMol)
-
-                #e if there are other chunks in <newPart>, they are apparently copied below. [bruce 060627 comment]
-                
-            else: ## something is wrong, do nothing
-                return stuff, "internal error"
-            attach2Bond = True
-        else:
-            placedPos = atom_or_pos
-            if hotspotAtom:
-                hotspotAtomPos = hotspotAtom.posn()
-                moveOffset = placedPos - hotspotAtomPos
-            else:
-                if newPart.molecules:
-                    moveOffset = placedPos - newPart.molecules[0].center #e not the best choice of center [bruce 060627 comment]
-        
-        if attach2Bond: # Connect part to a bondpoint of an existing chunk
-            for m in newPart.molecules:
-              if not m is hotspotAtom.molecule: 
-                newMol = m.copy(None) # [this can break interchunk bonds, thus it still has bug 2028]
-                newMol.setAssy(self.o.assy) #bruce 051227 revised this
-                
-                ## Get each of all other chunks' center movement for the rotation around 'rotCenter'
-                coff = rotOffset.rot(newMol.center - rotCenter)
-                coff = rotCenter - newMol.center + coff 
-                
-                # The order of the following 2 statements doesn't matter
-                newMol.rot(rotOffset)
-                newMol.move(moveOffset + coff)
-                
-                self.o.assy.addmol(newMol)
-                stuff.append(newMol)
-        else: # Behaves like dropping a part anywhere you specify, independent of existing chunks.
-            # copy all nodes in newPart (except those in clipboard items), regardless of node classes;
-            # put it in a new Group if more than one thing [bruce 070501]
-            # [TODO: this should be done in the cases above, too, but that's not yet implemented,
-            #  and requires adding rot or pivot to the Node API and revising the rot-calling code above,
-            #  and also reviewing the definition of the "hotspot of a Part" and maybe of a "depositable clipboard item".]
-            assert newPart.tree.is_group()
-            nodes = list(newPart.tree.members) # might be []
-            assy = self.o.assy
-            newnodes = copied_nodes_for_DND(nodes, autogroup_at_top = True, assy = assy)
-                # Note: that calls name_autogrouped_nodes_for_clipboard internally, if it forms a Group,
-                # but we ignore that and rename the new node differently below, whether or not it was
-                # autogrouped. We could just as well do the autogrouping ourselves...
-                # Note [bruce 070525]: it's better to call copied_nodes_for_DND here than copy_nodes_in_order,
-                # even if we didn't need to autogroup. One reason is that if some node is not copied,
-                # that's not necessarily an error, since we don't care about 1-1 orig-copy correspondence here.
-            if not newnodes:
-                if newnodes is None:
-                    print "bug: newnodes should not be None; nodes was %r (saved in debug._bugnodes)" % (nodes,)
-                        # TODO: This might be possible, for arbitrary partlib contents, just not for legitimate ones...
-                        # but partlib will probably be (or is) user-expandable, so we should turn this into history message,
-                        # not a bug print. But I'm not positive it's possible w/o a bug, so review first. ###FIX [bruce 070501 comment]
-                    import debug
-                    debug._bugnodes = nodes
-                    newnodes = []
-                msg = redmsg( "error: nothing to deposit in [%s]" % quote_html(str(newPart.name)) )
-                return [], msg
-            assert len(newnodes) == 1 # due to autogroup_at_top = True
-            # but the remaining code works fine regardless of len(newnodes), in case we make autogroup a preference
-            for newnode in newnodes:
-                # Rename newnode based on the partlib name and a unique number.
-                # It seems best to let the partlib mmp file contents (not just filename)
-                # control the name used here, so use newPart.tree.name rather than just newPart.name.
-                # (newPart.name is a complete file pathname; newPart.tree.name is usually its basename w/o extension.)
-                basename = str(newPart.tree.name)
-                if basename == 'Untitled':
-                    # kluge, for the sake of 3 current partlib files, and files saved only once by users (due to NE1 bug in save)
-                    dirjunk, base = os.path.split(newPart.name)
-                    basename, extjunk = os.path.splitext(base)
-                from constants import gensym
-                newnode.name = gensym( basename + " " ) # name library part based on basename recorded in its mmp file's top node
-                newnode.move(moveOffset) #k not sure this method is correctly implemented for measurement jigs, named views
-                assy.addnode(newnode)
-                stuff.append(newnode)
-            pass
-            
-##            #bruce 060627 new code: fix bug 2028 (non-hotspot case only) about interchunk bonds being broken
-##            nodes = newPart.molecules
-##            newnodes = copied_nodes_for_DND(nodes)
-##            if newnodes is None:
-##                print "bug: newnodes should not be None; nodes was %r (saved in debug._bugnodes)" % (nodes,)
-##                debug._bugnodes = nodes
-##                newnodes = [] # kluge
-##            for newMol in newnodes:
-##                # some of the following probably only work for Chunks,
-##                # though coding them for other nodes would not be hard
-##                newMol.setAssy(self.o.assy)
-##                newMol.move(moveOffset)
-##                self.o.assy.addmol(newMol)
-##                stuff.append(newMol)
-
-##            # pre-060627 old code, breaks interchunk bonds since it copies chunks one at a time (bug 2028)
-##            for m in nodes:
-##                newMol = m.copy(None)
-##                newMol.setAssy(self.o.assy) #bruce 051227 revised this
-##                
-##                newMol.move(moveOffset)
-##                
-##                self.o.assy.addmol(newMol)
-##                stuff.append(newMol)
-##            pass
-        self.o.assy.update_parts() #bruce 051227 see if this fixes the atom_debug exception in checkparts
-        
-        msg = greenmsg("deposited library part: ") + " [" + quote_html(str(newPart.name)) + "]"  #ninad060924 fix bug 1164 
-        
-        return stuff, msg  ####@@@@ should revise this message (stub is by bruce 051227)
+ 
 
 # == LMB event handling methods ====================================
         
@@ -1118,15 +980,7 @@ class depositMode(selectAtomsMode):
 
 # == end of LMB event handler methods
 
-    def MMKit_clipboard_part(self): #bruce 060412; implem is somewhat of a guess, based on the code of self.deposit_from_MMKit
-        """
-        If the MMKit is currently set to a clipboard item, return that item's Part, else return None.
-        """
-        if self.w.depositState != 'Clipboard':
-            return None
-        if not self.pastable:
-            return None
-        return self.pastable.part
+    
     
     def transdepositPreviewedItem(self, singlet):
         """
@@ -1136,14 +990,6 @@ class depositMode(selectAtomsMode):
         """
         
         if not singlet.is_singlet(): 
-            return
-
-        # bruce 060412: fix bug 1677 (though this fix's modularity should be improved;
-        #  perhaps it would be better to detect this error in deposit_from_MMKit).
-        # See also other comments dated today about separate fixes of some parts of that bug.
-        mmkit_part = self.MMKit_clipboard_part() # a Part or None
-        if mmkit_part and self.o.assy.part is mmkit_part:
-            env.history.message(redmsg("Can't transdeposit the MMKit's current clipboard item onto itself."))
             return
         
         singlet_list = self.o.assy.getConnectedSinglets([singlet])
@@ -1312,22 +1158,7 @@ class depositMode(selectAtomsMode):
         
         if self.w.depositState == 'Atoms':
             deposited_stuff, status = self.deposit_from_Atoms_page(atom_or_pos) # deposited_stuff is a chunk
-            deposited_obj = 'Atom'
-            
-        elif self.w.depositState == 'Clipboard':
-            deposited_stuff, status = self.deposit_from_Clipboard_page(atom_or_pos) # deposited_stuff is a chunk
-            deposited_obj = 'Chunk'
-                
-        elif self.w.depositState == 'Library':
-            #bruce 051227 revised this case and its subrs as part of fix of reopened bug 229;
-            # deposited_stuff might be a chunk, node, list, etc.
-            # Not sure if subrs still print redundant history messages besides the one
-            # newly returned here (status).
-            deposited_stuff, status = self.deposit_from_Library_page(atom_or_pos)
-            deposited_obj = 'Part'
-            if deposited_stuff and self.pickit():
-                for d in deposited_stuff[:]:
-                    d.pickatoms() # Fixes bug 1510. mark 060301.
+            deposited_obj = 'Atom'            
             
         else:
             print_compact_stack('Invalid depositState = "' + str(self.w.depositState) + '" ')
@@ -1359,54 +1190,6 @@ class depositMode(selectAtomsMode):
             env.history.message(orangemsg(status)) # nothing deposited
         
         return deposited_obj
-            
-    def deposit_from_Library_page(self, atom_or_pos): 
-        """
-        Subclasses should override this method.
-        """
-        msg1= "Internal error:depositMode.deposit_from_Library_page should"
-        msg2 = "be overridden"
-        msg = msg1 + msg2
-        return False, msg
-        
-
-    def deposit_from_Clipboard_page(self, atom_or_pos):
-        """
-        Deposits a copy of the selected object (chunk) from the MMKit Clipboard page, or
-        the Clipboard (paste) combobox on the dashboard, which are the same object.
-        If 'atom_or_pos' is a singlet, try bonding the object to the singlet by its hotspot.
-        Otherwise, deposit the object at the position 'atom_or_pos'.
-        Returns (chunk, status)
-        """
-        if isinstance(atom_or_pos, Atom):
-            a = atom_or_pos
-            if a.element is Singlet:
-                if self.pastable: # bond clipboard object to the singlet
-                    a0 = a.singlet_neighbor() # do this before <a> (the singlet) is killed
-                    chunk, desc = self.pasteBond(a)
-                    if chunk:
-                        ## status = "replaced bondpoint on %r with %s (%s)" % (a0, chunk.name, desc)
-                        status = "replaced bondpoint on %r with %s" % (a0, desc) # is this better? [bruce 050121]
-                    else:
-                        status = desc
-                        # bruce 041123 added status message, to fix bug 163,
-                        # and added the rest of them to describe what we do
-                        # (or why we do nothing)
-                else:
-                    # Nothing selected from the Clipboard to paste, so do nothing
-                    status = "nothing selected to paste" #k correct??
-                    chunk = None #bruce 041207
-        
-        else:
-            if self.pastable: # deposit into empty space at the cursor position
-                chunk, desc = self.pasteFree(atom_or_pos)
-                status = "pasted %s (%s) at %s" % (chunk.name, desc, self.posn_str(atom_or_pos))
-            else:
-                # Nothing selected from the Clipboard to paste, so do nothing
-                status = "nothing selected to paste" #k correct??
-                chunk = None #bruce 041207
-        return chunk, status
-        
 
     def deposit_from_Atoms_page(self, atom_or_pos):
         """
@@ -1854,52 +1637,6 @@ class depositMode(selectAtomsMode):
         self.pastable = None        
         return
     
-    def setPaste(self): #bruce 050121 heavily revised this
-        """
-        called from button presses and spinbox changes
-        """
-        self.update_pastable()
-        if 1:
-            ###@@@ always do this, since old code did this
-            # and I didn't yet analyze changing cond to self.pastable
-            self.w.depositState = 'Clipboard'
-        else:
-            pass
-            ###@@@ should we do the opposite of the above when not self.pastable?
-            # (or if it's no longer pastable?) guess: no.
-        self.UpdateDashboard() #bruce 050121 added this
-        return
-        
-##        if self.o.assy.shelf.members:
-##            try:
-##                ## bruce 050110 guessing this should be [cx] again:
-##                ## self.pastable = self.o.assy.shelf.members[-1-cx]
-##                self.pastable = self.o.assy.shelf.members[cx]
-##                # bruce 041124 - changed [cx] to [-1-cx] (should just fix model tree)
-##                # bruce 041124: the following status bar message (by me)
-##                # is a good idea, but first we need to figure out how to
-##                # remove it from the statusbar when it's no longer
-##                # accurate!
-##                #
-##                ## env.history.message("Ready to paste %r" % self.pastable.name)
-##            except: # IndexError (or its name is messed up)
-##                # should never happen, but be robust [bruce 041124]
-##                self.pastable = None
-##        else:
-##            self.pastable = None # bruce 041124
-
-##        # bruce 041124 adding more -- I think it's needed to fully fix bug 169:
-##        # update clipboard selection status to match the spinbox,
-##        # but prevent it from recursing into our spinbox updater
-##        self.dont_update_gui = True
-##        try:
-##            self.o.assy.shelf.unpick()
-##            if self.pastable:
-##                self.pastable.pick()
-##        finally:
-##            self.dont_update_gui = False
-##            self.o.assy.mt.mt_update() # update model tree
-##        return
         
     def setAtom(self):
         "Slot for Atoms Tool button in the Build Chunks property manager"
@@ -2389,6 +2126,10 @@ class depositMode(selectAtomsMode):
         be a better choice I suppose).
         [Someday this might be useful to call from a model tree context menu command.]
         """
+        #@attention: No code calls this method as of 2008-01-02. Some old comments 
+        #suggests this method was never called. So it should be removed. 
+        #-- Ninad 2008-01-02
+        
         self.update_pastable()
         oldp = self.pastable
         self.pastable = pastable
