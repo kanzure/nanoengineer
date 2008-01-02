@@ -114,6 +114,10 @@ class depositMode(selectAtomsMode):
             # surface is not displayed.
         self.hover_highlighting_enabled = env.prefs[buildModeHighlightingEnabled_prefs_key]
             # Moved here as part of fix for bug 1620.  mark 060322
+        
+        #Initialize some attributes. 
+        self._pastable_atomtype = None
+        
     # methods related to entering this mode         
     dont_update_gui = True
 
