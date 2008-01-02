@@ -43,7 +43,7 @@ from GLPane import GLPane
 from elements import PeriodicTable
 from model.assembly import assembly 
 from drawer import get_gl_info_string ## grantham 20051201
-from Ui_PartWindow import PartWindow, GridPosition
+from Ui_PartWindow import PartWindow
 import os, sys
 from modelTree import modelTree 
 import platform
@@ -91,7 +91,7 @@ from constants import diCYLINDER
 from constants import diSURFACE
 from constants import diINVISIBLE
 from constants import diDEFAULT
-from constants import MULTIPANE_GUI
+from constants import MULTIPANE_GUI #@ This will be removed soon. Mark 2008-01-01.
 
 elementSelectorWin = None
 elementColorsWin = None
@@ -202,11 +202,11 @@ class MWsemantics(QMainWindow,
         # Load additional icons to QAction iconsets.
         # self.load_icons_to_iconsets() # Uncomment this line to test if Redo button has custom icon when disabled. mark 060427
 
-        # Load all the custom cursors
+        # Load all NE1 custom cursors.
         from cursors import loadCursors
         loadCursors(self)
 
-        #@ This needs a good comment. Mark 2007-12-30
+        # Set the main window environment variable.
         env.setMainWindow(self)
 
         # Start NE1 with an empty document called "Untitled".
@@ -217,150 +217,214 @@ class MWsemantics(QMainWindow,
             #bruce 060127 added own_window_UI flag to help fix bug 1403
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
+        
+        pw = PartWindow(self.assy, self)
+        self.assy.o = pw.glpane
+        self.assy.mt = pw.modelTree #bruce 070509 revised this, was pw.modelTree.modelTreeGui
+        self._activepw = pw
+        # Note: nothing in this class can set self._activepw (except to None),
+        # which one might guess means that no code yet switches between partwindows,
+        # but GLPane.makeCurrent *does* set self._activepw to its .partWindow
+        # (initialized to its parent arg when it's created), so that conclusion is not clear.
+        # [bruce 070503 comment]
 
         # Set the caption to the name of the current (default) part - Mark [2004-10-11]
         self.update_mainwindow_caption()
 
-        # hsplitter and vsplitter reimplemented. mark 060222.
-        # Create the horizontal-splitter between the model tree (left) and the glpane 
-        # and history widget (right)
-        hsplitter = QSplitter(Qt.Horizontal, self)
+        # This is only used by the Atom Color preference dialog, not the
+        # molecular modeling kit in Build Atom (deposit mode), etc.
+        start_element = 6 # Carbon
+        self.Element = start_element
 
-        from debug_prefs import this_session_permit_property_pane
-        mtree_in_a_vsplitter = this_session_permit_property_pane() or False
-            #bruce 060402 experiment; works (except for initial width), but DO NOT COMMIT WITH True
-        # only bug known so far is mtree (vsplitter2) width
-        if mtree_in_a_vsplitter:
-            vsplitter2 = QSplitter(Qt.Vertical, hsplitter)
-            self.vsplitter2 = vsplitter2 # use this for property pane parent? doesn't work, don't know why. [060623]
-            ## vsplitter2.setBaseSize(QSize(225,150)) #k experiment, guess, height is wrong; has no effect
-            mtree_parent = vsplitter2
+        # Attr/list for Atom Selection Filter. mark 060401
+        # These should become attrs of the part window, or assy.
+        self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
+        self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
+        self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
+        
+        # Enables the QWorkspace widget which provides Multiple Document
+        # Interface (MDI) support for NE1 and adds the Part Window to it.
+        # If not enabled, just add the Part Window widget to the 
+        # centralAreaVBoxLayout only (the default).
+        if debug_pref("Enable QWorkspace for MDI support? (next session)", 
+                      Choice_boolean_False, 
+                      non_debug = True,
+                      prefs_key = "A10/Use QWorkspace"):
 
+            print "QWorkspace for MDI support is enabled (experimental)"
+        
+            from PyQt4.Qt import QWorkspace
+            self.workspace = QWorkspace()
+            self.centralAreaVBoxLayout.addWidget(self.workspace)
+            self.workspace.addWindow(pw)
+            pw.showMaximized()
         else:
-            mtree_parent = hsplitter
+            self.centralAreaVBoxLayout.addWidget(pw)
+        
+        if not self._init_part_two_done:
+            # I bet there are pieces of _init_part_two that should be done EVERY time we bring up a
+            # new partwindow.
+            # [I guess that comment is by Will... for now, this code doesn't do those things
+            #  more than once, it appears. [bruce 070503 comment]]
+            MWsemantics._init_part_two(self)
 
-        if not MULTIPANE_GUI:
-            # Create the model tree widget. Width of 225 matches width of MMKit.  Mark 060222.
-            self.mt = modelTree(mtree_parent, self)
-            self.mt.setMinimumSize(0, 0)
-            #self.mt.setColumnWidth(0,225)
-
-            if mtree_in_a_vsplitter:
-                mtree_view_in_hsplitter = vsplitter2
-            else:
-                mtree_view_in_hsplitter = self.mt.modelTreeGui  # @@ninad 061205 replaced self.mt with self.mt.modelTreeGui 
-                #to get   hsplitter.setStretchFactor working (without errors)
-
-        # Create the vertical-splitter between the glpane (top) and the
-        # history widget (bottom) [history is new as of 041223]
-        vsplitter = QSplitter(Qt.Vertical, hsplitter)
-
-        if not MULTIPANE_GUI:
-            if 0: 
-                #& This creates a gplane with a black 1 pixel border around it.  Leave it in in case we want to use this.
-                #& mark 060222. [bruce 060612 committed with 'if 0', in an updated/tested form]
-                glframe = QFrame(vsplitter)
-                glframe.setFrameShape ( QFrame.Box ) 
-                flayout = QVBoxLayout(glframe,1,1,'flayout')
-                self.glpane = GLPane(self.assy, glframe, "glpane", self)
-                flayout.addWidget(self.glpane,1)
-            else:
-                # Create the glpane - where all the action is!
-                self.glpane = GLPane(self.assy, vsplitter, "glpane", self)
-                    #bruce 050911 revised GLPane.__init__ -- now it leaves glpane's mode as nullmode;
-                    # we change it below, since doing so now would be too early for some modes permitted as startup mode
-                    # (e.g. Build mode, which when Entered needs self.Element to exist, as of 050911)
-
-        if not MULTIPANE_GUI:
-            # Create the history area at the bottom
-            from HistoryWidget import HistoryWidget
-            histfile = make_history_filename()
-            #bruce 050913 renamed self.history to self.history_object, and deprecated direct access
-            # to self.history; code should use env.history to emit messages, self.history_widget
-            # to see the history widget, or self.history_object to see its owning object per se
-            # rather than as a place to emit messages (this is rarely needed).
-            self.history_object = HistoryWidget(vsplitter, filename = histfile, mkdirs = 1)
-                # this is not a Qt widget, but its owner;
-                # use self.history_widget for Qt calls that need the widget itself.
-            self.history_widget = self.history_object.widget
-
-                #bruce 050913, in case future code splits history widget (as main window subwidget)
-                # from history message recipient (the global object env.history).
-
-            env.history = self.history_object #bruce 050727, revised 050913
-
-        # Some final hsplitter setup...
-        hsplitter.setHandleWidth(3) # Default is 5 pixels (too wide).  mark 060222.
-        qt4todo('hsplitter.setResizeMode(mtree_view_in_hsplitter, QSplitter.KeepSize)')
-        qt4todo('hsplitter.setStretchFactor(hsplitter.indexOf(mtree_view_in_hsplitter), 0)')
-        #hsplitter.setStretchFactor(0, 0)
-        hsplitter.setOpaqueResize(False)	
-
-
-        # ... and some final vsplitter setup [bruce 041223]
-        vsplitter.setHandleWidth(3) # Default is 5 pixels (too wide).  mark 060222.
-        qt4todo('vsplitter.setResizeMode(self.history_widget, QSplitter.KeepSize)')
-        qt4todo('vsplitter.setStretchFactor(vsplitter.indexOf(self.history_widget), 0)')
-        vsplitter.setOpaqueResize(False)
-
-        if not MULTIPANE_GUI:
-            self.setCentralWidget(hsplitter) # This is required.
-            # This makes the hsplitter the central widget, spanning the height of the mainwindow.
-            # mark 060222.
-
-
-        if mtree_in_a_vsplitter:
-            hsplitter.setSizes([225,]) #e this works, but 225 is evidently not always the MMKit width (e.g. on bruce's iMac g4)
-            vsplitter2.setHandleWidth(3)
-            vsplitter2.setOpaqueResize(False)
-            # client code adding things to vsplitter2 may want to call something like:
-            ## vsplitter2.setResizeMode(newthing-in-vsplitter2, QSplitter.KeepSize)
-
-
-        if MULTIPANE_GUI:
-
-            # This is only used by the Atom Color preference dialog, not the
-            # molecular modeling kit in Build Atom (deposit mode), etc.
-            start_element = 6 # Carbon
-            self.Element = start_element
-
-            # Attr/list for Atom Selection Filter. mark 060401
-            self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
-            self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
-            self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
-            
-            ##############################################
-
-            # The following code is difficult to follow. It needs better
-            # comments explaining what is going on and better attr names. 
-            # I'm asking Ninad to do this since I believe he wrote it.
-            # mark 2007-12-23
-            centralwidget = QWidget()
-            self.setCentralWidget(centralwidget)
-            layout = QVBoxLayout(centralwidget) # <layout> is too generic a name.
-            layout.setMargin(0)
-            layout.setSpacing(0)
-            middlewidget = QWidget()
-
-            # Add the Command Toolbar.
-            from CommandToolbar import CommandToolbar
-            self.commandToolbar = CommandToolbar(self)
-            layout.addWidget(self.commandToolbar)   
-
-            layout.addWidget(middlewidget)
-            self.layout = QGridLayout(middlewidget)
-            self.layout.setMargin(0)
-            self.layout.setSpacing(0)
-            self.gridPosition = GridPosition()
-            self.numParts = 0
-
-            self.addPartWindow(self.assy)
-        else:
-            self._init_part_two()
-
+        ## pw.glpane.start_using_mode('$STARTUP_MODE')
+            ### TODO: this should be the commandSequencer --
+            # decide whether to just get it from win (self) here
+            # (e.g. if we abandon separate PartWindow class)
+            # or make pw.commandSequencer work.
+            # For now just get it from self. [bruce 071012]
+        self.commandSequencer.start_using_mode('$STARTUP_MODE')
+        
         env.register_post_event_ui_updater( self.post_event_ui_updater) #bruce 070925
+        
+        return
+    
+    def _init_part_two(self):
+        """
+        #@ NEED DOCSTRING
+        """
+        # Create the NE1 Progress Dialog. mark 2007-12-06
+        self.createProgressDialog()
+        
+        # Create the Preferences dialog widget.
+        # Mark 050628
+        from UserPrefs import UserPrefs
+        self.userPrefs = UserPrefs(self.assy)
 
-        return # from MWsemantics.__init__
+        # Enable/disable plugins.  These should be moved to a central method
+        # where all plug-ins get added and enabled during invocation.  Mark 050921.
+        self.userPrefs.enable_nanohive(env.prefs[nanohive_enabled_prefs_key])
+        self.userPrefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
+        self.userPrefs.enable_gromacs(env.prefs[gromacs_enabled_prefs_key])
+        self.userPrefs.enable_cpp(env.prefs[cpp_enabled_prefs_key])
+
+        #Zoom behavior setting  (View > Zoom About Screen Center)
+        self.viewZoomAboutScreenCenterAction.setChecked(
+            env.prefs[zoomAboutScreenCenter_prefs_key])
+
+        # Create the Help dialog. Mark 050812
+        from help import Ne1HelpDialog
+        self.help = Ne1HelpDialog()
+
+        from GrapheneGenerator import GrapheneGenerator
+        self.graphenecntl = GrapheneGenerator(self)
+        from NanotubeGenerator import NanotubeGenerator
+        self.nanotubecntl = NanotubeGenerator(self)
+
+        # Use old DNA generator or new DNA Duplex generator?
+        if debug_pref("Use old 'Build > DNA' generator? (next session)", 
+                      Choice_boolean_False, 
+                      non_debug = True,
+                      prefs_key = "A9 devel/DNA Duplex"):
+
+            print "Using original DNA generator (supports PAM-5)."
+            from DnaGenerator import DnaGenerator
+            self.dnacntl = DnaGenerator(self)
+        else:
+            # This might soon become the usual case, with the debug_pref 
+            # removed. - Mark
+
+            print "Using new DNA Duplex command (supports PAM-3 only)."
+            from DnaDuplex_EditCommand import DnaDuplex_EditCommand
+            self.dnaEditCommand = DnaDuplex_EditCommand(self.glpane)	
+            self.dnacntl = self.dnaEditCommand
+
+        from PovraySceneProp import PovraySceneProp
+        self.povrayscenecntl = PovraySceneProp(self)
+        
+        from CommentProp import CommentProp
+        self.commentcntl = CommentProp(self)
+        
+        # Minimize Energy dialog. Mark 060705.
+        from MinimizeEnergyProp import MinimizeEnergyProp
+        self.minimize_energy = MinimizeEnergyProp(self)
+
+        # Atom Generator example for developers. Mark and Jeff. 2007-06-13
+        #@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
+        from AtomGenerator import AtomGenerator
+        self.atomcntl = AtomGenerator(self)
+
+        # QuteMol Property Manager. Mark 2007-12-02.
+        from QuteMolPropertyManager import QuteMolPropertyManager
+        self.qutemolPM = QuteMolPropertyManager(self)
+
+        # We must enable keyboard focus for a widget if it processes
+        # keyboard events. [Note added by bruce 041223: I don't know if this is
+        # needed for this window; it's needed for some subwidgets, incl. glpane,
+        # and done in their own code. This window forwards its own key events to
+        # the glpane. This doesn't prevent other subwidgets from having focus.]
+        self.setFocusPolicy(QtCore.Qt.StrongFocus)
+
+        # 'depositState' is used by depositMode and MMKit to synchonize the 
+        # depositMode dashboard (Deposit and Paste toggle buttons) and the MMKit pages (tabs).
+        # It is also used to determine what type of object (atom, clipboard chunk or library part)
+        # to deposit when pressing the left mouse button in Build mode.
+        #
+        # depositState can be either:
+        #   'Atoms' - deposit an atom based on the current atom type selected in the MMKit 'Atoms'
+        #           page or dashboard atom type combobox(es).
+        #   'Clipboard' - deposit a chunk from the clipboard based on what is currently selected in
+        #           the MMKit 'Clipboard' page or dashboard clipboard/paste combobox.
+        #   'Library' - deposit a part from the library based on what is currently selected in the
+        #           MMKit 'Library' page.  There is no dashboard option for this.
+        self.depositState = 'Atoms'
+
+        self.assy.reset_changed() #bruce 050429, part of fixing bug 413
+        
+        # 'movie_is_playing' is a flag that indicates a movie is playing. It is 
+        # used by other code to speed up rendering times by disabling the 
+        # (re)building of display lists for each frame of the movie.
+        self.movie_is_playing = False
+        
+        # Current Working Directory (CWD).
+        # When NE1 starts, the CWD is set to the Working Directory (WD) 
+        # preference from the user prefs db. Every time the user opens or 
+        # inserts a file during a session, the CWD changes to the directory 
+        # containing that file. When the user closes the current file and then
+        # attempts to open a new file, the CWD will still be the directory of
+        # the last file opened or inserted. 
+        # If the user changes the WD via 'File > Set Working Directory' when 
+        # a file is open, the CWD will not be changed to the new WD. (This 
+        # rule may change. Need to discuss with Ninad).
+        # On the other hand, if there is no part open, the CWD will be 
+        # changed to the new WD.  Mark 060729.
+        self.currentWorkingDirectory = ''
+        
+        # Make sure the working directory from the user prefs db exists since
+        # it might have been deleted.
+        if os.path.isdir(env.prefs[workingDirectory_prefs_key]): 
+            self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
+        else:
+            # The CWD does not exist, so set it to the default working dir.
+            self.currentWorkingDirectory = getDefaultWorkingDirectory()
+        
+        # bruce 050810 replaced user preference initialization with this,
+        # and revised update_mainwindow_caption to match
+        from changes import Formula
+        self._caption_formula = Formula(
+            # this should depend on whatever update_mainwindow_caption_properly depends on;
+            # but it can't yet depend on assy.has_changed(),
+            # so that calls update_mainwindow_caption_properly (or the equiv) directly.
+            lambda: (env.prefs[captionPrefix_prefs_key],
+                     env.prefs[captionSuffix_prefs_key],
+                     env.prefs[captionFullPath_prefs_key]),
+            self.update_mainwindow_caption_properly
+        )
+
+        # Setting 'initialized' to 1 enables win_update().
+        # [should this be moved into _init_after_geometry_is_set?? 
+        # bruce 060104 question]
+        self.initialised = 1 
+
+        # be told to add new Jigs menu items, now or as they become available [bruce 050504]
+        register_postinit_object( "Jigs menu items", self )
+
+        # Anything which depends on this window's geometry (which is not yet set at this point)
+        # should be done in the _init_after_geometry_is_set method below, not here. [bruce guess 060104]
+
+        self._init_part_two_done = True
+        return # from _init_part_two
 
     def _get_commandSequencer(self):
         # WARNING: if this causes infinite recursion, we just get an AttributeError
@@ -411,14 +475,6 @@ class MWsemantics(QMainWindow,
             menu.addAction(toolbar.toggleViewAction())
             
         return menu
-
-    def removePartWindow(self, pw):
-        self.layout.removeWidget(pw)
-        self.gridPosition.removeWidget(pw)
-        self.numParts -= 1
-        if self.numParts == 0:
-            self.cmdToolbarControlArea.hide()
-        # [bruce 070503 question: why do we not worry about whether pw == self._activepw?]
 
     def showFullScreen(self):
         """
@@ -522,190 +578,19 @@ class MWsemantics(QMainWindow,
 
         self.commandToolbar.show()
         #Clear the list of hidden widgets (those are no more hidden)
-        self._widgetToHideDuringFullScreenMode = [] 
-
-    def addPartWindow(self, assy):
-        # This should be associated with fileOpen (ops_files.py) or with creating a new structure
-        # from scratch.
-        # [bruce 070503 question: why do we get passed an assy, and use it for some things and self.assy for others?]
-        if self.numParts == 0:
-            #self.cmdToolbarControlArea.show()
-            self.commandToolbar.show()
-        self.numParts += 1
-        pw = PartWindow(assy, self)
-        row, col = self.gridPosition.next(pw)
-        self.layout.addWidget(pw, row, col)
-        self.assy.o = pw.glpane
-        self.assy.mt = pw.modelTree #bruce 070509 revised this, was pw.modelTree.modelTreeGui
-        self._activepw = pw
-            # Note: nothing in this class can set self._activepw (except to None),
-            # which one might guess means that no code yet switches between partwindows,
-            # but GLPane.makeCurrent *does* set self._activepw to its .partWindow
-            # (initialized to its parent arg when it's created), so that conclusion is not clear.
-            # [bruce 070503 comment]
-        if not self._init_part_two_done:
-            # I bet there are pieces of _init_part_two that should be done EVERY time we bring up a
-            # new partwindow.
-            # [I guess that comment is by Will... for now, this code doesn't do those things
-            #  more than once, it appears. [bruce 070503 comment]]
-            MWsemantics._init_part_two(self)
-
-        ## pw.glpane.start_using_mode('$STARTUP_MODE')
-            ### TODO: this should be the commandSequencer --
-            # decide whether to just get it from win (self) here
-            # (e.g. if we abandon separate PartWindow class)
-            # or make pw.commandSequencer work.
-            # For now just get it from self. [bruce 071012]
-        self.commandSequencer.start_using_mode('$STARTUP_MODE')
-        return
-
-    def _init_part_two(self):
-        # Create the Preferences dialog widget.
-        # Mark 050628
-        from UserPrefs import UserPrefs
-        self.userPrefs = UserPrefs(self.assy)
-
-        # Enable/disable plugins.  These should be moved to a central method
-        # where all plug-ins get added and enabled during invocation.  Mark 050921.
-        self.userPrefs.enable_nanohive(env.prefs[nanohive_enabled_prefs_key])
-        self.userPrefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
-        self.userPrefs.enable_gromacs(env.prefs[gromacs_enabled_prefs_key])
-        self.userPrefs.enable_cpp(env.prefs[cpp_enabled_prefs_key])
-
-        #Zoom behavior setting  (View > Zoom About Screen Center)
-        self.viewZoomAboutScreenCenterAction.setChecked(
-            env.prefs[zoomAboutScreenCenter_prefs_key])
-
-        # Create the Help dialog. Mark 050812
-        from help import Ne1HelpDialog
-        self.help = Ne1HelpDialog()
-
-        # Create the NE1 Progress Dialog. mark 2007-12-06
-        self.createProgressDialog()
-
-        from GrapheneGenerator import GrapheneGenerator
-        self.graphenecntl = GrapheneGenerator(self)
-        from NanotubeGenerator import NanotubeGenerator
-        self.nanotubecntl = NanotubeGenerator(self)
-
-        # Use old DNA generator or new DNA Duplex generator?
-        if debug_pref("Use old 'Build > DNA' generator? (next session)", 
-                      Choice_boolean_False, 
-                      non_debug = True,
-                      prefs_key = "A9 devel/DNA Duplex"):
-
-            print "Using original DNA generator (supports PAM-5)."
-            from DnaGenerator import DnaGenerator
-            self.dnacntl = DnaGenerator(self)
-        else:
-            # This might soon become the usual case, with the debug_pref 
-            # removed. - Mark
-
-            print "Using new DNA Duplex command (supports PAM-3 only)."
-            from DnaDuplex_EditCommand import DnaDuplex_EditCommand
-            self.dnaEditCommand = DnaDuplex_EditCommand(self.glpane)	
-            self.dnacntl = self.dnaEditCommand
-
-        from PovraySceneProp import PovraySceneProp
-        self.povrayscenecntl = PovraySceneProp(self)
-        from CommentProp import CommentProp
-        self.commentcntl = CommentProp(self)
-        # Minimize Energy dialog. Mark 060705.
-        from MinimizeEnergyProp import MinimizeEnergyProp
-        self.minimize_energy = MinimizeEnergyProp(self)
-
-        # Atom Generator example for developers. Mark and Jeff. 2007-06-13
-        #@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
-        from AtomGenerator import AtomGenerator
-        self.atomcntl = AtomGenerator(self)
-
-        # QuteMol Property Manager. Mark 2007-12-02.
-        from QuteMolPropertyManager import QuteMolPropertyManager
-        self.qutemolPM = QuteMolPropertyManager(self)
-
-        # We must enable keyboard focus for a widget if it processes
-        # keyboard events. [Note added by bruce 041223: I don't know if this is
-        # needed for this window; it's needed for some subwidgets, incl. glpane,
-        # and done in their own code. This window forwards its own key events to
-        # the glpane. This doesn't prevent other subwidgets from having focus.]
-        self.setFocusPolicy(QtCore.Qt.StrongFocus)
-
-        # 'depositState' is used by depositMode and MMKit to synchonize the 
-        # depositMode dashboard (Deposit and Paste toggle buttons) and the MMKit pages (tabs).
-        # It is also used to determine what type of object (atom, clipboard chunk or library part)
-        # to deposit when pressing the left mouse button in Build mode.
-        #
-        # depositState can be either:
-        #   'Atoms' - deposit an atom based on the current atom type selected in the MMKit 'Atoms'
-        #           page or dashboard atom type combobox(es).
-        #   'Clipboard' - deposit a chunk from the clipboard based on what is currently selected in
-        #           the MMKit 'Clipboard' page or dashboard clipboard/paste combobox.
-        #   'Library' - deposit a part from the library based on what is currently selected in the
-        #           MMKit 'Library' page.  There is no dashboard option for this.
-        self.depositState = 'Atoms'
-
-        self.assy.reset_changed() #bruce 050429, part of fixing bug 413
-        
-        # 'movie_is_playing' is a flag that indicates a movie is playing. It is 
-        # used by other code to speed up rendering times by disabling the 
-        # (re)building of display lists for each frame of the movie.
-        self.movie_is_playing = False
-        
-        # Current Working Directory (CWD).
-        # When NE1 starts, the CWD is set to the Working Directory (WD) 
-        # preference from the user prefs db. Every time the user opens or 
-        # inserts a file during a session, the CWD changes to the directory 
-        # containing that file. When the user closes the current file and then
-        # attempts to open a new file, the CWD will still be the directory of
-        # the last file opened or inserted. 
-        # If the user changes the WD via 'File > Set Working Directory' when 
-        # a file is open, the CWD will not be changed to the new WD. (This 
-        # rule may change. Need to discuss with Ninad).
-        # On the other hand, if there is no part open, the CWD will be 
-        # changed to the new WD.  Mark 060729.
-        self.currentWorkingDirectory = ''
-        
-        # Make sure the working directory from the user prefs db exists since
-        # it might have been deleted.
-        if os.path.isdir(env.prefs[workingDirectory_prefs_key]): 
-            self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
-        else:
-            # The CWD does not exist, so set it to the default working dir.
-            self.currentWorkingDirectory = getDefaultWorkingDirectory()
-        
-        # bruce 050810 replaced user preference initialization with this,
-        # and revised update_mainwindow_caption to match
-        from changes import Formula
-        self._caption_formula = Formula(
-            # this should depend on whatever update_mainwindow_caption_properly depends on;
-            # but it can't yet depend on assy.has_changed(),
-            # so that calls update_mainwindow_caption_properly (or the equiv) directly.
-            lambda: (env.prefs[captionPrefix_prefs_key],
-                     env.prefs[captionSuffix_prefs_key],
-                     env.prefs[captionFullPath_prefs_key]),
-            self.update_mainwindow_caption_properly
-        )
-
-        self.initialised = 1 # enables win_update [should this be moved into _init_after_geometry_is_set?? bruce 060104 question]
-
-        # be told to add new Jigs menu items, now or as they become available [bruce 050504]
-        register_postinit_object( "Jigs menu items", self )
-
-        # Anything which depends on this window's geometry (which is not yet set at this point)
-        # should be done in the _init_after_geometry_is_set method below, not here. [bruce guess 060104]
-
-        self._init_part_two_done = True
-        return # from _init_part_two
+        self._widgetToHideDuringFullScreenMode = []
 
     def activePartWindow(self): # WARNING: this is inlined in a few methods of self
         return self._activepw
 
     def get_glpane(self): #bruce 071008; inlines self.activePartWindow
-        return self._activepw.glpane
+        return self._activepw.glpane    
 
     def get_mt(self): #bruce 071008; inlines self.activePartWindow # TODO: rename .mt to .modelTree
         return self._activepw.modelTree
 
+    # Does this code ever get executed? If not, it should be removed.
+    # Talk to Bruce about this. Mark 2008-01-01
     if MULTIPANE_GUI:
         #bruce 071008 to replace __getattr__
         glpane = property(get_glpane)
@@ -730,10 +615,6 @@ class MWsemantics(QMainWindow,
         # older docstring:
         # After the main window(its size and location) has been setup, begin to run the program from this method. 
         # [Huaicai 11/1/05: try to fix the initial MMKitWin off screen problem by splitting from the __init__() method]
-
-        if not MULTIPANE_GUI:
-            self.commandSequencer.start_using_mode( '$STARTUP_MODE')
-            # Note: this might depend on self's geometry in choosing dialog placement, so it shouldn't be done in __init__.
 
         self.win_update() # bruce 041222
         undo_internals.just_before_mainwindow_init_returns() # (this is now misnamed, now that it's not part of __init__)
@@ -886,18 +767,14 @@ class MWsemantics(QMainWindow,
         """
         if not self.initialised:
             return #bruce 041222
-        if MULTIPANE_GUI:
-            pw = self.activePartWindow()
-            pw.glpane.gl_update()
-            pw.modelTree.mt_update()
-            pw.history_object.h_update()
-        else:
-            self.glpane.gl_update()
-            self.mt.mt_update()	
-            self.history_object.h_update() #bruce 050104
-                # this is self.history_object, not env.history,
-                # since it's really about this window's widget-owner,
-                # not about the place to print history messages [bruce 050913]
+
+        pw = self.activePartWindow()
+        pw.glpane.gl_update()
+        pw.modelTree.mt_update()
+        pw.history_object.h_update()
+            # this is self.history_object, not env.history,
+            # since it's really about this window's widget-owner,
+            # not about the place to print history messages [bruce 050913]
 
     ###################################
     # File Toolbar Slots 

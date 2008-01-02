@@ -6,7 +6,7 @@ $Id$
 # -*- coding: utf-8 -*-
 
 from PyQt4 import QtCore, QtGui
-from PyQt4.Qt import Qt
+from PyQt4.Qt import Qt, QWidget, QVBoxLayout
 
 import Ui_MainWindowWidgets
 import Ui_MainWindowWidgetConnections
@@ -66,11 +66,34 @@ class Ui_MainWindow(object):
         self.setupToolbars() 
         self.setupMenus()
         
+        # Now set all UI text for main window widgets.
+        # Note: I intend to compile all retranslateUi() functions into a single
+        # function/method soon. mark 2007-12-31.
+        self.retranslateUi()
+        
+        # The central widget of the NE1 main window contains a VBoxLayout
+        # containing the Command Toolbar at top. Below that will be either:
+        # 1. a Part Window widget (the default), or 
+        # 2. a QWorkspace widget (for MDI support) which will contain only
+        #    a single Part Window (experimental)
+        # The QWorkspace can be enabled by setting the following debug pref
+        # to True: "Enable QWorkspace for MDI support? (next session)"
+        # Mark 2007-12-31
+        _centralWidget = QWidget()
+        self.setCentralWidget(_centralWidget)
+        self.centralAreaVBoxLayout = QVBoxLayout(_centralWidget)
+        self.centralAreaVBoxLayout.setMargin(0)
+        self.centralAreaVBoxLayout.setSpacing(0)
+        
+        # Add the Command Toolbar to the top of the central widget.
+        # Note: Main window widgets must have their text set 
+        # via retranslateUi() before instantiating CommandToolbar.
+        from CommandToolbar import CommandToolbar
+        self.commandToolbar = CommandToolbar(self)
+        self.centralAreaVBoxLayout.addWidget(self.commandToolbar)
+        
         # Create the statusbar for the main window.
         self.setStatusBar(StatusBar(self))
-        
-        # Now set all UI text for main window widgets.
-        self.retranslateUi()
         
         # =
     
