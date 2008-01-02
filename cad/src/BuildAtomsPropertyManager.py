@@ -286,17 +286,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                 msg = "Click bonds or bondpoints to make them %s bonds." % name 
             
         # Post message.
-        self.MessageGroupBox.insertHtmlMessage(msg)
-    
-    def update_clipboard_items(self):
-        """
-        Do nothing. Subclasses should override this method. 
-        @see: L{PasteMode.update_clipboard_items} for an example. 
-        """
-        #TODO: Need further clean up of depositMode.py that will make this 
-        #unnecessary
-        pass   
-    
+        self.MessageGroupBox.insertHtmlMessage(msg)    
     
     def _updateSelectedAtomPosGroupBox(self, selectionParams):
         """
