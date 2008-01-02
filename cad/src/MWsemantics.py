@@ -534,7 +534,7 @@ class MWsemantics(QMainWindow,
                     widget.hide()
                     self._widgetToHideDuringFullScreenMode.append(widget)      
 
-        self.activePartWindow().collapseModelTreeArea()        
+        self.activePartWindow().collapseLeftChanneWidget()        
         self.activePartWindow().collapseHistoryWidget()
 
     def showSemiFullScreen(self):
@@ -570,7 +570,7 @@ class MWsemantics(QMainWindow,
 
     def showNormal(self):
         QMainWindow.showNormal(self)
-        self.activePartWindow().expandModelTreeArea()
+        self.activePartWindow().expandLeftChanneWidget()
         self.activePartWindow().expandHistoryWidget()
 
         for  widget in self._widgetToHideDuringFullScreenMode:           

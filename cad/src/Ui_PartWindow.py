@@ -4,6 +4,11 @@ Ui_PartWindow.py provides the part window class.
 
 $Id$
 
+To do:
+- Move HistoryWidget to Ui_MainWindow inside a QDockWidget.QTabWidget.
+- Remove unnecessary methods (lots of them).
+- Fix caption (for MDI support).
+
 History: 
 
 - PartWindow and GridPosition classes moved here from MWSemantics.py.
@@ -23,7 +28,7 @@ from PM.PM_Utilities import printSizePolicy, printSizeHints
 from PM.PM_Colors  import   getPalette
 from debug import print_compact_traceback #bruce 070627 bugfix
 
-class _FeatureManager(QTabWidget): #bruce 070829 made this subclass re bug 2522
+class _leftChannelTabWidget(QTabWidget): #bruce 070829 made this subclass re bug 2522
     def KLUGE_setGLPane(self, glpane):
         self._glpane = glpane
         return
@@ -37,14 +42,21 @@ class _FeatureManager(QTabWidget): #bruce 070829 made this subclass re bug 2522
     pass
 
 class PartWindow(QWidget):
-    """A part window composed of the model tree/property manager (tabs)
+    """
+    Provides a "part window" composed of the model tree/property manager (tabs)
     on the left (referred to as the "left channel") and the glpane
     (with a history widget below) on the right. A resizable splitter 
     separates the left channel and the 3D graphics area.
+    
+    @note: I will be heavily modifying this file. Please tell me if you intend
+    to work on this file. Mark 2007-12-31.
     """
     widgets = [] # For debugging purposes.
 
     def __init__(self, assy, parent):
+        """
+        Constructor for the part window.
+        """
         QWidget.__init__(self, parent)
         self.parent = parent
         self.setWindowTitle("My Part Window")
@@ -71,7 +83,7 @@ class PartWindow(QWidget):
         # ##################################################################
         # <leftChannelWidget> - the container of all widgets left of the 
         # main splitter:
-        # - <featureManager> (QTabWidget), with children:
+        # - <leftChannelTabWidget> (QTabWidget), with children:
         #    - <modelTreeTab> (QWidget)
         #    - <propertyManagerScrollArea> (QScrollArea), with the child:
         #       - <propertyManagerTab> (QWidget)
@@ -84,7 +96,7 @@ class PartWindow(QWidget):
             QSizePolicy(QSizePolicy.Policy(QSizePolicy.Fixed),
                         QSizePolicy.Policy(QSizePolicy.Expanding)))
 
-        # This layout will contain only the featureManager (done below).
+        # This layout will contain only the leftChannelTabWidget (done below).
         leftChannelVBoxLayout = QVBoxLayout(leftChannelWidget)
         leftChannelVBoxLayout.setMargin(0)
         leftChannelVBoxLayout.setSpacing(0)
@@ -99,19 +111,19 @@ class PartWindow(QWidget):
         # used in other files. --Mark
         #
         # Note [bruce 070829]: to fix bug 2522 I need to intercept
-        # self.featureManager.removeTab, so I made it a subclass of QTabWidget.
+        # self.leftChannelTabWidget.removeTab, so I made it a subclass of QTabWidget.
         # It needs to know the GLPane, but that's not created yet, so we set
         # it later using KLUGE_setGLPane (below).
-        self.featureManager = _FeatureManager() # a superclass of QTabWidget
-        self.featureManager.setObjectName("featureManager")
-        self.featureManager.setCurrentIndex(0)
-        self.featureManager.setAutoFillBackground(True)
+        self.leftChannelTabWidget = _leftChannelTabWidget() # a superclass of QTabWidget
+        self.leftChannelTabWidget.setObjectName("leftChannelTabWidget")
+        self.leftChannelTabWidget.setCurrentIndex(0)
+        self.leftChannelTabWidget.setAutoFillBackground(True)
 
         # Create the model tree "tab" widget. It will contain the MT GUI widget.
         # Set the tab icon, too.
         self.modelTreeTab = QWidget()
         self.modelTreeTab.setObjectName("modelTreeTab")
-        self.featureManager.addTab(self.modelTreeTab,
+        self.leftChannelTabWidget.addTab(self.modelTreeTab,
                                    geticon("ui/modeltree/Model_Tree"), "") 
 
         modelTreeTabLayout = QVBoxLayout(self.modelTreeTab)
@@ -129,7 +141,7 @@ class PartWindow(QWidget):
         self.propertyManagerTab = QWidget()
         self.propertyManagerTab.setObjectName("propertyManagerTab")
 
-        self.propertyManagerScrollArea = QScrollArea(self.featureManager)
+        self.propertyManagerScrollArea = QScrollArea(self.leftChannelTabWidget)
         self.propertyManagerScrollArea.setObjectName("propertyManagerScrollArea")
         self.propertyManagerScrollArea.setWidget(self.propertyManagerTab)
         self.propertyManagerScrollArea.setWidgetResizable(True) 
@@ -140,11 +152,11 @@ class PartWindow(QWidget):
 
         # Add the property manager scroll area as a "tabbed" widget. 
         # Set the tab icon, too.
-        self.featureManager.addTab(self.propertyManagerScrollArea, 
+        self.leftChannelTabWidget.addTab(self.propertyManagerScrollArea, 
                                    geticon("ui/modeltree/Property_Manager"), "")
 
-        # Finally, add the "featureManager" to the left channel layout.
-        leftChannelVBoxLayout.addWidget(self.featureManager)
+        # Finally, add the "leftChannelTabWidget" to the left channel layout.
+        leftChannelVBoxLayout.addWidget(self.leftChannelTabWidget)
 
         # ##################################################################
         # <pwVSplitter> - a splitter comprising of all widgets to the right
@@ -157,7 +169,7 @@ class PartWindow(QWidget):
 
         # Create the glpane and make it a child of the (vertical) splitter.
         self.glpane = GLPane(assy, self, 'glpane name', parent)
-        self.featureManager.KLUGE_setGLPane(self.glpane) # help fix bug 2522 [bruce 070829]
+        self.leftChannelTabWidget.KLUGE_setGLPane(self.glpane) # help fix bug 2522 [bruce 070829]
         qt4warnDestruction(self.glpane, 'GLPane of PartWindow')
         pwVSplitter.addWidget(self.glpane)
 
@@ -189,14 +201,14 @@ class PartWindow(QWidget):
         if 0: #@ Debugging code related to bug 2424. Mark 2007-06-27.
             self.widgets.append(self.pwHSplitter)
             self.widgets.append(leftChannelWidget)
-            self.widgets.append(self.featureManager)
+            self.widgets.append(self.leftChannelTabWidget)
             self.widgets.append(self.modelTreeTab)
             self.widgets.append(self.modelTree.modelTreeGui)
             self.widgets.append(self.propertyManagerScrollArea)
             self.widgets.append(self.propertyManagerTab)
             self.widgets.append(self.pwVSplitter)
 
-            print "PartWindow.__init__() ============================================"
+            print "PartWindow.__init__() ======================================"
             self.printSizeInfo()
 
             # The following call to the QSplitter.sizes() function returns zero for 
@@ -204,22 +216,25 @@ class PartWindow(QWidget):
             # into at later time. Mark 2007-06-27.
             print "MAIN HSPLITTER SIZES: ", pwHSplitter.sizes()
 
-    def collapseModelTreeArea(self):
+    def collapseLeftChanneWidget(self):
         """
+        Collapse the left channel widget.
 	"""
         self._previous_leftChannelWidgetWidth = self.leftChannelWidget.width()
         self.leftChannelWidget.setFixedWidth(0)
         self.pwHSplitter.setMaximumWidth(self.leftChannelWidget.width())
 
-    def expandModelTreeArea(self):
+    def expandLeftChanneWidget(self):
         """
-        Expand the Model Tree area 
-        @see: MWsemantics._showFullScreenCommonCode for an example on how it is 
-        used.
+        Expand the let channel widget.
+        
+        @see: L{MWsemantics._showFullScreenCommonCode()} for an example 
+        showing how it is used.
 	"""
         if self._previous_leftChannelWidgetWidth == 0:
             self._previous_leftChannelWidgetWidth = pmDefaultWidth
-        self.leftChannelWidget.setMaximumWidth(self._previous_leftChannelWidgetWidth)  
+        self.leftChannelWidget.setMaximumWidth(
+            self._previous_leftChannelWidgetWidth)  
         self.pwHSplitter.setMaximumWidth(self.leftChannelWidget.width())
 
     def collapseHistoryWidget(self):
@@ -235,7 +250,8 @@ class PartWindow(QWidget):
         self.history_object.expandWidget()	
 
     def printSizeInfo(self):
-        """Used to print the sizeHints and sizePolicy of left channel widgets.
+        """
+        Used to print the sizeHints and sizePolicy of left channel widgets.
 	I'm using this to help resolve bug 2424:
 	"Allow resizing of splitter between Property Manager and Graphics window."
 	-- Mark
@@ -272,18 +288,19 @@ class PartWindow(QWidget):
 
             lastwidgetobject.hide() # @ ninad 061212 perhaps hiding the widget is not needed
 
-        self.featureManager.removeTab(self.featureManager.indexOf(self.propertyManagerScrollArea))
+        self.leftChannelTabWidget.removeTab(self.leftChannelTabWidget.indexOf(self.propertyManagerScrollArea))
 
         #Set the PropertyManager tab scroll area to the appropriate widget .at
         self.propertyManagerScrollArea.setWidget(tab)
 
-        self.featureManager.addTab(self.propertyManagerScrollArea, 
+        self.leftChannelTabWidget.addTab(self.propertyManagerScrollArea, 
                                    geticon("ui/modeltree/Property_Manager"), "")
 
-        self.featureManager.setCurrentIndex(self.featureManager.indexOf(self.propertyManagerScrollArea))
+        self.leftChannelTabWidget.setCurrentIndex(self.leftChannelTabWidget.indexOf(self.propertyManagerScrollArea))
 
     def KLUGE_current_PropertyManager(self): #bruce 070627; revised 070829 as part of fixing bug 2523
-        """Return the current Property Manager widget (whether or not its tab is
+        """
+        Return the current Property Manager widget (whether or not its tab is
         chosen, but only if it has a tab), or None if there is not one.
            WARNING: This method's existence (not only its implementation) is a kluge,
         since the right way to access that would be by asking the "command sequencer";
@@ -310,7 +327,7 @@ class PartWindow(QWidget):
         # but hopefully this entire kluge function can be dispensed with soon.
         # This change also fixes bug 2522 on the Mac (but not on Windows --
         # for that, we needed to intercept removeTab in separate code above).
-        index = self.featureManager.indexOf(self.propertyManagerScrollArea)
+        index = self.leftChannelTabWidget.indexOf(self.propertyManagerScrollArea)
         if index == -1:
             return None
         # Due to bugs in other code, sometimes the PM tab is left in place,
