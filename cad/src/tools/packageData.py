@@ -229,10 +229,10 @@ packageMapping_for_files = {
     "chem"                             : "model",
     "chem_patterns"                    : "operation",
     "chunk"                            : "model",
-    "ChunkProp"                        : "ui",
-    "ChunkPropDialog"                  : "ui",
+    "ChunkProp"                        : "ui|commands/EditChunk?", #?? guess, probably wrong featurename
+    "ChunkPropDialog"                  : "ui|commands/EditChunk?",
     "CommandToolbar_Constants"         : "widget|CommandToolbar", # see module docstring for why
-    "Command"                          : "command",
+    "Command"                          : "command|command_classes",
     "CommandToolbar"                   : "widget|CommandToolbar", # controls the main hierarchical toolbar
     "CommandSequencer"                 : "ui", ### @@@
     "Comment"                          : "model",
@@ -240,7 +240,7 @@ packageMapping_for_files = {
     "CommentPropDialog"                : "ui",
     "confirmation_corner"              : "graphics_behavior",#? a MouseEventHandler; like a GraphicsMode or DragHandler; graphics_what?
     "constants"                        : "utilities",
-    "CoNTubGenerator"                  : "command",###?? @@@
+    "CoNTubGenerator"                  : "command|commands/InsertHeterojunction",###?? @@@
 
     "CookieCtrlPanel"                  : "ui|commands/BuildCrystal",
     "cookieMode"                       : "unsplit_mode|commands/BuildCrystal",
@@ -271,8 +271,8 @@ packageMapping_for_files = {
     "draw_bond_vanes"                  : "graphics",
     "draw_grid_lines"                  : "graphics",
     "DynamicTip"                       : "graphics_widgets", # but some should be refactored into GraphicsMode
-    "EditCommand"                      : "command",
-    "EditCommand_PM"                   : "ui/propmgr",
+    "EditCommand"                      : "command|command_classes",
+    "EditCommand_PM"                   : "ui/propmgr|command_classes",
     "Elem"                             : "model", # chemistry?
     "elementColors"                    : "ui/dialog",
     "ElementColorsDialog"              : "ui/dialog",
@@ -306,18 +306,19 @@ packageMapping_for_files = {
     "GamessJob"                        : "operations|gamess", # contains operations and io
     "GamessProp"                       : "ui|gamess",
     "GamessPropDialog"                 : "ui|gamess",
-    "GeneratorBaseClass"               : "ui/propmgr", # or as itself, so whatever imports it won't import propmgr just from that??
-        # should split subclasses so this can be superceded by EditCommand and EditCommand_PM
-    "GeneratorController"              : "command?", #?
-    "generator_button_images"          : "ui/dialog", #?
+    "GeneratorBaseClass"               : "ui/propmgr|command_classes",
+        # or as itself, so import implications are clearer in package import graph?
+        # todo in code: split subclasses so this can be superceded by EditCommand and EditCommand_PM
+    "GeneratorController"              : "ui/propmgr|command_classes", # code type is a guess, but doesn't matter for now
+    "generator_button_images"          : "ui/dialog|command_classes",
     "geometry"                         : "geometry",
     "GlobalPreferences"                : "utilities", #? - imports debug_prefs & prefs_constants, dubious for utilities; or constants??
     "global_model_changedicts"         : "model",
     "GLPane"                           : "graphics_widgets",
     "GLPane_minimal"                   : "graphics_widgets",
     "gpl_only"                         : "platform",
-    "GrapheneGenerator"                : "command",
-    "GrapheneGeneratorPropertyManager" : "ui/propmgr",
+    "GrapheneGenerator"                : "command|commands/InsertGraphene",
+    "GrapheneGeneratorPropertyManager" : "ui/propmgr|commands/InsertGraphene",
     "GraphicsMode"                     : "graphics_mode",
     "GraphicsMode_API"                 : "ui_api", # not legit to be needed by anything below ui, i think
     "GridPlaneProp"                    : "ui/dialog",
@@ -328,8 +329,8 @@ packageMapping_for_files = {
     "GroupProp"                        : "ui/dialog",
     "GroupPropDialog"                  : "ui/dialog",
     "handles"                          : "graphics_behavior", # graphical handles (for Extrude, but could be general)
-    "help"                             : "ui/dialog|help", # ui_help package?
-    "HelpDialog"                       : "ui/dialog|help", # ui_help package?
+    "help"                             : "ui/dialog|ne1_ui/help",
+    "HelpDialog"                       : "ui/dialog|ne1_ui/help",
     "HistoryWidget"                    : "ui", # for History package (as a major ui component)?
     "icon_utilities"                   : "io", #? - could be considered utilities, io, or platform, or maybe images
     "ImageUtils"                       : "graphics_images", # graphics_images? images? graphics? graphics_io? (only use of graphics_images)
@@ -337,8 +338,10 @@ packageMapping_for_files = {
     "Initialize"                       : "utilities",
     "inval"                            : "foundation",
     "jigmakers_Mixin"                  : "operations", # tells Part how to create & edit various Jigs (some ui?)
-    "JigProp"                          : "ui/propmgr", #? - guess
-    "JigPropDialog"                    : "ui/propmgr",
+    
+    "JigProp"                          : "ui/propmgr|command_classes", # used directly for simple jigs, but clearest if treated as class
+    "JigPropDialog"                    : "ui/propmgr|command_classes", # (and pkg name/loc should not look like a command name)
+    
     "jigs"                             : "model", # class Jig, and a few subclasses
     "jigs_measurements"                : "model",
     "jigs_motors"                      : "model",
@@ -347,10 +350,10 @@ packageMapping_for_files = {
     "JobManager"                       : "ui", # ui/operations/io; scratch; needs refactoring; job_manager package?
     "JobManagerDialog"                 : "ui", 
     "Line"                             : "model",
-    "LinearMotor_EditCommand"          : "command",
-    "LinearMotorPropertyManager"       : "ui/propmgr",
+    "LinearMotor_EditCommand"          : "command|commands/EditLinearMotor",
+    "LinearMotorPropertyManager"       : "ui/propmgr|commands/EditLinearMotor",
     "LineMode"                         : "temporary_command", #?? a temporary command and gm... apparently can be used directly?
-    "main"                             : "top_level",
+    "main"                             : "top_level", # someday to be renamed to ne1_main
     "master_model_updater"             : "model_updater",
     "mdldata"                          : "graphics_io",
     "MinimizeEnergyProp"               : "ui",#?
@@ -359,7 +362,7 @@ packageMapping_for_files = {
     "modelTreeGui"                     : "widget|ModelTree", # a widget with view & maybe some control code
     "modes"                            : "unsplit_mode",
     "modifyMode"                       : "unsplit_mode|commands/Move", #? MoveChunks?? probably not, we'll deemphasize Chunks to users
-    "MotorPropertyManager"             : "ui/propmgr|??", #@@?? @@@
+    "MotorPropertyManager"             : "ui/propmgr|command_classes", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
     "MovePropertyManager"              : "ui/propmgr|commands/Move",
     "movie"                            : "simulation", #? hold simparams, or open moviefile - internal model, some ui/control/ops/io
     "moviefile"                        : "io",
@@ -372,8 +375,8 @@ packageMapping_for_files = {
     "NanoHiveUtils"                    : "?|ESP", # Mostly control & io code. Some model & ui code (via assy arg & assy.w).
     "NanoHive_SimParameters"           : "model|ESP",
 
-    "NanotubeGenerator"                : "command",
-    "NanotubeGeneratorPropertyManager" : "ui/propmgr",
+    "NanotubeGenerator"                : "command|commands/InsertNanotube",
+    "NanotubeGeneratorPropertyManager" : "ui/propmgr|commands/InsertNanotube",
     "NE1ToolBar"                       : "widget", # Variant of QToolBar
     "Node_as_MT_DND_Target"            : "controller|ModelTree",
     "node_indices"                     : "foundation",
@@ -390,7 +393,7 @@ packageMapping_for_files = {
     "op_select_doubly"                 : "operations",
     
     "PanMode"                          : "temporary_command",
-    "ParameterDialog"                  : "ui",
+    "ParameterDialog"                  : "widget|command_classes", #?
     "parse_utils"                      : "utilities",
     "part"                             : "model", #? - foundation (if clipboard is), but knows lots of model & operations too
     "PartLibPropertyManager"           : "ui/propmgr|commands/PartLibrary",
@@ -403,8 +406,8 @@ packageMapping_for_files = {
     
     "pi_bond_sp_chain"                 : "model",
     "Plane"                            : "model",
-    "Plane_EditCommand"                : "command",
-    "PlanePropertyManager"             : "ui/propmgr",
+    "Plane_EditCommand"                : "command|commands/EditPlane",
+    "PlanePropertyManager"             : "ui/propmgr|commands/EditPlane",
     "platform"                         : "utilities", # debug; rename platform.atom_debug -> debug_flags.debug ??
     "PlatformDependent"                : "platform", # ok, but really it's a mix of platform, utilities, io.
     "PlotTool"                         : "ui",
@@ -431,7 +434,9 @@ packageMapping_for_files = {
     "qutemol"                          : "io", # graphics_io?? for a qutemol package?
         # relates to "external processes" - we might add a classification for that
     
-    "QuteMolPropertyManager"           : "ui/propmgr", # for a qutemol package??
+    "QuteMolPropertyManager"           : "ui/propmgr|commands/QuteMol", # for a qutemol package??
+        # it's a single-file Command, View->QuteMol, with a launch (external renderer) button and maybe some options...
+        # but what is the VerbNoun form? Does it have a featurename now? Wiki & whatsthis say Feature:QuteMol, so I went with that.
     
     "ReferenceGeometry"                : "model", 
     "reposition_baggage"               : "operations",
@@ -449,7 +454,7 @@ packageMapping_for_files = {
     "SelectChunks_GraphicsMode.py"     : "graphics_mode", # often inherited
     "selectMolsMode"                   : "unsplit_mode|commands/SelectChunks",
     
-    "Select_Command.py"                : "command", # not in a subpackage since a lone abstract module
+    "Select_Command.py"                : "command|command_classes", # not in a subpackage since a lone abstract module
     "Select_GraphicsMode.py"           : "graphics_mode", # often inherited
     "Select_GraphicsMode_DrawMethod_preMixin.py" : "graphics_mode",
     "Select_GraphicsMode_MouseHelpers_preMixin.py" : "graphics_mode",
@@ -504,7 +509,16 @@ packageMapping_for_files = {
     "ThumbView"                        : "graphics_widgets",
     "Trackball"                        : "graphics_behavior",
 
-    # classify Ui_* later, probably get help from Ninad @@@
+    # Note: many of the following (and of the other modules slated for ne1_ui)
+    # ought to get refactored, with some parts not remaining in ne1_ui.
+    # Also, some of them might be best off in specific subpackages of ne1_ui,
+    # but I'm not yet trying to classify anything in ne1_ui that finely,
+    # partly since some of them need too much refactoring for that
+    # to make sense just yet, and partly since I don't know them well,
+    # and Mark is presently doing some refactoring within them.
+    # The only exception is ne1_ui/help, which may not be complete,
+    # but seems obvious enough and worth doing.
+    # [bruce 080101]
     
     "Ui_BuildAtomsPropertyManager"     : "ui/propmgr|commands/BuildAtoms",
     "Ui_BuildStructuresMenu"           : "ui/menu",
@@ -514,13 +528,16 @@ packageMapping_for_files = {
     "Ui_CommandToolbar"                : "ui/toolbar|ne1_ui", # UI and content/layout for Command Toolbar
     "Ui_CookiePropertyManager"         : "ui/propmgr|commands/BuildCrystal",
     "Ui_DimensionsMenu"                : "ui/menu",#?
+    "Ui_DisplayStylesToolBar"          : "ui/toolbar|ne1_ui",
     "Ui_DnaFlyout"                     : "ui/toolbar|ne1_ui", # I'm guessing this has to be in ne1_ui, not dna
     "Ui_EditMenu"                      : "ui/menu",
     "Ui_ExtrudePropertyManager"        : "ui/propmgr|commands/Extrude",
     "Ui_FileMenu"                      : "ui/menu",
-    "Ui_HelpMenu"                      : "ui/menu|help",
+    "Ui_HelpMenu"                      : "ui/menu|ne1_ui/help",
     "Ui_InsertMenu"                    : "ui/menu",
-    "Ui_MainWindow"                    : "ui",
+    "Ui_MainWindow"                    : "ui|ne1_ui",
+    "Ui_MainWindowWidgets"             : "ui|ne1_ui",
+    "Ui_MainWindowWidgetConnections"   : "ui|ne1_ui",
     "Ui_MovePropertyManager"           : "ui/propmgr|commands/Move",
     "Ui_MoviePropertyManager"          : "ui/propmgr|commands/PlayMovie",
     "Ui_PartWindow"                    : "widget|ne1_ui", #?
@@ -530,36 +547,37 @@ packageMapping_for_files = {
     "Ui_SimulationMenu"                : "ui/menu",
     "Ui_SimulationToolBar"             : "ui/toolbar",
     "Ui_StandardToolBar"               : "ui/toolbar",
+    "Ui_StandardViewsToolBar"          : "ui/toolbar|ne1_ui",
     "Ui_ToolsMenu"                     : "ui/menu",
     "Ui_ViewMenu"                      : "ui/menu",
-    "Ui_ViewOrientation"               : "ui",#?
+    "Ui_ViewOrientation"               : "ui|ne1_ui",
     "Ui_ViewToolBar"                   : "ui/toolbar",
-
-    # these next 4 are new and not yet alphabetized
-    "Ui_MainWindowWidgets"             : "ui|ne1_ui",
-    "Ui_MainWindowWidgetConnections"   : "ui|ne1_ui",
-    "Ui_StandardViewsToolBar"          : "ui/toolbar|ne1_ui",
-    "Ui_DisplayStylesToolBar"          : "ui/toolbar|ne1_ui",
     
     "undo_internals"                   : "foundation",
     "undo_archive"                     : "foundation",
     "undo_manager"                     : "foundation",
     "undo_UI"                          : "operations", # or operations/undo?
     
-    "UserPrefs"                        : "ui",
-    "UserPrefsDialog"                  : "ui",
+    "UserPrefs"                        : "ui|ne1_ui",
+    "UserPrefsDialog"                  : "ui|ne1_ui",
     "Utility"                          : "foundation", # some model code?
     
     "version"                          : "utilities", # or constants? see docstring for caveats
-    "ViewOrientationWindow"            : "ui",
+    "ViewOrientationWindow"            : "widget|ne1_ui",
     "VQT"                              : "geometry",
     
-    "whatsthis_utilities"              : "utilities?", #? guess (file to be split out of gui/whatsthis; imports are foundation or above)
+    "whatsthis_utilities"              : "foundation", #? or utilities?
+        # (this file is planned to be split out of gui/whatsthis; imports are foundation or above)
         # this file will import env (for win; could be refactored to not do so, eg use an arg), nothing else high up.
     "widgets"                          : "widgets",
     "widget_controllers"               : "widgets",
 
-    "wiki_help"                        : "ui|help", # some io? a subsystem of the help system.
+    "wiki_help"                        : "ui|foundation", # mostly ui, some io.
+        # conclusion, bruce 080101: if we have a help module outside ne1_ui, put it there;
+        # if we don't, it probably belongs in something like foundation.
+        # (Note: if we want a toplevel help package, we'd need to rename help.py first.
+        #  Guess: for now just put this into foundation; probably "help" makes more sense
+        #  as a subpackage of foundation than as something independent and toplevel, anyway.)
     
     "ZoomMode"                         : "temporary_command",
     }
@@ -580,7 +598,8 @@ packageMapping.update( packageMapping_for_packages)
     # gamess -> analysis/GAMESS
     # ESP -> analysis/ESP; maybe io part (if more general) would be processes/NanoHive
     # GROMACS -> analysis/GROMACS or simulation/GROMACS
-    # help -> a major ui aspect? ne1/help? not sure, wiki_help is more general than that, could even be in foundation; so its own pkg?
+    # help -> a major ui aspect? ne1/help? not sure, wiki_help is more general than that,
+    #   could even be in foundation; so its own pkg?
 '''
     commands/BuildCrystal
     commands/BuildAtoms

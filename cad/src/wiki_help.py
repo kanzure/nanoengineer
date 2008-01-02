@@ -8,9 +8,19 @@ FAQ, forum, etc.
 @version: $Id$
 @copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
-Module classification:
+Module classification: [bruce 080101]
 
-Mostly ui code; a subsystem of the help system.
+Mostly ui code, some io code; could be a subsystem of a general help system,
+if we have one outside of ne1_ui.
+
+Definitely doesn't belong in ne1_ui:
+* not specific to NE1's individual UI
+* imports nothing from ne1_ui
+* imported by various things which ought to be lower than ne1_ui.
+
+So, if we have a help module outside ne1_ui, put it there;
+if we don't, it probably belongs in something like foundation.
+
 
 Terminology note:
 
@@ -49,11 +59,13 @@ from PyQt4.Qt import QApplication
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import SLOT
 
+import os
 import env
 import webbrowser
 from debug import print_compact_traceback
 from utilities.Log import redmsg
 ##from qt4transition import qt4todo
+from prefs_constants import wiki_help_prefix_prefs_key
 
 def webbrowser_open(url):
     if len(webbrowser._tryorder) == 0:
@@ -76,7 +88,6 @@ def webbrowser_open(url):
             'konqueror',
             # 'c:/Program Files/Internet Explorer/iexplore.exe'
             ]:
-            import os.path
             if os.path.exists(candidate):
                 # handle candidates with full pathnames
                 register(candidate, candidate)
@@ -170,7 +181,6 @@ def wiki_prefix():
     """
     Return the prefix to which wiki page titles should be appended, to form their urls.
     """
-    from prefs_constants import wiki_help_prefix_prefs_key
     prefix = env.prefs[wiki_help_prefix_prefs_key]
     return prefix
 
@@ -196,10 +206,12 @@ def featurename_for_object(object):
     """
     Return the standard "feature name" for the type of this object
     (usually for its class), or "" if none can be found.
-       This is presently [051201] only used for wiki help,
-    but in future might be used for other things requiring permanent feature names,
-    like class-specific preference settings.
     """
+    # Note: this is presently [051201, still true 080101] only used for
+    # wiki help (and only in this module), but it might someday be used
+    # for other things requiring permanent feature names, like class-specific
+    # preference settings. So it might belong in a different module.
+    # [bruce 080101 comment]
     try:
         method = object.get_featurename
     except AttributeError:

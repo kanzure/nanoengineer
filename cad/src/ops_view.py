@@ -450,13 +450,13 @@ class viewSlotsMixin:
         """
         Returns a list of all the named view nodes in the MT inside a part.
         """
-        namedViewList = [] #Hold the result list
+        namedViewList = [] # Hold the result list
 
         def function(node):
             if isinstance(node, Csys):
                 namedViewList.append(node)
             return
-        #Append all Csys nodes to the namedview list --
+        # Append all Csys nodes to the namedview list
         self.assy.part.topnode.apply2all(function)
 
         return namedViewList
@@ -465,9 +465,10 @@ class viewSlotsMixin:
         """
         When Standard Views button is activated, show its QMenu
         """
-        ## By default, nothing happens if you click on the 
-        ## toolbutton with submenus. The menus are displayed only when you click on the small downward arrow 
-        ## of the tool button. Therefore the following slot is added. ninad 070109
+        # By default, nothing happens if you click on the 
+        # toolbutton with submenus. The menus are displayed only when you click
+        # on the small downward arrow of the tool button.
+        # Therefore the following slot is added. ninad 070109
 
         if self.standardViewsMenu.isVisible():
             self.standardViewsMenu.hide()
@@ -476,7 +477,7 @@ class viewSlotsMixin:
 
     def viewQuteMol(self):
         """
-        Slot for 'View > QuteMol'. Opens the QuteMol Propery Manager.
+        Slot for 'View > QuteMol'. Opens the QuteMol Property Manager.
         
         @note: The QuteMol PM will not open if there are no atoms in the part.
         """    
@@ -485,17 +486,18 @@ class viewSlotsMixin:
         if self.assy.molecules:
             self.qutemolPM.show()
         else:
-            # There are no atoms in the current part.
             msg = orangemsg("No atoms in the current part.")
             env.history.message(cmd + msg)
 
     def viewRaytraceScene(self):
         """
         Slot for 'View > POV-Ray'.
-        Raytraces the current scene. This version does not add a POV-Ray Scene node to the model tree.
-        This is preferred since it allows the user to preview POV-Ray renderings without having to save
-        the current part and/or delete unwanted nodes from the model tree. If the user wants to add the 
-        node to the model tree, the user must use 'Insert > POV-Ray Scene'.
+        Raytraces the current scene. This version does not add a POV-Ray Scene
+        node to the model tree. This is preferred since it allows the user to
+        preview POV-Ray renderings without having to save the current part
+        and/or delete unwanted nodes from the model tree. If the user wants to
+        add the node to the model tree, the user must use
+        'Insert > POV-Ray Scene'.
         """
         assy = self.assy
         glpane = self.glpane

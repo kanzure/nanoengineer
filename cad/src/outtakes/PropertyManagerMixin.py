@@ -88,12 +88,12 @@ def pmVBoxLayout(propMgr):
     propMgr.pmVBoxLayout.setObjectName("pmVBoxLayout")
     
 def pmSetPropMgrTitle(propMgr, title):
-    """Set the Propery Manager header title to string <title>.
+    """Set the Property Manager header title to string <title>.
     """
     propMgr.header_label.setText(title)
         
 def pmSetPropMgrIcon(propMgr, png_path):
-    """Set the Propery Manager icon in the header.
+    """Set the Property Manager icon in the header.
     <png_path> is the relative path to the PNG file.
     """
     propMgr.header_pixmap.setPixmap(getpixmap(png_path))

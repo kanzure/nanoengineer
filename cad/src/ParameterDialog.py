@@ -1,22 +1,21 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+"""
 ParameterDialog.py -- generate dialogs for editing sets of parameters,
 from descriptions of the parameters and of how to edit them,
 encoded as data which can (in principle) be manipulated at a high level in python,
 or which can be parsed from easily readable/editable text files.
 
-$Id$
-'''
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+"""
 
-__author__ = "bruce"
-
+# original source (heavily modified):
+#
 # Form implementation generated from reading ui file '.../nanotube_mac.ui'
 #
 # Created: Tue May 16 12:05:20 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
-#
-# WARNING! All changes made in this file will be lost!
-# Actually they won't be...
 
 
 from PyQt4 import QtGui
@@ -59,6 +58,9 @@ import env # for env.debug(); warning: some methods have a local variable which 
 
 from icon_utilities import imagename_to_pixmap
 
+from tokenize import generate_tokens #bruce 080101 moved to toplevel, untested
+from parse_utils import parse_top, Whole #bruce 080101 moved to toplevel, untested
+
 
 # image uses -- we should rename them ####@@@@
 ##self.heading_pixmap.setPixmap(self.image1) # should be: title_icon ####
@@ -71,7 +73,10 @@ from icon_utilities import imagename_to_pixmap
         
 ## class parameter_dialog(QDialog): # was nanotube_dialog
 class parameter_dialog_or_frame:
-    "use as a pre-mixin before QDialog or QFrame" ####@@@@
+    """
+    use as a pre-mixin before QDialog or QFrame
+    """
+    ####@@@@
     def __init__(self, parent = None, desc = None, name = None, modal = 0, fl = 0, env = None, type = "QDialog"):
         if env is None:
             import env # this is a little weird... probably it'll be ok, and logically it seems correct.
@@ -442,12 +447,16 @@ class parameter_dialog_or_frame:
 # ==
 
 class ParameterDialogBase(parameter_dialog_or_frame):
-    "#doc"
+    """
+    #doc
+    """
     controller = None
     def __init__(self, parent, description, env = None):
-        """If description is a string, it should be a filename.
+        """
+        If description is a string, it should be a filename.
         Or (someday) it could be a ThingData, or (someday) maybe a menu_spec_like python list.
-           This initializes the dialog, a Qt widget (not sure if it will be a widget when we have a "pane" option --
+
+        This initializes the dialog, a Qt widget (not sure if it will be a widget when we have a "pane" option --
          most likely we'll use some other class for that, not this one with an option).
         But it doesn't show it or connect it to a controller.
         """
@@ -548,15 +557,14 @@ class ParameterPaneTextEditTest( ParameterDialogBase, QTextEdit): ##k see if thi
 debug_parse = False
 
 def get_description(filename):
-    """For now, only the filename option is supported.
+    """
+    #doc...
+    For now, only the filename option is supported.
     Someday, support the other ones mentioned in our caller, ParameterDialog.__init__.__doc__.
     """
     assert type(filename) == type(""), "get_description only supports filenames for now (and not even unicode filenames, btw)"
     
     file = open(filename, 'rU')
-
-    from tokenize import generate_tokens
-    from parse_utils import parse_top, Whole
 
     gentok = generate_tokens(file.readline)
 

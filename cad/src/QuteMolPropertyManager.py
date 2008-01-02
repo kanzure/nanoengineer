@@ -2,17 +2,16 @@
 """
 QuteMolPropertyManager.py
 
-The QuteMol Property Manager.
+A Property Manager command supporting external rendering by QuteMol.
 
 @author: Mark
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
+@version: $Id$
 
 History:
-mark 20071202: Created.
 
+mark 20071202: Created.
 """
-__author__ = "Mark"
 
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
@@ -36,7 +35,7 @@ from files_pdb import EXCLUDE_DNA_AXIS_ATOMS
 class QuteMolPropertyManager(PM_Dialog):
     """
     The QuteMolPropertyManager class provides a Property Manager for 
-    QuteMol.
+    QuteMol, allowing its launch for external rendering of the model.
     """
     
     # The title that appears in the Property Manager header.

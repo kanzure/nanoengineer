@@ -1,13 +1,16 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-GeneratorController.py
+GeneratorController.py - subclass of GeneratorBaseClass, which can control
+the interaction between a dialog and a plugin_generator
+(supplied as constructor arguments)
 
 @author: Bruce
 @version: $Id$
 @copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 Note: this is presently used only by features that never got fully ported
-to Qt4, and which should be heavily rewritten when they do get ported.
+to Qt4, and which should be heavily rewritten when they do get ported
+(for example, to use EditCommand instead of GeneratorBaseClass).
 However, until that happens, this file should remain in the source code
 so it can be maintained in trivial ways (imports, external method names).
 """

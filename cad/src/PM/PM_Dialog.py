@@ -337,7 +337,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
     def setHeaderTitle(self, title):
         """
-        Set the Propery Manager header title to string <title>.
+        Set the Property Manager header title to string <title>.
         
         @param title: the title to insert in the header.
         @type  title: str
@@ -347,7 +347,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
     
     def setHeaderIcon(self, iconPath):
         """
-        Set the Propery Manager header icon.
+        Set the Property Manager header icon.
         
         @param iconPath: the relative path to the PNG file containing the 
                          icon image.

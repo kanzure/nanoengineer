@@ -475,12 +475,12 @@ class PropMgrBaseClass(PropertyManager_common): #bruce 070615 inherit PropertyMa
         self.VBoxLayout.addWidget(self.header_frame)
         
     def setPropMgrTitle(self, title):
-        """Set the Propery Manager header title to string <title>.
+        """Set the Property Manager header title to string <title>.
         """
         self.header_label.setText(title)
         
     def setPropMgrIcon(self, png_path):
-        """Set the Propery Manager icon in the header.
+        """Set the Property Manager icon in the header.
         <png_path> is the relative path to the PNG file.
         """
         self.header_pixmap.setPixmap(getpixmap(png_path))
