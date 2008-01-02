@@ -7,7 +7,6 @@ $Id$
 __author__ = "Mark" 
     # Josh was the original author, but this has been largely rewritten by Mark. mark 060214.
 
-import os
 import math # only for pi
 from Numeric import dot
 
@@ -56,10 +55,7 @@ from drawer     import drawline
 from icon_utilities import geticon
 from Group      import Group
 from Utility    import Node
-from pastables  import is_pastable
-from pastables  import find_hotspot_for_pasting
 
-from ops_copy        import copied_nodes_for_DND
 from Select_GraphicsMode      import DRAG_STICKINESS_LIMIT
 from selectAtomsMode import selectAtomsMode
 
@@ -86,7 +82,7 @@ from prefs_constants import buildModeWaterEnabled_prefs_key
 from prefs_constants import buildModeHighlightingEnabled_prefs_key
 from prefs_constants import keepBondsDuringTransmute_prefs_key
 
-from utilities.Log import orangemsg, redmsg, greenmsg, quote_html
+from utilities.Log import orangemsg, redmsg
 
 from BuildAtomsPropertyManager import BuildAtomsPropertyManager
 
@@ -111,7 +107,6 @@ class depositMode(selectAtomsMode):
                 
         _superclass.__init__(self, glpane)
                                 
-        self.pastables_list = [] #k not needed here?
         self.water_enabled = env.prefs[buildModeWaterEnabled_prefs_key] # mark 060203.
             # if True, only atoms and bonds above the water surface can be 
             # highlighted and selected.
@@ -121,8 +116,7 @@ class depositMode(selectAtomsMode):
             # Moved here as part of fix for bug 1620.  mark 060322
     # methods related to entering this mode         
     dont_update_gui = True
-        
-    
+
     def Enter(self):
         
         self._init_flyoutActions()
@@ -131,10 +125,6 @@ class depositMode(selectAtomsMode):
         
         #self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
             # moved permit_pick_atoms() to selectAtomsMode.Enter().  mark 060219.
-        self.pastable = None #k would it be nicer to preserve it from the past??
-            # note, this is also done redundantly in init_gui.
-        self.pastables_list = [] # should be ok, since update_gui comes after this...
-        ## removed this since it's redundant [bruce 060726]: self.reset_drag_vars()
         
         
     def reset_drag_vars(self):
@@ -191,7 +181,7 @@ class depositMode(selectAtomsMode):
             
         self.w.toolsDepositAtomAction.setChecked(True)  
         
-        self.pastable = None # by bruce 041124, for safety
+        
         self.bondclick_v6 = None        
         self.update_bond_buttons()
         
@@ -627,79 +617,13 @@ class depositMode(selectAtomsMode):
         
         return
 
-    def update_gui_0(self): #bruce 050121 split this out and heavily revised it
-        # [Warning, bruce 050316: when this runs, new clipboard items might not
-        # yet have
-        # their own Part, or the correct Part! So this code should not depend
-        # on the .part member of any nodes it uses. If this matters, a quick
-        # (but inefficient) fix would be to call that method right here...
-        # except that it might not be legal to do so! Instead, we'd probably 
-        # need
-        # to arrange to do the actual updating (this method) only at the end of
-        # the current user event. We'll need that ability pretty soon for other
-        # reasons (probably for Undo), so it's ok if we need it a bit sooner.]
-        
-        # Subclasses update the contents of self.propMgr.clipboardGroupBox
-        # (Note; earlier depositMode used to update self.w.pasteComboBox items,
-        # but this implementation has been changed since 2007-09-04 after 
-        # introduction of L{PasteMode}) 
-        # to match the set of pastable objects on the clipboard,
-        # which is cached in pastables_list for use,
-        # and update the current item to be what it used to be (if that is
-        # still available in the list), else the last item (if there are any 
-        # items).
-
-        # First, if self.pastable is None, set it to the current value from
-        # the spinbox and prior list, in case some other code set it to None
-        # when it set depositState to 'Atoms' or 'Library' (tho I don't think 
-        # that other code really
-        # needs to do that). This is safe even if called "too early". But if 
-        # it's
-        # already set, don't change it, so callers of UpdateDashboard can set it
-        # to the value they want, even if that value is not yet in the spinbox
-        # (see e.g. setHotSpot_mainPart).
-        if not self.pastable:
-            self.update_pastable()
-        
-        # update the list of pastable things - candidates are all objects
-        # on the clipboard
-        members = self.o.assy.shelf.members[:]
-        ## not needed or correct since some time ago [bruce 050110]:
-        ##   members.reverse() # bruce 041124 -- model tree seems to have them backwards
-        self.pastables_list = filter( is_pastable, members)
-
-        # experiment 050122: mark the clipboard items to influence their appearance
-        # in model tree... not easy to change their color, so maybe we'll let this
-        # change their icon (just in chunk.py for now). Not yet done. We'd like the
-        # one equal to self.pastable (when self.depositState == 'Clipboard' and this is current mode)
-        # to look the most special. But that needs to be recomputed more often
-        # than this runs. Maybe we'll let the current mode have an mtree-icon-filter??
-        # Or, perhaps, let it modify the displayed text in the mtree, from node.name. ###@@@
-        for mem in members:
-            mem._note_is_pastable = False # set all to false...
-        for mem in self.pastables_list:
-            mem._note_is_pastable = True # ... then change some of those to true
-        
-        if not self.pastables_list:
-            # insert a text label saying why spinbox is empty [bruce 041124]
-            if members:
-                whynot = "(no clips are pastable)" # this text should not be longer than the one below, for now
-            else:
-                whynot = "(clipboard is empty)"            
-            self.pastable = None
-        else:
-            # choose the best current item for self.pastable and spinbox position
-            # (this is the same pastable as before, if it's still available)
-            if self.pastable not in self.pastables_list: # (works even if self.pastable is None)
-                self.pastable = self.pastables_list[-1]
-                # use the last one (presumably the most recently added)
-                # (no longer cares about selection of clipboard items -- bruce 050121)
-            assert self.pastable # can fail if None is in the list or "not in" doesn't work right for None
-               
-        #e future: if model tree indicates self.pastable somehow, e.g. by color of
-        # its name, update it. (It might as well also show "is_pastables" that way.) ###@@@ good idea...
-        
-        return
+    def update_gui_0(self): 
+        """
+        Overridden in some subclasses. Default implementation does nothing
+        @see: B{PasteMode}
+        """        
+        pass
+    
 
     # methods related to exiting this mode [bruce 040922 made these from
     # old Done method, and added new code; there was no Flush method]
@@ -851,17 +775,7 @@ class depositMode(selectAtomsMode):
             # we're presumably a subclass with no propMgr or a different one
             from elements import Carbon
             return Carbon
-
-    _pastable_atomtype = None
-    def set_pastable_atomtype(self, name):
-        #@attention: No code calls this method as of 2008-01-02. 
-        # So it should be removed.  See also self.set_pastable method
-        #-- Ninad 2008-01-02
-        current_element = self.pastable_element()
-        self._pastable_atomtype = current_element.find_atomtype(name)
-            # store entire atomtype object; only used if element remains correct (not an error if it doesn't)
-        return
-
+        
     def pastable_atomtype(self):
         """
         Return the current pastable atomtype.
@@ -1244,13 +1158,13 @@ class depositMode(selectAtomsMode):
                 del a1, desc
 
         else: # Deposit atom at the cursor position and prep it for dragging
-                cursorPos = atom_or_pos
-                a = self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
-                self.objectSetup(a)
-                self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
-                if self.pickit(): self.o.selatom.pick()
-                status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
-                chunk = self.o.selatom.molecule #bruce 041207
+            cursorPos = atom_or_pos
+            a = self.o.selatom = oneUnbonded(atype.element, self.o.assy, cursorPos, atomtype = atype)
+            self.objectSetup(a)
+            self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
+            if self.pickit(): self.o.selatom.pick()
+            status = "made new atom %r at %s" % (self.o.selatom, self.posn_str(self.o.selatom) )
+            chunk = self.o.selatom.molecule #bruce 041207
         
         return chunk, status
 
@@ -1540,93 +1454,10 @@ class depositMode(selectAtomsMode):
     ###################################################################
     #==   Cutting and pasting
     ###################################################################
-    
-    def pasteBond(self, sing):
-        """
-        If self.pastable has an unambiguous hotspot,
-        paste a copy of self.pastable onto the given singlet;
-        return (the copy, description) or (None, whynot)
-        """
-        self.update_pastable()
-        pastable = self.pastable
-            # as of 050316 addmol can change self.pastable! See comments in pasteFree.
-        # bruce 041123 added return values (and guessed docstring).
-        # bruce 050121 using subr split out from this code
-        ok, hotspot_or_whynot = find_hotspot_for_pasting(pastable)
-        if not ok:
-            whynot = hotspot_or_whynot
-            return None, whynot
-        
-        hotspot = hotspot_or_whynot
-        
-        if isinstance(pastable, Chunk):
-            numol = pastable.copy(None)
-            # bruce 041116 added (implicitly, by default) cauterize = 1
-            # to mol.copy() above; change this to cauterize = 0 here if unwanted,
-            # and for other uses of mol.copy in this file.
-            # For this use, there's an issue that new singlets make it harder to
-            # find a default hotspot! Hmm... I think copy should set one then.
-            # So now it does [041123].
-            hs = numol.hotspot or numol.singlets[0] #e should use find_hotspot_for_pasting again
-            bond_at_singlets(hs,sing) # this will move hs.molecule (numol) to match
-            # bruce 050217 comment: hs is now an invalid hotspot for numol, and that
-            # used to cause bug 312, but this is now fixed in getattr every time the
-            # hotspot is retrieved (since it can become invalid in many other ways too),
-            # so there's no need to explicitly forget it here.
-            if self.pickit():
-                numol.pickatoms()
-                #bruce 060412 worries whether pickatoms is illegal or ineffective (in both pasteBond and pasteFree)
-                # given that numol.part is presumably not yet set (until after addmol). But these seem to work
-                # (assuming I'm testing them properly), so I'm not changing this. [Why do they work?? ###@@@]
-            self.o.assy.addmol(numol) # do this last, in case it computes bbox
-            return numol, "copy of %r" % pastable.name
-        elif isinstance(pastable, Group):
-            msg1 = "Pasting a group with hotspot onto a bond point "
-            msg2 = "is not implemented"
-            msg3  = msg1 + msg2 
-            return None, msg3
-            if platform.atom_debug:     
-                #@@@ EXPERIMENTAL CODE TO PASTE a GROUP WITH A HOTSPOT  
-                if 0:
-                     # hotspot neighbor atom
-                    attch2Singlet = atom_or_pos
-                    hotspot_neighbor = hotspot.singlet_neighbor()
-                    # attach to atom
-                    attch2Atom = attch2Singlet.singlet_neighbor() 
-                    rotOffset = Q(hotspot_neighbor.posn() - hotspot.posn(), 
-                                  attch2Singlet.posn() - attch2Atom.posn())
-                    
-                    rotCenter = newMol.center
-                    newMol.rot(rotOffset)
-                    
-                    moveOffset = attch2Singlet.posn() - hs.posn()
-                    newMol.move(moveOffset)
-                    
-                    self.__createBond(hotspot, 
-                                      hotspot_neighbor, 
-                                      attch2Singlet, 
-                                      attch2Atom)
-                    self.o.assy.addmol(newMol)
-                    ########
-                    ##newGroup = self.pasteGroup(pos, pastable)      
-                    return newGroup, "copy of %r" % newGroup.name
-                
 
-    ## dashboard things
-
-    def update_pastable(self): 
-        """
-        Subclasses should override this method. 
-        @see: L{PasteMode.update_pastable} 
-        """
-        self.pastable = None        
-        return
-    
         
     def setAtom(self):
         "Slot for Atoms Tool button in the Build Chunks property manager"
-        self.pastable = None
-        # but spinbox records it... but not if set of pastables is updated! so maybe a bad idea? ##k
         self.update_cursor()
         self.w.depositState = 'Atoms'
         self.UpdateDashboard() #bruce 050121 added this
@@ -2053,13 +1884,7 @@ class depositMode(selectAtomsMode):
             
             # now add new to the clipboard
             
-            # bruce 050121: first store it in self.pastable, so it will be used
-            # as the new pastable if shelf.addmember updates the dashboard,
-            # as it does in my local mods to Utility.py; also repeat this down
-            # below in case our manual UpdateDashboard is the only one that runs.
-
-            self.pastable = new
-            
+                       
             # bruce 041124 change: add new after the other members, not before.
             # [bruce 050121 adds: see cvs for history (removed today from this code)
             #  of how this code changed as the storage order of Group.members changed
@@ -2084,7 +1909,6 @@ class depositMode(selectAtomsMode):
             #depositMode.  (this needs further cleanup) -- ninad 2007-09-04
             self.w.depositState = 'Atoms'
             
-            self.pastable = new # do this again, to influence the following:
             self.UpdateDashboard()
                 # (also called by shelf.addchild(), but only after my home mods
                 #  to Utility.py get committed, i.e. not yet -- bruce 050121)
@@ -2103,33 +1927,7 @@ class depositMode(selectAtomsMode):
                             
         return
 
-    def set_pastable(self, pastable): # no one calls this yet, but they could... [bruce 050121; untested]
-        """
-        Try to set the current pastable item to the given one
-        (which must already be on the clipboard and satisfy is_pastable,
-        or this will set the pastable to None, tho the old pastable would
-        be a better choice I suppose).
-        [Someday this might be useful to call from a model tree context menu command.]
-        """
-        #@attention: No code calls this method as of 2008-01-02. Some old comments 
-        #suggests this method was never called. So it should be removed. 
-        #-- Ninad 2008-01-02
-        
-        self.update_pastable()
-        oldp = self.pastable
-        self.pastable = pastable
-        self.UpdateDashboard()
-        if not self.pastable is pastable:
-            #k (probably this implies self.pastable is None,
-            #   but no point in checking this)
-            #e someday: history message that we failed
-            self.pastable = oldp
-            self.UpdateDashboard()
-            # if *that* fails, nothing we can do, and it never should
-            # (but might if some previously pastable thing
-            #  became not pastable somehow, I suppose),
-            # so don't bother checking
-        return
+    
         
     def select(self): # [this is badly named, since it's very hard to confirm the theory that it's only called from our cmenu.]
         "select the chunk containing the highlighted atom or singlet"
