@@ -228,7 +228,12 @@ class depositMode(selectAtomsMode):
         self.exitModeAction.setText("Exit Atoms")
         self.exitModeAction.setIcon(geticon('ui/actions/Toolbars/Smart/Exit'))
         self.exitModeAction.setCheckable(True)
-        self.exitModeAction.setChecked(True)    
+        self.exitModeAction.setChecked(True)
+        self.exitModeAction.setWhatsThis(
+        """<b>Exit Atoms </b>
+        <p>
+       Exits the Build Atoms Mode
+        </p>""")
         
         #Following Actions are added in the Flyout toolbar. 
         #Defining them outside that method as those are being used
@@ -240,13 +245,24 @@ class depositMode(selectAtomsMode):
             'ui/actions/Toolbars/Smart/Deposit_Atoms'))
         self.depositAtomsAction.setCheckable(True)
         self.depositAtomsAction.setChecked(True)
-        
+        self.depositAtomsAction.setWhatsThis(
+        """<b>Atoms Tool </b>
+        <p>
+       Turns on the Atoms Tool to deposit atoms from the Molecular
+       Modeling Kit into the 3D Workspace
+        </p>""")
                 
         self.transmuteBondsAction = QtGui.QWidgetAction(self.w)
         self.transmuteBondsAction.setText("Bonds Tool")
         self.transmuteBondsAction.setIcon(geticon(
             'ui/actions/Toolbars/Smart/Transmute_Bonds'))
         self.transmuteBondsAction.setCheckable(True)
+        self.transmuteBondsAction.setWhatsThis(
+        """<b>Bonds Tool</b>
+        <p>
+        Turns on the Bonds Tool to change the bonding type of deposited atoms. 
+        The user can also remove existing bonds by cutting them.
+        </p>""")
         
         self.subControlActionGroup = QtGui.QActionGroup(self.w)
         self.subControlActionGroup.setExclusive(True)   
@@ -260,26 +276,58 @@ class depositMode(selectAtomsMode):
         self.bond1Action = QtGui.QWidgetAction(self.w)  
         self.bond1Action.setText("Single")
         self.bond1Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond1.png"))
+        self.bond1Action.setWhatsThis(
+        """<b>Single Bond</b>
+        <p>
+       Transmutes selected bond to a single bond if permitted 
+        </p>""")
             
         self.bond2Action = QtGui.QWidgetAction(self.w)  
         self.bond2Action.setText("Double")
         self.bond2Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond2.png"))
+        self.bond2Action.setWhatsThis(
+        """<b>Double Bond</b>
+        <p>
+       Transmutes selected bond to a double bond if permitted 
+        </p>""")
         
         self.bond3Action = QtGui.QWidgetAction(self.w)  
         self.bond3Action.setText("Triple")
         self.bond3Action.setIcon(geticon("ui/actions/Toolbars/Smart/bond3.png"))
+        self.bond3Action.setWhatsThis(
+        """<b>Triple Bond</b>
+        <p>
+       Transmutes selected bond to a triple bond if permitted 
+        </p>""")
         
         self.bondaAction = QtGui.QWidgetAction(self.w)  
         self.bondaAction.setText("Aromatic")
         self.bondaAction.setIcon(geticon("ui/actions/Toolbars/Smart/bonda.png"))
+        self.bondaAction.setWhatsThis(
+        """<b>Aromatic Bond</b>
+        <p>
+       Transmutes selected bond to an aromatic bond if permitted 
+        </p>""")
+     
         
         self.bondgAction = QtGui.QWidgetAction(self.w)  
         self.bondgAction.setText("Graphitic")
         self.bondgAction.setIcon(geticon("ui/actions/Toolbars/Smart/bondg.png"))
+        self.bondgAction.setWhatsThis(
+        """<b>Graphitic Bond</b>
+        <p>
+       Transmutes selected bond to an graphitic bond if permitted 
+        </p>""")
         
         self.cutBondsAction = QtGui.QWidgetAction(self.w)  
         self.cutBondsAction.setText("Cut Bonds")
         self.cutBondsAction.setIcon(geticon("ui/actions/Tools/Build Tools/Cut_Bonds"))
+        self.cutBondsAction.setWhatsThis(
+        """<b>Cut Bonds</b>
+        <p>
+       Removes the bond between atoms when selected using the left mouse button 
+       </p>""")
+        
         
         for action in [self.bond1Action, 
                        self.bond2Action, 
@@ -297,6 +345,12 @@ class depositMode(selectAtomsMode):
         self.transmuteAtomsAction.setIcon(geticon(
             'ui/actions/Toolbars/Smart/Transmute_Atoms'))       
         self.transmuteAtomsAction.setCheckable(False)
+        self.transmuteAtomsAction.setWhatsThis(
+        """<b>Transmute</b>
+        <p>
+       Can be used to change the selected atoms into a different element or 
+       atom type
+       </p>""")
            
 
     def connect_or_disconnect_signals(self, connect): #bruce 050728

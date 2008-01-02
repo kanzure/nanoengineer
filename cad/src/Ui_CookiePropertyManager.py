@@ -76,6 +76,7 @@ class Ui_CookiePropertyManager(PM_Dialog):
         self.pw = self.parentMode.pw        
         self.o = self.parentMode.o
         
+        
         PM_Dialog.__init__(self, self.pmName, self.iconPath, self.title)
         
         self.showTopRowButtons( pmDoneButton | \
@@ -329,3 +330,12 @@ class Ui_CookiePropertyManager(PM_Dialog):
         """
         from gui.WhatsThisText_for_PropertyManagers import whatsThis_CookiePropertyManager
         whatsThis_CookiePropertyManager(self)
+        
+    def _addToolTipText(self):
+        """
+        What's Tool Tip text for widgets in this Property Manager.  
+        """       
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_CookiePropertyManager
+        ToolTip_CookiePropertyManager(self)
+        
+        

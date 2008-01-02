@@ -278,5 +278,12 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """
         from gui.WhatsThisText_for_PropertyManagers import whatsThis_RotaryMotorPropertyManager
         whatsThis_RotaryMotorPropertyManager(self)
-    
+        
+    def _addToolTipText(self):
+        """
+        What's Tool Tip text for widgets in this Property Manager.  
+        """       
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_RotaryMotorPropertyManager
+        ToolTip_RotaryMotorPropertyManager(self)
+
 

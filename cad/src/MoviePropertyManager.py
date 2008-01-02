@@ -504,3 +504,4 @@ class MoviePropertyManager(Ui_MoviePropertyManager):
         return
 
     pass # end of class movieDashboardSlotsMixin
+   
