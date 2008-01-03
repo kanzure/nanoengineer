@@ -54,9 +54,8 @@ class PasteMode(depositMode):
                                     #GUESS ### REVIEW whether correct when 
                                     #entering Zoom/Pan/Rotate
 
-    #Don't resume previous mode (buggy if set to True)
-    command_should_resume_prevMode = False #bruce 071011, to be revised 
-    #(replaces need for customized Done method)
+    #Don't resume previous mode (buggy if set to True) [ninad circa 080102]
+    command_should_resume_prevMode = False
 
     #See Command.anyCommand for details about the following flag
     command_has_its_own_gui = True
