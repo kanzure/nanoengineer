@@ -139,6 +139,13 @@ class QuteMolPropertyManager(PM_Dialog):
         """
         from gui.WhatsThisText_for_PropertyManagers import whatsThis_QuteMolPropertyManager
         whatsThis_QuteMolPropertyManager(self)
+        
+    def _addToolTipText(self):
+        """
+        Tool Tip text for widgets in this Property Manager.  
+        """
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_QuteMolPropertyManager
+        ToolTip_QuteMolPropertyManager(self)
     
     def show(self):
         """

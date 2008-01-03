@@ -283,3 +283,10 @@ class Ui_MoviePropertyManager(PM_Dialog):
             """
             from gui.WhatsThisText_for_PropertyManagers import whatsThis_MoviePropertyManager
             whatsThis_MoviePropertyManager(self)
+            
+    def _addToolTipText(self):
+        """
+        Tool Tip text for widgets in this Property Manager.  
+        """
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_MoviePropertyManager
+        ToolTip_MoviePropertyManager(self)

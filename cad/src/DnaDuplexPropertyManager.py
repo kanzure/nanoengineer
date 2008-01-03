@@ -522,11 +522,16 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
     def _addWhatsThisText( self ):
         """
         What's This text for widgets in the DNA Property Manager.  
-
-        @note: Many PM widgets are still missing their "What's This" text.
         """
         from gui.WhatsThisText_for_PropertyManagers import whatsThis_DnaDuplexPropertyManager
         whatsThis_DnaDuplexPropertyManager(self)
+                
+    def _addToolTipText(self):
+        """
+        Tool Tip text for widgets in the DNA Property Manager.  
+        """
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_DnaDuplexPropertyManager
+        ToolTip_DnaDuplexPropertyManager(self)
         
     def conformationComboBoxChanged( self, inIndex ):
         """

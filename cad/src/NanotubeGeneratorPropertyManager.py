@@ -243,6 +243,13 @@ class NanotubeGeneratorPropertyManager(PM_Dialog):
         from gui.WhatsThisText_for_PropertyManagers import whatsThis_NanotubeGeneratorPropertyManager
         whatsThis_NanotubeGeneratorPropertyManager(self)
         
+    def _addToolTipText(self):
+        """
+        Tool Tip text for widgets in this Property Manager.  
+        """
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_NanotubeGeneratorPropertyManager
+        ToolTip_NanotubeGeneratorPropertyManager(self)
+        
     def chirality_fixup(self, spinBoxValueJunk = None):
         """
         Slot for several validators for different parameters.

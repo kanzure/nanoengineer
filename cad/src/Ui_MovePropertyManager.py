@@ -417,13 +417,16 @@ class Ui_MovePropertyManager( PM_Dialog ):
         
         BUTTON_LIST = [ 
             ( "QToolButton", 1,  "ROTATEX", 
-              "ui/actions/Properties Manager/RotateX.png", "", "X", 0 ),
+              "ui/actions/Properties Manager/RotateX.png", 
+              "Rotate about X axis", "X", 0 ),
             
             ( "QToolButton", 2,  "ROTATEY",  
-              "ui/actions/Properties Manager/RotateY.png", "", "Y", 1 ),
+              "ui/actions/Properties Manager/RotateY.png", 
+              "Rotate about Y axis", "Y", 1 ),
             
             ( "QToolButton", 3,  "ROTATEZ",  
-              "ui/actions/Properties Manager/RotateZ.png", "", "Z", 2 ),
+              "ui/actions/Properties Manager/RotateZ.png", 
+              "Rotate about Z axis","Z", 2 ),
             ]
         
         self.rotateAroundAxisButtonRow = \
@@ -542,8 +545,14 @@ class Ui_MovePropertyManager( PM_Dialog ):
         """
         What's This text for some of the widgets in this Property Manager.  
 
-        @note: Many PM widgets are still missing their "What's This" text.
         """
         from gui.WhatsThisText_for_PropertyManagers import whatsThis_MovePropertyManager
         whatsThis_MovePropertyManager(self)
+        
+    def _addToolTipText(self):
+        """
+        Tool Tip text for widgets in this Property Manager.  
+        """
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_MovePropertyManager
+        ToolTip_MovePropertyManager(self)
             

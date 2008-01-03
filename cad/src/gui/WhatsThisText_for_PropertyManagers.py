@@ -289,18 +289,12 @@ def whatsThis_MovePropertyManager(propMgr):
         specified by the Delta X, Y and Z spinboxes.
         </p>""")
 
-    propMgr.transDeltaPlusButton.setToolTip(
-        "Move selection by + (plus) delta XYZ")
-
     propMgr.transDeltaMinusButton.setWhatsThis(
         """<b>Delta -</b>
         <p>
         Moves the current selection by an offset opposite of that 
         specified by the Delta X, Y and Z spinboxes.
         </p>""")
-
-    propMgr.transDeltaMinusButton.setToolTip(
-        "Move selection by - (minus) delta XYZ")
 
     # To XYZ Position widgets
 
@@ -332,9 +326,6 @@ def whatsThis_MovePropertyManager(propMgr):
         specified by the X, Y and Z spinboxes. The selection's centroid
         is used compute how the selection is moved.
         </p>""")
-
-    propMgr.moveAbsoluteButton.setToolTip(
-        "Move selection to absolute XYZ position")
 
     # Rotate group box widgets ############################
 
@@ -403,17 +394,11 @@ def whatsThis_MovePropertyManager(propMgr):
         Constrains rotation about the X axis.
         </p>""")
 
-    propMgr.rotateXButton.setToolTip(
-        "Rotate about X axis")
-
     propMgr.rotateYButton.setWhatsThis(
         """<b>Rotate about Y axis</b>
         <p>
         Constrains rotation about the Y axis.
         </p>""")
-
-    propMgr.rotateYButton.setToolTip(
-        "Rotate about Y axis")
 
     propMgr.rotateZButton.setWhatsThis(
         """<b>Rotate about Z axis</b>
@@ -421,17 +406,11 @@ def whatsThis_MovePropertyManager(propMgr):
         Constrains rotation about the Z axis.
         </p>""")
 
-    propMgr.rotateZButton.setToolTip(
-        "Rotate about Z axis")
-
     propMgr.rotateThetaSpinBox.setWhatsThis(
         """<b>Rotation angle</b>
         <p>
         Specifies the angle of rotation.
         </p>""")
-
-    propMgr.rotateThetaSpinBox.setToolTip(
-        "Angle of rotation")
 
     # These next two aren't working. 
     # I don't understand why not. Mark 2007-06-25.
@@ -530,7 +509,7 @@ def whatsThis_SequenceEditor(propMgr):
     propMgr.loadSequenceButton.setWhatsThis(
         """<b>Load Sequence File</b>
         <p>
-       Loads and existing strand sequence from a text file
+       Loads an existing strand sequence from a text file
         </p>""")
     
     propMgr.sequenceTextEdit.setWhatsThis(
@@ -581,9 +560,7 @@ def whatsThis_SequenceEditor(propMgr):
         <p>
        Shows the complementary strand sequence
         </p>""")
-    
-            
-
+         
 def whatsThis_ExtrudePropertyManager(propMgr):
     """
     "What's This" text for widgets in the Extrude Property Manager.
@@ -868,7 +845,7 @@ def whatsThis_LinearMotorPropertyManager(propMgr):
     propMgr.enableMinimizeCheckBox.setWhatsThis(
         """<b>Enable in Minimize <i>(WARNING: EXPERIMENTAL FEATURE)</i></b>
         <p>
-        If checked, the torque specified above will be applied to the 
+        If checked, the force specified above will be applied to the 
         motor atoms during a structure minimization.  While intended to 
         allow simulations to begin with Linear motors running at speed, 
         this feature requires more work to be useful.

@@ -53,6 +53,8 @@ class Ui_SequenceEditor(PM_DockWidget):
         
         self.setFixedHeight(90)
         self._addWhatsThisText()
+        
+       
     
     def _loadWidgets(self):
         """
@@ -69,7 +71,7 @@ class Ui_SequenceEditor(PM_DockWidget):
         Find and replace widgets etc. 
         """
         #Note: Find and replace widgets might be moved to their own class.
-        
+              
         self.loadSequenceButton = PM_ToolButton(
             self,
             iconPath = "ui/actions/Properties Manager/Open_Strand_Sequence.png")  
@@ -232,6 +234,13 @@ class Ui_SequenceEditor(PM_DockWidget):
         
         self.findOptionsToolButton.setMenu(self.findOptionsMenu)
         
+    def _addToolTipText(self):
+            """
+            What's Tool Tip text for widgets in this Property Manager.  
+            """ 
+            from gui.ToolTipText_for_PropertyManagers import ToolTip_SequenceEditor
+            ToolTip_SequenceEditor(self)
+               
     def _addWhatsThisText(self):
             """
             What's This text for widgets in this Property Manager.  
@@ -239,3 +248,6 @@ class Ui_SequenceEditor(PM_DockWidget):
             """
             from gui.WhatsThisText_for_PropertyManagers import whatsThis_SequenceEditor
             whatsThis_SequenceEditor(self)
+            
+    
+       

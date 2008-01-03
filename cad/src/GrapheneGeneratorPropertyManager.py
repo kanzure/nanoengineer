@@ -115,3 +115,10 @@ class GrapheneGeneratorPropertyManager(PM_Dialog):
         from gui.WhatsThisText_for_PropertyManagers import whatsThis_GrapheneGeneratorPropertyManager
         whatsThis_GrapheneGeneratorPropertyManager(self)
         
+    def _addToolTipText(self):
+        """
+        Tool Tip text for widgets in this Property Manager.  
+        """
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_GrapheneGeneratorPropertyManager
+        ToolTip_GrapheneGeneratorPropertyManager(self)
+        
