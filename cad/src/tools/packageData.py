@@ -15,7 +15,7 @@ packageData.py -- data about modules and packages, for PackageDependency.py
 # and so the arcs you see help you classify them properly.
 
 
-# classification can be "layer|topic", e.g. "model|gamess",
+# classification can be "layer|topic", e.g. "model|GAMESS",
 # with options to use either or both parts (before/after the '|') as part of the package name;
 # if no "|" then assume it's just the layer;
 # the layers are what we have now (ui, model, etc)
@@ -117,7 +117,7 @@ disallowedModuleNames = {
 # ne1 package, for overall layout of ne1, as opposed some other app made from same pieces incl ui pieces
 # (eg a small app for testing or script-running)
 
-# simulation or analysis package, subdirs for gromacs, gamess, nd1, general? runsim too. some io code not separated.
+# simulation or analysis package, subdirs for GROMACS, GAMESS, ND-1(?), general? runsim too. some io code not separated.
 # replaces some "operations" classifications; essentially a type of ops and io combined.
 # levels: sim over ops over model, but we expect arcs in all directions in there, for now.
 
@@ -186,6 +186,41 @@ _levels_highest_first = [ # TODO: finish, then use this to compute the above; in
 
 # ==
 
+###doc these; anything with '?' is unfinalized; anything with '!' indicates an error in input
+
+layer_aliases = {
+    # standardize to plural form
+    "operation"         : "operations",
+    "widget"            : "widgets",
+    "graphics_behavior" : "graphics_behaviors",
+    "graphics_mode"     : "graphics_modes",
+    "graphics_view"     : "graphics_views",
+    "graphics_widget"   : "graphics_widgets",
+
+ }
+
+topic_mapping = {
+    # default topics for layers
+    "unsplit_mode"      : "unsplit_mode!", # matters only if layer is used as topic
+    
+    # expand topic abbrevs into actual pathnames
+    "SequenceEditor"    : "dna/SequenceEditor",
+    
+    "graphics"          : "graphics/??",
+    "graphics_behaviors" : "graphics/behaviors",
+    "graphics_images"   : "graphics/images",
+    "graphics_io"       : "graphics/io?",
+    "graphics_modes"    : "graphics/modes",
+    "graphics_views"    : "graphics/views",
+    "graphics_widgets"  : "graphics/widgets",
+
+    "ESP"               : "analysis/ESP", # refactoring: maybe io part (if more general) would be processes/NanoHive
+    "GAMESS"            : "analysis/GAMESS",
+    "GROMACS"           : "simulation/GROMACS",
+ }
+
+# ==
+
 packageMapping_for_packages = {
     # existing packages (in each case so far, all files now in them have the same fate)
     # (in two cases, gui and startup, they should first just be renamed, then new files moved into them)
@@ -210,7 +245,7 @@ packageMapping_for_files = {
     
     "assembly"                         : "model", # (some foundation, but knows part.py which knows lots of ops & model constructors)
                                                   # (also: knows about selection, undo state, change counting, open file)
-    "Assembly_API"                     : "foundation", # since not legit to be used below foundation
+    "Assembly_API"                     : "model_api|foundation", # since not legit to be used below foundation
     "AtomGenerator"                    : "command|commands/BuildAtom",
     "AtomGeneratorPropertyManager"     : "ui/propmgr|commands/BuildAtom",
     "atomtypes"                        : "model", # or chemistry?
@@ -234,7 +269,7 @@ packageMapping_for_files = {
     "CommandToolbar_Constants"         : "widget|CommandToolbar", # see module docstring for why
     "Command"                          : "command|command_classes",
     "CommandToolbar"                   : "widget|CommandToolbar", # controls the main hierarchical toolbar
-    "CommandSequencer"                 : "ui", ### @@@
+    "CommandSequencer"                 : "operations|CommandSequencer",
     "Comment"                          : "model",
     "CommentProp"                      : "ui",
     "CommentPropDialog"                : "ui",
@@ -296,16 +331,16 @@ packageMapping_for_files = {
     "extrudeMode"                      : "unsplit_mode|commands/Extrude",
     "ExtrudePropertyManager"           : "ui/propmgr|commands/Extrude",
     "fileIO"                           : "graphics_io", # should be split into files_mdl and files_povray
-    "files_gms"                        : "io|gamess", # put this gamess package in analysis/gamess?
+    "files_gms"                        : "io|GAMESS", 
     "files_mmp"                        : "io", # perhaps for an mmp_io package, along with a sibling doc file?
-    "files_nh"                         : "io|ESP", # for a nanohive esp package -- in analysis/ESP?
+    "files_nh"                         : "io|ESP", 
     "files_pdb"                        : "io", # perhaps for a pdb_io package, if any other files would be in it
     "Font3D"                           : "graphics",
     "fusechunksMode"                   : "unsplit_mode|commands/Fuse",
     "FusePropertyManager"              : "ui/propmgr|commands/Fuse",
-    "GamessJob"                        : "operations|gamess", # contains operations and io
-    "GamessProp"                       : "ui|gamess",
-    "GamessPropDialog"                 : "ui|gamess",
+    "GamessJob"                        : "operations|GAMESS", # contains operations and io
+    "GamessProp"                       : "ui|GAMESS",
+    "GamessPropDialog"                 : "ui|GAMESS",
     "GeneratorBaseClass"               : "ui/propmgr|command_classes",
         # or as itself, so import implications are clearer in package import graph?
         # todo in code: split subclasses so this can be superceded by EditCommand and EditCommand_PM
@@ -320,7 +355,7 @@ packageMapping_for_files = {
     "GrapheneGenerator"                : "command|commands/InsertGraphene",
     "GrapheneGeneratorPropertyManager" : "ui/propmgr|commands/InsertGraphene",
     "GraphicsMode"                     : "graphics_mode",
-    "GraphicsMode_API"                 : "ui_api", # not legit to be needed by anything below ui, i think
+    "GraphicsMode_API"                 : "ui_api|graphics_mode", # not legit to be needed by anything below ui, i think
     "GridPlaneProp"                    : "ui/dialog",
     "GridPlanePropDialog"              : "ui/dialog",
     "GROMACS"                          : "io|GROMACS", #? - old demo code. runs a GROMACS process. contains io.
@@ -331,8 +366,8 @@ packageMapping_for_files = {
     "handles"                          : "graphics_behavior", # graphical handles (for Extrude, but could be general)
     "help"                             : "ui/dialog|ne1_ui/help",
     "HelpDialog"                       : "ui/dialog|ne1_ui/help",
-    "HistoryWidget"                    : "ui", # for History package (as a major ui component)?
-    "icon_utilities"                   : "io", #? - could be considered utilities, io, or platform, or maybe images
+    "HistoryWidget"                    : "ui|History", # the History subsystem (should be split into several files)
+    "icon_utilities"                   : "io|utilities", #? - could be considered utilities, io, or platform, or maybe images
     "ImageUtils"                       : "graphics_images", # graphics_images? images? graphics? graphics_io? (only use of graphics_images)
     "_import_roots"                    : "top_level",
     "Initialize"                       : "utilities",
@@ -346,7 +381,7 @@ packageMapping_for_files = {
     "jigs_measurements"                : "model",
     "jigs_motors"                      : "model",
     "jigs_planes"                      : "model",
-    "jig_Gamess"                       : "model|gamess",
+    "jig_Gamess"                       : "model|GAMESS",
     "JobManager"                       : "ui", # ui/operations/io; scratch; needs refactoring; job_manager package?
     "JobManagerDialog"                 : "ui", 
     "Line"                             : "model",
@@ -360,7 +395,7 @@ packageMapping_for_files = {
     "MinimizeEnergyPropDialog"         : "ui",#?
     "modelTree"                        : "model|ModelTree", # a model which implems the api class for modelTreeGui
     "modelTreeGui"                     : "widget|ModelTree", # a widget with view & maybe some control code
-    "modes"                            : "unsplit_mode",
+    "modes"                            : "unsplit_mode|command_classes",
     "modifyMode"                       : "unsplit_mode|commands/Move", #? MoveChunks?? probably not, we'll deemphasize Chunks to users
     "MotorPropertyManager"             : "ui/propmgr|command_classes", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
     "MovePropertyManager"              : "ui/propmgr|commands/Move",
@@ -458,13 +493,13 @@ packageMapping_for_files = {
     "Select_GraphicsMode.py"           : "graphics_mode", # often inherited
     "Select_GraphicsMode_DrawMethod_preMixin.py" : "graphics_mode",
     "Select_GraphicsMode_MouseHelpers_preMixin.py" : "graphics_mode",
-    "selectMode"                       : "unsplit_mode",
+    "selectMode"                       : "unsplit_mode|command_classes",
     
-    "Selobj"                           : "graphics_behavior_api", # (revisit when done, or when anything uses it)
+    "Selobj"                           : "graphics_behavior_api|foundation", # (revisit when done, or when anything uses it)
     
     "SequenceEditor"                   : "widget|SequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
     
-    "ServerManager"                    : "ui|processes", #? specific to gamess? maybe, but shouldn't. persistent db/UI for servers list
+    "ServerManager"                    : "ui|processes", #? specific to GAMESS? maybe, but shouldn't. persistent db/UI for servers list
     "ServerManagerDialog"              : "ui|processes",
     
     "setup"                            : "tools", # build (part of tools)
@@ -477,7 +512,7 @@ packageMapping_for_files = {
     "SimServer"                        : "model|simulation", # hold attrs for a sim server (unclear whether specific to GAMESS); io too
     "SimSetup"                         : "ui|simulation",
     "SimSetupDialog"                   : "ui|simulation",
-    "Sponsors"                         : "ui|sponsors", # contains lots, exports widgets, but belongs in own toplevel package
+    "Sponsors"                         : "ui|Sponsors", # the Sponsors subsystem (lots of kinds of code; exports widgets)
 
     "state_constants"                  : "foundation",
     "state_utils"                      : "foundation", # note: utilities/Comparison.py and samevals.c might go with this too
@@ -488,7 +523,7 @@ packageMapping_for_files = {
     "StatusBar"                        : "widget", # used as a specific part of the NE1 main window, but general-purpose code
     "SurfaceChunks"                    : "graphics_view",
     
-    "TemporaryCommand"                 : "temporary_command",
+    "TemporaryCommand"                 : "command_classes", # or temporary_commands??
     
     "testdraw"                         : "graphics_mode|exprs/prototype", # (also has some exprs framework code)
     "testmode"                         : "unsplit_mode|exprs/prototype", # (also has some exprs framework code)
@@ -595,31 +630,13 @@ packageMapping.update( packageMapping_for_packages)
 # ==
 
 # some topics above:
-    # gamess -> analysis/GAMESS
-    # ESP -> analysis/ESP; maybe io part (if more general) would be processes/NanoHive
-    # GROMACS -> analysis/GROMACS or simulation/GROMACS
-    # help -> a major ui aspect? ne1/help? not sure, wiki_help is more general than that,
-    #   could even be in foundation; so its own pkg?
-'''
-    commands/BuildCrystal
-    commands/BuildAtoms
-    commands/Extrude
-    commands/Fuse
-    commands/Move
-    commands/PlayMovie
-    commands/... (a few others)
-    dna
-    ESP
-    exprs/prototype
-    gamess
-    GROMACS
-    help
-    ne1_ui
-    processes
-    prototype
-    simulation
-    sponsors
-    
-'''
-    
+# todo: review:
+# - rendering
+# - processes
+# - io
+# eg povray, qutemol
+# - simulation
+# - exprs/prototype
+# - prototype
+
 # end
