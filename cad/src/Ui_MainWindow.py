@@ -8,6 +8,8 @@ $Id$
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt, QWidget, QVBoxLayout
 
+from icon_utilities import geticon
+
 import Ui_MainWindowWidgets
 import Ui_MainWindowWidgetConnections
 
@@ -46,6 +48,7 @@ class Ui_MainWindow(object):
         """
         self.setObjectName("MainWindow")
         self.setEnabled(True)
+        self.setWindowIcon(geticon("ui/border/MainWindow"))
         self.setWindowTitle("NanoEngineer-1")
         
         # Set minimum width and height of the main window.

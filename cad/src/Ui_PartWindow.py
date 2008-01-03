@@ -5,9 +5,11 @@ Ui_PartWindow.py provides the part window class.
 $Id$
 
 To do:
-- Move HistoryWidget to Ui_MainWindow inside a QDockWidget.QTabWidget.
-- Remove unnecessary methods (lots of them).
-- Fix caption (for MDI support).
+- Move HistoryWidget to be inside a QDockWidget,
+or reconfigure splitter such that the history widget spans the full width
+of the part window.
+- Remove unused methods.
+- Fix window title(s) when MDI is enabled.
 
 History: 
 
@@ -22,11 +24,13 @@ from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from icon_utilities import geticon
 from modelTree import modelTree
 from qt4transition import qt4warnDestruction, qt4todo
-import platform, env
+import platform, env, os
 from PlatformDependent import make_history_filename
 from PM.PM_Utilities import printSizePolicy, printSizeHints
 from PM.PM_Colors  import   getPalette
 from debug import print_compact_traceback #bruce 070627 bugfix
+
+from prefs_constants import captionFullPath_prefs_key
 
 class _leftChannelTabWidget(QTabWidget): #bruce 070829 made this subclass re bug 2522
     def KLUGE_setGLPane(self, glpane):
@@ -59,7 +63,9 @@ class PartWindow(QWidget):
         """
         QWidget.__init__(self, parent)
         self.parent = parent
-        self.setWindowTitle("My Part Window")
+        self.assy = assy
+        self.setWindowIcon(geticon("ui/border/Part.png"))
+        self.updateWindowTitle()
         
         #Used in expanding or collapsing the Model Tree/ PM area
         self._previous_leftChannelWidgetWidth = pmDefaultWidth
@@ -106,7 +112,7 @@ class PartWindow(QWidget):
         # Makes it so leftChannelWidget is not collapsible.
         pwHSplitter.setCollapsible (0, False)
 
-        # Feature Manager - the QTabWidget that contains the MT and PropMgr.
+        # Left Channel Tab Widget - a QTabWidget that contains the MT and PropMgr.
         # I'll rename this later since this isn't a good name. It is also
         # used in other files. --Mark
         #
@@ -114,7 +120,11 @@ class PartWindow(QWidget):
         # self.leftChannelTabWidget.removeTab, so I made it a subclass of QTabWidget.
         # It needs to know the GLPane, but that's not created yet, so we set
         # it later using KLUGE_setGLPane (below).
-        self.leftChannelTabWidget = _leftChannelTabWidget() # a superclass of QTabWidget
+        self.leftChannelTabWidget = _leftChannelTabWidget() 
+           # _leftChannelTabWidget subclasses QTabWidget
+           # NOTE: No parent supplied. Could this be the source of the
+           # minor vsplitter resizing problem I was trying to resolve a few
+           # months ago?  Try supplying a parent later. Mark 2008-01-01
         self.leftChannelTabWidget.setObjectName("leftChannelTabWidget")
         self.leftChannelTabWidget.setCurrentIndex(0)
         self.leftChannelTabWidget.setAutoFillBackground(True)
@@ -215,7 +225,47 @@ class PartWindow(QWidget):
             # the width of the glpane. I consider this "our bug". It should be looked
             # into at later time. Mark 2007-06-27.
             print "MAIN HSPLITTER SIZES: ", pwHSplitter.sizes()
+        
+    def updateWindowTitle(self, changed = False): #by mark; bruce 050810 revised this in several ways, fixed bug 785
+        """
+        Update the window title (caption) at the top of the of the part window. 
+        Example:  "partname.mmp"
+        
+        This implements the standard way most applications indicate that a
+        document has unsaved changes. On Mac OS X the close button will have
+        a modified look; on other platforms the window title will have
+        an '*' (asterisk).
+        
+        @param changed: If True, the document has unsaved changes.
+        @type  changed: boolean
+        
+        @see: U{B{windowTitle}<http://doc.trolltech.com/4/qwidget.html#windowTitle-prop>},
+              U{B{windowModified}<http://doc.trolltech.com/4/qwidget.html#windowModified-prop>}
+        """
+        caption_fullpath = env.prefs[captionFullPath_prefs_key]
 
+        try:
+            # self.assy.filename is always an empty string, even after a
+            # file has been opened with a complete name. Need to ask Bruce 
+            # about this problem, resulting in a bug (i.e. the window title
+            # is always "Untitled". Mark 2008-01-02.
+            junk, basename = os.path.split(self.assy.filename)
+            assert basename # it's normal for this to fail, when there is no file yet
+
+            if caption_fullpath:
+                partname = os.path.normpath(self.assy.filename) #fixed bug 453-1 ninad060721
+            else:
+                partname = basename
+
+        except:
+            partname = 'Untitled'
+
+        # If you're wondering about the "[*]" placeholder below, see:
+        # http://doc.trolltech.com/4/qwidget.html#windowModified-prop
+        self.setWindowTitle(self.trUtf8(partname + '[*]'))
+        self.setWindowModified(changed)
+        return
+    
     def collapseLeftChanneWidget(self):
         """
         Collapse the left channel widget.
@@ -341,7 +391,15 @@ class PartWindow(QWidget):
     def dismiss(self):
         self.parent.removePartWindow(self)
 
-class GridPosition:
+class GridPosition_DEPRECATED:
+    """
+    Provides a grid layout object for the support of an multiple document
+    interface (MDI) in NE1. It is not currently used since MDI is not
+    supported yet.
+    
+    @deprecated: We will be using Qt's QWorkspace class to support MDI.
+    Mark 2008-01-01.
+    """
     def __init__(self):
         self.row, self.col = 0, 0
         self.availableSlots = [ ]

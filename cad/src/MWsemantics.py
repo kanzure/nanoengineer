@@ -47,7 +47,6 @@ from Ui_PartWindow import PartWindow
 import os, sys
 from modelTree import modelTree 
 import platform
-from icon_utilities import geticon
 
 from PlatformDependent import find_or_make_Nanorex_directory
 from PlatformDependent import make_history_filename
@@ -91,7 +90,6 @@ from constants import diCYLINDER
 from constants import diSURFACE
 from constants import diINVISIBLE
 from constants import diDEFAULT
-from constants import MULTIPANE_GUI #@ This will be removed soon. Mark 2008-01-01.
 
 elementSelectorWin = None
 elementColorsWin = None
@@ -155,11 +153,7 @@ class MWsemantics(QMainWindow,
         self.sequenceEditor = None  #see self.createSequenceEditrIfNeeded 
                                     #for details
 
-        # Initialize all Property Managers used in NE1 to "None".
-        # Do we really need to do this? Can't create*PropMgr_if_needed()
-        # use "hasattr(self, *PropMgr) to determine if the PM in question
-        # exists? Then these 4 lines could be removed.
-        # Ask Bruce is this would be a better way. Mark 2007-12-30.
+        # Initialize all Property Manager attrs.
         self.rotaryMotorPropMgr = None
         self.linearMotorPropMgr = None
         self.dnaDuplexPropMgr = None
@@ -206,7 +200,9 @@ class MWsemantics(QMainWindow,
         from cursors import loadCursors
         loadCursors(self)
 
-        # Set the main window environment variable.
+        # Set the main window environment variable. This sets a single
+        # global variable to self. All uses of it need review (and revision)
+        # to add support for MDI. Mark 2008-01-02.
         env.setMainWindow(self)
 
         # Start NE1 with an empty document called "Untitled".
@@ -237,7 +233,7 @@ class MWsemantics(QMainWindow,
         self.Element = start_element
 
         # Attr/list for Atom Selection Filter. mark 060401
-        # These should become attrs of the part window, or assy.
+        # These should become attrs of the assy. mark 2008-01-02.
         self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
         self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
         self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
@@ -255,6 +251,12 @@ class MWsemantics(QMainWindow,
         
             from PyQt4.Qt import QWorkspace
             self.workspace = QWorkspace()
+            # Note: The QWorkspace class is deprecated in Qt 4.3 and instructs
+            # developers to use the new QMdiArea class instead.
+            # See: http://doc.trolltech.com/4.3/qmdiarea.html
+            # Uncomment the two lines below when we've upgraded to Qt 4.3.
+            # from PyQt4.Qt import QMdiArea
+            # self.workspace = QMdiArea()
             self.centralAreaVBoxLayout.addWidget(self.workspace)
             self.workspace.addWindow(pw)
             pw.showMaximized()
@@ -341,7 +343,6 @@ class MWsemantics(QMainWindow,
         self.minimize_energy = MinimizeEnergyProp(self)
 
         # Atom Generator example for developers. Mark and Jeff. 2007-06-13
-        #@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
         from AtomGenerator import AtomGenerator
         self.atomcntl = AtomGenerator(self)
 
@@ -586,15 +587,12 @@ class MWsemantics(QMainWindow,
     def get_glpane(self): #bruce 071008; inlines self.activePartWindow
         return self._activepw.glpane    
 
+    glpane = property(get_glpane) #bruce 071008 to replace __getattr__
+    
     def get_mt(self): #bruce 071008; inlines self.activePartWindow # TODO: rename .mt to .modelTree
         return self._activepw.modelTree
 
-    # Does this code ever get executed? If not, it should be removed.
-    # Talk to Bruce about this. Mark 2008-01-01
-    if MULTIPANE_GUI:
-        #bruce 071008 to replace __getattr__
-        glpane = property(get_glpane)
-        mt = property(get_mt)
+    mt = property(get_mt) #bruce 071008 to replace __getattr__
 
     def closeEvent(self, ce):
         fileSlotsMixin.closeEvent(self, ce)
@@ -2029,12 +2027,30 @@ class MWsemantics(QMainWindow,
 
     def update_mainwindow_caption_properly(self, junk = None): #bruce 050810 added this
         self.update_mainwindow_caption(self.assy.has_changed())
+        # The call to updateWindowTitle() is harmless, even when MDI support
+        # isn't enabled.
+        self._activepw.updateWindowTitle(self.assy.has_changed())
 
     def update_mainwindow_caption(self, changed = False): #by mark; bruce 050810 revised this in several ways, fixed bug 785
         """
-        Update the caption at the top of the of the main window. 
-        Example:  "NanoEngineer-1 - [partname.mmp]"
-        changed = True will add the prefix and suffix to the caption denoting the part has been changed.
+        Update the window title (caption) at the top of the of the main window. 
+        Example:  "partname.mmp"
+        
+        @param changed: If True, the caption will include the prefix and
+                        suffix (via user prefs settings in the 
+                        "Preferences | Window" dialog) to denote the part
+                        has been modified.
+        @type  changed: boolean
+              
+        @attention: I intend to remove the prefix and suffix user prefs and 
+        use the standard way applications indicate that a document has unsaved
+        changes. On Mac OS X the close button will have a modified look; 
+        on other platforms the window title will have an '*' (asterisk).
+        BTW, this has already been done in PartWindow.updateWindowTitle().
+        Mark 2008-01-02.
+        
+        @see: U{B{windowTitle}<http://doc.trolltech.com/4/qwidget.html#windowTitle-prop>},
+              U{B{windowModified}<http://doc.trolltech.com/4/qwidget.html#windowModified-prop>}
         """
         caption_prefix = env.prefs[captionPrefix_prefs_key]
         caption_suffix = env.prefs[captionSuffix_prefs_key]
@@ -2069,7 +2085,7 @@ class MWsemantics(QMainWindow,
         # and in any case the other stuff here, self.name() + " - " + "[" + "]", should also be user-changeable, IMHO.
         #print "****self.accessibleName *****=" , self.accessibleName()
         self.setWindowTitle(self.trUtf8("NanoEngineer-1" + " - " +prefix + "[" + partname + "]" + suffix))
-        self.setWindowIcon(geticon("ui/border/MainWindow"))
+        
         return
 
     def createProgressDialog(self):
