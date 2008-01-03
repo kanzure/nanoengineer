@@ -45,7 +45,7 @@ class _leftChannelTabWidget(QTabWidget): #bruce 070829 made this subclass re bug
         return res
     pass
 
-class PartWindow(QWidget):
+class Ui_PartWindow(QWidget):
     """
     Provides a "part window" composed of the model tree/property manager (tabs)
     on the left (referred to as the "left channel") and the glpane

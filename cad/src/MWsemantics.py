@@ -21,7 +21,7 @@ split up the class MWsemantics (as for cookieMode), not just the file.]
 from qt4transition import qt4todo
 from qt4transition import qt4warning
 
-from PyQt4 import QtGui
+from PyQt4 import QtGui, QtCore
 
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QFont
@@ -36,16 +36,14 @@ from PyQt4.Qt import QVariant
 from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QWidget
 from PyQt4.Qt import QSplitter, QMessageBox
 from PyQt4.Qt import QColorDialog
-from PyQt4 import QtCore
 from PyQt4.Qt import QToolBar
 from PyQt4.Qt import QStatusBar
-from GLPane import GLPane 
+
 from elements import PeriodicTable
 from model.assembly import assembly 
 from drawer import get_gl_info_string ## grantham 20051201
-from Ui_PartWindow import PartWindow
 import os, sys
-from modelTree import modelTree 
+
 import platform
 
 from PlatformDependent import find_or_make_Nanorex_directory
@@ -59,6 +57,10 @@ from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_False
 
 from Ui_MainWindow import Ui_MainWindow
+from Ui_PartWindow import Ui_PartWindow
+from modelTree import modelTree
+from GLPane import GLPane 
+
 from utilities.Log import greenmsg, redmsg, orangemsg
 
 import Ui_DnaFlyout
@@ -214,7 +216,7 @@ class MWsemantics(QMainWindow,
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
         
-        pw = PartWindow(self.assy, self)
+        pw = Ui_PartWindow(self.assy, self)
         self.assy.o = pw.glpane
         self.assy.mt = pw.modelTree #bruce 070509 revised this, was pw.modelTree.modelTreeGui
         self._activepw = pw
@@ -273,7 +275,7 @@ class MWsemantics(QMainWindow,
         ## pw.glpane.start_using_mode('$STARTUP_MODE')
             ### TODO: this should be the commandSequencer --
             # decide whether to just get it from win (self) here
-            # (e.g. if we abandon separate PartWindow class)
+            # (e.g. if we abandon separate Ui_PartWindow class)
             # or make pw.commandSequencer work.
             # For now just get it from self. [bruce 071012]
         self.commandSequencer.start_using_mode('$STARTUP_MODE')
@@ -2029,7 +2031,7 @@ class MWsemantics(QMainWindow,
         self.update_mainwindow_caption(self.assy.has_changed())
         # The call to updateWindowTitle() is harmless, even when MDI support
         # isn't enabled.
-        self._activepw.updateWindowTitle(self.assy.has_changed())
+        self.activePartWindow().updateWindowTitle(self.assy.has_changed())
 
     def update_mainwindow_caption(self, changed = False): #by mark; bruce 050810 revised this in several ways, fixed bug 785
         """
