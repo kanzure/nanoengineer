@@ -85,13 +85,14 @@ def image_directory(): #bruce 070604
 def geticon(name):
     """
     Return the QIcon for the given image path name. 
-    @param name: The image path name provided by the user. the path should start 
+    @param name: The image path name provided by the user. The path should start 
            with 'ui/' directory inside the src directory.
     @type  name: str
     
     @return: QIcon object for the given image path.
     @rtype:  QIcon object. 
     """
+    
     root, ext = os.path.splitext(name)
     if not ext:
         name = name + '.png'
@@ -108,7 +109,7 @@ def geticon(name):
     # apparent bug in Qt in the text alignment for a push button with style sheet. 
     # @see L{PM_GroupBox._getTitleButton} which sets a non-existant 
     # 'Ghost Icon' for this button using 'geticon method'
-    #   By setting such  icon, the button text left-aligns! If you create an icon 
+    # By setting such an icon, the button text left-aligns! If you create an icon 
     # with iconPath = empty string (when the user supplied path doesn't exist) 
     # the text in that title button center-aligns. So lets just always use the 
     # 'iconPath' even when the path doesn't exist. -- ninad 2007-08-22
