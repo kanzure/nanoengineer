@@ -635,7 +635,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 return
 
         if fn:
-            self.assy.w.updateRecentFileList(fn)
+            self.updateRecentFileList(fn)
 
             self.__clear()
             self.commandSequencer.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
@@ -1125,8 +1125,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.assy.filename = safile
         self.assy.name = fil
         self.assy.reset_changed() # The file and the part are now the same.
-#                self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
-        self.assy.w.updateRecentFileList(safile)
+        self.updateRecentFileList(safile)
             #bruce 050927 code cleanup: moved updateRecentFileList here (before, it preceded each call of this method)        
         self.update_mainwindow_caption()
         self.mt.mt_update() # since it displays self.assy.name [bruce comment 050907; a guess]
@@ -1177,34 +1176,47 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     
     def closeEvent(self, ce):
         """
-        slot method for closing main window (and exiting NE1),
-        called via File > Exit or clicking X titlebar button
+        Slot method for closing the main window (and exiting NE1), called via
+        "File > Exit" or clicking the "Close" button on the window title.
+        
+        @param ce: The close event.
+        @type  ce: U{B{QCloseEvent}<http://doc.trolltech.com/4/qcloseevent.html>}
         """
         # Note about bug 2444 and its fix here:
         #
         # For unknown reasons, Qt can send us two successive closeEvents.
-        # This is part of the cause of bug 2444 (two successive dialogs asking user whether to save changes).
-        # The two events are not distinguishable in any way we [Bruce & Ninad] know of (stacktrace, value of ce.spontaneous()).
-        # But there is no documented way to be sure they are the same (their id is the same, but that doesn't mean much,
-        # since it's often true even for different events of the same type; QCloseEvent has no documented
-        # serial number or time; they are evidently different PyQt objects, since a Python attribute saved
-        # in the first one (by debug code tried here) is no longer present in the second one).
+        # This is part of the cause of bug 2444 (two successive dialogs asking
+        # user whether to save changes).
+        # The two events are not distinguishable in any way we [Bruce & Ninad] 
+        # know of (stacktrace, value of ce.spontaneous()).
+        # But there is no documented way to be sure they are the same
+        # (their id is the same, but that doesn't mean much, since it's often
+        # true even for different events of the same type; QCloseEvent has
+        # no documented serial number or time; they are evidently different
+        # PyQt objects, since a Python attribute saved in the first one (by 
+        # debug code tried here) is no longer present in the second one).
         #
-        # But, there is no correct bugfix except to detect whether they're the same, because:
-        # - if the user cancels an exit, then exits again (without doing anything in between),
-        #   they *should* get another save-changes dialog;
-        # - the cause of getting two events per close is not known, so it might go away,
-        #   so (in trying to handle that case) we can't just assume the next close event
-        #   should be discarded.
+        # But, there is no correct bugfix except to detect whether they're
+        # the same, because:
+        # - if the user cancels an exit, then exits again (without doing 
+        #   anything in between), they *should* get another save-changes dialog;
+        # - the cause of getting two events per close is not known, so it
+        #   might go away, so (in trying to handle that case) we can't just
+        #   assume the next close event should be discarded.
         #
-        # So all that's left is guessing whether they're the same, based on intervening time.
-        # (This means comparing end time of handling one event with start time of handling the next one,
-        #  since getting the cancel from the user can take an arbitrarily long time.)
-        # (Of course if the user doesn't cancel, so we're really exiting, then we know they have to be the same.)
+        # So all that's left is guessing whether they're the same, based on
+        # intervening time. (This means comparing end time of handling one
+        # event with start time of handling the next one, since getting the
+        # cancel from the user can take an arbitrarily long time.)
+        # (Of course if the user doesn't cancel, so we're really exiting, 
+        # then we know they have to be the same.)
         #
-        # But even once we detect the duplicate, we have to handle it differently depending on whether we're exiting.
-        # (Note: during development, a bug caused us to call neither ce.accept() nor ce.ignore() on the 2nd event,
-        #  which in some cases aborted the app with "Modules/gcmodule.c:231: failed assertion `gc->gc.gc_refs != 0'".)
+        # But even once we detect the duplicate, we have to handle it
+        # differently depending on whether we're exiting.
+        # (Note: during development, a bug caused us to call neither 
+        # ce.accept() nor ce.ignore() on the 2nd event, which in some cases
+        # aborted the app with "Modules/gcmodule.c:231: failed assertion
+        # `gc->gc.gc_refs != 0'".)
 
         now = time.time()
 ##        print "self.__exiting =", self.__exiting, ", now =", now, ", last done time =", self.__last_closeEvent_cancel_done_time
@@ -1237,8 +1249,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             #The 'objectName' property is used to identify each QToolBar 
             #and QDockWidget. 
             #QByteArray QMainWindow::saveState ( int version = 0 ) const
-            
-            toolbarState_QByteArray = self.assy.w.saveState()
+            toolbarState_QByteArray = self.saveState()
             
             env.prefs[toolbar_state_prefs_key] = str(toolbarState_QByteArray)
             ce.accept()
@@ -1304,10 +1315,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         """
         Set the current working directory (CWD). 
         
-        @param dir: The
-        If I{dir} is None, the CWD is set to the directory of the current assy 
-        filename (i.e. the directory of the current part). If there is no 
-        current assy filename, sets the CWD to the default working directory.
+        @param dir: The working directory. If I{dir} is None (the default), the
+                    CWD is set to the directory of the current assy filename
+                    (i.e. the directory of the current part). If there is no 
+                    current assy filename, the CWD is set to the default
+                    working directory.
+        @type  dir: string
         
         @see: L{getDefaultWorkingDirectory()}
         """
