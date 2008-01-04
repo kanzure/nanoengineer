@@ -5,6 +5,25 @@ Mixin class to help some of our widgets offer a debug menu.
 
 @version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+
+Needs refactoring:  [bruce 080104]
+
+- to move the global variable (sim_params_set) elsewhere
+(and maybe a lot of the surrounding code too -- I didn't analyze it)
+
+- maybe to permit or require host widget to supply some items --
+see classification comment below.
+
+Module classification:  [bruce 080104]
+
+Essentially this is a "widget helper" to let a widget provide a
+"standard debug menu". It also includes a lot of the specific
+menu items and their implementations, even some that only work
+in some widgets. For now I'll classify it in "widgets" due to
+its widget helper role. Ideally we'd refactor it in such a way
+that that was completely accurate (moving the rest into the
+specific widgets or into other modules which register items
+for general use in this menu).
 """
 
 import sys
@@ -86,7 +105,7 @@ class DebugMenuMixin:
         # make the menu -- now done each time it's needed
         return
 
-    def makemenu(self, menu_spec, menu=None): # bruce 050304 added this, so subclasses no longer have to
+    def makemenu(self, menu_spec, menu = None): # bruce 050304 added this, so subclasses no longer have to
         """Make and return a menu object for use in this widget, from the given menu_spec.
         [This can be overridden by a subclass, but probably never needs to be,
         unless it needs to make *all* menus differently (thus we do use the overridden
@@ -371,7 +390,7 @@ sim_param_values = {
 
 class SimParameterDialog(QDialog):
 
-    def __init__(self, win=None):
+    def __init__(self, win = None):
         import string
         QDialog.__init__(self, win)
         self.setWindowTitle('Manually edit sim parameters')
@@ -388,10 +407,10 @@ class SimParameterDialog(QDialog):
             if paramtype == BOOLEAN:
                 label = QLabel(currentStr, self)
                 layout.addWidget(label, i, 1)
-                def falseFunc(attr=attr, label=label):
+                def falseFunc(attr = attr, label = label):
                     sim_param_values[attr] = False
                     label.setText('False')
-                def trueFunc(attr=attr, label=label):
+                def trueFunc(attr = attr, label = label):
                     sim_param_values[attr] = True
                     label.setText('True')
                 btn = QPushButton(self)
@@ -409,8 +428,8 @@ class SimParameterDialog(QDialog):
                 linedit = QLineEdit(self)
                 linedit.setText(currentStr)
                 layout.addWidget(linedit, i, 2)
-                def change(attr=attr, linedit=linedit,
-                           paramtype=paramtype, label=label):
+                def change(attr = attr, linedit = linedit,
+                           paramtype = paramtype, label = label):
                     txt = str(linedit.text())
                     label.setText(txt)
                     if paramtype == STRING:
@@ -430,7 +449,7 @@ class SimParameterDialog(QDialog):
         btn = QPushButton(self)
         btn.setText('Done')
         layout.addWidget(btn, len(_sim_param_table), 0, len(_sim_param_table), 4)
-        def done(self=self):
+        def done(self = self):
             import pprint
             global sim_params_set
             sim_params_set = True

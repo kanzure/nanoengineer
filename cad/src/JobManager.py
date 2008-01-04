@@ -6,7 +6,7 @@ JobManager.py -
 @version: $Id$
 @copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
-Module classification:
+Module classification:  [bruce 071214, 080104]
 
 This contains ui code, operations code (on a set of jobs stored
 partly in the filesystem, I think), and io code. If it became
@@ -18,7 +18,11 @@ So I will classify it as some sort of ui file for now.
 We can reconsider this when we discuss its status.
 It might make sense to classify it into a separate component
 even now, though it's a single file and a stub.
-[bruce 071214]
+
+Update, bruce 080104: due to an import cycle I'll put it into
+the same package as GamessJob. When it's refactored and that's
+cleaned up, it should probably go into either processes
+or its own toplevel package.
 """
 
 import os
@@ -116,7 +120,7 @@ def get_job_manager_job_id_and_dir():
             return str(job_id), job_id_dir
 
 
-from GamessJob import GamessJob
+from GamessJob import GamessJob # used in two places: value in jobType, constructor in __createJobs
 
 ###Huaicai: Temporary fix the problem of bug 754: an older version of PyQt has problem working with
 ###Qt3.3.3 for the QTable class.

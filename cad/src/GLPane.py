@@ -6,6 +6,26 @@ Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-2
 Revised by many other developers since then (and perhaps before).
 
 $Id$
+
+Module classification: [bruce 080104]
+
+It's graphics/widgets, but this is not as obvious as it sounds.
+It is "optimistic", as if we'd already refactored -- it's not fully
+accurate today.
+
+Refactoring needed: [bruce 080104]
+
+- split into several classes (either an inheritance tree, or cooperating
+objects);
+
+- move more common code into GLPane_minimal;
+
+- most urgently, make the main GLPane not be the
+same object as the CommandSequencer.
+
+Some of this might be a prerequisite for some ways of
+optimizing the graphics code.
+
 """
 
 import math

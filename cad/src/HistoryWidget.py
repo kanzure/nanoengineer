@@ -2,7 +2,7 @@
 """
 HistoryWidget.py -- provides a Qt "megawidget" supporting our history/status area.
 
-@author: bruce
+@author: Bruce
 @version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
@@ -13,6 +13,9 @@ with all code that calls it (e.g. any code that generates status messages).
 
 The history code itself (as opposed to the UI code in the megawidget)
 should be split into a separate module when it gets complicated.
+
+In fact, it should be split into a few cooperating objects (archive, widget,
+file io, storage ops), in separate files. [bruce 080104 comment]
 
 Terminology:
 

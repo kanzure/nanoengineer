@@ -12,11 +12,12 @@ History:
 mark 2007-12-01
 - split out of qutemol.py
 
-Module classification:
+Module classification:  [bruce 071215, 080104]
 
 Contains ui, operations or utility, and io code.
-For now, classified as ui, somewhat arbitrarily.
-[bruce 071215]
+For now, classified as code type of ui, somewhat arbitrarily,
+but filed into "processes" package, since it's all about letting
+the user maintain info needed to run external processes.
 """
 
 import env

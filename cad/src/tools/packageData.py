@@ -217,7 +217,7 @@ topic_mapping = {
     # layers which are deprecated when used directly for topics
     "graphics"          : "graphics!", # all have been refiled (I think)
     "io"                : "io!", # all have been refiled (I think)
-    "ui"                : "ui!", # all to be refiled
+    "ui"                : "ui!", # all have been refiled (I think)
     "unsplit_mode"      : "unsplit_mode!",  # all have been refiled (I think)
 
     # expand topic abbrevs into actual pathnames
@@ -269,21 +269,23 @@ packageMapping_for_files = {
     "bond_utils"                       : "operation", # maybe also some ui
     "BoundingBox"                      : "geometry", # mostly geometry, some graphics, some hardcoded distance constants from model
     "BuildAtomsPropertyManager"        : "ui/propmgr|commands/BuildAtoms",
+    "BuildAtoms_Command"               : "command|commands/BuildAtoms",
+    "BuildAtoms_GraphicsMode"          : "graphics_mode|commands/BuildAtoms",
     "build_utils"                      : "operation|commands/BuildAtoms", # AtomDepositionTool
     "changedicts"                      : "foundation",
     "changes"                          : "foundation",
     "chem"                             : "model",
     "chem_patterns"                    : "operation",
     "chunk"                            : "model",
-    "ChunkProp"                        : "ui|commands/EditChunk?", #?? guess, probably wrong featurename
-    "ChunkPropDialog"                  : "ui|commands/EditChunk?",
+    "ChunkProp"                        : "ui|commands/ChunkProperties?", #?? guess, probably wrong featurename
+    "ChunkPropDialog"                  : "ui|commands/ChunkProperties?",
     "CommandToolbar_Constants"         : "widget|CommandToolbar", # see module docstring for why
     "Command"                          : "command|command_classes",
     "CommandToolbar"                   : "widget|CommandToolbar", # controls the main hierarchical toolbar
     "CommandSequencer"                 : "operations|CommandSequencer",
     "Comment"                          : "model",
-    "CommentProp"                      : "ui/dialog|commands/Comment?",
-    "CommentPropDialog"                : "ui/dialog|commands/Comment?",
+    "CommentProp"                      : "ui/dialog|commands/CommentProperties?",
+    "CommentPropDialog"                : "ui/dialog|commands/CommentProperties?",
     "confirmation_corner"              : "graphics_behavior",#? a MouseEventHandler; like a GraphicsMode or DragHandler; graphics_what?
     "constants"                        : "utilities",
     "CoNTubGenerator"                  : "command|commands/InsertHeterojunction",###?? @@@
@@ -298,7 +300,7 @@ packageMapping_for_files = {
     "cursors"                          : "ui|ne1_ui",
     "CylinderChunks"                   : "graphics_view",#? a ChunkDisplayMode; graphics_what? _view? _style?
     "debug"                            : "utilities",
-    "DebugMenuMixin"                   : "ui", # menu spec and ops for debug menu
+    "DebugMenuMixin"                   : "ui|widgets", # standard debug menu, used by multiple widgets
     "debug_prefs"                      : "utilities",
     "depositMode"                      : "unsplit_mode|commands/BuildAtoms", # Build Atoms Command and GraphicsMode
     "dimensions"                       : "graphics_drawing", # graphics output, not opengl-specific in principle
@@ -367,8 +369,8 @@ packageMapping_for_files = {
     "GrapheneGeneratorPropertyManager" : "ui/propmgr|commands/InsertGraphene",
     "GraphicsMode"                     : "graphics_mode|command_classes",
     "GraphicsMode_API"                 : "ui_api|command_classes", # not legit to be needed by anything below ui, i think
-    "GridPlaneProp"                    : "ui/dialog|commands/GridPlane?",
-    "GridPlanePropDialog"              : "ui/dialog|commands/GridPlane?",
+    "GridPlaneProp"                    : "ui/dialog|commands/GridPlaneProperties?",
+    "GridPlanePropDialog"              : "ui/dialog|commands/GridPlaneProperties?",
     "GROMACS"                          : "io|GROMACS", #? - old demo code. runs a GROMACS process. contains io.
     "Group"                            : "foundation", # some model code?
     "GroupButtonMixin"                 : "PM", # (deprecated, and its only callers should use things from PM instead)
@@ -393,11 +395,12 @@ packageMapping_for_files = {
     "jigs_motors"                      : "model",
     "jigs_planes"                      : "model",
     "jig_Gamess"                       : "model|GAMESS",
-    "JobManager"                       : "ui", # ui/operations/io; scratch; needs refactoring; job_manager package?
-    "JobManagerDialog"                 : "ui", 
+    "JobManager"                       : "ui|GAMESS", # ui/operations/io; scratch; needs refactoring; job_manager package?
+        # note: this is in GAMESS only due to an import cycle issue. It should be in processes or in its own toplevel package.
+    "JobManagerDialog"                 : "ui|GAMESS", # same package as JobManager (wrong now, see its note for why)
     "Line"                             : "model",
-    "LinearMotor_EditCommand"          : "command|commands/EditLinearMotor",
-    "LinearMotorPropertyManager"       : "ui/propmgr|commands/EditLinearMotor",
+    "LinearMotor_EditCommand"          : "command|commands/LinearMotorProperties?",
+    "LinearMotorPropertyManager"       : "ui/propmgr|commands/LinearMotorProperties?",
     "LineMode"                         : "temporary_command", #?? a temporary command and gm... apparently can be used directly?
     "main"                             : "top_level", # someday to be renamed to ne1_main
     "master_model_updater"             : "model_updater",
@@ -452,20 +455,20 @@ packageMapping_for_files = {
     
     "pi_bond_sp_chain"                 : "model",
     "Plane"                            : "model",
-    "Plane_EditCommand"                : "command|commands/EditPlane",
-    "PlanePropertyManager"             : "ui/propmgr|commands/EditPlane",
+    "Plane_EditCommand"                : "command|commands/PlaneProperties?",
+    "PlanePropertyManager"             : "ui/propmgr|commands/PlaneProperties?",
     "platform"                         : "utilities", # debug; rename platform.atom_debug -> debug_flags.debug ??
     "PlatformDependent"                : "platform", # ok, but really it's a mix of platform, utilities, io.
     "PlotTool"                         : "ui/dialog|commands/Plot?",
     "PlotToolDialog"                   : "ui/dialog|commands/Plot?",
-    "Plugins"                          : "ui", # ui, operations or utility, and io;
+    "Plugins"                          : "ui|processes", # ui, operations or utility, and io;
         # relates to "external processes" - we might add a classification for that
     
     "povheader"                        : "graphics_io|graphics/rendering/povray",
     "povray"                           : "graphics_io|graphics/rendering/povray", # also has ui code
     "PovrayScene"                      : "model", # for povray package, maybe
-    "PovraySceneProp"                  : "ui/dialog|commands/PovrayScene?", # for povray package, maybe
-    "PovrayScenePropDialog"            : "ui/dialog|commands/PovrayScene?", # for povray package, maybe
+    "PovraySceneProp"                  : "ui/dialog|commands/PovraySceneProperties?", # for povray package, maybe
+    "PovrayScenePropDialog"            : "ui/dialog|commands/PovraySceneProperties?", # for povray package, maybe
     
     "preferences"                      : "foundation", # see module docstring for explanation
     "prefsTree"                        : "model", # see docstring for caveats
@@ -486,8 +489,8 @@ packageMapping_for_files = {
     "ReferenceGeometry"                : "model", 
     "reposition_baggage"               : "operations",
     "ResizeHandle"                     : "graphics_drawable", # (a DragHandler)
-    "RotaryMotor_EditCommand"          : "command|commands/EditRotaryMotor", ###?? to fit VerbNoun, and not conflict with model class @@@
-    "RotaryMotorPropertyManager"       : "ui/propmgr|commands/EditRotaryMotor",
+    "RotaryMotor_EditCommand"          : "command|commands/RotaryMotorProperties?", ###?? to fit VerbNoun, and not conflict with model class @@@
+    "RotaryMotorPropertyManager"       : "ui/propmgr|commands/RotaryMotorProperties?",
     "RotateMode"                       : "temporary_command",
     "runSim"                           : "simulation", # includes perhaps ui, controller, io
     
@@ -660,10 +663,23 @@ needs_renaming_for_clarity = {
     "ThermoProp" : "ThermometerProperties", # disambiguate Thermometer and Thermostat
     "Utility"    : "Node",
     "qutemol"    : "qutemol_io",
+
+    # deprecated files
+    "GroupButtonMixin"  : "GroupButtonMixin_deprecated",
+    "PropMgr_Constants" : "PropMgr_Constants_deprecated",
+
+    # kluge: use fake renamings to add notes for the listing
+    "JobManager" : "(should be processes or own package -- import cycle issue)",
+    "JobManagerDialog" : "(should stay with JobManager)",
  }
 
 needs_refactoring = [
     "fileIO", # needs splitting in two, each part renamed; exports writepovfile, writemdlfile
+    "GLPane", # needs splitting into several classes, some for general use and some for "main graphics area"
+        # (also needs to not be the same object as the CommandSequencer)
+    "HistoryWidget", # needs split into a few cooperating objects (archive, widget, io, storage ops)
+    "JobManager", # import cycle issue - GamessJob used in two places: value in jobType, constructor in __createJobs
+    "PlatformDependent", # needs split
     "prefs_widgets", # needs connectWithState stuff (and more?) split out into foundation
     "shape", # needs splitting
     "version", # split/register: ne1_ui part to supply data, foundation part for access

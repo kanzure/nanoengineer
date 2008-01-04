@@ -28,7 +28,9 @@ bruce 051231 partly-done code for using pyrex interface to sim; see use_dylib
 """
 
 from debug import print_compact_traceback
-from DebugMenuMixin import sim_params_set
+from DebugMenuMixin import sim_params_set # DebugMenuMixin needs refactoring
+    # to move this variable (sim_params_set) (and related code?) out of it;
+    # see its module docstring for more info [bruce 080104 comment]
 from qt4transition import qt4todo
 import platform
 from PlatformDependent import fix_plurals
