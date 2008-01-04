@@ -151,7 +151,7 @@ packageColors = { # needs geometry, platform, and whatever new classifications w
 
 packageLevels = {
     # plan: for each entry, review it, revise subclassifications. @@@
-    # put in basic topics like dna, whatever fits "for xxx". @@@
+    # put in basic topics like dna...
     "top_level"   : 7, # files that need to stay at top level for technical reasons (we'll put them at top of import graph)
     "root"        : 7, # other files that belong at top of import graph (but that might be moved into subdirs)
 ##    "test"        : 7, ### none left!
@@ -190,33 +190,44 @@ _levels_highest_first = [ # TODO: finish, then use this to compute the above; in
 
 layer_aliases = {
     # standardize to plural form
-    "operation"         : "operations",
-    "widget"            : "widgets",
     "graphics_behavior" : "graphics_behaviors",
+    "graphics_drawable" : "graphics_drawables",
     "graphics_mode"     : "graphics_modes",
     "graphics_view"     : "graphics_views",
     "graphics_widget"   : "graphics_widgets",
-
+    "operation"         : "operations",
+    "temporary_command" : "temporary_commands",
+    "widget"            : "widgets",
  }
 
 topic_mapping = {
     # default topics for layers
-    "unsplit_mode"      : "unsplit_mode!", # matters only if layer is used as topic
-    
-    # expand topic abbrevs into actual pathnames
-    "SequenceEditor"    : "dna/SequenceEditor",
-    
-    "graphics"          : "graphics/??",
-    "graphics_behaviors" : "graphics/behaviors",
+    "graphics_behaviors": "graphics/behaviors",
+    "graphics_drawables": "graphics/drawables",
+    "graphics_drawing"  : "graphics/drawing",
     "graphics_images"   : "graphics/images",
-    "graphics_io"       : "graphics/io?",
-    "graphics_modes"    : "graphics/modes",
-    "graphics_views"    : "graphics/views",
+    "graphics_io"       : "graphics/io!", # deprecated, all to be refiled
+    "graphics_modes"    : "graphics/modes!", # deprecated
+    "graphics_views"    : "graphics/display_styles", ###
     "graphics_widgets"  : "graphics/widgets",
 
+    "ui/menu"           : "ne1_ui/menus",
+    "ui/toolbar"        : "ne1_ui/toolbars",
+
+    # layers which are deprecated when used directly for topics
+    "graphics"          : "graphics!", # all have been refiled (I think)
+    "io"                : "io!", # all have been refiled (I think)
+    "ui"                : "ui!", # all to be refiled
+    "unsplit_mode"      : "unsplit_mode!",  # all have been refiled (I think)
+
+    # expand topic abbrevs into actual pathnames
     "ESP"               : "analysis/ESP", # refactoring: maybe io part (if more general) would be processes/NanoHive
-    "GAMESS"            : "analysis/GAMESS",
+    "GAMESS"            : "analysis/GAMESS",    
     "GROMACS"           : "simulation/GROMACS",
+    "SequenceEditor"    : "dna/SequenceEditor",
+
+    # add notes to certain topics
+    "top_level"         : "top_level (won't be moved)"
  }
 
 # ==
@@ -253,10 +264,10 @@ packageMapping_for_files = {
     "bonds_from_atoms"                 : "operation",
     "bond_chains"                      : "operation",
     "bond_constants"                   : "model",
-    "bond_drawer"                      : "graphics",
+    "bond_drawer"                      : "graphics_drawing",
     "bond_updater"                     : "model_updater",
     "bond_utils"                       : "operation", # maybe also some ui
-    "BoundingBox"                      : "model", # mostly geometry, some graphics, some hardcoded distance constants
+    "BoundingBox"                      : "geometry", # mostly geometry, some graphics, some hardcoded distance constants from model
     "BuildAtomsPropertyManager"        : "ui/propmgr|commands/BuildAtoms",
     "build_utils"                      : "operation|commands/BuildAtoms", # AtomDepositionTool
     "changedicts"                      : "foundation",
@@ -271,8 +282,8 @@ packageMapping_for_files = {
     "CommandToolbar"                   : "widget|CommandToolbar", # controls the main hierarchical toolbar
     "CommandSequencer"                 : "operations|CommandSequencer",
     "Comment"                          : "model",
-    "CommentProp"                      : "ui",
-    "CommentPropDialog"                : "ui",
+    "CommentProp"                      : "ui/dialog|commands/Comment?",
+    "CommentPropDialog"                : "ui/dialog|commands/Comment?",
     "confirmation_corner"              : "graphics_behavior",#? a MouseEventHandler; like a GraphicsMode or DragHandler; graphics_what?
     "constants"                        : "utilities",
     "CoNTubGenerator"                  : "command|commands/InsertHeterojunction",###?? @@@
@@ -282,16 +293,16 @@ packageMapping_for_files = {
     "CookiePropertyManager"            : "ui/propmgr|commands/BuildCrystal",
     "CookieShape"                      : "command|commands/BuildCrystal", # see docstring for reasons and caveats
 
-    "crossovers"                       : "operation",
+    "crossovers"                       : "operation|dna/operations",
     "Csys"                             : "model",
-    "cursors"                          : "ui",
+    "cursors"                          : "ui|ne1_ui",
     "CylinderChunks"                   : "graphics_view",#? a ChunkDisplayMode; graphics_what? _view? _style?
     "debug"                            : "utilities",
     "DebugMenuMixin"                   : "ui", # menu spec and ops for debug menu
     "debug_prefs"                      : "utilities",
     "depositMode"                      : "unsplit_mode|commands/BuildAtoms", # Build Atoms Command and GraphicsMode
-    "dimensions"                       : "graphics", # graphics output, not opengl-specific in principle
-    "DirectionArrow"                   : "graphics_behavior", # a kind of DragHandler (drawable with behavior); graphics_what?
+    "dimensions"                       : "graphics_drawing", # graphics output, not opengl-specific in principle
+    "DirectionArrow"                   : "graphics_drawable", # a kind of DragHandler (drawable with behavior)
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
     "DnaGenHelper"                     : "operation|dna/commands/BuildDuplex_obs",
     "DnaDuplex"                        : "operation|dna/commands/BuildDuplex", # class to help construct model objects defined elsewhere
@@ -301,19 +312,19 @@ packageMapping_for_files = {
     "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_obs",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
     "Dna_Constants"                    : "model|dna/model", # (since used by lots of files in several dna-related commands)
-    "DragHandler"                      : "graphics_behavior",
-    "drawer"                           : "graphics",
-    "draw_bond_vanes"                  : "graphics",
-    "draw_grid_lines"                  : "graphics",
+    "DragHandler"                      : "graphics_drawable",
+    "drawer"                           : "graphics_drawing",
+    "draw_bond_vanes"                  : "graphics_drawing",
+    "draw_grid_lines"                  : "graphics_drawing",
     "DynamicTip"                       : "graphics_widgets", # but some should be refactored into GraphicsMode
     "EditCommand"                      : "command|command_classes",
     "EditCommand_PM"                   : "ui/propmgr|command_classes",
     "Elem"                             : "model", # chemistry?
-    "elementColors"                    : "ui/dialog",
-    "ElementColorsDialog"              : "ui/dialog",
+    "elementColors"                    : "ui/dialog|commands/ElementColors?",
+    "ElementColorsDialog"              : "ui/dialog|commands/ElementColors?",
     "elements"                         : "model", # class PeriodicTable, and our specific one??
-    "elementSelector"                  : "ui/dialog",
-    "ElementSelectorDialog"            : "ui/dialog",
+    "elementSelector"                  : "ui/dialog|commands/ElementSelector?",
+    "ElementSelectorDialog"            : "ui/dialog|commands/ElementSelector?",
     "elements_data"                    : "model", # model_data? like some constants?
     "elements_data_PAM3"               : "model|dna/model",
     "elements_data_PAM5"               : "model|dna/model",
@@ -330,12 +341,12 @@ packageMapping_for_files = {
     "extensions"                       : "top_level", # (someday, find a way to move it into a subdir)
     "extrudeMode"                      : "unsplit_mode|commands/Extrude",
     "ExtrudePropertyManager"           : "ui/propmgr|commands/Extrude",
-    "fileIO"                           : "graphics_io", # should be split into files_mdl and files_povray
+    "fileIO"                           : "graphics_io|graphics/rendering", # should be split into files_mdl and files_povray
     "files_gms"                        : "io|GAMESS", 
-    "files_mmp"                        : "io", # perhaps for an mmp_io package, along with a sibling doc file?
+    "files_mmp"                        : "io|files/mmp", # along with a sibling doc file, files_mmp_format_version.txt
     "files_nh"                         : "io|ESP", 
-    "files_pdb"                        : "io", # perhaps for a pdb_io package, if any other files would be in it
-    "Font3D"                           : "graphics",
+    "files_pdb"                        : "io|files/pdb",
+    "Font3D"                           : "graphics_drawing",
     "fusechunksMode"                   : "unsplit_mode|commands/Fuse",
     "FusePropertyManager"              : "ui/propmgr|commands/Fuse",
     "GamessJob"                        : "operations|GAMESS", # contains operations and io
@@ -354,16 +365,16 @@ packageMapping_for_files = {
     "gpl_only"                         : "platform",
     "GrapheneGenerator"                : "command|commands/InsertGraphene",
     "GrapheneGeneratorPropertyManager" : "ui/propmgr|commands/InsertGraphene",
-    "GraphicsMode"                     : "graphics_mode",
-    "GraphicsMode_API"                 : "ui_api|graphics_mode", # not legit to be needed by anything below ui, i think
-    "GridPlaneProp"                    : "ui/dialog",
-    "GridPlanePropDialog"              : "ui/dialog",
+    "GraphicsMode"                     : "graphics_mode|command_classes",
+    "GraphicsMode_API"                 : "ui_api|command_classes", # not legit to be needed by anything below ui, i think
+    "GridPlaneProp"                    : "ui/dialog|commands/GridPlane?",
+    "GridPlanePropDialog"              : "ui/dialog|commands/GridPlane?",
     "GROMACS"                          : "io|GROMACS", #? - old demo code. runs a GROMACS process. contains io.
     "Group"                            : "foundation", # some model code?
     "GroupButtonMixin"                 : "PM", # (deprecated, and its only callers should use things from PM instead)
-    "GroupProp"                        : "ui/dialog",
-    "GroupPropDialog"                  : "ui/dialog",
-    "handles"                          : "graphics_behavior", # graphical handles (for Extrude, but could be general)
+    "GroupProp"                        : "ui/dialog|commands/GroupProperties?",
+    "GroupPropDialog"                  : "ui/dialog|commands/GroupProperties?",
+    "handles"                          : "graphics_drawable", # graphical handles (for Extrude, but could be general)
     "help"                             : "ui/dialog|ne1_ui/help",
     "HelpDialog"                       : "ui/dialog|ne1_ui/help",
     "HistoryWidget"                    : "ui|History", # the History subsystem (should be split into several files)
@@ -390,9 +401,9 @@ packageMapping_for_files = {
     "LineMode"                         : "temporary_command", #?? a temporary command and gm... apparently can be used directly?
     "main"                             : "top_level", # someday to be renamed to ne1_main
     "master_model_updater"             : "model_updater",
-    "mdldata"                          : "graphics_io",
-    "MinimizeEnergyProp"               : "ui",#?
-    "MinimizeEnergyPropDialog"         : "ui",#?
+    "mdldata"                          : "graphics_io|graphics/rendering/mdl",
+    "MinimizeEnergyProp"               : "ui/dialog|commands/MinimizeEnergy",
+    "MinimizeEnergyPropDialog"         : "ui/dialog|commands/MinimizeEnergy",
     "modelTree"                        : "model|ModelTree", # a model which implems the api class for modelTreeGui
     "modelTreeGui"                     : "widget|ModelTree", # a widget with view & maybe some control code
     "modes"                            : "unsplit_mode|command_classes",
@@ -400,7 +411,7 @@ packageMapping_for_files = {
     "MotorPropertyManager"             : "ui/propmgr|command_classes", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
     "MovePropertyManager"              : "ui/propmgr|commands/Move",
     "movie"                            : "simulation", #? hold simparams, or open moviefile - internal model, some ui/control/ops/io
-    "moviefile"                        : "io",
+    "moviefile"                        : "io|files/dpb_trajectory",
     "movieMode"                        : "unsplit_mode|commands/PlayMovie",
     "MoviePropertyManager"             : "ui/propmgr|commands/PlayMovie",
     "MWsemantics"                      : "ui|ne1_ui",
@@ -433,8 +444,8 @@ packageMapping_for_files = {
     "part"                             : "model", #? - foundation (if clipboard is), but knows lots of model & operations too
     "PartLibPropertyManager"           : "ui/propmgr|commands/PartLibrary",
     "PartLibraryMode"                  : "unsplit_mode|commands/PartLibrary",
-    "PartProp"                         : "ui",
-    "PartPropDialog"                   : "ui",
+    "PartProp"                         : "ui/dialog|commands/PartProperties?",
+    "PartPropDialog"                   : "ui/dialog|commands/PartProperties?",
     "pastables"                        : "operations", # supports pasting operations
     "PasteMode"                        : "unsplit_mode|commands/Paste",
     "PastePropertyManager"             : "ui/propmgr|commands/Paste",
@@ -445,55 +456,54 @@ packageMapping_for_files = {
     "PlanePropertyManager"             : "ui/propmgr|commands/EditPlane",
     "platform"                         : "utilities", # debug; rename platform.atom_debug -> debug_flags.debug ??
     "PlatformDependent"                : "platform", # ok, but really it's a mix of platform, utilities, io.
-    "PlotTool"                         : "ui",
-    "PlotToolDialog"                   : "ui",
+    "PlotTool"                         : "ui/dialog|commands/Plot?",
+    "PlotToolDialog"                   : "ui/dialog|commands/Plot?",
     "Plugins"                          : "ui", # ui, operations or utility, and io;
         # relates to "external processes" - we might add a classification for that
     
-    "povheader"                        : "graphics_io", # for povray package
-    "povray"                           : "graphics_io", # also has ui code; for povray package, maybe
+    "povheader"                        : "graphics_io|graphics/rendering/povray",
+    "povray"                           : "graphics_io|graphics/rendering/povray", # also has ui code
     "PovrayScene"                      : "model", # for povray package, maybe
-    "PovraySceneProp"                  : "ui", # for povray package, maybe
-    "PovrayScenePropDialog"            : "ui", # for povray package, maybe
+    "PovraySceneProp"                  : "ui/dialog|commands/PovrayScene?", # for povray package, maybe
+    "PovrayScenePropDialog"            : "ui/dialog|commands/PovrayScene?", # for povray package, maybe
     
     "preferences"                      : "foundation", # see module docstring for explanation
     "prefsTree"                        : "model", # see docstring for caveats
     "prefs_constants"                  : "utilities", # or constants? see module docstring for explanation
 
     "prefs_widgets"                    : "widgets", #? - might not work -- ### needs splitting, some goes in foundation
-    "Process"                          : "io",
+    "Process"                          : "io|processes",
     "PropMgr_Constants"                : "PM",
     "pyrex_test"                       : "top_level", #? I don't know if this matters - pyrex_test only exists as .c and .pyx and .so
     
     "qt4transition"                    : "utilities",
-    "qutemol"                          : "io", # graphics_io?? for a qutemol package?
-        # relates to "external processes" - we might add a classification for that
     
-    "QuteMolPropertyManager"           : "ui/propmgr|commands/QuteMol", # for a qutemol package??
+    "qutemol"                          : "graphics_io|graphics/rendering/qutemol",
+    "QuteMolPropertyManager"           : "ui/propmgr|commands/QuteMol?", # commandname? (or, for a qutemol package??)
         # it's a single-file Command, View->QuteMol, with a launch (external renderer) button and maybe some options...
         # but what is the VerbNoun form? Does it have a featurename now? Wiki & whatsthis say Feature:QuteMol, so I went with that.
     
     "ReferenceGeometry"                : "model", 
     "reposition_baggage"               : "operations",
-    "ResizeHandle"                     : "graphics_behavior", # (a DragHandler)
+    "ResizeHandle"                     : "graphics_drawable", # (a DragHandler)
     "RotaryMotor_EditCommand"          : "command|commands/EditRotaryMotor", ###?? to fit VerbNoun, and not conflict with model class @@@
     "RotaryMotorPropertyManager"       : "ui/propmgr|commands/EditRotaryMotor",
     "RotateMode"                       : "temporary_command",
     "runSim"                           : "simulation", # includes perhaps ui, controller, io
     
-    "SelectAtoms_Command.py"           : "command|commands/SelectAtoms",
-    "SelectAtoms_GraphicsMode.py"      : "graphics_mode", # not in commands/SelectAtoms, since often inherited
-    "selectAtomsMode"                  : "unsplit_mode|commands/SelectAtoms",
+    "SelectAtoms_Command"              : "command|command_classes/SelectAtoms", #? command_classes or commands?
+    "SelectAtoms_GraphicsMode"         : "graphics_mode|command_classes/SelectAtoms",
+    "selectAtomsMode"                  : "unsplit_mode|command_classes/SelectAtoms",
     
-    "SelectChunks_Command.py"          : "command|commands/SelectChunks",
-    "SelectChunks_GraphicsMode.py"     : "graphics_mode", # often inherited
-    "selectMolsMode"                   : "unsplit_mode|commands/SelectChunks",
+    "SelectChunks_Command"             : "command|command_classes/SelectChunks", #? command_classes or commands?
+    "SelectChunks_GraphicsMode"        : "graphics_mode|command_classes/SelectChunks",
+    "selectMolsMode"                   : "unsplit_mode|command_classes/SelectChunks",
     
-    "Select_Command.py"                : "command|command_classes", # not in a subpackage since a lone abstract module
-    "Select_GraphicsMode.py"           : "graphics_mode", # often inherited
-    "Select_GraphicsMode_DrawMethod_preMixin.py" : "graphics_mode",
-    "Select_GraphicsMode_MouseHelpers_preMixin.py" : "graphics_mode",
-    "selectMode"                       : "unsplit_mode|command_classes",
+    "Select_Command"                   : "command|command_classes/Select",
+    "Select_GraphicsMode"              : "graphics_mode|command_classes/Select",
+    "Select_GraphicsMode_DrawMethod_preMixin"    : "graphics_mode|command_classes/Select",
+    "Select_GraphicsMode_MouseHelpers_preMixin"    : "graphics_mode|command_classes/Select",
+    "selectMode"                       : "unsplit_mode|command_classes/Select",
     
     "Selobj"                           : "graphics_behavior_api|foundation", # (revisit when done, or when anything uses it)
     
@@ -502,8 +512,8 @@ packageMapping_for_files = {
     "ServerManager"                    : "ui|processes", #? specific to GAMESS? maybe, but shouldn't. persistent db/UI for servers list
     "ServerManagerDialog"              : "ui|processes",
     
-    "setup"                            : "tools", # build (part of tools)
-    "setup2"                           : "tools", # build
+    "setup"                            : "top_level",
+    "setup2"                           : "top_level",
     
     "shape"                            : "graphics_behavior", # tentative, maybe risky; see docstring
     "Slab"                             : "geometry",
@@ -518,8 +528,8 @@ packageMapping_for_files = {
     "state_utils"                      : "foundation", # note: utilities/Comparison.py and samevals.c might go with this too
     "state_utils_unset"                : "foundation",
     
-    "StatProp"                         : "ui",
-    "StatPropDialog"                   : "ui",
+    "StatProp"                         : "ui/dialog|commands/ThermostatProperties?",
+    "StatPropDialog"                   : "ui/dialog|commands/ThermostatProperties?",
     "StatusBar"                        : "widget", # used as a specific part of the NE1 main window, but general-purpose code
     "SurfaceChunks"                    : "graphics_view",
     
@@ -535,11 +545,11 @@ packageMapping_for_files = {
     "test_connectWithState_constants"  : "command|prototype",
     "test_connectWithState_PM"         : "ui/propmgr|prototype",
     
-    "texture_fonts"                    : "graphics",
-    "texture_helpers"                  : "graphics", #? also graphics_io - split it?
+    "texture_fonts"                    : "graphics_drawing",
+    "texture_helpers"                  : "graphics_drawing", #? also graphics_io - split it?
     
-    "ThermoProp"                       : "ui",
-    "ThermoPropDialog"                 : "ui",
+    "ThermoProp"                       : "ui/dialog|commands/ThermometerProperties?",
+    "ThermoPropDialog"                 : "ui/dialog|commands/ThermometerProperties?",
     
     "ThumbView"                        : "graphics_widgets",
     "Trackball"                        : "graphics_behavior",
@@ -560,15 +570,15 @@ packageMapping_for_files = {
     "Ui_BuildStructuresToolBar"        : "ui/toolbar",
     "Ui_BuildToolsMenu"                : "ui/menu",
     "Ui_BuildToolsToolBar"             : "ui/toolbar",
-    "Ui_CommandToolbar"                : "ui/toolbar|ne1_ui", # UI and content/layout for Command Toolbar
+    "Ui_CommandToolbar"                : "ui/toolbar|ne1_ui/toolbars", # UI and content/layout for Command Toolbar
     "Ui_CookiePropertyManager"         : "ui/propmgr|commands/BuildCrystal",
     "Ui_DimensionsMenu"                : "ui/menu",#?
-    "Ui_DisplayStylesToolBar"          : "ui/toolbar|ne1_ui",
-    "Ui_DnaFlyout"                     : "ui/toolbar|ne1_ui", # I'm guessing this has to be in ne1_ui, not dna
+    "Ui_DisplayStylesToolBar"          : "ui/toolbar|ne1_ui/toolbars",
+    "Ui_DnaFlyout"                     : "ui/toolbar|ne1_ui/toolbars", # I'm guessing this has to be in ne1_ui, not dna
     "Ui_EditMenu"                      : "ui/menu",
     "Ui_ExtrudePropertyManager"        : "ui/propmgr|commands/Extrude",
     "Ui_FileMenu"                      : "ui/menu",
-    "Ui_HelpMenu"                      : "ui/menu|ne1_ui/help",
+    "Ui_HelpMenu"                      : "ui/menu|ne1_ui/help", #??? ne1_ui/menus?
     "Ui_InsertMenu"                    : "ui/menu",
     "Ui_MainWindow"                    : "ui|ne1_ui",
     "Ui_MainWindowWidgets"             : "ui|ne1_ui",
@@ -582,7 +592,7 @@ packageMapping_for_files = {
     "Ui_SimulationMenu"                : "ui/menu",
     "Ui_SimulationToolBar"             : "ui/toolbar",
     "Ui_StandardToolBar"               : "ui/toolbar",
-    "Ui_StandardViewsToolBar"          : "ui/toolbar|ne1_ui",
+    "Ui_StandardViewsToolBar"          : "ui/toolbar",
     "Ui_ToolsMenu"                     : "ui/menu",
     "Ui_ViewMenu"                      : "ui/menu",
     "Ui_ViewOrientation"               : "ui|ne1_ui",
@@ -617,6 +627,7 @@ packageMapping_for_files = {
     "ZoomMode"                         : "temporary_command",
     }
 
+# ==
 
 # now combine those into one dict for use by current code in packageDependency.py
 
@@ -629,12 +640,42 @@ packageMapping.update( packageMapping_for_packages)
 
 # ==
 
+# lists of highly desirable renamings and/or refactorings, needed for understandability of classification
+
+needs_renaming_for_clarity = {
+    "bond_utils" : "bond_menu_helpers",
+    "cursors"    : "load_custom_cursors",
+    "Csys"       : "SavedView", #?
+    "fileIO"     : "?", # also needs_refactoring
+    "GROMACS"    : "GROMACS_demo", #? temporary demo of atomic-level-DNA GROMACS simulation (maybe for outtakes?)
+    "help"       : "? (see wiki)",
+    "Line"       : "ReferenceLine", # Line should be reserved for pure geometry
+    "movie"      : "?", # it's an object for a set of sim params, and optionally the results file made by using them
+    "moviefile"  : "files_dpb?",
+    "Plane"      : "ReferencePlane", # Plane should be reserved for pure geometry
+    "platform"   : "debug_flags",
+    "Selobj"     : "Selobj_API", # not urgent; not the correct new name
+    "shape"      : "?", # also needs_refactoring
+    "StatProp"   : "ThermostatProperties", # disambiguate Thermometer and Thermostat
+    "ThermoProp" : "ThermometerProperties", # disambiguate Thermometer and Thermostat
+    "Utility"    : "Node",
+    "qutemol"    : "qutemol_io",
+ }
+
+needs_refactoring = [
+    "fileIO", # needs splitting in two, each part renamed; exports writepovfile, writemdlfile
+    "prefs_widgets", # needs connectWithState stuff (and more?) split out into foundation
+    "shape", # needs splitting
+    "version", # split/register: ne1_ui part to supply data, foundation part for access
+ ]
+
+# ==
+
 # some topics above:
 # todo: review:
-# - rendering
 # - processes
 # - io
-# eg povray, qutemol
+# eg povray
 # - simulation
 # - exprs/prototype
 # - prototype

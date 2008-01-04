@@ -13,6 +13,9 @@ before making other use of it (eg for import graphing).
 """
 
 from packageData import packageMapping, layer_aliases, topic_mapping
+from packageData import packageMapping_for_files
+from packageData import packageMapping_for_packages
+ 
 
 # utils for looking at output of AllPyFiles, not yet used within this file
 
@@ -81,11 +84,26 @@ def canonicalize(value, dict1):
         prior_values.append(value)
     return value
 
+def check_basename(basename):
+    """
+    Return an improved basename; fix and report errors.
+    """
+    if ' ' in basename:
+        print >> sys.stderr, "error: basename should not contain %r: %r" % (' ', basename,)
+        assert 0 # can't handle this error
+    for suffix in (".py", "/"):
+        if basename.endswith( suffix):
+            print >> sys.stderr, "error: basename should not end with %r: %r" % (suffix, basename,)
+            basename = basename[:-len(suffix)]
+            print >> sys.stderr, " (using %r instead)" % basename
+    return basename
+        
 def summarize_packageMapping( flags):
 
     counts = {}
     
     for basename, value in packageMapping.items():
+        basename = check_basename(basename)
         classification = packageClassification(value, flags)
         countnow = counts.setdefault(classification, 0)
         countnow += 1
@@ -101,14 +119,109 @@ def summarize_packageMapping( flags):
         print "%s: %d" % (classification, count)
     return
 
-def summarize_packageMapping_allflags():
+def summarize_packageMapping_using_default_flags():
     ## summarize_packageMapping( LAYER_ONLY)
     summarize_packageMapping( TOPIC_ONLY)
-    # that's enough for now
     return
 
-if __name__ == '__main__':    
-    summarize_packageMapping_allflags()
+# ==
+
+T_MODULE = "module"
+T_PACKAGE = "package"
+
+# sortorder values
+ORDER_ERROR = -1
+ORDER_INLINE_NOTE = 0
+ORDER_MODULE = 1
+ORDER_NEW_SUBPACKAGE = 2
+
+class _VirtualSubdir(type({})):
+    
+    def __init__(self, basename):
+        self.__basename = basename
+        super(_VirtualSubdir, self).__init__()
+        
+    def print_listing(self, indent = "", skip_toplevel_indent = False):
+        if not skip_toplevel_indent:
+            print indent + self.__basename + "/" + "   (%d)" % len(self)
+            subindent = indent + "    "
+        else:
+            print indent + self.__basename + "/" + "   (%d)" % len(self) + " contains:"
+            print
+            subindent = indent
+        items = [(sortorder, basename.lower(), basename, explan) for (basename, (sortorder, explan)) in self.items()]
+        items.sort()
+        last_sortorder = None
+        for sortorder, basename_tolower, basename, explan in items:
+            ## if last_sortorder is not None and ...
+            if (sortorder != last_sortorder or sortorder == ORDER_NEW_SUBPACKAGE):
+                print subindent # blank line before subdirs or between types of item
+            last_sortorder = sortorder
+            if type(explan) == type(""):
+                print subindent + explan
+            else:
+                child = explan
+                # assert isinstance(child, _VirtualSubdir)
+                child.print_listing(subindent)
+    pass
+
+_toplevel_virtual_subdir = _VirtualSubdir("cad/src")
+
+def get_virtual_subdir(parts): # should be a method in _toplevel_virtual_subdir
+    """
+    @param parts: list of 1 or more pathname components
+    """
+    if len(parts) > 1:
+        parent = get_virtual_subdir(parts[:-1])
+        basename = parts[-1]
+    else:
+        parent = _toplevel_virtual_subdir
+        basename = parts[-1]
+    if parent.has_key(basename):
+        sortorder, child = parent[basename]
+        assert sortorder == ORDER_NEW_SUBPACKAGE
+        assert isinstance(child, _VirtualSubdir)
+    else:
+        child = _VirtualSubdir(basename)
+        sortorder = ORDER_NEW_SUBPACKAGE
+        explan = child ### an object; for other sortorders, a string
+        parent[basename] = (sortorder, explan)
+        assert parent.has_key(basename)
+    return child
+
+def collect_virtual_listing( packageDict, ftype ):
+    """
+    @param packageDict: packageMapping_for_files or packageMapping_for_packages
+    @param ftype: T_MODULE or T_PACKAGE
+    """
+    for basename, value in packageDict.items():
+        basename = check_basename(basename)
+        subdirname = packageClassification(value, TOPIC_ONLY)
+        parts = subdirname.split('/')
+        dir1 = get_virtual_subdir(parts) # also adds items for subdir into its parent dirs
+        if ftype == T_MODULE:
+            explan = "%s.py" % basename
+            sortorder = ORDER_MODULE
+        elif ftype == T_PACKAGE: # preexisting package
+            explan = " [ inlined contents of %s/ ]" % basename
+            sortorder = ORDER_INLINE_NOTE
+        else:
+            explan = " [ error: unrecognized ftype %r, basename = %r]" % (ftype, basename)
+            sortorder = ORDER_ERROR
+            print >>sys.stderr, explan
+        assert not dir1.has_key(basename), "duplicate basename: %r" % (basename,)
+        dir1[basename] = (sortorder, explan)
+    return
+
+def print_listings():
+    collect_virtual_listing( packageMapping_for_files, T_MODULE)
+    collect_virtual_listing( packageMapping_for_packages, T_PACKAGE)
+    _toplevel_virtual_subdir.print_listing(skip_toplevel_indent = True)
+    return
+
+if __name__ == '__main__':
+    ## summarize_packageMapping_using_default_flags()
+    print_listings()
     print
     print "done"
 
