@@ -1202,7 +1202,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
            self.w.current_bondtool_button is not None:
             cursor_id = self.w.current_bondtool_button.index
         
-        cursor_id = self.command.get_cursor_id_for_active_tool()
+        if hasattr(self.command, 'get_cursor_id_for_active_tool' ):
+            cursor_id = self.command.get_cursor_id_for_active_tool()
+       
    
         if self.o.modkeys is None:             
             self.o.setCursor(self.w.BondToolCursor[cursor_id])
