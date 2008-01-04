@@ -83,7 +83,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     fileSaveText = \
         "<u><b>Save File</b></u>     (Ctrl + S) "\
         "<p>"\
-        "<img source=\"ui/actions//Save.png\"><br> "\
+        "<img source=\"ui/actions/File/Save.png\"><br> "\
         "Saves the current file."\
         "</p>"
 
@@ -1133,13 +1133,13 @@ def createWhatsThisTextForMainWindowWidgets(win):
     win.makeChunkFromSelectedAtomsAction.setWhatsThis\
        (makeChunkFromSelectedAtomsActionText ) 
 
-    # Merge Chunks
+    # Combine Chunks
 
     modifyMergeActionText = \
-        "<u><b>Merge Chunks</b></u>"\
+        "<u><b>Combine Chunks</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Tools/Build Tools/Combine_Chunks.png\"><br> "\
-        "Merges two or more chunks into a single chunk.</p>"
+        "Combines two or more chunks into a single chunk.</p>"
 
     win.modifyMergeAction.setWhatsThis(modifyMergeActionText )  
 
@@ -1497,7 +1497,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<p>"\
         "<img source=\"ui/actions/Simulation/Thermostat.png\"><br> "\
         "Attaches a <b>Langevin Thermostat</b> to a single "\
-        "selected atom, thereby associating the themostat to "\
+        "selected atom, thereby associating the thermostat to "\
         "the entire molecule of which the selected atom is a "\
         "member. The user specifies the temperature "\
         "(in Kelvin)."\

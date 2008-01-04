@@ -1298,7 +1298,7 @@ def retranslateUi(win):
         "MainWindow","Combine",None,QtGui.QApplication.UnicodeUTF8))
 
     win.modifyMergeAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow","Merge Selected Chunks",None, 
+        "MainWindow","Combine Selected Chunks",None, 
         QtGui.QApplication.UnicodeUTF8))
 
     win.makeChunkFromSelectedAtomsAction.setText(QtGui.QApplication.translate(
