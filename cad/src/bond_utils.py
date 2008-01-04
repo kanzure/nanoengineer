@@ -1,6 +1,8 @@
 # Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-bond_utils.py -- helper functions for bond-related UI code.
+bond_utils.py -- helper functions for bond-related UI code and its operations
+
+(should be renamed, maybe to bond_menu_helpers.py)
 
 @author: bruce
 @version: $Id$

@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-ThermoProp.py
+ThermoProp.py - edit properties of Thermometer jig
 
 $Id$
 """
@@ -10,16 +10,16 @@ from PyQt4.Qt import QDialog
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
 from ThermoPropDialog import Ui_ThermoPropDialog
-from widgets import RGBf_to_QColor, QColor_to_RGBf,get_widget_with_color_palette
+from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 
 class ThermoProp(QDialog, Ui_ThermoPropDialog):
     def __init__(self, thermo, glpane):
 
         QDialog.__init__(self)
         self.setupUi(self)
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
+        self.connect(self.cancel_btn, SIGNAL("clicked()"), self.reject)
+        self.connect(self.ok_btn, SIGNAL("clicked()"), self.accept)
+        self.connect(self.choose_color_btn, SIGNAL("clicked()"), self.change_jig_color)
         
         self.jig = thermo
 	self.glpane = glpane
@@ -43,7 +43,9 @@ class ThermoProp(QDialog, Ui_ThermoPropDialog):
         self.molnameLineEdit.setText(self.jig.atoms[0].molecule.name)
         
     def change_jig_color(self):
-        '''Slot method to change the jig's color.'''
+        """
+        Slot method to change the jig's color.
+        """
         color = QColorDialog.getColor(self.jig_QColor, self)
 
         if color.isValid():           
@@ -54,14 +56,18 @@ class ThermoProp(QDialog, Ui_ThermoPropDialog):
             self.glpane.gl_update()
 
     def accept(self):
-        '''Slot for the 'OK' button '''
+        """
+        Slot for the 'OK' button
+        """
         self.jig.try_rename(self.nameLineEdit.text())
         self.jig.assy.w.win_update() # Update model tree
         self.jig.assy.changed()
         QDialog.accept(self)
         
     def reject(self):
-        '''Slot for the 'Cancel' button '''
+        """
+        Slot for the 'Cancel' button
+        """
         self.jig.attr_update(self.jig_attrs) # Restore attributes of the jig.
         self.glpane.gl_update()
         QDialog.reject(self)

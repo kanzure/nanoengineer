@@ -97,7 +97,7 @@ def writepovfile(part, glpane, filename):
         f.write("background {\n  color rgb " + povpoint(glpane.backgroundColor*V(1,1,-1)) + "\n}\n")
     
     # Lights and Atomic finish.
-    writepovlighting(f, glpane)
+    _writepovlighting(f, glpane)
  
     # write a union object, which encloses all following objects, so it's 
     # easier to set a global modifier like "Clipped_by" for all objects
@@ -141,8 +141,8 @@ def writepovfile(part, glpane, filename):
 
     return # from writepovfile
 
-# writepovlighting() added by Mark.  Feel free to ask him if you have questions.  051130.    
-def writepovlighting(f, glpane):
+# _writepovlighting() added by Mark.  Feel free to ask him if you have questions.  051130.    
+def _writepovlighting(f, glpane):
     """
     Writes a light source record for each light (if enabled) and the
     'Atomic' finish record. These records impact the lighting affect.
@@ -240,7 +240,7 @@ def writepovlighting(f, glpane):
                 "\n    phong_size " + str(phong_size) +
                 "\n}\n")
     
-    return # from writepovlighting
+    return # from _writepovlighting
 
 # ==
 

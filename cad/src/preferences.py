@@ -6,7 +6,7 @@ preferences.py -- Preferences system.
 @version: $Id$
 @copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 
-Module classification:
+Module classification: [bruce 071215]
 
 At least foundation, due to integral use of "from changes import UsageTracker".
 But also could be construed to have lots of app-specific knowledge,
@@ -24,8 +24,6 @@ A desirable refactoring might be to classify prefs_constants higher
 Then it'd be more clearly ok to call this module "foundation", but let
 prefs_constants be higher. OTOH, the reason explained above may make it
 perfectly ok for prefs_constants to be very low.
-
-[classification comment by bruce 071215]
 
 ==
 

@@ -13,7 +13,7 @@ perhaps others.
 
 Bruce 071215 split classes CookieShape and Slab into their own modules.
 
-Module classification and refactoring:
+Module classification and refactoring:  [bruce 071215]
 
 Perhaps SelectionShape should also be split out?
 The rest seems pretty closely integrated, though it may still be
@@ -26,8 +26,6 @@ simple_shape_2d, shape, SelectionShape. For now, I'll guess
 that I can call all these "graphics_behavior". We'll see.
 (This feels more natural than "operations", though for that
 I'd be more confident that a package import cycle was unlikely.)
-
-[bruce 071215 classification comment]
 """
 
 from Numeric import array, zeros, maximum, minimum, ceil, dot, floor

@@ -1,13 +1,13 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-cursors.py
+cursors.py - load all the custom cursors needed by NE1
 
-$Id$
+@author: Mark
+@version: $Id$
+@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 mark 060427 - loadCursors() moved from MWsemantics.py.
 """
-
-__author__ = "Mark" 
 
 from PyQt4.Qt import QCursor, QBitmap, Qt
 import os, sys
@@ -15,7 +15,8 @@ import os, sys
 from icon_utilities import getpixmap
 
 def loadCursors(w):
-    """This routine is called once to load all the custom cursors needed by the program.
+    """
+    This routine is called once to load all the custom cursors needed by NE1.
     To add a new cursor, two BMP files are placed in the cad/src/ui/cursors directory
     (or in another directory in cad/src/ui):
         <cursor_name>.bmp - the cursor bitmap file 
@@ -27,7 +28,8 @@ def loadCursors(w):
     filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
 
     def loadCursor(cursor_name, hot_x, hot_y):
-        """Returns a cursor built from two BMP files located (by default)
+        """
+        Returns a cursor built from two BMP files located (by default)
         in the cad/src/ui/cursors directory:
             <cursor_name>.bmp - the cursor bitmap file 
             <cursor_name>-bm.bmp - the cursor's bitmask file 

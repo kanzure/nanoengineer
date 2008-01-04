@@ -7,14 +7,18 @@ BoundingBox.py
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 History:
+
 This class BBox was originally in shape.py. Moved to its own module on 
 2007-10-17.
 
-Note: this is classified in model (not geometry), not just because it
-includes graphics code, but because it includes hardcoded constants
+Module classification: [bruce 080103]
+
+This is mainly geometry, so I will put it there ("optimistically"),
+even though it also includes graphics code, and hardcoded constants
 (at least 1.8 and 10.0, as of now) whose values come from considerations
-about its use for our model objects (atoms). [bruce 071210 comment]
+about its use for our model objects (atoms).
 """
+
 from drawer import drawwirebox
 from Numeric import add, subtract, sqrt 
 from Numeric import maximum, minimum, dot

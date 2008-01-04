@@ -12,12 +12,11 @@ History:
 
 bruce 050613 started this.
 
-Module classification:
+Module classification: [bruce 071215]
 
 Tentatively, "model", though arguably it also contains ui code.
 Used by model_tree but also in assembly (which is in "model").
 Perhaps ought to be split into two files?
-[bruce 071215 classification comment]
 """
 
 import os

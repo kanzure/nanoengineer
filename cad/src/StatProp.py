@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-StatProp.py
+StatProp.py - edit properties of Thermostat jig
 
 $Id$
 """
@@ -10,16 +10,16 @@ from PyQt4.Qt import QDialog
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
 from StatPropDialog import Ui_StatPropDialog
-from widgets import RGBf_to_QColor, QColor_to_RGBf,get_widget_with_color_palette
+from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 
 class StatProp(QDialog, Ui_StatPropDialog):
     def __init__(self, stat, glpane):
 
         QDialog.__init__(self)
         self.setupUi(self)
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
-        self.connect(self.choose_color_btn,SIGNAL("clicked()"),self.change_jig_color)
+        self.connect(self.cancel_btn, SIGNAL("clicked()"), self.reject)
+        self.connect(self.ok_btn, SIGNAL("clicked()"), self.accept)
+        self.connect(self.choose_color_btn, SIGNAL("clicked()"), self.change_jig_color)
         self.jig = stat
         self.glpane = glpane
         
@@ -39,11 +39,13 @@ class StatProp(QDialog, Ui_StatPropDialog):
         # Jig name
         self.nameLineEdit.setText(self.jig.name)
         
-        self.molnameLineEdit.setText(self.jig.atoms[0].molecule.name) #bruce 050210 replaced obs .mol attr
+        self.molnameLineEdit.setText(self.jig.atoms[0].molecule.name)
         self.tempSpinBox.setValue(int(self.jig.temp))
         
     def change_jig_color(self):
-        '''Slot method to change the jig's color.'''
+        """
+        Slot method to change the jig's color.
+        """
         color = QColorDialog.getColor(self.jig_QColor, self)
 
         if color.isValid():
@@ -54,7 +56,9 @@ class StatProp(QDialog, Ui_StatPropDialog):
             self.glpane.gl_update()
 
     def accept(self):
-        '''Slot for the 'OK' button '''
+        """
+        Slot for the 'OK' button
+        """
         self.jig.try_rename(self.nameLineEdit.text())
         self.jig.temp = self.tempSpinBox.value()
         
@@ -63,7 +67,9 @@ class StatProp(QDialog, Ui_StatPropDialog):
         QDialog.accept(self)
         
     def reject(self):
-        '''Slot for the 'Cancel' button '''
+        """
+        Slot for the 'Cancel' button
+        """
         self.jig.attr_update(self.jig_attrs) # Restore attributes of the jig.
         self.glpane.gl_update()
         QDialog.reject(self)

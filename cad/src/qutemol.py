@@ -12,12 +12,12 @@ mark 2007-06-02
 - Created file. Much of the plug-in checking code was copied from 
 povray.py, written by Bruce.
 
-Module classification:
+Module classification: [bruce 071215, 080103]
 
 Looks like operations and io code. Similar to "simulation" code
 but is not about simulation -- maybe that category is misconceived
 and what we want instead is an "external process" category of code.
-For now, call this "io". [bruce 071215]
+For now, call this "graphics_io" but file it into graphics/rendering/qutemol.
 """
 
 import env
