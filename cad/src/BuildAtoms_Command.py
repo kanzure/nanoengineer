@@ -1,10 +1,10 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-SelectAtoms_Command.py 
+BuildAtoms_Command.py 
 
-The 'Command' part of the SelectAtoms Mode (SelectAtoms_basicCommand and 
-SelectAtoms_basicGraphicsMode are the two split classes of the old 
-selectAtomsMode)  It provides the command object for its GraphicsMode class. 
+The 'Command' part of the BuildAtoms Mode (BuildAtoms_basicCommand and 
+BuildAtoms_basicGraphicsMode are the two split classes of the old 
+depositMode)  It provides the command object for its GraphicsMode class. 
 The Command class defines anything related to the 'command half' of the mode -- 
 For example: 
 - Anything related to its current Property Manager, its settings or state
@@ -218,6 +218,14 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         else:
             print_compact_stack("bug: BuildAtoms graphicsmode has no attribute"\
                                 "setWater , ignoring")
+            
+        if hasattr(self.graphicsMode, 'set_hoverHighlighting'):
+            change_connect(self.propMgr.highlightingCheckBox,
+                            SIGNAL("toggled(bool)"),
+                            self.graphicsMode.set_hoverHighlighting)
+        else:
+            print_compact_stack("bug: BuildAtoms graphicsmode has no attribute"\
+                                "set_hoverHighlighting , ignoring")
     
     def changeBondTool(self, action):
         """
@@ -749,7 +757,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         """
                 
         self.bond1Action.setChecked(True)
-        self.graphicsMode.changeBondTool(self.bond1Action)
+        self.changeBondTool(self.bond1Action)
                         
         for grpbox in self.propMgr.previewGroupBox, self.propMgr.elementChooser:
             grpbox.hide()
@@ -1066,6 +1074,9 @@ class BuildAtoms_Command(BuildAtoms_basicCommand):
     """
     GraphicsMode_class = BuildAtoms_GraphicsMode
     
+     ##### START of code copied from SelectAtoms_Command (except that the 
+     ##### superclass name is different. 
+    
     def __init__(self, commandSequencer):
         
         BuildAtoms_basicCommand.__init__(self, commandSequencer)
@@ -1082,4 +1093,7 @@ class BuildAtoms_Command(BuildAtoms_basicCommand):
 
     def _post_init_modify_GraphicsMode(self):
         pass
+    
+    ##### END of code copied from SelectAtoms_Command
+
     

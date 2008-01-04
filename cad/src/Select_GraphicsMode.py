@@ -1092,6 +1092,17 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         """
         self._set_hover_highlighting_enabled(val)
         
+    def _set_hover_highlighting_enabled(self, val):
+        """
+        Subclasses should override this method. 
+        @see: depositMode._set_hover_highlighting_enabled
+        """
+        print_compact_stack("bug in setting highlighting"\
+                            "subclass of Select_basicGraphicsMode should"\
+                            "override method _set_hover_highlighting_enabled"\
+                            "nut it didn't" )
+        pass
+        
         
     def selobj_highlight_color(self, selobj): 
         """

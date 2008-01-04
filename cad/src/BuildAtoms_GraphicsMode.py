@@ -1,8 +1,8 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-SelectAtoms_GraphicsMode.py 
+BuildAtoms_GraphicsMode.py 
 
-The GraphicsMode part of the SelectAtoms_Command. It provides the  graphicsMode 
+The GraphicsMode part of the BuildAtoms_Command. It provides the  graphicsMode 
 object for its Command class. The GraphicsMode class defines anything related to
 the *3D Graphics Area* -- 
 For example: 
@@ -16,9 +16,6 @@ For example:
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 
 TODO: [as of 2008-01-04]
-- Highlighting preference in BuildAtoms mode doesn't work. 
-  We probably need to define methods such as _set_hover_highlighting 
-  inside BuildAtoms_GraphicsMode?  May be some other methods? Need review. 
 - Items mentioned in Select_GraphicsMode.py 
 - Some items mentioned in BuildAtoms_Command.py 
 
@@ -31,7 +28,7 @@ Ninad 2008-01-04: Created new Command and GraphicsMode classes from
 """
 
 
-import math # only for pi
+import math
 from Numeric import dot
 
 from OpenGL.GL import GL_FALSE
@@ -1222,7 +1219,11 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
 
 class BuildAtoms_GraphicsMode(BuildAtoms_basicGraphicsMode):
     """
+    @see: SelectAtoms_GraphicsMode
     """
+    ##### START of code copied from SelectAtoms_GraphicsMode (except that the 
+    ##### superclass name is different. 
+    
     def __init__(self, command):
         self.command = command
         glpane = self.command.glpane 
@@ -1259,6 +1260,8 @@ class BuildAtoms_GraphicsMode(BuildAtoms_basicGraphicsMode):
 
     highlight_singlets = property(_get_highlight_singlets, 
                                           _set_highlight_singlets)
+    
+    ##### END of code copied from SelectAtoms_GraphicsCommand
     
 
     

@@ -128,9 +128,6 @@ from modifyMode      import modifyMode
 from cookieMode      import cookieMode 
 from extrudeMode     import extrudeMode
 from fusechunksMode  import fusechunksMode
-from selectMolsMode  import selectMolsMode
-from selectAtomsMode import selectAtomsMode
-from depositMode     import depositMode
 from PasteMode       import PasteMode
 from PartLibraryMode import PartLibraryMode
 from movieMode       import movieMode
@@ -143,12 +140,15 @@ from DnaDuplex_EditCommand import DnaDuplex_EditCommand
 from Plane_EditCommand     import Plane_EditCommand
 from RotaryMotor_EditCommand import RotaryMotor_EditCommand
 from LinearMotor_EditCommand import LinearMotor_EditCommand
+from BuildAtoms_Command      import BuildAtoms_Command
+from SelectAtoms_Command     import SelectAtoms_Command
+from SelectChunks_Command    import SelectChunks_Command
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 from CommandSequencer import modeMixin
 
 import platform
 
-from utilities.Log import greenmsg, redmsg, orangemsg
+from utilities.Log import orangemsg
 from PlatformDependent import fix_event_helper
 from PlatformDependent import wrap_key_event
 from widgets import makemenu_helper
@@ -377,11 +377,22 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # [bruce 071011]
 
     # class constants (needed by modeMixin to map commandNames to mode classes):
-    mode_classes = [selectMolsMode, selectAtomsMode, modifyMode, depositMode,
-                    cookieMode, extrudeMode, fusechunksMode,
-                    movieMode, ZoomMode, PanMode, RotateMode, 
-                    PasteMode, PartLibraryMode, 
-                    LineMode, DnaLineMode, DnaDuplex_EditCommand,
+    mode_classes = [SelectChunks_Command, 
+                    SelectAtoms_Command,
+                    modifyMode, 
+                    BuildAtoms_Command,
+                    cookieMode, 
+                    extrudeMode, 
+                    fusechunksMode,
+                    movieMode, 
+                    ZoomMode, 
+                    PanMode, 
+                    RotateMode, 
+                    PasteMode, 
+                    PartLibraryMode, 
+                    LineMode, 
+                    DnaLineMode, 
+                    DnaDuplex_EditCommand,
                     Plane_EditCommand,
                     LinearMotor_EditCommand,
                     RotaryMotor_EditCommand]

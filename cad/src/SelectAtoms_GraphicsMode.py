@@ -1960,6 +1960,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
 
 class SelectAtoms_GraphicsMode(SelectAtoms_basicGraphicsMode):
     """
+    @see: Select_GraphicsMode
     """
     def __init__(self, command):
         self.command = command

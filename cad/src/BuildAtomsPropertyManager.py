@@ -81,10 +81,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
                      SIGNAL("currentIndexChanged(int)"), 
                      self._updateAtomChooserGroupBoxes)
         
-        change_connect(self.highlightingCheckBox,
-                        SIGNAL("toggled(bool)"),
-                        self.parentMode.set_hoverHighlighting)
-        
+      
         change_connect(self.selectionFilterCheckBox,
                        SIGNAL("stateChanged(int)"),
                        self.set_selection_filter)
