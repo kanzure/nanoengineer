@@ -7,7 +7,7 @@ DnaStrand.py - ...
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from DnaStrandOrSegment import DnaStrandOrSegment
+from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
 class DnaStrand(DnaStrandOrSegment):
     """

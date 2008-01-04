@@ -8,7 +8,7 @@ DnaStrandOrSegment.py - ...
 """
 
 from Group import Group
-from DnaGroup import DnaGroup
+from dna_model.DnaGroup import DnaGroup
 
 class DnaStrandOrSegment(Group):
     #e maybe inherit some more special subclass of Group? May not matter since we ourselves never show up in MT.

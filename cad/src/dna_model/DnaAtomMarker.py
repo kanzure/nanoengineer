@@ -10,11 +10,11 @@ future to mark subsequence endpoints for relations or display styles.
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from ChainAtomMarker import ChainAtomMarker
+from dna_model.ChainAtomMarker import ChainAtomMarker
 
-from DnaStrand import DnaStrand
-from DnaSegment import DnaSegment
-from DnaGroup import DnaGroup
+from dna_model.DnaStrand import DnaStrand
+from dna_model.DnaSegment import DnaSegment
+from dna_model.DnaGroup import DnaGroup
 
 # ==
 

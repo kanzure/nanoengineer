@@ -48,7 +48,7 @@ contain undoable state), but will not be stored in the mmp file.
 
 from bond_constants import atoms_are_bonded
 
-from DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
+from dna_model.DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 

@@ -7,7 +7,7 @@ DnaSegment.py - ...
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from DnaStrandOrSegment import DnaStrandOrSegment
+from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
 class DnaSegment(DnaStrandOrSegment):
     #e maybe inherit some more special subclass, to make kids not visible in MT;
