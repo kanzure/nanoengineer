@@ -80,10 +80,6 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         change_connect(self.atomChooserComboBox, 
                      SIGNAL("currentIndexChanged(int)"), 
                      self._updateAtomChooserGroupBoxes)
-            
-        change_connect(self.waterCheckBox,
-                        SIGNAL("toggled(bool)"),
-                        self.parentMode.setWater)
         
         change_connect(self.highlightingCheckBox,
                         SIGNAL("toggled(bool)"),
@@ -95,8 +91,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         
         change_connect(self.showSelectedAtomInfoCheckBox,
                        SIGNAL("stateChanged(int)"),
-                       self.toggle_selectedAtomPosGroupBox)
-        
+                       self.toggle_selectedAtomPosGroupBox)        
         
         change_connect(self.xCoordOfSelectedAtom,
                      SIGNAL("valueChanged(double)"), 
@@ -181,16 +176,20 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
             return (aNumberGreaterThanOne, None, None)
         else: 
             return (0, None, None)
+
         
     def set_selection_filter(self, enabled):
         """
-        Slot for Atom Selection Filter checkbox that enables or diables the 
+        Slot for Atom Selection Filter checkbox that enables or disables the 
         selection filter and updates the cursor.
         @param enabled: Checked state of L{self.selectionFilterStateBox}
                         If checked, the selection filter will be enabled
         @type  enabled: bool
         @see: L{self.update_selection_filter_list}      
         """
+        #TODO: To be revised and moved to the Command or GM part. 
+        #This can be done when Bruce implements connectWithState API
+        # -- Ninad 2008-01-03
         
         if enabled != self.w.selection_filter_enabled:
             if enabled:
@@ -202,7 +201,7 @@ class BuildAtomsPropertyManager(Ui_BuildAtomsPropertyManager):
         
         self.filterlistLE.setEnabled(enabled)   
         self.update_selection_filter_list()     
-        self.parentMode.update_cursor()
+        self.parentMode.graphicsMode.update_cursor()
         
     def update_selection_filter_list(self):
         """

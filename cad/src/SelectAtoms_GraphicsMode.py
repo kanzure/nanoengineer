@@ -288,7 +288,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         # added highlight_singlets to fix bug 1540. mark 060220.
         if self.highlight_singlets: 
             #bruce 060702 part of fixing bug 833 item 1
-            likebond = self.bond_type_changer_is_active() 
+            likebond = self.isBondsToolActive() 
             if likebond:
                 # clicks in this tool-state modify the bond, 
                 # not the bondpoint, so let the color hint at that
@@ -1908,7 +1908,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
                 return obj
         return None
 
-    def bond_type_changer_is_active(self): #bruce 060702
+    def isBondsToolActive(self): #bruce 060702
         """
         [subclasses can override this; see depositMode implem for docstring]
         """
@@ -1987,8 +1987,7 @@ class SelectAtoms_GraphicsMode(SelectAtoms_basicGraphicsMode):
         self.command.hover_highlighting_enabled = val
 
     hover_highlighting_enabled = property(_get_hover_highlighting_enabled, 
-                                          _set_hover_highlighting_enabled)
-    
+                                          _set_hover_highlighting_enabled)    
     
     def _get_highlight_singlets(self):
         return self.command.highlight_singlets

@@ -1364,9 +1364,3 @@ class Select_GraphicsMode(Select_basicGraphicsMode):
 
     hover_highlighting_enabled = property(_get_hover_highlighting_enabled, 
                                           _set_hover_highlighting_enabled)
-
-    
-         
-    
-    
-    
