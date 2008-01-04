@@ -6,11 +6,10 @@
 
 
 /* FUNCTION: main */
-int main(int argc, char *argv[])
-{
-      Q_INIT_RESOURCE(application);
-      QApplication app(argc, argv);
-      nv1 * mw = new nv1();
-      mw->show();
-      return app.exec();
+int main(int argc, char *argv[]) {
+	Q_INIT_RESOURCE(application);
+	QApplication app(argc, argv);
+	nv1* mw = new nv1();
+	mw->show();
+	return app.exec();
 }

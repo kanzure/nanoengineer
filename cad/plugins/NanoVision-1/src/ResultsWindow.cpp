@@ -8,12 +8,25 @@ ResultsWindow::ResultsWindow(QWidget *parent)
 		: QWidget(parent), Ui_ResultsWindow() {
 		
 	setupUi(this);
-	setAttribute(Qt::WA_DeleteOnClose);
+
+	workspace = new QWorkspace();
+ 	connect(workspace, SIGNAL(windowActivated(QWidget *)),
+ 	        this, SLOT(parent->updateMenus()));
+	windowMapper = new QSignalMapper(this);
+	connect(windowMapper, SIGNAL(mapped(QWidget *)),
+	        workspace, SLOT(setActiveWindow(QWidget *)));
+	
+	splitter->insertWidget(1, workspace);
+	delete widget;
 }
 
 
 /* DESTRUCTOR */
 ResultsWindow::~ResultsWindow() {
+	workspace->closeAllWindows();
+	if (activeDataWindow()) {
+		; // Can't delete?
+	}
 }
 
 
@@ -33,20 +46,15 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 	QApplication::restoreOverrideCursor();
 
 	setCurrentFile(fileName);
+     
+	DataWindow *child = new DataWindow;
+	workspace->addWindow(child);
+	child->show();
 
-	// Dock widgets test
-	//*
-	TrajectoryGraphicsPane* trajectoryGraphicsPane =
-		new TrajectoryGraphicsPane(this);
-	splitter->insertWidget(1, trajectoryGraphicsPane);
-	delete widget;
-	QDockWidget* dock = new QDockWidget(tr("dna_motor_results"), trajectoryGraphicsPane);
-	dock->setAllowedAreas(Qt::LeftDockWidgetArea);
-	ViewParametersWindow* viewParametersWindow = new ViewParametersWindow(dock);
-	dock->setWidget(viewParametersWindow);
-	trajectoryGraphicsPane->addDockWidget(Qt::LeftDockWidgetArea, dock);
-	//*/
-	
+	ViewParametersWindow* viewParametersWindow =
+		new ViewParametersWindow(this);
+	viewParametersWindow->show();
+
 	return true;
 }
 
@@ -54,12 +62,6 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 /* FUNCTION: userFriendlyCurrentFile */
 QString ResultsWindow::userFriendlyCurrentFile() {
 	return strippedName(curFile);
-}
-
-
-/* FUNCTION: closeEvent */
-void ResultsWindow::closeEvent(QCloseEvent *event) {
-	event->accept();
 }
 
 
@@ -73,4 +75,19 @@ void ResultsWindow::setCurrentFile(const QString &fileName) {
 /* FUNCTION: strippedName */
 QString ResultsWindow::strippedName(const QString &fullFileName) {
 	return QFileInfo(fullFileName).fileName();
+}
+
+
+/* FUNCTION: activeDataWindow */
+DataWindow* ResultsWindow::activeDataWindow() {
+	return qobject_cast<DataWindow *>(workspace->activeWindow());
+}
+
+
+/* FUNCTION: createResultsWindow */
+DataWindow* ResultsWindow::createDataWindow() {
+	DataWindow* window = new DataWindow;
+	workspace->addWindow(window);
+
+	return window;
 }

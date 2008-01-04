@@ -5,7 +5,7 @@
 
 /* CONSTRUCTOR */
 ViewParametersWindow::ViewParametersWindow(QWidget *parent)
-		: QWidget(parent), Ui_ViewParametersWindow() {
+		: QDialog(parent), Ui_ViewParametersWindow() {
 
 	setupUi(this);
 	textEdit->setHtml("<b>InputParameters</b><br>&nbsp;&nbsp;Temperature: 300 K");

@@ -2,6 +2,8 @@
 
 #include "MainWindowTabWidget.h"
 
+
+/* CONSTRUCTOR */
 MainWindowTabWidget::MainWindowTabWidget(QWidget *parent)
 		: QWidget(parent), Ui_MainWindowTabWidget() {
 		
@@ -9,7 +11,6 @@ MainWindowTabWidget::MainWindowTabWidget(QWidget *parent)
 }
 
 
+/* DESTRUCTOR */
 MainWindowTabWidget::~MainWindowTabWidget() {
 }
-
-

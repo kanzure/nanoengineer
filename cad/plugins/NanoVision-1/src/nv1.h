@@ -7,7 +7,6 @@
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QCloseEvent>
-#include <QWorkspace>
 
 #include "ResultsWindow.h"
 #include "MainWindowTabWidget.h"
@@ -29,26 +28,16 @@ private slots:
 	void about();
 	void updateMenus();
 	void updateWindowMenu();
-	ResultsWindow* createResultsWindow();
 
 private:
-	void createActions();
-	void createMenus();
-	void createToolBars();
-	void createStatusBar();
-	void readSettings();
-	void writeSettings();
-	ResultsWindow* activeResultsWindow();
-	ResultsWindow* findResultsWindow(const QString &fileName);
-
-	QWorkspace* workspace;
-	QSignalMapper* windowMapper;
-
 	QMenu *fileMenu;
 	QMenu *windowMenu;
 	QMenu *helpMenu;
 	QToolBar *fileToolBar;
 
+	MainWindowTabWidget* mainWindowTabs;
+	ResultsWindow* resultsWindow;
+	
 	QAction *openAction;
 	QAction *exitAction;
 	QAction *closeAction;
@@ -60,6 +49,13 @@ private:
 	QAction *previousAction;
 	QAction *separatorAction;
 	QAction *aboutAction;
+	
+	void createActions();
+	void createMenus();
+	void createToolBars();
+	void createStatusBar();
+	void readSettings();
+	void writeSettings();
 };
 
 #endif

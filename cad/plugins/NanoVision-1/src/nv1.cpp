@@ -5,19 +5,14 @@
 
 /* CONSTRUCTOR */
 nv1::nv1() {
-	MainWindowTabWidget* mainWindowTabs = new MainWindowTabWidget(this);
+	mainWindowTabs = new MainWindowTabWidget(this);
 	setCentralWidget(mainWindowTabs);	
-
-	workspace = new QWorkspace();
-	connect(workspace, SIGNAL(windowActivated(QWidget *)),
-	        this, SLOT(updateMenus()));
-	windowMapper = new QSignalMapper(this);
-	connect(windowMapper, SIGNAL(mapped(QWidget *)),
-	        workspace, SLOT(setActiveWindow(QWidget *)));
 	
+	resultsWindow = new ResultsWindow(this);
 	mainWindowTabs->vboxLayout->removeWidget(mainWindowTabs->widget);
 	delete mainWindowTabs->widget;
-    mainWindowTabs->vboxLayout->addWidget(workspace);
+	mainWindowTabs->vboxLayout->addWidget(resultsWindow);
+	resultsWindow->hide();
 
 	createActions();
 	createMenus();
@@ -37,13 +32,11 @@ nv1::~nv1() {
 
 /* FUNCTION: closeEvent */
 void nv1::closeEvent(QCloseEvent *event) {
-	workspace->closeAllWindows();
-	if (activeResultsWindow()) {
-		event->ignore();
-	} else {
-		writeSettings();
-		event->accept();
-	}
+	if (resultsWindow != 0)
+		delete resultsWindow;
+		
+	writeSettings();
+	event->accept();
 }
 
 
@@ -51,18 +44,9 @@ void nv1::closeEvent(QCloseEvent *event) {
 void nv1::open() {
 	QString fileName = QFileDialog::getOpenFileName(this);
 	if (!fileName.isEmpty()) {
-		ResultsWindow* existing = findResultsWindow(fileName);
-		if (existing) {
-			workspace->setActiveWindow(existing);
-			return;
-		}
-
-		ResultsWindow* window = createResultsWindow();
-		if (window->loadFile(fileName)) {
+		if (resultsWindow->loadFile(fileName)) {
 			statusBar()->showMessage(tr("File loaded"), 2000);
-			window->show();
-		} else {
-			window->close();
+			resultsWindow->show();
 		}
 	}
 }
@@ -73,14 +57,14 @@ void nv1::about() {
 	QMessageBox::about(this,
 	                   tr("About NanoVision-1"),
 	                   tr("Nanorex NanoVision-1 0.1.0\n"
-	                      "Copyright 2007 Nanorex, Inc.\n"
+	                      "Copyright 2008 Nanorex, Inc.\n"
 	                      "See LICENSE file for details."));
 }
 
 
 /* FUNCTION: updateMenus */
 void nv1::updateMenus() {
-	bool hasResultsWindow = (activeResultsWindow() != 0);
+	bool hasResultsWindow = (resultsWindow != 0);
 	closeAction->setEnabled(hasResultsWindow);
 	closeAllAction->setEnabled(hasResultsWindow);
 	tileAction->setEnabled(hasResultsWindow);
@@ -106,35 +90,27 @@ void nv1::updateWindowMenu() {
 	windowMenu->addAction(previousAction);
 	windowMenu->addAction(separatorAction);
 
-	QList<QWidget*> windows = workspace->windowList();
+	QList<QWidget*> windows = resultsWindow->workspace->windowList();
 	separatorAction->setVisible(!windows.isEmpty());
 
 	for (int index = 0; index < windows.size(); ++index) {
-		ResultsWindow* window = qobject_cast<ResultsWindow*>(windows.at(index));
+		DataWindow* window = qobject_cast<DataWindow*>(windows.at(index));
 
 		QString text;
 		if (index < 9) {
 			text = tr("&%1 %2").arg(index + 1)
-			       .arg(window->userFriendlyCurrentFile());
+			       .arg(window->windowTitle());
 		} else {
 			text = tr("%1 %2").arg(index + 1)
-			       .arg(window->userFriendlyCurrentFile());
+			       .arg(window->windowTitle());
 		}
 		QAction *action  = windowMenu->addAction(text);
 		action->setCheckable(true);
-		action ->setChecked(window == activeResultsWindow());
-		connect(action, SIGNAL(triggered()), windowMapper, SLOT(map()));
-		windowMapper->setMapping(action, window);
+		action->setChecked(window == resultsWindow->activeDataWindow());
+		connect(action, SIGNAL(triggered()), resultsWindow->windowMapper, 
+				SLOT(map()));
+		resultsWindow->windowMapper->setMapping(action, window);
 	}
-}
-
-
-/* FUNCTION: createResultsWindow */
-ResultsWindow* nv1::createResultsWindow() {
-	ResultsWindow* window = new ResultsWindow;
-	workspace->addWindow(window);
-
-	return window;
 }
 
 
@@ -154,36 +130,39 @@ void nv1::createActions() {
 	closeAction = new QAction(tr("Cl&ose"), this);
 	closeAction->setShortcut(tr("Ctrl+F4"));
 	closeAction->setStatusTip(tr("Close the active window"));
-	connect(closeAction, SIGNAL(triggered()),
-	        workspace, SLOT(closeActiveWindow()));
+ 	connect(closeAction, SIGNAL(triggered()),
+ 	        resultsWindow->workspace, SLOT(closeActiveWindow()));
 
 	closeAllAction = new QAction(tr("Close &All"), this);
 	closeAllAction->setStatusTip(tr("Close all the windows"));
-	connect(closeAllAction, SIGNAL(triggered()),
-	        workspace, SLOT(closeAllWindows()));
+ 	connect(closeAllAction, SIGNAL(triggered()),
+ 	        resultsWindow->workspace, SLOT(closeAllWindows()));
 
 	tileAction = new QAction(tr("&Tile"), this);
 	tileAction->setStatusTip(tr("Tile the windows"));
-	connect(tileAction, SIGNAL(triggered()), workspace, SLOT(tile()));
+	connect(tileAction, SIGNAL(triggered()), resultsWindow->workspace,
+			SLOT(tile()));
 
 	cascadeAction = new QAction(tr("&Cascade"), this);
 	cascadeAction->setStatusTip(tr("Cascade the windows"));
-	connect(cascadeAction, SIGNAL(triggered()), workspace, SLOT(cascade()));
+ 	connect(cascadeAction, SIGNAL(triggered()), resultsWindow->workspace, 
+ 			SLOT(cascade()));
 
 	arrangeAction = new QAction(tr("Arrange &icons"), this);
 	arrangeAction->setStatusTip(tr("Arrange the icons"));
-	connect(arrangeAction, SIGNAL(triggered()), workspace, SLOT(arrangeIcons()));
+ 	connect(arrangeAction, SIGNAL(triggered()), resultsWindow->workspace, 
+ 			SLOT(arrangeIcons()));
 
 	nextAction = new QAction(tr("Ne&xt"), this);
 	nextAction->setStatusTip(tr("Move the focus to the next window"));
-	connect(nextAction, SIGNAL(triggered()),
-	        workspace, SLOT(activateNextWindow()));
+ 	connect(nextAction, SIGNAL(triggered()),
+ 	        resultsWindow->workspace, SLOT(activateNextWindow()));
 
 	previousAction = new QAction(tr("Pre&vious"), this);
 	previousAction->setStatusTip(tr("Move the focus to the previous "
 	                                "window"));
-	connect(previousAction, SIGNAL(triggered()),
-	        workspace, SLOT(activatePreviousWindow()));
+ 	connect(previousAction, SIGNAL(triggered()),
+ 	        resultsWindow->workspace, SLOT(activatePreviousWindow()));
 
 	separatorAction = new QAction(this);
 	separatorAction->setSeparator(true);
@@ -240,23 +219,4 @@ void nv1::writeSettings() {
 	QSettings settings("Nanorex", "NanoVision-1");
 	settings.setValue("pos", pos());
 	settings.setValue("size", size());
-}
-
-
-/* FUNCTION: activeResultsWindow */
-ResultsWindow* nv1::activeResultsWindow() {
-	return qobject_cast<ResultsWindow *>(workspace->activeWindow());
-}
-
-
-/* FUNCTION: findResultsWindow */
-ResultsWindow* nv1::findResultsWindow(const QString &fileName) {
-	QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
-
-	foreach (QWidget* window, workspace->windowList()) {
-		ResultsWindow* resultsWindow = qobject_cast<ResultsWindow*>(window);
-		if (resultsWindow->currentFile() == canonicalFilePath)
-			return resultsWindow;
-	}
-	return 0;
 }

@@ -3,12 +3,14 @@ SOURCES += nv1.cpp \
  ResultsWindow.cpp \
  MainWindowTabWidget.cpp \
  ViewParametersWindow.cpp \
- TrajectoryGraphicsPane.cpp
+ TrajectoryGraphicsPane.cpp \
+ DataWindow.cpp
 HEADERS += nv1.h \
  ResultsWindow.h \
  MainWindowTabWidget.h \
  ViewParametersWindow.h \
- TrajectoryGraphicsPane.h
+ TrajectoryGraphicsPane.h \
+ DataWindow.h
 TEMPLATE = app
 CONFIG += warn_on \
 	  thread \

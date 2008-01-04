@@ -4,12 +4,13 @@
 #define VIEWPARAMETERSWINDOW_H
 
 #include <QWidget>
+#include <QDialog>
 
 #include "ui_ViewParametersWindow.h"
 
 
 /* CLASS: ViewParametersWindow */
-class ViewParametersWindow : public QWidget, private Ui_ViewParametersWindow {
+class ViewParametersWindow : public QDialog, private Ui_ViewParametersWindow {
 	Q_OBJECT
 
 public:

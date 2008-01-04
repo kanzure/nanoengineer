@@ -10,7 +10,7 @@
 
 /* CLASS: TrajectoryGraphicsPane */
 class TrajectoryGraphicsPane
-		: public QMainWindow, private Ui_TrajectoryGraphicsPane {
+		: public QWidget, private Ui_TrajectoryGraphicsPane {
 	Q_OBJECT
 
 public:

@@ -5,11 +5,9 @@
 
 /* CONSTRUCTOR */
 TrajectoryGraphicsPane::TrajectoryGraphicsPane(QWidget *parent)
-		: QMainWindow(parent), Ui_TrajectoryGraphicsPane() {
+		: QWidget(parent), Ui_TrajectoryGraphicsPane() {
 
 	setupUi(this);
-	menubar->hide();
-	statusbar->hide();
 }
 
 

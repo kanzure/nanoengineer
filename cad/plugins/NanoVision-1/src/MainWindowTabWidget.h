@@ -7,6 +7,7 @@
 
 #include <ui_MainWindowTabWidget.h>
 
+
 /* CLASS MainWindowTabWidget */
 class MainWindowTabWidget : public QWidget, public Ui_MainWindowTabWidget {
 	Q_OBJECT
