@@ -15,6 +15,11 @@ before making other use of it (eg for import graphing).
 from packageData import packageMapping, layer_aliases, topic_mapping
 from packageData import packageMapping_for_files
 from packageData import packageMapping_for_packages
+
+from packageData import needs_renaming_for_clarity ### @@@ USE ME
+from packageData import needs_refactoring ### @@@ USE ME
+from packageData import listing_order ### @@@ USE ME
+from packageData import subdir_notes
  
 
 # utils for looking at output of AllPyFiles, not yet used within this file
@@ -128,9 +133,11 @@ def summarize_packageMapping_using_default_flags():
 
 T_MODULE = "module"
 T_PACKAGE = "package"
+T_SUBDIR_NOTE = "subdir note"
 
 # sortorder values
-ORDER_ERROR = -1
+ORDER_ERROR = -2
+ORDER_SUBDIR_NOTE = -1
 ORDER_INLINE_NOTE = 0
 ORDER_MODULE = 1
 ORDER_NEW_SUBPACKAGE = 2
@@ -158,16 +165,38 @@ class _VirtualSubdir(type({})):
                 print subindent # blank line before subdirs or between types of item
             last_sortorder = sortorder
             if type(explan) == type(""):
-                print subindent + explan
+                print_with_word_wrapping(subindent, explan, 80)
             else:
                 child = explan
                 # assert isinstance(child, _VirtualSubdir)
                 child.print_listing(subindent)
     pass
 
+def print_with_word_wrapping(indent, line, limit):
+    words = line.split()
+    sofar = indent # print this, or more
+    while words:
+        nextword = words[0]
+        words = words[1:]
+        # construct trial line
+        trial = sofar
+        if trial != indent:
+            trial += ' '
+        trial += nextword
+        if len(trial) > limit:
+            # nextword won't fit, print prior line and use nextword to start next line
+            print sofar
+            sofar = indent + nextword
+        else:
+            sofar = trial
+        continue
+    if sofar != indent:
+        print sofar
+    return
+
 _toplevel_virtual_subdir = _VirtualSubdir("cad/src")
 
-def get_virtual_subdir(parts): # should be a method in _toplevel_virtual_subdir
+def get_virtual_subdir(parts, assert_already_there = False): # should be a method in _toplevel_virtual_subdir
     """
     @param parts: list of 1 or more pathname components
     """
@@ -182,6 +211,7 @@ def get_virtual_subdir(parts): # should be a method in _toplevel_virtual_subdir
         assert sortorder == ORDER_NEW_SUBPACKAGE
         assert isinstance(child, _VirtualSubdir)
     else:
+        assert not assert_already_there, "missing subdir: %r" % (parts,)
         child = _VirtualSubdir(basename)
         sortorder = ORDER_NEW_SUBPACKAGE
         explan = child ### an object; for other sortorders, a string
@@ -216,6 +246,14 @@ def collect_virtual_listing( packageDict, ftype ):
 def print_listings():
     collect_virtual_listing( packageMapping_for_files, T_MODULE)
     collect_virtual_listing( packageMapping_for_packages, T_PACKAGE)
+
+    for subdirname, note in subdir_notes.items():
+        parts = subdirname.split('/')
+        dir1 = get_virtual_subdir(parts, assert_already_there = True)
+        FAKENAME_NOTE = " FAKENAME_NOTE " # not a valid basename, but a string (since .lower() gets called on it)
+        sort_order = ORDER_SUBDIR_NOTE
+        dir1[FAKENAME_NOTE] = (sort_order, note)
+        
     _toplevel_virtual_subdir.print_listing(skip_toplevel_indent = True)
     return
 
@@ -223,6 +261,6 @@ if __name__ == '__main__':
     ## summarize_packageMapping_using_default_flags()
     print_listings()
     print
-    print "done"
+    print "[end]"
 
 # end

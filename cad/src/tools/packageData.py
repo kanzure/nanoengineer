@@ -280,7 +280,7 @@ packageMapping_for_files = {
     "ChunkProp"                        : "ui|commands/ChunkProperties?", #?? guess, probably wrong featurename
     "ChunkPropDialog"                  : "ui|commands/ChunkProperties?",
     "CommandToolbar_Constants"         : "widget|CommandToolbar", # see module docstring for why
-    "Command"                          : "command|command_classes",
+    "Command"                          : "command|commands_support",
     "CommandToolbar"                   : "widget|CommandToolbar", # controls the main hierarchical toolbar
     "CommandSequencer"                 : "operations|CommandSequencer",
     "Comment"                          : "model",
@@ -306,12 +306,12 @@ packageMapping_for_files = {
     "dimensions"                       : "graphics_drawing", # graphics output, not opengl-specific in principle
     "DirectionArrow"                   : "graphics_drawable", # a kind of DragHandler (drawable with behavior)
     "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
-    "DnaGenHelper"                     : "operation|dna/commands/BuildDuplex_obs",
+    "DnaGenHelper"                     : "operation|dna/commands/BuildDuplex_old",
     "DnaDuplex"                        : "operation|dna/commands/BuildDuplex", # class to help construct model objects defined elsewhere
     "DnaDuplex_EditCommand"            : "command|dna/commands/BuildDuplex",
     "DnaDuplexPropertyManager"         : "ui/propmgr|dna/commands/BuildDuplex",
-    "DnaGenerator"                     : "command|dna/commands/BuildDuplex_obs",
-    "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_obs",
+    "DnaGenerator"                     : "command|dna/commands/BuildDuplex_old",
+    "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_old",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
     "Dna_Constants"                    : "model|dna/model", # (since used by lots of files in several dna-related commands)
     "DragHandler"                      : "graphics_drawable",
@@ -319,8 +319,8 @@ packageMapping_for_files = {
     "draw_bond_vanes"                  : "graphics_drawing",
     "draw_grid_lines"                  : "graphics_drawing",
     "DynamicTip"                       : "graphics_widgets", # but some should be refactored into GraphicsMode
-    "EditCommand"                      : "command|command_classes",
-    "EditCommand_PM"                   : "ui/propmgr|command_classes",
+    "EditCommand"                      : "command|commands_support",
+    "EditCommand_PM"                   : "ui/propmgr|commands_support",
     "Elem"                             : "model", # chemistry?
     "elementColors"                    : "ui/dialog|commands/ElementColors?",
     "ElementColorsDialog"              : "ui/dialog|commands/ElementColors?",
@@ -354,11 +354,11 @@ packageMapping_for_files = {
     "GamessJob"                        : "operations|GAMESS", # contains operations and io
     "GamessProp"                       : "ui|GAMESS",
     "GamessPropDialog"                 : "ui|GAMESS",
-    "GeneratorBaseClass"               : "ui/propmgr|command_classes",
+    "GeneratorBaseClass"               : "ui/propmgr|commands_support",
         # or as itself, so import implications are clearer in package import graph?
         # todo in code: split subclasses so this can be superceded by EditCommand and EditCommand_PM
-    "GeneratorController"              : "ui/propmgr|command_classes", # code type is a guess, but doesn't matter for now
-    "generator_button_images"          : "ui/dialog|command_classes",
+    "GeneratorController"              : "ui/propmgr|commands_support", # code type is a guess, but doesn't matter for now
+    "generator_button_images"          : "ui/dialog|commands_support",
     "geometry"                         : "geometry",
     "GlobalPreferences"                : "utilities", #? - imports debug_prefs & prefs_constants, dubious for utilities; or constants??
     "global_model_changedicts"         : "model",
@@ -367,8 +367,8 @@ packageMapping_for_files = {
     "gpl_only"                         : "platform",
     "GrapheneGenerator"                : "command|commands/InsertGraphene",
     "GrapheneGeneratorPropertyManager" : "ui/propmgr|commands/InsertGraphene",
-    "GraphicsMode"                     : "graphics_mode|command_classes",
-    "GraphicsMode_API"                 : "ui_api|command_classes", # not legit to be needed by anything below ui, i think
+    "GraphicsMode"                     : "graphics_mode|commands_support",
+    "GraphicsMode_API"                 : "ui_api|commands_support", # not legit to be needed by anything below ui, i think
     "GridPlaneProp"                    : "ui/dialog|commands/GridPlaneProperties?",
     "GridPlanePropDialog"              : "ui/dialog|commands/GridPlaneProperties?",
     "GROMACS"                          : "io|GROMACS", #? - old demo code. runs a GROMACS process. contains io.
@@ -387,8 +387,8 @@ packageMapping_for_files = {
     "inval"                            : "foundation",
     "jigmakers_Mixin"                  : "operations", # tells Part how to create & edit various Jigs (some ui?)
     
-    "JigProp"                          : "ui/propmgr|command_classes", # used directly for simple jigs, but clearest if treated as class
-    "JigPropDialog"                    : "ui/propmgr|command_classes", # (and pkg name/loc should not look like a command name)
+    "JigProp"                          : "ui/propmgr|commands_support", # used directly for simple jigs, but clearest if treated as class
+    "JigPropDialog"                    : "ui/propmgr|commands_support", # (and pkg name/loc should not look like a command name)
     
     "jigs"                             : "model", # class Jig, and a few subclasses
     "jigs_measurements"                : "model",
@@ -409,9 +409,9 @@ packageMapping_for_files = {
     "MinimizeEnergyPropDialog"         : "ui/dialog|commands/MinimizeEnergy",
     "modelTree"                        : "model|ModelTree", # a model which implems the api class for modelTreeGui
     "modelTreeGui"                     : "widget|ModelTree", # a widget with view & maybe some control code
-    "modes"                            : "unsplit_mode|command_classes",
+    "modes"                            : "unsplit_mode|commands_support",
     "modifyMode"                       : "unsplit_mode|commands/Move", #? MoveChunks?? probably not, we'll deemphasize Chunks to users
-    "MotorPropertyManager"             : "ui/propmgr|command_classes", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
+    "MotorPropertyManager"             : "ui/propmgr|commands_support", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
     "MovePropertyManager"              : "ui/propmgr|commands/Move",
     "movie"                            : "simulation", #? hold simparams, or open moviefile - internal model, some ui/control/ops/io
     "moviefile"                        : "io|files/dpb_trajectory",
@@ -442,7 +442,7 @@ packageMapping_for_files = {
     "op_select_doubly"                 : "operations",
     
     "PanMode"                          : "temporary_command",
-    "ParameterDialog"                  : "widget|command_classes", #?
+    "ParameterDialog"                  : "widget|commands_support", #?
     "parse_utils"                      : "utilities",
     "part"                             : "model", #? - foundation (if clipboard is), but knows lots of model & operations too
     "PartLibPropertyManager"           : "ui/propmgr|commands/PartLibrary",
@@ -494,19 +494,19 @@ packageMapping_for_files = {
     "RotateMode"                       : "temporary_command",
     "runSim"                           : "simulation", # includes perhaps ui, controller, io
     
-    "SelectAtoms_Command"              : "command|command_classes/SelectAtoms", #? command_classes or commands?
-    "SelectAtoms_GraphicsMode"         : "graphics_mode|command_classes/SelectAtoms",
-    "selectAtomsMode"                  : "unsplit_mode|command_classes/SelectAtoms",
+    "SelectAtoms_Command"              : "command|commands/SelectAtoms", # even though only used as a superclass now
+    "SelectAtoms_GraphicsMode"         : "graphics_mode|commands/SelectAtoms",
+    "selectAtomsMode"                  : "unsplit_mode|commands/SelectAtoms",
     
-    "SelectChunks_Command"             : "command|command_classes/SelectChunks", #? command_classes or commands?
-    "SelectChunks_GraphicsMode"        : "graphics_mode|command_classes/SelectChunks",
-    "selectMolsMode"                   : "unsplit_mode|command_classes/SelectChunks",
+    "SelectChunks_Command"             : "command|commands/SelectChunks", # used directly, as well as as a superclass
+    "SelectChunks_GraphicsMode"        : "graphics_mode|commands/SelectChunks",
+    "selectMolsMode"                   : "unsplit_mode|commands/SelectChunks",
     
-    "Select_Command"                   : "command|command_classes/Select",
-    "Select_GraphicsMode"              : "graphics_mode|command_classes/Select",
-    "Select_GraphicsMode_DrawMethod_preMixin"    : "graphics_mode|command_classes/Select",
-    "Select_GraphicsMode_MouseHelpers_preMixin"    : "graphics_mode|command_classes/Select",
-    "selectMode"                       : "unsplit_mode|command_classes/Select",
+    "Select_Command"                   : "command|commands/Select",
+    "Select_GraphicsMode"              : "graphics_mode|commands/Select",
+    "Select_GraphicsMode_DrawMethod_preMixin"    : "graphics_mode|commands/Select",
+    "Select_GraphicsMode_MouseHelpers_preMixin"    : "graphics_mode|commands/Select",
+    "selectMode"                       : "unsplit_mode|commands/Select",
     
     "Selobj"                           : "graphics_behavior_api|foundation", # (revisit when done, or when anything uses it)
     
@@ -536,7 +536,7 @@ packageMapping_for_files = {
     "StatusBar"                        : "widget", # used as a specific part of the NE1 main window, but general-purpose code
     "SurfaceChunks"                    : "graphics_view",
     
-    "TemporaryCommand"                 : "command_classes", # or temporary_commands??
+    "TemporaryCommand"                 : "temporary_commands", # or commands_support??
     
     "testdraw"                         : "graphics_mode|exprs/prototype", # (also has some exprs framework code)
     "testmode"                         : "unsplit_mode|exprs/prototype", # (also has some exprs framework code)
@@ -643,6 +643,8 @@ packageMapping.update( packageMapping_for_packages)
 
 # ==
 
+# these definitions are to make the listing done by packageData_checker more informative.
+
 # lists of highly desirable renamings and/or refactorings, needed for understandability of classification
 
 needs_renaming_for_clarity = {
@@ -684,6 +686,63 @@ needs_refactoring = [
     "shape", # needs splitting
     "version", # split/register: ne1_ui part to supply data, foundation part for access
  ]
+
+# listing order for toplevel packages, outer to inner
+# (will be related to permitted import order, when that's implemented, but not equal to it, e.g. "less important later")
+# (a string here matches itself, or itself + " " + anything, to permit added notes in topic_mapping)
+# (nfr: permit inserted note strings to be printed before sets of toplevel dirs?)
+
+listing_order = [ ### should be complete, but not yet properly ordered
+    "ne1_startup",
+    "ne1_ui",
+    # commands
+    "commands_support",
+    "commands",
+    "temporary_commands",
+    # major subsystems (order?)
+    "History",
+    "ModelTree",
+    "CommandSequencer",
+    "CommandToolbar",
+    "Sponsors",
+
+    # functional areas
+    "dna",
+    "simulation",
+    "analysis",
+    
+    # kinds of operations
+    "model_updater",
+    "operations",
+
+    # other kinds of code (order?)
+    "model",
+    "graphics",
+    
+    "widgets",
+    "processes",
+    "files",
+    "PM",
+
+    "exprs",
+    "foundation",
+    "geometry",
+    "platform",
+    "utilities",
+
+    # special kinds
+    "top_level",
+    "prototype",
+ ]
+
+# notes for specific subdirs, to include in the listing (with word-wrapping)
+
+subdir_notes = {
+    "commands" : "command package names ending with '?' need discussion",
+    "files" : "should we de-abbreviate file extensions used in directory names, "\
+              "e.g. ProteinDataBank, MolecularMachinePart, DifferentialPositionBytes?",
+    "PM"    : "should PM be renamed to PropertyManager? (though it's mainly for components of specific PMs)",
+ }
 
 # ==
 
