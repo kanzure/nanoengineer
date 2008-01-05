@@ -524,8 +524,9 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
     def get_move_xyz(self):
         """
-        Returns X, Y and Z values in the Move Property Manager. 
-        @return : tuple (x, y, z) 
+        Returns the xyz coordinate in the Move Property Manager. 
+        @return: the coordinate
+        @rtype: tuple (x, y, z)
         """
 
         x = self.moveXSpinBox.value()
