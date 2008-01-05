@@ -125,7 +125,8 @@ class Ui_SequenceEditor(PM_DockWidget):
         self.replacePushButton = PM_PushButton(self, text = "Replace")
         
         self.warningSign = QLabel(self)
-        self.warningSign.setPixmap(getpixmap('ui/actions/Properties Manager/Warning.png'))
+        self.warningSign.setPixmap(
+            getpixmap('ui/actions/Properties Manager/Warning.png'))
         self.warningSign.hide()
         
         self.phraseNotFoundLabel = QLabel(self)
@@ -248,6 +249,3 @@ class Ui_SequenceEditor(PM_DockWidget):
             """
             from gui.WhatsThisText_for_PropertyManagers import whatsThis_SequenceEditor
             whatsThis_SequenceEditor(self)
-            
-    
-       
