@@ -1679,6 +1679,20 @@ class MWsemantics(QMainWindow,
         assert self.commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
         
         self.commandSequencer.currentCommand.runCommand()
+    
+    def enterBreakStrandCommand(self, isChecked = False):
+        """
+        """
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "BREAK_STRANDS":
+            commandSequencer.userEnterTemporaryCommand(
+                'BREAK_STRANDS')
+        else:        
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'BREAK_STRANDS':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+        
 
     def insertDna(self, isChecked = False):
         """

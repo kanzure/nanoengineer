@@ -93,7 +93,6 @@ class DnaDuplex_EditCommand(EditCommand):
             self.flyoutToolbar = DnaFlyout(self.win, self.propMgr)
         
         self.flyoutToolbar.activateFlyoutToolbar()
-        print "***self.graphicsMode =", self.graphicsMode.__class__.__name__
     
     def restore_gui(self):
         """

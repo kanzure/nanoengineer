@@ -74,6 +74,11 @@ class DnaFlyout:
         #'allActionsList' returns all actions in the flyout toolbar 
         #including the subcontrolArea actions. 
         allActionsList = []
+        
+        self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
+        self.subControlActionGroup.setExclusive(True)   
+        self.subControlActionGroup.addAction(self.dnaDuplexAction)
+        self.subControlActionGroup.addAction(self.breakStrandAction) 
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
@@ -81,7 +86,8 @@ class DnaFlyout:
         separator = QtGui.QAction(self.parentWidget)
         separator.setSeparator(True)
         subControlAreaActionList.append(separator) 
-        subControlAreaActionList.append(self.dnaDuplexAction)
+        subControlAreaActionList.append(self.dnaDuplexAction)        
+        subControlAreaActionList.append(self.breakStrandAction)
         subControlAreaActionList.append(self.dnaOrigamiAction)
 
         allActionsList.extend(subControlAreaActionList)
@@ -107,6 +113,11 @@ class DnaFlyout:
         self.dnaDuplexAction.setText("Duplex")
         self.dnaDuplexAction.setCheckable(True)        
         self.dnaDuplexAction.setIcon(geticon("ui/actions/Tools/Build Structures/Duplex"))
+        
+        self.breakStrandAction = QtGui.QWidgetAction(parentWidget)
+        self.breakStrandAction.setText("Break Strand")
+        self.breakStrandAction.setCheckable(True)        
+        self.breakStrandAction.setIcon(geticon("ui/actions/Properties Manager/Break_Strand"))
 
         self.dnaOrigamiAction = QtGui.QWidgetAction(parentWidget)
         self.dnaOrigamiAction.setText("Origami")
@@ -138,6 +149,10 @@ class DnaFlyout:
         change_connect(self.dnaDuplexAction, 
                              SIGNAL("triggered(bool)"),
                              self.activateDnaDuplex_EditCommand)
+        
+        change_connect(self.breakStrandAction, 
+                             SIGNAL("triggered(bool)"),
+                             self.activateBreakStrand_Command)
         
         change_connect(self.dnaOrigamiAction, 
                              SIGNAL("triggered()"),
@@ -189,6 +204,11 @@ class DnaFlyout:
         Slot for B{Duplex} action.
         """
         self.win.insertDna(isChecked)
+    
+    def activateBreakStrand_Command(self, isChecked):
+        """
+        """
+        self.win.enterBreakStrandCommand(isChecked)
 
     def activateDnaOrigamiEditCommand(self):
         """

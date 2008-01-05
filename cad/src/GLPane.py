@@ -143,6 +143,7 @@ from LinearMotor_EditCommand import LinearMotor_EditCommand
 from BuildAtoms_Command      import BuildAtoms_Command
 from SelectAtoms_Command     import SelectAtoms_Command
 from SelectChunks_Command    import SelectChunks_Command
+from BreakStrand_Command     import BreakStrands_Command
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 from CommandSequencer import modeMixin
 
@@ -395,7 +396,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     DnaDuplex_EditCommand,
                     Plane_EditCommand,
                     LinearMotor_EditCommand,
-                    RotaryMotor_EditCommand]
+                    RotaryMotor_EditCommand,
+                    BreakStrands_Command
+                ]
                     ##SketchMode] #Sketchmode not implemented yet
 
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
