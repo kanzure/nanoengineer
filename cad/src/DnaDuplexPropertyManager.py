@@ -253,7 +253,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                self.win.viewSemiFullScreenAction.isChecked():
                 pass
             else:
-                self.win.activePartWindow().history_object.expandWidget()
+                self.win.reportsDockWidget.show()
            
         EditCommand_PM.close(self)
     
@@ -279,7 +279,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                self.win.viewSemiFullScreenAction.isChecked():
                 pass
             else:
-                self.win.activePartWindow().history_object.collapseWidget()
+                self.win.reportsDockWidget.hide()
             #Show the sequence editor
             self.sequenceEditor.show()           
     

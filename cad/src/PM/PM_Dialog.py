@@ -180,8 +180,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
             self.pw = self.win.activePartWindow()
             
         self.pw.updatePropertyManagerTab(self)
-        self.pw.leftChannelTabWidget.setCurrentIndex(
-            self.pw.leftChannelTabWidget.indexOf(self))
+        self.pw.pwProjectTabWidget.setCurrentIndex(
+            self.pw.pwProjectTabWidget.indexOf(self))
         
         # Show the default message whenever we open the Property Manager.
         self.MessageGroupBox.MessageTextEdit.restoreDefault()
@@ -220,8 +220,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         except:
             print """PM_Dialog.open(): pm has no attribute 'setSponsor()'  
                      ignoring."""
-        self.pw.leftChannelTabWidget.setCurrentIndex(
-            self.pw.leftChannelTabWidget.indexOf(pm))
+        self.pw.pwProjectTabWidget.setCurrentIndex(
+            self.pw.pwProjectTabWidget.indexOf(pm))
         
     def close(self):
         """
@@ -229,7 +229,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         """
         if not self.pw:
             self.pw = self.win.activePartWindow() 
-        self.pw.leftChannelTabWidget.setCurrentIndex(0)
+        self.pw.pwProjectTabWidget.setCurrentIndex(0)
         
         ## try: [bruce 071018 moved this lower, since errmsg only covers attr]
         pmWidget = self.pw.propertyManagerScrollArea.widget()
@@ -251,8 +251,8 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         else:
             pmWidget.update_props_if_needed_before_closing()
                     
-        self.pw.leftChannelTabWidget.removeTab(
-            self.pw.leftChannelTabWidget.indexOf(
+        self.pw.pwProjectTabWidget.removeTab(
+            self.pw.pwProjectTabWidget.indexOf(
                 self.pw.propertyManagerScrollArea))
         
         if self.pw.propertyManagerTab:

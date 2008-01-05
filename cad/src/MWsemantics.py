@@ -537,8 +537,8 @@ class MWsemantics(QMainWindow,
                     widget.hide()
                     self._widgetToHideDuringFullScreenMode.append(widget)      
 
-        self.activePartWindow().collapseLeftChanneWidget()        
-        self.activePartWindow().collapseHistoryWidget()
+        self.activePartWindow().collapseLeftArea()
+        self.reportsDockWidget.hide()
 
     def showSemiFullScreen(self):
         """
@@ -573,8 +573,16 @@ class MWsemantics(QMainWindow,
 
     def showNormal(self):
         QMainWindow.showNormal(self)
-        self.activePartWindow().expandLeftChanneWidget()
-        self.activePartWindow().expandHistoryWidget()
+        self.activePartWindow().expandLeftArea()
+        
+        # Note: This will show the reports dock widget even if the user 
+        # dismissed it earlier in his session. This is OK, they can just
+        # dismiss it again if they don't want it. If users complain, this
+        # will be easy to fix by overriding its hide() and show() methods
+        # (I suggest adding a keyword arg to hide() called "breifly", set
+        # to False by default, which sets a flag attr that show() can check.
+        # Mark 2008-01-05.
+        self.reportsDockWidget.show()
 
         for  widget in self._widgetToHideDuringFullScreenMode:           
             widget.show()
@@ -771,8 +779,8 @@ class MWsemantics(QMainWindow,
         pw = self.activePartWindow()
         pw.glpane.gl_update()
         pw.modelTree.mt_update()
-        pw.history_object.h_update()
-            # this is self.history_object, not env.history,
+        self.reportsDockWidget.history_object.h_update()
+            # this is self.reportsDockWidget.history_object, not env.history,
             # since it's really about this window's widget-owner,
             # not about the place to print history messages [bruce 050913]
 

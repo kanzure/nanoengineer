@@ -67,6 +67,7 @@ def setupUi(win):
     win.viewMenu.addSeparator()
     win.viewMenu.addAction(win.viewSemiFullScreenAction)
     win.viewMenu.addAction(win.viewFullScreenAction)
+    win.viewMenu.addAction(win.viewReportsAction)
     win.viewMenu.addMenu(win.toolbarMenu)
     
 def retranslateUi(win):

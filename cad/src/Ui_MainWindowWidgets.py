@@ -364,6 +364,9 @@ def setupUi(win):
     win.viewFullScreenAction.setCheckable(True)
     win.viewFullScreenAction.setChecked(False)
     win.viewFullScreenAction.setShortcut('F12')
+    
+    win.viewReportsAction = QtGui.QAction(MainWindow)
+    win.viewReportsAction.setText('Reports')
 
     #= Insert (menu and toolbar) widgets.
     
@@ -765,6 +768,10 @@ def setupUi(win):
     win.toolsDoneAction.setIcon(geticon(
         "ui/actions/Properties Manager/Done"))
     win.toolsDoneAction.setObjectName("toolsDoneAction")
+    
+    # Dock widgets
+    from Ui_ReportsDockWidget import Ui_ReportsDockWidget
+    win.reportsDockWidget = Ui_ReportsDockWidget(win)
 
 def retranslateUi(win):
     """

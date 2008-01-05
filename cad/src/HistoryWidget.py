@@ -213,17 +213,20 @@ class HistoryWidget:
             # to support copy/paste command sequences, etc
 
         # Partial implem for NFR 843.  Need a method for updating the height of the widget. Mark 050729
-                
-        h = self.widget.fontMetrics().lineSpacing() * self.history_height + 2 # Plus 2 pixels
-        #self.widget.setGeometry(QRect(0,0,100,h))
-        self.widget.setMaximumHeight(int(h))
+        
+        # The minimum height of the history widget. This attr is useful
+        # if self's widget-owner needs to compute its own minimum height.
+        self.minimumHeight = \
+            self.widget.fontMetrics().lineSpacing() * \
+            self.history_height + 2 # Plus 2 pixels
+        self.widget.setMinimumHeight(int(self.minimumHeight))
+        # Initialize the variable used in expanding / collapsing 
+        # the history widget.
+        self._previousWidgetHeight = self.minimumHeight
+
         self.widget.setWordWrapMode(QTextOption.WordWrap)
         self.widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.widget.ensureCursorVisible()    
-        
-        #Initialize the variable used in expanding / collapsing the history
-        #widget.
-        self._previousWidgetHeight = h
+        self.widget.ensureCursorVisible()
         return
     
     def collapseWidget(self):
