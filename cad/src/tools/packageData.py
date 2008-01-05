@@ -538,8 +538,8 @@ packageMapping_for_files = {
     
     "TemporaryCommand"                 : "temporary_commands", # or command_support??
     
-    "testdraw"                         : "graphics_mode|exprs/prototype", # (also has some exprs framework code)
-    "testmode"                         : "unsplit_mode|exprs/prototype", # (also has some exprs framework code)
+    "testdraw"                         : "graphics_mode|exprs", # (mostly prototype, but also has some exprs framework code)
+    "testmode"                         : "unsplit_mode|exprs", # (ditto)
     
     "test_commands"                    : "command|prototype",
     "test_commands_init"               : "command|prototype",
