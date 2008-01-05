@@ -653,7 +653,8 @@ needs_renaming_for_clarity = { # just suggestions, not yet discussed/decided
     "Csys"       : "SavedView? NamedView?",
     "fileIO"     : "povray/files_povray and mdl/files_mdl (split it)", # also needs_refactoring
     "GROMACS"    : "GROMACS_demo?", # temporary demo of atomic-level-DNA GROMACS simulation (maybe for outtakes?)
-    "help"       : "what? (see wiki)",
+    "help"       : "Ne1HelpDialog or HelpDialog",
+    "HelpDialog" : "Ui_HelpDialog",
     "Line"       : "ReferenceLine?", # Line should be reserved for pure geometry
     "main"       : "ne1_main (hard, not urgent)",
     "movie"      : "what?", # it's an object for a set of sim params, and optionally the results file made by using them
@@ -747,6 +748,7 @@ subdir_notes = {
               "e.g. ProteinDataBank, MolecularMachinePart, DifferentialPositionBytes? [-- EricM]",
     "graphics/rendering" : "(this is only about rendering by external programs; rename it?)",
     "ne1_ui" : "could define more (or fewer, or different) subpackages if desired",
+    "ne1_ui/help" : "(not sure about Ui_HelpMenu being in here)",
     "PM"    : "should PM be renamed to PropertyManager? [-- EricM]",
     "top_level" : "(these files can't presently be moved into subdirectories, for technical reasons)",
  }
