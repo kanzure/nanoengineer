@@ -42,6 +42,10 @@ class _pwProjectTabWidget(QTabWidget):
     A helper class for the Project Tab Widget (a QTabWidget). 
     It was created to help fix bug 2522.
     
+    @note: [bruce 070829] to fix bug 2522 I need to intercept removeTab(), 
+    so I made this subclass. It needs to know the GLPane, which is set using
+    KLUGE_setGLPane().
+    
     @see: U{B{Bug 2522}
     <https://mirror2.cvsdude.com/bugz/polosims_svn/show_bug.cgi?id=2540>}
     """
@@ -156,17 +160,16 @@ class Ui_PartWindow(QWidget):
         # Makes it so pwLeftArea is not collapsible.
         pwSplitter.setCollapsible (0, False)
 
-        # Left Channel Tab Widget - a QTabWidget that contains the MT and PM.
-        # I'll rename this later since this isn't a good name. It is also
-        # used in other files. --Mark
-        #
-        # Note [bruce 070829]: to fix bug 2522 I need to intercept
-        # self.pwProjectTabWidget.removeTab, so I made it a subclass of
-        # QTabWidget. It needs to know the GLPane, but that's not created yet,
-        # so we set it later using KLUGE_setGLPane (below).
+        # ##################################################################
+        # <pwProjectTabWidget> is a QTabWidget that contains the MT and PM
+        # widgets. It lives in the "left area" of the part window.
         self.pwProjectTabWidget = _pwProjectTabWidget() 
            # _pwProjectTabWidget subclasses QTabWidget
-           # NOTE: No parent supplied. Could this be the source of the
+           # Note [bruce 070829]: to fix bug 2522 I need to intercept
+           # self.pwProjectTabWidget.removeTab, so I made it a subclass of
+           # QTabWidget. It needs to know the GLPane, but that's not created
+           # yet, so we set it later using KLUGE_setGLPane (below).
+           # Note: No parent supplied. Could this be the source of the
            # minor vsplitter resizing problem I was trying to resolve a few
            # months ago?  Try supplying a parent later. Mark 2008-01-01
         self.pwProjectTabWidget.setObjectName("pwProjectTabWidget")
@@ -220,7 +223,7 @@ class Ui_PartWindow(QWidget):
         qt4warnDestruction(self.glpane, 'GLPane of PartWindow')
         pwSplitter.addWidget(self.glpane)
 
-        # Don't add the pwBottomArea yet.
+        # ##################################################################
         # <pwBottomArea> is a container at the bottom of the part window
         # spanning its entire width. It is intended to be used as an extra 
         # area for use by Property Managers (or anything else) that needs
