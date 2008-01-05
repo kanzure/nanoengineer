@@ -280,7 +280,7 @@ packageMapping_for_files = {
     "ChunkProp"                        : "ui|commands/ChunkProperties?", #?? guess, probably wrong featurename
     "ChunkPropDialog"                  : "ui|commands/ChunkProperties?",
     "CommandToolbar_Constants"         : "widget|CommandToolbar", # see module docstring for why
-    "Command"                          : "command|commands_support",
+    "Command"                          : "command|command_support",
     "CommandToolbar"                   : "widget|CommandToolbar", # controls the main hierarchical toolbar
     "CommandSequencer"                 : "operations|CommandSequencer",
     "Comment"                          : "model",
@@ -319,8 +319,8 @@ packageMapping_for_files = {
     "draw_bond_vanes"                  : "graphics_drawing",
     "draw_grid_lines"                  : "graphics_drawing",
     "DynamicTip"                       : "graphics_widgets", # but some should be refactored into GraphicsMode
-    "EditCommand"                      : "command|commands_support",
-    "EditCommand_PM"                   : "ui/propmgr|commands_support",
+    "EditCommand"                      : "command|command_support",
+    "EditCommand_PM"                   : "ui/propmgr|command_support",
     "Elem"                             : "model", # chemistry?
     "elementColors"                    : "ui/dialog|commands/ElementColors?",
     "ElementColorsDialog"              : "ui/dialog|commands/ElementColors?",
@@ -354,11 +354,11 @@ packageMapping_for_files = {
     "GamessJob"                        : "operations|GAMESS", # contains operations and io
     "GamessProp"                       : "ui|GAMESS",
     "GamessPropDialog"                 : "ui|GAMESS",
-    "GeneratorBaseClass"               : "ui/propmgr|commands_support",
+    "GeneratorBaseClass"               : "ui/propmgr|command_support",
         # or as itself, so import implications are clearer in package import graph?
         # todo in code: split subclasses so this can be superceded by EditCommand and EditCommand_PM
-    "GeneratorController"              : "ui/propmgr|commands_support", # code type is a guess, but doesn't matter for now
-    "generator_button_images"          : "ui/dialog|commands_support",
+    "GeneratorController"              : "ui/propmgr|command_support", # code type is a guess, but doesn't matter for now
+    "generator_button_images"          : "ui/dialog|command_support",
     "geometry"                         : "geometry",
     "GlobalPreferences"                : "utilities", #? - imports debug_prefs & prefs_constants, dubious for utilities; or constants??
     "global_model_changedicts"         : "model",
@@ -367,8 +367,8 @@ packageMapping_for_files = {
     "gpl_only"                         : "platform",
     "GrapheneGenerator"                : "command|commands/InsertGraphene",
     "GrapheneGeneratorPropertyManager" : "ui/propmgr|commands/InsertGraphene",
-    "GraphicsMode"                     : "graphics_mode|commands_support",
-    "GraphicsMode_API"                 : "ui_api|commands_support", # not legit to be needed by anything below ui, i think
+    "GraphicsMode"                     : "graphics_mode|command_support",
+    "GraphicsMode_API"                 : "ui_api|command_support", # not legit to be needed by anything below ui, i think
     "GridPlaneProp"                    : "ui/dialog|commands/GridPlaneProperties?",
     "GridPlanePropDialog"              : "ui/dialog|commands/GridPlaneProperties?",
     "GROMACS"                          : "io|GROMACS", #? - old demo code. runs a GROMACS process. contains io.
@@ -387,8 +387,8 @@ packageMapping_for_files = {
     "inval"                            : "foundation",
     "jigmakers_Mixin"                  : "operations", # tells Part how to create & edit various Jigs (some ui?)
     
-    "JigProp"                          : "ui/propmgr|commands_support", # used directly for simple jigs, but clearest if treated as class
-    "JigPropDialog"                    : "ui/propmgr|commands_support", # (and pkg name/loc should not look like a command name)
+    "JigProp"                          : "ui/propmgr|command_support", # used directly for simple jigs, but clearest if treated as class
+    "JigPropDialog"                    : "ui/propmgr|command_support", # (and pkg name/loc should not look like a command name)
     
     "jigs"                             : "model", # class Jig, and a few subclasses
     "jigs_measurements"                : "model",
@@ -409,9 +409,9 @@ packageMapping_for_files = {
     "MinimizeEnergyPropDialog"         : "ui/dialog|commands/MinimizeEnergy",
     "modelTree"                        : "model|ModelTree", # a model which implems the api class for modelTreeGui
     "modelTreeGui"                     : "widget|ModelTree", # a widget with view & maybe some control code
-    "modes"                            : "unsplit_mode|commands_support",
+    "modes"                            : "unsplit_mode|command_support",
     "modifyMode"                       : "unsplit_mode|commands/Move", #? MoveChunks?? probably not, we'll deemphasize Chunks to users
-    "MotorPropertyManager"             : "ui/propmgr|commands_support", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
+    "MotorPropertyManager"             : "ui/propmgr|command_support", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
     "MovePropertyManager"              : "ui/propmgr|commands/Move",
     "movie"                            : "simulation", #? hold simparams, or open moviefile - internal model, some ui/control/ops/io
     "moviefile"                        : "io|files/dpb_trajectory",
@@ -442,7 +442,7 @@ packageMapping_for_files = {
     "op_select_doubly"                 : "operations",
     
     "PanMode"                          : "temporary_command",
-    "ParameterDialog"                  : "widget|commands_support", #?
+    "ParameterDialog"                  : "widget|command_support", #?
     "parse_utils"                      : "utilities",
     "part"                             : "model", #? - foundation (if clipboard is), but knows lots of model & operations too
     "PartLibPropertyManager"           : "ui/propmgr|commands/PartLibrary",
@@ -536,7 +536,7 @@ packageMapping_for_files = {
     "StatusBar"                        : "widget", # used as a specific part of the NE1 main window, but general-purpose code
     "SurfaceChunks"                    : "graphics_view",
     
-    "TemporaryCommand"                 : "temporary_commands", # or commands_support??
+    "TemporaryCommand"                 : "temporary_commands", # or command_support??
     
     "testdraw"                         : "graphics_mode|exprs/prototype", # (also has some exprs framework code)
     "testmode"                         : "unsplit_mode|exprs/prototype", # (also has some exprs framework code)
@@ -696,7 +696,7 @@ listing_order = [ ### should be complete, but not yet properly ordered
     "ne1_startup",
     "ne1_ui",
     # commands
-    "commands_support",
+    "command_support",
     "commands",
     "temporary_commands",
     # major subsystems (order?)
