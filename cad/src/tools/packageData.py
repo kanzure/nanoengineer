@@ -647,32 +647,32 @@ packageMapping.update( packageMapping_for_packages)
 
 # lists of highly desirable renamings and/or refactorings, needed for understandability of classification
 
-needs_renaming_for_clarity = {
+needs_renaming_for_clarity = { # just suggestions, not yet discussed/decided
     "bond_utils" : "bond_menu_helpers",
-    "cursors"    : "load_custom_cursors",
-    "Csys"       : "SavedView", #?
-    "fileIO"     : "?", # also needs_refactoring
-    "GROMACS"    : "GROMACS_demo", #? temporary demo of atomic-level-DNA GROMACS simulation (maybe for outtakes?)
-    "help"       : "? (see wiki)",
-    "Line"       : "ReferenceLine", # Line should be reserved for pure geometry
-    "movie"      : "?", # it's an object for a set of sim params, and optionally the results file made by using them
+    "cursors"    : "load_custom_cursors?",
+    "Csys"       : "SavedView? NamedView?",
+    "fileIO"     : "povray/files_povray and mdl/files_mdl (split it)", # also needs_refactoring
+    "GROMACS"    : "GROMACS_demo?", # temporary demo of atomic-level-DNA GROMACS simulation (maybe for outtakes?)
+    "help"       : "what? (see wiki)",
+    "Line"       : "ReferenceLine?", # Line should be reserved for pure geometry
+    "movie"      : "what?", # it's an object for a set of sim params, and optionally the results file made by using them
     "moviefile"  : "files_dpb?",
-    "Plane"      : "ReferencePlane", # Plane should be reserved for pure geometry
+    "Plane"      : "ReferencePlane?", # Plane should be reserved for pure geometry
     "platform"   : "debug_flags",
-    "Selobj"     : "Selobj_API", # not urgent; not the correct new name
-    "shape"      : "?", # also needs_refactoring
-    "StatProp"   : "ThermostatProperties", # disambiguate Thermometer and Thermostat
-    "ThermoProp" : "ThermometerProperties", # disambiguate Thermometer and Thermostat
+    "Selobj"     : "Selobj_API for now", # not urgent; not the correct new name
+    "shape"      : "what?", # also needs_refactoring
+    "StatProp"   : "ThermostatProperties?", # disambiguate Thermometer and Thermostat
+    "ThermoProp" : "ThermometerProperties?", # disambiguate Thermometer and Thermostat
     "Utility"    : "Node",
-    "qutemol"    : "qutemol_io",
+    "qutemol"    : "qutemol_io?",
 
     # deprecated files
-    "GroupButtonMixin"  : "GroupButtonMixin_deprecated",
-    "PropMgr_Constants" : "PropMgr_Constants_deprecated",
+    "GroupButtonMixin"  : "GroupButtonMixin_deprecated?",
+    "PropMgr_Constants" : "PropMgr_Constants_deprecated?",
 
-    # kluge: use fake renamings to add notes for the listing
-    "JobManager" : "(should be processes or own package -- import cycle issue)",
-    "JobManagerDialog" : "(should stay with JobManager)",
+##    # kluge: use fake renamings to add notes for the listing
+##    "JobManager" : "(should be processes or own package -- import cycle issue)",
+##    "JobManagerDialog" : "(should stay with JobManager)",
  }
 
 needs_refactoring = [
@@ -738,10 +738,14 @@ listing_order = [ ### should be complete, but not yet properly ordered
 # notes for specific subdirs, to include in the listing (with word-wrapping)
 
 subdir_notes = {
+    "analysis/GAMESS" : "JobManager doesn't belong here, but is here for now "\
+                        "to work around an import cycle issue. Probably easy to fix "\
+                        "when it matters.",
     "commands" : "command package names ending with '?' need discussion",
     "files" : "should we de-abbreviate file extensions used in directory names, "\
-              "e.g. ProteinDataBank, MolecularMachinePart, DifferentialPositionBytes?",
-    "PM"    : "should PM be renamed to PropertyManager? (though it's mainly for components of specific PMs)",
+              "e.g. ProteinDataBank, MolecularMachinePart, DifferentialPositionBytes? [-- EricM]",
+    "ne1_ui" : "could define more (or fewer, or different) subpackages if desired",
+    "PM"    : "should PM be renamed to PropertyManager? [-- EricM]",
     "top_level" : "(these files can't presently be moved into subdirectories, for technical reasons)",
  }
 

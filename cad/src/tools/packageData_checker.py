@@ -16,9 +16,9 @@ from packageData import packageMapping, layer_aliases, topic_mapping
 from packageData import packageMapping_for_files
 from packageData import packageMapping_for_packages
 
-from packageData import needs_renaming_for_clarity ### @@@ USE ME
-from packageData import needs_refactoring ### @@@ USE ME
-from packageData import listing_order ### @@@ USE ME
+from packageData import needs_renaming_for_clarity
+from packageData import needs_refactoring # use this someday?
+from packageData import listing_order # use this? (it's not yet well ordered as of 080104)
 from packageData import subdir_notes
  
 
@@ -231,9 +231,12 @@ def collect_virtual_listing( packageDict, ftype ):
         dir1 = get_virtual_subdir(parts) # also adds items for subdir into its parent dirs
         if ftype == T_MODULE:
             explan = "%s.py" % basename
+            if basename in needs_renaming_for_clarity:
+                explan += " (rename to %s)" % needs_renaming_for_clarity[basename]
             sortorder = ORDER_MODULE
         elif ftype == T_PACKAGE: # preexisting package
             explan = " [ inlined contents of %s/ ]" % basename
+            # someday: add number of files in there, or even list the first 5 files as children
             sortorder = ORDER_INLINE_NOTE
         else:
             explan = " [ error: unrecognized ftype %r, basename = %r]" % (ftype, basename)
