@@ -66,13 +66,13 @@ class Ui_MainWindow(object):
         # Toolbars should come before menus. The only reason this is necessary
         # is that the "View > Toolbars" submenu needs the main window toolbars
         # to be created before it is created (in 
-        self.setupToolbars() 
-        self.setupMenus()
+        self._setupToolbars() 
+        self._setupMenus()
         
         # Now set all UI text for main window widgets.
         # Note: I intend to compile all retranslateUi() functions into a single
         # function/method soon. mark 2007-12-31.
-        self.retranslateUi()
+        self._retranslateUi()
         
         # The central widget of the NE1 main window contains a VBoxLayout
         # containing the Command Toolbar at top. Below that will be either:
@@ -118,7 +118,7 @@ class Ui_MainWindow(object):
             # widgets are not direct children of the main window. 
             # Fixes one of the many bugs listed in bug 2412. Mark 2007-12-19
     
-    def setupToolbars(self):
+    def _setupToolbars(self):
         """
         Populates all Main Window toolbars. 
         Also restores the state of toolbars from the NE1 last session.
@@ -149,7 +149,7 @@ class Ui_MainWindow(object):
         
         return
     
-    def setupMenus(self):
+    def _setupMenus(self):
         """
         Populates all main window menus and adds them to the main menu bar.
         """
@@ -177,7 +177,7 @@ class Ui_MainWindow(object):
         
         return
 
-    def retranslateUi(self):
+    def _retranslateUi(self):
         """
         This method centralizes all calls that set UI text for the purpose of 
         making it easier for the programmer to translate the UI into other 
