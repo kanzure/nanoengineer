@@ -226,8 +226,7 @@ topic_mapping = {
     "GROMACS"           : "simulation/GROMACS",
     "SequenceEditor"    : "dna/SequenceEditor",
 
-    # add notes to certain topics
-    "top_level"         : "top_level (won't be moved)"
+    # add notes to certain topics -- for that see subdir_notes below
  }
 
 # ==
@@ -268,6 +267,7 @@ packageMapping_for_files = {
     "bond_updater"                     : "model_updater",
     "bond_utils"                       : "operation", # maybe also some ui
     "BoundingBox"                      : "geometry", # mostly geometry, some graphics, some hardcoded distance constants from model
+    "BreakStrand_Command"              : "command|commands/BreakStrands", # plural BreakStrands to match featurename as of 080104
     "BuildAtomsPropertyManager"        : "ui/propmgr|commands/BuildAtoms",
     "BuildAtoms_Command"               : "command|commands/BuildAtoms",
     "BuildAtoms_GraphicsMode"          : "graphics_mode|commands/BuildAtoms",
@@ -742,6 +742,7 @@ subdir_notes = {
     "files" : "should we de-abbreviate file extensions used in directory names, "\
               "e.g. ProteinDataBank, MolecularMachinePart, DifferentialPositionBytes?",
     "PM"    : "should PM be renamed to PropertyManager? (though it's mainly for components of specific PMs)",
+    "top_level" : "(these files can't presently be moved into subdirectories, for technical reasons)",
  }
 
 # ==
