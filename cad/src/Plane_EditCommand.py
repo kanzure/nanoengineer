@@ -1,6 +1,6 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-PlaneEditcontroller.py
+Plane_editCommand.py
 
 @author: Ninad,
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -22,8 +22,8 @@ from SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
 class Plane_EditCommand(EditCommand):
     """
-    The Plane_EditCommand class  provides an editController Object.
-    The editController, depending on what client code needs it to do, may create 
+    The Plane_EditCommand class  provides an editCommand Object.
+    The editCommand, depending on what client code needs it to do, may create 
     a new plane or it may be used for an existing plane. 
     """
         
@@ -49,7 +49,7 @@ class Plane_EditCommand(EditCommand):
     
     def __init__(self, commandSequencer, struct = None):
         """
-        Constructs an Edit Controller Object. The editController, 
+        Constructs an Edit Controller Object. The editCommand, 
         depending on what client code needs it to do, may create a new plane 
         or it may be used for an existing plane. 
         
@@ -59,7 +59,7 @@ class Plane_EditCommand(EditCommand):
         @param struct: The model object (in this case plane) that the 
                        Plane_EditCommand may create and/or edit
                        If struct object is specified, it means this 
-                       editController will be used to edit that struct. 
+                       editCommand will be used to edit that struct. 
         @type  struct: L{Plane} or None
         
         @see: L{Plane.__init__}
@@ -70,7 +70,7 @@ class Plane_EditCommand(EditCommand):
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 
-        editController. 
+        editCommand. 
         """
         assert not self.propMgr
         

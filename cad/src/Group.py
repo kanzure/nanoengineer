@@ -42,7 +42,7 @@ class Group(Node):
 
     _s_attr_members = S_CHILDREN
 
-    def __init__(self, name, assy, dad, members = (), editController = None): ###@@@ review inconsistent arg order
+    def __init__(self, name, assy, dad, members = (), editCommand = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
         Node.__init__(self, assy, name, dad)
@@ -50,12 +50,12 @@ class Group(Node):
         for ob in members:
             self.addchild(ob)
 
-        #@WARNING: Following (self.editController) is a temporary code that 
+        #@WARNING: Following (self.editCommand) is a temporary code that 
         # allows editing of DNA Duplex which is, at the moment, same as a 
         # group in the MT. Once we have a DNA object model ready, 
         # the following should be removed/ revised . 
         # See also self.edit where this is being used. -- Ninad 2007-10-26
-        self.editController = editController
+        self.editCommand = editCommand
 
         return
 
@@ -725,7 +725,7 @@ class Group(Node):
         """
         [this is overridden in some subclasses of Group]
         """
-        if self.editController:
+        if self.editCommand:
             commandSequencer = self.assy.w.commandSequencer
             commandSequencer.userEnterCommand('DNA_DUPLEX')
             currentCommand = commandSequencer.currentCommand
@@ -741,7 +741,7 @@ class Group(Node):
 	Temporary method to support Dna duplex editing. see Group.__init__ for 
 	a comment
 	"""
-        if self.editController:
+        if self.editCommand:
             props = ()
             return props
 

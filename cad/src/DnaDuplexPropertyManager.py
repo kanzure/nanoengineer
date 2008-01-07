@@ -84,20 +84,19 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
     previousSelectionParams = None
     sequenceEditor = None
 
-    def __init__( self, win, editController ):
+    def __init__( self, win, editCommand ):
         """
         Constructor for the DNA Duplex property manager.
         """
         EditCommand_PM.__init__( self, 
                                     win,
-                                    editController)
+                                    editCommand)
 
 
         DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
-                                pmPreviewButton| \
                                 pmWhatsThisButton)
         
         self._loadSequenceEditor()
@@ -144,7 +143,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         change_connect(self.specifyDnaLineButton, 
                      SIGNAL("toggled(bool)"), 
-                     self.editController.enterDnaLineMode)
+                     self.editCommand.enterDnaLineMode)
         
         change_connect(self.editStrandPropertiesButton,
                       SIGNAL("clicked()"),
@@ -157,7 +156,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         edit controllers as commands. Until then, the 'model_changed' method 
         (and thus this method) will  never be called.
         
-        When the editcontroller is treated as a 'command' by the 
+        When the editCommand is treated as a 'command' by the 
         commandSequencer. this method will override basicCommand.model_changed.
         
         @WARNING: Ideally this property manager should implement both
@@ -225,17 +224,17 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Slot for the OK button
         """   
-        if self.editController:
-            self.editController.preview_or_finalize_structure(previewing = False)
-            env.history.message(self.editController.logMessage)        
+        if self.editCommand:
+            self.editCommand.preview_or_finalize_structure(previewing = False)
+            env.history.message(self.editCommand.logMessage)        
         self.win.toolsDone()
     
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.
         """
-        if self.editController:
-            self.editController.cancelStructure()            
+        if self.editCommand:
+            self.editCommand.cancelStructure()            
         self.win.toolsCancel()
         
     
@@ -308,10 +307,10 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         again invokes the Edit command for this dna object -- now the strand 
         list widget must be updated so that it shows only the existing strands.
         """
-        if self.editController and self.editController.struct:
+        if self.editCommand and self.editCommand.struct:
             self.strandListWidget.insertItems(
                 row = 0,
-                items = self.editController.struct.members)
+                items = self.editCommand.struct.members)
         else:
             self.strandListWidget.clear()
             

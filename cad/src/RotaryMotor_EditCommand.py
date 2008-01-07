@@ -1,6 +1,6 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-RotaryMotorEditcontroller.py
+RotaryMotor_EditCommand.py
 
 @author: Ninad
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -20,8 +20,8 @@ from SelectAtoms_GraphicsMode   import SelectAtoms_GraphicsMode
 
 class RotaryMotor_EditCommand(EditCommand):
     """
-    The RotaryMotor_EditCommand class  provides an editController Object.
-    The editController, depending on what client code needs it to do, may create
+    The RotaryMotor_EditCommand class  provides an editCommand Object.
+    The editCommand, depending on what client code needs it to do, may create
     a new rotary motor or it may be used for an existing rotary motor. 
     """
     cmd = greenmsg("Rotary Motor: ")
@@ -42,7 +42,7 @@ class RotaryMotor_EditCommand(EditCommand):
     
     def __init__(self, commandSequencer, struct = None):
         """
-        Constructs an Edit Controller Object. The editController, 
+        Constructs an Edit Controller Object. The editCommand, 
         depending on what client code needs it to do, may create a new 
         rotary motor or it may be used for an existing rotary motor. 
         
@@ -52,7 +52,7 @@ class RotaryMotor_EditCommand(EditCommand):
         @param struct: The model object (in this case a 'rotary motor') that the
                        this EditCommand may create and/or edit
                        If struct object is specified, it means this 
-                       editController will be used to edit that struct. 
+                       editCommand will be used to edit that struct. 
         @type  struct: L{RotaryMotor} or None
         
         @see: L{RotaryMotor.__init__}
@@ -67,9 +67,9 @@ class RotaryMotor_EditCommand(EditCommand):
     def init_gui(self):
         """
         NOT IMPLEMENTED YET.
-        TODO: Move calls that create/ show PM  in Editcontroller.createStructure
+        TODO: Move calls that create/ show PM  in EditCommand.createStructure
               out of that method. (That code was written before converting the 
-              editcontrollers into 'Commands'. After this conversion, a better 
+              editCommands into 'Commands'. After this conversion, a better 
               implementation is necessary, in which PM creation and 
               display will be handled  in init_gui method.
         """
@@ -178,7 +178,7 @@ class RotaryMotor_EditCommand(EditCommand):
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 
-        editController. 
+        editCommand. 
         """
         assert not self.propMgr
 

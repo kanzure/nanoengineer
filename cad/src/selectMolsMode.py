@@ -105,9 +105,9 @@ class selectMolsMode(SelectChunks_basicCommand,
 	 there. 
 	 - Even better if the commandSequencer API starts supporting 
 	 commandSequencer.previousCommand (like it does for previous mode) 
-	 where, the previousCommand can be an editController or mode, then 
+	 where, the previousCommand can be an editCommand or mode, then 
 	 it would be good to define this API method in that mode or 
-	 editcontroller class  itself. In the above example, this method would 
+	 editCommand class  itself. In the above example, this method would 
 	 then belong to DnaDuplex_EditCommand. 
 	 -- [Ninad 2007-10-25 comment]	
         """

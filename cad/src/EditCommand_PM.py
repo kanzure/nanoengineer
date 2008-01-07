@@ -34,7 +34,7 @@ class EditCommand_PM(PM_Dialog):
     # The relative path to the PNG file that appears in the header
     iconPath = ""
 
-    def __init__(self, win, editController = None):
+    def __init__(self, win, editCommand = None):
         """
         Constructor for the EditCommand_PM
         """
@@ -47,9 +47,9 @@ class EditCommand_PM(PM_Dialog):
         # When we begin supporting that, lots of things will change and this 
         # might be one of them .--- ninad 20070613
 
-        self.editController = editController
-        if editController:
-            self.struct = self.editController.struct
+        self.editCommand = editCommand
+        if editCommand:
+            self.struct = self.editCommand.struct
         else:
             self.struct = None
 
@@ -67,12 +67,12 @@ class EditCommand_PM(PM_Dialog):
         
         self._createFlyoutActions()
             
-    def setEditCommand(self, editController):
+    def setEditCommand(self, editCommand):
         """
         """
-        assert editController
-        self.editController = editController
-        self.struct = self.editController.struct
+        assert editCommand
+        self.editCommand = editCommand
+        self.struct = self.editCommand.struct
 
     def show(self):
         """
@@ -120,7 +120,7 @@ class EditCommand_PM(PM_Dialog):
         Update various widgets  in this Property manager. The default 
         implementation does nothing. Overridden in subclasses. The various 
         widgets , (e.g. spinboxes) will get values from the structure for which
-        this propMgr is constructed for (seelf.editController.struct)
+        this propMgr is constructed for (seelf.editCommand.struct)
         
         @see: RotaryMotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show where it is called. 
@@ -180,25 +180,25 @@ class EditCommand_PM(PM_Dialog):
         """
         Slot for the OK button
         """   
-        if self.editController:
-            self.editController.preview_or_finalize_structure(previewing = False)
-            env.history.message(self.editController.logMessage)        
+        if self.editCommand:
+            self.editCommand.preview_or_finalize_structure(previewing = False)
+            env.history.message(self.editCommand.logMessage)        
         self.win.toolsDone()
     
     def cancel_btn_clicked(self):
         """
         Slot for the Cancel button.
         """
-        if self.editController:
-            self.editController.cancelStructure()            
+        if self.editCommand:
+            self.editCommand.cancelStructure()            
         self.win.toolsCancel()
         
     def preview_btn_clicked(self):
         """
         Slot for the Preview button.
         """
-        self.editController.preview_or_finalize_structure(previewing = True)
-        env.history.message(self.editController.logMessage)
+        self.editCommand.preview_or_finalize_structure(previewing = True)
+        env.history.message(self.editCommand.logMessage)
 
     def abort_btn_clicked(self):
         """
@@ -232,8 +232,8 @@ class EditCommand_PM(PM_Dialog):
 
     def _createFlyoutActions(self):
         self.exitEditCommandAction = QWidgetAction(self.win)
-        if self.editController:
-            text = "Exit " + self.editController.cmdname
+        if self.editCommand:
+            text = "Exit " + self.editCommand.cmdname
         else:
             text = "Exit"
         self.exitEditCommandAction.setText(text)

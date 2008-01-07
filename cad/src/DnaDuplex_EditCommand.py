@@ -47,7 +47,7 @@ from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 
 class DnaDuplex_EditCommand(EditCommand):
     """
-    DnaDuplex_EditCommand that provides an editController object for 
+    DnaDuplex_EditCommand that provides an editCommand object for 
     generating DNA Duplex 
     """
     cmd              =  greenmsg("Build DNA: ")
@@ -134,7 +134,7 @@ class DnaDuplex_EditCommand(EditCommand):
     def createStructure(self, showPropMgr = True):
         """
         Overrides superclass method. It doesn't do anything for this type
-        of editcontroller
+        of editcommand
         """
         pass
     
@@ -142,7 +142,7 @@ class DnaDuplex_EditCommand(EditCommand):
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 
-        editController. 
+        editCommand. 
         """
         assert not self.propMgr
         propMgr = DnaDuplexPropertyManager(self.win, self)
@@ -225,12 +225,12 @@ class DnaDuplex_EditCommand(EditCommand):
             dnaGroup = DnaSegment(self.name, 
                          self.win.assy,
                          self.win.assy.part.topnode,
-                         editController = self  )
+                         editCommand = self  )
         else:
             dnaGroup = Group(self.name, 
                              self.win.assy,
                              self.win.assy.part.topnode,
-                             editController = self
+                             editCommand = self
                          )
         try:
             # Make the DNA duplex. <dnaGroup> will contain three chunks:
@@ -297,8 +297,8 @@ class DnaDuplex_EditCommand(EditCommand):
                 #  made with)
             name = self.name
             
-        #@NOTE: Unlike editcontrollers such as Plane_EditCommand, this 
-        #editcontroller actually removes the structure and creates a new one 
+        #@NOTE: Unlike editcommands such as Plane_EditCommand, this 
+        #editCommand actually removes the structure and creates a new one 
         #when its modified. We don't yet know if the DNA object model 
         # will solve this problem. (i.e. reusing the object and just modifying
         #its attributes.  Till that time, we'll continue to use 
@@ -335,9 +335,9 @@ class DnaDuplex_EditCommand(EditCommand):
 	 there. 
 	 - Even better if the commandSequencer API starts supporting 
 	 commandSequencer.previousCommand (like it does for previous mode) 
-	 where, the previousCommand can be an editController or mode, then 
+	 where, the previousCommand can be an editCommand or mode, then 
 	 it would be good to define this API method in that mode or 
-	 editcontroller class  itself.  So, this method will be directly called 
+	 editCommand class  itself.  So, this method will be directly called 
          by the temporary mode (instead of calling a method in mode which in 
          turn calls this method         
 	 -- [Ninad 2007-10-25 comment]	
@@ -456,7 +456,7 @@ class DnaDuplex_EditCommand(EditCommand):
             dnaSegment = DnaSegment(self.name, 
                          self.win.assy,
                          self.win.assy.part.topnode,
-                         editController = self  )
+                         editCommand = self  )
         try:
             # Make the DNA duplex. <dnaGroup> will contain three chunks:
             #  - Strand1

@@ -1782,62 +1782,62 @@ class MWsemantics(QMainWindow,
 
         return self.sequenceEditor   
 
-    def createRotaryMotorPropMgr_if_needed(self, editController):
+    def createRotaryMotorPropMgr_if_needed(self, editCommand):
         """
         Create the Rotary motor PM object (if one doesn't exist) 
-        If this object is already present, then set its editcontroller to this
+        If this object is already present, then set its editCommand to this
         parameter
-        @parameter editController: The edit controller object for this PM 
-        @type editController: B{RotaryMotor_EditCommand}
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{RotaryMotor_EditCommand}
         @see: B{RotaryMotor_EditCommand._createPropMgrObject}
         """
         from RotaryMotorPropertyManager import RotaryMotorPropertyManager
         if self.rotaryMotorPropMgr is None:
             self.rotaryMotorPropMgr = \
-                RotaryMotorPropertyManager(self, editController)  
+                RotaryMotorPropertyManager(self, editCommand)  
         else:
-            self.rotaryMotorPropMgr.setEditCommand(editController)        
+            self.rotaryMotorPropMgr.setEditCommand(editCommand)        
 
         return self.rotaryMotorPropMgr   
 
 
-    def createLinearMotorPropMgr_if_needed(self, editController):
+    def createLinearMotorPropMgr_if_needed(self, editCommand):
         """
         Create the Linear motor PM object (if one doesn't exist) 
-        If this object is already present, then set its editcontroller to this
+        If this object is already present, then set its editCommand to this
         parameter
-        @parameter editController: The edit controller object for this PM 
-        @type editController: B{LinearMotor_EditCommand}
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{LinearMotor_EditCommand}
         @see: B{LinearMotor_EditCommand._createPropMgrObject}
         """
         from LinearMotorPropertyManager import LinearMotorPropertyManager
         if self.linearMotorPropMgr is None:
             self.linearMotorPropMgr = \
-                LinearMotorPropertyManager( self, editController)  
+                LinearMotorPropertyManager( self, editCommand)  
         else:
-            self.linearMotorPropMgr.setEditCommand(editController)        
+            self.linearMotorPropMgr.setEditCommand(editCommand)        
 
         return self.linearMotorPropMgr
 
-    def createPlanePropMgr_if_needed(self, editController):
+    def createPlanePropMgr_if_needed(self, editCommand):
         """
         Create the Plane PM object (if one doesn't exist) 
-        If this object is already present, then set its editcontroller to this
+        If this object is already present, then set its editCommand to this
         parameter
-        @parameter editController: The edit controller object for this PM 
-        @type editController: B{RotaryMotor_EditCommand}
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{RotaryMotor_EditCommand}
         @see: B{Plane_EditCommand._createPropMgrObject}
         """
         from PlanePropertyManager import PlanePropertyManager
         if self.planePropMgr is None:
             self.planePropMgr = \
-                PlanePropertyManager(self, editController)  
+                PlanePropertyManager(self, editCommand)  
         else:
-            self.planePropMgr.setEditCommand(editController)        
+            self.planePropMgr.setEditCommand(editCommand)        
 
         return self.planePropMgr
 
-    def createDnaDuplexPropMgr_if_needed(self, editController):
+    def createDnaDuplexPropMgr_if_needed(self, editCommand):
         """
         THIS METHOD IS NOT USED AS OF 2007-12-04
         - This is because the endPoint1 and endPoint2 passed to the 
@@ -1848,17 +1848,17 @@ class MWsemantics(QMainWindow,
         PM object and reusing it as needed. 
 
         Create the DNA Duplex PM object (if one doesn't exist) 
-        If this object is already present, then set its editcontroller to this
+        If this object is already present, then set its editCommand to this
         parameter
-        @parameter editController: The edit controller object for this PM 
-        @type editController: B{DnaDuplex_EditCommand}
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{DnaDuplex_EditCommand}
         """
         from DnaDuplexPropertyManager import DnaDuplexPropertyManager
         if self.dnaDuplexPropMgr is None:
             self.dnaDuplexPropMgr = \
-                DnaDuplexPropertyManager(self, editController)
+                DnaDuplexPropertyManager(self, editCommand)
         else:
-            self.dnaDuplexPropMgr.setEditCommand(editController)
+            self.dnaDuplexPropMgr.setEditCommand(editCommand)
 
         return self.dnaDuplexPropMgr
 

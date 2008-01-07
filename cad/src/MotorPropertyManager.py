@@ -63,8 +63,8 @@ class MotorPropertyManager(EditCommand_PM):
         #EditCommand_PM.show, the 'preview' properties are not updated 
         #when you are editing an existing R.Motor. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
-        if self.editController and self.editController.struct:
-            self.editController.struct.updateCosmeticProps(previewing = True)
+        if self.editCommand and self.editCommand.struct:
+            self.editCommand.struct.updateCosmeticProps(previewing = True)
             
         self.updateAttachedAtomListWidget()
 
@@ -128,7 +128,7 @@ class MotorPropertyManager(EditCommand_PM):
             #self.jig_color_pixmap = \
                 #get_widget_with_color_palette(self.jig_color_pixmap, 
                                               #self.jig_QColor)  
-            self.editController.struct.color = self.editController.struct.normcolor = QColor_to_RGBf(color)
+            self.editCommand.struct.color = self.editCommand.struct.normcolor = QColor_to_RGBf(color)
             self.glpane.gl_update()
     
     def change_motor_size(self, gl_update = True):
@@ -143,8 +143,8 @@ class MotorPropertyManager(EditCommand_PM):
         Slot for reverse direction button.
         Reverses the direction of the motor.
         """
-        if self.editController.struct:
-            self.editController.struct.reverse_direction()            
+        if self.editCommand.struct:
+            self.editCommand.struct.reverse_direction()            
             self.glpane.gl_update()
     
     def updateAttachedAtomListWidget(self, atomList = None):
@@ -153,8 +153,8 @@ class MotorPropertyManager(EditCommand_PM):
         """
                      
         if atomList is None:
-            if self.editController.struct:
-                atomList = self.editController.struct.atoms[:]
+            if self.editCommand.struct:
+                atomList = self.editCommand.struct.atoms[:]
         
         if atomList is not None:
             self.attachedAtomsListWidget.insertItems(row = 0, 

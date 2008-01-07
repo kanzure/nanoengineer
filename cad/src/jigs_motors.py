@@ -254,13 +254,13 @@ class RotaryMotor(Motor):
 
     def __init__(self, 
                  assy, 
-                 editController = None,
+                 editCommand = None,
                  atomlist = []):
         """
         create a blank Rotary Motor not connected to anything
         """
         # [note (bruce 071128): future copy-code cleanup will require either
-        # that the atomlist argument comes before the editController argument,
+        # that the atomlist argument comes before the editCommand argument,
         # or that _um_initargs is overridden.]
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Motor.__init__(self, assy, atomlist)
@@ -285,7 +285,7 @@ class RotaryMotor(Motor):
         # Should self.cancelled be in RotaryMotorProp.setup? - Mark 050109
         self.cancelled = True # We will assume the user will cancel
 
-        self.editController = editController
+        self.editCommand = editCommand
 
     def edit(self):
         """
@@ -296,10 +296,10 @@ class RotaryMotor(Motor):
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'ROTARY_MOTOR'
         #When a Plane object read from an mmp file is edited, we need to assign 
-        #it an editcontroller. So, when it is resized, the propMgr spinboxes
+        #it an editCommand. So, when it is resized, the propMgr spinboxes
         #are properly updated. See self.resizeGeometry. 
-        if self.editController is None:
-            self.editController = currentCommand
+        if self.editCommand is None:
+            self.editCommand = currentCommand
             
         currentCommand.editStructure(self)
         
@@ -602,13 +602,13 @@ class LinearMotor(Motor):
 
     def __init__(self, 
                  assy, 
-                 editController = None,
+                 editCommand = None,
                  atomlist = []):
         """
         create a blank Linear Motor not connected to anything
         """
         # [note (bruce 071128): future copy-code cleanup will require either
-        # that the atomlist argument comes before the editController argument,
+        # that the atomlist argument comes before the editCommand argument,
         # or that _um_initargs is overridden.]
         assert atomlist == [] # whether from default arg value or from caller -- for now
         Motor.__init__(self, assy, atomlist)
@@ -625,7 +625,7 @@ class LinearMotor(Motor):
         self.width = 2.0 # default box width
         self.sradius = 0.2 #default spoke radius
         self.cancelled = True # We will assume the user will cancel
-        self.editController = editController
+        self.editCommand = editCommand
 
     def edit(self):
         """
@@ -636,10 +636,10 @@ class LinearMotor(Motor):
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'LINEAR_MOTOR'
         #When a Plane object read from an mmp file is edited, we need to assign 
-        #it an editcontroller. So, when it is resized, the propMgr spinboxes
+        #it an editCommand. So, when it is resized, the propMgr spinboxes
         #are properly updated. See self.resizeGeometry. 
-        if self.editController is None:
-            self.editController = currentCommand
+        if self.editCommand is None:
+            self.editCommand = currentCommand
             
         currentCommand.editStructure(self)
         

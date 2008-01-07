@@ -185,8 +185,8 @@ class PlanePropertyManager(EditCommand_PM):
         #when you are editing an existing plane. Don't know the cause at this
         #time, issue is trivial. So calling it in the end -- Ninad 2007-10-03
         
-        if self.editController.struct:
-            self.editController.struct.updateCosmeticProps(previewing = True)
+        if self.editCommand.struct:
+            self.editCommand.struct.updateCosmeticProps(previewing = True)
         
                 
     def change_plane_width(self, newWidth):
@@ -194,8 +194,8 @@ class PlanePropertyManager(EditCommand_PM):
         Slot for width spinbox in the Property Manager.
         """
         if self.aspectRatioCheckBox.isChecked():
-            self.editController.struct.width   =  newWidth
-            self.editController.struct.height  =  self.editController.struct.width / \
+            self.editCommand.struct.width   =  newWidth
+            self.editCommand.struct.height  =  self.editCommand.struct.width / \
                                      self.aspectRatioSpinBox.value() 
             self.update_spinboxes()
         else:
@@ -207,8 +207,8 @@ class PlanePropertyManager(EditCommand_PM):
         Slot for height spinbox in the Property Manager.
         """
         if self.aspectRatioCheckBox.isChecked():
-            self.editController.struct.height  =  newHeight 
-            self.editController.struct.width   =  self.editController.struct.height * \
+            self.editCommand.struct.height  =  newHeight 
+            self.editCommand.struct.width   =  self.editCommand.struct.height * \
                                      self.aspectRatioSpinBox.value()
             self.update_spinboxes()
         else:
@@ -223,10 +223,10 @@ class PlanePropertyManager(EditCommand_PM):
         @type  gl_update: bool
         """
         if not self.resized_from_glpane:
-            self.editController.struct.width   =  self.widthDblSpinBox.value()
-            self.editController.struct.height  =  self.heightDblSpinBox.value() 
+            self.editCommand.struct.width   =  self.widthDblSpinBox.value()
+            self.editCommand.struct.height  =  self.heightDblSpinBox.value() 
         if gl_update:
-            self.editController.struct.glpane.gl_update()
+            self.editCommand.struct.glpane.gl_update()
     
     def changePlanePlacement(self, buttonId):
         """
@@ -243,25 +243,25 @@ class PlanePropertyManager(EditCommand_PM):
             center of the plane is always (0,0,0). This value is set during \
             plane creation or when the <b>Preview</b> button is clicked."
             self.updateMessage(msg)
-            self.editController.placePlaneParallelToScreen()            
+            self.editCommand.placePlaneParallelToScreen()            
         elif buttonId == 1:
             msg = "Create a Plane with center coinciding with the common center\
             of <b> 3 or more selected atoms </b>. If exactly 3 atoms are \
             selected, the Plane will pass through those atoms. Select atoms \
             and hit <b>Preview</b> to see the new Plane placement"        
             self.updateMessage(msg)            
-            self.editController.placePlaneThroughAtoms()
-            if self.editController.logMessage:
-                env.history.message(self.editController.logMessage)
+            self.editCommand.placePlaneThroughAtoms()
+            if self.editCommand.logMessage:
+                env.history.message(self.editCommand.logMessage)
         elif buttonId == 2:
             msg = "Create a Plane,at an <b> offset</b> to the selected plane,\
             in the direction indicated by the direction arrow. \
             Select an existing plane and hit <b>Preview</b>.\
             You can click on the direction arrow to reverse its direction."
             self.updateMessage(msg)            
-            self.editController.placePlaneOffsetToAnother()
-            if self.editController.logMessage:
-                env.history.message(self.editController.logMessage)
+            self.editCommand.placePlaneOffsetToAnother()
+            if self.editCommand.logMessage:
+                env.history.message(self.editCommand.logMessage)
         elif buttonId == 3:
             #'Custom' plane placement. Do nothing (only update message box)
             # Fixes bug 2439
@@ -278,11 +278,11 @@ class PlanePropertyManager(EditCommand_PM):
         # spinbox.valueChanged()
         # signal is not emitted after calling spinbox.setValue(). 
         # This flag is used in change_plane_size method.-- Ninad 20070601
-        if self.editController and self.editController.struct:
+        if self.editCommand and self.editCommand.struct:
             self.resized_from_glpane = True
-            self.heightDblSpinBox.setValue(self.editController.struct.height)
-            self.widthDblSpinBox.setValue(self.editController.struct.width)
-            self.editController.struct.glpane.gl_update()
+            self.heightDblSpinBox.setValue(self.editCommand.struct.height)
+            self.widthDblSpinBox.setValue(self.editCommand.struct.width)
+            self.editCommand.struct.glpane.gl_update()
             self.resized_from_glpane = False
     
     def _enableAspectRatioSpinBox(self, enable):
@@ -300,7 +300,7 @@ class PlanePropertyManager(EditCommand_PM):
         """
         Updates the Aspect Ratio spin box based on the current width and height.
         """
-        aspectRatio = self.editController.struct.width / self.editController.struct.height
+        aspectRatio = self.editCommand.struct.width / self.editCommand.struct.height
         self.aspectRatioSpinBox.setValue(aspectRatio)
     
     
@@ -326,10 +326,10 @@ class PlanePropertyManager(EditCommand_PM):
         EditCommand_PM.update_props_if_needed_before_closing(self)
         
         #Don't draw the direction arrow when the object is finalized. 
-        if self.editController.struct and \
-           self.editController.struct.offsetParentGeometry:
+        if self.editCommand.struct and \
+           self.editCommand.struct.offsetParentGeometry:
             
-            dirArrow = self.editController.struct.offsetParentGeometry.directionArrow 
+            dirArrow = self.editCommand.struct.offsetParentGeometry.directionArrow 
             dirArrow.setDrawRequested(False)
     
     def updateMessage(self, message = ''):

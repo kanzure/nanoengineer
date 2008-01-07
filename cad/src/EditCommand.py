@@ -46,14 +46,14 @@ from Select_Command import Select_Command
 
 class EditCommand(Select_Command):
     """
-    EditCommand class that provides a editcontroller object. 
+    EditCommand class that provides a editCommand object. 
     The client can call three public methods defined in this class to acheive 
     various things. 
-    1. runCommand -- Used to run this editController . Depending upon the
-       type of editController it is, it does various things. The most common 
+    1. runCommand -- Used to run this editCommand . Depending upon the
+       type of editCommand it is, it does various things. The most common 
        thing it does is to create and show  a property manager (PM) The PM 
-       is used by the editController to define the UI for the model
-       which this editController creates/edits. 
+       is used by the editCommand to define the UI for the model
+       which this editCommand creates/edits. 
        See DnaDuplex_EditCommand.runCommand for an example 
     2. createStructure -- Used directly by the client when it already knows 
        input parameters for the structure being generated. This facilitates 
@@ -122,7 +122,7 @@ class EditCommand(Select_Command):
         """
         #@@TODO: Should the structure always be reset while entering,
         #(for instance), Plane_EditCommand PM? The client must explicitely use, 
-        #for example, editController.editStructre(self) so that this command
+        #for example, editCommand.editStructre(self) so that this command
         #knows what to edit. But that must be done after entering the command. 
         #see Plane.edit for example.
         #setting self.struct to None is needed in Enter as
@@ -130,7 +130,7 @@ class EditCommand(Select_Command):
         #the cosmetic props of the old structure from some previous run. 
         #This will be cleaned up (the update_props_... method was designed 
         # for the 'guest Property Managers' i.e. at the time when the 
-        #editController was not a 'command'. ) -- Ninad 2007-12-26
+        #editCommand was not a 'command'. ) -- Ninad 2007-12-26
         if self.struct:
             self.struct = None                    
         Select_Command.Enter(self)
@@ -149,11 +149,11 @@ class EditCommand(Select_Command):
     
     def runCommand(self):
         """        
-        Used to run this editController . Depending upon the
-        type of editController it is, it does various things. The most common 
+        Used to run this editCommand . Depending upon the
+        type of editCommand it is, it does various things. The most common 
         thing it does is to create and show  a property manager (PM) The PM 
-        is used by the editController to define the UI for the model
-        which this editController creates/edits. 
+        is used by the editCommand to define the UI for the model
+        which this editCommand creates/edits. 
         See DnaDuplex_EditCommand.runCommand for an example
         Default implementation, subclasses should override this method.
         NEED TO DOCUMENT THIS FURTHER ?
@@ -184,11 +184,11 @@ class EditCommand(Select_Command):
         """
         Default implementation of createStructure method. 
         Might be overridden in  subclasses. Creates an instance (object)
-        of the structure this editController wants to generate. This implements
+        of the structure this editCommand wants to generate. This implements
         a topLevel command that the client can execute to create an object it 
         wants.
         
-        Example: If its a plane editController, this method will create an 
+        Example: If its a plane editCommand, this method will create an 
                 object of class Plane. 
         
         This method also creates a propMgr objects if it doesn't
@@ -236,7 +236,7 @@ class EditCommand(Select_Command):
         
         @see: L{self.createStructure} (another top level command that 
               facilitates creation of a model object created by this 
-              editController
+              editCommand
         @see: L{Plane.edit} and L{Plane_EditCommand._createPropMgrObject} 
         """
         
@@ -253,7 +253,7 @@ class EditCommand(Select_Command):
       
         #Following is needed to make sure that when a dna line is drawn 
         #(using DNA Line mode), it takes input and gives output to the 
-        # currently active editController 
+        # currently active editCommand 
         #(see selectMolsMode.provideParametersForTemporaryMode where we are 
         # using self.win.dnaEditCommand) Fixes bug 2588
         
@@ -286,16 +286,16 @@ class EditCommand(Select_Command):
     def _createPropMgrObject(self):
         """
         Abstract method (overridden in subclasses). Creates a property manager 
-        object (that defines UI things) for this editController. 
+        object (that defines UI things) for this editCommand. 
         """
         raise AbstractMethod()
     
     def _modifyStructure(self, params):
         """
         Abstract method that modifies the structure (i.e. the object created 
-        by this editController) using the parameters provided.
+        by this editCommand) using the parameters provided.
         @param params: The parameters used as an input to modify the structure
-                       (object created using this editcontroller) 
+                       (object created using this editCommand) 
         @type  params: tuple
         @see: L{Plane_EditCommand._modifyStructure}
         """
@@ -318,7 +318,7 @@ class EditCommand(Select_Command):
         """
         
         ################################
-        #For certain edit controllers, it is possible that self.struct is 
+        #For certain edit commands, it is possible that self.struct is 
         #not created. If so simply return (don't use assert self.struct)
         ##This is a commented out stub code for the edit controllers 
         ##such as DNAEditCommand which take input from the user before 

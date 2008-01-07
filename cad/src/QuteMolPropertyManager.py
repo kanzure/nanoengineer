@@ -198,7 +198,7 @@ class QuteMolPropertyManager(PM_Dialog):
         self.close() 
 
         # The following reopens the property manager of the command after
-        # the PM of the reference geometry editController (i.e. Plane) is closed.
+        # the PM of the reference geometry editCommand (i.e. Plane) is closed.
         # Note: the value of self.modePropertyManager can be None.
         # See anyMode.propMgr
         # (See similar code in ok_btn_clicked [bruce 071011 comment])

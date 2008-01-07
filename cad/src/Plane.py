@@ -69,7 +69,7 @@ class Plane(ReferenceGeometry):
         
     def __init__(self, 
                  win, 
-                 editController = None, 
+                 editCommand = None, 
                  atomList = None, 
                  READ_FROM_MMP = False):
         """
@@ -78,14 +78,14 @@ class Plane(ReferenceGeometry):
         @param win: The NE1 main window.
         @type  win: L{MainWindow}
         
-        @param editController: The Plane Edit Controller object. 
+        @param editCommand: The Plane Edit Controller object. 
                           If this is None, it means the Plane is created by 
                           reading the data from the MMP file and it doesn't 
                           have  an EditCommand assigned. 
                           The EditCommand may be created at a later stage 
                           in this case. 
                           See L{self.edit} for an example. 
-        @type  editController: B{Plane_EditCommand} or None                          
+        @type  editCommand: B{Plane_EditCommand} or None                          
         
         @param atomList: List of atoms.
         @type  atomList: list
@@ -108,7 +108,7 @@ class Plane(ReferenceGeometry):
         # copied from class ESPImage 
         self.pickCheckOnly  = False 
         
-        self.editController      =  editController
+        self.editCommand      =  editCommand
                 
         if not READ_FROM_MMP:
             self.width      =  20.0
@@ -560,8 +560,8 @@ class Plane(ReferenceGeometry):
             
         self.recomputeCenter(totalOffset)
         #update the width,height spinboxes(may be more in future)--Ninad20070601
-        if self.editController and self.editController.propMgr:
-            self.editController.propMgr.update_spinboxes()
+        if self.editCommand and self.editCommand.propMgr:
+            self.editCommand.propMgr.update_spinboxes()
      
         
     def edit(self):
@@ -574,10 +574,10 @@ class Plane(ReferenceGeometry):
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'REFERENCE_PLANE'
         #When a Plane object read from an mmp file is edited, we need to assign 
-        #it an editcontroller. So, when it is resized, the propMgr spinboxes
+        #it an editCommand. So, when it is resized, the propMgr spinboxes
         #are properly updated. See self.resizeGeometry. 
-        if self.editController is None:
-            self.editController = currentCommand
+        if self.editCommand is None:
+            self.editCommand = currentCommand
             
         currentCommand.editStructure(self)
          
@@ -640,7 +640,7 @@ class Plane(ReferenceGeometry):
         offset.
         """
         
-        cmd = self.editController.cmd 
+        cmd = self.editCommand.cmd 
                 
         jigList = self.win.assy.getSelectedJigs()
         if jigList:

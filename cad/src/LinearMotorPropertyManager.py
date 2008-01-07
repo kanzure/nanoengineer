@@ -87,15 +87,15 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show where it is called. 
         """       
-        if self.editController and self.editController.struct:            
-            force = self.editController.struct.force
-            stiffness = self.editController.struct.stiffness
-            enable_minimize = self.editController.struct.enable_minimize
+        if self.editCommand and self.editCommand.struct:            
+            force = self.editCommand.struct.force
+            stiffness = self.editCommand.struct.stiffness
+            enable_minimize = self.editCommand.struct.enable_minimize
             
-            length = self.editController.struct.length
-            width = self.editController.struct.width
-            spoke_radius = self.editController.struct.sradius
-            normcolor = self.editController.struct.normcolor
+            length = self.editCommand.struct.length
+            width = self.editCommand.struct.width
+            spoke_radius = self.editCommand.struct.sradius
+            normcolor = self.editCommand.struct.normcolor
         else:
             force = 0.0
             stiffness = 0.0
@@ -120,10 +120,10 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         """
         Slot method to change the jig's length, width and/or spoke radius.
         """
-        self.editController.struct.length = self.motorLengthDblSpinBox.value()
-        self.editController.struct.width =  self.motorWidthDblSpinBox.value()
+        self.editCommand.struct.length = self.motorLengthDblSpinBox.value()
+        self.editCommand.struct.width =  self.motorWidthDblSpinBox.value()
         # spoke radius --
-        self.editController.struct.sradius = self.spokeRadiusDblSpinBox.value()
+        self.editCommand.struct.sradius = self.spokeRadiusDblSpinBox.value()
         if gl_update:
             self.glpane.gl_update()
             
@@ -131,10 +131,10 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         """
         Load widgets in MotorParamsGroupBox.
         """                
-        if self.editController and self.editController.struct:
-            force = self.editController.struct.force
-            stiffness = self.editController.struct.stiffness
-            enable_minimize = self.editController.struct.enable_minimize
+        if self.editCommand and self.editCommand.struct:
+            force = self.editCommand.struct.force
+            stiffness = self.editCommand.struct.stiffness
+            enable_minimize = self.editCommand.struct.enable_minimize
         else:
             force = 0.0
             stiffness = 0.0
@@ -180,11 +180,11 @@ class LinearMotorPropertyManager(MotorPropertyManager):
         Load widgets in groubox 2.
         """
         
-        if self.editController and self.editController.struct:
-            length = self.editController.struct.length
-            width = self.editController.struct.width
-            spoke_radius = self.editController.struct.sradius
-            normcolor = self.editController.struct.normcolor
+        if self.editCommand and self.editCommand.struct:
+            length = self.editCommand.struct.length
+            width = self.editCommand.struct.width
+            spoke_radius = self.editCommand.struct.sradius
+            normcolor = self.editCommand.struct.normcolor
         else:
             length = 10
             width = 1

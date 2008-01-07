@@ -92,17 +92,17 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show where it is called. 
         """       
-        if self.editController and self.editController.struct:            
-            torque = self.editController.struct.torque
-            initial_speed = self.editController.struct.initial_speed
-            final_speed = self.editController.struct.speed
-            dampers_enabled = self.editController.struct.dampers_enabled
-            enable_minimize = self.editController.struct.enable_minimize
+        if self.editCommand and self.editCommand.struct:            
+            torque = self.editCommand.struct.torque
+            initial_speed = self.editCommand.struct.initial_speed
+            final_speed = self.editCommand.struct.speed
+            dampers_enabled = self.editCommand.struct.dampers_enabled
+            enable_minimize = self.editCommand.struct.enable_minimize
             
-            length = self.editController.struct.length
-            radius = self.editController.struct.radius
-            spoke_radius = self.editController.struct.sradius
-            normcolor = self.editController.struct.normcolor
+            length = self.editCommand.struct.length
+            radius = self.editCommand.struct.radius
+            spoke_radius = self.editCommand.struct.sradius
+            normcolor = self.editCommand.struct.normcolor
         else:
             torque = 0.0
             initial_speed = 0.0
@@ -130,12 +130,12 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """
         Slot method to change the jig's length, radius and/or spoke radius.
         """
-        if self.editController and self.editController.struct:
-            self.editController.struct.length = \
+        if self.editCommand and self.editCommand.struct:
+            self.editCommand.struct.length = \
                 self.motorLengthDblSpinBox.value()# motor length
-            self.editController.struct.radius = \
+            self.editCommand.struct.radius = \
                 self.motorRadiusDblSpinBox.value() # motor radius
-            self.editController.struct.sradius = \
+            self.editCommand.struct.sradius = \
                 self.spokeRadiusDblSpinBox.value() # spoke radius
             
             if gl_update:
@@ -145,12 +145,12 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """
         Load widgets in MotorParamsGroupBox.
         """    
-        if self.editController and self.editController.struct:
-            torque = self.editController.struct.torque
-            initial_speed = self.editController.struct.initial_speed
-            final_speed = self.editController.struct.speed
-            dampers_enabled = self.editController.struct.dampers_enabled
-            enable_minimize = self.editController.struct.enable_minimize
+        if self.editCommand and self.editCommand.struct:
+            torque = self.editCommand.struct.torque
+            initial_speed = self.editCommand.struct.initial_speed
+            final_speed = self.editCommand.struct.speed
+            dampers_enabled = self.editCommand.struct.dampers_enabled
+            enable_minimize = self.editCommand.struct.enable_minimize
         else:
             torque = 0.0
             initial_speed = 0.0
@@ -219,11 +219,11 @@ class RotaryMotorPropertyManager(MotorPropertyManager):
         """
         Load widgets in groubox 2.
         """
-        if self.editController and self.editController.struct:
-            length = self.editController.struct.length
-            radius = self.editController.struct.radius
-            spoke_radius = self.editController.struct.sradius
-            normcolor = self.editController.struct.normcolor
+        if self.editCommand and self.editCommand.struct:
+            length = self.editCommand.struct.length
+            radius = self.editCommand.struct.radius
+            spoke_radius = self.editCommand.struct.sradius
+            normcolor = self.editCommand.struct.normcolor
         else:
             length = 10
             radius = 1
