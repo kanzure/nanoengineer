@@ -124,6 +124,9 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
           <td></td>
           <td valign="top"><span class="summary-name">Packages (arcs): <?php include 'dependpack.dot.lines'; ?>&nbsp;</span></td>
           <td><a href="dependpack.dot">dependpack.dot</a></td></tr>
+        <tr>
+          <td align="right">Module classification: </td>
+          <td><a href="proposed_file_listing.txt">proposed package/module listing</a></td></tr>
       </table></td>
   </tr>
 
@@ -150,6 +153,8 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
       * W0611 - Unused import warning. Emitted when an imported module or variable is not used.
       <p>
       * E0602 - Undefined variable error. Emitted when a non-builtin symbol is used, but no definition or import of it can be found.</td>
+      <p>
+      <b>Module classification:</b> Proposed module/package listing derived from packageData.py. See <a href="http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_module/package_organization">NE1 module/package organization</a>.
   </tr>
 </table>
 <pre>

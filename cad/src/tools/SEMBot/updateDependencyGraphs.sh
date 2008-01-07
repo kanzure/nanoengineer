@@ -6,10 +6,16 @@ cd SVN-D/cad/src
 
 echo creating color module graph
 /usr/local/bin/python tools/PackageDependency.py `tools/AllPyFiles.sh` --justCycles --colorPackages > $HERE/dependcolor.dot 2> $HERE/packageloopcounts
+
 echo creating bw module graph
 /usr/local/bin/python tools/PackageDependency.py `tools/AllPyFiles.sh` --justCycles > $HERE/depend.dot 2> $HERE/packageloopcounts.in
+
 echo creating color package graph
 /usr/local/bin/python tools/PackageDependency.py `tools/AllPyFiles.sh` --byPackage --colorPackages > $HERE/dependpack.dot 2> $HERE/packagemodulemapping.in
+
+echo creating proposed source file listing based on package classification
+cd tools
+/usr/local/bin/python packageData_checker.py > $HERE/proposed_file_listing.txt
 
 cd $HERE
 
