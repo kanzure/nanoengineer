@@ -11,258 +11,155 @@ Ninad 20070706 : Added support for resizing a poly-line.
 
 import env
 
-from OpenGL.GL import glPushName
-from OpenGL.GL import glPopName
 from OpenGL.GL  import glPushMatrix
 from OpenGL.GL  import glPopMatrix
-from OpenGL.GL import glTranslatef
-from OpenGL.GL import glRotatef
-
 from OpenGL.GLU import gluProject, gluUnProject
-from drawer     import drawPolyLine, drawline, drawLineLoop, drawPoint
-from drawer     import drawLadder, drawRibbons
+from drawer     import drawPolyLine
+
 from Numeric    import dot
 from math       import pi, cos
 from VQT        import  V, Q, cross, A, planeXline, vlen, norm, angleBetween
 
 from debug     import print_compact_traceback
-from constants import blue, red, orange, darkgreen, black, darkred
+from constants import blue
 from ResizeHandle     import ResizeHandle
-from DragHandler import DragHandler_API
+from ReferenceGeometry import ReferenceGeometry
 
-from LinePropertyManager import LinePropertyManager
 
-ONE_RADIAN = 180.0 / pi
-
-class Line(DragHandler_API):
+class Line(ReferenceGeometry):
     """
     """
     sym = "Line" 
     is_movable = True 
     icon_names = ["modeltree/plane.png", "modeltree/plane-hide.png"]
-    sponsor_keyword = 'Line'
-    name = "Line"
-    def __init__(self, glpane, editCommand = None, lineEndPoints = []):
-        """
-        """
-        self.glpane = glpane
-        self.editCommand = editCommand
-        self.endPoint1 = lineEndPoints[0]
-        self.endPoint2 = lineEndPoints[1]
-        
-        
-        for lineVertex in [self.endPoint1, self.endPoint2]:
-            if hasattr(lineVertex, 'lineSegments'):
-                lineVertex.lineSegments.append(self)
-
-        #Line vector -- might be needed when another line is moved. 
-        self.vector = self.getVector()
-        self.length = vlen(self.endPoint1.center - self.endPoint2.center)
+    sponsor_keyword = 'Line' 
+    copyable_attrs = ReferenceGeometry.copyable_attrs 
+    mmp_record_name = "line"
+    
+    def __init__(self, win, plane = None, lst = None, READ_FROM_MMP = False):
+        self.w = self.win = win                      
+        ReferenceGeometry.__init__(self, win)  
+        self.plane = plane
+        self.controlPoints = []
+        self.handles = []
+        self.quat = None
+        self.center = None
         self.color = blue
-        self.glname = env.alloc_my_glselect_name(self)
-        self.isPicked = False
-        side = self.glpane.scale * 0.02
-        self.endHandleHalfWidth = side/2.0 #handle's half width
-        self.endHandleHalfHeight = side/2.0 #handle's half height
-        self.propMgr = LinePropertyManager(self.glpane.assy.w, None)
-    
-    def getVector(self):
-        """
-        """
-        #Line vector -- might be needed when another line is moved. 
-        self.vector = self.endPoint1.center - self.endPoint2.center
-        return self.vector
-    
-    def setLength(self, newLength):
-        """
-        """
-        offset = (newLength - self.length)
-        offset = norm(self.vector)* offset
-        self.endPoint2.move(offset)
-        self.length = newLength
+        if lst:            
+            for a in lst:
+                self.controlPoints.append(a.posn())  
         
-                
-    def draw(self):
-        """
-        """
-        try:
-            glPushName(self.glname)
-            glPushMatrix()
-            self._draw()    
-            glPopMatrix()
-        except:
-            glPopName()
-            print_compact_traceback(
-                "ignoring exception when drawing handle %r: " % self)
-        else:
-            glPopName()
-
-    def _draw(self, highlighted = False):
-        if highlighted:
-            ##drawline(red, self.endPoint1.center, self.endPoint2.center, width = 2)
-            if 1:
-                #drawLadder(self.endPoint1.center,
-                           #self.endPoint2.center, 
-                           #3.18,
-                           #self.glpane.scale, 
-                           #self.glpane.lineOfSight,
-                           #beam1Color = red,
-                           #beam2Color = blue,
-                           #stepColor = black    
-                        #)  
-                drawRibbons(self.endPoint1.center,
-                       self.endPoint2.center, 
-                       3.18,
-                       self.glpane.scale,
-                       self.glpane.lineOfSight,
-                       ribbonThickness = 4.0,
-                       ribbon1Color = darkred,
-                       ribbon2Color = blue,
-                       stepColor = black    
-                    )     
-        else:
-            if self.isPicked:
-                color = darkgreen
-                self._drawEndsAsHandles()
-            else:
-                color = blue
-                
-            stepSize  = 3.18
-            #drawLadder(self.endPoint1.center,
-                       #self.endPoint2.center, 
-                       #stepSize,
-                       #self.glpane.scale, 
-                       #self.glpane.lineOfSight,
-                       #beam1Color = red,
-                       #beam2Color = blue,
-                       #stepColor = black    
-                    #)  
-            drawRibbons(self.endPoint1.center,
-                       self.endPoint2.center, 
-                       3.18,
-                       self.glpane.scale,
-                       self.glpane.lineOfSight,
-                       ribbonThickness = 4.0,
-                       ribbon1Color = darkred,
-                       ribbon2Color = blue,
-                       stepColor = black    
-                    )     
-    
-            ##drawline(color, self.endPoint1.center, self.endPoint2.center, 
-                     ##width = 2)
-                
-    
-    def _drawEndsAsHandles(self):
-        """
-        """
-        if not self.isPicked:
-            return
-        
-        side = self.glpane.scale * 0.03
-        self.endHandleHalfWidth = side/2.0 #handle's half width
-        self.endHandleHalfHeight = side/2.0 #handle's half height
-        
-        handle_hw = self.endHandleHalfWidth
-        handle_hh = self.endHandleHalfHeight
-        
-        for point in [self.endPoint1.center, self.endPoint2.center]:
-            if 1:
-                drawPoint(darkgreen, point, pointSize = 10, isRound = False)
-                                
-                if 1:
-                    
-                    glPushMatrix()
-                    glTranslatef(point[0], point[1], point[2])
-                    
-                    glpane_q = self.glpane.quat
-                    glRotatef(-glpane_q.angle * ONE_RADIAN, 
-                               glpane_q.x, 
-                               glpane_q.y, 
-                               glpane_q.z)
-                            
-                    handle_corner = [V(-handle_hw,  handle_hh, 0.0), 
-                                     V(-handle_hw, -handle_hh, 0.0), 
-                                     V( handle_hw, -handle_hh, 0.0), 
-                                     V( handle_hw,  handle_hh, 0.0)]   
-                        
-                    drawLineLoop(blue, handle_corner, width = 2)
-                    glPopMatrix()
+        self.win.assy.place_new_geometry(self)
             
-    def draw_in_abs_coords(self, glpane, color):
-        """
-        Draw the handle as a highlighted object.
-        @param glpane: The 3D Graphics area.
-        @type  gplane: L{GLPane}
-        
-        @param color: Unused.
-        @type  color:
-        
-        @attention: I{color} is not used.
-        """     
+    
+    def _draw_geometry(self, glpane, color, highlighted=False):   
         glPushMatrix()
-        self._draw(highlighted = True)
+        if not highlighted:
+            color = self.color
+        drawPolyLine(color, self.controlPoints)
+        if self.picked:
+            self._draw_handles(self.controlPoints)
         glPopMatrix()
     
-    def highlight_color_for_modkeys(self, modkeys):
-        return orange
-
-    def selobj_still_ok(self, glpane):
-        # bugfix: compare to correct class [bruce 070924]
-        res = self.__class__ is Line 
-        if res:
-            our_selobj = self
-            glname     = self.glname
-            owner      = env.obj_with_glselect_name.get(glname, None)
-            if owner is not our_selobj:
-                res = False
-                # Do debug prints.
-                print "%r no longer owns glname %r, instead %r does" \
-                      % (self, glname, owner) #[perhaps never seen as of 061121]
-            pass
-        if not res and env.debug():
-            print "debug: selobj_still_ok is false for %r" % self 
-        return res
-
+    def _draw_handles(self, controlPoints):
+        handleCenters = list(controlPoints)
+        if len(self.handles) > 0:
+            assert len(self.handles) == len(controlPoints)
+            i = 0
+            for i in range(len(self.handles)):
+                self.handles[i].draw(hCenter = handleCenters[i])
+        else:   
+            for hCenter in handleCenters: 
+                handle = ResizeHandle(self, self.glpane, hCenter)                
+                handle.draw() 
+                handle.setType('')
+                if handle not in self.handles:
+                    self.handles.append(handle)
+    
+    def getHandlePoint(self, hdl, event):
+        p1, p2 = self.glpane.mousepoints(event)
+        rayPoint = p2
+        rayVector = norm(p2-p1)
+        ptOnHandle = hdl.center
+        handleNorm = hdl.glpane.lineOfSight
+        hdl_intersection = planeXline(ptOnHandle, 
+                                      handleNorm, 
+                                      rayPoint, 
+                                      rayVector)
         
-    def leftClick(self, point, event, mode):
+        handlePoint = hdl_intersection         
+        return handlePoint
+         
+    def resizeGeometry(self, hdl, evt):
         
-        if mode.o.selobj is self:
-            self.pick()
-        else:
-            self.unpick()
-        mode.update_selobj(event)
-        return self     
-    
-    def DraggedOn(self, event, mode): 
-        ##mode.update_selobj(event)
-        return
-
-    def mouseover_statusbar_message(self):
-        msg = "line"        
-        return msg
-    
-    
-    def pick(self):
-        """
-        """
-        self.glpane.assy.unpickall_in_GLPane()     
-        self.glpane.assy.selectedEntities.append(self)
-        self.isPicked = True
-        ##self.glpane.gl_update()
-        self.editCommand.propMgr.show()
-    
-    def unpick(self):
-        """
-        """
-        self.isPicked = False
-        self.color = blue
-        if self in self.glpane.assy.selectedEntities[:]:
-            self.glpane.assy.selectedEntities.remove(self)
+        movedHandle = hdl
+        event = evt
         
-        self.editCommand.propMgr.ok_btn_clicked()
-        ##self.glpane.gl_update()
+        handle_NewPt = self.getHandlePoint(movedHandle, event)
+        ##if movedHandle in self.handles[1:-1]:
+        movedHandle.center = handle_NewPt
+        self.updateControlPoints(movedHandle, handle_NewPt)
+        
+    def updateControlPoints(self, hdl, hdl_NewPt):
+        """
+        Update the control point list of the line.
+        """
+        #@@TODO No need to clear all the list. Need to make sure that only 
+        #the changed point in the list is updated -- Ninad20070706
+        movedHandle = hdl
+        handle_NewPt = hdl_NewPt
+        
+        if len(self.handles) > 1:            
+            self.controlPoints = []
+            for h in self.handles:        
+                self.controlPoints.append(h.center)
     
-    def updateCosmeticProps(self):
-        pass    
     
-
+    def updateControlPoints_EXPERIMENTAL(self, hdl, hdl_NewPt):
+        """
+        Experimental stuff in this method. Not used anywhere. Ignore
+        """
+        movedHandle = hdl
+        handle_NewPt = hdl_NewPt
+        
+        if len(self.handles) > 1:            
+            self.controlPoints = []
+            if movedHandle in self.handles[1:-1]:
+                for h in self.handles:        
+                    self.controlPoints.append(h.center)
+            else:
+                offsetVector = handle_NewPt - movedHandle.center
+                movedHandle.center = handle_NewPt
+                
+                for h in self.handles[1:-1]:
+                    vect = movedHandle.center - h.center
+                    
+                    theta = angleBetween( vect, offsetVector)
+                    theta = theta*pi/180.0
+             
+                    offsetVecForHandle = offsetVector / cos(theta)
+                    ##offsetVecForHandle = offsetVector* len(vect)/len(offsetVector)
+                    h.center += offsetVecForHandle
+                for h in self.handles:
+                    self.controlPoints.append(h.center)
+                    
+                        
+                if 0:
+                    oldCenter = V(0.0, 0.0, 0.0)
+                    for h in self.handles:
+                        oldCenter += h.center                    
+                    oldCenter /= len(self.handles)
+                    movedHandle.center = handle_NewPt
+                    
+                    newCenter = V(0.0, 0.0, 0.0)
+                    for h in self.handles:
+                        newCenter += h.center
+                    
+                    newCenter /= len(self.handles)
+                    
+                    for h in self.handles:
+                        if h in self.handles[1:-1]:
+                            h.center += newCenter - oldCenter
+                        self.controlPoints.append(h.center)
+  
+            
