@@ -342,8 +342,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 self.bondclick_v6 = v6
             if self.bondclick_v6:
                 name = btype_from_v6(self.bondclick_v6)
-                env.history.statusbar_msg("click bonds to make them %s" % name) 
-                self.command.propMgr.updateMessage() # Mark 2007-06-01
+                env.history.statusbar_msg("click bonds to make them %s" % name)
+                if self.command.propMgr:
+                    self.command.propMgr.updateMessage() # Mark 2007-06-01
             else:
                 # this never happens (as explained above)
                 #####@@@@@ see also setAtom, which runs when Atom Tool is 
@@ -687,14 +688,16 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 # Cannot DND 3' open bonds onto 3' open bonds.  
                 if open_bond1.isThreePrimeOpenBond() and \
                    open_bond2.isThreePrimeOpenBond():
-                    msg = redmsg("Cannot join strands on 3' ends.")
-                    self.command.propMgr.updateMessage(msg)
+                    if self.command.propMgr:
+                        msg = redmsg("Cannot join strands on 3' ends.")
+                        self.command.propMgr.updateMessage(msg)
                     return
                 # Cannot DND 5' open bonds onto 5' open bonds. 
                 if open_bond1.isFivePrimeOpenBond() and \
                    open_bond2.isFivePrimeOpenBond():
-                    msg = redmsg("Cannot join strands on 5' ends.")
-                    self.command.propMgr.updateMessage(msg) 
+                    if self.command.propMgr:
+                        msg = redmsg("Cannot join strands on 5' ends.")                    
+                        self.command.propMgr.updateMessage(msg) 
                     return
                 # Ok to DND 3' onto 5' or 5' onto 3'.
                 if (open_bond1.isThreePrimeOpenBond() and \
@@ -712,7 +715,8 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                 self.bond_singlets(s1, s2)
                 self.set_cmdname('Create Bond')
                 self.o.gl_update()
-                self.command.propMgr.updateMessage() 
+                if self.command.propMgr:
+                    self.command.propMgr.updateMessage() 
         else: # cursor on empty space
             self.o.gl_update() # get rid of white rubber band line.
             # REVIEW (possible optim): can we make 
