@@ -13,9 +13,10 @@ echo creating bw module graph
 echo creating color package graph
 /usr/local/bin/python tools/PackageDependency.py `tools/AllPyFiles.sh` --byPackage --colorPackages > $HERE/dependpack.dot 2> $HERE/packagemodulemapping.in
 
-echo creating proposed source file listing based on package classification
+echo "creating proposed source file listing based on package classification..."
 cd tools
 /usr/local/bin/python packageData_checker.py > $HERE/proposed_file_listing.txt
+echo " ... done"
 
 cd $HERE
 
