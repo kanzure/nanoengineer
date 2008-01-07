@@ -1,18 +1,15 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaSegment.py - ... 
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
 class DnaSegment(DnaStrandOrSegment):
-    #e maybe inherit some more special subclass, to make kids not visible in MT;
-    # or, DnaStrandOrSegment, since they have lots in common (docstrings 
-    # are almost identical).
     """
     Model object which represents a Dna Segment inside a Dna Group.
 
@@ -23,16 +20,11 @@ class DnaSegment(DnaStrandOrSegment):
     DnaSegmentMarkers, including exactly one controlling marker.
     These occur in undefined order (??). Note that its DnaStrand
     atoms are not inside it; they are easily found from the DnaAxisChunks.
+
+    Note that this object will never show up directly in the Model Tree
+    once the DNA Data Model is fully implemented, since it will always
+    occur inside a DnaGroup (and since it's not a Block).
     """
-    
-    def is_block(self): # To be implemented in Node API
-        """
-        The DnaSegment object is not a 'block'..meaning it won't be displayed 
-        as a child node in the created DnaGroup. 
-        [overrides Node API method]
-        @see: Block.is_block 
-        """        
-        return False
     
     #Following methods are NOT IMPLEMENTED YET =================================
     

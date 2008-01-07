@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Utility.py -- class Node (superclass for all model-tree objects),
 Group [now defined in Group.py, no longer imported here],
@@ -11,7 +11,7 @@ are defined in other files. Notable ones are molecule and Jig.)
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -382,6 +382,16 @@ class Node( StateMixin):
         [overridden in Group]
         """
         return False # for a leaf node
+
+    def is_block(self): #bruce 080107 ### NIM: may not yet be honored in the ModelTree
+        """
+        Is self a Block, i.e. a kind of Group whose kids should not be shown
+        in the Model Tree unless they are Blocks?
+
+        [This is meant to be overridden only in Block, a subclass of Group,
+         and thereby in its subclasses, such as DnaGroup.]
+        """
+        return False
 
     def readmmp_info_leaf_setitem( self, key, val, interp ): #bruce 050421, part of fixing bug 406
         """
