@@ -38,25 +38,43 @@ units degrees
 #                 used to generate unspecified bond parameters
 # chrg (double) charge in mulitples of proton charge
 #
-#         Z grp per sym   name                      mass    rvdW  evdW  bnds rcov chrg
+#         Z grp per sym   name                      mass    rvdW  evdW  bnds rcov chrg virt
 
-element 200  0  0   Ax5   DNA-Pseudo-Axis           167.0   0.0    0.0   4   100   0   700
-element 201  0  0   Ss5   DNA-Pseudo-Sugar          167.0   0.0    0.0   3   170   0   800
-element 202  0  0   Pl5   DNA-Pseudo-Phosphate      167.0   3.6   10.0   2   170  -1   900
-element 203  0  0   Sj5   DNA-Pseudo-Sugar-Junction 167.0   0.0   10.0   3   170   0   810
-element 204  0  0   Ae5   DNA-Pseudo-Axis-End       167.0   0.0    0.0   1   100   0   701
-element 205  0  0   Pe5   DNA-Pseudo-Phosphate-End  167.0   3.6   10.0   1   170  -2   901
-element 206  0  0   Sh5   DNA-Pseudo-Sugar-End      167.0   0.0    0.0   1   170   0   902
-element 207  0  0   Hp5   DNA-Pseudo-Hairpin        167.0   0.0    0.0   2   100   0   820
+element 200  0  0   Ax5   DNA-Pseudo-Axis           167.0   0.0    0.0   4   100   0    0   700
+element 201  0  0   Ss5   DNA-Pseudo-Sugar          167.0   0.0    0.0   3   170   0    0   800
+element 202  0  0   Pl5   DNA-Pseudo-Phosphate      167.0   3.6   10.0   2   170  -1    0   900
+element 203  0  0   Sj5   DNA-Pseudo-Sugar-Junction 167.0   0.0   10.0   3   170   0    0   810
+element 204  0  0   Ae5   DNA-Pseudo-Axis-End       167.0   0.0    0.0   1   100   0    0   701
+element 205  0  0   Pe5   DNA-Pseudo-Phosphate-End  167.0   3.6   10.0   1   170  -2    0   901
+element 206  0  0   Sh5   DNA-Pseudo-Sugar-End      167.0   0.0    0.0   1   170   0    0   902
+element 207  0  0   Hp5   DNA-Pseudo-Hairpin        167.0   0.0    0.0   2   100   0    0   820
 
-element 300  0  0   Ax3   PAM3-Axis                 167.0   0.0    0.0   4   100   0   700
-element 301  0  0   Ss3   PAM3-Sugar                167.0   0.0    0.0   3   170   0   800
-element 302  0  0   Pl3   PAM3-Phosphate-Link       167.0   3.6   10.0   2   170  -1   900
-element 303  0  0   Sj3   PAM3-Sugar-Junction       167.0   0.0   10.0   3   170   0   810
-element 304  0  0   Ae3   PAM3-Axis-End             167.0   0.0    0.0   1   100   0   701
-element 305  0  0   Se3   PAM3-Sugar-End            167.0   3.6   10.0   1   170  -2   901
-element 306  0  0   Sh3   PAM3-Sugar-Hydroxyl       167.0   0.0    0.0   1   170   0   902
-element 307  0  0   Hp3   PAM3-Hairpin              167.0   0.0    0.0   2   100   0   820
+element 220  0  0   vDa1  virtual-DNA-planeA-num1     0.0   0.0    0.0   1   100   0    1
+element 221  0  0   vDa2  virtual-DNA-planeA-num2     0.0   0.0    0.0   1   100   0    1
+element 222  0  0   vDa3  virtual-DNA-planeA-num3     0.0   0.0    0.0   1   100   0    1
+element 223  0  0   vDa4  virtual-DNA-planeA-num4     0.0   0.0    0.0   1   100   0    1
+element 224  0  0   vDa5  virtual-DNA-planeA-num5     0.0   0.0    0.0   1   100   0    1
+element 225  0  0   vDa6  virtual-DNA-planeA-num6     0.0   0.0    0.0   1   100   0    1
+element 226  0  0   vDa7  virtual-DNA-planeA-num7     0.0   0.0    0.0   1   100   0    1
+element 227  0  0   vDa8  virtual-DNA-planeA-num8     0.0   0.0    0.0   1   100   0    1
+
+element 230  0  0   vDb1  virtual-DNA-planeB-num1     0.0   0.0    0.0   1   100   0    1
+element 231  0  0   vDb2  virtual-DNA-planeB-num2     0.0   0.0    0.0   1   100   0    1
+element 232  0  0   vDb3  virtual-DNA-planeB-num3     0.0   0.0    0.0   1   100   0    1
+element 233  0  0   vDb4  virtual-DNA-planeB-num4     0.0   0.0    0.0   1   100   0    1
+element 234  0  0   vDb5  virtual-DNA-planeB-num5     0.0   0.0    0.0   1   100   0    1
+element 235  0  0   vDb6  virtual-DNA-planeB-num6     0.0   0.0    0.0   1   100   0    1
+element 236  0  0   vDb7  virtual-DNA-planeB-num7     0.0   0.0    0.0   1   100   0    1
+element 237  0  0   vDb8  virtual-DNA-planeB-num8     0.0   0.0    0.0   1   100   0    1
+
+element 300  0  0   Ax3   PAM3-Axis                 167.0   0.0    0.0   4   100   0    0   700
+element 301  0  0   Ss3   PAM3-Sugar                167.0   0.0    0.0   3   170   0    0   800
+element 302  0  0   Pl3   PAM3-Phosphate-Link       167.0   3.6   10.0   2   170  -1    0   900
+element 303  0  0   Sj3   PAM3-Sugar-Junction       167.0   0.0   10.0   3   170   0    0   810
+element 304  0  0   Ae3   PAM3-Axis-End             167.0   0.0    0.0   1   100   0    0   701
+element 305  0  0   Se3   PAM3-Sugar-End            167.0   3.6   10.0   1   170  -2    0   901
+element 306  0  0   Sh3   PAM3-Sugar-Hydroxyl       167.0   0.0    0.0   1   170   0    0   902
+element 307  0  0   Hp3   PAM3-Hairpin              167.0   0.0    0.0   2   100   0    0   820
 
 # format for vdw lines
 #
@@ -384,3 +402,80 @@ pattern PAM5:Ax-Ax-Ss_low_theta0     85.000
 
 pattern PAM5:Ax-Ax-Ss_high_ktheta    1.0
 pattern PAM5:Ax-Ax-Ss_high_theta0    95.000
+
+
+# For the PAM5-Axis pattern, two base pair planes are defined, each by
+# a pair of basis vectors from an Ax to an Ss pseudo-atom.  Since the
+# double helix can be viewed from either end (180 degree rotational
+# symmetry), each Ss is similar to the one diagonally opposite it,
+# across the minor groove.  Between the two stacked base pairs, the
+# minor groove rotates, so that one pair of similar Ss pseudo-atoms
+# will always be farther apart than the other.  The farther apart pair
+# we will call P, with the closer pair called Q.
+
+# One base pair is called A, the other B.  Each plane contains a set
+# of numbered virtual interaction sites, so vDa1 is the first site in
+# plane A.  The location of each site is defined as a linear
+# combination of the two basis vectors for that plane, with the basis
+# vectors labeled P and Q, corrosponding to the Ss at the tip of that
+# vector (the Ax is the tail for both).
+
+pattern PAM5-Axis:vDa1-p             0.011
+pattern PAM5-Axis:vDa1-q             0.012
+
+pattern PAM5-Axis:vDb1-p             0.111
+pattern PAM5-Axis:vDb1-q             0.112
+
+pattern PAM5-Axis:vDa2-p             0.021
+pattern PAM5-Axis:vDa2-q             0.022
+
+pattern PAM5-Axis:vDb2-p             0.121
+pattern PAM5-Axis:vDb2-q             0.122
+
+pattern PAM5-Axis:vDa3-p             0.031
+pattern PAM5-Axis:vDa3-q             0.032
+
+pattern PAM5-Axis:vDb3-p             0.131
+pattern PAM5-Axis:vDb3-q             0.132
+
+pattern PAM5-Axis:vDa4-p             0.041
+pattern PAM5-Axis:vDa4-q             0.042
+
+pattern PAM5-Axis:vDb4-p             0.141
+pattern PAM5-Axis:vDb4-q             0.142
+
+pattern PAM5-Axis:vDa5-p             0.051
+pattern PAM5-Axis:vDa5-q             0.052
+
+pattern PAM5-Axis:vDb5-p             0.151
+pattern PAM5-Axis:vDb5-q             0.152
+
+pattern PAM5-Axis:vDa6-p             0.061
+pattern PAM5-Axis:vDa6-q             0.062
+
+pattern PAM5-Axis:vDb6-p             0.161
+pattern PAM5-Axis:vDb6-q             0.162
+
+pattern PAM5-Axis:vDa7-p             0.071
+pattern PAM5-Axis:vDa7-q             0.072
+
+pattern PAM5-Axis:vDb7-p             0.171
+pattern PAM5-Axis:vDb7-q             0.172
+
+pattern PAM5-Axis:vDa8-p             0.081
+pattern PAM5-Axis:vDa8-q             0.082
+
+pattern PAM5-Axis:vDb8-p             0.181
+pattern PAM5-Axis:vDb8-q             0.182
+
+
+#         ks    r0      de      beta    inflectionR qual quad bondName
+
+stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa1-1-vDb1
+stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa2-1-vDb2
+stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa3-1-vDb3
+stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa4-1-vDb4
+stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa5-1-vDb5
+stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa6-1-vDb6
+stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa7-1-vDb7
+stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa8-1-vDb8

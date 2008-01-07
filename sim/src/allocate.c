@@ -51,7 +51,7 @@ quantize_length(unsigned int len)
     unsigned int i;
     unsigned int j;
 
-    for (i=8; i<(8*sizeof(int)); i++) {
+    for (i=3; i<(8*sizeof(int)); i++) {
 	j = (1<<i);
 	if (j > len) {
 	    return j;

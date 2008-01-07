@@ -753,6 +753,10 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
   }
   
   vdw = getVanDerWaalsTable(e1->protons, e2->protons);
+  if (vdw == NULL) {
+    printf("# no vdw interaction between %d and %d\n", e1->protons, e2->protons);
+    return;
+  }
 
   printf("# rvdW=%e evdW=%e\n",
          vdw->rvdW,
@@ -963,21 +967,20 @@ printBendStretch()
   pos[0].x = 0;
   pos[0].y = 0;
   pos[0].z = 0;
-  makeAtom(p, 0, 6, pos[0]);
+  addAtom(p, makeAtom(p, 0, 6, pos[0]));
   pos[1].x = -154.9;
   pos[1].y = 0;
   pos[1].z = 0;
-  makeAtom(p, 1, 6, pos[1]);
+  addAtom(p, makeAtom(p, 1, 6, pos[1]));
   pos[2].x = 154.9;
   pos[2].y = 0;
   pos[2].z = 0;
-  makeAtom(p, 2, 6, pos[2]);
-  makeBond(p, 0, 1, '1');
-  makeBond(p, 0, 2, '1');
+  addAtom(p, makeAtom(p, 2, 6, pos[2]));
+  addBond(p, makeBondFromIDs(p, 0, 1, '1'));
+  addBond(p, makeBondFromIDs(p, 0, 2, '1'));
   makeVanDerWaals(p, 1, 2);
   endPart(p);
-  generateStretches(p);
-  generateBends(p);
+  initializePart(p, 0);
   //printPart(stdout, p);
   fprintf(out, "s %f %f %f %f %f %f %f\n",
           pos[0].x,

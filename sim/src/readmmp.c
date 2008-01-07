@@ -492,7 +492,7 @@ readMMP(char *filename)
       // if (elementType == 0) elementType=1;
       previousAtomID = atomID;
 			
-      makeAtom(p, atomID, elementType, position); BAILP();
+      addAtom(p, makeAtom(p, atomID, elementType, position)); BAILP();
     }
 
     // after an atom:
@@ -587,7 +587,8 @@ readMMP(char *filename)
       // XXX should we accept zero length bond list?
       // XXX should we reject unknown bond orders?
       while (expectInt(mmp, &atomID, 1)) {
-        makeBond(p, previousAtomID, atomID, bondOrder); BAILP();
+        addBond(p, makeBondFromIDs(p, previousAtomID, atomID, bondOrder));
+        BAILP();
       }
     }
 

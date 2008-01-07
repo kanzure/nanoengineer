@@ -2024,7 +2024,11 @@ def readGromacsCoordinates(filename, atomList):
         x = float(xstr) * 10.0
         y = float(ystr) * 10.0
         z = float(zstr) * 10.0
-        newAtomsPos += [[x, y, z]]
+        atomIndex += 1
+        if (atomIndex <= len(atomList)):
+            # coordinates of virtual sites are reported at end of
+            # list, and we want to ignore them.
+            newAtomsPos += [[x, y, z]]
     if (len(newAtomsPos) != len(atomList)): #bruce 050225 added some parameters to this error message
         msg = "readGromacsCoordinates: The number of atoms from %s (%d) is not matching with the current model (%d)." % \
             (filename, len(newAtomsPos), len(atomList))

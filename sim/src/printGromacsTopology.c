@@ -15,24 +15,55 @@ zJ_to_kJpermol(double zeptoJoules)
     return zeptoJoules * 6.02214179e-1;
 }
 
+static int
+atomNumber(struct part *p, struct atom *a)
+{
+    if (a->virtualConstructionAtoms != 0) {
+        return a->index + p->num_atoms + 1;
+    } else {
+        return a->index + 1;
+    }
+}
+
 static void
 writeGromacsAtom(FILE *top, FILE *gro, FILE *ndx, struct part *p, struct atom *a)
 {
     int residueNumber = 1;
     char *residueName = "xxx";
-    int atomNumber = a->index + 1;
-    int chargeGroupNumber = atomNumber;
+    int atom_num = atomNumber(p, a);
+    int chargeGroupNumber = atom_num;
     char atomName[256];
-    struct xyz pos = p->positions[a->index];
+    struct xyz pos;
     
     sprintf(atomName, "A%d", a->atomID);
     
-    fprintf(top, "%5d %4s %5d %7s %5s %4d %8.3f %8.3f\n", atomNumber, a->type->symbol, residueNumber, residueName, atomName, chargeGroupNumber, a->type->charge, yg_to_Da(a->mass));
-    // positions in pm, gromacs wants nm
-    fprintf(gro, "%5d%5s%5s%5d%8.3f%8.3f%8.3f\n", residueNumber, residueName, atomName, atomNumber, pos.x/1000.0, pos.y/1000.0, pos.z/1000.0);
-    if (a->isGrounded) {
-        fprintf(ndx, "%d\n", atomNumber);
+    fprintf(top, "%5d %4s %5d %7s %5s %4d %8.3f %8.3f\n", atom_num, a->type->symbol, residueNumber, residueName, atomName, chargeGroupNumber, a->type->charge, yg_to_Da(a->mass));
+    if (a->type->isVirtual) {
+        pos.x = 0.0;
+        pos.y = 0.0;
+        pos.z = 0.0;
+    } else {
+        pos = p->positions[a->index];
     }
+    // positions in pm, gromacs wants nm
+    fprintf(gro, "%5d%5s%5s%5d%8.3f%8.3f%8.3f\n", residueNumber, residueName, atomName, atom_num, pos.x/1000.0, pos.y/1000.0, pos.z/1000.0);
+    if (a->isGrounded) {
+        fprintf(ndx, "%d\n", atom_num);
+    }
+}
+
+static void
+writeGromacsVirtualSite(FILE *top, struct part *p, struct atom *a)
+{
+    int atom_num = atomNumber(p, a);
+    struct atom *v1 = a->creationParameters.v.virtual1;
+    struct atom *v2 = a->creationParameters.v.virtual2;
+    struct atom *v3 = a->creationParameters.v.virtual3;
+    int function = a->virtualFunction;
+    double virtualA = a->creationParameters.v.virtualA;
+    double virtualB = a->creationParameters.v.virtualB;
+
+    fprintf(top, "%5d %5d %5d %5d %d %f %f\n", atom_num, atomNumber(p, v1), atomNumber(p, v2), atomNumber(p, v3), function, virtualA, virtualB);
 }
 
 static void
@@ -53,12 +84,12 @@ writeGromacsBond(FILE *top, struct part *p, struct stretch *stretch)
         // convert to kJ mol^-1 m^-2
         // multiply by 1e-18 to get kJ mol^-1 nm^-2
         ks = zJ_to_kJpermol(bs->ks * 1e21) * 1e-18;
-        fprintf(top, "%5d %5d   6   %12.5e %12.5e\n", a1->index+1, a2->index+1, r0, ks);
+        fprintf(top, "%5d %5d   6   %12.5e %12.5e\n", atomNumber(p, a1), atomNumber(p, a2), r0, ks);
     } else {
         r0 = bs->r0 * 1e-3; // convert pm to nm
         De = zJ_to_kJpermol(bs->de * 1e3); // bs->de in aJ
         beta = bs->beta * 1e3; // convert pm^-1 to nm^-1
-        fprintf(top, "%5d %5d   3   %12.5e %12.5e %12.5e\n", a1->index+1, a2->index+1, r0, De, beta);
+        fprintf(top, "%5d %5d   3   %12.5e %12.5e %12.5e\n", atomNumber(p, a1), atomNumber(p, a2), r0, De, beta);
     }
 }
 
@@ -74,7 +105,7 @@ writeGromacsAngle(FILE *top, struct part *p, struct bend *b)
 
     theta0 = bd->theta0*180.0/Pi;
     ktheta = zJ_to_kJpermol(bd->kb * 1e-3); // bd->kb in yJ rad^-2, convert to zJ
-    fprintf(top, "%5d %5d %5d   1   %12.5f %12.5e\n", a1->index+1, ac->index+1, a2->index+1, theta0, ktheta);
+    fprintf(top, "%5d %5d %5d   1   %12.5f %12.5e\n", atomNumber(p, a1), atomNumber(p, ac), atomNumber(p, a2), theta0, ktheta);
 }
 
 static FILE *closure_topologyFile = NULL;
@@ -89,8 +120,7 @@ printAtomtypeHashtableEntry(char *symbol, void *value)
     double C = 0.0;
     
     if (at != NULL) {
-        // Particle type is A, not sure what options are here.
-        fprintf(closure_topologyFile, " %4s %6d %10.5f %8.4f    A   %10.5f %10.5f %10.5f\n", at->symbol, at->protons, yg_to_Da(at->mass), at->charge, A, B, C);
+        fprintf(closure_topologyFile, " %4s %6d %10.5f %8.4f    %c   %10.5f %10.5f %10.5f\n", at->symbol, at->protons, yg_to_Da(at->mass), at->charge, at->isVirtual ? 'V' : 'A', A, B, C);
     }
 }
 
@@ -114,15 +144,17 @@ allNonBondedAtomtypesPass2(char *symbol, void *value)
         element = at->protons;
         if (element >= closure_nonbondedPass1Number) {
             vdw = getVanDerWaalsTable(closure_nonbondedPass1Number, element);
-            rvdW = vdw->rvdW * 1e-3; // convert pm to nm
-            if (rvdW > 1e-8) {
-                evdW = zJ_to_kJpermol(vdw->evdW);
+            if (vdw != NULL) {
+                rvdW = vdw->rvdW * 1e-3; // convert pm to nm
+                if (rvdW > 1e-8) {
+                    evdW = zJ_to_kJpermol(vdw->evdW);
 
-                A = 2.48e5 * evdW;
-                B = 12.5 / rvdW;
-                C = evdW * 1.924 * pow(rvdW, 6.0);
+                    A = 2.48e5 * evdW;
+                    B = 12.5 / rvdW;
+                    C = evdW * 1.924 * pow(rvdW, 6.0);
 
-                fprintf(closure_topologyFile, "%4s %4s    2 %12.5e %12.5e %12.5e\n", closure_nonbondedPass1Symbol, symbol, A, B, C);
+                    fprintf(closure_topologyFile, "%4s %4s    2 %12.5e %12.5e %12.5e\n", closure_nonbondedPass1Symbol, symbol, A, B, C);
+                }
             }
         }
     }
@@ -256,12 +288,15 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(top, ";  nr type resnr residue  atom cgnr   charge     mass\n");
 
     fprintf(gro, "Generated by NanoEngineer-1\n");
-    fprintf(gro, "%3d\n", p->num_atoms);
+    fprintf(gro, "%3d\n", p->num_atoms + p->num_virtual_atoms);
 
     fprintf(ndx, "[ Anchor ]\n");
     
     for (i=0; i<p->num_atoms; i++) {
 	writeGromacsAtom(top, gro, ndx, p, p->atoms[i]);
+    }
+    for (i=0; i<p->num_virtual_atoms; i++) {
+	writeGromacsAtom(top, gro, ndx, p, p->virtual_atoms[i]);
     }
 #define BOXSIZE 0.0
     fprintf(gro, "%10.5f%10.5f%10.5f\n", BOXSIZE, BOXSIZE, BOXSIZE); // periodic box size
@@ -270,6 +305,12 @@ printGromacsToplogy(char *basename, struct part *p)
     
     fprintf(top, "\n");
 
+    fprintf(top, "[ virtual_sites3 ]\n");
+    for (i=0; i<p->num_virtual_atoms; i++) {
+        writeGromacsVirtualSite(top, p, p->virtual_atoms[i]);
+    }
+    fprintf(top, "\n");
+    
     fprintf(top, "[ bonds ]\n");
     fprintf(top, ";  ai    aj func        r0       Ks or De       beta\n");
     for (i=0; i<p->num_stretches; i++) {

@@ -55,6 +55,45 @@ struct atom
     
     // non-zero if this atom is in any ground jigs
     unsigned char isGrounded;
+
+    // non-zero if this is a virtual atom.  Virtual atoms are only
+    // supported for gromacs, and are not given either a position or a
+    // velocity.  The values for index for virtual atoms are in a
+    // separate space from those of real atoms.  Add part->num_atoms
+    // to index to generate the gromacs atom number.  If non-zero, it
+    // should be 2, 3, or 4, indicating that this site is constructed
+    // from that many other atoms.
+    unsigned char virtualConstructionAtoms;
+
+    // Which gromacs functional form should be used for constructing
+    // the virtual site.  Always 1 for sites using 2 or 4 atoms.  For
+    // sites using 3 atoms, select a value between 1 and 4.  See the
+    // description of virtual sites in the gromacs manual, sections
+    // 4.7 and 5.2.2.
+    unsigned char virtualFunction;
+
+    union {
+        struct {
+            // These are the atoms that the position of this virtual site is
+            // constructed from.
+            struct atom *virtual1;
+            struct atom *virtual2;
+            struct atom *virtual3;
+            struct atom *virtual4;
+
+            // Parameters for the virtual site creation function.  Two atom
+            // sites use one parameter (virtualA).  Three atom sites with
+            // functions 1, 2, and 3 use two parameters.  Three atom function
+            // 4, and four atom sites use all three parameters.
+            double virtualA;
+            double virtualB;
+            double virtualC;
+        } v; // virtual (virtualConstructionAtoms != 0)
+
+        struct {
+            struct xyz initialPosition;
+        } r; // real (virtualConstructionAtoms == 0)
+    } creationParameters;
     
     int index;
     int atomID;
@@ -82,6 +121,25 @@ struct bond
     
     // Unit vector from a1 towards a2
     struct xyz rUnit;
+};
+
+enum componentType {
+    componentAtom,
+    componentBond,
+};
+
+// Pattern match routines can create atoms and bonds, but they should
+// not appear in the middle of scanning a part for matches of a single
+// pattern.  Instead, they are queued in the part for addition between
+// patterns, so they are available for the next pattern to match.
+struct queueablePartComponent
+{
+    enum componentType type;
+    union {
+        struct atom *a;
+        struct bond *b;
+        void *any;
+    } component;
 };
 
 enum jointType {
@@ -322,6 +380,9 @@ struct part
     int num_atoms;
     struct atom **atoms;
 
+    int num_virtual_atoms;
+    struct atom **virtual_atoms;
+
     int num_charged_atoms;
     struct atom **charged_atoms;
     
@@ -383,6 +444,11 @@ struct part
     // Maps symbol to actual atomtype struct for each atomtype that
     // appears in the part.
     struct hashtable *atomTypesUsed;
+
+    // Atoms and bonds are queued for addition at the boundaries
+    // between individual pattern matches.
+    int num_queued_components;
+    struct queueablePartComponent *queuedComponents;
 };
 
 extern struct part *makePart(char *filename, int (*parseError)(void *), void *stream);
@@ -393,29 +459,47 @@ extern struct part *endPart(struct part *p);
 
 extern void initializePart(struct part *p, int needVDW);
 
-extern void generateStretches(struct part *p);
-
-extern void generateBends(struct part *p);
-
 extern struct bend *getBend(struct part *p, struct atom *a1, struct atom *ac, struct atom *a2);
 
 extern struct bond *getBond(struct part *p, struct atom *a1, struct atom *a2);
-
-extern void generateTorsions(struct part *p);
-
-extern void generateOutOfPlanes(struct part *p);
 
 extern void updateVanDerWaals(struct part *p, void *validity, struct xyz *positions);
 
 extern void setThermalVelocities(struct part *p, double temperature);
 
-extern void makeAtom(struct part *p, int externalID, int elementType, struct xyz position);
+extern struct atom *makeVirtualAtom(struct atomType *type,
+                                    enum hybridization hybridization,
+                                    char constructionAtoms,
+                                    char function,
+                                    struct atom *atom1,
+                                    struct atom *atom2,
+                                    struct atom *atom3,
+                                    struct atom *atom4,
+                                    double parameterA,
+                                    double parameterB,
+                                    double parameterC);
+
+extern void addVirtualAtom(struct part *p, struct atom *a);
+
+extern struct atom *makeAtom(struct part *p, int externalID, int elementType, struct xyz position);
+
+extern void addAtom(struct part *p, struct atom *a);
 
 extern void setAtomHybridization(struct part *p, int atomID, enum hybridization h);
 
-extern void makeBond(struct part *p, int atomID1, int atomID2, char order);
+extern struct bond *makeBond(struct part *p, struct atom *a1, struct atom *a2, char order);
+
+extern struct bond *makeBondFromIDs(struct part *p, int atomID1, int atomID2, char order);
+
+extern void addBond(struct part *p, struct bond *b);
 
 extern void setBondDirection(struct part *p, int atomID1, int atomID2);
+
+extern void queueAtom(struct part *p, struct atom *a);
+
+extern void queueBond(struct part *p, struct bond *b);
+
+extern void addQueuedComponents(struct part *p);
 
 extern void makeVanDerWaals(struct part *p, int atomID1, int atomID2);
 

@@ -138,7 +138,7 @@ struct atomType
   int protons;
   int group;
   int period;
-  char symbol[4];
+  char *symbol;
   char *name;
   double mass;                // yg, or yoctograms, or 1e-24 g
   double vanDerWaalsRadius;   // Angstroms, or 1e-10 m
@@ -147,6 +147,7 @@ struct atomType
   double covalentRadius;      // pm, or 1e-12 m
   double charge;              // multiple of proton charge
   int refCount;
+  int isVirtual;              // type for a gromacs virtual interaction site
 };
 
 struct patternParameter

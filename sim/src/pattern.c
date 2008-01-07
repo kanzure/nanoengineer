@@ -393,6 +393,7 @@ matchPartToPattern(struct part *part, struct compiledPattern *pattern)
   destroyMatch(match);
   hashtable_destroy(matchSet, NULL);
   matchSet = NULL;
+  addQueuedComponents(part);
 }
 
 
@@ -412,10 +413,7 @@ makeUnmatchableType(void)
   unmatchable->group = -1;
   unmatchable->period = -1;
   unmatchable->name = "error";
-  unmatchable->symbol[0] = 'e';
-  unmatchable->symbol[1] = 'r';
-  unmatchable->symbol[2] = 'r';
-  unmatchable->symbol[3] = '\0';
+  unmatchable->symbol = "error";
   unmatchable->mass = -1;
   unmatchable->vanDerWaalsRadius = -1;
   unmatchable->e_vanDerWaals = -1;
@@ -480,6 +478,7 @@ makePattern(char *name,
   return pat;
 }
 
+/*
 static struct bendData *pam5_Ax_Ax_Ss_low = NULL;
 static struct bendData *pam5_Ax_Ax_Ss_high = NULL;
 
@@ -542,21 +541,143 @@ pam5_ring_match(struct patternMatch *match)
   }
   //printMatch(match);
 }
+*/
 
-#define NUM_PATTERNS 2
+// The three vectors from aAx1 to the other three atoms can be thought
+// of as the basis for a coordinate system.  We would like that
+// coordinate system to be right handed, and we return true if that is
+// the case.  If not, swapping aSa and aSb would form a right hand
+// system.
+static int
+isExpectedTwist(struct part *p,
+                struct atom *aAx1,
+                struct atom *aAx2,
+                struct atom *aSa,
+                struct atom *aSb)
+{
+  struct xyz v0;
+  struct xyz v1;
+  struct xyz v2;
+  struct xyz v3;
+  struct xyz v1_x_v2;
+
+  if (aAx1->virtualConstructionAtoms ||
+      aAx2->virtualConstructionAtoms ||
+      aSa->virtualConstructionAtoms ||
+      aSb->virtualConstructionAtoms)
+  {
+    return 0;
+  }
+  v0 = p->positions[aAx1->index];
+  v1 = p->positions[aAx2->index];
+  v2 = p->positions[aSa->index];
+  v3 = p->positions[aSb->index];
+  vsub(v1, v0);
+  vsub(v2, v0);
+  vsub(v3, v0);
+  v2x(v1_x_v2, v1, v2);
+  return vdot(v1_x_v2, v3) > 0.0;
+}
+
+static int axis_match_initialized = 0;
+static double vDax_p[8];
+static double vDax_q[8];
+static double vDbx_p[8];
+static double vDbx_q[8];
+static struct atomType *vDa_type[8];
+static struct atomType *vDb_type[8];
+
+static void
+init_axis_match(void)
+{
+  int i;
+  char buf[256];
+  struct patternParameter *param;
+
+  if (axis_match_initialized) {
+    return;
+  }
+  for (i=0; i<8; i++) {
+    sprintf(buf, "vDa%d", i+1);
+    vDa_type[i] = getAtomTypeByName(buf);
+    sprintf(buf, "vDb%d", i+1);
+    vDb_type[i] = getAtomTypeByName(buf);
+
+    sprintf(buf, "PAM5-Axis:vDa%d-p", i+1);
+    param = getPatternParameter(buf); BAIL();
+    vDax_p[i] = param->value;
+    sprintf(buf, "PAM5-Axis:vDa%d-q", i+1);
+    param = getPatternParameter(buf); BAIL();
+    vDax_q[i] = param->value;
+    sprintf(buf, "PAM5-Axis:vDb%d-p", i+1);
+    param = getPatternParameter(buf); BAIL();
+    vDbx_p[i] = param->value;
+    sprintf(buf, "PAM5-Axis:vDb%d-q", i+1);
+    param = getPatternParameter(buf); BAIL();
+    vDbx_q[i] = param->value;
+  }
+  axis_match_initialized = 1;
+}
+
+static void
+pam5_axis_match(struct patternMatch *match)
+{
+  struct atom *aAx1 = match->p->atoms[match->atomIndices[0]];
+  struct atom *aAx2 = match->p->atoms[match->atomIndices[1]];
+  struct atom *aS1a = match->p->atoms[match->atomIndices[2]];
+  struct atom *aS1b = match->p->atoms[match->atomIndices[3]];
+  struct atom *aS2a = match->p->atoms[match->atomIndices[4]];
+  struct atom *aS2b = match->p->atoms[match->atomIndices[5]];
+  struct atom *vA;
+  struct atom *vB;
+  struct bond *bond;
+  int i;
+  
+  init_axis_match();
+  
+  // S1a    S2a
+  //  |      |
+  // Ax1----Ax2
+  //  |      |
+  // S1b    S2b
+  if (!isExpectedTwist(match->p, aAx1, aAx2, aS1a, aS1b)) {
+    aS1a = match->p->atoms[match->atomIndices[3]];
+    aS1b = match->p->atoms[match->atomIndices[2]];
+  }
+  if (!isExpectedTwist(match->p, aAx2, aAx1, aS2a, aS2b)) {
+    aS2a = match->p->atoms[match->atomIndices[5]];
+    aS2b = match->p->atoms[match->atomIndices[4]];
+  }
+  // atoms are now in canonical orientations
+  for (i=0; i<8; i++) {
+    vA = makeVirtualAtom(vDa_type[i], sp3, 3, 1,
+                         aAx1, aS1a, aS1b, NULL,
+                         vDax_p[i], vDax_q[i], 0.0);
+    vB = makeVirtualAtom(vDb_type[i], sp3, 3, 1,
+                         aAx2, aS2a, aS2b, NULL,
+                         vDbx_p[i], vDbx_q[i], 0.0);
+    bond = makeBond(match->p, vA, vB, '1');
+    queueAtom(match->p, vA);
+    queueAtom(match->p, vB);
+    queueBond(match->p, bond);
+  }
+}
+
+#define NUM_PATTERNS 1
 static struct compiledPattern *allPatterns[NUM_PATTERNS];
 
 void
 createPatterns(void)
 {
-  double ktheta;
-  double theta0;
+  //double ktheta;
+  //double theta0;
   struct compiledPatternTraversal *t[10];
   struct compiledPatternAtom *a[10];
-  struct patternParameter *param;
+  //struct patternParameter *param;
   
   makeUnmatchableType();
-  
+
+  /*
   a[0] = makePatternAtom(0, "Ax5");
   a[1] = makePatternAtom(1, "Ax5");
   a[2] = makePatternAtom(2, "Ss5");
@@ -582,7 +703,22 @@ createPatterns(void)
   t[4] = makeTraversal(a[3], a[4], '1');
   t[5] = makeTraversal(a[4], a[0], '1');
   allPatterns[1] = makePattern("PAM5-ring-end", pam5_ring_match, 6, 6, t);
-
+  */
+  
+  a[0] = makePatternAtom(0, "Ax5");
+  a[1] = makePatternAtom(1, "Ax5");
+  a[2] = makePatternAtom(2, "Ss5");
+  a[3] = makePatternAtom(3, "Ss5");
+  a[4] = makePatternAtom(4, "Ss5");
+  a[5] = makePatternAtom(5, "Ss5");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[0], a[2], '1');
+  t[2] = makeTraversal(a[0], a[3], '1');
+  t[3] = makeTraversal(a[1], a[4], '1');
+  t[4] = makeTraversal(a[1], a[5], '1');
+  allPatterns[0] = makePattern("PAM5-axis", pam5_axis_match, 6, 5, t);
+  
+  /*
   param = getPatternParameter("PAM5:Ax-Ax-Ss_low_ktheta"); BAIL();
   ktheta = param->value * 1e6;
   param = getPatternParameter("PAM5:Ax-Ax-Ss_low_theta0"); BAIL();
@@ -594,6 +730,7 @@ createPatterns(void)
   param = getPatternParameter("PAM5:Ax-Ax-Ss_high_theta0"); BAIL();
   theta0 = param->value * param->angleUnits;
   pam5_Ax_Ax_Ss_high = newBendData("Ax-Ax-Ss_high", ktheta, theta0, 9);
+  */
 }
 
 void

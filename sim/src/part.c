@@ -91,10 +91,8 @@ destroyPart(struct part *p)
         //a->type points into periodicTable, don't free
         //a->prev and next just point to other atoms
         //a->bonds has pointers into the p->bonds array
-        if (a->bonds != NULL) {
-            free(a->bonds);
-            a->bonds = NULL;
-        }
+        destroyAccumulator(a->bonds);
+        a->bonds = NULL;
         free(a);
     }
     destroyAccumulator(p->atoms);
@@ -186,16 +184,12 @@ destroyPart(struct part *p)
     p->vanDerWaals = NULL;
     
     // nothing in a stretch needs freeing
-    if (p->stretches != NULL) {
-        free(p->stretches);
-        p->stretches = NULL;
-    }
+    destroyAccumulator(p->stretches);
+    p->stretches = NULL;
 
     // nothing in a bend needs freeing
-    if (p->bends != NULL) {
-        free(p->bends);
-        p->bends = NULL;
-    }
+    destroyAccumulator(p->bends);
+    p->bends = NULL;
 
     // nothing in a torsion needs freeing
     if (p->torsions != NULL) {
@@ -215,122 +209,32 @@ destroyPart(struct part *p)
         p->outOfPlanes = NULL;
     }
 
+    destroyAccumulator(p->queuedComponents);
+    p->queuedComponents = NULL;
+
     hashtable_destroy(p->atomTypesUsed, NULL);
     free(p);
 }
 
-// Add a bond to the bond list for a single atom.
 static void
-addBondToAtom(struct part *p, struct bond *b, struct atom *a)
+addBondToAtom(struct bond *b, struct atom *a)
 {
-    int i;
-    
-    for (i=0; i<a->num_bonds; i++) {
-	if (a->bonds[i] == NULL) {
-	    a->bonds[i] = b;
-	    return;
-	}
-    }
-    ERROR("Internal error: No slot for bond in atom");
-    p->parseError(p->stream);
-}
-
-// After creating all of the atoms and bonds, we go back and tell each
-// atom which bonds it is a part of.
-static void
-addBondsToAtoms(struct part *p)
-{
-    int i;
-    struct bond *b;
-    struct atom *a;
-    
-    NULLPTR(p);
-    for (i=0; i<p->num_bonds; i++) {
-	/*
-	 * I've seen a few different bugs with null pointers here. We
-	 * should try to get a warning of some kind.
-	 */
-	b = p->bonds[i];
-	CHECK_VALID_BOND(b);
-	b->a1->num_bonds++;
-	b->a2->num_bonds++;
-    }
-    for (i=0; i<p->num_atoms; i++) {
-	a = p->atoms[i];
-	a->bonds = (struct bond **)allocate(sizeof(struct bond *) * a->num_bonds);
-	memset(a->bonds, 0, sizeof(struct bond *) * a->num_bonds);
-    }
-    for (i=0; i<p->num_bonds; i++) {
-	b = p->bonds[i];
-	addBondToAtom(p, b, b->a1); BAIL();
-	addBondToAtom(p, b, b->a2); BAIL();
-    }
-}
-
-// Called to indicate that a parser has finished reading data for this
-// part.  Finalizes the data structures and switches to the default
-// error handler.
-struct part *
-endPart(struct part *p)
-{
-    p->parseError = &defaultParseError;
-    p->stream = p;
-    p->num_vanDerWaals = p->num_static_vanDerWaals;
-    
-    // XXX realloc any accumulators
-    
-    addBondsToAtoms(p);
-
-    // other routines should:
-    // build stretchs, bends, and torsions
-    // calculate initial velocities
-    
-    return p;
-}
-
-void
-initializePart(struct part *p, int needVDW)
-{
-    if (needVDW) {
-        updateVanDerWaals(p, NULL, p->positions); BAIL();
-    }
-    generateStretches(p); BAIL();
-    generateBends(p); BAIL();
-    generateTorsions(p); BAIL();
-    generateOutOfPlanes(p); BAIL();
-    rigid_init(p);
-}
-
-// Creates a stretch for each bond in the part.
-void
-generateStretches(struct part *p)
-{
-    int i;
-    
-    p->num_stretches = p->num_bonds;
-    p->stretches = (struct stretch *)allocate(sizeof(struct stretch) * p->num_stretches);
-    for (i=0; i<p->num_bonds; i++) {
-	CHECK_VALID_BOND(p->bonds[i]);
-	// XXX skip stretch if both ends are grounded
-	p->stretches[i].a1 = p->bonds[i]->a1;
-	p->stretches[i].a2 = p->bonds[i]->a2;
-	p->stretches[i].b = p->bonds[i];
-	// XXX really should send struct atomType instead of protons
-	p->stretches[i].stretchType = getBondStretch(p->stretches[i].a1->type->protons,
-						     p->stretches[i].a2->type->protons,
-						     p->bonds[i]->order);
-    }
+    a->num_bonds++;
+    a->bonds = (struct bond **)accumulator(a->bonds, sizeof(struct bond *) * a->num_bonds, 0);
+    a->bonds[a->num_bonds - 1] = b;
 }
 
 // Fill in the bend data structure for a bend centered on the given
 // atom.  The two bonds that make up the bend are indexed in the
 // center atom's bond array.
 static void
-makeBend(struct part *p, int bend_number, struct atom *a, int bond1, int bond2)
+makeBend(struct part *p, struct atom *a, int bond1, int bond2)
 {
     struct bend *b;
-    
-    b = &p->bends[bend_number];
+
+    p->num_bends++;
+    p->bends = (struct bend *)accumulator(p->bends, sizeof(struct bend) * p->num_bends, 0);
+    b = &p->bends[p->num_bends - 1];
     b->ac = a;
     b->b1 = a->bonds[bond1];
     b->b2 = a->bonds[bond2];
@@ -366,109 +270,62 @@ makeBend(struct part *p, int bend_number, struct atom *a, int bond1, int bond2)
 			      b->a2->type->protons, b->b2->order);
 }
 
-// Creates a bend for each pair of adjacent bonds in the part.
-void
-generateBends(struct part *p)
+static void
+createBends(struct part *p, struct atom *a)
 {
-    int i;
-    int j;
-    int k;
-    int bend_index = 0;
-    struct atom *a;
-    
-    // first, count the number of bends
-    for (i=0; i<p->num_atoms; i++) {
-	a = p->atoms[i];
-	for (j=0; j<a->num_bonds; j++) {
-	    for (k=j+1; k<a->num_bonds; k++) {
-		p->num_bends++;
-	    }
-	}
-    }
-    
-    p->bends = (struct bend *)allocate(sizeof(struct bend) * p->num_bends);
-    
-    // now, fill them in (make sure loop structure is same as above)
-    for (i=0; i<p->num_atoms; i++) {
-	a = p->atoms[i];
-	for (j=0; j<a->num_bonds; j++) {
-	    for (k=j+1; k<a->num_bonds; k++) {
-		makeBend(p, bend_index++, a, j, k); BAIL();
-	    }
-	}
-    }
-}
-
-struct bend *
-getBend(struct part *p, struct atom *a1, struct atom *ac, struct atom *a2)
-{
-    struct bend *b;
+    int lastBond;
     int i;
     
-    for (i=0; i<p->num_bends; i++) {
-        b = &p->bends[i];
-        if (b->ac == ac && ((b->a1 == a1 && b->a2 == a2) ||
-                            (b->a1 == a2 && b->a2 == a1)))
-        {
-            return b;
-        }
+    lastBond = a->num_bonds - 1;
+    for (i=a->num_bonds-2; i>= 0; i--) {
+        makeBend(p, a, lastBond, i);
     }
-    ERROR3("getBend: no bend between atom ids %d-%d-%d", a1->atomID, ac->atomID, a2->atomID);
-    p->parseError(p->stream);
-    return NULL;
-}
-
-struct bond *
-getBond(struct part *p, struct atom *a1, struct atom *a2)
-{
-    struct bond *b;
-    int i;
-    
-    for (i=0; i<p->num_bonds; i++) {
-        b = p->bonds[i];
-        if ((b->a1 == a1 && b->a2 == a2) ||
-            (b->a1 == a2 && b->a2 == a1))
-        {
-            return b;
-        }
-    }
-    ERROR2("getBond: no bond between atom ids %d-%d", a1->atomID, a2->atomID);
-    p->parseError(p->stream);
-    return NULL;
 }
 
 static void
-makeTorsion(struct part *p, int index, struct bond *center, struct bond *b1, struct bond *b2)
+addBondToAtoms(struct part *p, struct bond *b)
 {
-    struct torsion *t = &(p->torsions[index]);
+    struct stretch *s;
+    
+    addBondToAtom(b, b->a1);
+    addBondToAtom(b, b->a2);
 
-    t->aa = center->a1;
-    t->ab = center->a2;
-    t->a1 = b1->a1 == t->aa ? b1->a2 : b1->a1;
-    t->a2 = b2->a1 == t->ab ? b2->a2 : b2->a1;
+    // Create a stretch for the bond
+    p->num_stretches = p->num_bonds;
+    p->stretches = (struct stretch *)accumulator(p->stretches, sizeof(struct stretch) * p->num_stretches, 0);
+    s = &(p->stretches[p->num_stretches - 1]);
+    // XXX skip stretch if both ends are grounded
+    s->a1 = b->a1;
+    s->a2 = b->a2;
+    s->b = b;
+    // XXX really should send struct atomType instead of protons
+    s->stretchType = getBondStretch(s->a1->type->protons,
+                                    s->a2->type->protons,
+                                    b->order);
 
-    // These numbers are based on a torsion around a Carbon-Carbon bond.
-    switch (center->order) {
-    case '2':
-        // Barrior to rotation of a simple alkene is about 265 kJ/mol, but
-        // can be on the order of 50 kJ/mol for "captodative ethylenes",
-        // where the charge density on the carbons involved in the double
-        // bond has been significantly altered.
-        // [[Advanced Organic Chemistry, Jerry March, Fourth Edition,
-        // Chapter 4, p.129.]]
-        // A is in aJ/rad^2, but rotational barrior is 2A
-        // 2.65e5 J/mol == 4.4e-19 J/bond
-        // A = 2.2e-19 or 0.22 aJ
-        t->A = 0.22; // XXX need to get actual value from real parameters
-        break;
-    case 'a':
-    case 'g':
-        // Damian has calculated the following for a small graphitic system
-        t->A = 0.37013376;
-        break;
-    default:
-        t->A = 0;
-    }
+    // Create a set of bends off of each end of this bond
+    createBends(p, b->a1);
+    createBends(p, b->a2);
+}
+
+
+// Called to indicate that a parser has finished reading data for this
+// part.  Finalizes the data structures and switches to the default
+// error handler.
+struct part *
+endPart(struct part *p)
+{
+    p->parseError = &defaultParseError;
+    p->stream = p;
+    p->num_vanDerWaals = p->num_static_vanDerWaals;
+    
+    // XXX realloc any accumulators
+    
+    // other routines should:
+    // build stretchs, bends, and torsions
+    // calculate initial velocities
+    
+    return p;
 }
 
 // This is called for every double bond in the cumulene chain.  On
@@ -582,11 +439,45 @@ makeCumuleneTorsion(struct part *p,
     t->A = 0.22 / ((double)n); // XXX need actual value here
 }
 
+static void
+makeTorsion(struct part *p, int index, struct bond *center, struct bond *b1, struct bond *b2)
+{
+    struct torsion *t = &(p->torsions[index]);
+
+    t->aa = center->a1;
+    t->ab = center->a2;
+    t->a1 = b1->a1 == t->aa ? b1->a2 : b1->a1;
+    t->a2 = b2->a1 == t->ab ? b2->a2 : b2->a1;
+
+    // These numbers are based on a torsion around a Carbon-Carbon bond.
+    switch (center->order) {
+    case '2':
+        // Barrior to rotation of a simple alkene is about 265 kJ/mol, but
+        // can be on the order of 50 kJ/mol for "captodative ethylenes",
+        // where the charge density on the carbons involved in the double
+        // bond has been significantly altered.
+        // [[Advanced Organic Chemistry, Jerry March, Fourth Edition,
+        // Chapter 4, p.129.]]
+        // A is in aJ/rad^2, but rotational barrior is 2A
+        // 2.65e5 J/mol == 4.4e-19 J/bond
+        // A = 2.2e-19 or 0.22 aJ
+        t->A = 0.22; // XXX need to get actual value from real parameters
+        break;
+    case 'a':
+    case 'g':
+        // Damian has calculated the following for a small graphitic system
+        t->A = 0.37013376;
+        break;
+    default:
+        t->A = 0;
+    }
+}
+
 // Creates a torsion for each triplet of adjacent bonds in the part,
 // where the center bond is graphitic, aromatic, or double.  If one
 // end of a double bond is an sp atom, we make a cumuleneTorsion
 // instead.
-void
+static void
 generateTorsions(struct part *p)
 {
     int i;
@@ -701,7 +592,7 @@ makeOutOfPlane(struct part *p, int index, struct atom *a)
 }
 
 // Creates an outOfPlane for each sp2 atom
-void
+static void
 generateOutOfPlanes(struct part *p)
 {
     int i;
@@ -739,6 +630,56 @@ generateOutOfPlanes(struct part *p)
         }
         
     }
+}
+
+void
+initializePart(struct part *p, int needVDW)
+{
+    if (needVDW) {
+        updateVanDerWaals(p, NULL, p->positions); BAIL();
+    }
+    //generateBends(p); BAIL();
+    generateTorsions(p); BAIL();
+    generateOutOfPlanes(p); BAIL();
+    rigid_init(p);
+}
+
+struct bend *
+getBend(struct part *p, struct atom *a1, struct atom *ac, struct atom *a2)
+{
+    struct bend *b;
+    int i;
+    
+    for (i=0; i<p->num_bends; i++) {
+        b = &p->bends[i];
+        if (b->ac == ac && ((b->a1 == a1 && b->a2 == a2) ||
+                            (b->a1 == a2 && b->a2 == a1)))
+        {
+            return b;
+        }
+    }
+    ERROR3("getBend: no bend between atom ids %d-%d-%d", a1->atomID, ac->atomID, a2->atomID);
+    p->parseError(p->stream);
+    return NULL;
+}
+
+struct bond *
+getBond(struct part *p, struct atom *a1, struct atom *a2)
+{
+    struct bond *b;
+    int i;
+    
+    for (i=0; i<p->num_bonds; i++) {
+        b = p->bonds[i];
+        if ((b->a1 == a1 && b->a2 == a2) ||
+            (b->a1 == a2 && b->a2 == a1))
+        {
+            return b;
+        }
+    }
+    ERROR2("getBond: no bond between atom ids %d-%d", a1->atomID, a2->atomID);
+    p->parseError(p->stream);
+    return NULL;
 }
 
 // use these if the vdw generation code fails to create or destroy an
@@ -783,6 +724,12 @@ makeDynamicVanDerWaals(struct part *p, struct atom *a1, struct atom *a2)
 {
     int i;
     struct vanDerWaals *vdw = NULL;
+    struct vanDerWaalsParameters *parameters;
+
+    parameters = getVanDerWaalsTable(a1->type->protons, a2->type->protons);
+    if (parameters == NULL) {
+        return;
+    }
     
     vdw = (struct vanDerWaals *)allocate(sizeof(struct vanDerWaals));
     
@@ -803,7 +750,7 @@ makeDynamicVanDerWaals(struct part *p, struct atom *a1, struct atom *a2)
     }
     vdw->a1 = a1;
     vdw->a2 = a2;
-    vdw->parameters = getVanDerWaalsTable(a1->type->protons, a2->type->protons);
+    vdw->parameters = parameters;
 #ifdef TRACK_VDW_PAIR
     if (a1->atomID == VDW_FIRST_ATOM_ID && a2->atomID == VDW_SECOND_ATOM_ID) {
         fprintf(stderr, "creating vdw from %d to %d\n", a1->atomID, a2->atomID);
@@ -1630,65 +1577,91 @@ setThermalVelocities(struct part *p, double temperature)
     scaleKinetic(p->velocities, 2.0 * temperature / initial_temp, firstAtom, lastAtom);
 }
 
-
-// Add an atom to the part.  ExternalID is the atom number as it
-// appears in (for example) an mmp file.  ElementType is the number of
-// protons (XXX should really be an atomType).
-void
-makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
+struct atom *
+makeVirtualAtom(struct atomType *type,
+                enum hybridization hybridization,
+                char constructionAtoms,
+                char function,
+                struct atom *atom1,
+                struct atom *atom2,
+                struct atom *atom3,
+                struct atom *atom4,
+                double parameterA,
+                double parameterB,
+                double parameterC)
 {
-    double mass;
-    double vdwRadius;
-    double absCharge;
     struct atom *a;
-    
-    if (externalID < 0) {
-	ERROR1("atom ID %d must be >= 0", externalID);
-	p->parseError(p->stream);
-        return;        
-    }
-    if (externalID > p->max_atom_id) {
-	p->max_atom_id = externalID;
-	p->atom_id_to_index_plus_one = (int *)accumulator(p->atom_id_to_index_plus_one,
-							  sizeof(int) * (p->max_atom_id + 1), 1);
-    }
-    if (p->atom_id_to_index_plus_one[externalID]) {
-	ERROR2("atom ID %d already defined with index %d", externalID, p->atom_id_to_index_plus_one[externalID] - 1);
-	p->parseError(p->stream);
-        return;
-    }
-    p->atom_id_to_index_plus_one[externalID] = ++(p->num_atoms);
-    
-    p->atoms = (struct atom **)accumulator(p->atoms, sizeof(struct atom *) * p->num_atoms, 0);
-    p->positions = (struct xyz *)accumulator(p->positions, sizeof(struct xyz) * p->num_atoms, 0);
-    p->velocities = (struct xyz *)accumulator(p->velocities, sizeof(struct xyz) * p->num_atoms, 0);
     
     a = (struct atom *)allocate(sizeof(struct atom));
     memset(a, 0, sizeof(struct atom));
-    p->atoms[p->num_atoms - 1] = a;
-    a->index = p->num_atoms - 1;
-    a->atomID = externalID;
+
+    a->type = type;
+    a->hybridization = hybridization;
+    a->virtualConstructionAtoms = constructionAtoms;
+    a->virtualFunction = function;
+    a->creationParameters.v.virtual1 = atom1;
+    a->creationParameters.v.virtual2 = atom2;
+    a->creationParameters.v.virtual3 = atom3;
+    a->creationParameters.v.virtual4 = atom4;
+    a->creationParameters.v.virtualA = parameterA;
+    a->creationParameters.v.virtualB = parameterB;
+    a->creationParameters.v.virtualC = parameterC;
     
-    vset(p->positions[a->index], position);
-    vsetc(p->velocities[a->index], 0.0);
-    
-    if (!isAtomTypeValid(elementType)) {
-	ERROR1("Invalid element type: %d", elementType);
-	p->parseError(p->stream);
+    a->vdwBucketInvalid = 1;
+
+    return a;
+}
+
+void
+addVirtualAtom(struct part *p, struct atom *a)
+{
+    double vdwRadius;
+
+    if (a == NULL) {
         return;
     }
-    a->type = getAtomTypeByIndex(elementType);
+    p->num_virtual_atoms++;
+    p->virtual_atoms = (struct atom **)accumulator(p->virtual_atoms,
+                                                   sizeof(struct atom *) *
+                                                     p->num_virtual_atoms,
+                                                   0);
+    p->virtual_atoms[p->num_virtual_atoms - 1] = a;
+    a->index = p->num_virtual_atoms - 1;
+    
     hashtable_put(p->atomTypesUsed, a->type->symbol, a->type);
-    a->vdwBucketInvalid = 1;
 
     vdwRadius = a->type->vanDerWaalsRadius * 100.0; // convert from angstroms to pm
     if (vdwRadius > p->maxVanDerWaalsRadius) {
         p->maxVanDerWaalsRadius = vdwRadius;
     }
-    absCharge = fabs(a->type->charge);
-    if (absCharge > p->maxParticleCharge) {
-        p->maxParticleCharge = absCharge;
+}
+
+// Create an atom, but don't add it to the part.  ExternalID is the
+// atom number as it appears in (for example) an mmp file.
+// ElementType is the number of protons (XXX should really be an
+// atomType).
+struct atom *
+makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
+{
+    double mass;
+    struct atom *a;
+    
+    if (externalID < 0) {
+	ERROR1("atom ID %d must be >= 0", externalID);
+	p->parseError(p->stream);
+        return NULL;
     }
+    if (!isAtomTypeValid(elementType)) {
+	ERROR1("Invalid element type: %d", elementType);
+	p->parseError(p->stream);
+        return NULL;
+    }
+    
+    a = (struct atom *)allocate(sizeof(struct atom));
+    memset(a, 0, sizeof(struct atom));
+    a->atomID = externalID;
+    a->type = getAtomTypeByIndex(elementType);
+    a->vdwBucketInvalid = 1;
     
     if (a->type->group == 3) {
         a->hybridization = sp2;
@@ -1698,14 +1671,62 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
 
     if (a->type->charge != 0.0) {
         a->isCharged = 1;
-        p->num_charged_atoms++;
-        p->charged_atoms = (struct atom **)accumulator(p->charged_atoms, sizeof(struct atom *) * p->num_charged_atoms, 0);
-        p->charged_atoms[p->num_charged_atoms - 1] = a;
     }
     
     mass = a->type->mass * 1e-27;
     a->mass = a->type->mass;
     a->inverseMass = Dt * Dt / mass;
+    a->creationParameters.r.initialPosition = position;
+    
+    return a;
+}
+
+// Add a real atom to the part at the given position.
+void
+addAtom(struct part *p, struct atom *a)
+{
+    double vdwRadius;
+    double absCharge;
+
+    if (a == NULL) {
+        return;
+    }
+    if (a->atomID > p->max_atom_id) {
+	p->max_atom_id = a->atomID;
+	p->atom_id_to_index_plus_one = (int *)accumulator(p->atom_id_to_index_plus_one,
+							  sizeof(int) * (p->max_atom_id + 1), 1);
+    }
+    if (p->atom_id_to_index_plus_one[a->atomID]) {
+	ERROR2("atom ID %d already defined with index %d", a->atomID, p->atom_id_to_index_plus_one[a->atomID] - 1);
+	p->parseError(p->stream);
+        return;
+    }
+    p->atom_id_to_index_plus_one[a->atomID] = ++(p->num_atoms);
+    
+    p->atoms = (struct atom **)accumulator(p->atoms, sizeof(struct atom *) * p->num_atoms, 0);
+    p->positions = (struct xyz *)accumulator(p->positions, sizeof(struct xyz) * p->num_atoms, 0);
+    p->velocities = (struct xyz *)accumulator(p->velocities, sizeof(struct xyz) * p->num_atoms, 0);
+    p->atoms[p->num_atoms - 1] = a;
+    a->index = p->num_atoms - 1;
+    
+    vset(p->positions[a->index], a->creationParameters.r.initialPosition);
+    vsetc(p->velocities[a->index], 0.0);
+    hashtable_put(p->atomTypesUsed, a->type->symbol, a->type);
+    absCharge = fabs(a->type->charge);
+    if (absCharge > p->maxParticleCharge) {
+        p->maxParticleCharge = absCharge;
+    }
+
+    if (a->isCharged) {
+        p->num_charged_atoms++;
+        p->charged_atoms = (struct atom **)accumulator(p->charged_atoms, sizeof(struct atom *) * p->num_charged_atoms, 0);
+        p->charged_atoms[p->num_charged_atoms - 1] = a;
+    }
+
+    vdwRadius = a->type->vanDerWaalsRadius * 100.0; // convert from angstroms to pm
+    if (vdwRadius > p->maxVanDerWaalsRadius) {
+        p->maxVanDerWaalsRadius = vdwRadius;
+    }
 }
 
 void
@@ -1722,10 +1743,10 @@ setAtomHybridization(struct part *p, int atomID, enum hybridization h)
     a->hybridization = h;
 }
 
-// Add a new bond to this part.  The atomID's are the external atom
-// numbers as found in an mmp file (for example).
-void
-makeBond(struct part *p, int atomID1, int atomID2, char order)
+// Create a new bond, but don't add it to the part.  The atomID's are
+// the external atom numbers as found in an mmp file (for example).
+struct bond *
+makeBond(struct part *p, struct atom *a1, struct atom *a2, char order)
 {
     struct bond *b;
     
@@ -1736,17 +1757,37 @@ makeBond(struct part *p, int atomID1, int atomID2, char order)
     }
     /*********************************************************************/
     
-    p->num_bonds++;
-    p->bonds = (struct bond **)accumulator(p->bonds, sizeof(struct bond *) * p->num_bonds, 0);
     b = (struct bond *)allocate(sizeof(struct bond));
-    p->bonds[p->num_bonds - 1] = b;
-    b->a1 = translateAtomID(p, atomID1); BAIL();
-    b->a2 = translateAtomID(p, atomID2); BAIL();
-    CHECK_VALID_BOND(b);
+    b->a1 = a1;
+    b->a2 = a2;
     // XXX should we reject unknown bond orders here?
     b->order = order;
     b->direction = '?';
     b->valid = -1;
+    return b;
+}
+
+struct bond *
+makeBondFromIDs(struct part *p, int atomID1, int atomID2, char order)
+{
+    struct atom *a1;
+    struct atom *a2;
+    
+    a1 = translateAtomID(p, atomID1); BAILR(NULL);
+    a2 = translateAtomID(p, atomID2); BAILR(NULL);
+    return makeBond(p, a1, a2, order);
+}
+
+void
+addBond(struct part *p, struct bond *b)
+{
+    if (b == NULL) {
+        return;
+    }
+    p->num_bonds++;
+    p->bonds = (struct bond **)accumulator(p->bonds, sizeof(struct bond *) * p->num_bonds, 0);
+    p->bonds[p->num_bonds - 1] = b;
+    addBondToAtoms(p, b);
 }
 
 void
@@ -1773,6 +1814,57 @@ setBondDirection(struct part *p, int atomID1, int atomID2)
     return;
 }
 
+static void
+queueComponent(struct part *p, enum componentType type, void *component)
+{
+    struct queueablePartComponent *c;
+    
+    p->num_queued_components++;
+    p->queuedComponents = (struct queueablePartComponent *)accumulator(p->queuedComponents, sizeof(struct queueablePartComponent) * p->num_queued_components, 0);
+    c = &(p->queuedComponents[p->num_queued_components - 1]);
+
+    c->type = type;
+    c->component.any = component;
+}
+
+void
+queueAtom(struct part *p, struct atom *a)
+{
+    queueComponent(p, componentAtom, (void *)a);
+}
+
+void
+queueBond(struct part *p, struct bond *b)
+{
+    queueComponent(p, componentBond, (void *)b);
+}
+
+void
+addQueuedComponents(struct part *p)
+{
+    struct queueablePartComponent *c;
+    int i;
+
+    for (i=0; i<p->num_queued_components; i++) {
+        c = &(p->queuedComponents[i]);
+        switch (c->type) {
+        case componentAtom:
+            if (c->component.a->virtualConstructionAtoms != 0) {
+                addVirtualAtom(p, c->component.a);
+            } else {
+                addAtom(p, c->component.a);
+            }
+            break;
+        case componentBond:
+            addBond(p, c->component.b);
+            break;
+        }
+    }
+    p->num_queued_components = 0;
+    destroyAccumulator(p->queuedComponents);
+    p->queuedComponents = NULL;
+}
+
 // Add a static van der Waals interaction between a pair of bonded
 // atoms.  Not needed unless you want the vDW on directly bonded
 // atoms, as all other vDW interactions will be automatically found.
@@ -1780,15 +1872,24 @@ void
 makeVanDerWaals(struct part *p, int atomID1, int atomID2)
 {
     struct vanDerWaals *v;
+    struct vanDerWaalsParameters *parameters;
+    struct atom *a1;
+    struct atom *a2;
     
+    a1 = translateAtomID(p, atomID1); BAIL();
+    a2 = translateAtomID(p, atomID2); BAIL();
+    parameters = getVanDerWaalsTable(a1->type->protons, a2->type->protons);
+    if (parameters == NULL) {
+        return;
+    }
     p->num_static_vanDerWaals++;
     p->vanDerWaals = (struct vanDerWaals **)accumulator(p->vanDerWaals, sizeof(struct vanDerWaals *) * p->num_static_vanDerWaals, 0);
     v = (struct vanDerWaals *)allocate(sizeof(struct vanDerWaals));
     p->vanDerWaals[p->num_static_vanDerWaals - 1] = v;
-    v->a1 = translateAtomID(p, atomID1); BAIL();
-    v->a2 = translateAtomID(p, atomID2); BAIL();
+    v->a1 = a1;
+    v->a2 = a2;
     CHECK_VALID_BOND(v);
-    v->parameters = getVanDerWaalsTable(v->a1->type->protons, v->a2->type->protons);
+    v->parameters = parameters;
 }
 
 // Compute Sum(1/2*m*v**2) over all the atoms. This is valid ONLY if
