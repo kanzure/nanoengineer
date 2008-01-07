@@ -1,11 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Group.py -- Class (or superclass) for all non-leaf nodes in the
-internal model tree of Nodes.
+internal model tree of Nodes. (See also class Block.)
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -695,7 +695,8 @@ class Group(Node):
 
     def kids(self, display_prefs): #bruce 050109 [#k is this used?]
         """
-        [Overrides Node.kids()]
+        [Overrides Node.kids(); is overridden in our subclass Block]
+        
         Return the ordered list of our kids which should be displayed in a model
         tree widget which is using (for this node itself) the given display prefs
         (which might include the boolean pref 'open', default False, telling us

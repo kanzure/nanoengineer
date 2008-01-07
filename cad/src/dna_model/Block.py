@@ -30,11 +30,25 @@ class Block(Group):
         """
         return True
     
-    def kids(self): ### used? need to rename... MT_members? MT_children? MT_kids?
+    def kids(self, display_prefs): ### used? need to rename... MT_members? MT_children? MT_kids?
+        if not display_prefs.get('open', False):
+            # I don't know if this check is needed. See comment in Group def.
+            # The check for openable in some superclasses is not needed
+            # and would be a slowdown.
+            # [bruce 080107]
+            return []
+
+        return self._raw_kids()
+
+    def _raw_kids(self):
         return filter( lambda member: member.is_block(), self.members )
     
     def openable(self): #k args
-        return not not self.kids()
+        return not not self._raw_kids()
+        # REVIEW: if we are open and lose our _raw_kids, we become open but
+        # not openable. Does this cause any bugs or debug prints?
+        # Should it cause our open state to be set to false (as a new feature)?
+        # [bruce 080107 Q]
 
     # TODO: need more attrs or methods to specify more properties
     # (note: there might be existing Node API methods already good enough for these):
