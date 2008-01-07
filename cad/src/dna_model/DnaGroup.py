@@ -9,6 +9,8 @@ DnaGroup.py - ...
 
 from dna_model.Block import Block
 
+from icon_utilities import imagename_to_pixmap
+
 # Following import is disabled. See addSegment method for reason.
 ## from dna_model.DnaSegment import DnaSegment
 
@@ -40,6 +42,22 @@ class DnaGroup(Block):
     - whatever other properties the user needs to assign, which are not
       covered by the member nodes or superclass attributes.
     """
+    
+    
+    # The iconPath specifies path(string) of an icon that represents the 
+    # objects of this class  
+    iconPath = "modeltree/DNA.png"
+    
+    def node_icon(self, display_prefs):
+        """
+        Model Tree node icon for the dna group node. 
+        """
+        #Delete the unused display_prefs parameter
+        del display_prefs    
+        
+        return imagename_to_pixmap(self.iconPath)
+       
+        
     # example method:
     def get_segments(self):
         """
@@ -60,5 +78,27 @@ class DnaGroup(Block):
         ## assert isinstance(segment, DnaSegment)
         
         self.addchild(segment)
+
+    def getProps(self):
+        """
+	Method to support Dna duplex editing. see Group.__init__ for 
+	a comment
+        
+        THIS IS THE DEFAULT IMPLEMENTATION. TO BE MODIFIED
+	"""
+        #Should it supply the Dna Segment list (children) and then add 
+        #individual segments when setProps is called?? 
+        if self.editCommand:
+            props = ()
+            return props
+
+    def setProps(self, props):
+        """
+	Method  to support Dna duplex editing. see Group.__init__ for 
+	a comment
+        THIS IS THE DEFAULT IMPLEMENTATION. TO BE MODIFIED
+	"""
+        #Should it accept the Dna Segment list and then add individual segments?
+        pass
 
 # end

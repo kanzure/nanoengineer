@@ -25,6 +25,15 @@ class DnaSegment(DnaStrandOrSegment):
     atoms are not inside it; they are easily found from the DnaAxisChunks.
     """
     
+    def is_block(self): # To be implemented in Node API
+        """
+        The DnaSegment object is not a 'block'..meaning it won't be displayed 
+        as a child node in the created DnaGroup. 
+        [overrides Node API method]
+        @see: Block.is_block 
+        """        
+        return False
+    
     #Following methods are NOT IMPLEMENTED YET =================================
     
     def getAxisEndPoints(self):
@@ -37,5 +46,6 @@ class DnaSegment(DnaStrandOrSegment):
         """
         #method NIY
         assert 0
+        
 
 # end
