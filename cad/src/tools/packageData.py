@@ -589,6 +589,7 @@ packageMapping_for_files = {
     "Ui_MovePropertyManager"           : "ui/propmgr|commands/Move",
     "Ui_MoviePropertyManager"          : "ui/propmgr|commands/PlayMovie",
     "Ui_PartWindow"                    : "widget|ne1_ui", #?
+    "Ui_ReportsDockWidget"             : "widget|ne1_ui",
     "Ui_SelectMenu"                    : "ui/menu",
     "Ui_SelectToolBar"                 : "ui/toolbar",
     "Ui_SequenceEditor"                : "widget|SequenceEditor", # in dna/  ??

@@ -3,8 +3,8 @@
 Ui_ReportsDockWidget.py
 
 @author: Mark
+@version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id$
 
 To do:
 - Restore state (hidden/displayed) from last session.
