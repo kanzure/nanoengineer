@@ -59,6 +59,9 @@ popd
 # Generate filtered summary reports:
 # (their output files have links in index.php)
 
+# W0403 - Relative import %s. Emitted when an import statement uses a package-relative pathname.
+grep W0403 SVN-D/cad/src/pylint_* > W0403.txt
+
 # W0611 - Unused import %s. Emitted when an imported module or variable is not used.
 grep W0611 SVN-D/cad/src/pylint_* > W0611.txt
 

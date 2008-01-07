@@ -115,9 +115,9 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
         <tr>
           <td align="right">Pylint: </td>
           <td><span class="summary-name"><?php include 'Pylint.result'; ?>&nbsp;out of 10.0</span></td>
-          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a> (Filtered: <a href="W0611.txt">W0611</a>*  <a href="E0602.txt">E0602</a>*)</td></tr>
+          <td><a href="SVN-D/cad/src/pylint_global.0.html">Detail</a> (Filtered: <a href="W0403.txt">W0403</a>*  <a href="W0611.txt">W0611</a>*  <a href="E0602.txt">E0602</a>*)</td></tr>
         <tr>
-          <td valign="top" align="right">Dependency cycles: </td>
+          <td valign="top" align="right">Import dependencies: </td>
           <td valign="top"><span class="summary-name">Modules (arcs): <?php include 'depend.dot.lines'; ?>&nbsp;</span></td>
           <td><a href="depend.dot">depend.dot</a></td></tr>
         <tr>
@@ -140,7 +140,12 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
     <td class="summary">
       <b>Pylint:</b> Each convention, refactor, warning, and error message code is following by a brief description, but if that is insufficient, you can get a slightly more informative description for it here: <a href="http://www.logilab.org/card/wikiid/pylintfeatures">Pylint man page</a>
       <p>
-      <b>Dependency cycles:</b> Fewer arcs is better. Zero is ideal, but not always possible with respect to code clarity and convenience.
+      <b>Import dependencies:</b> For modules, only import cycles are shown; fewer arcs is better. Zero is ideal, but not always practical 
+      with respect to code clarity and convenience. This graph may be incomplete if any relative import warnings (W0403) are reported above.
+      For packages, all imports are shown; black arcs are fine, red arcs are deprecated. (However, as of Jan 1, 2008, the package import tool has not been updated
+      to handle the latest package classification, so the package graph is not very meaningful at the moment.)
+      <p>
+      * W0403 - Relative import warning. Emitted when an import statement uses a package-relative pathname (which confuses our import-analysis tools).
       <p>
       * W0611 - Unused import warning. Emitted when an imported module or variable is not used.
       <p>
