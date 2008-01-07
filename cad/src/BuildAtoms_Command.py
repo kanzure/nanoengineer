@@ -29,7 +29,7 @@ History:
 See history for depositMode.py 
 Ninad 2008-01-04: Created new Command and GraphicsMode classes from 
                   the old class depositMode and moved the 
-                  GraphicsMode related methods into this class from 
+                  Command related methods into this class from 
                   depositMode.py
 """
 
@@ -1048,24 +1048,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
                 self.propMgr.selectionFilterCheckBox.setChecked(False) 
             return
     
-    #Delegate these methods (such as update_cursor, setWater)
-    #to command's graphics mode.     
-    #TODO: The methods were added while splitting depositMode into 
-    # ommand/Graphics mode split. Needs to be revised in next refactoring 
-    # project/ cleanup for this class -- Ninad 2008-01-03
-    def Zupdate_cursor(self):
-        """
-        @see: BuildAtoms_graphicsMode.update_cursor
-        @see: BuildAtomsPropertyManager.set_selection_filter which calls this 
-        """
-        try:
-            if self.graphicsMode:
-                self.graphicsMode.update_cursor()
-        except:
-            print_compact_traceback("error calling update_cursor method of "\
-                                    "the graphics mode")
-
-
+    
 class BuildAtoms_Command(BuildAtoms_basicCommand):
     """
     BuildAtoms_Command  
