@@ -228,7 +228,8 @@ class Ne1Model_api(Api):
     pass # end of class Ne1Model_api
 
 class Node_api(Api):
-    """The customer must provide a node type that meets this API. This can be done by extending this
+    """
+    The customer must provide a node type that meets this API. This can be done by extending this
     class, or implementing it yourself. [See also class Node in Utility.py, used as the superclass
     for NE1 model tree nodes, which defines an API which is (we hope) a superset of this one.
     This could in principle inherit from this class, and at least ought to define all its methods.]
@@ -262,7 +263,8 @@ class Node_api(Api):
     # See also my comments in modelTree.__init__.
         
     def __init__(self):
-        """self.name MUST be a string instance variable.
+        """
+        self.name MUST be a string instance variable.
         self.hidden MUST be a boolean instance variable.
         self.open MUST be a boolean instance variable.
         There is no API requirement about arguments for __init__.
@@ -270,7 +272,8 @@ class Node_api(Api):
         raise Exception('overload me')
 
     def pick(self):
-        """select the object
+        """
+        select the object
         [extended in many subclasses, notably in Group]
         [Note: only Node methods should directly alter self.picked,
          since in the future these methods will sometimes invalidate other state
@@ -279,7 +282,8 @@ class Node_api(Api):
         raise Exception('overload me')
 
     def unpick(self):
-        """unselect the object, and all its ancestor nodes.
+        """
+        unselect the object, and all its ancestor nodes.
         [extended in many subclasses, notably in Group]
         [Note: only Node methods should directly alter self.picked,
          since in the future these methods will sometimes invalidate other state
@@ -288,17 +292,22 @@ class Node_api(Api):
         raise Exception('overload me')
 
     def apply2picked(self, func):
-        """Apply fn to the topmost picked nodes under (or equal to) self,
+        """
+        Apply fn to the topmost picked nodes under (or equal to) self,
         but don't scan below picked nodes. See Group.apply2picked docstring for details.
         """
         raise Exception('overload me')
 
     def is_disabled(self):
-        """MUST return a boolean"""
+        """
+        MUST return a boolean
+        """
         raise Exception('overload me')
 
     def node_icon(self, display_prefs):
-        """MUST return either a QPixmap or None"""
+        """
+        MUST return either a QPixmap or None
+        """
         # display_prefs is used in Group.node_icon to indicate whether a group is open or closed. It
         # is not used anywhere else. It is a dictionary and the only relevant key for it is "open".
         # [Addendum, bruce 070504: it also has a key 'openable'. I don't know if anything looks at
@@ -321,21 +330,25 @@ class Node_api(Api):
 ##        raise Exception('overload me')
 
     def kids(self, item_prefs):
-        """Return a list of Nodes that are a child of this Node.
+        """
+        Return a list of Nodes that are a child of this Node.
         """
         raise Exception('overload me')
 
     def openable(self): #bruce 070508
-        """Return True if tree widgets should display an openclose icon for this node, False otherwise.
+        """
+        Return True if tree widgets should display an openclose icon for this node, False otherwise.
         """
         raise Exception('overload me')        
     pass
 
 class ModelTreeGui_api(Api):
-    """This should be a Qt4 widget that can be put into a layout.
+    """
+    This should be a Qt4 widget that can be put into a layout.
     """
     def update_item_tree(self, unpickEverybody = False): # in ModelTreeGui_api
-        """Removes and deletes all the items in this list view and triggers an update. Previously
+        """
+        Removes and deletes all the items in this list view and triggers an update. Previously
         this was the 'clear' method in Q3ListView. 
         """
         ###REVIEW: in the implementation below, this also creates a new tree of items given a root node.
@@ -344,12 +357,15 @@ class ModelTreeGui_api(Api):
         raise Exception('overload me')
 
     def topmost_selected_nodes(self): # in ModelTreeGui_api
-        "return a list of all selected nodes as seen by apply2picked, i.e. without looking inside selected Groups"
+        """
+        return a list of all selected nodes as seen by apply2picked, i.e. without looking inside selected Groups
+        """
         # this should really be called topmost_PICKED_nodes: nodes are picked, items are selected
         raise Exception('overload me')
 
     def mt_update(self, nodetree = None): # in ModelTreeGui_api
-        """External code (or event bindings in a subclass, if they don't do enough repainting themselves)
+        """
+        External code (or event bindings in a subclass, if they don't do enough repainting themselves)
         should call this when it might have changed any state that should
         affect what's shown in the tree. (Specifically: the ordering or grouping of nodes,
         or the icons or text they should display, or their open or selected state.) (BTW external
@@ -378,7 +394,8 @@ ITEM_HEIGHT = _ICONSIZE[1] # in theory, these need not be the same, but other va
 _cached_icons = {} #bruce 070529 presumed optimization
 
 def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
-    """Draw node in painter.
+    """
+    Draw node in painter.
     x,y are coords for topleft of type-icon.
     widget (the modelTreeGui) is used for palette.
     """
@@ -505,7 +522,8 @@ def _describe( flags, name_val_dict):
 # [bruce 070511]
 
 def display_prefs_for_node(node):
-    """Return a dict of the *incremental* display prefs for the node,
+    """
+    Return a dict of the *incremental* display prefs for the node,
     relative to whatever its parent passes as display prefs for its own kids.
     Any prefs that it should inherit from its parent's env should be left out of this dict.
     The complete set of display prefs can be used by node_icon to decide what icon the treeview
@@ -534,7 +552,8 @@ _DISPLAY_PREFS_LEAF   = {}
 class DoNotDrop(Exception): pass
 
 class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of class ModelTreeGui
-    """The part of our model tree implementation which is the same
+    """
+    The part of our model tree implementation which is the same
     for either type of Qt widget used to show it.
     """
     def __init__(self, win, ne1model):
@@ -559,7 +578,8 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         return
     
     def topmost_selected_nodes(self): #bruce 070529 moved method body into self.ne1model
-        """Return a list of nodes whose corresponding items are currently selected,
+        """
+        Return a list of nodes whose corresponding items are currently selected,
         but not including any children of selected nodes.
         """
         return self.ne1model.topmost_selected_nodes()
@@ -568,7 +588,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         return debug_pref("MT debug: debug prints", Choice_boolean_False, prefs_key = True)
     
     def display_prefs_for_node(self, node):
-        """For doc, see the global function of the same name."""
+        """
+        For doc, see the global function of the same name.
+        """
         return display_prefs_for_node(node) #bruce 070511 revised this to make it a global function
 
     # == DND start methods
@@ -629,7 +651,8 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         return # nodes
 
     def filter_drag_nodes(self, drag_type, nodes): #bruce 070509 copied this from Qt3 TreeWidget.py [#k same as in Qt4 TreeWidget??]
-        """See which of the given nodes can be dragged (as a group) in the given way.
+        """
+        See which of the given nodes can be dragged (as a group) in the given way.
         Return a subset of them to be actually dragged
         (having emitted a warning, if desired, if this is not all of them),
         or someday perhaps a processed version of them (e.g. you could pre-make copies for a 'copy' drag),
@@ -663,7 +686,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         return pixmap
 
     def get_whatting_n_items_text(self, drag_type, nodes):
-        "return something like 'moving 1 item' or 'copying 5 items'"
+        """
+        return something like 'moving 1 item' or 'copying 5 items'
+        """
         ing_dict = { "move":"moving", "copy":"copying" }
         whatting = ing_dict[ drag_type] # moving or copying?
         return fix_plurals( "%s %d item(s)" % (whatting, len(nodes)) )
@@ -685,7 +710,8 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         # or even the decision of what to do when the motion is large enough (ie let drag_handler role be only to notice that,
         # not to do whatever should be done at that point? as if its role was to filter our events into higher level ones
         # where one of them would be enoughMotionToStartADragEvent?] ###e yes, lots of cleanup is possible here...
-        """Our current drag_handler can call this to ask us for a nice-looking pixmap
+        """
+        Our current drag_handler can call this to ask us for a nice-looking pixmap
         representing this drag_type of these nodes,
         to put into its QDragObject as a custom pixmap.
         If we're not yet sure how to make one, we can just return None.
@@ -750,7 +776,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         pass
     
     def paint_node(self, p, drag_type, node):
-        "paint one node's item into QPainter p, and translate it down by the item's height"
+        """
+        paint one node's item into QPainter p, and translate it down by the item's height
+        """
         #e someday also paint the little openclose triangles if they are groups?
         #e unselect items first, at least for copy?
         item = self.nodeItem(node)
@@ -769,7 +797,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             # (Or actually "end" them... in fact that turns out to be needed too.)
         
     def paint_nodes(self, p, drag_type, nodes):
-        "paint a dragobject picture of these nodes into the QPainter p; if you give up, raise an exception; return w,h used??"
+        """
+        paint a dragobject picture of these nodes into the QPainter p; if you give up, raise an exception; return w,h used??
+        """
         nn = len(nodes)
         if not nn:
             print nodes,"no nodes??" # when i try to drag the clipboard?? because unselected.
@@ -842,7 +872,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         return
     
     def _do_drop_or_raise_DoNotDrop(self, event): #bruce 070511 split this out
-        "[private] Do a drop, or raise a DoNotDrop exception. Print a message, but do appropriate updates only if we succeed."
+        """
+        [private] Do a drop, or raise a DoNotDrop exception. Print a message, but do appropriate updates only if we succeed.
+        """
         #bruce 070511 brought in several error messages from Qt3/TreeWidget.py,
         # modified some of them, made them use statusbar_msg rather than history redmsg ###UNTESTED
         item, rectjunk = self.item_and_rect_at_event_pos(event)
@@ -988,7 +1020,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
     _mousepress_info_for_doubleclick = None, None # always a pair; always set; but only matters in QScrollArea implem
     
     def mousePressEvent(self, event, _doubleclick = False):
-        "called by Qt on mousePress, or by our own method with private option _doubleclick = True"
+        """
+        called by Qt on mousePress, or by our own method with private option _doubleclick = True
+        """
 
         ## self.mouse_press_scrollpos = self.get_scrollpos("start of mousePressEvent")
         ###BUG: messes up manual scroll + click elsewhere (causing mt_update) -- this pos rules, discarding the manual scroll.
@@ -1313,7 +1347,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
     # ==
     
     def get_scrollpos(self, msg = ""):
-        "Return the current scrollposition (as x,y, in scrollbar units), and if DEBUG3 also print it using msg."
+        """
+        Return the current scrollposition (as x,y, in scrollbar units), and if DEBUG3 also print it using msg.
+        """
         ## res = ( self.horizontalOffset(), self.verticalOffset() )
             # This is in pixels, and it apparently works, but it's not useful
             # because setting it (using QWidget.scroll) doesn't work properly and has bad side effects.
@@ -1330,7 +1366,9 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         return res
 
     def set_scrollpos(self, pos): # used only in QTreeView implem, but should be correct in QScrollArea implem too
-        "Set the scrollposition (as x,y, in scrollbar units), and if DEBUG3 print various warnings if anything looks funny."
+        """
+        Set the scrollposition (as x,y, in scrollbar units), and if DEBUG3 print various warnings if anything looks funny.
+        """
         x, y = pos # this is in scrollbar units, not necessarily pixels
         hsb = self.horizontalScrollBar()
         if hsb:
@@ -1351,7 +1389,8 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         return
 
     def rename_node_using_dialog(self, node): #bruce 070531
-        """[newly in public API -- ###doc that. Used by callers in more than one file.]
+        """
+        [newly in public API -- ###doc that. Used by callers in more than one file.]
         Put up a dialog to let the user rename the given node. (Only one node for now.)
         Emit an appropriate statusbar message, and do necessary updates if successful.
         """
@@ -1386,7 +1425,8 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
 # ==
 
 def grab_text_line_using_dialog( default = "", title = "title", label = "label" ): #bruce 070531 ##e refile this
-    """Use a dialog to get one line of text from the user, with given default (initial) value,
+    """
+    Use a dialog to get one line of text from the user, with given default (initial) value,
     dialog window title, and label text inside the dialog. If successful, return (True, text);
     if not, return (False, "Reason why not"). Returned text is a python string (not unicode).
     """
@@ -1431,7 +1471,9 @@ def x_for_indent(n):
     return INDENT_0 + INDENT_OFFSET * n
 
 class MT_View(QtGui.QWidget):
-    "mt contents view"
+    """
+    ModelTree contents view
+    """
     def __init__(self, parent, palette_widget, modeltreegui):
         QtGui.QWidget.__init__(self, parent)
         self.palette_widget = palette_widget #e rename?
@@ -1479,7 +1521,10 @@ class MT_View(QtGui.QWidget):
         return
 
     def _setup_openclose_style(self):
-        "[private] As an optimization, choose the openclose icons (etc) just once before drawing."
+        """
+        [private]
+        As an optimization, choose the openclose icons (etc) just once before drawing.
+        """
         
         style = debug_pref("Model Tree: openclose icon style", self._icon_style_choice,
                            non_debug = True, prefs_key = "A9/MT openclose icon style",
@@ -1523,7 +1568,8 @@ class MT_View(QtGui.QWidget):
         return
     
     def paint_subtree(self, node, painter, x, y, line_to_pos = None, last_child = True):
-        """Paint node and its visible subtree (at x,y in painter);
+        """
+        Paint node and its visible subtree (at x,y in painter);
         return the y value to use for the next lower node.
            If this is a child node, the y position to which an "openclose line"
         (in case we're drawing them) needs to be drawn up to (from the center
@@ -1592,7 +1638,8 @@ class MT_View(QtGui.QWidget):
         return y
 
     def look_for_y(self, y):
-        """Given y (in contents coordinates), find the node drawn under it,
+        """
+        Given y (in contents coordinates), find the node drawn under it,
         and return (node, its depth, its y0).
         If no node is under it, return None, None, None.
         """
@@ -1607,7 +1654,8 @@ class MT_View(QtGui.QWidget):
         return None, None, None
         
     def look_for_y_recursive(self, node, y0, d, y):
-        """assuming node is drawn at vertical position y0 (in contents coordinates)
+        """
+        assuming node is drawn at vertical position y0 (in contents coordinates)
         and indent level d, find the node in its visible subtree (perhaps node itself)
         which is drawn over position y; return (that node, its depth, its y0, None), or (None, None, None, next_y0),
         where next_y0 is the y coordinate for the next node below the given node and its visible subtree.

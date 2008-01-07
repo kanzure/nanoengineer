@@ -1388,12 +1388,16 @@ class PartGroup(Group):
     """
     _initialkids = [] #bruce 050302
     # These revised definitions are the non-kluge reason we need this subclass: ###@@@ also some for menus...
-    def is_top_of_selection_group(self): return True #bruce 050131 for Alpha
-    def rename_enabled(self): return False
-    def drag_move_ok(self): return False
+    def is_top_of_selection_group(self):
+        return True #bruce 050131 for Alpha
+    def rename_enabled(self):
+        return False
+    def drag_move_ok(self):
+        return False
     # ... but drag_copy is permitted! (someday, when copying groups is permitted)
     # drop methods should be the same as for any Group
-    def permits_ungrouping(self): return False
+    def permits_ungrouping(self):
+        return False
     def node_icon(self, display_prefs):
         # same whether closed or open
         return imagename_to_pixmap("modeltree/part.png")
@@ -1410,8 +1414,10 @@ class PartGroup(Group):
 ##            # bruce 050127; for now this is the only place that honors node.show_in_model_tree()!
 ##        self._initialkids = list(lis)
     def kids(self, display_prefs):
-        "overrides Group.kids"
-        if not self.openable() or not display_prefs.get('open',False):
+        """
+        overrides Group.kids
+        """
+        if not self.openable() or not display_prefs.get('open', False):
             return []
         regularkids = Group.kids(self, display_prefs)
         return list(self._initialkids + regularkids)
@@ -1422,7 +1428,9 @@ class PartGroup(Group):
         cntl.exec_()
         self.assy.mt.mt_update()
     def description_for_history(self):
-        """[overridden from Group method]"""
+        """
+        [overridden from Group method]
+        """
         return "Part Name: [" + self.name +"]"
     pass
 
@@ -1475,7 +1483,9 @@ class ClipboardShelfGroup(Group):
     def edit_props_enabled(self):
         return False
     def description_for_history(self):
-        """[overridden from Group method]"""
+        """
+        [overridden from Group method]
+        """
         return "Clipboard"    
     def getPastables(self):
         """
