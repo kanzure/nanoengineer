@@ -43,6 +43,7 @@ class Plane_EditCommand(EditCommand):
     command_has_its_own_gui = True
     
     commandName = 'REFERENCE_PLANE'
+    featurename = "Reference Plane"
     
     GraphicsMode_class = SelectAtoms_GraphicsMode
     

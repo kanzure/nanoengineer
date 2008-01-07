@@ -37,6 +37,7 @@ class LinearMotor_EditCommand(EditCommand):
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
     commandName = 'LINEAR_MOTOR'
+    featurename = "Linear Motor"
     
     GraphicsMode_class = SelectAtoms_GraphicsMode    
     

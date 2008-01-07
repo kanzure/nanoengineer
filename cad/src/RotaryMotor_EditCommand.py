@@ -37,6 +37,7 @@ class RotaryMotor_EditCommand(EditCommand):
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
     commandName = 'ROTARY_MOTOR'
+    featurename = "Rotary Motor"
     
     GraphicsMode_class = SelectAtoms_GraphicsMode
     
