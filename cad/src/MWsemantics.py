@@ -590,6 +590,18 @@ class MWsemantics(QMainWindow,
         self.commandToolbar.show()
         #Clear the list of hidden widgets (those are no more hidden)
         self._widgetToHideDuringFullScreenMode = []
+    
+    def toggleReportsDockWidget(self, isChecked):
+        """
+        Togle the display of the Reports DockWidget
+        @param isChecked: Checked state of the View > Reports menu item
+        @type isChecked: bool
+        """
+        if isChecked:
+            self.reportsDockWidget.show()
+        else:
+            self.reportsDockWidget.hide()
+    
 
     def activePartWindow(self): # WARNING: this is inlined in a few methods of self
         return self._activepw
