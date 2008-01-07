@@ -44,6 +44,7 @@ class Ui_ReportsDockWidget(QDockWidget):
         """
         QDockWidget.__init__(self, win)
         
+        self.win = win
         #Define layout
         self._containerWidget = QWidget()
         self.setWidget(self._containerWidget)        
@@ -115,3 +116,41 @@ class Ui_ReportsDockWidget(QDockWidget):
         env.history = self.history_object #bruce 050727, revised 050913
         
         self.historyTabLayout.addWidget(self.history_widget)
+    
+    def show(self):
+        """
+        Show this widget. Makes sure that this widget is shown only 
+        when the View > Reports action is checked
+        @see: B{self.closeEvent}
+        """
+        if not self.win.viewReportsAction.isChecked():
+            self.win.viewReportsAction.setChecked(True)
+            return
+        
+        QDockWidget.show(self)
+        
+            
+    def closeEvent(self, event):
+        """
+        Makes sure that this widget is closed (hidden ) only when the 
+        View > Reports action is unchecked. Overrides QDockWidget.closeEvent()
+        @parameter event: closeEvent for the QDockWidget
+        """
+        if self.win.viewReportsAction.isChecked():
+            self.win.viewReportsAction.setChecked(False)
+            return
+        
+        QDockWidget.closeEvent(self, event)
+        
+        
+    def hide(self):
+        """
+        Hide this widget. Makes sure that this widget is closed (hidden ) only 
+        when the View > Reports action is unchecked
+        @see: self.closeEvent
+        """
+        if self.win.viewReportsAction.isChecked():
+            self.win.viewReportsAction.setChecked(False)
+            return
+        
+        QDockWidget.hide(self)

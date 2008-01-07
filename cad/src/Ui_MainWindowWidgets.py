@@ -366,6 +366,8 @@ def setupUi(win):
     win.viewFullScreenAction.setShortcut('F12')
     
     win.viewReportsAction = QtGui.QAction(MainWindow)
+    win.viewReportsAction.setCheckable(True)
+    win.viewReportsAction.setChecked(True)
     win.viewReportsAction.setText('Reports')
 
     #= Insert (menu and toolbar) widgets.

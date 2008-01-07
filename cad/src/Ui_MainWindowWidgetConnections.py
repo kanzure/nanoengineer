@@ -61,8 +61,8 @@ def setupUi(win):
                  SIGNAL("toggled(bool)"), 
                  win.setViewSemiFullScreen)
     win.connect(win.viewReportsAction, 
-                 SIGNAL("triggered()"), 
-                 win.reportsDockWidget.show)
+                 SIGNAL("toggled(bool)"), 
+                 win.toggleReportsDockWidget)
 
     win.connect(win.editPrefsAction,SIGNAL("triggered()"),win.editPrefs)
     win.connect(win.editRedoAction,SIGNAL("triggered()"),win.editRedo)
