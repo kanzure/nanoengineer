@@ -577,7 +577,7 @@ class Node( StateMixin):
         """
         return False
     
-    def MT_kids(self, display_prefs): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids; revised semantics
+    def MT_kids(self, display_prefs = {}): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids; revised semantics
         """
         For doc, see Group.MT_kids()
         

@@ -328,7 +328,7 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
 ##        """
 ##        raise Exception('overload me')
 
-    def MT_kids(self, item_prefs): #bruce 080108 renamed kids -> MT_kids; not yet used, but will be soon
+    def MT_kids(self, item_prefs = {}): #bruce 080108 renamed kids -> MT_kids; only used in some places it needs to be
         """
         Return a list of Nodes that the model tree should show
         as a child of this Node, if it's openable and open.
@@ -2041,7 +2041,7 @@ class TestNode(Node_api):
         newguy._disabled = self._disabled
         newguy.members = self.members[:]
         return newguy
-    def MT_kids(self, item_prefs):
+    def MT_kids(self, item_prefs = {}):
         return self.members
     def __repr__(self):
         return "<Node \"%s\">" % self.name

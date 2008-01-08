@@ -246,8 +246,6 @@ class ModelTreeNode_trivial_glue(DelegatingInstanceOrExpr): #070206, 070207
 # (note that no automatic type coercion is yet implemented, so nothing ever yet uses
 #  the default formulae in class ModelTreeNodeInterface).
 
-_DISPLAY_PREFS = dict(open = True) # private to def node_kids
-
 def node_kids(node): # revised 070207 # REVIEW: rename to something like node_MT_kids? [bruce 080108 comment]
     """
     return the kid list of the node, regardless of which model tree node interface it's trying to use [slight kluge]
@@ -264,7 +262,7 @@ def node_kids(node): # revised 070207 # REVIEW: rename to something like node_MT
     except AttributeError:
             pass
     else:
-        return node.MT_kids(_DISPLAY_PREFS)
+        return node.MT_kids()
 
     return () # give up and assume it has no MT_kids
 

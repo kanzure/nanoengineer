@@ -705,7 +705,7 @@ class Group(Node):
         else:
             return imagename_to_pixmap("modeltree/group-collapsed.png")
 
-    def MT_kids(self, display_prefs): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids, revised semantics
+    def MT_kids(self, display_prefs = {}): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids, revised semantics
         """
         [Overrides Node.MT_kids(); is overridden in our subclass Block]
         
@@ -730,11 +730,6 @@ class Group(Node):
         corresponds to the parent relation in their own tree of display items. I don't know
         how well the existing caller (modelTree.py) follows this so far. -- bruce 050113]
         """
-##        if not self.openable() or not display_prefs.get('open', False):
-##            ###@@@ I suspect this check should always be done in the tree widget,
-##            # so we don't have to do it in Group methods. [bruce 050113]
-##            return []
-
         # Historical note: self.members used to be stored in reversed order, but
         # Mark fixed that some time ago. Some callers in modelTree needed reversed
         # members list, after that, not because it was stored in reverse order as

@@ -1,11 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 """
 assembly.py -- provides class assembly, for everything stored in one mmp file,
 including one main part and zero or more clipboard items; see also part.py.
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 ==
 
@@ -1413,7 +1413,7 @@ class PartGroup(Group):
 ##        lis = filter( lambda node: node.show_in_model_tree(), lis)
 ##            # bruce 050127; for now this is the only place that honors node.show_in_model_tree()!
 ##        self._initialkids = list(lis)
-    def MT_kids(self, display_prefs):
+    def MT_kids(self, display_prefs = {}): #bruce 080108 revised semantics
         """
         overrides Group.MT_kids
         """
