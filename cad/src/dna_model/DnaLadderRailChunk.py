@@ -11,6 +11,10 @@ from chunk import Chunk
 
 from constants import gensym
 
+# see also:
+## from dna_model.DnaLadder import _rail_end_atom_to_ladder
+# (below, perhaps in a cycle)
+
 # ==
 
 class DnaLadderRailChunk(Chunk):
@@ -40,7 +44,9 @@ class DnaLadderRailChunk(Chunk):
         self._grab_atoms_from_chain(chain) #e we might change when this is done, if we implem copy for this class
         # following import is a KLUGE to avoid recursive import
         # (still has import cycle, ought to ### FIX -- should refile that func somehow)
-        from DnaLadder import _rail_end_atom_to_ladder # todo: make not private... or get by without it here (another init arg??)            
+        from dna_model.DnaLadder import _rail_end_atom_to_ladder
+            # todo: make not private... or get by without it here (another init arg??)
+            # review: make this import toplevel? right now it's probably in a cycle.
         self.ladder = _rail_end_atom_to_ladder( chain.baseatoms[0] )
         return
 
