@@ -227,7 +227,7 @@ class Ne1Model_api(Api):
 
     pass # end of class Ne1Model_api
 
-class Node_api(Api):
+class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit from Node?? [bruce 080107 comment]
     """
     The customer must provide a node type that meets this API. This can be done by extending this
     class, or implementing it yourself. [See also class Node in Utility.py, used as the superclass
