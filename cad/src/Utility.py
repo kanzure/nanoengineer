@@ -577,13 +577,13 @@ class Node( StateMixin):
         """
         return False
     
-    def MT_kids(self, display_prefs): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids; semantics to be revised soon
+    def MT_kids(self, display_prefs): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids; revised semantics
         """
-        #doc; see Group.MT_kids()
+        For doc, see Group.MT_kids()
         
         [some subclasses should override this, especially Group]
         """
-        return []
+        return [] # review: could this be ()? Is this method needed on Node at all?
     
     def openable(self):
         """
@@ -794,8 +794,7 @@ class Node( StateMixin):
         """
         # Note: this is not presently used, but should be used, since it helped
         # implement the MT arrow key bindings, which are desirable but were lost
-        # in the port to Qt4. But it needs correction for self.MT_kids() not always
-        # equalling self.members (and probably so does lots of other MT code).
+        # in the port to Qt4.
         # [bruce 071206 comment]
         if self.is_group() and self.open and self.openable(): #bruce 080108 added .openable cond (guess)
             visible_kids = self.MT_kids() #bruce 080108 .members -> .MT_kids()

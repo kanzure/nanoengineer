@@ -1417,8 +1417,8 @@ class PartGroup(Group):
         """
         overrides Group.MT_kids
         """
-        if not self.openable() or not display_prefs.get('open', False):
-            return []
+##        if not self.openable() or not display_prefs.get('open', False):
+##            return []
         regularkids = Group.MT_kids(self, display_prefs)
         return list(self._initialkids + regularkids)
     def edit(self):

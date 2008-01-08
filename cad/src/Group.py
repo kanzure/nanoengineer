@@ -705,34 +705,44 @@ class Group(Node):
         else:
             return imagename_to_pixmap("modeltree/group-collapsed.png")
 
-    def MT_kids(self, display_prefs): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids; semantics to be revised soon
+    def MT_kids(self, display_prefs): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids, revised semantics
         """
         [Overrides Node.MT_kids(); is overridden in our subclass Block]
         
         Return the ordered list of our kids which should be displayed in a model
-        tree widget which is using (for this node itself) the given display prefs
-        (which might include the boolean pref 'open', default False, telling us
-         whether the tree widget plans to show our kids or not).
+        tree widget which is using (for this node itself) the given display prefs.
+
+        (These might include the boolean pref 'open', default False, telling us
+         whether the tree widget plans to show our kids or not. But  there is
+         no need to check for that, since the caller will only actually show
+         our MT_kids if self is openable and open. Note that some
+         implementations of self.openable() might check whether MT_kids
+         returns any kids or not, so ideally it should be fast.)
+        
         (Don't include inter-kid gaps for drag&drop explicitly; see another method
          for that. ###nim)
+        
         Subclasses can override this; this version is valid for any Group whose .members
         don't need filtering or updating, or augmenting (like PartGroup does as of 050109).
-         [Note that it is (probably) perfectly ok for subclasses to have a set of MT_kids which is
-        not related to their members, provided callers (tree widgets) never assume node.dad
+        
+         [Note that it ought to be ok for subclasses to have a set of MT_kids which is
+        not related to their .members, provided callers (tree widgets) never assume node.dad
         corresponds to the parent relation in their own tree of display items. I don't know
         how well the existing caller (modelTree.py) follows this so far. -- bruce 050113]
         """
-        if not self.openable() or not display_prefs.get('open', False):
-            ###@@@ I suspect this check should always be done in the tree widget,
-            # so we don't have to do it in Group methods. [bruce 050113]
-            return []
+##        if not self.openable() or not display_prefs.get('open', False):
+##            ###@@@ I suspect this check should always be done in the tree widget,
+##            # so we don't have to do it in Group methods. [bruce 050113]
+##            return []
+
         # Historical note: self.members used to be stored in reversed order, but
         # Mark fixed that some time ago. Some callers in modelTree needed reversed
         # members list, after that, not because it was stored in reverse order as
         # it had been, but because modeltree methods added tree items in reverse
         # order (which I fixed yesterday).
         # [bruce 050110 inference from addmember implems/usage]
-        return list(self.members)
+        
+        return list(self.members) # review: is this list copying needed?
 
     def edit(self):
         """

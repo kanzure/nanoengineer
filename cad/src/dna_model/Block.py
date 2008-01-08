@@ -30,20 +30,13 @@ class Block(Group):
         """
         return True
     
-    def MT_kids(self, display_prefs): # semantics will be revised soon [bruce 080108]
-        if not display_prefs.get('open', False):
-            # I don't know if this check is needed. See comment in Group def.
-            # The check for openable in some superclasses is not needed
-            # and would be a slowdown.
-            # [bruce 080107]
-            return []
-
+    def MT_kids(self, display_prefs): #bruce 080108 revised semantics
         return self._raw_MT_kids()
 
     def _raw_MT_kids(self):
         return filter( lambda member: member.is_block(), self.members )
     
-    def openable(self): #k args
+    def openable(self):
         return not not self._raw_MT_kids()
         # REVIEW: if we are open and lose our _raw_MT_kids, we become open but
         # not openable. Does this cause any bugs or debug prints?
