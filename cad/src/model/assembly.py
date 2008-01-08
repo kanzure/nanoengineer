@@ -1413,13 +1413,13 @@ class PartGroup(Group):
 ##        lis = filter( lambda node: node.show_in_model_tree(), lis)
 ##            # bruce 050127; for now this is the only place that honors node.show_in_model_tree()!
 ##        self._initialkids = list(lis)
-    def kids(self, display_prefs):
+    def MT_kids(self, display_prefs):
         """
-        overrides Group.kids
+        overrides Group.MT_kids
         """
         if not self.openable() or not display_prefs.get('open', False):
             return []
-        regularkids = Group.kids(self, display_prefs)
+        regularkids = Group.MT_kids(self, display_prefs)
         return list(self._initialkids + regularkids)
     def edit(self):
         cntl = PartProp(self.assy)
@@ -1512,7 +1512,7 @@ class RootGroup(Group):
     def pick(self): #bruce 050131 for Alpha
         self.redmsg( "Internal error: tried to select assy.root (ignored)" )
     #e does this need to differ from a Group? maybe in some dnd/rename attrs...
-    # or maybe not, since only its kids are shown (not itself) ###@@@
+    # or maybe not, since only its MT_kids are shown (not itself) ###@@@
     # (we do use the fact that it differs in class from a Group
     #  as a signal that we might need to replace it... not sure if this is needed)
     pass

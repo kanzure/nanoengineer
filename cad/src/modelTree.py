@@ -412,6 +412,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # Hmm... let's put in Hide (with checkmark meaning "all hidden"), then iff that's not enough, Unhide.
         # So how do we know if a node is hidden -- this is only defined for leaf nodes now!
         # I guess we figure it out... I guess we might as well classify nodeset and its kids.
+        # [update, bruce 080108: I think "and its kids" refers to members, not MT_kids, but I'm not sure.]
         
         allstats = statsclass()
         

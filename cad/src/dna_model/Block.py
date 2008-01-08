@@ -30,7 +30,7 @@ class Block(Group):
         """
         return True
     
-    def kids(self, display_prefs): ### used? need to rename... MT_members? MT_children? MT_kids?
+    def MT_kids(self, display_prefs): # semantics will be revised soon [bruce 080108]
         if not display_prefs.get('open', False):
             # I don't know if this check is needed. See comment in Group def.
             # The check for openable in some superclasses is not needed
@@ -38,14 +38,14 @@ class Block(Group):
             # [bruce 080107]
             return []
 
-        return self._raw_kids()
+        return self._raw_MT_kids()
 
-    def _raw_kids(self):
+    def _raw_MT_kids(self):
         return filter( lambda member: member.is_block(), self.members )
     
     def openable(self): #k args
-        return not not self._raw_kids()
-        # REVIEW: if we are open and lose our _raw_kids, we become open but
+        return not not self._raw_MT_kids()
+        # REVIEW: if we are open and lose our _raw_MT_kids, we become open but
         # not openable. Does this cause any bugs or debug prints?
         # Should it cause our open state to be set to false (as a new feature)?
         # [bruce 080107 Q]

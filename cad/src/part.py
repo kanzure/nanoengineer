@@ -188,13 +188,16 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
                 prior_part.name = None
                 del prior_part.name # save RAM (in undo archives, until undo does this itself) (not important, mainly a test, 060227)
         else:
-            # HomeView and LastView -- these are per-part, are switched into GLPane
-            # when its current part changes (i.e. very soon after our assy's current part changes),
-            # and are written into mmp file for main part, and in future for all parts.
-            ###e bruce 050527 comment: would it ever be better to set these to fit the content? If so,
-            # we'd have to just inval them here, since most of the content is probably
-            # in nodes other than topnode, which are not yet added (and we don't want to
-            # assume topnode's kids will all be added, though for now this might be true -- not sure).
+            # HomeView and LastView -- these are per-part, are switched into
+            # GLPane when its current part changes (i.e. very soon after our
+            # assy's current part changes), and are written into mmp file for
+            # main part, and in future for all parts.
+            ###e bruce 050527 comment: would it ever be better to set these to
+            # fit the content? If so, we'd have to just inval them here, since
+            # most of the content is probably in nodes other than topnode,
+            # which are not yet added (and we don't want to assume topnode's
+            # kids will all be added, though for now this might be true --
+            # not sure).
             self.homeCsys = Csys(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
             self.lastCsys = Csys(self.assy, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
 

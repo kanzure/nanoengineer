@@ -82,10 +82,10 @@ nfrs:
 #    using prefs different than I'd use to make a new one. I'm not sure if any one cache needs more than one key-scheme applicable to
 #    one value-slot. Let's try to avoid that for now, except for not excluding it in the general architecture of the APIs.
 # - arg semantics for Node
-# - or for time-varying node.kids (can be ignored for now)
+# - or for time-varying node.MT_kids() (can be ignored for now)
 
 # complicated details:
-# - usage/mod tracking of node.open, node.kids
+# - usage/mod tracking of node.open, node.MT_kids()
 #   [maybe best to redo node, or use a proxy... in future all model objs need this natively]
 #   - for an initial demo, do it read-only, i.e. don't bother tracking changes by others to external state
 
@@ -162,11 +162,11 @@ class Interface:
     use the standard compute method prefix _C_, e.g.
     
         def _C_mt_kids(self):
-            return a sequence of the kids (which the caller promises it will not try to modify).
+            return a sequence of the MT_kids (which the caller promises it will not try to modify).
             
         or
         
-        mt_kids = formulae for sequence of kids
+        mt_kids = formulae for sequence of MT_kids
         
     This means that to tell if a node follows this interface, until we introduce a new formalism for that [#e as we should],
     or a way to ask whether a given attr is available (perhaps for recomputation) without getting its value [#e as we should],
@@ -201,7 +201,7 @@ class ModelTreeNodeInterface(Interface):
     mt_node_id =   Attr( Id,        call_Expr( id, _object), doc = "a unique nonrecyclable id for the node that object represents")
         ###BUG: id is wrong -- ipath would be closer (but is not really correct, see comments in def mt_node_id)
     mt_name = StateAttr( str,       "",    doc = "the name of a node in the MT; settable by the MT view (since editable in that UI)")
-    mt_kids =      Attr( list_Expr, (),    doc = "the list of kids, of all types, in order (client MT view will filter them)")
+    mt_kids =      Attr( list_Expr, (),    doc = "the list of visible kids, of all types, in order (client MT view will filter them)")
     mt_openable =  Attr( bool,      False, doc = "whether this node should be shown as openable; if False, mt_kids is not asked for")
                 ##e (consider varying mt_openable default if node defines mt_kids, even if the sequence is empty)
     # (##e nothing here yet for type icons)
@@ -248,7 +248,7 @@ class ModelTreeNode_trivial_glue(DelegatingInstanceOrExpr): #070206, 070207
 
 _DISPLAY_PREFS = dict(open = True) # private to def node_kids
 
-def node_kids(node): # revised 070207
+def node_kids(node): # revised 070207 # REVIEW: rename to something like node_MT_kids? [bruce 080108 comment]
     """
     return the kid list of the node, regardless of which model tree node interface it's trying to use [slight kluge]
     """
@@ -260,13 +260,13 @@ def node_kids(node): # revised 070207
         return node.mt_kids
 
     try:
-        node.kids # look for legacy Node method
+        node.MT_kids # look for legacy Node method
     except AttributeError:
             pass
     else:
-        return node.kids(_DISPLAY_PREFS)
+        return node.MT_kids(_DISPLAY_PREFS)
 
-    return () # give up and assume it has no kids
+    return () # give up and assume it has no MT_kids
 
 def node_openable(node): # revised 070207
     """
@@ -390,7 +390,7 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
     Model Tree view, using the argument as the top node.
     Has its own openclose state independent of other instances of MT_try2, MT_try1, or the nodes themselves.
     Works on IorE subclasses which support ModelTreeNodeInterface, or on legacy nodes (assy.part.topnode),
-    but as of 070208 has no way to be notified of changes to legacy nodes (e.g. openclose state or kids or name).
+    but as of 070208 has no way to be notified of changes to legacy nodes (e.g. openclose state or MT_kids or name).
        Has minor issues listed in "todo" comment [070208] at top of source file.
     [This is the official version of a "model tree view" in the exprs package as of 070208; replaces deprecated MT_try1.]
     """

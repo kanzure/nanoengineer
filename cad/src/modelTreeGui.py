@@ -246,12 +246,11 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
     #   That omission might be related to some ###BUGS (inability to collapse group nodes).
     #   [I added them to the API but not yet fully to the code. bruce 070508]
     #
-    # - how exactly must node.members and node.kids() be related?
+    # - how exactly must node.members and node.MT_kids() be related?
     #   Right now this code may assume that they're always equal, and it may also assume that
     #   when they're nonempty the node is openable.
     #   What I think *should* be made true is that node.members is private, or at least read-only...
-    #   OTOH kids is not yet different, not yet used much by other NE1 code, and a bad choice of attr name
-    #   since it's too common a word for text search to work well.
+    #   OTOH MT_kids is not yet different, and not yet used by other NE1 code [bruce 080108 updated this comment]
     #
     # - it ought to include (and the code herein make use of) node.try_rename or so.
     #
@@ -329,15 +328,17 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
 ##        """
 ##        raise Exception('overload me')
 
-    def kids(self, item_prefs):
+    def MT_kids(self, item_prefs): #bruce 080108 renamed kids -> MT_kids; not yet used, but will be soon
         """
-        Return a list of Nodes that are a child of this Node.
+        Return a list of Nodes that the model tree should show
+        as a child of this Node, if it's openable and open.
         """
         raise Exception('overload me')
 
     def openable(self): #bruce 070508
         """
-        Return True if tree widgets should display an openclose icon for this node, False otherwise.
+        Return True if tree widgets should display an openclose icon
+        for this node, False otherwise.
         """
         raise Exception('overload me')        
     pass
@@ -524,7 +525,7 @@ def _describe( flags, name_val_dict):
 def display_prefs_for_node(node):
     """
     Return a dict of the *incremental* display prefs for the node,
-    relative to whatever its parent passes as display prefs for its own kids.
+    relative to whatever its parent passes as display prefs for its own MT_kids.
     Any prefs that it should inherit from its parent's env should be left out of this dict.
     The complete set of display prefs can be used by node_icon to decide what icon the treeview
     should display for this node. (It can also use the node class or state.)
@@ -2039,7 +2040,7 @@ class TestNode(Node_api):
         newguy._disabled = self._disabled
         newguy.members = self.members[:]
         return newguy
-    def kids(self, item_prefs):
+    def MT_kids(self, item_prefs):
         return self.members
     def __repr__(self):
         return "<Node \"%s\">" % self.name

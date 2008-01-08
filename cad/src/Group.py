@@ -705,9 +705,9 @@ class Group(Node):
         else:
             return imagename_to_pixmap("modeltree/group-collapsed.png")
 
-    def kids(self, display_prefs): #bruce 050109 [#k is this used?] #080108 not used; soon to be renamed MT_kids
+    def MT_kids(self, display_prefs): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids; semantics to be revised soon
         """
-        [Overrides Node.kids(); is overridden in our subclass Block]
+        [Overrides Node.MT_kids(); is overridden in our subclass Block]
         
         Return the ordered list of our kids which should be displayed in a model
         tree widget which is using (for this node itself) the given display prefs
@@ -717,7 +717,7 @@ class Group(Node):
          for that. ###nim)
         Subclasses can override this; this version is valid for any Group whose .members
         don't need filtering or updating, or augmenting (like PartGroup does as of 050109).
-         [Note that it is (probably) perfectly ok for subclasses to have a set of kids which is
+         [Note that it is (probably) perfectly ok for subclasses to have a set of MT_kids which is
         not related to their members, provided callers (tree widgets) never assume node.dad
         corresponds to the parent relation in their own tree of display items. I don't know
         how well the existing caller (modelTree.py) follows this so far. -- bruce 050113]

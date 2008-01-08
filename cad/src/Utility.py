@@ -577,9 +577,9 @@ class Node( StateMixin):
         """
         return False
     
-    def kids(self, display_prefs): #bruce 050109
+    def MT_kids(self, display_prefs): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids; semantics to be revised soon
         """
-        #doc; see Group.kids()
+        #doc; see Group.MT_kids()
         
         [some subclasses should override this, especially Group]
         """
@@ -592,17 +592,17 @@ class Node( StateMixin):
         (Note, if this is True then this does not specify whether the node view is
         initially open... #doc what does.)
 
-        [Some subclasses should override this; if they add kids but don't
-        override this, those kids will probably never be shown, but that might
+        [Some subclasses should override this; if they add nonmember MT_kids but don't
+        override this, those MT_kids will probably never be shown, but that might
         be undefined and depend on the model tree widget -- it's better to follow
-        the rule of never having kids unless you are openable.]
+        the rule of never having MT_kids unless you are openable.]
         """
         # + If we decide this depends on the tree widget or on something about it,
         # we'll have to pass in some args... don't do that unless/until we need to.
-        # + One reason we don't measure len(self.kids()) to decide on the default
-        # value for this, is that some nodes might not want to compute self.kids()
+        # + One reason we don't measure len(self.MT_kids()) to decide on the default
+        # value for this, is that some nodes might not want to compute self.MT_kids()
         # until/unless it's needed, in case doing so is expensive. For example,
-        # Qt's dirview example (also in PyQt examples3) computes kids only when
+        # Qt's dirview example (also in PyQt examples3) computes MT_kids only when
         # a node (representing a filesystem directory) is actually opened.
         return False
 
@@ -794,20 +794,22 @@ class Node( StateMixin):
         """
         # Note: this is not presently used, but should be used, since it helped
         # implement the MT arrow key bindings, which are desirable but were lost
-        # in the port to Qt4. But it needs correction for self.kids() not always
+        # in the port to Qt4. But it needs correction for self.MT_kids() not always
         # equalling self.members (and probably so does lots of other MT code).
         # [bruce 071206 comment]
-        if self.is_group() and self.open and self.members:
-            if include_parents:
-                yield self
-                #e Do we want another option, for yielding parents before vs. after their kids?
-                # I don't yet know of a use for it ('before' is what we want for MT arrow keys,
-                # whether moving up or down, since for 'up' we reverse this entire sequence). 
-            for m in self.members:
-                for s in m.genvisibleleaves(include_parents = include_parents):
-                    yield s
-        else:
-            yield self
+        if self.is_group() and self.open and self.openable(): #bruce 080108 added .openable cond (guess)
+            visible_kids = self.MT_kids() #bruce 080108 .members -> .MT_kids()
+            if visible_kids:
+                if include_parents:
+                    yield self
+                    #e Do we want another option, for yielding parents before vs. after their kids?
+                    # I don't yet know of a use for it ('before' is what we want for MT arrow keys,
+                    # whether moving up or down, since for 'up' we reverse this entire sequence). 
+                for m in visible_kids:
+                    for s in m.genvisibleleaves(include_parents = include_parents):
+                        yield s
+                return
+        yield self
         return
     
     def pick(self):
