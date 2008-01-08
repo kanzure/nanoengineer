@@ -1665,9 +1665,10 @@ class MT_View(QtGui.QWidget):
         y0 += ITEM_HEIGHT
         if y < y0:
             return node, d, y0 - ITEM_HEIGHT, None
-        if node.open:
+        if node.open and node.openable(): #bruce 080108 bugfix for Block: add .openable() check
             d += 1
-            for child in node.members:
+            for child in node.MT_kids(): #bruce 080108 change for Block: use MT_kids
+                                         # (but BUG elsewhere, since this is not yet done in drawing code for MT)
                 resnode, resdepth, resy0, y0 = self.look_for_y_recursive( child, y0, d, y)
                 if resnode:
                     return resnode, resdepth, resy0, y0
