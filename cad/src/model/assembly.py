@@ -1383,7 +1383,7 @@ Assembly = assembly #bruce 060224 thinks this should become the preferred name f
 class PartGroup(Group):
     """
     A specialized Group for holding the entire "main model" of an assembly,
-    with provisions for including the "assy.viewdata" elements as initial kids, but not in self.members
+    with provisions for including the "assy.viewdata" elements as initial MT_kids, but not in self.members
     (which is a kluge, and hopefully can be removed reasonably soon, though perhaps not for Alpha).
     """
     _initialkids = [] #bruce 050302
@@ -1512,7 +1512,7 @@ class RootGroup(Group):
     def pick(self): #bruce 050131 for Alpha
         self.redmsg( "Internal error: tried to select assy.root (ignored)" )
     #e does this need to differ from a Group? maybe in some dnd/rename attrs...
-    # or maybe not, since only its kids are shown ###@@@
+    # or maybe not, since only its kids are shown (not itself) ###@@@
     # (we do use the fact that it differs in class from a Group
     #  as a signal that we might need to replace it... not sure if this is needed)
     pass

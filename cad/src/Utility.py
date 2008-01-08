@@ -9,6 +9,9 @@ are defined in other files. Notable ones are molecule and Jig.)
 
 (Note: all non-leaf nodes in a node tree must be instances of Group.)
 
+See also: class Node_api in modelTreeGui.py (which is only the part
+of the API needed by the ModelTree).
+
 @author: Josh
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
@@ -108,6 +111,13 @@ class Node( StateMixin):
         # in a tree (this will never become True except for Groups)
         # (when more than one tree widget can show the same node, .open will
         #  need replacement with treewidget-specific state #e)
+
+    # Note: node.members is not defined unless node.is_group() is true,
+    # i.e. unless that node inherits from Group. Given that condition,
+    # it is always defined, whether or not node.openable() and/or node.open.
+    # (And those are both always defined on all nodes.)
+    # [bruce 080107 comment]
+    
     dad = None
     part = None #bruce 050303
     prior_part = None #bruce 050527

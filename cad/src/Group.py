@@ -30,8 +30,15 @@ from Utility import Node
 
 class Group(Node):
     """
-    The tree node class for the tree.
-    Its members can be Groups, jigs, or molecules.
+    A kind of Node which groups other nodes (its .members,
+    informally called its "kids") in the model tree, for drawing,
+    and for selection.
+
+    Its members can be various other kinds of Groups (subtrees of nodes)
+    or non-Group Nodes (e.g. Jigs, Chunks).
+
+    Group is used as both a concrete and abstract class.
+    (I.e. it's instantiated directly, but also has subclasses.)
     """
     featurename = "" # (redundant with Node)
         # It's intentional that we don't provide this for Group itself, so a selected Group in the MT
@@ -40,7 +47,10 @@ class Group(Node):
         # or to relegate it to a help submenu rather than MT context menu, or in some other way make it less visible...
         # [bruce 051201]
 
-    _s_attr_members = S_CHILDREN
+    _s_attr_members = S_CHILDREN # this declares group.members for Undo
+        # note: group.members are informally called its "kids",
+        # but need not be identical to the output of group.MT_kids(),
+        # which gives the list of nodes to show as its children in the Model Tree.
 
     def __init__(self, name, assy, dad, members = (), editCommand = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]
@@ -61,7 +71,9 @@ class Group(Node):
 
     def _um_initargs(self): #bruce 051013 [in class Group]
         # [as of 060209 this is probably well-defined and correct (for most subclasses), but not presently used]
-        "[Overrides Node._um_initargs; see its docstring.]"
+        """
+        [Overrides Node._um_initargs; see its docstring.]
+        """
         return (self.name, self.assy), {} # note reversed arg order from Node version
             # dad and members (like most inter-object links) are best handled separately
 
@@ -693,7 +705,7 @@ class Group(Node):
         else:
             return imagename_to_pixmap("modeltree/group-collapsed.png")
 
-    def kids(self, display_prefs): #bruce 050109 [#k is this used?]
+    def kids(self, display_prefs): #bruce 050109 [#k is this used?] #080108 not used; soon to be renamed MT_kids
         """
         [Overrides Node.kids(); is overridden in our subclass Block]
         
