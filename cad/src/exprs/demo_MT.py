@@ -189,7 +189,8 @@ StateAttr = State ###e STUB -- implies that the interface client can set the att
 Id = StubType
 
 class ModelTreeNodeInterface(Interface):
-    """Interface for a model tree node (something which can show up in a model tree view).
+    """
+    Interface for a model tree node (something which can show up in a model tree view).
     Includes default compute method implems for use by type-coercion [which is nim]
     [see also ModelTreeNode_trivial_glue, and the node_xxx helper functions far below, for related code].
        WARNING: this class, itself, is not yet used except as a place to put this docstring.
@@ -248,7 +249,9 @@ class ModelTreeNode_trivial_glue(DelegatingInstanceOrExpr): #070206, 070207
 _DISPLAY_PREFS = dict(open = True) # private to def node_kids
 
 def node_kids(node): # revised 070207
-    "return the kid list of the node, regardless of which model tree node interface it's trying to use [slight kluge]"
+    """
+    return the kid list of the node, regardless of which model tree node interface it's trying to use [slight kluge]
+    """
     try:
         node.mt_kids # look for (value computed by) ModelTreeNodeInterface method
     except AttributeError:
@@ -357,7 +360,9 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
     return res
 
 def mt_node_selected(node): #070216 experiment
-    "#doc"
+    """
+    #doc
+    """
     # look for value of ModelTreeNodeInterface attr (note: lots of objs don't have this; it's also #WRONG(?), should ask the env)
     try:
         node.selected
@@ -381,7 +386,8 @@ def mt_node_selected(node): #070216 experiment
 ModelNode = ModelObject ###stub -- should mean "something that satisfies (aka supports) ModelNodeInterface"
 
 class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexpr_18i, and on World in testexpr_30i
-    """Model Tree view, using the argument as the top node.
+    """
+    Model Tree view, using the argument as the top node.
     Has its own openclose state independent of other instances of MT_try2, MT_try1, or the nodes themselves.
     Works on IorE subclasses which support ModelTreeNodeInterface, or on legacy nodes (assy.part.topnode),
     but as of 070208 has no way to be notified of changes to legacy nodes (e.g. openclose state or kids or name).
@@ -424,7 +430,8 @@ class MT_try2(DelegatingInstanceOrExpr): # works on assy.part.topnode in testexp
     pass # end of class MT_try2
 
 class _MT_try2_kids_helper(DelegatingInstanceOrExpr): # rewrote this 070302 (splitting out older one's alg as MapListToExpr) -- works!
-    """[private helper expr class for MT_try2]
+    """
+    [private helper expr class for MT_try2]
     One MT item kidlist view -- specific to one instance of _MT_try2_node_helper.
     [#e if we generalize MT_try2 to support a time-varying list of toplevel nodes,
      then we might use one of these at the top, instead of using a single node at the top --
@@ -442,7 +449,8 @@ class _MT_try2_kids_helper(DelegatingInstanceOrExpr): # rewrote this 070302 (spl
     pass
 
 class _MT_try2_node_helper(DelegatingInstanceOrExpr):
-    """[private helper expr class for MT_try2]
+    """
+    [private helper expr class for MT_try2]
     One MT item view -- specific to one node, one whole MT, and one (possibly time-varying) position with it.
     """
     # args ####e REORDER THEM

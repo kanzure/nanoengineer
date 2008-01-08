@@ -92,7 +92,9 @@ class DnaAtomMarker( ChainAtomMarker):
     # == Jig API methods (overridden or extended):
     
     def remove_atom(self, atom):
-        "[extends superclass method]"
+        """
+        [extends superclass method]
+        """
         ChainAtomMarker.remove_atom(self, atom)
         _homeless_dna_markers[id(self)] = self # TODO: also do this when copied? not sure it's needed.
         return
@@ -179,10 +181,16 @@ class DnaAtomMarker( ChainAtomMarker):
         Our atom died; see if there is a live atom on our old chain which we want to move to;
         if so, move to the best one (updating all our properties accordingly) and return True;
         if not, die and return False.
+
+        @return: whether this marker is still alive after this method runs.
+        @rtype: boolean
         """
-            # IMPLEM - just find the nearest live atom in the right direction; return "still alive"
-            # do this by scanning old atom lists in chain objs known to markers, so no need for per-atom stored info.
-            # [alt: do by sorting new atoms for best new home - bad since requires storing that info on atoms, or lots of lookup.]
+
+        # Algorithm -- just find the nearest live atom in the right direction.
+        # Do this by scanning old atom lists in chain objects known to markers,
+        # so no need for per-atom stored info.
+        # [Possible alternative (rejected): sort new atoms for best new home -- bad,
+        #  since requires storing that info on atoms, or lots of lookup.]
 
         assert self.is_homeless()
         
@@ -199,7 +207,9 @@ class DnaAtomMarker( ChainAtomMarker):
         # (To compute it correctly for PAM5, we don't count non-base (Pl) atoms in the indexing.)
         
         class stuff: #e rename
-            "track first & last atom seen during some subsection of the chain"
+            """
+            track first & last atom seen during some subsection of the chain
+            """
             first_atom = None
             first_index = None
             last_atom = None
@@ -314,8 +324,7 @@ class DnaAtomMarker( ChainAtomMarker):
         if so, move to the best one (updating all our properties accordingly) and return True;
         if not, die and return False.
         """
-        
-        # will be set to 1 or -1 below if possible:
+        # this will be set to 1 or -1 below if possible:
         advise_new_chain_direction = 0
             # base index direction to advise new chain to take
             # (-1 or 1, or 0 if we don't know)
@@ -388,7 +397,6 @@ class DnaAtomMarker( ChainAtomMarker):
          will remain correct. This assumes that reversing a chain reverses both
          its .index_direction and the visible order of its atoms, at the same time.) ### REVIEW this point when done
         """
-        
         # implem notes:
         # old_atom is not relevant here at all, i think -- for old direction we look at old indexes around new atom.
         # new_atom and its both-newly-and-oldly-adjacent atoms are the only ones relevant to look at here;
@@ -439,7 +447,7 @@ class DnaAtomMarker( ChainAtomMarker):
 
 class DnaSegmentMarker(DnaAtomMarker): #e rename to DnaAxisMarker? guess: no...
     """
-    A DnaAtomMarker for marking an axis atom of a DnaSegment
+    A kind of DnaAtomMarker for marking an axis atom of a DnaSegment
     (and, therefore, a base-pair position within the segment).
     """
     def get_DnaSegment(self):
@@ -460,7 +468,7 @@ class DnaSegmentMarker(DnaAtomMarker): #e rename to DnaAxisMarker? guess: no...
 
 class DnaStrandMarker(DnaAtomMarker):
     """
-    A DnaAtomMarker for marking an atom of a DnaStrand
+    A kind of DnaAtomMarker for marking an atom of a DnaStrand
     (and, therefore, a base position along the strand).
     """
     def get_DnaStrand(self):
@@ -474,7 +482,7 @@ class DnaStrandMarker(DnaAtomMarker):
 
         @see: get_DnaGroup
         """
-        return self.parent_node_of_class( DnaStrand) ### IMPLEM Node.parent_node_of_class
+        return self.parent_node_of_class( DnaStrand)
     pass
 
 # end
