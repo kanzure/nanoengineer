@@ -12,6 +12,11 @@ before making other use of it (eg for import graphing).
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
+import sys #bruce 080107 bugfix
+
+#bruce 080107 temporary debug prints to find out why SEMBot run of this seems to do nothing
+print >> sys.stderr, "packageData_checker.py debug: starting import"
+
 from packageData import packageMapping, layer_aliases, topic_mapping
 from packageData import packageMapping_for_files
 from packageData import packageMapping_for_packages
@@ -260,10 +265,16 @@ def print_listings():
     _toplevel_virtual_subdir.print_listing(skip_toplevel_indent = True)
     return
 
+print >> sys.stderr, "packageData_checker.py debug: done with most of import"
+
 if __name__ == '__main__':
+    print >> sys.stderr, "packageData_checker.py debug: starting __main__ section"
     ## summarize_packageMapping_using_default_flags()
     print_listings()
     print
     print "[end]"
+    print >> sys.stderr, "packageData_checker.py debug: ending __main__ section"
+
+print >> sys.stderr, "packageData_checker.py debug: done with all of import"
 
 # end
