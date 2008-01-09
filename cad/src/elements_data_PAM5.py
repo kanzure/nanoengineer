@@ -10,6 +10,8 @@ History:
 
 Bruce 071105 revised init code, and split PAM3 and PAM5 data
 out of elements_data.py into separate files.
+
+Bruce 080108 added Gv5 for use in Eric D's forthcoming PAM5 revision.
 """
 
 from elements_data import tetra4, flat, tetra2
@@ -20,14 +22,15 @@ _DIRECTIONAL_BOND_ELEMENTS_PAM5 = ('Ss5', 'Pl5', 'Sj5', 'Pe5', 'Sh5', 'Hp5')
 
 # mark 060129. New default colors for Alpha 7.
 _defaultRad_Color = {
-    "Ax5" : (5.0, [0.4, 0.4, 0.8]),    # PAM5 DNA pseudo atom
-    "Ss5" : (4.0, [0.4, 0.8, 0.4]),    # PAM5 DNA pseudo atom
-    "Sj5" : (4.0, [0.4, 0.8, 0.8]),    # PAM5 DNA pseudo atom
-    "Pl5" : (3.2, [0.4, 0.1, 0.5]),    # PAM5 DNA pseudo atom
-    "Ae5" : (3.5, [0.4, 0.4, 0.8]),    # PAM5 DNA pseudo atom
-    "Pe5" : (3.0, [0.4, 0.1, 0.5]),    # PAM5 DNA pseudo atom
-    "Sh5" : (2.5, [0.4, 0.8, 0.4]),    # PAM5 DNA pseudo atom
-    "Hp5" : (4.0, [0.3, 0.7, 0.3]),    # PAM5 DNA pseudo atom
+    "Ax5" : (5.0, [0.4, 0.4, 0.8]),
+    "Ss5" : (4.0, [0.4, 0.8, 0.4]),
+    "Pl5" : (3.2, [0.4, 0.1, 0.5]),
+    "Sj5" : (4.0, [0.4, 0.8, 0.8]),
+    "Ae5" : (3.5, [0.4, 0.4, 0.8]),
+    "Pe5" : (3.0, [0.4, 0.1, 0.5]),
+    "Sh5" : (2.5, [0.4, 0.8, 0.4]),
+    "Hp5" : (4.0, [0.3, 0.7, 0.3]),
+    "Gv5" : (5.0, [156./255, 83./255, 8./255]), #bruce 080108
     }
   
 _altRad_Color = {
@@ -43,7 +46,7 @@ _mendeleev = [
     #bruce 070415: End->Hydroxyl per Eric D email, in "Sh5" == "PAM5-Sugar-Hydroxyl"
     #bruce 071106: added option dicts; deprecated_to options are good guesses but are untested
     
-    ("Ax5", "PAM5-Axis",           200, 1.0, [[4, 200, tetra4]],     dict(role = 'axis')),
+    ("Ax5", "PAM5-Axis",           200, 1.0, [[4, 200, tetra4]],     dict(role = 'axis')), # todo: convert to Gv5, moving it as you do
     
     ("Ss5", "PAM5-Sugar",          201, 1.0, [[3, 210, flat]],       dict(role = 'strand')),
     ("Pl5", "PAM5-Phosphate",      202, 1.0, [[2, 210, tetra2]],     dict(role = 'strand')),
@@ -53,6 +56,8 @@ _mendeleev = [
     ("Pe5", "PAM5-Phosphate-End",  205, 1.0, [[1, 210, None, 'sp']], dict(role = 'strand', deprecated_to = 'X')),
     ("Sh5", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']], dict(role = 'strand', deprecated_to = 'X')),
     ("Hp5", "PAM5-Hairpin",        207, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'Ss5')), # REVIEW: Ss or Pl?
+
+    ("Gv5", "PAM5-Major-Groove",   208, 1.0, [[4, 200, tetra4]],     dict(role = 'axis')), #bruce 080108
  ]
 
 # ==
