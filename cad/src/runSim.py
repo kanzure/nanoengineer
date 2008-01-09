@@ -336,6 +336,12 @@ class SimRunner:
                         env.history.message(self.cmdname + ": " + msg)
                         self.errcode = 3;
                     if (self.background):
+                        pid = gromacsProcess.pid()
+                        os.mkdir(gromacsFullBaseFileName)
+                        pidFileName = gromacsFullBaseFileName + os.sep + "pid"
+                        pidFile = open(pidFileName, 'w')
+                        pidFile.write("%d\n" % pid)
+                        pidFile.close()
                         nv1Process = Process()
                         nv1Args = [
                             gromacsFullBaseFileName,
