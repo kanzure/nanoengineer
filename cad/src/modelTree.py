@@ -920,7 +920,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
          for m in nodeset:
              if isinstance(m, Chunk):
                  chunkList.append(m)
-         #Following selects  the current color of the chunk 
+         #Following selects the current color of the chunk 
          #in the QColor dialog. If multiple chunks are selected, 
          #it simply sets the selected color in the dialog as 'white'
          if len(chunkList) == 1:
@@ -930,7 +930,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
              else:
                  m_QColor = None
                 
-             self.win.dispObjectColor(currentcolor = m_QColor)
+             self.win.dispObjectColor(initialColor = m_QColor)
          else:         
              self.win.dispObjectColor()
 

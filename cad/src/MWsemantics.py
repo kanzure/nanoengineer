@@ -1031,18 +1031,22 @@ class MWsemantics(QMainWindow,
         self.win_update() # bruce 041206, needed for model tree display mode icons
         ## was self.glpane.paintGL() [but now would be self.glpane.gl_update]
 
-    def dispObjectColor(self, initialColor = Qt.white):
+    def dispObjectColor(self, initialColor = None):
         """
         Sets the color of the selected chunks and/or jigs to a color the user 
         chooses.
 
         @param initialColor: the initial color to display in the color chooser
-                             dialog. The default initial color is white.
+                             dialog, or None or missing to use the default (white).
+                             Not used if only one chunk or one jig is selected
+                             (in those cases the object's current color is used).
         @type  initialColor: QColor
 
         @note: Need better method name (i.e. setObjectColor()).
         """
-
+        if initialColor is None:
+            initialColor = Qt.white
+        
         _cmd = greenmsg("Change Color: ")
 
         from ops_select import objectSelected, ATOMS, CHUNKS, JIGS
@@ -1058,7 +1062,7 @@ class MWsemantics(QMainWindow,
                             + self.assy.getNumberOfSelectedJigs()
 
         if _numSelectedObjects == 1 and self.assy.getNumberOfSelectedChunks() == 1:
-            # If only one object is selected, and its a chunk, 
+            # If only one object is selected, and it's a chunk, 
             # assign initialColor its color.
             _selectedChunkColor = self.assy.selmols[0].color
             if _selectedChunkColor:
@@ -1066,7 +1070,7 @@ class MWsemantics(QMainWindow,
                 initialColor = RGBf_to_QColor(_selectedChunkColor)
 
         elif _numSelectedObjects == 1 and self.assy.getNumberOfSelectedJigs() == 1:
-            # If only one object is selected, and its a jig, 
+            # If only one object is selected, and it's a jig, 
             # assign initialColor its color.
             _selectedJig = self.assy.getSelectedJigs()
             _selectedJigColor = _selectedJig[0].normcolor
