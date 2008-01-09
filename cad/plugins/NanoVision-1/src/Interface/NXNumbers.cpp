@@ -44,8 +44,11 @@ NXReal NXRealUtils::ToReal(const char* realChars, char* scaleString) {
 
 
 /* FUNCTION: ToChar */
-/** Points the given charBuffer to a string representing the given NXReal with
-  * the given precision. */
+/** 
+ * Puts a string representing the given NXReal with the given precision into the
+ * given buffer. Make sure your buffer is large enough to handle the resulting
+ * string.
+ */
 void NXRealUtils::ToChar(const NXReal& number, char* charBuffer,
 						 int precision) {
 	sprintf(charBuffer, "%.*g", precision, number);

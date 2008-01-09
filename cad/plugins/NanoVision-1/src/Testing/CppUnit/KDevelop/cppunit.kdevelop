@@ -25,6 +25,7 @@
     <tree>
       <hidenonprojectfiles>false</hidenonprojectfiles>
       <hidepatterns>*.o,*.lo,CVS</hidepatterns>
+      <showvcsfields>false</showvcsfields>
     </tree>
   </kdevfileview>
   <kdevcppsupport>
@@ -123,13 +124,13 @@
       <programargs/>
       <directoryradio>executable</directoryradio>
       <runarguments>
-        <CppUnit></CppUnit>
+        <CppUnit/>
       </runarguments>
       <cwd>
         <CppUnit>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</CppUnit>
       </cwd>
       <debugarguments>
-        <CppUnit></CppUnit>
+        <CppUnit/>
       </debugarguments>
     </run>
     <general>

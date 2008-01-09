@@ -7,6 +7,8 @@
 
 #include "Nanorex/Interface/NXNumbers.h"
 
+using namespace Nanorex;
+
 
 /* CLASS: NXNumbersTest */
 class NXNumbersTest : public CPPUNIT_NS::TestFixture {

@@ -9,6 +9,7 @@
 #	endif
 #endif
 
+#include <vector>
 #include <iostream>
 
 #include "math.h"
@@ -33,10 +34,12 @@ typedef float NXFloat32;
 typedef double NXFloat64;
 
 // For counting NXAtoms, NXBonds, and NXMolecules
-typedef NXUint64 NXABMInt;
+//typedef NXUint32 NXABMInt;
+typedef std::vector<unsigned int>::size_type NXABMInt;
 
 // For counting MoleculeSets
-typedef NXUint16 NXMSInt;
+//typedef NXUint16 NXMSInt;
+typedef std::vector<unsigned int>::size_type NXMSInt;
 
 // For measurements and calculations
 typedef NXFloat32 NXReal;

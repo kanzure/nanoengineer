@@ -18,8 +18,8 @@ void NXNumbersTest::tearDown() {
 
 
 /* FUNCTION: toCharTest */
-bool NXNumbersTest::toCharTest() {
-	char buffer[5];
-	NXNumbers::ToChar(12.123456789, buffer, 4 /* precision */);
-	CPPUNIT_ASSERT(strcmp(buffer, "12.1234") == 0);
+void NXNumbersTest::toCharTest() {
+	char buffer1[8];
+	NXRealUtils::ToChar(12.123456789, buffer1, 6 /* precision */);
+	CPPUNIT_ASSERT(strcmp(buffer1, "12.1235") == 0);
 }
