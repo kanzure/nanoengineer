@@ -95,9 +95,20 @@ def _checkPluginPreferences_0(plugin_name, plugin_prefs_keys):
 
     if not plugin_path:
         return 1, "%s plug-in executable path is empty" % plugin_name
-    
-    if not os.path.exists(plugin_path):
-        return 1, "%s executable not found at specified path %s" % (plugin_name, plugin_path)
+
+    # We'd like to allow arguments to an executable to be specified,
+    # but perhaps the executable path itself contains a space in it.
+    # So, we break the string at each space and check the first part.
+    # If any of those substrings exists, accept it.  We start by
+    # checking the whole string.
+    executable_path = plugin_path
+    while (not os.path.exists(executable_path)):
+        last_space = executable_path.rfind(" ")
+        # some platform might report that the empty string file name
+        # exists, so we don't want to check for it.
+        if (last_space <= 0):
+            return 1, "%s executable not found at specified path %s" % (plugin_name, plugin_path)
+        executable_path = executable_path[0:last_space]
 
     ##e should check version of plugin, if we know how
 
