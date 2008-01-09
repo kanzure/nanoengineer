@@ -274,6 +274,10 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
         self.toggle_selectedAtomPosGroupBox(show = 0)
         self.enable_or_disable_selectedAtomPosGroupBox( bool_enable = False)
         
+        self.waterCheckBox = PM_CheckBox( inPmGroupBox,
+                                          text         = "Z depth filter (water surface)",
+                                          widgetColumn = 0,
+                                          state        = Qt.Unchecked  )
                     
     
     def _loadSelectedAtomPosGroupBox(self, inPmGroupBox):
@@ -322,11 +326,6 @@ class Ui_BuildAtomsPropertyManager(PM_Dialog):
                                               text         = 'Auto Bond',
                                               widgetColumn = 0,
                                               state        = Qt.Checked  )
-        
-        self.waterCheckBox = PM_CheckBox( inPmGroupBox,
-                                          text         = "Water",
-                                          widgetColumn = 0,
-                                          state        = Qt.Unchecked  )
         
         self.highlightingCheckBox = PM_CheckBox( inPmGroupBox,
                                                  text         = "Highlighting",

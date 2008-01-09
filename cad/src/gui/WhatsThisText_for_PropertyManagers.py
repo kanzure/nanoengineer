@@ -967,9 +967,27 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
         </p>""")
     
     propMgr.waterCheckBox.setWhatsThis(
-        """<b>Water</b>
+        """<b><u>Z depth filter</u></b> <b>(water surface)</b>
         <p>
-       Enables/disables the Water Surface selection filter
+       Enables/disables the Z depth filter for hover highlighting and single
+       atom/bond selection. When enabled, a semi-transparent "water surface" 
+       is displayed that remains parallel to the screen. This gives the
+       illusion that atoms below the surface are under water. Atoms and bonds
+       under the water are not highlighted and cannot be selected 
+       by clicking on them. This is useful when working on local regions 
+       of large structures since only atoms and bonds above the surface 
+       are highlighted. This can speed up interactive response times 
+       significantly.</p>
+       <p>
+       The depth of the water surface can be made deeper by holding
+       down the Control + Shift keys together and pushing the mouse away
+       while holding down the middle mouse button.</p>
+       <p>
+       The depth of the water surface can be made shallower by holding
+       down the Control + Shift keys together and pulling the mouse closer
+       while holding down the middle mouse button.</p>
+       <p>
+       Note: the region selection feature is immume to this filter.
        </p>""")
     
     propMgr.highlightingCheckBox.setWhatsThis(
