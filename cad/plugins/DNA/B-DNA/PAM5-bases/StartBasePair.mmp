@@ -8,28 +8,26 @@ egroup (View Data)
 group (StartBasePair)
 info opengroup open = True
 mol (aNy base) def
-atom 1 (200) (0, 0, 0) def
-atom 2 (204) (0, 0, 1590) def
+atom 1 (209) (-5468, -2377, 0) def
+atom 2 (0) (0, 0, -1590) def
 bond1 1
-atom 3 (0) (0, 0, -1590) def
-bond1 1
-atom 4 (201) (0, 6759, 0) def
+atom 3 (201) (0, 6759, 0) def
 info atom dnaBaseName = a
 bond1 1
-atom 5 (205) (-2637, 8698, 1590) def
+atom 4 (205) (-2637, 8698, 1590) def
 info atom dnaStrandName = Strand1
-bond1 4
-atom 6 (0) (1319, 7728, -794) def
-bond1 4
-atom 7 (201) (4943, -4610, 0) def
+bond1 3
+atom 5 (0) (1319, 7728, -794) def
+bond1 3
+atom 6 (201) (4943, -4610, 0) def
 info atom dnaBaseName = b
 bond1 1
-atom 8 (202) (4562, -7863, -1590) def
+atom 7 (202) (4562, -7863, -1590) def
+bond1 6
+atom 8 (0) (3056, -7221, -2385) def
 bond1 7
-atom 9 (0) (3056, -7221, -2385) def
-bond1 8
-atom 10 (206) (6553, -4306, 795) def
-bond1 7
+atom 9 (206) (6553, -4306, 795) def
+bond1 6
 egroup (StartBasePair)
 end1
 group (Clipboard)

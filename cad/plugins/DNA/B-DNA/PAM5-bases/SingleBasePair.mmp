@@ -8,8 +8,8 @@ egroup (View Data)
 group (SingleBasePair)
 info opengroup open = True
 mol (X) def
-atom 1 (200) (0, 0, 0) def
-atom 2 (204) (0, 0, -1590) def
+atom 1 (208) (-5468, -2377, 0) def
+atom 2 (204) (-5468, -2377, -1590) def
 bond1 1
 atom 3 (201) (0, 6759, 0) def
 info atom dnaBaseName = a
@@ -28,7 +28,7 @@ atom 7 (205) (4561, -7863, -1590) def
 info atom dnaStrandName = Strand2
 bond1 6
 bond_direction 7 6
-atom 8 (204) (0, 0, 1800) def
+atom 8 (204) (-5468, -2377, 1800) def
 bond1 1
 atom 9 (206) (6677, -4205, 890) def
 bond1 6

@@ -31,6 +31,7 @@ _defaultRad_Color = {
     "Sh5" : (2.5, [0.4, 0.8, 0.4]),
     "Hp5" : (4.0, [0.3, 0.7, 0.3]),
     "Gv5" : (5.0, [156./255, 83./255, 8./255]), #bruce 080108
+    "Gr5" : (5.0, [156./255, 83./255, 8./255]),
     }
   
 _altRad_Color = {
@@ -58,6 +59,7 @@ _mendeleev = [
     ("Hp5", "PAM5-Hairpin",        207, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'Ss5')), # REVIEW: Ss or Pl?
 
     ("Gv5", "PAM5-Major-Groove",   208, 1.0, [[4, 200, tetra4]],     dict(role = 'axis')), #bruce 080108
+    ("Gr5", "PAM5-Major-Groove-End",209,1.0, [[3, 210, flat]],       dict(role = 'axis')),
  ]
 
 # ==

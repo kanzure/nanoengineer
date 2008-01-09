@@ -8,7 +8,7 @@ egroup (View Data)
 group (MiddleBasePair)
 info opengroup open = True
 mol (aNy base) def
-atom 1 (200) (0, 0, 0) def
+atom 1 (208) (-5468, -2377, 0) def
 atom 2 (0) (0, 0, 1590) def
 bond1 1
 atom 3 (0) (0, 0, -1590) def
