@@ -1,0 +1,1269 @@
+HEADER    CYTOKINE (CHEMOTACTIC)                  03-AUG-95   1IKL      1IKL   2
+TITLE     NMR STUDY OF MONOMERIC HUMAN INTERLEUKIN-8                    1IKL   3
+TITLE    2 (MINIMIZED AVERAGE STRUCTURE)                                1IKL   4
+COMPND    MOL_ID: 1;                                                    1IKL   5
+COMPND   2 MOLECULE: HUMAN INTERLEUKIN-8 (MONOMERIC);                   1IKL   6
+COMPND   3 CHAIN: NULL;                                                 1IKL   7
+COMPND   4 SYNONYM: NAP-1;                                              1IKL   8
+COMPND   5 ENGINEERED: YES;                                             1IKL   9
+COMPND   6 MUTATION: DEL(1-3), H LEU 25 MODIFIED TO N-METHYL            1IKL  10
+SOURCE    MOL_ID: 1;                                                    1IKL  11
+SOURCE   2 SYNTHETIC: YES;                                              1IKL  12
+SOURCE   3 ORGANISM_SCIENTIFIC: HOMO SAPIENS;                           1IKL  13
+SOURCE   4 ORGANISM_COMMON: HUMAN                                       1IKL  14
+EXPDTA    NMR, MINIMIZED AVERAGE STRUCTURE                              1IKL  15
+AUTHOR    K.RAJARATHNAM,I.CLARK-LEWIS,B.D.SYKES                         1IKL  16
+REVDAT   1   15-OCT-95 1IKL    0                                        1IKL  17
+JRNL        AUTH   K.RAJARATHNAM,I.CLARK-LEWIS,B.D.SYKES                1IKL  18
+JRNL        TITL   ==1==H NMR SOLUTION STRUCTURE OF AN ACTIVE           1IKL  19
+JRNL        TITL 2 MONOMERIC INTERLEUKIN-8                              1IKL  20
+JRNL        REF    TO BE PUBLISHED                                      1IKL  21
+JRNL        REFN                                                  0353  1IKL  22
+REMARK   1                                                              1IKL  23
+REMARK   1 REFERENCE 1                                                  1IKL  24
+REMARK   1  AUTH   K.RAJARATHNAM,B.D.SYKES,C.M.KAY,B.DEWALD,T.GEISER,   1IKL  25
+REMARK   1  AUTH 2 M.BAGGIOLINI,I.CLARK-LEWIS                           1IKL  26
+REMARK   1  TITL   NEUTROPHIL ACTIVATION BY MONOMERIC INTERLEUKIN-8     1IKL  27
+REMARK   1  REF    SCIENCE                       V. 264    90 1994      1IKL  28
+REMARK   1  REFN   ASTM SCIEAS  US ISSN 0036-8075                 0038  1IKL  29
+REMARK   2                                                              1IKL  30
+REMARK   2 RESOLUTION. NOT APPLICABLE.  SEE REMARK 4.                   1IKL  31
+REMARK   3                                                              1IKL  32
+REMARK   3 REFINEMENT.                                                  1IKL  33
+REMARK   3   PROGRAM                    X-PLOR                          1IKL  34
+REMARK   3   AUTHORS                    BRUNGER                         1IKL  35
+REMARK   4                                                              1IKL  36
+REMARK   4 THE COORDINATES IN THIS ENTRY WERE GENERATED FROM SOLUTION   1IKL  37
+REMARK   4 NMR DATA.  PROTEIN DATA BANK CONVENTIONS REQUIRE THAT        1IKL  38
+REMARK   4 *CRYST1* AND *SCALE* RECORDS BE INCLUDED, BUT THE VALUES ON  1IKL  39
+REMARK   4 THESE RECORDS ARE MEANINGLESS.                               1IKL  40
+REMARK   5                                                              1IKL  41
+REMARK   5 SOURCE                                                       1IKL  42
+REMARK   5   MOLECULE_NAME: HUMAN INTERLEUKIN-8 (MONOMERIC). THE        1IKL  43
+REMARK   5   FIRST THREE RESIDUES WERE TRUNCATED AS THEY WERE NOT       1IKL  44
+REMARK   5   ESSENTIAL FOR ACTIVITY.  THE LEU 25 WAS MODIFIED TO        1IKL  45
+REMARK   5   GENERATE THE MONOMER.                                      1IKL  46
+REMARK   6                                                              1IKL  47
+REMARK   6 COMPND                                                       1IKL  48
+REMARK   6   PH 5.2; TEMPERATURE 313 K; 20 MM SODIUM ACETATE BUFFER     1IKL  49
+REMARK   6   CONCENTRATION 2MM.                                         1IKL  50
+REMARK   7                                                              1IKL  51
+REMARK   7 THE TERTIARY STRUCTURE OF THE MONOMERIC INTERLEUKIN-8 IN     1IKL  52
+REMARK   7 SOLUTION DERIVED FROM NMR EXPERIMENTS IS BASED ON 903        1IKL  53
+REMARK   7 EXPERIMENTAL DISTANCE RESTRAINTS AND 61 DIHEDRAL             1IKL  54
+REMARK   7 RESTRAINTS.  A COMPLETE LIST OF EXPERIMENTAL RESTRAINTS HAS  1IKL  55
+REMARK   7 BEEN DEPOSITED WITH THE PROTEIN DATA BANK.                   1IKL  56
+REMARK   8                                                              1IKL  57
+REMARK   8 RESIDUES 4 - 6 ARE LESS WELL DEFINED AND RESIDUES 67 - 72    1IKL  58
+REMARK   8 ARE COMPLETELY UNDEFINED.  THE COORDINATES OF RESIDUES 67 -  1IKL  59
+REMARK   8 72 ARE PROVIDED FOR COMPLETION SAKE.                         1IKL  60
+REMARK   9                                                              1IKL  61
+REMARK   9 THE PROTEIN WAS CHEMICALLY SYNTHESIZED.                      1IKL  62
+REMARK  10                                                              1IKL  63
+REMARK  10 THE PROTEIN WAS SYNTHESIZED IN THE 4-72 FORM AS THIS FORM    1IKL  64
+REMARK  10 HAD SLIGHTLY HIGHER ACTIVITY THAN THE 1-72 FORM.  ALSO       1IKL  65
+REMARK  10 THESE RESIDUES WERE FOUND TO BE UNSTRUCTURED IN THE DIMERIC  1IKL  66
+REMARK  10 NMR STRUCTURE.                                               1IKL  67
+REMARK  11                                                              1IKL  68
+REMARK  11 RESIDUE LEU 25 AMIDE PROTON WAS MODIFIED INTO N-METHYL TO    1IKL  69
+REMARK  11 PRODUCE A MONOMERIC PROTEIN.                                 1IKL  70
+REMARK  18                                                              1IKL  71
+REMARK  18 EXPERIMENTAL DETAILS.                                        1IKL  72
+REMARK  18  TEMPERATURE                    : 313 K                      1IKL  73
+REMARK  18  PH                             : 5.2                        1IKL  74
+REMARK 999                                                              1IKL  75
+REMARK 999 CROSS REFERENCE TO SEQUENCE DATABASE                         1IKL  76
+REMARK 999 SWISS-PROT ENTRY NAME       PDB ENTRY CHAIN NAME             1IKL  77
+REMARK 999    IL8_HUMAN                                                 1IKL  78
+REMARK 999                                                              1IKL  79
+REMARK 999 SEQUENCE                                                     1IKL  80
+REMARK 999  REFERENCE                                                   1IKL  81
+REMARK 999   REFERENCE: THE PROSEQUENCE NOT INCLUDED; FIRST THREE       1IKL  82
+REMARK 999   RESIDUES ARE DELETED; LEU-25 AMIDE MODIFIED TO N-METHYL.   1IKL  83
+REMARK 999  MODRES: 1IKL LEU()   25()      THE BACKBONE AMIDE PROTON    1IKL  84
+REMARK 999   IS MODIFIED TO N-METHYL                                    1IKL  85
+SEQRES   1     72  SER ALA LYS GLU LEU ARG CYS GLN CYS ILE LYS THR TYR  1IKL  86
+SEQRES   2     72  SER LYS PRO PHE HIS PRO LYS PHE ILE LYS GLU LEU ARG  1IKL  87
+SEQRES   3     72  VAL ILE GLU SER GLY PRO HIS CYS ALA ASN THR GLU ILE  1IKL  88
+SEQRES   4     72  ILE VAL LYS LEU SER ASP GLY ARG GLU LEU CYS LEU ASP  1IKL  89
+SEQRES   5     72  PRO LYS GLU ASN TRP VAL GLN ARG VAL VAL GLU LYS PHE  1IKL  90
+SEQRES   6     72  LEU LYS ARG ALA GLU ASN SER                          1IKL  91
+HET    CH3     25       4     METHYL GROUP                              1IKL  92
+FORMUL   2  CH3    C1 H3                                                1IKL  93
+HELIX    1   1 ASN     56  LEU     66  1                                1IKL  94
+SHEET    1   A 3 ARG    47  LEU    49  0                                1IKL  95
+SHEET    2   A 3 VAL    41  LEU    43 -1  N  LEU    43   O  ARG    47   1IKL  96
+SHEET    3   A 3 ILE    22  LEU    25 -1  N  GLU    24   O  LYS    42   1IKL  97
+SSBOND   1 CYS      7    CYS     34                                     1IKL  98
+SSBOND   2 CYS      9    CYS     50                                     1IKL  99
+CRYST1    1.000    1.000    1.000  90.00  90.00  90.00 P 1           1  1IKL 100
+ORIGX1      1.000000  0.000000  0.000000        0.00000                 1IKL 101
+ORIGX2      0.000000  1.000000  0.000000        0.00000                 1IKL 102
+ORIGX3      0.000000  0.000000  1.000000        0.00000                 1IKL 103
+SCALE1      1.000000  0.000000  0.000000        0.00000                 1IKL 104
+SCALE2      0.000000  1.000000  0.000000        0.00000                 1IKL 105
+SCALE3      0.000000  0.000000  1.000000        0.00000                 1IKL 106
+ATOM      1  N   GLU     4     -11.487  17.125  -5.187  1.00  5.27      1IKL 107
+ATOM      2  CA  GLU     4     -10.410  16.723  -4.235  1.00  4.51      1IKL 108
+ATOM      3  C   GLU     4     -10.750  15.355  -3.622  1.00  3.50      1IKL 109
+ATOM      4  O   GLU     4     -11.811  15.174  -3.053  1.00  3.52      1IKL 110
+ATOM      5  CB  GLU     4     -10.297  17.771  -3.123  1.00  4.96      1IKL 111
+ATOM      6  CG  GLU     4      -9.268  18.834  -3.520  1.00  5.53      1IKL 112
+ATOM      7  CD  GLU     4      -7.997  18.653  -2.687  1.00  6.19      1IKL 113
+ATOM      8  OE1 GLU     4      -7.987  19.098  -1.550  1.00  6.59      1IKL 114
+ATOM      9  OE2 GLU     4      -7.057  18.069  -3.200  1.00  6.60      1IKL 115
+ATOM     10 1H   GLU     4     -12.407  17.103  -4.702  1.00  5.45      1IKL 116
+ATOM     11 2H   GLU     4     -11.304  18.088  -5.533  1.00  5.60      1IKL 117
+ATOM     12 3H   GLU     4     -11.503  16.464  -5.991  1.00  5.67      1IKL 118
+ATOM     13  HA  GLU     4      -9.471  16.661  -4.766  1.00  4.80      1IKL 119
+ATOM     14 1HB  GLU     4     -11.259  18.241  -2.972  1.00  5.42      1IKL 120
+ATOM     15 2HB  GLU     4      -9.983  17.293  -2.207  1.00  4.90      1IKL 121
+ATOM     16 1HG  GLU     4      -9.031  18.731  -4.569  1.00  5.54      1IKL 122
+ATOM     17 2HG  GLU     4      -9.678  19.816  -3.339  1.00  5.88      1IKL 123
+ATOM     18  N   LEU     5      -9.861  14.392  -3.734  1.00  3.09      1IKL 124
+ATOM     19  CA  LEU     5     -10.135  13.039  -3.160  1.00  2.41      1IKL 125
+ATOM     20  C   LEU     5      -9.312  12.849  -1.880  1.00  1.80      1IKL 126
+ATOM     21  O   LEU     5      -8.103  12.708  -1.926  1.00  2.45      1IKL 127
+ATOM     22  CB  LEU     5      -9.755  11.964  -4.185  1.00  3.34      1IKL 128
+ATOM     23  CG  LEU     5     -10.249  10.595  -3.707  1.00  4.06      1IKL 129
+ATOM     24  CD1 LEU     5     -11.622  10.301  -4.319  1.00  4.81      1IKL 130
+ATOM     25  CD2 LEU     5      -9.255   9.515  -4.143  1.00  4.70      1IKL 131
+ATOM     26  H   LEU     5      -9.013  14.559  -4.196  1.00  3.58      1IKL 132
+ATOM     27  HA  LEU     5     -11.187  12.954  -2.925  1.00  2.37      1IKL 133
+ATOM     28 1HB  LEU     5     -10.210  12.200  -5.136  1.00  3.77      1IKL 134
+ATOM     29 2HB  LEU     5      -8.681  11.939  -4.297  1.00  3.60      1IKL 135
+ATOM     30  HG  LEU     5     -10.330  10.597  -2.629  1.00  4.13      1IKL 136
+ATOM     31 1HD1 LEU     5     -11.570  10.414  -5.392  1.00  4.98      1IKL 137
+ATOM     32 2HD1 LEU     5     -11.915   9.290  -4.077  1.00  5.16      1IKL 138
+ATOM     33 3HD1 LEU     5     -12.349  10.992  -3.919  1.00  5.24      1IKL 139
+ATOM     34 1HD2 LEU     5      -8.276   9.747  -3.749  1.00  4.97      1IKL 140
+ATOM     35 2HD2 LEU     5      -9.576   8.556  -3.765  1.00  4.98      1IKL 141
+ATOM     36 3HD2 LEU     5      -9.210   9.481  -5.221  1.00  5.06      1IKL 142
+ATOM     37  N   ARG     6      -9.964  12.842  -0.740  1.00  1.20      1IKL 143
+ATOM     38  CA  ARG     6      -9.240  12.663   0.557  1.00  1.33      1IKL 144
+ATOM     39  C   ARG     6      -8.659  11.243   0.648  1.00  1.06      1IKL 145
+ATOM     40  O   ARG     6      -8.790  10.448  -0.266  1.00  1.06      1IKL 146
+ATOM     41  CB  ARG     6     -10.220  12.891   1.712  1.00  2.13      1IKL 147
+ATOM     42  CG  ARG     6     -10.390  14.394   1.954  1.00  2.86      1IKL 148
+ATOM     43  CD  ARG     6     -11.612  14.636   2.844  1.00  3.47      1IKL 149
+ATOM     44  NE  ARG     6     -12.531  15.601   2.175  1.00  4.25      1IKL 150
+ATOM     45  CZ  ARG     6     -13.818  15.377   2.164  1.00  4.90      1IKL 151
+ATOM     46  NH1 ARG     6     -14.349  14.670   1.200  1.00  5.40      1IKL 152
+ATOM     47  NH2 ARG     6     -14.574  15.862   3.115  1.00  5.44      1IKL 153
+ATOM     48  H   ARG     6     -10.937  12.955  -0.737  1.00  1.49      1IKL 154
+ATOM     49  HA  ARG     6      -8.438  13.381   0.623  1.00  1.72      1IKL 155
+ATOM     50 1HB  ARG     6     -11.176  12.455   1.462  1.00  2.43      1IKL 156
+ATOM     51 2HB  ARG     6      -9.838  12.427   2.605  1.00  2.57      1IKL 157
+ATOM     52 1HG  ARG     6      -9.508  14.781   2.441  1.00  3.23      1IKL 158
+ATOM     53 2HG  ARG     6     -10.530  14.897   1.009  1.00  3.22      1IKL 159
+ATOM     54 1HD  ARG     6     -12.129  13.703   3.010  1.00  3.76      1IKL 160
+ATOM     55 2HD  ARG     6     -11.291  15.043   3.792  1.00  3.63      1IKL 161
+ATOM     56  HE  ARG     6     -12.170  16.404   1.744  1.00  4.56      1IKL 162
+ATOM     57 1HH1 ARG     6     -13.770  14.300   0.473  1.00  5.32      1IKL 163
+ATOM     58 2HH1 ARG     6     -15.334  14.497   1.190  1.00  6.07      1IKL 164
+ATOM     59 1HH2 ARG     6     -14.168  16.405   3.850  1.00  5.42      1IKL 165
+ATOM     60 2HH2 ARG     6     -15.560  15.691   3.108  1.00  6.09      1IKL 166
+ATOM     61  N   CYS     7      -8.015  10.925   1.749  1.00  0.97      1IKL 167
+ATOM     62  CA  CYS     7      -7.419   9.565   1.920  1.00  0.76      1IKL 168
+ATOM     63  C   CYS     7      -8.505   8.500   1.754  1.00  0.73      1IKL 169
+ATOM     64  O   CYS     7      -9.509   8.509   2.444  1.00  1.24      1IKL 170
+ATOM     65  CB  CYS     7      -6.800   9.451   3.314  1.00  0.80      1IKL 171
+ATOM     66  SG  CYS     7      -5.098  10.068   3.273  1.00  1.40      1IKL 172
+ATOM     67  H   CYS     7      -7.925  11.584   2.467  1.00  1.13      1IKL 173
+ATOM     68  HA  CYS     7      -6.653   9.410   1.175  1.00  0.80      1IKL 174
+ATOM     69 1HB  CYS     7      -7.379  10.034   4.014  1.00  0.95      1IKL 175
+ATOM     70 2HB  CYS     7      -6.800   8.418   3.623  1.00  0.63      1IKL 176
+ATOM     71  N   GLN     8      -8.305   7.584   0.840  1.00  0.62      1IKL 177
+ATOM     72  CA  GLN     8      -9.309   6.506   0.608  1.00  0.65      1IKL 178
+ATOM     73  C   GLN     8      -9.333   5.530   1.798  1.00  0.58      1IKL 179
+ATOM     74  O   GLN     8     -10.227   4.711   1.907  1.00  0.67      1IKL 180
+ATOM     75  CB  GLN     8      -8.936   5.745  -0.668  1.00  0.83      1IKL 181
+ATOM     76  CG  GLN     8      -9.081   6.669  -1.882  1.00  1.40      1IKL 182
+ATOM     77  CD  GLN     8      -9.427   5.839  -3.121  1.00  1.92      1IKL 183
+ATOM     78  OE1 GLN     8      -8.556   5.485  -3.891  1.00  2.48      1IKL 184
+ATOM     79  NE2 GLN     8     -10.670   5.509  -3.349  1.00  2.57      1IKL 185
+ATOM     80  H   GLN     8      -7.487   7.603   0.301  1.00  0.95      1IKL 186
+ATOM     81  HA  GLN     8     -10.287   6.947   0.487  1.00  0.71      1IKL 187
+ATOM     82 1HB  GLN     8      -7.913   5.403  -0.597  1.00  1.44      1IKL 188
+ATOM     83 2HB  GLN     8      -9.589   4.899  -0.783  1.00  1.27      1IKL 189
+ATOM     84 1HG  GLN     8      -9.868   7.386  -1.697  1.00  1.95      1IKL 190
+ATOM     85 2HG  GLN     8      -8.151   7.191  -2.050  1.00  2.03      1IKL 191
+ATOM     86 1HE2 GLN     8     -10.899   4.979  -4.140  1.00  3.12      1IKL 192
+ATOM     87 2HE2 GLN     8     -11.375   5.792  -2.729  1.00  2.86      1IKL 193
+ATOM     88  N   CYS     9      -8.365   5.606   2.687  1.00  0.49      1IKL 194
+ATOM     89  CA  CYS     9      -8.345   4.679   3.856  1.00  0.49      1IKL 195
+ATOM     90  C   CYS     9      -8.125   5.459   5.154  1.00  0.47      1IKL 196
+ATOM     91  O   CYS     9      -7.033   5.919   5.433  1.00  0.49      1IKL 197
+ATOM     92  CB  CYS     9      -7.212   3.664   3.685  1.00  0.54      1IKL 198
+ATOM     93  SG  CYS     9      -7.889   2.085   3.114  1.00  0.85      1IKL 199
+ATOM     94  H   CYS     9      -7.649   6.271   2.584  1.00  0.49      1IKL 200
+ATOM     95  HA  CYS     9      -9.287   4.153   3.914  1.00  0.56      1IKL 201
+ATOM     96 1HB  CYS     9      -6.505   4.035   2.960  1.00  0.54      1IKL 202
+ATOM     97 2HB  CYS     9      -6.713   3.522   4.630  1.00  0.51      1IKL 203
+ATOM     98  N   ILE    10      -9.149   5.578   5.966  1.00  0.54      1IKL 204
+ATOM     99  CA  ILE    10      -8.993   6.288   7.273  1.00  0.60      1IKL 205
+ATOM    100  C   ILE    10      -8.110   5.417   8.178  1.00  0.59      1IKL 206
+ATOM    101  O   ILE    10      -7.317   5.912   8.957  1.00  0.64      1IKL 207
+ATOM    102  CB  ILE    10     -10.369   6.494   7.926  1.00  0.74      1IKL 208
+ATOM    103  CG1 ILE    10     -11.245   7.367   7.017  1.00  0.82      1IKL 209
+ATOM    104  CG2 ILE    10     -10.200   7.188   9.281  1.00  0.83      1IKL 210
+ATOM    105  CD1 ILE    10     -12.542   6.625   6.688  1.00  1.62      1IKL 211
+ATOM    106  H   ILE    10     -10.011   5.174   5.729  1.00  0.62      1IKL 212
+ATOM    107  HA  ILE    10      -8.516   7.244   7.112  1.00  0.61      1IKL 213
+ATOM    108  HB  ILE    10     -10.842   5.533   8.072  1.00  0.77      1IKL 214
+ATOM    109 1HG1 ILE    10     -11.478   8.292   7.524  1.00  1.13      1IKL 215
+ATOM    110 2HG1 ILE    10     -10.714   7.583   6.102  1.00  1.11      1IKL 216
+ATOM    111 1HG2 ILE    10      -9.638   8.101   9.151  1.00  1.22      1IKL 217
+ATOM    112 2HG2 ILE    10     -11.173   7.419   9.690  1.00  1.40      1IKL 218
+ATOM    113 3HG2 ILE    10      -9.672   6.533   9.959  1.00  1.29      1IKL 219
+ATOM    114 1HD1 ILE    10     -12.309   5.682   6.217  1.00  2.13      1IKL 220
+ATOM    115 2HD1 ILE    10     -13.096   6.447   7.598  1.00  2.16      1IKL 221
+ATOM    116 3HD1 ILE    10     -13.138   7.225   6.016  1.00  2.04      1IKL 222
+ATOM    117  N   LYS    11      -8.235   4.115   8.049  1.00  0.58      1IKL 223
+ATOM    118  CA  LYS    11      -7.405   3.176   8.856  1.00  0.61      1IKL 224
+ATOM    119  C   LYS    11      -6.561   2.345   7.885  1.00  0.52      1IKL 225
+ATOM    120  O   LYS    11      -7.088   1.606   7.073  1.00  0.78      1IKL 226
+ATOM    121  CB  LYS    11      -8.314   2.251   9.674  1.00  0.75      1IKL 227
+ATOM    122  CG  LYS    11      -8.973   3.047  10.805  1.00  1.54      1IKL 228
+ATOM    123  CD  LYS    11     -10.323   2.415  11.162  1.00  1.88      1IKL 229
+ATOM    124  CE  LYS    11     -10.164   1.520  12.394  1.00  2.70      1IKL 230
+ATOM    125  NZ  LYS    11     -11.161   0.412  12.340  1.00  3.38      1IKL 231
+ATOM    126  H   LYS    11      -8.870   3.753   7.394  1.00  0.61      1IKL 232
+ATOM    127  HA  LYS    11      -6.758   3.734   9.517  1.00  0.63      1IKL 233
+ATOM    128 1HB  LYS    11      -9.078   1.837   9.031  1.00  1.22      1IKL 234
+ATOM    129 2HB  LYS    11      -7.726   1.450  10.096  1.00  1.19      1IKL 235
+ATOM    130 1HG  LYS    11      -8.329   3.037  11.673  1.00  2.12      1IKL 236
+ATOM    131 2HG  LYS    11      -9.129   4.066  10.485  1.00  2.14      1IKL 237
+ATOM    132 1HD  LYS    11     -11.039   3.196  11.375  1.00  2.26      1IKL 238
+ATOM    133 2HD  LYS    11     -10.675   1.822  10.331  1.00  2.08      1IKL 239
+ATOM    134 1HE  LYS    11      -9.167   1.105  12.411  1.00  3.14      1IKL 240
+ATOM    135 2HE  LYS    11     -10.324   2.106  13.287  1.00  3.04      1IKL 241
+ATOM    136 1HZ  LYS    11     -12.120   0.809  12.267  1.00  3.75      1IKL 242
+ATOM    137 2HZ  LYS    11     -10.969  -0.188  11.512  1.00  3.66      1IKL 243
+ATOM    138 3HZ  LYS    11     -11.092  -0.159  13.206  1.00  3.76      1IKL 244
+ATOM    139  N   THR    12      -5.260   2.478   7.940  1.00  0.42      1IKL 245
+ATOM    140  CA  THR    12      -4.388   1.713   6.995  1.00  0.31      1IKL 246
+ATOM    141  C   THR    12      -4.002   0.351   7.573  1.00  0.30      1IKL 247
+ATOM    142  O   THR    12      -4.440  -0.041   8.640  1.00  0.43      1IKL 248
+ATOM    143  CB  THR    12      -3.117   2.507   6.675  1.00  0.30      1IKL 249
+ATOM    144  OG1 THR    12      -2.908   3.521   7.649  1.00  0.40      1IKL 250
+ATOM    145  CG2 THR    12      -3.251   3.131   5.290  1.00  0.30      1IKL 251
+ATOM    146  H   THR    12      -4.857   3.094   8.588  1.00  0.62      1IKL 252
+ATOM    147  HA  THR    12      -4.933   1.553   6.077  1.00  0.32      1IKL 253
+ATOM    148  HB  THR    12      -2.273   1.837   6.674  1.00  0.29      1IKL 254
+ATOM    149  HG1 THR    12      -2.625   3.098   8.463  1.00  0.93      1IKL 255
+ATOM    150 1HG2 THR    12      -4.151   3.725   5.248  1.00  1.02      1IKL 256
+ATOM    151 2HG2 THR    12      -2.394   3.755   5.092  1.00  1.05      1IKL 257
+ATOM    152 3HG2 THR    12      -3.304   2.346   4.548  1.00  1.03      1IKL 258
+ATOM    153  N   TYR    13      -3.193  -0.376   6.845  1.00  0.24      1IKL 259
+ATOM    154  CA  TYR    13      -2.764  -1.728   7.286  1.00  0.23      1IKL 260
+ATOM    155  C   TYR    13      -1.571  -1.619   8.237  1.00  0.24      1IKL 261
+ATOM    156  O   TYR    13      -0.484  -1.232   7.846  1.00  0.31      1IKL 262
+ATOM    157  CB  TYR    13      -2.357  -2.543   6.052  1.00  0.22      1IKL 263
+ATOM    158  CG  TYR    13      -2.397  -4.024   6.337  1.00  0.21      1IKL 264
+ATOM    159  CD1 TYR    13      -3.084  -4.520   7.451  1.00  1.14      1IKL 265
+ATOM    160  CD2 TYR    13      -1.731  -4.899   5.475  1.00  1.23      1IKL 266
+ATOM    161  CE1 TYR    13      -3.103  -5.896   7.705  1.00  1.14      1IKL 267
+ATOM    162  CE2 TYR    13      -1.750  -6.277   5.726  1.00  1.24      1IKL 268
+ATOM    163  CZ  TYR    13      -2.435  -6.776   6.842  1.00  0.23      1IKL 269
+ATOM    164  OH  TYR    13      -2.451  -8.133   7.092  1.00  0.25      1IKL 270
+ATOM    165  H   TYR    13      -2.876  -0.029   5.984  1.00  0.29      1IKL 271
+ATOM    166  HA  TYR    13      -3.583  -2.217   7.787  1.00  0.24      1IKL 272
+ATOM    167 1HB  TYR    13      -3.029  -2.321   5.238  1.00  0.23      1IKL 273
+ATOM    168 2HB  TYR    13      -1.353  -2.273   5.768  1.00  0.23      1IKL 274
+ATOM    169  HD1 TYR    13      -3.599  -3.838   8.111  1.00  2.04      1IKL 275
+ATOM    170  HD2 TYR    13      -1.206  -4.506   4.611  1.00  2.12      1IKL 276
+ATOM    171  HE1 TYR    13      -3.631  -6.280   8.566  1.00  2.03      1IKL 277
+ATOM    172  HE2 TYR    13      -1.236  -6.955   5.063  1.00  2.14      1IKL 278
+ATOM    173  HH  TYR    13      -3.166  -8.522   6.581  1.00  0.89      1IKL 279
+ATOM    174  N   SER    14      -1.764  -1.983   9.478  1.00  0.27      1IKL 280
+ATOM    175  CA  SER    14      -0.645  -1.934  10.462  1.00  0.28      1IKL 281
+ATOM    176  C   SER    14       0.079  -3.281  10.446  1.00  0.26      1IKL 282
+ATOM    177  O   SER    14       1.286  -3.344  10.592  1.00  0.26      1IKL 283
+ATOM    178  CB  SER    14      -1.195  -1.656  11.862  1.00  0.32      1IKL 284
+ATOM    179  OG  SER    14      -1.473  -0.267  11.988  1.00  1.32      1IKL 285
+ATOM    180  H   SER    14      -2.646  -2.307   9.760  1.00  0.34      1IKL 286
+ATOM    181  HA  SER    14       0.049  -1.158  10.181  1.00  0.28      1IKL 287
+ATOM    182 1HB  SER    14      -2.105  -2.214  12.011  1.00  1.05      1IKL 288
+ATOM    183 2HB  SER    14      -0.465  -1.957  12.602  1.00  0.96      1IKL 289
+ATOM    184  HG  SER    14      -1.133   0.028  12.836  1.00  1.65      1IKL 290
+ATOM    185  N   LYS    15      -0.647  -4.358  10.245  1.00  0.25      1IKL 291
+ATOM    186  CA  LYS    15       0.000  -5.698  10.191  1.00  0.25      1IKL 292
+ATOM    187  C   LYS    15       0.698  -5.836   8.833  1.00  0.22      1IKL 293
+ATOM    188  O   LYS    15       0.173  -5.405   7.827  1.00  0.20      1IKL 294
+ATOM    189  CB  LYS    15      -1.032  -6.823  10.335  1.00  0.27      1IKL 295
+ATOM    190  CG  LYS    15      -2.269  -6.345  11.107  1.00  0.30      1IKL 296
+ATOM    191  CD  LYS    15      -3.078  -7.554  11.580  1.00  1.07      1IKL 297
+ATOM    192  CE  LYS    15      -4.277  -7.074  12.401  1.00  1.54      1IKL 298
+ATOM    193  NZ  LYS    15      -4.543  -8.035  13.510  1.00  2.03      1IKL 299
+ATOM    194  H   LYS    15      -1.612  -4.278  10.111  1.00  0.26      1IKL 300
+ATOM    195  HA  LYS    15       0.728  -5.772  10.984  1.00  0.26      1IKL 301
+ATOM    196 1HB  LYS    15      -1.320  -7.157   9.357  1.00  0.26      1IKL 302
+ATOM    197 2HB  LYS    15      -0.582  -7.642  10.864  1.00  0.28      1IKL 303
+ATOM    198 1HG  LYS    15      -1.958  -5.763  11.963  1.00  0.77      1IKL 304
+ATOM    199 2HG  LYS    15      -2.883  -5.735  10.461  1.00  0.74      1IKL 305
+ATOM    200 1HD  LYS    15      -3.427  -8.112  10.723  1.00  1.74      1IKL 306
+ATOM    201 2HD  LYS    15      -2.454  -8.187  12.193  1.00  1.67      1IKL 307
+ATOM    202 1HE  LYS    15      -4.064  -6.100  12.814  1.00  1.99      1IKL 308
+ATOM    203 2HE  LYS    15      -5.147  -7.012  11.764  1.00  2.12      1IKL 309
+ATOM    204 1HZ  LYS    15      -4.730  -8.979  13.117  1.00  2.44      1IKL 310
+ATOM    205 2HZ  LYS    15      -3.714  -8.077  14.139  1.00  2.34      1IKL 311
+ATOM    206 3HZ  LYS    15      -5.373  -7.718  14.051  1.00  2.45      1IKL 312
+ATOM    207  N   PRO    16       1.870  -6.412   8.851  1.00  0.22      1IKL 313
+ATOM    208  CA  PRO    16       2.690  -6.598   7.642  1.00  0.21      1IKL 314
+ATOM    209  C   PRO    16       2.271  -7.853   6.868  1.00  0.21      1IKL 315
+ATOM    210  O   PRO    16       1.639  -8.747   7.403  1.00  0.23      1IKL 316
+ATOM    211  CB  PRO    16       4.101  -6.750   8.206  1.00  0.23      1IKL 317
+ATOM    212  CG  PRO    16       3.945  -7.226   9.672  1.00  0.25      1IKL 318
+ATOM    213  CD  PRO    16       2.491  -6.930  10.082  1.00  0.25      1IKL 319
+ATOM    214  HA  PRO    16       2.640  -5.730   7.009  1.00  0.19      1IKL 320
+ATOM    215 1HB  PRO    16       4.652  -7.472   7.632  1.00  0.24      1IKL 321
+ATOM    216 2HB  PRO    16       4.607  -5.804   8.185  1.00  0.23      1IKL 322
+ATOM    217 1HG  PRO    16       4.142  -8.287   9.739  1.00  0.27      1IKL 323
+ATOM    218 2HG  PRO    16       4.622  -6.682  10.313  1.00  0.27      1IKL 324
+ATOM    219 1HD  PRO    16       1.995  -7.836  10.400  1.00  0.26      1IKL 325
+ATOM    220 2HD  PRO    16       2.450  -6.185  10.857  1.00  0.26      1IKL 326
+ATOM    221  N   PHE    17       2.634  -7.922   5.610  1.00  0.20      1IKL 327
+ATOM    222  CA  PHE    17       2.277  -9.115   4.780  1.00  0.21      1IKL 328
+ATOM    223  C   PHE    17       3.167  -9.166   3.526  1.00  0.21      1IKL 329
+ATOM    224  O   PHE    17       3.696  -8.161   3.084  1.00  0.20      1IKL 330
+ATOM    225  CB  PHE    17       0.783  -9.065   4.397  1.00  0.20      1IKL 331
+ATOM    226  CG  PHE    17       0.524  -8.053   3.299  1.00  0.16      1IKL 332
+ATOM    227  CD1 PHE    17       0.742  -6.687   3.525  1.00  1.22      1IKL 333
+ATOM    228  CD2 PHE    17       0.052  -8.487   2.053  1.00  1.22      1IKL 334
+ATOM    229  CE1 PHE    17       0.490  -5.761   2.506  1.00  1.21      1IKL 335
+ATOM    230  CE2 PHE    17      -0.200  -7.560   1.037  1.00  1.22      1IKL 336
+ATOM    231  CZ  PHE    17       0.019  -6.197   1.264  1.00  0.15      1IKL 337
+ATOM    232  H   PHE    17       3.151  -7.188   5.214  1.00  0.19      1IKL 338
+ATOM    233  HA  PHE    17       2.457 -10.006   5.364  1.00  0.24      1IKL 339
+ATOM    234 1HB  PHE    17       0.474 -10.041   4.056  1.00  0.23      1IKL 340
+ATOM    235 2HB  PHE    17       0.204  -8.797   5.269  1.00  0.22      1IKL 341
+ATOM    236  HD1 PHE    17       1.102  -6.349   4.485  1.00  2.16      1IKL 342
+ATOM    237  HD2 PHE    17      -0.119  -9.539   1.878  1.00  2.15      1IKL 343
+ATOM    238  HE1 PHE    17       0.659  -4.709   2.678  1.00  2.14      1IKL 344
+ATOM    239  HE2 PHE    17      -0.564  -7.896   0.076  1.00  2.15      1IKL 345
+ATOM    240  HZ  PHE    17      -0.176  -5.482   0.479  1.00  0.16      1IKL 346
+ATOM    241  N   HIS    18       3.342 -10.340   2.965  1.00  0.24      1IKL 347
+ATOM    242  CA  HIS    18       4.204 -10.499   1.752  1.00  0.25      1IKL 348
+ATOM    243  C   HIS    18       3.574  -9.742   0.550  1.00  0.22      1IKL 349
+ATOM    244  O   HIS    18       2.367  -9.707   0.407  1.00  0.21      1IKL 350
+ATOM    245  CB  HIS    18       4.373 -12.001   1.501  1.00  0.29      1IKL 351
+ATOM    246  CG  HIS    18       4.886 -12.241   0.129  1.00  0.29      1IKL 352
+ATOM    247  ND1 HIS    18       6.232 -12.377  -0.168  1.00  0.31      1IKL 353
+ATOM    248  CD2 HIS    18       4.226 -12.366  -1.041  1.00  0.27      1IKL 354
+ATOM    249  CE1 HIS    18       6.323 -12.574  -1.494  1.00  0.31      1IKL 355
+ATOM    250  NE2 HIS    18       5.126 -12.583  -2.065  1.00  0.28      1IKL 356
+ATOM    251  H   HIS    18       2.908 -11.132   3.352  1.00  0.27      1IKL 357
+ATOM    252  HA  HIS    18       5.168 -10.076   1.949  1.00  0.25      1IKL 358
+ATOM    253 1HB  HIS    18       5.072 -12.404   2.218  1.00  0.32      1IKL 359
+ATOM    254 2HB  HIS    18       3.421 -12.491   1.620  1.00  0.29      1IKL 360
+ATOM    255  HD1 HIS    18       6.976 -12.338   0.469  1.00  0.33      1IKL 361
+ATOM    256  HD2 HIS    18       3.168 -12.257  -1.150  1.00  0.25      1IKL 362
+ATOM    257  HE1 HIS    18       7.247 -12.663  -2.038  1.00  0.33      1IKL 363
+ATOM    258  N   PRO    19       4.430  -9.094  -0.233  1.00  0.22      1IKL 364
+ATOM    259  CA  PRO    19       4.013  -8.243  -1.384  1.00  0.20      1IKL 365
+ATOM    260  C   PRO    19       3.586  -9.007  -2.648  1.00  0.20      1IKL 366
+ATOM    261  O   PRO    19       2.630  -8.620  -3.288  1.00  0.17      1IKL 367
+ATOM    262  CB  PRO    19       5.263  -7.418  -1.690  1.00  0.21      1IKL 368
+ATOM    263  CG  PRO    19       6.461  -8.214  -1.126  1.00  0.24      1IKL 369
+ATOM    264  CD  PRO    19       5.897  -9.149  -0.042  1.00  0.24      1IKL 370
+ATOM    265  HA  PRO    19       3.228  -7.581  -1.081  1.00  0.19      1IKL 371
+ATOM    266 1HB  PRO    19       5.366  -7.288  -2.762  1.00  0.22      1IKL 372
+ATOM    267 2HB  PRO    19       5.202  -6.458  -1.205  1.00  0.22      1IKL 373
+ATOM    268 1HG  PRO    19       6.920  -8.795  -1.916  1.00  0.25      1IKL 374
+ATOM    269 2HG  PRO    19       7.183  -7.543  -0.691  1.00  0.25      1IKL 375
+ATOM    270 1HD  PRO    19       6.263 -10.154  -0.188  1.00  0.26      1IKL 376
+ATOM    271 2HD  PRO    19       6.157  -8.791   0.940  1.00  0.25      1IKL 377
+ATOM    272  N   LYS    20       4.296 -10.036  -3.054  1.00  0.23      1IKL 378
+ATOM    273  CA  LYS    20       3.915 -10.753  -4.326  1.00  0.24      1IKL 379
+ATOM    274  C   LYS    20       2.421 -11.130  -4.335  1.00  0.22      1IKL 380
+ATOM    275  O   LYS    20       1.825 -11.239  -5.390  1.00  0.21      1IKL 381
+ATOM    276  CB  LYS    20       4.769 -11.995  -4.542  1.00  0.31      1IKL 382
+ATOM    277  CG  LYS    20       4.884 -12.281  -6.041  1.00  0.39      1IKL 383
+ATOM    278  CD  LYS    20       5.935 -13.368  -6.277  1.00  1.03      1IKL 384
+ATOM    279  CE  LYS    20       5.997 -13.700  -7.770  1.00  1.46      1IKL 385
+ATOM    280  NZ  LYS    20       7.101 -14.669  -8.024  1.00  2.19      1IKL 386
+ATOM    281  H   LYS    20       5.090 -10.308  -2.552  1.00  0.26      1IKL 387
+ATOM    282  HA  LYS    20       4.095 -10.090  -5.143  1.00  0.23      1IKL 388
+ATOM    283 1HB  LYS    20       5.754 -11.833  -4.127  1.00  0.31      1IKL 389
+ATOM    284 2HB  LYS    20       4.306 -12.826  -4.056  1.00  0.32      1IKL 390
+ATOM    285 1HG  LYS    20       3.928 -12.616  -6.417  1.00  0.71      1IKL 391
+ATOM    286 2HG  LYS    20       5.179 -11.380  -6.558  1.00  0.73      1IKL 392
+ATOM    287 1HD  LYS    20       6.900 -13.014  -5.946  1.00  1.58      1IKL 393
+ATOM    288 2HD  LYS    20       5.666 -14.255  -5.724  1.00  1.54      1IKL 394
+ATOM    289 1HE  LYS    20       5.059 -14.135  -8.081  1.00  1.91      1IKL 395
+ATOM    290 2HE  LYS    20       6.176 -12.795  -8.332  1.00  1.85      1IKL 396
+ATOM    291 1HZ  LYS    20       8.005 -14.256  -7.717  1.00  2.69      1IKL 397
+ATOM    292 2HZ  LYS    20       6.925 -15.545  -7.492  1.00  2.62      1IKL 398
+ATOM    293 3HZ  LYS    20       7.146 -14.883  -9.041  1.00  2.49      1IKL 399
+ATOM    294  N   PHE    21       1.798 -11.292  -3.183  1.00  0.22      1IKL 400
+ATOM    295  CA  PHE    21       0.338 -11.612  -3.160  1.00  0.23      1IKL 401
+ATOM    296  C   PHE    21      -0.415 -10.461  -3.836  1.00  0.19      1IKL 402
+ATOM    297  O   PHE    21      -1.360 -10.665  -4.573  1.00  0.21      1IKL 403
+ATOM    298  CB  PHE    21      -0.159 -11.733  -1.723  1.00  0.26      1IKL 404
+ATOM    299  CG  PHE    21       0.624 -12.765  -0.936  1.00  0.27      1IKL 405
+ATOM    300  CD1 PHE    21       1.209 -13.868  -1.575  1.00  1.25      1IKL 406
+ATOM    301  CD2 PHE    21       0.754 -12.613   0.451  1.00  1.22      1IKL 407
+ATOM    302  CE1 PHE    21       1.921 -14.813  -0.824  1.00  1.25      1IKL 408
+ATOM    303  CE2 PHE    21       1.465 -13.557   1.198  1.00  1.23      1IKL 409
+ATOM    304  CZ  PHE    21       2.049 -14.657   0.561  1.00  0.33      1IKL 410
+ATOM    305  H   PHE    21       2.277 -11.172  -2.341  1.00  0.24      1IKL 411
+ATOM    306  HA  PHE    21       0.153 -12.525  -3.681  1.00  0.26      1IKL 412
+ATOM    307 1HB  PHE    21      -0.058 -10.781  -1.252  1.00  0.27      1IKL 413
+ATOM    308 2HB  PHE    21      -1.197 -12.011  -1.735  1.00  0.27      1IKL 414
+ATOM    309  HD1 PHE    21       1.112 -13.990  -2.643  1.00  2.16      1IKL 415
+ATOM    310  HD2 PHE    21       0.304 -11.764   0.944  1.00  2.13      1IKL 416
+ATOM    311  HE1 PHE    21       2.372 -15.662  -1.314  1.00  2.17      1IKL 417
+ATOM    312  HE2 PHE    21       1.565 -13.435   2.267  1.00  2.14      1IKL 418
+ATOM    313  HZ  PHE    21       2.599 -15.386   1.138  1.00  0.36      1IKL 419
+ATOM    314  N   ILE    22       0.023  -9.250  -3.579  1.00  0.14      1IKL 420
+ATOM    315  CA  ILE    22      -0.612  -8.039  -4.177  1.00  0.13      1IKL 421
+ATOM    316  C   ILE    22      -0.569  -8.125  -5.706  1.00  0.14      1IKL 422
+ATOM    317  O   ILE    22       0.486  -8.234  -6.302  1.00  0.15      1IKL 423
+ATOM    318  CB  ILE    22       0.166  -6.795  -3.721  1.00  0.13      1IKL 424
+ATOM    319  CG1 ILE    22       0.057  -6.646  -2.199  1.00  0.17      1IKL 425
+ATOM    320  CG2 ILE    22      -0.401  -5.545  -4.396  1.00  0.17      1IKL 426
+ATOM    321  CD1 ILE    22       1.312  -5.953  -1.662  1.00  1.39      1IKL 427
+ATOM    322  H   ILE    22       0.792  -9.138  -2.981  1.00  0.15      1IKL 428
+ATOM    323  HA  ILE    22      -1.638  -7.961  -3.850  1.00  0.15      1IKL 429
+ATOM    324  HB  ILE    22       1.205  -6.906  -3.997  1.00  0.15      1IKL 430
+ATOM    325 1HG1 ILE    22      -0.814  -6.056  -1.955  1.00  0.78      1IKL 431
+ATOM    326 2HG1 ILE    22      -0.032  -7.622  -1.746  1.00  0.89      1IKL 432
+ATOM    327 1HG2 ILE    22      -1.435  -5.713  -4.649  1.00  1.03      1IKL 433
+ATOM    328 2HG2 ILE    22      -0.325  -4.706  -3.722  1.00  1.01      1IKL 434
+ATOM    329 3HG2 ILE    22       0.161  -5.336  -5.294  1.00  1.02      1IKL 435
+ATOM    330 1HD1 ILE    22       2.096  -5.999  -2.403  1.00  1.96      1IKL 436
+ATOM    331 2HD1 ILE    22       1.086  -4.921  -1.441  1.00  1.95      1IKL 437
+ATOM    332 3HD1 ILE    22       1.640  -6.449  -0.761  1.00  2.00      1IKL 438
+ATOM    333  N   LYS    23      -1.710  -8.055  -6.336  1.00  0.17      1IKL 439
+ATOM    334  CA  LYS    23      -1.759  -8.103  -7.825  1.00  0.20      1IKL 440
+ATOM    335  C   LYS    23      -1.640  -6.674  -8.380  1.00  0.21      1IKL 441
+ATOM    336  O   LYS    23      -1.241  -6.475  -9.512  1.00  0.25      1IKL 442
+ATOM    337  CB  LYS    23      -3.087  -8.721  -8.275  1.00  0.23      1IKL 443
+ATOM    338  CG  LYS    23      -2.840  -9.654  -9.462  1.00  0.73      1IKL 444
+ATOM    339  CD  LYS    23      -4.142 -10.370  -9.829  1.00  1.10      1IKL 445
+ATOM    340  CE  LYS    23      -3.870 -11.390 -10.938  1.00  1.53      1IKL 446
+ATOM    341  NZ  LYS    23      -5.030 -11.434 -11.874  1.00  2.24      1IKL 447
+ATOM    342  H   LYS    23      -2.542  -7.951  -5.826  1.00  0.20      1IKL 448
+ATOM    343  HA  LYS    23      -0.938  -8.701  -8.193  1.00  0.23      1IKL 449
+ATOM    344 1HB  LYS    23      -3.516  -9.283  -7.458  1.00  0.46      1IKL 450
+ATOM    345 2HB  LYS    23      -3.769  -7.938  -8.570  1.00  0.50      1IKL 451
+ATOM    346 1HG  LYS    23      -2.494  -9.076 -10.308  1.00  1.39      1IKL 452
+ATOM    347 2HG  LYS    23      -2.092 -10.385  -9.196  1.00  1.22      1IKL 453
+ATOM    348 1HD  LYS    23      -4.530 -10.878  -8.958  1.00  1.67      1IKL 454
+ATOM    349 2HD  LYS    23      -4.865  -9.647 -10.176  1.00  1.73      1IKL 455
+ATOM    350 1HE  LYS    23      -2.981 -11.103 -11.481  1.00  1.96      1IKL 456
+ATOM    351 2HE  LYS    23      -3.724 -12.366 -10.500  1.00  1.98      1IKL 457
+ATOM    352 1HZ  LYS    23      -5.175 -10.494 -12.294  1.00  2.54      1IKL 458
+ATOM    353 2HZ  LYS    23      -4.839 -12.122 -12.629  1.00  2.79      1IKL 459
+ATOM    354 3HZ  LYS    23      -5.885 -11.718 -11.353  1.00  2.61      1IKL 460
+ATOM    355  N   GLU    24      -1.980  -5.679  -7.586  1.00  0.21      1IKL 461
+ATOM    356  CA  GLU    24      -1.886  -4.265  -8.060  1.00  0.25      1IKL 462
+ATOM    357  C   GLU    24      -1.475  -3.361  -6.887  1.00  0.22      1IKL 463
+ATOM    358  O   GLU    24      -2.286  -3.035  -6.040  1.00  0.24      1IKL 464
+ATOM    359  CB  GLU    24      -3.249  -3.815  -8.599  1.00  0.32      1IKL 465
+ATOM    360  CG  GLU    24      -3.265  -3.930 -10.127  1.00  0.74      1IKL 466
+ATOM    361  CD  GLU    24      -4.535  -3.276 -10.677  1.00  1.29      1IKL 467
+ATOM    362  OE1 GLU    24      -4.494  -2.088 -10.954  1.00  1.91      1IKL 468
+ATOM    363  OE2 GLU    24      -5.528  -3.973 -10.812  1.00  1.93      1IKL 469
+ATOM    364  H   GLU    24      -2.297  -5.865  -6.675  1.00  0.20      1IKL 470
+ATOM    365  HA  GLU    24      -1.147  -4.197  -8.845  1.00  0.29      1IKL 471
+ATOM    366 1HB  GLU    24      -4.024  -4.442  -8.183  1.00  0.53      1IKL 472
+ATOM    367 2HB  GLU    24      -3.427  -2.789  -8.317  1.00  0.59      1IKL 473
+ATOM    368 1HG  GLU    24      -2.396  -3.432 -10.534  1.00  1.23      1IKL 474
+ATOM    369 2HG  GLU    24      -3.248  -4.972 -10.410  1.00  1.17      1IKL 475
+ATOM    370  N   LEU    25      -0.223  -2.959  -6.822  1.00  0.21      1IKL 476
+ATOM    371  CA  LEU    25       0.221  -2.085  -5.683  1.00  0.20      1IKL 477
+ATOM    372  C   LEU    25       0.344  -0.630  -6.156  1.00  0.21      1IKL 478
+ATOM    373  O   LEU    25       1.322  -0.251  -6.780  1.00  0.22      1IKL 479
+ATOM    374  CB  LEU    25       1.581  -2.569  -5.157  1.00  0.20      1IKL 480
+ATOM    375  CG  LEU    25       2.228  -1.473  -4.293  1.00  0.23      1IKL 481
+ATOM    376  CD1 LEU    25       2.649  -2.055  -2.946  1.00  0.24      1IKL 482
+ATOM    377  CD2 LEU    25       3.457  -0.905  -5.014  1.00  0.28      1IKL 483
+ATOM    378  HA  LEU    25      -0.509  -2.142  -4.887  1.00  0.21      1IKL 484
+ATOM    379 1HB  LEU    25       1.438  -3.460  -4.563  1.00  0.23      1IKL 485
+ATOM    380 2HB  LEU    25       2.228  -2.795  -5.991  1.00  0.20      1IKL 486
+ATOM    381  HG  LEU    25       1.512  -0.680  -4.126  1.00  0.29      1IKL 487
+ATOM    382 1HD1 LEU    25       2.061  -2.936  -2.736  1.00  1.09      1IKL 488
+ATOM    383 2HD1 LEU    25       3.695  -2.318  -2.979  1.00  1.03      1IKL 489
+ATOM    384 3HD1 LEU    25       2.484  -1.319  -2.173  1.00  1.02      1IKL 490
+ATOM    385 1HD2 LEU    25       3.416  -1.169  -6.061  1.00  1.10      1IKL 491
+ATOM    386 2HD2 LEU    25       3.466   0.170  -4.916  1.00  1.06      1IKL 492
+ATOM    387 3HD2 LEU    25       4.355  -1.314  -4.576  1.00  1.02      1IKL 493
+ATOM    388  N   ARG    26      -0.624   0.191  -5.862  1.00  0.21      1IKL 494
+ATOM    389  CA  ARG    26      -0.529   1.608  -6.298  1.00  0.23      1IKL 495
+ATOM    390  C   ARG    26      -0.624   2.530  -5.071  1.00  0.23      1IKL 496
+ATOM    391  O   ARG    26      -1.540   2.427  -4.279  1.00  0.27      1IKL 497
+ATOM    392  CB  ARG    26      -1.652   1.938  -7.295  1.00  0.26      1IKL 498
+ATOM    393  CG  ARG    26      -2.990   1.366  -6.805  1.00  1.37      1IKL 499
+ATOM    394  CD  ARG    26      -4.141   2.242  -7.308  1.00  1.58      1IKL 500
+ATOM    395  NE  ARG    26      -4.330   2.033  -8.775  1.00  2.54      1IKL 501
+ATOM    396  CZ  ARG    26      -5.356   2.566  -9.384  1.00  2.98      1IKL 502
+ATOM    397  NH1 ARG    26      -6.420   1.843  -9.623  1.00  3.44      1IKL 503
+ATOM    398  NH2 ARG    26      -5.316   3.821  -9.756  1.00  3.46      1IKL 504
+ATOM    399  H   ARG    26      -1.402  -0.122  -5.354  1.00  0.21      1IKL 505
+ATOM    400  HA  ARG    26       0.430   1.743  -6.779  1.00  0.24      1IKL 506
+ATOM    401 1HB  ARG    26      -1.736   3.010  -7.395  1.00  1.07      1IKL 507
+ATOM    402 2HB  ARG    26      -1.412   1.508  -8.257  1.00  1.03      1IKL 508
+ATOM    403 1HG  ARG    26      -3.110   0.361  -7.183  1.00  2.04      1IKL 509
+ATOM    404 2HG  ARG    26      -3.001   1.347  -5.726  1.00  2.08      1IKL 510
+ATOM    405 1HD  ARG    26      -5.049   1.975  -6.788  1.00  1.73      1IKL 511
+ATOM    406 2HD  ARG    26      -3.911   3.280  -7.120  1.00  1.85      1IKL 512
+ATOM    407  HE  ARG    26      -3.685   1.496  -9.282  1.00  3.15      1IKL 513
+ATOM    408 1HH1 ARG    26      -6.447   0.884  -9.341  1.00  3.60      1IKL 514
+ATOM    409 2HH1 ARG    26      -7.207   2.249 -10.088  1.00  3.91      1IKL 515
+ATOM    410 1HH2 ARG    26      -4.500   4.371  -9.576  1.00  3.62      1IKL 516
+ATOM    411 2HH2 ARG    26      -6.101   4.231 -10.221  1.00  3.96      1IKL 517
+ATOM    412  N   VAL    27       0.321   3.423  -4.906  1.00  0.23      1IKL 518
+ATOM    413  CA  VAL    27       0.297   4.344  -3.729  1.00  0.24      1IKL 519
+ATOM    414  C   VAL    27      -0.303   5.701  -4.128  1.00  0.28      1IKL 520
+ATOM    415  O   VAL    27      -0.216   6.115  -5.270  1.00  0.32      1IKL 521
+ATOM    416  CB  VAL    27       1.728   4.548  -3.215  1.00  0.26      1IKL 522
+ATOM    417  CG1 VAL    27       2.244   3.246  -2.600  1.00  0.26      1IKL 523
+ATOM    418  CG2 VAL    27       2.653   4.965  -4.366  1.00  0.29      1IKL 524
+ATOM    419  H   VAL    27       1.054   3.485  -5.549  1.00  0.26      1IKL 525
+ATOM    420  HA  VAL    27      -0.304   3.906  -2.945  1.00  0.24      1IKL 526
+ATOM    421  HB  VAL    27       1.723   5.318  -2.465  1.00  0.29      1IKL 527
+ATOM    422 1HG1 VAL    27       1.499   2.847  -1.930  1.00  1.01      1IKL 528
+ATOM    423 2HG1 VAL    27       2.443   2.531  -3.384  1.00  1.04      1IKL 529
+ATOM    424 3HG1 VAL    27       3.153   3.442  -2.051  1.00  1.05      1IKL 530
+ATOM    425 1HG2 VAL    27       2.149   5.688  -4.989  1.00  1.07      1IKL 531
+ATOM    426 2HG2 VAL    27       3.553   5.403  -3.962  1.00  1.01      1IKL 532
+ATOM    427 3HG2 VAL    27       2.908   4.097  -4.955  1.00  1.09      1IKL 533
+ATOM    428  N   ILE    28      -0.900   6.400  -3.188  1.00  0.30      1IKL 534
+ATOM    429  CA  ILE    28      -1.495   7.737  -3.500  1.00  0.35      1IKL 535
+ATOM    430  C   ILE    28      -0.588   8.829  -2.920  1.00  0.33      1IKL 536
+ATOM    431  O   ILE    28      -0.159   8.749  -1.783  1.00  0.40      1IKL 537
+ATOM    432  CB  ILE    28      -2.900   7.841  -2.883  1.00  0.41      1IKL 538
+ATOM    433  CG1 ILE    28      -3.857   6.910  -3.639  1.00  0.58      1IKL 539
+ATOM    434  CG2 ILE    28      -3.407   9.286  -2.986  1.00  0.45      1IKL 540
+ATOM    435  CD1 ILE    28      -5.251   6.973  -3.005  1.00  0.90      1IKL 541
+ATOM    436  H   ILE    28      -0.949   6.049  -2.270  1.00  0.30      1IKL 542
+ATOM    437  HA  ILE    28      -1.561   7.858  -4.571  1.00  0.43      1IKL 543
+ATOM    438  HB  ILE    28      -2.858   7.549  -1.843  1.00  0.40      1IKL 544
+ATOM    439 1HG1 ILE    28      -3.918   7.219  -4.672  1.00  1.17      1IKL 545
+ATOM    440 2HG1 ILE    28      -3.487   5.897  -3.588  1.00  0.87      1IKL 546
+ATOM    441 1HG2 ILE    28      -3.212   9.667  -3.977  1.00  1.15      1IKL 547
+ATOM    442 2HG2 ILE    28      -4.470   9.310  -2.795  1.00  1.07      1IKL 548
+ATOM    443 3HG2 ILE    28      -2.898   9.899  -2.258  1.00  1.05      1IKL 549
+ATOM    444 1HD1 ILE    28      -5.184   6.707  -1.960  1.00  1.50      1IKL 550
+ATOM    445 2HD1 ILE    28      -5.644   7.974  -3.098  1.00  1.58      1IKL 551
+ATOM    446 3HD1 ILE    28      -5.907   6.281  -3.511  1.00  1.33      1IKL 552
+ATOM    447  N   GLU    29      -0.293   9.847  -3.695  1.00  0.41      1IKL 553
+ATOM    448  CA  GLU    29       0.586  10.948  -3.201  1.00  0.46      1IKL 554
+ATOM    449  C   GLU    29      -0.161  11.792  -2.158  1.00  0.38      1IKL 555
+ATOM    450  O   GLU    29      -1.337  11.596  -1.909  1.00  0.35      1IKL 556
+ATOM    451  CB  GLU    29       0.986  11.839  -4.379  1.00  0.61      1IKL 557
+ATOM    452  CG  GLU    29       1.962  11.086  -5.289  1.00  1.53      1IKL 558
+ATOM    453  CD  GLU    29       2.408  12.000  -6.433  1.00  2.08      1IKL 559
+ATOM    454  OE1 GLU    29       1.733  12.017  -7.450  1.00  2.63      1IKL 560
+ATOM    455  OE2 GLU    29       3.419  12.666  -6.274  1.00  2.59      1IKL 561
+ATOM    456  H   GLU    29      -0.650   9.887  -4.606  1.00  0.52      1IKL 562
+ATOM    457  HA  GLU    29       1.474  10.527  -2.753  1.00  0.51      1IKL 563
+ATOM    458 1HB  GLU    29       0.104  12.109  -4.939  1.00  1.02      1IKL 564
+ATOM    459 2HB  GLU    29       1.459  12.730  -4.008  1.00  1.12      1IKL 565
+ATOM    460 1HG  GLU    29       2.824  10.780  -4.714  1.00  2.05      1IKL 566
+ATOM    461 2HG  GLU    29       1.474  10.214  -5.697  1.00  2.12      1IKL 567
+ATOM    462  N   SER    30       0.520  12.731  -1.547  1.00  0.42      1IKL 568
+ATOM    463  CA  SER    30      -0.132  13.595  -0.519  1.00  0.40      1IKL 569
+ATOM    464  C   SER    30      -0.404  14.987  -1.103  1.00  0.39      1IKL 570
+ATOM    465  O   SER    30       0.167  15.376  -2.106  1.00  0.41      1IKL 571
+ATOM    466  CB  SER    30       0.783  13.725   0.705  1.00  0.51      1IKL 572
+ATOM    467  OG  SER    30       2.145  13.634   0.302  1.00  0.57      1IKL 573
+ATOM    468  H   SER    30       1.465  12.869  -1.766  1.00  0.49      1IKL 574
+ATOM    469  HA  SER    30      -1.067  13.147  -0.216  1.00  0.39      1IKL 575
+ATOM    470 1HB  SER    30       0.621  14.679   1.174  1.00  0.54      1IKL 576
+ATOM    471 2HB  SER    30       0.551  12.938   1.409  1.00  0.55      1IKL 577
+ATOM    472  HG  SER    30       2.622  13.145   0.976  1.00  1.13      1IKL 578
+ATOM    473  N   GLY    31      -1.278  15.733  -0.477  1.00  0.42      1IKL 579
+ATOM    474  CA  GLY    31      -1.612  17.104  -0.973  1.00  0.47      1IKL 580
+ATOM    475  C   GLY    31      -2.591  17.765   0.007  1.00  0.54      1IKL 581
+ATOM    476  O   GLY    31      -2.576  17.462   1.186  1.00  0.56      1IKL 582
+ATOM    477  H   GLY    31      -1.721  15.388   0.327  1.00  0.44      1IKL 583
+ATOM    478 1HA  GLY    31      -0.712  17.688  -1.049  1.00  0.51      1IKL 584
+ATOM    479 2HA  GLY    31      -2.075  17.030  -1.944  1.00  0.51      1IKL 585
+ATOM    480  N   PRO    32      -3.441  18.625  -0.511  1.00  0.64      1IKL 586
+ATOM    481  CA  PRO    32      -4.469  19.307   0.303  1.00  0.78      1IKL 587
+ATOM    482  C   PRO    32      -5.574  18.299   0.650  1.00  0.81      1IKL 588
+ATOM    483  O   PRO    32      -6.170  18.347   1.710  1.00  0.90      1IKL 589
+ATOM    484  CB  PRO    32      -4.979  20.424  -0.615  1.00  0.89      1IKL 590
+ATOM    485  CG  PRO    32      -4.630  19.992  -2.059  1.00  0.81      1IKL 591
+ATOM    486  CD  PRO    32      -3.467  18.989  -1.946  1.00  0.66      1IKL 592
+ATOM    487  HA  PRO    32      -4.035  19.725   1.196  1.00  0.83      1IKL 593
+ATOM    488 1HB  PRO    32      -6.050  20.535  -0.505  1.00  1.00      1IKL 594
+ATOM    489 2HB  PRO    32      -4.482  21.353  -0.383  1.00  0.94      1IKL 595
+ATOM    490 1HG  PRO    32      -5.485  19.522  -2.519  1.00  0.87      1IKL 596
+ATOM    491 2HG  PRO    32      -4.319  20.847  -2.638  1.00  0.85      1IKL 597
+ATOM    492 1HD  PRO    32      -3.659  18.119  -2.558  1.00  0.64      1IKL 598
+ATOM    493 2HD  PRO    32      -2.536  19.455  -2.228  1.00  0.64      1IKL 599
+ATOM    494  N   HIS    33      -5.814  17.369  -0.243  1.00  0.77      1IKL 600
+ATOM    495  CA  HIS    33      -6.838  16.303  -0.016  1.00  0.83      1IKL 601
+ATOM    496  C   HIS    33      -6.425  15.435   1.187  1.00  0.75      1IKL 602
+ATOM    497  O   HIS    33      -7.256  14.982   1.949  1.00  0.85      1IKL 603
+ATOM    498  CB  HIS    33      -6.934  15.417  -1.275  1.00  0.85      1IKL 604
+ATOM    499  CG  HIS    33      -5.571  14.852  -1.614  1.00  0.71      1IKL 605
+ATOM    500  ND1 HIS    33      -4.627  15.576  -2.330  1.00  0.67      1IKL 606
+ATOM    501  CD2 HIS    33      -4.963  13.661  -1.298  1.00  0.68      1IKL 607
+ATOM    502  CE1 HIS    33      -3.513  14.829  -2.408  1.00  0.61      1IKL 608
+ATOM    503  NE2 HIS    33      -3.664  13.650  -1.800  1.00  0.64      1IKL 609
+ATOM    504  H   HIS    33      -5.298  17.363  -1.070  1.00  0.72      1IKL 610
+ATOM    505  HA  HIS    33      -7.796  16.758   0.179  1.00  0.97      1IKL 611
+ATOM    506 1HB  HIS    33      -7.620  14.609  -1.088  1.00  0.92      1IKL 612
+ATOM    507 2HB  HIS    33      -7.294  16.007  -2.103  1.00  0.93      1IKL 613
+ATOM    508  HD1 HIS    33      -4.753  16.464  -2.721  1.00  0.71      1IKL 614
+ATOM    509  HD2 HIS    33      -5.423  12.856  -0.744  1.00  0.73      1IKL 615
+ATOM    510  HE1 HIS    33      -2.593  15.162  -2.872  1.00  0.61      1IKL 616
+ATOM    511  N   CYS    34      -5.141  15.206   1.354  1.00  0.59      1IKL 617
+ATOM    512  CA  CYS    34      -4.649  14.378   2.488  1.00  0.55      1IKL 618
+ATOM    513  C   CYS    34      -3.146  14.621   2.668  1.00  0.51      1IKL 619
+ATOM    514  O   CYS    34      -2.342  14.220   1.847  1.00  0.50      1IKL 620
+ATOM    515  CB  CYS    34      -4.905  12.892   2.198  1.00  0.50      1IKL 621
+ATOM    516  SG  CYS    34      -5.264  12.026   3.747  1.00  0.66      1IKL 622
+ATOM    517  H   CYS    34      -4.499  15.585   0.730  1.00  0.54      1IKL 623
+ATOM    518  HA  CYS    34      -5.168  14.668   3.381  1.00  0.67      1IKL 624
+ATOM    519 1HB  CYS    34      -5.747  12.794   1.529  1.00  0.54      1IKL 625
+ATOM    520 2HB  CYS    34      -4.029  12.459   1.739  1.00  0.52      1IKL 626
+ATOM    521  N   ALA    35      -2.768  15.284   3.735  1.00  0.64      1IKL 627
+ATOM    522  CA  ALA    35      -1.318  15.571   3.979  1.00  0.72      1IKL 628
+ATOM    523  C   ALA    35      -0.542  14.263   4.189  1.00  0.57      1IKL 629
+ATOM    524  O   ALA    35       0.608  14.153   3.808  1.00  0.60      1IKL 630
+ATOM    525  CB  ALA    35      -1.177  16.451   5.224  1.00  0.97      1IKL 631
+ATOM    526  H   ALA    35      -3.440  15.599   4.375  1.00  0.75      1IKL 632
+ATOM    527  HA  ALA    35      -0.911  16.092   3.128  1.00  0.81      1IKL 633
+ATOM    528 1HB  ALA    35      -1.829  17.307   5.136  1.00  1.44      1IKL 634
+ATOM    529 2HB  ALA    35      -1.447  15.881   6.101  1.00  1.49      1IKL 635
+ATOM    530 3HB  ALA    35      -0.154  16.786   5.314  1.00  1.43      1IKL 636
+ATOM    531  N   ASN    36      -1.161  13.276   4.791  1.00  0.51      1IKL 637
+ATOM    532  CA  ASN    36      -0.463  11.977   5.026  1.00  0.46      1IKL 638
+ATOM    533  C   ASN    36      -0.549  11.106   3.767  1.00  0.39      1IKL 639
+ATOM    534  O   ASN    36      -1.600  10.966   3.169  1.00  0.38      1IKL 640
+ATOM    535  CB  ASN    36      -1.125  11.246   6.198  1.00  0.57      1IKL 641
+ATOM    536  CG  ASN    36      -0.442  11.651   7.508  1.00  0.69      1IKL 642
+ATOM    537  OD1 ASN    36       0.303  10.880   8.080  1.00  1.27      1IKL 643
+ATOM    538  ND2 ASN    36      -0.663  12.836   8.011  1.00  1.35      1IKL 644
+ATOM    539  H   ASN    36      -2.087  13.391   5.088  1.00  0.58      1IKL 645
+ATOM    540  HA  ASN    36       0.574  12.166   5.261  1.00  0.52      1IKL 646
+ATOM    541 1HB  ASN    36      -2.173  11.507   6.241  1.00  0.61      1IKL 647
+ATOM    542 2HB  ASN    36      -1.026  10.181   6.059  1.00  0.60      1IKL 648
+ATOM    543 1HD2 ASN    36      -0.229  13.101   8.849  1.00  1.41      1IKL 649
+ATOM    544 2HD2 ASN    36      -1.262  13.461   7.551  1.00  2.08      1IKL 650
+ATOM    545  N   THR    37       0.554  10.516   3.370  1.00  0.40      1IKL 651
+ATOM    546  CA  THR    37       0.555   9.640   2.156  1.00  0.35      1IKL 652
+ATOM    547  C   THR    37      -0.146   8.317   2.494  1.00  0.32      1IKL 653
+ATOM    548  O   THR    37      -0.081   7.843   3.615  1.00  0.42      1IKL 654
+ATOM    549  CB  THR    37       2.005   9.367   1.727  1.00  0.45      1IKL 655
+ATOM    550  OG1 THR    37       2.694  10.602   1.577  1.00  0.57      1IKL 656
+ATOM    551  CG2 THR    37       2.025   8.613   0.395  1.00  0.47      1IKL 657
+ATOM    552  H   THR    37       1.383  10.645   3.877  1.00  0.47      1IKL 658
+ATOM    553  HA  THR    37       0.027  10.134   1.354  1.00  0.34      1IKL 659
+ATOM    554  HB  THR    37       2.497   8.770   2.480  1.00  0.52      1IKL 660
+ATOM    555  HG1 THR    37       3.346  10.667   2.278  1.00  0.94      1IKL 661
+ATOM    556 1HG2 THR    37       1.363   7.762   0.452  1.00  1.14      1IKL 662
+ATOM    557 2HG2 THR    37       1.699   9.272  -0.396  1.00  1.12      1IKL 663
+ATOM    558 3HG2 THR    37       3.029   8.273   0.189  1.00  1.10      1IKL 664
+ATOM    559  N   GLU    38      -0.819   7.719   1.539  1.00  0.29      1IKL 665
+ATOM    560  CA  GLU    38      -1.525   6.432   1.812  1.00  0.38      1IKL 666
+ATOM    561  C   GLU    38      -1.214   5.429   0.701  1.00  0.34      1IKL 667
+ATOM    562  O   GLU    38      -1.374   5.718  -0.471  1.00  0.39      1IKL 668
+ATOM    563  CB  GLU    38      -3.036   6.682   1.874  1.00  0.52      1IKL 669
+ATOM    564  CG  GLU    38      -3.663   5.781   2.943  1.00  1.19      1IKL 670
+ATOM    565  CD  GLU    38      -3.487   6.420   4.324  1.00  1.65      1IKL 671
+ATOM    566  OE1 GLU    38      -2.449   6.205   4.929  1.00  2.15      1IKL 672
+ATOM    567  OE2 GLU    38      -4.394   7.114   4.753  1.00  2.34      1IKL 673
+ATOM    568  H   GLU    38      -0.861   8.117   0.641  1.00  0.30      1IKL 674
+ATOM    569  HA  GLU    38      -1.189   6.032   2.758  1.00  0.45      1IKL 675
+ATOM    570 1HB  GLU    38      -3.220   7.718   2.122  1.00  0.97      1IKL 676
+ATOM    571 2HB  GLU    38      -3.478   6.459   0.914  1.00  0.90      1IKL 677
+ATOM    572 1HG  GLU    38      -4.716   5.657   2.734  1.00  1.68      1IKL 678
+ATOM    573 2HG  GLU    38      -3.178   4.817   2.930  1.00  1.84      1IKL 679
+ATOM    574  N   ILE    39      -0.776   4.249   1.063  1.00  0.29      1IKL 680
+ATOM    575  CA  ILE    39      -0.457   3.215   0.037  1.00  0.27      1IKL 681
+ATOM    576  C   ILE    39      -1.727   2.405  -0.263  1.00  0.28      1IKL 682
+ATOM    577  O   ILE    39      -2.651   2.377   0.526  1.00  0.44      1IKL 683
+ATOM    578  CB  ILE    39       0.648   2.296   0.595  1.00  0.27      1IKL 684
+ATOM    579  CG1 ILE    39       1.980   3.059   0.626  1.00  0.28      1IKL 685
+ATOM    580  CG2 ILE    39       0.803   1.043  -0.276  1.00  0.28      1IKL 686
+ATOM    581  CD1 ILE    39       2.396   3.321   2.076  1.00  0.36      1IKL 687
+ATOM    582  H   ILE    39      -0.661   4.038   2.019  1.00  0.30      1IKL 688
+ATOM    583  HA  ILE    39      -0.109   3.693  -0.867  1.00  0.26      1IKL 689
+ATOM    584  HB  ILE    39       0.384   1.998   1.599  1.00  0.30      1IKL 690
+ATOM    585 1HG1 ILE    39       2.743   2.472   0.135  1.00  0.35      1IKL 691
+ATOM    586 2HG1 ILE    39       1.868   4.002   0.111  1.00  0.35      1IKL 692
+ATOM    587 1HG2 ILE    39       0.775   1.321  -1.319  1.00  1.03      1IKL 693
+ATOM    588 2HG2 ILE    39       1.747   0.567  -0.056  1.00  1.04      1IKL 694
+ATOM    589 3HG2 ILE    39      -0.003   0.356  -0.065  1.00  1.08      1IKL 695
+ATOM    590 1HD1 ILE    39       1.979   2.557   2.715  1.00  1.06      1IKL 696
+ATOM    591 2HD1 ILE    39       3.474   3.303   2.150  1.00  1.09      1IKL 697
+ATOM    592 3HD1 ILE    39       2.032   4.289   2.387  1.00  1.11      1IKL 698
+ATOM    593  N   ILE    40      -1.779   1.744  -1.394  1.00  0.23      1IKL 699
+ATOM    594  CA  ILE    40      -2.980   0.920  -1.731  1.00  0.24      1IKL 700
+ATOM    595  C   ILE    40      -2.533  -0.307  -2.523  1.00  0.24      1IKL 701
+ATOM    596  O   ILE    40      -1.771  -0.208  -3.464  1.00  0.50      1IKL 702
+ATOM    597  CB  ILE    40      -3.991   1.720  -2.564  1.00  0.27      1IKL 703
+ATOM    598  CG1 ILE    40      -4.407   2.982  -1.800  1.00  0.31      1IKL 704
+ATOM    599  CG2 ILE    40      -5.228   0.848  -2.820  1.00  0.28      1IKL 705
+ATOM    600  CD1 ILE    40      -5.301   3.850  -2.687  1.00  0.38      1IKL 706
+ATOM    601  H   ILE    40      -1.023   1.779  -2.017  1.00  0.29      1IKL 707
+ATOM    602  HA  ILE    40      -3.452   0.594  -0.815  1.00  0.23      1IKL 708
+ATOM    603  HB  ILE    40      -3.544   1.996  -3.507  1.00  0.30      1IKL 709
+ATOM    604 1HG1 ILE    40      -4.947   2.702  -0.908  1.00  0.31      1IKL 710
+ATOM    605 2HG1 ILE    40      -3.525   3.540  -1.526  1.00  0.31      1IKL 711
+ATOM    606 1HG2 ILE    40      -5.514   0.352  -1.904  1.00  0.98      1IKL 712
+ATOM    607 2HG2 ILE    40      -6.043   1.467  -3.163  1.00  1.03      1IKL 713
+ATOM    608 3HG2 ILE    40      -4.996   0.108  -3.572  1.00  0.97      1IKL 714
+ATOM    609 1HD1 ILE    40      -6.089   3.244  -3.108  1.00  1.19      1IKL 715
+ATOM    610 2HD1 ILE    40      -5.733   4.643  -2.095  1.00  1.07      1IKL 716
+ATOM    611 3HD1 ILE    40      -4.711   4.277  -3.485  1.00  1.00      1IKL 717
+ATOM    612  N   VAL    41      -3.005  -1.459  -2.142  1.00  0.25      1IKL 718
+ATOM    613  CA  VAL    41      -2.630  -2.705  -2.845  1.00  0.21      1IKL 719
+ATOM    614  C   VAL    41      -3.896  -3.521  -3.129  1.00  0.21      1IKL 720
+ATOM    615  O   VAL    41      -4.946  -3.273  -2.565  1.00  0.23      1IKL 721
+ATOM    616  CB  VAL    41      -1.678  -3.518  -1.967  1.00  0.17      1IKL 722
+ATOM    617  CG1 VAL    41      -0.349  -2.774  -1.823  1.00  0.20      1IKL 723
+ATOM    618  CG2 VAL    41      -2.286  -3.745  -0.579  1.00  0.18      1IKL 724
+ATOM    619  H   VAL    41      -3.608  -1.508  -1.387  1.00  0.45      1IKL 725
+ATOM    620  HA  VAL    41      -2.140  -2.462  -3.777  1.00  0.21      1IKL 726
+ATOM    621  HB  VAL    41      -1.507  -4.462  -2.435  1.00  0.19      1IKL 727
+ATOM    622 1HG1 VAL    41      -0.534  -1.771  -1.470  1.00  1.01      1IKL 728
+ATOM    623 2HG1 VAL    41       0.280  -3.294  -1.115  1.00  1.01      1IKL 729
+ATOM    624 3HG1 VAL    41       0.145  -2.734  -2.782  1.00  1.00      1IKL 730
+ATOM    625 1HG2 VAL    41      -3.363  -3.771  -0.657  1.00  1.02      1IKL 731
+ATOM    626 2HG2 VAL    41      -1.932  -4.684  -0.181  1.00  0.99      1IKL 732
+ATOM    627 3HG2 VAL    41      -1.992  -2.941   0.079  1.00  1.04      1IKL 733
+ATOM    628  N   LYS    42      -3.800  -4.493  -3.996  1.00  0.20      1IKL 734
+ATOM    629  CA  LYS    42      -4.987  -5.334  -4.321  1.00  0.22      1IKL 735
+ATOM    630  C   LYS    42      -4.563  -6.805  -4.352  1.00  0.21      1IKL 736
+ATOM    631  O   LYS    42      -4.095  -7.302  -5.359  1.00  0.25      1IKL 737
+ATOM    632  CB  LYS    42      -5.550  -4.921  -5.687  1.00  0.27      1IKL 738
+ATOM    633  CG  LYS    42      -7.018  -4.517  -5.533  1.00  0.37      1IKL 739
+ATOM    634  CD  LYS    42      -7.574  -4.081  -6.890  1.00  0.92      1IKL 740
+ATOM    635  CE  LYS    42      -9.104  -4.107  -6.849  1.00  1.41      1IKL 741
+ATOM    636  NZ  LYS    42      -9.648  -3.288  -7.970  1.00  2.00      1IKL 742
+ATOM    637  H   LYS    42      -2.943  -4.670  -4.433  1.00  0.20      1IKL 743
+ATOM    638  HA  LYS    42      -5.743  -5.195  -3.562  1.00  0.22      1IKL 744
+ATOM    639 1HB  LYS    42      -4.984  -4.084  -6.071  1.00  0.30      1IKL 745
+ATOM    640 2HB  LYS    42      -5.478  -5.750  -6.375  1.00  0.32      1IKL 746
+ATOM    641 1HG  LYS    42      -7.586  -5.359  -5.163  1.00  0.76      1IKL 747
+ATOM    642 2HG  LYS    42      -7.095  -3.696  -4.835  1.00  0.75      1IKL 748
+ATOM    643 1HD  LYS    42      -7.235  -3.080  -7.113  1.00  1.46      1IKL 749
+ATOM    644 2HD  LYS    42      -7.226  -4.758  -7.656  1.00  1.68      1IKL 750
+ATOM    645 1HE  LYS    42      -9.449  -5.126  -6.948  1.00  2.04      1IKL 751
+ATOM    646 2HE  LYS    42      -9.446  -3.701  -5.908  1.00  1.91      1IKL 752
+ATOM    647 1HZ  LYS    42      -9.284  -3.650  -8.874  1.00  2.37      1IKL 753
+ATOM    648 2HZ  LYS    42     -10.686  -3.346  -7.969  1.00  2.40      1IKL 754
+ATOM    649 3HZ  LYS    42      -9.355  -2.296  -7.849  1.00  2.49      1IKL 755
+ATOM    650  N   LEU    43      -4.716  -7.499  -3.246  1.00  0.19      1IKL 756
+ATOM    651  CA  LEU    43      -4.321  -8.939  -3.178  1.00  0.20      1IKL 757
+ATOM    652  C   LEU    43      -4.917  -9.717  -4.352  1.00  0.24      1IKL 758
+ATOM    653  O   LEU    43      -6.039  -9.477  -4.767  1.00  0.26      1IKL 759
+ATOM    654  CB  LEU    43      -4.840  -9.547  -1.878  1.00  0.22      1IKL 760
+ATOM    655  CG  LEU    43      -4.005  -9.043  -0.695  1.00  0.20      1IKL 761
+ATOM    656  CD1 LEU    43      -4.704  -9.404   0.617  1.00  0.25      1IKL 762
+ATOM    657  CD2 LEU    43      -2.620  -9.696  -0.730  1.00  0.24      1IKL 763
+ATOM    658  H   LEU    43      -5.086  -7.068  -2.449  1.00  0.22      1IKL 764
+ATOM    659  HA  LEU    43      -3.245  -9.016  -3.204  1.00  0.21      1IKL 765
+ATOM    660 1HB  LEU    43      -5.869  -9.266  -1.745  1.00  0.24      1IKL 766
+ATOM    661 2HB  LEU    43      -4.773 -10.617  -1.936  1.00  0.25      1IKL 767
+ATOM    662  HG  LEU    43      -3.900  -7.970  -0.762  1.00  0.20      1IKL 768
+ATOM    663 1HD1 LEU    43      -5.159 -10.379   0.527  1.00  1.02      1IKL 769
+ATOM    664 2HD1 LEU    43      -3.979  -9.417   1.418  1.00  1.03      1IKL 770
+ATOM    665 3HD1 LEU    43      -5.465  -8.669   0.833  1.00  1.06      1IKL 771
+ATOM    666 1HD2 LEU    43      -2.719 -10.736  -1.004  1.00  1.04      1IKL 772
+ATOM    667 2HD2 LEU    43      -2.001  -9.190  -1.456  1.00  1.05      1IKL 773
+ATOM    668 3HD2 LEU    43      -2.163  -9.623   0.246  1.00  1.00      1IKL 774
+ATOM    669  N   SER    44      -4.163 -10.654  -4.875  1.00  0.28      1IKL 775
+ATOM    670  CA  SER    44      -4.638 -11.484  -6.021  1.00  0.33      1IKL 776
+ATOM    671  C   SER    44      -5.917 -12.241  -5.641  1.00  0.32      1IKL 777
+ATOM    672  O   SER    44      -6.717 -12.576  -6.495  1.00  0.35      1IKL 778
+ATOM    673  CB  SER    44      -3.551 -12.487  -6.410  1.00  0.40      1IKL 779
+ATOM    674  OG  SER    44      -2.503 -11.804  -7.084  1.00  1.45      1IKL 780
+ATOM    675  H   SER    44      -3.277 -10.814  -4.504  1.00  0.29      1IKL 781
+ATOM    676  HA  SER    44      -4.841 -10.838  -6.856  1.00  0.35      1IKL 782
+ATOM    677 1HB  SER    44      -3.156 -12.955  -5.523  1.00  1.01      1IKL 783
+ATOM    678 2HB  SER    44      -3.975 -13.245  -7.056  1.00  1.14      1IKL 784
+ATOM    679  HG  SER    44      -2.482 -12.114  -7.993  1.00  1.81      1IKL 785
+ATOM    680  N   ASP    45      -6.123 -12.502  -4.368  1.00  0.32      1IKL 786
+ATOM    681  CA  ASP    45      -7.353 -13.219  -3.932  1.00  0.35      1IKL 787
+ATOM    682  C   ASP    45      -8.591 -12.341  -4.193  1.00  0.36      1IKL 788
+ATOM    683  O   ASP    45      -9.712 -12.810  -4.130  1.00  0.51      1IKL 789
+ATOM    684  CB  ASP    45      -7.262 -13.530  -2.433  1.00  0.36      1IKL 790
+ATOM    685  CG  ASP    45      -6.077 -14.464  -2.167  1.00  1.16      1IKL 791
+ATOM    686  OD1 ASP    45      -6.260 -15.666  -2.267  1.00  1.90      1IKL 792
+ATOM    687  OD2 ASP    45      -5.006 -13.960  -1.869  1.00  1.89      1IKL 793
+ATOM    688  H   ASP    45      -5.473 -12.217  -3.699  1.00  0.33      1IKL 794
+ATOM    689  HA  ASP    45      -7.438 -14.137  -4.483  1.00  0.41      1IKL 795
+ATOM    690 1HB  ASP    45      -7.125 -12.610  -1.883  1.00  0.88      1IKL 796
+ATOM    691 2HB  ASP    45      -8.174 -14.009  -2.109  1.00  0.92      1IKL 797
+ATOM    692  N   GLY    46      -8.394 -11.070  -4.478  1.00  0.34      1IKL 798
+ATOM    693  CA  GLY    46      -9.545 -10.157  -4.735  1.00  0.36      1IKL 799
+ATOM    694  C   GLY    46      -9.780  -9.285  -3.499  1.00  0.33      1IKL 800
+ATOM    695  O   GLY    46     -10.906  -8.974  -3.159  1.00  0.36      1IKL 801
+ATOM    696  H   GLY    46      -7.484 -10.713  -4.518  1.00  0.41      1IKL 802
+ATOM    697 1HA  GLY    46      -9.324  -9.529  -5.586  1.00  0.36      1IKL 803
+ATOM    698 2HA  GLY    46     -10.430 -10.738  -4.934  1.00  0.40      1IKL 804
+ATOM    699  N   ARG    47      -8.725  -8.897  -2.820  1.00  0.28      1IKL 805
+ATOM    700  CA  ARG    47      -8.884  -8.054  -1.597  1.00  0.28      1IKL 806
+ATOM    701  C   ARG    47      -8.251  -6.676  -1.824  1.00  0.25      1IKL 807
+ATOM    702  O   ARG    47      -7.382  -6.512  -2.656  1.00  0.27      1IKL 808
+ATOM    703  CB  ARG    47      -8.189  -8.753  -0.421  1.00  0.28      1IKL 809
+ATOM    704  CG  ARG    47      -8.640  -8.134   0.907  1.00  0.34      1IKL 810
+ATOM    705  CD  ARG    47     -10.119  -8.446   1.148  1.00  0.86      1IKL 811
+ATOM    706  NE  ARG    47     -10.529  -7.911   2.479  1.00  0.94      1IKL 812
+ATOM    707  CZ  ARG    47     -10.604  -8.709   3.512  1.00  1.40      1IKL 813
+ATOM    708  NH1 ARG    47      -9.556  -8.889   4.275  1.00  2.19      1IKL 814
+ATOM    709  NH2 ARG    47     -11.727  -9.324   3.782  1.00  2.01      1IKL 815
+ATOM    710  H   ARG    47      -7.822  -9.169  -3.112  1.00  0.27      1IKL 816
+ATOM    711  HA  ARG    47      -9.934  -7.935  -1.374  1.00  0.33      1IKL 817
+ATOM    712 1HB  ARG    47      -8.442  -9.804  -0.430  1.00  0.33      1IKL 818
+ATOM    713 2HB  ARG    47      -7.121  -8.643  -0.523  1.00  0.24      1IKL 819
+ATOM    714 1HG  ARG    47      -8.050  -8.547   1.713  1.00  0.51      1IKL 820
+ATOM    715 2HG  ARG    47      -8.500  -7.065   0.872  1.00  0.61      1IKL 821
+ATOM    716 1HD  ARG    47     -10.716  -7.983   0.376  1.00  1.19      1IKL 822
+ATOM    717 2HD  ARG    47     -10.271  -9.515   1.127  1.00  1.18      1IKL 823
+ATOM    718  HE  ARG    47     -10.743  -6.960   2.579  1.00  1.23      1IKL 824
+ATOM    719 1HH1 ARG    47      -8.699  -8.417   4.068  1.00  2.53      1IKL 825
+ATOM    720 2HH1 ARG    47      -9.612  -9.499   5.066  1.00  2.80      1IKL 826
+ATOM    721 1HH2 ARG    47     -12.528  -9.184   3.199  1.00  2.36      1IKL 827
+ATOM    722 2HH2 ARG    47     -11.786  -9.935   4.572  1.00  2.56      1IKL 828
+ATOM    723  N   GLU    48      -8.679  -5.687  -1.077  1.00  0.26      1IKL 829
+ATOM    724  CA  GLU    48      -8.101  -4.318  -1.220  1.00  0.26      1IKL 830
+ATOM    725  C   GLU    48      -7.674  -3.828   0.167  1.00  0.24      1IKL 831
+ATOM    726  O   GLU    48      -8.491  -3.678   1.057  1.00  0.28      1IKL 832
+ATOM    727  CB  GLU    48      -9.150  -3.368  -1.811  1.00  0.32      1IKL 833
+ATOM    728  CG  GLU    48      -8.461  -2.347  -2.724  1.00  0.62      1IKL 834
+ATOM    729  CD  GLU    48      -8.390  -0.988  -2.021  1.00  0.98      1IKL 835
+ATOM    730  OE1 GLU    48      -7.645  -0.876  -1.058  1.00  1.74      1IKL 836
+ATOM    731  OE2 GLU    48      -9.077  -0.081  -2.460  1.00  1.48      1IKL 837
+ATOM    732  H   GLU    48      -9.378  -5.850  -0.408  1.00  0.31      1IKL 838
+ATOM    733  HA  GLU    48      -7.238  -4.357  -1.870  1.00  0.24      1IKL 839
+ATOM    734 1HB  GLU    48      -9.867  -3.938  -2.385  1.00  0.51      1IKL 840
+ATOM    735 2HB  GLU    48      -9.660  -2.849  -1.012  1.00  0.35      1IKL 841
+ATOM    736 1HG  GLU    48      -7.462  -2.686  -2.953  1.00  0.89      1IKL 842
+ATOM    737 2HG  GLU    48      -9.025  -2.247  -3.640  1.00  1.01      1IKL 843
+ATOM    738  N   LEU    49      -6.399  -3.595   0.364  1.00  0.20      1IKL 844
+ATOM    739  CA  LEU    49      -5.916  -3.134   1.703  1.00  0.19      1IKL 845
+ATOM    740  C   LEU    49      -4.946  -1.967   1.533  1.00  0.20      1IKL 846
+ATOM    741  O   LEU    49      -3.954  -2.077   0.849  1.00  0.19      1IKL 847
+ATOM    742  CB  LEU    49      -5.173  -4.278   2.399  1.00  0.18      1IKL 848
+ATOM    743  CG  LEU    49      -5.948  -4.747   3.631  1.00  0.20      1IKL 849
+ATOM    744  CD1 LEU    49      -6.925  -5.852   3.234  1.00  0.23      1IKL 850
+ATOM    745  CD2 LEU    49      -4.961  -5.294   4.665  1.00  0.21      1IKL 851
+ATOM    746  H   LEU    49      -5.757  -3.734  -0.367  1.00  0.21      1IKL 852
+ATOM    747  HA  LEU    49      -6.755  -2.826   2.308  1.00  0.21      1IKL 853
+ATOM    748 1HB  LEU    49      -5.055  -5.104   1.712  1.00  0.19      1IKL 854
+ATOM    749 2HB  LEU    49      -4.199  -3.926   2.706  1.00  0.18      1IKL 855
+ATOM    750  HG  LEU    49      -6.494  -3.916   4.055  1.00  0.22      1IKL 856
+ATOM    751 1HD1 LEU    49      -6.379  -6.669   2.784  1.00  1.01      1IKL 857
+ATOM    752 2HD1 LEU    49      -7.443  -6.206   4.113  1.00  1.05      1IKL 858
+ATOM    753 3HD1 LEU    49      -7.640  -5.463   2.526  1.00  1.03      1IKL 859
+ATOM    754 1HD2 LEU    49      -4.085  -4.665   4.693  1.00  0.98      1IKL 860
+ATOM    755 2HD2 LEU    49      -5.427  -5.307   5.638  1.00  0.98      1IKL 861
+ATOM    756 3HD2 LEU    49      -4.673  -6.299   4.391  1.00  0.99      1IKL 862
+ATOM    757  N   CYS    50      -5.197  -0.865   2.183  1.00  0.23      1IKL 863
+ATOM    758  CA  CYS    50      -4.261   0.286   2.080  1.00  0.24      1IKL 864
+ATOM    759  C   CYS    50      -3.177   0.098   3.134  1.00  0.22      1IKL 865
+ATOM    760  O   CYS    50      -3.447  -0.360   4.224  1.00  0.25      1IKL 866
+ATOM    761  CB  CYS    50      -4.991   1.591   2.324  1.00  0.30      1IKL 867
+ATOM    762  SG  CYS    50      -6.660   1.518   1.615  1.00  0.60      1IKL 868
+ATOM    763  H   CYS    50      -5.979  -0.805   2.762  1.00  0.25      1IKL 869
+ATOM    764  HA  CYS    50      -3.815   0.305   1.107  1.00  0.25      1IKL 870
+ATOM    765 1HB  CYS    50      -5.040   1.757   3.373  1.00  0.34      1IKL 871
+ATOM    766 2HB  CYS    50      -4.445   2.391   1.864  1.00  0.33      1IKL 872
+ATOM    767  N   LEU    51      -1.954   0.411   2.812  1.00  0.23      1IKL 873
+ATOM    768  CA  LEU    51      -0.853   0.207   3.784  1.00  0.22      1IKL 874
+ATOM    769  C   LEU    51      -0.495   1.504   4.503  1.00  0.24      1IKL 875
+ATOM    770  O   LEU    51      -0.675   2.599   3.993  1.00  0.25      1IKL 876
+ATOM    771  CB  LEU    51       0.381  -0.318   3.062  1.00  0.23      1IKL 877
+ATOM    772  CG  LEU    51       0.042  -1.554   2.206  1.00  0.26      1IKL 878
+ATOM    773  CD1 LEU    51       1.294  -2.412   2.056  1.00  1.09      1IKL 879
+ATOM    774  CD2 LEU    51      -1.051  -2.400   2.872  1.00  1.21      1IKL 880
+ATOM    775  H   LEU    51      -1.757   0.749   1.928  1.00  0.29      1IKL 881
+ATOM    776  HA  LEU    51      -1.161  -0.518   4.511  1.00  0.22      1IKL 882
+ATOM    777 1HB  LEU    51       0.776   0.460   2.434  1.00  0.28      1IKL 883
+ATOM    778 2HB  LEU    51       1.118  -0.586   3.790  1.00  0.32      1IKL 884
+ATOM    779  HG  LEU    51      -0.291  -1.233   1.229  1.00  1.08      1IKL 885
+ATOM    780 1HD1 LEU    51       2.113  -1.798   1.716  1.00  1.69      1IKL 886
+ATOM    781 2HD1 LEU    51       1.543  -2.848   3.013  1.00  1.71      1IKL 887
+ATOM    782 3HD1 LEU    51       1.107  -3.197   1.341  1.00  1.70      1IKL 888
+ATOM    783 1HD2 LEU    51      -0.927  -2.369   3.944  1.00  1.83      1IKL 889
+ATOM    784 2HD2 LEU    51      -2.022  -2.007   2.610  1.00  1.74      1IKL 890
+ATOM    785 3HD2 LEU    51      -0.974  -3.421   2.531  1.00  1.81      1IKL 891
+ATOM    786  N   ASP    52       0.031   1.355   5.689  1.00  0.25      1IKL 892
+ATOM    787  CA  ASP    52       0.444   2.523   6.515  1.00  0.28      1IKL 893
+ATOM    788  C   ASP    52       1.966   2.704   6.394  1.00  0.27      1IKL 894
+ATOM    789  O   ASP    52       2.722   1.842   6.806  1.00  0.26      1IKL 895
+ATOM    790  CB  ASP    52       0.073   2.242   7.980  1.00  0.29      1IKL 896
+ATOM    791  CG  ASP    52       0.008   3.548   8.790  1.00  0.41      1IKL 897
+ATOM    792  OD1 ASP    52       0.775   4.455   8.504  1.00  1.24      1IKL 898
+ATOM    793  OD2 ASP    52      -0.808   3.614   9.693  1.00  1.08      1IKL 899
+ATOM    794  H   ASP    52       0.165   0.451   6.036  1.00  0.25      1IKL 900
+ATOM    795  HA  ASP    52      -0.065   3.411   6.174  1.00  0.30      1IKL 901
+ATOM    796 1HB  ASP    52      -0.891   1.753   8.014  1.00  0.34      1IKL 902
+ATOM    797 2HB  ASP    52       0.813   1.590   8.415  1.00  0.30      1IKL 903
+ATOM    798  N   PRO    53       2.377   3.824   5.837  1.00  0.31      1IKL 904
+ATOM    799  CA  PRO    53       3.810   4.133   5.645  1.00  0.33      1IKL 905
+ATOM    800  C   PRO    53       4.525   4.394   6.983  1.00  0.35      1IKL 906
+ATOM    801  O   PRO    53       5.736   4.521   7.021  1.00  0.37      1IKL 907
+ATOM    802  CB  PRO    53       3.797   5.377   4.748  1.00  0.39      1IKL 908
+ATOM    803  CG  PRO    53       2.404   6.022   4.919  1.00  0.40      1IKL 909
+ATOM    804  CD  PRO    53       1.462   4.893   5.374  1.00  0.35      1IKL 910
+ATOM    805  HA  PRO    53       4.293   3.323   5.123  1.00  0.32      1IKL 911
+ATOM    806 1HB  PRO    53       4.571   6.067   5.059  1.00  0.42      1IKL 912
+ATOM    807 2HB  PRO    53       3.943   5.095   3.718  1.00  0.39      1IKL 913
+ATOM    808 1HG  PRO    53       2.445   6.802   5.668  1.00  0.43      1IKL 914
+ATOM    809 2HG  PRO    53       2.062   6.425   3.979  1.00  0.42      1IKL 915
+ATOM    810 1HD  PRO    53       0.829   5.233   6.182  1.00  0.36      1IKL 916
+ATOM    811 2HD  PRO    53       0.866   4.540   4.547  1.00  0.34      1IKL 917
+ATOM    812  N   LYS    54       3.800   4.455   8.080  1.00  0.35      1IKL 918
+ATOM    813  CA  LYS    54       4.449   4.684   9.399  1.00  0.37      1IKL 919
+ATOM    814  C   LYS    54       5.363   3.498   9.745  1.00  0.34      1IKL 920
+ATOM    815  O   LYS    54       6.335   3.653  10.461  1.00  0.36      1IKL 921
+ATOM    816  CB  LYS    54       3.381   4.835  10.487  1.00  0.40      1IKL 922
+ATOM    817  CG  LYS    54       3.273   6.305  10.899  1.00  0.57      1IKL 923
+ATOM    818  CD  LYS    54       2.029   6.505  11.766  1.00  1.32      1IKL 924
+ATOM    819  CE  LYS    54       2.031   7.922  12.345  1.00  1.79      1IKL 925
+ATOM    820  NZ  LYS    54       0.976   8.037  13.392  1.00  2.49      1IKL 926
+ATOM    821  H   LYS    54       2.835   4.343   8.037  1.00  0.34      1IKL 927
+ATOM    822  HA  LYS    54       5.034   5.583   9.347  1.00  0.41      1IKL 928
+ATOM    823 1HB  LYS    54       2.430   4.495  10.108  1.00  0.52      1IKL 929
+ATOM    824 2HB  LYS    54       3.656   4.242  11.347  1.00  0.43      1IKL 930
+ATOM    825 1HG  LYS    54       4.153   6.586  11.460  1.00  1.05      1IKL 931
+ATOM    826 2HG  LYS    54       3.197   6.921  10.016  1.00  1.07      1IKL 932
+ATOM    827 1HD  LYS    54       1.144   6.363  11.163  1.00  1.96      1IKL 933
+ATOM    828 2HD  LYS    54       2.033   5.789  12.575  1.00  1.83      1IKL 934
+ATOM    829 1HE  LYS    54       2.996   8.131  12.783  1.00  2.14      1IKL 935
+ATOM    830 2HE  LYS    54       1.834   8.633  11.555  1.00  2.24      1IKL 936
+ATOM    831 1HZ  LYS    54       0.056   7.761  12.989  1.00  2.83      1IKL 937
+ATOM    832 2HZ  LYS    54       1.208   7.412  14.190  1.00  2.86      1IKL 938
+ATOM    833 3HZ  LYS    54       0.926   9.019  13.728  1.00  2.95      1IKL 939
+ATOM    834  N   GLU    55       5.064   2.317   9.244  1.00  0.30      1IKL 940
+ATOM    835  CA  GLU    55       5.916   1.138   9.546  1.00  0.29      1IKL 941
+ATOM    836  C   GLU    55       7.080   1.079   8.561  1.00  0.29      1IKL 942
+ATOM    837  O   GLU    55       7.078   1.731   7.531  1.00  0.30      1IKL 943
+ATOM    838  CB  GLU    55       5.099  -0.143   9.387  1.00  0.27      1IKL 944
+ATOM    839  CG  GLU    55       4.003  -0.209  10.450  1.00  0.39      1IKL 945
+ATOM    840  CD  GLU    55       2.693   0.347   9.884  1.00  1.74      1IKL 946
+ATOM    841  OE1 GLU    55       2.083  -0.335   9.075  1.00  2.50      1IKL 947
+ATOM    842  OE2 GLU    55       2.322   1.445  10.267  1.00  2.54      1IKL 948
+ATOM    843  H   GLU    55       4.280   2.203   8.666  1.00  0.29      1IKL 949
+ATOM    844  HA  GLU    55       6.293   1.206  10.555  1.00  0.31      1IKL 950
+ATOM    845 1HB  GLU    55       4.654  -0.162   8.406  1.00  0.27      1IKL 951
+ATOM    846 2HB  GLU    55       5.750  -0.991   9.495  1.00  0.28      1IKL 952
+ATOM    847 1HG  GLU    55       3.858  -1.234  10.748  1.00  1.00      1IKL 953
+ATOM    848 2HG  GLU    55       4.302   0.370  11.304  1.00  0.87      1IKL 954
+ATOM    849  N   ASN    56       8.050   0.263   8.859  1.00  0.31      1IKL 955
+ATOM    850  CA  ASN    56       9.208   0.099   7.939  1.00  0.32      1IKL 956
+ATOM    851  C   ASN    56       8.913  -1.055   6.977  1.00  0.30      1IKL 957
+ATOM    852  O   ASN    56       9.542  -1.184   5.946  1.00  0.31      1IKL 958
+ATOM    853  CB  ASN    56      10.464  -0.211   8.738  1.00  0.37      1IKL 959
+ATOM    854  CG  ASN    56      11.501   0.892   8.508  1.00  0.42      1IKL 960
+ATOM    855  OD1 ASN    56      12.417   0.727   7.726  1.00  1.10      1IKL 961
+ATOM    856  ND2 ASN    56      11.393   2.019   9.158  1.00  1.23      1IKL 962
+ATOM    857  H   ASN    56       7.999  -0.272   9.679  1.00  0.31      1IKL 963
+ATOM    858  HA  ASN    56       9.356   1.000   7.381  1.00  0.34      1IKL 964
+ATOM    859 1HB  ASN    56      10.213  -0.260   9.781  1.00  0.37      1IKL 965
+ATOM    860 2HB  ASN    56      10.868  -1.153   8.414  1.00  0.37      1IKL 966
+ATOM    861 1HD2 ASN    56      12.051   2.731   9.015  1.00  1.25      1IKL 967
+ATOM    862 2HD2 ASN    56      10.654   2.154   9.788  1.00  2.03      1IKL 968
+ATOM    863  N   TRP    57       7.953  -1.893   7.307  1.00  0.27      1IKL 969
+ATOM    864  CA  TRP    57       7.610  -3.028   6.423  1.00  0.24      1IKL 970
+ATOM    865  C   TRP    57       6.745  -2.533   5.268  1.00  0.21      1IKL 971
+ATOM    866  O   TRP    57       6.877  -2.992   4.159  1.00  0.20      1IKL 972
+ATOM    867  CB  TRP    57       6.886  -4.112   7.231  1.00  0.24      1IKL 973
+ATOM    868  CG  TRP    57       5.464  -3.754   7.519  1.00  0.22      1IKL 974
+ATOM    869  CD1 TRP    57       5.020  -3.302   8.700  1.00  0.24      1IKL 975
+ATOM    870  CD2 TRP    57       4.298  -3.836   6.647  1.00  0.20      1IKL 976
+ATOM    871  NE1 TRP    57       3.654  -3.131   8.629  1.00  0.23      1IKL 977
+ATOM    872  CE2 TRP    57       3.163  -3.430   7.382  1.00  0.20      1IKL 978
+ATOM    873  CE3 TRP    57       4.114  -4.219   5.311  1.00  0.18      1IKL 979
+ATOM    874  CZ2 TRP    57       1.889  -3.407   6.817  1.00  0.20      1IKL 980
+ATOM    875  CZ3 TRP    57       2.837  -4.192   4.735  1.00  0.17      1IKL 981
+ATOM    876  CH2 TRP    57       1.725  -3.787   5.485  1.00  0.18      1IKL 982
+ATOM    877  H   TRP    57       7.458  -1.772   8.135  1.00  0.27      1IKL 983
+ATOM    878  HA  TRP    57       8.520  -3.435   6.029  1.00  0.25      1IKL 984
+ATOM    879 1HB  TRP    57       6.895  -5.024   6.685  1.00  0.24      1IKL 985
+ATOM    880 2HB  TRP    57       7.409  -4.257   8.158  1.00  0.27      1IKL 986
+ATOM    881  HD1 TRP    57       5.632  -3.120   9.563  1.00  0.26      1IKL 987
+ATOM    882  HE1 TRP    57       3.091  -2.831   9.357  1.00  0.24      1IKL 988
+ATOM    883  HE3 TRP    57       4.962  -4.533   4.723  1.00  0.19      1IKL 989
+ATOM    884  HZ2 TRP    57       1.038  -3.093   7.405  1.00  0.22      1IKL 990
+ATOM    885  HZ3 TRP    57       2.711  -4.479   3.708  1.00  0.16      1IKL 991
+ATOM    886  HH2 TRP    57       0.744  -3.769   5.034  1.00  0.18      1IKL 992
+ATOM    887  N   VAL    58       5.868  -1.595   5.520  1.00  0.21      1IKL 993
+ATOM    888  CA  VAL    58       5.006  -1.063   4.421  1.00  0.20      1IKL 994
+ATOM    889  C   VAL    58       5.896  -0.357   3.388  1.00  0.22      1IKL 995
+ATOM    890  O   VAL    58       5.731  -0.533   2.196  1.00  0.22      1IKL 996
+ATOM    891  CB  VAL    58       3.989  -0.074   5.006  1.00  0.22      1IKL 997
+ATOM    892  CG1 VAL    58       3.502   0.899   3.928  1.00  0.25      1IKL 998
+ATOM    893  CG2 VAL    58       2.791  -0.837   5.561  1.00  0.22      1IKL 999
+ATOM    894  H   VAL    58       5.781  -1.240   6.434  1.00  0.23      1IKL1000
+ATOM    895  HA  VAL    58       4.486  -1.882   3.944  1.00  0.18      1IKL1001
+ATOM    896  HB  VAL    58       4.455   0.478   5.800  1.00  0.26      1IKL1002
+ATOM    897 1HG1 VAL    58       3.361   0.366   2.999  1.00  1.06      1IKL1003
+ATOM    898 2HG1 VAL    58       2.565   1.338   4.236  1.00  1.05      1IKL1004
+ATOM    899 3HG1 VAL    58       4.236   1.678   3.789  1.00  1.04      1IKL1005
+ATOM    900 1HG2 VAL    58       2.582  -1.685   4.930  1.00  0.98      1IKL1006
+ATOM    901 2HG2 VAL    58       3.013  -1.176   6.562  1.00  0.98      1IKL1007
+ATOM    902 3HG2 VAL    58       1.930  -0.188   5.586  1.00  0.97      1IKL1008
+ATOM    903  N   GLN    59       6.846   0.430   3.840  1.00  0.25      1IKL1009
+ATOM    904  CA  GLN    59       7.754   1.139   2.894  1.00  0.29      1IKL1010
+ATOM    905  C   GLN    59       8.740   0.136   2.272  1.00  0.27      1IKL1011
+ATOM    906  O   GLN    59       9.142   0.282   1.132  1.00  0.29      1IKL1012
+ATOM    907  CB  GLN    59       8.501   2.244   3.641  1.00  0.34      1IKL1013
+ATOM    908  CG  GLN    59       9.532   1.619   4.566  1.00  0.36      1IKL1014
+ATOM    909  CD  GLN    59      10.157   2.694   5.457  1.00  0.42      1IKL1015
+ATOM    910  OE1 GLN    59       9.506   3.226   6.335  1.00  1.09      1IKL1016
+ATOM    911  NE2 GLN    59      11.403   3.040   5.271  1.00  1.16      1IKL1017
+ATOM    912  H   GLN    59       6.967   0.547   4.804  1.00  0.27      1IKL1018
+ATOM    913  HA  GLN    59       7.174   1.580   2.116  1.00  0.30      1IKL1019
+ATOM    914 1HB  GLN    59       8.993   2.884   2.931  1.00  0.40      1IKL1020
+ATOM    915 2HB  GLN    59       7.800   2.823   4.224  1.00  0.33      1IKL1021
+ATOM    916 1HG  GLN    59       9.045   0.876   5.175  1.00  0.33      1IKL1022
+ATOM    917 2HG  GLN    59      10.297   1.151   3.970  1.00  0.41      1IKL1023
+ATOM    918 1HE2 GLN    59      11.811   3.727   5.838  1.00  1.18      1IKL1024
+ATOM    919 2HE2 GLN    59      11.931   2.611   4.565  1.00  1.93      1IKL1025
+ATOM    920  N   ARG    60       9.103  -0.897   3.001  1.00  0.26      1IKL1026
+ATOM    921  CA  ARG    60      10.030  -1.926   2.448  1.00  0.27      1IKL1027
+ATOM    922  C   ARG    60       9.236  -2.803   1.482  1.00  0.24      1IKL1028
+ATOM    923  O   ARG    60       9.705  -3.145   0.415  1.00  0.27      1IKL1029
+ATOM    924  CB  ARG    60      10.593  -2.782   3.586  1.00  0.29      1IKL1030
+ATOM    925  CG  ARG    60      11.821  -2.091   4.185  1.00  0.78      1IKL1031
+ATOM    926  CD  ARG    60      12.213  -2.784   5.493  1.00  1.25      1IKL1032
+ATOM    927  NE  ARG    60      13.030  -3.995   5.188  1.00  1.76      1IKL1033
+ATOM    928  CZ  ARG    60      14.336  -3.929   5.214  1.00  2.23      1IKL1034
+ATOM    929  NH1 ARG    60      14.987  -3.465   4.178  1.00  2.79      1IKL1035
+ATOM    930  NH2 ARG    60      14.989  -4.328   6.275  1.00  2.81      1IKL1036
+ATOM    931  H   ARG    60       8.744  -1.008   3.905  1.00  0.26      1IKL1037
+ATOM    932  HA  ARG    60      10.838  -1.441   1.919  1.00  0.29      1IKL1038
+ATOM    933 1HB  ARG    60       9.838  -2.905   4.350  1.00  0.60      1IKL1039
+ATOM    934 2HB  ARG    60      10.877  -3.748   3.203  1.00  0.63      1IKL1040
+ATOM    935 1HG  ARG    60      12.642  -2.147   3.485  1.00  1.37      1IKL1041
+ATOM    936 2HG  ARG    60      11.589  -1.055   4.385  1.00  1.46      1IKL1042
+ATOM    937 1HD  ARG    60      12.790  -2.103   6.102  1.00  1.91      1IKL1043
+ATOM    938 2HD  ARG    60      11.322  -3.076   6.027  1.00  1.77      1IKL1044
+ATOM    939  HE  ARG    60      12.587  -4.841   4.968  1.00  2.27      1IKL1045
+ATOM    940 1HH1 ARG    60      14.486  -3.162   3.367  1.00  3.04      1IKL1046
+ATOM    941 2HH1 ARG    60      15.986  -3.413   4.196  1.00  3.32      1IKL1047
+ATOM    942 1HH2 ARG    60      14.490  -4.684   7.066  1.00  3.05      1IKL1048
+ATOM    943 2HH2 ARG    60      15.988  -4.278   6.297  1.00  3.35      1IKL1049
+ATOM    944  N   VAL    61       8.020  -3.141   1.849  1.00  0.22      1IKL1050
+ATOM    945  CA  VAL    61       7.149  -3.967   0.963  1.00  0.21      1IKL1051
+ATOM    946  C   VAL    61       6.959  -3.226  -0.367  1.00  0.23      1IKL1052
+ATOM    947  O   VAL    61       7.002  -3.819  -1.429  1.00  0.25      1IKL1053
+ATOM    948  CB  VAL    61       5.792  -4.176   1.655  1.00  0.21      1IKL1054
+ATOM    949  CG1 VAL    61       4.698  -4.456   0.622  1.00  0.27      1IKL1055
+ATOM    950  CG2 VAL    61       5.894  -5.359   2.619  1.00  0.25      1IKL1056
+ATOM    951  H   VAL    61       7.670  -2.831   2.716  1.00  0.21      1IKL1057
+ATOM    952  HA  VAL    61       7.617  -4.921   0.781  1.00  0.23      1IKL1058
+ATOM    953  HB  VAL    61       5.535  -3.285   2.210  1.00  0.19      1IKL1059
+ATOM    954 1HG1 VAL    61       5.094  -5.087  -0.158  1.00  1.04      1IKL1060
+ATOM    955 2HG1 VAL    61       3.868  -4.953   1.102  1.00  1.10      1IKL1061
+ATOM    956 3HG1 VAL    61       4.362  -3.523   0.195  1.00  1.01      1IKL1062
+ATOM    957 1HG2 VAL    61       6.165  -6.248   2.071  1.00  1.02      1IKL1063
+ATOM    958 2HG2 VAL    61       6.649  -5.152   3.364  1.00  0.98      1IKL1064
+ATOM    959 3HG2 VAL    61       4.942  -5.511   3.105  1.00  1.00      1IKL1065
+ATOM    960  N   VAL    62       6.765  -1.928  -0.308  1.00  0.24      1IKL1066
+ATOM    961  CA  VAL    62       6.588  -1.126  -1.557  1.00  0.30      1IKL1067
+ATOM    962  C   VAL    62       7.871  -1.216  -2.393  1.00  0.33      1IKL1068
+ATOM    963  O   VAL    62       7.815  -1.376  -3.592  1.00  0.38      1IKL1069
+ATOM    964  CB  VAL    62       6.292   0.338  -1.195  1.00  0.36      1IKL1070
+ATOM    965  CG1 VAL    62       6.331   1.210  -2.455  1.00  0.62      1IKL1071
+ATOM    966  CG2 VAL    62       4.900   0.434  -0.560  1.00  0.58      1IKL1072
+ATOM    967  H   VAL    62       6.747  -1.480   0.562  1.00  0.24      1IKL1073
+ATOM    968  HA  VAL    62       5.764  -1.532  -2.127  1.00  0.29      1IKL1074
+ATOM    969  HB  VAL    62       7.034   0.691  -0.492  1.00  0.62      1IKL1075
+ATOM    970 1HG1 VAL    62       5.775   0.726  -3.245  1.00  1.18      1IKL1076
+ATOM    971 2HG1 VAL    62       5.889   2.172  -2.241  1.00  1.20      1IKL1077
+ATOM    972 3HG1 VAL    62       7.356   1.347  -2.767  1.00  1.32      1IKL1078
+ATOM    973 1HG2 VAL    62       4.741  -0.414   0.090  1.00  1.25      1IKL1079
+ATOM    974 2HG2 VAL    62       4.829   1.345   0.015  1.00  1.21      1IKL1080
+ATOM    975 3HG2 VAL    62       4.149   0.439  -1.336  1.00  1.21      1IKL1081
+ATOM    976  N   GLU    63       9.024  -1.129  -1.767  1.00  0.34      1IKL1082
+ATOM    977  CA  GLU    63      10.304  -1.228  -2.522  1.00  0.39      1IKL1083
+ATOM    978  C   GLU    63      10.501  -2.666  -3.005  1.00  0.38      1IKL1084
+ATOM    979  O   GLU    63      10.960  -2.892  -4.100  1.00  0.42      1IKL1085
+ATOM    980  CB  GLU    63      11.466  -0.825  -1.612  1.00  0.44      1IKL1086
+ATOM    981  CG  GLU    63      11.562   0.701  -1.540  1.00  0.75      1IKL1087
+ATOM    982  CD  GLU    63      12.437   1.102  -0.349  1.00  1.65      1IKL1088
+ATOM    983  OE1 GLU    63      13.648   1.067  -0.490  1.00  2.30      1IKL1089
+ATOM    984  OE2 GLU    63      11.880   1.439   0.684  1.00  2.36      1IKL1090
+ATOM    985  H   GLU    63       9.048  -1.006  -0.802  1.00  0.32      1IKL1091
+ATOM    986  HA  GLU    63      10.263  -0.574  -3.376  1.00  0.44      1IKL1092
+ATOM    987 1HB  GLU    63      11.300  -1.222  -0.620  1.00  0.54      1IKL1093
+ATOM    988 2HB  GLU    63      12.386  -1.222  -2.007  1.00  0.57      1IKL1094
+ATOM    989 1HG  GLU    63      11.999   1.077  -2.453  1.00  1.10      1IKL1095
+ATOM    990 2HG  GLU    63      10.574   1.119  -1.414  1.00  1.13      1IKL1096
+ATOM    991  N   LYS    64      10.141  -3.642  -2.207  1.00  0.34      1IKL1097
+ATOM    992  CA  LYS    64      10.287  -5.058  -2.641  1.00  0.36      1IKL1098
+ATOM    993  C   LYS    64       9.381  -5.306  -3.860  1.00  0.34      1IKL1099
+ATOM    994  O   LYS    64       9.622  -6.197  -4.653  1.00  0.41      1IKL1100
+ATOM    995  CB  LYS    64       9.874  -5.991  -1.497  1.00  0.37      1IKL1101
+ATOM    996  CG  LYS    64      10.771  -7.232  -1.495  1.00  0.48      1IKL1102
+ATOM    997  CD  LYS    64      11.061  -7.651  -0.052  1.00  1.17      1IKL1103
+ATOM    998  CE  LYS    64      12.243  -8.625  -0.027  1.00  1.64      1IKL1104
+ATOM    999  NZ  LYS    64      11.746 -10.022  -0.184  1.00  2.47      1IKL1105
+ATOM   1000  H   LYS    64       9.764  -3.443  -1.331  1.00  0.32      1IKL1106
+ATOM   1001  HA  LYS    64      11.312  -5.242  -2.906  1.00  0.42      1IKL1107
+ATOM   1002 1HB  LYS    64       9.978  -5.470  -0.555  1.00  0.37      1IKL1108
+ATOM   1003 2HB  LYS    64       8.846  -6.292  -1.629  1.00  0.35      1IKL1109
+ATOM   1004 1HG  LYS    64      10.269  -8.038  -2.012  1.00  0.95      1IKL1110
+ATOM   1005 2HG  LYS    64      11.700  -7.006  -1.996  1.00  0.93      1IKL1111
+ATOM   1006 1HD  LYS    64      11.303  -6.776   0.534  1.00  1.81      1IKL1112
+ATOM   1007 2HD  LYS    64      10.190  -8.134   0.365  1.00  1.81      1IKL1113
+ATOM   1008 1HE  LYS    64      12.919  -8.391  -0.836  1.00  1.91      1IKL1114
+ATOM   1009 2HE  LYS    64      12.764  -8.533   0.914  1.00  2.17      1IKL1115
+ATOM   1010 1HZ  LYS    64      11.178 -10.095  -1.052  1.00  2.90      1IKL1116
+ATOM   1011 2HZ  LYS    64      12.557 -10.672  -0.245  1.00  2.77      1IKL1117
+ATOM   1012 3HZ  LYS    64      11.158 -10.276   0.635  1.00  2.97      1IKL1118
+ATOM   1013  N   PHE    65       8.338  -4.517  -4.003  1.00  0.29      1IKL1119
+ATOM   1014  CA  PHE    65       7.398  -4.677  -5.145  1.00  0.28      1IKL1120
+ATOM   1015  C   PHE    65       7.762  -3.691  -6.271  1.00  0.38      1IKL1121
+ATOM   1016  O   PHE    65       7.695  -4.023  -7.439  1.00  0.45      1IKL1122
+ATOM   1017  CB  PHE    65       5.993  -4.367  -4.629  1.00  0.24      1IKL1123
+ATOM   1018  CG  PHE    65       4.965  -5.166  -5.390  1.00  0.23      1IKL1124
+ATOM   1019  CD1 PHE    65       4.878  -6.552  -5.206  1.00  1.27      1IKL1125
+ATOM   1020  CD2 PHE    65       4.093  -4.521  -6.270  1.00  1.18      1IKL1126
+ATOM   1021  CE1 PHE    65       3.919  -7.290  -5.906  1.00  1.29      1IKL1127
+ATOM   1022  CE2 PHE    65       3.132  -5.258  -6.968  1.00  1.16      1IKL1128
+ATOM   1023  CZ  PHE    65       3.044  -6.643  -6.787  1.00  0.31      1IKL1129
+ATOM   1024  H   PHE    65       8.165  -3.811  -3.346  1.00  0.28      1IKL1130
+ATOM   1025  HA  PHE    65       7.435  -5.690  -5.515  1.00  0.31      1IKL1131
+ATOM   1026 1HB  PHE    65       5.937  -4.619  -3.581  1.00  0.27      1IKL1132
+ATOM   1027 2HB  PHE    65       5.795  -3.314  -4.750  1.00  0.29      1IKL1133
+ATOM   1028  HD1 PHE    65       5.554  -7.051  -4.526  1.00  2.17      1IKL1134
+ATOM   1029  HD2 PHE    65       4.161  -3.453  -6.410  1.00  2.10      1IKL1135
+ATOM   1030  HE1 PHE    65       3.852  -8.358  -5.764  1.00  2.21      1IKL1136
+ATOM   1031  HE2 PHE    65       2.458  -4.759  -7.647  1.00  2.07      1IKL1137
+ATOM   1032  HZ  PHE    65       2.302  -7.212  -7.327  1.00  0.36      1IKL1138
+ATOM   1033  N   LEU    66       8.130  -2.478  -5.920  1.00  0.44      1IKL1139
+ATOM   1034  CA  LEU    66       8.485  -1.445  -6.951  1.00  0.59      1IKL1140
+ATOM   1035  C   LEU    66      10.016  -1.290  -7.081  1.00  0.63      1IKL1141
+ATOM   1036  O   LEU    66      10.495  -0.315  -7.630  1.00  0.93      1IKL1142
+ATOM   1037  CB  LEU    66       7.875  -0.101  -6.532  1.00  0.70      1IKL1143
+ATOM   1038  CG  LEU    66       7.117   0.510  -7.711  1.00  1.12      1IKL1144
+ATOM   1039  CD1 LEU    66       5.758   1.028  -7.235  1.00  1.73      1IKL1145
+ATOM   1040  CD2 LEU    66       7.929   1.669  -8.298  1.00  1.80      1IKL1146
+ATOM   1041  H   LEU    66       8.160  -2.239  -4.969  1.00  0.42      1IKL1147
+ATOM   1042  HA  LEU    66       8.076  -1.738  -7.905  1.00  0.70      1IKL1148
+ATOM   1043 1HB  LEU    66       7.194  -0.258  -5.708  1.00  1.07      1IKL1149
+ATOM   1044 2HB  LEU    66       8.662   0.572  -6.223  1.00  1.04      1IKL1150
+ATOM   1045  HG  LEU    66       6.969  -0.246  -8.466  1.00  1.81      1IKL1151
+ATOM   1046 1HD1 LEU    66       5.892   1.628  -6.346  1.00  2.30      1IKL1152
+ATOM   1047 2HD1 LEU    66       5.309   1.631  -8.011  1.00  2.19      1IKL1153
+ATOM   1048 3HD1 LEU    66       5.112   0.192  -7.010  1.00  2.14      1IKL1154
+ATOM   1049 1HD2 LEU    66       8.157   2.381  -7.518  1.00  2.23      1IKL1155
+ATOM   1050 2HD2 LEU    66       8.849   1.289  -8.718  1.00  2.35      1IKL1156
+ATOM   1051 3HD2 LEU    66       7.354   2.156  -9.072  1.00  2.27      1IKL1157
+ATOM   1052  N   LYS    67      10.778  -2.232  -6.571  1.00  0.58      1IKL1158
+ATOM   1053  CA  LYS    67      12.277  -2.155  -6.644  1.00  0.76      1IKL1159
+ATOM   1054  C   LYS    67      12.753  -1.839  -8.072  1.00  1.71      1IKL1160
+ATOM   1055  O   LYS    67      12.080  -2.132  -9.044  1.00  2.42      1IKL1161
+ATOM   1056  CB  LYS    67      12.871  -3.500  -6.208  1.00  1.27      1IKL1162
+ATOM   1057  CG  LYS    67      13.987  -3.267  -5.185  1.00  1.91      1IKL1163
+ATOM   1058  CD  LYS    67      15.347  -3.377  -5.877  1.00  2.34      1IKL1164
+ATOM   1059  CE  LYS    67      16.349  -2.444  -5.195  1.00  3.21      1IKL1165
+ATOM   1060  NZ  LYS    67      17.521  -2.234  -6.092  1.00  3.89      1IKL1166
+ATOM   1061  H   LYS    67      10.362  -2.993  -6.119  1.00  0.62      1IKL1167
+ATOM   1062  HA  LYS    67      12.626  -1.382  -5.976  1.00  1.33      1IKL1168
+ATOM   1063 1HB  LYS    67      12.097  -4.108  -5.763  1.00  1.87      1IKL1169
+ATOM   1064 2HB  LYS    67      13.277  -4.011  -7.069  1.00  1.72      1IKL1170
+ATOM   1065 1HG  LYS    67      13.880  -2.282  -4.753  1.00  2.44      1IKL1171
+ATOM   1066 2HG  LYS    67      13.921  -4.010  -4.405  1.00  2.49      1IKL1172
+ATOM   1067 1HD  LYS    67      15.701  -4.396  -5.814  1.00  2.48      1IKL1173
+ATOM   1068 2HD  LYS    67      15.246  -3.095  -6.914  1.00  2.73      1IKL1174
+ATOM   1069 1HE  LYS    67      15.877  -1.495  -4.991  1.00  3.69      1IKL1175
+ATOM   1070 2HE  LYS    67      16.681  -2.888  -4.267  1.00  3.41      1IKL1176
+ATOM   1071 1HZ  LYS    67      17.973  -3.148  -6.295  1.00  4.21      1IKL1177
+ATOM   1072 2HZ  LYS    67      17.203  -1.797  -6.981  1.00  4.17      1IKL1178
+ATOM   1073 3HZ  LYS    67      18.208  -1.608  -5.625  1.00  4.26      1IKL1179
+ATOM   1074  N   ARG    68      13.925  -1.245  -8.184  1.00  2.49      1IKL1180
+ATOM   1075  CA  ARG    68      14.511  -0.886  -9.521  1.00  3.67      1IKL1181
+ATOM   1076  C   ARG    68      13.743   0.283 -10.149  1.00  4.46      1IKL1182
+ATOM   1077  O   ARG    68      12.618   0.577  -9.784  1.00  4.38      1IKL1183
+ATOM   1078  CB  ARG    68      14.471  -2.086 -10.478  1.00  4.28      1IKL1184
+ATOM   1079  CG  ARG    68      15.133  -3.307  -9.827  1.00  4.45      1IKL1185
+ATOM   1080  CD  ARG    68      14.346  -4.575 -10.181  1.00  5.49      1IKL1186
+ATOM   1081  NE  ARG    68      14.229  -4.701 -11.665  1.00  5.99      1IKL1187
+ATOM   1082  CZ  ARG    68      15.235  -5.156 -12.367  1.00  6.70      1IKL1188
+ATOM   1083  NH1 ARG    68      16.065  -4.319 -12.936  1.00  7.37      1IKL1189
+ATOM   1084  NH2 ARG    68      15.408  -6.445 -12.501  1.00  7.02      1IKL1190
+ATOM   1085  H   ARG    68      14.432  -1.034  -7.372  1.00  2.64      1IKL1191
+ATOM   1086  HA  ARG    68      15.540  -0.588  -9.378  1.00  3.96      1IKL1192
+ATOM   1087 1HB  ARG    68      13.446  -2.316 -10.722  1.00  4.50      1IKL1193
+ATOM   1088 2HB  ARG    68      15.003  -1.836 -11.383  1.00  4.87      1IKL1194
+ATOM   1089 1HG  ARG    68      16.147  -3.401 -10.187  1.00  4.38      1IKL1195
+ATOM   1090 2HG  ARG    68      15.144  -3.183  -8.754  1.00  4.39      1IKL1196
+ATOM   1091 1HD  ARG    68      14.861  -5.438  -9.787  1.00  5.85      1IKL1197
+ATOM   1092 2HD  ARG    68      13.359  -4.517  -9.747  1.00  5.85      1IKL1198
+ATOM   1093  HE  ARG    68      13.397  -4.444 -12.113  1.00  6.03      1IKL1199
+ATOM   1094 1HH1 ARG    68      15.931  -3.333 -12.834  1.00  7.38      1IKL1200
+ATOM   1095 2HH1 ARG    68      16.834  -4.665 -13.474  1.00  8.03      1IKL1201
+ATOM   1096 1HH2 ARG    68      14.773  -7.084 -12.066  1.00  6.76      1IKL1202
+ATOM   1097 2HH2 ARG    68      16.177  -6.795 -13.038  1.00  7.70      1IKL1203
+ATOM   1098  N   ALA    69      14.353   0.944 -11.101  1.00  5.52      1IKL1204
+ATOM   1099  CA  ALA    69      13.690   2.095 -11.783  1.00  6.51      1IKL1205
+ATOM   1100  C   ALA    69      13.600   1.799 -13.282  1.00  7.25      1IKL1206
+ATOM   1101  O   ALA    69      14.588   1.476 -13.918  1.00  7.69      1IKL1207
+ATOM   1102  CB  ALA    69      14.513   3.368 -11.559  1.00  7.27      1IKL1208
+ATOM   1103  H   ALA    69      15.255   0.674 -11.373  1.00  5.79      1IKL1209
+ATOM   1104  HA  ALA    69      12.696   2.231 -11.382  1.00  6.49      1IKL1210
+ATOM   1105 1HB  ALA    69      15.537   3.192 -11.855  1.00  7.46      1IKL1211
+ATOM   1106 2HB  ALA    69      14.100   4.172 -12.150  1.00  7.55      1IKL1212
+ATOM   1107 3HB  ALA    69      14.482   3.637 -10.513  1.00  7.64      1IKL1213
+ATOM   1108  N   GLU    70      12.422   1.890 -13.847  1.00  7.64      1IKL1214
+ATOM   1109  CA  GLU    70      12.259   1.599 -15.302  1.00  8.57      1IKL1215
+ATOM   1110  C   GLU    70      11.979   2.906 -16.056  1.00  9.09      1IKL1216
+ATOM   1111  O   GLU    70      12.867   3.479 -16.659  1.00  9.29      1IKL1217
+ATOM   1112  CB  GLU    70      11.096   0.614 -15.494  1.00  8.91      1IKL1218
+ATOM   1113  CG  GLU    70      11.546  -0.812 -15.135  1.00  8.88      1IKL1219
+ATOM   1114  CD  GLU    70      11.850  -0.916 -13.633  1.00  9.64      1IKL1220
+ATOM   1115  OE1 GLU    70      10.944  -0.694 -12.844  1.00 10.10      1IKL1221
+ATOM   1116  OE2 GLU    70      12.984  -1.218 -13.300  1.00  9.93      1IKL1222
+ATOM   1117  H   GLU    70      11.641   2.141 -13.310  1.00  7.47      1IKL1223
+ATOM   1118  HA  GLU    70      13.168   1.157 -15.683  1.00  8.89      1IKL1224
+ATOM   1119 1HB  GLU    70      10.273   0.903 -14.857  1.00  9.04      1IKL1225
+ATOM   1120 2HB  GLU    70      10.776   0.637 -16.525  1.00  9.32      1IKL1226
+ATOM   1121 1HG  GLU    70      10.759  -1.507 -15.388  1.00  8.69      1IKL1227
+ATOM   1122 2HG  GLU    70      12.434  -1.059 -15.697  1.00  8.80      1IKL1228
+ATOM   1123  N   ASN    71      10.755   3.385 -16.022  1.00  9.55      1IKL1229
+ATOM   1124  CA  ASN    71      10.416   4.659 -16.730  1.00 10.29      1IKL1230
+ATOM   1125  C   ASN    71       8.996   5.089 -16.343  1.00 10.77      1IKL1231
+ATOM   1126  O   ASN    71       8.025   4.697 -16.966  1.00 10.98      1IKL1232
+ATOM   1127  CB  ASN    71      10.502   4.450 -18.249  1.00 10.97      1IKL1233
+ATOM   1128  CG  ASN    71      11.255   5.622 -18.885  1.00 11.36      1IKL1234
+ATOM   1129  OD1 ASN    71      10.657   6.612 -19.258  1.00 11.35      1IKL1235
+ATOM   1130  ND2 ASN    71      12.552   5.555 -19.023  1.00 11.92      1IKL1236
+ATOM   1131  H   ASN    71      10.058   2.908 -15.524  1.00  9.57      1IKL1237
+ATOM   1132  HA  ASN    71      11.115   5.427 -16.433  1.00 10.24      1IKL1238
+ATOM   1133 1HB  ASN    71      11.026   3.529 -18.458  1.00 11.00      1IKL1239
+ATOM   1134 2HB  ASN    71       9.506   4.399 -18.664  1.00 11.35      1IKL1240
+ATOM   1135 1HD2 ASN    71      13.041   6.301 -19.429  1.00 12.30      1IKL1241
+ATOM   1136 2HD2 ASN    71      13.038   4.758 -18.722  1.00 12.06      1IKL1242
+ATOM   1137  N   SER    72       8.869   5.888 -15.311  1.00 11.16      1IKL1243
+ATOM   1138  CA  SER    72       7.516   6.345 -14.870  1.00 11.85      1IKL1244
+ATOM   1139  C   SER    72       7.604   7.777 -14.327  1.00 12.27      1IKL1245
+ATOM   1140  O   SER    72       8.422   8.016 -13.451  1.00 12.28      1IKL1246
+ATOM   1141  CB  SER    72       6.995   5.411 -13.774  1.00 12.14      1IKL1247
+ATOM   1142  OG  SER    72       6.554   4.194 -14.364  1.00 12.16      1IKL1248
+ATOM   1143  OXT SER    72       6.849   8.612 -14.797  1.00 12.74      1IKL1249
+ATOM   1144  H   SER    72       9.666   6.185 -14.823  1.00 11.13      1IKL1250
+ATOM   1145  HA  SER    72       6.839   6.323 -15.712  1.00 12.06      1IKL1251
+ATOM   1146 1HB  SER    72       7.785   5.199 -13.074  1.00 12.07      1IKL1252
+ATOM   1147 2HB  SER    72       6.175   5.889 -13.255  1.00 12.59      1IKL1253
+ATOM   1148  HG  SER    72       5.682   4.343 -14.737  1.00 12.42      1IKL1254
+TER    1149      SER    72                                              1IKL1255
+HETATM 1150  C   CH3    25       0.402  -2.482  -8.098  1.00  0.23      1IKL1256
+HETATM 1151 1HC  CH3    25       0.375  -3.268  -8.833  1.00  1.02      1IKL1257
+HETATM 1152 2HC  CH3    25      -0.145  -1.624  -8.467  1.00  0.99      1IKL1258
+HETATM 1153 3HC  CH3    25       1.428  -2.196  -7.912  1.00  1.02      1IKL1259
+CONECT   66   65  516                                                   1IKL1260
+CONECT   93   92  762                                                   1IKL1261
+CONECT  370  357  371 1150                                              1IKL1262
+CONECT  516   66  515                                                   1IKL1263
+CONECT  762   93  761                                                   1IKL1264
+CONECT 1150  370 1151 1152 1153                                         1IKL1265
+CONECT 1151 1150                                                        1IKL1266
+CONECT 1152 1150                                                        1IKL1267
+CONECT 1153 1150                                                        1IKL1268
+MASTER       63    0    1    1    3    0    0    6 1152    1    9    6  1IKL1269
+END                                                                     1IKL1270

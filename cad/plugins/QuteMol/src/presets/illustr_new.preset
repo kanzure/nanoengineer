@@ -1,0 +1,28 @@
+void CgUtil::Set(int K){
+if (K==0){
+ P_light_base = 1.000000 ;
+ P_lighting = 0.470000 ;
+ P_phong = 0.000000 ;
+ P_phong_size = 0.750000 ;
+ P_col_atoms_sat = 0.000000 ;
+ P_col_atoms_bri = 1.000000 ;
+ P_texture = 0.530000 ;
+ P_border_inside = 0.000000 ;
+ P_border_outside = 0.740000 ;
+ P_depth_full = 0.280000 ;
+ P_sem_effect = 0 ;
+ P_halo_size = 0.000000 ;
+ P_halo_col = 0.000000 ;
+ P_halo_str = 0.500000 ;
+ P_halo_aware = 0.500000 ;
+ P_fog = 1.000000 ;
+ P_capping = 0 ;
+ P_shadowstrenght = 0.000000 ;
+ P_bg_color_R = 0.000000 ;
+ P_bg_color_G = 0.000000 ;
+ P_bg_color_B = 0.000000 ;
+ auto_normalize = 1 ;
+ P_double_shadows = 1 ;
+ P_border_fixed = 0 ;
+}
+}

@@ -1,0 +1,2104 @@
+HEADER    COAGULATION FACTOR                      08-SEP-95   2HFT      2HFT   2
+COMPND    MOL_ID: 1;                                                    2HFT   3
+COMPND   2 MOLECULE: HUMAN TISSUE FACTOR;                               2HFT   4
+COMPND   3 CHAIN: NULL;                                                 2HFT   5
+COMPND   4 DOMAIN: EXTRACELLULAR DOMAIN, RESIDUES 1 - 219;              2HFT   6
+COMPND   5 ENGINEERED: YES                                              2HFT   7
+SOURCE    MOL_ID: 1;                                                    2HFT   8
+SOURCE   2 SYNTHETIC: YES;                                              2HFT   9
+SOURCE   3 DOMAIN: EXTRACELLULAR DOMAIN, RESIDUES 1 - 219;              2HFT  10
+SOURCE   4 ORGANISM_SCIENTIFIC: HOMO SAPIENS;                           2HFT  11
+SOURCE   5 ORGANISM_COMMON: HUMAN;                                      2HFT  12
+SOURCE   6 EXPRESSION_SYSTEM: ESCHERICHIA COLI                          2HFT  13
+EXPDTA    X-RAY DIFFRACTION                                             2HFT  14
+AUTHOR    Y.A.MULLER,A.M.DE VOS                                         2HFT  15
+REVDAT   1   29-JAN-96 2HFT    0                                        2HFT  16
+SPRSDE     29-JAN-96 2HFT      1HFT                                     2HFT  17
+JRNL        AUTH   Y.A.MULLER,M.H.ULTSCH,A.M.DE VOS                     2HFT  18
+JRNL        TITL   THE CRYSTAL STRUCTURE OF THE EXTRACELLULAR DOMAIN    2HFT  19
+JRNL        TITL 2 OF HUMAN TISSUE FACTOR AT 1.7 ANGSTROMS RESOLUTION   2HFT  20
+JRNL        REF    TO BE PUBLISHED                                      2HFT  21
+JRNL        REFN                                                  0353  2HFT  22
+REMARK   1                                                              2HFT  23
+REMARK   1 REFERENCE 1                                                  2HFT  24
+REMARK   1  AUTH   R.F.KELLEY,K.E.COSTAS,E.M.O'CONNELL,R.A.LAZARUS      2HFT  25
+REMARK   1  TITL   ANALYSIS OF THE FACTOR VIIA BINDING SITE ON HUMAN    2HFT  26
+REMARK   1  TITL 2 TISSUE FACTOR: EFFECTS OF TISSUE FACTOR MUTATIONS    2HFT  27
+REMARK   1  TITL 3 ON THE KINETICS AND THERMODYNAMICS OF BINDING        2HFT  28
+REMARK   1  REF    BIOCHEMISTRY                  V.  34 10383 1995      2HFT  29
+REMARK   1  REFN   ASTM BICHAW  US ISSN 0006-2960                 0033  2HFT  30
+REMARK   1 REFERENCE 2                                                  2HFT  31
+REMARK   1  AUTH   Y.A.MULLER,M.H.ULTSCH,R.F.KELLEY,A.M.DE VOS          2HFT  32
+REMARK   1  TITL   STRUCTURE OF THE EXTRACELLULAR DOMAIN OF HUMAN       2HFT  33
+REMARK   1  TITL 2 TISSUE FACTOR: LOCATION OF THE FACTOR VIIA BINDING   2HFT  34
+REMARK   1  TITL 3 SITE                                                 2HFT  35
+REMARK   1  REF    BIOCHEMISTRY                  V.  33 10864 1994      2HFT  36
+REMARK   1  REFN   ASTM BICHAW  US ISSN 0006-2960                 0033  2HFT  37
+REMARK   2                                                              2HFT  38
+REMARK   2 RESOLUTION. 1.69 ANGSTROMS.                                  2HFT  39
+REMARK   3                                                              2HFT  40
+REMARK   3 REFINEMENT.                                                  2HFT  41
+REMARK   3   PROGRAM 1                  PROLSQ                          2HFT  42
+REMARK   3   AUTHORS 1                  KONNERT,HENDRICKSON             2HFT  43
+REMARK   3   PROGRAM 2                  X-PLOR                          2HFT  44
+REMARK   3   AUTHORS 2                  BRUNGER                         2HFT  45
+REMARK   3   R VALUE                    0.204                           2HFT  46
+REMARK   3   FREE R VALUE               0.254                           2HFT  47
+REMARK   3   FREE R VALUE TEST SET      8.5    %                        2HFT  48
+REMARK   3   MEAN B VALUE               27.6   ANGSTROMS**2             2HFT  49
+REMARK   3   ESD FROM LUZZATI PLOT    0.2-0.25 ANGSTROMS                2HFT  50
+REMARK   3   RMSD BOND DISTANCES        0.012  ANGSTROMS                2HFT  51
+REMARK   3   RMSD BOND ANGLES           1.84   DEGREES                  2HFT  52
+REMARK   3   RMSD DIHEDRAL ANGLES       24.92  DEGREES                  2HFT  53
+REMARK   3   RMSD IMPROPER ANGLES       1.44   DEGREES                  2HFT  54
+REMARK   3                                                              2HFT  55
+REMARK   3   NUMBER OF REFLECTIONS      24199                           2HFT  56
+REMARK   3   RESOLUTION RANGE        6. - 1.69 ANGSTROMS                2HFT  57
+REMARK   3   DATA CUTOFF                0.0    SIGMA(F)                 2HFT  58
+REMARK   3   COMPLETENESS FOR RANGE     97.0   %                        2HFT  59
+REMARK   3                                                              2HFT  60
+REMARK   3   NUMBER OF UNIQUE REFLECTIONS      24199                    2HFT  61
+REMARK   3   RESOLUTION RANGE              6.0 - 1.69 ANGSTROMS         2HFT  62
+REMARK   3   COMPLETENESS OF DATA              97.0   %                 2HFT  63
+REMARK   3   REJECTION CRITERIA                0.0    SIGMA(I OR F)     2HFT  64
+REMARK   3                                                              2HFT  65
+REMARK   3  NUMBER OF ATOMS USED IN REFINEMENT.                         2HFT  66
+REMARK   3   NUMBER OF PROTEIN ATOMS                       1696         2HFT  67
+REMARK   3   NUMBER OF NUCLEIC ACID ATOMS                     0         2HFT  68
+REMARK   3   NUMBER OF HETEROGEN ATOMS                        0         2HFT  69
+REMARK   3   NUMBER OF SOLVENT ATOMS                        235         2HFT  70
+REMARK   3    ISOTROPIC THERMAL FACTOR RMSD    (ANGSTROMS**2).          2HFT  71
+REMARK   3      ALL BONDED ATOMS                          1.97          2HFT  72
+REMARK   4                                                              2HFT  73
+REMARK   4 WATER MOLECULES (301 - 535) ARE NUMBERED BY DECREASING       2HFT  74
+REMARK   4 DENSITY IN THE FINAL 2FO-FC ELECTRON DENSITY MAP.            2HFT  75
+REMARK   5                                                              2HFT  76
+REMARK   5 THE FACTOR VII BINDING SITE WAS IDENTIFIED BY                2HFT  77
+REMARK   5 ALA-SCANNING MUTAGENESIS (KELLEY ET AL., 1995; SEE           2HFT  78
+REMARK   5 REFERENCE 1 ABOVE).  THIS SITE IS LISTED BELOW AND THE       2HFT  79
+REMARK   5 SITE IDENTIFIER IS VII.                                      2HFT  80
+REMARK   6                                                              2HFT  81
+REMARK   6 TEN RESIDUES HAVE BEEN MODELED WITH TWO ALTERNATIVE          2HFT  82
+REMARK   6 CONFORMATIONS: CYS 49, CYS 57, GLU 26, ARG 74, PHE 116,      2HFT  83
+REMARK   6 ARG 136, SER 188, VAL 189, ASN 199, MET 210.                 2HFT  84
+REMARK   7                                                              2HFT  85
+REMARK   7 SITE                                                         2HFT  86
+REMARK   7  SITE_IDENTIFIER: VII                                        2HFT  87
+REMARK   7   FACTOR VII BINDING SITE.                                   2HFT  88
+REMARK  18                                                              2HFT  89
+REMARK  18 EXPERIMENTAL DETAILS.                                        2HFT  90
+REMARK  18  TEMPERATURE                    : 100 K                      2HFT  91
+REMARK  18  PH                             : 7.5                        2HFT  92
+REMARK  18  MONOCHROMATIC (Y/N)            : Y                          2HFT  93
+REMARK  18  WAVELENGTH OR RANGE (A)        : 0.908                      2HFT  94
+REMARK  18  DETECTOR TYPE                  : IMAGE PLATES               2HFT  95
+REMARK  18  DETECTOR MANUFACTURER          : FUJI                       2HFT  96
+REMARK  18  INTENSITY-INTEGRATION SOFTWARE : DENZO                      2HFT  97
+REMARK  18  DATA REDUNDANCY                : 4.5 - 5.0                  2HFT  98
+REMARK  18  MERGING R VALUE (INTENSITY)    : 0.058                      2HFT  99
+REMARK  19                                                              2HFT 100
+REMARK  19 SOLVENT CONTENT (VS)      : 49.  %                           2HFT 101
+DBREF  2HFT      1   211  SWS    P13726   TF_HUMAN        33    243     2HFT 102
+SEQADV 2HFT             SWS  P13726    GLY   119 GAP IN PDB ENTRY       2HFT 103
+SEQADV 2HFT             SWS  P13726    SER   120 GAP IN PDB ENTRY       2HFT 104
+SEQADV 2HFT             SWS  P13726    ALA   121 GAP IN PDB ENTRY       2HFT 105
+SEQADV 2HFT             SWS  P13726    GLY   122 GAP IN PDB ENTRY       2HFT 106
+SEQADV 2HFT             SWS  P13726    SER   194 GAP IN PDB ENTRY       2HFT 107
+SEQADV 2HFT             SWS  P13726    SER   195 GAP IN PDB ENTRY       2HFT 108
+SEQRES   1    218  SER GLY THR THR ASN THR VAL ALA ALA TYR ASN LEU THR  2HFT 109
+SEQRES   2    218  TRP LYS SER THR ASN PHE LYS THR ILE LEU GLU TRP GLU  2HFT 110
+SEQRES   3    218  PRO LYS PRO VAL ASN GLN VAL TYR THR VAL GLN ILE SER  2HFT 111
+SEQRES   4    218  THR LYS SER GLY ASP TRP LYS SER LYS CYS PHE TYR THR  2HFT 112
+SEQRES   5    218  THR ASP THR GLU CYS ASP LEU THR ASP GLU ILE VAL LYS  2HFT 113
+SEQRES   6    218  ASP VAL LYS GLN THR TYR LEU ALA ARG VAL PHE SER TYR  2HFT 114
+SEQRES   7    218  PRO ALA GLY ASN VAL GLU SER THR GLY SER ALA GLY GLU  2HFT 115
+SEQRES   8    218  PRO LEU TYR GLU ASN SER PRO GLU PHE THR PRO TYR LEU  2HFT 116
+SEQRES   9    218  GLU THR ASN LEU GLY GLN PRO THR ILE GLN SER PHE GLU  2HFT 117
+SEQRES  10    218  GLN VAL GLY THR LYS VAL ASN VAL THR VAL GLU ASP GLU  2HFT 118
+SEQRES  11    218  ARG THR LEU VAL ARG ARG ASN ASN THR PHE LEU SER LEU  2HFT 119
+SEQRES  12    218  ARG ASP VAL PHE GLY LYS ASP LEU ILE TYR THR LEU TYR  2HFT 120
+SEQRES  13    218  TYR TRP LYS SER SER SER GLN GLU LYS GLY GLU PHE ARG  2HFT 121
+SEQRES  14    218  SER GLY LYS LYS THR ALA LYS THR ASN THR ASN GLU PHE  2HFT 122
+SEQRES  15    218  LEU ILE ASP VAL ASP LYS GLY GLU ASN TYR CYS PHE SER  2HFT 123
+SEQRES  16    218  VAL GLN ALA VAL ILE PRO SER ARG THR VAL ASN ARG LYS  2HFT 124
+SEQRES  17    218  SER THR ASP SER PRO VAL GLU CYS MET GLY              2HFT 125
+FTNOTE   1                                                              2HFT 126
+FTNOTE   1 CIS PROLINE - PRO      27                                    2HFT 127
+HET    SO4    850       5     SULFATE ION                               2HFT 128
+FORMUL   2  SO4    O4 S1 2-                                             2HFT 129
+FORMUL   3  HOH   *235(H2 O1)                                           2HFT 130
+HELIX    1   1 THR     60  ASP     66  1                                2HFT 131
+HELIX    2   2 PRO    102  GLU    105  1                                2HFT 132
+HELIX    3   3 LEU    143  ASP    150  1                                2HFT 133
+SHEET    1   A 3 THR    13  THR    17  0                                2HFT 134
+SHEET    2   A 3 LYS    20  GLU    24 -1  N  GLU    24   O  THR    13   2HFT 135
+SHEET    3   A 3 GLU    56  ASP    58 -1  N  CYS    57   O  LEU    23   2HFT 136
+SHEET    1   B 4 TYR    94  ASN    96  0                                2HFT 137
+SHEET    2   B 4 TYR    71  PRO    79 -1  N  VAL    75   O  GLU    95   2HFT 138
+SHEET    3   B 4 GLN    32  THR    40 -1  N  SER    39   O  LEU    72   2HFT 139
+SHEET    4   B 4 LYS    46  CYS    49 -1  N  CYS    49   O  VAL    36   2HFT 140
+SHEET    1   C 3 GLU   174  ASP   178  0                                2HFT 141
+SHEET    2   C 3 LYS   122  VAL   127 -1  N  VAL   125   O  PHE   175   2HFT 142
+SHEET    3   C 3 ILE   113  VAL   119 -1  N  VAL   119   O  LYS   122   2HFT 143
+SHEET    1   D 3 CYS   186  VAL   192  0                                2HFT 144
+SHEET    2   D 3 ILE   152  TRP   158 -1  N  TRP   158   O  CYS   186   2HFT 145
+SHEET    3   D 3 LYS   166  THR   170 -1  N  THR   170   O  TYR   153   2HFT 146
+SSBOND   1 CYS     49    CYS     57                                     2HFT 147
+SSBOND   2 CYS    186    CYS    209                                     2HFT 148
+SITE     1 VII  5 LYS    20  TRP    45  ASP    58  TYR    94            2HFT 149
+SITE     2 VII  5 PHE   140                                             2HFT 150
+CRYST1   45.200   45.200  230.800  90.00  90.00  90.00 P 41 21 2     8  2HFT 151
+ORIGX1      1.000000  0.000000  0.000000        0.00000                 2HFT 152
+ORIGX2      0.000000  1.000000  0.000000        0.00000                 2HFT 153
+ORIGX3      0.000000  0.000000  1.000000        0.00000                 2HFT 154
+SCALE1      0.022124  0.000000  0.000000        0.00000                 2HFT 155
+SCALE2      0.000000  0.022124  0.000000        0.00000                 2HFT 156
+SCALE3      0.000000  0.000000  0.004333        0.00000                 2HFT 157
+ATOM      1  N   SER     1      33.517  33.601  70.074  1.00 48.31      2HFT 158
+ATOM      2  CA  SER     1      34.404  32.870  69.128  1.00 48.08      2HFT 159
+ATOM      3  C   SER     1      34.425  33.596  67.813  1.00 48.55      2HFT 160
+ATOM      4  O   SER     1      33.467  33.610  67.029  1.00 49.79      2HFT 161
+ATOM      5  CB  SER     1      33.977  31.436  68.993  1.00 46.21      2HFT 162
+ATOM      6  OG  SER     1      34.205  30.777  70.224  1.00 44.87      2HFT 163
+ATOM      7  N   GLY     2      35.532  34.261  67.609  1.00 47.20      2HFT 164
+ATOM      8  CA  GLY     2      35.640  35.104  66.476  1.00 45.26      2HFT 165
+ATOM      9  C   GLY     2      35.327  36.488  66.986  1.00 44.80      2HFT 166
+ATOM     10  O   GLY     2      34.198  36.960  66.795  1.00 45.02      2HFT 167
+ATOM     11  N   THR     3      36.220  37.002  67.834  1.00 42.93      2HFT 168
+ATOM     12  CA  THR     3      36.052  38.350  68.320  1.00 39.25      2HFT 169
+ATOM     13  C   THR     3      34.879  38.834  69.184  1.00 34.77      2HFT 170
+ATOM     14  O   THR     3      33.861  38.193  69.387  1.00 33.07      2HFT 171
+ATOM     15  CB  THR     3      36.117  39.275  67.068  1.00 41.51      2HFT 172
+ATOM     16  OG1 THR     3      34.787  39.535  66.575  1.00 42.58      2HFT 173
+ATOM     17  CG2 THR     3      36.962  38.689  65.929  1.00 39.80      2HFT 174
+ATOM     18  N   THR     4      35.036  39.998  69.748  1.00 31.05      2HFT 175
+ATOM     19  CA  THR     4      34.024  40.674  70.528  1.00 29.75      2HFT 176
+ATOM     20  C   THR     4      33.504  41.892  69.749  1.00 29.66      2HFT 177
+ATOM     21  O   THR     4      32.393  42.353  70.001  1.00 32.33      2HFT 178
+ATOM     22  CB  THR     4      34.594  41.238  71.863  1.00 30.07      2HFT 179
+ATOM     23  OG1 THR     4      35.741  42.063  71.594  1.00 32.14      2HFT 180
+ATOM     24  CG2 THR     4      35.058  40.117  72.806  1.00 30.28      2HFT 181
+ATOM     25  N   ASN     5      34.333  42.384  68.827  1.00 27.23      2HFT 182
+ATOM     26  CA  ASN     5      34.011  43.573  68.041  1.00 28.67      2HFT 183
+ATOM     27  C   ASN     5      33.377  43.362  66.677  1.00 27.98      2HFT 184
+ATOM     28  O   ASN     5      32.654  44.225  66.188  1.00 28.57      2HFT 185
+ATOM     29  CB  ASN     5      35.300  44.320  67.730  1.00 32.01      2HFT 186
+ATOM     30  CG  ASN     5      35.840  45.078  68.891  1.00 35.08      2HFT 187
+ATOM     31  OD1 ASN     5      35.179  45.981  69.429  1.00 38.72      2HFT 188
+ATOM     32  ND2 ASN     5      37.086  44.784  69.249  1.00 33.66      2HFT 189
+ATOM     33  N   THR     6      33.802  42.309  65.994  1.00 27.77      2HFT 190
+ATOM     34  CA  THR     6      33.364  42.082  64.636  1.00 27.12      2HFT 191
+ATOM     35  C   THR     6      32.320  41.011  64.401  1.00 27.98      2HFT 192
+ATOM     36  O   THR     6      32.209  40.037  65.150  1.00 25.56      2HFT 193
+ATOM     37  CB  THR     6      34.582  41.836  63.718  1.00 25.07      2HFT 194
+ATOM     38  OG1 THR     6      35.242  40.626  64.111  1.00 24.70      2HFT 195
+ATOM     39  CG2 THR     6      35.573  43.006  63.810  1.00 23.47      2HFT 196
+ATOM     40  N   VAL     7      31.584  41.215  63.304  1.00 28.48      2HFT 197
+ATOM     41  CA  VAL     7      30.510  40.329  62.841  1.00 28.23      2HFT 198
+ATOM     42  C   VAL     7      30.833  39.935  61.414  1.00 23.78      2HFT 199
+ATOM     43  O   VAL     7      31.080  40.810  60.586  1.00 22.33      2HFT 200
+ATOM     44  CB  VAL     7      29.130  41.065  62.785  1.00 28.53      2HFT 201
+ATOM     45  CG1 VAL     7      28.043  40.108  62.251  1.00 29.42      2HFT 202
+ATOM     46  CG2 VAL     7      28.754  41.603  64.162  1.00 31.50      2HFT 203
+ATOM     47  N   ALA     8      30.792  38.639  61.126  1.00 22.09      2HFT 204
+ATOM     48  CA  ALA     8      31.063  38.146  59.785  1.00 22.86      2HFT 205
+ATOM     49  C   ALA     8      29.952  38.591  58.811  1.00 22.51      2HFT 206
+ATOM     50  O   ALA     8      28.770  38.644  59.169  1.00 21.91      2HFT 207
+ATOM     51  CB  ALA     8      31.207  36.627  59.788  1.00 22.23      2HFT 208
+ATOM     52  N   ALA     9      30.351  38.990  57.608  1.00 21.07      2HFT 209
+ATOM     53  CA  ALA     9      29.377  39.413  56.611  1.00 20.56      2HFT 210
+ATOM     54  C   ALA     9      28.540  38.205  56.180  1.00 20.58      2HFT 211
+ATOM     55  O   ALA     9      28.999  37.044  56.245  1.00 19.56      2HFT 212
+ATOM     56  CB  ALA     9      30.090  40.019  55.391  1.00 19.36      2HFT 213
+ATOM     57  N   TYR    10      27.317  38.477  55.738  1.00 18.83      2HFT 214
+ATOM     58  CA  TYR    10      26.456  37.412  55.261  1.00 20.26      2HFT 215
+ATOM     59  C   TYR    10      25.549  37.888  54.097  1.00 20.19      2HFT 216
+ATOM     60  O   TYR    10      25.473  39.092  53.787  1.00 19.61      2HFT 217
+ATOM     61  CB  TYR    10      25.654  36.803  56.428  1.00 21.25      2HFT 218
+ATOM     62  CG  TYR    10      24.736  37.773  57.132  1.00 21.06      2HFT 219
+ATOM     63  CD1 TYR    10      25.234  38.678  58.076  1.00 20.13      2HFT 220
+ATOM     64  CD2 TYR    10      23.378  37.798  56.852  1.00 20.11      2HFT 221
+ATOM     65  CE1 TYR    10      24.403  39.575  58.713  1.00 18.15      2HFT 222
+ATOM     66  CE2 TYR    10      22.540  38.695  57.491  1.00 22.83      2HFT 223
+ATOM     67  CZ  TYR    10      23.064  39.577  58.420  1.00 21.09      2HFT 224
+ATOM     68  OH  TYR    10      22.231  40.449  59.055  1.00 22.03      2HFT 225
+ATOM     69  N   ASN    11      24.875  36.928  53.459  1.00 21.12      2HFT 226
+ATOM     70  CA  ASN    11      23.973  37.187  52.323  1.00 21.15      2HFT 227
+ATOM     71  C   ASN    11      24.728  37.823  51.162  1.00 19.65      2HFT 228
+ATOM     72  O   ASN    11      24.244  38.780  50.556  1.00 19.02      2HFT 229
+ATOM     73  CB  ASN    11      22.776  38.067  52.720  1.00 22.42      2HFT 230
+ATOM     74  CG  ASN    11      21.770  37.336  53.602  1.00 26.63      2HFT 231
+ATOM     75  OD1 ASN    11      21.878  36.132  53.833  1.00 27.22      2HFT 232
+ATOM     76  ND2 ASN    11      20.806  38.078  54.134  1.00 29.60      2HFT 233
+ATOM     77  N   LEU    12      25.942  37.327  50.908  1.00 19.30      2HFT 234
+ATOM     78  CA  LEU    12      26.778  37.819  49.803  1.00 19.82      2HFT 235
+ATOM     79  C   LEU    12      26.041  37.532  48.485  1.00 20.63      2HFT 236
+ATOM     80  O   LEU    12      25.744  36.387  48.157  1.00 21.49      2HFT 237
+ATOM     81  CB  LEU    12      28.179  37.185  49.823  1.00 17.44      2HFT 238
+ATOM     82  CG  LEU    12      29.161  37.729  50.888  1.00 17.70      2HFT 239
+ATOM     83  CD1 LEU    12      28.756  37.313  52.316  1.00 16.88      2HFT 240
+ATOM     84  CD2 LEU    12      30.590  37.256  50.591  1.00 17.23      2HFT 241
+ATOM     85  N   THR    13      25.781  38.593  47.728  1.00 21.70      2HFT 242
+ATOM     86  CA  THR    13      25.002  38.499  46.492  1.00 23.27      2HFT 243
+ATOM     87  C   THR    13      25.606  39.292  45.338  1.00 21.96      2HFT 244
+ATOM     88  O   THR    13      25.969  40.472  45.498  1.00 20.93      2HFT 245
+ATOM     89  CB  THR    13      23.562  39.061  46.746  1.00 24.77      2HFT 246
+ATOM     90  OG1 THR    13      22.947  38.319  47.803  1.00 27.98      2HFT 247
+ATOM     91  CG2 THR    13      22.689  38.979  45.513  1.00 26.15      2HFT 248
+ATOM     92  N   TRP    14      25.659  38.649  44.170  1.00 20.52      2HFT 249
+ATOM     93  CA  TRP    14      26.161  39.284  42.956  1.00 19.71      2HFT 250
+ATOM     94  C   TRP    14      25.017  39.949  42.201  1.00 18.71      2HFT 251
+ATOM     95  O   TRP    14      23.998  39.318  41.948  1.00 19.85      2HFT 252
+ATOM     96  CB  TRP    14      26.780  38.249  42.031  1.00 18.92      2HFT 253
+ATOM     97  CG  TRP    14      27.998  37.609  42.558  1.00 18.13      2HFT 254
+ATOM     98  CD1 TRP    14      28.090  36.375  43.147  1.00 18.15      2HFT 255
+ATOM     99  CD2 TRP    14      29.330  38.114  42.458  1.00 17.27      2HFT 256
+ATOM    100  NE1 TRP    14      29.411  36.078  43.409  1.00 18.87      2HFT 257
+ATOM    101  CE2 TRP    14      30.194  37.123  42.995  1.00 17.32      2HFT 258
+ATOM    102  CE3 TRP    14      29.883  39.293  41.951  1.00 17.79      2HFT 259
+ATOM    103  CZ2 TRP    14      31.582  37.276  43.032  1.00 18.63      2HFT 260
+ATOM    104  CZ3 TRP    14      31.266  39.446  41.982  1.00 20.54      2HFT 261
+ATOM    105  CH2 TRP    14      32.103  38.437  42.521  1.00 19.95      2HFT 262
+ATOM    106  N   LYS    15      25.161  41.236  41.910  1.00 18.16      2HFT 263
+ATOM    107  CA  LYS    15      24.179  41.988  41.133  1.00 18.24      2HFT 264
+ATOM    108  C   LYS    15      24.936  42.336  39.834  1.00 19.13      2HFT 265
+ATOM    109  O   LYS    15      25.949  43.052  39.863  1.00 20.25      2HFT 266
+ATOM    110  CB  LYS    15      23.781  43.243  41.880  1.00 21.01      2HFT 267
+ATOM    111  CG  LYS    15      23.137  42.964  43.219  1.00 26.76      2HFT 268
+ATOM    112  CD  LYS    15      21.908  42.105  43.051  1.00 30.59      2HFT 269
+ATOM    113  CE  LYS    15      20.892  42.385  44.142  1.00 35.85      2HFT 270
+ATOM    114  NZ  LYS    15      19.532  41.852  43.755  1.00 40.46      2HFT 271
+ATOM    115  N   SER    16      24.463  41.836  38.696  1.00 17.26      2HFT 272
+ATOM    116  CA  SER    16      25.180  42.068  37.449  1.00 15.73      2HFT 273
+ATOM    117  C   SER    16      24.275  42.184  36.235  1.00 14.97      2HFT 274
+ATOM    118  O   SER    16      23.430  41.343  36.015  1.00 14.42      2HFT 275
+ATOM    119  CB  SER    16      26.202  40.934  37.259  1.00 13.81      2HFT 276
+ATOM    120  OG  SER    16      26.995  41.073  36.094  1.00 16.19      2HFT 277
+ATOM    121  N   THR    17      24.476  43.251  35.458  1.00 16.10      2HFT 278
+ATOM    122  CA  THR    17      23.702  43.497  34.231  1.00 16.69      2HFT 279
+ATOM    123  C   THR    17      24.634  44.085  33.170  1.00 16.49      2HFT 280
+ATOM    124  O   THR    17      25.321  45.060  33.434  1.00 16.28      2HFT 281
+ATOM    125  CB  THR    17      22.541  44.481  34.465  1.00 19.06      2HFT 282
+ATOM    126  OG1 THR    17      21.637  43.935  35.440  1.00 20.66      2HFT 283
+ATOM    127  CG2 THR    17      21.784  44.725  33.142  1.00 20.77      2HFT 284
+ATOM    128  N   ASN    18      24.636  43.489  31.976  1.00 16.26      2HFT 285
+ATOM    129  CA  ASN    18      25.495  43.928  30.884  1.00 16.44      2HFT 286
+ATOM    130  C   ASN    18      26.951  44.095  31.337  1.00 18.17      2HFT 287
+ATOM    131  O   ASN    18      27.672  45.005  30.886  1.00 18.43      2HFT 288
+ATOM    132  CB  ASN    18      24.955  45.204  30.241  1.00 16.52      2HFT 289
+ATOM    133  CG  ASN    18      23.678  44.944  29.425  1.00 18.47      2HFT 290
+ATOM    134  OD1 ASN    18      23.194  43.817  29.345  1.00 17.79      2HFT 291
+ATOM    135  ND2 ASN    18      23.160  45.980  28.795  1.00 22.10      2HFT 292
+ATOM    136  N   PHE    19      27.363  43.153  32.194  1.00 17.28      2HFT 293
+ATOM    137  CA  PHE    19      28.692  43.057  32.801  1.00 16.05      2HFT 294
+ATOM    138  C   PHE    19      29.014  44.046  33.909  1.00 16.19      2HFT 295
+ATOM    139  O   PHE    19      30.051  43.903  34.530  1.00 16.66      2HFT 296
+ATOM    140  CB  PHE    19      29.787  43.014  31.746  1.00 14.82      2HFT 297
+ATOM    141  CG  PHE    19      29.688  41.827  30.856  1.00 15.04      2HFT 298
+ATOM    142  CD1 PHE    19      30.187  40.600  31.261  1.00 15.41      2HFT 299
+ATOM    143  CD2 PHE    19      29.019  41.911  29.641  1.00 16.00      2HFT 300
+ATOM    144  CE1 PHE    19      30.027  39.455  30.467  1.00 16.17      2HFT 301
+ATOM    145  CE2 PHE    19      28.855  40.787  28.839  1.00 17.35      2HFT 302
+ATOM    146  CZ  PHE    19      29.357  39.544  29.260  1.00 17.67      2HFT 303
+ATOM    147  N   LYS    20      28.162  45.042  34.167  1.00 15.41      2HFT 304
+ATOM    148  CA  LYS    20      28.450  45.950  35.276  1.00 17.83      2HFT 305
+ATOM    149  C   LYS    20      28.073  45.092  36.483  1.00 17.95      2HFT 306
+ATOM    150  O   LYS    20      26.902  44.691  36.651  1.00 18.53      2HFT 307
+ATOM    151  CB  LYS    20      27.649  47.226  35.209  1.00 19.86      2HFT 308
+ATOM    152  CG  LYS    20      28.048  48.200  36.302  1.00 24.07      2HFT 309
+ATOM    153  CD  LYS    20      27.397  49.543  36.063  1.00 30.84      2HFT 310
+ATOM    154  CE  LYS    20      27.732  50.550  37.147  1.00 35.42      2HFT 311
+ATOM    155  NZ  LYS    20      26.848  51.773  37.027  1.00 38.71      2HFT 312
+ATOM    156  N   THR    21      29.072  44.843  37.328  1.00 17.19      2HFT 313
+ATOM    157  CA  THR    21      28.946  43.904  38.438  1.00 16.40      2HFT 314
+ATOM    158  C   THR    21      29.293  44.432  39.831  1.00 16.62      2HFT 315
+ATOM    159  O   THR    21      30.406  44.897  40.090  1.00 16.45      2HFT 316
+ATOM    160  CB  THR    21      29.853  42.672  38.120  1.00 17.16      2HFT 317
+ATOM    161  OG1 THR    21      29.580  42.193  36.780  1.00 15.09      2HFT 318
+ATOM    162  CG2 THR    21      29.689  41.552  39.176  1.00 15.96      2HFT 319
+ATOM    163  N   ILE    22      28.345  44.252  40.735  1.00 18.13      2HFT 320
+ATOM    164  CA  ILE    22      28.455  44.710  42.124  1.00 19.27      2HFT 321
+ATOM    165  C   ILE    22      28.164  43.571  43.101  1.00 18.45      2HFT 322
+ATOM    166  O   ILE    22      27.218  42.786  42.915  1.00 18.46      2HFT 323
+ATOM    167  CB  ILE    22      27.411  45.855  42.373  1.00 20.91      2HFT 324
+ATOM    168  CG1 ILE    22      27.771  47.077  41.523  1.00 23.27      2HFT 325
+ATOM    169  CG2 ILE    22      27.274  46.190  43.841  1.00 21.33      2HFT 326
+ATOM    170  CD1 ILE    22      26.784  48.213  41.662  1.00 28.18      2HFT 327
+ATOM    171  N   LEU    23      29.020  43.440  44.107  1.00 17.96      2HFT 328
+ATOM    172  CA  LEU    23      28.790  42.444  45.153  1.00 17.09      2HFT 329
+ATOM    173  C   LEU    23      28.099  43.195  46.315  1.00 17.88      2HFT 330
+ATOM    174  O   LEU    23      28.474  44.319  46.633  1.00 18.18      2HFT 331
+ATOM    175  CB  LEU    23      30.116  41.844  45.635  1.00 15.53      2HFT 332
+ATOM    176  CG  LEU    23      29.910  40.875  46.788  1.00 15.57      2HFT 333
+ATOM    177  CD1 LEU    23      29.418  39.530  46.209  1.00 18.34      2HFT 334
+ATOM    178  CD2 LEU    23      31.182  40.697  47.580  1.00 14.97      2HFT 335
+ATOM    179  N   GLU    24      27.051  42.617  46.882  1.00 18.51      2HFT 336
+ATOM    180  CA  GLU    24      26.368  43.230  48.018  1.00 20.22      2HFT 337
+ATOM    181  C   GLU    24      26.370  42.213  49.170  1.00 20.66      2HFT 338
+ATOM    182  O   GLU    24      26.505  41.004  48.943  1.00 19.40      2HFT 339
+ATOM    183  CB  GLU    24      24.932  43.596  47.666  1.00 22.43      2HFT 340
+ATOM    184  CG  GLU    24      24.813  44.595  46.523  1.00 28.91      2HFT 341
+ATOM    185  CD  GLU    24      23.364  45.005  46.223  1.00 33.27      2HFT 342
+ATOM    186  OE1 GLU    24      22.429  44.291  46.664  1.00 35.91      2HFT 343
+ATOM    187  OE2 GLU    24      23.165  46.041  45.539  1.00 33.87      2HFT 344
+ATOM    188  N   TRP    25      26.315  42.720  50.405  1.00 21.12      2HFT 345
+ATOM    189  CA  TRP    25      26.288  41.869  51.609  1.00 20.23      2HFT 346
+ATOM    190  C   TRP    25      25.674  42.623  52.791  1.00 21.41      2HFT 347
+ATOM    191  O   TRP    25      25.341  43.822  52.713  1.00 20.14      2HFT 348
+ATOM    192  CB  TRP    25      27.694  41.381  51.999  1.00 18.17      2HFT 349
+ATOM    193  CG  TRP    25      28.643  42.512  52.395  1.00 19.00      2HFT 350
+ATOM    194  CD1 TRP    25      28.864  42.994  53.657  1.00 18.89      2HFT 351
+ATOM    195  CD2 TRP    25      29.434  43.329  51.510  1.00 16.76      2HFT 352
+ATOM    196  NE1 TRP    25      29.728  44.066  53.613  1.00 17.39      2HFT 353
+ATOM    197  CE2 TRP    25      30.097  44.291  52.311  1.00 17.24      2HFT 354
+ATOM    198  CE3 TRP    25      29.642  43.350  50.124  1.00 15.80      2HFT 355
+ATOM    199  CZ2 TRP    25      30.952  45.255  51.766  1.00 16.01      2HFT 356
+ATOM    200  CZ3 TRP    25      30.487  44.308  49.588  1.00 16.13      2HFT 357
+ATOM    201  CH2 TRP    25      31.131  45.249  50.408  1.00 16.04      2HFT 358
+ATOM    202  N   GLU    26      25.517  41.873  53.874  1.00 23.54      2HFT 359
+ATOM    203  CA  GLU    26      24.978  42.357  55.144  1.00 24.15      2HFT 360
+ATOM    204  C   GLU    26      26.053  42.086  56.212  1.00 23.17      2HFT 361
+ATOM    205  O   GLU    26      26.925  41.235  56.004  1.00 21.66      2HFT 362
+ATOM    206  CB AGLU    26      23.712  41.557  55.492  0.50 23.37      2HFT 363
+ATOM    207  CB BGLU    26      23.659  41.638  55.464  0.50 24.51      2HFT 364
+ATOM    208  CG AGLU    26      22.465  42.073  54.844  0.50 24.90      2HFT 365
+ATOM    209  CG BGLU    26      22.519  42.140  54.602  0.50 27.73      2HFT 366
+ATOM    210  CD AGLU    26      22.049  43.400  55.434  0.50 27.82      2HFT 367
+ATOM    211  CD BGLU    26      21.372  41.171  54.494  0.50 31.60      2HFT 368
+ATOM    212  OE1BGLU    26      21.030  40.535  55.509  0.50 35.46      2HFT 369
+ATOM    213  OE1AGLU    26      21.543  43.389  56.569  0.50 29.31      2HFT 370
+ATOM    214  OE2AGLU    26      22.243  44.451  54.781  0.50 30.17      2HFT 371
+ATOM    215  OE2BGLU    26      20.803  41.038  53.388  0.50 33.75      2HFT 372
+ATOM    216  N   PRO    27      26.023  42.814  57.351  1.00 22.81   1  2HFT 373
+ATOM    217  CA  PRO    27      25.059  43.837  57.740  1.00 21.73   1  2HFT 374
+ATOM    218  C   PRO    27      25.682  45.224  57.666  1.00 22.48   1  2HFT 375
+ATOM    219  O   PRO    27      26.885  45.358  57.397  1.00 21.21   1  2HFT 376
+ATOM    220  CB  PRO    27      24.788  43.485  59.189  1.00 22.02   1  2HFT 377
+ATOM    221  CG  PRO    27      26.180  43.206  59.691  1.00 22.58   1  2HFT 378
+ATOM    222  CD  PRO    27      26.828  42.407  58.527  1.00 23.94   1  2HFT 379
+ATOM    223  N   LYS    28      24.845  46.249  57.855  1.00 24.21      2HFT 380
+ATOM    224  CA  LYS    28      25.325  47.625  57.921  1.00 27.97      2HFT 381
+ATOM    225  C   LYS    28      26.275  47.517  59.141  1.00 27.53      2HFT 382
+ATOM    226  O   LYS    28      25.873  47.074  60.232  1.00 24.54      2HFT 383
+ATOM    227  CB  LYS    28      24.175  48.591  58.184  1.00 31.41      2HFT 384
+ATOM    228  CG  LYS    28      24.606  50.039  58.066  1.00 38.25      2HFT 385
+ATOM    229  CD  LYS    28      23.431  50.987  58.188  1.00 43.22      2HFT 386
+ATOM    230  CE  LYS    28      23.913  52.419  58.415  1.00 47.23      2HFT 387
+ATOM    231  NZ  LYS    28      22.814  53.288  58.943  1.00 50.03      2HFT 388
+ATOM    232  N   PRO    29      27.556  47.873  58.952  1.00 27.89      2HFT 389
+ATOM    233  CA  PRO    29      28.568  47.785  60.009  1.00 26.84      2HFT 390
+ATOM    234  C   PRO    29      28.396  48.609  61.260  1.00 27.46      2HFT 391
+ATOM    235  O   PRO    29      28.111  49.798  61.196  1.00 27.07      2HFT 392
+ATOM    236  CB  PRO    29      29.859  48.130  59.272  1.00 24.84      2HFT 393
+ATOM    237  CG  PRO    29      29.410  49.144  58.313  1.00 26.17      2HFT 394
+ATOM    238  CD  PRO    29      28.081  48.616  57.789  1.00 26.48      2HFT 395
+ATOM    239  N   VAL    30      28.635  47.946  62.391  1.00 29.51      2HFT 396
+ATOM    240  CA  VAL    30      28.561  48.547  63.727  1.00 31.39      2HFT 397
+ATOM    241  C   VAL    30      29.975  48.424  64.241  1.00 30.15      2HFT 398
+ATOM    242  O   VAL    30      30.455  47.313  64.501  1.00 29.32      2HFT 399
+ATOM    243  CB  VAL    30      27.605  47.757  64.671  1.00 33.40      2HFT 400
+ATOM    244  CG1 VAL    30      27.853  48.137  66.141  1.00 33.10      2HFT 401
+ATOM    245  CG2 VAL    30      26.159  48.052  64.295  1.00 34.44      2HFT 402
+ATOM    246  N   ASN    31      30.663  49.555  64.308  1.00 30.75      2HFT 403
+ATOM    247  CA  ASN    31      32.051  49.571  64.780  1.00 33.07      2HFT 404
+ATOM    248  C   ASN    31      32.984  48.624  64.022  1.00 30.47      2HFT 405
+ATOM    249  O   ASN    31      33.814  47.934  64.611  1.00 29.23      2HFT 406
+ATOM    250  CB  ASN    31      32.137  49.269  66.281  1.00 39.19      2HFT 407
+ATOM    251  CG  ASN    31      31.840  50.478  67.158  1.00 42.86      2HFT 408
+ATOM    252  OD1 ASN    31      31.654  51.612  66.685  1.00 46.46      2HFT 409
+ATOM    253  ND2 ASN    31      31.825  50.240  68.451  1.00 44.96      2HFT 410
+ATOM    254  N   GLN    32      32.780  48.523  62.714  1.00 29.53      2HFT 411
+ATOM    255  CA  GLN    32      33.662  47.710  61.887  1.00 27.02      2HFT 412
+ATOM    256  C   GLN    32      33.719  48.225  60.465  1.00 23.93      2HFT 413
+ATOM    257  O   GLN    32      32.960  49.125  60.080  1.00 25.09      2HFT 414
+ATOM    258  CB  GLN    32      33.301  46.216  61.920  1.00 25.87      2HFT 415
+ATOM    259  CG  GLN    32      31.958  45.789  61.358  1.00 24.83      2HFT 416
+ATOM    260  CD  GLN    32      31.858  44.255  61.306  1.00 27.17      2HFT 417
+ATOM    261  OE1 GLN    32      32.689  43.546  61.894  1.00 26.75      2HFT 418
+ATOM    262  NE2 GLN    32      30.875  43.738  60.566  1.00 27.07      2HFT 419
+ATOM    263  N   VAL    33      34.721  47.756  59.738  1.00 21.74      2HFT 420
+ATOM    264  CA  VAL    33      34.875  48.099  58.333  1.00 19.74      2HFT 421
+ATOM    265  C   VAL    33      35.108  46.797  57.562  1.00 18.68      2HFT 422
+ATOM    266  O   VAL    33      35.401  45.767  58.154  1.00 19.69      2HFT 423
+ATOM    267  CB  VAL    33      36.025  49.097  58.048  1.00 18.33      2HFT 424
+ATOM    268  CG1 VAL    33      35.636  50.487  58.491  1.00 18.95      2HFT 425
+ATOM    269  CG2 VAL    33      37.331  48.631  58.672  1.00 16.87      2HFT 426
+ATOM    270  N   TYR    34      34.976  46.859  56.240  1.00 18.49      2HFT 427
+ATOM    271  CA  TYR    34      35.138  45.689  55.378  1.00 17.62      2HFT 428
+ATOM    272  C   TYR    34      36.191  45.889  54.301  1.00 16.19      2HFT 429
+ATOM    273  O   TYR    34      36.413  47.009  53.835  1.00 16.02      2HFT 430
+ATOM    274  CB  TYR    34      33.826  45.406  54.636  1.00 17.49      2HFT 431
+ATOM    275  CG  TYR    34      32.619  45.185  55.525  1.00 17.41      2HFT 432
+ATOM    276  CD1 TYR    34      32.493  44.028  56.286  1.00 17.34      2HFT 433
+ATOM    277  CD2 TYR    34      31.596  46.113  55.570  1.00 16.67      2HFT 434
+ATOM    278  CE1 TYR    34      31.385  43.809  57.052  1.00 16.67      2HFT 435
+ATOM    279  CE2 TYR    34      30.472  45.899  56.347  1.00 18.01      2HFT 436
+ATOM    280  CZ  TYR    34      30.374  44.747  57.081  1.00 17.96      2HFT 437
+ATOM    281  OH  TYR    34      29.255  44.533  57.866  1.00 20.46      2HFT 438
+ATOM    282  N   THR    35      36.867  44.801  53.961  1.00 16.05      2HFT 439
+ATOM    283  CA  THR    35      37.824  44.796  52.859  1.00 17.84      2HFT 440
+ATOM    284  C   THR    35      37.394  43.631  51.965  1.00 18.49      2HFT 441
+ATOM    285  O   THR    35      37.274  42.496  52.421  1.00 18.48      2HFT 442
+ATOM    286  CB  THR    35      39.286  44.652  53.313  1.00 18.57      2HFT 443
+ATOM    287  OG1 THR    35      39.690  45.888  53.907  1.00 20.03      2HFT 444
+ATOM    288  CG2 THR    35      40.213  44.338  52.098  1.00 17.29      2HFT 445
+ATOM    289  N   VAL    36      37.099  43.937  50.708  1.00 18.90      2HFT 446
+ATOM    290  CA  VAL    36      36.641  42.916  49.770  1.00 18.17      2HFT 447
+ATOM    291  C   VAL    36      37.758  42.546  48.805  1.00 17.75      2HFT 448
+ATOM    292  O   VAL    36      38.434  43.433  48.259  1.00 16.97      2HFT 449
+ATOM    293  CB  VAL    36      35.437  43.434  48.949  1.00 17.60      2HFT 450
+ATOM    294  CG1 VAL    36      34.978  42.369  47.913  1.00 17.72      2HFT 451
+ATOM    295  CG2 VAL    36      34.314  43.886  49.874  1.00 15.79      2HFT 452
+ATOM    296  N   GLN    37      37.956  41.238  48.615  1.00 17.36      2HFT 453
+ATOM    297  CA  GLN    37      38.965  40.742  47.673  1.00 17.20      2HFT 454
+ATOM    298  C   GLN    37      38.293  39.905  46.610  1.00 17.39      2HFT 455
+ATOM    299  O   GLN    37      37.226  39.328  46.835  1.00 17.03      2HFT 456
+ATOM    300  CB  GLN    37      39.993  39.839  48.345  1.00 17.57      2HFT 457
+ATOM    301  CG  GLN    37      40.710  40.432  49.520  1.00 18.84      2HFT 458
+ATOM    302  CD  GLN    37      41.865  39.576  49.904  1.00 20.47      2HFT 459
+ATOM    303  OE1 GLN    37      41.671  38.422  50.265  1.00 22.05      2HFT 460
+ATOM    304  NE2 GLN    37      43.080  40.095  49.765  1.00 20.01      2HFT 461
+ATOM    305  N   ILE    38      38.952  39.819  45.464  1.00 17.88      2HFT 462
+ATOM    306  CA  ILE    38      38.465  39.000  44.352  1.00 18.69      2HFT 463
+ATOM    307  C   ILE    38      39.582  38.088  43.820  1.00 17.58      2HFT 464
+ATOM    308  O   ILE    38      40.774  38.375  43.968  1.00 15.97      2HFT 465
+ATOM    309  CB  ILE    38      37.825  39.881  43.198  1.00 18.80      2HFT 466
+ATOM    310  CG1 ILE    38      37.103  38.975  42.188  1.00 17.50      2HFT 467
+ATOM    311  CG2 ILE    38      38.875  40.764  42.526  1.00 14.65      2HFT 468
+ATOM    312  CD1 ILE    38      36.122  39.712  41.352  1.00 18.26      2HFT 469
+ATOM    313  N   SER    39      39.175  36.952  43.261  1.00 18.98      2HFT 470
+ATOM    314  CA  SER    39      40.099  35.988  42.686  1.00 18.90      2HFT 471
+ATOM    315  C   SER    39      39.349  35.114  41.683  1.00 19.28      2HFT 472
+ATOM    316  O   SER    39      38.118  35.101  41.659  1.00 17.92      2HFT 473
+ATOM    317  CB  SER    39      40.668  35.085  43.793  1.00 18.69      2HFT 474
+ATOM    318  OG  SER    39      39.639  34.294  44.369  1.00 17.59      2HFT 475
+ATOM    319  N   THR    40      40.086  34.485  40.770  1.00 20.72      2HFT 476
+ATOM    320  CA  THR    40      39.456  33.527  39.877  1.00 22.46      2HFT 477
+ATOM    321  C   THR    40      39.240  32.333  40.863  1.00 25.07      2HFT 478
+ATOM    322  O   THR    40      39.891  32.268  41.924  1.00 25.08      2HFT 479
+ATOM    323  CB  THR    40      40.377  33.120  38.696  1.00 22.61      2HFT 480
+ATOM    324  OG1 THR    40      41.603  32.577  39.203  1.00 24.45      2HFT 481
+ATOM    325  CG2 THR    40      40.670  34.314  37.781  1.00 19.15      2HFT 482
+ATOM    326  N   LYS    41      38.331  31.416  40.534  1.00 25.80      2HFT 483
+ATOM    327  CA  LYS    41      37.992  30.282  41.403  1.00 27.65      2HFT 484
+ATOM    328  C   LYS    41      39.126  29.674  42.245  1.00 28.20      2HFT 485
+ATOM    329  O   LYS    41      38.967  29.466  43.453  1.00 28.19      2HFT 486
+ATOM    330  CB  LYS    41      37.284  29.208  40.583  1.00 30.87      2HFT 487
+ATOM    331  CG  LYS    41      36.315  28.347  41.368  1.00 34.23      2HFT 488
+ATOM    332  CD  LYS    41      37.067  27.290  42.120  1.00 39.10      2HFT 489
+ATOM    333  CE  LYS    41      36.167  26.513  43.046  1.00 42.96      2HFT 490
+ATOM    334  NZ  LYS    41      35.626  25.272  42.412  1.00 45.76      2HFT 491
+ATOM    335  N   SER    42      40.259  29.379  41.619  1.00 27.14      2HFT 492
+ATOM    336  CA  SER    42      41.396  28.834  42.356  1.00 26.49      2HFT 493
+ATOM    337  C   SER    42      42.642  29.713  42.241  1.00 25.67      2HFT 494
+ATOM    338  O   SER    42      43.758  29.249  42.473  1.00 24.28      2HFT 495
+ATOM    339  CB  SER    42      41.706  27.410  41.891  1.00 26.49      2HFT 496
+ATOM    340  OG  SER    42      40.646  26.545  42.260  1.00 26.44      2HFT 497
+ATOM    341  N   GLY    43      42.456  30.982  41.888  1.00 24.89      2HFT 498
+ATOM    342  CA  GLY    43      43.593  31.887  41.775  1.00 26.25      2HFT 499
+ATOM    343  C   GLY    43      43.913  32.674  43.053  1.00 27.93      2HFT 500
+ATOM    344  O   GLY    43      43.286  32.490  44.114  1.00 28.87      2HFT 501
+ATOM    345  N   ASP    44      44.895  33.562  42.956  1.00 26.58      2HFT 502
+ATOM    346  CA  ASP    44      45.291  34.385  44.084  1.00 26.46      2HFT 503
+ATOM    347  C   ASP    44      44.317  35.529  44.354  1.00 25.55      2HFT 504
+ATOM    348  O   ASP    44      43.716  36.073  43.431  1.00 26.54      2HFT 505
+ATOM    349  CB  ASP    44      46.678  34.929  43.834  1.00 28.16      2HFT 506
+ATOM    350  CG  ASP    44      47.732  33.874  43.983  1.00 33.99      2HFT 507
+ATOM    351  OD1 ASP    44      47.668  33.129  44.991  1.00 36.25      2HFT 508
+ATOM    352  OD2 ASP    44      48.614  33.787  43.102  1.00 36.73      2HFT 509
+ATOM    353  N   TRP    45      44.197  35.919  45.617  1.00 24.39      2HFT 510
+ATOM    354  CA  TRP    45      43.300  36.999  46.012  1.00 22.52      2HFT 511
+ATOM    355  C   TRP    45      43.872  38.395  45.788  1.00 23.76      2HFT 512
+ATOM    356  O   TRP    45      45.085  38.618  45.911  1.00 25.22      2HFT 513
+ATOM    357  CB  TRP    45      42.911  36.845  47.477  1.00 20.62      2HFT 514
+ATOM    358  CG  TRP    45      42.124  35.610  47.721  1.00 20.85      2HFT 515
+ATOM    359  CD1 TRP    45      42.598  34.400  48.163  1.00 19.40      2HFT 516
+ATOM    360  CD2 TRP    45      40.720  35.434  47.499  1.00 20.63      2HFT 517
+ATOM    361  NE1 TRP    45      41.578  33.490  48.225  1.00 20.51      2HFT 518
+ATOM    362  CE2 TRP    45      40.409  34.093  47.821  1.00 20.83      2HFT 519
+ATOM    363  CE3 TRP    45      39.688  36.285  47.064  1.00 18.73      2HFT 520
+ATOM    364  CZ2 TRP    45      39.103  33.570  47.721  1.00 18.55      2HFT 521
+ATOM    365  CZ3 TRP    45      38.391  35.767  46.968  1.00 18.56      2HFT 522
+ATOM    366  CH2 TRP    45      38.113  34.418  47.295  1.00 18.37      2HFT 523
+ATOM    367  N   LYS    46      42.986  39.326  45.438  1.00 22.25      2HFT 524
+ATOM    368  CA  LYS    46      43.358  40.719  45.219  1.00 21.32      2HFT 525
+ATOM    369  C   LYS    46      42.356  41.660  45.910  1.00 19.72      2HFT 526
+ATOM    370  O   LYS    46      41.148  41.586  45.666  1.00 18.82      2HFT 527
+ATOM    371  CB  LYS    46      43.401  41.034  43.727  1.00 22.44      2HFT 528
+ATOM    372  CG  LYS    46      43.906  42.426  43.451  1.00 26.77      2HFT 529
+ATOM    373  CD  LYS    46      43.702  42.808  42.013  1.00 31.51      2HFT 530
+ATOM    374  CE  LYS    46      44.259  44.193  41.754  1.00 34.52      2HFT 531
+ATOM    375  NZ  LYS    46      44.045  44.614  40.327  1.00 38.37      2HFT 532
+ATOM    376  N   SER    47      42.853  42.537  46.778  1.00 19.38      2HFT 533
+ATOM    377  CA  SER    47      41.981  43.487  47.464  1.00 19.15      2HFT 534
+ATOM    378  C   SER    47      41.504  44.556  46.497  1.00 18.62      2HFT 535
+ATOM    379  O   SER    47      42.282  45.058  45.690  1.00 18.54      2HFT 536
+ATOM    380  CB  SER    47      42.704  44.114  48.642  1.00 20.30      2HFT 537
+ATOM    381  OG  SER    47      43.202  43.102  49.502  1.00 20.86      2HFT 538
+ATOM    382  N   LYS    48      40.218  44.901  46.599  1.00 18.80      2HFT 539
+ATOM    383  CA  LYS    48      39.585  45.877  45.727  1.00 18.46      2HFT 540
+ATOM    384  C   LYS    48      38.930  47.053  46.442  1.00 19.63      2HFT 541
+ATOM    385  O   LYS    48      39.058  48.195  46.015  1.00 20.72      2HFT 542
+ATOM    386  CB  LYS    48      38.608  45.144  44.826  1.00 20.46      2HFT 543
+ATOM    387  CG  LYS    48      39.328  44.179  43.877  1.00 26.31      2HFT 544
+ATOM    388  CD  LYS    48      40.311  44.890  42.949  1.00 30.81      2HFT 545
+ATOM    389  CE  LYS    48      39.609  45.848  41.975  1.00 35.16      2HFT 546
+ATOM    390  NZ  LYS    48      38.680  46.827  42.648  1.00 41.19      2HFT 547
+ATOM    391  N  ACYS    49      38.166  46.756  47.496  0.50 19.37      2HFT 548
+ATOM    392  N  BCYS    49      38.173  46.769  47.503  0.50 20.19      2HFT 549
+ATOM    393  CA ACYS    49      37.500  47.775  48.307  0.50 17.98      2HFT 550
+ATOM    394  CA BCYS    49      37.543  47.826  48.282  0.50 19.57      2HFT 551
+ATOM    395  C  ACYS    49      38.137  47.673  49.683  0.50 17.72      2HFT 552
+ATOM    396  C  BCYS    49      38.143  47.683  49.665  0.50 18.59      2HFT 553
+ATOM    397  O  ACYS    49      38.061  46.625  50.317  0.50 17.35      2HFT 554
+ATOM    398  O  BCYS    49      38.050  46.624  50.279  0.50 18.10      2HFT 555
+ATOM    399  CB ACYS    49      35.999  47.501  48.403  0.50 17.76      2HFT 556
+ATOM    400  CB BCYS    49      36.033  47.672  48.341  0.50 21.03      2HFT 557
+ATOM    401  SG ACYS    49      35.035  48.070  46.963  0.50 18.52      2HFT 558
+ATOM    402  SG BCYS    49      35.223  49.158  48.959  0.50 26.12      2HFT 559
+ATOM    403  N   PHE    50      38.812  48.741  50.108  1.00 18.25      2HFT 560
+ATOM    404  CA  PHE    50      39.508  48.778  51.388  1.00 18.79      2HFT 561
+ATOM    405  C   PHE    50      38.847  49.493  52.548  1.00 20.15      2HFT 562
+ATOM    406  O   PHE    50      38.408  50.642  52.404  1.00 20.12      2HFT 563
+ATOM    407  CB  PHE    50      40.862  49.462  51.207  1.00 18.83      2HFT 564
+ATOM    408  CG  PHE    50      41.868  48.656  50.461  1.00 18.42      2HFT 565
+ATOM    409  CD1 PHE    50      41.971  48.761  49.077  1.00 20.26      2HFT 566
+ATOM    410  CD2 PHE    50      42.733  47.811  51.139  1.00 18.52      2HFT 567
+ATOM    411  CE1 PHE    50      42.929  48.036  48.388  1.00 20.36      2HFT 568
+ATOM    412  CE2 PHE    50      43.692  47.083  50.463  1.00 18.47      2HFT 569
+ATOM    413  CZ  PHE    50      43.798  47.183  49.099  1.00 19.68      2HFT 570
+ATOM    414  N   TYR    51      38.817  48.800  53.695  1.00 20.34      2HFT 571
+ATOM    415  CA  TYR    51      38.309  49.321  54.970  1.00 19.47      2HFT 572
+ATOM    416  C   TYR    51      37.173  50.290  54.803  1.00 19.64      2HFT 573
+ATOM    417  O   TYR    51      37.281  51.447  55.184  1.00 20.36      2HFT 574
+ATOM    418  CB  TYR    51      39.475  49.990  55.708  1.00 17.46      2HFT 575
+ATOM    419  CG  TYR    51      40.682  49.090  55.738  1.00 17.00      2HFT 576
+ATOM    420  CD1 TYR    51      40.657  47.903  56.466  1.00 16.82      2HFT 577
+ATOM    421  CD2 TYR    51      41.833  49.391  55.001  1.00 16.62      2HFT 578
+ATOM    422  CE1 TYR    51      41.736  47.047  56.463  1.00 18.56      2HFT 579
+ATOM    423  CE2 TYR    51      42.916  48.535  54.990  1.00 16.39      2HFT 580
+ATOM    424  CZ  TYR    51      42.861  47.369  55.725  1.00 19.03      2HFT 581
+ATOM    425  OH  TYR    51      43.929  46.509  55.756  1.00 23.77      2HFT 582
+ATOM    426  N   THR    52      36.066  49.796  54.265  1.00 18.97      2HFT 583
+ATOM    427  CA  THR    52      34.909  50.623  53.995  1.00 19.90      2HFT 584
+ATOM    428  C   THR    52      33.710  50.308  54.904  1.00 19.67      2HFT 585
+ATOM    429  O   THR    52      33.635  49.248  55.517  1.00 19.95      2HFT 586
+ATOM    430  CB  THR    52      34.476  50.444  52.492  1.00 19.47      2HFT 587
+ATOM    431  OG1 THR    52      33.404  51.339  52.168  1.00 19.99      2HFT 588
+ATOM    432  CG2 THR    52      34.029  49.002  52.213  1.00 20.11      2HFT 589
+ATOM    433  N   THR    53      32.786  51.257  54.987  1.00 20.42      2HFT 590
+ATOM    434  CA  THR    53      31.554  51.078  55.743  1.00 21.42      2HFT 591
+ATOM    435  C   THR    53      30.399  50.760  54.761  1.00 20.45      2HFT 592
+ATOM    436  O   THR    53      29.311  50.405  55.170  1.00 21.01      2HFT 593
+ATOM    437  CB  THR    53      31.235  52.315  56.639  1.00 22.63      2HFT 594
+ATOM    438  OG1 THR    53      31.106  53.490  55.835  1.00 21.11      2HFT 595
+ATOM    439  CG2 THR    53      32.353  52.525  57.653  1.00 21.83      2HFT 596
+ATOM    440  N   ASP    54      30.639  50.890  53.463  1.00 20.72      2HFT 597
+ATOM    441  CA  ASP    54      29.618  50.530  52.479  1.00 20.98      2HFT 598
+ATOM    442  C   ASP    54      29.396  49.002  52.572  1.00 21.61      2HFT 599
+ATOM    443  O   ASP    54      30.292  48.252  53.011  1.00 22.79      2HFT 600
+ATOM    444  CB  ASP    54      30.113  50.789  51.056  1.00 24.00      2HFT 601
+ATOM    445  CG  ASP    54      30.465  52.238  50.774  1.00 29.09      2HFT 602
+ATOM    446  OD1 ASP    54      30.284  53.122  51.625  1.00 32.05      2HFT 603
+ATOM    447  OD2 ASP    54      30.936  52.495  49.645  1.00 31.97      2HFT 604
+ATOM    448  N   THR    55      28.251  48.537  52.078  1.00 20.51      2HFT 605
+ATOM    449  CA  THR    55      27.914  47.113  52.065  1.00 18.97      2HFT 606
+ATOM    450  C   THR    55      27.744  46.621  50.597  1.00 20.75      2HFT 607
+ATOM    451  O   THR    55      26.905  45.751  50.293  1.00 20.81      2HFT 608
+ATOM    452  CB  THR    55      26.635  46.814  52.871  1.00 19.39      2HFT 609
+ATOM    453  OG1 THR    55      25.630  47.744  52.485  1.00 21.87      2HFT 610
+ATOM    454  CG2 THR    55      26.861  46.930  54.376  1.00 16.15      2HFT 611
+ATOM    455  N   GLU    56      28.514  47.235  49.696  1.00 20.24      2HFT 612
+ATOM    456  CA  GLU    56      28.553  46.860  48.272  1.00 20.84      2HFT 613
+ATOM    457  C   GLU    56      29.920  47.219  47.686  1.00 18.74      2HFT 614
+ATOM    458  O   GLU    56      30.582  48.132  48.183  1.00 20.95      2HFT 615
+ATOM    459  CB  GLU    56      27.466  47.537  47.478  1.00 22.70      2HFT 616
+ATOM    460  CG  GLU    56      27.640  48.994  47.329  1.00 28.46      2HFT 617
+ATOM    461  CD  GLU    56      26.594  49.529  46.407  1.00 35.51      2HFT 618
+ATOM    462  OE1 GLU    56      25.399  49.462  46.774  1.00 37.96      2HFT 619
+ATOM    463  OE2 GLU    56      26.959  49.947  45.285  1.00 40.16      2HFT 620
+ATOM    464  N  ACYS    57      30.344  46.515  46.657  0.50 17.30      2HFT 621
+ATOM    465  N  BCYS    57      30.324  46.499  46.658  0.50 17.09      2HFT 622
+ATOM    466  CA ACYS    57      31.634  46.802  46.034  0.50 17.55      2HFT 623
+ATOM    467  CA BCYS    57      31.622  46.708  46.030  0.50 17.16      2HFT 624
+ATOM    468  C  ACYS    57      31.598  46.504  44.543  0.50 16.61      2HFT 625
+ATOM    469  C  BCYS    57      31.568  46.490  44.520  0.50 16.40      2HFT 626
+ATOM    470  O  ACYS    57      31.342  45.381  44.120  0.50 16.30      2HFT 627
+ATOM    471  O  BCYS    57      31.269  45.392  44.059  0.50 16.25      2HFT 628
+ATOM    472  CB ACYS    57      32.765  46.018  46.705  0.50 17.81      2HFT 629
+ATOM    473  CB BCYS    57      32.640  45.742  46.645  0.50 16.70      2HFT 630
+ATOM    474  SG ACYS    57      34.419  46.376  46.011  0.50 20.05      2HFT 631
+ATOM    475  SG BCYS    57      34.275  45.774  45.870  0.50 18.73      2HFT 632
+ATOM    476  N   ASP    58      31.843  47.539  43.752  1.00 15.85      2HFT 633
+ATOM    477  CA  ASP    58      31.831  47.419  42.305  1.00 17.51      2HFT 634
+ATOM    478  C   ASP    58      33.093  46.669  41.853  1.00 16.57      2HFT 635
+ATOM    479  O   ASP    58      34.220  47.184  41.971  1.00 16.70      2HFT 636
+ATOM    480  CB  ASP    58      31.749  48.800  41.655  1.00 19.07      2HFT 637
+ATOM    481  CG  ASP    58      31.408  48.732  40.173  1.00 19.00      2HFT 638
+ATOM    482  OD1 ASP    58      32.019  47.931  39.458  1.00 16.88      2HFT 639
+ATOM    483  OD2 ASP    58      30.540  49.490  39.724  1.00 20.41      2HFT 640
+ATOM    484  N   LEU    59      32.881  45.466  41.308  1.00 15.13      2HFT 641
+ATOM    485  CA  LEU    59      33.967  44.608  40.855  1.00 14.78      2HFT 642
+ATOM    486  C   LEU    59      34.090  44.452  39.341  1.00 14.33      2HFT 643
+ATOM    487  O   LEU    59      34.858  43.633  38.857  1.00 14.22      2HFT 644
+ATOM    488  CB  LEU    59      33.845  43.246  41.544  1.00 16.16      2HFT 645
+ATOM    489  CG  LEU    59      34.085  43.278  43.071  1.00 15.94      2HFT 646
+ATOM    490  CD1 LEU    59      33.480  42.034  43.706  1.00 15.54      2HFT 647
+ATOM    491  CD2 LEU    59      35.611  43.418  43.385  1.00 14.56      2HFT 648
+ATOM    492  N   THR    60      33.435  45.343  38.611  1.00 15.90      2HFT 649
+ATOM    493  CA  THR    60      33.433  45.334  37.145  1.00 15.85      2HFT 650
+ATOM    494  C   THR    60      34.817  45.306  36.490  1.00 16.90      2HFT 651
+ATOM    495  O   THR    60      35.049  44.499  35.593  1.00 16.86      2HFT 652
+ATOM    496  CB  THR    60      32.633  46.550  36.573  1.00 13.38      2HFT 653
+ATOM    497  OG1 THR    60      31.330  46.590  37.156  1.00 15.30      2HFT 654
+ATOM    498  CG2 THR    60      32.484  46.415  35.082  1.00 14.46      2HFT 655
+ATOM    499  N   ASP    61      35.736  46.162  36.948  1.00 15.97      2HFT 656
+ATOM    500  CA  ASP    61      37.077  46.229  36.367  1.00 18.56      2HFT 657
+ATOM    501  C   ASP    61      37.875  44.937  36.403  1.00 17.86      2HFT 658
+ATOM    502  O   ASP    61      38.761  44.742  35.575  1.00 16.86      2HFT 659
+ATOM    503  CB  ASP    61      37.896  47.324  37.034  1.00 23.79      2HFT 660
+ATOM    504  CG  ASP    61      37.286  48.696  36.854  1.00 34.75      2HFT 661
+ATOM    505  OD1 ASP    61      36.349  48.821  36.035  1.00 37.88      2HFT 662
+ATOM    506  OD2 ASP    61      37.727  49.651  37.546  1.00 39.71      2HFT 663
+ATOM    507  N   GLU    62      37.616  44.090  37.399  1.00 16.68      2HFT 664
+ATOM    508  CA  GLU    62      38.322  42.812  37.504  1.00 15.89      2HFT 665
+ATOM    509  C   GLU    62      37.636  41.719  36.696  1.00 15.04      2HFT 666
+ATOM    510  O   GLU    62      38.277  41.042  35.895  1.00 16.30      2HFT 667
+ATOM    511  CB  GLU    62      38.426  42.361  38.963  1.00 16.20      2HFT 668
+ATOM    512  CG  GLU    62      39.376  43.217  39.835  1.00 19.23      2HFT 669
+ATOM    513  CD  GLU    62      40.809  43.301  39.292  1.00 23.05      2HFT 670
+ATOM    514  OE1 GLU    62      41.328  42.296  38.758  1.00 24.90      2HFT 671
+ATOM    515  OE2 GLU    62      41.431  44.379  39.405  1.00 25.50      2HFT 672
+ATOM    516  N   ILE    63      36.323  41.575  36.878  1.00 14.95      2HFT 673
+ATOM    517  CA  ILE    63      35.584  40.516  36.188  1.00 14.78      2HFT 674
+ATOM    518  C   ILE    63      35.603  40.629  34.663  1.00 15.99      2HFT 675
+ATOM    519  O   ILE    63      35.502  39.621  33.964  1.00 15.75      2HFT 676
+ATOM    520  CB  ILE    63      34.142  40.344  36.731  1.00 14.72      2HFT 677
+ATOM    521  CG1 ILE    63      33.240  41.525  36.361  1.00 13.50      2HFT 678
+ATOM    522  CG2 ILE    63      34.187  40.193  38.264  1.00 15.13      2HFT 679
+ATOM    523  CD1 ILE    63      32.314  41.273  35.174  1.00 13.97      2HFT 680
+ATOM    524  N   VAL    64      35.768  41.842  34.133  1.00 16.79      2HFT 681
+ATOM    525  CA  VAL    64      35.797  41.959  32.684  1.00 16.99      2HFT 682
+ATOM    526  C   VAL    64      37.131  41.526  32.110  1.00 17.57      2HFT 683
+ATOM    527  O   VAL    64      37.231  41.307  30.900  1.00 19.09      2HFT 684
+ATOM    528  CB  VAL    64      35.398  43.364  32.156  1.00 16.37      2HFT 685
+ATOM    529  CG1 VAL    64      33.946  43.658  32.521  1.00 15.01      2HFT 686
+ATOM    530  CG2 VAL    64      36.348  44.449  32.671  1.00 16.23      2HFT 687
+ATOM    531  N   LYS    65      38.132  41.340  32.971  1.00 17.87      2HFT 688
+ATOM    532  CA  LYS    65      39.450  40.927  32.493  1.00 19.75      2HFT 689
+ATOM    533  C   LYS    65      39.370  39.617  31.743  1.00 21.26      2HFT 690
+ATOM    534  O   LYS    65      40.155  39.382  30.825  1.00 22.07      2HFT 691
+ATOM    535  CB  LYS    65      40.454  40.904  33.625  1.00 20.53      2HFT 692
+ATOM    536  CG  LYS    65      40.773  42.333  34.031  1.00 23.34      2HFT 693
+ATOM    537  CD  LYS    65      41.562  42.460  35.314  1.00 26.04      2HFT 694
+ATOM    538  CE  LYS    65      41.729  43.933  35.626  1.00 28.28      2HFT 695
+ATOM    539  NZ  LYS    65      42.713  44.157  36.698  1.00 32.29      2HFT 696
+ATOM    540  N   ASP    66      38.427  38.762  32.143  1.00 20.24      2HFT 697
+ATOM    541  CA  ASP    66      38.159  37.519  31.429  1.00 18.60      2HFT 698
+ATOM    542  C   ASP    66      36.741  37.152  31.794  1.00 17.68      2HFT 699
+ATOM    543  O   ASP    66      36.505  36.592  32.861  1.00 16.93      2HFT 700
+ATOM    544  CB  ASP    66      39.101  36.383  31.794  1.00 20.63      2HFT 701
+ATOM    545  CG  ASP    66      38.930  35.161  30.866  1.00 24.42      2HFT 702
+ATOM    546  OD1 ASP    66      37.873  35.008  30.182  1.00 24.68      2HFT 703
+ATOM    547  OD2 ASP    66      39.877  34.359  30.796  1.00 27.92      2HFT 704
+ATOM    548  N   VAL    67      35.804  37.433  30.892  1.00 15.60      2HFT 705
+ATOM    549  CA  VAL    67      34.405  37.162  31.175  1.00 14.58      2HFT 706
+ATOM    550  C   VAL    67      33.994  35.695  31.287  1.00 15.71      2HFT 707
+ATOM    551  O   VAL    67      32.969  35.400  31.889  1.00 15.48      2HFT 708
+ATOM    552  CB  VAL    67      33.446  37.911  30.210  1.00 14.75      2HFT 709
+ATOM    553  CG1 VAL    67      33.602  39.423  30.385  1.00 15.28      2HFT 710
+ATOM    554  CG2 VAL    67      33.670  37.479  28.737  1.00 15.59      2HFT 711
+ATOM    555  N   LYS    68      34.769  34.787  30.693  1.00 17.93      2HFT 712
+ATOM    556  CA  LYS    68      34.471  33.340  30.755  1.00 16.19      2HFT 713
+ATOM    557  C   LYS    68      35.115  32.630  31.933  1.00 17.34      2HFT 714
+ATOM    558  O   LYS    68      35.000  31.417  32.080  1.00 17.93      2HFT 715
+ATOM    559  CB  LYS    68      34.868  32.639  29.471  1.00 14.63      2HFT 716
+ATOM    560  CG  LYS    68      34.011  33.081  28.315  1.00 16.06      2HFT 717
+ATOM    561  CD  LYS    68      34.182  32.184  27.087  1.00 15.87      2HFT 718
+ATOM    562  CE  LYS    68      33.294  32.624  25.960  1.00 17.21      2HFT 719
+ATOM    563  NZ  LYS    68      33.560  31.810  24.740  1.00 22.35      2HFT 720
+ATOM    564  N   GLN    69      35.847  33.386  32.734  1.00 17.73      2HFT 721
+ATOM    565  CA  GLN    69      36.483  32.863  33.921  1.00 17.60      2HFT 722
+ATOM    566  C   GLN    69      35.402  32.830  35.034  1.00 17.86      2HFT 723
+ATOM    567  O   GLN    69      34.325  33.438  34.888  1.00 16.41      2HFT 724
+ATOM    568  CB  GLN    69      37.650  33.795  34.274  1.00 19.10      2HFT 725
+ATOM    569  CG  GLN    69      38.459  33.418  35.453  1.00 24.01      2HFT 726
+ATOM    570  CD  GLN    69      39.093  32.054  35.308  1.00 24.84      2HFT 727
+ATOM    571  OE1 GLN    69      38.552  31.069  35.785  1.00 26.46      2HFT 728
+ATOM    572  NE2 GLN    69      40.243  31.995  34.659  1.00 25.22      2HFT 729
+ATOM    573  N   THR    70      35.639  32.029  36.075  1.00 17.39      2HFT 730
+ATOM    574  CA  THR    70      34.742  31.950  37.231  1.00 17.81      2HFT 731
+ATOM    575  C   THR    70      35.465  32.673  38.384  1.00 17.49      2HFT 732
+ATOM    576  O   THR    70      36.637  32.413  38.658  1.00 18.67      2HFT 733
+ATOM    577  CB  THR    70      34.446  30.476  37.624  1.00 21.01      2HFT 734
+ATOM    578  OG1 THR    70      33.743  29.838  36.546  1.00 21.45      2HFT 735
+ATOM    579  CG2 THR    70      33.601  30.389  38.947  1.00 18.94      2HFT 736
+ATOM    580  N   TYR    71      34.759  33.586  39.037  1.00 18.25      2HFT 737
+ATOM    581  CA  TYR    71      35.310  34.395  40.135  1.00 18.35      2HFT 738
+ATOM    582  C   TYR    71      34.674  34.104  41.511  1.00 18.44      2HFT 739
+ATOM    583  O   TYR    71      33.506  33.708  41.626  1.00 17.44      2HFT 740
+ATOM    584  CB  TYR    71      35.112  35.907  39.824  1.00 15.87      2HFT 741
+ATOM    585  CG  TYR    71      35.800  36.389  38.568  1.00 15.25      2HFT 742
+ATOM    586  CD1 TYR    71      35.197  36.241  37.319  1.00 14.87      2HFT 743
+ATOM    587  CD2 TYR    71      37.100  36.908  38.614  1.00 14.88      2HFT 744
+ATOM    588  CE1 TYR    71      35.881  36.584  36.146  1.00 13.55      2HFT 745
+ATOM    589  CE2 TYR    71      37.788  37.253  37.455  1.00 14.27      2HFT 746
+ATOM    590  CZ  TYR    71      37.175  37.083  36.223  1.00 13.61      2HFT 747
+ATOM    591  OH  TYR    71      37.861  37.370  35.058  1.00 16.66      2HFT 748
+ATOM    592  N   LEU    72      35.451  34.384  42.547  1.00 19.73      2HFT 749
+ATOM    593  CA  LEU    72      35.023  34.250  43.939  1.00 20.18      2HFT 750
+ATOM    594  C   LEU    72      35.451  35.545  44.625  1.00 19.36      2HFT 751
+ATOM    595  O   LEU    72      36.538  36.076  44.336  1.00 19.56      2HFT 752
+ATOM    596  CB  LEU    72      35.743  33.087  44.630  1.00 22.78      2HFT 753
+ATOM    597  CG  LEU    72      35.187  31.676  44.399  1.00 28.06      2HFT 754
+ATOM    598  CD1 LEU    72      36.177  30.633  44.926  1.00 30.46      2HFT 755
+ATOM    599  CD2 LEU    72      33.811  31.525  45.071  1.00 28.82      2HFT 756
+ATOM    600  N   ALA    73      34.564  36.098  45.446  1.00 17.48      2HFT 757
+ATOM    601  CA  ALA    73      34.871  37.292  46.222  1.00 15.91      2HFT 758
+ATOM    602  C   ALA    73      34.890  36.862  47.712  1.00 17.75      2HFT 759
+ATOM    603  O   ALA    73      34.332  35.822  48.087  1.00 17.28      2HFT 760
+ATOM    604  CB  ALA    73      33.814  38.350  45.990  1.00 14.10      2HFT 761
+ATOM    605  N   ARG    74      35.618  37.597  48.538  1.00 17.58      2HFT 762
+ATOM    606  CA  ARG    74      35.650  37.321  49.963  1.00 18.41      2HFT 763
+ATOM    607  C   ARG    74      35.615  38.649  50.724  1.00 18.53      2HFT 764
+ATOM    608  O   ARG    74      36.262  39.628  50.311  1.00 18.45      2HFT 765
+ATOM    609  CB AARG    74      36.722  36.332  50.431  0.50 18.42      2HFT 766
+ATOM    610  CB BARG    74      36.982  36.584  50.206  0.50 18.76      2HFT 767
+ATOM    611  CG AARG    74      38.149  36.717  50.321  0.50 16.32      2HFT 768
+ATOM    612  CG BARG    74      37.486  36.448  51.618  0.50 17.79      2HFT 769
+ATOM    613  CD AARG    74      38.976  35.794  51.214  0.50 16.90      2HFT 770
+ATOM    614  CD BARG    74      38.625  35.419  51.659  0.50 18.12      2HFT 771
+ATOM    615  NE AARG    74      38.547  34.391  51.170  0.50 15.91      2HFT 772
+ATOM    616  NE BARG    74      39.968  35.957  51.411  0.50 18.12      2HFT 773
+ATOM    617  CZ AARG    74      39.351  33.357  51.403  0.50 13.89      2HFT 774
+ATOM    618  CZ BARG    74      41.060  35.204  51.298  0.50 15.59      2HFT 775
+ATOM    619  NH1AARG    74      40.624  33.577  51.689  0.50 15.37      2HFT 776
+ATOM    620  NH1BARG    74      40.963  33.889  51.385  0.50 15.81      2HFT 777
+ATOM    621  NH2AARG    74      38.888  32.112  51.349  0.50 12.21      2HFT 778
+ATOM    622  NH2BARG    74      42.259  35.762  51.186  0.50 15.20      2HFT 779
+ATOM    623  N   VAL    75      34.708  38.724  51.704  1.00 16.40      2HFT 780
+ATOM    624  CA  VAL    75      34.520  39.928  52.513  1.00 17.59      2HFT 781
+ATOM    625  C   VAL    75      35.057  39.749  53.942  1.00 18.43      2HFT 782
+ATOM    626  O   VAL    75      34.560  38.911  54.684  1.00 17.53      2HFT 783
+ATOM    627  CB  VAL    75      32.999  40.319  52.594  1.00 15.20      2HFT 784
+ATOM    628  CG1 VAL    75      32.798  41.600  53.424  1.00 14.54      2HFT 785
+ATOM    629  CG2 VAL    75      32.409  40.486  51.196  1.00 15.02      2HFT 786
+ATOM    630  N   PHE    76      36.068  40.539  54.309  1.00 18.85      2HFT 787
+ATOM    631  CA  PHE    76      36.641  40.514  55.662  1.00 19.71      2HFT 788
+ATOM    632  C   PHE    76      36.013  41.605  56.548  1.00 19.77      2HFT 789
+ATOM    633  O   PHE    76      35.650  42.695  56.074  1.00 18.24      2HFT 790
+ATOM    634  CB  PHE    76      38.152  40.802  55.640  1.00 20.34      2HFT 791
+ATOM    635  CG  PHE    76      38.986  39.741  54.989  1.00 20.24      2HFT 792
+ATOM    636  CD1 PHE    76      39.160  39.724  53.598  1.00 19.21      2HFT 793
+ATOM    637  CD2 PHE    76      39.647  38.803  55.766  1.00 20.62      2HFT 794
+ATOM    638  CE1 PHE    76      39.983  38.801  52.988  1.00 20.56      2HFT 795
+ATOM    639  CE2 PHE    76      40.483  37.860  55.179  1.00 23.40      2HFT 796
+ATOM    640  CZ  PHE    76      40.658  37.855  53.767  1.00 23.82      2HFT 797
+ATOM    641  N   SER    77      35.941  41.332  57.846  1.00 21.11      2HFT 798
+ATOM    642  CA  SER    77      35.427  42.325  58.793  1.00 21.65      2HFT 799
+ATOM    643  C   SER    77      36.574  42.702  59.719  1.00 21.53      2HFT 800
+ATOM    644  O   SER    77      37.254  41.821  60.239  1.00 22.60      2HFT 801
+ATOM    645  CB  SER    77      34.281  41.760  59.623  1.00 21.98      2HFT 802
+ATOM    646  OG  SER    77      33.141  41.589  58.813  1.00 21.22      2HFT 803
+ATOM    647  N   TYR    78      36.804  44.003  59.887  1.00 22.07      2HFT 804
+ATOM    648  CA  TYR    78      37.870  44.522  60.742  1.00 20.70      2HFT 805
+ATOM    649  C   TYR    78      37.294  45.485  61.771  1.00 21.34      2HFT 806
+ATOM    650  O   TYR    78      36.360  46.239  61.469  1.00 19.53      2HFT 807
+ATOM    651  CB  TYR    78      38.894  45.278  59.906  1.00 20.30      2HFT 808
+ATOM    652  CG  TYR    78      39.752  44.410  59.032  1.00 22.42      2HFT 809
+ATOM    653  CD1 TYR    78      40.819  43.709  59.568  1.00 23.53      2HFT 810
+ATOM    654  CD2 TYR    78      39.511  44.302  57.659  1.00 21.44      2HFT 811
+ATOM    655  CE1 TYR    78      41.630  42.926  58.764  1.00 26.15      2HFT 812
+ATOM    656  CE2 TYR    78      40.319  43.526  56.848  1.00 22.99      2HFT 813
+ATOM    657  CZ  TYR    78      41.371  42.839  57.407  1.00 25.39      2HFT 814
+ATOM    658  OH  TYR    78      42.182  42.046  56.640  1.00 30.61      2HFT 815
+ATOM    659  N   PRO    79      37.827  45.460  63.016  1.00 23.00      2HFT 816
+ATOM    660  CA  PRO    79      37.306  46.384  64.035  1.00 23.69      2HFT 817
+ATOM    661  C   PRO    79      37.588  47.820  63.563  1.00 23.73      2HFT 818
+ATOM    662  O   PRO    79      38.544  48.046  62.808  1.00 24.76      2HFT 819
+ATOM    663  CB  PRO    79      38.122  46.017  65.287  1.00 23.43      2HFT 820
+ATOM    664  CG  PRO    79      39.395  45.429  64.729  1.00 23.88      2HFT 821
+ATOM    665  CD  PRO    79      38.911  44.614  63.553  1.00 23.48      2HFT 822
+ATOM    666  N   ALA    80      36.723  48.764  63.927  1.00 22.78      2HFT 823
+ATOM    667  CA  ALA    80      36.908  50.153  63.530  1.00 23.56      2HFT 824
+ATOM    668  C   ALA    80      36.810  51.087  64.736  1.00 25.94      2HFT 825
+ATOM    669  O   ALA    80      35.899  50.939  65.550  1.00 29.51      2HFT 826
+ATOM    670  CB  ALA    80      35.877  50.542  62.491  1.00 22.49      2HFT 827
+ATOM    671  N   GLY    81      37.732  52.049  64.849  1.00 22.83      2HFT 828
+ATOM    672  CA  GLY    81      37.698  52.984  65.961  1.00 21.20      2HFT 829
+ATOM    673  C   GLY    81      38.556  52.582  67.149  1.00 22.30      2HFT 830
+ATOM    674  O   GLY    81      39.346  51.630  67.080  1.00 21.44      2HFT 831
+ATOM    675  N   ASN    82      38.395  53.317  68.248  1.00 23.53      2HFT 832
+ATOM    676  CA  ASN    82      39.164  53.086  69.480  1.00 25.15      2HFT 833
+ATOM    677  C   ASN    82      38.572  51.867  70.195  1.00 24.80      2HFT 834
+ATOM    678  O   ASN    82      37.593  51.954  70.939  1.00 23.15      2HFT 835
+ATOM    679  CB  ASN    82      39.145  54.368  70.344  1.00 26.65      2HFT 836
+ATOM    680  CG  ASN    82      40.296  54.428  71.349  1.00 27.62      2HFT 837
+ATOM    681  OD1 ASN    82      40.625  53.440  71.981  1.00 29.22      2HFT 838
+ATOM    682  ND2 ASN    82      40.885  55.599  71.510  1.00 27.15      2HFT 839
+ATOM    683  N   VAL    83      39.176  50.715  69.929  1.00 28.12      2HFT 840
+ATOM    684  CA  VAL    83      38.693  49.448  70.466  1.00 31.57      2HFT 841
+ATOM    685  C   VAL    83      39.769  48.440  70.882  1.00 33.34      2HFT 842
+ATOM    686  O   VAL    83      40.937  48.511  70.458  1.00 30.20      2HFT 843
+ATOM    687  CB  VAL    83      37.774  48.686  69.406  1.00 33.06      2HFT 844
+ATOM    688  CG1 VAL    83      36.571  49.543  68.966  1.00 33.17      2HFT 845
+ATOM    689  CG2 VAL    83      38.596  48.231  68.196  1.00 31.33      2HFT 846
+ATOM    690  N   GLU    84      39.323  47.486  71.710  1.00 36.22      2HFT 847
+ATOM    691  CA  GLU    84      40.147  46.368  72.176  1.00 37.46      2HFT 848
+ATOM    692  C   GLU    84      39.680  45.161  71.377  1.00 37.32      2HFT 849
+ATOM    693  O   GLU    84      38.627  44.587  71.637  1.00 34.48      2HFT 850
+ATOM    694  CB  GLU    84      39.995  46.124  73.673  1.00 38.02      2HFT 851
+ATOM    695  CG  GLU    84      40.827  47.090  74.521  1.00 43.31      2HFT 852
+ATOM    696  CD  GLU    84      42.339  46.844  74.434  1.00 45.16      2HFT 853
+ATOM    697  OE1 GLU    84      42.830  45.895  75.104  1.00 45.02      2HFT 854
+ATOM    698  OE2 GLU    84      43.021  47.617  73.711  1.00 45.55      2HFT 855
+ATOM    699  N   SER    85      40.411  44.924  70.295  1.00 39.05      2HFT 856
+ATOM    700  CA  SER    85      40.157  43.849  69.367  1.00 40.15      2HFT 857
+ATOM    701  C   SER    85      40.618  42.549  69.996  1.00 44.04      2HFT 858
+ATOM    702  O   SER    85      41.818  42.298  70.086  1.00 46.57      2HFT 859
+ATOM    703  CB  SER    85      40.944  44.126  68.090  1.00 38.15      2HFT 860
+ATOM    704  OG  SER    85      41.040  42.970  67.293  1.00 34.99      2HFT 861
+ATOM    705  N   THR    86      39.680  41.718  70.440  1.00 45.90      2HFT 862
+ATOM    706  CA  THR    86      40.054  40.460  71.070  1.00 46.49      2HFT 863
+ATOM    707  C   THR    86      40.071  39.306  70.075  1.00 47.76      2HFT 864
+ATOM    708  O   THR    86      40.719  38.288  70.329  1.00 50.25      2HFT 865
+ATOM    709  CB  THR    86      39.132  40.140  72.263  1.00 44.93      2HFT 866
+ATOM    710  OG1 THR    86      37.781  40.121  71.797  1.00 47.35      2HFT 867
+ATOM    711  CG2 THR    86      39.266  41.201  73.361  1.00 41.34      2HFT 868
+ATOM    712  N   GLU    91      43.826  36.434  62.284  1.00 45.22      2HFT 869
+ATOM    713  CA  GLU    91      42.743  35.611  61.693  1.00 45.41      2HFT 870
+ATOM    714  C   GLU    91      41.372  36.323  61.833  1.00 42.08      2HFT 871
+ATOM    715  O   GLU    91      40.502  35.887  62.589  1.00 40.16      2HFT 872
+ATOM    716  CB  GLU    91      42.816  34.232  62.361  1.00 50.59      2HFT 873
+ATOM    717  CG  GLU    91      41.543  33.424  62.522  1.00 59.32      2HFT 874
+ATOM    718  CD  GLU    91      41.700  32.327  63.575  1.00 66.13      2HFT 875
+ATOM    719  OE1 GLU    91      42.830  32.143  64.099  1.00 69.32      2HFT 876
+ATOM    720  OE2 GLU    91      40.689  31.649  63.883  1.00 69.10      2HFT 877
+ATOM    721  N   PRO    92      41.172  37.445  61.091  1.00 39.39      2HFT 878
+ATOM    722  CA  PRO    92      39.911  38.191  61.154  1.00 35.02      2HFT 879
+ATOM    723  C   PRO    92      38.851  37.380  60.473  1.00 31.09      2HFT 880
+ATOM    724  O   PRO    92      39.154  36.469  59.702  1.00 29.71      2HFT 881
+ATOM    725  CB  PRO    92      40.206  39.461  60.346  1.00 35.26      2HFT 882
+ATOM    726  CG  PRO    92      41.096  38.975  59.294  1.00 37.83      2HFT 883
+ATOM    727  CD  PRO    92      42.051  38.030  60.060  1.00 39.81      2HFT 884
+ATOM    728  N   LEU    93      37.607  37.711  60.784  1.00 28.58      2HFT 885
+ATOM    729  CA  LEU    93      36.456  37.034  60.211  1.00 27.49      2HFT 886
+ATOM    730  C   LEU    93      36.298  37.414  58.734  1.00 25.95      2HFT 887
+ATOM    731  O   LEU    93      36.680  38.511  58.301  1.00 24.59      2HFT 888
+ATOM    732  CB  LEU    93      35.173  37.427  60.980  1.00 27.37      2HFT 889
+ATOM    733  CG  LEU    93      35.124  37.193  62.501  1.00 26.12      2HFT 890
+ATOM    734  CD1 LEU    93      33.810  37.669  63.069  1.00 22.98      2HFT 891
+ATOM    735  CD2 LEU    93      35.329  35.723  62.783  1.00 24.46      2HFT 892
+ATOM    736  N   TYR    94      35.739  36.485  57.976  1.00 25.98      2HFT 893
+ATOM    737  CA  TYR    94      35.460  36.706  56.572  1.00 25.79      2HFT 894
+ATOM    738  C   TYR    94      34.473  35.669  56.071  1.00 25.46      2HFT 895
+ATOM    739  O   TYR    94      34.224  34.654  56.726  1.00 24.96      2HFT 896
+ATOM    740  CB  TYR    94      36.736  36.691  55.731  1.00 26.85      2HFT 897
+ATOM    741  CG  TYR    94      37.377  35.350  55.586  1.00 30.41      2HFT 898
+ATOM    742  CD1 TYR    94      36.971  34.480  54.581  1.00 32.98      2HFT 899
+ATOM    743  CD2 TYR    94      38.407  34.954  56.438  1.00 33.02      2HFT 900
+ATOM    744  CE1 TYR    94      37.568  33.254  54.416  1.00 35.90      2HFT 901
+ATOM    745  CE2 TYR    94      39.018  33.732  56.286  1.00 35.21      2HFT 902
+ATOM    746  CZ  TYR    94      38.592  32.885  55.268  1.00 38.63      2HFT 903
+ATOM    747  OH  TYR    94      39.197  31.664  55.078  1.00 44.31      2HFT 904
+ATOM    748  N   GLU    95      33.895  35.952  54.914  1.00 25.04      2HFT 905
+ATOM    749  CA  GLU    95      32.933  35.071  54.280  1.00 23.48      2HFT 906
+ATOM    750  C   GLU    95      33.127  35.125  52.761  1.00 21.60      2HFT 907
+ATOM    751  O   GLU    95      33.354  36.190  52.189  1.00 19.33      2HFT 908
+ATOM    752  CB  GLU    95      31.512  35.492  54.653  1.00 25.81      2HFT 909
+ATOM    753  CG  GLU    95      30.437  34.654  53.959  1.00 30.54      2HFT 910
+ATOM    754  CD  GLU    95      30.474  33.217  54.413  1.00 33.51      2HFT 911
+ATOM    755  OE1 GLU    95      31.214  32.399  53.835  1.00 34.38      2HFT 912
+ATOM    756  OE2 GLU    95      29.789  32.911  55.394  1.00 36.41      2HFT 913
+ATOM    757  N   ASN    96      33.127  33.950  52.140  1.00 21.06      2HFT 914
+ATOM    758  CA  ASN    96      33.255  33.833  50.699  1.00 21.68      2HFT 915
+ATOM    759  C   ASN    96      31.899  33.922  50.026  1.00 20.42      2HFT 916
+ATOM    760  O   ASN    96      30.886  33.446  50.552  1.00 19.53      2HFT 917
+ATOM    761  CB  ASN    96      33.894  32.511  50.330  1.00 25.18      2HFT 918
+ATOM    762  CG  ASN    96      35.200  32.296  51.031  1.00 28.30      2HFT 919
+ATOM    763  OD1 ASN    96      36.190  32.955  50.740  1.00 27.18      2HFT 920
+ATOM    764  ND2 ASN    96      35.209  31.369  51.981  1.00 32.75      2HFT 921
+ATOM    765  N   SER    97      31.901  34.526  48.846  1.00 18.51      2HFT 922
+ATOM    766  CA  SER    97      30.699  34.704  48.034  1.00 17.96      2HFT 923
+ATOM    767  C   SER    97      30.425  33.456  47.188  1.00 18.31      2HFT 924
+ATOM    768  O   SER    97      31.226  32.515  47.164  1.00 15.89      2HFT 925
+ATOM    769  CB  SER    97      30.956  35.835  47.021  1.00 17.68      2HFT 926
+ATOM    770  OG  SER    97      31.796  35.344  45.968  1.00 16.89      2HFT 927
+ATOM    771  N   PRO    98      29.249  33.420  46.522  1.00 18.62      2HFT 928
+ATOM    772  CA  PRO    98      28.962  32.273  45.663  1.00 18.42      2HFT 929
+ATOM    773  C   PRO    98      29.882  32.501  44.431  1.00 18.54      2HFT 930
+ATOM    774  O   PRO    98      30.435  33.601  44.246  1.00 17.66      2HFT 931
+ATOM    775  CB  PRO    98      27.502  32.518  45.252  1.00 17.64      2HFT 932
+ATOM    776  CG  PRO    98      26.930  33.286  46.407  1.00 17.27      2HFT 933
+ATOM    777  CD  PRO    98      28.043  34.250  46.713  1.00 17.33      2HFT 934
+ATOM    778  N   GLU    99      30.074  31.469  43.615  1.00 19.76      2HFT 935
+ATOM    779  CA  GLU    99      30.856  31.578  42.380  1.00 22.40      2HFT 936
+ATOM    780  C   GLU    99      30.105  32.438  41.347  1.00 19.87      2HFT 937
+ATOM    781  O   GLU    99      28.875  32.440  41.309  1.00 20.28      2HFT 938
+ATOM    782  CB  GLU    99      31.092  30.198  41.766  1.00 25.51      2HFT 939
+ATOM    783  CG  GLU    99      32.146  29.350  42.439  1.00 30.30      2HFT 940
+ATOM    784  CD  GLU    99      32.181  27.928  41.858  1.00 34.62      2HFT 941
+ATOM    785  OE1 GLU    99      31.551  27.687  40.793  1.00 35.54      2HFT 942
+ATOM    786  OE2 GLU    99      32.824  27.051  42.479  1.00 36.65      2HFT 943
+ATOM    787  N   PHE   100      30.857  33.121  40.485  1.00 18.63      2HFT 944
+ATOM    788  CA  PHE   100      30.271  33.983  39.457  1.00 18.06      2HFT 945
+ATOM    789  C   PHE   100      31.017  33.884  38.133  1.00 15.59      2HFT 946
+ATOM    790  O   PHE   100      32.210  34.154  38.073  1.00 16.08      2HFT 947
+ATOM    791  CB  PHE   100      30.278  35.454  39.923  1.00 17.91      2HFT 948
+ATOM    792  CG  PHE   100      29.585  36.396  38.967  1.00 17.64      2HFT 949
+ATOM    793  CD1 PHE   100      28.201  36.311  38.757  1.00 17.62      2HFT 950
+ATOM    794  CD2 PHE   100      30.316  37.345  38.263  1.00 15.13      2HFT 951
+ATOM    795  CE1 PHE   100      27.572  37.138  37.860  1.00 16.31      2HFT 952
+ATOM    796  CE2 PHE   100      29.685  38.182  37.353  1.00 15.96      2HFT 953
+ATOM    797  CZ  PHE   100      28.306  38.077  37.160  1.00 16.11      2HFT 954
+ATOM    798  N   THR   101      30.301  33.510  37.076  1.00 15.53      2HFT 955
+ATOM    799  CA  THR   101      30.862  33.392  35.721  1.00 16.47      2HFT 956
+ATOM    800  C   THR   101      30.106  34.444  34.904  1.00 16.66      2HFT 957
+ATOM    801  O   THR   101      29.012  34.187  34.409  1.00 15.95      2HFT 958
+ATOM    802  CB  THR   101      30.593  31.983  35.100  1.00 17.19      2HFT 959
+ATOM    803  OG1 THR   101      31.090  30.965  35.973  1.00 17.63      2HFT 960
+ATOM    804  CG2 THR   101      31.279  31.863  33.788  1.00 15.71      2HFT 961
+ATOM    805  N   PRO   102      30.710  35.626  34.719  1.00 16.17      2HFT 962
+ATOM    806  CA  PRO   102      30.111  36.740  33.979  1.00 15.38      2HFT 963
+ATOM    807  C   PRO   102      29.448  36.407  32.653  1.00 14.55      2HFT 964
+ATOM    808  O   PRO   102      28.306  36.790  32.445  1.00 16.88      2HFT 965
+ATOM    809  CB  PRO   102      31.288  37.711  33.792  1.00 14.31      2HFT 966
+ATOM    810  CG  PRO   102      32.124  37.454  35.008  1.00 16.58      2HFT 967
+ATOM    811  CD  PRO   102      32.106  35.932  35.088  1.00 16.13      2HFT 968
+ATOM    812  N   TYR   103      30.126  35.650  31.792  1.00 14.61      2HFT 969
+ATOM    813  CA  TYR   103      29.599  35.330  30.460  1.00 15.04      2HFT 970
+ATOM    814  C   TYR   103      28.262  34.618  30.460  1.00 14.91      2HFT 971
+ATOM    815  O   TYR   103      27.363  34.937  29.665  1.00 14.97      2HFT 972
+ATOM    816  CB  TYR   103      30.628  34.534  29.656  1.00 15.33      2HFT 973
+ATOM    817  CG  TYR   103      30.365  34.475  28.177  1.00 15.77      2HFT 974
+ATOM    818  CD1 TYR   103      30.705  35.538  27.342  1.00 15.25      2HFT 975
+ATOM    819  CD2 TYR   103      29.744  33.365  27.612  1.00 15.96      2HFT 976
+ATOM    820  CE1 TYR   103      30.423  35.492  25.961  1.00 18.03      2HFT 977
+ATOM    821  CE2 TYR   103      29.458  33.312  26.249  1.00 16.95      2HFT 978
+ATOM    822  CZ  TYR   103      29.786  34.380  25.419  1.00 17.71      2HFT 979
+ATOM    823  OH  TYR   103      29.397  34.360  24.079  1.00 18.04      2HFT 980
+ATOM    824  N   LEU   104      28.114  33.696  31.395  1.00 15.23      2HFT 981
+ATOM    825  CA  LEU   104      26.894  32.916  31.516  1.00 16.16      2HFT 982
+ATOM    826  C   LEU   104      25.866  33.458  32.497  1.00 15.55      2HFT 983
+ATOM    827  O   LEU   104      24.703  33.077  32.456  1.00 16.07      2HFT 984
+ATOM    828  CB  LEU   104      27.261  31.503  31.960  1.00 16.95      2HFT 985
+ATOM    829  CG  LEU   104      28.128  30.646  31.046  1.00 16.04      2HFT 986
+ATOM    830  CD1 LEU   104      28.614  29.412  31.808  1.00 15.21      2HFT 987
+ATOM    831  CD2 LEU   104      27.317  30.249  29.825  1.00 16.48      2HFT 988
+ATOM    832  N   GLU   105      26.292  34.342  33.384  1.00 17.21      2HFT 989
+ATOM    833  CA  GLU   105      25.400  34.831  34.417  1.00 18.98      2HFT 990
+ATOM    834  C   GLU   105      24.956  36.265  34.399  1.00 17.71      2HFT 991
+ATOM    835  O   GLU   105      23.906  36.569  34.950  1.00 19.78      2HFT 992
+ATOM    836  CB  GLU   105      25.977  34.499  35.812  1.00 21.72      2HFT 993
+ATOM    837  CG  GLU   105      26.223  33.004  36.054  1.00 25.43      2HFT 994
+ATOM    838  CD  GLU   105      26.562  32.699  37.505  1.00 27.50      2HFT 995
+ATOM    839  OE1 GLU   105      25.663  32.812  38.353  1.00 32.89      2HFT 996
+ATOM    840  OE2 GLU   105      27.718  32.365  37.818  1.00 25.84      2HFT 997
+ATOM    841  N   THR   106      25.720  37.158  33.796  1.00 16.08      2HFT 998
+ATOM    842  CA  THR   106      25.302  38.558  33.803  1.00 16.08      2HFT 999
+ATOM    843  C   THR   106      23.922  38.726  33.155  1.00 16.09      2HFT1000
+ATOM    844  O   THR   106      23.651  38.110  32.120  1.00 18.11      2HFT1001
+ATOM    845  CB  THR   106      26.355  39.493  33.129  1.00 14.36      2HFT1002
+ATOM    846  OG1 THR   106      26.109  40.840  33.549  1.00 13.75      2HFT1003
+ATOM    847  CG2 THR   106      26.269  39.430  31.611  1.00 12.58      2HFT1004
+ATOM    848  N   ASN   107      23.042  39.522  33.765  1.00 14.69      2HFT1005
+ATOM    849  CA  ASN   107      21.719  39.715  33.185  1.00 16.05      2HFT1006
+ATOM    850  C   ASN   107      21.750  40.593  31.933  1.00 16.71      2HFT1007
+ATOM    851  O   ASN   107      22.548  41.513  31.827  1.00 15.84      2HFT1008
+ATOM    852  CB  ASN   107      20.773  40.338  34.200  1.00 19.91      2HFT1009
+ATOM    853  CG  ASN   107      20.557  39.453  35.426  1.00 25.64      2HFT1010
+ATOM    854  OD1 ASN   107      19.735  38.538  35.414  1.00 28.08      2HFT1011
+ATOM    855  ND2 ASN   107      21.289  39.736  36.493  1.00 29.02      2HFT1012
+ATOM    856  N   LEU   108      20.890  40.273  30.972  1.00 16.83      2HFT1013
+ATOM    857  CA  LEU   108      20.756  41.041  29.735  1.00 17.47      2HFT1014
+ATOM    858  C   LEU   108      19.849  42.209  30.089  1.00 18.67      2HFT1015
+ATOM    859  O   LEU   108      18.743  42.004  30.589  1.00 19.82      2HFT1016
+ATOM    860  CB  LEU   108      20.086  40.190  28.647  1.00 18.17      2HFT1017
+ATOM    861  CG  LEU   108      20.983  39.058  28.143  1.00 20.62      2HFT1018
+ATOM    862  CD1 LEU   108      20.175  37.971  27.457  1.00 20.72      2HFT1019
+ATOM    863  CD2 LEU   108      22.057  39.651  27.235  1.00 23.10      2HFT1020
+ATOM    864  N   GLY   109      20.330  43.423  29.868  1.00 17.30      2HFT1021
+ATOM    865  CA  GLY   109      19.541  44.592  30.186  1.00 18.28      2HFT1022
+ATOM    866  C   GLY   109      18.423  44.762  29.189  1.00 19.76      2HFT1023
+ATOM    867  O   GLY   109      18.464  44.223  28.095  1.00 19.82      2HFT1024
+ATOM    868  N   GLN   110      17.421  45.539  29.553  1.00 20.70      2HFT1025
+ATOM    869  CA  GLN   110      16.306  45.757  28.662  1.00 22.55      2HFT1026
+ATOM    870  C   GLN   110      16.772  46.446  27.353  1.00 21.75      2HFT1027
+ATOM    871  O   GLN   110      17.457  47.476  27.387  1.00 21.45      2HFT1028
+ATOM    872  CB  GLN   110      15.250  46.601  29.372  1.00 24.84      2HFT1029
+ATOM    873  CG  GLN   110      13.968  46.765  28.580  1.00 27.88      2HFT1030
+ATOM    874  CD  GLN   110      13.033  47.749  29.231  1.00 31.43      2HFT1031
+ATOM    875  OE1 GLN   110      13.358  48.930  29.375  1.00 32.83      2HFT1032
+ATOM    876  NE2 GLN   110      11.864  47.271  29.637  1.00 35.08      2HFT1033
+ATOM    877  N   PRO   111      16.424  45.859  26.188  1.00 21.41      2HFT1034
+ATOM    878  CA  PRO   111      16.793  46.407  24.879  1.00 20.49      2HFT1035
+ATOM    879  C   PRO   111      16.050  47.716  24.551  1.00 19.85      2HFT1036
+ATOM    880  O   PRO   111      15.062  48.077  25.188  1.00 20.01      2HFT1037
+ATOM    881  CB  PRO   111      16.366  45.303  23.896  1.00 19.93      2HFT1038
+ATOM    882  CG  PRO   111      16.245  44.066  24.725  1.00 20.82      2HFT1039
+ATOM    883  CD  PRO   111      15.692  44.586  26.035  1.00 20.74      2HFT1040
+ATOM    884  N   THR   112      16.503  48.374  23.495  1.00 20.63      2HFT1041
+ATOM    885  CA  THR   112      15.929  49.628  23.020  1.00 19.39      2HFT1042
+ATOM    886  C   THR   112      15.933  49.649  21.494  1.00 18.82      2HFT1043
+ATOM    887  O   THR   112      16.948  49.373  20.864  1.00 17.30      2HFT1044
+ATOM    888  CB  THR   112      16.764  50.844  23.480  1.00 20.11      2HFT1045
+ATOM    889  OG1 THR   112      16.785  50.902  24.915  1.00 23.05      2HFT1046
+ATOM    890  CG2 THR   112      16.173  52.149  22.919  1.00 19.92      2HFT1047
+ATOM    891  N   ILE   113      14.797  50.001  20.906  1.00 18.85      2HFT1048
+ATOM    892  CA  ILE   113      14.708  50.083  19.458  1.00 19.75      2HFT1049
+ATOM    893  C   ILE   113      15.347  51.419  19.079  1.00 19.91      2HFT1050
+ATOM    894  O   ILE   113      14.948  52.449  19.574  1.00 20.38      2HFT1051
+ATOM    895  CB  ILE   113      13.233  49.979  18.973  1.00 17.74      2HFT1052
+ATOM    896  CG1 ILE   113      12.751  48.529  19.106  1.00 17.29      2HFT1053
+ATOM    897  CG2 ILE   113      13.120  50.443  17.514  1.00 17.14      2HFT1054
+ATOM    898  CD1 ILE   113      11.242  48.357  19.096  1.00 18.39      2HFT1055
+ATOM    899  N   GLN   114      16.427  51.363  18.312  1.00 19.87      2HFT1056
+ATOM    900  CA  GLN   114      17.129  52.551  17.886  1.00 20.08      2HFT1057
+ATOM    901  C   GLN   114      16.304  53.275  16.815  1.00 22.11      2HFT1058
+ATOM    902  O   GLN   114      16.149  54.496  16.865  1.00 22.20      2HFT1059
+ATOM    903  CB  GLN   114      18.510  52.153  17.357  1.00 19.88      2HFT1060
+ATOM    904  CG  GLN   114      19.387  53.293  16.863  1.00 21.60      2HFT1061
+ATOM    905  CD  GLN   114      20.835  52.858  16.596  1.00 22.98      2HFT1062
+ATOM    906  OE1 GLN   114      21.602  52.656  17.533  1.00 24.47      2HFT1063
+ATOM    907  NE2 GLN   114      21.209  52.714  15.312  1.00 22.62      2HFT1064
+ATOM    908  N   SER   115      15.724  52.528  15.881  1.00 22.54      2HFT1065
+ATOM    909  CA  SER   115      14.944  53.158  14.821  1.00 24.30      2HFT1066
+ATOM    910  C   SER   115      14.225  52.179  13.900  1.00 26.23      2HFT1067
+ATOM    911  O   SER   115      14.430  50.970  13.985  1.00 25.08      2HFT1068
+ATOM    912  CB  SER   115      15.908  53.939  13.949  1.00 23.72      2HFT1069
+ATOM    913  OG  SER   115      16.761  53.018  13.293  1.00 24.84      2HFT1070
+ATOM    914  N   PHE   116      13.272  52.699  13.125  1.00 29.66      2HFT1071
+ATOM    915  CA  PHE   116      12.646  51.903  12.075  1.00 33.84      2HFT1072
+ATOM    916  C   PHE   116      12.617  52.767  10.837  1.00 38.29      2HFT1073
+ATOM    917  O   PHE   116      12.543  53.987  10.934  1.00 40.27      2HFT1074
+ATOM    918  CB APHE   116      11.238  51.421  12.476  0.50 32.24      2HFT1075
+ATOM    919  CB BPHE   116      11.252  51.325  12.341  0.50 33.93      2HFT1076
+ATOM    920  CG APHE   116      10.256  52.524  12.778  0.50 31.94      2HFT1077
+ATOM    921  CG BPHE   116      10.596  51.788  13.577  0.50 35.10      2HFT1078
+ATOM    922  CD1APHE   116       9.688  53.283  11.755  0.50 32.46      2HFT1079
+ATOM    923  CD1BPHE   116      10.335  53.130  13.792  0.50 36.06      2HFT1080
+ATOM    924  CD2APHE   116       9.824  52.744  14.083  0.50 31.96      2HFT1081
+ATOM    925  CD2BPHE   116      10.120  50.853  14.488  0.50 36.27      2HFT1082
+ATOM    926  CE1APHE   116       8.712  54.261  12.028  0.50 31.93      2HFT1083
+ATOM    927  CE1BPHE   116       9.598  53.539  14.894  0.50 37.18      2HFT1084
+ATOM    928  CE2APHE   116       8.850  53.715  14.367  0.50 32.43      2HFT1085
+ATOM    929  CE2BPHE   116       9.383  51.244  15.589  0.50 37.29      2HFT1086
+ATOM    930  CZ APHE   116       8.289  54.467  13.336  0.50 32.44      2HFT1087
+ATOM    931  CZ BPHE   116       9.118  52.592  15.794  0.50 37.89      2HFT1088
+ATOM    932  N   GLU   117      12.773  52.148   9.678  1.00 42.01      2HFT1089
+ATOM    933  CA  GLU   117      12.797  52.888   8.433  1.00 46.71      2HFT1090
+ATOM    934  C   GLU   117      11.999  52.149   7.396  1.00 48.25      2HFT1091
+ATOM    935  O   GLU   117      12.411  51.089   6.933  1.00 47.54      2HFT1092
+ATOM    936  CB  GLU   117      14.238  53.036   7.921  1.00 50.78      2HFT1093
+ATOM    937  CG  GLU   117      14.329  53.704   6.533  1.00 56.59      2HFT1094
+ATOM    938  CD  GLU   117      15.700  53.584   5.855  1.00 60.72      2HFT1095
+ATOM    939  OE1 GLU   117      16.554  52.775   6.312  1.00 62.66      2HFT1096
+ATOM    940  OE2 GLU   117      15.908  54.299   4.840  1.00 62.18      2HFT1097
+ATOM    941  N   GLN   118      10.835  52.677   7.050  1.00 52.35      2HFT1098
+ATOM    942  CA  GLN   118      10.052  52.013   6.016  1.00 55.71      2HFT1099
+ATOM    943  C   GLN   118      10.636  52.326   4.649  1.00 55.24      2HFT1100
+ATOM    944  O   GLN   118      10.820  53.477   4.266  1.00 54.97      2HFT1101
+ATOM    945  CB  GLN   118       8.561  52.370   6.045  1.00 57.78      2HFT1102
+ATOM    946  CG  GLN   118       7.826  51.648   4.923  1.00 61.26      2HFT1103
+ATOM    947  CD  GLN   118       6.383  51.380   5.231  1.00 63.42      2HFT1104
+ATOM    948  OE1 GLN   118       5.762  52.112   5.998  1.00 64.87      2HFT1105
+ATOM    949  NE2 GLN   118       5.832  50.321   4.638  1.00 63.80      2HFT1106
+ATOM    950  N   VAL   119      10.976  51.266   3.946  1.00 55.17      2HFT1107
+ATOM    951  CA  VAL   119      11.542  51.377   2.629  1.00 56.10      2HFT1108
+ATOM    952  C   VAL   119      10.578  50.696   1.656  1.00 54.39      2HFT1109
+ATOM    953  O   VAL   119      10.591  49.476   1.466  1.00 54.66      2HFT1110
+ATOM    954  CB  VAL   119      12.943  50.764   2.647  1.00 59.07      2HFT1111
+ATOM    955  CG1 VAL   119      13.844  51.604   3.553  1.00 60.69      2HFT1112
+ATOM    956  CG2 VAL   119      12.911  49.350   3.211  1.00 61.43      2HFT1113
+ATOM    957  N   GLY   120       9.684  51.510   1.104  1.00 52.16      2HFT1114
+ATOM    958  CA  GLY   120       8.682  50.994   0.188  1.00 49.98      2HFT1115
+ATOM    959  C   GLY   120       7.656  50.157   0.922  1.00 48.60      2HFT1116
+ATOM    960  O   GLY   120       6.847  50.703   1.685  1.00 48.17      2HFT1117
+ATOM    961  N   THR   121       7.705  48.839   0.734  1.00 46.87      2HFT1118
+ATOM    962  CA  THR   121       6.753  47.967   1.414  1.00 46.78      2HFT1119
+ATOM    963  C   THR   121       7.424  47.169   2.535  1.00 44.21      2HFT1120
+ATOM    964  O   THR   121       6.839  46.242   3.126  1.00 44.55      2HFT1121
+ATOM    965  CB  THR   121       5.993  47.035   0.406  1.00 49.48      2HFT1122
+ATOM    966  OG1 THR   121       4.677  46.749   0.923  1.00 51.08      2HFT1123
+ATOM    967  CG2 THR   121       6.771  45.716   0.139  1.00 49.53      2HFT1124
+ATOM    968  N   LYS   122       8.670  47.532   2.817  1.00 41.79      2HFT1125
+ATOM    969  CA  LYS   122       9.436  46.871   3.859  1.00 38.45      2HFT1126
+ATOM    970  C   LYS   122       9.811  47.842   4.969  1.00 36.47      2HFT1127
+ATOM    971  O   LYS   122       9.903  49.056   4.755  1.00 35.72      2HFT1128
+ATOM    972  CB  LYS   122      10.694  46.247   3.276  1.00 36.04      2HFT1129
+ATOM    973  CG  LYS   122      10.439  44.998   2.512  1.00 34.90      2HFT1130
+ATOM    974  CD  LYS   122      11.693  44.573   1.791  1.00 36.54      2HFT1131
+ATOM    975  CE  LYS   122      11.548  43.180   1.211  1.00 38.96      2HFT1132
+ATOM    976  NZ  LYS   122      11.310  42.142   2.265  1.00 42.50      2HFT1133
+ATOM    977  N   VAL   123       9.966  47.289   6.170  1.00 34.34      2HFT1134
+ATOM    978  CA  VAL   123      10.359  48.061   7.336  1.00 31.27      2HFT1135
+ATOM    979  C   VAL   123      11.587  47.415   7.966  1.00 27.50      2HFT1136
+ATOM    980  O   VAL   123      11.652  46.203   8.165  1.00 23.61      2HFT1137
+ATOM    981  CB  VAL   123       9.207  48.187   8.376  1.00 32.59      2HFT1138
+ATOM    982  CG1 VAL   123       9.723  48.857   9.648  1.00 31.43      2HFT1139
+ATOM    983  CG2 VAL   123       8.058  49.029   7.790  1.00 31.60      2HFT1140
+ATOM    984  N   ASN   124      12.589  48.255   8.190  1.00 28.27      2HFT1141
+ATOM    985  CA  ASN   124      13.850  47.850   8.803  1.00 28.63      2HFT1142
+ATOM    986  C   ASN   124      13.790  48.355  10.253  1.00 25.16      2HFT1143
+ATOM    987  O   ASN   124      13.522  49.535  10.475  1.00 24.24      2HFT1144
+ATOM    988  CB  ASN   124      15.018  48.517   8.042  1.00 31.82      2HFT1145
+ATOM    989  CG  ASN   124      16.399  48.120   8.573  1.00 35.34      2HFT1146
+ATOM    990  OD1 ASN   124      17.142  48.966   9.079  1.00 37.25      2HFT1147
+ATOM    991  ND2 ASN   124      16.763  46.841   8.417  1.00 36.07      2HFT1148
+ATOM    992  N   VAL   125      13.913  47.440  11.216  1.00 22.91      2HFT1149
+ATOM    993  CA  VAL   125      13.912  47.776  12.654  1.00 20.63      2HFT1150
+ATOM    994  C   VAL   125      15.326  47.537  13.207  1.00 20.52      2HFT1151
+ATOM    995  O   VAL   125      15.887  46.433  13.095  1.00 20.06      2HFT1152
+ATOM    996  CB  VAL   125      12.916  46.915  13.453  1.00 18.52      2HFT1153
+ATOM    997  CG1 VAL   125      12.912  47.341  14.918  1.00 16.02      2HFT1154
+ATOM    998  CG2 VAL   125      11.514  47.007  12.822  1.00 18.05      2HFT1155
+ATOM    999  N   THR   126      15.917  48.593  13.754  1.00 19.23      2HFT1156
+ATOM   1000  CA  THR   126      17.269  48.496  14.295  1.00 18.55      2HFT1157
+ATOM   1001  C   THR   126      17.252  48.577  15.829  1.00 18.61      2HFT1158
+ATOM   1002  O   THR   126      16.530  49.401  16.417  1.00 18.38      2HFT1159
+ATOM   1003  CB  THR   126      18.200  49.601  13.694  1.00 18.91      2HFT1160
+ATOM   1004  OG1 THR   126      18.235  49.481  12.257  1.00 19.15      2HFT1161
+ATOM   1005  CG2 THR   126      19.623  49.483  14.263  1.00 17.89      2HFT1162
+ATOM   1006  N   VAL   127      18.025  47.682  16.446  1.00 16.55      2HFT1163
+ATOM   1007  CA  VAL   127      18.155  47.565  17.899  1.00 16.56      2HFT1164
+ATOM   1008  C   VAL   127      19.444  48.237  18.336  1.00 17.02      2HFT1165
+ATOM   1009  O   VAL   127      20.493  48.055  17.714  1.00 16.55      2HFT1166
+ATOM   1010  CB  VAL   127      18.248  46.078  18.331  1.00 15.65      2HFT1167
+ATOM   1011  CG1 VAL   127      18.355  45.977  19.834  1.00 16.62      2HFT1168
+ATOM   1012  CG2 VAL   127      17.062  45.281  17.824  1.00 15.97      2HFT1169
+ATOM   1013  N   GLU   128      19.363  48.998  19.421  1.00 18.89      2HFT1170
+ATOM   1014  CA  GLU   128      20.515  49.697  19.987  1.00 20.93      2HFT1171
+ATOM   1015  C   GLU   128      21.590  48.702  20.473  1.00 19.72      2HFT1172
+ATOM   1016  O   GLU   128      21.265  47.730  21.156  1.00 18.90      2HFT1173
+ATOM   1017  CB  GLU   128      20.041  50.548  21.160  1.00 25.12      2HFT1174
+ATOM   1018  CG  GLU   128      21.024  51.586  21.614  1.00 31.20      2HFT1175
+ATOM   1019  CD  GLU   128      20.549  52.272  22.873  1.00 35.75      2HFT1176
+ATOM   1020  OE1 GLU   128      19.401  52.771  22.905  1.00 36.34      2HFT1177
+ATOM   1021  OE2 GLU   128      21.331  52.289  23.839  1.00 40.17      2HFT1178
+ATOM   1022  N   ASP   129      22.839  48.893  20.055  1.00 19.40      2HFT1179
+ATOM   1023  CA  ASP   129      23.894  48.002  20.504  1.00 19.93      2HFT1180
+ATOM   1024  C   ASP   129      24.630  48.776  21.572  1.00 20.43      2HFT1181
+ATOM   1025  O   ASP   129      25.428  49.646  21.275  1.00 21.09      2HFT1182
+ATOM   1026  CB  ASP   129      24.840  47.604  19.360  1.00 19.15      2HFT1183
+ATOM   1027  CG  ASP   129      25.896  46.580  19.792  1.00 21.09      2HFT1184
+ATOM   1028  OD1 ASP   129      25.757  45.962  20.882  1.00 21.34      2HFT1185
+ATOM   1029  OD2 ASP   129      26.863  46.380  19.021  1.00 20.83      2HFT1186
+ATOM   1030  N   GLU   130      24.356  48.428  22.820  1.00 21.87      2HFT1187
+ATOM   1031  CA  GLU   130      24.936  49.079  23.999  1.00 24.39      2HFT1188
+ATOM   1032  C   GLU   130      26.399  48.865  24.306  1.00 22.93      2HFT1189
+ATOM   1033  O   GLU   130      26.899  47.758  24.227  1.00 21.75      2HFT1190
+ATOM   1034  CB  GLU   130      24.136  48.689  25.227  1.00 25.19      2HFT1191
+ATOM   1035  CG  GLU   130      22.704  48.994  25.025  1.00 30.81      2HFT1192
+ATOM   1036  CD  GLU   130      22.003  49.124  26.307  1.00 36.39      2HFT1193
+ATOM   1037  OE1 GLU   130      21.602  48.089  26.846  1.00 40.51      2HFT1194
+ATOM   1038  OE2 GLU   130      21.875  50.254  26.803  1.00 41.32      2HFT1195
+ATOM   1039  N   ARG   131      27.070  49.935  24.710  1.00 22.51      2HFT1196
+ATOM   1040  CA  ARG   131      28.469  49.834  25.082  1.00 21.68      2HFT1197
+ATOM   1041  C   ARG   131      28.563  49.119  26.442  1.00 19.59      2HFT1198
+ATOM   1042  O   ARG   131      27.599  49.126  27.213  1.00 20.27      2HFT1199
+ATOM   1043  CB  ARG   131      29.084  51.237  25.185  1.00 22.56      2HFT1200
+ATOM   1044  CG  ARG   131      28.540  52.076  26.312  1.00 24.77      2HFT1201
+ATOM   1045  CD  ARG   131      29.386  53.327  26.440  1.00 27.02      2HFT1202
+ATOM   1046  NE  ARG   131      28.980  54.215  27.530  1.00 28.02      2HFT1203
+ATOM   1047  CZ  ARG   131      29.323  54.075  28.815  1.00 28.47      2HFT1204
+ATOM   1048  NH1 ARG   131      30.087  53.058  29.223  1.00 22.21      2HFT1205
+ATOM   1049  NH2 ARG   131      28.940  55.014  29.690  1.00 28.87      2HFT1206
+ATOM   1050  N   THR   132      29.697  48.454  26.698  1.00 19.81      2HFT1207
+ATOM   1051  CA  THR   132      29.960  47.772  27.983  1.00 17.40      2HFT1208
+ATOM   1052  C   THR   132      31.363  48.214  28.417  1.00 16.37      2HFT1209
+ATOM   1053  O   THR   132      32.071  48.880  27.657  1.00 17.86      2HFT1210
+ATOM   1054  CB  THR   132      29.952  46.198  27.879  1.00 16.35      2HFT1211
+ATOM   1055  OG1 THR   132      31.186  45.721  27.322  1.00 15.70      2HFT1212
+ATOM   1056  CG2 THR   132      28.798  45.703  27.020  1.00 17.72      2HFT1213
+ATOM   1057  N   LEU   133      31.764  47.831  29.622  1.00 15.99      2HFT1214
+ATOM   1058  CA  LEU   133      33.099  48.161  30.126  1.00 17.99      2HFT1215
+ATOM   1059  C   LEU   133      34.144  47.068  29.845  1.00 18.60      2HFT1216
+ATOM   1060  O   LEU   133      35.261  47.138  30.342  1.00 18.57      2HFT1217
+ATOM   1061  CB  LEU   133      33.051  48.482  31.623  1.00 18.46      2HFT1218
+ATOM   1062  CG  LEU   133      32.248  49.754  31.936  1.00 19.99      2HFT1219
+ATOM   1063  CD1 LEU   133      32.070  49.893  33.428  1.00 21.30      2HFT1220
+ATOM   1064  CD2 LEU   133      32.933  50.995  31.351  1.00 21.70      2HFT1221
+ATOM   1065  N   VAL   134      33.762  46.023  29.108  1.00 17.29      2HFT1222
+ATOM   1066  CA  VAL   134      34.701  44.966  28.744  1.00 17.49      2HFT1223
+ATOM   1067  C   VAL   134      35.639  45.596  27.699  1.00 19.78      2HFT1224
+ATOM   1068  O   VAL   134      35.191  46.241  26.738  1.00 18.92      2HFT1225
+ATOM   1069  CB  VAL   134      33.963  43.737  28.132  1.00 16.76      2HFT1226
+ATOM   1070  CG1 VAL   134      34.937  42.598  27.822  1.00 16.16      2HFT1227
+ATOM   1071  CG2 VAL   134      32.907  43.241  29.089  1.00 16.87      2HFT1228
+ATOM   1072  N   ARG   135      36.942  45.454  27.917  1.00 22.08      2HFT1229
+ATOM   1073  CA  ARG   135      37.924  46.033  27.012  1.00 24.49      2HFT1230
+ATOM   1074  C   ARG   135      38.565  45.029  26.079  1.00 26.95      2HFT1231
+ATOM   1075  O   ARG   135      38.622  43.843  26.365  1.00 28.00      2HFT1232
+ATOM   1076  CB  ARG   135      39.085  46.631  27.815  1.00 25.92      2HFT1233
+ATOM   1077  CG  ARG   135      38.787  47.808  28.701  1.00 28.39      2HFT1234
+ATOM   1078  CD  ARG   135      39.331  49.083  28.090  1.00 32.58      2HFT1235
+ATOM   1079  NE  ARG   135      40.758  49.040  27.733  1.00 35.41      2HFT1236
+ATOM   1080  CZ  ARG   135      41.778  49.283  28.571  1.00 37.11      2HFT1237
+ATOM   1081  NH1 ARG   135      41.579  49.567  29.861  1.00 35.10      2HFT1238
+ATOM   1082  NH2 ARG   135      43.016  49.347  28.086  1.00 37.90      2HFT1239
+ATOM   1083  N   ARG   136      39.057  45.533  24.959  1.00 30.16      2HFT1240
+ATOM   1084  CA  ARG   136      39.846  44.737  24.027  1.00 32.33      2HFT1241
+ATOM   1085  C   ARG   136      40.755  45.807  23.461  1.00 33.25      2HFT1242
+ATOM   1086  O   ARG   136      40.276  46.711  22.773  1.00 31.35      2HFT1243
+ATOM   1087  CB AARG   136      39.019  44.057  22.950  0.50 32.69      2HFT1244
+ATOM   1088  CB BARG   136      38.978  44.165  22.909  0.50 33.51      2HFT1245
+ATOM   1089  CG AARG   136      39.824  42.953  22.275  0.50 33.89      2HFT1246
+ATOM   1090  CG BARG   136      39.784  43.861  21.651  0.50 35.84      2HFT1247
+ATOM   1091  CD AARG   136      39.024  42.171  21.253  0.50 34.80      2HFT1248
+ATOM   1092  CD BARG   136      39.170  42.738  20.828  0.50 37.74      2HFT1249
+ATOM   1093  NE AARG   136      38.388  40.987  21.819  0.50 36.00      2HFT1250
+ATOM   1094  NE BARG   136      38.110  43.176  19.928  0.50 39.34      2HFT1251
+ATOM   1095  CZ AARG   136      37.271  40.455  21.339  0.50 36.89      2HFT1252
+ATOM   1096  CZ BARG   136      37.046  42.433  19.645  0.50 40.34      2HFT1253
+ATOM   1097  NH1AARG   136      36.679  41.013  20.291  0.50 38.25      2HFT1254
+ATOM   1098  NH1BARG   136      36.924  41.249  20.223  0.50 41.51      2HFT1255
+ATOM   1099  NH2AARG   136      36.753  39.366  21.883  0.50 36.37      2HFT1256
+ATOM   1100  NH2BARG   136      36.141  42.836  18.765  0.50 40.11      2HFT1257
+ATOM   1101  N   ASN   137      42.029  45.768  23.874  1.00 36.40      2HFT1258
+ATOM   1102  CA  ASN   137      43.063  46.749  23.494  1.00 38.30      2HFT1259
+ATOM   1103  C   ASN   137      42.648  48.117  24.056  1.00 38.23      2HFT1260
+ATOM   1104  O   ASN   137      42.410  48.229  25.271  1.00 38.99      2HFT1261
+ATOM   1105  CB  ASN   137      43.242  46.829  21.972  1.00 41.57      2HFT1262
+ATOM   1106  CG  ASN   137      43.543  45.491  21.352  1.00 44.04      2HFT1263
+ATOM   1107  OD1 ASN   137      44.316  44.698  21.896  1.00 45.53      2HFT1264
+ATOM   1108  ND2 ASN   137      42.924  45.224  20.205  1.00 44.56      2HFT1265
+ATOM   1109  N   ASN   138      42.558  49.150  23.204  1.00 38.21      2HFT1266
+ATOM   1110  CA  ASN   138      42.127  50.460  23.685  1.00 37.40      2HFT1267
+ATOM   1111  C   ASN   138      40.743  50.916  23.218  1.00 34.45      2HFT1268
+ATOM   1112  O   ASN   138      40.534  52.055  22.822  1.00 34.52      2HFT1269
+ATOM   1113  CB  ASN   138      43.200  51.554  23.529  1.00 40.83      2HFT1270
+ATOM   1114  CG  ASN   138      43.749  52.045  24.903  1.00 44.41      2HFT1271
+ATOM   1115  OD1 ASN   138      43.570  51.382  25.936  1.00 46.15      2HFT1272
+ATOM   1116  ND2 ASN   138      44.407  53.204  24.907  1.00 44.16      2HFT1273
+ATOM   1117  N   THR   139      39.794  49.997  23.317  1.00 31.25      2HFT1274
+ATOM   1118  CA  THR   139      38.400  50.257  23.013  1.00 27.99      2HFT1275
+ATOM   1119  C   THR   139      37.559  49.367  23.947  1.00 26.00      2HFT1276
+ATOM   1120  O   THR   139      38.059  48.409  24.541  1.00 25.81      2HFT1277
+ATOM   1121  CB  THR   139      38.033  49.948  21.548  1.00 30.29      2HFT1278
+ATOM   1122  OG1 THR   139      36.680  50.385  21.290  1.00 32.40      2HFT1279
+ATOM   1123  CG2 THR   139      38.147  48.433  21.266  1.00 30.71      2HFT1280
+ATOM   1124  N   PHE   140      36.307  49.754  24.138  1.00 24.34      2HFT1281
+ATOM   1125  CA  PHE   140      35.374  48.997  24.965  1.00 23.59      2HFT1282
+ATOM   1126  C   PHE   140      34.517  48.199  23.970  1.00 24.64      2HFT1283
+ATOM   1127  O   PHE   140      34.225  48.694  22.864  1.00 27.02      2HFT1284
+ATOM   1128  CB  PHE   140      34.475  49.947  25.766  1.00 22.18      2HFT1285
+ATOM   1129  CG  PHE   140      35.185  50.696  26.872  1.00 19.06      2HFT1286
+ATOM   1130  CD1 PHE   140      35.622  50.029  28.019  1.00 17.78      2HFT1287
+ATOM   1131  CD2 PHE   140      35.367  52.080  26.794  1.00 18.85      2HFT1288
+ATOM   1132  CE1 PHE   140      36.221  50.726  29.083  1.00 16.29      2HFT1289
+ATOM   1133  CE2 PHE   140      35.965  52.792  27.854  1.00 17.53      2HFT1290
+ATOM   1134  CZ  PHE   140      36.395  52.109  28.997  1.00 17.47      2HFT1291
+ATOM   1135  N   LEU   141      34.147  46.973  24.336  1.00 22.26      2HFT1292
+ATOM   1136  CA  LEU   141      33.326  46.118  23.468  1.00 20.08      2HFT1293
+ATOM   1137  C   LEU   141      31.831  46.360  23.699  1.00 19.45      2HFT1294
+ATOM   1138  O   LEU   141      31.413  46.644  24.809  1.00 18.82      2HFT1295
+ATOM   1139  CB  LEU   141      33.633  44.635  23.725  1.00 19.14      2HFT1296
+ATOM   1140  CG  LEU   141      35.037  44.098  23.429  1.00 19.30      2HFT1297
+ATOM   1141  CD1 LEU   141      35.073  42.627  23.723  1.00 18.24      2HFT1298
+ATOM   1142  CD2 LEU   141      35.416  44.360  21.987  1.00 20.22      2HFT1299
+ATOM   1143  N   SER   142      31.034  46.306  22.638  1.00 17.75      2HFT1300
+ATOM   1144  CA  SER   142      29.593  46.479  22.783  1.00 17.60      2HFT1301
+ATOM   1145  C   SER   142      29.069  45.123  23.222  1.00 16.72      2HFT1302
+ATOM   1146  O   SER   142      29.790  44.131  23.144  1.00 17.27      2HFT1303
+ATOM   1147  CB  SER   142      28.960  46.858  21.433  1.00 20.45      2HFT1304
+ATOM   1148  OG  SER   142      29.084  45.800  20.480  1.00 19.51      2HFT1305
+ATOM   1149  N   LEU   143      27.800  45.063  23.599  1.00 15.77      2HFT1306
+ATOM   1150  CA  LEU   143      27.191  43.818  24.030  1.00 15.79      2HFT1307
+ATOM   1151  C   LEU   143      27.271  42.762  22.908  1.00 17.34      2HFT1308
+ATOM   1152  O   LEU   143      27.612  41.597  23.155  1.00 16.49      2HFT1309
+ATOM   1153  CB  LEU   143      25.746  44.099  24.426  1.00 18.63      2HFT1310
+ATOM   1154  CG  LEU   143      25.140  43.069  25.364  1.00 21.45      2HFT1311
+ATOM   1155  CD1 LEU   143      25.832  43.173  26.740  1.00 21.49      2HFT1312
+ATOM   1156  CD2 LEU   143      23.645  43.309  25.463  1.00 22.83      2HFT1313
+ATOM   1157  N   ARG   144      26.997  43.192  21.671  1.00 18.29      2HFT1314
+ATOM   1158  CA  ARG   144      27.061  42.319  20.485  1.00 19.13      2HFT1315
+ATOM   1159  C   ARG   144      28.526  41.903  20.219  1.00 17.16      2HFT1316
+ATOM   1160  O   ARG   144      28.789  40.774  19.826  1.00 17.54      2HFT1317
+ATOM   1161  CB  ARG   144      26.421  43.043  19.284  1.00 19.57      2HFT1318
+ATOM   1162  CG  ARG   144      26.708  42.483  17.895  1.00 22.90      2HFT1319
+ATOM   1163  CD  ARG   144      25.989  41.183  17.582  1.00 21.43      2HFT1320
+ATOM   1164  NE  ARG   144      24.519  41.235  17.616  1.00 17.66      2HFT1321
+ATOM   1165  CZ  ARG   144      23.770  40.188  17.957  1.00 14.77      2HFT1322
+ATOM   1166  NH1 ARG   144      24.342  39.038  18.291  1.00 13.05      2HFT1323
+ATOM   1167  NH2 ARG   144      22.457  40.274  17.950  1.00 15.41      2HFT1324
+ATOM   1168  N   ASP   145      29.482  42.785  20.487  1.00 15.66      2HFT1325
+ATOM   1169  CA  ASP   145      30.886  42.417  20.308  1.00 14.71      2HFT1326
+ATOM   1170  C   ASP   145      31.261  41.288  21.251  1.00 15.18      2HFT1327
+ATOM   1171  O   ASP   145      32.025  40.398  20.886  1.00 16.36      2HFT1328
+ATOM   1172  CB  ASP   145      31.824  43.579  20.630  1.00 17.00      2HFT1329
+ATOM   1173  CG  ASP   145      31.767  44.699  19.608  1.00 19.70      2HFT1330
+ATOM   1174  OD1 ASP   145      31.454  44.425  18.425  1.00 19.85      2HFT1331
+ATOM   1175  OD2 ASP   145      32.070  45.859  19.991  1.00 19.41      2HFT1332
+ATOM   1176  N   VAL   146      30.780  41.363  22.491  1.00 16.12      2HFT1333
+ATOM   1177  CA  VAL   146      31.078  40.334  23.502  1.00 16.00      2HFT1334
+ATOM   1178  C   VAL   146      30.426  38.974  23.238  1.00 15.53      2HFT1335
+ATOM   1179  O   VAL   146      31.106  37.958  23.269  1.00 14.50      2HFT1336
+ATOM   1180  CB  VAL   146      30.708  40.790  24.951  1.00 14.44      2HFT1337
+ATOM   1181  CG1 VAL   146      31.088  39.701  25.995  1.00 11.92      2HFT1338
+ATOM   1182  CG2 VAL   146      31.440  42.070  25.287  1.00 14.96      2HFT1339
+ATOM   1183  N   PHE   147      29.121  38.949  22.984  1.00 14.72      2HFT1340
+ATOM   1184  CA  PHE   147      28.433  37.669  22.778  1.00 14.78      2HFT1341
+ATOM   1185  C   PHE   147      28.495  37.102  21.373  1.00 14.36      2HFT1342
+ATOM   1186  O   PHE   147      28.312  35.895  21.186  1.00 14.85      2HFT1343
+ATOM   1187  CB  PHE   147      26.968  37.774  23.220  1.00 14.04      2HFT1344
+ATOM   1188  CG  PHE   147      26.797  37.940  24.690  1.00 15.59      2HFT1345
+ATOM   1189  CD1 PHE   147      27.085  36.884  25.553  1.00 16.18      2HFT1346
+ATOM   1190  CD2 PHE   147      26.335  39.146  25.230  1.00 15.70      2HFT1347
+ATOM   1191  CE1 PHE   147      26.913  37.017  26.934  1.00 17.01      2HFT1348
+ATOM   1192  CE2 PHE   147      26.158  39.283  26.614  1.00 15.96      2HFT1349
+ATOM   1193  CZ  PHE   147      26.449  38.212  27.463  1.00 16.56      2HFT1350
+ATOM   1194  N   GLY   148      28.729  37.970  20.392  1.00 14.46      2HFT1351
+ATOM   1195  CA  GLY   148      28.779  37.535  19.000  1.00 15.07      2HFT1352
+ATOM   1196  C   GLY   148      27.495  36.814  18.575  1.00 15.80      2HFT1353
+ATOM   1197  O   GLY   148      26.384  37.249  18.896  1.00 19.11      2HFT1354
+ATOM   1198  N   LYS   149      27.638  35.658  17.941  1.00 14.59      2HFT1355
+ATOM   1199  CA  LYS   149      26.494  34.880  17.495  1.00 16.65      2HFT1356
+ATOM   1200  C   LYS   149      25.663  34.248  18.602  1.00 15.91      2HFT1357
+ATOM   1201  O   LYS   149      24.574  33.712  18.325  1.00 15.46      2HFT1358
+ATOM   1202  CB  LYS   149      26.941  33.803  16.510  1.00 19.89      2HFT1359
+ATOM   1203  CG  LYS   149      27.233  34.387  15.158  1.00 27.74      2HFT1360
+ATOM   1204  CD  LYS   149      27.978  33.419  14.283  1.00 33.72      2HFT1361
+ATOM   1205  CE  LYS   149      28.368  34.099  12.978  1.00 37.88      2HFT1362
+ATOM   1206  NZ  LYS   149      29.016  35.430  13.213  1.00 41.13      2HFT1363
+ATOM   1207  N   ASP   150      26.173  34.254  19.831  1.00 13.55      2HFT1364
+ATOM   1208  CA  ASP   150      25.397  33.707  20.940  1.00 15.66      2HFT1365
+ATOM   1209  C   ASP   150      24.143  34.555  21.255  1.00 16.43      2HFT1366
+ATOM   1210  O   ASP   150      23.162  34.046  21.826  1.00 16.82      2HFT1367
+ATOM   1211  CB  ASP   150      26.250  33.588  22.206  1.00 17.28      2HFT1368
+ATOM   1212  CG  ASP   150      27.281  32.478  22.124  1.00 19.43      2HFT1369
+ATOM   1213  OD1 ASP   150      27.273  31.709  21.142  1.00 22.74      2HFT1370
+ATOM   1214  OD2 ASP   150      28.093  32.358  23.059  1.00 19.89      2HFT1371
+ATOM   1215  N   LEU   151      24.201  35.846  20.927  1.00 16.30      2HFT1372
+ATOM   1216  CA  LEU   151      23.092  36.749  21.183  1.00 17.49      2HFT1373
+ATOM   1217  C   LEU   151      22.112  36.848  19.991  1.00 19.14      2HFT1374
+ATOM   1218  O   LEU   151      22.503  37.204  18.871  1.00 19.25      2HFT1375
+ATOM   1219  CB  LEU   151      23.618  38.135  21.562  1.00 15.77      2HFT1376
+ATOM   1220  CG  LEU   151      22.583  39.239  21.850  1.00 17.96      2HFT1377
+ATOM   1221  CD1 LEU   151      21.843  38.984  23.176  1.00 16.43      2HFT1378
+ATOM   1222  CD2 LEU   151      23.313  40.594  21.910  1.00 18.01      2HFT1379
+ATOM   1223  N   ILE   152      20.834  36.579  20.281  1.00 19.32      2HFT1380
+ATOM   1224  CA  ILE   152      19.744  36.625  19.300  1.00 18.85      2HFT1381
+ATOM   1225  C   ILE   152      18.640  37.578  19.809  1.00 19.05      2HFT1382
+ATOM   1226  O   ILE   152      18.306  37.562  20.990  1.00 19.75      2HFT1383
+ATOM   1227  CB  ILE   152      19.076  35.220  19.134  1.00 19.90      2HFT1384
+ATOM   1228  CG1 ILE   152      20.122  34.108  18.886  1.00 17.83      2HFT1385
+ATOM   1229  CG2 ILE   152      17.959  35.271  18.085  1.00 18.84      2HFT1386
+ATOM   1230  CD1 ILE   152      21.013  34.313  17.722  1.00 18.07      2HFT1387
+ATOM   1231  N   TYR   153      18.118  38.432  18.934  1.00 16.51      2HFT1388
+ATOM   1232  CA  TYR   153      17.021  39.318  19.300  1.00 16.10      2HFT1389
+ATOM   1233  C   TYR   153      15.752  38.838  18.640  1.00 16.62      2HFT1390
+ATOM   1234  O   TYR   153      15.778  38.388  17.500  1.00 16.24      2HFT1391
+ATOM   1235  CB  TYR   153      17.259  40.741  18.803  1.00 16.95      2HFT1392
+ATOM   1236  CG  TYR   153      18.284  41.502  19.584  1.00 17.21      2HFT1393
+ATOM   1237  CD1 TYR   153      18.019  41.923  20.888  1.00 16.65      2HFT1394
+ATOM   1238  CD2 TYR   153      19.510  41.822  19.020  1.00 17.49      2HFT1395
+ATOM   1239  CE1 TYR   153      18.954  42.648  21.616  1.00 16.09      2HFT1396
+ATOM   1240  CE2 TYR   153      20.459  42.549  19.741  1.00 18.95      2HFT1397
+ATOM   1241  CZ  TYR   153      20.169  42.959  21.038  1.00 17.82      2HFT1398
+ATOM   1242  OH  TYR   153      21.106  43.670  21.752  1.00 18.59      2HFT1399
+ATOM   1243  N   THR   154      14.643  38.952  19.359  1.00 18.33      2HFT1400
+ATOM   1244  CA  THR   154      13.324  38.595  18.831  1.00 19.49      2HFT1401
+ATOM   1245  C   THR   154      12.521  39.893  18.651  1.00 19.76      2HFT1402
+ATOM   1246  O   THR   154      12.486  40.740  19.559  1.00 20.33      2HFT1403
+ATOM   1247  CB  THR   154      12.515  37.690  19.801  1.00 20.25      2HFT1404
+ATOM   1248  OG1 THR   154      13.257  36.499  20.089  1.00 20.70      2HFT1405
+ATOM   1249  CG2 THR   154      11.164  37.301  19.171  1.00 19.80      2HFT1406
+ATOM   1250  N   LEU   155      11.950  40.072  17.460  1.00 18.59      2HFT1407
+ATOM   1251  CA  LEU   155      11.108  41.220  17.177  1.00 18.17      2HFT1408
+ATOM   1252  C   LEU   155       9.668  40.733  17.214  1.00 18.65      2HFT1409
+ATOM   1253  O   LEU   155       9.349  39.675  16.681  1.00 20.00      2HFT1410
+ATOM   1254  CB  LEU   155      11.391  41.815  15.799  1.00 18.01      2HFT1411
+ATOM   1255  CG  LEU   155      10.492  42.994  15.348  1.00 18.78      2HFT1412
+ATOM   1256  CD1 LEU   155      10.756  44.288  16.158  1.00 15.72      2HFT1413
+ATOM   1257  CD2 LEU   155      10.692  43.257  13.881  1.00 17.23      2HFT1414
+ATOM   1258  N   TYR   156       8.838  41.455  17.945  1.00 19.29      2HFT1415
+ATOM   1259  CA  TYR   156       7.412  41.168  18.039  1.00 21.58      2HFT1416
+ATOM   1260  C   TYR   156       6.768  42.357  17.350  1.00 22.20      2HFT1417
+ATOM   1261  O   TYR   156       7.127  43.511  17.620  1.00 20.86      2HFT1418
+ATOM   1262  CB  TYR   156       6.961  41.116  19.494  1.00 23.20      2HFT1419
+ATOM   1263  CG  TYR   156       7.550  39.960  20.263  1.00 24.27      2HFT1420
+ATOM   1264  CD1 TYR   156       6.911  38.720  20.280  1.00 26.00      2HFT1421
+ATOM   1265  CD2 TYR   156       8.706  40.119  21.029  1.00 24.99      2HFT1422
+ATOM   1266  CE1 TYR   156       7.401  37.666  21.037  1.00 26.50      2HFT1423
+ATOM   1267  CE2 TYR   156       9.206  39.071  21.796  1.00 27.98      2HFT1424
+ATOM   1268  CZ  TYR   156       8.540  37.845  21.803  1.00 28.68      2HFT1425
+ATOM   1269  OH  TYR   156       8.991  36.804  22.589  1.00 30.28      2HFT1426
+ATOM   1270  N   TYR   157       5.876  42.068  16.408  1.00 23.38      2HFT1427
+ATOM   1271  CA  TYR   157       5.205  43.123  15.654  1.00 25.44      2HFT1428
+ATOM   1272  C   TYR   157       3.730  42.805  15.418  1.00 26.38      2HFT1429
+ATOM   1273  O   TYR   157       3.335  41.638  15.372  1.00 25.60      2HFT1430
+ATOM   1274  CB  TYR   157       5.931  43.446  14.326  1.00 25.48      2HFT1431
+ATOM   1275  CG  TYR   157       6.089  42.309  13.307  1.00 27.00      2HFT1432
+ATOM   1276  CD1 TYR   157       7.041  41.307  13.487  1.00 26.82      2HFT1433
+ATOM   1277  CD2 TYR   157       5.347  42.298  12.127  1.00 25.85      2HFT1434
+ATOM   1278  CE1 TYR   157       7.247  40.344  12.527  1.00 27.31      2HFT1435
+ATOM   1279  CE2 TYR   157       5.548  41.341  11.162  1.00 25.55      2HFT1436
+ATOM   1280  CZ  TYR   157       6.499  40.367  11.368  1.00 28.53      2HFT1437
+ATOM   1281  OH  TYR   157       6.708  39.391  10.415  1.00 30.91      2HFT1438
+ATOM   1282  N   TRP   158       2.928  43.858  15.280  1.00 26.80      2HFT1439
+ATOM   1283  CA  TRP   158       1.499  43.698  15.095  1.00 27.13      2HFT1440
+ATOM   1284  C   TRP   158       0.885  45.035  14.771  1.00 29.29      2HFT1441
+ATOM   1285  O   TRP   158       1.488  46.080  15.000  1.00 26.55      2HFT1442
+ATOM   1286  CB  TRP   158       0.887  43.225  16.422  1.00 27.55      2HFT1443
+ATOM   1287  CG  TRP   158       1.075  44.237  17.569  1.00 29.05      2HFT1444
+ATOM   1288  CD1 TRP   158       0.206  45.235  17.938  1.00 29.51      2HFT1445
+ATOM   1289  CD2 TRP   158       2.212  44.374  18.443  1.00 28.24      2HFT1446
+ATOM   1290  NE1 TRP   158       0.731  45.974  18.967  1.00 28.92      2HFT1447
+ATOM   1291  CE2 TRP   158       1.961  45.464  19.298  1.00 28.29      2HFT1448
+ATOM   1292  CE3 TRP   158       3.420  43.666  18.575  1.00 29.01      2HFT1449
+ATOM   1293  CZ2 TRP   158       2.869  45.877  20.283  1.00 28.76      2HFT1450
+ATOM   1294  CZ3 TRP   158       4.328  44.075  19.559  1.00 30.17      2HFT1451
+ATOM   1295  CH2 TRP   158       4.044  45.173  20.400  1.00 30.07      2HFT1452
+ATOM   1296  N   LYS   159      -0.290  45.001  14.161  1.00 35.36      2HFT1453
+ATOM   1297  CA  LYS   159      -1.043  46.233  13.930  1.00 40.52      2HFT1454
+ATOM   1298  C   LYS   159      -2.225  46.029  14.891  1.00 43.89      2HFT1455
+ATOM   1299  O   LYS   159      -2.356  44.954  15.477  1.00 45.05      2HFT1456
+ATOM   1300  CB  LYS   159      -1.481  46.361  12.475  1.00 40.49      2HFT1457
+ATOM   1301  CG  LYS   159      -2.094  45.128  11.939  1.00 41.95      2HFT1458
+ATOM   1302  CD  LYS   159      -1.636  44.894  10.547  1.00 42.10      2HFT1459
+ATOM   1303  CE  LYS   159      -2.113  43.560  10.103  1.00 42.46      2HFT1460
+ATOM   1304  NZ  LYS   159      -2.629  43.734   8.747  1.00 46.35      2HFT1461
+ATOM   1305  N   SER   160      -3.062  47.029  15.121  1.00 46.98      2HFT1462
+ATOM   1306  CA  SER   160      -4.163  46.801  16.054  1.00 49.80      2HFT1463
+ATOM   1307  C   SER   160      -5.519  46.639  15.397  1.00 51.09      2HFT1464
+ATOM   1308  O   SER   160      -5.852  45.544  14.938  1.00 52.13      2HFT1465
+ATOM   1309  CB  SER   160      -4.198  47.883  17.116  1.00 52.74      2HFT1466
+ATOM   1310  OG  SER   160      -3.054  47.769  17.946  1.00 56.64      2HFT1467
+ATOM   1311  N   SER   163      -5.155  41.010  17.289  1.00 61.16      2HFT1468
+ATOM   1312  CA  SER   163      -5.401  39.636  17.814  1.00 61.31      2HFT1469
+ATOM   1313  C   SER   163      -4.086  39.032  18.267  1.00 59.66      2HFT1470
+ATOM   1314  O   SER   163      -3.898  38.773  19.455  1.00 60.13      2HFT1471
+ATOM   1315  CB  SER   163      -6.038  38.742  16.734  1.00 63.85      2HFT1472
+ATOM   1316  OG  SER   163      -7.288  39.260  16.285  1.00 65.46      2HFT1473
+ATOM   1317  N   GLY   164      -3.153  38.874  17.330  1.00 58.46      2HFT1474
+ATOM   1318  CA  GLY   164      -1.863  38.288  17.666  1.00 56.99      2HFT1475
+ATOM   1319  C   GLY   164      -0.625  38.895  17.018  1.00 54.89      2HFT1476
+ATOM   1320  O   GLY   164      -0.675  39.454  15.915  1.00 55.57      2HFT1477
+ATOM   1321  N   LYS   165       0.500  38.767  17.715  1.00 51.74      2HFT1478
+ATOM   1322  CA  LYS   165       1.778  39.286  17.234  1.00 49.23      2HFT1479
+ATOM   1323  C   LYS   165       2.598  38.278  16.419  1.00 46.89      2HFT1480
+ATOM   1324  O   LYS   165       2.666  37.082  16.744  1.00 46.84      2HFT1481
+ATOM   1325  CB  LYS   165       2.617  39.773  18.418  1.00 48.42      2HFT1482
+ATOM   1326  CG  LYS   165       1.862  40.755  19.274  1.00 50.29      2HFT1483
+ATOM   1327  CD  LYS   165       2.534  41.094  20.590  1.00 49.97      2HFT1484
+ATOM   1328  CE  LYS   165       1.602  42.029  21.345  1.00 51.54      2HFT1485
+ATOM   1329  NZ  LYS   165       2.185  42.631  22.567  1.00 52.65      2HFT1486
+ATOM   1330  N   LYS   166       3.190  38.773  15.337  1.00 43.05      2HFT1487
+ATOM   1331  CA  LYS   166       4.064  37.969  14.493  1.00 38.54      2HFT1488
+ATOM   1332  C   LYS   166       5.470  38.186  15.066  1.00 34.49      2HFT1489
+ATOM   1333  O   LYS   166       5.711  39.167  15.765  1.00 31.10      2HFT1490
+ATOM   1334  CB  LYS   166       3.985  38.456  13.061  1.00 38.20      2HFT1491
+ATOM   1335  CG  LYS   166       2.588  38.336  12.490  1.00 43.09      2HFT1492
+ATOM   1336  CD  LYS   166       2.519  38.946  11.100  1.00 47.40      2HFT1493
+ATOM   1337  CE  LYS   166       2.035  37.937  10.074  1.00 51.00      2HFT1494
+ATOM   1338  NZ  LYS   166       3.010  37.800   8.952  1.00 53.76      2HFT1495
+ATOM   1339  N   THR   167       6.385  37.262  14.807  1.00 31.94      2HFT1496
+ATOM   1340  CA  THR   167       7.728  37.402  15.346  1.00 29.13      2HFT1497
+ATOM   1341  C   THR   167       8.788  37.120  14.288  1.00 26.78      2HFT1498
+ATOM   1342  O   THR   167       8.511  36.481  13.283  1.00 26.42      2HFT1499
+ATOM   1343  CB  THR   167       7.944  36.454  16.572  1.00 30.13      2HFT1500
+ATOM   1344  OG1 THR   167       8.017  35.096  16.129  1.00 31.63      2HFT1501
+ATOM   1345  CG2 THR   167       6.784  36.562  17.557  1.00 28.62      2HFT1502
+ATOM   1346  N   ALA   168       9.985  37.656  14.500  1.00 24.05      2HFT1503
+ATOM   1347  CA  ALA   168      11.123  37.444  13.601  1.00 21.72      2HFT1504
+ATOM   1348  C   ALA   168      12.332  37.404  14.536  1.00 21.12      2HFT1505
+ATOM   1349  O   ALA   168      12.268  37.949  15.640  1.00 19.32      2HFT1506
+ATOM   1350  CB  ALA   168      11.260  38.591  12.625  1.00 20.59      2HFT1507
+ATOM   1351  N   LYS   169      13.423  36.787  14.088  1.00 20.53      2HFT1508
+ATOM   1352  CA  LYS   169      14.644  36.681  14.899  1.00 18.38      2HFT1509
+ATOM   1353  C   LYS   169      15.893  37.039  14.126  1.00 16.86      2HFT1510
+ATOM   1354  O   LYS   169      15.939  36.922  12.905  1.00 15.82      2HFT1511
+ATOM   1355  CB  LYS   169      14.804  35.271  15.448  1.00 16.88      2HFT1512
+ATOM   1356  CG  LYS   169      13.801  34.954  16.512  1.00 21.65      2HFT1513
+ATOM   1357  CD  LYS   169      14.031  33.583  17.055  1.00 26.14      2HFT1514
+ATOM   1358  CE  LYS   169      13.134  33.334  18.238  1.00 30.68      2HFT1515
+ATOM   1359  NZ  LYS   169      13.189  31.882  18.605  1.00 35.01      2HFT1516
+ATOM   1360  N   THR   170      16.925  37.453  14.844  1.00 16.28      2HFT1517
+ATOM   1361  CA  THR   170      18.175  37.788  14.195  1.00 17.54      2HFT1518
+ATOM   1362  C   THR   170      19.378  37.716  15.128  1.00 16.87      2HFT1519
+ATOM   1363  O   THR   170      19.242  37.892  16.323  1.00 15.92      2HFT1520
+ATOM   1364  CB  THR   170      18.122  39.217  13.523  1.00 17.47      2HFT1521
+ATOM   1365  OG1 THR   170      19.313  39.429  12.748  1.00 16.80      2HFT1522
+ATOM   1366  CG2 THR   170      17.999  40.330  14.583  1.00 16.60      2HFT1523
+ATOM   1367  N   ASN   171      20.538  37.390  14.559  1.00 16.85      2HFT1524
+ATOM   1368  CA  ASN   171      21.780  37.372  15.317  1.00 17.25      2HFT1525
+ATOM   1369  C   ASN   171      22.616  38.632  14.983  1.00 17.70      2HFT1526
+ATOM   1370  O   ASN   171      23.824  38.643  15.198  1.00 17.70      2HFT1527
+ATOM   1371  CB  ASN   171      22.586  36.070  15.130  1.00 17.90      2HFT1528
+ATOM   1372  CG  ASN   171      23.012  35.823  13.691  1.00 19.49      2HFT1529
+ATOM   1373  OD1 ASN   171      22.672  36.586  12.778  1.00 21.52      2HFT1530
+ATOM   1374  ND2 ASN   171      23.757  34.737  13.477  1.00 17.01      2HFT1531
+ATOM   1375  N   THR   172      21.965  39.656  14.402  1.00 15.71      2HFT1532
+ATOM   1376  CA  THR   172      22.587  40.946  14.109  1.00 14.94      2HFT1533
+ATOM   1377  C   THR   172      21.753  41.954  14.909  1.00 15.96      2HFT1534
+ATOM   1378  O   THR   172      21.043  41.583  15.852  1.00 17.13      2HFT1535
+ATOM   1379  CB  THR   172      22.551  41.331  12.591  1.00 16.99      2HFT1536
+ATOM   1380  OG1 THR   172      21.207  41.593  12.166  1.00 16.80      2HFT1537
+ATOM   1381  CG2 THR   172      23.089  40.211  11.735  1.00 18.23      2HFT1538
+ATOM   1382  N   ASN   173      21.835  43.228  14.551  1.00 17.35      2HFT1539
+ATOM   1383  CA  ASN   173      21.055  44.260  15.245  1.00 20.16      2HFT1540
+ATOM   1384  C   ASN   173      19.909  44.870  14.445  1.00 20.75      2HFT1541
+ATOM   1385  O   ASN   173      19.426  45.943  14.779  1.00 20.50      2HFT1542
+ATOM   1386  CB  ASN   173      21.954  45.372  15.805  1.00 21.13      2HFT1543
+ATOM   1387  CG  ASN   173      22.568  44.982  17.129  1.00 25.14      2HFT1544
+ATOM   1388  OD1 ASN   173      23.346  44.049  17.185  1.00 24.66      2HFT1545
+ATOM   1389  ND2 ASN   173      22.143  45.630  18.213  1.00 28.90      2HFT1546
+ATOM   1390  N   GLU   174      19.502  44.216  13.365  1.00 21.50      2HFT1547
+ATOM   1391  CA  GLU   174      18.385  44.702  12.569  1.00 22.80      2HFT1548
+ATOM   1392  C   GLU   174      17.523  43.607  11.977  1.00 21.82      2HFT1549
+ATOM   1393  O   GLU   174      17.931  42.451  11.841  1.00 21.39      2HFT1550
+ATOM   1394  CB  GLU   174      18.811  45.692  11.492  1.00 24.89      2HFT1551
+ATOM   1395  CG  GLU   174      20.226  45.619  11.071  1.00 30.96      2HFT1552
+ATOM   1396  CD  GLU   174      20.643  46.875  10.338  1.00 37.27      2HFT1553
+ATOM   1397  OE1 GLU   174      20.345  46.982   9.126  1.00 40.30      2HFT1554
+ATOM   1398  OE2 GLU   174      21.249  47.770  10.974  1.00 40.20      2HFT1555
+ATOM   1399  N   PHE   175      16.285  43.987  11.717  1.00 22.38      2HFT1556
+ATOM   1400  CA  PHE   175      15.293  43.110  11.145  1.00 22.80      2HFT1557
+ATOM   1401  C   PHE   175      14.769  43.830   9.932  1.00 25.32      2HFT1558
+ATOM   1402  O   PHE   175      14.643  45.047   9.941  1.00 27.02      2HFT1559
+ATOM   1403  CB  PHE   175      14.106  42.940  12.097  1.00 21.99      2HFT1560
+ATOM   1404  CG  PHE   175      14.459  42.339  13.430  1.00 19.71      2HFT1561
+ATOM   1405  CD1 PHE   175      14.911  43.153  14.485  1.00 18.13      2HFT1562
+ATOM   1406  CD2 PHE   175      14.284  40.967  13.656  1.00 16.60      2HFT1563
+ATOM   1407  CE1 PHE   175      15.178  42.591  15.757  1.00 18.40      2HFT1564
+ATOM   1408  CE2 PHE   175      14.545  40.410  14.907  1.00 17.27      2HFT1565
+ATOM   1409  CZ  PHE   175      14.989  41.217  15.960  1.00 15.82      2HFT1566
+ATOM   1410  N   LEU   176      14.502  43.085   8.872  1.00 26.92      2HFT1567
+ATOM   1411  CA  LEU   176      13.919  43.658   7.667  1.00 28.18      2HFT1568
+ATOM   1412  C   LEU   176      12.671  42.790   7.486  1.00 29.12      2HFT1569
+ATOM   1413  O   LEU   176      12.771  41.560   7.365  1.00 27.62      2HFT1570
+ATOM   1414  CB  LEU   176      14.866  43.555   6.472  1.00 26.81      2HFT1571
+ATOM   1415  CG  LEU   176      14.370  44.314   5.245  1.00 24.27      2HFT1572
+ATOM   1416  CD1 LEU   176      14.219  45.792   5.544  1.00 25.07      2HFT1573
+ATOM   1417  CD2 LEU   176      15.353  44.101   4.132  1.00 25.58      2HFT1574
+ATOM   1418  N   ILE   177      11.506  43.414   7.665  1.00 30.32      2HFT1575
+ATOM   1419  CA  ILE   177      10.240  42.700   7.544  1.00 32.15      2HFT1576
+ATOM   1420  C   ILE   177       9.318  43.254   6.450  1.00 33.88      2HFT1577
+ATOM   1421  O   ILE   177       9.519  44.346   5.927  1.00 33.26      2HFT1578
+ATOM   1422  CB  ILE   177       9.448  42.692   8.897  1.00 32.46      2HFT1579
+ATOM   1423  CG1 ILE   177       9.047  44.114   9.305  1.00 32.59      2HFT1580
+ATOM   1424  CG2 ILE   177      10.261  42.005  10.015  1.00 31.96      2HFT1581
+ATOM   1425  CD1 ILE   177       8.018  44.154  10.458  1.00 31.40      2HFT1582
+ATOM   1426  N   ASP   178       8.322  42.466   6.078  1.00 37.23      2HFT1583
+ATOM   1427  CA  ASP   178       7.351  42.907   5.086  1.00 40.98      2HFT1584
+ATOM   1428  C   ASP   178       6.129  43.396   5.837  1.00 41.83      2HFT1585
+ATOM   1429  O   ASP   178       5.660  42.732   6.762  1.00 43.82      2HFT1586
+ATOM   1430  CB  ASP   178       6.979  41.757   4.158  1.00 43.94      2HFT1587
+ATOM   1431  CG  ASP   178       7.824  41.738   2.907  1.00 49.41      2HFT1588
+ATOM   1432  OD1 ASP   178       7.874  42.785   2.225  1.00 52.78      2HFT1589
+ATOM   1433  OD2 ASP   178       8.448  40.699   2.606  1.00 52.06      2HFT1590
+ATOM   1434  N   VAL   179       5.619  44.562   5.486  1.00 41.52      2HFT1591
+ATOM   1435  CA  VAL   179       4.453  45.053   6.200  1.00 43.15      2HFT1592
+ATOM   1436  C   VAL   179       3.220  45.211   5.343  1.00 44.67      2HFT1593
+ATOM   1437  O   VAL   179       3.317  45.406   4.137  1.00 44.75      2HFT1594
+ATOM   1438  CB  VAL   179       4.729  46.393   6.922  1.00 43.28      2HFT1595
+ATOM   1439  CG1 VAL   179       5.594  46.156   8.156  1.00 42.12      2HFT1596
+ATOM   1440  CG2 VAL   179       5.382  47.392   5.966  1.00 43.15      2HFT1597
+ATOM   1441  N   ASP   180       2.058  45.094   5.978  1.00 46.98      2HFT1598
+ATOM   1442  CA  ASP   180       0.795  45.259   5.280  1.00 49.75      2HFT1599
+ATOM   1443  C   ASP   180       0.549  46.721   4.982  1.00 51.67      2HFT1600
+ATOM   1444  O   ASP   180       0.676  47.592   5.847  1.00 50.97      2HFT1601
+ATOM   1445  CB  ASP   180      -0.384  44.679   6.060  1.00 50.65      2HFT1602
+ATOM   1446  CG  ASP   180      -0.529  43.188   5.871  1.00 51.25      2HFT1603
+ATOM   1447  OD1 ASP   180       0.204  42.610   5.042  1.00 52.79      2HFT1604
+ATOM   1448  OD2 ASP   180      -1.382  42.586   6.547  1.00 51.33      2HFT1605
+ATOM   1449  N   LYS   181       0.231  46.959   3.719  1.00 53.18      2HFT1606
+ATOM   1450  CA  LYS   181      -0.049  48.266   3.186  1.00 54.34      2HFT1607
+ATOM   1451  C   LYS   181      -1.216  48.899   3.943  1.00 54.70      2HFT1608
+ATOM   1452  O   LYS   181      -2.203  48.228   4.281  1.00 54.40      2HFT1609
+ATOM   1453  CB  LYS   181      -0.328  48.100   1.678  1.00 56.30      2HFT1610
+ATOM   1454  CG  LYS   181      -1.415  48.948   1.067  1.00 57.65      2HFT1611
+ATOM   1455  CD  LYS   181      -1.530  48.653  -0.413  1.00 58.44      2HFT1612
+ATOM   1456  CE  LYS   181      -2.350  49.729  -1.078  1.00 59.84      2HFT1613
+ATOM   1457  NZ  LYS   181      -2.203  49.703  -2.554  1.00 62.07      2HFT1614
+ATOM   1458  N   GLY   182      -1.046  50.177   4.267  1.00 54.95      2HFT1615
+ATOM   1459  CA  GLY   182      -2.071  50.915   4.976  1.00 55.25      2HFT1616
+ATOM   1460  C   GLY   182      -2.289  50.406   6.380  1.00 55.26      2HFT1617
+ATOM   1461  O   GLY   182      -3.436  50.240   6.810  1.00 56.37      2HFT1618
+ATOM   1462  N   GLU   183      -1.190  50.139   7.079  1.00 53.78      2HFT1619
+ATOM   1463  CA  GLU   183      -1.251  49.651   8.447  1.00 53.14      2HFT1620
+ATOM   1464  C   GLU   183      -0.128  50.270   9.265  1.00 50.14      2HFT1621
+ATOM   1465  O   GLU   183       0.999  50.354   8.793  1.00 51.47      2HFT1622
+ATOM   1466  CB  GLU   183      -1.066  48.128   8.491  1.00 57.91      2HFT1623
+ATOM   1467  CG  GLU   183      -2.003  47.295   7.623  1.00 63.17      2HFT1624
+ATOM   1468  CD  GLU   183      -3.455  47.307   8.097  1.00 68.00      2HFT1625
+ATOM   1469  OE1 GLU   183      -3.775  47.958   9.128  1.00 69.01      2HFT1626
+ATOM   1470  OE2 GLU   183      -4.287  46.652   7.421  1.00 70.60      2HFT1627
+ATOM   1471  N   ASN   184      -0.441  50.752  10.462  1.00 46.26      2HFT1628
+ATOM   1472  CA  ASN   184       0.583  51.289  11.349  1.00 41.84      2HFT1629
+ATOM   1473  C   ASN   184       0.960  50.135  12.271  1.00 38.65      2HFT1630
+ATOM   1474  O   ASN   184       0.090  49.581  12.943  1.00 39.84      2HFT1631
+ATOM   1475  CB  ASN   184       0.032  52.443  12.182  1.00 42.50      2HFT1632
+ATOM   1476  CG  ASN   184       0.051  53.771  11.438  1.00 45.03      2HFT1633
+ATOM   1477  OD1 ASN   184      -0.555  54.758  11.885  1.00 45.40      2HFT1634
+ATOM   1478  ND2 ASN   184       0.759  53.816  10.310  1.00 44.89      2HFT1635
+ATOM   1479  N   TYR   185       2.220  49.707  12.238  1.00 34.12      2HFT1636
+ATOM   1480  CA  TYR   185       2.669  48.609  13.101  1.00 30.34      2HFT1637
+ATOM   1481  C   TYR   185       3.364  49.096  14.346  1.00 27.15      2HFT1638
+ATOM   1482  O   TYR   185       4.011  50.132  14.330  1.00 24.85      2HFT1639
+ATOM   1483  CB  TYR   185       3.665  47.683  12.387  1.00 29.90      2HFT1640
+ATOM   1484  CG  TYR   185       3.052  46.775  11.378  1.00 29.98      2HFT1641
+ATOM   1485  CD1 TYR   185       2.679  47.262  10.118  1.00 32.41      2HFT1642
+ATOM   1486  CD2 TYR   185       2.815  45.436  11.679  1.00 29.94      2HFT1643
+ATOM   1487  CE1 TYR   185       2.068  46.435   9.172  1.00 34.41      2HFT1644
+ATOM   1488  CE2 TYR   185       2.208  44.590  10.743  1.00 33.46      2HFT1645
+ATOM   1489  CZ  TYR   185       1.839  45.106   9.491  1.00 34.77      2HFT1646
+ATOM   1490  OH  TYR   185       1.238  44.306   8.566  1.00 36.29      2HFT1647
+ATOM   1491  N   CYS   186       3.244  48.307  15.410  1.00 27.22      2HFT1648
+ATOM   1492  CA  CYS   186       3.924  48.581  16.686  1.00 27.10      2HFT1649
+ATOM   1493  C   CYS   186       4.930  47.454  16.840  1.00 25.52      2HFT1650
+ATOM   1494  O   CYS   186       4.665  46.330  16.403  1.00 22.98      2HFT1651
+ATOM   1495  CB  CYS   186       2.955  48.564  17.855  1.00 28.83      2HFT1652
+ATOM   1496  SG  CYS   186       1.889  50.037  17.855  1.00 33.94      2HFT1653
+ATOM   1497  N   PHE   187       6.070  47.754  17.461  1.00 25.22      2HFT1654
+ATOM   1498  CA  PHE   187       7.151  46.768  17.625  1.00 24.92      2HFT1655
+ATOM   1499  C   PHE   187       7.754  46.753  19.037  1.00 23.88      2HFT1656
+ATOM   1500  O   PHE   187       7.713  47.749  19.744  1.00 21.24      2HFT1657
+ATOM   1501  CB  PHE   187       8.313  47.104  16.670  1.00 24.85      2HFT1658
+ATOM   1502  CG  PHE   187       7.916  47.250  15.230  1.00 26.37      2HFT1659
+ATOM   1503  CD1 PHE   187       7.805  46.135  14.409  1.00 26.76      2HFT1660
+ATOM   1504  CD2 PHE   187       7.680  48.506  14.680  1.00 27.45      2HFT1661
+ATOM   1505  CE1 PHE   187       7.471  46.272  13.068  1.00 26.14      2HFT1662
+ATOM   1506  CE2 PHE   187       7.345  48.639  13.336  1.00 25.74      2HFT1663
+ATOM   1507  CZ  PHE   187       7.242  47.521  12.538  1.00 24.21      2HFT1664
+ATOM   1508  N   SER   188       8.310  45.604  19.413  1.00 22.89      2HFT1665
+ATOM   1509  CA  SER   188       9.017  45.432  20.685  1.00 22.62      2HFT1666
+ATOM   1510  C   SER   188      10.085  44.329  20.451  1.00 21.41      2HFT1667
+ATOM   1511  O   SER   188       9.890  43.426  19.619  1.00 19.91      2HFT1668
+ATOM   1512  CB ASER   188       8.059  45.038  21.812  0.50 23.12      2HFT1669
+ATOM   1513  CB BSER   188       8.042  45.020  21.797  0.50 21.82      2HFT1670
+ATOM   1514  OG ASER   188       8.736  45.040  23.060  0.50 23.82      2HFT1671
+ATOM   1515  OG BSER   188       7.405  43.789  21.503  0.50 20.02      2HFT1672
+ATOM   1516  N   VAL   189      11.235  44.442  21.111  1.00 20.32      2HFT1673
+ATOM   1517  CA  VAL   189      12.299  43.447  20.921  1.00 19.51      2HFT1674
+ATOM   1518  C   VAL   189      12.759  42.871  22.243  1.00 20.10      2HFT1675
+ATOM   1519  O   VAL   189      12.685  43.543  23.281  1.00 21.47      2HFT1676
+ATOM   1520  CB AVAL   189      13.531  44.081  20.188  0.50 21.09      2HFT1677
+ATOM   1521  CB BVAL   189      13.528  43.985  20.125  0.50 19.41      2HFT1678
+ATOM   1522  CG1AVAL   189      13.993  45.334  20.894  0.50 22.64      2HFT1679
+ATOM   1523  CG1BVAL   189      13.097  44.531  18.777  0.50 16.59      2HFT1680
+ATOM   1524  CG2AVAL   189      14.692  43.098  20.125  0.50 21.22      2HFT1681
+ATOM   1525  CG2BVAL   189      14.302  45.015  20.919  0.50 20.03      2HFT1682
+ATOM   1526  N   GLN   190      13.197  41.619  22.207  1.00 17.99      2HFT1683
+ATOM   1527  CA  GLN   190      13.686  40.960  23.400  1.00 17.89      2HFT1684
+ATOM   1528  C   GLN   190      15.029  40.280  23.090  1.00 18.12      2HFT1685
+ATOM   1529  O   GLN   190      15.233  39.763  21.980  1.00 17.97      2HFT1686
+ATOM   1530  CB  GLN   190      12.664  39.945  23.898  1.00 19.54      2HFT1687
+ATOM   1531  CG  GLN   190      13.006  39.350  25.265  1.00 22.35      2HFT1688
+ATOM   1532  CD  GLN   190      12.048  38.252  25.659  1.00 25.39      2HFT1689
+ATOM   1533  OE1 GLN   190      11.664  37.417  24.838  1.00 25.83      2HFT1690
+ATOM   1534  NE2 GLN   190      11.643  38.252  26.917  1.00 25.72      2HFT1691
+ATOM   1535  N   ALA   191      15.961  40.343  24.046  1.00 16.91      2HFT1692
+ATOM   1536  CA  ALA   191      17.274  39.723  23.872  1.00 16.54      2HFT1693
+ATOM   1537  C   ALA   191      17.239  38.320  24.452  1.00 16.63      2HFT1694
+ATOM   1538  O   ALA   191      16.639  38.110  25.502  1.00 18.62      2HFT1695
+ATOM   1539  CB  ALA   191      18.363  40.556  24.558  1.00 13.45      2HFT1696
+ATOM   1540  N   VAL   192      17.877  37.369  23.771  1.00 15.19      2HFT1697
+ATOM   1541  CA  VAL   192      17.937  35.980  24.230  1.00 16.09      2HFT1698
+ATOM   1542  C   VAL   192      19.273  35.333  23.858  1.00 15.58      2HFT1699
+ATOM   1543  O   VAL   192      19.807  35.561  22.787  1.00 16.43      2HFT1700
+ATOM   1544  CB  VAL   192      16.806  35.063  23.599  1.00 17.89      2HFT1701
+ATOM   1545  CG1 VAL   192      16.873  33.650  24.175  1.00 17.34      2HFT1702
+ATOM   1546  CG2 VAL   192      15.417  35.632  23.836  1.00 20.97      2HFT1703
+ATOM   1547  N   ILE   193      19.812  34.539  24.773  1.00 15.19      2HFT1704
+ATOM   1548  CA  ILE   193      21.035  33.800  24.535  1.00 16.45      2HFT1705
+ATOM   1549  C   ILE   193      20.522  32.370  24.740  1.00 19.03      2HFT1706
+ATOM   1550  O   ILE   193      20.559  31.819  25.847  1.00 17.34      2HFT1707
+ATOM   1551  CB  ILE   193      22.162  34.191  25.528  1.00 15.45      2HFT1708
+ATOM   1552  CG1 ILE   193      22.589  35.632  25.257  1.00 16.14      2HFT1709
+ATOM   1553  CG2 ILE   193      23.400  33.288  25.371  1.00 13.23      2HFT1710
+ATOM   1554  CD1 ILE   193      23.481  36.171  26.322  1.00 18.78      2HFT1711
+ATOM   1555  N   PRO   194      19.999  31.759  23.656  1.00 19.38      2HFT1712
+ATOM   1556  CA  PRO   194      19.469  30.397  23.751  1.00 19.80      2HFT1713
+ATOM   1557  C   PRO   194      20.379  29.340  24.377  1.00 19.22      2HFT1714
+ATOM   1558  O   PRO   194      19.883  28.437  25.029  1.00 21.19      2HFT1715
+ATOM   1559  CB  PRO   194      19.064  30.076  22.310  1.00 20.71      2HFT1716
+ATOM   1560  CG  PRO   194      19.915  30.975  21.485  1.00 20.44      2HFT1717
+ATOM   1561  CD  PRO   194      19.967  32.254  22.267  1.00 18.30      2HFT1718
+ATOM   1562  N   SER   195      21.698  29.461  24.212  1.00 19.12      2HFT1719
+ATOM   1563  CA  SER   195      22.622  28.491  24.794  1.00 18.59      2HFT1720
+ATOM   1564  C   SER   195      22.777  28.542  26.337  1.00 18.65      2HFT1721
+ATOM   1565  O   SER   195      23.371  27.638  26.944  1.00 19.06      2HFT1722
+ATOM   1566  CB  SER   195      23.987  28.610  24.126  1.00 19.07      2HFT1723
+ATOM   1567  OG  SER   195      24.567  29.879  24.384  1.00 19.99      2HFT1724
+ATOM   1568  N   ARG   196      22.278  29.589  26.983  1.00 18.66      2HFT1725
+ATOM   1569  CA  ARG   196      22.383  29.660  28.453  1.00 18.34      2HFT1726
+ATOM   1570  C   ARG   196      21.399  28.671  29.040  1.00 20.76      2HFT1727
+ATOM   1571  O   ARG   196      20.461  28.250  28.356  1.00 20.55      2HFT1728
+ATOM   1572  CB  ARG   196      22.003  31.049  28.971  1.00 17.42      2HFT1729
+ATOM   1573  CG  ARG   196      23.162  32.045  29.011  1.00 17.98      2HFT1730
+ATOM   1574  CD  ARG   196      22.691  33.457  29.349  1.00 16.75      2HFT1731
+ATOM   1575  NE  ARG   196      23.827  34.385  29.484  1.00 15.59      2HFT1732
+ATOM   1576  CZ  ARG   196      23.797  35.526  30.179  1.00 17.17      2HFT1733
+ATOM   1577  NH1 ARG   196      22.682  35.893  30.808  1.00 15.62      2HFT1734
+ATOM   1578  NH2 ARG   196      24.892  36.286  30.278  1.00 16.32      2HFT1735
+ATOM   1579  N   THR   197      21.592  28.300  30.299  1.00 22.65      2HFT1736
+ATOM   1580  CA  THR   197      20.643  27.390  30.943  1.00 24.45      2HFT1737
+ATOM   1581  C   THR   197      19.765  28.185  31.894  1.00 23.87      2HFT1738
+ATOM   1582  O   THR   197      18.621  27.819  32.164  1.00 24.30      2HFT1739
+ATOM   1583  CB  THR   197      21.349  26.257  31.678  1.00 25.41      2HFT1740
+ATOM   1584  OG1 THR   197      22.302  26.800  32.582  1.00 27.31      2HFT1741
+ATOM   1585  CG2 THR   197      22.070  25.372  30.701  1.00 26.54      2HFT1742
+ATOM   1586  N   VAL   198      20.308  29.298  32.377  1.00 24.38      2HFT1743
+ATOM   1587  CA  VAL   198      19.601  30.183  33.294  1.00 25.88      2HFT1744
+ATOM   1588  C   VAL   198      19.792  31.611  32.782  1.00 25.34      2HFT1745
+ATOM   1589  O   VAL   198      20.716  31.886  32.021  1.00 25.95      2HFT1746
+ATOM   1590  CB  VAL   198      20.187  30.140  34.761  1.00 28.32      2HFT1747
+ATOM   1591  CG1 VAL   198      19.084  30.358  35.762  1.00 29.11      2HFT1748
+ATOM   1592  CG2 VAL   198      20.911  28.828  35.059  1.00 31.07      2HFT1749
+ATOM   1593  N   ASN   199      18.925  32.520  33.209  1.00 23.83      2HFT1750
+ATOM   1594  CA  ASN   199      19.044  33.923  32.825  1.00 23.18      2HFT1751
+ATOM   1595  C   ASN   199      19.159  34.091  31.303  1.00 21.48      2HFT1752
+ATOM   1596  O   ASN   199      19.963  34.886  30.822  1.00 21.87      2HFT1753
+ATOM   1597  CB AASN   199      20.251  34.600  33.495  0.50 22.58      2HFT1754
+ATOM   1598  CB BASN   199      20.306  34.458  33.490  0.50 24.08      2HFT1755
+ATOM   1599  CG AASN   199      19.978  35.035  34.930  0.50 22.29      2HFT1756
+ATOM   1600  CG BASN   199      20.254  35.920  33.728  0.50 24.51      2HFT1757
+ATOM   1601  OD1AASN   199      20.901  35.430  35.646  0.50 21.57      2HFT1758
+ATOM   1602  OD1BASN   199      21.222  36.499  34.210  0.50 27.40      2HFT1759
+ATOM   1603  ND2AASN   199      18.716  34.996  35.348  0.50 20.96      2HFT1760
+ATOM   1604  ND2BASN   199      19.114  36.535  33.446  0.50 24.51      2HFT1761
+ATOM   1605  N   ARG   200      18.321  33.374  30.565  1.00 19.68      2HFT1762
+ATOM   1606  CA  ARG   200      18.361  33.381  29.105  1.00 18.91      2HFT1763
+ATOM   1607  C   ARG   200      17.808  34.590  28.386  1.00 17.82      2HFT1764
+ATOM   1608  O   ARG   200      18.241  34.867  27.273  1.00 17.82      2HFT1765
+ATOM   1609  CB  ARG   200      17.639  32.143  28.562  1.00 19.18      2HFT1766
+ATOM   1610  CG  ARG   200      18.148  30.842  29.140  1.00 20.85      2HFT1767
+ATOM   1611  CD  ARG   200      17.343  29.638  28.693  1.00 23.41      2HFT1768
+ATOM   1612  NE  ARG   200      17.612  29.213  27.320  1.00 24.98      2HFT1769
+ATOM   1613  CZ  ARG   200      16.735  29.318  26.321  1.00 26.91      2HFT1770
+ATOM   1614  NH1 ARG   200      15.528  29.849  26.533  1.00 25.66      2HFT1771
+ATOM   1615  NH2 ARG   200      17.045  28.842  25.123  1.00 28.42      2HFT1772
+ATOM   1616  N   LYS   201      16.845  35.287  28.995  1.00 16.64      2HFT1773
+ATOM   1617  CA  LYS   201      16.173  36.421  28.354  1.00 17.64      2HFT1774
+ATOM   1618  C   LYS   201      16.141  37.717  29.098  1.00 19.21      2HFT1775
+ATOM   1619  O   LYS   201      16.172  37.734  30.331  1.00 22.04      2HFT1776
+ATOM   1620  CB  LYS   201      14.723  36.045  28.082  1.00 18.26      2HFT1777
+ATOM   1621  CG  LYS   201      14.595  34.697  27.426  1.00 22.31      2HFT1778
+ATOM   1622  CD  LYS   201      13.188  34.428  26.993  1.00 26.34      2HFT1779
+ATOM   1623  CE  LYS   201      13.139  33.115  26.261  1.00 28.51      2HFT1780
+ATOM   1624  NZ  LYS   201      11.741  32.814  25.909  1.00 31.38      2HFT1781
+ATOM   1625  N   SER   202      16.078  38.809  28.340  1.00 17.89      2HFT1782
+ATOM   1626  CA  SER   202      15.959  40.141  28.922  1.00 18.57      2HFT1783
+ATOM   1627  C   SER   202      14.446  40.405  29.002  1.00 20.16      2HFT1784
+ATOM   1628  O   SER   202      13.645  39.552  28.630  1.00 20.58      2HFT1785
+ATOM   1629  CB  SER   202      16.559  41.166  27.968  1.00 19.57      2HFT1786
+ATOM   1630  OG  SER   202      15.761  41.282  26.794  1.00 19.42      2HFT1787
+ATOM   1631  N   THR   203      14.054  41.558  29.523  1.00 20.80      2HFT1788
+ATOM   1632  CA  THR   203      12.645  41.927  29.514  1.00 22.66      2HFT1789
+ATOM   1633  C   THR   203      12.403  42.485  28.083  1.00 24.01      2HFT1790
+ATOM   1634  O   THR   203      13.352  42.679  27.314  1.00 21.86      2HFT1791
+ATOM   1635  CB  THR   203      12.333  43.027  30.566  1.00 21.70      2HFT1792
+ATOM   1636  OG1 THR   203      13.163  44.173  30.346  1.00 22.03      2HFT1793
+ATOM   1637  CG2 THR   203      12.594  42.505  31.949  1.00 23.50      2HFT1794
+ATOM   1638  N   ASP   204      11.148  42.726  27.719  1.00 23.89      2HFT1795
+ATOM   1639  CA  ASP   204      10.856  43.265  26.405  1.00 24.69      2HFT1796
+ATOM   1640  C   ASP   204      11.132  44.765  26.387  1.00 24.18      2HFT1797
+ATOM   1641  O   ASP   204      10.960  45.447  27.389  1.00 23.91      2HFT1798
+ATOM   1642  CB  ASP   204       9.396  42.987  26.043  1.00 28.95      2HFT1799
+ATOM   1643  CG  ASP   204       9.068  41.492  26.003  1.00 34.06      2HFT1800
+ATOM   1644  OD1 ASP   204       9.970  40.669  25.768  1.00 35.50      2HFT1801
+ATOM   1645  OD2 ASP   204       7.895  41.124  26.204  1.00 39.20      2HFT1802
+ATOM   1646  N   SER   205      11.592  45.277  25.257  1.00 22.86      2HFT1803
+ATOM   1647  CA  SER   205      11.874  46.693  25.118  1.00 22.99      2HFT1804
+ATOM   1648  C   SER   205      10.591  47.530  25.142  1.00 24.13      2HFT1805
+ATOM   1649  O   SER   205       9.486  47.003  25.005  1.00 24.71      2HFT1806
+ATOM   1650  CB  SER   205      12.522  46.942  23.755  1.00 22.31      2HFT1807
+ATOM   1651  OG  SER   205      11.544  46.856  22.711  1.00 21.21      2HFT1808
+ATOM   1652  N   PRO   206      10.720  48.850  25.333  1.00 24.40      2HFT1809
+ATOM   1653  CA  PRO   206       9.497  49.660  25.319  1.00 25.63      2HFT1810
+ATOM   1654  C   PRO   206       8.950  49.564  23.861  1.00 27.21      2HFT1811
+ATOM   1655  O   PRO   206       9.720  49.366  22.903  1.00 26.69      2HFT1812
+ATOM   1656  CB  PRO   206      10.024  51.074  25.571  1.00 26.02      2HFT1813
+ATOM   1657  CG  PRO   206      11.313  50.854  26.337  1.00 24.79      2HFT1814
+ATOM   1658  CD  PRO   206      11.911  49.654  25.667  1.00 24.21      2HFT1815
+ATOM   1659  N   VAL   207       7.639  49.691  23.692  1.00 27.54      2HFT1816
+ATOM   1660  CA  VAL   207       7.029  49.622  22.372  1.00 26.97      2HFT1817
+ATOM   1661  C   VAL   207       7.221  50.914  21.585  1.00 29.60      2HFT1818
+ATOM   1662  O   VAL   207       7.202  52.009  22.149  1.00 32.43      2HFT1819
+ATOM   1663  CB  VAL   207       5.512  49.308  22.471  1.00 26.08      2HFT1820
+ATOM   1664  CG1 VAL   207       4.848  49.339  21.076  1.00 24.27      2HFT1821
+ATOM   1665  CG2 VAL   207       5.314  47.927  23.090  1.00 27.72      2HFT1822
+ATOM   1666  N   GLU   208       7.479  50.762  20.290  1.00 30.26      2HFT1823
+ATOM   1667  CA  GLU   208       7.631  51.879  19.359  1.00 31.14      2HFT1824
+ATOM   1668  C   GLU   208       6.701  51.564  18.178  1.00 29.19      2HFT1825
+ATOM   1669  O   GLU   208       6.622  50.413  17.725  1.00 26.73      2HFT1826
+ATOM   1670  CB  GLU   208       9.083  52.020  18.923  1.00 34.86      2HFT1827
+ATOM   1671  CG  GLU   208       9.989  52.350  20.077  1.00 41.77      2HFT1828
+ATOM   1672  CD  GLU   208       9.607  53.675  20.722  1.00 48.55      2HFT1829
+ATOM   1673  OE1 GLU   208       9.543  54.681  19.966  1.00 51.11      2HFT1830
+ATOM   1674  OE2 GLU   208       9.368  53.711  21.963  1.00 49.76      2HFT1831
+ATOM   1675  N   CYS   209       5.956  52.566  17.723  1.00 28.10      2HFT1832
+ATOM   1676  CA  CYS   209       5.006  52.330  16.653  1.00 30.41      2HFT1833
+ATOM   1677  C   CYS   209       5.171  53.220  15.459  1.00 32.63      2HFT1834
+ATOM   1678  O   CYS   209       5.642  54.339  15.579  1.00 32.23      2HFT1835
+ATOM   1679  CB  CYS   209       3.574  52.547  17.149  1.00 31.36      2HFT1836
+ATOM   1680  SG  CYS   209       3.044  51.574  18.584  1.00 35.61      2HFT1837
+ATOM   1681  N   MET   210       4.731  52.714  14.310  1.00 35.65      2HFT1838
+ATOM   1682  CA  MET   210       4.710  53.470  13.062  1.00 39.81      2HFT1839
+ATOM   1683  C   MET   210       3.465  54.368  13.245  1.00 42.66      2HFT1840
+ATOM   1684  O   MET   210       2.421  53.899  13.737  1.00 43.58      2HFT1841
+ATOM   1685  CB AMET   210       4.503  52.513  11.892  0.50 41.46      2HFT1842
+ATOM   1686  CB BMET   210       4.392  52.575  11.864  0.50 38.58      2HFT1843
+ATOM   1687  CG AMET   210       5.473  51.341  11.860  0.50 42.70      2HFT1844
+ATOM   1688  CG BMET   210       5.315  51.435  11.550  0.50 36.36      2HFT1845
+ATOM   1689  SD AMET   210       7.106  51.771  11.244  0.50 43.99      2HFT1846
+ATOM   1690  SD BMET   210       4.625  50.654  10.058  0.50 32.62      2HFT1847
+ATOM   1691  CE AMET   210       6.744  51.994   9.504  0.50 43.78      2HFT1848
+ATOM   1692  CE BMET   210       5.619  49.249   9.923  0.50 32.54      2HFT1849
+ATOM   1693  N   GLY   211       3.541  55.625  12.825  1.00 45.44      2HFT1850
+ATOM   1694  CA  GLY   211       2.388  56.500  12.972  1.00 47.58      2HFT1851
+ATOM   1695  C   GLY   211       2.622  57.899  12.455  1.00 49.62      2HFT1852
+ATOM   1696  O   GLY   211       1.971  58.337  11.503  1.00 51.72      2HFT1853
+TER    1697      GLY   211                                              2HFT1854
+HETATM 1698  S   SO4   850      37.837  41.760  67.545  1.00 41.94      2HFT1855
+HETATM 1699  O1  SO4   850      38.829  40.756  67.191  1.00 39.46      2HFT1856
+HETATM 1700  O2  SO4   850      36.762  41.900  66.661  1.00 44.68      2HFT1857
+HETATM 1701  O3  SO4   850      37.407  41.564  68.897  1.00 40.44      2HFT1858
+HETATM 1702  O4  SO4   850      38.257  43.079  67.258  1.00 42.12      2HFT1859
+HETATM 1703  O   HOH   301      25.955  33.320  27.711  1.00 15.20      2HFT1860
+HETATM 1704  O   HOH   302      33.312  39.090  57.125  1.00 18.84      2HFT1861
+HETATM 1705  O   HOH   303      36.694  44.105  73.089  1.00 19.41      2HFT1862
+HETATM 1706  O   HOH   304      40.099  57.995  70.405  1.00 21.06      2HFT1863
+HETATM 1707  O   HOH   305      12.271  50.309  22.458  1.00 20.70      2HFT1864
+HETATM 1708  O   HOH   306      38.253  43.529  29.459  1.00 19.71      2HFT1865
+HETATM 1709  O   HOH   307      23.261  31.274  22.366  1.00 17.93      2HFT1866
+HETATM 1710  O   HOH   308      23.732  51.157  18.351  1.00 20.04      2HFT1867
+HETATM 1711  O   HOH   309      19.387  47.630  23.234  1.00 18.89      2HFT1868
+HETATM 1712  O   HOH   310      35.010  48.343  38.963  1.00 20.28      2HFT1869
+HETATM 1713  O   HOH   311      37.302  31.248  24.476  1.00 25.08      2HFT1870
+HETATM 1714  O   HOH   312      40.221  44.839  31.095  1.00 20.98      2HFT1871
+HETATM 1715  O   HOH   313      22.667  48.738  16.390  1.00 20.34      2HFT1872
+HETATM 1716  O   HOH   314      39.226  46.240  33.449  1.00 22.32      2HFT1873
+HETATM 1717  O   HOH   315      19.959  44.948  23.967  1.00 21.53      2HFT1874
+HETATM 1718  O   HOH   316      37.005  48.200  32.095  1.00 23.22      2HFT1875
+HETATM 1719  O   HOH   317      30.483  34.713  17.064  1.00 23.76      2HFT1876
+HETATM 1720  O   HOH   318      19.209  37.949  10.441  1.00 24.81      2HFT1877
+HETATM 1721  O   HOH   319      15.818  51.364  10.961  1.00 21.78      2HFT1878
+HETATM 1722  O   HOH   320      19.157  37.864  31.241  1.00 22.95      2HFT1879
+HETATM 1723  O   HOH   321      32.040  50.323  47.678  1.00 20.84      2HFT1880
+HETATM 1724  O   HOH   322      29.730  46.830  31.409  1.00 23.37      2HFT1881
+HETATM 1725  O   HOH   323      23.380  44.349  20.581  1.00 21.28      2HFT1882
+HETATM 1726  O   HOH   324      31.817  51.781  27.662  1.00 21.99      2HFT1883
+HETATM 1727  O   HOH   325      29.004  44.158  66.358  1.00 27.61      2HFT1884
+HETATM 1728  O   HOH   326      43.128  35.205  40.928  1.00 21.19      2HFT1885
+HETATM 1729  O   HOH   327      26.406  31.024  25.978  1.00 29.46      2HFT1886
+HETATM 1730  O   HOH   328      37.962  28.365  36.100  1.00 31.25      2HFT1887
+HETATM 1731  O   HOH   329      16.096  42.896  31.087  1.00 25.79      2HFT1888
+HETATM 1732  O   HOH   330      36.066  53.731  56.198  1.00 30.52      2HFT1889
+HETATM 1733  O   HOH   331      22.413  41.765  61.262  1.00 26.03      2HFT1890
+HETATM 1734  O   HOH   332      47.916  30.560  44.843  1.00 31.06      2HFT1891
+HETATM 1735  O   HOH   333      28.837  29.000  44.300  1.00 29.07      2HFT1892
+HETATM 1736  O   HOH   334      24.061  36.069  44.198  1.00 26.08      2HFT1893
+HETATM 1737  O   HOH   335      21.847  54.552  19.322  1.00 29.23      2HFT1894
+HETATM 1738  O   HOH   336      15.761  31.923  31.417  1.00 30.46      2HFT1895
+HETATM 1739  O   HOH   337      30.055  36.727  63.358  1.00 28.04      2HFT1896
+HETATM 1740  O   HOH   338      34.831  29.500  34.092  1.00 27.87      2HFT1897
+HETATM 1741  O   HOH   339      40.624  31.515  45.012  1.00 27.37      2HFT1898
+HETATM 1742  O   HOH   340      24.385  46.427  37.904  1.00 34.92      2HFT1899
+HETATM 1743  O   HOH   341      31.507  29.973  24.937  1.00 32.03      2HFT1900
+HETATM 1744  O   HOH   342      24.406  47.179  67.526  1.00 30.74      2HFT1901
+HETATM 1745  O   HOH   343      35.766  33.536  59.310  1.00 32.51      2HFT1902
+HETATM 1746  O   HOH   344      23.402  32.925  15.880  1.00 32.57      2HFT1903
+HETATM 1747  O   HOH   345      23.256  37.873  37.570  1.00 29.11      2HFT1904
+HETATM 1748  O   HOH   346      32.634  35.855  69.536  1.00 24.87      2HFT1905
+HETATM 1749  O   HOH   347      37.082  39.270  28.511  1.00 27.48      2HFT1906
+HETATM 1750  O   HOH   348      28.243  33.132  50.058  1.00 27.85      2HFT1907
+HETATM 1751  O   HOH   349      31.467  50.081  36.972  1.00 30.52      2HFT1908
+HETATM 1752  O   HOH   350      24.956  34.014  54.344  1.00 31.76      2HFT1909
+HETATM 1753  O   HOH   351      25.545  44.880  63.019  1.00 29.58      2HFT1910
+HETATM 1754  O   HOH   352      26.610  34.687  51.951  1.00 26.91      2HFT1911
+HETATM 1755  O   HOH   353      31.617  37.223  65.720  1.00 35.97      2HFT1912
+HETATM 1756  O   HOH   354      20.218  30.475  18.097  1.00 31.34      2HFT1913
+HETATM 1757  O   HOH   355      32.067  51.557  61.057  1.00 34.60      2HFT1914
+HETATM 1758  O   HOH   356      45.316  48.808  20.470  1.00 30.67      2HFT1915
+HETATM 1759  O   HOH   357      36.266  55.280  68.381  1.00 32.50      2HFT1916
+HETATM 1760  O   HOH   358      20.782  45.725  26.644  1.00 28.78      2HFT1917
+HETATM 1761  O   HOH   359      34.005  36.712  24.712  1.00 36.48      2HFT1918
+HETATM 1762  O   HOH   360      37.094  40.212  62.609  1.00 29.37      2HFT1919
+HETATM 1763  O   HOH   361      35.999  50.043  33.889  1.00 32.37      2HFT1920
+HETATM 1764  O   HOH   362      22.082  45.525  58.158  1.00 32.62      2HFT1921
+HETATM 1765  O   HOH   363      22.578  39.755  39.116  1.00 30.42      2HFT1922
+HETATM 1766  O   HOH   364      15.729  35.406  20.348  1.00 30.08      2HFT1923
+HETATM 1767  O   HOH   365       7.374  46.186  26.612  1.00 33.85      2HFT1924
+HETATM 1768  O   HOH   366      41.403  29.684  39.173  1.00 26.68      2HFT1925
+HETATM 1769  O   HOH   367      46.374  34.727  47.423  1.00 29.89      2HFT1926
+HETATM 1770  O   HOH   368      31.350  49.616  23.670  1.00 29.20      2HFT1927
+HETATM 1771  O   HOH   369      15.033  50.196  27.469  1.00 32.29      2HFT1928
+HETATM 1772  O   HOH   370      13.920  30.524  29.347  1.00 31.19      2HFT1929
+HETATM 1773  O   HOH   371      30.211  44.516  64.194  1.00 28.78      2HFT1930
+HETATM 1774  O   HOH   372      23.400  44.853  12.303  1.00 32.84      2HFT1931
+HETATM 1775  O   HOH   373      28.340  45.350  62.240  1.00 28.72      2HFT1932
+HETATM 1776  O   HOH   374      27.690  50.411  19.922  1.00 41.65      2HFT1933
+HETATM 1777  O   HOH   375      23.821  37.046  10.297  1.00 31.33      2HFT1934
+HETATM 1778  O   HOH   376      25.260  52.242  22.130  1.00 31.76      2HFT1935
+HETATM 1779  O   HOH   377      29.237  30.318  38.262  1.00 31.55      2HFT1936
+HETATM 1780  O   HOH   378      17.633  46.961  32.506  1.00 37.77      2HFT1937
+HETATM 1781  O   HOH   379      15.034  38.874  10.305  1.00 43.60      2HFT1938
+HETATM 1782  O   HOH   380      22.587  41.073  50.745  1.00 36.33      2HFT1939
+HETATM 1783  O   HOH   381      45.800  33.969  40.270  1.00 38.16      2HFT1940
+HETATM 1784  O   HOH   382      27.537  30.640  48.785  1.00 38.03      2HFT1941
+HETATM 1785  O   HOH   383      22.244  27.201  21.340  1.00 37.78      2HFT1942
+HETATM 1786  O   HOH   384      41.331  38.627  39.910  1.00 36.89      2HFT1943
+HETATM 1787  O   HOH   385      16.248  29.236  32.461  1.00 29.70      2HFT1944
+HETATM 1788  O   HOH   386      24.842  52.306  25.656  1.00 36.78      2HFT1945
+HETATM 1789  O   HOH   387      25.284  48.447  28.995  1.00 39.57      2HFT1946
+HETATM 1790  O   HOH   388      28.545  48.314  17.813  1.00 34.56      2HFT1947
+HETATM 1791  O   HOH   389      19.846  28.070  19.173  1.00 38.35      2HFT1948
+HETATM 1792  O   HOH   390      12.780  29.610  24.415  1.00 42.24      2HFT1949
+HETATM 1793  O   HOH   391       7.731  49.567  28.185  1.00 36.06      2HFT1950
+HETATM 1794  O   HOH   392      24.046  33.960  49.539  1.00 44.56      2HFT1951
+HETATM 1795  O   HOH   393      16.603  32.234  34.872  1.00 40.79      2HFT1952
+HETATM 1796  O   HOH   394      11.874  35.375  22.446  1.00 43.09      2HFT1953
+HETATM 1797  O   HOH   395      26.535  33.896  40.853  1.00 43.21      2HFT1954
+HETATM 1798  O   HOH   396      34.101  50.016  36.547  1.00 31.15      2HFT1955
+HETATM 1799  O   HOH   397      44.148  47.006  44.602  1.00 34.60      2HFT1956
+HETATM 1800  O   HOH   398      23.915  46.362  61.604  1.00 38.56      2HFT1957
+HETATM 1801  O   HOH   399      24.974  41.805  62.612  1.00 42.16      2HFT1958
+HETATM 1802  O   HOH   400      40.734  48.372  34.147  1.00 46.95      2HFT1959
+HETATM 1803  O   HOH   401      26.176  38.506  14.201  1.00 39.44      2HFT1960
+HETATM 1804  O   HOH   402      22.575  46.037  23.190  1.00 34.80      2HFT1961
+HETATM 1805  O   HOH   403      28.973  51.225  40.875  1.00 40.45      2HFT1962
+HETATM 1806  O   HOH   404      22.366  44.547  38.327  1.00 40.67      2HFT1963
+HETATM 1807  O   HOH   405      13.118  40.280   2.345  1.00 45.73      2HFT1964
+HETATM 1808  O   HOH   406      36.515  47.418  71.734  1.00 35.27      2HFT1965
+HETATM 1809  O   HOH   407      29.875  40.362  16.569  1.00 36.85      2HFT1966
+HETATM 1810  O   HOH   408       1.432  41.528   9.524  1.00 38.69      2HFT1967
+HETATM 1811  O   HOH   409      20.779  42.406  38.849  1.00 37.10      2HFT1968
+HETATM 1812  O   HOH   410      26.543  48.650  31.599  1.00 40.23      2HFT1969
+HETATM 1813  O   HOH   411      20.222  25.721  26.492  1.00 37.13      2HFT1970
+HETATM 1814  O   HOH   412      26.717  51.075  55.652  1.00 43.08      2HFT1971
+HETATM 1815  O   HOH   413      26.447  29.564  43.549  1.00 39.09      2HFT1972
+HETATM 1816  O   HOH   414      34.505  51.692  67.859  1.00 36.72      2HFT1973
+HETATM 1817  O   HOH   415      19.411  49.596  25.182  1.00 32.82      2HFT1974
+HETATM 1818  O   HOH   416      40.313  30.084  47.604  1.00 48.33      2HFT1975
+HETATM 1819  O   HOH   417       8.644  39.738   7.004  1.00 39.15      2HFT1976
+HETATM 1820  O   HOH   418      15.706  32.326  20.203  1.00 42.55      2HFT1977
+HETATM 1821  O   HOH   419       8.638  36.913  10.553  1.00 38.87      2HFT1978
+HETATM 1822  O   HOH   420      14.769  40.284   6.024  1.00 38.73      2HFT1979
+HETATM 1823  O   HOH   421      12.773  55.732  13.597  1.00 37.46      2HFT1980
+HETATM 1824  O   HOH   422      23.589  30.049  19.592  1.00 45.01      2HFT1981
+HETATM 1825  O   HOH   423      27.695  45.654  16.544  1.00 44.93      2HFT1982
+HETATM 1826  O   HOH   424      26.555  28.859  21.485  1.00 42.86      2HFT1983
+HETATM 1827  O   HOH   425      40.602  37.130  34.662  1.00 47.62      2HFT1984
+HETATM 1828  O   HOH   426      42.427  24.452  44.038  1.00 55.65      2HFT1985
+HETATM 1829  O   HOH   427      -1.690  54.157  14.602  1.00 47.23      2HFT1986
+HETATM 1830  O   HOH   428      31.500  33.378  58.144  1.00 50.73      2HFT1987
+HETATM 1831  O   HOH   429      17.431  26.033  31.219  1.00 37.04      2HFT1988
+HETATM 1832  O   HOH   430      21.519  24.816  34.192  1.00 44.88      2HFT1989
+HETATM 1833  O   HOH   431      34.183  51.651  49.060  1.00 36.36      2HFT1990
+HETATM 1834  O   HOH   432      31.672  34.439  62.804  1.00 38.62      2HFT1991
+HETATM 1835  O   HOH   433      44.492  43.873  51.736  1.00 44.85      2HFT1992
+HETATM 1836  O   HOH   434      26.951  50.781  50.569  1.00 43.80      2HFT1993
+HETATM 1837  O   HOH   435      -0.578  57.441  11.151  1.00 41.34      2HFT1994
+HETATM 1838  O   HOH   436      24.194  47.789  33.322  1.00 41.14      2HFT1995
+HETATM 1839  O   HOH   437      34.375  29.356  48.765  1.00 63.31      2HFT1996
+HETATM 1840  O   HOH   438      17.838  40.593   9.687  1.00 42.47      2HFT1997
+HETATM 1841  O   HOH   439      43.058  40.754  53.759  1.00 37.16      2HFT1998
+HETATM 1842  O   HOH   440       8.645  38.412  24.993  1.00 44.29      2HFT1999
+HETATM 1843  O   HOH   441      43.471  32.545  37.128  1.00 46.64      2HFT2000
+HETATM 1844  O   HOH   442      45.407  38.787  50.493  1.00 39.95      2HFT2001
+HETATM 1845  O   HOH   443      22.628  43.730  50.606  1.00 39.57      2HFT2002
+HETATM 1846  O   HOH   444      28.581  34.745  57.551  1.00 37.84      2HFT2003
+HETATM 1847  O   HOH   445      18.495  43.499  34.860  1.00 46.18      2HFT2004
+HETATM 1848  O   HOH   446      34.409  53.726  51.500  1.00 44.62      2HFT2005
+HETATM 1849  O   HOH   447      17.337  38.181  33.123  1.00 41.35      2HFT2006
+HETATM 1850  O   HOH   448      17.260  36.166  10.349  1.00 37.08      2HFT2007
+HETATM 1851  O   HOH   449      19.984  47.772  28.641  1.00 31.74      2HFT2008
+HETATM 1852  O   HOH   450       7.187  55.408  18.767  1.00 40.64      2HFT2009
+HETATM 1853  O   HOH   451      37.557  29.393  52.982  1.00 50.04      2HFT2010
+HETATM 1854  O   HOH   452      45.479  46.344  53.761  1.00 42.16      2HFT2011
+HETATM 1855  O   HOH   453      41.567  47.314  37.004  1.00 41.16      2HFT2012
+HETATM 1856  O   HOH   454      18.179  43.924   7.532  1.00 45.24      2HFT2013
+HETATM 1857  O   HOH   455      34.283  38.455  21.789  1.00 39.54      2HFT2014
+HETATM 1858  O   HOH   456      30.152  30.460  22.687  1.00 44.15      2HFT2015
+HETATM 1859  O   HOH   457      15.663  44.815  32.887  1.00 40.66      2HFT2016
+HETATM 1860  O   HOH   458      33.651  53.980  54.110  1.00 46.46      2HFT2017
+HETATM 1861  O   HOH   459      38.797  33.658  60.767  1.00 41.64      2HFT2018
+HETATM 1862  O   HOH   460      21.799  44.344  61.043  1.00 51.26      2HFT2019
+HETATM 1863  O   HOH   461      11.945  53.173  22.859  1.00 42.86      2HFT2020
+HETATM 1864  O   HOH   462      42.969  42.254  19.547  1.00 48.33      2HFT2021
+HETATM 1865  O   HOH   463      39.198  40.713  64.415  1.00 41.45      2HFT2022
+HETATM 1866  O   HOH   464       1.331  58.854  14.949  1.00 42.87      2HFT2023
+HETATM 1867  O   HOH   465       9.247  41.872  29.570  1.00 41.81      2HFT2024
+HETATM 1868  O   HOH   466      41.334  35.576  58.401  1.00 49.05      2HFT2025
+HETATM 1869  O   HOH   467      34.101  40.807  18.916  1.00 45.99      2HFT2026
+HETATM 1870  O   HOH   468      31.154  35.094  21.954  1.00 47.50      2HFT2027
+HETATM 1871  O   HOH   469      16.640  40.743  32.717  1.00 41.12      2HFT2028
+HETATM 1872  O   HOH   470      15.668  35.334  31.867  1.00 41.92      2HFT2029
+HETATM 1873  O   HOH   471      29.344  53.869  53.934  1.00 42.96      2HFT2030
+HETATM 1874  O   HOH   472      37.142  37.110  70.806  1.00 46.65      2HFT2031
+HETATM 1875  O   HOH   473       2.990  40.354   4.734  1.00 51.19      2HFT2032
+HETATM 1876  O   HOH   474      31.600  38.948  18.333  1.00 41.57      2HFT2033
+HETATM 1877  O   HOH   475      22.766  48.337  13.288  1.00 43.15      2HFT2034
+HETATM 1878  O   HOH   476      15.263  48.661  32.693  1.00 44.72      2HFT2035
+HETATM 1879  O   HOH   477      38.238  34.467  68.940  1.00 59.71      2HFT2036
+HETATM 1880  O   HOH   478      46.139  38.514  42.078  1.00 45.11      2HFT2037
+HETATM 1881  O   HOH   479      -1.424  41.945  14.045  1.00 54.01      2HFT2038
+HETATM 1882  O   HOH   480      39.702  37.600  64.206  1.00 43.29      2HFT2039
+HETATM 1883  O   HOH   481      29.539  33.129  66.100  1.00 49.47      2HFT2040
+HETATM 1884  O   HOH   482      46.052  42.646  46.574  1.00 48.83      2HFT2041
+HETATM 1885  O   HOH   483      37.742  27.800  45.473  1.00 50.12      2HFT2042
+HETATM 1886  O   HOH   484      18.248  54.385  20.733  1.00 46.04      2HFT2043
+HETATM 1887  O   HOH   485      47.380  37.163  47.178  1.00 50.56      2HFT2044
+HETATM 1888  O   HOH   486      42.958  46.355  29.218  1.00 45.66      2HFT2045
+HETATM 1889  O   HOH   487      30.002  33.751  19.946  1.00 45.53      2HFT2046
+HETATM 1890  O   HOH   488      20.161  43.371  26.258  1.00 40.64      2HFT2047
+HETATM 1891  O   HOH   489      19.462  39.894  40.183  1.00 52.24      2HFT2048
+HETATM 1892  O   HOH   490      28.065  38.671  15.970  1.00 53.47      2HFT2049
+HETATM 1893  O   HOH   491      21.383  42.033  48.086  1.00 60.13      2HFT2050
+HETATM 1894  O   HOH   492      42.489  30.701  50.545  1.00 58.47      2HFT2051
+HETATM 1895  O   HOH   493      13.695  38.913  32.551  1.00 52.72      2HFT2052
+HETATM 1896  O   HOH   494      13.495  54.360  21.143  1.00 53.14      2HFT2053
+HETATM 1897  O   HOH   495       5.696  40.065   7.715  1.00 48.74      2HFT2054
+HETATM 1898  O   HOH   496      45.097  31.887  47.298  1.00 61.18      2HFT2055
+HETATM 1899  O   HOH   497      21.348  41.541   8.943  1.00 51.56      2HFT2056
+HETATM 1900  O   HOH   498      40.621  40.287  37.383  1.00 49.70      2HFT2057
+HETATM 1901  O   HOH   499      31.187  29.929  46.722  1.00 40.50      2HFT2058
+HETATM 1902  O   HOH   500      10.249  33.885  15.099  1.00 57.48      2HFT2059
+HETATM 1903  O   HOH   501      32.320  55.231  60.661  1.00 52.47      2HFT2060
+HETATM 1904  O   HOH   502      10.833  30.128  27.915  1.00 42.62      2HFT2061
+HETATM 1905  O   HOH   503      40.199  54.777  74.703  1.00 54.32      2HFT2062
+HETATM 1906  O   HOH   504      36.725  39.453  75.887  1.00 47.96      2HFT2063
+HETATM 1907  O   HOH   505      15.989  48.666   3.681  1.00 61.13      2HFT2064
+HETATM 1908  O   HOH   506      22.870  31.652  38.411  1.00 55.98      2HFT2065
+HETATM 1909  O   HOH   507      30.272  42.852  16.835  1.00 54.24      2HFT2066
+HETATM 1910  O   HOH   508      42.408  41.860  30.256  1.00 55.84      2HFT2067
+HETATM 1911  O   HOH   509      40.586  37.711  28.421  1.00 60.95      2HFT2068
+HETATM 1912  O   HOH   510      17.029  28.526  19.514  1.00 58.35      2HFT2069
+HETATM 1913  O   HOH   511       2.070  49.701   6.594  1.00 66.54      2HFT2070
+HETATM 1914  O   HOH   512      24.265  47.652  49.480  1.00 51.85      2HFT2071
+HETATM 1915  O   HOH   513       8.953  45.470  29.007  1.00 49.16      2HFT2072
+HETATM 1916  O   HOH   514      33.481  28.120  71.785  1.00 57.80      2HFT2073
+HETATM 1917  O   HOH   515      41.588  32.603  59.468  1.00 65.10      2HFT2074
+HETATM 1918  O   HOH   516      -0.960  48.482  15.954  1.00 44.85      2HFT2075
+HETATM 1919  O   HOH   517      26.060  42.646  14.114  1.00 51.75      2HFT2076
+HETATM 1920  O   HOH   518      42.525  33.378  55.491  1.00 61.32      2HFT2077
+HETATM 1921  O   HOH   519      28.600  31.670  18.694  1.00 61.99      2HFT2078
+HETATM 1922  O   HOH   520      14.200  52.469  26.189  1.00 62.32      2HFT2079
+HETATM 1923  O   HOH   521       9.851  49.868  29.599  1.00 61.80      2HFT2080
+HETATM 1924  O   HOH   522      15.663  40.821   8.342  1.00 45.03      2HFT2081
+HETATM 1925  O   HOH   523      26.841  33.124  55.919  1.00 63.80      2HFT2082
+HETATM 1926  O   HOH   524      12.921  48.281  -0.886  1.00 58.73      2HFT2083
+HETATM 1927  O   HOH   525      46.806  40.701  48.669  1.00 64.77      2HFT2084
+HETATM 1928  O   HOH   526      17.563  25.842  27.898  1.00 63.51      2HFT2085
+HETATM 1929  O   HOH   527      43.136  44.612  54.101  1.00 63.24      2HFT2086
+HETATM 1930  O   HOH   528      39.843  50.706  31.424  1.00 60.67      2HFT2087
+HETATM 1931  O   HOH   529      17.909  46.853   5.357  1.00 58.82      2HFT2088
+HETATM 1932  O   HOH   530      24.556  52.515  46.840  1.00 61.17      2HFT2089
+HETATM 1933  O   HOH   531      33.593  47.081  66.957  1.00 54.44      2HFT2090
+HETATM 1934  O   HOH   532      19.491  40.539  57.973  1.00 59.30      2HFT2091
+HETATM 1935  O   HOH   533       0.734  55.859  15.307  1.00 51.14      2HFT2092
+HETATM 1936  O   HOH   534      29.077  27.903  39.818  1.00 61.07      2HFT2093
+HETATM 1937  O   HOH   535      31.882  37.167  20.378  1.00 60.31      2HFT2094
+CONECT  401  400  474                                                   2HFT2095
+CONECT  474  401  473                                                   2HFT2096
+CONECT 1496 1495 1680                                                   2HFT2097
+CONECT 1680 1496 1679                                                   2HFT2098
+CONECT 1698 1699 1700 1701 1702                                         2HFT2099
+CONECT 1699 1698                                                        2HFT2100
+CONECT 1700 1698                                                        2HFT2101
+CONECT 1701 1698                                                        2HFT2102
+CONECT 1702 1698                                                        2HFT2103
+MASTER       79    2    1    3   13    0    2    6 1936    1    9   17  2HFT2104
+END                                                                     2HFT2105

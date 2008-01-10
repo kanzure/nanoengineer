@@ -1,0 +1,32 @@
+
+  QUTEMOL IS CITEWARE
+
+This second part of the license further restricts the use of the
+distributed binaries.
+
+By accepting this license you agree on citing QuteMol,
+and on providing a link to http://qutemol.sourceforge.net/,
+in any web page, or any other electronic or printed material,
+except for scientific papers, where you feature one or
+more images created with QuteMol.
+
+Moreover, you agree on quoting the following article in any scientific
+paper you publish where you feature one or more images created
+with QuteMol:
+
+     "Ambient occlusion and edge cueing to enhance
+     real time molecular visualization"
+     Marco Tarini, Paolo Cignoni, Claudio Montani
+     IEEE Transaction on Visualization and Computer Graphics,
+     Volume 12, Number 6 - sep/oct 2006
+
+@Article\{TCM06,
+  author       = "Tarini, Marco and Cignoni, Paolo and Montani, Claudio",
+  title        = "Ambient occlusion and edge cueing to enhance real time molecular visualization",
+  journal      = "IEEE Transaction on Visualization and Computer Graphics",
+  number       = "6",
+  volume       = "12",
+  month        = "sep/oct",
+  year         = "2006",
+  url          = "http://vcg.isti.cnr.it/Publications/2006/TCM06"
+}

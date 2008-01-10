@@ -1,0 +1,20 @@
+
+   QuteMol http://qutemol.sf.net                                     o o
+   An Interactive, High Quality Molecular Visualization Tool       o     o
+                                                                  _   O  _
+   Copyright(C) 2005-2006                                           \/)\/
+   Visual Computing Lab  http://vcg.isti.cnr.it                    /\/|
+   ISTI - Italian National Research Council                           |
+                                                                      \
+   All rights reserved.
+
+History
+
+18 Sep 2006 
+V 0.1
+First Working version
+
+20 Sep 2006
+V 0.2
+- Corrected stupid bug in the snapshot saving code.
+- Added some presets

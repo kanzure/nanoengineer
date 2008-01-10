@@ -1,0 +1,601 @@
+MOL1
+ATOM      1 Ax       A          37.641  31.999  -1.628
+ATOM      2 Ae       A          39.231  31.999  -1.628
+ATOM      3 Ss       A          37.641  31.999  -8.388
+ATOM      4 Pe       A          39.231  34.637 -10.327
+ATOM      5 Ss       A          37.641  27.056   2.982
+ATOM      6 Pl       A          36.051  27.437   6.235
+ATOM      7 Sh       A          38.436  25.446   2.678
+ATOM      8 Ax       A          34.461  31.999  -1.628
+ATOM      9 Ss       A          34.461  28.025  -7.097
+ATOM     10 Pl       A          36.051  29.020 -10.216
+ATOM     11 Ss       A          34.461  30.709   5.007
+ATOM     12 Pl       A          32.871  32.930   7.415
+ATOM     13 Ax       A          31.281  31.999  -1.628
+ATOM     14 Ss       A          31.281  25.570  -3.717
+ATOM     15 Pl       A          32.871  24.541  -6.825
+ATOM     16 Ss       A          31.281  34.856   4.498
+ATOM     17 Pl       A          29.691  38.067   5.141
+ATOM     18 Ax       A          28.101  31.999  -1.628
+ATOM     19 Ss       A          28.101  25.570   0.461
+ATOM     20 Pl       A          29.691  22.910  -1.449
+ATOM     21 Ss       A          28.101  37.911   1.649
+ATOM     22 Pl       A          26.511  40.887   0.281
+ATOM     23 Ax       A          24.921  31.999  -1.628
+ATOM     24 Ss       A          24.921  28.025   3.841
+ATOM     25 Pl       A          26.511  24.751   3.859
+ATOM     26 Ss       A          24.921  38.707  -2.452
+ATOM     27 Pl       A          23.331  40.311  -5.308
+ATOM     28 Ax       A          21.741  31.999  -1.628
+ATOM     29 Ss       A          21.741  31.999   5.132
+ATOM     30 Pl       A          23.331  29.361   7.071
+ATOM     31 Ss       A          21.741  36.942  -6.238
+ATOM     32 Pl       A          20.151  36.561  -9.491
+ATOM     33 Ax       A          18.561  31.999  -1.628
+ATOM     34 Ss       A          18.561  35.972   3.841
+ATOM     35 Pl       A          20.151  34.978   6.960
+ATOM     36 Ss       A          18.561  33.288  -8.263
+ATOM     37 Pl       A          16.971  31.068 -10.671
+ATOM     38 Ax       A          15.381  31.999  -1.628
+ATOM     39 Ss       A          15.381  38.428   0.461
+ATOM     40 Pl       A          16.971  39.457   3.569
+ATOM     41 Ss       A          15.381  29.142  -7.754
+ATOM     42 Pl       A          13.791  25.930  -8.396
+ATOM     43 Ax       A          12.201  31.999  -1.628
+ATOM     44 Ss       A          12.201  38.428  -3.717
+ATOM     45 Pl       A          13.791  41.087  -1.807
+ATOM     46 Ss       A          12.201  26.087  -4.904
+ATOM     47 Pl       A          10.611  23.111  -3.537
+ATOM     48 Ax       A           9.021  31.999  -1.628
+ATOM     49 Ss       A           9.021  35.972  -7.097
+ATOM     50 Pl       A          10.611  39.246  -7.115
+ATOM     51 Ss       A           9.021  25.290  -0.804
+ATOM     52 Pl       A           7.431  23.686   2.052
+ATOM     53 Ax       A           5.841  31.999  -1.628
+ATOM     54 Ss       A           5.841  31.999  -8.388
+ATOM     55 Pl       A           7.431  34.637 -10.327
+ATOM     56 Ss       A           5.841  27.056   2.982
+ATOM     57 Pl       A           4.251  27.437   6.235
+ATOM     58 Ax       A           2.661  31.999  -1.628
+ATOM     59 Ss       A           2.661  28.025  -7.097
+ATOM     60 Pl       A           4.251  29.020 -10.216
+ATOM     61 Ss       A           2.661  30.709   5.007
+ATOM     62 Pl       A           1.071  32.930   7.415
+ATOM     63 Ax       A          -0.519  31.999  -1.628
+ATOM     64 Ss       A          -0.519  25.570  -3.717
+ATOM     65 Pl       A           1.071  24.541  -6.825
+ATOM     66 Ss       A          -0.519  34.856   4.498
+ATOM     67 Pl       A          -2.109  38.067   5.141
+ATOM     68 Ax       A          -3.699  31.999  -1.628
+ATOM     69 Ss       A          -3.699  25.570   0.461
+ATOM     70 Pl       A          -2.109  22.910  -1.449
+ATOM     71 Ss       A          -3.699  37.911   1.649
+ATOM     72 Pl       A          -5.289  40.887   0.281
+ATOM     73 Ax       A          -6.879  31.999  -1.628
+ATOM     74 Ss       A          -6.879  28.025   3.841
+ATOM     75 Pl       A          -5.289  24.751   3.859
+ATOM     76 Ss       A          -6.879  38.707  -2.452
+ATOM     77 Pl       A          -8.469  40.311  -5.308
+ATOM     78 Ax       A         -10.059  31.999  -1.628
+ATOM     79 Ss       A         -10.059  31.999   5.132
+ATOM     80 Pl       A          -8.469  29.361   7.071
+ATOM     81 Ss       A         -10.059  36.942  -6.238
+ATOM     82 Pl       A         -11.649  36.561  -9.491
+ATOM     83 Ax       A         -13.239  31.999  -1.628
+ATOM     84 Ss       A         -13.239  35.972   3.841
+ATOM     85 Pl       A         -11.649  34.978   6.960
+ATOM     86 Ss       A         -13.239  33.288  -8.263
+ATOM     87 Pl       A         -14.829  31.068 -10.671
+ATOM     88 Ax       A         -16.419  31.999  -1.628
+ATOM     89 Ss       A         -16.419  38.428   0.461
+ATOM     90 Pl       A         -14.829  39.457   3.569
+ATOM     91 Ss       A         -16.419  29.142  -7.754
+ATOM     92 Pl       A         -18.009  25.930  -8.396
+ATOM     93 Ax       A         -19.599  31.999  -1.628
+ATOM     94 Ss       A         -19.599  38.428  -3.717
+ATOM     95 Pl       A         -18.009  41.087  -1.807
+ATOM     96 Ss       A         -19.599  26.087  -4.904
+ATOM     97 Pl       A         -21.189  23.111  -3.537
+ATOM     98 Ax       A         -22.779  31.999  -1.628
+ATOM     99 Ae       A         -24.369  31.999  -1.628
+ATOM    100 Ss       A         -22.779  35.972  -7.097
+ATOM    101 Pl       A         -21.189  39.246  -7.115
+ATOM    102 Sh       A         -23.574  35.475  -8.656
+ATOM    103 Ss       A         -22.779  25.290  -0.804
+ATOM    104 Pe       A         -24.369  23.686   2.052
+CONECT    2    1
+CONECT    3    1
+CONECT    4    3
+CONECT    5    1
+CONECT    6    5
+CONECT    7    5
+CONECT    8    1
+CONECT    9    8
+CONECT   10    9    3
+CONECT   11    8    6
+CONECT   12   11
+CONECT   13    8
+CONECT   14   13
+CONECT   15   14    9
+CONECT   16   13   12
+CONECT   17   16
+CONECT   18   13
+CONECT   19   18
+CONECT   20   19   14
+CONECT   21   18   17
+CONECT   22   21
+CONECT   23   18
+CONECT   24   23
+CONECT   25   24   19
+CONECT   26   23   22
+CONECT   27   26
+CONECT   28   23
+CONECT   29   28
+CONECT   30   29   24
+CONECT   31   28   27
+CONECT   32   31
+CONECT   33   28
+CONECT   34   33
+CONECT   35   34   29
+CONECT   36   33   32
+CONECT   37   36
+CONECT   38   33
+CONECT   39   38
+CONECT   40   39   34
+CONECT   41   38   37
+CONECT   42   41
+CONECT   43   38
+CONECT   44   43
+CONECT   45   44   39
+CONECT   46   43   42
+CONECT   47   46
+CONECT   48   43
+CONECT   49   48
+CONECT   50   49   44
+CONECT   51   48   47
+CONECT   52   51
+CONECT   53   48
+CONECT   54   53
+CONECT   55   54   49
+CONECT   56   53   52
+CONECT   57   56
+CONECT   58   53
+CONECT   59   58
+CONECT   60   59   54
+CONECT   61   58   57
+CONECT   62   61
+CONECT   63   58
+CONECT   64   63
+CONECT   65   64   59
+CONECT   66   63   62
+CONECT   67   66
+CONECT   68   63
+CONECT   69   68
+CONECT   70   69   64
+CONECT   71   68   67
+CONECT   72   71
+CONECT   73   68
+CONECT   74   73
+CONECT   75   74   69
+CONECT   76   73   72
+CONECT   77   76
+CONECT   78   73
+CONECT   79   78
+CONECT   80   79   74
+CONECT   81   78   77
+CONECT   82   81
+CONECT   83   78
+CONECT   84   83
+CONECT   85   84   79
+CONECT   86   83   82
+CONECT   87   86
+CONECT   88   83
+CONECT   89   88
+CONECT   90   89   84
+CONECT   91   88   87
+CONECT   92   91
+CONECT   93   88
+CONECT   94   93
+CONECT   95   94   89
+CONECT   96   93   92
+CONECT   97   96
+CONECT   98   93
+CONECT   99   98
+CONECT  100   98
+CONECT  101  100   94
+CONECT  102  100
+CONECT  103   98   97
+CONECT  104  103
+END
+MOL2
+ATOM    105  C       B          34.844   1.955  -0.367
+ATOM    106  O       B          33.501   5.074  -1.581
+ATOM    107  O       B          35.554   3.900  -1.588
+ATOM    108  O       B          35.565   1.534  -1.579
+ATOM    109  O       B          31.457   3.882  -1.567
+ATOM    110  O       B          31.467   1.517  -1.558
+ATOM    111  O       B          33.521   0.342  -1.564
+ATOM    112  C       B          33.511   1.176  -2.777
+ATOM    113  C       B          32.184   1.934  -2.773
+ATOM    114  C       B          32.177   3.462  -2.778
+ATOM    115  C       B          33.498   4.232  -2.789
+ATOM    116  C       B          34.824   3.473  -2.793
+ATOM    117  C       B          34.831   1.946  -2.787
+ATOM    118  H       B          31.593   1.587  -6.206
+ATOM    119  H       B          31.584   3.777  -6.214
+ATOM    120  H       B          33.476   4.881  -6.228
+ATOM    121  H       B          35.377   3.794  -6.235
+ATOM    122  H       B          35.386   1.604  -6.227
+ATOM    123  H       B          33.495   0.500  -6.211
+ATOM    124  H       B          33.526   4.917   3.065
+ATOM    125  H       B          31.635   3.813   3.081
+ATOM    126  H       B          31.645   1.623   3.089
+ATOM    127  H       B          33.545   0.535   3.082
+ATOM    128  H       B          35.438   1.639   3.068
+ATOM    129  H       B          35.428   3.829   3.060
+ATOM    130  C       B          31.417   3.887  -4.057
+ATOM    131  C       B          31.427   1.492  -4.048
+ATOM    132  C       B          33.487   5.094  -4.072
+ATOM    133  C       B          35.566   3.905  -4.080
+ATOM    134  C       B          35.577   1.510  -4.071
+ATOM    135  C       B          33.508   0.303  -4.054
+ATOM    136  C       B          32.167   1.922  -5.336
+ATOM    137  C       B          32.160   3.454  -5.342
+ATOM    138  C       B          33.484   4.226  -5.352
+ATOM    139  C       B          34.813   3.465  -5.356
+ATOM    140  C       B          34.820   1.934  -5.350
+ATOM    141  C       B          33.497   1.162  -5.340
+ATOM    142  S       B          29.971   2.684  -4.115
+ATOM    143  S       B          31.720   5.743  -4.134
+ATOM    144  S       B          35.246   5.758  -4.153
+ATOM    145  S       B          37.022   2.713  -4.154
+ATOM    146  S       B          35.273  -0.346  -4.131
+ATOM    147  S       B          31.747  -0.362  -4.110
+ATOM    148  C       B          31.444   3.906   0.925
+ATOM    149  C       B          33.514   5.113   0.908
+ATOM    150  C       B          31.455   1.511   0.934
+ATOM    151  C       B          33.535   0.322   0.926
+ATOM    152  C       B          35.605   1.529   0.911
+ATOM    153  C       B          35.594   3.924   0.901
+ATOM    154  C       B          33.524   4.254   2.194
+ATOM    155  C       B          32.202   3.482   2.204
+ATOM    156  C       B          32.209   1.951   2.210
+ATOM    157  C       B          33.538   1.191   2.206
+ATOM    158  C       B          34.861   1.963   2.196
+ATOM    159  C       B          34.855   3.494   2.190
+ATOM    160  S       B          31.748   5.763   0.984
+ATOM    161  S       B          29.999   2.703   1.008
+ATOM    162  S       B          31.775  -0.342   1.007
+ATOM    163  S       B          35.302  -0.327   0.987
+ATOM    164  S       B          37.051   2.732   0.968
+ATOM    165  S       B          35.275   5.778   0.964
+ATOM    166  C       B          34.838   3.482  -0.373
+ATOM    167  C       B          33.511   4.241  -0.369
+ATOM    168  C       B          32.191   3.471  -0.359
+ATOM    169  C       B          32.197   1.943  -0.353
+ATOM    170  C       B          33.524   1.185  -0.357
+CONECT  108  105
+CONECT  112  111
+CONECT  113  110  112
+CONECT  114  109  113
+CONECT  115  106  114
+CONECT  116  107  115
+CONECT  117  108  112  116
+CONECT  130  114
+CONECT  131  113
+CONECT  132  115
+CONECT  133  116
+CONECT  134  117
+CONECT  135  112
+CONECT  136  131  118
+CONECT  137  130  136  119
+CONECT  138  132  137  120
+CONECT  139  133  138  121
+CONECT  140  134  139  122
+CONECT  141  135  136  140  123
+CONECT  142  130  131
+CONECT  143  130  132
+CONECT  144  132  133
+CONECT  145  133  134
+CONECT  146  134  135
+CONECT  147  131  135
+CONECT  152  105
+CONECT  154  149  124
+CONECT  155  148  154  125
+CONECT  156  150  155  126
+CONECT  157  151  156  127
+CONECT  158  152  157  128
+CONECT  159  153  154  158  129
+CONECT  160  148  149
+CONECT  161  148  150
+CONECT  162  150  151
+CONECT  163  151  152
+CONECT  164  152  153
+CONECT  165  149  153
+CONECT  166  153  105  107
+CONECT  167  149  166  106
+CONECT  168  148  167  109
+CONECT  169  150  168  110
+CONECT  170  151  169  105  111
+END
+MOL3
+ATOM    171  C       C          30.535  -3.374  -0.233
+ATOM    172  C       C          30.920  -2.580  -1.541
+ATOM    173  C       C          30.521  -3.383  -2.838
+ATOM    174 Si       C          28.631  -3.316  -0.371
+ATOM    175 Si       C          28.619  -3.324  -2.682
+ATOM    176  O       C          30.331  -1.237  -1.543
+ATOM    177  C       C          28.219  -1.453  -0.223
+ATOM    178  C       C          28.902  -0.920  -1.536
+ATOM    179  C       C          28.206  -1.463  -2.838
+ATOM    180 Si       C          26.517  -0.598  -0.370
+ATOM    181 Si       C          26.506  -0.606  -2.680
+ATOM    182  O       C          28.952   0.546  -1.542
+ATOM    183  C       C          26.936   1.259  -0.229
+ATOM    184  C       C          27.792   1.444  -1.540
+ATOM    185  C       C          26.923   1.249  -2.839
+ATOM    186 Si       C          25.781   2.774  -0.378
+ATOM    187 Si       C          25.770   2.765  -2.690
+ATOM    188  O       C          28.465   2.746  -1.548
+ATOM    189  C       C          26.964   4.270  -0.241
+ATOM    190  C       C          27.815   4.061  -1.550
+ATOM    191  C       C          26.951   4.260  -2.851
+ATOM    192 Si       C          26.575   6.132  -0.397
+ATOM    193 Si       C          26.564   6.123  -2.707
+ATOM    194  O       C          28.991   4.940  -1.559
+ATOM    195  C       C          28.290   6.962  -0.256
+ATOM    196  C       C          28.965   6.406  -1.565
+ATOM    197  C       C          28.277   6.951  -2.871
+ATOM    198 Si       C          28.734   8.816  -0.418
+ATOM    199 Si       C          28.722   8.806  -2.729
+ATOM    200  O       C          30.399   6.701  -1.573
+ATOM    201  C       C          30.638   8.844  -0.281
+ATOM    202  C       C          31.011   8.035  -1.582
+ATOM    203  C       C          30.625   8.833  -2.886
+ATOM    204 Si       C          31.859  10.302  -0.441
+ATOM    205 Si       C          31.846  10.292  -2.751
+ATOM    206  O       C          32.429   7.663  -1.587
+ATOM    207  C       C          33.574   9.470  -0.293
+ATOM    208  C       C          33.560   8.592  -1.597
+ATOM    209  C       C          33.560   9.459  -2.910
+ATOM    210 Si       C          35.301  10.276  -0.460
+ATOM    211 Si       C          35.288  10.266  -2.770
+ATOM    212  O       C          34.677   7.647  -1.599
+ATOM    213  C       C          36.501   8.800  -0.313
+ATOM    214  C       C          36.101   7.996  -1.609
+ATOM    215  C       C          36.486   8.789  -2.918
+ATOM    216 Si       C          38.403   8.741  -0.471
+ATOM    217 Si       C          38.390   8.732  -2.782
+ATOM    218  O       C          36.691   6.653  -1.607
+ATOM    219  C       C          38.817   6.879  -0.313
+ATOM    220  C       C          38.120   6.336  -1.614
+ATOM    221  C       C          38.801   6.869  -2.929
+ATOM    222 Si       C          40.517   6.022  -0.473
+ATOM    223 Si       C          40.503   6.013  -2.783
+ATOM    224  O       C          38.070   4.870  -1.608
+ATOM    225  C       C          40.100   4.167  -0.313
+ATOM    226  C       C          39.230   3.972  -1.611
+ATOM    227  C       C          40.084   4.157  -2.923
+ATOM    228 Si       C          41.253   2.650  -0.463
+ATOM    229 Si       C          41.239   2.642  -2.776
+ATOM    230  O       C          38.556   2.670  -1.602
+ATOM    231  C       C          40.072   1.156  -0.302
+ATOM    232  C       C          39.206   1.355  -1.602
+ATOM    233  C       C          40.056   1.146  -2.912
+ATOM    234 Si       C          40.459  -0.708  -0.448
+ATOM    235 Si       C          40.445  -0.716  -2.758
+ATOM    236  O       C          38.031   0.476  -1.591
+ATOM    237  C       C          38.746  -1.536  -0.282
+ATOM    238  C       C          38.057  -0.990  -1.586
+ATOM    239  C       C          38.730  -1.545  -2.897
+ATOM    240 Si       C          38.301  -3.391  -0.425
+ATOM    241 Si       C          38.287  -3.399  -2.736
+ATOM    242  O       C          36.623  -1.285  -1.577
+ATOM    243  C       C          36.398  -3.418  -0.266
+ATOM    244  C       C          36.011  -2.619  -1.570
+ATOM    245  C       C          36.382  -3.427  -2.871
+ATOM    246 Si       C          35.176  -4.877  -0.402
+ATOM    247 Si       C          35.162  -4.885  -2.712
+ATOM    248  O       C          34.592  -2.247  -1.563
+ATOM    249  C       C          33.462  -4.044  -0.241
+ATOM    250  C       C          33.462  -3.176  -1.553
+ATOM    251  C       C          33.448  -4.053  -2.858
+ATOM    252 Si       C          31.734  -4.851  -0.383
+ATOM    253 Si       C          31.721  -4.859  -2.692
+ATOM    254  O       C          32.344  -2.231  -1.550
+ATOM    255  H       C          30.806  -2.845   0.671
+ATOM    256  H       C          30.782  -2.860  -3.749
+ATOM    257  H       C          27.818  -4.302   0.389
+ATOM    258  H       C          27.798  -4.316  -3.425
+ATOM    259  H       C          28.719  -1.060   0.659
+ATOM    260  H       C          28.696  -1.076  -3.728
+ATOM    261  H       C          25.362  -1.142   0.391
+ATOM    262  H       C          25.343  -1.156  -3.426
+ATOM    263  H       C          27.536   1.382   0.665
+ATOM    264  H       C          27.514   1.365  -3.740
+ATOM    265  H       C          24.502   2.789   0.378
+ATOM    266  H       C          24.483   2.774  -3.434
+ATOM    267  H       C          27.566   4.143   0.653
+ATOM    268  H       C          27.544   4.125  -3.750
+ATOM    269  H       C          25.429   6.701   0.360
+ATOM    270  H       C          25.410   6.685  -3.457
+ATOM    271  H       C          28.781   6.568   0.630
+ATOM    272  H       C          28.759   6.550  -3.759
+ATOM    273  H       C          27.937   9.822   0.333
+ATOM    274  H       C          27.918   9.805  -3.481
+ATOM    275  H       C          30.903   8.316   0.626
+ATOM    276  H       C          30.881   8.298  -3.792
+ATOM    277  H       C          31.593  11.558   0.308
+ATOM    278  H       C          31.573  11.541  -3.508
+ATOM    279  H       C          33.574   8.839   0.593
+ATOM    280  H       C          33.550   8.820  -3.791
+ATOM    281  H       C          35.594  11.528   0.286
+ATOM    282  H       C          35.572  11.511  -3.530
+ATOM    283  H       C          36.240   8.277   0.598
+ATOM    284  H       C          36.215   8.259  -3.821
+ATOM    285  H       C          39.224   9.733   0.272
+ATOM    286  H       C          39.202   9.717  -3.542
+ATOM    287  H       C          38.327   6.493   0.578
+ATOM    288  H       C          38.301   6.475  -3.810
+ATOM    289  H       C          41.681   6.572   0.271
+ATOM    290  H       C          41.658   6.557  -3.545
+ATOM    291  H       C          39.510   4.051   0.589
+ATOM    292  H       C          39.483   4.034  -3.817
+ATOM    293  H       C          42.541   2.641   0.279
+ATOM    294  H       C          42.518   2.627  -3.534
+ATOM    295  H       C          39.480   1.290   0.598
+ATOM    296  H       C          39.453   1.274  -3.805
+ATOM    297  H       C          41.614  -1.270   0.300
+ATOM    298  H       C          41.590  -1.283  -3.516
+ATOM    299  H       C          38.265  -1.136   0.607
+ATOM    300  H       C          38.238  -1.150  -3.782
+ATOM    301  H       C          39.106  -4.391   0.325
+ATOM    302  H       C          39.083  -4.404  -3.489
+ATOM    303  H       C          36.143  -2.884   0.640
+ATOM    304  H       C          36.117  -2.899  -3.778
+ATOM    305  H       C          35.450  -6.127   0.354
+ATOM    306  H       C          35.428  -6.140  -3.463
+ATOM    307  H       C          33.472  -3.407   0.640
+ATOM    308  H       C          33.448  -3.421  -3.744
+ATOM    309  H       C          31.449  -6.097   0.376
+ATOM    310  H       C          31.428  -6.110  -3.440
+CONECT  172  171
+CONECT  173  172
+CONECT  174  171
+CONECT  175  173  174
+CONECT  176  172
+CONECT  177  174
+CONECT  178  176  177
+CONECT  179  175  178
+CONECT  180  177
+CONECT  181  179  180
+CONECT  182  178
+CONECT  183  180
+CONECT  184  182  183
+CONECT  185  181  184
+CONECT  186  183
+CONECT  187  185  186
+CONECT  188  184
+CONECT  189  186
+CONECT  190  188  189
+CONECT  191  187  190
+CONECT  192  189
+CONECT  193  191  192
+CONECT  194  190
+CONECT  195  192
+CONECT  196  194  195
+CONECT  197  193  196
+CONECT  198  195
+CONECT  199  197  198
+CONECT  200  196
+CONECT  201  198
+CONECT  202  200  201
+CONECT  203  199  202
+CONECT  204  201
+CONECT  205  203  204
+CONECT  206  202
+CONECT  207  204
+CONECT  208  206  207
+CONECT  209  205  208
+CONECT  210  207
+CONECT  211  209  210
+CONECT  212  208
+CONECT  213  210
+CONECT  214  212  213
+CONECT  215  211  214
+CONECT  216  213
+CONECT  217  215  216
+CONECT  218  214
+CONECT  219  216
+CONECT  220  218  219
+CONECT  221  217  220
+CONECT  222  219
+CONECT  223  221  222
+CONECT  224  220
+CONECT  225  222
+CONECT  226  224  225
+CONECT  227  223  226
+CONECT  228  225
+CONECT  229  227  228
+CONECT  230  226
+CONECT  231  228
+CONECT  232  230  231
+CONECT  233  229  232
+CONECT  234  231
+CONECT  235  233  234
+CONECT  236  232
+CONECT  237  234
+CONECT  238  236  237
+CONECT  239  235  238
+CONECT  240  237
+CONECT  241  239  240
+CONECT  242  238
+CONECT  243  240
+CONECT  244  242  243
+CONECT  245  241  244
+CONECT  246  243
+CONECT  247  245  246
+CONECT  248  244
+CONECT  249  246
+CONECT  250  248  249
+CONECT  251  247  250
+CONECT  252  171  249
+CONECT  253  173  251  252
+CONECT  254  172  250
+CONECT  255  171
+CONECT  256  173
+CONECT  257  174
+CONECT  258  175
+CONECT  259  177
+CONECT  260  179
+CONECT  261  180
+CONECT  262  181
+CONECT  263  183
+CONECT  264  185
+CONECT  265  186
+CONECT  266  187
+CONECT  267  189
+CONECT  268  191
+CONECT  269  192
+CONECT  270  193
+CONECT  271  195
+CONECT  272  197
+CONECT  273  198
+CONECT  274  199
+CONECT  275  201
+CONECT  276  203
+CONECT  277  204
+CONECT  278  205
+CONECT  279  207
+CONECT  280  209
+CONECT  281  210
+CONECT  282  211
+CONECT  283  213
+CONECT  284  215
+CONECT  285  216
+CONECT  286  217
+CONECT  287  219
+CONECT  288  221
+CONECT  289  222
+CONECT  290  223
+CONECT  291  225
+CONECT  292  227
+CONECT  293  228
+CONECT  294  229
+CONECT  295  231
+CONECT  296  233
+CONECT  297  234
+CONECT  298  235
+CONECT  299  237
+CONECT  300  239
+CONECT  301  240
+CONECT  302  241
+CONECT  303  243
+CONECT  304  245
+CONECT  305  246
+CONECT  306  247
+CONECT  307  249
+CONECT  308  251
+CONECT  309  252
+CONECT  310  253
+END

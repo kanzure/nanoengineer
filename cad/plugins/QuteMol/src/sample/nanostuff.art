@@ -1,0 +1,60 @@
+#@ NanoEngineer-1 Atom Rendering Table, file format version 2007-06-03
+#
+# File format:
+#
+# Atom   NE1    Render
+# Symbol Number Radius Red Green Blue
+ X    0  0.853  204    0    0
+ H    1  0.930  199  199  199
+He    2  1.085  107  115  140
+Li    3  3.100    0  128  128
+Be    4  2.325  250  171  255
+ B    5  1.550   51   51  150
+ C    6  1.426   99   99   99
+ N    7  1.201   31   31   99
+ O    8  1.349  128    0    0
+ F    9  1.279    0   99   51
+Ne   10  1.411  107  115  140
+Na   11  3.100    0  102  102
+Mg   12  2.325  224  153  230
+Al   13  1.938  128  128  255
+Si   14  1.744   41   41   41
+ P   15  1.635   84   20  128
+ S   16  1.635  219  150    0
+Cl   17  1.573   74   99    0
+Ar   18  1.457  107  115  140
+ K   19  3.875    0   77   77
+Ca   20  3.100  201  140  204
+Sc   21  2.868  106  106  130
+Ti   22  2.712  106  106  130
+ V   23  2.558  106  106  130
+Cr   24  2.403  106  106  130
+Mn   25  2.325  106  106  130
+Fe   26  2.325  106  106  130
+Co   27  2.325  106  106  130
+Ni   28  2.325  106  106  130
+Cu   29  2.325  106  106  130
+Zn   30  2.248  106  106  130
+Ga   31  2.093  153  153  204
+Ge   32  1.938  102  115   26
+As   33  1.705  153   66  179
+Se   34  1.628  199   79    0
+Br   35  1.550    0  102   77
+Kr   36  1.472  107  115  140
+Sb   51  1.705  153   66  179
+Te   52  1.628  230   89    0
+ I   53  1.550    0  128    0
+Xe   54  1.472  102  115  140
+Ax  200  3.875  102  102  204
+Ss  201  3.100  102  204  102
+Pl  202  2.480  102   26  128
+Sj  203  3.100  102  204  204
+Ae  204  2.712  102  102  204
+Pe  205  2.325  102   26  128
+Sh  206  1.938  102  204  102
+Hp  207  3.100   77  179   77
+# All radii here were calculated using a CPK scaling factor
+# that can be modified by the user in "Preference | Atoms".
+# CPK Scale Factor: 0.775
+# To computer the original VDW radii, use the formula:
+# VDW Radius = Render Radius / CPK Scale Factor

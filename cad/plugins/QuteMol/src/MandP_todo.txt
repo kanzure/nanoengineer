@@ -1,0 +1,8 @@
+TODO:
+
+- FIX: caricamento Presettings non influenza status Sliders/bottoni 
+- FIX: Screenshot size 1024x1024 -> 512x512. Offscreen rendering 2048x2048 NON FUNIZONA
+- Make Border sizes dependent with avg atom size on screen!!!
+- Info panel
+- AO autoupdate on geom changes!!!
+....

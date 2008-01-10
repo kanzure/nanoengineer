@@ -1,0 +1,1439 @@
+HEADER    HORMONE                                 10-JUL-89   4INS      4INSA  1
+COMPND    INSULIN                                                       4INS   4
+SOURCE    PIG (SUS $SCROFA)                                             4INS   5
+AUTHOR    G.G.DODSON,E.J.DODSON,D.C.HODGKIN,N.W.ISAACS,M.VIJAYAN        4INS   6
+REVDAT   3   31-JUL-94 4INSB   3       HETATM                           4INSB  1
+REVDAT   2   15-JUL-93 4INSA   1       HEADER                           4INSA  2
+REVDAT   1   15-APR-90 4INS    0                                        4INS   7
+SPRSDE     15-APR-90 4INS      1INS                                     4INS   8
+REMARK   1                                                              4INS   9
+REMARK   1 REFERENCE 1                                                  4INS  10
+REMARK   1  AUTH   E.N.BAKER,T.L.BLUNDELL,J.F.CUTFIELD,S.M.CUTFIELD,    4INS  11
+REMARK   1  AUTH 2 E.J.DODSON,G.G.DODSON,D.M.CROWFOOT HODGKIN,          4INS  12
+REMARK   1  AUTH 3 R.E.HUBBARD,N.W.ISAACS,C.D.REYNOLDS,K.SAKABE,        4INS  13
+REMARK   1  AUTH 4 N.SAKABE,N.M.VIJAYAN                                 4INS  14
+REMARK   1  TITL   THE STRUCTURE OF 2ZN PIG INSULIN CRYSTALS AT 1.5     4INS  15
+REMARK   1  TITL 2 ANGSTROMS RESOLUTION                                 4INS  16
+REMARK   1  REF    PHILOS.TRANS.R.SOC.LONDON,    V. 319   369 1988      4INS  17
+REMARK   1  REF  2 SER.B                                                4INS  18
+REMARK   1  REFN   ASTM PTRBAE  UK ISSN 0080-4622                  441  4INS  19
+REMARK   1 REFERENCE 2                                                  4INS  20
+REMARK   1  AUTH   J.BORDAS,G.G.DODSON,H.GREWE,M.H.J.KOCH,B.KREBS,      4INS  21
+REMARK   1  AUTH 2 J.RANDALL                                            4INS  22
+REMARK   1  TITL   A COMPARATIVE ASSESSMENT OF THE ZINC-PROTEIN         4INS  23
+REMARK   1  TITL 2 COORDINATION IN 2*ZN-INSULIN AS DETERMINED BY X-RAY  4INS  24
+REMARK   1  TITL 3 ABSORPTION FINE STRUCTURE (/EXAFS$) AND X-RAY        4INS  25
+REMARK   1  TITL 4 CRYSTALLOGRAPHY                                      4INS  26
+REMARK   1  REF    PROC.R.SOC.LONDON,SER.B       V. 219    21 1983      4INS  27
+REMARK   1  REFN   ASTM PRLBA4  UK ISSN 0080-4649                  338  4INS  28
+REMARK   1 REFERENCE 3                                                  4INS  29
+REMARK   1  AUTH   E.J.DODSON,G.G.DODSON,D.C.HODGKIN,C.D.REYNOLDS       4INS  30
+REMARK   1  TITL   STRUCTURAL RELATIONSHIPS IN THE TWO-ZINC INSULIN     4INS  31
+REMARK   1  TITL 2 HEXAMER                                              4INS  32
+REMARK   1  REF    CAN.J.BIOCHEM.                V.  57   469 1979      4INS  33
+REMARK   1  REFN   ASTM CJBIAE  CN ISSN 0008-4018                  415  4INS  34
+REMARK   1 REFERENCE 4                                                  4INS  35
+REMARK   1  AUTH   N.W.ISAACS,R.C.AGARWAL                               4INS  36
+REMARK   1  TITL   EXPERIENCE WITH FAST FOURIER LEAST SQUARES IN THE    4INS  37
+REMARK   1  TITL 2 REFINEMENT OF THE CRYSTAL STRUCTURE OF RHOMBOHEDRAL  4INS  38
+REMARK   1  TITL 3 2-*ZINC INSULIN AT 1.5 ANGSTROMS RESOLUTION          4INS  39
+REMARK   1  REF    ACTA CRYSTALLOGR.,SECT.A      V.  34   782 1978      4INS  40
+REMARK   1  REFN   ASTM ACACBN  DK ISSN 0567-7394                  108  4INS  41
+REMARK   1 REFERENCE 5                                                  4INS  42
+REMARK   1  AUTH   G.BENTLEY,G.DODSON,A.LEWITOVA                        4INS  43
+REMARK   1  TITL   RHOMBOHEDRAL INSULIN CRYSTAL TRANSFORMATION          4INS  44
+REMARK   1  REF    J.MOL.BIOL.                   V. 126   871 1978      4INS  45
+REMARK   1  REFN   ASTM JMOBAK  UK ISSN 0022-2836                  070  4INS  46
+REMARK   1 REFERENCE 6                                                  4INS  47
+REMARK   1  AUTH   E.J.DODSON,N.W.ISAACS,J.S.ROLLETT                    4INS  48
+REMARK   1  TITL   A METHOD FOR FITTING SATISFACTORY MODELS TO SETS OF  4INS  49
+REMARK   1  TITL 2 ATOMIC POSITIONS IN PROTEIN STRUCTURE REFINEMENTS    4INS  50
+REMARK   1  REF    ACTA CRYSTALLOGR.,SECT.A      V.  32   311 1976      4INS  51
+REMARK   1  REFN   ASTM ACACBN  DK ISSN 0567-7394                  108  4INS  52
+REMARK   1 REFERENCE 7                                                  4INS  53
+REMARK   1  AUTH   D.C.HODGKIN                                          4INS  54
+REMARK   1  TITL   VARIETIES OF INSULIN                                 4INS  55
+REMARK   1  REF    J.ENDOCRINOL.                 V.  63     1 1974      4INS  56
+REMARK   1  REFN   ASTM JOENAK  UK ISSN 0022-0795                  907  4INS  57
+REMARK   1 REFERENCE 8                                                  4INS  58
+REMARK   1  AUTH   D.C.HODGKIN                                          4INS  59
+REMARK   1  TITL   THE STRUCTURE OF INSULIN                             4INS  60
+REMARK   1  REF    DAN.TIDSSKR.FARM.             V.  46     1 1972      4INS  61
+REMARK   1  REFN   ASTM DTFAAN  DK ISSN 0011-6513                  168  4INS  62
+REMARK   1 REFERENCE 9                                                  4INS  63
+REMARK   1  AUTH   T.BLUNDELL,G.DODSON,D.HODGKIN,D.MERCOLA              4INS  64
+REMARK   1  TITL   INSULIN. THE STRUCTURE IN THE CRYSTAL AND ITS        4INS  65
+REMARK   1  TITL 2 REFLECTION IN CHEMISTRY AND BIOLOGY                  4INS  66
+REMARK   1  REF    ADV.PROTEIN CHEM.             V.  26   279 1972      4INS  67
+REMARK   1  REFN   ASTM APCHA2  US ISSN 0065-3233                  433  4INS  68
+REMARK   1 REFERENCE 10                                                 4INS  69
+REMARK   1  AUTH   T.L.BLUNDELL,J.F.CUTFIELD,E.J.DODSON,G.G.DODSON,     4INS  70
+REMARK   1  AUTH 2 D.C.HODGKIN,D.A.MERCOLA                              4INS  71
+REMARK   1  TITL   THE CRYSTAL STRUCTURE OF RHOMBOHEDRAL 2 ZINC         4INS  72
+REMARK   1  TITL 2 INSULIN                                              4INS  73
+REMARK   1  REF    COLD SPRING HARBOR SYMP.      V.  36   233 1972      4INS  74
+REMARK   1  REF  2 QUANT.BIOL.                                          4INS  75
+REMARK   1  REFN   ASTM CSHSAZ  US ISSN 0091-7451                  421  4INS  76
+REMARK   1 REFERENCE 11                                                 4INS  77
+REMARK   1  AUTH   T.L.BLUNDELL,J.F.CUTFIELD,S.M.CUTFIELD,E.J.DODSON,   4INS  78
+REMARK   1  AUTH 2 G.G.DODSON,D.C.HODGKIN,D.A.MERCOLA,M.VIJAYAN         4INS  79
+REMARK   1  TITL   ATOMIC POSITIONS IN RHOMBOHEDRAL 2-*ZINC INSULIN     4INS  80
+REMARK   1  TITL 2 CRYSTALS                                             4INS  81
+REMARK   1  REF    NATURE                        V. 231   506 1971      4INS  82
+REMARK   1  REFN   ASTM NATUAS  UK ISSN 0028-0836                  006  4INS  83
+REMARK   1 REFERENCE 12                                                 4INS  84
+REMARK   1  AUTH   T.L.BLUNDELL,G.G.DODSON,E.DODSON,D.C.HODGKIN,        4INS  85
+REMARK   1  AUTH 2 M.VIJAYAN                                            4INS  86
+REMARK   1  TITL   X-*RAY ANALYSIS AND THE STRUCTURE OF INSULIN         4INS  87
+REMARK   1  REF    RECENT PROG.HORM.RES.         V.  27     1 1971      4INS  88
+REMARK   1  REFN   ASTM RPHRA6  US ISSN 0079-9963                  908  4INS  89
+REMARK   1 REFERENCE 13                                                 4INS  90
+REMARK   1  AUTH   E.N.BAKER,G.DODSON                                   4INS  91
+REMARK   1  TITL   X-RAY DIFFRACTION DATA ON SOME CRYSTALLINE           4INS  92
+REMARK   1  TITL 2 VARIETIES OF INSULIN                                 4INS  93
+REMARK   1  REF    J.MOL.BIOL.                   V.  54   605 1970      4INS  94
+REMARK   1  REFN   ASTM JMOBAK  UK ISSN 0022-2836                  070  4INS  95
+REMARK   1 REFERENCE 14                                                 4INS  96
+REMARK   1  AUTH   M.J.ADAMS,T.L.BLUNDELL,E.J.DODSON,G.G.DODSON,        4INS  97
+REMARK   1  AUTH 2 M.VIJAYAN,E.N.BAKER,M.M.HARDING,D.C.HODGKIN,         4INS  98
+REMARK   1  AUTH 3 B.RIMMER,S.SHEAT                                     4INS  99
+REMARK   1  TITL   STRUCTURE OF RHOMBOHEDRAL 2 ZINC INSULIN CRYSTALS    4INS 100
+REMARK   1  REF    NATURE                        V. 224   491 1969      4INS 101
+REMARK   1  REFN   ASTM NATUAS  UK ISSN 0028-0836                  006  4INS 102
+REMARK   1 REFERENCE 15                                                 4INS 103
+REMARK   1  EDIT   M.O.DAYHOFF                                          4INS 104
+REMARK   1  REF    ATLAS OF PROTEIN SEQUENCE     V.   5   187 1972      4INS 105
+REMARK   1  REF  2 AND STRUCTURE (DATA SECTION)                         4INS 106
+REMARK   1  PUBL   NATIONAL BIOMEDICAL RESEARCH FOUNDATION,             4INS 107
+REMARK   1  PUBL 2 SILVER SPRING,MD.                                    4INS 108
+REMARK   1  REFN                   ISBN 0-912466-02-2              435  4INS 109
+REMARK   2                                                              4INS 110
+REMARK   2 RESOLUTION. 1.5 ANGSTROMS.                                   4INS 111
+REMARK   3                                                              4INS 112
+REMARK   3 REFINEMENT. BY THE RESTRAINED LEAST-SQUARES PROCEDURE OF J.  4INS 113
+REMARK   3  KONNERT AND W. HENDRICKSON (PROGRAM *PROLSQ*).  THE R       4INS 114
+REMARK   3  VALUE IS 0.153.  THE RMS DEVIATION FROM IDEALITY OF THE     4INS 115
+REMARK   3  BOND LENGTHS IS 0.005 ANGSTROMS.  THE RMS DEVIATION FROM    4INS 116
+REMARK   3  IDEALITY OF THE BOND ANGLES IS 5.9 DEGREES.                 4INS 117
+REMARK   4                                                              4INS 118
+REMARK   4 SOLVENT MOLECULES ARE INCLUDED IN THE REFINEMENT             4INS 119
+REMARK   4 CALCULATIONS.  A COMPLETE SET OF SOLVENT COORDINATES IS      4INS 120
+REMARK   4 INCLUDED IN THIS ENTRY.                                      4INS 121
+REMARK   5                                                              4INS 122
+REMARK   5 THE CRYSTALLOGRAPHIC ASYMMETRIC UNIT OF INSULIN CONSISTS OF  4INS 123
+REMARK   5 TWO INSULIN MOLECULES EACH CONSISTING OF TWO CHAINS.  THIS   4INS 124
+REMARK   5 ENTRY PRESENTS COORDINATES FOR MOLECULES I (CHAIN            4INS 125
+REMARK   5 INDICATORS *A* AND *B*) AND II (CHAIN INDICATORS *C* AND     4INS 126
+REMARK   5 *D*).  THE QUASI-TWO-FOLD AXIS THAT TRANSFORMS MOLECULE I    4INS 127
+REMARK   5 INTO MOLECULE II IS GIVEN IN THE *MTRIX* RECORDS BELOW.      4INS 128
+REMARK   5 APPLYING THE THREE-FOLD CRYSTALLOGRAPHIC AXIS YIELDS A       4INS 129
+REMARK   5 HEXAMER AROUND THE AXIS.  THERE ARE TWO ZINC IONS SITUATED   4INS 130
+REMARK   5 ON THIS THREE-FOLD AXIS.  COORDINATES FOR THE ZINC IONS AND  4INS 131
+REMARK   5 SOME WATER MOLECULES ARE INCLUDED BELOW WITH A BLANK CHAIN   4INS 132
+REMARK   5 INDICATOR.                                                   4INS 133
+REMARK   6                                                              4INS 134
+REMARK   6 SITES *D1* AND *D2* ARE THE DIMER-FORMING RESIDUES IN        4INS 135
+REMARK   6 MOLECULES I AND II RESPECTIVELY.  SITES *H1* AND *H2* ARE    4INS 136
+REMARK   6 THE HEXAMER-FORMING RESIDUES IN MOLECULES I AND II           4INS 137
+REMARK   6 RESPECTIVELY.  SITES *SI1* AND *SI2* ARE THE                 4INS 138
+REMARK   6 SURFACE-INVARIANT RESIDUES IN MOLECULES I AND II,            4INS 139
+REMARK   6 RESPECTIVELY, THAT ARE NOT INVOLVED IN DIMERIZATION.         4INS 140
+REMARK   6 RESIDUE GLU A 4 IS INVARIANT AS A CARBOXYLIC ACID.           4INS 141
+REMARK   6 RESIDUES HIS B 5 AND ARG B22 ARE INVARIANT IN INSULINS OF    4INS 142
+REMARK   6 HIGH POTENCY ONLY.                                           4INS 143
+REMARK   7                                                              4INS 144
+REMARK   7 THERE ARE TWO COORDINATION SITES IN THE HEXAMER.  SITE       4INS 145
+REMARK   7 *ZN1* COMPRISES RESIDUE HIS B 10 AND WATER HOH 4201 AND      4INS 146
+REMARK   7 THEIR TWO CRYSTALLOGRAPHICALLY-RELATED EQUIVALENTS.  SITE    4INS 147
+REMARK   7 *ZN2* COMPRISES RESIDUE HIS D 10 AND WATER HOH 4513 AND      4INS 148
+REMARK   7 THEIR TWO CRYSTALLOGRAPHICALLY-RELATED EQUIVALENTS.  SITE    4INS 149
+REMARK   7 *ZN1* IS OCTAHEDRALLY COORDINATED AROUND ZN1 AND SITE *ZN2*  4INS 150
+REMARK   7 IS OCTAHEDRALLY COORDINATED AROUND ZN2.  THE TWO SITES ARE   4INS 151
+REMARK   7 VERY SIMILAR.                                                4INS 152
+REMARK   7 BECAUSE THE COORDINATES OF THE SYMMETRY-RELATED ATOMS ARE    4INS 153
+REMARK   7 NOT INCLUDED IN THIS ENTRY THE COMPLETE CONNECTIVITY OF      4INS 154
+REMARK   7 ATOMS ZN1 AND ZN2 CANNOT BE SPECIFIED.  PARTIAL              4INS 155
+REMARK   7 CONNECTIVITY IS GIVEN BY                                     4INS 156
+REMARK   7          CONECT  247  245  246  832                          4INS 157
+REMARK   7          CONECT  661  659  660  833                          4INS 158
+REMARK   7          CONECT  832  247  851  ...  ...  ...  ...           4INS 159
+REMARK   7          CONECT  833  661  895  ...  ...  ...  ...           4INS 160
+REMARK   7          CONECT  851  832                                    4INS 161
+REMARK   7          CONECT  895  833                                    4INS 162
+REMARK   7            .                                                 4INS 163
+REMARK   7            .                                                 4INS 164
+REMARK   7            .                                                 4INS 165
+REMARK   8                                                              4INS 166
+REMARK   8 SOME RESIDUES ARE APPARENTLY DISORDERED BUT DIFFICULT TO     4INS 167
+REMARK   8 DESCRIBE IN TERMS OF ATOMIC POSITIONS.  ALA B 30 IS ONE OF   4INS 168
+REMARK   8 THESE RESIDUES.                                              4INS 169
+REMARK   9                                                              4INSA  3
+REMARK   9 CORRECTION. CORRECT DEPOSITION DATE ON HEADER RECORD.        4INSA  4
+REMARK   9  15-JUL-93.                                                  4INSA  5
+REMARK  10                                                              4INSB  2
+REMARK  10 CORRECTION. MOVE RESIDUE NUMBERS FOR HOH ATOMS TO THE        4INSB  3
+REMARK  10  CORRECT COLUMNS.  31-JUL-94.                                4INSB  4
+SEQRES   1 A   21  GLY ILE VAL GLU GLN CYS CYS THR SER ILE CYS SER LEU  4INS 170
+SEQRES   2 A   21  TYR GLN LEU GLU ASN TYR CYS ASN                      4INS 171
+SEQRES   1 B   30  PHE VAL ASN GLN HIS LEU CYS GLY SER HIS LEU VAL GLU  4INS 172
+SEQRES   2 B   30  ALA LEU TYR LEU VAL CYS GLY GLU ARG GLY PHE PHE TYR  4INS 173
+SEQRES   3 B   30  THR PRO LYS ALA                                      4INS 174
+SEQRES   1 C   21  GLY ILE VAL GLU GLN CYS CYS THR SER ILE CYS SER LEU  4INS 175
+SEQRES   2 C   21  TYR GLN LEU GLU ASN TYR CYS ASN                      4INS 176
+SEQRES   1 D   30  PHE VAL ASN GLN HIS LEU CYS GLY SER HIS LEU VAL GLU  4INS 177
+SEQRES   2 D   30  ALA LEU TYR LEU VAL CYS GLY GLU ARG GLY PHE PHE TYR  4INS 178
+SEQRES   3 D   30  THR PRO LYS ALA                                      4INS 179
+FTNOTE   1                                                              4INS 180
+FTNOTE   1 THE QUASI-TWO-FOLD SYMMETRY BREAKS DOWN MOST SERIOUSLY AT    4INS 181
+FTNOTE   1 RESIDUES                                                     4INS 182
+FTNOTE   1    GLY A  1 TO GLN A  5   AND   GLY C  1 TO GLN C  5         4INS 183
+FTNOTE   1    HIS B  5               AND   HIS D  5                     4INS 184
+FTNOTE   1    PHE B 25               AND   PHE D 25                     4INS 185
+FTNOTE   2                                                              4INS 186
+FTNOTE   2 THE FOLLOWING RESIDUES ARE DISORDERED - GLN B 4, VAL B 12,   4INS 187
+FTNOTE   2 GLU B 21, ARG B 22, ARG D 22, LYS D 29.                      4INS 188
+FTNOTE   3                                                              4INS 189
+FTNOTE   3 SEE REMARK 8.                                                4INS 190
+HET     ZN      1       1     ZINC ION ON 3-FOLD CRYSTAL AXIS           4INS 191
+HET     ZN      2       1     ZINC ION ON 3-FOLD CRYSTAL AXIS           4INS 192
+FORMUL   5   ZN    2(ZN1 ++)                                            4INS 193
+FORMUL   6  HOH   *350(H2 O1)                                           4INS 194
+HELIX    1 A11 GLY A    1  ILE A   10  1 VAL 203 O H-BONDED TO HOH      4INS 195
+HELIX    2 A12 SER A   12  GLU A   17  5 CNTCTS MOSTLY GT 3A,NOT IDEAL  4INS 196
+HELIX    3 B11 SER B    9  GLY B   20  1 CYS 67 GLY 68, 3(10) CONTACTS  4INS 197
+HELIX    4 A21 GLY C    1  ILE C   10  1 NOT IDEAL ALPH,SOME PI CNTCTS  4INS 198
+HELIX    5 A22 SER C   12  GLU C   17  5 CNTCTS MOSTLY GT 3A,NOT IDEAL  4INS 199
+HELIX    6 B21 SER D    9  GLY D   20  1 CYS 67,GLY 68, 3(10) CONTACTS  4INS 200
+SHEET    1   B 2 PHE B  24  TYR B  26  0                                4INS 201
+SHEET    2   B 2 PHE D  24  TYR D  26 -1  N  PHE B  24   O  TYR D  26   4INS 202
+TURN     1 1B1 CYS B  19  ARG B  22                                     4INS 203
+TURN     2 1B2 GLY B  20  GLY B  23                                     4INS 204
+TURN     3 2B1 CYS D  19  ARG D  22                                     4INS 205
+TURN     4 2B2 GLY D  20  GLY D  23                                     4INS 206
+SSBOND   1 CYS A    6    CYS A   11                                     4INS 207
+SSBOND   2 CYS C    6    CYS C   11                                     4INS 208
+SSBOND   3 CYS A    7    CYS B    7                                     4INS 209
+SSBOND   4 CYS A   20    CYS B   19                                     4INS 210
+SSBOND   5 CYS C    7    CYS D    7                                     4INS 211
+SSBOND   6 CYS C   20    CYS D   19                                     4INS 212
+SITE     1  D1  5 VAL B  12  TYR B  16  PHE B  24  PHE B  25            4INS 213
+SITE     2  D1  5 TYR B  26                                             4INS 214
+SITE     1  D2  5 VAL D  12  TYR D  16  PHE D  24  PHE D  25            4INS 215
+SITE     2  D2  5 TYR D  26                                             4INS 216
+SITE     1  H1  7 LEU A  13  TYR A  14  PHE B   1  GLU B  13            4INS 217
+SITE     2  H1  7 ALA B  14  LEU B  17  VAL B  18                       4INS 218
+SITE     1  H2  7 LEU C  13  TYR C  14  PHE D   1  GLU D  13            4INS 219
+SITE     2  H2  7 ALA D  14  LEU D  17  VAL D  18                       4INS 220
+SITE     1 SI1  7 GLY A   1  GLU A   4  GLN A   5  CYS A   7            4INS 221
+SITE     2 SI1  7 TYR A  19  ASN A  21  CYS B   7                       4INS 222
+SITE     1 SI2  7 GLY C   1  GLU C   4  GLN C   5  CYS C   7            4INS 223
+SITE     2 SI2  7 TYR C  19  ASN C  21  CYS D   7                       4INS 224
+CRYST1   82.500   82.500   34.000  90.00  90.00 120.00 R 3          18  4INS 225
+ORIGX1      1.000000  0.000000  0.000000        0.00000                 4INS 226
+ORIGX2      0.000000  1.000000  0.000000        0.00000                 4INS 227
+ORIGX3      0.000000  0.000000  1.000000        0.00000                 4INS 228
+SCALE1      0.012121  0.006998  0.000000        0.00000                 4INS 229
+SCALE2      0.000000  0.013996  0.000000        0.00000                 4INS 230
+SCALE3      0.000000  0.000000  0.029412        0.00000                 4INS 231
+MTRIX1   1 -0.878620 -0.476960  0.023050        0.00000    1            4INS 232
+MTRIX2   1 -0.477430  0.878370 -0.022860        0.00000    1            4INS 233
+MTRIX3   1 -0.009350 -0.031090 -0.999470        0.00000    1            4INS 234
+ATOM      1  N   GLY A   1      -8.863  16.944  14.289  1.00 21.88   1  4INS 235
+ATOM      2  CA  GLY A   1      -9.929  17.026  13.244  1.00 22.85   1  4INS 236
+ATOM      3  C   GLY A   1     -10.051  15.625  12.618  1.00 43.92   1  4INS 237
+ATOM      4  O   GLY A   1      -9.782  14.728  13.407  1.00 25.22   1  4INS 238
+ATOM      5  N   ILE A   2     -10.333  15.531  11.332  1.00 26.28   1  4INS 239
+ATOM      6  CA  ILE A   2     -10.488  14.266  10.600  1.00 20.84   1  4INS 240
+ATOM      7  C   ILE A   2      -9.367  13.302  10.658  1.00 11.81   1  4INS 241
+ATOM      8  O   ILE A   2      -9.580  12.092  10.969  1.00 20.31   1  4INS 242
+ATOM      9  CB  ILE A   2     -10.883  14.493   9.095  1.00 40.00   1  4INS 243
+ATOM     10  CG1 ILE A   2     -11.579  13.146   8.697  1.00 36.74   1  4INS 244
+ATOM     11  CG2 ILE A   2      -9.741  14.794   8.140  1.00 23.02   1  4INS 245
+ATOM     12  CD1 ILE A   2     -12.813  13.031   9.640  1.00 26.69   1  4INS 246
+ATOM     13  N   VAL A   3      -8.133  13.759  10.483  1.00 16.57   1  4INS 247
+ATOM     14  CA  VAL A   3      -6.966  12.901  10.576  1.00 15.75   1  4INS 248
+ATOM     15  C   VAL A   3      -6.892  12.161  11.922  1.00 22.09   1  4INS 249
+ATOM     16  O   VAL A   3      -6.547  10.990  12.037  1.00 24.52   1  4INS 250
+ATOM     17  CB  VAL A   3      -5.697  13.708  10.225  1.00 21.34   1  4INS 251
+ATOM     18  CG1 VAL A   3      -4.382  12.960  10.448  1.00 32.48   1  4INS 252
+ATOM     19  CG2 VAL A   3      -5.842  14.209   8.777  1.00 26.35   1  4INS 253
+ATOM     20  N   GLU A   4      -7.043  13.019  12.935  1.00 16.58   1  4INS 254
+ATOM     21  CA  GLU A   4      -6.889  12.474  14.295  1.00 15.32   1  4INS 255
+ATOM     22  C   GLU A   4      -8.004  11.558  14.610  1.00 16.88   1  4INS 256
+ATOM     23  O   GLU A   4      -7.888  10.474  15.128  1.00 23.30   1  4INS 257
+ATOM     24  CB  GLU A   4      -6.809  13.691  15.266  1.00 17.11   1  4INS 258
+ATOM     25  CG  GLU A   4      -5.615  14.565  14.951  1.00 21.45   1  4INS 259
+ATOM     26  CD  GLU A   4      -5.704  15.457  13.735  1.00 21.59   1  4INS 260
+ATOM     27  OE1 GLU A   4      -6.757  15.959  13.377  1.00 23.43   1  4INS 261
+ATOM     28  OE2 GLU A   4      -4.568  15.569  13.179  1.00 25.36   1  4INS 262
+ATOM     29  N   GLN A   5      -9.199  12.048  14.356  1.00 15.69   1  4INS 263
+ATOM     30  CA  GLN A   5     -10.407  11.299  14.630  1.00 12.38   1  4INS 264
+ATOM     31  C   GLN A   5     -10.431   9.940  13.980  1.00 19.86   1  4INS 265
+ATOM     32  O   GLN A   5     -10.815   8.931  14.542  1.00 16.83   1  4INS 266
+ATOM     33  CB  GLN A   5     -11.594  12.130  14.152  1.00 21.13   1  4INS 267
+ATOM     34  CG  GLN A   5     -12.860  11.374  14.561  1.00 22.06   1  4INS 268
+ATOM     35  CD  GLN A   5     -13.946  11.901  13.634  1.00 42.02   1  4INS 269
+ATOM     36  OE1 GLN A   5     -13.908  13.027  13.169  1.00 55.10   1  4INS 270
+ATOM     37  NE2 GLN A   5     -14.943  11.030  13.351  1.00 27.27   1  4INS 271
+ATOM     38  N   CYS A   6     -10.033   9.815  12.695  1.00 13.19      4INS 272
+ATOM     39  CA  CYS A   6     -10.050   8.518  12.065  1.00 12.63      4INS 273
+ATOM     40  C   CYS A   6      -9.105   7.520  12.667  1.00  9.95      4INS 274
+ATOM     41  O   CYS A   6      -9.395   6.288  12.666  1.00 14.22      4INS 275
+ATOM     42  CB  CYS A   6      -9.660   8.673  10.559  1.00 12.54      4INS 276
+ATOM     43  SG  CYS A   6     -10.925   9.459   9.579  1.00 13.00      4INS 277
+ATOM     44  N   CYS A   7      -8.018   7.992  13.171  1.00 10.84      4INS 278
+ATOM     45  CA  CYS A   7      -6.964   7.186  13.808  1.00 17.02      4INS 279
+ATOM     46  C   CYS A   7      -7.236   6.948  15.358  1.00 13.71      4INS 280
+ATOM     47  O   CYS A   7      -7.061   5.782  15.768  1.00 19.28      4INS 281
+ATOM     48  CB  CYS A   7      -5.578   7.826  13.656  1.00 20.24      4INS 282
+ATOM     49  SG  CYS A   7      -4.181   6.819  14.134  1.00 13.80      4INS 283
+ATOM     50  N   THR A   8      -7.655   7.937  16.058  1.00 12.57      4INS 284
+ATOM     51  CA  THR A   8      -7.862   7.732  17.520  1.00 19.99      4INS 285
+ATOM     52  C   THR A   8      -9.143   6.997  17.870  1.00 26.34      4INS 286
+ATOM     53  O   THR A   8      -9.189   6.157  18.795  1.00 25.43      4INS 287
+ATOM     54  CB  THR A   8      -7.728   9.055  18.386  1.00 20.77      4INS 288
+ATOM     55  OG1 THR A   8      -8.889   9.918  18.117  1.00 26.76      4INS 289
+ATOM     56  CG2 THR A   8      -6.334   9.700  18.196  1.00 26.50      4INS 290
+ATOM     57  N   SER A   9     -10.170   7.350  17.058  1.00 20.01      4INS 291
+ATOM     58  CA  SER A   9     -11.509   6.803  17.121  1.00 16.88      4INS 292
+ATOM     59  C   SER A   9     -11.796   5.981  15.856  1.00 12.70      4INS 293
+ATOM     60  O   SER A   9     -11.139   5.010  15.473  1.00 17.60      4INS 294
+ATOM     61  CB  SER A   9     -12.331   8.067  17.439  1.00 19.52      4INS 295
+ATOM     62  OG  SER A   9     -13.674   7.774  17.650  1.00 32.34      4INS 296
+ATOM     63  N   ILE A  10     -12.883   6.382  15.159  1.00 15.34      4INS 297
+ATOM     64  CA  ILE A  10     -13.350   5.723  13.932  1.00 20.23      4INS 298
+ATOM     65  C   ILE A  10     -13.969   6.902  13.106  1.00 17.50      4INS 299
+ATOM     66  O   ILE A  10     -14.355   7.922  13.623  1.00 16.60      4INS 300
+ATOM     67  CB  ILE A  10     -14.366   4.524  14.047  1.00 19.39      4INS 301
+ATOM     68  CG1 ILE A  10     -15.702   4.874  14.742  1.00 22.05      4INS 302
+ATOM     69  CG2 ILE A  10     -13.711   3.300  14.723  1.00 23.30      4INS 303
+ATOM     70  CD1 ILE A  10     -16.702   3.722  15.005  1.00 42.11      4INS 304
+ATOM     71  N   CYS A  11     -14.080   6.685  11.767  1.00 12.14      4INS 305
+ATOM     72  CA  CYS A  11     -14.665   7.679  10.880  1.00 11.24      4INS 306
+ATOM     73  C   CYS A  11     -15.301   6.881   9.766  1.00 12.17      4INS 307
+ATOM     74  O   CYS A  11     -14.962   5.692   9.528  1.00 21.14      4INS 308
+ATOM     75  CB  CYS A  11     -13.695   8.702  10.417  1.00 13.03      4INS 309
+ATOM     76  SG  CYS A  11     -12.375   8.019   9.385  1.00 13.60      4INS 310
+ATOM     77  N   SER A  12     -16.233   7.557   9.095  1.00 11.37      4INS 311
+ATOM     78  CA  SER A  12     -16.999   6.978   8.005  1.00  9.91      4INS 312
+ATOM     79  C   SER A  12     -16.563   7.644   6.726  1.00  7.40      4INS 313
+ATOM     80  O   SER A  12     -15.967   8.753   6.711  1.00  9.67      4INS 314
+ATOM     81  CB  SER A  12     -18.516   7.183   8.084  1.00 16.64      4INS 315
+ATOM     82  OG  SER A  12     -18.869   8.543   7.881  1.00 17.14      4INS 316
+ATOM     83  N   LEU A  13     -16.852   6.914   5.612  1.00 11.35      4INS 317
+ATOM     84  CA  LEU A  13     -16.530   7.444   4.259  1.00 11.35      4INS 318
+ATOM     85  C   LEU A  13     -17.317   8.715   4.030  1.00 12.55      4INS 319
+ATOM     86  O   LEU A  13     -16.835   9.521   3.226  1.00 11.78      4INS 320
+ATOM     87  CB  LEU A  13     -16.774   6.348   3.232  1.00 11.66      4INS 321
+ATOM     88  CG  LEU A  13     -15.940   5.046   3.316  1.00 18.12      4INS 322
+ATOM     89  CD1 LEU A  13     -16.050   4.197   2.018  1.00 18.76      4INS 323
+ATOM     90  CD2 LEU A  13     -14.471   5.320   3.537  1.00 17.26      4INS 324
+ATOM     91  N   TYR A  14     -18.491   8.790   4.629  1.00 10.84      4INS 325
+ATOM     92  CA  TYR A  14     -19.282  10.035   4.368  1.00 10.75      4INS 326
+ATOM     93  C   TYR A  14     -18.639  11.228   4.963  1.00 12.81      4INS 327
+ATOM     94  O   TYR A  14     -18.706  12.298   4.341  1.00 15.11      4INS 328
+ATOM     95  CB  TYR A  14     -20.746   9.900   4.799  1.00 12.90      4INS 329
+ATOM     96  CG  TYR A  14     -21.463   8.764   4.079  1.00 18.23      4INS 330
+ATOM     97  CD1 TYR A  14     -22.110   9.123   2.891  1.00 18.95      4INS 331
+ATOM     98  CD2 TYR A  14     -21.461   7.440   4.475  1.00 15.42      4INS 332
+ATOM     99  CE1 TYR A  14     -22.767   8.167   2.086  1.00 18.15      4INS 333
+ATOM    100  CE2 TYR A  14     -22.118   6.436   3.676  1.00 14.31      4INS 334
+ATOM    101  CZ  TYR A  14     -22.738   6.856   2.556  1.00 15.47      4INS 335
+ATOM    102  OH  TYR A  14     -23.436   5.926   1.716  1.00 24.86      4INS 336
+ATOM    103  N   GLN A  15     -17.945  11.100   6.091  1.00  9.63      4INS 337
+ATOM    104  CA  GLN A  15     -17.178  12.138   6.774  1.00  9.40      4INS 338
+ATOM    105  C   GLN A  15     -16.012  12.543   5.900  1.00 10.52      4INS 339
+ATOM    106  O   GLN A  15     -15.611  13.717   5.722  1.00 14.25      4INS 340
+ATOM    107  CB  GLN A  15     -16.774  11.841   8.205  1.00 13.89      4INS 341
+ATOM    108  CG  GLN A  15     -17.894  11.668   9.206  1.00 17.53      4INS 342
+ATOM    109  CD  GLN A  15     -17.524  11.056  10.515  1.00 28.21      4INS 343
+ATOM    110  OE1 GLN A  15     -16.865  10.027  10.598  1.00 20.14      4INS 344
+ATOM    111  NE2 GLN A  15     -17.994  11.650  11.624  1.00 30.25      4INS 345
+ATOM    112  N   LEU A  16     -15.352  11.525   5.325  1.00 12.99      4INS 346
+ATOM    113  CA  LEU A  16     -14.185  11.826   4.470  1.00 11.19      4INS 347
+ATOM    114  C   LEU A  16     -14.605  12.634   3.249  1.00 15.54      4INS 348
+ATOM    115  O   LEU A  16     -13.767  13.398   2.745  1.00 16.01      4INS 349
+ATOM    116  CB  LEU A  16     -13.588  10.521   4.060  1.00 12.67      4INS 350
+ATOM    117  CG  LEU A  16     -12.954   9.717   5.182  1.00 13.07      4INS 351
+ATOM    118  CD1 LEU A  16     -12.115   8.571   4.602  1.00 16.61      4INS 352
+ATOM    119  CD2 LEU A  16     -12.041  10.559   6.028  1.00 16.50      4INS 353
+ATOM    120  N   GLU A  17     -15.779  12.420   2.759  1.00 17.50      4INS 354
+ATOM    121  CA  GLU A  17     -16.223  13.179   1.589  1.00 17.72      4INS 355
+ATOM    122  C   GLU A  17     -16.171  14.693   1.811  1.00 19.21      4INS 356
+ATOM    123  O   GLU A  17     -16.118  15.466   0.803  1.00 18.48      4INS 357
+ATOM    124  CB  GLU A  17     -17.645  12.862   1.215  1.00 17.38      4INS 358
+ATOM    125  CG  GLU A  17     -17.885  11.629   0.360  1.00 27.97      4INS 359
+ATOM    126  CD  GLU A  17     -19.225  11.667  -0.391  1.00 26.70      4INS 360
+ATOM    127  OE1 GLU A  17     -20.201  11.466   0.276  1.00 29.93      4INS 361
+ATOM    128  OE2 GLU A  17     -19.127  11.873  -1.643  1.00 34.66      4INS 362
+ATOM    129  N   ASN A  18     -16.094  15.074   3.104  1.00 15.10      4INS 363
+ATOM    130  CA  ASN A  18     -16.029  16.534   3.332  1.00 18.85      4INS 364
+ATOM    131  C   ASN A  18     -14.703  17.131   2.954  1.00 18.46      4INS 365
+ATOM    132  O   ASN A  18     -14.545  18.377   2.834  1.00 19.68      4INS 366
+ATOM    133  CB  ASN A  18     -16.489  16.934   4.738  1.00 20.66      4INS 367
+ATOM    134  CG  ASN A  18     -17.868  16.338   5.142  1.00 29.79      4INS 368
+ATOM    135  OD1 ASN A  18     -18.813  16.053   4.382  1.00 34.48      4INS 369
+ATOM    136  ND2 ASN A  18     -17.991  16.168   6.452  1.00 36.00      4INS 370
+ATOM    137  N   TYR A  19     -13.697  16.327   2.738  1.00 15.68      4INS 371
+ATOM    138  CA  TYR A  19     -12.358  16.724   2.380  1.00 14.19      4INS 372
+ATOM    139  C   TYR A  19     -12.154  16.695   0.899  1.00 13.20      4INS 373
+ATOM    140  O   TYR A  19     -11.010  17.038   0.480  1.00 16.12      4INS 374
+ATOM    141  CB  TYR A  19     -11.364  15.840   3.178  1.00 14.35      4INS 375
+ATOM    142  CG  TYR A  19     -11.586  16.223   4.634  1.00 21.24      4INS 376
+ATOM    143  CD1 TYR A  19     -10.853  17.300   5.129  1.00 26.61      4INS 377
+ATOM    144  CD2 TYR A  19     -12.562  15.703   5.445  1.00 19.21      4INS 378
+ATOM    145  CE1 TYR A  19     -11.084  17.801   6.393  1.00 27.80      4INS 379
+ATOM    146  CE2 TYR A  19     -12.833  16.207   6.714  1.00 23.98      4INS 380
+ATOM    147  CZ  TYR A  19     -12.081  17.267   7.187  1.00 34.08      4INS 381
+ATOM    148  OH  TYR A  19     -12.227  17.849   8.400  1.00 37.96      4INS 382
+ATOM    149  N   CYS A  20     -13.057  16.313   0.077  1.00 13.05      4INS 383
+ATOM    150  CA  CYS A  20     -12.838  16.309  -1.389  1.00 18.69      4INS 384
+ATOM    151  C   CYS A  20     -12.984  17.799  -1.802  1.00 19.09      4INS 385
+ATOM    152  O   CYS A  20     -13.588  18.579  -1.084  1.00 19.31      4INS 386
+ATOM    153  CB  CYS A  20     -13.850  15.490  -2.157  1.00 15.99      4INS 387
+ATOM    154  SG  CYS A  20     -13.923  13.761  -1.584  1.00 12.90      4INS 388
+ATOM    155  N   ASN A  21     -12.380  18.063  -2.909  1.00 17.63      4INS 389
+ATOM    156  CA  ASN A  21     -12.404  19.399  -3.608  1.00 25.23      4INS 390
+ATOM    157  C   ASN A  21     -13.642  19.696  -4.447  1.00 34.82      4INS 391
+ATOM    158  O   ASN A  21     -14.146  18.703  -4.956  1.00 31.24      4INS 392
+ATOM    159  CB  ASN A  21     -11.228  19.392  -4.521  1.00 19.06      4INS 393
+ATOM    160  CG  ASN A  21     -10.020  20.283  -4.456  1.00 40.71      4INS 394
+ATOM    161  OD1 ASN A  21     -10.067  21.380  -5.083  1.00 68.22      4INS 395
+ATOM    162  ND2 ASN A  21      -9.004  19.667  -3.808  1.00 39.69      4INS 396
+ATOM    163  OXT ASN A  21     -13.881  20.890  -4.604  1.00 41.83      4INS 397
+TER     164      ASN A  21                                              4INS 398
+ATOM    165  N   PHE B   1     -21.768   1.132   3.577  1.00 25.87      4INS 399
+ATOM    166  CA  PHE B   1     -20.374   1.368   4.053  1.00 24.30      4INS 400
+ATOM    167  C   PHE B   1     -20.341   1.145   5.585  1.00 39.74      4INS 401
+ATOM    168  O   PHE B   1     -21.423   1.141   6.173  1.00 38.10      4INS 402
+ATOM    169  CB  PHE B   1     -19.806   2.718   3.624  1.00 22.51      4INS 403
+ATOM    170  CG  PHE B   1     -19.924   2.916   2.131  1.00 16.52      4INS 404
+ATOM    171  CD1 PHE B   1     -20.067   4.204   1.618  1.00 35.58      4INS 405
+ATOM    172  CD2 PHE B   1     -19.709   1.873   1.262  1.00 20.86      4INS 406
+ATOM    173  CE1 PHE B   1     -20.093   4.444   0.243  1.00 52.66      4INS 407
+ATOM    174  CE2 PHE B   1     -19.824   2.067  -0.123  1.00 51.46      4INS 408
+ATOM    175  CZ  PHE B   1     -20.011   3.332  -0.631  1.00 42.63      4INS 409
+ATOM    176  N   VAL B   2     -19.104   0.899   6.027  1.00 21.12      4INS 410
+ATOM    177  CA  VAL B   2     -18.754   0.598   7.406  1.00 36.74      4INS 411
+ATOM    178  C   VAL B   2     -17.780   1.656   7.965  1.00 23.52      4INS 412
+ATOM    179  O   VAL B   2     -17.104   2.328   7.197  1.00 19.56      4INS 413
+ATOM    180  CB  VAL B   2     -18.048  -0.765   7.638  1.00 30.58      4INS 414
+ATOM    181  CG1 VAL B   2     -18.993  -1.953   7.609  1.00 25.73      4INS 415
+ATOM    182  CG2 VAL B   2     -16.776  -0.916   6.799  1.00 22.31      4INS 416
+ATOM    183  N   ASN B   3     -17.741   1.753   9.278  1.00 13.38      4INS 417
+ATOM    184  CA  ASN B   3     -16.872   2.691   9.950  1.00 13.94      4INS 418
+ATOM    185  C   ASN B   3     -15.457   2.100   9.881  1.00 15.03      4INS 419
+ATOM    186  O   ASN B   3     -15.312   0.857   9.926  1.00 24.85      4INS 420
+ATOM    187  CB  ASN B   3     -17.272   3.010  11.382  1.00 25.01      4INS 421
+ATOM    188  CG  ASN B   3     -18.513   3.844  11.511  1.00 49.04      4INS 422
+ATOM    189  OD1 ASN B   3     -18.658   4.774  10.724  1.00 34.50      4INS 423
+ATOM    190  ND2 ASN B   3     -19.333   3.415  12.473  1.00 35.00      4INS 424
+ATOM    191  N   GLN B   4     -14.509   3.031   9.767  1.00 12.52   2  4INS 425
+ATOM    192  CA  GLN B   4     -13.137   2.542   9.571  1.00 22.69   2  4INS 426
+ATOM    193  C   GLN B   4     -12.213   3.224  10.580  1.00 13.29   2  4INS 427
+ATOM    194  O   GLN B   4     -12.347   4.333  11.118  1.00 20.53   2  4INS 428
+ATOM    195  CB  GLN B   4     -12.666   2.760   8.116  1.00 39.18   2  4INS 429
+ATOM    196  CG AGLN B   4     -13.007   1.731   7.035  0.60 11.45   2  4INS 430
+ATOM    197  CG BGLN B   4     -12.978   1.763   6.996  0.40 37.30   2  4INS 431
+ATOM    198  CD AGLN B   4     -12.270   0.520   6.830  0.60 12.42   2  4INS 432
+ATOM    199  CD BGLN B   4     -14.070   2.781   6.746  0.40 32.97   2  4INS 433
+ATOM    200  OE1AGLN B   4     -12.812  -0.612   6.494  0.60 17.67   2  4INS 434
+ATOM    201  OE1BGLN B   4     -14.059   3.957   7.112  0.40 40.00   2  4INS 435
+ATOM    202  NE2AGLN B   4     -10.898   0.624   6.949  0.60 28.94   2  4INS 436
+ATOM    203  NE2BGLN B   4     -15.108   2.179   6.165  0.40 35.67   2  4INS 437
+ATOM    204  N   HIS B   5     -11.158   2.442  10.837  1.00 13.02   1  4INS 438
+ATOM    205  CA  HIS B   5     -10.083   3.000  11.779  1.00 17.05   1  4INS 439
+ATOM    206  C   HIS B   5      -8.855   3.149  10.899  1.00 10.95   1  4INS 440
+ATOM    207  O   HIS B   5      -8.284   2.166  10.380  1.00 17.14   1  4INS 441
+ATOM    208  CB  HIS B   5      -9.982   1.956  12.877  1.00 22.24   1  4INS 442
+ATOM    209  CG  HIS B   5      -8.934   2.400  13.860  1.00 25.74   1  4INS 443
+ATOM    210  ND1 HIS B   5      -8.072   1.535  14.436  1.00 35.32   1  4INS 444
+ATOM    211  CD2 HIS B   5      -8.637   3.596  14.329  1.00 28.02   1  4INS 445
+ATOM    212  CE1 HIS B   5      -7.275   2.240  15.211  1.00 28.73   1  4INS 446
+ATOM    213  NE2 HIS B   5      -7.571   3.509  15.150  1.00 30.21   1  4INS 447
+ATOM    214  N   LEU B   6      -8.529   4.400  10.604  1.00 11.30      4INS 448
+ATOM    215  CA  LEU B   6      -7.468   4.709   9.611  1.00 11.13      4INS 449
+ATOM    216  C   LEU B   6      -6.399   5.604  10.158  1.00 11.03      4INS 450
+ATOM    217  O   LEU B   6      -6.695   6.779  10.484  1.00 13.66      4INS 451
+ATOM    218  CB  LEU B   6      -8.231   5.398   8.411  1.00 14.13      4INS 452
+ATOM    219  CG  LEU B   6      -9.251   4.634   7.563  1.00 13.39      4INS 453
+ATOM    220  CD1 LEU B   6     -10.017   5.598   6.671  1.00 14.70      4INS 454
+ATOM    221  CD2 LEU B   6      -8.620   3.517   6.767  1.00 18.25      4INS 455
+ATOM    222  N   CYS B   7      -5.180   5.069  10.115  1.00 10.06      4INS 456
+ATOM    223  CA  CYS B   7      -4.058   5.835  10.569  1.00 10.70      4INS 457
+ATOM    224  C   CYS B   7      -3.033   5.982   9.484  1.00 13.26      4INS 458
+ATOM    225  O   CYS B   7      -2.955   5.198   8.573  1.00 19.10      4INS 459
+ATOM    226  CB  CYS B   7      -3.434   5.105  11.762  1.00 15.88      4INS 460
+ATOM    227  SG  CYS B   7      -4.523   5.099  13.246  1.00 16.40      4INS 461
+ATOM    228  N   GLY B   8      -2.181   6.993   9.540  1.00 12.37      4INS 462
+ATOM    229  CA  GLY B   8      -1.070   7.261   8.632  1.00 12.72      4INS 463
+ATOM    230  C   GLY B   8      -1.465   7.317   7.204  1.00 13.24      4INS 464
+ATOM    231  O   GLY B   8      -2.470   7.884   6.744  1.00 11.92      4INS 465
+ATOM    232  N   SER B   9      -0.609   6.582   6.429  1.00 11.74      4INS 466
+ATOM    233  CA  SER B   9      -0.863   6.544   4.980  1.00 15.89      4INS 467
+ATOM    234  C   SER B   9      -2.183   5.870   4.578  1.00  9.73      4INS 468
+ATOM    235  O   SER B   9      -2.649   6.111   3.528  1.00 10.43      4INS 469
+ATOM    236  CB  SER B   9       0.309   5.921   4.206  1.00 17.74      4INS 470
+ATOM    237  OG  SER B   9       0.534   4.626   4.735  1.00 17.37      4INS 471
+ATOM    238  N   HIS B  10      -2.721   5.100   5.451  1.00 10.19      4INS 472
+ATOM    239  CA  HIS B  10      -3.940   4.379   5.188  1.00  7.66      4INS 473
+ATOM    240  C   HIS B  10      -5.081   5.431   5.075  1.00 10.17      4INS 474
+ATOM    241  O   HIS B  10      -6.021   5.163   4.291  1.00 10.92      4INS 475
+ATOM    242  CB  HIS B  10      -4.234   3.316   6.228  1.00  9.55      4INS 476
+ATOM    243  CG  HIS B  10      -3.192   2.269   6.364  1.00  9.55      4INS 477
+ATOM    244  ND1 HIS B  10      -3.043   1.310   5.423  1.00 15.86      4INS 478
+ATOM    245  CD2 HIS B  10      -2.289   1.991   7.311  1.00  8.47      4INS 479
+ATOM    246  CE1 HIS B  10      -2.078   0.573   5.774  1.00 10.65      4INS 480
+ATOM    247  NE2 HIS B  10      -1.589   0.939   6.878  1.00  9.41      4INS 481
+ATOM    248  N   LEU B  11      -5.016   6.497   5.810  1.00  8.93      4INS 482
+ATOM    249  CA  LEU B  11      -6.071   7.518   5.617  1.00  9.64      4INS 483
+ATOM    250  C   LEU B  11      -5.967   8.182   4.279  1.00  7.89      4INS 484
+ATOM    251  O   LEU B  11      -6.969   8.462   3.666  1.00  9.74      4INS 485
+ATOM    252  CB  LEU B  11      -5.860   8.541   6.740  1.00  6.93      4INS 486
+ATOM    253  CG  LEU B  11      -6.949   9.607   6.783  1.00 14.50      4INS 487
+ATOM    254  CD1 LEU B  11      -8.376   9.229   6.627  1.00 18.34      4INS 488
+ATOM    255  CD2 LEU B  11      -6.742  10.309   8.115  1.00 20.70      4INS 489
+ATOM    256  N   VAL B  12      -4.751   8.449   3.799  1.00 10.12   2  4INS 490
+ATOM    257  CA  VAL B  12      -4.579   9.057   2.495  1.00  8.05   2  4INS 491
+ATOM    258  C   VAL B  12      -5.050   8.131   1.372  1.00  8.14   2  4INS 492
+ATOM    259  O   VAL B  12      -5.595   8.653   0.398  1.00 11.63   2  4INS 493
+ATOM    260  CB  VAL B  12      -3.153   9.538   2.230  1.00 11.54   2  4INS 494
+ATOM    261  CG1 VAL B  12      -2.809  10.670   3.148  1.00 17.75   2  4INS 495
+ATOM    262  CG2AVAL B  12      -2.822   9.786   0.799  0.50  4.68   2  4INS 496
+ATOM    263  CG2BVAL B  12      -1.963   8.655   2.123  0.50 10.87   2  4INS 497
+ATOM    264  N   GLU B  13      -4.906   6.880   1.502  1.00  6.12      4INS 498
+ATOM    265  CA  GLU B  13      -5.432   5.946   0.542  1.00  8.88      4INS 499
+ATOM    266  C   GLU B  13      -6.966   6.014   0.472  1.00 12.22      4INS 500
+ATOM    267  O   GLU B  13      -7.578   6.035  -0.614  1.00 11.15      4INS 501
+ATOM    268  CB  GLU B  13      -4.996   4.506   0.854  1.00 12.65      4INS 502
+ATOM    269  CG  GLU B  13      -3.497   4.444   0.582  1.00 15.60      4INS 503
+ATOM    270  CD  GLU B  13      -3.246   3.857  -0.794  1.00 53.85      4INS 504
+ATOM    271  OE1 GLU B  13      -4.238   3.643  -1.500  1.00 33.68      4INS 505
+ATOM    272  OE2 GLU B  13      -2.114   3.611  -1.126  1.00 47.24      4INS 506
+ATOM    273  N   ALA B  14      -7.659   6.004   1.637  1.00  7.15      4INS 507
+ATOM    274  CA  ALA B  14      -9.061   6.164   1.719  1.00  7.29      4INS 508
+ATOM    275  C   ALA B  14      -9.563   7.482   1.051  1.00  6.80      4INS 509
+ATOM    276  O   ALA B  14     -10.595   7.468   0.346  1.00 11.10      4INS 510
+ATOM    277  CB  ALA B  14      -9.604   6.039   3.106  1.00 12.06      4INS 511
+ATOM    278  N   LEU B  15      -8.876   8.580   1.321  1.00  6.72      4INS 512
+ATOM    279  CA  LEU B  15      -9.224   9.854   0.717  1.00 13.51      4INS 513
+ATOM    280  C   LEU B  15      -9.111   9.815  -0.829  1.00 14.62      4INS 514
+ATOM    281  O   LEU B  15      -9.956  10.390  -1.496  1.00 12.32      4INS 515
+ATOM    282  CB  LEU B  15      -8.317  10.981   1.327  1.00  9.71      4INS 516
+ATOM    283  CG  LEU B  15      -8.755  11.581   2.649  1.00  8.92      4INS 517
+ATOM    284  CD1 LEU B  15      -7.682  12.475   3.236  1.00 14.49      4INS 518
+ATOM    285  CD2 LEU B  15     -10.096  12.235   2.460  1.00 12.03      4INS 519
+ATOM    286  N   TYR B  16      -8.050   9.147  -1.297  1.00  8.65      4INS 520
+ATOM    287  CA  TYR B  16      -7.838   8.961  -2.686  1.00  8.75      4INS 521
+ATOM    288  C   TYR B  16      -8.999   8.175  -3.284  1.00 11.14      4INS 522
+ATOM    289  O   TYR B  16      -9.508   8.504  -4.371  1.00 14.34      4INS 523
+ATOM    290  CB  TYR B  16      -6.494   8.247  -3.047  1.00  7.72      4INS 524
+ATOM    291  CG  TYR B  16      -6.271   8.027  -4.522  1.00 10.81      4INS 525
+ATOM    292  CD1 TYR B  16      -6.450   6.784  -5.047  1.00 17.09      4INS 526
+ATOM    293  CD2 TYR B  16      -6.009   9.104  -5.338  1.00 12.64      4INS 527
+ATOM    294  CE1 TYR B  16      -6.354   6.581  -6.467  1.00 17.76      4INS 528
+ATOM    295  CE2 TYR B  16      -5.898   8.958  -6.741  1.00 13.94      4INS 529
+ATOM    296  CZ  TYR B  16      -6.110   7.692  -7.259  1.00 17.34      4INS 530
+ATOM    297  OH  TYR B  16      -5.925   7.520  -8.594  1.00 25.34      4INS 531
+ATOM    298  N   LEU B  17      -9.428   7.109  -2.664  1.00  8.68      4INS 532
+ATOM    299  CA  LEU B  17     -10.566   6.290  -3.167  1.00  8.83      4INS 533
+ATOM    300  C   LEU B  17     -11.861   7.087  -3.142  1.00 10.95      4INS 534
+ATOM    301  O   LEU B  17     -12.650   7.046  -4.073  1.00 15.67      4INS 535
+ATOM    302  CB  LEU B  17     -10.665   5.052  -2.327  1.00 10.82      4INS 536
+ATOM    303  CG  LEU B  17      -9.594   4.104  -2.924  1.00 28.76      4INS 537
+ATOM    304  CD1 LEU B  17      -9.136   3.067  -1.933  1.00 30.52      4INS 538
+ATOM    305  CD2 LEU B  17     -10.280   3.540  -4.157  1.00 34.91      4INS 539
+ATOM    306  N   VAL B  18     -12.123   7.786  -2.036  1.00  8.85      4INS 540
+ATOM    307  CA  VAL B  18     -13.351   8.545  -1.933  1.00  8.77      4INS 541
+ATOM    308  C   VAL B  18     -13.433   9.713  -2.873  1.00  9.77      4INS 542
+ATOM    309  O   VAL B  18     -14.472   9.937  -3.457  1.00 16.86      4INS 543
+ATOM    310  CB  VAL B  18     -13.604   8.974  -0.463  1.00 14.39      4INS 544
+ATOM    311  CG1 VAL B  18     -14.784   9.899  -0.282  1.00 11.72      4INS 545
+ATOM    312  CG2 VAL B  18     -13.862   7.763   0.393  1.00 12.58      4INS 546
+ATOM    313  N   CYS B  19     -12.422  10.518  -2.958  1.00  9.03      4INS 547
+ATOM    314  CA  CYS B  19     -12.433  11.758  -3.756  1.00  8.88      4INS 548
+ATOM    315  C   CYS B  19     -11.994  11.555  -5.212  1.00 14.69      4INS 549
+ATOM    316  O   CYS B  19     -12.410  12.303  -6.126  1.00 16.46      4INS 550
+ATOM    317  CB  CYS B  19     -11.558  12.719  -3.005  1.00 11.19      4INS 551
+ATOM    318  SG  CYS B  19     -12.040  13.127  -1.344  1.00 10.10      4INS 552
+ATOM    319  N   GLY B  20     -11.149  10.609  -5.463  1.00 17.12      4INS 553
+ATOM    320  CA  GLY B  20     -10.685  10.359  -6.851  1.00 21.59      4INS 554
+ATOM    321  C   GLY B  20     -10.275  11.650  -7.524  1.00 21.38      4INS 555
+ATOM    322  O   GLY B  20      -9.494  12.483  -7.053  1.00 20.41      4INS 556
+ATOM    323  N   GLU B  21     -10.784  11.844  -8.710  1.00 29.76   2  4INS 557
+ATOM    324  CA  GLU B  21     -10.398  13.043  -9.501  1.00 24.44   2  4INS 558
+ATOM    325  C   GLU B  21     -10.898  14.356  -9.065  1.00 19.21   2  4INS 559
+ATOM    326  O   GLU B  21     -10.430  15.331  -9.665  1.00 19.00   2  4INS 560
+ATOM    327  CB  GLU B  21     -10.776  12.724 -10.968  1.00 28.66   2  4INS 561
+ATOM    328  CG AGLU B  21     -12.310  12.519 -11.045  0.50 56.11   2  4INS 562
+ATOM    329  CG BGLU B  21      -9.804  13.415 -11.966  0.50 75.35   2  4INS 563
+ATOM    330  CD AGLU B  21     -12.707  11.349 -11.901  0.50 62.47   2  4INS 564
+ATOM    331  CD BGLU B  21      -9.689  13.292 -13.466  0.50 52.68   2  4INS 565
+ATOM    332  OE1AGLU B  21     -12.515  10.193 -11.564  0.50 48.34   2  4INS 566
+ATOM    333  OE1BGLU B  21     -10.540  12.768 -14.159  0.50 50.28   2  4INS 567
+ATOM    334  OE2AGLU B  21     -13.225  11.772 -12.958  0.50 49.92   2  4INS 568
+ATOM    335  OE2BGLU B  21      -8.505  13.537 -13.781  0.50 27.33   2  4INS 569
+ATOM    336  N   ARG B  22     -11.703  14.491  -8.034  1.00 15.49   2  4INS 570
+ATOM    337  CA  ARG B  22     -12.089  15.732  -7.456  1.00 16.44   2  4INS 571
+ATOM    338  C   ARG B  22     -10.797  16.222  -6.745  1.00 17.70   2  4INS 572
+ATOM    339  O   ARG B  22     -10.636  17.458  -6.608  1.00 21.36   2  4INS 573
+ATOM    340  CB  ARG B  22     -13.234  15.678  -6.464  1.00 21.99   2  4INS 574
+ATOM    341  CG  ARG B  22     -14.645  15.427  -7.037  1.00 57.89   2  4INS 575
+ATOM    342  CD  ARG B  22     -15.675  15.167  -5.960  1.00 31.23   2  4INS 576
+ATOM    343  NE AARG B  22     -15.739  16.404  -5.124  0.50 16.46   2  4INS 577
+ATOM    344  NE BARG B  22     -15.629  13.808  -5.271  0.50 17.69   2  4INS 578
+ATOM    345  CZ AARG B  22     -16.608  16.581  -4.143  0.50 39.57   2  4INS 579
+ATOM    346  CZ BARG B  22     -16.379  13.225  -4.283  0.50 33.09   2  4INS 580
+ATOM    347  NH1AARG B  22     -16.743  17.672  -3.416  0.50 20.14   2  4INS 581
+ATOM    348  NH1BARG B  22     -16.987  14.046  -3.392  0.50 51.50   2  4INS 582
+ATOM    349  NH2AARG B  22     -17.405  15.551  -3.871  0.50 35.40   2  4INS 583
+ATOM    350  NH2BARG B  22     -16.705  11.943  -4.184  0.50 19.59   2  4INS 584
+ATOM    351  N   GLY B  23     -10.007  15.246  -6.287  1.00 19.18      4INS 585
+ATOM    352  CA  GLY B  23      -8.844  15.673  -5.491  1.00 11.89      4INS 586
+ATOM    353  C   GLY B  23      -9.339  15.932  -4.075  1.00 12.83      4INS 587
+ATOM    354  O   GLY B  23     -10.524  15.922  -3.626  1.00 14.47      4INS 588
+ATOM    355  N   PHE B  24      -8.343  16.165  -3.187  1.00 12.54      4INS 589
+ATOM    356  CA  PHE B  24      -8.584  16.432  -1.765  1.00 10.08      4INS 590
+ATOM    357  C   PHE B  24      -7.488  17.220  -1.123  1.00 10.77      4INS 591
+ATOM    358  O   PHE B  24      -6.411  17.409  -1.657  1.00 10.93      4INS 592
+ATOM    359  CB  PHE B  24      -8.754  15.111  -1.032  1.00  3.80      4INS 593
+ATOM    360  CG  PHE B  24      -7.638  14.114  -1.034  1.00  5.98      4INS 594
+ATOM    361  CD1 PHE B  24      -7.488  13.202  -2.069  1.00  5.61      4INS 595
+ATOM    362  CD2 PHE B  24      -6.667  14.205  -0.036  1.00  8.93      4INS 596
+ATOM    363  CE1 PHE B  24      -6.375  12.338  -2.106  1.00 14.64      4INS 597
+ATOM    364  CE2 PHE B  24      -5.573  13.387   0.027  1.00 11.74      4INS 598
+ATOM    365  CZ  PHE B  24      -5.457  12.470  -1.008  1.00  9.78      4INS 599
+ATOM    366  N   PHE B  25      -7.717  17.612   0.116  1.00 14.20   1  4INS 600
+ATOM    367  CA  PHE B  25      -6.813  18.302   1.052  1.00 12.03   1  4INS 601
+ATOM    368  C   PHE B  25      -6.569  17.356   2.221  1.00 12.69   1  4INS 602
+ATOM    369  O   PHE B  25      -7.485  16.788   2.757  1.00 15.22   1  4INS 603
+ATOM    370  CB  PHE B  25      -7.387  19.633   1.684  1.00 17.25   1  4INS 604
+ATOM    371  CG  PHE B  25      -7.105  20.689   0.637  1.00 30.38   1  4INS 605
+ATOM    372  CD1 PHE B  25      -7.842  20.802  -0.543  1.00 61.20   1  4INS 606
+ATOM    373  CD2 PHE B  25      -6.003  21.541   0.896  1.00 56.90   1  4INS 607
+ATOM    374  CE1 PHE B  25      -7.445  21.790  -1.461  1.00 29.52   1  4INS 608
+ATOM    375  CE2 PHE B  25      -5.648  22.564  -0.027  1.00 40.31   1  4INS 609
+ATOM    376  CZ  PHE B  25      -6.382  22.681  -1.235  1.00 30.38   1  4INS 610
+ATOM    377  N   TYR B  26      -5.345  17.202   2.583  1.00 11.25      4INS 611
+ATOM    378  CA  TYR B  26      -4.996  16.333   3.717  1.00 10.42      4INS 612
+ATOM    379  C   TYR B  26      -4.445  17.350   4.714  1.00 15.08      4INS 613
+ATOM    380  O   TYR B  26      -3.350  17.906   4.518  1.00 14.52      4INS 614
+ATOM    381  CB  TYR B  26      -3.949  15.288   3.319  1.00  9.51      4INS 615
+ATOM    382  CG  TYR B  26      -3.404  14.530   4.474  1.00 12.61      4INS 616
+ATOM    383  CD1 TYR B  26      -4.243  13.688   5.178  1.00 20.50      4INS 617
+ATOM    384  CD2 TYR B  26      -2.105  14.676   4.857  1.00 13.88      4INS 618
+ATOM    385  CE1 TYR B  26      -3.652  12.967   6.246  1.00 16.38      4INS 619
+ATOM    386  CE2 TYR B  26      -1.577  14.010   5.941  1.00 10.97      4INS 620
+ATOM    387  CZ  TYR B  26      -2.347  13.149   6.642  1.00 11.71      4INS 621
+ATOM    388  OH  TYR B  26      -1.853  12.447   7.734  1.00 16.39      4INS 622
+ATOM    389  N   THR B  27      -5.287  17.537   5.752  1.00 15.47      4INS 623
+ATOM    390  CA  THR B  27      -4.902  18.555   6.772  1.00 20.05      4INS 624
+ATOM    391  C   THR B  27      -4.834  18.053   8.250  1.00 15.09      4INS 625
+ATOM    392  O   THR B  27      -5.825  18.282   8.943  1.00 22.56      4INS 626
+ATOM    393  CB  THR B  27      -5.856  19.825   6.753  1.00 26.34      4INS 627
+ATOM    394  OG1ATHR B  27      -7.228  19.328   6.558  0.50 39.91      4INS 628
+ATOM    395  OG1BTHR B  27      -5.691  20.478   5.511  0.50 29.43      4INS 629
+ATOM    396  CG2ATHR B  27      -5.505  20.781   5.606  0.50 34.53      4INS 630
+ATOM    397  CG2BTHR B  27      -5.413  20.850   7.858  0.50 34.13      4INS 631
+ATOM    398  N   PRO B  28      -3.702  17.548   8.603  1.00 18.26      4INS 632
+ATOM    399  CA  PRO B  28      -3.494  17.055   9.954  1.00 21.56      4INS 633
+ATOM    400  C   PRO B  28      -3.306  18.220  10.892  1.00 22.68      4INS 634
+ATOM    401  O   PRO B  28      -3.072  19.330  10.484  1.00 21.93      4INS 635
+ATOM    402  CB  PRO B  28      -2.249  16.209   9.808  1.00 21.60      4INS 636
+ATOM    403  CG  PRO B  28      -1.544  16.617   8.595  1.00 21.39      4INS 637
+ATOM    404  CD  PRO B  28      -2.526  17.320   7.778  1.00 14.32      4INS 638
+ATOM    405  N   LYS B  29      -3.452  17.975  12.175  1.00 26.27      4INS 639
+ATOM    406  CA  LYS B  29      -3.227  18.941  13.307  1.00 23.17      4INS 640
+ATOM    407  C   LYS B  29      -1.707  18.995  13.459  1.00 52.81      4INS 641
+ATOM    408  O   LYS B  29      -1.026  17.919  13.406  1.00 39.37      4INS 642
+ATOM    409  CB  LYS B  29      -3.764  18.417  14.615  1.00 22.26      4INS 643
+ATOM    410  CG  LYS B  29      -3.990  19.385  15.801  1.00 48.01      4INS 644
+ATOM    411  CD  LYS B  29      -5.153  18.811  16.622  1.00 37.36      4INS 645
+ATOM    412  CE  LYS B  29      -5.067  18.493  18.087  1.00 53.09      4INS 646
+ATOM    413  NZ  LYS B  29      -4.208  19.418  18.841  1.00 61.16      4INS 647
+ATOM    414  N   ALA B  30      -1.166  20.052  13.779  1.00 53.30   3  4INS 648
+ATOM    415  CA  ALA B  30       0.148  20.539  13.902  1.00 45.30   3  4INS 649
+ATOM    416  C   ALA B  30       0.991  20.467  15.167  1.00 50.30   3  4INS 650
+ATOM    417  O   ALA B  30       0.427  20.710  16.268  1.00 62.63   3  4INS 651
+ATOM    418  CB  ALA B  30       0.033  22.113  13.690  1.00 53.30   3  4INS 652
+ATOM    419  OXT ALA B  30       2.226  20.205  15.000  1.00 76.30   3  4INS 653
+TER     420      ALA B  30                                              4INS 654
+ATOM    421  N   GLY C   1      -0.643  19.956 -14.073  1.00 26.16   1  4INS 655
+ATOM    422  CA  GLY C   1      -0.389  20.033 -12.615  1.00 30.96   1  4INS 656
+ATOM    423  C   GLY C   1       0.447  18.825 -12.180  1.00 33.76   1  4INS 657
+ATOM    424  O   GLY C   1       1.216  18.311 -13.006  1.00 21.35   1  4INS 658
+ATOM    425  N   ILE C   2       0.244  18.434 -10.942  1.00 23.96   1  4INS 659
+ATOM    426  CA  ILE C   2       1.003  17.290 -10.393  1.00 15.36   1  4INS 660
+ATOM    427  C   ILE C   2       0.946  16.025 -11.185  1.00 13.59   1  4INS 661
+ATOM    428  O   ILE C   2       1.971  15.359 -11.278  1.00 17.19   1  4INS 662
+ATOM    429  CB  ILE C   2       0.491  17.013  -8.931  1.00 16.47   1  4INS 663
+ATOM    430  CG1 ILE C   2       1.539  16.143  -8.164  1.00 15.91   1  4INS 664
+ATOM    431  CG2 ILE C   2      -0.969  16.533  -8.863  1.00 17.06   1  4INS 665
+ATOM    432  CD1 ILE C   2       1.081  15.828  -6.720  1.00 19.56   1  4INS 666
+ATOM    433  N   VAL C   3      -0.179  15.655 -11.786  1.00 13.55   1  4INS 667
+ATOM    434  CA  VAL C   3      -0.278  14.455 -12.591  1.00 17.58   1  4INS 668
+ATOM    435  C   VAL C   3       0.590  14.454 -13.881  1.00 21.18   1  4INS 669
+ATOM    436  O   VAL C   3       1.245  13.451 -14.197  1.00 19.26   1  4INS 670
+ATOM    437  CB  VAL C   3      -1.709  14.136 -12.915  1.00 26.49   1  4INS 671
+ATOM    438  CG1 VAL C   3      -1.808  12.868 -13.745  1.00 30.71   1  4INS 672
+ATOM    439  CG2 VAL C   3      -2.567  13.989 -11.662  1.00 16.85   1  4INS 673
+ATOM    440  N   GLU C   4       0.621  15.590 -14.497  1.00 24.23   1  4INS 674
+ATOM    441  CA  GLU C   4       1.481  15.743 -15.686  1.00 23.06   1  4INS 675
+ATOM    442  C   GLU C   4       2.966  15.744 -15.343  1.00 19.78   1  4INS 676
+ATOM    443  O   GLU C   4       3.805  15.198 -16.061  1.00 29.30   1  4INS 677
+ATOM    444  CB  GLU C   4       1.063  17.059 -16.361  1.00 24.43   1  4INS 678
+ATOM    445  CG  GLU C   4      -0.349  16.900 -16.964  1.00 19.87   1  4INS 679
+ATOM    446  CD  GLU C   4      -1.541  17.024 -16.030  1.00 27.93   1  4INS 680
+ATOM    447  OE1 GLU C   4      -2.429  16.169 -16.211  1.00 37.08   1  4INS 681
+ATOM    448  OE2 GLU C   4      -1.527  17.967 -15.181  1.00 27.92   1  4INS 682
+ATOM    449  N   GLN C   5       3.289  16.386 -14.236  1.00 17.90   1  4INS 683
+ATOM    450  CA  GLN C   5       4.695  16.445 -13.800  1.00 17.90   1  4INS 684
+ATOM    451  C   GLN C   5       5.206  15.104 -13.307  1.00 23.62   1  4INS 685
+ATOM    452  O   GLN C   5       6.331  14.684 -13.578  1.00 26.25   1  4INS 686
+ATOM    453  CB  GLN C   5       4.820  17.553 -12.780  1.00 22.64   1  4INS 687
+ATOM    454  CG  GLN C   5       4.373  18.969 -13.199  1.00 32.56   1  4INS 688
+ATOM    455  CD  GLN C   5       5.405  19.755 -12.404  1.00 59.85   1  4INS 689
+ATOM    456  OE1 GLN C   5       6.478  19.979 -12.947  1.00 50.22   1  4INS 690
+ATOM    457  NE2 GLN C   5       4.976  19.940 -11.148  1.00 56.46   1  4INS 691
+ATOM    458  N   CYS C   6       4.386  14.408 -12.514  1.00 20.45      4INS 692
+ATOM    459  CA  CYS C   6       4.949  13.166 -11.921  1.00 20.95      4INS 693
+ATOM    460  C   CYS C   6       4.472  11.875 -12.436  1.00 18.67      4INS 694
+ATOM    461  O   CYS C   6       5.127  10.851 -12.293  1.00 17.98      4INS 695
+ATOM    462  CB  CYS C   6       4.732  13.264 -10.354  1.00 16.76      4INS 696
+ATOM    463  SG  CYS C   6       5.416  14.719  -9.509  1.00 20.00      4INS 697
+ATOM    464  N   CYS C   7       3.347  11.802 -13.063  1.00 15.93      4INS 698
+ATOM    465  CA  CYS C   7       2.858  10.515 -13.612  1.00 10.31      4INS 699
+ATOM    466  C   CYS C   7       3.090  10.422 -15.112  1.00 27.34      4INS 700
+ATOM    467  O   CYS C   7       3.601   9.455 -15.603  1.00 24.77      4INS 701
+ATOM    468  CB  CYS C   7       1.348  10.332 -13.329  1.00 17.60      4INS 702
+ATOM    469  SG  CYS C   7       0.602   8.899 -13.976  1.00 19.30      4INS 703
+ATOM    470  N   THR C   8       2.691  11.395 -15.898  1.00 22.31      4INS 704
+ATOM    471  CA  THR C   8       2.912  11.356 -17.382  1.00 20.22      4INS 705
+ATOM    472  C   THR C   8       4.408  11.508 -17.641  1.00 29.24      4INS 706
+ATOM    473  O   THR C   8       5.051  10.716 -18.357  1.00 25.27      4INS 707
+ATOM    474  CB  THR C   8       1.993  12.487 -17.997  1.00 28.76      4INS 708
+ATOM    475  OG1 THR C   8       0.590  12.071 -17.868  1.00 41.93      4INS 709
+ATOM    476  CG2 THR C   8       2.536  12.795 -19.370  1.00 39.10      4INS 710
+ATOM    477  N   SER C   9       4.957  12.549 -16.969  1.00 23.04      4INS 711
+ATOM    478  CA  SER C   9       6.438  12.783 -17.031  1.00 23.81      4INS 712
+ATOM    479  C   SER C   9       7.038  12.104 -15.796  1.00 22.97      4INS 713
+ATOM    480  O   SER C   9       6.505  11.080 -15.351  1.00 28.36      4INS 714
+ATOM    481  CB  SER C   9       6.838  14.249 -17.258  1.00 22.96      4INS 715
+ATOM    482  OG  SER C   9       8.266  14.523 -17.319  1.00 30.96      4INS 716
+ATOM    483  N   ILE C  10       8.157  12.532 -15.274  1.00 18.48      4INS 717
+ATOM    484  CA  ILE C  10       8.820  12.068 -14.116  1.00 14.18      4INS 718
+ATOM    485  C   ILE C  10       9.162  13.268 -13.217  1.00 22.06      4INS 719
+ATOM    486  O   ILE C  10       9.398  14.336 -13.807  1.00 21.37      4INS 720
+ATOM    487  CB  ILE C  10      10.082  11.219 -14.296  1.00 14.27      4INS 721
+ATOM    488  CG1 ILE C  10      11.168  12.058 -14.941  1.00 17.05      4INS 722
+ATOM    489  CG2 ILE C  10       9.771   9.901 -15.075  1.00 23.12      4INS 723
+ATOM    490  CD1 ILE C  10      12.447  11.250 -15.181  1.00 28.86      4INS 724
+ATOM    491  N   CYS C  11       9.158  13.001 -11.897  1.00 17.73      4INS 725
+ATOM    492  CA  CYS C  11       9.488  14.178 -11.063  1.00 13.63      4INS 726
+ATOM    493  C   CYS C  11      10.301  13.733  -9.869  1.00 24.12      4INS 727
+ATOM    494  O   CYS C  11      10.238  12.518  -9.595  1.00 27.63      4INS 728
+ATOM    495  CB  CYS C  11       8.284  14.934 -10.501  1.00 24.47      4INS 729
+ATOM    496  SG  CYS C  11       7.324  13.971  -9.301  1.00 22.60      4INS 730
+ATOM    497  N   SER C  12      10.941  14.682  -9.241  1.00 20.64      4INS 731
+ATOM    498  CA  SER C  12      11.739  14.434  -8.095  1.00 19.89      4INS 732
+ATOM    499  C   SER C  12      10.978  14.612  -6.784  1.00 26.49      4INS 733
+ATOM    500  O   SER C  12       9.925  15.241  -6.843  1.00 17.94      4INS 734
+ATOM    501  CB  SER C  12      12.896  15.478  -7.911  1.00 22.13      4INS 735
+ATOM    502  OG  SER C  12      12.280  16.737  -7.889  1.00 25.55      4INS 736
+ATOM    503  N   LEU C  13      11.522  14.165  -5.654  1.00 20.92      4INS 737
+ATOM    504  CA  LEU C  13      10.827  14.392  -4.422  1.00 18.59      4INS 738
+ATOM    505  C   LEU C  13      10.811  15.860  -4.099  1.00 17.62      4INS 739
+ATOM    506  O   LEU C  13       9.865  16.311  -3.427  1.00 17.56      4INS 740
+ATOM    507  CB  LEU C  13      11.451  13.616  -3.261  1.00 24.54      4INS 741
+ATOM    508  CG  LEU C  13      11.620  12.137  -3.475  1.00 37.60      4INS 742
+ATOM    509  CD1 LEU C  13      12.386  11.586  -2.273  1.00 42.94      4INS 743
+ATOM    510  CD2 LEU C  13      10.209  11.562  -3.628  1.00 33.13      4INS 744
+ATOM    511  N   TYR C  14      11.756  16.642  -4.538  1.00 19.39      4INS 745
+ATOM    512  CA  TYR C  14      11.756  18.053  -4.253  1.00 15.81      4INS 746
+ATOM    513  C   TYR C  14      10.632  18.665  -4.977  1.00 16.49      4INS 747
+ATOM    514  O   TYR C  14      10.098  19.673  -4.517  1.00 24.31      4INS 748
+ATOM    515  CB  TYR C  14      13.061  18.792  -4.698  1.00 23.42      4INS 749
+ATOM    516  CG  TYR C  14      14.244  18.334  -3.884  1.00 22.68      4INS 750
+ATOM    517  CD1 TYR C  14      14.406  18.926  -2.643  1.00 37.43      4INS 751
+ATOM    518  CD2 TYR C  14      15.065  17.294  -4.321  1.00 44.52      4INS 752
+ATOM    519  CE1 TYR C  14      15.469  18.455  -1.806  1.00 35.18      4INS 753
+ATOM    520  CE2 TYR C  14      16.138  16.837  -3.558  1.00 39.13      4INS 754
+ATOM    521  CZ  TYR C  14      16.305  17.440  -2.304  1.00 43.24      4INS 755
+ATOM    522  OH  TYR C  14      17.325  17.067  -1.472  1.00 40.09      4INS 756
+ATOM    523  N   GLN C  15      10.286  18.189  -6.156  1.00 16.44      4INS 757
+ATOM    524  CA  GLN C  15       9.175  18.706  -6.908  1.00 13.87      4INS 758
+ATOM    525  C   GLN C  15       7.940  18.402  -6.108  1.00 16.45      4INS 759
+ATOM    526  O   GLN C  15       7.042  19.228  -6.047  1.00 17.74      4INS 760
+ATOM    527  CB  GLN C  15       9.021  18.202  -8.378  1.00 19.83      4INS 761
+ATOM    528  CG  GLN C  15      10.045  18.695  -9.368  1.00 27.50      4INS 762
+ATOM    529  CD  GLN C  15      10.002  18.165 -10.771  1.00 46.46      4INS 763
+ATOM    530  OE1 GLN C  15      10.459  17.057 -11.040  1.00 43.32      4INS 764
+ATOM    531  NE2 GLN C  15       9.456  18.889 -11.761  1.00 35.38      4INS 765
+ATOM    532  N   LEU C  16       7.841  17.245  -5.491  1.00 18.47      4INS 766
+ATOM    533  CA  LEU C  16       6.580  16.984  -4.783  1.00 17.18      4INS 767
+ATOM    534  C   LEU C  16       6.311  17.904  -3.587  1.00 21.36      4INS 768
+ATOM    535  O   LEU C  16       5.195  18.069  -3.079  1.00 17.34      4INS 769
+ATOM    536  CB  LEU C  16       6.542  15.527  -4.227  1.00 17.15      4INS 770
+ATOM    537  CG  LEU C  16       6.500  14.520  -5.341  1.00 17.53      4INS 771
+ATOM    538  CD1 LEU C  16       6.477  13.227  -4.593  1.00 22.82      4INS 772
+ATOM    539  CD2 LEU C  16       5.117  14.493  -5.991  1.00 18.33      4INS 773
+ATOM    540  N   GLU C  17       7.389  18.427  -3.040  1.00 16.47      4INS 774
+ATOM    541  CA  GLU C  17       7.353  19.319  -1.959  1.00 10.93      4INS 775
+ATOM    542  C   GLU C  17       6.614  20.601  -2.282  1.00 11.20      4INS 776
+ATOM    543  O   GLU C  17       6.183  21.310  -1.386  1.00 13.69      4INS 777
+ATOM    544  CB  GLU C  17       8.751  19.800  -1.584  1.00 16.99      4INS 778
+ATOM    545  CG  GLU C  17       9.178  18.980  -0.408  1.00 22.69      4INS 779
+ATOM    546  CD  GLU C  17      10.397  19.524   0.269  1.00 26.38      4INS 780
+ATOM    547  OE1 GLU C  17      11.270  20.013  -0.342  1.00 26.42      4INS 781
+ATOM    548  OE2 GLU C  17      10.358  19.291   1.470  1.00 30.68      4INS 782
+ATOM    549  N   ASN C  18       6.466  20.844  -3.575  1.00 13.42      4INS 783
+ATOM    550  CA  ASN C  18       5.707  22.010  -4.006  1.00 12.91      4INS 784
+ATOM    551  C   ASN C  18       4.238  21.879  -3.683  1.00 14.96      4INS 785
+ATOM    552  O   ASN C  18       3.506  22.887  -3.698  1.00 17.72      4INS 786
+ATOM    553  CB  ASN C  18       5.894  22.279  -5.506  1.00 16.62      4INS 787
+ATOM    554  CG  ASN C  18       7.286  22.755  -5.884  1.00 20.64      4INS 788
+ATOM    555  OD1 ASN C  18       7.761  22.375  -6.927  1.00 28.41      4INS 789
+ATOM    556  ND2 ASN C  18       7.836  23.540  -4.999  1.00 26.53      4INS 790
+ATOM    557  N   TYR C  19       3.683  20.717  -3.420  1.00 10.42      4INS 791
+ATOM    558  CA  TYR C  19       2.315  20.489  -3.110  1.00 11.44      4INS 792
+ATOM    559  C   TYR C  19       2.035  20.284  -1.641  1.00 19.22      4INS 793
+ATOM    560  O   TYR C  19       0.884  20.008  -1.330  1.00 14.52      4INS 794
+ATOM    561  CB  TYR C  19       1.745  19.342  -3.938  1.00 13.89      4INS 795
+ATOM    562  CG  TYR C  19       1.995  19.579  -5.394  1.00 13.15      4INS 796
+ATOM    563  CD1 TYR C  19       1.176  20.360  -6.185  1.00 15.85      4INS 797
+ATOM    564  CD2 TYR C  19       3.101  19.022  -6.004  1.00 20.18      4INS 798
+ATOM    565  CE1 TYR C  19       1.482  20.590  -7.526  1.00 15.80      4INS 799
+ATOM    566  CE2 TYR C  19       3.427  19.257  -7.342  1.00 20.94      4INS 800
+ATOM    567  CZ  TYR C  19       2.600  20.077  -8.111  1.00 16.07      4INS 801
+ATOM    568  OH  TYR C  19       2.930  20.198  -9.438  1.00 28.20      4INS 802
+ATOM    569  N   CYS C  20       2.997  20.523  -0.779  1.00 15.85      4INS 803
+ATOM    570  CA  CYS C  20       2.816  20.515   0.660  1.00 12.75      4INS 804
+ATOM    571  C   CYS C  20       2.167  21.848   1.080  1.00 18.29      4INS 805
+ATOM    572  O   CYS C  20       2.424  22.842   0.449  1.00 26.63      4INS 806
+ATOM    573  CB  CYS C  20       4.116  20.329   1.465  1.00 12.02      4INS 807
+ATOM    574  SG  CYS C  20       5.109  18.925   1.079  1.00 13.70      4INS 808
+ATOM    575  N   ASN C  21       1.396  21.899   2.168  1.00 17.14      4INS 809
+ATOM    576  CA  ASN C  21       0.814  23.152   2.677  1.00 22.18      4INS 810
+ATOM    577  C   ASN C  21       1.879  23.650   3.681  1.00 31.46      4INS 811
+ATOM    578  O   ASN C  21       2.937  22.991   3.836  1.00 44.77      4INS 812
+ATOM    579  CB  ASN C  21      -0.433  22.757   3.387  1.00 21.67      4INS 813
+ATOM    580  CG  ASN C  21      -1.636  22.166   2.742  1.00 29.17      4INS 814
+ATOM    581  OD1 ASN C  21      -2.062  22.468   1.647  1.00 33.63      4INS 815
+ATOM    582  ND2 ASN C  21      -2.242  21.277   3.591  1.00 33.21      4INS 816
+ATOM    583  OXT ASN C  21       1.575  24.585   4.398  1.00 52.38      4INS 817
+TER     584      ASN C  21                                              4INS 818
+ATOM    585  N   PHE D   1      18.330  11.816  -3.893  1.00 61.50      4INS 819
+ATOM    586  CA  PHE D   1      17.047  11.272  -4.371  1.00 28.75      4INS 820
+ATOM    587  C   PHE D   1      17.165  10.885  -5.854  1.00 45.77      4INS 821
+ATOM    588  O   PHE D   1      18.169  11.137  -6.550  1.00 49.85      4INS 822
+ATOM    589  CB  PHE D   1      15.801  12.158  -4.041  1.00 30.01      4INS 823
+ATOM    590  CG  PHE D   1      16.035  12.424  -2.571  1.00 31.74      4INS 824
+ATOM    591  CD1 PHE D   1      15.980  11.294  -1.745  1.00 39.79      4INS 825
+ATOM    592  CD2 PHE D   1      16.425  13.629  -2.070  1.00 31.26      4INS 826
+ATOM    593  CE1 PHE D   1      16.219  11.375  -0.405  1.00 31.66      4INS 827
+ATOM    594  CE2 PHE D   1      16.706  13.719  -0.715  1.00 53.74      4INS 828
+ATOM    595  CZ  PHE D   1      16.609  12.612   0.115  1.00 37.15      4INS 829
+ATOM    596  N   VAL D   2      16.117  10.168  -6.274  1.00 33.71      4INS 830
+ATOM    597  CA  VAL D   2      16.006   9.666  -7.682  1.00 24.16      4INS 831
+ATOM    598  C   VAL D   2      14.648  10.218  -8.239  1.00 33.79      4INS 832
+ATOM    599  O   VAL D   2      13.733  10.588  -7.495  1.00 22.26      4INS 833
+ATOM    600  CB  VAL D   2      16.128   8.144  -7.911  1.00 27.80      4INS 834
+ATOM    601  CG1 VAL D   2      17.529   7.562  -7.875  1.00 85.81      4INS 835
+ATOM    602  CG2 VAL D   2      15.239   7.326  -6.976  1.00 36.43      4INS 836
+ATOM    603  N   ASN D   3      14.564  10.315  -9.558  1.00 19.91      4INS 837
+ATOM    604  CA  ASN D   3      13.383  10.694 -10.332  1.00 33.51      4INS 838
+ATOM    605  C   ASN D   3      12.449   9.525 -10.618  1.00 27.19      4INS 839
+ATOM    606  O   ASN D   3      12.946   8.479 -11.058  1.00 35.28      4INS 840
+ATOM    607  CB  ASN D   3      13.966  11.427 -11.571  1.00 28.03      4INS 841
+ATOM    608  CG  ASN D   3      14.214  12.869 -11.102  1.00 36.72      4INS 842
+ATOM    609  OD1 ASN D   3      14.425  13.813 -11.829  1.00 71.83      4INS 843
+ATOM    610  ND2 ASN D   3      14.114  13.118  -9.791  1.00 69.95      4INS 844
+ATOM    611  N   GLN D   4      11.128   9.652 -10.488  1.00 38.71      4INS 845
+ATOM    612  CA  GLN D   4      10.224   8.523 -10.782  1.00 30.37      4INS 846
+ATOM    613  C   GLN D   4       8.833   8.864 -11.345  1.00 13.92      4INS 847
+ATOM    614  O   GLN D   4       8.361  10.028 -11.197  1.00 25.56      4INS 848
+ATOM    615  CB  GLN D   4       9.983   7.921  -9.378  1.00 38.84      4INS 849
+ATOM    616  CG  GLN D   4      10.350   6.429  -9.194  1.00 40.71      4INS 850
+ATOM    617  CD  GLN D   4      10.515   6.248  -7.678  1.00 31.29      4INS 851
+ATOM    618  OE1 GLN D   4      10.490   5.138  -7.268  1.00 47.62      4INS 852
+ATOM    619  NE2 GLN D   4      10.697   7.383  -6.997  1.00 30.17      4INS 853
+ATOM    620  N   HIS D   5       8.291   7.803 -12.000  1.00 13.87   1  4INS 854
+ATOM    621  CA  HIS D   5       6.903   7.919 -12.482  1.00 16.22   1  4INS 855
+ATOM    622  C   HIS D   5       6.029   7.528 -11.252  1.00 16.61   1  4INS 856
+ATOM    623  O   HIS D   5       6.115   6.355 -10.822  1.00 21.77   1  4INS 857
+ATOM    624  CB  HIS D   5       6.427   7.086 -13.663  1.00 24.93   1  4INS 858
+ATOM    625  CG  HIS D   5       6.855   7.450 -15.054  1.00 32.91   1  4INS 859
+ATOM    626  ND1 HIS D   5       6.285   8.338 -15.876  1.00 31.86   1  4INS 860
+ATOM    627  CD2 HIS D   5       7.867   6.966 -15.822  1.00 31.55   1  4INS 861
+ATOM    628  CE1 HIS D   5       6.866   8.458 -17.068  1.00 28.50   1  4INS 862
+ATOM    629  NE2 HIS D   5       7.838   7.587 -17.015  1.00 18.29   1  4INS 863
+ATOM    630  N   LEU D   6       5.259   8.452 -10.792  1.00 11.23      4INS 864
+ATOM    631  CA  LEU D   6       4.302   8.232  -9.639  1.00 22.97      4INS 865
+ATOM    632  C   LEU D   6       2.854   8.566 -10.048  1.00 11.62      4INS 866
+ATOM    633  O   LEU D   6       2.505   9.705 -10.335  1.00 14.32      4INS 867
+ATOM    634  CB  LEU D   6       4.815   9.069  -8.489  1.00 16.96      4INS 868
+ATOM    635  CG  LEU D   6       6.253   8.828  -7.985  1.00 18.92      4INS 869
+ATOM    636  CD1 LEU D   6       6.828  10.000  -7.271  1.00 17.11      4INS 870
+ATOM    637  CD2 LEU D   6       6.091   7.594  -7.091  1.00 18.40      4INS 871
+ATOM    638  N   CYS D   7       2.119   7.495 -10.108  1.00 13.70      4INS 872
+ATOM    639  CA  CYS D   7       0.745   7.570 -10.582  1.00 18.64      4INS 873
+ATOM    640  C   CYS D   7      -0.288   7.058  -9.564  1.00 17.90      4INS 874
+ATOM    641  O   CYS D   7       0.016   6.138  -8.853  1.00 18.63      4INS 875
+ATOM    642  CB  CYS D   7       0.607   6.723 -11.869  1.00 31.44      4INS 876
+ATOM    643  SG  CYS D   7       1.635   7.350 -13.232  1.00 20.00      4INS 877
+ATOM    644  N   GLY D   8      -1.440   7.618  -9.644  1.00 19.94      4INS 878
+ATOM    645  CA  GLY D   8      -2.580   7.155  -8.776  1.00 18.12      4INS 879
+ATOM    646  C   GLY D   8      -2.305   7.237  -7.329  1.00  8.63      4INS 880
+ATOM    647  O   GLY D   8      -1.914   8.246  -6.763  1.00 13.74      4INS 881
+ATOM    648  N   SER D   9      -2.656   6.101  -6.694  1.00 11.65      4INS 882
+ATOM    649  CA  SER D   9      -2.483   5.997  -5.227  1.00 12.39      4INS 883
+ATOM    650  C   SER D   9      -1.032   6.120  -4.867  1.00  8.86      4INS 884
+ATOM    651  O   SER D   9      -0.760   6.584  -3.762  1.00  9.84      4INS 885
+ATOM    652  CB  SER D   9      -3.264   4.870  -4.568  1.00 14.54      4INS 886
+ATOM    653  OG  SER D   9      -2.756   3.670  -5.015  1.00 21.40      4INS 887
+ATOM    654  N   HIS D  10      -0.166   5.698  -5.800  1.00  8.91      4INS 888
+ATOM    655  CA  HIS D  10       1.270   5.805  -5.452  1.00  9.09      4INS 889
+ATOM    656  C   HIS D  10       1.755   7.227  -5.317  1.00  7.69      4INS 890
+ATOM    657  O   HIS D  10       2.658   7.481  -4.533  1.00 11.42      4INS 891
+ATOM    658  CB  HIS D  10       2.092   5.048  -6.482  1.00  8.95      4INS 892
+ATOM    659  CG  HIS D  10       1.707   3.599  -6.615  1.00  8.78      4INS 893
+ATOM    660  ND1 HIS D  10       1.951   2.701  -5.608  1.00 13.99      4INS 894
+ATOM    661  CD2 HIS D  10       1.059   2.922  -7.561  1.00 11.16      4INS 895
+ATOM    662  CE1 HIS D  10       1.536   1.530  -6.025  1.00  8.79      4INS 896
+ATOM    663  NE2 HIS D  10       0.948   1.628  -7.159  1.00 11.60      4INS 897
+ATOM    664  N   LEU D  11       1.142   8.109  -6.070  1.00  9.45      4INS 898
+ATOM    665  CA  LEU D  11       1.434   9.541  -6.053  1.00  9.98      4INS 899
+ATOM    666  C   LEU D  11       1.027  10.155  -4.729  1.00  5.91      4INS 900
+ATOM    667  O   LEU D  11       1.818  10.853  -4.084  1.00  8.83      4INS 901
+ATOM    668  CB  LEU D  11       0.815  10.196  -7.249  1.00 10.51      4INS 902
+ATOM    669  CG  LEU D  11       1.105  11.705  -7.294  1.00 13.37      4INS 903
+ATOM    670  CD1 LEU D  11       2.526  12.118  -7.270  1.00 11.72      4INS 904
+ATOM    671  CD2 LEU D  11       0.404  12.225  -8.564  1.00 16.22      4INS 905
+ATOM    672  N   VAL D  12      -0.188   9.816  -4.302  1.00  6.52      4INS 906
+ATOM    673  CA  VAL D  12      -0.534  10.395  -2.938  1.00  6.95      4INS 907
+ATOM    674  C   VAL D  12       0.207   9.758  -1.787  1.00  5.55      4INS 908
+ATOM    675  O   VAL D  12       0.467  10.475  -0.761  1.00  8.60      4INS 909
+ATOM    676  CB  VAL D  12      -2.065  10.355  -2.790  1.00 14.07      4INS 910
+ATOM    677  CG1 VAL D  12      -2.687  11.271  -3.899  1.00 16.64      4INS 911
+ATOM    678  CG2 VAL D  12      -2.636   9.010  -2.737  1.00 14.03      4INS 912
+ATOM    679  N   GLU D  13       0.681   8.537  -1.890  1.00  8.61      4INS 913
+ATOM    680  CA  GLU D  13       1.509   7.903  -0.866  1.00  7.25      4INS 914
+ATOM    681  C   GLU D  13       2.815   8.631  -0.804  1.00  7.02      4INS 915
+ATOM    682  O   GLU D  13       3.403   8.915   0.274  1.00 11.89      4INS 916
+ATOM    683  CB  GLU D  13       1.770   6.435  -1.051  1.00 11.84      4INS 917
+ATOM    684  CG  GLU D  13       0.458   5.634  -0.816  1.00 27.71      4INS 918
+ATOM    685  CD  GLU D  13       0.536   4.937   0.492  1.00 62.15      4INS 919
+ATOM    686  OE1 GLU D  13       1.499   5.094   1.172  1.00 28.12      4INS 920
+ATOM    687  OE2 GLU D  13      -0.429   4.258   0.726  1.00 32.97      4INS 921
+ATOM    688  N   ALA D  14       3.390   9.046  -1.888  1.00  9.58      4INS 922
+ATOM    689  CA  ALA D  14       4.643   9.836  -1.985  1.00 10.00      4INS 923
+ATOM    690  C   ALA D  14       4.495  11.218  -1.377  1.00 10.02      4INS 924
+ATOM    691  O   ALA D  14       5.373  11.718  -0.675  1.00 12.34      4INS 925
+ATOM    692  CB  ALA D  14       5.151   9.884  -3.366  1.00  9.23      4INS 926
+ATOM    693  N   LEU D  15       3.340  11.836  -1.609  1.00  8.93      4INS 927
+ATOM    694  CA  LEU D  15       3.014  13.121  -1.053  1.00  9.97      4INS 928
+ATOM    695  C   LEU D  15       2.968  13.020   0.450  1.00 16.23      4INS 929
+ATOM    696  O   LEU D  15       3.462  13.914   1.142  1.00 11.63      4INS 930
+ATOM    697  CB  LEU D  15       1.719  13.654  -1.641  1.00  9.29      4INS 931
+ATOM    698  CG  LEU D  15       1.771  14.340  -2.979  1.00 10.49      4INS 932
+ATOM    699  CD1 LEU D  15       0.398  14.483  -3.556  1.00 12.99      4INS 933
+ATOM    700  CD2 LEU D  15       2.487  15.663  -2.804  1.00 15.87      4INS 934
+ATOM    701  N   TYR D  16       2.313  11.974   0.938  1.00 11.90      4INS 935
+ATOM    702  CA  TYR D  16       2.254  11.791   2.374  1.00  8.84      4INS 936
+ATOM    703  C   TYR D  16       3.662  11.710   3.013  1.00 11.08      4INS 937
+ATOM    704  O   TYR D  16       3.925  12.338   4.014  1.00 10.74      4INS 938
+ATOM    705  CB  TYR D  16       1.409  10.545   2.657  1.00  8.68      4INS 939
+ATOM    706  CG  TYR D  16       1.408  10.201   4.150  1.00  9.93      4INS 940
+ATOM    707  CD1 TYR D  16       0.611  10.879   5.091  1.00 13.27      4INS 941
+ATOM    708  CD2 TYR D  16       2.232   9.163   4.535  1.00 10.34      4INS 942
+ATOM    709  CE1 TYR D  16       0.657  10.554   6.429  1.00 11.61      4INS 943
+ATOM    710  CE2 TYR D  16       2.284   8.846   5.894  1.00 17.86      4INS 944
+ATOM    711  CZ  TYR D  16       1.518   9.554   6.843  1.00 13.23      4INS 945
+ATOM    712  OH  TYR D  16       1.664   9.081   8.177  1.00 17.80      4INS 946
+ATOM    713  N   LEU D  17       4.478  10.910   2.349  1.00  9.51      4INS 947
+ATOM    714  CA  LEU D  17       5.832  10.719   2.819  1.00  8.94      4INS 948
+ATOM    715  C   LEU D  17       6.672  11.993   2.879  1.00 12.51      4INS 949
+ATOM    716  O   LEU D  17       7.395  12.298   3.853  1.00 13.68      4INS 950
+ATOM    717  CB  LEU D  17       6.573   9.683   1.932  1.00 12.01      4INS 951
+ATOM    718  CG  LEU D  17       7.784   9.141   2.606  1.00 26.75      4INS 952
+ATOM    719  CD1 LEU D  17       7.274   8.084   3.613  1.00 27.77      4INS 953
+ATOM    720  CD2 LEU D  17       8.533   8.579   1.435  1.00 36.25      4INS 954
+ATOM    721  N   VAL D  18       6.585  12.773   1.784  1.00 10.21      4INS 955
+ATOM    722  CA  VAL D  18       7.348  14.029   1.661  1.00  8.25      4INS 956
+ATOM    723  C   VAL D  18       6.789  15.099   2.514  1.00  8.01      4INS 957
+ATOM    724  O   VAL D  18       7.560  15.914   3.063  1.00 14.17      4INS 958
+ATOM    725  CB  VAL D  18       7.357  14.409   0.176  1.00  8.24      4INS 959
+ATOM    726  CG1 VAL D  18       7.683  15.903   0.006  1.00 18.17      4INS 960
+ATOM    727  CG2 VAL D  18       8.321  13.582  -0.638  1.00 16.22      4INS 961
+ATOM    728  N   CYS D  19       5.469  15.224   2.565  1.00  8.80      4INS 962
+ATOM    729  CA  CYS D  19       4.790  16.327   3.282  1.00 10.89      4INS 963
+ATOM    730  C   CYS D  19       4.550  16.076   4.760  1.00 20.41      4INS 964
+ATOM    731  O   CYS D  19       4.771  17.057   5.513  1.00 17.13      4INS 965
+ATOM    732  CB  CYS D  19       3.540  16.778   2.546  1.00 11.71      4INS 966
+ATOM    733  SG  CYS D  19       3.846  17.363   0.909  1.00 11.30      4INS 967
+ATOM    734  N   GLY D  20       4.108  14.860   5.076  1.00 15.31      4INS 968
+ATOM    735  CA  GLY D  20       3.841  14.553   6.475  1.00 18.10      4INS 969
+ATOM    736  C   GLY D  20       2.815  15.479   7.177  1.00 19.19      4INS 970
+ATOM    737  O   GLY D  20       1.669  15.721   6.770  1.00 18.72      4INS 971
+ATOM    738  N   GLU D  21       3.387  15.976   8.278  1.00 20.01      4INS 972
+ATOM    739  CA  GLU D  21       2.659  16.847   9.244  1.00 23.69      4INS 973
+ATOM    740  C   GLU D  21       2.237  18.138   8.636  1.00 19.09      4INS 974
+ATOM    741  O   GLU D  21       1.246  18.727   9.109  1.00 24.03      4INS 975
+ATOM    742  CB  GLU D  21       3.575  17.120  10.476  1.00 22.76      4INS 976
+ATOM    743  CG  GLU D  21       5.075  17.192  10.046  1.00 53.97      4INS 977
+ATOM    744  CD  GLU D  21       6.099  17.832  10.938  1.00 78.86      4INS 978
+ATOM    745  OE1 GLU D  21       5.775  18.563  11.863  1.00 73.07      4INS 979
+ATOM    746  OE2 GLU D  21       7.300  17.568  10.645  1.00 72.74      4INS 980
+ATOM    747  N   ARG D  22       2.952  18.555   7.566  1.00 15.75   2  4INS 981
+ATOM    748  CA  ARG D  22       2.552  19.835   6.996  1.00 21.02   2  4INS 982
+ATOM    749  C   ARG D  22       1.231  19.779   6.228  1.00 30.79   2  4INS 983
+ATOM    750  O   ARG D  22       0.558  20.740   5.955  1.00 22.02   2  4INS 984
+ATOM    751  CB  ARG D  22       3.613  20.247   5.973  1.00 29.63   2  4INS 985
+ATOM    752  CG  ARG D  22       5.024  20.325   6.450  1.00 16.81   2  4INS 986
+ATOM    753  CD  ARG D  22       5.952  20.706   5.309  1.00 32.57   2  4INS 987
+ATOM    754  NE AARG D  22       5.584  21.912   4.554  0.50 23.88   2  4INS 988
+ATOM    755  NE BARG D  22       6.663  19.518   4.827  0.50 24.77   2  4INS 989
+ATOM    756  CZ AARG D  22       6.163  22.431   3.476  0.50 34.85   2  4INS 990
+ATOM    757  CZ BARG D  22       7.482  19.684   3.777  0.50 11.98   2  4INS 991
+ATOM    758  NH1AARG D  22       5.819  23.547   2.845  0.50 18.26   2  4INS 992
+ATOM    759  NH1BARG D  22       7.547  20.848   3.124  0.50 20.33   2  4INS 993
+ATOM    760  NH2AARG D  22       7.190  21.770   2.930  0.50 20.80   2  4INS 994
+ATOM    761  NH2BARG D  22       8.196  18.646   3.318  0.50 20.38   2  4INS 995
+ATOM    762  N   GLY D  23       0.914  18.555   5.836  1.00 17.93      4INS 996
+ATOM    763  CA  GLY D  23      -0.237  18.302   4.993  1.00 12.82      4INS 997
+ATOM    764  C   GLY D  23       0.087  18.615   3.514  1.00 11.10      4INS 998
+ATOM    765  O   GLY D  23       1.137  19.102   3.198  1.00 12.49      4INS 999
+ATOM    766  N   PHE D  24      -0.903  18.290   2.672  1.00 11.76      4INS1000
+ATOM    767  CA  PHE D  24      -0.774  18.497   1.209  1.00 10.21      4INS1001
+ATOM    768  C   PHE D  24      -2.127  18.688   0.607  1.00  9.65      4INS1002
+ATOM    769  O   PHE D  24      -3.142  18.470   1.204  1.00 12.03      4INS1003
+ATOM    770  CB  PHE D  24       0.000  17.400   0.578  1.00  9.41      4INS1004
+ATOM    771  CG  PHE D  24      -0.602  16.046   0.597  1.00  9.89      4INS1005
+ATOM    772  CD1 PHE D  24      -0.280  15.182   1.648  1.00 12.55      4INS1006
+ATOM    773  CD2 PHE D  24      -1.497  15.657  -0.387  1.00 12.14      4INS1007
+ATOM    774  CE1 PHE D  24      -0.863  13.901   1.714  1.00 19.03      4INS1008
+ATOM    775  CE2 PHE D  24      -2.049  14.388  -0.368  1.00 12.53      4INS1009
+ATOM    776  CZ  PHE D  24      -1.737  13.486   0.692  1.00 14.23      4INS1010
+ATOM    777  N   PHE D  25      -2.070  19.069  -0.693  1.00  8.89   1  4INS1011
+ATOM    778  CA  PHE D  25      -3.285  19.185  -1.469  1.00 10.03   1  4INS1012
+ATOM    779  C   PHE D  25      -3.021  18.326  -2.724  1.00  9.84   1  4INS1013
+ATOM    780  O   PHE D  25      -1.918  18.362  -3.216  1.00 12.46   1  4INS1014
+ATOM    781  CB  PHE D  25      -3.686  20.613  -1.925  1.00 10.32   1  4INS1015
+ATOM    782  CG  PHE D  25      -2.567  21.455  -2.479  1.00 14.41   1  4INS1016
+ATOM    783  CD1 PHE D  25      -2.435  21.546  -3.850  1.00 20.47   1  4INS1017
+ATOM    784  CD2 PHE D  25      -1.647  22.070  -1.651  1.00 14.83   1  4INS1018
+ATOM    785  CE1 PHE D  25      -1.470  22.321  -4.476  1.00 13.89   1  4INS1019
+ATOM    786  CE2 PHE D  25      -0.608  22.775  -2.271  1.00 20.12   1  4INS1020
+ATOM    787  CZ  PHE D  25      -0.558  22.880  -3.660  1.00 13.72   1  4INS1021
+ATOM    788  N   TYR D  26      -3.962  17.546  -3.192  1.00 10.77      4INS1022
+ATOM    789  CA  TYR D  26      -3.915  16.723  -4.366  1.00  8.24      4INS1023
+ATOM    790  C   TYR D  26      -5.013  17.222  -5.272  1.00 11.68      4INS1024
+ATOM    791  O   TYR D  26      -6.209  17.040  -5.011  1.00 12.49      4INS1025
+ATOM    792  CB  TYR D  26      -4.090  15.233  -4.010  1.00 12.91      4INS1026
+ATOM    793  CG  TYR D  26      -4.159  14.291  -5.196  1.00 13.37      4INS1027
+ATOM    794  CD1 TYR D  26      -5.379  13.599  -5.455  1.00 12.94      4INS1028
+ATOM    795  CD2 TYR D  26      -3.138  14.227  -6.110  1.00 12.82      4INS1029
+ATOM    796  CE1 TYR D  26      -5.491  12.770  -6.582  1.00 18.45      4INS1030
+ATOM    797  CE2 TYR D  26      -3.289  13.401  -7.216  1.00 14.97      4INS1031
+ATOM    798  CZ  TYR D  26      -4.390  12.679  -7.390  1.00 16.87      4INS1032
+ATOM    799  OH  TYR D  26      -4.411  11.849  -8.508  1.00 19.99      4INS1033
+ATOM    800  N   THR D  27      -4.639  17.933  -6.342  1.00 10.07      4INS1034
+ATOM    801  CA  THR D  27      -5.563  18.555  -7.264  1.00 15.24      4INS1035
+ATOM    802  C   THR D  27      -5.254  18.120  -8.704  1.00 16.10      4INS1036
+ATOM    803  O   THR D  27      -4.545  18.821  -9.404  1.00 18.07      4INS1037
+ATOM    804  CB  THR D  27      -5.536  20.114  -7.048  1.00 16.40      4INS1038
+ATOM    805  OG1 THR D  27      -4.178  20.585  -6.974  1.00 19.93      4INS1039
+ATOM    806  CG2 THR D  27      -6.181  20.408  -5.709  1.00 16.74      4INS1040
+ATOM    807  N   PRO D  28      -5.766  17.035  -9.149  1.00 11.98      4INS1041
+ATOM    808  CA  PRO D  28      -5.571  16.537 -10.477  1.00 13.55      4INS1042
+ATOM    809  C   PRO D  28      -6.105  17.452 -11.585  1.00 21.64      4INS1043
+ATOM    810  O   PRO D  28      -5.471  17.453 -12.635  1.00 24.41      4INS1044
+ATOM    811  CB  PRO D  28      -6.192  15.163 -10.479  1.00 21.77      4INS1045
+ATOM    812  CG  PRO D  28      -6.813  14.874  -9.135  1.00 18.60      4INS1046
+ATOM    813  CD  PRO D  28      -6.687  16.109  -8.343  1.00 11.54      4INS1047
+ATOM    814  N   LYS D  29      -7.103  18.249 -11.346  1.00 18.85   2  4INS1048
+ATOM    815  CA  LYS D  29      -7.647  19.148 -12.397  1.00 21.86   2  4INS1049
+ATOM    816  C   LYS D  29      -6.782  20.313 -12.719  1.00 25.32   2  4INS1050
+ATOM    817  O   LYS D  29      -6.944  20.988 -13.739  1.00 28.67   2  4INS1051
+ATOM    818  CB  LYS D  29      -9.020  19.689 -11.971  1.00 37.73   2  4INS1052
+ATOM    819  CG ALYS D  29     -10.118  18.678 -12.365  0.50 26.24   2  4INS1053
+ATOM    820  CG BLYS D  29      -9.869  20.535 -12.933  0.50 51.60   2  4INS1054
+ATOM    821  CD ALYS D  29     -11.261  18.659 -11.369  0.50 25.69   2  4INS1055
+ATOM    822  CD BLYS D  29     -11.094  21.211 -12.318  0.50 26.73   2  4INS1056
+ATOM    823  CE ALYS D  29     -12.315  17.615 -11.670  0.50 22.42   2  4INS1057
+ATOM    824  CE BLYS D  29     -12.076  21.723 -13.345  0.50 41.26   2  4INS1058
+ATOM    825  NZ ALYS D  29     -13.648  18.108 -11.182  0.50 39.07   2  4INS1059
+ATOM    826  NZ BLYS D  29     -13.280  22.348 -12.731  0.50 38.89   2  4INS1060
+ATOM    827  N   ALA D  30      -5.874  20.552 -11.809  1.00 17.54      4INS1061
+ATOM    828  CA  ALA D  30      -5.022  21.709 -11.876  1.00 15.58      4INS1062
+ATOM    829  C   ALA D  30      -3.942  21.534 -12.910  1.00 35.26      4INS1063
+ATOM    830  O   ALA D  30      -3.347  20.451 -13.025  1.00 37.09      4INS1064
+ATOM    831  CB  ALA D  30      -4.392  21.978 -10.527  1.00 32.86      4INS1065
+ATOM    832  OXT ALA D  30      -3.822  22.597 -13.538  1.00 43.22      4INS1066
+TER     833      ALA D  30                                              4INS1067
+HETATM  834 ZN    ZN     1      -0.002  -0.004   7.891  0.33 10.40      4INS1068
+HETATM  835 ZN    ZN     2       0.000   0.000  -8.039  0.33 11.00      4INS1069
+HETATM  836  O   HOH    18       1.208   0.917  -0.239  1.00 44.11      4INSB  5
+HETATM  837  O   HOH    19      26.674   0.029   0.118  1.00 64.26      4INSB  6
+HETATM  838  O   HOH    11      13.443  19.181   0.629  1.00 37.18      4INSB  7
+HETATM  839  O   HOH    12       8.897  22.662   0.833  0.50 72.59      4INSB  8
+HETATM  840  O   HOH    13       5.430   4.632   0.353  0.50 68.27      4INSB  9
+HETATM  841  O   HOH    14      -9.600  22.800   0.340  1.00 86.30      4INSB 10
+HETATM  842  O   HOH    21     -11.312  20.399   0.771  1.00 76.27      4INSB 11
+HETATM  843  O   HOH    22      10.779  23.846   1.400  0.50 44.66      4INSB 12
+HETATM  844  O   HOH    15      14.910  22.149   0.107  1.00 64.34      4INSB 13
+HETATM  845  O   HOH    41       3.208   6.718   2.188  1.00 44.14      4INSB 14
+HETATM  846  O   HOH    42      15.228  18.988   2.773  1.00 47.95      4INSB 15
+HETATM  847  O   HOH    51       1.948   1.415   2.000  1.00 83.31      4INSB 16
+HETATM  848  O   HOH    52     -12.203  23.328   2.558  0.50 53.25      4INSB 17
+HETATM  849  O   HOH    61       3.289   3.437   2.898  1.00 29.40      4INSB 18
+HETATM  850  O   HOH    62      -0.463   3.085   2.990  1.00 35.04      4INSB 19
+HETATM  851  O   HOH    63      10.311  22.834   3.121  0.50 53.93      4INSB 20
+HETATM  852  O   HOH    64      10.183  24.198   3.002  0.50 47.80      4INSB 21
+HETATM  853  O   HOH    65      23.650   0.900   3.000  1.00 86.30      4INSB 22
+HETATM  854  O   HOH    71       8.256  18.783   3.330  0.50 14.13      4INSB 23
+HETATM  855  O   HOH    72       0.000   0.000   2.721  0.33 78.41      4INSB 24
+HETATM  856  O   HOH    73      -5.500  23.300   3.200  1.00 76.30      4INSB 25
+HETATM  857  O   HOH    74     -10.414  20.888   3.177  1.00 46.17      4INSB 26
+HETATM  858  O   HOH    75       5.786   4.688   3.296  1.00 79.24      4INSB 27
+HETATM  859  O   HOH    76      12.041  23.097   3.478  0.50 31.09      4INSB 28
+HETATM  860  O   HOH   101      -9.400  22.600   4.900  0.50 52.19      4INSB 29
+HETATM  861  O   HOH    91       9.781  13.999   4.347  1.00 38.00      4INSB 30
+HETATM  862  O   HOH    92      14.487  19.051   4.963  0.50 47.26      4INSB 31
+HETATM  863  O   HOH    94      24.800   2.000   4.680  1.00 50.76      4INSB 32
+HETATM  864  O   HOH    95       1.700  14.430   4.490  1.00 60.70      4INSB 33
+HETATM  865  O   HOH   111      -7.624  16.101   5.527  1.00 25.99      4INSB 34
+HETATM  866  O   HOH   113       4.071   5.888   5.145  1.00 60.78      4INSB 35
+HETATM  867  O   HOH   112      12.744  23.426   5.604  0.50 40.09      4INSB 36
+HETATM  868  O   HOH   115      10.354  21.084   4.829  0.50 33.95      4INSB 37
+HETATM  869  O   HOH   116      12.369  21.475   5.162  0.50 61.18      4INSB 38
+HETATM  870  O   HOH   122      -9.100  20.600   6.100  0.50 60.00      4INSB 39
+HETATM  871  O   HOH   123      -8.768  19.973   5.675  0.50 51.16      4INSB 40
+HETATM  872  O   HOH   131      13.100  13.724   6.029  1.00 21.23      4INSB 41
+HETATM  873  O   HOH   132      -7.991  22.590   6.582  0.50 57.20      4INSB 42
+HETATM  874  O   HOH   133     -12.272  21.574   6.100  1.00 55.48      4INSB 43
+HETATM  875  O   HOH   141      -2.652  21.385   6.534  1.00 64.51      4INSB 44
+HETATM  876  O   HOH   142      25.212   3.031   6.890  1.00 49.58      4INSB 45
+HETATM  877  O   HOH   143      10.600  10.100   6.800  0.50 50.00      4INSB 46
+HETATM  878  O   HOH   146      11.191  23.508   6.621  0.50 37.26      4INSB 47
+HETATM  879  O   HOH   151      14.528  16.192   7.070  1.00 51.29      4INSB 48
+HETATM  880  O   HOH   152       1.492  23.231   6.892  0.50 27.00      4INSB 49
+HETATM  881  O   HOH   155      14.502  18.882   6.980  0.50 59.76      4INSB 50
+HETATM  882  O   HOH   156      -9.484  23.456   7.067  0.50 41.28      4INSB 51
+HETATM  883  O   HOH   161       1.228   4.480   7.603  1.00 34.42      4INSB 52
+HETATM  884  O   HOH   162       0.172  22.959   7.609  0.50 29.31      4INSB 53
+HETATM  885  O   HOH   164      10.079  20.626   8.067  0.52 33.28      4INSB 54
+HETATM  886  O   HOH   144       8.276  22.353   6.634  0.50 71.16      4INSB 55
+HETATM  887  O   HOH   145      11.200  20.200   6.480  0.50 43.34      4INSB 56
+HETATM  888  O   HOH   147       9.467  21.709   6.550  0.50 60.52      4INSB 57
+HETATM  889  O   HOH   165      12.911  19.857   7.882  0.50 41.83      4INSB 58
+HETATM  890  O   HOH   166       5.794  10.580   7.551  0.50 18.82      4INSB 59
+HETATM  891  O   HOH   171      -3.193  10.008   8.356  1.00 20.33      4INSB 60
+HETATM  892  O   HOH   172       3.540   5.186   7.514  1.00 50.94      4INSB 61
+HETATM  893  O   HOH   173      -2.600  23.100   8.100  0.50 37.93      4INSB 62
+HETATM  894  O   HOH   174      24.906   0.400   8.400  1.00 59.59      4INSB 63
+HETATM  895  O   HOH   175      22.962   4.308   7.971  1.00 75.46      4INSB 64
+HETATM  896  O   HOH   181       3.162  12.350   8.534  1.00 60.02      4INSB 65
+HETATM  897  O   HOH   182       6.986  23.533   8.608  0.50 42.86      4INSB 66
+HETATM  898  O   HOH   183       7.747  22.514   8.736  0.50 51.31      4INSB 67
+HETATM  899  O   HOH   184      11.350  23.300   9.170  1.00 50.61      4INSB 68
+HETATM  900  O   HOH   185      13.640  22.500   8.400  1.00 61.09      4INSB 69
+HETATM  901  O   HOH   186       5.402   7.037   8.018  1.00 76.30      4INSB 70
+HETATM  902  O   HOH   191      -9.443  20.240   8.418  0.50 46.63      4INSB 71
+HETATM  903  O   HOH   193      21.200   5.800   9.000  1.00 46.66      4INSB 72
+HETATM  904  O   HOH   194      -0.559  20.337   9.227  0.50 31.04      4INSB 73
+HETATM  905  O   HOH   201      -0.074   1.535   9.452  1.00 25.97      4INSB 74
+HETATM  906  O   HOH   202      18.617  13.600   9.207  1.00 29.22      4INSB 75
+HETATM  907  O   HOH   203       0.475  13.399   9.000  1.00 61.33      4INSB 76
+HETATM  908  O   HOH   204       2.956   7.356   9.255  1.00 37.48      4INSB 77
+HETATM  909  O   HOH   205      11.907  19.705   9.066  0.50 35.59      4INSB 78
+HETATM  910  O   HOH   206      16.094  16.073   9.932  1.00 48.31      4INSB 79
+HETATM  911  O   HOH   207      -8.473  18.398   9.204  0.50 34.10      4INSB 80
+HETATM  912  O   HOH   208      13.482  17.840   9.054  1.00 66.41      4INSB 81
+HETATM  913  O   HOH   209       4.832  22.586  10.697  0.50 41.13      4INSB 82
+HETATM  914  O   HOH   211       4.499   3.274   9.801  1.00 21.36      4INSB 83
+HETATM  915  O   HOH   212       9.900  19.400  10.176  1.00 57.45      4INSB 84
+HETATM  916  O   HOH   213      -9.814  18.858  10.172  0.50 36.40      4INSB 85
+HETATM  917  O   HOH   214       8.300  21.900   9.770  0.50 62.82      4INSB 86
+HETATM  918  O   HOH   215       5.531  14.046   9.251  1.00 53.12      4INSB 87
+HETATM  919  O   HOH   216       0.500  21.500   9.739  0.50 40.73      4INSB 88
+HETATM  920  O   HOH   217      24.500   1.839  10.261  0.50 44.08      4INSB 89
+HETATM  921  O   HOH   218      14.403  20.407   9.881  0.25 62.98      4INSB 90
+HETATM  922  O   HOH   219      -9.503  22.800  10.020  0.50 40.98      4INSB 91
+HETATM  923  O   HOH   221      -5.367   9.301  10.390  1.00 29.29      4INSB 92
+HETATM  924  O   HOH   222       5.099  10.014  10.625  1.00 39.93      4INSB 93
+HETATM  925  O   HOH   223       3.402  22.242  10.235  0.50 38.69      4INSB 94
+HETATM  926  O   HOH   224       0.786  10.457  10.424  0.50 27.11      4INSB 95
+HETATM  927  O   HOH   225       7.099  20.641  10.117  0.50 45.52      4INSB 96
+HETATM  928  O   HOH   226       1.327   5.583  11.052  0.50 56.24      4INSB 97
+HETATM  929  O   HOH   227     -11.769  21.611  10.650  0.50 56.71      4INSB 98
+HETATM  930  O   HOH   228      -9.990  20.281  10.186  0.50 56.19      4INSB 99
+HETATM  931  O   HOH   231      -7.077  17.022  11.114  1.00 24.63      4INSB100
+HETATM  932  O   HOH   232      10.114  17.143  11.048  1.00 38.47      4INSB101
+HETATM  933  O   HOH   233      13.122  21.921  10.724  0.50 29.51      4INSB102
+HETATM  934  O   HOH   234      -8.631  22.492  11.840  0.50 43.99      4INSB103
+HETATM  935  O   HOH   235      24.000   4.400  11.200  1.00 63.61      4INSB104
+HETATM  936  O   HOH   241       0.397   4.490  11.763  0.50 23.04      4INSB105
+HETATM  937  O   HOH   242      20.200   6.301  11.100  1.00 62.49      4INSB106
+HETATM  938  O   HOH   243      -6.059  22.694  11.492  1.00 61.96      4INSB107
+HETATM  939  O   HOH   244       2.400   0.700  11.139  1.00 63.37      4INSB108
+HETATM  940  O   HOH   245       1.431   8.001  10.900  1.00 61.63      4INSB109
+HETATM  941  O   HOH   246       0.589  13.731  11.296  0.50 60.20      4INSB110
+HETATM  942  O   HOH   247      -0.216  11.635  11.240  0.50 52.12      4INSB111
+HETATM  943  O   HOH   249       3.575  13.150  11.256  0.50 53.19      4INSB112
+HETATM  944  O   HOH   251      -0.023  -0.033  11.206  0.33 21.05      4INSB113
+HETATM  945  O   HOH   252       3.725   4.937  12.004  1.00 60.07      4INSB114
+HETATM  946  O   HOH   253       9.246  23.287  11.503  1.00 45.58      4INSB115
+HETATM  947  O   HOH   254      -5.435  20.514  11.630  1.00 51.70      4INSB116
+HETATM  948  O   HOH   255      13.713  17.818  11.963  1.00 66.30      4INSB117
+HETATM  949  O   HOH   256      16.125  12.139  12.240  1.00 50.03      4INSB118
+HETATM  950  O   HOH   257      12.904  20.420  11.491  0.50 30.82      4INSB119
+HETATM  951  O   HOH   258      22.345   2.177  11.300  1.00 53.69      4INSB120
+HETATM  952  O   HOH   261      -1.821   8.684  12.044  1.00 36.04      4INSB121
+HETATM  953  O   HOH   262       2.938   2.622  12.785  1.00 45.76      4INSB122
+HETATM  954  O   HOH   263       3.200   8.800  12.200  1.00 58.95      4INSB123
+HETATM  955  O   HOH   271       6.250  11.753  12.889  1.00 50.22      4INSB124
+HETATM  956  O   HOH   272      12.623  23.254  12.208  0.50 36.01      4INSB125
+HETATM  957  O   HOH   273       6.083  21.437  12.952  0.50 45.78      4INSB126
+HETATM  958  O   HOH   274      15.629  16.552  13.704  1.00 54.02      4INSB127
+HETATM  959  O   HOH   275       4.207  21.400  12.867  0.50 42.63      4INSB128
+HETATM  960  O   HOH   276       1.400  10.000  13.205  1.00 62.38      4INSB129
+HETATM  961  O   HOH   281      -1.805  14.585  13.563  1.00 36.72      4INSB130
+HETATM  962  O   HOH   282      10.681  15.953  13.460  1.00 37.62      4INSB131
+HETATM  963  O   HOH   283       3.526  17.510  13.393  0.50 58.59      4INSB132
+HETATM  964  O   HOH   284       4.989  14.660  13.137  1.00 52.11      4INSB133
+HETATM  965  O   HOH   285      -3.059  10.929  12.998  0.50 54.91      4INSB134
+HETATM  966  O   HOH   286      -8.655  24.051   2.000  1.00 56.40      4INSB135
+HETATM  967  O   HOH   287      17.589  14.886  12.994  0.50 46.92      4INSB136
+HETATM  968  O   HOH   288      -2.700  22.200  12.300  1.00 69.61      4INSB137
+HETATM  969  O   HOH   289      -7.400  20.900  13.300  1.00 82.49      4INSB138
+HETATM  970  O   HOH   291       7.840  13.593  13.240  1.00 36.77      4INSB139
+HETATM  971  O   HOH   277       8.436  16.103  13.124  0.50 66.40      4INSB140
+HETATM  972  O   HOH   292      20.767   2.758  14.127  0.50 49.50      4INSB141
+HETATM  973  O   HOH   278      19.461   3.175  13.236  0.50 43.30      4INSB142
+HETATM  974  O   HOH   293      10.600  21.200  12.800  1.00 65.41      4INSB143
+HETATM  975  O   HOH   294      17.091  12.037  14.424  1.00 66.30      4INSB144
+HETATM  976  O   HOH   295      26.230   1.151  12.982  0.50 42.97      4INSB145
+HETATM  977  O   HOH   296       1.000  16.700  13.200  1.00 45.00      4INSB146
+HETATM  978  O   HOH   297      -1.841   2.626  14.104  1.00 47.47      4INSB147
+HETATM  979  O   HOH   298       8.200  19.886  13.338  1.00 59.62      4INSB148
+HETATM  980  O   HOH   299       3.947  18.704  13.926  0.50 87.22      4INSB149
+HETATM  981  O   HOH   301       3.000   8.250  14.500  1.00 39.38      4INSB150
+HETATM  982  O   HOH   306      23.669   1.157  13.223  1.00 49.56      4INSB151
+HETATM  983  O   HOH   307       6.706  17.656  14.200  1.00 62.44      4INSB152
+HETATM  984  O   HOH   308     -10.436  21.800  14.703  1.00 82.89      4INSB153
+HETATM  985  O   HOH   302      21.660   8.100  14.400  1.00 78.85      4INSB154
+HETATM  986  O   HOH   303      16.002  14.165  14.204  0.50 36.21      4INSB155
+HETATM  987  O   HOH   311      18.624   9.971  14.472  1.00 68.09      4INSB156
+HETATM  988  O   HOH   312      12.345  18.363  14.320  1.00 61.52      4INSB157
+HETATM  989  O   HOH   314      15.375  13.331  15.234  0.50 38.87      4INSB158
+HETATM  990  O   HOH   315       8.900  16.074  15.111  0.50 56.02      4INSB159
+HETATM  991  O   HOH   316      -8.811  19.800  14.800  1.00 84.33      4INSB160
+HETATM  992  O   HOH   319       9.800  20.500  15.000  0.50 37.74      4INSB161
+HETATM  993  O   HOH   321      -0.629   5.214  14.504  1.00 52.63      4INSB162
+HETATM  994  O   HOH   305       0.063   7.371  13.477  0.50 44.43      4INSB163
+HETATM  995  O   HOH   322       4.331  21.351  15.200  1.00 48.37      4INSB164
+HETATM  996  O   HOH   324      20.471   6.314  15.326  0.50 42.47      4INSB165
+HETATM  997  O   HOH   325      15.956  10.347  15.577  1.00 73.09      4INSB166
+HETATM  998  O   HOH   326       4.166  16.122  15.117  1.00 64.59      4INSB167
+HETATM  999  O   HOH   331      -3.496  10.462  15.323  1.00 41.57      4INSB168
+HETATM 1000  O   HOH   333      22.179   1.588  16.322  1.00 60.14      4INSB169
+HETATM 1001  O   HOH   334       7.227  21.575  16.034  1.00 79.51      4INSB170
+HETATM 1002  O   HOH   335      24.987   3.024  15.000  0.50 77.50      4INSB171
+HETATM 1003  O   HOH   341       0.000   0.000  15.940  0.33 48.19      4INSB172
+HETATM 1004  O   HOH   342       2.058   1.124  15.886  0.50 57.48      4INSB173
+HETATM 1005  O   HOH   343      -1.885  13.663  16.148  1.00 61.43      4INSB174
+HETATM 1006  O   HOH   344      -3.119  22.865  15.776  1.00 59.24      4INSB175
+HETATM 1007  O   HOH   345      19.200   4.000  16.256  1.00 52.18      4INSB176
+HETATM 1008  O   HOH   346      14.044  21.773  15.730  0.50 35.08      4INSB177
+HETATM 1009  O   HOH   347       1.900   3.400  16.729  1.00 42.63      4INSB178
+HETATM 1010  O   HOH   349      14.400  17.800  15.886  0.50 52.96      4INSB179
+HETATM 1011  O   HOH   336      13.700  15.600  15.000  1.00 65.01      4INSB180
+HETATM 1012  O   HOH   351       2.100   6.200  15.800  1.00 73.63      4INSB181
+HETATM 1013  O   HOH   352      13.105  18.675  16.692  0.50 57.75      4INSB182
+HETATM 1014  O   HOH   355       5.384   1.947  16.328  1.00 52.83      4INSB183
+HETATM 1015  O   HOH   356      19.387   1.649  16.538  1.00 38.74      4INSB184
+HETATM 1016  O   HOH   357       6.570  18.429  16.505  1.00 50.65      4INSB185
+HETATM 1017  O   HOH   358     -11.760  21.100  16.700  0.50 40.14      4INSB186
+HETATM 1018  O   HOH   359      18.269   7.536  16.565  1.00 60.44      4INSB187
+HETATM 1019  O   HOH   350      16.961  12.601  17.169  1.00 81.43      4INSB188
+HETATM 1020  O   HOH   354      19.266  10.576  17.790  1.00 63.02      4INSB189
+HETATM 1021  O   HOH   361      -2.564   5.638  17.137  1.00 48.33      4INSB190
+HETATM 1022  O   HOH   362      -3.814  12.169  17.184  1.00 40.38      4INSB191
+HETATM 1023  O   HOH   363      21.336   8.539  16.849  1.00 46.39      4INSB192
+HETATM 1024  O   HOH   364      11.361  23.312  16.935  1.00 56.56      4INSB193
+HETATM 1025  O   HOH   365      11.482  20.115  16.180  0.50 36.42      4INSB194
+HETATM 1026  O   HOH   366      10.431  19.608  16.704  0.50 61.59      4INSB195
+HETATM 1027  O   HOH   367      -0.459  10.100  16.800  1.00 96.03      4INSB196
+HETATM 1028  O   HOH   368      -5.600  22.740  16.755  0.50 60.98      4INSB197
+HETATM 1029  O   HOH   369      22.701   4.882  16.533  0.50 59.04      4INSB198
+HETATM 1030  O   HOH   360      -0.559   7.125  16.712  1.00 55.39      4INSB199
+HETATM 1031  O   HOH   370      22.349   3.895  16.628  0.50 44.55      4INSB200
+HETATM 1032  O   HOH   379      24.254   2.529  17.221  0.50 64.98      4INSB201
+HETATM 1033  O   HOH   371      -8.270  20.622  17.537  0.50 29.13      4INSB202
+HETATM 1034  O   HOH   376      -7.614  21.771  17.400  0.50 39.65      4INSB203
+HETATM 1035  O   HOH   372      17.313  15.074  17.581  1.00 53.72      4INSB204
+HETATM 1036  O   HOH   374      -1.700  21.227  17.206  1.00 50.32      4INSB205
+HETATM 1037  O   HOH   375      16.509   9.562  17.812  1.00 54.16      4INSB206
+HETATM 1038  O   HOH   377      -7.800  16.300  17.668  1.00 75.77      4INSB207
+HETATM 1039  O   HOH   381       4.677  20.377  17.882  1.00 49.25      4INSB208
+HETATM 1040  O   HOH   382      17.535   3.747  17.792  1.00 51.88      4INSB209
+HETATM 1041  O   HOH   383      -2.265   8.874  17.970  1.00 48.81      4INSB210
+HETATM 1042  O   HOH   386      -8.894  18.338  17.943  1.00 51.71      4INSB211
+HETATM 1043  O   HOH   387       0.500   3.000  18.600  0.50 35.00      4INSB212
+HETATM 1044  O   HOH   388       6.000   4.100  17.800  1.00 50.00      4INSB213
+HETATM 1045  O   HOH   390       2.700   3.900  19.000  0.50 40.00      4INSB214
+HETATM 1046  O   HOH   391       2.992   5.257  18.400  0.50 40.00      4INSB215
+HETATM 1047  O   HOH   389      22.320   6.616  18.376  1.00 76.30      4INSB216
+HETATM 1048  O   HOH   378      14.300  15.147  17.400  0.50 41.41      4INSB217
+HETATM 1049  O   HOH   392      12.379  14.000  18.485  1.00 69.21      4INSB218
+HETATM 1050  O   HOH   394      26.585   1.034  18.302  1.00 72.39      4INSB219
+HETATM 1051  O   HOH   395      15.048   0.586  18.649  0.50 27.91      4INSB220
+HETATM 1052  O   HOH   396      24.664   3.165  18.640  0.50 55.98      4INSB221
+HETATM 1053  O   HOH   397      16.000   6.400  18.500  1.00 75.03      4INSB222
+HETATM 1054  O   HOH   401      -4.837  15.671  19.009  1.00 33.67      4INSB223
+HETATM 1055  O   HOH   402      -1.199  22.838  19.138  1.00 36.10      4INSB224
+HETATM 1056  O   HOH   403       1.686  21.194  18.890  1.00 36.62      4INSB225
+HETATM 1057  O   HOH   404       7.587  19.898  18.900  1.00 74.10      4INSB226
+HETATM 1058  O   HOH   405      23.636   0.400  18.433  0.50 38.58      4INSB227
+HETATM 1059  O   HOH   407       7.200   0.000  19.364  1.00 80.00      4INSB228
+HETATM 1060  O   HOH   408      12.325  20.187  18.584  1.00 76.30      4INSB229
+HETATM 1061  O   HOH   409       8.868  21.918  18.717  1.00 88.44      4INSB230
+HETATM 1062  O   HOH   411      -5.300  12.855  19.148  1.00 51.00      4INSB231
+HETATM 1063  O   HOH   412       4.000   0.889  19.161  1.00 56.19      4INSB232
+HETATM 1064  O   HOH   413      11.500  16.200  18.500  1.00 54.59      4INSB233
+HETATM 1065  O   HOH   414      15.033  14.600  19.135  0.50 40.58      4INSB234
+HETATM 1066  O   HOH   415      16.700  11.300  19.500  0.50 53.18      4INSB235
+HETATM 1067  O   HOH   421       4.304  23.913   8.300  1.00 56.36      4INSB236
+HETATM 1068  O   HOH   422      17.595   8.307  19.856  1.00 43.95      4INSB237
+HETATM 1069  O   HOH   423       8.460  17.052  19.897  1.00 58.87      4INSB238
+HETATM 1070  O   HOH   424      11.600  18.400  20.000  1.00 60.00      4INSB239
+HETATM 1071  O   HOH   425      -9.409  23.116  19.633  1.00 66.30      4INSB240
+HETATM 1072  O   HOH   428       7.200   3.000  19.668  1.00 79.22      4INSB241
+HETATM 1073  O   HOH   429      21.000   4.000  19.956  1.00 59.41      4INSB242
+HETATM 1074  O   HOH   420      -0.800   4.800  19.700  1.00 50.00      4INSB243
+HETATM 1075  O   HOH   431      13.592   4.017  20.054  1.00 43.20      4INSB244
+HETATM 1076  O   HOH   432      -0.400   2.600  20.000  0.50 40.00      4INSB245
+HETATM 1077  O   HOH   433      19.480   6.217  19.797  1.00 62.99      4INSB246
+HETATM 1078  O   HOH   435      20.876   1.574  20.116  0.50 41.62      4INSB247
+HETATM 1079  O   HOH   437      18.870   3.203  20.295  1.00 65.25      4INSB248
+HETATM 1080  O   HOH   438      22.043   8.448  20.602  0.50 38.02      4INSB249
+HETATM 1081  O   HOH   439      15.420   7.740  20.813  1.00 61.77      4INSB250
+HETATM 1082  O   HOH   441      14.400  19.900  20.800  1.00 46.45      4INSB251
+HETATM 1083  O   HOH   442       8.900   4.300  20.900  1.00 66.62      4INSB252
+HETATM 1084  O   HOH   443      12.900   7.700  20.600  1.00 50.81      4INSB253
+HETATM 1085  O   HOH   444      23.373   3.907  20.784  0.50 37.81      4INSB254
+HETATM 1086  O   HOH   445      22.600   5.200  21.000  0.50 50.00      4INSB255
+HETATM 1087  O   HOH   446      11.000  20.300  21.100  0.50 50.00      4INSB256
+HETATM 1088  O   HOH   447       3.848  22.050  20.436  1.00 73.68      4INSB257
+HETATM 1089  O   HOH   448      15.900  13.400  20.500  0.50 37.02      4INSB258
+HETATM 1090  O   HOH   449      15.000  15.900  20.409  0.50 51.72      4INSB259
+HETATM 1091  O   HOH   451      -5.648  12.110  21.371  1.00 36.62      4INSB260
+HETATM 1092  O   HOH   453      -3.499   9.530  21.143  1.00 58.40      4INSB261
+HETATM 1093  O   HOH   452      11.455   5.672  21.400  0.50 45.30      4INSB262
+HETATM 1094  O   HOH   455      19.300  11.200  21.251  1.00 93.71      4INSB263
+HETATM 1095  O   HOH   456      12.867  15.311  21.383  1.00104.59      4INSB264
+HETATM 1096  O   HOH   450      16.200  18.500  20.516  0.50 57.42      4INSB265
+HETATM 1097  O   HOH   459      17.900  14.200  21.400  0.50 54.11      4INSB266
+HETATM 1098  O   HOH   461      -2.438  17.554  21.488  1.00 27.54      4INSB267
+HETATM 1099  O   HOH   462       2.426   2.789  21.667  0.50 37.21      4INSB268
+HETATM 1100  O   HOH   473       5.591   3.514  22.644  1.00 66.58      4INSB269
+HETATM 1101  O   HOH   474      21.490   9.784  21.789  0.50 37.24      4INSB270
+HETATM 1102  O   HOH   475      22.459   7.099  21.906  0.50 54.11      4INSB271
+HETATM 1103  O   HOH   476      23.362   5.246  22.116  0.50 53.14      4INSB272
+HETATM 1104  O   HOH   477      10.026   5.995  22.154  0.50 36.85      4INSB273
+HETATM 1105  O   HOH   481      16.230  16.756  22.900  1.00 51.60      4INSB274
+HETATM 1106  O   HOH   482       7.950   1.500  22.400  1.00 74.32      4INSB275
+HETATM 1107  O   HOH   484       0.000   0.000  22.203  0.33 26.53      4INSB276
+HETATM 1108  O   HOH   485       6.000   0.331  22.809  1.00 81.99      4INSB277
+HETATM 1109  O   HOH   486       2.400   1.900  22.950  0.50 53.75      4INSB278
+HETATM 1110  O   HOH   487      16.826   9.360  22.915  1.00 64.50      4INSB279
+HETATM 1111  O   HOH   488      10.028   0.600  22.667  1.00 50.88      4INSB280
+HETATM 1112  O   HOH   491       1.801  22.097  22.791  1.00 33.66      4INSB281
+HETATM 1113  O   HOH   492      -2.158  10.172  22.900  1.00 34.73      4INSB282
+HETATM 1114  O   HOH   493       8.566  22.210  23.275  1.00 52.52      4INSB283
+HETATM 1115  O   HOH   494      19.041   7.317  22.965  1.00 45.49      4INSB284
+HETATM 1116  O   HOH   496      13.154  17.896  23.121  0.50 58.99      4INSB285
+HETATM 1117  O   HOH   497      25.120   2.792  23.670  1.00 49.60      4INSB286
+HETATM 1118  O   HOH   498       0.848   2.630  23.300  0.50 51.96      4INSB287
+HETATM 1119  O   HOH   501      12.799   4.914  23.300  1.00 45.19      4INSB288
+HETATM 1120  O   HOH   502      14.100   1.511  23.000  1.00 54.91      4INSB289
+HETATM 1121  O   HOH   503      18.000   5.200  23.400  0.50 40.00      4INSB290
+HETATM 1122  O   HOH   504      20.460   5.246  23.195  0.50 42.74      4INSB291
+HETATM 1123  O   HOH   505      18.500  13.238  23.926  0.50 60.34      4INSB292
+HETATM 1124  O   HOH   506       9.469   4.007  23.263  0.50 65.39      4INSB293
+HETATM 1125  O   HOH   511       3.330   4.805  23.757  1.00 24.03      4INSB294
+HETATM 1126  O   HOH   512      -6.414  11.027  24.091  1.00 36.40      4INSB295
+HETATM 1127  O   HOH   514      -1.798   3.543  24.064  1.00 80.64      4INSB296
+HETATM 1128  O   HOH   513       1.468   0.225  24.184  1.00 35.46      4INSB297
+HETATM 1129  O   HOH   515     -12.014  22.141  24.296  1.00 66.63      4INSB298
+HETATM 1130  O   HOH   516      13.052  19.509  23.128  0.50 62.84      4INSB299
+HETATM 1131  O   HOH   517      -9.519  22.726  24.412  1.00 71.89      4INSB300
+HETATM 1132  O   HOH   521       9.900  22.890  25.259  1.00 65.26      4INSB301
+HETATM 1133  O   HOH   522      16.495  17.126  26.000  1.00 40.00      4INSB302
+HETATM 1134  O   HOH   524      21.700   5.400  24.514  0.50 50.22      4INSB303
+HETATM 1135  O   HOH   525       6.642  20.679  24.898  1.00 58.56      4INSB304
+HETATM 1136  O   HOH   526      20.692   8.311  24.457  0.50 48.03      4INSB305
+HETATM 1137  O   HOH   531      -1.763  20.077  25.007  1.00 21.36      4INSB306
+HETATM 1138  O   HOH   532      -8.670  18.367  25.265  1.00 27.41      4INSB307
+HETATM 1139  O   HOH   533       7.700   4.223  25.055  1.00 33.74      4INSB308
+HETATM 1140  O   HOH   535      19.581  11.070  25.093  1.00 65.09      4INSB309
+HETATM 1141  O   HOH   536      -2.718  10.300  25.150  1.00 73.39      4INSB310
+HETATM 1142  O   HOH   537      22.450   8.700  25.159  0.50 48.15      4INSB311
+HETATM 1143  O   HOH   541      -1.293  22.963  25.513  1.00 29.91      4INSB312
+HETATM 1144  O   HOH   542      12.210  21.699  25.848  0.50 44.27      4INSB313
+HETATM 1145  O   HOH   527      11.500  21.600  24.157  0.50 70.69      4INSB314
+HETATM 1146  O   HOH   544      25.803   0.095  26.600  1.00 56.59      4INSB315
+HETATM 1147  O   HOH   545      23.392   1.295  25.732  1.00 48.54      4INSB316
+HETATM 1148  O   HOH   546      12.194   3.114  25.000  1.00 76.30      4INSB317
+HETATM 1149  O   HOH   551       4.708   1.340  26.039  1.00 30.59      4INSB318
+HETATM 1150  O   HOH   552      14.388  19.737  25.636  1.00 64.76      4INSB319
+HETATM 1151  O   HOH   561       5.419   3.667  26.434  1.00 31.12      4INSB320
+HETATM 1152  O   HOH   562      23.512   4.500  26.629  1.00 66.30      4INSB321
+HETATM 1153  O   HOH   563     -10.096  20.400  26.037  1.00 73.01      4INSB322
+HETATM 1154  O   HOH   571      -9.600  23.170  26.887  1.00 62.82      4INSB323
+HETATM 1155  O   HOH   572      16.389  14.064  27.171  1.00 74.53      4INSB324
+HETATM 1156  O   HOH   574      18.700  14.000  26.532  1.00 79.38      4INSB325
+HETATM 1157  O   HOH   582      10.926  10.684  26.940  1.00 44.80      4INSB326
+HETATM 1158  O   HOH   583      12.500  21.800  27.254  0.50 47.63      4INSB327
+HETATM 1159  O   HOH   581      15.038  21.545   5.268  1.00 55.92      4INSB328
+HETATM 1160  O   HOH   591      -1.739  18.453  27.705  1.00 12.21      4INSB329
+HETATM 1161  O   HOH   592      27.000   1.000  28.300  1.00 70.92      4INSB330
+HETATM 1162  O   HOH   593      20.879   8.934  27.397  0.50 49.09      4INSB331
+HETATM 1163  O   HOH   601       5.301   3.962  28.700  0.60 31.54      4INSB332
+HETATM 1164  O   HOH   602      13.794  13.317  28.059  1.00 74.41      4INSB333
+HETATM 1165  O   HOH   603       6.578   4.370  28.779  0.40 28.91      4INSB334
+HETATM 1166  O   HOH   611      19.254  14.024  28.832  1.00 55.11      4INSB335
+HETATM 1167  O   HOH   612      14.279   1.568  28.963  1.00 65.08      4INSB336
+HETATM 1168  O   HOH   622      14.080   9.849  29.479  1.00 27.58      4INSB337
+HETATM 1169  O   HOH   621      23.137   6.636  29.293  0.50 55.90      4INSB338
+HETATM 1170  O   HOH   641      18.586   7.949  30.401  0.50 17.96      4INSB339
+HETATM 1171  O   HOH   631      10.475  22.332  30.034  1.00 41.35      4INSB340
+HETATM 1172  O   HOH   632      14.200  22.300  30.301  1.00 67.11      4INSB341
+HETATM 1173  O   HOH   642       4.564   5.544  30.131  1.00 37.24      4INSB342
+HETATM 1174  O   HOH   651       0.000   0.000  30.941  0.33 24.09      4INSB343
+HETATM 1175  O   HOH   652       3.559   3.107  30.844  1.00 34.61      4INSB344
+HETATM 1176  O   HOH   653      -1.317   2.461  30.833  1.00 27.74      4INSB345
+HETATM 1177  O   HOH   671       6.900   3.468  31.640  1.00 38.60      4INSB346
+HETATM 1178  O   HOH   672       1.484   2.379  31.639  1.00 81.34      4INSB347
+HETATM 1179  O   HOH   673     -11.700  22.918  32.100  1.00 83.01      4INSB348
+HETATM 1180  O   HOH   674      12.200  21.561  31.604  1.00 55.36      4INSB349
+HETATM 1181  O   HOH   691      25.195   1.527  33.000  1.00 77.73      4INSB350
+HETATM 1182  O   HOH   701      11.090  22.753  33.200  1.00 96.30      4INSB351
+HETATM 1183  O   HOH   702       3.296   3.651  33.200  1.00 86.30      4INSB352
+HETATM 1184  O   HOH   711      24.237   4.743  33.829  1.00 38.87      4INSB353
+HETATM 1185  O   HOH   721       6.358  23.611  -0.018  1.00 94.84      4INSB354
+CONECT   43   42   76                                                   4INS1420
+CONECT   49   48  227                                                   4INS1421
+CONECT   76   43   75                                                   4INS1422
+CONECT  154  153  318                                                   4INS1423
+CONECT  227   49  226                                                   4INS1424
+CONECT  318  154  317                                                   4INS1425
+CONECT  463  462  496                                                   4INS1426
+CONECT  469  468  643                                                   4INS1427
+CONECT  496  463  495                                                   4INS1428
+CONECT  574  573  733                                                   4INS1429
+CONECT  643  469  642                                                   4INS1430
+CONECT  733  574  732                                                   4INS1431
+MASTER      167   11    2    6    2    4   12    9 1181    4   12   10  4INSB355
+END                                                                     4INS1433

@@ -1,0 +1,108 @@
+QuteMol
+What's new
+
+Ver 0.4.1: (Nanorex compatibility release)
+----------
+
+Minor Features:
+ - Now "Atom Rendering Tables" (ART) are accepted from the command line
+   (with "-a <filename>" ).
+     The ART file is a text file redefining colors and space-fill radii of
+   atom elements, as well as defining new atom (or pseudoatom) types as needed.
+     This is done to add extra flexibility, making QuteMol more usable as a 
+   viewer for other applications, like for example Nanorex (for more info about 
+   this, see 
+   http://www.nanoengineer-1.net/mediawiki/index.php?title=QuteMol_plug-in )
+     See art_example.txt for an example of accepted ART files.
+   
+Bugfixes:
+ - Minor fixes. 
+
+Ver 0.4:
+--------
+
+New Features:
+ - Color per chain selectable.
+     (rather then per atom). Random color schemas can be cycled.
+ - Export of GIF animation
+     Is is now possible to export GIF animations featuring the 
+     current model under inspections (useful for websites?)
+
+Minor Features:
+ - Progress bar shown during any long processing task (which can be cancelled)! 
+ - Various minor speed improvements
+ - Save snapshot dialog to change the resolution of the fly
+
+Bugfixes:
+ - Link to Qutemol webpage fixed (now using wxWidgets v. 8.0)
+ - Fixed a bug that prevented some 2-letter atoms to be correctly understood
+ - Fixed the clipping plane bug (large molecules where shown as if cut in half)
+ - Various minor fixes
+
+ 
+Ver 0.3:
+--------
+
+New Features:
+ - On screen antialiasing.
+     This improves visual quality, especially when
+     using thin borders. Since it is only activated
+     (by default) when the molecule is still this feature
+     does not affect fps. You can disable this option by setting
+     the STILL_QUALITY parameter equal to 100 in the
+     configuration file "qutemol.cfg".
+ - Faster (lower quality) rendering option for slower computers.
+     You can set a MOVING_QUALITY parameter lower than
+     the default 100 in the configuration file "qutemol.cfg".
+     If you do, QuteMol will feature a less sharp, but faster,
+     rendering as long as you are roteting the molecule (and
+     still show the crisp version when you stop moving it).
+ - Saving snapshots as PNG with transparent background.
+     The saved images can have an alpha channel that allows
+     high quality composition. You can select this option
+     in the "save a snapshot" dialog by choosing the
+     "Transparent PNG" file type.
+ - Texture autoresize.
+     You no longer have to manually adapt the size of the texture
+     to cope with the global illumination on larger molecules. Rather,
+     you can specify the maximal texture size available on your card
+     (the default value of 2048 is ok on most cards).
+
+Minor Features:
+ - Molecule name on titlebar.
+ - Molecule info on F1
+ - A couple new presets.
+
+Improvements:
+ - Border effect reworked.
+     Their thickness is made somewhat scale dependent.
+     They now work on ball'n'sticks and liquorice mode as well.
+     Simplified settings. Improved performance
+ - Halo effect reworked.
+     Added a few settings (strength, depth-awareness). Improved
+     performance
+ - Better icon :)
+
+Bugfixes:
+ - Shapshot size
+     Used to be halved (w.r.t. the setting specified in qutemol.cfg).
+ - Halos
+     Minor visual error fixed (was most visible on smaller molecules).
+     Fixed behavior on atom bonds.
+ - Dark bonds fixed
+     On some molecule, some bonds would appear darker than it should
+ - Shadowmap sizes:
+     Shadowmap used for global illumination is now decoupled from shadowmap
+     used during rendering. This allows for much smaller settings for the former,
+     leading to faster global illumination computation.
+
+
+Ver 0.2:
+--------
+- Bugfixes (most notably snapshot tool fixed)
+- New presets
+
+
+Ver 0.1:
+---------
+first public release!

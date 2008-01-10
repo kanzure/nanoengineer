@@ -1,0 +1,5 @@
+HEADER    COAGULATION FACTOR                      08-SEP-95   2HFT      2HFT   2
+ATOM      1  H         205       0.000   0.000   0.000  1.50 21.21      2HFT1808
+ATOM      2  O         205       0.000   0.000   3.958  2.00 21.21      2HFT1808
+ATOM      3  H         205       3.935   0.000   4.464  1.50 21.21      2HFT1808
+END
