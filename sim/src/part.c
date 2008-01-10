@@ -230,44 +230,61 @@ addBondToAtom(struct bond *b, struct atom *a)
 static void
 makeBend(struct part *p, struct atom *a, int bond1, int bond2)
 {
+    struct bond *b1;
+    struct bond *b2;
+    struct atom *a1;
+    struct atom *a2;
+    int dir1;
+    int dir2;
+    struct bendData *type;
     struct bend *b;
 
-    p->num_bends++;
-    p->bends = (struct bend *)accumulator(p->bends, sizeof(struct bend) * p->num_bends, 0);
-    b = &p->bends[p->num_bends - 1];
-    b->ac = a;
-    b->b1 = a->bonds[bond1];
-    b->b2 = a->bonds[bond2];
+    b1 = a->bonds[bond1];
+    b2 = a->bonds[bond2];
+    CHECK_VALID_BOND(b1);
+    CHECK_VALID_BOND(b2);
 
-    CHECK_VALID_BOND(b->b1);
-    if (b->b1->a1 == a) {
-	b->a1 = b->b1->a2;
-	b->dir1 = 1;
-    } else if (b->b1->a2 == a) {
-	b->a1 = b->b1->a1;
-	b->dir1 = 0;
+    if (b1->a1 == a) {
+	a1 = b1->a2;
+	dir1 = 1;
+    } else if (b1->a2 == a) {
+	a1 = b1->a1;
+	dir1 = 0;
     } else {
 	// print a better error if it ever happens...
 	fprintf(stderr, "neither end of bond on center!");
     }
     
-    CHECK_VALID_BOND(b->b2);
-    if (b->b2->a1 == a) {
-	b->a2 = b->b2->a2;
-	b->dir2 = 1;
-    } else if (b->b2->a2 == a) {
-	b->a2 = b->b2->a1;
-	b->dir2 = 0;
+    if (b2->a1 == a) {
+	a2 = b2->a2;
+	dir2 = 1;
+    } else if (b2->a2 == a) {
+	a2 = b2->a1;
+	dir2 = 0;
     } else {
 	// print a better error if it ever happens...
 	fprintf(stderr, "neither end of bond on center!");
     }
     
     // XXX should just use atomType instead of protons
-    b->bendType = getBendData(a->type->protons,
-                              a->hybridization,
-			      b->a1->type->protons, b->b1->order,
-			      b->a2->type->protons, b->b2->order);
+    type = getBendData(a->type->protons,
+                       a->hybridization,
+                       a1->type->protons, b1->order,
+                       a2->type->protons, b2->order);
+
+    if (type != NULL) {
+        p->num_bends++;
+        p->bends = (struct bend *)accumulator(p->bends, sizeof(struct bend) * p->num_bends, 0);
+        b = &p->bends[p->num_bends - 1];
+        b->a1 = a1;
+        b->ac = a;
+        b->a2 = a2;
+        b->b1 = b1;
+        b->b2 = b2;
+        b->dir1 = dir1;
+        b->dir2 = dir2;
+        b->bendType = type;
+    }
 }
 
 static void

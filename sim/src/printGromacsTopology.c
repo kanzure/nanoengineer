@@ -84,7 +84,9 @@ writeGromacsBond(FILE *top, struct part *p, struct stretch *stretch)
         // convert to kJ mol^-1 m^-2
         // multiply by 1e-18 to get kJ mol^-1 nm^-2
         ks = zJ_to_kJpermol(bs->ks * 1e21) * 1e-18;
-        fprintf(top, "%5d %5d   6   %12.5e %12.5e\n", atomNumber(p, a1), atomNumber(p, a2), r0, ks);
+        if (fabs(ks) > 1e-8) {
+            fprintf(top, "%5d %5d   6   %12.5e %12.5e\n", atomNumber(p, a1), atomNumber(p, a2), r0, ks);
+        }
     } else {
         r0 = bs->r0 * 1e-3; // convert pm to nm
         De = zJ_to_kJpermol(bs->de * 1e3); // bs->de in aJ

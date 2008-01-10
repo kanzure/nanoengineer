@@ -562,6 +562,7 @@ static void
 setElement(int protons,
            int group,
            int period,
+           char *parentSymbol,
            char *symbol,
            char *name,
            double mass,
@@ -594,6 +595,7 @@ setElement(int protons,
   entry->charge = charge;
   entry->refCount = 2;
   entry->isVirtual = isVirtual;
+  entry->parent = getAtomTypeByName(parentSymbol);
 
   oldEntry = hashtable_put(periodicHashtable, symbol, entry);
   if (oldEntry != NULL) {
@@ -751,6 +753,7 @@ readBondTableOverlay(char *filename)
   int protons;
   int group;
   int period;
+  char *parentSymbol;
   char *symbol;
   char *name;
   double mass;
@@ -803,6 +806,7 @@ readBondTableOverlay(char *filename)
         protons = tokenizeInt(&err);
         group = tokenizeInt(&err);
         period = tokenizeInt(&err);
+        parentSymbol = strtok(NULL, " \n");
         symbol = strtok(NULL, " \n");
         name = strtok(NULL, " \n");
         mass = tokenizeDouble(&err);
@@ -815,8 +819,8 @@ readBondTableOverlay(char *filename)
         if (err || symbol == NULL || name == NULL) {
           fprintf(stderr, "format error at file %s line %d\n", filename, lineNumber);
         } else {
-          setElement(protons, group, period, symbol, name, mass, rvdW, evdW, nBonds, rCovalent, charge, isVirtual);
-          DPRINT12(D_READER, "setElement: %d %d %d %s %s %f %f %f %d %f %f %d\n", protons, group, period, symbol, name, mass, rvdW, evdW, nBonds, rCovalent, charge, isVirtual);
+          setElement(protons, group, period, parentSymbol, symbol, name, mass, rvdW, evdW, nBonds, rCovalent, charge, isVirtual);
+          DPRINT13(D_READER, "setElement: %d %d %d %s %s %s %f %f %f %d %f %f %d\n", protons, group, period, parentSymbol, symbol, name, mass, rvdW, evdW, nBonds, rCovalent, charge, isVirtual);
         }
       } else if (!strcmp(token, "stretch")) {
         err = 0;
@@ -905,84 +909,60 @@ initializeStaticBondTable(void)
   // protons, group, period, symbol, name, mass, vanDerWaalsRadius,
   //    e_vanDerWaals, n_bonds, covalentRadius, charge, isVirtual
   //
-  //          Z grp per sym   name           mass    rvdW  evdW bnds rcov chrg virt
+  //          Z grp per par    sym   name           mass    rvdW  evdW bnds rcov chrg virt
   //
+
+  setElement(999, 0, 0, NULL, "All", "AllAtomTypes", 0.0,  0.0,   0.0,   0,   0, 0, 0);
+  setElement(998, 0, 0, "All","Elt", "Elements",     0.0,  0.0,   0.0,   0,   0, 0, 0);
  
-  setElement( 0,  1, 1, "X",  "Singlet",    17.000,  1.1,  -1.00, 1,   0, 0, 0);
-  setElement( 1,  1, 1, "H",  "Hydrogen",    1.6737, 1.5 , 0.382, 1,  30, 0, 0);
-  setElement( 2,  0, 1, "He", "Helium",      6.646,  1.4,  -1.00, 0,   0, 0, 0);
+  setElement( 0,  1, 1, "Elt", "X",  "Singlet",    17.000,  1.1,  -1.00, 1,   0, 0, 0);
+  setElement( 1,  1, 1, "Elt", "H",  "Hydrogen",    1.6737, 1.5 , 0.382, 1,  30, 0, 0);
+  setElement( 2,  0, 1, "Elt", "He", "Helium",      6.646,  1.4,  -1.00, 0,   0, 0, 0);
  
-  setElement( 3,  1, 2, "Li", "Lithium",    11.525,  0.97, -1.00, 1, 152, 0, 0);
-  setElement( 4,  2, 2, "Be", "Beryllium",  14.964,  1.10, -1.00, 2, 114, 0, 0);
-  setElement( 5,  3, 2, "B",  "Boron",      17.949,  1.99, -1.00, 3,  83, 0, 0);
-  setElement( 6,  4, 2, "C",  "Carbon",     19.925,  1.94, 0.357, 4,  77, 0, 0);
-  setElement( 7,  5, 2, "N",  "Nitrogen",   23.257,  1.82, 0.447, 3,  70, 0, 0);
-  setElement( 8,  6, 2, "O",  "Oxygen",     26.565,  1.74, 0.406, 2,  66, 0, 0);
-  setElement( 9,  7, 2, "F",  "Fluorine",   31.545,  1.65, 0.634, 1,  64, 0, 0);
-  setElement(10,  0, 2, "Ne", "Neon",       33.49,   1.82, -1.00, 0,   0, 0, 0);
+  setElement( 3,  1, 2, "Elt", "Li", "Lithium",    11.525,  0.97, -1.00, 1, 152, 0, 0);
+  setElement( 4,  2, 2, "Elt", "Be", "Beryllium",  14.964,  1.10, -1.00, 2, 114, 0, 0);
+  setElement( 5,  3, 2, "Elt", "B",  "Boron",      17.949,  1.99, -1.00, 3,  83, 0, 0);
+  setElement( 6,  4, 2, "Elt", "C",  "Carbon",     19.925,  1.94, 0.357, 4,  77, 0, 0);
+  setElement( 7,  5, 2, "Elt", "N",  "Nitrogen",   23.257,  1.82, 0.447, 3,  70, 0, 0);
+  setElement( 8,  6, 2, "Elt", "O",  "Oxygen",     26.565,  1.74, 0.406, 2,  66, 0, 0);
+  setElement( 9,  7, 2, "Elt", "F",  "Fluorine",   31.545,  1.65, 0.634, 1,  64, 0, 0);
+  setElement(10,  0, 2, "Elt", "Ne", "Neon",       33.49,   1.82, -1.00, 0,   0, 0, 0);
  
-  setElement(11,  1, 3, "Na", "Sodium",     38.1726, 1.29, -1.00, 1, 186, 0, 0);
-  setElement(12,  2, 3, "Mg", "Magnesium",  40.356,  1.15, -1.00, 2, 160, 0, 0);
-  setElement(13,  3, 3, "Al", "Aluminum",   44.7997, 2.0,  -1.00, 3, 125, 0, 0);
-  setElement(14,  4, 3, "Si", "Silicon",    46.6245, 2.25, 1.137, 4, 116, 0, 0);
-  setElement(15,  5, 3, "P",  "Phosphorus", 51.429,  2.18, 1.365, 3, 110, 0, 0);
-  setElement(16,  6, 3, "S",  "Sulfur",     53.233,  2.10, 1.641, 2, 104, 0, 0);
-  setElement(17,  7, 3, "Cl", "Chlorine",   58.867,  2.03, 1.950, 1,  99, 0, 0);
-  setElement(18,  0, 3, "Ar", "Argon",      62.33,   1.88, -1.00, 0,   0, 0, 0);
+  setElement(11,  1, 3, "Elt", "Na", "Sodium",     38.1726, 1.29, -1.00, 1, 186, 0, 0);
+  setElement(12,  2, 3, "Elt", "Mg", "Magnesium",  40.356,  1.15, -1.00, 2, 160, 0, 0);
+  setElement(13,  3, 3, "Elt", "Al", "Aluminum",   44.7997, 2.0,  -1.00, 3, 125, 0, 0);
+  setElement(14,  4, 3, "Elt", "Si", "Silicon",    46.6245, 2.25, 1.137, 4, 116, 0, 0);
+  setElement(15,  5, 3, "Elt", "P",  "Phosphorus", 51.429,  2.18, 1.365, 3, 110, 0, 0);
+  setElement(16,  6, 3, "Elt", "S",  "Sulfur",     53.233,  2.10, 1.641, 2, 104, 0, 0);
+  setElement(17,  7, 3, "Elt", "Cl", "Chlorine",   58.867,  2.03, 1.950, 1,  99, 0, 0);
+  setElement(18,  0, 3, "Elt", "Ar", "Argon",      62.33,   1.88, -1.00, 0,   0, 0, 0);
 
-  setElement(19,  1, 4, "K",  "Potassium",  64.9256, 1.59, -1.00, 1, 231, 0, 0);
-  setElement(20,  2, 4, "Ca", "Calcium",    66.5495, 1.27, -1.00, 2, 197, 0, 0);
-  setElement(21,  8, 4, "Sc", "Scandium",   74.646,  2.0,  -1.00, 0,  60, 0, 0);
-  setElement(22, 23, 4, "Ti", "Titanium",   79.534,  2.0,  -1.00, 0, 147, 0, 0);
-  setElement(23, 24, 4, "V",  "Vanadium",   84.584,  2.0,  -1.00, 0, 132, 0, 0);
-  setElement(24, 25, 4, "Cr", "Chromium",   86.335,  2.0,  -1.00, 0, 125, 0, 0);
-  setElement(25, 26, 4, "Mn", "Manganese",  91.22,   2.0,  -1.00, 0, 112, 0, 0);
-  setElement(26, 27, 4, "Fe", "Iron",       92.729,  2.0,  -1.00, 0, 124, 0, 0);
-  setElement(27, 28, 4, "Co", "Cobalt",     97.854,  2.0,  -1.00, 0, 125, 0, 0);
-  setElement(28, 29, 4, "Ni", "Nickel",     97.483,  2.3,  -1.00, 0, 125, 0, 0);
-  setElement(29, 30, 4, "Cu", "Copper",    105.513,  2.3,  -1.00, 0, 128, 0, 0);
-  setElement(30, 31, 4, "Zn", "Zinc",      108.541,  2.3,  -1.00, 0, 133, 0, 0);
-  setElement(31,  3, 4, "Ga", "Gallium",   115.764,  2.3,  -1.00, 0, 135, 0, 0);
-  setElement(32,  4, 4, "Ge", "Germanium", 120.53,   2.0,  -1.00, 4, 122, 0, 0);
-  setElement(33,  5, 4, "As", "Arsenic",   124.401,  2.0,  -1.00, 3, 120, 0, 0);
-  setElement(34,  6, 4, "Se", "Selenium",  131.106,  1.88, -1.00, 2, 119, 0, 0);
-  setElement(35,  7, 4, "Br", "Bromine",   132.674,  1.83, -1.00, 1, 119, 0, 0);
-  setElement(36,  0, 4, "Kr", "Krypton",   134.429,  1.9,  -1.00, 0,   0, 0, 0);
+  setElement(19,  1, 4, "Elt", "K",  "Potassium",  64.9256, 1.59, -1.00, 1, 231, 0, 0);
+  setElement(20,  2, 4, "Elt", "Ca", "Calcium",    66.5495, 1.27, -1.00, 2, 197, 0, 0);
+  setElement(21,  8, 4, "Elt", "Sc", "Scandium",   74.646,  2.0,  -1.00, 0,  60, 0, 0);
+  setElement(22, 23, 4, "Elt", "Ti", "Titanium",   79.534,  2.0,  -1.00, 0, 147, 0, 0);
+  setElement(23, 24, 4, "Elt", "V",  "Vanadium",   84.584,  2.0,  -1.00, 0, 132, 0, 0);
+  setElement(24, 25, 4, "Elt", "Cr", "Chromium",   86.335,  2.0,  -1.00, 0, 125, 0, 0);
+  setElement(25, 26, 4, "Elt", "Mn", "Manganese",  91.22,   2.0,  -1.00, 0, 112, 0, 0);
+  setElement(26, 27, 4, "Elt", "Fe", "Iron",       92.729,  2.0,  -1.00, 0, 124, 0, 0);
+  setElement(27, 28, 4, "Elt", "Co", "Cobalt",     97.854,  2.0,  -1.00, 0, 125, 0, 0);
+  setElement(28, 29, 4, "Elt", "Ni", "Nickel",     97.483,  2.3,  -1.00, 0, 125, 0, 0);
+  setElement(29, 30, 4, "Elt", "Cu", "Copper",    105.513,  2.3,  -1.00, 0, 128, 0, 0);
+  setElement(30, 31, 4, "Elt", "Zn", "Zinc",      108.541,  2.3,  -1.00, 0, 133, 0, 0);
+  setElement(31,  3, 4, "Elt", "Ga", "Gallium",   115.764,  2.3,  -1.00, 0, 135, 0, 0);
+  setElement(32,  4, 4, "Elt", "Ge", "Germanium", 120.53,   2.0,  -1.00, 4, 122, 0, 0);
+  setElement(33,  5, 4, "Elt", "As", "Arsenic",   124.401,  2.0,  -1.00, 3, 120, 0, 0);
+  setElement(34,  6, 4, "Elt", "Se", "Selenium",  131.106,  1.88, -1.00, 2, 119, 0, 0);
+  setElement(35,  7, 4, "Elt", "Br", "Bromine",   132.674,  1.83, -1.00, 1, 119, 0, 0);
+  setElement(36,  0, 4, "Elt", "Kr", "Krypton",   134.429,  1.9,  -1.00, 0,   0, 0, 0);
 
-  setElement(51,  5, 5, "Sb", "Antimony",  124.401,  2.2,  -1.00, 3, 144, 0, 0);
-  setElement(52,  6, 5, "Te", "Tellurium", 131.106,  2.1,  -1.00, 2, 142, 0, 0);
-  setElement(53,  7, 5, "I",  "Iodine",    132.674,  2.0,  -1.00, 1, 141, 0, 0);
-  setElement(54,  0, 5, "Xe", "Xenon",     134.429,  1.9,  -1.00, 0,   0, 0, 0);
-
-
-  setElement(200, 0, 0, "Ax", "DNA-Pseudo-Axis",           167.0,  0.0,   0.0,  4,  100,  0, 0); // 700
-  setElement(201, 0, 0, "Ss", "DNA-Pseudo-Sugar",          167.0,  0.0,   0.0,  3,  170,  0, 0); // 800
-  setElement(202, 0, 0, "Pl", "DNA-Pseudo-Phosphate",      167.0,  3.6,   0.3,  2,  170, -1, 0); // 900
-  setElement(203, 0, 0, "Sj", "DNA-Pseudo-Sugar-Junction", 167.0,  0.0,   0.0,  3,  170,  0, 0); // 810
-  setElement(204, 0, 0, "Ae", "DNA-Pseudo-Axis-End",       167.0,  0.0,   0.0,  1,  100,  0, 0); // 701
-  setElement(205, 0, 0, "Pe", "DNA-Pseudo-Phosphate-End",  167.0,  3.6,   0.3,  1,  170, -2, 0); // 901
-  setElement(206, 0, 0, "Sh", "DNA-Pseudo-Sugar-End",      167.0,  0.0,   0.0,  1,  170,  0, 0); // 902
-  setElement(207, 0, 0, "Hp", "DNA-Pseudo-Hairpin",        167.0,  0.0,   0.0,  2,  100,  0, 0); // 820
+  setElement(51,  5, 5, "Elt", "Sb", "Antimony",  124.401,  2.2,  -1.00, 3, 144, 0, 0);
+  setElement(52,  6, 5, "Elt", "Te", "Tellurium", 131.106,  2.1,  -1.00, 2, 142, 0, 0);
+  setElement(53,  7, 5, "Elt", "I",  "Iodine",    132.674,  2.0,  -1.00, 1, 141, 0, 0);
+  setElement(54,  0, 5, "Elt", "Xe", "Xenon",     134.429,  1.9,  -1.00, 0,   0, 0, 0);
+#define MAX_REAL_ELEMENT 54
 
 #include "bonds.gen"
-
-  //                      ks     r0      de    beta    inflectionR qual quad bondName
-
-  addInitialBondStretch( 4.00, 318.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Ax"); // 700-700
-  addInitialBondStretch(50.00, 676.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Ss"); // 700-800
-  addInitialBondStretch(50.00, 676.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Sj"); // 700-810
-  addInitialBondStretch( 4.00, 364.00, 1.0000,  -1,        -1,      9,   1,  "Ss-1-Pl"); // 800-900
-  addInitialBondStretch( 4.00, 400.00, 1.0000,  -1,        -1,      9,   1,  "Pl-1-Sj"); // 900-810
-  addInitialBondStretch( 4.00, 180.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Ax");  // 701-700
-  addInitialBondStretch( 4.00, 364.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Ss");  // 901-800
-  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Pl");  // 902-900
-  addInitialBondStretch( 4.00, 180.00, 1.0000,  -1,        -1,      9,   1,  "Ax-1-Ae"); // 700-701
-  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "Ss-1-Sh"); // 800-902
-  addInitialBondStretch( 4.00, 364.00, 1.0000,  -1,        -1,      9,   1,  "Ss-1-Pe"); // 800-901
-  addInitialBondStretch( 4.00, 357.00, 1.0000,  -1,        -1,      9,   1,  "Pl-1-Hp"); // 900-820
-  addInitialBondStretch( 4.00, 357.00, 1.0000,  -1,        -1,      9,   1,  "Pe-1-Hp"); // 901-820
-  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "Sh-1-Hp"); // 902-820
-  addInitialBondStretch( 4.00, 200.00, 1.0000,  -1,        -1,      9,   1,  "H-1-Hp");  // 902-820
 
   
   addDeTableEntry("H-1-N",  0.75);
@@ -996,99 +976,6 @@ initializeStaticBondTable(void)
   addDeTableEntry("S-1-Cl", 0.489);
 
 #include "bends.gen"
-
-  //                ktheta         theta0        qual  bondName
-
-  // 180 degree along Axis
-  addInitialBendData(0.18,         3.14159265359,  9,  "Ax-1-Ax.sp3-1-Ax");   // 700-700-700
-  addInitialBendData(0.18,         3.14159265359,  9,  "Ax-1-Ax.sp3-1-Ae");   // 700-700-701
-  addInitialBendData(0.18,         3.14159265359,  9,  "Ae-1-Ax.sp3-1-Ae");   // 701-700-701
-
-  // 90 degree Axis to Sugar
-  addInitialBendData(1.0,          1.57079632679,  9,  "Ax-1-Ax.sp3-1-Ss");   // 700-700-800
-  addInitialBendData(1.0,          1.57079632679,  9,  "Ax-1-Ax.sp3-1-Sj");   // 700-700-810
-  addInitialBendData(1.0,          1.57079632679,  9,  "Ss-1-Ax.sp3-1-Ae");   // 800-700-701
-  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-Ax");    // 800-700-700
-  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-Ae");    // 800-700-701
-  addInitialBendData(1.0,          1.57079632679,  9,  "H-1-Ax.sp3-1-H");     // ?
-
-  // 133 degree minor groove
-  addInitialBendData(1.0,          2.3212879025,   9,  "Ss-1-Ax.sp3-1-Ss");   // 800-700-800
-  addInitialBendData(1.0,          2.3212879025,   9,  "Ss-1-Ax.sp3-1-Sj");   // 800-700-810
-  addInitialBendData(1.0,          2.3212879025,   9,  "Sj-1-Ax.sp3-1-Sj");   // 810-700-810
-  addInitialBendData(1.0,          2.3212879025,   9,  "H-1-Ax.sp3-1-Ss");    // 800-700-800
-  addInitialBendData(1.0,          2.3212879025,   9,  "H-1-Ax.sp3-1-Sj");    // 800-700-800
-
-  // 121 degree Axis Sugar Phosphate
-  addInitialBendData(0.04,         2.1118483925,   9,  "Ax-1-Ss.sp3-1-Pl");   // 700-800-900
-  addInitialBendData(0.04,         2.1118483925,   9,  "Ax-1-Ss.sp3-1-Pe");   // 700-800-901
-  addInitialBendData(0.04,         2.1118483925,   9,  "Ax-1-Ss.sp3-1-Sh");   // 700-800-902
-  addInitialBendData(0.04,         2.1118483925,   9,  "H-1-Ss.sp3-1-Ax");    // 900-800-700
-
-  // 127 degree Phosphate Sugar Phosphate
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Ss.sp3-1-Pl");   // 900-800-900
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Ss.sp3-1-Pe");   // 900-800-901
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Ss.sp3-1-Sh");   // 900-800-902
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Ss.sp3-1-Pe");   // 901-800-901
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Ss.sp3-1-Sh");   // 901-800-902
-  addInitialBendData(0.04,         2.2165681475,   9,  "Sh-1-Ss.sp3-1-Sh");   // 902-800-902
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-Pl");    // 900-800-900
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-Pe");    // 900-800-901
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-Sh");    // 900-800-902
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Ss.sp3-1-H");     // 900-800-900
-
-  // 127 degree Phosphate Hairpin Phosphate
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Hp.sp3-1-Pl");   // 900-820-900
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Hp.sp3-1-Pe");   // 900-820-901
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Hp.sp3-1-Sh");   // 900-820-902
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Hp.sp3-1-Pe");   // 901-820-901
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Hp.sp3-1-Sh");   // 901-820-902
-  addInitialBendData(0.04,         2.2165681475,   9,  "Sh-1-Hp.sp3-1-Sh");   // 902-820-902
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-Pl");    // 900-820-900
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-Pe");    // 900-820-901
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-Sh");    // 900-820-902
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Hp.sp3-1-H");     // 900-820-900
-
-  // 115 degree Axis JunctionSugar Phosphate
-  addInitialBendData(0.04,         2.0071286375,   9,  "Ax-1-Sj.sp3-1-Pl");   // 700-810-900
-  addInitialBendData(0.04,         2.0071286375,   9,  "Ax-1-Sj.sp3-1-Pe");   // 700-810-901
-  addInitialBendData(0.04,         2.0071286375,   9,  "Ax-1-Sj.sp3-1-Sh");   // 700-810-902
-  addInitialBendData(0.04,         2.0071286375,   9,  "H-1-Sj.sp3-1-Ax");    // 900-810-700
-
-  // 110 degree Phosphate JunctionSugar Phosphate
-  addInitialBendData(0.04,         1.919862175,    9,  "Pl-1-Sj.sp3-1-Pl");   // 900-810-900
-  addInitialBendData(0.04,         1.919862175,    9,  "Pl-1-Sj.sp3-1-Pe");   // 900-810-901
-  addInitialBendData(0.04,         1.919862175,    9,  "H-1-Sj.sp3-1-Pl");    // 900-810-900
-  addInitialBendData(0.04,         1.919862175,    9,  "H-1-Sj.sp3-1-H");     // 900-810-900
-  addInitialBendData(0.04,         1.919862175,    9,  "H-1-Sj.sp3-1-Pe");    // 900-810-901
-  addInitialBendData(0.04,         1.919862175,    9,  "Pe-1-Sj.sp3-1-Pe");   // 901-810-901
-
-  // 127 degree Phosphate JunctionSugar end
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pl-1-Sj.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Pe-1-Sj.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "Sh-1-Sj.sp3-1-Sh");
-  addInitialBendData(0.04,         2.2165681475,   9,  "H-1-Sj.sp3-1-Sh");
-
-  // 92.5 degree Sugar Phosphate Sugar
-  addInitialBendData(0.04,         1.61442955625,  9,  "Ss-1-Pl.sp3-1-Ss");
-  addInitialBendData(0.04,         1.61442955625,  9,  "Ss-1-Pl.sp3-1-Sh");
-  addInitialBendData(0.04,         1.61442955625,  9,  "Ss-1-Pl.sp3-1-Hp");
-  addInitialBendData(0.04,         1.61442955625,  9,  "Sh-1-Pl.sp3-1-Sh");
-  addInitialBendData(0.04,         1.61442955625,  9,  "Sh-1-Pl.sp3-1-Hp");
-  addInitialBendData(0.04,         1.61442955625,  9,  "Hp-1-Pl.sp3-1-Hp");
-  addInitialBendData(0.04,         1.61442955625,  9,  "H-1-Pl.sp3-1-Ss");
-  addInitialBendData(0.04,         1.61442955625,  9,  "H-1-Pl.sp3-1-Sh");
-  addInitialBendData(0.04,         1.61442955625,  9,  "H-1-Pl.sp3-1-Hp");
-  addInitialBendData(0.04,         1.61442955625,  9,  "H-1-Pl.sp3-1-H");
-
-  // 92.5 degree Sugar Phosphate JunctionSugar
-  addInitialBendData(0.04,         1.61442955625,  9,  "Ss-1-Pl.sp3-1-Sj");
-  addInitialBendData(0.04,         1.61442955625,  9,  "Sj-1-Pl.sp3-1-Sh");
-  addInitialBendData(0.04,         1.61442955625,  9,  "Sj-1-Pl.sp3-1-Hp");
-  addInitialBendData(0.04,         1.61442955625,  9,  "H-1-Pl.sp3-1-Sj");
-
-  // 115.8 degree JunctionSugar Phosphate JunctionSugar
-  addInitialBendData(0.04,         2.0210912715,   9,  "Sj-1-Pl.sp3-1-Sj");
 
   //                        name       rvdW evdW  start  end
 
@@ -1336,6 +1223,13 @@ generateGenericBendData(char *bendName,
   double len;
   double kb, theta0;
 
+  if (element_center < 0 || element_center > MAX_REAL_ELEMENT ||
+      element1 < 0 || element1 > MAX_REAL_ELEMENT ||
+      element2 < 0 || element2 > MAX_REAL_ELEMENT)
+  {
+    return NULL;
+  }
+  
   // XXX only correct for bond order 1 on both bonds  FIX!!!
 
   len = getAtomTypeByIndex(element_center)->covalentRadius +
@@ -1441,6 +1335,9 @@ getBendData(int element_center,
   bend = (struct bendData *)hashtable_get(bendDataHashtable, bendName);
   if (bend == NULL) {
     bend = generateGenericBendData(bendName, element_center, centerHybridization, element1, bondOrder1, element2, bondOrder2);
+  }
+  if (bend == NULL) {
+    return NULL;
   }
   if (bend->parameterQuality < QualityWarningLevel && !bend->warned) {
     if (!ComputedParameterWarning) {

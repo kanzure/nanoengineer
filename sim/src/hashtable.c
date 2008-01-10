@@ -189,8 +189,14 @@ hashtable_put(struct hashtable *table, char *key, void *value)
 void *
 hashtable_get(struct hashtable *table, char *key)
 {
-  int hash = hash_string(key);
-  struct hashtable_bucket *bucket = hashtable_find_bucket(table->buckets, table->size, hash, key);
+  int hash;
+  struct hashtable_bucket *bucket;
+
+  if (table == NULL || key == NULL) {
+    return NULL;
+  }
+  hash = hash_string(key);
+  bucket = hashtable_find_bucket(table->buckets, table->size, hash, key);
   if (bucket->key == NULL) {
     return NULL;
   }

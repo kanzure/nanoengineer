@@ -129,8 +129,16 @@ resetMatchForThisTraversal(struct patternMatch *match,
 static int
 atomIsType(struct atom *a, struct atomType *type) 
 {
-  // search up type heirarchy once one exists
-  return a->type == type;
+  struct atomType *atype = a->type;
+  
+  while (atype != NULL) {
+    if (atype == type) {
+      return 1;
+    }
+    atype = atype->parent;
+  }
+  
+  return 0;
 }
 
 // Returns true if the indicated atom (id) has not yet appeared in the
@@ -579,7 +587,7 @@ isExpectedTwist(struct part *p,
   return vdot(v1_x_v2, v3) > 0.0;
 }
 
-static int axis_match_initialized = 0;
+static int stack_match_initialized = 0;
 static double vDax_p[8];
 static double vDax_q[8];
 static double vDbx_p[8];
@@ -588,13 +596,13 @@ static struct atomType *vDa_type[8];
 static struct atomType *vDb_type[8];
 
 static void
-init_axis_match(void)
+init_stack_match(void)
 {
   int i;
   char buf[256];
   struct patternParameter *param;
 
-  if (axis_match_initialized) {
+  if (stack_match_initialized) {
     return;
   }
   for (i=0; i<8; i++) {
@@ -603,27 +611,38 @@ init_axis_match(void)
     sprintf(buf, "vDb%d", i+1);
     vDb_type[i] = getAtomTypeByName(buf);
 
-    sprintf(buf, "PAM5-Axis:vDa%d-p", i+1);
+    sprintf(buf, "PAM5-Stack:vDa%d-p", i+1);
     param = getPatternParameter(buf); BAIL();
     vDax_p[i] = param->value;
-    sprintf(buf, "PAM5-Axis:vDa%d-q", i+1);
+    sprintf(buf, "PAM5-Stack:vDa%d-q", i+1);
     param = getPatternParameter(buf); BAIL();
     vDax_q[i] = param->value;
-    sprintf(buf, "PAM5-Axis:vDb%d-p", i+1);
+    sprintf(buf, "PAM5-Stack:vDb%d-p", i+1);
     param = getPatternParameter(buf); BAIL();
     vDbx_p[i] = param->value;
-    sprintf(buf, "PAM5-Axis:vDb%d-q", i+1);
+    sprintf(buf, "PAM5-Stack:vDb%d-q", i+1);
     param = getPatternParameter(buf); BAIL();
     vDbx_q[i] = param->value;
   }
-  axis_match_initialized = 1;
+  stack_match_initialized = 1;
 }
 
 static void
-pam5_axis_match(struct patternMatch *match)
+pam5_basepair_match(struct patternMatch *match)
 {
-  struct atom *aAx1 = match->p->atoms[match->atomIndices[0]];
-  struct atom *aAx2 = match->p->atoms[match->atomIndices[1]];
+  struct atom *aS1 = match->p->atoms[match->atomIndices[1]];
+  struct atom *aS2 = match->p->atoms[match->atomIndices[2]];
+  struct bond *bond;
+
+  bond = makeBond(match->p, aS1, aS2, '1');
+  queueBond(match->p, bond);
+}
+
+static void
+pam5_stack_match(struct patternMatch *match)
+{
+  struct atom *aGv1 = match->p->atoms[match->atomIndices[0]];
+  struct atom *aGv2 = match->p->atoms[match->atomIndices[1]];
   struct atom *aS1a = match->p->atoms[match->atomIndices[2]];
   struct atom *aS1b = match->p->atoms[match->atomIndices[3]];
   struct atom *aS2a = match->p->atoms[match->atomIndices[4]];
@@ -633,28 +652,28 @@ pam5_axis_match(struct patternMatch *match)
   struct bond *bond;
   int i;
   
-  init_axis_match();
+  init_stack_match();
   
   // S1a    S2a
   //  |      |
-  // Ax1----Ax2
+  // Gv1----Gv2
   //  |      |
   // S1b    S2b
-  if (!isExpectedTwist(match->p, aAx1, aAx2, aS1a, aS1b)) {
+  if (!isExpectedTwist(match->p, aGv1, aGv2, aS1a, aS1b)) {
     aS1a = match->p->atoms[match->atomIndices[3]];
     aS1b = match->p->atoms[match->atomIndices[2]];
   }
-  if (!isExpectedTwist(match->p, aAx2, aAx1, aS2a, aS2b)) {
+  if (!isExpectedTwist(match->p, aGv2, aGv1, aS2a, aS2b)) {
     aS2a = match->p->atoms[match->atomIndices[5]];
     aS2b = match->p->atoms[match->atomIndices[4]];
   }
   // atoms are now in canonical orientations
   for (i=0; i<8; i++) {
     vA = makeVirtualAtom(vDa_type[i], sp3, 3, 1,
-                         aAx1, aS1a, aS1b, NULL,
+                         aGv1, aS1a, aS1b, NULL,
                          vDax_p[i], vDax_q[i], 0.0);
     vB = makeVirtualAtom(vDb_type[i], sp3, 3, 1,
-                         aAx2, aS2a, aS2b, NULL,
+                         aGv2, aS2a, aS2b, NULL,
                          vDbx_p[i], vDbx_q[i], 0.0);
     bond = makeBond(match->p, vA, vB, '1');
     queueAtom(match->p, vA);
@@ -663,7 +682,7 @@ pam5_axis_match(struct patternMatch *match)
   }
 }
 
-#define NUM_PATTERNS 1
+#define NUM_PATTERNS 2
 static struct compiledPattern *allPatterns[NUM_PATTERNS];
 
 void
@@ -705,18 +724,25 @@ createPatterns(void)
   allPatterns[1] = makePattern("PAM5-ring-end", pam5_ring_match, 6, 6, t);
   */
   
-  a[0] = makePatternAtom(0, "Ax5");
-  a[1] = makePatternAtom(1, "Ax5");
-  a[2] = makePatternAtom(2, "Ss5");
-  a[3] = makePatternAtom(3, "Ss5");
-  a[4] = makePatternAtom(4, "Ss5");
-  a[5] = makePatternAtom(5, "Ss5");
+  a[0] = makePatternAtom(0, "P5G");
+  a[1] = makePatternAtom(1, "P5S");
+  a[2] = makePatternAtom(2, "P5S");
+  t[0] = makeTraversal(a[0], a[1], '1');
+  t[1] = makeTraversal(a[0], a[2], '1');
+  allPatterns[0] = makePattern("PAM5-basepair", pam5_basepair_match, 3, 2, t);
+
+  a[0] = makePatternAtom(0, "P5G");
+  a[1] = makePatternAtom(1, "P5G");
+  a[2] = makePatternAtom(2, "P5S");
+  a[3] = makePatternAtom(3, "P5S");
+  a[4] = makePatternAtom(4, "P5S");
+  a[5] = makePatternAtom(5, "P5S");
   t[0] = makeTraversal(a[0], a[1], '1');
   t[1] = makeTraversal(a[0], a[2], '1');
   t[2] = makeTraversal(a[0], a[3], '1');
   t[3] = makeTraversal(a[1], a[4], '1');
   t[4] = makeTraversal(a[1], a[5], '1');
-  allPatterns[0] = makePattern("PAM5-axis", pam5_axis_match, 6, 5, t);
+  allPatterns[1] = makePattern("PAM5-stack", pam5_stack_match, 6, 5, t);
   
   /*
   param = getPatternParameter("PAM5:Ax-Ax-Ss_low_ktheta"); BAIL();

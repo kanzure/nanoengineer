@@ -148,6 +148,7 @@ struct atomType
   double charge;              // multiple of proton charge
   int refCount;
   int isVirtual;              // type for a gromacs virtual interaction site
+  struct atomType *parent;
 };
 
 struct patternParameter
