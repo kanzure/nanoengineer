@@ -364,7 +364,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         if selatom is not None:
             name = selatom.molecule.name
             item = ('Select Chunk %r' % name, 
-                    self.graphicsMode.select_chunk_of_highlighted_atom)
+                    self.select_chunk_of_highlighted_atom)
                 #e maybe should disable this or change to checkmark item (with 
                 #unselect action) if it's already selected??
             self.Menu_spec.append(item)
