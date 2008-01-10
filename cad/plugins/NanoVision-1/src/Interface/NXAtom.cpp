@@ -5,13 +5,33 @@
 
 namespace Nanorex {
 
+char* NXAtom::NullString = "";
+NXReal NXAtom::ZeroRealValue = 0.0;
 
+
+/* FUNCTION: GetElementName */
 const char* NXAtom::GetElementName(const NXABMInt& id) {
-	return NXEntityManager::Instance()->atomId2Atom[id]->elementName;
+	NXEntityManager* entityManager = NXEntityManager::Instance();
+	if (entityManager->atomId2Atom.size() > id)
+		return entityManager->atomId2Atom[id]->elementName;
+	
+	else
+		return NullString;
 }
 
-const NXReal& NXAtom::GetPosition(const NXABMInt& id, const int& dimension) {
-	return NXEntityManager::Instance()->atomId2Atom[id]->position[dimension];
+
+/* FUNCTION: GetPosition */
+const NXReal& NXAtom::GetPosition(const NXABMInt& id,
+								  const unsigned int& dimension) {
+	NXEntityManager* entityManager = NXEntityManager::Instance();
+	if (entityManager->atomId2Atom.size() > id)
+		if (dimension < 3)
+			return NXEntityManager::Instance()->atomId2Atom[id]
+					->position[dimension];
+		else
+			return ZeroRealValue;
+	else
+		return ZeroRealValue;
 }
 
 

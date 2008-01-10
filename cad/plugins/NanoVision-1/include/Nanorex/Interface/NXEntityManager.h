@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "Nanorex/Interface/NXNumbers.h"
-#include "Nanorex/Interface/NXChemistryDataModel.h"
+#include "Nanorex/Interface/NXMoleculeSet.h"
 
 namespace Nanorex {
 
@@ -17,10 +17,48 @@ typedef std::vector<NXABMInt>::iterator NXMoleculeIdIterator;
 typedef std::vector<NXABMInt>::iterator NXAtomIdIterator;
 
 
+struct NXSupplementalAtomData {
+	NXReal velocity[3];
+};
+
+
+struct NXAtomData {
+	NXABMInt id;
+	NXABMInt moleculeId;
+	char* elementName;
+	NXReal position[3];
+	NXSupplementalAtomData* supplementalData;
+};
+
+
+struct NXSupplementalBondData {
+};
+
+
+struct NXBondData {
+	NXABMInt id, a, b;
+	NXSupplementalBondData* supplementalBond;
+};
+
+
+struct NXSupplementalMoleculeData {
+};
+
+
+struct NXMoleculeData {
+	NXABMInt id;
+	NXMoleculeSet* moleculeSet;
+	NXSupplementalMoleculeData* supplementalData;
+};
+
+
 /* CLASS: NXEntityManager */
 /**
  * Entity Manager interface.
  * @ingroup ChemistryObjectModel
+ *
+ * TODO:
+ * - store/handle DNA strand direction information
  */
 class NXEntityManager {
 	friend class NXAtom;

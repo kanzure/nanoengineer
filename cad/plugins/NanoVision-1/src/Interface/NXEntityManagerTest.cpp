@@ -246,5 +246,9 @@ void NXEntityManagerTest::atomDataTest() {
 	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
 	NXABMInt atomId = entityManager->newAtom(moleculeId, "C", 1.0, 2.0, 3.0);
 	CPPUNIT_ASSERT(strcmp(NXAtom::GetElementName(atomId), "C") == 0);
+	CPPUNIT_ASSERT(strcmp(NXAtom::GetElementName(99), "") == 0); // Bad atom Id
 	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 0) == 1.0);
+	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 1) == 2.0);
+	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 2) == 3.0);
+	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 3) == 0.0); // Bad dimension
 }

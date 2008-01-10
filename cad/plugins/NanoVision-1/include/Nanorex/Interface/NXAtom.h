@@ -5,7 +5,6 @@
 
 #include "Nanorex/Interface/NXNumbers.h"
 #include "Nanorex/Interface/NXEntityManager.h"
-#include "Nanorex/Interface/NXChemistryDataModel.h"
 
 namespace Nanorex {
 
@@ -13,7 +12,11 @@ namespace Nanorex {
 class NXAtom {
 	public:
 		static const char* GetElementName(const NXABMInt& id);
-		static const NXReal& GetPosition(const NXABMInt& id, const int& dimension);
+		static const NXReal& GetPosition(const NXABMInt& id,
+										 const unsigned int& dimension);
+	private:
+		static char* NullString;
+		static NXReal ZeroRealValue;
 };
 
 

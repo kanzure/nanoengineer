@@ -1,7 +1,7 @@
 
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 
-#include "Nanorex/Interface/NXChemistryDataModel.h"
+#include "Nanorex/Interface/NXMoleculeSet.h"
 
 namespace Nanorex {
 

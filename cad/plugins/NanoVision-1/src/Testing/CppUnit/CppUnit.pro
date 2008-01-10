@@ -1,10 +1,10 @@
 SOURCES += CppUnit.cpp \
  ../../Interface/NXNumbers.cpp \
  ../../Interface/NXNumbersTest.cpp \
- ../../Interface/NXChemistryDataModel.cpp \
  ../../Interface/NXEntityManager.cpp \
  ../../Interface/NXEntityManagerTest.cpp \
- ../../Interface/NXAtom.cpp
+ ../../Interface/NXAtom.cpp \
+ ../../Interface/NXMoleculeSet.cpp
 
 TEMPLATE = app
 
@@ -18,6 +18,7 @@ HEADERS += ../../Interface/NXNumbersTest.h \
 ../../../include/Nanorex/Interface/NXNumbers.h \
  ../../../include/Nanorex/Interface/NXChemistryDataModel.h \
  ../../../include/Nanorex/Interface/NXEntityManager.h \
- ../../../include/Nanorex/Interface/NXAtom.h
+ ../../../include/Nanorex/Interface/NXAtom.h \
+ ../../../include/Nanorex/Interface/NXMoleculeSet.h
 INCLUDEPATH += /home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/include
 
