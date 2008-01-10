@@ -1,9 +1,9 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 070415 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (3.972135) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.701390, -0.090968, 0.704845, -0.054510) (3.972135) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
 group (l_serine_mm2_neutral)
 info opengroup open = True
@@ -16,27 +16,25 @@ bond1 2
 atom 4 (6) (-542, 516, 1151) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-896, 1812, 1052) def
-bond1 4
-atom 6 (8) (-136, 51, 2189) def
+atom 5 (8) (-136, 51, 2189) def
 info atom atomtype = sp2
 bond2 4
-atom 7 (8) (1416, -1255, -254) def
+atom 6 (8) (1416, -1255, -254) def
 bond1 3
-atom 8 (1) (-1068, 1429, -1356) def
+atom 7 (1) (-1068, 1429, -1356) def
 bond1 1
-atom 9 (1) (-581, 117, -2189) def
-bond1 1
-atom 10 (1) (-1862, -460, -196) def
+atom 8 (1) (-1862, -460, -196) def
 bond1 2
-atom 11 (1) (-234, -2100, -1162) def
+atom 9 (1) (-234, -2100, -1162) def
 bond1 3
-atom 12 (1) (-189, -2191, 640) def
+atom 10 (1) (-189, -2191, 640) def
 bond1 3
-atom 13 (1) (-734, 2191, 1932) def
-bond1 5
-atom 14 (1) (1862, -2021, 63) def
-bond1 7
+atom 11 (1) (1862, -2021, 63) def
+bond1 6
+atom 12 (0) (-541, 268, -1925) def
+bond1 1
+atom 13 (0) (-736, 1226, 1096) def
+bond1 4
 egroup (l_serine_mm2_neutral)
 end1
 group (Clipboard)

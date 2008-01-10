@@ -1,61 +1,60 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 070415 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.121515) (0.000000, 0.224500, 0.000000) (1.000000)
+csys (LastView) (0.999883, -0.002007, 0.015042, 0.001916) (4.699278) (0.036656, -0.795569, 0.048225) (1.000000)
 egroup (View Data)
-group (l_histidine_mm2_neutral)
+group (histidine)
 info opengroup open = True
-mol (l_histidine_mm2_neutral) def
-atom 1 (7) (-2001, 2527, -1278) def
-atom 2 (6) (-900, 1773, -659) def
+mol (histidine.pdb) def
+atom 1 (6) (256, -846, 180) def
+info atom atomtype = sp2
+atom 2 (7) (1621, -876, 19) def
 bond1 1
-atom 3 (6) (-943, 321, -1164) def
-bond1 2
-atom 4 (6) (-1002, 1869, 853) def
+atom 3 (6) (15, -1831, 1111) def
+info atom atomtype = sp2
+bond2 1
+atom 4 (6) (2111, -1836, 833) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-405, 2976, 1330) def
-bond1 4
-atom 6 (8) (-1531, 1067, 1585) def
-info atom atomtype = sp2
-bond2 4
-atom 7 (6) (160, -552, -640) def
+atom 5 (7) (1155, -2438, 1512) def
 info atom atomtype = sp2
 bond1 3
-atom 8 (7) (87, -1905, -759) def
+bond2 4
+atom 6 (6) (-772, 29, -487) def
+bond1 1
+atom 7 (6) (-761, 1477, 38) def
+bond1 6
+atom 8 (7) (-2005, 2151, -376) def
+bond1 7
+atom 9 (8) (1625, 1930, -218) def
+info atom atomtype = sp2
+atom 10 (1) (2178, -257, -620) def
+bond1 2
+atom 11 (1) (-971, -2120, 1505) def
+bond1 3
+atom 12 (1) (3188, -2055, 891) def
+bond1 4
+atom 13 (1) (-1778, -423, -317) def
+bond1 6
+atom 14 (1) (-595, 19, -1587) def
+bond1 6
+atom 15 (1) (-761, 1466, 1154) def
+bond1 7
+atom 16 (1) (-2025, 3112, -34) def
+bond1 8
+atom 17 (6) (409, 2256, -388) def
 info atom atomtype = sp2
 bond1 7
-atom 9 (6) (1327, -191, -3) def
-info atom atomtype = sp2
-bond2 7
-atom 10 (6) (1194, -2371, -202) def
-info atom atomtype = sp2
-bond2 8
-atom 11 (7) (1981, -1374, 270) def
-bond1 9 10
-atom 12 (1) (-2903, 2089, -1086) def
-bond1 1
-atom 13 (1) (-1916, 2539, -2294) def
-bond1 1
-atom 14 (1) (57, 2243, -987) def
-bond1 2
-atom 15 (1) (-873, 315, -2278) def
-bond1 3
-atom 16 (1) (-1923, -139, -894) def
-bond1 3
-atom 17 (1) (-522, 2938, 2294) def
-bond1 5
-atom 18 (1) (1734, 786, 270) def
-bond1 9
-atom 19 (1) (1478, -3425, -114) def
-bond1 10
-atom 20 (1) (2903, -1481, 750) def
-bond1 11
-egroup (l_histidine_mm2_neutral)
+bond2 9
+atom 18 (0) (-2576, 1831, -90) def
+bond1 8
+atom 19 (0) (267, 2892, -737) def
+bond1 17
+egroup (histidine)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part l_histidine_mm2_neutral
+end molecular machine part histidine

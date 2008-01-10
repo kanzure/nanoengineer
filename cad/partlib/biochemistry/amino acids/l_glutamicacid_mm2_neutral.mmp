@@ -1,9 +1,9 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 070415 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (4.416764) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.699327, -0.108739, 0.703098, -0.069073) (4.416764) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
 group (l_glutamicacid_mm2_neutral)
 info opengroup open = True
@@ -16,39 +16,37 @@ bond1 2
 atom 4 (6) (-1090, 1567, 1178) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-1697, 2769, 1143) def
-bond1 4
-atom 6 (8) (-471, 1200, 2147) def
+atom 5 (8) (-471, 1200, 2147) def
 info atom atomtype = sp2
 bond2 4
-atom 7 (6) (959, -388, -304) def
+atom 6 (6) (959, -388, -304) def
 bond1 3
-atom 8 (6) (1666, -1727, -396) def
+atom 7 (6) (1666, -1727, -396) def
 info atom atomtype = sp2
+bond1 6
+atom 8 (8) (2423, -2203, 416) def
+info atom atomtype = sp2
+bond2 7
+atom 9 (8) (1382, -2361, -1550) def
 bond1 7
-atom 9 (8) (2423, -2203, 416) def
-info atom atomtype = sp2
-bond2 8
-atom 10 (8) (1382, -2361, -1550) def
-bond1 8
-atom 11 (1) (-1590, 2477, -1289) def
+atom 10 (1) (-1590, 2477, -1289) def
 bond1 1
-atom 12 (1) (-1223, 1144, -2147) def
-bond1 1
-atom 13 (1) (-2423, 581, -136) def
+atom 11 (1) (-2423, 581, -136) def
 bond1 2
-atom 14 (1) (-941, -1091, -1091) def
+atom 12 (1) (-941, -1091, -1091) def
 bond1 3
-atom 15 (1) (-815, -1166, 693) def
+atom 13 (1) (-815, -1166, 693) def
 bond1 3
-atom 16 (1) (-1506, 3183, 2000) def
-bond1 5
-atom 17 (1) (1358, 154, 584) def
-bond1 7
-atom 18 (1) (1236, 212, -1202) def
-bond1 7
-atom 19 (1) (1900, -3183, -1531) def
-bond1 10
+atom 14 (1) (1358, 154, 584) def
+bond1 6
+atom 15 (1) (1236, 212, -1202) def
+bond1 6
+atom 16 (1) (1900, -3183, -1531) def
+bond1 9
+atom 17 (0) (-1422, 2226, 1158) def
+bond1 4
+atom 18 (0) (-1160, 1290, -1886) def
+bond1 1
 egroup (l_glutamicacid_mm2_neutral)
 end1
 group (Clipboard)

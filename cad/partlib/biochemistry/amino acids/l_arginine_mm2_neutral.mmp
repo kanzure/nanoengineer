@@ -1,9 +1,9 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 070415 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (5.483180) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (-0.687386, 0.111116, -0.696480, 0.173406) (5.483180) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
 group (l_arginine_mm2_neutral)
 info opengroup open = True
@@ -16,53 +16,51 @@ bond1 2
 atom 4 (6) (-2653, 2553, 1102) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-2992, 3837, 878) def
-bond1 4
-atom 6 (8) (-2268, 2183, 2186) def
+atom 5 (8) (-2268, 2183, 2186) def
 info atom atomtype = sp2
 bond2 4
-atom 7 (6) (-664, 349, -23) def
+atom 6 (6) (-664, 349, -23) def
 bond1 3
-atom 8 (6) (-62, -1058, 120) def
+atom 7 (6) (-62, -1058, 120) def
+bond1 6
+atom 8 (7) (1412, -1008, 124) def
 bond1 7
-atom 9 (7) (1412, -1008, 124) def
+atom 9 (6) (2109, -2202, 254) def
+info atom atomtype = sp2
 bond1 8
-atom 10 (6) (2109, -2202, 254) def
+atom 10 (7) (3422, -2171, 263) def
 info atom atomtype = sp2
+bond2 9
+atom 11 (7) (1433, -3406, 371) def
 bond1 9
-atom 11 (7) (3422, -2171, 263) def
-info atom atomtype = sp2
-bond2 10
-atom 12 (7) (1433, -3406, 371) def
-bond1 10
-atom 13 (1) (-2886, 3295, -1460) def
+atom 12 (1) (-2886, 3295, -1460) def
 bond1 1
-atom 14 (1) (-2579, 1871, -2186) def
-bond1 1
-atom 15 (1) (-3961, 1571, -238) def
+atom 13 (1) (-3961, 1571, -238) def
 bond1 2
-atom 16 (1) (-2526, -292, -934) def
+atom 14 (1) (-2526, -292, -934) def
 bond1 3
-atom 17 (1) (-2580, -216, 853) def
+atom 15 (1) (-2580, -216, 853) def
 bond1 3
-atom 18 (1) (-2847, 4295, 1722) def
-bond1 5
-atom 19 (1) (-311, 980, 826) def
+atom 16 (1) (-311, 980, 826) def
+bond1 6
+atom 17 (1) (-277, 812, -961) def
+bond1 6
+atom 18 (1) (-390, -1692, -737) def
 bond1 7
-atom 20 (1) (-277, 812, -961) def
+atom 19 (1) (-402, -1513, 1080) def
 bond1 7
-atom 21 (1) (-390, -1692, -737) def
+atom 20 (1) (1933, -103, 36) def
 bond1 8
-atom 22 (1) (-402, -1513, 1080) def
-bond1 8
-atom 23 (1) (1933, -103, 36) def
-bond1 9
-atom 24 (1) (3961, -3042, 357) def
+atom 21 (1) (3961, -3042, 357) def
+bond1 10
+atom 22 (1) (1983, -4295, 467) def
 bond1 11
-atom 25 (1) (1983, -4295, 467) def
-bond1 12
-atom 26 (1) (386, -3437, 367) def
-bond1 12
+atom 23 (1) (386, -3437, 367) def
+bond1 11
+atom 24 (0) (-2838, 3257, 979) def
+bond1 4
+atom 25 (0) (-2522, 2033, -1932) def
+bond1 1
 egroup (l_arginine_mm2_neutral)
 end1
 group (Clipboard)
