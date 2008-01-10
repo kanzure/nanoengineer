@@ -29,13 +29,6 @@ struct NXAtomData {
 };
 
 
-class NXAtom {
-	public:
-		static char* GetElementName(NXABMInt id);
-		static NXReal GetPosition(NXABMInt id, int dimension);
-};
-
-
 struct NXBondData {
 	NXABMInt id, a, b;
 };

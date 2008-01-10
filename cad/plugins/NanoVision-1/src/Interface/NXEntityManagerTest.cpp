@@ -212,3 +212,39 @@ std::string NXEntityManagerTest::atomTraversalTest1Helper
 	}
 	return summary;
 }
+
+
+/* FUNCTION: atomTraversalTest2
+ *
+ * This tests traversal over all atoms in a molecule.
+ */
+void NXEntityManagerTest::atomTraversalTest2() {
+
+	// Create a molecule with atoms
+	//
+	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
+	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
+	entityManager->newAtom(moleculeId);
+	entityManager->newAtom(moleculeId);
+	
+	// Traverse the molecule's atoms
+	NXAtomIdIterator iter = entityManager->atomsBegin(moleculeId);
+	CPPUNIT_ASSERT(*iter == 0);
+	iter++;
+	CPPUNIT_ASSERT(*iter == 1);
+	iter++;
+	CPPUNIT_ASSERT(iter == entityManager->atomsEnd(moleculeId));
+}
+
+
+/* FUNCTION: atomDataTest */
+void NXEntityManagerTest::atomDataTest() {
+
+	// Create a molecule to add atoms too
+	//
+	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
+	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
+	NXABMInt atomId = entityManager->newAtom(moleculeId, "C", 1.0, 2.0, 3.0);
+	CPPUNIT_ASSERT(strcmp(NXAtom::GetElementName(atomId), "C") == 0);
+	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 0) == 1.0);
+}

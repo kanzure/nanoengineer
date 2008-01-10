@@ -7,10 +7,11 @@
 #include <vector>
 
 #include "Nanorex/Interface/NXNumbers.h"
-#include "Nanorex/Interface/NXEntityManager.h"
 #include "Nanorex/Interface/NXChemistryDataModel.h"
 
 namespace Nanorex {
+
+class NXAtom;
 
 typedef std::vector<NXABMInt>::iterator NXMoleculeIdIterator;
 typedef std::vector<NXABMInt>::iterator NXAtomIdIterator;
@@ -22,11 +23,13 @@ typedef std::vector<NXABMInt>::iterator NXAtomIdIterator;
  * @ingroup ChemistryObjectModel
  */
 class NXEntityManager {
+	friend class NXAtom;
+	
 	public:
 		NXEntityManager();
 		~NXEntityManager();
 		
-		static NXEntityManager* getInstance() { return ThisInstance; }
+		static NXEntityManager* Instance() { return ThisInstance; }
 
 		void loadDataImportExportPlugins();
 		int importFromFile(const unsigned int& moleculeSetId,
@@ -56,11 +59,11 @@ class NXEntityManager {
 		//
 		// Atom
 		//
-		NXABMInt newAtom(NXABMInt moleculeId);/*,
-							 const char* elementType,
-							 const Real& x = 0,
-							 const Real& y = 0,
-							 const Real& z = 0);*/
+		NXABMInt newAtom(const NXABMInt& moleculeId,
+						 const char* elementName = "?",
+						 const NXReal& x = 0,
+						 const NXReal& y = 0,
+						 const NXReal& z = 0);
 		NXAtomIdIterator atomsBegin(NXMoleculeSet* moleculeSet);
 		NXAtomIdIterator atomsEnd(NXMoleculeSet* moleculeSet);
 		NXAtomIdIterator atomsBegin(const NXABMInt& moleculeId);

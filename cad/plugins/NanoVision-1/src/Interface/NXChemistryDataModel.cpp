@@ -6,15 +6,6 @@
 namespace Nanorex {
 
 
-static char* NXAtomGetElementName(NXABMInt id) {
-	return "foo";
-}
-
-static NXReal NXAtomGetPosition(NXABMInt id, int dimension) {
-	return 5.0;
-}
-
-
 NXMoleculeSet::NXMoleculeSet() {
 }
 

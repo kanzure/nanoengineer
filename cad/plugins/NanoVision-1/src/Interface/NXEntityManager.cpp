@@ -115,13 +115,19 @@ NXMoleculeIdIterator NXEntityManager::moleculesEnd
  *
  * @return The identifier of the new Atom.
  */
-NXABMInt NXEntityManager::newAtom(NXABMInt moleculeId) {/*,
-									  const char* elementType,
-									  const Real& x = 0,
-									  const Real& y = 0,
-									  const Real& z = 0) {*/
+NXABMInt NXEntityManager::newAtom(const NXABMInt& moleculeId,
+								  const char* elementName,
+								  const NXReal& x,
+								  const NXReal& y,
+								  const NXReal& z) {
 	NXAtomData* atomData = new NXAtomData;
 	atomData->moleculeId = moleculeId;
+	atomData->elementName = new char[strlen(elementName) + 1];
+	strcpy(atomData->elementName, elementName);
+	atomData->position[0] = x;
+	atomData->position[1] = y;
+	atomData->position[2] = z;
+	atomData->supplementalData = 0;
 	
 	atomId2Atom.push_back(atomData);
 	atomData->id = atomId2Atom.size() - 1;
