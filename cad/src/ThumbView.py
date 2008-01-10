@@ -67,6 +67,7 @@ from model.assembly import assembly
 import env
 import platform
 
+
 from debug import print_compact_traceback
 
 from constants import diTrueCPK
@@ -76,6 +77,11 @@ from constants import GL_FAR_Z
 from prefs_constants import bondpointHighlightColor_prefs_key
 
 from Group import Group
+from chem import Atom
+from elements import Singlet
+from chunk import Chunk
+
+from pastables import find_hotspot_for_pasting
 
 from GLPane_minimal import GLPane_minimal
 
@@ -666,9 +672,7 @@ class ThumbView(GLPane_minimal):
     
 # ==
 
-from chem import Atom
-from elements import Singlet
-from chunk import Chunk
+
 
 class ElementView(ThumbView):
     """
@@ -917,6 +921,7 @@ class MMKitView(ThumbView):
             
             self.hotspotAtom = obj
             self.updateGL()
+         
 
     def gl_update(self): #bruce 070502 bugfix (can be called when ESPImage jigs appear in a partlib part)
         self.updateGL() #k guess at correct/safe thing to do
@@ -934,16 +939,51 @@ class MMKitView(ThumbView):
         """
         Set new chunk or assembly for display.
         """
+    
         self.model = newObj
 
         #Reset hotspot related stuff for a new assembly
         if isinstance(newObj, assembly):
-            self.hotspotAtom = None
-            self.lastHotspotChunk = None
-        
+            self._find_and_set_hotSpotAtom_in_new_model(newObj)
+                    
         self._fitInWindow()
         self.elementMode = False
         self.updateGL()
+    
+    def _find_and_set_hotSpotAtom_in_new_model(self, newModel):
+        """
+        If the model being viewed in the thumbView window already has a hotspot,
+        set it as self.hotSpotAtom (which then will be used by client code) 
+        
+        @see: self.updateModel
+        @Note that , in self.leftDown, we can actually temporarily change the 
+        the hotspot for the partlib model. But then if you view another part and
+        go back to this model, the hotspot will be reset to the one that already 
+        exists in the model (or None if one doesn't exist)        
+        """
+        assert isinstance(newModel, assembly)
+        chunkList = []
+        def func(node):
+            if isinstance(node, Chunk):
+                chunkList.append(node)                    
+        newModel.part.topnode.apply2all(func)
+                 
+        
+        ok = False
+        if len(chunkList) == 1:
+            ok, hotspot_or_whynot = find_hotspot_for_pasting(chunkList[0])
+        elif len(chunkList) > 1:
+            for chunk in chunkList:
+                ok, hotspot_or_whynot = find_hotspot_for_pasting(chunk)
+                if ok:
+                    break
+        if ok:
+            self.hotspotAtom = hotspot_or_whynot
+            self.lastHotspotChunk = self.hotspotAtom.molecule
+        else:
+            self.hotspotAtom = None                
+            self.lastHotspotChunk = None
+        
     
     
     def setDisplay(self, mode):
