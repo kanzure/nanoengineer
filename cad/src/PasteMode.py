@@ -550,7 +550,7 @@ class PasteMode(depositMode):
                     ##moveOffset = attch2Singlet.posn() - hs.posn()
                     ##newMol.move(moveOffset)
 
-                    ##self.__createBond(hotspot, 
+                    ##self.graphicsMode._createBond(hotspot, 
                                       ##hotspot_neighbor, 
                                       ##attch2Singlet, 
                                       ##attch2Atom)

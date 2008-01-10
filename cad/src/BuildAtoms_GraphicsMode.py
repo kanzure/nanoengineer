@@ -774,11 +774,12 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         return None
     
     #==========
-    def __createBond(self, s1, a1, s2, a2):
+    def _createBond(self, s1, a1, s2, a2):
         """
         Create bond between atom <a1> and atom <a2>, <s1> and <s2>
         are their singlets. No rotation/movement involved. Based on
         a method 'actually_bond()' in bonds.py--[Huaicai 8/25/05]
+                       
         """
         try: # use old code until new code works and unless new code is needed;
             # CHANGE THIS SOON #####@@@@@

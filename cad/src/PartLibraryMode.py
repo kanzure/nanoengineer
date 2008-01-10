@@ -242,8 +242,8 @@ class PartLibraryMode(PasteMode):
 
                 moveOffset = attch2Singlet.posn() - hs.posn()
                 newMol.move(moveOffset)
-
-                self.__createBond(hs, ha, attch2Singlet, attch2Atom)
+    
+                self.graphicsMode._createBond(hs, ha, attch2Singlet, attch2Atom)
 
                 self.o.assy.addmol(newMol)
                 stuff.append(newMol)
