@@ -339,7 +339,7 @@ matchOneTraversal(struct patternMatch *match,
                                &atomACallCount)) != NULL) {
     if (traversal->a == traversal->b) {
       // introducing new atom, bond order doesn't matter
-      matchOneTraversal(match, pattern, traversalIndex+1);
+      matchOneTraversal(match, pattern, traversalIndex+1); BAIL();
       continue;
     }
     // build list of atoms bonded to a
@@ -361,7 +361,7 @@ matchOneTraversal(struct patternMatch *match,
           }
         }
         if (!isBonded) {
-          matchOneTraversal(match, pattern, traversalIndex+1);
+          matchOneTraversal(match, pattern, traversalIndex+1); BAIL();
         }
       }
       continue;
@@ -380,7 +380,7 @@ matchOneTraversal(struct patternMatch *match,
           printf("\n");
         }
         if (matchSpecificAtom(match, traversal->b, atomB, traversalIndex)) {
-          matchOneTraversal(match, pattern, traversalIndex+1);
+          matchOneTraversal(match, pattern, traversalIndex+1); BAIL();
         }
         resetMatchForThisTraversal(match, traversalIndex, traversal, 2);
       }
@@ -401,6 +401,7 @@ matchPartToPattern(struct part *part, struct compiledPattern *pattern)
   destroyMatch(match);
   hashtable_destroy(matchSet, NULL);
   matchSet = NULL;
+  BAIL();
   addQueuedComponents(part);
 }
 
@@ -551,6 +552,15 @@ pam5_ring_match(struct patternMatch *match)
 }
 */
 
+static void
+pam5_requires_gromacs(struct part *p)
+{
+  if (GromacsOutputBaseName == NULL) {
+    ERROR("PAM5 DNA structures must be minimized with GROMACS");
+    p->parseError(p->stream);
+  }
+}
+
 // The three vectors from aAx1 to the other three atoms can be thought
 // of as the basis for a coordinate system.  We would like that
 // coordinate system to be right handed, and we return true if that is
@@ -634,6 +644,7 @@ pam5_basepair_match(struct patternMatch *match)
   struct atom *aS2 = match->p->atoms[match->atomIndices[2]];
   struct bond *bond;
 
+  pam5_requires_gromacs(match->p); BAIL();
   bond = makeBond(match->p, aS1, aS2, '1');
   queueBond(match->p, bond);
 }
@@ -652,6 +663,7 @@ pam5_stack_match(struct patternMatch *match)
   struct bond *bond;
   int i;
   
+  pam5_requires_gromacs(match->p); BAIL();
   init_stack_match();
   
   // S1a    S2a
@@ -765,6 +777,6 @@ matchPartToAllPatterns(struct part *part)
   int i;
 
   for (i=0; i<NUM_PATTERNS; i++) {
-    matchPartToPattern(part, allPatterns[i]);
+    matchPartToPattern(part, allPatterns[i]); BAIL();
   }
 }
