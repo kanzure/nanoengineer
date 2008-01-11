@@ -332,25 +332,34 @@ class Dna:
                 
         # Create strand and axis chunks from atom lists and add 
         # them to the dnaGroup.
-        strandAChunk = \
+        
+        # [bruce 080111 add conditions to prevent bugs in PAM5 case
+        #  which is not yet supported in the above code. It would be
+        #  easy to support it if we added dnaBaseName assignments
+        #  into the generator mmp files and generalized the above
+        #  symbol names, and added a 2nd pass for Pl atoms.]
+
+        if _strandA_list:
+            strandAChunk = \
                      self.assy.makeChunkFromAtomList(_strandA_list,
                                                      name = gensym("Strand"),
                                                      group = dnaGroup,
                                                      color = darkred)
-
-        strandBChunk = \
+        if _strandB_list:
+            strandBChunk = \
                      self.assy.makeChunkFromAtomList(_strandB_list,
                                                      name = gensym("Strand"),
                                                      group = dnaGroup,
                                                      color = blue)
-
-        axisChunk = \
+        if _axis_list:
+            axisChunk = \
                   self.assy.makeChunkFromAtomList(_axis_list,
                                                   name = "Axis",
                                                   group = dnaGroup,
                                                   color = lightgray)
-        
-        axisChunk.setDisplay(diTUBES)
+            axisChunk.setDisplay(diTUBES)
+
+        return
 
     def getBaseRise( self ):
         """
