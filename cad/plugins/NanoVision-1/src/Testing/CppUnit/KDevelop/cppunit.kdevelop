@@ -12,6 +12,10 @@
     <versioncontrol>kdevsubversion</versioncontrol>
     <ignoreparts/>
     <projectname>CppUnit</projectname>
+    <projectdirectory>.</projectdirectory>
+    <absoluteprojectpath>false</absoluteprojectpath>
+    <description></description>
+    <defaultencoding></defaultencoding>
   </general>
   <kdevfileview>
     <groups>
@@ -63,6 +67,19 @@
       <alwaysIncludeNamespaces>false</alwaysIncludeNamespaces>
       <includePaths>.;</includePaths>
     </codecompletion>
+    <creategettersetter>
+      <prefixGet></prefixGet>
+      <prefixSet>set</prefixSet>
+      <prefixVariable>m_,_</prefixVariable>
+      <parameterName>theValue</parameterName>
+      <inlineGet>true</inlineGet>
+      <inlineSet>true</inlineSet>
+    </creategettersetter>
+    <splitheadersource>
+      <enabled>false</enabled>
+      <synchronize>true</synchronize>
+      <orientation>Vertical</orientation>
+    </splitheadersource>
   </kdevcppsupport>
   <kdevdoctreeview>
     <ignoretocs>
@@ -104,24 +121,29 @@
   </kdevdoctreeview>
   <kdevdebugger>
     <general>
-      <dbgshell/>
+      <dbgshell></dbgshell>
       <breakpoints/>
       <programargs/>
       <gdbpath>/usr/bin/gdb</gdbpath>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
+      <configGdbScript></configGdbScript>
+      <runShellScript></runShellScript>
+      <runGdbScript></runGdbScript>
+      <raiseGDBOnStart>false</raiseGDBOnStart>
     </general>
     <display>
       <staticmembers>false</staticmembers>
       <demanglenames>true</demanglenames>
+      <outputradix>10</outputradix>
     </display>
     <breakpoints/>
   </kdevdebugger>
   <kdevtrollproject>
     <run>
-      <mainprogram>../CppUnit</mainprogram>
-      <programargs/>
+      <mainprogram></mainprogram>
+      <programargs></programargs>
       <directoryradio>executable</directoryradio>
       <runarguments>
         <CppUnit/>
@@ -132,11 +154,34 @@
       <debugarguments>
         <CppUnit/>
       </debugarguments>
+      <globaldebugarguments></globaldebugarguments>
+      <globalcwd>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</globalcwd>
+      <useglobalprogram>false</useglobalprogram>
+      <terminal>false</terminal>
+      <autocompile>false</autocompile>
+      <autoinstall>false</autoinstall>
+      <autokdesu>false</autokdesu>
+      <envvars/>
     </run>
     <general>
       <activedir>..</activedir>
     </general>
     <subclassing/>
+    <make>
+      <abortonerror>true</abortonerror>
+      <runmultiplejobs>false</runmultiplejobs>
+      <numberofjobs>1</numberofjobs>
+      <dontact>false</dontact>
+      <makebin></makebin>
+      <prio>0</prio>
+      <envvars/>
+    </make>
+    <qmake>
+      <savebehaviour>2</savebehaviour>
+      <replacePaths>false</replacePaths>
+      <disableDefaultOpts>true</disableDefaultOpts>
+      <enableFilenamesOnly>false</enableFilenamesOnly>
+    </qmake>
   </kdevtrollproject>
   <workspace>
     <openfiles/>
@@ -171,4 +216,10 @@
     <YEAR>2007</YEAR>
     <dest>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</dest>
   </substmap>
+  <cppsupportpart>
+    <filetemplates>
+      <interfacesuffix>.h</interfacesuffix>
+      <implementationsuffix>.cpp</implementationsuffix>
+    </filetemplates>
+  </cppsupportpart>
 </kdevelop>

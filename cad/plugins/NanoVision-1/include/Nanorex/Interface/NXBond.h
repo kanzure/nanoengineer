@@ -11,6 +11,8 @@ namespace Nanorex {
 
 /* CLASS: NXBond */
 /**
+ * An interface to bond data.
+ *
  * @ingroup ChemistryDataModel, NanorexInterface
  */
 class NXBond {

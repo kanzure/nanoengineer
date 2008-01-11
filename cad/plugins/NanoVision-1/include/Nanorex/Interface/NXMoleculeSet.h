@@ -16,6 +16,8 @@ typedef std::list<NXMoleculeSet*>::iterator NXMoleculeSetIterator;
 
 /* CLASS: NXMoleculeSet */
 /**
+ * Encapsulates a recursive tree of molecule sets containing molecules.
+ *
  * @ingroup ChemistryDataModel, NanorexInterface
  */
 class NXMoleculeSet {

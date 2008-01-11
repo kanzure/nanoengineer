@@ -1,0 +1,51 @@
+
+/******************* NanorexUtility *******************
+ ******************************************************/
+/**
+@defgroup NanorexUtility Nanorex Utility
+	General-use classes.
+ */
+
+ 
+/******************* NanorexInterface *********************
+ **********************************************************/
+/**
+@defgroup NanorexInterface Nanorex Interface
+	Interface to Nanorex application cores.
+ */
+
+/******************* PluginArchitecture ********************
+ ***********************************************************/
+/**
+@defgroup PluginArchitecture Plugin Architecture
+	Plugin architecture for extending the functionality of Nanorex applications.
+	@ingroup NanorexInterface
+	The following figure shows the relations between the main components of the simulator and highlights the plugin components.
+	
+	@image html soft-arch-overview.png
+	
+    - The NanoHive-1 Core and Physical Interaction Manager coordinate all components of the simulator
+    - The Simulation Control plugins are used to configure, control, and monitor the simulation
+    - The Entity Management plugin stores each molecule in the nano system being simulated and makes them available for calculation
+    - The Data Import/Export plugins are used to import and export nano systems and nano devices
+    - The Physical Interaction Calculators are the distributable layer of the simulator and perform the actual simulation calculations depending on which Physical Interaction plugins they have loaded
+    - The Entity Traversal plugins provide ways for the Physical Interaction Manager to traverse through the simulation space and distribute the simulation across the Physical Interaction plugins
+    - The Simulation Results plugins are invoked to provide the interim and final results of the simulation
+ */
+
+
+/******************* ChemistryDataModel *******************
+ **********************************************************/
+/**
+@defgroup ChemistryDataModel Chemistry Data Model
+	Data model for the storage of chemical structure data.
+	@ingroup NanorexInterface
+	The following figure shows the data model for cells in the simulation space. Internally, NanoHive-1 recursively divides the simulation space into cells, so at the top level, the simulation space is itself a cell. Physical Interaction plugins are passed cells (NH_Cell objects) for calculation.
+	
+	@image html cell-data-model.png
+	
+	- Each NH_Cell has a MeasurementSet.
+	- All NH_Cell entities are accessed directly via unique integer identifier.
+	- Each entity knows its child identifiers.
+ */
+

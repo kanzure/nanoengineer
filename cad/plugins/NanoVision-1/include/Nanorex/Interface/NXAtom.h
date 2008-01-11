@@ -11,6 +11,8 @@ namespace Nanorex {
 
 /* CLASS: NXAtom */
 /**
+ * An interface to atom data.
+ *
  * @ingroup ChemistryDataModel, NanorexInterface
  */
 class NXAtom {
