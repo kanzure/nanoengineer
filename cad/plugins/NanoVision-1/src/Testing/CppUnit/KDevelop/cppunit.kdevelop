@@ -136,6 +136,7 @@
     <general>
       <activedir>..</activedir>
     </general>
+    <subclassing/>
   </kdevtrollproject>
   <workspace>
     <openfiles/>

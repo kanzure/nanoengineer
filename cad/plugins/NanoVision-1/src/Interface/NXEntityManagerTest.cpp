@@ -240,15 +240,30 @@ void NXEntityManagerTest::atomTraversalTest2() {
 /* FUNCTION: atomDataTest */
 void NXEntityManagerTest::atomDataTest() {
 
-	// Create a molecule to add atoms too
+	// Create a molecule to add atoms to
 	//
 	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
 	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
 	NXABMInt atomId = entityManager->newAtom(moleculeId, "C", 1.0, 2.0, 3.0);
+	CPPUNIT_ASSERT(NXAtom::GetMoleculeId(atomId) == moleculeId);
 	CPPUNIT_ASSERT(strcmp(NXAtom::GetElementName(atomId), "C") == 0);
 	CPPUNIT_ASSERT(strcmp(NXAtom::GetElementName(99), "") == 0); // Bad atom Id
 	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 0) == 1.0);
 	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 1) == 2.0);
 	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 2) == 3.0);
 	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 3) == 0.0); // Bad dimension
+}
+
+
+/* FUNCTION: bondDataTest */
+void NXEntityManagerTest::bondDataTest() {
+
+	// Create a molecule to add bonds to
+	//
+	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
+	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
+	NXABMInt bondId = entityManager->newBond(moleculeId, 1, 2);
+	CPPUNIT_ASSERT(NXBond::GetMoleculeId(bondId) == moleculeId);
+	CPPUNIT_ASSERT(NXBond::GetA(bondId) == 1);
+	CPPUNIT_ASSERT(NXBond::GetB(bondId) == 2);
 }

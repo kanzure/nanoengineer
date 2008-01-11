@@ -55,7 +55,7 @@ void NXRealUtils::ToChar(const NXReal& number, char* charBuffer,
 }
 
 
-/* FUNCTION: scaleStringToEnum */
+/* FUNCTION: ScaleStringToEnum */
 /** Returns the scale for the given string. */
 NXRealUtils::Scale NXRealUtils::ScaleStringToEnum(const char* scaleString) {
 	if (strcmp(scaleString, "Y") == 0) return YOTTA;

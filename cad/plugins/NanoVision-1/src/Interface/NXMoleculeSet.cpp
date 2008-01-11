@@ -6,10 +6,12 @@
 namespace Nanorex {
 
 
+/* CONSTRUCTOR */
 NXMoleculeSet::NXMoleculeSet() {
 }
 
 
+/* DESTRUCTOR */
 NXMoleculeSet::~NXMoleculeSet() {
 	// TODO: Recursively delete sub-NXMSs
 }

@@ -1,7 +1,7 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
-#ifndef NX_ATOM_H
-#define NX_ATOM_H
+#ifndef NX_BOND_H
+#define NX_BOND_H
 
 #include "Nanorex/Interface/NXNumbers.h"
 #include "Nanorex/Interface/NXEntityManager.h"
@@ -9,16 +9,16 @@
 namespace Nanorex {
 
 
-/* CLASS: NXAtom */
+/* CLASS: NXBond */
 /**
  * @ingroup ChemistryDataModel, NanorexInterface
  */
-class NXAtom {
+class NXBond {
 	public:
 		static const NXABMInt& GetMoleculeId(const NXABMInt& id);
-		static const char* GetElementName(const NXABMInt& id);
-		static const NXReal& GetPosition(const NXABMInt& id,
-										 const unsigned int& dimension);
+		static const NXABMInt& GetA(const NXABMInt& id);
+		static const NXABMInt& GetB(const NXABMInt& id);
+	
 	private:
 		static char* NullString;
 		static NXABMInt ZeroABMInt;

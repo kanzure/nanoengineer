@@ -12,18 +12,30 @@
 namespace Nanorex {
 
 class NXAtom;
+class NXBond;
+class NXMolecule;
 
 typedef std::vector<NXABMInt>::iterator NXMoleculeIdIterator;
 typedef std::vector<NXABMInt>::iterator NXAtomIdIterator;
+typedef std::vector<NXABMInt>::iterator NXBondIdIterator;
 
 
+/* STRUCT: NXSupplementalAtomData */
+/**
+ * A secondary set of atom data.
+ * Used internally by NXEntityManager.
+ */
 struct NXSupplementalAtomData {
 	NXReal velocity[3];
 };
 
 
+/* STRUCT: NXAtomData */
+/**
+ * The primary set of atom data.
+ * Used internally by NXEntityManager.
+ */
 struct NXAtomData {
-	NXABMInt id;
 	NXABMInt moleculeId;
 	char* elementName;
 	NXReal position[3];
@@ -31,22 +43,42 @@ struct NXAtomData {
 };
 
 
+/* STRUCT: NXSupplementalBondData */
+/**
+ * A secondary set of bond data.
+ * Used internally by NXEntityManager.
+ */
 struct NXSupplementalBondData {
 };
 
 
+/* STRUCT: NXBondData */
+/**
+ * The primary set of bond data.
+ * Used internally by NXEntityManager.
+ */
 struct NXBondData {
-	NXABMInt id, a, b;
-	NXSupplementalBondData* supplementalBond;
+	NXABMInt moleculeId;
+	NXABMInt a, b;
+	NXSupplementalBondData* supplementalData;
 };
 
 
+/* STRUCT: NXSupplementalMoleculeData */
+/**
+ * A secondary set of molecule data.
+ * Used internally by NXEntityManager.
+ */
 struct NXSupplementalMoleculeData {
 };
 
 
+/* STRUCT: NXMoleculeData */
+/**
+ * The primary set of molecule data.
+ * Used internally by NXEntityManager.
+ */
 struct NXMoleculeData {
-	NXABMInt id;
 	NXMoleculeSet* moleculeSet;
 	NXSupplementalMoleculeData* supplementalData;
 };
@@ -54,14 +86,19 @@ struct NXMoleculeData {
 
 /* CLASS: NXEntityManager */
 /**
- * Entity Manager interface.
- * @ingroup ChemistryObjectModel
+ * Encapsulates the storage of molecular and related data.
+ * @ingroup ChemistryDataModel, NanorexInterface
  *
  * TODO:
- * - store/handle DNA strand direction information
+ * - Store/handle DNA strand direction information. This is the equivalent of
+ *   bond direction data coming out of NE1.
+ * - Molecule, atom, and bond data stuct ids are currently purely sequential
+ *   and increasing. Should really have an id management/accounting mechanism.
  */
 class NXEntityManager {
 	friend class NXAtom;
+	friend class NXBond;
+	friend class NXMolecule;
 	
 	public:
 		NXEntityManager();
@@ -69,6 +106,9 @@ class NXEntityManager {
 		
 		static NXEntityManager* Instance() { return ThisInstance; }
 
+		//
+		// Import/export plugins
+		//
 		void loadDataImportExportPlugins();
 		int importFromFile(const unsigned int& moleculeSetId,
 						   const std::string& fileType,
@@ -81,13 +121,13 @@ class NXEntityManager {
 
 
 		//
-		// NXMoleculeSet
+		// MoleculeSet
 		//
 		NXMoleculeSet* getRootMoleculeSet() { return rootMoleculeSet; }
 
 
 		//
-		// Molecule
+		// Molecules
 		//
 		NXABMInt newMolecule(NXMoleculeSet* moleculeSet);
 		NXMoleculeIdIterator moleculesBegin(NXMoleculeSet* moleculeSet);
@@ -95,7 +135,7 @@ class NXEntityManager {
 
 
 		//
-		// Atom
+		// Atoms
 		//
 		NXABMInt newAtom(const NXABMInt& moleculeId,
 						 const char* elementName = "?",
@@ -107,26 +147,47 @@ class NXEntityManager {
 		NXAtomIdIterator atomsBegin(const NXABMInt& moleculeId);
 		NXAtomIdIterator atomsEnd(const NXABMInt& moleculeId);
 
+
+		//
+		// Bonds
+		//
+		NXABMInt newBond(const NXABMInt& moleculeId,
+						 const NXABMInt& a = 0,
+						 const NXABMInt& b = 0);
+		NXBondIdIterator bondsBegin(NXMoleculeSet* moleculeSet);
+		NXBondIdIterator bondsEnd(NXMoleculeSet* moleculeSet);
+		NXBondIdIterator bondsBegin(const NXABMInt& moleculeId);
+		NXBondIdIterator bondsEnd(const NXABMInt& moleculeId);
+
 	private:
 		static NXEntityManager* ThisInstance;
 		
 		NXMoleculeSet* rootMoleculeSet;
 		
- 		// maps molecule set pointers  to  a vector of its molecule data ids
+ 		// Maps molecule set pointers  to  a vector of its molecule data ids
 		std::map<NXMoleculeSet*,
 				 std::vector<NXABMInt> > moleculeSet2MoleculeIds;
 		
-		// maps molecule set pointers  to  a vector of atom data ids
+		// Maps molecule set pointers  to  a vector of atom data ids
 		std::map<NXMoleculeSet*, std::vector<NXABMInt> > moleculeSet2AtomIds;
 		
-		// maps molecule id with its data
+		// Maps molecule set pointers  to  a vector of bond data ids
+		std::map<NXMoleculeSet*, std::vector<NXABMInt> > moleculeSet2BondIds;
+		
+		// Maps molecule id with its data
 		std::vector<NXMoleculeData*> moleculeId2Molecule;
 		
-		// maps molecule data ids  to  a vector of its atom data ids
+		// Maps molecule data ids  to  a vector of its atom data ids
 		std::map<NXABMInt, std::vector<NXABMInt> > moleculeId2AtomIds;
 		
-		// maps atom id with its data
+		// Maps molecule data ids  to  a vector of its bond data ids
+		std::map<NXABMInt, std::vector<NXABMInt> > moleculeId2BondIds;
+		
+		// Maps atom id with its data
 		std::vector<NXAtomData*> atomId2Atom;
+		
+		// Maps bond id with its data
+		std::vector<NXBondData*> bondId2Bond;
 };
 
 } // Nanorex::

@@ -50,7 +50,7 @@ int NXEntityManager::importFromFile(const unsigned int& moleculeSetId,
 
 /* FUNCTION: exportToFile */
 /**
- * Exports the system from the specified file with the appropriate
+ * Exports the system to the specified file with the appropriate
  * import/export plugin.
  */
 int NXEntityManager::exportToFile(const unsigned int& moleculeSetId,
@@ -63,9 +63,9 @@ int NXEntityManager::exportToFile(const unsigned int& moleculeSetId,
 
 /* FUNCTION: newMolecule */
 /**
- * Creates a new NXMolecule.
+ * Creates a new molecule.
  *
- * @return The identifier of the new NXMolecule.
+ * @return The identifier of the new molecule.
  */
 NXABMInt NXEntityManager::newMolecule(NXMoleculeSet* moleculeSet) {
 
@@ -73,19 +73,19 @@ NXABMInt NXEntityManager::newMolecule(NXMoleculeSet* moleculeSet) {
 	moleculeData->moleculeSet = moleculeSet;
 
 	moleculeId2Molecule.push_back(moleculeData);
-	moleculeData->id = moleculeId2Molecule.size() - 1;
+	NXABMInt moleculeDataId = moleculeId2Molecule.size() - 1;
 	
-	moleculeSet2MoleculeIds[moleculeSet].push_back(moleculeData->id);
+	moleculeSet2MoleculeIds[moleculeSet].push_back(moleculeDataId);
 
-	return moleculeData->id;
+	return moleculeDataId;
 }
 
 
 /* FUNCTION: moleculesBegin */
 /**
- * Returns an iterator to the first NXMolecule identifier in the given
- * NXMoleculeSet. This iterator does not traverse the NXMolecule identifiers
- * of this NXMoleculeSet's child NXMoleculeSets.
+ * Returns an iterator to the first molecule identifier in the given
+ * NXMoleculeSet. This iterator does not traverse the molecule identifiers
+ * of the given NXMoleculeSet's child NXMoleculeSets.
  *
  * @param moleculeSet 	A pointer to the NXMoleculeSet in which to traverse
  *						molecules.
@@ -113,7 +113,7 @@ NXMoleculeIdIterator NXEntityManager::moleculesEnd
 /**
  * Creates a new Atom with the given parameters.
  *
- * @return The identifier of the new Atom.
+ * @return The identifier of the new atom.
  */
 NXABMInt NXEntityManager::newAtom(const NXABMInt& moleculeId,
 								  const char* elementName,
@@ -130,28 +130,77 @@ NXABMInt NXEntityManager::newAtom(const NXABMInt& moleculeId,
 	atomData->supplementalData = 0;
 	
 	atomId2Atom.push_back(atomData);
-	atomData->id = atomId2Atom.size() - 1;
+	NXABMInt atomDataId = atomId2Atom.size() - 1;
 	
-	moleculeId2AtomIds[moleculeId].push_back(atomData->id);
+	moleculeId2AtomIds[moleculeId].push_back(atomDataId);
 	
 	NXMoleculeData* moleculeData = moleculeId2Molecule[moleculeId];
-	moleculeSet2AtomIds[moleculeData->moleculeSet].push_back(atomData->id);
+	moleculeSet2AtomIds[moleculeData->moleculeSet].push_back(atomDataId);
 	
-	return atomData->id;
+	return atomDataId;
 }
 
 
+/* FUNCTION: atomsBegin */
 NXAtomIdIterator NXEntityManager::atomsBegin(NXMoleculeSet* moleculeSet) {
 	return moleculeSet2AtomIds[moleculeSet].begin();
-}
-NXAtomIdIterator NXEntityManager::atomsEnd(NXMoleculeSet* moleculeSet) {
-	return moleculeSet2AtomIds[moleculeSet].end();
 }
 NXAtomIdIterator NXEntityManager::atomsBegin(const NXABMInt& moleculeId) {
 	return moleculeId2AtomIds[moleculeId].begin();
 }
+
+
+/* FUNCTION: atomsEnd */
+NXAtomIdIterator NXEntityManager::atomsEnd(NXMoleculeSet* moleculeSet) {
+	return moleculeSet2AtomIds[moleculeSet].end();
+}
 NXAtomIdIterator NXEntityManager::atomsEnd(const NXABMInt& moleculeId) {
 	return moleculeId2AtomIds[moleculeId].end();
+}
+
+
+/* FUNCTION: newBond */
+/**
+ * Creates a new bond with the given parameters.
+ *
+ * @return The identifier of the new bond.
+ */
+NXABMInt NXEntityManager::newBond(const NXABMInt& moleculeId,
+								  const NXABMInt& a,
+								  const NXABMInt& b) {
+	NXBondData* bondData = new NXBondData;
+	bondData->moleculeId = moleculeId;
+	bondData->a = a;
+	bondData->b = b;
+	bondData->supplementalData = 0;
+	
+	bondId2Bond.push_back(bondData);
+	NXABMInt bondDataId = bondId2Bond.size() - 1;
+	
+	moleculeId2BondIds[moleculeId].push_back(bondDataId);
+	
+	NXMoleculeData* moleculeData = moleculeId2Molecule[moleculeId];
+	moleculeSet2BondIds[moleculeData->moleculeSet].push_back(bondDataId);
+	
+	return bondDataId;
+}
+
+
+/* FUNCTION: bondsBegin */
+NXBondIdIterator NXEntityManager::bondsBegin(NXMoleculeSet* moleculeSet) {
+	return moleculeSet2BondIds[moleculeSet].begin();
+}
+NXBondIdIterator NXEntityManager::bondsBegin(const NXABMInt& moleculeId) {
+	return moleculeId2BondIds[moleculeId].begin();
+}
+
+
+/* FUNCTION: bondsEnd */
+NXBondIdIterator NXEntityManager::bondsEnd(NXMoleculeSet* moleculeSet) {
+	return moleculeSet2BondIds[moleculeSet].end();
+}
+NXBondIdIterator NXEntityManager::bondsEnd(const NXABMInt& moleculeId) {
+	return moleculeId2BondIds[moleculeId].end();
 }
 
 

@@ -14,6 +14,10 @@ class NXMoleculeSet;
 typedef std::list<NXMoleculeSet*>::iterator NXMoleculeSetIterator;
 
 
+/* CLASS: NXMoleculeSet */
+/**
+ * @ingroup ChemistryDataModel, NanorexInterface
+ */
 class NXMoleculeSet {
 	public:
 		NXMoleculeSet();

@@ -8,6 +8,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "Nanorex/Interface/NXAtom.h"
+#include "Nanorex/Interface/NXBond.h"
 #include "Nanorex/Interface/NXEntityManager.h"
 
 using namespace Nanorex;
@@ -22,6 +23,7 @@ class NXEntityManagerTest : public CPPUNIT_NS::TestFixture {
 	CPPUNIT_TEST(atomTraversalTest1);
 	CPPUNIT_TEST(atomTraversalTest2);
 	CPPUNIT_TEST(atomDataTest);
+	CPPUNIT_TEST(bondDataTest);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -33,6 +35,7 @@ class NXEntityManagerTest : public CPPUNIT_NS::TestFixture {
 		void atomTraversalTest1();
 		void atomTraversalTest2();
 		void atomDataTest();
+		void bondDataTest();
 
 	private:
 		NXEntityManager* entityManager;

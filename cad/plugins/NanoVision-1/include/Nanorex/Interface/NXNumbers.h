@@ -48,7 +48,7 @@ typedef NXFloat32 NXReal;
 /* CLASS: RealUtils */
 /**
  * Utilities to manipulate Real numbers.
- * @ingroup NanorexInterface
+ * @ingroup ChemistryDataModel, NanorexInterface
  */
 class NXRealUtils {
 	public:
