@@ -657,10 +657,10 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # Even if that means this bug
             # can't happen, the code needs to be clarified. [bruce 060721 
             #comment]
-            
+        
         if s2:
             if s2 is s1: # If the same singlet is highlighted...
-                if self.isBondsToolActive():
+                if self.command.isBondsToolActive():
                     #bruce 060702 fix bug 833 item 1 (see also bondLeftUp)
                     b = s1.bonds[0]
                     self.bond_change_type(b, allow_remake_bondpoints = False) 

@@ -754,8 +754,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
         Activate the bond tool of the build chunks mode 
         Show only the Bond Tools groupbox in the Build chunks Property manager
         and hide the others.
-        """
-                
+        """                
         self.bond1Action.setChecked(True)
         self.changeBondTool(self.bond1Action)
                         

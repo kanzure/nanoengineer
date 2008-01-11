@@ -288,7 +288,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         # added highlight_singlets to fix bug 1540. mark 060220.
         if self.highlight_singlets: 
             #bruce 060702 part of fixing bug 833 item 1
-            likebond = self.isBondsToolActive() 
+            likebond = self.command.isBondsToolActive() 
             if likebond:
                 # clicks in this tool-state modify the bond, 
                 # not the bondpoint, so let the color hint at that
@@ -1908,13 +1908,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
                 return obj
         return None
 
-    def isBondsToolActive(self): #bruce 060702
-        """
-        [subclasses can override this; see depositMode implem for docstring]
-        """
-        #REVIEW: Need to be in SelectAtoms_basicCommand class?
-        return False
-    
+        
     def set_selection_filter(self, enabled):
         """
         Set/ Unset selection filter. Subclasses should override this
