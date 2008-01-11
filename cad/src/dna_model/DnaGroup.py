@@ -100,5 +100,17 @@ class DnaGroup(Block):
 	"""
         #Should it accept the Dna Segment list and then add individual segments?
         pass
+    
+    def edit(self):
+        """
+        @see: Group.edit()
+        """
+        
+        if self.editCommand:
+            commandSequencer = self.assy.w.commandSequencer
+            commandSequencer.userEnterCommand('BUILD_DNA')
+            currentCommand = commandSequencer.currentCommand
+            assert currentCommand.commandName == 'BUILD_DNA'
+            currentCommand.editStructure(self)
 
 # end

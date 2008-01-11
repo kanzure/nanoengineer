@@ -1,7 +1,7 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 @author:    Ninad
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 @version:   $Id$
 @license:   GPL
 
@@ -23,6 +23,9 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
     """
     Custom GraphicsMode for use as a component of DnaLineMode.
     @see: L{DnaLineMode} for more comments. 
+    @see: DnaDuplex_EditCommand where this is used as a GraphicsMode class.
+          The default command part in this file is a Default class
+          implementation  of self.command (see class DnaLineMode)          
     """    
     # The following valuse are used in drawing the 'sphere' that represent the 
     #first endpoint of the line. See LineMode.Draw for details. 
@@ -35,6 +38,23 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
         """
         """
         LineMode.GraphicsMode_class.__init__(self, command)
+    
+    def leftUp(self, event):
+        """
+        Left up method
+        """
+        if  self.command.mouseClickLimit is None:
+            if len(self.command.mouseClickPoints) == 2:
+                self.endPoint2 = None
+                                
+                self.command.createStructure()
+                #DISABLED AS OF 2008-01-11. (Implementation changed --
+                #See DnaDuplex_EditCommand.createStructure for new 
+                #implementaion)
+                ##self.command.callback_addSegments()
+                
+                self.glpane.gl_update()            
+            return
     
     def snapLineEndPoint(self):
         """
@@ -147,6 +167,17 @@ class DnaLineMode(LineMode):
           related  TODOs.
     @see: DnaDuplex_EditCommand.provideParamsForTemporaryMode
     @see: DnaDuplex_EditCommand.getCursorTextForTemporaryMode
+    
+    NOTE: [2008-01-11]
+    The default DnaLineMode (command) part is not used as of 2008-01-11
+    Instead, the interested commands use its GraphicsMode class. 
+    However, its still possible to use and implement the default command 
+    part. (The old implementation of generating Dna using endpoints of a 
+    line used this default command class (DnaLineMode). so the method in this
+    class  such as self.createStructure does nothing . 
+    @see: DnaDuplex_EditCommand where the GraphicsMode class of this command is 
+          used
+        
     """
     
     # class constants    
@@ -156,6 +187,7 @@ class DnaLineMode(LineMode):
         #  but is probably not useful. See comments in LineMode
         #  for more info and how to fix. [bruce 071227])
     
+            
     GraphicsMode_class = DnaLine_GM
         
     def setParams(self, params):
@@ -165,3 +197,15 @@ class DnaLineMode(LineMode):
             self.callbackMethodForCursorTextString, \
             self.callbackForSnapEnabled, \
             self.callback_rubberbandLineDisplay = params
+    
+    def createStructure(self):
+        """
+        Does nothing. 
+        @see: DnaLineMode_GM.leftUp
+        @see: comment at the beginning of the class
+        
+        """
+        pass
+    
+    
+    

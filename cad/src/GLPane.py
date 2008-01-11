@@ -1,11 +1,12 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 GLPane.py -- NE1's main model view, based on Qt's OpenGL widget.
 
 Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-24.
 Revised by many other developers since then (and perhaps before).
 
-$Id$
+@version:$Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Module classification: [bruce 080104]
 
@@ -144,6 +145,7 @@ from BuildAtoms_Command      import BuildAtoms_Command
 from SelectAtoms_Command     import SelectAtoms_Command
 from SelectChunks_Command    import SelectChunks_Command
 from BreakStrand_Command     import BreakStrands_Command
+from BuildDna_EditCommand    import BuildDna_EditCommand
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 from CommandSequencer import modeMixin
 
@@ -397,7 +399,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     Plane_EditCommand,
                     LinearMotor_EditCommand,
                     RotaryMotor_EditCommand,
-                    BreakStrands_Command
+                    BreakStrands_Command,
+                    BuildDna_EditCommand
                 ]
                     ##SketchMode] #Sketchmode not implemented yet
 

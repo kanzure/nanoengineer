@@ -131,8 +131,16 @@ class EditCommand(Select_Command):
         #This will be cleaned up (the update_props_... method was designed 
         # for the 'guest Property Managers' i.e. at the time when the 
         #editCommand was not a 'command'. ) -- Ninad 2007-12-26
-        if self.struct:
-            self.struct = None                    
+        
+        #UPDATE: For BuildDna_EditCommand, setting the struct to None
+        #is a bug. #(The BuildDna edit command gets 'segments' from the 
+        #temporary command  'DnaDuplex_EditCommand' and during this process
+        #it reenters the BuildDna_EditCommand (from the temporary mode)
+        #so, don't set self.struct to None. Do it in subclasses instead. OR 
+        #better fix the update_props_if_needed_before_closing problem soon 
+        #-- Ninad 2008-01-09
+        ##if self.struct:
+            ##self.struct = None                    
         Select_Command.Enter(self)
     
     def init_gui(self):
@@ -327,20 +335,21 @@ class EditCommand(Select_Command):
         # some refactoring -- Ninad 2007-10-24
         if 1:
             if not self.struct:
-                self.struct = self._createStructure()  
-                ##assert self.struct
-                self.previousParams = self._gatherParameters()                
+                self.struct = self._createStructure()
+                self.previousParams = self._gatherParameters()   
                 return
                     
         ###############################
             
         self.win.assy.current_command_info(cmdname = self.cmdname) 
         
-        params = self._gatherParameters()        
+        params = self._gatherParameters()
+        
 
         if not same_vals( params, self.previousParams):
             self._modifyStructure(params)
-            
+        
+      
         name = self.struct.name         
     
         if previewing:

@@ -1691,8 +1691,12 @@ class MWsemantics(QMainWindow,
         self.ensureInCommand('SELECTMOLS')
         self.nanotubecntl.show()
 
-    def activateDnaTool(self):
+    def activateDnaTool_OLD_NOT_USED(self):
         """
+        THIS IS DEPRECATED. THIS METHOD WILL BE REMOVED AFTER SOME 
+        MORE TESTING AND WHEN WE FEEL COMFORTABLE ABOUT THE NEW BUILD DNA 
+        MODE. -- NINAD - 2008-01-11 
+        
         Enter the DnaDuplex_EditCommand command. 
         @see:B{self.insertDna}
         """
@@ -1701,6 +1705,19 @@ class MWsemantics(QMainWindow,
             commandSequencer.userEnterCommand('DNA_DUPLEX')
         
         assert self.commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
+        
+        self.commandSequencer.currentCommand.runCommand()
+    
+    def activateDnaTool(self):
+        """
+        Enter the DnaDuplex_EditCommand command. 
+        @see:B{self.insertDna}
+        """
+        commandSequencer = self.commandSequencer        
+        if commandSequencer.currentCommand.commandName != 'BUILD_DNA':
+            commandSequencer.userEnterCommand('BUILD_DNA')
+        
+        assert self.commandSequencer.currentCommand.commandName == 'BUILD_DNA'
         
         self.commandSequencer.currentCommand.runCommand()
     
@@ -1718,8 +1735,12 @@ class MWsemantics(QMainWindow,
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
         
 
-    def insertDna(self, isChecked = False):
+    def insertDna_OLD_NOT_USED(self, isChecked = False):
         """
+        THIS IS DEPRECATED. THIS METHOD WILL BE REMOVED AFTER SOME 
+        MORE TESTING AND WHEN WE FEEL COMFORTABLE ABOUT THE NEW BUILD DNA 
+        MODE. -- NINAD - 2008-01-11
+        
         @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is 
                           checked, enter DnaLineMode. (provided you are 
                           using the new DNADuplexEditCommand command. 
@@ -1743,23 +1764,32 @@ class MWsemantics(QMainWindow,
                 currentCommand = self.commandSequencer.currentCommand
                 if currentCommand.commandName == 'DNA_LINE_MODE':
                     currentCommand.Done(exit_using_done_or_cancel_button = False)
-            
+    
+    def insertDna(self, isChecked = False):
+        """
+        @param isChecked: If Dna Duplex button in the Dna Flyout toolbar is 
+                          checked, enter DnaLineMode. (provided you are 
+                          using the new DNADuplexEditCommand command. 
+        @type  isChecked: boolean
+        @see: B{Ui_DnaFlyout.activateDnaDuplex_EditCommand}
+        """
+        if debug_pref("Use old 'Build > DNA' generator? (next session)", 
+                      Choice_boolean_False, 
+                      non_debug = True,
+                      prefs_key = "A9 devel/DNA Duplex"):
+            if isChecked:
+                self.dnacntl.show()
+        else:
+            commandSequencer = self.commandSequencer
+            currentCommand = commandSequencer.currentCommand
+            if currentCommand.commandName != "DNA_DUPLEX":
+                commandSequencer.userEnterTemporaryCommand(
+                    'DNA_DUPLEX')
+            else:        
+                currentCommand = self.commandSequencer.currentCommand
+                if currentCommand.commandName == 'DNA_DUPLEX':
+                    currentCommand.Done(exit_using_done_or_cancel_button = False)
 
-    def _createDnaDuplex_EditCommand(self, dnaDuplex = None):
-        """
-	Returns a new L{DnaDuplex_EditCommand} object.	
-	@param dnaDuplex: This parameter is passed as an init argument for 
-			    the LinearMotor_EditCommand that this method 
-			    creates and returns.
-	@type dnaDuplex:  B{Group} or None  (instead of a Group it will be a 
-	                  separate DNA object in future. 
-	@see: L{Group.__init__} , L{Group.edit}, 
-	      L{DnaDuplex_EditCommand.__init__}
-	TODO: Need to use the same property manager object for all dna edit 
-	      controllers. Right now it creates different ones. 
-        """
-        from DnaDuplex_EditCommand import DnaDuplex_EditCommand
-        return DnaDuplex_EditCommand(self.glpane, dnaDuplex)
 
     def createSequenceEditorIfNeeded(self):
         """

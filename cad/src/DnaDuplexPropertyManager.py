@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaDuplexPropertyManager.py
 
 @author: Mark Sims
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Mark 2007-10-18: 
 - Created. Major rewrite of DnaGeneratorPropertyManager.py.
@@ -32,8 +32,6 @@ from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_SpinBox       import PM_SpinBox
 from PM.PM_LineEdit      import PM_LineEdit
 from PM.PM_ToolButton    import PM_ToolButton
-from PM.PM_PushButton    import PM_PushButton
-from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
 
@@ -44,12 +42,7 @@ from VQT import V
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
-from PM.PM_Constants     import pmPreviewButton
 
-from PM.PM_Colors        import pmReferencesListWidgetColor
-from utilities.Comparison import same_vals
-
-from PM.PM_DockWidget     import PM_DockWidget
 
 class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -72,25 +65,23 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
     pmName        =  title
     iconPath      =  "ui/actions/Tools/Build Structures/Duplex.png"
 
-    _conformation  = "B-DNA"
-    _numberOfBases = 0
-    _basesPerTurn  = 10.0
-    _duplexRise    = getDuplexRise(_conformation)
-    _duplexLength  = getDuplexLength(_conformation, _numberOfBases)
-
-    endPoint1 = None
-    endPoint2 = None 
-    #For model changed signal
-    previousSelectionParams = None
-    sequenceEditor = None
-
     def __init__( self, win, editCommand ):
         """
         Constructor for the DNA Duplex property manager.
         """
+        self.endPoint1 = None
+        self.endPoint2 = None
+        
+        self._conformation  = "B-DNA"
+        self._numberOfBases = 0
+        self._basesPerTurn  = 10.0
+        self._duplexRise    = getDuplexRise(self._conformation)
+        self._duplexLength  = getDuplexLength(self._conformation, 
+                                              self._numberOfBases)
+    
         EditCommand_PM.__init__( self, 
-                                    win,
-                                    editCommand)
+                                 win,
+                                 editCommand)
 
 
         DebugMenuMixin._init1( self )
@@ -99,19 +90,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                                 pmCancelButton | \
                                 pmWhatsThisButton)
         
-        self._loadSequenceEditor()
-            
-    def _loadSequenceEditor(self):
-        """
-        Temporary code  that shows the Sequence editor ..a doc widget docked
-        at the bottom of the mainwindow. The implementation is going to change
-        before 'rattleSnake' product release.
-        As of 2007-11-20: This feature (sequence editor) is waiting 
-        for the ongoing dna model work to complete.
-        """
-        self.sequenceEditor = self.win.createSequenceEditorIfNeeded() 
-        self.sequenceEditor.hide()
-    
+          
     def connect_or_disconnect_signals(self, isConnect):
         """
         Connect or disconnect widget signals sent to their slot methods.
@@ -124,15 +103,8 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect 
-        
-        
-        EditCommand_PM.connect_or_disconnect_signals(self, isConnect)
-        
-        self.strandListWidget.connect_or_disconnect_signals(isConnect)
-        
-        if self.sequenceEditor:
-            self.sequenceEditor.connect_or_disconnect_signals(isConnect)
-        
+         
+                
         change_connect( self.conformationComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self.conformationComboBoxChanged )
@@ -140,93 +112,15 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect( self.numberOfBasePairsSpinBox,
                       SIGNAL("valueChanged(int)"),
                       self.numberOfBasesChanged )
-        
-        change_connect(self.specifyDnaLineButton, 
-                     SIGNAL("toggled(bool)"), 
-                     self.editCommand.enterDnaLineMode)
-        
-        change_connect(self.editStrandPropertiesButton,
-                      SIGNAL("clicked()"),
-                      self._showSequenceEditor)
-        
-        
-    def model_changed(self):
-        """
-        NOT IMPLEMENTED YET. This needs commandSequencer to treat various 
-        edit controllers as commands. Until then, the 'model_changed' method 
-        (and thus this method) will  never be called.
-        
-        When the editCommand is treated as a 'command' by the 
-        commandSequencer. this method will override basicCommand.model_changed.
-        
-        @WARNING: Ideally this property manager should implement both
-               model_changed and selection_changed methods in the mode/command
-               API. 
-               model_changed method will be used here when the selected atom is 
-               dragged, transmuted etc. The selection_changed method will be 
-               used when the selection (picking/ unpicking) changes. 
-               At present, selection_changed and model_changed methods are 
-               called too frequently that it doesn't matter which one you use. 
-               Its better to use only a single method for preformance reasons 
-               (at the moment). This should change when the original 
-               methods in the API are revised to be called at appropiraite 
-               time. 
-        """  
-        newSelectionParams = self._currentSelectionParams()
-        
-        if same_vals(newSelectionParams, self.previousSelectionParams):
-            return
-        
-        self.previousSelectionParams = newSelectionParams   
-        #subclasses of BuildAtomsPM may not define self.selectedAtomPosGroupBox
-        #so do the following check.
-        if newSelectionParams:
-            self.editStrandPropertiesButton.setEnabled(True) 
-        else:
-            self.editStrandPropertiesButton.setEnabled(False) 
-            
-    
-    def _currentSelectionParams(self):
-        """
-        NOT CALLED YET. This needs commandSequencer to treat various 
-        edit controllers as commands. Until then, the 'model_changed' method 
-        (and thus this method) will  never be called.
-        
-        Returns a tuple containing current selection parameters. These 
-        parameters are then used to decide whether updating widgets
-        in this property manager is needed when L{self.model_changed} or 
-        L{self.selection_changed} methods are called. 
-        @return: A tuple that contains following selection parameters
-                   - Total number of selected atoms (int)
-                   - Selected Atom if a single atom is selected, else None
-                   - Position vector of the single selected atom or None
-        @rtype:  tuple
-        @NOTE: The method name may be renamed in future. 
-        Its possible that there are other groupboxes in the PM that need to be 
-        updated when something changes in the glpane.        
-        """
-         
-        selectedStrands = self.strandListWidget.selectedItems()
-        
-        if len(selectedStrands) == 1: 
-            #self.win.assy.selatoms_list() is same as 
-            # selectedAtomsDictionary.values() except that it is a sorted list 
-            #it doesn't matter in this case, but a useful info if we decide 
-            # we need a sorted list for multiple atoms in future. 
-            # -- ninad 2007-09-27 (comment based on Bruce's code review)
-            
-            return (selectedStrands[0])
-        else: 
-            return (None)
-    
-    
+  
+
     def ok_btn_clicked(self):
         """
         Slot for the OK button
         """   
-        if self.editCommand:
-            self.editCommand.preview_or_finalize_structure(previewing = False)
-            env.history.message(self.editCommand.logMessage)        
+        #if self.editCommand:
+            #self.editCommand.preview_or_finalize_structure(previewing = False)
+            #env.history.message(self.editCommand.logMessage)        
         self.win.toolsDone()
     
     def cancel_btn_clicked(self):
@@ -237,52 +131,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
             self.editCommand.cancelStructure()            
         self.win.toolsCancel()
         
-    
-    def close(self):
-        """
-        Closes the Property Manager. Overrided EditCommand_PM.close()
-        """
-        #Clear tags, if any, due to the selection in the self.strandListWidget.
-        if self.strandListWidget:
-            self.strandListWidget.clearTags()
-        
-        if self.sequenceEditor:
-            self.sequenceEditor.hide()
-            if self.win.viewFullScreenAction.isChecked() or \
-               self.win.viewSemiFullScreenAction.isChecked():
-                pass
-            else:
-                self.win.reportsDockWidget.show()
-           
-        EditCommand_PM.close(self)
-    
-    def show(self):
-        """
-        Show this PM 
-        As of 2007-11-20, it also shows the Sequence Editor widget and hides 
-        the history widget. This implementation may change in the near future
-        """
-        EditCommand_PM.show(self) 
-        self.updateStrandListWidget()    
-    
-    def _showSequenceEditor(self):
-        if self.sequenceEditor:
-            #hide the history widget first
-            #(It will be shown back during self.close)
-            #The history widget is hidden or shown only when both 
-            # 'View > Full Screen' and View > Semi Full Screen actions 
-            # are *unchecked*
-            #Thus show or close methods won't do anything to history widget
-            # if either of the above mentioned actions is checked.
-            if self.win.viewFullScreenAction.isChecked() or \
-               self.win.viewSemiFullScreenAction.isChecked():
-                pass
-            else:
-                self.win.reportsDockWidget.hide()
-            #Show the sequence editor
-            self.sequenceEditor.show()           
-    
-        
+
     def _update_widgets_in_PM_before_show(self):
         """
         Update various widgets  in this Property manager.
@@ -294,26 +143,9 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show where it is called. 
         """       
-        if self.specifyDnaLineButton.isChecked():
-            self.specifyDnaLineButton.setChecked(False)        
-        
-        self.updateStrandListWidget()            
-       
-    def updateStrandListWidget(self):   
-        """
-        Update the list of items inside the strandlist widget 
-        Example: Origianally it shows two srands. User now edits an
-        existing dna, and deletes some of the strands, hits done. User then 
-        again invokes the Edit command for this dna object -- now the strand 
-        list widget must be updated so that it shows only the existing strands.
-        """
-        if self.editCommand and self.editCommand.struct:
-            self.strandListWidget.insertItems(
-                row = 0,
-                items = self.editCommand.struct.members)
-        else:
-            self.strandListWidget.clear()
-            
+        pass     
+                          
+                   
           
     def getFlyoutActionList(self): 
         """ returns custom actionlist that will be used in a specific mode 
@@ -362,57 +194,21 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Add the DNA Property Manager group boxes.
         """        
-        #Unused 'References List Box' to be revided. (just commented out for the
-        #time being. 
-        ##self._pmGroupBox1 = PM_GroupBox( self, title = "Reference Plane" )
-        ##self._loadGroupBox1( self._pmGroupBox1 )
+       
+        self._pmGroupBox1 = PM_GroupBox( self, title = "Endpoints" )
+        self._loadGroupBox1( self._pmGroupBox1 )
         
-        self._pmGroupBox2 = PM_GroupBox( self, title = "Strands" )
+        self._pmGroupBox1.hide()
+        
+        self._pmGroupBox2 = PM_GroupBox( self, title = "Parameters" )
         self._loadGroupBox2( self._pmGroupBox2 )
         
-        self._pmGroupBox3 = PM_GroupBox( self, title = "Endpoints" )
+        self._pmGroupBox3 = PM_GroupBox( self, title = "Advanced Options" )
         self._loadGroupBox3( self._pmGroupBox3 )
-        
-        self._pmGroupBox3.hide()
-        
-        self._pmGroupBox4 = PM_GroupBox( self, title = "Parameters" )
-        self._loadGroupBox4( self._pmGroupBox4 )
-        
-        self._pmGroupBox5 = PM_GroupBox( self, title = "Advanced Options" )
-        self._loadGroupBox5( self._pmGroupBox5 )
 
+    
+       
     def _loadGroupBox1(self, pmGroupBox):
-        """
-        load widgets in groupbox1
-        """
-        self.referencePlaneListWidget = PM_SelectionListWidget(
-            pmGroupBox,
-            self.win,
-            label = "",
-            color = pmReferencesListWidgetColor,
-            heightByRows = 2)
-    
-    def _loadGroupBox2(self, pmGroupBox):
-        """
-        load widgets in groupbox2
-        """
-        #TODO: Following list widget will be a part of the default PM of 
-        #DNA Mode and not a part of DnaDuplex PM, this is work in progress, 
-        #to be revised soon (once dna object model is implemented)
-        # -- Ninad 2007-11-12
-        self.strandListWidget = PM_SelectionListWidget(pmGroupBox,
-                                                       self.win,
-                                                       label = "",
-                                                       heightByRows = 4 )
-        self.strandListWidget.setTagInstruction('TAG_AND_PICK_ITEM_IN_GLPANE')
-    
-        self.editStrandPropertiesButton = PM_PushButton( 
-            pmGroupBox,
-            label = "",
-            text  = "Edit Properties..." )
-        self.editStrandPropertiesButton.setEnabled(False)
-    
-    def _loadGroupBox3(self, pmGroupBox):
         """
         Load widgets in group box 3.
         """
@@ -447,7 +243,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self._endPoint1SpinBoxes.hide()
         self._endPoint2SpinBoxes.hide()
        
-    def _loadGroupBox4(self, pmGroupBox):
+    def _loadGroupBox2(self, pmGroupBox):
         """
         Load widgets in group box 4.
         """
@@ -496,7 +292,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         self.duplexLengthLineEdit.setDisabled(True)        
 
-    def _loadGroupBox5(self, pmGroupBox):
+    def _loadGroupBox3(self, pmGroupBox):
         """
         Load widgets in group box 5.
         """
@@ -522,15 +318,13 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         What's This text for widgets in the DNA Property Manager.  
         """
-        from gui.WhatsThisText_for_PropertyManagers import whatsThis_DnaDuplexPropertyManager
-        whatsThis_DnaDuplexPropertyManager(self)
+        pass
                 
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in the DNA Property Manager.  
         """
-        from gui.ToolTipText_for_PropertyManagers import ToolTip_DnaDuplexPropertyManager
-        ToolTip_DnaDuplexPropertyManager(self)
+        pass
         
     def conformationComboBoxChanged( self, inIndex ):
         """

@@ -60,25 +60,15 @@ class selectMolsMode(SelectChunks_basicCommand,
         """
 	NOTE: This needs to be a general API method. There are situations when 
 	user enters a temporary mode , does something there and returns back to
-	the previous mode he was in. He also needs to send some data from 
+	the previous mode he was in. User also needs to send some data from 
 	previous mode to the temporary mode .	 
 	@see: DnaLineMode
 	@see: self.acceptParamsFromTemporaryMode for further comments and 
 	      example	
         """	        
-        if temporaryModeName == "DNA_LINE_MODE":
-            #This is the number of mouse clicks that the temporary mode accepts
-            # When this limit is reached, the temporary mode will return to the
-            #previous mode.	    
-            dnaEditCntl = self.win.dnaEditCommand
-            if dnaEditCntl:
-                params = dnaEditCntl.provideParamsForTemporaryMode(
-                    temporaryModeName) 
-        else:
-            #@attention This is an arbitrary number, needs cleanup. 
-            mouseClickLimit = 2
-            params = (mouseClickLimit)
-
+        
+        mouseClickLimit = 2
+        params = (mouseClickLimit)
         return params
 
     def acceptParamsFromTemporaryMode(self, temporaryModeName, params):
@@ -95,31 +85,13 @@ class selectMolsMode(SelectChunks_basicCommand,
 	The temporary mode sends this information to the method defined in 
 	the previous mode called acceptParamsFromTemporaryMode and then the
 	previous mode (selectMolsMode) can use it further to create a dna 
-	@see: DnaLineMode
+	@see: DnaLineMode, B{BuildDna_Command}, B{DnaDuplex_Command}
 	@see: self.provideParamsForTemporaryMode
 	TODO: 
-	- This needs to be a more general method in mode API. 
-	- Right now it is used only for creating a DNA line. It is assumed
-	 that the DNADuplexEditCommand is invoked while in selectMolsMode. 
-	 If we decide to define a new DnaMode, then this method needs to go 
-	 there. 
-	 - Even better if the commandSequencer API starts supporting 
-	 commandSequencer.previousCommand (like it does for previous mode) 
-	 where, the previousCommand can be an editCommand or mode, then 
-	 it would be good to define this API method in that mode or 
-	 editCommand class  itself. In the above example, this method would 
-	 then belong to DnaDuplex_EditCommand. 
-	 -- [Ninad 2007-10-25 comment]	
-        """
+	- This needs to be a more general method in Command API. 
 
-        #Usually params will contain 2 items. But if user abruptly terminates  
-        #the temporary mode, this might not be true. So move the chunk by offset
-        #only when you have got 2 points!  Ninad 2007-10-16
-        if 1:
-            if len(params) == 2:	    
-                dnaEditCommand = self.win.dnaEditCommand
-                if dnaEditCommand:
-                    dnaEditCommand.acceptParamsFromTemporaryMode(params)
+        """
+        pass
 
     def selectConnectedChunks(self):
         """

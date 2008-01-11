@@ -57,11 +57,13 @@ class DnaFlyout:
                              object belong to. This needs to be revised.
                              
         """
+    
         
         self.parentWidget = parentWidget
         self.win = mainWindow
         self._isActive = False
         self._createActions(self.parentWidget)
+        
 
     def getFlyoutActionList(self):
         """
@@ -76,7 +78,7 @@ class DnaFlyout:
         allActionsList = []
         
         self.subControlActionGroup = QtGui.QActionGroup(self.parentWidget)
-        self.subControlActionGroup.setExclusive(True)   
+        self.subControlActionGroup.setExclusive(False)   
         self.subControlActionGroup.addAction(self.dnaDuplexAction)
         self.subControlActionGroup.addAction(self.breakStrandAction) 
 
@@ -163,6 +165,7 @@ class DnaFlyout:
         """
         Updates the flyout toolbar with the actions this class provides. 
         """    
+        
         if self._isActive:
             return
         
@@ -203,12 +206,34 @@ class DnaFlyout:
         """
         Slot for B{Duplex} action.
         """
+            
         self.win.insertDna(isChecked)
+        
+        #IMPORTANT: 
+        #For a QAction, the method 
+        #setChecked does NOT emmit the 'triggered' SIGNAL. So 
+        #we can call self.breakStrandAction.setChecked without invoking its 
+        #slot method!
+        #Otherwise we would have needed to block the signal when action is 
+        #emitted ..example we would have called something like :
+        #'if self._block_dnaDuplexAction_event: return' at the beginning of this
+        #method. Why we didn't use QAction group -- We need these actions to be
+        # a) exclusive as well as
+        #(b) 'toggle-able' (e.g. if you click on a checked action , it should 
+        #uncheck)
+        #QActionGroup achieves (a) but can't do (b) 
+        
+        if self.breakStrandAction.isChecked():
+            self.breakStrandAction.setChecked(False)
+        
     
     def activateBreakStrand_Command(self, isChecked):
         """
         """
         self.win.enterBreakStrandCommand(isChecked)
+        
+        if self.dnaDuplexAction.isChecked():
+            self.dnaDuplexAction.setChecked(False)
 
     def activateDnaOrigamiEditCommand(self):
         """
