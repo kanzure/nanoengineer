@@ -670,7 +670,14 @@ class basicCommand(anyCommand):
 
             res = []
             if done_button_vis:
-                res.append('Done')
+                #For temporary commands with their own gui (the commands that
+                #are expected to return to the previous command when done), 
+                #use the 'Transient-Done' confirmation corner images. 
+                if self.command_has_its_own_gui and \
+                   self.command_should_resume_prevMode:
+                    res.append('Transient-Done')
+                else:
+                    res.append('Done')
             if cancel_button_vis:
                 res.append('Cancel')
             if not res:
@@ -796,9 +803,7 @@ class basicCommand(anyCommand):
         #   Enter_Command method) scheme doesn't consider the effect 
         #  on the non-split modes such as modifyMode. But some basic tests 
         #  indicate that this may not be an issue. (looks safe) 
-        
-
-        
+                
         self.graphicsMode.Enter_GraphicsMode()
         
         return None
@@ -1352,7 +1357,7 @@ class basicCommand(anyCommand):
             if new_mode is None:
                 try:
                     new_mode = self.commandSequencer.prevMode
-                    if new_mode:
+                    if new_mode and not self.command_has_its_own_gui:
                         if exit_using_done_or_cancel_button:
                             # This fixes bugs like 2566, 2565 
                             # @bug: But it doesn't fix the
@@ -1373,7 +1378,30 @@ class basicCommand(anyCommand):
                             resuming = True
                 except:
                     print_compact_traceback("bug, ignoring: ")
-                    
+            else:
+                #TEMPORARY FIX FOR BUG 2593 NEEDS CLEANUP 
+                #(just like in self.Done)
+                # This code is not copied in Cancel 
+                # method as it seems unncessary to do so (as of 2007-12-21) 
+                #(This part of the code is reached only when user explicitely 
+                #invokes a new command and before entering that command, we
+                #execute 'autoDone' on the current command
+                #If the current command is a temporary command, it is necessary
+                #to properly exit the previous command from which it was invoked. 
+                #before entering the 'new_mode' (not 'None' in this elase 
+                #statement) The new_mode  is supplied to the this method as a 
+                #parameter, This fixes bugs like 2593.  
+                previous_command = self.commandSequencer.prevMode
+                if previous_command is not new_mode: 
+                    if previous_command and not self.command_has_its_own_gui:            
+                        if exit_using_done_or_cancel_button:
+                            if previous_command.command_has_its_own_gui:
+                                previous_command.Cancel()
+                            else:
+                                #new Command is a temporary mode with no special
+                                #ui to exit it.
+                                previous_command.Cancel(
+                                    exit_using_done_or_cancel_button = False)                                        
             if resuming:
                 new_mode_options['resuming'] = True
                 new_mode_options['has_its_own_gui'] = self.command_has_its_own_gui

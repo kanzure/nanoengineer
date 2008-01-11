@@ -39,7 +39,7 @@ from debug import print_compact_traceback ##, print_compact_stack
 # button region codes (must all be true values;
 # these are used as indices in various dicts or functions,
 # and are used as components of cctypes like 'Done+Cancel')
-BUTTON_CODES = ('Done', 'Cancel')
+BUTTON_CODES = ('Done', 'Cancel', 'Transient-Done')
 
 # ==
 
@@ -113,7 +113,10 @@ BigOK.png
 BigOK_pressed.png
 Cancel_pressed.png
 OK_Cancel.png
-OK_pressed.png""".split()
+OK_pressed.png
+OK_Cancel_DnaLine.png
+OK_pressed_DnaLine.png
+Cancel_pressed_DnaLine.png""".split()
 
 class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make
     """
@@ -235,6 +238,14 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                 imagename = "Cancel_pressed.png"
             else:
                 imagename = "OK_Cancel.png"
+        elif self.button_codes == ['Transient-Done', 'Cancel']:
+            if self.pressed_button == 'Transient-Done':
+                imagename = "OK_pressed_DnaLine.png"
+            elif self.pressed_button == 'Cancel':
+                imagename = "Cancel_pressed_DnaLine.png"
+            else:
+                imagename = "OK_Cancel_DnaLine.png"
+            
         else:
             assert 0, "unsupported list of buttoncodes: %r" % (self.button_codes,)
 
@@ -367,7 +378,7 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
         
         done_button, cancel_button = self.command._KLUGE_visible_PM_buttons()
             # each one is either None, or a QToolButton (a true value) currently displayed on the current PM
-        if buttoncode == 'Done':
+        if buttoncode in ['Done', 'Transient-Done']:
             button = done_button
         else:
             button = cancel_button
