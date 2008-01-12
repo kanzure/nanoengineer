@@ -50,7 +50,9 @@ except:
 # (these should be turned into instance attributes of a texture-font object)
 
 # font image file (same image file is used in other modules, but for different purposes)
-## courierfile = os.path.join( os.path.dirname(__file__), "experimental/textures/courier-128.png")
+## ## CAD_SRC_PATH = os.path.dirname(__file__)
+## from constants import CAD_SRC_PATH
+## courierfile = os.path.join(CAD_SRC_PATH, "experimental/textures/courier-128.png")
 courierfile = os.path.join( image_directory(), "ui/exprs/text/courier-128.png")  ### TODO: RENAME
 
 #e put these into an object for a texture font!

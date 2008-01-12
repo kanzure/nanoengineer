@@ -3773,13 +3773,19 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         res = []
         try:
             # special case for cad/src/testmode.py (or .pyc)
+            from constants import CAD_SRC_PATH
+            ## CAD_SRC_PATH = os.path.dirname(__file__)
             for filename in ('testmode.py', 'testmode.pyc'):
-                testmodefile = os.path.join( os.path.dirname(__file__), filename) # fails inside site-packages.zip (in Mac release)
+                testmodefile = os.path.join( CAD_SRC_PATH, filename)
                 if os.path.isfile(testmodefile):
+                    # note: this fails inside site-packages.zip (in Mac release);
+                    # a workaround is below
                     res.append(( 'testmode', testmodefile ))
                     break
-            if not res and os.path.dirname(__file__).endswith('site-packages.zip'):
-                res.append(( 'testmode', testmodefile )) # special case for Mac release (untested) (do other platforms need this?)
+            if not res and CAD_SRC_PATH.endswith('site-packages.zip'):
+                res.append(( 'testmode', testmodefile ))
+                    # special case for Mac release (untested in built release? not sure)
+                    # (do other platforms need this?)
             assert res
         except:
             if platform.atom_debug:

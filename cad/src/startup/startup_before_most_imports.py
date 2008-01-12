@@ -78,6 +78,7 @@ def before_most_imports( main_globals ):
         # this module's __file__ is defined, whether this problem is Windows-specific, etc. What's worse, this problem disables
         # *both* guessing methods, so on an exception we just have to skip the whole thing. Further study might show that there is
         # no problem with ourdir, only with maindir, but I won't force us to test that right now. [bruce 051006]
+        # REVIEW: is this still correct now that this code is in a non-toplevel module? [bruce 080111 question]
         ourdir,  filejunk = os.path.split( __file__ )
         maindir, filejunk = os.path.split( __main__.__file__ )
     except:

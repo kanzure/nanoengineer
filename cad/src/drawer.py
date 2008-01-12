@@ -221,10 +221,10 @@ if binPath not in sys.path:
 try:
     import quux
     quux_module_import_succeeded = True
-    if "experimental" in os.path.dirname(sys.modules['quux'].__file__):
+    if "experimental" in os.path.dirname(quux.__file__):
         # should never happen for end users, but if it does we want to print the warning
         if env.debug() or not EndUser.enableDeveloperFeatures():
-            print "debug: fyi: Using experimental version of C rendering code:", sys.modules['quux'].__file__
+            print "debug: fyi: Using experimental version of C rendering code:", quux.__file__
 except:
     use_c_renderer = False
     quux_module_import_succeeded = False

@@ -64,6 +64,12 @@ import sys
 sys.modules[__name__] = fakemodule = _FakeModule_for_Symbols(__name__, Symbol)
 
 fakemodule.__file__ = __file__
+    # REVIEW: does __file__ work in a Windows release build?
+    # Guess: yes, since this is also assumed in canon_image_filename (exprs/images.py)
+    # which I think is always run due to confirmation corner.
+    # It doesn't exist in __main__ (or didn't at one time anyway)
+    # but I guess that's a special case. It would be good to confirm all this.
+    # [bruce 080111 comment]
 fakemodule.__doc__ = __doc__
 # note: __name__ and __path__ are set inside _FakeModule_for_Symbols.__init__
 

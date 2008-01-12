@@ -335,4 +335,38 @@ DELETE_SELECTION = 'Delete'
 # click on empty space on the screen.
 GL_FAR_Z = 0.999
 
+# ==
+
+# Determine CAD_SRC_PATH.
+# For developers, this is the directory containing
+# NE1's toplevel Python code, namely .../cad/src;
+# for users of a built release, this is the directory
+# containing the same toplevel Python modules as that does,
+# as they're built into NE1 and importable while running it
+# (not taking into account ALTERNATE_CAD_SRC_PATH even if it's defined).
+# [bruce 080111]
+
+try:
+    __file__
+except:
+    # CAD_SRC_PATH can't be determined (by the present code)
+    # (does this ever happen?)
+    print "can't determine CAD_SRC_PATH"
+    CAD_SRC_PATH = None 
+else:
+    import os
+    CAD_SRC_PATH = os.path.dirname(__file__)
+    assert not CAD_SRC_PATH.endswith("utilities") # this will fail if we
+        # forget to fix this definition when moving this file into the
+        # utilities package. When we do, activate the following code:
+        ## assert os.path.basename(CAD_SRC_PATH) == "utilities"
+        ## CAD_SRC_PATH = os.path.dirname(CAD_SRC_PATH)
+    print "CAD_SRC_PATH = %r" % CAD_SRC_PATH ### REMOVE WHEN WORKS, BEFORE COMMIT
+    # [review: in a built Mac release, CAD_SRC_PATH might be
+    # .../Contents/Resources/Python/site-packages.zip, or a related pathname
+    # containing one more directory component; but an env var RESOURCEPATH
+    # (spelling?) should also be available (only in a release and only on Mac),
+    # and might make more sense to use then.]
+    pass
+
 # end

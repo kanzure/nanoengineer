@@ -46,6 +46,9 @@ class Select_GraphicsMode_DrawMethod_preMixin(commonGraphicsMode):
 
     def Draw(self):
         if 1:
+            # TODO: move this test code into a specific test mode just for it,
+            # so it doesn't clutter up or slow down this general-use mode.
+            #
             # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
             # grantham 060207:
             # Set to 1 to see a small array of eight spheres.
@@ -69,7 +72,7 @@ class Select_GraphicsMode_DrawMethod_preMixin(commonGraphicsMode):
                 if binPath not in sys.path:
                     sys.path.append(binPath)
                 import quux
-                if "experimental" in os.path.dirname(sys.modules['quux'].__file__):
+                if "experimental" in os.path.dirname(quux.__file__):
                     print "WARNING: Using experimental version of quux module"
                 # quux.test()
                 quux.shapeRendererInit()

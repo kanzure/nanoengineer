@@ -86,6 +86,10 @@ from exprs.instance_helpers import DelegatingInstanceOrExpr, InstanceOrExpr, Del
 from exprs.ExprsConstants import Vector, ORIGIN, PIXELS, D2X, D2Y, DX, DY
 from exprs.__Symbols__ import _self, Anything
 
+# NOTE: the following code contains some hardcoded "ui" which
+# should be UI_SUBDIRECTORY_COMPONENT
+## from icon_utilities import UI_SUBDIRECTORY_COMPONENT
+
 # ImageUtils.py class nEImageOps -- see following comment
 
 # TODO: find out if the functions we need from texture_helpers could be imported here at toplevel:
@@ -94,7 +98,7 @@ import texture_helpers
     #   function create_PIL_image_obj_from_image_file, a trivial glue function into ImageUtils.py class nEImageOps,
     #   function loadTexture.
 
-from icon_utilities import image_directory # for finding texture & cursor files [#k import ok at toplevel?]
+from icon_utilities import image_directory # for finding texture & cursor files
 
 # last-resort image file (same image file is used in other modules, but for different purposes)
 courierfile = os.path.join( image_directory(), "ui/exprs/text/courier-128.png") ### TODO: RENAME
@@ -235,13 +239,13 @@ def canon_image_filename( filename):
      someday there might even be user prefs for image search paths, except that plugins can provide their own images.... ##e]
     """
     orig_filename = filename # for debug prints or warnings
-    #stub, might work for now:
-    thisdir = os.path.dirname(__file__) # dir of exprs module
-    cad_src = os.path.dirname( thisdir)
+##    #stub, might work for now:
+##    thisdir = os.path.dirname(__file__) # dir of exprs module
+##    CAD_SRC_PATH = os.path.dirname( thisdir)
+    from constants import CAD_SRC_PATH
         # [note: in a built Mac release, this might be Contents/Resources/Python/site-packages.zip, or
-        #  a different pathname with one more component; but an env var RESOURCEPATH (sp?) should also
-        #  be available (only in a release and only on Mac), and might make more sense to use then. #e]
-    cad = os.path.dirname( cad_src)
+        #  a related pathname; see comments near its definition.]
+    cad = os.path.dirname( CAD_SRC_PATH) # used below for cad/images
 
     # image file path extensively revised 070604, mainly so testmode can work in a built release package
     from PlatformDependent import path_of_Nanorex_subdir
@@ -279,7 +283,7 @@ def canon_image_filename( filename):
         # (so, no path entry needed for that)
 
         # we no longer support the old experimental/textures directory
-##        os.path.join( cad_src, "experimental/textures"), # [not supported by autoBuild.py, and never will be]
+##        os.path.join( CAD_SRC_PATH, "experimental/textures"), # [not supported by autoBuild.py, and never will be]
 
         # but we do still support the obsolete cad/images dir, since some test code uses it
         # and it was still present in cvs (I think -- at least it's in my checkouts) as of 070604.

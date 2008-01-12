@@ -57,6 +57,10 @@ def initialize():
     global _iconprefix
     _iconprefix = os.path.dirname(os.path.abspath(sys.argv[0]))
     _iconprefix = os.sep.join(_iconprefix.split(os.sep)[:-1] + ["src"])
+        # Note: for developers, this is .../cad/src and also contains the
+        # toplevel python modules or packages (as of 080111 anyway);
+        # within built releases, it may not be the same directory as that
+        # even though it ends with "src". [bruce comment 080111]
 
     if EndUser.getAlternateSourcePath() != None:
         new_iconprefix = EndUser.getAlternateSourcePath()
