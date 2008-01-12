@@ -52,6 +52,13 @@ def update_DNA_groups( new_chunks ):
 
     @return: None (??)
     """
+
+    # basic algorithm: [080111 comment]
+    # - markers have moved, or if not, finish that... and pick controlling one on each wholechain (new or modified)
+    #   (they are immutable so modified == new, but the point is, some new ones are made in part of untouched smaller chains).
+    # - for segments: this tells you which existing or new DnaSegment owns each marker and DnaSegmentChunk. Move nodes.
+    # - for strands: ditto; move markers into DnaStrand, and chunks into that or DnaSegment (decide this soon).
+    
     
     ignore_new_changes("as update_DNA_groups starts", changes_ok = False )
 
@@ -60,6 +67,10 @@ def update_DNA_groups( new_chunks ):
     for chunk in new_chunks:
         # does it have a desired home, or need a new one?
         # A desired one is found via the controlling_marker on a whole_chain passing through the chunk.
+        # (For a StrandChunk will we place it into a DnaStrand or based on the attached DnaSegment?
+        #  Not yet sure; the latter has some advantages and is compatible with current external code [080111].
+        #  If we do it that way, then do that first for the new segment chunks, then another pass for the strand chunks.
+        #  Following unfinished code assumes it goes into its own DnaStrand object; needs review/revision.)
 
         # MAYBE TODO: We might do part of this when creating the chunk
         # and only do it now if no home existed.
@@ -67,8 +78,8 @@ def update_DNA_groups( new_chunks ):
         whole_chains[id(whole_chain)] = whole_chain
         controlling_marker = whole_chain.find_controlling_marker() # IMPLEM
         strand_or_segment = controlling_marker._f_get_owning_strand_or_segment()
-            # IMPLEM; might just be an attr, .owner; or just .dad??
-            # but note we have new methods like it for more external use, that call get_parentnode....
+            # IMPLEM; might just be an attr, .owner; or just .dad?? [not .dad, we're fixing that now!]
+            # but note we have new methods like it for more external use (not valid here), that call get_parentnode....
         if strand_or_segment is None:
             # find the right DnaGroup (or make one if there is none).
             # ASSUME the chunk was created inside the right DnaGroup if there is one. ### VERIFY TRUE
@@ -97,6 +108,14 @@ def update_DNA_groups( new_chunks ):
 ##                # what should be possible is to find the controlling marker
 ##                # on the same whole_chain!
             strand_or_segment._move_into_your_members(marker) # IMPLEM for markers
+
+    # TODO: for any group we moved anything out of, perhaps delete it if it is now empty
+    # or (especially) dissolve it if it now has only one member and we made that member.
+    # This is important when updating an old mmp file with existing groups
+    # containing ordinary dna-containing chunks, since otherwise we'll bury the new DnaGroup
+    # inside one of those and leave the others empty.
+
+    ignore_new_changes("as update_DNA_groups returns", changes_ok = False )
 
     return # from update_DNA_groups
 

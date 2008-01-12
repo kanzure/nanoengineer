@@ -9,6 +9,7 @@ including DnaGroups, AxisChunks, PAM atoms, etc.
 """
 
 from dna_updater_globals import get_changes_and_clear
+from dna_updater_globals import ignore_new_changes
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
 
@@ -65,7 +66,9 @@ def full_dna_update():
         # the underlying nodes we need to place are just chunks and jigs. we can ignore old ones...
         # so we need a list of new or moved ones... chunks got made in update_PAM_chunks; jigs, in update_PAM_atoms_and_bonds...
         # maybe pass some dicts into these for them to add things to?
-    
+
+    ignore_new_changes("as full_dna_update returns", changes_ok = False )
+
     return
 
 # end

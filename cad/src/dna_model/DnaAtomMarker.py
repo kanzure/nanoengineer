@@ -5,6 +5,12 @@ DnaAtomMarker.py - marked positions on atom chains, moving to live atoms as need
 Used internally for base indexing in strands and segments; perhaps used in the
 future to mark subsequence endpoints for relations or display styles.
 
+REVIEW: rename to DnaMarker?
+
+    WARNING: this will be revised, since the marker really needs to
+    be on a higher-level WholeChain which covers multiple AtomChainOrRings.
+
+
 @author: Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -60,14 +66,50 @@ def reversed_list(list1):
 
 # ==
 
-class DnaAtomMarker( ChainAtomMarker):
+class DnaAtomMarker( ChainAtomMarker): ### REVIEW: rename to DnaMarker?
     """
     A ChainAtomMarker specialized for DNA axis or strand atoms
     (base atoms only, not Pl atoms).
 
     Abstract class; see subclasses DnaSegmentMarker and
     DnaStrandMarker.
+
+    Description of how this object stays updated in various situations: ### UPDATE after details are coded @@@
+
+    When read from an mmp file, or copied, it is valid but has no
+    cached chain, etc... these will be added when the dna updater
+    creates a new chain and ladder and one of these "takes over
+    this marker". Part of that "takeover" is for self to record info
+    so next_atom is not needed for understanding direction, or anything
+    else about the chain self is presently on, since that chain might
+    not be valid when self later needs to move along it.
+
+    After copy, in self.fixup_after_copy(), ... ### NIM; spelling? (check atom order then, and record info so next_atom not needed) @@@
+
+    After Undo, our undo_update method will arrange for equivalent
+    checks or updates to be done... ### REVIEW, IMPLEM (also check atom order then, and record info so next_atom not needed) @@@
+
+    If our marker atom dies, self.remove_atom() records this so the
+    dna updater will move self to a new marker atom, and make sure
+    the new (or preexisting) chain/ladder there takes over self. ### DOIT for preexisting -- can happen! @@@
+    (We have a whole_chain which can't be preexisting after we're moved,
+     but our ladder and its ladder rail chain can be.)
+
+    If our next_atom dies or becomes unbonded from our marker_atom,
+    but our marker_atom remains alive, we can probably stay put but
+    we might need a new direction indicator in place of next_atom.
+    The dna updater handles this too, as a special case of "moving us". ### REVIEW, does it work? @@@
+
+    After any of these moves or other updates, our marker_atom and next_atom
+    are updated to be sufficient when taken alone to specify our
+    position and direction on a chain of atoms. This is so those attrs
+    are the only ones needing declaration for undo/copy/save for that purpose.
+    We also maintain internal "cached" attrs like our index within a ladder,
+    for efficiency and to help us move when those atoms become killed or
+    get changed in other ways.
     """
+    ### REVIEW: what if neither atom is killed, but their bonding changes?
+    # do we need to look for marker jigs on changed atoms and treat them as perhaps needing to be moved? YES. DOIT. #### @@@
 
     # default values of instance variables:
     
@@ -82,6 +124,8 @@ class DnaAtomMarker( ChainAtomMarker):
     
     # other variables
 
+    _chain = None # (not undoable or copyable)
+
     controlling = _CONTROLLING_IS_UNKNOWN
 
     _advise_new_chain_direction = 0
@@ -89,8 +133,20 @@ class DnaAtomMarker( ChainAtomMarker):
 
     _owning_strand_or_segment = None
     
-    # == Jig API methods (overridden or extended):
-    
+    # == Jig API methods (overridden or extended from ChainAtomMarker):
+
+    def __init__(self, assy, atomlist, chain = None):
+        # [can chain be None after we get copied? I think so...]
+        # (chain arg is not needed in _um_initargs since copying it can/should make it None. REVIEW, is that right? ###]
+        """
+        @param chain: the atom chain or ring which we reside on when created (can it be None??)
+        @type chain: AtomChainOrRing instance ### REVIEW
+        """
+        ChainAtomMarker.__init__(self, assy, atomlist)
+        if chain is not None:
+            self.set_chain(chain)
+        return
+
     def remove_atom(self, atom):
         """
         [extends superclass method]
@@ -105,19 +161,26 @@ class DnaAtomMarker( ChainAtomMarker):
     # other graphics too, be passed style info from its DnaGroup/Strand/Segment, etc.
 
     # == ChainAtomMarker API methods (overridden or extended):
-    
-    def set_chain(self, chain):
-        """
-        A new AtomChainOrRing object is taking us over (but we'll stay on the same atom).
-        (Also called during superclass __init__ to set our initial chain.)
-
-        @param chain: the atom chain or ring which we now reside on (can't be None)
-        @type chain: AtomChainOrRing instance
-        """
-        ChainAtomMarker.set_chain(self, chain)
-        self.controlling = _CONTROLLING_IS_UNKNOWN
 
     # == other methods
+    
+    def set_chain(self, chain): } ### REVIEW, revise docstring. @@@
+        """
+        A new chain
+            AtomChainOrRing object?? wholechain?? more args??
+        is taking us over (but we'll stay on the same atom).
+        (Also called during __init__ to set our initial chain.)
+
+        @param chain: the atom chain or ring which we now reside on (can't be None)
+        @type chain: AtomChainOrRing instance ### REVIEW
+        """
+        ## was: ChainAtomMarker.set_chain(self, chain)
+        assert not self.is_homeless()
+        #e assert chain contains self._get_marker_atom()?
+        assert chain is not None # or should None be allowed, as a way of unsetting it??
+        self._chain = chain
+
+        self.controlling = _CONTROLLING_IS_UNKNOWN
 
     def get_DnaGroup(self):
         """
@@ -143,7 +206,7 @@ class DnaAtomMarker( ChainAtomMarker):
         """
         return self.parent_node_of_class( DnaStrandOrSegment)
         
-    def _f_get_owning_strand_or_segment(self):
+    def _f_get_owning_strand_or_segment(self): ### @@@ REVIEW - correct? needed? what is this for anyway?
         """
         [friend method for dna updater]
         Find the DnaStrand or DnaSegment which owns this marker,
@@ -157,7 +220,7 @@ class DnaAtomMarker( ChainAtomMarker):
         or gets called explicitly) should instead use the appropriate
         method out of get_DnaStrand or get_DnaSegment.
         """
-        res = self._owning_strand_or_segment
+        res = self._owning_strand_or_segment # note: setting this is NIM
         ### maybe todo: if this might be updated lazily, and is None, update it now from .dad?
         if res is None:
             assert self._get_DnaStrandOrSegment() is None # if fails, need code to update this attr,
@@ -175,7 +238,7 @@ class DnaAtomMarker( ChainAtomMarker):
             self.kill() # stub -- in future, depends on user-settable properties and/or on subclass
         return
     
-    def _f_move_to_live_atom_step1(self): #e todo: split docstring
+    def _f_move_to_live_atom_step1(self): #e todo: split docstring; ### FIX/REVIEW/REFILE/REPLACE @@@
         """
         [friend method, called from dna_updater]
         Our atom died; see if there is a live atom on our old chain which we want to move to;
@@ -208,7 +271,9 @@ class DnaAtomMarker( ChainAtomMarker):
         
         class stuff: #e rename
             """
-            track first & last atom seen during some subsection of the chain
+            Track first & last live atom seen during some subsection of the chain.
+            (If exactly one atom is seen, those will be the same.)
+            (Only live atoms should be passed to self.see(atom, index).)
             """
             first_atom = None
             first_index = None
@@ -242,6 +307,7 @@ class DnaAtomMarker( ChainAtomMarker):
         old_atom_index = None # note: any int is a possible value, in principle
         
         before = True # changed to False when we find old_atom during loop
+            # (only makes sense since we iterate over baseindices in order)
 
         old_index_to_atom_dict = {}
 
@@ -317,7 +383,7 @@ class DnaAtomMarker( ChainAtomMarker):
             self.kill()
         return didit
     
-    def _f_move_to_live_atom_step2(self, new_chain_info): #e todo: split docstring
+    def _f_move_to_live_atom_step2(self, new_chain_info): #e todo: split docstring ### FIX/REVIEW/REFILE/REPLACE @@@
         """
         [friend method, called from dna_updater]
         Our atom died; see if there is a live atom on our old chain which we want to move to;
@@ -352,14 +418,14 @@ class DnaAtomMarker( ChainAtomMarker):
             self.kill()
         return didit
     
-    def _move_to_this_atom(self, atom): #e arg for index change too?
+    def _move_to_this_atom(self, atom): #e arg for index change too?   ### FIX/REVIEW/REFILE/REPLACE @@@
         #e assert correct kind of atom, for a per-subclass kind... call a per-subclass atom_ok function?
         self._set_marker_atom(atom)
         #e other updates (if not done by submethod)?
         #e set a flag telling the user to review this change, if settings ask us to... (or let caller do this??)
         return True
 
-    def compute_new_chain_relative_direction(self,
+    def compute_new_chain_relative_direction(self,   ### FIX/REVIEW/REFILE/REPLACE @@@
                                              new_atom,
                                              new_chain_info,
                                              old_index_to_atom_dict,
@@ -461,7 +527,9 @@ class DnaSegmentMarker(DnaAtomMarker): #e rename to DnaAxisMarker? guess: no...
 
         @see: get_DnaGroup
         """
-        return self.parent_node_of_class( DnaSegment)
+        res = self._get_DnaStrandOrSegment()
+        assert isinstance(res, DnaSegment)
+        return res
     pass
 
 # ==
@@ -482,7 +550,9 @@ class DnaStrandMarker(DnaAtomMarker):
 
         @see: get_DnaGroup
         """
-        return self.parent_node_of_class( DnaStrand)
+        res = self._get_DnaStrandOrSegment()
+        assert isinstance(res, DnaStrand)
+        return res
     pass
 
 # end

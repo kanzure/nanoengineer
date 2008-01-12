@@ -17,6 +17,11 @@ class DnaStrand(DnaStrandOrSegment):
     subobjects, described in the superclass docstring. These include
     its DnaStrandChunks, and its DnaStrandMarkers, exactly one of which is
     its controlling marker.
+
+    [Note: we might decide to put the DnaStrandChunks inside the
+     DnaSegment whose axis they attach to (as is done in DnaDuplex_EditCommand
+     as of 080111), instead. This is purely an implementation issue but
+     has implications for selection and copying code. bruce comment 080111]
     """
 
     pass

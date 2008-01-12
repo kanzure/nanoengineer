@@ -1,7 +1,8 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-ChainAtomMarker.py - a marked atom in a chain, with help for moving it
-to a new atom if its old atom is killed; has state for undo/copy/save
+ChainAtomMarker.py - a marked atom and direction in a chain of atoms,
+with help for moving it to a new atom if its old atom is killed;
+has state for undo/copy/save
 
 @author: Bruce
 @version: $Id$
@@ -20,22 +21,51 @@ See also: class DnaAtomMarker, which inherits this.
 
 from jigs import Jig
 
+_NUMBER_OF_MARKER_ATOMS = 2
+
 # ==
 
 class ChainAtomMarker(Jig):
     """
-    Marks a single atom in an AtomChainOrRing, with support for the marker
-    (self) being moved to a new atom in the same chain if the old atom gets
-    killed.
+    Abstract class.
+    
+    Marks a single atom in some kind of chain of live atoms
+    (which kind and how to move along it is known only to more
+    concrete subclasses), and a direction along that chain,
+    represented as a reference to the next atom along it
+    (and/or by other subclass-specific attrs).
 
-    (But the strategy for finding which atom self should move to, if its old
-    atom gets killed, or whether self should die in that case,
-    and when any of that should happen, is left up to a specific subclass.)
+    As a jig, has pointers to both the marked and next atom,
+    so it can be invalidated when either one is killed.
+    Responding to that occurrence is up to subclasses,
+    though this class has some support for the subclass
+    "moving self to a new atom along the same chain".
 
-    WARNING: this will be revised, since the marker really needs to
-    be on a higher-level WholeChain which covers multiple AtomChainOrRings.
+    Contains state for undo/copy/save (namely the two atoms,
+    individually distinguished), and perhaps more subclass-
+    specific state).
 
-    Has state for undo/copy/save.
+    Note that there are several distinct ways this object can be "invalid"
+    and become "valid" (making use of subclass-specific code in both,
+    and for that matter with "validity" only meaningful in a subclass-
+    specific way):
+
+    - moving to a new atom, since the old marker_atom was killed
+      (perhaps moving along an old chain that is no longer valid
+       except for that purpose)
+
+    - resetting its next_atom to a new one which records the same
+      direction from its marker_atom, if next_atom died or got disconnected
+
+    - becoming owned by the chain its atoms are on, after undo/copy/read.
+
+    For all of these cases, the subclass needs to extend appropriate
+    Jig API methods to be notified of and respond to these events,
+    and it may record more info when updating self in response to them,
+    which may be more definitive as a direction or position indicator
+    than next_atom or perhaps even marker_atom. It is up to the subclass
+    to keep those atoms up to date (i.e. change them if necessary
+    to fit the more definitive info, which is not seen by copy/undo/save).
     """
 
     # default values of instance variables:
@@ -43,38 +73,47 @@ class ChainAtomMarker(Jig):
     # Jig API variables
     
     sym = "ChainAtomMarker" # probably never visible, since this is an abstract class
-
-    ## copyable_attrs = Jig.copyable_attrs + () # more are only needed in subclasses
     
     # other variables
+
+    marked_atom = None
+    next_atom = None
+
+    # declare attributes involved in copy, undo, mmp save
     
-    _old_atom = None # (not undoable or copyable) (but see comment on "make _old_atom undoable" below)
-    _chain = None # (not undoable or copyable)
+    copyable_attrs = Jig.copyable_attrs + ('marked_atom', 'next_atom')
+        # that sets them up for copy and undo;
+        # no need for mmp write/read code for these, since they're written as part of self.atoms
+        # and reinitialized from that when we're constructed,
+        # but do REVIEW and assert that they're in the right order when written.
+        
+        # note: more copyable_attrs are needed in subclasses
+    
+##    _old_atom = None # (not undoable or copyable) (but see comment on "make _old_atom undoable" below)
     
     # == Jig API methods
 
-    def __init__(self, assy, atomlist, chain = None):
-        # [can chain be None after we get copied? I think so...]
-        # (chain arg is not needed in _um_initargs since copying it can/should make it None. REVIEW, is that right? ###]
+    def __init__(self, assy, atomlist):
         """
-        @param chain: the atom chain or ring which we reside on when created (can it be None??)
-        @type chain: AtomChainOrRing instance
         """
-        assert len(atomlist) == 1
+        assert len(atomlist) == _NUMBER_OF_MARKER_ATOMS
+        # code after this only works if _NUMBER_OF_MARKER_ATOMS == 2
+        marked_atom, next_atom = atomlist
         Jig.__init__(self, assy, atomlist)
-        if chain is not None:
-            self.set_chain(chain)
+        self.marked_atom = marked_atom
+        self.next_atom = next_atom
+        self._check_atom_order()
         return
         
     def needs_atoms_to_survive(self):
-        # False, so that if our atom is removed, we don't die.
-        # Problem: if we're selected and copied, but our atom isn't, this would copy us.
+        # False, so that if both our atoms are removed, we don't die.
+        # Problem: if we're selected and copied, but our atoms aren't, this would copy us.
         # But this can't happen if we're at toplevel in a DNA Group, and hidden from user,
         # and thus only selected if entire DNA Group is. REVIEW if this code is ever used
-        # in a non-DnaGroup context.
+        # in a non-DnaGroup context. [Also REVIEW now that we have two atoms.]
         return False
     
-    def confers_properties_on(self, atom):
+    def confers_properties_on(self, atom): ### REVIEW now that we have two atoms, for copy code
         """
         [overrides Node method]
         Should this jig be partly copied (even if not selected)
@@ -82,63 +121,59 @@ class ChainAtomMarker(Jig):
         (It's ok to assume without checking that atom is one of this jig's atoms.)
         """
         return True
-    
-    def remove_atom(self, atom):
+
+    def writemmp(self, mapping):
         """
-        [subclasses might need to extend this]
+        [extends superclass method]
         """
-        assert atom in self.atoms and len(self.atoms) == 1
-        self._old_atom = atom
-        Jig.remove_atom(self, atom)
-        return
-    
+        # check a few things, then call superclass method
+        assert not self.is_homeless() # redundant as of 080111, that's ok
+        assert len(self.atoms) == _NUMBER_OF_MARKER_ATOMS
+        self._check_atom_order()
+        
+        return Jig.writemmp(self, mapping)
+        
     # == other methods
 
+    def _check_atom_order(self):
+        # todo: extend/rename this to fix it, if it ever gets messed up
+        if len(self.atoms) == _NUMBER_OF_MARKER_ATOMS:
+            assert [self.marked_atom, self.next_atom] == self.atoms
+        return
+    
     def is_homeless(self):
         """
-        Has our atom been killed?
+        Has either of our atoms been killed?
         """
-        res = (not self.atoms) and (self._old_atom is not None)
-        if res:
-            assert self._old_atom.killed()
-            # BUG: can fail in Undo, e.g. if you select and delete all atoms,
-            # then Undo that. (At least it did once after some other atom
-            # deletes in a duplex, just after delete_bare_atoms implemented.)
-            # REVIEW: make _old_atom undoable, to fix this? Not sure it would help...
-            # [071205]
-        return res
+        return len(self.atoms) < _NUMBER_OF_MARKER_ATOMS
+# old code:
+##        res = (not self.atoms) and (self._old_atom is not None)
+##        if res:
+##            assert self._old_atom.killed()
+##            # BUG: can fail in Undo, e.g. if you select and delete all atoms,
+##            # then Undo that. (At least it did once after some other atom
+##            # deletes in a duplex, just after delete_bare_atoms implemented.)
+##            # REVIEW: make _old_atom undoable, to fix this? Not sure it would help...
+##            # [071205]
+##        return res
 
-    def _set_marker_atom(self, atom):
-        ## assert not self.atoms #k needed? true for current callers, but not required in principle
-        assert self.is_homeless()
-            # this assumes we initially have an atom when we're made
-        assert not atom.killed()
-        self._old_atom = None
-        self.setAtoms([atom])
-        #e other updates?
-        return
-
-    def _get_marker_atom(self):
-        if self.atoms:
-            return self.atoms[0]
-        else:
-            assert self.is_homeless()
-            return self._old_atom
-        pass
+# REVIEW following - needed? correct for two atoms?? (i doubt it) [bruce 080111 comment]
+##    def _set_marker_atom(self, atom):
+##        ## assert not self.atoms #k needed? true for current callers, but not required in principle
+##        assert self.is_homeless()
+##            # this assumes we initially have an atom when we're made
+##        assert not atom.killed()
+##        self._old_atom = None
+##        self.setAtoms([atom])
+##        #e other updates?
+##        return
+##
+##    def _get_marker_atom(self):
+##        if self.atoms:
+##            return self.atoms[0]
+##        else:
+##            assert self.is_homeless()
+##            return self._old_atom
+##        pass
     
-    def set_chain(self, chain):
-        """
-        A new atom chain or ring is taking us over (but we'll stay on the same atom).
-
-        @param chain: the atom chain or ring which we reside on when created (can it be None??)
-        @type chain: AtomChainOrRing instance
-
-        @note: some subclasses should extend this method to add invalidations.
-        """
-        assert not self.is_homeless()
-        #e assert chain contains self._get_marker_atom()?
-        assert chain is not None # or should None be allowed, as a way of unsetting it??
-        self._chain = chain
-        return
-
     pass # end of class ChainAtomMarker

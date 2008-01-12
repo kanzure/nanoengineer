@@ -2,9 +2,6 @@
 """
 DnaChain.py - Dna-aware AtomChainOrRing subclasses, AxisChain and StrandChain
 
-Used internally for base indexing in strands and segments; perhaps used in the
-future to mark subsequence endpoints for relations or display styles.
-
 @author: Bruce
 @version: $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -250,7 +247,7 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
             self._chain_id = _chain_id_counter
         return self._chain_id
     
-    def _f_own_atoms(self):
+    def _f_own_atoms(self): # @@@ review: is this really a small chain or whole chain method?
         """
         Own our atoms, for chain purposes.
         This does not presently store anything on the atoms, even indirectly,
@@ -267,7 +264,7 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
         # is chosen or made to control it. (But note that markers might
         # get removed or made independently without the chain itself
         # changing. If so, some invalidation of those chain attributes
-        # might be needed)
+        # might be needed.)
 
         if DEBUG_DNA_UPDATER_VERBOSE:
             print "%r._f_own_atoms() is a stub - always makes a new marker" % self #####FIX
@@ -290,6 +287,9 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
     def virtual_fragment(self, start_baseindex, baselength): #e misnamed if not virtual -- review
         """
         #doc
+
+        [as of 080109 these are created in make_new_ladders() and passed into DnaLadder as its rail chains
+         via init arg and add_strand_rail]
         """
         # current implem always returns a real fragment; might be ok
         baseindex = start_baseindex - self.start_baseindex()

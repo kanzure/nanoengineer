@@ -32,8 +32,8 @@ class DnaLadderRailChunk(Chunk):
     # == init methods
 
     def __init__(self, assy, chain_or_something_else):
-        # TODO: check if this arg signature ok re undo, copy, etc;
-        # and if ok for rest of Node API if it matters for this kind of chunk
+        # TODO: check if this arg signature is ok re undo, copy, etc;
+        # and if ok for rest of Node API if that matters for this kind of chunk;
         # for now just assume chain_or_something_else is a DnaChain
         chain = chain_or_something_else
         # name should not be seen, but it is for now...

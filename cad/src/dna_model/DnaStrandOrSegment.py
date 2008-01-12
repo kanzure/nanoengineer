@@ -27,7 +27,7 @@ class DnaStrandOrSegment(Group):
         chains of PAM atoms are broken or merged with other strands or segments
 
       - (maybe) this DnaStrands's DnaStrandChunks, or this DnaSegment's
-        DnaAxisChunks
+        DnaAxisChunks (see docstrings of DnaStrand/DnaSegment for details)
 
     - As other attributes:
 

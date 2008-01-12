@@ -409,7 +409,7 @@ class DnaLadder(object):
 
 # ==
 
-def _rail_end_atom_to_ladder(atom):
+def _rail_end_atom_to_ladder(atom): # FIX: not really private, and part of an import cycle (used in DnaLadderRailChunk).
     """
     Atom is believed to be the end-atom of a rail in a valid DnaLadder.
     Return that ladder. If anything looks wrong, either console print an error message
@@ -436,6 +436,13 @@ def _end_to_end_bonded( atom1, atom2, strandQ):
     strand2 of a single-stranded ladder; we expect no bonds between
     two missing strand2's, but we do need bonds between None and
     a real strand2, so we return False then.)
+
+    param atom1: an end atom of a ladder rail, or None (for a missing rail in a ladder)
+
+    param atom2: like atom1, for a possibly-adjacent ladder
+    
+    param strandQ: whether these atoms are part of strand rails (vs axis rails).
+    type strandQ: boolean
     """
     if atom1 is None and atom2 is None:
         assert strandQ # from a missing strand2
