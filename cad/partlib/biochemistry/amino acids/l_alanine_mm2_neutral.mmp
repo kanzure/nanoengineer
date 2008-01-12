@@ -33,6 +33,7 @@ atom 11 (0) (-384, 1229, 1241) def
 bond1 4
 atom 12 (0) (-353, 393, -1859) def
 bond1 1
+info chunk hotspot = 12
 egroup (l_alanine_mm2_fragment)
 end1
 group (Clipboard)
