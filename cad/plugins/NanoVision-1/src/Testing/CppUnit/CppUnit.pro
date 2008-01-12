@@ -6,7 +6,8 @@ SOURCES += CppUnit.cpp \
  ../../Interface/NXAtom.cpp \
  ../../Interface/NXMoleculeSet.cpp \
  ../../Interface/NXBond.cpp \
- ../../Interface/NXMolecule.cpp
+ ../../Interface/NXMolecule.cpp \
+ ../../Utility/NXLoggerTest.cpp
 
 TEMPLATE = app
 
@@ -23,6 +24,9 @@ HEADERS += ../../Interface/NXNumbersTest.h \
  ../../../include/Nanorex/Interface/NXAtom.h \
  ../../../include/Nanorex/Interface/NXMoleculeSet.h \
  ../../../include/Nanorex/Interface/NXBond.h \
- ../../../include/Nanorex/Interface/NXMolecule.h
+ ../../../include/Nanorex/Interface/NXMolecule.h \
+ ../../../include/Nanorex/Utility/NXLogger.h \
+ ../../Interface/NXEntityManagerTest.h \
+ ../../Utility/NXLoggerTest.h
 INCLUDEPATH += /home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/include
 
