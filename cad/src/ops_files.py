@@ -44,10 +44,12 @@ from PlatformDependent import find_or_make_Nanorex_subdir
 from model.assembly import assembly
 
 from files_pdb import readpdb, insertpdb, writepdb
+from files_pdb import EXCLUDE_BONDPOINTS, EXCLUDE_HIDDEN_ATOMS
 from files_gms import insertgms
 from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
 from fileIO import writepovfile
 from fileIO import writemdlfile
+from qutemol import write_qutemol_pdb_file
 
 from debug import print_compact_traceback
 from debug import linenum
@@ -321,6 +323,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "NWChem input format (*.nw);;"\
             "PCModel Format (*.pcm);;"\
             "Protein Data Bank format (*.pdb);;"\
+            "PDB with QuteMol rendering instructions (*.pdb);;"\
             "POV-Ray input format (*.pov);;"\
             "Parallel Quantum Solutions format (*.pqs);;"\
             "Q-Chem input format (*.qcin);;"\
@@ -355,9 +358,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             return
         export_filename = str(export_filename)
 
-        sext = re.compile('.*\(\*(.+)\)').search(str(sfilter))
+        sext = re.compile('(.*)\(\*(.+)\)').search(str(sfilter))
         assert sext is not None
-        sext = sext.group(1)
+        formatName = sext.group(1)
+        sext = sext.group(2)
         if not export_filename.endswith(sext):
             export_filename += sext
 
@@ -368,6 +372,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         dir, fil, ext = _fileparse(export_filename)
         if ext == ".mmp":
             self.save_mmp_file(export_filename, brag = True)
+            
+        elif formatName.startswith("PDB with QuteMol"):
+            write_qutemol_pdb_file(self.assy.part, export_filename,
+                                   EXCLUDE_BONDPOINTS | EXCLUDE_HIDDEN_ATOMS)
         else:
             # Anything that isn't an MMP file we will export with Open Babel.
             # Its coverage of MMP files is imperfect so it makes mistakes, but
