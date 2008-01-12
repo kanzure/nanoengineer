@@ -271,6 +271,8 @@ packageMapping_for_files = {
     "BuildAtomsPropertyManager"        : "ui/propmgr|commands/BuildAtoms",
     "BuildAtoms_Command"               : "command|commands/BuildAtoms",
     "BuildAtoms_GraphicsMode"          : "graphics_mode|commands/BuildAtoms",
+    "BuildDna_EditCommand"             : "command|dna/commands/BuildDna",
+    "BuildDna_PropertyManager"         : "ui/propmgr|dna/commands/BuildDna",
     "build_utils"                      : "operation|commands/BuildAtoms", # AtomDepositionTool
     "changedicts"                      : "foundation",
     "changes"                          : "foundation",
