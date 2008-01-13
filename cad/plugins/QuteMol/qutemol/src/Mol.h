@@ -138,8 +138,8 @@ class Mol{
 public: 
   
   bool sticks; // true if ball_and_stick mode
-  float colMode; // mode = 0 -> per atom   
-                // mode = 1 -> per chain 
+  float colMode; // mode = 1 -> per atom   
+                // mode = 0 -> per chain 
                 
   void SetColMode(float newColMode);
   
@@ -236,7 +236,7 @@ public:
   
 private:
     
-    map<int, int> chainColors;
+    int chainColors[1000]; // Support a thousand chains for now.
 
     // unsigned int DL_bonds, DL_atoms; // display lists (UNUSED)
     

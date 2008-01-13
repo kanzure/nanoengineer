@@ -1,4 +1,6 @@
 
+#include <wx/panel.h>
+
 
 /* Define a new application type */
 class MyTab: public wxPanel{

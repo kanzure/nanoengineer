@@ -25,8 +25,11 @@ using namespace std;
 #include "AtomColor.h"
 
 #include "MyCanvas.h"
+#include "MyTab.h"
 
 #include "CgUtil.h"
+
+#include "Common.h"
 
 float stick_radius;
 
@@ -56,8 +59,8 @@ Mol::Mol()
     //DL_bonds = DL_atoms = 666;
     colMode=1.0;
     
-    // PDB supports 52 chains [a-zA-Z], index 0 is unused
-    for (int i = 0; i < 53; i++)
+    // Support a thousand chains for now
+    for (int i = 0; i < 1000; i++)
         chainColors[i] = 1; // 1 is used to indicate no set chain color
     
     // View related
@@ -455,6 +458,9 @@ bool Mol::ReadPdb(const char* _filename){
     // >0: Use TER record serial numbers as chain identifiers (for NE1)
     int chainIndex = -1;
     
+    // REMARK 7 DISPLAY_STYLE value
+    wxString displayStyle = "";
+    
     textureAssigned = false;
     QAtom::readError = false;
     
@@ -492,6 +498,7 @@ bool Mol::ReadPdb(const char* _filename){
             
             // Read default view orientation quaternion
             //   REMARK   7 ORIENTATION: 0.000000 0.000000 -1.000000 0.000000
+            //
             if ((st.length() > 22) &&
                 (st.substr(11, 12) == "ORIENTATION:")) {
                 wxString dataLine = st.substr(23);
@@ -511,6 +518,7 @@ bool Mol::ReadPdb(const char* _filename){
             
             // Read default view scale
             //   REMARK   7 SCALE: 183.270221
+            //
             if ((st.length() > 16) &&
                 (st.substr(11, 6) == "SCALE:")) {
                 r = atof(st.substr(17).c_str());
@@ -519,6 +527,7 @@ bool Mol::ReadPdb(const char* _filename){
             
             // Read default view scene center
             //   REMARK   7 POINT_OF_VIEW: -118.925325 -111.553805 1.202609
+            //
             if ((st.length() > 24) &&
                 (st.substr(11, 14) == "POINT_OF_VIEW:")) {
                 wxString dataLine = st.substr(25);
@@ -530,19 +539,82 @@ bool Mol::ReadPdb(const char* _filename){
                     haveDefaultView = true;
                 }
             }
-            
-            // Read chain information from records like this:
+
+            // Read tubes display style bond radius
             //             1         2         3         4         5
             //   012345678901234567890123456789012345678901234567890123456789
+            //   REMARK   7 BACKGROUND_COLOR: 255   0   0
+            //  or
+            //   REMARK   7 BACKGROUND_COLOR: SkyBlue
+            //
+            if ((st.length() > 30) &&
+                (st.substr(11, 17) == "BACKGROUND_COLOR:")) {
+                wxStringTokenizer tokenizer(st.substr(28));
+                int red, green, blue;
+                red = green = blue = -1;
+                if (tokenizer.CountTokens() == 3) { // RGB color specified
+                    red = atoi(tokenizer.GetNextToken().c_str());
+                    green = atoi(tokenizer.GetNextToken().c_str());
+                    blue = atoi(tokenizer.GetNextToken().c_str());
+                    
+                } else {
+                    wxString colorName = tokenizer.GetNextToken();
+                    if (colorName == "SkyBlue") {
+                        red = 127;
+                        green = 199;
+                        blue = 247;
+                    }
+                }
+                if (red > -1)
+                    MyTab::setSceneBgcolor(wxColor(red, green, blue));
+            }
+
+            // Read tubes display style bond radius
+            //   REMARK   7 TUBES_BOND_RADIUS: 0.300
+            //
+            if ((st.length() > 30) &&
+                (st.substr(11, 18) == "TUBES_BOND_RADIUS:")) {
+                geoSettings.licoRadius = atof(st.substr(30).c_str());
+            }
+
+            // Read ball and stick display style bond radius
+            //   REMARK   7 BALL_AND_STICK_BOND_RADIUS: 0.300
+            //
+            if ((st.length() > 39) &&
+                (st.substr(11, 27) == "BALL_AND_STICK_BOND_RADIUS:")) {
+                geoSettings.stickRadius = atof(st.substr(39).c_str());
+            }
+
+            // Read display style
+            //   REMARK   7 DISPLAY_STYLE: tub
+            //
+            // Display style names:"def", "inv", "cpk", "lin", "bas", "tub"
+            //
+            if ((st.length() > 28) &&
+                (st.substr(11, 14) == "DISPLAY_STYLE:")) {
+                displayStyle = st.substr(26, 3);
+                if (displayStyle == "bas")
+                    geoSettings.mode = GeoSettings::BALL_N_STICKS;
+                    
+                else if (displayStyle == "tub")
+                    geoSettings.mode = GeoSettings::LICORICE;
+                    
+                else if (displayStyle == "cpk")
+                    geoSettings.mode = GeoSettings::SPACE_FILL;
+           }
+
+
+            // Read chain information from records like this:
             //   REMARK   7 CHAIN: 10  DISPLAY_STYLE: Default  COLOR: 0 170 255  NAME: "11"
+            //
             if ((st.length() > 16) &&
                 (st.substr(11, 6) == "CHAIN:")) {
                 wxString dataLine = st.substr(18);
                 wxStringTokenizer tokenizer(dataLine);
-                if (tokenizer.CountTokens() > 6) {
+                if (tokenizer.CountTokens() > 6) { // If the chain has a color
                     int _chainIndex = atoi(tokenizer.GetNextToken().c_str());
                     tokenizer.GetNextToken(); // DISPLAY_STYLE:
-                    tokenizer.GetNextToken(); // unused
+                    wxString chainDisplayStyle = tokenizer.GetNextToken();
                     tokenizer.GetNextToken(); // COLOR:
                     int red = atoi(tokenizer.GetNextToken().c_str());
                     int green = atoi(tokenizer.GetNextToken().c_str());
@@ -550,7 +622,23 @@ bool Mol::ReadPdb(const char* _filename){
                     // int color = 0xFFRRGGBB;
                     int color = 0xff000000 + (red<<16) + (green<<8) + blue;
                     chainColors[_chainIndex] = color;
+                    SetColMode(0); // Color chains
                     chainIndex = 1;
+                    
+                    // For some reason, when writing DNA strands, NE1 puts "tub"
+                    // for the global display style when the display style is
+                    // really "cpk" or "bas" (ball and stick) It does write
+                    // "cpk" or "bas" correctly for
+                    // the chain display styles however, so we check the first
+                    // one here and update the global display style if it's
+                    // differnt.
+                    //
+                    if ((_chainIndex == 1) && (displayStyle == "tub"))
+                        if (chainDisplayStyle == "bas")
+                            geoSettings.mode = GeoSettings::BALL_N_STICKS;
+                            
+                        else if (chainDisplayStyle == "cpk")
+                            geoSettings.mode = GeoSettings::SPACE_FILL;
                 }
             }
         }
