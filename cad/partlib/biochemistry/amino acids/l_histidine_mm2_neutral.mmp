@@ -3,58 +3,59 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.999883, -0.002007, 0.015042, 0.001916) (4.699278) (0.036656, -0.795569, 0.048225) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (7.853973) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
-group (histidine)
+group (l_histidine_mm2_neutral)
 info opengroup open = True
-mol (histidine.pdb) def
-atom 1 (6) (256, -846, 180) def
-info atom atomtype = sp2
-atom 2 (7) (1621, -876, 19) def
+mol (l_histidine_mm2_neutral) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (15, -1831, 1111) def
-info atom atomtype = sp2
-bond2 1
-atom 4 (6) (2111, -1836, 833) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (7) (1155, -2438, 1512) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond1 3
-bond2 4
-atom 6 (6) (-772, 29, -487) def
+bond2 3
+atom 5 (1) (1972, -5099, 4066) def
 bond1 1
-atom 7 (6) (-761, 1477, 38) def
-bond1 6
-atom 8 (7) (-2005, 2151, -376) def
-bond1 7
-atom 9 (8) (1625, 1930, -218) def
-info atom atomtype = sp2
-atom 10 (1) (2178, -257, -620) def
+atom 6 (1) (2123, -7452, 2318) def
 bond1 2
-atom 11 (1) (-971, -2120, 1505) def
+atom 7 (0) (984, -6223, 3983) def
+bond1 1
+atom 8 (0) (3100, -7764, 4937) def
 bond1 3
-atom 12 (1) (3188, -2055, 891) def
-bond1 4
-atom 13 (1) (-1778, -423, -317) def
-bond1 6
-atom 14 (1) (-595, 19, -1587) def
-bond1 6
-atom 15 (1) (-761, 1466, 1154) def
-bond1 7
-atom 16 (1) (-2025, 3112, -34) def
-bond1 8
-atom 17 (6) (409, 2256, -388) def
+atom 9 (6) (3910, -6289, 2691) def
+bond1 2
+atom 10 (1) (3682, -5614, 1867) def
+bond1 9
+atom 11 (1) (4577, -7052, 2292) def
+bond1 9
+atom 12 (6) (4642, -5488, 3807) def
 info atom atomtype = sp2
-bond1 7
-bond2 9
-atom 18 (0) (-2576, 1831, -90) def
-bond1 8
-atom 19 (0) (267, 2892, -737) def
-bond1 17
-egroup (histidine)
+bond1 9
+atom 13 (6) (5848, -5720, 4318) def
+info atom atomtype = sp2
+bond2 12
+atom 14 (1) (6530, -6520, 4034) def
+bond1 13
+atom 15 (7) (4049, -4288, 4484) def
+bond1 12
+atom 16 (6) (5166, -3938, 5440) def
+info atom atomtype = sp2
+bond1 15
+atom 17 (1) (5117, -3099, 6131) def
+bond1 16
+atom 18 (7) (6179, -4708, 5378) def
+info atom atomtype = sp2
+bond1 13
+bond2 16
+atom 19 (1) (3888, -3534, 3820) def
+bond1 15
+info chunk hotspot = 8
+egroup (l_histidine_mm2_neutral)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part histidine
+end molecular machine part l_histidine_mm2_neutral

@@ -3,40 +3,41 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.718124, -0.114564, 0.685459, -0.036313) (3.817378) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (4.310352) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_alanine_mm2_fragment)
 info opengroup open = True
 mol (l_alanine_mm2_neutral) def
-atom 1 (7) (-173, 723, -1253) def
-atom 2 (6) (-393, -146, -86) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (388, -1454, -268) def
-bond1 2
-atom 4 (6) (-30, 583, 1193) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (722, 209, 2061) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond2 4
-atom 6 (1) (-760, 1556, -1204) def
+bond2 3
+atom 5 (1) (1972, -5099, 4066) def
 bond1 1
-atom 7 (1) (-1484, -380, -35) def
+atom 6 (1) (2123, -7452, 2318) def
 bond1 2
-atom 8 (1) (85, -1974, -1206) def
-bond1 3
-atom 9 (1) (1484, -1262, -327) def
-bond1 3
-atom 10 (1) (205, -2156, 578) def
-bond1 3
-atom 11 (0) (-384, 1229, 1241) def
-bond1 4
-atom 12 (0) (-353, 393, -1859) def
+atom 7 (0) (984, -6223, 3983) def
 bond1 1
-info chunk hotspot = 12
+atom 8 (0) (3100, -7764, 4937) def
+bond1 3
+atom 9 (6) (3898, -6300, 2684) def
+bond1 2
+atom 10 (1) (3662, -5596, 1897) def
+bond1 9
+atom 11 (1) (4556, -7066, 2296) def
+bond1 9
+atom 12 (1) (4388, -5782, 3497) def
+bond1 9
+info chunk hotspot = 8
 egroup (l_alanine_mm2_fragment)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
 end molecular machine part l_alanine_mm2_fragment
+

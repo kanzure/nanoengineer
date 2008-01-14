@@ -3,64 +3,65 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.572791, -0.151004, 0.802101, 0.075777) (3.703223) (0.000000, 0.005000, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (7.853973) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_tyrosine_mm2_neutral)
 info opengroup open = True
 mol (l_tyrosine_mm2_neutral) def
-atom 1 (7) (-2172, 1248, -1205) def
-atom 2 (6) (-2833, 178, -442) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (-2136, -1167, -707) def
-bond1 2
-atom 4 (6) (-2935, 543, 1028) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-2846, -204, 1973) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond2 4
-atom 6 (6) (-671, -1155, -328) def
-info atom atomtype = sp2
-bond1 3
-atom 7 (6) (-230, -1688, 888) def
-info atom atomtype = sp2
-bonda 6
-atom 8 (6) (292, -637, -1200) def
-info atom atomtype = sp2
-bonda 6
-atom 9 (6) (1124, -1676, 1228) def
-info atom atomtype = sp2
-bonda 7
-atom 10 (6) (1644, -627, -856) def
-info atom atomtype = sp2
-bonda 8
-atom 11 (6) (2087, -1142, 367) def
-info atom atomtype = sp2
-bonda 9 10
-atom 12 (8) (3408, -1130, 693) def
-bond1 11
-atom 13 (1) (-2703, 2117, -1154) def
+bond2 3
+atom 5 (1) (1972, -5099, 4066) def
 bond1 1
-atom 14 (1) (-3886, 112, -810) def
+atom 6 (1) (2123, -7452, 2318) def
 bond1 2
-atom 15 (1) (-2221, -1422, -1790) def
+atom 7 (0) (984, -6223, 3983) def
+bond1 1
+atom 8 (0) (3100, -7764, 4937) def
 bond1 3
-atom 16 (1) (-2667, -1984, -164) def
-bond1 3
-atom 17 (1) (-953, -2127, 1593) def
-bond1 7
-atom 18 (1) (-14, -230, -2178) def
-bond1 8
-atom 19 (1) (1444, -2100, 2195) def
+atom 9 (6) (3908, -6291, 2679) def
+bond1 2
+atom 10 (1) (4528, -7044, 2194) def
 bond1 9
-atom 20 (1) (2380, -208, -1562) def
-bond1 10
-atom 21 (1) (3886, -724, -48) def
-bond1 12
-atom 22 (0) (-3072, 1263, 1119) def
-bond1 4
-atom 23 (0) (-2128, 1082, -1897) def
-bond1 1
+atom 11 (1) (3664, -5563, 1907) def
+bond1 9
+atom 12 (6) (4722, -5584, 3809) def
+info atom atomtype = sp2
+bond1 9
+atom 13 (6) (5840, -6216, 4380) def
+info atom atomtype = sp2
+bonda 12
+atom 14 (1) (6145, -7204, 4038) def
+bond1 13
+atom 15 (6) (4339, -4310, 4259) def
+info atom atomtype = sp2
+bonda 12
+atom 16 (1) (3475, -3813, 3822) def
+bond1 15
+atom 17 (6) (5068, -3673, 5273) def
+info atom atomtype = sp2
+bonda 15
+atom 18 (1) (4768, -2685, 5619) def
+bond1 17
+atom 19 (6) (6568, -5577, 5393) def
+info atom atomtype = sp2
+bonda 13
+atom 20 (1) (7434, -6069, 5834) def
+bond1 19
+atom 21 (6) (6183, -4306, 5840) def
+info atom atomtype = sp2
+bonda 19 17
+atom 22 (8) (6941, -3641, 6895) def
+bond1 21
+atom 23 (1) (6581, -3896, 7754) def
+bond1 22
+info chunk hotspot = 8
 egroup (l_tyrosine_mm2_neutral)
 end1
 group (Clipboard)

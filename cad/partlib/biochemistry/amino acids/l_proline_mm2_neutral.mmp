@@ -3,44 +3,45 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.629546, -0.367510, 0.575171, -0.371196) (2.948471) (-0.225000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (7.853973) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_proline_mm2_neutral)
 info opengroup open = True
 mol (l_proline_mm2_neutral) def
-atom 1 (7) (-375, 725, -702) def
-atom 2 (6) (-352, -109, 502) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (902, -987, 380) def
-bond1 2
-atom 4 (6) (-410, 724, 1767) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (6) (956, -1230, -1132) def
-bond1 3
-atom 6 (8) (381, 721, 2679) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond2 4
-atom 7 (6) (562, 150, -1668) def
-bond1 1 5
-atom 8 (1) (-1255, -767, 482) def
+bond2 3
+atom 5 (1) (2123, -7452, 2318) def
 bond1 2
-atom 9 (1) (1812, -426, 700) def
-bond1 3
-atom 10 (1) (833, -1931, 967) def
-bond1 3
-atom 11 (1) (1958, -1568, -1484) def
-bond1 5
-atom 12 (1) (195, -1991, -1426) def
-bond1 5
-atom 13 (1) (1462, 808, -1722) def
-bond1 7
-atom 14 (1) (98, 100, -2679) def
-bond1 7
-atom 15 (0) (-1034, 748, -974) def
+atom 6 (0) (983, -6222, 3982) def
 bond1 1
-atom 16 (0) (-1012, 1151, 1779) def
-bond1 4
+atom 7 (0) (3100, -7764, 4937) def
+bond1 3
+atom 8 (6) (3875, -6143, 2841) def
+bond1 2
+atom 9 (1) (3901, -5925, 1774) def
+bond1 8
+atom 10 (1) (4780, -6696, 3088) def
+bond1 8
+atom 11 (6) (2344, -4792, 4287) def
+bond1 1
+atom 12 (1) (2412, -4795, 5374) def
+bond1 11
+atom 13 (1) (1850, -3859, 4021) def
+bond1 11
+atom 14 (6) (3780, -4817, 3673) def
+bond1 11 8
+atom 15 (1) (4536, -4801, 4457) def
+bond1 14
+atom 16 (1) (3946, -3949, 3036) def
+bond1 14
+info chunk hotspot = 7
 egroup (l_proline_mm2_neutral)
 end1
 group (Clipboard)

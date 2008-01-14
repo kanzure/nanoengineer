@@ -3,62 +3,63 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.577982, -0.165132, 0.796872, 0.060525) (3.579075) (0.000000, 0.010000, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (7.106569) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_phenylalanine_mm2_neutral)
 info opengroup open = True
 mol (l_phenylalanine_mm2_neutral) def
-atom 1 (7) (-1836, 1235, -1177) def
-atom 2 (6) (-2474, 153, -412) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (-1753, -1180, -682) def
-bond1 2
-atom 4 (6) (-2575, 515, 1058) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-2448, -224, 2004) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond2 4
-atom 6 (6) (-285, -1139, -321) def
-info atom atomtype = sp2
-bond1 3
-atom 7 (6) (177, -1661, 894) def
-info atom atomtype = sp2
-bonda 6
-atom 8 (6) (655, -606, -1212) def
-info atom atomtype = sp2
-bonda 6
-atom 9 (6) (1534, -1626, 1224) def
-info atom atomtype = sp2
-bonda 7
-atom 10 (6) (2013, -568, -890) def
-info atom atomtype = sp2
-bonda 8
-atom 11 (6) (2456, -1076, 333) def
-info atom atomtype = sp2
-bonda 9 10
-atom 12 (1) (-2392, 2090, -1136) def
+bond2 3
+atom 5 (1) (1972, -5099, 4066) def
 bond1 1
-atom 13 (1) (-3527, 66, -775) def
+atom 6 (1) (2123, -7452, 2318) def
 bond1 2
-atom 14 (1) (-1846, -1439, -1763) def
+atom 7 (0) (984, -6223, 3983) def
+bond1 1
+atom 8 (0) (3100, -7764, 4937) def
 bond1 3
-atom 15 (1) (-2262, -2005, -132) def
-bond1 3
-atom 16 (1) (-533, -2110, 1607) def
-bond1 7
-atom 17 (1) (327, -209, -2186) def
-bond1 8
-atom 18 (1) (1878, -2039, 2186) def
+atom 9 (6) (3910, -6290, 2684) def
+bond1 2
+atom 10 (1) (3666, -5538, 1934) def
 bond1 9
-atom 19 (1) (2737, -141, -1603) def
-bond1 10
-atom 20 (1) (3527, -1050, 589) def
-bond1 11
-atom 21 (0) (-1782, 1067, -1868) def
-bond1 1
-atom 22 (0) (-2740, 1229, 1149) def
-bond1 4
+atom 11 (1) (4519, -7035, 2175) def
+bond1 9
+atom 12 (6) (4738, -5622, 3828) def
+info atom atomtype = sp2
+bond1 9
+atom 13 (6) (5857, -6278, 4370) def
+info atom atomtype = sp2
+bonda 12
+atom 14 (1) (6153, -7256, 3995) def
+bond1 13
+atom 15 (6) (4366, -4360, 4320) def
+info atom atomtype = sp2
+bonda 12
+atom 16 (1) (3501, -3845, 3906) def
+bond1 15
+atom 17 (6) (5107, -3758, 5347) def
+info atom atomtype = sp2
+bonda 15
+atom 18 (1) (4816, -2780, 5726) def
+bond1 17
+atom 19 (6) (6597, -5674, 5396) def
+info atom atomtype = sp2
+bonda 13
+atom 20 (1) (7464, -6184, 5814) def
+bond1 19
+atom 21 (6) (6223, -4415, 5884) def
+info atom atomtype = sp2
+bonda 17 19
+atom 22 (1) (6798, -3947, 6681) def
+bond1 21
+info chunk hotspot = 8
 egroup (l_phenylalanine_mm2_neutral)
 end1
 group (Clipboard)

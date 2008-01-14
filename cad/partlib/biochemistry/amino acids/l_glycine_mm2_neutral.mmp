@@ -3,30 +3,31 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.730750, -0.153339, 0.657025, -0.103971) (4.462209) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (7.106569) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_glycine_mm2_neutral)
 info opengroup open = True
 mol (l_glycine_mm2_neutral) def
-atom 1 (7) (50, 132, -1269) def
-atom 2 (6) (-72, -716, -75) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (303, 48, 1175) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 4 (8) (1124, -271, 2001) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
 bond2 3
-atom 5 (1) (-579, 934, -1214) def
+atom 5 (1) (1972, -5099, 4066) def
 bond1 1
-atom 6 (1) (594, -1600, -193) def
+atom 6 (1) (2123, -7452, 2318) def
 bond1 2
-atom 7 (1) (-1124, -1073, 9) def
-bond1 2
-atom 8 (0) (-92, 669, 1238) def
+atom 7 (0) (984, -6223, 3983) def
+bond1 1
+atom 8 (0) (3100, -7764, 4937) def
 bond1 3
-atom 9 (0) (-139, -223, -1858) def
-bond1 1
+atom 9 (1) (3508, -6492, 2841) def
+bond1 2
+info chunk hotspot = 8
 egroup (l_glycine_mm2_neutral)
 end1
 group (Clipboard)

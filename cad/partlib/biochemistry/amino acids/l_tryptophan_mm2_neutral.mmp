@@ -3,73 +3,74 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.639421, -0.187352, 0.744407, -0.043572) (4.629666) (0.000000, 0.039500, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (7.106569) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_tryptophan_mm2_neutral)
 info opengroup open = True
 mol (l_tryptophan_mm2_neutral) def
-atom 1 (7) (-2211, 1684, -1982) def
-atom 2 (6) (-2657, 678, -1006) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (-1929, -654, -1252) def
-bond1 2
-atom 4 (6) (-2517, 1202, 410) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-2104, 604, 1374) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond2 4
-atom 6 (6) (-442, -553, -1058) def
-info atom atomtype = sp2
-bond1 3
-atom 7 (6) (331, -1092, 17) def
-info atom atomtype = sp2
-bond1 6
-atom 8 (6) (1673, -765, -215) def
-info atom atomtype = sp2
-bond2 7
-atom 9 (6) (444, 66, -1907) def
-info atom atomtype = sp2
-bond2 6
-atom 10 (7) (1724, -57, -1397) def
-bond1 8 9
-atom 11 (6) (-31, -1840, 1167) def
-info atom atomtype = sp2
-bond1 7
-atom 12 (6) (2700, -1155, 680) def
-info atom atomtype = sp2
-bond1 8
-atom 13 (6) (971, -2217, 2037) def
-info atom atomtype = sp2
-bond2 11
-atom 14 (6) (2333, -1875, 1796) def
-info atom atomtype = sp2
-bond1 13
-bond2 12
-atom 15 (1) (-2774, 2533, -1917) def
+bond2 3
+atom 5 (1) (1972, -5099, 4066) def
 bond1 1
-atom 16 (1) (-3751, 520, -1173) def
+atom 6 (1) (2123, -7452, 2318) def
 bond1 2
-atom 17 (1) (-2117, -997, -2297) def
+atom 7 (0) (984, -6223, 3983) def
+bond1 1
+atom 8 (0) (3100, -7764, 4937) def
 bond1 3
-atom 18 (1) (-2345, -1443, -585) def
-bond1 3
-atom 19 (1) (256, 589, -2850) def
+atom 9 (6) (3910, -6290, 2684) def
+bond1 2
+atom 10 (1) (3666, -5538, 1934) def
 bond1 9
-atom 20 (1) (2594, 321, -1836) def
-bond1 10
-atom 21 (1) (-1079, -2112, 1363) def
-bond1 11
-atom 22 (1) (3751, -890, 484) def
+atom 11 (1) (4519, -7035, 2175) def
+bond1 9
+atom 12 (6) (4733, -5647, 3836) def
+info atom atomtype = sp2
+bond1 9
+atom 13 (6) (5842, -6186, 4500) def
+info atom atomtype = sp2
 bond1 12
-atom 23 (1) (714, -2797, 2938) def
-bond1 13
-atom 24 (1) (3105, -2196, 2514) def
+atom 14 (6) (4499, -4385, 4421) def
+info atom atomtype = sp2
+bond2 12
+atom 15 (1) (3707, -3693, 4141) def
 bond1 14
-atom 25 (0) (-2753, 1900, 462) def
-bond1 4
-atom 26 (0) (-2286, 1449, -2651) def
-bond1 1
+atom 16 (7) (5458, -4166, 5428) def
+bond1 14
+atom 17 (1) (5544, -3286, 6062) def
+bond1 16
+atom 18 (6) (6276, -5295, 5455) def
+info atom atomtype = sp2
+bond1 16
+bonda 13
+atom 19 (6) (7371, -5563, 6276) def
+info atom atomtype = sp2
+bonda 18
+atom 20 (1) (7703, -4849, 7027) def
+bond1 19
+atom 21 (6) (6478, -7413, 4301) def
+info atom atomtype = sp2
+bonda 13
+atom 22 (1) (6133, -8117, 3546) def
+bond1 21
+atom 23 (6) (7589, -7715, 5115) def
+info atom atomtype = sp2
+bonda 21
+atom 24 (1) (8109, -8662, 4988) def
+bond1 23
+atom 25 (6) (8033, -6795, 6098) def
+info atom atomtype = sp2
+bonda 19 23
+atom 26 (1) (8892, -7041, 6719) def
+bond1 25
+info chunk hotspot = 8
 egroup (l_tryptophan_mm2_neutral)
 end1
 group (Clipboard)

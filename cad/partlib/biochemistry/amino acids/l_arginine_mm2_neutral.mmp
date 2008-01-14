@@ -3,65 +3,65 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (-0.687386, 0.111116, -0.696480, 0.173406) (5.483180) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (7.853973) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_arginine_mm2_neutral)
 info opengroup open = True
 mol (l_arginine_mm2_neutral) def
-atom 1 (7) (-2391, 2411, -1342) def
-atom 2 (6) (-2856, 1703, -139) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (-2200, 313, -54) def
-bond1 2
-atom 4 (6) (-2653, 2553, 1102) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-2268, 2183, 2186) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond2 4
-atom 6 (6) (-664, 349, -23) def
+bond2 3
+atom 5 (1) (1972, -5099, 4066) def
+bond1 1
+atom 6 (1) (2123, -7452, 2318) def
+bond1 2
+atom 7 (0) (984, -6223, 3983) def
+bond1 1
+atom 8 (0) (3100, -7764, 4937) def
 bond1 3
-atom 7 (6) (-62, -1058, 120) def
-bond1 6
-atom 8 (7) (1412, -1008, 124) def
-bond1 7
-atom 9 (6) (2109, -2202, 254) def
-info atom atomtype = sp2
-bond1 8
-atom 10 (7) (3422, -2171, 263) def
-info atom atomtype = sp2
-bond2 9
-atom 11 (7) (1433, -3406, 371) def
+atom 9 (6) (3909, -6292, 2678) def
+bond1 2
+atom 10 (1) (3666, -5632, 1846) def
 bond1 9
-atom 12 (1) (-2886, 3295, -1460) def
-bond1 1
-atom 13 (1) (-3961, 1571, -238) def
-bond1 2
-atom 14 (1) (-2526, -292, -934) def
-bond1 3
-atom 15 (1) (-2580, -216, 853) def
-bond1 3
-atom 16 (1) (-311, 980, 826) def
-bond1 6
-atom 17 (1) (-277, 812, -961) def
-bond1 6
-atom 18 (1) (-390, -1692, -737) def
-bond1 7
-atom 19 (1) (-402, -1513, 1080) def
-bond1 7
-atom 20 (1) (1933, -103, 36) def
-bond1 8
-atom 21 (1) (3961, -3042, 357) def
-bond1 10
-atom 22 (1) (1983, -4295, 467) def
-bond1 11
-atom 23 (1) (386, -3437, 367) def
-bond1 11
-atom 24 (0) (-2838, 3257, 979) def
-bond1 4
-atom 25 (0) (-2522, 2033, -1932) def
-bond1 1
-info chunk hotspot = 25
+atom 11 (1) (4567, -7062, 2276) def
+bond1 9
+atom 12 (6) (4636, -5489, 3800) def
+bond1 9
+atom 13 (1) (3932, -4796, 4259) def
+bond1 12
+atom 14 (1) (4953, -6174, 4586) def
+bond1 12
+atom 15 (6) (5875, -4690, 3288) def
+bond1 12
+atom 16 (1) (6580, -5408, 2870) def
+bond1 15
+atom 17 (1) (5556, -4100, 2429) def
+bond1 15
+atom 18 (7) (6510, -3830, 4358) def
+bond1 15
+atom 19 (1) (7438, -4157, 4614) def
+bond1 18
+atom 20 (6) (6500, -2344, 4080) def
+info atom atomtype = sp2
+bond1 18
+atom 21 (7) (5506, -1630, 4433) def
+info atom atomtype = sp2
+bond2 20
+atom 22 (7) (7675, -1704, 3384) def
+bond1 20
+atom 23 (1) (8053, -2314, 2664) def
+bond1 22
+atom 24 (1) (7425, -810, 2967) def
+bond1 22
+atom 25 (1) (4774, -2165, 4894) def
+bond1 21
+info chunk hotspot = 8
 egroup (l_arginine_mm2_neutral)
 end1
 group (Clipboard)

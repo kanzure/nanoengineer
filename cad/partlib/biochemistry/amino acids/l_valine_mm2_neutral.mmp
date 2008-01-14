@@ -3,48 +3,49 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.681278, -0.082267, 0.726837, 0.028300) (3.892387) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (4.310352) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_valine_mm2_neutral)
 info opengroup open = True
 mol (l_valine_mm2_neutral) def
-atom 1 (7) (-396, 1425, -1254) def
-atom 2 (6) (-792, 551, -137) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (-103, -823, -280) def
-bond1 2
-atom 4 (6) (-581, 1273, 1182) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (30, 897, 2153) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond2 4
-atom 6 (6) (1432, -737, -215) def
-bond1 3
-atom 7 (6) (-633, -1852, 733) def
-bond1 3
-atom 8 (1) (-948, 2283, -1259) def
+bond2 3
+atom 5 (1) (1972, -5099, 4066) def
 bond1 1
-atom 9 (1) (-1895, 393, -228) def
+atom 6 (1) (2123, -7452, 2318) def
 bond1 2
-atom 10 (1) (-364, -1212, -1300) def
-bond1 3
-atom 11 (1) (1895, -1733, -400) def
-bond1 6
-atom 12 (1) (1786, -389, 781) def
-bond1 6
-atom 13 (1) (1838, -40, -982) def
-bond1 6
-atom 14 (1) (-212, -2864, 533) def
-bond1 7
-atom 15 (1) (-1742, -1939, 678) def
-bond1 7
-atom 16 (1) (-365, -1586, 1779) def
-bond1 7
-atom 17 (0) (-920, 1929, 1177) def
-bond1 4
-atom 18 (0) (-516, 1111, -1883) def
+atom 7 (0) (984, -6223, 3983) def
 bond1 1
+atom 8 (0) (3100, -7764, 4937) def
+bond1 3
+atom 9 (6) (3916, -6287, 2683) def
+bond1 2
+atom 10 (1) (4387, -5787, 3530) def
+bond1 9
+atom 11 (6) (3617, -5196, 1602) def
+bond1 9
+atom 12 (1) (3121, -5633, 737) def
+bond1 11
+atom 13 (1) (4538, -4727, 1259) def
+bond1 11
+atom 14 (1) (2976, -4413, 2002) def
+bond1 11
+atom 15 (6) (4929, -7347, 2137) def
+bond1 9
+atom 16 (1) (5255, -8023, 2925) def
+bond1 15
+atom 17 (1) (5816, -6863, 1732) def
+bond1 15
+atom 18 (1) (4480, -7941, 1343) def
+bond1 15
+info chunk hotspot = 8
 egroup (l_valine_mm2_neutral)
 end1
 group (Clipboard)

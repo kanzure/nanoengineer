@@ -3,54 +3,55 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.691694, -0.138809, 0.702970, -0.090141) (4.461670) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (5.264676) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_leucine_mm2_neutral)
 info opengroup open = True
 mol (l_leucine_mm2_neutral) def
-atom 1 (7) (-1383, 1300, -1334) def
-atom 2 (6) (-1544, 409, -172) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (-680, -856, -322) def
-bond1 2
-atom 4 (6) (-1343, 1149, 1137) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-1045, 665, 2202) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond2 4
-atom 6 (6) (837, -709, -72) def
-bond1 3
-atom 7 (6) (1525, -2078, -239) def
-bond1 6
-atom 8 (6) (1514, 322, -988) def
-bond1 6
-atom 9 (1) (-2013, 2100, -1271) def
+bond2 3
+atom 5 (1) (1972, -5099, 4066) def
 bond1 1
-atom 10 (1) (-2620, 102, -172) def
+atom 6 (1) (2123, -7452, 2318) def
 bond1 2
-atom 11 (1) (-837, -1273, -1346) def
-bond1 3
-atom 12 (1) (-1073, -1624, 388) def
-bond1 3
-atom 13 (1) (1000, -386, 986) def
-bond1 6
-atom 14 (1) (2612, -2017, -3) def
-bond1 7
-atom 15 (1) (1425, -2454, -1282) def
-bond1 7
-atom 16 (1) (1084, -2841, 443) def
-bond1 7
-atom 17 (1) (2620, 313, -856) def
-bond1 8
-atom 18 (1) (1183, 1359, -755) def
-bond1 8
-atom 19 (1) (1300, 112, -2060) def
-bond1 8
-atom 20 (0) (-1550, 965, -1941) def
+atom 7 (0) (984, -6223, 3983) def
 bond1 1
-atom 21 (0) (-1470, 1873, 1066) def
-bond1 4
+atom 8 (0) (3100, -7764, 4937) def
+bond1 3
+atom 9 (6) (3915, -6285, 2700) def
+bond1 2
+atom 10 (1) (3676, -5605, 1884) def
+bond1 9
+atom 11 (1) (4558, -7049, 2265) def
+bond1 9
+atom 12 (6) (4688, -5511, 3833) def
+bond1 9
+atom 13 (1) (4101, -5564, 4750) def
+bond1 12
+atom 14 (6) (4850, -3994, 3490) def
+bond1 12
+atom 15 (1) (5453, -3860, 2594) def
+bond1 14
+atom 16 (1) (5335, -3462, 4306) def
+bond1 14
+atom 17 (1) (3880, -3530, 3321) def
+bond1 14
+atom 18 (6) (6072, -6167, 4142) def
+bond1 12
+atom 19 (1) (5952, -7214, 4416) def
+bond1 18
+atom 20 (1) (6564, -5662, 4972) def
+bond1 18
+atom 21 (1) (6730, -6115, 3277) def
+bond1 18
+info chunk hotspot = 8
 egroup (l_leucine_mm2_neutral)
 end1
 group (Clipboard)

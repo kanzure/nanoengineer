@@ -3,44 +3,45 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.709395, -0.089015, 0.695483, -0.071682) (3.831325) (0.000000, -0.153500, 0.000000) (1.000000)
+csys (LastView) (0.834588, -0.085788, 0.195024, 0.508005) (7.853973) (-2.115855, 7.141500, -3.627500) (1.000000)
 egroup (View Data)
 group (l_asparticacid_mm2_neutral)
 info opengroup open = True
 mol (l_asparticacid_mm2_neutral.pdb) def
-atom 1 (7) (-1079, 897, -1349) def
-atom 2 (6) (-1386, 78, -165) def
+atom 1 (7) (1637, -5998, 3746) def
+atom 2 (6) (2595, -6954, 3200) def
 bond1 1
-atom 3 (6) (-605, -1246, -230) def
-bond1 2
-atom 4 (6) (-1147, 844, 1124) def
+atom 3 (6) (2907, -8016, 4233) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-850, 367, 2193) def
+atom 4 (8) (2790, -9184, 3975) def
 info atom atomtype = sp2
-bond2 4
-atom 6 (6) (903, -1077, -167) def
-info atom atomtype = sp2
-bond1 3
-atom 7 (8) (1533, -2253, -347) def
-bond1 6
-atom 8 (8) (1521, -56, 19) def
-info atom atomtype = sp2
-bond2 6
-atom 9 (1) (-1472, 1834, -1259) def
+bond2 3
+atom 5 (1) (1972, -5099, 4066) def
 bond1 1
-atom 10 (1) (-2482, -138, -189) def
+atom 6 (1) (2123, -7452, 2318) def
 bond1 2
-atom 11 (1) (-860, -1770, -1182) def
-bond1 3
-atom 12 (1) (-917, -1908, 611) def
-bond1 3
-atom 13 (1) (2482, -2052, -280) def
-bond1 7
-atom 14 (0) (-1250, 1570, 1036) def
-bond1 4
-atom 15 (0) (-1368, 619, -1939) def
+atom 7 (0) (984, -6223, 3983) def
 bond1 1
+atom 8 (0) (3100, -7764, 4937) def
+bond1 3
+atom 9 (6) (3912, -6288, 2696) def
+bond1 2
+atom 10 (1) (3690, -5629, 1858) def
+bond1 9
+atom 11 (1) (4591, -7052, 2318) def
+bond1 9
+atom 12 (6) (4625, -5473, 3812) def
+info atom atomtype = sp2
+bond1 9
+atom 13 (8) (4378, -4303, 4017) def
+info atom atomtype = sp2
+bond2 12
+atom 14 (8) (5618, -6184, 4616) def
+bond1 12
+atom 15 (1) (5981, -5599, 5293) def
+bond1 14
+info chunk hotspot = 8
 egroup (l_asparticacid_mm2_neutral)
 end1
 group (Clipboard)
