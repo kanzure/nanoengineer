@@ -172,11 +172,9 @@ class DnaDuplex_EditCommand(EditCommand):
             self,
             showPropMgr = showPropMgr)
         
-        self.propMgr.updateMessage("Create a DNA by specifying two endpoints " \
-                                   "of a line. <br>"\
-                                   "Activate the <b> Specify EndPoints </b>"
-                                   "button and then specify the two endpoints" \
-                                   " from the 3D workspace"
+        self.propMgr.updateMessage("Specify two points in the 3D Graphics " \
+                                   "Area to define the endpoints of the "\
+                                   "DNA duplex."
                                    )
         
     def createStructure(self, showPropMgr = True):
