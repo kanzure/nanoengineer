@@ -61,6 +61,20 @@ class LinearMotor_EditCommand(EditCommand):
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
     
+    def Enter(self):
+        """
+        Enter this command. 
+        @see: EditCommand.Enter
+        """
+        #See EditCommand.Enter for a detailed comment on why self.struct is 
+        #set to None while entering this command.
+        #May not be needed for RotaryMotor and Linear motor edit commands, 
+        # but safe to do it for now -- Ninad 2008-01-14
+        if self.struct:
+            self.struct = None
+        
+        EditCommand.Enter(self)
+    
     def init_gui(self):
         """
         NOT IMPLEMENTED YET.

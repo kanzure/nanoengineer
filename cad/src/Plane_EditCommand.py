@@ -66,7 +66,19 @@ class Plane_EditCommand(EditCommand):
         @see: L{Plane.__init__}
         """     
         EditCommand.__init__(self, commandSequencer)
-        self.struct = struct      
+        self.struct = struct   
+    
+    def Enter(self):
+        """
+        Enter this command. 
+        @see: EditCommand.Enter
+        """
+        #See EditCommand.Enter for a detailed comment on why self.struct is 
+        #set to None while entering this command.
+        if self.struct:
+            self.struct = None
+        
+        EditCommand.Enter(self)
 
     def _createPropMgrObject(self):
         """

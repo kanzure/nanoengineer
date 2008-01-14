@@ -62,6 +62,16 @@ class RotaryMotor_EditCommand(EditCommand):
         self.struct = struct
     
     def Enter(self):
+        """
+        Enter this command. 
+        @see: EditCommand.Enter
+        """
+        #See EditCommand.Enter for a detailed comment on why self.struct is 
+        #set to None while entering this command.
+        #May not be needed for RotaryMotor and Linear motor edit commands, 
+        # but safe to do it for now -- Ninad 2008-01-14
+        if self.struct:
+            self.struct = None        
         EditCommand.Enter(self)
         self.o.assy.permit_pick_atoms()
     
