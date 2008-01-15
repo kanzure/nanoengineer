@@ -3,9 +3,12 @@
 #ifndef NX_LOGGER_H
 #define NX_LOGGER_H
 
+#include <stdio.h>
+
 #include <list>
 #include <string>
 
+#include <QMutex>
 #include <QDateTime>
 
 namespace Nanorex {
@@ -51,6 +54,10 @@ class LogRecord {
 
 
 /* CLASS: NXLogHandler */
+/**
+ * Base class for NXLogger log entry emission handlers.
+ * @ingroup NanorexUtility, Logging
+ */
 class NXLogHandler {
 	public:
 		NXLogHandler(LogLevel logLevel) { this->logLevel = logLevel; }
@@ -65,43 +72,136 @@ class NXLogHandler {
 
 /* CLASS: NXLogger */
 /**
- * @ingroup NanorexUtility
+ * A simple logging mechanism.
+ * @ingroup NanorexUtility, Logging
  */
 class NXLogger {
 	public:
 		void log(LogLevel logLevel, const std::string& source,
 				 const std::string& message) {
+			LogRecord logRecord(logLevel, source, message);
 			std::list<NXLogHandler*>::iterator iter = logHandlers.begin();
 			while (iter != logHandlers.end()) {
-				(*iter)->publish(LogRecord(logLevel, source, message));
+				(*iter)->publish(logRecord);
 				iter++;
 			}
-		}
-		void log(LogLevel logLevel, const std::string& message) {
-			log(logLevel, std::string(""), message);
-		}
-		
+			ThisInstance = this;
+		}		
 		void addHandler(NXLogHandler* logHandler) {
 			logHandlers.push_back(logHandler);
+			logHandler->publish(LogRecord(LogLevel_Info,
+										 "NXLogger",
+										 "*********** Log Start ***********"));
 		}
+		static NXLogger* Instance() { return ThisInstance; }
 
 	private:
 		std::list<NXLogHandler*> logHandlers;
+		static NXLogger* ThisInstance;
+};
+NXLogger* NXLogger::ThisInstance = 0;
+
+
+// Convenience macros
+#define NXLOG_DEBUG(source, message) { \
+	NXLogger* logger = NXLogger::Instance(); \
+	if (logger != 0) \
+		logger->log(LogLevel_Debug, source, message); \
+};
+
+#define NXLOG_CONFIG(source, message) { \
+	NXLogger* logger = NXLogger::Instance(); \
+	if (logger != 0) \
+		logger->log(LogLevel_Config, source, message); \
+};
+
+#define NXLOG_INFO(source, message) { \
+	NXLogger* logger = NXLogger::Instance(); \
+	if (logger != 0) \
+		logger->log(LogLevel_Info, source, message); \
+};
+
+#define NXLOG_WARNING(source, message) { \
+	NXLogger* logger = NXLogger::Instance(); \
+	if (logger != 0) \
+		logger->log(LogLevel_Warning, source, message); \
+};
+
+#define NXLOG_SEVERE(source, message) { \
+	NXLogger* logger = NXLogger::Instance(); \
+	if (logger != 0) \
+		logger->log(LogLevel_Severe, source, message); \
 };
 
 
+/* CLASS: NXConsoleLogHandler */
+/**
+ * Emits log entries to the console.
+ * @ingroup NanorexUtility, Logging
+ */
 class NXConsoleLogHandler : public NXLogHandler {
 	public:
 		NXConsoleLogHandler(LogLevel logLevel) : NXLogHandler(logLevel) { }
 		void publish(LogRecord logRecord) {
-			printf("%s [%-7s] %s %s\n",
+			mutex.lock();
+			printf("%s  [%-7s]  %s %s\n",
 				   qPrintable(logRecord.getDateTime()
 				   				.toString("yyyy-MM-dd hh:mm:ss.zzz")),
 				   LogLevelNames[logRecord.getLogLevel()],
 				   (logRecord.getSource().length() == 0 ?
 				   		"" : logRecord.getSource().append(":").c_str()),
 				   logRecord.getMessage().c_str());
+			mutex.unlock();
 		}
+
+	private:
+		QMutex mutex;
+};
+
+
+/* CLASS: NXFileLogHandler */
+/**
+ * Emits log entries to a specified file.
+ * @ingroup NanorexUtility, Logging
+ */
+class NXFileLogHandler : public NXLogHandler {
+	public:
+		NXFileLogHandler(const std::string& filename, LogLevel logLevel) :
+				NXLogHandler(logLevel) {
+			filehandle = fopen(filename.c_str(), "w");
+			if (filehandle != 0) {
+				fprintf(filehandle,
+						"%s  NXFileLogHandler started. Writing to: %s\n",
+						qPrintable(QDateTime::currentDateTime()
+							.toString("yyyy-MM-dd hh:mm:ss.zzz")),
+						filename.c_str());
+				printf("NXFileLogHandler started. Writing to: %s\n",
+					   filename.c_str());
+			} else
+				printf("NXFileLogHandler could not open file for writing: %s\n",
+					   filename.c_str());
+		}
+		~NXFileLogHandler() {
+			if (filehandle != 0)
+				fclose(filehandle);
+		}
+		void publish(LogRecord logRecord) {
+			if (filehandle != 0) {
+				mutex.lock();
+				fprintf(filehandle,"%s  [%-7s]  %s %s\n",
+						qPrintable(logRecord.getDateTime()
+							.toString("yyyy-MM-dd hh:mm:ss.zzz")),
+						LogLevelNames[logRecord.getLogLevel()],
+						(logRecord.getSource().length() == 0 ?
+							"" : logRecord.getSource().append(":").c_str()),
+						logRecord.getMessage().c_str());
+				mutex.unlock();
+			}
+		}
+
+	private:
+		QMutex mutex;
+		FILE* filehandle;
 };
 
 } // Nanorex::

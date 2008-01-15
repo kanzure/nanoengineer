@@ -6,6 +6,13 @@
 	General-use classes.
  */
 
+/******************* Logging *******************/
+/**
+@defgroup Logging Logging
+	Simple logging mechanism.
+	@ingroup NanorexUtility
+ */
+
  
 /******************* NanorexInterface *********************
  **********************************************************/
@@ -14,8 +21,7 @@
 	Interface to Nanorex application cores.
  */
 
-/******************* PluginArchitecture ********************
- ***********************************************************/
+/******************* PluginArchitecture ********************/
 /**
 @defgroup PluginArchitecture Plugin Architecture
 	Plugin architecture for extending the functionality of Nanorex applications.

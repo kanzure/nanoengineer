@@ -2,7 +2,6 @@
 
 #include "NXLoggerTest.h"
 
-
 CPPUNIT_TEST_SUITE_REGISTRATION(NXLoggerTest);
 CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(NXLoggerTest, "NXLoggerTestSuite");
 
@@ -17,11 +16,28 @@ void NXLoggerTest::tearDown() {
 }
 
 
-/* FUNCTION: toCharTest */
-void NXLoggerTest::basicTest() {
+/* FUNCTION: consoleHandlerTest */
+void NXLoggerTest::consoleHandlerTest() {
+	printf("\n");
 	NXLogger* logger = new NXLogger();
 	logger->addHandler(new NXConsoleLogHandler(LogLevel_Info));
 	logger->log(LogLevel_Info, "src", "msg");
-	
+	NXLOG_DEBUG("foo", "bar");
+	NXLOG_CONFIG("cpu", "fast");
+	NXLOG_INFO("app", "started");
+	NXLOG_WARNING("app", "in trouble");
+	NXLOG_SEVERE("app", "exiting");
+	delete logger;
+	CPPUNIT_ASSERT(true);
+}
+
+
+/* FUNCTION: fileHandlerTest */
+void NXLoggerTest::fileHandlerTest() {
+	printf("\n");
+	NXLogger* logger = new NXLogger();
+	logger->addHandler(new NXFileLogHandler("NXLoggerTest.log", LogLevel_Info));
+	logger->log(LogLevel_Info, "src", "msg");
+	delete logger;
 	CPPUNIT_ASSERT(true);
 }

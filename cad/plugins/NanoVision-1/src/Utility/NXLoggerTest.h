@@ -14,14 +14,16 @@ using namespace Nanorex;
 class NXLoggerTest : public CPPUNIT_NS::TestFixture {
 
 	CPPUNIT_TEST_SUITE(NXLoggerTest);
-	CPPUNIT_TEST(basicTest);
+	CPPUNIT_TEST(consoleHandlerTest);
+	CPPUNIT_TEST(fileHandlerTest);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
 		void setUp();
 		void tearDown();
 
-		void basicTest();
+		void consoleHandlerTest();
+		void fileHandlerTest();
 };
 
 #endif
