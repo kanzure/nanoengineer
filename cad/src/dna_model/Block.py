@@ -12,6 +12,8 @@ might be moved into a more general package.
 
 from Group import Group
 
+from debug_prefs import debug_pref, Choice_boolean_False
+
 class Block(Group):
     """
     Model object which represents a user-visible grouping of nodes inside a
@@ -39,8 +41,18 @@ class Block(Group):
         return self._raw_MT_kids()
 
     def _raw_MT_kids(self):
+        if self._show_all_kids_for_debug():
+            return self.members
         return filter( lambda member: member.is_block(), self.members )
-    
+
+    def _show_all_kids_for_debug(self):
+        classname_short = self.__class__.__name__.split('.')[-1]
+        debug_pref_name = "Model Tree: show content of %s?" % classname_short
+            # typical examples (for text searches to find them here):
+            # Model Tree: show content of DnaGroup?
+            # Model Tree: show content of Block?
+        return debug_pref( debug_pref_name, Choice_boolean_False )
+        
     def openable(self):
         return not not self._raw_MT_kids()
         # REVIEW: if we are open and lose our _raw_MT_kids, we become open but
