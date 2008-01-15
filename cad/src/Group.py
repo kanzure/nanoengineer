@@ -26,6 +26,7 @@ from icon_utilities import imagename_to_pixmap
 
 from Utility import Node
 
+from utilities.Log import redmsg, quote_html
 # ==
 
 class Group(Node):
@@ -52,7 +53,12 @@ class Group(Node):
         # but need not be identical to the output of group.MT_kids(),
         # which gives the list of nodes to show as its children in the Model Tree.
     
-    mmp_record_name = 'group'
+    _mmp_group_classifications = () # this should be extended in some subclasses...
+        # This should be a tuple of classifications that appear in
+        # files_mmp._GROUP_CLASSIFICATIONS, most general first.
+        # There is no need for more than one element except to support
+        # old code reading new mmp files.
+        # [bruce 080115]
 
     def __init__(self, name, assy, dad, members = (), editCommand = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]
@@ -93,6 +99,10 @@ class Group(Node):
         """
         return True
 
+    _extra_classifications = ()
+    def set_extra_classifications( self, extra_classifications): #bruce 080115
+        self._extra_classifications = list(extra_classifications)
+        
     open_specified_by_mmp_file = False
     def readmmp_info_opengroup_setitem( self, key, val, interp ): #bruce 050421, to read group open state from mmp file
         """
@@ -132,7 +142,7 @@ class Group(Node):
         return True # same as for Node
 
     def drag_copy_ok(self):
-        return True # for my testing... maybe make it False for Alpha though ###e ####@@@@ 050201
+        return True # for my testing... REVIEW: maybe make it False for Alpha though 050201
 
     def is_selection_group_container(self): #bruce 050131 for Alpha
         """
@@ -229,6 +239,15 @@ class Group(Node):
         the proper subclasses directly.
         """
         assert self.__class__ is Group
+        if self._encoded_classifications():
+            # bug (or mmp format error), but an assertion might not be fully
+            # safe [bruce 080115]
+            msg = "Bug: self has _encoded_classifications %r (discarded) " \
+                  "in kluge_change_class to %r: %r" % \
+                  (self._encoded_classifications(), subclass.__name__, self)
+            print msg
+            env.history.message( redmsg(quote_html(msg)) )
+            pass # but continue anyway
         new = subclass(self.name, self.assy, self.dad) # no members yet
         assert isinstance(new, Group) # (but usually it's also some subclass of Group, unlike self)
         if self.dad:
@@ -828,9 +847,18 @@ class Group(Node):
         for ob in self.members:
             ob.getstatistics(stats)
 
-    def writemmp(self, mapping): #bruce 050322 revised interface
-        mapping.write(self.mmp_record_name + " (" + mapping.encode_name(self.name) + ")\n")
-        mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False")) #bruce 050421
+    def writemmp(self, mapping): #bruce 080115 use classifications
+        encoded_classifications = self._encoded_classifications()
+        mapping.write( "group (%s)%s\n" % (
+            mapping.encode_name( self.name),
+            encoded_classifications and
+                (" " + encoded_classifications) or ""
+         ))
+        # someday: we might optimize by skipping info opengroup open if it has
+        # the default value, but it's hard to find out what that is reliably
+        # for the variou special cases. It's not yet known if it will be
+        # meaningful for Block, so we write it even then. [bruce 080115 comment]
+        mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False"))
             # All "info opengroup" records should be written before we write any of our members.
             # If Group subclasses override this method (and don't call it), they'll need to behave similarly.
         # [bruce 050422: this is where we'd write out "jigs moved forward" if they should come at start of this group...]
@@ -841,8 +869,21 @@ class Group(Node):
             # [bruce 050422: ... and this is where we'd write them, to put them after some member leaf or group.]
             for xx in mapping.pop_forwarded_nodes_after_child(x):
                 mapping.write_forwarded_node_for_real(xx)
-        mapping.write("e" + self.mmp_record_name + " (" + mapping.encode_name(self.name) + ")\n")
+        mapping.write("egroup (" + mapping.encode_name(self.name) + ")\n")
 
+    def _encoded_classifications(self): #bruce 080115
+        """
+        [should not need to be overridden; instead,
+         subclasses should assign a more specific value of
+         _mmp_group_classifications]
+        """
+        assert type(self._mmp_group_classifications) == type(())
+            # especially, not a string
+        classifications = list( self._mmp_group_classifications)
+        if self._extra_classifications:
+            classifications.extend( self._extra_classifications)
+        return " ".join(classifications)
+    
     def writepov(self, f, dispdef):
         if self.hidden:
             return

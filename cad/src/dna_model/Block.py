@@ -23,7 +23,12 @@ class Block(Group):
 
     See also: DnaGroup, which inherits Block.
     """
-    
+
+    # This should be a tuple of classifications that appear in
+    # files_mmp._GROUP_CLASSIFICATIONS, most general first.
+    # See comment in class Group for more info. [bruce 080115]
+    _mmp_group_classifications = ('Block',)
+
     def is_block(self):
         """
         [overrides Node API method]

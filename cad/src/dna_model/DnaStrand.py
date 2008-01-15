@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaStrand.py - ... 
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
@@ -23,6 +23,11 @@ class DnaStrand(DnaStrandOrSegment):
      as of 080111), instead. This is purely an implementation issue but
      has implications for selection and copying code. bruce comment 080111]
     """
+
+    # This should be a tuple of classifications that appear in
+    # files_mmp._GROUP_CLASSIFICATIONS, most general first.
+    # See comment in class Group for more info. [bruce 080115]
+    _mmp_group_classifications = ('DnaStrand',)
 
     pass
 

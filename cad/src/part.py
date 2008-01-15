@@ -795,14 +795,17 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     addnode = addmol #bruce 060604; should make addnode the fundamental one, and deprecate addmol, and clean up above comments
 
-    def ensure_toplevel_group(self): #bruce 050228, 050309
+    def ensure_toplevel_group(self): #bruce 080115 revised so Block doesn't count
         """
-        Make sure this Part's toplevel node is a Group, by Grouping it if not.
-        [Note: operations which create new nodes and want to add them needn't call this directly,
-         since they can call self.addnode or assy.addnode instead.]
+        Make sure this Part's toplevel node is a Group (which is not a Block),
+        by Grouping it if not.
+        
+        @note: most operations which create new nodes and want to add them
+        needn't call this directly, since they can call self.addnode or
+        assy.addnode instead.
         """
         assert self.topnode
-        if not self.topnode.is_group():
+        if not self.topnode.is_group() or self.topnode.is_block():
             self.create_new_toplevel_group()
         return
 

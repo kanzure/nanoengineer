@@ -103,6 +103,8 @@ Part Properties dialog), so no harm is caused by changing it.
 
 '050920 required; 070415 preferred' -- bruce, adding "bond_direction" record
 
+'050920 required; 080115 preferred' -- bruce, adding group classifications DnaGroup, DnaSegment, DnaStrand, Block
+
 ===
 
 General notes about when to change the mmp format version:
@@ -114,8 +116,8 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 070415 preferred'
-#bruce modified this to indicate required & ideal reader versions... see general notes above.
+MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 080115 preferred'
+# this semi-formally indicates required & ideal reader versions... see general notes above.
 
 import re, time
 
@@ -134,7 +136,7 @@ from ESPImage import ESPImage
 from jigs_measurements import MeasureAngle
 from jigs_measurements import MeasureDihedral
 from VQT import V, Q, A
-from utilities.Log import redmsg
+from utilities.Log import redmsg, quote_html
 from elements import PeriodicTable
 from bonds import bond_atoms
 from chunk import Chunk
@@ -158,7 +160,13 @@ from bond_constants import V_CARBOMERIC
 
 from Plane import Plane
 
+# the following imports and the assignment they're used in
+# should be replaced by some registration scheme
+# (not urgent) [bruce 080115]
 from dna_model.DnaGroup import DnaGroup
+from dna_model.DnaSegment import DnaSegment
+from dna_model.DnaStrand import DnaStrand
+from dna_model.Block import Block
 
 # ==
 
@@ -186,13 +194,33 @@ KNOWN_INFO_KINDS = (
     'povrayscene', #mark 060613
  )
 
+# ==
+
+# GROUP_CLASSIFICATIONS maps a "group classification identifier"
+# (a string containing no whitespace) usable in the group mmp record
+# (as of 080115) to a constructor function (typically a subclass of Group)
+# whose API is the same as that of Group (when used as a constructor).
+#
+# THIS MUST BE KEPT CONSISTENT with the class constant assignments
+# of _mmp_group_classifications in subclasses of Group.
+#
+# This assignment and the imports that support it ought to be replaced
+# by a registration scheme. Not urgent. [bruce 080115]
+
+_GROUP_CLASSIFICATIONS = { 
+    'DnaGroup'     : DnaGroup,
+    'DnaSegment'   : DnaSegment,
+    'DnaStrand'    : DnaStrand,
+    'Block'        : Block,
+ }
+
 # == patterns for reading mmp files
 
 #bruce 050414 comment: these pat constants are not presently used in any other files.
 
 _name_pattern = re.compile(r"\(([^)]*)\)")
-    # pattern group containing parenthesized string
-
+    # this has a single pattern group which matches a parenthesized string
+    
 old_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 new_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 datumpat = re.compile("datum \((.+)\) \((\d+), (\d+), (\d+)\) (.*) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)")
@@ -324,34 +352,43 @@ class MMP_RecordParser(object): #bruce 071018
         [see docstring of same method in class _readmmp_state]
         """
         return self.readmmp_state.get_name(card, default)
+    
+    def get_decoded_name_and_rest(self, card, default = None):
+        """
+        [see docstring of same method in class _readmmp_state]
+        """
+        return self.readmmp_state.get_decoded_name_and_rest(card, default)
+    
     def decode_name(self, name):
         """
         [see docstring of same method in class _readmmp_state]
         """
         return self.readmmp_state.decode_name(name)
+    
     def addmember(self, model_component):
         """
         [see docstring of same method in class _readmmp_state]
         """
         self.readmmp_state.addmember(model_component)
+        
     def set_info_object(self, kind, model_component):
         """
         [see docstring of same method in class _readmmp_state]
         """
         self.readmmp_state.set_info_object(kind, model_component)
-        return
+    
     def read_new_jig(self, card, constructor):
         """
         [see docstring of same method in class _readmmp_state]
         """
         self.readmmp_state.read_new_jig(card, constructor)
-        return
     
     def read_record(self, card):
         msg = "subclass %r for recordname %r must implement method read_record" % \
                (self.__class__, self.recordname)
         self.readmmp_state.bug_error(msg)
-    pass
+    
+    pass # end of class MMP_RecordParser
 
 class _fake_MMP_RecordParser(MMP_RecordParser):
     """
@@ -519,12 +556,16 @@ class _readmmp_state:
         return res
 
     def warning(self, msg):
+        msg = quote_html(msg)
         env.history.message( redmsg( "Warning: " + msg))
 
     def format_error(self, msg): ###e use this more widely?
-        env.history.message( redmsg( "Warning: mmp format error: " + msg)) ###e and say what we'll do? review calls; syntax error
+        msg = quote_html(msg)
+        env.history.message( redmsg( "Warning: mmp format error: " + msg))
+            ###e and say what we'll do? review calls; syntax error
 
     def bug_error(self, msg):
+        msg = quote_html(msg)
         env.history.message( redmsg( "Bug: " + msg))
     
     def readmmp_line(self, card):
@@ -618,18 +659,63 @@ class _readmmp_state:
             return instance
         pass
 
-    def get_name(self, card, default): #bruce 071019 moved here from function getname
+    def get_name(self, card, default):
         """
         Get the object name from an mmp record line
         which represents the name in the usual way
         (as a parenthesized string immediately after the recordname),
         but don't decode it (see decode_name for that).
+
+        @return: name
+        @rtype: string
+
+        @see: get_decoded_name_and_rest
         """
+        # note: code also used in get_decoded_name_and_rest
         x = _name_pattern.search(card)
         if x:
             return x.group(1)
         print "warning: mmp record without a valid name field: %r" % (card,) #bruce 071019
         return gensym(default)
+    
+    def get_decoded_name_and_rest(self, card, default = None): #bruce 080115
+        """
+        Get the object name from an mmp record line
+        which represents the name in the usual way
+        (as an encoded parenthesized string immediately after the recordname).
+        Return the tuple ( decoded name, stripped rest of record),
+        or ( default, "" ) if the record line has the wrong format.
+        
+        @param card: the entire mmp record
+        @type card: string
+        
+        @param default: what to return for the name (or pass to gensym
+                        if a string) if the record line
+                        has the wrong format; default value is None
+                        (typically an error in later stages of the caller)
+        @type default: anything, usually string or None
+        
+        @return: ( decoded name, stripped rest of record )
+        @rtype: tuple of (string, string)
+
+        @see: get_name
+        """
+        # note: copies some code from get_name
+        x = _name_pattern.search(card)
+        if x:
+            # match succeeded
+            name = self.decode_name( x.group(1) )
+            rest = card.split(')', 1)[1]
+            rest = rest.strip()
+        else:
+            # format error
+            print "warning: mmp record without a valid name field: %r" % (card,) #bruce 071019
+            if type(default) == type(""):
+                name = gensym(default)
+            else:
+                name = default
+            rest = ""
+        return ( name, rest)
     
     def decode_name(self, name): #bruce 050618 part of fixing part of bug 474
         """
@@ -643,20 +729,50 @@ class _readmmp_state:
     # the remaining methods are parsers for specific records (soon to be split out
     # and registered -- bruce 071017), mixed with helper functions for their use
     
-    def _read_group(self, card): # group: begins a Group (of chunks, jigs, and/or Groups)
-        #bruce 050405 revised this; it can be further simplified
-        name = self.get_name(card, "Grp")
-        assert name is not None #bruce 050405 hope/guess
-        name = self.decode_name(name) #bruce 050618
+    def _read_group(self, card): # group: begins any kind of Group
+        """
+        Read the mmp record which indicates the beginning of a Group object
+        (for Group or any of its specialized subclasses).
+
+        Subsequent mmp records (including nested groups)
+        will be read as members of this group,
+        until a matching egroup record is read.
+        
+        @see: self._read_egroup
+        """
+        #bruce 080115 generalized this to use or save group classifications
+        name, rest = self.get_decoded_name_and_rest(card, "Grp")
+        assert name is not None #bruce 050405
         old_opengroup = self.groupstack[-1]
-        new_opengroup = Group(name, self.assy, old_opengroup)
+        constructor = Group
+        extra_classifications = []
+        for classification in rest.split(): # from general to specific
+            if classification in _GROUP_CLASSIFICATIONS:
+                constructor = _GROUP_CLASSIFICATIONS[ classification ]
+                    # assume this will always write out a classification
+                    # sufficient to regenerate it; if that's ever not true
+                    # we should save classification into extra_classifications
+                    # here
+                extra_classifications = []
+            else:
+                extra_classifications.append( classification )
+            continue # use the last one we recognize; save and rewrite the extra ones
+        new_opengroup = constructor(name, self.assy, old_opengroup)
             # this includes addchild of new group to old_opengroup (so don't call self.addmember)
+        if extra_classifications:
+            # make sure they can get written out again
+            new_opengroup.set_extra_classifications( extra_classifications )
         self.groupstack.append(new_opengroup)
 
-    def _read_egroup(self, card): # egroup: close the current group record
-        #bruce 050405 revised this; it can be further simplified
+    def _read_egroup(self, card): # egroup: ends any kind of Group
+        """
+        Read the mmp record which indicates the end of a Group object
+        (for Group or any of its specialized subclasses).
+        
+        @see: self._read_group
+        """        
         name = self.get_name(card, "Grp")
-        assert name is not None #bruce 050405 hope/guess
+        assert name is not None #bruce 050405
         name = self.decode_name(name) #bruce 050618
         if len(self.groupstack) == 1:
             return "egroup %r when no groups remain unclosed" % (name,)
@@ -667,45 +783,6 @@ class _readmmp_state:
             return "mismatched group records: egroup %r tried to match group %r" % (name, curname) #bruce 050405 revised this msg
         return None # success
     
-    #START DNAGroup ==========================
-    
-    def _read_DnaGroup(self, card):
-        """
-        Read mmp record for a DnaGroup object
-        @see: self._read_group
-        @see: self._read_eDnaGroup
-        """
-        #TODO 2008-01-14: Initial implementation. Likely to be revised
-        name = self.get_name(card, "DnaGrp")
-        assert name is not None 
-        name = self.decode_name(name) 
-        old_opengroup = self.groupstack[-1]
-        new_opengroup = DnaGroup(name, self.assy, old_opengroup)
-            # this includes addchild of new group to old_opengroup 
-            #(so don't call self.addmember)
-        self.groupstack.append(new_opengroup)
-
-    def _read_eDnaGroup(self, card): 
-        """
-        End record for the DnaGroup object
-        @see: self._read_egroup
-        @see: self._read_eDnaGroup
-        """        
-        name = self.get_name(card, "DnaGrp")
-        assert name is not None 
-        name = self.decode_name(name) 
-        if len(self.groupstack) == 1:
-            return "eDnaGroup %r when no dna groups remain unclosed" % (name,)
-        curgroup = self.groupstack.pop()
-        curname = curgroup.name
-        if name != curname:
-            return "mismatched dna group records:"\
-                   "eDnaGroup %r tried to match group %r" % (name, 
-                                                             curname)
-        return None 
-    #END DnaGroup =======================
-    
-
     def _read_mol(self, card): # mol: start a Chunk
         name = self.get_name(card, "Mole")
         name = self.decode_name(name) #bruce 050618
@@ -729,7 +806,18 @@ class _readmmp_state:
         if not m:
             print card
         n = int(m.group(1))
-        sym = PeriodicTable.getElement(int(m.group(2))).symbol
+        try:
+            element = PeriodicTable.getElement(int(m.group(2)))
+            sym = element.symbol
+        except:
+            # catch unsupported element error [bruce 080115] [untested?]
+            # todo: improve getElement so we can narrow down exception type,
+            # or turn this into a special return value; or perhaps better,
+            # permit creating an atom of an unknown element
+            # (by transparently extending getElement to create one)
+            sym = "C"
+            errmsg = "unsupported element in this mmp line; using %s: %s" % (sym, card,)
+            self.format_error(errmsg)
         xyz = A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
         if self.prevchunk is None:
             #bruce 050405 new feature for reading new bare sim-input mmp files
@@ -740,8 +828,10 @@ class _readmmp_state:
         a.unset_atomtype() # let it guess atomtype later from the bonds read from subsequent mmp records [bruce 050707]
         disp = atom2pat.match(card)
         if disp:
-            try: a.setDisplay(dispNames.index(disp.group(1)))
-            except ValueError: pass
+            try:
+                a.setDisplay(dispNames.index(disp.group(1)))
+            except ValueError:
+                pass
         self.ndix[n] = a
         self.prevatom = a
         self.prevcard = card

@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaGroup.py - ... 
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_model.Block import Block
@@ -43,33 +43,38 @@ class DnaGroup(Block):
       covered by the member nodes or superclass attributes.
     """
     
-    
     # The iconPath specifies path(string) of an icon that represents the 
     # objects of this class  
     iconPath = "modeltree/DNA.png"
+
+    # This should be a tuple of classifications that appear in
+    # files_mmp._GROUP_CLASSIFICATIONS, most general first.
+    # See comment in class Group for more info. [bruce 080115]
+    _mmp_group_classifications = ('DnaGroup',)
     
-    mmp_record_name = 'DnaGroup'
-    #@@@State of the Dna Group in the Model Tree (open or closed) By default
-    #this should be 'closed'
+    # Open/closed state of the Dna Group in the Model Tree --
+    # default closed. Note: this is ignored by the Model Tree code
+    # (since we inherit from Block), but whether it affects any other code
+    # (e.g. a PM display widget) is not yet decided.
     open = False
     
     def node_icon(self, display_prefs):
         """
-        Model Tree node icon for the dna group node. 
+        Model Tree node icon for the dna group node
         """
-        #Delete the unused display_prefs parameter
-        del display_prefs    
-        
-        return imagename_to_pixmap(self.iconPath)
-       
-        
+        del display_prefs # unused
+        return imagename_to_pixmap( self.iconPath)
+
+    # Note: some methods below this point are examples or experiments or stubs,
+    # and are likely to be revised significantly or replaced.
+    # [bruce 080115 comment]
+    
     # example method:
     def get_segments(self):
         """
         Return a list of all our DnaSegment objects.
         """
-        return self.get_subnodes_of_class("DnaSegment") # IMPLEM get_subnodes_of_class
-    
+        return self.get_subnodes_of_class("DnaSegment") # IMPLEM get_subnodes_of_class - or is there something similar of another name?
 
     def addSegment(self, segment):
         """
@@ -79,7 +84,7 @@ class DnaGroup(Block):
         @type: B{DnaSegment}  
         """
         # importing DnaSegment created an import cycle which throws error. 
-        # So the isinstance check is is disabled for now.
+        # So this isinstance check is disabled for now.
         ## assert isinstance(segment, DnaSegment)
         
         self.addchild(segment)
@@ -92,7 +97,8 @@ class DnaGroup(Block):
         THIS IS THE DEFAULT IMPLEMENTATION. TO BE MODIFIED
 	"""
         #Should it supply the Dna Segment list (children) and then add 
-        #individual segments when setProps is called?? 
+        #individual segments when setProps is called??
+        # [probably not; see B&N email discussion from when this comment was added]
         if self.editCommand:
             props = ()
             return props
@@ -110,11 +116,12 @@ class DnaGroup(Block):
         """
         @see: Group.edit()
         """
-        
         commandSequencer = self.assy.w.commandSequencer
         commandSequencer.userEnterCommand('BUILD_DNA')
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'BUILD_DNA'
         currentCommand.editStructure(self)
+
+    pass # end of class DnaGroup
 
 # end

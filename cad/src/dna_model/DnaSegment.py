@@ -29,7 +29,12 @@ class DnaSegment(DnaStrandOrSegment):
     once the DNA Data Model is fully implemented, since it will always
     occur inside a DnaGroup (and since it's not a Block).
     """
-    
+
+    # This should be a tuple of classifications that appear in
+    # files_mmp._GROUP_CLASSIFICATIONS, most general first.
+    # See comment in class Group for more info. [bruce 080115]
+    _mmp_group_classifications = ('DnaSegment',)
+
     #Following methods are NOT IMPLEMENTED YET =================================
     
     def getAxisEndPoints(self):

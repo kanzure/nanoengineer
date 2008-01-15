@@ -1,17 +1,16 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-DnaStrandOrSegment.py - ... 
+DnaStrandOrSegment.py - abstract superclass for DnaStrand and DnaSegment
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from Group import Group
 from dna_model.DnaGroup import DnaGroup
 
 class DnaStrandOrSegment(Group):
-    #e maybe inherit some more special subclass of Group? May not matter since we ourselves never show up in MT.
     """
     Abstract superclass for DnaStrand and DnaSegment,
     which represent a Dna Strand or Dna Segment inside a Dna Group.
@@ -49,6 +48,10 @@ class DnaStrandOrSegment(Group):
         or segment (as it
         will in any case control its base indexing).
     """
+    # maybe: inherit some more specialized subclass of Group?
+    # May not matter, since we ourselves never show up in MT.
+    # Note: we definitely can't inherit Block, or we'd show up in MT
+    # as a child of a DnaGroup!
 
     def get_DnaGroup(self):
         """
@@ -60,6 +63,6 @@ class DnaStrandOrSegment(Group):
         """
         return self.parent_node_of_class( DnaGroup)
 
-    pass
+    pass # end of class DnaStrandOrSegment
 
 # end
