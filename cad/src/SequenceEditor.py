@@ -103,7 +103,7 @@ class SequenceEditor(Ui_SequenceEditor):
         change_connect(self.saveSequenceButton, 
                      SIGNAL("clicked()"), 
                      self.saveStrandSequence)
-        
+      
         change_connect(self.baseDirectionChoiceComboBox,
                      SIGNAL('currentIndexChanged(int)'),
                      self._reverseSequence)
@@ -505,6 +505,9 @@ class SequenceEditor(Ui_SequenceEditor):
             self._writeStrandSequenceFile(
                 fileName,
                 str(self.sequenceTextEdit.toPlainText()))
+    
+    
+    
     
     # ==== Methods to support find and replace. 
     # Should this (find and replace) be in its own class? -- Ninad 2007-11-28

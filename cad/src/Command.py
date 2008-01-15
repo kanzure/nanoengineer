@@ -741,12 +741,14 @@ class basicCommand(anyCommand):
             refused = False
         if not refused:
             if resuming and (not has_its_own_gui):
+                self.resume_gui()
                 pass # Do nothing if the command doesn't have its own gui and is 
                      # going to resume the previous mode uses previous Mode Gui. 
                      # This fixes bug 2566 which used to reconnect signals in the 
                      # PM of the previous mode upon re-entering it. 
             else:
                 self.init_gui() ###FIX: perhaps use resume_gui instead, if resuming -- or pass that option.
+                self.resume_gui()
                 self.update_gui() # see also UpdateDashboard
                 self.update_mode_status_text()
         # caller (our command sequencer) will set its self.currentCommand to point to us,
@@ -818,6 +820,23 @@ class basicCommand(anyCommand):
         see UpdateDashboard()), nor defined by commands to do things that
         need redoing many times while the command remains active (for that, see
         update_gui()).
+        """
+        pass
+    
+    def resume_gui(self):
+        """
+        Called when this command, that was suspended earlier, is being resumed. 
+        The temporary command (which was entered by suspending this command)
+        might have made some changes to the model which need to be reflected 
+        somehow in this resuming command. Default implementation does nothing.
+        
+        Example: A user enters BreakStrands_Command by suspending 
+        BuildDna_EditCommand, then breaks a few strands, thereby creating new 
+        strand chunks. Now when the user returns to the BuildDna_EditCommand, 
+        the command's property manager needs to update the list of strands 
+        because of the changes done while in BreakStrands_Command. 
+        @see: BuildDna_EditCommand.resume_gui. 
+        @see: self._enterMode
         """
         pass
     

@@ -83,6 +83,8 @@ class Ui_SequenceEditor(PM_DockWidget):
         self.loadSequenceButton.setAutoRaise(True)
         self.saveSequenceButton.setAutoRaise(True)
         
+        self.assignStrandSequencePushButton = PM_PushButton(self, text = "Assign")
+        
         editDirectionChoices = ["5' to 3'", "3' to 5'"]
         self.baseDirectionChoiceComboBox = \
             PM_ComboBox( self,
@@ -153,19 +155,20 @@ class Ui_SequenceEditor(PM_DockWidget):
         #Widgets to include in the widget row. 
         widgetList = [('PM_ToolButton', self.loadSequenceButton, 0),
                       ('PM_ToolButton', self.saveSequenceButton, 1),
-                      ('QLabel', "     Sequence direction:", 2),
-                      ('PM_ComboBox',  self.baseDirectionChoiceComboBox , 3),
-                      ('QLabel', "     Find:", 4),
-                      ('PM_LineEdit', self.findLineEdit, 5),
-                      ('PM_ToolButton', self.findOptionsToolButton, 6),
-                      ('PM_ToolButton', self.findPreviousToolButton, 7),
-                      ('PM_ToolButton', self.findNextToolButton, 8), 
-                      ('QLabel', "     Replace:", 9),
-                      ('PM_TextEdit', self.replaceLineEdit, 10), 
-                      ('PM_PushButton', self.replacePushButton, 11),
-                      ('PM_Label', self.warningSign, 12),
-                      ('PM_Label', self.phraseNotFoundLabel, 13),
-                      ('QSpacerItem', 5, 5, 14) ]
+                      ('PM_PushButton', self.assignStrandSequencePushButton, 2),
+                      ('QLabel', "     Sequence direction:", 3),
+                      ('PM_ComboBox',  self.baseDirectionChoiceComboBox , 4),
+                      ('QLabel', "     Find:", 5),
+                      ('PM_LineEdit', self.findLineEdit, 6),
+                      ('PM_ToolButton', self.findOptionsToolButton, 7),
+                      ('PM_ToolButton', self.findPreviousToolButton, 8),
+                      ('PM_ToolButton', self.findNextToolButton, 9), 
+                      ('QLabel', "     Replace:", 10),
+                      ('PM_TextEdit', self.replaceLineEdit, 11), 
+                      ('PM_PushButton', self.replacePushButton, 12),
+                      ('PM_Label', self.warningSign, 13),
+                      ('PM_Label', self.phraseNotFoundLabel, 14),
+                      ('QSpacerItem', 5, 5, 15) ]
         
         widgetRow = PM_WidgetRow(self,
                                  title     = '',

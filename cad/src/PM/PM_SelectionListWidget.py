@@ -287,39 +287,32 @@ class PM_SelectionListWidget(PM_ListWidget):
             assert self._itemDictionary.has_key(key)
             item = self._itemDictionary[key]
             if not item.picked:
-                item.pick()         
+                item.pick() 
     
-    #Experimental code =========================================
-    def insertItems_EXPERIMENTAL(self, row, items, setAsDefault = True):
+    def getPickedItem(self):
         """
-        instead of clearing the whole dictonary and the list widget items, 
-        what if you selectively remove unused items. Would the following 
-        be faster?
+        Return the 'real' item picked (selected) inside this selection list 
+        widget. The 'real' item is the object whose name appears inside the 
+        selection list widget. (it does not return the 'QWidgetItem' but the 
+        key.value() that actually stores the NE1 object)
+        
+        NOTE: If there are more than one items selected, it returns only the 
+              FIRST ITEM in the list. This class is designed to select only 
+              a single item at a time , but in case this implementation changes,
+              this method should be revised. 
+        @see: BuildDna_PropertyManager.assignStrandSequence
         """
-        if self._itemDictionary.values():
-            for item in items:
-                if item in self._itemDictionary.values():
-                    pass
-                else:
-                    listWidgetItem = QListWidgetItem(str(item), self)
-                    self._itemDictionary[listWidgetItem] = item
+        #Using self.selectedItems() doesn't work for some reason! (when you 
+        # select item , go to the sequence editor and hit assign button, 
+        # it spits an error 
+        
+        #selectedItemList = self.selectedItems()
+        #key = selectedItemList[0]
+        #pickedItem = self._itemDictionary[key]
+        
+        for item in self._itemDictionary.values():
+            if item.picked:
+                return item 
             
-        self._removeOutdatedItems_EXPERIMENTAL()
-           
-    #Experimental code =========================================
-    def _removeOutdatedItems_EXPERIMENTAL(self, items):
-        """
-        instead of clearing the whole dictonary and the list widget items, 
-        what if you selectively remove unused items. Would the following 
-        be faster?
-        """
-        widgetItemListForRemoval = []
-        if self._itemDictionary.keys():
-            for key in self._itemDictionary.keys():
-                if key.value() not in items:                    
-                    rowNumber = self.row(key)
-                    itemToRemove = self.takeItem(rowNumber)
-                    widgetItemListForRemoval.append(itemToRemove)  
-                    
-            del widgetItemListForRemoval
-                
+        return None
+    

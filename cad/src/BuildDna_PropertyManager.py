@@ -23,6 +23,7 @@ import platform
 from debug import  print_compact_stack
 
 from PyQt4.Qt import SIGNAL
+from PyQt4.Qt import QString
 
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_PushButton    import PM_PushButton
@@ -139,11 +140,31 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         if self.sequenceEditor:
             self.sequenceEditor.connect_or_disconnect_signals(isConnect)
+            
+            change_connect( self.sequenceEditor.assignStrandSequencePushButton,
+                      SIGNAL("clicked()"),
+                      self.assignStrandSequence)
         
                 
         change_connect(self.editStrandPropertiesButton,
                       SIGNAL("clicked()"),
                       self._showSequenceEditor)
+
+    def assignStrandSequence(self):
+        """
+        Assigns the sequence typed in the sequence editor text field to 
+        the selected strand chunk. The method it invokes also assigns 
+        a complimentary sequence to the mate strand.
+        @see: Chunk.setStrandSequence
+        """
+        sequenceString = self.sequenceEditor.getPlainSequence()
+        sequenceString = str(sequenceString)
+        #@We can do this only if only a single item is selected in the 
+        #strand list widget (which is what happens as of 2008-01-11)
+        strand = self.strandListWidget.getPickedItem() 
+        #Set the strand sequence for the selected strand and also change 
+        #the strand sequence of its mate strand!
+        strand.setStrandSequence(sequenceString)   
     
     def enable_or_disable_gui_actions(self, bool_enable = False):
         """
@@ -290,8 +311,16 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             else:
                 self.win.reportsDockWidget.hide()
             #Show the sequence editor
-            self.sequenceEditor.show()           
-    
+            self.sequenceEditor.show() 
+            
+            #Read in the strand sequence of the selected strand and 
+            #show it in the text edit in the sequence editor.
+            strand = self.strandListWidget.getPickedItem()
+            sequenceString = strand.getStrandSequence()
+            if sequenceString:
+                sequenceString = QString(sequenceString) 
+                sequenceString = sequenceString.toUpper()
+                self.sequenceEditor.setSequence(sequenceString)           
         
     def _update_widgets_in_PM_before_show(self):
         """

@@ -3318,6 +3318,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             % (dnaBaseName, self.element.name)
         
         # Make sure dnaBaseName has all valid characters.
+        
         for c in dnaBaseName:
             if not c in string.letters:
                 assert 0, "%r is not a valid dnaBaseName name." % (dnaBaseName)
@@ -3333,6 +3334,29 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         @rtype:  str
         """
         return self.__dict__.get('dnaBaseName', "")
+    
+    def get_strand_atom_mate(self):
+        """
+        Returns the 'mate' of this dna psuedo atom. (the atom on another strand 
+        to which this atom is connected)
+        @return: B{Atom} (PAM atom) 
+        """
+        #Note: This method was created to support assignment of strand sequence 
+        #to strand chunks. This should be moved to dna_model and
+        #can be revised further. -- Ninad 2008-01-14
+        if self.element.role != 'strand':
+            return None
+        
+        #First find the connected axis neighbor 
+        axisAtom = self.axis_neighbor()
+        #Now find the strand atoms connected to this axis atom
+        strandAtoms = axisAtom.strand_neighbors()
+        
+        #... and we want the mate atom of self
+        for atm in strandAtoms:
+            if atm is not self:
+                return atm
+            
     
     def setDnaStrandName(self, dnaStrandName): # Mark 2007-09-04
         """
@@ -3594,7 +3618,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         self).
         """
         # review: should the return value also say in which direction each one lies,
-        # whether in terms of bond_direction or base_index_direction?
+        # whether in terms of bond_direction or base_index_direction?       
         assert 0, "nim"
 
     def strand_next_baseatom(self, bond_direction = None): #bruce 071204

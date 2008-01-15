@@ -92,6 +92,10 @@ class DnaDuplex_EditCommand(EditCommand):
     #command was  running (self._segmentList). 
     callback_addSegments  = None
     
+    #This is set to BuildDna_EditCommand.flyoutToolbar (as of 2008-01-14, 
+    #it only uses 
+    flyoutToolbar = None
+    
     _segmentList = []
 
     def __init__(self, commandSequencer, struct = None):
@@ -124,8 +128,20 @@ class DnaDuplex_EditCommand(EditCommand):
         prevMode = self.commandSequencer.prevMode 
         if prevMode.commandName == 'BUILD_DNA':
             params = prevMode.provideParamsForTemporaryMode(self.commandName)
-            ##self.setParams(params)
             self.callback_addSegments = params
+            
+            #Following won't be necessary after Command Toolbar is 
+            #properly integrated into the Command/CommandSequencer API
+            try:
+                self.flyoutToolbar = prevMode.flyoutToolbar
+            except AttributeError:
+                self.flyoutToolbar = None
+            
+            
+            if self.flyoutToolbar:
+                if not self.flyoutToolbar.dnaDuplexAction.isChecked():
+                    self.flyoutToolbar.dnaDuplexAction.setChecked(True)
+                
         
         self._segmentList = []
                     
@@ -140,8 +156,6 @@ class DnaDuplex_EditCommand(EditCommand):
         """
                     
         EditCommand.restore_gui(self)
-        #if self.flyoutToolbar:
-            #self.flyoutToolbar.deActivateFlyoutToolbar()
         
         if isinstance(self.graphicsMode, DnaLine_GM):
             self.mouseClickPoints = []
@@ -150,6 +164,9 @@ class DnaDuplex_EditCommand(EditCommand):
         
         #See BuildDna_EditCommand.callback_addSegments
         self.callback_addSegments(self._segmentList)
+        
+        if self.flyoutToolbar:
+            self.flyoutToolbar.dnaDuplexAction.setChecked(False)
         
         self._segmentList = []
                 
@@ -289,7 +306,6 @@ class DnaDuplex_EditCommand(EditCommand):
         
         self._removeStructure()
         
-
         self.previousParams = params
 
         self.struct = self._createStructure()

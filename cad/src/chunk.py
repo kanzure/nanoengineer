@@ -44,7 +44,7 @@ History:
 """
 
 import math # only used for pi, everything else is from Numeric [as of before 071113]
-
+import re
 import Numeric
 from Numeric import array
 from Numeric import add
@@ -116,7 +116,7 @@ from constants import diINVISIBLE
 from elements import PeriodicTable
 from ChunkProp import ChunkProp
 
-
+from Dna_Constants import getComplementSequence
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -342,7 +342,67 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         return False
     
-    # ==
+    # START of Dna-Strand chunk  specific  code ================================
+    
+    # Assign a strand sequence (or get that information from a chunk) 
+    # MEANT ONLY FOR THE DNA CHUNK. THESE METHODS NEED TO BE MOVED TO AN 
+    # APPROPRIATE FILE IN The dna_model PACKAGE -- Ninad 2008-01-11
+    
+    def getStrandSequence(self):
+        """
+        Returns the strand sequence for this chunk (strandChunk)
+        @return: strand Sequence string
+        @rtype: str
+        """
+        sequenceString = ''
+        for atm in self.atoms_in_mmp_file_order():            
+            baseName = str(atm.getDnaBaseName())
+            if baseName:
+                sequenceString = sequenceString + baseName
+                        
+        return sequenceString
+        
+    
+    def setStrandSequence(self, sequenceString):
+        """
+        Set the strand sequence i.e.assign the baseNames for the PAM atoms in 
+        this strand AND the complementary baseNames to the PAM atoms of the 
+        complimentary strand ('mate strand')
+        @param sequenceString: The sequence to be assigned to this strand chunk
+        @type sequenceString: str
+        """        
+        sequenceString = str(sequenceString)
+        #Remove whitespaces and tabs from the sequence string
+        sequenceString = re.sub(r'\s', '', sequenceString)
+       
+        #May be we set this beginning with an atom marked by the 
+        #Dna Atom Marker in dna data model? -- Ninad 2008-01-11 
+        atomList = []
+        for atm in self.atoms_in_mmp_file_order():            
+            if not atm.is_singlet():
+                atomList.append(atm)
+        
+        for atm in atomList:            
+            atomIndex = atomList.index(atm)
+            if atomIndex > (len(sequenceString) - 1):
+                #In this case, set an unassigned base ('X') for the remaining 
+                #atoms
+                baseName = 'X'
+            else:
+                baseName = sequenceString[atomIndex]
+                
+            atm.setDnaBaseName(baseName)
+            
+            #Also assign the baseNames for the PAM atoms on the complementary 
+            #('mate') strand.
+            strandAtomMate = atm.get_strand_atom_mate()
+            complementBaseName= getComplementSequence(str(baseName))
+            if strandAtomMate is not None:
+                strandAtomMate.setDnaBaseName(str(complementBaseName))               
+    
+    
+    #END of Dna-Strand chunk  specific  code ==================================
+    
     
     # Methods relating to our OpenGL display list, self.displist.
     #

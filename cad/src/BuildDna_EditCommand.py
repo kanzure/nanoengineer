@@ -83,6 +83,33 @@ class BuildDna_EditCommand(EditCommand):
         
         self.flyoutToolbar.activateFlyoutToolbar()
     
+    def resume_gui(self):
+        """
+        Called when this command, that was suspended earlier, is being resumed. 
+        The temporary command (which was entered by suspending this command)
+        might have made some changes to the model which need to be reflected 
+        while resuming command. 
+        
+        Example: A user enters BreakStrands_Command by suspending 
+        BuildDna_EditCommand, then breaks a few strands, thereby creating new 
+        strand chunks. Now when the user returns to the BuildDna_EditCommand, 
+        the command's property manager needs to update the list of strands 
+        because of the changes done while in BreakStrands_Command.  
+        @see: Command.resume_gui
+        @see: Command._enterMode where this method is called.
+        """
+        #NOTE: Doing command toolbar updates in this method doesn't alwayswork.
+        #consider this situation : You are in a) BuildDna_EditCommand, then you 
+        #b) enter DnaDuplex_EditCommand(i.e. Dna line) and from this temporary 
+        #command, you directly c) enter BreakStrands_Command 
+        #-- During b to c, 1) it first exits (b) , 2) resumes (a) 
+        #and then 3)enters (c)
+        #This method is called during operation #2 and any changes to flyout 
+        #toolbar are reset during #3  --- Ninad 2008-01-14
+        if self.propMgr:
+            self.propMgr.updateStrandListWidget()
+        
+
     def restore_gui(self):
         """
         Do changes to the GUI while exiting this command. This includes closing 
