@@ -15,7 +15,7 @@ need to be inside the dna_model package, though it was written to support that.
 This module has no dna-specific knowledge (except in a few comments about
 intended uses), and that should remain true.
 
-See also: class DnaAtomMarker, which inherits this.
+See also: class DnaMarker, which inherits this.
 
 """
 

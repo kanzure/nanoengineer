@@ -7,9 +7,9 @@ DnaChain.py - Dna-aware AtomChainOrRing subclasses, AxisChain and StrandChain
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_model.DnaAtomMarker import DnaAtomMarker # only for issubclass
-from dna_model.DnaAtomMarker import DnaSegmentMarker
-from dna_model.DnaAtomMarker import DnaStrandMarker
+from dna_model.DnaMarker import DnaMarker # only for issubclass
+from dna_model.DnaMarker import DnaSegmentMarker
+from dna_model.DnaMarker import DnaStrandMarker
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
@@ -185,7 +185,7 @@ class DnaChainFragment(DnaChain): #e does it need to know ringQ? axis vs strand?
 # ==
 
 class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code is on this vs what is on a higher-level WholeChain 
-    #e inherit ChainAPI? (we're passed to a DnaAtomMarker as its chain -- no, more likely, as an element of a list which is that@@@)
+    #e inherit ChainAPI? (we're passed to a DnaMarker as its chain -- no, more likely, as an element of a list which is that@@@)
     """
     Abstract class, superclass of AxisChain and StrandChain.
 
@@ -283,7 +283,7 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
 ##        atom = chain.atom_list[0]
 ##        assy = atom.molecule.assy
 ##        marker_class = self._marker_class
-##        assert issubclass(marker_class, DnaAtomMarker)
+##        assert issubclass(marker_class, DnaMarker)
 ##        marker = marker_class(assy, [atom], chain = self)
 ##            # note: chain has to be self, not self.chain
 ##            # (the marker calls some methods that are only on self).

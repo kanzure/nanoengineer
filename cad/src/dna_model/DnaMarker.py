@@ -1,19 +1,18 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-DnaAtomMarker.py - marked positions on atom chains, moving to live atoms as needed
+DnaMarker.py - marked positions on atom chains, moving to live atoms as needed
 
 Used internally for base indexing in strands and segments; perhaps used in the
 future to mark subsequence endpoints for relations or display styles.
 
-REVIEW: rename to DnaMarker?
-
-    WARNING: this will be revised, since the marker really needs to
+    WARNING: this code [as of 080115] is broken and is being heavily revised,
+    since the marker really needs to
     be on a higher-level WholeChain which covers multiple AtomChainOrRings.
 
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_model.ChainAtomMarker import ChainAtomMarker
@@ -66,7 +65,7 @@ def reversed_list(list1):
 
 # ==
 
-class DnaAtomMarker( ChainAtomMarker): ### REVIEW: rename to DnaMarker?
+class DnaMarker( ChainAtomMarker):
     """
     A ChainAtomMarker specialized for DNA axis or strand atoms
     (base atoms only, not Pl atoms).
@@ -120,7 +119,7 @@ class DnaAtomMarker( ChainAtomMarker): ### REVIEW: rename to DnaMarker?
     # default values of instance variables:
     
     # Jig API variables
-    sym = "DnaAtomMarker" # ?? maybe used only on subclasses for SegmentMarker & StrandMarker? maybe never visible?
+    sym = "DnaMarker" # ?? maybe used only on subclasses for SegmentMarker & StrandMarker? maybe never visible?
         # TODO: not sure if this gets into mmp file, but i suppose it does... and it gets copied, and has undoable properties...
         # and in theory it could appear in MT, though in practice, probably only in some PM listwidget, but still,
         # doing the same things a "visible node" can do is good for that.
@@ -517,13 +516,13 @@ class DnaAtomMarker( ChainAtomMarker): ### REVIEW: rename to DnaMarker?
                             # don't know in this method and which might not be 1
         return 0
     
-    pass # end of class DnaAtomMarker
+    pass # end of class DnaMarker
 
 # ==
 
-class DnaSegmentMarker(DnaAtomMarker): #e rename to DnaAxisMarker? guess: no...
+class DnaSegmentMarker(DnaMarker): #e rename to DnaAxisMarker? guess: no...
     """
-    A kind of DnaAtomMarker for marking an axis atom of a DnaSegment
+    A kind of DnaMarker for marking an axis atom of a DnaSegment
     (and, therefore, a base-pair position within the segment).
     """
     def get_DnaSegment(self):
@@ -544,9 +543,9 @@ class DnaSegmentMarker(DnaAtomMarker): #e rename to DnaAxisMarker? guess: no...
 
 # ==
 
-class DnaStrandMarker(DnaAtomMarker):
+class DnaStrandMarker(DnaMarker):
     """
-    A kind of DnaAtomMarker for marking an atom of a DnaStrand
+    A kind of DnaMarker for marking an atom of a DnaStrand
     (and, therefore, a base position along the strand).
     """
     def get_DnaStrand(self):

@@ -13,7 +13,7 @@ from dna_updater_globals import ignore_new_changes
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
 
-from dna_model.DnaAtomMarker import _f_get_homeless_dna_markers
+from dna_model.DnaMarker import _f_get_homeless_dna_markers
 
 from dna_updater_find_chains import find_axis_and_strand_chains_or_rings
 
@@ -68,7 +68,7 @@ def update_PAM_chunks( changed_atoms):
             live_markers.append(marker)
     del homeless_markers
 
-    ignore_new_changes("from updating DnaAtomMarkers, step1")
+    ignore_new_changes("from updating DnaMarkers, step1")
         # ignore changes caused by adding/removing marker jigs
         # to their atoms, when the jigs die/move/areborn
 
@@ -165,7 +165,7 @@ def update_PAM_chunks( changed_atoms):
 ##        # can't move, and either dies or is of no concern to us.
 ##    del live_markers #k if not, update it with new liveness
 ##
-##    ignore_new_changes("from updating DnaAtomMarkers, step2", changes_ok = False)
+##    ignore_new_changes("from updating DnaMarkers, step2", changes_ok = False)
 ##
 ##    # @@@ LOGIC ISSUE: is the following about new chain fragments, or new/modified whole chains? do it before or after ladders?
 ##    #
@@ -193,7 +193,7 @@ def update_PAM_chunks( changed_atoms):
 ##    for chain in strand_chains:
 ##        chain._f_own_atoms()# IMPLEM - now these are stubs which always remake markers @@@
 ##
-##    ignore_new_changes("from updating DnaAtomMarkers, own_atoms")
+##    ignore_new_changes("from updating DnaMarkers, own_atoms")
 ##        # changes are ok since it can add new marker jigs to atoms
 ##    
 ##    # That figured out which markers control each chain (and stored the answers in the chains). ###IMPLEM

@@ -30,7 +30,7 @@ class DnaGroup(Block):
     - DnaStrands (optionally inside Blocks)
     - DnaSegments (ditto)
     - Blocks (a kind of Group)
-    - DnaAtomMarkers (a kind of Jig, probably always inside an owning
+    - DnaMarkers (a kind of Jig, probably always inside an owning
       DnaStrand or DnaSegment)
     - specialized chunks for holding PAM atoms:
       - DnaAxisChunk (undecided whether these will live inside DnaSegments

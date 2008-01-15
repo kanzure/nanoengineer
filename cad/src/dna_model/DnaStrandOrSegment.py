@@ -21,7 +21,7 @@ class DnaStrandOrSegment(Group):
     - as Group members (not visible in MT, but for convenience of
     reusing preexisting copy/undo/mmp code):
 
-      - one or more DnaAtomMarkers, one of which determines this
+      - one or more DnaMarkers, one of which determines this
         strand's or segment's base indexing, and whether/how it survives if its
         chains of PAM atoms are broken or merged with other strands or segments
 
@@ -42,7 +42,7 @@ class DnaStrandOrSegment(Group):
     
       - whatever other properties the user needs to assign, which are not
         covered by the member nodes or superclass attributes. However,
-        some of these might be stored on the controlling DnaAtomMarker,
+        some of these might be stored on the controlling DnaMarker,
         so that if we are merged with another strand or segment, and later separated
         again, that marker can again control the properties of a new strand
         or segment (as it
