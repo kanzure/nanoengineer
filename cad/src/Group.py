@@ -51,6 +51,8 @@ class Group(Node):
         # note: group.members are informally called its "kids",
         # but need not be identical to the output of group.MT_kids(),
         # which gives the list of nodes to show as its children in the Model Tree.
+    
+    mmp_record_name = 'group'
 
     def __init__(self, name, assy, dad, members = (), editCommand = None): ###@@@ review inconsistent arg order
         self.members = [] # must come before Node.__init__ [bruce 050316]
@@ -827,7 +829,7 @@ class Group(Node):
             ob.getstatistics(stats)
 
     def writemmp(self, mapping): #bruce 050322 revised interface
-        mapping.write("group (" + mapping.encode_name(self.name) + ")\n")
+        mapping.write(self.mmp_record_name + " (" + mapping.encode_name(self.name) + ")\n")
         mapping.write("info opengroup open = %s\n" % (self.open and "True" or "False")) #bruce 050421
             # All "info opengroup" records should be written before we write any of our members.
             # If Group subclasses override this method (and don't call it), they'll need to behave similarly.
@@ -839,7 +841,7 @@ class Group(Node):
             # [bruce 050422: ... and this is where we'd write them, to put them after some member leaf or group.]
             for xx in mapping.pop_forwarded_nodes_after_child(x):
                 mapping.write_forwarded_node_for_real(xx)
-        mapping.write("egroup (" + mapping.encode_name(self.name) + ")\n")
+        mapping.write("e" + self.mmp_record_name + " (" + mapping.encode_name(self.name) + ")\n")
 
     def writepov(self, f, dispdef):
         if self.hidden:

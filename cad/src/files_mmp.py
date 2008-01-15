@@ -158,6 +158,8 @@ from bond_constants import V_CARBOMERIC
 
 from Plane import Plane
 
+from dna_model.DnaGroup import DnaGroup
+
 # ==
 
 # KNOWN_INFO_KINDS lists the legal "kinds" of info encodable in info records.
@@ -664,6 +666,45 @@ class _readmmp_state:
             # note, unlike old code we've already popped a group; shouldn't matter [bruce 050405]
             return "mismatched group records: egroup %r tried to match group %r" % (name, curname) #bruce 050405 revised this msg
         return None # success
+    
+    #START DNAGroup ==========================
+    
+    def _read_DnaGroup(self, card):
+        """
+        Read mmp record for a DnaGroup object
+        @see: self._read_group
+        @see: self._read_eDnaGroup
+        """
+        #TODO 2008-01-14: Initial implementation. Likely to be revised
+        name = self.get_name(card, "DnaGrp")
+        assert name is not None 
+        name = self.decode_name(name) 
+        old_opengroup = self.groupstack[-1]
+        new_opengroup = DnaGroup(name, self.assy, old_opengroup)
+            # this includes addchild of new group to old_opengroup 
+            #(so don't call self.addmember)
+        self.groupstack.append(new_opengroup)
+
+    def _read_eDnaGroup(self, card): 
+        """
+        End record for the DnaGroup object
+        @see: self._read_egroup
+        @see: self._read_eDnaGroup
+        """        
+        name = self.get_name(card, "DnaGrp")
+        assert name is not None 
+        name = self.decode_name(name) 
+        if len(self.groupstack) == 1:
+            return "eDnaGroup %r when no dna groups remain unclosed" % (name,)
+        curgroup = self.groupstack.pop()
+        curname = curgroup.name
+        if name != curname:
+            return "mismatched dna group records:"\
+                   "eDnaGroup %r tried to match group %r" % (name, 
+                                                             curname)
+        return None 
+    #END DnaGroup =======================
+    
 
     def _read_mol(self, card): # mol: start a Chunk
         name = self.get_name(card, "Mole")

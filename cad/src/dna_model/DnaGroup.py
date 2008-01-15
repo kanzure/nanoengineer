@@ -48,6 +48,11 @@ class DnaGroup(Block):
     # objects of this class  
     iconPath = "modeltree/DNA.png"
     
+    mmp_record_name = 'DnaGroup'
+    #@@@State of the Dna Group in the Model Tree (open or closed) By default
+    #this should be 'closed'
+    open = False
+    
     def node_icon(self, display_prefs):
         """
         Model Tree node icon for the dna group node. 
@@ -106,11 +111,10 @@ class DnaGroup(Block):
         @see: Group.edit()
         """
         
-        if self.editCommand:
-            commandSequencer = self.assy.w.commandSequencer
-            commandSequencer.userEnterCommand('BUILD_DNA')
-            currentCommand = commandSequencer.currentCommand
-            assert currentCommand.commandName == 'BUILD_DNA'
-            currentCommand.editStructure(self)
+        commandSequencer = self.assy.w.commandSequencer
+        commandSequencer.userEnterCommand('BUILD_DNA')
+        currentCommand = commandSequencer.currentCommand
+        assert currentCommand.commandName == 'BUILD_DNA'
+        currentCommand.editStructure(self)
 
 # end
