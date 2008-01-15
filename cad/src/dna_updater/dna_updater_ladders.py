@@ -208,7 +208,7 @@ def make_new_ladders(axis_chains, strand_chains):
     # deleted earlier -- if they weren't, remaining strand fragments can also
     # be found).
 
-    # possible simplification: should we just make lots of length-1 ladders
+    # possible simplification: should we just make lots of length==1 ladders
     # (one per axis atom), then merge them all? In theory, this should work,
     # and it might even be faster -- that depends on how often this step
     # manages to return ladders much longer than 1. It would eliminate
@@ -320,6 +320,7 @@ def make_new_ladders(axis_chains, strand_chains):
         ladder.finished()
             # this ensures ladder has one or two strands, antiparallel in standard bond directions, aligned with axis rungs
             # (it reverses chains as needed, for rung alignment and strand bond direction)
+            # @@@ (does it rotate ring chains?)
 
     return ladders
 
@@ -335,10 +336,11 @@ def merge_ladders(new_ladders):
     @note: each returned ladder is either entirely new (perhaps merged),
            or the result of merging new and old ladders.
     """
-    # Initial implem - might be too slow (quadratic in atomcount) if repeated
-    # merges from small to large chain sizes occur.
+    # Initial implem - might be too slow (quadratic in atomcount) if
+    # repeated merges from small to large chain sizes occur.
     # Note, these ladders' rails might be real chunks (merge is slower)
     # or some sort of real or virtual atom chains (merge is faster).
+    # (As of 080114 I think they are real atom chains, not yet chunks.)
     res = []
     while new_ladders:
         next = []

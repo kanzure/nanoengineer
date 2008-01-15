@@ -136,14 +136,22 @@ class ChainAtomMarker(Jig):
     # == other methods
 
     def _check_atom_order(self):
-        # todo: extend/rename this to fix it, if it ever gets messed up
+        """
+        Check assertions about the order of the special atoms we know about
+        in the list self.atoms.
+        """
+        # todo: extend/rename this to fix atom order (not just check it),
+        # if it turns out the order can ever get messed up
+        assert len(self.atoms) <= _NUMBER_OF_MARKER_ATOMS
         if len(self.atoms) == _NUMBER_OF_MARKER_ATOMS:
             assert [self.marked_atom, self.next_atom] == self.atoms
         return
     
-    def is_homeless(self):
+    def is_homeless(self): # REVIEW: Maybe rename to needs_update?
         """
         Has either of our atoms been killed?
+        [misnamed, since if only next_atom is killed, we're not really
+         homeless -- we just need an update.]
         """
         return len(self.atoms) < _NUMBER_OF_MARKER_ATOMS
 # old code:

@@ -17,10 +17,13 @@ from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
 # ==
 
-def update_DNA_groups( new_chunks ):
+def update_DNA_groups( new_chunks, new_wholechains ):
     """
     @param new_chunks: list of all newly made DnaLadderRailChunks (or modified
                        ones, if that's ever possible)
+
+    @param new_wholechains: list of all newly made WholeChains (or modified
+                       ones, if that's ever possible) @@@ doc what we do to them @@@ use this arg
 
     Make sure that PAM chunks and jigs are inside the correct
     Groups of the correct structure and classes, according to
@@ -58,62 +61,64 @@ def update_DNA_groups( new_chunks ):
     #   (they are immutable so modified == new, but the point is, some new ones are made in part of untouched smaller chains).
     # - for segments: this tells you which existing or new DnaSegment owns each marker and DnaSegmentChunk. Move nodes.
     # - for strands: ditto; move markers into DnaStrand, and chunks into that or DnaSegment (decide this soon).
-    
-    
+
     ignore_new_changes("as update_DNA_groups starts", changes_ok = False )
 
-    whole_chains = {}
-    
-    for chunk in new_chunks:
-        # does it have a desired home, or need a new one?
-        # A desired one is found via the controlling_marker on a whole_chain passing through the chunk.
-        # (For a StrandChunk will we place it into a DnaStrand or based on the attached DnaSegment?
-        #  Not yet sure; the latter has some advantages and is compatible with current external code [080111].
-        #  If we do it that way, then do that first for the new segment chunks, then another pass for the strand chunks.
-        #  Following unfinished code assumes it goes into its own DnaStrand object; needs review/revision.)
+    old_groups = {}
 
-        # MAYBE TODO: We might do part of this when creating the chunk
-        # and only do it now if no home existed.
-        whole_chain = chunk.whole_chain # this wants the higher-level WholeChain ##### DOIT
-        whole_chains[id(whole_chain)] = whole_chain
-        controlling_marker = whole_chain.find_controlling_marker() # IMPLEM
-        strand_or_segment = controlling_marker._f_get_owning_strand_or_segment()
-            # IMPLEM; might just be an attr, .owner; or just .dad?? [not .dad, we're fixing that now!]
-            # but note we have new methods like it for more external use (not valid here), that call get_parentnode....
-        if strand_or_segment is None:
-            # find the right DnaGroup (or make one if there is none).
-            # ASSUME the chunk was created inside the right DnaGroup if there is one. ### VERIFY TRUE
-            dnaGroup = chunk.get_parentnode_of_class(DnaGroup)
-            if dnaGroup is None:
-                # if it was not in a DnaGroup, there's no way it was in
-                # a DnaStrand or DnaSegment (since we never make those without
-                # immediately putting them into a valid DnaGroup or making them
-                # inside one), so there's no need to check for one to make the
-                # new group outside of. Just to be sure, we assert this:
-                assert chunk.get_parentnode_of_class(DnaStrandOrSegment) is None
-                dnaGroup = new_DnaGroup_around_chunk(chunk)
-            # now make a strand or segment in that DnaGroup (in a certain Block??)
-            strand_or_segment = dnaGroup.makeStrandOrSegmentForMarker(controlling_marker) # IMPLEM; controlling_marker might be new, or newly controlling;
-                # doesn't matter for this call whether it moves controlling_marker into self, but i suppose it will
-        # move the chunk there
-        strand_or_segment._move_into_your_members(chunk) # IMPLEM for chunks (or make variant method for each arg class)
-
-    for whole_chain in whole_chains.itervalues():
-        controlling_marker = whole_chain.find_controlling_marker()
-        strand_or_segment = controlling_marker._f_get_owning_strand_or_segment()
+    # make missing strand_or_segment, and move markers into it if needed
+    for wholechain in new_wholechains:
+        strand_or_segment = wholechain.find_or_make_strand_or_segment() # IMPLEM,
+            # using code in outtakes, chunk from any atom in wholechain
         for marker in whole_chain.all_markers(): # IMPLEM
-##            strand_or_segment = marker._f_get_owning_strand_or_segment()
-##            assert strand_or_segment # not sure this will be true... note it can't rely on .dad etc to find it!
-##                # hmm, it seems likely (or possible anyway) that this will be false.
-##                # what should be possible is to find the controlling marker
-##                # on the same whole_chain!
-            strand_or_segment._move_into_your_members(marker) # IMPLEM for markers
+            oldgroup = strand_or_segment._move_into_your_members(marker) # IMPLEM for markers
+            if old_group:
+                old_groups[id(old_group)] = old_group
 
-    # TODO: for any group we moved anything out of, perhaps delete it if it is now empty
+    # move chunks if needed
+    for chunk in new_chunks:
+        whole_chain = chunk.whole_chain # IMPLEM
+        # could assert this is in new_wholechains
+        strand_or_segment = wholechain.find_strand_or_segment() # IMPLEM
+        assert strand_or_segment
+        # move the chunk there
+        ### REFILE: oldgroup is a group we moved chunk out of (only if we actually moved it to a different one), if any, else None
+        oldgroup = strand_or_segment._move_into_your_members(chunk) # IMPLEM for chunks (or make variant method for each arg class)
+            # (For a StrandChunk will we place it into a DnaStrand or based on the attached DnaSegment?
+            #  Not yet sure; the latter has some advantages and is compatible with current external code [080111].
+            #  If we do it that way, then do that first for the new segment chunks, then another pass for the strand chunks.
+            #  Above code assumes it goes into its own DnaStrand object; needs review/revision.)
+            #
+            # MAYBE TODO: We might do part of this when creating the chunk
+            # and only do it now if no home existed.
+        if old_group:
+            old_groups[id(old_group)] = old_group
+
+    # Clean up old_groups:
+    # for any group we moved anything out of, perhaps delete it if it is now empty
     # or (especially) dissolve it if it now has only one member and we made that member.
     # This is important when updating an old mmp file with existing groups
     # containing ordinary dna-containing chunks, since otherwise we'll bury the new DnaGroup
     # inside one of those and leave the others empty.
+    #
+    # Note, we need to do the innermost (deepest) ones first.
+
+    depth_group_pairs = [ (group.group_depth(), group) # IMPLEM group_depth
+                          for group in old_groups.values() ]
+    depth_group_pairs.sort()
+    depth_group_pairs.reverse() # deepest first
+    
+    for depth_junk, old_group in depth_group_pairs:
+        if old_group.is_top_of_selection_group():
+            ###k really, if it's too high to dissolve... should be equiv since we modified members...
+            # provided parts had toplevel groups before we started here, MAYBE NOT TRUE...
+            # but by now they do since there is a DnaGroup somewhere (made above if nec.)... review sometime.
+            continue
+        if len(old_group.members) == 0:
+            old_group.kill() ###k is this always ok?? desirable?
+            # might affect members of less deep groups
+        elif len(old_group.members) == 1:
+            old_group.dissolve() ###k always ok? desirable? IMPLEM dissolve; could use it in len 0 case too...
 
     ignore_new_changes("as update_DNA_groups returns", changes_ok = False )
 

@@ -81,6 +81,9 @@ class DnaChain(object):
         self.baseatoms.reverse()
         self.index_direction *= -1
         self._bond_direction *= -1
+        # @@@ todo: also swap "pointers to neighboring chain-ends" if we have those;
+        # do this in both reverse_baseatoms and perhaps in _f_reverse_arbitrary_bond_direction
+        # [080114 comment]
         return
 
     # kluge: bond direction code/attrs are also here, even though it only applies to strands,
@@ -152,7 +155,11 @@ class DnaChain(object):
     def _f_reverse_arbitrary_bond_direction(self):
         assert self.bond_direction_is_arbitrary()
         self._bond_direction *= -1
-
+        # @@@ todo: also swap "pointers to neighboring chain-ends" if we have those;
+        # do this in both reverse_baseatoms and perhaps in _f_reverse_arbitrary_bond_direction
+        # [080114 comment]
+        return
+    
     pass
 
 # ==
@@ -209,7 +216,8 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
     """
     # default values of instance variables:
 
-    controlling_marker = None
+# @@@ move to WholeChain, I think - 080114
+##    controlling_marker = None
 
     # REVIEW: need to delegate ringQ, or any other vars or methods, to self.chain_or_ring?
     
@@ -234,7 +242,7 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
         return self.chain_or_ring.iteratoms()
     
     _chain_id = None
-    def chain_id(self): #k this is used, but as of 071203 i'm not sure the use will survive, so review later whether it's needed
+    def chain_id(self): #k this is used, but as of 071203 i'm not sure the use will survive, so review later whether it's needed @@
         """
         Return a unique, non-reusable id (with a boolean value of true)
         for "this chain" (details need review and redoc).
@@ -246,43 +254,44 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
             _chain_id_counter += 1
             self._chain_id = _chain_id_counter
         return self._chain_id
-    
-    def _f_own_atoms(self): # @@@ review: is this really a small chain or whole chain method?
-        """
-        Own our atoms, for chain purposes.
-        This does not presently store anything on the atoms, even indirectly,
-        but we do take over the markers and decide between competing ones
-        and tell them their status, and record the list of markers (needs update??)
-        and the controlling marker for our chain identity (needs update??).
-        This info about markers might be DNA-specific ...
-        and it might be only valid during the dna updater run, before
-        more model changes are made. [#todo: update docstring when known]
-        """
-        
-        # NOTE/TODO: if useful, this might record a list of all live markers
-        # found on that chain in the chain, as well as whatever marker
-        # is chosen or made to control it. (But note that markers might
-        # get removed or made independently without the chain itself
-        # changing. If so, some invalidation of those chain attributes
-        # might be needed.)
 
-        if DEBUG_DNA_UPDATER_VERBOSE:
-            print "%r._f_own_atoms() is a stub - always makes a new marker" % self #####FIX
-        chain = self.chain_or_ring
-        # stub -- just make a new marker! we'll need code for this anyway...
-        # but it's WRONG to do it when an old one could take over, so this is not a correct stub, just one that might run.
-        atom = chain.atom_list[0]
-        assy = atom.molecule.assy
-        marker_class = self._marker_class
-        assert issubclass(marker_class, DnaAtomMarker)
-        marker = marker_class(assy, [atom], chain = self)
-            # note: chain has to be self, not self.chain
-            # (the marker calls some methods that are only on self).
-        self.controlling_marker = marker
-        marker.set_whether_controlling(True)
-        ## and call that with False for the other markers, so they die if needed -- ### IMPLEM
-        #e For a chosen old marker, we get advice from it about chain direction,
-        # then call a direction reverser if needed; see comments around index_direction.
+# guessing this is for WholeChain, not here... 080114
+##    def _f_own_atoms(self): # @@@ review: is this really a small chain or whole chain method?
+##        """
+##        Own our atoms, for chain purposes.
+##        This does not presently store anything on the atoms, even indirectly,
+##        but we do take over the markers and decide between competing ones
+##        and tell them their status, and record the list of markers (needs update??)
+##        and the controlling marker for our chain identity (needs update??).
+##        This info about markers might be DNA-specific ...
+##        and it might be only valid during the dna updater run, before
+##        more model changes are made. [#todo: update docstring when known]
+##        """
+##        
+##        # NOTE/TODO: if useful, this might record a list of all live markers
+##        # found on that chain in the chain, as well as whatever marker
+##        # is chosen or made to control it. (But note that markers might
+##        # get removed or made independently without the chain itself
+##        # changing. If so, some invalidation of those chain attributes
+##        # might be needed.)
+##
+##        if DEBUG_DNA_UPDATER_VERBOSE:
+##            print "%r._f_own_atoms() is a stub - always makes a new marker" % self #####FIX
+##        chain = self.chain_or_ring
+##        # stub -- just make a new marker! we'll need code for this anyway...
+##        # but it's WRONG to do it when an old one could take over, so this is not a correct stub, just one that might run.
+##        atom = chain.atom_list[0]
+##        assy = atom.molecule.assy
+##        marker_class = self._marker_class
+##        assert issubclass(marker_class, DnaAtomMarker)
+##        marker = marker_class(assy, [atom], chain = self)
+##            # note: chain has to be self, not self.chain
+##            # (the marker calls some methods that are only on self).
+##        self.controlling_marker = marker
+##        marker.set_whether_controlling(True)
+##        ## and call that with False for the other markers, so they die if needed -- ### IMPLEM
+##        #e For a chosen old marker, we get advice from it about chain direction,
+##        # then call a direction reverser if needed; see comments around index_direction.
 
     def virtual_fragment(self, start_baseindex, baselength): #e misnamed if not virtual -- review
         """

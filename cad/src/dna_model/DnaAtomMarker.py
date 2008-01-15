@@ -36,7 +36,7 @@ _CONTROLLING_IS_UNKNOWN = True # represents an unknown value of self.controlling
 
 _homeless_dna_markers = {}
 
-def _f_get_homeless_dna_markers():
+def _f_get_homeless_dna_markers(): # MISNAMED, see is_homeless docstring. Maybe rename to end "markers_that_need_update"?
     """
     Return the homeless dna markers,
     and clear the list so they won't be returned again
@@ -83,6 +83,8 @@ class DnaAtomMarker( ChainAtomMarker): ### REVIEW: rename to DnaMarker?
     so next_atom is not needed for understanding direction, or anything
     else about the chain self is presently on, since that chain might
     not be valid when self later needs to move along it.
+    (This info consists of self's index (which rail and where) and direction
+     in a DnaLadder.)
 
     After copy, in self.fixup_after_copy(), ... ### NIM; spelling? (check atom order then, and record info so next_atom not needed) @@@
 
@@ -98,18 +100,22 @@ class DnaAtomMarker( ChainAtomMarker): ### REVIEW: rename to DnaMarker?
     If our next_atom dies or becomes unbonded from our marker_atom,
     but our marker_atom remains alive, we can probably stay put but
     we might need a new direction indicator in place of next_atom.
-    The dna updater handles this too, as a special case of "moving us". ### REVIEW, does it work? @@@
+    The dna updater handles this too, as a special case of "moving us".
+        ### REVIEW, does it work? what call makes this happen? has to come out of changed_atoms, we might not be "homeless" @@@
 
     After any of these moves or other updates, our marker_atom and next_atom
     are updated to be sufficient when taken alone to specify our
     position and direction on a chain of atoms. This is so those attrs
     are the only ones needing declaration for undo/copy/save for that purpose.
+    
     We also maintain internal "cached" attrs like our index within a ladder,
     for efficiency and to help us move when those atoms become killed or
     get changed in other ways.
     """
     ### REVIEW: what if neither atom is killed, but their bonding changes?
-    # do we need to look for marker jigs on changed atoms and treat them as perhaps needing to be moved? YES. DOIT. #### @@@
+    # do we need to look for marker jigs on changed atoms
+    # and treat them as perhaps needing to be moved? YES. DOIT. #### @@@
+    # [same issue as in comment in docstring "we might not be homeless"]
 
     # default values of instance variables:
     
@@ -124,14 +130,15 @@ class DnaAtomMarker( ChainAtomMarker): ### REVIEW: rename to DnaMarker?
     
     # other variables
 
-    _chain = None # (not undoable or copyable)
+    _chain = None # (not undoable or copyable) ###k needed??? Do we need smallchain or WholeChain or Ladder? @@@
+    # guess: needs a wholechain, a ladder, and indices into the ladder (which rail, rail/chain posn, rail/chain direction)@@@
 
     controlling = _CONTROLLING_IS_UNKNOWN
 
-    _advise_new_chain_direction = 0
+    _advise_new_chain_direction = 0 ###k needed??? @@@
         # temporarily set to 0 or -1 or 1 for use when moving self and setting a new chain
 
-    _owning_strand_or_segment = None
+    _owning_strand_or_segment = None ###k needed??? @@@
     
     # == Jig API methods (overridden or extended from ChainAtomMarker):
 
@@ -207,6 +214,9 @@ class DnaAtomMarker( ChainAtomMarker): ### REVIEW: rename to DnaMarker?
         return self.parent_node_of_class( DnaStrandOrSegment)
         
     def _f_get_owning_strand_or_segment(self): ### @@@ REVIEW - correct? needed? what is this for anyway?
+            # see comments in WholeChain docstring - I think we need this as a settable thing for any controlling marker.
+            # a WholeChain finds a controlling marker, if it has this uses it, otherwise makes an obj for this and sets it.
+            # [guess 080114]
         """
         [friend method for dna updater]
         Find the DnaStrand or DnaSegment which owns this marker,
@@ -238,7 +248,7 @@ class DnaAtomMarker( ChainAtomMarker): ### REVIEW: rename to DnaMarker?
             self.kill() # stub -- in future, depends on user-settable properties and/or on subclass
         return
     
-    def _f_move_to_live_atom_step1(self): #e todo: split docstring; ### FIX/REVIEW/REFILE/REPLACE @@@
+    def _f_move_to_live_atom_step1(self): #e todo: split docstring; ### FIX/REVIEW/REFILE/REPLACE - move into WholeChain or smallchain? @@@
         """
         [friend method, called from dna_updater]
         Our atom died; see if there is a live atom on our old chain which we want to move to;

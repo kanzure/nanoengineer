@@ -110,7 +110,7 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
 
 
     # Separate connected sets of axis atoms into AxisChunks, reusing existing
-    # AxisChunks whereever possible; same with StrandSegmentChunks, but more complex...
+    # AxisChunks whereever possible; same with StrandChunks, but more complex...
     #
     # [REVIEW: also label the atoms with positional hints? Note that we need these
     #  (e.g. base indices) in order to decide which old chunks correspond to
@@ -194,7 +194,7 @@ def find_chains_or_rings(unprocessed_atoms, atom_ok_func): # needs rewrite as in
                 chain2, index2 = new_chain_info[atom2.key]
                 if chain1 != chain2:
                     return #k review, if these are objects
-                assert index1 != index2 # hmm, would this fail for a length-1 ring?? yes!!! can that happen? ### REVIEW; special case
+                assert index1 != index2 # hmm, would this fail for a length==1 ring?? yes!!! can that happen? ### REVIEW; special case
                 return chain1.are_indices_adjacent( index1, index2) #IMPLEM
 
 

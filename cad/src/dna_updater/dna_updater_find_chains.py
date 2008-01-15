@@ -110,7 +110,10 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
     strand_atoms = {}
 
     def classify(atom):
-        "put a live real atom into axis_atoms or strand_atoms, or discard it"
+        """
+        [local helper function]
+        put a live real atom into axis_atoms or strand_atoms, or discard it
+        """
         # REVIEW: should we use atom classes or per-class methods here?
         # REVIEW: need to worry about atoms with too few bonds?
         element = atom.element

@@ -56,11 +56,11 @@ def full_dna_update():
         # (unlikely, but no harm)
         return
 
-    new_chunks = update_PAM_chunks( changed_atoms)
+    new_chunks, new_wholechains = update_PAM_chunks( changed_atoms)
 
     # review: if not new_chunks, return? wait and see if there are also new_markers, etc...
     
-    update_DNA_groups( new_chunks)
+    update_DNA_groups( new_chunks, new_wholechains)
         # review:
         # args? a list of nodes, old and new, whose parents should be ok? or just find them all, scanning MT?
         # the underlying nodes we need to place are just chunks and jigs. we can ignore old ones...

@@ -49,6 +49,8 @@ contain undoable state), but will not be stored in the mmp file.
 from bond_constants import atoms_are_bonded
 
 from dna_model.DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
+    # note: if these imports are an issue, they could be moved
+    # to a controller class, since they are needed only by remake_chunks method
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
@@ -58,7 +60,7 @@ _ENDS = (0, 1)
 _END0 = _ENDS[0] # "left"
 _END1 = _ENDS[1] # "right"
 _OTHER_END = [1,0] # 1 - end
-_BOND_DIRECTION_TO_OTHER_AT_END = [-1, 1]
+_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1 = [-1, 1] # not correct for strand2
 
 # ==
 
@@ -109,7 +111,20 @@ class DnaLadder(object):
         self.strand_rails = []
     def baselength(self):
         return len(self.axis_rail)
-    def add_strand_rail(self, strand_rail):
+    def add_strand_rail(self, strand_rail): # review: _f_, since requires a lot of calling code?
+        """
+        This is called while constructing a dna ladder (self)
+        which already has an axis rail and 0 or 1 strand rails.
+        
+        Due to how the calling code works, it's guaranteed
+        that the atomlist in the new strand rail corresponds to that
+        in the existing axis rail, either directly or in reverse order --
+        even if one or both of those rails is a ring rather than a chain.
+        (That is, it's never necessary to "rotate a ring" to make this
+        alignment possible. The caller splits rings into chains if
+        necessary to avoid this need.)
+        We depend on this and assert it, in self.finished().
+        """
         assert strand_rail.baselength() == self.axis_rail.baselength(), \
                "baselengths in %r don't match: %r (%d) != %r (%d)" % \
                (self,
@@ -119,11 +134,22 @@ class DnaLadder(object):
                 self.axis_rail.baselength())
         self.strand_rails.append(strand_rail)
         return
-    def finished(self):
+    def finished(self): # @@@ TODO: revise this or caller for Ub rather than Ax in single strands
+        """
+        This is called once to signify that construction of self is done
+        as far as the caller is concerned (i.e. it's called add_strand_rail
+        all the times it's going to), and it should be finished internally.
+        This involves reversing rails as needed to make their baseatoms
+        correspond (so each base pair's 3 PAM atoms (or each lone base's 2 PAM atoms)
+        has one atom per rail, at the same relative baseindex),
+        and perhaps(?) storing pointers at each rail-end to neighboring rails.
+        See add_strand_rail docstring for why optional reversing is sufficient,
+        even when some rails are rings.
+        """
         assert not self.valid # not required, just a useful check on the current caller algorithm
-        ## assert len(self.strand_rails) in (1,2)
+        ## assert len(self.strand_rails) in (1, 2)
         # happens in mmkit - leave it as just a print at least until we implem "delete bare atoms" -
-        if not ( len(self.strand_rails) in (1,2) ):
+        if not ( len(self.strand_rails) in (1, 2) ):
             print "error: DnaLadder %r has %d strand_rails " \
                   "(should be 1 or 2)" % (self, len(self.strand_rails))
             self.error = True
@@ -156,7 +182,7 @@ class DnaLadder(object):
                 reverse = False # if dir is wrong, error
                     # review: how to handle it in later steps? mark ladder error, don't merge it?
             have_dir = strand_rail.bond_direction() # 1 = right, -1 = left, 0 = inconsistent or unknown
-                # IMPLEM note - this is implemented except for merged ladders; some bugs for length-1 chains.
+                # IMPLEM note - this is implemented except for merged ladders; some bugs for length==1 chains.
                 # strand_rail.bond_direction must check consistency of bond
                 # directions not only throughout the rail, but just after the
                 # ends (thru Pl too), so we don't need to recheck it for the
@@ -165,7 +191,7 @@ class DnaLadder(object):
                 # otherwise we'll keep rescanning rails as we merge them. #e
             if have_dir == 0:
                 print "error: %r strand %r has unknown or inconsistent bond " \
-                      "direction - response is NIM(bug)" % (self, strand_rail)
+                      "direction - response is NIM(bug)" % (self, strand_rail) #### @@@@ response is NIM (BUG)
                 self.error = True
                 reverse = True # might as well fix the other strand, if we didn't get to it yet
             else:
@@ -179,7 +205,7 @@ class DnaLadder(object):
                             rail.reverse_baseatoms()
                     else:
                         print "error: %r strands have parallel bond directions"\
-                              " - response is NIM(bug)" % self ###
+                              " - response is NIM(bug)" % self #### @@@@ response is NIM (BUG); split into two single strands??
                         self.error = True
                         # should we just reverse them? no, unless we use minor/major groove to decide which is right.
             continue
@@ -219,6 +245,16 @@ class DnaLadder(object):
             if atom2 is not atom1:
                 yield atom2
         return
+    def neighboring_ladder_rail_end_atoms(self): # might use this in "make new wholechains on modified_valid_ladders" 080114 @@@
+        """
+        Yield the 0 to 6 pairs (our rail end atom, neighboring other-ladder end atom)
+        (or equivalent info using rail & end indices??)
+        showing how our rails connect to other ladder rails,
+        or to None when they end.
+        If we are length 1, use arbitrary left-right choice for axis.(?)
+        """
+        nim
+        
     def invalidate(self):
         # note: this is called from dna updater and from
         # DnaLadderRailChunk.delatom, so changed atoms inval their
@@ -263,7 +299,7 @@ class DnaLadder(object):
         our rails attach to)? (If so, return other_ladder_and_merge_info, otherwise None.)
 
         Note that self or the other ladder might
-        be length-1 (in which case only end 0 is mergeable, as an
+        be length==1 (in which case only end 0 is mergeable, as an
         arbitrary decision to make only one case mergeable), ### OR we might use bond_dir, then use both cases again
         and that the other ladder might only merge when flipped.
         Also note that bond directions (on strands) need to match. ### really? are they always set?
@@ -281,7 +317,7 @@ class DnaLadder(object):
         strand1 = self.strand_rails[0]
         end_atom = strand1.end_baseatoms()[end]
         assert self is _rail_end_atom_to_ladder(end_atom) # sanity check
-        bond_direction_to_other = _BOND_DIRECTION_TO_OTHER_AT_END[end]
+        bond_direction_to_other = _BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1[end]
         next_atom = end_atom.strand_next_baseatom(bond_direction = bond_direction_to_other)
         if next_atom is None:
             # end of the chain (since bondpoints are not baseatoms), or
@@ -409,7 +445,7 @@ class DnaLadder(object):
 
 # ==
 
-def _rail_end_atom_to_ladder(atom): # FIX: not really private, and part of an import cycle (used in DnaLadderRailChunk).
+def _rail_end_atom_to_ladder(atom): # FIX: not really private, and part of an import cycle (used here and in DnaLadderRailChunk).
     """
     Atom is believed to be the end-atom of a rail in a valid DnaLadder.
     Return that ladder. If anything looks wrong, either console print an error message
