@@ -20,8 +20,8 @@ void NXLoggerTest::tearDown() {
 void NXLoggerTest::consoleHandlerTest() {
 	printf("\n");
 	NXLogger* logger = new NXLogger();
-	logger->addHandler(new NXConsoleLogHandler(LogLevel_Info));
-	logger->log(LogLevel_Info, "src", "msg");
+	logger->addHandler(new NXConsoleLogHandler(NXLogLevel_Info));
+	logger->log(NXLogLevel_Info, "src", "msg");
 	NXLOG_DEBUG("foo", "bar");
 	NXLOG_CONFIG("cpu", "fast");
 	NXLOG_INFO("app", "started");
@@ -36,8 +36,9 @@ void NXLoggerTest::consoleHandlerTest() {
 void NXLoggerTest::fileHandlerTest() {
 	printf("\n");
 	NXLogger* logger = new NXLogger();
-	logger->addHandler(new NXFileLogHandler("NXLoggerTest.log", LogLevel_Info));
-	logger->log(LogLevel_Info, "src", "msg");
+	logger->addHandler(new NXFileLogHandler("NXLoggerTest.log",
+					   NXLogLevel_Info));
+	logger->log(NXLogLevel_Info, "src", "msg");
 	delete logger;
 	CPPUNIT_ASSERT(true);
 }

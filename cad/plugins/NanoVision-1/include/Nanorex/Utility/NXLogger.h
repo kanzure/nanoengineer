@@ -13,12 +13,12 @@
 
 namespace Nanorex {
 
-typedef enum LogLevel {
-	LogLevel_Debug,		// General debugging.
-	LogLevel_Config,	// Debugging configurations (graphics depth, os, etc.)
-	LogLevel_Info,		// Information interesting to the user.
-	LogLevel_Warning,	// Important things the user should know.
-	LogLevel_Severe		// Things that should stop the user before continuing.
+typedef enum NXLogLevel {
+	NXLogLevel_Debug,	// General debugging.
+	NXLogLevel_Config,	// Debugging configurations (graphics depth, os, etc.)
+	NXLogLevel_Info,	// Information interesting to the user.
+	NXLogLevel_Warning,	// Important things the user should know.
+	NXLogLevel_Severe	// Things that should stop the user before continuing.
 };
 
 static char LogLevelNames[][8] = {
@@ -32,7 +32,7 @@ static char LogLevelNames[][8] = {
  */
 class LogRecord {
 	public:
-		LogRecord(LogLevel logLevel, const std::string& source,
+		LogRecord(NXLogLevel logLevel, const std::string& source,
 				  const std::string& message) {
 			this->logLevel = logLevel;
 			this->source = source;
@@ -40,13 +40,13 @@ class LogRecord {
 			dateTime = QDateTime::currentDateTime();
 		}
 		
-		LogLevel getLogLevel() { return logLevel; }
+		NXLogLevel getLogLevel() { return logLevel; }
 		QDateTime getDateTime() { return dateTime; }
 		std::string getSource() { return source; }
 		std::string getMessage() { return message; }
 		
 	private:
-		LogLevel logLevel;
+		NXLogLevel logLevel;
 		QDateTime dateTime;
 		std::string source;
 		std::string message;
@@ -60,13 +60,13 @@ class LogRecord {
  */
 class NXLogHandler {
 	public:
-		NXLogHandler(LogLevel logLevel) { this->logLevel = logLevel; }
+		NXLogHandler(NXLogLevel logLevel) { this->logLevel = logLevel; }
 		virtual ~NXLogHandler() { }
 		
 		virtual void publish(LogRecord logRecord) = 0;
 	
 	private:
-		LogLevel logLevel;
+		NXLogLevel logLevel;
 };
 
 
@@ -77,7 +77,7 @@ class NXLogHandler {
  */
 class NXLogger {
 	public:
-		void log(LogLevel logLevel, const std::string& source,
+		void log(NXLogLevel logLevel, const std::string& source,
 				 const std::string& message) {
 			LogRecord logRecord(logLevel, source, message);
 			std::list<NXLogHandler*>::iterator iter = logHandlers.begin();
@@ -89,7 +89,7 @@ class NXLogger {
 		}		
 		void addHandler(NXLogHandler* logHandler) {
 			logHandlers.push_back(logHandler);
-			logHandler->publish(LogRecord(LogLevel_Info,
+			logHandler->publish(LogRecord(NXLogLevel_Info,
 										 "NXLogger",
 										 "*********** Log Start ***********"));
 		}
@@ -106,31 +106,31 @@ NXLogger* NXLogger::ThisInstance = 0;
 #define NXLOG_DEBUG(source, message) { \
 	NXLogger* logger = NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(LogLevel_Debug, source, message); \
+		logger->log(NXLogLevel_Debug, source, message); \
 };
 
 #define NXLOG_CONFIG(source, message) { \
 	NXLogger* logger = NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(LogLevel_Config, source, message); \
+		logger->log(NXLogLevel_Config, source, message); \
 };
 
 #define NXLOG_INFO(source, message) { \
 	NXLogger* logger = NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(LogLevel_Info, source, message); \
+		logger->log(NXLogLevel_Info, source, message); \
 };
 
 #define NXLOG_WARNING(source, message) { \
 	NXLogger* logger = NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(LogLevel_Warning, source, message); \
+		logger->log(NXLogLevel_Warning, source, message); \
 };
 
 #define NXLOG_SEVERE(source, message) { \
 	NXLogger* logger = NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(LogLevel_Severe, source, message); \
+		logger->log(NXLogLevel_Severe, source, message); \
 };
 
 
@@ -141,7 +141,7 @@ NXLogger* NXLogger::ThisInstance = 0;
  */
 class NXConsoleLogHandler : public NXLogHandler {
 	public:
-		NXConsoleLogHandler(LogLevel logLevel) : NXLogHandler(logLevel) { }
+		NXConsoleLogHandler(NXLogLevel logLevel) : NXLogHandler(logLevel) { }
 		void publish(LogRecord logRecord) {
 			mutex.lock();
 			printf("%s  [%-7s]  %s %s\n",
@@ -166,7 +166,7 @@ class NXConsoleLogHandler : public NXLogHandler {
  */
 class NXFileLogHandler : public NXLogHandler {
 	public:
-		NXFileLogHandler(const std::string& filename, LogLevel logLevel) :
+		NXFileLogHandler(const std::string& filename, NXLogLevel logLevel) :
 				NXLogHandler(logLevel) {
 			filehandle = fopen(filename.c_str(), "w");
 			if (filehandle != 0) {
