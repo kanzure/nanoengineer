@@ -2025,11 +2025,17 @@ def readGromacsCoordinates(filename, atomList):
         xstr = line[20:28]
         ystr = line[28:36]
         zstr = line[36:44]
+        extraString = line[44:]
+        if (extraString.strip() != ""):
+            return "GROMACS minimize returned malformed results (output overflow?)"
         if (xstr == "     nan" or ystr == "     nan" or zstr == "     nan"):
             return "GROMACS minimize returned undefined results"
-        x = float(xstr) * 10.0
-        y = float(ystr) * 10.0
-        z = float(zstr) * 10.0
+        try:
+            x = float(xstr) * 10.0
+            y = float(ystr) * 10.0
+            z = float(zstr) * 10.0
+        except ValueError, e:
+            return "Error parsing GROMACS minimize results: [%s][%s][%s]" % (xstr, ystr, zstr)
         atomIndex += 1
         if (atomIndex <= len(atomList)):
             # coordinates of virtual sites are reported at end of
