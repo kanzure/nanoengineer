@@ -553,7 +553,7 @@ def _mash_attrs_Atom_chunk(key, obj, attrname, val, modified, invalmols):
         ##  Neither: store None, and let _undo_update do no
         ##  invals at all in that case. Come to think of it,
         ##  the non-differential mash_attrs probably only called
-        ##  undo_update on live objects!! Should we?
+        ##  _undo_update on live objects!! Should we?
         ##  #####@@@@@ issue on bonds too
         val = None
         obj.molecule = val
