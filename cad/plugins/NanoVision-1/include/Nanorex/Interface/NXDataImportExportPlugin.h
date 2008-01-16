@@ -13,6 +13,7 @@
 
 #include "Nanorex/Utility/NXPlugin.h"
 #include "Nanorex/Utility/NXCommandResult.h"
+#include "Nanorex/Interface/NXNumbers.h"
 
 namespace Nanorex {
 

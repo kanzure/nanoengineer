@@ -11,6 +11,8 @@
 	typedef void* LIBRARY_IMAGE;
 #endif
 
+#include <map>
+
 #include "Nanorex/Utility/NXPlugin.h"
 #include "Nanorex/Utility/NXLogger.h"
 

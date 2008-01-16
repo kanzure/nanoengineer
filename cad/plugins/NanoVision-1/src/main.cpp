@@ -9,7 +9,7 @@
 int main(int argc, char *argv[]) {
 	Q_INIT_RESOURCE(application);
 	QApplication app(argc, argv);
-	nv1* mw = new nv1();
-	mw->show();
+	nv1 mainWindow;
+	mainWindow.show();
 	return app.exec();
 }

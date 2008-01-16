@@ -14,16 +14,16 @@ NXDataImportExportPlugin::~NXDataImportExportPlugin() {
 }
 
 
-/* FUNCTION: setMode */
-void NXDataImportExportPlugin::setMode(const std::string& mode) {
-	this->mode = mode;
+/* FUNCTION: setEntityManager */
+void NXDataImportExportPlugin::setEntityManager
+		(NXEntityManager* entityManager) {
+	this->entityManager = entityManager;
 }
 
 
-/* ACCESSORS */
-void NXDataImportExportPlugin::setEntityManager
-		(NXEntityManagerPlugin* entityManager) {
-	this->entityManager = entityManager;
+/* FUNCTION: setMode */
+void NXDataImportExportPlugin::setMode(const std::string& mode) {
+	this->mode = mode;
 }
 
 

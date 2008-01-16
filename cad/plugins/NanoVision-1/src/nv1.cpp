@@ -4,7 +4,7 @@
 
 
 /* CONSTRUCTOR */
-nv1::nv1() {
+nv1::nv1() : QMainWindow() {
 	mainWindowTabs = new MainWindowTabWidget(this);
 	setCentralWidget(mainWindowTabs);	
 	

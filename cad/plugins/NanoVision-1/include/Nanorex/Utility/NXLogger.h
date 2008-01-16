@@ -77,6 +77,8 @@ class NXLogHandler {
  */
 class NXLogger {
 	public:
+		NXLogger() { ThisInstance = this; }
+		
 		void log(NXLogLevel logLevel, const std::string& source,
 				 const std::string& message) {
 			LogRecord logRecord(logLevel, source, message);
@@ -85,21 +87,21 @@ class NXLogger {
 				(*iter)->publish(logRecord);
 				iter++;
 			}
-			ThisInstance = this;
-		}		
+		}
+		
 		void addHandler(NXLogHandler* logHandler) {
 			logHandlers.push_back(logHandler);
 			logHandler->publish(LogRecord(NXLogLevel_Info,
 										 "NXLogger",
 										 "*********** Log Start ***********"));
 		}
+		
 		static NXLogger* Instance() { return ThisInstance; }
 
 	private:
 		std::list<NXLogHandler*> logHandlers;
 		static NXLogger* ThisInstance;
 };
-NXLogger* NXLogger::ThisInstance = 0;
 
 
 // Convenience macros

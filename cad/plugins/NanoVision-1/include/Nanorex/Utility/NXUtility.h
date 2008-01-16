@@ -76,8 +76,8 @@ class NXUtility {
  */
 class NXException {
 	public:
-		NHException() {};
-		NHException(const std::string& message) { this->message = message; }
+		NXException() {};
+		NXException(const std::string& message) { this->message = message; }
 		const std::string& getMessage() const { return message; }
 
 	private:

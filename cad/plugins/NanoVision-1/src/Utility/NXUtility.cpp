@@ -93,23 +93,6 @@ void NXUtility::ElementSymbol(int atomicNumber, char* symbol) {
 }
 
 
-/* FUNCTION: GetNSPR_MeaningForCode */
-/**
- * Returns a human-readable string for the given NSPR code.
- */
-std::string NXUtility::GetNSPR_MeaningForCode(PRErrorCode errorCode) {
-	std::string meaning;
-	if ((errorCode < (-6000L)) || (errorCode > (-5926L)))
-		meaning =
-			std::string("Unknown error code (").append(itos(errorCode))
-			.append(")");
-
-	else
-		meaning = std::string(NSPRcodeToMeaning[errorCode + 6000]);
-	return meaning;
-}
-
-
 /***************** AtomicDataMap *****************/
 
 /* CONSTRUCTOR */

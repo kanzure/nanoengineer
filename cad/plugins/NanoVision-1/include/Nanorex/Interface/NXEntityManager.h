@@ -6,8 +6,13 @@
 #include <map>
 #include <vector>
 
+#include "Nanorex/Utility/NXUtility.h"
+#include "Nanorex/Utility/NXProperties.h"
+#include "Nanorex/Utility/NXPluginGroup.h"
+#include "Nanorex/Utility/NXStringTokenizer.h"
 #include "Nanorex/Interface/NXNumbers.h"
 #include "Nanorex/Interface/NXMoleculeSet.h"
+#include "Nanorex/Interface/NXDataImportExportPlugin.h"
 
 namespace Nanorex {
 
@@ -104,12 +109,14 @@ class NXEntityManager {
 		NXEntityManager();
 		~NXEntityManager();
 		
-		static NXEntityManager* Instance() { return ThisInstance; }
+		static NXEntityManager* Instance() {
+			return ThisInstance;
+		}
 
 		//
 		// Import/export plugins
 		//
-		void loadDataImportExportPlugins();
+		void loadDataImportExportPlugins(NXProperties* properties);
 		int importFromFile(const unsigned int& moleculeSetId,
 						   const std::string& fileType,
 						   const std::string& fileName,
@@ -161,6 +168,10 @@ class NXEntityManager {
 
 	private:
 		static NXEntityManager* ThisInstance;
+		
+		NXPluginGroup* dataImpExpPluginGroup;
+		std::map<std::string, NXDataImportExportPlugin*> dataImportTable;
+		std::map<std::string, NXDataImportExportPlugin*> dataExportTable;
 		
 		NXMoleculeSet* rootMoleculeSet;
 		

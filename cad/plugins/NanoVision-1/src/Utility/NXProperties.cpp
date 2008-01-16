@@ -2,7 +2,7 @@
 
 #include "Nanorex/Utility/NXProperties.h"
 
-namespace nanohive {
+namespace Nanorex {
 
 
 /* CONSTRUCTOR */
@@ -120,8 +120,8 @@ void NXProperties::setProperty(const std::string& key,
  * @param	prePendChars
  *			The string to prepend to each new key/value pair's key.
  */
-void NXProperties::addProperties(Properties* newProps,
-							   const char* prePendChars) {
+void NXProperties::addProperties(NXProperties* newProps,
+								 const char* prePendChars) {
 	std::string prePendString = std::string(prePendChars);
 
 	std::map<std::string, std::string>::iterator newPropsIter;

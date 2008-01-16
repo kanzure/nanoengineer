@@ -108,7 +108,7 @@ NXPlugin* NXPluginGroup::instantiate(const char* libraryFilename) {
 
 	LIBRARY_IMAGE image = imageMap[libraryFilenameStr];
 	if (!image) {
-		logger->error(this,
+		NXLOG_SEVERE("NXPluginGroup",
 					  "Attempt to instantiate non-loaded library: " +
 							libraryFilenameStr);
 		libraryLoaded = false;
@@ -134,14 +134,14 @@ NXPlugin* NXPluginGroup::instantiate(const char* libraryFilename) {
 			(INSTANTIATE_PLUGIN)dlsym(image, "instantiate");
 		instantiateError = (char*)(dlerror());
 #endif
-		if (!instantiatePlugin)
-			NXLOG_WARNING
-				("NXPluginGroup",
-				 "Failed to get handle on instantiation function for " +
-					libraryFilenameStr + ": " + std::string(instantiateError));
-		else {
+		if (!instantiatePlugin) {
+			NXLOG_WARNING("NXPluginGroup",
+						  "Failed to get handle on instantiation function for " +
+							libraryFilenameStr + ": " + std::string(instantiateError));
+		
+		} else {
 			plugin = instantiatePlugin();
-			NXLOG_INFO(this, "Instantiated " + libraryFilenameStr);
+			NXLOG_INFO("NXPluginGroup", "Instantiated " + libraryFilenameStr);
 		}
 	}
 	delete[] instantiateError;

@@ -31,7 +31,7 @@ class NXProperties {
 		std::string writeToFile(const std::string& filename);
 		std::string readFromFile(const std::string& filename);
 		void setProperty(const std::string& key, const std::string& value);
-		void addProperties(Properties* newProps, const char* prePendChars);
+		void addProperties(NXProperties* newProps, const char* prePendChars);
 		bool keyExists(const char* key);
 		const char* getProperty(const char* key);
 		const char* getProperty(const char* key, const char* defaultValue);
