@@ -35,6 +35,14 @@ struct compiledPattern
   struct compiledPatternTraversal **traversals;
 };
 
+extern int atomIsType(struct atom *a, struct atomType *type);
+
+extern struct compiledPatternAtom *makePatternAtom(int id, char *type);
+
+extern struct compiledPatternTraversal *makeTraversal(struct compiledPatternAtom *a, struct compiledPatternAtom *b, char bondOrder);
+
+extern void makePattern(char *name, void (*matchFunction)(struct patternMatch *match), int numAtoms, int numTraversals, struct compiledPatternTraversal **traversals);
+
 extern void matchPartToAllPatterns(struct part *part);
 
 extern void createPatterns(void);

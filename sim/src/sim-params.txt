@@ -50,10 +50,10 @@ element 991  0  0   All PAM3  All-PAM3-Pseudo-Atoms       0.0   0.0    0.0   0  
 
 element 200  0  0   P5d Ax5   DNA-Pseudo-Axis           167.0   0.0    0.0   4   100   0    0   700
 element 201  0  0   P5S Ss5   DNA-Pseudo-Sugar          167.0   0.0    0.0   3   170   0    0   800
-element 202  0  0   P5P Pl5   DNA-Pseudo-Phosphate      167.0   3.6   10.0   2   170  -1    0   900
-element 203  0  0   P5d Sj5   DNA-Pseudo-Sugar-Junction 167.0   0.0   10.0   3   170   0    0   810
+element 202  0  0   P5P Pl5   DNA-Pseudo-Phosphate      167.0   0.0    0.0   2   170   0    0   900
+element 203  0  0   P5d Sj5   DNA-Pseudo-Sugar-Junction 167.0   0.0    0.0   3   170   0    0   810
 element 204  0  0   P5d Ae5   DNA-Pseudo-Axis-End       167.0   0.0    0.0   1   100   0    0   701
-element 205  0  0   P5d Pe5   DNA-Pseudo-Phosphate-End  167.0   3.6   10.0   1   170  -2    0   901
+element 205  0  0   P5d Pe5   DNA-Pseudo-Phosphate-End  167.0   0.0    0.0   1   170   0    0   901
 element 206  0  0   P5d Sh5   DNA-Pseudo-Sugar-End      167.0   0.0    0.0   1   170   0    0   902
 element 207  0  0   P5d Hp5   DNA-Pseudo-Hairpin        167.0   0.0    0.0   2   100   0    0   820
 element 208  0  0   P5G Gv5   DNA-Pseudo-Groove         167.0   0.0    0.0   2   100   0    0   820
@@ -76,6 +76,8 @@ element 234  0  0   P5V vDb5  virtual-DNA-planeB-num5     0.0   0.0    0.0   1  
 element 235  0  0   P5V vDb6  virtual-DNA-planeB-num6     0.0   0.0    0.0   1   100   0    1
 element 236  0  0   P5V vDb7  virtual-DNA-planeB-num7     0.0   0.0    0.0   1   100   0    1
 element 237  0  0   P5V vDb8  virtual-DNA-planeB-num8     0.0   0.0    0.0   1   100   0    1
+
+element 240  0  0   P5V vDn   virtual-DNA-non-bonded      0.0   0.0    0.0   0   100   0    1
 
 element 300  0  0   PAM3 Ax3  PAM3-Axis                 167.0   0.0    0.0   4   100   0    0   700
 element 301  0  0   PAM3 Ss3  PAM3-Sugar                167.0   0.0    0.0   3   170   0    0   800
@@ -108,9 +110,7 @@ element 307  0  0   PAM3 Hp3  PAM3-Hairpin              167.0   0.0    0.0   2  
 #
 #  rvdW evdW start end name
 
-vdw 7.2 10.0 100.0 7.2 Pl5-v-Pl5
-vdw 7.2 10.0 100.0 7.2 Pl5-v-Pe5
-vdw 7.2 10.0 100.0 7.2 Pe5-v-Pe5
+vdw 200.0 10.0 100.0 7.2 vDn-v-vDn
 
 vdw 7.2 10.0 100.0 7.2 Pl3-v-Pl3
 vdw 7.2 10.0 100.0 7.2 Pl3-v-Se3
@@ -484,6 +484,7 @@ pattern PAM5-Stack:vDa8-q             0.082
 pattern PAM5-Stack:vDb8-p             0.181
 pattern PAM5-Stack:vDb8-q             0.182
 
+pattern PAM5-Stack:vDn-pq             0.250
 
 #         ks    r0      de      beta    inflectionR qual quad bondName
 

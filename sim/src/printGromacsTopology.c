@@ -52,6 +52,73 @@ writeGromacsAtom(FILE *top, FILE *gro, FILE *ndx, struct part *p, struct atom *a
     }
 }
 
+struct atomType *vDn_type = NULL;
+struct atomType *P5G_type = NULL;
+
+static int
+writeExclusion(FILE *top,
+               struct part *p,
+               struct atom *first,
+               struct atom *groove1,
+               struct atom *groove2,
+               int gotOne,
+               int depth)
+{
+    struct atom *vDn;
+    struct bond *b;
+    int i;
+
+    vDn = groove2->creationParameters.r.associatedAtom;
+    if (vDn != NULL && atomIsType(vDn, vDn_type)) {
+        if (!gotOne) {
+            fprintf(top, "%d", atomNumber(p, first));
+            gotOne = 1;
+        }
+        fprintf(top, " %d", atomNumber(p, vDn));
+    }
+    if (--depth < 1) {
+        return gotOne;
+    }
+    for (i=0; i<groove2->num_bonds; i++) {
+        b = groove2->bonds[i];
+        if (b->a1 == groove2 && b->a2 != groove1 && atomIsType(b->a2, P5G_type)) {
+            gotOne |= writeExclusion(top, p, first, groove2, b->a2, gotOne, depth);
+        } else if (b->a2 == groove2 && b->a1 != groove1 && atomIsType(b->a1, P5G_type)) {
+            gotOne |= writeExclusion(top, p, first, groove2, b->a1, gotOne, depth);
+        }
+    }
+    return gotOne;
+}
+
+#define DEPTH_TO_EXCLUDE 2
+
+static void
+writeGromacsExclusions(FILE *top, struct part *p, struct atom *a)
+{
+    struct atom *groove1;
+    struct bond *b;
+    int i;
+    int gotOne = 0;
+    
+    if (!atomIsType(a, vDn_type)) {
+        return;
+    }
+    groove1 = a->creationParameters.v.virtual1;
+    if (groove1 != NULL) {
+        for (i=0; i<groove1->num_bonds; i++) {
+            b = groove1->bonds[i];
+            if (b->a1 == groove1 && atomIsType(b->a2, P5G_type)) {
+                gotOne = writeExclusion(top, p, a, groove1, b->a2, gotOne, DEPTH_TO_EXCLUDE);
+            } else if (b->a2 == groove1 && atomIsType(b->a1, P5G_type)) {
+                gotOne = writeExclusion(top, p, a, groove1, b->a1, gotOne, DEPTH_TO_EXCLUDE);
+            }
+        }
+    }
+    if (gotOne) {
+        fprintf(top, "\n");
+    }
+}
+
 static void
 writeGromacsVirtualSite(FILE *top, struct part *p, struct atom *a)
 {
@@ -195,6 +262,7 @@ printGromacsToplogy(char *basename, struct part *p)
     FILE *mdp; // Gromacs configuration file (basename.mdp)
     FILE *ndx; // Gromacs group (index) file (basename.ndx)
     int len;
+    double vdwCutoff;
     char *fileName;
     char *ret = NULL;
     
@@ -236,6 +304,9 @@ printGromacsToplogy(char *basename, struct part *p)
     }
     free(fileName);
 
+    vDn_type = getAtomTypeByName("vDn");
+    P5G_type = getAtomTypeByName("P5G");
+    
     fprintf(mdp, "title               =  NE1-minimize\n");
     fprintf(mdp, "constraints         =  none\n");
     if (PathToCpp != NULL) {
@@ -247,10 +318,12 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(mdp, "nstcgsteep          =  100\n"); // frequency of steep steps during cg
     fprintf(mdp, "nstlist             =  10\n"); // update frequency for neighbor list
     fprintf(mdp, "ns_type             =  simple\n"); // neighbor search type, must be simple for pbc=no
-    fprintf(mdp, "rlist               =  1.0\n"); // short range neighbor list cutoff distance
-    fprintf(mdp, "rcoulomb            =  1.0\n"); // cutoff distance
+    vdwCutoff = 10.0; // nm
+    fprintf(mdp, "rlist               =  %f\n", vdwCutoff); // short range neighbor list cutoff distance
+    fprintf(mdp, "rcoulomb            =  %f\n", vdwCutoff); // coulomb function cutoff distance
+    fprintf(mdp, "rvdw                =  %f\n", vdwCutoff); // vdw cutoff distance
+    // rlist, rcoulomb and rvdw must be equal when ns_type = simple
     fprintf(mdp, "epsilon_r           =  %f\n", DielectricConstant);
-    fprintf(mdp, "rvdw                =  1.0\n"); // cutoff distance
     fprintf(mdp, "freezegrps          =  Anchor\n"); // which group of atoms to hold fixed
     fprintf(mdp, "freezedim           =  Y Y Y\n"); // fix in all three dimensions
     fprintf(mdp, ";\n");
@@ -335,6 +408,12 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(top, "[ molecules ]\n");
     fprintf(top, "; Compound        #mols\n");
     fprintf(top, "Example             1\n");
+    fprintf(top, "\n");
+
+    fprintf(top, "[ exclusions ]\n");
+    for (i=0; i<p->num_virtual_atoms; i++) {
+        writeGromacsExclusions(top, p, p->virtual_atoms[i]);
+    }
     fprintf(top, "\n");
 
     fclose(top);

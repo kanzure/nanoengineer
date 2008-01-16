@@ -92,6 +92,13 @@ struct atom
 
         struct {
             struct xyz initialPosition;
+
+            // A PAM5 groove atom can have an associatedAtom, a vDn
+            // type atom.  That vDn atom will have this atom as one of
+            // its virtualConstructionAtoms.  This lets us navigate
+            // from one vDn to others along the helix (connected set
+            // of groove atoms).
+            struct atom *associatedAtom;
         } r; // real (virtualConstructionAtoms == 0)
     } creationParameters;
     
