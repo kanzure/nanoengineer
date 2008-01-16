@@ -103,6 +103,12 @@ from prefsTree import MainPrefsGroupPart
 import undo_manager
 from files_mmp import writemmpfile_assy
 
+# kluge for register_classname -- should use a
+# registration scheme: [bruce 080115]
+from dna_model.DnaGroup   import DnaGroup
+from dna_model.Block      import Block
+from dna_model.DnaSegment import DnaSegment
+from dna_model.DnaStrand  import DnaStrand
 
 # ==
 
@@ -333,6 +339,17 @@ class assembly( StateMixin, Assembly_API):
             # This is not even done by the end of MWsemantics.__init__, as of now.
             # For details, search out the highest-level calls to clear_undo_stack. [bruce 060223]
             pass
+
+        self._classnames = {}
+
+        if 'kluge, should be a registration scheme': #bruce 080115
+            # note: as of 080115, of these, only DnaSegment is needed externally;
+            # see also files_mmp._GROUP_CLASSIFICATIONS (unclear if it would be a good
+            # idea to incorporate that directly or use it instead -- probably not)
+            self.register_classname('DnaGroup',   DnaGroup)
+            self.register_classname('Block',      Block)
+            self.register_classname('DnaSegment', DnaSegment)
+            self.register_classname('DnaStrand',  DnaStrand)
         
         return # from assembly.__init__
 
@@ -345,6 +362,11 @@ class assembly( StateMixin, Assembly_API):
 
     # ==
 
+    def register_classname(self, classname, class1):
+        """
+        """
+        self._classnames[classname] = class1
+        
     def kluge_patch_toplevel_groups(self, assert_this_was_not_needed = False): #bruce 050109
         #bruce 071026 moved this here from helper function kluge_patch_assy_toplevel_groups in Utility.py
         """
@@ -410,14 +432,26 @@ class assembly( StateMixin, Assembly_API):
 
     # ==
 
-    def class_or_classname_to_class(self, class_or_classname): #bruce 071206
+    def class_or_classname_to_class(self, class_or_classname): #bruce 071206, revised 080115
         """
         If class_or_classname is a class, return it.
 
         If it's a string, it should be a model class nickname registered with
-        self via xxx; return the corresponding class.
+        self via register_classname; return the corresponding class.
+        (As of 080115, only a few classnames are registered that way,
+         by hardcoding in self.__init__.)
         """
-        return class_or_classname ### STUB @@@
+        try:
+            # handle registered classnames
+            return self._classnames[class_or_classname]
+        except KeyError:
+            pass
+        assert type(class_or_classname) != type(""), \
+               "bug: class_or_classname_to_class: " \
+               "classname %r not registered" % (class_or_classname,)
+        # maybe: assert that class_or_classname is a class?
+        assert callable(class_or_classname)
+        return class_or_classname
 
     # ==
     

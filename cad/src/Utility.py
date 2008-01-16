@@ -322,13 +322,21 @@ class Node( StateMixin):
         """
         If self has a parent Node in the current part
         with the given class_or_classname (known to self.assy),
+        or a subclass of the class that refers to,
         return the innermost such node; otherwise return None.
+
+        @param class_or_classname: a class or registered classname.
+                                   (The classname case is NIM in
+                                    self.assy.class_or_classname_to_class
+                                    except for a few hardcoded examples,
+                                    as of 080115. String args can be useful
+                                    for avoiding import cycles.)
         """
         part = self.part
         node = self.dad
         class1 = self.assy.class_or_classname_to_class(class_or_classname)
         while node and node.part is part:
-            if issubclass( node.__class__, class1):
+            if isinstance( node, class1): ## was: issubclass( node.__class__, class1)
                 # assert not too high in internal MT
                 assy = self.assy
                 assert node.assy is assy
