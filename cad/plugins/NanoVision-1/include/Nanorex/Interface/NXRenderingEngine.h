@@ -1,11 +1,11 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
-#ifndef NX_RENDERER_H
-#define NX_RENDERER_H
+#ifndef NX_RENDERINGENGINE_H
+#define NX_RENDERINGENGINE_H
 
 namespace Nanorex {
 
-/* CLASS: NXRenderer */
+/* CLASS: NXRenderingEngine */
 /**
  * Abstracts the rendering mechanism.
  * Graphics engines that actually render must inherit the Qt class
@@ -15,15 +15,16 @@ namespace Nanorex {
  * for example, must inherit QWidget (?) instead because it bypasses
  * OpenGL.
  */
-class NXRenderer {
+class NXRenderingEngine {
 public:
-
+    
+    // integer id for each engine - one per subclass
     enum EngineID { OPENGL=0 };
 
-    NXRenderer();
-    virtual ~NXRenderer();
+    NXRenderingEngine();
+    virtual ~NXRenderingEngine();
 
-    // Query type
+    // Query type - one per subclass, suitably named
     bool isOpenGL(void) const { return (getID() == OPENGL); }
 
     // Derived classes must override to identify themselves
@@ -36,4 +37,4 @@ public:
 
 } // Nanorex
 
-#endif // NX_RENDERER_H
+#endif // NX_RENDERINGENGINE_H

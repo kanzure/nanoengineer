@@ -1,30 +1,32 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
-#ifndef NX_OPENGLGRAPHICSENGINE_H
-#define NX_OPENGLGRAPHICSENGINE_H
+#ifndef NX_OPENGLRENDERINGENGINE_H
+#define NX_OPENGLRENDERINGENGINE_H
 
-#include "NXRenderer.h"
+#include "NXRenderingEngine.h"
 #include "NXSceneGraph.h"
 
 namespace Nanorex {
 
-/* CLASS: NXOpenGLRenderer */
+/* CLASS: NXOpenGLRenderingEngine */
 /**
  *  Renders the molecule set using plain OpenGL
  */
-class NXOpenGLRenderer : public NXRenderer, public QGLWidget {
+class NXOpenGLRenderingEngine : public NXRenderingEngine, public QGLWidget {
 public:
     
     Q_OBJECT
     
-    NXOpenGLRenderer();
-    virtual ~NxOpenGLRenderer();
+    NXOpenGLRenderingEngine();
+    virtual ~NxOpenGLRenderingEngine();
 
     // override base-class virtual methods
     
-    NXRenderer::EngineID getID(void) const { return NXRenderer::OPENGL; }
+    NXRenderingEngine::EngineID getID(void) const { return NXRenderingEngine::OPENGL; }
     void initializePlugins(void);
     void cleanupPlugins(void);
+    
+    // accessors
     
     NXMoleculeSet *const getRootMoleculeSet(void);
     void setRootMoleculeSet(NXMoleculeSet *const moleculeSet);
@@ -35,17 +37,17 @@ private:
     NXMoleculeSet *rootMoleculeSet;
     NXSGNode *rootSceneGraphNode;
     
-    std::vector<NXRenderingPlugin *const> pluginList;
+    std::vector<NXRendererPlugin *const> pluginList;
     
     void createSceneGraph(void);
 
     // QGLWidget methods to be overriden
     void initializeGL(void);
-    void resizeGL(void);
+    void resizeGL(int width, int height);
     void paintGL(void) { rootSceneGraphNode->applyRecursive(); }
 };
 
 
 } // Nanorex
 
-#endif // NX_OPENGLGRAPHICSENGINE_H
+#endif // NX_OPENGLRENDERINGENGINE_H
