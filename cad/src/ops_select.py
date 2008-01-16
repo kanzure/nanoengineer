@@ -26,6 +26,8 @@ import platform
 from PlatformDependent import fix_plurals
 from GlobalPreferences import permit_atom_chunk_coselection
 
+from dna_model.DnaGroup import DnaGroup
+
 # Object flags, used by objectSelected() and its callers. 
 ATOMS = 1
 CHUNKS = 2
@@ -138,6 +140,7 @@ class ops_select_Mixin:
     def getSelectedJigs(self):
         """
         Returns a list of all the currently selected jigs.
+        @see: MWsemantics.activateDnaTool
         """
         selJigs = []
         def addSelectedJig(obj, jigs=selJigs):
@@ -146,6 +149,21 @@ class ops_select_Mixin:
 
         self.topnode.apply2all(addSelectedJig)
         return selJigs
+    
+    def getSelectedDnaGroups(self):
+        """
+        Returns a list of all the currently selected DnaGroup
+        
+        """
+        
+        selDnaGroupList = []
+        def addSelectedDnaGroup(obj, dnaList = selDnaGroupList):
+            if obj.picked and isinstance(obj, DnaGroup):
+                dnaList += [obj]
+
+        self.topnode.apply2all(addSelectedDnaGroup)
+        return selDnaGroupList
+        
 
     def getNumberOfSelectedChunks(self):
         """

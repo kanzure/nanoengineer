@@ -1712,15 +1712,27 @@ class MWsemantics(QMainWindow,
         """
         Enter the DnaDuplex_EditCommand command. 
         @see:B{self.insertDna}
+        @see: B{ops_select_Mixin.getSelectedDnaGroups}
+        @see: B{dna_model.DnaGroup.edit}
         """
-        commandSequencer = self.commandSequencer        
-        if commandSequencer.currentCommand.commandName != 'BUILD_DNA':
-            commandSequencer.userEnterCommand('BUILD_DNA')
+        selectedDnaGroupList = self.assy.getSelectedDnaGroups()
         
-        assert self.commandSequencer.currentCommand.commandName == 'BUILD_DNA'
-        
-        self.commandSequencer.currentCommand.runCommand()
+        #If exactly one DnaGroup is selected then when user invokes Build > Dna 
+        #command, edit the selected Dnagroup instead of creating a new one 
+        #For all other cases, invoking Build > Dna  wikk create a new DnaGroup
+        if len(selectedDnaGroupList) == 1:
+            selDnaGroup = selectedDnaGroupList[0]
+            selDnaGroup.edit()
+        else:
+            commandSequencer = self.commandSequencer        
+            if commandSequencer.currentCommand.commandName != 'BUILD_DNA':
+                commandSequencer.userEnterCommand('BUILD_DNA')
+            
+            assert self.commandSequencer.currentCommand.commandName == 'BUILD_DNA'          
+                
+            self.commandSequencer.currentCommand.runCommand()
     
+        
     def enterBreakStrandCommand(self, isChecked = False):
         """
         """
