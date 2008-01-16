@@ -1,6 +1,6 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-SequenceEditor.py
+DnaSequenceEditor.py
 
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @version:$Id$
@@ -10,7 +10,7 @@ Ninad 2007-11-20: Created.
 
 NOTE: Methods such as sequenceChanged, stylizeSequence are copied from the old
       DnaGeneratorPropertyManager where they were originally defined 
-      This old PM used to implement a 'SequenceEditor text editor'.
+      This old PM used to implement a 'DnaSequenceEditor text editor'.
       That file hasn't been deprecated yet -- 2007-11-20
       
 TODO:  Ninad 2007-11-28
@@ -55,9 +55,9 @@ from PM.PM_Colors import pmMessageBoxColor
 
 from prefs_constants import workingDirectory_prefs_key
 
-from Ui_SequenceEditor import Ui_SequenceEditor
+from Ui_DnaSequenceEditor import Ui_DnaSequenceEditor
 
-class SequenceEditor(Ui_SequenceEditor):
+class DnaSequenceEditor(Ui_DnaSequenceEditor):
     """
     Creates a dockable sequence editor. The sequence editor has two text edit 
     fields -- Strand and Mate and has various options such as 
@@ -81,7 +81,7 @@ class SequenceEditor(Ui_SequenceEditor):
         # Should parentWidget for a docwidget always be win? 
         #Not necessary but most likely it will be the case.        
         parentWidget = win                
-        Ui_SequenceEditor.__init__(self, parentWidget)        
+        Ui_DnaSequenceEditor.__init__(self, parentWidget)        
     
     def connect_or_disconnect_signals(self, isConnect):
         """

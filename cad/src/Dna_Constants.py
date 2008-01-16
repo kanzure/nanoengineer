@@ -166,7 +166,7 @@ def getComplementSequence(inSequence):
     """
     #If user enters an empty 'space' or 'tab key', treat it as an empty space 
     #in the complement sequence. (don't convert it to 'N' base) 
-    #This is needed in B{SequenceEditor} where , if user enters an empty space
+    #This is needed in B{DnaSequenceEditor} where , if user enters an empty space
     #in the 'Strand' Sequence, its 'Mate' also enters an empty space. 
     validSpaceSymbol  =  QString(' ')
     validTabSymbol = QString('\t')

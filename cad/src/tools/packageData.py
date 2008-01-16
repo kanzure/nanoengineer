@@ -224,7 +224,7 @@ topic_mapping = {
     "ESP"               : "analysis/ESP", # refactoring: maybe io part (if more general) would be processes/NanoHive
     "GAMESS"            : "analysis/GAMESS",    
     "GROMACS"           : "simulation/GROMACS",
-    "SequenceEditor"    : "dna/SequenceEditor",
+    "DnaSequenceEditor"    : "dna/DnaSequenceEditor",
 
     # add notes to certain topics -- for that see subdir_notes below
  }
@@ -512,7 +512,7 @@ packageMapping_for_files = {
     
     "Selobj"                           : "graphics_drawable_api|graphics_drawable", #bruce 080116 revised this
     
-    "SequenceEditor"                   : "widget|SequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
+    "DnaSequenceEditor"                   : "widget|DnaSequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
     
     "ServerManager"                    : "ui|processes", #? specific to GAMESS? maybe, but shouldn't. persistent db/UI for servers list
     "ServerManagerDialog"              : "ui|processes",
@@ -594,7 +594,7 @@ packageMapping_for_files = {
     "Ui_ReportsDockWidget"             : "widget|ne1_ui",
     "Ui_SelectMenu"                    : "ui/menu",
     "Ui_SelectToolBar"                 : "ui/toolbar",
-    "Ui_SequenceEditor"                : "widget|SequenceEditor", # in dna/  ??
+    "Ui_DnaSequenceEditor"                : "widget|DnaSequenceEditor", # in dna/  ??
     "Ui_SimulationMenu"                : "ui/menu",
     "Ui_SimulationToolBar"             : "ui/toolbar",
     "Ui_StandardToolBar"               : "ui/toolbar",

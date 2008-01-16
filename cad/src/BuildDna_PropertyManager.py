@@ -98,7 +98,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         As of 2007-11-20: This feature (sequence editor) is waiting 
         for the ongoing dna model work to complete.
         """
-        self.sequenceEditor = self.win.createSequenceEditorIfNeeded() 
+        self.sequenceEditor = self.win.createDnaSequenceEditorIfNeeded() 
         self.sequenceEditor.hide()
     
     def connect_or_disconnect_signals(self, isConnect):

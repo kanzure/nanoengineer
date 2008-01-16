@@ -7,7 +7,7 @@ PM_DockWidget.py
 @version:$Id$
 
 History:
-Ninad 2007-11-20: Created to implement SequenceEditor
+Ninad 2007-11-20: Created to implement DnaSequenceEditor
 
 TODO:
 - Add more documentation
@@ -28,7 +28,7 @@ class PM_DockWidget(QDockWidget):
     """
     PM_DockWidget class provides a dockable widget that can either be docked 
     inside a PropertyManager OR can be docked in the MainWindow depending 
-    on the <parentWidget> . see SequenceEditor.py for an example.
+    on the <parentWidget> . see DnaSequenceEditor.py for an example.
     The dockWidget has its own layout and containerwidget which makes it easy 
     to add various children widgets  similar to how its done in PM_GroupBox    
     """   
@@ -91,7 +91,7 @@ class PM_DockWidget(QDockWidget):
         """
         Subclasses should override this method. Default implementation does 
         nothing. 
-        @see: SequenceEditor._loadWidgets 
+        @see: DnaSequenceEditor._loadWidgets 
         """
         pass
     

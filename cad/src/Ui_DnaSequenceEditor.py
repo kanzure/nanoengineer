@@ -1,6 +1,6 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Ui_SequenceEditor.py
+Ui_DnaSequenceEditor.py
 
 @author: Ninad
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -32,9 +32,9 @@ from PM.PM_PushButton import PM_PushButton
 
 from icon_utilities import geticon, getpixmap
 
-class Ui_SequenceEditor(PM_DockWidget):
+class Ui_DnaSequenceEditor(PM_DockWidget):
     """
-    The Ui_SequenceEditor class defines UI elements for the Sequence Editor
+    The Ui_DnaSequenceEditor class defines UI elements for the Sequence Editor
     object. The sequence editor is usually visible while in DNA edit mode.
     It is a DockWidget that is doced at the bottom of the MainWindow
     """
@@ -44,7 +44,7 @@ class Ui_SequenceEditor(PM_DockWidget):
     
     def __init__(self, parentWidget):
         """
-        Constructor for the Ui_SequenceEditor 
+        Constructor for the Ui_DnaSequenceEditor 
         @param parentWidget: The parentWidget for the sequence editor 
 
         NOTE: the parentWidget is MainWindow object as of 2007-11-28

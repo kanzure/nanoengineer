@@ -177,7 +177,7 @@ class PM_TextEdit( QTextEdit ):
               
         #Don't call _setHeight after insertHtml, it increases the height of the
         #text widget and thus gives an undesirable visual effect.
-        #This was seen in SequenceEditor. Also tried using 'setSizePolicy' like 
+        #This was seen in DnaSequenceEditor. Also tried using 'setSizePolicy' like 
         #done in PM_MessagegroupBox but that didn't work. 
         ##self._setHeight(minLines, maxLines)
         

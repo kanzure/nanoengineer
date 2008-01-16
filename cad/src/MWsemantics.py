@@ -1803,14 +1803,14 @@ class MWsemantics(QMainWindow,
                     currentCommand.Done(exit_using_done_or_cancel_button = False)
 
 
-    def createSequenceEditorIfNeeded(self):
+    def createDnaSequenceEditorIfNeeded(self):
         """
         Returns a Sequence editor object (a dockwidget).
         If one doesn't already exists, it creates one .
         (created only once and only when its first requested and then the 
         object is reused)
         @return: The sequence editor object (self.sequenceEditor
-        @rtype: B{SequenceEditor}
+        @rtype: B{DnaSequenceEditor}
         @see: DnaDuplexPropertyManager._loadSequenceEditor
         @WARNING: QMainwindow.restoreState prints a warning message because its 
         unable to find this object in the next session. (as this object is 
@@ -1820,8 +1820,8 @@ class MWsemantics(QMainWindow,
         be thats the best way)
         """
         if not self.sequenceEditor:
-            from SequenceEditor import SequenceEditor
-            self.sequenceEditor = SequenceEditor(self)
+            from DnaSequenceEditor import DnaSequenceEditor
+            self.sequenceEditor = DnaSequenceEditor(self)
             self.sequenceEditor.setObjectName("sequence_editor")
             #Should changes.keep_forevenr be called here? 
             #doesn't look necessary at the moment -- ninad 2007-11-21
