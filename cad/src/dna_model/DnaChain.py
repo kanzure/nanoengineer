@@ -122,12 +122,12 @@ class DnaChain(object):
             self._recompute_bond_direction()
         return self._bond_direction
 
-    def _recompute_bond_direction(self):
+    def _recompute_bond_direction(self): # probably won't ever be needed; if so, remove once everything's working
         """
         Set self._bond_direction and self._bond_direction_error correctly.
         See self.bond_direction() docstring for definition of correct values.
         """
-        # 1 = right, -1 = left, 0 = inconsistent or unknown # IMPLEM? maybe not needed, now that we have _f_set_bond_direction...
+        # 1 = right, -1 = left, 0 = inconsistent or unknown # implem? maybe not needed, now that we have _f_set_bond_direction...
         assert 0, "nim (and never will be) in %r" % self #### this means more things must call _f_set_bond_direction, eg merge_ladders
 
     def _f_set_bond_direction(self, dir, error = None):

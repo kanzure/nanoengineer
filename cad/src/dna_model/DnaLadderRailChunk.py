@@ -23,7 +23,12 @@ class DnaLadderRailChunk(Chunk):
 
     # initial values of instance variables:
     
-    chain = None # will be a DnaChain in finished instances
+    chain = None # will be a DnaChain in finished instances #k needed? probably...
+
+    wholechain = None # will be a WholeChain once dna_updater is done --
+        # set by update_PAM_chunks in the updater run that made self,
+        # and again in each updater run that made a new wholechain
+        # running through self
     
     ladder = None # will be a DnaLadder in finished instances
     
@@ -64,6 +69,14 @@ class DnaLadderRailChunk(Chunk):
                 # note: hopmol immediately kills old chunk if it becomes empty
         return
 
+    def set_wholechain(self, wholechain):
+        """
+        [to be called by dna updater]
+        """
+        # note: self.wholechain might or might not be None when this is called
+        # (it's None for new chunks, but not for old ones now on new wholechains)
+        self.wholechain = wholechain
+        
     # == invalidation-related methods
     
     def invalidate_ladder(self): #bruce 071203

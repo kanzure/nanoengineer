@@ -87,13 +87,13 @@ class DnaMarker( ChainAtomMarker):
 
     After copy, in self.fixup_after_copy(), ... ### NIM; spelling? (check atom order then, and record info so next_atom not needed) @@@
 
-    After Undo, our undo_update method will arrange for equivalent
+    After Undo, our _undo_update method will arrange for equivalent
     checks or updates to be done... ### REVIEW, IMPLEM (also check atom order then, and record info so next_atom not needed) @@@
 
     If our marker atom dies, self.remove_atom() records this so the
     dna updater will move self to a new marker atom, and make sure
     the new (or preexisting) chain/ladder there takes over self. ### DOIT for preexisting -- can happen! @@@
-    (We have a whole_chain which can't be preexisting after we're moved,
+    (We have a wholechain which can't be preexisting after we're moved,
      but our ladder and its ladder rail chain can be.)
 
     If our next_atom dies or becomes unbonded from our marker_atom,
@@ -137,9 +137,9 @@ class DnaMarker( ChainAtomMarker):
     _advise_new_chain_direction = 0 ###k needed??? @@@
         # temporarily set to 0 or -1 or 1 for use when moving self and setting a new chain
 
-    _owning_strand_or_segment = None ###k needed??? @@@
+    _owning_strand_or_segment = None
     
-    # == Jig API methods (overridden or extended from ChainAtomMarker):
+    # == Jig or Node API methods (overridden or extended from ChainAtomMarker):
 
     def __init__(self, assy, atomlist, chain = None):
         # [can chain be None after we get copied? I think so...]
@@ -152,6 +152,11 @@ class DnaMarker( ChainAtomMarker):
         if chain is not None:
             self.set_chain(chain)
         return
+
+    def _undo_update(self): # in class DnaMarker
+        """
+        """
+        nim ### @@@@
 
     def remove_atom(self, atom):
         """
@@ -170,7 +175,7 @@ class DnaMarker( ChainAtomMarker):
 
     # == other methods
     
-    def set_chain(self, chain): } ### REVIEW, revise docstring. @@@
+    def set_chain(self, chain): ### REVIEW, revise docstring. @@@@@@@
         """
         A new chain
             AtomChainOrRing object?? wholechain?? more args??
@@ -212,29 +217,29 @@ class DnaMarker( ChainAtomMarker):
         """
         return self.parent_node_of_class( DnaStrandOrSegment)
         
-    def _f_get_owning_strand_or_segment(self): ### @@@ REVIEW - correct? needed? what is this for anyway?
-            # see comments in WholeChain docstring - I think we need this as a settable thing for any controlling marker.
-            # a WholeChain finds a controlling marker, if it has this uses it, otherwise makes an obj for this and sets it.
-            # [guess 080114]
+    def _f_get_owning_strand_or_segment(self):
         """
         [friend method for dna updater]
-        Find the DnaStrand or DnaSegment which owns this marker,
+        Return the DnaStrand or DnaSegment which owns this marker,
         or None if there isn't one,
         even if the internal Node tree structure (node.dad)
         has not yet been updated to reflect this properly
         (which may only happen when self is homeless).
 
-        Non-friend callers (outside the dna updater, and not running
+        Note: non-friend callers (outside the dna updater, and not running
         just after creating this before the updater has a chance to run
         or gets called explicitly) should instead use the appropriate
         method out of get_DnaStrand or get_DnaSegment.
         """
-        res = self._owning_strand_or_segment # note: setting this is NIM
-        ### maybe todo: if this might be updated lazily, and is None, update it now from .dad?
-        if res is None:
-            assert self._get_DnaStrandOrSegment() is None # if fails, need code to update this attr,
-                # maybe in the _move_into_your_members method?
-        return res
+        # fyi - used in WholeChain.find_or_make_strand_or_segment
+        return self._owning_strand_or_segment
+
+    def _f_set_owning_strand_or_segment(self, strand_or_segment):
+        """
+        [friend method for dna updater]
+        """
+        self._owning_strand_or_segment = strand_or_segment
+        
     # ==
     
     def set_whether_controlling(self, controlling):

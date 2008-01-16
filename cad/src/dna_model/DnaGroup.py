@@ -65,6 +65,25 @@ class DnaGroup(Block):
         del display_prefs # unused
         return imagename_to_pixmap( self.iconPath)
 
+    def makeStrandOrSegmentForMarker(self, controlling_marker, wholechain): # IMPLEM @@@@
+        """
+        The given DnaMarker is either newly made to control wholechain,
+        or old but newly controlling it; but it has no DnaStrandOrSegment.
+        
+        Make and return a new DnaStrand or DnaSegment
+        (ask wholechain or marker what class to use)
+        inside self (review: inside some Block?),
+        perhaps making use of info in controlling_marker
+        to help decide how to initialize some of its attributes.
+        
+        (Assume calling code will later move all chunks
+        and markers from wholechain into the new object,
+        and will store references to it as needed
+        into controlling_marker and/or wholechain,
+        so don't do those things here.)
+        """
+        assert 0, "nim"
+    
     # Note: some methods below this point are examples or experiments or stubs,
     # and are likely to be revised significantly or replaced.
     # [bruce 080115 comment]
@@ -74,7 +93,10 @@ class DnaGroup(Block):
         """
         Return a list of all our DnaSegment objects.
         """
-        return self.get_subnodes_of_class("DnaSegment") # IMPLEM get_subnodes_of_class - or is there something similar of another name?
+        return self.get_topmost_subnodes_of_class('DnaSegment')
+            # note: as of 080115 get_topmost_subnodes_of_class is implemented
+            # for class args, but only for a few string args (including 'DnaSegment'),
+            # and is untested. String args are useful for avoiding import cycles.
 
     def addSegment(self, segment):
         """

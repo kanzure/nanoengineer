@@ -59,10 +59,32 @@ class DnaStrandOrSegment(Group):
         inside one.
         
         @note: Returning None should never happen
-        if we have survived a run of the dna updater.
+               if we have survived a run of the dna updater.
         """
         return self.parent_node_of_class( DnaGroup)
 
+    def move_into_your_members(self, node):
+        """
+        Move node into self's Group members, and if node was not
+        already there but left some other existing Group,
+        return that Group.
+        
+        @param node: a node of a suitable type for being our direct child
+        @type node: a DnaLadderRailChunk or DnaMarker
+
+        @return: Node's oldgroup (if we moved it out of a Group other than self)
+                 or None
+        @rtype: Group or None
+        """
+        oldgroup = node.dad # might be None
+        self.addchild(node)
+        newgroup = node.dad
+        assert newgroup is self
+        if oldgroup and oldgroup is not newgroup:
+            if oldgroup.part is newgroup.part: #k guess
+                return oldgroup
+        return None
+        
     pass # end of class DnaStrandOrSegment
 
 # end

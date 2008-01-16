@@ -15,6 +15,8 @@ from dna_updater_constants import DEBUG_DNA_UPDATER
 
 from dna_model.DnaMarker import _f_get_homeless_dna_markers
 
+from dna_model.WholeChain import Axis_WholeChain, Strand_WholeChain
+
 from dna_updater_find_chains import find_axis_and_strand_chains_or_rings
 
 from dna_updater_ladders import dissolve_or_fragment_invalid_ladders
@@ -287,8 +289,8 @@ def update_PAM_chunks( changed_atoms):
             return # from collector
         res = [] # elements are data args for WholeChain constructors (or helpers)
         for rail in toscan_all.values(): # not itervalues (modified during loop)
-            if id(rail) in toscan_all:
-                # (we haven't popped rail yet, in collector)
+            if id(rail) in toscan_all: # if still there (hasn't been popped)
+                toscan = {id(rail) : rail}
                 rails_for_wholechain = transclose(toscan, collector)
                 res.append(rails_for_wholechain)
         return res
@@ -300,11 +302,10 @@ def update_PAM_chunks( changed_atoms):
              algorithm( lambda ladder: ladder.strand_rails ) )
      )
     ### @@@ DOC and IMPLEM whatever side effects those should have, besides construction:
+    # - let them own their atoms, markers, and chunks (.wholechain),
+    # - and choose their controlling markers.
     #
-    # this includes "let them own their atoms and markers,
-    # and choose their controlling markers."
-    #
-    # (REVIEW: maybe use helper funcs so constructors are clean)
+    # (REVIEW: maybe use helper funcs so constructors are free of side effects?)
 
 
     # TODO: use wholechains and markers to revise base indices if needed (if this info is cached outside of wholechains)

@@ -56,6 +56,12 @@ def update_DNA_groups( new_chunks, new_wholechains ):
     @return: None (??)
     """
 
+    # Note: this is not (yet? ever?) enough to fully sanitize newly read
+    # mmp files re Group structure. It might be enough for the results of
+    # user operations, though. So it's probably better to process mmp files
+    # in a separate step, after reading them and before (or after?) running
+    # this updater. @@@
+    
     # basic algorithm: [080111 comment]
     # - markers have moved, or if not, finish that... and pick controlling one on each wholechain (new or modified)
     #   (they are immutable so modified == new, but the point is, some new ones are made in part of untouched smaller chains).
@@ -68,23 +74,22 @@ def update_DNA_groups( new_chunks, new_wholechains ):
 
     # make missing strand_or_segment, and move markers into it if needed
     for wholechain in new_wholechains:
-        strand_or_segment = wholechain.find_or_make_strand_or_segment() # IMPLEM,
-            # using code in outtakes, chunk from any atom in wholechain
-        for marker in whole_chain.all_markers(): # IMPLEM
-            oldgroup = strand_or_segment._move_into_your_members(marker) # IMPLEM for markers
+        strand_or_segment = wholechain.find_or_make_strand_or_segment()
+        for marker in wholechain.all_markers():
+            old_group = strand_or_segment.move_into_your_members(marker)
             if old_group:
                 old_groups[id(old_group)] = old_group
 
     # move chunks if needed
     for chunk in new_chunks:
-        whole_chain = chunk.whole_chain # IMPLEM
-        # could assert this is in new_wholechains
+        wholechain = chunk.wholechain # defined for DnaLadderRailChunks
+        assert wholechain # set by update_PAM_chunks
+        # could assert wholechain is in new_wholechains
         strand_or_segment = wholechain.find_strand_or_segment() # IMPLEM
         assert strand_or_segment
-        # move the chunk there
-        ### REFILE: oldgroup is a group we moved chunk out of (only if we actually moved it to a different one), if any, else None
-        oldgroup = strand_or_segment._move_into_your_members(chunk) # IMPLEM for chunks (or make variant method for each arg class)
-            # (For a StrandChunk will we place it into a DnaStrand or based on the attached DnaSegment?
+        old_group = strand_or_segment.move_into_your_members(chunk)
+            # (For a StrandChunk will we place it into a DnaStrand (as in this code)
+            #  or based on the attached DnaSegment?
             #  Not yet sure; the latter has some advantages and is compatible with current external code [080111].
             #  If we do it that way, then do that first for the new segment chunks, then another pass for the strand chunks.
             #  Above code assumes it goes into its own DnaStrand object; needs review/revision.)
@@ -124,20 +129,6 @@ def update_DNA_groups( new_chunks, new_wholechains ):
 
     return # from update_DNA_groups
 
-# ==
-
-def new_DnaGroup_around_chunk(chunk):
-    return new_Group_around_Node(chunk, DnaGroup)
-
-def new_Group_around_Node(node, group_class): #e refile
-    node.part.ensure_toplevel_group() # might not be needed
-    name = "(internal Group)" # stub
-    assy = node.assy
-    dad = None #k legal?? arg needed?
-    group = group_class(name, assy, dad) # same args as for Group.__init__(self, name, assy, dad) [review: reorder those anytime soon??]
-    node.addsibling(group)
-    group.addchild(node)
-    return group
 
 # end
 

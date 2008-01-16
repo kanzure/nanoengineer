@@ -1,6 +1,7 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-WholeChain.py - 
+WholeChain.py - a complete chain or ring of PAM atoms, made of one or more
+smaller chains (or 1 smaller ring), with refs to markers and a strand or segment
 
 @author: Bruce
 @version: $Id$
@@ -86,48 +87,169 @@ class WholeChain(object):
     all the valid markers along its wholechain's atoms.)
     """
 
-    def __init__(self, args): # who calls this? maybe we make this for each new smallchain?
-        self.xxx = args
-        bla
-        pass
+    # default values of instance variables
+    _strand_or_segment = None
+    _controlling_marker = None
+    
+    def __init__(self, dict_of_rails): # fyi: called by update_PAM_chunks
+        """
+        Construct self, take over our atoms and their chunks and markers,
+        and perhaps choose a controlling marker (or this might come later
+        from separate call or on demand ###DECIDE, DOIT).
+        
+        @param dict_of_rails: maps id(rail) -> rail for all rails in wholechain
+        """
+        assert dict_of_rails, "a WholeChain can't be empty"
+            # needed for self._arbitrary_chunk
+        self._dict_of_rails = dict_of_rails
+
+        chunk = None # for self._arbitrary_chunk; modified during loop
+        markers = {} # collects markers from all our atoms during loop
+        for rail in dict_of_rails.itervalues():
+            chunk = rail.baseatoms[0].molecule
+            chunk.set_wholechain(self)
+            for atom in rail.baseatoms:
+                for jig in atom.jigs: ### ASSUMES markers are already moved and valid again (on correct live atoms) @@@@
+                    if isinstance(jig, DnaMarker):
+                        # cache the set of these on the rail? might matter when lots of old rails.
+                        # does it matter which of its atoms we are? Not if we remove duplicates...
+                        markers[id(jig)] = jig
+            continue
+        
+        self._arbitrary_chunk = chunk
+        assert self._arbitrary_chunk
+
+        self._all_markers = markers.values()
+        
+        # todo: @@@@
+        # + own atoms? probably done, can be via chunks
+        # - choose a controlling marker
+        # - maybe work out base indexing per rail...
+
+        return
     
     def all_markers(self):
-        return self._all_markers ### GUESS and NIM
+        """
+        Assuming we still own all our atoms (not checked),
+        return all the DnaMarkers on them.
+        """
+        return self._all_markers
 
-    def find_controlling_marker(self):
-        return self._controlling_marker # GUESS and STUB - recompute it if not valid
+    def find_strand_or_segment(self):
+        """
+        Return our associated DnaStrandOrSegment, which is required
+        to be already defined in self.
+        """
+        assert self._strand_or_segment
+        return self._strand_or_segment
 
+    def find_or_make_strand_or_segment(self):
+        """
+        Return our associated DnaStrandOrSegment, finding it if necessary
+        by choosing or making a controlling marker, and making it anew
+        if our controlling marker doesn't have one.
+        """
+        if self._strand_or_segment:
+            return self._strand_or_segment
+        if not self._controlling_marker:
+            self._controlling_marker = self._choose_or_make_controlling_marker() ### IMPLEM, or revise this code
+        strand_or_segment = self._controlling_marker._f_get_owning_strand_or_segment()
+        if not strand_or_segment:
+            strand_or_segment = self._make_strand_or_segment( self._controlling_marker)
+            self._controlling_marker._f_set_owning_strand_or_segment( strand_or_segment)
+        self._strand_or_segment = strand_or_segment
+        return strand_or_segment
+
+    def _make_strand_or_segment(self, controlling_marker): # review: put some of this code in marker?
+        """
+        [private]
+        """
+        chunk = self._arbitrary_chunk
+            # review: or maybe could use chunk of controlling marker's atom
+        # find the right DnaGroup (or make one if there is none).
+        # ASSUME the chunk was created inside the right DnaGroup
+        # if there is one. There is no way to check this here -- user
+        # operations relying on dna updater have to put new PAM atoms
+        # inside an existing DnaGroup if they want to use it.
+        # We'll leave them there (or put them all into an arbitrary
+        # one if different atoms in a wholechain are in different
+        # DnaGroups -- which is an error by the user op).
+        dnaGroup = chunk.get_parentnode_of_class(DnaGroup)
+        if dnaGroup is None:
+            # if it was not in a DnaGroup, there's no way it was in
+            # a DnaStrand or DnaSegment (since we never make those without
+            # immediately putting them into a valid DnaGroup or making them
+            # inside one), so there's no need to check for one to make the
+            # new group outside of. Just to be sure, we assert this:
+            assert chunk.get_parentnode_of_class(DnaStrandOrSegment) is None
+            dnaGroup = new_DnaGroup_around_chunk(chunk)
+                # Note: all our chunks will eventually get moved from
+                # whereever they are now into this new DnaGroup.
+                # If some are old and have group structure around them,
+                # it will be discarded. To avoid this, newly read old mmp files
+                # should get preprocessed separately (as discussed also in
+                # update_DNA_groups).
+        # now make a strand or segment in that DnaGroup (review: in a certain Block?)
+        strand_or_segment = dnaGroup.makeStrandOrSegmentForMarker(controlling_marker, self)
+        return strand_or_segment
+
+    # == ### review below
+
+    def _choose_or_make_controlling_marker(self):
+        """
+        [private]
+        Choose one of our markers to control this chain, or make a new one
+        (at a good position on one of our atoms) to do that.
+        Return it, but don't save it anywhere (caller must do that).
+        """
+        marker = self._choose_controlling_marker()
+        if not marker:
+            marker = self._make_controlling_marker()
+        assert marker
+        return marker
+    
     def _choose_controlling_marker(self):
         """
         [private]
-        Look for existing markers on our atoms.
-        Choose one of them to be our controlling marker.
+        Look at the existing markers on our atoms which are able to be
+        controlling markers.
+        If there are none, return None.
+        Otherwise choose one of them to be our controlling marker,
+        and return it (don't save it anywhere, or tell any markers
+        whether they are controlling now; caller must do those things
+        if/when desired). ### @@@@ DOIT somewhere - the telling -- or make them ask like is_topnode does
 
         If one or more are already controlling, it will be one of them. [### REVIEW -- not sure this point is right]
-        If more than one are, we have rules to let them compete.
+        If more than one are controlling, we have rules to let them compete.
         If none is, ditto.
-
-        Return the marker we choose, but don't tell any markers they are or are not controlling now
-        (up to caller to do this if desired).
-        ### REVIEW: if no marker, return None or make one?
         """
-        all_markers = self.all_markers() #k updated when?? @@@
+        all_markers = self.all_markers() # valid anytime after __init__
         candidates = [marker
-                      for marker in self.all_markers()
+                      for marker in all_markers
                       if marker.wants_to_be_controlling()]
+        if not candidates:
+            return None
+        # choose one of the candidates
         list_of_preferred_markers_this_time = [] ### stub - in real life let external code add markers to this list, pop them all here
         items = []
         for marker in candidates:
-            order_info = (marker in list_of_preferred_markers_this_time, # note: False < True
-                          marker.control_priority,
-                          marker.get_oldness(), # assume oldness is unique -- inverse of something allocated by a counter
+            order_info = (marker in list_of_preferred_markers_this_time, # note: False < True in Python
+                          marker.control_priority, ### IMPLEM
+                          marker.get_oldness(), # assume oldness is unique -- inverse of something allocated by a counter ### IMPLEM
                           )
             items.append( (order_info, marker) )
         items.sort()
-        if items:
-            return items[-1][1]
-        return None ###k
+        return items[-1][1]
 
+    def _make_controlling_marker(self):### IMPLEM @@@@ - find some code for this? nontrivial to pick the atom...
+        """
+        [private]
+        self has no marker which wants_to_be_controlling().
+        Make one (on some good choice of atom on self)
+        and return it. (Don't store it or tell it it's controlling --
+        caller must do that if desired.)
+        """
+        assert 0, "nim"
     
     # todo: methods related to base indexing
 
@@ -135,3 +257,34 @@ class WholeChain(object):
     # _f_move_to_live_atom_step1 and _step2 in dna_updater_chunks.py
     
     pass # end of class WholeChain
+
+# ==
+
+class Axis_WholeChain(WholeChain):
+    """
+    A WholeChain for axis atoms.
+    """
+    pass
+
+class Strand_WholeChain(WholeChain):
+    """
+    A WholeChain for strand atoms.
+    """
+    pass
+
+# ==
+
+def new_DnaGroup_around_chunk(chunk):
+    return new_Group_around_Node(chunk, DnaGroup)
+
+def new_Group_around_Node(node, group_class): #e refile, might use in other ways too
+    node.part.ensure_toplevel_group() # might not be needed
+    name = "(internal Group)" # stub
+    assy = node.assy
+    dad = None #k legal?? arg needed?
+    group = group_class(name, assy, dad) # same args as for Group.__init__(self, name, assy, dad) [review: reorder those anytime soon??]
+    node.addsibling(group)
+    group.addchild(node)
+    return group
+
+# end
