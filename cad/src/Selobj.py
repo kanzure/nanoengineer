@@ -11,6 +11,52 @@ mouse).
 @version: $Id$
 @copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
+Current status [bruce 080116]:
+
+This partly formalizes an informal API used by GLPane and some
+Commands and GraphicsModes to handle hover-highlightable 
+drawable objects, which has optional methods for some optional 
+abilities they can have, like a different highlight appearance,
+an ability to provide a context menu, or an ability to
+provide a DragHandler.
+
+There is unfortunately not yet a single consistent API
+for "drawables" in NE1. For example, many classes have
+draw or Draw methods, but these can have two or three
+different arg signatures in different class hierarchies.
+
+The Selobj_API is not a general "drawable API" but covers
+most ways in which a drawable object might interact
+with the mouse. As currently constructed it's unideal in 
+several ways, e.g. its methods have no consistent naming 
+convention, and the semantics for "using the default behavior" 
+is often "don't provide the method", which means we can't 
+provide a default or stub implementation in class Selobj_API 
+itself (effectively an "interface class") or we'd break code. 
+
+And, in reality it's probably at least two APIs mushed
+together. And certainly it's unclearly named.
+
+The confusion apparent in the docstring and comments of
+Selobj.py (class Selobj_API) reflects all this.
+
+This can and should all be cleaned up, but we're unlikely 
+to do much of that before FNANO '08. In the meantime, making
+the classes that provide the existing "selobj interface"
+say they do so is at least a start, since the set of things
+to look at to understand all this is more clearly defined.
+
+To clarify: this commit [080116] does not change any behavior or rename
+any methods. It only adds an empty superclass to all existing
+classes which use methods from the preexisting informal
+"selobj interface", thereby partially formalizing the interface.
+(It formalizes which classes provide it, though with no detection of
+errors in this, but it does not formalize what methods are part
+of it -- the comments in Selobj.py are the most we have in that
+direction.)
+
+===
+
 ### REVIEW: is that really two different interfaces? The GLPane,
 finding the selobj via glname, could ask it to return the value
 to actually store in glpane.selobj.
