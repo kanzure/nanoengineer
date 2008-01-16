@@ -11,19 +11,26 @@ namespace Nanorex {
 /* CLASS: NXSGNode */
 /**
  * Base class for all scenegraph nodes
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
 class NXSGNode {
 public:
-    NXSGNode() {}
+    NXSGNode() : ref_count(0), children() {}
     virtual ~NXSGNode() {}
 
-    void addChild(NXSGNode *const child) { children.push_back(child); }
+    int incrementRefCount(void) { ++ref_count; return ref_count; }
+    int decrementRefCount(void) { if(ref_count > 0) --ref_count; return ref_count; }
+    int getRefCount(void) const { return ref_count; }
+    
+    void addChild(NXSGNode *const child) { child->incrementRefCount(); children.push_back(child); }
     
     std::vector<NXSGNode *const> const& getChildren(void) const { return children; }
     std::vector<NXSGNode *const>::size_type getNumChildren(void) const { return children.size(); }
     
     virtual void apply(void) const = 0;
     
+    /// Apply the effect of this node and its children
     void applyRecursive(void) const {
         apply();
         typedef std::vector<NXSGNode *const>::const_iterator child_iter_type;
@@ -35,16 +42,30 @@ public:
         }
     }
     
+    /// Recursively delete all children. Deleting this node is up to the caller
+    void deleteRecursive(void) {
+        for(std::vector<NXSGNode*>::iterator child_iter = children.begin();
+            child_iter != children.end();
+            ++child_iter)
+        {
+            if((*child_iter)->decrementRefCount(); == 0) delete *child_iter;
+        }
+        children.clear();
+    }
+    
     bool isLeaf(void) const { return (children.size()==0); }
         
 private:
-    std::vector<NXSGNode *const> children;
+    int ref_count;
+    std::vector<NXSGNode*> children;
 };
 
 
 /* CLASS: NXSGTransform */
 /**
  * Generic transform
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
 class NXSGTransform : public NXSGNode {
 
@@ -69,6 +90,8 @@ private:
 /* CLASS NXSGTranslate */
 /**
  * Scenegraph translation node
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
 class NXSGTranslate : public NXSGNode {
 public:
@@ -85,6 +108,8 @@ private:
 /* CLASS: NXSGRotate */
 /**
  * Scenegraph rotation node
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
 class NXSGRotate : public NXSGNode {
 public:
@@ -102,6 +127,8 @@ private:
 /* CLASS: NXSGScale */
 /**
  * Scenegraph scaling node
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
 class NXSGScale : public NXSGNode {
 public:
@@ -117,6 +144,8 @@ private:
 /* CLASS NXSGRenderable */
 /*!
  *  Objects that can directly be drawn, as opposed to transforms
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
 class NXSGRenderable : public NXSGNode {
 

@@ -1,24 +1,28 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
-#ifndef NX_GRAPHICSPLUGIN_H
-#define NX_GRAPHICSPLUGIN_H
+#ifndef NX_RENDERERPLUGIN_H
+#define NX_RENDERERPLUGIN_H
 
 
 namespace Nanorex {
 
-
+/* CLASS: NXRendererPlugin */
+/**
+ * Base class for all rendering plugins
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
+ */
 class NXRendererPlugin {
 public:
     NXRendererPlugin();
     ~NXRendererPlugin();
 
-    void renderAtom(NXRenderAtomInfo const&) = 0;
-    void renderBond(NXRenderBondInfo const&) = 0;
-
+    // virtual void renderAtom(NXRenderAtomInfo const&) = 0;
+    // virtual void renderBond(NXRenderBondInfo const&) = 0;
 };
 
 
-}
+} // Nanorex
 
 
-#endif // NX_GRAPHICSPLUGINBASE_H
+#endif // NX_RENDERERPLUGIN_H

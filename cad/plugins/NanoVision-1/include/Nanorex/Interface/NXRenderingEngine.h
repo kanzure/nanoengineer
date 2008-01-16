@@ -14,6 +14,8 @@ namespace Nanorex {
  * QGLWidget. An implementation using Irrlicht's software rendering,
  * for example, must inherit QWidget (?) instead because it bypasses
  * OpenGL.
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
 class NXRenderingEngine {
 public:
@@ -21,7 +23,7 @@ public:
     // integer id for each engine - one per subclass
     enum EngineID { OPENGL=0 };
 
-    NXRenderingEngine();
+    NXRenderingEngine() : rootMoleculeSet(NULL), pluginList() {}
     virtual ~NXRenderingEngine();
 
     // Query type - one per subclass, suitably named
@@ -32,6 +34,32 @@ public:
 
     virtual void initializePlugins() = 0;
     virtual void cleanupPlugins() = 0;
+    
+    // accessors
+    
+    NXMoleculeSet *const getRootMoleculeSet(void) { return rootMoleculeSet; }
+    virtual void setRootMoleculeSet(NXMoleculeSet *const moleculeSet) { rootMoleculeSet = moleculeSet; }
+    
+private:
+    
+    NXMoleculeSet *rootMoleculeSet;
+    
+};
+
+
+// Info passed to plugins to render atoms
+struct NXAtomRenderData {
+    NXABMInt moleculeId;
+    char* elementName;
+};
+
+
+// Info passed to plugins to render bonds
+class NXBondRenderData {
+    NXABMInt moleculeId;
+    NXABMInt a, b;
+    char *elementNameA, *elementNameB;
+    double length;
 };
 
 
