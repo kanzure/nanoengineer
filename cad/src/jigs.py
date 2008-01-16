@@ -59,7 +59,9 @@ from constants import darkred
 from constants import black
 from state_constants import S_REFS
 
-class Jig(Node):
+from Selobj import Selobj_API
+
+class Jig(Node, Selobj_API):
     """
     abstract superclass for all jigs
     """

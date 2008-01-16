@@ -1,8 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-@author: Ninad,
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+ReferenceGeometry.py - Jig subclass used as superclass for Plane, Line, etc
+
+@author: Ninad
 @version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 ninad 20070521 : Created
@@ -23,8 +25,6 @@ some methods in this file have become overdefined. This needs cleanup
 #- Needs documentation and code cleanup / organization post Alpha-9.
 #-After making jig a superclass of ReferenceGeometry
 #some methods in this file have become overdefined. This needs cleanup.
-
-__author__ = "Ninad"
 
 import env
 import platform
@@ -65,7 +65,7 @@ class ReferenceGeometry(Jig, DragHandler_API):
         self.win = win
         #Node.__init__(self, win.assy, gensym("%s-" % self.sym))        
         Jig.__init__(self, win.assy, self.atoms)        
-        self.glname = env.alloc_my_glselect_name( self) 
+        ## redundant with Jig.__init__: self.glname = env.alloc_my_glselect_name( self) 
         self.glpane = self.assy.o
         #@@Geometry object with a visible direction arrow 
         #(at present used in Plane only) This saves the last geometry object

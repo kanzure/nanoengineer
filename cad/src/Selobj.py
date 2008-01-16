@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Selobj.py -- provides class Selobj_API, [### WHICH WILL BE RENAMED, ALONG WITH THIS FILE]
 which documents the interface from the GLPane to drawable objects which need
@@ -9,7 +9,7 @@ mouse).
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 ### REVIEW: is that really two different interfaces? The GLPane,
 finding the selobj via glname, could ask it to return the value
@@ -80,7 +80,8 @@ class Selobj_API:
     WARNING: API details (method names, arglists) are subject to change.
     """
 
-    ### see list of methods below
+    ### see list of methods below -- but don't add any method stubs here
+    # for now, or some code will break (as explained in module docstring).
     
     pass
 
@@ -100,7 +101,7 @@ class Selobj_API:
 
 # and by mode for passing on events:
 
-# - ClickedOn/leftClick
+# - leftClick
 # - make_selobj_cmenu_items
 
 # by glpane for drawing selobj -- not sure how to classify these -- but only done on one

@@ -510,7 +510,7 @@ packageMapping_for_files = {
     "Select_GraphicsMode_MouseHelpers_preMixin"    : "graphics_mode|commands/Select",
     "selectMode"                       : "unsplit_mode|commands/Select",
     
-    "Selobj"                           : "graphics_behavior_api|foundation", # (revisit when done, or when anything uses it)
+    "Selobj"                           : "graphics_drawable_api|graphics_drawable", #bruce 080116 revised this
     
     "SequenceEditor"                   : "widget|SequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
     

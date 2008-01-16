@@ -2,7 +2,10 @@
 """
 handles.py - graphical handles used in Extrude Mode.
 
-@author: bruce
+Deprecated for new code, since they don't use the Selobj_API
+used by most handle-like things.
+
+@author: Bruce
 @version: $Id$
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
 

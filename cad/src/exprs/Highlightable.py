@@ -1,8 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+Highlightable.py - general-purpose expr for mouse-responsive drawable objects
 
-$Id$
-
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 This will start out as just a straight port of class Highlightable from cad/src/testdraw.py,
 with the same limitations in API and implem (e.g. it won't work inside display lists).
@@ -59,6 +61,13 @@ from exprs.Set import Action
 from exprs.py_utils import printnim
 from exprs.__Symbols__ import _self, Anything
 
+from DragHandler import DragHandler_API
+    #bruce 070602 moved this from exprs/Highlightable.py to DragHandler.py, and renamed it
+
+from Selobj import Selobj_API # for the "selobj interface" (subject to renaming)
+
+# ==
+
 # modified from testdraw.printfunc:
 def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refile
     "#doc"
@@ -67,13 +76,6 @@ def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refi
         assert _guard is None # for now
         printfunc(*args, **kws) # defined in Exprs, has immediate effect, tho same name in testdraw is delayed like this print_Expr
     return canon_expr(printer)
-
-# ==
-
-from DragHandler import DragHandler_API
-    #bruce 070602 moved this from exprs/Highlightable.py to DragHandler.py, and renamed it
-
-# see also Selobj_API in Selobj.py for the "selobj interface" (all subject to renaming)
 
 # ==
 
@@ -527,7 +529,8 @@ class SavedCoordsys(_CoordsysHolder): #070317
 
 printdraw = False # debug flag [same name as one in cad/src/testdraw.py]
 
-class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API): #070317 split out superclass _CoordsysHolder
+class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_API):
+    #070317 split out superclass _CoordsysHolder
     #e rename to Button? make variant called Draggable?
     """
     Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
@@ -1003,7 +1006,7 @@ Button = Highlightable # [maybe this should be deprecated, but it's still in use
 
 # ==
 
-class _UNKNOWN_SELOBJ_class: #061218 
+class _UNKNOWN_SELOBJ_class(Selobj_API): #061218 
     """
     [private helper, for a kluge]
     """
@@ -1024,8 +1027,9 @@ class _UNKNOWN_SELOBJ_class: #061218
         setattr(self, attr, noop) # optim
         return noop # fake bound method
     # we might need methods for other MouseSensor_interface methods:
+    # (note, MouseSensor_interface is a proposed rename of part of Selobj_API)
     # draw_in_abs_coords
-    # ClickedOn/leftClick
+    # leftClick
     # mouseover_statusbar_message
     # highlight_color_for_modkeys
     # selobj_still_ok

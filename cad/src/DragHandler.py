@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DragHandler.py -- provides class DragHandler_API,
 which documents the interface from selectMode to highlightable
@@ -6,12 +6,13 @@ objects which want to handle their own mouse events (unlike Atom,
 Bond, and Jig, whose behavior is hardcoded into selectMode),
 and possibly provides default implementations or useful helper methods.
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 REVIEW: should it be renamed to DragHandler, or to DragHandler_interface,
 or to something else?
 """
-__author__ = "bruce"
 
 class DragHandler_API:
     """

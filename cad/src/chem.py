@@ -109,6 +109,8 @@ from prefs_constants import diBALL_AtomRadius_prefs_key
 from state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
 from state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
 
+from Selobj import Selobj_API
+
 # more imports below
 
 # ==
@@ -331,7 +333,7 @@ def Atom_prekill_prep(): #bruce 060328
     Utility._will_kill_count += 1
     return Utility._will_kill_count
     
-class Atom(AtomBase, InvalMixin, StateMixin):
+class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     # (so we have to assign atom = Atom, after this class definition, until all code has been revised)
     # update, bruce 071113: I am removing that assignment below. See comment there.

@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DirectionArrow.py
 
 @author: Ninad
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
-@version:$Id: $
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 ninad 2007-06-12: Created this class (initially) to support the implementation 
@@ -30,8 +30,10 @@ from math        import pi
 from constants   import gray, orange
 from debug       import print_compact_traceback
 from DragHandler import DragHandler_API
+from Selobj      import Selobj_API
 
 import env
+
 
 ONE_RADIAN = 180.0 / pi
 # One radian = 57.29577951 degrees
@@ -39,7 +41,7 @@ ONE_RADIAN = 180.0 / pi
 # in very tight drawning loops. --Mark 2007-08-14
 
 
-class DirectionArrow(DragHandler_API):
+class DirectionArrow(DragHandler_API, Selobj_API):
     """
     The DirectionArrow class provides a 3D direction arrow that can be
     interacted with in the 3D graphics area. The direction arrow object

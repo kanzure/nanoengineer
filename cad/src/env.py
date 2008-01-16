@@ -299,6 +299,8 @@ def new_glselect_name():
 def alloc_my_glselect_name(obj):
     """
     Register obj as the owner of a new GL_SELECT name, and return that name.
+
+    @see: Selobj_API
     """
     name = new_glselect_name()
     obj_with_glselect_name[name] = obj
@@ -307,6 +309,8 @@ def alloc_my_glselect_name(obj):
 def dealloc_my_glselect_name(obj, name):
     """
     #doc
+
+    @see: Selobj_API
     """
     # objs have to pass the name, since we don't know where they keep it and don't want to have to keep a reverse dict;
     # but we make sure they own it before zapping it!

@@ -9,7 +9,9 @@ $Id$
 
 import env
 
-class Drawable:
+from Selobj import Selobj_API
+
+class Drawable(Selobj_API):
     """
     Will wrote:
     > To implement my Bauble class, I need to go into every mode where

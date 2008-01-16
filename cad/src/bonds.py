@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 bonds.py -- class Bond, for any supported type of chemical bond between two atoms
 (one of which might be a "singlet" to represent an "open bond" in the UI),
@@ -6,7 +6,7 @@ and related code
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -67,6 +67,8 @@ from utilities.Log import redmsg, quote_html #bruce 070601
 from state_constants import S_CACHE, S_DATA, S_PARENT, UNDO_SPECIALCASE_BOND
 
 from bond_drawer import writepov_bond
+
+from Selobj import Selobj_API
 
 # Linus Pauling
 # http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148
@@ -520,7 +522,7 @@ _Bond_global_dicts = [_changed_Bonds]
 # as of now there is only one use, in bond_atoms (used by molecule.bond).
 # I also rewrote lots of the code in class Bond.
 
-class Bond(BondBase, StateMixin):
+class Bond(BondBase, StateMixin, Selobj_API):
     """
     A Bond is essentially a record pointing to two atoms
     (either one of which might be a real atom or a "singlet"),

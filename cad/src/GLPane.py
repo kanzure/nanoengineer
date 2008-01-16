@@ -3387,7 +3387,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 try:
                     try:
                         #bruce 050806 let selobj control this
-                        method = selobj.mouseover_statusbar_message # only defined for atoms, for now
+                        method = selobj.mouseover_statusbar_message
+                            # only defined for some objects which inherit Selobj_API
                     except AttributeError:
                         msg = "%s" % (selobj,)
                     else:

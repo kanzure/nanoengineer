@@ -1476,8 +1476,9 @@ class Node( StateMixin):
     
     def draw_in_abs_coords(self, glpane, color): #bruce 050729 to fix some bugs caused by Huaicai's jig-selection code
         """
-        Default implementation of draw_in_abs_coords. Some implem is needed by any nodes or other drawable objects
-        which get registered with env.alloc_my_glselect_name. [#doc the API]
+        Default implementation of draw_in_abs_coords. Some implem is needed
+        by any nodes or other drawable objects which get registered with
+        env.alloc_my_glselect_name and thereby need to provide Selobj_API.
 
         [Subclasses which are able to use color for highlighting in Build mode,
          or which want to look different when highlighted in Build mode,

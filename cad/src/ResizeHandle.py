@@ -1,11 +1,11 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ResizeHandle.py - provides Handles for resizing the parent object. The parent 
 object in most cases is a reference geometry model object (e.g. Plane, Line etc) 
 
 @author: Ninad
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 Ninad 2007-10-16: Originally created and modified in Plane.py, while working
@@ -31,13 +31,14 @@ import env
 from debug import print_compact_traceback
 
 from DragHandler import DragHandler_API
+from Selobj import Selobj_API
 
 ONE_RADIAN = 180.0 / pi
 # One radian = 57.29577951 degrees
 # This is for optimization since this computation occurs repeatedly
 # in very tight drawning loops. --Mark 2007-08-14
 
-class ResizeHandle(DragHandler_API):
+class ResizeHandle(DragHandler_API, Selobj_API):
     """
     This class provides Handles for resizing the parent object. The parent 
     object in most cases is a geometry (e.g. Plane, Line etc) 
