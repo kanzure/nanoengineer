@@ -347,7 +347,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # Assign a strand sequence (or get that information from a chunk) 
     # MEANT ONLY FOR THE DNA CHUNK. THESE METHODS NEED TO BE MOVED TO AN 
     # APPROPRIATE FILE IN The dna_model PACKAGE -- Ninad 2008-01-11
-    
+        
     def getStrandSequence(self):
         """
         Returns the strand sequence for this chunk (strandChunk)
@@ -398,7 +398,22 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             strandAtomMate = atm.get_strand_atom_mate()
             complementBaseName= getComplementSequence(str(baseName))
             if strandAtomMate is not None:
-                strandAtomMate.setDnaBaseName(str(complementBaseName))               
+                strandAtomMate.setDnaBaseName(str(complementBaseName))  
+        
+    def isStrandChunk(self):
+        """
+        Returns True if *all atoms* in this chunk are PAM 'strand' atoms
+        This is a temporary method that can be removed once dna_model is fully
+        functional.
+        @see: BuildDna_PropertyManager.updateStrandListWidget where this is used
+              to filter out strand chunks to put those into the strandList 
+              widget.        
+        """
+        for atm in self.atoms.values():
+            if not atm.is_singlet() and atm.element.role != 'strand':
+                return False
+        
+        return True
     
     
     #END of Dna-Strand chunk  specific  code ==================================

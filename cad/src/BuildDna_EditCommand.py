@@ -107,7 +107,7 @@ class BuildDna_EditCommand(EditCommand):
         #This method is called during operation #2 and any changes to flyout 
         #toolbar are reset during #3  --- Ninad 2008-01-14
         if self.propMgr:
-            self.propMgr.updateStrandListWidget()
+            self.propMgr.updateListWidgets()
         
 
     def restore_gui(self):
@@ -139,7 +139,7 @@ class BuildDna_EditCommand(EditCommand):
         Overrides EditCommand.runCommand
         """
         self.struct = None     
-        self.propMgr.updateStrandListWidget()
+        self.propMgr.updateListWidgets()
 
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
         """
@@ -314,7 +314,7 @@ class BuildDna_EditCommand(EditCommand):
         for segment in segmentList:
             self.struct.addSegment(segment)
         ##self.win.assy.place_new_geometry(dnaGroup)
-        self.propMgr.updateStrandListWidget()
+        self.propMgr.updateListWidgets()
         
         self.previousParams = self._gatherParameters() 
         

@@ -38,6 +38,7 @@ from PM.PM_Constants     import pmCancelButton
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
 from chunk                import Chunk
+from dna_model.DnaSegment import DnaSegment
 
 class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -136,7 +137,8 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         else:
             change_connect = self.win.disconnect 
           
-        self.strandListWidget.connect_or_disconnect_signals(isConnect)
+        self.strandListWidget.connect_or_disconnect_signals(isConnect)        
+        self.segmentListWidget.connect_or_disconnect_signals(isConnect)
         
         if self.sequenceEditor:
             self.sequenceEditor.connect_or_disconnect_signals(isConnect)
@@ -239,6 +241,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
          
         selectedStrands = self.strandListWidget.selectedItems()
+        selectedSegments = self.segmentListWidget.selectedItems()
         
         if len(selectedStrands) == 1: 
             #self.win.assy.selatoms_list() is same as 
@@ -294,7 +297,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         the history widget. This implementation may change in the near future
         """
         EditCommand_PM.show(self) 
-        self.updateStrandListWidget()    
+        self.updateListWidgets()    
     
     def _showSequenceEditor(self):
         if self.sequenceEditor:
@@ -332,8 +335,19 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         @see: MotorPropertyManager._update_widgets_in_PM_before_show
         @see: self.show  
-        """               
-        self.updateStrandListWidget()            
+        """  
+        self.updateListWidgets()
+        
+    
+    def updateListWidgets(self):
+        """
+        Update List Widgets (strand list and segment list)
+        in this property manager
+        @see: self.updateSegmentListWidgets, self.updateStrandListWidget
+        """
+        self.updateStrandListWidget() 
+        self.updateSegmentListWidget()
+          
        
     def updateStrandListWidget(self):   
         """
@@ -342,6 +356,9 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         existing dna, and deletes some of the strands, hits done. User then 
         again invokes the Edit command for this dna object -- now the strand 
         list widget must be updated so that it shows only the existing strands.
+        
+        @see: B{Chunk.isStrandChunk}
+        @see: self.updateListWidgets, self.updateSegmentListWidget
         """
         #TODO: 
         #Filter out only the chunks inside the dna group. the DnaDuplex.make 
@@ -350,19 +367,38 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #Strands and Axis chunks -- Ninad 2008-01-09
         
         if self.editCommand and self.editCommand.struct:
-            strandAndAxisChunkList = []
+            strandChunkList = []
             def func(node):
-                if isinstance(node, Chunk):
-                    strandAndAxisChunkList.append(node)                    
+                if isinstance(node, Chunk) and node.isStrandChunk():
+                    strandChunkList.append(node)                    
             self.editCommand.struct.apply2all(func)
             
             self.strandListWidget.insertItems(
                 row = 0,
-                items = strandAndAxisChunkList)
+                items = strandChunkList)
         else:
             self.strandListWidget.clear()
+    
+    def updateSegmentListWidget(self):
+        """
+        Update the list of segments shown in the segments list widget
+        @see: self.updateListWidgets, self.updateStrandListWidget
+        """
+        segmentList = []
+        if self.editCommand and self.editCommand.struct: 
+            def func(node):
+                if isinstance(node, DnaSegment):
+                    segmentList.append(node)    
+                    
+            self.editCommand.struct.apply2all(func)
             
-
+            self.segmentListWidget.insertItems(
+                row = 0,
+                items = segmentList)
+        else:
+            self.segmentListWidget.clear()
+             
+            
     def _addGroupBoxes( self ):
         """
         Add the DNA Property Manager group boxes.
@@ -374,6 +410,9 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self._pmGroupBox2 = PM_GroupBox( self, title = "Strands" )
         self._loadGroupBox2( self._pmGroupBox2 )
+        
+        self._pmGroupBox3 = PM_GroupBox( self, title = "Segments" )
+        self._loadGroupBox3( self._pmGroupBox3 )
         
         
     def _loadGroupBox1(self, pmGroupBox):
@@ -403,6 +442,25 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             label = "",
             text  = "Edit Properties..." )
         self.editStrandPropertiesButton.setEnabled(False)
+        
+    def _loadGroupBox3(self, pmGroupBox):
+        """
+        load widgets in groupbox3
+        """
+        
+        self.segmentListWidget = PM_SelectionListWidget(pmGroupBox,
+                                                       self.win,
+                                                       label = "",
+                                                       heightByRows = 4 )
+        self.segmentListWidget.setObjectName('Segment_list_widget')
+        self.segmentListWidget.setTagInstruction('PICK_ITEM_IN_GLPANE')
+        
+    
+        self.editSegmentPropertiesButton = PM_PushButton( 
+            pmGroupBox,
+            label = "",
+            text  = "Edit Properties..." )
+        self.editSegmentPropertiesButton.setEnabled(False)
     
  
     def _addWhatsThisText( self ):

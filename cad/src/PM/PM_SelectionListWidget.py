@@ -50,6 +50,7 @@ from PM_ListWidget import PM_ListWidget
 from PyQt4.Qt import QListWidgetItem
 from PyQt4.Qt  import SIGNAL
 from PyQt4.Qt  import QPalette
+##from PyQt4.Qt import Qt
 from PM_Colors import getPalette
 from constants import yellow
 from icon_utilities import geticon
@@ -77,9 +78,7 @@ class PM_SelectionListWidget(PM_ListWidget):
                            self._itemDictionary['C6'] = instance of class Atom.
     @type  _itemDictionary: dictionary                          
     """
-       
-    _tagInstruction = 'TAG_ITEM_IN_GLPANE'
-    _itemDictionary = {}
+           
     
     def __init__(self, 
                  parentWidget, 
@@ -130,12 +129,21 @@ class PM_SelectionListWidget(PM_ListWidget):
         self.win = win
         self.glpane = self.win.glpane
         
+        #Note: self._tagInstruction and  self._itemDictionary  are instance 
+        #variables and not class constants as we 
+        #have many PM_SelectionListWidget objects (e.g. in Build Dna mode, we 
+        # have Srand and Segment list widgets. Defining self._itemDictionary
+        #as a class constant will make class objects share it and create bugs.
+        self._tagInstruction = 'TAG_ITEM_IN_GLPANE'
+        self._itemDictionary = {}
+        
         PM_ListWidget.__init__(self, 
                                parentWidget, 
                                label = '',
                                heightByRows = heightByRows,
                                spanWidth = spanWidth)
         
+                
         #Assigning color to the widget -- to be revised. (The color should 
         #change only when the focus is inside this widget -- the color change
         #will also suggest object(s) selected in glpane will be added as 
@@ -164,7 +172,20 @@ class PM_SelectionListWidget(PM_ListWidget):
                        SIGNAL('itemSelectionChanged()'), 
                        self.tagItems)
         
-        
+        #Not USED -- editing widgets items is not supported
+        #change_connect(self, 
+                       #SIGNAL('itemDoubleClicked(QListWidgetItem *)'), 
+                       #self.editItem)   
+    
+    def editItem(self, item):
+        """
+        #Not SUPPORTED -- editing widgets items is not supported. 
+        Not called as of 2008-01-16
+        @see: self.insertItems for a comment 
+        """
+        PM_ListWidget.editItem(self, item)
+    
+ 
     def insertItems(self, row, items, setAsDefault = True):
         """
         Insert the <items> specified items in this list widget. 
@@ -186,6 +207,7 @@ class PM_SelectionListWidget(PM_ListWidget):
                              it is used.
         
         """       
+        
         #delete unused argument. Should this be provided as an argument in this
         #class method ?  
         del setAsDefault
@@ -202,13 +224,18 @@ class PM_SelectionListWidget(PM_ListWidget):
                 itemName = item.name
             else:
                 itemName = str(item)
-             
             listWidgetItem = QListWidgetItem(itemName, self)
+            
+            #When we support editing list widget items , uncomment out the 
+            #following line . See also self.editItems -- Ninad 2008-01-16
+            ##listWidgetItem.setFlags( listWidgetItem.flags()| Qt.ItemIsEditable)
+            
+            
             if hasattr(item.__class__, 'iconPath'): 
                 listWidgetItem.setIcon(geticon(item.iconPath))
                 
             self._itemDictionary[listWidgetItem] = item  
-    
+                
     def clearTags(self):
         """
         Clear the previously drawn tags if any.
@@ -273,7 +300,8 @@ class PM_SelectionListWidget(PM_ListWidget):
         """
         Deselect (unpick) all the items (object) in the GLPane that 
         correspond to the items in this list widget.
-        """
+        """        
+        
         for item in self._itemDictionary.values():
             if item.picked:
                 item.unpick()
@@ -282,12 +310,13 @@ class PM_SelectionListWidget(PM_ListWidget):
         """
         If some items in the list widgets are selected (in the widget) 
         also select (pick) them from the glpane(3D workspace) 
-        """        
-        for key in self.selectedItems():
+        """    
+        for key in self.selectedItems():            
             assert self._itemDictionary.has_key(key)
             item = self._itemDictionary[key]
             if not item.picked:
                 item.pick() 
+            
     
     def getPickedItem(self):
         """
