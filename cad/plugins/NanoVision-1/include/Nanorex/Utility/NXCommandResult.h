@@ -9,18 +9,17 @@
 #	endif
 #endif
 
-#include <string>
 #include <vector>
-
-//#include "NanoHiveUtil/Utility.h"
+#include <QString>
 
 namespace Nanorex {
 
+
 /* CLASS: NXCommandResult */
 /**
- * Encapsulates the results of a command execution. Use the
- * \c data/local/*_resultCodes.txt file to decode the result codes and
- * informational vector into human readable results.
+ * Encapsulates the results of a command execution.
+ *
+ * @see NXNanoVisionResultCodes
  * @ingroup NanorexUtility
  */
 class NXCommandResult {
@@ -28,12 +27,12 @@ class NXCommandResult {
 		NXCommandResult();
 		void setResult(int resultId);
 		int getResult();
-		void setParamVector(std::vector<std::string>& paramVector);
-		const std::vector<std::string>& getParamVector() const;
+		void setParamVector(std::vector<QString>& paramVector);
+		const std::vector<QString>& getParamVector() const;
 
 	private:
 		int resultId;
-		std::vector<std::string> paramVector;
+		std::vector<QString> paramVector;
 };
 
 } // Nanorex::

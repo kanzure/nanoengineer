@@ -18,11 +18,11 @@ void NXCommandResult::setResult(int resultId) { this->resultId = resultId; }
 int NXCommandResult::getResult() { return resultId; }
 
 /** Sets the vector of additional explanatory data for this result. */
-void NXCommandResult::setParamVector(std::vector<std::string>& paramVector) {
+void NXCommandResult::setParamVector(std::vector<QString>& paramVector) {
 	this->paramVector = paramVector;
 }
 /** Returns the vector of additional explanatory data for this result. */
-const std::vector<std::string>& NXCommandResult::getParamVector() const {
+const std::vector<QString>& NXCommandResult::getParamVector() const {
 	return paramVector;
 }
 
