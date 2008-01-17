@@ -131,8 +131,27 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         change_connect( self.replacePushButton,
                       SIGNAL("clicked()"),
                       self.replace) 
-        
-                
+    
+    def update_state(self, bool_enable = True):
+        """
+        Update the state of this widget by enabling or disabling it depending
+        upon the flag bool_enable. 
+        @param bool_enable: If True , enables the widgets inside the sequence
+                            editor
+        @type bool_enable: boolean
+        """
+        for widget in self.children():
+            if hasattr(widget, 'setEnabled'):
+                #The following check ensures that even when all widgets in the 
+                #Sequence Editor docWidget are disabled, the  'close' ('x')
+                #and undock button in the top right corner are still accessible
+                #for the user. Using self.setEnabled(False) disables 
+                #all the widgets including the corner buttons so that method
+                #is not used -- Ninad 2008-01-17
+                if widget.__class__.__name__ != 'QAbstractButton':
+                    widget.setEnabled(bool_enable)
+      
+                    
     def _reverseSequence(self, itemIndex):
         """
         Reverse the strand sequence and update the StrandTextEdit widgets. 

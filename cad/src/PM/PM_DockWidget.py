@@ -32,14 +32,16 @@ class PM_DockWidget(QDockWidget):
     The dockWidget has its own layout and containerwidget which makes it easy 
     to add various children widgets  similar to how its done in PM_GroupBox    
     """   
-    labelWidget  = None    
-    _title         = ""
-    _widgetList    = []
-    _rowCount      = 0    
+        
     
     def __init__(self, parentWidget, title = ""):
         """
         """
+        self.labelWidget  = None    
+        self._title         = ""
+        self._widgetList    = []
+        self._rowCount      = 0
+    
         QDockWidget.__init__(self, parentWidget)
         
         self.parentWidget = parentWidget        

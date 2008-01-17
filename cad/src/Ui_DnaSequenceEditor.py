@@ -51,7 +51,7 @@ class Ui_DnaSequenceEditor(PM_DockWidget):
         """
         PM_DockWidget.__init__(self, parentWidget, title = self._title)
         
-        self.setFixedHeight(90)
+        self.setFixedHeight(90)        
         self._addWhatsThisText()
         
        

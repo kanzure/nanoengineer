@@ -47,9 +47,10 @@ TODO:
   model_changed method defined in this widget? 
 """
 from PM_ListWidget import PM_ListWidget
-from PyQt4.Qt import QListWidgetItem
+from PyQt4.Qt  import QListWidgetItem
 from PyQt4.Qt  import SIGNAL
 from PyQt4.Qt  import QPalette
+from PyQt4.Qt  import QAbstractItemView
 ##from PyQt4.Qt import Qt
 from PM_Colors import getPalette
 from constants import yellow
@@ -137,12 +138,17 @@ class PM_SelectionListWidget(PM_ListWidget):
         self._tagInstruction = 'TAG_ITEM_IN_GLPANE'
         self._itemDictionary = {}
         
+        #The following flag supresses the itemSelectionChanged signal
+        #see self.updateSelection for more comments. 
+        self._supress_itemSelectionChanged_signal = False
+        
         PM_ListWidget.__init__(self, 
                                parentWidget, 
                                label = '',
                                heightByRows = heightByRows,
                                spanWidth = spanWidth)
         
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
                 
         #Assigning color to the widget -- to be revised. (The color should 
         #change only when the focus is inside this widget -- the color change
@@ -260,7 +266,10 @@ class PM_SelectionListWidget(PM_ListWidget):
         For the selected items in the list widget, tag and/or select the 
         corresponding item in the GLPane based on the self._tagInstruction
         @see: self.setTagInstruction 
-        """    
+        """   
+        if self._supress_itemSelectionChanged_signal:
+            return
+
         graphicsMode = self.glpane.graphicsMode
         
         #Clear the previous tags if any
@@ -301,7 +310,6 @@ class PM_SelectionListWidget(PM_ListWidget):
         Deselect (unpick) all the items (object) in the GLPane that 
         correspond to the items in this list widget.
         """        
-        
         for item in self._itemDictionary.values():
             if item.picked:
                 item.unpick()
@@ -310,14 +318,46 @@ class PM_SelectionListWidget(PM_ListWidget):
         """
         If some items in the list widgets are selected (in the widget) 
         also select (pick) them from the glpane(3D workspace) 
-        """    
+        """ 
         for key in self.selectedItems():            
             assert self._itemDictionary.has_key(key)
             item = self._itemDictionary[key]
             if not item.picked:
                 item.pick() 
-            
     
+    def updateSelection(self, selectedItemList):
+        """
+        Update the selected items in this selection list widget. The items 
+        given by the parameter selectedItemList will get selected. 
+        
+        This suppresses the 'itemSelectionChanged signal because the items 
+        are already selected in the 3D workspace and we just want to select
+        the corresponding items (QWidgetListItems) in this list widget.
+        
+        @param selectedItemList:  List of items provided by the client 
+                                 that need to be selected in this list widget
+        @type  selectedItemList: list
+        @see: B{BuildDna_PropertyManager.model_changed}
+        """
+        #The following flag supresses the itemSelectionChanged signal , thereby 
+        #prevents self.tagItems from calling. This is done because the 
+        #items selection was changed from the 3D workspace. After this, the 
+        #selection state of the corresponding items in the list widget must be
+        #updated. 
+        self._supress_itemSelectionChanged_signal = True
+        
+        for key, value in self._itemDictionary.iteritems():
+            if value in selectedItemList:
+                if not key.isSelected():
+                    key.setSelected(True)     
+            else:
+                if key.isSelected():
+                    key.setSelected(False) 
+                    
+        self._supress_itemSelectionChanged_signal = False
+                
+        
+            
     def getPickedItem(self):
         """
         Return the 'real' item picked (selected) inside this selection list 
@@ -335,13 +375,17 @@ class PM_SelectionListWidget(PM_ListWidget):
         # select item , go to the sequence editor and hit assign button, 
         # it spits an error 
         
-        #selectedItemList = self.selectedItems()
-        #key = selectedItemList[0]
-        #pickedItem = self._itemDictionary[key]
+        pickedItem = None
+        selectedItemList = self.selectedItems()
+        key = selectedItemList[0]
+        pickedItem = self._itemDictionary[key]
         
-        for item in self._itemDictionary.values():
-            if item.picked:
-                return item 
+        return pickedItem
+        
+        
+        #for item in self._itemDictionary.values():
+            #if item.picked:
+                #return item 
             
-        return None
+        #return None
     

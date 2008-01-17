@@ -185,11 +185,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         
     def model_changed(self):
-        """
-        NOT IMPLEMENTED YET. This needs commandSequencer to treat various 
-        edit controllers as commands. Until then, the 'model_changed' method 
-        (and thus this method) will  never be called.
-        
+        """       
         When the editCommand is treated as a 'command' by the 
         commandSequencer. this method will override basicCommand.model_changed.
         
@@ -208,18 +204,26 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """  
         newSelectionParams = self._currentSelectionParams()
         
+                
         if same_vals(newSelectionParams, self.previousSelectionParams):
             return
         
-        self.previousSelectionParams = newSelectionParams   
-        #subclasses of BuildAtomsPM may not define self.selectedAtomPosGroupBox
-        #so do the following check.
-        if newSelectionParams:
-            self.editStrandPropertiesButton.setEnabled(True) 
+        self.previousSelectionParams = newSelectionParams  
+               
+        self.strandListWidget.updateSelection(newSelectionParams) 
+        
+        if len(newSelectionParams) == 1:
+            self.editStrandPropertiesButton.setEnabled(True)
+            if self.sequenceEditor:
+                self.sequenceEditor.update_state(bool_enable = True) 
+            if self.sequenceEditor and self.sequenceEditor.isVisible():
+                self._updateSequence(newSelectionParams[0])                           
         else:
-            self.editStrandPropertiesButton.setEnabled(False) 
-            
-    
+            self.editStrandPropertiesButton.setEnabled(False)
+            if self.sequenceEditor:       
+                self.sequenceEditor.update_state(bool_enable = False)            
+                         
+        
     def _currentSelectionParams(self):
         """
         NOT CALLED YET. This needs commandSequencer to treat various 
@@ -240,19 +244,23 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         updated when something changes in the glpane.        
         """
          
-        selectedStrands = self.strandListWidget.selectedItems()
-        selectedSegments = self.segmentListWidget.selectedItems()
+        selectedStrands = []
+        if self.editCommand and self.editCommand.struct:
+            selectedStrands = self.editCommand.struct.getSelectedStrands()
         
-        if len(selectedStrands) == 1: 
-            #self.win.assy.selatoms_list() is same as 
-            # selectedAtomsDictionary.values() except that it is a sorted list 
-            #it doesn't matter in this case, but a useful info if we decide 
-            # we need a sorted list for multiple atoms in future. 
-            # -- ninad 2007-09-27 (comment based on Bruce's code review)
+        return selectedStrands
+                
+               
+        #if len(selectedStrands) == 1: 
+            ##self.win.assy.selatoms_list() is same as 
+            ## selectedAtomsDictionary.values() except that it is a sorted list 
+            ##it doesn't matter in this case, but a useful info if we decide 
+            ## we need a sorted list for multiple atoms in future. 
+            ## -- ninad 2007-09-27 (comment based on Bruce's code review)
             
-            return (selectedStrands[0])
-        else: 
-            return (None)
+            #return (selectedStrands[0])
+        #else: 
+            #return (None)
     
     
     def ok_btn_clicked(self):
@@ -313,17 +321,31 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                 pass
             else:
                 self.win.reportsDockWidget.hide()
-            #Show the sequence editor
-            self.sequenceEditor.show() 
             
-            #Read in the strand sequence of the selected strand and 
-            #show it in the text edit in the sequence editor.
-            strand = self.strandListWidget.getPickedItem()
-            sequenceString = strand.getStrandSequence()
-            if sequenceString:
-                sequenceString = QString(sequenceString) 
-                sequenceString = sequenceString.toUpper()
-                self.sequenceEditor.setSequence(sequenceString)           
+            if not self.sequenceEditor.isVisible():
+                #Show the sequence editor
+                self.sequenceEditor.show() 
+            
+            selectedStrandList = self.editCommand.struct.getSelectedStrands()
+            
+            if len(selectedStrandList) == 1:
+                self._updateSequence(selectedStrandList[0])
+    
+    def _updateSequence(self, pickedStrand):
+        """
+        Update the sequence string in the sequence editor
+        """
+        #Read in the strand sequence of the selected strand and 
+        #show it in the text edit in the sequence editor.
+        ##strand = self.strandListWidget.getPickedItem()
+        
+        strand = pickedStrand
+        
+        sequenceString = strand.getStrandSequence()
+        if sequenceString:
+            sequenceString = QString(sequenceString) 
+            sequenceString = sequenceString.toUpper()
+            self.sequenceEditor.setSequence(sequenceString) 
         
     def _update_widgets_in_PM_before_show(self):
         """
@@ -367,11 +389,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #Strands and Axis chunks -- Ninad 2008-01-09
         
         if self.editCommand and self.editCommand.struct:
-            strandChunkList = []
-            def func(node):
-                if isinstance(node, Chunk) and node.isStrandChunk():
-                    strandChunkList.append(node)                    
-            self.editCommand.struct.apply2all(func)
+            strandChunkList = self.editCommand.struct.getStrands()
             
             self.strandListWidget.insertItems(
                 row = 0,
@@ -440,7 +458,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.editStrandPropertiesButton = PM_PushButton( 
             pmGroupBox,
             label = "",
-            text  = "Edit Properties..." )
+            text  = "Sequence Editor..." )
         self.editStrandPropertiesButton.setEnabled(False)
         
     def _loadGroupBox3(self, pmGroupBox):
