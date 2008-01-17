@@ -987,8 +987,11 @@ initializeStaticBondTable(void)
 static const char bends_rcsid[] = RCSID_BENDS_H;
 static const char bonds_rcsid[] = RCSID_BONDS_H;
 
-static char *bondTableOverlayFileName = NULL;
-static time_t bondTableOverlayModificationTime = 0;
+static char *systemBondTableOverlayFileName = NULL;
+static time_t systemBondTableOverlayModificationTime = 0;
+
+static char *userBondTableOverlayFileName = NULL;
+static time_t userBondTableOverlayModificationTime = 0;
 
 void
 initializeBondTable(void)
@@ -997,12 +1000,31 @@ initializeBondTable(void)
   char *home;
   char *rest;
   int len;
-  int reloadOverlay = 0;
+  int reloadSystemOverlay = 0;
+  int reloadUserOverlay = 0;
 
   if (bondStretchHashtable == NULL) {
-    reloadOverlay = 1;
+    reloadSystemOverlay = 1;
+    reloadUserOverlay = 1;
   }
-  if (bondTableOverlayFileName == NULL) {
+  if (SystemParametersFileName != NULL) {
+    if (systemBondTableOverlayFileName == NULL ||
+        strcmp(systemBondTableOverlayFileName, SystemParametersFileName)) {
+      if (systemBondTableOverlayFileName != NULL) {
+        free(systemBondTableOverlayFileName);
+      }
+      systemBondTableOverlayFileName = copy_string(SystemParametersFileName);
+      systemBondTableOverlayModificationTime = 0;
+    }
+    if (!stat(SystemParametersFileName, &statBuf)) {
+      if (systemBondTableOverlayModificationTime < statBuf.st_mtime) {
+        reloadSystemOverlay = 1;
+        systemBondTableOverlayModificationTime = statBuf.st_mtime;
+      }
+    }      
+  }
+  
+  if (userBondTableOverlayFileName == NULL) {
     home = getenv("HOME");
     if (home == NULL) {
       home = getenv("USERPROFILE"); // windows
@@ -1012,19 +1034,21 @@ initializeBondTable(void)
     }
     rest = "/Nanorex/sim-params.txt";
     len = strlen(home) + strlen(rest) + 1;
-    bondTableOverlayFileName = (char *)allocate(len);
-    strcpy(bondTableOverlayFileName, home);
-    strcat(bondTableOverlayFileName, rest);
+    userBondTableOverlayFileName = (char *)allocate(len);
+    strcpy(userBondTableOverlayFileName, home);
+    strcat(userBondTableOverlayFileName, rest);
   }
-  if (!stat(bondTableOverlayFileName, &statBuf)) {
-    if (bondTableOverlayModificationTime < statBuf.st_mtime) {
-      reloadOverlay = 1;
-      bondTableOverlayModificationTime = statBuf.st_mtime;
+  if (!stat(userBondTableOverlayFileName, &statBuf)) {
+    if (userBondTableOverlayModificationTime < statBuf.st_mtime) {
+      reloadUserOverlay = 1;
+      userBondTableOverlayModificationTime = statBuf.st_mtime;
     }
   }
-  if (reloadOverlay) {
+  if (reloadSystemOverlay || reloadUserOverlay) {
     initializeStaticBondTable();
-    readBondTableOverlay(bondTableOverlayFileName);
+    
+    readBondTableOverlay(systemBondTableOverlayFileName);
+    readBondTableOverlay(userBondTableOverlayFileName);
   }
 }
 
@@ -1032,9 +1056,13 @@ void
 destroyBondTable(void)
 {
   destroyStaticBondTable();
-  if (bondTableOverlayFileName != NULL) {
-    free(bondTableOverlayFileName);
-    bondTableOverlayFileName = NULL;
+  if (systemBondTableOverlayFileName != NULL) {
+    free(systemBondTableOverlayFileName);
+    systemBondTableOverlayFileName = NULL;
+  }
+  if (userBondTableOverlayFileName != NULL) {
+    free(userBondTableOverlayFileName);
+    userBondTableOverlayFileName = NULL;
   }
 }
 

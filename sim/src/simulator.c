@@ -28,6 +28,8 @@ usage(void)
                     files.  Writes output_prefix.top and output_prefix.gro\n\
    --path-to-cpp path\n\
                     path to the c preprocessor executable (for gromacs)\n\
+   --system-parameters path\n\
+                    path to the system sim-params.txt file\n\
    --print-potential-function=<bond>\n\
                     print the values of the potential and gradient for the given bond.\n\
                     <bond> should be one of:\n\
@@ -61,6 +63,8 @@ usage(void)
                     terminate minimization when rms force falls below this level and...\n\
    --min-threshold-end-max=<float>\n\
                     ...when max force is below this level.\n\
+   --vdw-cutoff-radius=<float>\n\
+                    maximum range of vdw force for GROMACS, in nm.\n\
    --vdw-cutoff-factor=<float>\n\
                     maximum range of vdw force, as multiple of rvdW.\n\
    --enable-electrostatic=<flag>\n\
@@ -159,12 +163,15 @@ set_py_exc_str(const char *filename,
 #define OPT_ENABLE_ELECTROSTATIC LONG_OPT (17)
 #define OPT_WRITE_GROMACS_TOPOLOGY LONG_OPT (18)
 #define OPT_PATH_TO_CPP LONG_OPT (19)
+#define OPT_SYSTEM_PARAMETERS LONG_OPT (20)
+#define OPT_VDW_CUTOFF_RADIUS LONG_OPT (21)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
     { "dump-part", no_argument, NULL, OPT_DUMP_PART },
     { "write-gromacs-topology", required_argument, NULL, OPT_WRITE_GROMACS_TOPOLOGY },
     { "path-to-cpp", required_argument, NULL, OPT_PATH_TO_CPP },
+    { "system-parameters", required_argument, NULL, OPT_SYSTEM_PARAMETERS },
     { "print-potential-function", required_argument, NULL, OPT_PRINT_POTENTIAL},
     { "initial", required_argument, NULL, OPT_INITIAL},
     { "increment", required_argument, NULL, OPT_INCREMENT},
@@ -176,6 +183,7 @@ static const struct option option_vec[] = {
     { "min-threshold-cutover-max", required_argument, NULL, OPT_MIN_THRESH_CUT_MAX},
     { "min-threshold-end-rms", required_argument, NULL, OPT_MIN_THRESH_END_RMS},
     { "min-threshold-end-max", required_argument, NULL, OPT_MIN_THRESH_END_MAX},
+    { "vdw-cutoff-radius", required_argument, NULL, OPT_VDW_CUTOFF_RADIUS},
     { "vdw-cutoff-factor", required_argument, NULL, OPT_VDW_CUTOFF_FACTOR},
     { "enable-electrostatic", required_argument, NULL, OPT_ENABLE_ELECTROSTATIC},
     { "time-reversal", no_argument, NULL, OPT_TIME_REVERSAL},
@@ -261,6 +269,9 @@ main(int argc, char **argv)
 	case OPT_PATH_TO_CPP:
 	    PathToCpp = optarg;
 	    break;
+	case OPT_SYSTEM_PARAMETERS:
+	    SystemParametersFileName = optarg;
+	    break;
         case OPT_PRINT_POTENTIAL:
             printPotential = optarg;
 	    break;
@@ -293,6 +304,9 @@ main(int argc, char **argv)
             break;
         case OPT_MIN_THRESH_END_MAX:
             MinimizeThresholdEndMax = atof(optarg);
+            break;
+        case OPT_VDW_CUTOFF_RADIUS:
+            VanDerWaalsCutoffRadius = atof(optarg);
             break;
         case OPT_VDW_CUTOFF_FACTOR:
             VanDerWaalsCutoffFactor = atof(optarg);

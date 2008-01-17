@@ -262,7 +262,6 @@ printGromacsToplogy(char *basename, struct part *p)
     FILE *mdp; // Gromacs configuration file (basename.mdp)
     FILE *ndx; // Gromacs group (index) file (basename.ndx)
     int len;
-    double vdwCutoff;
     char *fileName;
     char *ret = NULL;
     
@@ -318,11 +317,10 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(mdp, "nstcgsteep          =  100\n"); // frequency of steep steps during cg
     fprintf(mdp, "nstlist             =  10\n"); // update frequency for neighbor list
     fprintf(mdp, "ns_type             =  simple\n"); // neighbor search type, must be simple for pbc=no
-    vdwCutoff = 10.0; // nm
-    fprintf(mdp, "rlist               =  %f\n", vdwCutoff); // short range neighbor list cutoff distance
-    fprintf(mdp, "rcoulomb            =  %f\n", vdwCutoff); // coulomb function cutoff distance
-    fprintf(mdp, "rvdw                =  %f\n", vdwCutoff); // vdw cutoff distance
     // rlist, rcoulomb and rvdw must be equal when ns_type = simple
+    fprintf(mdp, "rlist               =  %f\n", VanDerWaalsCutoffRadius); // short range neighbor list cutoff distance
+    fprintf(mdp, "rcoulomb            =  %f\n", VanDerWaalsCutoffRadius); // coulomb function cutoff distance
+    fprintf(mdp, "rvdw                =  %f\n", VanDerWaalsCutoffRadius); // vdw cutoff distance
     fprintf(mdp, "epsilon_r           =  %f\n", DielectricConstant);
     fprintf(mdp, "freezegrps          =  Anchor\n"); // which group of atoms to hold fixed
     fprintf(mdp, "freezedim           =  Y Y Y\n"); // fix in all three dimensions

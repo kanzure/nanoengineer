@@ -43,6 +43,7 @@ cdef extern from "simhelp.c":
     double MinimizeThresholdCutoverMax
     double MinimizeThresholdEndRMS
     double MinimizeThresholdEndMax
+    double VanDerWaalsCutoffRadius
     double VanDerWaalsCutoffFactor
     int EnableElectrostatic
     double ThermostatGamma
@@ -53,6 +54,7 @@ cdef extern from "simhelp.c":
     char *TraceFileName
     char *GromacsOutputBaseName
     char *PathToCpp
+    char *SystemParametersFileName
     double Dt
     double Dx
     double Dmass
@@ -144,6 +146,8 @@ cdef class BaseSimulator:
             return MinimizeThresholdEndRMS
         elif strcmp(key, "MinimizeThresholdEndMax") == 0:
             return MinimizeThresholdEndMax
+        elif strcmp(key, "VanDerWaalsCutoffRadius") == 0:
+            return VanDerWaalsCutoffRadius
         elif strcmp(key, "VanDerWaalsCutoffFactor") == 0:
             return VanDerWaalsCutoffFactor
         elif strcmp(key, "EnableElectrostatic") == 0:
@@ -179,6 +183,11 @@ cdef class BaseSimulator:
                 # should we raise an AttributeError here?
                 return ""
             return PathToCpp
+        elif strcmp(key, "SystemParametersFileName") == 0:
+            if SystemParametersFileName == NULL:
+                # should we raise an AttributeError here?
+                return ""
+            return SystemParametersFileName
         elif strcmp(key, "Dt") == 0:
             return Dt
         elif strcmp(key, "Dx") == 0:
@@ -243,6 +252,9 @@ cdef class BaseSimulator:
         elif strcmp(key, "MinimizeThresholdEndMax") == 0:
             global MinimizeThresholdEndMax
             MinimizeThresholdEndMax = value
+        elif strcmp(key, "VanDerWaalsCutoffRadius") == 0:
+            global VanDerWaalsCutoffRadius
+            VanDerWaalsCutoffRadius = value
         elif strcmp(key, "VanDerWaalsCutoffFactor") == 0:
             global VanDerWaalsCutoffFactor
             VanDerWaalsCutoffFactor = value
@@ -270,6 +282,9 @@ cdef class BaseSimulator:
         elif strcmp(key, "PathToCpp") == 0:
             global PathToCpp
             PathToCpp = value
+        elif strcmp(key, "SystemParametersFileName") == 0:
+            global SystemParametersFileName
+            SystemParametersFileName = value
         elif strcmp(key, "Dt") == 0:
             global Dt
             Dt = value

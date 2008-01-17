@@ -47,6 +47,7 @@ char *TraceFileName;
 char *BaseFileName;
 char *GromacsOutputBaseName;
 char *PathToCpp;
+char *SystemParametersFileName;
 int QualityWarningLevel;
 float SimpleMovieForceScale;
 double MinimizeThresholdCutoverRMS;
@@ -56,6 +57,10 @@ double MinimizeThresholdEndMax;
 int TimeReversal;
 double ThermostatGamma;
 double ThermostatG1;
+
+// absolute distance in nm beyond which gromacs will consider vdW
+// forces to be exactly zero.
+double VanDerWaalsCutoffRadius;
 
 // multiple of rvdW where interpolation table ends, and van der Waals
 // force is considered exactly zero beyond this point.
@@ -139,6 +144,7 @@ reinit_globals(void)
     BaseFileName = NULL;
     GromacsOutputBaseName = NULL;
     PathToCpp = NULL;
+    SystemParametersFileName = NULL;
     QualityWarningLevel = 5;
     SimpleMovieForceScale = 1.0;
     TimeReversal = 0;
@@ -149,6 +155,7 @@ reinit_globals(void)
     MinimizeThresholdEndRMS = 1.0;
     MinimizeThresholdEndMax = 0.0; // set by constrainGlobals, below
 
+    VanDerWaalsCutoffRadius = 1.0; // (nm) default for atomic minimization
     VanDerWaalsCutoffFactor = 1.7;
 
     EnableElectrostatic = 1;
