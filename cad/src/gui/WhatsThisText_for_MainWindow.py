@@ -1240,7 +1240,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     # Build Crystal (was Cookie Cutter Mode)
 
     toolsCookieCutActionText = \
-        "<u><b>Build Crystal</b></u><!-- [[Feature:Build Crystal]] -->"\
+        "<u><b>Build Crystal</b></u><!-- [[Feature:Build Crystal Mode]] -->"\
         "<p>"\
         "<><img source=\"ui/actions/Tools/Build Structures/"\
         "Cookie_Cutter.png\"><br"\
