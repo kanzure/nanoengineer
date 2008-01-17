@@ -65,7 +65,7 @@ class DnaGroup(Block):
         del display_prefs # unused
         return imagename_to_pixmap( self.iconPath)
 
-    def makeStrandOrSegmentForMarker(self, controlling_marker, wholechain): # IMPLEM @@@@
+    def make_DnaStrandOrSegment_for_marker(self, controlling_marker, wholechain):
         """
         The given DnaMarker is either newly made to control wholechain,
         or old but newly controlling it; but it has no DnaStrandOrSegment.
@@ -82,7 +82,13 @@ class DnaGroup(Block):
         into controlling_marker and/or wholechain,
         so don't do those things here.)
         """
-        assert 0, "nim"
+        class1 = controlling_marker.DnaStrandOrSegment_class()
+        name = gensym(class1.__name__.split('.')[-1]) ###STUB -- should use class constant prefix, ensure unique names
+            # todo: sensible name? (if we split a seg, is name related to old seg; if so how?)
+        assy = controlling_marker.assy # it's a Jig so it has one
+        obj = class1(name, assy, None) # note: these args are for Group.__init__
+        self.addchild(obj)
+        return obj
     
     # Note: some methods below this point are examples or experiments or stubs,
     # and are likely to be revised significantly or replaced.

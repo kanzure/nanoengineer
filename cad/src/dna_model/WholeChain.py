@@ -8,6 +8,9 @@ smaller chains (or 1 smaller ring), with refs to markers and a strand or segment
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
+from dna_model.dna_model_constants import LADDER_END0
+from dna_model.dna_model_constants import LADDER_END1
+
 
 class WholeChain(object):
     """
@@ -93,9 +96,10 @@ class WholeChain(object):
     
     def __init__(self, dict_of_rails): # fyi: called by update_PAM_chunks
         """
-        Construct self, take over our atoms and their chunks and markers,
-        and perhaps choose a controlling marker (or this might come later
-        from separate call or on demand ###DECIDE, DOIT).
+        Construct self, own our chunks (and therefore our atoms).
+
+        @note: this does not choose or make a marker or own our markers.
+        For that see own_markers.
         
         @param dict_of_rails: maps id(rail) -> rail for all rails in wholechain
         """
@@ -109,7 +113,7 @@ class WholeChain(object):
             chunk = rail.baseatoms[0].molecule
             chunk.set_wholechain(self)
             for atom in rail.baseatoms:
-                for jig in atom.jigs: ### ASSUMES markers are already moved and valid again (on correct live atoms) @@@@
+                for jig in atom.jigs: ### ASSUMES markers are already moved and valid again (on correct live atoms) @@@
                     if isinstance(jig, DnaMarker):
                         # cache the set of these on the rail? might matter when lots of old rails.
                         # does it matter which of its atoms we are? Not if we remove duplicates...
@@ -121,13 +125,8 @@ class WholeChain(object):
 
         self._all_markers = markers.values()
         
-        # todo: @@@@
-        # + own atoms? probably done, can be via chunks
-        # - choose a controlling marker
-        # - maybe work out base indexing per rail...
-
         return
-    
+
     def all_markers(self):
         """
         Assuming we still own all our atoms (not checked),
@@ -135,6 +134,28 @@ class WholeChain(object):
         """
         return self._all_markers
 
+    def own_markers(self):
+        """
+        Choose or make one of your markers to be controlling,
+        then tell them all that you own them and whether
+        they're controlling (which might kill some of them).
+        
+        Also cache whatever base-indexing info is needed
+        (in self, our rails/chains/chunks, and/or their atoms).
+        [As of 080116 this part is not yet needed or done.]
+        """
+        self._controlling_marker = self._choose_or_make_controlling_marker()
+        remaining_markers = []
+        for marker in self._all_markers:
+            assert not marker.killed() # this might fail if they're not yet all in the model @@@
+            controlling = (marker is self._controlling_marker)
+            marker.set_wholechain(self, controlling = controlling) # own it
+            if not marker.killed():
+                remaining_markers.append(marker)
+        self._all_markers = remaining_markers
+        # todo: use controlling marker to work out base indexing per rail...
+        return
+        
     def find_strand_or_segment(self):
         """
         Return our associated DnaStrandOrSegment, which is required
@@ -151,8 +172,9 @@ class WholeChain(object):
         """
         if self._strand_or_segment:
             return self._strand_or_segment
-        if not self._controlling_marker:
-            self._controlling_marker = self._choose_or_make_controlling_marker() ### IMPLEM, or revise this code
+##        if not self._controlling_marker:
+##            self._controlling_marker = self._choose_or_make_controlling_marker()
+        assert self._controlling_marker, "%r should have called _choose_or_make_controlling_marker before now" % self
         strand_or_segment = self._controlling_marker._f_get_owning_strand_or_segment()
         if not strand_or_segment:
             strand_or_segment = self._make_strand_or_segment( self._controlling_marker)
@@ -190,7 +212,7 @@ class WholeChain(object):
                 # should get preprocessed separately (as discussed also in
                 # update_DNA_groups).
         # now make a strand or segment in that DnaGroup (review: in a certain Block?)
-        strand_or_segment = dnaGroup.makeStrandOrSegmentForMarker(controlling_marker, self)
+        strand_or_segment = dnaGroup.make_DnaStrandOrSegment_for_marker(controlling_marker, self)
         return strand_or_segment
 
     # == ### review below
@@ -204,7 +226,7 @@ class WholeChain(object):
         """
         marker = self._choose_controlling_marker()
         if not marker:
-            marker = self._make_controlling_marker()
+            marker = self._make_new_controlling_marker()
         assert marker
         return marker
     
@@ -217,7 +239,7 @@ class WholeChain(object):
         Otherwise choose one of them to be our controlling marker,
         and return it (don't save it anywhere, or tell any markers
         whether they are controlling now; caller must do those things
-        if/when desired). ### @@@@ DOIT somewhere - the telling -- or make them ask like is_topnode does
+        if/when desired; fyi, as of 080116 own_markers does this).
 
         If one or more are already controlling, it will be one of them. [### REVIEW -- not sure this point is right]
         If more than one are controlling, we have rules to let them compete.
@@ -234,22 +256,45 @@ class WholeChain(object):
         items = []
         for marker in candidates:
             order_info = (marker in list_of_preferred_markers_this_time, # note: False < True in Python
-                          marker.control_priority, ### IMPLEM
-                          marker.get_oldness(), # assume oldness is unique -- inverse of something allocated by a counter ### IMPLEM
+                          marker.control_priority,
+                          marker.get_oldness(), # assume oldness is unique -- inverse of something allocated by a counter
                           )
             items.append( (order_info, marker) )
         items.sort()
         return items[-1][1]
 
-    def _make_controlling_marker(self):### IMPLEM @@@@ - find some code for this? nontrivial to pick the atom...
+    def _make_new_controlling_marker(self):### STUB -- nontrivial to pick the atom... @@@@
         """
         [private]
         self has no marker which wants_to_be_controlling().
         Make one (on some good choice of atom on self)
         and return it. (Don't store it or tell it it's controlling --
         caller must do that if desired.)
+
+        @note: we always make one, even if this is a 1-atom wholechain
+        so it's not possible to make a good or fully correct one (for now).
+        That's because the callers really need every wholechain to have one.
         """
-        assert 0, "nim"
+        # STUB - pick arbitrary baseatom and next_atom! THIS WON'T BE VERY NICE - it's just to not crash. @@@@
+        chunk = self._arbitrary_chunk
+        chain = chunk.chain
+        atom = chain.baseatoms[0]
+        if len(chain.baseatoms) > 1:
+            next_atom = chain.baseatoms[1]
+        elif chain.neighbor_baseatoms[LADDER_END1]:
+            next_atom = chain.neighbor_baseatoms[LADDER_END1]
+        elif chain.neighbor_baseatoms[LADDER_END0]
+            next_atom = chain.neighbor_baseatoms[LADDER_END0] # REVERSE DIRECTION!
+            atom, next_atom = next_atom, atom
+        else:
+            # a 1-atom wholechain, hmm ...
+            print "not sure this 1-atom wholechain marker for %r is going to work..." % self
+            next_atom = atom # not sure this will work in later code... ###k @@@
+
+        # now make the marker on those atoms
+        # (todo: in future, we might give it some user settings too)
+        marker = DnaMarker(assy, [atom, next_atom]) # doesn't give it a wholechain yet
+        return marker
     
     # todo: methods related to base indexing
 

@@ -85,7 +85,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
         wholechain = chunk.wholechain # defined for DnaLadderRailChunks
         assert wholechain # set by update_PAM_chunks
         # could assert wholechain is in new_wholechains
-        strand_or_segment = wholechain.find_strand_or_segment() # IMPLEM
+        strand_or_segment = wholechain.find_strand_or_segment()
         assert strand_or_segment
         old_group = strand_or_segment.move_into_your_members(chunk)
             # (For a StrandChunk will we place it into a DnaStrand (as in this code)
@@ -108,7 +108,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
     #
     # Note, we need to do the innermost (deepest) ones first.
 
-    depth_group_pairs = [ (group.group_depth(), group) # IMPLEM group_depth
+    depth_group_pairs = [ (group.node_depth(), group)
                           for group in old_groups.values() ]
     depth_group_pairs.sort()
     depth_group_pairs.reverse() # deepest first
@@ -123,7 +123,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
             old_group.kill() ###k is this always ok?? desirable?
             # might affect members of less deep groups
         elif len(old_group.members) == 1:
-            old_group.dissolve() ###k always ok? desirable? IMPLEM dissolve; could use it in len 0 case too...
+            old_group.ungroup() ###k always ok? desirable? [dissolves the group; could use this in len 0 case too]
 
     ignore_new_changes("as update_DNA_groups returns", changes_ok = False )
 

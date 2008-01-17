@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaChain.py - Dna-aware AtomChainOrRing subclasses, AxisChain and StrandChain
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_model.DnaMarker import DnaMarker # only for issubclass
@@ -12,6 +12,9 @@ from dna_model.DnaMarker import DnaSegmentMarker
 from dna_model.DnaMarker import DnaStrandMarker
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+
+from dna_model.dna_model_constants import LADDER_ENDS
+from dna_model.dna_model_constants import LADDER_END0
 
 # ==
 
@@ -32,10 +35,17 @@ class DnaChain(object):
     """
     
     # default values of public instance variables:
+
+    strandQ = None # will be set to a boolean saying whether we're made of strand or axis atoms
     
     baseatoms = None # public for read; sequence of all our atoms with a baseindex
         # (whether in strand or axis) (leaves out Pl, bondpoints, termination atoms)
         # note: subclass-specific __init__ must set this
+
+    neighbor_baseatoms = (-1, -1) # when set, each element is None or a
+        # neighboring baseatom (in a directly connected chain, possibly self
+        # if self is a ring)
+        # note: set by _f_update_neighbor_baseatoms, some doc is there
     
     index_direction = 1 # instances negate this when they reverse baseatoms
         # (and thus its indexing) using reverse_baseatoms. It records the
@@ -50,6 +60,11 @@ class DnaChain(object):
         # merging ladders and reversing it, we have to tell their markers
         # we did that, which is not done now [071204].
 
+    def _reverse_neighbor_baseatoms(self):
+        self.neighbor_baseatoms = list(self.neighbor_baseatoms)
+        self.neighbor_baseatoms.reverse()
+        return
+    
     def baseatom_index_pairs(self):
         """
         Return a list of pairs (baseatom, baseindex) for every pseudoatom
@@ -81,9 +96,7 @@ class DnaChain(object):
         self.baseatoms.reverse()
         self.index_direction *= -1
         self._bond_direction *= -1
-        # @@@ todo: also swap "pointers to neighboring chain-ends" if we have those;
-        # do this in both reverse_baseatoms and perhaps in _f_reverse_arbitrary_bond_direction
-        # [080114 comment]
+        self._reverse_neighbor_baseatoms()
         return
 
     # kluge: bond direction code/attrs are also here, even though it only applies to strands,
@@ -155,22 +168,156 @@ class DnaChain(object):
     def _f_reverse_arbitrary_bond_direction(self):
         assert self.bond_direction_is_arbitrary()
         self._bond_direction *= -1
-        # @@@ todo: also swap "pointers to neighboring chain-ends" if we have those;
-        # do this in both reverse_baseatoms and perhaps in _f_reverse_arbitrary_bond_direction
-        # [080114 comment]
+        self._reverse_neighbor_baseatoms()
+            # REVIEW: is _reverse_neighbor_baseatoms correct here?
+            # This might depend on whether the caller of this also
+            # called self.reverse_baseatoms()! @@@
         return
+
+    def _f_update_neighbor_baseatoms(self): ### @@@ correct order behavior is unclear; does it matter? not yet! 080116
+        """
+        [friend method for dna updater]
+        
+        This must be called exactly once per ladder rail chain
+        (i.e. _DnaChainFragment object, I think, 080116),
+        during each dna updater run which encounters it (whether as a
+        new or preexisting rail chain).
+
+        It computes or recomputes whichever attributes carry info about
+        the neighboring baseatoms in neighboring rail chains (which
+        connect to self at the ends), based on current bonding.
+
+        Specifically, it sets self.neighbor_baseatoms[end] for end in LADDER_ENDS
+        to either None (if this chain ends on that ladder-end) or to the
+        next atom in the next chain (if it doesn't end).
+
+        For end atom order (used as index in self.neighbor_baseatoms),
+        it uses whatever order has been established by the DnaLadder
+        we're in, which may or may not have reversed our order. (Ladders
+        have been made, finished, and merged, before we're called.)
+
+        For strands, it finds neighbors using bond direction, and knows
+        about skipping Pl atoms; for axes, in the ambiguous length==1 case,
+        it uses an arbitrary order, but [###IMPLEM THIS IF/WHEN IT MATTERS]
+        makes sure this is consistent with strands when at least one strand
+        has no nick at one end of this chain's ladder. [explain better]
+        If this doesn't force an order, then if this had already been set
+        before this call and either of the same non-None atoms are still
+        in it now, preserve their position.
+        
+        The attrs we set are subsequently reversed by our methods
+        _f_reverse_arbitrary_bond_direction and reverse_baseatoms.
+        [###REVIEW whether it's correct in _f_reverse_arbitrary_bond_direction;
+        see comment there.]
+        
+        @note: the ordering/reversal scheme described above may need
+        revision. The special case for length==1 axis described above is
+        meant to ensure
+        that axis and strand order correspond between two ladders which
+        are connected on the axis and one strand, but not the other strand
+        (i.e. which have an ordinary nick), if the ladder we're on has length 1
+        (i.e. if there are two nicks in a row, on the same or opposite strands).
+        If this ever matters, we might need to straighten out this order
+        in DnaLadder.finish() for length==1 ladders. The ladders are already
+        made and merged by the time we're called, so whatever reversals they'll
+        do are already done.
+        """
+        assert self.strandQ in [False, True]
+        self.neighbor_baseatoms = list[self.neighbor_baseatoms]
+        # do most atoms one end at a time...
+        for end in LADDER_ENDS: # end_baseatoms needs ladder end, not chain end
+            next_atom = -1 # will be set to None or an atom, if possible
+            if self.strandQ:
+                # similar to code in DnaLadder._can_merge_at_end
+                end_atom = self.end_baseatoms()[end]
+                assert self._bond_direction # relative to LADDER_ENDS directions, I think ## @@@ not 100% sure this is set yet
+                if end == LADDER_END0:
+                    bond_dir_to_neighbor = - self._bond_direction
+                else:
+                    bond_dir_to_neighbor = + self._bond_direction
+                next_atom = end_atom.strand_next_baseatom(bond_direction = bond_dir_to_neighbor)
+                assert next_atom is None or next_atom.element.role == 'strand'
+                # store next_atom at end of loop
+            else:
+                # do axis atoms in this per-end loop, only if chain length > 1;
+                # otherwise do them both at once, after this loop.
+                if len(self.baseatoms) > 1:
+                    # easy case - unambiguous other-chain neighbor atom
+                    # (Note: length-2 axis ring is not possible, since it would
+                    #  require two bonds between the same two Ax pseudoatoms.
+                    #  It's also not physically possible, so that's fine.)
+                    next_atom_candidates = end_atom.axis_neighbors() # len 1 or 2,
+                        # and one should always be the next one in this chain
+                    if end == LADDER_END0:
+                        next_to_end_index = 1
+                    else:
+                        next_to_end_index = -2
+                    not_this_atom = self.baseatoms[next_to_end_index]
+                    next_atom_candidates.remove(not_this_atom)
+                        # it has to be there, so we don't mind raising an
+                        # exception when it's not
+                    assert len(next_atom_candidates) <= 1
+                    if next_atom_candidates:
+                        next_atom = next_atom_candidates[0]
+                    else:
+                        next_atom = None
+                    pass
+                pass
+            if next_atom != -1:
+                self.neighbor_baseatoms[end] = next_atom # None or an atom
+            continue
+        # ... but in length==1 case, do axis atoms both at once
+        if len(self.baseatoms) == 1:
+            end_atom = self.baseatoms[0]
+            next_atoms = end_atom.axis_neighbors() # len 0 or 1 or 2
+            while len(next_atoms) < 2:
+                next_atoms.append(None)
+            ### TODO: if order matters, reverse this here, if either strand
+            # in the same ladder indicates we ought to, by its next atom
+            # bonding to one of these atoms (having no nick); I think any
+            # advice we get from this (from 1 of 4 possible next atoms)
+            # can't be inconsistent, but I haven't proved this. (Certainly
+            # it can't be for physically reasonable structures.)
+            # [bruce 080116]
+            order_was_forced_by_strands = False
+                # sometimes True once above is implemented
+
+            if not order_was_forced_by_strands:
+                # For stability of arbitrary choices in case self.neighbor_baseatoms
+                # was already set, let non-None atoms still in it determine the order
+                # to preserve their position, unless the order was forced above.
+                for end in LADDER_ENDS:
+                    old_atom = self.neighbor_baseatoms[end]
+                    if old_atom and old_atom is next_atoms[1-end]:
+                        assert old_atom != -1 # next_atoms can't contain -1
+                        next_atoms.reverse() # (this can't happen twice)
+            
+            self.neighbor_baseatoms = next_atoms
+        # we're done
+        assert len(self.neighbor_baseatoms) == 2
+        assert type(self.neighbor_baseatoms) == type([])
+        for atom in self.neighbor_baseatoms:
+            assert atom is None or atom.element.role in ['axis', 'strand']
+        return # from _f_update_neighbor_baseatoms
     
-    pass
+    pass # end of class DnaChain
 
 # ==
 
-class DnaChainFragment(DnaChain): #e does it need to know ringQ? axis vs strand? #e misnamed??
+class _DnaChainFragment(DnaChain): #e does it need to know ringQ? is it misnamed??
+    """
+    [as of 080109 these are created in make_new_ladders()
+     and passed into DnaLadder as its rail chains
+     via init arg and add_strand_rail]
+    """
     def __init__(self,
                  atom_list,
                  index_direction = None,
                  bond_direction = None,
-                 bond_direction_error = None
+                 bond_direction_error = None,
+                 strandQ = None
                 ):
+        self.strandQ = strandQ
         self.baseatoms = atom_list
         if index_direction is not None:
             self.index_direction = index_direction
@@ -307,10 +454,11 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
         # and cause the subchain direction to be recomputed... but it can't
         # be recomputed on that kind of chain (using the current code)...
         # so we pass the error flag too.
-        return DnaChainFragment(subchain,
-                                index_direction = self.index_direction,
-                                bond_direction = self._bond_direction,
-                                bond_direction_error = self._bond_direction_error
+        return _DnaChainFragment(subchain,
+                                 index_direction = self.index_direction,
+                                 bond_direction = self._bond_direction,
+                                 bond_direction_error = self._bond_direction_error,
+                                 strandQ = self.strandQ
                                )
             #e more args? does it know original indices? (i doubt it)
         
@@ -321,7 +469,11 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
 class AxisChain(DnaChain_AtomChainWrapper):
     """
     A kind of DnaChain for just-found axis chains or rings.
+
+    @warning: as of 080116, these are *not* used directly as DnaLadder rail chains.
+    Instead, objects returned by self.virtual_fragment are used for that.
     """
+    strandQ = False
     _marker_class = DnaSegmentMarker
     def __init__(self, chain_or_ring):
         DnaChain_AtomChainWrapper.__init__(self, chain_or_ring)
@@ -334,12 +486,16 @@ class AxisChain(DnaChain_AtomChainWrapper):
 class StrandChain(DnaChain_AtomChainWrapper):
     """
     A kind of DnaChain for just-found strand chains or rings.
+
+    @warning: as of 080116, these are *not* used directly as DnaLadder rail chains.
+    Instead, objects returned by self.virtual_fragment are used for that.
     
     Knows to skip Pl atoms when indexing or iterating over "base atoms"
     (but covers them in iteratoms). Also knows to look at bond_direction
     on all the bonds (in self and to neighbors), for being set and consistent,
     and to cache this info.
     """
+    strandQ = True
     _marker_class = DnaStrandMarker
     def __init__(self, chain_or_ring):
         DnaChain_AtomChainWrapper.__init__(self, chain_or_ring)

@@ -31,7 +31,9 @@ _CONTROLLING_IS_UNKNOWN = True # represents an unknown value of self.controlling
 
 # ==
 
-# globals and accessors
+# globals and their accessors
+
+_marker_newness_counter = 1
 
 _homeless_dna_markers = {}
 
@@ -113,45 +115,81 @@ class DnaMarker( ChainAtomMarker):
     """
     ### REVIEW: what if neither atom is killed, but their bonding changes?
     # do we need to look for marker jigs on changed atoms
-    # and treat them as perhaps needing to be moved? YES. DOIT. #### @@@
+    # and treat them as perhaps needing to be moved? YES. DOIT. #### @@@@
     # [same issue as in comment in docstring "we might not be homeless"]
 
-    # default values of instance variables:
     
-    # Jig API variables
+    # Jig or Node API class constants:
+    
     sym = "DnaMarker" # ?? maybe used only on subclasses for SegmentMarker & StrandMarker? maybe never visible?
         # TODO: not sure if this gets into mmp file, but i suppose it does... and it gets copied, and has undoable properties...
         # and in theory it could appear in MT, though in practice, probably only in some PM listwidget, but still,
         # doing the same things a "visible node" can do is good for that.
 
     copyable_attrs = ChainAtomMarker.copyable_attrs + ()
-        # todo: add some -- namely the settings about how it moves, whether it lives, etc
+        # todo: add some more -- namely the user settings about how it moves, whether it lives, etc
+
+
+    # future user settings, which for now are per-subclass constants:
+
+    control_priority = 1
+
+    _wants_to_be_controlling = True # class constant; false variant is nim
+
+
+    # default values of instance variables:
+
+    wholechain = None
     
-    # other variables
-
-    _chain = None # (not undoable or copyable) ###k needed??? Do we need smallchain or WholeChain or Ladder? @@@
-    # guess: needs a wholechain, a ladder, and indices into the ladder (which rail, rail/chain posn, rail/chain direction)@@@
-
     controlling = _CONTROLLING_IS_UNKNOWN
+
+    _owning_strand_or_segment = None
 
     _advise_new_chain_direction = 0 ###k needed??? @@@
         # temporarily set to 0 or -1 or 1 for use when moving self and setting a new chain
 
-    _owning_strand_or_segment = None
+    _newness = None
     
+    # guess: also needs a ladder, and indices into the ladder (which rail, rail/chain posn, rail/chain direction)@@@@
+    
+# suspect not needed 080116 @@@
+##    _chain = None # (not undoable or copyable)
+
+
     # == Jig or Node API methods (overridden or extended from ChainAtomMarker):
 
-    def __init__(self, assy, atomlist, chain = None):
-        # [can chain be None after we get copied? I think so...]
-        # (chain arg is not needed in _um_initargs since copying it can/should make it None. REVIEW, is that right? ###]
+    def __init__(self, assy, atomlist): #####, chain = None):
+##        # [can chain be None after we get copied? I think so...]
+##        # (chain arg is not needed in _um_initargs since copying it can/should make it None. REVIEW, is that right? ###]
         """
-        @param chain: the atom chain or ring which we reside on when created (can it be None??)
-        @type chain: AtomChainOrRing instance ### REVIEW
+##        @param chain: the atom chain or ring which we reside on when created (can it be None??)
+##        @type chain: AtomChainOrRing instance ### REVIEW
         """
         ChainAtomMarker.__init__(self, assy, atomlist)
-        if chain is not None:
-            self.set_chain(chain)
+##        if chain is not None:
+##            self.set_chain(chain) ### prob not needed @@@@
+        global _marker_newness_counter
+        _marker_newness_counter += 1
+        self._newness = _marker_newness_counter
         return
+
+    def get_oldness(self):
+        """
+        Older markers might compete better for controlling their wholechain;
+        return our "oldness" (arbitrary scale, comparable with Python standard
+        ordering).
+        """
+        return - self._newness
+    
+    def wants_to_be_controlling(self):
+        return self._wants_to_be_controlling
+    
+    def set_wholechain(self, wholechain, controlling = _CONTROLLING_IS_UNKNOWN):
+        """
+        [to be called by dna updater]
+        """
+        self.wholechain = wholechain
+        self.set_whether_controlling(controlling)
 
     def _undo_update(self): # in class DnaMarker
         """
@@ -174,24 +212,25 @@ class DnaMarker( ChainAtomMarker):
     # == ChainAtomMarker API methods (overridden or extended):
 
     # == other methods
-    
-    def set_chain(self, chain): ### REVIEW, revise docstring. @@@@@@@
-        """
-        A new chain
-            AtomChainOrRing object?? wholechain?? more args??
-        is taking us over (but we'll stay on the same atom).
-        (Also called during __init__ to set our initial chain.)
 
-        @param chain: the atom chain or ring which we now reside on (can't be None)
-        @type chain: AtomChainOrRing instance ### REVIEW
-        """
-        ## was: ChainAtomMarker.set_chain(self, chain)
-        assert not self.is_homeless()
-        #e assert chain contains self._get_marker_atom()?
-        assert chain is not None # or should None be allowed, as a way of unsetting it??
-        self._chain = chain
-
-        self.controlling = _CONTROLLING_IS_UNKNOWN
+# I suspect this is not needed 080116
+##    def set_chain(self, chain): ### REVIEW, revise docstring. @@@@
+##        """
+##        A new chain
+##            AtomChainOrRing object?? wholechain?? more args??
+##        is taking us over (but we'll stay on the same atom).
+##        (Also called during __init__ to set our initial chain.)
+##
+##        @param chain: the atom chain or ring which we now reside on (can't be None)
+##        @type chain: AtomChainOrRing instance ### REVIEW
+##        """
+##        ## was: ChainAtomMarker.set_chain(self, chain)
+##        assert not self.is_homeless()
+##        #e assert chain contains self._get_marker_atom()?
+##        assert chain is not None # or should None be allowed, as a way of unsetting it??
+##        self._chain = chain
+##
+##        self.controlling = _CONTROLLING_IS_UNKNOWN
 
     def get_DnaGroup(self):
         """
@@ -248,8 +287,8 @@ class DnaMarker( ChainAtomMarker):
         [depending on our settings, we might die or behave differently if we're not]
         """
         self.controlling = controlling
-        if not controlling:
-            self.kill() # stub -- in future, depends on user-settable properties and/or on subclass
+        if not controlling and self.wants_to_be_controlling():
+            self.kill() # in future, might depend more on user-settable properties and/or on subclass
         return
     
     def _f_move_to_live_atom_step1(self): #e todo: split docstring; ### FIX/REVIEW/REFILE/REPLACE - move into WholeChain or smallchain? @@@
@@ -520,7 +559,9 @@ class DnaMarker( ChainAtomMarker):
                             # note: relative to current direction, which we
                             # don't know in this method and which might not be 1
         return 0
-    
+
+    def DnaStrandOrSegment_class(self):
+        return self._DnaStrandOrSegment_class
     pass # end of class DnaMarker
 
 # ==
@@ -530,6 +571,7 @@ class DnaSegmentMarker(DnaMarker): #e rename to DnaAxisMarker? guess: no...
     A kind of DnaMarker for marking an axis atom of a DnaSegment
     (and, therefore, a base-pair position within the segment).
     """
+    _DnaStrandOrSegment_class = DnaSegment
     def get_DnaSegment(self):
         """
         Return the DnaSegment that owns us, or None if none does.
@@ -553,6 +595,7 @@ class DnaStrandMarker(DnaMarker):
     A kind of DnaMarker for marking an atom of a DnaStrand
     (and, therefore, a base position along the strand).
     """
+    _DnaStrandOrSegment_class = DnaStrand
     def get_DnaStrand(self):
         """
         Return the DnaStrand that owns us, or None if none does.

@@ -54,13 +54,10 @@ from dna_model.DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
-# codes for ladder ends (used privately or passed to other-ladder friend methods)
- 
-_ENDS = (0, 1)
-_END0 = _ENDS[0] # "left"
-_END1 = _ENDS[1] # "right"
-_OTHER_END = [1,0] # 1 - end
-_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1 = [-1, 1] # not correct for strand2
+from dna_model.dna_model_constants import LADDER_ENDS
+from dna_model.dna_model_constants import LADDER_END0
+from dna_model.dna_model_constants import LADDER_END1
+from dna_model.dna_model_constants import LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1
 
 # ==
 
@@ -159,15 +156,15 @@ class DnaLadder(object):
         #  and is not directly related to strand bond direction)
         # (note: it's trivially automatically true if our length is 1;
         #  the following alg does nothing then, which we assert)
-        axis_left_end_baseatom = axis_rail.end_baseatoms()[_END0]
+        axis_left_end_baseatom = axis_rail.end_baseatoms()[LADDER_END0]
         for strand_rail in self.strand_rails:
-            if strand_rail.end_baseatoms()[_END0].axis_neighbor() is not axis_left_end_baseatom:
+            if strand_rail.end_baseatoms()[LADDER_END0].axis_neighbor() is not axis_left_end_baseatom:
                 # we need to reverse that strand
                 # (note: we might re-reverse it below, if bond direction wrong)
-                assert strand_rail.end_baseatoms()[_END1].axis_neighbor() is axis_left_end_baseatom
+                assert strand_rail.end_baseatoms()[LADDER_END1].axis_neighbor() is axis_left_end_baseatom
                 assert self.baselength() > 1 # shouldn't happen otherwise
                 strand_rail.reverse_baseatoms()
-                assert strand_rail.end_baseatoms()[_END0].axis_neighbor() is axis_left_end_baseatom
+                assert strand_rail.end_baseatoms()[LADDER_END0].axis_neighbor() is axis_left_end_baseatom
             continue
         del axis_left_end_baseatom # would be wrong after the following code
         # verify strand bond directions are antiparallel, and standardize them
@@ -182,7 +179,7 @@ class DnaLadder(object):
                 reverse = False # if dir is wrong, error
                     # review: how to handle it in later steps? mark ladder error, don't merge it?
             have_dir = strand_rail.bond_direction() # 1 = right, -1 = left, 0 = inconsistent or unknown
-                # IMPLEM note - this is implemented except for merged ladders; some bugs for length==1 chains.
+                # @@@ IMPLEM note - this is implemented except for merged ladders; some bugs for length==1 chains.
                 # strand_rail.bond_direction must check consistency of bond
                 # directions not only throughout the rail, but just after the
                 # ends (thru Pl too), so we don't need to recheck it for the
@@ -191,7 +188,7 @@ class DnaLadder(object):
                 # otherwise we'll keep rescanning rails as we merge them. #e
             if have_dir == 0:
                 print "error: %r strand %r has unknown or inconsistent bond " \
-                      "direction - response is NIM(bug)" % (self, strand_rail) #### @@@@ response is NIM (BUG)
+                      "direction - response is NIM(bug)" % (self, strand_rail) #### @@@ response is NIM (BUG)
                 self.error = True
                 reverse = True # might as well fix the other strand, if we didn't get to it yet
             else:
@@ -205,7 +202,7 @@ class DnaLadder(object):
                             rail.reverse_baseatoms()
                     else:
                         print "error: %r strands have parallel bond directions"\
-                              " - response is NIM(bug)" % self #### @@@@ response is NIM (BUG); split into two single strands??
+                              " - response is NIM(bug)" % self #### @@@ response is NIM (BUG); split into two single strands??
                         self.error = True
                         # should we just reverse them? no, unless we use minor/major groove to decide which is right.
             continue
@@ -274,7 +271,7 @@ class DnaLadder(object):
         """
         if not self.valid or self.error:
             return None # not an error
-        for end in _ENDS:
+        for end in LADDER_ENDS:
             other_ladder_and_merge_info = self._can_merge_at_end(end) # might be None
             if other_ladder_and_merge_info:
                 return other_ladder_and_merge_info
@@ -317,7 +314,7 @@ class DnaLadder(object):
         strand1 = self.strand_rails[0]
         end_atom = strand1.end_baseatoms()[end]
         assert self is _rail_end_atom_to_ladder(end_atom) # sanity check
-        bond_direction_to_other = _BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1[end]
+        bond_direction_to_other = LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1[end]
         next_atom = end_atom.strand_next_baseatom(bond_direction = bond_direction_to_other)
         if next_atom is None:
             # end of the chain (since bondpoints are not baseatoms), or
@@ -335,7 +332,7 @@ class DnaLadder(object):
         # try each orientation for other ladder;
         # first collect the atoms to test for bonding to other
         our_end_atoms = self.end_atoms(end)
-        for other_end in _ENDS:
+        for other_end in LADDER_ENDS:
             other_end_atoms = other.end_atoms(other_end)
                 # note: top to bottom on left, bottom to top on right,
                 # None in place of missing atoms for strand2
@@ -370,7 +367,7 @@ class DnaLadder(object):
                 return None
             return rail.end_baseatoms()[end]
         res0 = map( atom0, rails)
-        if end != _END0:
+        if end != LADDER_END0:
             res0.reverse()
         return res0
     def __repr__(self):

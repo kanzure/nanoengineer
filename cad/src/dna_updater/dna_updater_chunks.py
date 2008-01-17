@@ -280,12 +280,13 @@ def update_PAM_chunks( changed_atoms):
             and store neighbor rails themselves into dict1
             """
             toscan_all.pop(rail, None)
-            rail._f_compute_neighbor_atoms() # called exactly once per rail,
+            rail._f_update_neighbor_baseatoms() # called exactly once per rail,
                 # per dna updater run which encounters it (whether as a new
-                # or preexisting rail); IMPLEM, differs for axis or strand
-            for neighbor_atom in rail.neighbor_atoms: # IMPLEM, as len 2 list (??)
-                rail1 = _find_rail_of_atom( neighbor_atom, ladder_to_rails_function ) # IMPLEM
-                dict1[id(rail1)] = rail1
+                # or preexisting rail); implem differs for axis or strand atoms
+            for neighbor_baseatom in rail.neighbor_baseatoms:
+                if neighbor_baseatom is not None:
+                    rail1 = _find_rail_of_atom( neighbor_baseatom, ladder_to_rails_function )
+                    dict1[id(rail1)] = rail1
             return # from collector
         res = [] # elements are data args for WholeChain constructors (or helpers)
         for rail in toscan_all.values(): # not itervalues (modified during loop)
@@ -301,16 +302,35 @@ def update_PAM_chunks( changed_atoms):
         map( Strand_WholeChain,
              algorithm( lambda ladder: ladder.strand_rails ) )
      )
-    ### @@@ DOC and IMPLEM whatever side effects those should have, besides construction:
-    # - let them own their atoms, markers, and chunks (.wholechain),
-    # - and choose their controlling markers.
-    #
+    # note: those Whatever_WholeChain constructors also have side effects:
+    # - own their atoms and chunks (chunk.set_wholechain)
     # (REVIEW: maybe use helper funcs so constructors are free of side effects?)
+    #
+    # but for more side effects we run another loop:
+    for wholechain in new_wholechains:
+        wholechain.own_markers()
+        # - own markers
+        # - and choose or make controlling marker
+        # - and tell markers whether controlling (might kill some of them)
 
-
-    # TODO: use wholechains and markers to revise base indices if needed (if this info is cached outside of wholechains)
+    # TODO: use wholechains and markers to revise base indices if needed
+    # (if this info is cached outside of wholechains)
 
     return all_new_chunks, new_wholechains # from update_PAM_chunks
 
+# ==
+
+def _find_rail_of_atom( atom, ladder_to_rails_function):
+    """
+    [private helper]
+    (can assume atom is an end_baseatom of its rail)
+    """
+    rails = ladder_to_rails_function( atom.chunk.ladder)
+    for rail in rails:
+        for end_atom in rail.end_baseatoms():
+            if end_atom is atom:
+                return rail
+    assert 0
+    
 # end
 
