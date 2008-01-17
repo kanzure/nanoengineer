@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 chunk.py -- provides class Chunk [formerly known as class molecule],
 for a bunch of atoms (not necessarily bonded together) which can be moved
@@ -6,7 +6,7 @@ and selected as a unit.
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -347,6 +347,12 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # Assign a strand sequence (or get that information from a chunk) 
     # MEANT ONLY FOR THE DNA CHUNK. THESE METHODS NEED TO BE MOVED TO AN 
     # APPROPRIATE FILE IN The dna_model PACKAGE -- Ninad 2008-01-11
+    # [And revised to follow directional bonds to hit bases in the right order;
+    #  and to use DnaMarkers for sequence alignment as Ninad suggests below.
+    #  The sequence methods will end up as methods of DnaStrand with
+    #  possible helper methods on objects it owns, like DnaStrandChunk
+    #  (whose bases are in a known order) or DnaMarker or internal objects
+    #  they refer to. -- Bruce 080117 comment]
         
     def getStrandSequence(self):
         """
@@ -367,7 +373,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         Set the strand sequence i.e.assign the baseNames for the PAM atoms in 
         this strand AND the complementary baseNames to the PAM atoms of the 
-        complimentary strand ('mate strand')
+        complementary strand ('mate strand')
         @param sequenceString: The sequence to be assigned to this strand chunk
         @type sequenceString: str
         """        
@@ -376,7 +382,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         sequenceString = re.sub(r'\s', '', sequenceString)
        
         #May be we set this beginning with an atom marked by the 
-        #Dna Atom Marker in dna data model? -- Ninad 2008-01-11 
+        #Dna Atom Marker in dna data model? -- Ninad 2008-01-11
+        # [yes, see my longer reply comment above -- Bruce 080117]
         atomList = []
         for atm in self.atoms_in_mmp_file_order():            
             if not atm.is_singlet():

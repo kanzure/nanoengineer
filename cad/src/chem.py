@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 chem.py -- class Atom, and related code. An instance of Atom represents one
 atom, pseudoatom, or bondpoint in 3d space, with a list of bonds and
@@ -6,7 +6,7 @@ jigs, and an optional display mode.
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -3339,18 +3339,23 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     def get_strand_atom_mate(self):
         """
-        Returns the 'mate' of this dna psuedo atom. (the atom on another strand 
-        to which this atom is connected)
+        Returns the 'mate' of this dna pseudo atom (the atom on another strand 
+        to which this atom is "base-paired"), or None if it has no mate.
         @return: B{Atom} (PAM atom) 
         """
         #Note: This method was created to support assignment of strand sequence 
         #to strand chunks. This should be moved to dna_model and
         #can be revised further. -- Ninad 2008-01-14
+        # (I revised it slightly, to support all kinds of single stranded
+        #  regions. -- Bruce 080117)
         if self.element.role != 'strand':
             return None
         
         #First find the connected axis neighbor 
         axisAtom = self.axis_neighbor()
+        if axisAtom is None:
+            # single stranded region without Ax; no mate
+            return None
         #Now find the strand atoms connected to this axis atom
         strandAtoms = axisAtom.strand_neighbors()
         
@@ -3358,7 +3363,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         for atm in strandAtoms:
             if atm is not self:
                 return atm
-            
+        # if we didn't return above, there is no mate
+        # (single stranded region with Ax)
+        return None
     
     def setDnaStrandName(self, dnaStrandName): # Mark 2007-09-04
         """
@@ -3601,17 +3608,27 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # (if we do, revise docstring)
         return None
         
-    def axis_neighbor(self): #bruce 071203
+    def axis_neighbor(self): #bruce 071203; bugfix 080117 for single strand
         """
         Assume self is a PAM strand sugar atom; return the single neighbor of
-        self which is a PAM axis atom. This always exists [NIM] after the dna
-        updater has run.
+        self which is a PAM axis atom, or None if there isn't one
+        (indicating that self is part of a single stranded region).
+
+        @note: before the dna updater is turned on by default, this may or may
+        not return None for the single-stranded case, since there is no
+        enforcement of one way of representing single strands. After it is
+        turned on, it is likely that it will always return None for free-
+        floating single strands, but this is not fully decided. For "sticky
+        ends" it will return an axis atom, since they will be represented
+        internally as double strands with one strand marked as unreal.
         """
         axis_neighbors = filter( lambda atom: atom.element.role == 'axis',
                                  self.neighbors())
-        assert len(axis_neighbors) == 1
-            # stub, since the updater checks needed to ensure this are NIM as of 071203
-        return axis_neighbors[0]
+        if axis_neighbors:
+            assert len(axis_neighbors) == 1
+                # stub, since the updater checks needed to ensure this are NIM as of 071203
+            return axis_neighbors[0]
+        return None
 
     def strand_base_neighbors(self): #bruce 071204 (nim, not yet needed; #e maybe rename)
         """
