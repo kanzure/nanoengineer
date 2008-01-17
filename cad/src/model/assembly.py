@@ -350,7 +350,13 @@ class assembly( StateMixin, Assembly_API):
             self.register_classname('Block',      Block)
             self.register_classname('DnaSegment', DnaSegment)
             self.register_classname('DnaStrand',  DnaStrand)
-        
+
+        # could remove these when they work, but no need:
+        # test node_depth method: [bruce 080116]
+        assert self.root.node_depth() == 0
+        assert self.tree.node_depth() == 1
+        assert self.shelf.node_depth() == 1
+
         return # from assembly.__init__
 
     def deinit(self): # make sure assys don't fight over control of main menus, etc [bruce 060122]

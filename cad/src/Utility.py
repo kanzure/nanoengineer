@@ -346,6 +346,45 @@ class Node( StateMixin):
                 return node
         return None
 
+    def node_depth(self): #bruce 080116
+        """
+        Return self's depth in its node tree
+        (defined as the number of groups it's inside,
+        directly or indirectly, *including* the assy.root group
+        which is not visible in the model tree, and including
+        all other special groups such as assy.shelf).
+
+        If self has no .dad (node tree parent),
+        which means it's either assy.root or is not in the
+        assy's node tree, its depth is 0. The only node in the
+        assy's node tree with a depth of 0 is assy.root.
+
+        Note that arbitrarily deep node trees can legally exist
+        outside of any assy (e.g. if some code creates a Group
+        but doesn't add it into assy yet).
+        """
+        if self.dad:
+            return 1 + self.dad.node_depth()
+        return 0
+    
+    def node_depth_under_parent(self, parent): #bruce 080116; untested, not yet used
+        """
+        @param parent: optional parent node; if provided,
+                       return -1 if self is not under or equal to parent,
+                       and otherwise return self's depth
+                       under parent, which is 0 if self is parent, 1 if self
+                       is a direct child of parent, etc.
+        @type parent: Node (need not be a Group)
+        """
+        if self is parent:
+            return 0
+        if not self.dad:
+            return -1
+        pdepth = self.dad.node_depth_under_parent(parent)
+        if pdepth == -1:
+            return pdepth
+        return pdepth + 1
+    
     def set_disabled_by_user_choice(self, val):
         #bruce 050505 as part of fixing bug 593
         self.disabled_by_user_choice = val
