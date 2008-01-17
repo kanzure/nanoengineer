@@ -216,10 +216,23 @@ class ops_connected_Mixin:
                         ## strand_elements = ('Ss3','Pl3','Sj3','Se3','Sh3', 'Hp3',
                         ##                    'Ss5','Pl5','Sj5','Pe5','Sh5', 'Hp5') #k needs review: does Hp belong in this list?
                         ## # element.role == 'strand'
-                        if at1.element.role == 'axis' and at2.element.role == 'strand':
-                            really_connected = False
-                        elif at2.element.role == 'axis' and at1.element.role == 'strand':
-                            really_connected = False
+                        
+                        ## if at1.element.role == 'axis' and at2.element.role == 'strand':
+                        ##     really_connected = False
+                        ## elif at2.element.role == 'axis' and at1.element.role == 'strand':
+                        ##     really_connected = False
+
+                        # Revised for new role 'unpaired-base' -- just select connected sets of
+                        # the same role, or connected bondpoints. (We have to include those even
+                        # though they're not selectable, since we have an option to include them.)
+                        # (Future: maybe we could generalize this to "same role or any connected
+                        #  chemical atoms", but then chemical atoms could bridge otherwise-disconnected
+                        #  sets of different non-None roles. Doesn't matter yet, since chemical atoms
+                        #  (besides X) bonded to PAM atoms are not yet supported.)
+                        # [bruce 080117]
+                        if at1.element.role != at2.element.role:
+                            if not at1.is_singlet() and not at2.is_singlet():
+                                really_connected = False
                     if really_connected:
                         if id(at1) not in marked: #e could also check for singlets here...
                             marked[id(at1)] = at1

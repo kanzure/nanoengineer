@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 elements_data_PAM5.py -- data for PAM5 pseudoatom elements
 
 @author: Mark, Eric D
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -32,6 +32,7 @@ _defaultRad_Color = {
     "Hp5" : (4.0, [0.3, 0.7, 0.3]),
     "Gv5" : (5.0, [156./255, 83./255, 8./255]), #bruce 080108
     "Gr5" : (5.0, [156./255, 83./255, 8./255]),
+    "Ub5" : (2.5, [0.428, 0.812, 0.808]), #bruce 080117 guess, "light blue"
     }
   
 _altRad_Color = {
@@ -60,6 +61,8 @@ _mendeleev = [
 
     ("Gv5", "PAM5-Major-Groove",   208, 1.0, [[4, 200, tetra4]],     dict(role = 'axis')), #bruce 080108
     ("Gr5", "PAM5-Major-Groove-End",209,1.0, [[3, 210, flat]],       dict(role = 'axis',   deprecated_to = 'Gv5')),
+
+    ("Ub5", "PAM5-Unpaired-base",  210, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')),
  ]
 
 # ==

@@ -73,7 +73,7 @@ class _ElementPeriodicTable(object):
         return
 
     def addElements(self, elmTable, _defaultRad_Color, _altRad_Color,
-                    _DIRECTIONAL_BOND_ELEMENTS = (),
+                    directional_bond_elements = (),
                     default_options = {}
                    ):
         #bruce 071105 modified from def _createElements(self, elmTable):
@@ -104,7 +104,7 @@ class _ElementPeriodicTable(object):
                               effectively taken from _defaultRad_Color.
                               Stored for optional later use by loadAlternates.
 
-        @param _DIRECTIONAL_BOND_ELEMENTS: a list of elements in elmTable
+        @param directional_bond_elements: a list of elements in elmTable
                                            which support directional bonds.
         """
         prefs = prefs_context()
@@ -125,10 +125,13 @@ class _ElementPeriodicTable(object):
             self._periodicTable[el.eltnum] = el
             self._eltName2Num[el.name] = el.eltnum
             self._eltSym2Num[el.symbol] = el.eltnum
-            if elm[0] in _DIRECTIONAL_BOND_ELEMENTS: #bruce 071015
+            if elm[0] in directional_bond_elements: #bruce 071015
                 # TODO: put this in the options field? or infer it from
                 # pam and role?
                 el.bonds_can_be_directional = True
+            assert el.bonds_can_be_directional == (el.symbol == 'X' or el.role == 'strand')
+                # once this works, we can clean up the code to not hardcode those list args
+                # [bruce 080117]
         for key in _defaultRad_Color.iterkeys():
             assert key in symbols
         for key in _altRad_Color.iterkeys():

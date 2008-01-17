@@ -59,7 +59,7 @@ def real_atom_desired_class(atom): #e refile into an Atom method? return classna
     element = atom.element
 
     pam = element.pam # 'PAM3' or 'PAM5' or None ### use this?
-    role = element.role # 'strand' or 'axis' or None
+    role = element.role # 'strand' or 'axis' or None # @@@@@@
     if role == 'strand':
         return StrandAtom # PAM3_StrandAtom? subclass of StrandAtom?
     elif role == 'axis':

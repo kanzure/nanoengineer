@@ -407,21 +407,29 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if strandAtomMate is not None:
                 strandAtomMate.setDnaBaseName(str(complementBaseName))  
         
-    def isStrandChunk(self):
+    def isStrandChunk(self): # Ninad circa 080117, revised by Bruce 080117
         """
         Returns True if *all atoms* in this chunk are PAM 'strand' atoms
+        or 'unpaired-base' atoms (or bondpoints), and at least one is a
+        'strand' atom.
         This is a temporary method that can be removed once dna_model is fully
         functional.
         @see: BuildDna_PropertyManager.updateStrandListWidget where this is used
               to filter out strand chunks to put those into the strandList 
               widget.        
         """
-        for atm in self.atoms.values():
-            if not atm.is_singlet() and atm.element.role != 'strand':
+        found_strand_atom = False
+        for atm in self.atoms.itervalues():
+            if atm.element.role == 'strand':
+                found_strand_atom = True
+            elif atm.is_singlet() or atm.element.role == 'unpaired-base':
+                pass
+            else:
+                # other kinds of atoms are not allowed
                 return False
+            continue
         
-        return True
-    
+        return found_strand_atom
     
     #END of Dna-Strand chunk  specific  code ==================================
     

@@ -313,6 +313,7 @@ def make_new_ladders(axis_chains, strand_chains):
             strand_rail = strand.virtual_fragment(start_index, length)
             # find ladder to put it in
             atom = end_baseatoms(strand_rail)[0].axis_neighbor()
+            assert atom # @@@@ WILL FAIL for single strands with no Ax...
             ladder = ladder_locator[atom.key]
             ladder.add_strand_rail(strand_rail)
 

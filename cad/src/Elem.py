@@ -1,3 +1,4 @@
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Elem.py -- provides class Elem, which represents one element
 in NE1's periodic table.
@@ -7,7 +8,7 @@ bondpoints, whereas others correspond to actual chemical elements.
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -39,7 +40,8 @@ class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since t
     pam = None # name of pseudo-atom model (e.g. 'PAM3'), or None; not sure if Singlet and regular elems have same .pam
         # REVIEW: it might be simplest if Singlet had None here, and all others had a true value, e.g. 'PAM3' or 'PAM5' or 'Chem'.
         # If we use that scheme, then we certainly need to rename this. It is an "element class"? "element model"??
-    role = None # element role in its pseudo-atom model; can be 'strand' or 'axis' for DNA PAM models; not sure about Singlet
+    role = None # element role in its pseudo-atom model; for DNA PAM atoms
+        # this can be 'strand' or 'axis' or 'unpaired-base'; not sure about Singlet
     deprecated_to = None # symbol of an element to transmute this one to, when reading mmp files; or None, or 'remove' (??)
         # (used for deprecated elements, including simulation-only elements no longer needed when modeling)
     

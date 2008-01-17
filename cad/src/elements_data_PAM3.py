@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 elements_data_PAM3.py -- data for PAM3 pseudoatom elements
 
 @author: Mark
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -28,6 +28,8 @@ _defaultRad_Color = {
     "Se3" : (4.5, [0.4, 0.8, 0.4]),
     "Sh3" : (3.0, [0.6, 0.2, 0.6]),
     "Hp3" : (4.5, [0.3, 0.7, 0.3]),
+    "Ub3" : (2.3, [0.428, 0.812, 0.808]), #bruce 080117 guess, "light blue"
+
     }
   
 _altRad_Color = {}
@@ -50,7 +52,12 @@ _mendeleev = [
     ("Ae3", "PAM3-Axis-End",       304, 1.0, [[3, 200, tetra3]],     dict(role = 'axis',   deprecated_to = 'Ax3')),
     ("Se3", "PAM3-Sugar-End",      305, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'X')), # might be WRONG
     ("Sh3", "PAM3-Sugar-Hydroxyl", 306, 1.0, [[1, 210, None, 'sp']], dict(role = 'strand', deprecated_to = 'X')), # might be WRONG
-    ("Hp3", "PAM3-Hairpin",        307, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'Ss3'))
+    ("Hp3", "PAM3-Hairpin",        307, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'Ss3')),
+
+    # note: 308 and 309 are not used because they correspond to PAM5 atoms
+    # with no PAM3 analogue.
+
+    ("Ub3", "PAM3-Unpaired-base",  310, 1.0, [[4, 200, tetra4]],     dict(role = 'unpaired-base')),
  ]
 
 # ==

@@ -173,7 +173,7 @@ def atom_is_bare(atom):
     or a strand base atom with no strand-axis bonds?
     (Note that a strand non-base atom, like Pl, can never be bare.)
     """
-    if atom.element.role == 'axis':
+    if atom.element.role == 'axis': # @@@@@@
         return not filter(lambda other: other.element.role == 'strand', atom.neighbors())
     elif atom.element.role == 'strand' and not atom.element.symbol.startswith('Pl'): # KLUGE
         return not filter(lambda other: other.element.role == 'axis', atom.neighbors())

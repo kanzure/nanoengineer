@@ -131,7 +131,7 @@ class DnaLadder(object):
                 self.axis_rail.baselength())
         self.strand_rails.append(strand_rail)
         return
-    def finished(self): # @@@ TODO: revise this or caller for Ub rather than Ax in single strands
+    def finished(self): # @@@@ TODO: revise this or caller for Ub rather than Ax in single strands
         """
         This is called once to signify that construction of self is done
         as far as the caller is concerned (i.e. it's called add_strand_rail

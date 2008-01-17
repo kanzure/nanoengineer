@@ -3349,6 +3349,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # (I revised it slightly, to support all kinds of single stranded
         #  regions. -- Bruce 080117)
         if self.element.role != 'strand':
+            # REVIEW: return None, or raise exception? [bruce 080117 Q]
             return None
         
         #First find the connected axis neighbor 
@@ -3454,11 +3455,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     else:
                         # we're attached to the chain but not in it.
                         # REVIEW: return DIRBOND_ERROR in some cases??
-                        msg =  "warning: %r has one directional bond (%r) " \
-                            "by which it's attached to (but not in) a " \
-                            "directional bond chain containing %r and %r" % \
-                            (self, bond, bond1, bond2)
-                        print msg
+                        if platform.atom_debug: #bruce 080117 only when atom_debug
+                            msg =  "warning: %r has one directional bond (%r) " \
+                                "by which it's attached to (but not in) a " \
+                                "directional bond chain containing %r and %r" % \
+                                (self, bond, bond1, bond2)
+                            print msg
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 elif statuscode == DIRBOND_CHAIN_END:
@@ -3467,11 +3469,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     if bond is bond1:
                         return DIRBOND_CHAIN_END, bond, None
                     else:
-                        msg = "warning: %r has one directional bond (%r) " \
-                            "by which it's attached to (but not in) the end of a " \
-                            "directional bond chain containing %r" % \
-                            (self, bond, bond1)
-                        print msg
+                        if platform.atom_debug: #bruce 080117 only when atom_debug
+                            msg = "warning: %r has one directional bond (%r) " \
+                                "by which it's attached to (but not in) the end of a " \
+                                "directional bond chain containing %r" % \
+                                (self, bond, bond1)
+                            print msg
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 else:
@@ -3686,7 +3689,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return res
 
     def axis_neighbors(self): #bruce 071204
-        # (maybe not used; OTOH, maybe defined on both axis & strand atoms)
+        # (used on axis atoms, not sure if used on strand atoms)
         return filter( lambda atom: atom.element.role == 'axis',
                        self.neighbors())
     

@@ -117,7 +117,7 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
         # REVIEW: should we use atom classes or per-class methods here?
         # REVIEW: need to worry about atoms with too few bonds?
         element = atom.element
-        role = element.role # 'axis' or 'strand' or None
+        role = element.role # 'axis' or 'strand' or None # @@@@@@
         pam = element.pam # 'PAM3' or 'PAM5' or None
         if role == 'axis':
             axis_atoms[atom.key] = atom
