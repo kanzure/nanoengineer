@@ -1,0 +1,174 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (0.223896, 0.105500, 0.923625, 0.292672) (15.110695) (-11.763993, -17.263641, -13.322984) (1.000000)
+egroup (View Data)
+group (casing ends moiety test)
+info opengroup open = True
+mol (Moiety_Diff_Casing_caps) def
+atom 1 (14) (6945, 12846, 22729) def
+atom 2 (15) (10193, 12988, 19397) def
+atom 3 (15) (7688, 12986, 20724) def
+bond1 1
+atom 4 (14) (7372, 14858, 23808) def
+bond1 1
+atom 5 (15) (9434, 15086, 24527) def
+bond1 4
+atom 6 (14) (10227, 14783, 22509) def
+bond1 5
+atom 7 (15) (12341, 15099, 22980) def
+bond1 6
+atom 8 (14) (9693, 12754, 21479) def
+bond1 2 3 6
+atom 9 (6) (5332, 15669, 18405) def
+atom 10 (7) (8131, 15613, 16198) def
+atom 11 (7) (6180, 15607, 17231) def
+bond1 9
+atom 12 (6) (5592, 17019, 19134) def
+bond1 9
+atom 13 (15) (6674, 16081, 22024) def
+bond1 4
+atom 14 (7) (7118, 17018, 19493) def
+bond1 12
+atom 15 (6) (7946, 17016, 18214) def
+bond1 14
+atom 16 (7) (9469, 17025, 18249) def
+bond1 15
+atom 17 (6) (10009, 15919, 19134) def
+bond1 16
+atom 18 (15) (9345, 16043, 20851) def
+bond1 6 17
+atom 19 (6) (7552, 15913, 20434) def
+bond1 13 14 18
+atom 20 (6) (7587, 15654, 17529) def
+bond1 10 11 15
+atom 21 (6) (5689, 14505, 19378) def
+bond1 9
+atom 22 (6) (7240, 14516, 19737) def
+bond1 3 19 21
+atom 23 (6) (8044, 14476, 18382) def
+bond1 20 22
+atom 24 (6) (9616, 14522, 18479) def
+bond1 2 17 23
+atom 25 (6) (4438, 17728, 14497) def
+atom 26 (6) (5238, 17642, 13107) def
+bond1 25
+atom 27 (6) (4597, 19093, 15237) def
+bond1 25
+atom 28 (7) (5219, 18122, 18131) def
+bond1 12
+atom 29 (7) (5918, 19187, 15923) def
+bond1 27
+atom 30 (7) (7181, 19190, 15253) def
+bond1 29
+atom 31 (6) (7949, 18123, 16007) def
+bond1 30
+atom 32 (7) (7508, 18190, 17393) def
+bond1 15 31
+atom 33 (6) (6114, 18117, 16980) def
+bond1 28 29 32
+atom 34 (6) (4710, 16584, 15558) def
+bond1 25
+atom 35 (6) (6043, 16732, 16268) def
+bond1 11 33 34
+atom 36 (6) (7407, 16736, 15548) def
+bond1 10 31 35
+atom 37 (6) (2512, 19872, 10939) def
+atom 38 (8) (3397, 19839, 9644) def
+bond1 37
+atom 39 (6) (2939, 21176, 11654) def
+bond1 37
+atom 40 (7) (4306, 20156, 14128) def
+bond1 27
+atom 41 (7) (4511, 21174, 11745) def
+bond1 39
+atom 42 (6) (5044, 20098, 12750) def
+bond1 40 41
+atom 43 (6) (3017, 18680, 11828) def
+bond1 37
+atom 44 (6) (4665, 18731, 12030) def
+bond1 26 42 43
+atom 45 (1) (2594, 21999, 11032) def
+bond1 39
+atom 46 (1) (7764, 13564, 17852) def
+bond1 23
+atom 47 (1) (5483, 13578, 18838) def
+bond1 21
+atom 48 (1) (2730, 17743, 11357) def
+bond1 43
+atom 49 (1) (4660, 15610, 15072) def
+bond1 34
+atom 50 (1) (5021, 16659, 12694) def
+bond1 26
+atom 51 (0) (7189, 11855, 23321) def
+bond1 1
+atom 52 (0) (10002, 11760, 22036) def
+bond1 8
+atom 53 (0) (12668, 14176, 23504) def
+bond1 7
+atom 54 (0) (9690, 14160, 25084) def
+bond1 5
+atom 55 (0) (1753, 19845, 10814) def
+bond1 37
+atom 56 (0) (5948, 12944, 22179) def
+bond1 1
+atom 57 (0) (2592, 21207, 12343) def
+bond1 39
+atom 58 (0) (3585, 20153, 14006) def
+bond1 40
+atom 59 (0) (2699, 18731, 12532) def
+bond1 43
+atom 60 (0) (6837, 15008, 24805) def
+bond1 4
+atom 61 (0) (4110, 19088, 15837) def
+bond1 27
+atom 62 (0) (4552, 18073, 17836) def
+bond1 28
+atom 63 (0) (4228, 16604, 16164) def
+bond1 34
+atom 64 (0) (4606, 15619, 18142) def
+bond1 9
+atom 65 (0) (5102, 17025, 19731) def
+bond1 12
+atom 66 (0) (5673, 16003, 21625) def
+bond1 13
+atom 67 (0) (5218, 14525, 19992) def
+bond1 21
+atom 68 (0) (3694, 17668, 14290) def
+bond1 25
+atom 69 (0) (12623, 14977, 21912) def
+bond1 7
+atom 70 (0) (10773, 15992, 19205) def
+bond1 17
+atom 71 (0) (11268, 12907, 19663) def
+bond1 2
+atom 72 (0) (9895, 14519, 17756) def
+bond1 24
+atom 73 (0) (9730, 17028, 17566) def
+bond1 16
+atom 74 (0) (8720, 18129, 15956) def
+bond1 31
+atom 75 (0) (8860, 15647, 16177) def
+bond1 10
+atom 76 (0) (7266, 19146, 14528) def
+bond1 30
+atom 77 (0) (7489, 16662, 14781) def
+bond1 36
+atom 78 (0) (5812, 20129, 12829) def
+bond1 42
+atom 79 (0) (6008, 17686, 13164) def
+bond1 26
+atom 80 (0) (4884, 21176, 11116) def
+bond1 41
+atom 81 (0) (5018, 18709, 11341) def
+bond1 44
+atom 82 (0) (4083, 19854, 9640) def
+bond1 38
+egroup (casing ends moiety test)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part casing ends moiety test

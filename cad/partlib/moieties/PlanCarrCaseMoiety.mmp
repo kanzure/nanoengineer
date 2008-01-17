@@ -1,0 +1,203 @@
+mmpformat 050920 required; 070415 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (0.787683, 0.264240, -0.226625, -0.508305) (33.163622) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.524193) (-0.373243, 2.371369, -5.322279) (1.000000)
+egroup (View Data)
+group (Moiety-MarkIII_K_casing)
+info opengroup open = True
+mol (Moiety-Mark III K Casing) def
+atom 1 (1) (1029, -4376, -16064) def
+atom 2 (14) (978, -5320, -14911) def
+bond1 1
+atom 3 (7) (-372, -6533, -14940) def
+bond1 2
+atom 4 (1) (-642, -2508, -14150) def
+atom 5 (6) (-342, -7302, -13707) def
+bond1 3
+atom 6 (8) (852, -8073, -13680) def
+bond1 5
+atom 7 (6) (996, -4585, -13193) def
+bond1 2
+atom 8 (14) (-588, -3547, -13085) def
+bond1 4 7
+atom 9 (7) (-402, -6542, -12472) def
+bond1 5
+atom 10 (6) (934, -5812, -12223) def
+bond1 7 9
+atom 11 (1) (1167, -347, -11838) def
+atom 12 (6) (-659, -2752, -11367) def
+bond1 8
+atom 13 (14) (1106, -1581, -11007) def
+bond1 11 12
+atom 14 (7) (940, -5365, -10822) def
+bond1 10
+atom 15 (14) (-566, -4378, -10352) def
+bond1 12 14
+atom 16 (8) (1113, -1173, -9427) def
+bond1 13
+atom 17 (14) (-645, -3586, -8121) def
+bond1 15
+atom 18 (14) (1064, -2008, -8028) def
+bond1 16 17
+atom 19 (1) (-965, 1372, -7459) def
+atom 20 (1) (-598, -4639, -7073) def
+bond1 17
+atom 21 (14) (1113, -613, -6180) def
+bond1 18
+atom 22 (14) (-938, 628, -6171) def
+bond1 19 21
+atom 23 (16) (-1056, 2126, -4636) def
+bond1 22
+atom 24 (14) (1044, -1876, -4192) def
+bond1 21
+atom 25 (15) (-748, -3076, -3904) def
+bond1 24
+atom 26 (14) (-1008, 1037, -2799) def
+bond1 23
+atom 27 (14) (1111, -24, -2768) def
+bond1 24 26
+atom 28 (8) (-795, -3740, -2388) def
+bond1 25
+atom 29 (16) (-1115, 2333, -1086) def
+bond1 26
+atom 30 (14) (1035, -1501, -1025) def
+bond1 27
+atom 31 (14) (-802, -2812, -1040) def
+bond1 28 30
+atom 32 (8) (-787, -3777, 285) def
+bond1 31
+atom 33 (14) (-1049, 1071, 655) def
+bond1 29
+atom 34 (14) (1083, -14, 719) def
+bond1 30 33
+atom 35 (15) (-800, -3130, 1806) def
+bond1 32
+atom 36 (14) (988, -1916, 2113) def
+bond1 34 35
+atom 37 (16) (-1146, 2251, 2435) def
+bond1 33
+atom 38 (14) (-1069, 725, 3935) def
+bond1 37
+atom 39 (14) (1023, -643, 4074) def
+bond1 36 38
+atom 40 (8) (-1131, 1322, 5466) def
+bond1 38
+atom 41 (8) (976, -1536, 5441) def
+bond1 39
+atom 42 (14) (-1092, 520, 6889) def
+bond1 40
+atom 43 (14) (987, -749, 6865) def
+bond1 41 42
+atom 44 (8) (977, -1579, 8265) def
+bond1 43
+atom 45 (8) (-1175, 1232, 8359) def
+bond1 42
+atom 46 (14) (951, -777, 9686) def
+bond1 44
+atom 47 (14) (-1050, 438, 9793) def
+bond1 45 46
+atom 48 (16) (-850, -3473, 11334) def
+atom 49 (16) (-1135, 1685, 11526) def
+bond1 47
+atom 50 (14) (926, -2265, 11454) def
+bond1 46 48
+atom 51 (14) (-1105, 361, 13231) def
+bond1 49
+atom 52 (14) (985, -858, 13309) def
+bond1 50 51
+atom 53 (16) (-1200, 1445, 15075) def
+bond1 51
+atom 54 (16) (912, -2205, 14972) def
+bond1 52
+atom 55 (14) (-1135, 132, 16767) def
+bond1 53
+atom 56 (14) (946, -1051, 16775) def
+bond1 54 55
+atom 57 (1) (-1208, 963, 18002) def
+bond1 55
+atom 58 (1) (882, -1877, 17922) def
+bond1 56
+atom 59 (0) (-954, -6133, -14942) def
+bond1 3
+atom 60 (0) (1917, -2595, -4026) def
+bond1 24
+atom 61 (0) (2023, -290, 9759) def
+bond1 46
+atom 62 (0) (1676, -4219, -13136) def
+bond1 7
+atom 63 (0) (-1430, -4272, -13169) def
+bond1 8
+atom 64 (0) (2043, -224, 6898) def
+bond1 43
+atom 65 (0) (-1076, -6281, -12369) def
+bond1 9
+atom 66 (0) (2017, -557, 16792) def
+bond1 56
+atom 67 (0) (1857, -2882, -8059) def
+bond1 18
+atom 68 (0) (-1349, -2418, -11257) def
+bond1 12
+atom 69 (0) (-915, -7815, -13715) def
+bond1 5
+atom 70 (0) (1785, -2961, 11405) def
+bond1 50
+atom 71 (0) (2172, -94, -6157) def
+bond1 21
+atom 72 (0) (2063, -88, 4029) def
+bond1 39
+atom 73 (0) (1927, -2275, -1017) def
+bond1 30
+atom 74 (0) (1968, -2266, -11177) def
+bond1 13
+atom 75 (0) (2053, -356, 13293) def
+bond1 52
+atom 76 (0) (-1863, -104, -6207) def
+bond1 22
+atom 77 (0) (-1785, -2635, 1942) def
+bond1 35
+atom 78 (0) (-1349, -5054, -10643) def
+bond1 15
+atom 79 (0) (-1726, -2584, -4087) def
+bond1 25
+atom 80 (0) (-2074, -582, 16742) def
+bond1 55
+atom 81 (0) (-1966, -41, 3979) def
+bond1 38
+atom 82 (0) (1572, -6233, -12336) def
+bond1 10
+atom 83 (0) (-1802, -2994, 11366) def
+bond1 48
+atom 84 (0) (-1986, 375, -2814) def
+bond1 26
+atom 85 (0) (2209, 408, -2764) def
+bond1 27
+atom 86 (0) (2178, 425, 708) def
+bond1 34
+atom 87 (0) (-1984, -279, 9710) def
+bond1 47
+atom 88 (0) (1539, -5043, -10633) def
+bond1 14
+atom 89 (0) (1865, -2633, 1970) def
+bond1 36
+atom 90 (0) (-1608, -2904, -8101) def
+bond1 17
+atom 91 (0) (-2044, -354, 13239) def
+bond1 51
+atom 92 (0) (1459, -7748, -13683) def
+bond1 6
+atom 93 (0) (-1836, -2244, -1057) def
+bond1 31
+atom 94 (0) (-2009, -222, 6850) def
+bond1 42
+atom 95 (0) (-2024, 405, 665) def
+bond1 33
+atom 96 (0) (1714, -6102, -14916) def
+bond1 2
+egroup (Moiety-MarkIII_K_casing)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part Moiety-MarkIII_K_casing

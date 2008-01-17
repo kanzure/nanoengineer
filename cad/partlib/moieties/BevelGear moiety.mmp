@@ -1,0 +1,68 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.827285) (-10.178632, 1.559635, 10.015685) (1.000000)
+egroup (View Data)
+group (Main shafts)
+info opengroup open = True
+mol (Bevel Gear  Moiety) def
+atom 1 (8) (9985, 52, -13921) def
+atom 2 (6) (9166, -4695, -4827) def
+atom 3 (1) (10792, -6023, -5187) def
+atom 4 (1) (8951, -4868, -3773) def
+bond1 2
+atom 5 (15) (11821, -950, -11542) def
+atom 6 (16) (8504, 1387, -9683) def
+atom 7 (15) (8877, 1814, -11742) def
+bond1 6
+atom 8 (16) (11373, -3135, -8738) def
+atom 9 (14) (10666, 709, -12502) def
+bond1 1 5 7
+atom 10 (8) (11911, 1778, -12964) def
+bond1 9
+atom 11 (14) (11329, -1044, -9359) def
+bond1 5 8
+atom 12 (6) (10951, -3147, -6924) def
+bond1 8
+atom 13 (6) (10692, -4940, -5158) def
+bond1 2 3
+atom 14 (8) (10990, -4566, -6566) def
+bond1 12 13
+atom 15 (14) (8989, -635, -9114) def
+bond1 6 11
+atom 16 (8) (8805, -3307, -5094) def
+bond1 2
+atom 17 (14) (9059, -2824, -6683) def
+bond1 12 16
+atom 18 (16) (8499, -755, -7012) def
+bond1 15 17
+atom 19 (14) (12982, 915, -11958) def
+bond1 5 10
+atom 20 (0) (13801, 620, -12537) def
+bond1 19
+atom 21 (0) (11261, -4709, -4686) def
+bond1 13
+atom 22 (0) (13522, 1606, -11228) def
+bond1 19
+atom 23 (0) (12263, -661, -8747) def
+bond1 11
+atom 24 (0) (11556, -2903, -6508) def
+bond1 12
+atom 25 (0) (8316, -1406, -9702) def
+bond1 15
+atom 26 (0) (8434, -3541, -7261) def
+bond1 17
+atom 27 (0) (8762, -5172, -5284) def
+bond1 2
+atom 28 (0) (9426, 46, -13589) def
+bond1 1
+atom 29 (0) (8699, 931, -12392) def
+bond1 7
+egroup (Main shafts)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part Main shafts
