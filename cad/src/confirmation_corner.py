@@ -283,6 +283,8 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
             assert want_cursor in BUTTON_CODES
             if want_cursor == 'Done':
                 cursor = win._confcorner_OKCursor
+            elif want_cursor == 'Transient-Done':
+                cursor = win.confcorner_TransientDoneCursor
             else:
                 cursor = win._confcorner_CancelCursor
             self.glpane.setCursor(cursor)
