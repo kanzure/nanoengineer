@@ -40,7 +40,7 @@ class BuildDna_EditCommand(EditCommand):
     """
     cmd              =  greenmsg("Build DNA: ")
     sponsor_keyword  =  'DNA'
-    prefix           =  'DNA-'   # used for gensym
+    prefix           =  'Dna '   # used for gensym
     cmdname          = "Build Dna"
     commandName       = 'BUILD_DNA'
     featurename       = 'Build Dna '
