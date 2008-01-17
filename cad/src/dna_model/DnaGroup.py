@@ -8,6 +8,7 @@ DnaGroup.py - ...
 """
 
 from dna_model.Block import Block
+from chunk           import Chunk
 
 from icon_utilities import imagename_to_pixmap
 
@@ -149,7 +150,44 @@ class DnaGroup(Block):
         currentCommand = commandSequencer.currentCommand
         assert currentCommand.commandName == 'BUILD_DNA'
         currentCommand.editStructure(self)
-
+    
+    def getStrands(self):
+        """
+        Returns a list of strands inside a DnaGroup object
+        
+        @return: A list containing all the strand objects
+                 within self.
+        @rtype: list
+        
+        @see: B{BuildDna_PropertyManager.updateStrandListWidget()} 
+        @see: B{BuildDna_PropertyManager._currentSelectionParams}
+        """
+        #TO BE REVISED. As of 2008-01-17, it uses isinstance check for  
+        #Chunk and some additional things to find out a list of strands inside
+        # a DnaGroup -- Ninad 2008-01-17        
+        strandList = []
+        def filterSelectedStrands(node):
+            if isinstance(node, Chunk) and node.isStrandChunk():
+                strandList.append(node)    
+                
+        self.apply2all(filterSelectedStrands)
+        
+        return strandList
+    
+    def getSelectedStrands(self):
+        """
+        Returns a list of selected strands of the DnaGroup        
+        @return: A list containing the selected strand objects
+                 within self.
+        @rtype: list
+        """
+        selectedStrandList = []
+        for strand in self.getStrands():
+            if strand.picked:
+                selectedStrandList.append(strand)
+        
+        return selectedStrandList
+ 
     pass # end of class DnaGroup
 
 # end
