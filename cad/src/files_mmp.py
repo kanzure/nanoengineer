@@ -855,9 +855,9 @@ class _readmmp_state:
         return self.read_bond_record(card, V_CARBOMERIC)
 
     def read_bond_record(self, card, valence):
-        list = map(int, re.findall("\d+",card[5:])) # note: this assumes all bond mmp-record-names are the same length, 5 chars.
+        list1 = map(int, re.findall("\d+",card[5:])) # note: this assumes all bond mmp-record-names are the same length, 5 chars.
         try:
-            for a in map((lambda n: self.ndix[n]), list):
+            for a in map((lambda n: self.ndix[n]), list1):
                 bond_atoms( self.prevatom, a, valence, no_corrections = True) # bruce 050502 revised this
         except KeyError:
             print "error in MMP file: atom ", self.prevcard
@@ -906,9 +906,9 @@ class _readmmp_state:
         self.prevmotor = motor # might not be needed if we just looked for it when we need it [bruce 050405 comment]
 
     def _read_shaft(self, card):
-        list = map(int, re.findall("\d+",card[6:]))
-        list = map((lambda n: self.ndix[n]), list)
-        self.prevmotor.setShaft(list)
+        list1 = map(int, re.findall("\d+",card[6:]))
+        list1 = map((lambda n: self.ndix[n]), list1)
+        self.prevmotor.setShaft(list1)
           
     # Read the MMP record for a Linear Motor as:
     # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az) length, width, spoke_radius
@@ -993,10 +993,10 @@ class _readmmp_state:
 
         # Read in the list of atoms
         card = card[card.index(")")+1:] # skip past the color field
-        list = map(int, re.findall("\d+",card[card.index(")")+1:]))
-        list = map((lambda n: self.ndix[n]), list)
+        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        list1 = map((lambda n: self.ndix[n]), list1)
         
-        as = AtomSet(self.assy, list) # create atom set and set props
+        as = AtomSet(self.assy, list1) # create atom set and set props
         as.name = name
         as.color = col
         self.addmember(as)
@@ -1045,10 +1045,10 @@ class _readmmp_state:
 
         # Read in the list of atoms
         card = card[card.index(")")+1:] # skip past the color field
-        list = map(int, re.findall("\d+",card[card.index(")")+1:]))
-        list = map((lambda n: self.ndix[n]), list)
+        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        list1 = map((lambda n: self.ndix[n]), list1)
         
-        gr = Anchor(self.assy, list) # create ground and set props
+        gr = Anchor(self.assy, list1) # create ground and set props
         gr.name = name
         gr.color = col
         self.addmember(gr)
@@ -1133,10 +1133,10 @@ class _readmmp_state:
 
         # Read in the list of atoms [max number of atoms is limited by max mmp-line length of 511 bytes]
         card = card[card.index(")")+1:] # skip past the color field
-        list = map(int, re.findall("\d+",card[card.index(")")+1:]))
-        list = map((lambda n: self.ndix[n]), list)
+        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        list1 = map((lambda n: self.ndix[n]), list1)
         
-        jig = constructor(self.assy, list) # create jig and set some properties -- constructor must not put up a dialog
+        jig = constructor(self.assy, list1) # create jig and set some properties -- constructor must not put up a dialog
         jig.name = name
         jig.color = col
             # (other properties, if any, should be specified later in the file by some kind of "info" records)
@@ -1145,7 +1145,7 @@ class _readmmp_state:
         
     # Read the MMP record for a Thermostat as:
     # stat (name) (r, g, b) (temp) first_atom last_atom box_atom
-            
+    
     def _read_stat(self, card):
         m = statpat.match(card)
         name = m.group(1)
@@ -1157,24 +1157,25 @@ class _readmmp_state:
         # Read in the list of atoms
         card = card[card.index(")")+1:] # skip past the color field
         card = card[card.index(")")+1:] # skip past the temp field
-        list = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
         
-        # We want "list" to contain only the 3rd item, so let's remove 
-        # first_atom (1st item) and last_atom (2nd item) in list.
+        # We want "list1" to contain only the 3rd item, so let's remove 
+        # first_atom (1st item) and last_atom (2nd item) in list1.
         # They will get regenerated in the Thermo constructor.  
         # Mark 050129
-        if len(list) > 2: del list[0:2]
+        if len(list1) > 2:
+            del list1[0:2]
         
-        # Now remove everything else from the list except for the boxed_atom.
+        # Now remove everything else from list1 except for the boxed_atom.
         # This would happen if we loaded an old part with more than 3 atoms listed.
-        if len(list) > 1:
-            del list[1:]
+        if len(list1) > 1:
+            del list1[1:]
             msg = "a thermostat record was found (" + name + ") in the part which contained extra atoms.  They will be ignored."
             self.warning(msg)
             
-        list = map((lambda n: self.ndix[n]), list)
+        list1 = map((lambda n: self.ndix[n]), list1)
 
-        sr = Stat(self.assy, list) # create stat and set props
+        sr = Stat(self.assy, list1) # create stat and set props
         sr.name = name
         sr.color = col
         sr.temp = temp
@@ -1192,24 +1193,25 @@ class _readmmp_state:
 
         # Read in the list of atoms
         card = card[card.index(")")+1:] # skip past the color field
-        list = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
         
-        # We want "list" to contain only the 3rd item, so let's remove 
-        # first_atom (1st item) and last_atom (2nd item) in list.
+        # We want "list1" to contain only the 3rd item, so let's remove 
+        # first_atom (1st item) and last_atom (2nd item) in list1.
         # They will get regenerated in the Thermo constructor.  
         # Mark 050129
-        if len(list) > 2: del list[0:2]
+        if len(list1) > 2:
+            del list1[0:2]
         
-        # Now remove everything else from the list except for the boxed_atom.
+        # Now remove everything else from list1 except for the boxed_atom.
         # This would happen if we loaded an old part with more than 3 atoms listed.
-        if len(list) > 1:
-            del list[1:]
+        if len(list1) > 1:
+            del list1[1:]
             msg = "a thermometer record was found in the part which contained extra atoms.  They will be ignored."
             self.warning(msg)
             
-        list = map((lambda n: self.ndix[n]), list)
+        list1 = map((lambda n: self.ndix[n]), list1)
 
-        sr = Thermo(self.assy, list) # create stat and set props
+        sr = Thermo(self.assy, list1) # create stat and set props
         sr.name = name
         sr.color = col
         self.addmember(sr)
