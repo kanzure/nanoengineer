@@ -151,6 +151,10 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect(self.editStrandPropertiesButton,
                       SIGNAL("clicked()"),
                       self._showSequenceEditor)
+        
+        change_connect(self.editSegmentPropertiesButton,
+                      SIGNAL("clicked()"),
+                      self._editDnaSegment)
 
     def assignStrandSequence(self):
         """
@@ -209,19 +213,27 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             return
         
         self.previousSelectionParams = newSelectionParams  
-               
-        self.strandListWidget.updateSelection(newSelectionParams) 
         
-        if len(newSelectionParams) == 1:
+        selectedStrands, selectedSegments = newSelectionParams
+               
+        self.strandListWidget.updateSelection(selectedStrands) 
+        self.segmentListWidget.updateSelection(selectedSegments)
+        
+        if len(selectedStrands) == 1:
             self.editStrandPropertiesButton.setEnabled(True)
             if self.sequenceEditor:
                 self.sequenceEditor.update_state(bool_enable = True) 
             if self.sequenceEditor and self.sequenceEditor.isVisible():
-                self._updateSequence(newSelectionParams[0])                           
+                self._updateSequence(selectedStrands[0])                           
         else:
             self.editStrandPropertiesButton.setEnabled(False)
             if self.sequenceEditor:       
-                self.sequenceEditor.update_state(bool_enable = False)            
+                self.sequenceEditor.update_state(bool_enable = False)   
+        
+        if len(selectedSegments) == 1:
+            self.editSegmentPropertiesButton.setEnabled(True)
+        else:
+            self.editSegmentPropertiesButton.setEnabled(False)
                          
         
     def _currentSelectionParams(self):
@@ -245,24 +257,15 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
          
         selectedStrands = []
+        selectedSegments = []
         if self.editCommand and self.editCommand.struct:
             selectedStrands = self.editCommand.struct.getSelectedStrands()
-        
-        return selectedStrands
+            selectedSegments = self.editCommand.struct.getSelectedSegments()
+             
+                    
+        return (selectedStrands, selectedSegments)
                 
-               
-        #if len(selectedStrands) == 1: 
-            ##self.win.assy.selatoms_list() is same as 
-            ## selectedAtomsDictionary.values() except that it is a sorted list 
-            ##it doesn't matter in this case, but a useful info if we decide 
-            ## we need a sorted list for multiple atoms in future. 
-            ## -- ninad 2007-09-27 (comment based on Bruce's code review)
-            
-            #return (selectedStrands[0])
-        #else: 
-            #return (None)
-    
-    
+             
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -286,7 +289,10 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         #Clear tags, if any, due to the selection in the self.strandListWidget.
         if self.strandListWidget:
-            self.strandListWidget.clearTags()
+            self.strandListWidget.clear()
+        
+        if self.segmentListWidget:
+            self.segmentListWidget.clear()
         
         if self.sequenceEditor:
             self.sequenceEditor.hide()
@@ -346,6 +352,15 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             sequenceString = QString(sequenceString) 
             sequenceString = sequenceString.toUpper()
             self.sequenceEditor.setSequence(sequenceString) 
+    
+    def _editDnaSegment(self):
+        """
+        """
+        if self.editCommand and self.editCommand.struct: 
+            selectedSegments = self.editCommand.struct.getSelectedSegments()
+            if len(selectedSegments) == 1:
+                selectedSegments[0].edit()
+    
         
     def _update_widgets_in_PM_before_show(self):
         """

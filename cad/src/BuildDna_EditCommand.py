@@ -171,8 +171,8 @@ class BuildDna_EditCommand(EditCommand):
         Creates a property manager  object (that defines UI things) for this 
         editCommand. 
         """
-        assert not self.propMgr
-        propMgr = BuildDna_PropertyManager(self.win, self)
+        assert not self.propMgr        
+        propMgr = self.win.createBuildDnaPropMgr_if_needed(self)
         return propMgr
 
 

@@ -146,6 +146,7 @@ from SelectAtoms_Command     import SelectAtoms_Command
 from SelectChunks_Command    import SelectChunks_Command
 from BreakStrand_Command     import BreakStrands_Command
 from BuildDna_EditCommand    import BuildDna_EditCommand
+from DnaSegment_EditCommand  import DnaSegment_EditCommand
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 from CommandSequencer import modeMixin
 
@@ -400,7 +401,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     LinearMotor_EditCommand,
                     RotaryMotor_EditCommand,
                     BreakStrands_Command,
-                    BuildDna_EditCommand
+                    BuildDna_EditCommand,
+                    DnaSegment_EditCommand
+                    
                 ]
                     ##SketchMode] #Sketchmode not implemented yet
 

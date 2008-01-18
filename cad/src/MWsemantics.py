@@ -157,9 +157,11 @@ class MWsemantics(QMainWindow,
 
         # Initialize all Property Manager attrs.
         self.rotaryMotorPropMgr = None
-        self.linearMotorPropMgr = None
-        self.dnaDuplexPropMgr = None
+        self.linearMotorPropMgr = None        
         self.planePropMgr = None
+        self.dnaDuplexPropMgr = None
+        self.dnaSegmentPropMgr = None
+        self.buildDnaPropMgr = None
 
         # These boolean flags, if True, stop the execution of slot 
         # methods that are called because the state of 'self.viewFullScreenAction
@@ -1895,6 +1897,45 @@ class MWsemantics(QMainWindow,
             self.dnaDuplexPropMgr.setEditCommand(editCommand)
 
         return self.dnaDuplexPropMgr
+    
+    def createBuildDnaPropMgr_if_needed(self, editCommand):
+        """
+        Create Build Dna PM object (if one doesn't exist) 
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{BuildDna_EditCommand}
+        @see: B{BuildDna_EditCommand._createPropMgrObject}
+        """
+        from BuildDna_PropertyManager import BuildDna_PropertyManager
+        if self.buildDnaPropMgr is None:
+            self.buildDnaPropMgr = \
+                BuildDna_PropertyManager(self, editCommand)
+        else:
+            self.buildDnaPropMgr.setEditCommand(editCommand)
+
+        return self.buildDnaPropMgr
+    
+    def createDnaSegmentPropMgr_if_needed(self, editCommand):
+        """
+        Create the DnaSegment PM object (if one doesn't exist) 
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{DnaSegment_EditCommand}
+        @see: B{DnaSegment_EditCommand._createPropMgrObject}
+        """
+        
+        from DnaSegment_PropertyManager import DnaSegment_PropertyManager
+        if self.dnaSegmentPropMgr is None:
+            self.dnaSegmentPropMgr = \
+                DnaSegment_PropertyManager(self, editCommand)
+            
+        else:
+            self.dnaSegmentPropMgr.setEditCommand(editCommand)
+
+        return self.dnaSegmentPropMgr
+
 
     def insertPovrayScene(self):
         self.povrayscenecntl.setup()

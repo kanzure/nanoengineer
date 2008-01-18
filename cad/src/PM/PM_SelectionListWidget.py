@@ -347,6 +347,7 @@ class PM_SelectionListWidget(PM_ListWidget):
         self._supress_itemSelectionChanged_signal = True
         
         for key, value in self._itemDictionary.iteritems():
+            
             if value in selectedItemList:
                 if not key.isSelected():
                     key.setSelected(True)     
@@ -356,6 +357,22 @@ class PM_SelectionListWidget(PM_ListWidget):
                     
         self._supress_itemSelectionChanged_signal = False
                 
+    
+    def clear(self):
+        """
+        Clear everything inside this list widget including the 
+        contents of self._itemDictionary and tags if any. 
+        
+        Overrides QListWidget.clear()
+        """
+        self.clearTags()
+        
+        #Clear the previous contents of the self._itemDictionary 
+        self._itemDictionary.clear()
+        
+        #Clear the contents of this list widget, using QListWidget.clear()
+        #See U{<http://doc.trolltech.com/4.2/qlistwidget.html>} for details
+        PM_ListWidget.clear(self)
         
             
     def getPickedItem(self):
