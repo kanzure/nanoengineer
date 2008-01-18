@@ -186,6 +186,8 @@ class assembly( StateMixin, Assembly_API):
     
     # initial values of some instance variables
     undo_manager = None #bruce 060127
+
+    assy_valid = False # whether it's ok for updaters to run [bruce 080117]
     
     def __init__(self, win, name = None, own_window_UI = False):
         """
@@ -206,7 +208,7 @@ class assembly( StateMixin, Assembly_API):
         #  ... done in MWsemantics to avoid a circularity
         
         # the name if any
-        self.name = name or gensym("Assembly")
+        self.name = str(name or gensym("Assembly"))
 
         #bruce 050429
         global assy_number
@@ -357,8 +359,17 @@ class assembly( StateMixin, Assembly_API):
         assert self.tree.node_depth() == 1
         assert self.shelf.node_depth() == 1
 
+        self.assy_valid = True
+        
         return # from assembly.__init__
 
+    def __repr__(self): #bruce 080117
+        res = "<%s %r at %#x>" % \
+              (self.__class__.__name__.split('.')[-1],
+               self.name,
+               id(self))
+        return res
+    
     def deinit(self): # make sure assys don't fight over control of main menus, etc [bruce 060122]
         ###e should this be extended into a full destroy method, and renamed? guess: yes. [bruce 060126]
         if self.undo_manager:

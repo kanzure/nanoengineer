@@ -2535,6 +2535,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     current_glselect = False # [bruce 050616] False, or a 4-tuple of parameters for GL_SELECT rendering
         ### TODO: document this better
 
+    def model_is_valid(self): #bruce 080117
+        """
+        whether our model is currently valid for drawing
+        [overrides GLPane_minimal method]
+        """
+        return self.assy.assy_valid
+        
     def paintGL(self): #bruce 050127 revised docstring to deprecate direct calls
         """
         [PRIVATE METHOD -- call gl_update instead!]
@@ -2547,13 +2554,19 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         BY OUR OWN CODE -- CALL gl_update INSTEAD.
         """
 
-        env.after_op() #bruce 050908
-            # [disabled in changes.py, sometime before 060323;
-            #  probably obs as of 060323; see this date below]
-
         if not self.initialised:
             return
 
+        if not self.model_is_valid():
+            #bruce 080117 bugfix in GLPane and potential bugfix in ThumbView;
+            # for explanation see my same-dated comment in files_mmp
+            # near another check of assy_valid.
+            return
+
+        env.after_op() #bruce 050908; moved a bit lower, 080117
+            # [disabled in changes.py, sometime before 060323;
+            #  probably obs as of 060323; see this date below]
+        
         # SOMEDAY: it might be good to set standard GL state, e.g. matrixmode,
         # before checking self.redrawGL here, in order to mitigate bugs in other
         # code (re bug 727), but only if the current mode gets to redefine what

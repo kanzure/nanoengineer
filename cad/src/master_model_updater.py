@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 master_model_updater.py - do the post-event (or pre-checkpoint) updates
 necessary for all of NE1's model types, in an appropriate order (which may
@@ -9,7 +9,7 @@ See also: update_parts method
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 
 TODO:
@@ -48,6 +48,8 @@ import env
 from bond_updater import update_bonds_after_each_event
 from bond_updater import process_changed_bond_types
 
+from debug import print_compact_stack
+
 # ==
 
 def _master_model_updater( warn_if_needed = False ):
@@ -75,8 +77,20 @@ def _master_model_updater( warn_if_needed = False ):
     other calls mentioned above, and none of them pass warn_if_needed.
     """
 
-    assy = env.mainwindow().assy # KLUGE
-        # todo: assy ought to be an argument instead, or found from one
+    if 1:
+        # KLUGE; the changedicts and updater should really be per-assy...
+        # this is a temporary scheme for detecting the unanticipated
+        # running of this in the middle of loading an mmp file, and for
+        # preventing errors from that,
+        # but it only works for the main assy -- not e.g. for a partlib
+        # assy. I don't yet know if this is needed. [bruce 080117]    
+        assy = env.mainwindow().assy
+        if not assy.assy_valid:
+            msg = "deferring _master_model_updater(warn_if_needed = %r) " \
+                  "since not %r.assy_valid" % (warn_if_needed, assy)
+            print_compact_stack(msg + ": ") # soon change to print...
+            return
+        pass
     
     # TODO: check some dicts first, to optimize this call when not needed?
     # TODO: zap the temporary function calls here

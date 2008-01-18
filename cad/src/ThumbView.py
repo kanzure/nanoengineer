@@ -1,8 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-ThumbView.py
+ThumbView.py - a simpler OpenGL widget, similar to GLPane 
 
-$Id$
+@author: Huaicai
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 import math
@@ -96,7 +98,8 @@ class ThumbView(GLPane_minimal):
     """
     # Note: classes GLPane and ThumbView share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal
-    # [bruce 070914 comment]
+    # [bruce 070914 comment; since then some of it has been merged, some
+    #  still needs to be]
     
     shareWidget = None #bruce 051212
     always_draw_hotspot = False #bruce 060627
@@ -150,7 +153,7 @@ class ThumbView(GLPane_minimal):
 
     def drawModel(self):
         """
-        This is an abstract method of drawing models, subclass should overwrite
+        This is an abstract method of drawing models, subclass should override
         it with concrete model drawing statements.
         """        
         pass
@@ -289,6 +292,11 @@ class ThumbView(GLPane_minimal):
         if not self.initialised:
             return
 
+        if not self.model_is_valid():
+            #bruce 080117 precaution (perhaps a bugfix);
+            # see similar code in GLPane
+            return
+        
         self._call_whatever_waits_for_gl_context_current() #bruce 071103
         
         glDepthFunc( GL_LEQUAL)
@@ -672,8 +680,6 @@ class ThumbView(GLPane_minimal):
     
 # ==
 
-
-
 class ElementView(ThumbView):
     """
     Element graphical display class.
@@ -703,6 +709,13 @@ class ElementView(ThumbView):
         if self.mol:
             self.mol.draw(self, None)
 
+    def model_is_valid(self): #bruce 080117
+        """
+        whether our model is currently valid for drawing
+        [overrides GLPane_minimal method]
+        """
+        return self.mol and self.mol.assy.assy_valid
+    
     def refreshDisplay(self, elm, dispMode = diTrueCPK):
         """
         Display the new element or the same element but new display mode.
@@ -793,12 +806,10 @@ class MMKitView(ThumbView):
         hybrid_type_name = None
         elementMode = True  #Used to differentiate elment page versus clipboard/part page
     
-        
     def drawModel(self):
         """
         The method for element drawing.
         """
-        
         if self.model:
             if isinstance(self.model, Chunk) or \
                isinstance(self.model, Group):
@@ -806,7 +817,19 @@ class MMKitView(ThumbView):
             else: ## assembly
                 self.model.draw(self)
 
-   
+    def model_is_valid(self): #bruce 080117
+        """
+        whether our model is currently valid for drawing
+        [overrides GLPane_minimal method]
+        """
+        if self.model:
+            if isinstance(self.model, Chunk) or \
+               isinstance(self.model, Group):
+                return self.model.assy.assy_valid
+            else: ## assembly
+                return self.model.assy_valid
+        return False
+    
     def refreshDisplay(self, elm, dispMode = diTrueCPK):
         """
         Display the new element or the same element but new display mode.
@@ -1054,6 +1077,13 @@ class ChunkView(ThumbView):
         if self.mol:
             self.mol.draw(self, None)
 
+    def model_is_valid(self): #bruce 080117
+        """
+        whether our model is currently valid for drawing
+        [overrides GLPane_minimal method]
+        """
+        return self.mol and self.mol.assy.assy_valid
+    
     def updateModel(self, newChunk):
         """
         Set new chunk for display.

@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 files_mmp.py -- reading and writing MMP files
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History: bruce 050414 pulled this out of fileIO.py rev. 1.97
 (of which it was the major part),
@@ -1528,6 +1528,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     # but later we should either hook it up or create our own progress
     # dialog that doesn't include a "Cancel" button. --mark 2007-12-06
     if showProgressDialog:
+        assert not assy.assy_valid #bruce 080117
         _progressValue = 0
         _progressFinishValue = len(lines)
         win = env.mainwindow()
@@ -1555,6 +1556,14 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
                 win.progressDialog.setLabelText("Building model...")
             elif _progressDialogDisplayed:
                 win.progressDialog.setValue(_progressValue)
+                    # WARNING: this can directly call glpane.paintGL!
+                    # So can the other 2 calls here of progressDialog.setValue.
+                    # To prevent bugs or slowdowns from drawing incomplete
+                    # models or from trying to run updaters (or take undo
+                    # checkpoints?) before drawing them, the GLPane now checks
+                    # assy.assy_valid to prevent redrawing when this happens.
+                    # (Does ThumbView also need this fix?? ### REVIEW)
+                    # [bruce 080117 comment / bugfix]                    
             else:
                 _timerDuration = time.time() - _timerStart
                 if _timerDuration > 0.25: 
@@ -1606,7 +1615,7 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     state.destroy() # not before now, since it keeps track of which warnings we already emitted
     
     if showProgressDialog: # Make the progress dialog go away.
-        win.progressDialog.setValue(_progressFinishValue) 
+        win.progressDialog.setValue(_progressFinishValue)
     
     return grouplist # from _readmmp
 
@@ -1637,9 +1646,14 @@ def readmmp(assy, filename, isInsert = False, showProgressDialog = False): #bruc
                                a file. Default is False.
     @type  showProgressDialog: boolean
     """
-    grouplist = _readmmp(assy, filename, isInsert, showProgressDialog)
-    if (not isInsert):
-        _reset_grouplist(assy, grouplist) # handles grouplist is None (though not very well)
+    assert assy.assy_valid
+    assy.assy_valid = False # disable updaters during read [bruce 080117]
+    try:
+        grouplist = _readmmp(assy, filename, isInsert, showProgressDialog)
+        if (not isInsert):
+            _reset_grouplist(assy, grouplist) # handles grouplist is None (though not very well)
+    finally:
+        assy.assy_valid = True
     return grouplist
     
 def _reset_grouplist(assy, grouplist):
@@ -1690,7 +1704,8 @@ def _reset_grouplist(assy, grouplist):
         assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
     assy.kluge_patch_toplevel_groups()
-    assy.update_parts() #bruce 050309 for assy/part split
+    assy.update_parts(do_post_event_updates = False)
+        #bruce 050309 for assy/part split; 080117 added option = False
     # Now the parts exist, so it's safe to store the viewdata into the mainpart;
     # this imitates what the pre-050418 code did when the csys records were parsed;
     # note that not all mmp files have anything at all in viewdata
@@ -1729,33 +1744,38 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
     """
     Read an mmp file and insert its main part into the existing model.
     """
-    grouplist  = _readmmp(assy, filename, isInsert = True)
-        # isInsert = True prevents most side effects on assy;
-        # a better design would be to let the caller do them (or not)
-    if grouplist:
-        viewdata, mainpart, shelf = grouplist
-        del viewdata
-        ## not yet (see below): del shelf
-        assy.addnode( mainpart) #bruce 060604
-##        assy.part.ensure_toplevel_group()
-##        assy.part.topnode.addchild( mainpart )
-        #bruce 050425 to fix bug 563:
-        # Inserted mainpart might contain jigs whose atoms were in clipboard of inserted file.
-        #   Internally, right now, those atoms exist, in legitimate chunks in assy
-        # (with a chain of dads going up to 'shelf' (the localvar above), which has no dad),
-        # and have not been killed. Bug 563 concerns these jigs being inserted with no provision
-        # for their noninserted atoms. It's not obvious what's best to do in this case, but a safe
-        # simple solution seems to be to pretend to insert and then delete the shelf we just read,
-        # thus officially killing those atoms, and removing them from those jigs, with whatever
-        # effects that might have (e.g. removing those jigs if all their atoms go away).
-        #   (When we add history messages for jigs which die from losing all atoms,
-        # those should probably differ in this case and in the usual case,
-        # but those are NIM for now.)
-        #   I presume it's ok to kill these atoms without first inserting them into any Part...
-        # at least, it seems unlikely to mess up any specific Part, since they're not now in one.
-        #e in future -- set up special history-message behavior for jigs killed by this:
-        shelf.kill()
-        #e in future -- end of that special history-message behavior
+    assert assy.assy_valid
+    assy.assy_valid = False # disable updaters during insert [bruce 080117]
+    try:
+        grouplist  = _readmmp(assy, filename, isInsert = True)
+            # isInsert = True prevents most side effects on assy;
+            # a better design would be to let the caller do them (or not)
+        if grouplist:
+            viewdata, mainpart, shelf = grouplist
+            del viewdata
+            ## not yet (see below): del shelf
+            assy.addnode( mainpart) #bruce 060604
+    ##        assy.part.ensure_toplevel_group()
+    ##        assy.part.topnode.addchild( mainpart )
+            #bruce 050425 to fix bug 563:
+            # Inserted mainpart might contain jigs whose atoms were in clipboard of inserted file.
+            #   Internally, right now, those atoms exist, in legitimate chunks in assy
+            # (with a chain of dads going up to 'shelf' (the localvar above), which has no dad),
+            # and have not been killed. Bug 563 concerns these jigs being inserted with no provision
+            # for their noninserted atoms. It's not obvious what's best to do in this case, but a safe
+            # simple solution seems to be to pretend to insert and then delete the shelf we just read,
+            # thus officially killing those atoms, and removing them from those jigs, with whatever
+            # effects that might have (e.g. removing those jigs if all their atoms go away).
+            #   (When we add history messages for jigs which die from losing all atoms,
+            # those should probably differ in this case and in the usual case,
+            # but those are NIM for now.)
+            #   I presume it's ok to kill these atoms without first inserting them into any Part...
+            # at least, it seems unlikely to mess up any specific Part, since they're not now in one.
+            #e in future -- set up special history-message behavior for jigs killed by this:
+            shelf.kill()
+            #e in future -- end of that special history-message behavior
+    finally:
+        assy.assy_valid = True
     return
 
 def fix_assy_and_glpane_views_after_readmmp( assy, glpane):

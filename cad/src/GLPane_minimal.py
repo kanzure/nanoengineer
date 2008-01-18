@@ -1,8 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 GLPane_minimal.py -- common superclass for GLPane-like widgets.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -140,6 +141,18 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         setup_draw_grid_lines()
         return
 
+    # ==
+
+    def model_is_valid(self): #bruce 080117
+        """
+        Subclasses should override this to return a boolean
+        saying whether their model is currently valid for drawing.
+
+        Subclass implementations of paintGL are advised to call this
+        at the beginning and return immediately if it's false.
+        """
+        return False
+    
     # ==
 
     def _call_whatever_waits_for_gl_context_current(self): #bruce 071103
