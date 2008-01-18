@@ -13,6 +13,8 @@
 #include <QObject>
 #include <QString>
 
+#include "Nanorex/Utility/NXCommandResult.h"
+
 namespace Nanorex {
 
 typedef enum {

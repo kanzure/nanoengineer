@@ -14,10 +14,11 @@
 #include "Nanorex/Utility/NXPlugin.h"
 #include "Nanorex/Utility/NXCommandResult.h"
 #include "Nanorex/Interface/NXNumbers.h"
+#include "Nanorex/Interface/NXMoleculeSet.h"
 
 namespace Nanorex {
 
-class NXEntityManager;
+//class NXEntityManager;
 
 /* CLASS: NXDataImportExportPlugin */
 /**
@@ -30,7 +31,7 @@ class NXDataImportExportPlugin : public NXPlugin {
 
 		/** Sets the NXEntityManager to use. Called when this plugin is
 		  * created.*/
-		void setEntityManager(NXEntityManager* entityManager);
+		//void setEntityManager(NXEntityManager* entityManager);
 
 		/** Sets the type, or mode, of the file being imported/exported. This
 		  * is called by the NXEntityManager when importing/exporting files.
@@ -48,18 +49,18 @@ class NXDataImportExportPlugin : public NXPlugin {
 		 * the given identifier.
 		 */
 		virtual NXCommandResult* importFromFile
-			(NXMSInt moleculeSetId, const std::string& filename) = 0;
+			(NXMoleculeSet* moleculeSet, const std::string& filename) = 0;
 
 		/**
 		 * Exports the system from the given file from the molecule set with
 		 * the given identifier.
 		 */
 		virtual NXCommandResult* exportToFile
-			(NXMSInt moleculeSetId, const std::string& filename) = 0;
+			(NXMoleculeSet* moleculeSet, const std::string& filename) = 0;
 
 	protected:
 		std::string mode;
-		NXEntityManager* entityManager;
+		//NXEntityManager* entityManager;
 };
 
 } // Nanorex::

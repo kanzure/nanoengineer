@@ -4,7 +4,7 @@
 
 
 /* FUNCTION: instantiate */
-DLLEXPORT Nanorex::NXPlugin* instantiate() {
+DLLEXPORT NXPlugin* instantiate() {
 	return new HDF5_SimResultsImportExport();
 }
 
@@ -21,10 +21,10 @@ HDF5_SimResultsImportExport::~HDF5_SimResultsImportExport() {
 
 
 /* FUNCTION: importFromFile */
-Nanorex::NXCommandResult* HDF5_SimResultsImportExport::importFromFile
-		(Nanorex::NXMSInt moleculeSetId, const std::string& filename) {
-	Nanorex::NXCommandResult* result = new Nanorex::NXCommandResult();
-	result->setResult(Nanorex::NX_CMD_SUCCESS);
+NXCommandResult* HDF5_SimResultsImportExport::importFromFile
+		(NXMoleculeSet* moleculeSet, const string& filename) {
+	NXCommandResult* result = new NXCommandResult();
+	result->setResult(NX_CMD_SUCCESS);
 
 	string message = "Reading: ";
 	message.append(filename);
@@ -36,11 +36,11 @@ Nanorex::NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 
 
 /* FUNCTION: exportToFile */
-Nanorex::NXCommandResult* HDF5_SimResultsImportExport::exportToFile
-		(Nanorex::NXMSInt moleculeSetId, const std::string& filename) {
-	Nanorex::NXCommandResult* result = new Nanorex::NXCommandResult();
+NXCommandResult* HDF5_SimResultsImportExport::exportToFile
+		(NXMoleculeSet* moleculeSet, const string& filename) {
+	NXCommandResult* result = new Nanorex::NXCommandResult();
 	result->setResult(Nanorex::NX_CMD_SUCCESS);
-
+	
 
 	return result;
 }

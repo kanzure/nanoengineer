@@ -3,18 +3,19 @@
 #ifndef NX_HDF5_SIMRESULTSIMPORTEXPORT_H
 #define NX_HDF5_SIMRESULTSIMPORTEXPORT_H
 
-#include "Nanorex/Utility/NXLogger.h"
-#include "Nanorex/Utility/NXCommandResult.h"
-#include "Nanorex/Interface/NXNumbers.h"
-#include "Nanorex/Interface/NXNanoVisionResultCodes.h"
-#include "Nanorex/Interface/NXEntityManager.h"
-#include "Nanorex/Interface/NXDataImportExportPlugin.h"
-
 #ifdef WIN32
 #	ifdef _MSC_VER
 #		pragma warning(disable:4786)
 #	endif
 #endif
+
+#include "Nanorex/Utility/NXLogger.h"
+#include "Nanorex/Utility/NXCommandResult.h"
+#include "Nanorex/Interface/NXNumbers.h"
+#include "Nanorex/Interface/NXNanoVisionResultCodes.h"
+//#include "Nanorex/Interface/NXEntityManager.h"
+#include "Nanorex/Interface/NXDataImportExportPlugin.h"
+using namespace Nanorex;
 
 //#include <iostream>
 //#include <vector>
@@ -29,17 +30,17 @@ using namespace std;
 #		pragma once
 #	endif // _MSC_VER > 1000
 
-	// Exclude rarely-used stuff from Windows headers
+// Exclude rarely-used stuff from Windows headers
 #	define WIN32_LEAN_AND_MEAN
 #	include <windows.h>
 
-	// DLL-specific
+// DLL-specific
 #	define DLLEXPORT __declspec(dllexport)
 #else
 #	define DLLEXPORT
 #endif
 
-extern "C" DLLEXPORT Nanorex::NXPlugin* instantiate();
+extern "C" DLLEXPORT NXPlugin* instantiate();
 
 
 /* CLASS: HDF5_SimResultsImportExport */
@@ -49,10 +50,10 @@ class HDF5_SimResultsImportExport : public Nanorex::NXDataImportExportPlugin {
 		~HDF5_SimResultsImportExport();
 
 		// NXDataImportExportPlugin implementation
-		Nanorex::NXCommandResult* importFromFile(Nanorex::NXMSInt moleculeSetId,
-												 const std::string& filename);
-		Nanorex::NXCommandResult* exportToFile(Nanorex::NXMSInt moleculeSetId,
-											   const std::string& filename);
+		NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
+										const string& filename);
+		NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
+									  const std::string& filename);
 
 	private:
 };

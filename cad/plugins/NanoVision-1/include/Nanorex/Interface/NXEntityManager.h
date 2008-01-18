@@ -3,11 +3,18 @@
 #ifndef NX_ENTITYMANAGER_H
 #define NX_ENTITYMANAGER_H
 
+#include <map>
+#include <string>
+using namespace std;
+
+#include <QString>
+
 #include "Nanorex/Utility/NXUtility.h"
 #include "Nanorex/Utility/NXProperties.h"
 #include "Nanorex/Utility/NXPluginGroup.h"
 #include "Nanorex/Utility/NXStringTokenizer.h"
 #include "Nanorex/Interface/NXMoleculeSet.h"
+#include "Nanorex/Interface/NXNanoVisionResultCodes.h"
 #include "Nanorex/Interface/NXDataImportExportPlugin.h"
 
 namespace Nanorex {
@@ -32,14 +39,12 @@ class NXEntityManager {
 		// Import/export plugins
 		//
 		void loadDataImportExportPlugins(NXProperties* properties);
-		int importFromFile(const unsigned int& moleculeSetId,
-						   const std::string& fileType,
-						   const std::string& fileName,
-						   std::string& message);
-		int exportToFile(const unsigned int& moleculeSetId,
-						 const std::string& fileType,
-						 const std::string& fileName,
-						 std::string& message);
+		NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
+										const string& type,
+										const string& file);
+		NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
+									  const string& type,
+									  const string& file);
 		//
 		// MoleculeSet
 		//
@@ -47,8 +52,8 @@ class NXEntityManager {
 
 	private:
 		NXPluginGroup* dataImpExpPluginGroup;
-		std::map<std::string, NXDataImportExportPlugin*> dataImportTable;
-		std::map<std::string, NXDataImportExportPlugin*> dataExportTable;
+		map<string, NXDataImportExportPlugin*> dataImportTable;
+		map<string, NXDataImportExportPlugin*> dataExportTable;
 		
 		NXMoleculeSet* rootMoleculeSet;
 };

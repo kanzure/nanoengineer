@@ -25,14 +25,14 @@ NXEntityManager::~NXEntityManager() {
 void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 	
 	int pluginIndex = 0;
-	std::string msg, pluginFormats;
-	std::string pluginKey = "NXEntityManager.importExport.0";
-	std::string pluginLibrary =
-		std::string(properties->getProperty(pluginKey + ".plugin"));
+	string msg, pluginFormats;
+	string pluginKey = "NXEntityManager.importExport.0";
+	string pluginLibrary =
+		string(properties->getProperty(pluginKey + ".plugin"));
 
 	if (pluginLibrary.length() == 0) {
 		msg = "No Data Import/Export plugins to load.";
-		std::cout << "WARNING: " << msg << std::endl;
+		cout << "WARNING: " << msg << endl;
 		NXLOG_WARNING("NXEntityManager", msg);
 	}
 
@@ -50,14 +50,12 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 				"Couldn't load Data Import/Export plugin: " +
 					pluginLibrary;
 			NXLOG_WARNING("NXEntityManager", msg);
-			std::cout << "WARNING: " << msg << std::endl;
+			cout << "WARNING: " << msg << endl;
 
 		} else {
-			plugin->setEntityManager(this);
-
 			// Import formats
 			pluginFormats =
-				std::string(properties->getProperty(pluginKey +
+				string(properties->getProperty(pluginKey +
 							".importFormats"));
 			NXStringTokenizer tokenizer(pluginFormats, ",");
 			while (tokenizer.hasMoreTokens()) {
@@ -66,7 +64,7 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 
 			// Export formats
 			pluginFormats =
-				std::string(properties->getProperty(pluginKey +
+				string(properties->getProperty(pluginKey +
 							".exportFormats"));
 			tokenizer = NXStringTokenizer(pluginFormats, ",");
 			while (tokenizer.hasMoreTokens()) {
@@ -75,10 +73,10 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 		}
 		pluginIndex++;
 		pluginKey =
-			std::string("NXEntityManager.importExport.") +
+			string("NXEntityManager.importExport.") +
 			NXUtility::itos(pluginIndex);
 		pluginLibrary =
-			std::string(properties->getProperty(pluginKey + ".plugin"));
+			string(properties->getProperty(pluginKey + ".plugin"));
 	}
 }
 
@@ -93,12 +91,57 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
  *
  * @return 0=successful or non-zero error code
  */
-int NXEntityManager::importFromFile(const unsigned int& moleculeSetId,
-									const std::string& fileType,
-									const std::string& fileName,
-									std::string& message) {
-	return 0;
+/* FUNCTION: importFromFile */
+NXCommandResult* NXEntityManager::importFromFile(NXMoleculeSet* moleculeSet,
+												 const string& type,
+												 const string& file) {
+
+	NXCommandResult* result;
+	//PR_Lock(importExportPluginsMutex);
+	map<string, NXDataImportExportPlugin*>::iterator iter =
+		dataImportTable.find(type);
+	if (iter != dataImportTable.end()) {
+		NXDataImportExportPlugin* plugin = iter->second;
+
+		try {
+			plugin->setMode(type);
+			result = plugin->importFromFile(moleculeSet, file);
+
+		} catch (...) {
+			string msg = type;
+			msg += "->importFromFile() threw exception";
+			NXLOG_SEVERE("NXEntityManager", msg);
+
+			result = new NXCommandResult();
+			result->setResult(NX_PLUGIN_CAUSED_ERROR);
+			vector<QString> resultVector;
+			resultVector.push_back("NXEntityManager");
+			QString pluginDescriptor = type.c_str();
+			pluginDescriptor.append("->importFromFile()");
+			resultVector.push_back(pluginDescriptor);
+			resultVector.push_back("threw exception");
+			result->setParamVector(resultVector);
+		}
+
+	} else {
+		string msg =
+			"importFromFile: no NXDataImportExportPlugin found to handle type: " +
+			type;
+		NXLOG_WARNING("NXEntityManager", msg);
+
+		result = new NXCommandResult();
+		result->setResult(NX_PLUGIN_NOT_FOUND);
+		vector<QString> resultVector;
+		resultVector.push_back("NXEntityManager");
+		resultVector.push_back(type.c_str());
+		resultVector.push_back("not found");
+		result->setParamVector(resultVector);
+	}
+	//PR_Unlock(importExportPluginsMutex);
+	return result;
 }
+
+
 
 
 /* FUNCTION: exportToFile */
@@ -106,11 +149,54 @@ int NXEntityManager::importFromFile(const unsigned int& moleculeSetId,
  * Exports the system to the specified file with the appropriate
  * import/export plugin.
  */
-int NXEntityManager::exportToFile(const unsigned int& moleculeSetId,
-								  const std::string& fileType,
-								  const std::string& fileName,
-								  std::string& message) {
-	return 0;
+NXCommandResult* NXEntityManager::exportToFile(NXMoleculeSet* moleculeSet,
+											   const string& type,
+											   const string& file) {
+	NXCommandResult* result;
+	//PR_Lock(importExportPluginsMutex);
+	map<string, NXDataImportExportPlugin*>::iterator iter =
+		dataExportTable.find(type);
+	if (iter != dataExportTable.end()) {
+		NXDataImportExportPlugin* plugin = iter->second;
+		try {
+			plugin->setMode(type);
+			result = plugin->exportToFile(moleculeSet, file);
+
+		} catch (...) {
+			string msg = type;
+			msg += "->exportToFile() threw exception";
+			NXLOG_SEVERE("NXEntityManager", msg);
+
+			result = new NXCommandResult();
+			result->setResult(NX_PLUGIN_CAUSED_ERROR);
+			std::vector<QString> resultVector;
+			resultVector.push_back("NXEntityManager");
+			QString pluginDescriptor = type.c_str();
+			pluginDescriptor.append("->exportToFile()");
+			resultVector.push_back(pluginDescriptor);
+			resultVector.push_back("threw exception");
+			result->setParamVector(resultVector);
+		}
+
+	} else {
+		std::string msg =
+			"exportToFile: no DataImportExportPlugin found to handle type: " +
+			type;
+		NXLOG_WARNING("NXEntityManager", msg);
+
+		result = new NXCommandResult();
+		result->setResult(NX_PLUGIN_NOT_FOUND);
+		// %1 Who is reporting
+		// %2 The name of the plugin that was not found
+		// %3 Why the plugin was not found
+		std::vector<QString> resultVector;
+		resultVector.push_back("NXEntityManager");
+		resultVector.push_back(type.c_str());
+		resultVector.push_back("not found");
+		result->setParamVector(resultVector);
+	}
+	//PR_Unlock(importExportPluginsMutex);
+	return result;
 }
 
 } // Nanorex::

@@ -78,6 +78,18 @@ class NXLogHandler {
 class NXLogger {
 	public:
 		NXLogger() { ThisInstance = this; }
+		~NXLogger() {
+			log(NXLogLevel_Info,
+				"NXLogger",
+				"*********** Log End *************");
+			
+			// Delete handlers
+			std::list<NXLogHandler*>::iterator iter = logHandlers.begin();
+			while (iter != logHandlers.end()) {
+				delete (*iter);
+				iter++;
+			}
+		}
 		
 		void log(NXLogLevel logLevel, const std::string& source,
 				 const std::string& message) {
