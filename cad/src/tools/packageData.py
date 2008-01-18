@@ -312,6 +312,8 @@ packageMapping_for_files = {
     "DnaDuplex"                        : "operation|dna/commands/BuildDuplex", # class to help construct model objects defined elsewhere
     "DnaDuplex_EditCommand"            : "command|dna/commands/BuildDuplex",
     "DnaDuplexPropertyManager"         : "ui/propmgr|dna/commands/BuildDuplex",
+    "DnaSegment_EditCommand"           : "command|dna/commands/DnaSegment",
+    "DnaSegment_PropertyManager"       : "ui/propmgr|dna/commands/DnaSegment",    
     "DnaGenerator"                     : "command|dna/commands/BuildDuplex_old",
     "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_old",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
