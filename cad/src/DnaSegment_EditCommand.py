@@ -13,7 +13,7 @@ and show property manager. Nothing else is implemented.
 """
 
 from EditCommand import EditCommand 
-from DnaLineMode import DnaLine_GM
+from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 
 
 class DnaSegment_EditCommand(EditCommand):
@@ -32,8 +32,8 @@ class DnaSegment_EditCommand(EditCommand):
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
     
-    #Graphics Mode set to DnaLine graphics mode
-    GraphicsMode_class = DnaLine_GM
+    #Graphics Mode 
+    GraphicsMode_class = SelectChunks_GraphicsMode
     
     #required by DnaLine_GM
     mouseClickPoints = []
