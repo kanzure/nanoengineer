@@ -4,11 +4,10 @@
 #define NX_HDF5_SIMRESULTSIMPORTEXPORT_H
 
 #include "Nanorex/Utility/NXLogger.h"
-//#include "NanoHiveUtil/Utility.h"
-//#include "NanoHiveUtil/Geometry.h"
+#include "Nanorex/Utility/NXCommandResult.h"
 #include "Nanorex/Interface/NXNumbers.h"
+#include "Nanorex/Interface/NXNanoVisionResultCodes.h"
 #include "Nanorex/Interface/NXEntityManager.h"
-//#include "NanoHiveInterface/NH_Commands.h"
 #include "Nanorex/Interface/NXDataImportExportPlugin.h"
 
 #ifdef WIN32
@@ -50,9 +49,9 @@ class HDF5_SimResultsImportExport : public Nanorex::NXDataImportExportPlugin {
 		~HDF5_SimResultsImportExport();
 
 		// NXDataImportExportPlugin implementation
-		Nanorex::NXCommandResult* importFromFile(NXMSInt moleculeSetId,
+		Nanorex::NXCommandResult* importFromFile(Nanorex::NXMSInt moleculeSetId,
 												 const std::string& filename);
-		Nanorex::NXCommandResult* exportToFile(NXMSInt moleculeSetId,
+		Nanorex::NXCommandResult* exportToFile(Nanorex::NXMSInt moleculeSetId,
 											   const std::string& filename);
 
 	private:

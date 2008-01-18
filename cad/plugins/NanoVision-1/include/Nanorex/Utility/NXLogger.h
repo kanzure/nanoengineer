@@ -106,33 +106,33 @@ class NXLogger {
 
 // Convenience macros
 #define NXLOG_DEBUG(source, message) { \
-	NXLogger* logger = NXLogger::Instance(); \
+	Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(NXLogLevel_Debug, source, message); \
+		logger->log(Nanorex::NXLogLevel_Debug, source, message); \
 };
 
 #define NXLOG_CONFIG(source, message) { \
-	NXLogger* logger = NXLogger::Instance(); \
+	Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(NXLogLevel_Config, source, message); \
+		logger->log(Nanorex::NXLogLevel_Config, source, message); \
 };
 
 #define NXLOG_INFO(source, message) { \
-	NXLogger* logger = NXLogger::Instance(); \
+	Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(NXLogLevel_Info, source, message); \
+		logger->log(Nanorex::NXLogLevel_Info, source, message); \
 };
 
 #define NXLOG_WARNING(source, message) { \
-	NXLogger* logger = NXLogger::Instance(); \
+	Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(NXLogLevel_Warning, source, message); \
+		logger->log(Nanorex::NXLogLevel_Warning, source, message); \
 };
 
 #define NXLOG_SEVERE(source, message) { \
-	NXLogger* logger = NXLogger::Instance(); \
+	Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(NXLogLevel_Severe, source, message); \
+		logger->log(Nanorex::NXLogLevel_Severe, source, message); \
 };
 
 

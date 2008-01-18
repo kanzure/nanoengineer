@@ -233,16 +233,12 @@ void NXEntityManagerTest::atomTraversalTest2() {
 	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
 	OBMol* molecule = rootMoleculeSet->newMolecule();
 	OBAtom* atom = molecule->NewAtom();
-	printf("\n>%d\n", atom->GetIdx());
 	atom = molecule->NewAtom();
-	printf("\n>%d\n", atom->GetIdx());
 	
 	// Traverse the molecule's atoms
 	OBAtomIterator iter = molecule->BeginAtoms();
-	printf("\n>>%d\n", (*iter)->GetIdx());
 	CPPUNIT_ASSERT((*iter)->GetIdx() == 1);
 	iter++;
-	printf("\n>>%d\n", (*iter)->GetIdx());
 	CPPUNIT_ASSERT((*iter)->GetIdx() == 2);
 	iter++;
 	/*

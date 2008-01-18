@@ -23,10 +23,10 @@ NXEntityManager::~NXEntityManager() {
  * Loads and initializes all the import/export plugins.
  */
 void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
-/*
+	
 	int pluginIndex = 0;
 	std::string msg, pluginFormats;
-	std::string pluginKey = "entityManager.importExport.0";
+	std::string pluginKey = "NXEntityManager.importExport.0";
 	std::string pluginLibrary =
 		std::string(properties->getProperty(pluginKey + ".plugin"));
 
@@ -75,12 +75,11 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 		}
 		pluginIndex++;
 		pluginKey =
-			std::string("entityManager.importExport.") +
+			std::string("NXEntityManager.importExport.") +
 			NXUtility::itos(pluginIndex);
 		pluginLibrary =
 			std::string(properties->getProperty(pluginKey + ".plugin"));
 	}
-	*/
 }
 
 

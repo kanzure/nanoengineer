@@ -82,11 +82,11 @@ bool NXPluginGroup::load(const char* libraryFilename) {
     if (!image) {
 		std::string message = "Failed attempt to load " + libraryFilenameStr;
 		message += ": " + std::string(loadError);
-		NXLOG_WARNING("PluginGroup", message);
+		NXLOG_WARNING("NXPluginGroup", message);
 		success = false;
 
     } else {
-		NXLOG_INFO("PluginGroup", "Loaded " + libraryFilenameStr);
+		NXLOG_INFO("NXPluginGroup", "Loaded " + libraryFilenameStr);
 		imageMap[libraryFilenameStr] = image;
 	}
 	return success;

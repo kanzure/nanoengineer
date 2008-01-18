@@ -147,12 +147,15 @@
       <directoryradio>executable</directoryradio>
       <runarguments>
         <CppUnit></CppUnit>
+        <HDF5_SimResultsImportExport/>
       </runarguments>
       <cwd>
         <CppUnit>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</CppUnit>
+        <HDF5_SimResultsImportExport>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</HDF5_SimResultsImportExport>
       </cwd>
       <debugarguments>
         <CppUnit></CppUnit>
+        <HDF5_SimResultsImportExport/>
       </debugarguments>
       <globaldebugarguments></globaldebugarguments>
       <globalcwd>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</globalcwd>
@@ -162,7 +165,7 @@
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
       <envvars>
-        <envvar value="/usr/local/lib" name="LD_LIBRARY_PATH" />
+        <envvar value="/usr/local/lib:../../../lib" name="LD_LIBRARY_PATH" />
       </envvars>
     </run>
     <general>
