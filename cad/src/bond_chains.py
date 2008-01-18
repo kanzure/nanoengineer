@@ -297,7 +297,9 @@ class abstract_bond_chain_analyzer:
         [subclasses should extend make_ring, which we call,
          rather than this method]
         """
-        assert len(listb) == len(lista)
+        assert len(listb) == len(lista), \
+               "%r finds ring but #bonds %r != #atoms %r" % \
+               (self, len(listb), len(lista))
         if 'debug, but REMOVE WHEN WORKS': ### TODO: OPTIM: REMOVE SOON -- SLOW!
             from bond_constants import find_bond
             for i in range(len(listb)):
