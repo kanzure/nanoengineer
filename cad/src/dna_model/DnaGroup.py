@@ -189,6 +189,43 @@ class DnaGroup(Block):
                 selectedStrandList.append(strand)
         
         return selectedStrandList
+    
+    def getSelectedSegments(self):
+        """
+        Returns a list of segments whose all members are selected.        
+        @return: A list containing the selected strand objects
+                 within self.
+        @rtype: list
+        """
+        #TODO: This is a TEMPORARY KLUDGE  until Dna model is fully functional. 
+        #Must be revised. Basically it returns a list of DnaSegments whose 
+        #all members are selected. 
+        #See BuildDna_PropertyManager._currentSelectionParams() where it is used
+        #-- Ninad 2008-01-18
+        segmentList = self.get_segments()
+        
+        selectedSegmentList = []    
+        pickedNodes = []
+        unpickedNodes = []
+        
+        def func(node):
+            #may be use isinstance check for DnaSegment? Avoiding it for now 
+            #because it creates an import cycle. instead using 
+            #__class__.__name__ test
+            if hasattr(node, 'picked') and node.__class__.__name__ != 'DnaSegment':
+                if not node.picked:
+                    unpickedNodes.append(node)
+                else:
+                    pickedNodes.append(node)
+                                        
+        for segment in segmentList:
+            pickedNodes = []
+            unpickedNodes = []
+            segment.apply2all(func)
+            if len(unpickedNodes) == 0 and pickedNodes:
+                selectedSegmentList.append(segment)  
+                
+        return selectedSegmentList
  
     pass # end of class DnaGroup
 

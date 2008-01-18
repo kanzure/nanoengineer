@@ -6,7 +6,6 @@ DnaSegment.py - ...
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
 class DnaSegment(DnaStrandOrSegment):
@@ -34,6 +33,17 @@ class DnaSegment(DnaStrandOrSegment):
     # files_mmp._GROUP_CLASSIFICATIONS, most general first.
     # See comment in class Group for more info. [bruce 080115]
     _mmp_group_classifications = ('DnaSegment',)
+    
+    def edit(self):
+        """
+        Edit this DnaSegment. 
+        @see: DnaSegment_EditCommand
+        """
+        commandSequencer = self.assy.w.commandSequencer
+        commandSequencer.userEnterTemporaryCommand('DNA_SEGMENT')
+        currentCommand = commandSequencer.currentCommand
+        assert currentCommand.commandName == 'DNA_SEGMENT'
+        currentCommand.editStructure(self)
 
     #Following methods are NOT IMPLEMENTED YET =================================
     
@@ -47,6 +57,6 @@ class DnaSegment(DnaStrandOrSegment):
         """
         #method NIY
         assert 0
-        
+    
 
 # end
