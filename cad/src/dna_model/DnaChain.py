@@ -88,6 +88,9 @@ class DnaChain(object):
     def baselength(self):
         return len(self.baseatoms)
 
+    def __len__(self):
+        return self.baselength()
+    
     def end_baseatoms(self):
         return (self.baseatoms[0], self.baseatoms[-1]) # might be same atom
 
@@ -223,7 +226,7 @@ class DnaChain(object):
         do are already done.
         """
         assert self.strandQ in [False, True]
-        self.neighbor_baseatoms = list[self.neighbor_baseatoms]
+        self.neighbor_baseatoms = list(self.neighbor_baseatoms)
         # do most atoms one end at a time...
         for end in LADDER_ENDS: # end_baseatoms needs ladder end, not chain end
             next_atom = -1 # will be set to None or an atom, if possible
@@ -246,6 +249,7 @@ class DnaChain(object):
                     # (Note: length-2 axis ring is not possible, since it would
                     #  require two bonds between the same two Ax pseudoatoms.
                     #  It's also not physically possible, so that's fine.)
+                    end_atom = self.end_baseatoms()[end]
                     next_atom_candidates = end_atom.axis_neighbors() # len 1 or 2,
                         # and one should always be the next one in this chain
                     if end == LADDER_END0:

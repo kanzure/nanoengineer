@@ -11,6 +11,8 @@ smaller chains (or 1 smaller ring), with refs to markers and a strand or segment
 from dna_model.dna_model_constants import LADDER_END0
 from dna_model.dna_model_constants import LADDER_END1
 
+from dna_model.DnaMarker import DnaMarker
+from dna_model.DnaGroup import DnaGroup #k
 
 class WholeChain(object):
     """
@@ -196,14 +198,14 @@ class WholeChain(object):
         # We'll leave them there (or put them all into an arbitrary
         # one if different atoms in a wholechain are in different
         # DnaGroups -- which is an error by the user op).
-        dnaGroup = chunk.get_parentnode_of_class(DnaGroup)
+        dnaGroup = chunk.parent_node_of_class(DnaGroup)
         if dnaGroup is None:
             # if it was not in a DnaGroup, there's no way it was in
             # a DnaStrand or DnaSegment (since we never make those without
             # immediately putting them into a valid DnaGroup or making them
             # inside one), so there's no need to check for one to make the
             # new group outside of. Just to be sure, we assert this:
-            assert chunk.get_parentnode_of_class(DnaStrandOrSegment) is None
+            assert chunk.parent_node_of_class(DnaStrandOrSegment) is None
             dnaGroup = new_DnaGroup_around_chunk(chunk)
                 # Note: all our chunks will eventually get moved from
                 # whereever they are now into this new DnaGroup.
@@ -283,8 +285,8 @@ class WholeChain(object):
             next_atom = chain.baseatoms[1]
         elif chain.neighbor_baseatoms[LADDER_END1]:
             next_atom = chain.neighbor_baseatoms[LADDER_END1]
-        elif chain.neighbor_baseatoms[LADDER_END0]
-            next_atom = chain.neighbor_baseatoms[LADDER_END0] # REVERSE DIRECTION!
+        elif chain.neighbor_baseatoms[LADDER_END0]:
+            next_atom = chain.neighbor_baseatoms[LADDER_END0] # reverse direction!
             atom, next_atom = next_atom, atom
         else:
             # a 1-atom wholechain, hmm ...
@@ -293,6 +295,7 @@ class WholeChain(object):
 
         # now make the marker on those atoms
         # (todo: in future, we might give it some user settings too)
+        assy = atom.molecule.assy
         marker = DnaMarker(assy, [atom, next_atom]) # doesn't give it a wholechain yet
         return marker
     
