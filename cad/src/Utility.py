@@ -344,6 +344,7 @@ class Node( StateMixin):
                 assert node is not assy.root
                 # but i think it's ok if node is assy.tree!
                 return node
+            node = node.dad
         return None
 
     def node_depth(self): #bruce 080116
