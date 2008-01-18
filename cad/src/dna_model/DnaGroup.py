@@ -205,23 +205,21 @@ class DnaGroup(Block):
         segmentList = self.get_segments()
         
         selectedSegmentList = []    
-        pickedNodes = []
-        unpickedNodes = []
-        
-        def func(node):
-            #may be use isinstance check for DnaSegment? Avoiding it for now 
-            #because it creates an import cycle. instead using 
-            #__class__.__name__ test
-            if hasattr(node, 'picked') and node.__class__.__name__ != 'DnaSegment':
-                if not node.picked:
-                    unpickedNodes.append(node)
-                else:
-                    pickedNodes.append(node)
-                                        
+                                    
         for segment in segmentList:
+            
             pickedNodes = []
             unpickedNodes = []
+            
+            def func(node):
+                if isinstance(node, Chunk):
+                    if not node.picked:
+                        unpickedNodes.append(node)
+                    else:
+                        pickedNodes.append(node)   
+                        
             segment.apply2all(func)
+            
             if len(unpickedNodes) == 0 and pickedNodes:
                 selectedSegmentList.append(segment)  
                 
