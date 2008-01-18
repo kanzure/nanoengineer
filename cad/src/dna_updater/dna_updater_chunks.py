@@ -60,7 +60,8 @@ def update_PAM_chunks( changed_atoms):
     
     live_markers = []
     for marker in homeless_markers:
-        still_alive = marker._f_move_to_live_atom_step1() #e rename, doc - it moves, later steps update direction & wholechain
+        still_alive = marker._f_move_to_live_atom_step1() #e rename, doc (also fix @@@) --
+            # this step moves them, later steps (nim now @@@) update their direction & wholechain
             # move (if possible), and record info (old neighbor atoms?)
             # for later use in determining new baseindex direction advice
             # for new wholechain
@@ -135,7 +136,7 @@ def update_PAM_chunks( changed_atoms):
     ### WORRY ABOUT RING WRAPAROUND in this marker code,
     # where it's a current bug -- see scratch file for more info ###FIX @@@
 
-    print "i bet this marker code step2 should now be done after new ladders are made, not before" #### @@@@
+    print "i bet this marker-move-step2 code should now be done after new ladders are made, not before; nim now" #### @@@@
 # HOW TO UPDATE THIS CODE:
 # just do what has to be done before making new ladders (reversing, merging chains, maybe rotating rings)
 # to help markers do their later direction-xfer or fixing...
@@ -239,7 +240,8 @@ def update_PAM_chunks( changed_atoms):
         new_chunks = ladder.remake_chunks()
         all_new_chunks.extend(new_chunks)
 
-    ignore_new_changes("from remake_chunks", changes_ok = True)#k changes_ok?
+    ignore_new_changes("from remake_chunks", changes_ok = True)
+        # (changes are from parent chunk of atoms changing)
 
     # Now make new wholechains on modified_valid_ladders,
     # let them own their atoms and markers,
@@ -304,6 +306,9 @@ def update_PAM_chunks( changed_atoms):
         map( Strand_WholeChain,
              algorithm( lambda ladder: ladder.strand_rails ) )
      )
+    if DEBUG_DNA_UPDATER:
+        print "dna updater: made %d new or changed wholechains..." % len(new_wholechains)
+
     # note: those Whatever_WholeChain constructors also have side effects:
     # - own their atoms and chunks (chunk.set_wholechain)
     # (REVIEW: maybe use helper funcs so constructors are free of side effects?)
@@ -314,6 +319,14 @@ def update_PAM_chunks( changed_atoms):
         # - own markers
         # - and choose or make controlling marker
         # - and tell markers whether controlling (might kill some of them)
+    if DEBUG_DNA_UPDATER:
+        print "dna updater: owned markers of those %d new or changed wholechains" % len(new_wholechains)
+
+    ignore_new_changes("from making wholechains and owning/choosing/making markers",
+                       changes_ok = True)
+        # ignore changes caused by adding/removing marker jigs
+        # to their atoms, when the jigs die/move/areborn
+        # (in this case, they don't move, but they can die or be born)
 
     # TODO: use wholechains and markers to revise base indices if needed
     # (if this info is cached outside of wholechains)

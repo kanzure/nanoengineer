@@ -126,6 +126,8 @@ class DnaMarker( ChainAtomMarker):
         # and in theory it could appear in MT, though in practice, probably only in some PM listwidget, but still,
         # doing the same things a "visible node" can do is good for that.
 
+    mmp_record_name = "DnaMarker" # @@@@ not yet read; also the mmp format might be verbose (has color); writing not yet happening
+    
     copyable_attrs = ChainAtomMarker.copyable_attrs + ()
         # todo: add some more -- namely the user settings about how it moves, whether it lives, etc
 

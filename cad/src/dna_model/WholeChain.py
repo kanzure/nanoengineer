@@ -11,8 +11,13 @@ smaller chains (or 1 smaller ring), with refs to markers and a strand or segment
 from dna_model.dna_model_constants import LADDER_END0
 from dna_model.dna_model_constants import LADDER_END1
 
-from dna_model.DnaMarker import DnaMarker
-from dna_model.DnaGroup import DnaGroup #k
+from dna_model.DnaMarker import DnaMarker # isinstance
+from dna_model.DnaMarker import DnaSegmentMarker, DnaStrandMarker # constructors
+
+from dna_model.DnaGroup import DnaGroup
+from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
+
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 
 class WholeChain(object):
     """
@@ -92,6 +97,9 @@ class WholeChain(object):
     all the valid markers along its wholechain's atoms.)
     """
 
+    # default values of subclass-specific constants
+    _DnaMarker_class = None # class of DnaMarker to make
+    
     # default values of instance variables
     _strand_or_segment = None
     _controlling_marker = None
@@ -177,10 +185,15 @@ class WholeChain(object):
 ##        if not self._controlling_marker:
 ##            self._controlling_marker = self._choose_or_make_controlling_marker()
         assert self._controlling_marker, "%r should have called _choose_or_make_controlling_marker before now" % self
+        print "x1"
         strand_or_segment = self._controlling_marker._f_get_owning_strand_or_segment()
+        print "x2"
         if not strand_or_segment:
+            print "x3"#yes
             strand_or_segment = self._make_strand_or_segment( self._controlling_marker)
+            print "x4"#no
             self._controlling_marker._f_set_owning_strand_or_segment( strand_or_segment)
+            print "x5"
         self._strand_or_segment = strand_or_segment
         return strand_or_segment
 
@@ -199,14 +212,24 @@ class WholeChain(object):
         # one if different atoms in a wholechain are in different
         # DnaGroups -- which is an error by the user op).
         dnaGroup = chunk.parent_node_of_class(DnaGroup)
+        print "dnaGroup is", dnaGroup #########
         if dnaGroup is None:
-            # if it was not in a DnaGroup, there's no way it was in
-            # a DnaStrand or DnaSegment (since we never make those without
+            # If it was not in a DnaGroup, it should not be in a DnaStrand or
+            # DnaSegment either (since we should never make those without
             # immediately putting them into a valid DnaGroup or making them
-            # inside one), so there's no need to check for one to make the
-            # new group outside of. Just to be sure, we assert this:
-            assert chunk.parent_node_of_class(DnaStrandOrSegment) is None
+            # inside one). But until we implement the group cleanup of just-
+            # read mmp files, we can't assume it's not in one here!
+            # However, we can ignore it if it is (discarding it and making
+            # our own new one to hold our chunks and markers),
+            # and just print a warning here, trusting that in the future
+            # the group cleanup of just-read mmp files will fix things better.
+            if chunk.parent_node_of_class(DnaStrandOrSegment):
+                print "dna updater: fyi (warning, should be fixed when mmp files are fixed on read): " \
+                      "discarding at least one preexisting %r which was not in a DnaGroup" \
+                      % (chunk.parent_node_of_class(DnaStrandOrSegment),)
             dnaGroup = new_DnaGroup_around_chunk(chunk)
+            if DEBUG_DNA_UPDATER:
+                print "dna_updater: made new dnaGroup", dnaGroup
                 # Note: all our chunks will eventually get moved from
                 # whereever they are now into this new DnaGroup.
                 # If some are old and have group structure around them,
@@ -296,7 +319,8 @@ class WholeChain(object):
         # now make the marker on those atoms
         # (todo: in future, we might give it some user settings too)
         assy = atom.molecule.assy
-        marker = DnaMarker(assy, [atom, next_atom]) # doesn't give it a wholechain yet
+        marker_class = self._DnaMarker_class # subclass-specific constant
+        marker = marker_class(assy, [atom, next_atom]) # doesn't give it a wholechain yet
         return marker
     
     # todo: methods related to base indexing
@@ -309,12 +333,14 @@ class WholeChain(object):
 # ==
 
 class Axis_WholeChain(WholeChain):
+    _DnaMarker_class = DnaSegmentMarker
     """
     A WholeChain for axis atoms.
     """
     pass
 
 class Strand_WholeChain(WholeChain):
+    _DnaMarker_class = DnaStrandMarker
     """
     A WholeChain for strand atoms.
     """

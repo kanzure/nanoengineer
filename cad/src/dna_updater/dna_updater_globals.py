@@ -71,7 +71,7 @@ def get_changes_and_clear():
     dict2.update(dict1)
     return dict2
 
-def ignore_new_changes( from_what, changes_ok = True ):
+def ignore_new_changes( from_what, changes_ok = True, debug_print_even_if_none = False):
     """
     Discard whatever changes occurred since the last time
     we called get_changes_and_clear,
@@ -84,11 +84,14 @@ def ignore_new_changes( from_what, changes_ok = True ):
     
     @param changes_ok: whether it's ok (not an error) if we see changes.
     @type changes_ok: boolean
+    
+    @param debug_print_even_if_none: do our debug prints even if there were no changes
+    @type debug_print_even_if_none: boolean
     """    
     ignore_these = get_changes_and_clear()
 
-    if ignore_these:
-        if changes_ok:
+    if ignore_these or debug_print_even_if_none:
+        if (not ignore_these) or changes_ok:
             if DEBUG_DNA_UPDATER:
                 print "dna updater: ignoring %d new changes %s" % (len(ignore_these), from_what)
         else:

@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 dna_updater_groups.py - enforce rules on chunks containing changed PAM atoms
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_updater_globals import ignore_new_changes
@@ -14,6 +14,8 @@ from dna_updater_constants import DEBUG_DNA_UPDATER
 from dna_model.DnaGroup import DnaGroup
 
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
+
+_DEBUG_GROUPS = True
 
 # ==
 
@@ -68,18 +70,26 @@ def update_DNA_groups( new_chunks, new_wholechains ):
     # - for segments: this tells you which existing or new DnaSegment owns each marker and DnaSegmentChunk. Move nodes.
     # - for strands: ditto; move markers into DnaStrand, and chunks into that or DnaSegment (decide this soon).
 
-    ignore_new_changes("as update_DNA_groups starts", changes_ok = False )
+    ignore_new_changes("as update_DNA_groups starts", changes_ok = False,
+                       debug_print_even_if_none = _DEBUG_GROUPS)
 
     old_groups = {}
 
     # make missing strand_or_segment, and move markers into it if needed
     for wholechain in new_wholechains:
+        print "loop on", wholechain #### Axis_WholeChain
         strand_or_segment = wholechain.find_or_make_strand_or_segment()
         for marker in wholechain.all_markers():
+            print " sub on ", marker ### never got here
             old_group = strand_or_segment.move_into_your_members(marker)
             if old_group:
                 old_groups[id(old_group)] = old_group
 
+    ignore_new_changes("from find_or_make_strand_or_segment",
+                       changes_ok = False,
+                       debug_print_even_if_none = _DEBUG_GROUPS )
+        # should not change atoms in the ways we track
+    
     # move chunks if needed
     for chunk in new_chunks:
         wholechain = chunk.wholechain # defined for DnaLadderRailChunks
@@ -98,6 +108,10 @@ def update_DNA_groups( new_chunks, new_wholechains ):
             # and only do it now if no home existed.
         if old_group:
             old_groups[id(old_group)] = old_group
+
+    ignore_new_changes("from moving chunks and markers into proper Groups",
+                       changes_ok = False,
+                       debug_print_even_if_none = _DEBUG_GROUPS )
 
     # Clean up old_groups:
     # for any group we moved anything out of, perhaps delete it if it is now empty
@@ -125,6 +139,10 @@ def update_DNA_groups( new_chunks, new_wholechains ):
         elif len(old_group.members) == 1:
             old_group.ungroup() ###k always ok? desirable? [dissolves the group; could use this in len 0 case too]
 
+    ignore_new_changes("from trimming groups we removed things from",
+                       changes_ok = False,
+                       debug_print_even_if_none = _DEBUG_GROUPS )
+    
     ignore_new_changes("as update_DNA_groups returns", changes_ok = False )
 
     return # from update_DNA_groups

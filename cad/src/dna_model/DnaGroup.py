@@ -10,6 +10,8 @@ DnaGroup.py - ...
 from dna_model.Block import Block
 from chunk           import Chunk
 
+from constants import gensym
+
 from icon_utilities import imagename_to_pixmap
 
 # Following import is disabled. See addSegment method for reason.
