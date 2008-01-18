@@ -236,7 +236,7 @@ class DnaChain(object):
                 else:
                     bond_dir_to_neighbor = + self._bond_direction
                 next_atom = end_atom.strand_next_baseatom(bond_direction = bond_dir_to_neighbor)
-                assert next_atom is None or next_atom.element.role == 'strand' # @@@@@@
+                assert next_atom is None or next_atom.element.role == 'strand'
                 # store next_atom at end of loop
             else:
                 # do axis atoms in this per-end loop, only if chain length > 1;
@@ -297,7 +297,8 @@ class DnaChain(object):
         assert len(self.neighbor_baseatoms) == 2
         assert type(self.neighbor_baseatoms) == type([])
         for atom in self.neighbor_baseatoms:
-            assert atom is None or atom.element.role in ['axis', 'strand'] # @@@@@@
+            assert atom is None or atom.element.role in ['axis', 'strand']
+                # note: 'unpaired-base' won't appear in any chain
         return # from _f_update_neighbor_baseatoms
     
     pass # end of class DnaChain

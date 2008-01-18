@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 fix_atom_classes.py - fix classes of PAM atoms
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_updater_utils import replace_atom_class
@@ -13,6 +13,7 @@ from chem import Atom
 
 StrandAtom = Atom # stub
 AxisAtom = Atom # stub
+UnpairedBaseAtom = Atom # stub
 
 
 ##issues: bondpoint classes. need a separate func to fix them later?
@@ -59,12 +60,14 @@ def real_atom_desired_class(atom): #e refile into an Atom method? return classna
     element = atom.element
 
     pam = element.pam # 'PAM3' or 'PAM5' or None ### use this?
-    role = element.role # 'strand' or 'axis' or None # @@@@@@
+    role = element.role # 'strand' or 'axis' or 'unpaired-base' or None
     if role == 'strand':
-        return StrandAtom # PAM3_StrandAtom? subclass of StrandAtom?
+        return StrandAtom # PAM3_StrandAtom? subclass of StrandAtom? What about Pl?
     elif role == 'axis':
         return AxisAtom
-    else:
+    elif role == 'unpaired-base':
+        return UnpairedBaseAtom
+    else:        
         return Atom # ChemAtom?
     
 def fix_atom_classes( changed_atoms): #e rename, real_atom; call differently, see comment above ### @@@

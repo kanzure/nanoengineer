@@ -1,13 +1,20 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 dna_updater_follow_strand.py - helper function for dna_updater_ladders.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from constants import noop
+
+_FAKE_AXIS_FOR_BARE_STRANDS = [1]
+    # arbitrary non-false object comparable using 'is'
+    # (it might be enough for it to be not None, even if false)
+    # (the code could be simplified to let it just be None,
+    #  but it's not worth the trouble right now)
+    # [bruce 080117]
 
 def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break_strand, axis_break_between_Q = None):
     """
@@ -16,7 +23,9 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
     Loop over strand's base atoms, watching the strand join and leave
     axis chains and move along them; break both axis and strand
     whenever it joins, leaves, or moves discontinuously
-    along axis (for details, see the code comments).
+    along axis (treating lack of Ax as moving continuously on an
+    imaginary Ax chain different from all real ones)
+    (for details, see the code comments).
 
     The breaks must be done only virtually, by calling the provided
     functions with the 3 args (chain, index, whichside) -- the API
@@ -120,11 +129,19 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
             assert prior_axis is not None # since at least one s_atom
             (axis, index) = None, None
         else:
-            (axis, index) = strand_axis_info[s_atom.key]
-            # BUG: this fails for a bare strand atom (which can be permitted
-            # by debug_prefs), e.g. in the mmkit. Low pri for now.
-            # We might want to exclude bare atoms from processed changes,
-            # when we don't delete them. #doit sometime [071205]
+            try:
+                (axis, index) = strand_axis_info[s_atom.key]
+                # Note: this fails for a bare strand atom (permittable
+                # by debug_prefs), e.g. in the mmkit -- and more
+                # importantly is now permitted "officially" for
+                # representing single strands,
+                # at least until we implement some 'unpaired-base' atoms.
+                # So, pretend all bare strand atoms live on a special
+                # fake axis and move along it continuously.
+            except KeyError:
+                axis = _FAKE_AXIS_FOR_BARE_STRANDS
+                index = s_index # always acts like continuous motion
+            pass
             
         # set the variables jumped, new_direction, changed_direction;
         # these are their values unless changed explicitly just below:
@@ -140,7 +157,8 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
             else:
                 new_direction = delta # only used if we don't jump
                 if phase == 2:
-                    if axis_break_between_Q(axis, index, prior_index):
+                    if (axis is not _FAKE_AXIS_FOR_BARE_STRANDS) and \
+                       axis_break_between_Q(axis, index, prior_index):
                         # break the strand to match the axis break we just passed over
                         break_strand_phase2(strand, s_index, -1)
                 if prior_direction and new_direction != prior_direction:
@@ -181,7 +199,7 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
 
         if jumped:
             assert new_direction == 0
-            if prior_axis is not None:
+            if prior_axis is not None and prior_axis is not _FAKE_AXIS_FOR_BARE_STRANDS:
                 do_jump_from_axis( prior_axis, prior_index, prior_direction)
             if s_index is not None:
                 do_jump_of_strand( strand, s_index)
@@ -230,7 +248,8 @@ def dna_updater_follow_strand(phase, strand, strand_axis_info, break_axis, break
             if not prior_direction:
                 # we just entered this axis in the prior step -
                 # break it before entry point
-                do_jump_to_axis_once_new_direction_known( axis, prior_index, new_direction )
+                if axis is not _FAKE_AXIS_FOR_BARE_STRANDS:
+                    do_jump_to_axis_once_new_direction_known( axis, prior_index, new_direction )
             pass
         # record state for the next iteration:
         prior_axis = axis

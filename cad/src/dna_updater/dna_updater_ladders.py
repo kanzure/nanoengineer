@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 dna_updater_ladders.py - ladder-related helpers for dna_updater_chunks
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 See also: DnaLadder
 """
@@ -186,7 +186,8 @@ def make_new_ladders(axis_chains, strand_chains):
     (which should contain only PAM atoms no longer in valid old ladders,
      and which are able to form complete new ladders, since they contain
      all or no PAM atoms from each "base pair" (Ss-Ax-Ss unit) or "single
-     strand base" (Ss-Ax- with no other Ss on that Ax),
+     strand base" (either Ss-Ax- with no other Ss on that Ax, or Ss with
+     no Ax (possibly with 'unpaired-base' atoms which we mostly ignore),
     fragmenting, reversing, and shifting the chains as needed.
 
     The newly made ladders might be more fragmented than required
@@ -197,7 +198,8 @@ def make_new_ladders(axis_chains, strand_chains):
 
     The new ladders will have rails in the same direction
     and with proper bond directions. (If necessary, we fix
-    inconsistent bond directions.) [### partly nim; see ladder.error flag]
+    inconsistent bond directions.) [### partly nim; see ladder.error flag --
+    also it would be better to not change them but to break bonds. @@@]
 
     @return: list of newly made DnaLadders
     """
@@ -255,7 +257,9 @@ def make_new_ladders(axis_chains, strand_chains):
         # Loop over strand's base atoms, watching the strand join and leave
         # axis chains and move along them; virtually break both axis and strand
         # whenever it joins, leaves, or moves discontinuously
-        # along axis (for details, see the helper function).
+        # along axis (treating lack of Ax as moving continuously on an
+        # imaginary Ax chain different from all real ones)
+        # (for details, see the helper function).
         # (The break_ functions store the virtual breaks for later use
         #  in fragmenting the chains.)
         dna_updater_follow_strand(1, strand, strand_axis_info, break_axis, break_strand)
@@ -302,7 +306,7 @@ def make_new_ladders(axis_chains, strand_chains):
             start_index, length = frag
             axis_rail = axis.virtual_fragment(start_index, length)
             ladder = DnaLadder(axis_rail)
-            for atom in end_baseatoms(axis_rail):
+            for atom in axis_rail.end_baseatoms():
                 ladder_locator[atom.key] = ladder
             ladders.append(ladder)
 
@@ -311,11 +315,17 @@ def make_new_ladders(axis_chains, strand_chains):
         for frag in frags:
             start_index, length = frag
             strand_rail = strand.virtual_fragment(start_index, length)
-            # find ladder to put it in
-            atom = end_baseatoms(strand_rail)[0].axis_neighbor()
-            assert atom # @@@@ WILL FAIL for single strands with no Ax...
-            ladder = ladder_locator[atom.key]
-            ladder.add_strand_rail(strand_rail)
+            # find ladder to put it in (Ax attached to arbitrary strand atom)
+            atom = strand_rail.end_baseatoms()[0].axis_neighbor()
+            if atom is None:
+                # single strand with no Ax (will be true of every Ss in chain)
+                print "single strand ignored for now, fix soon:", strand_rail # @@@@@@
+                for atom2 in strand_rail.baseatoms:
+                    assert atom2.axis_neighbor() is None # remove when works
+            else:
+                # Ax is present
+                ladder = ladder_locator[atom.key]
+                ladder.add_strand_rail(strand_rail)
 
     for ladder in ladders:
         ladder.finished()

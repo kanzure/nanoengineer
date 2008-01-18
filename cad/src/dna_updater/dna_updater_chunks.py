@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 dna_updater_chunks.py - enforce rules on chunks containing changed PAM atoms
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from state_utils import transclose
@@ -216,7 +216,9 @@ def update_PAM_chunks( changed_atoms):
     # chains, and when fragmenting chains above, but discards it for merged
     # chains.)
 
-    # @@@ do we need to rotate smallchains that are rings?
+    # Note: we don't need to rotate smallchains that are rings, to align them
+    # properly in ladders, since make_new_ladders will break them up as
+    # needed into smaller pieces which are aligned.
 
     new_ladders = make_new_ladders(axis_chains, strand_chains)
 

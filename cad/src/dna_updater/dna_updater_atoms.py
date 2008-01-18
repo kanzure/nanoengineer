@@ -88,6 +88,8 @@ def update_PAM_atoms_and_bonds(changed_atoms):
         fix_bond_classes( new_atoms)
             # sufficient, since any changed bonds (if alive) must be new bonds.
 
+            # @@@@ did that break illegal bonds, or do we do that somewhere else? [080117 Q]
+
         # Note: do changed_atoms.update only after fixing classes on new_atoms,
         # so any new atoms that replace old ones in new_atoms also make it
         # into changed_atoms. Note that this effectively replaces all old atoms
@@ -132,7 +134,11 @@ def update_PAM_atoms_and_bonds(changed_atoms):
 
 def delete_bare_atoms( changed_atoms):
     """
-    delete bare atoms (axis atoms without strand atoms, or vice versa)
+    Delete excessively-bare atoms (defined as axis atoms without strand atoms,
+     or any other PAM atoms that are not allowed to exist with as few neighbors
+     as they have -- note that the rules for strand atoms are in flux as of
+     080117 since the representation of single-stranded DNA is as well).
+
     [must tolerate killed atoms; can kill more atoms and break bonds;
      can record more changes to neighbors of deleted atoms]
     """
@@ -170,13 +176,27 @@ def delete_bare_atoms( changed_atoms):
 def atom_is_bare(atom):
     """
     Is atom an axis atom with no axis-strand bonds,
-    or a strand base atom with no strand-axis bonds?
-    (Note that a strand non-base atom, like Pl, can never be bare.)
+    or (IF this is not allowed -- as of 080117 it *is* allowed)
+    a strand base atom with no strand-axis bonds,
+    or any other PAM atom with illegally-few neighbor atoms
+    of the types it needs?
+    (Note that a strand non-base atom, like Pl, can never be
+     considered bare by this code.)
     """
-    if atom.element.role == 'axis': # @@@@@@
-        return not filter(lambda other: other.element.role == 'strand', atom.neighbors())
+    if atom.element.role == 'axis':
+        strand_neighbors = filter(lambda other: other.element.role == 'strand', atom.neighbors())
+        return not strand_neighbors
     elif atom.element.role == 'strand' and not atom.element.symbol.startswith('Pl'): # KLUGE
-        return not filter(lambda other: other.element.role == 'axis', atom.neighbors())
+        return False # bruce 080117 revision, might be temporary --
+            # but more likely, we'll replace it with some "bigger fix"
+            # like adding Ub (or we might just do that manually later
+            # and allow this with no change in old files)
+##        axis_neighbors = filter(lambda other: other.element.role == 'axis', atom.neighbors())
+##        return not axis_neighbors
+    elif atom.element.role == 'unpaired-base':
+        # guess, bruce 080117
+        strand_neighbors = filter(lambda other: other.element.role == 'strand', atom.neighbors())
+        return not strand_neighbors
     else:
         return False
     pass

@@ -117,7 +117,7 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
         # REVIEW: should we use atom classes or per-class methods here?
         # REVIEW: need to worry about atoms with too few bonds?
         element = atom.element
-        role = element.role # 'axis' or 'strand' or None # @@@@@@
+        role = element.role # 'axis' or 'strand' or 'unpaired-base' or None
         pam = element.pam # 'PAM3' or 'PAM5' or None
         if role == 'axis':
             axis_atoms[atom.key] = atom
@@ -126,7 +126,7 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
             strand_atoms[atom.key] = atom
             assert pam in ('PAM3', 'PAM5') # REVIEW: separate these too?
         else:
-            pass # ignore all other atoms
+            pass # ignore all others, including role == 'unpaired-base' atoms
         return
 
     for atom in changed_atoms.itervalues():

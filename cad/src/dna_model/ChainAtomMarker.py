@@ -160,7 +160,7 @@ class ChainAtomMarker(Jig):
 ##            assert self._old_atom.killed()
 ##            # BUG: can fail in Undo, e.g. if you select and delete all atoms,
 ##            # then Undo that. (At least it did once after some other atom
-##            # deletes in a duplex, just after delete_bare_atoms implemented.)
+##            # deletes in a duplex, just after delete_bare_atoms was implemented.)
 ##            # REVIEW: make _old_atom undoable, to fix this? Not sure it would help...
 ##            # [071205]
 ##        return res
