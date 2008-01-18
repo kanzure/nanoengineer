@@ -19,6 +19,7 @@ from PM.PM_Colors import pmGrpBoxColor
 from PM.PM_Colors import getPalette
 from PlatformDependent import make_history_filename
 from qt4transition import qt4todo
+from prefs_constants import displayReportsWidget_prefs_key
 import env
 
 class Ui_ReportsDockWidget(QDockWidget):
@@ -91,6 +92,17 @@ class Ui_ReportsDockWidget(QDockWidget):
         
         win.addDockWidget(Qt.BottomDockWidgetArea, self)
         
+        # Since the connection to the toggle() slot hasn't been made yet,
+        # we must set the checkmark and hide/show self manually.
+        if env.prefs[displayReportsWidget_prefs_key]:
+            self.win.viewReportsAction.setChecked(True) 
+            # No slot connected yet, so show self manually.
+            self.show()
+        else:
+            self.win.viewReportsAction.setChecked(False)
+            # No slot connected yet, so hide self manually.
+            self.hide()
+        
     def _addHistoryWidget(self):
         """
         Sets up and adds the history widget.
@@ -120,37 +132,59 @@ class Ui_ReportsDockWidget(QDockWidget):
     def show(self):
         """
         Show this widget. Makes sure that this widget is shown only 
-        when the View > Reports action is checked
+        when the B{View > Reports} action is checked
         @see: B{self.closeEvent}
         """
+        
+        if not env.prefs[displayReportsWidget_prefs_key]:
+            return
+        
         if not self.win.viewReportsAction.isChecked():
             self.win.viewReportsAction.setChecked(True)
             return
-        
+            
         QDockWidget.show(self)
         
             
     def closeEvent(self, event):
         """
-        Makes sure that this widget is closed (hidden ) only when the 
-        View > Reports action is unchecked. Overrides QDockWidget.closeEvent()
+        Makes sure that this widget is closed (hidden) only when 
+        the B{View > Reports} action is unchecked. 
+        Overrides QDockWidget.closeEvent()
         @parameter event: closeEvent for the QDockWidget
         """
         if self.win.viewReportsAction.isChecked():
             self.win.viewReportsAction.setChecked(False)
+                # setChecked() generates signal and calls toggle() slot.
             return
         
         QDockWidget.closeEvent(self, event)
         
         
-    def hide(self):
+    def hide_DISABLED(self):
         """
         Hide this widget. Makes sure that this widget is closed (hidden ) only 
-        when the View > Reports action is unchecked
+        when the B{View > Reports} action is unchecked
         @see: self.closeEvent
+        @deprecated: Not needed and marked for removal. Mark 2008-01-18
         """
         if self.win.viewReportsAction.isChecked():
             self.win.viewReportsAction.setChecked(False)
+                # setChecked() generates signal and calls toggle() slot.
             return
         
         QDockWidget.hide(self)
+        
+    def toggle(self, isChecked):
+        """
+        Hides or shows the Reports DockWidget.
+        
+        @param isChecked: Checked state of the B{View > Reports} menu item
+        @type  isChecked: boolean
+        """
+        if isChecked:
+            env.prefs[displayReportsWidget_prefs_key] = True
+            self.show()
+        else:
+            env.prefs[displayReportsWidget_prefs_key] = False
+            self.hide()

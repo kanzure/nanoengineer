@@ -240,6 +240,7 @@ displayFont_prefs_key = 'A9/Display Font'
 displayFontPointSize_prefs_key = 'A9/Display Font Point Size'
 mtColor_prefs_key = 'A9/Model Tree Background Color' # Not yet in Preferences. Mark 2007-06-04
 toolbar_state_prefs_key = 'A10/ Toolbar State '
+displayReportsWidget_prefs_key = 'A10/Display Reports Widget'
 #colorTheme_prefs_key = 'A9/Color Theme'
 
 # Sponsor prefs
@@ -520,6 +521,7 @@ prefs_table = (
     #('', 'string', colorTheme_prefs_key, "defaultColorTheme"), # Gray for A9. Mark 2007-05-27.
     #Following saves the toolbar and dockwidget positions between NE1 sessions
     ('toolbar_state', 'string' , toolbar_state_prefs_key, 'defaultToolbarState'),
+    ('', 'boolean', displayReportsWidget_prefs_key, False),
     # ...    
     ('', 'boolean', sponsor_download_permission_prefs_key, False ),
     ('', 'boolean', sponsor_permanent_permission_prefs_key, False ),
