@@ -3,7 +3,12 @@
 #ifndef NX_STRINGTOKENIZERTEST_H
 #define NX_STRINGTOKENIZERTEST_H
 
-#pragma warning(disable:4786)
+#ifdef WIN32
+#	ifdef _MSC_VER
+#		pragma warning(disable:4786)
+#	endif
+#endif
+
 #include <vector>
 #include <string>
 

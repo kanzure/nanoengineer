@@ -14,7 +14,6 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <strstream>
 
 namespace Nanorex {
 
@@ -40,8 +39,6 @@ class NXProperties {
 								const char* defaultValue);
 		std::vector<std::string> getPropertyKeys();
 		void clear();
-		const std::string serialize();
-		bool deSerialize(const std::string& serializedData);
 
 	private:
 		std::map<std::string, std::string> properties;

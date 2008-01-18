@@ -32,7 +32,7 @@ std::string NXUtility::itos(unsigned int i) {
  */
 std::string NXUtility::itos(unsigned long i) {
 	char buffer[40];
-	sprintf(buffer, "%u", i);
+	sprintf(buffer, "%lu", i);
 	std::string s = buffer;
 
 	return s;

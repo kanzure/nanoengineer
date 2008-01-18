@@ -5,6 +5,8 @@
 
 namespace Nanorex {
 
+unsigned int NXMoleculeSet::NextMoleculeIndex = 0;
+
 
 /* CONSTRUCTOR */
 NXMoleculeSet::NXMoleculeSet() {
@@ -14,6 +16,17 @@ NXMoleculeSet::NXMoleculeSet() {
 /* DESTRUCTOR */
 NXMoleculeSet::~NXMoleculeSet() {
 	// TODO: Recursively delete sub-NXMSs
+}
+
+
+OBMol* NXMoleculeSet::newMolecule() {
+	OBMol* molecule = new OBMol();
+	NXMoleculeData* moleculeData = new NXMoleculeData();
+	moleculeData->SetIdx(NextMoleculeIndex);
+	NextMoleculeIndex++;
+	molecule->SetData(moleculeData);
+	molecules.push_back(molecule);
+	return molecule;
 }
 
 

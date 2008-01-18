@@ -80,62 +80,71 @@ void NXEntityManagerTest::moleculeTraversalTest() {
 	// Create a tree of molecules in molecule sets
 	//
 	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
-	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
-	CPPUNIT_ASSERT(moleculeId == 0);
-	entityManager->newMolecule(rootMoleculeSet);
+	OBMol* molecule = rootMoleculeSet->newMolecule();
+	CPPUNIT_ASSERT(((NXMoleculeData*)
+				    (molecule->GetData(NXMoleculeDataType)))->GetIdx() == 0);
+	rootMoleculeSet->newMolecule();
 	
 	rootMoleculeSet->addChild(new NXMoleculeSet());
 	NXMoleculeSet* childMoleculeSet1 = new NXMoleculeSet();
 	rootMoleculeSet->addChild(childMoleculeSet1);
-	moleculeId = entityManager->newMolecule(childMoleculeSet1);
-	CPPUNIT_ASSERT(moleculeId == 2);
-	entityManager->newMolecule(childMoleculeSet1);
+	molecule = childMoleculeSet1->newMolecule();
+	CPPUNIT_ASSERT(((NXMoleculeData*)
+				    (molecule->GetData(NXMoleculeDataType)))->GetIdx() == 2);
+	childMoleculeSet1->newMolecule();
 	
 	NXMoleculeSet* childMoleculeSet2 = new NXMoleculeSet();
 	childMoleculeSet1->addChild(childMoleculeSet2);
-	moleculeId = entityManager->newMolecule(childMoleculeSet2);
-	CPPUNIT_ASSERT(moleculeId == 4);
-	entityManager->newMolecule(childMoleculeSet2);	
+	molecule = childMoleculeSet2->newMolecule();
+	CPPUNIT_ASSERT(((NXMoleculeData*)
+				    (molecule->GetData(NXMoleculeDataType)))->GetIdx() == 4);
+	childMoleculeSet2->newMolecule();	
 	
 	childMoleculeSet1->addChild(new NXMoleculeSet());
 	
 	// Traverse all the molecules starting at the root molecule set
 	//
 	// root
-	NXMoleculeIdIterator iter1 = entityManager->moleculesBegin(rootMoleculeSet);
-	CPPUNIT_ASSERT(iter1 != entityManager->moleculesEnd(rootMoleculeSet));
-	CPPUNIT_ASSERT(*iter1 == 0);
+	OBMolIterator iter1 = rootMoleculeSet->moleculesBegin();
+	CPPUNIT_ASSERT(iter1 != rootMoleculeSet->moleculesEnd());
+	CPPUNIT_ASSERT(((NXMoleculeData*)
+				    ((*iter1)->GetData(NXMoleculeDataType)))->GetIdx() == 0);
 	iter1++;
-	CPPUNIT_ASSERT(*iter1 == 1);
+	CPPUNIT_ASSERT(((NXMoleculeData*)
+				    ((*iter1)->GetData(NXMoleculeDataType)))->GetIdx() == 1);
 	iter1++;
-	CPPUNIT_ASSERT(iter1 == entityManager->moleculesEnd(rootMoleculeSet));
+	CPPUNIT_ASSERT(iter1 == rootMoleculeSet->moleculesEnd());
 	
 	NXMoleculeSetIterator moleculeSetIter1 = rootMoleculeSet->childrenBegin();
-	iter1 = entityManager->moleculesBegin(*moleculeSetIter1);
-	CPPUNIT_ASSERT(iter1 == entityManager->moleculesEnd(*moleculeSetIter1));
+	iter1 = (*moleculeSetIter1)->moleculesBegin();
+	CPPUNIT_ASSERT(iter1 == (*moleculeSetIter1)->moleculesEnd());
 	
 	// childMoleculeSet1
 	moleculeSetIter1++;
-	iter1 = entityManager->moleculesBegin(*moleculeSetIter1);
-	CPPUNIT_ASSERT(*iter1 == 2);
+	iter1 = (*moleculeSetIter1)->moleculesBegin();
+	CPPUNIT_ASSERT(((NXMoleculeData*)
+				    ((*iter1)->GetData(NXMoleculeDataType)))->GetIdx() == 2);
 	iter1++;
-	CPPUNIT_ASSERT(*iter1 == 3);
+	CPPUNIT_ASSERT(((NXMoleculeData*)
+				    ((*iter1)->GetData(NXMoleculeDataType)))->GetIdx() == 3);
 	iter1++;
-	CPPUNIT_ASSERT(iter1 == entityManager->moleculesEnd(*moleculeSetIter1));
+	CPPUNIT_ASSERT(iter1 == (*moleculeSetIter1)->moleculesEnd());
 	
 	// childMoleculeSet2
 	NXMoleculeSetIterator moleculeSetIter2 =
 		(*moleculeSetIter1)->childrenBegin();
-	iter1 = entityManager->moleculesBegin(*moleculeSetIter2);
-	CPPUNIT_ASSERT(*iter1 == 4);
+	iter1 = (*moleculeSetIter2)->moleculesBegin();
+	CPPUNIT_ASSERT(((NXMoleculeData*)
+				    ((*iter1)->GetData(NXMoleculeDataType)))->GetIdx() == 4);
 	iter1++;
-	CPPUNIT_ASSERT(*iter1 == 5);
+	CPPUNIT_ASSERT(((NXMoleculeData*)
+				    ((*iter1)->GetData(NXMoleculeDataType)))->GetIdx() == 5);
 	iter1++;
-	CPPUNIT_ASSERT(iter1 == entityManager->moleculesEnd(*moleculeSetIter2));
+	CPPUNIT_ASSERT(iter1 == (*moleculeSetIter2)->moleculesEnd());
 	
 	moleculeSetIter2++;
-	iter1 = entityManager->moleculesBegin(*moleculeSetIter2);
-	CPPUNIT_ASSERT(iter1 == entityManager->moleculesEnd(*moleculeSetIter2));	
+	iter1 = (*moleculeSetIter2)->moleculesBegin();
+	CPPUNIT_ASSERT(iter1 == (*moleculeSetIter2)->moleculesEnd());	
 }
 
 
@@ -149,57 +158,56 @@ void NXEntityManagerTest::moleculeTraversalTest() {
  *   |-- childMoleculeSet1 (2 molecules, 2 atoms each)
  *         |-- childMoleculeSet2 (2 molecules, 2 atoms each)
  *         |-- child
- */
 void NXEntityManagerTest::atomTraversalTest1() {
 
 	// Create a tree of molecules with atoms in molecule sets
 	//
 	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
-	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
-	entityManager->newAtom(moleculeId);
-	entityManager->newAtom(moleculeId);
-	moleculeId = entityManager->newMolecule(rootMoleculeSet);
-	entityManager->newAtom(moleculeId);
-	entityManager->newAtom(moleculeId);
+	NXMolecule* molecule = rootMoleculeSet->newMolecule();
+	molecule->NewAtom();
+	molecule->NewAtom();
+	molecule = rootMoleculeSet->newMolecule();
+	molecule->NewAtom();
+	molecule->NewAtom();
 	
 	rootMoleculeSet->addChild(new NXMoleculeSet());
 	NXMoleculeSet* childMoleculeSet1 = new NXMoleculeSet();
 	rootMoleculeSet->addChild(childMoleculeSet1);
-	moleculeId = entityManager->newMolecule(childMoleculeSet1);
-	entityManager->newAtom(moleculeId);
-	entityManager->newAtom(moleculeId);
-	moleculeId = entityManager->newMolecule(childMoleculeSet1);
-	entityManager->newAtom(moleculeId);
-	entityManager->newAtom(moleculeId);
+	molecule = childMoleculeSet1->newMolecule();
+	molecule->NewAtom();
+	molecule->NewAtom();
+	molecule = childMoleculeSet1->newMolecule();
+	molecule->NewAtom();
+	molecule->NewAtom();
 	
 	NXMoleculeSet* childMoleculeSet2 = new NXMoleculeSet();
 	childMoleculeSet1->addChild(childMoleculeSet2);
-	moleculeId = entityManager->newMolecule(childMoleculeSet2);
-	entityManager->newAtom(moleculeId);
-	entityManager->newAtom(moleculeId);
-	moleculeId = entityManager->newMolecule(childMoleculeSet2);
-	entityManager->newAtom(moleculeId);
-	entityManager->newAtom(moleculeId);
+	molecule = childMoleculeSet2->newMolecule();
+	molecule->NewAtom();
+	molecule->NewAtom();
+	molecule = childMoleculeSet2->newMolecule();
+	molecule->NewAtom();
+	molecule->NewAtom();
 	
 	childMoleculeSet1->addChild(new NXMoleculeSet());
 	
 	// Traverse all the atoms starting from the root molecule set
-	//NXAtomIdIterator atomsBegin(NXMoleculeSet* moleculeSet);
 	std::string summary = atomTraversalTest1Helper(rootMoleculeSet);
 	CPPUNIT_ASSERT(summary == "0.1.2.3.4.5.6.7.8.9.10.11.");
 }
+ */
 
 
-/* FUNCTION: atomTraversalTest1Helper */
+/* FUNCTION: atomTraversalTest1Helper 
 std::string NXEntityManagerTest::atomTraversalTest1Helper
 		(NXMoleculeSet* moleculeSet) {
 	std::string summary("");
 
 	// Traverse atoms
-	NXAtomIdIterator atomIter = entityManager->atomsBegin(moleculeSet);
-	while (atomIter != entityManager->atomsEnd(moleculeSet)) {
+	NXAtomIterator atomIter = moleculeSet->BeginAtoms();
+	while (atomIter != moleculeSet->EndAtoms()) {
 		char buffer[5];
-		sprintf(buffer, "%d.", *atomIter);
+		sprintf(buffer, "%d.", (*atomIter)->GetIdx());
 		summary.append(buffer);
 		atomIter++;
 	}
@@ -212,7 +220,7 @@ std::string NXEntityManagerTest::atomTraversalTest1Helper
 	}
 	return summary;
 }
-
+*/
 
 /* FUNCTION: atomTraversalTest2
  *
@@ -223,47 +231,25 @@ void NXEntityManagerTest::atomTraversalTest2() {
 	// Create a molecule with atoms
 	//
 	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
-	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
-	entityManager->newAtom(moleculeId);
-	entityManager->newAtom(moleculeId);
+	OBMol* molecule = rootMoleculeSet->newMolecule();
+	OBAtom* atom = molecule->NewAtom();
+	printf("\n>%d\n", atom->GetIdx());
+	atom = molecule->NewAtom();
+	printf("\n>%d\n", atom->GetIdx());
 	
 	// Traverse the molecule's atoms
-	NXAtomIdIterator iter = entityManager->atomsBegin(moleculeId);
+	OBAtomIterator iter = molecule->BeginAtoms();
+	printf("\n>>%d\n", (*iter)->GetIdx());
+	CPPUNIT_ASSERT((*iter)->GetIdx() == 1);
+	iter++;
+	printf("\n>>%d\n", (*iter)->GetIdx());
+	CPPUNIT_ASSERT((*iter)->GetIdx() == 2);
+	iter++;
+	/*
+	while (iter != molecule->EndAtoms()) {
+		printf("#%d ", (*iter));
+		iter++;
+	}
+	*/
 	CPPUNIT_ASSERT(*iter == 0);
-	iter++;
-	CPPUNIT_ASSERT(*iter == 1);
-	iter++;
-	CPPUNIT_ASSERT(iter == entityManager->atomsEnd(moleculeId));
-}
-
-
-/* FUNCTION: atomDataTest */
-void NXEntityManagerTest::atomDataTest() {
-
-	// Create a molecule to add atoms to
-	//
-	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
-	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
-	NXABMInt atomId = entityManager->newAtom(moleculeId, "C", 1.0, 2.0, 3.0);
-	CPPUNIT_ASSERT(NXAtom::GetMoleculeId(atomId) == moleculeId);
-	CPPUNIT_ASSERT(strcmp(NXAtom::GetElementName(atomId), "C") == 0);
-	CPPUNIT_ASSERT(strcmp(NXAtom::GetElementName(99), "") == 0); // Bad atom Id
-	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 0) == 1.0);
-	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 1) == 2.0);
-	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 2) == 3.0);
-	CPPUNIT_ASSERT(NXAtom::GetPosition(atomId, 3) == 0.0); // Bad dimension
-}
-
-
-/* FUNCTION: bondDataTest */
-void NXEntityManagerTest::bondDataTest() {
-
-	// Create a molecule to add bonds to
-	//
-	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
-	NXABMInt moleculeId = entityManager->newMolecule(rootMoleculeSet);
-	NXABMInt bondId = entityManager->newBond(moleculeId, 1, 2);
-	CPPUNIT_ASSERT(NXBond::GetMoleculeId(bondId) == moleculeId);
-	CPPUNIT_ASSERT(NXBond::GetA(bondId) == 1);
-	CPPUNIT_ASSERT(NXBond::GetB(bondId) == 2);
 }

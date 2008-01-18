@@ -205,57 +205,6 @@ void NXProperties::clear() {
 }
 
 
-/* FUNCTION: serialize */
-/**
- * Returns this NXProperties object serialized.
- */
-const std::string NXProperties::serialize() {
-	std::string buffer;
-	std::map<std::string, std::string>::iterator iter;
-
-	for (iter = properties.begin(); iter != properties.end(); iter++) {
-		buffer += iter->first;
-		buffer += "=";
-		buffer += iter->second;
-		buffer += "\n";
-	}
-	return buffer;
-}
-
-
-/* FUNCTION: deSerialize */
-/**
- * Reads in the key/value pairs found in the given serialized NXProperties
- * string.
- *
- * @return Whether or not the de-serialization was successful.
- */
-bool NXProperties::deSerialize(const std::string& serializedData) {
-	bool success = true;
-
-	// Open stream
-	std::istrstream inStream(serializedData.c_str());
-	if (!inStream) {
-		// Stream could not be opened.
-		success = false;
-	}
-
-	if (success) {
-		try {
-			// Read properties.
-			std::string line;
-			while (std::getline(inStream, line, '\n')) {
-				deSerializeLine(line);
-			}
-		} catch (...) {
-			// bad input data
-			success = false;
-		}
-	}
-	return success;
-}
-
-
 /* FUNCTION: deSerializeLine */
 void NXProperties::deSerializeLine(const std::string& dataLine) {
 	std::string key, value;
@@ -270,7 +219,7 @@ void NXProperties::deSerializeLine(const std::string& dataLine) {
 		return;
 
 	// Get key/value pair
-	int index = line.find("=", 1);
+	unsigned int index = line.find("=", 1);
 	if (index != std::string::npos) {
 
 		key = line.substr(0, index);

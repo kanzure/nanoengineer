@@ -3,7 +3,12 @@
 #ifndef NX_UTILITYTEST_H
 #define NX_UTILITYTEST_H
 
-#pragma warning(disable:4786)
+#ifdef WIN32
+#	ifdef _MSC_VER
+#		pragma warning(disable:4786)
+#	endif
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <string>
