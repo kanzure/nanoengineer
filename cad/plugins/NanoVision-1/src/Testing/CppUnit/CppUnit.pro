@@ -23,7 +23,6 @@ TEMPLATE = app
 TARGET = CppUnit
 
 LIBS += -lcppunit \
- -L../../../lib \
  -lopenbabel
 
 DESTDIR = /home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit
@@ -48,4 +47,4 @@ HEADERS += ../../Interface/NXNumbersTest.h \
  ../../../include/Nanorex/Interface/NXMoleculeData.h
 
 INCLUDEPATH += ../../../include \
-../../../include/openbabel-2.0
+ /usr/local/include/openbabel-2.0/
