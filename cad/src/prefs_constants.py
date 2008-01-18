@@ -521,7 +521,7 @@ prefs_table = (
     #('', 'string', colorTheme_prefs_key, "defaultColorTheme"), # Gray for A9. Mark 2007-05-27.
     #Following saves the toolbar and dockwidget positions between NE1 sessions
     ('toolbar_state', 'string' , toolbar_state_prefs_key, 'defaultToolbarState'),
-    ('', 'boolean', displayReportsWidget_prefs_key, False),
+    ('', 'boolean', displayReportsWidget_prefs_key, True),
     # ...    
     ('', 'boolean', sponsor_download_permission_prefs_key, False ),
     ('', 'boolean', sponsor_permanent_permission_prefs_key, False ),
