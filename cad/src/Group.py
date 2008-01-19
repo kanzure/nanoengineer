@@ -924,6 +924,7 @@ class Group(Node):
             x.writemdl(alist, f, dispdef)
 
     def __str__(self):
+        # (review: is this ever user-visible, e.g. in history messages?)
         return "<group " + self.name +">"
 
     def move(self, offset): # in Group [bruce 070501 added this to Node API]
