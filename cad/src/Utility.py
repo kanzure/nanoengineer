@@ -207,7 +207,7 @@ class Node( StateMixin):
         """
         [subclasses can override this, and often do]
         """
-        classname = self.__class__.__name__
+        classname = self.__class__.__name__.split('.')[-1] #bruce 080118 split after '.'
         try:
             name_msg = ", name = %r" % (self.name,)
         except:
