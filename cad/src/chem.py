@@ -3295,7 +3295,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     #
     # ===
 
-    # == PAM strand atom methods (some are more specific than that, ie not on Pl)
+    # == PAM strand atom methods (some are more specific than that,
+    # e.g. not on Pl or only on Pl)
     
     # default values of instance variables (not needed):
     ## dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
@@ -3609,6 +3610,36 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # todo: could assert self is a termination atom or bondpoint,
         # or if not, that self.bond_directions_are_set_and_consistent()
         # (if we do, revise docstring)
+        return None
+
+    def Pl_preferred_Ss_neighbor(self): # bruce 080118
+        """
+        For self a Pl atom (PAM5), return the Ss neighbor
+        it prefers to be grouped with (e.g. in the same chunk,
+        or when one of its bonds is broken) if it has a choice.
+
+        (If it has no Ss atom, print bug warning and return None.)
+
+        @warning: the bond direction constant hardcoded into this method
+        is an ARBITRARY GUESS as of 080118. Also it ought to be defined
+        in some dna-related constants file (once this method is moved
+        to a dna-related subclass of Atom).
+        """
+        assert self.element.symbol.startswith("Pl") # KLUGE
+        Pl_STICKY_BOND_DIRECTION = 1 ### @@@@ JUST A GUESS -- 1 or -1;
+            # direction from Pl to the Ss it wants to stay with when it can
+            #e refile into a dna constants file when we refile this method
+        for candidate in ( # these might be None, or conceivably a non-Ss atom
+            self.next_atom_in_bond_direction( Pl_STICKY_BOND_DIRECTION),
+            self.next_atom_in_bond_direction( - Pl_STICKY_BOND_DIRECTION)
+         ):
+            if candidate and candidate.element.symbol.startswith("Ss"): # KLUGE
+                # note: this cond excludes X (good), Pl (bug if happens, but good).
+                # it excludes Sj and Hp (bad), but is only used from dna updater
+                # so that won't be an issue. Non-kluge variant would test for
+                # "a strand base atom".
+                return candidate
+        print "bug: Pl with no Ss: %r" % self # only true once dna updater enabled
         return None
         
     def axis_neighbor(self): #bruce 071203; bugfix 080117 for single strand
