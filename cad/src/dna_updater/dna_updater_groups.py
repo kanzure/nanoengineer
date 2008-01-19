@@ -77,10 +77,9 @@ def update_DNA_groups( new_chunks, new_wholechains ):
 
     # make missing strand_or_segment, and move markers into it if needed
     for wholechain in new_wholechains:
-        print "loop on", wholechain #### Axis_WholeChain
         strand_or_segment = wholechain.find_or_make_strand_or_segment()
         for marker in wholechain.all_markers():
-            print " sub on ", marker ### never got here
+            print "dna updater: debug fyi: subloop on ", marker ### bug, not happening
             old_group = strand_or_segment.move_into_your_members(marker)
             if old_group:
                 old_groups[id(old_group)] = old_group

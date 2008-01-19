@@ -121,6 +121,16 @@ class DnaLadderRailChunk(Chunk):
 
 # == these subclasses might be moved to separate files, if they get long
 
+class DnaAxisChunk(DnaLadderRailChunk):
+    """
+    Chunk for holding part of a Dna Segment Axis (the part in a single DnaLadder).
+
+    Internal model object; same comments as in DnaStrandChunk docstring apply.
+    """
+    pass
+
+# ==
+
 class DnaStrandChunk(DnaLadderRailChunk):
     """
     Chunk for holding part of a Dna Strand (the part in a single DnaLadder).
@@ -132,32 +142,46 @@ class DnaStrandChunk(DnaLadderRailChunk):
     updater to make one, is not yet decided. Likewise, whether self.draw is
     normally called is not yet decided.)
     """
-    def _grab_atoms_from_chain(self, chain):
+    def _grab_atoms_from_chain(self, chain): # misnamed, doesn't take them out of chain
         """
         [extends superclass version]
         """
         DnaLadderRailChunk._grab_atoms_from_chain(self, chain)
         for atom in chain.baseatoms:
-            # pull in unowned Pls too
+            # pull in Pls too (if they prefer this Ss to their other one)
+            # and also directly bonded unpaired base atoms (which should
+            # never be bonded to more than one Ss)
+            ### review: can't these atoms be in an older chunk of the same class
+            # from a prior step?? I think yes... so always pull them in,
+            # regardless of class of their current chunk.
             for atom2 in atom.neighbors():
-                if atom2.element.symbol.startswith('Pl'): # KLUGE
-                    mol2 = atom2.molecule
-                    if not isinstance(mol2, DnaLadderRailChunk):
-                        # also covers whether mol2 is self
-                        # WARNING: correctness of this condition
-                        # assumes that we don't change chunk classes,
-                        # but only make new chunks, when we want chunks
-                        # to have the subclasses defined in this module.
+                grab_atom2 = False # might be changed to True below
+                is_Pl = atom2.element.symbol.startswith('Pl') # KLUGE
+                if is_Pl:
+                    # does it prefer to stick with atom (over its other Ss neighbors, if any)?
+                    if atom is atom2.Pl_preferred_Ss_neighbor(): # an Ss or None
+                        grab_atom2 = True
+                elif atom2.element.role == 'unpaired-base':
+                    grab_atom2 = True
+                if grab_atom2:
+                    if atom2.molecule is self:
+                        print "dna updater: should not happen: %r is already in %r" % \
+                              (atom2, self)
+                        # since self is new, just now being made,
+                        # and since we think only one Ss can want to pull in atom2
+                    else:
                         atom2.hopmol(self)
-        return
-    pass
+                            # review: does this harm the chunk losing it if it too is new? @@@
+                            # (guess: yes; since we overrode delatom to panic... not sure about Pl etc)
+                            # academic for now, since it can't be new, afaik
+                            # (unless some unpaired-base atom is bonded to two Ss atoms,
+                            #  which we ought to prevent in the earlier bond-checker @@@@ NIM)
+                            # (or except for inconsistent bond directions, ditto)
+                        pass
+                    pass
+                continue
+            continue
+        return # from _grab_atoms_from_chain
+    pass # end of class DnaStrandChunk
 
-class DnaAxisChunk(DnaLadderRailChunk):
-    """
-    Chunk for holding part of a Dna Segment Axis (the part in a single DnaLadder).
-
-    Internal model object; same comments as in DnaStrandChunk docstring apply.
-    """
-    pass
-                        
 # end

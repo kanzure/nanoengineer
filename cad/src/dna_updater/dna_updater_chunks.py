@@ -340,7 +340,7 @@ def _find_rail_of_atom( atom, ladder_to_rails_function):
     [private helper]
     (can assume atom is an end_baseatom of its rail)
     """
-    rails = ladder_to_rails_function( atom.chunk.ladder)
+    rails = ladder_to_rails_function( atom.molecule.ladder)
     for rail in rails:
         for end_atom in rail.end_baseatoms():
             if end_atom is atom:

@@ -11,13 +11,15 @@ smaller chains (or 1 smaller ring), with refs to markers and a strand or segment
 from dna_model.dna_model_constants import LADDER_END0
 from dna_model.dna_model_constants import LADDER_END1
 
-from dna_model.DnaMarker import DnaMarker # isinstance
-from dna_model.DnaMarker import DnaSegmentMarker, DnaStrandMarker # constructors
+from dna_model.DnaMarker import DnaMarker # for isinstance
+from dna_model.DnaMarker import DnaSegmentMarker # constructor
+from dna_model.DnaMarker import DnaStrandMarker # constructor
 
+# for parent_node_of_class:
 from dna_model.DnaGroup import DnaGroup
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_model.DnaGroup import find_or_make_DnaGroup_for_homeless_object
 
 class WholeChain(object):
     """
@@ -185,15 +187,10 @@ class WholeChain(object):
 ##        if not self._controlling_marker:
 ##            self._controlling_marker = self._choose_or_make_controlling_marker()
         assert self._controlling_marker, "%r should have called _choose_or_make_controlling_marker before now" % self
-        print "x1"
         strand_or_segment = self._controlling_marker._f_get_owning_strand_or_segment()
-        print "x2"
         if not strand_or_segment:
-            print "x3"#yes
             strand_or_segment = self._make_strand_or_segment( self._controlling_marker)
-            print "x4"#no
             self._controlling_marker._f_set_owning_strand_or_segment( strand_or_segment)
-            print "x5"
         self._strand_or_segment = strand_or_segment
         return strand_or_segment
 
@@ -212,7 +209,6 @@ class WholeChain(object):
         # one if different atoms in a wholechain are in different
         # DnaGroups -- which is an error by the user op).
         dnaGroup = chunk.parent_node_of_class(DnaGroup)
-        print "dnaGroup is", dnaGroup #########
         if dnaGroup is None:
             # If it was not in a DnaGroup, it should not be in a DnaStrand or
             # DnaSegment either (since we should never make those without
@@ -224,12 +220,10 @@ class WholeChain(object):
             # and just print a warning here, trusting that in the future
             # the group cleanup of just-read mmp files will fix things better.
             if chunk.parent_node_of_class(DnaStrandOrSegment):
-                print "dna updater: fyi (warning, should be fixed when mmp files are fixed on read): " \
+                print "dna updater fallback (bug, or mmp file not fixed when read): " \
                       "discarding at least one preexisting %r which was not in a DnaGroup" \
                       % (chunk.parent_node_of_class(DnaStrandOrSegment),)
-            dnaGroup = new_DnaGroup_around_chunk(chunk)
-            if DEBUG_DNA_UPDATER:
-                print "dna_updater: made new dnaGroup", dnaGroup
+            dnaGroup = find_or_make_DnaGroup_for_homeless_object(chunk)
                 # Note: all our chunks will eventually get moved from
                 # whereever they are now into this new DnaGroup.
                 # If some are old and have group structure around them,
@@ -293,8 +287,9 @@ class WholeChain(object):
         [private]
         self has no marker which wants_to_be_controlling().
         Make one (on some good choice of atom on self)
-        and return it. (Don't store it or tell it it's controlling --
-        caller must do that if desired.)
+        and return it. (Don't store it as our controlling marker,
+        or tell it it's controlling -- caller must do that if desired.
+        But *do* add it to our list of all markers on our atoms.)
 
         @note: we always make one, even if this is a 1-atom wholechain
         so it's not possible to make a good or fully correct one (for now).
@@ -321,6 +316,16 @@ class WholeChain(object):
         assy = atom.molecule.assy
         marker_class = self._DnaMarker_class # subclass-specific constant
         marker = marker_class(assy, [atom, next_atom]) # doesn't give it a wholechain yet
+
+        # give it a temporary home in the model (so it doesn't seem killed)
+        part = atom.molecule.part or assy.part
+        part.place_new_jig(marker) # overkill, since we'll move it later,
+            # but good for now, since this location ought to mitigate bugs
+            # if that doesn't happen (e.g. it's probably in the correct DnaGroup)
+        
+        # and remember it exists on our atoms
+        self._all_markers.append(marker)
+        
         return marker
     
     # todo: methods related to base indexing
@@ -348,10 +353,10 @@ class Strand_WholeChain(WholeChain):
 
 # ==
 
-def new_DnaGroup_around_chunk(chunk):
-    return new_Group_around_Node(chunk, DnaGroup)
+##def new_DnaGroup_around_chunk(chunk):
+##    return new_Group_around_Node(chunk, DnaGroup)
 
-def new_Group_around_Node(node, group_class): #e refile, might use in other ways too
+def new_Group_around_Node(node, group_class): #e refile, might use in other ways too [not used now, but might be correct]
     node.part.ensure_toplevel_group() # might not be needed
     name = "(internal Group)" # stub
     assy = node.assy
@@ -361,4 +366,5 @@ def new_Group_around_Node(node, group_class): #e refile, might use in other ways
     group.addchild(node)
     return group
 
+    
 # end

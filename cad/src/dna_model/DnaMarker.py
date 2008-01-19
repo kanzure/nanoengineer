@@ -21,6 +21,10 @@ from dna_model.DnaStrand import DnaStrand
 from dna_model.DnaSegment import DnaSegment
 from dna_model.DnaGroup import DnaGroup
 
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+
+from drawer import drawwirecube
+
 # ==
 
 # constants
@@ -66,6 +70,8 @@ def reversed_list(list1):
     return list1
 
 # ==
+
+_superclass = ChainAtomMarker
 
 class DnaMarker( ChainAtomMarker):
     """
@@ -126,9 +132,13 @@ class DnaMarker( ChainAtomMarker):
         # and in theory it could appear in MT, though in practice, probably only in some PM listwidget, but still,
         # doing the same things a "visible node" can do is good for that.
 
-    mmp_record_name = "DnaMarker" # @@@@ not yet read; also the mmp format might be verbose (has color); writing not yet happening
+    # we'll define mmp_record_name differently in each subclass
+    ## mmp_record_name = "DnaMarker" # @@@@ not yet read; also the mmp format might be verbose (has color)
+
+    # icon_names = ("missing", "missing-hidden")
+    icon_names = ('border/dna.png', 'border/dna.png') # stubs; not normally seen for now
     
-    copyable_attrs = ChainAtomMarker.copyable_attrs + ()
+    copyable_attrs = _superclass.copyable_attrs + ()
         # todo: add some more -- namely the user settings about how it moves, whether it lives, etc
 
 
@@ -158,7 +168,7 @@ class DnaMarker( ChainAtomMarker):
 ##    _chain = None # (not undoable or copyable)
 
 
-    # == Jig or Node API methods (overridden or extended from ChainAtomMarker):
+    # == Jig or Node API methods (overridden or extended from ChainAtomMarker == _superclass):
 
     def __init__(self, assy, atomlist): #####, chain = None):
 ##        # [can chain be None after we get copied? I think so...]
@@ -167,21 +177,62 @@ class DnaMarker( ChainAtomMarker):
 ##        @param chain: the atom chain or ring which we reside on when created (can it be None??)
 ##        @type chain: AtomChainOrRing instance ### REVIEW
         """
-        ChainAtomMarker.__init__(self, assy, atomlist)
+        _superclass.__init__(self, assy, atomlist)
 ##        if chain is not None:
 ##            self.set_chain(chain) ### prob not needed @@@@
         global _marker_newness_counter
         _marker_newness_counter += 1
         self._newness = _marker_newness_counter
+        if DEBUG_DNA_UPDATER:
+            print "dna updater: made %r" % \
+                  (self,)
         return
 
+# debug methods, working, remove after commit
+##    def changed_dad(self):
+##        """
+##        Extend Node method, just for debugging.
+##        """
+##        if 0 and DEBUG_DNA_UPDATER:
+##            print "dna updater: changed_dad to %r in %r" % \
+##                  (self.dad, self)
+##        _superclass.changed_dad(self)
+##        return
+##
+    def kill(self):
+        """
+        Extend Node method, just for debugging.
+        """
+        if DEBUG_DNA_UPDATER:
+            print "dna updater: killing %r" % \
+                  (self,)
+        _superclass.kill(self)
+        return
+    
+    def _draw_jig(self, glpane, color, highlighted = False):
+        """
+        [overrides superclass method]
+        """
+        from constants import orange
+        for a in self.atoms:
+            chunk = a.molecule
+            dispdef = chunk.get_dispdef(glpane)
+            disp, rad = a.howdraw(dispdef)
+            if self.picked:
+                rad *= 1.01
+            drawwirecube(color, a.posn(), rad)
+            # draw next_atom in a different color than marked_atom (sp?)
+            color = orange # this is what differs from superclass
+
+    # ==
+    
     def get_oldness(self):
         """
         Older markers might compete better for controlling their wholechain;
         return our "oldness" (arbitrary scale, comparable with Python standard
         ordering).
         """
-        return - self._newness
+        return (- self._newness)
     
     def wants_to_be_controlling(self):
         return self._wants_to_be_controlling
@@ -196,16 +247,28 @@ class DnaMarker( ChainAtomMarker):
     def _undo_update(self): # in class DnaMarker
         """
         """
-        nim ### @@@@
+        print "bug: undo_update is partly nim in %r" % self ### @@@@
+        _homeless_dna_markers[id(self)] = self # ok?? sufficient?? [080118]
 
     def remove_atom(self, atom):
         """
         [extends superclass method]
         """
-        ChainAtomMarker.remove_atom(self, atom)
         _homeless_dna_markers[id(self)] = self # TODO: also do this when copied? not sure it's needed.
+        _superclass.remove_atom(self, atom)
         return
 
+    def changed_structure(self, atom): # 080118
+        """
+        [extends superclass method]
+        """
+        # (we extend this method so that if bonds change so that marked_atom and
+        #  next_atom (sp?) are no longer next to one another, we'll get
+        #  updated as needed.)
+        _homeless_dna_markers[id(self)] = self
+        _superclass.changed_structure(self, atom)
+        return
+        
     #e also add a method [nim in api] for influencing how we draw the atom?
     # guess: no -- might be sufficient (and is better, in case old markers lie around)
     # to just use the Jig.draw method, and draw the marker explicitly. Then it can draw
@@ -304,6 +367,10 @@ class DnaMarker( ChainAtomMarker):
         @rtype: boolean
         """
 
+        if 'SAFETY STUB 080118': # @@@@@
+            self.kill()
+            return False
+        
         # Algorithm -- just find the nearest live atom in the right direction.
         # Do this by scanning old atom lists in chain objects known to markers,
         # so no need for per-atom stored info.
@@ -574,6 +641,8 @@ class DnaSegmentMarker(DnaMarker): #e rename to DnaAxisMarker? guess: no...
     (and, therefore, a base-pair position within the segment).
     """
     _DnaStrandOrSegment_class = DnaSegment
+    featurename = "Dna Segment Marker" # might never be visible
+    mmp_record_name = "DnaSegmentMarker" # @@@@ not yet read
     def get_DnaSegment(self):
         """
         Return the DnaSegment that owns us, or None if none does.
@@ -598,6 +667,8 @@ class DnaStrandMarker(DnaMarker):
     (and, therefore, a base position along the strand).
     """
     _DnaStrandOrSegment_class = DnaStrand
+    featurename = "Dna Strand Marker" # might never be visible
+    mmp_record_name = "DnaStrandMarker" # @@@@ not yet read
     def get_DnaStrand(self):
         """
         Return the DnaStrand that owns us, or None if none does.

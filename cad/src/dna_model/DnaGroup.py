@@ -14,6 +14,11 @@ from constants import gensym
 
 from icon_utilities import imagename_to_pixmap
 
+from dna_updater.dna_updater_globals import _f_DnaGroup_for_homeless_objects_in_Part
+
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+
+
 # Following import is disabled. See addSegment method for reason.
 ## from dna_model.DnaSegment import DnaSegment
 
@@ -227,4 +232,43 @@ class DnaGroup(Block):
  
     pass # end of class DnaGroup
 
+# ==
+
+def find_or_make_DnaGroup_for_homeless_object(node):
+    """
+    All DNA objects found outside of a DnaGroup during one run of the dna updater
+    in one Part should be put into one new DnaGroup at the end of that Part.
+    This is a fallback, since it only happens if we didn't sanitize DnaGroups
+    when reading a file, or due to bugs in Dna-related user ops,
+    or a user running an ordinary op on DNA that our UI is supposed to disallow.
+    So don't worry much about prettiness, just correctness,
+    though don't gratuitously discard info.
+
+    The hard part is "during one run of the dna updater". We'll let it make a
+    global dict from Part to this DnaGroup, and discard it after every run
+    (so no need for this dict to be weak-keyed).
+
+    If we have to guess the Part, we'll use the node's assy's current Part.
+    """
+    part = node.part or node.assy.part
+    try:
+        return _f_DnaGroup_for_homeless_objects_in_Part[part]
+    except KeyError:
+        dnaGroup = _make_DnaGroup_for_homeless_objects_in_Part(part)
+        _f_DnaGroup_for_homeless_objects_in_Part[part] = dnaGroup
+        return dnaGroup
+    pass
+
+def _make_DnaGroup_for_homeless_objects_in_Part(part):
+    # not needed, done in addnode: part.ensure_toplevel_group()
+    name = gensym("fallback DnaGroup")
+    assy = part.assy #k
+    dad = None
+    dnaGroup = DnaGroup(name, assy, dad) # same args as for Group.__init__
+    part.addnode(dnaGroup)
+    if DEBUG_DNA_UPDATER:
+        print "dna_updater fallback (bug, or mmp file not fixed when read): " \
+              " made new dnaGroup %r" % dnaGroup
+    return dnaGroup
+    
 # end

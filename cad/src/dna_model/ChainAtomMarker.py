@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ChainAtomMarker.py - a marked atom and direction in a chain of atoms,
 with help for moving it to a new atom if its old atom is killed;
@@ -6,7 +6,7 @@ has state for undo/copy/save
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 ### REVIEW -- is the following true?
 Note: in principle, this is not specific to DNA, so it probably doesn't
@@ -132,6 +132,17 @@ class ChainAtomMarker(Jig):
         self._check_atom_order()
         
         return Jig.writemmp(self, mapping)
+
+    def __repr__(self): # 080118
+        # find out if this harms Jig.writemmp; if not, i can try fixing __repr__ on all jigs
+        classname = self.__class__.__name__.split('.')[-1]
+##        try:
+##            name = self.name
+##        except:
+##            name = "?"
+        res = "<%s[%r -> %r] at %#x>" % \
+              (classname, self.marked_atom, self.next_atom, id(self))
+        return res
         
     # == other methods
 

@@ -1,11 +1,11 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 dna_updater_globals.py -- global variables or mutables for dna_updater,
 and their lowest-level accessors.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
@@ -110,5 +110,8 @@ def ignore_new_changes( from_what, changes_ok = True, debug_print_even_if_none =
     del ignore_these
     return
 
+# ==
 
+_f_DnaGroup_for_homeless_objects_in_Part = {}
+        
 # end
