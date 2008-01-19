@@ -221,13 +221,14 @@ def update_PAM_chunks( changed_atoms):
     # properly in ladders, since make_new_ladders will break them up as
     # needed into smaller pieces which are aligned.
 
-    new_ladders = make_new_ladders(axis_chains, strand_chains)
+    new_ladders, singlestrands = make_new_ladders(axis_chains, strand_chains)
 
     ignore_new_changes("from make_new_ladders", changes_ok = False)
 
     modified_valid_ladders = merge_ladders(new_ladders)
         # note: each returned ladder is either entirely new (perhaps merged),
         # or the result of merging new and old ladders.
+        # REVIEW: @@@@ need to merge singlestrands too?
 
     ignore_new_changes("from merge_ladders", changes_ok = False)
 
@@ -236,14 +237,14 @@ def update_PAM_chunks( changed_atoms):
 
     all_new_chunks = []
     
-    for ladder in modified_valid_ladders:
+    for ladder in modified_valid_ladders + singlestrands:
         new_chunks = ladder.remake_chunks()
         all_new_chunks.extend(new_chunks)
 
     ignore_new_changes("from remake_chunks", changes_ok = True)
         # (changes are from parent chunk of atoms changing)
 
-    # Now make new wholechains on modified_valid_ladders,
+    # Now make new wholechains on modified_valid_ladders and singlestrands,
     # let them own their atoms and markers,
     # and choose their controlling markers.
     # These may have existing DnaSegmentOrStrand objects,
@@ -260,11 +261,12 @@ def update_PAM_chunks( changed_atoms):
     # chain it connects to (if any).
 
     # For each kind of chain, the algorithm is handled by this function:
-    def algorithm( ladder_to_rails_function ):
+    def algorithm( list_of_ladderlike_domains, ladder_to_rails_function ):
         """
         [local helper function]
         Given ladder_to_rails_function to tell us the rails of interest for any
-        ladder, for each such rail in modified_valid_ladders,
+        ladder, for each such rail in list_of_ladderlike_domains
+        (containing DnaLadders and/or DnaSingleStrandDomains),
         find the set of rails to be used in making its WholeChain,
         and a return a list of all such sets found.
         
@@ -273,7 +275,7 @@ def update_PAM_chunks( changed_atoms):
         (i.e. the ones found by ladder_to_rails_function).
         """
         toscan_all = {} # maps id(rail) -> rail, for initial set of rails to scan
-        for ladder in modified_valid_ladders:
+        for ladder in list_of_ladderlike_domains:
             for rail in ladder_to_rails_function(ladder):
                 toscan_all[id(rail)] = rail
         def collector(rail, dict1):
@@ -302,9 +304,11 @@ def update_PAM_chunks( changed_atoms):
 
     new_wholechains = (
         map( Axis_WholeChain, 
-             algorithm( lambda ladder: [ladder.axis_rail] ) ) +
+             algorithm( modified_valid_ladders,
+                        lambda ladder: [ladder.axis_rail] ) ) +
         map( Strand_WholeChain,
-             algorithm( lambda ladder: ladder.strand_rails ) )
+             algorithm( modified_valid_ladders + singlestrands, # must do both at once!
+                        lambda ladder: ladder.strand_rails ) )
      )
     if DEBUG_DNA_UPDATER:
         print "dna updater: made %d new or changed wholechains..." % len(new_wholechains)

@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DnaLadder.py - ... 
 
@@ -7,7 +7,7 @@ of Chunk might own a ladder or "ladder rail".
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Context:
 
@@ -167,9 +167,15 @@ class DnaLadder(object):
                 assert strand_rail.end_baseatoms()[LADDER_END0].axis_neighbor() is axis_left_end_baseatom
             continue
         del axis_left_end_baseatom # would be wrong after the following code
-        # verify strand bond directions are antiparallel, and standardize them
-        # (note there might be only the first strand_rail;
-        #  this code works even if there are none)
+        self._finish_strand_rails()
+        return
+    def _finish_strand_rails(self): # also used in DnaSingleStrandDomain
+        """
+        verify strand bond directions are antiparallel, and standardize them;
+        then self.set_valid()
+        (note there might be only the first strand_rail;
+         this code works even if there are none)
+        """
         for strand_rail in self.strand_rails:
             if strand_rail is self.strand_rails[0]:
                 desired_dir = 1
@@ -198,7 +204,7 @@ class DnaLadder(object):
                         have_dir = strand_rail.bond_direction() # only needed for assert
                         assert have_dir == desired_dir
                     elif reverse:
-                        for rail in self.strand_rails + [axis_rail]:
+                        for rail in self.all_rails(): # works for ladder or single strand domain
                             rail.reverse_baseatoms()
                     else:
                         print "error: %r strands have parallel bond directions"\
@@ -233,9 +239,10 @@ class DnaLadder(object):
         return
     def rail_end_baseatoms(self):
         """
-        yield the 3 or 6 atoms which are end-atoms for one of our 3 rails
+        yield the 3 or 6 atoms which are end-atoms for one of our 3 rails,
+        in arbitrary order #k
         """
-        for rail in self.strand_rails + [self.axis_rail]:
+        for rail in self.all_rails():
             # note: rail is a DnaChain, not a DnaLadderRailChunk!
             atom1, atom2 = rail.end_baseatoms()
             yield atom1
@@ -405,7 +412,7 @@ class DnaLadder(object):
         assert self.valid
         # but don't assert not self.error
         res = []
-        for rail in self.strand_rails + [self.axis_rail]:
+        for rail in self.all_rails():
             if rail is self.axis_rail:
                 want_class = DnaAxisChunk
             else:
@@ -439,6 +446,55 @@ class DnaLadder(object):
         return res
     
     pass # end of class DnaLadder
+
+# ==
+
+# @@@@@ review points:
+# - we get added to _invalid_dna_ladders when something invals us... some of the ladder api from rest is really a DnaDomain api
+# - a lot of things happening to ladders needs to happen to these but is NIM
+class DnaSingleStrandDomain(DnaLadder):
+    """
+    Represent a free floating single strand domain;
+    act somewhat like a ladder with no axis rail or second strand rail
+    in terms of ability to interface with other code.
+    """
+    # TODO, should be sibling class -- these are both kinds of DnaDomains, and this has less not more than ladder;
+    # maybe about half of ladder's code looks like it's common code (what's the right classname for the interface?
+    # single or duplex domain? domain with some strands?)
+    valid = False # same as in super; set to True in _finish_strand_rails
+    def __init__(self, strand_rail):        
+        self.axis_rail = None
+        self.assy = strand_rail.baseatoms[0].molecule.assy
+        self.strand_rails = [strand_rail]
+        self._finish_strand_rails()
+            # check bond direction, reverse if needed
+    def baselength(self):
+        return len(self.strand_rails[0])
+    def finished(self):
+        assert 0, "illegal in this class" # or could be a noop
+    def add_strand_rail(self, strand_rail):
+        assert 0, "illegal in this class"
+    def all_rails(self):
+        """
+        Return a list of all our rails (1 strand).
+        """
+        return self.strand_rails
+    def can_merge(self):
+        # REVIEW: is this correct, or do we need to merge with another single strand for some reason? @@@
+        return None
+    def end_atoms(self, end):
+        assert 0, "illegal in this class"        
+    def __repr__(self):
+        ns = self.num_strands()
+        if ns == 1:
+            extra = ""
+        else:
+            extra = " (error: %d strands)" % ns
+        if self.axis_rail:
+            extra += " (error: has axis_rail)"
+        classname = self.__class__.__name__.split('.')[-1]
+        return "<%s at %#x, len %d%s>" % (classname, id(self), self.baselength(), extra)
+    pass
 
 # ==
 

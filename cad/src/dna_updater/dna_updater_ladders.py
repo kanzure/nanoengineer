@@ -14,7 +14,7 @@ from dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
 from dna_updater_follow_strand import dna_updater_follow_strand
 
-from dna_model.DnaLadder import DnaLadder
+from dna_model.DnaLadder import DnaLadder, DnaSingleStrandDomain
 from dna_model.DnaLadder import _f_get_invalid_dna_ladders
 
 from dna_model.DnaLadderRailChunk import DnaLadderRailChunk # import not needed?
@@ -182,7 +182,7 @@ class chains_to_break:
 
 def make_new_ladders(axis_chains, strand_chains):
     """
-    Make new DnaLadders out of the given (partial) atom chains
+    Make new DnaLadders and/or DnaSingleStrandDomains out of the given (partial) atom chains
     (which should contain only PAM atoms no longer in valid old ladders,
      and which are able to form complete new ladders, since they contain
      all or no PAM atoms from each "base pair" (Ss-Ax-Ss unit) or "single
@@ -201,7 +201,7 @@ def make_new_ladders(axis_chains, strand_chains):
     inconsistent bond directions.) [### partly nim; see ladder.error flag --
     also it would be better to not change them but to break bonds. @@@]
 
-    @return: list of newly made DnaLadders
+    @return: tuple of two lists: newly made DnaLadders, newly made DnaSingleStrandDomains
     """
     # Basic algorithm: scan each axis chain (or ring), and follow along its two
     # bound strands to see when one or both of them leave it or stop (i.e. when
@@ -299,6 +299,7 @@ def make_new_ladders(axis_chains, strand_chains):
         return rail.end_baseatoms()
 
     ladders = []
+    singlestrands = []
     
     for axis in axis_chains:
         frags = axis_breaker.breakit(axis)
@@ -319,9 +320,11 @@ def make_new_ladders(axis_chains, strand_chains):
             atom = strand_rail.end_baseatoms()[0].axis_neighbor()
             if atom is None:
                 # single strand with no Ax (will be true of every Ss in chain)
-                print "single strand ignored for now, fix soon:", strand_rail # @@@@@@
+                print "dna updater: fyi: single strand domain %r, len %d:" % (strand_rail, len(strand_rail))# @@@
                 for atom2 in strand_rail.baseatoms:
                     assert atom2.axis_neighbor() is None # remove when works
+                singlestrand = DnaSingleStrandDomain(strand_rail)
+                singlestrands.append(singlestrand)
             else:
                 # Ax is present
                 ladder = ladder_locator[atom.key]
@@ -333,7 +336,7 @@ def make_new_ladders(axis_chains, strand_chains):
             # (it reverses chains as needed, for rung alignment and strand bond direction)
             # @@@ (does it rotate ring chains?)
 
-    return ladders
+    return ladders, singlestrands # from make_new_ladders
 
 # ==
 
