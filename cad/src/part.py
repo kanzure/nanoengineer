@@ -1,11 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 part.py -- class Part, for all chunks and jigs in a single physical space,
 together with their selection state and grouping structure (shown in the
 model tree).
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 see assembly.py docstring, some of which is really about this module. ###@@@ revise
 
@@ -772,12 +772,22 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     # ==
 
-    def addmol(self, mol): #bruce 050228 revised this for Part (was on assy) and for inval/update of part-summary attrs.
+    def addmol(self, mol): 
         """
-        (Public method:)
-        Add a chunk to this Part (usually the "current Part").
+        [Public method:]
+        Add any kind of Node to this Part (usually the "current Part"),
+        at the end of the top level of its node tree
+        (so it will be visible as the last node in this Part's
+         section of the Model Tree, when this Part is visible).
+        
         Invalidate part attributes which summarize part content (e.g. bbox, drawLevel).
+
+        @param mol: the Node to add to self
+        @type mol: Node
+
+        @note: The method name addmol is deprecated. New code should use its alias, addnode. 
         """
+        #bruce 050228 revised this for Part (was on assy) and for inval/update of part-summary attrs.
         ## not needed since done in changed_members:
         ## self.changed() #bruce 041118
         self.ensure_toplevel_group() # needed if, e.g., we use Build mode to add to a clipboard item
