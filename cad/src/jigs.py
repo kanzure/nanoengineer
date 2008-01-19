@@ -1,9 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 jigs.py -- Classes for motors and other jigs, and their superclass, Jig.
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -68,17 +68,19 @@ class Jig(Node, Selobj_API):
     
     # Each Jig subclass must define the class variables:
     # - icon_names -- a list of two icon basenames (one normal and one "hidden") (unless it overrides node_icon)
+    icon_names = ("missing", "missing-hidden") # will show up as blank icons if not overridden
+    
     #
     # and the class constants:
     # - mmp_record_name (if it's ever written to an mmp file)
+    mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
+
     #
     # and can optionally redefine some of the following class constants:
     
     sym = "Jig" # affects name-making code in __init__
 
     pickcolor = darkgreen # color in glpane when picked. [mark 2007-05-07 modified color]
-
-    mmp_record_name = "#" # if not redefined, this means it's just a comment in an mmp file
 
     featurename = "" # wiki help featurename for each Jig (or Node) subclass, or "" if it doesn't have one yet [bruce 051201]
         # (Each Jig subclass should override featurename with a carefully chosen name; for a few jigs it should end in "Jig".)
@@ -211,10 +213,20 @@ class Jig(Node, Selobj_API):
         """
         self._draw_jig(glpane, color, 1)
         
-    def _draw_jig(self, glpane, color, highlighted=False):
+    def _draw_jig(self, glpane, color, highlighted = False):
         """
-        This is the main drawing method for a jig.  
-        By default, it draws a wireframe box around each of the jig's atoms.
+        This is the main drawing method for a jig,
+        which Jig subclasses may want to override.
+        (The public methods which call it, draw -> _draw -> _draw_jig
+        and draw_in_abs_coords -> _draw_jig, do useful things
+        that should be common to most jig drawing.)
+
+        Note that the current code [080118] is a mess in terms of exactly which
+        drawing methods are overridden by various jigs. I don't know if this
+        is justified by the "common code" being harmful in some cases,
+        or just carelessness. Either way, it needs cleanup.
+        
+        By default, this method draws a wireframe box around each of the jig's atoms.
         This method should be overridden by subclasses that want to do more than
         simply draw wireframe boxes around each of the jig's atoms.
         For a good example, see the MeasureAngle._draw_jig().
@@ -225,7 +237,8 @@ class Jig(Node, Selobj_API):
             dispdef = chunk.get_dispdef(glpane)
             disp, rad = a.howdraw(dispdef)
             # wware 060203 selected bounding box bigger, bug 756
-            if self.picked: rad *= 1.01
+            if self.picked:
+                rad *= 1.01
             drawwirecube(color, a.posn(), rad)
     
     # == copy methods [default values or common implems for Jigs,
@@ -829,10 +842,14 @@ class Anchor(Jig):
     # Write "anchor" record to POV-Ray file in the format:
     # anchor(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
-        if self.hidden: return
-        if self.is_disabled(): return #bruce 050421
-        if self.picked: c = self.normcolor
-        else: c = self.color
+        if self.hidden:
+            return
+        if self.is_disabled():
+            return
+        if self.picked:
+            c = self.normcolor
+        else:
+            c = self.color
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             grec = "anchor(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
@@ -979,10 +996,14 @@ class Stat( Jig_onChunk_by1atom ):
     # Write "stat" record to POV-Ray file in the format:
     # stat(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
-        if self.hidden: return
-        if self.is_disabled(): return #bruce 050421
-        if self.picked: c = self.normcolor
-        else: c = self.color
+        if self.hidden:
+            return
+        if self.is_disabled():
+            return
+        if self.picked:
+            c = self.normcolor
+        else:
+            c = self.color
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             srec = "stat(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
@@ -1040,10 +1061,14 @@ class Thermo(Jig_onChunk_by1atom):
     # Write "thermo" record to POV-Ray file in the format:
     # thermo(<box-center>,box-radius,<r, g, b>)
     def writepov(self, file, dispdef):
-        if self.hidden: return
-        if self.is_disabled(): return #bruce 050421
-        if self.picked: c = self.normcolor
-        else: c = self.color
+        if self.hidden:
+            return
+        if self.is_disabled():
+            return
+        if self.picked:
+            c = self.normcolor
+        else:
+            c = self.color
         for a in self.atoms:
             disp, rad = a.howdraw(dispdef)
             srec = "thermo(" + povpoint(a.posn()) + "," + str(rad) + ",<" + str(c[0]) + "," + str(c[1]) + "," + str(c[2]) + ">)\n"
