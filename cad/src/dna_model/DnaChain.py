@@ -38,9 +38,9 @@ class DnaChain(object):
 
     strandQ = None # will be set to a boolean saying whether we're made of strand or axis atoms
     
-    baseatoms = None # public for read; sequence of all our atoms with a baseindex
+    baseatoms = () # public for read; sequence of all our atoms with a baseindex
         # (whether in strand or axis) (leaves out Pl, bondpoints, termination atoms)
-        # note: subclass-specific __init__ must set this
+        # note: subclass-specific __init__ must set this; used in __repr__
 
     neighbor_baseatoms = (-1, -1) # when set, each element is None or a
         # neighboring baseatom (in a directly connected chain, possibly self
@@ -60,6 +60,16 @@ class DnaChain(object):
         # merging ladders and reversing it, we have to tell their markers
         # we did that, which is not done now [071204].
 
+    def __repr__(self):
+        classname = self.__class__.__name__.split('.')[-1]
+        if self.strandQ is None:
+            basetype = 'strandQ-unknown'
+        else:
+            basetype = self.strandQ and 'strand' or 'axis'
+        res = "<%s (%d %s bases) at %#x>" % \
+              (classname, len(self), basetype, id(self))
+        return res
+    
     def _reverse_neighbor_baseatoms(self):
         self.neighbor_baseatoms = list(self.neighbor_baseatoms)
         self.neighbor_baseatoms.reverse()
