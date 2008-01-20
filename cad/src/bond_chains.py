@@ -251,7 +251,7 @@ class abstract_bond_chain_analyzer:
         ring.
 
         @note: The effect of self.branches_ok is implemented in self._found_chain,
-        which could be extended in subclasses to change that behavior.)
+        which could be extended in subclasses to change that behavior.
 
         @note: If any qualifying atom has no qualifying bonds,
         we'll never encounter it, since we encounter atoms
@@ -276,14 +276,21 @@ class abstract_bond_chain_analyzer:
             return None
         
         ringQ, listb1, lista1 = grow_bond_chain(bond, atom1, self.next_bond_in_chain)
+        assert len(listb1) == len(lista1) # guess, bruce 080119
         if ringQ:
             # branchpoint atoms can't occur in rings
             assert atom2 is lista1[-1]
             res = self._found_ring( [bond] + listb1 ,
-                                    [atom2, atom1] + lista1 )
+##                                    [atom2, atom1] + lista1 # wrong, has atom2 twice
+                                    [atom1] + lista1 #bruce 080119 bugfix
+                                   )
         else:
             ringQ, listb2, lista2 = grow_bond_chain(bond, atom2, self.next_bond_in_chain)
+            assert len(listb2) == len(lista2) # guess, bruce 080119
             assert not ringQ
+            ### consider: reverse lista2/listb2 instead, concat other way,
+            # so as to keep listb1 in same order in ring or chain case
+            # [bruce 080119 comment]
             listb1.reverse()
             lista1.reverse()
             # Note: depending on branches_ok, we worry about branchpoint atoms
@@ -303,22 +310,34 @@ class abstract_bond_chain_analyzer:
         if 'debug, but REMOVE WHEN WORKS': ### TODO: OPTIM: REMOVE SOON -- SLOW!
             from bond_constants import find_bond
             for i in range(len(listb)):
-                assert find_bond(lista[i] , lista[(i+1) % len(lista)]) is listb[i]
+                assert find_bond(lista[i] , lista[(i-1) % len(lista)]) is listb[i]
+                    #bruce 080119 bugfix: i+1 -> i-1
             print "remove when works! in _found_ring len %d" % len(lista)####
         return self.make_ring(listb, lista)
     def make_ring(self, listb, lista):
         """
         Return a representation of the ring of bonds and atoms
-        in listb and lista, which have the same length
-        and in which listb[i] bonds lista[i] and lista[(i+1) % len(lista)].
+        in listb and lista, which have the same length,
+        and in which listb[i] is a bond which connects the two atoms
+        lista[i] and lista[(i+1) % len(lista)].
 
         The default implementation just returns (True, listb, lista),
         which has the same format as the grow_bond_chain return value.
         
-        Subclasses can extend this method to return a different representation,
-        or just to do something and return None. The return value is used only
-        as a possible return value of find_chain_or_ring_from_bond and
-        related methods.
+        The return value is used by other methods of self in several ways:
+        * as a possible return value of find_chain_or_ring_from_bond and
+          related methods;
+        * therefore, as a value passed to self.found_object_iteratoms
+          when calling self.find_chains_or_rings.
+
+        Subclasses can extend this method to return a different representation
+        of a ring of bonded atoms, but they will probably also need to extend
+        found_object_iteratoms to handle it.
+
+        (Or they could extend it to do something and return None even for a
+        real ring, but only if they never needed to call a method like
+        self.find_chains_or_rings which needs to use self.found_object_iteratoms
+        on the result.)
         """
         return (True, listb, lista)
     def _found_chain(self, listb, lista):
@@ -376,7 +395,9 @@ class abstract_bond_chain_analyzer:
 
         This method must be extended (or replaced)
         to handle objects returnable by those methods,
-        if they are extended.
+        if they are extended (if the use of a method which
+        calls this one, like self.find_chains_or_rings,
+        is desired).
         """
         if chain_or_ring is None:
             return ()
