@@ -21,6 +21,8 @@ from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
 from dna_model.DnaGroup import find_or_make_DnaGroup_for_homeless_object
 
+from debug import print_compact_traceback
+
 class WholeChain(object):
     """
     A WholeChain knows a sequence of 1 or more smaller chains
@@ -105,6 +107,8 @@ class WholeChain(object):
     # default values of instance variables
     _strand_or_segment = None
     _controlling_marker = None
+    _num_bases = -1 # unknown, to start with (used in __repr__)
+    _all_markers = () # (used in __repr__, could be needed before __init__ done)
     
     def __init__(self, dict_of_rails): # fyi: called by update_PAM_chunks
         """
@@ -121,24 +125,44 @@ class WholeChain(object):
 
         chunk = None # for self._arbitrary_chunk; modified during loop
         markers = {} # collects markers from all our atoms during loop
+        num_bases = 0
         for rail in dict_of_rails.itervalues():
-            chunk = rail.baseatoms[0].molecule
+            baseatoms = rail.baseatoms
+            num_bases += len(baseatoms)
+            chunk = baseatoms[0].molecule
             chunk.set_wholechain(self)
             for atom in rail.baseatoms:
                 for jig in atom.jigs: ### ASSUMES markers are already moved and valid again (on correct live atoms) @@@
                     if isinstance(jig, DnaMarker):
+                        marker = jig
+                        assert not marker.killed(), "marker %r is killed" % ( marker, )
+                            # might fail if they're not yet all in the model @@@
                         # cache the set of these on the rail? might matter when lots of old rails.
                         # does it matter which of its atoms we are? Not if we remove duplicates...
-                        markers[id(jig)] = jig
+                        markers[id(marker)] = marker
             continue
+
+        self._num_bases = num_bases # used only for debug (eg repr) so far, but later will help with base indexing
         
         self._arbitrary_chunk = chunk
         assert self._arbitrary_chunk
 
         self._all_markers = markers.values()
         
-        return
+        return # from __init__
 
+    def chains(self):
+        """
+        Return our chains, IN ARBITRARY ORDER (that might be revised)
+        """
+        return self._dict_of_rails.values()
+    
+    def __repr__(self):
+        classname = self.__class__.__name__.split('.')[-1]
+        res = "<%s (%d bases, %d markers) at %#x>" % \
+              (classname, self._num_bases, len(self._all_markers), id(self))
+        return res
+    
     def all_markers(self):
         """
         Assuming we still own all our atoms (not checked),
@@ -157,17 +181,45 @@ class WholeChain(object):
         [As of 080116 this part is not yet needed or done.]
         """
         self._controlling_marker = self._choose_or_make_controlling_marker()
-        remaining_markers = []
-        for marker in self._all_markers:
-            assert not marker.killed() # this might fail if they're not yet all in the model @@@
+##        remaining_markers = []
+        for marker in self._all_markers[:]:
+            print "debug loop: %r.own_marker %r" % (self, marker)
+            assert not marker.killed(), \
+                   "marker %r (our controlling = %r) is killed" % \
+                   ( marker, (marker is self._controlling_marker) ) # bug info 2: this is where it fails - dup marker or diff chain?
+                # this might fail if they're not yet all in the model,
+                # but we put them there when we make them, and we don't kill them when they
+                # lose atoms, so they ought to be there @@@
+                # (it should not fail from them being killed between __init__ and now
+                #  and unable to tell us, since nothing happens in caller to kill them)
             controlling = (marker is self._controlling_marker)
-            marker.set_wholechain(self, controlling = controlling) # own it
-            if not marker.killed():
-                remaining_markers.append(marker)
-        self._all_markers = remaining_markers
+            marker.set_wholechain(self, controlling = controlling) # bug info 1: this is where we kill it...
+                # own it; tell it whether controlling (some might die then,
+                # and if so they'll call self._f_marker_killed
+                # which removes them from self._all_markers)
+##            if not marker.killed():
+##                remaining_markers.append(marker)
+##        self._all_markers = remaining_markers
+        for marker in self._all_markers:
+            assert not marker.killed(), "marker %r died without telling %r" % (marker, self)
         # todo: use controlling marker to work out base indexing per rail...
         return
-        
+
+    def _f_marker_killed(self, marker):
+        """
+        [friend method for DnaMarker]
+        One of our markers is being killed
+        (and calls this to advise us of that).
+        """
+        try:
+            self._all_markers.remove(marker)
+        except:
+            print_compact_traceback("bug: can't remove %r from %r._all_markers: " %
+                                    ( marker, self)
+                                    )
+            pass
+        return
+    
     def find_strand_or_segment(self):
         """
         Return our associated DnaStrandOrSegment, which is required

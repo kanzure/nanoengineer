@@ -471,6 +471,19 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
 
 # ==
 
+def merged_chain(baseatoms,
+                 strandQ,
+                 bond_direction,
+                 bond_direction_error = False):
+    res = _DnaChainFragment( baseatoms,
+                             bond_direction = bond_direction,
+                             bond_direction_error = bond_direction_error,
+                             strandQ = strandQ
+                            )
+    return res
+    
+# ==
+
 class AxisChain(DnaChain_AtomChainWrapper):
     """
     A kind of DnaChain for just-found axis chains or rings.

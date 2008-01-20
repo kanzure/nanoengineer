@@ -25,6 +25,8 @@ from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 
 from drawer import drawwirecube
 
+from debug import print_compact_stack
+
 # ==
 
 # constants
@@ -201,11 +203,16 @@ class DnaMarker( ChainAtomMarker):
 ##
     def kill(self):
         """
-        Extend Node method, just for debugging.
+        Extend Node method, for debugging and for notifying self.wholechain
         """
         if DEBUG_DNA_UPDATER:
-            print "dna updater: killing %r" % \
-                  (self,)
+            msg = "dna updater: killing %r" % (self,)
+##            print msg
+            print_compact_stack(msg + ": ") #### why is it happening? @@@@
+        if self.wholechain:
+            self.wholechain._f_marker_killed(self)
+            self.wholechain = None
+        # review: what about self._owning_strand_or_segment? @@@
         _superclass.kill(self)
         return
     
@@ -242,7 +249,7 @@ class DnaMarker( ChainAtomMarker):
         [to be called by dna updater]
         """
         self.wholechain = wholechain
-        self.set_whether_controlling(controlling)
+        self.set_whether_controlling(controlling) # might kill self
 
     def _undo_update(self): # in class DnaMarker
         """
@@ -368,6 +375,7 @@ class DnaMarker( ChainAtomMarker):
         """
 
         if 'SAFETY STUB 080118': # @@@@@
+            print "kill %r since move step1 is nim" % self ##### @@@@
             self.kill()
             return False
         

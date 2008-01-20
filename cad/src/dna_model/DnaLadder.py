@@ -48,16 +48,21 @@ contain undoable state), but will not be stored in the mmp file.
 
 from bond_constants import atoms_are_bonded
 
+from dna_model.DnaChain import merged_chain
+
 from dna_model.DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
     # note: if these imports are an issue, they could be moved
     # to a controller class, since they are needed only by remake_chunks method
 
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
 from dna_model.dna_model_constants import LADDER_ENDS
 from dna_model.dna_model_constants import LADDER_END0
 from dna_model.dna_model_constants import LADDER_END1
 from dna_model.dna_model_constants import LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1
+
+from dna_model.dna_model_constants import MAX_LADDER_LENGTH # @@@@ TODO: also use this to split long ladders
 
 # ==
 
@@ -108,6 +113,8 @@ class DnaLadder(object):
         self.strand_rails = []
     def baselength(self):
         return len(self.axis_rail)
+    def __len__(self):
+        return self.baselength()
     def add_strand_rail(self, strand_rail): # review: _f_, since requires a lot of calling code?
         """
         This is called while constructing a dna ladder (self)
@@ -131,7 +138,7 @@ class DnaLadder(object):
                 self.axis_rail.baselength())
         self.strand_rails.append(strand_rail)
         return
-    def finished(self): # @@@@ TODO: revise this or caller for Ub rather than Ax in single strands
+    def finished(self): # note: only for the subclass with axis_rail present [todo: split this class]
         """
         This is called once to signify that construction of self is done
         as far as the caller is concerned (i.e. it's called add_strand_rail
@@ -249,15 +256,16 @@ class DnaLadder(object):
             if atom2 is not atom1:
                 yield atom2
         return
-    def neighboring_ladder_rail_end_atoms(self): # might use this in "make new wholechains on modified_valid_ladders" 080114 @@@
-        """
-        Yield the 0 to 6 pairs (our rail end atom, neighboring other-ladder end atom)
-        (or equivalent info using rail & end indices??)
-        showing how our rails connect to other ladder rails,
-        or to None when they end.
-        If we are length 1, use arbitrary left-right choice for axis.(?)
-        """
-        nim
+# superceded by rail.neighbor_baseatoms:
+##    def neighboring_ladder_rail_end_atoms(self): # might use this in "make new wholechains on modified_valid_ladders" 080114
+##        """
+##        Yield the 0 to 6 pairs (our rail end atom, neighboring other-ladder end atom)
+##        (or equivalent info using rail & end indices??)
+##        showing how our rails connect to other ladder rails,
+##        or to None when they end.
+##        If we are length 1, use arbitrary left-right choice for axis.(?)
+##        """
+##        nim
         
     def invalidate(self):
         # note: this is called from dna updater and from
@@ -290,25 +298,29 @@ class DnaLadder(object):
         Do the specified permitted merge (with another ladder, end to end,
         both valid).
         
-        Invalidate the merged ladders; return the new valid merged ladder.
+        Invalidate the merged ladders; return the new valid ladder
+        resulting from the merge.
         """
         other_ladder, merge_info = other_ladder_and_merge_info
         end, other_end = merge_info
         return self._do_merge_with_other_at_ends(other_ladder, end, other_end)
-    def _can_merge_at_end(self, end):
+    def _can_merge_at_end(self, end): # TODO: update & clean up docstring
         """
         Is the same valid other ladder attached to each rail of self
         at the given end (0 or 1), and if so, can we merge to it
         at that end (based on which ends of which of its rails
         our rails attach to)? (If so, return other_ladder_and_merge_info, otherwise None.)
 
-        Note that self or the other ladder might
+        ### REVIEW (what's done now, what;s best): Note that self or the other ladder might
         be length==1 (in which case only end 0 is mergeable, as an
         arbitrary decision to make only one case mergeable), ### OR we might use bond_dir, then use both cases again
         and that the other ladder might only merge when flipped.
+        
         Also note that bond directions (on strands) need to match. ### really? are they always set?
-        Also worry about single-strand regions.
+        
+        TODO: Also worry about single-strand regions. [guess: just try them out here, axis ends are None, must match]
         """
+        # algorithm:
         # use strand1 bond direction to find only possible other ladder
         # (since that works even if we're of baselength 1);
         # then if other ladder qualifies,
@@ -334,15 +346,22 @@ class DnaLadder(object):
         # other.valid is checked in _rail_end_atom_to_ladder
         if other is self:
             return None
-        if self.num_strands() != other.num_strands():
+        if len(self) + len(other) > MAX_LADDER_LENGTH:
             return None
+        # enable this optim once i verify it works without it: @@
+        ## if self.num_strands() != other.num_strands():
+        ##    return None # optimization
         # try each orientation for other ladder;
         # first collect the atoms to test for bonding to other
         our_end_atoms = self.end_atoms(end)
         for other_end in LADDER_ENDS:
             other_end_atoms = other.end_atoms(other_end)
-                # note: top to bottom on left, bottom to top on right,
-                # None in place of missing atoms for strand2
+                # note: .end_atoms returns a sequence of length 3,
+                # with each element being a rail's end-atom or None for a missing rail;
+                # the rail order is strand-axis-strand, which on the left is in
+                # top to bottom order, but on the right is in bottom to top order.
+                # strand1 is always present; strand2 is missing for either kind of
+                # single strands; axis_rail is missing for free-floating single strands.
             still_ok = True
             for atom1, atom2, strandQ in zip(our_end_atoms, other_end_atoms, (True, False, True)):
                 ok = _end_to_end_bonded(atom1, atom2, strandQ)
@@ -358,16 +377,16 @@ class DnaLadder(object):
     def end_atoms(self, end):
         """
         Return a list of our 3 rail-end atoms at the specified end,
-        using None for a missing atom due to a missing strand2,
+        using None for a missing atom due to a missing strand2 or axis_rail,
         in the order strand1, axis, strand2 for the left end,
         or the reverse order for the right end (since flipping self
         also reverses that rail order in order to preserve strand bond
         directions).
         """
         # note: top to bottom on left, bottom to top on right,
-        # None in place of missing atoms for strand2
+        # None in place of missing atoms for strand2 or axis_rail
         assert len(self.strand_rails) in (1,2)
-        strand_rails = self.strand_rails + [None]
+        strand_rails = self.strand_rails + [None] # + [None] needed in case len is 1
         rails = [strand_rails[0], self.axis_rail, strand_rails[1]] # order matters
         def atom0(rail):
             if rail is None:
@@ -389,18 +408,91 @@ class DnaLadder(object):
         else:
             extra = " (error: %d strands)" % ns
         return "<%s at %#x, axis len %d%s>" % (self.__class__.__name__, id(self), self.axis_rail.baselength(), extra)
-    def _do_merge_with_other_at_ends(self, other, end, other_end):
-        print "nim (bug): _do_merge_with_other_at_ends(self = %r, other_ladder = %r, end = %r, other_end = %r)" % \
+    def _do_merge_with_other_at_ends(self, other, end, other_end): # works in either class; when works, could optim for single strand
+        """
+        Merge two ladders, at specified ends of each one:
+        self, at end, with other, at other_end.
+        
+        Invalidate the merged ladders; return the new valid ladder
+        resulting from the merge.
+        """
+        if DEBUG_DNA_UPDATER:
+            print "dna updater: fyi: _do_merge_with_other_at_ends(self = %r, other_ladder = %r, end = %r, other_end = %r)" % \
               (self, other, end, other_end)
-        assert 0, "nim" ####
+
+        # algorithm: (might differ for subclasses)
+        # - make merged rails (noting possible flip of each ladder)
+        #   (just append lists of baseatoms)
+        # - put them into a new ladder
+        # - when debugging, could check all the same things that
+        #   finished does, assert no change
+        def rail_to_baseatoms(rail, flipQ):
+            if not rail:
+                return []
+            elif not flipQ:
+                return rail.baseatoms
+            else:
+                res = list(rail.baseatoms)
+                res.reverse()
+                return res
+        flip_self = (end != LADDER_END1)
+        flip_other = (other_end != LADDER_END0)
+        self_baseatom_lists = [rail_to_baseatoms(rail, flip_self)
+                               for rail in self.all_rail_slots_from_top_to_bottom()]
+        other_baseatom_lists = [rail_to_baseatoms(rail, flip_other)
+                               for rail in other.all_rail_slots_from_top_to_bottom()]
+        if flip_self:
+            self_baseatom_lists.reverse()
+        if flip_other:
+            other_baseatom_lists.reverse()
+        # now (after flipping) we need to attach self END1 to other END0,
+        # i.e. "self rail + other rail" for each rail.
+        def concatenate_rail_atomlists((r1, r2)):
+            assert (r1 and r2) or (not r1 and not r2)
+            return r1 + r2
+        new_baseatom_lists = map( concatenate_rail_atomlists,
+                                  zip(self_baseatom_lists, other_baseatom_lists))
+        # flip the result if we flipped self, so we know it defines a legal set of rails for a ladder
+        # (todo: could optim by never flipping self, instead swapping ladders and negating both flips)
+        if flip_self:
+            new_baseatom_lists.reverse
+            for i in len(new_baseatom_lists):
+                new_baseatom_lists[i].reverse()
+        # invalidate old ladders before making new rails or new ladder
+        self.invalidate() # @@@@ ok at this stage?
+        other.invalidate()
+        # now make new rails and new ladder
+        new_rails = [ _new_rail( baseatom_list, strandQ, bond_direction)
+                      for baseatom_list, strandQ, bond_direction in
+                      zip( new_baseatom_lists,
+                           (True, False, True),
+                           (1, 0, -1 ) # TODO: grab from a named constant?
+                          ) ]
+        new_ladder = _new_ladder(new_rails)
+        if DEBUG_DNA_UPDATER:
+            print "dna updater: fyi: merge results in %r" % (new_ladder,)
+        return new_ladder
 
     # ==
 
-    def all_rails(self): #todo: could use in various methods herein if desired; could guarantee order (review it first)
+    def all_rails(self):
         """
-        Return a list of all our rails (axis and 1 or 2 strands), in arbitrary order.
+        Return a list of all our rails (axis and 1 or 2 strands), in arbitrary order,
+        not including missing rails.
+        [implem is subclass-specific]
         """
         return [self.axis_rail] + self.strand_rails
+    
+    def all_rail_slots_from_top_to_bottom(self):
+        """
+        Return a list of all our rails (axis and 1 or 2 strands), in top to bottom order,
+        using None for missing rails.
+        [implem is subclass-specific]
+        """
+        if len(self.strand_rails) == 2:
+            return [self.strand_rails[0], self.axis_rail, self.strand_rails[1]]
+        else:
+            return [self.strand_rails[0], self.axis_rail, None]
     
     def remake_chunks(self):
         """
@@ -477,13 +569,16 @@ class DnaSingleStrandDomain(DnaLadder):
     def all_rails(self):
         """
         Return a list of all our rails (1 strand).
+        [implem is subclass-specific]
         """
         return self.strand_rails
-    def can_merge(self):
-        # REVIEW: is this correct, or do we need to merge with another single strand for some reason? @@@
-        return None
-    def end_atoms(self, end):
-        assert 0, "illegal in this class"        
+    def all_rail_slots_from_top_to_bottom(self):
+        """
+        Return a list of all our rails (1 strand), in top to bottom order,
+        using None for missing rails (so length of return value is 3).
+        [implem is subclass-specific]
+        """
+        return [self.strand_rails[0], None, None]
     def __repr__(self):
         ns = self.num_strands()
         if ns == 1:
@@ -522,9 +617,10 @@ def _end_to_end_bonded( atom1, atom2, strandQ):
     """
     Are the expected end-to-end bonds present between end atoms
     from different ladders? (The atoms are None if they are from
-    strand2 of a single-stranded ladder; we expect no bonds between
-    two missing strand2's, but we do need bonds between None and
-    a real strand2, so we return False then.)
+    missing rails, i.e. strand2 of any single-stranded ladder
+    or axis_rail of a free-floating single-stranded ladder;
+    we expect no bonds between two missing atoms, but we do need
+    bonds between None and a real end-atom, so we return False then.)
 
     param atom1: an end atom of a ladder rail, or None (for a missing rail in a ladder)
 
@@ -534,10 +630,10 @@ def _end_to_end_bonded( atom1, atom2, strandQ):
     type strandQ: boolean
     """
     if atom1 is None and atom2 is None:
-        assert strandQ # from a missing strand2
+        # note: this can happen for strandQ or not
         return True
     if atom1 is None or atom2 is None:
-        assert strandQ
+        # note: this can happen for strandQ or not
         return False
     if atoms_are_bonded(atom1, atom2):
         # note: no check for strand bond direction (assume caller did that)
@@ -546,14 +642,14 @@ def _end_to_end_bonded( atom1, atom2, strandQ):
     if strandQ:
         # also check for an intervening Pl in case of PAM5
         return strand_atoms_are_bonded_by_Pl(atom1, atom2)
-    return False
+    else:
+        return False
 
 def strand_atoms_are_bonded_by_Pl(atom1, atom2): #e refile 
     """
     are these two strand base atoms bonded (indirectly) by means of a single
     intervening Pl atom (PAM5)?
     """
-    ## return False  # stub, correct for PAM3; not needed
     if atom1 is atom2:
         # assert 0??
         return False # otherwise following code could be fooled!
@@ -571,5 +667,46 @@ def strand_atoms_are_bonded_by_Pl(atom1, atom2): #e refile
         if Pl in set2 and Pl.element.symbol.startswith("Pl"): # KLUGE
             return True
     return False
-    
+
+# ==
+
+# helpers for _do_merge_with_other_at_ends
+
+def _new_rail(baseatoms, strandQ, bond_direction):
+    """
+    """
+    if baseatoms == []:
+        # special case
+        return None
+    assert len(baseatoms) > 1 # since result of merge of nonempty rails
+        # (might not be needed, but good to sanity-check)
+    if strandQ:
+        assert bond_direction
+    return merged_chain( baseatoms, strandQ, bond_direction)
+
+def _new_ladder(new_rails):
+    """
+    @param new_rails: a sequence of length 3; each element is a new rail,
+                      or None; top to bottom order.
+    """
+    strand1, axis, strand2 = new_rails
+    assert strand1
+    if not axis:
+        assert not strand2
+        return _new_single_strand_domain(strand1)
+    else:
+        return _new_axis_ladder(strand1, axis, strand2)
+    assert 0
+
+def _new_single_strand_domain(strand1):
+    return DnaSingleStrandDomain(strand1)
+
+def _new_axis_ladder(strand1, axis, strand2):
+    ladder = DnaLadder(axis)
+    ladder.add_strand_rail(strand1)
+    if strand2:
+        ladder.add_strand_rail(strand2)
+    ladder.finish() ###k @@@@ ok here?
+    return ladder
+
 # end

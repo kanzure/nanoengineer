@@ -12,6 +12,11 @@ from state_utils import transclose
 from dna_updater_globals import ignore_new_changes
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater_constants import DNA_UPDATER_SLOW_ASSERTS
+
+from dna_updater_debug import assert_unique_chain_baseatoms
+from dna_updater_debug import assert_unique_ladder_baseatoms
+from dna_updater_debug import assert_unique_wholechain_baseatoms
 
 from dna_model.DnaMarker import _f_get_homeless_dna_markers
 
@@ -108,6 +113,9 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("from find_axis_and_strand_chains_or_rings", changes_ok = False )
 
+    if DNA_UPDATER_SLOW_ASSERTS:
+        assert_unique_chain_baseatoms(axis_chains + strand_chains)
+    
 # redundant:
 ##    # @@@ LOGIC ISSUE for moving markers: ....
 ##    # ... we need an old complete-chain object...
@@ -205,6 +213,8 @@ def update_PAM_chunks( changed_atoms):
 ##    # index_directions might be incompatible at the merge points.
 ##    # (I think they'll be compatible for new/new merges, but it doesn't matter.)
 
+    # make ladders
+    
     # Now use the above-computed info to make new DnaLadders out of the chains
     # we just made (which contain all PAM atoms no longer in valid old ladders),
     # and to merge end-to-end-connected ladders (new/new or new/old) into larger
@@ -221,30 +231,56 @@ def update_PAM_chunks( changed_atoms):
     # properly in ladders, since make_new_ladders will break them up as
     # needed into smaller pieces which are aligned.
 
-    new_ladders, singlestrands = make_new_ladders(axis_chains, strand_chains)
+    new_axis_ladders, new_singlestrand_ladders = make_new_ladders( axis_chains, strand_chains)
 
     ignore_new_changes("from make_new_ladders", changes_ok = False)
 
-    modified_valid_ladders = merge_ladders(new_ladders)
+    if DNA_UPDATER_SLOW_ASSERTS:
+        assert_unique_ladder_baseatoms( new_axis_ladders + new_singlestrand_ladders)
+
+    # merge axis ladders (ladders with an axis, and 1 or 2 strands)
+    
+    merged_axis_ladders = merge_ladders( new_axis_ladders)
         # note: each returned ladder is either entirely new (perhaps merged),
         # or the result of merging new and old ladders.
-        # REVIEW: @@@@ need to merge singlestrands too?
 
-    ignore_new_changes("from merge_ladders", changes_ok = False)
+    ignore_new_changes("from merging axis ladders", changes_ok = False)
+
+    if DEBUG_DNA_UPDATER:
+        print "dna updater: merged %d -> %d axis ladders" % \
+              ( len(new_axis_ladders), len(merged_axis_ladders) )
+    del new_axis_ladders
+
+    # merge singlestrand ladders (with no axis)
+    # (note: not possible for an axis and singlestrand ladder to merge)
+    
+    merged_singlestrand_ladders = merge_ladders( new_singlestrand_ladders) # not sure if needed
+
+    ignore_new_changes("from merging singlestrand ladders", changes_ok = False)
+
+    if DEBUG_DNA_UPDATER:
+        print "dna updater: merged %d -> %d singlestrand ladders" % \
+              ( len(new_singlestrand_ladders), len(merged_singlestrand_ladders) )
+    del new_singlestrand_ladders
+
+    merged_ladders = merged_axis_ladders + merged_singlestrand_ladders
+    
+    if DNA_UPDATER_SLOW_ASSERTS:
+        assert_unique_ladder_baseatoms( merged_ladders)
 
     # Now make or remake chunks as needed, so that each ladder-rail is a chunk.
     # This must be done to all newly made or merged ladders (even if parts are old).
 
     all_new_chunks = []
     
-    for ladder in modified_valid_ladders + singlestrands:
+    for ladder in merged_ladders:
         new_chunks = ladder.remake_chunks()
-        all_new_chunks.extend(new_chunks)
+        all_new_chunks.extend( new_chunks)
 
     ignore_new_changes("from remake_chunks", changes_ok = True)
         # (changes are from parent chunk of atoms changing)
 
-    # Now make new wholechains on modified_valid_ladders and singlestrands,
+    # Now make new wholechains on all merged_ladders,
     # let them own their atoms and markers,
     # and choose their controlling markers.
     # These may have existing DnaSegmentOrStrand objects,
@@ -304,15 +340,18 @@ def update_PAM_chunks( changed_atoms):
 
     new_wholechains = (
         map( Axis_WholeChain, 
-             algorithm( modified_valid_ladders,
+             algorithm( merged_axis_ladders,
                         lambda ladder: [ladder.axis_rail] ) ) +
         map( Strand_WholeChain,
-             algorithm( modified_valid_ladders + singlestrands, # must do both at once!
+             algorithm( merged_ladders, # must do both kinds at once!
                         lambda ladder: ladder.strand_rails ) )
      )
     if DEBUG_DNA_UPDATER:
         print "dna updater: made %d new or changed wholechains..." % len(new_wholechains)
 
+    if DNA_UPDATER_SLOW_ASSERTS:
+        assert_unique_wholechain_baseatoms(new_wholechains) # predict bug noticed by this @@@@@
+    
     # note: those Whatever_WholeChain constructors also have side effects:
     # - own their atoms and chunks (chunk.set_wholechain)
     # (REVIEW: maybe use helper funcs so constructors are free of side effects?)

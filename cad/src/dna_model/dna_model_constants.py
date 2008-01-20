@@ -40,4 +40,6 @@ CHAIN_OTHER_END = [1,0] # 1 - end
 CHAIN_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND = [-1, 1]
 
 
+MAX_LADDER_LENGTH = 20 # @@@@ TODO: also use this to split long ladders
+
 # end
