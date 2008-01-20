@@ -190,25 +190,13 @@ class DnaMarker( ChainAtomMarker):
                   (self,)
         return
 
-# debug methods, working, remove after commit
-##    def changed_dad(self):
-##        """
-##        Extend Node method, just for debugging.
-##        """
-##        if 0 and DEBUG_DNA_UPDATER:
-##            print "dna updater: changed_dad to %r in %r" % \
-##                  (self.dad, self)
-##        _superclass.changed_dad(self)
-##        return
-##
     def kill(self):
         """
         Extend Node method, for debugging and for notifying self.wholechain
         """
         if DEBUG_DNA_UPDATER:
             msg = "dna updater: killing %r" % (self,)
-##            print msg
-            print_compact_stack(msg + ": ") #### why is it happening? @@@@
+            print msg
         if self.wholechain:
             self.wholechain._f_marker_killed(self)
             self.wholechain = None

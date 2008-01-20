@@ -320,7 +320,7 @@ def make_new_ladders(axis_chains, strand_chains):
             atom = strand_rail.end_baseatoms()[0].axis_neighbor()
             if atom is None:
                 # single strand with no Ax (will be true of every Ss in chain)
-                print "dna updater: fyi: single strand domain %r, len %d:" % (strand_rail, len(strand_rail))# @@@
+##                print "dna updater: fyi: found single strand domain %r" % (strand_rail,)
                 for atom2 in strand_rail.baseatoms:
                     assert atom2.axis_neighbor() is None # remove when works
                 singlestrand = DnaSingleStrandDomain(strand_rail)

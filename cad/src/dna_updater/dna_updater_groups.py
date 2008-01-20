@@ -15,7 +15,7 @@ from dna_model.DnaGroup import DnaGroup
 
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
-_DEBUG_GROUPS = True
+_DEBUG_GROUPS = False
 
 # ==
 
@@ -79,7 +79,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
     for wholechain in new_wholechains:
         strand_or_segment = wholechain.find_or_make_strand_or_segment()
         for marker in wholechain.all_markers():
-            print "dna updater: debug fyi: subloop on ", marker ### bug, not happening
+##            print "dna updater: debug fyi: subloop on ", marker
             old_group = strand_or_segment.move_into_your_members(marker)
             if old_group:
                 old_groups[id(old_group)] = old_group

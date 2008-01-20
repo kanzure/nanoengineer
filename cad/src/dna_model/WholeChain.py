@@ -181,28 +181,26 @@ class WholeChain(object):
         [As of 080116 this part is not yet needed or done.]
         """
         self._controlling_marker = self._choose_or_make_controlling_marker()
-##        remaining_markers = []
         for marker in self._all_markers[:]:
-            print "debug loop: %r.own_marker %r" % (self, marker)
+##            print "debug loop: %r.own_marker %r" % (self, marker)
             assert not marker.killed(), \
                    "marker %r (our controlling = %r) is killed" % \
-                   ( marker, (marker is self._controlling_marker) ) # bug info 2: this is where it fails - dup marker or diff chain?
+                   ( marker, (marker is self._controlling_marker) )
                 # this might fail if they're not yet all in the model,
                 # but we put them there when we make them, and we don't kill them when they
                 # lose atoms, so they ought to be there @@@
                 # (it should not fail from them being killed between __init__ and now
                 #  and unable to tell us, since nothing happens in caller to kill them)
             controlling = (marker is self._controlling_marker)
-            marker.set_wholechain(self, controlling = controlling) # bug info 1: this is where we kill it...
+            marker.set_wholechain(self, controlling = controlling)
                 # own it; tell it whether controlling (some might die then,
                 # and if so they'll call self._f_marker_killed
                 # which removes them from self._all_markers)
-##            if not marker.killed():
-##                remaining_markers.append(marker)
-##        self._all_markers = remaining_markers
         for marker in self._all_markers:
             assert not marker.killed(), "marker %r died without telling %r" % (marker, self)
+        
         # todo: use controlling marker to work out base indexing per rail...
+        
         return
 
     def _f_marker_killed(self, marker):
@@ -236,8 +234,6 @@ class WholeChain(object):
         """
         if self._strand_or_segment:
             return self._strand_or_segment
-##        if not self._controlling_marker:
-##            self._controlling_marker = self._choose_or_make_controlling_marker()
         assert self._controlling_marker, "%r should have called _choose_or_make_controlling_marker before now" % self
         strand_or_segment = self._controlling_marker._f_get_owning_strand_or_segment()
         if not strand_or_segment:
@@ -404,9 +400,6 @@ class Strand_WholeChain(WholeChain):
     pass
 
 # ==
-
-##def new_DnaGroup_around_chunk(chunk):
-##    return new_Group_around_Node(chunk, DnaGroup)
 
 def new_Group_around_Node(node, group_class): #e refile, might use in other ways too [not used now, but might be correct]
     node.part.ensure_toplevel_group() # might not be needed
