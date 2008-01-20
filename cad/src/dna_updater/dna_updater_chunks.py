@@ -297,21 +297,25 @@ def update_PAM_chunks( changed_atoms):
     # chain it connects to (if any).
 
     # For each kind of chain, the algorithm is handled by this function:
-    def algorithm( list_of_ladderlike_domains, ladder_to_rails_function ):
+    def algorithm( ladders, ladder_to_rails_function ):
         """
         [local helper function]
-        Given ladder_to_rails_function to tell us the rails of interest for any
-        ladder, for each such rail in list_of_ladderlike_domains
-        (containing DnaLadders and/or DnaSingleStrandDomains),
-        find the set of rails to be used in making its WholeChain,
-        and a return a list of all such sets found.
-        
-        To find the neighbor chains, we just use atom.molecule.ladder
-        and then look for atom in the rail ends of the same type of rail
-        (i.e. the ones found by ladder_to_rails_function).
+        Given a list of ladders (DnaLadders and/or DnaSingleStrandDomains),
+        and ladder_to_rails_function to return a list of certain rails
+        of interest to the caller from each ladder, partition the resulting
+        rails into connected sets (represented as dicts from id(rail) to rail)
+        and return a list of these sets.
+
+        "Connected" means the rails are bonded end-to-end so that they belong
+        in the same WholeChain. To find some rail's connected rails, we just use
+        atom.molecule.ladder and then look for atom in the rail ends of the same
+        type of rail (i.e. the ones found by ladder_to_rails_function).
         """
+        # note: this is the 3rd or 4th "partitioner" I've written recently;
+        # could there be a helper function for partitioning, like there is
+        # for transitive closure (transclose)? [bruce 080119]
         toscan_all = {} # maps id(rail) -> rail, for initial set of rails to scan
-        for ladder in list_of_ladderlike_domains:
+        for ladder in ladders:
             for rail in ladder_to_rails_function(ladder):
                 toscan_all[id(rail)] = rail
         def collector(rail, dict1):
@@ -321,7 +325,9 @@ def update_PAM_chunks( changed_atoms):
             store neighbor atom pointers in rail,
             and store neighbor rails themselves into dict1
             """
-            toscan_all.pop(rail, None)
+            toscan_all.pop(id(rail), None)
+                # note: forgetting id() made this buggy in a hard-to-notice way;
+                # it worked without error, but returned each set multiple times.
             rail._f_update_neighbor_baseatoms() # called exactly once per rail,
                 # per dna updater run which encounters it (whether as a new
                 # or preexisting rail); implem differs for axis or strand atoms
