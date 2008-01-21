@@ -24,10 +24,10 @@ from constants import GLPANE_IS_COMMAND_SEQUENCER
 from BuildAtoms_Command      import BuildAtoms_basicCommand
 from BuildAtoms_GraphicsMode import BuildAtoms_basicGraphicsMode
 
-class depositMode(BuildAtoms_basicCommand, 
-                      BuildAtoms_basicGraphicsMode):
+class depositMode( BuildAtoms_basicCommand,
+                   BuildAtoms_basicGraphicsMode):
     """
-    Build Atoms Mode (hybrid object which encomasses both - command and 
+    Build Atoms Mode (hybrid object which encompasses both - command and 
     graphicsMode objects as self)
     """   
     def __init__(self, glpane):
