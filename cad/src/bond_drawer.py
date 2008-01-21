@@ -572,7 +572,10 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         if banding and disp in (diBALL, diTUBES):
             povfile.drawcylinder(band_color, bandpos1, bandpos2, sigmabond_cyl_radius * 1.2)
         return
-    
+
+    a1pos_not_shortened = + a1pos
+    a2pos_not_shortened = + a2pos
+
     if disp == diLINES:
         width = env.prefs[linesDisplayModeThickness_prefs_key] #bruce 050831
         if width <= 0:
@@ -597,7 +600,7 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         if shorten_tubes:
             rad = TubeRadius * 1.1 * 0.9 # see Atom.howdraw for tubes; the constant (0.9) might need adjusting
                 #bruce 050726 changed that constant from 1.0 to 0.9
-            vec = norm(a2pos-a1pos) # warning: if atom1 is a singlet, a1pos == center, so center-a1pos is not good to use here.
+            vec = norm(a2pos - a1pos) # warning: if atom1 is a singlet, a1pos == center, so center - a1pos is not good to use here.
             if atom1.element is not Singlet:
                     if not bool_fullBondLength:
                             a1pos = a1pos + vec * rad
@@ -651,39 +654,73 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
     if (direction or is_directional) and (disp in (diBALL, diTUBES)):        
         # If the bond has a direction, draw an arrowhead in the middle of the bond-cylinder to show it.
         # (Make that gray if this is ok, or red if this is a non-directional bond.)
-        # If it has no direction but "wants one" (is_directional), draw something to indicate that, not sure what. ##e
-        if direction < 0:
-            a1pos, a2pos = a2pos, a1pos ###e should move into submethod to avoid error if these are used lower down
-            direction = - direction
-            color1, color2 = color2, color1
-        error = direction and not is_directional
-        if error:
-            color = red
-        else:
-            color = color2
-        if direction == 0:
-            pass # print "draw a confused/unknown direction somehow" # two orange arrows? no arrow?
-        else:            
-            # draw arrowhead pointing from a1pos to a2pos, closer to a2pos.
-            pos = a1pos
-            axis = a2pos - a1pos
-            drawrad = sigmabond_cyl_radius
-            drawsphere(color, pos + 0.8 * axis, drawrad * 0.1, 1) ###KLUGE to set color
-            glePolyCone([[pos[0] + 0.5 * axis[0], pos[1] + 0.5 * axis[1],
-                          pos[2] + 0.5 * axis[2]],
-                         [pos[0] + 0.6 * axis[0], pos[1] + 0.6 * axis[1],
-                          pos[2] + 0.6 * axis[2]],
-                         [pos[0] + 1.0 * axis[0], pos[1] + 1.0 * axis[1],
-                          pos[2] + 1.0 * axis[2]],
-                         [pos[0] + 1.1 * axis[0], pos[1] + 1.1 * axis[1],
-                          pos[2] + 1.1 * axis[2]]], # Point array (the two end
-                                                    # points not drawn)
-                        None, # Color array (None means use current the color)
-                        [drawrad * 2, drawrad * 2, 0, 0] # Radius array
-                       )
+        # If it has no direction but "wants one" (is_directional), draw something to
+        # indicate that, not sure what. ##e
+        #
+        # To fix a bug in highlighting of the arrowhead, use a1pos_not_shortened
+        # and a2pos_not_shortened rather than a1pos and a2pos.
+        # Also split draw_bond_cyl_arrowhead out of this code. [bruce 080121]
+        draw_bond_cyl_arrowhead( a1pos_not_shortened,
+                                 a2pos_not_shortened,
+                                 direction,
+                                 is_directional,
+                                 color1,
+                                 color2,
+                                 sigmabond_cyl_radius )
+                                 
         pass
 
     return # from draw_bond_cyl
+
+# ==
+
+def draw_bond_cyl_arrowhead( a1pos,
+                             a2pos,
+                             direction, # bond direction, relative to atom1
+                             is_directional,
+                             color1,
+                             color2,
+                             sigmabond_cyl_radius ): #bruce 080121 split this out
+    """
+    [private helper for draw_bond_cyl]
+    Draw the bond-direction arrowhead for the bond cylinder with the
+    given geometric/color/bond_direction parameters.
+
+    Note that a1pos and a2pos should be the same for highlighted
+    or unhighlighted drawing (even if they differ when the caller
+    draws the main bond cylinder), or the arrowhead highlight might not
+    properly align with its unhighlighted form.
+    """
+    if direction < 0:
+        a1pos, a2pos = a2pos, a1pos
+        direction = - direction
+        color1, color2 = color2, color1
+    error = direction and not is_directional
+    if error:
+        color = red
+    else:
+        color = color2
+    if direction == 0:
+        pass # print "draw a confused/unknown direction somehow" # two orange arrows? no arrow?
+    else:            
+        # draw arrowhead pointing from a1pos to a2pos, closer to a2pos.
+        pos = a1pos
+        axis = a2pos - a1pos
+        drawrad = sigmabond_cyl_radius
+        drawsphere(color, pos + 0.8 * axis, drawrad * 0.1, 1) ###KLUGE to set color
+        glePolyCone([[pos[0] + 0.5 * axis[0], pos[1] + 0.5 * axis[1],
+                      pos[2] + 0.5 * axis[2]],
+                     [pos[0] + 0.6 * axis[0], pos[1] + 0.6 * axis[1],
+                      pos[2] + 0.6 * axis[2]],
+                     [pos[0] + 1.0 * axis[0], pos[1] + 1.0 * axis[1],
+                      pos[2] + 1.0 * axis[2]],
+                     [pos[0] + 1.1 * axis[0], pos[1] + 1.1 * axis[1],
+                      pos[2] + 1.1 * axis[2]]], # Point array (the two end
+                                                # points not drawn)
+                    None, # Color array (None means use current the color)
+                    [drawrad * 2, drawrad * 2, 0, 0] # Radius array
+                   )
+    return
 
 # ==
 
