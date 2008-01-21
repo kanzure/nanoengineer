@@ -577,7 +577,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return atom.molecule is self
     
     def break_interpart_bonds(self): #bruce 050308-16 to help fix bug 371; revised 050513
-        "[overrides Node method]"
+        """
+        [overrides Node method]
+        """
         assert self.part is not None
         # check atom-atom bonds
         for b in self.externs[:]:
@@ -738,7 +740,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
 
     def addcopiedatom(self, atm):
-        """private method for mol.copy;
+        """
+        private method for mol.copy;
         leaves out asserts which are wrong in that case; caller must do invals
         (it can do invalidate_atom_lists once, for many calls of this)
         """
@@ -832,7 +835,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # debugging methods (not fully tested, use at your own risk)
     
     def invalidate_everything(self):
-        "debugging method"
+        """
+        debugging method (also used in _undo_update)
+        """
         self.invalidate_all_bonds()
         self.havelist = 0
         self.haveradii = 0
@@ -856,7 +861,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # some more invalidation methods
 
     def changed_atom_posn(self): #bruce 060308
-        "Some atom we own changed position; invalidate whatever we might own that depends on that."
+        """
+        Some atom we own changed position; invalidate whatever we might own that depends on that.
+        """
         # initial implem might be too conservative; should optimize, perhaps recode in a new Pyrex ChunkBase.
         # Some code is copied from now-obsolete setatomposn; some of its comments might apply here as well.
         self.changed()
@@ -933,7 +940,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return shakedown_poly_evals_evecs_axis( self.basepos)
 
     def full_inval_and_update(self): # bruce 041112-17
-        """Public method (but should not usually be needed):
+        """
+        Public method (but should not usually be needed):
         invalidate and then recompute everything about a mol.
         Some old callers of shakedown might need to call this now,
         if there are bugs in the inval/update system for mols.
@@ -972,7 +980,10 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     _inputs_for_atlist = [] # only invalidated directly, by addatom/delatom
 
     def _recompute_atlist(self): #bruce 060313 splitting _recompute_atlist out of _recompute_atpos
-        "[recompute the list of this chunk's atoms, in order of atom.key (and store atom.index to match, if it still exists)]"
+        """
+        [recompute the list of this chunk's atoms, in order of atom.key
+        (and store atom.index to match, if it still exists)]
+        """
         atomitems = self.atoms.items()
         atomitems.sort() # make them be in order of atom keys; probably doesn't yet matter but makes order deterministic
         atlist = [atom for (key, atom) in atomitems] #k syntax
@@ -987,7 +998,11 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     _inputs_for_basepos = ['atpos'] # also invalidated directly, but not often
         
     def _recompute_atpos(self): #bruce 060308 major rewrite;  #bruce 060313 splitting _recompute_atlist out of _recompute_atpos
-        "recompute self.atpos and self.basepos and more; also change self's local coordinate system (used for basepos) [#doc more]"
+        """
+        recompute self.atpos and self.basepos and more;
+        also change self's local coordinate system (used for basepos)
+        [#doc more]
+        """
         #    Something must have been invalid to call us, so basepos must be invalid. So we needn't call changed_attr on it.
         assert not self.__dict__.has_key('basepos')
         if self.assy is None:
@@ -1052,7 +1067,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     _recompute_basepos   = _recompute_atpos
     
     def changed_basecenter_or_quat_while_atoms_fixed(self):
-        """Private method:
+        """
+        Private method:
         Call this if you changed_basecenter_or_quat_while_atoms_fixed, after
         recomputing basepos to be correct in the new coords (or perhaps after
         invalidating basepos -- that use is unanalyzed and untried). This method
@@ -1078,7 +1094,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     _inputs_for_average_position = ['atpos']
     def _recompute_average_position(self):
-        """Compute or recompute self.average_position,
+        """
+        Compute or recompute self.average_position,
         the average position of the atoms (including singlets); store it,
         so _recompute_atpos can also call it since it needs the same value;
         not sure if it's useful to have a separate recompute method
@@ -1093,7 +1110,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
 
     def _get_center_weight(self):#bruce 070411
-        """Compute self.center_weight, the weight that should be given to self.center
+        """
+        Compute self.center_weight, the weight that should be given to self.center
         for making group centers as weighted averages of chunk centers.
         """
         return len(self.atoms)
@@ -1113,7 +1131,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def _get_center(self):
         # _get_center seems better than _recompute_center since this attr
         # is only needed by the UI and this method is fast
-        """Return the center to use for rotations and stretches and perhaps some
+        """
+        Return the center to use for rotations and stretches and perhaps some
         other purposes (user-settable, or the average atom position by default)
         """
         if self.user_specified_center is not None: #bruce 050516 bugfix: 'is not None'
@@ -1145,17 +1164,23 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return externs
     
     def freeze(self):
-        """ set self up for minimization or simulation"""
+        """
+        set self up for minimization or simulation
+        """
         return #bruce 060308 removing this
                # (it wasn't working beyond the first frame anyway; it will be superceded by Pyrex optims;
                #  only call is in movie.py)
 
     def unfreeze(self):
-        """ to be done at the end of minimization or simulation"""
+        """
+        to be done at the end of minimization or simulation
+        """
         return #bruce 060308 removing this (see comments in freeze)
 
     def get_dispdef(self, glpane = None):
-        "reveal what dispdef we will use to draw this Chunk"
+        """
+        reveal what dispdef we will use to draw this Chunk
+        """
         # copied out of Chunk.draw by bruce 041109 for use in extrudeMode.py
         if self.display != diDEFAULT:
             disp = self.display
@@ -1167,7 +1192,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return disp
 
     def pushMatrix(self): #bruce 050609 duplicated this from some of self.draw()
-        """Do glPushMatrix(), and then transform from world coords to this chunk's private coords.
+        """
+        Do glPushMatrix(), and then transform from world coords to this chunk's private coords.
         See also self.popMatrix().
         Warning: this is partially inlined in self.draw().
         """
@@ -1178,18 +1204,24 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
 
     def popMatrix(self): #bruce 050609
-        "Undo the effect of self.pushMatrix()."
+        """
+        Undo the effect of self.pushMatrix().
+        """
         glPopMatrix()
 
     def inval_display_list(self): #bruce 050804
-        "This is meant to be called when something whose usage we tracked (while making our display list) next changes."
+        """
+        This is meant to be called when something whose usage we tracked
+        (while making our display list) next changes.
+        """
         self.changeapp(0) # that now tells self.glpane to update, if necessary
         ###@@@ glpane needs to track changes anyway due to external bonds.... [not sure of status of this comment; as of bruce 060404]
 
     _havelist_inval_counter = 0
     
     def draw(self, glpane, dispdef):
-        """draw all the atoms, using the atom's, self's,
+        """
+        Draw all the atoms, using the atom's, self's,
         or GLPane's display mode in that order of preference.
         (Note that our dispdef argument is not used at all.)
         Draw each bond only once, even though internal bonds
@@ -1428,7 +1460,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 ##        return
     
     def draw_displist(self, glpane, disp0, hd_info): #bruce 050513 optimizing this somewhat; 060608 revising it
-        "[private submethod of self.draw]"
+        """
+        [private submethod of self.draw]
+        """
         hd, delegate_draw_atoms, delegate_draw_chunk = hd_info
 
         # draw something for the chunk as a whole
@@ -1445,7 +1479,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
 
     def standard_draw_chunk(self, glpane, disp0, highlighted = False): #bruce 060608 split this out of draw_displist
-        """[private submethod of self.draw:]
+        """
+        [private submethod of self.draw:]
         Draw the standard representation of this chunk as a whole (except for chunk selection wireframe),
         as if self's display mode was disp0; this occurs inside our local coordinate system and display-list-making,
         and it doesn't occur if chunk drawing is delegated to our display mode.
@@ -1455,7 +1490,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
     
     def standard_draw_atoms(self, glpane, disp0): #bruce 060608 split this out of draw_displist
-        """[private submethod of self.draw:]
+        """
+        [private submethod of self.draw:]
         Draw all our atoms and all their internal bonds, in the standard way, *including* atom selection wireframes,
         as if self's display mode was disp0; this occurs inside our local coordinate system and display-list-making,
         and it doesn't occur if atom drawing is delegated to our display mode.
@@ -1588,7 +1624,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         pass
 
     def readmmp_info_chunk_setitem( self, key, val, interp ): #bruce 050217, renamed 050421
-        """This is called when reading an mmp file, for each "info chunk" record.
+        """
+        This is called when reading an mmp file, for each "info chunk" record.
         Key is a list of words, val a string; the entire record format
         is presently [050217] "info chunk <key> = <val>".
         Interp is an object to help us translate references in <val>
@@ -1618,7 +1655,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
 
     def atoms_in_mmp_file_order(self): #bruce 050228
-        """Return a list of our atoms, in the same order as they would be written to an mmp file
+        """
+        Return a list of our atoms, in the same order as they would be written to an mmp file
         (which is the same order in which they occurred in one, *if* they were just read from one).
         We know it's the same order as they'd be written, since self.writemmp() calls this method.
         We know it's the same order they were just read in (if they were just read), since it's
@@ -1637,7 +1675,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return res
     
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
-        "[overrides Node.writemmp]"
+        """
+        [overrides Node.writemmp]
+        """
         disp = mapping.dispname(self.display)
         mapping.write("mol (" + mapping.encode_name(self.name) + ") " + disp + "\n")
         self.writemmp_info_leaf(mapping)
@@ -1731,7 +1771,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.changed_basecenter_or_quat_to_move_atoms()
 	
     def pivot(self, point, q):
-        """Public method: pivot the Chunk self around point by quaternion q;
+        """
+        Public method: pivot the Chunk self around point by quaternion q;
         do all necessary invalidations, but optimize those based on
         self's relative structure not having changed. See also self.rot().
         """
@@ -1752,7 +1793,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.changed_basecenter_or_quat_to_move_atoms()
 
     def rot(self, q):
-        """Public method: rotate self around its center by quaternion q;
+        """
+        Public method: rotate self around its center by quaternion q;
         do all necessary invalidations, but optimize those based on
         self's relative structure not having changed. See also self.pivot().
         """
@@ -1762,7 +1804,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
     
     def stretch(self, factor, point = None):
-        """Public method: expand self by the given factor
+        """
+        Public method: expand self by the given factor
         (keeping point fixed, by default its center).
         Do all necessary invalidations, optimized as convenient
         given the nature of this operation.
@@ -1800,7 +1843,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.changed_basepos_basecenter_or_quat_to_move_atoms()
 
     def changed_basepos_basecenter_or_quat_to_move_atoms(self):
-        "(private method) like changed_basecenter_or_quat_to_move_atoms but we also might have changed basepos"
+        """
+        (private method) like changed_basecenter_or_quat_to_move_atoms but we also might have changed basepos
+        """
         # Do the needed invals, and recomputation of curpos from basepos
         # (I'm not sure if the order would need review if we revise inval rules):
         self.havelist = 0
@@ -1812,7 +1857,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # (misnamed -- in this case we changed basepos too)
 
     def changed_basecenter_or_quat_to_move_atoms(self): #bruce 041104-041112
-        """Private method:
+        """
+        Private method:
         Call this whenever you have just changed self.basecenter and/or self.quat
         (and/or self.basepos if you call changed_attr on it yourself), and
         you want to move the Chunk self (in 3d model space)
@@ -1861,7 +1907,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return
 
     def set_atom_posns_from_atpos(self, atpos): #bruce 060308; revised 060313
-        """Set our atom's positions en masse from the given array, doing no chunk or bond invals
+        """
+        Set our atom's positions en masse from the given array, doing no chunk or bond invals
         (caller must do whichever invals are needed, which depends on how the positions changed).
         The array must be in the same order as self.atpos (its typical value, but we won't depend
         on that and won't access or modify self.atpos) and self.atlist (which must already exist).
@@ -1931,7 +1978,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.changed() #[bruce 050505]
 
     def setDisplay(self, disp):
-        "change self's display mode"
+        """
+        change self's display mode
+        """
         self.display = disp
         self.havelist = 0
         self.haveradii = 0
@@ -1965,7 +2014,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     glpane = None #bruce 050804
             
     def changeapp(self, atoms):
-        """call when you've changed appearance of self
+        """
+        call when you've changed appearance of self
         (but you don't need to call it if only the external bonds look different).
         Arg atoms = 1 means that not only the entire mol appearance,
         but specifically the set of atoms or atomic radii
@@ -2185,7 +2235,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return # from Chunk.kill
 
     def _set_will_kill(self, val): #bruce 060327 in Chunk
-        "[extends private superclass method; see its docstring for details]"
+        """
+        [extends private superclass method; see its docstring for details]
+        """
         Node._set_will_kill( self, val)
         for a in self.atoms.itervalues():
             a._will_kill = val # inlined a._prekill(val), for speed
@@ -2280,9 +2332,11 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             radii_2[seli] = unpatched_seli_radius2
         return res # from findAtomUnderMouse
 
-    def findAtomUnderMouse_Numeric_stuff(self, v, r_xy_2, radii_2, \
+    def findAtomUnderMouse_Numeric_stuff(self, v, r_xy_2, radii_2,
                     far_cutoff = None, near_cutoff = None, alt_radii = [] ):
-        "private helper routine for findAtomUnderMouse"
+        """
+        private helper routine for findAtomUnderMouse
+        """
         ## removed support for backs_ok, since atom backs are not drawn
         from Numeric import take, nonzero, compress # and more...
         p1 = (r_xy_2 <= radii_2) # indices of candidate atoms
@@ -2439,7 +2493,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return True # but if it ever is called, answer should be true
     
     def copy_empty_shell_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
-        """[private method to help the public copy methods, all of which start with this except the deprecated mol.copy]
+        """
+        [private method to help the public copy methods, all of which start with this except the deprecated mol.copy]
         Copy this chunk's name (w/o change), properties, etc, but not any of its atoms
         (caller will presumably copy some or all of them separately).
         Don't copy hotspot. New chunk is in mapping.assy (NOT necessarily the same as self.assy)
@@ -2462,7 +2517,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return numol
 
     def copy_full_in_mapping(self, mapping): # Chunk method [bruce 050526] #bruce 060308 major rewrite
-        """#doc;
+        """
+        #doc;
         overrides Node method;
         only some atom copies get recorded in mapping (if we think it might need them)
         """
@@ -2504,7 +2560,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return numol # from copy_full_in_mapping
 
     def _copy_atoms_handle_bonds_jigs(self, pairlis, ndix, mapping):
-        """[private helper for some copy methods]
+        """
+        [private helper for some copy methods]
         Given some copied atoms (in a private format in pairlis and ndix),
         ensure their bonds and jigs will be taken care of.
         """
@@ -2543,7 +2600,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return # from _copy_atoms_handle_bonds_jigs
 
     def copy_in_mapping_with_specified_atoms(self, mapping, atoms): #bruce 050524-050526
-        """Copy yourself in this mapping (for the first and only time),
+        """
+        Copy yourself in this mapping (for the first and only time),
         but with only some of your atoms (and all their singlets).
         [#e hotspot? fix later if needed, hopefully by replacing that concept
          with a jig (see comment below for ideas).]
@@ -2597,7 +2655,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # for details. [bruce 070412/070525 comment]
         #
         #bruce 060308 major rewrite, and no longer permit args to vary from defaults
-        """Public method: Copy the Chunk self to a new Chunk.
+        """
+        Public method: Copy the Chunk self to a new Chunk.
         Offset tells where it will go relative to the original.
         Unless cauterize = 0, replace bonds out of self (to atoms in other Chunks)
         with singlets in the copy [though that's not very nice when we're
@@ -2708,7 +2767,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # ==
     
     def Passivate(self, p=False):
-        """[Public method, does all needed invalidations:]
+        """
+        [Public method, does all needed invalidations:]
         Passivate the selected atoms in this chunk, or all its atoms if p=True.
         This transmutes real atoms to match their number of real bonds,
         and (whether or not that succeeds) removes all their open bonds.
@@ -2718,7 +2778,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if p or a.picked: a.Passivate()
 
     def Hydrogenate(self):
-        """[Public method, does all needed invalidations:]
+        """
+        [Public method, does all needed invalidations:]
         Add hydrogen to all unfilled bond sites on carbon
         atoms assuming they are in a diamond lattice.
         For hilariously incorrect results, use on graphite.
@@ -2732,7 +2793,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return count    
             
     def Dehydrogenate(self):
-        """[Public method, does all needed invalidations:]
+        """
+        [Public method, does all needed invalidations:]
         Remove hydrogen atoms from this chunk.
         Return the number of atoms removed [bruce 041018 new feature].
         """
@@ -2863,7 +2925,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 ## _nullMol = Chunk("<not an assembly>")
 
 def get_nullMol():
-    "return _nullMol, after making sure it's initialized"
+    """
+    return _nullMol, after making sure it's initialized
+    """
     # inlined into delatom
     global _nullMol
     if _nullMol is None:
@@ -2873,14 +2937,20 @@ def get_nullMol():
 _nullMol = None
 
 def _make_nullMol(): #bruce 060331 split out and revised this, to mitigate bugs similar to bug 1796
-    "[private] Make and return (what the caller should store as) the single _nullMol object."
+    """
+    [private]
+    Make and return (what the caller should store as) the single _nullMol object.
+    """
     ## return Chunk("<not an assembly>", 'name-of-_nullMol')
     null_mol = _nullMol_Chunk("<not an assembly>", 'name-of-_nullMol')
     set_undo_nullMol(null_mol)
     return null_mol
 
 class _nullMol_Chunk(Chunk):
-    "[private] subclass for _nullMol"
+    """
+    [private]
+    subclass for _nullMol
+    """
     def changed_selection(self):
         msg = "bug: _nullMol.changed_selection() should never be called"
         if env.debug():
@@ -2906,7 +2976,8 @@ class BorrowerChunk(Chunk):
     E.g. for mmp save, it'll save as a normal Chunk would.
     """
     def __init__(self, assy, atomset = None, name = None): # revised 060413
-        """#doc; for doc of atomset, see take_atomset
+        """
+        #doc; for doc of atomset, see take_atomset
         """
         Chunk.__init__(self, assy, self._name_when_empty(assy))
         if atomset is not None:
@@ -2920,7 +2991,8 @@ class BorrowerChunk(Chunk):
         return "(empty borrower id %#x)" % id(self)
 
     def take_atomset(self, atomset, name = None):
-        """#doc; atomset maps atom.key -> atom for some atoms we'll temporarily own
+        """
+        #doc; atomset maps atom.key -> atom for some atoms we'll temporarily own
         [WARNING: if all of another chunk's atoms are in atomset, creating us will kill that chunk.]
         [WARNING: it's up to the caller to make sure all singlet neighbors of atoms in atomset
          are also in atomset! Likely bugs if it doesn't.]
@@ -2986,7 +3058,8 @@ class BorrowerChunk(Chunk):
     
     # instead of overriding draw_displist, it's enough to define _colorfunc and _dispfunc to help it:
     def _colorfunc(self, atm):
-        """Define this to use atm's home mol's color instead of self.color, and also so that self._dispfunc gets called
+        """
+        Define this to use atm's home mol's color instead of self.color, and also so that self._dispfunc gets called
         [overrides self._colorfunc = None; this scheme will get messed up if self ever gets copied,
          since the copy code (two methods in Chunk) will set an instance attribute pointing to the bound method of the original]
         """
@@ -2998,7 +3071,10 @@ class BorrowerChunk(Chunk):
         disp = origmol.get_dispdef(glpane)
         return disp
     def restore_atoms_to_their_homes(self):
-        "Put your atoms back where they belong (calling this multiple times should be ok)"
+        """
+        put your atoms back where they belong
+        (calling this multiple times should be ok)
+        """
         #e this has bugs if we added atoms to self -- that's not supported (#e could override addatom to support it)
         origmols = self.origmols
         for key, atom in self.atoms.iteritems():
@@ -3018,12 +3094,16 @@ class BorrowerChunk(Chunk):
             self.part.remove(self)
         return
     def demolish(self):
-        "Restore atoms, and make self reusable (but up to caller to remove self from any .dad it might have)"
+        """
+        Restore atoms, and make self reusable
+        (but up to caller to remove self from any .dad it might have)
+        """
         self.restore_atoms_to_their_homes()
         self.name = self._name_when_empty()
         return
     def take_atoms_from_list(self, atomlist):
-        """We must be empty (ready for reuse).
+        """
+        We must be empty (ready for reuse).
         Divide atoms in atomlist by chunk; take the atoms we can (without taking all atoms from any chunk);
         return a pair of lists (other_chunks, other_atoms), where other_chunks are chunks whose atoms were all in atomlist,
         and other_atoms is a list of atoms we did not take for some other reason
@@ -3122,7 +3202,8 @@ register_debug_menu_command("make BorrowerChunk (no addmol)", debug_make_Borrowe
 from geometry import selection_polyhedron, inertia_eigenvectors, compute_heuristic_axis
 
 def shakedown_poly_evals_evecs_axis(basepos):
-    """Given basepos (an array of atom positions), compute and return (as the
+    """
+    Given basepos (an array of atom positions), compute and return (as the
     elements of a tuple) the bounding polyhedron we should draw around these
     atoms to designate that their Chunk is selected, the eigenvalues and
     eigenvectors of the inertia tensor (computed as if all atoms had the same
@@ -3160,7 +3241,9 @@ def shakedown_poly_evals_evecs_axis(basepos):
 # ==
 
 def mol_copy_name(name): # bruce 041124
-    "turn xxx or xxx-copy<n> into xxx-copy<m> for a new number <m>"
+    """
+    turn xxx or xxx-copy<n> into xxx-copy<m> for a new number <m>
+    """
     try:
         parts = name.split("-copy")
         assert parts[-1] and (parts[-1].isdigit()) # often fails, that's ok
