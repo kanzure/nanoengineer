@@ -93,12 +93,7 @@ class selectMolsMode(SelectChunks_basicCommand,
         """
         pass
 
-    def selectConnectedChunks(self):
-        """
-	TODO: Not implemented yet. Need to define a method in ops_select to 
-	do this
-        """        
-        pass
+    
     
 
 # ==

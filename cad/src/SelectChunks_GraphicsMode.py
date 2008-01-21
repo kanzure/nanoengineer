@@ -76,15 +76,24 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 	"""
         #this is a temporary fix for NFR bug 2569. 'Selectconnected chunks not
         #implemented yet
-        if self.cursor_over_when_LMB_pressed != 'Empty Space':
-            self.selectConnectedChunks()
+        if self.cursor_over_when_LMB_pressed != 'Empty Space':            
+            self.selectConnectedChunks()          
+            
         return
+    
+    def selectConnectedChunks(self):
+        """
+	TODO: Not implemented yet. Need to define a method in ops_select to 
+	do this
+        """        
+        pass
 
     def rightShiftDown(self, event):
         basicMode.rightShiftDown(self, event)
 
     def rightCntlDown(self, event):          
         basicMode.rightCntlDown(self, event)
+        
 
     # Chunk selection helper methods. 
     def atomLeftDown(self, a, event):  
