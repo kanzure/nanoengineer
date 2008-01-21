@@ -235,9 +235,23 @@ class DnaMarker( ChainAtomMarker):
     def set_wholechain(self, wholechain, controlling = _CONTROLLING_IS_UNKNOWN):
         """
         [to be called by dna updater]
+        @param wholechain: a new WholeChain which owns us (not None)
         """
+        assert wholechain
         self.wholechain = wholechain
         self.set_whether_controlling(controlling) # might kill self
+
+    def forget_wholechain(self, wholechain):
+        """
+        Remove any references we have to wholechain.
+        
+        @param wholechain: a WholeChain which refs us and is being destroyed
+        """
+        assert wholechain
+        if self.wholechain is wholechain:
+            self.wholechain = None
+            # review: also do self.set_whether_controlling(False)?? @@@
+        return
 
     def _undo_update(self): # in class DnaMarker
         """

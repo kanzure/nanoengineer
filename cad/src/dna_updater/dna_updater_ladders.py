@@ -9,10 +9,10 @@ dna_updater_ladders.py - ladder-related helpers for dna_updater_chunks
 See also: DnaLadder
 """
 
-from dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
-from dna_updater_follow_strand import dna_updater_follow_strand
+from dna_updater.dna_updater_follow_strand import dna_updater_follow_strand
 
 from dna_model.DnaLadder import DnaLadder, DnaSingleStrandDomain
 from dna_model.DnaLadder import _f_get_invalid_dna_ladders
@@ -42,9 +42,14 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
 
     for atom in changed_atoms.itervalues():
         chunk = atom.molecule
+        print "DEBUG: changed atom %r -> chunk %r" % (atom, chunk)#####@@@@@@@
         changed_chunks[id(chunk)] = chunk
     
     for chunk in changed_chunks.itervalues():
+        if DEBUG_DNA_UPDATER: # should be DEBUG_DNA_UPDATER_VERBOSE but needed for bug 080120 9pm
+            print "dna updater: fyi: tell changed chunk %r -> inval its ladder %r" % \
+                  (chunk, getattr(chunk, 'ladder', "<has none>"))
+            pass
         # todo: assert not killed, not nullMol, is a Chunk
         chunk.invalidate_ladder() # noop except in DnaLadderRailChunk
             # this just invals chunk.ladder (and below code will dissolve it);
@@ -80,8 +85,8 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
         # parts of it. But this function name claims to do the dissolving
         # itself (even on already invalidated ladders). # todo: clarify.
         
-        if DEBUG_DNA_UPDATER_VERBOSE:
-            print "dna updater: fyi: adding all atoms from dissolved ladder =", ladder
+        if DEBUG_DNA_UPDATER: # was DEBUG_DNA_UPDATER_VERBOSE but needed for bug 080120 9pm
+            print "dna updater: fyi: adding all atoms from dissolved ladder %r" % ladder
         for rail in ladder.all_rails():
             for atom in rail.baseatoms: # probably overkill, maybe just one atom is enough -- not sure
                 # note: atom is in a ladder that was valid a moment ago,
@@ -327,6 +332,9 @@ def make_new_ladders(axis_chains, strand_chains):
                 singlestrands.append(singlestrand)
             else:
                 # Ax is present
+                ### REVIEW or BUG: why can we assume this works, for an arb (not just end) strand atom? @@@@
+                # but wait, it's not an arb atom, it's a strand_rail end atom. Should be ok -- FIX THE COMMENT ABOVE.
+                # but there is a bug where dissolving a ladder failed to put axis atoms into changed_atoms... 080120 327p
                 ladder = ladder_locator[atom.key]
                 ladder.add_strand_rail(strand_rail)
 

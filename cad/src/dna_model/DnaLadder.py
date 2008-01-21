@@ -64,6 +64,8 @@ from dna_model.dna_model_constants import LADDER_BOND_DIRECTION_TO_OTHER_AT_END_
 
 from dna_model.dna_model_constants import MAX_LADDER_LENGTH # @@@@ TODO: also use this to split long ladders
 
+from debug_prefs import debug_pref, Choice_boolean_False
+
 # ==
 
 # globals and accessors
@@ -110,6 +112,7 @@ class DnaLadder(object):
     def __init__(self, axis_rail):
         self.axis_rail = axis_rail
         self.assy = axis_rail.baseatoms[0].molecule.assy #k
+        assert self.assy
         self.strand_rails = []
     def baselength(self):
         return len(self.axis_rail)
@@ -504,6 +507,13 @@ class DnaLadder(object):
         assert self.valid
         # but don't assert not self.error
         res = []
+        ladder_color = None # might be reassigned
+        if debug_pref("DNA: debug: per-ladder colors?",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True ):
+            from Dna_Constants import getNextStrandColor
+            ladder_color = getNextStrandColor()
         for rail in self.all_rails():
             if rail is self.axis_rail:
                 want_class = DnaAxisChunk
@@ -530,6 +540,8 @@ class DnaLadder(object):
             #e put it into the model in the right place [stub - puts it in the same group]
             # (also - might be wrong, we might want to hold off and put it in a better place a bit later during dna updater)
             # also works: part.addnode(chunk), which includes its own ensure_toplevel_group
+            if ladder_color is not None:
+                chunk.color = ladder_color
             group.addchild(chunk)
             # todo: if you don't want this location for the added node chunk,
             # just call chunk.moveto when you're done,

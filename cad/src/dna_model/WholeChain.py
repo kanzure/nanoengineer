@@ -120,10 +120,10 @@ class WholeChain(object):
         @param dict_of_rails: maps id(rail) -> rail for all rails in wholechain
         """
         assert dict_of_rails, "a WholeChain can't be empty"
-            # needed for self._arbitrary_chunk
+##            # needed for self._arbitrary_chunk
         self._dict_of_rails = dict_of_rails
 
-        chunk = None # for self._arbitrary_chunk; modified during loop
+##        chunk = None # for self._arbitrary_chunk; modified during loop
         markers = {} # collects markers from all our atoms during loop
         num_bases = 0
         for rail in dict_of_rails.itervalues():
@@ -144,13 +144,30 @@ class WholeChain(object):
 
         self._num_bases = num_bases # used only for debug (eg repr) so far, but later will help with base indexing
         
-        self._arbitrary_chunk = chunk
-        assert self._arbitrary_chunk
+##        self._arbitrary_chunk = chunk
+##        assert self._arbitrary_chunk
 
         self._all_markers = markers.values()
         
         return # from __init__
 
+    def destroy(self): # 080120 7pm untested
+        # note: can be called from chunk._undo_update from one of our chunks;
+        # try to make it ok to call this multiple times
+        for marker in self._all_markers:
+            marker.forget_wholechain(self)
+        self._all_markers = ()
+        self._controlling_marker = None
+        self._strand_or_segment = None # review: need to tell it to forget us, too? @@@
+        for chain in self.chains():
+            chunk = chain.baseatoms[0].molecule
+##            chain.destroy() # IMPLEM @@@@ [also, goodness is partly a guess]
+            if hasattr(chunk, 'forget_wholechain'): # KLUGE
+                chunk.forget_wholechain(self)
+            continue
+        self._dict_of_rails = {}
+        return
+    
     def chains(self):
         """
         Return our chains, IN ARBITRARY ORDER (that might be revised)
@@ -246,8 +263,9 @@ class WholeChain(object):
         """
         [private]
         """
-        chunk = self._arbitrary_chunk
-            # review: or maybe could use chunk of controlling marker's atom
+##        chunk = self._arbitrary_chunk
+##            # review: or maybe could use chunk of controlling marker's atom
+        chunk = controlling_marker.marked_atom.molecule # 080120 7pm untested
         # find the right DnaGroup (or make one if there is none).
         # ASSUME the chunk was created inside the right DnaGroup
         # if there is one. There is no way to check this here -- user
@@ -340,12 +358,14 @@ class WholeChain(object):
         But *do* add it to our list of all markers on our atoms.)
 
         @note: we always make one, even if this is a 1-atom wholechain
-        so it's not possible to make a good or fully correct one (for now).
-        That's because the callers really need every wholechain to have one.
+        (which means (for now) that it's not possible to make a good
+         or fully correct one).
+        We do that because the callers really need every wholechain to have one.
         """
         # STUB - pick arbitrary baseatom and next_atom! THIS WON'T BE VERY NICE - it's just to not crash. @@@@
-        chunk = self._arbitrary_chunk
-        chain = chunk.chain
+##        chunk = self._arbitrary_chunk
+##        chain = chunk.chain # only use of chunk.chain - needed?? @@@@ [removed 080120 7pm, untested]
+        chain = self.chains()[0] # arbitrary chain [080120 7pm, untested]
         atom = chain.baseatoms[0]
         if len(chain.baseatoms) > 1:
             next_atom = chain.baseatoms[1]
