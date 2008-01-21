@@ -511,18 +511,40 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         stderr = stderr.split(os.linesep)[-1]
         return exitStatus == 0 and stderr == "1 molecule converted"
 
-    def fileInsert(self):
+    def fileInsertMmp(self):
         """
-        Slot method for 'File > Insert'.
+        Slot method for 'Insert > Molecular Machine Part file...'.
+        """
+        formats = \
+                "Molecular Machine Part (*.mmp);;"\
+                "All Files (*.*)"
+        self.fileInsert(formats)
+        
+    def fileInsertPdb(self):
+        """
+        Slot method for 'Insert > Protein Data Bank file...'.
+        """
+        formats = \
+                "Protein Data Bank (*.pdb);;"\
+                "All Files (*.*)"
+        self.fileInsert(formats)
+    
+    def fileInsert(self, formats):
+        """
+        Inserts a file in the current part.
+        
+        @param formats: File format options in chooser filter. 
+        @type  formats: list of strings
         """
         
         env.history.message(greenmsg("Insert File:"))
         
+        """
         formats = \
                     "Molecular Machine Part (*.mmp);;"\
                     "Protein Data Bank (*.pdb);;"\
-                    "GAMESS (*.out);;"\
                     "All Files (*.*)"
+        """
        
         fn = QFileDialog.getOpenFileName(self, 
                                          "Select a file to insert", 
@@ -561,7 +583,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     self.assy.changed() # The file and the part are not the same.
                     env.history.message( "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
             
-            if fn[-3:] in ["out","OUT"]:
+            # GAMESS *.out file disabled by Mark 2008-01-18.
+            # This code is marked for removal.
+            if 0: # fn[-3:] in ["out","OUT"]:
                 try:
                     r = insertgms(self.assy, fn)
                 except:
@@ -573,8 +597,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     else:
                         self.assy.changed() # The file and the part are not the same.
                         env.history.message( "GAMESS file inserted: [ " + os.path.normpath(fn) + " ]" )
-                    
-                    
+            
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
             self.mt.mt_update()
@@ -582,7 +605,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # Update the current working directory (CWD). Mark 060729.
             dir, fil = os.path.split(fn)
             self.setCurrentWorkingDirectory(dir)
-
 
     def fileOpen(self, recentFile = None):
         """
@@ -630,8 +652,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         else:
             formats = \
                     "Molecular Machine Part (*.mmp);;"\
-                    "Protein Data Bank (*.pdb);;"\
                     "All Files (*.*)"
+            
+            # Removed PDB option from "File > Open" chooser dialog.
+            # If you want to open a PDB, use "
+            # I'm keeping this here temporarily.
+            #@formats = \
+            #@        "Molecular Machine Part (*.mmp);;"\
+            #@        "Protein Data Bank (*.pdb);;"\
+            #@        "All Files (*.*)"
             
             fn = QFileDialog.getOpenFileName(self,
                                              "Choose a file to open",
@@ -672,8 +701,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     # this is not yet perfectly possible in readmmmp.
                 _openmsg = "MMP file opened: [ " + os.path.normpath(fn) + " ]"
                 isMMPFile = True
-                
-            if fn[-3:] in ["pdb","PDB"]:
+            
+            # .pdb option was disabled by Mark 2008-01-18.
+            # Use "Insert > Part..." to insert (import) a PDB file.
+            if 0: # fn[-3:] in ["pdb","PDB"]:
                 readpdb(self.assy, fn, showProgressDialog = True)
                 _openmsg = "PDB file opened: [ " + os.path.normpath(fn) + " ]"
 

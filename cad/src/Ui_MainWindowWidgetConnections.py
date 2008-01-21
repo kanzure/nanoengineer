@@ -76,9 +76,12 @@ def setupUi(win):
     win.connect(win.fileExitAction,
                 SIGNAL("triggered()"),
                 win.close)
-    win.connect(win.fileInsertAction,
+    win.connect(win.fileInsertMmpAction,
                 SIGNAL("triggered()"),
-                win.fileInsert)
+                win.fileInsertMmp)
+    win.connect(win.fileInsertPdbAction,
+                SIGNAL("triggered()"),
+                win.fileInsertPdb)
     win.connect(win.fileOpenAction,
                 SIGNAL("triggered()"),
                 win.fileOpen)

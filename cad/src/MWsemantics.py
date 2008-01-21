@@ -2109,7 +2109,8 @@ class MWsemantics(QMainWindow,
         self.fileSaveAsAction.setEnabled(enable) # "File Save As"
         self.fileOpenAction.setEnabled(enable) # "File Open"
         self.fileCloseAction.setEnabled(enable) # "File Close"
-        self.fileInsertAction.setEnabled(enable) # "File Insert"
+        self.fileInsertMmpAction.setEnabled(enable) # "Insert MMP"
+        self.fileInsertPdbAction.setEnabled(enable) # "Insert PDB"
         self.editDeleteAction.setEnabled(enable) # "Delete"
 
         # [bruce 050426 comment: I'm skeptical of disabling zoom/pan/rotate,

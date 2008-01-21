@@ -384,8 +384,11 @@ def setupUi(win):
     win.jigsAtomSetAction.setIcon(geticon("ui/actions/Tools/Atom_Set"))
     win.jigsAtomSetAction.setObjectName("jigsAtomSetAction")
 
-    win.fileInsertAction = QtGui.QAction(MainWindow)
-    win.fileInsertAction.setObjectName("fileInsertAction")
+    win.fileInsertMmpAction = QtGui.QAction(MainWindow)
+    win.fileInsertMmpAction.setObjectName("fileInsertMmpAction")
+    
+    win.fileInsertPdbAction = QtGui.QAction(MainWindow)
+    win.fileInsertPdbAction.setObjectName("fileInsertPdbAction")
 
     win.partLibAction = QtGui.QAction(MainWindow)
     win.partLibAction.setObjectName("partLibAction")
@@ -1074,16 +1077,28 @@ def retranslateUi(win):
     win.jigsAtomSetAction.setIconText(QtGui.QApplication.translate(
         "MainWindow",  "Atom Set",  None, QtGui.QApplication.UnicodeUTF8))
 
-    win.fileInsertAction.setText(QtGui.QApplication.translate(
-        "MainWindow", "Part...", 
+    win.fileInsertMmpAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "Molecular Machine Part file...", 
         None, QtGui.QApplication.UnicodeUTF8))
 
-    win.fileInsertAction.setIconText(QtGui.QApplication.translate(
-        "MainWindow", "Insert Part...", 
+    win.fileInsertMmpAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Insert MMP", 
         None, QtGui.QApplication.UnicodeUTF8))
 
-    win.fileInsertAction.setToolTip(QtGui.QApplication.translate(
-        "MainWindow", "Insert Part", 
+    win.fileInsertMmpAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", "Insert MMP file", 
+        None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.fileInsertPdbAction.setText(QtGui.QApplication.translate(
+        "MainWindow", "Protein Data Bank file...", 
+        None, QtGui.QApplication.UnicodeUTF8))
+
+    win.fileInsertPdbAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", "Insert PDB", 
+        None, QtGui.QApplication.UnicodeUTF8))
+
+    win.fileInsertPdbAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", "Insert PDB file", 
         None, QtGui.QApplication.UnicodeUTF8))
 
     win.insertCommentAction.setIconText(QtGui.QApplication.translate(
