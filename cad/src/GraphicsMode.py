@@ -822,9 +822,12 @@ class basicGraphicsMode(GraphicsMode_API):
             # Shift + Wheel zooms in quickly (2x), Control + Wheel zooms in slowly (.25x). 
             # mark 060321
         farQ_junk, point = self.dragstart_using_GL_DEPTH( event)
-        delta = event.delta()
+            # russ 080116 Limit mouse acceleration on the Mac.
+        delta = max( -360, min(event.delta(), 360))
 ##        factor = 1.0 + dScale * delta
         factor = exp(dScale * delta)
+        ###print "Wheel factor=", factor, " delta=", delta
+
             #bruce 070402 bugfix: original formula, factor = 1.0 + dScale * delta, was not reversible by inverting delta,
             # so zooming in and then out (or vice versa) would fail to restore original scale precisely,
             # especially for large delta. (Measured deltas: -360 or +360.)
