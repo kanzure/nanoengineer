@@ -250,6 +250,12 @@ class EditCommand(Select_Command):
         
         if struct:
             self.struct = struct
+            #Should we always unpick the structure while editing it? 
+            #Makes sense for editing a Dna. If this is problematic, the 
+            #following should be done in the subclasses that need this.
+            if hasattr(self.struct, 'picked') and self.struct.picked:
+                self.struct.unpick()
+                
             self.propMgr = None
             
         assert self.struct
