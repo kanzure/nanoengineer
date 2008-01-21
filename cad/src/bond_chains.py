@@ -1,4 +1,4 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 bond_chains.py -- helper functions related to chains of bonds
 
@@ -6,13 +6,15 @@ bond_chains.py -- helper functions related to chains of bonds
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from bond_constants import DIRBOND_CHAIN_MIDDLE
 from bond_constants import DIRBOND_CHAIN_END
 from bond_constants import DIRBOND_NONE
 from bond_constants import DIRBOND_ERROR
+
+from bond_constants import find_bond
 
 def grow_bond_chain(bond, atom, next_bond_in_chain): #bruce 070415; generalized from grow_pi_sp_chain
     """
@@ -307,12 +309,10 @@ class abstract_bond_chain_analyzer:
         assert len(listb) == len(lista), \
                "%r finds ring but #bonds %r != #atoms %r" % \
                (self, len(listb), len(lista))
-        if 'debug, but REMOVE WHEN WORKS': ### TODO: OPTIM: REMOVE SOON -- SLOW!
-            from bond_constants import find_bond
+        if 0 and 'debug, but REMOVE WHEN WORKS, very slow':
             for i in range(len(listb)):
                 assert find_bond(lista[i] , lista[(i-1) % len(lista)]) is listb[i]
-                    #bruce 080119 bugfix: i+1 -> i-1
-            print "remove when works! in _found_ring len %d" % len(lista)####
+            print "remove when works! in _found_ring len %d" % len(lista)
         return self.make_ring(listb, lista)
     def make_ring(self, listb, lista):
         """
