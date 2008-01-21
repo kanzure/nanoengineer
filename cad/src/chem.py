@@ -220,6 +220,14 @@ def _undo_update_Atom_jigs(archive, assy):
             j.moved_atom(a)
                 # strictly speaking, this is beyond our scope, but Atom._undo_update can't do it since a.jigs isn't set.
                 # Also, whatever this does should really just be done by Jig._undo_update. So make that true, then remove this. ###@@@
+            if j.killed(): #bruce 080120 added this (precaution)
+                break
+            j.changed_structure(a) #bruce 080120, might be needed by DnaMarker
+            if j.killed():
+                break
+            continue # next atom
+        continue # next jig
+            
     return
 
 # WARNING: register_undo_updater does not yet pay attention to its arguments
