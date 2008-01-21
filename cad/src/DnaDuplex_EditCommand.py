@@ -309,6 +309,14 @@ class DnaDuplex_EditCommand(EditCommand):
         self.previousParams = params
 
         self.struct = self._createStructure()
+        #Now append the new structure in self._segmentList (this list of 
+        #segments
+        #will be provided to the previous command (BuildDna_EditCommand)
+        #TODO: Should self._createStructure does the job of appending the 
+        #structure 
+        #to the list of segments? This fixes bug 2599 
+        #(see also BuildDna_PropertyManager.Ok 
+        self._segmentList.append(self.struct)
         return 
     
     def cancelStructure(self):

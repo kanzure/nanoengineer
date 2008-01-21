@@ -42,6 +42,7 @@ from VQT import V
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
+from PM.PM_Constants     import pmPreviewButton
 
 
 class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
@@ -88,6 +89,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         self.showTopRowButtons( pmDoneButton | \
                                 pmCancelButton | \
+                                pmPreviewButton | \
                                 pmWhatsThisButton)
         
           
@@ -118,9 +120,9 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Slot for the OK button
         """   
-        #if self.editCommand:
-            #self.editCommand.preview_or_finalize_structure(previewing = False)
-            #env.history.message(self.editCommand.logMessage)        
+        if self.editCommand:
+            self.editCommand.preview_or_finalize_structure(previewing = False)
+            ##env.history.message(self.editCommand.logMessage)        
         self.win.toolsDone()
     
     def cancel_btn_clicked(self):
