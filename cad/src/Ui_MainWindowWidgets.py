@@ -1493,7 +1493,7 @@ def retranslateUi(win):
     win.viewParallelToAction.setIconText(QtGui.QApplication.translate("MainWindow", "Set View Parallel To", None, QtGui.QApplication.UnicodeUTF8))
     win.viewParallelToAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Set View Parallel To", None, QtGui.QApplication.UnicodeUTF8))
 
-    win.viewQuteMolAction.setIconText(QtGui.QApplication.translate("MainWindow", "QuteMol", None, QtGui.QApplication.UnicodeUTF8))
+    win.viewQuteMolAction.setIconText(QtGui.QApplication.translate("MainWindow", "QuteMolX", None, QtGui.QApplication.UnicodeUTF8))
     win.viewRaytraceSceneAction.setIconText(QtGui.QApplication.translate("MainWindow", "POV-Ray", None, QtGui.QApplication.UnicodeUTF8))
     
     win.setViewPerspecAction.setText(

@@ -350,7 +350,7 @@ class MWsemantics(QMainWindow,
         from AtomGenerator import AtomGenerator
         self.atomcntl = AtomGenerator(self)
 
-        # QuteMol Property Manager. Mark 2007-12-02.
+        # QuteMolX Property Manager. Mark 2007-12-02.
         from QuteMolPropertyManager import QuteMolPropertyManager
         self.qutemolPM = QuteMolPropertyManager(self)
 

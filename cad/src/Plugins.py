@@ -58,7 +58,7 @@ def _fixPluginProblem(plugin_name, errortext):
     """
     [private helper for checkPluginPreferences()]
     
-    @param plugin_name: name of plug-in (i.e. "QuteMol", "GROMACS", etc.)
+    @param plugin_name: name of plug-in (i.e. "QuteMolX", "GROMACS", etc.)
     @type  plugin_name: text
     """
     caption = "%s Problem" % plugin_name
@@ -74,7 +74,7 @@ def _checkPluginPreferences_0(plugin_name, plugin_prefs_keys):
     Checks <plugin_name> to make sure it is enabled and 
     that its path points to a file.
 
-    @param plugin_name: name of plug-in (i.e. "QuteMol", "GROMACS", etc.)
+    @param plugin_name: name of plug-in (i.e. "QuteMolX", "GROMACS", etc.)
     @type  plugin_name: text
     
     @param plugin_keys: list containing the plugin enable prefs key and the
@@ -124,7 +124,7 @@ def checkPluginPreferences(plugin_name, plugin_prefs_keys, ask_for_help = True):
     Returns :0, plugin path on success, or
              1 and an error message indicating the problem.
             
-    @param plugin_name: name of plug-in (i.e. "QuteMol", "GROMACS", etc.)
+    @param plugin_name: name of plug-in (i.e. "QuteMolX", "GROMACS", etc.)
     @type  plugin_name: text
     
     @param plugin_keys: list containing the plugin enable prefs key and the

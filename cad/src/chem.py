@@ -1776,7 +1776,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                         documentation for the ATOM record more information.
         @type  chainId: str
         
-        @note: If you edit the ATOM record, be sure to to test QuteMol.
+        @note: If you edit the ATOM record, be sure to to test QuteMolX.
                     
         @see: U{B{ATOM Record Format}<http://www.wwpdb.org/documentation/format23/sect9.html#ATOM>}
         """
@@ -1797,7 +1797,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Column 21: Whitespace (str)
         atomRecord += "%1s" % space
         # Column 22: Chain identifier - single letter (str) 
-        # This has been tested with 35 chunks and still works in QuteMol.
+        # This has been tested with 35 chunks and still works in QuteMolX.
         atomRecord += "%1s" % chainId.upper()
         # Column 23-26: Residue sequence number (int) *unused*.
         atomRecord += "%4s" % space

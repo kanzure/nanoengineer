@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-qutemol.py - provides routines to support QuteMol as a plug-in.
+qutemol.py - provides routines to support QuteMolX as a plug-in.
 
 @author: Mark
 @version: $Id$
@@ -17,7 +17,7 @@ Module classification: [bruce 071215, 080103]
 Looks like operations and io code. Similar to "simulation" code
 but is not about simulation -- maybe that category is misconceived
 and what we want instead is an "external process" category of code.
-For now, call this "graphics_io" but file it into graphics/rendering/qutemol.
+For now, call this "graphics_io" but file it into graphics/rendering/QuteMolX.
 """
 
 import env
@@ -46,7 +46,7 @@ from PlatformDependent import find_or_make_Nanorex_subdir
 
 def launch_qutemol(pdb_file):
     """
-    Launch and load QuteMol with the PDB file I{pdb_file}.
+    Launch and load QuteMolX with the PDB file I{pdb_file}.
     
     @param pdb_file: the PDB filename to load
     @type  pdb_file: string
@@ -54,11 +54,11 @@ def launch_qutemol(pdb_file):
     @return: (errorcode, errortext)
              where errorcode is one of the following: ###k
                  0 = successful
-                 8 = QuteMol failed for an unknown reason.
+                 8 = QuteMolX failed for an unknown reason.
     @rtype:  int, text
     """
     
-    plugin_name = "QuteMol"
+    plugin_name = "QuteMolX"
     plugin_prefs_keys = (qutemol_enabled_prefs_key, qutemol_path_prefs_key)
             
     errorcode, errortext_or_path = \
@@ -70,7 +70,7 @@ def launch_qutemol(pdb_file):
     
     workdir, junk_exe = os.path.split(program_path)
     
-    # This provides a way to tell NE1 which version of QuteMol is installed.
+    # This provides a way to tell NE1 which version of QuteMolX is installed.
     if debug_pref("QuteMol 0.4.1 or later", 
                   Choice_boolean_True, 
                   prefs_key = True):
@@ -78,7 +78,7 @@ def launch_qutemol(pdb_file):
     else:
         version = "0.4.0"
     
-    # Start QuteMol.
+    # Start QuteMolX.
     try:
         args = [pdb_file]
         if env.debug():
@@ -94,11 +94,11 @@ def launch_qutemol(pdb_file):
         
         p = Process()
         
-        # QuteMol must run from the directory its executable lives. Otherwise,  
+        # QuteMolX must run from the directory its executable lives. Otherwise,  
         # it has serious problems (but still runs). Mark 2007-06-02.
         p.setWorkingDirectory(QString(workdir))
         
-        # Tried p.startDetached() so that QuteMol would be its own process and 
+        # Tried p.startDetached() so that QuteMolX would be its own process and 
         # continue to live even if NE1 exits. Unfortunately, 
         # setWorkingDirectory() doesn't work. Seems like a Qt bug to me. 
         # Mark 2007-06-02
@@ -130,7 +130,7 @@ def launch_qutemol(pdb_file):
 def write_art_data(fileHandle):
     """
     Writes the Atom Rendering Table (ART) data, which contains all
-    the atom rendering properties needed by QuteMol, to the file with the
+    the atom rendering properties needed by QuteMolX, to the file with the
     given fileHandle.
     Each atom is on a separate line.
     Lines starting with '#' are comment lines.
@@ -182,7 +182,7 @@ REMARK   8 ;           Number                Radius\n""")
 
 def write_qutemol_pdb_file(part, filename, excludeFlags):
     """
-    Writes an NE1-QuteMol PDB file of I{part} to I{filename}. 
+    Writes an NE1-QuteMolX PDB file of I{part} to I{filename}. 
     
     @param part: the NE1 part.
     @type  part: L{assembly}
@@ -191,7 +191,7 @@ def write_qutemol_pdb_file(part, filename, excludeFlags):
     @type  filename: string
     
     @param excludeFlags: used to exclude certain atoms from being written 
-        to the QuteMol PDB file.
+        to the QuteMolX PDB file.
     @type  excludeFlags: int
     
     @see L{writepdb()} for more information about I{excludeFlags}.
@@ -213,18 +213,17 @@ def write_qutemol_pdb_file(part, filename, excludeFlags):
                    
     writePDB_Header(f) # Writes our generic PDB header
     
-    # Write the QuteMol REMARKS "header".
+    # Write the QuteMolX REMARKS "header".
     # See the following wiki page for more information about
-    # the format of all NE1-QuteMol REMARK records:
-    # http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1-QuteMol_PDB_REMARK_record_format
+    # the format of all NE1-QuteMolX REMARK records:
+    # http://www.nanoengineer-1.net/mediawiki/index.php?title=NE1_PDB_REMARK_Records_Display_Data_Format
     #
     f.write("""\
 REMARK   6 - The ";" character is used to denote non-data (explanatory) records
 REMARK   6   in the REMARK 7 and REMARK 8 blocks.
 REMARK   6
 REMARK   7 
-REMARK   7 ;QuteMol Display Data (format version 0.1.0) nanoengineer-1.com/QuteMol
-REMARK   7 ;Compatible with QuteMol version 0.4.2 qutemol.sourceforge.net.
+REMARK   7 ;Display Data (format version 0.1.0) nanoengineer-1.com/PDB_REMARK_7
 REMARK   7\n""")
     
     f.write("REMARK   7 ORIENTATION: %1.6f %1.6f %1.6f %1.6f\n" 
@@ -278,7 +277,7 @@ def write_qutemol_files(part, excludeFlags = EXCLUDE_HIDDEN_ATOMS):
     @type  part: L{assembly}
     
     @param excludeFlags: used to exclude certain atoms from being written 
-        to the QuteMol PDB file, where:
+        to the QuteMolX PDB file, where:
         WRITE_ALL_ATOMS = 0 (even writes hidden and invisble atoms)
         EXCLUDE_BONDPOINTS = 1 (excludes bondpoints)
         EXCLUDE_HIDDEN_ATOMS = 2 (excludes both hidden and invisible atoms)
@@ -304,11 +303,11 @@ def write_qutemol_files(part, excludeFlags = EXCLUDE_HIDDEN_ATOMS):
     if not stats.natoms:
         # There are no atoms in the current part.
         # writepdb() will create an empty file, which causes 
-        # QuteMol to crash at launch.
+        # QuteMolX to crash at launch.
         # Mark 2007-06-02
         return None
     
-    pdb_basename = "qutemol.pdb"
+    pdb_basename = "QuteMolX.pdb"
     
     # Make full pathnames for the PDB file (in ~/Nanorex/temp/)
     tmpdir = find_or_make_Nanorex_subdir('temp')

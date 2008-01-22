@@ -477,11 +477,11 @@ class viewSlotsMixin:
 
     def viewQuteMol(self):
         """
-        Slot for 'View > QuteMol'. Opens the QuteMol Property Manager.
+        Slot for 'View > QuteMolX'. Opens the QuteMolX Property Manager.
         
-        @note: The QuteMol PM will not open if there are no atoms in the part.
+        @note: The QuteMolX PM will not open if there are no atoms in the part.
         """    
-        cmd = greenmsg("QuteMol : ")
+        cmd = greenmsg("QuteMolX : ")
 
         if self.assy.molecules:
             self.qutemolPM.show()

@@ -815,14 +815,14 @@ Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")
         self.povray_checkbox.setWhatsThis("""This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
         self.povray_lbl.setWhatsThis("""This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
 
-        self.qutemol_lbl.setWhatsThis("""This enables QuteMol as a plug-in. QuteMol is available for download from http://qutemol.sourceforge.net/. QuteMol must be installed on your computer before you can enable this plug-in.""")
-        self.qutemol_checkbox.setWhatsThis("""This enables QuteMol as a plug-in. QuteMol is available for download from http://qutemol.sourceforge.net/. QuteMol must be installed on your computer before you can enable the this plug-in.""")
+        self.qutemol_lbl.setWhatsThis("""This enables QuteMolX as a plug-in. QuteMolX is available for download from http://nanoengineer-1.com/QuteMolX. QuteMolX must be installed on your computer before you can enable this plug-in.""")
+        self.qutemol_checkbox.setWhatsThis("""This enables QuteMolX as a plug-in. QuteMolX is available for download from http://nanoengineer-1.com/QuteMolX. QuteMolX must be installed on your computer before you can enable the this plug-in.""")
 
         self.nanohive_lbl.setWhatsThis("""This enables Nano-Hive as a plug-in. Nano-Hive is available for download from  http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
         self.nanohive_checkbox.setWhatsThis("""This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
 
         self.povray_path_linedit.setWhatsThis("""The full path to the POV-Ray executable file.""")
-        self.qutemol_path_linedit.setWhatsThis("""The full path to the QuteMol executable file.""")
+        self.qutemol_path_linedit.setWhatsThis("""The full path to the QuteMolX executable file.""")
         self.nanohive_path_linedit.setWhatsThis("""The full path to the Nano-Hive executable file.""")
         self.gamess_lbl.setWhatsThis("""<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>
                                      <p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/.
@@ -844,7 +844,7 @@ GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.h
         
         
         self.qutemol_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
-                                         location of the QuteMol executable.""")
+                                         location of the QuteMolX executable.""")
         self.nanohive_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
                                           location of the Nano-Hive executable.""")
         self.povray_choose_btn.setWhatsThis("""This opens up a file chooser dialog so that you can specify the
@@ -1069,7 +1069,7 @@ restored when the user undoes a structural change.</p>
         else:
             self.gamess_lbl.setText("GAMESS :")
 
-        # QuteMol executable path.
+        # QuteMolX executable path.
         self.qutemol_checkbox.setChecked(env.prefs[qutemol_enabled_prefs_key])
         self.qutemol_path_linedit.setText(env.prefs[qutemol_path_prefs_key])
 
@@ -2353,22 +2353,22 @@ restored when the user undoes a structural change.</p>
             env.prefs[cpp_enabled_prefs_key] = False
             
 
-    # QuteMol slots #######################################
+    # QuteMolX slots #######################################
 
     def set_qutemol_path(self):
         """
-        Slot for QuteMol path "Choose" button.
+        Slot for QuteMolX path "Choose" button.
         """
         qp = get_filename_and_save_in_prefs(self, 
                                             qutemol_path_prefs_key, 
-                                            'Choose QuteMol Executable')
+                                            'Choose QuteMolX Executable')
 
         if qp:
             self.qutemol_path_linedit.setText(qp)
 
     def enable_qutemol(self, enable = True):
         """
-        Enables/disables QuteMol plugin.
+        Enables/disables QuteMolX plugin.
         
         @param enable: Enabled when True. Disables when False.
         @type  enable: bool
@@ -2378,12 +2378,12 @@ restored when the user undoes a structural change.</p>
             self.qutemol_choose_btn.setEnabled(1)
             env.prefs[qutemol_enabled_prefs_key] = True
 
-            # Sets the qutemol (executable) path to the standard location, if it exists.
+            # Sets the QuteMolX (executable) path to the standard location, if it exists.
             if not env.prefs[qutemol_path_prefs_key]:
                 env.prefs[qutemol_path_prefs_key] = get_default_plugin_path( \
-                    "C:\\Program Files\\VCG\\QuteMol\\qutemol.exe", \
-                    "/usr/local/bin/qutemol", \
-                    "/usr/local/bin/qutemol")
+                    "C:\\Program Files\\Nanorex\\QuteMolX\\QuteMolX.exe", \
+                    "/usr/local/bin/QuteMolX", \
+                    "/usr/local/bin/QuteMolX")
 
             self.qutemol_path_linedit.setText(env.prefs[qutemol_path_prefs_key])
 

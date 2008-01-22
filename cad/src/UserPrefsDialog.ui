@@ -3478,7 +3478,7 @@
                  <bool>true</bool>
                 </property>
                 <property name="toolTip" >
-                 <string>Enable QuteMol</string>
+                 <string>Enable QuteMolX</string>
                 </property>
                 <property name="text" >
                  <string/>
@@ -3508,7 +3508,7 @@
                  <string/>
                 </property>
                 <property name="text" >
-                 <string>QuteMol:</string>
+                 <string>QuteMolX:</string>
                 </property>
                 <property name="alignment" >
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -3929,7 +3929,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>The full path to the QuteMol executable file.</string>
+               <string>The full path to the QuteMolX executable file.</string>
               </property>
               <property name="text" >
                <string/>
@@ -3977,7 +3977,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>Choose location of QuteMol executable </string>
+               <string>Choose location of QuteMolX executable </string>
               </property>
               <property name="text" >
                <string>Choose...</string>

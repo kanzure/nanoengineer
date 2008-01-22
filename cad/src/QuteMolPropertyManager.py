@@ -2,7 +2,7 @@
 """
 QuteMolPropertyManager.py
 
-A Property Manager command supporting external rendering by QuteMol.
+A Property Manager command supporting external rendering by QuteMolX.
 
 @author: Mark
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
@@ -35,11 +35,11 @@ from files_pdb import EXCLUDE_DNA_AXIS_ATOMS
 class QuteMolPropertyManager(PM_Dialog):
     """
     The QuteMolPropertyManager class provides a Property Manager for 
-    QuteMol, allowing its launch for external rendering of the model.
+    QuteMolX, allowing its launch for external rendering of the model.
     """
     
     # The title that appears in the Property Manager header.
-    title = "QuteMol"
+    title = "QuteMolX"
     # The name of this Property Manager. This will be set to
     # the name of the PM_Dialog object via setObjectName().
     pmName = title
@@ -61,7 +61,7 @@ class QuteMolPropertyManager(PM_Dialog):
     
     def __init__(self, win):
         """
-        Construct the QuteMol Property Manager.
+        Construct the QuteMolX Property Manager.
         
         @param win: The main window.
         @type  win: QMainWindow
@@ -71,8 +71,8 @@ class QuteMolPropertyManager(PM_Dialog):
         
         PM_Dialog.__init__( self, self.pmName, self.iconPath, self.title )
         
-        msg = "Select a QuteMol rendering style and click the \
-        <b>Launch QuteMol</b> button when ready."
+        msg = "Select a QuteMolX rendering style and click the \
+        <b>Launch QuteMolX</b> button when ready."
         
         # This causes the "Message" box to be displayed as well.
         self.updateMessage(msg)
@@ -124,7 +124,7 @@ class QuteMolPropertyManager(PM_Dialog):
         
         self.launchQuteMolButton = PM_ToolButton(
             pmGroupBox, 
-            text      = "Launch QuteMol",
+            text      = "Launch QuteMolX",
             iconPath  = "ui/actions/Properties Manager/QuteMol.png",
             spanWidth = True )           
 
@@ -287,8 +287,8 @@ class QuteMolPropertyManager(PM_Dialog):
     
     def launchQuteMol(self, val):
         """
-        Slot for 'Launch QuteMol' button.
-        Opens the QuteMol rendering program and loads a copy of the current 
+        Slot for 'Launch QuteMolX' button.
+        Opens the QuteMolX rendering program and loads a copy of the current 
         model.
 
         Method:
@@ -296,16 +296,16 @@ class QuteMolPropertyManager(PM_Dialog):
         1. Write a PDB file of the current part.
         2. Write an atom attributes table text file containing atom radii and
            color information.
-        3. Launches QuteMol (with the PDB file as an argument). 
+        3. Launches QuteMolX (with the PDB file as an argument). 
 
         """    
-        cmd = greenmsg("QuteMol : ")
+        cmd = greenmsg("QuteMolX : ")
         
         excludeFlags = self._axesFlags | self._basesFlags
         #print "Exclude flags=", excludeFlags
         
         pdb_file = write_qutemol_files(self.win.assy, excludeFlags)
-        # Launch QuteMol. It will verify the plugin.
+        # Launch QuteMolX. It will verify the plugin.
         errorcode, msg = launch_qutemol(pdb_file) 
         # errorcode is ignored. 
         env.history.message(cmd + msg)

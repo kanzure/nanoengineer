@@ -323,7 +323,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "NWChem input format (*.nw);;"\
             "PCModel Format (*.pcm);;"\
             "Protein Data Bank format (*.pdb);;"\
-            "PDB with QuteMol rendering instructions (*.pdb);;"\
+            "PDB with QuteMolX rendering instructions (*.pdb);;"\
             "POV-Ray input format (*.pov);;"\
             "Parallel Quantum Solutions format (*.pqs);;"\
             "Q-Chem input format (*.qcin);;"\
@@ -373,7 +373,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if ext == ".mmp":
             self.save_mmp_file(export_filename, brag = True)
             
-        elif formatName.startswith("PDB with QuteMol"):
+        elif formatName.startswith("PDB with QuteMolX"):
             write_qutemol_pdb_file(self.assy.part, export_filename,
                                    EXCLUDE_BONDPOINTS | EXCLUDE_HIDDEN_ATOMS)
         else:
