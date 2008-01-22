@@ -46,7 +46,7 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
         changed_chunks[id(chunk)] = chunk
     
     for chunk in changed_chunks.itervalues():
-        if DEBUG_DNA_UPDATER: # should be DEBUG_DNA_UPDATER_VERBOSE but needed for bug 080120 9pm
+        if DEBUG_DNA_UPDATER_VERBOSE: # was useful for bug 080120 9pm
             print "dna updater: fyi: tell changed chunk %r -> inval its ladder %r" % \
                   (chunk, getattr(chunk, 'ladder', "<has none>"))
             pass
@@ -85,7 +85,7 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
         # parts of it. But this function name claims to do the dissolving
         # itself (even on already invalidated ladders). # todo: clarify.
         
-        if DEBUG_DNA_UPDATER: # was DEBUG_DNA_UPDATER_VERBOSE but needed for bug 080120 9pm
+        if DEBUG_DNA_UPDATER_VERBOSE: # was useful for bug 080120 9pm
             print "dna updater: fyi: adding all atoms from dissolved ladder %r" % ladder
         for rail in ladder.all_rails():
             for atom in rail.baseatoms: # probably overkill, maybe just one atom is enough -- not sure

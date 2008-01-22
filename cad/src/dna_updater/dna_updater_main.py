@@ -44,8 +44,11 @@ def full_dna_update():
 
     if DEBUG_DNA_UPDATER:
         print "\ndna updater: %d changed atoms to scan" % len(changed_atoms)
-        if 'TEMP DEBUG 080120':
-            print " they are: %r" % changed_atoms ### @@@
+    if DEBUG_DNA_UPDATER: # should be _VERBOSE, but has been useful enough to keep seeing for awhile
+        items = changed_atoms.items()
+        items.sort()
+        atoms = [item[1] for item in items]
+        print " they are: %r" % atoms
 
     remove_killed_atoms( changed_atoms) # only affects this dict, not the atoms
 

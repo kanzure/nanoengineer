@@ -60,6 +60,11 @@ from dna_model.DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
+_DEBUG_LADDER_FINISH_AND_MERGE = DEBUG_DNA_UPDATER_VERBOSE # for now
+
+_DEBUG_REVERSE_STRANDS = _DEBUG_LADDER_FINISH_AND_MERGE # for now
+
+
 from dna_model.dna_model_constants import LADDER_ENDS
 from dna_model.dna_model_constants import LADDER_END0
 from dna_model.dna_model_constants import LADDER_END1
@@ -98,8 +103,6 @@ def _f_get_invalid_dna_ladders():
 #  the copy & undo code in some other way... or I might decide it's entirely
 #  implicit re them.) If that gets hard, make it a Group. (Where in the internal MT?
 #  whereever the chunks would have been, without it.)
-
-_DEBUG_REVERSE_STRANDS = False
 
 class DnaLadder(object):
     """
@@ -504,11 +507,11 @@ class DnaLadder(object):
         flip_self = (end != LADDER_END1)
         flip_other = (other_end != LADDER_END0)
 
-        if DEBUG_DNA_UPDATER:
-            print
+        if _DEBUG_LADDER_FINISH_AND_MERGE:
             print "dna updater: fyi: _do_merge_with_other_at_ends(self = %r, other_ladder = %r, end = %r, other_end = %r)" % \
               (self, other, end, other_end)
-            # following might be only when _verbose, but is needed now for a current bug: 080122 noon
+        if _DEBUG_LADDER_FINISH_AND_MERGE:
+            # following was useful for a bug: 080122 noon
             print self.ladder_string("self", mark_end = end, flipQ = flip_self)
             print other.ladder_string("other", mark_end = other_end, flipQ = flip_other)
             print
@@ -537,12 +540,12 @@ class DnaLadder(object):
         # (todo: could optim by never flipping self, instead swapping
         #  ladders and negating both flips)
         if flip_self:
-            if DEBUG_DNA_UPDATER:
+            if _DEBUG_LADDER_FINISH_AND_MERGE:
                 print "dna updater: fyi: new_baseatom_lists before re-flip == %r" % (new_baseatom_lists,)
             new_baseatom_lists.reverse() # bugfix 080122 circa 2pm: .reverse -> .reverse() [confirmed]
             for listi in new_baseatom_lists:
                 listi.reverse()
-        if DEBUG_DNA_UPDATER:
+        if _DEBUG_LADDER_FINISH_AND_MERGE:
             print "dna updater: fyi: new_baseatom_lists (after flip or no flip) == %r" % (new_baseatom_lists,)
         # invalidate old ladders before making new rails or new ladder
         self.invalidate() # @@@@ ok at this stage?
@@ -556,7 +559,7 @@ class DnaLadder(object):
                           ) ]
         new_ladder = _new_ladder(new_rails)
         if DEBUG_DNA_UPDATER:
-            print "dna updater: fyi: merge results in %r" % (new_ladder,)
+            print "dna updater: fyi: merged %r and %r to produce %r" % (self, other, new_ladder,)
         return new_ladder
 
     def ladder_string(self, name, flipQ = False, mark_end = None):
@@ -826,9 +829,10 @@ def _new_rail(baseatoms, strandQ, bond_direction):
         assert bond_direction
     else:
         assert not bond_direction
+    if _DEBUG_LADDER_FINISH_AND_MERGE:
+        # print all calls
+        print "\n_new_rail(%r, %r, %r)" % (baseatoms, strandQ, bond_direction)
     if DEBUG_DNA_UPDATER:
-        # _VERBOSE (but have current bug re this): print all calls
-        print "\n_new_rail(%r, %r, %r)" % (baseatoms, strandQ, bond_direction) ###
         # check bondedness of adjacent baseatoms
         for i in range(len(baseatoms) - 1):
             atom1, atom2 = baseatoms[i], baseatoms[i+1]
