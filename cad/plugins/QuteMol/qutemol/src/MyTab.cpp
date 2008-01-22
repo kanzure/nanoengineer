@@ -65,6 +65,7 @@ enum{ ID_SetBallnstick=500, ID_SetSpacefill, ID_SetLicorice,
       ID_SetBorderVariable,
       ID_SetBorderDepthAware,
       ID_WebButton,
+      ID_WebButton2,
       ID_FirstPreset,
     } ID;
        
@@ -74,7 +75,9 @@ static wxRadioButton *buttonSetLicorice, *buttonSetSpacefill, *buttonSetBallnsti
 
 static wxRadioButton *buttonSetBallnstickBicolor, *buttonSetBallnstickConstantcolor, *buttonSetBallnstickSmoothcolor;
 
-static wxString qutemolwebsite=_T("http://qutemol.sourceforge.net/");
+static wxString qutemolwebsite = _T("http://qutemol.sourceforge.net/");
+static wxString nanorexQuteMolWebsite =
+    _T("http://www.nanoengineer-1.com/QuteMol");
 static wxColor colDisabled, colSticks, colBg(255,255,255);
 static float bgbrightness=0.5;
 
@@ -433,9 +436,15 @@ void MyTab::OnButton(wxCommandEvent & event){
     ResetColMode();
     SceneChanged();
     break;
-  
+
   case ID_WebButton:
     if (!wxLaunchDefaultBrowser(qutemolwebsite)) {
+       wxMessageBox(_T("Browser, browser,\nwhere art thou?"), _T(":-("), wxOK | wxICON_EXCLAMATION, this);
+    }
+    break;
+
+  case ID_WebButton2:
+    if (!wxLaunchDefaultBrowser(nanorexQuteMolWebsite)) {
        wxMessageBox(_T("Browser, browser,\nwhere art thou?"), _T(":-("), wxOK | wxICON_EXCLAMATION, this);
     }
     break;
@@ -1274,14 +1283,24 @@ MyTab::MyTab(wxWindow *parent , int n): wxPanel( parent, wxID_ANY, wxDefaultPosi
   if (n==3) { // info tab (about, trackball instructions, and a button for advanced properties)
 
     wxSizer *sizerA = new wxBoxSizer(wxVERTICAL);
-    sizerA->Add(new wxStaticText(this, wxID_ANY,_T("by")) 
+    sizerA->Add(new wxStaticText(this,
+                                 wxID_ANY,
+                                 _T("This is the Nanorex branch of QuteMol")) 
        ,0, wxALIGN_CENTER );
-    sizerA->Add(new wxStaticText(this, wxID_ANY,_T("Marco Tarini")) 
+    sizerA->Add(new wxStaticText(this, wxID_ANY,_T("which integrates with NanoEngineer-1.")) 
        ,0, wxALIGN_CENTER );
-    sizerA->Add(new wxStaticText(this, wxID_ANY,_T("and")) 
-       ,0, wxALIGN_CENTER );
-    sizerA->Add(new wxStaticText(this, wxID_ANY,_T("Paolo Cignoni")) 
-       ,0, wxALIGN_CENTER );
+    //sizerA->Add(1,1,1);
+    sizerA->Add(
+       new wxButton(this, ID_WebButton2, nanorexQuteMolWebsite )
+       ,0, wxALIGN_CENTER|wxTOP|wxBOTTOM, 10);
+    //sizerA->Add(1,1,1);
+    sizerA->Add(new wxStaticText(this, wxID_ANY,_T("QuteMol was originally created by")) 
+       ,0, wxALIGN_CENTER|wxTOP, 10);
+    sizerA->Add(new wxStaticText(this, wxID_ANY,_T("Marco Tarini and Paolo Cignoni.")) 
+       ,0, wxALIGN_CENTER|wxBOTTOM, 10);
+    sizerA->Add(
+       new wxButton(this, ID_WebButton, qutemolwebsite )
+       ,0, wxALIGN_CENTER|wxALL);
 
 
     wxSizer *sizerB = new wxStaticBoxSizer(new wxStaticBox(this, wxID_ANY, _T("Instructions") ), wxVERTICAL);
@@ -1299,16 +1318,22 @@ Right Mouse Button: move Light\n\
     sizerC->Add(bitmap, 0, wxALIGN_BOTTOM);
     sizerC->Add(1,1,1);
     sizerC->Add(new wxStaticText(this, wxID_ANY,
-         _T("ver 0.4.1 ("__DATE__")") 
+         _T("Version 0.5.0")
+         /*_T("ver 0.4.1 ("__DATE__")")*/
        ),0, wxALIGN_BOTTOM|wxALL,10);
     
     wxSizer *sizer = new wxBoxSizer(wxVERTICAL);
      sizer->Add(1,1,1);
     sizer->Add(sizerA,0, wxEXPAND|wxLEFT|wxRIGHT,10);
+       /*
     sizer->Add(1,1,1);
     sizer->Add(
-       new wxButton(this, ID_WebButton, /*_T("visit ")+*/qutemolwebsite )
-       ,0, wxALIGN_CENTER|wxALL/*|wxEXPAND,10*/);
+       new wxButton(this, ID_WebButton, qutemolwebsite )
+       ,0, wxALIGN_CENTER|wxALL);
+    sizer->Add(
+       new wxButton(this, ID_WebButton2, nanorexQuteMolWebsite )
+       ,0, wxALIGN_CENTER|wxALL);
+       */
     sizer->Add(1,1,1);
 
      sizer->Add(sizerB,0, wxEXPAND|wxLEFT|wxRIGHT,10);
