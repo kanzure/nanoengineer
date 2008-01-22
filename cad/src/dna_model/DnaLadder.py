@@ -302,16 +302,6 @@ class DnaLadder(object):
             if atom2 is not atom1:
                 yield atom2
         return
-# superceded by rail.neighbor_baseatoms:
-##    def neighboring_ladder_rail_end_atoms(self): # might use this in "make new wholechains on modified_valid_ladders" 080114
-##        """
-##        Yield the 0 to 6 pairs (our rail end atom, neighboring other-ladder end atom)
-##        (or equivalent info using rail & end indices??)
-##        showing how our rails connect to other ladder rails,
-##        or to None when they end.
-##        If we are length 1, use arbitrary left-right choice for axis.(?)
-##        """
-##        nim
         
     def invalidate(self):
         # note: this is called from dna updater and from
@@ -374,9 +364,14 @@ class DnaLadder(object):
         # needed for a merge are present. (Only one orientation can make sense,
         # given the bond we used to find it, but checking both is easier than
         # checking which one fits with that bond, especially if other or self
-        # len is 1.)
+        # len is 1. But to avoid confusion when other len is 1, make sure only
+        # one orientation of other can match, by using the convention
+        # that the ladder-end-atoms go top to bottom on the right,
+        # but bottom-to-top on the left.)
 
         strand1 = self.strand_rails[0]
+        assert strand1.bond_direction() == 1, "wrong bond direction %r in strand1 of %r" % (strand1.bond_direction, self)
+            ### TODO: replace 1 with named constant, which already exists
         end_atom = strand1.end_baseatoms()[end]
         assert self is _rail_end_atom_to_ladder(end_atom) # sanity check
         bond_direction_to_other = LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1[end]
@@ -384,52 +379,87 @@ class DnaLadder(object):
         if next_atom is None:
             # end of the chain (since bondpoints are not baseatoms), or
             # inconsistent bond directions at or near end_atom
-            # (report error??)
+            # (report error in that case??)
             return None
-        other = _rail_end_atom_to_ladder(next_atom) # other ladder
+        other = _rail_end_atom_to_ladder(next_atom)
+            # other ladder (might be self in case of ring)
         if other.error:
             return None
-        # other.valid is checked in _rail_end_atom_to_ladder
+        # other.valid was checked in _rail_end_atom_to_ladder
         if other is self:
             return None
         if len(self) + len(other) > MAX_LADDER_LENGTH:
             return None
+        # Now a merge is possible and allowed, if all ladder-ends are bonded
+        # in either orientation.
+
+        # optim: reject early if ladders have different numbers of rails --
         # enable this optim once i verify it works without it: @@
         ## if self.num_strands() != other.num_strands():
         ##    return None # optimization
+        ## #e could also check axis present or not, same in both
+        
         # try each orientation for other ladder;
         # first collect the atoms to test for bonding to other
-        our_end_atoms = self.end_atoms(end)
+        self_end_atoms = self.ladder_end_atoms(end)
+        if DEBUG_DNA_UPDATER:
+            assert end_atom in self_end_atoms
         for other_end in LADDER_ENDS:
-            other_end_atoms = other.end_atoms(other_end)
-                # note: .end_atoms returns a sequence of length 3,
+            other_end_atoms = other.ladder_end_atoms(other_end, reverse = True)
+                # note: .ladder_end_atoms returns a sequence of length 3,
                 # with each element being a rail's end-atom or None for a missing rail;
-                # the rail order is strand-axis-strand, which on the left is in
-                # top to bottom order, but on the right is in bottom to top order.
+                # the rail order is strand-axis-strand, which on the right is in
+                # top to bottom order, but on the left is in bottom to top order.
                 # strand1 is always present; strand2 is missing for either kind of
                 # single strands; axis_rail is missing for free-floating single strands.
+                #
+                # bugfix 080122 (untested): reverse order for other_end to facilitate
+                # comparison if the ladders abut (with standardized strand directions).
+                # Not doing this presumably prevented all merges except those involving
+                # length 1 ladders, and made those happen incorrectly when len(other) > 1.
             still_ok = True
-            for atom1, atom2, strandQ in zip(our_end_atoms, other_end_atoms, (True, False, True)):
+            for atom1, atom2, strandQ in zip(self_end_atoms, other_end_atoms, (True, False, True)):
                 ok = _end_to_end_bonded(atom1, atom2, strandQ)
                 if not ok:
                     still_ok = False
                     break
             if still_ok:
                 # success
+                if DEBUG_DNA_UPDATER:
+                    # end_atom and next_atom are bonded, so if we succeeded
+                    # then they ought to be in the same positions in these lists:
+                    assert next_atom in other_end_atoms
+                    assert self_end_atoms.index(end_atom) == other_end_atoms.index(next_atom)
                 merge_info = (end, other_end)
                 other_ladder_and_merge_info = other, merge_info
                 return other_ladder_and_merge_info
         return None
-    def end_atoms(self, end):
+    def ladder_end_atoms(self, end, reverse = False):
         """
         Return a list of our 3 rail-end atoms at the specified end,
         using None for a missing atom due to a missing strand2 or axis_rail,
-        in the order strand1, axis, strand2 for the left end,
-        or the reverse order for the right end (since flipping self
+        in the order strand1, axis, strand2 for the right end,
+        or the reverse order for the left end (since flipping self
         also reverses that rail order in order to preserve strand bond
-        directions).
+        directions as a function of position in the returned list,
+        and for other reasons mentioned in some caller comments).
+
+        @param end: LADDER_END0 or LADDER_END1
+
+        @param reverse: caller wants result in reverse order compared to usual
+        (it will still differ for the two ends)
+
+        @warning: the order being flipped for different ends
+        means that a caller looking for adjacent baseatoms
+        from abutting ends of two ladders needs
+        to reverse the result for one of them
+        (always, given the strand direction convention).
+        To facilitate and (nim)optimize this the caller can pass
+        the reverse flag if it knows ahead of time it wants
+        to reverse the result.
         """
-        # note: top to bottom on left, bottom to top on right,
+        # note: top to bottom on right, bottom to top on left
+        # (when reverse option is false);
         # None in place of missing atoms for strand2 or axis_rail
         assert len(self.strand_rails) in (1,2)
         strand_rails = self.strand_rails + [None] # + [None] needed in case len is 1
@@ -439,8 +469,11 @@ class DnaLadder(object):
                 return None
             return rail.end_baseatoms()[end]
         res0 = map( atom0, rails)
-        if end != LADDER_END0:
+        if end != LADDER_END1:
+            assert end == LADDER_END0
             res0.reverse()
+        if reverse:
+            res0.reverse() #e could optim by xoring those booleans
         return res0
     def __repr__(self):
         ns = self.num_strands()
@@ -462,32 +495,30 @@ class DnaLadder(object):
         Invalidate the merged ladders; return the new valid ladder
         resulting from the merge.
         """
-        if DEBUG_DNA_UPDATER:
-            print "dna updater: fyi: _do_merge_with_other_at_ends(self = %r, other_ladder = %r, end = %r, other_end = %r)" % \
-              (self, other, end, other_end)
-
         # algorithm: (might differ for subclasses)
         # - make merged rails (noting possible flip of each ladder)
         #   (just append lists of baseatoms)
         # - put them into a new ladder
         # - when debugging, could check all the same things that
         #   finished does, assert no change
-        def rail_to_baseatoms(rail, flipQ):
-            if not rail:
-                return []
-            elif not flipQ:
-                return rail.baseatoms
-            else:
-                res = list(rail.baseatoms)
-                res.reverse()
-                return res
         flip_self = (end != LADDER_END1)
         flip_other = (other_end != LADDER_END0)
+
+        if DEBUG_DNA_UPDATER:
+            print
+            print "dna updater: fyi: _do_merge_with_other_at_ends(self = %r, other_ladder = %r, end = %r, other_end = %r)" % \
+              (self, other, end, other_end)
+            # following might be only when _verbose, but is needed now for a current bug: 080122 noon
+            print self.ladder_string("self", mark_end = end, flipQ = flip_self)
+            print other.ladder_string("other", mark_end = other_end, flipQ = flip_other)
+            print
+
         self_baseatom_lists = [rail_to_baseatoms(rail, flip_self)
                                for rail in self.all_rail_slots_from_top_to_bottom()]
         other_baseatom_lists = [rail_to_baseatoms(rail, flip_other)
                                for rail in other.all_rail_slots_from_top_to_bottom()]
         if flip_self:
+            # the individual lists were already reversed in rail_to_baseatoms
             self_baseatom_lists.reverse()
         if flip_other:
             other_baseatom_lists.reverse()
@@ -495,7 +526,10 @@ class DnaLadder(object):
         # i.e. "self rail + other rail" for each rail.
         def concatenate_rail_atomlists((r1, r2)):
             assert (r1 and r2) or (not r1 and not r2)
-            return r1 + r2
+            res = r1 + r2
+            assert res is not r1
+            assert res is not r2
+            return res
         new_baseatom_lists = map( concatenate_rail_atomlists,
                                   zip(self_baseatom_lists, other_baseatom_lists))
         # flip the result if we flipped self, so we know it defines a legal
@@ -503,9 +537,13 @@ class DnaLadder(object):
         # (todo: could optim by never flipping self, instead swapping
         #  ladders and negating both flips)
         if flip_self:
-            new_baseatom_lists.reverse
+            if DEBUG_DNA_UPDATER:
+                print "dna updater: fyi: new_baseatom_lists before re-flip == %r" % (new_baseatom_lists,)
+            new_baseatom_lists.reverse() # bugfix 080122 circa 2pm: .reverse -> .reverse() [confirmed]
             for listi in new_baseatom_lists:
                 listi.reverse()
+        if DEBUG_DNA_UPDATER:
+            print "dna updater: fyi: new_baseatom_lists (after flip or no flip) == %r" % (new_baseatom_lists,)
         # invalidate old ladders before making new rails or new ladder
         self.invalidate() # @@@@ ok at this stage?
         other.invalidate()
@@ -521,6 +559,39 @@ class DnaLadder(object):
             print "dna updater: fyi: merge results in %r" % (new_ladder,)
         return new_ladder
 
+    def ladder_string(self, name, flipQ = False, mark_end = None):
+        """
+        Return a multi-line string listing all baseatoms in self,
+        labelling self as name, marking one end of self if requested by mark_end,
+        flipping self if requested (mark_end is interpreted as referring
+        to the unflipped state). Even empty rails are shown.
+
+        @type name: string
+        @type flipQ: boolean
+        @type mark_end: None or LADDER_END0 or LADDER_END1
+        """
+        assert LADDER_END0 == 0 and LADDER_END1 == 1
+            # make it easier to compute left/right mark
+        classname = self.__class__.__name__.split('.')[-1]
+        flipped_string = flipQ and " (flipped)" or ""
+        label = "%s %r%s:" % (classname, name, flipped_string)
+        baseatom_lists = [rail_to_baseatoms(rail, flipQ)
+                               for rail in self.all_rail_slots_from_top_to_bottom()]
+        if flipQ:
+            # the individual lists were already reversed in rail_to_baseatoms
+            baseatom_lists.reverse()
+        if mark_end is not None:
+            if flipQ:
+                # make it relative to the printout
+                mark_end = (LADDER_END0 + LADDER_END1) - mark_end
+        left_mark = (mark_end == LADDER_END0) and "* " or "  "
+        right_mark = (mark_end == LADDER_END1) and " *" or "  "
+        strings = [left_mark +
+                   (baseatoms and ("%r" % baseatoms) or "------") +
+                   right_mark
+                   for baseatoms in baseatom_lists]
+        return "\n".join([label] + strings)
+    
     # ==
 
     def all_rails(self):
@@ -708,14 +779,14 @@ def _end_to_end_bonded( atom1, atom2, strandQ):
 
 def strand_atoms_are_bonded_by_Pl(atom1, atom2): #e refile 
     """
-    are these two strand base atoms bonded (indirectly) by means of a single
-    intervening Pl atom (PAM5)?
+    are these two strand base atoms bonded (indirectly) by means of
+    a single intervening Pl atom (PAM5)?
     """
     if atom1 is atom2:
         # assert 0??
         return False # otherwise following code could be fooled!
 # one way to support PAM5:
-##    set1 = atom1.Pl_neighbors() # IMPLEM
+##    set1 = atom1.Pl_neighbors() # [this is defined as of 080122]
 ##    set2 = atom2.Pl_neighbors()
 ##    for Pl in set1:
 ##        if Pl in set2:
@@ -733,6 +804,16 @@ def strand_atoms_are_bonded_by_Pl(atom1, atom2): #e refile
 
 # helpers for _do_merge_with_other_at_ends
 
+def rail_to_baseatoms(rail, flipQ):
+    if not rail:
+        return []
+    elif not flipQ:
+        return rail.baseatoms
+    else:
+        res = list(rail.baseatoms)
+        res.reverse()
+        return res
+
 def _new_rail(baseatoms, strandQ, bond_direction):
     """
     """
@@ -743,10 +824,30 @@ def _new_rail(baseatoms, strandQ, bond_direction):
         # (might not be needed, but good to sanity-check)
     if strandQ:
         assert bond_direction
+    else:
+        assert not bond_direction
+    if DEBUG_DNA_UPDATER:
+        # _VERBOSE (but have current bug re this): print all calls
+        print "\n_new_rail(%r, %r, %r)" % (baseatoms, strandQ, bond_direction) ###
+        # check bondedness of adjacent baseatoms
+        for i in range(len(baseatoms) - 1):
+            atom1, atom2 = baseatoms[i], baseatoms[i+1]
+            if strandQ:
+                assert atoms_are_bonded(atom1, atom2) or \
+                       strand_atoms_are_bonded_by_Pl(atom1, atom2), \
+                       "*** missing bond between adjacent baseatoms [%d,%d of %d]: %r and %r" % \
+                       (i, i+1, len(baseatoms), atom1, atom2)
+            else:
+                assert atoms_are_bonded(atom1, atom2), \
+                       "*** missing bond between adjacent baseatoms [%d,%d of %d]: %r and %r" % \
+                       (i, i+1, len(baseatoms), atom1, atom2)
     return merged_chain( baseatoms, strandQ, bond_direction)
 
 def _new_ladder(new_rails):
     """
+    Make a new DnaLadder of the appropriate subclass,
+    given 3 new rails-or-None in top to bottom order.
+    
     @param new_rails: a sequence of length 3; each element is a new rail,
                       or None; top to bottom order.
     """
@@ -757,17 +858,23 @@ def _new_ladder(new_rails):
         return _new_single_strand_domain(strand1)
     else:
         return _new_axis_ladder(strand1, axis, strand2)
-    assert 0
+    pass
 
 def _new_single_strand_domain(strand1):
+    """
+    [private helper for _new_ladder]
+    """
     return DnaSingleStrandDomain(strand1)
 
 def _new_axis_ladder(strand1, axis, strand2):
+    """
+    [private helper for _new_ladder]
+    """
     ladder = DnaLadder(axis)
     ladder.add_strand_rail(strand1)
     if strand2:
         ladder.add_strand_rail(strand2)
-    ladder.finished() ###k @@@@ ok here?
+    ladder.finished()
     return ladder
 
 # end

@@ -353,10 +353,12 @@ def merge_ladders(new_ladders):
     Merge end-to-end-connected ladders (new/new or new/old) into larger
     ones, when that doesn't make the resulting ladders too long.
 
-    @return: list of modified_valid_ladders [nim]
+    @return: list of merged (or new and unable to be merged) ladders
 
-    @note: each returned ladder is either entirely new (perhaps merged),
-           or the result of merging new and old ladders.
+    @note: each returned ladder is either entirely new (perhaps merged
+           or perhaps one of the ones the caller passed in),
+           or the result of merging (one or more) new and (presumably
+           just one) old ladders.
     """
     # Initial implem - might be too slow (quadratic in atomcount) if
     # repeated merges from small to large chain sizes occur.
@@ -368,21 +370,33 @@ def merge_ladders(new_ladders):
     while new_ladders: # has ladders untested for can_merge
         next = [] # new_ladders for next iteration
         for ladder in new_ladders:
-            can_merge_info = ladder.can_merge() # (at either end)
-            if can_merge_info:
-                assert ladder.valid
-                merged_ladder = ladder.do_merge(can_merge_info)
-                    # note: invals the old ladders
-                    # Q: what if the rails (also merged here) are already
-                    # contained in wholechains?
-                    # A: they're not yet contained in those -- we find those
-                    # later from the merged ladders.
-                assert not ladder.valid
-                assert merged_ladder.valid
-                next.append(merged_ladder)
+            assert ladder.valid # should be true as we start the following inner loop
+                # (not sure it's required, but it's a sanity check --
+                #  in first outer loop iteration these are newly made ladders,
+                #  in all other iterations they are newly merged ladders)
+        for ladder in new_ladders:
+            if not ladder.valid:
+                # this means ladder got merged into another ladder
+                # (as "other", for the other ladder being "self" in can_merge)
+                # earlier during this loop. Don't include it in the result! (bugfix 080122 3pm [unconfirmed])
+                pass
             else:
-                res.append(ladder)
+                can_merge_info = ladder.can_merge() # (at either end)
+                if can_merge_info:
+                    merged_ladder = ladder.do_merge(can_merge_info)
+                        # note: invals the old ladders
+                        # Q: what if the rails (also merged here) are already
+                        # contained in wholechains?
+                        # A: they're not yet contained in those -- we find those
+                        # later from the merged ladders.
+                    assert not ladder.valid
+                    assert merged_ladder.valid
+                    next.append(merged_ladder)
+                else:
+                    res.append(ladder)
         new_ladders = next
+    for ladder in res:
+        assert ladder.valid # required by caller, trivially true here
     return res
 
 # end

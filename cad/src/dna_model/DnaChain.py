@@ -219,14 +219,22 @@ class DnaChain(object):
         if when:
             when = " (%s)" % when
         
-        # STUB: only works for PAM3
+        # STUB: only works fully for PAM3
         atom1 = self.baseatoms[0]
         atom2 = self.baseatoms[1]
         bond = find_bond(atom1, atom2)
         if not bond:
-            print "debug_check_bond_direction%s in %r: doesn't work for PAM5 " \
-                  "(or, bug in finding bond): %r, %r" % \
-                  (when, self, atom1, atom2)
+            # figure out which kind of error
+            if atom1.Pl_neighbors() or atom2.Pl_neighbors():
+                print "debug_check_bond_direction%s in %r: " \
+                      "doesn't work for PAM5: %r, %r" % \
+                      (when, self, atom1, atom2)
+            else:
+                msg = "debug_check_bond_direction%s in %r: " \
+                      "ERROR: no bond between adjacent baseatoms %r and %r" % \
+                      (when, self, atom1, atom2)
+                print "\n*** %s ***\n" % msg
+                env.history.message(redmsg(quote_html(msg)))
             return
         actual_direction = bond.bond_direction_from(atom1)
         ## not needed: assert actual_direction
