@@ -11,10 +11,16 @@ from dna_model.DnaMarker import DnaMarker # only for issubclass
 from dna_model.DnaMarker import DnaSegmentMarker
 from dna_model.DnaMarker import DnaStrandMarker
 
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
 from dna_model.dna_model_constants import LADDER_ENDS
 from dna_model.dna_model_constants import LADDER_END0
+
+import env
+from utilities.Log import redmsg, quote_html
+
+from bond_constants import find_bond
 
 # ==
 
@@ -105,13 +111,19 @@ class DnaChain(object):
         return (self.baseatoms[0], self.baseatoms[-1]) # might be same atom
 
     def reverse_baseatoms(self):
+        if DEBUG_DNA_UPDATER:
+            self.debug_check_bond_direction("reverse_baseatoms start")
         self.baseatoms = list(self.baseatoms)
         self.baseatoms.reverse()
         self.index_direction *= -1
         self._bond_direction *= -1
         self._reverse_neighbor_baseatoms()
+        if DEBUG_DNA_UPDATER:
+            self.debug_check_bond_direction("reverse_baseatoms end")
         return
 
+    # ==
+    
     # kluge: bond direction code/attrs are also here, even though it only applies to strands,
     # since strands can have different classes with no more specific common superclass.
     
@@ -187,6 +199,49 @@ class DnaChain(object):
             # called self.reverse_baseatoms()! @@@
         return
 
+    def debug_check_bond_direction(self, when = ""):
+        """
+        Verify our bond direction is set correctly (if possible),
+        and assertfail and/or print a debug warning if not.
+        """
+        ## assert self.strandQ
+        assert self.baseatoms
+        if not self.strandQ:
+            return
+        assert self._bond_direction
+        assert not self._bond_direction_error
+        
+        if self.bond_direction_is_arbitrary():
+            return # no way to check it
+
+        # verify it by comparing it to actual bonds
+
+        if when:
+            when = " (%s)" % when
+        
+        # STUB: only works for PAM3
+        atom1 = self.baseatoms[0]
+        atom2 = self.baseatoms[1]
+        bond = find_bond(atom1, atom2)
+        if not bond:
+            print "debug_check_bond_direction%s in %r: doesn't work for PAM5 " \
+                  "(or, bug in finding bond): %r, %r" % \
+                  (when, self, atom1, atom2)
+            return
+        actual_direction = bond.bond_direction_from(atom1)
+        ## not needed: assert actual_direction
+        recorded_direction = self._bond_direction
+        assert recorded_direction # redundant with earlier assert
+        if actual_direction != recorded_direction:
+            # error
+            msg = "debug_check_bond_direction%s in %r: ERROR: %r to %r: recorded %r, actual %r" % \
+                  (when, self, atom1, atom2, recorded_direction, actual_direction)
+            print "\n*** %s ***\n" % msg
+            env.history.message(redmsg(quote_html(msg)))
+        return
+        
+    # ==
+    
     def _f_update_neighbor_baseatoms(self): ### @@@ correct order behavior is unclear; does it matter? not yet! 080116
         """
         [friend method for dna updater]
@@ -342,6 +397,8 @@ class _DnaChainFragment(DnaChain): #e does it need to know ringQ? is it misnamed
             bond_direction = bond_direction or 0
             bond_direction_error = bond_direction_error or False
             self._f_set_bond_direction( bond_direction, bond_direction_error)
+        if DEBUG_DNA_UPDATER:
+            self.debug_check_bond_direction("_DnaChainFragment.__init__")
     pass
 
 # ==
@@ -462,6 +519,8 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
         [as of 080109 these are created in make_new_ladders() and passed into DnaLadder as its rail chains
          via init arg and add_strand_rail]
         """
+        if DEBUG_DNA_UPDATER:
+            self.debug_check_bond_direction("entering DnaChain_AtomChainWrapper.virtual_fragment")
         # current implem always returns a real fragment; might be ok
         baseindex = start_baseindex - self.start_baseindex()
         subchain = self.baseatoms[baseindex : baseindex + baselength]
@@ -526,6 +585,10 @@ class StrandChain(DnaChain_AtomChainWrapper):
     strandQ = True
     _marker_class = DnaStrandMarker
     def __init__(self, chain_or_ring):
+# nevermind:
+##        if DEBUG_DNA_UPDATER:
+##            chain_or_ring.debug_check_bond_direction("init arg to %r" % self)
+##            ## AttributeError: 'AtomChain' object has no attribute 'debug_check_bond_direction'
         DnaChain_AtomChainWrapper.__init__(self, chain_or_ring)
         baseatoms = filter( lambda atom:
                               not atom.element.symbol.startswith('P') ,
@@ -541,26 +604,48 @@ class StrandChain(DnaChain_AtomChainWrapper):
         # (This is assumed when setting bond_direction on merged chains. #doc in what code)
         dir_so_far = None
         chain = self.chain_or_ring
-        for atom, bond in zip(chain.atom_list[:len(chain.bond_list)], chain.bond_list):
-            thisdir = bond.bond_direction_from(atom)
-            # TODO: VERIFY this is the right atom/bond arrangement, for chain or ring!
-            # (if not, i should see a bug at some point...)
-            if dir_so_far == None: #e could optim by moving out of loop
+        # 1. check bonds inside the chain.
+        # if it's a chain, it contains: atom, bond, atom, bond, atom
+        # (each bond connects the adjacent atoms).
+        # if it's a ring, it's like that but missing the *first* atom
+        # (due to a perhaps-arbitrary choice in the alg in
+        #  find_chain_or_ring_from_bond), so it's bond, atom, bond, atom.
+        # So we'll ignore the first atom in a chain to make these cases
+        # the same, and then loop over the (bond, atom) pairs in that order,
+        # which means the bond direction relative to left-to-right in this
+        # scheme (i.e. relative to baseatoms index) is the negative of the one
+        # we get from each bond, atom pair. (I recently changed the ring-finding
+        # code in a way which changed this scheme and introduced a bug in this
+        # code, though comments here suggest the sign factor was just a guess
+        # anyway. Fixed the bug here [confirmed], 080121 10pm or so.)
+        bonds = chain.bond_list
+##        atoms = chain.atom_list[:len(bonds)] # buggy
+        atoms = chain.atom_list[-len(bonds):] # bugfix part 1
+        for bond, atom in zip(bonds, atoms):
+            thisdir = - bond.bond_direction_from(atom) # minus sign is bugfix part 2
+            if dir_so_far is None:
+                # first iteration
+                #e could optim by moving out of loop
                 dir_so_far = thisdir
-                if not thisdir:
+                if not thisdir: # missing bond direction
                     break
             else:
+                # subsequent iterations
                 assert dir_so_far in (-1, 1)
                 if dir_so_far != thisdir:
-                    # contradiction, or thisdir is 0
+                    # inconsistent or missing bond direction
                     dir_so_far = 0
                     break
             continue
+        # 2. check pairs of bonds on the same atom, on the "end atoms".
+        # (It doesn't matter which end-atom we dropped in the bond-inside-chain
+        #  loop above, since that only affects how we measure bond directions,
+        #  not which bonds we measure (all of them).)
         if not chain.atom_list[0].bond_directions_are_set_and_consistent() or \
            not chain.atom_list[-1].bond_directions_are_set_and_consistent():
             dir_so_far = 0
         if dir_so_far is None:
-            assert len(chain.atom_list) == 1 and len(chain.bond_list) == 0
+            assert len(chain.atom_list) == 1 and len(bonds) == 0
             # direction remains unknown, i guess...
             # but I think we can legally set it to either value,
             # and doing so simplifies the code that wants it to be set.
@@ -572,8 +657,13 @@ class StrandChain(DnaChain_AtomChainWrapper):
             # using our superclass method bond_direction_is_arbitrary, which says yes
             # even if this code didn't run (e.g. if atom_list had a Pl).)
             dir_so_far = 1
+        # at this point, dir_so_far can be:
+        # 0: error (inconsistent or missing bond direction)
+        # 1 or -1: every bond inside and adjacent to chain has this direction
         self._f_set_bond_direction(dir_so_far)
-        return
+        if DEBUG_DNA_UPDATER:
+            self.debug_check_bond_direction("end of init")
+        return # atoms bonds
         
     pass
 

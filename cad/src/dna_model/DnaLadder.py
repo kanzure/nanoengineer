@@ -16,11 +16,13 @@ The PAM atoms in any PAM DNA structure will be internally divided into
 
  ... -+-+-+-+-+-+- ... (strand 1)
       | | | | | | 
- ... -+-+-+-+-+-+- ... (axis)
+ ... -+-+-+-+-+-+- ... (axis; missing for free-floating single strand)
       | | | | | | 
- ... -+-+-+-+-+-+- ... (strand 2; missing if single-stranded)
+ ... -+-+-+-+-+-+- ... (strand 2; missing for any kind of single strand)
 
-(with the strand bond directions antiparallel and standardized).
+(with the strand bond directions antiparallel and standardized
+to 1 on top (measured left to right == towards increasing baseatoms
+index), -1 on bottom).
 
 The dna updater will maintain these ladders, updating them
 when their structure is changed. So a changed atom in a ladder will
@@ -42,6 +44,7 @@ So the roles for a ladder include:
 - guide the dna updater in making new chunks
 - have display code and a display list
 
+THIS MIGHT BE WRONG [the undo/copy part]: ####REVIEW @@@
 A ladder will be fully visible to copy and undo (i.e. it will
 contain undoable state), but will not be stored in the mmp file.
 """
@@ -96,6 +99,8 @@ def _f_get_invalid_dna_ladders():
 #  implicit re them.) If that gets hard, make it a Group. (Where in the internal MT?
 #  whereever the chunks would have been, without it.)
 
+_DEBUG_REVERSE_STRANDS = True # @@@@@
+
 class DnaLadder(object):
     """
     [see module docstring]
@@ -140,6 +145,8 @@ class DnaLadder(object):
                 self.axis_rail,
                 self.axis_rail.baselength())
         self.strand_rails.append(strand_rail)
+        if _DEBUG_REVERSE_STRANDS:
+            strand_rail.debug_check_bond_direction("in %r.add_strand_rail" % self)
         return
     def finished(self): # note: only for the subclass with axis_rail present [todo: split this class]
         """
@@ -186,7 +193,11 @@ class DnaLadder(object):
         (note there might be only the first strand_rail;
          this code works even if there are none)
         """
+        if _DEBUG_REVERSE_STRANDS:
+            print "\n *** _DEBUG_REVERSE_STRANDS start for %r" % self
         for strand_rail in self.strand_rails:
+            if _DEBUG_REVERSE_STRANDS:
+                print "deciding whether to reverse:", strand_rail
             if strand_rail is self.strand_rails[0]:
                 desired_dir = 1
                 reverse = True # if dir is wrong, reverse all three rails
@@ -209,19 +220,47 @@ class DnaLadder(object):
                 reverse = True # might as well fix the other strand, if we didn't get to it yet
             else:
                 if have_dir != desired_dir:
+                    # need to reverse all rails in this ladder (if we're first strand,
+                    #  or if dir is arb since len is 1) 
+                    # or report error (if we're second strand)
                     if strand_rail.bond_direction_is_arbitrary():
+                        if _DEBUG_REVERSE_STRANDS:
+                            print "reversing %r (bond_direction_is_arbitrary)" % strand_rail
                         strand_rail._f_reverse_arbitrary_bond_direction()
                         have_dir = strand_rail.bond_direction() # only needed for assert
                         assert have_dir == desired_dir
                     elif reverse:
+                        if _DEBUG_REVERSE_STRANDS:
+                            print "reversing all rails in %r:" % (self,)
                         for rail in self.all_rails(): # works for ladder or single strand domain
+                            if _DEBUG_REVERSE_STRANDS:
+                                print "   including: %r" % (rail,)
+                            ### review: this reverses even the ones this for loop didn't get to, is that desired? @@@@@
                             rail.reverse_baseatoms()
                     else:
                         print "error: %r strands have parallel bond directions"\
                               " - response is NIM(bug)" % self #### @@@ response is NIM (BUG); split into two single strands??
+                        print "data about that:"
+                        print "this rail %r in list of rails %r" % (strand_rail, self.strand_rails)
+                        print "desired_dir = %r, reverse = %r, have_dir = %r" % (desired_dir, reverse, have_dir)
+                        print "self.error now = %r (is about to be set)" % (self.error,)
+                        if strand_rail.bond_direction_is_arbitrary():
+                            print " *** strand_rail.bond_direction_is_arbitrary() is true, should be false"
                         self.error = True
                         # should we just reverse them? no, unless we use minor/major groove to decide which is right.
+                    pass
+                else:
+                    # strand bond direction is already correct
+                    if _DEBUG_REVERSE_STRANDS:
+                        print "no need to reverse %r" % strand_rail
             continue
+        if _DEBUG_REVERSE_STRANDS:
+            print "done reversing if needed; current rail baseatom order is:"
+            for rail in self.all_rails():
+                print "  %r" % rail.baseatoms # see if it gets it right after the first step
+            for rail in self.strand_rails:
+                strand_rail.debug_check_bond_direction("end of %r._finish_strand_rails" % self)
+            print " *** _DEBUG_REVERSE_STRANDS end for %r\n" % self
         self.set_valid(True)
     def num_strands(self):
         return len(self.strand_rails)

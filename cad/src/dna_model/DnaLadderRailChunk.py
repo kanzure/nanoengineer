@@ -159,11 +159,8 @@ class DnaLadderRailChunk(Chunk):
         * in chunk.copy_full_in_mapping (of the copy -- won't help unless we use self.__class__ to copy) ### REVIEW @@@@
         also catches addatom/delatom themselves (so above overrides are not needed??)
         """
-        if DEBUG_DNA_UPDATER:
-            print "dna updater debug: fyi: calling %r.invalidate_atom_lists()" % (self,) ##### @@@@@@ DO SOMETHING
-        ## TO FIX A BUG, DO THIS: @@@@@@ 080120 10pm about to test this to see if it fixes the bug
         if self.ladder and self.ladder.valid:
-            self.ladder.invalidate()
+            self.ladder.invalidate() # 080120 10pm bugfix
         return _superclass.invalidate_atom_lists(self)
         
     # == other methods
