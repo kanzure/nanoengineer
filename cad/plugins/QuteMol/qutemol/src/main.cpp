@@ -359,7 +359,7 @@ bool MyApp::OnInit()
     wxImage::AddHandler(new wxJPEGHandler);
     
     // Create the main frame window
-    MyFrame *frame = new MyFrame(NULL, wxT("QuteMol"),
+    MyFrame *frame = new MyFrame(NULL, wxT("QuteMolX"),
 //        wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE //wxRESIZE_BORDER
 #ifdef __DARWIN__
         wxDefaultPosition, wxDefaultSize,wxDEFAULT_FRAME_STYLE| wxRESIZE_BORDER
@@ -696,7 +696,7 @@ void TestGLCanvas::OnPaint( wxPaintEvent& event )
             wxString renderer = glGetString(GL_RENDERER);
             if (!extensions.Contains("GL_EXT_framebuffer_object") ||
                 ProblematicRenderers.Contains(renderer))
-                wxMessageBox(_T("QuteMol makes use of OpenGL extensions that are not implemented, or not stable for your video adapter. If you choose to continue, your computer may crash or freeze. Save your work."),
+                wxMessageBox(_T("QuteMolX makes use of OpenGL extensions that are not implemented, or not stable for your video adapter. If you choose to continue, your computer may crash or freeze. Save your work."),
                          _T("Warning: Potential video adapter problems"),
                          wxOK | wxICON_EXCLAMATION, this);
                          
@@ -826,7 +826,7 @@ void TestGLCanvas::OnKeyDown( wxKeyEvent& event ){
 
       
     }       
-    wxMessageBox(text, _T("QuteMol - file info"), wxOK | wxICON_INFORMATION, this);
+    wxMessageBox(text, _T("QuteMolX - file info"), wxOK | wxICON_INFORMATION, this);
   }
 
   if (event.GetKeyCode() == WXK_F6 ) {
@@ -1001,7 +1001,7 @@ void MyFrame::OnReadFile (wxString filename)
        MyTab::EnableGeom();
        UpdateShadowmap();
        wxString name( mol.GetMolName(), wxConvUTF8 ); 
-       SetTitle(  name.BeforeLast('.')+ _T(" - QuteMol") );
+       SetTitle(  name.BeforeLast('.')+ _T(" - QuteMolX") );
        m_tb->SetTitleText(name);
        geoSettings.Apply();
 

@@ -77,7 +77,7 @@ static wxRadioButton *buttonSetBallnstickBicolor, *buttonSetBallnstickConstantco
 
 static wxString qutemolwebsite = _T("http://qutemol.sourceforge.net/");
 static wxString nanorexQuteMolWebsite =
-    _T("http://www.nanoengineer-1.com/QuteMol");
+    _T("http://www.nanoengineer-1.com/QuteMolX");
 static wxColor colDisabled, colSticks, colBg(255,255,255);
 static float bgbrightness=0.5;
 
@@ -1285,7 +1285,7 @@ MyTab::MyTab(wxWindow *parent , int n): wxPanel( parent, wxID_ANY, wxDefaultPosi
     wxSizer *sizerA = new wxBoxSizer(wxVERTICAL);
     sizerA->Add(new wxStaticText(this,
                                  wxID_ANY,
-                                 _T("This is the Nanorex branch of QuteMol")) 
+                                 _T("This is QuteMolX, the Nanorex branch of QuteMol")) 
        ,0, wxALIGN_CENTER );
     sizerA->Add(new wxStaticText(this, wxID_ANY,_T("which integrates with NanoEngineer-1.")) 
        ,0, wxALIGN_CENTER );

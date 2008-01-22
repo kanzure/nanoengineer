@@ -1,6 +1,6 @@
 [Project]
 FileName=qutemol.dev
-Name=qutemol
+Name=qutemolx
 UnitCount=41
 Type=0
 Ver=3
@@ -398,10 +398,10 @@ CompilerSettings=0001000001001000000000
 Icon=
 ExeOutput=Default Profile
 ObjectOutput=Default Profile
-OverrideOutput=0
-OverrideOutputName=qutemol1.exe
+OverrideOutput=1
+OverrideOutputName=QuteMolX.exe
 HostApplication=
-CommandLine="C:\Users\Brian Helfrich\Nanorex\temp\qutemol.pdb" -a "C:\Users\Brian Helfrich\Nanorex\temp\art.txt"
+CommandLine=testosterone.pdb
 UseCustomMakefile=0
 CustomMakefile=
 IncludeVersionInfo=0
@@ -463,6 +463,26 @@ BuildCmd=
 FileName=..\..\vcg\wrap\gui\view.h
 CompileCpp=1
 Folder=vcg/wrap/gui
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit43]
+FileName=glh\glh_genext.h
+CompileCpp=1
+Folder=glh
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit44]
+FileName=glh\wglext.h
+CompileCpp=1
+Folder=glh
 Compile=1
 Link=1
 Priority=1000

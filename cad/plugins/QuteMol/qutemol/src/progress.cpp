@@ -13,9 +13,9 @@ bool UpdateProgress(int i){
 
 void StartProgress(char* str, int N){
   EndProgress();
-  wxString st; st.Printf("QuteMol: %s...",str);
+  wxString st; st.Printf("QuteMolX: %s...",str);
   globalProgress= new wxProgressDialog(
-    //_T("QuteMol"), st,
+    //_T("QuteMolX"), st,
     st,  _T(""),
     N, NULL, wxPD_AUTO_HIDE|wxPD_APP_MODAL|wxPD_CAN_ABORT);
 }
