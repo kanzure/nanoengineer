@@ -29,9 +29,10 @@ from GeneratorBaseClass import PluginBug, UserError
 from constants import gensym
 from Ui_DnaFlyout import DnaFlyout
 
-from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
+##from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from BuildDna_PropertyManager import BuildDna_PropertyManager
 
+from BuildDna_GraphicsMode   import BuildDna_GraphicsMode
 
 class BuildDna_EditCommand(EditCommand):
     """
@@ -45,7 +46,7 @@ class BuildDna_EditCommand(EditCommand):
     commandName       = 'BUILD_DNA'
     featurename       = 'Build Dna '
     
-    GraphicsMode_class = SelectChunks_GraphicsMode
+    GraphicsMode_class = BuildDna_GraphicsMode
     
     command_should_resume_prevMode = False
     command_has_its_own_gui = True
@@ -164,7 +165,7 @@ class BuildDna_EditCommand(EditCommand):
         """
 
         self.preview_or_finalize_structure(previewing = True)
-            
+               
 
     def _createPropMgrObject(self):
         """
