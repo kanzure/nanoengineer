@@ -165,13 +165,24 @@ class DnaFlyout:
         """
         Updates the flyout toolbar with the actions this class provides. 
         """    
-        
+               
         if self._isActive:
             return
         
         self._isActive = True
+        
+        #Temporary workaround for bug 2600 
+        #until the Command Toolbar code is revised
+        #When DnaFlyout toolbar is activated, it should switch to (check) the 
+        #'Build Button' in the control area. So that the DnaFlyout 
+        #actions are visible in the flyout area of the command toolbar. 
+        #-- Ninad 2008-01-21. 
+        self.win.commandToolbar.cmdButtonGroup.button(0).setChecked(True)
+        #Now update the command toolbar (flyout area)
         self.win.commandToolbar.updateCommandToolbar(self.win.buildDnaAction,
                                                      self)
+        #self.win.commandToolbar._setControlButtonMenu_in_flyoutToolbar(
+                    #self.cmdButtonGroup.checkedId())
         self.exitDnaAction.setChecked(True)
         self.connect_or_disconnect_signals(True)
     
