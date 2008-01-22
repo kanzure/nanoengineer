@@ -362,8 +362,13 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         complementSequence = getComplementSequence(str(inSequence))
       
         if inStylize:
-            inSequence  =  self.stylizeSequence( inSequence )            
-            complementSequence = self.stylizeSequence(complementSequence)
+            pass
+        #Temporarily disabling the code that 'stylizes the sequence' 
+        #that code is too slow and takes a long time for a file to load. 
+        # Example: NE1 hangs while loading M13 sequence (8kb file) if we 
+        #stylize the sequence -- Ninad 2008-01-22
+            ##inSequence  =  self.stylizeSequence( inSequence )            
+            ##complementSequence = self.stylizeSequence(complementSequence)
             
         self.sequenceTextEdit.insertHtml( inSequence )
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
