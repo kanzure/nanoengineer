@@ -376,7 +376,7 @@ class DnaMarker( ChainAtomMarker):
         @rtype: boolean
         """
 
-        if 'SAFETY STUB 080118': # @@@@@
+        if 'SAFETY STUB 080118': # @@@@
             print "kill %r since move step1 is nim" % self ##### @@@@
             self.kill()
             return False

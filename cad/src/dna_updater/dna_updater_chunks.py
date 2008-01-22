@@ -356,7 +356,8 @@ def update_PAM_chunks( changed_atoms):
         print "dna updater: made %d new or changed wholechains..." % len(new_wholechains)
 
     if DNA_UPDATER_SLOW_ASSERTS:
-        assert_unique_wholechain_baseatoms(new_wholechains) # predict bug noticed by this @@@@@
+        assert_unique_wholechain_baseatoms(new_wholechains)
+            # predict bug noticed by this [confirmed, then fixed] [circa 080120]
     
     # note: those Whatever_WholeChain constructors also have side effects:
     # - own their atoms and chunks (chunk.set_wholechain)

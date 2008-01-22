@@ -30,12 +30,12 @@ class DnaLadderRailChunk(Chunk):
 ##    chain = None # will be a DnaChain in finished instances #k needed? probably... actually i am not sure why, let's find out @@@@
 ##        # only used in wholechain._make_new_controlling_marker; guess not needed... removed that use [080120 7pm untested]
 
-    wholechain = None # will be a WholeChain once dna_updater is done (can be set to None by Undo ### REVIEW CODE FOR THAT @@@@@) --
+    wholechain = None # will be a WholeChain once dna_updater is done (can be set to None by Undo ### REVIEW CODE FOR THAT @@@@) --
         # set by update_PAM_chunks in the updater run that made self,
         # and again in each updater run that made a new wholechain
         # running through self
     
-    ladder = None # will be a DnaLadder in finished instances; can be set to None by Undo #### FIX MORE CODE FOR THAT @@@@@
+    ladder = None # will be a DnaLadder in finished instances; can be set to None by Undo #### FIX MORE CODE FOR THAT @@@@
     
     ###e todo: undo, copy for those attrs?
 
@@ -148,7 +148,7 @@ class DnaLadderRailChunk(Chunk):
 
     def merge(self, other): # overridden just for debug, 080120 9pm
         if DEBUG_DNA_UPDATER:
-            print "dna updater debug: fyi: calling %r.merge(%r)" % (self, other) ##### @@@@@@
+            print "dna updater debug: fyi: calling %r.merge(%r)" % (self, other)
         return _superclass.merge(self, other)
 
     def invalidate_atom_lists(self):

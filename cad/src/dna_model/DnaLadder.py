@@ -99,7 +99,7 @@ def _f_get_invalid_dna_ladders():
 #  implicit re them.) If that gets hard, make it a Group. (Where in the internal MT?
 #  whereever the chunks would have been, without it.)
 
-_DEBUG_REVERSE_STRANDS = True # @@@@@
+_DEBUG_REVERSE_STRANDS = False
 
 class DnaLadder(object):
     """
@@ -235,7 +235,7 @@ class DnaLadder(object):
                         for rail in self.all_rails(): # works for ladder or single strand domain
                             if _DEBUG_REVERSE_STRANDS:
                                 print "   including: %r" % (rail,)
-                            ### review: this reverses even the ones this for loop didn't get to, is that desired? @@@@@
+                            ### review: this reverses even the ones this for loop didn't get to, is that desired? @@@
                             rail.reverse_baseatoms()
                     else:
                         print "error: %r strands have parallel bond directions"\
@@ -592,18 +592,22 @@ class DnaLadder(object):
 
 # ==
 
-# @@@@@ review points:
-# - we get added to _invalid_dna_ladders when something invals us... some of the ladder api from rest is really a DnaDomain api
-# - a lot of things happening to ladders needs to happen to these but is NIM
+# @@ review points:
+# - this subclass should be a sibling class -- these are both kinds of
+#   "ladder-like DnaDomains", and this has less not more code than DnaLadder;
+#   maybe about half of DnaLadder's code looks like it's common code
+#   (what's the right classname for the interface?
+#    single or duplex domain? domain with some strands?)
+# - the ladder api from the rest of the code (e.g. chunk.ladder)
+#   is really a "ladder-like dna domain" api, since it work for single strand
+#   ladders too (i.e. DnaLadder is not a perfect name for the common superclass)
+
 class DnaSingleStrandDomain(DnaLadder):
     """
     Represent a free floating single strand domain;
-    act somewhat like a ladder with no axis rail or second strand rail
+    act exactly like a ladder with no axis rail or second strand rail
     in terms of ability to interface with other code.
     """
-    # TODO, should be sibling class -- these are both kinds of DnaDomains, and this has less not more than ladder;
-    # maybe about half of ladder's code looks like it's common code (what's the right classname for the interface?
-    # single or duplex domain? domain with some strands?)
     valid = False # same as in super; set to True in _finish_strand_rails
     def __init__(self, strand_rail):        
         self.axis_rail = None
