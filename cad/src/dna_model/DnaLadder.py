@@ -112,6 +112,8 @@ class DnaLadder(object):
     Instead we assume that no atom is in more than one valid ladder
     at a time, and set a private atom attribute to point to that ladder.
     """
+    #TODO: split this class into a common superclass with DnaSingleStrandDomain
+    # (see comment there) and a specific subclass for when we have axis_rail.
     valid = False # public for read, private for set; whether structure is ok and we own our atoms
     error = False # ditto; whether num_strands or strand bond directions are wrong (parallel) # todo: use more?
     def __init__(self, axis_rail):
@@ -148,7 +150,7 @@ class DnaLadder(object):
         if _DEBUG_REVERSE_STRANDS:
             strand_rail.debug_check_bond_direction("in %r.add_strand_rail" % self)
         return
-    def finished(self): # note: only for the subclass with axis_rail present [todo: split this class]
+    def finished(self): # Q. rename to 'finish'?
         """
         This is called once to signify that construction of self is done
         as far as the caller is concerned (i.e. it's called add_strand_rail
@@ -160,6 +162,8 @@ class DnaLadder(object):
         See add_strand_rail docstring for why optional reversing is sufficient,
         even when some rails are rings.
         """
+        # note: this method is only for the subclass with axis_rail present;
+        # at the end it calls a common method.
         assert not self.valid # not required, just a useful check on the current caller algorithm
         ## assert len(self.strand_rails) in (1, 2)
         # happens in mmkit - leave it as just a print at least until we implem "delete bare atoms" -
@@ -494,12 +498,14 @@ class DnaLadder(object):
             return r1 + r2
         new_baseatom_lists = map( concatenate_rail_atomlists,
                                   zip(self_baseatom_lists, other_baseatom_lists))
-        # flip the result if we flipped self, so we know it defines a legal set of rails for a ladder
-        # (todo: could optim by never flipping self, instead swapping ladders and negating both flips)
+        # flip the result if we flipped self, so we know it defines a legal
+        # set of rails for a ladder even if some rails are missing
+        # (todo: could optim by never flipping self, instead swapping
+        #  ladders and negating both flips)
         if flip_self:
             new_baseatom_lists.reverse
-            for i in len(new_baseatom_lists):
-                new_baseatom_lists[i].reverse()
+            for listi in new_baseatom_lists:
+                listi.reverse()
         # invalidate old ladders before making new rails or new ladder
         self.invalidate() # @@@@ ok at this stage?
         other.invalidate()
@@ -761,7 +767,7 @@ def _new_axis_ladder(strand1, axis, strand2):
     ladder.add_strand_rail(strand1)
     if strand2:
         ladder.add_strand_rail(strand2)
-    ladder.finish() ###k @@@@ ok here?
+    ladder.finished() ###k @@@@ ok here?
     return ladder
 
 # end

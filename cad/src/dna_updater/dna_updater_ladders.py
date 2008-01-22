@@ -42,7 +42,7 @@ def dissolve_or_fragment_invalid_ladders( changed_atoms):
 
     for atom in changed_atoms.itervalues():
         chunk = atom.molecule
-        print "DEBUG: changed atom %r -> chunk %r" % (atom, chunk)#####@@@@@@@
+        ## print "DEBUG: changed atom %r -> chunk %r" % (atom, chunk)
         changed_chunks[id(chunk)] = chunk
     
     for chunk in changed_chunks.itervalues():
@@ -178,7 +178,7 @@ class chains_to_break:
             start_index = break_before
             continue
         if DEBUG_DNA_UPDATER: # _VERBOSE?
-            print "broke %r -> %d pieces == %r" % (chain, len(res), res)
+            print "will break %r -> %d pieces == %r" % (chain, len(res), res)
         assert num_bases == chain.baselength()
         return res
     pass
@@ -362,18 +362,21 @@ def merge_ladders(new_ladders):
     # repeated merges from small to large chain sizes occur.
     # Note, these ladders' rails might be real chunks (merge is slower)
     # or some sort of real or virtual atom chains (merge is faster).
-    # (As of 080114 I think they are real atom chains, not yet chunks.)
-    res = []
-    while new_ladders:
-        next = []
+    # (As of 080114 I think they are real atom chains, not yet associated
+    #  with chunks.)
+    res = [] # collects ladders that can't be merged
+    while new_ladders: # has ladders untested for can_merge
+        next = [] # new_ladders for next iteration
         for ladder in new_ladders:
-            if ladder.can_merge(): # at either end! only if ladder is valid; ladder can't merge with self!
+            can_merge_info = ladder.can_merge() # (at either end)
+            if can_merge_info:
                 assert ladder.valid
-                merged_ladder = ladder.do_merge()
-                    # kluge: does either end's merge, if both ends could be done
+                merged_ladder = ladder.do_merge(can_merge_info)
                     # note: invals the old ladders
-                    # Q: what if the rails (also merged) are contained in some sort of chains?
-                    # Should we just make sure the chains can easily be found, and only find them later? guess: yes.
+                    # Q: what if the rails (also merged here) are already
+                    # contained in wholechains?
+                    # A: they're not yet contained in those -- we find those
+                    # later from the merged ladders.
                 assert not ladder.valid
                 assert merged_ladder.valid
                 next.append(merged_ladder)

@@ -286,7 +286,7 @@ class DnaChain(object):
         (i.e. which have an ordinary nick), if the ladder we're on has length 1
         (i.e. if there are two nicks in a row, on the same or opposite strands).
         If this ever matters, we might need to straighten out this order
-        in DnaLadder.finish() for length==1 ladders. The ladders are already
+        in DnaLadder.finished() for length==1 ladders. The ladders are already
         made and merged by the time we're called, so whatever reversals they'll
         do are already done.
         """
