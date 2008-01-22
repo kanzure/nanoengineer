@@ -72,6 +72,7 @@ typedef unsigned int uint;
 using namespace vcg;
 using namespace std;
 
+
 #include "CubeMapSamp.h"
 #include "OctaMapSamp.h"
 #include "Mol.h"
@@ -346,6 +347,7 @@ MyToolbar::MyToolbar(wxTopLevelWindow *_parent, wxWindowID id,
 // `Main program' equivalent, creating windows and returning main app frame
 bool MyApp::OnInit()
 {
+    
     hardSettings.OnStart();
     
     cgSettings.SetDefaults(); // <-- quick hack (solves wrong constructor order): 
@@ -668,6 +670,14 @@ void TestGLCanvas::OnPaint( wxPaintEvent& event )
     if (!GetContext()) return;
 #endif
 
+    // Testing for supported extensions isn't enough since video adpater drivers
+    // can be buggy themselves, even the latest versions. So we build a list of
+    // problematic renderers to warn users. The first one in this list is the
+    // renderer for the Macbook.
+    //
+    static wxString ProblematicRenderers =
+        "Intel GMA 950 OpenGL Engine Quadro FX Go1400/PCI/SSE2";
+        
     SetCurrent();
 
     if (!initdone) {
@@ -675,11 +685,23 @@ void TestGLCanvas::OnPaint( wxPaintEvent& event )
       if (!once) {
         once=true; 
         int errcode=initGl();
-        if (errcode!=ERRGL_OK){
-          wxMessageBox(errorMSG(errcode), _T("Unrecoverable error: Problems initializing graphics"), wxOK | wxICON_EXCLAMATION, this);
-          exit(0);
-          }
-        else initdone=true;
+        if (errcode != ERRGL_OK) {
+            wxMessageBox(errorMSG(errcode),
+                         _T("Unrecoverable error: Problems initializing graphics"),
+                         wxOK | wxICON_EXCLAMATION, this);
+            exit(0);
+            
+        } else {
+            wxString extensions = glGetString(GL_EXTENSIONS);
+            wxString renderer = glGetString(GL_RENDERER);
+            if (!extensions.Contains("GL_EXT_framebuffer_object") ||
+                ProblematicRenderers.Contains(renderer))
+                wxMessageBox(_T("QuteMol makes use of OpenGL extensions that are not implemented, or not stable for your video adapter. If you choose to continue, your computer may crash or freeze. Save your work."),
+                         _T("Warning: Potential video adapter problems"),
+                         wxOK | wxICON_EXCLAMATION, this);
+                         
+            initdone=true;
+        }
       }
     }
     
@@ -1077,9 +1099,3 @@ void TestGLCanvas::OnMouse( wxMouseEvent& event )
     }*/
 
 }
-
-void TestGLCanvas::InitGL()
-{
-  initGl();
-}
-

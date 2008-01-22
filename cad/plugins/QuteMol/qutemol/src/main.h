@@ -131,7 +131,6 @@ public:
     void OnMouse( wxMouseEvent& event );
     void OnKeyUp( wxKeyEvent& event );
     void OnKeyDown( wxKeyEvent& event );
-    void InitGL();
     
     void SceneChanged(); // redraw!
  
