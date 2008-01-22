@@ -3731,6 +3731,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # (used on axis atoms, not sure if used on strand atoms)
         return filter( lambda atom: atom.element.role == 'axis',
                        self.neighbors())
+
+    def Pl_neighbors(self): #bruce 080122
+        """
+        Assume self is a PAM axis atom; return the neighbors of self
+        which are PAM Pl (pseudo-phosphate) atoms (or any variant thereof,
+        which interposes between some strand base sugar pseudoatoms).
+        """
+        res = filter( lambda atom: atom.element.symbol.startswith("Pl"), # KLUGE
+                      self.neighbors())
+        return res
     
     pass # end of class Atom
 
