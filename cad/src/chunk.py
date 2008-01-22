@@ -429,10 +429,35 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 return False
             continue
         
-        return found_strand_atom
-    
+        return found_strand_atom    
+       
     #END of Dna-Strand chunk  specific  code ==================================
     
+    #START of Dna- Axis chunks specific code ==================================
+    
+    def isAxisChunk(self):
+        """
+        Returns True if *all atoms* in this chunk are PAM 'axis' atoms
+        or or bondpoints, and at least one is an
+        'axis' atom.
+        This is a temporary method that can be removed once dna_model is fully
+        functional.
+        """
+        found_axis_atom = False
+        for atm in self.atoms.itervalues():
+            if atm.element.role == 'axis':
+                found_axis_atom = True
+            elif atm.is_singlet():
+                pass
+            else:
+                # other kinds of atoms are not allowed
+                return False
+            continue
+        
+        return found_axis_atom  
+        
+    
+    #END of Dna-Axis chunk  specific  code ====================================
     
     # Methods relating to our OpenGL display list, self.displist.
     #
