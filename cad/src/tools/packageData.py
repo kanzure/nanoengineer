@@ -272,7 +272,7 @@ packageMapping_for_files = {
     "BuildAtoms_Command"               : "command|commands/BuildAtoms",
     "BuildAtoms_GraphicsMode"          : "graphics_mode|commands/BuildAtoms",
     "BuildDna_EditCommand"             : "command|dna/commands/BuildDna",
-    "BuildDna_GraphicsMode"            : "command|dna/commands/BuildDna",
+    "BuildDna_GraphicsMode"            : "graphics_mode|dna/commands/BuildDna",
     "BuildDna_PropertyManager"         : "ui/propmgr|dna/commands/BuildDna",
     "build_utils"                      : "operation|commands/BuildAtoms", # AtomDepositionTool
     "changedicts"                      : "foundation",
@@ -313,11 +313,12 @@ packageMapping_for_files = {
     "DnaDuplex"                        : "operation|dna/commands/BuildDuplex", # class to help construct model objects defined elsewhere
     "DnaDuplex_EditCommand"            : "command|dna/commands/BuildDuplex",
     "DnaDuplexPropertyManager"         : "ui/propmgr|dna/commands/BuildDuplex",
-    "DnaSegment_EditCommand"           : "command|dna/commands/DnaSegment",
-    "DnaSegment_PropertyManager"       : "ui/propmgr|dna/commands/DnaSegment",    
     "DnaGenerator"                     : "command|dna/commands/BuildDuplex_old",
     "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_old",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
+    "DnaSegment_EditCommand"           : "command|dna/commands/DnaSegment",
+    "DnaSegment_PropertyManager"       : "ui/propmgr|dna/commands/DnaSegment",    
+    "DnaSequenceEditor"                : "widget|DnaSequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
     "Dna_Constants"                    : "model|dna/model", # (since used by lots of files in several dna-related commands)
     "DragHandler"                      : "graphics_drawable",
     "drawer"                           : "graphics_drawing",
@@ -514,8 +515,6 @@ packageMapping_for_files = {
     "selectMode"                       : "unsplit_mode|commands/Select",
     
     "Selobj"                           : "graphics_drawable_api|graphics_drawable", #bruce 080116 revised this
-    
-    "DnaSequenceEditor"                   : "widget|DnaSequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
     
     "ServerManager"                    : "ui|processes", #? specific to GAMESS? maybe, but shouldn't. persistent db/UI for servers list
     "ServerManagerDialog"              : "ui|processes",
