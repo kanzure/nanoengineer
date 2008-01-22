@@ -600,16 +600,16 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.viewOrientationAction.setWhatsThis( viewOrientationActionText )
 
-    # QuteMol
+    # QuteMolX
 
     viewQuteMolActionText = \
-        "<u><b>QuteMol</b></u>"\
+        "<u><b>QuteMolX</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Display/QuteMol.png\"><br> "\
-        "Opens the QuteMol Properties Manager where the user can "\
-        "alter rendering styles and launch Qutemol."\
+        "Opens the QuteMolX Properties Manager where the user can "\
+        "alter rendering styles and launch QutemolX."\
         "</p>" \
-        "QuteMol must be installed and enabled as a "\
+        "QuteMolX must be installed and enabled as a "\
         "plug-in from <b>Preferences > Plug-ins</b> for "\
         "this feature to work." \
         "</p>"

@@ -916,13 +916,13 @@ def whatsThis_PlanePropertyManager(propMgr):
     
 def whatsThis_QuteMolPropertyManager(propMgr):
     """
-    Add "What's This" text for widgets in the QuteMol Property Manager.
+    Add "What's This" text for widgets in the QuteMolX Property Manager.
     """
     propMgr.launchQuteMolButton.setWhatsThis(
         """
-        <b>Launch QuteMol</b>
+        <b>Launch QuteMolX</b>
         <p>
-        Pressing this button launches QuteMol.
+        Pressing this button launches QuteMolX.
         </p>""")
     
     propMgr.axesCombobox.setWhatsThis(
@@ -943,7 +943,7 @@ def whatsThis_QuteMolPropertyManager(propMgr):
 
 def whatsThis_BuildAtomsPropertyManager(propMgr):
     """
-    Add "What's This" text for widgets in the QuteMol Property Manager.
+    Add "What's This" text for widgets in the QuteMolX Property Manager.
     """
     propMgr.selectionFilterCheckBox.setWhatsThis(
         """<b>Enable Selection Filter Checkbox</b>

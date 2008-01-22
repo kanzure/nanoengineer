@@ -157,7 +157,7 @@ def ToolTip_DnaDuplexPropertyManager(propMgr):
 
 def ToolTip_BuildAtomsPropertyManager(propMgr):
     """
-    "ToolTip" text for widgets in the QuteMol Property Manager.
+    "ToolTip" text for widgets in the QuteMolX Property Manager.
     """
     propMgr.selectionFilterCheckBox.setToolTip("Selection Filter")
 
@@ -294,9 +294,9 @@ def ToolTip_MovePropertyManager(propMgr):
 
 def ToolTip_QuteMolPropertyManager(propMgr):
     """
-    Add "What's This" text for widgets in the QuteMol Property Manager.
+    Add "What's This" text for widgets in the QuteMolX Property Manager.
     """
-    propMgr.launchQuteMolButton.setToolTip("Launch QuteMol")
+    propMgr.launchQuteMolButton.setToolTip("Launch QuteMolX")
 
     propMgr.axesCombobox.setToolTip("Render Axes")
 
