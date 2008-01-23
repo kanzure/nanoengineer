@@ -142,20 +142,29 @@
   </kdevdebugger>
   <kdevtrollproject>
     <run>
-      <mainprogram>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</mainprogram>
+      <mainprogram/>
       <programargs/>
       <directoryradio>executable</directoryradio>
       <globaldebugarguments/>
-      <globalcwd>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</globalcwd>
+      <globalcwd/>
       <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
       <envvars/>
+      <runarguments>
+        <HDF5_SimResultsImportExport></HDF5_SimResultsImportExport>
+      </runarguments>
+      <cwd>
+        <HDF5_SimResultsImportExport>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</HDF5_SimResultsImportExport>
+      </cwd>
+      <debugarguments>
+        <HDF5_SimResultsImportExport></HDF5_SimResultsImportExport>
+      </debugarguments>
     </run>
     <general>
-      <activedir>..</activedir>
+      <activedir>Plugins</activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>
@@ -215,4 +224,9 @@
       <implementationsuffix>.cpp</implementationsuffix>
     </filetemplates>
   </cppsupportpart>
+  <ctagspart>
+    <customArguments/>
+    <customTagfilePath>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop/tags</customTagfilePath>
+    <activeTagsFiles/>
+  </ctagspart>
 </kdevelop>
