@@ -19,6 +19,7 @@ from dna_model.DnaLadder import _f_get_invalid_dna_ladders
 
 from dna_model.DnaLadderRailChunk import DnaLadderRailChunk # import not needed?
 
+from dna_model.dna_model_constants import MAX_LADDER_LENGTH
 
 # ==
 
@@ -398,5 +399,48 @@ def merge_ladders(new_ladders):
     for ladder in res:
         assert ladder.valid # required by caller, trivially true here
     return res
+
+def split_ladders(ladders): # STUB but should cause no harm @@@@
+    res = []
+    for ladder in ladders:
+        # REVIEW: higher threshhold for split than merge, for "hysteresis"?? maybe not needed...
+        if len(ladder) > MAX_LADDER_LENGTH:
+            print "NIM: split long ladder %r" % ladder
+            res0 = [ladder] # the pieces
+                # (real split function should inval original, then validate pieces)
+            res.extend(res0)
+        else:
+            res.append(ladder)
+    return res
+
+def merge_and_split_ladders(ladders, debug_msg = ""):
+    """
+    See docstrings of merge_ladders and split_ladders
+    (which this does in succession).
+    
+    @param ladders: list of 0 or more new DnaLadders
+    
+    @param debug_msg: string for debug prints
+    """
+    len1 = len(ladders) # only for debug prints
+    
+    ladders = merge_ladders(ladders)
+    
+    len2 = len(ladders)
+    
+    ladders = split_ladders(ladders)
+    
+    len3 = len(ladders)
+
+    assert len2 == len3 ### REMOVE WHEN WORKS (says split is a stub) @@@@
+    
+    if DEBUG_DNA_UPDATER:
+        if DEBUG_DNA_UPDATER_VERBOSE or len2 != len1 or len3 != len1:
+            # note: _DEBUG_FINISH_AND_MERGE(sp?) is in another file
+            if debug_msg:
+                debug_msg = " (%s)" % debug_msg
+            print "dna updater: merge_and_split_ladders%s: %d ladders, merged to %d, split to %d" % \
+                  (debug_msg, len1, len2, len3)
+    return ladders
 
 # end

@@ -70,7 +70,7 @@ from dna_model.dna_model_constants import LADDER_END0
 from dna_model.dna_model_constants import LADDER_END1
 from dna_model.dna_model_constants import LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1
 
-from dna_model.dna_model_constants import MAX_LADDER_LENGTH # @@@@ TODO: also use this to split long ladders
+from dna_model.dna_model_constants import MAX_LADDER_LENGTH
 
 from debug_prefs import debug_pref, Choice_boolean_False
 

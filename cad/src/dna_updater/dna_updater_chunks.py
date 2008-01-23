@@ -25,7 +25,7 @@ from dna_model.WholeChain import Axis_WholeChain, Strand_WholeChain
 from dna_updater_find_chains import find_axis_and_strand_chains_or_rings
 
 from dna_updater_ladders import dissolve_or_fragment_invalid_ladders
-from dna_updater_ladders import make_new_ladders, merge_ladders
+from dna_updater_ladders import make_new_ladders, merge_and_split_ladders
 
 
 # ==
@@ -240,27 +240,31 @@ def update_PAM_chunks( changed_atoms):
 
     # merge axis ladders (ladders with an axis, and 1 or 2 strands)
     
-    merged_axis_ladders = merge_ladders( new_axis_ladders)
+    merged_axis_ladders = merge_and_split_ladders( new_axis_ladders,
+                                                   debug_msg = "axis" )
         # note: each returned ladder is either entirely new (perhaps merged),
         # or the result of merging new and old ladders.
 
-    ignore_new_changes("from merging axis ladders", changes_ok = False)
+    ignore_new_changes("from merging/splitting axis ladders", changes_ok = False)
 
-    if DEBUG_DNA_UPDATER:
-        print "dna updater: merged %d -> %d axis ladders" % \
-              ( len(new_axis_ladders), len(merged_axis_ladders) )
+# redundant with new debug prints in merge_and_split_ladders:
+##    if DEBUG_DNA_UPDATER:
+##        print "dna updater: merged %d -> %d axis ladders" % \
+##              ( len(new_axis_ladders), len(merged_axis_ladders) )
     del new_axis_ladders
 
     # merge singlestrand ladders (with no axis)
     # (note: not possible for an axis and singlestrand ladder to merge)
     
-    merged_singlestrand_ladders = merge_ladders( new_singlestrand_ladders) # not sure if needed
+    merged_singlestrand_ladders = merge_and_split_ladders( new_singlestrand_ladders,
+                                                           debug_msg = "single strand" )
+        # not sure if singlestrand merge is needed; split is useful though
 
-    ignore_new_changes("from merging singlestrand ladders", changes_ok = False)
+    ignore_new_changes("from merging/splitting singlestrand ladders", changes_ok = False)
 
-    if DEBUG_DNA_UPDATER:
-        print "dna updater: merged %d -> %d singlestrand ladders" % \
-              ( len(new_singlestrand_ladders), len(merged_singlestrand_ladders) )
+##    if DEBUG_DNA_UPDATER:
+##        print "dna updater: merged %d -> %d singlestrand ladders" % \
+##              ( len(new_singlestrand_ladders), len(merged_singlestrand_ladders) )
     del new_singlestrand_ladders
 
     merged_ladders = merged_axis_ladders + merged_singlestrand_ladders
