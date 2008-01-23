@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 dna_updater_find_chains.py - helper for dna_updater_chunks
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
@@ -15,6 +15,8 @@ from dna_model.AtomChainOrRing import AtomChain, AtomRing
 
 from dna_model.DnaChain import AxisChain, StrandChain
 from dna_model.DnaChain import DnaChain_AtomChainWrapper # for isinstance
+
+from debug import print_compact_stack
 
 # ==
 
@@ -53,6 +55,10 @@ class dna_bond_chain_analyzer(abstract_bond_chain_analyzer):
 class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
     _wrapper = AxisChain
     def atom_ok(self, atom):
+        if not atom.molecule:
+            # I've seen this after Undo, presumably since it's buggy [080122]
+            print_compact_stack( "bug: axis_bond_chain_analyzer skipping %r with no .molecule: " % atom)
+            return False
         return atom.element.role == 'axis' and not atom.molecule.in_a_valid_ladder()
     pass
 
@@ -62,6 +68,9 @@ class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
         # note: this can include Pl atoms in PAM5,
         # but the wrapper class filters them out of
         # the atom list it stores.
+        if not atom.molecule:
+            print_compact_stack( "bug: strand_bond_chain_analyzer skipping %r with no .molecule: " % atom)
+            return False
         return atom.element.role == 'strand' and not atom.molecule.in_a_valid_ladder()
     pass
 
