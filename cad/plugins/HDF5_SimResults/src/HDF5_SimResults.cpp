@@ -69,10 +69,18 @@ void HDF5_SimResults::closeDatasets() {
 /* FUNCTION: openDataStore */
 int HDF5_SimResults::openDataStore(const char* directory,
 								   std::string& message) {
-	if (directory != 0)
-		dataStoreDirectory = directory;
-	
 	int resultCode = 0;
+	
+	if (directory != 0) {
+		dataStoreDirectory = directory;
+		
+	} else {
+		resultCode = SRDS_UNABLE_TO_OPEN_FILE;
+		message = "Null passed for directory.";
+		
+		// Abort
+		return resultCode;
+	}
 	
 	// Build the filepath
 	std::string filepath = directory;
