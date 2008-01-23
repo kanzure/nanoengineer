@@ -22,6 +22,12 @@ nv1::nv1() : QMainWindow() {
 	readSettings();
 
 	setWindowTitle(tr("NanoVision-1"));
+	
+	// Setup log dock widget
+	QDockWidget *dock = new QDockWidget(tr("Log"), this);
+	dock->setAllowedAreas(Qt::BottomDockWidgetArea);
+	dock->setWidget(new QLabel("log entries"));
+	addDockWidget(Qt::BottomDockWidgetArea, dock);
 }
 
 

@@ -14,8 +14,8 @@
     <projectname>CppUnit</projectname>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description></description>
-    <defaultencoding></defaultencoding>
+    <description/>
+    <defaultencoding/>
   </general>
   <kdevfileview>
     <groups>
@@ -68,7 +68,7 @@
       <includePaths>.;</includePaths>
     </codecompletion>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
@@ -121,16 +121,16 @@
   </kdevdoctreeview>
   <kdevdebugger>
     <general>
-      <dbgshell></dbgshell>
+      <dbgshell/>
       <breakpoints/>
       <programargs/>
       <gdbpath>/usr/bin/gdb</gdbpath>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <raiseGDBOnStart>false</raiseGDBOnStart>
     </general>
     <display>
@@ -143,10 +143,10 @@
   <kdevtrollproject>
     <run>
       <mainprogram>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</mainprogram>
-      <programargs></programargs>
+      <programargs/>
       <directoryradio>executable</directoryradio>
       <runarguments>
-        <CppUnit></CppUnit>
+        <CppUnit/>
         <HDF5_SimResultsImportExport/>
       </runarguments>
       <cwd>
@@ -154,10 +154,10 @@
         <HDF5_SimResultsImportExport>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</HDF5_SimResultsImportExport>
       </cwd>
       <debugarguments>
-        <CppUnit></CppUnit>
+        <CppUnit/>
         <HDF5_SimResultsImportExport/>
       </debugarguments>
-      <globaldebugarguments></globaldebugarguments>
+      <globaldebugarguments/>
       <globalcwd>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
@@ -169,14 +169,14 @@
       </envvars>
     </run>
     <general>
-      <activedir>..</activedir>
+      <activedir>../../../Utility</activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>
       <runmultiplejobs>false</runmultiplejobs>
       <numberofjobs>1</numberofjobs>
       <dontact>false</dontact>
-      <makebin></makebin>
+      <makebin/>
       <prio>0</prio>
       <envvars/>
     </make>
