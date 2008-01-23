@@ -12,7 +12,23 @@ def setupUi(win):
     @param win: NE1's main window object.
     @type  win: Ui_MainWindow
     """
-
+    
+    # Populate the "Import" submenu.
+    win.importMenu.addAction(win.fileInsertMmpAction)
+    win.importMenu.addAction(win.fileInsertPdbAction)
+    win.importMenu.addSeparator()
+    win.importMenu.addAction(win.fileImportOpenBabelAction)
+    
+    # Populate the "Export" submenu.
+    win.exportMenu.addAction(win.fileExportPdbAction)
+    win.exportMenu.addSeparator()
+    win.exportMenu.addAction(win.fileExportJpgAction)
+    win.exportMenu.addAction(win.fileExportPngAction)
+    win.exportMenu.addAction(win.fileExportPovAction)
+    win.exportMenu.addAction(win.fileExportAmdlAction)
+    win.exportMenu.addSeparator()
+    win.exportMenu.addAction(win.fileExportOpenBabelAction)
+    
     # Populate the "File" menu.
     win.fileMenu.addAction(win.fileOpenAction)
     win.fileMenu.addAction(win.fileCloseAction)
@@ -20,8 +36,8 @@ def setupUi(win):
     win.fileMenu.addAction(win.fileSaveAction)
     win.fileMenu.addAction(win.fileSaveAsAction)
     win.fileMenu.addSeparator()
-    win.fileMenu.addAction(win.fileImportAction)
-    win.fileMenu.addAction(win.fileExportAction)
+    win.fileMenu.addMenu(win.importMenu)
+    win.fileMenu.addMenu(win.exportMenu)
     win.fileMenu.addSeparator()
     win.fileMenu.addAction(win.fileExitAction)
     
@@ -38,6 +54,14 @@ def retranslateUi(win):
     win.fileMenu.setTitle(
         QtGui.QApplication.translate(
             "MainWindow", "&File", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.importMenu.setTitle(
+        QtGui.QApplication.translate(
+            "MainWindow", "Import", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.exportMenu.setTitle(
+        QtGui.QApplication.translate(
+            "MainWindow", "Export", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.openRecentFilesMenu.setTitle(
         QtGui.QApplication.translate(

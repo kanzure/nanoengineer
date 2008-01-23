@@ -63,20 +63,24 @@ def createWhatsThisTextForMainWindowWidgets(win):
     # Import File
 
     fileImportText = \
-        "<u><b>Import File</b></u>"\
-        "Inserts a file of any chemical file format supported by "\
-        "<b>Openbabel</b> into the current Part"
+        "<u><b>Open Babel</b></u>"\
+        "<p>"\
+        "Imports a file of any chemical file format supported by "\
+        "<b>Open Babel</b> into the current Part."\
+        "</p>"
 
-    win.fileImportAction.setWhatsThis(fileImportText)
+    win.fileImportOpenBabelAction.setWhatsThis(fileImportText)
 
     #Export File 
     fileExportText = \
-        "<u><b>Export File</b></u>"\
-        "Save the current Part in any chemical file format "\
-        "supported by <b>Openbabel</b>. Note that exclusive "\
-        "features of NanoEngineer-1 are not saved to the exported file"
+        "<u><b>Open Babel</b></u>"\
+        "<p>"\
+        "Exports the current part in any chemical file format "\
+        "supported by <b>Open Babel</b>. Note that exclusive "\
+        "features of NanoEngineer-1 are not saved to the exported file."\
+        "</p>"
 
-    win.fileExportAction.setWhatsThis(fileExportText)
+    win.fileExportOpenBabelAction.setWhatsThis(fileExportText)
 
     # Save File
 

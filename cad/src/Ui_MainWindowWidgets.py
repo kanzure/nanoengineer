@@ -40,6 +40,14 @@ def setupUi(win):
     # Create the "File" menu.
     win.fileMenu = QtGui.QMenu(win.MenuBar)
     win.fileMenu.setObjectName("fileMenu")
+    
+    # Create the "Import" menu, a submenu of the "File" menu.
+    win.importMenu = QtGui.QMenu(win.fileMenu)
+    win.importMenu.setObjectName("importMenu")
+    
+    # Create the "Export" menu, a submenu of the "File" menu.
+    win.exportMenu = QtGui.QMenu(win.fileMenu)
+    win.exportMenu.setObjectName("exportMenu")
 
     win.fileOpenAction = QtGui.QAction(MainWindow)
     win.fileOpenAction.setIcon(geticon("ui/actions/File/Open"))
@@ -55,11 +63,26 @@ def setupUi(win):
     win.fileSaveAsAction = QtGui.QAction(MainWindow)
     win.fileSaveAsAction.setObjectName("fileSaveAsAction")
 
-    win.fileImportAction = QtGui.QAction(MainWindow)
-    win.fileImportAction.setObjectName("fileImportAction")
-
-    win.fileExportAction = QtGui.QAction(MainWindow)
-    win.fileExportAction.setObjectName("fileExportAction")
+    win.fileImportOpenBabelAction = QtGui.QAction(MainWindow)
+    win.fileImportOpenBabelAction.setObjectName("fileImportOpenBabelAction")
+    
+    win.fileExportPdbAction = QtGui.QAction(MainWindow)
+    win.fileExportPdbAction.setObjectName("fileExportPdbAction")
+    
+    win.fileExportJpgAction = QtGui.QAction(MainWindow)
+    win.fileExportJpgAction.setObjectName("fileExportJpgAction")
+    
+    win.fileExportPngAction = QtGui.QAction(MainWindow)
+    win.fileExportPngAction.setObjectName("fileExportPngAction")
+    
+    win.fileExportPovAction = QtGui.QAction(MainWindow)
+    win.fileExportPovAction.setObjectName("fileExportPovAction")
+    
+    win.fileExportAmdlAction = QtGui.QAction(MainWindow)
+    win.fileExportAmdlAction.setObjectName("fileExportAmdlAction")
+    
+    win.fileExportOpenBabelAction = QtGui.QAction(MainWindow)
+    win.fileExportOpenBabelAction.setObjectName("fileExportOpenBabelAction")
 
     # This action (i.e. the "Set Working Directory" menu item) was removed from 
     # the File menu for Alpha 9 since it was deemed undesireable.
@@ -827,28 +850,54 @@ def retranslateUi(win):
     win.fileSaveAsAction.setIconText(
         QtGui.QApplication.translate(
             "MainWindow", "Save As", None, QtGui.QApplication.UnicodeUTF8))
-    win.fileImportAction.setText(
+    win.fileImportOpenBabelAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "&Import File...", 
+            "MainWindow", "Open Babel import...", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.fileImportAction.setIconText(
+    win.fileImportOpenBabelAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Import File...", 
+            "MainWindow", "Open Babel", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.fileImportAction.setToolTip(
+    win.fileImportOpenBabelAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Import File", None, QtGui.QApplication.UnicodeUTF8))
-    win.fileExportAction.setText(
+            "MainWindow", "Open Babel import", None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.fileExportPdbAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "&Export File...", 
+            "MainWindow", "Protein Data Bank...", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.fileExportAction.setIconText(
+    
+    win.fileExportJpgAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Export File...", 
+            "MainWindow", "JPEG image...", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.fileExportAction.setToolTip(
+    
+    win.fileExportPngAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Export File", None, QtGui.QApplication.UnicodeUTF8))        
+            "MainWindow", "PNG image...", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.fileExportPovAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "POV-Ray...", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.fileExportAmdlAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Animation Master Model...", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.fileExportOpenBabelAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Open Babel export...", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.fileExportOpenBabelAction.setIconText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Open Babel", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.fileExportOpenBabelAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Open Babel export", None, QtGui.QApplication.UnicodeUTF8))        
     win.fileExitAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "E&xit", None, QtGui.QApplication.UnicodeUTF8))

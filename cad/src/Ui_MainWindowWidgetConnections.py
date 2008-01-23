@@ -76,12 +76,7 @@ def setupUi(win):
     win.connect(win.fileExitAction,
                 SIGNAL("triggered()"),
                 win.close)
-    win.connect(win.fileInsertMmpAction,
-                SIGNAL("triggered()"),
-                win.fileInsertMmp)
-    win.connect(win.fileInsertPdbAction,
-                SIGNAL("triggered()"),
-                win.fileInsertPdb)
+    
     win.connect(win.fileOpenAction,
                 SIGNAL("triggered()"),
                 win.fileOpen)
@@ -97,6 +92,27 @@ def setupUi(win):
     win.connect(win.fileSetWorkingDirectoryAction,
                 SIGNAL("triggered()"), 
                 win.fileSetWorkingDirectory)
+    win.connect(win.fileInsertMmpAction,
+                SIGNAL("triggered()"),
+                win.fileInsertMmp)
+    win.connect(win.fileInsertPdbAction,
+                SIGNAL("triggered()"),
+                win.fileInsertPdb)
+    win.connect(win.fileExportPdbAction,
+                SIGNAL("triggered()"),
+                win.fileExportPdb)
+    win.connect(win.fileExportJpgAction,
+                SIGNAL("triggered()"),
+                win.fileExportJpg)
+    win.connect(win.fileExportPngAction,
+                SIGNAL("triggered()"),
+                win.fileExportPng)
+    win.connect(win.fileExportPovAction,
+                SIGNAL("triggered()"),
+                win.fileExportPov)
+    win.connect(win.fileExportAmdlAction,
+                SIGNAL("triggered()"),
+                win.fileExportAmdl)
     
     win.connect(win.helpAboutAction,SIGNAL("triggered()"),win.helpAbout)
     win.connect(win.helpGraphicsCardAction,SIGNAL("triggered()"),win.helpGraphicsCard)
@@ -211,8 +227,12 @@ def setupUi(win):
     win.connect(win.dispSurfaceAction,SIGNAL("triggered()"),win.dispSurface)
     win.connect(win.dispCylinderAction,SIGNAL("triggered()"),win.dispCylinder)
     win.connect(win.simMinimizeEnergyAction,SIGNAL("triggered()"),win.simMinimizeEnergy)
-    win.connect(win.fileImportAction,SIGNAL("triggered()"),win.fileImport)
-    win.connect(win.fileExportAction,SIGNAL("triggered()"),win.fileExport)
+    win.connect(win.fileImportOpenBabelAction,
+                SIGNAL("triggered()"),
+                win.fileOpenBabelImport)
+    win.connect(win.fileExportOpenBabelAction,
+                SIGNAL("triggered()"),
+                win.fileOpenBabelExport)
     win.connect(win.viewIsometricAction,SIGNAL("triggered()"),win.viewIsometric)
     win.connect(win.modifyMirrorAction,SIGNAL("triggered()"),win.modifyMirror)
     win.connect(win.setViewZoomtoSelectionAction,SIGNAL("triggered()"),win.setViewZoomToSelection)

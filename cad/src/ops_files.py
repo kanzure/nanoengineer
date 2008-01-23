@@ -107,8 +107,44 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     assembly(self), and assembly expects an MWsemantics.  Has slot
     methods and their helper methods.
     """
+    
+    def getCurrentFilename(self, extension = False):
+        """
+        Returns the filename of the current part.
+        
+        @param extension: If True, include the filename extension (i.e. .mmp).
+                          The default is False.
+        @type  extension: boolean
+        
+        @return: the fullpath of the current part. If the part hasn't been 
+                 saved by the user yet, the fullpath returned will be
+                 '$CURRENT_WORKING_DIRECTORY/Untitled'.
+        @rtype:  string
+        
+        @note: Callers typically call this method to get a fullpath to supply as
+               an argument to QFileDialog, which displays the basename in the
+               filename field. Normally, we'd like to include the extension
+               so that it is included in the filename field of the QFileDialog,
+               but when the user changes the filter (i.e. *.mmp to *.pdb),  
+               the extension in the filename field does not get updated to
+               match the selected filter. This is a Qt bug and is why we do
+               not return the extension by default.
+        """
+        if self.assy.filename:
+            
+            fullpath, ext = os.path.splitext(self.assy.filename)
+        else: 
+            # User hasn't saved the current part yet.
+            fullpath = \
+                     os.path.join(env.prefs[workingDirectory_prefs_key], 
+                                  "Untitled" ) 
+            
+        if extension:
+            return fullpath + ".mmp" # Only MMP format is supported now.
+        else:
+            return fullpath
 
-    def fileImport(self): # Code copied from fileInsert() slot method. Mark 060731. 
+    def fileOpenBabelImport(self): # Code copied from fileInsert() slot method. Mark 060731. 
         """
         Slot method for 'File > Import'.
         """
@@ -246,7 +282,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             #dir, fil = os.path.split(import_filename)
             #self.setCurrentWorkingDirectory(dir)
             
-    def fileExport(self): # Fixed up by Mark. 2007-06-05
+    def fileOpenBabelExport(self): # Fixed up by Mark. 2007-06-05
         """
         Slot method for 'File > Export'.
         Exported files contain all atoms, including invisible and hidden atoms.
@@ -258,7 +294,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         if platform.atom_debug:
             linenum()
-            print "start fileExport()"
+            print "start fileOpenBabelExport()"
             
         cmd = greenmsg("Export File: ")
         
@@ -272,7 +308,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # Chemistry: http://openbabel.sourceforge.net/wiki/MDL_Molfile
         # Animation: http://www.hash.com/products/am.asp
         # For file export, we will use Open Babel's chemistry MDL format.
-
+        
+        currentFilename = self.getCurrentFilename()
         sfilter = QString("Protein Data Bank (*.pdb)")
 
         formats = \
@@ -346,7 +383,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         export_filename = \
             QFileDialog.getSaveFileName(self, 
                                         "Export File", 
-                                        self.currentWorkingDirectory, 
+                                        currentFilename,
                                         formats,
                                         sfilter
                                        )
@@ -354,7 +391,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             env.history.message(cmd + "Cancelled")
             if platform.atom_debug:
                 linenum()
-                print "fileExport cancelled because user cancelled"
+                print "fileOpenBabelExport cancelled because user cancelled"
             return
         export_filename = str(export_filename)
 
@@ -417,7 +454,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         if platform.atom_debug:
             linenum()
-            print "finish fileExport()"
+            print "finish fileOpenBabelExport()"
 
     def launch_ne1_openbabel(self, in_format, infile, out_format, outfile):
         """
@@ -539,13 +576,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         env.history.message(greenmsg("Insert File:"))
         
-        """
-        formats = \
-                    "Molecular Machine Part (*.mmp);;"\
-                    "Protein Data Bank (*.pdb);;"\
-                    "All Files (*.*)"
-        """
-       
         fn = QFileDialog.getOpenFileName(self, 
                                          "Select a file to insert", 
                                          self.currentWorkingDirectory, 
@@ -582,21 +612,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 else:
                     self.assy.changed() # The file and the part are not the same.
                     env.history.message( "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
-            
-            # GAMESS *.out file disabled by Mark 2008-01-18.
-            # This code is marked for removal.
-            if 0: # fn[-3:] in ["out","OUT"]:
-                try:
-                    r = insertgms(self.assy, fn)
-                except:
-                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting GAMESS OUT file [%s]: " % fn )
-                    env.history.message( redmsg( "Internal error while inserting GAMESS OUT file: [ " + fn + " ]") )
-                else:
-                    if r:
-                        env.history.message( redmsg("File not inserted."))
-                    else:
-                        self.assy.changed() # The file and the part are not the same.
-                        env.history.message( "GAMESS file inserted: [ " + os.path.normpath(fn) + " ]" )
             
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
@@ -654,14 +669,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     "Molecular Machine Part (*.mmp);;"\
                     "All Files (*.*)"
             
-            # Removed PDB option from "File > Open" chooser dialog.
-            # If you want to open a PDB, use "
-            # I'm keeping this here temporarily.
-            #@formats = \
-            #@        "Molecular Machine Part (*.mmp);;"\
-            #@        "Protein Data Bank (*.pdb);;"\
-            #@        "All Files (*.*)"
-            
             fn = QFileDialog.getOpenFileName(self,
                                              "Choose a file to open",
                                              self.currentWorkingDirectory,
@@ -702,19 +709,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 _openmsg = "MMP file opened: [ " + os.path.normpath(fn) + " ]"
                 isMMPFile = True
             
-            # .pdb option was disabled by Mark 2008-01-18.
-            # Use "Insert > Part..." to insert (import) a PDB file.
-            if 0: # fn[-3:] in ["pdb","PDB"]:
-                readpdb(self.assy, fn, showProgressDialog = True)
-                _openmsg = "PDB file opened: [ " + os.path.normpath(fn) + " ]"
-
             dir, fil, ext = _fileparse(fn)
             # maybe: could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
             self.assy.name = fil
             self.assy.filename = fn
             self.assy.reset_changed() # The file and the part are now the same
-
-#            self.setCaption(self.trUtf8(self.name() + " - " + "[" + self.assy.filename + "]"))
             self.update_mainwindow_caption()
 
             if isMMPFile:
@@ -767,115 +766,228 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # user cancelled, or some other error; message already emitted.
             return False
         pass
-
-    def fileSaveAs_filename(self, images_ok = True):
-        #bruce 050927 split this out of fileSaveAs, added some comments, added images_ok option
+        
+    def fileExportPdb(self):
         """
-        Ask user to choose a save-as filename (and file type) based on the current main filename.
-        If file exists, ask them if they want to overwrite that file.
-        If user cancels either dialog, or if some error occurs,
-        emit a history message and return None.
-        Otherwise return the file name to save to, as a Python string.
-           If images_ok is false, don't offer the image formats as possible choices for filetype.
-        This is needed due to limits in how callers save these image formats
-        (and that also determines the set of image formats excluded by this option).
+        Slot method for 'File > Export > Protein Data Bank...'
+        
+        @return: The name of the file saved, or None if the user cancelled.
+        @rtype:  string
         """
-        # figure out sdir, sfilter from existing filename
-        if self.assy:
-            if self.assy.filename:
-                # Below, sdir is the filename minus the extension. This way only the basename is displayed
-                # in the QFileDialog. This is a workaround for bug 225. 
-                # Normally, we'd like to include the extension so that it is included in the filename field of
-                # the QFileDialog, but when the user changes the filter (i.e. *.mmp to *.pdb), the extension
-                # in the filename field does not get updated to match the selected filter. Mark 060730.
-                sdir, ext = os.path.splitext(self.assy.filename)
-                #sdir = self.assy.filename # Keeping this here in case there is strong disagreement. Mark 060730.
-            else: 
-                # Marked for removal since <dir> and <fil> are not used. Mark 060730.
-                #&&& dir, fil = "./", self.assy.name
-                ext = ".mmp"
-                sdir = self.currentWorkingDirectory # Make sure the file chooser dialog opens to the CWD. Mark 060730.
-                    ###REVIEW: shouldn't this be a reference to env.prefs[...] for that dir? [bruce 070619 comment]
-                sdir = os.path.join(sdir, "Untitled" ) #bruce 070619 fix bug 2379 where filename field
-                    # is blank rather than Untitled, and doesn't have key focus
-                    # (should also include ext if we change the bug 225 workaround above, but a test shows it's still needed)
-        else:
-            env.history.message( "Save Ignored: Part is currently empty." )
-            return None
+        format = "Protein Data Bank (*.pdb)"
+        return self.fileExport(format)
+        
+    def fileExportJpg(self):
+        """
+        Slot method for 'File > Export > JPEG Image...'
+        
+        @return: The name of the file saved, or None if the user cancelled.
+        @rtype:  string
+        """
+        format = "JPEG (*.jpg)"
+        return self.fileExport(format)
+    
+    def fileExportPng(self):
+        """
+        Slot method for 'File > Export > PNG Image...'
+        
+        @return: The name of the file saved, or None if the user cancelled.
+        @rtype:  string
+        """
+        format = "Portable Network Graphics (*.png)"
+        return self.fileExport(format)
+    
+    def fileExportPov(self):
+        """
+        Slot method for 'File > Export > POV-Ray...'
+        
+        @return: The name of the file saved, or None if the user cancelled.
+        @rtype:  string
+        """
+        format = "POV-Ray (*.pov)"
+        return self.fileExport(format)
 
-        if ext == ".pdb": 
-            sfilter = QString("Protein Data Bank (*.pdb)")
-        else: 
-            sfilter = QString("Molecular Machine Part (*.mmp)")
-
-        # ask user for new filename (and file type); they might cancel; fn will be a QString
-        # The Animation Master MDL format was removed in version 1.47 to fix bug 1508. I am
-        # putting it back after email discussion with Mark.  - wware 060804
-        formats = \
-                    "Molecular Machine Part (*.mmp);;"\
-                    "Protein Data Bank (*.pdb);;"\
-                    "POV-Ray (*.pov);;"\
-                    "Animation Master Model (*.mdl);;"
-                    
-        if images_ok:
-            formats += \
-                    "JPEG (*.jpg);;"\
-                    "Portable Network Graphics (*.png)"
-
+    def fileExportAmdl(self):
+        """
+        Slot method for 'File > Export > Animation Master Model...'
+        
+        @return: The name of the file saved, or None if the user cancelled.
+        @rtype:  string
+        
+        @note: There are more popular .mdl file formats that we may need
+               to support in the future. This option was needed by John
+               Burch to create the nanofactory animation.
+        """
+        format = "Animation Master Model (*.mdl)"
+        return self.fileExport(format)
+    
+    def fileExport(self, format):
+        """
+        Exports the current part into a different file format.
+        
+        @param format: File format filter string to appear in the "Export As..."
+                       file chooser dialog.
+        @type  format: string
+        
+        @return: The name of the file saved, or None if the user cancelled.
+        @rtype:  string
+        """
+        
+        cmd = greenmsg("Export:")
+        
+        currentFilename = self.getCurrentFilename()
+        sfilter = QString(format)
         options = QFileDialog.DontConfirmOverwrite # this fixes bug 2380 [bruce 070619]
-            # Note: we can't fix that bug by removing our own confirmation (later in this function) instead,
-            # since the Qt confirmation doesn't happen if the file extension is implicit,
-            # as it is by default due to the workaround for bug 225 (above) in which sdir doesn't contain ext.
+            # Note: we can't fix that bug by removing our own confirmation
+            # (later in this function) instead, since the Qt confirmation 
+            # doesn't happen if the file extension is implicit, as it is by
+            # default due to the workaround for bug 225 (above) in which 
+            # currentFilename doesn't contain ext.
 
         # debug_prefs for experimentation with dialog style [bruce 070619]
-        if sys.platform == 'darwin' and debug_pref("File Save As: DontUseSheet", Choice_boolean_False, prefs_key = True):
+        if (sys.platform == 'darwin' and 
+            debug_pref("File Save As: DontUseSheet", 
+                       Choice_boolean_False, 
+                       prefs_key = True)):
+            options |= QFileDialog.DontUseSheet # probably faster
+        if debug_pref("File Save As: DontUseNativeDialog", 
+                      Choice_boolean_False, 
+                      prefs_key = True):
+            options |= QFileDialog.DontUseNativeDialog
+            
+        fn = QFileDialog.getSaveFileName(
+            self, # parent
+            "Export As", # caption
+            currentFilename, # dialog's cwd and basename
+            format, # file format options
+            sfilter, # selectedFilter
+            QFileDialog.DontConfirmOverwrite # options
+            )
+        
+        if not fn:
+            return None
+        
+        # [bruce question: when and why can this differ from fn?]
+        # IIRC, fileparse() doesn't (or didn't) handle QString types. 
+        # mark 2008-01-23
+        fn = str(fn)
+        dir, fil, ext2 = _fileparse(fn)
+        del fn #bruce 050927
+        ext = str(sfilter[-5:-1]) 
+            # Get "ext" from the sfilter. 
+            # It *can* be different from "ext2"!!! - Mark
+        safile = dir + fil + ext # full path of "Save As" filename
+
+        # ask user before overwriting an existing file
+        # (other than this part's main file)
+        if os.path.exists(safile):
+            # Confirm overwrite of the existing file.
+            ret = QMessageBox.warning( self, "Warning!",
+                "The file \"" + fil + ext + "\" already exists.\n"\
+                "Do you want to overwrite the existing file?",
+                "&Overwrite", "&Cancel", "",
+                0,      # Enter == button 0
+                1 )     # Escape == button 1
+
+            if ret == 1: # The user cancelled
+                env.history.message( cmd + "Cancelled. Part not exported." )
+                return None # Cancel/Escape pressed, user cancelled.
+
+        ###e bruce comment 050927: this might be a good place to test whether we can write to that filename,
+        # so if we can't, we can let the user try choosing one again, within
+        # this method. But we shouldn't do this if it's the main filename, 
+        # to avoid erasing that file now. (If we only do this test with each
+        # function that writes into the file, then if that fails it'll more
+        # likely require user to redo the entire op.)
+        
+        self.saveFile(safile)
+        return safile
+        
+    def fileSaveAs_filename(self):
+        #bruce 050927 split this out of fileSaveAs, added some comments, 
+        # added images_ok option
+        """
+        Prompt user with a "Save As..." file chooser dialog to specify a
+        new MMP filename. If file exists, ask them to confirm overwrite of
+        that file.
+        
+        @return: the filename. If if user cancels, or if some error occurs,
+                 emit a history message and return None.
+        @rtype:  string
+        """
+        currentFilename = self.getCurrentFilename()
+        format = "Molecular Machine Part (*.mmp)"
+        sfilter = QString(format)
+        options = QFileDialog.DontConfirmOverwrite 
+            # this fixes bug 2380 [bruce 070619]
+            # Note: we can't fix that bug by removing our own confirmation
+            # (later in this function) instead, since the Qt confirmation 
+            # doesn't happen if the file extension is implicit, as it is by
+            # default due to the workaround for bug 225 (above) in which 
+            # currentFilename doesn't contain ext.
+
+        # debug_prefs for experimentation with dialog style [bruce 070619]
+        if (sys.platform == 'darwin' 
+            and debug_pref("File Save As: DontUseSheet", 
+                           Choice_boolean_False, 
+                           prefs_key = True)):
             options |= QFileDialog.DontUseSheet # probably faster -- try it and see
-        if debug_pref("File Save As: DontUseNativeDialog", Choice_boolean_False, prefs_key = True):
+        if debug_pref("File Save As: DontUseNativeDialog", 
+                      Choice_boolean_False, 
+                      prefs_key = True):
             options |= QFileDialog.DontUseNativeDialog
         
-        fn = QFileDialog.getSaveFileName(self, # parent
-                                         "Save As", # caption
-                                         sdir, # dir (should include basename too, if one should be initially in the dialog)
-                                         formats, # filter
-                                         sfilter, # selectedFilter
-                                         QFileDialog.DontConfirmOverwrite # options
-                                         )
-        if fn:
-            fn = str(fn)
-            # figure out name of new file, safile [bruce question: when and why can this differ from fn?]
-            dir, fil, ext2 = _fileparse(fn)
-            del fn #bruce 050927
-            ext = str(sfilter[-5:-1]) # Get "ext" from the sfilter. It *can* be different from "ext2"!!! - Mark
-            safile = dir + fil + ext # full path of "Save As" filename
+        fn = QFileDialog.getSaveFileName(
+            self, # parent
+            "Save As", # caption
+            currentFilename, # # dialog's cwd and basename
+            format, # filter
+            sfilter, # selectedFilter
+            QFileDialog.DontConfirmOverwrite # options
+            )
+        
+        if not fn:
+            return None # User cancelled.
+        
+        # [bruce question: when and why can this differ from fn?]
+        # IIRC, fileparse() doesn't (or didn't) handle QString types. 
+        # mark 2008-01-23
+        fn = str(fn)
+        dir, fil, ext2 = _fileparse(fn)
+        del fn #bruce 050927
+        ext = str(sfilter[-5:-1]) 
+            # Get "ext" from the sfilter. It *can* be different from "ext2"!!!
+            # Note: As of 2008-01-23, only the MMP extension is supported.
+            # This may change in the future. Mark 2008-01-23.
+        safile = dir + fil + ext # full path of "Save As" filename
 
-            # ask user before overwriting an existing file (other than this part's main file)
-            if self.assy.filename != safile: # If the current part name and "Save As" filename are not the same...
-                if os.path.exists(safile): # ...and if the "Save As" file exists...
+        # Ask user before overwriting an existing file 
+        # (except this part's main file)
+        if self.assy.filename != safile: 
+            # If the current part and "Save As" filename are not the same...
+            if os.path.exists(safile): 
+                # ...and if the "Save As" file exists.
+                # confirm overwrite of the existing file.
+                ret = QMessageBox.warning( self, "Warning!",
+                    "The file \"" + fil + ext + "\" already exists.\n"\
+                    "Do you want to overwrite the existing file?",
+                    "&Overwrite", "&Cancel", "",
+                    0,      # Enter == button 0
+                    1 )     # Escape == button 1
 
-                    # ... confirm overwrite of the existing file.
-                    ret = QMessageBox.warning( self, "Warning!",
-                        "The file \"" + fil + ext + "\" already exists.\n"\
-                        "Do you want to overwrite the existing file?",
-                        "&Overwrite", "&Cancel", "",
-                        0,      # Enter == button 0
-                        1 )     # Escape == button 1
+                if ret == 1: # The user cancelled
+                    env.history.message( "Cancelled.  Part not saved." )
+                   
+                    return None # User cancelled
 
-                    if ret == 1: # The user cancelled
-                        env.history.message( "Cancelled.  Part not saved." )
-                       
-                        return None # Cancel clicked or Alt+C pressed or Escape pressed
-
-            ###e bruce comment 050927: this might be a good place to test whether we can write to that filename,
-            # so if we can't, we can let the user try choosing one again, within this method.
-            # But we shouldn't do this if it's the main filename, to avoid erasing that file now.
-            # (If we only do this test with each function
-            # that writes into the file, then if that fails it'll more likely require user to redo the entire op.)
-                      
-            return safile
-            
-        else:            
-            return None ## User canceled.
-
+        ###e bruce comment 050927: this might be a good place to test whether we can write to that filename,
+        # so if we can't, we can let the user try choosing one again, within this method.
+        # But we shouldn't do this if it's the main filename, to avoid erasing that file now.
+        # (If we only do this test with each function
+        # that writes into the file, then if that fails it'll more likely require user to redo the entire op.)
+        
+        return safile
+        
     def fileSaveSelection(self): #bruce 050927
         """
         Slot method for 'File > Save Selection'.
@@ -908,11 +1020,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
     def saveFile(self, safile, brag = True, savePartFiles = True):
         """
-        Save the current model. <safile> is the filename to save the part under.
-        <savePartFiles> : True (default) means save any part files if this MMP file has a
-                          Part Files directory.
-                          False means just save the MMP file and don't worry about 
-                          saving the Part Files directory, too.
+        Save the current part as I{safile}.
+        
+        @param safile: the part filename.
+        @type  safile: string
+        
+        @param savePartFiles: True (default) means save any part files if this
+                              MMP file has a Part Files directory.
+                              False means just save the MMP file and don't 
+                              worry about saving the Part Files directory, too.
         """
         
         dir, fil, ext = _fileparse(safile)
@@ -921,28 +1037,20 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if ext == ".mmp" : # Write MMP file.
             self.save_mmp_file(safile, brag = brag, savePartFiles = savePartFiles)
             self.setCurrentWorkingDirectory() # Update the CWD.
-
-        elif ext == ".pdb": # Write PDB file.
-            try:
-                writepdb(self.assy.part, safile) #bruce 050927 revised arglist
-            except:
-                print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                env.history.message(redmsg( "Problem saving PDB file: [ " + safile + " ]" ))
-            else:
-                self.saved_main_file(safile, fil)
-                    #bruce 050907 split out this common code, though it's probably bad design for PDB files (as i commented elsewhere)
-                env.history.message( "PDB file saved: [ " + os.path.normpath( self.assy.filename) +" ]" )
-                    #bruce 050907 moved this after mt_update (which is now in saved_main_file)
-                self.setCurrentWorkingDirectory() # Update the CWD.
+                
         else:
             self.savePartInSeparateFile( self.assy.part, safile)
         return
 
     def savePartInSeparateFile( self, part, safile): #bruce 050927 added part arg, renamed method
         """
-        Save some aspect of part (which might or might not be self.assy.part) in a separate file, named safile,
-        without resetting self.assy's changed flag or filename. For some filetypes, use display attributes from self.glpane.
-        For JPG and PNG, assert part is the glpane's current part, since current implem only works then.
+        Save some aspect of part (which might or might not be self.assy.part)
+        in a separate file, named safile, without resetting self.assy's 
+        changed flag or filename. For some filetypes, use display attributes 
+        from self.glpane.
+        
+        For JPG and PNG, assert part is the glpane's current part, since 
+        current implem only works then.
         """
         #e someday this might become a method of a "saveable object" (open file) or a "saveable subobject" (part, selection).
         linenum()
@@ -1038,7 +1146,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 # Sometimes, we just want to save the MMP file and not worry about
                 # any of the part's Part Files. For example, Open Babel just needs to
                 # save a copy of the current MMP file in a temp directory for
-                # translation purposes (see fileExport() and fileImport()). 
+                # translation purposes (see fileExport() and fileOpenBabelImport()). 
                 # Mark 2007-06-05
                 return
             
