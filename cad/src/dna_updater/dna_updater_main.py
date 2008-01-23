@@ -1,11 +1,11 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 dna_updater_main.py - enforce rules on newly changed DNA-related model objects,
 including DnaGroups, AxisChunks, PAM atoms, etc.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_updater_globals import get_changes_and_clear
@@ -51,6 +51,8 @@ def full_dna_update():
         print " they are: %r" % atoms
 
     remove_killed_atoms( changed_atoms) # only affects this dict, not the atoms
+        # TODO: also remove atoms from assys that have been destroyed
+        # (i.e. closed files) @@@
 
     if not changed_atoms:
         return
