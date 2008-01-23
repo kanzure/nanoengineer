@@ -9,15 +9,19 @@
 /* Begin PBXBuildFile section */
 		E10AA5FD0BAE228300A9D4A6 /* Consumer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA53C0BAC78A700CE1FC6 /* Consumer.cpp */; };
 		E10AA5FE0BAE229700A9D4A6 /* Producer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA53E0BAC78A700CE1FC6 /* Producer.cpp */; };
-		E1ADA58D0BAC7B7100CE1FC6 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1ADA55B0BAC78F100CE1FC6 /* HDF5_SimResults.h */; };
-		E1ADA58E0BAC7B7100CE1FC6 /* SimResultsDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = E1ADA55C0BAC78F100CE1FC6 /* SimResultsDataStore.h */; };
 		E1ADA58F0BAC7B7100CE1FC6 /* HDF5_SimResultsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA5360BAC78A700CE1FC6 /* HDF5_SimResultsTest.cpp */; };
 		E1ADA5900BAC7B7100CE1FC6 /* HDF5_SimResultsTest.h in Headers */ = {isa = PBXBuildFile; fileRef = E1ADA5370BAC78A700CE1FC6 /* HDF5_SimResultsTest.h */; };
 		E1ADA5910BAC7B7100CE1FC6 /* CppUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA53D0BAC78A700CE1FC6 /* CppUnit.cpp */; };
-		E1ADA59E0BAC7E4700CE1FC6 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1ADA55B0BAC78F100CE1FC6 /* HDF5_SimResults.h */; };
-		E1ADA59F0BAC7E4700CE1FC6 /* SimResultsDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = E1ADA55C0BAC78F100CE1FC6 /* SimResultsDataStore.h */; };
 		E1ADA5A00BAC7E4700CE1FC6 /* HDF5_SimResults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA5350BAC78A700CE1FC6 /* HDF5_SimResults.cpp */; };
 		E1ADA5A10BAC7E4700CE1FC6 /* SimResultsDataStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA5380BAC78A700CE1FC6 /* SimResultsDataStore.cpp */; };
+		E1B4E8030D47AC62002B19F8 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */; };
+		E1B4E8040D47AC62002B19F8 /* SimResultsDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */; };
+		E1B4E8050D47AC63002B19F8 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */; };
+		E1B4E8060D47AC63002B19F8 /* SimResultsDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */; };
+		E1B4E8070D47AC64002B19F8 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */; };
+		E1B4E8080D47AC64002B19F8 /* SimResultsDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */; };
+		E1B4E8090D47AC65002B19F8 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */; };
+		E1B4E80A0D47AC65002B19F8 /* SimResultsDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,14 +29,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = E1ADA51F0BAC780800CE1FC6 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = E1ADA5990BAC7E2700CE1FC6 /* libHDF5_SimResults */;
+			remoteGlobalIDString = E1ADA5990BAC7E2700CE1FC6;
 			remoteInfo = libHDF5_SimResults;
 		};
 		E10AA5EA0BAE21D800A9D4A6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E1ADA51F0BAC780800CE1FC6 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = E10AA5E70BAE21C300A9D4A6 /* Consumer */;
+			remoteGlobalIDString = E10AA5E70BAE21C300A9D4A6;
 			remoteInfo = Consumer;
 		};
 		E1ADA5AC0BAC7EFA00CE1FC6 /* PBXContainerItemProxy */ = {
@@ -54,10 +58,10 @@
 		E1ADA53C0BAC78A700CE1FC6 /* Consumer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Consumer.cpp; sourceTree = "<group>"; };
 		E1ADA53D0BAC78A700CE1FC6 /* CppUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CppUnit.cpp; sourceTree = "<group>"; };
 		E1ADA53E0BAC78A700CE1FC6 /* Producer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Producer.cpp; sourceTree = "<group>"; };
-		E1ADA55B0BAC78F100CE1FC6 /* HDF5_SimResults.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HDF5_SimResults.h; sourceTree = "<group>"; };
-		E1ADA55C0BAC78F100CE1FC6 /* SimResultsDataStore.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SimResultsDataStore.h; sourceTree = "<group>"; };
 		E1ADA5880BAC7B1D00CE1FC6 /* CppUnit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CppUnit; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1ADA59A0BAC7E2700CE1FC6 /* libHDF5_SimResults.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHDF5_SimResults.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HDF5_SimResults.h; sourceTree = "<group>"; };
+		E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SimResultsDataStore.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,12 +142,20 @@
 		E1ADA55A0BAC78F100CE1FC6 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				E1ADA55B0BAC78F100CE1FC6 /* HDF5_SimResults.h */,
-				E1ADA55C0BAC78F100CE1FC6 /* SimResultsDataStore.h */,
+				E1B4E7E80D47AA66002B19F8 /* Nanorex */,
 			);
 			name = include;
 			path = ../../include;
 			sourceTree = SOURCE_ROOT;
+		};
+		E1B4E7E80D47AA66002B19F8 /* Nanorex */ = {
+			isa = PBXGroup;
+			children = (
+				E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */,
+				E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */,
+			);
+			path = Nanorex;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -152,6 +164,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1B4E8070D47AC64002B19F8 /* HDF5_SimResults.h in Headers */,
+				E1B4E8080D47AC64002B19F8 /* SimResultsDataStore.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -159,6 +173,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E1B4E8090D47AC65002B19F8 /* HDF5_SimResults.h in Headers */,
+				E1B4E80A0D47AC65002B19F8 /* SimResultsDataStore.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -166,9 +182,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1ADA58D0BAC7B7100CE1FC6 /* HDF5_SimResults.h in Headers */,
-				E1ADA58E0BAC7B7100CE1FC6 /* SimResultsDataStore.h in Headers */,
 				E1ADA5900BAC7B7100CE1FC6 /* HDF5_SimResultsTest.h in Headers */,
+				E1B4E8050D47AC63002B19F8 /* HDF5_SimResults.h in Headers */,
+				E1B4E8060D47AC63002B19F8 /* SimResultsDataStore.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -176,8 +192,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E1ADA59E0BAC7E4700CE1FC6 /* HDF5_SimResults.h in Headers */,
-				E1ADA59F0BAC7E4700CE1FC6 /* SimResultsDataStore.h in Headers */,
+				E1B4E8030D47AC62002B19F8 /* HDF5_SimResults.h in Headers */,
+				E1B4E8040D47AC62002B19F8 /* SimResultsDataStore.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,7 +377,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				OPTIMIZATION_CFLAGS = "";
+				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lHDF5_SimResults",
@@ -385,7 +401,7 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				OPTIMIZATION_CFLAGS = "";
+				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lHDF5_SimResults",
@@ -411,7 +427,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				OPTIMIZATION_CFLAGS = "";
+				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lHDF5_SimResults",
@@ -435,7 +451,7 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				OPTIMIZATION_CFLAGS = "";
+				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = (
 					"-lHDF5_SimResults",
@@ -458,6 +474,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				USER_HEADER_SEARCH_PATHS = ../../include;
 			};
 			name = Debug;
 		};
@@ -465,6 +482,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				USER_HEADER_SEARCH_PATHS = ../../include;
 			};
 			name = Release;
 		};
@@ -499,6 +517,7 @@
 				COPY_PHASE_STRIP = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				HEADER_SEARCH_PATHS = ../../include;
 				LIBRARY_SEARCH_PATHS = build/Release;
 				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
@@ -532,6 +551,7 @@
 				INSTALL_PATH = /usr/local/lib;
 				PREBINDING = NO;
 				PRODUCT_NAME = HDF5_SimResults;
+				USER_HEADER_SEARCH_PATHS = ../../include;
 				ZERO_LINK = YES;
 			};
 			name = Debug;
@@ -546,6 +566,7 @@
 				INSTALL_PATH = /usr/local/lib;
 				PREBINDING = NO;
 				PRODUCT_NAME = HDF5_SimResults;
+				USER_HEADER_SEARCH_PATHS = ../../include;
 				ZERO_LINK = NO;
 			};
 			name = Release;
