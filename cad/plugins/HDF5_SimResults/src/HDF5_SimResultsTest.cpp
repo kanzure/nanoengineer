@@ -9,7 +9,7 @@ CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(HDF5_SimResultsTest, "HDF5_SimResultsTestS
 
 /* FUNCTION: setUp */
 void HDF5_SimResultsTest::setUp() {
-	simResults = new ne1::HDF5_SimResults();
+	simResults = new HDF5_SimResults();
 
 	std::string message;
 	int status = simResults->openDataStore("Testing", message);
@@ -29,7 +29,7 @@ void HDF5_SimResultsTest::openDataStore() {
 	std::string message;
 	
 	delete simResults;
-	simResults = new ne1::HDF5_SimResults();
+	simResults = new HDF5_SimResults();
 	
 	status = simResults->openDataStore("non-existent-directory", message);
 	CPPUNIT_ASSERT(status == SRDS_UNABLE_TO_OPEN_FILE);
@@ -609,14 +609,14 @@ void HDF5_SimResultsTest::getSetBonds() {
 	simResults->getFrameBondsCount("frame-set-1", 0, bondCount);
 	CPPUNIT_ASSERT(bondCount == 0);
 	
-	void* bonds = (void*)malloc(3*sizeof(ne1::SimResultsBond));
+	void* bonds = (void*)malloc(3*sizeof(SimResultsBond));
 	unsigned int bondIndex;
-	ne1::SimResultsBond bond;
+	SimResultsBond bond;
 	for (bondIndex = 0; bondIndex < 3; bondIndex++) {
 		bond.atomId_1 = bondIndex;
 		bond.atomId_2 = bondIndex + 1;
 		bond.order = bondIndex + 0.5f;
-		((ne1::SimResultsBond*)bonds)[bondIndex] = bond;
+		((SimResultsBond*)bonds)[bondIndex] = bond;
 	}
 	status = simResults->setFrameBonds("frame-set-X", 0, bonds, 3, message);
 	CPPUNIT_ASSERT(status != 0);
@@ -624,12 +624,12 @@ void HDF5_SimResultsTest::getSetBonds() {
 	CPPUNIT_ASSERT(status == 0);
 	free(bonds);
 
-	bonds = (void*)malloc(5*sizeof(ne1::SimResultsBond));
+	bonds = (void*)malloc(5*sizeof(SimResultsBond));
 	for (bondIndex = 0; bondIndex < 5; bondIndex++) {
 		bond.atomId_1 = 10+bondIndex;
 		bond.atomId_2 = 10+bondIndex + 1;
 		bond.order = bondIndex + 1.5f;
-		((ne1::SimResultsBond*)bonds)[bondIndex] = bond;
+		((SimResultsBond*)bonds)[bondIndex] = bond;
 	}
 	status = simResults->setFrameBonds("frame-set-1", 1, bonds, 5, message);
 	CPPUNIT_ASSERT(status == 0);
@@ -644,7 +644,7 @@ void HDF5_SimResultsTest::getSetBonds() {
 	status = simResults->getFrameBonds("frame-set-1", 0, bonds, message);
 	CPPUNIT_ASSERT(status == 0);
 	for (bondIndex = 0; bondIndex < 3; bondIndex++) {
-		bond = ((ne1::SimResultsBond*)bonds)[bondIndex];
+		bond = ((SimResultsBond*)bonds)[bondIndex];
 		CPPUNIT_ASSERT(bond.atomId_1 == bondIndex);
 		CPPUNIT_ASSERT(bond.atomId_2 == bondIndex + 1);
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(bondIndex + 0.5f, bond.order, 0.001);
@@ -652,7 +652,7 @@ void HDF5_SimResultsTest::getSetBonds() {
 	status = simResults->getFrameBonds("frame-set-1", 1, bonds, message);
 	CPPUNIT_ASSERT(status == 0);
 	for (bondIndex = 0; bondIndex < 5; bondIndex++) {
-		bond = ((ne1::SimResultsBond*)bonds)[bondIndex];
+		bond = ((SimResultsBond*)bonds)[bondIndex];
 		CPPUNIT_ASSERT(bond.atomId_1 == 10+bondIndex);
 		CPPUNIT_ASSERT(bond.atomId_2 == 10+bondIndex + 1);
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(bondIndex + 1.5f, bond.order, 0.001);

@@ -8,7 +8,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "ne1/HDF5_SimResults.h"
+#include "Nanorex/HDF5_SimResults.h"
+using namespace Nanorex;
 
 
 /* CLASS: HDF5_SimResultsTest */
@@ -87,7 +88,7 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 		void getSetPressure();
 		
 	private:
-		ne1::HDF5_SimResults* simResults;
+		HDF5_SimResults* simResults;
 };
 
 #endif

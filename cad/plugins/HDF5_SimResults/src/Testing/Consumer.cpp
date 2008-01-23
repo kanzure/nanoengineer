@@ -9,9 +9,10 @@
 #include <string>
 
 
-#include "ne1/HDF5_SimResults.h"
+#include "Nanorex/HDF5_SimResults.h"
+using namespace Nanorex;
 
-unsigned int renderHelper(ne1::HDF5_SimResults* hdf5_SimResults,
+unsigned int renderHelper(HDF5_SimResults* hdf5_SimResults,
                           const unsigned int& frameIndex,
                           bool justFrameCount);
 void printScene(unsigned int frameIndex, unsigned int frameCount);
@@ -22,7 +23,7 @@ void set_timespec(struct timespec *tmr, unsigned long long ustime) {
 }
 
 
-ne1::HDF5_SimResults* simResults = 0;
+HDF5_SimResults* simResults = 0;
 unsigned int frameIndex = 0;
 void render(int dummy) {
 	int frameCount = renderHelper(simResults, frameIndex, false);
@@ -34,7 +35,7 @@ void render(int dummy) {
 /* FUNCTION: main */
 int main(int argc, char* argv[]) {
 	
-	simResults = new ne1::HDF5_SimResults();
+	simResults = new HDF5_SimResults();
 	
 	std::string message;
 	int status;
@@ -89,7 +90,7 @@ float zoom;
 float* xCoords, *yCoords, *zCoords;
 
 /* FUNCTION: renderHelper */
-unsigned int renderHelper(ne1::HDF5_SimResults* hdf5_SimResults,
+unsigned int renderHelper(HDF5_SimResults* hdf5_SimResults,
                     	  const unsigned int& frameIndex,
                           bool justFrameCount) {
     int status, frameCount;
@@ -202,9 +203,9 @@ unsigned int renderHelper(ne1::HDF5_SimResults* hdf5_SimResults,
         //
         static bool InitializeBonds2 = true;
         if (InitializeBonds2) {
-            ne1::SimResultsBond* bonds =
-                (ne1::SimResultsBond*)malloc
-                    (bondIdCount*sizeof(ne1::SimResultsBond));
+            SimResultsBond* bonds =
+                (SimResultsBond*)malloc
+                    (bondIdCount*sizeof(SimResultsBond));
             status =
                 hdf5_SimResults->getFrameBonds("frame-set-1", 0,
                                                bonds, message);

@@ -3,13 +3,14 @@
 #include <stdlib.h>
 #include <string>
 
-#include "ne1/HDF5_SimResults.h"
+#include "Nanorex/HDF5_SimResults.h"
+using namespace Nanorex;
 
 
 /* FUNCTION: main */
 int main(int argc, char* argv[]) {
 	
-	ne1::HDF5_SimResults* simResults = new ne1::HDF5_SimResults();
+	HDF5_SimResults* simResults = new HDF5_SimResults();
 	
 	std::string message;
 	int status = simResults->openDataStore("Testing/shared", message);

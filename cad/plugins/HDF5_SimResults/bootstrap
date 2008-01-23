@@ -1,0 +1,12 @@
+#!/bin/sh
+
+#cat ./ac_utils.m4 > ./acinclude.m4
+#cat ./ac_cppunit.m4 >> ./acinclude.m4
+cat ./ac_cppunit.m4 > ./acinclude.m4
+cat ./ac_hdf5.m4 >> ./acinclude.m4
+
+aclocal
+autoheader
+libtoolize --force
+automake --foreign --add-missing --copy
+autoconf

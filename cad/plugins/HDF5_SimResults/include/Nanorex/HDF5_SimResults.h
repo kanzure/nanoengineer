@@ -15,7 +15,7 @@
 
 #include "hdf5.h"
 
-#include "SimResultsDataStore.h"
+#include "Nanorex/SimResultsDataStore.h"
 
 #define HDF5_SIM_RESULT_FILENAME	"sim_results.h5"
 #define GROUP_NAME_SIZE_HINT		64
@@ -29,7 +29,7 @@
 #define IDEAL_TEMPERATURE_MSRMT		1
 #define PRESSURE_MSRMT				2
 
-namespace ne1 {
+namespace Nanorex {
 
 
 /* CLASS: FrameSetInfo */
@@ -367,6 +367,6 @@ class HDF5_SimResults : public SimResultsDataStore {
 							 std::string& message);
 };
 
-} // ne1::
+} // Nanorex::
 
 #endif

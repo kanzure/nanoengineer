@@ -20,7 +20,7 @@
 #define SRDS_INVALID_FRAMEINDEX				5
 #define SRDS_NON_EXISTENT_DATASET			6
 
-namespace ne1 {
+namespace Nanorex {
 
 
 /* STRUCT: SimResultsBond */
@@ -860,6 +860,6 @@ class SimResultsDataStore {
  */
 };
 
-} // ne1::
+} // Nanorex::
 
 #endif

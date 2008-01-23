@@ -1,9 +1,9 @@
 
 // Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 
-#include "ne1/HDF5_SimResults.h"
+#include "Nanorex/HDF5_SimResults.h"
 
-namespace ne1 {
+namespace Nanorex {
 
 
 /* FUNCTION: H5_ErrorStackWalker */
@@ -2566,4 +2566,4 @@ int HDF5_SimResults::setTimeAttribute(const std::string& groupName,
 	return resultCode;
 }
 
-} // ne1::
+} // Nanorex::
