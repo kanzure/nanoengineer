@@ -70,6 +70,9 @@ from bond_drawer import writepov_bond
 
 from Selobj import Selobj_API
 
+# bond length constants
+# (note: these ought to be moved to bond_constants.py
+#  or to a new file for chemistry-related data [bruce 080122 comment])
 # Linus Pauling
 # http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148
 CC_GRAPHITIC_BONDLENGTH = 1.421   # page 1647
@@ -421,7 +424,10 @@ class NeighborhoodGenerator:
     be used many times.
     """
     # REVIEW: should this class be moved into its own module?
-    # [bruce 071030 comment]
+    # (Note, it's *almost* purely geometry... it might make sense
+    #  to file it there even though it assumes added objects
+    #  act like class Atom instances.)
+    # [bruce 071030/080122 comment]
     def __init__(self, atomlist, maxradius, include_singlets = False):
         self._buckets = { }
         self._oldkeys = { }
