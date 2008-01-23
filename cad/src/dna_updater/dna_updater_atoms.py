@@ -1,18 +1,18 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 dna_updater_atoms.py - enforce rules on newly changed PAM atoms and bonds
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater_globals import get_changes_and_clear
-from dna_updater_globals import ignore_new_changes
+from dna_updater.dna_updater_globals import get_changes_and_clear
+from dna_updater.dna_updater_globals import ignore_new_changes
 
-from dna_updater_utils import remove_killed_atoms
+from dna_updater.dna_updater_utils import remove_killed_atoms
 
-from dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 
 from constants import noop as STUB_FUNCTION # FIX all uses
 
@@ -22,9 +22,9 @@ fix_bond_classes = STUB_FUNCTION
 
 from fix_deprecated_elements import fix_deprecated_elements
 
-from dna_updater_prefs import pref_fix_bare_PAM3_atoms
-from dna_updater_prefs import pref_fix_bare_PAM5_atoms
+from delete_bare_atoms import delete_bare_atoms
 
+from fix_bond_directions import fix_local_bond_directions
 
 # ==
 
@@ -42,17 +42,24 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     """
     # ==
     
-    # fix atom & bond classes, and break illegal bonds
+    # fix atom & bond classes, and break locally-illegal bonds
 
-    # (Note that we never record changed bonds directly -- we just look at
-    #  all bonds on all atoms we record as having changes.)
+    # (Note that the dna updater only records changed bonds
+    #  by recording both their atoms as changed -- it has no
+    #  list of "changed bonds" themselves.)
+
+    # note: these fix_ functions are called again below, on new atoms.
     
     fix_atom_classes( changed_atoms)
     
     fix_bond_classes( changed_atoms)
-        # Fixes (or breaks if illegal) all bonds of those atoms.
+        # Fixes (or breaks if locally-illegal) all bonds of those atoms.
+        # ("Locally" means "just considering that bond and its two atoms,
+        #  not worrying about other bonds on those atoms. ### REVIEW: true now? desired?)
+        
         # NOTE: new bondpoints must be given correct classes by bond.bust,
-        # since we don't fix them ourselves! (Can this be done incrementally? ### REVIEW)
+        # since we don't fix them in this outer method!
+        # (Can this be done incrementally? ### REVIEW)
         # IMPLEM THAT ###
 
     # depending on implem, fixing classes might record more atom changes;
@@ -125,80 +132,40 @@ def update_PAM_atoms_and_bonds(changed_atoms):
         if DEBUG_DNA_UPDATER:            
             print "dna_updater: will scan %d new changes from delete_bare_atoms" % len(new_atoms)    
         changed_atoms.update( new_atoms )
+
+    # ==
+
+    # Fix local directional bond issues:
+    # - directional bond chain branches (illegal)
+    # - missing bond directions (when fixable locally -- most are not)
+    # - inconsistent bond directions
+    #
+    # The changes caused by these fixes include:
+    # - setting or perhaps clearing bond direction (changes from this could be ignored here)
+    # - breaking bonds in some cases (### REVIEW how to handle changes from this -- grab/fix new bondpoints?)
+    # Tentative conclusion: no need to do anything to new changed atoms except scan them later. ### REVIEW
+    
+    # Non-local bond direction issues (e.g. choosing a bond direction
+    # for a long portion of a chain on which it's unset) are fixed elsewhere,
+    # once WholeChains are available or while forming them. # @@@@ NIM as of 08012 morning
+
+    # [Note: geometric warnings (left-handed DNA, major groove on wrong side)
+    # are not yet implemented. REVIEW whether they belong here or elsewhere --
+    # guess: later, once chains and ladders are known. @@@@]
+
+    fix_local_bond_directions( changed_atoms)
+
+    new_atoms = get_changes_and_clear()
+
+    if new_atoms:
+        if DEBUG_DNA_UPDATER:            
+            print "dna_updater: will scan %d new changes from fix_local_bond_directions" % len(new_atoms)    
+        changed_atoms.update( new_atoms )
+
+    # ==
     
     remove_killed_atoms( changed_atoms)
 
     return # from update_PAM_atoms_and_bonds
-
-# ==
-
-def delete_bare_atoms( changed_atoms):
-    """
-    Delete excessively-bare atoms (defined as axis atoms without strand atoms,
-     or any other PAM atoms that are not allowed to exist with as few neighbors
-     as they have -- note that the rules for strand atoms are in flux as of
-     080117 since the representation of single-stranded DNA is as well).
-
-    [must tolerate killed atoms; can kill more atoms and break bonds;
-     can record more changes to neighbors of deleted atoms]
-    """
-    # Q. Which changes from this are needed in subsequent dna updater steps?
-    # A. The changed neighbor atoms are needed, in case they're the only
-    # indicator of a change to the chain they're on (especially if the killed
-    # atom was in a different dna ladder). But their classes needn't be changed,
-    # and their deletion can't cause any more atoms to become bare (due to
-    # the current meaning of bare), so no earlier steps need to be repeated.
-
-    # Note: if these debug prefs are not both True, errors might occur in the
-    # dna updater. The goal is for these errors to be harmless (just debug prints).
-    # As of 071205 the defaults are True, False, respectively.
-    # TODO: revise following code to debug-print when these prefs make it
-    # refrain from killing a bare atom (giving a count, per PAM model).
-    fix_PAM3 = pref_fix_bare_PAM3_atoms()
-    fix_PAM5 = pref_fix_bare_PAM5_atoms()
-
-    delete_these = []
-    
-    for atom in changed_atoms.itervalues():
-        pam = atom.element.pam
-        if pam: # optimization
-            if (pam == 'PAM3' and fix_PAM3) or \
-               (pam == 'PAM5' and fix_PAM5):
-                if not atom.killed():
-                    if atom_is_bare(atom):
-                        delete_these.append(atom)
-
-    for atom in delete_these:
-        atom.kill()
-
-    return
-
-def atom_is_bare(atom):
-    """
-    Is atom an axis atom with no axis-strand bonds,
-    or (IF this is not allowed -- as of 080117 it *is* allowed)
-    a strand base atom with no strand-axis bonds,
-    or any other PAM atom with illegally-few neighbor atoms
-    of the types it needs?
-    (Note that a strand non-base atom, like Pl, can never be
-     considered bare by this code.)
-    """
-    if atom.element.role == 'axis':
-        strand_neighbors = filter(lambda other: other.element.role == 'strand', atom.neighbors())
-        return not strand_neighbors
-    elif atom.element.role == 'strand' and not atom.element.symbol.startswith('Pl'): # KLUGE
-        return False # bruce 080117 revision, might be temporary --
-            # but more likely, we'll replace it with some "bigger fix"
-            # like adding Ub (or we might just do that manually later
-            # and allow this with no change in old files)
-##        axis_neighbors = filter(lambda other: other.element.role == 'axis', atom.neighbors())
-##        return not axis_neighbors
-    elif atom.element.role == 'unpaired-base':
-        # guess, bruce 080117
-        strand_neighbors = filter(lambda other: other.element.role == 'strand', atom.neighbors())
-        return not strand_neighbors
-    else:
-        return False
-    pass
 
 # end
