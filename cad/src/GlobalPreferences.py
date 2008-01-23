@@ -1,4 +1,4 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 GlobalPreferences.py
 
@@ -11,7 +11,7 @@ yet.
 
 @author: Eric Messick
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from prefs_constants import permit_atom_chunk_coselection_prefs_key
@@ -24,6 +24,21 @@ def permit_atom_chunk_coselection():
                      Choice_boolean_False,
                      non_debug = True,
                      prefs_key = permit_atom_chunk_coselection_prefs_key )
+    return res
+
+def disable_do_not_draw_open_bonds():
+    """
+    Whether to disable all behavior which under some conditions
+    refrains from drawing open bonds or bondpoints
+    which would be drawn according to "traditional" rules
+    (those in place before 2007). May also draw the affected
+    objects in orange rather than their usual color.
+
+    Can be useful for debugging, if the developer remembers it's enabled.
+    """
+    res = debug_pref("DNA: draw all open bonds?",
+                     Choice_boolean_False,
+                     prefs_key = True)
     return res
 
 # end

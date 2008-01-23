@@ -90,6 +90,9 @@ from constants import diINVISIBLE
 from constants import pink
 from constants import ErrorPickedColor
 from constants import PickedColor
+from constants import orange
+
+from GlobalPreferences import disable_do_not_draw_open_bonds
 
 from bond_constants import V_SINGLE
 from bond_constants import min_max_valences_from_v6
@@ -1173,13 +1176,21 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 #  since it usually looks like a cone when it's correctly used? Current code won't do that.
                 #e Maybe add option to draw the dir == 0 case too, to point out you ought to propogate the direction
         return ""
-    
+
     def draw_atom_sphere(self, color, pos, drawrad, level, dispdef, abs_coords = False):
-        "#doc [dispdef can be None if not known to caller]"
+        """
+        #doc
+        [dispdef can be None if not known to caller]
+        """
         #bruce 060630 split this out for sharing with draw_in_abs_coords
         style = self._draw_atom_style()
         if style == 'do not draw':
-            return
+            if disable_do_not_draw_open_bonds():
+                # (for debugging -- bruce 080122)
+                style = ''
+                color = orange
+            else:
+                return
         if style == 'bondpoint-stub':
             #bruce 060629/30 experiment -- works, incl for highlighting,
             # and even fixes the bondpoint-buried-in-big-atom bugs,
@@ -1634,6 +1645,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 disp = dispdef
         return not (disp == diINVISIBLE)
 
+    # == file input/output methods (ideally to be refactored out of this class)
+    
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         """
         [compatible with Node.writemmp, though we're not a subclass of Node]
@@ -1763,6 +1776,10 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
 
     def writepdb(self, file, atomSerialNumber, chainId):
+        # REFACTORING DESIRED: most of this ought to be split out
+        # into a helper function or wrapper class in files_pdb.py.
+        # (And similarly with writepov, writemdl, writemmp, etc.)
+        # [bruce 080122 comment]
         """
         Write a PDB ATOM record for this atom into I{file}.
         
@@ -1867,30 +1884,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                             filler, filler))
         return
 
-    def checkpick(self, p1, v1, disp, r=None, iPic=None):
-        """
-        Selection function for atoms: [Deprecated! bruce 041214]
-        Check if the line through point p1 in direction v1 goes through the
-        atom (treated as a sphere with the same radius it would be drawn with,
-        which might depend on disp, or with the passed-in radius r if that's
-        supplied). If not, or if the atom is a singlet, or if not iPic and the
-        atom is already picked, return None. If so, return the distance along
-        the ray (from p1 towards v1) of the point closest to the atom center
-        (which might be 0.0, which is false!), or None if that distance is < 0.
-        """
-        #bruce 041206 revised docstring to match code
-        #bruce 041207 comment: the only call of checkpick is from assy.findpick
-        if self.element is Singlet: return None
-        if not r:
-            disp, r = self.howdraw(disp)
-        # bruce 041214:
-        # this is surely bad in only remaining use (depositMode.getCoords):
-        ## if self.picked and not iPic: return None 
-        dist, wid = orthodist(p1, v1, self.posn())
-        if wid > r: return None
-        if dist<0: return None
-        return dist
-
+    # ==
+    
     def getinfo(self): # [mark 2004-10-14]
         """
         Return information about the selected atom for the msgbar
@@ -2004,6 +1999,34 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 
         return atomInfoStr
 
+    # ==
+    
+    def checkpick(self, p1, v1, disp, r=None, iPic=None):
+        """
+        Selection function for atoms: [Deprecated! bruce 041214]
+        Check if the line through point p1 in direction v1 goes through the
+        atom (treated as a sphere with the same radius it would be drawn with,
+        which might depend on disp, or with the passed-in radius r if that's
+        supplied). If not, or if the atom is a singlet, or if not iPic and the
+        atom is already picked, return None. If so, return the distance along
+        the ray (from p1 towards v1) of the point closest to the atom center
+        (which might be 0.0, which is false!), or None if that distance is < 0.
+        """
+        #bruce 041206 revised docstring to match code
+        #bruce 041207 comment: the only call of checkpick is from assy.findpick
+        if self.element is Singlet: return None
+        if not r:
+            disp, r = self.howdraw(disp)
+        # bruce 041214:
+        # this is surely bad in only remaining use (depositMode.getCoords):
+        ## if self.picked and not iPic: return None 
+        dist, wid = orthodist(p1, v1, self.posn())
+        if wid > r: return None
+        if dist<0: return None
+        return dist
+
+    # ==
+    
     def pick(self):
         """
         make the atom selected

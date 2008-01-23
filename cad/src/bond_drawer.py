@@ -78,6 +78,8 @@ from prefs_constants import linesDisplayModeThickness_prefs_key
 from prefs_constants import bondStretchColor_prefs_key
 from prefs_constants import diBALL_bondcolor_prefs_key
 
+from GlobalPreferences import disable_do_not_draw_open_bonds
+
 # ==
 
 # To modularize drawing, I'll pass in a drawing place which has methods like drawcylinder,
@@ -292,6 +294,9 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
                 # [bruce 070415]
                 # update, bruce 071016: could it have been simply that debug_prefs are not change_tracked?
                 # I am not sure, but IIRC, they're not.
+
+            _disable_do_not_draw = disable_do_not_draw_open_bonds()
+                # for debugging [bruce 080122]
             
             bool_arrowsOnFivePrimeEnds = env.prefs[arrowsOnFivePrimeEnds_prefs_key]
             bool_arrowsOnThreePrimeEnds = env.prefs[arrowsOnThreePrimeEnds_prefs_key]
@@ -303,11 +308,17 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
             if self.isFivePrimeOpenBond():
                 if not bool_arrowsOnFivePrimeEnds:
                     # Don't draw bond 5' open bond cylinder.
-                    return
+                    if _disable_do_not_draw:
+                        col = orange
+                    else:
+                        return
             if self.isThreePrimeOpenBond():
                 if not bool_arrowsOnThreePrimeEnds:
                     # Don't draw bond 3' open bond cylinder.
-                    return
+                    if _disable_do_not_draw:
+                        col = orange
+                    else:
+                        return
                 
             bool_arrowsOnAll = env.prefs[arrowsOnBackBones_prefs_key]
 
