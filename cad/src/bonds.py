@@ -692,8 +692,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
             self._direction = - direction
         else:
             assert 0, "%r.set_bond_direction_from(%r, %r), but that bond doesn't have that atom" % (self, atom, direction)
-        if 1 or platform.atom_debug:
-            # after Qt4 port and after some testing without atom_debug, this can be relaxed to "if platform.atom_debug"
+        if platform.atom_debug:
             assert self.bond_direction_from(atom) == direction
             assert self.bond_direction_from(self.other(atom)) == - direction
         if old != self._direction:
