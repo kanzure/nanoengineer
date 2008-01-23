@@ -443,29 +443,28 @@ class HistoryWidget:
         self.message(None)
         # [passing None is a private implem -- outsiders should not do this!]
     
-    def statusbar_msg(self, msg_text, repaint = 0): #bruce 050914 renamed transient_msg => statusbar_msg
+    def statusbar_msg(self, msg_text, repaint = False):
         """
-        Show the message (which must be plain text and short) in Qt's main status bar.
-        This only works for plain text messages, not html.
-        If the message is too long, it might make the window become too wide, perhaps off the screen!
-        Thus use this with care.
-        Also, the message might be erased right away by events beyond our control.
-        Thus this is best used only indirectly by self.message with transient_id option,
-        and only for messages coming out almost continuously for some period, e.g. during a drag.
+        Show the message I{msg_text} (which must be plain text and short) in 
+        the main window's status bar. This only works for plain text messages,
+        not html. If the message is too long, it might make the window become
+        too wide, perhaps off the screen! Thus use this with care.
+        
+        Also, the message might be erased right away by events beyond our 
+        control. Thus this is best used only indirectly by self.message with
+        transient_id option, and only for messages coming out almost
+        continuously for some period, e.g. during a drag.
+        
+        @param msg_text: The message for the status bar.
+        @type  msg_text: string
+        
+        @param repaint: Forces a repaint of the status bar with the new message.
+                        This doesn't work (see Bruce's comments in code).
+        @param repaint: boolean
         """
-        # This implem is a kluge, to handle some even worse kluges presently in MWsemantics;
-        # those will be cleaned up soon (I hope) and then this can be too.
-        # Kluge or not, it should probably just call a method in MWsemantics... for now it's here.
-        win = self.widget.topLevelWidget()
-            # ... use an init option instead? for win, or the sbar itself...
-        # work around the kluge in MWsemantics [not anymore! bruce 050107] ###@@@ redoc
-        if 0:
-            orig_sb_method = win.__class__.statusBar 
-            sbar = orig_sb_method(win)
-        else:
-            # what we'd do without that kluge
-            sbar = win.statusBar()
-        # now we can emit the message
+        win = env.mainwindow()
+        sbar = win.statusBar()
+
         if msg_text:
             sbar.showMessage(msg_text)
         else:
