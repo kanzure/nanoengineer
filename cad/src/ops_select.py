@@ -437,10 +437,12 @@ class ops_select_Mixin:
         distance = 1000000
         atom = None
         for mol in self.molecules:
-            if mol.hidden: continue
+            if mol.hidden:
+                continue
             disp = mol.get_dispdef()
             for a in mol.atoms.itervalues():
-                if not a.visible(disp): continue
+                if not a.visible(disp):
+                    continue
                 dist = a.checkpick(p1, v1, disp, r, None)
                 if dist:
                     if dist < distance:

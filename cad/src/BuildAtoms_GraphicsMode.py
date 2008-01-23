@@ -164,8 +164,10 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         p2 = A(gluUnProject(x, y, 1.0))
 
         at = self.o.assy.findpick(p1,norm(p2-p1),2.0)
-        if at: pnt = at.posn()
-        else: pnt = - self.o.pov
+        if at:
+            pnt = at.posn()
+        else:
+            pnt = - self.o.pov
         k = (dot(self.o.lineOfSight,  pnt - p1) /
              dot(self.o.lineOfSight, p2 - p1))
 
