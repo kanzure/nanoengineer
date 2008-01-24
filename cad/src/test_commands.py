@@ -88,7 +88,11 @@ class minimalCommand(Command):
 
 ## _superclass = selectAtomsMode
 ## _superclass = minimalUsefulMode
-_superclass = minimalCommand
+
+## this worked a long time -- _superclass = minimalCommand
+# but time to try SelectAtoms again now that it's split [bruce 080123]
+from SelectAtoms_Command      import SelectAtoms_Command
+_superclass = SelectAtoms_Command
 
 # ==
 
