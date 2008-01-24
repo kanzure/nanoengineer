@@ -830,7 +830,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             # singlet_list built in singletSetup() 
             #[not true; is that a bug?? bruce 060412 question]
             if not s.killed(): # takes care of self.obj_doubleclicked, too.
-                deposited_obj = self.command.deposit_from_MMKit(s)
+                deposited_obj = self.deposit_from_MMKit(s)
                 ntried += 1
                 if deposited_obj is not None:
                     #bruce 060412 -- fix part of bug 1677 
