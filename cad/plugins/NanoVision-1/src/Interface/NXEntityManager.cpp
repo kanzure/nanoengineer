@@ -15,6 +15,7 @@ NXEntityManager::NXEntityManager() {
 /* DESTRUCTOR */
 NXEntityManager::~NXEntityManager() {
 	delete rootMoleculeSet;
+	//delete dataImpExpPluginGroup;
 }
 
 
@@ -150,9 +151,13 @@ NXCommandResult* NXEntityManager::importFromFile(NXMoleculeSet* moleculeSet,
  * import/export plugin.
  */
 NXCommandResult* NXEntityManager::exportToFile(NXMoleculeSet* moleculeSet,
+											   NXDataStoreInfo* dataStoreInfo,
 											   const string& type,
-											   const string& file) {
-	NXCommandResult* result;
+											   const string& filename,
+											   unsigned int frameIndex) {
+	NXCommandResult* result = new NXCommandResult();
+	result->setResult(NX_CMD_SUCCESS);
+	
 	//PR_Lock(importExportPluginsMutex);
 	map<string, NXDataImportExportPlugin*>::iterator iter =
 		dataExportTable.find(type);
@@ -160,14 +165,18 @@ NXCommandResult* NXEntityManager::exportToFile(NXMoleculeSet* moleculeSet,
 		NXDataImportExportPlugin* plugin = iter->second;
 		try {
 			plugin->setMode(type);
-			result = plugin->exportToFile(moleculeSet, file);
+			result =
+				plugin->exportToFile(moleculeSet, dataStoreInfo, filename,
+									 frameIndex);
+			if (result->getResult() != NX_CMD_SUCCESS)
+				NXLOG_SEVERE("NXEntityManager",
+							 qPrintable(GetNV1ResultCodeString(result)));
 
 		} catch (...) {
 			string msg = type;
 			msg += "->exportToFile() threw exception";
 			NXLOG_SEVERE("NXEntityManager", msg);
 
-			result = new NXCommandResult();
 			result->setResult(NX_PLUGIN_CAUSED_ERROR);
 			std::vector<QString> resultVector;
 			resultVector.push_back("NXEntityManager");
@@ -184,7 +193,6 @@ NXCommandResult* NXEntityManager::exportToFile(NXMoleculeSet* moleculeSet,
 			type;
 		NXLOG_WARNING("NXEntityManager", msg);
 
-		result = new NXCommandResult();
 		result->setResult(NX_PLUGIN_NOT_FOUND);
 		// %1 Who is reporting
 		// %2 The name of the plugin that was not found

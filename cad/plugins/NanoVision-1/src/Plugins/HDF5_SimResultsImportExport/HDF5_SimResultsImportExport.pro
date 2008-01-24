@@ -8,7 +8,8 @@ CONFIG += dll
 
 LIBS += -L../../../lib \
 -lNanorexUtility \
--lNanorexInterface
+-lNanorexInterface \
+ -lHDF5_SimResults
 TARGETDEPS += ../../../lib/libNanorexUtility.so \
 ../../../lib/libNanorexInterface.so
 DESTDIR = ../../../lib

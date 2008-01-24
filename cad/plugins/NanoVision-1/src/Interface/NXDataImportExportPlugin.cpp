@@ -22,7 +22,7 @@ void NXDataImportExportPlugin::setEntityManager
 */
 
 /* FUNCTION: setMode */
-void NXDataImportExportPlugin::setMode(const std::string& mode) {
+void NXDataImportExportPlugin::setMode(const string& mode) {
 	this->mode = mode;
 }
 

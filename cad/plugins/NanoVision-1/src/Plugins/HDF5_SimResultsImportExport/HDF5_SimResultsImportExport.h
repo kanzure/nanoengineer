@@ -9,6 +9,11 @@
 #	endif
 #endif
 
+#include <QDir>
+#include <QFile>
+#include <QString>
+
+#include "Nanorex/HDF5_SimResults.h"
 #include "Nanorex/Utility/NXLogger.h"
 #include "Nanorex/Utility/NXCommandResult.h"
 #include "Nanorex/Interface/NXNumbers.h"
@@ -18,7 +23,7 @@
 using namespace Nanorex;
 
 //#include <iostream>
-//#include <vector>
+#include <vector>
 //#include <string>
 //#include <stack>
 //#include <list>
@@ -44,7 +49,7 @@ extern "C" DLLEXPORT NXPlugin* instantiate();
 
 
 /* CLASS: HDF5_SimResultsImportExport */
-class HDF5_SimResultsImportExport : public Nanorex::NXDataImportExportPlugin {
+class HDF5_SimResultsImportExport : public NXDataImportExportPlugin {
 	public:
 		HDF5_SimResultsImportExport();
 		~HDF5_SimResultsImportExport();
@@ -53,9 +58,19 @@ class HDF5_SimResultsImportExport : public Nanorex::NXDataImportExportPlugin {
 		NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
 										const string& filename);
 		NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
-									  const std::string& filename);
+									  NXDataStoreInfo* dataStoreInfo,
+									  const std::string& filename,
+									  unsigned int frameIndex = 0);
 
 	private:
+		void exportToFileHelper(NXMoleculeSet* moleculeSet,
+								unsigned int atomIndex,
+								unsigned int* atomIds,
+								unsigned int* atomicNumbers,
+								float* positions,
+								NXCommandResult* result);
+		void populateCommandResult(NXCommandResult* result,
+								   const string& message);
 };
 
 #endif

@@ -142,7 +142,7 @@
   </kdevdebugger>
   <kdevtrollproject>
     <run>
-      <mainprogram>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</mainprogram>
+      <mainprogram>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/CppUnit</mainprogram>
       <programargs/>
       <directoryradio>executable</directoryradio>
       <runarguments>
@@ -159,13 +159,13 @@
       </debugarguments>
       <globaldebugarguments/>
       <globalcwd>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/Testing/CppUnit/KDevelop</globalcwd>
-      <useglobalprogram>false</useglobalprogram>
+      <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
       <envvars>
-        <envvar value="/usr/local/lib:../../../lib" name="LD_LIBRARY_PATH" />
+        <envvar value="/usr/local/lib:../../../../lib" name="LD_LIBRARY_PATH" />
       </envvars>
     </run>
     <general>

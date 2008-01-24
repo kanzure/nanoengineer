@@ -43,8 +43,11 @@ class NXEntityManager {
 										const string& type,
 										const string& file);
 		NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
+									  NXDataStoreInfo* dataStoreInfo,
 									  const string& type,
-									  const string& file);
+									  const string& filename,
+									  unsigned int frameIndex = 0);
+									  
 		//
 		// MoleculeSet
 		//

@@ -41,12 +41,21 @@ class NXMoleculeSet {
 		OBMol* newMolecule();
 		OBMolIterator moleculesBegin() { return molecules.begin(); }
 		OBMolIterator moleculesEnd() { return molecules.end(); }
+		NXABMInt moleculeCount() { return molecules.size(); }
+		
+		void getCounts(unsigned int& moleculeCount, unsigned int& atomCount,
+					   unsigned int& bondCount);
 
 	private:
 		static unsigned int NextMoleculeIndex;
 		
 		std::list<NXMoleculeSet*> children;
 		std::list<OBMol*> molecules;
+		
+		void getCountsHelper(unsigned int& moleculeCount,
+							 unsigned int& atomCount,
+							 unsigned int& bondCount,
+							 NXMoleculeSet* moleculeSet);		
 };
 
 

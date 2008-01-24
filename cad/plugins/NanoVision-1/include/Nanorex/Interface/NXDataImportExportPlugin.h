@@ -10,11 +10,13 @@
 #endif
 
 #include <string>
+using namespace std;
 
 #include "Nanorex/Utility/NXPlugin.h"
 #include "Nanorex/Utility/NXCommandResult.h"
 #include "Nanorex/Interface/NXNumbers.h"
 #include "Nanorex/Interface/NXMoleculeSet.h"
+#include "Nanorex/Interface/NXDataStoreInfo.h"
 
 namespace Nanorex {
 
@@ -40,26 +42,35 @@ class NXDataImportExportPlugin : public NXPlugin {
 		  * DataImportExportPlugin before any #importFromFile or #exportToFile
 		  * call is made.
 		  */
-		void setMode(const std::string& mode);
+		void setMode(const string& mode);
 
 		virtual ~NXDataImportExportPlugin();
 
 		/**
-		 * Imports the system from the given file into the molecule set with
-		 * the given identifier.
+		 * Imports the system from the given file into the given molecule set.
+		 *
+		 * If frameIndex == 0, populates dataStore, else, re-uses the file
+		 * handle from dataStore. If opening a multi-frame file, a handle to it
+		 * will be stored in te dataStore for later use (subsequent
+		 * importFromFile calls.)
 		 */
 		virtual NXCommandResult* importFromFile
-			(NXMoleculeSet* moleculeSet, const std::string& filename) = 0;
+			(NXMoleculeSet* moleculeSet, /*NXDataStore* dataStore,*/
+			 const string& filename/*, unsigned int frameIndex = 0*/) = 0;
 
 		/**
-		 * Exports the system from the given file from the molecule set with
-		 * the given identifier.
+		 * Exports the system to the given file from the given molecule set.
+		 *
+		 * When writing a multi-frame file, caller would set a flag in dataStore
+		 * to indicate that, and this function would store a handle to the file
+		 * in the dataStore for subsequent use.
 		 */
 		virtual NXCommandResult* exportToFile
-			(NXMoleculeSet* moleculeSet, const std::string& filename) = 0;
+			(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
+			 const string& filename, unsigned int frameIndex = 0) = 0;
 
 	protected:
-		std::string mode;
+		string mode;
 		//NXEntityManager* entityManager;
 };
 

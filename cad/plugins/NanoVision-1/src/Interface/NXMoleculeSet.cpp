@@ -19,6 +19,7 @@ NXMoleculeSet::~NXMoleculeSet() {
 }
 
 
+/* FUNCTION: newMolecule */
 OBMol* NXMoleculeSet::newMolecule() {
 	OBMol* molecule = new OBMol();
 	NXMoleculeData* moleculeData = new NXMoleculeData();
@@ -27,6 +28,37 @@ OBMol* NXMoleculeSet::newMolecule() {
 	molecule->SetData(moleculeData);
 	molecules.push_back(molecule);
 	return molecule;
+}
+
+
+/* FUNCTION: getCounts */
+void NXMoleculeSet::getCounts(unsigned int& moleculeCount,
+							  unsigned int& atomCount,
+							  unsigned int& bondCount) {
+							  
+	moleculeCount = atomCount = bondCount = 0;
+	getCountsHelper(moleculeCount, atomCount, bondCount, this);
+}
+
+
+/* FUNCTION: getCountsHelper */
+void NXMoleculeSet::getCountsHelper(unsigned int& moleculeCount,
+									unsigned int& atomCount,
+									unsigned int& bondCount,
+									NXMoleculeSet* moleculeSet) {
+									
+	moleculeCount += moleculeSet->moleculeCount();
+	OBMolIterator moleculeIter = moleculeSet->moleculesBegin();
+	while (moleculeIter != moleculeSet->moleculesEnd()) {
+		atomCount += (*moleculeIter)->NumAtoms();
+		bondCount += (*moleculeIter)->NumBonds();
+		moleculeIter++;
+	}
+	NXMoleculeSetIterator moleculeSetIter = moleculeSet->childrenBegin();
+	while (moleculeSetIter != moleculeSet->childrenEnd()) {
+		getCountsHelper(moleculeCount, atomCount, bondCount, *moleculeSetIter);
+		moleculeSetIter++;
+	}
 }
 
 
