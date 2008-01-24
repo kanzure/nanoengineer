@@ -22,6 +22,9 @@ Plan:
   - get things from it (as attrs or get methods)
   - ask it things like whether there's a nick or crossover? scan to next nick or crossover? etc  
 
+See also:
+* obsolete scratch file outtakes/BasePair.py (might have some methodname ideas)
+
 """
 
 class BaseIterator(object):
