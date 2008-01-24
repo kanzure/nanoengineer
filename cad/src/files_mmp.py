@@ -1575,14 +1575,6 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
         
     grouplist = state.extract_toplevel_items() # for a normal mmp file this has 3 Groups, whose roles are viewdata, tree, shelf
 
-    #bruce 050418: if my fixes today for HomeView & LastView work, then following comment is obs: ###@@@
-    # Note about homeView and lastView [bruce 050407]... not yet ready to commit.
-    # See bruce's fileIO-data-fixer.py file (at home) [renamed data as viewdata 050418] for not-yet-right comment and code.
-    # Meanwhile, if we're reading a sim-input file or other erroneous file which
-    # uses the following fake 'viewdata' group, its views will be unsavable
-    # even if you resave it and reload it and resave it, etc,
-    # unless we fix this elsewhere, maybe in _reset_grouplist below. ###@@@
-    
     # now fix up sim input files and other nonstandardly-structured files;
     # use these extra groups if necessary, else discard them:
     viewdata = Group("Fake View Data", assy, None) # name is never used or stored
@@ -1621,17 +1613,20 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     
     return grouplist # from _readmmp
 
-# read a Molecular Machine Part-format file into maybe multiple Chunks
-def readmmp(assy, filename, isInsert = False, showProgressDialog = False): #bruce 050302 split out some subroutines for use in other code
+def readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     """
     Read an mmp file to create a new model (including a new
     Clipboard).  Returns a tuple of (viewdata, tree, shelf).  If
     isInsert is False (the default), assy will be modified to include
-    the new items.
+    the new items. (If caller wants assy to be marked as "not modified"
+    afterwards, it's up to caller to handle this, e.g. using
+    assy.reset_changed().)
 
     This interface needs revising and clarifying.  It should take only
     a filename as parameter, and return a single data structure
     representing the contents of that file.
+
+    @note: mmp stands for Molecular Machine Part.
 
     @param assy: the assembly the file contents are being added into
     @type  assy: assembly.assembly
@@ -1649,18 +1644,19 @@ def readmmp(assy, filename, isInsert = False, showProgressDialog = False): #bruc
     @type  showProgressDialog: boolean
     """
     assert assy.assy_valid
-    assy.assy_valid = False # disable updaters during read [bruce 080117]
+    assy.assy_valid = False # disable updaters during _readmmp [bruce 080117/080124]
     try:
         grouplist = _readmmp(assy, filename, isInsert, showProgressDialog)
-        if (not isInsert):
-            _reset_grouplist(assy, grouplist) # handles grouplist is None (though not very well)
+            # warning: can show a dialog, which can cause paintGL calls.
     finally:
         assy.assy_valid = True
+    if (not isInsert):
+        _reset_grouplist(assy, grouplist)
+            # note: handles grouplist is None (though not very well)
+            # note: runs all updaters when done, and sets per-part viewdata
     return grouplist
     
 def _reset_grouplist(assy, grouplist):
-    #bruce 050302 split this out of readmmp;
-    # it should be entirely rewritten and become an assy method
     """
     [private]
 
@@ -1680,6 +1676,8 @@ def _reset_grouplist(assy, grouplist):
     (which was a bad design).
     Now we scan it and perform those side effects ourselves.
     """
+    #bruce 050302 split this out of readmmp;
+    # it should be entirely rewritten and become an assy method
     #bruce 050418: revising this for assy/part split
     if grouplist is None:
         # do most of what old code did (most of which probably shouldn't be done,
@@ -1706,8 +1704,24 @@ def _reset_grouplist(assy, grouplist):
         assy.shelf.open = False
     assy.root = Group("ROOT", assy, None, [assy.tree, assy.shelf])
     assy.kluge_patch_toplevel_groups()
-    assy.update_parts(do_post_event_updates = False)
-        #bruce 050309 for assy/part split; 080117 added option = False
+    assy.update_parts()
+        #bruce 050309 for assy/part split;
+        # 080117 added do_post_event_updates = False;
+        # 080124 removed that option (and revised when caller restores
+        # assy.assy_valid) to fix recent bug in which all newly read
+        # files are recorded as modified; at the time I thought that option was
+        # needed for safety, like the disabling of updaters during paintGL is,
+        # but a closer analysis of the following code shows that it's not.
+        # NOTE: ideally the dna updater would mark the assy as modified even
+        # during readmmp, if it had to do "irreversible changes" to fix a pre-
+        # updater mmp file containing dna-related objects. To implement that
+        # without restoring the just-fixed bug would require the dna updater
+        # to know and record the difference in status of the different kinds
+        # of updates it does; it would also require some new scheme in this
+        # code for having that affect the ultimate value of assy._modified
+        # (presently determined by code in our callers). Neither is trivial,
+        # both are doable -- not yet clear if it's worth the trouble.
+        # [bruce comment 080124]
     # Now the parts exist, so it's safe to store the viewdata into the mainpart;
     # this imitates what the pre-050418 code did when the csys records were parsed;
     # note that not all mmp files have anything at all in viewdata
@@ -1721,12 +1735,12 @@ def _reset_grouplist(assy, grouplist):
             elif m.name == "LastView":
                 mainpart.lastCsys = m
             elif m.name.startswith("HomeView"):
-                maybe_set_partview(assy, m, "HomeView", 'homeCsys')
+                _maybe_set_partview(assy, m, "HomeView", 'homeCsys')
             elif m.name.startswith("LastView"):
-                maybe_set_partview(assy, m, "LastView", 'lastCsys')
+                _maybe_set_partview(assy, m, "LastView", 'lastCsys')
     return
 
-def maybe_set_partview( assy, csys, nameprefix, csysattr): #bruce 050421; docstring added 050602
+def _maybe_set_partview( assy, csys, nameprefix, csysattr): #bruce 050421; docstring added 050602
     """
     [private helper function for _reset_grouplist]
 
@@ -1776,6 +1790,11 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
             #e in future -- set up special history-message behavior for jigs killed by this:
             shelf.kill()
             #e in future -- end of that special history-message behavior
+
+            # note: no need to run updaters (as is done in _reset_grouplist for readmmp),
+            # since this is a normal user operation (no need to refrain from setting
+            # assy's modified flag), so the usual post-user-op run will be fine.
+            # [bruce 080124 comment]
     finally:
         assy.assy_valid = True
     return
