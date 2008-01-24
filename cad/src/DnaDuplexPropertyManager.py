@@ -316,11 +316,6 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                         state        = Qt.Checked
                         )
         
-    def _addWhatsThisText( self ):
-        """
-        What's This text for widgets in the DNA Property Manager.  
-        """
-        pass
                 
     def _addToolTipText(self):
         """
@@ -413,3 +408,10 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.win.commandToolbar.updateCommandToolbar(action,
                                                      obj, 
                                                      entering =bool_entering)
+    def _addWhatsThisText(self):
+        """
+        What's This text for widgets in this Property Manager.  
+        """
+        from gui.WhatsThisText_for_PropertyManagers import \
+             whatsThis_DnaDuplexPropertyManager
+        whatsThis_DnaDuplexPropertyManager(self)
