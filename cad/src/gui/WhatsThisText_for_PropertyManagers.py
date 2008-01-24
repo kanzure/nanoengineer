@@ -259,6 +259,12 @@ def whatsThis_MovePropertyManager(propMgr):
         useful for translating and rotating DNA duplexes along their
         own axis.
         </p>""")
+    
+    propMgr.moveFromToButton.setWhatsThis(
+        """<b>Move From To</b>
+        <p>
+        Moves selection by offset vector between two user defined points
+        </p>""")
 
     # By Delta XYZ widgets
 
@@ -426,6 +432,24 @@ def whatsThis_MovePropertyManager(propMgr):
         <p>
         Rotates the selection by the specified angle 
         (in the opposite direction).
+        </p>""")
+    
+    propMgr.rotXaxisButton.setWhatsThis(
+        """<b>Rotate about X axis</b>
+        <p>
+        Constrains rotation about the X axis.
+        </p>""")
+    
+    propMgr.rotYaxisButton.setWhatsThis(
+        """<b>Rotate about Y axis</b>
+        <p>
+        Constrains rotation about the Y axis.
+        </p>""")
+    
+    propMgr.rotZaxisButton.setWhatsThis(
+        """<b>Rotate about Z axis</b>
+        <p>
+        Constrains rotation about the Z axis.
         </p>""")
     
     return # End of whatsThis_DnaDuplexPropertyManager

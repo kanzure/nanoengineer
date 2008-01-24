@@ -429,6 +429,8 @@ class Ui_MovePropertyManager( PM_Dialog ):
               "Rotate about Z axis","Z", 2 ),
             ]
         
+        
+        
         self.rotateAroundAxisButtonRow = \
             PM_ToolButtonRow( inPmGroupBox, 
                               title        = "",
@@ -436,6 +438,16 @@ class Ui_MovePropertyManager( PM_Dialog ):
                               alignment    = 'Right',
                               label        = 'Rotate Around:'
                             )
+        self.rotXaxisButton = \
+            self.rotateAroundAxisButtonRow.getButtonById(1)
+        
+        self.rotYaxisButton = \
+            self.rotateAroundAxisButtonRow.getButtonById(2)
+        
+        self.rotZaxisButton = \
+            self.rotateAroundAxisButtonRow.getButtonById(3)
+        
+        
 
         self.rotateThetaSpinBox = \
             PM_DoubleSpinBox(inPmGroupBox,
