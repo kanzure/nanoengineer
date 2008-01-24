@@ -110,7 +110,7 @@ element 307  0  0   PAM3 Hp3  PAM3-Hairpin              167.0   0.0    0.0   2  
 #
 #  rvdW evdW start end name
 
-vdw 200.0 10.0 100.0 7.2 vDn-v-vDn
+vdw 350.0 10.0 100.0 7.2 vDn-v-vDn
 
 vdw 7.2 10.0 100.0 7.2 Pl3-v-Pl3
 vdw 7.2 10.0 100.0 7.2 Pl3-v-Se3
@@ -155,6 +155,7 @@ stretch  50.00 1064.70  1.0000   -1         -1       9    1   Gv5-1-Ss5
 stretch  50.00 1064.70  1.0000   -1         -1       9    1   Gr5-1-Ss5
 stretch   0.00  300.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
 stretch   0.00  300.00  1.0000   -1         -1       9    1   Gv5-1-Gr5
+stretch   0.00  300.00  1.0000   -1         -1       9    1   Gr5-1-Gr5
 
 
 stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax3-1-Ax3

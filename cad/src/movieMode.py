@@ -28,7 +28,6 @@ import env
 import changes
 
 from movie import find_saved_movie
-from runSim import writemovie
 from modes import basicMode
 from utilities.Log import greenmsg
 from utilities.Log import redmsg, orangemsg

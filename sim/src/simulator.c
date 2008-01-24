@@ -95,8 +95,7 @@ usage(void)
                     specify IDKey\n\
    -K<int>, --key-record-interval=<int>\n\
                     number of delta frames between key frames\n\
-   -r, --repress-frame-numbers\n\
-                    repress the printing of frame numbers\n\
+   -r               report frame numbers\n\
    -o<string>, --output-file=<string>\n\
                     output file name (otherwise same as input)\n\
    -q<string>, --trace-file=<string>\n\
@@ -202,7 +201,6 @@ static const struct option option_vec[] = {
     { "output-format-2", no_argument, NULL, 'N' },
     { "id-key", required_argument, NULL, 'I' },
     { "key-record-interval", required_argument, NULL, 'K' },
-    { "repress-frame-numbers", no_argument, NULL, 'r' },
     { "debug", required_argument, NULL, 'D' },
     { "output-file", required_argument, NULL, 'o' },
     { "trace-file", required_argument, NULL, 'q' },
@@ -363,7 +361,7 @@ main(int argc, char **argv)
 	    KeyRecordInterval = atoi(optarg);
 	    break;
 	case 'r':
-	    PrintFrameNums = 0;
+	    PrintFrameNums = 1;
 	    break;
 	case 'D':
 	    n = atoi(optarg);

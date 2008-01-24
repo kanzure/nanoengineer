@@ -642,6 +642,22 @@ tokenizeDouble(int *errp)
 }
 
 static void
+destroyElement(void *e)
+{
+  struct atomType *element = (struct atomType *)e;
+
+  if (element == NULL || element->refCount-- > 1) {
+    return;
+  }
+
+  free(element->name);
+  element->name = NULL;
+  free(element->symbol);
+  element->symbol = NULL;
+  free(element);
+}
+
+static void
 destroyBondStretch(void *s)
 {
   struct bondStretch *stretch = (struct bondStretch *)s;
@@ -704,6 +720,8 @@ destroyElectrostatic(void *e)
 static void
 destroyStaticBondTable(void)
 {
+  hashtable_destroy(periodicHashtable, destroyElement);
+  periodicHashtable = NULL;
   hashtable_destroy(bondStretchHashtable, destroyBondStretch);
   bondStretchHashtable = NULL;
   hashtable_destroy(bendDataHashtable, destroyBendData);
@@ -964,7 +982,6 @@ initializeStaticBondTable(void)
 
 #include "bonds.gen"
 
-  
   addDeTableEntry("H-1-N",  0.75);
   addDeTableEntry("N-1-O",  0.383);
   addDeTableEntry("N-1-F",  0.422);
@@ -976,12 +993,6 @@ initializeStaticBondTable(void)
   addDeTableEntry("S-1-Cl", 0.489);
 
 #include "bends.gen"
-
-  //                        name       rvdW evdW  start  end
-
-  addVanDerWaalsInteraction("Pl-v-Pl", 7.2, 0.3, 100.0, 7.2);
-  addVanDerWaalsInteraction("Pl-v-Pe", 7.2, 0.3, 100.0, 7.2);
-  addVanDerWaalsInteraction("Pe-v-Pe", 7.2, 0.3, 100.0, 7.2);
 }
 
 static const char bends_rcsid[] = RCSID_BENDS_H;
@@ -1046,7 +1057,7 @@ initializeBondTable(void)
   }
   if (reloadSystemOverlay || reloadUserOverlay) {
     initializeStaticBondTable();
-    
+
     readBondTableOverlay(systemBondTableOverlayFileName);
     readBondTableOverlay(userBondTableOverlayFileName);
   }

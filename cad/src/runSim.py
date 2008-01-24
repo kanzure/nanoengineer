@@ -36,6 +36,7 @@ import platform
 from PlatformDependent import fix_plurals
 from PlatformDependent import find_or_make_Nanorex_subdir
 from PlatformDependent import hhmmss_str
+from PlatformDependent import find_plugin_dir
 import os, sys, time
 from math import sqrt
 from SimSetup import SimSetup
@@ -48,11 +49,13 @@ from env import seen_before
 from VQT import A
 import re
 from chem import AtomDict
+from chunk import Chunk
 from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 from constants import filesplit
 from Process import Process
 from Plugins import checkPluginPreferences
 from StatusBar import StatusBar, AbortHandler
+from PyrexSimulator import thePyrexSimulator
 
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
 from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
@@ -154,7 +157,7 @@ class SimRunner:
     # because ops_files.py can set this without a reference to the currently active SimRunner instance.
     PREPARE_TO_CLOSE = False
 
-    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator", cmd_type = 'Minimize', useGromacs = False, background = False):
+    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator", cmd_type = 'Minimize', useGromacs = False, background = False, hasPAM5 = False):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         self.assy = assy = part.assy # needed?
@@ -168,6 +171,7 @@ class SimRunner:
         self.pyrexSimInterrupted = False  #wware 060323, bug 1725, if interrupted we don't need so many warnings
         self.useGromacs = useGromacs
         self.background = background
+        self.hasPAM5 = hasPAM5
 
         prefer_standalone_sim = \
             debug_pref("force use of standalone sim", Choice_boolean_False,
@@ -249,6 +253,12 @@ class SimRunner:
                 # into part, either in real time or when done.
                 # result error code (or abort button flag) stored in self.errcode
             if (self.mflag == 1 and self.useGromacs):
+                ok, gromacs_plugin_path = find_plugin_dir("GROMACS")
+                if (not ok):
+                    msg = redmsg(gromacs_plugin_path)
+                    env.history.message(self.cmdname + ": " + msg)
+                    self.errcode = -11112
+                    return
                 progressBar.setRange(0, 0)
                 progressBar.reset()
                 progressBar.show()
@@ -324,6 +334,9 @@ class SimRunner:
                         "-c", "%s-out.gro" % gromacsBaseFileName,
                         "-g", "%s-mdrun.log" % gromacsBaseFileName,
                         ]
+                    if (self.hasPAM5):
+                        tableFile = os.path.join(gromacs_plugin_path, "Pam5Potential.xvg")
+                        mdrunArgs += [ "-table", tableFile ]
                     if (self.background):
                         abortHandler = None
                     else:
@@ -534,7 +547,7 @@ class SimRunner:
             worked = True # optimistic
         if worked:
             try:
-                from sim import Minimize, Dynamics # the two constructors we might need to use
+                from sim import theSimulator
             except:
                 worked = False
                 print_compact_traceback("error trying to import Minimize and Dynamics from dylib sim: ")
@@ -752,7 +765,7 @@ class SimRunner:
         # the use_dylib code for formarg is farther below
 
         self._simopts = self._simobj = self._arguments = None # appropriate subset of these is set below
-
+        
         use_timestep_arg = False
         if 1: ##@@ bruce 060503: add debug_pref to let user vary simulator timestep
             # (we also read the value on import, in separate code above, to make sure it gets into the debug menu right away)
@@ -782,6 +795,12 @@ class SimRunner:
                                    ]
                 else:
                     gromacsArgs = []
+                if (self.hasPAM5):
+                    # vdw-cutoff-radius in nm, and must match the
+                    # user potential function table passed to
+                    # mdrun.  See GROMACS user manual section
+                    # 6.6.2
+                    gromacsArgs += [ "--vdw-cutoff-radius=10.0" ]
 
                 # [bruce 05040 infers:] mflag true means minimize; -m tells this to the sim.
                 # (mflag has two true flavors, 1 and 2, for the two possible output filetypes for Minimize.)
@@ -813,6 +832,7 @@ class SimRunner:
             if use_timestep_arg: #bruce 060503; I'm guessing that two separate arguments are needed for this, and that %f will work
                 args.insert(1, '--time-step')
                 args.insert(2, '%f' % timestep)
+            args += [ "--system-parameters", self.system_parameters_file ]
             if debug_sim:
                 print  "program = ",program
                 print  "Spawnv args are %r" % (args,) # note: we didn't yet remove args equal to "", that's done below
@@ -824,18 +844,15 @@ class SimRunner:
             self._arguments = arguments
             del args, arguments
         if use_dylib:
-            import sim # whether this will work was checked by a prior method
-            if mflag:
-                clas = sim.Minimize
-            else:
-                clas = sim.Dynamics
-            simobj = clas(infile)
+            sim = thePyrexSimulator()
+            sim.setup(mflag, infile)
+            simobj = sim.sim
             if sim_params_set:
                 for attr, value in _sim_param_values.items():
                     setattr(simobj, attr, value)
+            simopts = simobj
             # order of set of remaining options should not matter;
             # for correspondence see sim/src files sim.pyx, simhelp.c, and simulator.c
-            simopts = simobj # for now, use separate variable names to access params vs methods, in case this changes again [b 060102]
             if formarg == '-x':
                 simopts.DumpAsText = 1 # xyz rather than dpb, i guess
             else:
@@ -846,7 +863,7 @@ class SimRunner:
             if self.traceFileName:
                 simopts.TraceFileName = self.traceFileName # note spelling diff, 'T' vs 't' (I guess I like this difference [b 060102])
                 #k not sure if this would be ok to do otherwise, since C code doesn't turn "" into NULL and might get confused
-            simopts.OutFileName = moviefile
+            sim.setOutputFileName(moviefile)
             if not mflag:
                 # The timestep argument "-s + (movie.timestep)" or Dt is not supported for Alpha...
                 if use_timestep_arg: #bruce 060503
@@ -866,6 +883,12 @@ class SimRunner:
                 if (self.useGromacs):
                     simopts.GromacsOutputBaseName = moviefile
                     simopts.PathToCpp = self.cpp_executable_path
+                if (self.hasPAM5):
+                    # vdw-cutoff-radius in nm, and must match the
+                    # user potential function table passed to
+                    # mdrun.  See GROMACS user manual section
+                    # 6.6.2
+                    simopts.VanDerWaalsCutoffRadius = 10.0
 
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
             # probably we'll let the later sim-start code set those itself.
@@ -1269,8 +1292,6 @@ class SimRunner:
                 frame_callback = self.sim_frame_callback
                 trace_callback = self.tracefile_callback
 
-                simgo = simobj.go
-
                 minflag = movie.minimize_flag
                     ###@@@ should we merge this logic with how we choose the simobj class? [bruce 060112]
 
@@ -1285,7 +1306,7 @@ class SimRunner:
                         if found != expected:
                             env.history.message(orangemsg(attr + ' expected=' + str(expected) + ' found=' + str(found)))
                 try:
-                    simgo( frame_callback = frame_callback, trace_callback = trace_callback )
+                    thePyrexSimulator().run( frame_callback = frame_callback, trace_callback = trace_callback )
                         # note: if this calls a callback which raises an exception, that exception gets
                         # propogated out of this call, with correct traceback info (working properly as of sometime on 060111).
                         # If a callback sets simobj.Interrupted (but doesn't raise an exception),
@@ -1410,13 +1431,13 @@ class SimRunner:
             raise SimulatorInterrupted
         self.__frame_number += 1
         if debug_all_frames:
-            from sim import getFrame
+            from sim import theSimulator
             if debug_sim_exceptions:
                 # intentionally buggy code
-                print "frame %d" % self.__frame_number, self._simobj.getFrame() # this is a bug, that attr should not exist
+                print "frame %d" % self.__frame_number, self._simobj.getTheFrame() # this is a bug, that attr should not exist
             else:
                 # correct code
-                print "frame %d" % self.__frame_number, getFrame()[debug_all_frames_atom_index]
+                print "frame %d" % self.__frame_number, theSimulator().getFrame()[debug_all_frames_atom_index]
             pass
         try:
             # Decide whether to update the 3D view and/or the progress indicators.
@@ -1556,8 +1577,8 @@ class SimRunner:
 ##            elif ((not self.mflag and self._movie.watch_motion) or
 ##                  (self.mflag and env.prefs[Adjust_watchRealtimeMinimization_prefs_key])):
             elif self._movie.watch_motion:
-                from sim import getFrame
-                frame = getFrame()
+                from sim import theSimulator
+                frame = theSimulator().getFrame()
                 # stick the atom posns in, and adjust the singlet posns
                 newPositions = frame
                 movie = self._movie
@@ -1827,6 +1848,27 @@ except:
 else:
     pass
 
+# returns non-zero if the given part contains any pam5 atoms.
+# returns less than zero if the part contains both pam5 and other atoms.
+def part_contains_pam5_atoms(part):
+    contents = [ False, False ]
+
+    def check_for_pam5(n):
+        if (isinstance(n, Chunk)):
+            for a in n.atoms.values():
+                elt = a.element
+                if (elt.pam == "PAM5"):
+                    contents[0] = True
+                else:
+                    contents[1] = True
+
+    part.topnode.apply2all(check_for_pam5)
+    if (contents[0]):
+        if (contents[1]):
+            return -1
+        return 1
+    return 0
+
 # ==
 
 # writemovie used to be here, but is now split into methods of class SimRunner above [bruce 050401]
@@ -1871,7 +1913,18 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
 
-    simrun = SimRunner( part, mflag, simaspect = simaspect, cmdname = cmdname, cmd_type = cmd_type, useGromacs = useGromacs, background = background)
+    hasPAM5 = part_contains_pam5_atoms(part)
+    if (hasPAM5 < 0):
+        env.history.message(orangemsg("calculations with mixed PAM5 and other atoms are not supported"))
+    hasPAM5 = not not hasPAM5
+    simrun = SimRunner(part,
+                       mflag,
+                       simaspect = simaspect,
+                       cmdname = cmdname,
+                       cmd_type = cmd_type,
+                       useGromacs = useGromacs,
+                       background = background,
+                       hasPAM5 = hasPAM5)
         #e in future mflag should choose subclass (or caller should)
     movie._simrun = simrun #bruce 050415 kluge... see also the related movie._cmdname kluge
     movie.currentFrame = 0 #bruce 060108 moved this here, was in some caller's success cases

@@ -60,13 +60,13 @@ cdef extern from "simhelp.c":
     double Dmass
     double Temperature
     # end of globals.c stuff
-    char *errString
 
     setWriteTraceCallbackFunc(PyObject)
     setFrameCallbackFunc(PyObject)
     getFrame_c()
-    initsimhelp()
+    pyrexInitBondTable()
     void dumpPart()
+    void reinit_globals()
     everythingElse()
     everythingDone()
     cdef char *structCompareHelp()
@@ -74,7 +74,6 @@ cdef extern from "simhelp.c":
     void strcpy(char *, char *) #bruce 051230 guess
 
     void reinitSimGlobals(PyObject)
-    verifySimObject(PyObject)
     specialExceptionIs(PyObject)
 
     #void dynamicsMovie_start()
@@ -95,7 +94,7 @@ class SimulatorInterrupted(Exception):
 
 specialExceptionIs(SimulatorInterrupted)
 
-cdef class BaseSimulator:
+cdef class _Simulator:
     """Pyrex permits access to doc strings"""
 
     # cdef double *data
@@ -108,7 +107,6 @@ cdef class BaseSimulator:
     # except for the issue of the globals not being reset to their initial values.
     
     def __getattr__(self, char *key):
-        verifySimObject(self)
         if key.startswith('_'):
             # important optimization (when Python asks for __xxx__) [bruce 060102]
             raise AttributeError, key
@@ -163,7 +161,12 @@ cdef class BaseSimulator:
                 # probably it would, but this is better anyway
                 return ""
             return BaseFileName
-        elif strcmp(key, "OutFileName") == 0:
+        elif strcmp(key, "InputFileName") == 0:
+            if InputFileName == NULL:
+                # should we raise an AttributeError here?
+                return ""
+            return InputFileName
+        elif strcmp(key, "OutputFileName") == 0:
             if OutputFileName == NULL:
                 # should we raise an AttributeError here?
                 return ""
@@ -200,7 +203,6 @@ cdef class BaseSimulator:
             raise AttributeError, key
 
     def __setattr__(self, char *key, value):
-        verifySimObject(self)
         if strcmp(key, "debug_flags") == 0:
             global debug_flags
             debug_flags = value
@@ -270,7 +272,10 @@ cdef class BaseSimulator:
         elif strcmp(key, "baseFilename") == 0:
             global BaseFileName
             BaseFileName = value
-        elif strcmp(key, "OutFileName") == 0:
+        elif strcmp(key, "InputFileName") == 0:
+            global InputFileName
+            InputFileName = value
+        elif strcmp(key, "OutputFileName") == 0:
             global OutputFileName
             OutputFileName = value
         elif strcmp(key, "TraceFileName") == 0:
@@ -308,7 +313,6 @@ cdef class BaseSimulator:
         # and reraise that exception or some other one from this method
         #bruce 060103
 
-        verifySimObject(self)
         setFrameCallbackFunc(frame_callback)
         setWriteTraceCallbackFunc(trace_callback)
         srand(0)
@@ -320,96 +324,81 @@ cdef class BaseSimulator:
         return
 
     def structCompare(self):
-        verifySimObject(self)
         r = structCompare()
         if r:
             raise Exception, r
 
-class Minimize(BaseSimulator):
-    def __init__(self, fname):
-        global InputFileName
-        reinitSimGlobals(self)
-        self.ToMinimize = 1
-        self.DumpAsText = 1
-        self.PrintFrameNums = 0
-        InputFileName = fname
-        initsimhelp()
+    def reinitGlobals(self):
+        reinit_globals()
 
-class Dynamics(BaseSimulator): #bruce 060101 changed superclass from Minimize to BaseSimulator
-    def __init__(self, fname):
-        global InputFileName
-        reinitSimGlobals(self)
-        self.ToMinimize = 0
-        self.DumpAsText = 0
-        self.PrintFrameNums = 0
-        InputFileName = fname
-        initsimhelp()
+    def getEquilibriumDistanceForBond(self, element1, element2, order):
+        # element1 and element2 are python ints
+        # order is a python string
+        cdef int int_el1, int_el2
+        cdef char *c_order
+        int_el1 = element1
+        int_el2 = element2
+        c_order = order
+        # initializeBondTable should not require a tracefile, so can be called
+        # at any time.  It must have been called before either parsing an mmp
+        # file, or calling getBondEquilibriumDistance().  It checks to see if
+        # it's been called already, so it's cheap if that's the case.  It
+        # shouldn't affect the saved warning flags in any way.  Warnings are
+        # only printed when bond information is retrieved, and
+        # getBondEquilibriumDistance() avoids the warning code.
+        pyrexInitBondTable()
+        return getBondEquilibriumDistance(int_el1, int_el2, c_order[0])
 
-def setErrorString(str):
-    errString = str
+    def getFrame(self):
+        frm = getFrame_c()
+        num_atoms = len(frm) / (3 * 8)
+        array = Numeric.fromstring(frm, Numeric.Float64)
+        return Numeric.resize(array, [num_atoms, 3])
 
-def getEquilibriumDistanceForBond(element1, element2, order):
-    # element1 and element2 are python ints
-    # order is a python string
-    cdef int int_el1, int_el2
-    cdef char *c_order
-    int_el1 = element1
-    int_el2 = element2
-    c_order = order
-    # initializeBondTable should not require a tracefile, so can be called
-    # at any time.  It must have been called before either parsing an mmp
-    # file, or calling getBondEquilibriumDistance().  It checks to see if
-    # it's been called already, so it's cheap if that's the case.  It
-    # shouldn't affect the saved warning flags in any way.  Warnings are
-    # only printed when bond information is retrieved, and
-    # getBondEquilibriumDistance() avoids the warning code.
-    initializeBondTable()
-    return getBondEquilibriumDistance(int_el1, int_el2, c_order[0])
+_theSimulator = None
 
-#####################################################
-# Per-frame callbacks to Python, wware 060101
+def theSimulator():
+    global _theSimulator
+    if (_theSimulator is None):
+        _theSimulator = _Simulator()
+    return _theSimulator
 
-def getFrame():
-    frm = getFrame_c()
-    num_atoms = len(frm) / (3 * 8)
-    array = Numeric.fromstring(frm, Numeric.Float64)
-    return Numeric.resize(array, [num_atoms, 3])
-
-#  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #
+#####################################################################################
+# Test code below this point
 
 # conventional globals for callback -- they don't have to be used
-frameNumber = 0
-frameFreq = 1
+_frameNumber = 0
+_frameFreq = 1
 
-callbackCounter = 0
+_callbackCounter = 0
 
-def myCallback(last_frame):
-    global frameNumber
-    frameNumber = frameNumber + 1
-    if (frameNumber % frameFreq) == 0:
-        #print "frame %d:" % frameNumber, getFrame()
-        global callbackCounter
-        callbackCounter = callbackCounter + 1
+def _myCallback(last_frame):
+    global _frameNumber
+    _frameNumber = _frameNumber + 1
+    if (_frameNumber % _frameFreq) == 0:
+        #print "frame %d:" % _frameNumber, getFrame()
+        global _callbackCounter
+        _callbackCounter = _callbackCounter + 1
 
 #bruce 060101 made testsetup a function so it only happens when asked for,
 # not on every import and sim run (for example, runSim.py doesn't want it)
 
-def testsetup(freq=1): 
+def _testsetup(freq=1): 
     "conventional setup for test functions; returns frame_callback argument for .go method"
-    global frameNumber, frameFreq, callbackCounter
-    callbackCounter = 0
-    frameNumber = 0
-    frameFreq = max(1, freq)
-    return myCallback
+    global _frameNumber, _frameFreq, _callbackCounter
+    _callbackCounter = 0
+    _frameNumber = 0
+    _frameFreq = max(1, freq)
+    return _myCallback
 
-tracefile = [ ]
+_tracefile = [ ]
 
-def tracecallback(str):
-    global tracefile
-    tracefile.append(str)
-def badcallback(str):
+def _tracecallback(str):
+    global _tracefile
+    _tracefile.append(str)
+def _badcallback(str):
     raise RuntimeError, "This is a bad callback"
-def badcallback2():
+def _badcallback2():
     "This callback should really take an argument"
     pass
 
@@ -429,45 +418,68 @@ def isFileAscii(filename):
 class Tests(unittest.TestCase):
 
     def setUp(self):
-        global tracefile
-        tracefile = [ ]
+        global _tracefile
+        _tracefile = [ ]
 
     def test_getEquilibriumDistance(self):
         # try C-C single bond; prints 154.88
         assert (getEquilibriumDistanceForBond(6, 6, '1') - 154.88) ** 2 < 0.1
 
     def test_framecallback(self):
-        func = testsetup(2)
-        m = Minimize("tests/minimize/test_h2.mmp")
+        func = _testsetup(2)
+        m = theSimulator()
+
+        m.reinitGlobals()
+        m.InputFileName = "tests/minimize/test_h2.mmp"
+        m.OutputFileName = "tests/minimize/test_h2.xyz"
+        m.ToMinimize = 1
+        m.DumpAsText = 1
+        m.OutputFormat = 0
+
         m.go(frame_callback=func)
-        assert callbackCounter == 3, "Callback counter is %d, not 3" %(callbackCounter)
+        assert _callbackCounter == 3, "Callback counter is %d, not 3" %(_callbackCounter)
 
     def test_frameAndTraceCallback(self):
-        func = testsetup(10)
-        d = Dynamics("tests/rigid_organics/test_C6H10.mmp")
-        d.go(frame_callback=func, trace_callback=tracecallback)
-        assert callbackCounter == 10
+        func = _testsetup(10)
+        d = theSimulator()
+
+        d.reinitGlobals()
+        d.InputFileName = "tests/rigid_organics/test_C6H10.mmp"
+        d.OutputFileName = "tests/rigid_organics/test_C6H10.dpb"
+        d.ToMinimize = 0
+        d.DumpAsText = 0
+        d.OutputFormat = 1
+
+        d.go(frame_callback=func, trace_callback=_tracecallback)
+        assert _callbackCounter == 10
 
     def test_traceCallbackWithMotor(self):
-        d = Dynamics("tests/dynamics/test_0001.mmp")
-        d.go(trace_callback=tracecallback)
+        d = theSimulator()
+
+        d.reinitGlobals()
+        d.InputFileName = "tests/dynamics/test_0001.mmp"
+        d.OutputFileName = "tests/dynamics/test_0001.dpb"
+        d.ToMinimize = 0
+        d.DumpAsText = 0
+        d.OutputFormat = 1
+
+        d.go(trace_callback=_tracecallback)
         # Make sure there is motor information being printed
-        assert len(tracefile[-5].split()) == 3, \
-               "Motor info not appearing in trace file:" + tracefile[18]
+        assert len(_tracefile[-5].split()) == 3, \
+               "Motor info not appearing in trace file:" + _tracefile[18]
 
     def test_dpbFileShouldBeBinary(self):
-        d = Dynamics("tests/dynamics/test_0001.mmp")
+        d = theSimulator()
+
+        d.reinitGlobals()
+        d.InputFileName = "tests/dynamics/test_0001.mmp"
+        d.OutputFileName = "tests/dynamics/test_0001.dpb"
+        d.ToMinimize = 0
+        d.DumpAsText = 0
+        d.OutputFormat = 1
+
         d.go()
         # Make sure that the DPB file is really binary
-        assert not isFileAscii("tests/dynamics/test_0001.dpb")
-
-    def test_dpbFileShouldBeBinaryAfterMinimize(self):
-        # bruce 060103 added this; it presently fails, but I hope to fix it in same commit
-        m = Minimize("tests/minimize/test_h2.mmp")
-        m.go()
-        d = Dynamics("tests/dynamics/test_0001.mmp")
-        d.go()
-        # Make sure that the DPB file is really binary, even after Minimize is run
         assert not isFileAscii("tests/dynamics/test_0001.dpb")
 
 ##     def test_dynamicsStepStuff(self):
@@ -487,36 +499,51 @@ class Tests(unittest.TestCase):
 
     def test_badCallback1(self):
         try:
-            d = Dynamics("tests/dynamics/test_0001.mmp")
-            d.go(trace_callback=badcallback)
+            d = theSimulator()
+
+            d.reinitGlobals()
+            d.InputFileName = "tests/dynamics/test_0001.mmp"
+            d.OutputFileName = "tests/dynamics/test_0001.dpb"
+            d.ToMinimize = 0
+            d.DumpAsText = 0
+            d.OutputFormat = 1
+
+            d.go(trace_callback=_badcallback)
             assert False, "This test should have failed"
         except RuntimeError, e:
             assert e.args[0] == "This is a bad callback"
 
     def test_badCallback2(self):
         try:
-            d = Dynamics("tests/dynamics/test_0001.mmp")
-            d.go(trace_callback=badcallback2)
+            d = theSimulator()
+
+            d.reinitGlobals()
+            d.InputFileName = "tests/dynamics/test_0001.mmp"
+            d.OutputFileName = "tests/dynamics/test_0001.dpb"
+            d.ToMinimize = 0
+            d.DumpAsText = 0
+            d.OutputFormat = 1
+
+            d.go(trace_callback=_badcallback2)
             assert False, "This test should have failed"
         except TypeError:
             pass
 
     def test_badCallback3(self):
         try:
-            d = Dynamics("tests/dynamics/test_0001.mmp")
+            d = theSimulator()
+
+            d.reinitGlobals()
+            d.InputFileName = "tests/dynamics/test_0001.mmp"
+            d.OutputFileName = "tests/dynamics/test_0001.dpb"
+            d.ToMinimize = 0
+            d.DumpAsText = 0
+            d.OutputFormat = 1
+
             d.go(trace_callback=42)
             assert False, "This test should have failed"
         except RuntimeError, e:
             assert e.args[0] == "callback is not callable"
-
-    def test_callWrongSimulatorObject(self):
-        try:
-            m = Minimize("tests/dynamics/test_0001.mmp")
-            d = Dynamics("tests/dynamics/test_0001.mmp")
-            m.go(trace_callback=42)
-            assert False, "This test should have failed"
-        except AssertionError, e:
-            assert e.args[0] == "not the most recent simulator object"
 
 #
 # make pyx && python -c "import sim; sim.test()"

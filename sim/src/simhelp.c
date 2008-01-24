@@ -47,8 +47,6 @@ static struct xyz *pos;
 static char buf[1024];
 static int callback_exception = 0;
 
-static void *mostRecentSimObject = NULL;
-
 // Python exception stuff, wware 010609
 char *py_exc_str = NULL;
 static char py_exc_strbuf[1024];
@@ -149,27 +147,6 @@ finish_python_call(PyObject *retval)
     }
     WHERE_ARE_WE();
     return retval;
-}
-
-static void
-reinitSimGlobals(PyObject *sim)
-{
-    reinit_globals();
-    mostRecentSimObject = sim;
-}
-
-static PyObject *
-verifySimObject(PyObject *sim)
-{
-    start_python_call();
-    if (sim != mostRecentSimObject) {
-	raiseExceptionIfNoneEarlier(PyExc_AssertionError,
-				    "not the most recent simulator object");
-	WHERE_ARE_WE();
-	return NULL;
-    }
-    WHERE_ARE_WE();
-    return finish_python_call(Py_None);
 }
 
 static PyObject *writeTraceCallbackFunc = NULL;
@@ -328,12 +305,8 @@ getFrame_c(void)
     return finish_python_call(retval);
 }
 
-/*
- * A good goal would be to eliminate all the filename-twiddling in this
- * function, and only set up the bond tables.
- */
 static PyObject *
-initsimhelp(void) // WARNING: this duplicates some code from simulator.c
+pyrexInitBondTable(void)
 {
 #ifdef WWDEBUG
     debug_flags |= D_PYREX_SIM;
@@ -341,26 +314,8 @@ initsimhelp(void) // WARNING: this duplicates some code from simulator.c
 
     start_python_call();
 
-    if (DumpAsText) {
-        OutputFormat = 0;
-    } else {
-        // bruce 060103 part of bugfix for Dynamics output format after Minimize
-        // (to complete the fix it would be necessary for every change by sim.pyx of either
-        //  OutputFormat or DumpAsText to make sure the other one changed to fit,
-        //  either at the time of the change or before the next .go method
-        // (or if changed during that method, before their next use by any C code);
-        // this is not needed by the present client code, so I'll put it off for now
-        // and hope we can more extensively clean up this option later.)
-        OutputFormat = 1; // sim.pyx only tries to support "old" dpb format for now
-    }
-    InputFileName = copy_string(InputFileName);
-    OutputFileName = replaceExtension(InputFileName, DumpAsText ? "xyz" : "dpb");
-
-    // bruce 060101 moved the rest of this function into the start of everythingElse
-    // since it depends on parameters set by the client code after this init method runs,
-    // but then had to move initializeBondTable back here to fix a bug (since mmp reading
-    // depends on it)
     initializeBondTable();
+    
     return finish_python_call(Py_None);
 }
 
@@ -380,8 +335,6 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     
     // wware 060109  python exception handling
     start_python_call();
-    // bruce 060101 moved this section here, from the end of initsimhelp,
-    // since it depends on parameters set by the client code after that init method runs
 
     if (TraceFileName != NULL) {
 	TraceFile = fopen(TraceFileName, "w");
@@ -418,8 +371,6 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     // ##e should print options set before run, but it's too early to do that in this code
 
     if (IterPerFrame <= 0) IterPerFrame = 1;
-    // initializeBondTable(); // this had to be done in initsimhelp instead [bruce 060101]
-    // end of section moved by bruce 060101
 
     constrainGlobals();
     traceHeader(part);

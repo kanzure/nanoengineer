@@ -927,11 +927,19 @@ class PyrexTest(TimedTest):
             pass
 
     def run(self):
-        import sim
         lac = LengthAngleComparison(self.base + ".mmp")
-        s = sim.Minimize(self.base + ".mmp")
+        import sim
+        s = sim.theSimulator()
+        s.reinitGlobals()
+        inputfile = self.base + ".mmp"
+        outputfile = self.base + ".xyz"
+        s.InputFileName = inputfile
+        s.OutputFileName = outputfile
+        s.ToMinimize = 1
+        s.DumpAsText = 1
+        s.OutputFormat = 0
         s.Temperature = 300
-        s.go()
+        s.go(frame_callback=None, trace_callback=None)
         lac.compare(self.base + ".xyz", self.base + ".xyzcmp",
                     LENGTH_TOLERANCE, ANGLE_TOLERANCE)
 
@@ -1120,7 +1128,6 @@ RANKED_BY_RUNTIME = [
     'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_4',
     'test_reordering_jigs_or_chunks_05_thermo_lmotor_anchor_measurement_jigs_reordering_3',
     'test_reordering_jigs_or_chunks_04_thermo_lmotor_anchor_stat_reordering_2',
-    'test_callWrongSimulatorObject',
     'test_motors_030_rotarymotor_and_linear_motor_attached_to_same_atoms',
     'test_floppy_organics_C4H8',
     'test_reordering_jigs_or_chunks_03_thermo_rmotor_anchor_stat_reordering_6',
@@ -1198,7 +1205,6 @@ RANKED_BY_RUNTIME = [
     'test_jigs_to_several_atoms_006_anchors_to_100_atoms',
     'test_motors_005_linearmotor_negative_force_and_positive_stiffness',
     'test_heteroatom_organics_Al_ADAM_C3v',
-    'test_dpbFileShouldBeBinaryAfterMinimize',
     'test_heteroatom_organics_ADAMframe_AlH_Cs',
     'test_minimize_0012',
     'test_jigs_to_several_atoms_004_linearmotor_to_100_atoms',
@@ -1330,15 +1336,6 @@ try:
             finally:
                 try: TimedTest.finish(self)
                 except EarlyTermination: pass
-        def test_dpbFileShouldBeBinaryAfterMinimize(self):
-            self.methodname = "test_dpbFileShouldBeBinaryAfterMinimize"
-            try: TimedTest.start(self)
-            except EarlyTermination: return
-            try:
-                sim.Tests.test_dpbFileShouldBeBinaryAfterMinimize(self)
-            finally:
-                try: TimedTest.finish(self)
-                except EarlyTermination: pass
         def test_badCallback1(self):
             self.methodname = "test_badCallback1"
             try: TimedTest.start(self)
@@ -1363,15 +1360,6 @@ try:
             except EarlyTermination: return
             try:
                 sim.Tests.test_badCallback3(self)
-            finally:
-                try: TimedTest.finish(self)
-                except EarlyTermination: pass
-        def test_callWrongSimulatorObject(self):
-            self.methodname = "test_callWrongSimulatorObject"
-            try: TimedTest.start(self)
-            except EarlyTermination: return
-            try:
-                sim.Tests.test_callWrongSimulatorObject(self)
             finally:
                 try: TimedTest.finish(self)
                 except EarlyTermination: pass
@@ -1716,7 +1704,14 @@ class Tests(baseClass):
         class Foo(PyrexTest):
             def run(self):
                 import sim
-                s = sim.Dynamics("tests/dynamics/test_0002.mmp")
+                s = sim.theSimulator()
+
+                s.reinitGlobals()
+                s.InputFileName = "tests/dynamics/test_0002.mmp"
+                s.OutputFileName = "tests/dynamics/test_0002.dpb"
+                s.ToMinimize = 0
+                s.DumpAsText = 0
+                s.OutputFormat = 1
                 s.NumFrames = 100
                 s.PrintFrameNums = 0
                 s.IterPerFrame = 10

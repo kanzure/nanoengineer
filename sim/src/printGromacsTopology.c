@@ -90,7 +90,10 @@ writeExclusion(FILE *top,
     return gotOne;
 }
 
-#define DEPTH_TO_EXCLUDE 2
+
+// vdw cutoff radius divided by basepair to basepair distance
+// 11 nm / 318 pm = 34.6, round up and add some fudge
+#define DEPTH_TO_EXCLUDE 40
 
 static void
 writeGromacsExclusions(FILE *top, struct part *p, struct atom *a)
@@ -197,6 +200,8 @@ static char *closure_nonbondedPass1Symbol;
 static int closure_nonbondedPass1Number;
 static struct part *closure_part;
 
+static int nonbonded_function; // 1=Lennard-Jones, 2=Buckingham
+
 static void
 allNonBondedAtomtypesPass2(char *symbol, void *value)
 {
@@ -205,9 +210,9 @@ allNonBondedAtomtypesPass2(char *symbol, void *value)
     struct vanDerWaalsParameters *vdw;
     double rvdW; // nm
     double evdW; // kJ mol^-1
-    double A; // kJ mol^-1
-    double B; // nm^-1
-    double C; // kJ mol^-1 nm^6
+    double A;
+    double B;
+    double C;
     
     if (at != NULL) {
         element = at->protons;
@@ -218,11 +223,18 @@ allNonBondedAtomtypesPass2(char *symbol, void *value)
                 if (rvdW > 1e-8) {
                     evdW = zJ_to_kJpermol(vdw->evdW);
 
-                    A = 2.48e5 * evdW;
-                    B = 12.5 / rvdW;
-                    C = evdW * 1.924 * pow(rvdW, 6.0);
+                    if (nonbonded_function == 1) {
+                        A = 2.0 * evdW * pow(rvdW, 6.0);
+                        B = evdW * pow(rvdW, 12.0);
 
-                    fprintf(closure_topologyFile, "%4s %4s    2 %12.5e %12.5e %12.5e\n", closure_nonbondedPass1Symbol, symbol, A, B, C);
+                        fprintf(closure_topologyFile, "%4s %4s    1 %12.5e %12.5e\n", closure_nonbondedPass1Symbol, symbol, A, B);
+                    } else {
+                        A = 2.48e5 * evdW;                 // kJ mol^-1
+                        B = 12.5 / rvdW;                   // nm^-1
+                        C = evdW * 1.924 * pow(rvdW, 6.0); // kJ mol^-1 nm^6
+
+                        fprintf(closure_topologyFile, "%4s %4s    2 %12.5e %12.5e %12.5e\n", closure_nonbondedPass1Symbol, symbol, A, B, C);
+                    }
                 }
             }
         }
@@ -262,9 +274,10 @@ printGromacsToplogy(char *basename, struct part *p)
     FILE *mdp; // Gromacs configuration file (basename.mdp)
     FILE *ndx; // Gromacs group (index) file (basename.ndx)
     int len;
+    double vdwCutoff;
     char *fileName;
     char *ret = NULL;
-    
+
     len = strlen(basename) + 5;
     fileName = allocate(len);
     sprintf(fileName, "%s.top", basename);
@@ -317,10 +330,22 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(mdp, "nstcgsteep          =  100\n"); // frequency of steep steps during cg
     fprintf(mdp, "nstlist             =  10\n"); // update frequency for neighbor list
     fprintf(mdp, "ns_type             =  simple\n"); // neighbor search type, must be simple for pbc=no
+
+    if (VanDerWaalsCutoffRadius < 0) {
+        vdwCutoff = 1.0;
+        nonbonded_function = 2;
+    } else {
+        vdwCutoff = VanDerWaalsCutoffRadius;
+        fprintf(mdp, "coulombtype         =  User\n");
+        fprintf(mdp, "vdwtype             =  User\n");
+        nonbonded_function = 1;
+    }
+
     // rlist, rcoulomb and rvdw must be equal when ns_type = simple
-    fprintf(mdp, "rlist               =  %f\n", VanDerWaalsCutoffRadius); // short range neighbor list cutoff distance
-    fprintf(mdp, "rcoulomb            =  %f\n", VanDerWaalsCutoffRadius); // coulomb function cutoff distance
-    fprintf(mdp, "rvdw                =  %f\n", VanDerWaalsCutoffRadius); // vdw cutoff distance
+    fprintf(mdp, "rlist               =  %f\n", vdwCutoff); // short range neighbor list cutoff distance
+    fprintf(mdp, "rcoulomb            =  %f\n", vdwCutoff); // coulomb function cutoff distance
+    fprintf(mdp, "rvdw                =  %f\n", vdwCutoff); // vdw cutoff distance
+    
     fprintf(mdp, "epsilon_r           =  %f\n", DielectricConstant);
     fprintf(mdp, "freezegrps          =  Anchor\n"); // which group of atoms to hold fixed
     fprintf(mdp, "freezedim           =  Y Y Y\n"); // fix in all three dimensions
@@ -335,7 +360,7 @@ printGromacsToplogy(char *basename, struct part *p)
     
     fprintf(top, "[ defaults ]\n");
     fprintf(top, "; nbfunc        comb-rule       gen-pairs       fudgeLJ fudgeQQ\n");
-    fprintf(top, "  2             1               no              1.0     1.0\n");
+    fprintf(top, "  %d             1               no              1.0     1.0\n", nonbonded_function);
     fprintf(top, "\n");
 
     fprintf(top, "[ atomtypes ]\n");

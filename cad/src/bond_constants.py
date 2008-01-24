@@ -26,6 +26,7 @@ from VQT import Q
 from debug import print_compact_traceback    
 import platform
 import env
+from PyrexSimulator import thePyrexSimulator
 
 # ==
 
@@ -289,8 +290,7 @@ def _compute_bond_params(atomtype1, atomtype2, v6):
 ##        if (elementNumber2 > MAX_ELEMENT):
 ##            elementNumber2 = MAX_ELEMENT
         ltr = bond_letter_from_v6(v6)
-        import sim # this import must not be moved to toplevel! (it fails for some developers)
-        pm = sim.getEquilibriumDistanceForBond(elementNumber1, elementNumber2, ltr) # C-C is (6, 6, '1')
+        pm = thePyrexSimulator().getEquilibriumDistanceForBond(elementNumber1, elementNumber2, ltr) # C-C is (6, 6, '1')
         assert pm > 2.0, "too-low pm %r for getEquilibriumDistanceForBond%r" % (pm, (elementNumber1, elementNumber2, ltr))
             # 1.0 means an error occurred; 2.0 is still ridiculously low [not as of 070410]; btw what will happen for He-He??
             # update 070410: it's 1.8 for (202, 0, '1').

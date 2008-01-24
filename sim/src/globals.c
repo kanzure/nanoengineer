@@ -59,7 +59,8 @@ double ThermostatGamma;
 double ThermostatG1;
 
 // absolute distance in nm beyond which gromacs will consider vdW
-// forces to be exactly zero.
+// forces to be exactly zero.  If less than zero, user defined tables
+// will not be used, and a default value of 1.0 nm will be used.
 double VanDerWaalsCutoffRadius;
 
 // multiple of rvdW where interpolation table ends, and van der Waals
@@ -130,7 +131,7 @@ reinit_globals(void)
     NumFrames = 100;
     DumpAsText = 0;
     DumpIntermediateText = 0;
-    PrintFrameNums = 1;
+    PrintFrameNums = 0;
     OutputFormat = 1;
     KeyRecordInterval = 32;
     DirectEvaluate = 0;
@@ -155,7 +156,7 @@ reinit_globals(void)
     MinimizeThresholdEndRMS = 1.0;
     MinimizeThresholdEndMax = 0.0; // set by constrainGlobals, below
 
-    VanDerWaalsCutoffRadius = 1.0; // (nm) default for atomic minimization
+    VanDerWaalsCutoffRadius = -1.0; // use gromacs built in functions
     VanDerWaalsCutoffFactor = 1.7;
 
     EnableElectrostatic = 1;
@@ -223,9 +224,16 @@ printGlobals()
         write_traceline("# MinimizeThresholdEndRMS: %f\n", MinimizeThresholdEndRMS);
         write_traceline("# MinimizeThresholdEndMax: %f\n", MinimizeThresholdEndMax);
     }
+    write_traceline("# VanDerWaalsCutoffRadius: %f\n", VanDerWaalsCutoffRadius);
     write_traceline("# VanDerWaalsCutoffFactor: %f\n", VanDerWaalsCutoffFactor);
     write_traceline("# EnableElectrostatic: %d\n", EnableElectrostatic);
     write_traceline("# ThermostatGamma: %f\n", ThermostatGamma);
+    if (SystemParametersFileName != NULL) {
+        write_traceline("# SystemParametersFileName: %s\n", SystemParametersFileName);
+    }
+    if (GromacsOutputBaseName != NULL) {
+        write_traceline("# GromacsOutputBaseName: %s\n", GromacsOutputBaseName);
+    }
     write_traceline("#\n");
 }
 

@@ -2,7 +2,7 @@
 
 #include "simulator.h"
 
-static char const rcsid[] = "$Id:$";
+static char const rcsid[] = "$Id$";
 
 /*
 static struct bendData *pam5_Ax_Ax_Ss_low = NULL;
@@ -232,6 +232,12 @@ createPam5Patterns(void)
   struct compiledPatternTraversal *t[10];
   struct compiledPatternAtom *a[10];
   //struct patternParameter *param;
+
+  if (VanDerWaalsCutoffRadius < 0.0) {
+    // this indicates that the model has no pam5 atoms
+    return;
+  }
+  stack_match_initialized = 0;
   
   /*
   a[0] = makePatternAtom(0, "Ax5");

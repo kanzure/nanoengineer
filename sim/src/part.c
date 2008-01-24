@@ -469,7 +469,7 @@ makeTorsion(struct part *p, int index, struct bond *center, struct bond *b1, str
     // These numbers are based on a torsion around a Carbon-Carbon bond.
     switch (center->order) {
     case '2':
-        // Barrior to rotation of a simple alkene is about 265 kJ/mol, but
+        // Barrier to rotation of a simple alkene is about 265 kJ/mol, but
         // can be on the order of 50 kJ/mol for "captodative ethylenes",
         // where the charge density on the carbons involved in the double
         // bond has been significantly altered.
@@ -483,7 +483,9 @@ makeTorsion(struct part *p, int index, struct bond *center, struct bond *b1, str
     case 'a':
     case 'g':
         // Damian has calculated the following for a small graphitic system
-        t->A = 0.37013376;
+        //t->A = 0.37013376;
+        t->A = 0.04;
+        //t->A = 0.0;
         break;
     default:
         t->A = 0;
@@ -605,6 +607,7 @@ makeOutOfPlane(struct part *p, int index, struct atom *a)
 
     // A is in aJ/pm^2
     o->A = 0.00025380636; // This is for carbon in graphene with deflection less than 0.5 pm.
+    //o->A = 0.0;
     //o->A = 0.0005; // XXX need to get actual value from real parameters
 }
 
