@@ -22,15 +22,103 @@ HDF5_SimResultsImportExport::~HDF5_SimResultsImportExport() {
 
 /* FUNCTION: importFromFile */
 NXCommandResult* HDF5_SimResultsImportExport::importFromFile
-		(NXMoleculeSet* moleculeSet, const string& filename) {
+		(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
+		 const std::string& filename, unsigned int frameIndex) {
+			
 	NXCommandResult* result = new NXCommandResult();
 	result->setResult(NX_CMD_SUCCESS);
 
-	string message = "Reading: ";
-	message.append(filename);
-	NXLOG_INFO("HDF5_SimResultsImportExport", message.c_str());
+	// Create or retrieve the HDF5 data store object
+	//
+	HDF5_SimResults* simResults = 0;
+	if (frameIndex == 0)
+		simResults = new HDF5_SimResults();
+		if (!dataStoreInfo->isLastFrame())
+			dataStoreInfo->setHandle(simResults);
+	else
+		simResults = (HDF5_SimResults*)(dataStoreInfo->getHandle());
+		
+	if (simResults == 0)
+		populateCommandResult(result,
+							  "exportToFile: Could not instantiate or retrieve the HDF5_SimResults object.");
 
+	// Open the actual data store.
+	int status;
+	string message;
+	if ((frameIndex == 0) && (result->getResult() == NX_CMD_SUCCESS)) {
+		QString hdf5Filename(filename.c_str());
+		hdf5Filename.append("/").append(HDF5_SIM_RESULT_FILENAME);
+		status = simResults->openDataStore(filename.c_str(), message);
+		if (status)
+			populateCommandResult(result, message.c_str());
+	}
+	
+	unsigned int atomCount = 0;
+	unsigned int bondCount = 0;
+	if (result->getResult() == NX_CMD_SUCCESS) {
+		// Retrieve stored counts
+		simResults->getFrameAtomIdsCount("frame-set-1", atomCount);
+		simResults->getFrameBondsCount("frame-set-1", 0, bondCount);
+	}
+	
+	unsigned int atomIds[atomCount];
+	unsigned int atomicNumbers[atomCount];
+	float positions[atomCount*3];
+	void* bonds = (void*)malloc(bondCount*sizeof(SimResultsBond));
 
+	// Retrieve atom data
+	if (result->getResult() == NX_CMD_SUCCESS) {
+		status = simResults->getFrameAtomIds("frame-set-1", atomIds, message);
+		if (status == 0) {
+			status =
+				simResults->getFrameAtomicNumbers("frame-set-1", atomicNumbers,
+												  message);
+			if (status == 0) {
+				status =
+					simResults->getFrameAtomPositions("frame-set-1", frameIndex,
+													  atomCount, positions,
+													  message);
+				if (status)
+					populateCommandResult(result, message.c_str());
+			} else
+				populateCommandResult(result, message.c_str());
+		} else
+			populateCommandResult(result, message.c_str());
+	}
+	
+	// Retrieve bond data
+	if (result->getResult() == NX_CMD_SUCCESS) {
+		status = simResults->getFrameBonds("frame-set-1", 0, bonds, message);
+		if (status)
+			populateCommandResult(result, message.c_str());
+	}	
+
+	// Create a molecule and store the atoms and bonds.
+	if (result->getResult() == NX_CMD_SUCCESS) {
+		OBAtom* atom;
+		OBBond* bond;
+		SimResultsBond simResultsBond;
+		OBMol* molecule = moleculeSet->newMolecule();
+		unsigned int index = 0;
+		for (index = 0; index < atomCount; index++) {
+			atom = molecule->NewAtom();
+			atom->SetIdx(atomIds[index]);
+			atom->SetAtomicNum(atomicNumbers[index]);
+			atom->SetVector(positions[index*3 + 0], positions[index*3 + 1],
+							positions[index*3 + 2]);
+		}
+		for (index = 0; index < bondCount; index++) {
+			simResultsBond = ((SimResultsBond*)bonds)[index];
+			bond = molecule->NewBond();
+			bond->SetBegin(molecule->GetAtom(simResultsBond.atomId_1));
+			bond->SetEnd(molecule->GetAtom(simResultsBond.atomId_2));
+			bond->SetBondOrder(simResultsBond.order);
+		}
+	}
+	
+	if (bonds != 0)
+		free(bonds);
+	
 	return result;
 }
 

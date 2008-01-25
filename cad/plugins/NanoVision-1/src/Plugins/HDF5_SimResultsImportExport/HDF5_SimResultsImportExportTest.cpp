@@ -75,3 +75,23 @@ void HDF5_SimResultsImportExportTest::basicExportTest() {
 		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
 	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);
 }
+
+
+/* FUNCTION: basicExportTest */
+void HDF5_SimResultsImportExportTest::basicImportTest() {
+	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
+
+	// Read frame 0 with the HDF5_SimResultsImportExport plugin
+	NXDataStoreInfo* dataStoreInfo = new NXDataStoreInfo();
+	dataStoreInfo->setLastFrame(false);
+	NXCommandResult* commandResult =
+		entityManager->importFromFile(rootMoleculeSet, dataStoreInfo, "nh5",
+									  "testHDF5store", 0);
+	if (commandResult->getResult() != NX_CMD_SUCCESS)
+		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
+	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);
+	
+	OBMolIterator moleculeIter = rootMoleculeSet->moleculesBegin();
+	CPPUNIT_ASSERT((*moleculeIter)->GetAtom(1)->GetAtomicNum() == 8);
+	CPPUNIT_ASSERT((*moleculeIter)->NumBonds() == 2);
+}

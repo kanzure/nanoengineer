@@ -56,7 +56,9 @@ class HDF5_SimResultsImportExport : public NXDataImportExportPlugin {
 
 		// NXDataImportExportPlugin implementation
 		NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
-										const string& filename);
+										NXDataStoreInfo* dataStoreInfo,
+										const std::string& filename,
+										unsigned int frameIndex = 0);
 		NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
 									  NXDataStoreInfo* dataStoreInfo,
 									  const std::string& filename,

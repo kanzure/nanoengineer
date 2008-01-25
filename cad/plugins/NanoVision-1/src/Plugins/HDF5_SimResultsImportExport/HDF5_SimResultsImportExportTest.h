@@ -16,6 +16,7 @@ class HDF5_SimResultsImportExportTest : public CPPUNIT_NS::TestFixture {
 
 	CPPUNIT_TEST_SUITE(HDF5_SimResultsImportExportTest);
 	CPPUNIT_TEST(basicExportTest);
+	CPPUNIT_TEST(basicImportTest);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -23,6 +24,7 @@ class HDF5_SimResultsImportExportTest : public CPPUNIT_NS::TestFixture {
 		void tearDown();
 
 		void basicExportTest();
+		void basicImportTest();
 
 	private:
 		NXEntityManager* entityManager;
