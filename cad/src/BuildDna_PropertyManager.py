@@ -315,6 +315,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     
     def _showSequenceEditor(self):
         if self.sequenceEditor:
+            
             #hide the history widget first
             #(It will be shown back during self.close)
             #The history widget is hidden or shown only when both 
@@ -334,7 +335,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             
             selectedStrandList = self.editCommand.struct.getSelectedStrands()
             
-            if len(selectedStrandList) == 1:
+            if len(selectedStrandList) == 1:                   
                 self._updateSequence(selectedStrandList[0])
     
     def _updateSequence(self, pickedStrand):
@@ -346,6 +347,13 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         ##strand = self.strandListWidget.getPickedItem()
         
         strand = pickedStrand
+        
+        titleString = 'Sequence Editor for ' + strand.name
+        
+        if self.struct:
+            titleString = titleString +  ' [of ' + self.struct.name + ']'
+            
+        self.sequenceEditor.setWindowTitle(titleString)
         
         sequenceString = strand.getStrandSequence()
         if sequenceString:
