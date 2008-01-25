@@ -24,7 +24,7 @@ fixed after dna_data model is fully implemented
 from EditCommand import EditCommand 
 
 from dna_model.DnaSegment import DnaSegment
-from BuildDna_GraphicsMode  import BuildDna_GraphicsMode
+from DnaSegment_GraphicsMode import DnaSegment_GraphicsMode
 
 
 from utilities.Log  import redmsg
@@ -36,7 +36,6 @@ from GeneratorBaseClass import  PluginBug, UserError
 
 
 from constants import gensym
-
 
 
 from Dna_Constants import getDuplexLength
@@ -58,7 +57,7 @@ class DnaSegment_EditCommand(EditCommand):
     create_name_from_prefix  =  True 
     
     #Graphics Mode 
-    GraphicsMode_class = BuildDna_GraphicsMode
+    GraphicsMode_class = DnaSegment_GraphicsMode
     
     #required by DnaLine_GM
     mouseClickPoints = []
@@ -67,8 +66,9 @@ class DnaSegment_EditCommand(EditCommand):
     #This is set to BuildDna_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
     flyoutToolbar = None
-    
+       
     _parentDnaGroup = None
+    
     
     def __init__(self, commandSequencer, struct = None):
         """
@@ -76,6 +76,15 @@ class DnaSegment_EditCommand(EditCommand):
         """        
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
+        
+        #####################
+        #Graphics handles for editing the structure . 
+        #Not implemented as of 2008-01-25. 
+        self.handles = []        
+        self.endHandle1 = None
+        self.endHandle2 = None
+        ############################
+        
     
     def init_gui(self):
         """
@@ -97,6 +106,7 @@ class DnaSegment_EditCommand(EditCommand):
         #  it has some loose ends like this. ) -- Ninad 2008-01-22
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
     
+               
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        
         if self.struct:
@@ -105,8 +115,8 @@ class DnaSegment_EditCommand(EditCommand):
             #When the structure (segment) is finalized (afterthe  modifications),
             #it will be added to the original DnaGroup to which it belonged 
             #before we began editing (modifying) it. 
-            self._parentDnaGroup = self.struct.get_DnaGroup()     
-        
+            self._parentDnaGroup = self.struct.get_DnaGroup()   
+   
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 
