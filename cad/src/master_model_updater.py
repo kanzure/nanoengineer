@@ -48,7 +48,7 @@ import env
 from bond_updater import update_bonds_after_each_event
 from bond_updater import process_changed_bond_types
 
-from debug import print_compact_stack
+from debug import print_compact_stack, print_compact_traceback
 
 # ==
 
@@ -100,7 +100,11 @@ def _master_model_updater( warn_if_needed = False ):
         _ensure_ok_to_call_dna_updater() # soon will not be needed here
         from dna_updater.dna_updater_main import full_dna_update
             # soon will be toplevel import
-        full_dna_update()
+        try:
+            full_dna_update()
+        except:
+            msg = "\n*** exception from dna updater; will attempt to continue"
+            print_compact_traceback(msg + ": ")
         pass
 
     if not (changed_structure_atoms or changed_bond_types):
