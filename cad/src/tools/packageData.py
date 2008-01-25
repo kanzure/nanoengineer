@@ -317,6 +317,7 @@ packageMapping_for_files = {
     "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_old",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
     "DnaSegment_EditCommand"           : "command|dna/commands/DnaSegment",
+    "DnaSegment_GraphicsMode"          : "graphics_mode|dna/commands/DnaSegment",    
     "DnaSegment_PropertyManager"       : "ui/propmgr|dna/commands/DnaSegment",    
     "DnaSequenceEditor"                : "widget|DnaSequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
     "Dna_Constants"                    : "model|dna/model", # (since used by lots of files in several dna-related commands)
@@ -418,6 +419,8 @@ packageMapping_for_files = {
     "modes"                            : "unsplit_mode|command_support",
     "modifyMode"                       : "unsplit_mode|commands/Move", #? MoveChunks?? probably not, we'll deemphasize Chunks to users
     "MotorPropertyManager"             : "ui/propmgr|command_support", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
+    "Move_Command"                     : "command|commands/Move",
+    "Move_GraphicsMode"                : "graphics_mode|commands/Move",
     "MovePropertyManager"              : "ui/propmgr|commands/Move",
     "movie"                            : "simulation", #? hold simparams, or open moviefile - internal model, some ui/control/ops/io
     "moviefile"                        : "io|files/dpb_trajectory",
@@ -560,6 +563,10 @@ packageMapping_for_files = {
     
     "ThumbView"                        : "graphics_widgets",
     "Trackball"                        : "graphics_behavior",
+    "TranslateChunks_Command"          : "command|commands/Translate",
+    "TranslateChunks_GraphicsMode"     : "graphics_mode|commands/Translate",
+    "RotateChunks_Command"             : "command|commands/Rotate",
+    "RotateChunks_GraphicsMode"        : "graphics_mode|commands/Rotate",
 
     # Note: many of the following (and of the other modules slated for ne1_ui)
     # ought to get refactored, with some parts not remaining in ne1_ui.
