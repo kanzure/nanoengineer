@@ -62,7 +62,7 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 	// existing files.
 	int status;
 	string message;
-	if ((result->getResult() == NX_CMD_SUCCESS) && (frameIndex == 0)) {
+	if ((frameIndex == 0) && (result->getResult() == NX_CMD_SUCCESS)) {
 		QDir pwd;
 		pwd.mkdir(filename.c_str());
 		QString hdf5Filename(filename.c_str());
@@ -74,7 +74,7 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 	}
 	
 	// Add a frame set
-	if (result->getResult() == NX_CMD_SUCCESS) {
+	if ((frameIndex == 0) && (result->getResult() == NX_CMD_SUCCESS)) {
 		status = simResults->addFrameSet("frame-set-1", message);
 		if (status)
 			populateCommandResult(result, message.c_str());
@@ -105,16 +105,22 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 	unsigned int atomIds[atomCount];
 	unsigned int atomicNumbers[atomCount];
 	float positions[atomCount*3];
+	void* bonds = 0;
+	if (frameIndex == 0)
+		bonds = (void*)malloc(bondCount*sizeof(SimResultsBond));
 
 	// One pass through the molecule set to populate the arrays.
 	unsigned int atomIndex = 0;
+	unsigned int bondIndex = 0;
 	if (result->getResult() == NX_CMD_SUCCESS) {
-		exportToFileHelper(moleculeSet, atomIndex, atomIds, atomicNumbers,
-						   positions, result);
+		exportToFileHelper(moleculeSet, atomIndex, bondIndex, atomIds,
+						   atomicNumbers, positions, bonds, result);
 	}
 	
 	// Write frame set info
-	if ((result->getResult() == NX_CMD_SUCCESS) && (frameIndex == 0)) {
+	// Note: We assume bonds for a frame set aren't going to change and write
+	//       them just to frame 0.
+	if ((frameIndex == 0) && (result->getResult() == NX_CMD_SUCCESS)) {
 		status =
 			simResults->setFrameAtomIds("frame-set-1", atomIds, atomCount,
 										message);
@@ -122,12 +128,22 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 			status =
 				simResults->setFrameAtomicNumbers
 					("frame-set-1", atomicNumbers, atomCount, message);
-			if (status)
+					
+			if (status == 0) {
+				status =
+					simResults->setFrameBonds("frame-set-1", 0, bonds,
+											  bondCount, message);
+				if (status)
+					populateCommandResult(result, message.c_str());
+			} else
 				populateCommandResult(result, message.c_str());
 		} else
 			populateCommandResult(result, message.c_str());
 	}
 	
+	if (bonds != 0)
+		free(bonds);
+
 	// Write the frame
 	if (result->getResult() == NX_CMD_SUCCESS) {
 		status =
@@ -148,10 +164,13 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 /* FUNCTION: exportToFileHelper */
 void HDF5_SimResultsImportExport::exportToFileHelper
 		(NXMoleculeSet* moleculeSet, unsigned int atomIndex,
-		 unsigned int* atomIds, unsigned int* atomicNumbers,
-		 float* positions, NXCommandResult* result) {
+		 unsigned int bondIndex, unsigned int* atomIds,
+		 unsigned int* atomicNumbers, float* positions, void* bonds,
+		 NXCommandResult* result) {
 		
 	OBAtomIterator atomIter;
+	OBBondIterator bondIter;
+	SimResultsBond bond;
 	OBMolIterator moleculeIter = moleculeSet->moleculesBegin();
 	while (moleculeIter != moleculeSet->moleculesEnd()) {
 		atomIter = (*moleculeIter)->BeginAtoms();
@@ -165,12 +184,25 @@ void HDF5_SimResultsImportExport::exportToFileHelper
 			atomIndex++;
 			atomIter++;
 		}
+		// bonds is zero when we're not doing frame zero
+		if (bonds != 0) {
+			bondIter = (*moleculeIter)->BeginBonds();
+			while (((*bondIter) != 0) &&
+					(bondIter != (*moleculeIter)->EndBonds())) {
+				bond.atomId_1 = (*bondIter)->GetBeginAtomIdx();
+				bond.atomId_2 = (*bondIter)->GetEndAtomIdx();
+				bond.order = (*bondIter)->GetBondOrder();
+				((SimResultsBond*)bonds)[bondIndex] = bond;
+				bondIndex++;
+				bondIter++;
+			}
+		}
 		moleculeIter++;
 	}
 	NXMoleculeSetIterator moleculeSetIter = moleculeSet->childrenBegin();
 	while (moleculeSetIter != moleculeSet->childrenEnd()) {
-		exportToFileHelper(*moleculeSetIter, atomIndex, atomIds, atomicNumbers,
-						   positions, result);
+		exportToFileHelper(*moleculeSetIter, atomIndex, bondIndex, atomIds,
+						   atomicNumbers, positions, bonds, result);
 		moleculeSetIter++;
 	}
 }

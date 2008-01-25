@@ -63,6 +63,15 @@ void HDF5_SimResultsImportExportTest::basicExportTest() {
 									"testHDF5store", 0);
 	if (commandResult->getResult() != NX_CMD_SUCCESS)
 		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
-
+	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);
+	
+	// Tweak the molecule a bit and add it as frame 1
+	molecule->GetFirstAtom()->SetVector(0.12000000, 0.34000000, 0.37000000);
+	dataStoreInfo->setLastFrame(true);
+	commandResult =
+		entityManager->exportToFile(rootMoleculeSet, dataStoreInfo, "nh5",
+									"testHDF5store", 1);
+	if (commandResult->getResult() != NX_CMD_SUCCESS)
+		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
 	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);
 }

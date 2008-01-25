@@ -64,10 +64,10 @@ class HDF5_SimResultsImportExport : public NXDataImportExportPlugin {
 
 	private:
 		void exportToFileHelper(NXMoleculeSet* moleculeSet,
-								unsigned int atomIndex,
+								unsigned int atomIndex, unsigned int bondIndex,
 								unsigned int* atomIds,
 								unsigned int* atomicNumbers,
-								float* positions,
+								float* positions, void* bonds,
 								NXCommandResult* result);
 		void populateCommandResult(NXCommandResult* result,
 								   const string& message);
