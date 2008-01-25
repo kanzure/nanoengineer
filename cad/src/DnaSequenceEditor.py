@@ -323,8 +323,7 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         #we have two text edits. (strand and Mate) the 'Mate' edit gets updated
         #as you type in letters in the 'StrandEdit' and these two should
         #appear to user as having equal lengths. 
-        outSequence  =  "<html>" + "<pre>" + outSequence
-        outSequence +=  "</pre>" + "</html>"
+        outSequence  = self._fixedPitchSequence(outSequence)
 
         return outSequence
     
@@ -362,14 +361,22 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         complementSequence = getComplementSequence(str(inSequence))
       
         if inStylize:
-            pass
-        #Temporarily disabling the code that 'stylizes the sequence' 
-        #that code is too slow and takes a long time for a file to load. 
-        # Example: NE1 hangs while loading M13 sequence (8kb file) if we 
-        #stylize the sequence -- Ninad 2008-01-22
+            #Temporary fix for bug 2604--
+            #Temporarily disabling the code that 'stylizes the sequence' 
+            #that code is too slow and takes a long time for a file to load. 
+            # Example: NE1 hangs while loading M13 sequence (8kb file) if we 
+            #stylize the sequence .-- Ninad 2008-01-22
             ##inSequence  =  self.stylizeSequence( inSequence )            
             ##complementSequence = self.stylizeSequence(complementSequence)
             
+            #Instead only make the sequence 'Fixed pitch' (while bug 2604
+            #is still open
+            inSequence = self._fixedPitchSequence(inSequence)
+            complementSequence = self._fixedPitchSequence(complementSequence)
+           
+    
+        # Specify that theSequence is definitely HTML format, because 
+        # Qt can get confused between HTML and Plain Text.        
         self.sequenceTextEdit.insertHtml( inSequence )
         self.sequenceTextEdit_mate.insertHtml(complementSequence)
         
@@ -380,6 +387,23 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
             self.sequenceTextEdit.setTextCursor( cursor )
                           
         return
+    
+    def _fixedPitchSequence(self, sequence):
+        """
+        Make the sequence 'fixed-pitched'  i.e. width of all characters 
+        should be constance
+        """
+        #The <pre> tag is important to keep the fonts 'fixed pitch' i.e. 
+        #all the characters occupy the same size. This is important because 
+        #we have two text edits. (strand and Mate) the 'Mate' edit gets updated
+        #as you type in letters in the 'StrandEdit' and these two should
+        #appear to user as having equal lengths. 
+        fixedPitchSequence  =  "<html>" + "<pre>" + sequence
+        fixedPitchSequence +=  "</pre>" + "</html>"
+        
+        return fixedPitchSequence
+        
+        
     
     def getSequenceLength( self ):
         """
