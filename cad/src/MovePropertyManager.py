@@ -23,12 +23,11 @@ class MovePropertyManager(Ui_MovePropertyManager):
     serves as a superclass for FusePropertyManager
     """
 
-
-    #see self.connect_or_disconnect_signals for comment about this flag
-    isAlreadyConnected = False
-
     def __init__(self, parentMode):
         Ui_MovePropertyManager.__init__(self, parentMode) 
+        
+        #see self.connect_or_disconnect_signals for comment about this flag
+        self.isAlreadyConnected =  False
                 
         self.lastCheckedRotateButton = None 
         self.lastCheckedTranslateButton = None                     
@@ -54,7 +53,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         if connect and self.isAlreadyConnected:
             return
-
+        
 
         self.isAlreadyConnected = connect
 

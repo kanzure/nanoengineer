@@ -115,6 +115,8 @@ class FusePropertyManager(MovePropertyManager):
         groupbox button is clicked. 
         @see: L{self.activate_translateGroupBox_in_fuse_PM}
         """
+        
+        self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
                       
         self.toggle_translateGroupBox()
         self.deactivate_rotateGroupBox()
@@ -130,7 +132,7 @@ class FusePropertyManager(MovePropertyManager):
         self.changeMoveOption(buttonToCheck)
         
         self.isTranslateGroupBoxActive = True
-        self.parentMode.update_cursor()
+        self.parentMode.graphicsMode.update_cursor()
     
     def activate_rotateGroupBox_in_fuse_PM(self):
         """
@@ -141,6 +143,7 @@ class FusePropertyManager(MovePropertyManager):
         groupbox button is clicked. 
         @see: L{activate_rotateGroupBox_in_fuse_PM}
         """
+        self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
      
         self.toggle_rotateGroupBox()
         self.deactivate_translateGroupBox()
@@ -156,9 +159,9 @@ class FusePropertyManager(MovePropertyManager):
         self.changeRotateOption(buttonToCheck)
         
         self.isTranslateGroupBoxActive = False
-        self.parentMode.update_cursor()
+        self.parentMode.graphicsMode.update_cursor()
                     
-    def updateMessage(self): 
+    def updateMessage(self, msg = ''): 
         """
         Updates the message box with an informative message.
         Overrides the MovePropertyManager.updateMessage method

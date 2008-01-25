@@ -125,10 +125,8 @@ from VQT import V, Q, A, norm, vlen
 from Numeric import dot
 import drawer
 
-from modifyMode      import modifyMode
 from cookieMode      import cookieMode 
 from extrudeMode     import extrudeMode
-from fusechunksMode  import fusechunksMode
 from PasteMode       import PasteMode
 from PartLibraryMode import PartLibraryMode
 from movieMode       import movieMode
@@ -150,6 +148,7 @@ from DnaSegment_EditCommand  import DnaSegment_EditCommand
 from Move_Command            import Move_Command
 from RotateChunks_Command    import RotateChunks_Command
 from TranslateChunks_Command import TranslateChunks_Command
+from FuseChunks_Command      import FuseChunks_Command
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 from CommandSequencer import modeMixin
 
@@ -390,7 +389,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     Move_Command,
                     cookieMode, 
                     extrudeMode, 
-                    fusechunksMode,
                     movieMode, 
                     ZoomMode, 
                     PanMode, 
@@ -407,7 +405,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     BuildDna_EditCommand,
                     DnaSegment_EditCommand, 
                     RotateChunks_Command,
-                    TranslateChunks_Command
+                    TranslateChunks_Command, 
+                    FuseChunks_Command
                 ]
                     ##SketchMode] #Sketchmode not implemented yet
 
