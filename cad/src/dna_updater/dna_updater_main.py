@@ -12,6 +12,7 @@ from dna_updater_globals import get_changes_and_clear
 from dna_updater_globals import ignore_new_changes
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
 from dna_updater_utils import remove_killed_atoms
 
@@ -48,7 +49,10 @@ def full_dna_update():
         items = changed_atoms.items()
         items.sort()
         atoms = [item[1] for item in items]
-        print " they are: %r" % atoms
+        if DEBUG_DNA_UPDATER_VERBOSE or len(atoms) <= 100:
+            print " they are: %r" % atoms
+        else:
+            print " the first 100 of them are: %r ..." % atoms[:100]
 
     remove_killed_atoms( changed_atoms) # only affects this dict, not the atoms
         # TODO: also remove atoms from assys that have been destroyed
