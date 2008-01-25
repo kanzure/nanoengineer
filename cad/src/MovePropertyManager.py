@@ -15,8 +15,6 @@ __author__  = "Ninad"
 from Ui_MovePropertyManager import Ui_MovePropertyManager
 from PyQt4.Qt import Qt, SIGNAL
 
-TRANSLATE = 1
-ROTATE = 2
 
 class MovePropertyManager(Ui_MovePropertyManager):
     """
@@ -25,8 +23,6 @@ class MovePropertyManager(Ui_MovePropertyManager):
     serves as a superclass for FusePropertyManager
     """
 
-    # The current move mode (either TRANSLATE or ROTATE).
-    _currentMoveMode = TRANSLATE 
 
     #see self.connect_or_disconnect_signals for comment about this flag
     isAlreadyConnected = False
@@ -35,8 +31,7 @@ class MovePropertyManager(Ui_MovePropertyManager):
         Ui_MovePropertyManager.__init__(self, parentMode) 
                 
         self.lastCheckedRotateButton = None 
-        self.lastCheckedTranslateButton = None
-        self.isTranslateGroupBoxActive = None                         
+        self.lastCheckedTranslateButton = None                     
         self.updateMessage()
         
     def connect_or_disconnect_signals(self, connect):
@@ -126,15 +121,13 @@ class MovePropertyManager(Ui_MovePropertyManager):
         groupbox button is clicked. See also activate_translateGroupBox 
         method.
         """
-        self._currentMoveMode = TRANSLATE
-
-        self.isTranslateGroupBoxActive = True
-
         self.updateMessage()
         self.toggle_translateGroupBox()
 
         if not self.w.toolsMoveMoleculeAction.isChecked():
+            
             self.w.toolsMoveMoleculeAction.setChecked(True)
+            self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
 
             # Update the title and icon.
             self.setHeaderIcon(self.translateIconPath)
@@ -152,9 +145,9 @@ class MovePropertyManager(Ui_MovePropertyManager):
                 buttonToCheck.setChecked(True)
 
             self.changeMoveOption(buttonToCheck)
-
-            self.parentMode.update_cursor()
-
+            
+            self.parentMode.graphicsMode.update_cursor()
+            
 
     def activate_rotateGroupBox_using_groupButton(self):
         """
@@ -163,12 +156,12 @@ class MovePropertyManager(Ui_MovePropertyManager):
         last time. (if applicable). This method is called only when rotate 
         groupbox button is clicked. See also activate_rotateGroupBox method. 
         """
-        self._currentMoveMode = ROTATE
         self.updateMessage()
         self.toggle_rotateGroupBox()
 
         if not self.w.rotateComponentsAction.isChecked():            
-            self.w.rotateComponentsAction.setChecked(True)           
+            self.w.rotateComponentsAction.setChecked(True)   
+            self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'ROTATE_CHUNKS')
 
             # Update the title and icon.
             self.setHeaderIcon(self.rotateIconPath)
@@ -189,9 +182,9 @@ class MovePropertyManager(Ui_MovePropertyManager):
                 buttonToCheck.setChecked(True)
 
             self.changeRotateOption(buttonToCheck)
-            self.parentMode.update_cursor()
-
-
+            
+            self.parentMode.graphicsMode.update_cursor()
+           
     def activate_translateGroupBox(self):
         """
         Show contents of this groupbox, deactivae the other groupbox. 
@@ -201,18 +194,15 @@ class MovePropertyManager(Ui_MovePropertyManager):
         see also: activate_translateGroupBox_using_groupButton
         """
 
-        self._currentMoveMode = TRANSLATE
-
-        self.isTranslateGroupBoxActive = True
-
         self.updateMessage()
+        
+        self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'TRANSLATE_CHUNKS')
 
         #Update the icon and the title
         self.setHeaderIcon(self.translateIconPath)
         self.setHeaderTitle(self.translateTitle)
 
         self.toggle_translateGroupBox()
-
 
         self.deactivate_rotateGroupBox()    
 
@@ -230,8 +220,9 @@ class MovePropertyManager(Ui_MovePropertyManager):
             buttonToCheck.setChecked(True)
 
         self.changeMoveOption(buttonToCheck)
-        self.parentMode.update_cursor()
-
+        
+        self.parentMode.graphicsMode.update_cursor()
+       
     def activate_rotateGroupBox(self):
         """Show contents of this groupbox, deactivae the other groupbox. 
         Also check the button that was checked when this groupbox  was active 
@@ -239,9 +230,9 @@ class MovePropertyManager(Ui_MovePropertyManager):
         rotateComponentsAction is checked from the toolbar or command toolbar. 
         @see: L{self.activate_rotateGroupBox_using_groupButton}
         """
-
-        self._currentMoveMode = ROTATE
+        
         self.updateMessage()
+        self.parentMode.switchGraphicsModeTo(newGraphicsMode = 'ROTATE_CHUNKS')
 
         #Update the icon and the title. 
         self.setHeaderIcon(self.rotateIconPath)
@@ -261,9 +252,9 @@ class MovePropertyManager(Ui_MovePropertyManager):
             buttonToCheck.setChecked(True)
 
         self.changeRotateOption(buttonToCheck)
-        self.parentMode.update_cursor()
-
-
+        
+        self.parentMode.graphicsMode.update_cursor()
+      
     def deactivate_rotateGroupBox(self):
         """ Hide the items in the groupbox, Also 
         store the current checked button which will be checked again 
@@ -304,7 +295,6 @@ class MovePropertyManager(Ui_MovePropertyManager):
         if self.freeDragTranslateButtonGroup.checkedButton():
             self.freeDragTranslateButtonGroup.checkedButton().setChecked(False) 
 
-        self.isTranslateGroupBoxActive = False
 
     def toggle_translateGroupBox(self):
 
@@ -482,8 +472,15 @@ class MovePropertyManager(Ui_MovePropertyManager):
 
         assert buttonText in ['TRANSX', 'TRANSY', 'TRANSZ', 
                               'ROT_TRANS_ALONG_AXIS', 'MOVEDEFAULT' ]
+        
+        self.parentMode.graphicsMode.moveOption = buttonText
+        
+        #commandSequencer = self.win.commandSequencer  
+        
+        #if commandSequencer.currentCommand.commandName == 'TRANSLATE_CHUNKS':
+            #commandSequencer.currentCommand.graphicsMode.moveOption = buttonText
 
-        self.parentMode.moveOption = buttonText
+        ##self.parentMode.moveOption = buttonText
 
 
     def changeRotateOption(self, button):
@@ -507,8 +504,13 @@ class MovePropertyManager(Ui_MovePropertyManager):
             self.toggleRotationDeltaLabels(show = False)
         else:
             self.toggleRotationDeltaLabels(show = True)
+        
+        self.parentMode.graphicsMode.rotateOption = buttonText
+        #commandSequencer = self.win.commandSequencer
+        #if commandSequencer.currentCommand.commandName == 'ROTATE_CHUNKS':
+            #commandSequencer.currentCommand.graphicsMode.rotateOption = buttonText
 
-        self.parentMode.rotateOption = buttonText
+        ##self.parentMode.rotateOption = buttonText
 
 
     def set_move_xyz(self, x, y, z):
@@ -588,25 +590,33 @@ class MovePropertyManager(Ui_MovePropertyManager):
         """
         Updates the message box with an informative message.
         """
+        graphicsModeName = ''
+        #Question: should we define a new attr in Graphicsmode classes 
+        #suchs as graphicsModeName ? (or a method that returns the GM name 
+        # and which falls backs to graphicsMode.__class__.__name__ if name  is 
+        # not defined ? -- Ninad 2008-01-25
+        if hasattr(self.parentMode, 'graphicsMode'):
+            graphicsModeName = self.parentMode.graphicsMode.__class__.__name__
 
         if msg:
             self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )
             return
-
 
         from ops_select import objectSelected
         if objectSelected(self.o.assy):
             msg = ""
         else:
             msg = "Click on an object to select it."
+        
+        if graphicsModeName:
 
-        if self._currentMoveMode == TRANSLATE:
-            msg += "Translate the current selection by holding down the \
-                left mouse button (<b>LMB</b>) and dragging the cursor. \
-                Translation options are available below."
-        else:
-            msg += "Rotate the current selection by holding down the \
-                left mouse button (<b>LMB</b>) and dragging the cursor. \
-                Rotate options are available below."
+            if graphicsModeName == 'TranslateChunks_GraphicsMode':
+                msg += "Translate the current selection by holding down the \
+                    left mouse button (<b>LMB</b>) and dragging the cursor. \
+                    Translation options are available below."
+            else:
+                msg += "Rotate the current selection by holding down the \
+                    left mouse button (<b>LMB</b>) and dragging the cursor. \
+                    Rotate options are available below."
 
         self.MessageGroupBox.insertHtmlMessage( msg, setAsDefault  =  True )

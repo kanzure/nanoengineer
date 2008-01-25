@@ -1535,14 +1535,14 @@ class MWsemantics(QMainWindow,
 
     # get into Move Chunks (or Translate Components) command        
     def toolsMoveMolecule(self):
-        self.ensureInCommand('MODIFY')
-        self.currentCommand.propMgr.activate_translateGroupBox()
+        self.ensureInCommand('MODIFY')        
+        self.commandSequencer.currentCommand.propMgr.activate_translateGroupBox()        
         return
 
     # Rotate Components command
     def toolsRotateComponents(self):
         self.ensureInCommand('MODIFY')
-        self.currentCommand.propMgr.activate_rotateGroupBox()
+        self.commandSequencer.currentCommand.propMgr.activate_rotateGroupBox()
         return
 
     # get into Build mode        
