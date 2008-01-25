@@ -40,8 +40,10 @@ class NXEntityManager {
 		//
 		void loadDataImportExportPlugins(NXProperties* properties);
 		NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
+										NXDataStoreInfo* dataStoreInfo,
 										const string& type,
-										const string& file);
+										const string& filename,
+										unsigned int frameIndex = 0);
 		NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
 									  NXDataStoreInfo* dataStoreInfo,
 									  const string& type,

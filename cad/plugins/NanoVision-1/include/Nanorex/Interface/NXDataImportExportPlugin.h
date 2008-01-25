@@ -49,14 +49,14 @@ class NXDataImportExportPlugin : public NXPlugin {
 		/**
 		 * Imports the system from the given file into the given molecule set.
 		 *
-		 * If frameIndex == 0, populates dataStore, else, re-uses the file
-		 * handle from dataStore. If opening a multi-frame file, a handle to it
-		 * will be stored in te dataStore for later use (subsequent
+		 * If frameIndex == 0, populates dataStoreInfo, else, re-uses the file
+		 * handle from dataStoreInfo. If opening a multi-frame file, a handle
+		 * to it will be stored in the dataStoreInfo for later use (subsequent
 		 * importFromFile calls.)
 		 */
 		virtual NXCommandResult* importFromFile
-			(NXMoleculeSet* moleculeSet, /*NXDataStore* dataStore,*/
-			 const string& filename/*, unsigned int frameIndex = 0*/) = 0;
+			(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
+			 const string& filename, unsigned int frameIndex = 0) = 0;
 
 		/**
 		 * Exports the system to the given file from the given molecule set.
