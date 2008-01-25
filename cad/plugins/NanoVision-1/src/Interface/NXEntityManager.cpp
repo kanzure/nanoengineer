@@ -94,8 +94,10 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
  */
 /* FUNCTION: importFromFile */
 NXCommandResult* NXEntityManager::importFromFile(NXMoleculeSet* moleculeSet,
+												 NXDataStoreInfo* dataStoreInfo,
 												 const string& type,
-												 const string& file) {
+												 const string& filename,
+												 unsigned int frameIndex) {
 
 	NXCommandResult* result;
 	//PR_Lock(importExportPluginsMutex);
@@ -106,7 +108,9 @@ NXCommandResult* NXEntityManager::importFromFile(NXMoleculeSet* moleculeSet,
 
 		try {
 			plugin->setMode(type);
-			result = plugin->importFromFile(moleculeSet, file);
+			result =
+				plugin->importFromFile(moleculeSet, dataStoreInfo, filename,
+									   frameIndex);
 
 		} catch (...) {
 			string msg = type;
