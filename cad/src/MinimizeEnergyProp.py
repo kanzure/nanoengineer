@@ -32,7 +32,8 @@ from prefs_constants import Minimize_minimizationEngine_prefs_key
 from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 
 from debug import print_compact_traceback
-import env, platform
+import env
+from utilities import debug_flags
 from UserPrefs import get_pref_or_optval
 from widgets import double_fixup
 from debug_prefs import debug_pref, Choice_boolean_False
@@ -205,7 +206,7 @@ class MinimizeEnergyProp(QDialog, SponsorableMixin, GroupButtonMixin, Ui_Minimiz
         self.gather_parameters()
         ### kluge: has side effect on env.prefs
         # (should we pass these as arg to Minimize_CommandRun rather than thru env.prefs??)
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "debug: reloading runSim on each use, for development"
             import runSim, debug
             debug.reload_once_per_event(runSim)

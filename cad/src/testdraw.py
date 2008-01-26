@@ -81,7 +81,7 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glTranslate
 
 import env
-import platform
+from utilities import debug_flags
 
 from debug import print_compact_traceback
 
@@ -136,7 +136,7 @@ trans_green = translucent_color(green)
 
 # ==
 
-if platform.atom_debug:
+if debug_flags.atom_debug:
     print "\ntestdraw: %d reloads" % exprs_globals.reload_counter
 
 def end_of_Enter(glpane):

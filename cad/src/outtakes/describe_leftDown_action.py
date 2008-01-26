@@ -11,7 +11,7 @@
             if what and len(what) > 60: # guess at limit
                 what = what[:60] + "..."
         except:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_traceback("atom_debug: describe_paste_action failed: ")
             what = "click to paste"
         if onto_open_bond:

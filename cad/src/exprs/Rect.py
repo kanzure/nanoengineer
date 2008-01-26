@@ -19,7 +19,7 @@ from OpenGL.GLU import GLU_SMOOTH
 from OpenGL.GLU import gluQuadricNormals
 from OpenGL.GLU import gluPartialDisk
 
-import platform
+from utilities import debug_flags
 
 from constants import gray, white, black
 
@@ -63,7 +63,7 @@ class Rect(Widget2D): # finally working as of 061106
         printnim("make sure it complains about bright and width here")
         btop = height
     else:
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             printfyi("not yet trying to trigger the error warning for 'bright = width'") # (since it's nim, even as of 061114 i think)
         bright = _self.width
         btop = _self.height

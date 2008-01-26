@@ -31,7 +31,7 @@ from state_utils_unset import _UNSET_, _Bugval
 
 import env
 from debug import print_compact_stack
-import platform
+from utilities import debug_flags
 from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
 from constants import remove_prefix
 
@@ -608,7 +608,7 @@ def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficienc
     (See a code comment for the reason we can't just use the standard Python copy module for this.)
     """
     global _debug_deepcopy
-    _debug_deepcopy = platform.atom_debug # inlined env.debug()
+    _debug_deepcopy = debug_flags.atom_debug # inlined env.debug()
         ##e ideally we'd have a recursive _copy_val_helper that doesn't check this debug flag at all
     try:
         # wware 060308 small performance improvement (use try/except); made safer by bruce, same day

@@ -152,7 +152,7 @@ from FuseChunks_Command      import FuseChunks_Command
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 from CommandSequencer import modeMixin
 
-import platform
+from utilities import debug_flags
 
 from utilities.Log import orangemsg
 from PlatformDependent import fix_event_helper
@@ -435,7 +435,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                    "This will slow down some graphics operations.")
             ## env.history.message( regmsg( msg)) -- too early for that to work (need to fix that sometime, to queue the msg)
             print msg
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: details of lack of stencil bits: " \
                       "self.format().stencil() = %r, glGetInteger(GL_STENCIL_BITS) = %r" % \
                       ( self.format().stencil() , glGetInteger(GL_STENCIL_BITS) )
@@ -446,7 +446,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             ## self.stencilbits = int( glGetInteger(GL_STENCIL_BITS) ) -- too early!
             self.stencilbits = 1 # conservative guess that if we got the buffer, it has at least one bitplane
                 #e could probably be improved by testing this in initializeGL or paintGL (doesn't matter yet)
-##            if platform.atom_debug:
+##            if debug_flags.atom_debug:
 ##                print "atom_debug: glGetInteger(GL_STENCIL_BITS) = %r" % ( glGetInteger(GL_STENCIL_BITS) , )
             pass
 
@@ -832,7 +832,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # If we ever need it back, this is what it was (below);
             # it looks like it could be replaced by just initializing our viewpoint to default;
             # it was meant to run instead of the set_part after it (but that is probably safe with mainpart of None, anyway):
-            ##if platform.atom_debug:
+            ##if debug_flags.atom_debug:
             ##    print "atom_debug: no mainpart yet in setAssy (ok during init); using a fake one"
             ##mainpart = Part(self) # use this just for its lastCsys
             ##self._setInitialViewFromPart( mainpart)        
@@ -1195,11 +1195,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         #  like the selection is). [bruce 071011]
 
         if self.selatom is not None: #bruce 050612 precaution (scheme could probably be cleaned up #e)
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: update_after_new_mode storing None over self.selatom", self.selatom
             self.selatom = None
         if self.selobj is not None: #bruce 050612 bugfix; to try it, in Build drag selatom over Select Atoms toolbutton & press it
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: update_after_new_mode storing None over self.selobj", self.selobj
             self.set_selobj(None)
 
@@ -1870,7 +1870,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             #bruce 060124 for Undo; will need cleanup of begin-end matching with help of fix_event;
             # also, should make redraw close the begin if no releaseEvent came by then (but don't
             #  forget about recursive event processing) [done in a different way in redraw, bruce 060323]
-            if self.__pressEvent is not None and platform.atom_debug:
+            if self.__pressEvent is not None and debug_flags.atom_debug:
                 # this happens whenever I put up a context menu in GLPane, so don't print it unless atom_debug ###@@@
                 print "atom_debug: bug: pressEvent didn't get release:", self.__pressEvent
             self.__pressEvent = event
@@ -2186,7 +2186,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
               L{selectMode.bareMotion()}
         """
         if not self.highlightTimer or (self._timer_debug_pref() is None): #bruce 070110
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "debug note (not a bug): GLPane got timerEvent but has no timer"
                     # should happen once when we turn it off or maybe when mouse leaves -- not other times, not much
             #e should we do any of the following before returning??
@@ -2625,7 +2625,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 # reasons as well (e.g. to optimize redraws in which only the
                 # selection or highlighting changes).
 
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     sys.stdout.write("#") # indicate a repaint is being skipped
                     sys.stdout.flush()
 
@@ -3128,7 +3128,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             self.part.draw_text_label(self)
         except:
             # if it happens at all, it'll happen too often to bother non-debug users with a traceback
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_traceback( "atom_debug: exception in self.part.draw_text_label(self): " )
             else:
                 print "bug: exception in self.part.draw_text_label; use ATOM_DEBUG to see details"
@@ -3191,7 +3191,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             hicolor = self.graphicsMode.selobj_highlight_color( obj) #e should implem noop version in basicMode [or maybe i did]
             # mode can decide whether selobj should be highlighted (return None if not), and if so, in what color
         except:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_traceback("atom_debug: selobj_highlight_color exception for %r: " % (obj,) )
             else:
                 print "bug: selobj_highlight_color exception for %r; for details use ATOM_DEBUG" % (obj,)
@@ -3270,7 +3270,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     # tho if we ever support "name/subname paths" we'll probably let first name interpret the remaining ones.
                     ###e in fact, when nodes change projection or viewport for kids, and/or share their kids, they need to
                     # put their own names on the stack, so we'll know how to redraw the kids, or which ones are meant when shared.
-                    if platform.atom_debug and len(names) > 1: ###@@@ bruce 060725
+                    if debug_flags.atom_debug and len(names) > 1: ###@@@ bruce 060725
                         if len(names) == 2 and names[0] == names[1]:
                             if not env.seen_before("dual-names bug"): # this happens for Atoms, don't know why (colorsorter bug??)
                                 print "debug (once-per-session message): why are some glnames duplicated on the namestack?",names
@@ -3414,7 +3414,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                         msg = method()
                 except:
                     msg = "<exception in selobj statusbar message code>"
-                    if platform.atom_debug:
+                    if debug_flags.atom_debug:
                         #bruce 070203 added this print; not if 1 in case it's too verbose due as mouse moves
                         print_compact_traceback(msg + ': ')
                     else:
@@ -3808,7 +3808,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     # (do other platforms need this?)
             assert res
         except:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "fyi: error adding testmode.py from cad/src to custom modes menu (ignored)"
             pass
         try:

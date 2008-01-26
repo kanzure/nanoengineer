@@ -15,7 +15,7 @@ into a reasonable form for supporting a UI.
 from debug import register_debug_menu_command_maker
 from debug import print_compact_traceback, print_compact_stack
 
-import platform
+from utilities import debug_flags
 from PlatformDependent import is_macintosh
 from undo_archive import AssyUndoArchive
 import undo_archive # for debug_undo2;
@@ -547,7 +547,7 @@ def undo_cmds_maker(widget):
     try:
         assy = widget.win.assy
     except:
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             return [('atom_debug: no undo in this widget', noop, 'disabled')]
         return []
 ##    if 'kluge' and not hasattr(assy, 'undo_manager'):

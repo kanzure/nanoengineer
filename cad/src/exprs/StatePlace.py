@@ -14,7 +14,7 @@ from exprs.py_utils import attrholder
 
 from exprs.lvals import LvalDict2, LvalForState, LvalError_ValueIsUnset
 
-import platform
+from utilities import debug_flags
 
 # ==
 
@@ -97,7 +97,7 @@ def _StatePlace_helper( self, kind, ipath, tracked): # could become a method in 
             state[key] = res
         return res
         
-    res = _attr_accessor( self.env.staterefs, kind, ipath, debug_name = platform.atom_debug and ("%r|%s" % (self,kind)))
+    res = _attr_accessor( self.env.staterefs, kind, ipath, debug_name = debug_flags.atom_debug and ("%r|%s" % (self,kind)))
         # we leave ipath out of the debug_name, since the accessor's LvalDict2 will add it in in the form of its key
     return res # from _StatePlace_helper
 

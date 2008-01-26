@@ -78,7 +78,7 @@ from debug import print_compact_traceback
 from prefs_constants import workingDirectory_prefs_key
 
 from utilities.Log import orangemsg ##, greenmsg, redmsg
-import platform
+from utilities import debug_flags
 from PlatformDependent import find_or_make_any_directory
 import env
 from state_utils import StateMixin
@@ -443,7 +443,7 @@ class assembly( StateMixin, Assembly_API):
             ## assy_end_suspend_noticing_changes(self,oldmod)
             self.end_suspend_noticing_changes(oldmod)
             if fixroot and assert_this_was_not_needed: #050315
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print_compact_stack("atom_debug: fyi: kluge_patch_toplevel_groups sees fixroot and assert_this_was_not_needed: ")
         return
 
@@ -489,7 +489,7 @@ class assembly( StateMixin, Assembly_API):
         ## print_compact_stack( "set_selwhat to %r: " % (selwhat,))
         assert selwhat in (SELWHAT_ATOMS, SELWHAT_CHUNKS)
         if not self._last_set_selwhat == self.selwhat: # compare last officially set one to last actual one
-            if platform.atom_debug: # condition is because cookiemode will do this, for now
+            if debug_flags.atom_debug: # condition is because cookiemode will do this, for now
                 print_compact_stack( "atom_debug: bug: this failed to call set_selwhat, but set it directly, to %r:\n " \
                                      % (self.selwhat,) )
         self.selwhat = selwhat
@@ -689,7 +689,7 @@ class assembly( StateMixin, Assembly_API):
         """
         make sure each selgroup has its own Part, and all is correct about them
         """
-        # presumably this is only called when platform.atom_debug, but that's up to the caller
+        # presumably this is only called when debug_flags.atom_debug, but that's up to the caller
         for node in self.topnodes_with_own_parts():
             ## print "checking part-related stuff about node:" ,node
             #e print the above in an except clause, so on asfail we'd see it...
@@ -710,7 +710,7 @@ class assembly( StateMixin, Assembly_API):
     # ==
 
     def draw(self, glpane): #bruce 050617 renamed win arg to glpane, and made submethod use it for the first time
-        if platform.atom_debug and self.own_window_UI:
+        if debug_flags.atom_debug and self.own_window_UI:
             #bruce 060224 added condition, so we don't keep reporting this old bug in MMKit Library ThumbView:
             # AssertionError: node.part.nodecount 3 != len(kids) 1
             # ...
@@ -799,7 +799,7 @@ class assembly( StateMixin, Assembly_API):
         #  ideally we'd change to self.tree then, but since it's probably a bug we won't bother.)
         if newsg is None:
             #k probably can't happen unless self.tree is None, which I hope never happens here
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_stack("atom_debug: cur selgroup None, no tree(?), should never happen: ")
             # we already stored None, and it's not good to call current_selgroup_changed now (I think) ##k
             return None
@@ -897,7 +897,7 @@ class assembly( StateMixin, Assembly_API):
             prior = 0 # tell submethod that we don't know the true prior one
         if not self.valid_selgroup(node):
             # probably a bug in the caller. Complain, and don't change current selgroup.
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_stack("atom_debug: bug: invalid selgroup %r not being used" % (node,))
             #e if this never happens, change it to raise an exception (ie just be an assert) ###@@@
             return
@@ -933,7 +933,7 @@ class assembly( StateMixin, Assembly_API):
             ## env.history.message( greenmsg( msg)) ###e need option for this?
             env.history.message( msg, transient_id = "current_selgroup_changed")
         except:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_traceback("atom_debug: bug?? or just init?: can't print changed-part msg: ")
             pass
 
@@ -953,7 +953,7 @@ class assembly( StateMixin, Assembly_API):
                     #e could make this more specific depending on which selection groups were involved
                 msg = "Warning: deselected %s, %s" % (what, why)
             except:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     raise 
                 msg = "Warning: deselected some previously selected items"
             try:
@@ -1139,7 +1139,7 @@ class assembly( StateMixin, Assembly_API):
         """
         check invariants related to self._modified
         """
-        if 1: ###@@@ maybe should be: if platform.atom_debug:
+        if 1: ###@@@ maybe should be: if debug_flags.atom_debug:
             hopetrue = ( (not self._modified) == (self._model_change_counter == self._change_counter_when_reset_changed) )
             if not hopetrue:
                 print_compact_stack(
@@ -1284,7 +1284,7 @@ class assembly( StateMixin, Assembly_API):
     # ==
 
     def __str__(self):
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             return "<Assembly of file %r" % self.filename + " (id = %r, _debug_name = %r)>" % (id(self), self._debug_name) #bruce 050429
         return "<Assembly of " + self.filename + ">"
 

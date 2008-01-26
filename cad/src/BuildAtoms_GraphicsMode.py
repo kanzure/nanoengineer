@@ -57,7 +57,7 @@ from OpenGL.GLU import gluUnProject
 from PyQt4.Qt import Qt
 
 import env
-import platform
+from utilities import debug_flags
 
 from PlatformDependent import fix_plurals
 
@@ -1083,7 +1083,7 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             #  for Jigs should it Unhide them? For that matter, what about for 
             # Chunks? What if the hiddenness or invisibility came from the 
             #partlib?]
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: ignoring object of unhandled type (Jig? Comment? Named View?) in ensure_visible_0", stuff
             return 0
         pass

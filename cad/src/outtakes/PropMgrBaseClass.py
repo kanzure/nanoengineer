@@ -73,7 +73,7 @@ from PyQt4.Qt import QSize
 from PyQt4.Qt import QRadioButton
 from PyQt4.Qt import QTextCursor
 
-import platform
+from utilities import debug_flags
 
 from icon_utilities import geticon, getpixmap
 from debug import print_compact_traceback

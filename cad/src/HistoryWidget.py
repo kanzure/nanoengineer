@@ -30,7 +30,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QTextEdit, QTextOption
 
-import platform
+from utilities import debug_flags
 from PlatformDependent import mkdirs_in_filename
 from DebugMenuMixin import DebugMenuMixin
 from qt4transition import qt4todo
@@ -111,7 +111,7 @@ class History_QTextEdit(hte_super, m_super):
         # but is called for KeyEvents (2 each, presumably one press res T, and one release res F).
         # Could this be a difference in PyQt and Qt? Or, is it because we're outside the scrollview?
         # I should try overriding contentsEvent instead... ###e
-        debug = platform.atom_debug and 0
+        debug = debug_flags.atom_debug and 0
         if debug:
             try:
                 after = event.stateAfter()
@@ -200,7 +200,7 @@ class HistoryWidget:
         file_msg = self._init_file(filename, mkdirs = mkdirs)
         self._append(header_line) # appends to both widget and file
         # most output should pass through self._print_msg, not just self._append
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             self._debug_init()
         self._print_msg(file_msg)
         return
@@ -266,7 +266,7 @@ class HistoryWidget:
             else:
                 self.filename = filename
                 self.file = ff
-        elif platform.atom_debug:
+        elif debug_flags.atom_debug:
             # developer wants it saved, but program thinks user doesn't
             print "atom_debug: printing history to sys.__stderr__"
             self.filename = "sys.__stderr__"
@@ -306,7 +306,7 @@ class HistoryWidget:
         if self.file:
             self.file.write(something)
             self.file.write('\n') # file gets \n after each line, not before
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 # (we also flush in self.h_update(), whether or not debugging)
                 self.file.flush()
         self.widget.append(something) # apparently prepends a newline if needed
@@ -334,7 +334,7 @@ class HistoryWidget:
         m1 = message(msg, hist = self)
         msg = m1.widget_html() # widget_text() or widget_html()
         self._append(msg) ##e need to pass the message object, since also puts it into the file, but text might be different! ###@@@
-        if 0 and platform.atom_debug: # this is redundant with __stderr__ in _append, so we no longer do it.
+        if 0 and debug_flags.atom_debug: # this is redundant with __stderr__ in _append, so we no longer do it.
             print "(history:)", msg
         return
 
@@ -511,7 +511,7 @@ class HistoryWidget:
         Any code that wants to print debug-only notes, properly timestamped
         and intermixed with other history, and included in the history file,
         can use this method."""
-        if not platform.atom_debug:
+        if not debug_flags.atom_debug:
             return
         msg = ("debug: " + fmt) % args
         self._print_msg(msg)

@@ -22,7 +22,7 @@ Moved many ui helper methods to class ExtrudePropertyManager .
 extrude_loop_debug = 0 # do not commit with 1, change back to 0
 
 import math
-import platform
+from utilities import debug_flags
 import env
 import changes
 
@@ -556,7 +556,7 @@ class extrudeMode(basicMode):
         if ii == 0:
             ###e we should warn if retvals are not same as basemol values; need a routine to "compare center and quat",
             # like our near test for floats; Numeric can help for center, but we need it for quat too
-            if platform.atom_debug: #bruce 050518 added this condition, at same time as bugfixing the checkers to not be noops
+            if debug_flags.atom_debug: #bruce 050518 added this condition, at same time as bugfixing the checkers to not be noops
                 check_posns_near( centerii, basemol.center )
                 check_quats_near( quatii, basemol.quat )
             pass

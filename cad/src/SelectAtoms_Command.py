@@ -28,7 +28,7 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
                           selectAtomsMode.py
 
 """
-import platform
+from utilities import debug_flags
 from runSim import LocalMinimize_function
 from debug import print_compact_traceback
 
@@ -137,7 +137,7 @@ class SelectAtoms_basicCommand(Select_basicCommand):
     def localmin(self, atom, nlayers): #bruce 051207 #e might generalize to 
                                        #take a list or pair of atoms, other 
                                        #options
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "debug: reloading runSim on each use, for development"\
                   "[localmin %s, %d]" % (atom, nlayers)
             import runSim, debug

@@ -40,7 +40,7 @@ from VQT import Q, vlen, norm
 from debug import print_compact_stack, compact_stack, print_compact_traceback
 from debug import reload_once_per_event
 
-import platform
+from utilities import debug_flags
 
 from elements import Singlet
 
@@ -166,7 +166,7 @@ def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it
     if b1:
         # these atoms are already bonded
         ###e should we verify bond order is 1, otherwise complain more loudly??
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             # print debug warning
             #e refile this code -- only print warning once for each place in the code it can happen from
             blame = compact_stack() # slow, but should be ok since this case should be rare
@@ -218,7 +218,7 @@ def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it
 ##        #  I predict would hit that message). Just to check, I'll print a debug message here (below);
 ##        #  that message is not happening either, so maybe this deprecated feature is no longer used at all. #k ####@@@@
 ##        #  (Should also try reading a pdb file with the same bond listed twice... ###k) [like bug 1226!]
-##        if platform.atom_debug:
+##        if debug_flags.atom_debug:
 ##            print "atom_debug: fyi (possible bug): bond_atoms_oldversion is a noop since an equal bond exists:", b
 ##        pass
 ##    return
@@ -257,7 +257,7 @@ def bond_copied_atoms(at1, at2, oldbond, origat1): #bruce 050524; revised 070424
             newbond.set_bond_direction_from(at1, direction)
     else:
         # this case is deprecated, and thought never to happen, as of bruce 070424
-        ## if oldbond._direction and platform.atom_debug:
+        ## if oldbond._direction and debug_flags.atom_debug:
         print_compact_stack( "debug: bond_copied_atoms%r needs origat1: " % ((at1, at2, oldbond, origat1),) )
     return newbond
 
@@ -348,7 +348,7 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
         dir2 = (s2 is not None and s2.bonds[0]._direction and + s2.bonds[0].bond_direction_from(s2))
 
         ####### TEMPORARY DEBUG CODE bruce 071018
-        if platform.atom_debug and (dir1 or dir2):
+        if debug_flags.atom_debug and (dir1 or dir2):
             print "bond at open bonds with directions, %r and %r" % (s1 and s1.bonds[0], s2 and s2.bonds[0])
 
         pass
@@ -692,11 +692,11 @@ class Bond(BondBase, StateMixin, Selobj_API):
             self._direction = - direction
         else:
             assert 0, "%r.set_bond_direction_from(%r, %r), but that bond doesn't have that atom" % (self, atom, direction)
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             assert self.bond_direction_from(atom) == direction
             assert self.bond_direction_from(self.other(atom)) == - direction
         if old != self._direction:
-            if 0 and platform.atom_debug:
+            if 0 and debug_flags.atom_debug:
                 print "fyi: changed direction of %r from %r to %r" % (self, old, self._direction)
             self._changed_bond_direction()
         if propogate:
@@ -1049,10 +1049,10 @@ class Bond(BondBase, StateMixin, Selobj_API):
                     break
             else:
                 else_reached = 1
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: else clause reached"
                     # i don't know python's rules about this; it might relate to #iters == 0
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 if not (did_break != else_reached):
                     # this is what I hope it means (whether we fell out the end or not) but fear it doesn't
                     print "atom_debug: i hoped for did_break != else_reached but it's not true"
@@ -1092,9 +1092,9 @@ class Bond(BondBase, StateMixin, Selobj_API):
                     break
             else:
                 else_reached = 1
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: else clause reached in increase_valence_noupdate"
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 if not (did_break != else_reached):
                     print "atom_debug: i hoped for did_break != else_reached but it's not true, in increase_valence_noupdate"
             if not did_break:
@@ -1180,7 +1180,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
         # (in case caller plans to move the chunks into the same part, but hasn't yet).
         # It might turn out this happens a lot (and is not a bug), if callers make a
         # new chunk, bond to it, and only then add it into the tree of Nodes.
-        if platform.atom_debug and at1.molecule is not at2.molecule:
+        if debug_flags.atom_debug and at1.molecule is not at2.molecule:
             if (at1.molecule.assy is None) or (at2.molecule.assy is None): #bruce 050519 fixed 'is not' -> 'is' (recent typo, i presume)
                 print_compact_stack( "atom_debug: bug?: bonding to a killed chunk(?); atoms are: %r, %r" % (at1,at2))
             elif (at1.molecule.part is None) or (at2.molecule.part is None): #bruce 050519 fixed 'is not' -> 'is'
@@ -1377,7 +1377,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
         all at once for all pi bonds in a chain connected by sp atoms with 2 bonds.
            If computed, and if it's partly arbitrary, **kws (out/up) might be used.
         """
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             import pi_bond_sp_chain
             reload_once_per_event(pi_bond_sp_chain) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
         from pi_bond_sp_chain import bond_get_pi_info
@@ -1581,7 +1581,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
             if (self.atom1 is ob.atom1 and self.atom2 is ob.atom2) or \
                (self.atom1 is ob.atom2 and self.atom2 is ob.atom1):
                 # atoms same -- probably not a bug at all
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print_compact_stack( "debug: fyi: different bond objects (on same atoms) equal: %r == %r: " % (self,ob) )
             else:
                 # different atoms -- VERY bad (not known to ever happen, but I tested this error-reporting code anyway)
@@ -1589,7 +1589,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
                 print_compact_stack(msg + ": ")
                 env.history.message(redmsg(quote_html(msg)))
         else:
-            if 0 and platform.atom_debug: #bruce 051216; disabled it since immediately found a call (using Build mode)
+            if 0 and debug_flags.atom_debug: #bruce 051216; disabled it since immediately found a call (using Build mode)
                 #bruce 070601 comment: I suspect this happens when asking "bond in atom.bonds" when making a new bond.
                 print_compact_stack( "atom_debug: deprecated Bond.__eq__ was called on %r and %r: " % (self,ob) )
         return ob.key == self.key
@@ -1637,7 +1637,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
         # a1pos, a2pos, c1, c2, as created by self.__setup_update().
         # As of 041109 this is now handled by bond.__getattr__.
         # The attr toolong is new as of 041112.
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             import bond_drawer
             reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
         from bond_drawer import draw_bond
@@ -1739,7 +1739,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
         If given, use the quat describing the rotation used for displaying it
         to order the atoms in the bond left-to-right (e.g. in text strings).
         """
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             import bond_utils
             reload(bond_utils) # at least during development
         from bond_utils import bond_menu_section
@@ -1934,7 +1934,7 @@ class bonder_at_singlets:
             new_code_needed = (v1 != V_SINGLE or v2 != V_SINGLE)
             if not new_code_needed:
                 # old code can be used for now
-                if platform.atom_debug and env.once_per_event("using OLD code for actually_bond"):
+                if debug_flags.atom_debug and env.once_per_event("using OLD code for actually_bond"):
                     print "atom_debug: fyi (once per event): using OLD code for actually_bond"
                 s1.kill()
                 s2.kill()
@@ -1942,7 +1942,7 @@ class bonder_at_singlets:
                 return (0, self.status) # effectively from bond_at_singlets
 
         # new code, handles any valences for s1, s2
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "atom_debug: NEW code used for actually_bond" #####@@@@@
         
         vnew = min(v1,v2)
@@ -1991,7 +1991,7 @@ class bonder_at_singlets:
         ###@@@ why didn't we use vdelta_used in place of vdelta, below? (a likely bug, which would erroneously reduce valence;
         # but so far I can't find a way to make it happen -- except dNdNd where it fixes preexisting valence errors!
         # I will fix it anyway, since it obviously should have been written that way to start with. [bruce 051215])
-##        if platform.atom_debug: #bruce 051215
+##        if debug_flags.atom_debug: #bruce 051215
 ##            print "atom_debug: bond_v6 changed from %r to %r; vdelta_used (difference) is %r; vdelta is %r" % (old_bond_v6, new_bond_v6, vdelta_used, vdelta)
         if not vdelta_used:
             return self.do_error("can't increase order of bond between atoms %r and %r" % (a1,a2), None) #e say existing order? say why not?

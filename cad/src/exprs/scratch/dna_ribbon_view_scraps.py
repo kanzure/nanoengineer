@@ -24,7 +24,7 @@ from OpenGL.GL import * #e move what needs this into draw_utils
 import drawer
 
 from dna_ribbon_view import * ###e reloadable -- needed at least for IorE, probably more
-import platform
+from utilities import debug_flags
 # ==
 
 Corkscrew = Stub

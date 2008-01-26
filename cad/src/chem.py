@@ -146,8 +146,8 @@ from utilities.Log import orangemsg
 import debug
 from debug import print_compact_stack, print_compact_traceback, compact_stack
 
-import platform # for atom_debug; note that uses of atom_debug should all grab it
-  # from platform.atom_debug since it can be changed at runtime
+from utilities import debug_flags # for atom_debug; note that uses of atom_debug should all grab it
+  # from debug_flags.atom_debug since it can be changed at runtime
 
 from PlatformDependent import fix_plurals
 import env
@@ -586,7 +586,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             # print "fyi: creating atom with mol == None"
             pass
         # (optional debugging code to show which code creates bad atoms:)
-        ## if platform.atom_debug:
+        ## if debug_flags.atom_debug:
         ##     self._source = compact_stack()
         self.set_atomtype_but_dont_revise_singlets( atype)
         return # from Atom.__init__
@@ -630,7 +630,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         needed has not been reviewed), record this as a change to this
         atom's structure for purposes of Undo and updaters.
 
-        @note: if jig is not in self.jigs, complain (when platform.atom_debug),
+        @note: if jig is not in self.jigs, complain (when debug_flags.atom_debug),
         but tolerate this.
         (It's probably an error, but of unknown commonness or seriousness.)
         """
@@ -646,7 +646,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             # (We could also only catch ValueError here -- might be more sensible.
             #  First verify it's the right one for .remove not finding something!)
             assert type(self.jigs) is type([])
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_traceback("atom_debug: ignoring exception in _f_jigs_remove (Jig.remove_atom): ")
         else:
             #k not sure if following is needed -- bruce 060322
@@ -740,7 +740,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                                 atom = self, newElement = newElement: atom.Transmute(newElement) )
                 menu_spec.append((cmdname, command))
                 continue
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             from undo_archive import _undo_debug_obj
             if self is _undo_debug_obj:
                 checked = 'checked'
@@ -829,7 +829,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             # bruce 071018 new bug check and new mitigation (return default atomtype)
             print_compact_stack( "bug: reguess_atomtype of killed atom %s (returning default): " % self)
             return self.element.atomtypes[0]
-        if len(self.bonds) == 0:## and platform.atom_debug:
+        if len(self.bonds) == 0:## and debug_flags.atom_debug:
             # [bruce 071018 check this always, to see if skipping killed atoms
             #  in update_bonds_after_each_event has fixed this bug for good]
             # (I think the following cond (using self.element rather than elt)
@@ -1558,7 +1558,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         though the atoms are not shown).
         """
         if dispdef == diDEFAULT: #bruce 041129 permanent debug code, re bug 21
-            if platform.atom_debug and 0: #bruce 050419 disable this since always happens for Element Color Prefs dialog
+            if debug_flags.atom_debug and 0: #bruce 050419 disable this since always happens for Element Color Prefs dialog
                 print "bug warning: dispdef == diDEFAULT in Atom.howdraw for %r" % self
             dispdef = default_display_mode # silently work around that bug [bruce 041206]
         if self.element is Singlet:
@@ -1726,7 +1726,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 atype = self.element.find_atomtype(val)
             except:
                 # didn't find it. (#e We ought to have a different API so a real error could be distinguished from that.)
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: fyi: info atom atomtype (in class Atom) with unrecognized atomtype %r (not an error)" % (val,)
                 pass
             else:
@@ -1752,7 +1752,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 pass
                  
         else:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: info atom (in class Atom) with "\
                       "unrecognized key %r (not an error)" % (key,)
         return
@@ -2096,7 +2096,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # (required by upcoming "assy/part split")
                 del self.molecule.assy.selatoms[self.key]
             except:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print_compact_traceback("atom_debug: Atom.unpick finds atom not in selatoms: ")
             self.picked = False
             _changed_picked_Atoms[self.key] = self #bruce 060321 for Undo (or future general uses)
@@ -2316,7 +2316,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             # That is, passing no atomtype is *always* equivalent to passing elt's default atomtype,
             # even if this results in changing this atom's atomtype but not its element.
         assert atomtype.element is elt
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             if elt is Singlet: #bruce 041118
                 # this is unsupported; if we support it it would require
                 # moving this atom to its neighbor atom's chunk, too
@@ -2324,7 +2324,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 print "atom_debug: fyi, bug?: mvElement changing %r to a singlet" % self
         if self.atomtype_iff_set() is atomtype:
             assert self.element is elt # i.e. assert that self.element and self.atomtype were consistent
-            if platform.atom_debug: #bruce 050509
+            if debug_flags.atom_debug: #bruce 050509
                 print_compact_stack( "atom_debug: fyi, bug?: mvElement changing %r to its existing element and atomtype" % self )
             return #bruce 050509, not 100% sure it's correct, but if not, caller probably has a bug (eg relies on our invals)
         # now we're committed to doing the change
@@ -2359,14 +2359,14 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Note: some "friend code" inlines this method for speed
         # (and omits the debug code). To find it, search for _Atom__killed
         # (the mangled version of __killed). [bruce 071018 comment]
-        if platform.atom_debug: # this cond is for speed
+        if debug_flags.atom_debug: # this cond is for speed
             mol = self.molecule
             from chunk import _nullMol
             better_alive_answer = mol is not None and self.key in mol.atoms and mol is not _nullMol ##e and mol is not killed???
             if (not not better_alive_answer) != (not self.__killed):
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     #bruce 060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
-                    #bruce 071018 fixed typo of () after platform.atom_debug -- could that be why it never printed it?!?
+                    #bruce 071018 fixed typo of () after debug_flags.atom_debug -- could that be why it never printed it?!?
                     print "debug: better_alive_answer is %r but (not self.__killed) is %r" % (better_alive_answer , not self.__killed)
         return self.__killed
     
@@ -2592,7 +2592,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             #bruce 050428: a bug, but probably just means we're a killed singlet.
             # The caller should be fixed, and maybe is_singlet should check this too,
             # but for now let's also make it harmless here:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_stack( "atom_debug: bug (ignored): snuggling a killed singlet of atomkey %r: " %
                                      self.key )#bruce 051221 revised this; untested
             return
@@ -2682,7 +2682,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         #  in a different way; but it looks correct and seems useful
         #  enough to leave).
         from bond_constants import V_ZERO_VALENCE, BOND_VALENCES
-        _debug = False ## platform.atom_debug is sometimes useful here
+        _debug = False ## debug_flags.atom_debug is sometimes useful here
         if self._modified_valence:
             self._modified_valence = False # do this first, so exceptions in the following only happen once
             if _debug:
@@ -3288,7 +3288,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # [bruce 041215:]
                 # fix unreported unverified bug (self at center of its neighbors):
                 # [bruce 050716 comment: one time this can happen is when we change atomtype of some C in graphite to sp3]
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: fyi: self at center of its neighbors (more or less) while making singlet", self, self.bonds
                 dir = norm(cross(s1pos - pos, s2pos - pos))
                     # that assumes s1 and s2 are not opposite each other; #e it would be safer to pick best of all 3 pairs
@@ -3487,7 +3487,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     else:
                         # we're attached to the chain but not in it.
                         # REVIEW: return DIRBOND_ERROR in some cases??
-                        if platform.atom_debug: #bruce 080117 only when atom_debug
+                        if debug_flags.atom_debug: #bruce 080117 only when atom_debug
                             msg =  "warning: %r has one directional bond (%r) " \
                                 "by which it's attached to (but not in) a " \
                                 "directional bond chain containing %r and %r" % \
@@ -3501,7 +3501,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     if bond is bond1:
                         return DIRBOND_CHAIN_END, bond, None
                     else:
-                        if platform.atom_debug: #bruce 080117 only when atom_debug
+                        if debug_flags.atom_debug: #bruce 080117 only when atom_debug
                             msg = "warning: %r has one directional bond (%r) " \
                                 "by which it's attached to (but not in) the end of a " \
                                 "directional bond chain containing %r" % \

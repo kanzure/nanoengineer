@@ -27,7 +27,7 @@ some methods in this file have become overdefined. This needs cleanup
 #some methods in this file have become overdefined. This needs cleanup.
 
 import env
-import platform
+from utilities import debug_flags
 
 from debug import print_compact_traceback
 

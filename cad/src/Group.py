@@ -17,7 +17,7 @@ split out Node and/or LeafNode as well.)
 """
 
 from debug import print_compact_stack, print_compact_traceback
-import platform
+from utilities import debug_flags
 import env
 from state_constants import S_CHILDREN
 
@@ -131,10 +131,10 @@ class Group(Node):
             elif val == 'False':
                 self.open = False
                 self.open_specified_by_mmp_file = True
-            elif platform.atom_debug:
+            elif debug_flags.atom_debug:
                 print "atom_debug: maybe not an error: \"info opengroup open\" ignoring unrecognized val %r" % (val,)
         else:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: info opengroup (in Group) with unrecognized key %r (not an error)" % (key,)
         return
 
@@ -375,14 +375,14 @@ class Group(Node):
             # dad-related aspects of the node are wrong... probably best to just pretend
             # those methods never did that. Soon after Alpha we should fix them all and then
             # make this a detected error and no longer tolerate it.
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 msg = "atom_debug: addchild setting newchild.dad to None " \
                     "since newchild not in dad's members: %s, %s" % (self, newchild)
                 print_compact_stack(msg)
             newchild.dad = None
         if newchild.is_ascendant(self):
             #bruce 050205 adding this for safety (should prevent DND-move cycles as a last resort, tho might lose moved nodes)
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 # this msg covers newchild is self too since that's a length-1 cycle
                 print "atom_debug: addchild refusing to form a cycle, " \
                       "doing nothing; this indicates a bug in the caller:", self, newchild
@@ -399,7 +399,7 @@ class Group(Node):
                 # or as indices (since removal of newchild will change indices of subsequent nodes).
                 # So instead, if those options were used, we fix them to work.
                 # We print a debug msg just as fyi; that can be removed once this is stable and tested.
-                if platform.atom_debug and 0:
+                if debug_flags.atom_debug and 0:
                     # i'll remove this msg soon after i first see it.
                     print "atom_debug: fyi: addchild asked to move newchild " \
                           "within self.members, might need special cases", self, newchild
@@ -452,7 +452,7 @@ class Group(Node):
 
     def delmember(self, obj):
         if obj.dad is not self: # bruce 050205 new feature -- check for this (but do nothing about it)
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_stack( "atom_debug: fyi: delmember finds obj.dad is not self: ") #k does this ever happen?
         obj.unpick() #bruce 041029 fix bug 145 [callers should not depend on this happening! see below]
             #k [bruce 050202 comment, added 050205]: review this unpick again sometime, esp re DND drag_move
@@ -466,7 +466,7 @@ class Group(Node):
             self.members.remove(obj)
         except:
             # relying on this being permitted is deprecated [bruce 050121]
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_stack( "atom_debug: fyi: delmember finds obj not in members list: ") #k does this ever happen?
             return
         obj.dad = None # bruce 050205 new feature
@@ -484,7 +484,7 @@ class Group(Node):
         self.members = []
         for obj in res:
             if obj.dad is not self: # error, debug-reported but ignored
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print_compact_stack( "atom_debug: fyi: steal_members finds obj.dad is not self: ") #k does this ever happen?
             obj.dad = None
         ## assume not needed for our private purpose, though it would be needed in general: self.changed_members()

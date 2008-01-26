@@ -25,7 +25,7 @@ from icon_utilities import imagename_to_pixmap
 from povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
 from utilities.Log import redmsg, orangemsg, greenmsg, _graymsg
-import platform
+from utilities import debug_flags
 from PlatformDependent import find_or_make_Nanorex_subdir
 from debug import print_compact_traceback
 
@@ -149,7 +149,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         <interp> is not currently used.
         """
         if len(key) != 1:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: info povrayscene with unrecognized key %r (not an error)" % (key,)
             return
         if key[0] == 'povrayscene_file':

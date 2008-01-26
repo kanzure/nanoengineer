@@ -23,7 +23,7 @@ __author__ = "bruce" # and others
 import sys, os, time
 from PyQt4.Qt import Qt, QDesktopWidget, QRect
 import env
-import platform
+from utilities import debug_flags
 from debug import print_compact_traceback
 from debug import print_compact_stack
 from utilities.Log import redmsg
@@ -487,7 +487,7 @@ def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #
 
 # ==
 
-def builtin_plugins_dir(): # modified from sim_bin_dir_path in runSim.py; should move both that and this to platform.py ###e
+def builtin_plugins_dir():
     """
     Return pathname of built-in plugins directory. Should work for either developers or end-users on all platforms.
     (Doesn't check whether it exists.)
@@ -798,7 +798,7 @@ def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
         
     if os.path.exists(editor):
         args = [editor] + initial_args + [file]
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print  "editor = ",editor
             print  "Spawnv args are %r" % (args,)
         try:

@@ -53,7 +53,7 @@ from PyQt4.Qt import QPushButton
 from PyQt4.Qt import SIGNAL
 
 import env
-import platform
+from utilities import debug_flags
 
 from PlatformDependent import find_or_make_Nanorex_subdir
 from wiki_help import WikiHelpBrowser

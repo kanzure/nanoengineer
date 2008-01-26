@@ -13,7 +13,7 @@ file and renamed it PM_Dialog.
 """
 
 from debug import print_compact_traceback
-import platform
+from utilities import debug_flags
 
 from icon_utilities import geticon
 from icon_utilities import getpixmap
@@ -233,13 +233,13 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         
         ## try: [bruce 071018 moved this lower, since errmsg only covers attr]
         pmWidget = self.pw.propertyManagerScrollArea.widget()
-        if platform.atom_debug: #bruce 071018
+        if debug_flags.atom_debug: #bruce 071018
             "atom_debug fyi: %r is closing %r (can they differ?)" % \
                         (self, pmWidget)
         try:
             pmWidget.update_props_if_needed_before_closing
         except AttributeError:
-            if 1 or platform.atom_debug:
+            if 1 or debug_flags.atom_debug:
                 msg1 = "Last PropMgr %r doesn't have method" % pmWidget
                 msg2 = " update_props_if_needed_before_closing. That's"
                 msg3 = " OK (for now, only implemented for Plane PM). "

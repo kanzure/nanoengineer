@@ -60,7 +60,7 @@ from PyQt4.Qt import QMessageBox
 from PyQt4.Qt import QFileDialog
 
 import env
-import platform
+from utilities import debug_flags
 
 from chunk import Chunk
 from chem import Atom
@@ -437,7 +437,7 @@ class ESPImage(RectGadget):
         <interp> is not currently used.
         """
         if len(key) != 1:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: info espimage with unrecognized key %r (not an error)" % (key,)
             return
         if key[0] == 'espimage_file':

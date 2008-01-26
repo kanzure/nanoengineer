@@ -22,7 +22,7 @@ from Numeric import dot, transpose
 import env
 from utilities.Log import redmsg, greenmsg, orangemsg
 from debug import print_compact_traceback
-import platform
+from utilities import debug_flags
 from PlatformDependent import fix_plurals
 from GlobalPreferences import permit_atom_chunk_coselection
 
@@ -844,7 +844,7 @@ class Selection: #bruce 050404 experimental feature for initial use in Minimize 
             # chunks (or no chunks and no nodes) were passed -- store as both selmols and topnodes
             self.selmols = list(chunks) # copy the list
             self.topnodes = self.selmols # use the same copy we just made
-            if (self.selatoms and self.selmols) and platform.atom_debug: #e could this change? try not to depend on it
+            if (self.selatoms and self.selmols) and debug_flags.atom_debug: #e could this change? try not to depend on it
                 print_compact_traceback( "atom_debug: self.selatoms and self.selmols: " ) #bruce 051129, replacing an assert
         return
     def nonempty(self): #e make this the object's boolean value too?

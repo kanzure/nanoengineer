@@ -21,7 +21,7 @@ Therefore I didn't move it into outtakes or scratch.)
 import sys, os, time, types, traceback
 from constants import noop
 import env
-import platform
+from utilities import debug_flags
 
 ### BUG: undefined variable Finder
 

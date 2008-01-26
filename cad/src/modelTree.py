@@ -35,7 +35,7 @@ might therefore be:
 from PyQt4 import QtCore
 
 import env
-import platform # for atom_debug
+from utilities import debug_flags # for atom_debug
 from PlatformDependent import fix_plurals #bruce 070503 Qt4
 import modelTreeGui   # ModelTreeGui, Ne1Model_api
 
@@ -205,7 +205,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # 0c. What does current selection itself think it needs to be?
         # (If its desires are inconsistent, complain and fix them.)
         if assy.selatoms and assy.selmols:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 #bruce 060210 made this debug-only, since what it reports is not too bad, and it happens routinely now in Build mode
                 # if atoms are selected and you then select a chunk in MT
                 print "atom_debug: bug, fyi: there are both atoms and chunks selected. Deselecting some of them to fit current mode or internal code."
@@ -226,7 +226,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
                 # (As of 050519 740pm, we get this from the jig cmenu command "select this jig's atoms"
                 #  when the current mode is more compatible with selecting chunks. But I think this causes
                 #  no harm, so I might as well wait until we further revise selection code to fix it.)
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: bug, fyi: actual selection (%s) inconsistent " \
                           "with internal variable for that (%s); will fix internal variable" % \
                           (SELWHAT_NAMES[selwhat_from_sel], SELWHAT_NAMES[selwhat])
@@ -523,7 +523,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # Need to add methods to return that "user-visible class name".
         res.append(None) # separator
 
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             if len(nodeset) == 1:
                 res.append(( "debug._node =", self.cm_set_node ))
             else:

@@ -12,7 +12,7 @@ mark 2007-07-22: Split PropMgrGroupBox out of PropMgrBaseClass.py into this
 file and renamed it PM_GroupBox.
 """
 
-import platform
+from utilities import debug_flags
 
 from PM.PM_Colors import getPalette
 from PM.PM_Colors import pmGrpBoxButtonBorderColor
@@ -279,7 +279,7 @@ class PM_GroupBox( QGroupBox ):
         Restores the default values for all widgets in this group box.
         """
         for widget in self._widgetList:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "PM_GroupBox.restoreDefault(): widget =", \
                       widget.objectName()
             widget.restoreDefault()

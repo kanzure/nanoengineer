@@ -1,9 +1,9 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 """
-platform.py -- provide the atom_debug developer debugging flag.
+debug_flags.py -- provide the atom_debug developer debugging flag.
 
-TODO: rename this module and the flag. (Hard, since lots of uses.)
+TODO: rename atom_debug
 And, change some of the uses into more specific debugging flags.
 
 $Id$

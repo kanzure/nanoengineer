@@ -40,7 +40,7 @@ from OpenGL.GL import glPopMatrix
 
 from OpenGL.GLU import gluProject, gluUnProject
 
-import platform
+from utilities import debug_flags
 
 from VQT import A
 from VQT import vlen
@@ -1022,7 +1022,7 @@ class _UNKNOWN_SELOBJ_class(Selobj_API): #061218
     def __getattr__(self, attr): # in class _UNKNOWN_SELOBJ_class
         if attr.startswith("__"):
             raise AttributeError, attr
-        if platform.atom_debug:###
+        if debug_flags.atom_debug:###
             print "_UNKNOWN_SELOBJ_class returns noop for attr %r" % attr
         setattr(self, attr, noop) # optim
         return noop # fake bound method

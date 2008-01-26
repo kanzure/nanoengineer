@@ -266,7 +266,7 @@ def verify_nh_program():
     r = verify_program(env.prefs[nanohive_path_prefs_key], '-v', vstring)
     return r
     
-# This is a general function that should be moved to platform.py or other file.  Mark 2006-01-05.
+# This is a general function that should be moved to utilities
 def verify_program(program, version_flag, vstring):
     """
     Verifies a program by running it with the version_flag and matching the output to vstring.

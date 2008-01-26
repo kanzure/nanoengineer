@@ -18,7 +18,7 @@ import os, sys
 from struct import unpack # fyi: used for old-format header, no longer for delta frames
 ## from VQT import A
 from Numeric import array, Int8
-import platform
+from utilities import debug_flags
 from debug import print_compact_stack, print_compact_traceback
 import env
 
@@ -98,7 +98,7 @@ class OldFormatMovieFile_startup:
             assert len(res) == nbytes # this can fail, if file got shorter after we measured its size...
         except:
             # might be good to detect, warn, set flag, return 0s.... ####@@@@ test this
-            if platform.atom_debug: # if this happens at all it might happen a lot...
+            if debug_flags.atom_debug: # if this happens at all it might happen a lot...
                 print_compact_traceback( "atom_debug: ignoring exception reading delta_frame %d, returning all 00s: " % n)
             res = "\x00" * nbytes
             assert len(res) == nbytes, "mistake in python zero-byte syntax" # but I checked it, should be ok

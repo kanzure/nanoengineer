@@ -523,8 +523,8 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
             # Warning: "size" localvar is in use as a loop iterator!
             psize = pixmap.width(), pixmap.height() #k guess
             w,h = psize
-##            import platform
-##            if platform.atom_debug:
+##            from utilities import debug_flags
+##            if debug_flags.atom_debug:
 ##                print "atom_debug: pixmap(%s,%s,%s) size == %d,%d" % (size, mode, state, w,h)
             from PyQt4.Qt import copyBlt
             if checkmark:
@@ -554,7 +554,7 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
 
 # ==
 
-#bruce 060124 changes: always called, but gets passed platform.atom_debug as an arg to filter the prefs,
+#bruce 060124 changes: always called, but gets passed debug_flags.atom_debug as an arg to filter the prefs,
 # and has new API to return a list of menu items (perhaps empty) rather than exactly one.
 
 def debug_prefs_menuspec( atom_debug):
@@ -562,8 +562,8 @@ def debug_prefs_menuspec( atom_debug):
     usable to see and edit settings of all active debug prefs (for atom_debug true)
     or all the ones that have their non_debug flag set (for atom_debug false).
     """
-    import platform
-    if platform.atom_debug: #bruce 050808 (it's ok that this is not the atom_debug argument)
+    from utilities import debug_flags
+    if debug_flags.atom_debug: #bruce 050808 (it's ok that this is not the atom_debug argument)
         testcolor = debug_pref("atom_debug test color", ColorType(green))
     text = "debug prefs submenu"
     submenu = []

@@ -45,7 +45,7 @@ from assembly import assembly
 from files_mmp import readmmp
 from part import Part
 import env
-import platform
+from utilities import debug_flags
 from debug import print_compact_traceback
 from Sponsors import SponsorableMixin
 from PropertyManagerMixin import PropertyManagerMixin, pmSetPropMgrIcon, pmSetPropMgrTitle
@@ -797,7 +797,7 @@ class MMKit(QDialog,
             self.newModel.update_parts() #k not sure if needed after readmmp)
             self.newModel.checkparts()
             if self.newModel.shelf.members:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "debug warning: library part %r contains clipboard items" % mmpfile
                     # we'll see if this is common
                     # happens for e.g. nanokids/nanoKid-C39H42O2.mmp

@@ -34,7 +34,7 @@ Bruce 071107 split out two modules by Will:
 import sys, os, time, traceback
 from constants import noop
 import env
-import platform
+from utilities import debug_flags
 
 # note: some debug features run user-supplied code in this module's
 # global namespace (on platforms where this is permitted by our licenses).
@@ -70,7 +70,7 @@ def linenum(depth = 0):
 _timing_stack = [ ]
 
 def debug_enter():
-    if platform.atom_debug:
+    if debug_flags.atom_debug:
         try:
             raise Exception
         except:
@@ -81,7 +81,7 @@ def debug_enter():
         print 'ENTER', fname
 
 def debug_leave():
-    if platform.atom_debug:
+    if debug_flags.atom_debug:
         try:
             raise Exception
         except:
@@ -93,7 +93,7 @@ def debug_leave():
         print 'LEAVE', fname, time.time() - start
 
 def debug_middle():
-    if platform.atom_debug:
+    if debug_flags.atom_debug:
         try:
             raise Exception
         except:
@@ -552,7 +552,7 @@ debug_reload_once_per_event = False # do not commit with true
 def reload_once_per_event(module, always_print = False, never_again = True, counter = None, check_modtime = False):
     """
     Reload module (given as object or as name),
-    but at most once per user-event or redraw, and only if platform.atom_debug.
+    but at most once per user-event or redraw, and only if debug_flags.atom_debug.
     Assumes w/o checking that this is a module it's ok to reload, unless the module defines _reload_ok as False,
     in which case, all other reload tests are done, but a warning is printed rather than actually reloading it.
        If always_print is True, print a console message on every reload, not just the first one per module.
@@ -576,7 +576,7 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
     ATOM_DEBUG is set, so it might be better to revise the defaults to make them more convenient for developers.
     See cad/src/exprs/basic.py for an example of a call optimized for developers.
     """
-    if not platform.atom_debug:
+    if not debug_flags.atom_debug:
         return
     if type(module) == type(""):
         # also support module names

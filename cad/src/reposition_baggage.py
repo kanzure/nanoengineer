@@ -9,7 +9,7 @@ reposition_baggage.py -- help reposition baggage atoms after real neighbor atoms
 
 import math
 
-import platform
+from utilities import debug_flags
 from VQT import V, norm, cross, vlen
 from bond_constants import find_bond
 from bond_constants import V_SINGLE
@@ -36,7 +36,7 @@ def reposition_baggage_0(self, baggage = None, planned_atom_nupos = None): #bruc
         baggage, other = self.baggage_and_other_neighbors()
     else:
         other = -1 # set later if needed
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             _bn = map(id,self.baggageNeighbors())
             for at in baggage:
                 assert id(at) in _bn

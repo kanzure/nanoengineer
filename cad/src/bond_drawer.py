@@ -34,7 +34,7 @@ from drawer import drawcylinder
 from drawer import drawsphere
 
 import env
-import platform
+from utilities import debug_flags
 
 from povheader import povpoint
 from utilities.Printing import Vector3ToString
@@ -237,7 +237,7 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
     # figure out preferences (should do this less often somehow -- once per user event,
     #  or at least, once per separate use of begin_tracking_usage/end_tracking_usage)
     if self.v6 != V_SINGLE:
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             #bruce 050716 debug code (permanent, since this would always indicate a bug)
             if not self.legal_for_atomtypes():
                 print_compact_stack("atom_debug: drawing bond %r which is illegal for its atomtypes: " % self)
@@ -459,7 +459,7 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
 
     if self.v6 != V_SINGLE:
         if draw_vanes:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 import draw_bond_vanes, debug
                 debug.reload_once_per_event(draw_bond_vanes) #bruce 050825 renabled this, using reload_once_per_event
             from draw_bond_vanes import draw_bond_vanes

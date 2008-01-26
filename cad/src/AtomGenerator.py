@@ -21,7 +21,8 @@ Jeff 2007-05-30: Based on Will Ware's GrapheneGenerator.py
 Mark 2007-07-25: Uses new PM module.
 """
 
-import platform, env
+from utilities import debug_flags
+import env
 from chem import Atom
 from chunk import Chunk
 from VQT import V

@@ -8,11 +8,11 @@ $Id$
 Note: as of 070921 reload_once is no longer called except in testdraw.py.
 """
 
-import platform
+from utilities import debug_flags
 import EndUser
 from debug import reload_once_per_event
 
-ENABLE_RELOAD = True and platform.atom_debug
+ENABLE_RELOAD = True and debug_flags.atom_debug
 
 # WARNING: the reload feature implemented herein has become broken, probably
 # ever since the confirmation corner started importing exprs modules without

@@ -94,13 +94,13 @@ def mainwindow(): #bruce 051209
 def debug(): #bruce 060222
     """
     Should debug checks be run, and debug messages be printed, and debug options offered in menus?
-    [This just returns the current value of platform.atom_debug, which is this code's conventional flag
+    [This just returns the current value of debug_flags.atom_debug, which is this code's conventional flag
      for "general debugging messages and checks". Someday we might move that flag itself into env,
      but that's harder since we'd have to edit lots of code that looks for it in platform,
      or synchronize changes to two flags.]
     """
-    import platform # don't do this at toplevel in this module, in case we don't want it imported so early
-    return platform.atom_debug
+    from utilities import debug_flags # don't do this at toplevel in this module, in case we don't want it imported so early
+    return debug_flags.atom_debug
 
 # ==
 
@@ -170,8 +170,8 @@ def track(thing): #bruce 050804
     Default implementation -- will be replaced at runtime
     as soon as changes.py module is imported (if it ever is)
     """
-    import platform
-    if platform.atom_debug:
+    from utilities import debug_flags
+    if debug_flags.atom_debug:
         print "atom_debug: fyi (from env module): something asked to be tracked, but nothing is tracking: ", thing
         # if this happens and is not an error, then we'll zap the message.
     return
@@ -233,8 +233,8 @@ class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemanti
         win.__init__, before the history widget has been created!
         Someday it might save them up and print them when that becomes possible.
         """
-##        import platform
-##        if platform.atom_debug:
+##        from utilities import debug_flags
+##        if debug_flags.atom_debug:
         # bruce 071018 print this always, and clarify the text:
         print "fyi: this history message was produced too early to show up in the History Widget:"
         print msg

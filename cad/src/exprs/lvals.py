@@ -64,7 +64,7 @@ import changes
 from debug import print_compact_traceback
 from utilities.Comparison import same_vals
 
-##import platform
+##from utilities import debug_flags
 
 from exprs.py_utils import MemoDict, printnim
 
@@ -129,7 +129,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         ## optim of self.set_compute_method( compute_method), only ok in __init__:
         self._compute_method = compute_method
         self.debug_name = debug_name #061119
-        ## if platform.atom_debug and not debug_name:
+        ## if debug_flags.atom_debug and not debug_name:
             #e can we use a scheme sort of like print_compact_stack to guess the object that is creating us,
             # since it'll have a localvar called self? I doubt it, since some helper objs are likely to be doing the work.
             # So just do the work myself of passing this in intelligently...

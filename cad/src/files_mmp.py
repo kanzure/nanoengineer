@@ -122,7 +122,7 @@ MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 080115 preferred'
 import re, time
 
 import env
-import platform
+from utilities import debug_flags
 
 from chem import Atom
 from jigs import AtomSet
@@ -632,7 +632,7 @@ class _readmmp_state:
                 # but [bruce 050217 new debug feature]
                 # print a debug-only warning except for a comment line
                 # (TODO: maybe only do this the first time we see it?)
-                if platform.atom_debug and recordname != '#':
+                if debug_flags.atom_debug and recordname != '#':
                     print "atom_debug: fyi: unrecognized mmp record type ignored (not an error): %r" % recordname
             pass
 
@@ -1415,7 +1415,7 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
             return int(val)
         except:
             # several kinds of exception are possible here, which are not errors
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: some info record wants an int val but got this non-int (not an error): " + repr(val)
                 # btw, the reason it's not an error is that the mmp file format might be extended to permit it, in that info record.
             return None
@@ -1430,7 +1430,7 @@ class mmp_interp: #bruce 050217; revised docstrings 050422
             return False
         if val in ['1','yes','true']:
             return True
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "atom_debug: fyi: some info record wants a boolean val but got this instead (not an error): " + repr(val)
         return None
     pass
@@ -1474,7 +1474,7 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 05051
         try:
             meth = getattr(thing, "readmmp_info_%s_setitem" % type) # should be safe regardless of the value of 'type'
         except AttributeError:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: object %r doesn't accept \"info %s\" keys (like %r); ignoring it (not an error)" \
                       % (thing, type, name)
         else:
@@ -1482,7 +1482,7 @@ def readmmp_info( card, currents, interp ): #bruce 050217; revised 050421, 05051
                 meth( name, val, interp )
             except:
                 print_compact_traceback("internal error in %r interpreting %r, ignored: " % (thing,card) )
-    elif platform.atom_debug:
+    elif debug_flags.atom_debug:
         print "atom_debug: fyi: no object found for \"info %s\"; ignoring info record (not an error)" % (type,)
     return
 
@@ -2071,7 +2071,7 @@ def writemmpfile_part(part, filename, **mapping_options): ##e should merge with 
     node = part.topnode
     assert part is node.part
     part.assy.update_parts() #bruce 050325 precaution
-    if part is not node.part and platform.atom_debug:
+    if part is not node.part and debug_flags.atom_debug:
         print "atom_debug: bug?: part changed during writemmpfile_part, using new one"
     part = node.part
     assy = part.assy

@@ -72,7 +72,7 @@ __author__ = 'bruce'
 
 have_pyrex_test = False
 
-debug_pyrex_test = False ## was platform.atom_debug, changed to 0 for A7 release by bruce 060419
+debug_pyrex_test = False ## was debug_flags.atom_debug, changed to 0 for A7 release by bruce 060419
 
 import env
 from debug import register_debug_menu_command, call_func_with_timing_histmsg, print_compact_traceback

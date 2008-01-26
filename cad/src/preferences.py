@@ -61,7 +61,7 @@ BUT WE SHOULD LOOK INTO THE LICENSE TO MAKE SURE IT'S OK!
 import os
 import time
 
-import platform
+from utilities import debug_flags
 from PlatformDependent import mkdirs_in_filename
 from PlatformDependent import find_or_make_Nanorex_directory
 import env
@@ -333,7 +333,7 @@ def _record_default( pkey, dflt):
     which avoids calling this when dflt is None.
     """
     _defaults.setdefault( pkey, dflt) # only affects it the first time, for a given pkey
-    if platform.atom_debug:
+    if debug_flags.atom_debug:
         # also check consistency each time
         if dflt != _defaults[pkey]:
             print "atom_debug: bug: ignoring inconsistent default %r for pref %r; retaining %r" % \
@@ -356,7 +356,7 @@ def _restore_default_while_open( pkey): #bruce 050805
     try:
         dflt = _defaults[pkey]
     except KeyError:
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "atom_debug: fyi: restore defaults finds no default yet recorded for %r; using None" % pkey
         _cache[pkey] = dflt = None
         del _cache[pkey]
@@ -423,7 +423,7 @@ class _prefs_context:
             # [##e Would it be better to treat this as if the default value was None (like prefs.get does)??]
             same = (val == cached_val)
         if same:
-            if 0 and platform.atom_debug:
+            if 0 and debug_flags.atom_debug:
                 print "atom_debug: fyi: returning early from prefs.__setitem__(%r) since val == cached_val, %r == %r" % (key, val, cached_val)
             return # see long comment above
         if _shelf:
@@ -467,7 +467,7 @@ class _prefs_context:
             except KeyError:
                 # no default value was yet recorded
                 dflt = None # but don't save None in _cache in this case
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: warning: prefs.get(%r) returning None since no default value was yet recorded" % (key,)
             else:
                 _cache[pkey] = dflt # store in cache but not in prefs-db
@@ -582,7 +582,7 @@ def init_prefs_table( prefs_table): # sets env.prefs
     
     env.prefs = prefs_context() # this is only ok because all modules use the same prefs context.
     
-    if 0 and platform.atom_debug:
+    if 0 and debug_flags.atom_debug:
         print "atom_debug: done with prefs_table" # remove when works
     return
 

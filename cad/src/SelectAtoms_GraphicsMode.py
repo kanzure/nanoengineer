@@ -32,7 +32,7 @@ from ESPImage import ESPImage
 from PyQt4.Qt import QMouseEvent
 
 import env
-import platform
+from utilities import debug_flags
 
 from VQT import V, Q, norm, vlen, ptonline
 from chem import Atom
@@ -1884,7 +1884,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
                                #selobj alone (selatom should be derived from it)
         if selatom is not None:
             if selobj is not selatom:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: selobj %r not consistent with" \
                          "selatom %r -- using selobj = selatom" % (selobj, 
                                                                    selatom)

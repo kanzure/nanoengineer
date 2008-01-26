@@ -72,7 +72,7 @@ from exprs.Rect import Rect
 
 from exprs.Center import Center
 
-import platform
+from utilities import debug_flags
 
 from VQT import V
 from env import seen_before
@@ -297,7 +297,7 @@ def canon_image_filename( filename):
     for filename in tries:
         if filename == -1:
             filename = lastresort
-            if 'too important to not tell all users for now' or platform.atom_debug:
+            if 'too important to not tell all users for now' or debug_flags.atom_debug:
                 print "bug: image file %r not found, using last-resort image file %r" % (orig_filename, lastresort) ###
         filename = os.path.abspath(os.path.normpath(filename)) # faster to do this on demand
         if os.path.isfile(filename):

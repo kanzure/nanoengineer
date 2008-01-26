@@ -37,7 +37,7 @@ from PyQt4.Qt import QStringList
 
 import env
 import preferences
-import platform
+from utilities import debug_flags
 
 from PlatformDependent import find_or_make_Nanorex_subdir
 
@@ -292,7 +292,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         #
         # - Export only visible atoms, etc.
 
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             linenum()
             print "start fileOpenBabelExport()"
             
@@ -389,7 +389,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                                        )
         if not export_filename:
             env.history.message(cmd + "Cancelled")
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 linenum()
                 print "fileOpenBabelExport cancelled because user cancelled"
             return
@@ -402,7 +402,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if not export_filename.endswith(sext):
             export_filename += sext
 
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             linenum()
             print "export_filename", repr(export_filename)
 
@@ -418,14 +418,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # Its coverage of MMP files is imperfect so it makes mistakes, but
             # it would be good to use it enough to find those mistakes.
             dir, fil, ext = _fileparse(export_filename)
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 linenum()
                 print "dir, fil, ext :", repr(dir), repr(fil), repr(ext)
             
             tmpdir = find_or_make_Nanorex_subdir('temp')
             tmp_mmp_filename = os.path.join(tmpdir, fil + ".mmp")
             
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 linenum()
                 print "tmp_mmp_filename :", repr(tmp_mmp_filename)
                 
@@ -437,12 +437,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                                                out_format = sext[1:], outfile = export_filename)
             
             if result and os.path.exists(export_filename):
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     linenum()
                     print "file translation OK"
                 env.history.message( cmd + "File exported: [ " + export_filename + " ]" )
             else:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     linenum()
                     print "file translation failed"
                 print "Problem translating ", tmp_mmp_filename, '->', export_filename
@@ -452,7 +452,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         self.glpane.gl_update()
         self.mt.mt_update()
 
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             linenum()
             print "finish fileOpenBabelExport()"
 
@@ -486,13 +486,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         # Will (Ware) had this debug arg for our version of Open Babel, but
         # I've no idea if it works now or what it does. Mark 2007-06-05.
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             debugvar = "WWARE_DEBUG=1"
             print "debugvar =", debugvar
         else:
             debugvar = None
         
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "program =", program
             
         infile = os.path.normpath(infile)
@@ -506,7 +506,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         for arg in [in_format, infile, out_format, outfile, debugvar]:
             if not arg:
                 continue # For debugvar.
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "argument", i, " :", repr(arg)
             i += 1
             arguments.append(arg)
@@ -541,7 +541,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     
         exitStatus = proc.exitStatus()
         stderr = str(proc.readAllStandardError())[:-1]
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "exit status", exitStatus
             print "stderr says", stderr
             print "finish launch_ne1_openbabel(%s, %s)" % (repr(infile), repr(outfile))

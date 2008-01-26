@@ -36,7 +36,7 @@ from PyQt4.Qt import QTextOption
 from PyQt4.Qt import QPushButton
 from PyQt4.Qt import QTextEdit
 
-import platform
+from utilities import debug_flags
 
 from icon_utilities import geticon, getpixmap
 from Sponsors import SponsorableMixin
@@ -667,7 +667,7 @@ class PropertyManagerMixin(PropertyManager_common, SponsorableMixin):
             pmWidget = self.pw.propertyManagerScrollArea.widget()
             pmWidget.update_props_if_needed_before_closing()
         except:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 msg1 = "Last PropMgr doesn't have method updatePropsBeforeClosing."
                 msg2 =  " That is OK (for now,only implemented in GeometryGenerators)"
                 msg3 = "Ignoring Exception"

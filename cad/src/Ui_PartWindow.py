@@ -23,6 +23,8 @@ which includes moving the history widget to the new reportDockWidget, renaming
 key attrs and widgets (i.e. pwLeftArea and pwBottomArea)
 """
 
+import os
+
 from PyQt4.Qt import Qt, QWidget, QFrame, QHBoxLayout, QVBoxLayout, QSplitter
 from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy
 from GLPane import GLPane
@@ -30,7 +32,8 @@ from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from icon_utilities import geticon
 from modelTree import modelTree
 from qt4transition import qt4warnDestruction, qt4todo
-import platform, env, os
+from utilities import debug_flags
+import env
 from PlatformDependent import make_history_filename
 from PM.PM_Colors  import   getPalette
 from debug import print_compact_traceback #bruce 070627 bugfix
@@ -330,7 +333,7 @@ class Ui_PartWindow(QWidget):
                 try:
                     lastwidgetobject.update_props_if_needed_before_closing
                 except AttributeError:
-                    if 1 or platform.atom_debug:
+                    if 1 or debug_flags.atom_debug:
                         msg1 = "Last PropMgr %r doesn't have method" % lastwidgetobject
                         msg2 =" update_props_if_needed_before_closing. That's"
                         msg3 = " OK (for now, only implemented for Plane PM). "

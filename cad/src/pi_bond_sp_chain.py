@@ -26,7 +26,7 @@ is to help change those directions in an organized way.)
 import math
 from Numeric import dot
 
-import platform
+from utilities import debug_flags
 from jigs import Jig
 from VQT import V, Q, A, cross, vlen, norm, twistor_angle
 
@@ -152,7 +152,7 @@ class PiBondSpChain(PerceivedStructureType):
         # now add ourselves into each bond, exclusively (for cleaner code, this should be a separate method, called by init caller #e)
         for i, bond in zip( range(len(listb)), listb ):
             if bond.pi_bond_obj is not None:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: bug: obs pi_bond_obj found (and discarded) on %r" % (bond,)
                 bond.pi_bond_obj.destroy()
             bond.pi_bond_obj = self
@@ -184,7 +184,7 @@ class PiBondSpChain(PerceivedStructureType):
                 bond.pi_bond_obj = None
                 bond.pi_obj_memo = None # only needed to cause an exception if something tries to misuse it
             elif bond.pi_bond_obj is not None:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: bug: wrong pi_bond_obj %r found (not changed) on %r as we destroy %r" % (bond.pi_bond_obj, bond, self)
         super.destroy(self)
     def changed_structure(self, atom):
@@ -208,7 +208,7 @@ class PiBondSpChain(PerceivedStructureType):
         self.have_geom = False        
     def get_pi_info(self, bond, out = DFLT_OUT, up = DFLT_UP, abs_coords = False):
         if len(self.listb) == 1:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: should never happen (but should work if it does): optim for len1 PiBondSpChain object %r" % self
             return pi_vectors(self.listb[0], out = out, up = up, abs_coords = abs_coords)
                 # optimization; should never happen since it's done instead of creating this object
@@ -615,7 +615,7 @@ def pi_orders(bond):
     try:
         ord_pi_y, ord_pi_z = pi_order_table[bond.v6]
     except:
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "atom_debug: bug: pi_order_table[bond.v6] for unknown v6 %r in %r" % (bond.v6, bond)
         ord_pi_y, ord_pi_z = 0.5, 0.5 # this combo is not otherwise possible
     return ord_pi_y, ord_pi_z

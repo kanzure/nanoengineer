@@ -45,7 +45,7 @@ from GamessProp import statpt
 from GamessProp import basis
 from GamessProp import ui
 
-import platform
+from utilities import debug_flags
 
 from constants import magenta
 
@@ -376,7 +376,7 @@ class Gamess(Jig):
         (at most once per file per type of info).)
         """
         if len(key) != 2 or not key[0].isdigit():
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: info gamess with unrecognized key %r (not an error)" % (key,)
             return
         pset_index, name = key
@@ -386,7 +386,7 @@ class Gamess(Jig):
             pset = self.pset
         except:
             # not an error -- future mmp formats might use non-existent indices and expect readers to create new psets.
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: info gamess with non-existent pset index in key %r (not an error)" % (key,)
             return
         # the rest of the work should be done by the pset.
@@ -827,7 +827,7 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
             if error_if_name_not_known:
                 #bruce 050704, only correct when this method is used internally to copy an object of this class
                 print "error: unrecognized parameter name %r in info_gamess_setitem" % (name,)
-            elif platform.atom_debug:
+            elif debug_flags.atom_debug:
                 print "atom_debug: fyi: info gamess with unrecognized parameter name %r (not an error)" % (name,)
             # this is not an error, since old code might read newer mmp files which know about more gamess params;
             # it's better (in general) to ignore those than for this to make it impossible to read the mmp file.

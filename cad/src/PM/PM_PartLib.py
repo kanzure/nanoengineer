@@ -19,7 +19,7 @@ deprecated since 2007-08-29.)
 ninad 2007-09-06: Created. 
 """
 import os
-import platform
+from utilities import debug_flags
 
 from constants      import diTUBES
 from ThumbView      import MMKitView

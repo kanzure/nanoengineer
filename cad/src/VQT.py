@@ -17,7 +17,7 @@ so the remaining part of this module can be classified as "geometry"
 """
 
 import math
-import platform 
+from utilities import debug_flags 
 
 import Numeric 
 
@@ -566,11 +566,11 @@ def cat(a, b):
     # I bet they should be testing the number of entries being 0, or so.
     # So I added some debug code to warn us if this happens.
     if not a:
-        if (DEBUG_QUATS or platform.atom_debug):
+        if (DEBUG_QUATS or debug_flags.atom_debug):
             print "DEBUG_QUATS: cat(a, b) with false a -- is it right?", a
         return b
     if not b:
-        if (DEBUG_QUATS or platform.atom_debug):
+        if (DEBUG_QUATS or debug_flags.atom_debug):
             print "DEBUG_QUATS: cat(a, b) with false b -- is it right?", b
         return a
     r1 = Numeric.shape(a)

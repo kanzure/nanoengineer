@@ -16,7 +16,7 @@ Module classification: foundation.
 import env
 from debug import register_debug_menu_command
 from PyQt4.Qt import QObject ## , QWidget, SIGNAL
-import platform # for atom_debug
+from utilities import debug_flags # for atom_debug
 import EndUser
 
 # debug print options
@@ -327,7 +327,7 @@ class wrappedslot:
                         assert win.initialised # make sure it's not too early
                         assy = win.assy
                     except:
-                        if platform.atom_debug:
+                        if debug_flags.atom_debug:
                             print_compact_traceback("atom_debug: fyi: normal exception: ")
                         pass # this is normal during init... or at least I thought it would be -- I never actually saw it yet.
                     else:
@@ -359,7 +359,7 @@ class wrappedslot:
         called when an exception occurs during our slot method call
         """
         ###e mark the op_run as having an error, or at least print something
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "atom_debug: unmatched begin_op??"
         return
     def end(self, mc):

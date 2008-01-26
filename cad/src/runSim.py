@@ -32,7 +32,7 @@ from DebugMenuMixin import sim_params_set # DebugMenuMixin needs refactoring
     # to move this variable (sim_params_set) (and related code?) out of it;
     # see its module docstring for more info [bruce 080104 comment]
 from qt4transition import qt4todo
-import platform
+from utilities import debug_flags
 from PlatformDependent import fix_plurals
 from PlatformDependent import find_or_make_Nanorex_subdir
 from PlatformDependent import hhmmss_str
@@ -424,7 +424,7 @@ class SimRunner:
         # set up alist (list of atoms for sim input and output files, in order)
         if movie.alist is not None:
             # this movie object is being reused, which is a bug. complain... and try to work around.
-            if platform.atom_debug: # since I expect this is possible for "save movie file" until fixed... [bruce 050404] (maybe not? it had assert 0)
+            if debug_flags.atom_debug: # since I expect this is possible for "save movie file" until fixed... [bruce 050404] (maybe not? it had assert 0)
                 print "BUG (worked around??): movie object being reused unexpectedly"
             movie.alist = None
         movie.alist_fits_entire_part = False # might be changed below
@@ -567,12 +567,12 @@ class SimRunner:
         # (in some cases it's the name that was found there).
 
         if mflag == 1: # single-frame XYZ file
-            if movie.filename and platform.atom_debug:
+            if movie.filename and debug_flags.atom_debug:
                 print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
             movie.filename = self.tmp_file_prefix + ".xyz"  ## "sim-%d.xyz" % pid
 
         if mflag == 2: #multi-frame DPB file
-            if movie.filename and platform.atom_debug:
+            if movie.filename and debug_flags.atom_debug:
                 print "atom_debug: warning: ignoring filename %r, bug??" % movie.filename
             movie.filename = self.tmp_file_prefix + ".dpb"  ## "sim-%d.dpb" % pid
 
@@ -1230,7 +1230,7 @@ class SimRunner:
         #doc
         """
         movie = self._movie
-        if platform.atom_debug and movie.duration:
+        if debug_flags.atom_debug and movie.duration:
             print "atom_debug: possible bug: movie.duration was already set to", movie.duration
         movie.duration = 0.0 #k hopefully not needed
         # provide a reference frame for later movie-playing (for complete fix of bug 1297) [bruce 060112]
@@ -1316,7 +1316,7 @@ class SimRunner:
                         #  which means a tracefile callback would presumably see it if we set one --
                         #  but as of 060111 there's a bug in which that doesn't happen since all callbacks
                         #  are turned off by Interrupted).
-                    if platform.atom_debug:
+                    if debug_flags.atom_debug:
                         print "atom_debug: pyrex sim: returned normally"
                 except SimulatorInterrupted:
                     self.pyrexSimInterrupted = True   # wware 060323 bug 1725
@@ -1330,7 +1330,7 @@ class SimRunner:
                     # following code is wrong unless this was a user abort, but I'm too lazy to test for that from the exception text,
                     # better to wait until it's a new subclass of RuntimeError I can test for [bruce 060111]
                     env.history.statusbar_msg("Aborted")
-                    if platform.atom_debug:
+                    if debug_flags.atom_debug:
                         print "atom_debug: pyrex sim: aborted"
                     if self.PREPARE_TO_CLOSE:
                         # wware 060406 bug 1263 - exiting the program is an acceptable way to leave this loop
@@ -1413,7 +1413,7 @@ class SimRunner:
             except:
                 print_compact_traceback("exception in default cond, just always updating: ")
                 res = True
-##        if res and platform.atom_debug: # DO NOT COMMIT THIS, even with 'if res' -- might print too often and slow it down
+##        if res and debug_flags.atom_debug: # DO NOT COMMIT THIS, even with 'if res' -- might print too often and slow it down
 ##            print "debug: %d sim_frame_callback_update_check returns %r, args" % (self.__frame_number,res), \
 ##                  simtime, pytime, nframes #bruce 060712
         return res
@@ -1746,7 +1746,7 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                 words = line.split(None, 4) # split in at most 4 places
                 if len(words) >= 4 and words[3] == 'gradient': # 4th word -- see also self.progress_text()
                     self.__last_plain_line_words = words
-                elif platform.atom_debug:
+                elif debug_flags.atom_debug:
                     print "atom_debug: weird tracef line:", line ####@@@@ remove this? it happens normally at the end of many runs
             return 
         if print_sim_comments_to_history: #e add checkbox or debug-pref for this??

@@ -44,7 +44,7 @@ from model.assembly import assembly
 from drawer import get_gl_info_string ## grantham 20051201
 import os, sys
 
-import platform
+from utilities import debug_flags
 
 from PlatformDependent import find_or_make_Nanorex_directory
 from PlatformDependent import make_history_filename
@@ -1334,7 +1334,7 @@ class MWsemantics(QMainWindow,
         """
         Adjust the current selection.
         """
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "debug: reloading runSim on each use, for development"
             import runSim, debug
             debug.reload_once_per_event(runSim)
@@ -1347,7 +1347,7 @@ class MWsemantics(QMainWindow,
         """
         Adjust all atoms.
         """
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "debug: reloading runSim on each use, for development"
             import runSim, debug
             debug.reload_once_per_event(runSim)
@@ -1576,7 +1576,7 @@ class MWsemantics(QMainWindow,
         """
         Creates a movie of a molecular dynamics simulation.
         """
-        if platform.atom_debug: #bruce 060106 added this (fixing trivial bug 1260)
+        if debug_flags.atom_debug: #bruce 060106 added this (fixing trivial bug 1260)
             print "atom_debug: reloading runSim on each use, for development"
             import runSim
             reload(runSim)

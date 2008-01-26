@@ -18,7 +18,7 @@ from VQT import V, Q
 from icon_utilities import imagename_to_pixmap
 from Utility import SimpleCopyMixin
 from Utility import Node
-import platform
+from utilities import debug_flags
 import env
 from utilities.Log import greenmsg
 
@@ -106,7 +106,7 @@ class Csys(SimpleCopyMixin, Node):
         args, kws = self._um_initargs()
             # note: we depend on our own _um_initargs returning enough info for a full copy,
             # though it doesn't have to in general.
-        if 0 and platform.atom_debug:
+        if 0 and debug_flags.atom_debug:
             print "atom_debug: copying csys:", self
         return Csys( *args, **kws )
 

@@ -14,7 +14,7 @@ providing undo/redo ops which apply those diffs to the model state.
 """
 
 import time
-import platform
+from utilities import debug_flags
 from debug import print_compact_traceback, print_compact_stack, safe_repr
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
@@ -931,7 +931,7 @@ class Checkpoint:
         """
         self.update_ver_kluge()
         if self.ver is None:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: warning, bug?? self.ver is None in varid_ver() for", self ###@@@
         return self.varid, self.ver
     def update_ver_kluge(self):

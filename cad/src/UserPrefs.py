@@ -41,7 +41,7 @@ import env
 from widgets import RGBf_to_QColor, QColor_to_RGBf
 from widgets import double_fixup
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
-import platform
+from utilities import debug_flags
 from PlatformDependent import screen_pos_size
 from PlatformDependent import get_rootdir
 from povray import get_default_plugin_path
@@ -1966,7 +1966,7 @@ restored when the user undoes a structural change.</p>
         Slot for the checkbox that turns Show Valence Errors on/off.
         """
         env.prefs[ showValenceErrors_prefs_key ] = not not val
-##        if platform.atom_debug:
+##        if debug_flags.atom_debug:
 ##            print showValenceErrors_prefs_key, env.prefs[ showValenceErrors_prefs_key ] #k prints true, from our initial setup of page
         return
 
@@ -2711,7 +2711,7 @@ restored when the user undoes a structural change.</p>
         env.prefs[displayFontPointSize_prefs_key] = font.pointSize()
         self.set_font_widgets(setFontFromPrefs=True) # Also sets the current display font.
 
-        if platform.atom_debug: 
+        if debug_flags.atom_debug: 
             print "change_selected_font_to_default_font(): Button clicked. Default font: ", font.family(), ", size=", font.pointSize()        
 
     def set_font_widgets(self, setFontFromPrefs=True):
@@ -2724,7 +2724,7 @@ restored when the user undoes a structural change.</p>
         @type  setFontFromPrefs: bool
         """
 
-        if platform.atom_debug: 
+        if debug_flags.atom_debug: 
             print "set_font_widgets(): Here!"
 
 
@@ -2736,7 +2736,7 @@ restored when the user undoes a structural change.</p>
             font_size = font.pointSize()
             env.prefs[displayFont_prefs_key] = font_family
             env.prefs[displayFontPointSize_prefs_key] = font_size
-            if platform.atom_debug: 
+            if debug_flags.atom_debug: 
                 print "set_font_widgets(): No prefs db. Using default font: ", font.family(), ", size=", font.pointSize()
 
         else:
@@ -2775,12 +2775,12 @@ restored when the user undoes a structural change.</p>
             font.setPointSize(fontsize)
             env.prefs[displayFont_prefs_key] = font_family
             env.prefs[displayFontPointSize_prefs_key] = fontsize
-            if platform.atom_debug: 
+            if debug_flags.atom_debug: 
                 print "set_font(): Using selected font: ", font.family(), ", size=", font.pointSize()
 
         else: # Use default font
             font = self.w.defaultFont
-            if platform.atom_debug: 
+            if debug_flags.atom_debug: 
                 print "set_font(): Using default font: ", font.family(), ", size=", font.pointSize()
 
         # Set font

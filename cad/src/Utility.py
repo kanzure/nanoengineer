@@ -26,7 +26,7 @@ split out Node and/or LeafNode as well.)
 """
 
 from debug import print_compact_stack
-import platform
+from utilities import debug_flags
 import env
 from constants import genKey
 from state_utils import copy_val, StateMixin
@@ -476,7 +476,7 @@ class Node( StateMixin):
         # cause their info leaf records to erroneously get applied to the previous
         # leaf node that the old code was able to read. [bruce 071109 comment]
         if self.is_group():
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: mmp file error, ignored: a group got info leaf %r = ..." % (key,)
             return
         if key == ['hidden']:
@@ -494,7 +494,7 @@ class Node( StateMixin):
             # to a previous location indicated by val, and available via interp.
             interp.move_forwarded_node( self, val)
         else:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 msg = "atom_debug: fyi: info leaf (in Node) with " \
                       "unrecognized key %r (not an error)" % (key,)
                 print msg
@@ -557,7 +557,7 @@ class Node( StateMixin):
             # so the debug print is good even if it's not always a bug [bruce comment 050310]
             if self.no_selgroup_is_ok:
                 return #bruce 050602
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: bug(?): change_current_selgroup_to_include_self on node with no selgroup; ignored"
             return
         # ours is this node's selgroup, and might or might not already be the current one in self.assy
@@ -1255,7 +1255,7 @@ class Node( StateMixin):
     
     def copy(self, dad): # just for backwards compatibility until old code is changed [050527]
         self.redmsg("This cannot yet be copied")
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print_compact_stack("atom_debug: who's still calling this deprecated method? this is:\n ")
         return None # bruce 050131 changed this from "return 0"
     
@@ -1486,7 +1486,7 @@ class Node( StateMixin):
         # but it's harmless -- it puts a comment in the mmp file and prints a debug warning.
         line = "# not yet implemented: mmp record for %r" % self.__class__.__name__
         mapping.write(line + '\n')
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "atom_debug:", line
         return
 

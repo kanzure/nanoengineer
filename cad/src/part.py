@@ -55,7 +55,7 @@ from Assembly_API import Assembly_API
 from Csys import Csys
 from VQT import V
 from debug import print_compact_traceback, print_compact_stack
-import platform
+from utilities import debug_flags
 
 from utilities.Log import greenmsg, redmsg
 from BoundingBox import BBox
@@ -375,7 +375,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 ##                # in bug 519 (though it probably won't fix the bug);
 ##                # before this we were perhaps deleting Python-internal attrs too,
 ##                # such as __dict__ and __class__!
-##                if 0 and platform.atom_debug:
+##                if 0 and debug_flags.atom_debug:
 ##                    print "atom_debug: destroying part - deleting i mean resetting attr:",attr
 ##                ## still causes hang in movie mode:
 ##                ## delattr(self,attr) # is this safe, in arb order of attrs??
@@ -397,7 +397,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             try:
                 self.selmols.remove(mol)
             except ValueError: # not in the list
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print_compact_traceback("selmols_remove finds mol not in selmols (might not be a bug): ")
         return
 
@@ -691,7 +691,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         if self.selmols:
             if self.selwhat != SELWHAT_CHUNKS:
                 msg = "bug: part has selmols but selwhat != SELWHAT_CHUNKS"
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print_compact_stack(msg)
                 else:
                     print msg
@@ -734,7 +734,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         if debug_1855:
             print "debug_1855: part %r _recompute_selatoms did so, stores %r" % (self, res,)
             # guess: maybe this runs too early, before enough is updated, due to smth asking for it, maybe for incr update purposes
-        if res and self.selwhat != SELWHAT_ATOMS and platform.atom_debug:
+        if res and self.selwhat != SELWHAT_ATOMS and debug_flags.atom_debug:
             #bruce 060415; this prints, even after fix (or mitigation to nothing but debug prints) of bug 1855,
             # and I don't yet see an easy way to avoid that, so making it debug-only for A7.
             print "debug: bug: part %r found %d selatoms, even though self.selwhat != SELWHAT_ATOMS (not fixed)" % (self,len(res))
@@ -800,7 +800,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         #bruce 050321 disabling the following debug code, since not yet ok for all uses of _readmmp;
         # btw does readmmp even need to call addmol anymore??
         #bruce 050322 now readmmp doesn't call addmol so I'll try reenabling this debug code:
-        if 1 and platform.atom_debug:
+        if 1 and debug_flags.atom_debug:
             self.assy.checkparts()
 
     addnode = addmol #bruce 060604; should make addnode the fundamental one, and deprecate addmol, and clean up above comments
@@ -841,7 +841,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # (since in a sense it didn't -- at least the selgroup's part didn't change).
         self.assy.fyi_part_topnode_changed(old_top, self.topnode)
         # end of section during which assy's Part structure is invalid
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             self.assy.checkparts()
         return self.topnode
 

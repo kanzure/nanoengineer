@@ -26,7 +26,7 @@ import sys
 from debug import print_compact_traceback, print_compact_stack
 import env
 from constants import noop
-import platform
+from utilities import debug_flags
 from utilities.Comparison import same_vals #bruce 060306
 
 # == Usage tracking.
@@ -70,7 +70,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
             # [not sure if this ever happens in initial uses of this class]
             # (note: if subscribe could come before __init__, e.g. due to some sort of bug
             #  in which this obj got unpickled, this could also happen.)
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 #e Remove this debug print if this non-error happens routinely (and turns out not to reveal a bug).
                 # It never happened enough to notice until circa 061118 in exprs module; I don't yet know why it happens there,
                 # but it started after an LvalUnset exception was added and some exception-ignorers were changed to pass that on;
@@ -131,7 +131,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
             # The convention should be to make sure sub1 won't raise an exception (to make bugs more noticable),
             # so this is always a likely bug, so we print it; but only when atom_debug, in case it might get printed
             # a lot in some circumstances. [revised, see below]
-            if True or debug or platform.atom_debug:
+            if True or debug or debug_flags.atom_debug:
                 #bruce 070816 included True in that condition, to avoid silently discarding exceptions indicating real bugs.
                 print_compact_traceback("bug: exception in subs %r ignored by %r: " % (sub1, self) )
                 print_compact_stack("bug: here is where that exception occurred: ")
@@ -159,7 +159,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
         except KeyError:
             pass # not sure this ever happens, but it's legal (if we call this multiple times on one func)
         except AttributeError:
-            if 0 and platform.atom_debug:
+            if 0 and debug_flags.atom_debug:
                 print "atom_debug: fyi: %r's event already occurred, in remove_all_instances( %r)" % (self, func)
             pass # this happens routinely after fulfill_all removes self._subs,
                 # since our recipient is too lazy to only remove its other subs when one gets fulfilled --
@@ -209,7 +209,7 @@ class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in c
         except AttributeError:
             # this is the only way self.__subslist gets created;
             # it means this is the first call of track_use ever, or since track_change was last called
-            debug_name = platform.atom_debug and ("%r" % self) or None #061118
+            debug_name = debug_flags.atom_debug and ("%r" % self) or None #061118
             subslist = self.__subslist = OneTimeSubsList(debug_name) # (more generally, some sort of unique name for self's current value era)
         # (Should we now return subslist.subscribe(func)? No -- that's what the value-user should do *after* subslist
         #  gets entered here into its list of used objs, and value-user later finds it there.)
@@ -359,7 +359,7 @@ class begin_end_matcher: #bruce 050804
 
 def default_track(thing): #bruce 050804; see also the default definition of track in env module
     "Default implementation -- will be replaced at runtime whenever usage of certain things is being tracked."
-##    if platform.atom_debug:
+##    if debug_flags.atom_debug:
 ##        print "atom_debug: fyi (from changes module): something asked to be tracked, but nothing is tracking: ", thing
 ##        # if this happens and is not an error, then we'll zap the message.
     return
@@ -415,7 +415,7 @@ class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in cl
     see class usage_tracker_obj for a related docstring
     """
     def begin_tracking_usage(self): #e there's a docstring for this in an outtakes file, if one is needed
-        debug_name = platform.atom_debug and ("%r" % self) or None #061118
+        debug_name = debug_flags.atom_debug and ("%r" % self) or None #061118
         obj = usage_tracker_obj(debug_name)
         match_checking_code = usage_tracker.begin( obj)
             # don't store match_checking_code in self -- that would defeat the error-checking
@@ -570,7 +570,7 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
                 # but are being considered sets? Not sure yet -- this debug code only shows me a later event. ###k [061121 comment]
                 # ... update 061207: this is now happening all the time when I drag rects using exprs.test.testexpr_19c,
                 # so until it's debugged I need to lower the verbosity, so I'm putting it under control of flags I can set from other code.
-                if _debug_standard_inval_twice: ## was platform.atom_debug:
+                if _debug_standard_inval_twice: ## was debug_flags.atom_debug:
                     msg = "debug: fyi: something called standard_inval twice (not illegal but weird -- bug hint?) in %r" % self
                     if _debug_standard_inval_twice_stack:
                         print_compact_stack(msg + ": ",
@@ -635,7 +635,7 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
     pass # end of class usage_tracker_obj
 
 _debug_old_invalsubs = False #070110
-_debug_standard_inval_twice = platform.atom_debug # whether to warn about this at all
+_debug_standard_inval_twice = debug_flags.atom_debug # whether to warn about this at all
 _debug_standard_inval_twice_stack = False # whether to print_compact_stack in that warning [untested since revised by bruce 061207]
 _debug_standard_inval_nottwice_stack = False # whether to print_compact_stack in an inval that *doesn't* give that warning [untested]
 
@@ -757,7 +757,7 @@ class Formula( SubUsageTrackingMixin): #bruce 050805 [not related to class Expr 
         self.action = action
     def recompute(self):
         debug = self.debug
-        print_errors = True or debug or platform.atom_debug
+        print_errors = True or debug or debug_flags.atom_debug
             #bruce 070816 included True in that condition, since prior code could
             # silently discard exceptions which indicated real bugs.
         if debug:
@@ -958,7 +958,7 @@ def keep_forever(thing):
 
 _op_id = 0
 
-debug_begin_ops = False #bruce 051018 changed from platform.atom_debug
+debug_begin_ops = False #bruce 051018 changed from debug_flags.atom_debug
 
 class op_run:
     "Track one run of one operation or suboperation, as reported to env.begin_op and env.end_op in nested pairs"

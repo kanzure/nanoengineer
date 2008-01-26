@@ -15,7 +15,7 @@ from Numeric import dot
 
 from VQT import vlen, cross, norm, V
 import env
-import platform
+from utilities import debug_flags
 from debug import Stopwatch
 
 from chem import Atom
@@ -348,7 +348,7 @@ class NanotubeGenerator(NanotubeGeneratorPropertyManager, GeneratorBaseClass):
         bend = pi * self.bendSpinBox.value() / 180.0
         members = self.typeComboBox.currentIndex()
         endings = self.endingsComboBox.currentText()
-        if endings == "Capped" and not platform.atom_debug:
+        if endings == "Capped" and not debug_flags.atom_debug:
             raise Exception('Nanotube endcaps not implemented yet.')
         numwalls = self.mwntCountSpinBox.value()
         

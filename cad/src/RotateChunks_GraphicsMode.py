@@ -16,7 +16,7 @@ Rotate_GraphicsMode or RotateComponents_GraphicsMode.  The former name
 conflicts with the 'RotateMode'.
 
 """
-import platform 
+from utilities import debug_flags 
 import math
 from Numeric import dot, sign
 import env
@@ -124,7 +124,7 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
                 msg1 = "Controlled rotation not allowed. "
                 msg2 = "Key must be pressed before starting the drag"
                 env.history.statusbar_msg(msg1 + msg2)
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     msg3 = "Error occured in modifyMode.leftDragRotation."
                     msg4 = "Possibly due to a key press that activated. "
                     msg5 = "Translate groupbox. Aborting drag operation"

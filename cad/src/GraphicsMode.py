@@ -33,7 +33,7 @@ import drawer
 
 from debug import print_compact_traceback
 
-import platform
+from utilities import debug_flags
 
 import env
 from shape import get_selCurve_color
@@ -70,14 +70,14 @@ class nullGraphicsMode(GraphicsMode_API):
     # into a common nullObjectMixin for all kinds of "null objects". [bruce 071009]
 
     def noop_method(self, *args, **kws):
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "fyi: atom_debug: nullGraphicsMode noop method called -- probably ok; ignored"
         return None #e print a warning?
     def __getattr__(self, attr): # in class nullGraphicsMode
         # note: this is not inherited by other GraphicsMode classes,
         # since we are not their superclass
         if not attr.startswith('_'):
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "fyi: atom_debug: nullGraphicsMode.__getattr__(%r) -- probably ok; returned noop method" % attr
             return self.noop_method
         else:
@@ -286,7 +286,7 @@ class basicGraphicsMode(GraphicsMode_API):
             if method:
                 if method(wX, wY):
                     return self._ccinstance
-            elif platform.atom_debug:
+            elif debug_flags.atom_debug:
                 print "atom_debug: fyi: ccinstance %r with no want_event_position method" % (self._ccinstance,)
         return None
 
@@ -345,7 +345,7 @@ class basicGraphicsMode(GraphicsMode_API):
         # feature, check for bugs in atom.picked and mol.picked for everything
         # in the assembly; print and fix violations. (This might be slow, which
         # is why we don't turn it on by default for regular users.)
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             self.o.assy.checkpicked(always_print = 0)
         return
     
@@ -489,11 +489,11 @@ class basicGraphicsMode(GraphicsMode_API):
                         print "likely bug: %r.selobj_still_ok(glpane) returned None, "\
                               "should return boolean (missing return statement?)" % (selobj,)
                     return res
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "debug: selobj_still_ok doesn't recognize %r, assuming ok" % (selobj,)
             return True
         except:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_traceback("atom_debug: ignoring exception: ")
             return True # let the selobj remain
         pass
@@ -953,7 +953,7 @@ class basicGraphicsMode(GraphicsMode_API):
                 from wiki_help import open_wiki_help_dialog
                 open_wiki_help_dialog( featurename)
             pass
-        elif 0 and platform.atom_debug:#bruce 051201 -- might be wrong depending on how subclasses call this, so disabled for now
+        elif 0 and debug_flags.atom_debug:#bruce 051201 -- might be wrong depending on how subclasses call this, so disabled for now
             print "atom_debug: fyi: glpane keyPress ignored:", key
         return
 
@@ -1063,7 +1063,7 @@ class basicGraphicsMode(GraphicsMode_API):
             drawer.drawrectangle(self.selCurve_StartPt, self.selCurve_PrevPt,
                                  self.o.up, self.o.right, color)
 
-        if platform.atom_debug and 0: # (keep awhile, might be useful)
+        if debug_flags.atom_debug and 0: # (keep awhile, might be useful)
             # debug code bruce 041214: also draw back of selection curve
             pl = zip(self.o.selArea_List[:-1],self.o.selArea_List[1:])
             for pp in pl:

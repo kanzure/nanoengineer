@@ -1,13 +1,19 @@
 #!/bin/sh
 
-# usage: GlobalReplace.sh searchRegex replaceString filelist...
+# usage: GlobalReplace.sh [-n] searchRegex replaceString filelist...
 
 # NOTE: it's a good idea to run this without any files to process to
 # check that the quoting in the sed script is ok.
 
 # Example:
 #
-#   tools/GlobalReplace.sh "old\.symbol" "new.symbol" `cat allpyfiles`
+#   tools/GlobalReplace.sh "old\.symbol" "new.symbol" `tools/AllPyFiles.sh`
+
+dryRun=false
+if [ "x$1" = "x-n" ]; then
+    dryRun=true
+    shift
+fi
 
 searchRegex=`echo "$1" | sed 's:/:\\\\/:g'`
 replaceString=`echo "$2" | sed 's:/:\\\\/:g'`
@@ -25,9 +31,12 @@ for i in $*; do
     if cmp --silent $i $i.tmp$$; then
 	rm $i.tmp$$
     else
-	echo $i
-	diff $i $i.tmp$$
-	mv $i.tmp$$ $i
+	diff -u $i $i.tmp$$
+	if $dryRun; then
+	    rm $i.tmp$$
+	else
+	    mv $i.tmp$$ $i
+	fi
     fi
 done
 

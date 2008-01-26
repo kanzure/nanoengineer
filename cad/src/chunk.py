@@ -94,7 +94,7 @@ from constants import diDEFAULT
 
 from state_constants import S_REF, S_CHILDREN_NOT_DATA
 
-import platform
+from utilities import debug_flags
 
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 
@@ -654,7 +654,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # hs should be a valid hotspot; if you see no bug, return it
             if hs.killed_with_debug_checks(): # this also checks whether its key is in self.atoms
                 # bug detected
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "_get_hotspot sees killed singlet still claiming to be in this Chunk"
                 # fall thru
             else:
@@ -1031,7 +1031,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #    Something must have been invalid to call us, so basepos must be invalid. So we needn't call changed_attr on it.
         assert not self.__dict__.has_key('basepos')
         if self.assy is None:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 # [bruce comment 050702: this happens if you delete the chunk while dragging it by selatom in build mode]
                 print_compact_stack("atom_debug: fyi, recompute atpos called on killed mol %r: " % self)
         # Optional debug code:
@@ -1622,7 +1622,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # without checking whether they are that chunk's hotspot.
             hs = self.hotspot
             assert hs is not None and hs.is_singlet() and hs.key in self.atoms
-##            if hs is glpane.selatom and platform.atom_debug:
+##            if hs is glpane.selatom and debug_flags.atom_debug:
 ##                print "atom_debug: fyi: hs is glpane.selatom"
 # will removing this assert fix bug 703 and not cause trouble? bruce 050614 guess -- seems to work.
 # All selatom code still needs review and cleanup, though, now that it comes from selobj. ####@@@@
@@ -1642,7 +1642,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 hs.draw_atom_sphere(color, pos1, drawrad1, level, None, abs_coords = False)
                     #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
             except:
-                if 1 or platform.atom_debug: ###@@@ decide which
+                if 1 or debug_flags.atom_debug: ###@@@ decide which
                     print_compact_traceback("atom_debug: ignoring exception in overdraw_hotspot %r, %r: " % (self, hs))
                 pass
             pass
@@ -1675,7 +1675,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             color = r/255.0, g/255.0, b/255.0
             self.setcolor(color)
         else:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: info chunk with unrecognized key %r" % (key,)
         return
 
@@ -2781,7 +2781,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             numol.user_specified_center = self.user_specified_center + offset
         numol.setDisplay(self.display)
         numol.dad = dad
-        if dad and platform.atom_debug: #bruce 050215
+        if dad and debug_flags.atom_debug: #bruce 050215
             print "atom_debug: mol.copy got an explicit dad (this is deprecated):", dad
         if self._colorfunc is not None: #bruce 060411 added condition; note, this code snippet occurs in two methods
             numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524

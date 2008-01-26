@@ -266,8 +266,8 @@ def startup_script( main_globals):
 
     # Handle the optional startup argument, --initial-file .
     # TODO: figure out what this is for and what it does, and document it here.
-    from platform import atom_debug
-    if atom_debug:
+    from utilities import debug_flags
+    if debug_flags.atom_debug:
         # Use a ridiculously specific keyword, so this isn't triggered accidentally.
         if len(sys.argv) >= 3 and sys.argv[1] == '--initial-file':
             # fileOpen gracefully handles the case where the file doesn't exist.

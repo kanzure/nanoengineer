@@ -24,7 +24,7 @@ from widgets import makemenu_helper
 from platform import fix_buttons_helper
 from debug import DebugMenuMixin, print_compact_stack, print_compact_traceback
 allButtons = (leftButton|midButton|rightButton) #e should be defined in same file as the buttons
-import platform
+from utilities import debug_flags
 from platform import tupleFromQPoint, fix_plurals
 import os
 import env
@@ -235,7 +235,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     def checkpoint_before_drag(self, event): # GLPane version: extra arg 'but'
         if 1: # GLPane version: if but & (leftButton|midButton|rightButton):
-            if self.__pressEvent is not None and platform.atom_debug:
+            if self.__pressEvent is not None and debug_flags.atom_debug:
                 print "atom_debug: bug: pressEvent in MT didn't get release:", self.__pressEvent
             self.__pressEvent = event
             self.__flag_and_begin_retval = None
@@ -362,7 +362,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         # 0c. What does current selection itself think it needs to be?
         # (If its desires are inconsistent, complain and fix them.)
         if assy.selatoms and assy.selmols:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 #bruce 060210 made this debug-only, since what it reports is not too bad, and it happens routinely now in Build mode
                 # if atoms are selected and you then select a chunk in MT
                 print "atom_debug: bug, fyi: there are both atoms and chunks selected. Deselecting some of them to fit current mode or internal code."
@@ -383,7 +383,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
                 # (As of 050519 740pm, we get this from the jig cmenu command "select this jig's atoms"
                 #  when the current mode is more compatible with selecting chunks. But I think this causes
                 #  no harm, so I might as well wait until we further revise selection code to fix it.)
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: bug, fyi: actual selection (%s) inconsistent " \
                           "with internal variable for that (%s); will fix internal variable" % \
                           (SELWHAT_NAMES[selwhat_from_sel], SELWHAT_NAMES[selwhat])
@@ -446,7 +446,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         caller might have its own opinion, which is what we use, so the flag
         would need to be separately passed anyway.)
         """
-        if platform.atom_debug: #bruce 060713 debug code, safe to be permanent
+        if debug_flags.atom_debug: #bruce 060713 debug code, safe to be permanent
             import debug
             debug._event = event
             debug._event_state = event.state()
@@ -1481,7 +1481,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         key = event.key()
         if debug_keys:
             print "mt key press",key###########@@@@@
-        import platform
+        from utilities import debug_flags
         key = platform.filter_key(key) #bruce 041220 (needed for bug 93)
         ####@@@@ as of 050126 this delete binding doesn't seem to work:
         if key == Qt.Key_Delete: ####@@@@ belongs in the subclass
@@ -1668,7 +1668,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         if col != 0: return
         oldname = self.done_renaming()
         if oldname != item.object.name: #bruce 050128 #e clean all this up, see comments below
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: bug, fyi: oldname != item.object.name: %r, %r" % (oldname, item.object.name)
         what = (oldname and "%r" % oldname) or "something" # not "node %r"
         ## del oldname
@@ -1679,7 +1679,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         try:
             text_now_displayed = str(text) # turn QString into python string
         except UnicodeEncodeError: #bruce 050508 experiment (failed) and bug-mitigation (succeeded)
-##            if platform.atom_debug:
+##            if debug_flags.atom_debug:
 ##                print "atom_debug: fyi: trying to handle UnicodeEncodeError for renamed item"
 ##            text_now_displayed = unicode(text)
 ##            # fails: wrong funny chars in glpane, exception when writing new name to history file
@@ -1698,7 +1698,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         if ok:
             res = "renamed %s to %r" % (what, newname)
             if newname != item.object.name: #bruce 050128
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: bug, fyi: newname != item.object.name: %r, %r" % (newname, item.object.name)
         else:
             reason = newname

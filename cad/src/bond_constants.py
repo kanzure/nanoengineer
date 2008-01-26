@@ -24,7 +24,7 @@ from math import floor, ceil
 
 from VQT import Q
 from debug import print_compact_traceback    
-import platform
+from utilities import debug_flags
 import env
 from PyrexSimulator import thePyrexSimulator
 
@@ -164,7 +164,7 @@ def btype_from_v6(v6): #bruce 050705
     try:
         return bond_type_names[v6]
     except KeyError:
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "atom_debug: illegal bond v6 %r, calling it 'unknown'" % (v6,)
         return 'unknown' #e stub for this error return; should it be an error word like this, or single, or closest legal value??
     pass
@@ -303,14 +303,14 @@ def _compute_bond_params(atomtype1, atomtype2, v6):
         pass
     else:
         if not rcovsum:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "debug: _compute_bond_params for nonsense bond:"
             rcov1 = rcov2 = 0.5 # arbitrary
             rcovsum = rcov1 + rcov2
         ratio = nicelen / rcovsum
         rcov1 *= ratio
         rcov2 *= ratio
-        if 0 and platform.atom_debug:
+        if 0 and debug_flags.atom_debug:
             print "debug: _compute_bond_params adjusts %s-%s-%s length by %f" % \
                   (atomtype1.fullname, ltr, atomtype2.fullname, ratio)
     return rcov1, rcov2

@@ -22,7 +22,7 @@ from exprs.ExprsConstants import Type
 from exprs.py_utils import printnim, stub
 from exprs.__Symbols__ import Anything
 
-import platform
+from utilities import debug_flags
 
 # ==
 
@@ -87,7 +87,7 @@ class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
         assert type(prefs_key) == type("") #k redundant?
         import env
         env.prefs[prefs_key] = val
-        if 0 and platform.atom_debug:
+        if 0 and debug_flags.atom_debug:
             print "fyi: %r set env.prefs[%r] = %r" % (self, prefs_key, val)
         return
     value = property(get_value, set_value)

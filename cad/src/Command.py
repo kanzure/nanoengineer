@@ -30,7 +30,7 @@ from debug import print_compact_traceback
 
 from debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
 
-import platform
+from utilities import debug_flags
 from PlatformDependent import shift_name
 from PlatformDependent import control_name
 from PlatformDependent import context_menu_prefix
@@ -173,14 +173,14 @@ class nullCommand(anyCommand):
     # into a common nullObjectMixin for all kinds of "null objects". [bruce 071009]
     
     def noop_method(self, *args, **kws):
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "fyi: atom_debug: nullCommand noop method called -- probably ok; ignored"
         return None #e print a warning?
     def __getattr__(self, attr): # in class nullCommand
         # note: this is not inherited by other Command classes,
         # since we are not their superclass
         if not attr.startswith('_'):
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "fyi: atom_debug: nullCommand.__getattr__(%r) -- probably ok; returned noop method" % attr
             return self.noop_method
         else:
@@ -511,7 +511,7 @@ class basicCommand(anyCommand):
                 setattr(self, attr, [])
         for attr in ['Menu_spec']:
             setattr(self, attr, list(getattr(self, attr)))
-        if platform.atom_debug and self.debug_Menu_spec:
+        if debug_flags.atom_debug and self.debug_Menu_spec:
             # put the debug items into the main menu
             self.Menu_spec.extend( [None] + self.debug_Menu_spec )
             # [note, bruce 050914, re bug 971: [edited 071009, 'mode' -> 'command']
@@ -539,7 +539,7 @@ class basicCommand(anyCommand):
             for modkeyname, submenu_spec in doit:
                 itemtext = '%s-%s Menu' % (context_menu_prefix(), modkeyname)
                 self.Menu_spec.append( (itemtext, submenu_spec) )
-            # note: use platform.py functions so names work on Mac or non-Mac,
+            # note: use PlatformDependent functions so names work on Mac or non-Mac,
             # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
             # or   "Control-Command Menu" vs. "Right-Control Menu".
             # [bruce 041014]

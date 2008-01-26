@@ -24,7 +24,7 @@ as io for now. (Another possibility would be platform.) [bruce 071214]
 """
 
 import os, sys
-import platform
+from utilities import debug_flags
 from PyQt4 import QtGui
 import Initialize
 import EndUser
@@ -105,7 +105,7 @@ def geticon(name):
     iconPath = os.path.normpath(iconPath)      
     
     if not os.path.exists(iconPath):
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "icon path %s doesn't exist." % (iconPath,)
     
     # Always set the icon with the 'iconPath'. Don't set it as an empty string 
@@ -146,7 +146,7 @@ def getpixmap(name):
         # before setting the icon. 
         # @see: L{PM_GroupBox.addPmWidget} for an example on how this is done
         pixmap = QtGui.QPixmap('')
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             # This could be a common case. As the client uses getpixmap function 
             # to see if a pixmap exists. So if its obscuring other debug messages,
             # the following print statement can be removed

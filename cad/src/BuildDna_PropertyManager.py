@@ -19,7 +19,7 @@ BUGS:
   BuildDna_EditCommand from a a temporary command. 
 - Just entering and leaving BuilddDna_EditCommand creates an empty DnaGroup
 """
-import platform
+from utilities import debug_flags
 from debug import  print_compact_stack
 
 from PyQt4.Qt import SIGNAL
@@ -118,13 +118,13 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         # -- Ninad 2008-01-09 (similar comment exists in MovePropertyManager.py
                 
         if isConnect and self.isAlreadyConnected:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_stack("warning: attempt to connect widgets"\
                                     "in this PM that are already connected." )
             return 
         
         if not isConnect and self.isAlreadyDisconnected:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_stack("warning: attempt to disconnect widgets"\
                                     "in this PM that are already disconnected.")
             return

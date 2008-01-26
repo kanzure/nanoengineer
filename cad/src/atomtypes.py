@@ -26,7 +26,7 @@ on __xxx__ attrs in python objects.
 
 from VQT import Q
 from utilities.Log import redmsg, orangemsg
-import platform
+from utilities import debug_flags
 import env
 
 from bond_constants import V_SINGLE, V_DOUBLE, V_TRIPLE, V_AROMATIC, V_GRAPHITE, V_CARBOMERIC
@@ -75,7 +75,7 @@ class AtomType:
             print "warning: bug: atomtype name in %r does not start with sp, sp2, or sp3; assuming sp3 in bonds code" % self.fullname
             spX = 3
         self.spX = spX
-        if 0 and platform.atom_debug and (spX != 3 or self.openbond):
+        if 0 and debug_flags.atom_debug and (spX != 3 or self.openbond):
             print "atom_debug: fyi: %r has spX == %d" % (self.fullname, spX)
         
         # bondvectors might be None or a list of vectors whose length should be numbonds (except for two buggy elements);
@@ -206,7 +206,7 @@ class AtomType:
         self.num_lonepairs = nlp + nlp_p # more useful to the outside code, though not yet used as of 050707
         self.num_pi_electrons = npi
         assert 2 * (nlp + nlp_p) + npi + numbonds == num_outer_shell_es # double check all this by counting the electrons
-        if 0 and platform.atom_debug:
+        if 0 and debug_flags.atom_debug:
             print "atom_debug: (%d) %s has %d bonds, and %d,%d,%d  pi electrons, LPs in spX, LPs in p" % \
                   (self.element.eltnum, self.fullname, numbonds, npi, nlp, nlp_p)
         return # from _init_electronic_structure
@@ -297,7 +297,7 @@ class AtomType:
             res.append(V_CARBOMERIC)
         if not res:
             return
-        if 0 and platform.atom_debug:
+        if 0 and debug_flags.atom_debug:
             print "atom_debug: (%d) %s permits these v6's besides single(6): %r" % (self.element.eltnum, self.fullname, res)
         res.append(V_SINGLE)
             # Note: we do this even for O(sp2) and S(sp2), even though a bond1 as their sole bond is always a valence error.

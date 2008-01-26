@@ -27,7 +27,7 @@ interface to rather than "try to be").
 """
 
 from debug import print_compact_traceback, print_compact_stack
-import platform
+from utilities import debug_flags
 import env
 
 from modes import nullMode
@@ -191,7 +191,7 @@ class modeMixin(object):
         except:
             print_compact_traceback("bug: update_parts: ")
         else:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 self.assy.checkparts() #bruce 050315 assy/part debug code
         
         #e (Q: If the new mode refuses to start,

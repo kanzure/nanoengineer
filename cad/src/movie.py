@@ -19,7 +19,7 @@ from PyQt4.Qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from utilities.Log import redmsg, orangemsg, greenmsg
 from VQT import A
 from chem import move_alist_and_snuggle
-import platform
+from utilities import debug_flags
 from PlatformDependent import fix_plurals
 from debug import print_compact_stack, print_compact_traceback
 from moviefile import MovieFile #e might be renamed, creation API revised, etc
@@ -479,7 +479,7 @@ class Movie:
 
         self.propMgr = propMgr
 
-        if self.isOpen and platform.atom_debug:
+        if self.isOpen and debug_flags.atom_debug:
             env.history.message( redmsg( "atom_debug: redundant cueMovie()? bug if it means atoms are still frozen"))
 
         kluge_ensure_natoms_correct( self.assy.part) # matters for some warn_if_other_part messages, probably not for anything else
@@ -1295,7 +1295,7 @@ class alist_and_moviefile:
                 self.movable_atoms.destroy()
             self.alist = None
         except:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_traceback("atom_debug: exception in alist_and_moviefile.destroy() ignored: ")
         return
 ##    why_not_playable = "" #e need to set this to actual reasons when possible
@@ -1386,7 +1386,7 @@ def _checkMovieFile(part, filename): #bruce 050913 removed history arg since all
     # until we have new DPB format, and not clear how to do it even then (if we only have
     # persistent names for files rather than parts).
     if part is None:
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print_compact_stack( "atom_debug: possible bug: part is false (%r) in _checkMovieFile for %s" % (part,filename))
             ## can't do this, no movie arg!!! self.debug_print_movie_info()
         if print_errors:
@@ -1411,7 +1411,7 @@ def _checkMovieFile(part, filename): #bruce 050913 removed history arg since all
     if natoms == part.natoms: ## bruce 050324 changed this from natoms == len(self.assy.alist)
         return 0
     else:
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "atom_debug: not natoms == part.natoms, %d %d" % (natoms, part.natoms)
         if print_errors:
             msg = redmsg("Movie file [" + filename + "] not valid for the current part.")

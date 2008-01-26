@@ -44,7 +44,7 @@ from constants import white
 from constants import red
 
 from debug import print_compact_traceback
-import platform 
+from utilities import debug_flags 
 
 from BoundingBox import BBox
 
@@ -208,7 +208,7 @@ class simple_shape_2d:
                 #  projectable without error, but too close to the eyeball
                 #  to be drawn? I think not, but I did not fix this yet
                 #  (or report the bug). ###e]
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print_compact_traceback("atom_debug: ignoring math error for point near eyeball: ")
                 return None
             p += pfix

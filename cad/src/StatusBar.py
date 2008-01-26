@@ -31,7 +31,7 @@ Majorly rewritten/refactored by Eric M circa 12/2007 [bruce comment 071228]
 
 import os, time
 from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL, QMessageBox, QStatusBar
-import platform
+from utilities import debug_flags
 from PlatformDependent import hhmmss_str #bruce 060106 moved that function there
 import env
 from icon_utilities import geticon
@@ -92,7 +92,7 @@ class StatusBar(QStatusBar):
         """
         Slot for Abort button.
         """
-        if platform.atom_debug and self.sim_abort_button_pressed: #bruce 060106
+        if debug_flags.atom_debug and self.sim_abort_button_pressed: #bruce 060106
             print "atom_debug: self.sim_abort_button_pressed is already True before we even put up our dialog"
 
         # Added confirmation before aborting as part of fix to bug 915. Mark 050824.
@@ -277,7 +277,7 @@ class AbortHandler:
         try:
             self.statusBar.removeAbortableCommand(self.commandName)
         except:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_traceback("atom_debug: bug: failure in StatusBar.removeAbortableCommand(): ")
         self.statusBar.possibly_hide_progressbar_and_stop_button()
 

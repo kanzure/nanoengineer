@@ -533,7 +533,7 @@ class PasteMode(depositMode):
             msg2 = "is not implemented"
             msg3  = msg1 + msg2 
             return None, msg3
-            ##if platform.atom_debug:     
+            ##if debug_flags.atom_debug:     
                 ###@@@ EXPERIMENTAL CODE TO PASTE a GROUP WITH A HOTSPOT  
                 ##if 0:
                     ### hotspot neighbor atom

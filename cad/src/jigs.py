@@ -38,7 +38,7 @@ from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
 from OpenGL.GL import GL_FILL
 
-import platform
+from utilities import debug_flags
 
 from Utility import Node
 from icon_utilities import imagename_to_pixmap

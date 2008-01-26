@@ -17,7 +17,7 @@ import math
 import Numeric
 from Numeric import dot
 
-import platform
+from utilities import debug_flags
 from VQT import cross
 from VQT import vlen
 from VQT import norm
@@ -117,7 +117,7 @@ def drawLinearDimension(color,      # what color are we drawing this in
     theoreticalRight = (xflip and -csys.z) or csys.z
     theoreticalOutOfScreen = cross(theoreticalRight, bdiff)
     yflip = dot(theoreticalOutOfScreen, outOfScreen) < 0
-    if platform.atom_debug:
+    if debug_flags.atom_debug:
         print "DEBUG INFO FROM drawLinearDimension"
         print csys
         print theoreticalRight, theoreticalOutOfScreen

@@ -37,7 +37,7 @@ from jigs import *
 from Utility import *
 from Group import Group
 import sys, os, time
-import platform
+from utilities import debug_flags
 from qt4transition import *
 
 class ModelTreeItem(QItemDelegate):
@@ -327,7 +327,7 @@ class TreeView(QTreeView):
             print "debug_mt_updates: mt_update called"
         self.needs_update_state = 1 # we'll respond to this in our custom method during the next paintEvent
         if not self.updatesEnabled():
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print_compact_stack("atom_debug: stack in mt_update when not isUpdatesEnabled: ")
         # Force a repaint by changing the pointer to the model, using a shallow clone.
         self.model = self.model.veryShallowClone()
@@ -341,7 +341,7 @@ class TreeView(QTreeView):
     def dprinttime(self):
         "call this to print a timestamp before every debug line for which the same time was never before printed"
         if not debug_prints: return
-        if not platform.atom_debug: return
+        if not debug_flags.atom_debug: return
         import time
         stamp = time.asctime() #e improve
         if stamp != self._last_dprinttime_stamp:
@@ -352,7 +352,7 @@ class TreeView(QTreeView):
 
     def dprint(self, msg):
         if not debug_prints: return
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             self.dprinttime()
             print msg
         return
@@ -644,7 +644,7 @@ class TreeView(QTreeView):
                 try:
                     vp = self.viewport()
                     if not isinstance(vp, QWidget):
-                        if platform.atom_debug:
+                        if debug_flags.atom_debug:
                             # See bug 2113 - this does not appear to be very serious. wware 060727
                             sys.stderr.write("QScrollView.viewport() should return a QWidget (bug 1457)\n")
                             sys.stderr.write("Instead it returned " + repr(vp) + "\n")
@@ -767,7 +767,7 @@ class TreeView(QTreeView):
         # detect this and discard that click in case it was on the wrong item. Anyway that's all NIM for now.
         # Another fix would be to scan the item-tree here (as last made from a node-tree), not the new node-tree. #e]
         if not item:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: MT node with no item (still waiting for MT.update Qt event?)"
             return
         # bruce 050512 continues: Worse, it can happen that item is no longer valid -- the first time we call a method on it,
@@ -776,7 +776,7 @@ class TreeView(QTreeView):
         try:
             item.text(0) # returns text in column 0
         except:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: MT node with invalid item (still waiting for MT.update Qt event?)"
             return
         # Now it should be safe to use item.

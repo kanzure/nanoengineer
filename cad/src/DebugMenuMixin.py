@@ -33,7 +33,7 @@ from PyQt4.Qt import QDialog, QGridLayout, QLabel, QPushButton, QLineEdit, SIGNA
 from PyQt4.Qt import QFontDialog, QInputDialog
 
 import env
-import platform
+from utilities import debug_flags
 import debug
 import debug_prefs
 
@@ -137,10 +137,10 @@ class DebugMenuMixin:
                 ('run py code', self._debug_runpycode),
                 ('sim param dialog', self._debug_sim_param_dialog),
                 ('force sponsor download', self._debug_force_sponsor_download),
-                ('speed-test py code', self._debug_timepycode), #bruce 051117; include this even if not platform.atom_debug
+                ('speed-test py code', self._debug_timepycode), #bruce 051117; include this even if not debug_flags.atom_debug
             ] )
         #bruce 050416: use a "checkmark item" now that we're remaking this menu dynamically:
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             res.extend( [
                 ('ATOM_DEBUG', self._debug_disable_atom_debug, 'checked' ),
             ] )
@@ -149,9 +149,9 @@ class DebugMenuMixin:
                 ('ATOM_DEBUG', self._debug_enable_atom_debug ),
             ] )
 
-        #bruce 060124 changes: always call debug_prefs_menuspec, but pass platform.atom_debug to filter the prefs,
+        #bruce 060124 changes: always call debug_prefs_menuspec, but pass debug_flags.atom_debug to filter the prefs,
         # and change API to return a list of menu items (perhaps empty) rather than exactly one
-        res.extend( debug_prefs.debug_prefs_menuspec( platform.atom_debug ) ) #bruce 050614 (submenu)
+        res.extend( debug_prefs.debug_prefs_menuspec( debug_flags.atom_debug ) ) #bruce 050614 (submenu)
 
         if 1: #bruce 050823
             some = registered_commands_menuspec( self)
@@ -170,7 +170,7 @@ class DebugMenuMixin:
                 ('print object counts', self._debug_print_object_counts),
             ] )
         
-        if platform.atom_debug: # since it's a dangerous command
+        if debug_flags.atom_debug: # since it's a dangerous command
             res.extend( [
                 ('debug._widget = this widget', self._debug_set_widget),
                 ('destroy this widget', self._debug_destroy_self),
@@ -238,17 +238,17 @@ class DebugMenuMixin:
         if ok:
             self.setFont(newfont)
             try:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: new font.toString():", newfont.toString()
             except:
                 print_compact_traceback("new font.toString() failed: ")
         return
     
     def _debug_enable_atom_debug(self):
-        platform.atom_debug = 1
+        debug_flags.atom_debug = 1
     
     def _debug_disable_atom_debug(self):
-        platform.atom_debug = 0
+        debug_flags.atom_debug = 0
     
     def debug_event(self, event, funcname, permit_debug_menu_popup = 0): #bruce 040916
         """[the main public method for subclasses]

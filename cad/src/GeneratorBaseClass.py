@@ -60,7 +60,7 @@ from PyQt4.Qt import QCursor
 from PyQt4.Qt import QWhatsThis
 
 import env
-import platform
+from utilities import debug_flags
 
 from utilities.Log import redmsg, orangemsg, greenmsg, quote_html
 from utilities.Comparison import same_vals
@@ -216,7 +216,7 @@ class GeneratorBaseClass:
                 cmdname = cmdname.split(':')[0]
                 self.cmdname = cmdname
             except:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "fyi: %r guessed wrong about format of self.cmd == %r" \
                           % (self, self.cmd,)
                 pass
@@ -294,12 +294,12 @@ class GeneratorBaseClass:
         # implementation is incorrect and can be discarded when we refactor
         # this class.
         # [070724 code review]
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print 'restore defaults button clicked'
         
     def preview_btn_clicked(self):
         """Slot for the Preview button."""
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print 'preview button clicked'
         self.change_random_seed()
         self._ok_or_preview(previewing = True)
@@ -314,7 +314,7 @@ class GeneratorBaseClass:
         # inheriting this method. This should be fixed when we refactor.
         # (Maybe this is true for some other _btn_clicked methods as well.)
         # [070724 code review]
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print 'ok button clicked'
         self._gensym_data_for_reusing_name = None # make sure gensym-assigned
             # name won't be reused next time
@@ -494,7 +494,7 @@ class GeneratorBaseClass:
     
     def done_btn_clicked(self):
         "Slot for the Done button"
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "done button clicked"
         self.ok_btn_clicked()
 
@@ -504,7 +504,7 @@ class GeneratorBaseClass:
 
     def cancel_btn_clicked(self):
         "Slot for the Cancel button"
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "cancel button clicked"
         self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)")
         self.remove_struct()

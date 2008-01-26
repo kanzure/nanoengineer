@@ -11,7 +11,7 @@ History:
 bruce 050507 made this by collecting appropriate methods from class Part.
 """
 
-import platform
+from utilities import debug_flags
 import env
 
 from debug         import print_compact_stack
@@ -45,7 +45,7 @@ class ops_copy_Mixin:
 
     def cut(self):
         print "bug (worked around): assy.cut called, should use its new name cut_sel" #bruce 050927
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print_compact_stack( "atom_debug: assy.cut called, should use its new name cut_sel: ")
         return self.cut_sel()
     
@@ -132,7 +132,7 @@ class ops_copy_Mixin:
 
     def copy(self):
         print "bug (worked around): assy.copy called, should use its new name copy_sel" #bruce 050927
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print_compact_stack( "atom_debug: assy.copy called, should use its new name copy_sel: ")
         return self.copy_sel()
     
@@ -165,7 +165,7 @@ class ops_copy_Mixin:
         # 2. prep this for copy by including other required objects, context, etc...
         # (eg a new group to include it all, new chunks for bare atoms)
         # and emit message about what we're about to do
-        if platform.atom_debug: #bruce 050811 fixed this for A6 (it was a non-debug reload)
+        if debug_flags.atom_debug: #bruce 050811 fixed this for A6 (it was a non-debug reload)
             print "atom_debug: fyi: importing or reloading ops_copy from itself"
             import ops_copy as hmm
             reload(hmm)
@@ -215,7 +215,7 @@ class ops_copy_Mixin:
         # 2. prep this for copy by including other required objects, context, etc...
         # (eg a new group to include it all, new chunks for bare atoms)
         # and emit message about what we're about to do
-        if platform.atom_debug: #bruce 050811 fixed this for A6 (it was a non-debug reload)
+        if debug_flags.atom_debug: #bruce 050811 fixed this for A6 (it was a non-debug reload)
             print "atom_debug: fyi: importing or reloading ops_copy from itself"
             import ops_copy as hmm
             reload(hmm)
@@ -264,7 +264,7 @@ class ops_copy_Mixin:
         self.assy.o.saveLastView() # make sure glpane's cached info gets updated in its current Part, before we might use it
         entire_part = self
         sel = selection_from_part(entire_part, use_selatoms = True) #k use_selatoms is a guess
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print "atom_debug: fyi: importing or reloading ops_copy from itself"
             import ops_copy as hmm
             reload(hmm)
@@ -546,7 +546,7 @@ class ops_copy_Mixin:
 
     def kill(self):
         print "bug (worked around): assy.kill called, should use its new name delete_sel" #bruce 050927
-        if platform.atom_debug:
+        if debug_flags.atom_debug:
             print_compact_stack( "atom_debug: assy.kill called, should use its new name delete_sel: ")
         self.delete_sel()
 
@@ -736,7 +736,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         atom_chunk_atoms = self.atom_chunk_atoms = {} # id(chunk) -> list of its atoms to copy (if it's not fullcopied) (arb order)
         atom_jigs = self.atom_jigs = {}
         sel = self.sel
-        if platform.atom_debug and not sel.topnodes:
+        if debug_flags.atom_debug and not sel.topnodes:
             print "debug warning: prep_for_copy_to_shelf sees no sel.topnodes"
                 #bruce 060627; not always a bug (e.g. happens for copying atoms)
         for node in sel.topnodes: # no need to scan selmols too, it's redundant (and in general a subset)

@@ -466,7 +466,6 @@ packageMapping_for_files = {
     "Plane"                            : "model",
     "Plane_EditCommand"                : "command|commands/PlaneProperties?",
     "PlanePropertyManager"             : "ui/propmgr|commands/PlaneProperties?",
-    "platform"                         : "utilities", # debug; rename platform.atom_debug -> debug_flags.debug ??
     "PlatformDependent"                : "platform", # ok, but really it's a mix of platform, utilities, io.
     "PlotTool"                         : "ui/dialog|commands/Plot?",
     "PlotToolDialog"                   : "ui/dialog|commands/Plot?",

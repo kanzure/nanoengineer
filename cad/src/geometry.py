@@ -25,7 +25,7 @@ from Numeric import transpose, minimum, maximum, remainder, size, add
 from Numeric import Float, zeros, multiply, sign, dot
 from LinearAlgebra import solve_linear_equations, eigenvectors
 
-import platform # for atom_debug
+from utilities import debug_flags # for atom_debug
 from VQT import V, A, cat, norm, cross, X_AXIS, Y_AXIS
 
 def selection_polyhedron(basepos, borderwidth = 1.8):

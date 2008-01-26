@@ -35,7 +35,7 @@ from PyQt4.Qt import QMessageBox
 
 from qt4transition import qt4warning, qt4todo
 
-import platform
+from utilities import debug_flags
 
 # These don't exist in Qt4 but we can make begin(QVBox) and
 # begin(QHBox) act the same as before.
@@ -430,13 +430,13 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
             elif option[0] == 'iconset':
                 pass # this was processed above
             else:
-                if platform.atom_debug:
+                if debug_flags.atom_debug:
                     print "atom_debug: fyi: don't understand menu_spec option %r", (option,)
             pass
         elif option is None:
             pass # this is explicitly permitted and has no effect
         else:
-            if platform.atom_debug:
+            if debug_flags.atom_debug:
                 print "atom_debug: fyi: don't understand menu_spec option %r", (option,)
         pass
         #e and something to use QMenuData.setShortcut

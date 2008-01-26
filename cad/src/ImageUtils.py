@@ -23,7 +23,7 @@ import PngImagePlugin # Don't remove this, it is used by package creator to find
 # try to tell pylint we need to import PngImagePlugin [bruce 071023]
 PngImagePlugin
 
-import platform #bruce 061127
+from utilities import debug_flags #bruce 061127
 from debug import print_compact_traceback #bruce 061128
 
 class nEImageOps:
@@ -96,13 +96,13 @@ class nEImageOps:
             old_data = self.img.size, self.img.mode
             self.img = self.img.convert(mode) #k does it matter whether we do this before or after resizing it?
             new_data = self.img.size, self.img.mode
-            if old_data != new_data and platform.atom_debug and self.debug:
+            if old_data != new_data and debug_flags.atom_debug and self.debug:
                 print "debug: %r: fyi: image converted from %r to %r" % (self, old_data, new_data)
                 ###e also need self.update() in this case?? if so, better do it later during __init__.
             pass
         self.orig_width = self.img.size[0] #bruce 061127
         self.orig_height = self.img.size[1] #bruce 061127
-        if platform.atom_debug and self.debug:
+        if debug_flags.atom_debug and self.debug:
             #bruce 061127; fyi, see also string in this file containing RGB
             print "debug fyi: nEImageOps.__init__: %r.img.size, mode is %r, %r" % (self, self.img.size, self.img.mode) ###
         if 1:
@@ -205,7 +205,7 @@ class nEImageOps:
                 # we will rescale.
                 if not self.rescale:
                     # print debug warning that it can't do as asked
-                    if platform.atom_debug and self.debug:
+                    if debug_flags.atom_debug and self.debug:
                         print "debug fyi: %r.resize is rescaling, tho asked not to, since a dim must shrink" % self #e more info
                 self.img = self.img.resize( (wd, ht), filter)
                     # supported filters, says doc:
@@ -282,7 +282,7 @@ class nEImageOps:
             ## IOError: cannot write mode RGBX as PNG
         self.img = Image.open(newName)
         newmode = self.img.mode
-        if oldmode != newmode and platform.atom_debug and self.debug: #k does this ever happen??
+        if oldmode != newmode and debug_flags.atom_debug and self.debug: #k does this ever happen??
             print "debug warning: oldmode != newmode (%r != %r) in %r.update" % (oldmode, newmode, self)
         #e could set actual-size attrs here
         

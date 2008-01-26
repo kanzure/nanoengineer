@@ -33,7 +33,7 @@ TODO:
   editcommand classes.
 """
 
-import platform
+from utilities import debug_flags
 import changes
 from utilities.Log        import greenmsg
 from utilities.Comparison import same_vals
@@ -104,7 +104,7 @@ class EditCommand(Select_Command):
                 #cmdname = cmdname.split(':')[0]
                 #self.cmdname = cmdname
             #except:
-                #if platform.atom_debug:
+                #if debug_flags.atom_debug:
                     #print "fyi: %r guessed wrong \
                     #about format of self.cmd == %r" % (self, self.cmd,)
                 
