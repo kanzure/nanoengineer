@@ -39,28 +39,38 @@ class NXEntityManager {
 		// Import/export plugins
 		//
 		void loadDataImportExportPlugins(NXProperties* properties);
-		NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
-										NXDataStoreInfo* dataStoreInfo,
-										const string& type,
-										const string& filename,
-										unsigned int frameIndex = 0);
-		NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
-									  NXDataStoreInfo* dataStoreInfo,
-									  const string& type,
-									  const string& filename,
-									  unsigned int frameIndex = 0);
+		NXCommandResult* importFromFile(const string& filename);/*,
+										NXDataStoreInfo* dataStoreInfo);*/
+		NXCommandResult* exportToFile(const string& filename);
 									  
 		//
-		// MoleculeSet
+		// Frame molecule sets
 		//
-		NXMoleculeSet* getRootMoleculeSet() { return rootMoleculeSet; }
+		unsigned int addFrame() {
+			NXMoleculeSet* moleculeSet = new NXMoleculeSet();
+			moleculeSets.push_back(moleculeSet);
+			return moleculeSets.size() - 1;
+		}
+		unsigned int getFrameCount() { return moleculeSets.size(); }
+		NXMoleculeSet* getRootMoleculeSet(unsigned int frameIndex = 0) {
+			if (frameIndex < moleculeSets.size())
+				return moleculeSets[frameIndex];
+			else {
+				// See if there's a new frame
+				//   or
+				return 0;
+			}
+		}
 
 	private:
 		NXPluginGroup* dataImpExpPluginGroup;
+		string importFileTypesString, exportFileTypesString;
 		map<string, NXDataImportExportPlugin*> dataImportTable;
 		map<string, NXDataImportExportPlugin*> dataExportTable;
 		
-		NXMoleculeSet* rootMoleculeSet;
+		vector<NXMoleculeSet*> moleculeSets;
+		
+		string getFileType(const string& filename);
 };
 
 } // Nanorex::

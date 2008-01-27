@@ -16,10 +16,8 @@ void HDF5_SimResultsImportExportTest::setUp() {
 	NXProperties* properties = new NXProperties();
 	properties->setProperty("NXEntityManager.importExport.0.plugin",
 							"libHDF5_SimResultsImportExport");
-	properties->setProperty("NXEntityManager.importExport.0.importFormats",
-							"nh5");
-	properties->setProperty("NXEntityManager.importExport.0.exportFormats",
-							"nh5");
+	properties->setProperty("NXEntityManager.importExport.0.pluginConfigFile",
+							"../lib/HDF5_SimResultsImportExport.cfg");
 	entityManager->loadDataImportExportPlugins(properties);
 	delete properties;
 }
@@ -35,9 +33,11 @@ void HDF5_SimResultsImportExportTest::tearDown() {
 /* FUNCTION: basicExportTest */
 void HDF5_SimResultsImportExportTest::basicExportTest() {
 
-	// Create a water molecule
+	// Create a water molecule for frame 0
 	//
-	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
+	unsigned int frameIndex = entityManager->addFrame();
+	NXMoleculeSet* rootMoleculeSet =
+		entityManager->getRootMoleculeSet(frameIndex);
 	OBMol* molecule = rootMoleculeSet->newMolecule();
 	OBAtom* atomO = molecule->NewAtom();
 	atomO->SetAtomicNum(etab.GetAtomicNum("O")); // Oxygen
@@ -54,44 +54,60 @@ void HDF5_SimResultsImportExportTest::basicExportTest() {
 	bond = molecule->NewBond();
 	bond->SetBegin(atomO);
 	bond->SetEnd(atomH2);
+
+	// Create a distorted water molecule for frame 1
+	//
+	frameIndex = entityManager->addFrame();
+	rootMoleculeSet = entityManager->getRootMoleculeSet(frameIndex);
+	molecule = rootMoleculeSet->newMolecule();
+	atomO = molecule->NewAtom();
+	atomO->SetAtomicNum(etab.GetAtomicNum("O")); // Oxygen
+	atomO->SetVector(0.10000000, 0.20000000, 0.37000000); // Angstroms
+	atomH1 = molecule->NewAtom();
+	atomH1->SetAtomicNum(etab.GetAtomicNum("H")); // Hydrogen
+	atomH1->SetVector(0.78000000, 0.10000000, -0.18000000);
+	atomH2 = molecule->NewAtom();
+	atomH2->SetAtomicNum(etab.GetAtomicNum("H")); // Hydrogen
+	atomH2->SetVector(-0.78000000, 0.10000000, -0.18000000);
+	bond = molecule->NewBond();
+	bond->SetBegin(atomO);
+	bond->SetEnd(atomH1);
+	bond = molecule->NewBond();
+	bond->SetBegin(atomO);
+	bond->SetEnd(atomH2);
 	
-	// Write it as frame 0 with the HDF5_SimResultsImportExport plugin
-	NXDataStoreInfo* dataStoreInfo = new NXDataStoreInfo();
-	dataStoreInfo->setLastFrame(false);
+	// Write it with the HDF5_SimResultsImportExport plugin
 	NXCommandResult* commandResult =
-		entityManager->exportToFile(rootMoleculeSet, dataStoreInfo, "nh5",
-									"testHDF5store", 0);
-	if (commandResult->getResult() != NX_CMD_SUCCESS)
-		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
-	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);
-	
-	// Tweak the molecule a bit and add it as frame 1
-	molecule->GetFirstAtom()->SetVector(0.12000000, 0.34000000, 0.37000000);
-	dataStoreInfo->setLastFrame(true);
-	commandResult =
-		entityManager->exportToFile(rootMoleculeSet, dataStoreInfo, "nh5",
-									"testHDF5store", 1);
+		entityManager->exportToFile("testHDF5store.nh5");
 	if (commandResult->getResult() != NX_CMD_SUCCESS)
 		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
 	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);
 }
 
 
-/* FUNCTION: basicExportTest */
+/* FUNCTION: basicImportTest */
 void HDF5_SimResultsImportExportTest::basicImportTest() {
-	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
 
-	// Read frame 0 with the HDF5_SimResultsImportExport plugin
-	NXDataStoreInfo* dataStoreInfo = new NXDataStoreInfo();
-	dataStoreInfo->setLastFrame(false);
+	// Read with the HDF5_SimResultsImportExport plugin
 	NXCommandResult* commandResult =
-		entityManager->importFromFile(rootMoleculeSet, dataStoreInfo, "nh5",
-									  "testHDF5store", 0);
+		entityManager->importFromFile("testHDF5store.nh5");
 	if (commandResult->getResult() != NX_CMD_SUCCESS)
 		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
 	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);
 	
+	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet(0);
+	CPPUNIT_ASSERT(rootMoleculeSet != 0);
 	OBMolIterator moleculeIter = rootMoleculeSet->moleculesBegin();
 	CPPUNIT_ASSERT((*moleculeIter)->GetAtom(1)->GetAtomicNum() == 8);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.37, (*moleculeIter)->GetAtom(1)->GetZ(),
+								 0.001);
+	CPPUNIT_ASSERT((*moleculeIter)->NumBonds() == 2);
+	
+	rootMoleculeSet = entityManager->getRootMoleculeSet(1);
+	CPPUNIT_ASSERT(rootMoleculeSet != 0);
+	moleculeIter = rootMoleculeSet->moleculesBegin();
+	CPPUNIT_ASSERT((*moleculeIter)->GetAtom(2)->GetAtomicNum() == 1);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1, (*moleculeIter)->GetAtom(2)->GetY(),
+								 0.001);
 	CPPUNIT_ASSERT((*moleculeIter)->NumBonds() == 2);
 }

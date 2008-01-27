@@ -32,3 +32,5 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
 TARGETDEPS += ../../../../lib/libNanorexUtility.so \
 ../../../../lib/libNanorexInterface.so \
 ../../../../lib/libHDF5_SimResultsImportExport.so
+DESTDIR = ../../../../bin
+

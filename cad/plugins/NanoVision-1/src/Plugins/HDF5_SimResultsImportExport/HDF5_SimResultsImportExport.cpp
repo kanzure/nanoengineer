@@ -31,11 +31,11 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 	// Create or retrieve the HDF5 data store object
 	//
 	HDF5_SimResults* simResults = 0;
-	if (frameIndex == 0)
+	if (frameIndex == 0) {
 		simResults = new HDF5_SimResults();
-		if (!dataStoreInfo->isLastFrame())
-			dataStoreInfo->setHandle(simResults);
-	else
+		dataStoreInfo->setHandle(simResults);
+		
+	} else
 		simResults = (HDF5_SimResults*)(dataStoreInfo->getHandle());
 		
 	if (simResults == 0)
@@ -46,8 +46,6 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 	int status;
 	string message;
 	if ((frameIndex == 0) && (result->getResult() == NX_CMD_SUCCESS)) {
-		QString hdf5Filename(filename.c_str());
-		hdf5Filename.append("/").append(HDF5_SIM_RESULT_FILENAME);
 		status = simResults->openDataStore(filename.c_str(), message);
 		if (status)
 			populateCommandResult(result, message.c_str());
@@ -55,10 +53,12 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 	
 	unsigned int atomCount = 0;
 	unsigned int bondCount = 0;
+	int frameCount = 0;
 	if (result->getResult() == NX_CMD_SUCCESS) {
 		// Retrieve stored counts
 		simResults->getFrameAtomIdsCount("frame-set-1", atomCount);
 		simResults->getFrameBondsCount("frame-set-1", 0, bondCount);
+		simResults->getFrameCount("frame-set-1", frameCount);
 	}
 	
 	unsigned int atomIds[atomCount];
@@ -115,6 +115,8 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 			bond->SetBondOrder(simResultsBond.order);
 		}
 	}
+	
+	dataStoreInfo->setLastFrame(frameIndex > frameCount - 2);
 	
 	if (bonds != 0)
 		free(bonds);

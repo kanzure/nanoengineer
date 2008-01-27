@@ -33,6 +33,7 @@ void NXEntityManagerTest::tearDown() {
 void NXEntityManagerTest::moleculeSetTraversalTest() {
 	
 	// Get the root molecule set
+	entityManager->addFrame();
 	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
 	CPPUNIT_ASSERT(rootMoleculeSet != 0);
 	CPPUNIT_ASSERT(rootMoleculeSet->childCount() == 0);
@@ -79,6 +80,7 @@ void NXEntityManagerTest::moleculeTraversalTest() {
 
 	// Create a tree of molecules in molecule sets
 	//
+	entityManager->addFrame();
 	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
 	OBMol* molecule = rootMoleculeSet->newMolecule();
 	CPPUNIT_ASSERT(((NXMoleculeData*)
@@ -162,6 +164,7 @@ void NXEntityManagerTest::atomTraversalTest1() {
 
 	// Create a tree of molecules with atoms in molecule sets
 	//
+	entityManager->addFrame();
 	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
 	NXMolecule* molecule = rootMoleculeSet->newMolecule();
 	molecule->NewAtom();
@@ -230,6 +233,7 @@ void NXEntityManagerTest::atomTraversalTest2() {
 
 	// Create a molecule with atoms
 	//
+	entityManager->addFrame();
 	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet();
 	OBMol* molecule = rootMoleculeSet->newMolecule();
 	OBAtom* atom = molecule->NewAtom();

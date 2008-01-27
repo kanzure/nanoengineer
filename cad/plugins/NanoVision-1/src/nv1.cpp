@@ -48,7 +48,9 @@ void nv1::closeEvent(QCloseEvent *event) {
 
 /* FUNCTION: open */
 void nv1::open() {
-	QString fileName = QFileDialog::getOpenFileName(this);
+	QString fileName =
+		QFileDialog::getOpenFileName(this, tr("Open File"), "",
+									 tr("Protein Data Bank (*.pdb);;Nanorex Molecular Machine Part (*.mmp);;HDF5 Simulation Results (*.h5 *.nh5);;GROMACS Trajectory (*.trr);;All Types (*)"));
 	if (!fileName.isEmpty()) {
 		if (resultsWindow->loadFile(fileName)) {
 			statusBar()->showMessage(tr("File loaded"), 2000);
