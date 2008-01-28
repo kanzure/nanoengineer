@@ -1,6 +1,6 @@
-HEADERS += NXOpenGLMaterial.h \
-NXSceneGraph.h \
-NXOpenGLSceneGraph.h
+HEADERS += ../../../../../../include/Nanorex/Interface/NXOpenGLMaterial.h \
+ ../../../../../../include/Nanorex/Interface/NXOpenGLSceneGraph.h \
+ ../../../../../../include/Nanorex/Interface/NXSceneGraph.h
 TEMPLATE = lib
 
 CONFIG += staticlib \
@@ -17,7 +17,7 @@ INCLUDEPATH += ../../../../../../include
 LIBS += NXUtility
 TARGETDEPS += ../../../../../../lib/libNanorexUtility.so
 
-SOURCES += NXOpenGLSceneGraph.cpp
+SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLSceneGraph.cpp
 
 DESTDIR = ../../../../../../lib
 

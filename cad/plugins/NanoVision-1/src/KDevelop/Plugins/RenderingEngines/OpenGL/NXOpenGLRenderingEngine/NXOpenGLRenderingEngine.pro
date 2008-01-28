@@ -6,15 +6,15 @@ CONFIG += dll \
  opengl \
  plugin
 
-HEADERS += NXSceneGraph.h \
- NXOpenGLRendererPlugin.h \
- NXRendererPlugin.h \
- NXAtomRenderData.h \
- NXOpenGLRenderingEngine.h \
- NXRGBColor.h \
- NXBondRenderData.h \
- NXEntityManager.h \
- NXRenderingEngine.h
+HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
+ ../../../../../../include/Nanorex/Interface/NXBondRenderData.h \
+ ../../../../../../include/Nanorex/Interface/NXEntityManager.h \
+ ../../../../../../include/Nanorex/Interface/NXOpenGLRendererPlugin.h \
+ ../../../../../../include/Nanorex/Interface/NXOpenGLRenderingEngine.h \
+ ../../../../../../include/Nanorex/Interface/NXRendererPlugin.h \
+ ../../../../../../include/Nanorex/Interface/NXRenderingEngine.h \
+ ../../../../../../include/Nanorex/Interface/NXRGBColor.h \
+ ../../../../../../include/Nanorex/Interface/NXSceneGraph.h
 CONFIG -= release
 
 QT += opengl
@@ -34,5 +34,5 @@ TARGET = NXOpenGLRenderingEngine
 
 DESTDIR = ../../../../../../lib
 
-SOURCES += NXOpenGLRenderingEngine.cpp
+SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine.cpp
 

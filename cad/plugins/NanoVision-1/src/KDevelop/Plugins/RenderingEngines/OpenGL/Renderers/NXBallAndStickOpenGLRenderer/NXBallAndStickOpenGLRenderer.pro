@@ -9,15 +9,14 @@ CONFIG -= release
 
 QT += opengl
 
-HEADERS += NXOpenGLRendererPlugin.h \
-NXRendererPlugin.h \
-NXSceneGraph.h \
-NXAtomRenderData.h \
-NXBondRenderData.h \
-NXRGBColor.h \
-NXOpenGLMaterial.h \
- NXBallAndStickOpenGLRenderer.h
-SOURCES += NXBallAndStickOpenGLRenderer.cpp
+HEADERS += ../../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
+ ../../../../../../../include/Nanorex/Interface/NXBondRenderData.h \
+ ../../../../../../../include/Nanorex/Interface/NXOpenGLMaterial.h \
+ ../../../../../../../include/Nanorex/Interface/NXOpenGLRendererPlugin.h \
+ ../../../../../../../include/Nanorex/Interface/NXRendererPlugin.h \
+ ../../../../../../../include/Nanorex/Interface/NXRGBColor.h \
+ ../../../../../../../include/Nanorex/Interface/NXSceneGraph.h \
+ ../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer.h
 
 TARGETDEPS += ../../../../../../../lib/libNanorexUtility.so \
 ../../../../../../../lib/libNanorexInterface.so \
@@ -31,3 +30,5 @@ INCLUDEPATH += ../../NXOpenGLRendererPlugin \
 LIBS += -L../../../../../../../lib \
 -lNXOpenGLRendererPlugin \
 -lNXOpenGLSceneGraph
+SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer.cpp
+

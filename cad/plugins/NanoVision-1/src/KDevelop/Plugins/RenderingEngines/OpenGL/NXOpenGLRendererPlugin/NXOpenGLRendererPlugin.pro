@@ -1,4 +1,4 @@
-SOURCES += NXOpenGLRendererPlugin.cpp
+SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRendererPlugin.cpp
 TEMPLATE = lib
 
 CONFIG += staticlib \
@@ -7,14 +7,12 @@ opengl
 CONFIG -= release
 TARGET = NXOpenGLRendererPlugin
 
-HEADERS += NXAtomRenderData.h \
-NXBondRenderData.h \
-NXOpenGLMaterial.h \
-NXOpenGLRendererPlugin.h \
-NXRendererPlugin.h \
-NXRGBColor.h \
-NXSceneGraph.h \
-NXOpenGLSceneGraph.h
+HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
+ ../../../../../../include/Nanorex/Interface/NXBondRenderData.h \
+ ../../../../../../include/Nanorex/Interface/NXOpenGLMaterial.h \
+ ../../../../../../include/Nanorex/Interface/NXOpenGLRendererPlugin.h \
+ ../../../../../../include/Nanorex/Interface/NXOpenGLSceneGraph.h \
+ ../../../../../../include/Nanorex/Interface/NXRendererPlugin.h
 INCLUDEPATH += ../../../../../../include
 
 QT -= gui
