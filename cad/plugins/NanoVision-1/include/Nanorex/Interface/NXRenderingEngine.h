@@ -5,6 +5,9 @@
 
 namespace Nanorex {
 
+class NXMoleculeSet;
+
+
 /* CLASS: NXRenderingEngine */
 /**
  * Abstracts the rendering mechanism.
@@ -23,14 +26,14 @@ public:
     // integer id for each engine - one per subclass
     enum EngineID { OPENGL=0 };
 
-    NXRenderingEngine() : rootMoleculeSet(NULL), pluginList() {}
+    NXRenderingEngine() : rootMoleculeSet(NULL) {}
     virtual ~NXRenderingEngine();
 
     // Query type - one per subclass, suitably named
     bool isOpenGL(void) const { return (getID() == OPENGL); }
 
     // Derived classes must override to identify themselves
-    EngineID getID(void) const = 0;
+    virtual EngineID getID(void) const = 0;
 
     virtual void initializePlugins() = 0;
     virtual void cleanupPlugins() = 0;
@@ -38,28 +41,13 @@ public:
     // accessors
     
     NXMoleculeSet *const getRootMoleculeSet(void) { return rootMoleculeSet; }
-    virtual void setRootMoleculeSet(NXMoleculeSet *const moleculeSet) { rootMoleculeSet = moleculeSet; }
+    virtual void setRootMoleculeSet(NXMoleculeSet *const moleculeSet)
+    { rootMoleculeSet = moleculeSet; }
     
-private:
+protected:
     
     NXMoleculeSet *rootMoleculeSet;
     
-};
-
-
-// Info passed to plugins to render atoms
-struct NXAtomRenderData {
-    NXABMInt moleculeId;
-    char* elementName;
-};
-
-
-// Info passed to plugins to render bonds
-class NXBondRenderData {
-    NXABMInt moleculeId;
-    NXABMInt a, b;
-    char *elementNameA, *elementNameB;
-    double length;
 };
 
 

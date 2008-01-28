@@ -4,31 +4,40 @@ LIBS += -lopenbabel \
  -lNanorexUtility
 
 HEADERS += \
-../../../include/Nanorex/Interface/NXNumbers.h \
- ../../../include/Nanorex/Interface/NXEntityManager.h \
- ../../../include/Nanorex/Interface/NXMoleculeSet.h \
- ../../../include/Nanorex/Interface/NXNanoVisionResultCodes.h \
- ../../../include/Nanorex/Interface/NXDataImportExportPlugin.h \
- ../../../include/Nanorex/Interface/NXMoleculeData.h \
- ../../include/Nanorex/Interface/NXDataStoreInfo.h
+NXDataImportExportPlugin.h \
+ NXDataStoreInfo.h \
+ NXEntityManager.h \
+ NXMoleculeData.h \
+ NXMoleculeSet.h \
+ NXNanoVisionResultCodes.h \
+ NXNumbers.h \
+ NXAtomRenderData.h \
+ NXBondRenderData.h
 
-INCLUDEPATH += /usr/local/include/openbabel-2.0/ \
- ../../../include
+INCLUDEPATH += ../../../include \
+ $(OPENBABEL_INCPATH)
 
-SOURCES += ../../Interface/NXDataImportExportPlugin.cpp \
- ../../Interface/NXEntityManager.cpp \
- ../../Interface/NXMoleculeData.cpp \
- ../../Interface/NXMoleculeSet.cpp \
- ../../Interface/NXNumbers.cpp \
- ../../Interface/NXDataStoreInfo.cpp
+SOURCES += NXDataImportExportPlugin.cpp \
+ NXDataStoreInfo.cpp \
+ NXEntityManager.cpp \
+ NXMoleculeData.cpp \
+ NXMoleculeSet.cpp \
+ NXNumbers.cpp \
+ NXAtomRenderData.cpp \
+ NXBondRenderData.cpp
 
 TEMPLATE = lib
 
-CONFIG += dll
+CONFIG += dll \
+ debug \
+ stl
 
 TARGET = NanorexInterface
 
 DESTDIR = ../../../lib
 
 TARGETDEPS += ../../../lib/libNanorexUtility.so
+
+CONFIG -= release
+QT -= gui
 

@@ -4,8 +4,11 @@
 #define NX_BALLANDSTICKOPENGLRENDERER_H
 
 #include "Nanorex/Interface/NXOpenGLRendererPlugin.h"
+#include "Nanorex/Interface/NXAtomRenderData.h"
+#include "Nanorex/Interface/NXBondRenderData.h"
 
 namespace Nanorex {
+
 
 /* CLASS: BallAndStickOpenGLRenderer */
 /**
@@ -16,8 +19,16 @@ public:
     BallAndStickOpenGLRenderer();
     virtual ~BallAndStickOpenGLRenderer() {}
 
-    void renderAtom(NXAtomRenderData const&);
-    void renderBond(NXBondRenderData const&);
+    /// Call plugin to render the atom display list and return the scenegraph node.
+    /// Must set commandResult to indicate success or failure
+    NXSGNode* renderAtom(NXAtomRenderData const&);
+    
+    /// Call plugin to render the atom display list and return the scenegraph node.
+    /// Must set commandResult to indicate success or failure
+    NXSGNode* renderBond(NXBondRenderData const&);
+    
+private:
+    static double const BOND_WIDTH;
 };
 
 

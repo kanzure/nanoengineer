@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS += BallAndStick
+SUBDIRS += NXBallAndStickOpenGLRenderer

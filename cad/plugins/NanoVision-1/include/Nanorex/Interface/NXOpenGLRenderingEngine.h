@@ -3,11 +3,32 @@
 #ifndef NX_OPENGLRENDERINGENGINE_H
 #define NX_OPENGLRENDERINGENGINE_H
 
-#include "NXRenderingEngine.h"
-#include "NXSceneGraph.h"
-#include "NXOpenGLRendererPlugin.h"
+#include <set>
+#include <list>
+#include <vector>
+
+#include <QtGui>
+#include <QtOpenGL>
+
+#include "glt_light.h"
+#include "glt_lightm.h"
+// #include "glt_material.h"
+#include "glt_vector3.h"
+#include "glt_project.h"
+#include "glt_viewport.h"
+
+#include "Nanorex/Interface/NXRenderingEngine.h"
+#include "Nanorex/Interface/NXRGBColor.h"
+#include "Nanorex/Interface/NXSceneGraph.h"
+#include "Nanorex/Interface/NXOpenGLRendererPlugin.h"
+
+#include <openbabel/mol.h>
+
 
 namespace Nanorex {
+
+// fwd decls from NV-1
+class NXMoleculeSet;
 
 /* CLASS: NXOpenGLRenderingEngine */
 /**
@@ -15,19 +36,19 @@ namespace Nanorex {
  *
  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
-class NXOpenGLRenderingEngine : public NXRenderingEngine, public QGLWidget {
+class NXOpenGLRenderingEngine : public QGLWidget, public NXRenderingEngine {
 public:
     
     Q_OBJECT
     
-    NXOpenGLRenderingEngine(QWidget *parent = 0)
-        : NXRenderingEngine(), QGLWidget(parent), rootSceneGraphNode(NULL) {}
-    
-    virtual ~NxOpenGLRenderingEngine();
+    NXOpenGLRenderingEngine(QWidget *parent = 0);
+       
+    virtual ~NXOpenGLRenderingEngine();
 
     // override base-class virtual methods
     
-    NXRenderingEngine::EngineID getID(void) const { return NXRenderingEngine::OPENGL; }
+    NXRenderingEngine::EngineID getID(void) const
+    { return NXRenderingEngine::OPENGL; }
     
     void initializePlugins(void);
     
@@ -36,17 +57,41 @@ public:
     void setRootMoleculeSet(NXMoleculeSet *const moleculeSet) {
         deleteSceneGraph();
         rootMoleculeSet = moleculeSet;
-        createSceneGraph();
+        rootSceneGraphNode = createSceneGraph(rootMoleculeSet);
     }
     
 private:
     
+    typedef unsigned int uint;
+    
+    NXMoleculeSet *rootMoleculeSet;
     NXSGNode *rootSceneGraphNode;
     
-    typedef std::vector<NXOpenGLRendererPlugin *const> PluginList;
+    typedef std::list<NXOpenGLRendererPlugin*> PluginList;
     PluginList pluginList;
+    PluginList::iterator currentPluginIter;
     
-    void createSceneGraph(void);
+    // OpenGL settings
+    std::vector<GltLight> lights;
+    GltLightModel lightModel;
+    
+    bool isOrthographicProjection;
+    GltOrtho orthographicProjection;
+    GltFrustum perspectiveProjection;
+    GltViewport viewport;
+    
+    std::map<uint, NXRGBColor> elementColorMap;
+    NXOpenGLMaterial defaultAtomMaterial;
+    NXOpenGLMaterial defaultBondMaterial;
+    
+    NXSGNode* createSceneGraph(NXMoleculeSet *const molSetPtr);
+    
+    NXSGNode* createSceneGraph(OpenBabel::OBMol *const molPtr);
+    
+    NXSGNode* createSceneGraph(OpenBabel::OBMol *const molPtr,
+                               OpenBabel::OBAtom *const atomPtr,
+                               std::set<OpenBabel::OBAtom*>& renderedAtoms,
+                               Vector const& zAxis);
     
     void deleteSceneGraph(void) {
         if(rootSceneGraphNode != (NXSGNode*) NULL) {
@@ -59,7 +104,12 @@ private:
     // QGLWidget methods to be overriden
     void initializeGL(void);
     void resizeGL(int width, int height);
-    void paintGL(void) { rootSceneGraphNode->applyRecursive(); }
+    void paintGL(void);
+    
+    bool initializeElementColorMap();
+    void initializeDefaultMaterials();
+    void setupDefaultLights(void);
+    void drawSkyBlueBackground(void);
 };
 
 

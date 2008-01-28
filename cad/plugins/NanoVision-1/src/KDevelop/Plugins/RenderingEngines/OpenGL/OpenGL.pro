@@ -1,4 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += NXOpenGLRenderingEngine \
-Renderers
+Renderers \
+ GLT \
+ NXOpenGLRendererPlugin \
+ NXOpenGLSceneGraph

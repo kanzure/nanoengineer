@@ -142,30 +142,28 @@
   </kdevdebugger>
   <kdevtrollproject>
     <run>
-      <mainprogram>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</mainprogram>
+      <mainprogram>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</mainprogram>
       <programargs/>
       <directoryradio>executable</directoryradio>
       <globaldebugarguments/>
-      <globalcwd>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</globalcwd>
+      <globalcwd>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
-      <envvars>
-        <envvar value="/usr/local/lib:/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/lib" name="LD_LIBRARY_PATH" />
-      </envvars>
+      <envvars/>
       <runarguments>
         <HDF5_SimResultsImportExport/>
-        <CppUnit/>
+        <GLT/>
       </runarguments>
       <cwd>
         <HDF5_SimResultsImportExport>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</HDF5_SimResultsImportExport>
-        <CppUnit>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</CppUnit>
+        <GLT>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</GLT>
       </cwd>
       <debugarguments>
         <HDF5_SimResultsImportExport/>
-        <CppUnit/>
+        <GLT/>
       </debugarguments>
     </run>
     <general>
