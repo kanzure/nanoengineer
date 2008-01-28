@@ -20,11 +20,12 @@ CONFIG -= release
 QT += opengl
 
 INCLUDEPATH += ../../../../../../include \
- /usr/include/openbabel-2.0 \
- ../../../../../../src/Plugins/RenderingEngines/OpenGL/GLT
+ ../../../../../../src/Plugins/RenderingEngines/OpenGL/GLT \
+ $(OPENBABEL_INCPATH)
 
 LIBS += -lNXOpenGLSceneGraph \
  -lGLT \
+ -lopenbabel \
  -L../../../../../../lib
 TARGETDEPS += ../../../../../../lib/libNanorexUtility.so \
 ../../../../../../lib/libNanorexInterface.so \
