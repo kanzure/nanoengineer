@@ -24,7 +24,8 @@ SOURCES += ../../Interface/NXDataImportExportPlugin.cpp \
  ../../Interface/NXMoleculeSet.cpp \
  ../../Interface/NXNumbers.cpp \
  ../../Interface/NXAtomRenderData.cpp \
- ../../Interface/NXBondRenderData.cpp
+ ../../Interface/NXBondRenderData.cpp \
+ ../../Interface/NXNanoVisionResultCodes.cpp
 
 TEMPLATE = lib
 
