@@ -4,27 +4,27 @@ LIBS += -lopenbabel \
  -lNanorexUtility
 
 HEADERS += \
-NXDataImportExportPlugin.h \
- NXDataStoreInfo.h \
- NXEntityManager.h \
- NXMoleculeData.h \
- NXMoleculeSet.h \
- NXNanoVisionResultCodes.h \
- NXNumbers.h \
- NXAtomRenderData.h \
- NXBondRenderData.h
+../../../include/Nanorex/Interface/NXDataImportExportPlugin.h \
+ ../../../include/Nanorex/Interface/NXDataStoreInfo.h \
+ ../../../include/Nanorex/Interface/NXEntityManager.h \
+ ../../../include/Nanorex/Interface/NXMoleculeData.h \
+ ../../../include/Nanorex/Interface/NXMoleculeSet.h \
+ ../../../include/Nanorex/Interface/NXNanoVisionResultCodes.h \
+ ../../../include/Nanorex/Interface/NXNumbers.h \
+ ../../../include/Nanorex/Interface/NXAtomRenderData.h \
+ ../../../include/Nanorex/Interface/NXBondRenderData.h
 
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH)
 
-SOURCES += NXDataImportExportPlugin.cpp \
- NXDataStoreInfo.cpp \
- NXEntityManager.cpp \
- NXMoleculeData.cpp \
- NXMoleculeSet.cpp \
- NXNumbers.cpp \
- NXAtomRenderData.cpp \
- NXBondRenderData.cpp
+SOURCES += ../../Interface/NXDataImportExportPlugin.cpp \
+ ../../Interface/NXDataStoreInfo.cpp \
+ ../../Interface/NXEntityManager.cpp \
+ ../../Interface/NXMoleculeData.cpp \
+ ../../Interface/NXMoleculeSet.cpp \
+ ../../Interface/NXNumbers.cpp \
+ ../../Interface/NXAtomRenderData.cpp \
+ ../../Interface/NXBondRenderData.cpp
 
 TEMPLATE = lib
 

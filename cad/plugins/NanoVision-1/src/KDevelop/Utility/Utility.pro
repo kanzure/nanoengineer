@@ -6,20 +6,21 @@ CONFIG += dll \
 
 INCLUDEPATH += ../../../include
 
-HEADERS += NXCommandResult.h \
-NXLogger.h \
-NXPluginGroup.h \
-NXPlugin.h \
-NXProperties.h \
-NXStringTokenizer.h \
-NXUtility.h
-SOURCES += NXCommandResult.cpp \
-NXLogger.cpp \
-NXPlugin.cpp \
-NXPluginGroup.cpp \
-NXProperties.cpp \
-NXStringTokenizer.cpp \
-NXUtility.cpp
+HEADERS += ../../../include/Nanorex/Utility/NXCommandResult.h \
+../../../include/Nanorex/Utility/NXLogger.h \
+../../../include/Nanorex/Utility/NXPluginGroup.h \
+../../../include/Nanorex/Utility/NXPlugin.h \
+../../../include/Nanorex/Utility/NXProperties.h \
+../../../include/Nanorex/Utility/NXStringTokenizer.h \
+../../../include/Nanorex/Utility/NXUtility.h
+
+SOURCES += ../../../src/Utility/NXCommandResult.cpp \
+../../../src/Utility/NXLogger.cpp \
+../../../src/Utility/NXPlugin.cpp \
+../../../src/Utility/NXPluginGroup.cpp \
+../../../src/Utility/NXProperties.cpp \
+../../../src/Utility/NXStringTokenizer.cpp \
+../../../src/Utility/NXUtility.cpp
 
 TARGET = NanorexUtility
 

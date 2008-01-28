@@ -1,7 +1,7 @@
 SOURCES += ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExport.cpp
 HEADERS += ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExport.h
 INCLUDEPATH += ../../../../include \
- /usr/include/openbabel-2.0
+ $(OPENBABEL_INCPATH)
 TEMPLATE = lib
 
 CONFIG += dll \
