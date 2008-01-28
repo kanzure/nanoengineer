@@ -37,16 +37,21 @@ from GeneratorBaseClass import  PluginBug, UserError
 
 from constants import gensym
 
-
 from Dna_Constants import getDuplexLength
+from test_connectWithState import State_preMixin
 
-class DnaSegment_EditCommand(EditCommand):
+#see. self._create_or_update_handles for the info about the debug flag below
+#Never commit with this flag enabled
+DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE = 0  
+
+class DnaSegment_EditCommand(State_preMixin, EditCommand):
     cmd              =  'Dna Segment'
     sponsor_keyword  =  'DNA'
     prefix           =  'Segment '   # used for gensym
     cmdname          = "DNA_SEGMENT"
     commandName       = 'DNA_SEGMENT'
     featurename       = 'Edit Dna Segment'
+    
    
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
@@ -70,10 +75,13 @@ class DnaSegment_EditCommand(EditCommand):
     _parentDnaGroup = None
     
     
+    
+    
+    
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for DnaDuplex_EditCommand
-        """        
+        """     
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
         
@@ -81,8 +89,15 @@ class DnaSegment_EditCommand(EditCommand):
         #Graphics handles for editing the structure . 
         #Not implemented as of 2008-01-25. 
         self.handles = []        
-        self.endHandle1 = None
+        self.endHandle1 = None 
         self.endHandle2 = None
+        
+        #Junk instance variable cylinderWidth. ONLY used for experimental work 
+        #in drawing a handle (when debuug flag: 
+        #DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE is ON. )
+        #see: self._create_or_update_handles for more infor
+        self.cylinderWidth    = 10.0
+    
         ############################
         
     
@@ -115,8 +130,69 @@ class DnaSegment_EditCommand(EditCommand):
             #When the structure (segment) is finalized (afterthe  modifications),
             #it will be added to the original DnaGroup to which it belonged 
             #before we began editing (modifying) it. 
-            self._parentDnaGroup = self.struct.get_DnaGroup()   
-   
+            self._parentDnaGroup = self.struct.get_DnaGroup() 
+            if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
+                self._create_or_update_handles()
+  
+    def _create_or_update_handles(self):
+        """
+        EXPERIMENTAL METHOD. this will be called only when the flag 
+        DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE is turned on.
+        Creates handles or updates handle position if the handles are 
+        already defined. This doesn't work as of 2008-01-28. The intention is 
+        to just try using exprs module to create a handle. Once that works, 
+        this routine will be heavily revised.
+        @see: self.editStructure
+        @see: DnaSegment_GraphicsMode._drawHandles()
+        """
+        endPoint1, endPoint2 = self.struct.getAxisEndPoints()       
+        
+        from constants import white
+        
+        from VQT import norm
+        from drawer import drawcylinder, drawsphere
+        
+        from exprs.ExprsMeta import ExprsMeta
+        from exprs.instance_helpers import IorE_guest_mixin
+        from exprs.attr_decl_macros import Instance, State
+        
+        from exprs.__Symbols__ import _self
+        from exprs.Exprs import call_Expr ## , tuple_Expr ### TODO: USE tuple_Expr
+        from exprs.Center import Center
+        
+        from exprs.Rect import Rect # used to make our drag handle appearance
+        
+        from exprs.DraggableHandle import DraggableHandle_AlongLine
+        from exprs.If_expr import If_expr
+        
+        from prefs_widgets import ObjAttr_StateRef
+        
+        from exprs.Rect import Sphere
+        from exprs.ExprsConstants import ORIGIN, DX, DZ
+        from exprs.draggable import DraggableObject
+        from exprs.dna_ribbon_view import Cylinder
+        
+        ##aHandle = DraggableObject(Cylinder((ORIGIN,ORIGIN+DX),1,white))
+
+        #aHandle = Instance( DraggableHandle_AlongLine(
+            #appearance = Center(Rect(0.5, 0.5, white)),             
+            #origin = endPoint1,             
+            #direction = norm(endPoint1 - endPoint2),            
+            #sbar_text = "", 
+            #range = (0.1, 10)
+                          #))
+                
+        self.aHandle = self.Instance( DraggableHandle_AlongLine(
+            appearance = Sphere(2.0, white ),     
+            height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'), 
+            origin = endPoint1,             
+            direction = norm(endPoint1 - endPoint2),            
+            sbar_text = "",
+            ), 
+            index = id(self)
+        )
+        self.handles.append(self.aHandle)
+           
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 

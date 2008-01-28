@@ -38,16 +38,20 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     def Draw(self):
         """
         """
+        self._drawHandles()        
         _superclass.Draw(self)
         
-        self._drawHandles()
+        
+        
         
         
     
     def _drawHandles(self):
         """
         """
-        if 0: #DEBUG ONLY. 
+        
+        
+        if 1: #DEBUG ONLY. 
             if self.command and self.command.struct:
                 if isinstance(self.command.struct, DnaSegment):
                     for handle in self.command.handles:
