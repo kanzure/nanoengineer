@@ -169,7 +169,7 @@
       </debugarguments>
     </run>
     <general>
-      <activedir>Testing/CppUnit</activedir>
+      <activedir>Utility</activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>

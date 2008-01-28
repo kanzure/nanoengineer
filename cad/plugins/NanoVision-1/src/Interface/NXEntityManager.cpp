@@ -10,6 +10,7 @@ namespace Nanorex {
 NXEntityManager::NXEntityManager() {
 	importFileTypesString = "";
 	exportFileTypesString = "";
+	dataStoreInfo = new NXDataStoreInfo(); 
 }
 
 
@@ -134,23 +135,32 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename) {
 		dataImportTable.find(fileType);
 	if (iter != dataImportTable.end()) {
 		NXDataImportExportPlugin* plugin = iter->second;
-		NXDataStoreInfo* dataStoreInfo = new NXDataStoreInfo();
-		unsigned int frameIndex = addFrame();
+		int frameSetId = addFrameSet();
+		int frameIndex = addFrame(frameSetId);
 
 		try {
 			plugin->setMode(fileType);
 			result =
-				plugin->importFromFile(getRootMoleculeSet(frameIndex),
-									   dataStoreInfo, filename, frameIndex);
-			if (result->getResult() == NX_CMD_SUCCESS)
-				while ((!dataStoreInfo->isLastFrame()) &&
+				plugin->importFromFile(getRootMoleculeSet(frameSetId,
+														  frameIndex),
+									   dataStoreInfo, filename, frameSetId,
+									   frameIndex);
+			if (result->getResult() == NX_CMD_SUCCESS) {
+			
+				// TODO:
+				// Finish the current frame set, then examine the dataStoreInfo
+				// for additional files to import.
+				
+				while ((!dataStoreInfo->isLastFrame(frameSetId)) &&
 					   (result->getResult() == NX_CMD_SUCCESS)) {
-					frameIndex = addFrame();
+					frameIndex = addFrame(frameSetId);
 					result =
-						plugin->importFromFile(getRootMoleculeSet(frameIndex),
+						plugin->importFromFile(getRootMoleculeSet(frameSetId,
+																  frameIndex),
 											   dataStoreInfo, filename,
-											   frameIndex);
+											   frameSetId, frameIndex);
 				}
+			}
 
 		} catch (...) {
 			string msg = fileType;
@@ -187,18 +197,27 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename) {
 }
 
 
-
-
 /* FUNCTION: exportToFile */
 /**
  * Exports the system to the specified file with the appropriate
  * import/export plugin.
+ *
+ * @param frameSetId	The identifier of the frame set to export. If frameSetId
+ *						is -1, write all framesets.
+ * @param frameIndex	The frame to export. If frameIndex is -1, write all
+ *						frames.
  */
-NXCommandResult* NXEntityManager::exportToFile(const string& filename) {
-	NXCommandResult* result;
+NXCommandResult* NXEntityManager::exportToFile
+		(const string& filename, int frameSetId, int frameIndex) {
+	/*
+	 * NOTE: We don't explicitly handle frameSetId == -1 (export all frame sets)
+	 *		 yet. This would be File | Export | Entire results...
+	 */
+		
+	NXCommandResult* result = 0;
 	//PR_Lock(importExportPluginsMutex);
 	
-	// TODO: Abort if there are no molecule sets
+	// TODO: Abort if there are no molecule sets, general error checking.
 	
 	string fileType = getFileType(filename);
 	
@@ -209,22 +228,29 @@ NXCommandResult* NXEntityManager::exportToFile(const string& filename) {
 		try {
 			plugin->setMode(fileType);
 			
-			unsigned int frameIndex = 0;
-			NXDataStoreInfo* dataStoreInfo = new NXDataStoreInfo();
-			dataStoreInfo->setLastFrame(frameIndex > moleculeSets.size() - 2);
-			vector<NXMoleculeSet*>::iterator iter = moleculeSets.begin();
+			bool allFrameExport = (frameIndex == -1);
+			if (allFrameExport)
+				frameIndex = 0;
+			dataStoreInfo->setLastFrame
+				(frameSetId,
+				 !allFrameExport ||
+				 	(frameIndex > moleculeSets[frameSetId].size() - 2));
+			vector<NXMoleculeSet*>::iterator iter =
+				moleculeSets[frameSetId].begin();
 			result =
 				plugin->exportToFile(*iter, dataStoreInfo, filename,
-									 frameIndex);
+									 frameSetId, frameIndex);
 			iter++;
 			frameIndex++;
-			while (iter != moleculeSets.end() &&
+			while (allFrameExport &&
+				   (iter != moleculeSets[frameSetId].end()) &&
 				   (result->getResult() == NX_CMD_SUCCESS)) {
 				dataStoreInfo->setLastFrame
-					(frameIndex > moleculeSets.size() - 2);
+					(frameSetId,
+					 frameIndex > moleculeSets[frameSetId].size() - 2);
 				result =
 					plugin->exportToFile(*iter, dataStoreInfo, filename,
-										 frameIndex);
+										 frameSetId, frameIndex);
 				iter++;
 				frameIndex++;
 			}

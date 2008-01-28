@@ -4,6 +4,7 @@
 #define NX_ENTITYMANAGER_H
 
 #include <map>
+#include <vector>
 #include <string>
 using namespace std;
 
@@ -24,10 +25,6 @@ namespace Nanorex {
 /**
  * Encapsulates the storage of molecular and related data.
  * @ingroup ChemistryDataModel, NanorexInterface
- *
- * TODO:
- * - Store/handle DNA strand direction information. This is the equivalent of
- *   bond direction data coming out of NE1.
  */
 class NXEntityManager {
 	
@@ -39,22 +36,31 @@ class NXEntityManager {
 		// Import/export plugins
 		//
 		void loadDataImportExportPlugins(NXProperties* properties);
-		NXCommandResult* importFromFile(const string& filename);/*,
-										NXDataStoreInfo* dataStoreInfo);*/
-		NXCommandResult* exportToFile(const string& filename);
+		NXCommandResult* importFromFile(const string& filename);
+		NXCommandResult* exportToFile(const string& filename,
+									  int frameSetId = -1, int frameIndex = 0);
 									  
+		const NXDataStoreInfo* getDataStoreInfo() { return dataStoreInfo; }
+		
 		//
-		// Frame molecule sets
+		// Frame sets
 		//
-		unsigned int addFrame() {
-			NXMoleculeSet* moleculeSet = new NXMoleculeSet();
-			moleculeSets.push_back(moleculeSet);
+		int addFrameSet() {
+			vector<NXMoleculeSet*> moleculeSetVector;
+			moleculeSets.push_back(moleculeSetVector);
 			return moleculeSets.size() - 1;
 		}
-		unsigned int getFrameCount() { return moleculeSets.size(); }
-		NXMoleculeSet* getRootMoleculeSet(unsigned int frameIndex = 0) {
-			if (frameIndex < moleculeSets.size())
-				return moleculeSets[frameIndex];
+		int addFrame(int frameSetId) {
+			NXMoleculeSet* moleculeSet = new NXMoleculeSet();
+			moleculeSets[frameSetId].push_back(moleculeSet);
+			return moleculeSets[frameSetId].size() - 1;
+		}
+		unsigned int getFrameCount(int frameSetId) {
+			return moleculeSets[frameSetId].size();
+		}
+		NXMoleculeSet* getRootMoleculeSet(int frameSetId, int frameIndex = 0) {
+			if (frameIndex < moleculeSets[frameSetId].size())
+				return moleculeSets[frameSetId][frameIndex];
 			else {
 				// See if there's a new frame
 				//   or
@@ -68,7 +74,9 @@ class NXEntityManager {
 		map<string, NXDataImportExportPlugin*> dataImportTable;
 		map<string, NXDataImportExportPlugin*> dataExportTable;
 		
-		vector<NXMoleculeSet*> moleculeSets;
+		NXDataStoreInfo* dataStoreInfo;
+		
+		vector<vector<NXMoleculeSet*> > moleculeSets;
 		
 		string getFileType(const string& filename);
 };

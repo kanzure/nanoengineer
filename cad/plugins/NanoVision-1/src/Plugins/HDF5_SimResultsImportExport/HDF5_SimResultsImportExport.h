@@ -58,13 +58,16 @@ class HDF5_SimResultsImportExport : public NXDataImportExportPlugin {
 		NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
 										NXDataStoreInfo* dataStoreInfo,
 										const std::string& filename,
-										unsigned int frameIndex = 0);
+										int frameSetId, int frameIndex);
 		NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
 									  NXDataStoreInfo* dataStoreInfo,
 									  const std::string& filename,
-									  unsigned int frameIndex = 0);
+									  int frameSetId, int frameIndex);
 
 	private:
+		void populateDataStoreInfo(NXDataStoreInfo* dataStoreInfo,
+								   HDF5_SimResults* simResults,
+								   int frameSetId);
 		void exportToFileHelper(NXMoleculeSet* moleculeSet,
 								unsigned int atomIndex, unsigned int bondIndex,
 								unsigned int* atomIds,

@@ -23,7 +23,7 @@ HDF5_SimResultsImportExport::~HDF5_SimResultsImportExport() {
 /* FUNCTION: importFromFile */
 NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
-		 const std::string& filename, unsigned int frameIndex) {
+		 const std::string& filename, int frameSetId, int frameIndex) {
 			
 	NXCommandResult* result = new NXCommandResult();
 	result->setResult(NX_CMD_SUCCESS);
@@ -33,10 +33,10 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 	HDF5_SimResults* simResults = 0;
 	if (frameIndex == 0) {
 		simResults = new HDF5_SimResults();
-		dataStoreInfo->setHandle(simResults);
+		dataStoreInfo->setHandle(frameSetId, simResults);
 		
 	} else
-		simResults = (HDF5_SimResults*)(dataStoreInfo->getHandle());
+		simResults = (HDF5_SimResults*)(dataStoreInfo->getHandle(frameSetId));
 		
 	if (simResults == 0)
 		populateCommandResult(result,
@@ -51,14 +51,32 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 			populateCommandResult(result, message.c_str());
 	}
 	
+	// If this is the first call to import the data store, retrieve the meta
+	// information about the data store, and other data.
+	if ((frameIndex == 0) && (frameSetId == 0) &&
+		(result->getResult() == NX_CMD_SUCCESS)) {
+		populateDataStoreInfo(dataStoreInfo, simResults, frameSetId);
+	}
+	
+	// Retrieve stored counts and run status
+	//
 	unsigned int atomCount = 0;
 	unsigned int bondCount = 0;
-	int frameCount = 0;
 	if (result->getResult() == NX_CMD_SUCCESS) {
-		// Retrieve stored counts
 		simResults->getFrameAtomIdsCount("frame-set-1", atomCount);
 		simResults->getFrameBondsCount("frame-set-1", 0, bondCount);
+		
+		int frameCount = 0;
 		simResults->getFrameCount("frame-set-1", frameCount);
+		dataStoreInfo->setLastFrame(frameSetId, frameIndex > frameCount - 2);
+		
+		int runResult = -1; //0=success, 1=still running, 2=failure, 3=aborted
+		string failureDescription;
+		simResults->getRunResult(runResult, failureDescription);
+		if (runResult == 1)
+			dataStoreInfo->setStoreComplete(frameSetId, false);
+		else
+			dataStoreInfo->setStoreComplete(frameSetId, true);
 	}
 	
 	unsigned int atomIds[atomCount];
@@ -116,8 +134,6 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		}
 	}
 	
-	dataStoreInfo->setLastFrame(frameIndex > frameCount - 2);
-	
 	if (bonds != 0)
 		free(bonds);
 	
@@ -125,10 +141,22 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 }
 
 
+/* FUNCTION: populateDataStoreInfo */
+void HDF5_SimResultsImportExport::populateDataStoreInfo
+		(NXDataStoreInfo* dataStoreInfo, HDF5_SimResults* simResults,
+		 int frameSetId) {
+		
+	dataStoreInfo->addTrajectory("frame-set-1", frameSetId);
+	
+	// TODO: Add all the other stuff, use frameSetId = -1 for to-be-imported
+	//		 frame sets.
+}
+
+
 /* FUNCTION: exportToFile */
 NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 		(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
-		 const std::string& filename, unsigned int frameIndex) {
+		 const std::string& filename, int frameSetId, int frameIndex) {
 		
 	NXCommandResult* result = new NXCommandResult();
 	result->setResult(NX_CMD_SUCCESS);
@@ -138,10 +166,10 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 	HDF5_SimResults* simResults = 0;
 	if (frameIndex == 0)
 		simResults = new HDF5_SimResults();
-		if (!dataStoreInfo->isLastFrame())
-			dataStoreInfo->setHandle(simResults);
+		if (!dataStoreInfo->isLastFrame(frameSetId))
+			dataStoreInfo->setHandle(frameSetId, simResults);
 	else
-		simResults = (HDF5_SimResults*)(dataStoreInfo->getHandle());
+		simResults = (HDF5_SimResults*)(dataStoreInfo->getHandle(frameSetId));
 		
 	if (simResults == 0)
 		populateCommandResult(result,
@@ -244,7 +272,7 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 	}
 										  
 	// Close data store if this was the last frame.
-	if ((simResults != 0) && (dataStoreInfo->isLastFrame()))
+	if ((simResults != 0) && (dataStoreInfo->isLastFrame(frameSetId)))
 		delete simResults;
 		
 	return result;

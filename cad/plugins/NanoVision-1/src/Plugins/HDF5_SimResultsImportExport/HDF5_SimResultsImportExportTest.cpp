@@ -35,9 +35,10 @@ void HDF5_SimResultsImportExportTest::basicExportTest() {
 
 	// Create a water molecule for frame 0
 	//
-	unsigned int frameIndex = entityManager->addFrame();
+	int frameSetId = entityManager->addFrameSet();
+	int frameIndex = entityManager->addFrame(frameSetId);
 	NXMoleculeSet* rootMoleculeSet =
-		entityManager->getRootMoleculeSet(frameIndex);
+		entityManager->getRootMoleculeSet(frameSetId, frameIndex);
 	OBMol* molecule = rootMoleculeSet->newMolecule();
 	OBAtom* atomO = molecule->NewAtom();
 	atomO->SetAtomicNum(etab.GetAtomicNum("O")); // Oxygen
@@ -57,8 +58,8 @@ void HDF5_SimResultsImportExportTest::basicExportTest() {
 
 	// Create a distorted water molecule for frame 1
 	//
-	frameIndex = entityManager->addFrame();
-	rootMoleculeSet = entityManager->getRootMoleculeSet(frameIndex);
+	frameIndex = entityManager->addFrame(frameSetId);
+	rootMoleculeSet = entityManager->getRootMoleculeSet(frameSetId, frameIndex);
 	molecule = rootMoleculeSet->newMolecule();
 	atomO = molecule->NewAtom();
 	atomO->SetAtomicNum(etab.GetAtomicNum("O")); // Oxygen
@@ -78,7 +79,7 @@ void HDF5_SimResultsImportExportTest::basicExportTest() {
 	
 	// Write it with the HDF5_SimResultsImportExport plugin
 	NXCommandResult* commandResult =
-		entityManager->exportToFile("testHDF5store.nh5");
+		entityManager->exportToFile("testHDF5store.nh5", frameSetId, -1);
 	if (commandResult->getResult() != NX_CMD_SUCCESS)
 		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
 	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);
@@ -95,7 +96,7 @@ void HDF5_SimResultsImportExportTest::basicImportTest() {
 		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
 	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);
 	
-	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet(0);
+	NXMoleculeSet* rootMoleculeSet = entityManager->getRootMoleculeSet(0, 0);
 	CPPUNIT_ASSERT(rootMoleculeSet != 0);
 	OBMolIterator moleculeIter = rootMoleculeSet->moleculesBegin();
 	CPPUNIT_ASSERT((*moleculeIter)->GetAtom(1)->GetAtomicNum() == 8);
@@ -103,7 +104,7 @@ void HDF5_SimResultsImportExportTest::basicImportTest() {
 								 0.001);
 	CPPUNIT_ASSERT((*moleculeIter)->NumBonds() == 2);
 	
-	rootMoleculeSet = entityManager->getRootMoleculeSet(1);
+	rootMoleculeSet = entityManager->getRootMoleculeSet(0, 1);
 	CPPUNIT_ASSERT(rootMoleculeSet != 0);
 	moleculeIter = rootMoleculeSet->moleculesBegin();
 	CPPUNIT_ASSERT((*moleculeIter)->GetAtom(2)->GetAtomicNum() == 1);

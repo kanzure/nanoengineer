@@ -3,6 +3,10 @@
 #ifndef NX_DATASTOREINFO_H
 #define NX_DATASTOREINFO_H
 
+#include <map>
+#include <string>
+using namespace std;
+
 namespace Nanorex {
 
 
@@ -14,17 +18,37 @@ namespace Nanorex {
  */
 class NXDataStoreInfo {
 	public:
-		NXDataStoreInfo() { _isLastFrame = true; }
+		NXDataStoreInfo() { }
 		
-		void setLastFrame(bool isLastFrame) { _isLastFrame = isLastFrame; }
-		bool isLastFrame() { return _isLastFrame; }
+		void addTrajectory(string name, int id) { _trajectories[name] = id; }
+		int getTrajectoryId(string name) { return _trajectories[name]; }
+		//vector<string> getTrajectoryNames();
 		
-		void setHandle(void* handle) { this->handle = handle; }
-		void* getHandle() { return handle; }
+		void setLastFrame(int id, bool isLastFrame) {
+			_isLastFrame[id] = isLastFrame;
+		}
+		bool isLastFrame(int id) { return _isLastFrame[id]; }
+		
+		void setStoreComplete(int id, bool storeIsComplete) {
+			_storeIsComplete[id] = storeIsComplete;
+		}
+		bool storeIsComplete(int id) { return _storeIsComplete[id]; }
+		
+		void setHandle(int id, void* handle) { _handle[id] = handle; }
+		void* getHandle(int id) { return _handle[id]; }
 		
 	private:
-		void* handle;
-		bool _isLastFrame;
+		// Maps trajectory name to its frame set id.
+		map<string, int> _trajectories;
+		
+		// Maps frame set id to its file handle.
+		map<int, void*> _handle;
+		
+		// Maps frame set id to its last-frame status
+		map<int, bool> _isLastFrame;
+		
+		// Maps frame set id to its store-complete status
+		map<int, bool> _storeIsComplete;
 };
 
 

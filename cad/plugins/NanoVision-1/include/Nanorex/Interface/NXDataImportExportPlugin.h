@@ -56,7 +56,7 @@ class NXDataImportExportPlugin : public NXPlugin {
 		 */
 		virtual NXCommandResult* importFromFile
 			(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
-			 const string& filename, unsigned int frameIndex = 0) = 0;
+			 const string& filename, int frameSetId, int frameIndex) = 0;
 
 		/**
 		 * Exports the system to the given file from the given molecule set.
@@ -67,7 +67,7 @@ class NXDataImportExportPlugin : public NXPlugin {
 		 */
 		virtual NXCommandResult* exportToFile
 			(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
-			 const string& filename, unsigned int frameIndex = 0) = 0;
+			 const string& filename, int frameSetId, int frameIndex) = 0;
 
 	protected:
 		string mode;
