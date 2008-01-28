@@ -1,5 +1,8 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
+extern "C" {
+#include <GL/gl.h>
+}
 #include "Nanorex/Interface/NXBallAndStickOpenGLRenderer.h"
 
 namespace Nanorex {
@@ -8,9 +11,11 @@ namespace Nanorex {
 double const NXBallAndStickOpenGLRenderer::BOND_WIDTH = 0.1;
 
 
-NXSGNode* NXBallAndStickOpenGLRenderer::renderAtom(NXAtomRenderInfo const& info)
+NXSGNode* NXBallAndStickOpenGLRenderer::renderAtom(NXAtomRenderData const& info)
 {
-    NXOpenGLMaterial const& defaultMaterial = info.getDefaultMaterial();
+    std::vector<void const*> const& paramVec = info.getSupplementalData();
+    NXOpenGLMaterial const& defaultMaterial =
+        *static_cast<NXOpenGLMaterial const*>(paramVec[0]);
     NXSGOpenGLMaterial *atomNode = NULL;
     try { atomNode = new NXSGOpenGLMaterial(defaultMaterial); }
     catch (...) { return NULL; } // fail silently
@@ -97,9 +102,11 @@ NXSGNode* NXBallAndStickOpenGLRenderer::renderAtom(NXAtomRenderInfo const& info)
 }
 
 
-NXSGNode* NXBallAndStickOpenGLRenderer::renderBond(NXBondRenderInfo const& info)
+NXSGNode* NXBallAndStickOpenGLRenderer::renderBond(NXBondRenderData const& info)
 {
-    NXOpenGLMaterial const& defaultMaterial = info.getDefaultMaterial();
+    std::vector<void const*> const& paramVec = info.getSupplementalData();
+    NXOpenGLMaterial const& defaultMaterial =
+        *static_cast<NXOpenGLMaterial const*>(paramVec[0]);
     NXSGOpenGLMaterial *bondNode = NULL;
     try { bondNode = new NXSGOpenGLMaterial(defaultMaterial); }
     catch (...) { return NULL; } // fail silently

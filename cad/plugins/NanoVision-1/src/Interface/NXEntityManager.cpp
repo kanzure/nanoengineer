@@ -234,7 +234,7 @@ NXCommandResult* NXEntityManager::exportToFile
 			dataStoreInfo->setLastFrame
 				(frameSetId,
 				 !allFrameExport ||
-				 	(frameIndex > moleculeSets[frameSetId].size() - 2));
+                                    (frameIndex > (int)moleculeSets[frameSetId].size() - 2));
 			vector<NXMoleculeSet*>::iterator iter =
 				moleculeSets[frameSetId].begin();
 			result =
@@ -247,7 +247,7 @@ NXCommandResult* NXEntityManager::exportToFile
 				   (result->getResult() == NX_CMD_SUCCESS)) {
 				dataStoreInfo->setLastFrame
 					(frameSetId,
-					 frameIndex > moleculeSets[frameSetId].size() - 2);
+					 frameIndex > (int)moleculeSets[frameSetId].size() - 2);
 				result =
 					plugin->exportToFile(*iter, dataStoreInfo, filename,
 										 frameSetId, frameIndex);

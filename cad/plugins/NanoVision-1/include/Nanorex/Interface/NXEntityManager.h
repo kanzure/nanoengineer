@@ -59,7 +59,7 @@ class NXEntityManager {
 			return moleculeSets[frameSetId].size();
 		}
 		NXMoleculeSet* getRootMoleculeSet(int frameSetId, int frameIndex = 0) {
-			if (frameIndex < moleculeSets[frameSetId].size())
+                        if (frameIndex < (int)moleculeSets[frameSetId].size())
 				return moleculeSets[frameSetId][frameIndex];
 			else {
 				// See if there's a new frame

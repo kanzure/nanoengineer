@@ -1,10 +1,11 @@
 SOURCES += ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExport.cpp
 HEADERS += ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExport.h
 INCLUDEPATH += ../../../../include \
- /usr/local/include/openbabel-2.0/
+ /usr/include/openbabel-2.0
 TEMPLATE = lib
 
-CONFIG += dll
+CONFIG += dll \
+ debug
 
 LIBS += -L../../../../lib \
 -lNanorexUtility \
@@ -13,4 +14,6 @@ LIBS += -L../../../../lib \
 TARGETDEPS += ../../../../lib/libNanorexUtility.so \
 ../../../../lib/libNanorexInterface.so
 DESTDIR = ../../../../lib
+
+CONFIG -= release
 

@@ -14,10 +14,10 @@ namespace Nanorex {
 /**
  * Renders atoms and bonds using balls and sticks
  */
-class BallAndStickOpenGLRenderer : public NXOpenGLRendererPlugin {
+class NXBallAndStickOpenGLRenderer : public NXOpenGLRendererPlugin {
 public:
-    BallAndStickOpenGLRenderer();
-    virtual ~BallAndStickOpenGLRenderer() {}
+    NXBallAndStickOpenGLRenderer();
+    virtual ~NXBallAndStickOpenGLRenderer() {}
 
     /// Call plugin to render the atom display list and return the scenegraph node.
     /// Must set commandResult to indicate success or failure

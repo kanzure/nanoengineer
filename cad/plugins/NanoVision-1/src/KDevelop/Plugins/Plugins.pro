@@ -1,5 +1,8 @@
 TEMPLATE = subdirs
 
-SUBDIRS += RenderingEngines \
- HDF5_SimResultsImportExport
+
+SUBDIRS += HDF5_SimResultsImportExport \
+  RenderingEngines
+
+CONFIG += ordered
 
