@@ -167,7 +167,7 @@
       </debugarguments>
     </run>
     <general>
-      <activedir>Utility</activedir>
+      <activedir></activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>
