@@ -19,7 +19,7 @@ LIBS += -lcppunit \
  -lHDF5_SimResultsImportExport
 
 INCLUDEPATH += ../../../../include \
- /usr/local/include/openbabel-2.0/
+ $(OPENBABEL_INCPATH)
 
 HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Utility/NXLoggerTest.h \

@@ -156,18 +156,21 @@
       <runarguments>
         <HDF5_SimResultsImportExport/>
         <GLT/>
+        <CppUnit></CppUnit>
       </runarguments>
       <cwd>
         <HDF5_SimResultsImportExport>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</HDF5_SimResultsImportExport>
         <GLT>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</GLT>
+        <CppUnit>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop/../../../..</CppUnit>
       </cwd>
       <debugarguments>
         <HDF5_SimResultsImportExport/>
         <GLT/>
+        <CppUnit></CppUnit>
       </debugarguments>
     </run>
     <general>
-      <activedir></activedir>
+      <activedir>Testing/CppUnit</activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>
