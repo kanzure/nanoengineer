@@ -40,9 +40,13 @@ from constants import gensym
 from Dna_Constants import getDuplexLength
 from test_connectWithState import State_preMixin
 
+from debug_prefs import debug_pref, Choice_boolean_False
+
 #see. self._create_or_update_handles for the info about the debug flag below
-#Never commit with this flag enabled
-DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE = False ##############
+DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE = \
+    debug_pref("DNA Segment Properties: exprs handles (next session)?",
+               Choice_boolean_False,
+               prefs_key = True)
 
 if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
     
@@ -50,7 +54,7 @@ if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
 
     # note: some of the following imports are not needed.
     
-    from constants import white
+    from constants import white, yellow
 
     from VQT import norm
     from drawer import drawcylinder, drawsphere
@@ -115,6 +119,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     
         aHandle = Instance( DraggableHandle_AlongLine(
             appearance = Sphere(2.0, white ),
+            appearance_highlighted = Sphere(2.0, yellow),
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'),
             origin = endPoint1,
             direction = norm_Expr(endPoint1 - endPoint2),
