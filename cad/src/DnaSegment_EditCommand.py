@@ -124,6 +124,9 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             origin = endPoint1,
             direction = norm_Expr(endPoint1 - endPoint2),
             sbar_text = "test handle",
+            on_press = _self._handle1_on_press,
+            on_drag = _self._handle1_on_drag,
+            on_release = _self._handle1_on_release,
          ))
     
     def __init__(self, commandSequencer, struct = None):
@@ -202,7 +205,24 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
         self.handles = [] # guess, but seems like a good idea [bruce 080128]
         self.handles.append(self.aHandle)
-           
+
+    def _handle1_on_press(self):
+        print "_handle1_on_press, position = %r" % self.cylinderWidth
+        return
+    
+    def _handle1_on_drag(self):
+        print "_handle1_on_drag, position = %r" % self.cylinderWidth
+        return
+    
+    def _handle1_on_release(self):
+        # bug: this is not getting called, seemingly because ReleasedOn
+        # is not getting called in the Highlightable for the handle.
+        # Is there some bug in the calling code in the graphicsMode,
+        # perhaps an incorrect setting of gm.ignore_next_leftUp_event??
+        # [bruce 080129 question]
+        print "_handle1_on_release, position = %r" % self.cylinderWidth
+        return
+    
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 
