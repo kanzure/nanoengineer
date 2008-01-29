@@ -124,19 +124,32 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 
 
 /* FUNCTION: importFromFile */
-NXCommandResult* NXEntityManager::importFromFile(const string& filename) {
+/**
+ * @param frameSetId	If -1, import everything, otherwise, resume importing
+ *						the frame set from the given frameIndex.
+ */
+NXCommandResult* NXEntityManager::importFromFile(const string& filename,
+												 int frameSetId,
+												 int frameIndex) {
 
 	NXCommandResult* result;
 	//PR_Lock(importExportPluginsMutex);
 	
+	dataStoreInfo->setFilename(filename);
 	string fileType = getFileType(filename);
 	
 	map<string, NXDataImportExportPlugin*>::iterator iter =
 		dataImportTable.find(fileType);
 	if (iter != dataImportTable.end()) {
 		NXDataImportExportPlugin* plugin = iter->second;
-		int frameSetId = addFrameSet();
-		int frameIndex = addFrame(frameSetId);
+		
+		if (frameSetId == -1) {
+			frameSetId = addFrameSet();
+			frameIndex = addFrame(frameSetId);
+			
+		} else {
+			frameIndex = addFrame(frameSetId);			
+		}
 
 		try {
 			plugin->setMode(fileType);
@@ -145,7 +158,15 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename) {
 														  frameIndex),
 									   dataStoreInfo, filename, frameSetId,
 									   frameIndex);
+			
 			if (result->getResult() == NX_CMD_SUCCESS) {
+			
+				// Delete the frame if the molecule set wasn't populated.
+				NXMoleculeSet* moleculeSet =
+					getRootMoleculeSet(frameSetId, frameIndex);
+				if ((moleculeSet->childCount() == 0) &&
+					(moleculeSet->moleculeCount() == 0))
+					removeLastFrame(frameSetId);
 			
 				// TODO:
 				// Finish the current frame set, then examine the dataStoreInfo
@@ -160,9 +181,12 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename) {
 											   dataStoreInfo, filename,
 											   frameSetId, frameIndex);
 				}
-			}
+			} else
+				removeLastFrame(frameSetId);
 
 		} catch (...) {
+			removeLastFrame(frameSetId);
+			
 			string msg = fileType;
 			msg += "->importFromFile() threw exception";
 			NXLOG_SEVERE("NXEntityManager", msg);
@@ -234,7 +258,7 @@ NXCommandResult* NXEntityManager::exportToFile
 			dataStoreInfo->setLastFrame
 				(frameSetId,
 				 !allFrameExport ||
-                                    (frameIndex > (int)moleculeSets[frameSetId].size() - 2));
+					(frameIndex > (int)moleculeSets[frameSetId].size() - 2));
 			vector<NXMoleculeSet*>::iterator iter =
 				moleculeSets[frameSetId].begin();
 			result =
@@ -292,6 +316,31 @@ NXCommandResult* NXEntityManager::exportToFile
 	}
 	//PR_Unlock(importExportPluginsMutex);
 	return result;
+}
+
+
+/* FUNCTION: getRootMoleculeSet */
+NXMoleculeSet* NXEntityManager::getRootMoleculeSet(int frameSetId,
+												   int frameIndex) {
+												   
+	if (frameIndex < (int)moleculeSets[frameSetId].size())
+		return moleculeSets[frameSetId][frameIndex];
+	else {
+		if (dataStoreInfo->storeIsComplete(frameSetId))
+			return 0;
+		else {
+			// See if there's a new frame
+			NXCommandResult* result =
+				importFromFile(dataStoreInfo->getFilename(),
+								frameSetId,
+								moleculeSets[frameSetId].size());
+			// TODO: Handle when result != 0
+			if (frameIndex < (int)moleculeSets[frameSetId].size())
+				return moleculeSets[frameSetId][frameIndex];
+			else
+				return 0;
+		}
+	}
 }
 
 

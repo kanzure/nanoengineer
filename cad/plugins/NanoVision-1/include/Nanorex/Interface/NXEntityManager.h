@@ -36,11 +36,12 @@ class NXEntityManager {
 		// Import/export plugins
 		//
 		void loadDataImportExportPlugins(NXProperties* properties);
-		NXCommandResult* importFromFile(const string& filename);
+		NXCommandResult* importFromFile(const string& filename,
+									  int frameSetId = -1, int frameIndex = 0);
 		NXCommandResult* exportToFile(const string& filename,
 									  int frameSetId = -1, int frameIndex = 0);
 									  
-		const NXDataStoreInfo* getDataStoreInfo() { return dataStoreInfo; }
+		NXDataStoreInfo* getDataStoreInfo() { return dataStoreInfo; }
 		
 		//
 		// Frame sets
@@ -55,18 +56,13 @@ class NXEntityManager {
 			moleculeSets[frameSetId].push_back(moleculeSet);
 			return moleculeSets[frameSetId].size() - 1;
 		}
+		void removeLastFrame(int frameSetId) {
+			moleculeSets[frameSetId].pop_back();
+		}
 		unsigned int getFrameCount(int frameSetId) {
 			return moleculeSets[frameSetId].size();
 		}
-		NXMoleculeSet* getRootMoleculeSet(int frameSetId, int frameIndex = 0) {
-                        if (frameIndex < (int)moleculeSets[frameSetId].size())
-				return moleculeSets[frameSetId][frameIndex];
-			else {
-				// See if there's a new frame
-				//   or
-				return 0;
-			}
-		}
+		NXMoleculeSet* getRootMoleculeSet(int frameSetId, int frameIndex);
 
 	private:
 		NXPluginGroup* dataImpExpPluginGroup;

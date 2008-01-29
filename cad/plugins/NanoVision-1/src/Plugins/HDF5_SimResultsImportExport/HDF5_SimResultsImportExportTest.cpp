@@ -76,10 +76,12 @@ void HDF5_SimResultsImportExportTest::basicExportTest() {
 	bond = molecule->NewBond();
 	bond->SetBegin(atomO);
 	bond->SetEnd(atomH2);
+printf("\n> 3\n");
 	
 	// Write it with the HDF5_SimResultsImportExport plugin
 	NXCommandResult* commandResult =
 		entityManager->exportToFile("testHDF5store.nh5", frameSetId, -1);
+printf("> 4\n");
 	if (commandResult->getResult() != NX_CMD_SUCCESS)
 		printf("\n%s\n", qPrintable(GetNV1ResultCodeString(commandResult)));
 	CPPUNIT_ASSERT(commandResult->getResult() == NX_CMD_SUCCESS);

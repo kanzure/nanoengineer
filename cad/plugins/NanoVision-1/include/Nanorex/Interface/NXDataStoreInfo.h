@@ -20,6 +20,9 @@ class NXDataStoreInfo {
 	public:
 		NXDataStoreInfo() { }
 		
+		const string& getFilename() { return _filename; }
+		void setFilename(const string& filename) { _filename = filename; }
+		
 		void addTrajectory(string name, int id) { _trajectories[name] = id; }
 		int getTrajectoryId(string name) { return _trajectories[name]; }
 		//vector<string> getTrajectoryNames();
@@ -38,6 +41,8 @@ class NXDataStoreInfo {
 		void* getHandle(int id) { return _handle[id]; }
 		
 	private:
+		string _filename;
+		
 		// Maps trajectory name to its frame set id.
 		map<string, int> _trajectories;
 		

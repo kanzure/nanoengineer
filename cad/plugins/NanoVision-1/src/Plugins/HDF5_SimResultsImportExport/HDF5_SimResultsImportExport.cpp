@@ -51,6 +51,15 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 			populateCommandResult(result, message.c_str());
 	}
 	
+	simResults->synchronize();
+	
+	// See if the requested frame exists (yet) and abort if it doesn't
+	// signaling to delete the frame for the given frameIndex.
+	int frameCount = 0;
+	simResults->getFrameCount("frame-set-1", frameCount);
+	if (frameCount == 0)
+		return result;
+	
 	// If this is the first call to import the data store, retrieve the meta
 	// information about the data store, and other data.
 	if ((frameIndex == 0) && (frameSetId == 0) &&
@@ -82,7 +91,9 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 	unsigned int atomIds[atomCount];
 	unsigned int atomicNumbers[atomCount];
 	float positions[atomCount*3];
-	void* bonds = (void*)malloc(bondCount*sizeof(SimResultsBond));
+	void* bonds = 0;
+	if (bondCount != 0)
+		bonds = (void*)malloc(bondCount*sizeof(SimResultsBond));
 
 	// Retrieve atom data
 	if (result->getResult() == NX_CMD_SUCCESS) {
@@ -105,7 +116,7 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 	}
 	
 	// Retrieve bond data
-	if (result->getResult() == NX_CMD_SUCCESS) {
+	if ((result->getResult() == NX_CMD_SUCCESS) && (bondCount != 0)) {
 		status = simResults->getFrameBonds("frame-set-1", 0, bonds, message);
 		if (status)
 			populateCommandResult(result, message.c_str());

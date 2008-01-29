@@ -53,6 +53,9 @@ class NXDataImportExportPlugin : public NXPlugin {
 		 * handle from dataStoreInfo. If opening a multi-frame file, a handle
 		 * to it will be stored in the dataStoreInfo for later use (subsequent
 		 * importFromFile calls.)
+		 *
+		 * No modifications to the given moleculeSet will result in deletion
+		 * of the frame with the given frameIndex.
 		 */
 		virtual NXCommandResult* importFromFile
 			(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
