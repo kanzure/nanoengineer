@@ -4,7 +4,11 @@
 
 
 /* CONSTRUCTOR */
-nv1::nv1() : QMainWindow() {
+nv1::nv1(NXEntityManager* entityManager) : QMainWindow() {
+	this->entityManager = entityManager;
+	
+	setWindowIcon(QPixmap(":/Icons/eye-icon.png"));
+	
 	mainWindowTabs = new MainWindowTabWidget(this);
 	setCentralWidget(mainWindowTabs);	
 	
@@ -48,9 +52,10 @@ void nv1::closeEvent(QCloseEvent *event) {
 
 /* FUNCTION: open */
 void nv1::open() {
+	QString importFileTypes = entityManager->getImportFileTypes().c_str();
 	QString fileName =
 		QFileDialog::getOpenFileName(this, tr("Open File"), "",
-									 tr("Protein Data Bank (*.pdb);;Nanorex Molecular Machine Part (*.mmp);;HDF5 Simulation Results (*.h5 *.nh5);;GROMACS Trajectory (*.trr);;All Types (*)"));
+									 importFileTypes + ";;All Types (*)");
 	if (!fileName.isEmpty()) {
 		if (resultsWindow->loadFile(fileName)) {
 			statusBar()->showMessage(tr("File loaded"), 2000);
@@ -125,7 +130,8 @@ void nv1::updateWindowMenu() {
 /* FUNCTION: createActions */
 void nv1::createActions() {
 
-	openAction = new QAction(QIcon(":/fileopen.xpm"), tr("&Open..."), this);
+	openAction =
+		new QAction(QIcon(":/Icons/File/Open.png"), tr("&Open..."), this);
 	openAction->setShortcut(tr("Ctrl+O"));
 	openAction->setStatusTip(tr("Open an existing file"));
 	connect(openAction, SIGNAL(triggered()), this, SLOT(open()));

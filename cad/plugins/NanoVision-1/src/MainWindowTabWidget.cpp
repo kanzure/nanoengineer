@@ -8,6 +8,8 @@ MainWindowTabWidget::MainWindowTabWidget(QWidget *parent)
 		: QWidget(parent), Ui_MainWindowTabWidget() {
 		
 	setupUi(this);
+	tabWidget->setTabIcon(0, QIcon(QPixmap(":/Icons/home.png")));
+	tabWidget->setTabText(0, "");
 }
 
 

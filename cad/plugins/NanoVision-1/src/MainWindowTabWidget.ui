@@ -29,7 +29,10 @@
      </property>
      <widget class="QWidget" name="resultsTab" >
       <attribute name="title" >
-       <string>Tab 1</string>
+       <string/>
+      </attribute>
+      <attribute name="icon" >
+       <iconset>Icons/home.png</iconset>
       </attribute>
       <layout class="QVBoxLayout" >
        <property name="margin" >

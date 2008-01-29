@@ -40,7 +40,9 @@ class NXEntityManager {
 									  int frameSetId = -1, int frameIndex = 0);
 		NXCommandResult* exportToFile(const string& filename,
 									  int frameSetId = -1, int frameIndex = 0);
-									  
+
+		const string& getImportFileTypes() { return importFileTypesString; }
+		const string& getExportFileTypes() { return exportFileTypesString; }
 		NXDataStoreInfo* getDataStoreInfo() { return dataStoreInfo; }
 		
 		//

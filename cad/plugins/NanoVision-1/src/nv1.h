@@ -8,6 +8,9 @@
 #include <QFileDialog>
 #include <QCloseEvent>
 
+#include "Nanorex/Interface/NXEntityManager.h"
+using namespace Nanorex;
+
 #include "ResultsWindow.h"
 #include "MainWindowTabWidget.h"
 
@@ -17,7 +20,7 @@ class nv1 : public QMainWindow {
 	Q_OBJECT
 
 public:
-	nv1();
+	nv1(NXEntityManager* entityManager);
 	~nv1();
 
 protected:
@@ -30,6 +33,8 @@ private slots:
 	void updateWindowMenu();
 
 private:
+	NXEntityManager* entityManager;
+	
 	QMenu *fileMenu;
 	QMenu *windowMenu;
 	QMenu *helpMenu;

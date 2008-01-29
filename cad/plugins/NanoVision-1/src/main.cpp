@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 	QApplication* app = new QApplication(argc, argv);
 	
 	// Show splashscreen
-	QPixmap pixmap(":/splashscreen.png");
+	QPixmap pixmap(":/Icons/splashscreen.png");
 	SplashScreen* splash = new SplashScreen(pixmap);
  	splash->show();
 
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
 	delete properties;
 	
 	// Create main window
-	nv1* mainWindow = new nv1();
+	nv1* mainWindow = new nv1(entityManager);
 	mainWindow->show();
 	sleep(1);
 	
