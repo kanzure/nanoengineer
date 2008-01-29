@@ -558,7 +558,24 @@ class Group(Node):
             if m.part is None:
                 m.inherit_part(part)
         return
-
+    
+    def isHidden(self):
+        """
+        Return True of *all* members of this group are hidden. Otherwise 
+        returns False. 
+        @see: dna_model.DnaGroup.node_icon() for an example use. 
+        """               
+        for memberNode in self.members:
+            try:
+                if not memberNode.isHidden():
+                    return False
+            except AttributeError:
+                print_comparct_traceback("bug: member has no attribute "\
+                                         "'isHidden'")
+                return False
+                        
+        return True 
+    
     def hide(self):
         for ob in self.members:
             ob.hide()
@@ -566,6 +583,7 @@ class Group(Node):
     def unhide(self):
         for ob in self.members:
             ob.unhide()
+        
 
     def apply2all(self, fn):
         """

@@ -346,6 +346,7 @@ class Node( StateMixin):
                 return node
             node = node.dad
         return None
+    
 
     def node_depth(self): #bruce 080116
         """
@@ -1032,6 +1033,16 @@ class Node( StateMixin):
         assert self.part is None
         part.add(self)
         assert self.part is part
+    
+    def isHidden(self):
+        """
+        Returns whether the node is hidden in the Model Tree. 
+        The default implementation returns the value of attr self.hidden 
+        But for the nodes such as 'Group' , this method (isHidden) will return 
+        True only when all members of the Group are hidden.   
+        @see: Group.isHidden (which overrides this method)
+        """
+        return self.hidden
     
     def hide(self):
         if not self.hidden:

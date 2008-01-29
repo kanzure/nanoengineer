@@ -53,7 +53,8 @@ class DnaGroup(Block):
     
     # The iconPath specifies path(string) of an icon that represents the 
     # objects of this class  
-    iconPath = "modeltree/DNA.png"
+    iconPath = "modeltree/DNA.png"    
+    hide_iconPath = "modeltree/DNA-hide.png"
 
     # This should be a tuple of classifications that appear in
     # files_mmp._GROUP_CLASSIFICATIONS, most general first.
@@ -69,9 +70,14 @@ class DnaGroup(Block):
     def node_icon(self, display_prefs):
         """
         Model Tree node icon for the dna group node
+        @see: Group.isHidden() 
         """
         del display_prefs # unused
-        return imagename_to_pixmap( self.iconPath)
+        
+        if self.isHidden():    
+             return imagename_to_pixmap( self.hide_iconPath)
+        else:
+            return imagename_to_pixmap( self.iconPath)     
 
     def make_DnaStrandOrSegment_for_marker(self, controlling_marker, wholechain):
         """
