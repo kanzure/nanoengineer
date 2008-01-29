@@ -55,6 +55,11 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
             if self.command and self.command.struct:
                 if isinstance(self.command.struct, DnaSegment):
                     for handle in self.command.handles:
+                        if 1:
+                            # kluge: assume this only happens if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE
+                            # is active in our command class, and do debug prints for that
+                            # [bruce 080128]
+                            print "debug fyi: handle position:", self.command.cylinderWidth
                         handle.draw()
                 
                 if 0:

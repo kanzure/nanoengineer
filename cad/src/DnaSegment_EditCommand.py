@@ -42,7 +42,40 @@ from test_connectWithState import State_preMixin
 
 #see. self._create_or_update_handles for the info about the debug flag below
 #Never commit with this flag enabled
-DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE = 0  
+DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE = False ##############
+
+if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
+    
+    CYLINDER_WIDTH_DEFAULT_VALUE = 10.0
+
+    # note: some of the following imports are not needed.
+    
+    from constants import white
+
+    from VQT import norm
+    from drawer import drawcylinder, drawsphere
+
+    from exprs.ExprsMeta import ExprsMeta
+    from exprs.instance_helpers import IorE_guest_mixin
+    from exprs.attr_decl_macros import Instance, State
+
+    from exprs.__Symbols__ import _self
+    from exprs.Exprs import call_Expr
+    from exprs.Exprs import norm_Expr
+    from exprs.Center import Center
+
+    from exprs.Rect import Rect
+
+    from exprs.DraggableHandle import DraggableHandle_AlongLine
+    from exprs.If_expr import If_expr
+
+    from prefs_widgets import ObjAttr_StateRef
+
+    from exprs.Rect import Sphere # used to make our drag handle appearance
+    from exprs.ExprsConstants import ORIGIN, DX, DZ
+    from exprs.ExprsConstants import Width, Point, Vector
+    from exprs.draggable import DraggableObject
+    from exprs.dna_ribbon_view import Cylinder
 
 class DnaSegment_EditCommand(State_preMixin, EditCommand):
     cmd              =  'Dna Segment'
@@ -74,14 +107,27 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
        
     _parentDnaGroup = None
     
+    if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
+
+        endPoint1 = State( Point)
+        endPoint2 = State( Point)
+        cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) ## , _e_debug = True)
     
-    
-    
+        aHandle = Instance( DraggableHandle_AlongLine(
+            appearance = Sphere(2.0, white ),
+            height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'),
+            origin = endPoint1,
+            direction = norm_Expr(endPoint1 - endPoint2),
+            sbar_text = "test handle",
+         ))
     
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for DnaDuplex_EditCommand
-        """     
+        """
+        if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
+            glpane = commandSequencer
+            State_preMixin.__init__(self, glpane)
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
         
@@ -91,12 +137,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.handles = []        
         self.endHandle1 = None 
         self.endHandle2 = None
-        
-        #Junk instance variable cylinderWidth. ONLY used for experimental work 
-        #in drawing a handle (when debuug flag: 
-        #DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE is ON. )
-        #see: self._create_or_update_handles for more infor
-        self.cylinderWidth    = 10.0
     
         ############################
         
@@ -145,52 +185,17 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         @see: self.editStructure
         @see: DnaSegment_GraphicsMode._drawHandles()
         """
-        endPoint1, endPoint2 = self.struct.getAxisEndPoints()       
-        
-        from constants import white
-        
-        from VQT import norm
-        from drawer import drawcylinder, drawsphere
-        
-        from exprs.ExprsMeta import ExprsMeta
-        from exprs.instance_helpers import IorE_guest_mixin
-        from exprs.attr_decl_macros import Instance, State
-        
-        from exprs.__Symbols__ import _self
-        from exprs.Exprs import call_Expr ## , tuple_Expr ### TODO: USE tuple_Expr
-        from exprs.Center import Center
-        
-        from exprs.Rect import Rect # used to make our drag handle appearance
-        
-        from exprs.DraggableHandle import DraggableHandle_AlongLine
-        from exprs.If_expr import If_expr
-        
-        from prefs_widgets import ObjAttr_StateRef
-        
-        from exprs.Rect import Sphere
-        from exprs.ExprsConstants import ORIGIN, DX, DZ
-        from exprs.draggable import DraggableObject
-        from exprs.dna_ribbon_view import Cylinder
-        
-        ##aHandle = DraggableObject(Cylinder((ORIGIN,ORIGIN+DX),1,white))
+        endPoint1, endPoint2 = self.struct.getAxisEndPoints()
 
-        #aHandle = Instance( DraggableHandle_AlongLine(
-            #appearance = Center(Rect(0.5, 0.5, white)),             
-            #origin = endPoint1,             
-            #direction = norm(endPoint1 - endPoint2),            
-            #sbar_text = "", 
-            #range = (0.1, 10)
-                          #))
-                
-        self.aHandle = self.Instance( DraggableHandle_AlongLine(
-            appearance = Sphere(2.0, white ),     
-            height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'), 
-            origin = endPoint1,             
-            direction = norm(endPoint1 - endPoint2),            
-            sbar_text = "",
-            ), 
-            index = id(self)
-        )
+        self.endPoint1 = endPoint1 # used in self.aHandle
+        self.endPoint2 = endPoint2 # used in self.aHandle
+
+        # note: if endPoint1 and/or endPoint2 can change more often than this runs,
+        # we'll need to rerun the two assignments above whenever they change
+        # and before the handle is drawn. An easy way would be to rerun
+        # these assignments in the draw method of our GM. [bruce 080128]
+
+        self.handles = [] # guess, but seems like a good idea [bruce 080128]
         self.handles.append(self.aHandle)
            
     def _createPropMgrObject(self):
