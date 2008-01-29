@@ -29,7 +29,7 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 	
 	int pluginIndex = 0;
 	string msg, pluginFormats;
-	string pluginKey = "NXEntityManager.importExport.0";
+	string pluginKey = "ImportExport.0";
 	string pluginLibrary =
 		string(properties->getProperty(pluginKey + ".plugin"));
 
@@ -56,15 +56,6 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 			cout << "WARNING: " << msg << endl;
 
 		} else {
-			// Read the plugin's config file
-			NXProperties* pluginProperties = new NXProperties();
-			msg =
-				pluginProperties->readFromFile
-					(properties->getProperty(pluginKey + ".pluginConfigFile"));
-			if (msg.length() != 0)
-				NXLOG_WARNING("NXEntityManager", msg);
-			properties->addProperties(pluginProperties,
-									  (pluginKey + ".").c_str());
 			
 			// Import formats registration
 			pluginFormats =
@@ -115,7 +106,7 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 		}
 		pluginIndex++;
 		pluginKey =
-			string("NXEntityManager.importExport.") +
+			string("ImportExport.") +
 			NXUtility::itos(pluginIndex);
 		pluginLibrary =
 			string(properties->getProperty(pluginKey + ".plugin"));

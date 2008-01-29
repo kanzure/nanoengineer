@@ -214,9 +214,10 @@ void nv1::createStatusBar() {
 
 /* FUNCTION: readSettings */
 void nv1::readSettings() {
-	QSettings settings("Nanorex", "NanoVision-1");
-	QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
-	QSize size = settings.value("size", QSize(400, 400)).toSize();
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+					   "Nanorex", "NanoVision-1");
+	QPoint pos = settings.value("Layout/Position", QPoint(200, 200)).toPoint();
+	QSize size = settings.value("Layout/Size", QSize(400, 400)).toSize();
 	resize(size);
 	move(pos);
 }
@@ -224,7 +225,8 @@ void nv1::readSettings() {
 
 /* FUNCTION: writeSettings */
 void nv1::writeSettings() {
-	QSettings settings("Nanorex", "NanoVision-1");
-	settings.setValue("pos", pos());
-	settings.setValue("size", size());
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+					   "Nanorex", "NanoVision-1");
+	settings.setValue("Layout/Position", pos());
+	settings.setValue("Layout/Size", size());
 }

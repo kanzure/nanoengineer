@@ -3,7 +3,7 @@
 extern "C" {
 #include <GL/gl.h>
 }
-#include "Nanorex/Interface/NXBallAndStickOpenGLRenderer.h"
+#include "NXBallAndStickOpenGLRenderer.h"
 
 namespace Nanorex {
 

@@ -57,6 +57,7 @@ class NXEntityManager {
 			return moleculeSets[frameSetId].size() - 1;
 		}
 		void removeLastFrame(int frameSetId) {
+			// TODO: delete the NXMoleculeSet associated with this frame
 			moleculeSets[frameSetId].pop_back();
 		}
 		unsigned int getFrameCount(int frameSetId) {

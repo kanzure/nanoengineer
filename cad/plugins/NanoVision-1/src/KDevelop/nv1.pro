@@ -8,5 +8,6 @@ OPENBABEL_INCPATH = /usr/include/openbabel-2.0
 SUBDIRS += Utility \
   Interface \
   Plugins \
-  Testing
+  Testing \
+ ..
 
