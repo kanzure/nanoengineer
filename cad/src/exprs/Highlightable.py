@@ -914,10 +914,34 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
         """
         [private, should only be called with one of our action-option names,
         like on_press or on_release_in (not on_release)]
+
+        Do all actions defined for name: those from self.behavior, and those
+        from our own options (in that order).
+
+        @note: prior to 080129, an action option on self would override
+        an action defined in self.behavior. Now it post-extends it instead.
+        AFAIK this never mattered until now.
         """
-##        if not motion:
-##            print "_do_action",name
+        if not motion:
+            # debug print temporarily reenabled for sake of DnaSegment_EditCommand.py
+            # since this is not getting called for on_release, don't know why
+            # [bruce 080129]
+            print "_do_action for %r in %r" % (name, self)
         assert name.startswith('on_')
+        actions = []
+        # action from self.behavior
+        behavior = self.behavior
+        if behavior:
+            # note: behavior shouldn't be another Highlightable, but a DragBehavior
+            action = getattr(behavior, name, None)
+##            if behavior:
+##                if not action:
+##                    print "%r: behavior %r but no action for %r" % (self, behavior, name)
+##                else:
+##                    print "%r: behavior %r has action %r for %r" % (self, behavior, action, name)
+            if action:
+                actions.append(action)
+        # action from an option of self
         action = getattr(self, name) # will always be defined, since Option will give it a default value if necessary
             ###BUG 061205: seems to not be defined in a certain bug where I supplied it a formula whose computing has an error!
             # and as a result it gets delegated. Guess: the exception makes it seem missing to the delegation code --
@@ -932,15 +956,11 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
             # to debug. Good. Not much need to try the other fix above.
 
             ###e should be None or a callable supplied to the expr, for now; later will be None or an Action
-        if action is None:
-            behavior = self.behavior # might be None -- that's ok
-            action = getattr(self.behavior, name, None) # note: behavior shouldn't be another Highlightable, but a DragBehavior
-##            if behavior:
-##                if not action:
-##                    print "%r: behavior %r but no action for %r" % (self, behavior, name)
-##                else:
-##                    print "%r: behavior %r has action %r for %r" % (self, behavior, action, name)
         if action:
+            actions.append(action)
+        del action
+        # do the actions
+        if actions:
             if glpane_bindings: # new feature 061205 - dynamic bindings of specific attrnames in glpane
                 glpane = self.env.glpane
                 for k,v in glpane_bindings.iteritems(): # these k should only be hardcoded in this class, not caller-supplied
@@ -948,7 +968,8 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
                     setattr(glpane, k, v)
                         #e or could call glpane.somedict.update(glpane_bindings) -- maybe more controlled if it keeps them in a dict
             try:
-                action()
+                for action in actions:
+                    action()
             finally:
                 if glpane_bindings:
                     for k in glpane_bindings.iterkeys():
