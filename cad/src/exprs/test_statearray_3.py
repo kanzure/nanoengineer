@@ -1,10 +1,13 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 test_statearray_3.py
 
+Note: contains DragBehavior_AlongLine, which needs refiling
+since it may soon be used in real code.
+
 @author: bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 test code for one kind of constrained dragging
 
@@ -57,8 +60,9 @@ from exprs.DragBehavior import DragBehavior
 # as example 2, but cleaner code, and could entirely replace it once it works --
 # but now they both work (except for different lbox effects) so for now I'll keep them both around.
 
-class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior) ###e rename & refile when it works
-    """a drag behavior which moves the original hitpoint along a line,
+class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavior) ###e rename to DragBehavior_AlongLine & refile when it works
+    """
+    a drag behavior which moves the original hitpoint along a line,
     storing only its 1d-position-offset along the line's direction
     [noting that the hitpoint is not necessarily equal to the moved object's origin]
     [#doc better]
@@ -104,7 +108,9 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
 
     # specific methods
     def _C__translation(self): ### WARNING: used externally too -- rename to be not private if we decide that's ok ###e
-        "compute self._translation from the externally stored height"
+        """
+        compute self._translation from the externally stored height
+        """
         k = self.posn_parameter_ref.value
         return self.constrain_to_line.posn_from_params(k) #e review renaming, since we are asking it for a 3-tuple
     
@@ -170,7 +176,7 @@ class xxx_drag_behavior_3(DragBehavior): #070318 (compare to SimpleDragBehavior)
         return
     def on_release(self):
         pass
-    pass # end of class xxx_drag_behavior_3
+    pass # end of class DragBehavior_AlongLine
 
 class _height_dragger_3(DelegatingInstanceOrExpr):
     # args
@@ -180,15 +186,17 @@ class _height_dragger_3(DelegatingInstanceOrExpr):
     range = Option(tuple_Expr, None, doc = "range limit of height")
     # appearance/behavior
     #e should draw some "walls" too, and maybe limit the height
-    drag_handler = Instance( xxx_drag_behavior_3( _self._delegate, height_ref,
-                                                  ## Ray(ORIGIN, DX) # works
-                                                  ## Ray(ORIGIN, DZ) # works, but only if you trackball it (as expected)...
-                                                  ## Ray(ORIGIN, direction) # fails -- Ray is an ordinary class, not an expr! ###FIX
-                                                  call_Expr(Ray, ORIGIN, direction), # this workaround fixes it for now.
-                                                      # (in prior commit it didn't, but only because of a typo in the testexpr defs
-                                                      #  in tests.py, which meant I passed DZ when I thought I passed DX.)
-                                                  range = range
-                            ))
+    drag_handler = Instance( DragBehavior_AlongLine(
+        _self._delegate,
+        height_ref,
+        ## Ray(ORIGIN, DX) # works
+        ## Ray(ORIGIN, DZ) # works, but only if you trackball it (as expected)...
+        ## Ray(ORIGIN, direction) # fails -- Ray is an ordinary class, not an expr! ###FIX
+        call_Expr(Ray, ORIGIN, direction), # this workaround fixes it for now.
+            # (in prior commit it didn't fix it, but only because of a typo in the testexpr defs
+            #  in tests.py, which meant I passed DZ when I thought I passed DX.)
+        range = range
+     ))
         ### NOTE: drag_handler is also being used to compute the translation from the height, even between drags.
     delegate = Overlay(
         Highlightable(

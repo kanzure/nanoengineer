@@ -143,6 +143,7 @@ Point    = StubType
 StateRef = StubType
 Function = StubType
 Drawable = StubType # warning: also defined as DelegatingInstanceOrExpr in one file
+# note: class Action in Set.py is not in this list since it's not entirely a stub.
 
 Type     = Anything
 
