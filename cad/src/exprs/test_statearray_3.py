@@ -60,7 +60,7 @@ from exprs.DragBehavior import DragBehavior
 # as example 2, but cleaner code, and could entirely replace it once it works --
 # but now they both work (except for different lbox effects) so for now I'll keep them both around.
 
-class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavior) ###e rename to DragBehavior_AlongLine & refile when it works
+class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavior) # TODO: refile this, it's used in real code
     """
     a drag behavior which moves the original hitpoint along a line,
     storing only its 1d-position-offset along the line's direction
