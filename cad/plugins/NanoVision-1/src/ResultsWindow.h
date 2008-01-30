@@ -14,6 +14,9 @@
 #include <QDockWidget>
 #include <QWorkspace>
 
+#include "Nanorex/Interface/NXEntityManager.h"
+using namespace Nanorex;
+
 #include "ui_ResultsWindow.h"
 #include "DataWindow.h"
 #include "ViewParametersWindow.h"
@@ -28,7 +31,7 @@ public:
 	QWorkspace* workspace;
 	QSignalMapper* windowMapper;
 	
-	ResultsWindow(QWidget *parent = 0);
+	ResultsWindow(NXEntityManager* entityManager, QWidget* parent = 0);
 	~ResultsWindow();
 
 	bool loadFile(const QString &fileName);
@@ -43,6 +46,8 @@ private slots:
 
 private:
 	QString curFile;
+	
+	NXEntityManager* entityManager;
 	
 	void setCurrentFile(const QString &fileName);
 	QString strippedName(const QString &fullFileName);

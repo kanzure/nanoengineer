@@ -20,16 +20,21 @@ int main(int argc, char *argv[]) {
 					   "Nanorex", "NanoVision-1");
 
 	// Start logger
+	//
 	splash->showMessage("Starting logger...");
 	splash->repaint();
 	int logLevel = 0;
-	NXLogger logger;
+	NXLogger* logger = new NXLogger();
+	
+	// Console logging
 	if (settings.value("Logging/EnableConsoleLogging", true).toBool()) {
 		logLevel =
 			settings.value("Logging/ConsoleLoggingLevel",
 						   NXLogLevel_Info).toInt();
-		logger.addHandler(new NXConsoleLogHandler((NXLogLevel)logLevel));
+		logger->addHandler(new NXConsoleLogHandler((NXLogLevel)logLevel));
 	}
+	
+	// File logging
 	if (settings.value("Logging/EnableFileLogging", true).toBool()) {
 		logLevel =
 			settings.value("Logging/FileLoggingLevel",
@@ -39,9 +44,13 @@ int main(int argc, char *argv[]) {
 		logFilename.append("log");
 		NXFileLogHandler* logHandler =
 			new NXFileLogHandler(qPrintable(logFilename), (NXLogLevel)logLevel);
-		logger.addHandler(logHandler);
+		logger->addHandler(logHandler);
 	}
 	
+	// Dock widget logging
+	LogHandlerWidget* logHandlerWidget = new LogHandlerWidget(NXLogLevel_Info);
+	logger->addHandler(logHandlerWidget);
+
 	// Initialize entity manager and load import/export plugins
 	splash->showMessage("Loading entity manager...");
 	splash->repaint();
@@ -58,10 +67,10 @@ int main(int argc, char *argv[]) {
 	delete properties;
 	
 	// Create main window
-	nv1* mainWindow = new nv1(entityManager);
+	nv1* mainWindow = new nv1(entityManager, logHandlerWidget);
 	mainWindow->show();
-	sleep(1);
 	
+	sleep(1);	
 	splash->finish(mainWindow);
 	delete splash;
 	int appReturn = app->exec();

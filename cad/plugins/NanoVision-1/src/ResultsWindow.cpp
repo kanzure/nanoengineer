@@ -4,8 +4,9 @@
 
 
 /* CONSTRUCTOR */
-ResultsWindow::ResultsWindow(QWidget *parent)
+ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
 		: QWidget(parent), Ui_ResultsWindow() {
+	this->entityManager = entityManager;
 		
 	setupUi(this);
 

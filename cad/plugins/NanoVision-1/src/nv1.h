@@ -12,6 +12,7 @@
 using namespace Nanorex;
 
 #include "ResultsWindow.h"
+#include "LogHandlerWidget.h"
 #include "MainWindowTabWidget.h"
 
 
@@ -20,7 +21,7 @@ class nv1 : public QMainWindow {
 	Q_OBJECT
 
 public:
-	nv1(NXEntityManager* entityManager);
+	nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget);
 	~nv1();
 
 protected:

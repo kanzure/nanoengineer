@@ -4,15 +4,17 @@
 
 
 /* CONSTRUCTOR */
-nv1::nv1(NXEntityManager* entityManager) : QMainWindow() {
+nv1::nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget)
+		: QMainWindow() {
 	this->entityManager = entityManager;
 	
 	setWindowIcon(QPixmap(":/Icons/eye-icon.png"));
+	setWindowTitle(tr("NanoVision-1"));
 	
 	mainWindowTabs = new MainWindowTabWidget(this);
 	setCentralWidget(mainWindowTabs);	
 	
-	resultsWindow = new ResultsWindow(this);
+	resultsWindow = new ResultsWindow(entityManager, this);
 	mainWindowTabs->vboxLayout->removeWidget(mainWindowTabs->widget);
 	delete mainWindowTabs->widget;
 	mainWindowTabs->vboxLayout->addWidget(resultsWindow);
@@ -25,12 +27,10 @@ nv1::nv1(NXEntityManager* entityManager) : QMainWindow() {
 
 	readSettings();
 
-	setWindowTitle(tr("NanoVision-1"));
-	
 	// Setup log dock widget
-	QDockWidget *dock = new QDockWidget(tr("Log"), this);
+	QDockWidget* dock = new QDockWidget(tr("Log"), this);
 	dock->setAllowedAreas(Qt::BottomDockWidgetArea);
-	dock->setWidget(new QLabel("log entries"));
+	dock->setWidget(logHandlerWidget);
 	addDockWidget(Qt::BottomDockWidgetArea, dock);
 }
 

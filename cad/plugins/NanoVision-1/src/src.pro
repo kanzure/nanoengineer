@@ -4,14 +4,16 @@ SOURCES += nv1.cpp \
  MainWindowTabWidget.cpp \
  ViewParametersWindow.cpp \
  TrajectoryGraphicsPane.cpp \
- DataWindow.cpp
+ DataWindow.cpp \
+ LogHandlerWidget.cpp
 HEADERS += nv1.h \
  ResultsWindow.h \
  MainWindowTabWidget.h \
  ViewParametersWindow.h \
  TrajectoryGraphicsPane.h \
  DataWindow.h \
- main.h
+ main.h \
+ LogHandlerWidget.h
 TEMPLATE = app
 CONFIG += warn_on \
 	  thread \
@@ -21,7 +23,8 @@ RESOURCES = application.qrc
 FORMS += ResultsWindow.ui \
  MainWindowTabWidget.ui \
  ViewParametersWindow.ui \
- TrajectoryGraphicsPane.ui
+ TrajectoryGraphicsPane.ui \
+ LogHandlerWidget.ui
 
 INCLUDEPATH += ../include \
  $(OPENBABEL_INCPATH)
