@@ -1,10 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 controls.py - some simple controls, like ChoiceButton, ChoiceColumn/Row, checkbox_v3
 
 @author: bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 
@@ -415,8 +415,9 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
                     else:
                         self.draw_incrementally( self.incr_drawable_willdo2 )
                     # print i, # very fast
-                    #e delay, if needed to make this visible -- using time.clock to delay only if draw timing was not long enough
+                    # todo: delay, if needed to make this visible -- using time.time to delay only if draw timing was not long enough
                     # (with no delay it's almost too fast too see -- sometime I should write the code to measure the actual speed)
+                    # (for now assume it's always very fast, so just delay a fixed amount using time.sleep)
                     time.sleep(1.0/3/4) # 1/3 sec, spread over 4 sleeps
             self.draw_incrementally( self.incr_drawable_doing ) # this method runs in the Highlightable made in delegate
             print "ActionButton: doing %r for %r" % (self.text, self) ### remove self?

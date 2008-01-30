@@ -1,11 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 debug.py -- various debugging utilities and debug-related UI code
 
 TODO: split into several modules in a debug package.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Names and behavior of some functions here (print_compact_traceback, etc)
 are partly modelled after code by Sam Rushing in asyncore.py
@@ -120,11 +120,18 @@ class Stopwatch:
     def now(self):
         return time.time() - self.__start
 
-def time_taken(func): #bruce 051202 moved this here
+def time_taken(func):
     """
     call func and measure how long this takes.
 
-    @return: a triple (real-time-taken, cpu-time-taken, result-of-func)
+    @return: a triple (real-time-taken, cpu-time-taken, result-of-func),
+             but see warning for a caveat about the cpu time measurement.
+
+    @warning: we measure cpu time using time.clock(), but time.clock() is
+              documented as returning "the CPU time or real time since the
+              start of the process or since the first call to clock()."
+              Tests show that on Mac it probably returns CPU time. We have
+              not tested this on other platforms.
     """
     t1c = time.clock()
     t1t = time.time()
@@ -133,7 +140,7 @@ def time_taken(func): #bruce 051202 moved this here
     t2t = time.time()
     return (t2t - t1t, t2c - t1c, res)
 
-def call_func_with_timing_histmsg( func): #bruce 051202 moved this here
+def call_func_with_timing_histmsg( func):
     realtime, cputime, res = time_taken(func)
     env.history.message( "done; took %0.4f real secs, %0.4f cpu secs" % (realtime, cputime) )
     return res
