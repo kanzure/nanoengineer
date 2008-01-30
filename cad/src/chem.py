@@ -3329,7 +3329,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     # == PAM strand atom methods (some are more specific than that,
     # e.g. not on Pl or only on Pl)
     
-    # default values of instance variables (not needed):
+    # default values of instance variables (some not needed):
+    _dna_updater__error = ""
     ## dnaBaseName -- set when first demanded, or can be explicitly set using setDnaBaseName().
     ## dnaStrandName -- set when first demanded, or can be explicitly set using setDnaStrandName().
 
