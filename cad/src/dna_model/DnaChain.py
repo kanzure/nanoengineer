@@ -668,9 +668,18 @@ class StrandChain(DnaChain_AtomChainWrapper):
         # at this point, dir_so_far can be:
         # 0: error (inconsistent or missing bond direction)
         # 1 or -1: every bond inside and adjacent to chain has this direction
+        assert dir_so_far, "bond direction error in %r, no point in continuing" % self
         self._f_set_bond_direction(dir_so_far)
         if DEBUG_DNA_UPDATER:
             self.debug_check_bond_direction("end of init")
+            # note: this assertfails if direction is 0,
+            # and if it didn't, later code would have bugs,
+            # so we might as well assert dir_so_far above [done],
+            # and really we ought to fix that error here or earlier.
+            # So decide which is best: #### @@@@ 
+            # - find wholechains w/o knowing bond dir, then fix it;
+            # - or fix it earlier when we notice local bond direction
+            #   errors (also requires propogation; not too hard). 
         return # atoms bonds
         
     pass

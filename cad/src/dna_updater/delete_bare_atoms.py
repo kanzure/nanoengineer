@@ -22,16 +22,18 @@ def delete_bare_atoms( changed_atoms):
     [must tolerate killed atoms; can kill more atoms and break bonds;
      can record more changes to neighbors of deleted atoms]
     """
-    # Q. Which changes from this are needed in subsequent dna updater steps?
+    # Q. Which changes recorded by our side effects are needed in subsequent
+    # dna updater steps?
     # A. The changed neighbor atoms are needed, in case they're the only
     # indicator of a change to the chain they're on (especially if the killed
     # atom was in a different dna ladder). But their classes needn't be changed,
     # and their deletion can't cause any more atoms to become bare (due to
-    # the current meaning of bare), so no earlier steps need to be repeated.
+    # the current meaning of bare), so no earlier updater steps need to be
+    # repeated.
 
     # Note: if these debug prefs are not both True, errors might occur in the
-    # dna updater. The goal is for these errors to be harmless (just debug prints).
-    # As of 071205 the defaults are True, False, respectively.
+    # dna updater. The goal is for these errors to be harmless (just debug
+    # prints). As of 071205 the defaults are True, False, respectively.
     # TODO: revise following code to debug-print when these prefs make it
     # refrain from killing a bare atom (giving a count, per PAM model).
     fix_PAM3 = pref_fix_bare_PAM3_atoms()
