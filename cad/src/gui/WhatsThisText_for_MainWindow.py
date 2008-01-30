@@ -358,12 +358,40 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "dragging the mouse, and then releasing the mouse button."\
         "</p>"\
         "<p>A mouse with a mouse wheel can also be used to "\
-        "zoom in and out."\
+        "zoom in/out."\
+        "</p>"\
+        "<p>The keyboard can also be used to zoom in/out:"\
+        "<br>- <b>Zoom in</b> by pressing the 'period' key ( '.' )."\
+        "<br>- <b>Zoom out</b> by pressing the 'comma' key ( ',' )."\
         "</p>"
 
     win.zoomToolAction.setWhatsThis( setzoomToolActionText )
     
+    # Zoom In/Out
+
+    setzoomInOutActionText = \
+        "<u><b>Zoom In/Out</b></u>"\
+        "<p>"\
+        "<img source=\"ui/actions/View/Modify/Zoom_In_Out.png\"><br> "\
+        "Allows the user to zoom in or out using the mouse."\
+        "</p>"\
+        "<p>- <b>Zoom in</b> by holding down the mouse button and pulling "\
+        "the mouse closer (cursor moves down)."\
+        "<br>- <b>Zoom out</b> by holding the mouse button and pushing "\
+        "the mouse away (cursor moves up)."\
+        "</p>"\
+        "<p>A mouse with a mouse wheel can also be used to "\
+        "zoom in/out."\
+        "</p>"\
+        "<p>The keyboard can also be used to zoom in/out:"\
+        "<br>- <b>Zoom in</b> by pressing the 'period' key ( '.' )."\
+        "<br>- <b>Zoom out</b> by pressing the 'comma' key ( ',' )."\
+        "</p>"
+
+    win.zoomInOutAction.setWhatsThis( setzoomInOutActionText )
+    
     #Zoom To Selection
+    
     setViewZoomtoSelectionActionText = \
         "<u><b>Zoom to Selection</b></u>"\
         "<p>"\
