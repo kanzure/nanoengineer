@@ -8,16 +8,6 @@ LogHandlerWidget::LogHandlerWidget(NXLogLevel logLevel, QWidget* parent)
 		 : QWidget(parent), NXLogHandler(logLevel), Ui_LogHandlerWidget() {
 		
 	setupUi(this);
-	suppressed = false;
-}
-
-
-void LogHandlerWidget::setSuppressed(bool suppressed) {
-	if (!suppressed) {
-		textEdit->setText(storedMessages);
-		storedMessages = "";
-	}
-	this->suppressed = suppressed;
 }
 
 
@@ -31,9 +21,6 @@ void LogHandlerWidget::publish(LogRecord logRecord) {
 			.arg(logRecord.getSource().length() == 0 ?
 				"" : logRecord.getSource().append(":").c_str())
 			.arg(logRecord.getMessage().c_str());
-	if (suppressed)
-		storedMessages.append(message);
-	else
-		textEdit->append(message);
+	textEdit->append(message);
 	mutex.unlock();
 }

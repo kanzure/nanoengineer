@@ -22,14 +22,10 @@ public:
 	LogHandlerWidget(NXLogLevel logLevel, QWidget* parent = 0);
 	~LogHandlerWidget() { }
 		
-	void setSuppressed(bool suppressed);
 	void publish(LogRecord logRecord);
 
 private:
 	QMutex mutex;
-	
-	bool suppressed;
-	QString storedMessages;
 };
 
 #endif
