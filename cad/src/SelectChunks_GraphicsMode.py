@@ -52,6 +52,7 @@ from Select_Command import Select_Command
 
 from Select_GraphicsMode import Select_basicGraphicsMode
 
+from GlobalPreferences import DEBUG_BAREMOTION
 
 _superclass = Select_basicGraphicsMode
 
@@ -531,9 +532,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         Should not be called otherwise, call update_selatom or 
 	update_selobj directly instead.
         """
-
-        # The value of self.timeAtLastWheelEvent is set in  
-        # GraphicsMode.wheelEvent. 
+        # The value of self.timeAtLastWheelEvent is set in
+        # GraphicsMode.wheelEvent.
         # This time is used to decide whether to highlight 
         #object under cursor. I.e. when user is scrolling the wheel to zoom in
         #or out, and at the same time the mouse moves slightly, we want to make 
@@ -542,9 +542,23 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #seems OK. Following fixes bug 2536. Note, another fix would be to 
         #set self.hover_highlighting_enabled to False. But this fix looks more 
         #appropriate at the moment -- Ninad 2007-09-19
+        # Note: I think 2.0 is too long -- this should probably be more like 0.5.
+        # [bruce 080129 comment]
         if self.timeAtLastWheelEvent:
             timeSinceLastWheelEvent = time.clock() - self.timeAtLastWheelEvent	    
-            if timeSinceLastWheelEvent < 2.0:		
+            if timeSinceLastWheelEvent < 2.0:
+                # BUG: at least on some platforms this can be cpu time,
+                # not real time! That is probably one of two bugs adding
+                # together to cause the reported highlighting bug 2606 -- the
+                # other (predicted from the code, not yet fully tested)
+                # is that this timeout condition can discard not only a real
+                # bareMotion event, but a fake zero-motion event intended
+                # to bypass this timeout, sent exactly once after motion
+                # stops (even if this timeout is still running). @@@@@
+                if DEBUG_BAREMOTION:
+                    #bruce 080129 re highlighting bug 2606 reported by Paul
+                    print "debug fyi: ignoring %r.bareMotion since timeSinceLastWheelEvent is only %r " % \
+                          (self, timeSinceLastWheelEvent) 
                 return 
         
         if not self.hover_highlighting_enabled:

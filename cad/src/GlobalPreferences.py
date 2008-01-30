@@ -41,4 +41,8 @@ def disable_do_not_draw_open_bonds():
                      prefs_key = True)
     return res
 
+DEBUG_BAREMOTION = False #bruce 080129, for bug 2606; should be disabled for commits
+
+DEBUG_BAREMOTION_VERBOSE = False
+
 # end

@@ -26,6 +26,8 @@ from jigs  import Jig
 from debug import print_compact_stack
 debug_update_selobj_calls = False # do not commit with true
 
+from GlobalPreferences import DEBUG_BAREMOTION, DEBUG_BAREMOTION_VERBOSE
+
 _count = 0
 
 # ==
@@ -46,7 +48,7 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
     @see: B{Select_basicGraphicsMode}
     """
     #Define All Mouse related methods
-    def bareMotion(self, event): #bruce 050610 revised this
+    def bareMotion(self, event):
         """
         called for motion with no button down
         [should not be called otherwise -- call update_selatom
@@ -69,11 +71,16 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         # last two mouse move events is far, mouse_exceed_distance() will 
         # return True. In that case, update_selobj() will not get called and the
         # object under the cursor  will never get highlighted unless the user 
-        # jiggles the mouse slightly. To address this issue,a GLpane timer was 
+        # jiggles the mouse slightly. To address this issue, a GLpane timer was 
         # implemented. The timer calls bareMotion() whenever it expires and the 
-        # cursor hasn't moved since the previous timer event. For more details, 
-        # read the docstring for GLPane.timerEvent().
+        # cursor hasn't moved since the previous timer event. [But at most once
+        # after the cursor stops, or something like that -- see the code.]
+        # For more details, read the docstring [and code] for GLPane.timerEvent().
+        # [probably by Mark, probably circa 060806]
         if self.mouse_exceeded_distance(event, 1):
+            if DEBUG_BAREMOTION_VERBOSE:
+                #bruce 080129 re highlighting bug 2606 reported by Paul
+                print "debug fyi: skipping %r.bareMotion since mouse travelled too far" % self
             return
 
         self.update_selobj(event)

@@ -199,6 +199,8 @@ from debug_prefs import Choice
 from debug_prefs import Choice_boolean_False
 from debug_prefs import debug_pref
 
+from GlobalPreferences import DEBUG_BAREMOTION
+
 from GLPane_minimal import GLPane_minimal
 
 import qt4transition
@@ -2033,7 +2035,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # (What if there's recursive event processing inside the event handler... when it's entered it'll end us, then begin us...
         #  so an end-checkpoint is still appropriate; not clear it should be passed same begin-retval -- most likely,
         #  the __attrs here should all be moved into env and used globally by all event handlers. I'll solve that when I get to
-        #  the other forms of recursive event processing. #####@@@@@
+        #  the other forms of recursive event processing. ###@@@
         #  So for now, I'll assume recursive event processing never happens in the event handler
         #  (called just before this method is called) -- then the simplest
         #  scheme for this code is to do it all entirely after the mode's event handler (as done in this routine),
@@ -2042,7 +2044,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # Maybe we should simulate a pressEvent's checkpoint here, if there wasn't one, to fix hypothetical bugs from a
         # missing one. Seems like a good idea, but save it for later (maybe the next commit, maybe a bug report). [bruce 060323]
 
-        if self.__pressEvent is not None: ####@@@@ and if no buttons are still pressed, according to fix_event?
+        if self.__pressEvent is not None: ###@@@ and if no buttons are still pressed, according to fix_event?
             self.__pressEvent = None
             if self.__flag_and_begin_retval:
                 flagjunk, begin_retval = self.__flag_and_begin_retval
@@ -2053,7 +2055,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     #  - unlikely as effect of a mouse-click or drag in GLPane;
                     #  - probably no harm from these checkpoints getting into different assys
                     #  But even so, when solution is developed (elsewhere, for toolbuttons), bring it here
-                    #  or (better) put it into these checkpoint methods. ####@@@@)
+                    #  or (better) put it into these checkpoint methods. ###@@@)
                     self.assy.undo_checkpoint_after_command( begin_retval)
         return
 
@@ -2126,8 +2128,20 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
     highlightTimer = None #bruce 070110 (was not needed before)
 
-    def _timer_debug_pref(self): #bruce 070110 split this out and revised it
-        res = debug_pref("glpane timer interval", Choice([100, 0, 5000, None]), non_debug = True, prefs_key = True)
+    def _timer_debug_pref(self):
+        #bruce 070110 split this out and revised it
+        #bruce 080129 removed non_debug and changed prefs_key
+        # (so all developer settings for this will start from scratch),
+        # since behavior has changed since it was first implemented
+        # in a way that makes it likely that changing this will cause bugs.
+        res = debug_pref("GLPane: timer interval",
+                         Choice([100, 0, 5000, None]),
+                             # NOTE: the default value defined here (100)
+                             # determines the usual timer behavior,
+                             # not just debug pref behavior.
+                         ## non_debug = True,
+                         prefs_key = "A10 devel/glpane timer interval"
+                        )
         if res is not None and type(res) is not type(1):
             # support prefs values stored by future versions (or by a brief bug workaround which stored "None")
             res = None
@@ -2161,8 +2175,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         """
         # If an object is "hover highlighted", unhighlight it when leaving the GLpane.
         if self.selobj is not None:
-            self.selobj = None ### REVIEW: why not set_selobj?
-            self.gl_update_highlight()
+            self.selobj = None # REVIEW: why not set_selobj?
+            self.gl_update_highlight() # REVIEW: this redraw can be slow -- is it worthwhile?
 
         # Kill timer when the cursor leaves the GLpane. It is (re)started in enterEvent() above.
         if self.highlightTimer:
@@ -2188,8 +2202,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
               L{selectMode.bareMotion()}
         """
         if not self.highlightTimer or (self._timer_debug_pref() is None): #bruce 070110
-            if debug_flags.atom_debug:
-                print "debug note (not a bug): GLPane got timerEvent but has no timer"
+            if debug_flags.atom_debug or DEBUG_BAREMOTION:
+                print "note (not a bug unless happens a lot): GLPane got timerEvent but has no timer"
                     # should happen once when we turn it off or maybe when mouse leaves -- not other times, not much
             #e should we do any of the following before returning??
             return
@@ -2201,8 +2215,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         xy_last = self.timer_event_last_xy # Cursor position from last timer event.
 
         # If this cursor position hasn't changed since the last timer event, and no mouse button is
-        # being pressed, create a 'MouseMove' mouse event and pass it to mode.bareMotion().  
-        # Only selectMode (mouse_exceeded_distance()) makes use of this event. 
+        # being pressed, create a 'MouseMove' mouse event and pass it to mode.bareMotion().
+        # This event is intended only for eventual use in selectMode.mouse_exceeded_distance
+        # by certain graphicsModes, but is sent to all graphicsModes.
         if xy_now == xy_last and self.button == None:
             # Only pass a 'MouseMove" mouse event once to bareMotion() when the mouse stops 
             # and hasn't moved since the last timer event.
@@ -2212,21 +2227,29 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                 mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton, Qt.NoModifier)
                                 #Qt.NoButton & Qt.MouseButtonMask,
                                 #Qt.NoButton & Qt.KeyButtonMask )
-                self.graphicsMode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
+                if DEBUG_BAREMOTION:
+                    #bruce 080129 re highlighting bug 2606 reported by Paul
+                    print "debug fyi: calling %r.bareMotion with fake zero-motion event" % (self.graphicsMode,)
+                self.graphicsMode.bareMotion(mouseEvent)
 
-            self.triggerBareMotionEvent = False
+                self.triggerBareMotionEvent = False
+                    # this might cause part of the highlighting bug 2606 reported by Paul
+                    # when the mode discarded that event due to wheel timeout @@@@@
+                    # [bruce 080129 guess]
 
+            # The cursor hasn't moved since the last timer event. See if we should display the tooltip now.
+            # REVIEW:
+            # - is it really necessary to call this 10x/second?
+            # - Does doing so waste significant cpu time?
+            # [bruce 080129 questions]
             helpEvent = QHelpEvent(QEvent.ToolTip, QPoint(cursorPos), QPoint(cursor.pos()) )
-
-
             if self.dynamicToolTip: # Probably always True. Mark 060818.
-                # The cursor hasn't moved since the last timer event. See if we should display the tooltip now.
                 self.dynamicToolTip.maybeTip(helpEvent) # maybeTip() is responsible for displaying the tooltip.
 
         else:
 
             self.cursorMotionlessStartTime = time.time()
-                # Reset the cursor motionless start time to "zero" (now). 
+                # Reset the cursor motionless start time to "zero" (now).
                 # Used by maybeTip() to support the display of dynamic tooltips.
 
             self.triggerBareMotionEvent = True
@@ -2842,7 +2865,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
     # The following behavior (in several methods herein) related to wants_gl_update
     # should probably also be done in ThumbViews
-    # if they want to get properly updated when graphics prefs change. [bruce 050804 guess] ####@@@@
+    # if they want to get properly updated when graphics prefs change. [bruce 050804 guess]
 
     wants_gl_update = True #bruce 050804
         # this is set to True after we redraw, and to False by the following method
@@ -3075,8 +3098,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         # In the glselect_wanted case, we now know (in glselect_dict) which objects draw any pixels at the mouse position,
         # but not which one is in front (the near/far info from GL_SELECT has too wide a range to tell us that).
-        # So we have to get them to tell us their depth at that point (as it was last actually drawn
-            ###@@@dothat for bugfix; also selobj first)
+        # So we have to get them to tell us their depth at that point (as it was last actually drawn)
+            ###@@@ should do that for bugfix; also selobj first
         # (and how it compares to the prior measured depth-buffer value there, as passed in glselect_wanted,
         #  if we want to avoid selecting something when it's obscured by non-selectable drawing in front of it).
         if self.glselect_dict:
