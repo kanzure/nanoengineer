@@ -1,9 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 GraphicsMode.py -- 
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -112,12 +112,13 @@ class basicGraphicsMode(GraphicsMode_API):
     when basicMode is no longer needed.
     """
 
-    #Initialize clock time during a wheel event to None. Its value is assigned 
-    #in self.wheelEvent. This time is used to decide whether to highlight 
-    #object under cursor. I.e. when user is scrolling the wheel to zoom in or
-    #out, and at the same time the mouse moves slightly, we want to make sure 
-    #that the object is not highlighted.See selectMolsMode.bareMotion for an 
-    #example. 
+    # Initialize timeAtLastWheelEvent to None. It is assigned
+    # in self.wheelEvent and used in SelectChunks_GraphicsMode.bareMotion
+    # to disable highlighting briefly after any mouse wheel event.
+    # Motivation: when user is scrolling the wheel to zoom in or out,
+    # and at the same time the mouse moves slightly, we want to make sure
+    # that the object under the cursor is not highlighted (mainly for
+    # performance reasons).
     timeAtLastWheelEvent = None
 
     # NOTE: subclasses will have to make self.command point to the command
@@ -838,8 +839,13 @@ class basicGraphicsMode(GraphicsMode_API):
         # Turn off hover highlighting while zooming with mouse wheel. Fixes bug 1657. Mark 060805.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
 
-        #Following fixes bug 2536 See also selectMolsMode.bareMotion
-        self.timeAtLastWheelEvent = time.clock()
+        # Following fixes bug 2536. See also SelectChunks_GraphicsMode.bareMotion
+        # and the comment where this is initialized as a class variable.
+        # [probably by Ninad 2007-09-19]
+        #
+        # update, bruce 080130: change time.clock -> time.time to fix one cause
+        # of bug 2606. See comments where this is used for more info.
+        self.timeAtLastWheelEvent = time.time()
 
         self.o.gl_update()
         return
