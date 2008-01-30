@@ -2612,6 +2612,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         if debug_pref("GLPane: skip redraws requested only by Qt?",
                       Choice_boolean_False,
+                      non_debug = True, #bruce 080130
                       prefs_key = True):
 
             # if we don't think this redraw is needed,
