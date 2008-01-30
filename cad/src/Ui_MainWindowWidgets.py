@@ -195,6 +195,11 @@ def setupUi(win):
     win.zoomToolAction.setCheckable(True)
     win.zoomToolAction.setIcon(geticon("ui/actions/View/Modify/Zoom"))
     win.zoomToolAction.setObjectName("zoomToolAction")
+    
+    win.zoomInOutAction = QtGui.QAction(MainWindow)
+    win.zoomInOutAction.setCheckable(True)
+    win.zoomInOutAction.setIcon(geticon("ui/actions/View/Modify/Zoom_In_Out"))
+    win.zoomInOutAction.setObjectName("zoomInOutAction")
 
     win.viewZoomAboutScreenCenterAction = QtGui.QAction(MainWindow)
     win.viewZoomAboutScreenCenterAction.setCheckable(True)
@@ -1034,12 +1039,13 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))
     win.zoomToolAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "&Zoom Tool", 
+            "MainWindow", "&Zoom to Area", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.zoomToolAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom Tool", 
+            "MainWindow", "Zoom to Area", 
             None, QtGui.QApplication.UnicodeUTF8))
+    
     win.viewZoomAboutScreenCenterAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "Zoom About Screen Center", 
@@ -1050,11 +1056,26 @@ def retranslateUi(win):
             "MainWindow", "Zoom To Selection", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.setViewZoomtoSelectionAction.setIconText(
-        QtGui.QApplication.translate("MainWindow", "Zoom To Selection", 
-                                     None, QtGui.QApplication.UnicodeUTF8))
+        QtGui.QApplication.translate(
+            "MainWindow", "Zoom To Selection", 
+            None, QtGui.QApplication.UnicodeUTF8))
     win.setViewZoomtoSelectionAction.setToolTip(
-        QtGui.QApplication.translate("MainWindow", "Zoom to Selection",
-                                     None, QtGui.QApplication.UnicodeUTF8))
+        QtGui.QApplication.translate(
+            "MainWindow", "Zoom to Selection",
+            None, QtGui.QApplication.UnicodeUTF8))
+    
+    win.zoomInOutAction.setText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Zoom In/Out",
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.zoomInOutAction.setIconText(
+        QtGui.QApplication.translate(
+            "MainWindow", "Zoom In/Out", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.zoomInOutAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Zoom In/Out",
+            None, QtGui.QApplication.UnicodeUTF8))
 
     win.panToolAction.setText(QtGui.QApplication.translate("MainWindow", "&Pan", None, QtGui.QApplication.UnicodeUTF8))
     win.panToolAction.setIconText(QtGui.QApplication.translate("MainWindow", "Pan ", None, QtGui.QApplication.UnicodeUTF8))

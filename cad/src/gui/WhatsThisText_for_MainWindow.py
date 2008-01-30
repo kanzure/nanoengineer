@@ -346,20 +346,19 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.setViewRecenterAction.setWhatsThis( setViewRecenterActionText )       
 
-    # Zoom Tool
+    # Zoom to Area (used to be Zoom Tool). Mark 2008-01-29.
 
     setzoomToolActionText = \
-        "<u><b>Zoom Tool</b></u>"\
+        "<u><b>Zoom to Area</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Modify/Zoom.png\"><br> "\
         "Allows the user to zoom into a specific area of "\
         "the model by specifying a rectangular area. "\
-        "This is done by holding down the left button and "\
-        "dragging the mouse."\
+        "The area is specified by holding down the left button, "\
+        "dragging the mouse, and then releasing the mouse button."\
         "</p>"\
         "<p>A mouse with a mouse wheel can also be used to "\
-        "zoom in and out at any time, without using the "\
-        "Zoom Tool."\
+        "zoom in and out."\
         "</p>"
 
     win.zoomToolAction.setWhatsThis( setzoomToolActionText )

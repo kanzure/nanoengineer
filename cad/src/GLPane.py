@@ -131,6 +131,7 @@ from PasteMode       import PasteMode
 from PartLibraryMode import PartLibraryMode
 from movieMode       import movieMode
 from ZoomMode        import ZoomMode
+from ZoomInOutMode   import ZoomInOutMode
 from PanMode         import PanMode
 from RotateMode      import RotateMode
 from LineMode        import LineMode
@@ -391,6 +392,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
                     extrudeMode, 
                     movieMode, 
                     ZoomMode, 
+                    ZoomInOutMode,
                     PanMode, 
                     RotateMode, 
                     PasteMode, 

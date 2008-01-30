@@ -44,8 +44,9 @@ def setupUi(win):
     # Populate the "Modify" submenu.
     win.modifyMenu.addAction(win.viewOrientationAction)
     win.modifyMenu.addAction(win.setViewFitToWindowAction)
-    win.modifyMenu.addAction(win.setViewZoomtoSelectionAction)
     win.modifyMenu.addAction(win.viewZoomAboutScreenCenterAction)
+    win.modifyMenu.addAction(win.setViewZoomtoSelectionAction)
+    win.modifyMenu.addAction(win.zoomInOutAction)
     win.modifyMenu.addAction(win.zoomToolAction)        
     win.modifyMenu.addAction(win.setViewRecenterAction)
     win.modifyMenu.addSeparator()

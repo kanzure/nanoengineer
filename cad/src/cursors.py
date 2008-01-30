@@ -144,6 +144,7 @@ def loadCursors(w):
 
     # View Zoom, Pan, Rotate cursors
     w.ZoomCursor = QCursor(getpixmap("ui/cursors/ZoomCursor.png"), 0, 0)
+    w.ZoomInOutCursor = QCursor(getpixmap("ui/cursors/ZoomInOutCursor.png"), 0, 0)
     w.PanViewCursor = QCursor(getpixmap("ui/cursors/PanViewCursor.png"), 0, 0)
     w.RotateViewCursor = QCursor(getpixmap("ui/cursors/RotateViewCursor.png"), 0, 0)
 

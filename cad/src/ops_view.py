@@ -135,6 +135,21 @@ class viewSlotsMixin:
         # self.userPrefs is a UserPrefs object ninad061003
         self.userPrefs.changeZoomBehaviorPreference()  
 
+    def zoomInOut(self, val):
+        """
+        Zoom in and/or out. 
+        
+        Zoom out as the user pushes the mouse away (cursor moves up). 
+        Zoom in as the user pulls the mouse closer (cursor moves down).
+        
+        @param val: True when Zoom in/out button is toggled on, False when it
+                    is toggled off.
+        @type  val: boolean
+        
+        @attention: this is not implemented yet.
+        """
+        self._zoomPanRotateTool(val, 'ZOOMINOUT', "Zoom In/Out Tool")
+        
     def zoomTool(self, val):
         """
         Zoom Tool, allowing the user to specify a rectangular area 

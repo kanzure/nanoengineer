@@ -639,6 +639,7 @@ packageMapping_for_files = {
         #  as a subpackage of foundation than as something independent and toplevel, anyway.)
     
     "ZoomMode"                         : "temporary_command",
+    "ZoomInOutMode"                    : "temporary_command",
     }
 
 # ==
