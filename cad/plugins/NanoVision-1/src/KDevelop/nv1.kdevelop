@@ -142,11 +142,11 @@
   </kdevdebugger>
   <kdevtrollproject>
     <run>
-      <mainprogram>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</mainprogram>
+      <mainprogram>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</mainprogram>
       <programargs/>
       <directoryradio>executable</directoryradio>
       <globaldebugarguments/>
-      <globalcwd>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</globalcwd>
+      <globalcwd>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</globalcwd>
       <useglobalprogram>false</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
@@ -157,23 +157,26 @@
         <HDF5_SimResultsImportExport/>
         <GLT/>
         <CppUnit/>
-        <NXOpenGLRenderingEngineTest></NXOpenGLRenderingEngineTest>
+        <HDF5_Consumer/>
+        <nv1/>
       </runarguments>
       <cwd>
         <HDF5_SimResultsImportExport>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</HDF5_SimResultsImportExport>
         <GLT>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</GLT>
         <CppUnit>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop/../../../..</CppUnit>
-        <NXOpenGLRenderingEngineTest>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</NXOpenGLRenderingEngineTest>
+        <HDF5_Consumer>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</HDF5_Consumer>
+        <nv1>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</nv1>
       </cwd>
       <debugarguments>
         <HDF5_SimResultsImportExport/>
         <GLT/>
         <CppUnit/>
-        <NXOpenGLRenderingEngineTest></NXOpenGLRenderingEngineTest>
+        <HDF5_Consumer/>
+        <nv1/>
       </debugarguments>
     </run>
     <general>
-      <activedir>Testing/CppUnit</activedir>
+      <activedir>..</activedir>
     </general>
     <make>
       <abortonerror>true</abortonerror>
