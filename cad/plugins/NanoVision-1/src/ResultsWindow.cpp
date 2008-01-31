@@ -39,6 +39,7 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 	// Read file
 	NXCommandResult* commandResult =
 		entityManager->importFromFile(qPrintable(fileName));
+	// TODO: delete this commandResult
 	QApplication::restoreOverrideCursor();
 	
 	if (commandResult->getResult() != NX_CMD_SUCCESS) {

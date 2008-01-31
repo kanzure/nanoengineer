@@ -4,18 +4,24 @@
 
 
 /* CONSTRUCTOR */
-ErrorDialog::ErrorDialog(QString message, NXCommandResult* commandResult,
+ErrorDialog::ErrorDialog(const QString& message, NXCommandResult* commandResult,
 						 QWidget *parent)
 		: QDialog(parent), Ui_ErrorDialog() {
 		
 	setupUi(this);
 	errorImageLabel->setPixmap(QPixmap(":/Icons/error.png"));
 	
-	NXLOG_SEVERE("",
-				 (message + ": " +
-				  GetNV1ResultCodeString(commandResult)).toStdString());
+	QString logMessage = message;
+	if (commandResult)
+		logMessage.append(": ")
+			.append(GetNV1ResultCodeString(commandResult)).toStdString();
+	NXLOG_SEVERE("", qPrintable(logMessage));
+				  
 	errorLabel->setText(message);
-	textEdit->setText(GetNV1ResultCodeString(commandResult));
+	if (commandResult)
+		textEdit->setText(GetNV1ResultCodeString(commandResult));
+	else
+		textEdit->setText(message);
 }
 
 

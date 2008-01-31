@@ -16,7 +16,7 @@ class ErrorDialog : public QDialog, private Ui_ErrorDialog {
 	Q_OBJECT
 	
 public:
-	ErrorDialog(QString message, NXCommandResult* commandResult,
+	ErrorDialog(const QString& message, NXCommandResult* commandResult = 0,
 				QWidget *parent = 0);
 
 	~ErrorDialog();
