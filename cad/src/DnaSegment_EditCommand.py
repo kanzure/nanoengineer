@@ -134,8 +134,10 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         Constructor for DnaDuplex_EditCommand
         """
         if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
+            print "debug fyi: starting DnaSegment_EditCommand.__init__"
             glpane = commandSequencer
             State_preMixin.__init__(self, glpane)
+            print "debug fyi: inside DnaSegment_EditCommand.__init__, returned from State_preMixin.__init__"
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
         

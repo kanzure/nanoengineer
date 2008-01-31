@@ -77,7 +77,9 @@ from exprs.If_expr import If_expr
 
 from prefs_widgets import ObjAttr_StateRef
 
-class State_preMixin( IorE_guest_mixin): #e refile (alongside IorE_guest_mixin ? in its own file?), once cleaned up & bugfixed
+class State_preMixin( IorE_guest_mixin):
+    # TODO: refile (alongside IorE_guest_mixin ? in its own file?), once cleaned up & bugfixed --
+    # note, as of 080128 or so, this is used in real code
     """
     Use this as the *first* superclass (thus the _preMixin in the name)
     in order to permit use of the State macro in the class assignments
@@ -91,14 +93,32 @@ class State_preMixin( IorE_guest_mixin): #e refile (alongside IorE_guest_mixin ?
     _e_has_args = True # not needed -- only purpose is to remove "w/o a" from repr(self)
 
     def __init__(self, glpane, *args, **kws):
-        print "State_preMixin.__init__",glpane, args, kws
+        debug_init = True # temporary
+        if debug_init:
+            print "State_preMixin.__init__", glpane, args, kws
         IorE_guest_mixin.__init__(self, glpane)
-        print "will call", super(State_preMixin, self).__init__
-            ## <bound method test_connectWithState.__init__ of <test_connectWithState#4789(i w/o a)>>
+
+        # REVIEW: should callers do the following, not us?
+        if debug_init:
+            print " State_preMixin.__init__ will call", super(State_preMixin, self).__init__
+                ## <bound method test_connectWithState.__init__ of <test_connectWithState#4789(i w/o a)>>
+
+            # note: the following debug output suggests that this would cause
+            # infinite recursion, but something prevents it from happening at all
+            # (it seems likely that no call at all is happening, but this is not yet
+            #  fully tested -- maybe something different is called from what's printed)
+            #
+            ##debug fyi: starting DnaSegment_EditCommand.__init__
+            ##State_preMixin.__init__ <GLPane 0> () {}
+            ## State_preMixin.__init__ will call <bound method DnaSegment_EditCommand.__init__ of <DnaSegment_EditCommand#6986(i)>>
+            ## State_preMixin.__init__ returned from calling <bound method DnaSegment_EditCommand.__init__ of <DnaSegment_EditCommand#6987(i)>>
+            ##debug fyi: inside DnaSegment_EditCommand.__init__, returned from State_preMixin.__init__
+            
         super(State_preMixin, self).__init__(glpane, *args, **kws)
             # this is not calling ExampleCommand.__init__ as I hoped it would. I don't know why. ###BUG
             # (but is it calling anything? i forget. clarify!)
-        print "returned from calling", super(State_preMixin, self).__init__
+        if debug_init:
+            print " State_preMixin.__init__ returned from calling", super(State_preMixin, self).__init__
     pass
 
 
@@ -166,7 +186,7 @@ class test_connectWithState(State_preMixin, ExampleCommand):
     
     def __init__(self, glpane):
         # I don't know why this method is needed. ##### REVIEW (super semantics), FIX or clean up
-        super(test_connectWithState, self).__init__(glpane)
+        super(test_connectWithState, self).__init__(glpane) # State_preMixin.__init__
         ExampleCommand.__init__(self, glpane) # (especially this part)
         return
 
