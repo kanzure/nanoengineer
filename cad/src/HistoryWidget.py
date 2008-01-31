@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 HistoryWidget.py -- provides a Qt "megawidget" supporting our history/status area.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 
@@ -42,6 +42,7 @@ from prefs_constants import historyHeight_prefs_key
 
 from utilities.Log import _graymsg, quote_html, greenmsg, redmsg, orangemsg
 
+from PlatformDependent import fix_plurals
 
 class message:
     """
@@ -132,7 +133,9 @@ class History_QTextEdit(hte_super, m_super):
         print "repaint, %r" % args # this is not being called, even though we're getting PaintEvents above.
         return hte_super.repaint(*args)
     def debug_menu_items(self):
-        "[overrides method from m_super (DebugMenuMixin)]"
+        """
+        [overrides method from m_super (DebugMenuMixin)]
+        """
         usual = m_super.debug_menu_items(self)
             # list of (text, callable) pairs, None for separator
         ours = [
@@ -147,7 +150,9 @@ class History_QTextEdit(hte_super, m_super):
         ## ours.append(("last colored text", self._debug_find_last_colored_text))
         return ours
     def _debug_find_last_colored_text(self): #bruce 050509 experiment; not yet working
-        "search backwards for the last item of colored text"
+        """
+        search backwards for the last item of colored text
+        """
         case_sensitive = True
         word_only = False
         forward = False
@@ -158,7 +163,9 @@ class History_QTextEdit(hte_super, m_super):
         # first back up a bit??
         self.find( lookfor, case_sensitive, word_only, forward) # modifies cursor position; could pass and return para/index(??)
     pass # end of class History_QTextEdit
-    
+
+# ==
+
 class HistoryWidget:
     # - Someday we're likely to turn this widget into a frame with buttons.
     # - Note that we're assuming there is only one of these per program run --
@@ -170,9 +177,10 @@ class HistoryWidget:
         ###doc this;
         optional arg header_line should be a string, generally not ending in '\n'
         """
-        
         if 1: #bruce 060301 (in two places)
             env.last_history_serno = self.last_serno
+
+        self._deferred_summary_messages = {}
         
         ###### User Preference initialization ##############################
         
@@ -206,7 +214,10 @@ class HistoryWidget:
         return
     
     def _init_widget(self, parent):
-        "[private] set up self.widget"
+        """
+        [private]
+        set up self.widget
+        """
         self.widget = History_QTextEdit(parent) # public member, private value (except that it's a Qt widget)
         self.widget.setFocusPolicy(QtCore.Qt.ClickFocus) ##e StrongFocus also can be tabbed to, might be better
             # not needed on Mac [bruce], but needed on Windows [mark],
@@ -284,7 +295,9 @@ class HistoryWidget:
         return file_msg
     
     def _debug_init(self):
-        "record initial info useful for debugging"
+        """
+        record initial info useful for debugging
+        """
         # record modtime of this module
         try:
             ff = "\"%s\"" % __file__
@@ -383,6 +396,17 @@ class HistoryWidget:
         and it's applied after quote_html, and (I hope) only in the widget, not in the statusbar
         (so it should be compatible with transient_id).
         """
+        self.emit_all_deferred_summary_messages() # bruce 080130 new feature
+            # REVIEW: should this be done here even if not msg?
+            # The goals of doing it are to make sure it happens even for
+            # commands that end by emitting only that message.
+            # The side effect of printing it before transients
+            # is probably bad rather than good. A better scheme might be
+            # to call this as a side effect of internally ending a command
+            # if we have any way to do that (e.g. related to the code that
+            # automatically calls undo checkpoints then, or actually inside
+            # the calling of some undo checkpoints).
+        
         # (quote_html and color are implemented as one of the **options, not directly in this method. [bruce 060126])
         # first emit a saved_up message, if necessary
         if self.saved_transient_id and self.saved_transient_id != transient_id:
@@ -434,6 +458,8 @@ class HistoryWidget:
         opts = dict(quote_html = True) # different default than message, but still permit explicit caller option to override
         opts.update(kws)
         return self.message( msg, **opts)
+
+    # ==
     
     def flush_saved_transients(self):
         """
@@ -442,6 +468,78 @@ class HistoryWidget:
         """
         self.message(None)
         # [passing None is a private implem -- outsiders should not do this!]
+
+    # ==
+
+    def deferred_summary_message(self, format, count = 1): #bruce 080130
+        """
+        Store a summary message to be emitted near the end of the current
+        operation (in the current implem this is approximated as before
+        the next history message of any kind), with '[N]' in the format string
+        replaced with the number of calls of this method since the last time
+        summary messages were emitted.
+
+        @param format: message format string, containing optional '[N]'.
+        @type format:  string (possibly containing HTML if that is compatible
+                       with fix_plurals()).
+        
+        @param count: if provided, pretend we were called that many times,
+                      i.e. count up that many occurrences. Default 1.
+                      Passing 0 causes this summary message to be printed
+                      later even if the total count remains 0.
+        @type count:  nonnegative int.
+        """
+        # todo: message types should be classes, and the formatting using '[N]'
+        # and fix_plurals (done elsewhere), as well as metainfo like whether
+        # they are errors or warnings or neither, should be done by methods
+        # and attrs of those classes. (True for both regular and deferred messages.)
+        
+        assert count >= 0 # 0 is permitted, but does have an effect
+        # other code may also assume count is an int (not e.g. a float)
+        self._deferred_summary_messages.setdefault( format, 0)
+        self._deferred_summary_messages[ format] += count
+        return
+
+    def emit_deferred_summary_message(self, format, even_if_none = False):
+        """
+        Emit the specified deferred summary message, if any have been recorded
+        (or even if not, if the option requests that).
+        """
+        assert 0, "nim"
+
+    def emit_all_deferred_summary_messages(self):
+        """
+        Emit all deferred summary messages which have been stored,
+        in the sort order of their format strings,
+        once each with their counts appropriately inserted.
+        Clear the set of stored messages before emitting any messages.
+        (If more are added during this call, that's probably a bug,
+         but this is not checked for or treated specially.)
+
+        This is called internally before other messages are emitted
+        (in the present implem of this deferred summary message scheme),
+        and can also be called externally at any time.
+        """
+        items = self._deferred_summary_messages.items() # (format, count) pairs
+        self._deferred_summary_messages = {}
+        items.sort() # format happens to be the sorting key we want, for now;
+            # possible todo: let message provider specify another sorting key
+        for format, count in items:
+            self._emit_one_summary_message(format, count)
+        return
+
+    def _emit_one_summary_message(self, format, count):
+        msg = format.replace("[N]", "%s" % count)
+            # note: not an error if format doesn't contain "[N]"
+        # assume msg contains '(s)' -- could check this instead to avoid debug print
+        msg = fix_plurals(msg)
+            # todo: review for safety in case msg contains HTML (e.g. colors)
+            # todo: ideally format would be a class instance which knew warning status, etc,
+            # rather than containing html
+        self.message( msg)
+        return
+    
+    # ==
     
     def statusbar_msg(self, msg_text, repaint = False):
         """
@@ -510,7 +608,8 @@ class HistoryWidget:
         """
         Any code that wants to print debug-only notes, properly timestamped
         and intermixed with other history, and included in the history file,
-        can use this method."""
+        can use this method.
+        """
         if not debug_flags.atom_debug:
             return
         msg = ("debug: " + fmt) % args
