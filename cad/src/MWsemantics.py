@@ -2129,7 +2129,7 @@ class MWsemantics(QMainWindow,
         # change is safe in that case is not carefully reviewed or tested,
         # but it seems likely to be ok.
 
-##        self.zoomToolAction.setEnabled(enable) # "Zoom Tool"
+##        self.zoomToAreaAction.setEnabled(enable) # "Zoom Tool"
 ##        self.panToolAction.setEnabled(enable) # "Pan Tool"
 ##        self.rotateToolAction.setEnabled(enable) # "Rotate Tool"
 

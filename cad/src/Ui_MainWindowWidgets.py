@@ -191,10 +191,10 @@ def setupUi(win):
         geticon("ui/actions/View/Modify/Zoom_To_Selection"))
     win.setViewZoomtoSelectionAction.setObjectName("setViewZoomtoSelectionAction")
 
-    win.zoomToolAction = QtGui.QAction(MainWindow)
-    win.zoomToolAction.setCheckable(True)
-    win.zoomToolAction.setIcon(geticon("ui/actions/View/Modify/Zoom"))
-    win.zoomToolAction.setObjectName("zoomToolAction")
+    win.zoomToAreaAction = QtGui.QAction(MainWindow)
+    win.zoomToAreaAction.setCheckable(True)
+    win.zoomToAreaAction.setIcon(geticon("ui/actions/View/Modify/ZoomToArea"))
+    win.zoomToAreaAction.setObjectName("zoomToAreaAction")
     
     win.zoomInOutAction = QtGui.QAction(MainWindow)
     win.zoomInOutAction.setCheckable(True)
@@ -1037,11 +1037,11 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Ctrl+F", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.zoomToolAction.setText(
+    win.zoomToAreaAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "&Zoom to Area", 
             None, QtGui.QApplication.UnicodeUTF8))
-    win.zoomToolAction.setIconText(
+    win.zoomToAreaAction.setIconText(
         QtGui.QApplication.translate(
             "MainWindow", "Zoom to Area", 
             None, QtGui.QApplication.UnicodeUTF8))
@@ -1066,15 +1066,15 @@ def retranslateUi(win):
     
     win.zoomInOutAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom In/Out",
+            "MainWindow", "Zoom",
             None, QtGui.QApplication.UnicodeUTF8))
     win.zoomInOutAction.setIconText(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom In/Out", 
+            "MainWindow", "Zoom", 
             None, QtGui.QApplication.UnicodeUTF8))
     win.zoomInOutAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom In/Out",
+            "MainWindow", "Zoom",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.panToolAction.setText(QtGui.QApplication.translate("MainWindow", "&Pan", None, QtGui.QApplication.UnicodeUTF8))

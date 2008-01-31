@@ -285,13 +285,16 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.addLayerButton.setEnabled(False)
 
         # Disable some action items in the main window.
-        self.w.zoomToolAction.setEnabled(0) # Disable "Zoom Tool"
-        self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
-        self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
+        self.w.zoomToAreaAction.setEnabled(0) # Disable "Zoom to Area"
         self.w.setViewZoomtoSelectionAction.setEnabled(0) # Disable Zoom to Selection
         self.w.viewOrientationAction.setEnabled(0) #Disable Orientation Window
         
-
+        # These should be OK, so I'm leaving them enabled. Without them, users
+        # without a 3-button mouse cannot zoom, pan or rotate easily. 
+        # Mark 2008-01-30.
+        #self.w.panToolAction.setEnabled(0) # Disable "Pan Tool"
+        #self.w.rotateToolAction.setEnabled(0) # Disable "Rotate Tool"
+        
         # Disable these toolbars
         self.w.buildToolsToolBar.setEnabled(False)
         self.w.simulationToolBar.setEnabled(False)
@@ -311,11 +314,14 @@ class CookieCtrlPanel(CookiePropertyManager):
         
         self.close() 
             
-        self.w.zoomToolAction.setEnabled(1) # Enable "Zoom Tool"
-        self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
-        self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
+        self.w.zoomToAreaAction.setEnabled(1) # Enable "Zoom to Area"
         self.w.setViewZoomtoSelectionAction.setEnabled(1) # Enable Zoom to Selection
         self.w.viewOrientationAction.setEnabled(1) #Enable Orientation Window
+        
+        # See note above in initGui() about these. Mark 2008-01-30.
+        #self.w.panToolAction.setEnabled(1) # Enable "Pan Tool"
+        #self.w.rotateToolAction.setEnabled(1) # Enable "Rotate Tool"
+        
         # Enable these toolbars
         self.w.buildToolsToolBar.setEnabled(True)
         self.w.simulationToolBar.setEnabled(True)

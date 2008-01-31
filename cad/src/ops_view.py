@@ -135,9 +135,19 @@ class viewSlotsMixin:
         # self.userPrefs is a UserPrefs object ninad061003
         self.userPrefs.changeZoomBehaviorPreference()  
 
+    def zoomToArea(self, val):
+        """
+        Zoom to Area Tool, allowing the user to specify a rectangular area 
+        by holding down the left button and dragging the mouse to zoom 
+        into a specific area of the model.
+        val = True when Zoom tool button was toggled on, False when it
+        was toggled off.
+        """
+        self._zoomPanRotateTool(val, 'ZOOMTOAREA', "Zoom to Area Tool")
+    
     def zoomInOut(self, val):
         """
-        Zoom in and/or out. 
+        Basic Zoom for zooming in and/or out. 
         
         Zoom out as the user pushes the mouse away (cursor moves up). 
         Zoom in as the user pulls the mouse closer (cursor moves down).
@@ -145,21 +155,9 @@ class viewSlotsMixin:
         @param val: True when Zoom in/out button is toggled on, False when it
                     is toggled off.
         @type  val: boolean
-        
-        @attention: this is not implemented yet.
         """
         self._zoomPanRotateTool(val, 'ZOOMINOUT', "Zoom In/Out Tool")
         
-    def zoomTool(self, val):
-        """
-        Zoom Tool, allowing the user to specify a rectangular area 
-        by holding down the left button and dragging the mouse to zoom 
-        into a specific area of the model.
-        val = True when Zoom tool button was toggled on, False when it
-        was toggled off.
-        """
-        self._zoomPanRotateTool(val, 'ZOOM', "Zoom Tool")
-
     def panTool(self, val):
         """
         Pan Tool allows X-Y panning using the left mouse button.
@@ -168,6 +166,7 @@ class viewSlotsMixin:
         """
         self._zoomPanRotateTool(val, 'PAN', "Pan Tool")
 
+    
     def rotateTool(self, val):
         """
         Rotate Tool allows free rotation using the left mouse button.

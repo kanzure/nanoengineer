@@ -1,12 +1,15 @@
 # Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
 """
-Zoom mode functionality.
+Zoom to Area functionality.
 
 @author:    Mark Sims
 @version:   $Id$
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @license:   GPL
+
+History:
+Mark 2008-01-31: Renamed from ZoomMode to ZoomToAreaMode.py
 """
 
 from Numeric import dot
@@ -34,9 +37,9 @@ from TemporaryCommand import TemporaryCommand_Overdrawing
 
 # == the GraphicsMode part
 
-class ZoomMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
+class ZoomToAreaMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
     """
-    Custom GraphicsMode for use as a component of ZoomMode.
+    Custom GraphicsMode for use as a component of ZoomToAreaMode.
     """
         
     def leftDown(self, event):
@@ -191,21 +194,21 @@ class ZoomMode_GM( TemporaryCommand_Overdrawing.GraphicsMode_class ):
 
 # == the Command part
 
-class ZoomMode(TemporaryCommand_Overdrawing):
+class ZoomToAreaMode(TemporaryCommand_Overdrawing):
     """
     Encapsulates the Zoom Tool functionality.
     """
     # TODO: rename to ZoomTool or ZoomCommand or TemporaryCommand_Zoom or ...
     
     # class constants
-    commandName = 'ZOOM'
-    default_mode_status_text = "Tool: Zoom"
-    featurename = "Zoom Tool"
+    commandName = 'ZOOMTOAREA'
+    default_mode_status_text = "Tool: Zoom to Area"
+    featurename = "Zoom to Area Tool"
 
-    GraphicsMode_class = ZoomMode_GM
+    GraphicsMode_class = ZoomToAreaMode_GM
     
     def Enter(self):
-        super(ZoomMode, self).Enter()
+        super(ZoomToAreaMode, self).Enter()
         bg = self.glpane.backgroundColor
         
         # rubber window shows as white color normally, but when the
@@ -222,10 +225,10 @@ class ZoomMode(TemporaryCommand_Overdrawing):
         return
     
     def init_gui(self):
-        self.win.zoomToolAction.setChecked(1) # toggle on the Zoom Tool icon
+        self.win.zoomToAreaAction.setChecked(1) # toggle on the Zoom Tool icon
 
     def restore_gui(self):
-        self.win.zoomToolAction.setChecked(0) # toggle off the Zoom Tool icon
+        self.win.zoomToAreaAction.setChecked(0) # toggle off the Zoom Tool icon
 
     pass
 

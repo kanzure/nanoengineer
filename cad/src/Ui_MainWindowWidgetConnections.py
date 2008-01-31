@@ -218,7 +218,7 @@ def setupUi(win):
     win.connect(win.rotateComponentsAction,SIGNAL("triggered()"),win.toolsRotateComponents)
 
     win.connect(win.toolsSelectMoleculesAction,SIGNAL("triggered()"),win.toolsSelectMolecules)
-    win.connect(win.zoomToolAction,SIGNAL("toggled(bool)"),win.zoomTool)
+    win.connect(win.zoomToAreaAction,SIGNAL("toggled(bool)"),win.zoomToArea)
     win.connect(win.zoomInOutAction,SIGNAL("toggled(bool)"),win.zoomInOut)
     win.connect(win.viewZoomAboutScreenCenterAction,SIGNAL("toggled(bool)"),
                  win.changeZoomBehavior)

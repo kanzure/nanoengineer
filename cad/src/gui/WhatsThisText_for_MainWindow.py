@@ -348,10 +348,10 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     # Zoom to Area (used to be Zoom Tool). Mark 2008-01-29.
 
-    setzoomToolActionText = \
+    setzoomToAreaActionText = \
         "<u><b>Zoom to Area</b></u>"\
         "<p>"\
-        "<img source=\"ui/actions/View/Modify/Zoom.png\"><br> "\
+        "<img source=\"ui/actions/View/Modify/ZoomToArea.png\"><br> "\
         "Allows the user to zoom into a specific area of "\
         "the model by specifying a rectangular area. "\
         "The area is specified by holding down the left button, "\
@@ -365,9 +365,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<br>- <b>Zoom out</b> by pressing the 'comma' key ( ',' )."\
         "</p>"
 
-    win.zoomToolAction.setWhatsThis( setzoomToolActionText )
+    win.zoomToAreaAction.setWhatsThis( setzoomToAreaActionText )
     
-    # Zoom In/Out
+    # Zoom (In/Out)
 
     setzoomInOutActionText = \
         "<u><b>Zoom In/Out</b></u>"\
