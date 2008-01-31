@@ -44,6 +44,7 @@ from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 from PM.PM_Constants     import pmPreviewButton
 
+from gui.WhatsThisText_for_PropertyManagers import whatsThis_DnaDuplexPropertyManager
 
 class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
     """
@@ -412,6 +413,5 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         What's This text for widgets in this Property Manager.  
         """
-        from gui.WhatsThisText_for_PropertyManagers import \
-             whatsThis_DnaDuplexPropertyManager
         whatsThis_DnaDuplexPropertyManager(self)
+
