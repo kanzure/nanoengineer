@@ -41,7 +41,7 @@ FORMS += ../../LogHandlerWidget.ui \
 RESOURCES += ../../application.qrc
 
 INCLUDEPATH += ../../../include \
-/usr/include/openbabel-2.0
+ $(OPENBABEL_INCPATH)
 TARGET = nv1
 
 DESTDIR = ../../../bin
