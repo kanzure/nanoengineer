@@ -2,7 +2,8 @@ TEMPLATE = subdirs
 
 
 SUBDIRS += HDF5_SimResultsImportExport \
-  RenderingEngines
+  RenderingEngines \
+ OpenBabelImportExport
 
 CONFIG += ordered
 

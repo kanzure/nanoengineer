@@ -122,7 +122,6 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 												 int frameSetId,
 												 int frameIndex) {
-
 	NXCommandResult* result;
 	//PR_Lock(importExportPluginsMutex);
 	

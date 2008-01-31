@@ -51,7 +51,10 @@ class NXEntityManager {
 		int addFrameSet() {
 			vector<NXMoleculeSet*> moleculeSetVector;
 			moleculeSets.push_back(moleculeSetVector);
-			return moleculeSets.size() - 1;
+			int frameSetId = moleculeSets.size() - 1;
+			dataStoreInfo->setLastFrame(frameSetId, true);
+			dataStoreInfo->setStoreComplete(frameSetId, true);
+			return frameSetId;
 		}
 		int addFrame(int frameSetId) {
 			NXMoleculeSet* moleculeSet = new NXMoleculeSet();
