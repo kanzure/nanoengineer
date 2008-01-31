@@ -47,29 +47,45 @@ class ops_motion_Mixin:
         """
         Rotate selected chunks/jigs in space. [Huaicai 8/30/05: Fixed the problem of each rotating
         around its own center, they will now rotate around their common center]
+        """                   
+        movables = self.getSelectedMovables()
+        self.rotateSpecifiedMovables(quat, movables = movables)        
+        return
+    
+    def rotateSpecifiedMovables(self, quat, movables = []):
+        """
+        Rotate the movables specified in the 'movables' list. 
+        (Rotated as a unit)
+        @param quat: Quaternion for the rotation. 
+        @param movables: A list of movables. These movables will be 
+                rotated around a common axis
+        @type movables: list
+        
         """
         # Find the common center of all selected chunks to fix bug 594 
-        comCenter = V(0.0, 0.0, 0.0)
-            
-        movables = self.getSelectedMovables()
+        #--Huaicai 8/30/05
+        comCenter = V(0.0, 0.0, 0.0) 
+        
         numMovables = len(movables)
         
         if numMovables:
             for m in movables: comCenter += m.center
             
             comCenter /= numMovables
-        
+            
+                   
             # Move the selected chunks    
             for m in movables:
                 self.changed() #Not sure if this can be combined into one call
                 
-                # Get the moving offset because of the rotation around each movable's own center
+                # Get the moving offset because of the rotation around each 
+                # movable's own center
                 rotOff = quat.rot(m.center - comCenter)    
                 rotOff = comCenter - m.center + rotOff
-                
+                                
                 m.move(rotOff) 
                 m.rot(quat) 
-        return
+        
     
     def Stretch(self):
         """
