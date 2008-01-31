@@ -19,6 +19,7 @@ using namespace Nanorex;
 
 #include "ui_ResultsWindow.h"
 #include "DataWindow.h"
+#include "ErrorDialog.h"
 #include "ViewParametersWindow.h"
 #include "TrajectoryGraphicsPane.h"
 

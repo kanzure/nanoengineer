@@ -33,30 +33,38 @@ ResultsWindow::~ResultsWindow() {
 
 /* FUNCTION: loadFile */
 bool ResultsWindow::loadFile(const QString &fileName) {
-	QFile file(fileName);
-	if (!file.open(QFile::ReadOnly | QFile::Text)) {
-		QMessageBox::warning(this, tr("NanoVision-1"),
-		                     tr("Cannot read file %1:\n%2.")
-		                     .arg(fileName)
-		                     .arg(file.errorString()));
-		return false;
-	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
+	
 	// Read file
+	NXCommandResult* commandResult =
+		entityManager->importFromFile(qPrintable(fileName));
 	QApplication::restoreOverrideCursor();
+	
+	if (commandResult->getResult() != NX_CMD_SUCCESS) {
+		QFileInfo fileInfo(fileName);
+		QString message =
+			tr("Unable to open file: %1").arg(fileInfo.fileName());
+		ErrorDialog errorDialog(message, commandResult);
+		errorDialog.exec();
+		return false;
+		
+	} else {
+		setCurrentFile(fileName);
 
-	setCurrentFile(fileName);
-     
+/* MDI data window example
 	DataWindow *child = new DataWindow;
 	workspace->addWindow(child);
 	child->show();
-
+*/
+/* Floating data window example
 	ViewParametersWindow* viewParametersWindow =
 		new ViewParametersWindow(this);
 	viewParametersWindow->show();
+*/
 
-	return true;
+		return true;
+	}
 }
 
 

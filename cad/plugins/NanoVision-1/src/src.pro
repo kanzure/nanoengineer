@@ -5,7 +5,8 @@ SOURCES += nv1.cpp \
  ViewParametersWindow.cpp \
  TrajectoryGraphicsPane.cpp \
  DataWindow.cpp \
- LogHandlerWidget.cpp
+ LogHandlerWidget.cpp \
+ ErrorDialog.cpp
 HEADERS += nv1.h \
  ResultsWindow.h \
  MainWindowTabWidget.h \
@@ -13,7 +14,8 @@ HEADERS += nv1.h \
  TrajectoryGraphicsPane.h \
  DataWindow.h \
  main.h \
- LogHandlerWidget.h
+ LogHandlerWidget.h \
+ ErrorDialog.h
 TEMPLATE = app
 CONFIG += warn_on \
 	  thread \
@@ -24,7 +26,8 @@ FORMS += ResultsWindow.ui \
  MainWindowTabWidget.ui \
  ViewParametersWindow.ui \
  TrajectoryGraphicsPane.ui \
- LogHandlerWidget.ui
+ LogHandlerWidget.ui \
+ ErrorDialog.ui
 
 INCLUDEPATH += ../include \
  $(OPENBABEL_INCPATH)

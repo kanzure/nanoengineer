@@ -69,6 +69,7 @@ int main(int argc, char *argv[]) {
 	// Create main window
 	nv1* mainWindow = new nv1(entityManager, logHandlerWidget);
 	mainWindow->show();
+	splash->repaint();
 	
 	sleep(1);	
 	splash->finish(mainWindow);

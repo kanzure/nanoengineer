@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <QTextEdit>
 #include <QHBoxLayout>
+#include <QMessageBox>
 
 #include "Nanorex/Utility/NXLogger.h"
 using namespace Nanorex;

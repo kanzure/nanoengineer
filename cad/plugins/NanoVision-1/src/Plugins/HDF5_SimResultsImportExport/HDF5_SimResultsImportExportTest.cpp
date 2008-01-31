@@ -16,8 +16,6 @@ void HDF5_SimResultsImportExportTest::setUp() {
 	NXProperties* properties = new NXProperties();
 	properties->setProperty("NXEntityManager.importExport.0.plugin",
 							"libHDF5_SimResultsImportExport");
-	properties->setProperty("NXEntityManager.importExport.0.pluginConfigFile",
-							"../lib/HDF5_SimResultsImportExport.cfg");
 	entityManager->loadDataImportExportPlugins(properties);
 	delete properties;
 }
