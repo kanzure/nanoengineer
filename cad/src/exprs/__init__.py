@@ -1,13 +1,16 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 __init__.py -- control initial import order and side effects,
 whenever any submodule of this exprs package is used.
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-__author__ = "bruce"
+
+# Note: I don't know whether the following imports need to be relative
+# to this package (as they are now). Until I know this, I will leave
+# them relative. [bruce 080130]
 
 # print "fyi: start of exprs.__init__.py"
 
