@@ -1111,7 +1111,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         if color is None:
             color = self.element.color
         # see if warning color is needed
-        if atom._dna_updater__error: #bruce 080130
+        if self._dna_updater__error: #bruce 080130
             color = orange
 # older code, never used:
 ##        #e see if warning color is needed
@@ -3691,6 +3691,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 return candidate
         print "bug: Pl with no Ss: %r" % self # only true once dna updater enabled
         return None
+    
+    
+        
         
     def axis_neighbor(self): #bruce 071203; bugfix 080117 for single strand
         """
