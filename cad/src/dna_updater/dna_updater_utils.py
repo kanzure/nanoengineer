@@ -99,4 +99,18 @@ def remove_killed_atoms( atomdict):
         del atomdict[atom.key]
     return
 
+def remove_error_atoms( atomdict):
+    """
+    Remove from atomdict any atoms with _dna_updater__error set.
+    """
+    error_atoms = []
+    for atom in atomdict.itervalues():
+        if atom._dna_updater__error:
+            error_atoms.append(atom)
+    if DEBUG_DNA_UPDATER and error_atoms:
+        print "dna_updater: ignoring %d atoms with _dna_updater__error" % len(error_atoms)
+    for atom in error_atoms:
+        del atomdict[atom.key]
+    return
+
 # end

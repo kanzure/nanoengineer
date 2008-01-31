@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 fix_deprecated_elements.py - fix deprecated PAM elements in-place in models
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from dna_updater_utils import replace_atom_class, replace_bond_class
@@ -14,9 +14,13 @@ from elements import PeriodicTable
 from constants import diDEFAULT
 
 from dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
 from dna_updater_prefs import pref_fix_deprecated_PAM3_atoms
 from dna_updater_prefs import pref_fix_deprecated_PAM5_atoms
+
+import env
+from utilities.Log import orangemsg
 
 # ==
 
@@ -80,8 +84,14 @@ def fix_deprecated_elements( changed_atoms):
             #
             # Use mvElement to avoid remaking existing bondpoints.
             elt = PeriodicTable.getElement(deprecated_to)
-            if DEBUG_DNA_UPDATER:
-                print "dna updater: transmute deprecated atom %r to element %s" % (atom, elt)
+            if DEBUG_DNA_UPDATER_VERBOSE:
+                print "dna updater: transmute deprecated atom %r to element %s" % \
+                      (atom, elt.symbol)
+            summary_format = \
+                "Warning: dna updater transmuted [N] pseudoatom(s) from deprecated element %s to %s" % \
+                (atom.element.symbol, elt.symbol )
+            env.history.deferred_summary_message( orangemsg(summary_format) )
+                # todo: refactor so orangemsg is replaced with a warning option
             atom.mvElement(elt)
             atom.make_enough_bondpoints()
                 # REVIEW: do this later, if atom classes should be corrected first

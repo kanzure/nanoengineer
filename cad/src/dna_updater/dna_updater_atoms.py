@@ -11,6 +11,7 @@ from dna_updater.dna_updater_globals import get_changes_and_clear
 from dna_updater.dna_updater_globals import ignore_new_changes
 
 from dna_updater.dna_updater_utils import remove_killed_atoms
+from dna_updater.dna_updater_utils import remove_error_atoms
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 
@@ -140,14 +141,14 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     # - missing bond directions (when fixable locally -- most are not)
     # - inconsistent bond directions
     #
-    # The changes caused by these fixes include:
-    # - setting or perhaps clearing bond direction (changes from this could be ignored here)
-    # - breaking bonds in some cases (### REVIEW how to handle changes from this -- grab/fix new bondpoints?)
-    # Tentative conclusion: no need to do anything to new changed atoms except scan them later. ### REVIEW
+    # The changes caused by these fixes include only:
+    # - setting atom._dna_updater__error to a constant error code string on some atoms
+    # - setting or unsetting bond direction on open bonds (changes from this could be ignored here)
     
-    # Non-local bond direction issues (e.g. choosing a bond direction
-    # for a long portion of a chain on which it's unset) are fixed elsewhere,
-    # once WholeChains are available or while forming them. # @@@@ NIM as of 08012 morning
+    # Tentative conclusion: no need to do anything to new changed atoms
+    # except scan them later; need to ignore atoms with _dna_updater__error set
+    # when encountered in changed_atoms (remove them now? or in that function?)
+    # and to stop on them when finding chains or rings.
 
     # [Note: geometric warnings (left-handed DNA, major groove on wrong side)
     # are not yet implemented. REVIEW whether they belong here or elsewhere --
@@ -166,6 +167,8 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     
     remove_killed_atoms( changed_atoms)
 
+    remove_error_atoms( changed_atoms)
+    
     return # from update_PAM_atoms_and_bonds
 
 # end

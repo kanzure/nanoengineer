@@ -59,6 +59,8 @@ class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
             # I've seen this after Undo, presumably since it's buggy [080122]
             print_compact_stack( "bug: axis_bond_chain_analyzer skipping %r with no .molecule: " % atom)
             return False
+        if atom._dna_updater__error:
+            return False
         return atom.element.role == 'axis' and not atom.molecule.in_a_valid_ladder()
     pass
 
@@ -70,6 +72,8 @@ class strand_bond_chain_analyzer(dna_bond_chain_analyzer):
         # the atom list it stores.
         if not atom.molecule:
             print_compact_stack( "bug: strand_bond_chain_analyzer skipping %r with no .molecule: " % atom)
+            return False
+        if atom._dna_updater__error:
             return False
         return atom.element.role == 'strand' and not atom.molecule.in_a_valid_ladder()
     pass

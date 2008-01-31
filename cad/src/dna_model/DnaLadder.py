@@ -744,7 +744,9 @@ def _rail_end_atom_to_ladder(atom): # FIX: not really private, and part of an im
         assert atom in ladder.rail_end_baseatoms()
         return ladder
     except:
-        print "following exception is an error in _rail_end_atom_to_ladder(%r): " % (atom,)
+        error = atom._dna_updater__error and ("[%s]" % atom._dna_updater__error) or ""
+        print "\nfollowing exception is an error in _rail_end_atom_to_ladder(%r%s): " % \
+              (atom, error)
         raise
     pass
 

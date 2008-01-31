@@ -11,131 +11,158 @@ from elements import Singlet
 
 from debug_prefs import debug_pref, Choice_boolean_False
 
+import env
+from utilities.Log import orangemsg
+from PlatformDependent import fix_plurals
+
 # ==
 
-# comments from caller, perhaps for docstrings here: ###
+_DEBUG_PRINT_BOND_DIRECTION_ERRORS = False # set later to match a debug_pref
 
+try:
+    _global_direct_error_atoms
+except:
+    _global_direct_error_atoms = {}
+    # maps atom.key -> atom, for all atoms that have direct dna updater errors
+    # (as opposed to error codes propogated from other atoms in their basepair)
+    # at the end of a dna updater run. Coming into a run, we'll ignore this info
+    # for any changed_atom but believe it for all other atoms. We'll then update it,
+    # and use it to update all atom's error codes (direct or propogated).
     #
-    # The changes caused by these fixes include:
-    # - setting or perhaps clearing bond direction (changes from this could be ignored here)
-    # - breaking bonds in some cases (### REVIEW how to handle changes from this -- grab/fix new bondpoints?)
-    # Tentative conclusion: no need to do anything to new changed atoms except scan them later. ### REVIEW
-    
-    # Non-local bond direction issues (e.g. choosing a bond direction
-    # for a long portion of a chain on which it's unset) are fixed elsewhere,
-    # once WholeChains are available or while forming them. # @@@@ NIM as of 08012 morning
+    # note: we optimize for this being empty, since that should be the usual case.
 
-_DEBUG_PRINT_BOND_DIRECTION_ERRORS = False # set as global inside functions here
+try:
+    _all_error_atoms_after_propogation
+except:
+    _all_error_atoms_after_propogation = {}
 
-def fix_local_bond_directions( changed_atoms): # mostly a stub; debug print if anything needs fixing
+# ==
+
+def fix_local_bond_directions( changed_atoms):
     """
     Fix local directional bond issues, namely:
     - directional bond chain branches (illegal)
     - missing bond directions (when fixable locally -- most are not)
     - inconsistent bond directions
+    But for most of these, "fix" just means "mark them as an error".
+    We will only change bond direction on open bonds;
+    we'll never break any bonds or change bond direction
+    on any real bonds (unless it's illegal given the bonded atomtypes).
     """
-    # Q. Which changes recorded by our side effects are needed in subsequent
-    # dna updater steps?
-    # A. Same as for delete_bare_atoms, I think [bruce 080122]:
-    # The changed neighbor atoms are needed, in case they're the only
-    # indicator of a change to the chain they're on (especially if the killed
-    # atom was in a different dna ladder). But their classes needn't be changed,
-    # and their deletion can't cause any more atoms to become bare (due to
-    # the current meaning of bare), so no earlier updater steps need to be
-    # repeated.
-
-    # Algorithm: just look at every atom, counting directional real & open bonds
-    # of each direction (plus == out, minus == in). Build a set of problems to
-    # fix at the end, as well as fixing some at the time, or marking atoms or
-    # bonds as having errors.
-    #
-    # REVIEW comments below here:
-    #
-    # worry: what if a bond looks ok from one side but then gets broken from other side?
-    # this might require rescanning first side... need to analyze situations like this...
-    # - first look at all atoms with >2 directional bonds (error if >2 are real)
-    #   - decide whether to bust all bonds (to be fair if all have dirs set) or only some...
-    #
-    # maybe:
-    # - first delete some atoms or all their bonds -- too much there, or inconsistent directions
-    #   (make sure that won't trigger delete_bare_atoms on them in the next round!) @@@
-    #   possible kluge to detect which bond is new/wrong: look at chunks of the atoms, guess new is interchunk if only one is
-    # - then look at all bonds for missing dirs we can fill in (or could save this for later steps)
-
-    # see also:
-    
-##    print "fix_local_bond_directions is a stub" # stub @@@@
-
 
     global _DEBUG_PRINT_BOND_DIRECTION_ERRORS
     _DEBUG_PRINT_BOND_DIRECTION_ERRORS = \
-        debug_pref( "DNA updater: print bond direction errors",
-                    Choice_boolean_False
+        debug_pref( "DNA updater: print bond direction errors?",
+                    Choice_boolean_False,
+                    non_debug = True,
+                    prefs_key = True,
                    )
     
-##    break_these_bonds = [] ## change to a dict?
-##    unset_direction_on_these_bonds = {} ###
+    new_error_atoms = {} # note: only used for its length in a warning message
 
-    new_error_atoms = {}
-
-    # We need to look for new errors on changed_atoms,
-    # or old errors on all other atoms in the same base pair
-    # as any changed atom (whether or not it has an error).
-    # (Would it be more efficient to save all old errors somewhere global?
-    #  YES, since in the usual case, there are none!) # @@@@ DOIT
+    # Find new errors (or the lack of them) on changed_atoms,
+    # updating _global_direct_error_atoms to be current for all atoms.
+    # Then propogate errors within basepairs, and make sure all atoms
+    # have correct error data, and call changeapp as needed when we
+    # change this. This scheme is chosen mainly to optimize the case
+    # when the number of atoms with errors is small or zero.
 
     for atom in changed_atoms.itervalues():
         # look for new errors
+        error_info = None # might be changed below
         if atom.element is Singlet:
-            continue # handle these as part of their base atom
-        if not atom.element.bonds_can_be_directional:
+            pass # handle these as part of their base atom
+        elif not atom.element.bonds_can_be_directional:
             # note: we needn't worry here about nondirectional bonds
             # with a direction set. Those can't hurt us except on directional
             # elements, dealt with below. @@@DOIT
-            continue # optimization
-        # note: at this stage we might have Ss or Pl;
-        # valence has not been checked (in code as of 080123)
-        res = _fix_atom(atom) ### side effect args? or return bonds to break?
-        if res:
-            error_type, error_data = res
+            pass # optimization
+        elif atom.killed():
+            pass # not sure this ever happens
+        else:
+            # note: at this stage we might have Ss or Pl;
+            # valence has not been checked (in code as of 080123)
+
+            # todo: catch exceptions from _fix_atom_or_return_error_info,
+            # turn them into errors
+            error_info = _fix_atom_or_return_error_info(atom)
+        
+        if error_info:
+            error_type, error_data = error_info
             assert error_type == _ATOM_HAS_ERROR
             assert error_data and type(error_data) == type("")
             if _DEBUG_PRINT_BOND_DIRECTION_ERRORS:
                 print "bond direction error for %r: %s" % (atom, error_data)
                 print
-            atom._dna_updater__error = error_data ##### @@@ make this affect later updater stages, graphics, tooltips
+            atom._dna_updater__error = error_data ##### @@@@ make this affect later updater stages, graphics, tooltips (atom & bond)
+            atom.molecule.changeapp(0) #k probably not needed
             new_error_atoms[atom.key] = atom
+            _global_direct_error_atoms[atom.key] = atom
         else:
             if atom._dna_updater__error:
                 del atom._dna_updater__error
+            _global_direct_error_atoms.pop(atom.key, None)
         continue
 
-    for atom in error_atoms.itervalues():
-        # propogate errors within base pair
-        # (but don't override existing errors)
-        # (deterministic since only the fact of error
-        #  is propogated, not error string itself,
-        #  which could differ if different sources of it
-        #  got propogated first)
-        # REVIEW: does "lack of error" also effectively get propogated
-        # once the user fixes the error? Only if changed_atoms is already
-        # "closed" across rung bonds! I BET IT'S NOT. We'll see. @@@
-        # RELATED: if changed_atoms was not closed that way,
-        # then atoms that looked ok above might need errors propogated
-        # from other (unchanged) atoms with errors. SERIOUS BUG IF NOT, need to fix.
-        # [this is where i am, tue night 080129, plus above cmt about "save all old errors somewhere global". @@@@]
+    if new_error_atoms: #e if we print more below, this might be only interesting for debugging, not sure
+        # maybe: move later since we will be expanding this set; or report number of base pairs
+        msg = "Warning: dna updater noticed %d pseudoatom(s) with bond direction errors" % len(new_error_atoms)
+        msg = fix_plurals(msg)    
+        env.history.message(orangemsg(msg))
 
-        for atom2 in _same_base_pair_atoms(atom): # IMPLEM @@@
-            if not 
-##    for bond in break_these_bonds:
-##        bond.bust()
+    global _all_error_atoms_after_propogation
+    old_all_error_atoms_after_propogation = _all_error_atoms_after_propogation
+    
+    new_all_error_atoms_after_propogation = {}
+    
+    for atom in _global_direct_error_atoms.itervalues():
+        for atom2 in _same_base_pair_atoms(atom):
+            new_all_error_atoms_after_propogation[atom2.key] = atom2
+
+    _all_error_atoms_after_propogation = new_all_error_atoms_after_propogation
+    
+    for atom in old_all_error_atoms_after_propogation.itervalues():
+        if atom.key not in new_all_error_atoms_after_propogation:
+            if atom._dna_updater__error: # should always be true
+                del atom._dna_updater__error
+                if not atom.killed():
+                    atom.molecule.changeapp(0) #k needed?
+
+    for atom in new_all_error_atoms_after_propogation.itervalues():
+        if atom.key not in _global_direct_error_atoms:
+            atom._dna_updater__error = "error elsewhere in basepair" #e define as a named constant
+                # note: the propogated error is deterministic,
+                # since only the fact of error is propogated,
+                # not the error string itself, which could differ
+                # on different sources of propogated error.
+            atom.molecule.changeapp(0)
 
     return # from fix_local_bond_directions
+
+def _same_base_pair_atoms(atom):
+    """
+    Defining a base pair as whatever portion of Ss-Ax-Ss exists,
+    return a list of atoms in the same base pair as atom.
+    At minimum this is atom itself.
+    """
+    # REVIEW whether atom needs to be in retval -- if not,
+    # could optimize by leaving it out in some cases.
+    if atom.element.role == 'strand':
+        base = atom.axis_neighbor() # might be None (for Pl or single-stranded)
+        if not base:
+            return (atom,)
+    elif atom.element.role == 'axis':
+        base = atom
+    else:
+        return (atom,)
+    return [base] + base.strand_neighbors()
+    
+# ==
 
 # error type codes (may be revised)
 _ATOM_HAS_ERROR = 1
 
-def _fix_atom(atom):
+def _fix_atom_or_return_error_info(atom):
     """
     [private helper for fix_local_bond_directions]
 
@@ -286,11 +313,11 @@ def _fix_atom(atom):
         # them, so the "later code" is the next dna updater pass after
         # they do that.)
         while num_plus_open and num_plus > 1:
-            _unset_some_open_bond_direction(+1) # IMPLEM; somehow print warning that it acted @@@
+            _unset_some_open_bond_direction(atom, +1)
             num_plus_open -= 1
             num_plus -= 1
         while num_minus_open and num_minus > 1:
-            _unset_some_open_bond_direction(-1)
+            _unset_some_open_bond_direction(atom, -1)
             num_minus_open -= 1
             num_minus -= 1
         if not (num_unset_real or num_plus != 1 or num_minus != 1):
@@ -315,13 +342,13 @@ def _fix_atom(atom):
         # fully fixable case
         while num_plus < 1:
             # note: runs at most once, but 'while' is logically most correct
-            _set_some_open_bond_direction(+1) # IMPLEM; somehow print warning that it acted @@@
+            _set_some_open_bond_direction(atom, +1)
             num_plus += 1
             num_plus_open += 1
             num_unset_open -= 1
         while num_minus < 1:
             # note: runs at most once
-            _set_some_open_bond_direction(+1) # IMPLEM; somehow print warning that it acted @@@
+            _set_some_open_bond_direction(atom, -1)
             num_minus += 1
             num_minus_open += 1
             num_unset_open -= 1
@@ -335,11 +362,58 @@ def _fix_atom(atom):
     res = _ATOM_HAS_ERROR, "bond direction error"
         # not sure how best to describe it
         
-    return res # from _fix_atom
+    return res # from _fix_atom_or_return_error_info
+
+# ==
+
+def _set_some_open_bond_direction(atom, direction):
+    """
+    Find a directional open bond on atom with no bond direction set
+    (error if you can't), and set its bond direction to the specified one.
+    """
+    assert direction in (-1, 1)
+
+    didit = False
+    for bond in atom.bonds:
+        if bond.is_open_bond() and \
+           bond.is_directional() and \
+           not bond.bond_direction_from(atom):
+            bond.set_bond_direction_from(atom, direction)
+            didit = True
+            break
+        continue
+    assert didit
+    
+    summary_format = "Warning: dna updater set bond direction on [N] open bond(s)"
+    env.history.deferred_summary_message( orangemsg(summary_format) )
+        # todo: refactor so orangemsg is replaced with a warning option
+    return
+
+def _unset_some_open_bond_direction(atom, direction):
+    """
+    Find a directional open bond on atom with the specified bond direction set
+    (error if you can't), and unset its bond direction.
+    """
+    assert direction in (-1, 1)
+
+    didit = False
+    for bond in atom.bonds:
+        if bond.is_open_bond() and \
+           bond.is_directional() and \
+           bond.bond_direction_from(atom):
+            bond._clear_bond_direction() # make non-private?
+            didit = True
+            break
+        continue
+    assert didit
+    
+    summary_format = "Warning: dna updater unset bond direction on [N] open bond(s)"
+    env.history.deferred_summary_message( orangemsg(summary_format) )
+    return
 
 def _clear_illegal_direction(bond):
     """
-    [private helper for _fix_atom]
+    [private helper for _fix_atom_or_return_error_info]
 
     bond has a direction but is not directional
     (since one of its atoms does not permit directional bonds,
@@ -347,13 +421,11 @@ def _clear_illegal_direction(bond):
     Report and immediately fix this error.
 
     @type bond: Bond
-    """
-    print "\n*** _clear_illegal_direction(%r)" % (bond,)
+    """    
     bond._clear_bond_direction()
+
+    summary_format = "Warning: dna updater cleared [N] bond directions on pseudoelements that don't permit one"
+    env.history.deferred_summary_message( orangemsg(summary_format) )
     return
-
-# ==
-
-#e todo: nonlocal helper functions
 
 # end
