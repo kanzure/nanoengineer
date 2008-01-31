@@ -8,7 +8,7 @@ and their lowest-level accessors.
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 
 from changedicts import refreshing_changedict_subscription
 from changedicts import _cdproc_for_dictid # but it's private!

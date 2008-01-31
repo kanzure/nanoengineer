@@ -7,7 +7,7 @@ dna_updater_find_chains.py - helper for dna_updater_chunks
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 
 from bond_chains import abstract_bond_chain_analyzer
 

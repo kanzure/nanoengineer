@@ -7,7 +7,7 @@ fix_atom_classes.py - fix classes of PAM atoms
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater_utils import replace_atom_class
+from dna_updater.dna_updater_utils import replace_atom_class
 
 from chem import Atom
 

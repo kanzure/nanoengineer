@@ -9,23 +9,23 @@ dna_updater_chunks.py - enforce rules on chunks containing changed PAM atoms
 
 from state_utils import transclose
 
-from dna_updater_globals import ignore_new_changes
+from dna_updater.dna_updater_globals import ignore_new_changes
 
-from dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater_constants import DNA_UPDATER_SLOW_ASSERTS
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater.dna_updater_constants import DNA_UPDATER_SLOW_ASSERTS
 
-from dna_updater_debug import assert_unique_chain_baseatoms
-from dna_updater_debug import assert_unique_ladder_baseatoms
-from dna_updater_debug import assert_unique_wholechain_baseatoms
+from dna_updater.dna_updater_debug import assert_unique_chain_baseatoms
+from dna_updater.dna_updater_debug import assert_unique_ladder_baseatoms
+from dna_updater.dna_updater_debug import assert_unique_wholechain_baseatoms
 
 from dna_model.DnaMarker import _f_get_homeless_dna_markers
 
 from dna_model.WholeChain import Axis_WholeChain, Strand_WholeChain
 
-from dna_updater_find_chains import find_axis_and_strand_chains_or_rings
+from dna_updater.dna_updater_find_chains import find_axis_and_strand_chains_or_rings
 
-from dna_updater_ladders import dissolve_or_fragment_invalid_ladders
-from dna_updater_ladders import make_new_ladders, merge_and_split_ladders
+from dna_updater.dna_updater_ladders import dissolve_or_fragment_invalid_ladders
+from dna_updater.dna_updater_ladders import make_new_ladders, merge_and_split_ladders
 
 
 # ==

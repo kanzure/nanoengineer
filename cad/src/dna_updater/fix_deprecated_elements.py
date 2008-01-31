@@ -7,17 +7,17 @@ fix_deprecated_elements.py - fix deprecated PAM elements in-place in models
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater_utils import replace_atom_class, replace_bond_class
+from dna_updater.dna_updater_utils import replace_atom_class, replace_bond_class
 
 from elements import PeriodicTable
 
 from constants import diDEFAULT
 
-from dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
-from dna_updater_prefs import pref_fix_deprecated_PAM3_atoms
-from dna_updater_prefs import pref_fix_deprecated_PAM5_atoms
+from dna_updater.dna_updater_prefs import pref_fix_deprecated_PAM3_atoms
+from dna_updater.dna_updater_prefs import pref_fix_deprecated_PAM5_atoms
 
 import env
 from utilities.Log import orangemsg

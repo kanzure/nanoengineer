@@ -46,13 +46,13 @@ TODO:
   'tag instruction' for this widget.)What if propMgr.model_changed also calls a 
   model_changed method defined in this widget? 
 """
-from PM_ListWidget import PM_ListWidget
+from PM.PM_ListWidget import PM_ListWidget
 from PyQt4.Qt  import QListWidgetItem
 from PyQt4.Qt  import SIGNAL
 from PyQt4.Qt  import QPalette
 from PyQt4.Qt  import QAbstractItemView
 ##from PyQt4.Qt import Qt
-from PM_Colors import getPalette
+from PM.PM_Colors import getPalette
 from constants import yellow
 from icon_utilities import geticon
 

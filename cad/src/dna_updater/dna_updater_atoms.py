@@ -7,6 +7,8 @@ dna_updater_atoms.py - enforce rules on newly changed PAM atoms and bonds
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
+from constants import noop as STUB_FUNCTION # FIX all uses
+
 from dna_updater.dna_updater_globals import get_changes_and_clear
 from dna_updater.dna_updater_globals import ignore_new_changes
 
@@ -15,17 +17,15 @@ from dna_updater.dna_updater_utils import remove_error_atoms
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 
-from constants import noop as STUB_FUNCTION # FIX all uses
-
-from fix_atom_classes import fix_atom_classes
+from dna_updater.fix_atom_classes import fix_atom_classes
 
 fix_bond_classes = STUB_FUNCTION
 
-from fix_deprecated_elements import fix_deprecated_elements
+from dna_updater.fix_deprecated_elements import fix_deprecated_elements
 
-from delete_bare_atoms import delete_bare_atoms
+from dna_updater.delete_bare_atoms import delete_bare_atoms
 
-from fix_bond_directions import fix_local_bond_directions
+from dna_updater.fix_bond_directions import fix_local_bond_directions
 
 # ==
 

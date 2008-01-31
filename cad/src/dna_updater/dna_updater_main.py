@@ -8,19 +8,19 @@ including DnaGroups, AxisChunks, PAM atoms, etc.
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater_globals import get_changes_and_clear
-from dna_updater_globals import ignore_new_changes
+from dna_updater.dna_updater_globals import get_changes_and_clear
+from dna_updater.dna_updater_globals import ignore_new_changes
 
-from dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
-from dna_updater_utils import remove_killed_atoms
+from dna_updater.dna_updater_utils import remove_killed_atoms
 
-from dna_updater_atoms import update_PAM_atoms_and_bonds
+from dna_updater.dna_updater_atoms import update_PAM_atoms_and_bonds
 
-from dna_updater_chunks import update_PAM_chunks
+from dna_updater.dna_updater_chunks import update_PAM_chunks
 
-from dna_updater_groups import update_DNA_groups
+from dna_updater.dna_updater_groups import update_DNA_groups
 
 # ==
 

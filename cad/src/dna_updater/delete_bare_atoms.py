@@ -7,8 +7,8 @@ delete_bare_atoms.py - delete atoms lacking required neighbors
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater_prefs import pref_fix_bare_PAM3_atoms
-from dna_updater_prefs import pref_fix_bare_PAM5_atoms
+from dna_updater.dna_updater_prefs import pref_fix_bare_PAM3_atoms
+from dna_updater.dna_updater_prefs import pref_fix_bare_PAM5_atoms
 
 # ==
 
