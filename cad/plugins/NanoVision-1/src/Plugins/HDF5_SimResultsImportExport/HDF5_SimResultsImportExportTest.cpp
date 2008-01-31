@@ -4,7 +4,8 @@
 
 
 CPPUNIT_TEST_SUITE_REGISTRATION(HDF5_SimResultsImportExportTest);
-CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(HDF5_SimResultsImportExportTest, "HDF5_SimResultsImportExportTestSuite");
+CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(HDF5_SimResultsImportExportTest,
+                                      "HDF5_SimResultsImportExportTestSuite");
 
 
 /* FUNCTION: setUp */

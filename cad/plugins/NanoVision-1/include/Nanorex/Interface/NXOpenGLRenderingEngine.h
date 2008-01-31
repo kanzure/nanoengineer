@@ -25,50 +25,55 @@
 #include <openbabel/mol.h>
 
 
-namespace Nanorex {
+namespace Nanorex
+{
 
 // fwd decls from NV-1
 class NXMoleculeSet;
 
-/* CLASS: NXOpenGLRenderingEngine */
-/**
- *  Renders the molecule set using plain OpenGL
- *
- * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
- */
-class NXOpenGLRenderingEngine : public QGLWidget, public NXRenderingEngine {
+    /* CLASS: NXOpenGLRenderingEngine */
+    /**
+     *  Renders the molecule set using plain OpenGL
+     *
+     * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
+     */
+class NXOpenGLRenderingEngine : public QGLWidget, public NXRenderingEngine
+{
 public:
     
     Q_OBJECT
+        
+        NXOpenGLRenderingEngine ( QWidget *parent = 0 );
     
-    NXOpenGLRenderingEngine(QWidget *parent = 0);
-       
     virtual ~NXOpenGLRenderingEngine();
-
-    // override base-class virtual methods
     
-    NXRenderingEngine::EngineID getID(void) const
+            // override base-class virtual methods
+    
+    NXRenderingEngine::EngineID getID ( void ) const
     { return NXRenderingEngine::OPENGL; }
     
-    void initializePlugins(void);
+    void initializePlugins ( void );
     
-    void cleanupPlugins(void);
+    void cleanupPlugins ( void );
     
-    void setRootMoleculeSet(NXMoleculeSet *const moleculeSet) {
+    void setRootMoleculeSet ( NXMoleculeSet *const moleculeSet )
+    {
         deleteSceneGraph();
         rootMoleculeSet = moleculeSet;
-        rootSceneGraphNode = createSceneGraph(rootMoleculeSet);
+        rootSceneGraphNode = createSceneGraph ( rootMoleculeSet );
     }
     
-    /// Reset the view based on the atom-bond distribution in the
-    /// molecule-set
-    void resetView(void);
+            /// Reset the view based on the atom-bond distribution in the
+            /// molecule-set
+    void resetView ( void );
     
 #ifdef NX_DEBUG
-    void setPlugin(NXOpenGLRendererPlugin *const plugin) {
-        pluginList.push_back(plugin);
+    void setPlugin ( NXOpenGLRendererPlugin *const plugin )
+    {
+        pluginList.push_back ( plugin );
         currentPluginIter = pluginList.rbegin();
     }
+#endif
     
 private:
     
@@ -81,7 +86,7 @@ private:
     PluginList pluginList;
     PluginList::iterator currentPluginIter;
     
-    // OpenGL settings
+            // OpenGL settings
     std::vector<GltLight> lights;
     GltLightModel lightModel;
     
@@ -94,40 +99,43 @@ private:
     NXOpenGLMaterial defaultAtomMaterial;
     NXOpenGLMaterial defaultBondMaterial;
     
-    NXSGNode* createSceneGraph(NXMoleculeSet *const molSetPtr);
+    NXSGNode* createSceneGraph ( NXMoleculeSet *const molSetPtr );
     
-    NXSGNode* createSceneGraph(OpenBabel::OBMol *const molPtr);
+    NXSGNode* createSceneGraph ( OpenBabel::OBMol *const molPtr );
     
-    NXSGNode* createSceneGraph(OpenBabel::OBMol *const molPtr,
-                               OpenBabel::OBAtom *const atomPtr,
-                               std::set<OpenBabel::OBAtom*>& renderedAtoms,
-                               Vector const& zAxis);
+    NXSGNode* createSceneGraph ( OpenBabel::OBMol *const molPtr,
+                                 OpenBabel::OBAtom *const atomPtr,
+                                 std::set<OpenBabel::OBAtom*>& renderedAtoms,
+                                 Vector const& zAxis );
     
-    void deleteSceneGraph(void) {
-        if(rootSceneGraphNode != (NXSGNode*) NULL) {
+    void deleteSceneGraph ( void )
+    {
+        if ( rootSceneGraphNode != ( NXSGNode* ) NULL )
+        {
             rootSceneGraphNode->deleteRecursive();
             delete rootSceneGraphNode;
-            rootSceneGraphNode = (NXSGNode*) NULL;
+            rootSceneGraphNode = ( NXSGNode* ) NULL;
         }
     }
     
-    // QGLWidget methods to be overriden
-    void initializeGL(void);
-    void resizeGL(int width, int height);
-    void paintGL(void);
+            // QGLWidget methods to be overriden
+    void initializeGL ( void );
+    void resizeGL ( int width, int height );
+    void paintGL ( void );
     
     bool initializeElementColorMap();
     void initializeDefaultMaterials();
-    void setupDefaultLights(void);
-    void drawSkyBlueBackground(void);
+    void setupDefaultLights ( void );
+    void drawSkyBlueBackground ( void );
     
     static BoundingBox
-        GetMoleculeSetBoundingBox(NXMoleculeSet *const molSetPtr) const;
-    static BoundingBox GetMoleculeBoundingBox(OBMol *molPtr) const;
-
+        GetMoleculeSetBoundingBox ( NXMoleculeSet *const molSetPtr );
+    static BoundingBox GetMoleculeBoundingBox ( OpenBabel::OBMol *molPtr );
+    
 };
 
 
 } // Nanorex
+
 
 #endif // NX_OPENGLRENDERINGENGINE_H

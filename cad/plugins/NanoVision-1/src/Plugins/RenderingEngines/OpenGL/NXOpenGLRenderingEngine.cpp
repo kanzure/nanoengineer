@@ -8,11 +8,11 @@
 #include "glt_bbox.h"
 
 #include "Nanorex/Interface/NXOpenGLRenderingEngine.h"
-#include "Nanorex/Interface/NXSceneGraph.h"
+// #include "Nanorex/Interface/NXSceneGraph.h"
 #include "Nanorex/Interface/NXEntityManager.h"
-#include "Nanorex/Interface/NXAtomRenderData.h"
-#include "Nanorex/Interface/NXBondRenderData.h"
-#include "Nanorex/Interface/NXOpenGLRendererPlugin.h"
+// #include "Nanorex/Interface/NXAtomRenderData.h"
+// #include "Nanorex/Interface/NXBondRenderData.h"
+//#include "Nanorex/Interface/NXOpenGLRendererPlugin.h"
 
 // #include <openbabel/atom.h>
 // #include <openbabel/bond.h>
@@ -483,10 +483,10 @@ BoundingBox
     OBMolIterator molIter;
     for(molIter = molSetPtr->moleculesBegin();
         molIter != molSetPtr->moleculesEnd();
-        ++molSetIter)
+        ++molIter)
     {
         OBMol *const molPtr = *molIter;
-        bbox += GetMoleculeBoundingBox(*molIter);
+        bbox += GetMoleculeBoundingBox(molPtr);
     }
     
     // include children molecule-sets
@@ -496,7 +496,7 @@ BoundingBox
         ++molSetIter)
     {
         NXMoleculeSet *const molSetPtr = *molSetIter;
-        bbox += GetMoleculeSetBoundingBox(*molSetPtr);
+        bbox += GetMoleculeSetBoundingBox(molSetPtr);
     }
     return bbox;
 }
@@ -510,7 +510,7 @@ BoundingBox
     OBAtom *atomPtr = NULL;
     
     for(atomPtr = molPtr->BeginAtom(atomIter);
-        atomPtr != molPtr->EndAtom(atomIter);
+        atomPtr != NULL;
         atomPtr = molPtr->NextAtom(atomIter))
     {
         Vector atomPos(real(atomPtr->GetX()),

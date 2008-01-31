@@ -38,7 +38,7 @@ bool NXSGOpenGLTransform::applyRecursive(void) const throw()
     if(ok) {
         ok = apply();
         if(ok) {
-            std::vector<NXSGNode*>::const_iterator child_iter;
+            ChildrenList::const_iterator child_iter;
             for(child_iter = children.begin();
                 child_iter != children.end() && ok;
                 ++child_iter)

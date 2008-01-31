@@ -31,7 +31,8 @@ public:
     
     int getRefCount(void) const { return ref_count; }
     
-    void addChild(NXSGNode *const child);
+    void addChild(NXSGNode *const child)
+    { child->incrementRefCount(); children.push_back(child); }
     
     /// Return true if child was found and was deleted
     bool removeChild(NXSGNode *const child);
@@ -60,13 +61,6 @@ protected:
     int ref_count;
     ChildrenList children;
 };
-
-
-inline void NXSGNode::addChild(NXSGNode *const child)
-{
-    child->incrementRefCount();
-    children.push_back(child);
-}
 
 
 } // Nanorex
