@@ -520,11 +520,28 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
   
         if obj is None: # Nothing dragged (or clicked); return.
             return
+        
+        #For drag handler API such as the one used in exprs.Highlightable 
+        #or in class ResizeHandle
+        if self.drag_handler:
+            self.dragHandlerLeftUp(self.drag_handler, event) 
+            self.leftUp_reset_a_few_drag_vars() 
 
         self.doObjectSpecificLeftUp(obj, event)
 
         self.w.win_update()
         return # from selectMolsMode.leftUp
+    
+    def leftUp_reset_a_few_drag_vars(self):
+        """
+        reset a few drag vars at the end of leftUp --
+        might not be safe to reset them all
+        (e.g. if some are used by leftDouble)
+        """
+        self.current_obj = None #bruce 041130 fix bug 230
+            # later: i guess this attr had a different name then [bruce 060721]
+        self.o.selatom = None #bruce 041208 for safety in case it's killed
+        return
 
     def bareMotion(self, event): 
         """
