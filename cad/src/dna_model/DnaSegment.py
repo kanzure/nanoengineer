@@ -9,7 +9,7 @@ DnaSegment.py - ...
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 from debug import print_compact_stack
 from chunk import Chunk
-
+from VQT import V, norm
 
 class DnaSegment(DnaStrandOrSegment):
     """
@@ -69,11 +69,34 @@ class DnaSegment(DnaStrandOrSegment):
                     if atm.element.symbol == 'Ae3':                        
                         endPointList.append(atm.posn())
         if len(endPointList) == 2:
-            return endPointList[0], endPointList[1]
+            #Figure out which end point is which. endPoint1 will be the endPoint
+            #on the left side of the 3D workspace and endPoint2 is the one on 
+            #the 'more right hand side' of the 3D workspace.
+            #It uses some code from bond_constants.bonded_atoms_summary
+            atmPosition1 = endPointList[0]
+            atmPosition2 = endPointList[1]
+            glpane = self.assy.o
+            quat = glpane.quat
+            vec = atmPosition2 - atmPosition1
+            vec = quat.rot(vec)
+            if vec[0] < 0.0:
+                atmPosition1, atmPosition2 = atmPosition2, atmPosition1                            
+            return atmPosition1, atmPosition2
         elif len(endPointList) > 2:
             print_compact_stack("bug:The axis chunk has more than 2 'Ae' atoms")
         else:
             return None, None
+    
+    def getAxisVector(self):
+        """
+        Returns the unit axis vector of the segment (vector between two axis 
+        end points)
+        """
+        endPoint1, endPoint2 = self.getAxisEndPoints()
+        if endPoint1 is not None and endPoint2 is not None:
+            return norm(endPoint2 - endPoint1)
+        else:
+            return V(0, 0, 0)
                     
     
 
