@@ -44,6 +44,7 @@ from global_model_changedicts import changed_structure_atoms
 from global_model_changedicts import changed_bond_types
 
 import env
+from utilities.Log import redmsg
 
 from bond_updater import update_bonds_after_each_event
 from bond_updater import process_changed_bond_types
@@ -103,8 +104,10 @@ def _master_model_updater( warn_if_needed = False ):
         try:
             full_dna_update()
         except:
-            msg = "\n*** exception from dna updater; will attempt to continue"
+            msg = "\n*** exception in dna updater; will attempt to continue"
             print_compact_traceback(msg + ": ")
+            msg2 = "Error: exception in dna updater (see console for details); will attempt to continue"
+            env.history.message(redmsg(msg2))
         pass
 
     if not (changed_structure_atoms or changed_bond_types):
