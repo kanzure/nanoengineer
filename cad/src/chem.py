@@ -1110,6 +1110,10 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         color = molcolor
         if color is None:
             color = self.element.color
+        # see if warning color is needed
+        if atom._dna_updater__error: #bruce 080130
+            color = orange
+# older code, never used:
 ##        #e see if warning color is needed
 ##        if self.element.symbol == 'Ax':
 ##            pass
@@ -1185,12 +1189,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         #bruce 060630 split this out for sharing with draw_in_abs_coords
         style = self._draw_atom_style()
         if style == 'do not draw':
-            if disable_do_not_draw_open_bonds():
-                # (for debugging -- bruce 080122)
+            if disable_do_not_draw_open_bonds() or self._dna_updater__error:
+                # (first cond is a debug_pref for debugging -- bruce 080122)
+                # (the other cond [bruce 080130] should be a more general
+                #  structure error flag...)
                 style = ''
                 color = orange
             else:
                 return
+        if self._dna_updater__error: #bruce 080130; needed both here and in self.drawing_color()
+            color = orange
         if style == 'bondpoint-stub':
             #bruce 060629/30 experiment -- works, incl for highlighting,
             # and even fixes the bondpoint-buried-in-big-atom bugs,
@@ -1956,7 +1964,10 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         type for that element.
         
         If a PAM Ss or Sj atom, returns a string like Ss28(A) with atom name
-        and dna base name. If a PAM-5 Pe atom, include the DNA strand name. 
+        and dna base name.
+
+        If a PAM-5 Pe atom, include the DNA strand name. (Note that Pe is a
+        deprecated element, so this feature will soon be useless.)
         """
         res = str(self)
         if self.atomtype is not self.element.atomtypes[0]:
@@ -1971,10 +1982,17 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         Returns atom's basic info string for the dynamic toooltip
         """
+        # note: I think glpane.selobj in this method is supposed to be self
+        # and should be replaced with self (if this guess is confirmed).
+        # [bruce 080130 comment]
+
         atomStr        = glpane.selobj.getInformationString()
         elementNameStr = " [" + glpane.selobj.element.name + "]"
 
         atomInfoStr = atomStr + elementNameStr
+
+        if glpane.selobj._dna_updater__error: #bruce 080130
+            atomInfoStr += "<br>" + orangemsg(glpane.selobj._dna_updater__error)
         
         if isAtomPosition:
             xyz = glpane.selobj.posn()

@@ -946,6 +946,13 @@ class Bond(BondBase, StateMixin, Selobj_API):
         #ninad060830 moved these methods from the class DynamicTip
         bondStr = str(glpane.selobj)
         bondInfoStr = bondStr
+        if (self.atom1._dna_updater__error and self.atom2._dna_updater__error):
+            if (self.atom1._dna_updater__error == self.atom2._dna_updater__error):
+                bondInfoStr += "\n" + "[%s]" % (self.atom2._dna_updater__error,)
+            else:
+                bondInfoStr += "\n" + "[dna updater error on both atoms]"
+        elif (self.atom1._dna_updater__error or self.atom2._dna_updater__error):
+            bondInfoStr += "\n" + "[dna updater error on one atom]"
         # check for user pref 'bond_chunk_info'
         if isBondChunkInfo:
             bondChunkInfo = self.getBondChunkInfo(glpane)
@@ -953,8 +960,9 @@ class Bond(BondBase, StateMixin, Selobj_API):
         #check for user pref 'bond length'
         if isBondLength:
             bondLength = self.getBondLength(glpane, atomDistPrecision)
-            bondInfoStr += "\n" + bondLength #ninad060823  don't use "<br>" ..it is weird. doesn'tr break into a new line.
-                                                                #perhaps because I am not using htmp stuff in getBonndLength etc functions??
+            bondInfoStr += "\n" + bondLength
+                #ninad060823  don't use "<br>" ..it is weird. doesn't break into a new line.
+                #perhaps because I am not using html stuff in getBondLength etc functions??
         return bondInfoStr
             
     def getBondChunkInfo(self, glpane, quat = Q(1,0,0,0)): #Ninad 060830

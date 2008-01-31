@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 bond_drawer.py -- implementations of Bond.draw and Bond.writepov.
 
 @author: Josh, Bruce
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -386,7 +386,8 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
 ##            color2 = orange
     bondcolor = col or None ## if None, we look up the value when it's used [bruce 050805]
 
-    if direction_error:
+    if direction_error or (atom1._dna_updater__error and atom2._dna_updater__error):
+        # bruce 080130 added _dna_updater__error condition; not sure if 'and' or 'or' is better in it
         bondcolor = orange
         #bruce 071016 (tentative -- needs mouseover msg, as said above)
         # (TODO: we could set an error message string on self, but set it to None
@@ -535,7 +536,10 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
     if not bool_showBondStretch:
         toolong = False
        
-
+    # kluge, bruce 080130:
+    if (atom1._dna_updater__error and atom2._dna_updater__error):
+        toolong = False
+    
     # Figure out banding (only in CPK or Tubes display modes).
     # This is only done in multicyl mode, because caller makes our v6 equal V_SINGLE otherwise.
     # If new color args are needed, they should be figured out here (perhaps by env.prefs lookup).
