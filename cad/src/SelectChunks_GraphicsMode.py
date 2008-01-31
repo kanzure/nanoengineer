@@ -33,7 +33,6 @@ from PyQt4.Qt import QMouseEvent
 
 import env
 
-from modes import basicMode
 from bonds import Bond
 from chem import Atom
 
@@ -90,10 +89,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         pass
 
     def rightShiftDown(self, event):
-        basicMode.rightShiftDown(self, event)
+        _superclass.rightShiftDown(self, event)
 
     def rightCntlDown(self, event):          
-        basicMode.rightCntlDown(self, event)
+        _superclass.rightCntlDown(self, event)
         
 
     # Chunk selection helper methods. 
