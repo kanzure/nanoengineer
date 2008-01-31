@@ -3,25 +3,32 @@
 #include "ErrorDialog.h"
 
 
-/* CONSTRUCTOR */
-ErrorDialog::ErrorDialog(const QString& message, NXCommandResult* commandResult,
+/* CONSTRUCTORS */
+ErrorDialog::ErrorDialog(const QString& shortMessage,
+						 NXCommandResult* commandResult,
 						 QWidget *parent)
 		: QDialog(parent), Ui_ErrorDialog() {
 		
 	setupUi(this);
 	errorImageLabel->setPixmap(QPixmap(":/Icons/error.png"));
 	
-	QString logMessage = message;
+	QString longMessage;
 	if (commandResult)
-		logMessage.append(": ")
-			.append(GetNV1ResultCodeString(commandResult)).toStdString();
-	NXLOG_SEVERE("", qPrintable(logMessage));
-				  
-	errorLabel->setText(message);
-	if (commandResult)
-		textEdit->setText(GetNV1ResultCodeString(commandResult));
+		longMessage = GetNV1ResultCodeString(commandResult);
 	else
-		textEdit->setText(message);
+		longMessage = shortMessage;
+		
+	setMessage(shortMessage, longMessage);
+}
+ErrorDialog::ErrorDialog(const QString& shortMessage,
+						 const QString& longMessage,
+						 QWidget *parent)
+		: QDialog(parent), Ui_ErrorDialog() {
+		
+	setupUi(this);
+	errorImageLabel->setPixmap(QPixmap(":/Icons/error.png"));
+				  
+	setMessage(shortMessage, longMessage);
 }
 
 
@@ -30,3 +37,15 @@ ErrorDialog::~ErrorDialog() {
 }
 
 
+/* FUNCTION: setMessage */
+void ErrorDialog::setMessage(const QString& shortMessage,
+							 const QString& longMessage) {
+	
+	QString logMessage = shortMessage;
+	if (shortMessage != longMessage)
+		logMessage.append(": ").append(longMessage);
+	NXLOG_SEVERE("", qPrintable(logMessage));
+	
+	errorLabel->setText(shortMessage);
+	textEdit->setText(longMessage);
+}

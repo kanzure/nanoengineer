@@ -16,11 +16,14 @@ class ErrorDialog : public QDialog, private Ui_ErrorDialog {
 	Q_OBJECT
 	
 public:
-	ErrorDialog(const QString& message, NXCommandResult* commandResult = 0,
+	ErrorDialog(const QString& shortMessage, NXCommandResult* commandResult = 0,
 				QWidget *parent = 0);
-
+	ErrorDialog(const QString& shortMessage, const QString& longMessage,
+				QWidget *parent = 0);
 	~ErrorDialog();
 
+private:
+	void setMessage(const QString& shortMessage, const QString& longMessage);
 };
 
 #endif
