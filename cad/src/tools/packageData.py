@@ -638,7 +638,7 @@ packageMapping_for_files = {
         #  Guess: for now just put this into foundation; probably "help" makes more sense
         #  as a subpackage of foundation than as something independent and toplevel, anyway.)
     
-    "ZoomMode"                         : "temporary_command",
+    "ZoomToAreaMode"                   : "temporary_command",
     "ZoomInOutMode"                    : "temporary_command",
     }
 
