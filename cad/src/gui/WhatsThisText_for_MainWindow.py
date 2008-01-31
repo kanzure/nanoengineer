@@ -373,7 +373,9 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Zoom In/Out</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/View/Modify/Zoom_In_Out.png\"><br> "\
-        "Allows the user to zoom in or out using the mouse."\
+        "Enters a temporary zoom mode that allows the user to zoom in or out "\
+        "using the mouse. Press ESC or click this button again to exit "\
+        "temporary zoom mode and return to the previous command."\
         "</p>"\
         "<p>- <b>Zoom in</b> by holding down the mouse button and pulling "\
         "the mouse closer (cursor moves down)."\
