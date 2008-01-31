@@ -14,10 +14,12 @@ TARGET = NXOpenGLSceneGraph
 
 INCLUDEPATH += ../../../../../../include
 
-LIBS += NXUtility
 TARGETDEPS += ../../../../../../lib/libNanorexUtility.so
 
 SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLSceneGraph.cpp
 
 DESTDIR = ../../../../../../lib
 
+LIBS += -L../../../../../../lib \
+-lNanorexInterface \
+-lNanorexUtility

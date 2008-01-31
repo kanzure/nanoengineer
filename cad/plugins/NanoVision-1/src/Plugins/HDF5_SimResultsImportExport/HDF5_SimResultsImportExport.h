@@ -50,32 +50,32 @@ extern "C" DLLEXPORT NXPlugin* instantiate();
 
 /* CLASS: HDF5_SimResultsImportExport */
 class HDF5_SimResultsImportExport : public NXDataImportExportPlugin {
-	public:
-		HDF5_SimResultsImportExport();
-		~HDF5_SimResultsImportExport();
-
-		// NXDataImportExportPlugin implementation
-		NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
-										NXDataStoreInfo* dataStoreInfo,
-										const std::string& filename,
-										int frameSetId, int frameIndex);
-		NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
-									  NXDataStoreInfo* dataStoreInfo,
-									  const std::string& filename,
-									  int frameSetId, int frameIndex);
-
-	private:
-		void populateDataStoreInfo(NXDataStoreInfo* dataStoreInfo,
-								   HDF5_SimResults* simResults,
-								   int frameSetId);
-		void exportToFileHelper(NXMoleculeSet* moleculeSet,
-								unsigned int atomIndex, unsigned int bondIndex,
-								unsigned int* atomIds,
-								unsigned int* atomicNumbers,
-								float* positions, void* bonds,
-								NXCommandResult* result);
-		void populateCommandResult(NXCommandResult* result,
-								   const string& message);
+public:
+    HDF5_SimResultsImportExport();
+    ~HDF5_SimResultsImportExport();
+    
+                // NXDataImportExportPlugin implementation
+    NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
+                                    NXDataStoreInfo* dataStoreInfo,
+                                    const std::string& filename,
+                                    int frameSetId, int frameIndex);
+    NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
+                                NXDataStoreInfo* dataStoreInfo,
+                                const std::string& filename,
+                                int frameSetId, int frameIndex);
+    
+private:
+    void populateDataStoreInfo(NXDataStoreInfo* dataStoreInfo,
+                            HDF5_SimResults* simResults,
+                            int frameSetId);
+    void exportToFileHelper(NXMoleculeSet* moleculeSet,
+                            unsigned int atomIndex, unsigned int bondIndex,
+                            unsigned int* atomIds,
+                            unsigned int* atomicNumbers,
+                            float* positions, void* bonds,
+                            NXCommandResult* result);
+    void populateCommandResult(NXCommandResult* result,
+                            const string& message);
 };
 
 #endif

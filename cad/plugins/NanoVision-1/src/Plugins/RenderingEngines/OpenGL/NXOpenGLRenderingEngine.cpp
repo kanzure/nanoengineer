@@ -5,9 +5,7 @@
 #include <cassert>
 #include <set>
 
-// extern "C" {
-// #include <GL/gl.h>
-// }
+#include "glt_bbox.h"
 
 #include "Nanorex/Interface/NXOpenGLRenderingEngine.h"
 #include "Nanorex/Interface/NXSceneGraph.h"
@@ -265,7 +263,8 @@ void NXOpenGLRenderingEngine::resizeGL(int width, int height)
 
 void NXOpenGLRenderingEngine::paintGL(void)
 {
-    drawSkyBlueBackground();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // drawSkyBlueBackground();
     rootSceneGraphNode->applyRecursive();
 }
 
@@ -364,10 +363,11 @@ NXSGNode* NXOpenGLRenderingEngine::createSceneGraph(OBMol *const molPtr)
 }
 
 
-NXSGNode* NXOpenGLRenderingEngine::createSceneGraph(OBMol *const molPtr,
-                                               OBAtom *const atomPtr,
-                                               set<OBAtom*>& renderedAtoms,
-                                               Vector const& zAxis)
+NXSGNode*
+    NXOpenGLRenderingEngine::createSceneGraph(OBMol *const molPtr,
+                                              OBAtom *const atomPtr,
+                                              set<OBAtom*>& renderedAtoms,
+                                              Vector const& zAxis)
 {
     // Precondition: *atomPtr shouldn't have been rendered
     assert(renderedAtoms.find(atomPtr) == renderedAtoms.end());
@@ -458,6 +458,68 @@ NXSGNode* NXOpenGLRenderingEngine::createSceneGraph(OBMol *const molPtr,
     
     renderedAtoms.insert(atomPtr);
     return atomNode;
+}
+
+
+void NXOpenGLRenderingEngine::resetView(void)
+{
+    if(rootMoleculeSet == NULL) return;
+    
+    // create axis-aligned bounding box
+    /// @todo
+    BoundingBox bbox = GetMoleculeSetBoundingBox(rootMoleculeSet);
+    
+}
+
+
+BoundingBox
+    NXOpenGLRenderingEngine::
+    GetMoleculeSetBoundingBox(NXMoleculeSet *const molSetPtr)
+{
+    
+    BoundingBox bbox;
+    
+    // include all atoms
+    OBMolIterator molIter;
+    for(molIter = molSetPtr->moleculesBegin();
+        molIter != molSetPtr->moleculesEnd();
+        ++molSetIter)
+    {
+        OBMol *const molPtr = *molIter;
+        bbox += GetMoleculeBoundingBox(*molIter);
+    }
+    
+    // include children molecule-sets
+    NXMoleculeSetIterator molSetIter;
+    for(molSetIter = molSetPtr->childrenBegin();
+        molSetIter != molSetPtr->childrenEnd();
+        ++molSetIter)
+    {
+        NXMoleculeSet *const molSetPtr = *molSetIter;
+        bbox += GetMoleculeSetBoundingBox(*molSetPtr);
+    }
+    return bbox;
+}
+
+
+BoundingBox
+    NXOpenGLRenderingEngine::GetMoleculeBoundingBox(OBMol *const molPtr)
+{
+    BoundingBox bbox;
+    OBAtomIterator atomIter;
+    OBAtom *atomPtr = NULL;
+    
+    for(atomPtr = molPtr->BeginAtom(atomIter);
+        atomPtr != molPtr->EndAtom(atomIter);
+        atomPtr = molPtr->NextAtom(atomIter))
+    {
+        Vector atomPos(real(atomPtr->GetX()),
+                       real(atomPtr->GetY()),
+                       real(atomPtr->GetZ()));
+        bbox += atomPos;
+    }
+    
+    return bbox;
 }
 
 

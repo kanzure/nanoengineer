@@ -60,6 +60,16 @@ public:
         rootSceneGraphNode = createSceneGraph(rootMoleculeSet);
     }
     
+    /// Reset the view based on the atom-bond distribution in the
+    /// molecule-set
+    void resetView(void);
+    
+#ifdef NX_DEBUG
+    void setPlugin(NXOpenGLRendererPlugin *const plugin) {
+        pluginList.push_back(plugin);
+        currentPluginIter = pluginList.rbegin();
+    }
+    
 private:
     
     typedef unsigned int uint;
@@ -110,6 +120,11 @@ private:
     void initializeDefaultMaterials();
     void setupDefaultLights(void);
     void drawSkyBlueBackground(void);
+    
+    static BoundingBox
+        GetMoleculeSetBoundingBox(NXMoleculeSet *const molSetPtr) const;
+    static BoundingBox GetMoleculeBoundingBox(OBMol *molPtr) const;
+
 };
 
 

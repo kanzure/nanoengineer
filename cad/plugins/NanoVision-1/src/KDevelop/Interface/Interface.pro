@@ -12,7 +12,8 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXNanoVisionResultCodes.h \
  ../../../include/Nanorex/Interface/NXNumbers.h \
  ../../../include/Nanorex/Interface/NXAtomRenderData.h \
- ../../../include/Nanorex/Interface/NXBondRenderData.h
+ ../../../include/Nanorex/Interface/NXBondRenderData.h \
+ ../../../include/Nanorex/Interface/NXSceneGraph.h
 
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH)
@@ -25,7 +26,8 @@ SOURCES += ../../Interface/NXDataImportExportPlugin.cpp \
  ../../Interface/NXNumbers.cpp \
  ../../Interface/NXAtomRenderData.cpp \
  ../../Interface/NXBondRenderData.cpp \
- ../../Interface/NXNanoVisionResultCodes.cpp
+ ../../Interface/NXNanoVisionResultCodes.cpp \
+ ../../Interface/NXSceneGraph.cpp
 
 TEMPLATE = lib
 

@@ -3,6 +3,8 @@
 
 #include "Nanorex/Interface/NXMoleculeSet.h"
 
+using namespace std;
+
 namespace Nanorex {
 
 unsigned int NXMoleculeSet::NextMoleculeIndex = 0;
@@ -61,5 +63,21 @@ void NXMoleculeSet::getCountsHelper(unsigned int& moleculeCount,
 	}
 }
 
+
+bool NXMoleculeSet::empty(void)
+{
+    if(molecules.empty()) {
+        list<NXMoleculeSet*>::const_iterator childrenIter;
+        for(childrenIter = childrenBegin();
+            childrenIter != childrenEnd();
+            ++childrenIter)
+        {
+            NXMoleculeSet *const childMolSetPtr = *childrenIter;
+            if(!childMolSetPtr->empty()) return false;
+        }
+        return true; // children are also empty
+    }
+    else return false;
+}
 
 } // Nanorex::

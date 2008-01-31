@@ -46,6 +46,9 @@ class NXMoleculeSet {
 		void getCounts(unsigned int& moleculeCount, unsigned int& atomCount,
 					   unsigned int& bondCount);
 
+        /// Does the molecule-set tree have any atoms?
+        bool empty(void);
+    
 	private:
 		static unsigned int NextMoleculeIndex;
 		

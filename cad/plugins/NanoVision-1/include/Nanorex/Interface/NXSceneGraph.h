@@ -3,11 +3,10 @@
 #ifndef NX_SCENEGRAPH_H
 #define NX_SCENEGRAPH_H
 
-#include <vector>
+#include <list>
 
 // SceneGraph abstraction to bridge platforms
 
-// #include "Nanorex/Utility/NXCommandResult.h"
 
 namespace Nanorex {
 
@@ -19,51 +18,55 @@ namespace Nanorex {
  */
 class NXSGNode {
 public:
+    typedef std::list<NXSGNode*> ChildrenList;
+    
     NXSGNode() : ref_count(0), children() {}
-    virtual ~NXSGNode() {}
+    
+    virtual ~NXSGNode() { deleteRecursive(); }
 
     int incrementRefCount(void) { ++ref_count; return ref_count; }
-    int decrementRefCount(void) { if(ref_count > 0) --ref_count; return ref_count; }
+    
+    int decrementRefCount(void)
+    { if(ref_count > 0) --ref_count; return ref_count; }
+    
     int getRefCount(void) const { return ref_count; }
     
-    void addChild(NXSGNode *const child) { child->incrementRefCount(); children.push_back(child); }
+    void addChild(NXSGNode *const child);
     
-    std::vector<NXSGNode*> const& getChildren(void) const { return children; }
-    std::vector<NXSGNode*>::size_type getNumChildren(void) const { return children.size(); }
+    /// Return true if child was found and was deleted
+    bool removeChild(NXSGNode *const child);
+    
+    ChildrenList const& getChildren(void) const { return children; }
+    
+    ChildrenList::size_type getNumChildren(void) const
+    { return children.size(); }
     
     virtual bool apply(void) const { return true; };
     
     /// Apply the effect of this node and its children
     /// Return true if successful. Abort at the first failure
-    virtual bool applyRecursive(void) const {
-        bool ok = apply();
-        std::vector<NXSGNode*>::const_iterator child_iter;
-        for(child_iter = children.begin();
-            child_iter != children.end() && ok;
-            ++child_iter)
-        {
-            ok = (*child_iter)->applyRecursive();
-        }
-        return ok;
-    }
+    virtual bool applyRecursive(void) const;
     
     /// Recursively delete all children. Deleting this node is up to the caller
-    void deleteRecursive(void) {
-        for(std::vector<NXSGNode*>::iterator child_iter = children.begin();
-            child_iter != children.end();
-            ++child_iter)
-        {
-            if((*child_iter)->decrementRefCount() == 0) delete *child_iter;
-        }
-        children.clear();
-    }
+    virtual void deleteRecursive(void);
     
     bool isLeaf(void) const { return (children.size()==0); }
+    
+#ifdef NX_DEBUG
+    void reset(void) { ref_count=0; children.clear(); }
+#endif
         
 protected:
     int ref_count;
-    std::vector<NXSGNode*> children;
+    ChildrenList children;
 };
+
+
+inline void NXSGNode::addChild(NXSGNode *const child)
+{
+    child->incrementRefCount();
+    children.push_back(child);
+}
 
 
 } // Nanorex

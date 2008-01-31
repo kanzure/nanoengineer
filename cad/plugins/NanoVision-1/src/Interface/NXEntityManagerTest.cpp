@@ -4,7 +4,8 @@
 
 
 CPPUNIT_TEST_SUITE_REGISTRATION(NXEntityManagerTest);
-CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(NXEntityManagerTest, "NXEntityManagerTestSuite");
+CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(NXEntityManagerTest,
+                                      "NXEntityManagerTestSuite");
 
 
 /* FUNCTION: setUp */
