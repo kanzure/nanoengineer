@@ -313,6 +313,8 @@ class DnaChain(object):
                     bond_dir_to_neighbor = + self._bond_direction
                 next_atom = end_atom.strand_next_baseatom(bond_direction = bond_dir_to_neighbor)
                 assert next_atom is None or next_atom.element.role == 'strand'
+                # (note: strand_next_baseatom returns None if end_atom or the atom it
+                #  might return has ._dna_updater__error set.)
                 # store next_atom at end of loop
             else:
                 # do axis atoms in this per-end loop, only if chain length > 1;

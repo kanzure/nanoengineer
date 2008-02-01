@@ -376,14 +376,18 @@ class DnaLadder(object):
         assert strand1.bond_direction() == 1, "wrong bond direction %r in strand1 of %r" % (strand1.bond_direction, self)
             ### TODO: replace 1 with named constant, which already exists
         end_atom = strand1.end_baseatoms()[end]
+        assert not end_atom._dna_updater__error # otherwise we should not get this far with it
         assert self is _rail_end_atom_to_ladder(end_atom) # sanity check
         bond_direction_to_other = LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1[end]
         next_atom = end_atom.strand_next_baseatom(bond_direction = bond_direction_to_other)
+            # (note: strand_next_baseatom returns None if end_atom or the atom it
+            #  might return has ._dna_updater__error set.)
         if next_atom is None:
             # end of the chain (since bondpoints are not baseatoms), or
             # inconsistent bond directions at or near end_atom
             # (report error in that case??)
             return None
+        assert not next_atom._dna_updater__error
         other = _rail_end_atom_to_ladder(next_atom)
             # other ladder (might be self in case of ring)
         if other.error:

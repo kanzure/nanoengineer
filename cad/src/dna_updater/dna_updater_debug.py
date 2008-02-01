@@ -58,4 +58,146 @@ def assert_unique_wholechain_baseatoms(wholechains, when = ""):
                 baseatom_info[atom.key] = loc_info
     return
 
+# ==
+
+# some of the following might be of more general use
+
+def find_atom_by_name(assy, name): ## BUG, failed to find Ss3-600 from "600"
+    name = str(name) # in case it's an int
+    # bug: this version only works in the current part
+    for mol in assy.molecules:
+        for atom in mol.atoms.itervalues():
+            foundname = str(atom)
+            foundnumber = str(atom.key)
+            if name == foundname or name == foundname:
+                return atom
+    return None
+
+from drawer import drawline
+
+from jigs import Jig
+
+import env
+from utilities.Log import quote_html
+
+from debug import register_debug_menu_command
+
+from PlatformDependent import fix_plurals
+
+from constants import gensym
+
+class VeryVisibleAtomMarker(Jig):
+    mmp_record_name = "VeryVisibleAtomMarker" #k ok? note that it has no reading code...
+    # todo: mmp reading code; icon
+    def _draw_jig(self, glpane, color, highlighted = False):
+        length = glpane.scale # approx.
+        # print "%r got color = %r" % (self, color,) # it gets gray
+        for atom in self.atoms:
+            pos = atom.posn()
+            drawline(color, pos, - glpane.pov, width = 2)
+                # line from center of view, in case far off-screen
+            # lines in diagonal directions (more likely to hit screen if off-screen)
+            for direction in (glpane.up + glpane.right,
+                              glpane.right + glpane.down,
+                              glpane.down + glpane.left,
+                              glpane.left + glpane.up):
+                endpoint = pos + direction * length
+                drawline( color, pos, endpoint, width = 2)
+        return
+    # not needed if default __str__ contains atom name:
+    ## def __str__(self):
+    ##     pass
+    pass
+
+def mark_atom_by_name(assy, name):
+    """
+    If you can find an atom of the given name, mark it visibly.
+    """
+    atom = find_atom_by_name(assy, name)
+    if atom:
+        env.history.message(quote_html("found atom %r: %r, in part %r" % (name, atom, atom.molecule.part)))
+        mark_one_atom(atom)
+    else:
+        env.history.message(quote_html("can't find atom %r (in part %r)" % (name, assy.part,)))
+    return
+
+def mark_one_atom(atom):
+    assy = atom.molecule.assy
+    jig = VeryVisibleAtomMarker(assy, [atom])
+    jig.name = "Marked Atom %s" % (atom,) ##k
+    assy.place_new_jig(jig)
+    # redraw, etc
+    assy.win.glpane.gl_update() # this works now to redraw
+    if 0:#####
+        assy.win.mt.mt_update() # guess this also might be needed, should fix in same way
+        # AttributeError: mt_update, but didn't stop it from working to redraw, so only gl_update was needed for that
+    # the above did not suffice to redraw. did our debug pref skip the redraw?? need assy.changed? or better checkpoints?
+    # or was it assy.glpane attr error, now fixed (how come i didn;t see that vbefore?)
+        assy.changed() # see if this helps; if so, should also debug need for this when i have time
+    ###BUG - all the above is not enough to redraw it. Another deposit will do it though. @@@
+    return
+
+def mark_atoms(atoms):
+    assert atoms # a list
+    assy = atoms[0].molecule.assy
+    for atom in atoms:
+        assert atom.molecule.assy is assy # all in same assy
+    jig = VeryVisibleAtomMarker(assy, atoms)
+    jig.name = gensym("Marked Atoms ")
+    assy.place_new_jig(jig)
+    # redraw, etc
+    assy.win.glpane.gl_update() # this works now to redraw
+    #e more updates?
+    return
+
+def mark_atom_by_name_command(glpane):
+    # review: is this really what the arg always is? i bet it's whatever widget this appeared in...
+    from exprs.demo_draw_on_surface import grab_text_using_dialog # TODO: refile into widgets.py? has special features, see code
+    ok, text = grab_text_using_dialog( default = "Ss3-564",
+                                           title = "dialog title", #e
+                                           label = "label" )
+    if ok:
+        name = text
+        assy = glpane.assy
+        mark_atom_by_name(assy, name)
+    return
+
+# todo: should do this in an initialize function!
+register_debug_menu_command( "Mark atom by name...", mark_atom_by_name_command )
+
+#e could also: select multiple atoms by list of names
+
+def select_atoms_with_errors_command(glpane):
+    """
+    current part only...
+    """
+    count = 0
+    assy = glpane.win.assy
+    for mol in assy.molecules: # current part only
+        for atom in mol.atoms.itervalues():
+            if atom._dna_updater__error:
+                count += 1 # whether or not already selected
+                atom.pick() # should be safe inside itervalues
+                    ### REVIEW: selection filter effect not considered
+    msg = "found %d pseudoatom(s) with dna updater errors in %r" % (count, assy.part)
+    msg = fix_plurals(msg)
+    env.history.message(quote_html(msg))
+    return
+            
+register_debug_menu_command( "DNA updater: select atoms with errors", select_atoms_with_errors_command )
+
+def mark_selected_atoms_command(glpane): # untested
+    """
+    current part only...
+    """
+    assy = glpane.win.assy
+    atoms = assy.selatoms.values()
+    mark_atoms(atoms)
+    msg = "marked %d selected atom(s)" % len(atoms) #e could use part of this string in jig name too
+    msg = fix_plurals(msg)
+    env.history.message(quote_html(msg))    
+    return
+
+register_debug_menu_command( "Mark selected atoms", mark_selected_atoms_command )
+
 # end

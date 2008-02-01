@@ -88,7 +88,7 @@ def fix_deprecated_elements( changed_atoms):
                 print "dna updater: transmute deprecated atom %r to element %s" % \
                       (atom, elt.symbol)
             summary_format = \
-                "Warning: dna updater transmuted [N] pseudoatom(s) from deprecated element %s to %s" % \
+                "Warning: dna updater transmuted [N] %s to %s pseudoatom(s)" % \
                 (atom.element.symbol, elt.symbol )
             env.history.deferred_summary_message( orangemsg(summary_format) )
                 # todo: refactor so orangemsg is replaced with a warning option
