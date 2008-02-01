@@ -14,3 +14,5 @@ TARGETDEPS += ../../../../lib/libHDF5_SimResultsImportExport.so \
 ../../../../lib/libNanorexUtility.so
 DESTDIR = ../../../../bin/
 
+HEADERS += ../../../Testing/HDF5_Consumer/HDF5_Consumer.h
+

@@ -28,9 +28,9 @@ namespace Nanorex {
  * Encapsulates the storage of molecular and related data.
  * @ingroup ChemistryDataModel, NanorexInterface
  */
-class NXEntityManager {//: public QObject {
+class NXEntityManager : public QObject {
 	
-	//Q_OBJECT
+	Q_OBJECT
 	
 	public:
 		NXEntityManager();
@@ -80,8 +80,11 @@ class NXEntityManager {//: public QObject {
 				return 0;
 		}
 
-	//signals:
-		//void valueChanged(int newValue);
+	signals:
+		// Emitted when a new frame is added from the thread that polls
+		// growing frame sets.
+		void newFrameAdded(int frameSetId, int frameIndex,
+						   NXMoleculeSet* moleculeSet);
 
 	private:
 		NXPluginGroup* dataImpExpPluginGroup;
@@ -118,6 +121,7 @@ public:
 			   !dataStoreInfo->isLastFrame(frameSetId)) {
 				
 			// See if there's a new frame
+printf(" x ");fflush(0);
 			result =
 				entityManager->importFromFile
 					(dataStoreInfo->getFilename(frameSetId), frameSetId,

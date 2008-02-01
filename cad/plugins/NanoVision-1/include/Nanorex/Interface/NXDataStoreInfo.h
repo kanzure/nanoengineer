@@ -41,7 +41,8 @@ class NXDataStoreInfo {
 		//vector<string> getTrajectoryNames();
 		
 		// Last frame flags (whether the last frame-index is the last
-		// frame in the data store.)
+		// frame available in the data store, ie, stop trying to read frames
+		// (for now.))
 		void setLastFrame(int frameSetId, bool isLastFrame) {
 			_isLastFrame[frameSetId] = isLastFrame;
 		}

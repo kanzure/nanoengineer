@@ -154,6 +154,10 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 					
 				} else {
 					int idx = addFrame(frameSetId, moleculeSet);
+					if (inPollingThread) {
+printf(" emitting "); fflush(0);
+						emit newFrameAdded(frameSetId, frameIndex, moleculeSet);
+					}
 				}
 			
 				// TODO:
@@ -168,6 +172,14 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 																  frameIndex),
 											   dataStoreInfo, filename,
 											   frameSetId, frameIndex);
+					if (inPollingThread) {
+printf(" emitting "); fflush(0);
+						emit newFrameAdded(frameSetId, frameIndex,
+										   getRootMoleculeSet(frameSetId,
+										   					  frameIndex));
+					}
+											   
+					// TODO: handle result == failed
 				}
 				
 				// Spawn a thread to keep reading incomplete data stores
