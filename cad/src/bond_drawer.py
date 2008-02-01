@@ -386,10 +386,30 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
 ##        if self not in self.atom2.bonds:
 ##            color2 = orange
     bondcolor = col or None ## if None, we look up the value when it's used [bruce 050805]
+        # note: bondcolor is only used in diBALL display style. todo: rename it.
 
-    if direction_error or (atom1._dna_updater__error and atom2._dna_updater__error):
-        # bruce 080130 added _dna_updater__error condition; not sure if 'and' or 'or' is better in it
-        bondcolor = orange
+    if direction_error or atom1._dna_updater__error or atom2._dna_updater__error:
+        # bruce 080130 added _dna_updater__error condition;
+        # not sure if 'and' or 'or' is better in it;
+        # for now, use 'and' below for color, but use 'or' for a debug print.
+        # The outer condition is to optimize the usual case where all these are false.
+        if direction_error or (atom1._dna_updater__error and atom2._dna_updater__error):
+            bondcolor = orange # note: no effect except in diBALL display style
+        # work around bug in uses above of drawing_color method: [bruce 080131]
+        if atom1._dna_updater__error or direction_error:
+            color1 = orange
+            # todo: also change toolong_color if we can
+        if atom2._dna_updater__error or direction_error:
+            color2 = orange
+            # todo: also change toolong_color if we can
+        if atom1._dna_updater__error or atom2._dna_updater__error:
+            if not atom1._dna_updater__error and atom2._dna_updater__error:
+                # debug print if self is a rung bond (means error in dna updater)
+                # note: always on, for now;
+                # TODO: condition on DEBUG_DNA_UPDATER but first move that out of dna package
+                roles = (atom1.element.role, atom2.element.role)
+                if roles == ('axis', 'strand') or roles == ('strand', 'axis'):
+                    print "\n*** bug in dna updater: errors not propogated along %r" % self
         #bruce 071016 (tentative -- needs mouseover msg, as said above)
         # (TODO: we could set an error message string on self, but set it to None
         #  whenever not setting the error color; since this is done whenever self
