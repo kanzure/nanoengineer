@@ -542,6 +542,37 @@ class _prefs_context:
             finally:
                 _close()
         return
+    
+    def get_default_values(self, keys): #bruce 080131 UNTESTED @@@@
+        """
+        @param keys: a list of key strings (tuple not allowed; nested list not allowed)
+        """
+        assert type(keys) == type([])
+        return map( self.get_default_value, keys)
+
+    def get_default_value(self, key): #bruce 080131 UNTESTED @@@@
+        """
+        @param key: a key string
+        """
+        assert type(key) == type("")
+        pkey = self._attr2key(key)
+        dflt = _defaults.get(pkey, None) ###k
+        return dflt
+        
+    def has_default_value(self, key): #bruce 080131 UNTESTED @@@@
+        """
+        @param key: a key string
+        """
+        # This is a ###STUB in two ways:
+        # - it ought to compare using same_vals, not !=
+        # - it might record a default of None if no default is yet recorded (not sure)
+        dflt = self.get_default_value(key)
+        current = self.get(key, dflt) # does usage tracking (good)
+        same = not (dflt != current)
+            # (note: this is a safer comparison than ==, but not perfect,
+            #  re Numeric arrays)
+        return same
+        
     pass # end of class _prefs_context
 
 # for now, in this stub code, all modules use one context:
