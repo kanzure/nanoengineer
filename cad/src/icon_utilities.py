@@ -168,7 +168,7 @@ def imagename_to_pixmap(imagename): #bruce 050108
         pixmappath = os.path.join( _iconprefix, UI_SUBDIRECTORY_COMPONENT,
                                    imagename)
         if not os.path.exists(pixmappath):
-            print 'pixmap does not exist: ' + pixmappath
+            print 'pixmap does not exist; using null pixmap: ' + pixmappath
             import traceback
             traceback.print_stack(file = sys.stdout)
         pixmap = QtGui.QPixmap(pixmappath)
