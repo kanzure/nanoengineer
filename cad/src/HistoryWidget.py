@@ -34,13 +34,13 @@ from utilities import debug_flags
 from PlatformDependent import mkdirs_in_filename
 from DebugMenuMixin import DebugMenuMixin
 from qt4transition import qt4todo
-import env #bruce 050810
+import env
 
 from prefs_constants import historyMsgTimestamp_prefs_key
 from prefs_constants import historyMsgSerialNumber_prefs_key
 from prefs_constants import historyHeight_prefs_key
 
-from utilities.Log import _graymsg, quote_html, greenmsg, redmsg, orangemsg
+from utilities.Log import graymsg, quote_html, greenmsg, redmsg, orangemsg
 
 from PlatformDependent import fix_plurals
 
@@ -85,7 +85,7 @@ class message:
         ###e also escape < > and & ? not appropriate when self.text contains html, as it sometimes does!
         # maybe it's best in the long run to just require the source messages to escape these if they need to.
         # if not, we'll need some sort of hueristic to escape them except when part of well-formatted tags.
-        return _graymsg(self.widget_text_header()) + self.text #e could remove _graymsg when what's inside it is ""
+        return graymsg(self.widget_text_header()) + self.text #e could remove graymsg when what's inside it is ""
     def xml_text(self):
         assert 0, "nim" # same fields as widget text, but in xml, and not affected by display prefs
     pass
@@ -459,6 +459,34 @@ class HistoryWidget:
         opts.update(kws)
         return self.message( msg, **opts)
 
+    def redmsg(self, msg, **kws): #bruce 080201
+        """
+        Shorthand for self.message(redmsg(msg), <options>).
+        """
+        self.message(redmsg(msg), **kws)
+        return
+
+    def orangemsg(self, msg, **kws): #bruce 080201
+        """
+        Shorthand for self.message(orangemsg(msg), <options>).
+        """
+        self.message(orangemsg(msg), **kws)
+        return
+
+    def greenmsg(self, msg, **kws): #bruce 080201
+        """
+        Shorthand for self.message(greenmsg(msg), <options>).
+        """
+        self.message(greenmsg(msg), **kws)
+        return
+
+    def graymsg(self, msg, **kws): #bruce 080201
+        """
+        Shorthand for self.message(graymsg(msg), <options>).
+        """
+        self.message(graymsg(msg), **kws)
+        return
+    
     # ==
     
     def flush_saved_transients(self):
@@ -532,7 +560,10 @@ class HistoryWidget:
         msg = format.replace("[N]", "%s" % count)
             # note: not an error if format doesn't contain "[N]"
         # assume msg contains '(s)' -- could check this instead to avoid debug print
-        msg = fix_plurals(msg)
+        msg = fix_plurals(msg, between = 3)
+            # kluge: if a large between option is generally safe,
+            # it ought to be made the default in fix_plurals
+            #
             # todo: review for safety in case msg contains HTML (e.g. colors)
             # todo: ideally format would be a class instance which knew warning status, etc,
             # rather than containing html
@@ -589,12 +620,12 @@ class HistoryWidget:
         if _color:
             #bruce 060126 new feature; for now only permits 4 fixed color name strings;
             # should someday permit any color name (in any format) or object (of any kind) #e
-            funcs = {'green':greenmsg, 'orange':orangemsg, 'red':redmsg, 'gray':_graymsg}
+            funcs = {'green':greenmsg, 'orange':orangemsg, 'red':redmsg, 'gray':graymsg}
             func = funcs[_color] # any colorname not in this dict is an exception (ok for now)
             msg = func(msg)
         _compact_stack = options.pop('compact_stack', "") #bruce 060720
         if _compact_stack:
-            msg += _graymsg("; history.message() call stack: %s" % quote_html(_compact_stack))
+            msg += graymsg("; history.message() call stack: %s" % quote_html(_compact_stack))
         # any unrecognized options are warned about below
         self._print_msg(msg)
         if options:

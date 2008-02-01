@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 PlatformDependent.py -- module for platform-specific utilities and constants.
 
@@ -10,7 +10,7 @@ OS interface.
 
 @author: Bruce, Mark, maybe others
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Module classification:
 
@@ -657,9 +657,18 @@ def fix_plurals(text, between = 1):
         if word and word[-1].isdigit():
             # if word ends with a digit, call it a number (e.g. "(1" )
             numpos = i
-        elif word.endswith("(s)") or word.endswith("(s),") or word.endswith("(s)."):
-            # (that condition is a kluge, should be generalized [bruce 041217]) (added "(s).", bruce 060615)
-            suflen = ( (not word.endswith("(s)")) and 1) or 0 # klugier and klugier
+        elif word.endswith("(s)") or \
+             word.endswith("(s),") or \
+             word.endswith("(s).") or \
+             word.endswith("(s)</span>"):
+            # (that condition is a kluge, should be generalized [bruce 041217])
+            # (added "(s).", bruce 060615)
+            # (added "(s)</span>" (bad kluge, very fragile, but works for now)
+            #  for when this is used at the end of input to redmsg etc [bruce 080201])
+
+            ## suflen = ( (not word.endswith("(s)")) and 1) or 0 # klugier and klugier
+            suflen = len( word.split('(s)', 1)[1] ) # length of everything after '(s)' #bruce 080201
+            
             count += 1
             if numpos >= 0 and (i-numpos) <= (between+1): # not too far back
                 # fix word for whether number is 1
@@ -697,7 +706,7 @@ def fix_plurals(text, between = 1):
                 print "fyi, cosmetic bug: fix_plurals(%r) was unable to replace %r" % (text,word)
         continue
     if not count:
-        print """fyi, possible cosmetic bug: fix_plurals(%r) got text with no "(s)", has no effect""" % (text,)
+        print """fyi, possible cosmetic bug: fix_plurals(%r) got text with no "(s)" (or between option not big enough), has no effect""" % (text,)
     return " ".join(words)
 
 def th_st_nd_rd(val): # mark 060927 wrote this. bruce 060927 split it out of its caller & wrote docstring.
