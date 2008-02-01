@@ -21,35 +21,48 @@ History:
 2007-08-19 - Started out as part of DnaGenHelper.py
 """
 
+import env
 from constants import purple, brass, steelblue, orange, darkgray, lightblue
 from constants import darkorange, violet, copper, olive, gray
+from prefs_constants import adnaBasesPerTurn_prefs_key, adnaRise_prefs_key
+from prefs_constants import bdnaBasesPerTurn_prefs_key, bdnaRise_prefs_key
+from prefs_constants import zdnaBasesPerTurn_prefs_key, zdnaRise_prefs_key
 from PyQt4.Qt import QString
 
-basesDict = { 'A':{'Name':'Adenine',  'Complement':'T', 'Color':'darkorange' },
-              'C':{'Name':'Cytosine', 'Complement':'G', 'Color':'cyan'       },
-              'G':{'Name':'Guanine',  'Complement':'C', 'Color':'green'      },
-              'T':{'Name':'Thymine',  'Complement':'A', 'Color':'teal'       },
-              'U':{'Name':'Uracil',   'Complement':'A', 'Color':'darkblue'   },
-              
-              'X':{'Name':'Undefined', 'Complement':'X', 'Color':'darkred' },
-              'N':{'Name':'aNy base',  'Complement':'N', 'Color':'orchid'  },
-              
-              'B':{'Name':'C,G or T', 'Complement':'V', 'Color':'dimgrey' },
-              'V':{'Name':'A,C or G', 'Complement':'B', 'Color':'dimgrey' },
-              'D':{'Name':'A,G or T', 'Complement':'H', 'Color':'dimgrey' },
-              'H':{'Name':'A,C or T', 'Complement':'D', 'Color':'dimgrey' },
-              
-              'R':{'Name':'A or G (puRine)',     'Complement':'Y', 'Color':'dimgrey'},
-              'Y':{'Name':'C or T (pYrimidine)', 'Complement':'R', 'Color':'dimgrey'},
-              'K':{'Name':'G or T (Keto)',       'Complement':'M', 'Color':'dimgrey'},
-              'M':{'Name':'A or C (aMino)',      'Complement':'K', 'Color':'dimgrey'},
-              
-              'S':{'Name':'G or C (Strong - 3H bonds)',  'Complement':'W', 'Color':'dimgrey'},
-              'W':{'Name':'A or T (Weak - 2H bonds)',    'Complement':'S', 'Color':'dimgrey'} }
+basesDict = \
+          { 'A':{'Name':'Adenine',  'Complement':'T', 'Color':'darkorange' },
+            'C':{'Name':'Cytosine', 'Complement':'G', 'Color':'cyan'       },
+            'G':{'Name':'Guanine',  'Complement':'C', 'Color':'green'      },
+            'T':{'Name':'Thymine',  'Complement':'A', 'Color':'teal'       },
+            'U':{'Name':'Uracil',   'Complement':'A', 'Color':'darkblue'   },
+            
+            'X':{'Name':'Undefined', 'Complement':'X', 'Color':'darkred' },
+            'N':{'Name':'aNy base',  'Complement':'N', 'Color':'orchid'  },
+            
+            'B':{'Name':'C,G or T', 'Complement':'V', 'Color':'dimgrey' },
+            'V':{'Name':'A,C or G', 'Complement':'B', 'Color':'dimgrey' },
+            'D':{'Name':'A,G or T', 'Complement':'H', 'Color':'dimgrey' },
+            'H':{'Name':'A,C or T', 'Complement':'D', 'Color':'dimgrey' },
+            
+            'R':{'Name':'A or G (puRine)',     'Complement':'Y', 'Color':'dimgrey'},
+            'Y':{'Name':'C or T (pYrimidine)', 'Complement':'R', 'Color':'dimgrey'},
+            'K':{'Name':'G or T (Keto)',       'Complement':'M', 'Color':'dimgrey'},
+            'M':{'Name':'A or C (aMino)',      'Complement':'K', 'Color':'dimgrey'},
+            
+            'S':{'Name':'G or C (Strong - 3H bonds)',  'Complement':'W', 'Color':'dimgrey'},
+            'W':{'Name':'A or T (Weak - 2H bonds)',    'Complement':'S', 'Color':'dimgrey'} 
+        }
 
-dnaDict = { 'A-DNA':{'DuplexRise':3.391},
-            'B-DNA':{'DuplexRise':3.180},
-            'Z-DNA':{'DuplexRise':3.715} }
+# I'd like to suggest that we change the name of key 'DuplexRise' to 'Rise'.
+# Need to run this by Bruce and Ninad first. Mark 2008-01-31.
+dnaDict = \
+        { 'A-DNA':{'BasesPerTurn': env.prefs[adnaBasesPerTurn_prefs_key], 
+                   'DuplexRise':   env.prefs[adnaRise_prefs_key]},
+          'B-DNA':{'BasesPerTurn': env.prefs[bdnaBasesPerTurn_prefs_key], 
+                   'DuplexRise':   env.prefs[bdnaRise_prefs_key]},
+          'Z-DNA':{'BasesPerTurn': env.prefs[zdnaBasesPerTurn_prefs_key], 
+                   'DuplexRise':   env.prefs[zdnaRise_prefs_key]} 
+               }
 
 # Common DNA helper functions. ######################################
 
@@ -91,10 +104,22 @@ def getNextStrandColor(currentColor = None):
         # in _strandColorList are always different.
     return _new_color
 
+def getDuplexBasesPerTurn(conformation):
+    """
+    Returns the number of U{bases per turn} specified in the user preferences.
+    
+    @param conformation: "A-DNA", "B-DNA", or "Z-DNA"
+    @type  conformation: str
+    
+    @return: The number of bases per turn.
+    @rtype: float
+    """
+    assert conformation in ("A-DNA", "B-DNA", "Z-DNA")
+    return dnaDict[str(conformation)]['BasesPerTurn']
+
 def getDuplexRise(conformation):
     """
-    Return the 'rise' between base pairs of the 
-    specified DNA type (conformation).
+    Returns the duplex U{rise} specified in the user preferences.
     
     @param conformation: "A-DNA", "B-DNA", or "Z-DNA"
     @type  conformation: str

@@ -18,7 +18,7 @@ __author__ = "Mark"
 
 import env
 
-from Dna_Constants import getDuplexRise, getDuplexLength
+from Dna_Constants import getDuplexBasesPerTurn, getDuplexRise, getDuplexLength
 
 from utilities.Log import redmsg ##, greenmsg, orangemsg
 
@@ -76,7 +76,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self._conformation  = "B-DNA"
         self._numberOfBases = 0
-        self._basesPerTurn  = 10.0
+        self._basesPerTurn  = getDuplexBasesPerTurn(self._conformation)
         self._duplexRise    = getDuplexRise(self._conformation)
         self._duplexLength  = getDuplexLength(self._conformation, 
                                               self._numberOfBases)
