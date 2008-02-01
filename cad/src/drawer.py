@@ -2001,8 +2001,8 @@ def drawRibbons(endCenter1,
     # the point on axis. 
                       
     x = 0.0
-    T =  31.9 # The 'Period' of the sine wave(i.e.peak to peak distance 
-              # between consecutive crests)
+    T =  stepSize * 10 # The 'Period' of the sine wave (i.e.peak to peak 
+                       # distance between consecutive crests)
               
     amplitude = peakDeviationFromCenter
     amplitudeVector = unitVectorAlongLadderStep*amplitude

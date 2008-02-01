@@ -115,8 +115,11 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect( self.numberOfBasePairsSpinBox,
                       SIGNAL("valueChanged(int)"),
                       self.numberOfBasesChanged )
+        
+        change_connect( self.duplexRiseDoubleSpinBox,
+                      SIGNAL("valueChanged(double)"),
+                      self.duplexRiseChanged )
   
-
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -253,39 +256,49 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
 
         self.conformationComboBox  = \
             PM_ComboBox( pmGroupBox,
-                         label         =  "Conformation :", 
+                         label         =  "Conformation:", 
                          choices       =  ["B-DNA"],
                          setAsDefault  =  True)
 
-        
-        
         dnaModelChoices = ['PAM-3', 'PAM-5']
         self.dnaModelComboBox = \
             PM_ComboBox( pmGroupBox,     
-                         label         =  "Model :", 
+                         label         =  "Model:", 
                          choices       =  dnaModelChoices,
                          setAsDefault  =  True)
                                             
-        # Strand Length (i.e. the number of bases)
-        self.numberOfBasePairsSpinBox = \
-            PM_SpinBox( pmGroupBox, 
-                        label         =  "Base Pairs :", 
-                        value         =  self._numberOfBases,
-                        setAsDefault  =  False,
-                        minimum       =  0,
-                        maximum       =  10000 )
-
         
         self.basesPerTurnDoubleSpinBox  =  \
             PM_DoubleSpinBox( pmGroupBox,
-                              label         =  "Bases Per Turn :",
+                              label         =  "Bases Per Turn:",
                               value         =  self._basesPerTurn,
                               setAsDefault  =  True,
                               minimum       =  8.0,
                               maximum       =  20.0,
                               decimals      =  2,
                               singleStep    =  0.1 )
-
+        
+        self.duplexRiseDoubleSpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Rise:",
+                              value         =  self._duplexRise,
+                              setAsDefault  =  True,
+                              minimum       =  2.0,
+                              maximum       =  4.0,
+                              decimals      =  3,
+                              singleStep    =  0.01 )
+        
+        # Strand Length (i.e. the number of bases)
+        self.numberOfBasePairsSpinBox = \
+            PM_SpinBox( pmGroupBox, 
+                        label         =  "Base Pairs:", 
+                        value         =  self._numberOfBases,
+                        setAsDefault  =  False,
+                        minimum       =  0,
+                        maximum       =  10000 )
+        
+        self.numberOfBasePairsSpinBox.setDisabled(True)   
+        
         # Duplex Length
         self.duplexLengthLineEdit  =  \
             PM_LineEdit( pmGroupBox,
@@ -349,12 +362,22 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
 
     def numberOfBasesChanged( self, numberOfBases ):
         """
-        Slot for the B{Number of Bases" spinbox.
+        Slot for the B{Number of Bases} spinbox.
         """
         # Update the Duplex Length lineEdit widget.
-        text = str(getDuplexLength(self._conformation, numberOfBases)) \
+        text = str(getDuplexLength(self._conformation, 
+                                   numberOfBases,
+                                   self._duplexRise)) \
              + " Angstroms"
         self.duplexLengthLineEdit.setText(text)
+        return
+    
+    def duplexRiseChanged( self, numberOfBases ):
+        """
+        Slot for the B{Rise} spinbox.
+        """
+        self.editCommand.duplexRise = self.duplexRiseDoubleSpinBox.value()
+        self._duplexRise = self.duplexRiseDoubleSpinBox.value()
         return
 
     def getParameters(self):
@@ -368,6 +391,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         numberOfBases = self.numberOfBasePairsSpinBox.value()
         dnaForm  = str(self.conformationComboBox.currentText())
         basesPerTurn = self.basesPerTurnDoubleSpinBox.value()
+        duplexRise = self.duplexRiseDoubleSpinBox.value()
         
         dnaModel = str(self.dnaModelComboBox.currentText())
 
@@ -390,6 +414,7 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                 dnaForm,
                 dnaModel,
                 basesPerTurn,
+                duplexRise,
                 self.endPoint1, 
                 self.endPoint2)
 

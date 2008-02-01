@@ -209,11 +209,13 @@ class DnaDuplex_EditCommand(EditCommand):
         self.propMgr.endPoint2 = self.mouseClickPoints[1]
         duplexLength = vlen(self.mouseClickPoints[0] - self.mouseClickPoints[1])
         
-        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                 duplexLength)
+        numberOfBasePairs = \
+                          getNumberOfBasePairsFromDuplexLength(
+                              'B-DNA', 
+                              duplexLength,
+                              duplexRise = self.duplexRise)
         
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
-        
         
         self.preview_or_finalize_structure(previewing = True)
         
@@ -389,8 +391,11 @@ class DnaDuplex_EditCommand(EditCommand):
         self.propMgr.endPoint2 = params[1]
         duplexLength = vlen(params[0] - params[1])
         
-        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                 duplexLength)
+        numberOfBasePairs = \
+                          getNumberOfBasePairsFromDuplexLength(
+                              'B-DNA', 
+                              duplexLength,
+                              duplexRise = self.duplexRise)
         
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
         self.propMgr.specifyDnaLineButton.setChecked(False)
@@ -414,6 +419,7 @@ class DnaDuplex_EditCommand(EditCommand):
                      dnaForm, \
                      dnaModel, \
                      basesPerTurn, \
+                     duplexRise, \
                      endPoint1, \
                      endPoint2 = params
         
@@ -425,9 +431,8 @@ class DnaDuplex_EditCommand(EditCommand):
         # or Veq instead. 
         if Veq(endPoint1 , endPoint2) and Veq(endPoint1, V(0, 0, 0)):
             endPoint2 = endPoint1 + \
-                      self.win.glpane.right*getDuplexLength('B-DNA', 
-                                                            numberOfBases)
-            
+                      self.win.glpane.right * \
+                      getDuplexLength('B-DNA', numberOfBases)
 
         if numberOfBases < 1:
             msg = redmsg("Cannot to preview/insert a DNA duplex with 0 bases.")
@@ -480,18 +485,16 @@ class DnaDuplex_EditCommand(EditCommand):
             dna.make(dnaSegment, 
                      numberOfBases, 
                      basesPerTurn, 
+                     duplexRise,
                      endPoint1,
                      endPoint2)
         
-
             return dnaSegment
 
         except (PluginBug, UserError):
             # Why do we need UserError here? Mark 2007-08-28
             dnaSegment.kill()
             raise PluginBug("Internal error while trying to create DNA duplex.")
-
-        
     
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """
@@ -505,7 +508,7 @@ class DnaDuplex_EditCommand(EditCommand):
         assert temporaryModeName == 'DNA_LINE_MODE'
         
         mouseClickLimit = None
-        duplexRise =  getDuplexRise('B-DNA')
+        #duplexRise =  getDuplexRise('B-DNA')
         jigList = self.win.assy.getSelectedJigs()
  
         callback_cursorText = self.getCursorTextForTemporaryMode
@@ -523,8 +526,11 @@ class DnaDuplex_EditCommand(EditCommand):
         @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
         duplexLength = vlen(endPoint2 - endPoint1)
-        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
-                                                                 duplexLength)
+        numberOfBasePairs = \
+                          getNumberOfBasePairsFromDuplexLength(
+                              'B-DNA', 
+                              duplexLength,
+                              duplexRise = self.duplexRise)
         duplexLengthString = str(round(duplexLength, 3))
         text =  str(numberOfBasePairs)+ "b, "+ duplexLengthString 
         
@@ -534,7 +540,6 @@ class DnaDuplex_EditCommand(EditCommand):
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
         
         return text 
-    
     
     def isRubberbandLineSnapEnabled(self):
         """
@@ -556,9 +561,17 @@ class DnaDuplex_EditCommand(EditCommand):
         @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
         return self.propMgr.dnaRubberBandLineDisplayComboBox.currentText()
-      
-
-                
+    
+    def getDuplexRise(self):
+        """
+        This is used as a callback method in DnaLine mode . 
+        @return: The current duplex rise. 
+        @rtype: float
+        @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
+        """
+        return self.propMgr.dnaRubberBandLineDisplayComboBox.currentText()
+    
+    
     #Things needed for DnaLine_GraphicsMode (DnaLine_GM)======================
     
     def _setParamsForDnaLineGraphicsMode(self):
@@ -570,7 +583,8 @@ class DnaDuplex_EditCommand(EditCommand):
         previousmode. 
         """
         self.mouseClickLimit = None
-        self.duplexRise =  getDuplexRise('B-DNA')
+        # self.duplexRise = getDuplexRise('B-DNA')
+        self.duplexRise = self.propMgr.duplexRiseDoubleSpinBox.value()
         self.jigList = self.win.assy.getSelectedJigs()
  
         self.callbackMethodForCursorTextString = \
@@ -580,7 +594,3 @@ class DnaDuplex_EditCommand(EditCommand):
         
         self.callback_rubberbandLineDisplay = \
             self.getDisplayStyleForRubberbandLine
-
-       
-        
-            

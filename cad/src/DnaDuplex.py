@@ -62,7 +62,7 @@ class Dna:
     @type model: str
     
     @ivar numberOfBasePairs: The number of base-pairs in the duplex.
-    @type numberOfBasePairs: str
+    @type numberOfBasePairs: int
     
     @note: Atomistic models are not supported.
     """
@@ -71,6 +71,7 @@ class Dna:
              group, 
              numberOfBasePairs, 
              basesPerTurn, 
+             duplexRise,
              endPoint1,
              endPoint2,
              position = V(0, 0, 0)):
@@ -94,6 +95,9 @@ class Dna:
         @param basesPerTurn: The number of bases per helical turn.
         @type  basesPerTurn: float
         
+        @param duplexRise: The rise; the distance between adjacent bases.
+        @type  duplexRise: float
+        
         @param endPoint1: The origin of the duplex.
         @param endPoint1: L{V}
         
@@ -106,10 +110,12 @@ class Dna:
         @type position:  position
         """
         
-        self.numberOfBasePairs  =  numberOfBasePairs
         self.assy               =  group.assy
         assy                    =  group.assy
         baseList                =  []
+        
+        self.setNumberOfBasePairs(numberOfBasePairs)
+        self.setBaseRise(duplexRise)
         
         def insertBaseFromMmp(filename, subgroup, tfm, position = position):
             """
@@ -185,10 +191,10 @@ class Dna:
         # Calculate the twist per base in radians.
         twistPerBase = (self.handedness * 2 * pi) / basesPerTurn
         theta        = 0.0
-        z            = 0.5 * self.baseRise * (self.numberOfBasePairs - 1)
+        z            = 0.5 * self.getBaseRise() * (self.getNumberOfBasePairs() - 1)
                 
         # Create duplex.
-        for i in range(self.numberOfBasePairs):
+        for i in range(self.getNumberOfBasePairs()):
             basefile, zoffset, thetaOffset = \
                 self._strandAinfo(i)
             def tfm(v, theta = theta + thetaOffset, z1 = z + zoffset):
@@ -197,7 +203,7 @@ class Dna:
             insertBaseFromMmp(basefile, subgroup, tfm)
 
             theta -= twistPerBase
-            z     -= self.baseRise
+            z     -= self.getBaseRise()
 
         # Fuse the base-pair chunks together into continuous strands.
         fcb = fusechunksBase()
@@ -272,7 +278,7 @@ class Dna:
         # <axis> is the axis of rotation.
         theta = angleBetween(a, b)
         # <theta> is the angle (in degress) to rotate about <axis>.
-        scalar = self.getBaseRise() * (self.numberOfBasePairs - 1) * 0.5
+        scalar = self.getBaseRise() * (self.getNumberOfBasePairs() - 1) * 0.5
         rawOffset = b * scalar
         
         if 0: # Debugging code.
@@ -282,7 +288,7 @@ class Dna:
             print "cross(a,b) =", axis
             print "theta      =", theta
             print "baserise   =", self.getBaseRise()
-            print "# of bases =", self.numberOfBasePairs
+            print "# of bases =", self.getNumberOfBasePairs()
             print "scalar     =", scalar
             print "rawOffset  =", rawOffset
         
@@ -379,6 +385,21 @@ class Dna:
         @type  inBaseRise: float
         """
         self.baseRise  =  inBaseRise
+        
+    def getNumberOfBasePairs( self ):
+        """
+        Get the number of base-pairs in this duplex.
+        """
+        return self.numberOfBasePairs
+    
+    def setNumberOfBasePairs( self, inNumberOfBasePairs ):
+        """
+        Set the base rise (spacing) between base-pairs.
+        
+        @param inNumberOfBasePairs: The number of base-pairs.
+        @type  inNumberOfBasePairs: int
+        """
+        self.numberOfBasePairs  =  inNumberOfBasePairs
     
     pass
 
@@ -454,7 +475,7 @@ class B_Dna_PAM5(B_Dna):
         @return: True if index is zero.
         @rtype : bool
         """
-        if index ==  self.numberOfBasePairs - 1:
+        if index ==  self.getNumberOfBasePairs() - 1:
             return True
         else:
             return False
@@ -477,7 +498,7 @@ class B_Dna_PAM5(B_Dna):
         if self._isEndPosition(index):
             basename = "EndBasePair"
             
-        if self.numberOfBasePairs == 1:
+        if self.getNumberOfBasePairs() == 1:
             basename = "SingleBasePair"
             
         basefile     =  self._baseFileName(basename)
