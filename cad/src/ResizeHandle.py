@@ -25,7 +25,7 @@ from drawer import drawLineLoop, drawPlane
 from constants import black, orange, darkgreen
 
 from math import pi
-from VQT  import V
+from geometry.VQT import V
 
 import env
 from debug import print_compact_traceback

@@ -28,7 +28,7 @@ from DnaSegment_GraphicsMode import DnaSegment_GraphicsMode
 
 
 from utilities.Log  import redmsg
-from VQT            import V, Veq
+from geometry.VQT import V, Veq
 from DnaDuplex      import B_Dna_PAM3
 from DnaDuplex      import B_Dna_PAM5
 
@@ -56,7 +56,7 @@ if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
     
     from constants import white, yellow
 
-    from VQT import norm
+    from geometry.VQT import norm
     from drawer import drawcylinder, drawsphere
 
     from exprs.ExprsMeta import ExprsMeta

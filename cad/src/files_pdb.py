@@ -26,7 +26,7 @@ from string import capitalize
 from elements import PeriodicTable, Singlet
 from PlatformDependent import fix_plurals
 from utilities.Log import redmsg, orangemsg
-from VQT import A
+from geometry.VQT import A
 from debug_prefs import debug_pref, Choice_boolean_True
 from version import Version
 from datetime import datetime

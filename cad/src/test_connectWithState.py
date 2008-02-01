@@ -53,8 +53,8 @@ from test_connectWithState_PM import test_connectWithState_PM
 
 from test_commands import ExampleCommand
 
-from VQT import V
-from VQT import cross
+from geometry.VQT import V
+from geometry.VQT import cross
 
 from constants import pink, white
 # TODO: import the following from somewhere

@@ -70,8 +70,8 @@ import global_model_changedicts
 # chunk and chem form a two element import cycle.
 import chunk
 
-from VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
-from VQT import atom_angle_radians
+from geometry.VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
+from geometry.VQT import atom_angle_radians
 
 from mdldata import marks, links, filler
 from povheader import povpoint #bruce 050413

@@ -134,7 +134,7 @@ from exprs.test_statearray import test_StateArrayRefs
 from exprs.test_statearray_2 import test_StateArrayRefs_2
 from exprs.test_statearray_3 import test_StateArrayRefs_3
 
-from VQT import V
+from geometry.VQT import V
 from utilities.Comparison import same_vals
 from constants import purple, white, blue, red, orange, green, gray, pink, yellow, black, ave_colors, noop
 from prefs_constants import displayOriginAxis_prefs_key

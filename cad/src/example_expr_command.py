@@ -60,7 +60,7 @@ class ExampleCommand2E_PM( ExampleCommand2_PM ):
 
 from drawer import drawline
 from constants import red
-from VQT import V
+from geometry.VQT import V
 from exprs.instance_helpers import get_glpane_InstanceHolder
 from exprs.draggable import DraggablyBoxed
 

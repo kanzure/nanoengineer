@@ -39,8 +39,8 @@ from chem import Atom
 from elements import Singlet
 from bonds import Bond
 from jigs import Jig
-from VQT import vlen
-from VQT import atom_angle_radians
+from geometry.VQT import vlen
+from geometry.VQT import atom_angle_radians
 
 from PlatformDependent import fix_plurals
 

@@ -53,12 +53,12 @@ from Group   import Group
 from Assembly_API import Assembly_API
 
 from Csys import Csys
-from VQT import V
+from geometry.VQT import V
 from debug import print_compact_traceback, print_compact_stack
 from utilities import debug_flags
 
 from utilities.Log import greenmsg, redmsg
-from BoundingBox import BBox
+from geometry.BoundingBox import BBox
 
 from chunk import Chunk
 from jigs import Jig

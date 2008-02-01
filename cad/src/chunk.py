@@ -71,7 +71,7 @@ from OpenGL.GL import glEndList
 #  as of before 071113)
 import chem
 
-from VQT import V, Q, A, vlen
+from geometry.VQT import V, Q, A, vlen
 
 from Utility import Node
 
@@ -104,7 +104,7 @@ import bonds # TODO: import specific functions, since no longer an import cycle
 
 from elements import Singlet
 
-from BoundingBox import BBox
+from geometry.BoundingBox import BBox
 from drawer import ColorSorter
 ##from drawer import drawlinelist
 ##from constants import PickedColor
@@ -3224,7 +3224,7 @@ register_debug_menu_command("make BorrowerChunk (no addmol)", debug_make_Borrowe
 
 # ==
 
-from geometry import selection_polyhedron, inertia_eigenvectors, compute_heuristic_axis
+from geometry.geometryUtilities import selection_polyhedron, inertia_eigenvectors, compute_heuristic_axis
 
 def shakedown_poly_evals_evecs_axis(basepos):
     """

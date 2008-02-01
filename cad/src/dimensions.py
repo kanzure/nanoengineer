@@ -18,9 +18,9 @@ import Numeric
 from Numeric import dot
 
 from utilities import debug_flags
-from VQT import cross
-from VQT import vlen
-from VQT import norm
+from geometry.VQT import cross
+from geometry.VQT import vlen
+from geometry.VQT import norm
 from drawer import drawline
 
 from Font3D import Font3D, WIDTH, HEIGHT

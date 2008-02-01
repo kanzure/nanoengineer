@@ -135,7 +135,7 @@ from jigs_planes import GridPlane
 from ESPImage import ESPImage
 from jigs_measurements import MeasureAngle
 from jigs_measurements import MeasureDihedral
-from VQT import V, Q, A
+from geometry.VQT import V, Q, A
 from utilities.Log import redmsg, quote_html
 from elements import PeriodicTable
 from bonds import bond_atoms

@@ -66,10 +66,10 @@ from exprs.DisplistChunk import DisplistChunk
 
 from exprs.demo_MT import node_name #e really this belongs in a file which defines ModelTreeNodeInterface
 
-from VQT import V, Q
-from VQT import norm
-from VQT import cross
-from VQT import vlen
+from geometry.VQT import V, Q
+from geometry.VQT import norm
+from geometry.VQT import cross
+from geometry.VQT import vlen
 from constants import blue, white, ave_colors
 
 from exprs.Exprs import call_Expr, LvalueFromObjAndAttr, format_Expr, V_expr, neg_Expr

@@ -13,7 +13,7 @@ for notes about what's going on here.
 from math import atan2, sin, cos, pi, asin
 from Numeric import dot
 
-from VQT import vlen, cross, norm, V
+from geometry.VQT import vlen, cross, norm, V
 import env
 from utilities import debug_flags
 from debug import Stopwatch

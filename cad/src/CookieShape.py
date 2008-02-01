@@ -22,7 +22,7 @@ But it'll end up in a package for Build Crystal, so this might be ok.
 
 from Numeric import dot, floor
 
-from VQT import vlen, V
+from geometry.VQT import vlen, V
 from OpenGL.GL import glNewList, glEndList, glCallList, glGenLists
 from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 
@@ -41,7 +41,7 @@ from constants import white
 
 from debug import print_compact_traceback
 
-from BoundingBox import BBox
+from geometry.BoundingBox import BBox
 
 from shape import simple_shape_2d
 from shape import get_selCurve_color

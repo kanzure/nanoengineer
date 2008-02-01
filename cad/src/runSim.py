@@ -46,7 +46,7 @@ from movie import Movie
 from utilities.Log import redmsg, greenmsg, orangemsg, quote_html, _graymsg
 import env
 from env import seen_before
-from VQT import A
+from geometry.VQT import A
 import re
 from chem import AtomDict
 from chunk import Chunk

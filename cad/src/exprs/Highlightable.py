@@ -42,9 +42,9 @@ from OpenGL.GLU import gluProject, gluUnProject
 
 from utilities import debug_flags
 
-from VQT import A
-from VQT import vlen
-from VQT import V
+from geometry.VQT import A
+from geometry.VQT import vlen
+from geometry.VQT import V
 from constants import noop
 from constants import green
 from debug import print_compact_traceback

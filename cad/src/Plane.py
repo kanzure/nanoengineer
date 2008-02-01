@@ -27,8 +27,8 @@ from OpenGL.GL import glRotatef
 from drawer     import drawLineLoop, drawPlane
 from constants  import black, orange, yellow, darkgreen, brown
 
-from VQT         import V, Q, cross, planeXline, vlen, norm, ptonline
-from BoundingBox import BBox
+from geometry.VQT import V, Q, cross, planeXline, vlen, norm, ptonline
+from geometry.BoundingBox import BBox
 
 from debug import print_compact_traceback
 import env

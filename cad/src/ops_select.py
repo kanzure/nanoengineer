@@ -17,7 +17,7 @@ from jigs import Jig
 from chem import _changed_picked_Atoms
 from chunk import Chunk
 from elements import Singlet
-from VQT import V, A, norm, cross
+from geometry.VQT import V, A, norm, cross
 from Numeric import dot, transpose
 import env
 from utilities.Log import redmsg, greenmsg, orangemsg

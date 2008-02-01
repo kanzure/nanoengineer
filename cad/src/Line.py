@@ -18,7 +18,7 @@ from drawer     import drawPolyLine
 
 from Numeric    import dot
 from math       import pi, cos
-from VQT        import  V, Q, cross, A, planeXline, vlen, norm, angleBetween
+from geometry.VQT import V, Q, cross, A, planeXline, vlen, norm, angleBetween
 
 from debug     import print_compact_traceback
 from constants import blue

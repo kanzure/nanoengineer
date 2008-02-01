@@ -127,7 +127,7 @@ from exprs.projection import DrawInCenter
 
 from exprs.pallettes import PalletteWell
 
-from VQT import norm
+from geometry.VQT import norm
 
 from constants import gray, black, red, blue, purple, white
 from constants import ave_colors, noop

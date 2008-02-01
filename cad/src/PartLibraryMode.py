@@ -29,7 +29,7 @@ from utilities.Log import orangemsg, greenmsg, quote_html, redmsg
 
 from chem import Atom
 from elements import Singlet
-from VQT import Q
+from geometry.VQT import Q
 from ops_copy        import copied_nodes_for_DND
 
 from PasteMode              import PasteMode

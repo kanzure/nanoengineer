@@ -23,7 +23,7 @@ import env
 from utilities.Log import redmsg
 
 from debug import print_compact_traceback
-from VQT import V, Q, A, vlen, norm
+from geometry.VQT import V, Q, A, vlen, norm
 from Move_GraphicsMode import Move_GraphicsMode
 
 _superclass = Move_GraphicsMode

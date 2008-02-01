@@ -20,7 +20,7 @@ from PyQt4.Qt import QAction
 
 import env
 import changes
-from VQT import vlen
+from geometry.VQT import vlen
 
 from elements import Singlet
 from utilities.Log import redmsg, orangemsg

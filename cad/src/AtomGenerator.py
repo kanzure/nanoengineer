@@ -25,7 +25,7 @@ from utilities import debug_flags
 import env
 from chem import Atom
 from chunk import Chunk
-from VQT import V
+from geometry.VQT import V
 from elements import PeriodicTable
 from utilities.Log import greenmsg
 

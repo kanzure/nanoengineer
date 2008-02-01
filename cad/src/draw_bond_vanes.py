@@ -29,7 +29,7 @@ from OpenGL.GL import GL_LINE_STRIP
 from OpenGL.GL import glEnable
 from OpenGL.GL import GL_FALSE
 
-from VQT import cross, vlen, norm
+from geometry.VQT import cross, vlen, norm
 
 import env
 import drawer

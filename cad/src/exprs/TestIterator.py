@@ -19,7 +19,7 @@ from exprs.transforms import Translate
 from exprs.Column import SimpleColumn
 ##from exprs.Column import SimpleRow
 
-from VQT import V
+from geometry.VQT import V
 
 from exprs.Exprs import V_expr
 from exprs.widget2d import Widget2D, Stub, Widget

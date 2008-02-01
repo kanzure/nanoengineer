@@ -25,7 +25,7 @@ from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
 
 import env
-from VQT import V, Q, A, norm, cross, vlen
+from geometry.VQT import V, Q, A, norm, cross, vlen
 from drawer import drawcylinder
 from drawer import drawRotateSign
 from drawer import drawbrick
@@ -87,7 +87,7 @@ class Motor(Jig):
         pos = A( map( lambda a: a.posn(), self.atoms ) )
         self.center = sum(pos)/len(pos)
         relpos = pos - self.center
-        from geometry import compute_heuristic_axis
+        from geometry.geometryUtilities import compute_heuristic_axis
         axis = compute_heuristic_axis( relpos, 'normal', already_centered = True, nears = nears, dflt = None )
         if not axis:
             #e warning? I think so... BTW we pass dflt = None to make the warning come out more often;

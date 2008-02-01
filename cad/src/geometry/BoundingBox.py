@@ -23,7 +23,7 @@ from drawer import drawwirebox
 from Numeric import add, subtract, sqrt 
 from Numeric import maximum, minimum, dot
 
-from VQT import V, A, cat
+from geometry.VQT import V, A, cat
 from constants import black
 
 class BBox:

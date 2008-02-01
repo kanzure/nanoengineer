@@ -20,7 +20,7 @@ since it now only supports those two formats. [bruce 072009]
 import math
 
 import env
-from VQT import V, Q, A, vlen
+from geometry.VQT import V, Q, A, vlen
 from povheader import povheader, povpoint
 from mdldata import mdlheader
 from mdldata import mdlfooter

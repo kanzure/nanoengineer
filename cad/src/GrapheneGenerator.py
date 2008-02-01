@@ -15,7 +15,7 @@ Mark 2007-08-06: Renamed GrapheneGeneratorDialog to GrapheneGeneratorPropertyMan
 
 from math import atan2, pi
 
-from VQT import V
+from geometry.VQT import V
 from chem import Atom
 
 import bonds # for bond_atoms

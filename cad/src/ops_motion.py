@@ -14,7 +14,7 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 
 from utilities.Log import greenmsg, redmsg
 from PlatformDependent import fix_plurals
-from VQT import V, norm, Q, vlen, orthodist
+from geometry.VQT import V, norm, Q, vlen, orthodist
 import env
 from math import pi
 from debug import print_compact_traceback

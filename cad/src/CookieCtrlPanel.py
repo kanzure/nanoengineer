@@ -429,7 +429,7 @@ class CookieCtrlPanel(CookiePropertyManager):
         If <direction> == True, anti-clockwise rotate, otherwise, 
         clockwise rotate"""
         from math import pi
-        from VQT import Q, V
+        from geometry.VQT import Q, V
            
         angle = self.rotateGridByAngleSpinBox.value()
         if not direction: angle = -angle

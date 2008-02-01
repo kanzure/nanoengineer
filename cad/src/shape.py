@@ -30,7 +30,7 @@ I'd be more confident that a package import cycle was unlikely.)
 
 from Numeric import array, zeros, maximum, minimum, ceil, dot, floor
 
-from VQT import A, vlen, V
+from geometry.VQT import A, vlen, V
 
 from drawer import drawrectangle
 from drawer import drawline
@@ -46,7 +46,7 @@ from constants import red
 from debug import print_compact_traceback
 from utilities import debug_flags 
 
-from BoundingBox import BBox
+from geometry.BoundingBox import BBox
 
 def get_selCurve_color(selSense, bgcolor = white):
     """

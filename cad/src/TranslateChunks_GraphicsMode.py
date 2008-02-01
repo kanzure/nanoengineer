@@ -35,7 +35,7 @@ from constants import orange
 
 from constants import yellow
 
-from VQT import V, Q, A, vlen, norm
+from geometry.VQT import V, Q, A, vlen, norm
 
 import time
 

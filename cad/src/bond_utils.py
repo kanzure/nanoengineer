@@ -13,7 +13,7 @@ History:
 created by bruce 050705 to help with higher-order bonds for Alpha6.
 """
 
-from VQT import Q
+from geometry.VQT import Q
 from constants import noop
 import env
 from utilities.Log import greenmsg, redmsg, orangemsg, quote_html

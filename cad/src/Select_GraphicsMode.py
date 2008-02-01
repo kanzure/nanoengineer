@@ -93,7 +93,7 @@ import env
 from debug_prefs import debug_pref
 from debug_prefs import Choice
 
-from VQT import V, A, vlen
+from geometry.VQT import V, A, vlen
 
 from shape import SelectionShape
 from bonds import Bond

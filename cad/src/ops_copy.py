@@ -26,8 +26,8 @@ from bonds         import bond_copied_atoms
 from constants     import gensym
 from ops_select    import selection_from_part
 from constants     import noop
-from VQT           import V
-from BoundingBox   import BBox
+from geometry.VQT import V
+from geometry.BoundingBox import BBox
 from jigs          import Jig
 
 class ops_copy_Mixin:

@@ -35,7 +35,7 @@ debug_1951 = False # DO NOT COMMIT with True
 import struct
 from Numeric import floor
 
-from VQT import Q, vlen, norm
+from geometry.VQT import Q, vlen, norm
 
 from debug import print_compact_stack, compact_stack, print_compact_traceback
 from debug import reload_once_per_event

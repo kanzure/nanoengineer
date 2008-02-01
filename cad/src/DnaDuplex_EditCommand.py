@@ -37,7 +37,7 @@ from dna_model.DnaSegment import DnaSegment
 
 
 from utilities.Log  import redmsg, greenmsg
-from VQT            import V, Veq, vlen
+from geometry.VQT import V, Veq, vlen
 from DnaDuplex      import B_Dna_PAM3
 from DnaDuplex      import B_Dna_PAM5
 

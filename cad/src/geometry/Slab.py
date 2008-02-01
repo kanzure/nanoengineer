@@ -13,7 +13,7 @@ Note: bruce 071215 split class Slab our of shape.py into its own module.
 
 from Numeric import dot
 
-from VQT import norm
+from geometry.VQT import norm
 
 class Slab:
     """

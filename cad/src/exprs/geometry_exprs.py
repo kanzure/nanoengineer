@@ -106,10 +106,10 @@ instructions for geometric calculations, rather than as ever-present overhead --
 
 from Numeric import dot
 
-from VQT import planeXline
-from VQT import norm
-from VQT import cross
-from VQT import vlen
+from geometry.VQT import planeXline
+from geometry.VQT import norm
+from geometry.VQT import cross
+from geometry.VQT import vlen
 
 # ==
 

@@ -43,7 +43,7 @@ from constants import orange
 
 from constants import yellow
 
-from VQT import V, vlen
+from geometry.VQT import V, vlen
 
 import time
 

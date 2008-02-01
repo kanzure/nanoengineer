@@ -9,7 +9,7 @@ DnaSegment.py - ...
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 from debug import print_compact_stack
 from chunk import Chunk
-from VQT import V, norm
+from geometry.VQT import V, norm
 
 class DnaSegment(DnaStrandOrSegment):
     """

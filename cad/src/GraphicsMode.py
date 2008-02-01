@@ -28,7 +28,7 @@ from Numeric import exp
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QMenu
 
-from VQT import V, Q, vlen, norm, planeXline, ptonline, cross
+from geometry.VQT import V, Q, vlen, norm, planeXline, ptonline, cross
 import drawer
 
 from debug import print_compact_traceback

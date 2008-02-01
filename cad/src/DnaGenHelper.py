@@ -49,7 +49,7 @@ from debug import print_compact_traceback
 
 from PlatformDependent  import find_plugin_dir
 from files_mmp          import readmmp
-from VQT                import V
+from geometry.VQT import V
 from fusechunksMode     import fusechunksBase
 from utilities.Log import orangemsg
 from GeneratorBaseClass import PluginBug

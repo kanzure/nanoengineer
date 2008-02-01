@@ -25,8 +25,8 @@ except:
 
 from PyQt4.Qt import QFont, QString, QColor
 
-from VQT import V
-from VQT import norm
+from geometry.VQT import V
+from geometry.VQT import norm
 
 from drawer import ColorSorter
 from drawer import drawline

@@ -121,7 +121,7 @@ except:
     print "GLE module can't be imported. Now trying _GLE"
     from OpenGL._GLE import glePolyCone
 
-from VQT import V, Q, A, norm, vlen
+from geometry.VQT import V, Q, A, norm, vlen
 from Numeric import dot
 import drawer
 
@@ -2428,7 +2428,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         planeAxis  = plane.getaxis()
         planeNorm  = norm(planeAxis)
         planePoint = plane.center
-        from VQT import planeXline, ptonline
+        from geometry.VQT import planeXline, ptonline
         #Find out intersection of the mouseray with the plane. 
         intersection = planeXline(planePoint, planeNorm, linePoint, lineVector)
         if intersection is None:

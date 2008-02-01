@@ -22,7 +22,7 @@ from PM.PM_SpinBox import PM_SpinBox
 from PM.PM_LineEdit import PM_LineEdit
 from Dna_Constants import getNumberOfBasePairsFromDuplexLength, getDuplexLength
 
-from VQT import V, vlen
+from geometry.VQT import V, vlen
 
 class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     """

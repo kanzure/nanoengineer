@@ -69,10 +69,10 @@ from drawer import drawPlane
 from drawer import drawwirecube
 from drawer import drawLineLoop
 
-from VQT import V, Q, A
+from geometry.VQT import V, Q, A
 from povheader import povpoint
 from shape import SelectionShape
-from Slab import Slab
+from geometry.Slab import Slab
 
 from utilities.Log import redmsg, greenmsg 
 from debug_prefs import debug_pref, Choice_boolean_False

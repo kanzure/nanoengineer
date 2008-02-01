@@ -15,8 +15,8 @@ from Numeric import dot, argmax, argmin, sqrt
 
 import env
 import drawer
-import geometry
-from VQT import V, norm
+from geometry.geometryUtilities import matrix_putting_axis_at_z
+from geometry.VQT import V, norm
 from debug import print_compact_traceback
 from displaymodes import ChunkDisplayMode
 from constants import ave_colors
@@ -107,7 +107,7 @@ class CylinderChunks(ChunkDisplayMode):
         center = chunk.center
         points = chunk.atpos - center # not sure if basepos points are already centered
         # compare following Numeric Python code to findAtomUnderMouse and its caller
-        matrix = geometry.matrix_putting_axis_at_z(axis)
+        matrix = matrix_putting_axis_at_z(axis)
         v = dot( points, matrix)
         # compute xy distances-squared between axis line and atom centers
         r_xy_2 = v[:,0]**2 + v[:,1]**2

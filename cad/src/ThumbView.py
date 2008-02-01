@@ -63,7 +63,7 @@ from OpenGL.GLU import gluPickMatrix, gluUnProject
 
 from PyQt4.Qt import Qt
 
-from VQT import V, Q, A
+from geometry.VQT import V, Q, A
 import drawer
 from model.assembly import assembly 
 import env

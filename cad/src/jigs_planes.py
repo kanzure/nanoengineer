@@ -31,7 +31,7 @@ from drawer import drawLineLoop
 from draw_grid_lines import drawGPGrid
 from draw_grid_lines import drawSiCGrid
 
-from VQT import V, Q, A, cross
+from geometry.VQT import V, Q, A, cross
 from povheader import povpoint
 
 from jigs import Jig
@@ -42,7 +42,7 @@ from constants import gray
 from prefs_constants import SQUARE_GRID
 from prefs_constants import SOLID_LINE
 
-from BoundingBox import BBox
+from geometry.BoundingBox import BBox
 
 from GridPlaneProp import GridPlaneProp
 

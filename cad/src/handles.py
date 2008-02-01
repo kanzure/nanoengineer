@@ -16,10 +16,10 @@ Needs cleanup.
 
 from Numeric import sqrt
 
-from VQT import V
-from VQT import vlen
-from VQT import norm
-from VQT import orthodist
+from geometry.VQT import V
+from geometry.VQT import vlen
+from geometry.VQT import norm
+from geometry.VQT import orthodist
 import drawer
 
 from constants import ave_colors

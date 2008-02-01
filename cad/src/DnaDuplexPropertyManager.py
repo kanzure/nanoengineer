@@ -37,7 +37,7 @@ from PM.PM_CheckBox   import PM_CheckBox
 
 from DebugMenuMixin import DebugMenuMixin
 from EditCommand_PM import EditCommand_PM
-from VQT import V
+from geometry.VQT import V
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton

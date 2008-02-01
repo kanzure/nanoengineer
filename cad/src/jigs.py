@@ -42,7 +42,7 @@ from utilities import debug_flags
 
 from Utility import Node
 from icon_utilities import imagename_to_pixmap
-from VQT import A
+from geometry.VQT import A
 from StatProp import StatProp
 from ThermoProp import ThermoProp
 

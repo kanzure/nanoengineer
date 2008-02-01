@@ -10,11 +10,11 @@ reposition_baggage.py -- help reposition baggage atoms after real neighbor atoms
 import math
 
 from utilities import debug_flags
-from VQT import V, norm, cross, vlen
+from geometry.VQT import V, norm, cross, vlen
 from bond_constants import find_bond
 from bond_constants import V_SINGLE
 
-from geometry import arbitrary_perpendicular
+from geometry.geometryUtilities import arbitrary_perpendicular
 
 debugprints = False
 

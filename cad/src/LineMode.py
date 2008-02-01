@@ -24,7 +24,7 @@ from Select_GraphicsMode import Select_GraphicsMode
 from drawer import drawline, drawsphere
 from constants import black, darkred, blue
 
-from VQT import vlen, norm, angleBetween, V, ptonline
+from geometry.VQT import vlen, norm, angleBetween, V, ptonline
 
 
 STARTPOINT_SPHERE_RADIUS = 1.0

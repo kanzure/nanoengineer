@@ -26,7 +26,7 @@ from Numeric import Float, zeros, multiply, sign, dot
 from LinearAlgebra import solve_linear_equations, eigenvectors
 
 from utilities import debug_flags # for atom_debug
-from VQT import V, A, cat, norm, cross, X_AXIS, Y_AXIS
+from geometry.VQT import V, A, cat, norm, cross, X_AXIS, Y_AXIS
 
 def selection_polyhedron(basepos, borderwidth = 1.8):
     """

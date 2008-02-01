@@ -20,7 +20,7 @@ import env
 
 from icon_utilities import image_directory # for finding texture files
 
-from VQT import V, A, vlen
+from geometry.VQT import V, A, vlen
 
 from exprs.draw_utils import draw_textured_rect, mymousepoints
 

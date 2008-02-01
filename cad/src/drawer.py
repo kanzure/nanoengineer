@@ -182,7 +182,7 @@ except:
     # The installed version of OpenGL requires argument-typed glFog calls.
     from OpenGL.GL import glFogf as glFog	
 
-from VQT import norm, vlen, V, Q, A, cross
+from geometry.VQT import norm, vlen, V, Q, A, cross
 import env #bruce 051126
 
 from constants import DIAMOND_BOND_LENGTH, white

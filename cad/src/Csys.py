@@ -14,7 +14,7 @@ bruce 071026 moved it from Utility into a new file.
 """
 
 from constants import gensym
-from VQT import V, Q
+from geometry.VQT import V, Q
 from icon_utilities import imagename_to_pixmap
 from Utility import SimpleCopyMixin
 from Utility import Node

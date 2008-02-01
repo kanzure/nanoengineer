@@ -13,7 +13,7 @@ from OpenGL.GL import GL_CLIP_PLANE3
 from OpenGL.GL import GL_CLIP_PLANE4
 from OpenGL.GL import GL_CLIP_PLANE5
 
-from VQT import V
+from geometry.VQT import V
 
 from exprs.Exprs import list_Expr
 from exprs.widget2d import Widget2D

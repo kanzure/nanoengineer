@@ -22,7 +22,7 @@ as for bond2.]
 
 from math import floor, ceil
 
-from VQT import Q
+from geometry.VQT import Q
 from debug import print_compact_traceback    
 from utilities import debug_flags
 import env

@@ -11,7 +11,7 @@ ExprsConstants.py -- define constants and simple functions used by many files in
 # Note: most or all of the imports from cad/src are no longer needed here,
 # since the exprs modules that want them import them directly.
 
-from VQT import V
+from geometry.VQT import V
 
 # compass positions, also usable for DrawInCorner
 

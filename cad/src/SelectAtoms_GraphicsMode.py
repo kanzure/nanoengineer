@@ -34,7 +34,7 @@ from PyQt4.Qt import QMouseEvent
 import env
 from utilities import debug_flags
 
-from VQT import V, Q, norm, vlen, ptonline
+from geometry.VQT import V, Q, norm, vlen, ptonline
 from chem import Atom
 from jigs import Jig
 from bonds import Bond

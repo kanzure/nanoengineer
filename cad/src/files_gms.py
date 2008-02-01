@@ -19,7 +19,7 @@ from string import capitalize
 from elements import PeriodicTable
 from PlatformDependent import get_gms_name
 from utilities.Log import redmsg, orangemsg
-from VQT import A
+from geometry.VQT import A
 import env
 
 failpat = re.compile("ABNORMALLY")

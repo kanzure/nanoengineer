@@ -25,7 +25,7 @@ from OpenGL.GL import glPopMatrix
 
 from drawer    import drawDirectionArrow
 
-from VQT         import V, norm
+from geometry.VQT import V, norm
 from math        import pi
 from constants   import gray, orange
 from debug       import print_compact_traceback

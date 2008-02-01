@@ -17,7 +17,7 @@ import os, sys
 from struct import unpack
 from PyQt4.Qt import Qt, qApp, QApplication, QCursor, SIGNAL
 from utilities.Log import redmsg, orangemsg, greenmsg
-from VQT import A
+from geometry.VQT import A
 from chem import move_alist_and_snuggle
 from utilities import debug_flags
 from PlatformDependent import fix_plurals

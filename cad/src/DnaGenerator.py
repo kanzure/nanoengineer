@@ -33,7 +33,7 @@ from constants import darkred, blue, lightgray
 
 from Group          import Group
 from utilities.Log  import redmsg, greenmsg ##, orangemsg
-from VQT            import Q, V, angleBetween, cross, vlen, Veq
+from geometry.VQT import Q, V, angleBetween, cross, vlen, Veq
 from math           import pi
 from chunk          import Chunk
 from constants      import gensym    

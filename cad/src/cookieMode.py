@@ -32,14 +32,14 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QCursor
 
 import env
-from VQT import V, Q, A, norm, vlen
+from geometry.VQT import V, Q, A, norm, vlen
 from modes import basicMode
 from CookieCtrlPanel import CookieCtrlPanel
 from utilities.Log import orangemsg
 from utilities.Log import redmsg
 
 from shape import get_selCurve_color
-from Slab import Slab
+from geometry.Slab import Slab
 from CookieShape import CookieShape
 
 import drawer

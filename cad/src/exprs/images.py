@@ -74,7 +74,7 @@ from exprs.Center import Center
 
 from utilities import debug_flags
 
-from VQT import V
+from geometry.VQT import V
 from env import seen_before
 
 from exprs.ExprsMeta import ExprsMeta

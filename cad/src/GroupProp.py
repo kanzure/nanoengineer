@@ -9,7 +9,7 @@ import sys
 
 from PyQt4.Qt import QDialog, QListWidgetItem, SIGNAL
 from GroupPropDialog import Ui_GroupPropDialog
-from VQT import V
+from geometry.VQT import V
 
 class Statistics:
     def __init__(self, group):

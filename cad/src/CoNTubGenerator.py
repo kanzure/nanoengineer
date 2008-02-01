@@ -590,7 +590,7 @@ class PluginlikeGenerator:
         # example: build some methanes
         print "create_methane_test"
         assy = self.win.assy
-        from VQT import V
+        from geometry.VQT import V
         from chunk import Chunk
         from chem import Atom
         mol = Chunk(assy, 'bug') # name is reset below!

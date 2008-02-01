@@ -24,7 +24,7 @@ from OpenGL.GL import GL_QUAD_STRIP
 
 from OpenGL.GLU import gluUnProject
 
-from VQT import norm, A
+from geometry.VQT import norm, A
 from Numeric import dot
 
 # ==

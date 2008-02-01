@@ -58,6 +58,23 @@ everywhere could change some unrelated variables.
 Where an 'import as' remains after this refactoring, a further
 refactoring should be done to remove the 'as' clause.
 
+Steps for moving a module:
+
+1) make the new location, if necessary:
+
+$ svn mkdir newpackage
+
+2) update the imports:
+
+$ tools/Refactoring/RenameModule.py path.py newpackage
+
+3) actually move the module:
+
+$ svn mv path.py newpackage/path.py
+$ rm path.pyc
+
+4) check to see that everything works.
+
 @author: Eric Messick
 @copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
 @version: $Id$
@@ -211,13 +228,16 @@ class _OutputStream(object):
         if (self._changedTwo):
             if (self._commaOne != ""):
                 self._write(self._newLineOne + "\n")
+                print self._newLineOne
                 if (DryRun):
                     self._lineNumber = self._lineNumber - 1
             self._write(self._newLineTwo + trailer)
+            print self._newLineTwo + trailer
             self.fileChanged()
         else:
             if (self._changedOne):
                 self._write(self._newLineOne + trailer)
+                print self._newLineOne + trailer
                 self.fileChanged()
             else:
                 self.writeLine(originalLine)
@@ -430,6 +450,7 @@ if (__name__ == '__main__'):
     SubstituteBareModule = not findOption("--ignore-bare-module")
     
     if (len(sys.argv) != 3):
+        print "len(sys.argv): %d" % len(sys.argv)
         usage()
     oldPath = sys.argv[1]
     newPath = sys.argv[2]

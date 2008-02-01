@@ -27,7 +27,7 @@ from OpenGL.GL import GL_DEPTH_COMPONENT
 from OpenGL.GL import glReadPixelsf
 from OpenGL.GLU import gluUnProject
 
-from VQT import V, A
+from geometry.VQT import V, A
 import drawer
 from constants import GL_FAR_Z
 

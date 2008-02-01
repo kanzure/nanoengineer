@@ -65,7 +65,7 @@ from chunk      import Chunk
 from chem       import Atom
 from chem       import oneUnbonded
 from elements   import Singlet
-from VQT        import Q, A, norm, twistor
+from geometry.VQT import Q, A, norm, twistor
 
 from drawer     import drawline
 

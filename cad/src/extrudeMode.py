@@ -56,9 +56,9 @@ from bonds import bond_at_singlets
 from icon_utilities import geticon
 from utilities.Log import redmsg
 
-from VQT import check_posns_near, check_quats_near
+from geometry.VQT import check_posns_near, check_quats_near
 ##from VQT import check_floats_near
-from VQT import V, Q, norm, vlen, cross
+from geometry.VQT import V, Q, norm, vlen, cross
 
 from ExtrudePropertyManager import ExtrudePropertyManager
 

@@ -33,8 +33,8 @@ TODO: make this directly accessible as one or more user operations.
 
 import math
 
-from VQT import vlen
-from VQT import atom_angle_radians
+from geometry.VQT import vlen
+from geometry.VQT import atom_angle_radians
 
 import env
 

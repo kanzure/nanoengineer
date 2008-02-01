@@ -33,7 +33,7 @@ in built releases).
 
 import time
 
-from VQT import V, Q
+from geometry.VQT import V, Q
 from depositMode import depositMode
 
 from debug import print_compact_traceback

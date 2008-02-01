@@ -31,9 +31,9 @@ from icon_utilities import geticon
 from SelectChunks_Command import SelectChunks_basicCommand
 from Move_GraphicsMode  import Move_GraphicsMode
 from GraphicsMode_API import GraphicsMode_API
-from BoundingBox import BBox
+from geometry.BoundingBox import BBox
 from utilities.Log import redmsg
-from VQT import V, Q, A, norm, vlen
+from geometry.VQT import V, Q, A, norm, vlen
 from debug import print_compact_traceback
 
 from TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode

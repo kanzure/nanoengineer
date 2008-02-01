@@ -760,7 +760,7 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
 
 # same as in basic.py:
 from Numeric import dot
-from VQT import V, norm, vlen
+from geometry.VQT import V, norm, vlen
 
 class V_expr(OpExpr):
     """Make an expr for a Numeric array of floats. Called like VQT.py's V macro.
