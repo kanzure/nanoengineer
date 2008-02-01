@@ -225,7 +225,17 @@ class DnaDuplex_EditCommand(EditCommand):
             segment.unpick()
             
         #Select the newly created structure
-        self.struct.pick()        
+        self.struct.pick()    
+        
+        #set some properties such as duplexRise and number of bases per turn
+        #This information will be stored on the DnaSegment object so that
+        #it can be retrieved while editing this object. Its a temporary 
+        #KLUDGE until we have a singing and dancing version of 
+        #dna data model. -- Ninad 2008-02-01
+        params = (self.duplexRise, 
+                  self.propMgr.basesPerTurnDoubleSpinBox.value())
+        
+        self.struct.setProps(params)
         
         #Now append the new structure in self._segmentList (this list of 
         #segments
