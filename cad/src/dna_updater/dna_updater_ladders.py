@@ -178,7 +178,7 @@ class chains_to_break:
                 res.append( (start_index, length) )
             start_index = break_before
             continue
-        if DEBUG_DNA_UPDATER: # _VERBOSE?
+        if DEBUG_DNA_UPDATER_VERBOSE: # made verbose on 080201
             print "will break %r -> %d pieces == %r" % (chain, len(res), res)
         assert num_bases == chain.baselength()
         return res

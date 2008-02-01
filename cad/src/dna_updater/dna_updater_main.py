@@ -49,10 +49,12 @@ def full_dna_update():
         items = changed_atoms.items()
         items.sort()
         atoms = [item[1] for item in items]
-        if DEBUG_DNA_UPDATER_VERBOSE or len(atoms) <= 100:
+        NUMBER_TO_PRINT = 10
+        if DEBUG_DNA_UPDATER_VERBOSE or len(atoms) <= NUMBER_TO_PRINT:
             print " they are: %r" % atoms
         else:
-            print " the first 100 of them are: %r ..." % atoms[:100]
+            print " the first %d of them are: %r ..." % \
+                  (NUMBER_TO_PRINT, atoms[:NUMBER_TO_PRINT])
 
     remove_killed_atoms( changed_atoms) # only affects this dict, not the atoms
         # TODO: also remove atoms from assys that have been destroyed

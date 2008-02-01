@@ -22,6 +22,8 @@ from utilities.Log import orangemsg, graymsg
 
 # ==
 
+_DEBUG_HIDDEN = True ### TEMPORARY, but True for commit for now; but soon, remove the code for this @@@@
+
 _superclass = Chunk
 
 class DnaLadderRailChunk(Chunk):
@@ -41,12 +43,19 @@ class DnaLadderRailChunk(Chunk):
     ladder = None # will be a DnaLadder in finished instances; can be set to None by Undo #### FIX MORE CODE FOR THAT @@@@
 
     _num_old_atoms_hidden = 0
+    _num_old_atoms_not_hidden = 0
     
     ###e todo: undo, copy for those attrs?
 
     # == init methods
 
     def __init__(self, assy, chain_or_something_else):
+
+        if _DEBUG_HIDDEN:
+            self._atoms_were_hidden = []
+            self._atoms_were_not_hidden = []
+            self._num_extra_bondpoints = 0
+
         # TODO: check if this arg signature is ok re undo, copy, etc;
         # and if ok for rest of Node API if that matters for this kind of chunk;
         # for now just assume chain_or_something_else is a DnaChain
@@ -64,6 +73,7 @@ class DnaLadderRailChunk(Chunk):
             # review: make this import toplevel? right now it's probably in a cycle.
         self.ladder = _rail_end_atom_to_ladder( chain.baseatoms[0] )
         self._set_properties_from_grab_atom_info()
+
         return
 
     def _undo_update(self):
@@ -92,7 +102,7 @@ class DnaLadderRailChunk(Chunk):
 
     def _grab_atom(self, atom):
         """
-        Grab the given atom to be one of our own,
+        Grab the given atom (and its bondpoints) to be one of our own,
         recording info about its old chunk which will be used later
         (in self._set_properties_from_grab_atom_info, called at end of __init__)
         in setting properties of self to imitate those of our atoms' old chunks.
@@ -102,15 +112,27 @@ class DnaLadderRailChunk(Chunk):
         # maybe: self._old_chunks[id(old_chunk)] = old_chunk
         if old_chunk and old_chunk.hidden:
             self._num_old_atoms_hidden += 1
+            if _DEBUG_HIDDEN:
+                self._atoms_were_hidden.append( (atom, old_chunk) )
+        else:
+            self._num_old_atoms_not_hidden += 1
+            if _DEBUG_HIDDEN:
+                self._atoms_were_not_hidden.append( (atom, old_chunk) )
+        
         # then grab the atom
+        if _DEBUG_HIDDEN:
+            have = len(self.atoms)
         atom.hopmol(self)
             # note: hopmol immediately kills old chunk if it becomes empty
+        if _DEBUG_HIDDEN:
+            extra = len(self.atoms) - (have + 1)
+            self._num_extra_bondpoints += extra
         return
 
     def _set_properties_from_grab_atom_info(self): # 080201
         # if *all* atoms were hidden, hide self.
         # if any or all were hidden, emit an appropriate summary message.
-        if self._num_old_atoms_hidden == len(self.atoms):
+        if self._num_old_atoms_hidden and not self._num_old_atoms_not_hidden:
             self.hide()
             if DEBUG_DNA_UPDATER:
                 summary_format = "DNA updater: debug fyi: remade [N] hidden chunk(s)"
@@ -121,14 +143,39 @@ class DnaLadderRailChunk(Chunk):
                                                   count = self._num_old_atoms_hidden
                                                  )
             if DEBUG_DNA_UPDATER:
-                summary_format = "Warning: DNA updater unhid them due to [N] unhidden atom(s)"
-                env.history.deferred_summary_message( graymsg(summary_format),
-                                                      count = len(self.atoms) - self._num_old_atoms_hidden
+                ## todo: summary_format2 = "Note: it unhid them due to [N] unhidden atom(s)"
+                summary_format2 = "Note: DNA updater must unhide some hidden atoms due to [N] unhidden atom(s)"
+                env.history.deferred_summary_message( graymsg(summary_format2),
+                                                      ## todo: sort_after = summary_format, -- or orangemsg(summary_format)??
+                                                      count = self._num_old_atoms_not_hidden
                                                      )
-        if self._num_old_atoms_hidden > len(self.atoms):
+        if self._num_old_atoms_hidden + self._num_old_atoms_not_hidden > len(self.atoms):
             env.history.redmsg("Bug in DNA updater, see console prints")
-            print "Bug in DNA updater: _num_old_atoms_hidden %r > len(self.atoms) %r, for %r" % \
-                  ( self._num_old_atoms_hidden , len(self.atoms), self )
+            print "Bug in DNA updater: _num_old_atoms_hidden %r + self._num_old_atoms_not_hidden %r > len(self.atoms) %r, for %r" % \
+                  ( self._num_old_atoms_hidden , self._num_old_atoms_not_hidden, len(self.atoms), self )
+
+        if _DEBUG_HIDDEN:
+            mixed = not not (self._atoms_were_hidden and self._atoms_were_not_hidden)
+            if not len(self._atoms_were_hidden) + len(self._atoms_were_not_hidden) == len(self.atoms) - self._num_extra_bondpoints:
+                print "\n***BUG: " \
+                   "hidden %d, unhidden %d, sum %d, not equal to total %d - extrabps %d, in %r" % \
+                   ( len(self._atoms_were_hidden) , len(self._atoms_were_not_hidden),
+                     len(self._atoms_were_hidden) + len(self._atoms_were_not_hidden),
+                     len(self.atoms),
+                     self._num_extra_bondpoints,
+                     self )
+                missing_atoms = dict(self.atoms) # copy here, modify this copy below
+                for atom, chunk in self._atoms_were_hidden + self._atoms_were_not_hidden:
+                    del missing_atoms[atom.key] # always there? bad bug if not, i think!
+                print "\n *** leftover atoms (including %d extra bonpoints): %r" % \
+                      (self._num_extra_bondpoints, missing_atoms.values())
+            else:
+                if not ( mixed == (not not (self._num_old_atoms_hidden and self._num_old_atoms_not_hidden)) ):
+                    print "\n*** BUG: mixed = %r but self._num_old_atoms_hidden = %d, len(self.atoms) = %d, in %r" % \
+                          ( mixed, self._num_old_atoms_hidden , len(self.atoms), self)
+            if mixed:
+                print "\n_DEBUG_HIDDEN fyi: hidden atoms = %r \n unhidden atoms = %r" % \
+                      ( self._atoms_were_hidden, self._atoms_were_not_hidden )
         return
         
     def set_wholechain(self, wholechain):

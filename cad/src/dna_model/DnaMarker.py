@@ -22,6 +22,7 @@ from dna_model.DnaSegment import DnaSegment
 from dna_model.DnaGroup import DnaGroup
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
 from drawer import drawwirecube
 
@@ -185,9 +186,8 @@ class DnaMarker( ChainAtomMarker):
         global _marker_newness_counter
         _marker_newness_counter += 1
         self._newness = _marker_newness_counter
-        if DEBUG_DNA_UPDATER:
-            print "dna updater: made %r" % \
-                  (self,)
+        if DEBUG_DNA_UPDATER_VERBOSE: # made verbose on 080201
+            print "dna updater: made %r" % (self,)
         return
 
     def kill(self):

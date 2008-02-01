@@ -295,7 +295,13 @@ def _fix_atom_or_return_error_info(atom):
     # Note: some of the following code is general enough to handle
     # num_unset_real > 0, so it is left in some expressions.
 
-    if num_plus + num_minus + num_unset_real > 2:
+    def _dir(bond): # for assertions (could be done as a lambda)
+        return bond.bond_direction_from(atom)
+
+    assert num_plus == _number_of_bonds_with_direction(atom, +1), "%r" % (num_plus, atom, atom.bonds, map( _dir, atom.bonds))
+    assert num_minus == _number_of_bonds_with_direction(atom, -1), "%r" % (num_minus, atom, atom.bonds, map( _dir, atom.bonds))
+
+    if num_plus > 1 or num_minus > 1 or num_plus + num_minus + num_unset_real > 2:
         # too much is set, or *would be* if all real bonds were set
         # (as they should be) -- can we unset some open bonds to fix that?
 
@@ -312,14 +318,21 @@ def _fix_atom_or_return_error_info(atom):
         # bond directions were chosen. (As it is, only the user can choose
         # them, so the "later code" is the next dna updater pass after
         # they do that.)
+        
         while num_plus_open and num_plus > 1:
             _unset_some_open_bond_direction(atom, +1)
             num_plus_open -= 1
             num_plus -= 1
+            assert num_plus == _number_of_bonds_with_direction(atom, +1), "%r" % (num_plus, atom, atom.bonds, map( _dir, atom.bonds))
+            assert num_minus == _number_of_bonds_with_direction(atom, -1), "%r" % (num_minus, atom, atom.bonds, map( _dir, atom.bonds))
+
         while num_minus_open and num_minus > 1:
             _unset_some_open_bond_direction(atom, -1)
             num_minus_open -= 1
             num_minus -= 1
+            assert num_plus == _number_of_bonds_with_direction(atom, +1), "%r" % (num_plus, atom, atom.bonds, map( _dir, atom.bonds))
+            assert num_minus == _number_of_bonds_with_direction(atom, -1), "%r" % (num_minus, atom, atom.bonds, map( _dir, atom.bonds))
+
         if not (num_unset_real or num_plus != 1 or num_minus != 1):
             # if not still bad, then declare atom as ok
             return None
@@ -336,10 +349,12 @@ def _fix_atom_or_return_error_info(atom):
     # fully fix things.
 
     assert num_plus <= 1
-    assert num_minus <= 1
+    assert num_minus <= 1, \
+           "num_minus = %r, num_minus_open = %r, num_minus_real = %r, atom = %r, bonds = %r, dirs = %r" % \
+           (num_minus, num_minus_open, num_minus_real, atom, atom.bonds, map( _dir, atom.bonds) )
 
     if (1 - num_plus) + (1 - num_minus) <= num_unset_open:
-        # fully fixable case
+        # fully fixable case (given that we're willing to pick an open bond arbitrarily)
         while num_plus < 1:
             # note: runs at most once, but 'while' is logically most correct
             _set_some_open_bond_direction(atom, +1)
@@ -387,11 +402,12 @@ def _set_some_open_bond_direction(atom, direction):
     summary_format = "Warning: dna updater set bond direction on [N] open bond(s)"
     env.history.deferred_summary_message( orangemsg(summary_format) )
         # todo: refactor so orangemsg is replaced with a warning option
+        # review: should we say in how many cases we picked one of several open bonds arbitrarily?
     return
 
 def _unset_some_open_bond_direction(atom, direction):
     """
-    Find a directional open bond on atom with the specified bond direction set
+    Find an open bond on atom with the specified bond direction set
     (error if you can't), and unset its bond direction.
     """
     assert direction in (-1, 1)
@@ -399,8 +415,7 @@ def _unset_some_open_bond_direction(atom, direction):
     didit = False
     for bond in atom.bonds:
         if bond.is_open_bond() and \
-           bond.is_directional() and \
-           bond.bond_direction_from(atom):
+           bond.bond_direction_from(atom) == direction: # bugfix 080201, care which direction is set, not just that some dir was set
             bond._clear_bond_direction() # make non-private?
             didit = True
             break
@@ -410,6 +425,13 @@ def _unset_some_open_bond_direction(atom, direction):
     summary_format = "Warning: dna updater unset bond direction on [N] open bond(s)"
     env.history.deferred_summary_message( orangemsg(summary_format) )
     return
+
+def _number_of_bonds_with_direction(atom, direction): # for asserts
+    count = 0
+    for bond in atom.bonds:
+        if bond.bond_direction_from(atom) == direction:
+            count += 1
+    return count
 
 def _clear_illegal_direction(bond):
     """
