@@ -8,7 +8,9 @@
 #include <string>
 using namespace std;
 
+#include <QObject>
 #include <QString>
+#include <QThread>
 
 #include "Nanorex/Utility/NXUtility.h"
 #include "Nanorex/Utility/NXProperties.h"
@@ -26,7 +28,9 @@ namespace Nanorex {
  * Encapsulates the storage of molecular and related data.
  * @ingroup ChemistryDataModel, NanorexInterface
  */
-class NXEntityManager {
+class NXEntityManager {//: public QObject {
+	
+	//Q_OBJECT
 	
 	public:
 		NXEntityManager();
@@ -37,7 +41,8 @@ class NXEntityManager {
 		//
 		void loadDataImportExportPlugins(NXProperties* properties);
 		NXCommandResult* importFromFile(const string& filename,
-									  int frameSetId = -1, int frameIndex = 0);
+										int frameSetId = -1,
+										bool inPollingThread = false);
 		NXCommandResult* exportToFile(const string& filename,
 									  int frameSetId = -1, int frameIndex = 0);
 
@@ -56,19 +61,27 @@ class NXEntityManager {
 			dataStoreInfo->setStoreComplete(frameSetId, true);
 			return frameSetId;
 		}
-		int addFrame(int frameSetId) {
-			NXMoleculeSet* moleculeSet = new NXMoleculeSet();
+		int addFrame(int frameSetId, NXMoleculeSet* moleculeSet = 0) {
+			QMutexLocker locker(&frameAccessMutex);			
+			if (moleculeSet == 0)
+				moleculeSet = new NXMoleculeSet();
 			moleculeSets[frameSetId].push_back(moleculeSet);
 			return moleculeSets[frameSetId].size() - 1;
 		}
-		void removeLastFrame(int frameSetId) {
-			// TODO: delete the NXMoleculeSet associated with this frame
-			moleculeSets[frameSetId].pop_back();
-		}
 		unsigned int getFrameCount(int frameSetId) {
+			QMutexLocker locker(&frameAccessMutex);
 			return moleculeSets[frameSetId].size();
 		}
-		NXMoleculeSet* getRootMoleculeSet(int frameSetId, int frameIndex);
+		NXMoleculeSet* getRootMoleculeSet(int frameSetId, int frameIndex) {
+			QMutexLocker locker(&frameAccessMutex);
+			if (frameIndex < (int)moleculeSets[frameSetId].size())
+				return moleculeSets[frameSetId][frameIndex];
+			else
+				return 0;
+		}
+
+	//signals:
+		//void valueChanged(int newValue);
 
 	private:
 		NXPluginGroup* dataImpExpPluginGroup;
@@ -78,9 +91,47 @@ class NXEntityManager {
 		
 		NXDataStoreInfo* dataStoreInfo;
 		
+		QMutex frameAccessMutex;
 		vector<vector<NXMoleculeSet*> > moleculeSets;
 		
 		string getFileType(const string& filename);
+};
+
+
+/* CLASS: DataStorePollingThread */
+/**
+ * Used internally by NXEntityManager.
+ */
+class DataStorePollingThread : public QThread {
+	
+public:
+	DataStorePollingThread(NXEntityManager* entityManager, int frameSetId)
+			: QThread() {
+		this->entityManager = entityManager;
+		this->frameSetId = frameSetId;
+	}
+	
+	void run() {
+		NXCommandResult* result = 0;
+		NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
+		while (!dataStoreInfo->storeIsComplete(frameSetId) ||
+			   !dataStoreInfo->isLastFrame(frameSetId)) {
+				
+			// See if there's a new frame
+			result =
+				entityManager->importFromFile
+					(dataStoreInfo->getFilename(frameSetId), frameSetId,
+												true); // inPollingThread
+		
+			// TODO: Handle if result != 0
+			
+			msleep(100);
+		}
+	}
+	
+private:
+	int frameSetId;
+	NXEntityManager* entityManager;
 };
 
 } // Nanorex::

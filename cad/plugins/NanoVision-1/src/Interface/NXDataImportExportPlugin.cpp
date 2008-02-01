@@ -14,17 +14,4 @@ NXDataImportExportPlugin::~NXDataImportExportPlugin() {
 }
 
 
-/* FUNCTION: setEntityManager 
-void NXDataImportExportPlugin::setEntityManager
-		(NXEntityManager* entityManager) {
-	this->entityManager = entityManager;
-}
-*/
-
-/* FUNCTION: setMode */
-void NXDataImportExportPlugin::setMode(const string& mode) {
-	this->mode = mode;
-}
-
-
 } // Nanorex::

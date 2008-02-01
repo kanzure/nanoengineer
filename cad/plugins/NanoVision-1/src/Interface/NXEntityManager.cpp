@@ -116,16 +116,15 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 
 /* FUNCTION: importFromFile */
 /**
- * @param frameSetId	If -1, import everything, otherwise, resume importing
- *						the frame set from the given frameIndex.
+ * @param frameSetId	If -1, import all frames into a new frame set,
+ *						otherwise, resume importing into the given frame set.
  */
 NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 												 int frameSetId,
-												 int frameIndex) {
+												 bool inPollingThread) {
 	NXCommandResult* result;
 	//PR_Lock(importExportPluginsMutex);
 	
-	dataStoreInfo->setFilename(filename);
 	string fileType = getFileType(filename);
 	
 	map<string, NXDataImportExportPlugin*>::iterator iter =
@@ -133,30 +132,29 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 	if (iter != dataImportTable.end()) {
 		NXDataImportExportPlugin* plugin = iter->second;
 		
-		if (frameSetId == -1) {
+		if (frameSetId == -1)
 			frameSetId = addFrameSet();
-			frameIndex = addFrame(frameSetId);
-			
-		} else {
-			frameIndex = addFrame(frameSetId);			
-		}
+		dataStoreInfo->setFilename(filename, frameSetId);
+		int frameIndex = getFrameCount(frameSetId);
+		NXMoleculeSet* moleculeSet = new NXMoleculeSet();
 
 		try {
-			plugin->setMode(fileType);
 			result =
-				plugin->importFromFile(getRootMoleculeSet(frameSetId,
-														  frameIndex),
+				plugin->importFromFile(moleculeSet,
 									   dataStoreInfo, filename, frameSetId,
 									   frameIndex);
 			
 			if (result->getResult() == NX_CMD_SUCCESS) {
 			
-				// Delete the frame if the molecule set wasn't populated.
-				NXMoleculeSet* moleculeSet =
-					getRootMoleculeSet(frameSetId, frameIndex);
+				// Delete the molecule (and don't add the frame) if the
+				// molecule set wasn't populated.
 				if ((moleculeSet->childCount() == 0) &&
-					(moleculeSet->moleculeCount() == 0))
-					removeLastFrame(frameSetId);
+					(moleculeSet->moleculeCount() == 0)) {
+					delete moleculeSet;
+					
+				} else {
+					int idx = addFrame(frameSetId, moleculeSet);
+				}
 			
 				// TODO:
 				// Finish the current frame set, then examine the dataStoreInfo
@@ -171,11 +169,21 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 											   dataStoreInfo, filename,
 											   frameSetId, frameIndex);
 				}
+				
+				// Spawn a thread to keep reading incomplete data stores
+				// as necessary
+				if (!inPollingThread &&
+					!dataStoreInfo->storeIsComplete(frameSetId)) {
+					DataStorePollingThread* pollingThread =
+						new DataStorePollingThread(this, frameSetId);
+					pollingThread->start();
+				}
+				
 			} else
-				removeLastFrame(frameSetId);
+				delete moleculeSet;
 
 		} catch (...) {
-			removeLastFrame(frameSetId);
+			delete moleculeSet;
 			
 			string msg = fileType;
 			msg += "->importFromFile() threw exception";
@@ -240,8 +248,6 @@ NXCommandResult* NXEntityManager::exportToFile
 	if (iter != dataExportTable.end()) {
 		NXDataImportExportPlugin* plugin = iter->second;
 		try {
-			plugin->setMode(fileType);
-			
 			bool allFrameExport = (frameIndex == -1);
 			if (allFrameExport)
 				frameIndex = 0;
@@ -306,31 +312,6 @@ NXCommandResult* NXEntityManager::exportToFile
 	}
 	//PR_Unlock(importExportPluginsMutex);
 	return result;
-}
-
-
-/* FUNCTION: getRootMoleculeSet */
-NXMoleculeSet* NXEntityManager::getRootMoleculeSet(int frameSetId,
-												   int frameIndex) {
-												   
-	if (frameIndex < (int)moleculeSets[frameSetId].size())
-		return moleculeSets[frameSetId][frameIndex];
-	else {
-		if (dataStoreInfo->storeIsComplete(frameSetId))
-			return 0;
-		else {
-			// See if there's a new frame
-			NXCommandResult* result =
-				importFromFile(dataStoreInfo->getFilename(),
-								frameSetId,
-								moleculeSets[frameSetId].size());
-			// TODO: Handle when result != 0
-			if (frameIndex < (int)moleculeSets[frameSetId].size())
-				return moleculeSets[frameSetId][frameIndex];
-			else
-				return 0;
-		}
-	}
 }
 
 

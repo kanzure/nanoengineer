@@ -30,20 +30,6 @@ namespace Nanorex {
 class NXDataImportExportPlugin : public NXPlugin {
 	public:
 		NXDataImportExportPlugin();
-
-		/** Sets the NXEntityManager to use. Called when this plugin is
-		  * created.*/
-		//void setEntityManager(NXEntityManager* entityManager);
-
-		/** Sets the type, or mode, of the file being imported/exported. This
-		  * is called by the NXEntityManager when importing/exporting files.
-		  * For example, if the import type
-		  * is "CML", then \c setMode("CML") is called on this
-		  * DataImportExportPlugin before any #importFromFile or #exportToFile
-		  * call is made.
-		  */
-		void setMode(const string& mode);
-
 		virtual ~NXDataImportExportPlugin();
 
 		/**

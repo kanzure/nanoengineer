@@ -20,34 +20,50 @@ class NXDataStoreInfo {
 	public:
 		NXDataStoreInfo() { }
 		
-		const string& getFilename() { return _filename; }
-		void setFilename(const string& filename) { _filename = filename; }
-		
-		// TODO: rename "id" in the following to "frameSetId"
-		
-		void addInputStructure(string name, int id) {
-			_inputStructures[name] = id;
+		// Filenames
+		const string& getFilename(int frameSetId) {
+			return _filenames[frameSetId];
+		}
+		void setFilename(const string& filename, int frameSetId) {
+			_filenames[frameSetId] = filename;
 		}
 		
-		void addTrajectory(string name, int id) { _trajectories[name] = id; }
+		// Input structures
+		void addInputStructure(string name, int frameSetId) {
+			_inputStructures[name] = frameSetId;
+		}
+		
+		// Trajectories
+		void addTrajectory(string name, int frameSetId) {
+			_trajectories[name] = frameSetId;
+		}
 		int getTrajectoryId(string name) { return _trajectories[name]; }
 		//vector<string> getTrajectoryNames();
 		
-		void setLastFrame(int id, bool isLastFrame) {
-			_isLastFrame[id] = isLastFrame;
+		// Last frame flags (whether the last frame-index is the last
+		// frame in the data store.)
+		void setLastFrame(int frameSetId, bool isLastFrame) {
+			_isLastFrame[frameSetId] = isLastFrame;
 		}
-		bool isLastFrame(int id) { return _isLastFrame[id]; }
+		bool isLastFrame(int frameSetId) { return _isLastFrame[frameSetId]; }
 		
-		void setStoreComplete(int id, bool storeIsComplete) {
-			_storeIsComplete[id] = storeIsComplete;
+		// Store complete flags (whether the data store's frame set is complete
+		// (true) or if something is still writing new frames to it (false.))
+		void setStoreComplete(int frameSetId, bool storeIsComplete) {
+			_storeIsComplete[frameSetId] = storeIsComplete;
 		}
-		bool storeIsComplete(int id) { return _storeIsComplete[id]; }
+		bool storeIsComplete(int frameSetId) {
+			return _storeIsComplete[frameSetId];
+		}
 		
-		void setHandle(int id, void* handle) { _handle[id] = handle; }
-		void* getHandle(int id) { return _handle[id]; }
+		// (Data store/file) handles
+		void setHandle(int frameSetId, void* handle) {
+			_handle[frameSetId] = handle;
+		}
+		void* getHandle(int frameSetId) { return _handle[frameSetId]; }
 		
 	private:
-		string _filename;
+		map<int, string> _filenames;
 		
 		// Maps input structure name to its frame set id.
 		map<string, int> _inputStructures;

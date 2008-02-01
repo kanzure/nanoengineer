@@ -51,8 +51,12 @@ int main(int argc, char* argv[]) {
 	entityManager = new NXEntityManager();
 		
 	NXProperties* properties = new NXProperties();
-	properties->setProperty("NXEntityManager.importExport.0.plugin",
+	properties->setProperty("ImportExport.0.plugin",
 							"libHDF5_SimResultsImportExport");
+	properties->setProperty("ImportExport.0.exportFormats",
+							"HDF5 Simulation Results (*.h5 *.nh5)");
+	properties->setProperty("ImportExport.0.importFormats",
+							"HDF5 Simulation Results (*.h5 *.nh5)");
 	entityManager->loadDataImportExportPlugins(properties);
 	delete properties;
 

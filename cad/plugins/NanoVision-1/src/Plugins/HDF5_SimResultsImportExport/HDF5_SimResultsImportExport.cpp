@@ -24,7 +24,9 @@ HDF5_SimResultsImportExport::~HDF5_SimResultsImportExport() {
 NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
 		 const std::string& filename, int frameSetId, int frameIndex) {
-			
+
+	H5Eset_auto(0, 0); // Turn off HDF5 errors to stdout when threaded
+
 	NXCommandResult* result = new NXCommandResult();
 	result->setResult(NX_CMD_SUCCESS);
 
