@@ -19,6 +19,7 @@ from PM.PM_Constants     import pmCancelButton
 from PM.PM_Constants     import pmPreviewButton
 
 from PM.PM_SpinBox import PM_SpinBox
+from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_LineEdit import PM_LineEdit
 from Dna_Constants import getNumberOfBasePairsFromDuplexLength, getDuplexLength
 
@@ -64,6 +65,8 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self._numberOfBases = 0 
         self._conformation = 'B-DNA'
+        self.duplexRise = 3.18
+        self.basesPerTurn = 10
         
         EditCommand_PM.__init__( self, 
                                     win,
@@ -101,13 +104,15 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         numberOfBases = self.numberOfBasePairsSpinBox.value()
         dnaForm  = 'B-DNA'
-        basesPerTurn = 10        
+        basesPerTurn = self.basesPerTurn
+        duplexRise = self.duplexRise
         dnaModel = 'PAM-3'
       
         return (numberOfBases, 
                 dnaForm,
                 dnaModel,
                 basesPerTurn,
+                duplexRise,
                 self.endPoint1, 
                 self.endPoint2)
     
@@ -160,8 +165,8 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Load widgets in group box 4.
         """
-
-                                            
+        
+                                                   
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \
             PM_SpinBox( pmGroupBox, 

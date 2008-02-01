@@ -8,6 +8,20 @@ are editing. When you select the axis chunk, it enters DnaSegment_Editcommand
 and shows the prperty manager with its widgets showing the properties of 
 selected segment. 
 
+While in this command, user can 
+(a) Highlight and then left drag the resize handles located at the 
+    two 'axis endpoints' of thje segment to change its length.  
+(b) Highlight and then left drag any axis atom (except the two end axis atoms)
+    to translate the  whole segment along the axis
+(c) Highlight and then left drag any strand atom to rotate the segment around 
+    its axis. 
+    
+    Note that implementation b and c may change slightly if we implement special
+    handles to do these oprations. 
+    See also: DnaSegment_GraphicsMode .. the default graphics mode for this 
+    command
+
+
 @author: Ninad
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 @version:$Id$
@@ -20,137 +34,119 @@ DnaSegment_editCommand doesn't retain , for instance, crossovers. This can be
 fixed after dna_data model is fully implemented
 
 """
-
 from EditCommand import EditCommand 
-
 from dna_model.DnaSegment import DnaSegment
 from DnaSegment_GraphicsMode import DnaSegment_GraphicsMode
-
+from DnaSegment_GraphicsMode import DnaSegment_DragHandles_GraphicsMode
+from GraphicsMode_API  import GraphicsMode_API
+from Dna_Constants import getDuplexRise, getNumberOfBasePairsFromDuplexLength
 
 from utilities.Log  import redmsg
-from geometry.VQT import V, Veq
+
+from geometry.VQT import V, Veq, vlen
+
 from DnaDuplex      import B_Dna_PAM3
 from DnaDuplex      import B_Dna_PAM5
 
 from GeneratorBaseClass import  PluginBug, UserError
 
+from exprs.ExprsConstants import Color
 
 from constants import gensym
 
 from Dna_Constants import getDuplexLength
 from test_connectWithState import State_preMixin
 
-from debug_prefs import debug_pref, Choice_boolean_False
+from constants import white
+from exprs.attr_decl_macros import Instance, State
 
-#see. self._create_or_update_handles for the info about the debug flag below
-DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE = \
-    debug_pref("DNA Segment Properties: exprs handles (next session)?",
-               Choice_boolean_False,
-               prefs_key = True)
+from exprs.__Symbols__ import _self
+from exprs.Exprs import call_Expr
+from exprs.Exprs import norm_Expr
+from prefs_widgets import ObjAttr_StateRef
+from exprs.ExprsConstants import Width, Point
 
-if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
-    
-    CYLINDER_WIDTH_DEFAULT_VALUE = 10.0
 
-    # note: some of the following imports are not needed.
-    
-    from constants import white, yellow
+from DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
 
-    from geometry.VQT import norm
-    from drawer import drawcylinder, drawsphere
-
-    from exprs.ExprsMeta import ExprsMeta
-    from exprs.instance_helpers import IorE_guest_mixin
-    from exprs.attr_decl_macros import Instance, State
-
-    from exprs.__Symbols__ import _self
-    from exprs.Exprs import call_Expr
-    from exprs.Exprs import norm_Expr
-    from exprs.Center import Center
-
-    from exprs.Rect import Rect
-
-    from exprs.DraggableHandle import DraggableHandle_AlongLine
-    from exprs.If_expr import If_expr
-
-    from prefs_widgets import ObjAttr_StateRef
-
-    from exprs.Rect import Sphere # used to make our drag handle appearance
-    from exprs.ExprsConstants import ORIGIN, DX, DZ
-    from exprs.ExprsConstants import Width, Point, Vector
-    from exprs.draggable import DraggableObject
-    from exprs.dna_ribbon_view import Cylinder
+CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 
 class DnaSegment_EditCommand(State_preMixin, EditCommand):
+    """
+    Command to edit a DnaSegment object. 
+    To edit a segment, first enter BuildDna_EditCommand (accessed using Build> Dna) 
+    then, select an axis chunk of an existing DnaSegment  within the DnaGroup you
+    are editing. When you select the axis chunk, it enters DnaSegment_Editcommand
+    and shows the prperty manager with its widgets showing the properties of 
+    selected segment.
+    """
     cmd              =  'Dna Segment'
     sponsor_keyword  =  'DNA'
     prefix           =  'Segment '   # used for gensym
     cmdname          = "DNA_SEGMENT"
     commandName       = 'DNA_SEGMENT'
     featurename       = 'Edit Dna Segment'
-    
-   
+
+
     command_should_resume_prevMode = True
     command_has_its_own_gui = True
     command_can_be_suspended = False
-    
+
     # Generators for DNA, nanotubes and graphene have their MT name 
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
-    
+
     #Graphics Mode 
     GraphicsMode_class = DnaSegment_GraphicsMode
-    
-    #required by DnaLine_GM
-    mouseClickPoints = []
-    
-    
+
     #This is set to BuildDna_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
     flyoutToolbar = None
-       
-    _parentDnaGroup = None
-    
-    if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
 
-        endPoint1 = State( Point)
-        endPoint2 = State( Point)
-        cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) ## , _e_debug = True)
+    _parentDnaGroup = None    
+
+    endPoint1 = State( Point)
+    endPoint2 = State( Point)
+
+    cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
+    cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
+    handleColor1 = State( Color, white)
+    handleColor2 = State( Color, white)
     
-        aHandle = Instance( DraggableHandle_AlongLine(
-            appearance = Sphere(2.0, white ),
-            appearance_highlighted = Sphere(2.0, yellow),
+    duplexRise =  getDuplexRise('B-DNA')
+    
+    leftHandle = Instance(         
+        DnaSegment_ResizeHandle(    
+            command = _self,
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'),
             origin = endPoint1,
-            direction = norm_Expr(endPoint1 - endPoint2),
-            sbar_text = "test handle",
-            on_press = _self._handle1_on_press,
-            on_drag = _self._handle1_on_drag,
-            on_release = _self._handle1_on_release,
-         ))
-    
+            fixedEndOfStructure = endPoint2,
+            direction = norm_Expr(endPoint1 - endPoint2)
+            ))
+
+    rightHandle = Instance( 
+        DnaSegment_ResizeHandle(
+            command = _self,
+            height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth2'),
+            origin = endPoint2,
+            fixedEndOfStructure = endPoint1,
+            direction = norm_Expr(endPoint2 - endPoint1)
+        ))
+
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for DnaDuplex_EditCommand
         """
-        if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
-            print "debug fyi: starting DnaSegment_EditCommand.__init__"
-            glpane = commandSequencer
-            State_preMixin.__init__(self, glpane)
-            print "debug fyi: inside DnaSegment_EditCommand.__init__, returned from State_preMixin.__init__"
+        
+        glpane = commandSequencer
+        State_preMixin.__init__(self, glpane)        
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
-        
-        #####################
+
         #Graphics handles for editing the structure . 
-        #Not implemented as of 2008-01-25. 
         self.handles = []        
-        self.endHandle1 = None 
-        self.endHandle2 = None
-    
-        ############################
-        
-    
+        self.grabbedHandle = None
+
     def init_gui(self):
         """
         Initialize gui. 
@@ -171,60 +167,57 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #  it has some loose ends like this. ) -- Ninad 2008-01-22
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
     
-               
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        
         if self.struct:
-            #@@@TEMPORARY CODE            
+            #@@@TEMPORARY CODE -- might be revised once dna data model is in
+            #place           
             assert isinstance(self.struct, DnaSegment)
-            #When the structure (segment) is finalized (afterthe  modifications),
+            #When the structure (segment) is finalized (afterthe  modifications)
             #it will be added to the original DnaGroup to which it belonged 
             #before we began editing (modifying) it. 
             self._parentDnaGroup = self.struct.get_DnaGroup() 
-            if DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE:
-                self._create_or_update_handles()
-  
-    def _create_or_update_handles(self):
-        """
-        EXPERIMENTAL METHOD. this will be called only when the flag 
-        DEBUG_DRAW_HANDLES_USING_EXPRS_MODULE is turned on.
-        Creates handles or updates handle position if the handles are 
-        already defined. This doesn't work as of 2008-01-28. The intention is 
-        to just try using exprs module to create a handle. Once that works, 
-        this routine will be heavily revised.
+            self.propMgr.duplexRise, self.propMgr.basesPerTurn  = \
+                self.struct.getProps()  
+            print "***self.propMgr.duplexRise = %s, self.propMgr.basesPerTurn = %s" %(self.propMgr.duplexRise, self.propMgr.basesPerTurn)
+            
+            self._updateHandleList()
+            self.updateHandlePositions()
+
+    def _updateHandleList(self):
+        """        
+        Updates the list of handles (self.handles) 
         @see: self.editStructure
         @see: DnaSegment_GraphicsMode._drawHandles()
         """
+      
+        #endPoint1, endPoint2 = self.struct.getAxisEndPoints()
+
+        #self.endPoint1 = endPoint1 # used in self.leftHandle
+        #self.endPoint2 = endPoint2 # used in self.leftHandle
+        #self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
+        #self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
+
+        # note: if endPoint1 and/or endPoint2 can change more often than this 
+        # runs, we'll need to rerun the two assignments above whenever they 
+        # change and before the handle is drawn. An easy way would be to rerun
+        # these assignments in the draw method of our GM. [bruce 080128]
+        self.handles = [] # guess, but seems like a good idea [bruce 080128]
+        self.handles.append(self.leftHandle)
+        self.handles.append(self.rightHandle)
+
+
+    def updateHandlePositions(self):
+        """
+        Update handle positions
+        """
+        self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
+        self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
         endPoint1, endPoint2 = self.struct.getAxisEndPoints()
 
-        self.endPoint1 = endPoint1 # used in self.aHandle
-        self.endPoint2 = endPoint2 # used in self.aHandle
+        self.endPoint1 = endPoint1 # used in self.leftHandle
+        self.endPoint2 = endPoint2 # used in self.leftHandle
 
-        # note: if endPoint1 and/or endPoint2 can change more often than this runs,
-        # we'll need to rerun the two assignments above whenever they change
-        # and before the handle is drawn. An easy way would be to rerun
-        # these assignments in the draw method of our GM. [bruce 080128]
-
-        self.handles = [] # guess, but seems like a good idea [bruce 080128]
-        self.handles.append(self.aHandle)
-
-    def _handle1_on_press(self):
-        print "_handle1_on_press, position = %r" % self.cylinderWidth
-        return
-    
-    def _handle1_on_drag(self):
-        print "_handle1_on_drag, position = %r" % self.cylinderWidth
-        return
-    
-    def _handle1_on_release(self):
-        # bug: this is not getting called, seemingly because ReleasedOn
-        # is not getting called in the Highlightable for the handle.
-        # Is there some bug in the calling code in the graphicsMode,
-        # perhaps an incorrect setting of gm.ignore_next_leftUp_event??
-        # [bruce 080129 question]
-        print "_handle1_on_release, position = %r" % self.cylinderWidth
-        return
-    
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 
@@ -233,7 +226,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         assert not self.propMgr
         propMgr = self.win.createDnaSegmentPropMgr_if_needed(self)
         return propMgr
-    
+
     def _gatherParameters(self):
         """
         Return the parameters from the property manager UI.
@@ -247,7 +240,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         @rtype:  tuple
         """     
         return self.propMgr.getParameters()
-    
+
     def _createStructure(self):
         """
         Creates and returns the structure (in this case a L{Group} object that 
@@ -265,9 +258,10 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                      dnaForm, \
                      dnaModel, \
                      basesPerTurn, \
+                     duplexRise, \
                      endPoint1, \
                      endPoint2 = params
-        
+
         #If user enters the number of basepairs and hits preview i.e. endPoint1
         #and endPoint2 are not entered by the user and thus have default value 
         #of V(0, 0, 0), then enter the endPoint1 as V(0, 0, 0) and compute
@@ -278,7 +272,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             endPoint2 = endPoint1 + \
                       self.win.glpane.right*getDuplexLength('B-DNA', 
                                                             numberOfBases)
-            
+
 
         if numberOfBases < 1:
             msg = redmsg("Cannot to preview/insert a DNA duplex with 0 bases.")
@@ -309,8 +303,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 # (can't reuse name in this case -- not sure what prefix it was
                 #  made with)
             name = self.name
-        
-               
+
+
         # Create the model tree group node. 
         # Make sure that the 'topnode'  of this part is a Group (under which the
         # DNa group will be placed), if the topnode is not a group, make it a
@@ -320,20 +314,22 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.win.assy.part.ensure_toplevel_group()
         if 1:
             dnaSegment = DnaSegment(self.name, 
-                         self.win.assy,
-                         self.win.assy.part.topnode,
-                         editCommand = self  )
+                                    self.win.assy,
+                                    self.win.assy.part.topnode,
+                                    editCommand = self  )
         try:
             # Make the DNA duplex. <dnaGroup> will contain three chunks:
             #  - Strand1
             #  - Strand2
             #  - Axis
+            
             dna.make(dnaSegment, 
                      numberOfBases, 
                      basesPerTurn, 
+                     duplexRise,
                      endPoint1,
                      endPoint2)
-        
+
 
             return dnaSegment
 
@@ -342,7 +338,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             dnaSegment.kill()
             raise PluginBug("Internal error while trying to create DNA duplex.")
 
-    
+
     def _modifyStructure(self, params):
         """
         Modify the structure based on the parameters specified. 
@@ -355,6 +351,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         # parameters have changed, update existing structure
         self._revertNumber()
 
+
         # self.name needed for done message
         if self.create_name_from_prefix:
             # create a new name
@@ -366,7 +363,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 # (can't reuse name in this case -- not sure what prefix it was
                 #  made with)
             name = self.name
-            
+
         #@NOTE: Unlike editcommands such as Plane_EditCommand, this 
         #editCommand actually removes the structure and creates a new one 
         #when its modified. We don't yet know if the DNA object model 
@@ -374,23 +371,246 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #its attributes.  Till that time, we'll continue to use 
         #what the old GeneratorBaseClass use to do ..i.e. remove the item and 
         # create a new one  -- Ninad 2007-10-24
-        
+
         self._removeStructure()
-        
+
         self.previousParams = params
 
         self.struct = self._createStructure()
-        #Now append the new structure in self._segmentList (this list of 
-        #segments
-        #will be provided to the previous command (BuildDna_EditCommand)
-        #TODO: Should self._createStructure does the job of appending the 
-        #structure 
-        #to the list of segments? This fixes bug 2599 
-        #(see also BuildDna_PropertyManager.Ok 
-        
+        # Now append the new structure in self._segmentList (this list of 
+        # segments will be provided to the previous command 
+        # (BuildDna_EditCommand)
+        # TODO: Should self._createStructure does the job of appending the 
+        # structure to the list of segments? This fixes bug 2599 
+        # (see also BuildDna_PropertyManager.Ok 
+
         if self._parentDnaGroup is not None:
             #Should this be an assertion? (assert self._parentDnaGroup is not 
             #None. For now lets just print a warning if parentDnaGroup is None 
             self._parentDnaGroup.addSegment(self.struct)
-            
+
         return 
+
+    def getCursorText(self):
+        """
+        This is used as a callback method in DnaLine mode 
+        @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
+        """
+        if self.grabbedHandle is None:
+            return
+
+        text = ""
+        
+        currentPosition = self.grabbedHandle.currentPosition
+        fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
+
+        duplexLength = vlen( currentPosition - fixedEndOfStructure )
+        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
+                                                                 duplexLength)
+        duplexLengthString = str(round(duplexLength, 3))
+        text =  str(numberOfBasePairs)+ "b, "+ duplexLengthString 
+
+        #@TODO: The following updates the PM as the cursor moves. 
+        #Need to rename this method so that you that it also does more things 
+        #than just to return a textString -- Ninad 2007-12-20
+        self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+
+        return text
+
+
+    def modifyStructure(self):
+        """
+        Called when a resize handle is dragged to change the length of the 
+        segment. (Called upon leftUp) . This method assigns the new parameters 
+        for the segment after it is resized and calls 
+        preview_or_finalize_structure which does the rest of the job. 
+        Note that Client should call this public method and should never call
+        the private method self._modifyStructure. self._modifyStructure is 
+        called only by self.preview_or_finalize_structure
+        
+        @see: B{DnaSegment_ResizeHandle.on_release} (the caller)
+        @see: B{SelectChunks_GraphicsMode.leftUp} (which calls the 
+              the relevent method in DragHandler API. )
+        @see: B{exprs.DraggableHandle_AlongLine}, B{exprs.DragBehavior}
+        @see: B{self.preview_or_finalize_structure }
+        @see: B{self._modifyStructure}        
+        
+        As of 2008-02-01 it recreates the structure
+        """
+        if self.grabbedHandle is None:
+            return
+
+        self.propMgr.endPoint1 = self.grabbedHandle.fixedEndOfStructure
+        self.propMgr.endPoint2 = self.grabbedHandle.currentPosition
+        length = vlen(self.propMgr.endPoint1 - self.propMgr.endPoint2 )
+        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
+                                                                 length )
+        self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+        self.preview_or_finalize_structure(previewing = True)  
+        self.handleColor1 = white
+        self.handleColor2 = white
+
+        self.updateHandlePositions()
+        self.glpane.gl_update()
+
+    #START- EXPERIMENTAL CODE Not called anywhere ==============================
+
+    #Using an alternate graphics mode to draw DNA line? 
+    #Example: leftDown on a handle enters DnaLine graphics mode (but you are in 
+    #the same command' now you do the dragging, a dna rubber band line is drawn 
+    #and upon left up, it again enters the default graphics mode. This poses 
+    #some challenges -- may be we need to save the event and explicitely 
+    #call the DnaLine_GM.leftDown, passing this event as an argument. 
+    #Other issues include -- We need to specify certain attrs/ methods on the 
+    #DnaSegment_EditCommand so that DnaLineMode_GM works. In general, 
+    #for this to work , we need to refactor DnaLine_GM at some point 
+    #(it was originally designed to work as a temporary mode which returns to 
+    #the previous mode after certain mouse clicks.) -- Ninad 2008-02-01
+        
+    ##Following is needed by DnaLine_GM -- Declare it in class definition
+    ##when using DnaLine_GM
+    ##mouseClickPoints = []
+
+    def EXPERIMENTALswitchGraphicsModeTo(self, newGraphicsMode = 'DEFAULT'):
+        """
+       EXPERIMENTALswitchGraphicsModeTo -- Not called anywhere. While
+       testing feasibility of using DnaLine_GM, rename this method to 
+       witchGraphicsModeTo and make other modifications as necessary.
+
+       Switch graphics mode of self to the one specified 
+       by the client. 
+       Changing graphics mode while remaining in the same command has certain 
+       advantages and it also bypasses some code related to entering a new 
+       command. 
+       @param newGraphicsMode: specifies the new graphics mode to switch to
+       @type  newGraphicsMode: string
+       @see: B{MovePropertyManager.activate_translateGroupBox} 
+       """
+        #TODO: Make this a general API method if need arises - Ninad 2008-01-25
+        assert newGraphicsMode in ['DEFAULT', 'DRAG_HANDLES']
+
+        if newGraphicsMode == 'DEFAULT':
+            if self.graphicsMode is self.default_graphicsMode:
+                return
+            self.graphicsMode = self.default_graphicsMode
+            self.graphicsMode.Enter_GraphicsMode()
+            self.glpane.update_after_new_graphicsMode()
+        elif newGraphicsMode == 'DRAG_HANDLES':
+            if self.graphicsMode is self.drag_handles_graphicsMode:
+                return 
+            self.graphicsMode = self.drag_handles_graphicsMode
+            self.graphicsMode.Enter_GraphicsMode()
+            self.glpane.update_after_new_graphicsMode()
+
+    def EXPERIMENTAL_create_GraphicsMode(self):
+        """
+        EXPERIMENTAL_create_GraphicsMode -- Not called anywhere. While
+        testing feasibility of using DnaLine_GM, rename this method to 
+        _create_GraphicsMode and make other modifications as necessary.
+        """
+        GM_class = self.GraphicsMode_class
+        assert issubclass(GM_class, GraphicsMode_API)
+        args = [self] 
+        kws = {} 
+
+
+        self.default_graphicsMode = GM_class(*args, **kws)
+        self.drag_handles_graphicsMode  = \
+            DnaSegment_DragHandles_GraphicsMode(*args, **kws)
+
+        self.graphicsMode = self.default_graphicsMode
+
+
+    def EXPERIMENTAL_setParamsForDnaLineGraphicsMode(self):
+        """
+        Things needed for DnaLine_GraphicsMode (DnaLine_GM)==================
+        EXPERIMENTAL -- call this method in self.init_gui() while experimenting 
+        use of DnaLine_GM. (or better refactor DnaLine_GM for a general use)
+        Rename it as "_setParamsForDnaLineGraphicsMode"
+        Needed for DnaLine_GraphicsMode (DnaLine_GM). The method names need to
+        be revised (e.g. callback_xxx. The prefix callback_ was for the earlier 
+        implementation of DnaLine mode where it just used to supply some 
+        parameters to the previous mode using the callbacks from the 
+        previousmode. 
+        """
+        self.mouseClickLimit = 1
+        self.duplexRise =  getDuplexRise('B-DNA')
+
+        self.callbackMethodForCursorTextString = \
+            self.EXPERIMENTALgetCursorTextForTemporaryMode
+
+        self.callbackForSnapEnabled = self.EXPERIMENTALisRubberbandLineSnapEnabled
+
+        self.callback_rubberbandLineDisplay = \
+            self.EXPERIMENTALgetDisplayStyleForRubberbandLine
+        
+    def EXPERIMENTALgetCursorTextForTemporaryMode(self, endPoint1, endPoint2):
+        """
+        EXPERIMENTAL method. rename it to getCursorTextForTemporaryMode while 
+        trying out DnaLine_GM
+        This is used as a callback method in DnaLine mode 
+        @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
+        """
+        duplexLength = vlen(endPoint2 - endPoint1)
+        numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
+                                                                 duplexLength)
+        duplexLengthString = str(round(duplexLength, 3))
+        text =  str(numberOfBasePairs)+ "b, "+ duplexLengthString 
+
+        #@TODO: The following updates the PM as the cursor moves. 
+        #Need to rename this method so that you that it also does more things 
+        #than just to return a textString -- Ninad 2007-12-20
+        self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+
+        return ""
+    
+    def EXPERIMENTALgetDisplayStyleForRubberbandLine(self):
+        """
+        EXPERIMENTAL: rename it to: getDisplayStyleForRubberbandLine while 
+        experimenting DnaLine_GM
+        This is used as a callback method in DnaLine mode . 
+        @return: The current display style for the rubberband line. 
+        @rtype: string
+        @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
+        """
+        return "Ribbons"
+    
+    def EXPERIMENTALprovideParamsForTemporaryMode(self, temporaryModeName):
+        """
+        EXPERIMENTAL: rename it to: provideParamsForTemporaryMode while 
+        experimenting DnaLine_GM. Also change the calls to various methods 
+        in this method (e.g. allback_snapEnabled = 
+        self.EXPERIMENTALisRubberbandLineSnapEnabled etc)
+        NOTE: This needs to be a general API method. There are situations when 
+	user enters a temporary mode , does something there and returns back to
+	the previous mode he was in. He also needs to send some data from 
+	previous mode to the temporary mode .	 
+	@see: B{DnaLineMode}
+	@see: self.acceptParamsFromTemporaryMode 
+        """
+
+        assert temporaryModeName == 'DNA_LINE_MODE'
+
+        mouseClickLimit = None
+        duplexRise =  getDuplexRise('B-DNA')
+        endPoint1 = V(0, 0, 0)
+
+        callback_cursorText = self.EXPERIMENTALgetCursorTextForTemporaryMode
+        callback_snapEnabled = self.EXPERIMENTALisRubberbandLineSnapEnabled
+        callback_rubberbandLineDisplay = self.EXPERIMENTALgetDisplayStyleForRubberbandLine
+        return (mouseClickLimit, 
+                duplexRise, 
+                callback_cursorText, 
+                callback_snapEnabled, 
+                callback_rubberbandLineDisplay,
+                endPoint1
+            )   
+    
+    def EXPERIMENTALisRubberbandLineSnapEnabled(self):
+        """
+        rubbernad snap enabled?
+        """
+        return True
+
+    #END- EXPERIMENTAL CODE Not called anywhere ================================
+

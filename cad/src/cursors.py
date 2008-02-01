@@ -169,5 +169,11 @@ def loadCursors(w):
      QCursor(getpixmap("ui/cursors/Pencil_HorizontalSnap.png"), 0, 0)
     w.pencilVerticalSnapCursor = \
      QCursor(getpixmap("ui/cursors/Pencil_VerticalSnap.png"), 0, 0)
+    
+    #Some Build Dna mode cursors
+    w.rotateAboutCentralAxisCursor = \
+     QCursor(getpixmap("ui/cursors/Rotate_About_Central_Axis.png"), 0, 0)
+    w.translateAlongCentralAxisCursor = \
+     QCursor(getpixmap("ui/cursors/Translate_Along_Central_Axis.png"), 0, 0)
 
     return # from loadCursors
