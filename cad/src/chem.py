@@ -3506,12 +3506,15 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     else:
                         # we're attached to the chain but not in it.
                         # REVIEW: return DIRBOND_ERROR in some cases??
-                        if debug_flags.atom_debug: #bruce 080117 only when atom_debug
-                            msg =  "warning: %r has one directional bond (%r) " \
-                                "by which it's attached to (but not in) a " \
-                                "directional bond chain containing %r and %r" % \
-                                (self, bond, bond1, bond2)
-                            print msg
+                        # (For example, when an atom has ._dna_updater__error set on it?)
+# following debug print code superseded by more accurate code in dna updater,
+# so removed from here, two places (it was usually wrong anyway) [bruce 080131]
+##                        if debug_flags.atom_debug: #bruce 080117 only when atom_debug
+##                            msg =  "warning: %r has one directional bond (%r) " \
+##                                "by which it's attached to (but not in) a " \
+##                                "directional bond chain containing %r and %r" % \
+##                                (self, bond, bond1, bond2)
+##                            print msg
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 elif statuscode == DIRBOND_CHAIN_END:
@@ -3520,12 +3523,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     if bond is bond1:
                         return DIRBOND_CHAIN_END, bond, None
                     else:
-                        if debug_flags.atom_debug: #bruce 080117 only when atom_debug
-                            msg = "warning: %r has one directional bond (%r) " \
-                                "by which it's attached to (but not in) the end of a " \
-                                "directional bond chain containing %r" % \
-                                (self, bond, bond1)
-                            print msg
+##                        if debug_flags.atom_debug: #bruce 080117 only when atom_debug
+##                            msg = "warning: %r has one directional bond (%r) " \
+##                                "by which it's attached to (but not in) the end of a " \
+##                                "directional bond chain containing %r" % \
+##                                (self, bond, bond1)
+##                            print msg
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 else:
@@ -3692,9 +3695,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         print "bug: Pl with no Ss: %r" % self # only true once dna updater enabled
         return None
     
-    
-        
-        
     def axis_neighbor(self): #bruce 071203; bugfix 080117 for single strand
         """
         Assume self is a PAM strand sugar atom; return the single neighbor of
@@ -3731,25 +3731,39 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         Assume self is a PAM strand sugar atom, and bond_direction is -1 or 1.
         Find the next PAM strand sugar atom (i.e. base atom) in the given
-        bond direction, or None if it is missing (since the strand ends)
-        or if any bond directions are unset or inconsisent
-        or if any other structural error causes difficulty.
+        bond direction, or None if it is missing (since the strand ends),
+        or if any bond directions are unset or inconsistent,
+        or if any other structural error causes difficulty,
+        or if ._dna_updater__error is set in either self or in the atom
+        we might otherwise return (even if that error was propogated
+         from elsewhere in that atom's basepair, rather than being a
+         problem with that atom itself).
         """
         # note: API might be extended to permit passing a baseindex direction
         # instead, and working on either strand or axis baseatoms.
         assert bond_direction in (-1, 1)
+        if self._dna_updater__error: #bruce 080131 new feature (part 1 of 3)
+            return None
         atom1 = self.next_atom_in_bond_direction(bond_direction) # might be None
         if atom1 is None:
+            return None
+        if atom1._dna_updater__error: #bruce 080131 new feature (part 2 of 3)
             return None
         symbol = atom1.element.symbol # KLUGE -- should use another element attr, or maybe Atom subclass
         if symbol[0:2] not in ('Ss', 'Sj', 'Hp', 'Pl'): # base or base linker atoms (#todo: verify or de-kluge)
             return None
         if symbol.startswith('Pl'): # base linker atom
+            # move one more atom to find the one to return
             atom1 = atom1.next_atom_in_bond_direction(direction) # might be None
             assert atom1 is not self
                 # (false would imply one bond had two directions,
                 #  or two bonds between same two atoms)
-        return atom1 # might be None
+            if atom1 is None:
+                return None
+            if atom1._dna_updater__error: #bruce 080131 new feature (part 3 of 3)
+                return None
+            pass
+        return atom1
 
     # == PAM axis atom methods
     
