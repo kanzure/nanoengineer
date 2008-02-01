@@ -194,6 +194,16 @@ def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength, duplexRise 
         numberOfBasePairs = 1 + (duplexLength / getDuplexRise(conformation))
     return int(numberOfBasePairs)
 
+
+
+def getDuplexRiseFromNumberOfBasePairs(self, numberOfBasePairs, duplexLength):
+    """
+    Returns the duplex rise from the number of base pairs and the duplex length
+    """
+    duplexRise = duplexLength/ (numberOfBasePairs - 1)
+    return duplexRise
+
+
 def getComplementSequence(inSequence):
     """
     Returns the complement of the DNA sequence I{inSequence}.
