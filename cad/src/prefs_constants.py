@@ -35,7 +35,8 @@ getDefaultWorkingDirectory.
 
 ### do no imports that would not be ok for constants.py to do! ###
 
-from constants import yellow, pink, red, black, magenta, blue, gray, white, green
+from constants import yellow, pink, red, black, magenta
+from constants import blue, gray, white, green
 from constants import ave_colors, diTUBES
 
 import sys, os # for getDefaultWorkingDirectory
@@ -170,6 +171,16 @@ linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 diBALL_BondCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage' # about diBALL, called Ball and Stick as of 060307
     #bruce 060607 renamed cpkCylinderRadius_prefs_key -> diBALL_BondCylinderRadius_prefs_key ###DOIT
 
+# DNA prefs
+adnaBasesPerTurn_prefs_key = 'A10/A-DNA bases per turn' # Twist computed from this.
+adnaRise_prefs_key = 'A10/A-DNA rise step'
+bdnaBasesPerTurn_prefs_key = 'A10/B-DNA bases per turn' # Twist computed from this.
+bdnaRise_prefs_key = 'A10/B-DNA rise step'
+zdnaBasesPerTurn_prefs_key = 'A10/Z-DNA bases per turn' # Twist computed from this.
+zdnaRise_prefs_key = 'A10/Z-DNA rise step'
+dnaDefaultSegmentColor_prefs_key = 'A10/DNA default segment color'
+dnaColorBasesBy_prefs_key = 'A10/DNA color bases by'
+dnaStrutScaleFactor_prefs_key = 'A10/DNA strut scale factor'
 arrowsOnBackBones_prefs_key = 'A9/ Show arrows on all directional bonds' 
 arrowsOnThreePrimeEnds_prefs_key = 'A9/ Show three prime ends as out arrow heads'
 arrowsOnFivePrimeEnds_prefs_key = 'A9/ Show five prime ends as in arrow heads'
@@ -437,12 +448,22 @@ prefs_table = (
 
     ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
-    ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
-    ('', 'int', linesDisplayModeThickness_prefs_key, 1), #mark 050831 made this up
-    ('', 'float', diBALL_BondCylinderRadius_prefs_key, 3.0), #mark 051003
+    ('show_valence_errors', 'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
+    ('', 'int', linesDisplayModeThickness_prefs_key, 1),
+    ('', 'float', diBALL_BondCylinderRadius_prefs_key, 1.0),
     
-    #ninad070504: Enable or disable display of arrow heads in DNA reduced model 
-    #representation
+    # DNA preferences
+    # All DNA default values need to be confirmed by Eric D and Paul R.
+    # Mark 2008-01-31.
+    ('', 'float', adnaBasesPerTurn_prefs_key, 10.0),
+    ('', 'float', adnaRise_prefs_key, 3.391),
+    ('', 'float', bdnaBasesPerTurn_prefs_key, 10.0),
+    ('', 'float', bdnaRise_prefs_key, 3.180),
+    ('', 'float', zdnaBasesPerTurn_prefs_key, 10.0),
+    ('', 'float', zdnaRise_prefs_key, 3.715),
+    ('', 'color', dnaDefaultSegmentColor_prefs_key, white),
+    ('', 'int', dnaColorBasesBy_prefs_key, 0),
+    ('', 'float', dnaStrutScaleFactor_prefs_key, 1.0),
     
     ('show_arrows_on_all_directional_bonds', 'boolean', 
      arrowsOnBackBones_prefs_key, True), 

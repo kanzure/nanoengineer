@@ -77,6 +77,7 @@ from prefs_constants import showBondStretchIndicators_prefs_key
 from prefs_constants import linesDisplayModeThickness_prefs_key
 from prefs_constants import bondStretchColor_prefs_key
 from prefs_constants import diBALL_bondcolor_prefs_key
+from prefs_constants import dnaStrutScaleFactor_prefs_key
 
 from GlobalPreferences import disable_do_not_draw_open_bonds
 
@@ -540,6 +541,16 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
     if (atom1._dna_updater__error and atom2._dna_updater__error):
         toolong = False
     
+    # If atom1 or atom2 is a PAM atom, we recompute the sigmabond_cyl_radius.
+    # After experimenting, the standard <TubeRadius> works well for the 
+    # standard radius for both diBALL and diTUBES display styles. 
+    # This is multiplied by the "DNA Strut Scale Factor" user preference to
+    # compute the final radius. Mark 2008-01-31.
+    if (atom1.element.pam or atom2.element.pam):
+        if disp == diBALL or disp == diTUBES:
+            sigmabond_cyl_radius = \
+                TubeRadius * env.prefs[dnaStrutScaleFactor_prefs_key]
+        
     # Figure out banding (only in CPK or Tubes display modes).
     # This is only done in multicyl mode, because caller makes our v6 equal V_SINGLE otherwise.
     # If new color args are needed, they should be figured out here (perhaps by env.prefs lookup).

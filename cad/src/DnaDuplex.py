@@ -26,8 +26,9 @@ from VQT                import Q, V, angleBetween, cross, vlen
 from fusechunksMode     import fusechunksBase
 from utilities.Log      import orangemsg
 from GeneratorBaseClass import PluginBug
-from constants          import gensym, darkred, blue, lightgray
+from constants          import gensym, darkred, blue
 from constants          import diBALL, diTUBES
+from prefs_constants import dnaDefaultSegmentColor_prefs_key
 
 from runSim import adjustSinglet
 
@@ -341,22 +342,25 @@ class Dna:
 
         if _strandA_list:
             strandAChunk = \
-                     self.assy.makeChunkFromAtomList(_strandA_list,
-                                                     name = gensym("Strand"),
-                                                     group = dnaGroup,
-                                                     color = darkred)
+                     self.assy.makeChunkFromAtomList(
+                         _strandA_list,
+                         name = gensym("Strand"),
+                         group = dnaGroup,
+                         color = darkred)
         if _strandB_list:
             strandBChunk = \
-                     self.assy.makeChunkFromAtomList(_strandB_list,
-                                                     name = gensym("Strand"),
-                                                     group = dnaGroup,
-                                                     color = blue)
+                     self.assy.makeChunkFromAtomList(
+                         _strandB_list,
+                         name = gensym("Strand"),
+                         group = dnaGroup,
+                         color = blue)
         if _axis_list:
             axisChunk = \
-                  self.assy.makeChunkFromAtomList(_axis_list,
-                                                  name = "Axis",
-                                                  group = dnaGroup,
-                                                  color = lightgray)
+                  self.assy.makeChunkFromAtomList(
+                      _axis_list,
+                      name = "Axis",
+                      group = dnaGroup,
+                      color = env.prefs[dnaDefaultSegmentColor_prefs_key])
             axisChunk.setDisplay(diTUBES)
 
         return

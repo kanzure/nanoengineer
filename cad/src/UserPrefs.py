@@ -84,10 +84,19 @@ from prefs_constants import levelOfDetail_prefs_key
 from prefs_constants import diBALL_AtomRadius_prefs_key
 from prefs_constants import cpkScaleFactor_prefs_key
 from prefs_constants import showBondStretchIndicators_prefs_key
+from prefs_constants import showValenceErrors_prefs_key
+
+# DNA prefs
+from prefs_constants import bdnaBasesPerTurn_prefs_key
+from prefs_constants import bdnaRise_prefs_key
+from prefs_constants import dnaDefaultSegmentColor_prefs_key
+from prefs_constants import dnaColorBasesBy_prefs_key
+from prefs_constants import dnaStrutScaleFactor_prefs_key
 from prefs_constants import arrowsOnBackBones_prefs_key
 from prefs_constants import arrowsOnThreePrimeEnds_prefs_key
 from prefs_constants import arrowsOnFivePrimeEnds_prefs_key
-from prefs_constants import showValenceErrors_prefs_key
+
+# Undo prefs
 from prefs_constants import undoRestoreView_prefs_key
 from prefs_constants import undoAutomaticCheckpoints_prefs_key
 from prefs_constants import undoStackMemoryLimit_prefs_key
@@ -421,6 +430,8 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
             geticon('ui/dialogs/Reset.png'))
         self.reset_cpk_scale_factor_btn.setIcon(
             geticon('ui/dialogs/Reset.png'))
+        self.reset_dnaStrutScaleToolButton.setIcon(
+            geticon('ui/dialogs/Reset.png'))
         #this is for solid background color frame. It is important to 
         #setAutofillBackground to True in order for it to work.
         #ideally should be done in UserPrefsDialog.py -- ninad070430
@@ -503,6 +514,15 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
         self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
+        
+        # DNA page signal/slot connections.
+        
+        self.connect(self.dnaBasesPerTurnDoubleSpinBox,SIGNAL("valueChanged(double)"),self.save_dnaBasesPerTurn)
+        self.connect(self.dnaRiseDoubleSpinBox,SIGNAL("valueChanged(double)"),self.save_dnaRise)
+        self.connect(self.dnaRestoreFactoryDefaultsPushButton,SIGNAL("clicked()"),self.dnaRestoreFactoryDefaults)
+        self.connect(self.dnaDefaultSegmentColorPushButton,SIGNAL("clicked()"),self.changeDnaDefaultSegmentColor)
+        self.connect(self.dnaStrutScaleFactorSpinBox,SIGNAL("valueChanged(int)"),self.save_dnaStrutScale)
+        self.connect(self.reset_dnaStrutScaleToolButton,SIGNAL("clicked()"),self.reset_dnaStrutScale)
 
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
@@ -745,6 +765,7 @@ and Low based on the number of atoms in the current part.""")
                                                   Atom Scale factor. It is best to change the scale factor while in CPK display mode so you can see the graphical effect of
 changing the scale.""")
         self.reset_cpk_scale_factor_btn.setWhatsThis("""Restore the default value of the CPK Scale Factor""")
+        self.reset_dnaStrutScaleToolButton.setWhatsThis("""Restore the default value of the DNA Strut Scale Factor""")
         self.multCyl_radioButton.setWhatsThis("""<p><b>Multiple Cylinders</b></p>
                                               <p><b>High Order Bonds</b> are
 displayed using <b>Multiple Cylinders.</b></p>
@@ -1314,27 +1335,17 @@ restored when the user undoes a structural change.</p>
         # but make sure to only have one such subs (for one widget's bgcolor) at a time.
         # The colors in these frames will now automatically update whenever the prefs value changes.
         ##e (should modify this code to share its prefskey list with the one for restore_defaults)
-        connect_colorpref_to_colorframe( bondHighlightColor_prefs_key, self.bond_hilite_color_frame)
-        connect_colorpref_to_colorframe( bondStretchColor_prefs_key, self.bond_stretch_color_frame)
-        connect_colorpref_to_colorframe( bondVaneColor_prefs_key, self.bond_vane_color_frame)
-        connect_colorpref_to_colorframe( diBALL_bondcolor_prefs_key, self.ballstick_bondcolor_frame)
+        connect_colorpref_to_colorframe( 
+            bondHighlightColor_prefs_key, self.bond_hilite_color_frame)
+        connect_colorpref_to_colorframe( 
+            bondStretchColor_prefs_key, self.bond_stretch_color_frame)
+        connect_colorpref_to_colorframe( 
+            bondVaneColor_prefs_key, self.bond_vane_color_frame)
+        connect_colorpref_to_colorframe( 
+            diBALL_bondcolor_prefs_key, self.ballstick_bondcolor_frame)
         connect_checkbox_with_boolean_pref(
             self.showBondStretchIndicators_checkBox,
             showBondStretchIndicators_prefs_key)
-
-        #DNA reduced model representation preferences 
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnBackBones_checkBox,
-            arrowsOnBackBones_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnThreePrimeEnds_checkBox,
-            arrowsOnThreePrimeEnds_prefs_key)
-
-        connect_checkbox_with_boolean_pref(
-            self.arrowsOnFivePrimeEnds_checkBox,
-            arrowsOnFivePrimeEnds_prefs_key)
-
 
         # also handle the non-color prefs on this page:
         #  ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
@@ -1375,6 +1386,42 @@ restored when the user undoes a structural change.</p>
 
         return
 
+    def _setup_dna_page(self):
+        """
+        Setup widgets to initial (default or defined) values on the DNA page.
+        """
+        
+        self.dnaBasesPerTurnDoubleSpinBox.setValue(
+            env.prefs[bdnaBasesPerTurn_prefs_key])
+        self.dnaRiseDoubleSpinBox.setValue(
+            env.prefs[bdnaRise_prefs_key])
+        
+        connect_colorpref_to_colorframe( 
+            dnaDefaultSegmentColor_prefs_key, self.dnaDefaultSegmentColorFrame)
+        
+        self.dnaColorBasesByComboBox.setCurrentIndex(
+            env.prefs[dnaColorBasesBy_prefs_key])
+        
+        self.update_dnaStrutScaleWidgets()
+        
+        self.dnaColorBasesByComboBox.setEnabled(False) # Not implemented yet.
+        
+        #self.dnaStrutScaleFactorSpinBox.setEnabled(False) # Not implemented yet.
+
+
+        # DNA backbone arrow preferences 
+        connect_checkbox_with_boolean_pref(
+            self.arrowsOnBackBones_checkBox,
+            arrowsOnBackBones_prefs_key)
+
+        connect_checkbox_with_boolean_pref(
+            self.arrowsOnThreePrimeEnds_checkBox,
+            arrowsOnThreePrimeEnds_prefs_key)
+
+        connect_checkbox_with_boolean_pref(
+            self.arrowsOnFivePrimeEnds_checkBox,
+            arrowsOnFivePrimeEnds_prefs_key)
+        
     def _setup_undo_page(self):
         """
         Setup widgets to initial (default or defined) values on the Undo page.
@@ -1993,9 +2040,88 @@ restored when the user undoes a structural change.</p>
         """
         #bruce 060607 renamed change_cpk_cylinder_radius -> change_ballstick_cylinder_radius (in this file and .ui/.py dialog files)
         env.prefs[diBALL_BondCylinderRadius_prefs_key] = val *.01
-        self.glpane.gl_update() #k gl_update is probably not needed and in some cases is a slowdown [bruce 060607 comment]
+        
+        # Bruce wrote:
+        #k gl_update is probably not needed and in some cases is a slowdown [bruce 060607 comment]
+        # so I tested it and confirmed that gl_update() isn't needed.
+        # Mark 2008-01-31
+        #self.glpane.gl_update() 
 
     ########## End of slot methods for "Bonds" page widgets ###########
+    
+    ########## Slot methods for "DNA" page widgets ################
+    
+    def save_dnaBasesPerTurn(self, bases_per_turn):
+        """
+        Slot for I{Bases per turn} spinbox.
+        @param bases_per_turn: The number of bases per turn.
+        @type  bases_per_turn: double
+	"""
+        env.prefs[bdnaBasesPerTurn_prefs_key] = bases_per_turn
+        
+    def save_dnaRise(self, rise):
+        """
+        Slot for B{Rise} spinbox.
+        @param rise: The rise.
+        @type  rise: double
+	"""
+        env.prefs[bdnaRise_prefs_key] = rise
+        
+    def dnaRestoreFactoryDefaults(self):
+        """
+        Slot for I{Restore Factory Defaults} button.
+	"""
+        env.prefs.restore_defaults([
+            bdnaBasesPerTurn_prefs_key,
+            bdnaRise_prefs_key,
+        ])
+        
+        # These generate signals (good), which calls slots 
+        # save_dnaBasesPerTurn() and save_dnaRise()
+        self.dnaBasesPerTurnDoubleSpinBox.setValue(env.prefs[bdnaBasesPerTurn_prefs_key])
+        self.dnaRiseDoubleSpinBox.setValue(env.prefs[bdnaRise_prefs_key])
+        
+    def changeDnaDefaultSegmentColor(self):
+        """
+        Slot for the I{Choose...} button for changing the 
+        DNA default segment color.
+        """
+        self.usual_change_color( dnaDefaultSegmentColor_prefs_key )
+    
+    def save_dnaStrutScale(self, scale_factor):
+        """
+        Slot for B{Strut Scale Factor} spinbox.
+        @param scale_factor: The struct scale factor.
+        @type  scale_factor: int
+	"""
+        env.prefs[dnaStrutScaleFactor_prefs_key] = scale_factor * .01
+        self.update_dnaStrutScaleWidgets()
+        
+    def update_dnaStrutScaleWidgets(self):
+        """
+        Updates the DNA Strut Scale spin box and reset button. 
+        """
+        # Set strut scale.        
+        self.dnaStrutScaleFactorSpinBox.setValue(
+            int (env.prefs[dnaStrutScaleFactor_prefs_key] * 100.0))
+        
+        # Need a test to determine if <scale> is the same as 
+        # dnaStrutScaleFactor_prefs_key's default value. Asking Bruce.
+        # Mark 2008-01-31
+        if env.prefs[dnaStrutScaleFactor_prefs_key] == 1.0: # Hardcoded for now.
+            self.reset_dnaStrutScaleToolButton.setEnabled(0)
+        else:
+            self.reset_dnaStrutScaleToolButton.setEnabled(1)
+
+    def reset_dnaStrutScale(self):
+        """
+        Slot called when pressing the DNA Strut Scale Factor reset button.
+        Restores the default value of the DNA Strut Scale Factor.
+        """
+        env.prefs.restore_defaults([dnaStrutScaleFactor_prefs_key])
+        self.update_dnaStrutScaleWidgets()
+        
+    ########## End of slot methods for "DNA" page widgets ###########
 
     ########## Slot methods for "Modes" page widgets ################
 
@@ -2833,6 +2959,8 @@ restored when the user undoes a structural change.</p>
                 self._setup_atoms_page()
             elif pagename == 'Bonds':
                 self._setup_bonds_page()
+            elif pagename == 'DNA':
+                self._setup_dna_page()
             elif pagename == 'Modes':
                 self._setup_modes_page()
             elif pagename == 'Lighting':
