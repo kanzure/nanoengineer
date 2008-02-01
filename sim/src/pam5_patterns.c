@@ -196,11 +196,11 @@ pam5_stack_match(struct patternMatch *match)
   pam5_requires_gromacs(match->p); BAIL();
   init_stack_match();
   
-  // S1a    S2a
+  // S1a    S2b
   //  |      |
   // Gv1----Gv2
   //  |      |
-  // S1b    S2b
+  // S1b    S2a
   if (!isExpectedTwist(match->p, aGv1, aGv2, aS1a, aS1b)) {
     aS1a = match->p->atoms[match->atomIndices[3]];
     aS1b = match->p->atoms[match->atomIndices[2]];
@@ -209,7 +209,9 @@ pam5_stack_match(struct patternMatch *match)
     aS2a = match->p->atoms[match->atomIndices[5]];
     aS2b = match->p->atoms[match->atomIndices[4]];
   }
-  // atoms are now in canonical orientations
+  // Atoms are now in canonical orientations.  The twist is such that
+  // the S1a-S2a distance is greater than the S1b-S2b distance in
+  // BDNA.
   for (i=0; i<8; i++) {
     vA = makeVirtualAtom(vDa_type[i], sp3, 3, 1,
                          aGv1, aS1a, aS1b, NULL,

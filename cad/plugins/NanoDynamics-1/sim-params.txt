@@ -110,7 +110,7 @@ element 307  0  0   PAM3 Hp3  PAM3-Hairpin              167.0   0.0    0.0   2  
 #
 #  rvdW evdW start end name
 
-vdw 350.0 10.0 100.0 7.2 vDn-v-vDn
+vdw 1800.0 0.1 100.0 7.2 vDn-v-vDn
 
 vdw 7.2 10.0 100.0 7.2 Pl3-v-Pl3
 vdw 7.2 10.0 100.0 7.2 Pl3-v-Se3
@@ -153,9 +153,9 @@ stretch   4.00  200.00  1.0000   -1         -1       9    1   H-1-Hp5
 stretch  50.00 1239.60  1.0000   -1         -1       9    1   Ss5-1-Ss5
 stretch  50.00 1064.70  1.0000   -1         -1       9    1   Gv5-1-Ss5
 stretch  50.00 1064.70  1.0000   -1         -1       9    1   Gr5-1-Ss5
-stretch   0.00  300.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
-stretch   0.00  300.00  1.0000   -1         -1       9    1   Gv5-1-Gr5
-stretch   0.00  300.00  1.0000   -1         -1       9    1   Gr5-1-Gr5
+stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Gv5
+stretch   0.00  519.00  1.0000   -1         -1       9    1   Gv5-1-Gr5
+stretch   0.00  519.00  1.0000   -1         -1       9    1   Gr5-1-Gr5
 
 
 stretch   4.00  318.00  1.0000   -1         -1       9    1   Ax3-1-Ax3
@@ -437,63 +437,97 @@ pattern PAM5:Ax-Ax-Ss_high_theta0    95.000
 # vectors labeled P and Q, corrosponding to the Ss at the tip of that
 # vector (the Ax is the tail for both).
 
-pattern PAM5-Stack:vDa1-p             0.011
-pattern PAM5-Stack:vDa1-q             0.012
+# The current PAM5 implementation (as of 2008/01/31) uses seven
+# struts.  These are illustrated by the file PAM5-struts.mmp in this
+# directory (plugins/NanoDynamics-1).  Referring to that diagram, the
+# struts are numbered as follows:
 
-pattern PAM5-Stack:vDb1-p             0.111
-pattern PAM5-Stack:vDb1-q             0.112
+# 1 and 7 are the longer of the pairs near the phosphates
+# 2 and 6 are the shorter of the pairs near the phosphates
+# 3 is along the axis
+# 4 is the longer of the pair past the major groove
+# 5 is the shorter of the pair past the major groove
 
-pattern PAM5-Stack:vDa2-p             0.021
-pattern PAM5-Stack:vDa2-q             0.022
+# Struts 1 and 2 are on the positive Y side.
 
-pattern PAM5-Stack:vDb2-p             0.121
-pattern PAM5-Stack:vDb2-q             0.122
+# The struts have the following stiffnesses and lengths:
 
-pattern PAM5-Stack:vDa3-p             0.031
-pattern PAM5-Stack:vDa3-q             0.032
+# # stiffness (N/m)
+# 1 1.6810
+# 2 1.0739
+# 3 1.7007
+# 4 0.4509
+# 5 0.2787
+# 6 1.0739
+# 7 1.6810
 
-pattern PAM5-Stack:vDb3-p             0.131
-pattern PAM5-Stack:vDb3-q             0.132
+# # length (Angstroms)
+# 1  6.435
+# 2  3.424
+# 3  3.366
+# 4 10.326
+# 5  3.938
+# 6  3.424
+# 7  6.435
 
-pattern PAM5-Stack:vDa4-p             0.041
-pattern PAM5-Stack:vDa4-q             0.042
 
-pattern PAM5-Stack:vDb4-p             0.141
-pattern PAM5-Stack:vDb4-q             0.142
+pattern PAM5-Stack:vDa1-p             -0.649158
+pattern PAM5-Stack:vDa1-q              0.874952
 
-pattern PAM5-Stack:vDa5-p             0.051
-pattern PAM5-Stack:vDa5-q             0.052
+pattern PAM5-Stack:vDb1-p              0.880904
+pattern PAM5-Stack:vDb1-q              0.269853
 
-pattern PAM5-Stack:vDb5-p             0.151
-pattern PAM5-Stack:vDb5-q             0.152
+pattern PAM5-Stack:vDa2-p             -0.107957
+pattern PAM5-Stack:vDa2-q              0.909742
 
-pattern PAM5-Stack:vDa6-p             0.061
-pattern PAM5-Stack:vDa6-q             0.062
+pattern PAM5-Stack:vDb2-p              0.889773
+pattern PAM5-Stack:vDb2-q              0.144766
 
-pattern PAM5-Stack:vDb6-p             0.161
-pattern PAM5-Stack:vDb6-q             0.162
+pattern PAM5-Stack:vDa3-p              0.334917
+pattern PAM5-Stack:vDa3-q              0.334911
 
-pattern PAM5-Stack:vDa7-p             0.071
-pattern PAM5-Stack:vDa7-q             0.072
+pattern PAM5-Stack:vDb3-p              0.334917
+pattern PAM5-Stack:vDb3-q              0.334911
 
-pattern PAM5-Stack:vDb7-p             0.171
-pattern PAM5-Stack:vDb7-q             0.172
+pattern PAM5-Stack:vDa4-p              0.444701
+pattern PAM5-Stack:vDa4-q             -0.982461
 
-pattern PAM5-Stack:vDa8-p             0.081
-pattern PAM5-Stack:vDa8-q             0.082
+pattern PAM5-Stack:vDb4-p              0.444701
+pattern PAM5-Stack:vDb4-q             -0.982461
 
-pattern PAM5-Stack:vDb8-p             0.181
-pattern PAM5-Stack:vDb8-q             0.182
+pattern PAM5-Stack:vDa5-p              0.023090
+pattern PAM5-Stack:vDa5-q             -0.482253
 
-pattern PAM5-Stack:vDn-pq             0.250
+pattern PAM5-Stack:vDb5-p              0.023090
+pattern PAM5-Stack:vDb5-q             -0.482253
 
-#         ks    r0      de      beta    inflectionR qual quad bondName
+pattern PAM5-Stack:vDa6-p              0.889773
+pattern PAM5-Stack:vDa6-q              0.144766
 
-stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa1-1-vDb1
-stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa2-1-vDb2
-stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa3-1-vDb3
-stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa4-1-vDb4
-stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa5-1-vDb5
-stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa6-1-vDb6
-stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa7-1-vDb7
-stretch   1.00  300.00  1.0000   -1         -1       9    1   vDa8-1-vDb8
+pattern PAM5-Stack:vDb6-p             -0.107957
+pattern PAM5-Stack:vDb6-q              0.909742
+
+pattern PAM5-Stack:vDa7-p              0.880904
+pattern PAM5-Stack:vDa7-q              0.269853
+
+pattern PAM5-Stack:vDb7-p             -0.649158
+pattern PAM5-Stack:vDb7-q              0.874952
+
+pattern PAM5-Stack:vDa8-p              0.0
+pattern PAM5-Stack:vDa8-q              0.0
+
+pattern PAM5-Stack:vDb8-p              0.0
+pattern PAM5-Stack:vDb8-q              0.0
+
+pattern PAM5-Stack:vDn-pq              0.250
+
+#         ks      r0    de      beta    inflectionR qual quad bondName
+
+stretch  1.6810  643.5  1.0000   -1         -1       9    1   vDa1-1-vDb1
+stretch  1.0739  342.4  1.0000   -1         -1       9    1   vDa2-1-vDb2
+stretch  1.7007  336.6  1.0000   -1         -1       9    1   vDa3-1-vDb3
+stretch  0.4509 1032.6  1.0000   -1         -1       9    1   vDa4-1-vDb4
+stretch  0.2787  393.8  1.0000   -1         -1       9    1   vDa5-1-vDb5
+stretch  1.0739  342.4  1.0000   -1         -1       9    1   vDa6-1-vDb6
+stretch  1.6810  643.5  1.0000   -1         -1       9    1   vDa7-1-vDb7
+stretch  0.0000    0.0  1.0000   -1         -1       9    1   vDa8-1-vDb8

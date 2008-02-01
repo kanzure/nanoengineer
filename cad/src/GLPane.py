@@ -2331,10 +2331,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     def setDisplay(self, disp, default_display = False):
         """
         Set the display mode of the GLPane, where:
-        "disp" is the display mode, and
-        "default_display" changes the header of the display status bar
-        to either "Default Display" (True)
-        or "Current Display (False, the default).
+        'disp' is the display mode, and
+        'default_display' changes the header of the display status bar
+        to either 'Default Display' (True)
+        or 'Current Display' (False, the default).
         """
         #&&& print_compact_stack("GLPane.setDisplay():")
         #&&& print "Current Display Mode = ", self.displayMode

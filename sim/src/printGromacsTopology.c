@@ -122,6 +122,45 @@ writeGromacsExclusions(FILE *top, struct part *p, struct atom *a)
     }
 }
 
+// Create a bond using function 5 (potential identically zero) between
+// neighboring groove atoms.  This turns the groove atoms into a
+// single molecule, allowing exclusions to work.  The use of function
+// 5 keeps these bonds from otherwise affecting the calculation.
+static void
+writeGromacsFakeBonds(FILE *top, struct part *p, struct atom *a)
+{
+    struct atom *groove1;
+    struct atom *groove2;
+    struct atom *vDn;
+    struct bond *b;
+    int i;
+    
+    if (!atomIsType(a, vDn_type)) {
+        return;
+    }
+    groove1 = a->creationParameters.v.virtual1;
+    if (groove1 != NULL) {
+        for (i=0; i<groove1->num_bonds; i++) {
+            b = groove1->bonds[i];
+            if (b->a1 == groove1 && atomIsType(b->a2, P5G_type)) {
+                groove2 = b->a2;
+            } else if (b->a2 == groove1 && atomIsType(b->a1, P5G_type)) {
+                groove2 = b->a1;
+            } else {
+                continue;
+            }
+            vDn = groove2->creationParameters.r.associatedAtom;
+            if (vDn != NULL && atomIsType(vDn, vDn_type)) {
+                // create a fake bond between a and vDn
+                if (a->index < vDn->index) {
+                    fprintf(top, "%5d %5d   5\n", atomNumber(p, a), atomNumber(p, vDn));
+                }
+            }
+        }
+    }
+}
+
+
 static void
 writeGromacsVirtualSite(FILE *top, struct part *p, struct atom *a)
 {
@@ -413,6 +452,9 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(top, ";  ai    aj func        r0       Ks or De       beta\n");
     for (i=0; i<p->num_stretches; i++) {
 	writeGromacsBond(top, p, &p->stretches[i]);
+    }
+    for (i=0; i<p->num_virtual_atoms; i++) {
+        writeGromacsFakeBonds(top, p, p->virtual_atoms[i]);
     }
     fprintf(top, "\n");
 
