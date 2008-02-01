@@ -108,7 +108,7 @@ def fix_local_bond_directions( changed_atoms):
         # maybe: move later since we will be expanding this set; or report number of base pairs
         msg = "Warning: dna updater noticed %d pseudoatom(s) with bond direction errors" % len(new_error_atoms)
         msg = fix_plurals(msg)    
-        env.history.message(orangemsg(msg))
+        env.history.orangemsg(msg)
 
     global _all_error_atoms_after_propogation
     old_all_error_atoms_after_propogation = _all_error_atoms_after_propogation

@@ -13,6 +13,9 @@ from constants import gensym
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 
+import env
+from utilities.Log import orangemsg, graymsg
+
 # see also:
 ## from dna_model.DnaLadder import _rail_end_atom_to_ladder
 # (below, perhaps in a cycle)
@@ -36,6 +39,8 @@ class DnaLadderRailChunk(Chunk):
         # running through self
     
     ladder = None # will be a DnaLadder in finished instances; can be set to None by Undo #### FIX MORE CODE FOR THAT @@@@
+
+    _num_old_atoms_hidden = 0
     
     ###e todo: undo, copy for those attrs?
 
@@ -58,6 +63,7 @@ class DnaLadderRailChunk(Chunk):
             # todo: make not private... or get by without it here (another init arg??)
             # review: make this import toplevel? right now it's probably in a cycle.
         self.ladder = _rail_end_atom_to_ladder( chain.baseatoms[0] )
+        self._set_properties_from_grab_atom_info()
         return
 
     def _undo_update(self):
@@ -80,10 +86,51 @@ class DnaLadderRailChunk(Chunk):
         # common code -- just pull in baseatoms and their bondpoints.
         # subclass must extend as needed.
         for atom in chain.baseatoms:
-            atom.hopmol(self)
-                # note: hopmol immediately kills old chunk if it becomes empty
+            self._grab_atom(atom)
+                # note: this immediately kills atom's old chunk if it becomes empty
         return
 
+    def _grab_atom(self, atom):
+        """
+        Grab the given atom to be one of our own,
+        recording info about its old chunk which will be used later
+        (in self._set_properties_from_grab_atom_info, called at end of __init__)
+        in setting properties of self to imitate those of our atoms' old chunks.
+        """
+        # first grab info
+        old_chunk = atom.molecule
+        # maybe: self._old_chunks[id(old_chunk)] = old_chunk
+        if old_chunk and old_chunk.hidden:
+            self._num_old_atoms_hidden += 1
+        # then grab the atom
+        atom.hopmol(self)
+            # note: hopmol immediately kills old chunk if it becomes empty
+        return
+
+    def _set_properties_from_grab_atom_info(self): # 080201
+        # if *all* atoms were hidden, hide self.
+        # if any or all were hidden, emit an appropriate summary message.
+        if self._num_old_atoms_hidden == len(self.atoms):
+            self.hide()
+            if DEBUG_DNA_UPDATER:
+                summary_format = "DNA updater: debug fyi: remade [N] hidden chunk(s)"
+                env.history.deferred_summary_message( graymsg(summary_format) )
+        elif self._num_old_atoms_hidden:
+            summary_format = "Warning: DNA updater unhid [N] hidden atom(s)"
+            env.history.deferred_summary_message( orangemsg(summary_format),
+                                                  count = self._num_old_atoms_hidden
+                                                 )
+            if DEBUG_DNA_UPDATER:
+                summary_format = "Warning: DNA updater unhid them due to [N] unhidden atom(s)"
+                env.history.deferred_summary_message( graymsg(summary_format),
+                                                      count = len(self.atoms) - self._num_old_atoms_hidden
+                                                     )
+        if self._num_old_atoms_hidden > len(self.atoms):
+            env.history.redmsg("Bug in DNA updater, see console prints")
+            print "Bug in DNA updater: _num_old_atoms_hidden %r > len(self.atoms) %r, for %r" % \
+                  ( self._num_old_atoms_hidden , len(self.atoms), self )
+        return
+        
     def set_wholechain(self, wholechain):
         """
         [to be called by dna updater]
@@ -220,7 +267,8 @@ class DnaStrandChunk(DnaLadderRailChunk):
                         # since self is new, just now being made,
                         # and since we think only one Ss can want to pull in atom2
                     else:
-                        atom2.hopmol(self)
+                        ## atom2.hopmol(self)
+                        self._grab_atom(atom2)
                             # review: does this harm the chunk losing it if it too is new? @@@
                             # (guess: yes; since we overrode delatom to panic... not sure about Pl etc)
                             # academic for now, since it can't be new, afaik

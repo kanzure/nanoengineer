@@ -657,6 +657,10 @@ class DnaLadder(object):
                 group = part.topnode
             assert group.is_group()
             chunk = want_class(assy, rail)
+                # this pulls in all atoms belonging to rail
+                # (including certain kinds of attached atoms);
+                # it also may copy in certain kinds of info
+                # from their old chunk (e.g. hidden state?)
             if DEBUG_DNA_UPDATER_VERBOSE:
                 print "%r.remake_chunks made %r" % (self, chunk)
             chunk.color = old_chunk.color # works, at least if a color was set
