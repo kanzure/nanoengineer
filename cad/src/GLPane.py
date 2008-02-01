@@ -624,7 +624,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     
     # ==
     
-    def renderTextNearCursor(self, textString):
+    def renderTextNearCursor(self, textString, offset = 5):
         """
         Renders text near the cursor position, on the top right side of the
         cursor (slightly above it).
@@ -632,6 +632,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         See example in DNA Line mode.
 
         @param textString: string
+        @param offset: The offset that will be added to x and y values of the 
+                       cursor position to get the base position of the text 
+                       to be rendered. 
         
         @see: DnaLineMode.Draw
         @see: self._getFontForTextNearCursor
@@ -651,8 +654,8 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
               
         # Note: It is necessary to set the font color, otherwise it may change!
         self.qglColor(QColor(0, 0, 0))
-        x = pos.x() + 5
-        y = pos.y() - 5
+        x = pos.x() + offset
+        y = pos.y() - offset
         
         # Note: self.renderText is QGLWidget.renderText method.
         self.renderText(x,
