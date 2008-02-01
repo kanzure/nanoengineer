@@ -10,6 +10,7 @@ from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 from debug import print_compact_stack
 from chunk import Chunk
 from geometry.VQT import V, norm
+from Dna_Constants import getDuplexRiseFromNumberOfBasePairs
 
 class DnaSegment(DnaStrandOrSegment):
     """
@@ -37,6 +38,20 @@ class DnaSegment(DnaStrandOrSegment):
     # See comment in class Group for more info. [bruce 080115]
     _mmp_group_classifications = ('DnaSegment',)
     
+    _duplexRise = None
+    _numberOfBasesPerTurn = None
+    
+    def __init__(self, name, assy, dad, members = (), editCommand = None):        
+        self._duplexRise = None
+        self._numberOfBasesPerTurn = None
+        
+        DnaStrandOrSegment.__init__(self, 
+                                    name, 
+                                    assy, 
+                                    dad, 
+                                    members = members, 
+                                    editCommand = editCommand)
+        
     def edit(self):
         """
         Edit this DnaSegment. 
@@ -49,8 +64,10 @@ class DnaSegment(DnaStrandOrSegment):
         assert commandSequencer.currentCommand.commandName == 'DNA_SEGMENT'
         commandSequencer.currentCommand.editStructure(self)
 
-    #Following methods are NOT IMPLEMENTED YET =================================
-    
+    #Following methods are likely to be revised in a fully functional dna data 
+    # model. These methods are mainly created to get working many core UI 
+    # operations for Rattlesnake.  -- Ninad 2008-02-01
+
     def getAxisEndPoints(self):
         """
         Derives and returns the two axis end points based on the atom positions
@@ -86,7 +103,7 @@ class DnaSegment(DnaStrandOrSegment):
             print_compact_stack("bug:The axis chunk has more than 2 'Ae' atoms")
         else:
             return None, None
-    
+            
     def getAxisVector(self):
         """
         Returns the unit axis vector of the segment (vector between two axis 
@@ -97,7 +114,86 @@ class DnaSegment(DnaStrandOrSegment):
             return norm(endPoint2 - endPoint1)
         else:
             return V(0, 0, 0)
-                    
+        
     
-
+    def setProps(self, props):
+        """
+        Sets some properties. These will be used while editing the structure. 
+        (but if the structure is read from an mmp file, this won't work. As a 
+        fall back, it returns some constant values) 
+        @see: DnaDuplex_EditCommand.createStructure which calls this method. 
+        @see: self.getProps, DnaSegment_EditCommand.editStructure        
+        """
+        self._duplexRise, self._numberOfBasesPerTurn = props
+            
+    def getProps(self):
+        """
+        Returns some properties such as duplexRise. This is a temporary 
+        @see: DnaSegment_EditCommand.editStructure where it is used. 
+        @see: DnaSegment_PropertyManager.getParameters
+        @see: DnaSegmentEditCommand._createStructure        
+        """
+        if self._duplexRise is None:
+            self._duplexRise = self._computeDuplexRise() 
+        
+        if self._duplexRise is None:
+            #If its still none , hard code it to 3.18 as a precaution. 
+            self._duplexRise = 3.18
+        
+        if self._numberOfBasesPerTurn is None:
+            duplexLength = self.getSegmentLength()
+            numberOfBasePairs = self.getNumberOfAxisAtoms() 
+            if numberOfBasePairs is not None:
+                self._numberOfBasesPerTurn = (numberOfBasePairs - 1)/ self._duplexRise
+            else:
+                #hard code the value to 10 if unable to determine.
+                self._numberOfBasesPerTurn = 10                   
+                    
+        props = (self._duplexRise, self._numberOfBasesPerTurn)
+        return props
+    
+    def _computeDuplexRise(self):
+        """
+        Compute the duplex rise
+        @see: self.getProps
+        """
+        duplexRise = None
+        numberOfAxisAtoms = self.getNumberOfAxisAtoms()   
+        if numberOfAxisAtoms:
+            numberOfBasePairs = numberOfAxisAtoms            
+            duplexLength = self.getSegmentLength()
+            duplexRise = getDuplexRiseFromNumberOfBasePairs(numberOfBasePairs,
+                                                            duplexLength)
+        return duplexRise
+    
+    def getSegmentLength(self):
+        """
+        Returns the length of the segment.
+        """
+        endPoint1, endPoint2 = self.getAxisEndPoints()        
+        segmentLength = vlen(endPoint1 - endPoint2)
+        return segmentLength
+    
+           
+    def getNumberOfAxisAtoms(self):
+        """
+        Returns the number of axis atoms present within this dna segment 
+        Returns None if more than one axis chunks are present 
+        This is a temporary method until dna data model is fully working. 
+        @see: DnaSegment_EditCommand.editStructure where it is used. 
+        """
+        axisChunkList = []
+        numberOfAxisAtoms = None
+        for m in self.members:
+            if isinstance(m, Chunk) and m.isAxisChunk():
+                axisChunkList.append(m)
+        #@BUG: What if the segment has more than one axis chunks? 
+        #We will only print a message for now in the consol
+        if len(axisChunkList) == 1:
+            axisChunk = axisChunkList[0]
+            
+            numberOfAxisAtoms = len(axisChunk.atoms.values())
+        
+        return numberOfAxisAtoms
+                
 # end
