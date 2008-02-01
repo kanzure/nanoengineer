@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 preferences.py -- Preferences system.
 
 @author: bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Module classification: [bruce 071215]
 
@@ -550,29 +550,49 @@ class _prefs_context:
         assert type(keys) == type([])
         return map( self.get_default_value, keys)
 
-    def get_default_value(self, key): #bruce 080131 UNTESTED @@@@
+    def get_default_value(self, key, _default_return_value = None): #bruce 080131/080201 UNTESTED @@@@
         """
         @param key: a key string
         """
+        # review: should default value of _default_return_value be None (as now), or _NOT_PASSED?
         assert type(key) == type("")
         pkey = self._attr2key(key)
-        dflt = _defaults.get(pkey, None) ###k
+        dflt = _defaults.get(pkey, _default_return_value)
         return dflt
         
-    def has_default_value(self, key): #bruce 080131 UNTESTED @@@@
+    def has_default_value(self, key): #bruce 080131/080201 UNTESTED @@@@
         """
         @param key: a key string
         """
-        # This is a ###STUB in two ways:
-        # - it ought to compare using same_vals, not !=
-        # - it might record a default of None if no default is yet recorded (not sure)
-        dflt = self.get_default_value(key)
+        # This is a ###STUB in a few ways:
+        # - it ought to compare using same_vals, not != (also in setitem??)
+        # - the specification doesn't say what to do when no default is yet recorded
+        # - old version without _NOT_PASSED:
+        #   it might record a default of None if no default is yet recorded (not sure)
+        # - new version with _NOT_PASSED: correctness not fully reviewed
+        dflt = self.get_default_value(key, _NOT_PASSED)
         current = self.get(key, dflt) # does usage tracking (good)
         same = not (dflt != current)
             # (note: this is a safer comparison than ==, but not perfect,
             #  re Numeric arrays)
         return same
+
+    def have_default_values(self, keys): #bruce 080201 UNTESTED @@@@
+        """
+        Return True if every prefs key in the given list currently has
+        its default value (i.e. if restore_defaults would not
+        change their current values).
         
+        @param keys: a list of key strings (tuple not allowed; nested list not allowed)
+        """
+        assert type(keys) == type([])
+        # note: I think this does not access the shelf,
+        # so we don't need to optimize it to only open the shelf once.
+        for key in keys:
+            if not self.has_default_value(key):
+                return False
+        return True
+    
     pass # end of class _prefs_context
 
 # for now, in this stub code, all modules use one context:
