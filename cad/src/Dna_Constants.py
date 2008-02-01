@@ -130,7 +130,7 @@ def getDuplexRise(conformation):
     assert conformation in ("A-DNA", "B-DNA", "Z-DNA")
     return dnaDict[str(conformation)]['DuplexRise']
 
-def getDuplexLength(conformation, numberOfBases):
+def getDuplexLength(conformation, numberOfBases, duplexRise = 0):
     """
     Returns the duplex length (in Angstroms) given the conformation
     and number of bases.
@@ -141,17 +141,28 @@ def getDuplexLength(conformation, numberOfBases):
     @param numberOfBases: The number of base-pairs in the duplex.
     @type  numberOfBases: int
     
+    @param duplexRise: The duplex rise (in Angstroms). If not provided, the 
+                       user preference for DNA rise is used.
+    
     @return: The length of the duplex in Angstroms.
     @rtype: float
     """
     assert conformation in ("A-DNA", "B-DNA", "Z-DNA")
     assert numberOfBases >= 0
-    return getDuplexRise(conformation) * numberOfBases
+    assert duplexRise >= 0
+    if duplexRise:
+        duplexLength = duplexRise * (numberOfBases - 1)
+    else:
+        duplexLength = getDuplexRise(conformation) * (numberOfBases - 1)
+        
+    return duplexLength
 
-def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength):
+def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength, duplexRise = 0):
     """
-    Returns the number of base-pairs in the duplex given the conformation  
-    and the duplex length. This number is NOT rounded to the nearest integer. 
+    Returns the number of base-pairs in the duplex given the conformation,  
+    duplex length and duplex rise (optional). 
+    
+    The number of base-pairs returned is NOT rounded to the nearest integer. 
     The rounding is intentionally not done. Example: While drawing a dna line, 
     when user clicks on the screen to complete the second endpoint, the actual 
     dna axis endpoint might be trailing the clicked point because the total 
@@ -164,18 +175,24 @@ def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength):
     @param conformation: "A-DNA", "B-DNA", or "Z-DNA"
     @type  conformation: str
     
-    @param duplexLength: The duplex length in Angstroms. (0 or positive value)
+    @param duplexLength: The duplex length (in Angstroms).
     @type  duplexLength: float
     
-    @return:  The number of base-pairs in the duplex
+    @param duplexRise: The duplex rise (in Angstroms). If not provided, the 
+                       user preference for DNA rise is used.
+    @type  duplexRise: float
+    
+    @return:  The number of base-pairs in the duplex.
     @rtype: int
     """
     assert conformation in ("A-DNA", "B-DNA", "Z-DNA")
     assert duplexLength >= 0
-    numberOfBasePairs = 1 + (duplexLength / getDuplexRise(conformation))
+    assert duplexRise >= 0
+    if duplexRise:
+        numberOfBasePairs = 1 + (duplexLength / duplexRise)
+    else:
+        numberOfBasePairs = 1 + (duplexLength / getDuplexRise(conformation))
     return int(numberOfBasePairs)
-
-
 
 def getComplementSequence(inSequence):
     """
