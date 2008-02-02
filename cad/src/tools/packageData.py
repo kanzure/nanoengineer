@@ -449,6 +449,7 @@ packageMapping_for_files = {
     "ops_rechunk"                      : "operations",
     "ops_select"                       : "operations", # for a selection package??
     "ops_view"                         : "operations", # for a view package???
+    "ops_display"                      : "operations",
     "op_select_doubly"                 : "operations",
     
     "PanMode"                          : "temporary_command",
