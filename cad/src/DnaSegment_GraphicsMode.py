@@ -63,6 +63,13 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     """
     _sphereColor = darkred
     _sphereOpacity = 0.5
+    
+    #The flag that decides whether to draw the handles. This flag is
+    #set during left dragging, when no handle is 'grabbed'. This optimizes the 
+    #drawing code as it skips handle drawing code and also the computation
+    #of handle positions each time the mouse moves 
+    #@see self.leftUp , self.leftDrag, seld.Draw for more details
+    _handleDrawingRequested = True
 
     cursor_over_when_LMB_pressed = ''        
 
@@ -180,10 +187,19 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         """
         Method called during Left up event. 
         """
+        
         _superclass.leftUp(self, event)  
         self.update_selobj(event)
         self.update_cursor()
         self.o.gl_update()
+        
+        #Reset the flag that decides whether to draw the handles. This flag is
+        #set during left dragging, when no handle is 'grabbed'. See the 
+        #class definition for more details about this flag.
+        if self.command and self.command.handles:
+            if not self._handleDrawingRequested:
+                self._handleDrawingRequested = True
+            
         
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.command.Done()
@@ -230,6 +246,17 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
             self.dragHandlerDrag(self.drag_handler, event) 
             return
         
+        #Following code will never be called if a handle is grabbed. 
+        #Thus, it instructs what to do for other cases (when user is not moving
+        #the draggable handles)
+        
+        #First, don't draw handles (set the flag here so that self.Draw knows 
+        #not to draw handles) This skips unnecessary computation of new handle
+        #position during left dragging. The flag is reset to True in leftUp
+        if self.command and self.command.handles:
+            if self.command.grabbedHandle is None:
+                self._handleDrawingRequested = False
+        
         #Copies AND modifies some code from move_GraphicsMode for doing 
         #leftDrag translation or rotation. 
                
@@ -239,19 +266,18 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                        self.o.MousePos[1] - event.pos().y())
 
         a =  dot(self.Zmat, deltaMouse)
-        dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)
-
-
-        #find out resultant axis, translate and rotate the selected
-        #movables along this axis (for rotate use rotsel)-- ninad 20070605
-        # (modified/optimized by bruce 070605)
-        if self.command and self.command.struct:
-            resAxis = self.command.struct.getAxisVector()
+        dx,dy =  a * V(self.o.scale/(h*0.5), 2*math.pi/w)       
 
         movables = []
         rotateAboutAxis = False
         translateAlongAxis = False
+        
         if self.command and self.command.struct:
+            #Resultant axis is the axis of the segment itself. 
+            resAxis = self.command.struct.getAxisVector()
+            #May be we should use is_movable test below? But we know its a dna
+            #segment and all its members are chunks only. Also note that 
+            #movables are NOT the 'selected' objects here. 
             movables = self.command.struct.members
             if isinstance(self.o.selobj, Atom) and \
                self.o.selobj.element.role == 'axis':                
@@ -267,16 +293,9 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                 mol.move(dx*resAxis)
 
         if rotateAboutAxis:
-            self.o.assy.rotateSpecifiedMovables(Q(resAxis,-dy), movables = movables) 
-        # this assumes movables are exactly the selected movable objects 
-        # (as they are)
-        # [could this be slow, or could something in here have a memory 
-        # leak?? (maybe redrawing selected chunks?)
-        #  interaction is way too slow, and uneven, and I hear swapping 
-        # in the bg.  Aha, I bet it's all those Undo checkpoints, which we 
-        #should not be collecting during drags at all!!
-        #  --bruce 070605 Q]
-
+            self.o.assy.rotateSpecifiedMovables(Q(resAxis,-dy), 
+                                                movables = movables) 
+        
         self.dragdist += vlen(deltaMouse) #k needed?? [bruce 070605 comment]
         self.o.SaveMouse(event)
         self.o.assy.changed() #ninad060924 fixed bug 2278
@@ -294,7 +313,8 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     def Draw(self):
         """
         """
-        self._drawHandles()     
+        if self._handleDrawingRequested:
+            self._drawHandles()     
         _superclass.Draw(self)
         
     def _drawHandles(self):
@@ -325,12 +345,10 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         else:
             #No handle is grabbed. But may be the structure changed 
             #(e.g. while dragging it ) and as a result, the endPoint positions 
-            #are modified. A possible optimization is to call it 
-            #only in self.leftDrag. But there could be some other ways because 
-            #of which the structure endpoint position may change. So 
-            #its safer to call this here. -- Ninad 2008-02-01
-            if self.command and self.command.handles:
-                self.command.updateHandlePositions()
+            #are modified. So we must update the handle positions because 
+            #during left drag (when handle is not dragged) we skip the 
+            #handle drawing code and computation to update the handle positions
+            self.command.updateHandlePositions()
 
 
 class DnaSegment_DragHandles_GraphicsMode(DnaLine_GM):
