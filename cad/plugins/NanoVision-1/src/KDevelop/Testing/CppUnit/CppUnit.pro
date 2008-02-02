@@ -7,7 +7,8 @@ SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Utility/NXUtilityTest.cpp \
  ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.cpp \
  ../../../Interface/NXSceneGraphTest.cpp \
- ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.cpp
+ ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.cpp \
+ ../../../Interface/NXPointTest.cpp
 
 TEMPLATE = app
 
@@ -31,7 +32,8 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Interface/NXNumbersTest.h \
 ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.h \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.h \
- ../../../Interface/NXSceneGraphTest.h
+ ../../../Interface/NXSceneGraphTest.h \
+ ../../../Interface/NXPointTest.h
 
 TARGETDEPS += ../../../../lib/libNanorexUtility.so \
 ../../../../lib/libNanorexInterface.so \
