@@ -74,6 +74,13 @@ from dna_model.dna_model_constants import MAX_LADDER_LENGTH
 
 from debug_prefs import debug_pref, Choice_boolean_False
 
+from constants import black
+from utilities.Log import orangemsg, redmsg, quote_html
+import env
+
+from Numeric import dot
+from geometry.VQT import cross
+
 # ==
 
 # globals and accessors
@@ -118,7 +125,10 @@ class DnaLadder(object):
     #TODO: split this class into a common superclass with DnaSingleStrandDomain
     # (see comment there) and a specific subclass for when we have axis_rail.
     valid = False # public for read, private for set; whether structure is ok and we own our atoms
-    error = False # ditto; whether num_strands or strand bond directions are wrong (parallel) # todo: use more?
+    error = "" # ditto; whether num_strands or strand bond directions are wrong (parallel), etc # todo: use more?
+        # on error, should be set to a short string (suitable for tooltip)
+        # without instance-specific data (i.e. one of a small fixed set of
+        # possible strings, so also suitable as part of a summary_format string)
     def __init__(self, axis_rail):
         self.axis_rail = axis_rail
         self.assy = axis_rail.baseatoms[0].molecule.assy #k
@@ -171,9 +181,10 @@ class DnaLadder(object):
         ## assert len(self.strand_rails) in (1, 2)
         # happens in mmkit - leave it as just a print at least until we implem "delete bare atoms" -
         if not ( len(self.strand_rails) in (1, 2) ):
-            print "error: DnaLadder %r has %d strand_rails " \
+            # bug, so always print it
+            print "\n***bug: DnaLadder %r has %d strand_rails " \
                   "(should be 1 or 2)" % (self, len(self.strand_rails))
-            self.error = True
+            self.error = "bug: illegal number (%d) of strand rails" % len(self.strand_rails)
         axis_rail = self.axis_rail
         # make sure rungs are aligned between the strand and axis rails
         # (note: this is unrelated to their index_direction,
@@ -221,9 +232,15 @@ class DnaLadder(object):
                 # to cache the result and use it when merging the rails,
                 # otherwise we'll keep rescanning rails as we merge them. #e
             if have_dir == 0:
-                print "error: %r strand %r has unknown or inconsistent bond " \
-                      "direction - response is NIM(bug)" % (self, strand_rail) #### @@@ response is NIM (BUG)
-                self.error = True
+                # this should never happen now that fix_bond_directions is active
+                # (since it should mark involved atoms as errors using _dna_updater__error
+                #  and thereby keep them out of ladders), so always print it [080201]
+                msg = "bug: %r strand %r has unknown or inconsistent bond " \
+                      "direction - should have been caught by fix_bond_directions" % \
+                      (self, strand_rail)
+                print "\n*** " + msg
+                ## env.history.redmsg(quote_html(msg))
+                self.error = "bug: strand with unknown or inconsistent bond direction"
                 reverse = True # might as well fix the other strand, if we didn't get to it yet
             else:
                 if have_dir != desired_dir:
@@ -245,15 +262,20 @@ class DnaLadder(object):
                             ### review: this reverses even the ones this for loop didn't get to, is that desired? @@@
                             rail.reverse_baseatoms()
                     else:
-                        print "error: %r strands have parallel bond directions"\
-                              " - response is NIM(bug)" % self #### @@@ response is NIM (BUG); split into two single strands??
-                        print "data about that:"
-                        print "this rail %r in list of rails %r" % (strand_rail, self.strand_rails)
-                        print "desired_dir = %r, reverse = %r, have_dir = %r" % (desired_dir, reverse, have_dir)
-                        print "self.error now = %r (is about to be set)" % (self.error,)
+                        # this can happen for bad input (not a bug);
+                        # don't print details unless verbose,
+                        # use a summary message instead
+                        if DEBUG_DNA_UPDATER_VERBOSE:
+                            print "\ndna updater input data error: %r's strands have parallel bond directions." % self
+                            print "data about that:"
+                            print "this rail %r in list of rails %r" % (strand_rail, self.strand_rails)
+                            print "desired_dir = %r, reverse = %r, have_dir = %r" % (desired_dir, reverse, have_dir)
+                            print "self.error now = %r (is about to be set)" % (self.error,)
                         if strand_rail.bond_direction_is_arbitrary():
-                            print " *** strand_rail.bond_direction_is_arbitrary() is true, should be false"
-                        self.error = True
+                            print " *** bug: parallel strands but strand_rail.bond_direction_is_arbitrary() is true, should be false"
+##                        summary_format = "Warning: DNA updater: found [N] dna ladder(s) with parallel strand errors" # DO BELOW @@@@@
+##                        env.history.deferred_summary_message( orangemsg( summary_format))
+                        self.error = "parallel strand bond directions"
                         # should we just reverse them? no, unless we use minor/major groove to decide which is right.
                     pass
                 else:
@@ -268,7 +290,94 @@ class DnaLadder(object):
             for rail in self.strand_rails:
                 strand_rail.debug_check_bond_direction("end of %r._finish_strand_rails" % self)
             print " *** _DEBUG_REVERSE_STRANDS end for %r\n" % self
-        self.set_valid(True)
+        self.set_valid(True) # desired even if self.error was set above, or will be set below
+        self._duplex_geometric_checks() # might set or append to self.error
+        if self.error:
+            # We want to display the error, but not necessarily by setting
+            # atom._dna_updater__error for every atom (or at least not right here,
+            # since we won't know all the atoms until we remake_chunks).
+            # For now, just report it: [#e todo: fix inconsistent case in dna updater warnings @@@@]
+            # Later display it in remake_chunks or in some ladder-specific display code. (And in tooltip too, somehow.)
+            # Ideally we draw an unmissable graphic which points out the error.
+            # (And same for the per-atom _dna_updater__error, which is too missable as mere orange color.) @@@@
+            error_string = self.error
+            if error_string.startswith("bug:"):
+                prefix = "Bug"
+                colorfunc = redmsg
+                # remove "bug: " from error_string used in summary_format
+                error_string = error_string[len("bug:"):].strip()
+            else:
+                prefix = "Warning"
+                colorfunc = orangemsg
+            summary_format = "%s: DNA updater: found [N] dna ladder(s) with %s" % \
+                             ( prefix, error_string )
+            env.history.deferred_summary_message( colorfunc( summary_format))
+                # note: error prevents ladder merge, so no issue of reporting an error more than once
+                # (as there would be otherwise, since same error would show up in the merged ladder)
+        return
+
+    def _duplex_geometric_checks(self):
+        """
+        Set (or append to) self.error, if self has any duplex geometric errors.
+        """
+        if len(self.strand_rails) == 2 and len(self) > 1:
+            # use the middle two base pairs; check both strands
+            i1 = (len(self) / 2) - 1
+            i2 = i1 + 1
+            axis_atoms = self.axis_rail.baseatoms[i1:i1+2] # note: for PAM5 these might be Gv, so formulas may differ... @@@
+            strand1_atoms = self.strand_rails[0].baseatoms[i1:i1+2]
+            strand2_atoms = self.strand_rails[1].baseatoms[i1:i1+2]
+            error_from_this = self._check_geom( axis_atoms, strand1_atoms, strand2_atoms)
+            if not error_from_this:
+                axis_atoms.reverse()
+                strand1_atoms.reverse()
+                strand2_atoms.reverse()
+                self._check_geom( axis_atoms, strand2_atoms, strand1_atoms)
+        return
+    def _check_geom(self, axis_atoms, strand1_atoms, strand2_atoms ):
+        """
+        Check the first 4 atoms (out of 6 passed to us, as 3 lists of 2)
+        for geometric duplex errors.
+        If strand2 is being passed in place of strand1 (and thus vice versa),
+        all 3 atom lists should be reversed.
+        If we set or add to self.error, return something true
+        (which will be the error string we add, not including whatever
+         separator we use to add it to an existing self.error).
+        """
+        old_self_error = self.error # for assert only
+        error_here = "" # modified below
+        axis_posns = [atom.posn() for atom in axis_atoms]
+        strand1_posns = [atom.posn() for atom in strand1_atoms]
+        rung0_vec = strand1_posns[0] - axis_posns[0]
+        rung1_vec = strand1_posns[1] - axis_posns[1]
+        axis_vec = axis_posns[1] - axis_posns[0]
+        righthandedness = dot( cross(rung0_vec, rung1_vec), axis_vec )
+        # todo: make sure it's roughly the right magnitude, not merely positive
+        if not self.error or not self.error.startswith("bug:"):
+            # check strand1 for reverse twist (append to error string if we already have one)
+            if righthandedness <= 0:
+                error_here = "reverse twist"
+                if not self.error:
+                    self.error = error_here
+                else:
+                    self.error += "\n" + error_here # is '\n' what we want?
+        if not self.error:
+            assert not error_here
+            # check for wrong strand directions re major groove
+            # (since no self.error, we can assume strands are antiparallel and correctly aligned,
+            #  i.e. that bond directions point from strand1_atoms[0] to strand1_atoms[1])
+            strand2_posns = [atom.posn() for atom in strand2_atoms]
+            rung0_vec_2 = strand2_posns[0] - axis_posns[0]
+            minor_groove_where_expected_ness = dot( cross( rung0_vec, rung0_vec_2 ), axis_vec )
+            if minor_groove_where_expected_ness <= 0:
+                error_here = "bond directions both wrong re major groove"
+                self.error = error_here
+        if old_self_error or error_here:
+            assert self.error
+        assert self.error.startswith(old_self_error)
+        assert self.error.endswith(error_here)
+        return error_here
+
     def num_strands(self):
         return len(self.strand_rails)
     def set_valid(self, val):
@@ -345,7 +454,7 @@ class DnaLadder(object):
         return self._do_merge_with_other_at_ends(other_ladder, end, other_end)
     def _can_merge_at_end(self, end): # TODO: update & clean up docstring
         """
-        Is the same valid other ladder attached to each rail of self
+        Is the same valid other ladder (with no error) attached to each rail of self
         at the given end (0 or 1), and if so, can we merge to it
         at that end (based on which ends of which of its rails
         our rails attach to)? (If so, return other_ladder_and_merge_info, otherwise None.)
@@ -637,6 +746,8 @@ class DnaLadder(object):
                       prefs_key = True ):
             from Dna_Constants import getNextStrandColor
             ladder_color = getNextStrandColor()
+        if self.error:
+            ladder_color = black ###### TEMPORARY @@@@@
         for rail in self.all_rails():
             if rail is self.axis_rail:
                 want_class = DnaAxisChunk
