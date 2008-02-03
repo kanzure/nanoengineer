@@ -1395,6 +1395,10 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         Put up a dialog to let the user rename the given node. (Only one node for now.)
         Emit an appropriate statusbar message, and do necessary updates if successful.
         """
+        # Don't allow renaming while animating (b/w views).
+        if self.win.glpane.is_animating:
+            return
+        
         # Note: see similar code in setModelData in another class.
         ##e Question: why is renaming the toplevel node not permitted? Because we'll lose the name when opening the file?
         oldname = node.name
