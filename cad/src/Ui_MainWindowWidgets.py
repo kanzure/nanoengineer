@@ -836,7 +836,7 @@ def retranslateUi(win):
             "MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
     win.fileCloseAction.setText(
         QtGui.QApplication.translate(
-            "MainWindow", "&Close", None, QtGui.QApplication.UnicodeUTF8))
+            "MainWindow", "&Close and begin new model", None, QtGui.QApplication.UnicodeUTF8))
     win.fileCloseAction.setIconText(
         QtGui.QApplication.translate(
             "MainWindow", "Close", None, QtGui.QApplication.UnicodeUTF8))

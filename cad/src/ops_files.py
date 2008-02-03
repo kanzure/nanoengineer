@@ -1417,8 +1417,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         isFileSaved = True
         if self.assy.has_changed():
             ret = QMessageBox.warning( self, "Warning!" ,
-                "The part contains unsaved changes.\n"
-                "Do you want to save the changes before closing this part?",
+                "The model contains unsaved changes.\n"
+                "Do you want to save the changes before closing\n"\
+                "this model and beginning a new (empty) model?",
                 "&Save", "&Discard", "Cancel",
                 0,      # Enter == button 0
                 2 )     # Escape == button 2
