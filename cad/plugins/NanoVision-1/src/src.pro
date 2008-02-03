@@ -18,7 +18,8 @@ HEADERS += nv1.h \
 TEMPLATE = app
 CONFIG += warn_on \
 	  thread \
-          qt
+          qt \
+ debug
 TARGET = ../bin/nv1
 RESOURCES = application.qrc
 FORMS += ResultsWindow.ui \
@@ -36,3 +37,5 @@ LIBS += -L../lib \
  -lopenbabel
 TARGETDEPS += ../lib/libNanorexInterface.so \
 ../lib/libNanorexUtility.so
+CONFIG -= release
+

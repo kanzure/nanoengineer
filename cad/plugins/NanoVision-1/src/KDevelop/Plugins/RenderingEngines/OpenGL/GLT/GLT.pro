@@ -21,7 +21,8 @@ SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/bbox.cpp \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/umatrix.cpp \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/vector3.cpp \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/vector4.cpp \
- ../../../../../Plugins/RenderingEngines/OpenGL/GLT/viewport.cpp
+ ../../../../../Plugins/RenderingEngines/OpenGL/GLT/viewport.cpp \
+ ../../../../../Plugins/RenderingEngines/OpenGL/GLT/rgb.cpp
 TARGET = GLT
 
 HEADERS += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_bbox.h \
@@ -43,6 +44,7 @@ HEADERS += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_bbox.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_vector3.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_vector4.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_viewport.h \
- ../../../../../Plugins/RenderingEngines/OpenGL/GLT/matrix4.h
+ ../../../../../Plugins/RenderingEngines/OpenGL/GLT/matrix4.h \
+ ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_rgb.h
 DESTDIR = ../../../../../../lib/
 

@@ -12,7 +12,7 @@ public:
     NXTrackball()
         : w2(0.0), h2(0.0), scale(0.0), mouseSpeedDuringRotation(1.0) {}
     NXTrackball(int const& w, int const& h) { resize(w, h); }
-    virtual ~NXTrackball() {} // in-case someone wants to inherit
+    ~NXTrackball() {} // in-case someone wants to inherit
     
     // accessors
     double getWidth(void) const { return (w2+w2); }

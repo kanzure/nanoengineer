@@ -90,6 +90,9 @@ public:
 	/// Access as array
 	operator real *();
 
+    /// Access as array
+    const real* data() const { return _vector; }
+
 protected:
 	/// Storage for x, y and z components
 	real _vector[4];

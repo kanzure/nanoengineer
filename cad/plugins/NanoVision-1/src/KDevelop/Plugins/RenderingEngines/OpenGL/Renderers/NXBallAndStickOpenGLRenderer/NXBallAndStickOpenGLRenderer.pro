@@ -21,14 +21,17 @@ HEADERS += ../../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
 TARGETDEPS += ../../../../../../../lib/libNanorexUtility.so \
 ../../../../../../../lib/libNanorexInterface.so \
  ../../../../../../../lib/libNXOpenGLRendererPlugin.a
-TARGET = BallAndStickOpenGLRenderer
 
 DESTDIR = ../../../../../../../lib
 
 INCLUDEPATH += ../../NXOpenGLRendererPlugin \
 ../../../../../../../include
-LIBS += -L../../../../../../../lib \
--lNXOpenGLRendererPlugin \
--lNXOpenGLSceneGraph
+LIBS += -lNXOpenGLRendererPlugin \
+-lNXOpenGLSceneGraph \
+ -L../../../../../../../lib
 SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer.cpp
+
+TARGET = NXBallAndStickOpenGLRenderer
+
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
 

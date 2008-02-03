@@ -83,7 +83,7 @@ NXSGOpenGLRenderable::NXSGOpenGLRenderable() throw (NXException)
 {
     display_list_id = glGenLists(1);
     GLenum const err = glGetError();
-    if(err != GL_NO_ERROR)
+    if(err != GL_NO_ERROR || !glIsList(display_list_id))
         throw NXException("Error calling glGenLists");
 }
 

@@ -1,4 +1,4 @@
-// Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
+ // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include <GL/gl.h>
 #include "Nanorex/Interface/NXOpenGLRendererPlugin.h"
@@ -11,11 +11,11 @@ NXSGOpenGLRenderable *NXOpenGLRendererPlugin::canonicalCylinderNode(NULL);
 
 NXOpenGLRendererPlugin::NXOpenGLRendererPlugin()
 {
-    if(canonicalSphereNode == NULL)
+/*    if(canonicalSphereNode == NULL)
         renderCanonicalSphere();
     
     if(canonicalCylinderNode == NULL)
-        renderCanonicalCylinder();
+        renderCanonicalCylinder();*/
     
 #if 0
     if(canonicalSphereDisplayListID == 0)
@@ -27,10 +27,14 @@ NXOpenGLRendererPlugin::NXOpenGLRendererPlugin()
 }
 
 
-/// Developer should check for canonicalSphereNode == NULL before calling
-/*static*/ void NXOpenGLRendererPlugin::renderCanonicalSphere(void)
+/*static*/
+NXSGOpenGLRenderable*
+    NXOpenGLRendererPlugin::RenderCanonicalSphere(void)
 {
     // canonicalSphereDisplayListID = glGenLists(1);
+    // quick return if node is already created
+    if(canonicalSphereNode != NULL) return canonicalSphereNode;
+    
     try {
         canonicalSphereNode = new NXSGOpenGLRenderable;
     }
@@ -38,9 +42,11 @@ NXOpenGLRendererPlugin::NXOpenGLRendererPlugin()
         // fail silently if unable to create for any reason
         delete canonicalSphereNode;
         canonicalSphereNode = NULL;
-        return;
+        return canonicalSphereNode;
     }
     
+    // canonicalSphereNode != NULL if new goes through but just in case
+    if(canonicalSphereNode == NULL) return canonicalSphereNode;
     
     NXCommandResult renderResult = canonicalSphereNode->beginRender();
     /// @todo trap results - return if error freeing node and setting ptr to NULL
@@ -121,7 +127,7 @@ NXOpenGLRendererPlugin::NXOpenGLRendererPlugin()
     renderResult = canonicalSphereNode->endRender();
     /// @todo - trap errors, free node, set to zero and return
     
-    
+    return canonicalSphereNode;
 /*    GLenum const err = glGetError();
     if(err != GL_NO_ERROR) {
         canonicalSphereDisplayListID = 0;
@@ -130,10 +136,15 @@ NXOpenGLRendererPlugin::NXOpenGLRendererPlugin()
 }
 
 
-/// Developer should check for canonicalCylinderNode == NULL before calling
-/*static*/ void NXOpenGLRendererPlugin::renderCanonicalCylinder(void)
+/*static*/
+NXSGOpenGLRenderable*
+    NXOpenGLRendererPlugin::RenderCanonicalCylinder(void)
 {
     // canonicalCylinderDisplayListID = glGenLists(1);
+    
+    // quick return if already initialized
+    if(canonicalCylinderNode != NULL) return canonicalCylinderNode;
+    
     try {
         canonicalCylinderNode = new NXSGOpenGLRenderable;
     }
@@ -141,8 +152,11 @@ NXOpenGLRendererPlugin::NXOpenGLRendererPlugin()
         // fail silently if unable to create for any reason
         delete canonicalCylinderNode;
         canonicalCylinderNode = NULL;
-        return;
+        return canonicalCylinderNode;
     }
+    
+    // extra check for NULL before performing ops on it
+    if(canonicalCylinderNode == NULL) return canonicalCylinderNode;
     
     int const NUM_FACETS = 72;
     const double DELTA_PHI = 360.0 / (double) NUM_FACETS;
@@ -218,6 +232,8 @@ NXOpenGLRendererPlugin::NXOpenGLRendererPlugin()
     renderResult = canonicalCylinderNode->endRender();
     /// @todo trap errors, free node, set to NULL, return
     
+    return canonicalCylinderNode;
+        
 /*    err = glGetError();
     if(err != GL_NO_ERROR) {
         canonicalCylinderDisplayListID = 0;

@@ -16,7 +16,7 @@ namespace Nanorex {
  */
 class NXBallAndStickOpenGLRenderer : public NXOpenGLRendererPlugin {
 public:
-    NXBallAndStickOpenGLRenderer();
+    NXBallAndStickOpenGLRenderer() {}
     virtual ~NXBallAndStickOpenGLRenderer() {}
 
     /// Call plugin to render the atom display list and return the scenegraph node.
@@ -27,8 +27,13 @@ public:
     /// Must set commandResult to indicate success or failure
     NXSGNode* renderBond(NXBondRenderData const&);
     
+    static NXSGNode* RenderCanonicalBond(void);
+    
 private:
     static double const BOND_WIDTH;
+    static NXSGNode *canonicalBondNode;
+    
+    friend class NXBallAndStickOpenGLRendererTest;
 };
 
 

@@ -21,7 +21,7 @@ class NXOpenGLRendererPlugin : public NXRendererPlugin {
 public:
 
     NXOpenGLRendererPlugin();
-    virtual ~NXOpenGLRendererPlugin();
+    virtual ~NXOpenGLRendererPlugin() {}
 
     /// Call plugin to render the atom display list and return the scenegraph node.
     /// Must set commandResult to indicate success or failure
@@ -39,6 +39,12 @@ public:
     // /// Get the OpenGL "name" of the display list for the canonical cylinder - 0 if not sphere not created
     // static GLuint const& getCanonicalCylinderDisplayListID(void) { return canonicalCylinderDisplayListID; }
     
+    /// Initialize canonical sphere scenegraph node for atoms
+    static NXSGOpenGLRenderable* RenderCanonicalSphere(void);
+    
+    /// Initialize canonical cylinder scenegraph node for bonds
+    static NXSGOpenGLRenderable* RenderCanonicalCylinder(void);
+    
 protected:
     NXCommandResult commandResult;
     /// @todo should these be NXSGRenderable* instead?
@@ -53,13 +59,7 @@ protected:
                                               double const& x2,
                                               double const& y2,
                                               double const& z2);*/
-                                              
-    /// Initialize canonical sphere scenegraph node for atoms
-    static void renderCanonicalSphere(void);
-    
-    /// Initialize canonical cylinder scenegraph node for bonds
-    static void renderCanonicalCylinder(void);
-    
+
 };
 
 } // Nanorex

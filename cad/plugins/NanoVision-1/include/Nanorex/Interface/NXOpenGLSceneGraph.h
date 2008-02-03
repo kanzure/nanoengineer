@@ -134,6 +134,10 @@ public:
     
     NXCommandResult endRender(void) const throw ();
     
+#ifdef NX_DEBUG
+    GLuint getDisplayListID(void) const { return display_list_id; }
+#endif
+    
 protected:
     GLuint display_list_id;
 };

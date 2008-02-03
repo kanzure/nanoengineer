@@ -14,8 +14,8 @@ namespace Nanorex {
  */
 class NXRendererPlugin {
 public:
-    NXRendererPlugin();
-    ~NXRendererPlugin();
+    NXRendererPlugin() {}
+    virtual ~NXRendererPlugin() {}
 
     // virtual void renderAtom(NXRenderAtomInfo const&) = 0;
     // virtual void renderBond(NXRenderBondInfo const&) = 0;

@@ -23,3 +23,5 @@ DESTDIR = ../../../../../../lib
 LIBS += -L../../../../../../lib \
 -lNanorexInterface \
 -lNanorexUtility
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
+

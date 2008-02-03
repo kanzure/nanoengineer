@@ -1,5 +1,6 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
+#include <cassert>
 extern "C" {
 #include <GL/gl.h>
 }
@@ -8,11 +9,29 @@ extern "C" {
 namespace Nanorex {
 
 
-double const NXBallAndStickOpenGLRenderer::BOND_WIDTH = 0.1;
+double const NXBallAndStickOpenGLRenderer::BOND_WIDTH(0.25);
+
+NXSGNode* NXBallAndStickOpenGLRenderer::canonicalBondNode(NULL);
+
+NXSGNode* NXBallAndStickOpenGLRenderer::RenderCanonicalBond(void)
+{
+    if(canonicalBondNode == NULL) {
+        NXSGNode *cylinderNode = RenderCanonicalCylinder();
+        NXSGOpenGLScale *scaleNode = 
+            new NXSGOpenGLScale(BOND_WIDTH, BOND_WIDTH, 1.0);
+        /// @todo trap errors
+        canonicalBondNode = scaleNode;
+        canonicalBondNode->addChild(cylinderNode);
+    }
+    return canonicalBondNode;
+}
 
 
 NXSGNode* NXBallAndStickOpenGLRenderer::renderAtom(NXAtomRenderData const& info)
 {
+/*#ifdef NX_DEBUG
+    return canonicalSphereNode;
+#else*/
     std::vector<void const*> const& paramVec = info.getSupplementalData();
     NXOpenGLMaterial const& defaultMaterial =
         *static_cast<NXOpenGLMaterial const*>(paramVec[0]);
@@ -20,8 +39,9 @@ NXSGNode* NXBallAndStickOpenGLRenderer::renderAtom(NXAtomRenderData const& info)
     try { atomNode = new NXSGOpenGLMaterial(defaultMaterial); }
     catch (...) { return NULL; } // fail silently
     
-    atomNode->addChild(canonicalSphereNode);
+    atomNode->addChild(RenderCanonicalSphere());
     return atomNode;
+    //#endif
     
 #if 0 // OpenGL calls, not required
     double theta, rSinTheta, phi, sinPhi, cosPhi;
@@ -104,6 +124,9 @@ NXSGNode* NXBallAndStickOpenGLRenderer::renderAtom(NXAtomRenderData const& info)
 
 NXSGNode* NXBallAndStickOpenGLRenderer::renderBond(NXBondRenderData const& info)
 {
+/*#ifdef NX_DEBUG
+    return canonicalCylinderNode;
+#else*/
     std::vector<void const*> const& paramVec = info.getSupplementalData();
     NXOpenGLMaterial const& defaultMaterial =
         *static_cast<NXOpenGLMaterial const*>(paramVec[0]);
@@ -111,8 +134,39 @@ NXSGNode* NXBallAndStickOpenGLRenderer::renderBond(NXBondRenderData const& info)
     try { bondNode = new NXSGOpenGLMaterial(defaultMaterial); }
     catch (...) { return NULL; } // fail silently
     
-    bondNode->addChild(canonicalCylinderNode);
+    NXSGOpenGLScale *bondScale = new NXSGOpenGLScale(1.0,1.0,info.getLength());
+    bondNode->addChild(bondScale);
+    
+    /// @todo store canonical node for each one
+    // note x-y displacements are not affected by z-scaling for length
+    
+    bondScale->addChild(RenderCanonicalBond());
+    
+    NXSGNode *doubleBond = NULL;
+    if(info.getOrder()==2 || info.getOrder()==3) {
+        // for double bond, create two cylinders displace along x
+        doubleBond = new NXSGNode;
+        NXSGNode *subBond1 = new NXSGOpenGLTranslate( 0.5, 0.0, 0.0);
+        subBond1->addChild(RenderCanonicalBond());
+        NXSGNode *subBond2 = new NXSGOpenGLTranslate(-0.5, 0.0, 0.0);
+        subBond2->addChild(RenderCanonicalBond());
+        doubleBond->addChild(subBond1);
+        doubleBond->addChild(subBond2);
+        bondScale->addChild(doubleBond);
+    }
+    
+    // for triple bond, use ref to double bond but rotated 90 deg about z
+    if(info.getOrder()==3) {
+        assert(doubleBond != NULL);
+        NXSGNode *rotateDoubleBondZ = 
+            new NXSGOpenGLRotate(90.0, 0.0, 0.0, 1.0);
+        rotateDoubleBondZ->addChild(doubleBond);
+        bondScale->addChild(rotateDoubleBondZ);
+    }
+    
     return bondNode;
+    
+    //#endif
     
 #if 0 // OpenGL calls, already implemented in superclass
     int const NUM_FACETS = 72;

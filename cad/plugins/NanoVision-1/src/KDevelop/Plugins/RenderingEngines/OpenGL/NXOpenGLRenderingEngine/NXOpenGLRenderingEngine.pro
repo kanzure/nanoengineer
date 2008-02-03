@@ -14,7 +14,8 @@ HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../../../../include/Nanorex/Interface/NXRendererPlugin.h \
  ../../../../../../include/Nanorex/Interface/NXRenderingEngine.h \
  ../../../../../../include/Nanorex/Interface/NXRGBColor.h \
- ../../../../../../include/Nanorex/Interface/NXSceneGraph.h
+ ../../../../../../include/Nanorex/Interface/NXSceneGraph.h \
+ ../../../../../../include/Nanorex/Interface/NXOpenGLMaterial.h
 CONFIG -= release
 
 QT += opengl
@@ -36,4 +37,6 @@ TARGET = NXOpenGLRenderingEngine
 DESTDIR = ../../../../../../lib
 
 SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine.cpp
+
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
 

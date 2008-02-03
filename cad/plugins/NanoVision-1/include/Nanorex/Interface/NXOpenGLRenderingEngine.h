@@ -70,8 +70,7 @@ public:
 #ifdef NX_DEBUG
     void setPlugin ( NXOpenGLRendererPlugin *const plugin )
     {
-        pluginList.push_back ( plugin );
-        currentPluginIter = pluginList.rbegin();
+        currentPluginIter = pluginList.insert(pluginList.end(), plugin);
     }
 #endif
     
