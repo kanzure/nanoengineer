@@ -11,10 +11,13 @@ History:
 Mark wrote this in Utility.py.
 
 bruce 071026 moved it from Utility into a new file.
+
+To do: 
+- rename Csys to NamedView. Mark 2008-02-03.
 """
 
 from constants import gensym
-from geometry.VQT import V, Q
+from geometry.VQT import V, Q, vlen
 from icon_utilities import imagename_to_pixmap
 from Utility import SimpleCopyMixin
 from Utility import Node
@@ -114,25 +117,37 @@ class Csys(SimpleCopyMixin, Node):
         #bruce 050420 comment: this is inadequate, but before revising it
         # I'd have to verify it's not used internally, like Jig.__repr__ used to be!!
         return "<csys " + self.name + ">"
-
-    def __CM_Change_View(self): #mark 060122
+    
+    def pick(self):
+        """
+        Changes to self's view, then picks the node in the model tree.
+        """
+        Node.pick(self)
         self.change_view()
-        
+    
     def change_view(self): #mark 060122
-        '''Change the view to self.
-        '''
+        """
+        Change the view to self.
+        """
         self.assy.o.animateToView(self.quat, self.scale, self.pov, self.zoomFactor, animate=True)
         
         cmd = greenmsg("Change View: ")
-        msg = 'View changed to "%s".' % (self.name)
+        msg = 'Current view is "%s".' % (self.name)
         env.history.message( cmd + msg )
         
-    def __CM_Set_to_Current_View(self): #mark 060122
+    def __disabledCM_Replace_View_with_This_View(self): #mark 060122
+        """
+        This slot method replaces self's view with the current view.
+        
+        This also adds the menu item B{Replace View with This View} to this
+        node's context menu.
+        """
         self.set_to_current_view()
     
     def set_to_current_view(self): #mark 060122
-        '''Set self to current view.
-        '''
+        """
+        Set self to current view.
+        """
         self.scale = self.assy.o.scale
         self.pov = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
         self.zoomFactor = self.assy.o.zoomFactor
@@ -144,17 +159,82 @@ class Csys(SimpleCopyMixin, Node):
         env.history.message( cmd + msg )
 
     def move(self, offset): # in class Csys (Named View) [bruce 070501, used when these are deposited from partlib]
-        "[properly implements Node API method]"
+        """
+        [properly implements Node API method]
+        """
         self.pov = self.pov - offset # minus, because what we move is the center of view, defined as -1 * self.pov
         self.changed()
         return
 
+    def sameAsCurrentView(self, view = None):
+        """
+        Tests if this Csys view is the same as the current view.
+        
+        @param view: A csys view to compare with self. If None (the default)
+                     self is compared to the current view (i.e. the 3D graphics
+                     area).
+        @type  view: L{Csys}
+        
+        @return: True if they are the same. Otherwise, returns False.
+        @rtype:  boolean
+        
+        @note: I'm guessing this could be rewritten to be more 
+        efficient/concise. For example, it seems possible to implement 
+        this using a simple conditional like this:
+               
+        if self == view:
+           return True
+        else:
+           return False
+        
+        It occurs to me that the GPLane class should use a Csys (view) attr 
+        along with (or in place of) quat, scale, pov and zoomFactor attrs.
+        That would make this method (and possibly other code) easier to 
+        write and understand.
+        
+        Ask Bruce about all this.
+        
+        BTW, this code was originally copied/borrowed from 
+        GLPane.animateToView(). Mark 2008-02-03.
+        """ 
+    
+        # Make copies of self parameters.
+        q1 = Q(self.quat)
+        s1 = self.scale
+        p1 = V(self.pov[0], self.pov[1], self.pov[2])
+        z1 = self.zoomFactor
+        
+        if view:
+            # Copy the view parameters (for comparison).
+            q2 = Q(view.quat)
+            s2 = view.scale
+            p2 = V(view.pov[0], view.pov[1], view.pov[2])
+            z2 = view.zoomFactor 
+        else:
+            # Copy the current view parameters of the 3D graphics area.
+            q2 = Q(self.assy.o.quat)
+            s2 = self.assy.o.scale
+            p2 = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
+            z2 = self.assy.o.zoomFactor 
+
+        # Compute the deltas.
+        deltaq = q2 - q1
+        deltap = vlen(p2 - p1)
+        deltas = abs(s2 - s1)
+        deltaz = abs(z2 - z1)
+
+        if deltaq.angle + deltap + deltas + deltaz == 0:
+            return True
+        else:
+            return False
+        
     pass # end of class Csys
 
 # bruce 050417: commenting out class Datum (and ignoring its mmp record "datum"),
 # since it has no useful effect.
-# bruce 060523: removing the commented out code. In case it's useful for Datum Planes,
-# it can be found in cvs rev 1.149 or earlier of Utility.py, and commented out
+# bruce 060523: removing the commented out code. In case it's useful for 
+# Datum Planes, it can be found in cvs rev 1.149 or earlier of Utility.py, 
+# and commented out
 # references to it remain in other files. It referred to cad/images/datumplane.png.
 
 # end
