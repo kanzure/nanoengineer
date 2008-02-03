@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 packageData.py -- data about modules and packages, for PackageDependency.py
 
 @author: Eric M, Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 
 # NFRs for packageDependency.py: @@@
@@ -82,6 +82,8 @@ disallowedToplevelModuleNames = {
 }
 
 # Module names we can't use at any level:
+# NOTE: It turns out we also can't use any toplevel package name
+# as a module name. [bruce 080202]
 disallowedModuleNames = {
     "globals"      : "python built-in function",
     "global"       : "python keyword",
@@ -91,6 +93,7 @@ disallowedModuleNames = {
     "Image"        : "extension module",
     "math"         : "Python library module",
 }
+
 
 # ===
 
@@ -519,7 +522,7 @@ packageMapping_for_files = {
     "Select_GraphicsMode_MouseHelpers_preMixin"    : "graphics_mode|commands/Select",
     "selectMode"                       : "unsplit_mode|commands/Select",
     
-    "Selobj"                           : "graphics_drawable_api|graphics_drawable", #bruce 080116 revised this
+    "Selobj"                           : "graphics_drawable", #bruce 080116/080202 revised this (would be _api if we had that)
     
     "ServerManager"                    : "ui|processes", #? specific to GAMESS? maybe, but shouldn't. persistent db/UI for servers list
     "ServerManagerDialog"              : "ui|processes",
