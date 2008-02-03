@@ -1056,6 +1056,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         """
         # Caller could easily pass these args in the wrong order.  Let's typecheck them.
         typecheckViewArgs(q2, s2, p2, z2)
+        
+        # Precaution. Don't animate if we're currently animating.
+        if self.is_animating:
+            return
 
         # Determine whether to snap (don't animate) to the destination view.
         if not animate or not env.prefs[animateStandardViews_prefs_key]:
