@@ -1667,6 +1667,7 @@ class MWsemantics(QMainWindow,
         return
 
     # Load IconSets #########################################
+    
     def load_icons_to_iconsets(self): ### REVIEW (Mark): is this still needed? [bruce 070820]
         """
         Load additional icons to QAction icon sets that are used in MainWindow
@@ -1680,10 +1681,19 @@ class MWsemantics(QMainWindow,
         editRedoIconSet.setPixmap ( small_disabled_on_icon_fname, QIcon.Small, QIcon.Disabled, QIcon.Off )
         self.editRedoAction.setIcon ( editRedoIconSet )
         return
-
+    
+    # Methods for temporarily disabling QActions in toolbars/menus ##########
+    
     def enableViews(self, enableFlag = True):
         """
-        Disables/enables view actions on toolbar and menu.
+        Disables/enables view actions on toolbar and menu. 
+        
+        This is typically used to momentarily disable some
+        of the view actions while animating between views.
+        
+        @param enableFlag: Flag to enable/disable the View actions in this
+                           method.
+        @type  enableFlag: boolean
         """
         self.viewNormalToAction.setEnabled(enableFlag)
         self.viewParallelToAction.setEnabled(enableFlag)
