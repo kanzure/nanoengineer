@@ -1,7 +1,8 @@
 """
 test_animation_mode.py -- scratch code for animation loop, connectWithState, exprs drawing.
 
-$Id$
+@author: Bruce
+@version: $Id$
 
 To run this code:
 
@@ -45,8 +46,6 @@ and a couple more noted on g4:
 - a few more
 """
 
-__author__ = "bruce"
-
 from prefs_widgets import Preferences_StateRef, Preferences_StateRef_double, ObjAttr_StateRef
 from changes import Formula
 
@@ -71,7 +70,7 @@ from constants import green, red, white, pink, black, brown, gray # other colors
 from math import pi
 from drawer import drawline, drawbrick, drawsphere, drawcylinder
 from OpenGL.GL import GL_LIGHTING, glDisable, glEnable
-from VQT import cross, proj2sphere, V, norm, Q, vlen
+from geometry.VQT import cross, proj2sphere, V, norm, Q, vlen
 
 from Utility import Node
 import env
@@ -970,7 +969,6 @@ annoyers = [##'editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
 # to make that clear, we put them down here instead of at the top of the file
 from drawer import drawline
 from constants import red, green
-from VQT import V
 ##from exprs.ExprsConstants import PIXELS
 from exprs.images import Image
 ##from exprs.Overlay import Overlay
