@@ -19,7 +19,7 @@ from PyQt4.Qt import QGLWidget
 
 from geometry.VQT import V, Q
 from Trackball import Trackball
-from Csys import Csys
+from NamedView import NamedView
 
 from prefs_constants import undoRestoreView_prefs_key
 
@@ -231,22 +231,22 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         """
         oldc = assy.all_change_counters()
 
-        csys = Csys(assy, "name", self.scale, self.pov, self.zoomFactor, self.quat)
+        csys = NamedView(assy, "name", self.scale, self.pov, self.zoomFactor, self.quat)
 
         newc = assy.all_change_counters()
         assert oldc == newc
 
         csys.current_selgroup_index = assy.current_selgroup_index() # storing this on the csys is a kluge, but should be safe
 
-        return csys # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to Csys
+        return csys # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to NamedView
 
-    def set_view_for_Undo(self, assy, csys): # shares code with Csys.set_view; might be very similar to some GLPane method, too
+    def set_view_for_Undo(self, assy, csys): # shares code with NamedView.set_view; might be very similar to some GLPane method, too
         """
         Restore the view (and the current Part) to what was saved by current_view_for_Undo.
         WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
         WARNING: might not gl_update, assume caller does so [#k obs warning?]
         """
-        ## compare to Csys.set_view (which passes animate = True) -- not sure if we want to animate in this case [we do, for A8],
+        ## compare to NamedView.set_view (which passes animate = True) -- not sure if we want to animate in this case [we do, for A8],
         # but if we do, we might have to do that at a higher level in the call chain
         restore_view = env.prefs[undoRestoreView_prefs_key] #060314
         restore_current_part = True # always do this no matter what

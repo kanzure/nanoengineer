@@ -22,7 +22,7 @@ from geometry.VQT import V, Q, A, norm, vlen
 from utilities.Log import greenmsg, redmsg, orangemsg
 from prefs_constants import ORTHOGRAPHIC
 from prefs_constants import PERSPECTIVE
-from Csys import Csys
+from NamedView import NamedView
 from PovrayScene import PovrayScene
 
 class viewSlotsMixin:
@@ -450,7 +450,7 @@ class viewSlotsMixin:
             # If you put quatX first, it won't give isometric view ninad060810
 
     def saveNamedView(self):
-        csys = Csys(self.assy, None, 
+        csys = NamedView(self.assy, None, 
                     self.glpane.scale, 
                     self.glpane.pov, 
                     self.glpane.zoomFactor, 
@@ -467,10 +467,10 @@ class viewSlotsMixin:
         namedViewList = [] # Hold the result list
 
         def function(node):
-            if isinstance(node, Csys):
+            if isinstance(node, NamedView):
                 namedViewList.append(node)
             return
-        # Append all Csys nodes to the namedview list
+        # Append all NamedView nodes to the namedview list
         self.assy.part.topnode.apply2all(function)
 
         return namedViewList

@@ -52,7 +52,7 @@ from Group   import Group
 
 from Assembly_API import Assembly_API
 
-from Csys import Csys
+from NamedView import NamedView
 from geometry.VQT import V
 from debug import print_compact_traceback, print_compact_stack
 from utilities import debug_flags
@@ -198,8 +198,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # which are not yet added (and we don't want to assume topnode's
             # kids will all be added, though for now this might be true --
             # not sure).
-            self.homeCsys = Csys(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
-            self.lastCsys = Csys(self.assy, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
+            self.homeCsys = NamedView(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
+            self.lastCsys = NamedView(self.assy, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
 
         self.add(topnode)
         # for now:

@@ -302,7 +302,6 @@ packageMapping_for_files = {
     "CookieShape"                      : "command|commands/BuildCrystal", # see docstring for reasons and caveats
 
     "crossovers"                       : "operation|dna/operations",
-    "Csys"                             : "model",
     "cursors"                          : "ui|ne1_ui",
     "CylinderChunks"                   : "graphics_view",#? a ChunkDisplayMode; graphics_what? _view? _style?
     "debug"                            : "utilities",
@@ -431,6 +430,8 @@ packageMapping_for_files = {
     "movieMode"                        : "unsplit_mode|commands/PlayMovie",
     "MoviePropertyManager"             : "ui/propmgr|commands/PlayMovie",
     "MWsemantics"                      : "ui|ne1_ui",
+    
+    "NamedView"                        : "model", # was Csys
     
     "NanoHive"                         : "ui|ESP", # ui/control/ops for running ESP (etc?) calcs using NanoHive. ui for now.
     "NanoHiveDialog"                   : "ui|ESP",
@@ -668,7 +669,6 @@ packageMapping.update( packageMapping_for_packages)
 needs_renaming_for_clarity = { # just suggestions, not yet discussed/decided
     "bond_utils" : "bond_menu_helpers",
     "cursors"    : "load_custom_cursors?",
-    "Csys"       : "SavedView? NamedView?",
     "fileIO"     : "povray/files_povray and mdl/files_mdl (split it)", # also needs_refactoring
     "GROMACS"    : "GROMACS_demo?", # temporary demo of atomic-level-DNA GROMACS simulation (maybe for outtakes?)
     "help"       : "Ne1HelpDialog or HelpDialog",

@@ -37,7 +37,7 @@ Specific mmp format versions used so far:
 
 '050130' -- the mmpformat record, using this format-version "050130",
 were introduced just before Alpha-1 release, at or shortly after
-the format was changed so that two (rather than one) Csys records
+the format was changed so that two (rather than one) NamedView (Csys) records
 were stored, one for Home View and one for Last View
 
 '050130 required; 050217 optional' -- introduced by bruce on 050217,
@@ -142,7 +142,7 @@ from bonds import bond_atoms
 from chunk import Chunk
 from Utility import Node
 from Group import Group
-from Csys import Csys # for reading one, and for isinstance
+from NamedView import NamedView # for reading one, and for isinstance
 
 from debug import print_compact_traceback
 from debug import print_compact_stack
@@ -1236,7 +1236,7 @@ class _readmmp_state:
             scale = float(m.group(6))
             pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
             zoomFactor = float(m.group(10))
-            csys = Csys(self.assy, name, scale, pov, zoomFactor, wxyz)
+            csys = NamedView(self.assy, name, scale, pov, zoomFactor, wxyz)
             self.addmember( csys) # regardless of name; no side effects on assy (yet) for any name,
                 # though later code will recognize the names HomeView and LastView and treat them specially
                 # (050421 extension: also some related names, for Part views)
@@ -1248,13 +1248,13 @@ class _readmmp_state:
                 wxyz = A(map(float, [m.group(2), m.group(3),
                          m.group(4), m.group(5)]))
                 scale = float(m.group(6))
-                homeCsys = Csys(self.assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
+                homeCsys = NamedView(self.assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
                     #bruce 050417 comment
                     # (about Huaicai's preexisting code, some of which I moved into this file 050418):
                     # this name "OldVersion" is detected in fix_assy_and_glpane_views_after_readmmp
                     # (called from MWsemantics.fileOpen, one of our callers)
                     # and changed to "HomeView", also triggering other side effects on glpane at that time.
-                lastCsys = Csys(self.assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
+                lastCsys = NamedView(self.assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
                 self.addmember(homeCsys)
                 self.addmember(lastCsys)
             else:
@@ -1519,8 +1519,27 @@ def _readmmp(assy, filename, isInsert = False, showProgressDialog = False):
     @type  showProgressDialog: boolean
     """
     state = _readmmp_state( assy, isInsert)
-    lines = open(filename,"rU").readlines()
+    
+    # The following code is experimental. It reads an mmp file that is contained
+    # within a ZIP file. To test, create a zipfile (i.e. "part.zip") which
+    # contains an MMP file named "main.mmp", then rename "part.zip" to 
+    # "part.mmp". Set the constant READ_MAINMMP_FROM_ZIPFILE = True,
+    # then run NE1 and open "part.mpp" using "File > Open...". 
+    # Mark 2008-02-03
+    READ_MAINMMP_FROM_ZIPFILE = False # Don't commit with True.
+    
+    if READ_MAINMMP_FROM_ZIPFILE:
+        # Experimental. Read "main.mmp", a standard mmp file contained within 
+        # a zipfile opened via "File > Open...".
+        from zipfile import ZipFile
+        _zipfile = ZipFile(filename, 'r')
+        _bytes = _zipfile.read("main.mmp")
+        lines = _bytes.splitlines()
+    else:
+        # The normal way to read an MMP file.
+        lines = open(filename,"rU").readlines()
         # 'U' in filemode is for universal newline support
+    
     if not isInsert:
         assy.filename = filename ###e would it be better to do this at the end, and not at all if we fail?
     
@@ -1728,7 +1747,7 @@ def _reset_grouplist(assy, grouplist):
     # (e.g. some sim-input files don't).
     mainpart = assy.tree.part
     for m in viewdata.members:
-        if isinstance(m, Csys):
+        if isinstance(m, NamedView):
             if m.name == "HomeView" or m.name == "OldVersion":
                     # "OldVersion" will be changed to "HomeView" later... see comment elsewhere
                 mainpart.homeCsys = m

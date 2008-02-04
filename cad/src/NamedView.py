@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Csys.py -- a saved named view (including coordinate system for viewing)
+NamedView.py -- a named view (including coordinate system for viewing)
 
 @author: Mark
 @version: $Id$
@@ -25,9 +25,9 @@ from utilities import debug_flags
 import env
 from utilities.Log import greenmsg
 
-class Csys(SimpleCopyMixin, Node):
+class NamedView(SimpleCopyMixin, Node):
     """
-    The Csys is used to store all the parameters needed to save and restore a view.
+    The NamedView is used to store all the parameters needed to save and restore a view.
     It is used in several distinct ways:
         1) as a Named View created by the user and visible as a node in the model tree
         2) internal use for storing the LastView and HomeView for every part
@@ -76,7 +76,7 @@ class Csys(SimpleCopyMixin, Node):
         "#doc [warning: see comment where this is called in this class -- it has to do more than its general spec requires]"
         # (split out of self.copy)
         if "a kluge is ok since I'm in a hurry":
-            # the data in this Csys might not be up-to-date, since the glpane "caches it"
+            # the data in this NamedView might not be up-to-date, since the glpane "caches it"
             # (if we're the Home or Last View of its current Part)
             # and doesn't write it back after every user event!
             # probably it should... but until it does, do it now, before copying it!
@@ -111,7 +111,7 @@ class Csys(SimpleCopyMixin, Node):
             # though it doesn't have to in general.
         if 0 and debug_flags.atom_debug:
             print "atom_debug: copying csys:", self
-        return Csys( *args, **kws )
+        return NamedView( *args, **kws )
 
     def __str__(self):
         #bruce 050420 comment: this is inadequate, but before revising it
@@ -122,6 +122,10 @@ class Csys(SimpleCopyMixin, Node):
         """
         Changes to self's view, then picks the node in the model tree.
         """
+        # Precaution. Don't pick node if we're animating.
+        if self.assy.o.is_animating:
+            return
+        
         Node.pick(self)
         self.change_view()
     
@@ -158,7 +162,7 @@ class Csys(SimpleCopyMixin, Node):
         msg = 'View "%s" now set to the current view.' % (self.name)
         env.history.message( cmd + msg )
 
-    def move(self, offset): # in class Csys (Named View) [bruce 070501, used when these are deposited from partlib]
+    def move(self, offset): # in class NamedView [bruce 070501, used when these are deposited from partlib]
         """
         [properly implements Node API method]
         """
@@ -168,7 +172,8 @@ class Csys(SimpleCopyMixin, Node):
 
     def sameAsCurrentView(self, view = None):
         """
-        Tests if this Csys view is the same as the current view.
+        Tests if self is the same as I{view}, or the current view if I{view}
+        is None (the default).
         
         @param view: A csys view to compare with self. If None (the default)
                      self is compared to the current view (i.e. the 3D graphics
@@ -187,7 +192,7 @@ class Csys(SimpleCopyMixin, Node):
         else:
            return False
         
-        It occurs to me that the GPLane class should use a Csys (view) attr 
+        It occurs to me that the GPLane class should use a NamedView attr 
         along with (or in place of) quat, scale, pov and zoomFactor attrs.
         That would make this method (and possibly other code) easier to 
         write and understand.
@@ -228,7 +233,7 @@ class Csys(SimpleCopyMixin, Node):
         else:
             return False
         
-    pass # end of class Csys
+    pass # end of class NamedView
 
 # bruce 050417: commenting out class Datum (and ignoring its mmp record "datum"),
 # since it has no useful effect.
