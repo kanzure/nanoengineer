@@ -12,7 +12,7 @@ from PyQt4.Qt import QColorDialog
 from PM.PM_GroupBox      import PM_GroupBox
 
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
-from PM.PM_Constants     import pmRestoreDefaultsButton
+from PM.PM_Constants     import pmPreviewButton, pmRestoreDefaultsButton
 from widgets             import QColor_to_RGBf
 
 from GeneratorBaseClass  import AbstractMethod
@@ -52,7 +52,7 @@ class MotorPropertyManager(EditCommand_PM):
         self.glpane = self.win.glpane
                
         # Hide Restore defaults button for Alpha9.
-        self.hideTopRowButtons(pmRestoreDefaultsButton)
+        self.hideTopRowButtons(pmPreviewButton | pmRestoreDefaultsButton)
  
     def show(self):
         """
