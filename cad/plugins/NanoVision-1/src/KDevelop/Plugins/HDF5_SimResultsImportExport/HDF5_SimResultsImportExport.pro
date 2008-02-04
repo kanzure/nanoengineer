@@ -1,7 +1,10 @@
 SOURCES += ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExport.cpp
+
 HEADERS += ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExport.h
+
 INCLUDEPATH += ../../../../include \
  $(OPENBABEL_INCPATH)
+
 TEMPLATE = lib
 
 CONFIG += dll \
@@ -10,9 +13,14 @@ CONFIG += dll \
 LIBS += -L../../../../lib \
 -lNanorexUtility \
 -lNanorexInterface \
- -lHDF5_SimResults
+-lHDF5_SimResults \
+-lopenbabel \
+-lhdf5
+
 TARGETDEPS += ../../../../lib/libNanorexUtility.so \
 ../../../../lib/libNanorexInterface.so
+macx:TARGETDEPS ~= s/.so/.dylib/g
+
 DESTDIR = ../../../../lib
 
 CONFIG -= release

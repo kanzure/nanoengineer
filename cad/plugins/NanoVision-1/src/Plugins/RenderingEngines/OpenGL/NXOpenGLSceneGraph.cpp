@@ -1,6 +1,11 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
+
 #include <cstring>
 #include "Nanorex/Interface/NXOpenGLSceneGraph.h"
 

@@ -15,6 +15,7 @@ TARGET = NXOpenGLSceneGraph
 INCLUDEPATH += ../../../../../../include
 
 TARGETDEPS += ../../../../../../lib/libNanorexUtility.so
+macx:TARGETDEPS ~= s/.so/.dylib/g
 
 SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLSceneGraph.cpp
 

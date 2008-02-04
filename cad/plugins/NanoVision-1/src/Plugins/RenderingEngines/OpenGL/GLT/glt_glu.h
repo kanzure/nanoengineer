@@ -43,6 +43,10 @@
 #include "glt_config.h"
 #include "glt_gl.h"
 
+#if defined(__APPLE__)
+#include <OpenGL/glu.h>
+#else
 #include <GL/glu.h>
+#endif
 
 #endif

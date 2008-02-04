@@ -93,10 +93,16 @@
 // iMac OSX Config
 //
 
-#if defined(__APPLE__) && defined(__ppc__)
+#if defined(__APPLE__)
 #define GLT_UNIX
 #define GLT_DARWIN
+
+#if defined(__ppc__)
 #define GLT_BIG_ENDIAN
+#else
+#define GLT_LITTLE_ENDIAN
+#endif
+
 #endif
 
 //

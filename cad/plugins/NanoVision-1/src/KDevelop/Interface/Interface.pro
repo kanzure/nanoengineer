@@ -42,6 +42,7 @@ TARGET = NanorexInterface
 DESTDIR = ../../../lib
 
 TARGETDEPS += ../../../lib/libNanorexUtility.so
+macx:TARGETDEPS ~= s/.so/.dylib/g
 
 CONFIG -= release
 QT -= gui

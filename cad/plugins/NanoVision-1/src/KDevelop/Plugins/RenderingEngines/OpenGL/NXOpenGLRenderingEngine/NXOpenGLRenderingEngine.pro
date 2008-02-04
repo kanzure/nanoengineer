@@ -27,11 +27,16 @@ INCLUDEPATH += ../../../../../../include \
 LIBS += -lNXOpenGLSceneGraph \
  -lGLT \
  -lopenbabel \
- -L../../../../../../lib
+ -L../../../../../../lib \
+ -lNanorexInterface \
+ -lNanorexUtility
+
 TARGETDEPS += ../../../../../../lib/libNanorexUtility.so \
 ../../../../../../lib/libNanorexInterface.so \
 ../../../../../../lib/libNXOpenGLSceneGraph.a \
  ../../../../../../lib/libGLT.a
+macx:TARGETDEPS ~= s/.so/.dylib/g
+
 TARGET = NXOpenGLRenderingEngine
 
 DESTDIR = ../../../../../../lib
