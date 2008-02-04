@@ -25,7 +25,7 @@ from exprs.Rect             import Sphere
    
 from constants              import white, yellow, purple, darkgreen
 
-from VQT import V
+from geometry.VQT import V
 from exprs.DraggableHandle import DraggableHandle_AlongLine
 
 #Use this flag to test some 'fancy handle drawings' (the default apaprearance is
@@ -151,4 +151,4 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
             #Clear the grabbed handle attribute (the handle is no longer 
             #grabbed)
             self.command.grabbedHandle = None
-            
+

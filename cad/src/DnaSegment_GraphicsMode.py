@@ -47,7 +47,7 @@ from DnaLineMode import DnaLine_GM
 from drawer import drawRibbons
 
 import math
-from VQT import V, norm, A, Q, vlen
+from geometry.VQT import V, norm, A, Q, vlen
 from constants import darkred, blue, black
 
 from chem import Atom
