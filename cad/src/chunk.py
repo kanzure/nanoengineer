@@ -422,6 +422,11 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         for atm in self.atoms.itervalues():
             if atm.element.role == 'strand':
                 found_strand_atom = True
+                # Use strand icon.
+                if self.hidden:
+                    self.iconPath = "ui/modeltree/Strand-hide.png"
+                else:
+                    self.iconPath = "ui/modeltree/Strand.png"
             elif atm.is_singlet() or atm.element.role == 'unpaired-base':
                 pass
             else:
