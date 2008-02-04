@@ -38,11 +38,17 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
 TARGETDEPS += ../../../../lib/libNanorexUtility.so \
 ../../../../lib/libNanorexInterface.so \
 ../../../../lib/libHDF5_SimResultsImportExport.so
+macx:TARGETDEPS ~= s/.so/.dylib/g
+
 DESTDIR = ../../../../bin
 
 CONFIG -= release
 
 CONFIG += debug \
 stl
+
+# This tell qmake to not create a Mac bundle for this application.
+CONFIG -= app_bundle
+
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
 
