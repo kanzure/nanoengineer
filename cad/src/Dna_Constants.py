@@ -196,9 +196,15 @@ def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength, duplexRise 
 
 
 
-def getDuplexRiseFromNumberOfBasePairs(self, numberOfBasePairs, duplexLength):
+def getDuplexRiseFromNumberOfBasePairs(numberOfBasePairs, duplexLength):
     """
     Returns the duplex rise from the number of base pairs and the duplex length
+    @param numberOfBasePairs: number of base pairs in the duplx
+    @type numberOfBasePairs: int
+    @param duplexLength: The length of duplex. 
+    @type duplexLength: double
+    @return: The duplex rise. 
+    @rtype: double
     """
     duplexRise = duplexLength/ (numberOfBasePairs - 1)
     return duplexRise
