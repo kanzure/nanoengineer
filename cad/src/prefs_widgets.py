@@ -1,12 +1,12 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 prefs_widgets.py -- Utilities related to both user preferences and Qt widgets.
 Note: also includes some code related to "connect with state"
 which should be refiled.
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -32,7 +32,7 @@ from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QPalette
 
-from widgets import wrap_callable_for_undo
+from undo_manager import wrap_callable_for_undo
 
 # public helper functions
 

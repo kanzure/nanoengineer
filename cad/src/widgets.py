@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 widgets.py - helpers for creating widgets, and some simple custom widgets.
 
 @author: Bruce, Mark, Josh, perhaps others
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 TODO:
 
@@ -36,6 +36,8 @@ from PyQt4.Qt import QMessageBox
 from qt4transition import qt4warning, qt4todo
 
 from utilities import debug_flags
+
+from undo_manager import wrap_callable_for_undo
 
 # These don't exist in Qt4 but we can make begin(QVBox) and
 # begin(QHBox) act the same as before.
@@ -212,44 +214,6 @@ class TogglePrefCheckBox(QCheckBox):
     def initValue(self):
         self.setValue(self.default)
     pass
-
-# ==
-
-# Helper functions to wrap_callable_for_undo.
-# TODO: These should probably be moved into undo_manager.py,
-# but doing so won't prevent us from importing it here;
-# first, see if it already imports what these need;
-# note that wrap_callable_for_undo is also called from prefs_widgets.py.
-# [bruce comment 071025]:
-
-def _do_callable_for_undo(func, cmdname): #bruce 060324
-    import undo_manager # important to do this here, since it might be reloaded before we get called
-    import env
-    from debug import print_compact_traceback
-    assy = env.mainwindow().assy # needs review once we support multiple open files; caller might have to pass it in
-    begin_retval = undo_manager.external_begin_cmd_checkpoint(assy, cmdname = cmdname)
-    try:
-        res = func() # i don't know if res matters to Qt
-    except:
-        print_compact_traceback("exception in menu command %r ignored: " % cmdname)
-        res = None
-    assy = env.mainwindow().assy # it might have changed!!! (in theory)
-    undo_manager.external_end_cmd_checkpoint(assy, begin_retval)
-    return res
-    
-def wrap_callable_for_undo(func, cmdname = "menu command"): #bruce 060324
-    """
-    Wrap a callable object func so that begin and end undo checkpoints are performed for it,
-    and be sure the returned object can safely be called at any time in the future
-    (even if various things have changed in the meantime).
-
-    WARNING: If a reference needs to be kept to the returned object, that's the caller's responsibility.
-    """
-    # use 3 guards in case PyQt passes up to 3 unwanted args to menu callables,
-    # and don't trust Python to preserve func and cmdname except in the lambda default values
-    # (both of these precautions are generally needed or you can have bugs,
-    #  when returning lambdas out of the defining scope of local variables they reference)
-    return lambda _g1_ = None, _g2_ = None, _g3_ = None, func = func, cmdname = cmdname: _do_callable_for_undo(func, cmdname)
 
 # ==
 
