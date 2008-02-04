@@ -179,13 +179,55 @@ class DnaGroup(Block):
         #Chunk and some additional things to find out a list of strands inside
         # a DnaGroup -- Ninad 2008-01-17        
         strandList = []
-        def filterSelectedStrands(node):
+        def filterStrands(node):
             if isinstance(node, Chunk) and node.isStrandChunk():
                 strandList.append(node)    
                 
-        self.apply2all(filterSelectedStrands)
+        self.apply2all(filterStrands)
         
         return strandList
+    
+    def getAxisChunks(self):
+        """
+        Returns a list of Axis chunks inside a DnaGroup object
+        
+        @return: A list containing all the axis chunks
+                 within self.
+        @rtype: list
+        """
+        #TO BE REVISED. It uses isinstance check for  
+        #Chunk and some additional things to find out a list of strands inside
+        # a DnaGroup -- Ninad 2008-02-02       
+        axisChunkList = []
+        def filterAxisChunks(node):
+            if isinstance(node, Chunk) and node.isAxisChunk():
+                axisChunkList.append(node)    
+                
+        self.apply2all(filterAxisChunks)
+        
+        return axisChunkList
+    
+    def isEmpty(self):
+        """
+        Returns True if there are no axis or strand chunks as its members 
+        (Returns True even when there are empty DnaSegment objects inside)
+        
+        TODO: It doesn't consider other possibilitis such as hairpins . 
+        In general it relies on what getAxisChunks and getStrands returns 
+        (which in turn use 'Chunk' object to determine these things.)
+        This method must be revised in the near future in a fully functional
+        dna data model
+        @see: BuildDna_EditCommand._finalizeStructure where this test is used. 
+        """
+        #May be for the short term, we can use self.getAtomList()? But that 
+        #doesn't ensure if the DnaGroup always has atom of type either 
+        #'strand' or 'axis' . 
+        if len(self.getStrands()) == 0 and len(self.getAxisChunks()) == 0:
+            return True
+        else:
+            return False
+        
+        
     
     def getSelectedStrands(self):
         """
@@ -235,6 +277,18 @@ class DnaGroup(Block):
                 selectedSegmentList.append(segment)  
                 
         return selectedSegmentList
+    
+    def getAtomList(self):
+        """
+        Return a list of all atoms cotained within this DnaGroup
+        """
+        atomList = []
+        def func(node):
+            if isinstance(node, Chunk):
+                atomList.extend(node.atoms.itervalues())
+        
+        self.apply2all(func)
+        return atomList
  
     pass # end of class DnaGroup
 
