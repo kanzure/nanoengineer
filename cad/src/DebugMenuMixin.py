@@ -1,10 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 Mixin class to help some of our widgets offer a debug menu.
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Needs refactoring:  [bruce 080104]
 
@@ -106,17 +105,19 @@ class DebugMenuMixin:
         return
 
     def makemenu(self, menu_spec, menu = None): # bruce 050304 added this, so subclasses no longer have to
-        """Make and return a menu object for use in this widget, from the given menu_spec.
+        """
+        Make and return a menu object for use in this widget, from the given menu_spec.
         [This can be overridden by a subclass, but probably never needs to be,
         unless it needs to make *all* menus differently (thus we do use the overridden
         version if one is present) or unless it uses it independently from this mixin
         and wants to be self-contained.]
         """
-        from widgets import makemenu_helper
+        from menu_helpers import makemenu_helper
         return makemenu_helper(self, menu_spec, menu)
     
     def debug_menu_items(self):
-        """#doc; as of 050416 this will be called every time the debug menu needs to be put up,
+        """
+        #doc; as of 050416 this will be called every time the debug menu needs to be put up,
         so that the menu contents can be different each time (i.e. so it can be a dynamic menu)
         [subclasses can override this; best if they call this superclass method
         and modify its result, e.g. add new items at top or bottom]
@@ -251,16 +252,19 @@ class DebugMenuMixin:
         debug_flags.atom_debug = 0
     
     def debug_event(self, event, funcname, permit_debug_menu_popup = 0): #bruce 040916
-        """[the main public method for subclasses]
-           Debugging method -- no effect on normal users.  Does two
-           things -- if a global flag is set, prints info about the
-           event; if a certain modifier key combination is pressed,
-           and if caller passed permit_debug_menu_popup = 1, puts up
-           an undocumented debugging menu, and returns 1 to caller.
-              Modifier keys to bring it up:
-           Mac: Shift-Option-Command-click
-           Linux: <cntrl><shift><alt><left click>
-           Windows: probably same as linux
+        """
+        [the main public method for subclasses]
+
+        Debugging method -- no effect on normal users.  Does two
+        things -- if a global flag is set, prints info about the
+        event; if a certain modifier key combination is pressed,
+        and if caller passed permit_debug_menu_popup = 1, puts up
+        an undocumented debugging menu, and returns 1 to caller.
+
+        Modifier keys to bring it up:
+        Mac: Shift-Option-Command-click
+        Linux: <cntrl><shift><alt><left click>
+        Windows: probably same as linux
         """
         # In constants.py: debugModifiers = cntlButton | shiftButton | altButton
         # On the mac, this really means command-shift-alt [alt == option].
@@ -287,7 +291,10 @@ class DebugMenuMixin:
         return 0
 
     def do_debug_menu(self, event):
-        "[public method for subclasses] #doc"
+        """
+        [public method for subclasses]
+        #doc
+        """
         ## menu = self.debug_menu
         #bruce 050416: remake the menu each time it's needed
         menu_spec = None
@@ -312,7 +319,10 @@ class DebugMenuMixin:
         self.deleteLater()
 
     def debug_menu_source_name(self): #bruce 050112
-        "can be overriden by subclasses" #doc more
+        """
+        can be overriden by subclasses
+        #doc more
+        """
         try:
             return "%s debug menu" % self.__class__.__name__
         except:

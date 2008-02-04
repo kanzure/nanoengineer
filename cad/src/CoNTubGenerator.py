@@ -1,10 +1,12 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 CoNTubGenerator.py
 
 Generator functions which use cad/plugins/CoNTub.
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Also intended as a prototype of code which could constitute the nE-1 side
 of a "generator plugin API". Accordingly, the CoNTub-specific code should
@@ -18,8 +20,6 @@ import CoNTubGenerator
 reload(CoNTubGenerator)
 '''
 # Each time you do that, Insert menu gets a new command "Heterojunction". The first one is always the latest one.
-
-__author__ = "bruce"
 
 import os, sys, time
 
@@ -54,7 +54,7 @@ def add_insert_menu_item(win, command, name_of_what_to_insert, options = ()): ##
     undo_cmdname = "Insert %s" % (name_of_what_to_insert,) ## get this from caller, or, make it available to the command as it runs
         ###e but need to translate it ourselves, ##qApp.translate("Main Window", "Recent Files", None)
     ## self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
-    from widgets import insert_command_into_menu
+    from menu_helpers import insert_command_into_menu
     insert_command_into_menu( menu, menutext, command, options = options, position = menuIndex, undo_cmdname = undo_cmdname)
     return
 
@@ -66,7 +66,8 @@ except:
     output_counter = 0
 
 def parse_arg_pattern(argpat):
-    """Turn argpat into a list of strings, each a nonempty constant or $param;
+    """
+    Turn argpat into a list of strings, each a nonempty constant or $param;
     allowed argpat formats are just these three: word, $param.word, $param
     [Someday we might extend this, perhaps even allowing expressions like $dict[$key].]
     """
@@ -236,7 +237,8 @@ class PluginlikeGenerator:
     </p>'''
 
     def install_in_UI(self):
-        """Create a menu command, or whatever other UI elements should invoke the plugin's generator.
+        """
+        Create a menu command, or whatever other UI elements should invoke the plugin's generator.
         Report errors to self.fatal as usual.
         """
         assert self.ok_to_install_in_UI
@@ -266,7 +268,8 @@ class PluginlikeGenerator:
     # runtime methods
     
     def create_working_directory_if_needed(self):
-        """If it hasn't been done already, create a temporary directory (fixed pathname per plugin per session)
+        """
+        If it hasn't been done already, create a temporary directory (fixed pathname per plugin per session)
         for this plugin to use. Report errors to self.fatal as usual.
         """
         if self.working_directory:

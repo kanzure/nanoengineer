@@ -158,7 +158,7 @@ from utilities import debug_flags
 from utilities.Log import orangemsg
 from PlatformDependent import fix_event_helper
 from PlatformDependent import wrap_key_event
-from widgets import makemenu_helper
+from menu_helpers import makemenu_helper
 from DebugMenuMixin import DebugMenuMixin
 from debug import print_compact_traceback, print_compact_stack
 import preferences

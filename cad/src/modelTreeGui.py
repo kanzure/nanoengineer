@@ -1,11 +1,11 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 modelTreeGui.py - provide a Qt4-compatible Model Tree widget,
 inherited by modelTree.py to provide NE1's Model Tree of Nodes.
 
 @author: Will, Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Goals:
 
@@ -71,7 +71,7 @@ from debug import print_compact_traceback, print_compact_stack
 from PlatformDependent import fix_plurals
 from utilities.Log import quote_html
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
-from widgets import makemenu_helper
+from menu_helpers import makemenu_helper
 import env
 
 from Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
@@ -160,15 +160,18 @@ class Api:
 #############################################
 
 class Ne1Model_api(Api):
-    """API (and some default method implementations) for a Model Tree object."""
-    
+    """
+    API (and some default method implementations) for a Model Tree object.
+    """
     def get_topnodes(self):
-        """Return a list of the top-level nodes, typically assy.tree and assy.shelf for an assembly.
+        """
+        Return a list of the top-level nodes, typically assy.tree and assy.shelf for an assembly.
         """
         raise Exception('overload me')
 
     def make_cmenuspec_for_set(self, nodeset, optflag):
-        """Return a Menu_spec list (of a format suitable for makemenu_helper)
+        """
+        Return a Menu_spec list (of a format suitable for makemenu_helper)
         for a context menu suitable for nodeset, a list of 0 or more selected nodes
         (which includes only the topmost selected nodes, i.e. it includes no
         children of selected nodes even if they are selected).
@@ -183,7 +186,8 @@ class Ne1Model_api(Api):
         raise Exception('overload me')
 
     def get_current_part_topnode(self): #bruce 070509 added this to API ##e rename?
-        """Return a node guaranteed to contain all selected nodes, and be fast.
+        """
+        Return a node guaranteed to contain all selected nodes, and be fast.
         """
         raise Exception('overload me')
 
@@ -218,7 +222,8 @@ class Ne1Model_api(Api):
         return
     
     def topmost_selected_nodes(self):
-        """Return a list of nodes whose corresponding items are currently selected.
+        """
+        Return a list of nodes whose corresponding items are currently selected.
         [But not including any children of selected nodes. --bruce]
         """
         nodes = [self.get_current_part_topnode()]
@@ -1330,7 +1335,8 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         optflag = (((self.mouse_press_buttons & Qt.MidButton) or
                     (self.mouse_press_modifiers & Qt.AltModifier)) and 'Option' or None)
         cmenu_spec = self.ne1model.make_cmenuspec_for_set(nodeset, optflag)
-        menu = makemenu_helper(self, cmenu_spec) #bruce 070514 fix bug 2374 and probably others by using makemenu_helper
+        menu = makemenu_helper(self, cmenu_spec)
+            #bruce 070514 fix bug 2374 and probably others by using makemenu_helper
         menu.exec_(event.globalPos())
         if DEBUG3:
             print "end _renamed_contextMenuEvent"

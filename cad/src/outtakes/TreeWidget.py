@@ -20,7 +20,7 @@ and split it into three modules:
 assert 0, "TreeWidget.py is NO LONGER USED IN Qt4 NE1" #bruce 070503 Qt4
 
 from TreeView import * # including class TreeView, and import * from many other modules
-from widgets import makemenu_helper
+from menu_helpers import makemenu_helper
 from platform import fix_buttons_helper
 from debug import DebugMenuMixin, print_compact_stack, print_compact_traceback
 allButtons = (leftButton|midButton|rightButton) #e should be defined in same file as the buttons

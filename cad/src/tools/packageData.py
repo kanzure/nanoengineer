@@ -415,6 +415,7 @@ packageMapping_for_files = {
     "main"                             : "top_level", # someday to be renamed to ne1_main
     "master_model_updater"             : "model_updater",
     "mdldata"                          : "graphics_io|graphics/rendering/mdl",
+    "menu_helpers"                     : "widgets",
     "MinimizeEnergyProp"               : "ui/dialog|commands/MinimizeEnergy",
     "MinimizeEnergyPropDialog"         : "ui/dialog|commands/MinimizeEnergy",
     "modelTree"                        : "model|ModelTree", # a model which implems the api class for modelTreeGui
@@ -609,7 +610,7 @@ packageMapping_for_files = {
     "Ui_ReportsDockWidget"             : "widget|ne1_ui",
     "Ui_SelectMenu"                    : "ui/menu",
     "Ui_SelectToolBar"                 : "ui/toolbar",
-    "Ui_DnaSequenceEditor"                : "widget|DnaSequenceEditor", # in dna/  ??
+    "Ui_DnaSequenceEditor"             : "widget|DnaSequenceEditor", # in dna/  ??
     "Ui_SimulationMenu"                : "ui/menu",
     "Ui_SimulationToolBar"             : "ui/toolbar",
     "Ui_StandardToolBar"               : "ui/toolbar",
