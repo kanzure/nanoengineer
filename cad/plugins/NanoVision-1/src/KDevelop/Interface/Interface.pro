@@ -14,7 +14,9 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../include/Nanorex/Interface/NXBondRenderData.h \
  ../../../include/Nanorex/Interface/NXSceneGraph.h \
- ../../../include/Nanorex/Interface/NXTrackball.h
+ ../../../include/Nanorex/Interface/NXTrackball.h \
+ ../../../include/Nanorex/Interface/NXRendererPlugin.h \
+ ../../../include/Nanorex/Interface/NXRenderingEngine.h
 
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH)
