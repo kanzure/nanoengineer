@@ -318,8 +318,8 @@ class assembly( StateMixin, Assembly_API):
         # make sure these exist [bruce 050418]:
         assert self.tree
         assert self.tree.part
-        assert self.tree.part.homeCsys
-        assert self.tree.part.lastCsys
+        assert self.tree.part.homeView
+        assert self.tree.part.lastView
 
         if want_undo_manager:
             #bruce 060223: we no longer do this until we're fully inited, since when undoing to initial checkpoint
@@ -969,7 +969,7 @@ class assembly( StateMixin, Assembly_API):
             return
         # attrnames to delegate to the current part
         # (ideally for writing as well as reading, until all using-code is upgraded) ###@@@ use __setattr__ ?? etc??
-        assembly.part_attrs = ['molecules','selmols','selatoms','homeCsys','lastCsys']
+        assembly.part_attrs = ['molecules','selmols','selatoms','homeView','lastView']
             ##part_methods = ['selectAll','selectNone','selectInvert']###etc... the callable attrs of part class??
         assembly.part_methods = filter( lambda attr:
                                         not attr.startswith('_')

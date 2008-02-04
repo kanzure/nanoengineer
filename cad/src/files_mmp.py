@@ -223,6 +223,7 @@ _name_pattern = re.compile(r"\(([^)]*)\)")
     
 old_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 new_csyspat = re.compile("csys \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
+namedviewpat = re.compile("namedview \((.+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+)\)")
 datumpat = re.compile("datum \((.+)\) \((\d+), (\d+), (\d+)\) (.*) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\)")
 keypat = re.compile("\S+")
 molpat = re.compile("mol \(.*\) (\S\S\S)")
@@ -1215,8 +1216,41 @@ class _readmmp_state:
         sr.name = name
         sr.color = col
         self.addmember(sr)
+    
+    def _read_namedview(self, card):
+        """
+        Read a I{namedview} record.
+        """
+        #bruce 050418 revising this to not have side effects on assy.
+        # Instead, caller can do that by scanning the group these are read into.
+        # This means we can now ignore the isInsert flag and always return
+        # these records. Finally, I'll return them all, not just the ones with
+        # special names we recognize (the prior code only called self.addmember
+        # if the namedview name was HomeView or LastView); caller can detect 
+        # those special names when it needs to.       
+        m = namedviewpat.match(card)      
+        name = m.group(1)
+        name = self.decode_name(name) #bruce 050618
+        wxyz = A(map(float, [m.group(2), m.group(3),
+                 m.group(4), m.group(5)]))
+        scale = float(m.group(6))
+        pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
+        zoomFactor = float(m.group(10))
+        namedView = NamedView(self.assy, name, scale, pov, zoomFactor, wxyz)
+        self.addmember(namedView) 
+            # regardless of name; no side effects on assy (yet) for any name,
+            # though later code will recognize the names HomeView and LastView
+            # and treat them specially.
+            # (050421 extension: also some related names, for Part views)
+                
+    def _read_csys(self, card): # csys -- really a named view.
+        """
+        Read a I{csys} record, which is contains the parameters of a 
+        view, not a coordinate system.
         
-    def _read_csys(self, card): # csys -- Coordinate System
+        @note: This will be deprecated by the more appropriately named
+        I{namedview} record. Mark 2008-02-04
+        """
         #bruce 050418 revising this to not have side effects on assy.
         # Instead, caller can do that by scanning the group these are read into.
         # This means we can now ignore the isInsert flag and always return
@@ -1236,9 +1270,11 @@ class _readmmp_state:
             scale = float(m.group(6))
             pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
             zoomFactor = float(m.group(10))
-            csys = NamedView(self.assy, name, scale, pov, zoomFactor, wxyz)
-            self.addmember( csys) # regardless of name; no side effects on assy (yet) for any name,
-                # though later code will recognize the names HomeView and LastView and treat them specially
+            namedView = NamedView(self.assy, name, scale, pov, zoomFactor, wxyz)
+            self.addmember(namedView) 
+                # regardless of name; no side effects on assy (yet) for any
+                # name, though later code will recognize the names HomeView and 
+                # LastView and treat them specially
                 # (050421 extension: also some related names, for Part views)
         else:
             m = old_csyspat.match(card)
@@ -1248,15 +1284,15 @@ class _readmmp_state:
                 wxyz = A(map(float, [m.group(2), m.group(3),
                          m.group(4), m.group(5)]))
                 scale = float(m.group(6))
-                homeCsys = NamedView(self.assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
+                homeView = NamedView(self.assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
                     #bruce 050417 comment
                     # (about Huaicai's preexisting code, some of which I moved into this file 050418):
                     # this name "OldVersion" is detected in fix_assy_and_glpane_views_after_readmmp
                     # (called from MWsemantics.fileOpen, one of our callers)
                     # and changed to "HomeView", also triggering other side effects on glpane at that time.
-                lastCsys = NamedView(self.assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
-                self.addmember(homeCsys)
-                self.addmember(lastCsys)
+                lastView = NamedView(self.assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
+                self.addmember(homeView)
+                self.addmember(lastView)
             else:
                 print "bad format in csys record, ignored:", csys #bruce 050418
         return
@@ -1750,28 +1786,28 @@ def _reset_grouplist(assy, grouplist):
         if isinstance(m, NamedView):
             if m.name == "HomeView" or m.name == "OldVersion":
                     # "OldVersion" will be changed to "HomeView" later... see comment elsewhere
-                mainpart.homeCsys = m
+                mainpart.homeView = m
             elif m.name == "LastView":
-                mainpart.lastCsys = m
+                mainpart.lastView = m
             elif m.name.startswith("HomeView"):
-                _maybe_set_partview(assy, m, "HomeView", 'homeCsys')
+                _maybe_set_partview(assy, m, "HomeView", 'homeView')
             elif m.name.startswith("LastView"):
-                _maybe_set_partview(assy, m, "LastView", 'lastCsys')
+                _maybe_set_partview(assy, m, "LastView", 'lastView')
     return
 
-def _maybe_set_partview( assy, csys, nameprefix, csysattr): #bruce 050421; docstring added 050602
+def _maybe_set_partview( assy, namedView, nameprefix, namedViewattr): #bruce 050421; docstring added 050602
     """
     [private helper function for _reset_grouplist]
 
-    If csys.name == nameprefix plus a decimal number, store csys as the attr named csysattr
+    If namedView.name == nameprefix plus a decimal number, store namedView as the attr named namedViewattr
     of the .part of the clipboard item indexed by that number
     (starting from 1, using purely positional indices for clipboard items).
     """
     partnodes = assy.shelf.members
     for i in range(len(partnodes)): #e inefficient if there are a huge number of shelf items...
-        if csys.name == nameprefix + "%d" % (i+1):
+        if namedView.name == nameprefix + "%d" % (i+1):
             part = partnodes[i].part
-            setattr(part, csysattr, csys)
+            setattr(part, namedViewattr, namedView)
             break
     return
 
@@ -1830,10 +1866,10 @@ def fix_assy_and_glpane_views_after_readmmp( assy, glpane):
     #bruce 050418 change this for assembly/part split (per-part Csys attributes)
     mainpart = assy.tree.part
     assert assy.part is mainpart # necessary for glpane view funcs to refer to it (or was at one time)
-    if mainpart.homeCsys.name == "OldVersion": ## old version of mmp file
-        mainpart.homeCsys.name = "HomeView"
+    if mainpart.homeView.name == "OldVersion": ## old version of mmp file
+        mainpart.homeView.name = "HomeView"
         glpane.set_part(mainpart) # also sets view, but maybe not fully correctly in this case ###k
-        glpane.quat = Q( mainpart.homeCsys.quat) # might be redundant with above
+        glpane.quat = Q( mainpart.homeView.quat) # might be redundant with above
         glpane.setViewFitToWindow()
     else:    
         glpane.set_part(mainpart)
@@ -2086,7 +2122,7 @@ def writemmpfile_part(part, filename, **mapping_options): ##e should merge with 
     # as of 050412 this didn't yet turn singlets into H;
     # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!)
     part.assy.o.saveLastView() ###e should change to part.glpane? not sure... [bruce 050419 comment]
-        # this updates assy.part csys records, but we don't currently write them out below
+        # this updates assy.part namedView records, but we don't currently write them out below
     node = part.topnode
     assert part is node.part
     part.assy.update_parts() #bruce 050325 precaution

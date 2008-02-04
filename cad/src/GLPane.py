@@ -765,7 +765,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         if self.part:
             self._saveLastViewIntoPart( self.part)
 
-    #bruce 050418 split the following Csys methods into two methods each,
+    #bruce 050418 split the following NamedView methods into two methods each,
     # so MWsemantics can share code with them. Also revised their docstrings,
     # and revised them for assembly/part split (i.e. per-part csys records),
     # and renamed them as needed to reflect that.
@@ -773,18 +773,18 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     def _setInitialViewFromPart(self, part):
         """
         Set the initial (or current) view used by this GLPane
-        to the one stored in part.lastCsys, i.e. to part's "Last View".
+        to the one stored in part.lastView, i.e. to part's "Last View".
         """
         # Huaicai 1/27/05: part of the code of this method comes
         # from original setAssy() method. This method can be called
         # after setAssy() has been called, for example, when opening
         # an mmp file. 
 
-        self.snapToCsys( part.lastCsys)
+        self.snapToNamedView( part.lastView)
 
     def _saveLastViewIntoPart(self, part):
         """
-        Save the current view used by this GLPane into part.lastCsys,
+        Save the current view used by this GLPane into part.lastView,
         which (when this part's assy is later saved in an mmp file)
         will be saved as that part's "Last View".
         [As of 050418 this still only gets saved in the file for the main part]
@@ -792,19 +792,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # Huaicai 1/27/05: before mmp file saving, this method
         # should be called to save the last view user has, which will
         # be used as the initial view when it is opened again.
-        self.saveViewInCsys( part.lastCsys)
-
-    def saveViewInCsys(self, csys):
-        """
-        Save the current view used by this GLPane in the given Csys object.
-        """
-        #e [bruce comment 050418: it would be good to verify csys has the right type,
-        #   since almost any python object could be used here without any immediately
-        #   detectable error. Maybe this should be a method in csys.]
-        csys.quat = Q(self.quat)
-        csys.scale = self.scale
-        csys.pov = V(self.pov[0], self.pov[1], self.pov[2])
-        csys.zoomFactor = self.zoomFactor
+        part.lastView.setToCurrentView()
 
     # ==
 
@@ -841,7 +829,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # it was meant to run instead of the set_part after it (but that is probably safe with mainpart of None, anyway):
             ##if debug_flags.atom_debug:
             ##    print "atom_debug: no mainpart yet in setAssy (ok during init); using a fake one"
-            ##mainpart = Part(self) # use this just for its lastCsys
+            ##mainpart = Part(self) # use this just for its lastView
             ##self._setInitialViewFromPart( mainpart)        
         self.set_part( mainpart)
 
@@ -884,13 +872,13 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
     # [bruce 050418 made these from corresponding methods in MWsemantics.py,
     #  which still exist but call these, perhaps after printing a history message.
-    #  Also revised them for assembly/part split, i.e. per-part csys attributes.]
+    #  Also revised them for assembly/part split, i.e. per-part namedView attributes.]
 
     def setViewHome(self):
         """
         Change view to our model's home view (for glpane's current part).
         """
-        self.animateToCsys( self.part.homeCsys)
+        self.animateToNamedView( self.part.homeView)
 
     def setViewFitToWindow(self, fast = False):
         """
@@ -954,7 +942,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         """
         Set the Home view to the current view.
         """
-        self.saveViewInCsys( self.part.homeCsys)
+        self.part.homeView.setToCurrentView()
         self.part.changed() # Mark [041215]
 
     def setViewRecenter(self, fast = False):
@@ -998,23 +986,39 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.ortho = projection
         self.gl_update()
 
-    def snapToCsys(self, csys):
+    def snapToNamedView(self, namedView):
         """
-        Snap to the destination view defined by csys.
+        Snap to the destination view L{namedView}.
+        
+        @param namedView: The view to snap to.
+        @type  namedView: L{NamedView}
         """
-        self.snapToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor)
+        self.snapToView(namedView.quat, 
+                        namedView.scale, 
+                        namedView.pov, 
+                        namedView.zoomFactor)
 
-    def animateToCsys(self, csys, animate = True):
+    def animateToNamedView(self, namedView, animate = True):
         """
-        Animate to the destination view defined by csys.
-        If animate is False *or* the user pref "Animate between views" is not selected, 
-        then do not animate;  just snap to the destination view.
+        Animate to the destination view I{namedView}.
+        
+        @param namedView: The view to snap to.
+        @type  namedView: L{NamedView}
+        
+        @param animate: If True, animate between views. If False, snap to
+                        I{namedView}. If the user pref "Animate between views"
+                        is unchecked, then this argument is ignored. 
+        @type  animate: boolean
         """
         # Determine whether to snap (don't animate) to the destination view.
         if not animate or not env.prefs[animateStandardViews_prefs_key]:
-            self.snapToCsys(csys)
+            self.snapToNamedView(namedView)
             return
-        self.animateToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate)
+        self.animateToView(namedView.quat, 
+                           namedView.scale, 
+                           namedView.pov, 
+                           namedView.zoomFactor, 
+                           animate)
         return
 
     def snapToView(self, q2, s2, p2, z2, update_duration = False):

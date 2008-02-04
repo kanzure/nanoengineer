@@ -46,7 +46,7 @@ class NamedView(SimpleCopyMixin, Node):
     scale = pov = zoomFactor = quat = None # Undo might require these to have default values (not sure) [bruce 060523]
 
     def __init__(self, assy, name, scale, pov, zoomFactor, w, x = None, y = None, z = None):
-        self.const_pixmap = imagename_to_pixmap("modeltree/csys.png")
+        self.const_pixmap = imagename_to_pixmap("modeltree/NamedView.png")
         if name:
             Node.__init__(self, assy, name)
         else:
@@ -110,13 +110,13 @@ class NamedView(SimpleCopyMixin, Node):
             # note: we depend on our own _um_initargs returning enough info for a full copy,
             # though it doesn't have to in general.
         if 0 and debug_flags.atom_debug:
-            print "atom_debug: copying csys:", self
+            print "atom_debug: copying namedView:", self
         return NamedView( *args, **kws )
 
     def __str__(self):
         #bruce 050420 comment: this is inadequate, but before revising it
         # I'd have to verify it's not used internally, like Jig.__repr__ used to be!!
-        return "<csys " + self.name + ">"
+        return "<namedView " + self.name + ">"
     
     def pick(self):
         """
@@ -170,15 +170,24 @@ class NamedView(SimpleCopyMixin, Node):
         self.changed()
         return
 
+    def setToCurrentView(self):
+        """
+        Save the current view in self.
+        """
+        self.quat = Q(self.assy.o.quat)
+        self.scale = self.assy.o.scale
+        self.pov = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
+        self.zoomFactor = self.assy.o.zoomFactor
+        
     def sameAsCurrentView(self, view = None):
         """
         Tests if self is the same as I{view}, or the current view if I{view}
         is None (the default).
         
-        @param view: A csys view to compare with self. If None (the default)
+        @param view: A named view to compare with self. If None (the default)
                      self is compared to the current view (i.e. the 3D graphics
                      area).
-        @type  view: L{Csys}
+        @type  view: L{NamedView}
         
         @return: True if they are the same. Otherwise, returns False.
         @rtype:  boolean

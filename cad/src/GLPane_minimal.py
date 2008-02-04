@@ -231,16 +231,16 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         """
         oldc = assy.all_change_counters()
 
-        csys = NamedView(assy, "name", self.scale, self.pov, self.zoomFactor, self.quat)
+        namedView = NamedView(assy, "name", self.scale, self.pov, self.zoomFactor, self.quat)
 
         newc = assy.all_change_counters()
         assert oldc == newc
 
-        csys.current_selgroup_index = assy.current_selgroup_index() # storing this on the csys is a kluge, but should be safe
+        namedView.current_selgroup_index = assy.current_selgroup_index() # storing this on the namedView is a kluge, but should be safe
 
-        return csys # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to NamedView
+        return namedView # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to NamedView
 
-    def set_view_for_Undo(self, assy, csys): # shares code with NamedView.set_view; might be very similar to some GLPane method, too
+    def set_view_for_Undo(self, assy, namedView): # shares code with NamedView.set_view; might be very similar to some GLPane method, too
         """
         Restore the view (and the current Part) to what was saved by current_view_for_Undo.
         WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
@@ -252,7 +252,7 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         restore_current_part = True # always do this no matter what
         ## restore_mode?? nah (not for A7 anyway; unclear what's best in long run)
         if restore_view:
-            if type(csys) == type(""):
+            if type(namedView) == type(""):
                 #####@@@@@ code copied from GLPane.__init__, should be shared somehow, or at least comment GLPane and warn it's copied
                 #e also might not be the correct view, it's just the hardcoded default view... but i guess it's correct.
                 # rotation
@@ -264,15 +264,15 @@ class GLPane_minimal(QGLWidget): #bruce 070914
                 # zoom factor
                 self.zoomFactor = 1.0
             else:
-                self.animateToView(csys.quat, csys.scale, csys.pov, csys.zoomFactor, animate = False)
+                self.animateToView(namedView.quat, namedView.scale, namedView.pov, namedView.zoomFactor, animate = False)
                     # if we want this to animate, we probably have to move that higher in the call chain and do it after everything else
         if restore_current_part:
-            if type(csys) == type(""):
+            if type(namedView) == type(""):
                 if env.debug():
                     print "debug: fyi: cys == '' still happens" # does it? ###@@@ 060314 remove if seen, or if not seen
                 current_selgroup_index = 0
             else:
-                current_selgroup_index = csys.current_selgroup_index
+                current_selgroup_index = namedView.current_selgroup_index
             sg = assy.selgroup_at_index(current_selgroup_index)
             assy.set_current_selgroup(sg)
                 #e how might that interact with setting the selection? Hopefully, not much, since selection (if any) should be inside sg.
