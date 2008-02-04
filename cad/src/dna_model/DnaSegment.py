@@ -9,7 +9,7 @@ DnaSegment.py - ...
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 from debug import print_compact_stack
 from chunk import Chunk
-from geometry.VQT import V, norm
+from geometry.VQT import V, norm, vlen
 from Dna_Constants import getDuplexRiseFromNumberOfBasePairs
 
 class DnaSegment(DnaStrandOrSegment):
