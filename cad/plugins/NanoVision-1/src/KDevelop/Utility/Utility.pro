@@ -12,7 +12,9 @@ HEADERS += ../../../include/Nanorex/Utility/NXCommandResult.h \
 ../../../include/Nanorex/Utility/NXPlugin.h \
 ../../../include/Nanorex/Utility/NXProperties.h \
 ../../../include/Nanorex/Utility/NXStringTokenizer.h \
-../../../include/Nanorex/Utility/NXUtility.h
+../../../include/Nanorex/Utility/NXUtility.h \
+ ../../../include/Nanorex/Utility/NXPoint.h \
+ ../../../include/Nanorex/Utility/NXRGBColor.h
 
 SOURCES += ../../../src/Utility/NXCommandResult.cpp \
 ../../../src/Utility/NXLogger.cpp \

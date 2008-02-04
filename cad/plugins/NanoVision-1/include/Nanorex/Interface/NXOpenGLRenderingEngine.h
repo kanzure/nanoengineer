@@ -18,7 +18,7 @@
 #include "glt_viewport.h"
 
 #include "Nanorex/Interface/NXRenderingEngine.h"
-#include "Nanorex/Interface/NXRGBColor.h"
+#include "Nanorex/Utility/NXRGBColor.h"
 #include "Nanorex/Interface/NXSceneGraph.h"
 #include "Nanorex/Interface/NXOpenGLRendererPlugin.h"
 

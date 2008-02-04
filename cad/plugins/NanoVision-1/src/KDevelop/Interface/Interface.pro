@@ -14,8 +14,7 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../include/Nanorex/Interface/NXBondRenderData.h \
  ../../../include/Nanorex/Interface/NXSceneGraph.h \
- ../../../include/Nanorex/Interface/NXTrackball.h \
- ../../../include/Nanorex/Interface/NXPoint.h
+ ../../../include/Nanorex/Interface/NXTrackball.h
 
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH)
@@ -42,7 +41,7 @@ TARGET = NanorexInterface
 DESTDIR = ../../../lib
 
 TARGETDEPS += ../../../lib/libNanorexUtility.so
-macx:TARGETDEPS ~= s/.so/.dylib/g
+macx : TARGETDEPS ~= s/.so/.dylib/g
 
 CONFIG -= release
 QT -= gui

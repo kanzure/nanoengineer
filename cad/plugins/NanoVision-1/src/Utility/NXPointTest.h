@@ -5,7 +5,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-#include "Nanorex/Interface/NXPoint.h"
+#include "Nanorex/Utility/NXPoint.h"
 
 using namespace Nanorex;
 
