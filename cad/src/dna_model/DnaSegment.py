@@ -123,9 +123,9 @@ class DnaSegment(DnaStrandOrSegment):
         fall back, it returns some constant values) 
         @see: DnaDuplex_EditCommand.createStructure which calls this method. 
         @see: self.getProps, DnaSegment_EditCommand.editStructure        
-        """
+        """        
         self._duplexRise, self._numberOfBasesPerTurn = props
-            
+                    
     def getProps(self):
         """
         Returns some properties such as duplexRise. This is a temporary 
@@ -133,21 +133,20 @@ class DnaSegment(DnaStrandOrSegment):
         @see: DnaSegment_PropertyManager.getParameters
         @see: DnaSegmentEditCommand._createStructure        
         """
+        
+                
+        numberOfBasePairs = self.getNumberOfAxisAtoms() 
+        
         if self._duplexRise is None:
             self._duplexRise = self._computeDuplexRise() 
-        
+            
+       
         if self._duplexRise is None:
             #If its still none , hard code it to 3.18 as a precaution. 
             self._duplexRise = 3.18
         
         if self._numberOfBasesPerTurn is None:
-            duplexLength = self.getSegmentLength()
-            numberOfBasePairs = self.getNumberOfAxisAtoms() 
-            if numberOfBasePairs is not None:
-                self._numberOfBasesPerTurn = (numberOfBasePairs - 1)/ self._duplexRise
-            else:
-                #hard code the value to 10 if unable to determine.
-                self._numberOfBasesPerTurn = 10                   
+            self._numberOfBasesPerTurn = 10                   
                     
         props = (self._duplexRise, self._numberOfBasesPerTurn)
         return props
