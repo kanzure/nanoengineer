@@ -16,7 +16,7 @@ __author__ = "Mark"
 
 from Group          import Group
 from utilities.Log  import redmsg, greenmsg
-from VQT            import V, Veq
+from geometry.VQT import V, Veq
 from DnaDuplex      import B_Dna_PAM3
 
 from GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError

@@ -6,7 +6,7 @@ from math import *
 
 sys.path.append("/home/wware/polosims/cad/src")
 
-from VQT import A, V, vlen
+from geometry.VQT import A, V, vlen
 
 class AtomType:
     def __init__(self, symbol, number, rcovalent):

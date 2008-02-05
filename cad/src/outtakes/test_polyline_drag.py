@@ -19,7 +19,7 @@ from test_connectWithState import State_preMixin
 
 from test_commands import ExampleCommand
 
-from VQT import V
+from geometry.VQT import V
 
 from constants import red
 

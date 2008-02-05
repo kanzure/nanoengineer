@@ -50,14 +50,14 @@ class ModuleIterator(object):
       for (fileName, moduleName) in ModuleIterator():
           code for each module...
     """
-    def __init__(self):
+    def __init__(self, doExclude=False):
         self._fileList = []
         for (dirpath, dirnames, filenames) in os.walk("."):
             i = len(dirnames)
             while (i>0):
                 i = i - 1
                 if (dirnames[i].startswith(".") or
-                    dirnames[i] in _dirsToExclude):
+                    (doExclude and dirnames[i] in _dirsToExclude)):
                     del dirnames[i]
             for s in filenames:
                 if (s.lower().endswith(".py")):
