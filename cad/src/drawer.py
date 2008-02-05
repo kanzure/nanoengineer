@@ -1781,8 +1781,10 @@ def drawcylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
                                   capped = capped, opacity = opacity)
 
 def drawsurface(color, pos, radius, tm, nm):
-    """Schedule a surface for rendering whenever ColorSorter thinks is
-    appropriate."""
+    """
+    Schedule a surface for rendering whenever ColorSorter thinks is
+    appropriate.
+    """
     ColorSorter.schedule_surface(color, pos, radius, tm, nm)
 
 def drawSineWave(color, startPoint, endPoint, numberOfPoints, phaseAngle):
@@ -1842,8 +1844,6 @@ def drawLadder(endCenter1,
     
     unitVector = norm(endCenter2 - endCenter1)
     
-        
-                    
     glDisable(GL_LIGHTING) 
     glPushMatrix()
     glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2]) 
@@ -2144,21 +2144,45 @@ def drawArrowHead(color,
     glEnable(GL_LIGHTING)
 
 def drawline(color, 
-             pos1, 
-             pos2, 
+             endpt1, 
+             endpt2, 
              dashEnabled = False, 
              stipleFactor = 1,
              width = 1, 
              isSmooth = False):
-    """Draw a line from pos1 to pos2 of the given color.
-    If dashEnabled is True, it will be dashed.
-    If width is not 1, it should be an int or float (more than 0)
-    and the line will have that width, in pixels.
-    (Whether the line is antialiased is determined by GL state variables
-     which are not set by this code.)
+    """
+    Draw a line from endpt1 to endpt2 in the given color. 
+    
+    If endpt1 and endpt2 are the same point, nothing is drawn. This is 
+    considered and used as a feature.
+    
+    @param endpt1: First endpoint.
+    @type  endpt1: Triple tuple.
+    
+    @param endpt2: Second endpoint.
+    @type  endpt2: Triple tuple.
+
+    @param dashEnabled: If dashEnabled is True, it will be dashed.
+    @type  dashEnabled: boolean
+    
+    @param stipleFactor: The stiple factor.
+    @param stipleFactor: int
+    
+    @param width: The line width in pixels. The default is 1.0.
+    @type  width: float
+    
+    @param isSmooth: Enables GL_LINE_SMOOTH. The default is False.
+    @type  isSmooth: boolean
+    
+    @note: Whether the line is antialiased is determined by GL state variables
+    which are not set in this function.
     """
     # WARNING: some callers pass dashEnabled as a positional argument rather than a named argument.
     # [bruce 050831 added docstring, this comment, and the width argument.]
+    
+    if endpt1 is endpt2:
+        return
+    
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     if dashEnabled: 
@@ -2169,8 +2193,8 @@ def drawline(color,
     if isSmooth:
         glEnable(GL_LINE_SMOOTH)
     glBegin(GL_LINES)
-    glVertex(pos1[0], pos1[1], pos1[2])
-    glVertex(pos2[0], pos2[1], pos2[2])
+    glVertex(endpt1[0], endpt1[1], endpt1[2])
+    glVertex(endpt2[0], endpt2[1], endpt2[2])
     glEnd()
     if isSmooth:
         glDisable(GL_LINE_SMOOTH)
@@ -2320,6 +2344,101 @@ def segend():
     glEnable(GL_LIGHTING)
     return
 
+def drawRulers(glpane):
+    """
+    Draws a vertical ruler on the left side of the 3D graphics area.
+    
+    @param glpane: the 3D graphics area.
+    @type  glpane: L{GLPane)
+    
+    @note: tickmarks are not rendered as 1 pixel wide lines. I believe this
+    is a bug in drawline(). Mark 2008-02-04.
+    """    
+    from constants import GL_NEAR_Z
+    from constants import darkgray
+    
+    color = darkgray
+    
+    scale = glpane.scale
+    aspect = glpane.aspect
+    
+    font_size = 8
+    short_tickmark_threshold = 150
+    angstrom_tickmark_range = 25 # tickmarks
+    
+    num_horz_ticks = 2 * int(scale) + 1
+    
+    if num_horz_ticks < angstrom_tickmark_range:
+        units_text = "A" # Angstroms
+        units_scale = 1.0
+    else:
+        units_text = "nm" # nanometers
+        units_scale = 0.1
+        
+    horz_tick_inc = 1.0 / scale
+    horz_long_tick_len = .05
+    vert_long_tick_len = horz_long_tick_len * aspect
+    horz_short_tick_len = .02
+    vert_short_tick_len = horz_short_tick_len * aspect
+    
+    horz_ruler_offset = vert_long_tick_len
+    vert_ruler_offset = horz_long_tick_len
+    
+    if 0:
+        print "number of ticks=", num_horz_ticks, "scale=", scale
+    
+    units_text_origin = V(-1.0 + .01,
+                           1.0 - (vert_long_tick_len *.75),
+                           GL_NEAR_Z)
+    
+    # Draw unit of measurement in upper left corner (A or nm).
+    drawtext(units_text, darkgray, units_text_origin, font_size, glpane)
+    
+    pt1 = V(-1.0, 1.0 - vert_long_tick_len, GL_NEAR_Z)
+    pt2 = pt1 + (horz_long_tick_len, 0.0, 0.0)
+    
+    tick_num = 0
+    
+    # Draw horizontal ruler tickmarks and numberic unit labels
+    for i in range(num_horz_ticks):
+        
+        drawline(darkgray, pt1, pt2)
+        
+        # Draw units number below tickmark.
+        if not tick_num % 5:
+            units_num_origin = pt1 + (0.025, -0.03, 0.0)
+            if units_text == "nm":
+                if num_horz_ticks <= 100:
+                    units_num = "%-4.1f" % (tick_num * units_scale)
+                else:
+                    units_num = "%2d" % (tick_num * units_scale)
+                    if tick_num % 2:
+                        # Only display even unit numbers.
+                        units_num = ""
+            else:
+                units_num = "%2d" % tick_num
+            drawtext(units_num, darkgray, units_num_origin, font_size, glpane)
+        
+        # Update tickmark endpoints for next tickmark.
+        pt1 += (0.0, -horz_tick_inc, 0.0)
+        
+        if (tick_num + 1) % 5:
+            # pt2 will be the endpoint of a short tickmark.
+            if num_horz_ticks > short_tickmark_threshold:
+                # Setting pt2 to pt1 results in no tickmark being rendered.
+                pt2 = pt1
+            else:
+                pt2 = pt1 + (horz_short_tick_len, 0.0, 0.0)
+        else:
+            if (num_horz_ticks > short_tickmark_threshold) and ((tick_num + 1) % 2):
+                pt2 = pt1 + (horz_short_tick_len, 0.0, 0.0)
+            else:
+                pt2 = pt1 + (horz_long_tick_len, 0.0, 0.0)
+        
+        tick_num += 1
+    
+    return # from drawRulers
+    
 def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
     '''Draw chunk or jig axis'''
     #ninad060907 Note that this is different than draw 
@@ -2380,10 +2499,13 @@ def drawaxes(n,point,coloraxes=False, dashEnabled = False):
     glEnable(GL_LIGHTING)
     glPopMatrix()
     return
-
-
-def drawOriginAsSmallAxis(n, point, dashEnabled = False):
-    '''Draw a smaller version of origin (a point (0,0,0) and 3 small axes)'''
+    
+def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
+    """
+    Draws a small wireframe version of the origin. It is rendered as a 
+    3D point at (0, 0, 0) with 3 small axes extending from it the positive
+    X, Y, Z directions.
+    """
     #Perhaps we should split this method into smaller methods? ninad060920
     #Notes:
     #1. drawing arrowheads implemented on 060918
@@ -2394,7 +2516,6 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     #3.Making origin non-zoomable is acheived by replacing 
     #hardcoded 'n' with glpane's scale - ninad060922
 
-
     from constants import blue, red, darkgreen, black, lightblue
 
     #ninad060922 in future , the following could be user preferences. 
@@ -2402,15 +2523,15 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
         dashShrinkage = 0.9
     else:
         dashShrinkage=1
-    x1, y1, z1 = n*0.01, n*0.01, n*0.01
-    xEnd, yEnd, zEnd = n*0.04, n*0.09, n*0.025
-    arrowBase = n * 0.0075 * dashShrinkage
-    arrowHeight = n * 0.035 * dashShrinkage
+    x1, y1, z1 = scale * 0.01, scale * 0.01, scale * 0.01
+    xEnd, yEnd, zEnd = scale * 0.04, scale * 0.09, scale * 0.025
+    arrowBase = scale * 0.0075 * dashShrinkage
+    arrowHeight = scale * 0.035 * dashShrinkage
     lineWidth = 1.0
 
     glPushMatrix()
 
-    glTranslate(point[0], point[1], point[2])
+    glTranslate(origin[0], origin[1], origin[2])
     glDisable(GL_LIGHTING)
     glLineWidth(lineWidth)
 
@@ -2433,33 +2554,33 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     #start draw a point at origin . 
     #ninad060922 is thinking about using GL_POINTS here
 
-    glVertex(-x1,0.0,0.0)
-    glVertex(x1,0.0,0.0)
+    glVertex(-x1, 0.0, 0.0)
+    glVertex( x1, 0.0, 0.0)
     glVertex(0.0, -y1, 0.0)
-    glVertex(0.0, y1, 0.0)
-    glVertex(-x1,y1,z1)
-    glVertex(x1, -y1, -z1)    
-    glVertex(x1, y1, z1)
-    glVertex(-x1, -y1,- z1)    
-    glVertex(x1, y1, -z1)
-    glVertex(-x1, -y1, z1)    
-    glVertex(-x1, y1, -z1)
-    glVertex(x1, -y1, z1)   
+    glVertex(0.0,  y1, 0.0)
+    glVertex(-x1,  y1,  z1)
+    glVertex( x1, -y1, -z1)    
+    glVertex(x1,   y1,  z1)
+    glVertex(-x1, -y1, -z1)    
+    glVertex(x1,   y1, -z1)
+    glVertex(-x1, -y1,  z1)    
+    glVertex(-x1,  y1, -z1)
+    glVertex(x1,  -y1,  z1)   
     #end draw a point at origin 
 
     #start draw small origin axes
     #glColor3fv(darkred)
     glColor3fv(lightblue)
-    glVertex(xEnd,0.0,0.0)
-    glVertex(0.0,0.0,0.0)
+    glVertex(xEnd, 0.0, 0.0)
+    glVertex( 0.0, 0.0, 0.0)
     #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
     glColor3fv(lightblue)
-    glVertex(0.0,yEnd,0.0)
-    glVertex(0.0,0.0,0.0)
+    glVertex(0.0, yEnd, 0.0)
+    glVertex(0.0,  0.0, 0.0)
     #glColor3f(blue[0], blue[1], blue[2])
     glColor3fv(lightblue)
-    glVertex(0.0,0.0,zEnd)
-    glVertex(0.0,0.0,0.0)
+    glVertex(0.0, 0.0, zEnd)
+    glVertex(0.0, 0.0,  0.0)
     glEnd() #end draw lines
     glLineWidth(1.0)
 
@@ -2470,9 +2591,8 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glDisable(GL_CULL_FACE)
     #glColor3fv(darkred)
     glColor3fv(lightblue)
-    glTranslatef(xEnd,0.0,0.0)
-    glRotatef(90,0.0,1.0,0.0)
-
+    glTranslatef(xEnd, 0.0, 0.0)
+    glRotatef(90, 0.0, 1.0, 0.0)
 
     glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
 
@@ -2481,8 +2601,8 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glPushMatrix()
     #glColor3f(darkgreen)
     glColor3fv(lightblue)
-    glTranslatef(0.0,yEnd,0.0)
-    glRotatef(-90,1.0,0.0,0.0)
+    glTranslatef(0.0, yEnd, 0.0)
+    glRotatef(-90, 1.0, 0.0, 0.0)
 
     glePolyCone([[0, 0, -1], [0, 0, 0], [0, 0, arrowHeight], [0, 0, arrowHeight+1]], None, [arrowBase, arrowBase, 0, 0])
 
@@ -2846,17 +2966,20 @@ def drawFullWindow(vtColors):
     glEnable(GL_LIGHTING)
     return
 
-def drawtext(text, color, pt, size, glpane):
+def drawtext(text, color, origin, point_size, glpane):
 
+    if not text:
+        return
+    
     glDisable(GL_LIGHTING)
     glDisable(GL_DEPTH_TEST)
 
     from PyQt4.Qt import QFont, QString, QColor
-    font = QFont( QString("Helvetica"), size)
+    font = QFont( QString("Helvetica"), point_size)
     #glpane.qglColor(QColor(75, 75, 75))
     from widgets import RGBf_to_QColor
     glpane.qglColor(RGBf_to_QColor(color))
-    glpane.renderText(pt[0], pt[1], pt[2], QString(text), font)
+    glpane.renderText(origin[0], origin[1], origin[2], QString(text), font)
 
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
