@@ -330,10 +330,13 @@ DELETE_SELECTION = 'Delete'
 
 # Keys for user preferences for A6 [moved into prefs_constants.py by Bruce 050805]
 
-# The far clipping plane normalized z value, actually it's a little closer than the actual far clipping 
-# plane to the eye. This is used to draw the blue sky backround polygon, and also used to check if user
-# click on empty space on the screen.
+# The far and near clipping planes normalized z value, actually it's a little
+# closer than the actual far clipping plane to the eye.
 GL_FAR_Z = 0.999
+# GL_FAR_Z is used to draw the blue sky background polygon. It is also used to
+# check if user click on empty space on the screen.
+GL_NEAR_Z = -0.999
+# GL_NEAR_Z is used to draw the rulers in the foreground, on top of everything.
 
 # ==
 
