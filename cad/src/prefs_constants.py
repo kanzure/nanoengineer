@@ -97,6 +97,7 @@ defaultDisplayMode_prefs_key = 'A9/Default Display Mode' # Mark 060815.
 mouseSpeedDuringRotation_prefs_key = 'A9/Mouse Speed During Rotation' #Ninad 060906
 displayOriginAsSmallAxis_prefs_key = 'A9/Display Origin As Small Axis' #Ninad 060920
 zoomAboutScreenCenter_prefs_key = 'A9/Zoom To Screen Center' #Ninad 060926
+displayRulers_prefs_key = 'A10/Display rulers'
 
 #ToolTip Prefs
 dynamicToolTipWakeUpDelay_prefs_key = 'A9/DynamicToolTip Wake Up Delay'
@@ -378,6 +379,7 @@ prefs_table = (
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
     ('zoom to screen center', 'boolean', zoomAboutScreenCenter_prefs_key, False), # Ninad 060924
+    ('', 'boolean', displayRulers_prefs_key, True),
     
     #Ninad 20070509 Adjust,Minimize and Simulation(Dynamics)preferences for DNA 
     #reduced model(enable or disable elecrostatics)

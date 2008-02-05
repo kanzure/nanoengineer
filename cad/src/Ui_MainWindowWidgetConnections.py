@@ -63,6 +63,9 @@ def setupUi(win):
     win.connect(win.viewReportsAction, 
                  SIGNAL("toggled(bool)"), 
                  win.reportsDockWidget.toggle)
+    win.connect(win.viewRulersAction, 
+                 SIGNAL("toggled(bool)"), 
+                 win.toggleRulers)
 
     win.connect(win.editPrefsAction,SIGNAL("triggered()"),win.editPrefs)
     win.connect(win.editRedoAction,SIGNAL("triggered()"),win.editRedo)

@@ -15,10 +15,11 @@ History:
 
 2007-12-23: Moved all QActions from menu and toolbar setupUi() functions here.
 """
-
+import env
 from PyQt4 import QtGui
 from PyQt4.Qt import QToolButton
 from icon_utilities import geticon
+from prefs_constants import displayRulers_prefs_key
 
 def setupUi(win):
     """
@@ -397,6 +398,11 @@ def setupUi(win):
     win.viewReportsAction.setCheckable(True)
     win.viewReportsAction.setChecked(True)
     win.viewReportsAction.setText('Reports')
+    
+    win.viewRulersAction = QtGui.QAction(MainWindow)
+    win.viewRulersAction.setCheckable(True)
+    win.viewRulersAction.setChecked(env.prefs[displayRulers_prefs_key])
+    win.viewRulersAction.setText('Rulers')
 
     #= Insert (menu and toolbar) widgets.
     

@@ -85,6 +85,7 @@ from prefs_constants import rememberWinPosSize_prefs_key
 from prefs_constants import captionPrefix_prefs_key
 from prefs_constants import captionSuffix_prefs_key
 from prefs_constants import captionFullPath_prefs_key
+from prefs_constants import displayRulers_prefs_key
 
 # Marked for removal. Cannot find any reference to it. Mark 2008-02-02
 #@ elementSelectorWin = None 
@@ -1974,6 +1975,18 @@ class MWsemantics(QMainWindow,
                      self.openRecentFile)
         return
     
+    def toggleRulers(self, isChecked):
+        """
+        Displays/hides the rulers in the 3D graphics area (glpane).
+        
+        @param isChecked: Checked state of the B{View > Rulers} menu item
+        @type  isChecked: boolean
+        """
+        if isChecked:
+            env.prefs[displayRulers_prefs_key] = True
+        else:
+            env.prefs[displayRulers_prefs_key] = False
+            
     pass # end of class MWsemantics
 
 # end
