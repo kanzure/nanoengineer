@@ -4369,7 +4369,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>The full path to the GROMACS executable file (grompp.exe).</string>
+               <string>The full path to the mdrun executable file for GROMACS.</string>
               </property>
              </widget>
             </item>
@@ -4443,7 +4443,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>Choose GROMACS executable (grompp.exe)</string>
+               <string>Choose the mdrun executable file for GROMACS</string>
               </property>
               <property name="text" >
                <string>Choose...</string>
@@ -4506,7 +4506,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>The full path to the cpp executable file (cpp.exe) for GROMACS.</string>
+               <string>The full path to the C-preprocessor (cpp) executable file for GROMACS to use.</string>
               </property>
              </widget>
             </item>
@@ -4516,7 +4516,7 @@
                <bool>false</bool>
               </property>
               <property name="toolTip" >
-               <string>Choose cpp executable (cpp.exe) for GROMACS</string>
+               <string>Choose the C-preprocessor (cpp) executable file for GROMACS to use.</string>
               </property>
               <property name="text" >
                <string>Choose...</string>
