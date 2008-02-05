@@ -325,13 +325,26 @@ class EditCommand(Select_Command):
     
     def preview_or_finalize_structure(self, previewing = False):
         """
-        Preview or finalize the structure based on the the previeing flag
+        Preview or finalize the structure based on the the previewing flag
         @param previewing: If true, the structure will use different cosmetic 
                            properties. 
         @type  previewing: boolean
         """
         
-        ################################
+        if previewing:
+            self._previewStructure()
+        else:
+            self._finalizeStructure()
+            
+        return
+        
+    def _previewStructure(self):
+        """
+        Preview the structure and update the previous parameters attr 
+        (self.previousParams)
+        @see: self.preview_or_finalize_structure
+        """
+        
         #For certain edit commands, it is possible that self.struct is 
         #not created. If so simply return (don't use assert self.struct)
         ##This is a commented out stub code for the edit controllers 
@@ -339,43 +352,61 @@ class EditCommand(Select_Command):
         ##creating the struct. TO BE REVISED -- Ninad20071009
         #The following code is now used.  Need to improve comments and 
         # some refactoring -- Ninad 2007-10-24
-        if 1:
-            if not self.struct:
-                self.struct = self._createStructure()
-                self.previousParams = self._gatherParameters()   
-                return
-                    
-        ###############################
-            
+        
+        if self.struct is None:                
+            self.struct = self._createStructure()
+            self.previousParams = self._gatherParameters()
+            return  
+        
         self.win.assy.current_command_info(cmdname = self.cmdname) 
         
         params = self._gatherParameters()
         
-
         if not same_vals( params, self.previousParams):
-            self._modifyStructure(params)
-        
-      
-        name = self.struct.name         
-    
-        if previewing:
-            self.logMessage = str(self.cmd + "Previewing " + name)
-        else:
-            if hasattr(self.struct, 'updateCosmeticProps'):
-                self.struct.updateCosmeticProps()
-            self.logMessage = str(self.cmd + "Created " + name)
-        
+            self._modifyStructure(params)    
+                    
+        self.logMessage = str(self.cmd + "Previewing " + self.struct.name)
         self.previousParams = params      
         self.win.assy.changed()
         self.win.win_update()
+        
+
+    def _finalizeStructure(self):
+        """
+        Finalize the structure. This is a step just before calling Done method.
+        to exit out of this command. Subclasses may overide this method
+        @see: EditCommand_PM.ok_btn_clicked
+        @see: DnaSegment_EditCommand where this method is overridden. 
+        """
+        if self.struct is None:
+            return
+        
+        self.win.assy.current_command_info(cmdname = self.cmdname) 
+        
+        params = self._gatherParameters()
+        
+        if not same_vals( params, self.previousParams):
+            self._modifyStructure(params)    
+                    
+        if hasattr(self.struct, 'updateCosmeticProps'):
+            self.struct.updateCosmeticProps()
+            self.logMessage = str(self.cmd + "Created " + self.struct.name)
+        
+        #Do we need to set the self.previousParams even when the structure 
+        #is finalized? I think this is unnecessary but harmless to do. 
+        self.previousParams = params      
+        
+        self.win.assy.changed()
+        self.win.win_update()
+        
                                 
     def cancelStructure(self):
         """
-        Delete the old structure generated during preview if user modifies 
-        some parameters or hits cancel
+        Delete the old structure generated during preview if user modifies
+        some parameters or hits cancel. Subclasses can override this method. 
+        @see: BuildDna_EditCommand.cancelStructure
         """
         self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)")
-        
         if self.existingStructForEditing: 
             if self.old_props:
                 self.struct.setProps(self.old_props)
@@ -390,7 +421,7 @@ class EditCommand(Select_Command):
         Remove this structure. 
         @see: L{self.cancelStructure}
         """
-        if self.struct != None:            
+        if self.struct is not None:      
             self.struct.kill()
             self.struct = None       
             self._revertNumber()

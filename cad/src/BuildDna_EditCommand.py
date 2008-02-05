@@ -30,7 +30,6 @@ from constants import gensym
 from Ui_DnaFlyout import DnaFlyout
 
 ##from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
-from BuildDna_PropertyManager import BuildDna_PropertyManager
 
 from BuildDna_GraphicsMode   import BuildDna_GraphicsMode
 
@@ -140,6 +139,7 @@ class BuildDna_EditCommand(EditCommand):
         Overrides EditCommand.runCommand
         """
         self.struct = None     
+        self.existingStructForEditing = False
         self.propMgr.updateListWidgets()
 
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
@@ -283,6 +283,32 @@ class BuildDna_EditCommand(EditCommand):
         self.struct = self._createStructure()            
         return 
     
+    def _finalizeStructure(self):
+        """
+        Overrides EditCommand._finalizeStructure. 
+        This method also makes sure that the DnaGroup is not empty ..if its 
+        empty it deletes it. 
+        @see: dna_model.DnaGroup.isEmpty
+        @see: EditCommand.preview_or_finalize_structure
+        """     
+        if self.struct is not None:
+            if self.struct.isEmpty():
+                #Don't keep empty DnaGroup Fixes bug 2603. 
+                self._removeStructure()
+                self.win.win_update()
+            else:
+                EditCommand._finalizeStructure(self)    
+                
+    def cancelStructure(self):
+        """
+        Cancel the structure
+	"""
+        EditCommand.cancelStructure(self)
+        print "*** self.struct in BuildDna_EditCommand= ", self.struct  
+        if self.struct is not None:
+            if self.struct.isEmpty():
+                self._removeStructure()
+            
             
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """
