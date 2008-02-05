@@ -285,10 +285,10 @@ packageMapping_for_files = {
     "chunk"                            : "model",
     "ChunkProp"                        : "ui|commands/ChunkProperties?", #?? guess, probably wrong featurename
     "ChunkPropDialog"                  : "ui|commands/ChunkProperties?",
-    "CommandToolbar_Constants"         : "widget|CommandToolbar", # see module docstring for why
+    "CommandToolbar_Constants"         : "widget|commandToolbar", # see module docstring for why
     "Command"                          : "command|command_support",
-    "CommandToolbar"                   : "widget|CommandToolbar", # controls the main hierarchical toolbar
-    "CommandSequencer"                 : "operations|CommandSequencer",
+    "CommandToolbar"                   : "widget|commandToolbar", # controls the main hierarchical toolbar
+    "CommandSequencer"                 : "operations|commandSequencer",
     "Comment"                          : "model",
     "CommentProp"                      : "ui/dialog|commands/CommentProperties?",
     "CommentPropDialog"                : "ui/dialog|commands/CommentProperties?",
@@ -539,7 +539,7 @@ packageMapping_for_files = {
     "SimServer"                        : "model|simulation", # hold attrs for a sim server (unclear whether specific to GAMESS); io too
     "SimSetup"                         : "ui|simulation",
     "SimSetupDialog"                   : "ui|simulation",
-    "Sponsors"                         : "ui|Sponsors", # the Sponsors subsystem (lots of kinds of code; exports widgets)
+    "Sponsors"                         : "ui|sponsors", # the Sponsors subsystem (lots of kinds of code; exports widgets)
 
     "state_constants"                  : "foundation",
     "state_utils"                      : "foundation", # note: utilities/Comparison.py and samevals.c might go with this too
@@ -636,7 +636,7 @@ packageMapping_for_files = {
     "whatsthis_utilities"              : "foundation", #? or utilities?
         # (this file is planned to be split out of gui/whatsthis; imports are foundation or above)
         # this file will import env (for win; could be refactored to not do so, eg use an arg), nothing else high up.
-    "widgets"                          : "widgets",
+    "widget_helpers"                   : "widgets", # renamed from widgets.py
     "widget_controllers"               : "widgets",
 
     "wiki_help"                        : "ui|foundation", # mostly ui, some io.
@@ -723,9 +723,9 @@ listing_order = [ ### should be complete, but not yet properly ordered
     # major subsystems (order?)
     "History",
     "ModelTree",
-    "CommandSequencer",
-    "CommandToolbar",
-    "Sponsors",
+    "commandSequencer",
+    "commandToolbar",
+    "sponsors",
 
     # functional areas
     "dna",
