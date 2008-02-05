@@ -91,6 +91,7 @@ class DnaFlyout:
         subControlAreaActionList.append(self.dnaDuplexAction)        
         subControlAreaActionList.append(self.breakStrandAction)
         subControlAreaActionList.append(self.dnaOrigamiAction)
+        subControlAreaActionList.append(self.orderDnaAction)
 
         allActionsList.extend(subControlAreaActionList)
 
@@ -108,26 +109,36 @@ class DnaFlyout:
     def _createActions(self, parentWidget):
         self.exitDnaAction = QtGui.QWidgetAction(parentWidget)
         self.exitDnaAction.setText("Exit DNA")
-        self.exitDnaAction.setIcon(geticon("ui/actions/Toolbars/Smart/Exit"))
+        self.exitDnaAction.setIcon(
+            geticon("ui/actions/Toolbars/Smart/Exit.png"))
         self.exitDnaAction.setCheckable(True)
         
         self.dnaDuplexAction = QtGui.QWidgetAction(parentWidget)
         self.dnaDuplexAction.setText("Duplex")
         self.dnaDuplexAction.setCheckable(True)        
-        self.dnaDuplexAction.setIcon(geticon("ui/actions/Tools/Build Structures/Duplex"))
+        self.dnaDuplexAction.setIcon(
+            geticon("ui/actions/Tools/Build Structures/Duplex.png"))
         
         self.breakStrandAction = QtGui.QWidgetAction(parentWidget)
         self.breakStrandAction.setText("Break Strand")
         self.breakStrandAction.setCheckable(True)        
-        self.breakStrandAction.setIcon(geticon("ui/actions/Properties Manager/Break_Strand"))
+        self.breakStrandAction.setIcon(
+            geticon("ui/actions/Properties Manager/Break_Strand.png"))
 
         self.dnaOrigamiAction = QtGui.QWidgetAction(parentWidget)
         self.dnaOrigamiAction.setText("Origami")
-        self.dnaOrigamiAction.setIcon(geticon("ui/actions/Tools/Build Structures/DNA_Origami"))
+        self.dnaOrigamiAction.setIcon(
+            geticon("ui/actions/Tools/Build Structures/DNA_Origami.png"))
+        
+        self.orderDnaAction = QtGui.QWidgetAction(parentWidget)
+        self.orderDnaAction.setText("Order DNA")
+        self.orderDnaAction.setIcon(
+            geticon("ui/actions/Command Toolbar/Order_DNA.png"))
 
         # Add tooltips
         self.dnaDuplexAction.setToolTip("Duplex")
         self.dnaOrigamiAction.setToolTip("Origami")
+        self.orderDnaAction.setToolTip("Order DNA")
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -159,6 +170,10 @@ class DnaFlyout:
         change_connect(self.dnaOrigamiAction, 
                              SIGNAL("triggered()"),
                              self.activateDnaOrigamiEditCommand)
+        
+        change_connect(self.orderDnaAction, 
+                             SIGNAL("triggered()"),
+                             self.orderDnaCommand)
     
     
     def activateFlyoutToolbar(self):
@@ -251,6 +266,15 @@ class DnaFlyout:
         Slot for B{Origami} action.
         """
         msg1 = greenmsg("DNA Origami: ")
-        msg2 = " Not implemented yet"
+        msg2 = "Not implemented yet."
         final_msg = msg1 + msg2
-        env.history.message(final_msg)        
+        env.history.message(final_msg)
+        
+    def orderDnaCommand(self):
+        """
+        Slot for B{Order DNA} action.
+        """
+        msg1 = greenmsg("Order DNA: ")
+        msg2 = "Not implemented yet."
+        final_msg = msg1 + msg2
+        env.history.message(final_msg)
