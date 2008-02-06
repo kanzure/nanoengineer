@@ -32,7 +32,6 @@ import sys
 from math import acos, floor, ceil
 from math import asin
 
-
 import Numeric
 from Numeric import sin, cos, sqrt, pi
 ONE_RADIAN = 180.0 / pi
@@ -108,6 +107,7 @@ from OpenGL.GL import glPolygonMode
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPopName
 from OpenGL.GL import GL_POSITION
+from OpenGL.GL import GL_PROJECTION
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glPushName
 from OpenGL.GL import GL_QUADS
@@ -185,7 +185,8 @@ except:
 from geometry.VQT import norm, vlen, V, Q, A, cross
 import env #bruce 051126
 
-from constants import DIAMOND_BOND_LENGTH, white
+from constants import blue, red, darkgreen, black, lightblue, darkgray, white
+from constants import DIAMOND_BOND_LENGTH
 from prefs_constants import material_specular_highlights_prefs_key
 from prefs_constants import material_specular_shininess_prefs_key
 from prefs_constants import material_specular_finish_prefs_key
@@ -2153,14 +2154,11 @@ def drawline(color,
     """
     Draw a line from endpt1 to endpt2 in the given color. 
     
-    If endpt1 and endpt2 are the same point, nothing is drawn. This is 
-    considered and used as a feature.
-    
     @param endpt1: First endpoint.
-    @type  endpt1: Triple tuple.
+    @type  endpt1: point
     
     @param endpt2: Second endpoint.
-    @type  endpt2: Triple tuple.
+    @type  endpt2: point
 
     @param dashEnabled: If dashEnabled is True, it will be dashed.
     @type  dashEnabled: boolean
@@ -2168,21 +2166,18 @@ def drawline(color,
     @param stipleFactor: The stiple factor.
     @param stipleFactor: int
     
-    @param width: The line width in pixels. The default is 1.0.
-    @type  width: float
+    @param width: The line width in pixels. The default is 1.
+    @type  width: int or float
     
     @param isSmooth: Enables GL_LINE_SMOOTH. The default is False.
     @type  isSmooth: boolean
     
     @note: Whether the line is antialiased is determined by GL state variables
     which are not set in this function.
+    
+    @warning: Some callers pass dashEnabled as a positional argument rather 
+    than a named argument.    
     """
-    # WARNING: some callers pass dashEnabled as a positional argument rather than a named argument.
-    # [bruce 050831 added docstring, this comment, and the width argument.]
-    
-    if endpt1 is endpt2:
-        return
-    
     glDisable(GL_LIGHTING)
     glColor3fv(color)
     if dashEnabled: 
@@ -2348,25 +2343,45 @@ def drawRulers(glpane):
     """
     Draws a vertical ruler on the left side of the 3D graphics area.
     
+    A 3D orthographic coordinate system is assumed, where:
+    - The upper left corner (front) is (-1.0,  1.0, -1.0)
+    - The lower right corner (back) is ( 1.0, -1.0,  1.0)
+    
+    Still to do:
+    - Reimplement to support an orthographic coordinate system in window/pixel
+      units (ints). Use gluOrtho2D(0.0, width, 0.0, height) where width and 
+      height are the viewport size in pixels. (make sure the projection matrix
+      is the current one, when calling it).
+    - Code a better, more general tick mark/units labeling algorithm that 
+      eliminates small errors that build up in the loop and the scale range
+      works from 1 Angstrom up to 1 Um (at least).
+    - Auto-hide/show rulers when user switches to/from Perspective display.
+    - Add semi-transparent rectangle behind ruler area for better contrast
+      regardless of the bg color.
+    - Right justify tick marks with unit labels left justified.
+    - Once all this (above) is working well, add a horizontal ruler.
+    
     @param glpane: the 3D graphics area.
     @type  glpane: L{GLPane)
-    
-    @note: tickmarks are not rendered as 1 pixel wide lines. I believe this
-    is a bug in drawline(). Mark 2008-02-04.
-    """    
-    from constants import GL_NEAR_Z
-    from constants import darkgray
+    """
+
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity() # needed!
     
     color = darkgray
-    
     scale = glpane.scale
     aspect = glpane.aspect
     
     font_size = 8
     short_tickmark_threshold = 150
-    angstrom_tickmark_range = 25 # tickmarks
+    angstrom_tickmark_range = 25
     
-    num_horz_ticks = 2 * int(scale) + 1
+    
+    num_horz_ticks = 2 * int(scale)
     
     if num_horz_ticks < angstrom_tickmark_range:
         units_text = "A" # Angstroms
@@ -2374,8 +2389,13 @@ def drawRulers(glpane):
     else:
         units_text = "nm" # nanometers
         units_scale = 0.1
+    
+    if num_horz_ticks < 250:
+        long_tickmark_inc = 5
+    else:
+        long_tickmark_inc = 10
         
-    horz_tick_inc = 1.0 / scale
+    horz_tick_inc = 1.0 / scale #@@ small errors will add up in the loop.
     horz_long_tick_len = .05
     vert_long_tick_len = horz_long_tick_len * aspect
     horz_short_tick_len = .02
@@ -2389,24 +2409,24 @@ def drawRulers(glpane):
     
     units_text_origin = V(-1.0 + .01,
                            1.0 - (vert_long_tick_len *.75),
-                           GL_NEAR_Z)
+                           -1.0)
     
     # Draw unit of measurement in upper left corner (A or nm).
     drawtext(units_text, darkgray, units_text_origin, font_size, glpane)
     
-    pt1 = V(-1.0, 1.0 - vert_long_tick_len, GL_NEAR_Z)
-    pt2 = pt1 + (horz_long_tick_len, 0.0, 0.0)
+    # Initialize pt1 and pt2. They are both modified in the loop below.
+    pt1 = V(-1.0, 1.0 - vert_long_tick_len, -1.0)
+    pt2 = pt1 + V(horz_long_tick_len, 0.0, 0.0)
     
-    tick_num = 0
-    
-    # Draw horizontal ruler tickmarks and numberic unit labels
-    for i in range(num_horz_ticks):
+    # Draw horizontal ruler tickmarks and numeric unit labels
+    for tick_num in range(num_horz_ticks + 1):
         
+        # pt1 and pt2 are modified by each iteration of the loop (below).
         drawline(darkgray, pt1, pt2)
         
-        # Draw units number below tickmark.
-        if not tick_num % 5:
-            units_num_origin = pt1 + (0.025, -0.03, 0.0)
+        # Draw units number below long tickmarks.
+        if not tick_num % long_tickmark_inc:
+            units_num_origin = pt1 + V(0.025, -0.03, 0.0)
             if units_text == "nm":
                 if num_horz_ticks <= 100:
                     units_num = "%-4.1f" % (tick_num * units_scale)
@@ -2420,23 +2440,26 @@ def drawRulers(glpane):
             drawtext(units_num, darkgray, units_num_origin, font_size, glpane)
         
         # Update tickmark endpoints for next tickmark.
-        pt1 += (0.0, -horz_tick_inc, 0.0)
+        pt1 += V(0.0, -horz_tick_inc, 0.0)
         
-        if (tick_num + 1) % 5:
+        if (tick_num + 1) % long_tickmark_inc:
             # pt2 will be the endpoint of a short tickmark.
             if num_horz_ticks > short_tickmark_threshold:
-                # Setting pt2 to pt1 results in no tickmark being rendered.
+                # Setting pt2 to pt1 effectively results in no tickmark.
                 pt2 = pt1
             else:
-                pt2 = pt1 + (horz_short_tick_len, 0.0, 0.0)
+                pt2 = pt1 + V(horz_short_tick_len, 0.0, 0.0)
         else:
             if (num_horz_ticks > short_tickmark_threshold) and ((tick_num + 1) % 2):
-                pt2 = pt1 + (horz_short_tick_len, 0.0, 0.0)
+                if num_horz_ticks < 300:
+                    pt2 = pt1 + V(horz_short_tick_len, 0.0, 0.0)
             else:
-                pt2 = pt1 + (horz_long_tick_len, 0.0, 0.0)
-        
-        tick_num += 1
+                pt2 = pt1 + V(horz_long_tick_len, 0.0, 0.0)
     
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
+    glPopMatrix()
     return # from drawRulers
     
 def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
@@ -2461,7 +2484,6 @@ def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
     return
 
 def drawaxes(n,point,coloraxes=False, dashEnabled = False):
-    from constants import blue, red, darkgreen
 
     n *= 0.5
     glPushMatrix()
@@ -2503,7 +2525,7 @@ def drawaxes(n,point,coloraxes=False, dashEnabled = False):
 def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     """
     Draws a small wireframe version of the origin. It is rendered as a 
-    3D point at (0, 0, 0) with 3 small axes extending from it the positive
+    3D point at (0, 0, 0) with 3 small axes extending from it in the positive
     X, Y, Z directions.
     """
     #Perhaps we should split this method into smaller methods? ninad060920
@@ -2515,8 +2537,6 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     # the wireframe arrow shows up!
     #3.Making origin non-zoomable is acheived by replacing 
     #hardcoded 'n' with glpane's scale - ninad060922
-
-    from constants import blue, red, darkgreen, black, lightblue
 
     #ninad060922 in future , the following could be user preferences. 
     if (dashEnabled):

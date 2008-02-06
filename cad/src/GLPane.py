@@ -3075,32 +3075,19 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
             #e if stencil clear is expensive, we could optim and only do it when needed [bruce ca. 050615]
-
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        
-        #= Add 2D viewport graphics in this section, before modelview setup.
-        
-        #  2D Viewport coordinate system:
-        #  - Upper left corner: -1.0,  1.0
-        #  - Lower right corner: 1.0, -1.0
         
         # "Blue Sky" is the only gradient bg supported.
         if self.backgroundGradient:
+            glMatrixMode(GL_PROJECTION)
+            glLoadIdentity()
+            glMatrixMode(GL_MODELVIEW)
+            glLoadIdentity()
             drawer.drawFullWindow(bluesky)
             # Note: it would be possible to optimize by not clearing the color buffer
             # when we'll call drawFullWindow, if we first cleared depth buffer (or got
             # drawFullWindow to ignore it and effectively clear it by writing its own
             # depths into it everywhere, if that's possible). [bruce 070913 comment]
-            
-        # Draw rulers in 2D viewport. Paul NFR. Mark 2008-02-04.
-        if env.prefs[displayRulers_prefs_key]:
-            drawer.drawRulers(self)
-            
-        #= end of 2D viewport graphics.
-
+        
         # ask mode to validate self.selobj (might change it to None)
         # (note: self.selobj is used in do_glselect_if_wanted)
         selobj, hicolor = self.validate_selobj_and_hicolor()
@@ -3218,6 +3205,14 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # draw the confirmation corner itself, and/or related overlays
 
         self.drawing_phase = 'overlay'
+        
+        # Draw ruler(s) if "View > Rulers" is checked.
+        if env.prefs[displayRulers_prefs_key]:
+            # Should this be added to graphicsMode.draw_overlay() since it
+            # (probably) should be considered an overlay?  Ask Bruce.
+            # Mark 2008-02-05.
+            drawer.drawRulers(self)
+            
         try:
             glMatrixMode(GL_MODELVIEW) #k needed?
             self.graphicsMode.draw_overlay() #bruce 070405
@@ -3696,7 +3691,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         glLoadIdentity()
         glMatrixMode(GL_PROJECTION)
         glPushMatrix()
-        glLoadIdentity() #k needed?
+        glLoadIdentity() # needed!
 
         # Set compass position using glOrtho
         if self.compassPosition == UPPER_RIGHT:
