@@ -116,6 +116,11 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
         """
         _superclass.leftDrag(self, event)
         
+        if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            #The _superclass.leftDrag considers this condition. 
+            #So simply return and don't go further. Fixes bug 2607
+            return 
+        
         if self.leftDownType in ['ROTATE', 'A_ROTATE']:
             try:
                 self.leftDragRotation(event)  
