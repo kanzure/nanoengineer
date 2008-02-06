@@ -27,7 +27,7 @@ public:
     enum EngineID { OPENGL=0 };
 
     NXRenderingEngine() : rootMoleculeSet(NULL) {}
-    virtual ~NXRenderingEngine();
+    virtual ~NXRenderingEngine() {}
 
     // Query type - one per subclass, suitably named
     bool isOpenGL(void) const { return (getID() == OPENGL); }
