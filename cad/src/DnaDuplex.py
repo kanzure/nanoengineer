@@ -329,8 +329,14 @@ class Dna:
                 if atom.element.symbol in ('Ss3'):
                     if atom.dnaBaseName == 'a':
                         _strandA_list.append(atom)
+                        #Now reset the DnaBaseName for the added atom 
+                        # to 'unassigned' base i.e. 'X'
+                        atom.setDnaBaseName('X')
                     elif atom.dnaBaseName == 'b':
                         _strandB_list.append(atom)
+                        #Now reset the DnaBaseName for the added atom 
+                        # to 'unassigned' base i.e. 'X'
+                        atom.setDnaBaseName('X')
                     else:
                         msg = "Ss3 atom not assigned to strand 'a' or 'b'."
                         raise PluginBug(msg)
