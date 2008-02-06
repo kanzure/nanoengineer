@@ -44,11 +44,14 @@ from elements import PeriodicTable
 from model.assembly import assembly 
 from drawer import get_gl_info_string ## grantham 20051201
 import os, sys
+import time
 
 from utilities import debug_flags
 
 from PlatformDependent import find_or_make_Nanorex_directory
 from PlatformDependent import make_history_filename
+from PlatformDependent import open_file_in_editor
+from PlatformDependent import find_or_make_Nanorex_subdir
 
 from ViewOrientationWindow import ViewOrientationWindow # Ninad 061121
 
@@ -63,6 +66,8 @@ from GLPane import GLPane
 from utilities.Log import greenmsg, redmsg, orangemsg
 
 import Ui_DnaFlyout
+
+
 
 from ops_files import fileSlotsMixin
 from ops_view import viewSlotsMixin
@@ -1431,6 +1436,59 @@ class MWsemantics(QMainWindow,
                 currentCommand = self.commandSequencer.currentCommand
                 if currentCommand.commandName == 'DNA_DUPLEX':
                     currentCommand.Done(exit_using_done_or_cancel_button = False)
+                    
+    def orderDna(self, dnaGroupList = ()):
+        """
+        open a text editor and load a temporary text file containing all the 
+        DNA strand names and their sequences in the current DNA object. It will
+        look something like this: (comma separated values. To be revised)
+
+        Strand1,ATCAGCTACGCATCGCT
+        Strand2,TAGTCGATGCGTAGCGA
+
+        The user can then save the file to a permanent location.
+        
+        @see: Ui_DnaFlyout.orderDnaCommand
+        @see: self._writeDnaSequence
+        """
+               
+        fileBaseName = 'DnaSequence'
+        
+        if dnaGroupList:
+            for dnaGroup in dnaGroupList:
+                dnaSequence = dnaGroup.getDnaSequence(format = 'CSV')            
+        else:
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'BUILD_DNA':
+                if currentCommand.struct is not None:
+                    dnaSequence = currentCommand.struct.getDnaSequence()
+                    fileBaseName = currentCommand.struct.name
+                
+                    
+        if dnaSequence:
+            tmpdir = find_or_make_Nanorex_subdir('temp')
+            temporaryFile = os.path.join(tmpdir, "%s.csv" % fileBaseName)            
+            self._writeDnaSequence(temporaryFile, dnaSequence)            
+            open_file_in_editor(temporaryFile)
+        
+    
+    def _writeDnaSequence(self, fileName, dnaSequence):
+        """
+        Open a temporary file and write the specified dna sequence to it
+        @param fileName: the full path of the temporary file to be opened
+        @param  dnaSequence: The dnaSequence string to be written to the file.
+        @see: self.orderDna
+        """
+                       
+        f = open(fileName,'w') 
+            
+        # Write header
+        f.write ('Dna Sequence created on: ')
+        timestr = "%s\n\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
+        f.write(timestr)
+        f.write("Sequence name,Sequence,Scale,Notes\n")
+        f.write(dnaSequence)
+            
 
 
     def createDnaSequenceEditorIfNeeded(self):

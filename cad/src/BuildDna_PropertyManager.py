@@ -186,7 +186,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if hasattr(self.editCommand, 'flyoutToolbar') and \
            self.editCommand.flyoutToolbar:            
             self.editCommand.flyoutToolbar.exitDnaAction.setEnabled(not bool_enable)
-        
+            self.editCommand.flyoutToolbar.orderDnaAction.setEnabled(not bool_enable)
         
     def model_changed(self):
         """       

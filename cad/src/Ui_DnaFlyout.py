@@ -273,8 +273,10 @@ class DnaFlyout:
     def orderDnaCommand(self):
         """
         Slot for B{Order DNA} action.
+        @see: MWSemantics.orderDna
         """
-        msg1 = greenmsg("Order DNA: ")
-        msg2 = "Not implemented yet."
-        final_msg = msg1 + msg2
-        env.history.message(final_msg)
+        self.win.orderDna()
+        
+        
+                
+        

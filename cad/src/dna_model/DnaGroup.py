@@ -164,6 +164,32 @@ class DnaGroup(Block):
         assert currentCommand.commandName == 'BUILD_DNA'
         currentCommand.editStructure(self)
     
+    def getDnaSequence(self, format = 'CSV'):
+        """
+        Return the complete Dna sequence information string (i.e. all strand 
+        sequences) in the specified format. 
+        
+        @return: The Dna sequence string
+        @rtype: string
+        
+        """
+        if format == 'CSV':#comma separated values.
+            separator = ','
+        dnaSequenceString = ''
+        strandList = self.getStrands()
+        
+        for strand in strandList:
+            dnaSequenceString = dnaSequenceString + strand.name + separator
+            strandSequenceString = str(strand.getStrandSequence())
+            if strandSequenceString: 
+                strandSequenceString = strandSequenceString.upper()
+                dnaSequenceString = dnaSequenceString + strandSequenceString
+                
+            dnaSequenceString = dnaSequenceString + "\n"
+            
+        return dnaSequenceString
+        
+    
     def getStrands(self):
         """
         Returns a list of strands inside a DnaGroup object
