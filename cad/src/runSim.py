@@ -39,6 +39,7 @@ from PlatformDependent import hhmmss_str
 from PlatformDependent import find_plugin_dir
 import os, sys, time
 from math import sqrt
+from datetime import datetime
 from SimSetup import SimSetup
 from PyQt4.Qt import QApplication, QCursor, Qt, QStringList
 from PyQt4.Qt import QProcess, QObject, QFileInfo, SIGNAL
@@ -156,7 +157,7 @@ class SimRunner:
     # This is set to True in ops_files.py. This is a class (not instance) variable which matters
     # because ops_files.py can set this without a reference to the currently active SimRunner instance.
     PREPARE_TO_CLOSE = False
-
+    
     def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator", cmd_type = 'Minimize', useGromacs = False, background = False, hasPAM5 = False):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
@@ -273,12 +274,14 @@ class SimRunner:
                 nv1 = os.path.join(sim_bin_dir, "nv1%s" % dot_exe)
                 
                 gromacsFullBaseFileName = self._movie.filename
-                fileInfo = QFileInfo(gromacsFullBaseFileName)
-                gromacsWorkingDir = fileInfo.dir().absolutePath()
-                gromacsBaseFileName = fileInfo.fileName()
+                gromacsFullBaseFileInfo = QFileInfo(gromacsFullBaseFileName)
+                gromacsWorkingDir = gromacsFullBaseFileInfo.dir().absolutePath()
+                gromacsBaseFileName = gromacsFullBaseFileInfo.fileName()
                 
-                env.history.message("%s: files at %s.*" %
-                    (self.cmdname, gromacsFullBaseFileName))
+                env.history.message("%s: files at %s%s%s.*" %
+                    (self.cmdname, gromacsWorkingDir, os.sep,
+                     gromacsFullBaseFileInfo.completeBaseName()))
+                     
                 gromacsProcess = GromacsProcess()
                 gromacsProcess.setProcessName("grompp")
                 gromacsProcess.prepareForGrompp()
@@ -315,21 +318,28 @@ class SimRunner:
                 else:
                     progressBar.setRange(0, 0)
                     progressBar.reset()
-                    progressBar.show()
                     gromacsProcess.setProcessName("mdrun")
                     gromacsProcess.prepareForMdrun()
                     gromacsProcess.redirect_stdout_to_file \
                         ("%s-mdrun-stdout.txt" % gromacsFullBaseFileName)
                     gromacsProcess.redirect_stderr_to_file \
                         ("%s-mdrun-stderr.txt" % gromacsFullBaseFileName)
+                        
+                    trajectoryOutputFile = None
                     if (self.background):
-                        mdrunOutputExtension = "nh5"
+                        trajectoryOutputFile = \
+                            gromacsFullBaseFileInfo.completeBaseName();
+                        trajectoryOutputFile = \
+                            "%s.%s" % (trajectoryOutputFile, "nh5")
                     else:
-                        mdrunOutputExtension = "trr"
+                        progressBar.show()
+                        trajectoryOutputFile = \
+                            "%s.%s" % (gromacsBaseFileName, "trr")
+                    print "trajectoryOutputFile=%s" % trajectoryOutputFile
+                        
                     mdrunArgs = [
                         "-s", "%s.tpr" % gromacsBaseFileName,
-                        "-o", "%s.%s" % (gromacsBaseFileName,
-                                         mdrunOutputExtension),
+                        "-o", "%s" % trajectoryOutputFile,
                         "-e", "%s.edr" % gromacsBaseFileName,
                         "-c", "%s-out.gro" % gromacsBaseFileName,
                         "-g", "%s-mdrun.log" % gromacsBaseFileName,
@@ -350,14 +360,19 @@ class SimRunner:
                         self.errcode = 3;
                     if (self.background):
                         pid = gromacsProcess.pid()
-                        os.mkdir(gromacsFullBaseFileName)
-                        pidFileName = gromacsFullBaseFileName + os.sep + "pid"
+                        pidFileName = \
+                            gromacsWorkingDir + os.sep + \
+                            gromacsFullBaseFileInfo.completeBaseName()
+                        print "1 pidFileName=%s" % pidFileName
+                        os.mkdir(pidFileName)
+                        pidFileName += os.sep + "pid"
+                        print "2 pidFileName=%s" % pidFileName
                         pidFile = open(pidFileName, 'w')
                         pidFile.write("%d\n" % pid)
                         pidFile.close()
                         nv1Process = Process()
                         nv1Args = [
-                            gromacsFullBaseFileName,
+                            trajectoryOutputFile,
                             ]
                         nv1Process.setStandardOutputPassThrough(True)
                         nv1Process.setStandardErrorPassThrough(True)
@@ -461,13 +476,24 @@ class SimRunner:
         # simFilesPath = "~/Nanorex/SimFiles". Mark 051028.
         simFilesPath = find_or_make_Nanorex_subdir('SimFiles')
 
-        # Create temporary part-specific filename.  Example: "partname-minimize-pid1000"
-        # We'll be appending various extensions to tmp_file_prefix to make temp file names
-        # for sim input and output files as needed (e.g. mmp, xyz, etc.)
+        # Create temporary part-specific filename, for example:
+        # "partname-minimize-pid1000".
+        # We'll be appending various extensions to tmp_file_prefix to make temp
+        # file names for sim input and output files as needed (e.g. mmp, xyz,
+        # etc.)
         junk, basename, ext = filesplit(self.assy.filename)
         if not basename: # The user hasn't named the part yet.
             basename = "Untitled"
-        self.tmp_file_prefix = os.path.join(simFilesPath, "%s-minimize-pid%d" % (basename, os.getpid()))
+        timestampString = ""
+        if (self.background):
+            # Add a timestamp to the pid so that multiple backgrounded
+            # calculations don't clobber each other's files.
+            timestamp = datetime.today()
+            timestampString = timestamp.strftime(".%y%m%d%H%M%S")
+        self.tmp_file_prefix = \
+            os.path.join(simFilesPath,
+                         "%s-minimize-pid%d%s" % (basename, os.getpid(),
+                                                  timestampString))
 
         r = self.old_set_sim_output_filenames_errQ( movie, self.mflag)
         if r: return r
