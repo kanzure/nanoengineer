@@ -116,7 +116,10 @@ from constants import diINVISIBLE
 from elements import PeriodicTable
 from ChunkProp import ChunkProp
 
+
 from Dna_Constants import getComplementSequence
+
+from bond_chains import grow_directional_bond_chain
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -360,8 +363,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         @return: strand Sequence string
         @rtype: str
         """
-        sequenceString = ''
-        for atm in self.atoms_in_mmp_file_order():            
+        sequenceString = ''            
+        for atm in self.get_strand_atoms_in_bond_direction():
             baseName = str(atm.getDnaBaseName())
             if baseName:
                 sequenceString = sequenceString + baseName
@@ -376,7 +379,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         complementary strand ('mate strand')
         @param sequenceString: The sequence to be assigned to this strand chunk
         @type sequenceString: str
-        """        
+        """      
         sequenceString = str(sequenceString)
         #Remove whitespaces and tabs from the sequence string
         sequenceString = re.sub(r'\s', '', sequenceString)
@@ -384,12 +387,12 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #May be we set this beginning with an atom marked by the 
         #Dna Atom Marker in dna data model? -- Ninad 2008-01-11
         # [yes, see my longer reply comment above -- Bruce 080117]
-        atomList = []
-        for atm in self.atoms_in_mmp_file_order():            
+        atomList = []           
+        for atm in self.get_strand_atoms_in_bond_direction():
             if not atm.is_singlet():
                 atomList.append(atm)
         
-        for atm in atomList:            
+        for atm in atomList:   
             atomIndex = atomList.index(atm)
             if atomIndex > (len(sequenceString) - 1):
                 #In this case, set an unassigned base ('X') for the remaining 
@@ -438,6 +441,109 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
        
     #END of Dna-Strand chunk  specific  code ==================================
     
+    
+    def get_strand_atoms_in_bond_direction(self):
+        """
+        Return a list of atoms in a fixed direction -- from 5' to 3'
+        
+        NOTE: this is a stub and we can modify it so that
+        it can accept other direction i.e. 3' to 5' , as an argument.
+        
+        BUG: ? : This also includes the bondpoints (X)  .. I think this is 
+        from the atomlist returned by bond_chains.grow_directional_bond_chain
+        The caller -- self.getStrandSequence uses atom.getDnaBaseName to
+        retrieve the DnaBase name info out of atom. So this bug introduces 
+        no harm (as dnaBaseNames are not assigned for bondpoints.
+        """ 
+        
+        startAtom = None
+        atomList = []
+        
+        #Choose startAtom randomly (make sure that its PAM3 Sugar atom 
+        # and not an open bond. )
+        for atm in self.atoms.itervalues():
+            print "***atm.element.symbol = ", atm.element.symbol 
+            if atm.element.symbol == 'Ss3':
+                startAtom = atm
+                break        
+        
+        if startAtom is None:
+            print_compact_stack("bug : no PAM3 Sugar atom (Ss3)found" )
+            return []
+        
+        #Build one list in each direction, detecting a ring too 
+        
+        #ringQ decides whether the chunk forma a ring. 
+        #This needs a better name in bond_chains.grow_directional_bond_chain
+        ringQ = False        
+        atomList_direction_1 = []
+        atomList_direction_2 = []     
+                   
+        b = None  
+        bond_direction = 0
+        for bnd in startAtom.directional_bonds():
+            if not bnd.is_open_bond():
+                #Determine the bond_direction from the 'startAtom'
+                direction = bnd.bond_direction_from(startAtom)
+                if direction in (1, -1):                    
+                    b = bnd
+                    bond_direction = direction
+                    break
+                            
+        if b is None or bond_direction == 0:
+            return []        
+                
+        if bond_direction == 1:
+            #bond direction is from 5' to 3' end. Do nothing, we will use the 
+            #'startAtom selected at random above. 
+            pass
+        elif bond_direction == -1:
+            #if ithe direction is going from 3' to 5' , we will start with 
+            #the other atom of bond 'b' . This will be our new reference atom
+            other_atom = b.other(startAtom)
+            
+            if not other_atom.is_singlet():               
+                startAtom = b.other(startAtom)            
+                   
+        #Find out the the list of new atoms and bonds  in the direction 
+        #from bond b towards 'startAtom'. The  'ringQ' returns True 
+        # if its a ring. 'atomList_direction_1' does NOT include 'startAtom' 
+        ringQ, listb, atomList_direction_1 = grow_directional_bond_chain(b, startAtom)
+        
+        
+        if ringQ:
+            #First add 'startAtom' (as its not included in atomList_direction_1
+            atomList.append(startAtom)
+            #extend atomList with remaining atoms
+            atomList.extend(atomList_direction_1)            
+        else:       
+            #Its not a ring. Now we need to make sure to include atoms in the 
+            #direction_2 (if any) from the 'startAtom' . i.e. we need to grow 
+            #the directional bond chain in the opposite direction. 
+            #Grow directional bond in other direction
+            other_atom = b.other(startAtom)
+            if not other_atom.is_singlet():            
+                ringQ, listb, atomList_direction_2 = grow_directional_bond_chain(b, other_atom)
+                atomList_direction_2.insert(0, other_atom)
+                #We need to reverse the list because the 'atomList' that this  
+                #method will return needs to have atoms ordered from 5' end 
+                #to 3' end..ad the original atomList_direction_2 has atoms 
+                #from 3' to 5'. 
+                atomList_direction_2.reverse()
+            
+            #Properly comine all the lists so that the first atom in the list 
+            #is the 5' end atom
+            #@bug: It considers bondoints in this list. Should be continue
+            #to have those bondpoints in it?
+            atomList.extend(atomList_direction_2) 
+            
+            if not startAtom.is_singlet():
+                atomList.append(startAtom)
+            atomList.extend(atomList_direction_1)
+        
+        return atomList    
+                
+ 
     #START of Dna- Axis chunks specific code ==================================
     
     def isAxisChunk(self):
@@ -460,10 +566,32 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             continue
         
         return found_axis_atom  
-        
+            
     
     #END of Dna-Axis chunk  specific  code ====================================
-    
+    def getDnaGroup(self): 
+        """
+        EXPERIMENTAL method. Return's the DnaGroup of this chunk if it has one. 
+        @TODO: clanup this code. Not called anywhere yet. Was planned to use in
+        chunk highlighting. Needs optimization. 
+        """
+        nodeList = []        
+        def func(node):
+            if node is self.assy.part.topnode:
+                return           
+            if node.__class__.__name__ == 'DnaGroup':
+                nodeList.append(node)
+                return
+            else:
+                func(node.dad)
+        
+        func(self.dad)
+        
+        if len(nodeList) == 1:
+            return nodeList[0]
+        else:
+            return None
+        
     # Methods relating to our OpenGL display list, self.displist.
     #
     # (Note: most of these methods could be moved with few changes to a
