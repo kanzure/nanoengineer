@@ -70,12 +70,12 @@ class DnaGroup(Block):
     def node_icon(self, display_prefs):
         """
         Model Tree node icon for the dna group node
-        @see: Group.isHidden() 
+        @see: Group.all_content_is_hidden() 
         """
         del display_prefs # unused
         
-        if self.isHidden():    
-             return imagename_to_pixmap( self.hide_iconPath)
+        if self.all_content_is_hidden():    
+            return imagename_to_pixmap( self.hide_iconPath)
         else:
             return imagename_to_pixmap( self.iconPath)     
 

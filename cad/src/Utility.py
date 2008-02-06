@@ -1034,14 +1034,18 @@ class Node( StateMixin):
         part.add(self)
         assert self.part is part
     
-    def isHidden(self):
+    def all_content_is_hidden(self): #ninad 080129
         """
-        Returns whether the node is hidden in the Model Tree. 
-        The default implementation returns the value of attr self.hidden 
-        But for the nodes such as 'Group' , this method (isHidden) will return 
-        True only when all members of the Group are hidden.   
-        @see: Group.isHidden (which overrides this method)
+        Returns whether this node, including all its contents, is hidden
+        (not shown in GLPane, and shown with inverted icon in Model Tree).
+        The default implementation for Node returns the value of self.hidden.
+        But for Group, this method (all_content_is_hidden) should be overridden
+        to return True only when all members of the Group are hidden.
+        @see: Group.all_content_is_hidden (which overrides this method)
         """
+        #bruce 080205 renamed this from isHidden to all_content_is_hidden,
+        # to avoid confusion with the QWidget method isHidden (also used
+        # in our code)
         return self.hidden
     
     def hide(self):

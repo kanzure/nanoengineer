@@ -401,7 +401,7 @@ class Ui_PartWindow(QWidget):
         # though the PM itself is hidden. To avoid finding the PM in that case,
         # also check whether it's hidden. This will fix the CC part of a new bug
         # just reported by Keith in email (when hitting Ok in DNA Gen).
-        if res.isHidden():
+        if res.isHidden(): # probably a QWidget method [bruce 080205 comment]
             return None
         return res
 
