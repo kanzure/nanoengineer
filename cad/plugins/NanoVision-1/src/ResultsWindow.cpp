@@ -39,16 +39,16 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 	// Read file
 	NXCommandResult* commandResult =
 		entityManager->importFromFile(qPrintable(fileName));
-	// TODO: delete this commandResult
 	QApplication::restoreOverrideCursor();
 	
+	bool success = true;
 	if (commandResult->getResult() != NX_CMD_SUCCESS) {
 		QFileInfo fileInfo(fileName);
 		QString message =
 			tr("Unable to open file: %1").arg(fileInfo.fileName());
 		ErrorDialog errorDialog(message, commandResult);
 		errorDialog.exec();
-		return false;
+		success = false;
 		
 	} else {
 		setCurrentFile(fileName);
@@ -63,9 +63,11 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 		new ViewParametersWindow(this);
 	viewParametersWindow->show();
 */
-
-		return true;
+		QString message = tr("File loaded: %1").arg(fileName);
+		NXLOG_INFO("ResultsWindow", qPrintable(message));
 	}
+	delete commandResult;
+	return success;
 }
 
 

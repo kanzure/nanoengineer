@@ -23,7 +23,7 @@ HDF5_SimResultsImportExport::~HDF5_SimResultsImportExport() {
 /* FUNCTION: importFromFile */
 NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
-		 const std::string& filename, int frameSetId, int frameIndex) {
+		 const string& filename, int frameSetId, int frameIndex) {
 
 	H5Eset_auto(0, 0); // Turn off HDF5 errors to stdout when threaded
 
@@ -48,7 +48,8 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 	int status;
 	string message;
 	if ((frameIndex == 0) && (result->getResult() == NX_CMD_SUCCESS)) {
-		status = simResults->openDataStore(filename.c_str(), message);
+		string directory = parseSuffix(filename);
+		status = simResults->openDataStore(directory.c_str(), message);
 		if (status)
 			populateCommandResult(result, message.c_str());
 	}
@@ -169,7 +170,7 @@ void HDF5_SimResultsImportExport::populateDataStoreInfo
 /* FUNCTION: exportToFile */
 NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 		(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
-		 const std::string& filename, int frameSetId, int frameIndex) {
+		 const string& filename, int frameSetId, int frameIndex) {
 		
 	NXCommandResult* result = new NXCommandResult();
 	result->setResult(NX_CMD_SUCCESS);
@@ -194,12 +195,13 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 	int status;
 	string message;
 	if ((frameIndex == 0) && (result->getResult() == NX_CMD_SUCCESS)) {
+		string directory = parseSuffix(filename);
 		QDir pwd;
-		pwd.mkdir(filename.c_str());
-		QString hdf5Filename(filename.c_str());
+		pwd.mkdir(directory.c_str());
+		QString hdf5Filename(directory.c_str());
 		hdf5Filename.append("/").append(HDF5_SIM_RESULT_FILENAME);
 		QFile::remove(hdf5Filename);
-		status = simResults->openDataStore(filename.c_str(), message);
+		status = simResults->openDataStore(directory.c_str(), message);
 		if (status)
 			populateCommandResult(result, message.c_str());
 	}
@@ -348,3 +350,22 @@ void HDF5_SimResultsImportExport::populateCommandResult
 	resultVector.push_back(message.c_str());
 	result->setParamVector(resultVector);
 }
+
+
+/* FUNCTION: parseSuffix */
+string HDF5_SimResultsImportExport::parseSuffix(const string& filename) {
+	string directory;
+	QFileInfo fileInfo(filename.c_str());
+	if (fileInfo.suffix() == "h5") {
+		// Pass the preceding directory to HDF5_SimResults
+		directory = qPrintable(fileInfo.path());
+		
+	} else {
+		// The suffix is ".nh5". This is an alias for a directory of the
+		// same name as the filename without the suffix. Later this will
+		// become an archive file.
+		directory = filename.substr(0, filename.length() - 4);
+	}
+	return directory;
+}
+

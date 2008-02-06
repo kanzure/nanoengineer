@@ -54,3 +54,6 @@ TARGET = nv1
 
 DESTDIR = ../../../bin
 
+# This tells qmake to not create a Mac bundle for this application.
+CONFIG -= app_bundle
+

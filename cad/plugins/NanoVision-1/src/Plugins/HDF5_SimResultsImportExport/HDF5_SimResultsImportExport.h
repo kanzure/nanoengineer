@@ -12,6 +12,7 @@
 #include <QDir>
 #include <QFile>
 #include <QString>
+#include <QFileInfo>
 
 #include "Nanorex/HDF5_SimResults.h"
 #include "Nanorex/Utility/NXLogger.h"
@@ -76,6 +77,7 @@ private:
                             NXCommandResult* result);
     void populateCommandResult(NXCommandResult* result,
                             const string& message);
+	string parseSuffix(const string& filename);
 };
 
 #endif
