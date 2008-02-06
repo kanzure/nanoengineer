@@ -344,18 +344,21 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         [subclasses that might be should override]
         """
         return False
+
     
-    # START of Dna-Strand chunk  specific  code ================================
+    # START of Dna-Strand chunk specific code ================================
+
+    # Note: all these methods will be removed from class Chunk once the
+    # dna data model is always active. [bruce 080205 comment]
     
     # Assign a strand sequence (or get that information from a chunk) 
     # MEANT ONLY FOR THE DNA CHUNK. THESE METHODS NEED TO BE MOVED TO AN 
     # APPROPRIATE FILE IN The dna_model PACKAGE -- Ninad 2008-01-11
-    # [And revised to follow directional bonds to hit bases in the right order;
-    #  and to use DnaMarkers for sequence alignment as Ninad suggests below.
+    # [And revised to use DnaMarkers for sequence alignment as Ninad suggests below.
     #  The sequence methods will end up as methods of DnaStrand with
     #  possible helper methods on objects it owns, like DnaStrandChunk
     #  (whose bases are in a known order) or DnaMarker or internal objects
-    #  they refer to. -- Bruce 080117 comment]
+    #  they refer to. -- Bruce 080117/080205 comment]
         
     def getStrandSequence(self):
         """
@@ -415,6 +418,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         Returns True if *all atoms* in this chunk are PAM 'strand' atoms
         or 'unpaired-base' atoms (or bondpoints), and at least one is a
         'strand' atom.
+
+        Also resets self.iconPath (based on self.hidden) if it returns True.
+        
         This is a temporary method that can be removed once dna_model is fully
         functional.
         @see: BuildDna_PropertyManager.updateStrandListWidget where this is used
@@ -425,7 +431,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         for atm in self.atoms.itervalues():
             if atm.element.role == 'strand':
                 found_strand_atom = True
-                # Use strand icon.
+                # side effect: use strand icon [mark 080203]
                 if self.hidden:
                     self.iconPath = "ui/modeltree/Strand-hide.png"
                 else:
@@ -438,11 +444,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             continue
         
         return found_strand_atom    
-       
-    #END of Dna-Strand chunk  specific  code ==================================
     
-    
-    def get_strand_atoms_in_bond_direction(self):
+    def get_strand_atoms_in_bond_direction(self): # ninad 080205; bruce 080205 revised docstring
         """
         Return a list of atoms in a fixed direction -- from 5' to 3'
         
@@ -450,30 +453,41 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         it can accept other direction i.e. 3' to 5' , as an argument.
         
         BUG: ? : This also includes the bondpoints (X)  .. I think this is 
-        from the atomlist returned by bond_chains.grow_directional_bond_chain
+        from the atomlist returned by bond_chains.grow_directional_bond_chain.
         The caller -- self.getStrandSequence uses atom.getDnaBaseName to
         retrieve the DnaBase name info out of atom. So this bug introduces 
-        no harm (as dnaBaseNames are not assigned for bondpoints.
-        """ 
+        no harm (as dnaBaseNames are not assigned for bondpoints).
         
+        [I think at most one atom at each end can be a bondpoint,
+         so we could revise this code to remove them before returning.
+         bruce 080205]
+
+        @warning: for a ring, this uses an arbitrary start atom in self
+                  (so it is not yet useful in that case). ### VERIFY
+        
+        @warning: this only works for PAM3 chunks (not PAM5).
+
+        @note: this would return all atoms from an entire strand (chain or ring)
+               even if it spanned multiple chunks.
+        """ 
         startAtom = None
         atomList = []
         
-        #Choose startAtom randomly (make sure that its PAM3 Sugar atom 
-        # and not an open bond. )
+        #Choose startAtom randomly (make sure that it's a PAM3 Sugar atom 
+        # and not a bondpoint)
         for atm in self.atoms.itervalues():
-            print "***atm.element.symbol = ", atm.element.symbol 
+            print "***atm.element.symbol = ", atm.element.symbol ###
             if atm.element.symbol == 'Ss3':
                 startAtom = atm
                 break        
         
         if startAtom is None:
-            print_compact_stack("bug : no PAM3 Sugar atom (Ss3)found" )
+            print_compact_stack("bug: no PAM3 Sugar atom (Ss3) found: " )
             return []
         
         #Build one list in each direction, detecting a ring too 
         
-        #ringQ decides whether the chunk forma a ring. 
+        #ringQ decides whether the first returned list forms a ring. 
         #This needs a better name in bond_chains.grow_directional_bond_chain
         ringQ = False        
         atomList_direction_1 = []
@@ -482,7 +496,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         b = None  
         bond_direction = 0
         for bnd in startAtom.directional_bonds():
-            if not bnd.is_open_bond():
+            if not bnd.is_open_bond(): # (this assumes strand length > 1)
                 #Determine the bond_direction from the 'startAtom'
                 direction = bnd.bond_direction_from(startAtom)
                 if direction in (1, -1):                    
@@ -495,21 +509,28 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 
         if bond_direction == 1:
             #bond direction is from 5' to 3' end. Do nothing, we will use the 
-            #'startAtom selected at random above. 
+            #startAtom selected at random above. 
             pass
         elif bond_direction == -1:
-            #if ithe direction is going from 3' to 5' , we will start with 
+            #if the direction is going from 3' to 5' , we will start with 
             #the other atom of bond 'b' . This will be our new reference atom
             other_atom = b.other(startAtom)
+            assert not other_atom.is_singlet() # since it was a real bond [bruce 080205 added this]
+                # [ninad, feel free to remove my signature from my additions/changes once you review them -- bruce]
             
             if not other_atom.is_singlet():               
-                startAtom = b.other(startAtom)            
+                startAtom = b.other(startAtom)
+        del bond_direction # meaningless now [bruce 080205]
                    
-        #Find out the the list of new atoms and bonds  in the direction 
-        #from bond b towards 'startAtom'. The  'ringQ' returns True 
-        # if its a ring. 'atomList_direction_1' does NOT include 'startAtom' 
+        #Find out the list of new atoms and bonds in the direction 
+        #from bond b towards 'startAtom' (presumably this is direction -1, 3' to 5',
+        # but maybe ninad said tests showed otherwise? we need to get to the bottom
+        # of this, in case the directions or grow_directional_bond_chain are wrong
+        # in general. #### @@@@ [bruce 080205 comment]).
+        # The 'ringQ' returns True if it's a ring.
+        # 'atomList_direction_1' does NOT include 'startAtom'.
         ringQ, listb, atomList_direction_1 = grow_directional_bond_chain(b, startAtom)
-        
+        del listb # don't need list of bonds
         
         if ringQ:
             #First add 'startAtom' (as its not included in atomList_direction_1
@@ -524,27 +545,32 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             other_atom = b.other(startAtom)
             if not other_atom.is_singlet():            
                 ringQ, listb, atomList_direction_2 = grow_directional_bond_chain(b, other_atom)
+                assert not ringQ #bruce 080205
+                del listb
                 atomList_direction_2.insert(0, other_atom)
                 #We need to reverse the list because the 'atomList' that this  
                 #method will return needs to have atoms ordered from 5' end 
-                #to 3' end..ad the original atomList_direction_2 has atoms 
+                #to 3' end..and the original atomList_direction_2 has atoms 
                 #from 3' to 5'. 
                 atomList_direction_2.reverse()
             
-            #Properly comine all the lists so that the first atom in the list 
+            #Properly combine all the lists so that the first atom in the list 
             #is the 5' end atom
-            #@bug: It considers bondoints in this list. Should be continue
-            #to have those bondpoints in it?
+            #@bug: It considers bondoints in this list. Should we continue
+            #to have those bondpoints in it? [see my note in docstring -- bruce 080205]
             atomList.extend(atomList_direction_2) 
             
             if not startAtom.is_singlet():
                 atomList.append(startAtom)
             atomList.extend(atomList_direction_1)
-        
+
+        # todo: could zap first and/or last element if they are bondpoints [bruce 080205 comment]
         return atomList    
-                
+       
+    #END of Dna-Strand chunk specific  code ==================================
+     
  
-    #START of Dna- Axis chunks specific code ==================================
+    #START of Dna-Axis chunk specific code ==================================
     
     def isAxisChunk(self):
         """
@@ -566,20 +592,30 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             continue
         
         return found_axis_atom  
-            
     
-    #END of Dna-Axis chunk  specific  code ====================================
-    def getDnaGroup(self): 
+    #END of Dna-Axis chunk specific code ====================================
+
+
+    #START of Dna-Strand-or-Axis chunk specific code ========================
+    
+    def getDnaGroup(self): # ninad 080205
         """
-        EXPERIMENTAL method. Return's the DnaGroup of this chunk if it has one. 
-        @TODO: clanup this code. Not called anywhere yet. Was planned to use in
+        EXPERIMENTAL method. Return the DnaGroup of this chunk if it has one. 
+        @TODO: cleanup this code. Not called anywhere yet. Was planned to use in
         chunk highlighting. Needs optimization. 
         """
+        # note: there is a recently added method in class Node,
+        # parent_node_of_class, which finds a parent node of self of a desired
+        # class, by class or (for certain registered classnames) by name.
+        # This method could be reimplemented to use that one.
+        # [bruce 080205 comment]
         nodeList = []        
         def func(node):
             if node is self.assy.part.topnode:
                 return           
             if node.__class__.__name__ == 'DnaGroup':
+                # BUG -- classname might be something like dna_model.DnaGroup.DnaGroup
+                # [bruce 080205 comment]
                 nodeList.append(node)
                 return
             else:
@@ -591,7 +627,10 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             return nodeList[0]
         else:
             return None
-        
+
+    #END of Dna-Strand-or-Axis chunk specific code ========================
+
+    
     # Methods relating to our OpenGL display list, self.displist.
     #
     # (Note: most of these methods could be moved with few changes to a
