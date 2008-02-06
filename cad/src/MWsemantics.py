@@ -1454,6 +1454,8 @@ class MWsemantics(QMainWindow,
                
         fileBaseName = 'DnaSequence'
         
+        dnaSequence = ''
+        
         if dnaGroupList:
             for dnaGroup in dnaGroupList:
                 dnaSequence = dnaGroup.getDnaSequence(format = 'CSV')            
@@ -1464,7 +1466,6 @@ class MWsemantics(QMainWindow,
                     dnaSequence = currentCommand.struct.getDnaSequence()
                     fileBaseName = currentCommand.struct.name
                 
-                    
         if dnaSequence:
             tmpdir = find_or_make_Nanorex_subdir('temp')
             temporaryFile = os.path.join(tmpdir, "%s.csv" % fileBaseName)            
@@ -1489,7 +1490,6 @@ class MWsemantics(QMainWindow,
         f.write("Sequence name,Sequence,Scale,Notes\n")
         f.write(dnaSequence)
             
-
 
     def createDnaSequenceEditorIfNeeded(self):
         """
