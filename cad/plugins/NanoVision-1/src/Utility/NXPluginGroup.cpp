@@ -57,7 +57,7 @@ bool NXPluginGroup::load(const char* libraryFilename) {
 		return success;
 
 	// Load the library
-#ifdef WIN32
+#if defined(_MSC_VER)
 	image = LoadLibrary(libraryFilename);
 	int errorCode = GetLastError();
 	switch (errorCode) {
@@ -73,6 +73,10 @@ bool NXPluginGroup::load(const char* libraryFilename) {
 					"Error %d (see http://msdn.microsoft.com/library/en-us/debug/base/system_error_codes.asp for meaning of code.)", errorCode);
 			break;
 	}
+#elif defined(__APPLE__)
+	std::string unixLibName = std::string(libraryFilename) + ".dylib";
+	image = dlopen(unixLibName.c_str(), RTLD_NOW);
+	loadError = (char*)(dlerror());
 #else
 	std::string unixLibName = std::string(libraryFilename) + ".so";
 	image = dlopen(unixLibName.c_str(), RTLD_NOW);
