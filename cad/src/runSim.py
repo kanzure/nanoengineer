@@ -335,7 +335,6 @@ class SimRunner:
                         progressBar.show()
                         trajectoryOutputFile = \
                             "%s.%s" % (gromacsBaseFileName, "trr")
-                    print "trajectoryOutputFile=%s" % trajectoryOutputFile
                         
                     mdrunArgs = [
                         "-s", "%s.tpr" % gromacsBaseFileName,
@@ -358,20 +357,29 @@ class SimRunner:
                         msg = redmsg("Gromacs minimization failed, mdrun returned %d" % errorCode)
                         env.history.message(self.cmdname + ": " + msg)
                         self.errcode = 3;
-                    if (self.background):
-                        pid = gromacsProcess.pid()
-                        pidFileName = \
+                    if (self.background and errorCode == 0):
+                        hdf5DataStoreDir = \
                             gromacsWorkingDir + os.sep + \
                             gromacsFullBaseFileInfo.completeBaseName()
-                        print "1 pidFileName=%s" % pidFileName
-                        os.mkdir(pidFileName)
-                        pidFileName += os.sep + "pid"
-                        print "2 pidFileName=%s" % pidFileName
+                        os.mkdir(hdf5DataStoreDir)
+                            
+                        # Write a pid file for NV1 tp use for GMX process
+                        # management
+                        pid = gromacsProcess.pid()
+                        pidFileName = hdf5DataStoreDir + os.sep + "pid"
                         pidFile = open(pidFileName, 'w')
                         pidFile.write("%d\n" % pid)
                         pidFile.close()
+                        
+                        # Write the input file into the HDF5 data store
+                        # directory (it is part of data store.)
+                        inputFileName = hdf5DataStoreDir + os.sep + "input.mmp"
+                        self.part.writemmpfile(inputFileName)
+                        
+                        # Launch the NV1 process
                         nv1Process = Process()
                         nv1Args = [
+                            "-f",
                             trajectoryOutputFile,
                             ]
                         nv1Process.setStandardOutputPassThrough(True)
