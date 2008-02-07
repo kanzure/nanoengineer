@@ -393,6 +393,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         atomList = []           
         for atm in self.get_strand_atoms_in_bond_direction():
             if not atm.is_singlet():
+                print "***in setStrandSequence atm:", atm
                 atomList.append(atm)
         
         for atm in atomList:   
@@ -476,7 +477,6 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #Choose startAtom randomly (make sure that it's a PAM3 Sugar atom 
         # and not a bondpoint)
         for atm in self.atoms.itervalues():
-            print "***atm.element.symbol = ", atm.element.symbol ###
             if atm.element.symbol == 'Ss3':
                 startAtom = atm
                 break        
@@ -503,33 +503,36 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     b = bnd
                     bond_direction = direction
                     break
-                            
+                                    
         if b is None or bond_direction == 0:
-            return []        
-                
-        if bond_direction == 1:
-            #bond direction is from 5' to 3' end. Do nothing, we will use the 
-            #startAtom selected at random above. 
-            pass
-        elif bond_direction == -1:
-            #if the direction is going from 3' to 5' , we will start with 
-            #the other atom of bond 'b' . This will be our new reference atom
-            other_atom = b.other(startAtom)
-            assert not other_atom.is_singlet() # since it was a real bond [bruce 080205 added this]
-                # [ninad, feel free to remove my signature from my additions/changes once you review them -- bruce]
+            return []         
+        DEBUG_GROW_DIRECTIONAL_BOND_CHAIN = 0 # set it to 1 to enable debug print statements
+        if DEBUG_GROW_DIRECTIONAL_BOND_CHAIN:
+            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+            print "** start Atom = ", startAtom
+            print "*** other_Atom =", b.other(startAtom)
+            print "*** bond b =", b
             
-            if not other_atom.is_singlet():               
-                startAtom = b.other(startAtom)
-        del bond_direction # meaningless now [bruce 080205]
+            print "***direction of bond, which is pointing *away* from startAtom along bond  =", bond_direction
+            #Negative bond direction indicates 3' to 5' , positive indicates 5' to 3'
                    
         #Find out the list of new atoms and bonds in the direction 
-        #from bond b towards 'startAtom' (presumably this is direction -1, 3' to 5',
-        # but maybe ninad said tests showed otherwise? we need to get to the bottom
-        # of this, in case the directions or grow_directional_bond_chain are wrong
-        # in general. #### @@@@ [bruce 080205 comment]).
+        #from bond b towards 'startAtom' . This can either be 3' to 5' direction 
+        #(i.e. bond_direction = -1 OR the reverse direction 
+        #(presumably this is direction -1, 3' to 5'. Later, we will check 
+        #the bond direction and do appropriate things. (things that will decide 
+        #which list (atomList_direction_1 or atomList_direction_2) should 
+        #be prepended in atomList so that it has atoms ordered from 5' to 3'
+        #end. 
+        
         # The 'ringQ' returns True if it's a ring.
         # 'atomList_direction_1' does NOT include 'startAtom'.
         ringQ, listb, atomList_direction_1 = grow_directional_bond_chain(b, startAtom)
+        if DEBUG_GROW_DIRECTIONAL_BOND_CHAIN:
+            print "~~~~~~~~~atomList_direction_1"
+            for atm in atomList_direction_1:
+                print "~~~atm =", atm
+            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
         del listb # don't need list of bonds
         
         if ringQ:
@@ -548,24 +551,42 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 assert not ringQ #bruce 080205
                 del listb
                 atomList_direction_2.insert(0, other_atom)
-                #We need to reverse the list because the 'atomList' that this  
-                #method will return needs to have atoms ordered from 5' end 
-                #to 3' end..and the original atomList_direction_2 has atoms 
-                #from 3' to 5'. 
+   
+            atomList = [] # not needed but just to be on a safer side.
+            if bond_direction == 1:
+                #This means that the direction FROM startAtom TO bond b is 
+                #from 3' to 5'
+                
+                #bond b to startAtom is a 5' to 3' direction. 
+                #so, if there are any Sugar atoms in the opposite direction 
+                #of the 'startAtom' (i.e. going towards 5' end), 
+                #they need to come *before* the atoms 
+                #after the 'startAtom' in direction 1..
+                
+                #We need to reverse atomList_direction_2 because the 'atomList' 
+                #that this  method will return needs to have atoms ordered from 
+                #5' end to 3' end..and the original atomList_direction_2 has 
+                #atoms from 3' to 5'.                 
                 atomList_direction_2.reverse()
-            
-            #Properly combine all the lists so that the first atom in the list 
-            #is the 5' end atom
-            #@bug: It considers bondoints in this list. Should we continue
-            #to have those bondpoints in it? [see my note in docstring -- bruce 080205]
-            atomList.extend(atomList_direction_2) 
-            
-            if not startAtom.is_singlet():
+                atomList.extend(atomList_direction_2)
                 atomList.append(startAtom)
-            atomList.extend(atomList_direction_1)
+                atomList.extend(atomList_direction_1)
+            else:
+                #bond_direction is -1. Meaning the bond b --> startAtom direction
+                #goes from 3' to 5' end. Thus, atomList_direction_1 has 
+                #atoms arranged from 3' to 5' end. This means that we need to 
+                #consider the reverse of atomList_direction_1 first in the 
+                #'atomList'(that will be returned) and then the other list
+                #atomList_direction_2, which will have atoms going from 5' to 3'               
+                atomList_direction_1.reverse()
+                atomList.extend(atomList_direction_1)
+                atomList.append(startAtom)
+                atomList.extend(atomList_direction_2)
+                         
 
-        # todo: could zap first and/or last element if they are bondpoints [bruce 080205 comment]
-        return atomList    
+        #TODO: could zap first and/or last element if they are bondpoints 
+        #[bruce 080205 comment]        
+        return atomList   
        
     #END of Dna-Strand chunk specific  code ==================================
      
