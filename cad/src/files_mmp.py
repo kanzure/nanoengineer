@@ -1219,7 +1219,14 @@ class _readmmp_state:
     
     def _read_namedview(self, card):
         """
-        Read a I{namedview} record.
+        Read the MMP record for a I{namedview} as:
+
+        namedview (name) (quat.w, quat.x, quat.y, quat.z) (scale) (pov.x, pov.y, pov.z) (zoom factor)
+        
+        @note: Currently, "namedview" records are treated as an alias for the
+        "csys" record. The writer NamedView.writemmp() will switch to writing
+        "namedview" records (instead of "csys") soon.
+        Mark 2008-02-07.
         """
         #bruce 050418 revising this to not have side effects on assy.
         # Instead, caller can do that by scanning the group these are read into.
@@ -1245,11 +1252,14 @@ class _readmmp_state:
                 
     def _read_csys(self, card): # csys -- really a named view.
         """
-        Read a I{csys} record, which is contains the parameters of a 
-        view, not a coordinate system.
+        Read the MMP record for a I{csys} as:
         
-        @note: This will be deprecated by the more appropriately named
-        I{namedview} record. Mark 2008-02-04
+        csys (name) (quat.w, quat.x, quat.y, quat.z) (scale) (pov.x, pov.y, pov.z) (zoom factor)
+        
+        @note: Currently, "namedview" records are treated as an alias for the
+        "csys" record. The writer NamedView.writemmp() will switch to writing
+        "namedview" records (instead of "csys") soon.
+        Mark 2008-02-07.
         """
         #bruce 050418 revising this to not have side effects on assy.
         # Instead, caller can do that by scanning the group these are read into.
