@@ -945,19 +945,21 @@ restored when the user undoes a structural change.</p>
             self.prefs_tab.setCurrentIndex(1)
         elif pagename == 'Bonds':
             self.prefs_tab.setCurrentIndex(2)
-        elif pagename == 'Modes':
+        elif pagename == 'DNA':
             self.prefs_tab.setCurrentIndex(3)
-        elif pagename == 'Lighting':
+        elif pagename == 'Modes':
             self.prefs_tab.setCurrentIndex(4)
-        elif pagename == 'Plug-ins':
+        elif pagename == 'Lighting':
             self.prefs_tab.setCurrentIndex(5)
-        elif pagename == 'Undo':
+        elif pagename == 'Plug-ins':
             self.prefs_tab.setCurrentIndex(6)
+        elif pagename == 'Undo':
+            self.prefs_tab.setCurrentIndex(7)
         elif pagename == 'Caption':
             #bruce 051216 comment: I don't know if it's safe to change this string to 'Window' to match tab text
-            self.prefs_tab.setCurrentIndex(7)
-        elif pagename == 'ToolTips':
             self.prefs_tab.setCurrentIndex(8)
+        elif pagename == 'ToolTips':
+            self.prefs_tab.setCurrentIndex(9)
         else:
             print 'Error: Preferences page unknown: ', pagename
 
