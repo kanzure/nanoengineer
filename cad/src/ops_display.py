@@ -24,6 +24,8 @@ from constants import diSURFACE
 from constants import diINVISIBLE
 from constants import diDEFAULT
 
+from PyQt4.Qt import Qt, QColorDialog, QColor
+
 from utilities.Log import greenmsg, redmsg, orangemsg
 
 from elementColors import elementColors
@@ -110,9 +112,11 @@ class displaySlotsMixin:
         @type  initialColor: QColor
 
         @note: Need better method name (i.e. setObjectColor()).
-        """
+        """        
         if initialColor is None:
             initialColor = Qt.white
+        else:
+            assert isinstance(initialColor, QColor)
         
         _cmd = greenmsg("Change Color: ")
 
