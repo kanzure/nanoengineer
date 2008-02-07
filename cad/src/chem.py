@@ -67,30 +67,36 @@ from bonds import bonds_mmprecord, bond_copied_atoms, bond_atoms
 
 import global_model_changedicts
 
-# chunk and chem form a two element import cycle.
+# note: chunk and chem form a two element import cycle.
 import chunk
 
 from geometry.VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
 from geometry.VQT import atom_angle_radians
 
 from mdldata import marks, links, filler
-from povheader import povpoint #bruce 050413
+from povheader import povpoint
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
 from changedicts import register_changedict, register_class_changedicts
 
 from utilities.Printing import Vector3ToString
+
 from constants import genKey
+
 from constants import diDEFAULT
-from constants import default_display_mode
-from constants import TubeRadius
 from constants import diBALL
 from constants import diTrueCPK
 from constants import diTUBES
 from constants import diINVISIBLE
+
+from constants import dispLabel
+from constants import default_display_mode
+from constants import TubeRadius
+
 from constants import pink
+from constants import orange
+
 from constants import ErrorPickedColor
 from constants import PickedColor
-from constants import orange
 
 from GlobalPreferences import disable_do_not_draw_open_bonds
 
@@ -1978,24 +1984,34 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             res += "(%s)" % self.dnaStrandName
         return res
 
-    def getToolTipInfo(self, glpane, isAtomPosition, isAtomChunkInfo, isAtomMass, atomDistPrecision):
+    def getToolTipInfo(self, glpane,
+                       isAtomPosition, isAtomChunkInfo,
+                       isAtomMass, atomDistPrecision):
         """
-        Returns atom's basic info string for the dynamic toooltip
+        Returns atom's basic info string for the dynamic tooltip
         """
-        # note: I think glpane.selobj in this method is supposed to be self
+        # CLEANUP NEEDED: # atom self glpane.selobj
+        # I think glpane.selobj in this method is supposed to be self
         # and should be replaced with self (if this guess is confirmed).
-        # [bruce 080130 comment]
+        # [bruce 080130/080206 comment]
 
-        atomStr        = glpane.selobj.getInformationString()
-        elementNameStr = " [" + glpane.selobj.element.name + "]"
+        atom = glpane.selobj # should replace with self [bruce 080206]
+
+        atomStr        = atom.getInformationString()
+        elementNameStr = " [" + atom.element.name + "]"
 
         atomInfoStr = atomStr + elementNameStr
 
-        if glpane.selobj._dna_updater__error: #bruce 080130
-            atomInfoStr += "<br>" + orangemsg(glpane.selobj._dna_updater__error)
+        if atom.display:
+            # show display style of atoms that have one [bruce 080206]
+            atomInfoStr += "<br>" + "display style: %s" % atom.atom_dispLabel() 
+
+        if atom._dna_updater__error: #bruce 080130
+            msg = atom.dna_updater_error_string(newline = '<br>')
+            atomInfoStr += "<br>" + orangemsg(msg)
         
         if isAtomPosition:
-            xyz = glpane.selobj.posn()
+            xyz = atom.posn()
             xPosn = str(round(xyz[0], atomDistPrecision))
             yPosn = str(round(xyz[1], atomDistPrecision))
             zPosn = str(round(xyz[2], atomDistPrecision))
@@ -2004,18 +2020,36 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             atomInfoStr += "<br>" + atomposn
             
         if isAtomChunkInfo:
-            if glpane.selobj is not None:
-                atomChunkInfo = "<font color=\"#0000FF\">Parent Chunk:</font> [" + glpane.selobj.molecule.name + "]"
+            if atom is not None:
+                atomChunkInfo = "<font color=\"#0000FF\">Parent Chunk:</font> [" + atom.molecule.name + "]"
                 atomInfoStr += "<br>" + atomChunkInfo
 
         if isAtomMass:
-            atomMass = "<font color=\"#0000FF\">Mass: </font>" + str(glpane.selobj.element.mass) + "  x 10-27 Kg"
+            atomMass = "<font color=\"#0000FF\">Mass: </font>" + str(atom.element.mass) + "  x 10-27 Kg"
             atomInfoStr += "<br>" + atomMass
                 
         #if isRVdw:
-           # rVdw = "<font color=\"#0000FF\">Vdw:Radius:  </font>" + str(glpane.selobj.element.rvdw) + "A"
+           # rVdw = "<font color=\"#0000FF\">Vdw:Radius:  </font>" + str(atom.element.rvdw) + "A"
                 
         return atomInfoStr
+
+    def atom_dispLabel(self): #bruce 080206
+        """
+        Return the full name of self's individual (single-atom) display style,
+        corresponding to self.display (a small int which encodes it).
+        (If self.display is not recognized, just return str(self.display).)
+        
+        Normally self.display is 0 (diDEFAULT) and this method returns "Default"
+        (which means a display style from self's context will be used when
+         self is drawn).
+        """
+        self.display # make sure this is set
+        try:
+            return dispLabel[self.display]
+            # usually "Default" for self.display == diDEFAULT == 0
+        except IndexError:
+            return str(self.display)
+        pass
 
     # ==
     
@@ -3717,6 +3751,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             return axis_neighbors[0]
         return None
 
+    def Pl_neighbors(self): #bruce 080122
+        """
+        Assume self is a PAM strand sugar atom; return the neighbors of self
+        which are PAM Pl (pseudo-phosphate) atoms (or any variant thereof,
+         which sometimes interposes between strand base sugar pseudoatoms).
+        """
+        res = filter( lambda atom: atom.element.symbol.startswith("Pl"), # KLUGE
+                      self.neighbors())
+        return res
+
     def strand_base_neighbors(self): #bruce 071204 (nim, not yet needed; #e maybe rename)
         """
         Assume self is a PAM strand sugar atom; return a list of the neighboring
@@ -3765,6 +3809,49 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             pass
         return atom1
 
+    def dna_updater_error_string(self,
+                                 include_propogated_error_details = True,
+                                 newline = '\n'
+                                 ): #bruce 080206
+        """
+        Return "" if self has no dna updater error (recorded by the dna updater
+        in the private attribute self._dna_updater__error), or an error string
+        if it does.
+
+        By default, the error string is expanded to show the source
+        of propogated errors from elsewhere in self's basepair (assuming the updater
+        has gotten through the step of propogating them, which it does immediately
+        after assigning/updating all the direct per-atom error strings).
+
+        Any newlines in the error string (which only occur if it was expanded)
+        are replaced with the optional newline argument (by default, left unchanged).
+
+        @param include_propogated_error_details: see main docstring
+        @type include_propogated_error_details: boolean
+        
+        @param newline: see main docstring
+        @type newline: string
+
+        @see: helper functions like _atom_set_dna_updater_error which should
+              eventually become friend methods in a subclass of Atom.
+        """
+        if not self._dna_updater__error:
+            return "" # optimize common case
+        from dna_updater.fix_bond_directions import PROPOGATED_DNA_UPDATER_ERROR
+        from dna_updater.fix_bond_directions import _f_detailed_dna_updater_error_string
+            # note: use a runtime import for these, until this method can be
+            # moved to a subclass of Atom defined in dna_model;
+            # even so, this may cause an import cycle issue; ### REVIEW
+            # if so, move the imported things into their own file
+        res = self._dna_updater__error
+        if include_propogated_error_details and \
+           res == PROPOGATED_DNA_UPDATER_ERROR:
+            res = _f_detailed_dna_updater_error_string(self)
+        res = res.replace('\n', newline) # probably only needed in then clause
+        return res
+
+    # == end of PAM strand atom methods
+    
     # == PAM axis atom methods
     
     def strand_neighbors(self): #bruce 071203
@@ -3791,15 +3878,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return filter( lambda atom: atom.element.role == 'axis',
                        self.neighbors())
 
-    def Pl_neighbors(self): #bruce 080122
-        """
-        Assume self is a PAM axis atom; return the neighbors of self
-        which are PAM Pl (pseudo-phosphate) atoms (or any variant thereof,
-        which interposes between some strand base sugar pseudoatoms).
-        """
-        res = filter( lambda atom: atom.element.symbol.startswith("Pl"), # KLUGE
-                      self.neighbors())
-        return res
+    # == end of PAM axis atom methods
     
     pass # end of class Atom
 

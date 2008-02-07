@@ -94,13 +94,12 @@ def fix_local_bond_directions( changed_atoms):
             if _DEBUG_PRINT_BOND_DIRECTION_ERRORS:
                 print "bond direction error for %r: %s" % (atom, error_data)
                 print
-            atom._dna_updater__error = error_data ##### @@@@ make this affect later updater stages, graphics, tooltips (atom & bond)
+            _atom_set_dna_updater_error( atom, error_data)
             atom.molecule.changeapp(0) #k probably not needed
             new_error_atoms[atom.key] = atom
             _global_direct_error_atoms[atom.key] = atom
         else:
-            if atom._dna_updater__error:
-                del atom._dna_updater__error
+            _atom_clear_dna_updater_error( atom)
             _global_direct_error_atoms.pop(atom.key, None)
         continue
 
@@ -130,7 +129,7 @@ def fix_local_bond_directions( changed_atoms):
 
     for atom in new_all_error_atoms_after_propogation.itervalues():
         if atom.key not in _global_direct_error_atoms:
-            atom._dna_updater__error = "error elsewhere in basepair" #e define as a named constant
+            _atom_set_dna_updater_error( atom, PROPOGATED_DNA_UPDATER_ERROR)
                 # note: the propogated error is deterministic,
                 # since only the fact of error is propogated,
                 # not the error string itself, which could differ
@@ -143,19 +142,24 @@ def _same_base_pair_atoms(atom):
     """
     Defining a base pair as whatever portion of Ss-Ax-Ss exists,
     return a list of atoms in the same base pair as atom.
-    At minimum this is atom itself.
+    At minimum this is atom itself. Pl atoms are not considered
+    to be part of the base pair. (This is used only for propogating
+    detected dna updater errors; for that use it's important to propogate
+    across rung bonds, so that strand and axis chains cover the same set of
+    base pairs.)
     """
-    # REVIEW whether atom needs to be in retval -- if not,
-    # could optimize by leaving it out in some cases.
+    # POSSIBLE OPTIM: in current calling code, atom itself needs to be part of
+    # our return value. This could be revised, permitting this to return
+    # a constant value of () in some cases.
     if atom.element.role == 'strand':
-        base = atom.axis_neighbor() # might be None (for Pl or single-stranded)
-        if not base:
+        axis_atom = atom.axis_neighbor() # might be None (for Pl or single-stranded)
+        if not axis_atom:
             return (atom,)
     elif atom.element.role == 'axis':
-        base = atom
+        axis_atom = atom
     else:
         return (atom,)
-    return [base] + base.strand_neighbors()
+    return [axis_atom] + axis_atom.strand_neighbors()
     
 # ==
 
@@ -449,5 +453,82 @@ def _clear_illegal_direction(bond):
     summary_format = "Warning: dna updater cleared [N] bond directions on pseudoelements that don't permit one"
     env.history.deferred_summary_message( orangemsg(summary_format) )
     return
+
+# ==
+
+# the following will probably be moved into a separate file in dna_model,
+# both on general principles (it might become a file for an Atom subclass,
+# for a common superclass of StrandAtom and AxisAtom),
+# or if an import cycle exists from chem.py import of these.
+# [bruce 080204]
+
+PROPOGATED_DNA_UPDATER_ERROR = 'error elsewhere in basepair'
+
+def _atom_set_dna_updater_error(atom, error_string): # turn into method on an Atom subclass
+    """
+    [private helper, will turn into friend method]
+    Low-level setter for atom._dna_updater__error.
+    Caller is responsible for atom.molecule.changeapp(0) if this is needed.
+    (It is needed due to effect on atom color, unless caller knows
+     it is done by other code.)
+    """
+    atom._dna_updater__error = error_string
+    if not error_string:
+        del atom._dna_updater__error # optimization
+    return
+
+def _atom_clear_dna_updater_error( atom):
+    """
+    [private helper, will turn into friend method]
+    Low-level clear for atom._dna_updater__error.
+    Caller is responsible for atom.molecule.changeapp(0) if this is needed.
+    (It is needed due to effect on atom color, unless caller knows
+     it is done by other code.)
+    """
+    if atom._dna_updater__error:
+        del atom._dna_updater__error
+    assert not atom._dna_updater__error # verify class default value is ok
+    # otherwise it's ok to assume it's not set (doesn't matter much anyway)
+    return
+
+def _f_detailed_dna_updater_error_string( atom):
+    """
+    [friend function for use by Atom.dna_updater_error_string,
+     which might be moved onto the same Atom subclass as
+     _atom_set_dna_updater_error should be moved to]
+    
+    Assuming atom._dna_updater__error == PROPOGATED_DNA_UPDATER_ERROR,
+    return a more complete error string for atom
+    (perhaps containing internal newlines)
+    which lists the errors directly assigned to other atoms
+    in the same basepair.
+    """
+    
+    ### REVIEW: should we be documented to work even before propogation
+    # actually occurs?
+
+    assert atom._dna_updater__error == PROPOGATED_DNA_UPDATER_ERROR
+
+    # find the sources of direct error
+    direct_errors = {} # maps atom2 -> value of _dna_updater__error
+    for atom2 in _same_base_pair_atoms(atom):
+        error = atom2._dna_updater__error
+        assert error # otherwise propogation did not finish or had a bug
+        if error != PROPOGATED_DNA_UPDATER_ERROR:
+            direct_errors[atom2] = error
+    assert atom not in direct_errors
+    assert direct_errors # otherwise where did the error come from?
+        # (could happen if unsetting obs error strings has a bug)
+    error_reports = [ "%s: %s" % (str(atom2), error)
+                      for atom2, error in direct_errors.items() ]
+    if len(error_reports) <= 1:
+        header = "error elsewhere in basepair:" 
+    else:
+        error_reports.sort() # todo - should probably use atom key numbers as sort order
+        header = "errors elsewhere in basepair:"
+    error_reports.insert(0, header)
+    res = "\n".join( error_reports)
+    # todo: indicate visual direction? highlight error-source atoms?
+    return res
 
 # end

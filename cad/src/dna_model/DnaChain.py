@@ -265,7 +265,9 @@ class DnaChain(object):
 
         Specifically, it sets self.neighbor_baseatoms[end] for end in LADDER_ENDS
         to either None (if this chain ends on that ladder-end) or to the
-        next atom in the next chain (if it doesn't end).
+        next atom in the next chain (if it doesn't end). (Atoms with
+        _dna_updater__error set are not allowed as "next atoms" -- None will
+        be set instead.)
 
         For end atom order (used as index in self.neighbor_baseatoms),
         it uses whatever order has been established by the DnaLadder
@@ -327,28 +329,41 @@ class DnaChain(object):
                     end_atom = self.end_baseatoms()[end]
                     next_atom_candidates = end_atom.axis_neighbors() # len 1 or 2,
                         # and one should always be the next one in this chain
+                        # (I guess it can't have _dna_updater__error set,
+                        #  since such atoms are not made into chains;
+                        #  so I assert this, 080206);
+                        # the other one (if present) might have it set
                     if end == LADDER_END0:
                         next_to_end_index = 1
                     else:
                         next_to_end_index = -2
                     not_this_atom = self.baseatoms[next_to_end_index]
+                    assert not not_this_atom._dna_updater__error # 080206
                     next_atom_candidates.remove(not_this_atom)
                         # it has to be there, so we don't mind raising an
                         # exception when it's not
                     assert len(next_atom_candidates) <= 1
                     if next_atom_candidates:
                         next_atom = next_atom_candidates[0]
+                        if next_atom._dna_updater__error:
+                            print "avoiding bug 080206 by not seeing next axis atom with error", next_atom ### REMOVE SOON
+                            next_atom = None
                     else:
                         next_atom = None
                     pass
                 pass
             if next_atom != -1:
                 self.neighbor_baseatoms[end] = next_atom # None or an atom
+                assert next_atom is None or not next_atom._dna_updater__error # 080206
             continue
         # ... but in length==1 case, do axis atoms both at once
         if not self.strandQ and len(self.baseatoms) == 1:
             end_atom = self.baseatoms[0]
             next_atoms = end_atom.axis_neighbors() # len 0 or 1 or 2
+            # remove atoms with errors [fix predicted bug, 080206]
+            # (review: should axis_neighbors, or a variant method, do this?)
+            ###### SHOULD REVIEW ALL USES OF axis_neighbors FOR NEEDING THIS @@@@@
+            next_atoms = filter( lambda atom: not atom._dna_updater__error , next_atoms )
             while len(next_atoms) < 2:
                 next_atoms.append(None)
             ### TODO: if order matters, reverse this here, if either strand

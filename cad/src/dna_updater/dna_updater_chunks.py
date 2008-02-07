@@ -394,12 +394,18 @@ def _find_rail_of_atom( atom, ladder_to_rails_function):
     [private helper]
     (can assume atom is an end_baseatom of its rail)
     """
-    rails = ladder_to_rails_function( atom.molecule.ladder)
-    for rail in rails:
-        for end_atom in rail.end_baseatoms():
-            if end_atom is atom:
-                return rail
-    assert 0
-    
+    try:
+        rails = ladder_to_rails_function( atom.molecule.ladder)
+        for rail in rails:
+            for end_atom in rail.end_baseatoms():
+                if end_atom is atom:
+                    return rail
+        assert 0
+    except:
+        print "\n*** BUG: following exception is about _find_rail_of_atom( %r, .mol = %r, ._dna_updater__error = %r, %r): " % \
+              (atom, atom.molecule, atom._dna_updater__error, ladder_to_rails_function )
+        raise
+    pass
+
 # end
 

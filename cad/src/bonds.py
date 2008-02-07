@@ -935,24 +935,52 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         assert 0, "not yet implemented"
         return None
-                    
+
+    def _dna_updater_error_tooltip_info(self): #bruce 080206
+        """
+        [private helper for getToolTipInfo]
+        Return a string to be used in self.getToolTipInfo
+        which describes dna updater errors on self's atoms
+        if those exist (perhaps containing internal newlines).
+        In the usual case, there are no such errors and we return "".
+        """
+        # not optimized for the common case -- doesn't matter, ok to be slow
+        res = ""
+        add_labelled_error_strings = False
+        atom1_error = self.atom1._dna_updater__error
+        atom2_error = self.atom2._dna_updater__error
+            # REVIEW: compare and show atom.dna_updater_error_string() instead? (several places)
+            # More likely, that's not right when this is a rung bond (both atoms in same basepair)
+            # and one has a propogated error and one has a direct error, so we'll need fancier code
+            # which notices propogated errors.
+        if (atom1_error and atom2_error):
+            if (atom1_error == atom2_error):
+                res = "[%s]" % (atom2_error,)
+            else:
+                res = "[dna updater error on both atoms]"
+                add_labelled_error_strings = True
+        elif (atom1_error or atom2_error):
+            res = "[dna updater error on one atom]"
+            add_labelled_error_strings = True
+        if add_labelled_error_strings:
+            for atom in (self.atom1, self.atom2):
+                if atom._dna_updater__error:
+                    res += "\n" + "[ %s: %s]" % (str(atom), atom._dna_updater__error)
+        return res
+
     #- end of DNA bond helper functions ----------------------------
     
     def getToolTipInfo(self, glpane, isBondChunkInfo, isBondLength, atomDistPrecision): #Ninad 060830
         """
-        Returns a string that has bond related info ...used in DynamicTool Tip.
+        Returns a string that has bond related info, for use in Dynamic Tool Tip
         """
-        ###WARNING: this method uses both self and glpane.selobj, and appears to assume they are the same object. [bruce 070414 comment]
+        ### CLEANUP NEEDED: this method uses both self and glpane.selobj, and appears
+        # to assume they are the same object. [bruce 070414 comment]
         #ninad060830 moved these methods from the class DynamicTip
-        bondStr = str(glpane.selobj)
-        bondInfoStr = bondStr
-        if (self.atom1._dna_updater__error and self.atom2._dna_updater__error):
-            if (self.atom1._dna_updater__error == self.atom2._dna_updater__error):
-                bondInfoStr += "\n" + "[%s]" % (self.atom2._dna_updater__error,)
-            else:
-                bondInfoStr += "\n" + "[dna updater error on both atoms]"
-        elif (self.atom1._dna_updater__error or self.atom2._dna_updater__error):
-            bondInfoStr += "\n" + "[dna updater error on one atom]"
+        bondInfoStr = str(glpane.selobj) # might be extended below
+        dna_error = self._dna_updater_error_tooltip_info() #bruce 080206
+        if dna_error:
+            bondInfoStr += "\n" + dna_error
         # check for user pref 'bond_chunk_info'
         if isBondChunkInfo:
             bondChunkInfo = self.getBondChunkInfo(glpane)
@@ -971,12 +999,12 @@ class Bond(BondBase, StateMixin, Selobj_API):
         Returns none if Bond chunk user pref is unchecked.
         It uses some code of bonded_atoms_summary method.
         """
-        ###WARNING: this method does not use self, and appears to assume glpane.selobj can stand in for self.  [bruce 070414 comment]
+        ### CLEANUP NEEDED: this method does not use self, and appears to
+        # assume glpane.selobj can stand in for self. [bruce 070414 comment]
         a1 = glpane.selobj.atom1
         a2 = glpane.selobj.atom2
         chunk1 = a1.molecule.name
         chunk2 = a2.molecule.name
-            
             #ninad060822 I am not checking if chunk 1 and 2 are the same.
             #I think it's not needed as the tooltip string won't be compact
             #even if it is implemented. so leaving it as is
@@ -990,7 +1018,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
         
         @note: this does *not* return the covalent bondlength.
         """
-        ###WARNING: this method does not use self, and appears to assume glpane.selobj can stand in for self.  [bruce 070414 comment]
+        ### CLEANUP NEEDED: this method does not use self, and appears to
+        # assume glpane.selobj can stand in for self. [bruce 070414 comment]
 
         a1 = glpane.selobj.atom1
         a2 = glpane.selobj.atom2
