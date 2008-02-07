@@ -1,0 +1,82 @@
+Hi all,
+
+  Is this beginning to look like the MMP file-format grammar? From files_mmp.py I see there are additional "tags" for items like rotors and jigs. Will those be necessary right now for NV1?
+
+  My focus right now is on MMP import-export for NV1. I am trying to identify a subset that I should be able to import now with the rest saved for post-FNANO work. Could someone advise?
+
+Thanks
+Manoj
+
+------------------------------------------------------------------------
+
+// from files_mmp.py
+
+
+mmp-input: 
+          | compound-stmt  mmp-input
+
+compound-stmt:   mmpformat-stmt
+               | kelvin-stmt
+               | group-block
+               | end-stmt
+               | end1-stmt
+
+kelvin-stmt: 'kelvin' real-number
+
+group-block: group-begin-stmt
+             group-stmt-list
+             group-end-stmt
+
+group-begin-stmt: 'group' '(' string-identifier ')'
+
+group-end-stmt: 'egroup' '(' string-identifier ')'
+
+group-stmt-list:   group-stmt
+                 | group-stmt  group-stmt-list
+
+group-stmt:  
+            | group-info-stmt
+            | csys-stmt
+            | mol-stmt
+            | atom-stmt
+            | info-stmt
+            | bond-stmt
+
+atom-stmt: 'atom' id '(' atomic-num ')' coords 'def'
+
+coords: '(' integer ',' integer ',' integer ')'
+
+info-stmt :   info-chunk-stmt
+            | info-opengroup-stmt
+            | info-leaf-stmt
+            | info-atom-stmt
+            | info-gamess-stmt
+            | info-espimage-stmt
+            | info-povrayscene-stmt
+
+info-atom-stmt : 'info' 'atom' atom-property-name '=' atom-property-value
+
+bond-stmt:   bond1-stmt
+           | bond2-stmt
+           | bond3-stmt
+           | bonda-stmt
+           | bondg-stmt
+           | bondc-stmt
+
+bond1-stmt : 'bond1' id-list
+bond2-stmt : 'bond2' id-list
+bond3-stmt : 'bond3' id
+bonda-stmt : 'bonda' id-list
+bondg-stmt : 'bondg' id-list
+bondc-stmt : 'bondc' id-list
+
+string-identifier : string
+
+string : identifier | identifier [\s]+ string
+
+identifier: [A-Za-z_][\w]*
+id-list : id | id-list id
+id: integer
+atomic-num: integer
+integer: [0-9]+
+real-nunber : [-]?[0-9]*.[0-9]([eE][+-]?[0-9]+)?
