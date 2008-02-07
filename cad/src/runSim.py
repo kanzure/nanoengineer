@@ -380,7 +380,7 @@ class SimRunner:
                         nv1Process = Process()
                         nv1Args = [
                             "-f",
-                            trajectoryOutputFile,
+                            hdf5DataStoreDir + ".nh5",
                             ]
                         nv1Process.setStandardOutputPassThrough(True)
                         nv1Process.setStandardErrorPassThrough(True)
