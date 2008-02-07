@@ -3,6 +3,12 @@
 #ifndef NX_OPENGLRENDERERPLUGIN_H
 #define NX_OPENGLRENDERERPLUGIN_H
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
 #include "Nanorex/Interface/NXRendererPlugin.h"
 #include "Nanorex/Interface/NXAtomRenderData.h"
 #include "Nanorex/Interface/NXBondRenderData.h"

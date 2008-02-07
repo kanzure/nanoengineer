@@ -21,14 +21,19 @@ HEADERS += ../../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
 TARGETDEPS += ../../../../../../../lib/libNanorexUtility.so \
 ../../../../../../../lib/libNanorexInterface.so \
  ../../../../../../../lib/libNXOpenGLRendererPlugin.a
+macx : TARGETDEPS ~= s/.so/.dylib/g
 
 DESTDIR = ../../../../../../../lib
 
 INCLUDEPATH += ../../NXOpenGLRendererPlugin \
 ../../../../../../../include
-LIBS += -lNXOpenGLRendererPlugin \
--lNXOpenGLSceneGraph \
- -L../../../../../../../lib
+
+LIBS += -L../../../../../../../lib \
+ -lNXOpenGLRendererPlugin \
+ -lNXOpenGLSceneGraph \
+ -lNanorexUtility \
+ -lNanorexInterface
+ 
 SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer.cpp
 
 TARGET = NXBallAndStickOpenGLRenderer

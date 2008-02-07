@@ -30,7 +30,8 @@ SOURCES += ../../Interface/NXDataImportExportPlugin.cpp \
  ../../Interface/NXAtomRenderData.cpp \
  ../../Interface/NXBondRenderData.cpp \
  ../../Interface/NXNanoVisionResultCodes.cpp \
- ../../Interface/NXSceneGraph.cpp
+ ../../Interface/NXSceneGraph.cpp \
+ ../../Interface/NXRenderingEngine.cpp
 
 TEMPLATE = lib
 

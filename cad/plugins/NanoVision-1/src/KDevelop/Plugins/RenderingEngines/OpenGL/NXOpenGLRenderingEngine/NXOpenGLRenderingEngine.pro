@@ -24,10 +24,10 @@ INCLUDEPATH += ../../../../../../include \
  ../../../../../../src/Plugins/RenderingEngines/OpenGL/GLT \
  $(OPENBABEL_INCPATH)
 
-LIBS += -lNXOpenGLSceneGraph \
- -lGLT \
- -lopenbabel \
+LIBS += -lopenbabel \
  -L../../../../../../lib \
+ -lGLT \
+ -lNXOpenGLSceneGraph \
  -lNanorexInterface \
  -lNanorexUtility
 

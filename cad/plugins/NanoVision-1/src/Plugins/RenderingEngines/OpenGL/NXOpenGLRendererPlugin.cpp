@@ -1,6 +1,5 @@
  // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
-#include <GL/gl.h>
 #include "Nanorex/Interface/NXOpenGLRendererPlugin.h"
 
 namespace Nanorex {

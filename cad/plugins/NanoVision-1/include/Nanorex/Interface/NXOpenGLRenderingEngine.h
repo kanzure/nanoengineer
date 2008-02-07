@@ -52,9 +52,9 @@ public:
     NXRenderingEngine::EngineID getID ( void ) const
     { return NXRenderingEngine::OPENGL; }
     
-    void initializePlugins ( void );
+    void initializePlugins ( void ) { }
     
-    void cleanupPlugins ( void );
+    void cleanupPlugins ( void ) { }
     
     void setRootMoleculeSet ( NXMoleculeSet *const moleculeSet )
     {

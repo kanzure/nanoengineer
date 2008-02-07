@@ -3,6 +3,16 @@
 #ifndef NX_BALLANDSTICKOPENGLRENDERER_H
 #define NX_BALLANDSTICKOPENGLRENDERER_H
 
+#include <cassert>
+
+extern "C" {
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+}
+
 #include "Nanorex/Interface/NXOpenGLRendererPlugin.h"
 #include "Nanorex/Interface/NXAtomRenderData.h"
 #include "Nanorex/Interface/NXBondRenderData.h"

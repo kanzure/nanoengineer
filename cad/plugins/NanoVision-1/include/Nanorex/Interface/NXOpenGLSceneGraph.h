@@ -5,6 +5,14 @@
 
 // Scenegraph classes for OpenGL
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
+#include <cstring>
+
 #include "Nanorex/Interface/NXSceneGraph.h"
 #include "Nanorex/Interface/NXOpenGLMaterial.h"
 #include "Nanorex/Utility/NXUtility.h"
@@ -26,8 +34,10 @@ namespace Nanorex {
 class NXSGOpenGLTransform : public NXSGNode {
 public:
     NXSGOpenGLTransform() throw () {}
-    ~NXSGOpenGLTransform() throw () {}
+    ~NXSGOpenGLTransform() throw () {};
     bool applyRecursive(void) const throw();
+	
+	void deleteRecursive(void) { }
 };
 
 
@@ -134,6 +144,9 @@ public:
     
     NXCommandResult endRender(void) const throw ();
     
+	void deleteRecursive(void) { }
+	bool applyRecursive(void) const { return true; }
+
 #ifdef NX_DEBUG
     GLuint getDisplayListID(void) const { return display_list_id; }
 #endif
@@ -148,10 +161,13 @@ public:
     NXSGOpenGLMaterial() throw () : NXSGNode() ,NXOpenGLMaterial() {}
     NXSGOpenGLMaterial(NXOpenGLMaterial const& mat) throw()
         : NXSGNode(), NXOpenGLMaterial(mat) {}
-    ~NXSGOpenGLMaterial() throw () {}
+	~NXSGOpenGLMaterial() throw () {}
     /// Copy assignment from GL-material
     NXSGOpenGLMaterial& operator = (NXOpenGLMaterial const& mat) throw ();
     bool apply(void) const throw ();
+
+	void deleteRecursive(void) { }
+	bool applyRecursive(void) const { return true; }
 };
 
 } // Nanorex

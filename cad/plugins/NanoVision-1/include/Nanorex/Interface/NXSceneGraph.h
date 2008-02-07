@@ -20,9 +20,9 @@ class NXSGNode {
 public:
     typedef std::list<NXSGNode*> ChildrenList;
     
-    NXSGNode() : ref_count(0), children() {}
+    NXSGNode();
     
-    virtual ~NXSGNode() { deleteRecursive(); }
+    virtual ~NXSGNode();
 
     int incrementRefCount(void) { ++ref_count; return ref_count; }
     

@@ -5,6 +5,10 @@
 
 namespace Nanorex {
 
+NXSGNode::NXSGNode() : ref_count(0), children() {}
+	
+NXSGNode::~NXSGNode() { deleteRecursive(); }
+
 bool NXSGNode::removeChild(NXSGNode *const child)
 {
     ChildrenList::iterator childLoc = std::find(children.begin(),

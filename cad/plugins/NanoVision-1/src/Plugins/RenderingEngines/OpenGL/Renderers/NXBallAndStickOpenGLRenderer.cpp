@@ -1,9 +1,5 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
-#include <cassert>
-extern "C" {
-#include <GL/gl.h>
-}
 #include "NXBallAndStickOpenGLRenderer.h"
 
 namespace Nanorex {

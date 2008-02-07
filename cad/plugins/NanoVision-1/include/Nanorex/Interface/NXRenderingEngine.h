@@ -26,8 +26,8 @@ public:
     // integer id for each engine - one per subclass
     enum EngineID { OPENGL=0 };
 
-    NXRenderingEngine() : rootMoleculeSet(NULL) {}
-    virtual ~NXRenderingEngine() {}
+    NXRenderingEngine() : rootMoleculeSet(0) {}
+    virtual ~NXRenderingEngine();
 
     // Query type - one per subclass, suitably named
     bool isOpenGL(void) const { return (getID() == OPENGL); }
