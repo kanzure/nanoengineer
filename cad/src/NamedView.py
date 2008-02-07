@@ -170,14 +170,19 @@ class NamedView(SimpleCopyMixin, Node):
         self.changed()
         return
 
-    def setToCurrentView(self):
+    def setToCurrentView(self, glpane):
         """
         Save the current view in self.
+        
+        @param glpane: the 3D graphics area.
+        @type  glpane: L{GLPane)
         """
-        self.quat = Q(self.assy.o.quat)
-        self.scale = self.assy.o.scale
-        self.pov = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
-        self.zoomFactor = self.assy.o.zoomFactor
+        assert glpane
+        
+        self.quat = Q(glpane.quat)
+        self.scale = glpane.scale
+        self.pov = V(glpane.pov[0], glpane.pov[1], glpane.pov[2])
+        self.zoomFactor = glpane.zoomFactor
         
     def sameAsCurrentView(self, view = None):
         """

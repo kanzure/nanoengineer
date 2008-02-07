@@ -793,7 +793,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         # Huaicai 1/27/05: before mmp file saving, this method
         # should be called to save the last view user has, which will
         # be used as the initial view when it is opened again.
-        part.lastView.setToCurrentView()
+        part.lastView.setToCurrentView(self)
 
     # ==
 
@@ -943,7 +943,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         """
         Set the Home view to the current view.
         """
-        self.part.homeView.setToCurrentView()
+        self.part.homeView.setToCurrentView(self)
         self.part.changed() # Mark [041215]
 
     def setViewRecenter(self, fast = False):
@@ -3207,7 +3207,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.drawing_phase = 'overlay'
         
         # Draw ruler(s) if "View > Rulers" is checked.
-        if env.prefs[displayRulers_prefs_key]:
+        if self.ortho and env.prefs[displayRulers_prefs_key]:
             # Should this be added to graphicsMode.draw_overlay() since it
             # (probably) should be considered an overlay?  Ask Bruce.
             # Mark 2008-02-05.
