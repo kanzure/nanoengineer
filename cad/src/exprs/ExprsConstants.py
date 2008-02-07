@@ -73,7 +73,10 @@ from constants import ave_colors
     ###k What *should* it do? Not that, but that is at least not going to cause "crashes" in non-alpha-using code.
 
 def normalize_color(color): #070215; might be too slow; so far only used by fix_color method
-    """Make sure color is a 4-tuple of floats. (Not a numeric array -- too likely to hit the == bug for those.)"""
+    """
+    Make sure color is a 4-tuple of floats.
+    (Not a numeric array -- too likely to hit the == bug for those.)
+    """
     if len(color) == 3:
         r,g,b = color
         a = 1.0
@@ -85,12 +88,12 @@ def normalize_color(color): #070215; might be too slow; so far only used by fix_
 
 #e define brown somewhere, and new funcs to lighten or darken a color
 
-lightblue = ave_colors( 0.2, blue, white)
-lightgreen = ave_colors( 0.2, green, white)
+lightblue = ave_colors( 0.2, blue, white) # WARNING: differs from at least one version of this in constants.py
 halfblue = ave_colors( 0.5, blue, white)
 
 def translucent_color(color, opacity = 0.5): #e refile with ave_colors
-    """Make color (a 3- or 4-tuple of floats) have the given opacity (default 0.5, might be revised);
+    """
+    Make color (a 3- or 4-tuple of floats) have the given opacity (default 0.5, might be revised);
     if it was already translucent, this multiplies the opacity it had.
     """
     if len(color) == 3:

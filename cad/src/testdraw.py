@@ -106,8 +106,7 @@ printdraw = False # debug flag
 
 from texture_fonts import ensure_courierfile_loaded
 
-lightblue = ave_colors( 0.2, blue, white)
-lightgreen = ave_colors( 0.2, green, white)
+##lightblue = ave_colors( 0.2, blue, white)
 halfblue = ave_colors( 0.5, blue, white)
 ##purple = ave_colors(0.5, red, blue)
 

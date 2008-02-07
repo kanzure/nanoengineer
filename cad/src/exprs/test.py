@@ -136,7 +136,12 @@ from exprs.test_statearray_3 import test_StateArrayRefs_3
 
 from geometry.VQT import V
 from utilities.Comparison import same_vals
-from constants import purple, white, blue, red, orange, green, gray, pink, yellow, black, ave_colors, noop
+
+from constants import purple, white, blue, red, orange, green, lightgreen
+from constants import gray, pink, yellow, black
+from constants import ave_colors, noop
+# more colors imported below, from ExprsConstants
+
 from prefs_constants import displayOriginAxis_prefs_key
 from texture_fonts import courierfile
 from exprs.reload import exprs_globals
@@ -150,16 +155,17 @@ from exprs.py_utils import printnim, identity
 from exprs.widget2d import Widget2D
 from exprs.instance_helpers import WithAttributes, InstanceMacro, _this, DelegatingInstanceOrExpr
 from exprs.attr_decl_macros import State, Option, Instance, Arg
+
 from exprs.ExprsConstants import trans_red
 from exprs.ExprsConstants import PIXELS
 from exprs.ExprsConstants import lightblue
-from exprs.ExprsConstants import lightgreen
 from exprs.ExprsConstants import ORIGIN, DX, DZ ##, DY
 from exprs.ExprsConstants import nevermind
 from exprs.ExprsConstants import PM_CORNER
 from exprs.ExprsConstants import WORLD_MT_CORNER
 from exprs.ExprsConstants import DEBUG_CORNER
 from exprs.ExprsConstants import NullIpath
+
 from exprs.__Symbols__ import _self, _my, _app, Anything
 
 

@@ -1,4 +1,4 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 constants.py -- constants and trivial functions used in multiple modules.
 
@@ -8,7 +8,8 @@ modules or PyQt, and use names that we don't mind reserving throughout NE1.
 (Ideally this module would also contain no state; probably we should move
 gensym out of it for that reason.)
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from PyQt4.Qt import Qt
@@ -81,7 +82,9 @@ debugModifiers = cntlModifier | shiftModifier | altModifier
 def noop(*args,**kws): pass
 
 def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py, added start arg
-    """ produces generators that count indefinitely """
+    """
+    produces generators that count indefinitely
+    """
     i = start
     while 1:
         yield i
@@ -93,7 +96,9 @@ def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py
 _gensym_counters = {} #bruce 070603; has last-used value for each fixed prefix (default 0)
 
 def _fix_gensym_prefix(prefix): #bruce 070604
-    "[private helper function for gensym and relatives]"
+    """
+    [private helper function for gensym and relatives]
+    """
     assert type(prefix) in (type(""), type(u""))
     if prefix and prefix[-1].isdigit():
         # This special behavior guarantees that every name gensym returns is unique.
@@ -105,15 +110,18 @@ def _fix_gensym_prefix(prefix): #bruce 070604
     return prefix
 
 def gensym(prefix): #bruce 070603 rewrite, improved functionality (replaces three separate similar definitions)
-    """Return prefix with a number appended, where the number is 1 more
+    """
+    Return prefix with a number appended, where the number is 1 more
     than the last time we were called for the same prefix, or 1 the first time
     we see that prefix. Note that this means we maintain an independent counter
     for each different prefix we're ever called with.
-       In order to ensure that every name we ever return is unique (in spite of our
+
+    In order to ensure that every name we ever return is unique (in spite of our
     independent counters reusing the same values for different prefixes), we append
     '-' to prefix if it ends with a digit already, before looking up and appending
     the counter for that prefix.
-       (The prefix is typically related to a Node classname, but can be more or less
+
+    (The prefix is typically related to a Node classname, but can be more or less
     specialized, e.g. when making chunks of certain kinds (like DNA) or copying nodes
     or library parts.)
     """
@@ -123,7 +131,8 @@ def gensym(prefix): #bruce 070603 rewrite, improved functionality (replaces thre
     return prefix + str(new_value)
 
 def permit_gensym_to_reuse_name(prefix, name): #bruce 070604
-    """This gives gensym permission to reuse the given name which it returned based on the given prefix,
+    """
+    This gives gensym permission to reuse the given name which it returned based on the given prefix,
     if it can do this and still follow its other policies. It is not obligated to do this.
     """
     prefix = _fix_gensym_prefix(prefix)
@@ -139,9 +148,11 @@ def permit_gensym_to_reuse_name(prefix, name): #bruce 070604
 # ==
 
 def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from selectMode.py to constants.py 070601
-    """Return the numerical average value of seq (a Python sequence or equivalent),
+    """
+    Return the numerical average value of seq (a Python sequence or equivalent),
     or (by default) 0.0 if seq is empty.
-       Note: Numeric contains a function named average, which is why we don't use that name.
+
+    Note: Numeric contains a function named average, which is why we don't use that name.
     """
     #e should typetest seq if we can do so efficiently
     if not seq:
@@ -153,7 +164,7 @@ def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from sel
 # display modes:
 ## These are arranged in order of increasing thickness of the bond representation. They are indices of dispNames and dispLabel.
 ## Josh 11/2
-diDEFAULT = 0
+diDEFAULT = 0 # the fact that diDEFAULT == 0 is public. [bruce 080206]
 diINVISIBLE = 1
 diTrueCPK = 2 # CPK [renamed from old name diVDW, bruce 060607; corresponding UI change was by mark 060307]
     # (This is not yet called diCPK, to avoid confusion, since that name was used for diBALL until today.
@@ -161,10 +172,10 @@ diTrueCPK = 2 # CPK [renamed from old name diVDW, bruce 060607; corresponding UI
 diLINES = 3
 diBALL = 4 # "Ball and Stick" [renamed from old incorrect name diCPK, bruce 060607; corresponding UI change was by mark 060307]
 diTUBES = 5
-diCYLINDER = 6
-diSURFACE = 7
+diCYLINDER = 6 # kluge: has to match how lists below are extended
+diSURFACE = 7 # kluge: ditto
 
-# note: the following lists can be extended later at runtime. [as of bruce 060607]
+# note: some of the following lists are extended later at runtime. [as of bruce 060607]
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
     # these dispNames can't be easily revised, since they are used in mmp files; cpk and vdw are misleading as of 060307.
 
@@ -227,39 +238,45 @@ def remove_prefix(str1, prefix):
 # of user preferences in prefs_constants.py.
 
 def ave_colors(weight, color1, color2): #bruce 050805 moved this here from handles.py, and revised it
-    """Return a weighted average of two colors,
+    """
+    Return a weighted average of two colors,
     where weight gives the amount of color1 to include.
     (E.g., weight of 1.0 means use only color1, 0.0 means use only color2,
     and ave_colors(0.8, color, black) makes color slightly darker.)
-       Color format is a 3-tuple of RGB components from 0.0 to 1.0
+
+    Color format is a 3-tuple of RGB components from 0.0 to 1.0
     (e.g. black is (0.0, 0.0, 0.0), white is (1.0, 1.0, 1.0)).
     This is also the standard format for colors in our preferences database
     (which contains primitive Python objects encoded by the shelve module).
-       Input color components can be ints, but those are coerced to floats,
+
+    Input color components can be ints, but those are coerced to floats,
     NOT treated as in the range [0,255] like some other color-related functions do.
     Output components are always floats.
-       Input colors can be any 3-sequences (including Numeric arrays);
+
+    Input colors can be any 3-sequences (including Numeric arrays);
     output color is always a tuple.
     """
     #e (perhaps we could optimize this using some Numeric method)
     weight = float(weight)
     return tuple([weight * c1 + (1-weight)*c2 for c1,c2 in zip(color1,color2)])
 
-# colors [some of the ones whose names describe their function
-# are default values for user preferences]
+# colors
+# [note: some of the ones whose names describe their function
+#  are default values for user preferences]
 
 black =  (0.0, 0.0, 0.0)
+white =  (1.0, 1.0, 1.0)
 blue =   (0.0, 0.0, 0.6)
-lightblue =   (0.4, 0.4, 0.8)
+lightblue =   (0.4, 0.4, 0.8) ### NOTE: overridden below (BUG or intended??) [bruce 080206 comment]
 aqua =   (0.15, 1.0, 1.0)
 orange = (1.0, 0.25, 0.0)
 darkorange = (0.6, 0.3, 0.0)
 red =    (1.0, 0.0, 0.0)
 yellow = (1.0, 1.0, 0.0)
 green =  (0.0, 1.0, 0.0)
+lightgreen = (0.45, 0.8, 0.45) # bruce 080206
 darkgreen =  (0.0, 0.6, 0.0)
 magenta = (1.0, 0.0, 1.0)
-white =  (1.0, 1.0, 1.0)
 lightgray = (0.8, 0.8, 0.8)
 gray =   (0.5, 0.5, 0.5)
 darkgray = (0.3, 0.3, 0.3)
