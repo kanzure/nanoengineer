@@ -455,8 +455,8 @@ class DynamicTip: # Mark and Ninad 060817.
     def getAtomDistDeltas(self, isAtomDistDeltas, atomDistPrecision, selectedAtom):
         """
         Returns atom distance deltas (delX, delY, delZ) string if the 
-        'Show atom distance delta info' in dynamic toooltip is checked from
-        the user prefs otherwise returns None
+        'Show atom distance delta info' in dynamic tooltip is checked from
+        the user prefs. Otherwise returns None.
         """
         glpane = self.glpane
         if isAtomDistDeltas:
