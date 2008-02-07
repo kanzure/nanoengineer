@@ -114,6 +114,7 @@ from OpenGL.GL import GL_QUADS
 from OpenGL.GL import GL_QUAD_STRIP
 from OpenGL.GL import GL_RENDERER
 from OpenGL.GL import GL_RGBA
+from OpenGL.GL import glRectf
 from OpenGL.GL import glRotate
 from OpenGL.GL import glRotatef
 from OpenGL.GL import GL_SHININESS
@@ -136,10 +137,12 @@ from OpenGL.GL import glVertex3f
 from OpenGL.GL import glVertex3fv
 from OpenGL.GL import GL_VERTEX_ARRAY
 from OpenGL.GL import glVertexPointer
+from OpenGL.GL import glViewport
 from OpenGL.GL import glPointSize
 from OpenGL.GL import GL_POINTS
 from OpenGL.GL import GL_POINT_SMOOTH
 from OpenGL.GLU import gluBuild2DMipmaps
+from OpenGL.GLU import gluOrtho2D
 
 try:
     from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
@@ -185,7 +188,8 @@ except:
 from geometry.VQT import norm, vlen, V, Q, A, cross
 import env #bruce 051126
 
-from constants import blue, red, darkgreen, black, lightblue, darkgray, white
+from constants import white, black, blue, red
+from constants import darkgreen, lightblue, darkgray, lightgray
 from constants import DIAMOND_BOND_LENGTH
 from prefs_constants import material_specular_highlights_prefs_key
 from prefs_constants import material_specular_shininess_prefs_key
@@ -2343,125 +2347,242 @@ def drawRulers(glpane):
     """
     Draws a vertical ruler on the left side of the 3D graphics area.
     
-    A 3D orthographic coordinate system is assumed, where:
-    - The upper left corner (front) is (-1.0,  1.0, -1.0)
-    - The lower right corner (back) is ( 1.0, -1.0,  1.0)
+    All drawing is done in a 2D window (pixel) coordinate system, where:
+    - The lower left corner is  (   0.0,    0.0, 0.0)
+    - The upper right corner is ( width, height, 0.0)
     
     Still to do:
-    - Reimplement to support an orthographic coordinate system in window/pixel
-      units (ints). Use gluOrtho2D(0.0, width, 0.0, height) where width and 
-      height are the viewport size in pixels. (make sure the projection matrix
-      is the current one, when calling it).
-    - Code a better, more general tick mark/units labeling algorithm that 
-      eliminates small errors that build up in the loop and the scale range
-      works from 1 Angstrom up to 1 Um (at least).
-    - Auto-hide/show rulers when user switches to/from Perspective display.
-    - Add semi-transparent rectangle behind ruler area for better contrast
-      regardless of the bg color.
-    - Right justify tick marks with unit labels left justified.
-    - Once all this (above) is working well, add a horizontal ruler.
+    - Transparent ruler and its tickmarks are obscured by the model (but not
+      the labels). Fix this.
+    - Once we're happy with the vertical ruler, add a horizontal ruler.
     
     @param glpane: the 3D graphics area.
     @type  glpane: L{GLPane)
     """
 
+    width = glpane.width
+    height = glpane.height
+    scale = glpane.scale
+    
+    glViewport (0, 0, int(width), int(height) )
     glMatrixMode(GL_MODELVIEW)
     glPushMatrix()
     glLoadIdentity()
     glMatrixMode(GL_PROJECTION)
     glPushMatrix()
     glLoadIdentity() # needed!
+    gluOrtho2D(0.0, float(width), 0.0, float(height))
     
-    color = darkgray
-    scale = glpane.scale
-    aspect = glpane.aspect
+    # Turn off depth masking so anything under the cursor will still get picked.
+    glDepthMask(GL_FALSE)
     
+    ruler_bg_color = lightgray
+    tickmark_color = darkgray
+    text_color = black
     font_size = 8
-    short_tickmark_threshold = 150
-    angstrom_tickmark_range = 25
     
+    long_tick_len   = 15
+    medium_tick_len = 10
+    short_tick_len  = 5
+    ruler_thickness = long_tick_len + 4
     
-    num_horz_ticks = 2 * int(scale)
+    # Set to False for left justified tickmarks
+    tickmarks_right_justified = True 
     
-    if num_horz_ticks < angstrom_tickmark_range:
+    num_horz_ticks = int(scale * 2.0)
+    tickmark_spacing = 0.5 / scale * height
+    tickmark_spacing_multiplier = 1.0
+    
+    # Be careful if you changes these values.
+    # Talk to Bruce about this section. Should I build some kind of hash/dict?
+    # Mark 2008-02-07
+    if scale <= 2.75:
         units_text = "A" # Angstroms
+        units_format = "%2d"
         units_scale = 1.0
-    else:
-        units_text = "nm" # nanometers
-        units_scale = 0.1
-    
-    if num_horz_ticks < 250:
-        long_tickmark_inc = 5
-    else:
+        unit_label_inc = 1
         long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+    elif scale <= 10.1:
+        units_text = "A" # Angstroms
+        units_format = "%2d"
+        units_scale = 1.0
+        unit_label_inc = 5
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+    elif scale <= 25.1:
+        units_text = "nm" # nanometers
+        units_format = "%-3.1f"
+        units_scale = 0.1
+        unit_label_inc = 5
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+    elif scale <= 51.0:
+        units_text = "nm" # nanometers
+        units_format = "%2d"
+        units_scale = 0.1
+        unit_label_inc = 10
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+    elif scale <= 101.0:
+        units_text = "nm" # nanometers
+        units_format = "%2d"
+        units_scale = .5
+        unit_label_inc = 2
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 2
+        num_horz_ticks = int(num_horz_ticks * 0.2)
+        tickmark_spacing_multiplier = 5.0
+    elif scale <= 501.0:
+        units_text = "nm" # nanometers
+        units_format = "%2d"
+        units_scale = 1.0
+        unit_label_inc = 5
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+        num_horz_ticks = int(num_horz_ticks * 0.1)
+        tickmark_spacing_multiplier = 10.0
+    elif scale <= 1001.0:
+        units_text = "nm" # nanometers
+        units_format = "%2d"
+        units_scale = 1.0
+        unit_label_inc = 10
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+        num_horz_ticks = int(num_horz_ticks * 0.1)
+        tickmark_spacing_multiplier = 10.0
+    elif scale <= 2505.0:
+        units_text = "nm" # nanometers
+        units_format = "%2d"
+        units_scale = 2.0
+        unit_label_inc = 10
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+        num_horz_ticks = int(num_horz_ticks * 0.05)
+        tickmark_spacing_multiplier = 20.0
+    elif scale <= 5005.0:
+        units_text = "Um" # micrometers
+        units_format = "%-3.1f"
+        units_scale = 0.01
+        unit_label_inc = 10
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+        num_horz_ticks = int(num_horz_ticks * 0.01)
+        tickmark_spacing_multiplier = 100.0
+    elif scale <= 15005.0:
+        units_text = "Um" # micrometers
+        units_format = "%-3.1f"
+        units_scale = 0.1
+        unit_label_inc = 1
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+        num_horz_ticks = int(num_horz_ticks * 0.001)
+        tickmark_spacing_multiplier = 1000.0
+    elif scale <= 25005.0:
+        units_text = "Um" # micrometers
+        units_format = "%-3.1f"
+        units_scale = 0.1
+        unit_label_inc = 5
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+        num_horz_ticks = int(num_horz_ticks * 0.001)
+        tickmark_spacing_multiplier = 1000.0
+    else:
+        units_text = "Um" # micrometers
+        units_format = "%2d"
+        units_scale = 0.1
+        unit_label_inc = 10
+        long_tickmark_inc = 10
+        medium_tickmark_inc = 5
+        num_horz_ticks = int(num_horz_ticks * 0.001)
+        tickmark_spacing_multiplier = 1000.0
+    
+    DEBUG = False
+    if DEBUG:
+        print "ticks=", num_horz_ticks, "tickmark_spacing=", tickmark_spacing, "scale=", scale
+        print "units_scale=", units_scale, "unit_label_inc=", unit_label_inc
+    
+    # Draw semi-transparent ruler rectangle.
+    if 1:
+        ruler_opacity = 0.7
+        glColor4fv(list(lightgray) + [ruler_opacity])
+        glDisable(GL_LIGHTING)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glRectf(0.0, 0.0, ruler_thickness, height)
+        glEnable(GL_LIGHTING)
+        glDisable(GL_BLEND)
         
-    horz_tick_inc = 1.0 / scale #@@ small errors will add up in the loop.
-    horz_long_tick_len = .05
-    vert_long_tick_len = horz_long_tick_len * aspect
-    horz_short_tick_len = .02
-    vert_short_tick_len = horz_short_tick_len * aspect
+        # Draw vertical line along right edge of ruler.
+        pt1 = V(ruler_thickness, 0.0, 0.0)
+        pt2 = V(ruler_thickness, height, 0.0)
+        drawline(tickmark_color, pt1, pt2)
+        
+        # Draw horizontal line along bottom edge of ruler.
+        if 0:
+            pt1 = V(  0.0, height - ruler_thickness, 0.0)
+            pt2 = V(width, height - ruler_thickness, 0.0)
+            drawline(tickmark_color, pt1, pt2)
     
-    horz_ruler_offset = vert_long_tick_len
-    vert_ruler_offset = horz_long_tick_len
-    
-    if 0:
-        print "number of ticks=", num_horz_ticks, "scale=", scale
-    
-    units_text_origin = V(-1.0 + .01,
-                           1.0 - (vert_long_tick_len *.75),
-                           -1.0)
+    units_text_origin = V(2.0, height - ruler_thickness + 4.0, 0.0)
     
     # Draw unit of measurement in upper left corner (A or nm).
-    drawtext(units_text, darkgray, units_text_origin, font_size, glpane)
+    drawtext(units_text, text_color, units_text_origin, font_size, glpane)
     
     # Initialize pt1 and pt2. They are both modified in the loop below.
-    pt1 = V(-1.0, 1.0 - vert_long_tick_len, -1.0)
-    pt2 = pt1 + V(horz_long_tick_len, 0.0, 0.0)
+    # Left/right justification needed if we decide to allow rules on left or 
+    # right side of glpane.
+    if tickmarks_right_justified:
+        pt1 = V(ruler_thickness, height - ruler_thickness, 0.0)
+        pt2 = pt1 + V(-ruler_thickness, 0.0, 0.0)
+        long_tick_len   *= -1.0
+        medium_tick_len *= -1.0
+        short_tick_len  *= -1.0
+        HORZ_UNITS_X_OFFSET =  -ruler_thickness
+        HORZ_UNITS_Y_OFFSET =  -10.0
+    else:
+        pt1 = V(0.0, height - ruler_thickness, 0.0)
+        pt2 = pt1 + V(ruler_thickness, 0.0, 0.0)
+        HORZ_UNITS_X_OFFSET =  0
+        HORZ_UNITS_Y_OFFSET =  -10.0
     
-    # Draw horizontal ruler tickmarks and numeric unit labels
+    # Save starting points. They are used by each iteration of the loop below.
+    start_pt1 = pt1
+    start_pt2 = pt2
+
+    # Draw vertical ruler tickmarks, including numeric unit labels
     for tick_num in range(num_horz_ticks + 1):
         
         # pt1 and pt2 are modified by each iteration of the loop (below).
-        drawline(darkgray, pt1, pt2)
+        drawline(tickmark_color, pt1, pt2)
         
         # Draw units number below long tickmarks.
-        if not tick_num % long_tickmark_inc:
-            units_num_origin = pt1 + V(0.025, -0.03, 0.0)
-            if units_text == "nm":
-                if num_horz_ticks <= 100:
-                    units_num = "%-4.1f" % (tick_num * units_scale)
-                else:
-                    units_num = "%2d" % (tick_num * units_scale)
-                    if tick_num % 2:
-                        # Only display even unit numbers.
-                        units_num = ""
-            else:
-                units_num = "%2d" % tick_num
-            drawtext(units_num, darkgray, units_num_origin, font_size, glpane)
-        
+        if not tick_num % unit_label_inc:
+            units_num_origin = pt1 + V(HORZ_UNITS_X_OFFSET, HORZ_UNITS_Y_OFFSET, 0.0)
+            units_num = units_format % (tick_num * units_scale)
+            drawtext(units_num, text_color, units_num_origin, font_size, glpane)
+            
         # Update tickmark endpoints for next tickmark.
-        pt1 += V(0.0, -horz_tick_inc, 0.0)
+        pt1 = \
+            start_pt1 + \
+            V(0.0, 
+              -tickmark_spacing * tickmark_spacing_multiplier * (tick_num + 1),
+              0.0)
         
-        if (tick_num + 1) % long_tickmark_inc:
-            # pt2 will be the endpoint of a short tickmark.
-            if num_horz_ticks > short_tickmark_threshold:
-                # Setting pt2 to pt1 effectively results in no tickmark.
-                pt2 = pt1
-            else:
-                pt2 = pt1 + V(horz_short_tick_len, 0.0, 0.0)
+        if not (tick_num + 1) % long_tickmark_inc:
+            pt2 = pt1 + V(long_tick_len, 0.0, 0.0)
+        elif not (tick_num + 1) % medium_tickmark_inc:
+            pt2 = pt1 + V(medium_tick_len, 0.0, 0.0)
         else:
-            if (num_horz_ticks > short_tickmark_threshold) and ((tick_num + 1) % 2):
-                if num_horz_ticks < 300:
-                    pt2 = pt1 + V(horz_short_tick_len, 0.0, 0.0)
-            else:
-                pt2 = pt1 + V(horz_long_tick_len, 0.0, 0.0)
+            pt2 = pt1 + V(short_tick_len, 0.0, 0.0)
     
+    glDepthMask(GL_TRUE)
     glMatrixMode(GL_PROJECTION)
     glPopMatrix()
     glMatrixMode(GL_MODELVIEW)
     glPopMatrix()
     return # from drawRulers
-    
+
 def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
     '''Draw chunk or jig axis'''
     #ninad060907 Note that this is different than draw 
@@ -2723,9 +2844,13 @@ def genDiam(bblo, bbhi, latticeType):
 
 
 def drawGrid(scale, center, latticeType):
-    """Construct the grid model and show as position references for cookies.
-    The model is build around "pov" and has size of 2*"scale" on each of the (x, y, z) directions.
-    This should be optimized latter. For "scale = 200", it takes about 1479623 loops. ---Huaicai
+    """
+    Construct the grid model and show as position references for cookies.
+    The model is build around "pov" and has size of 2*"scale" on each of
+    the (x, y, z) directions.
+    
+    @note: This should be optimized later. 
+    For "scale = 200", it takes about 1479623 loops. ---Huaicai
     """
     glDisable(GL_LIGHTING)
 
@@ -2782,15 +2907,33 @@ def drawGrid(scale, center, latticeType):
 
 
 def drawrectangle(pt1, pt2, rt, up, color):
+    """
+    Draws a (hollow) rectangle outline of the given I{color}.
+    
+    @param pt1: First corner of the rectangle.
+    @type  pt1: Point
+    
+    @param pt1: Opposite corner of the rectangle.
+    @type  pt1: Point
+    
+    @param rt: Right vector of the glpane.
+    @type  rt: Unit vector
+    
+    @param up: Right vector of the glpane.
+    @type  up: Unit vector
+    
+    @param color: Color
+    @type  color: color
+    """
     glColor3f(color[0], color[1], color[2])
     glDisable(GL_LIGHTING)
-    c2 = pt1 + rt*Numeric.dot(rt,pt2-pt1)
-    c3 = pt1 + up*Numeric.dot(up,pt2-pt1)
+    c2 = pt1 + rt * Numeric.dot(rt, pt2 - pt1)
+    c3 = pt1 + up * Numeric.dot(up, pt2 - pt1)
     glBegin(GL_LINE_LOOP)
-    glVertex(pt1[0],pt1[1],pt1[2])
-    glVertex(c2[0],c2[1],c2[2])
-    glVertex(pt2[0],pt2[1],pt2[2])
-    glVertex(c3[0],c3[1],c3[2])
+    glVertex(pt1[0], pt1[1], pt1[2])
+    glVertex(c2[0], c2[1], c2[2])
+    glVertex(pt2[0], pt2[1], pt2[2])
+    glVertex(c3[0], c3[1], c3[2])
     glEnd()
     glEnable(GL_LIGHTING)
 
