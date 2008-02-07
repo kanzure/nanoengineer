@@ -65,7 +65,7 @@ class NXLogHandler {
 		
 		virtual void publish(LogRecord logRecord) = 0;
 	
-	private:
+	protected:
 		NXLogLevel logLevel;
 };
 
@@ -157,15 +157,17 @@ class NXConsoleLogHandler : public NXLogHandler {
 	public:
 		NXConsoleLogHandler(NXLogLevel logLevel) : NXLogHandler(logLevel) { }
 		void publish(LogRecord logRecord) {
-			mutex.lock();
-			printf("%s  [%-7s]  %s %s\n",
-				   qPrintable(logRecord.getDateTime()
-				   				.toString("yyyy-MM-dd hh:mm:ss.zzz")),
-				   LogLevelNames[logRecord.getLogLevel()],
-				   (logRecord.getSource().length() == 0 ?
-				   		"" : logRecord.getSource().append(":").c_str()),
-				   logRecord.getMessage().c_str());
-			mutex.unlock();
+			if (logRecord.getLogLevel() >= logLevel) {
+				mutex.lock();
+				printf("%s  [%-7s]  %s %s\n",
+					   qPrintable(logRecord.getDateTime()
+									.toString("yyyy-MM-dd hh:mm:ss.zzz")),
+					   LogLevelNames[logRecord.getLogLevel()],
+					   (logRecord.getSource().length() == 0 ?
+							"" : logRecord.getSource().append(":").c_str()),
+					   logRecord.getMessage().c_str());
+				mutex.unlock();
+			}
 		}
 
 	private:
@@ -200,7 +202,7 @@ class NXFileLogHandler : public NXLogHandler {
 				fclose(filehandle);
 		}
 		void publish(LogRecord logRecord) {
-			if (filehandle != 0) {
+			if ((filehandle != 0) && (logRecord.getLogLevel() >= logLevel)) {
 				mutex.lock();
 				fprintf(filehandle,"%s  [%-7s]  %s %s\n",
 						qPrintable(logRecord.getDateTime()

@@ -26,7 +26,7 @@ nv1::nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget)
 	createStatusBar();
 
 	readSettings();
-
+	
 	// Setup log dock widget
 	QDockWidget* dock = new QDockWidget(tr("Log"), this);
 	dock->setAllowedAreas(Qt::BottomDockWidgetArea);
@@ -37,6 +37,25 @@ nv1::nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget)
 
 /* DESTRUCTOR */
 nv1::~nv1() {
+}
+
+
+/* FUNCTION: processCommandLine */
+void nv1::processCommandLine(int argc, char *argv[]) {
+
+	NXCommandLine commandLine;
+	if ((commandLine.SplitLine(argc, argv) > 0) &&
+		(commandLine.HasSwitch("-f"))) {
+		string filename = commandLine.GetArgument("-f", 0);
+		
+		QString message = tr("Opening file: %1").arg(filename.c_str());
+		NXLOG_INFO("", qPrintable(message));
+		
+		if (resultsWindow->loadFile(filename.c_str())) {
+			statusBar()->showMessage(tr("File loaded"), 2000);
+			resultsWindow->show();
+		}
+	}
 }
 
 

@@ -20,6 +20,8 @@ class NXDataStoreInfo {
 	public:
 		NXDataStoreInfo() { }
 		
+		// TODO: check for existence in getters
+		
 		// Filenames
 		const string& getFilename(int frameSetId) {
 			return _filenames[frameSetId];

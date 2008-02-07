@@ -6,7 +6,8 @@ CONFIG += dll \
 
 INCLUDEPATH += ../../../include
 
-HEADERS += ../../../include/Nanorex/Utility/NXCommandResult.h \
+HEADERS += ../../../include/Nanorex/Utility/NXCommandLine.h \
+../../../include/Nanorex/Utility/NXCommandResult.h \
 ../../../include/Nanorex/Utility/NXLogger.h \
 ../../../include/Nanorex/Utility/NXPluginGroup.h \
 ../../../include/Nanorex/Utility/NXPlugin.h \
@@ -16,7 +17,8 @@ HEADERS += ../../../include/Nanorex/Utility/NXCommandResult.h \
  ../../../include/Nanorex/Utility/NXPoint.h \
  ../../../include/Nanorex/Utility/NXRGBColor.h
 
-SOURCES += ../../../src/Utility/NXCommandResult.cpp \
+SOURCES += ../../../src/Utility/NXCommandLine.cpp \
+../../../src/Utility/NXCommandResult.cpp \
 ../../../src/Utility/NXLogger.cpp \
 ../../../src/Utility/NXPlugin.cpp \
 ../../../src/Utility/NXPluginGroup.cpp \

@@ -8,6 +8,7 @@
 #include <QFileDialog>
 #include <QCloseEvent>
 
+#include "Nanorex/Utility/NXCommandLine.h"
 #include "Nanorex/Interface/NXEntityManager.h"
 using namespace Nanorex;
 
@@ -23,6 +24,8 @@ class nv1 : public QMainWindow {
 public:
 	nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget);
 	~nv1();
+	
+	void processCommandLine(int argc, char *argv[]);
 
 protected:
 	void closeEvent (QCloseEvent *event);

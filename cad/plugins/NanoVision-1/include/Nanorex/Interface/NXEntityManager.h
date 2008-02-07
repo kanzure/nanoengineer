@@ -121,7 +121,6 @@ public:
 			   !dataStoreInfo->isLastFrame(frameSetId)) {
 				
 			// See if there's a new frame
-printf(" x ");fflush(0);
 			result =
 				entityManager->importFromFile
 					(dataStoreInfo->getFilename(frameSetId), frameSetId,

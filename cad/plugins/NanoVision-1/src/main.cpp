@@ -71,6 +71,8 @@ int main(int argc, char *argv[]) {
 	mainWindow->show();
 	splash->repaint();
 	
+	mainWindow->processCommandLine(argc, argv);
+	
 	sleep(1);	
 	splash->finish(mainWindow);
 	delete splash;

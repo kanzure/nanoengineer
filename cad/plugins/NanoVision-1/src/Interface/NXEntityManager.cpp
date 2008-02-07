@@ -155,6 +155,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 				} else {
 					int idx = addFrame(frameSetId, moleculeSet);
 					if (inPollingThread) {
+						NXLOG_DEBUG("NXEntityManager", "emit newFrameAdded()");
 						emit newFrameAdded(frameSetId, frameIndex, moleculeSet);
 					}
 				}
@@ -172,6 +173,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 											   dataStoreInfo, filename,
 											   frameSetId, frameIndex);
 					if (inPollingThread) {
+						NXLOG_DEBUG("NXEntityManager", "emit newFrameAdded()");
 						emit newFrameAdded(frameSetId, frameIndex,
 										   getRootMoleculeSet(frameSetId,
 										   					  frameIndex));

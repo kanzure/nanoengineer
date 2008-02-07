@@ -53,6 +53,21 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 	} else {
 		setCurrentFile(fileName);
 
+		//
+		// Discover a store-not-complete trajectory frame set
+		NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
+		int trajId = dataStoreInfo->getTrajectoryId("frame-set-1");
+		TrajectoryGraphicsPane* trajPane = new TrajectoryGraphicsPane();
+		trajPane->setEntityManager(entityManager);
+		workspace->addWindow(trajPane);
+		trajPane->show();
+		if (!dataStoreInfo->storeIsComplete(trajId)) {
+			QObject::connect(entityManager,
+							 SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
+							 trajPane,
+							 SLOT(newFrame(int, int, NXMoleculeSet*)));
+		}
+	
 /* MDI data window example
 	DataWindow *child = new DataWindow;
 	workspace->addWindow(child);

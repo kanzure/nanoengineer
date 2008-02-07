@@ -20,14 +20,7 @@
     <number>6</number>
    </property>
    <item>
-    <widget class="QLabel" name="label" >
-     <property name="text" >
-      <string>__ Graphics pane __</string>
-     </property>
-     <property name="alignment" >
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
+    <widget class="QTextEdit" name="textEdit" />
    </item>
    <item>
     <widget class="QFrame" name="frame" >
