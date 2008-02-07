@@ -36,7 +36,6 @@ from PyQt4.Qt import QVariant
 
 from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QWidget
 from PyQt4.Qt import QSplitter, QMessageBox
-from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import QToolBar
 from PyQt4.Qt import QStatusBar
 
