@@ -393,7 +393,6 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         atomList = []           
         for atm in self.get_strand_atoms_in_bond_direction():
             if not atm.is_singlet():
-                print "***in setStrandSequence atm:", atm
                 atomList.append(atm)
         
         for atm in atomList:   
@@ -445,6 +444,123 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             continue
         
         return found_strand_atom    
+    
+    def get_strand_atoms_in_bond_direction_EXPERIMENTAL(self): # ninad 080205; bruce 080205 revised docstring
+        """
+        EXPERIMENTAL. (ALTERNATE IMPLEMENTATION OF 
+        get_strand_atoms_in_bond_direction. NOT USED ANYWHERE , SCHEDULED FOR 
+        REMOVAL - 2008-02-07
+        
+        Return a list of atoms in a fixed direction -- from 5' to 3'
+        
+        NOTE: this is a stub and we can modify it so that
+        it can accept other direction i.e. 3' to 5' , as an argument.
+        
+        @warning: for a ring, this uses an arbitrary start atom in self
+                  (so it is not yet useful in that case). ### VERIFY
+        
+        @warning: this only works for PAM3 chunks (not PAM5).
+
+        @note: this would return all atoms from an entire strand (chain or ring)
+               even if it spanned multiple chunks.
+        """ 
+        startAtom = None
+        atomList = []
+        
+        #Choose startAtom randomly (make sure that it's a PAM3 Sugar atom 
+        # and not a bondpoint)
+        for atm in self.atoms.itervalues():
+            if atm.element.symbol == 'Ss3':
+                startAtom = atm
+                break        
+        
+        if startAtom is None:
+            print_compact_stack("bug: no PAM3 Sugar atom (Ss3) found: " )
+            return []
+        
+        #Build one list in each direction, detecting a ring too 
+        
+        #ringQ decides whether the first returned list forms a ring. 
+        #This needs a better name in bond_chains.grow_directional_bond_chain
+        ringQ = False        
+        atomList_direction_1 = []
+        atomList_direction_2 = []     
+                   
+        b = None  
+        bond_direction = 0
+        for bnd in startAtom.directional_bonds():
+            if not bnd.is_open_bond(): # (this assumes strand length > 1)
+                #Determine the bond_direction from the 'startAtom'
+                direction = bnd.bond_direction_from(startAtom)
+                if direction in (1, -1):                    
+                    b = bnd
+                    bond_direction = direction
+                    break
+                                    
+        if b is None or bond_direction == 0:
+            return []         
+                           
+        #Find out the list of new atoms and bonds in the direction 
+        #from bond b towards 'startAtom' . This can either be 3' to 5' direction 
+        #(i.e. bond_direction = -1 OR the reverse direction 
+        #(presumably this is direction -1, 3' to 5'. Later, we will check 
+        #the bond direction and do appropriate things. (things that will decide 
+        #which list (atomList_direction_1 or atomList_direction_2) should 
+        #be prepended in atomList so that it has atoms ordered from 5' to 3'
+        #end. 
+        
+        # The 'ringQ' returns True if it's a ring.
+        # 'atomList_direction_1' does NOT include 'startAtom'.
+        #Following will always return 5' --> 3' atoms *after* start atom
+        ringQ, listb, lista = grow_directional_bond_chain(b, startAtom)
+        del listb # don't need list of bonds
+        
+        if ringQ:
+            #First add 'startAtom' (as its not included in atomList_direction_1
+            atomList.append(startAtom)
+            #extend atomList with remaining atoms
+            atomList.extend(lista)            
+        else:       
+            del lista #not used anywhere
+            
+            #Its not a ring. Now we will create two lists , each containing atoms
+            #in either direction of the startAtom. Note that these lists will 
+            #NOT include the startAtom.
+           
+            atomList_direction_1 = []
+            atomList_direction_2 = []
+            
+            #atomList_direction_1 = self._grow_strand_atom_chain(startAtom, bond_direction)
+            #atomList_direction_2 = self._grow_strand_atom_chain(startAtom, -bond_direction)
+            
+            next_atom = startAtom
+            while (next_atom is not None):                
+                next_atom = next_atom.strand_next_baseatom(bond_direction = bond_direction)
+                if next_atom is None:
+                    break
+                atomList_direction_1.append(next_atom)
+          
+            #start atom to 5' end
+            next_atom = startAtom
+            while (next_atom is not None):                
+                next_atom = next_atom.strand_next_baseatom(bond_direction = - bond_direction)
+                if next_atom is None:
+                    break
+                atomList_direction_2.append(next_atom)
+         
+            if bond_direction == -1:
+                atomList_direction_1.reverse()                
+                atomList.extend(atomList_direction_1)
+                atomList.append(startAtom)
+                atomList.extend(atomList_direction_2)
+            else:
+                atomList_direction_2.reverse()
+                atomList.extend(atomList_direction_2)
+                atomList.append(startAtom)
+                atomList.extend(atomList_direction_1)
+                           
+        return atomList   
+    
     
     def get_strand_atoms_in_bond_direction(self): # ninad 080205; bruce 080205 revised docstring
         """
@@ -506,37 +622,25 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                                     
         if b is None or bond_direction == 0:
             return []         
-        DEBUG_GROW_DIRECTIONAL_BOND_CHAIN = 0 # set it to 1 to enable debug print statements
-        if DEBUG_GROW_DIRECTIONAL_BOND_CHAIN:
-            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-            print "** start Atom = ", startAtom
-            print "*** other_Atom =", b.other(startAtom)
-            print "*** bond b =", b
-            
-            print "***direction of bond, which is pointing *away* from startAtom along bond  =", bond_direction
-            #Negative bond direction indicates 3' to 5' , positive indicates 5' to 3'
-                   
+                           
         #Find out the list of new atoms and bonds in the direction 
         #from bond b towards 'startAtom' . This can either be 3' to 5' direction 
         #(i.e. bond_direction = -1 OR the reverse direction 
-        #(presumably this is direction -1, 3' to 5'. Later, we will check 
-        #the bond direction and do appropriate things. (things that will decide 
-        #which list (atomList_direction_1 or atomList_direction_2) should 
-        #be prepended in atomList so that it has atoms ordered from 5' to 3'
-        #end. 
+        # Later, we will check  the bond direction and do appropriate things. 
+        #(things that will decide which list (atomList_direction_1 or 
+        #atomList_direction_2) should  be prepended in atomList so that it has 
+        #atoms ordered from 5' to 3' end. 
         
-        # The 'ringQ' returns True if it's a ring.
         # 'atomList_direction_1' does NOT include 'startAtom'.
+        # See a detailed explanation below on how atomList_direction_a will be 
+        # used, based on bond_direction
         ringQ, listb, atomList_direction_1 = grow_directional_bond_chain(b, startAtom)
-        if DEBUG_GROW_DIRECTIONAL_BOND_CHAIN:
-            print "~~~~~~~~~atomList_direction_1"
-            for atm in atomList_direction_1:
-                print "~~~atm =", atm
-            print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        
         del listb # don't need list of bonds
         
         if ringQ:
-            #First add 'startAtom' (as its not included in atomList_direction_1
+            # The 'ringQ' returns True So its it's a 'ring'.
+            #First add 'startAtom' (as its not included in atomList_direction_1)
             atomList.append(startAtom)
             #extend atomList with remaining atoms
             atomList.extend(atomList_direction_1)            
@@ -544,46 +648,77 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             #Its not a ring. Now we need to make sure to include atoms in the 
             #direction_2 (if any) from the 'startAtom' . i.e. we need to grow 
             #the directional bond chain in the opposite direction. 
-            #Grow directional bond in other direction
+            
             other_atom = b.other(startAtom)
-            if not other_atom.is_singlet():            
+            if not other_atom.is_singlet():  
                 ringQ, listb, atomList_direction_2 = grow_directional_bond_chain(b, other_atom)
                 assert not ringQ #bruce 080205
                 del listb
+                #See a detailed explanation below on how 
+                #atomList_direction_2 will be used based on 'bond_direction'
                 atomList_direction_2.insert(0, other_atom)
    
             atomList = [] # not needed but just to be on a safer side.
+        
             if bond_direction == 1:
-                #This means that the direction FROM startAtom TO bond b is 
-                #from 3' to 5'
+                # 'bond_direction' is the direction *away from* startAtom and 
+                # along the bond 'b' declared above. . 
                 
-                #bond b to startAtom is a 5' to 3' direction. 
-                #so, if there are any Sugar atoms in the opposite direction 
-                #of the 'startAtom' (i.e. going towards 5' end), 
-                #they need to come *before* the atoms 
-                #after the 'startAtom' in direction 1..
+                # This can be represented by the following sketch --
+                # (3'end) <--1 <-- 2 <-- 3 <-- 4 <-- (5' end)
                 
-                #We need to reverse atomList_direction_2 because the 'atomList' 
-                #that this  method will return needs to have atoms ordered from 
-                #5' end to 3' end..and the original atomList_direction_2 has 
-                #atoms from 3' to 5'.                 
+                # Let startAtom be '2' and bond 'b' be directional bond between 
+                # 1 and 2. In this case, the direction of bond *away* from 
+                # '2' and along 2  = bond direction of bond 'b' and thus 
+                # atoms traversed along bond_direction = 1 lead us to 3' end. 
+                
+                # Now, 'atomList_direction_1'  is computed by 'growing' (expanding)
+                # a bond chain  in the direction that goes from bond b 
+                # *towards* startAtom. That is, in this case it is the opposite 
+                # direction of one specified by 'bond_direction'.  The last atom
+                # in atomList_direction_1 is the (5' end) atom.
+                # Note that atomList_direction_1 doesn't include 'startAtom'
+                # Therefore, to get atomList ordered from 5'to 3' end we must
+                #reverse atomList_direction_1 , then append startAtom to the 
+                #atomList (as its not included in atomList_direction_1) and then 
+                #extend atoms from atomList_direction_2. 
+                
+                #What is atomList_direction_2 ?  It is the list of atoms 
+                #obtained by growing bond chain from bond b, in the direction of 
+                #atom 1 (atom 1 is the 'other atom' of the bond) . In this case 
+                #these are the atoms in the direction same as 'bond_direction'
+                #starting from atom 1. Thus the atoms in the list are already 
+                #arranged from 5' to 3' end. (also note that after computing 
+                #the atomList_direction_2, we also prepend 'atom 1' as the 
+                #first atom in that list. See the code above that does that.                 
+                atomList_direction_1.reverse()                
+                atomList.extend(atomList_direction_1)
+                atomList.append(startAtom)
+                atomList.extend(atomList_direction_2)                
+                
+            else:     
+                #See a detailed explanation above. 
+                #Here, bond_direction == -1. 
+                
+                # This can be represented by the following sketch --
+                # (5'end) --> 1 --> 2 --> 3 --> 4 --> (3' end)
+                
+                #bond b is the bond betweern atoms 1 and 2. 
+                #startAtom remains the same ..i.e. atom 2. 
+                
+                #As you can notice from the sketch, the bond_direction is 
+                #direction *away* from 2, along bond b and it leads us to 
+                # 5' end. 
+                
+                #based on how atomList_direction_2 (explained earlier), it now 
+                #includes atoms begining at 1 and ending at 5' end. So 
+                #we must reverse atomList_direction_2 now to arrange them 
+                #from 5' to 3' end. 
                 atomList_direction_2.reverse()
                 atomList.extend(atomList_direction_2)
                 atomList.append(startAtom)
                 atomList.extend(atomList_direction_1)
-            else:
-                #bond_direction is -1. Meaning the bond b --> startAtom direction
-                #goes from 3' to 5' end. Thus, atomList_direction_1 has 
-                #atoms arranged from 3' to 5' end. This means that we need to 
-                #consider the reverse of atomList_direction_1 first in the 
-                #'atomList'(that will be returned) and then the other list
-                #atomList_direction_2, which will have atoms going from 5' to 3'               
-                atomList_direction_1.reverse()
-                atomList.extend(atomList_direction_1)
-                atomList.append(startAtom)
-                atomList.extend(atomList_direction_2)
-                         
-
+        
         #TODO: could zap first and/or last element if they are bondpoints 
         #[bruce 080205 comment]        
         return atomList   
