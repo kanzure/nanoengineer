@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Dna_Constants.py -- constants for Dna.
 
@@ -8,7 +8,7 @@ and the older DnaGenHelper.py which it supersedes
 
 @author: Mark Sims
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 @see: References:
       - U{The Standard IUB codes used in NanoEngineer-1
@@ -22,7 +22,7 @@ History:
 """
 
 import env
-from constants import purple, brass, steelblue, orange, darkgray, lightblue
+from constants import purple, brass, steelblue, lightgreen, darkgray, lightblue
 from constants import darkorange, violet, copper, olive, gray
 from prefs_constants import adnaBasesPerTurn_prefs_key, adnaRise_prefs_key
 from prefs_constants import bdnaBasesPerTurn_prefs_key, bdnaRise_prefs_key
@@ -72,11 +72,12 @@ dnaDict = \
 # by breaking an existing strand.
 # Do not use the following colors in _strandColorList: 
 #   - white/lightgray (reserved for axis)
-#   - black (reserved as a default color for scaffold strand)
+#   - black (reserved as a default color for scaffold strand) [also used for dna updater duplex errors (subject to change) bruce 080206]
 #   - yellow (used for hover highlighting)
 #   - red (used as delete highlight color)
 #   - green (reserved for selection color)
-_strandColorList = [ purple, brass, steelblue, orange, darkgray, lightblue,
+#   - orange (reserved for dna updater errors on atoms and bonds [bruce 080206, subject to change])
+_strandColorList = [ purple, brass, steelblue, lightgreen, darkgray, lightblue, # bruce 080206 orange -> lightgreen, see comment above
                     darkorange, violet, copper, olive, gray]
 
 _strand_color_counter = 0
