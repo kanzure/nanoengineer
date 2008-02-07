@@ -5,13 +5,15 @@
 AM_CPPFLAGS = -I$(top_srcdir)/include -DGMXLIBDIR=\"$(datadir)/top\"
 
 LDADD = ../mdlib/libmd@LIBSUFFIX@.la ../gmxlib/libgmx@LIBSUFFIX@.la \
-	-lhdf5 -lHDF5_SimResults
+    -lHDF5_SimResults -lhdf5
 
 bin_PROGRAMS = \
 	grompp		mdrun		tpbconv	  	pdb2gmx		\
 	protonate	luck		gmxdump				\
 	gmxcheck  	x2top		ffscan
 
+luck_SOURCES = luck.c cplusplus.cpp
+gmxdump_SOURCES = gmxdump.c cplusplus.cpp
 
 grompp_SOURCES = \
 	topio.c 	toppush.c 	topcat.c 	topshake.c 	\

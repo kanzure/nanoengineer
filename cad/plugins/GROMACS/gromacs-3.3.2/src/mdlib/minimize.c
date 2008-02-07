@@ -503,7 +503,7 @@ time_t do_cg(FILE *log,int nfile,t_filenm fnm[],
     fp_trn = write_traj(log,cr,ftp2fn(efTRN,nfile,fnm),nsb,step,(real) step,
 			lambda,nrnb,nsb->natoms,
 			do_x ? state->x  : NULL,NULL,  /* we never have velocities */
-			do_f ? f  : NULL,state->box, NULL);
+			do_f ? f  : NULL,state->box, top);
     
     /* Take a step downhill.
      * In theory, we should minimize the function along this direction.
@@ -824,7 +824,7 @@ time_t do_cg(FILE *log,int nfile,t_filenm fnm[],
   /* Only write the trajectory if we didn't do it last step */
   fp_trn = write_traj(log,cr,ftp2fn(efTRN,nfile,fnm),
 		      nsb,step,(real)step,
-		      lambda,nrnb,nsb->natoms,!do_x ? state->x : NULL ,NULL,!do_f ? f : NULL,state->box, NULL);
+		      lambda,nrnb,nsb->natoms,!do_x ? state->x : NULL ,NULL,!do_f ? f : NULL,state->box, top);
   if (MASTER(cr))
     write_sto_conf(ftp2fn(efSTO,nfile,fnm),
 		   *top->name, &(top->atoms),state->x,NULL,state->box);
@@ -1074,7 +1074,7 @@ time_t do_lbfgs(FILE *log,int nfile,t_filenm fnm[],
     write_traj(log,cr,ftp2fn(efTRN,nfile,fnm),nsb,step,(real) step,
 	       lambda,nrnb,nsb->natoms,
 	       do_x ? state->x  : NULL,NULL,  /* we never have velocities */
-	       do_f ? f  : NULL,state->box, NULL);
+	       do_f ? f  : NULL,state->box, top);
     
     /* Do the linesearching in the direction dx[point][0..(n-1)] */
     
@@ -1466,7 +1466,7 @@ time_t do_lbfgs(FILE *log,int nfile,t_filenm fnm[],
   /* Only write the trajectory if we didn't do it last step */
   write_traj(log,cr,ftp2fn(efTRN,nfile,fnm),
 	     nsb,step,(real)step,
-	     lambda,nrnb,nsb->natoms,!do_x ? state->x : NULL ,NULL,!do_f ? f : NULL,state->box, NULL);
+	     lambda,nrnb,nsb->natoms,!do_x ? state->x : NULL ,NULL,!do_f ? f : NULL,state->box, top);
   if (MASTER(cr))
     write_sto_conf(ftp2fn(efSTO,nfile,fnm),
 		   *top->name, &(top->atoms),state->x,NULL,state->box);

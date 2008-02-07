@@ -6,10 +6,10 @@
 
 // hdf5_simresults.h is the GMX adaptor for HDF5_SimResults
 #include "hdf5_simresults.h"
-#include "ne1/HDF5_SimResults.h"
+#include "Nanorex/HDF5_SimResults.h"
 
 int frameIndex = 0;
-ne1::HDF5_SimResults* simResults = 0;
+Nanorex::HDF5_SimResults* simResults = 0;
 
 
 /* FUNCTION: openHDF5dataStore */
@@ -57,7 +57,7 @@ printf(">>> hdf5simresults.cpp:openHDF5dataStore\n");
 	//
 	std::string message;
 	if (status == 0) {
-		simResults = new ne1::HDF5_SimResults();
+		simResults = new Nanorex::HDF5_SimResults();
 		
 		status = simResults->openDataStore(dataStoreDirectory.c_str(), message);
 		if (status) {
@@ -67,6 +67,9 @@ printf(">>> hdf5simresults.cpp:openHDF5dataStore\n");
 			simResults = 0;
 		}
 	}
+	
+	// Set the run result to "still running"
+	status = simResults->setRunResult(1, "", message);
 	
 	// Create a frame set
 	//
