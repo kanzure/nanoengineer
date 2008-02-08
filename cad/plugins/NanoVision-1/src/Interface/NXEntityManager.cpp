@@ -31,7 +31,7 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 	NXLOG_CONFIG("NXEntityManager",
 				 string("Plugins search path: ") + pluginsSearchPath);
 	vector<QDir> searchPath;
-	NXStringTokenizer tokenizer(pluginsSearchPath, ":");
+	NXStringTokenizer tokenizer(pluginsSearchPath, ";");
 	while (tokenizer.hasMoreTokens())
 		searchPath.push_back(QDir(tokenizer.getNextToken().c_str()));
 	
