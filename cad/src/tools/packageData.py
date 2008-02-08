@@ -319,9 +319,9 @@ packageMapping_for_files = {
     "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_old",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
     "DnaSegment_EditCommand"           : "command|dna/commands/DnaSegment",
-    "DnaSegment_GraphicsMode"          : "graphics_mode|dna/commands/DnaSegment",    
+    "DnaSegment_GraphicsMode"          : "graphics_mode|dna/commands/DnaSegment",
     "DnaSegment_PropertyManager"       : "ui/propmgr|dna/commands/DnaSegment",
-    "DnaSegment_ResizeHandle"          : "graphics_drawable", # (a DragHandler)
+    "DnaSegment_ResizeHandle"          : "graphics_drawable|dna/commands/DnaSegment", # [bruce 080207 reclassified to stay with command]
     "DnaSequenceEditor"                : "widget|DnaSequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
     "Dna_Constants"                    : "model|dna/model", # (since used by lots of files in several dna-related commands)
     "DragHandler"                      : "graphics_drawable",
