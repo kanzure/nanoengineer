@@ -1073,13 +1073,16 @@ class Node( StateMixin):
         """
         Apply fn to self and (as overridden in Group) all its members;
         see Group.apply2all docstring for details.
+        [overridden in Group]
         """
         fn(self)
         return
     
-    def apply2tree(self, fn): ###@@@ should rename (both defs)
+    def apply_to_groups(self, fn): #bruce 080207 renamed apply2tree -> apply_to_groups
         """
-        Like apply2all, but only applies fn to all Group nodes (at or under self).
+        Like apply2all, but only applies fn to all Group nodes (at or under self)
+        (not including Blocks).
+        [overridden in Group and Block]
         """
         pass
 
@@ -1089,6 +1092,7 @@ class Node( StateMixin):
         but don't scan below picked nodes.
 
         See Group.apply2picked docstring for details.
+        [overridden in Group]
         """
         if self.picked:
             fn(self)

@@ -588,18 +588,20 @@ class Group(Node):
         copied only when we reach it. For example, if fn moves a node to a later
         subtree, then the same apply2all scan will reach the same node again
         in its new position.
+        [overrides Node implem]
         """
         fn(self)
         for ob in self.members[:]:
             ob.apply2all(fn)
 
-    def apply2tree(self, fn): #e rename?
+    def apply_to_groups(self, fn): #bruce 080207 renamed apply2tree -> apply_to_groups
         """
         Like apply2all, but only applies fn to all Group nodes (at or under self).
+        [overrides Node implem]
         """
         fn(self)
         for ob in self.members[:]:
-            ob.apply2tree(fn)
+            ob.apply_to_groups(fn)
 
     def apply2picked(self, fn):
         """
@@ -609,6 +611,7 @@ class Group(Node):
         Thus, for any node, fn is never applied to both that node and any of its ancestors.
         For effect of fn modifying a members list, see comments in apply2all docstring.
         [An example of (i hope) a safe way of modifying it, as of 050121, is in Group.ungroup.]
+        [overrides Node implem]
         """
         if self.picked:
             fn(self)
