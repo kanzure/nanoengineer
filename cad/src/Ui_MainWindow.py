@@ -52,10 +52,10 @@ class Ui_MainWindow(object):
         self.setWindowTitle("NanoEngineer-1")
         
         # Set minimum width and height of the main window.
-        # To do: Check that the current screen size is at least 1024 x 768.
-        MAIN_WINDOW_SIZE = (1024, 768) # Mark 2007-12-23
-        self.setMinimumWidth(MAIN_WINDOW_SIZE[0])
-        self.setMinimumHeight(MAIN_WINDOW_SIZE[1])
+        # To do: Check that the current screen size is at least 800 x 600.
+        MINIMUM_MAIN_WINDOW_SIZE = (800, 600) # Mark 2008-02-08
+        self.setMinimumWidth(MINIMUM_MAIN_WINDOW_SIZE[0])
+        self.setMinimumHeight(MINIMUM_MAIN_WINDOW_SIZE[1])
 
         # Create all widgets for all main window menus and toolbars.
         Ui_MainWindowWidgets.setupUi(self)
