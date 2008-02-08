@@ -756,6 +756,8 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
                     #bruce 060721, cond revised 071121
                     print "debug warning (likely bug): get_singlet_under_cursor returning an arbitrary bondpoint of %r" % (a,)
                 return a.singNeighbors()[0]
+            # note the obsolete element symbols below (and see comment above);
+            # needs fixing sometime.
             if reaction_from == 'Pl' and \
                a.element.symbol == 'Sh' and \
                len(a.bonds) == 1 and \

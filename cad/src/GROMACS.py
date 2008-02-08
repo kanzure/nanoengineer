@@ -57,7 +57,7 @@ class GROMACS:
         # Pseudo-atom tables
         #
         self.pseudoAtomTypes = \
-            ['??', 'Ax', 'Ae', 'Ss', 'Sj', 'Pl', 'Pe', 'Sh', 'Hp']
+            ['??', 'Ax', 'Ae', 'Ss', 'Sj', 'Pl', 'Pe', 'Sh', 'Hp'] # BUG: element names have been changed since this code worked
         self.pseudoAtomCharges = \
             [0.0,  0.0,  0.0,  0.0,  0.0, -1.0, -2.0,  0.0,  0.0]
         self.pseudoAtomMasses = \
