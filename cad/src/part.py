@@ -1037,7 +1037,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         atoms = jig.atoms # public attribute of the jig
         assert atoms, "bug: new jig has no atoms: %r" % jig
         for atm in atoms:
-            assert atm.molecule.part is self, "bug: new jig's atoms are not all in the current Part"
+            assert atm.molecule.part is self, \
+                   "bug: new jig %r's atoms are not all in the current Part %r (e.g. %r is in %r)" % \
+                   ( jig, self, atm, atm.molecule.part )
         # First just put it after any atom's chunk (as old code did); then fix that place below.
         self.ensure_toplevel_group() #bruce 050415 fix bug 452 item 17
         mol = atoms[0].molecule # arbitrary chunk involved with this jig
