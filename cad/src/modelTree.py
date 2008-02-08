@@ -1,12 +1,15 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 modelTree.py -- The model tree display widget.
 
 [Note: in Qt4, this no longer uses TreeWidget.py or TreeView.py.]
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
-History: modelTree.py was originally written by some combination of
+History:
+
+modelTree.py was originally written by some combination of
 Huaicai, Josh, and Mark. Bruce (Jan 2005) reorganized its interface with
 Node and Group and their subclasses (Utility.py and other modules)
 and rewrote a lot of the model-tree code (mainly to fix bugs),
@@ -30,6 +33,9 @@ might therefore be:
   conventions suitable for all our tree widgets, if we define other ones), and
   
 - modelTree.py (customized for showing an NE1 "model tree" per se).
+
+Bruce later rewrote much of modelTreeGui.py, and has added lots
+of context menu commands to modelTree.py.
 """
 
 from PyQt4 import QtCore
@@ -114,7 +120,9 @@ def accumulate_stats(node, stats):
 
 class modelTree(modelTreeGui.Ne1Model_api):
     def __init__(self, parent, win, name = "modelTreeView", size = (200, 560)):
-        """#doc"""
+        """
+        #doc
+        """
         ###@@@ review all init args & instvars, here vs subclasses
         self.modelTreeGui = modelTreeGui.ModelTreeGui(win, name, self, parent)
             # WARNING: self.modelTreeGui is a PUBLIC MEMBER which is accessed by MWsemantics (at least)
@@ -150,7 +158,8 @@ class modelTree(modelTreeGui.Ne1Model_api):
 
     def update_select_mode(self): #bruce 050124; should generalize and refile; should be used for more or for all events ###@@@
         #bruce 060403 revised this but didn't update docstring; now it can change from *Chunk modes to Build, only, I think
-        """This should be called at the end of event handlers which might have
+        """
+        This should be called at the end of event handlers which might have
         changed the current internal selection mode (atoms vs chunks),
         to resolve disagreements between that and the visible selection mode
         iff it's one of the Select modes [or more generally, i assume as of 060403,
@@ -264,7 +273,8 @@ class modelTree(modelTreeGui.Ne1Model_api):
         return
 
     def resetAssy_and_clear(self): #bruce 050201 for Alpha, part of Huaicai's bug 369 fix
-        """This method should be called from the end of MWsemantics.__clear
+        """
+        This method should be called from the end of MWsemantics.__clear
         to prevent a crash on (at least) Windows during File->Close when the mtree is
         editing an item's text, using a fix developed by Huaicai 050201,
         which is to run the QListView method self.clear().
@@ -375,8 +385,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
     # Everything else in this class is context menu stuff
     
     def make_cmenuspec_for_set(self, nodeset, optflag): # [see also the term Menu_spec]
-        "#doc... see superclass docstring"
-
+        """
+        #doc... see superclass docstring
+        """
         #e some advice [bruce]: put "display changes" (eg Hide) before "structural changes" (such as Group/Ungroup)...
         #e a context-menu command "duplicate" which produces
         ##a copy of them, with related names and a "sibling" position.
@@ -504,16 +515,46 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # (As for Group, later this can become more general, tho in this case it might be general
         #  enough already -- it's more "self-contained" than the Group command can be.)
 
+        offered_ungroup = False # modified below; used by other menu items farther below
+        
         if len(nodeset) == 1 and nodeset[0].permits_ungrouping():
             # (this implies it's a group, or enough like one)
             node = nodeset[0]
-            if node.dad == self.shelf_node and len(node.members) > 1:
+            if node.is_block(): #bruce 080207
+                # then we probably should not be here... but in case we are:
+                text = "Ungroup %s (unsupported)" % (node.__class__.__name__.split('.')[-1],)
+                    # todo: put that into Node.classname_for_ModelTree()
+            elif not node.members: #bruce 080207
+                text = "Remove empty Group"
+            elif node.dad == self.shelf_node and len(node.members) > 1:
+                # todo: "Ungroup into %d separate clipboard item(s)"
                 text = "Ungroup into separate clipboard items" #bruce 050419 new feature (distinct text in this case)
             else:
+                # todo: "Ungroup %d item(s)"
                 text = "Ungroup"
             res.append(( text, self.cm_ungroup ))
+            offered_ungroup = True
         else:
             res.append(( 'Ungroup', noop, 'disabled' ))
+
+        # Remove all %d empty Groups (which permit ungrouping) [bruce 080207]
+        count_holder = [0]
+        def func(group, count_holder = count_holder):
+            if not group.members and group.permits_ungrouping():
+                count_holder[0] += 1 # UnboundLocalError when this was count += 1
+        for node in nodeset:
+            node.apply_to_groups(func) # note: this treats Blocks as leaves
+        count = count_holder[0]
+        if count == 1 and len(nodeset) == 1 and not nodeset[0].members:
+            # this is about the single top selected node,
+            # so it's redundant with the Ungroup command above
+            # (and if that was not offered, this should not be either)
+            pass
+        elif count:
+            res.append(( 'Remove all %d empty Groups' % count, self.cm_remove_empty_groups ))
+                # lack of fix_plurals seems best here; review when seen
+        else:
+            pass
 
         ## res.append(None) # separator - from now on, add these at start of optional sets, not at end
 
@@ -761,7 +802,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
         return
 
     def cm_group(self): # bruce 050126 adding comments and changing behavior; 050420 permitting exactly one subtree
-        "put the selected subtrees (one or more than one) into a new Group (and update)"
+        """
+        put the selected subtrees (one or more than one) into a new Group (and update)
+        """
         ##e I wonder if option/alt/midButton should be like a "force" or "power" flag
         # for cmenus; in this case, it would let this work even for a single element,
         # making a 1-item group. That idea can wait. [bruce 050126]
@@ -885,6 +928,21 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.mt_update()
         return
 
+    def cm_remove_empty_groups(self): #bruce 080207
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        empties = []
+        def func(group):
+            if not group.members and group.permits_ungrouping():
+                empties.append(group)
+        for node in nodeset:
+            node.apply_to_groups(func) # note: this treats Blocks as leaves
+        for group in empties:
+            group.kill()
+        msg = fix_plurals("removed %d empty Group(s)" % len(empties))
+        env.history.message( msg)
+        self.mt_update()
+        return
+    
     # copy and cut and delete are doable by tool buttons
     # so they might as well be available from here as well;
     # anyway I tried to fix or mitigate their bugs [bruce 050131]:
@@ -902,7 +960,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
         ##self.win.win_update()
         
     def cmSelectAllAtomsInChunk(self): #Ninad060816
-        """Selects all the atoms preseent in the selected chunk(s)"""
+        """
+        Selects all the atoms preseent in the selected chunk(s)
+        """
         nodeset = self.modelTreeGui.topmost_selected_nodes()
         self.assy.part.permit_pick_atoms()
         for m in nodeset:
@@ -911,7 +971,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.win.win_update()
     
     def cmEditChunkColor(self): #Ninad 070321
-         '''Edit the color of the selected chunks using the Model Tree context menu'''         
+         """
+         Edit the color of the selected chunks using the Model Tree context menu
+         """         
          from widgets import RGBf_to_QColor
          
          nodeset = self.modelTreeGui.topmost_selected_nodes()
@@ -935,7 +997,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
              self.win.dispObjectColor()
 
     def cmRenameNode(self): #bruce 070531
-        """Put up a dialog to let the user rename the selected node. (Only one node for now.)"""
+        """
+        Put up a dialog to let the user rename the selected node. (Only one node for now.)
+        """
         nodeset = self.modelTreeGui.topmost_selected_nodes()
         assert len(nodeset) == 1 # caller guarantees this
         node = nodeset[0]
@@ -1004,7 +1068,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.mt_update()
 
     def cm_delete_clipboard(self): #bruce 050505; docstring added 050602
-        "Delete all clipboard items"
+        """
+        Delete all clipboard items
+        """
         ###e get confirmation from user?
         for node in self.assy.shelf.members[:]:
             node.kill() # will this be safe even if one of these is presently displayed? ###k
