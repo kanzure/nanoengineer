@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 	if (settings.value("Logging/EnableConsoleLogging", true).toBool()) {
 		logLevel =
 			settings.value("Logging/ConsoleLoggingLevel",
-						   NXLogLevel_Info).toInt();
+						   NXLogLevel_Config).toInt();
 		logger->addHandler(new NXConsoleLogHandler((NXLogLevel)logLevel));
 	}
 	
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
 	if (settings.value("Logging/EnableFileLogging", true).toBool()) {
 		logLevel =
 			settings.value("Logging/FileLoggingLevel",
-						   NXLogLevel_Info).toInt();
+						   NXLogLevel_Config).toInt();
 		QString logFilename = settings.fileName();
 		logFilename.chop(3);
 		logFilename.append("log");
@@ -48,14 +48,18 @@ int main(int argc, char *argv[]) {
 	}
 	
 	// Dock widget logging
-	LogHandlerWidget* logHandlerWidget = new LogHandlerWidget(NXLogLevel_Info);
+	LogHandlerWidget* logHandlerWidget =
+		new LogHandlerWidget(NXLogLevel_Config);
 	logger->addHandler(logHandlerWidget);
 
 	// Initialize entity manager and load import/export plugins
 	splash->showMessage("Loading entity manager...");
 	splash->repaint();
 	NXProperties* properties = new NXProperties();
-	QString pluginsSearchPath = settings.value("PluginsSearchPath").toString();
+	
+	QString pluginsSearchPath =
+		settings.value("Miscellaneous/PluginsSearchPath").toString();
+printf("pSP=%s\n", qPrintable(pluginsSearchPath));
 	properties->setProperty("PluginsSearchPath", qPrintable(pluginsSearchPath));
 	settings.beginGroup("NXEntityManager");
 	QStringList keys = settings.allKeys();

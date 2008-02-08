@@ -139,6 +139,8 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 				}
 				index1 = pluginFormats.find("(", index2 + 1);
 			}
+			msg = "Loaded plugin: " + pluginLibrary;
+			NXLOG_INFO("NXEntityManager", msg);
 		}
 		pluginIndex++;
 		pluginKey =
