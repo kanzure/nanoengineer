@@ -1,48 +1,75 @@
-Hi all,
-
-  Is this beginning to look like the MMP file-format grammar? From files_mmp.py I see there are additional "tags" for items like rotors and jigs. Will those be necessary right now for NV1?
-
-  My focus right now is on MMP import-export for NV1. I am trying to identify a subset that I should be able to import now with the rest saved for post-FNANO work. Could someone advise?
-
-Thanks
-Manoj
-
-------------------------------------------------------------------------
 
 // from files_mmp.py
 
 
 mmp-input: 
-          | compound-stmt  mmp-input
+           | mmpformat-stmt  end-stmt
+           | mmpformat-stmt  compound-stmt-list  end-stmt
 
-compound-stmt:   mmpformat-stmt
+mmpformat-stmt :   mmpformat-reqd-stmt '\n'
+                 | mmpformat-reqd-stmt  mmpformat-pref-stmt '\n'
+
+mmpformat-reqd-stmt : 'mmpformat' [0-9]{6} 'required'
+
+mmpformat-pref-stmt : ';' [0-9]{6} 'preferred'
+
+compound-stmt-list :
+                     | compound-stmt  compound-stmt-list
+
+compound-stmt:
                | kelvin-stmt
                | group-block
-               | end-stmt
                | end1-stmt
 
-kelvin-stmt: 'kelvin' real-number
+kelvin-stmt: 'kelvin' real-number '\n'
 
 group-block: group-begin-stmt
              group-stmt-list
              group-end-stmt
 
-group-begin-stmt: 'group' '(' string-identifier ')'
+group-begin-stmt: 'group' '(' string-identifier ')' '\n'
 
-group-end-stmt: 'egroup' '(' string-identifier ')'
+group-end-stmt: 'egroup' '(' string-identifier ')' '\n'
 
-group-stmt-list:   group-stmt
+group-stmt-list:  
                  | group-stmt  group-stmt-list
 
 group-stmt:  
-            | group-info-stmt
+            | info-opengroup-stmt
             | csys-stmt
             | mol-stmt
-            | atom-stmt
+            | atom-bond-stmt
             | info-stmt
-            | bond-stmt
 
-atom-stmt: 'atom' id '(' atomic-num ')' coords 'def'
+mol-stmt : 'mol' '(' string-identifier ')' mol-style  '\n'  atoms-bonds-stmt-list
+
+mol-style : **TODO**
+
+atoms-bonds-stmt-list :   atom-bond-stmt
+                        | atom-bond-stmt  atoms-bonds-stmt-list
+
+atom-bond-stmt :  atom-stmt  bond-stmt-list
+
+atom-stmt: 'atom' id '(' atomic-num ')' coords atom-style-stmt '\n'
+
+atom-style-stmt : 
+
+bond-stmt-list :
+                 | bond-stmt  bond-stmt-list
+
+bond-stmt:   bond1-stmt
+           | bond2-stmt
+           | bond3-stmt
+           | bonda-stmt
+           | bondg-stmt
+           | bondc-stmt
+
+bond1-stmt : 'bond1' id-list '\n'
+bond2-stmt : 'bond2' id-list '\n'
+bond3-stmt : 'bond3' id-list '\n'
+bonda-stmt : 'bonda' id-list '\n'
+bondg-stmt : 'bondg' id-list '\n'
+bondc-stmt : 'bondc' id-list '\n'
 
 coords: '(' integer ',' integer ',' integer ')'
 
@@ -54,23 +81,25 @@ info-stmt :   info-chunk-stmt
             | info-espimage-stmt
             | info-povrayscene-stmt
 
-info-atom-stmt : 'info' 'atom' atom-property-name '=' atom-property-value
+info-atom-stmt : 'info' 'atom' atom-property-value-list '\n'
 
-bond-stmt:   bond1-stmt
-           | bond2-stmt
-           | bond3-stmt
-           | bonda-stmt
-           | bondg-stmt
-           | bondc-stmt
+atom-property-value-list :   atom-property-value-key
+                           | atom-property-value-key  atom-property-value-list
 
-bond1-stmt : 'bond1' id-list
-bond2-stmt : 'bond2' id-list
-bond3-stmt : 'bond3' id
-bonda-stmt : 'bonda' id-list
-bondg-stmt : 'bondg' id-list
-bondc-stmt : 'bondc' id-list
+
+// **TODO** may have to refine property categories so that only correct values may be assigned to them
+atom-property-value-key : atom-property-name '=' atom-property-value
+
+atom-property-name : **TODO**
+
+atom-property-value : **TODO**
+
+end-stmt : 'end'  string-list  '\n'
 
 string-identifier : string
+
+string-list : 
+              | string string-list
 
 string : identifier | identifier [\s]+ string
 
