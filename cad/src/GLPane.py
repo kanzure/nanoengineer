@@ -640,6 +640,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         @see: DnaLineMode.Draw
         @see: self._getFontForTextNearCursor
         """
+        if not textString:
+            return 
+        
         pos = self.cursor().pos()  
         # x, y coordinates need to be in window coordinate system. 
         # See QGLWidget.mapToGlobal for more details.
