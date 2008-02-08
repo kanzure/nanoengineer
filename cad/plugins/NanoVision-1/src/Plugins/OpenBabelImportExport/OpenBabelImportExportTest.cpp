@@ -14,6 +14,7 @@ void OpenBabelImportExportTest::setUp() {
 	entityManager = new NXEntityManager();
 		
 	NXProperties* properties = new NXProperties();
+	properties->setProperty("PluginsSearchPath", "../lib");
 	properties->setProperty("ImportExport.0.plugin",
 							"libOpenBabelImportExport");
 	properties->setProperty("ImportExport.0.exportFormats",

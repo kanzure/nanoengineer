@@ -1,6 +1,7 @@
 TEMPLATE = lib
 
-CONFIG += dll
+CONFIG += dll \
+ plugin
 
 DESTDIR = ../../../../lib
 

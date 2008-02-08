@@ -11,6 +11,7 @@
 
 #include <QDir>
 #include <QFile>
+#include <QObject>
 #include <QString>
 #include <QFileInfo>
 
@@ -19,38 +20,19 @@
 #include "Nanorex/Utility/NXCommandResult.h"
 #include "Nanorex/Interface/NXNumbers.h"
 #include "Nanorex/Interface/NXNanoVisionResultCodes.h"
-//#include "Nanorex/Interface/NXEntityManager.h"
 #include "Nanorex/Interface/NXDataImportExportPlugin.h"
 using namespace Nanorex;
 
-//#include <iostream>
 #include <vector>
-//#include <string>
-//#include <stack>
-//#include <list>
-//#include <map>
 using namespace std;
-
-#ifdef WIN32
-#	if _MSC_VER > 1000
-#		pragma once
-#	endif // _MSC_VER > 1000
-
-// Exclude rarely-used stuff from Windows headers
-#	define WIN32_LEAN_AND_MEAN
-#	include <windows.h>
-
-// DLL-specific
-#	define DLLEXPORT __declspec(dllexport)
-#else
-#	define DLLEXPORT
-#endif
-
-extern "C" DLLEXPORT NXPlugin* instantiate();
 
 
 /* CLASS: HDF5_SimResultsImportExport */
-class HDF5_SimResultsImportExport : public NXDataImportExportPlugin {
+class HDF5_SimResultsImportExport
+		: public QObject, public NXDataImportExportPlugin {
+	Q_OBJECT
+	Q_INTERFACES(Nanorex::NXDataImportExportPlugin)
+		
 public:
     HDF5_SimResultsImportExport();
     ~HDF5_SimResultsImportExport();

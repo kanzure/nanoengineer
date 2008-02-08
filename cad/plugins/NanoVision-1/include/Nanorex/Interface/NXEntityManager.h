@@ -8,13 +8,16 @@
 #include <string>
 using namespace std;
 
+#include <QDir>
+#include <QMutex>
 #include <QObject>
 #include <QString>
 #include <QThread>
+#include <QPluginLoader>
 
+#include "Nanorex/Utility/NXLogger.h"
 #include "Nanorex/Utility/NXUtility.h"
 #include "Nanorex/Utility/NXProperties.h"
-#include "Nanorex/Utility/NXPluginGroup.h"
 #include "Nanorex/Utility/NXStringTokenizer.h"
 #include "Nanorex/Interface/NXMoleculeSet.h"
 #include "Nanorex/Interface/NXNanoVisionResultCodes.h"
@@ -87,7 +90,6 @@ class NXEntityManager : public QObject {
 						   NXMoleculeSet* moleculeSet);
 
 	private:
-		NXPluginGroup* dataImpExpPluginGroup;
 		string importFileTypesString, exportFileTypesString;
 		map<string, NXDataImportExportPlugin*> dataImportTable;
 		map<string, NXDataImportExportPlugin*> dataExportTable;

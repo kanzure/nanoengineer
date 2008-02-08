@@ -12,25 +12,25 @@
 #include <string>
 using namespace std;
 
-#include "Nanorex/Utility/NXPlugin.h"
+#include <QtPlugin>
+
+//#include "Nanorex/Utility/NXPlugin.h"
 #include "Nanorex/Utility/NXCommandResult.h"
-#include "Nanorex/Interface/NXNumbers.h"
+//#include "Nanorex/Interface/NXNumbers.h"
 #include "Nanorex/Interface/NXMoleculeSet.h"
 #include "Nanorex/Interface/NXDataStoreInfo.h"
 
 namespace Nanorex {
 
-//class NXEntityManager;
 
 /* CLASS: NXDataImportExportPlugin */
 /**
  * Data Import/Export plugin interface.
  * @ingroup NanorexInterface PluginArchitecture
  */
-class NXDataImportExportPlugin : public NXPlugin {
+class NXDataImportExportPlugin {
 	public:
-		NXDataImportExportPlugin();
-		virtual ~NXDataImportExportPlugin();
+		virtual ~NXDataImportExportPlugin() {}
 
 		/**
 		 * Imports the system from the given file into the given molecule set.
@@ -57,12 +57,11 @@ class NXDataImportExportPlugin : public NXPlugin {
 		virtual NXCommandResult* exportToFile
 			(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
 			 const string& filename, int frameSetId, int frameIndex) = 0;
-
-	protected:
-		string mode;
-		//NXEntityManager* entityManager;
 };
 
 } // Nanorex::
+
+Q_DECLARE_INTERFACE(Nanorex::NXDataImportExportPlugin,
+					"com.Nanorex.Interface.NXDataImportExportPlugin/1.0")
 
 #endif

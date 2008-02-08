@@ -55,6 +55,8 @@ int main(int argc, char *argv[]) {
 	splash->showMessage("Loading entity manager...");
 	splash->repaint();
 	NXProperties* properties = new NXProperties();
+	QString pluginsSearchPath = settings.value("PluginsSearchPath").toString();
+	properties->setProperty("PluginsSearchPath", qPrintable(pluginsSearchPath));
 	settings.beginGroup("NXEntityManager");
 	QStringList keys = settings.allKeys();
 	QStringList::const_iterator iter;

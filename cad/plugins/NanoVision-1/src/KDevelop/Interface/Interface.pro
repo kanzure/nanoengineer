@@ -21,8 +21,7 @@ HEADERS += \
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH)
 
-SOURCES += ../../Interface/NXDataImportExportPlugin.cpp \
- ../../Interface/NXDataStoreInfo.cpp \
+SOURCES += ../../Interface/NXDataStoreInfo.cpp \
  ../../Interface/NXEntityManager.cpp \
  ../../Interface/NXMoleculeData.cpp \
  ../../Interface/NXMoleculeSet.cpp \

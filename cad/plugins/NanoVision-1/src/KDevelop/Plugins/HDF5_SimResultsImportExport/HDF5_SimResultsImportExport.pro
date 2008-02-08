@@ -8,7 +8,8 @@ INCLUDEPATH += ../../../../include \
 TEMPLATE = lib
 
 CONFIG += dll \
- debug
+ debug \
+ plugin
 
 LIBS += -L../../../../lib \
 -lNanorexUtility \
@@ -19,7 +20,7 @@ LIBS += -L../../../../lib \
 
 TARGETDEPS += ../../../../lib/libNanorexUtility.so \
 ../../../../lib/libNanorexInterface.so
-macx:TARGETDEPS ~= s/.so/.dylib/g
+macx : TARGETDEPS ~= s/.so/.dylib/g
 
 DESTDIR = ../../../../lib
 

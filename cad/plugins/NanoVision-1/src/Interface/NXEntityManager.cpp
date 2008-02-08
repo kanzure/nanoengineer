@@ -17,7 +17,6 @@ NXEntityManager::NXEntityManager() {
 /* DESTRUCTOR */
 NXEntityManager::~NXEntityManager() {
 	//delete rootMoleculeSet;
-	////delete dataImpExpPluginGroup;
 }
 
 
@@ -27,35 +26,72 @@ NXEntityManager::~NXEntityManager() {
  */
 void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
 	
+	// Create a vector of QDirs from the PluginsSearchPath property
+	string pluginsSearchPath = properties->getProperty("PluginsSearchPath");
+	NXLOG_CONFIG("NXEntityManager",
+				 string("Plugins search path: ") + pluginsSearchPath);
+	vector<QDir> searchPath;
+	NXStringTokenizer tokenizer(pluginsSearchPath, ":");
+	while (tokenizer.hasMoreTokens())
+		searchPath.push_back(QDir(tokenizer.getNextToken().c_str()));
+	
+	
+	// Initialize for first plugin
 	int pluginIndex = 0;
 	string msg, pluginFormats;
 	string pluginKey = "ImportExport.0";
 	string pluginLibrary =
 		string(properties->getProperty(pluginKey + ".plugin"));
-
 	if (pluginLibrary.length() == 0) {
 		msg = "No Data Import/Export plugins to load.";
 		cout << "WARNING: " << msg << endl;
 		NXLOG_WARNING("NXEntityManager", msg);
 	}
-
-	NXDataImportExportPlugin* plugin;
-	dataImpExpPluginGroup = new NXPluginGroup();
+	
+	// Iterate over discovered plugins and load them
+	bool fileExists = false;
+	vector<QDir>::iterator iter;
+	QString absPluginLibrary;
+	QObject* pluginObject = 0;
+	NXDataImportExportPlugin* plugin = 0;
 	while (pluginLibrary.length() != 0) {
-		plugin = 0;
-		if (dataImpExpPluginGroup->load(pluginLibrary.c_str()))
-			plugin =
-				(NXDataImportExportPlugin*)
-					(dataImpExpPluginGroup->instantiate(pluginLibrary.c_str()));
+#if defined(WIN32)
+		pluginLibrary += ".dll";
+#elif defined(__APPLE__)
+		pluginLibrary += ".dylib";
+#else
+		pluginLibrary += ".so";
+#endif
 
-		if (plugin == 0) {
+		// Find the plugin file
+		fileExists = false;
+		iter = searchPath.begin();
+		while (!fileExists && iter != searchPath.end()) {
+			absPluginLibrary = (*iter).absoluteFilePath(pluginLibrary.c_str());
+			if (QFileInfo(absPluginLibrary).exists())
+				fileExists = true;
+			iter++;
+		}
+		
+		if (fileExists) {
+			QPluginLoader loader(absPluginLibrary);
+			pluginObject = loader.instance();
+			
+		} else {
 			msg =
-				"Couldn't load Data Import/Export plugin: " +
-					pluginLibrary;
+				"Couldn't load Data Import/Export plugin (file not found): " +
+				pluginLibrary;
 			NXLOG_WARNING("NXEntityManager", msg);
-			cout << "WARNING: " << msg << endl;
+			pluginObject = 0;
+		}
+
+		if (pluginObject == 0) {
+			msg =
+				"Couldn't load Data Import/Export plugin: " + pluginLibrary;
+			NXLOG_WARNING("NXEntityManager", msg);
 
 		} else {
+			plugin = qobject_cast<NXDataImportExportPlugin*>(pluginObject);
 			
 			// Import formats registration
 			pluginFormats =

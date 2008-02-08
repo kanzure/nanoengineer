@@ -15,6 +15,7 @@ void HDF5_SimResultsImportExportTest::setUp() {
 	entityManager = new NXEntityManager();
 		
 	NXProperties* properties = new NXProperties();
+	properties->setProperty("PluginsSearchPath", "../lib");
 	properties->setProperty("ImportExport.0.plugin",
 							"libHDF5_SimResultsImportExport");
 	properties->setProperty("ImportExport.0.exportFormats",

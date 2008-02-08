@@ -3,13 +3,6 @@
 #include "HDF5_SimResultsImportExport.h"
 
 
-/* FUNCTION: instantiate */
-DLLEXPORT NXPlugin* instantiate() {
-	return new HDF5_SimResultsImportExport();
-}
-
-
-
 /* CONSTRUCTOR */
 HDF5_SimResultsImportExport::HDF5_SimResultsImportExport() {
 }
@@ -369,3 +362,4 @@ string HDF5_SimResultsImportExport::parseSuffix(const string& filename) {
 	return directory;
 }
 
+Q_EXPORT_PLUGIN2 (HDF5_SimResultsImportExport, HDF5_SimResultsImportExport)

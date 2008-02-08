@@ -3,13 +3,6 @@
 #include "OpenBabelImportExport.h"
 
 
-/* FUNCTION: instantiate */
-DLLEXPORT NXPlugin* instantiate() {
-	return new OpenBabelImportExport();
-}
-
-
-
 /* CONSTRUCTOR */
 OpenBabelImportExport::OpenBabelImportExport() {
 }
@@ -126,3 +119,5 @@ void OpenBabelImportExport::populateCommandResult
 	resultVector.push_back(message.c_str());
 	result->setParamVector(resultVector);
 }
+
+Q_EXPORT_PLUGIN2 (OpenBabelImportExport, OpenBabelImportExport)
