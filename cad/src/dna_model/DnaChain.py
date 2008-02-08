@@ -346,7 +346,7 @@ class DnaChain(object):
                     if next_atom_candidates:
                         next_atom = next_atom_candidates[0]
                         if next_atom._dna_updater__error:
-                            print "avoiding bug 080206 by not seeing next axis atom with error", next_atom ### REMOVE SOON
+                            ## print "avoiding bug 080206 by not seeing next axis atom with error", next_atom
                             next_atom = None
                     else:
                         next_atom = None
