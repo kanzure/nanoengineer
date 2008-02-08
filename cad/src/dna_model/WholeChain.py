@@ -381,12 +381,23 @@ class WholeChain(object):
 
         # now make the marker on those atoms
         # (todo: in future, we might give it some user settings too)
+        assert atom.molecule, "%r has no .molecule" % atom
+        
         assy = atom.molecule.assy
+        
+        assert assy
+        assert atom.molecule.part, "%r has no .part; .molecule is %r" % (atom, atom.molecule)
+        assert next_atom.molecule, "%r has no .molecule" % next_atom
+        assert next_atom.molecule.part, "%r has no .part; .molecule is %r" % (next_atom, next_atom.molecule)
+        assert atom.molecule.part is next_atom.molecule.part, \
+               "%r in part %r, %r in part %r, should be same" % \
+               (atom, atom.molecule.part, next_atom, next_atom.molecule.part)
+        
         marker_class = self._DnaMarker_class # subclass-specific constant
         marker = marker_class(assy, [atom, next_atom]) # doesn't give it a wholechain yet
 
         # give it a temporary home in the model (so it doesn't seem killed)
-        part = atom.molecule.part or assy.part
+        part = atom.molecule.part
         part.place_new_jig(marker) # overkill, since we'll move it later,
             # but good for now, since this location ought to mitigate bugs
             # if that doesn't happen (e.g. it's probably in the correct DnaGroup)

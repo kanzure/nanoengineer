@@ -334,9 +334,14 @@ def find_or_make_DnaGroup_for_homeless_object(node):
     global dict from Part to this DnaGroup, and discard it after every run
     (so no need for this dict to be weak-keyed).
 
-    If we have to guess the Part, we'll use the node's assy's current Part.
+    If we have to guess the Part, we'll use the node's assy's current Part
+    (but complain, since this probably indicates a bug).
     """
     part = node.part or node.assy.part
+    assert part
+    if not node.part:
+        print "likely bug: %r in %r has no .part" % \
+              (node, node.assy)
     try:
         return _f_DnaGroup_for_homeless_objects_in_Part[part]
     except KeyError:

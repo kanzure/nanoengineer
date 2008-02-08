@@ -731,7 +731,8 @@ class DnaLadder(object):
     
     def remake_chunks(self):
         """
-        #doc
+        Make new chunks for self, as close to the old chunks as we can
+        (definitely in the same Part; in the same Group if they were in one).
         
         @return: list of all newly made (by this method) DnaLadderRailChunks
                  (or modified ones, if that's ever possible)
@@ -753,10 +754,20 @@ class DnaLadder(object):
                 want_class = DnaAxisChunk
             else:
                 want_class = DnaStrandChunk
-            old_chunk = rail.baseatoms[0].molecule # from arbitrary atom in rail
-            assy = old_chunk.assy
-            assert assy is self.assy
-            part = assy.part
+            old_chunk = rail.baseatoms[0].molecule # from arbitrary baseatom in rail
+##            assy = old_chunk.assy
+##            assert assy is self.assy
+##            part = assy.part
+            part = old_chunk.part
+            if not part:
+                # will this happen in MMKit? get it from assy
+                assy = old_chunk.assy
+                print "bug: %r in %r has no .part" % \
+                      (old_chunk, assy)
+                assert assy is self.assy
+                part = assy.part
+            assert part # will this work in MMKit?
+            # todo: assert rail atoms are in this part
             part.ensure_toplevel_group()
             group = old_chunk.dad # put new chunk in same group as old
                 # (but don't worry about where inside it, for now)
@@ -767,7 +778,8 @@ class DnaLadder(object):
                     print "dna updater: why is %r.dad == None? (assy = %r)" % (old_chunk, assy) ###
                 group = part.topnode
             assert group.is_group()
-            chunk = want_class(assy, rail)
+            assert group.part is part
+            chunk = want_class(self.assy, rail)
                 # this pulls in all atoms belonging to rail
                 # (including certain kinds of attached atoms);
                 # it also may copy in certain kinds of info
