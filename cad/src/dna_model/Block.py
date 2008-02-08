@@ -36,7 +36,23 @@ class Block(Group):
         [overrides Node API method]
         """
         return True
-    
+
+    def permits_ungrouping(self): #bruce 080207 overriding this in Block
+        """
+        Should the user interface permit users to dissolve this Group
+        using self.ungroup?
+        [overridden from Group]
+        """
+        return self._show_all_kids_for_debug()
+
+    def apply_to_groups(self, fn): #bruce 080207 overriding this in Block
+        """
+        Like apply2all, but only applies fn to all Group nodes (at or under self)
+        (not including Blocks).
+        [overridden from Group implem]
+        """
+        pass # even if self._show_all_kids_for_debug()
+
     def MT_kids(self, display_prefs = {}): #bruce 080108 revised semantics
         return self._raw_MT_kids()
 
