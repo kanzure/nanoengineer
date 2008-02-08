@@ -1,0 +1,16 @@
+# Definitions for using Ragel
+# based on /usr/share/qt4/mkspecs/features/lex.prf
+{
+	ragel.name = Ragel ${QMAKE_FILE_IN}
+	ragel.input = RAGELSOURCES
+	ragel.variable_out = GENERATED_SOURCES
+	QMAKE_RAGELFLAGS = -C -o ${QMAKE_FILE_BASE}.rlm
+	
+	ragel.commands = ragel $$QMAKE_RAGELFLAGS ${QMAKE_FILE_IN}$$escape_expand(\n\t) \
+	                 rlgen-cd ${QMAKE_FILE_BASE}.rlm -o ${QMAKE_FILE_BASE}.c
+	ragel.output = ${QMAKE_FILE_BASE}.c
+
+	silent:ragel.commands = @echo Ragel ${QMAKE_FILE_IN} && $$ragel.commands
+	QMAKE_EXTRA_COMPILERS += ragel
+}
+
