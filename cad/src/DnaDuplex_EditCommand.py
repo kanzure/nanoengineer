@@ -595,6 +595,7 @@ class DnaDuplex_EditCommand(EditCommand):
         self.mouseClickLimit = None
         # self.duplexRise = getDuplexRise('B-DNA')
         self.duplexRise = self.propMgr.duplexRiseDoubleSpinBox.value()
+        self.basesPerTurn = self.propMgr.basesPerTurnDoubleSpinBox.value()
         self.jigList = self.win.assy.getSelectedJigs()
  
         self.callbackMethodForCursorTextString = \

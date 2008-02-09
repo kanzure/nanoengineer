@@ -1799,7 +1799,7 @@ def drawSineWave(color, startPoint, endPoint, numberOfPoints, phaseAngle):
 
 def drawLadder(endCenter1,  
                endCenter2,
-               stepSize, 
+               duplexRise, 
                glpaneScale,
                lineOfSightVector,
                ladderWidth = 17.0,
@@ -1814,8 +1814,8 @@ def drawLadder(endCenter1,
     @type endCenter1: B{V}
     @param endCenter2: Ladder center at end 2
     @type endCenter2: B{V}
-    @param stepSize: Center to center distance between consecutive steps
-    @type stepSize: float
+    @param duplexRise: Center to center distance between consecutive steps
+    @type duplexRise: float
     @param glpaneScale: GLPane scale used in scaling arrow head drawing 
     @type glpaneScale: float
     @param lineOfSightVector: Glpane lineOfSight vector, used to compute the 
@@ -1840,11 +1840,11 @@ def drawLadder(endCenter1,
     ladderLength = vlen(endCenter1 - endCenter2)
     
     #Don't draw the vertical line (step) passing through the startpoint unless 
-    #the ladderLength is atleast equal to the stepSize. 
+    #the ladderLength is atleast equal to the duplexRise. 
     # i.e. do the drawing only when there are atleast two ladder steps. 
     # This prevents a 'revolving line' effect due to the single ladder step at 
     # the first endpoint 
-    if ladderLength < stepSize:
+    if ladderLength < duplexRise:
         return
     
     unitVector = norm(endCenter2 - endCenter1)
@@ -1884,8 +1884,8 @@ def drawLadder(endCenter1,
         previousLadderBeam1Point = ladderBeam1Point
         previousLadderBeam2Point = ladderBeam2Point
 
-        pointOnAxis = pointOnAxis + unitVector*stepSize		
-        x += stepSize
+        pointOnAxis = pointOnAxis + unitVector*duplexRise		
+        x += duplexRise
 
         ladderBeam1Point = previousPoint + unitVectorAlongLadderStep*0.5*ladderWidth
         ladderBeam2Point = previousPoint - unitVectorAlongLadderStep*0.5*ladderWidth
@@ -1917,7 +1917,8 @@ def drawLadder(endCenter1,
 
 def drawRibbons(endCenter1,  
                endCenter2,
-               stepSize, 
+               basesPerTurn,
+               duplexRise, 
                glpaneScale,
                lineOfSightVector,
                peakDeviationFromCenter = 9.5,
@@ -1931,13 +1932,15 @@ def drawRibbons(endCenter1,
     in this method)
     
     @param endCenter1: Axis end 1
-    @type endCenter1: B{V}
+    @type  endCenter1: B{V}
     @param endCenter2: Axis end 2
-    @type endCenter2: B{V}
-    @param stepSize: Center to center distance between consecutive steps
-    @type stepSize: float
+    @type  endCenter2: B{V}
+    @param basesPerTurn: Number of bases in a full turn.
+    @type  basesPerTurn: float
+    @param duplexRise: Center to center distance between consecutive steps
+    @type  duplexRise: float
     @param glpaneScale: GLPane scale used in scaling arrow head drawing 
-    @type glpaneScale: float
+    @type  glpaneScale: float
     @param lineOfSightVector: Glpane lineOfSight vector, used to compute the 
                               the vector along the ladder step. 
     @type: B{V}    
@@ -1964,11 +1967,11 @@ def drawRibbons(endCenter1,
     ribbonLength = vlen(endCenter1 - endCenter2)
     
     #Don't draw the vertical line (step) passing through the startpoint unless 
-    #the ribbonLength is atleast equal to the stepSize. 
+    #the ribbonLength is atleast equal to the duplexRise. 
     # i.e. do the drawing only when there are atleast two ladder steps. 
     # This prevents a 'revolving line' effect due to the single ladder step at 
     # the first endpoint 
-    if ribbonLength < stepSize:
+    if ribbonLength < duplexRise:
         return
     
     unitVectorAlongLength = norm(endCenter2 - endCenter1)
@@ -2006,21 +2009,22 @@ def drawRibbons(endCenter1,
     # the point on axis. 
                       
     x = 0.0
-    T =  stepSize * 10 # The 'Period' of the sine wave (i.e.peak to peak 
-                       # distance between consecutive crests)
+    T =  duplexRise * basesPerTurn 
+        # The 'Period' of the sine wave
+        # (i.e.peak to peak distance between consecutive crests)
               
     amplitude = peakDeviationFromCenter
-    amplitudeVector = unitVectorAlongLadderStep*amplitude
+    amplitudeVector = unitVectorAlongLadderStep * amplitude
               
     phase_angle_ribbon_1 = HALF_PI    
-    theta_ribbon_1 = (TWICE_PI*x/T) + phase_angle_ribbon_1
+    theta_ribbon_1 = (TWICE_PI * x / T) + phase_angle_ribbon_1
     
     phase_angle_ribbon_2 = asin(-6.0/(amplitude))
-    theta_ribbon_2 = (TWICE_PI*x/T) - phase_angle_ribbon_2    
+    theta_ribbon_2 = (TWICE_PI * x / T) - phase_angle_ribbon_2    
     
     #Initialize ribbon1_point and ribbon2_point
-    ribbon1_point = pointOnAxis + amplitudeVector*sin(theta_ribbon_1)    
-    ribbon2_point = pointOnAxis - amplitudeVector*sin(theta_ribbon_2)
+    ribbon1_point = pointOnAxis + amplitudeVector * sin(theta_ribbon_1)    
+    ribbon2_point = pointOnAxis - amplitudeVector * sin(theta_ribbon_2)
     
     #Constants for drawing the ribbon points as spheres.
     SPHERE_RADIUS = 1.0
@@ -2041,11 +2045,11 @@ def drawRibbons(endCenter1,
         previous_ribbon1_point = ribbon1_point
         previous_ribbon2_point = ribbon2_point
         
-        theta_ribbon_1 = (TWICE_PI*x/T) + phase_angle_ribbon_1
-        theta_ribbon_2 = (TWICE_PI*x/T) - phase_angle_ribbon_2
+        theta_ribbon_1 = (TWICE_PI * x / T) + phase_angle_ribbon_1
+        theta_ribbon_2 = (TWICE_PI * x / T) - phase_angle_ribbon_2
         
-        ribbon1_point = previousPointOnAxis + amplitudeVector*sin(theta_ribbon_1)
-        ribbon2_point = previousPointOnAxis - amplitudeVector*sin(theta_ribbon_2)
+        ribbon1_point = previousPointOnAxis + amplitudeVector * sin(theta_ribbon_1)
+        ribbon2_point = previousPointOnAxis - amplitudeVector * sin(theta_ribbon_2)
         
         #Use previous_ribbon1_point and not ribbon1_point. This ensures that 
         # the 'last point' on ribbon1 is not drawn as a sphere but is drawn as 
@@ -2059,29 +2063,29 @@ def drawRibbons(endCenter1,
         if x != 0.0:
             # For ribbon_2 , don't draw the first sphere (when x = 0) , instead 
             # an arrow head will be drawnfor y at x = 0 
-            # (see condition x == stepSize )
+            # (see condition x == duplexRise )
             drawsphere(ribbon2Color, 
                        ribbon2_point, 
                        SPHERE_RADIUS,
                        SPHERE_DRAWLEVEL,
                        opacity = SPHERE_OPACITY)
             
-        if x == stepSize:   
+        if x == duplexRise:   
             # For ribbon_2 we need to draw an arrow head for y at x = 0. 
             # To do this, we need the 'next ribbon_2' point in order to 
-            # compute the appropriate vectors. So when x = stepSize, the 
+            # compute the appropriate vectors. So when x = duplexRise, the 
             # previous_ribbon2_point is nothing but y at x = 0. 
             arrowLengthVector2  = norm(ribbon2_point - previous_ribbon2_point )              
             arrowHeightVector2  = cross(-lineOfSightVector, arrowLengthVector2)            
             drawArrowHead( ribbon2Color, 
                            previous_ribbon2_point,
                            arrowDrawingScale,
-                           - arrowHeightVector2, 
-                           - arrowLengthVector2)
+                           -arrowHeightVector2, 
+                           -arrowLengthVector2)
             
         #Increament the pointOnAxis and x
-        pointOnAxis = pointOnAxis + unitVectorAlongLength*stepSize        
-        x += stepSize
+        pointOnAxis = pointOnAxis + unitVectorAlongLength * duplexRise        
+        x += duplexRise
   
         if previous_ribbon1_point:
             drawline(ribbon1Color, 
@@ -2121,7 +2125,6 @@ def drawRibbons(endCenter1,
                   
     glPopMatrix()
     glEnable(GL_LIGHTING)
-        
     
 def drawArrowHead(color, 
                   basePoint, 
@@ -2129,15 +2132,15 @@ def drawArrowHead(color,
                   unitBaseVector, 
                   unitHeightVector):
     
-    arrowBase = drawingScale*0.08
-    arrowHeight = drawingScale*0.12
+    arrowBase = drawingScale * 0.08
+    arrowHeight = drawingScale * 0.12
     glDisable(GL_LIGHTING)
     glPushMatrix()
     glTranslatef(basePoint[0],basePoint[1],basePoint[2])
     point1 = V(0, 0, 0)
-    point1 = point1 + unitHeightVector*arrowHeight    
-    point2 =  unitBaseVector*arrowBase    
-    point3 = - unitBaseVector*arrowBase
+    point1 = point1 + unitHeightVector * arrowHeight    
+    point2 = unitBaseVector * arrowBase    
+    point3 = - unitBaseVector * arrowBase
     #Draw the arrowheads as filled triangles
     glColor3fv(color)
     glBegin(GL_POLYGON)
@@ -2359,7 +2362,7 @@ def drawRulers(glpane):
     @param glpane: the 3D graphics area.
     @type  glpane: L{GLPane)
     """
-
+    
     width = glpane.width
     height = glpane.height
     scale = glpane.scale

@@ -129,14 +129,15 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
             elif self.command.callback_rubberbandLineDisplay() ==  'Ribbons':  
                 #Default dna rubberband line display style       
                 drawRibbons(self.endPoint1,
-                           self.endPoint2, 
-                           self.command.duplexRise,
-                           self.glpane.scale,
-                           self.glpane.lineOfSight,
-                           ribbonThickness = 4.0,
-                           ribbon1Color = darkred,
-                           ribbon2Color = blue,
-                           stepColor = black    
+                            self.endPoint2, 
+                            self.command.basesPerTurn,
+                            self.command.duplexRise,
+                            self.glpane.scale,
+                            self.glpane.lineOfSight,
+                            ribbonThickness = 4.0,
+                            ribbon1Color = darkred,
+                            ribbon2Color = blue,
+                            stepColor = black    
                         )   
             else:
                 pass

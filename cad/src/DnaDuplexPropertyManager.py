@@ -116,6 +116,10 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
                       SIGNAL("valueChanged(int)"),
                       self.numberOfBasesChanged )
         
+        change_connect( self.basesPerTurnDoubleSpinBox,
+                      SIGNAL("valueChanged(double)"),
+                      self.basesPerTurnChanged )
+        
         change_connect( self.duplexRiseDoubleSpinBox,
                       SIGNAL("valueChanged(double)"),
                       self.duplexRiseChanged )
@@ -372,12 +376,20 @@ class DnaDuplexPropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.duplexLengthLineEdit.setText(text)
         return
     
-    def duplexRiseChanged( self, numberOfBases ):
+    def basesPerTurnChanged( self, basesPerTurn ):
+        """
+        Slot for the B{Bases per turn} spinbox.
+        """
+        self.editCommand.basesPerTurn = basesPerTurn
+        self._basesPerTurn = basesPerTurn
+        return
+    
+    def duplexRiseChanged( self, rise ):
         """
         Slot for the B{Rise} spinbox.
         """
-        self.editCommand.duplexRise = self.duplexRiseDoubleSpinBox.value()
-        self._duplexRise = self.duplexRiseDoubleSpinBox.value()
+        self.editCommand.duplexRise = rise
+        self._duplexRise = rise
         return
 
     def getParameters(self):
