@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 elements.py -- elements, periodic table, element display prefs
 
 @author: Josh
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -273,7 +273,7 @@ class _ElementPeriodicTable(object):
         elif s in self._eltSym2Num:
             s = self._eltSym2Num[s]
         elif type(s) != type(1):
-            assert 0, s
+            assert 0, "don't recognize element name or symbol %r" % (s,)
         return self._periodicTable[s]
             
     def close(self):
