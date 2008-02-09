@@ -13,7 +13,7 @@ TODO:
 
 from LineMode import LineMode
 
-from drawer import drawLadder, drawRibbons
+from drawer import drawDnaLadder, drawDnaRibbons
 
 from constants import black, darkred, blue, white
 
@@ -116,29 +116,27 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                 #Note there needs to be a radio button to switch on the 
                 # rubberband ladder display for a dna line. At the moment it is 
                 # disabled and is superseded by the ribbons ruberband display. 
-                drawLadder(self.endPoint1,
-                           self.endPoint2, 
-                           self.command.duplexRise,
-                           self.glpane.scale,
-                           self.glpane.lineOfSight,
-                           beamThickness = 4.0,
-                           beam1Color = darkred,
-                           beam2Color = blue,
-                           stepColor = black    
-                        )  
+                drawDnaLadder(self.endPoint1,
+                              self.endPoint2, 
+                              self.command.duplexRise,
+                              self.glpane.scale,
+                              self.glpane.lineOfSight,
+                              beamThickness = 4.0,
+                              beam1Color = darkred,
+                              beam2Color = blue,
+                              stepColor = black )
             elif self.command.callback_rubberbandLineDisplay() ==  'Ribbons':  
                 #Default dna rubberband line display style       
-                drawRibbons(self.endPoint1,
-                            self.endPoint2, 
-                            self.command.basesPerTurn,
-                            self.command.duplexRise,
-                            self.glpane.scale,
-                            self.glpane.lineOfSight,
-                            ribbonThickness = 4.0,
-                            ribbon1Color = darkred,
-                            ribbon2Color = blue,
-                            stepColor = black    
-                        )   
+                drawDnaRibbons(self.endPoint1,
+                               self.endPoint2, 
+                               self.command.basesPerTurn,
+                               self.command.duplexRise,
+                               self.glpane.scale,
+                               self.glpane.lineOfSight,
+                               ribbonThickness = 4.0,
+                               ribbon1Color = darkred,
+                               ribbon2Color = blue,
+                               stepColor = black )   
             else:
                 pass
             

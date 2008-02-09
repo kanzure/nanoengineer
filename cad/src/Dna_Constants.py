@@ -171,7 +171,7 @@ def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength, duplexRise 
     Thus, by not rounding the number of bases, we make sure that the dna 
     consists of exactly same number of bases as displayed by the rubberband line    
     ( The dna rubberband line gives enough visual indication about this. 
-    see drawer.drawRibbons for more details on the visual indication )
+    see drawer.drawDnaRibbons() for more details on the visual indication )
     
     @param conformation: "A-DNA", "B-DNA", or "Z-DNA"
     @type  conformation: str

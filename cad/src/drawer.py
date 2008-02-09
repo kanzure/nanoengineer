@@ -1797,19 +1797,20 @@ def drawSineWave(color, startPoint, endPoint, numberOfPoints, phaseAngle):
     """
     pass    
 
-def drawLadder(endCenter1,  
-               endCenter2,
-               duplexRise, 
-               glpaneScale,
-               lineOfSightVector,
-               ladderWidth = 17.0,
-               beamThickness = 2.0,
-               beam1Color = None, 
-               beam2Color = None,
-               stepColor = None
-               ):
+def drawDnaLadder(endCenter1,  
+                  endCenter2,
+                  duplexRise, 
+                  glpaneScale,
+                  lineOfSightVector,
+                  ladderWidth = 17.0,
+                  beamThickness = 2.0,
+                  beam1Color = None, 
+                  beam2Color = None,
+                  stepColor = None
+                  ):
     """
-    Draw a ladder.      
+    Draw a DNA ladder.
+    
     @param endCenter1: Ladder center at end 1
     @type endCenter1: B{V}
     @param endCenter2: Ladder center at end 2
@@ -1915,21 +1916,21 @@ def drawLadder(endCenter1,
 
 
 
-def drawRibbons(endCenter1,  
-               endCenter2,
-               basesPerTurn,
-               duplexRise, 
-               glpaneScale,
-               lineOfSightVector,
-               peakDeviationFromCenter = 9.5,
-               ribbonThickness = 2.0,
-               ribbon1Color = None, 
-               ribbon2Color = None,
-               stepColor = None):
+def drawDnaRibbons(endCenter1,  
+                   endCenter2,
+                   basesPerTurn,
+                   duplexRise, 
+                   glpaneScale,
+                   lineOfSightVector,
+                   peakDeviationFromCenter = 9.5,
+                   ribbonThickness = 2.0,
+                   ribbon1Color = None, 
+                   ribbon2Color = None,
+                   stepColor = None):
     """
-    Draw dna ribbons. (each strand represented as a ribbon) The dna ribbons are 
-    drawn as sine waves with appropriate phase angles. (phase angles computed
-    in this method)
+    Draw DNA ribbons where each strand is represented as a ribbon. DNA ribbons
+    are drawn as sine waves with appropriate phase angles, with the phase
+    angles computed in this method.
     
     @param endCenter1: Axis end 1
     @type  endCenter1: B{V}
@@ -1960,7 +1961,7 @@ def drawRibbons(endCenter1,
          See if that can be refactored e.g. methods like _drawRibbon1/strand1, 
          drawRibbon2 / strand2 etc. 
       - Further optimization / refactoring (low priority) 
-      - Should this method be moved to something like 'dna_srawer.py' ? 
+      - Should this method be moved to something like 'dna_drawer.py' ? 
     """
     #Should this method be moved to DnaLineMode class or a new dna_drawer.py?
     #Okay if it stays here in drawer.py    

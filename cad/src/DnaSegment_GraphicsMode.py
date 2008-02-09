@@ -44,7 +44,7 @@ from dna_model.DnaSegment import DnaSegment
 
 from DnaLineMode import DnaLine_GM
 
-from drawer import drawRibbons
+from drawer import drawDnaRibbons
 
 import math
 from geometry.VQT import V, norm, A, Q, vlen
@@ -327,16 +327,15 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                     handle.draw()
                     
         if self.command.grabbedHandle is not None:
-            drawRibbons(self.command.grabbedHandle.fixedEndOfStructure,
-                        self.command.grabbedHandle.currentPosition,
+            drawDnaRibbons(self.command.grabbedHandle.fixedEndOfStructure,
+                           self.command.grabbedHandle.currentPosition,
                            self.command.duplexRise,
                            self.glpane.scale,
                            self.glpane.lineOfSight,
                            ribbonThickness = 4.0,
                            ribbon1Color = darkred,
                            ribbon2Color = blue,
-                           stepColor = black    
-                        )   
+                           stepColor = black )
             #Draw the text next to the cursor that gives info about 
             #number of base pairs etc
             if self.command:
