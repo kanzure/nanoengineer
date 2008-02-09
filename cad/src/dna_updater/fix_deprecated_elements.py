@@ -70,8 +70,13 @@ def fix_deprecated_elements( changed_atoms):
             # or later
             # (review whether it's still going to happen in the current master_updater call)? ####
 
-            if DEBUG_DNA_UPDATER:
+            if DEBUG_DNA_UPDATER_VERBOSE:
                 print "dna updater: kill deprecated atom %r" % (atom,)
+            summary_format = \
+                "Warning: dna updater killed [N] deprecated %s pseudoatom(s)" % \
+                (atom.element.symbol,)
+            env.history.deferred_summary_message( orangemsg(summary_format) )
+            
             atom.kill()
 
             # TODO: worry about atom being a hotspot, or having a bondpoint which is a hotspot?

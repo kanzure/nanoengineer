@@ -490,7 +490,7 @@ class DnaLadder(object):
         bond_direction_to_other = LADDER_BOND_DIRECTION_TO_OTHER_AT_END_OF_STRAND1[end]
         next_atom = end_atom.strand_next_baseatom(bond_direction = bond_direction_to_other)
             # (note: strand_next_baseatom returns None if end_atom or the atom it
-            #  might return has ._dna_updater__error set.)
+            #  might return has ._dna_updater__error set, or if it reaches a non-Ss atom.)
         if next_atom is None:
             # end of the chain (since bondpoints are not baseatoms), or
             # inconsistent bond directions at or near end_atom

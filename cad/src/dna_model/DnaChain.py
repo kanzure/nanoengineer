@@ -223,29 +223,40 @@ class DnaChain(object):
         atom1 = self.baseatoms[0]
         atom2 = self.baseatoms[1]
         bond = find_bond(atom1, atom2)
-        if not bond:
-            # figure out which kind of error
-            if atom1.Pl_neighbors() or atom2.Pl_neighbors():
-                print "debug_check_bond_direction%s in %r: " \
-                      "doesn't work for PAM5: %r, %r" % \
-                      (when, self, atom1, atom2)
+        errormsg = "" # might be set to an error string
+        actual_direction = 0 # might be set to a bond direction
+        if bond:
+            actual_direction = bond.bond_direction_from(atom1)
+        elif atom1.Pl_neighbors() or atom2.Pl_neighbors():
+            # look for atom1-Pl-atom2 (2 bonds, same direction)
+            bond1, bond2 = find_Pl_bonds(atom1, atom2) # might be None, None
+            if not bond1:
+                errormsg = "no Pl5 between adjacent baseatoms %r and %r" % (atom1, atom2)
             else:
-                msg = "debug_check_bond_direction%s in %r: " \
-                      "ERROR: no bond between adjacent baseatoms %r and %r" % \
-                      (when, self, atom1, atom2)
-                print "\n*** %s ***\n" % msg
-                env.history.message(redmsg(quote_html(msg)))
-            return
-        actual_direction = bond.bond_direction_from(atom1)
-        ## not needed: assert actual_direction
-        recorded_direction = self._bond_direction
-        assert recorded_direction # redundant with earlier assert
-        if actual_direction != recorded_direction:
-            # error
-            msg = "debug_check_bond_direction%s in %r: ERROR: %r to %r: recorded %r, actual %r" % \
-                  (when, self, atom1, atom2, recorded_direction, actual_direction)
+                dir1 = bond1.bond_direction_from(atom1)
+                dir2 = - bond2.bond_direction_from(atom2)
+                if dir1 == dir2:
+                    actual_direction = dir1 # might be 0
+                else:
+                    errormsg = "Pl5 between %r and %r has inconsistent or unset bond directions" % (atom1, atom2)
+        else:
+            errormsg = "no bond between adjacent baseatoms %r and %r" % (atom1, atom2)
+        if not errormsg:
+            # check actual_direction
+            ## not needed: assert actual_direction
+            recorded_direction = self._bond_direction
+            assert recorded_direction # redundant with earlier assert
+            if actual_direction != recorded_direction:
+                # error
+                errormsg = "bond direction from %r to %r: recorded %r, actual %r" % \
+                      (atom1, atom2, recorded_direction, actual_direction)
+        # now errormsg tells whether there is an error.
+        if errormsg:
+            prefix = "debug_check_bond_direction%s in %r" % (when, self)
+            msg = "%s: ERROR: %s" % (prefix, errormsg)
             print "\n*** %s ***\n" % msg
-            env.history.message(redmsg(quote_html(msg)))
+            summary_format = "DNA updater: bug: [N] failure(s) of debug_check_bond_direction, see console prints"
+            env.history.deferred_summary_message( redmsg(summary_format))
         return
         
     # ==
@@ -700,5 +711,20 @@ class StrandChain(DnaChain_AtomChainWrapper):
         return # atoms bonds
         
     pass
+
+# ==
+
+def find_Pl_bonds(atom1, atom2): #e refile
+    """
+    return the two bonds in atom1-Pl5-atom2,
+    or (None, None) if that structure is not found.
+    """
+    for bond1 in atom1.bonds:
+        Pl = bond1.other(atom1)
+        if Pl.element.symbol.startswith("Pl"): # KLUGE
+            bond2 = find_bond(Pl, atom2)
+            if bond2:
+                return bond1, bond2
+    return None, None
 
 # end

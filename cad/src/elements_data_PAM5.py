@@ -55,7 +55,7 @@ _mendeleev = [
     
     ("Sj5", "PAM5-Sugar-Junction", 203, 1.0, [[3, 210, flat]],       dict(role = 'strand', deprecated_to = 'Ss5')),
     ("Ae5", "PAM5-Axis-End",       204, 1.0, [[1, 200, None, 'sp']], dict(role = 'axis',   deprecated_to = 'X')),
-    ("Pe5", "PAM5-Phosphate-End",  205, 1.0, [[1, 210, None, 'sp']], dict(role = 'strand', deprecated_to = 'Pl')), #bruce 080129 X->Pl; UNCONFIRMED
+    ("Pe5", "PAM5-Phosphate-End",  205, 1.0, [[1, 210, None, 'sp']], dict(role = 'strand', deprecated_to = 'Pl5')), #bruce 080129 X->Pl5; UNCONFIRMED
     ("Sh5", "PAM5-Sugar-Hydroxyl", 206, 1.0, [[1, 210, None, 'sp']], dict(role = 'strand', deprecated_to = 'X')),
     ("Hp5", "PAM5-Hairpin",        207, 1.0, [[2, 210, tetra2]],     dict(role = 'strand', deprecated_to = 'Ss5')), # REVIEW: Ss or Pl?
 
