@@ -96,15 +96,30 @@ class ChainAtomMarker(Jig):
     def __init__(self, assy, atomlist):
         """
         """
-        assert len(atomlist) == _NUMBER_OF_MARKER_ATOMS
-        # code after this only works if _NUMBER_OF_MARKER_ATOMS == 2
-        marked_atom, next_atom = atomlist
-        Jig.__init__(self, assy, atomlist)
-        self.marked_atom = marked_atom
-        self.next_atom = next_atom
-        self._check_atom_order()
+        Jig.__init__(self, assy, atomlist) # calls self.setAtoms
         return
-        
+
+    def setAtoms(self, atomlist): #bruce 080208 split this out of __init__ so copy is simpler
+        Jig.setAtoms(self, atomlist)
+        if len(atomlist) == _NUMBER_OF_MARKER_ATOMS:
+            marked_atom, next_atom = atomlist
+            self.marked_atom = marked_atom
+            self.next_atom = next_atom
+            self._check_atom_order()
+        else:
+            # We are probably being called by _copy_fixup_at_end
+            # with fewer or no atoms, or by __init__ in first stage of copy
+            # (Jig.copy_full_in_mapping) with no atoms.
+            # todo: would be better to make those callers tell us for sure.
+            # for now: print bug warning if fewer atoms but not none
+            # (i don't know if that can happen), and assert not too many atoms.
+            assert len(atomlist) <= _NUMBER_OF_MARKER_ATOMS
+            if atomlist:
+                print "bug? %r.setAtoms(%r), len != _NUMBER_OF_MARKER_ATOMS or 0" % \
+                      self, atomlist
+            pass
+        return
+            
     def needs_atoms_to_survive(self):
         # False, so that if both our atoms are removed, we don't die.
         # Problem: if we're selected and copied, but our atoms aren't, this would copy us.
@@ -153,6 +168,7 @@ class ChainAtomMarker(Jig):
         """
         # todo: extend/rename this to fix atom order (not just check it),
         # if it turns out the order can ever get messed up
+        # (update 080208: maybe it can by copy or remove_atom, not sure @@@@)
         assert len(self.atoms) <= _NUMBER_OF_MARKER_ATOMS
         if len(self.atoms) == _NUMBER_OF_MARKER_ATOMS:
             assert [self.marked_atom, self.next_atom] == self.atoms
