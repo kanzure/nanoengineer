@@ -378,6 +378,9 @@ class WholeChain(object):
             # a 1-atom wholechain, hmm ...
             print "not sure this 1-atom wholechain marker for %r is going to work..." % self
             next_atom = atom # not sure this will work in later code... ###k @@@
+                # indeed, we later try to add the new jig twice to the same atom:
+                ## bug: <DnaStrandMarker[None -> None] at 0x2807e440> is already in Ss3-4773.jigs, just before we want to add it
+                # (to repeat this, try to make a zero-length duplex in the UI as of 080208)
 
         # now make the marker on those atoms
         # (todo: in future, we might give it some user settings too)

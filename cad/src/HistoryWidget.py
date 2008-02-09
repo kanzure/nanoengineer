@@ -550,8 +550,9 @@ class HistoryWidget:
         """
         items = self._deferred_summary_messages.items() # (format, count) pairs
         self._deferred_summary_messages = {}
-        items.sort() # format happens to be the sorting key we want, for now;
-            # possible todo: let message provider specify another sorting key
+        items.sort() # use format string as sorting key.
+            # TODO: use order in which messages first arrived (since last emitted). 
+            # possible todo: let message provider specify a different sorting key.
         for format, count in items:
             self._emit_one_summary_message(format, count)
         return
