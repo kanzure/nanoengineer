@@ -370,7 +370,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     """
     # bruce 041109-16 wrote docstring
     # default values of instance variables:
-    __killed = 0
+    __killed = 0 # note: this is undoable state, declared below
     picked = False
         # self.picked defines whether the atom is selected; see also assembly.selatoms
         # (note that Nodes also have .picked, with the same meaning, but atoms
@@ -2259,6 +2259,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     print "debug_1779: self._will_kill %r == Utility._will_kill_count %r" % \
                       ( self._will_kill , Utility._will_kill_count )
                 return None
+        if self.__killed:
+            #bruce 080208 new feature (should never happen)
+            msg = "bug: killed atom %r still had bond %r, being unbonded now" % \
+                  ( atom, b )
+            print msg
+            return None
         if debug_1779:
             print "debug_1779: Atom.unbond on %r is making X" % self
         x = Atom('X', b.ubp(self), self.molecule) # invals mol as needed
@@ -2485,6 +2491,21 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # So I'll declare this legal, for singlets only. [bruce 041115]
                 pass
             return
+
+        self.atomtype #bruce 080208 bugfix of bugs which complain about
+            # "reguess_atomtype of killed atom" in a console print:
+            # make sure atomtype is set, since it's needed when neighbor atom
+            # makes a bondpoint (since bond recomputes geometry all at once).
+            # (I don't know whether it needs to be set *correctly*, so we might
+            # optim by setting it to its default, if analysis shows this is ok.
+            # But it seems likely that this choice does affect the final
+            # position of the created bondpoint on the neighbor.)
+            # The reason this bug is rare is that most killed atoms were alive
+            # long enough for something to need their atomtype (e.g. to draw
+            # their bonds). But when generators immediately kill some atoms
+            # they temporarily make or read, we can have this bug.
+            # The above is partly guessed; we'll see if this really fixes
+            # those bugs.
         
         self.__killed = 1 # do this now, to reduce repeated exceptions (works??)
         _changed_parent_Atoms[self.key] = self
@@ -3788,7 +3809,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         assert bond_direction in (-1, 1)
         if self._dna_updater__error: #bruce 080131 new feature (part 1 of 3)
             return None
-        atom1 = self.next_atom_in_bond_direction(bond_direction) # might be None
+        atom1 = self.next_atom_in_bond_direction(bond_direction) # might be None or a bondpoint
         if atom1 is None:
             return None
         if atom1._dna_updater__error: #bruce 080131 new feature (part 2 of 3)
@@ -3798,13 +3819,15 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             return None
         if symbol.startswith('Pl'): # base linker atom
             # move one more atom to find the one to return
-            atom1 = atom1.next_atom_in_bond_direction(direction) # might be None
+            atom1 = atom1.next_atom_in_bond_direction(bond_direction) # might be None or a bondpoint
             assert atom1 is not self
                 # (false would imply one bond had two directions,
                 #  or two bonds between same two atoms)
             if atom1 is None:
                 return None
             if atom1._dna_updater__error: #bruce 080131 new feature (part 3 of 3)
+                return None
+            if atom1.element.symbol[0:2] not in ('Ss', 'Sj', 'Hp'):
                 return None
             pass
         return atom1
