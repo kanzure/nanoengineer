@@ -3825,20 +3825,29 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         ours = list(usual)
         try:
             # submenu for available custom modes [bruce 050515]
-            #e should add special text to the item for current mode (if any) saying we'll reload it
-            modemenu = []
-            for commandName, modefile in self.custom_mode_names_files():
-                modemenu.append(( commandName,
-                                  lambda arg1 = None, arg2 = None, commandName = commandName, modefile = modefile:
-                                  self.enter_custom_mode(commandName, modefile) # not sure how many args are passed
-                              ))
+            # todo [080209]: just include this submenu in the DebugMenuMixin version
+            # (no reason it ought to be specific to glpane)
+            modemenu = self.win.commandSequencer.custom_modes_menuspec()
             if modemenu:
                 ours.append(("custom modes", modemenu))
         except:
             print_compact_traceback("exception ignored: ")
         return ours
 
-    def custom_mode_names_files(self): #bruce 061207 & 070427 revised this
+    def custom_modes_menuspec(self): #bruce 080209 split this out
+        """
+        Return a menu_spec list for entering the available custom modes.
+        """
+        #e should add special text to the item for current mode (if any) saying we'll reload it
+        modemenu = []
+        for commandName, modefile in self._custom_mode_names_files():
+            modemenu.append(( commandName,
+                              lambda arg1 = None, arg2 = None, commandName = commandName, modefile = modefile:
+                              self._enter_custom_mode(commandName, modefile) # not sure how many args are passed
+                          ))
+        return modemenu
+    
+    def _custom_mode_names_files(self): #bruce 061207 & 070427 revised this
         res = []
         try:
             # special case for cad/src/testmode.py (or .pyc)
@@ -3876,7 +3885,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         res.sort()
         return res
 
-    def enter_custom_mode( self, commandName, modefile): #bruce 050515
+    def _enter_custom_mode( self, commandName, modefile): #bruce 050515
         # TODO: move to CommandSequencer.py, and call on self.win.commandSequencer rather than on self
         fn = modefile
         if not os.path.exists(fn) and commandName != 'testmode':
@@ -3885,11 +3894,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         if commandName == 'testmode':
             #bruce 070429 explicit import probably needed for sake of py2app (so an explicit --include is not needed for it)
             # (but this is apparently still failing to let the testmode item work in a built release -- I don't know why ###FIX)
-            print "enter_custom_mode specialcase for testmode" #e remove this print, when it works in a built release
+            print "_enter_custom_mode specialcase for testmode" #e remove this print, when it works in a built release
             import testmode
             ## reload(testmode) # This reload is part of what prevented this case from working in A9 [bruce 070611]
             from testmode import testmode as _modeclass
-            print "enter_custom_mode specialcase -- import succeeded"
+            print "_enter_custom_mode specialcase -- import succeeded"
         else:
             dir, file = os.path.split(fn)
             base, ext = os.path.splitext(file)
