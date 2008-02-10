@@ -90,7 +90,6 @@ class DnaFlyout:
         subControlAreaActionList.append(separator) 
         subControlAreaActionList.append(self.dnaDuplexAction)        
         subControlAreaActionList.append(self.breakStrandAction)
-        subControlAreaActionList.append(self.dnaOrigamiAction)
         subControlAreaActionList.append(self.orderDnaAction)
 
         allActionsList.extend(subControlAreaActionList)
