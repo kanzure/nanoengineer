@@ -30,7 +30,6 @@ optimizing the graphics code.
 """
 
 import math
-import os
 import sys
 import time
 
@@ -3833,100 +3832,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         except:
             print_compact_traceback("exception ignored: ")
         return ours
-
-    def custom_modes_menuspec(self): #bruce 080209 split this out
-        """
-        Return a menu_spec list for entering the available custom modes.
-        """
-        #e should add special text to the item for current mode (if any) saying we'll reload it
-        modemenu = []
-        for commandName, modefile in self._custom_mode_names_files():
-            modemenu.append(( commandName,
-                              lambda arg1 = None, arg2 = None, commandName = commandName, modefile = modefile:
-                              self._enter_custom_mode(commandName, modefile) # not sure how many args are passed
-                          ))
-        return modemenu
-    
-    def _custom_mode_names_files(self): #bruce 061207 & 070427 revised this
-        res = []
-        try:
-            # special case for cad/src/testmode.py (or .pyc)
-            from constants import CAD_SRC_PATH
-            ## CAD_SRC_PATH = os.path.dirname(__file__)
-            for filename in ('testmode.py', 'testmode.pyc'):
-                testmodefile = os.path.join( CAD_SRC_PATH, filename)
-                if os.path.isfile(testmodefile):
-                    # note: this fails inside site-packages.zip (in Mac release);
-                    # a workaround is below
-                    res.append(( 'testmode', testmodefile ))
-                    break
-            if not res and CAD_SRC_PATH.endswith('site-packages.zip'):
-                res.append(( 'testmode', testmodefile ))
-                    # special case for Mac release (untested in built release? not sure)
-                    # (do other platforms need this?)
-            assert res
-        except:
-            if debug_flags.atom_debug:
-                print "fyi: error adding testmode.py from cad/src to custom modes menu (ignored)"
-            pass
-        try:
-            import gpl_only
-        except ImportError:
-            pass
-        else:
-            modes_dir = os.path.join( self.win.tmpFilePath, "Modes")
-            if os.path.isdir( modes_dir):
-                for file in os.listdir( modes_dir):
-                    if file.endswith('.py') and '-' not in file:
-                        commandName, ext = os.path.splitext(file)
-                        modefile = os.path.join( modes_dir, file)
-                        res.append(( commandName, modefile ))
-            pass
-        res.sort()
-        return res
-
-    def _enter_custom_mode( self, commandName, modefile): #bruce 050515
-        # TODO: move to CommandSequencer.py, and call on self.win.commandSequencer rather than on self
-        fn = modefile
-        if not os.path.exists(fn) and commandName != 'testmode':
-            env.history.message("should never happen: file does not exist: [%s]" % fn)
-            return
-        if commandName == 'testmode':
-            #bruce 070429 explicit import probably needed for sake of py2app (so an explicit --include is not needed for it)
-            # (but this is apparently still failing to let the testmode item work in a built release -- I don't know why ###FIX)
-            print "_enter_custom_mode specialcase for testmode" #e remove this print, when it works in a built release
-            import testmode
-            ## reload(testmode) # This reload is part of what prevented this case from working in A9 [bruce 070611]
-            from testmode import testmode as _modeclass
-            print "_enter_custom_mode specialcase -- import succeeded"
-        else:
-            dir, file = os.path.split(fn)
-            base, ext = os.path.splitext(file)
-            ## commandName = base
-            ###e need better way to import from this specific file!
-            # (Like using an appropriate function in the import-related Python library module.)
-            # This kluge is not protected against weird chars in base.
-            oldpath = list(sys.path)
-            if dir not in sys.path:
-                sys.path.append(dir)
-                    # Note: this doesn't guarantee we load file from that dir --
-                    # if it's present in another one on path (e.g. cad/src),
-                    # we'll load it from there instead. That's basically a bug,
-                    # but prepending dir onto path would risk much worse bugs
-                    # if dir masked any standard modules which got loaded now.
-            import gpl_only # make sure exec is ok in this version (caller should have done this already)
-            _module = _modeclass = None # fool pylint into realizing this is not undefined 2 lines below
-            exec("import %s as _module" % (base,))
-            reload(_module)
-            exec("from %s import %s as _modeclass" % (base,base))
-            sys.path = oldpath
-        modeobj = _modeclass(self) # this should put it into self.commandTable under the name defined in the mode module
-            # note: this self is probably supposed to be the command sequencer
-        self.commandTable[commandName] = modeobj # also put it in under this name, if different [### will this cause bugs?]
-        self.userEnterCommand(commandName)
-            # note: self is acting as the command sequencer here; in future we'll get it from somewhere,
-            # e.g. self.win.commandSequencer, or just move this whole method there (and get cmdseq from win when we call it)
-        return
 
     pass # end of class GLPane
 

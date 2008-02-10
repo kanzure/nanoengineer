@@ -1,8 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Command.py -- 
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -190,7 +191,7 @@ class nullCommand(anyCommand):
 
     # TODO: revise the 'mode' term in the following attribute names
 
-    # (the nullCommand instance is not put into the command sequencer's commandTable)
+    # (the nullCommand instance is not put into the command sequencer's _commandTable)
 
     is_null = True
     
@@ -248,7 +249,7 @@ class basicCommand(anyCommand):
         twice when we open a new file, or once when we use file->close.
 
         This method sets up that command to be available (but not yet active)
-        in that commandSequencer's commandTable (mapping commandName to command object
+        in that commandSequencer's _commandTable (mapping commandName to command object
         for reusable command objects -- for now that means all of them, by default --
         TODO, revise this somehow, maybe control it by a per-Command class constant).
 
@@ -312,9 +313,11 @@ class basicCommand(anyCommand):
         self.o = self.glpane # REVIEW: needed? (deprecated)
         self.w = self.win # (deprecated)
         
-        # store ourselves in our command sequencer/glpane's commandTable ### TODO: store in commandSequencer instead
-        ###REVIEW whether this is used for anything except changing to new command by name [bruce 070613 comment]
-        self.glpane.commandTable[self.commandName] = self
+        # store ourselves in our command sequencer's _commandTable
+        # [revised to call a commandSequencer method, bruce 080209]
+        ###REVIEW whether this is used for anything except changing to
+        # new command by name [bruce 070613 comment]
+        commandSequencer.store_commandObject(self.commandName, self)
             # note: this can overwrite a prior instance of the same command,
             # e.g. when setAssy is called.
 

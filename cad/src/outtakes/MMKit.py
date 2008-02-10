@@ -708,7 +708,7 @@ class MMKit(QDialog,
 	    newChunk = self.pastableItems[itemId]
 		    
 	    #self.w.pasteComboBox.setCurrentIndex(itemId)
-	    #buildModeObj = self.w.glpane.commandTable['DEPOSIT']
+	    #buildModeObj = self.w.commandSequencer._commandTable['DEPOSIT']
 	    #assert buildModeObj
 	    #buildModeObj.setPaste()
 	    

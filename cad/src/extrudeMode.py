@@ -1752,6 +1752,7 @@ class extrudeMode(basicMode):
         """
         global extrudeMode
         print "extrude_reload: here goes...."
+        print "WARNING: extrude_reload has not yet been ported to revision of mode_classes, may be broken" #bruce 080209
         try:
             self.propMgr.extrudeSpinBox_n.setValue(1)
             self.update_from_controls()
@@ -1766,7 +1767,7 @@ class extrudeMode(basicMode):
             try:
                 self.commandSequencer.mode_classes.remove(clas) # was: self.__class__
             except ValueError:
-                print "a mode class was not in commandTable (normal if last reload of it had syntax error)"
+                print "a mode class was not in _commandTable (normal if last reload of it had syntax error)"
         import handles
         reload(handles)
         import extrudeMode as _exm
@@ -1776,7 +1777,7 @@ class extrudeMode(basicMode):
 ##            do_what_MainWindowUI_should_do(self.w) # remake interface (dashboard), in case it's different [041014]
 ##        except:
 ##            print_compact_traceback("exc in new do_what_MainWindowUI_should_do(), ignored: ")
-        ## self.commandSequencer.commandTable['EXTRUDE'] = extrudeMode
+        ## self.commandSequencer._commandTable['EXTRUDE'] = extrudeMode
         self.commandSequencer.mode_classes.append(extrudeMode)
         print "about to reinit modes"
         self.commandSequencer._reinit_modes() # leaves mode as nullmode as of 050911
