@@ -278,6 +278,7 @@ packageMapping_for_files = {
     "BuildDna_GraphicsMode"            : "graphics_mode|dna/commands/BuildDna",
     "BuildDna_PropertyManager"         : "ui/propmgr|dna/commands/BuildDna",
     "build_utils"                      : "operation|commands/BuildAtoms", # AtomDepositionTool
+    "builtin_command_loaders"          : "operations|commandSequencer",
     "changedicts"                      : "foundation",
     "changes"                          : "foundation",
     "chem"                             : "model",

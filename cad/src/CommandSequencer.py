@@ -84,7 +84,7 @@ class modeMixin(object):
             # (in case of bugs, but also happens routinely sometimes)
         return
     
-    def _reinit_modes(self): #bruce 050911 revised this
+    def _reinit_modes(self): #revised, bruce 050911, 080209
         """
         [bruce comment 040922, when I split this out from GLPane's
         setAssy method; comment is fairly specific to GLPane:]
@@ -121,20 +121,33 @@ class modeMixin(object):
         self.use_nullmode()
             # not sure what bgcolor nullmode has, but it won't last long...
         self._commandTable = {}
-        # this destroys any mode objects that already existed [note,
-        # this name is hardcoded into the mode objects]
+            # this discards any mode objects that already existed
+            # (it probably doesn't destroy them -- they are likely
+            #  to be part of reference cycles)
 
         # create new mode objects; they know about our method self.store_commandObject
         # and call it with their modenames and themselves
-        #bruce 050911 revised this: other_mode_classes -> mode_classes (includes class of default mode)
-        for mc in self.mode_classes: 
-            mc(self) # kluge: new mode object adds itself to self._commandTable -- this needs to be cleaned up sometime.
+        #bruce 050911 revised this: now includes class of default mode
 
+        #bruce 080209 change: import the following now, not when GLPane is imported
+        # (as was effectively done before today's refactoring split out this new file)
+        # (might help with bug 2614?)
+        from builtin_command_loaders import preloaded_command_classes # don't move this import to toplevel!
+        for command_class in preloaded_command_classes():
+            command_class(self)
+                # kluge: new mode object passes itself to self.store_commandObject;
+                # it would be better for us to store it ourselves
+                # (to implement, first add code to assert every command does this
+                #  in the name we expect)
+
+        # todo: something to support lazily loaded/instantiated commands
+        # (make self._commandTable a dictlike object that loads on demand?)
+
+        ## self.start_using_mode( '$DEFAULT_MODE')
         #bruce 050911 removed this; now we leave it at nullmode,
         # let direct or indirect callers put in the mode they want
         # (since different callers want different modes, and during init
         #  some modes are not ready to be entered anyway)
-        ## self.start_using_mode( '$DEFAULT_MODE')
         
         return # from _reinit_modes
 

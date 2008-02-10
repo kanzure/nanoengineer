@@ -5,7 +5,7 @@ GLPane.py -- NE1's main model view, based on Qt's OpenGL widget.
 Mostly written by Josh; partly revised by Bruce for mode code revision, 040922-24.
 Revised by many other developers since then (and perhaps before).
 
-@version:$Id$
+@version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Module classification: [bruce 080104]
@@ -26,7 +26,6 @@ same object as the CommandSequencer.
 
 Some of this might be a prerequisite for some ways of
 optimizing the graphics code.
-
 """
 
 import math
@@ -124,32 +123,10 @@ from geometry.VQT import V, Q, A, norm, vlen
 from Numeric import dot
 import drawer
 
-from cookieMode      import cookieMode 
-from extrudeMode     import extrudeMode
-from PasteMode       import PasteMode
-from PartLibraryMode import PartLibraryMode
-from movieMode       import movieMode
-from ZoomToAreaMode  import ZoomToAreaMode
-from ZoomInOutMode   import ZoomInOutMode
-from PanMode         import PanMode
-from RotateMode      import RotateMode
-from LineMode        import LineMode
-from DnaLineMode     import DnaLineMode
-from DnaDuplex_EditCommand import DnaDuplex_EditCommand
-from Plane_EditCommand     import Plane_EditCommand
-from RotaryMotor_EditCommand import RotaryMotor_EditCommand
-from LinearMotor_EditCommand import LinearMotor_EditCommand
-from BuildAtoms_Command      import BuildAtoms_Command
-from SelectAtoms_Command     import SelectAtoms_Command
-from SelectChunks_Command    import SelectChunks_Command
-from BreakStrand_Command     import BreakStrands_Command
-from BuildDna_EditCommand    import BuildDna_EditCommand
-from DnaSegment_EditCommand  import DnaSegment_EditCommand
-from Move_Command            import Move_Command
-from RotateChunks_Command    import RotateChunks_Command
-from TranslateChunks_Command import TranslateChunks_Command
-from FuseChunks_Command      import FuseChunks_Command
-#from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
+# note: the list of preloaded_command_classes for the Command Sequencer
+# has been moved from here (where it didn't belong) to a new file,
+# builtin_command_loaders.py [bruce 080209]
+
 from CommandSequencer import modeMixin
 
 from utilities import debug_flags
@@ -384,35 +361,6 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
     # and the Command and GraphicsMode class hierarchies will be separated.
     # Of the attributes mentioned, only self.graphicsMode will remain in GLPane.
     # [bruce 071011]
-
-    # class constants (needed by modeMixin to map commandNames to mode classes):
-    mode_classes = [SelectChunks_Command, 
-                    SelectAtoms_Command,
-                    BuildAtoms_Command,
-                    Move_Command,
-                    cookieMode, 
-                    extrudeMode, 
-                    movieMode, 
-                    ZoomToAreaMode, 
-                    ZoomInOutMode,
-                    PanMode, 
-                    RotateMode, 
-                    PasteMode, 
-                    PartLibraryMode, 
-                    LineMode, 
-                    DnaLineMode, 
-                    DnaDuplex_EditCommand,
-                    Plane_EditCommand,
-                    LinearMotor_EditCommand,
-                    RotaryMotor_EditCommand,
-                    BreakStrands_Command,
-                    BuildDna_EditCommand,
-                    DnaSegment_EditCommand, 
-                    RotateChunks_Command,
-                    TranslateChunks_Command, 
-                    FuseChunks_Command
-                ]
-                    ##SketchMode] #Sketchmode not implemented yet
 
     always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with class ThumbView
 
