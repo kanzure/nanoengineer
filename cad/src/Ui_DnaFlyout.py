@@ -210,8 +210,10 @@ class DnaFlyout:
         
         self._isActive = False
         
-        if self.dnaDuplexAction.isChecked():
-            self.dnaDuplexAction.setChecked(False)
+        #Uncheck all the actions in the flyout toolbar (subcontrol area)
+        for action in self.subControlActionGroup.actions():
+            if action.isChecked():
+                action.setChecked(False)
             
         self.connect_or_disconnect_signals(False)    
         self.win.commandToolbar.updateCommandToolbar(self.win.buildDnaAction,
