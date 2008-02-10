@@ -325,10 +325,15 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
             if isinstance(self.command.struct, DnaSegment):
                 for handle in self.command.handles:
                     handle.draw()
-                    
+        
+        # The "Bases per turn" temp fix means that any resized segment will
+        # get regenerated with 10 bases per turn only. Bruce said that we
+        # will be able to fix this pretty easily once the DNA updater/data
+        # model is implemented (soon). Let's wait until then. Mark 2008-02-10.
         if self.command.grabbedHandle is not None:
             drawDnaRibbons(self.command.grabbedHandle.fixedEndOfStructure,
                            self.command.grabbedHandle.currentPosition,
+                           10.0, # Bases per turn. Temp fix. Mark 2008-02-10
                            self.command.duplexRise,
                            self.glpane.scale,
                            self.glpane.lineOfSight,
