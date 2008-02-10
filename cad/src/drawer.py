@@ -2351,14 +2351,20 @@ def drawRulers(glpane):
     """
     Draws a vertical ruler on the left side of the 3D graphics area.
     
-    All drawing is done in a 2D window (pixel) coordinate system, where:
+    A 2D window (pixel) coordinate system is created locally, where:
     - The lower left corner is  (   0.0,    0.0, 0.0)
     - The upper right corner is ( width, height, 0.0)
+    
+    It doesn't matter what coordinate system you are in when you call this
+    function, and the system will not be harmed, but it does use one level
+    on each matrix stack, and it does set matrixmode to GL_MODELVIEW before
+    returning.
     
     Still to do:
     - Transparent ruler and its tickmarks are obscured by the model (but not
       the labels). Fix this.
-    - Once we're happy with the vertical ruler, add a horizontal ruler.
+    - Once we're happy with the vertical ruler, add support for an (optional)
+      horizontal ruler.
     
     @param glpane: the 3D graphics area.
     @type  glpane: L{GLPane)
