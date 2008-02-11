@@ -1258,8 +1258,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     axis = out * drawrad * 1.5
                     arrowRadius = drawrad * 3
                 elif dispdef == diBALL:
-                    axis = out * drawrad * 2.5
-                    arrowRadius = drawrad * 5
+                    axis = out * drawrad * 1.9
+                    arrowRadius = drawrad * 4.5
                 else:
                     axis = out * drawrad * 2
                     arrowRadius = drawrad * 5.8
