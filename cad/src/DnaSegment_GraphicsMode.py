@@ -94,11 +94,12 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         """
         Update the cursor for Select mode (Default implementation).
         """
-
-        # print "selectMolsMode.update_cursor_for_no_MB(): button=",\
-        #  self.o.button,"modkeys=",self.o.modkeys
-
         _superclass.update_cursor_for_no_MB(self)
+        
+        #minor optimization -- don't go further into the method if 
+        #nothing is highlighted i.e. self.o.selobj is None. 
+        if self.o.selobj is None:
+            return
         
         if self.command and hasattr(self.command.struct, 'isAncestorOf'):
             if not self.command.struct.isAncestorOf(self.o.selobj):
@@ -115,21 +116,33 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     def leftDown(self, event):
         """
         """
+        self.reset_drag_vars()
+        
         obj = self.get_obj_under_cursor(event)
 
         if obj is None:
             self.cursor_over_when_LMB_pressed = 'Empty Space'
             
+        #@see dn_model.DnaSegment.isAncestorOf. 
+        #It checks whether the object under the 
+        #cursor (which is glpane.selobj) is contained within the DnaSegment
+        #currently being edited
+        #Example: If the object is an Atom, it checks whether the 
+        #atoms is a part of the dna segment. *being edited*
+        #(i.e. self.comman.struct). If its not (e.g. its an atom of another 
+        #dna segment, then the this method returns . (leftDrag on structures
+        #NOT being edited won't do anything-- a desirable effect)    
         if self.command and hasattr(self.command.struct, 'isAncestorOf'):
             if not self.command.struct.isAncestorOf(obj):
                 _superclass.leftDown(self, event)
-                return                          
-
-        if not isinstance(obj, Atom):
-            #_superclass.leftDown(self, event)
-            #return
-            pass
-        
+                return       
+            else:
+                #Optimization: This value will be used in self.leftDrag. 
+                # Instead of checking everytime whether the 
+                #self.command.struct contains the highlighted objetc 
+                #(glpane.selobj) 
+                self.cursor_over_when_LMB_pressed = 'Structure Being Edited'
+                
         self.LMB_press_event = QMouseEvent(event) # Make a copy of this event 
         #and save it. 
         # We will need it later if we change our mind and start selecting a 2D 
@@ -160,9 +173,6 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
 	@see: self.leftDragRotation
         Overrides _superclass._leftDown_preparation_for_dragging
 	"""
-
-        self.reset_drag_vars()
-
         self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0
@@ -218,8 +228,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         if self.command and self.command.handles:
             if not self._handleDrawingRequested:
                 self._handleDrawingRequested = True
-            
-        
+                    
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.command.Done()
 
@@ -242,27 +251,19 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         #So it doesn't get registered in the selectMovables list. Thats why 
         #we are not calling _superclass.leftDrag. The above mentioned 
         #method in the superclass needs to be revised -- Ninad 2008-02-01
+        
         if self.drag_handler is not None:
             self.dragHandlerDrag(self.drag_handler, event)
             return
+                       
+        #If the cursor was not over something that belownged to structure 
+        #being edited (example - atom or bond of a DnaSegment) don't 
+        #do left drag.(left drag will work only for the DnaSegment being edited)
+        if self.cursor_over_when_LMB_pressed != 'Structure Being Edited':
+            return
         
-        
-        #@see dn_model.DnaSegment.isAncestorOf. 
-        #It checks whether the object under the 
-        #cursor (which is glpane.selobj) is contained within the DnaSegment
-        #currently being edited
-        #Example: If the object is an Atom, it checks whether the 
-        #atoms is a part of the dna segment. *being edited*
-        #(i.e. self.comman.struct). If its not (e.g. its an atom of another 
-        #dna segment, then the this method returns . (leftDrag on structures
-        #NOT being edited won't do anything-- a desirable effect)
-        if self.command and hasattr(self.command.struct, 'isAncestorOf'):
-            if not self.command.struct.isAncestorOf(self.o.selobj):
-                return
-            
         #Duplicates some code from SelectChunks_GraphicsMode.leftDrag
-        #see a to do comment below in this method
-        
+        #see a to do comment below in this method        
         if self.cursor_over_when_LMB_pressed == 'Empty Space':  
             self.emptySpaceLeftDrag(event)            
             return
@@ -381,8 +382,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                 for handle in self.command.handles:
                     handle.draw()
         
-        if self.command.grabbedHandle is not None:
-            
+        if self.command.grabbedHandle is not None:            
             # We have no easy way to get the original "bases per turn" value
             # that was used to create this segment, so we will use
             # the current "bases per turn" user pref value. This is really 
@@ -416,8 +416,6 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
             #handle drawing code and computation to update the handle positions
             self.command.updateHandlePositions()
             
-    
-
 
 class DnaSegment_DragHandles_GraphicsMode(DnaLine_GM):
     """
@@ -454,6 +452,3 @@ class DnaSegment_DragHandles_GraphicsMode(DnaLine_GM):
         Method to be called duringleftUp mouse event
         """
         self.command.preview_or_finalize_structure(previewing = True)
-            
-        
-
