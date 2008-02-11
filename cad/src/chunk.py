@@ -89,8 +89,6 @@ from undo_archive import register_class_nickname, set_undo_nullMol
 from utilities.Comparison import same_vals
 ##from state_utils import copy_val
 from displaymodes import get_display_mode_handler
-from constants import gensym, genKey
-from constants import diDEFAULT
 
 from state_constants import S_REF, S_CHILDREN_NOT_DATA
 
@@ -107,15 +105,20 @@ from elements import Singlet
 from geometry.BoundingBox import BBox
 from drawer import ColorSorter
 ##from drawer import drawlinelist
+
 ##from constants import PickedColor
 from constants import darkgreen
+
+from constants import gensym, genKey
+
+from constants import diDEFAULT
 from constants import diBALL
 from constants import diLINES
 from constants import diTUBES
 from constants import diINVISIBLE
+
 from elements import PeriodicTable
 from ChunkProp import ChunkProp
-
 
 from Dna_Constants import getComplementSequence
 
@@ -1753,7 +1756,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # and to invalidate it as needed -- since it's rare for atoms to override display modes.
         # Or we might even keep a list of all our atoms which override our display mode. ###e
         # [bruce 050513 comment]
-        bondcolor = self.color
+        bondcolor = self.drawing_color()
         ColorSorter.start() # grantham 20051205
         if self.externs:
             # draw external bonds.
@@ -1841,6 +1844,30 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         That might change, e.g. if we made chunks show their axis, name, bbox, etc.
         """
         return
+
+    def drawing_color(self): #bruce 080210 split this out, used in Atom.drawing_color
+        """
+        Return the color tuple to use for drawing self, or None if
+        per-atom colors should be used.
+        """
+        if self.picked:
+            #ninad070405 Following draws the chunk as a colored selection 
+            #(if selected)
+            #bruce 080210 possible appearance change:
+            # this now also affects Atom.drawing_color
+            # (but it's unclear whether that ever affects color
+            #  of external bonds -- apparently not, in my tests)
+            color = darkgreen
+        else:
+            color = self.color # None or a color
+        color = self.modify_color_for_error(color)
+            # no change in color if no error
+        return color
+
+    def modify_color_for_error(self, color):
+        """
+        """
+        return color
     
     def standard_draw_atoms(self, glpane, disp0): #bruce 060608 split this out of draw_displist
         """
@@ -1856,27 +1883,30 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         _colorfunc = self._colorfunc # might be None [as of 050524 we supply a default so it's always there]
         _dispfunc = self._dispfunc #bruce 060411 hack for BorrowerChunk, might be more generally useful someday
         
-        #ninad070405 Following draws the chunk as a colored selection 
-        #(if selected)
-        if self.picked:
-            color = darkgreen
-            bondcolor = darkgreen
-        else:
-            color = self.color # only used if _colorfunc is None
-            bondcolor = self.color # never changed
+        atomcolor = self.drawing_color() # None or a color
+            # bruce 080210 bugfix (predicted) [part 1 of 2]:
+            # use this even when _colorfunc is being used
+            # (so chunk colors work in Extrude; IIRC there was a bug report on that)
+            # [UNTESTED whether that bug exists and whether this fixes it]
+
+        bondcolor = atomcolor # never changed below
         
         for atm in self.atoms.itervalues(): #bruce 050513 using itervalues here (probably safe, speed is needed)
             try:
-                disp = disp0
+                color = atomcolor # might be modified before use
+                disp = disp0 # might be modified before use
                 # bruce 041014 hack for extrude -- use _colorfunc if present [part 2; optimized 050513]
                 if _colorfunc is not None:
                     try:
-                        color = _colorfunc(atm)
+                        color = _colorfunc(atm) # None or a color
                     except:
                         print_compact_traceback("bug in _colorfunc for %r and %r: " % (self, atm)) #bruce 060411 added errmsg
                         _colorfunc = None # report the error only once per displist-redraw
-                        color = self.color # probably not needed
+                        color = None
                     else:
+                        if color is None:
+                            color = atomcolor
+                                # bruce 080210 bugfix (predicted) [part 2 of 2]
                         #bruce 060411 hack for BorrowerChunk; done here and in this way in order to not make
                         # ordinary drawing inefficient, and to avoid duplicating this entire method:
                         if _dispfunc is not None:
@@ -1894,7 +1924,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 
                 # end bruce hack 041014, except for use of color rather than
                 # self.color in atm.draw (but not in bon.draw -- good??)
+                
                 atomdisp = atm.draw(glpane, disp, color, drawLevel)
+
                 #bruce 050513 optim: if self and atm display modes don't need to draw bonds,
                 # we can skip drawing bonds here without checking whether their other atoms
                 # have their own display modes and want to draw them,
@@ -1906,6 +1938,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # So I'm removing that now, and doing this optim.
                 ###e (I might need to specialcase it for singlets so their bond-valence number is still drawn...)
                 # [bruce 050513]
+                
                 if atomdisp in (diBALL, diLINES, diTUBES): #e should we move this tuple into bonds module or Bond class?
                     for bon in atm.bonds:
                         if bon.key not in drawn:
@@ -3417,7 +3450,7 @@ class BorrowerChunk(Chunk):
          since the copy code (two methods in Chunk) will set an instance attribute pointing to the bound method of the original]
         """
         #e this has bugs if we removed atoms from self -- that's not supported (#e could override delatom to support it)
-        return self.origmols[atm.key].color
+        return self.origmols[atm.key].drawing_color()
     def _dispfunc(self, atm):
         origmol = self.origmols[atm.key]
         glpane = origmol.glpane # set shortly before this call, in origmol.draw_displist (kluge)

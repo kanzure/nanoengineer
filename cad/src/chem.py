@@ -1060,15 +1060,25 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         print self.element.name, lis
 
     def draw(self, glpane, dispdef, col, level):
-        """Draw this atom depending on whether it is picked
+        """
+        Draw this atom (self), using an appearance which depends on
+        whether it is picked (selected)
         and its display mode (possibly inherited from dispdef).
         An atom's display mode overrides the inherited one from
-        the molecule or glpane, but a molecule's color overrides the atom's
-        element-dependent one. No longer treats glpane.selatom specially
-        (caller can draw selatom separately, on top of the regular atom).
-           Also draws picked-atom wireframe, but doesn't draw any bonds.
+        the molecule or glpane, but a molecule's color (passed as col)
+        overrides the atom's element-dependent color.
+
+        Also draws picked-atom wireframe, but doesn't draw any bonds.
         [Caller must draw bonds separately.]
-           Return value gives the display mode we used (our own or inherited).
+        
+        @return: the display mode we used (whether self's or inherited).
+
+        @param col: the molecule color to use, or None to use per-atom colors.
+                    (Should not be a boolean-false color -- black is ok if
+                     passed as (0,0,0), but not if passed as V(0,0,0).)
+
+        @note: This method no longer treats glpane.selatom specially
+        (caller can draw selatom separately, on top of the regular atom).
         """
         assert not self.__killed
         disp = default_display_mode # to be returned in case of early exception
@@ -1107,12 +1117,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         Return the color in which to draw self, and certain things that touch self.
         This is molcolor or self.element.color by default
-        (where molcolor is self.molecule.color if not supplied),
+        (where molcolor is self.molecule.drawing_color() if not supplied),
         but some preferences can override that with a warning or error color
         for atoms with something wrong with them.
         """
         if molcolor is None:
-            molcolor = self.molecule.color
+            molcolor = self.molecule.drawing_color()
         color = molcolor
         if color is None:
             color = self.element.color

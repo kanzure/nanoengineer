@@ -564,7 +564,7 @@ class SurfaceChunks(ChunkDisplayMode):
 		cspheres.append((st[0],st[1],st[2],rt,atoms[i]))
 	    #cspheres.append((-0.3,0,0,0.3,1))
 	    #cspheres.append((0.3,0,0,0.3,2))
-	    color = chunk.color
+	    color = chunk.drawing_color()
 	    if color is None:
 		color = V(0.5,0.5,0.5)
 	    #  create surface 
@@ -603,7 +603,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	    for i in range(len(s.spheres)):
 		s.spheres[i] /= radius
 		s.radiuses[i] /= radius
-	    color = chunk.color
+	    color = chunk.drawing_color()
 	    if color is None:
 		color = V(0.5,0.5,0.5)
 	    #  create surface 
