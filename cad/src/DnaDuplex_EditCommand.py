@@ -535,14 +535,17 @@ class DnaDuplex_EditCommand(EditCommand):
         This is used as a callback method in DnaLine mode 
         @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
+        
         duplexLength = vlen(endPoint2 - endPoint1)
         numberOfBasePairs = \
                           getNumberOfBasePairsFromDuplexLength(
                               'B-DNA', 
                               duplexLength,
                               duplexRise = self.duplexRise)
-        duplexLengthString = str(round(duplexLength, 3))
-        text =  str(numberOfBasePairs)+ "b, "+ duplexLengthString 
+        numberOfTurns = numberOfBasePairs / self.basesPerTurn
+
+        text = '%db (%5.3ft), %5.3f' \
+             % (numberOfBasePairs, numberOfTurns, duplexLength)
         
         #@TODO: The following updates the PM as the cursor moves. 
         #Need to rename this method so that you that it also does more things 
