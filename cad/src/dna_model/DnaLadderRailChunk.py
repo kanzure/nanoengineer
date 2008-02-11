@@ -10,6 +10,8 @@ DnaLadderRailChunk.py -
 from chunk import Chunk
 
 from constants import gensym
+from constants import black
+from constants import ave_colors
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 
@@ -259,9 +261,24 @@ class DnaLadderRailChunk(Chunk):
         
     # == other methods
     
-    #e draw method?
+    def modify_color_for_error(self, color):
+        """
+        Given the drawing color for this chunk, or None if element colors
+        should be used, either return it unchanged, or modify it to
+        indicate an error or warning condition (if one exists on this chunk).
+        """
+        error = self.ladder and self.ladder.error
+            # maybe: use self.ladder.drawing_color(), if not None??
+        if error:
+            # use black, or mix it into the selection color [bruce 080210]
+            if self.picked and color is not None:
+                # color is presumably the selection color
+                color = ave_colors(0.75, black, color)
+            else:
+                color = black
+        return color
     
-    pass
+    pass # end of class DnaLadderRailChunk
 
 # == these subclasses might be moved to separate files, if they get long
 

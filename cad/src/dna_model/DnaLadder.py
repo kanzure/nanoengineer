@@ -14,11 +14,11 @@ Context:
 The PAM atoms in any PAM DNA structure will be internally divided into
 "ladders", in which all the bonding strictly follows the pattern
 
- ... -+-+-+-+-+-+- ... (strand 1)
-      | | | | | | 
- ... -+-+-+-+-+-+- ... (axis; missing for free-floating single strand)
-      | | | | | | 
- ... -+-+-+-+-+-+- ... (strand 2; missing for any kind of single strand)
+ ...  -+-+-+-+-+-+-> ... (strand 1)
+       | | | | | | 
+ ...  -+-+-+-+-+-+-  ... (axis; missing for free-floating single strand)
+       | | | | | | 
+ ... <-+-+-+-+-+-+-  ... (strand 2; missing for any kind of single strand)
 
 (with the strand bond directions antiparallel and standardized
 to 1 on top (measured left to right == towards increasing baseatoms
@@ -74,7 +74,6 @@ from dna_model.dna_model_constants import MAX_LADDER_LENGTH
 
 from debug_prefs import debug_pref, Choice_boolean_False
 
-from constants import black
 from utilities.Log import orangemsg, redmsg, quote_html
 import env
 
@@ -273,8 +272,6 @@ class DnaLadder(object):
                             print "self.error now = %r (is about to be set)" % (self.error,)
                         if strand_rail.bond_direction_is_arbitrary():
                             print " *** bug: parallel strands but strand_rail.bond_direction_is_arbitrary() is true, should be false"
-##                        summary_format = "Warning: DNA updater: found [N] dna ladder(s) with parallel strand errors" # DO BELOW @@@@@
-##                        env.history.deferred_summary_message( orangemsg( summary_format))
                         self.error = "parallel strand bond directions"
                         # should we just reverse them? no, unless we use minor/major groove to decide which is right.
                     pass
@@ -746,18 +743,19 @@ class DnaLadder(object):
                       non_debug = True,
                       prefs_key = True ):
             from Dna_Constants import getNextStrandColor
+            # todo: apply this in Chunk.drawing_color (extend that method),
+            # so it doesn't erase the saved color
             ladder_color = getNextStrandColor()
-        if self.error:
-            ladder_color = black ###### TEMPORARY @@@@@
+        # note: if self.error, Chunk.draw will notice this and use black
+        # (within its call of DnaLadderRailChunk.modify_color_for_error);
+        # we won't reassign ladder_color, since we want old chunk colors
+        # to last, so they can be preserved until errors are removed.
         for rail in self.all_rails():
             if rail is self.axis_rail:
                 want_class = DnaAxisChunk
             else:
                 want_class = DnaStrandChunk
             old_chunk = rail.baseatoms[0].molecule # from arbitrary baseatom in rail
-##            assy = old_chunk.assy
-##            assert assy is self.assy
-##            part = assy.part
             part = old_chunk.part
             if not part:
                 # will this happen in MMKit? get it from assy
