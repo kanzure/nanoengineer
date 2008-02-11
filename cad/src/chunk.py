@@ -448,123 +448,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         
         return found_strand_atom    
     
-    def get_strand_atoms_in_bond_direction_EXPERIMENTAL(self): # ninad 080205; bruce 080205 revised docstring
-        """
-        EXPERIMENTAL. (ALTERNATE IMPLEMENTATION OF 
-        get_strand_atoms_in_bond_direction. NOT USED ANYWHERE , SCHEDULED FOR 
-        REMOVAL - 2008-02-07
-        
-        Return a list of atoms in a fixed direction -- from 5' to 3'
-        
-        NOTE: this is a stub and we can modify it so that
-        it can accept other direction i.e. 3' to 5' , as an argument.
-        
-        @warning: for a ring, this uses an arbitrary start atom in self
-                  (so it is not yet useful in that case). ### VERIFY
-        
-        @warning: this only works for PAM3 chunks (not PAM5).
-
-        @note: this would return all atoms from an entire strand (chain or ring)
-               even if it spanned multiple chunks.
-        """ 
-        startAtom = None
-        atomList = []
-        
-        #Choose startAtom randomly (make sure that it's a PAM3 Sugar atom 
-        # and not a bondpoint)
-        for atm in self.atoms.itervalues():
-            if atm.element.symbol == 'Ss3':
-                startAtom = atm
-                break        
-        
-        if startAtom is None:
-            print_compact_stack("bug: no PAM3 Sugar atom (Ss3) found: " )
-            return []
-        
-        #Build one list in each direction, detecting a ring too 
-        
-        #ringQ decides whether the first returned list forms a ring. 
-        #This needs a better name in bond_chains.grow_directional_bond_chain
-        ringQ = False        
-        atomList_direction_1 = []
-        atomList_direction_2 = []     
-                   
-        b = None  
-        bond_direction = 0
-        for bnd in startAtom.directional_bonds():
-            if not bnd.is_open_bond(): # (this assumes strand length > 1)
-                #Determine the bond_direction from the 'startAtom'
-                direction = bnd.bond_direction_from(startAtom)
-                if direction in (1, -1):                    
-                    b = bnd
-                    bond_direction = direction
-                    break
-                                    
-        if b is None or bond_direction == 0:
-            return []         
-                           
-        #Find out the list of new atoms and bonds in the direction 
-        #from bond b towards 'startAtom' . This can either be 3' to 5' direction 
-        #(i.e. bond_direction = -1 OR the reverse direction 
-        #(presumably this is direction -1, 3' to 5'. Later, we will check 
-        #the bond direction and do appropriate things. (things that will decide 
-        #which list (atomList_direction_1 or atomList_direction_2) should 
-        #be prepended in atomList so that it has atoms ordered from 5' to 3'
-        #end. 
-        
-        # The 'ringQ' returns True if it's a ring.
-        # 'atomList_direction_1' does NOT include 'startAtom'.
-        #Following will always return 5' --> 3' atoms *after* start atom
-        ringQ, listb, lista = grow_directional_bond_chain(b, startAtom)
-        del listb # don't need list of bonds
-        
-        if ringQ:
-            #First add 'startAtom' (as its not included in atomList_direction_1
-            atomList.append(startAtom)
-            #extend atomList with remaining atoms
-            atomList.extend(lista)            
-        else:       
-            del lista #not used anywhere
-            
-            #Its not a ring. Now we will create two lists , each containing atoms
-            #in either direction of the startAtom. Note that these lists will 
-            #NOT include the startAtom.
-           
-            atomList_direction_1 = []
-            atomList_direction_2 = []
-            
-            #atomList_direction_1 = self._grow_strand_atom_chain(startAtom, bond_direction)
-            #atomList_direction_2 = self._grow_strand_atom_chain(startAtom, -bond_direction)
-            
-            next_atom = startAtom
-            while (next_atom is not None):                
-                next_atom = next_atom.strand_next_baseatom(bond_direction = bond_direction)
-                if next_atom is None:
-                    break
-                atomList_direction_1.append(next_atom)
-          
-            #start atom to 5' end
-            next_atom = startAtom
-            while (next_atom is not None):                
-                next_atom = next_atom.strand_next_baseatom(bond_direction = - bond_direction)
-                if next_atom is None:
-                    break
-                atomList_direction_2.append(next_atom)
-         
-            if bond_direction == -1:
-                atomList_direction_1.reverse()                
-                atomList.extend(atomList_direction_1)
-                atomList.append(startAtom)
-                atomList.extend(atomList_direction_2)
-            else:
-                atomList_direction_2.reverse()
-                atomList.extend(atomList_direction_2)
-                atomList.append(startAtom)
-                atomList.extend(atomList_direction_1)
-                           
-        return atomList   
-    
-    
+  
     def get_strand_atoms_in_bond_direction(self): # ninad 080205; bruce 080205 revised docstring
         """
         Return a list of atoms in a fixed direction -- from 5' to 3'
@@ -756,6 +640,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
 
     #START of Dna-Strand-or-Axis chunk specific code ========================
+    
     
     def getDnaGroup(self): # ninad 080205
         """
