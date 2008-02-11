@@ -368,6 +368,10 @@ class DnaLadder(object):
             minor_groove_where_expected_ness = dot( cross( rung0_vec, rung0_vec_2 ), axis_vec )
             if minor_groove_where_expected_ness <= 0:
                 error_here = "bond directions both wrong re major groove"
+                if 0: # turn this on to know why it reported that error [080210]
+                    print "data for %s:" % error_here
+                    print axis_atoms, strand1_atoms, strand2_atoms
+                    print rung0_vec, rung0_vec_2, axis_vec
                 self.error = error_here
         if old_self_error or error_here:
             assert self.error
