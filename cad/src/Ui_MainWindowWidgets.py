@@ -1095,8 +1095,10 @@ def retranslateUi(win):
     win.setViewRecenterAction.setIconText(QtGui.QApplication.translate("MainWindow", "Recenter", None, QtGui.QApplication.UnicodeUTF8))
     win.setViewRecenterAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Recenter (Ctrl+R)", None, QtGui.QApplication.UnicodeUTF8))
     win.setViewRecenterAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+R", None, QtGui.QApplication.UnicodeUTF8))
-    win.setViewHomeToCurrentAction.setText(QtGui.QApplication.translate("MainWindow", "Set Home View to &Current View", None, QtGui.QApplication.UnicodeUTF8))
-    win.setViewHomeToCurrentAction.setIconText(QtGui.QApplication.translate("MainWindow", "Set Home View to Current View", None, QtGui.QApplication.UnicodeUTF8))
+    win.setViewHomeToCurrentAction.setText(QtGui.QApplication.translate("MainWindow", "Set Home View", None, QtGui.QApplication.UnicodeUTF8))
+    win.setViewHomeToCurrentAction.setIconText(QtGui.QApplication.translate("MainWindow", "Set Home View", None, QtGui.QApplication.UnicodeUTF8))
+    win.setViewHomeToCurrentAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Set Home View (Ctrl+Home)", None, QtGui.QApplication.UnicodeUTF8))
+    win.setViewHomeToCurrentAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Home", None, QtGui.QApplication.UnicodeUTF8))
     win.saveNamedViewAction.setText(QtGui.QApplication.translate("MainWindow", "Save Named View", None, QtGui.QApplication.UnicodeUTF8))
     win.saveNamedViewAction.setIconText(QtGui.QApplication.translate("MainWindow", "Save Named View", None, QtGui.QApplication.UnicodeUTF8))
 
