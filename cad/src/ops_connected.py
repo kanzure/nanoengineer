@@ -22,11 +22,16 @@ class ops_connected_Mixin:
     "Mixin for providing Select Connected and Select Doubly methods to class Part"
     
     #mark 060128 made this more general by adding the atomlist arg.
-    def selectConnected(self, atomlist=None):
+    def selectConnected(self, atomlist = None):
         """
-        Select any atom that can be reached from any currently
+        Selects any atom that can be reached from any currently
         selected atom through a sequence of bonds.
-        If <atomlist> is supplied, use it instead of the currently selected atoms.
+        
+        @param atomlist: If supplied, use this list of atoms to select connected
+                         atoms instead of the currently selected atoms.
+        @type  atomlist: List of atoms.
+        
+        @attention: Only correctly reports the number newly selected atoms.
         """
         ###@@@ should make sure we don't traverse interspace bonds, until all bugs creating them are fixed
         
@@ -41,7 +46,8 @@ class ops_connected_Mixin:
             atomlist = self.selatoms.values()
             
         catoms = self.getConnectedAtoms(atomlist)
-        if not len(catoms): return
+        if not len(catoms): 
+            return
         
         natoms = 0
         for atom in catoms[:]:
@@ -49,10 +55,12 @@ class ops_connected_Mixin:
                 atom.pick()
                 if atom.picked:
                     # Just in case a selection filter was applied to this atom.
-                    natoms += 1 
+                    natoms += 1
+            else:
+                natoms += 1 # Counts atom that is already picked.
         
         from PlatformDependent import fix_plurals
-        info = fix_plurals( "%d connected atom(s) selected." % natoms)
+        info = fix_plurals( "%d new atom(s) selected." % natoms)
         env.history.message( cmd + info)
         self.o.gl_update()
         
