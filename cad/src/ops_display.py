@@ -15,6 +15,8 @@ History:
 mark 2008-02-02 split this out of MWsemantics.py.
 """
 
+import env
+
 from constants import diTrueCPK
 from constants import diTUBES
 from constants import diBALL
