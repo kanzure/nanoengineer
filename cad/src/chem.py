@@ -2016,8 +2016,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             # show display style of atoms that have one [bruce 080206]
             atomInfoStr += "<br>" + "display style: %s" % atom.atom_dispLabel() 
 
-        if atom._dna_updater__error: #bruce 080130
-            msg = atom.dna_updater_error_string(newline = '<br>')
+        # report dna updater errors in atom or its DnaLadder
+        msg = atom.dna_updater_error_string(newline = '<br>')
+        if msg:
             atomInfoStr += "<br>" + orangemsg(msg)
         
         if isAtomPosition:
@@ -3869,7 +3870,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
               eventually become friend methods in a subclass of Atom.
         """
         if not self._dna_updater__error:
-            return "" # optimize common case
+            # report errors from self's DnaLadder, if it has one
+            ladder = getattr(self.molecule, 'ladder', None) # kluge for .ladder
+            if ladder and ladder.error:
+                return ladder.error
+            return ""
+        # otherwise report error from self
         from dna_updater.fix_bond_directions import PROPOGATED_DNA_UPDATER_ERROR
         from dna_updater.fix_bond_directions import _f_detailed_dna_updater_error_string
             # note: use a runtime import for these, until this method can be
