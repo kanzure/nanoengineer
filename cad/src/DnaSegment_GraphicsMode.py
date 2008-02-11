@@ -46,6 +46,9 @@ from DnaLineMode import DnaLine_GM
 
 from drawer import drawDnaRibbons
 
+import env
+from prefs_constants import bdnaBasesPerTurn_prefs_key
+
 import math
 from geometry.VQT import V, norm, A, Q, vlen
 from constants import darkred, blue, black
@@ -378,14 +381,21 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                 for handle in self.command.handles:
                     handle.draw()
         
-        # The "Bases per turn" temp fix means that any resized segment will
-        # get regenerated with 10 bases per turn only. Bruce said that we
-        # will be able to fix this pretty easily once the DNA updater/data
-        # model is implemented (soon). Let's wait until then. Mark 2008-02-10.
         if self.command.grabbedHandle is not None:
+            
+            # We have no easy way to get the original "bases per turn" value
+            # that was used to create this segment, so we will use
+            # the current "bases per turn" user pref value. This is really 
+            # useful (and a kludge) workaround for doing origami design work
+            # since we (Tom and I) often need to resize DNA origami segments.
+            # I spoke with Bruce about this and we agree that this will be 
+            # much easier to fix once the DNA updater/data model is 
+            # implemented (soon), so let's wait until then. Mark 2008-02-10.
+            basesPerTurn = env.prefs[bdnaBasesPerTurn_prefs_key]
+        
             drawDnaRibbons(self.command.grabbedHandle.fixedEndOfStructure,
                            self.command.grabbedHandle.currentPosition,
-                           10.0, # Bases per turn. Temp fix. Mark 2008-02-10
+                           basesPerTurn,
                            self.command.duplexRise,
                            self.glpane.scale,
                            self.glpane.lineOfSight,
