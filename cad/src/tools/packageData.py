@@ -270,7 +270,7 @@ packageMapping_for_files = {
     "bond_updater"                     : "model_updater",
     "bond_utils"                       : "operation", # maybe also some ui
     "BoundingBox"                      : "geometry", # mostly geometry, some graphics, some hardcoded distance constants from model
-    "BreakStrand_Command"              : "command|dna/commands/BreakStrands", # plural BreakStrands to match featurename as of 080104
+    "BreakStrands_Command"              : "command|dna/commands/BreakStrands", # plural BreakStrands to match featurename as of 080104
     "JoinStrands_Command"              : "command|dna/commands/JoinStrands",
     "BuildAtomsPropertyManager"        : "ui/propmgr|commands/BuildAtoms",
     "BuildAtoms_Command"               : "command|commands/BuildAtoms",

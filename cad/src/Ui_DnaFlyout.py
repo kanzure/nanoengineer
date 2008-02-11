@@ -174,7 +174,7 @@ class DnaFlyout:
         
         change_connect(self.breakStrandAction, 
                              SIGNAL("triggered(bool)"),
-                             self.activateBreakStrand_Command)
+                             self.activateBreakStrands_Command)
         
         change_connect(self.joinStrandsAction,
                              SIGNAL("triggered(bool)"),
@@ -272,7 +272,7 @@ class DnaFlyout:
                 action.setChecked(False)
         
     
-    def activateBreakStrand_Command(self, isChecked):
+    def activateBreakStrands_Command(self, isChecked):
         """
         """
         self.win.enterBreakStrandCommand(isChecked)

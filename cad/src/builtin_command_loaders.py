@@ -48,7 +48,7 @@ from LinearMotor_EditCommand import LinearMotor_EditCommand
 from BuildAtoms_Command      import BuildAtoms_Command
 from SelectAtoms_Command     import SelectAtoms_Command
 from SelectChunks_Command    import SelectChunks_Command
-from BreakStrand_Command     import BreakStrands_Command
+from BreakStrands_Command     import BreakStrands_Command
 from BuildDna_EditCommand    import BuildDna_EditCommand
 from DnaSegment_EditCommand  import DnaSegment_EditCommand
 from Move_Command            import Move_Command

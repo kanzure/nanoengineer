@@ -18,7 +18,7 @@ from BuildAtoms_Command    import BuildAtoms_Command
 
 _superclass_for_GM = BuildAtoms_GraphicsMode
 
-class BreakStrand_GraphicsMode( BuildAtoms_GraphicsMode ):
+class BreakStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
     """
     
     """    
@@ -51,25 +51,35 @@ class BreakStrands_Command(BuildAtoms_Command):
     featurename = "Break Strands"
          
     hover_highlighting_enabled = True
-    GraphicsMode_class = BreakStrand_GraphicsMode
+    GraphicsMode_class = BreakStrands_GraphicsMode
    
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
     command_has_its_own_gui = False
+    
+    flyoutToolbar = None
 
     
     def init_gui(self):
         """
         Initialize GUI for this mode 
         """
+        previousCommand = self.commandSequencer.prevMode 
+        if previousCommand.commandName == 'BUILD_DNA':
+            try:
+                self.flyoutToolbar = previousCommand.flyoutToolbar
+            except AttributeError:
+                self.flyoutToolbar = None
+            
         pass 
-         
         
     def restore_gui(self):
         """
         Restore the GUI 
         """
+        if self.flyoutToolbar:
+            self.flyoutToolbar.dnaDuplexAction.setChecked(False)
         pass
     
    
