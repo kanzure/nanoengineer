@@ -38,10 +38,18 @@ class ops_motion_Mixin:
         """
         movables = self.getSelectedMovables()
         
+        self.translateSpecifiedMovables(offset, movables = movables)
+        
+    
+    def translateSpecifiedMovables(self, offset, movables =()):
+        """
+        Translate the specified movables.
+        @param movables: a list of movables (default value is empty tuple)
+        @type movables: list 
+        """        
         for m in movables:
-            self.changed() #Not check if this can be combined into one call
-            m.move(offset)
-        return
+            self.changed() 
+            m.move(offset)    
   
     def rotsel(self, quat):
         """
@@ -52,7 +60,7 @@ class ops_motion_Mixin:
         self.rotateSpecifiedMovables(quat, movables = movables)        
         return
     
-    def rotateSpecifiedMovables(self, quat, movables = []):
+    def rotateSpecifiedMovables(self, quat, movables =(), commonCenter = None):
         """
         Rotate the movables specified in the 'movables' list. 
         (Rotated as a unit)
@@ -62,9 +70,13 @@ class ops_motion_Mixin:
         @type movables: list
         
         """
-        # Find the common center of all selected chunks to fix bug 594 
-        #--Huaicai 8/30/05
-        comCenter = V(0.0, 0.0, 0.0) 
+        
+        if commonCenter is None:            
+            # Find the common center of all selected chunks to fix bug 594 
+            #--Huaicai 8/30/05
+            comCenter = V(0.0, 0.0, 0.0)
+        else:
+            comCenter = commonCenter
         
         numMovables = len(movables)
         

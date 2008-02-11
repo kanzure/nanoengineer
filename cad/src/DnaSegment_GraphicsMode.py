@@ -49,8 +49,10 @@ from drawer import drawDnaRibbons
 import math
 from geometry.VQT import V, norm, A, Q, vlen
 from constants import darkred, blue, black
+from debug import print_compact_traceback
 
 from chem import Atom
+from bonds import Bond
 
 SPHERE_RADIUS = 2.0
 SPHERE_DRAWLEVEL = 2
@@ -121,8 +123,9 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                 return                          
 
         if not isinstance(obj, Atom):
-            _superclass.leftDown(self, event)
-            return
+            #_superclass.leftDown(self, event)
+            #return
+            pass
         
         self.LMB_press_event = QMouseEvent(event) # Make a copy of this event 
         #and save it. 
@@ -159,9 +162,11 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
 
         self.o.SaveMouse(event)
         self.picking = True
-        self.dragdist = 0.0	
+        self.dragdist = 0.0
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
 
         self.leftADown(event)
+        
 
     def leftADown(self, event):
         """
@@ -295,6 +300,8 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         movables = []
         rotateAboutAxis = False
         translateAlongAxis = False
+        freeDragWholeStructure = False # If true, the whole segment will be 
+                                       #free dragged
         
         if self.command and self.command.struct:
             #Resultant axis is the axis of the segment itself. 
@@ -307,10 +314,17 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                self.o.selobj.element.role == 'axis':                
                 translateAlongAxis = True
                 rotateAboutAxis = False
+                freeDragWholeStructure = False
             elif isinstance(self.o.selobj, Atom) and \
                  self.o.selobj.element.role == 'strand':
                 translateAlongAxis = False
                 rotateAboutAxis = True
+                freeDragWholeStructure = False
+            elif isinstance(self.o.selobj, Bond):
+                translateAlongAxis = False
+                rotateAboutAxis = False
+                freeDragWholeStructure = True
+        
 
         if translateAlongAxis:
             for mol in movables:
@@ -320,7 +334,20 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
             self.o.assy.rotateSpecifiedMovables(Q(resAxis,-dy), 
                                                 movables = movables) 
         
+        if freeDragWholeStructure:
+            try:
+                point = self.dragto( self.movingPoint, event) 
+                offset = point - self.movingPoint
+                self.o.assy.translateSpecifiedMovables(offset, movables = movables)
+                self.movingPoint = point
+            except:
+                #may be self.movingPoint is not defined in leftDown? 
+                #(e.g. _superclass.leftDown doesn't get called or as a bug? )
+                print_compact_traceback("bug:unable to free drag the whole segment")
+            
+            
         self.dragdist += vlen(deltaMouse) #k needed?? [bruce 070605 comment]
+        
         self.o.SaveMouse(event)
         self.o.assy.changed() #ninad060924 fixed bug 2278
         self.o.gl_update()
