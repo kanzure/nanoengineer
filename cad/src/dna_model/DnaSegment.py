@@ -9,6 +9,8 @@ DnaSegment.py - ...
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 from debug import print_compact_stack
 from chunk import Chunk
+from chem  import Atom
+from bonds import Bond
 from geometry.VQT import V, norm, vlen
 from Dna_Constants import getDuplexRiseFromNumberOfBasePairs
 
@@ -194,5 +196,33 @@ class DnaSegment(DnaStrandOrSegment):
             numberOfAxisAtoms = len(axisChunk.atoms.values())
         
         return numberOfAxisAtoms
+        
+    def isAncestorOf(self, obj):
+        """
+        Checks whether the object <obj> is contained within the DnaSegment
+        
+        Example: If the object is an Atom, it checks whether the 
+        atom's chunk is a member of this DnaSegment 
+        
+        @see: DnaSegment_GraphicsMode.leftDrag
+        """
+        #NOTE: Need to check if the isinstance checks are accptable (apparently
+        #don't add any import cycle) Also this method needs to be revised 
+        #after we completely switch to dna data model. 
+        if isinstance(obj, Atom):       
+            chunk = obj.molecule                
+            if chunk in self.members:
+                return True
+        elif isinstance(obj, Bond):
+            chunk1 = obj.atom1.molecule
+            chunk2 = obj.atom1.molecule            
+            if (chunk1 in self.members) or (chunk2 in self.members):
+                return True               
+        elif isinstance(obj, Chunk):
+            if obj in self.members:
+                return True
+                
+        return False    
+        
                 
 # end

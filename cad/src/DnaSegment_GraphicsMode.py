@@ -78,10 +78,12 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         @see: self.update_cursor_for_no_MB
 	"""
         _superclass.bareMotion(self, event)
+        
         #When the cursor is over a specifit atom, we need to display 
         #a different icon. (e.g. when over a strand atom, it should display 
-        # rotate cursor)
-        self.update_cursor()
+        # rotate cursor)    
+        self.update_cursor()            
+    
 
     def update_cursor_for_no_MB(self):
         """
@@ -92,13 +94,17 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         #  self.o.button,"modkeys=",self.o.modkeys
 
         _superclass.update_cursor_for_no_MB(self)
-
-        if self.o.modkeys is None:
-            if isinstance(self.o.selobj, Atom):
-                if self.o.selobj.element.role == 'strand':
-                    self.o.setCursor(self.win.rotateAboutCentralAxisCursor)
-                else:
-                    self.o.setCursor(self.win.translateAlongCentralAxisCursor)
+        
+        if self.command and hasattr(self.command.struct, 'isAncestorOf'):
+            if not self.command.struct.isAncestorOf(self.o.selobj):
+                return
+            
+            if self.o.modkeys is None:
+                if isinstance(self.o.selobj, Atom):
+                    if self.o.selobj.element.role == 'strand':
+                        self.o.setCursor(self.win.rotateAboutCentralAxisCursor)
+                    else:
+                        self.o.setCursor(self.win.translateAlongCentralAxisCursor)
 
 
     def leftDown(self, event):
@@ -108,11 +114,16 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
 
         if obj is None:
             self.cursor_over_when_LMB_pressed = 'Empty Space'
+            
+        if self.command and hasattr(self.command.struct, 'isAncestorOf'):
+            if not self.command.struct.isAncestorOf(obj):
+                _superclass.leftDown(self, event)
+                return                          
 
-
-        if not isinstance(self.o.selobj, Atom):
+        if not isinstance(obj, Atom):
             _superclass.leftDown(self, event)
             return
+        
         self.LMB_press_event = QMouseEvent(event) # Make a copy of this event 
         #and save it. 
         # We will need it later if we change our mind and start selecting a 2D 
@@ -208,16 +219,44 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
     def leftDrag(self, event):
         """
         Method called during Left drag event. 
-        """
+        """            
+        #If there is a drag handler (e.g. a segment resize handle is being 
+        #dragged, call its drag method and don't proceed further. 
+        
+        #NOTE: 
+        #In SelectChunks_GraphicsMode.leftDrag, there is a condition statement 
+        #which checkes if self.drag_handler is in assy.getSelecteedMovables
+        #I don't know why it does that... I think it always assums that the 
+        #drag handler is officially a node in the MT? In our case, 
+        #the drag handler is a 'Highlightable' object (actually 
+        #an instance of 'DnaSegment_ResizeHandle' (has superclass from 
+        #exprs module ..which implements API for a highlightable object
+        #So it doesn't get registered in the selectMovables list. Thats why 
+        #we are not calling _superclass.leftDrag. The above mentioned 
+        #method in the superclass needs to be revised -- Ninad 2008-02-01
+        if self.drag_handler is not None:
+            self.dragHandlerDrag(self.drag_handler, event)
+            return
+        
+        
+        #@see dn_model.DnaSegment.isAncestorOf. 
+        #It checks whether the object under the 
+        #cursor (which is glpane.selobj) is contained within the DnaSegment
+        #currently being edited
+        #Example: If the object is an Atom, it checks whether the 
+        #atoms is a part of the dna segment. *being edited*
+        #(i.e. self.comman.struct). If its not (e.g. its an atom of another 
+        #dna segment, then the this method returns . (leftDrag on structures
+        #NOT being edited won't do anything-- a desirable effect)
+        if self.command and hasattr(self.command.struct, 'isAncestorOf'):
+            if not self.command.struct.isAncestorOf(self.o.selobj):
+                return
+            
         #Duplicates some code from SelectChunks_GraphicsMode.leftDrag
         #see a to do comment below in this method
         
-        if self.cursor_over_when_LMB_pressed == 'Empty Space':             
-            if self.drag_handler is not None:
-                self.dragHandlerDrag(self.drag_handler, event)
-                    # does updates if needed
-            else:
-                self.emptySpaceLeftDrag(event)            
+        if self.cursor_over_when_LMB_pressed == 'Empty Space':  
+            self.emptySpaceLeftDrag(event)            
             return
 
         if self.o.modkeys is not None:
@@ -230,21 +269,6 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
             return
         
         #TODO: This duplicates some code from SelectChunks_GraphicsMode.leftDrag
-        #but doesn't call that method. This is because in 
-        #SelectChunks_GraphicsMode.leftDrag, there is a condition statement 
-        #which checkes if self.drag_handler is in assy.getSelecteedMovables
-        #I don't know why it does that... I think it always assums that the 
-        #drag handler is officially a node in the MT? In our case, 
-        #the drag handler is a 'Highlightable' object (actually 
-        #an instance of 'DnaSegment_ResizeHandle' (has superclass from 
-        #exprs module ..which implements API for a highlightable object
-        #So it doesn't get registered in the selectMovables list. Thats why 
-        #we are not calling _superclass.leftDrag. The above mentioned 
-        #method in the superclass needs to be revised -- Ninad 2008-02-01
-
-        if self.drag_handler is not None:
-            self.dragHandlerDrag(self.drag_handler, event) 
-            return
         
         #Following code will never be called if a handle is grabbed. 
         #Thus, it instructs what to do for other cases (when user is not moving
@@ -301,6 +325,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         self.o.assy.changed() #ninad060924 fixed bug 2278
         self.o.gl_update()
         return
+        
 
 
     def drawHighlightedChunk(self, glpane, selobj, hicolor):
@@ -353,6 +378,8 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
             #during left drag (when handle is not dragged) we skip the 
             #handle drawing code and computation to update the handle positions
             self.command.updateHandlePositions()
+            
+    
 
 
 class DnaSegment_DragHandles_GraphicsMode(DnaLine_GM):
