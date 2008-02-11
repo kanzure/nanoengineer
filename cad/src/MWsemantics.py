@@ -1311,7 +1311,7 @@ class MWsemantics(QMainWindow,
         if commandSequencer.currentCommand.commandName != commandName:
             commandSequencer.userEnterCommand(commandName)
             # note: this changes the value of .currentCommand
-        return
+        return    
 
     def insertAtom(self):
         self.ensureInCommand('SELECTMOLS')
@@ -1378,6 +1378,19 @@ class MWsemantics(QMainWindow,
         else:        
             currentCommand = self.commandSequencer.currentCommand
             if currentCommand.commandName == 'BREAK_STRANDS':
+                currentCommand.Done(exit_using_done_or_cancel_button = False)
+    
+    def enterJoinStrandsCommand(self, isChecked = False):
+        """
+        """
+        commandSequencer = self.commandSequencer
+        currentCommand = commandSequencer.currentCommand
+        if currentCommand.commandName != "JOIN_STRANDS":
+            commandSequencer.userEnterTemporaryCommand(
+                'JOIN_STRANDS')
+        else:        
+            currentCommand = self.commandSequencer.currentCommand
+            if currentCommand.commandName == 'JOIN_STRANDS':
                 currentCommand.Done(exit_using_done_or_cancel_button = False)
         
 

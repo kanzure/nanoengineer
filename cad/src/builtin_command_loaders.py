@@ -55,6 +55,7 @@ from Move_Command            import Move_Command
 from RotateChunks_Command    import RotateChunks_Command
 from TranslateChunks_Command import TranslateChunks_Command
 from FuseChunks_Command      import FuseChunks_Command
+from JoinStrands_Command     import JoinStrands_Command
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 
 def preloaded_command_classes():
@@ -90,6 +91,7 @@ def preloaded_command_classes():
         LinearMotor_EditCommand,
         RotaryMotor_EditCommand,
         BreakStrands_Command,
+        JoinStrands_Command,
         BuildDna_EditCommand,
         DnaSegment_EditCommand, 
         RotateChunks_Command,

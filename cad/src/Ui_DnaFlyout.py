@@ -81,6 +81,7 @@ class DnaFlyout:
         self.subControlActionGroup.setExclusive(False)   
         self.subControlActionGroup.addAction(self.dnaDuplexAction)
         self.subControlActionGroup.addAction(self.breakStrandAction) 
+        self.subControlActionGroup.addAction(self.joinStrandsAction)
 
         #Action List for  subcontrol Area buttons. 
         subControlAreaActionList = []
@@ -90,6 +91,7 @@ class DnaFlyout:
         subControlAreaActionList.append(separator) 
         subControlAreaActionList.append(self.dnaDuplexAction)        
         subControlAreaActionList.append(self.breakStrandAction)
+        subControlAreaActionList.append(self.joinStrandsAction)
         subControlAreaActionList.append(self.orderDnaAction)
 
         allActionsList.extend(subControlAreaActionList)
@@ -122,7 +124,13 @@ class DnaFlyout:
         self.breakStrandAction.setText("Break Strand")
         self.breakStrandAction.setCheckable(True)        
         self.breakStrandAction.setIcon(
-            geticon("ui/actions/Properties Manager/Break_Strand.png"))
+            geticon("ui/actions/Command Toolbar/Break_Strand.png"))
+        
+        self.joinStrandsAction = QtGui.QWidgetAction(parentWidget)
+        self.joinStrandsAction.setText("Join Strands")
+        self.joinStrandsAction.setCheckable(True)        
+        self.joinStrandsAction.setIcon(
+            geticon("ui/actions/Command Toolbar/Join_Strands.png"))
 
         self.dnaOrigamiAction = QtGui.QWidgetAction(parentWidget)
         self.dnaOrigamiAction.setText("Origami")
@@ -136,6 +144,8 @@ class DnaFlyout:
 
         # Add tooltips
         self.dnaDuplexAction.setToolTip("Duplex")
+        self.breakStrandAction.setToolTip("Break Strands")
+        self.joinStrandsAction.setToolTip("Join Strands")
         self.dnaOrigamiAction.setToolTip("Origami")
         self.orderDnaAction.setToolTip("Order DNA")
     
@@ -165,6 +175,11 @@ class DnaFlyout:
         change_connect(self.breakStrandAction, 
                              SIGNAL("triggered(bool)"),
                              self.activateBreakStrand_Command)
+        
+        change_connect(self.joinStrandsAction,
+                             SIGNAL("triggered(bool)"),
+                             self.activateJoinStrands_Command)
+        
         
         change_connect(self.dnaOrigamiAction, 
                              SIGNAL("triggered()"),
@@ -250,8 +265,11 @@ class DnaFlyout:
         #uncheck)
         #QActionGroup achieves (a) but can't do (b) 
         
-        if self.breakStrandAction.isChecked():
-            self.breakStrandAction.setChecked(False)
+        #Uncheck all the actions except the dna duplex action
+        #in the flyout toolbar (subcontrol area)
+        for action in self.subControlActionGroup.actions():
+            if action is not self.dnaDuplexAction and action.isChecked():
+                action.setChecked(False)
         
     
     def activateBreakStrand_Command(self, isChecked):
@@ -259,8 +277,24 @@ class DnaFlyout:
         """
         self.win.enterBreakStrandCommand(isChecked)
         
-        if self.dnaDuplexAction.isChecked():
-            self.dnaDuplexAction.setChecked(False)
+        #Uncheck all the actions except the break strands action
+        #in the flyout toolbar (subcontrol area)
+        for action in self.subControlActionGroup.actions():
+            if action is not self.breakStrandAction and action.isChecked():
+                action.setChecked(False)
+                
+    
+    def activateJoinStrands_Command(self, isChecked):
+        """
+        """
+        self.win.enterJoinStrandsCommand(isChecked)
+        
+        #Uncheck all the actions except the join strands action
+        #in the flyout toolbar (subcontrol area)
+        for action in self.subControlActionGroup.actions():
+            if action is not self.joinStrandsAction and action.isChecked():
+                action.setChecked(False)
+        
 
     def activateDnaOrigamiEditCommand(self):
         """
