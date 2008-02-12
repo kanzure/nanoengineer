@@ -93,7 +93,8 @@ animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 workingDirectory_prefs_key = 'WorkingDirectory' # Moved here from startup_funcs.py. Mark 060726.
 backgroundColor_prefs_key = 'A9/Background Color' # Mark 060814.
 backgroundGradient_prefs_key = 'A9/Background Gradient' # Mark 060814.
-defaultDisplayMode_prefs_key = 'A9/Default Display Mode' # Mark 060815.
+##defaultDisplayMode_prefs_key = 'A9/Default Display Mode' # Mark 060815.
+    # [disabled since assigned differently below -- bruce 080212]
 mouseSpeedDuringRotation_prefs_key = 'A9/Mouse Speed During Rotation' #Ninad 060906
 displayOriginAsSmallAxis_prefs_key = 'A9/Display Origin As Small Axis' #Ninad 060920
 zoomAboutScreenCenter_prefs_key = 'A9/Zoom To Screen Center' #Ninad 060926
