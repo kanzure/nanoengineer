@@ -327,7 +327,10 @@ packageMapping_for_files = {
     "DnaSequenceEditor"                : "widget|DnaSequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
     "Dna_Constants"                    : "model|dna/model", # (since used by lots of files in several dna-related commands)
     "DragHandler"                      : "graphics_drawable",
+    "drawDnaRibbons"                   : "graphics_drawing",
+    "drawDnaLadder"                    : "graphics_drawing",
     "drawer"                           : "graphics_drawing",
+    "drawRulers"                       : "graphics_drawing",
     "draw_bond_vanes"                  : "graphics_drawing",
     "draw_grid_lines"                  : "graphics_drawing",
     "DynamicTip"                       : "graphics_widgets", # but some should be refactored into GraphicsMode
