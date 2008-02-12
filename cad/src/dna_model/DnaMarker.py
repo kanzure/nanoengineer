@@ -28,6 +28,10 @@ from drawer import drawwirecube
 
 from debug import print_compact_stack
 
+from constants import orange
+
+from debug_prefs import debug_pref, Choice_boolean_False
+
 # ==
 
 # constants
@@ -208,17 +212,35 @@ class DnaMarker( ChainAtomMarker):
         """
         [overrides superclass method]
         """
-        from constants import orange
-        for a in self.atoms:
-            chunk = a.molecule
-            dispdef = chunk.get_dispdef(glpane)
-            disp, rad = a.howdraw(dispdef)
-            if self.picked:
-                rad *= 1.01
-            drawwirecube(color, a.posn(), rad)
-            # draw next_atom in a different color than marked_atom (sp?)
-            color = orange # this is what differs from superclass
+        if self._should_draw():
+            for a in self.atoms:
+                chunk = a.molecule
+                dispdef = chunk.get_dispdef(glpane)
+                disp, rad = a.howdraw(dispdef)
+                if self.picked:
+                    rad *= 1.01
+                drawwirecube(color, a.posn(), rad)
+                # draw next_atom in a different color than marked_atom
+                color = orange # this is what differs from superclass
+        return
 
+    def _should_draw(self):
+        res = debug_pref("DNA: draw internal markers?",
+                         Choice_boolean_False,
+                         non_debug = True,
+                         prefs_key = True,
+                         call_with_new_value = (lambda val: self.gl_update_node) )
+        return res
+
+    def gl_update_node(self):
+        """
+        Cause whatever graphics areas show self to update themselves.
+
+        [Should be made a Node API method, but revised to do the right thing
+        for nodes drawn into display lists.]
+        """
+        self.assy.glpane.gl_update()
+    
     # ==
     
     def get_oldness(self):
@@ -272,7 +294,7 @@ class DnaMarker( ChainAtomMarker):
         [extends superclass method]
         """
         # (we extend this method so that if bonds change so that marked_atom and
-        #  next_atom (sp?) are no longer next to one another, we'll get
+        #  next_atom are no longer next to one another, we'll get
         #  updated as needed.)
         _homeless_dna_markers[id(self)] = self
         _superclass.changed_structure(self, atom)
