@@ -40,6 +40,10 @@ from drawer import drawtext
 from geometry.VQT import V
 from constants import  lightgray, darkgray, black
 
+import env
+from prefs_constants import rulerColor_prefs_key
+from prefs_constants import rulerOpacity_prefs_key
+
 
 def drawRulers(glpane):
     """
@@ -80,7 +84,8 @@ def drawRulers(glpane):
     # Turn off depth masking so anything under the cursor will still get picked.
     glDepthMask(GL_FALSE)
     
-    ruler_bg_color = lightgray
+    ruler_color = env.prefs[rulerColor_prefs_key]
+    ruler_opacity = env.prefs[rulerOpacity_prefs_key] # 0.7 is a good default.
     tickmark_color = darkgray
     text_color = black
     font_size = 8
@@ -208,8 +213,7 @@ def drawRulers(glpane):
     
     # Draw semi-transparent ruler rectangle.
     if 1:
-        ruler_opacity = 0.7
-        glColor4fv(list(lightgray) + [ruler_opacity])
+        glColor4fv(list(ruler_color) + [ruler_opacity])
         glDisable(GL_LIGHTING)
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)

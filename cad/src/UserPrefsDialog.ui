@@ -22,7 +22,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="prefs_tab" >
      <property name="currentIndex" >
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -35,621 +35,180 @@
        <property name="spacing" >
         <number>6</number>
        </property>
-       <item row="3" column="2" colspan="2" >
+       <item row="2" column="4" >
         <spacer>
          <property name="orientation" >
-          <enum>Qt::Vertical</enum>
+          <enum>Qt::Horizontal</enum>
          </property>
          <property name="sizeHint" >
           <size>
-           <width>20</width>
-           <height>40</height>
+           <width>40</width>
+           <height>20</height>
           </size>
          </property>
         </spacer>
        </item>
        <item row="2" column="2" colspan="2" >
-        <widget class="QGroupBox" name="sponsorLogosGroupBox" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>3</hsizetype>
-           <vsizetype>3</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+        <layout class="QVBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
          </property>
-         <property name="title" >
-          <string>Sponsor Logos Download Permission</string>
+         <property name="spacing" >
+          <number>6</number>
          </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="2" column="0" >
-           <widget class="QRadioButton" name="logoNeverDownLoadRadioBtn" >
-            <property name="toolTip" >
-             <string>Never download sponsor logos from the Nanorex server</string>
-            </property>
-            <property name="text" >
-             <string>Never download</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
-           <widget class="QRadioButton" name="logoNeverAskRadioBtn" >
-            <property name="toolTip" >
-             <string>Never ask permission before downloading sponsor logos from the Nanorex server</string>
-            </property>
-            <property name="text" >
-             <string>Never ask before downloading</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" >
-           <widget class="QRadioButton" name="logoAlwaysAskRadioBtn" >
-            <property name="toolTip" >
-             <string>Always ask permission to download sponsor logos from the Nanorex server</string>
-            </property>
-            <property name="text" >
-             <string>Always ask before downloading</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QGroupBox" name="bg_groupbox" >
-         <property name="title" >
-          <string>Background Color</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" colspan="2" >
-           <layout class="QHBoxLayout" >
+         <item>
+          <widget class="QGroupBox" name="sponsorLogosGroupBox" >
+           <property name="sizePolicy" >
+            <sizepolicy>
+             <hsizetype>3</hsizetype>
+             <vsizetype>3</vsizetype>
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="title" >
+            <string>Sponsor Logos Download Permission</string>
+           </property>
+           <layout class="QGridLayout" >
             <property name="margin" >
-             <number>0</number>
+             <number>9</number>
             </property>
             <property name="spacing" >
              <number>6</number>
             </property>
-            <item>
-             <layout class="QVBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
+            <item row="2" column="0" >
+             <widget class="QRadioButton" name="logoNeverDownLoadRadioBtn" >
+              <property name="toolTip" >
+               <string>Never download sponsor logos from the Nanorex server</string>
               </property>
-              <property name="spacing" >
-               <number>6</number>
+              <property name="text" >
+               <string>Never download</string>
               </property>
-              <item>
-               <widget class="QLabel" name="fill_type_lbl" >
-                <property name="enabled" >
-                 <bool>true</bool>
-                </property>
-                <property name="text" >
-                 <string>Fill Type :</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="bg1_color_lbl" >
-                <property name="text" >
-                 <string>Color :</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-             </layout>
+             </widget>
             </item>
-            <item>
-             <layout class="QVBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
+            <item row="1" column="0" >
+             <widget class="QRadioButton" name="logoNeverAskRadioBtn" >
+              <property name="toolTip" >
+               <string>Never ask permission before downloading sponsor logos from the Nanorex server</string>
               </property>
-              <property name="spacing" >
-               <number>6</number>
+              <property name="text" >
+               <string>Never ask before downloading</string>
               </property>
-              <item>
-               <widget class="QComboBox" name="fill_type_combox" >
-                <property name="enabled" >
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>Background fill type</string>
-                </property>
-                <item>
-                 <property name="text" >
-                  <string>Solid</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Blue Sky</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" >
-                <property name="margin" >
-                 <number>0</number>
-                </property>
-                <property name="spacing" >
-                 <number>6</number>
-                </property>
-                <item>
-                 <widget class="QFrame" name="bg1_color_frame" >
-                  <property name="minimumSize" >
-                   <size>
-                    <width>25</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="frameShape" >
-                   <enum>QFrame::Box</enum>
-                  </property>
-                  <property name="frameShadow" >
-                   <enum>QFrame::Plain</enum>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="choose_bg1_color_btn" >
-                  <property name="text" >
-                   <string>Choose...</string>
-                  </property>
-                  <property name="autoDefault" >
-                   <bool>false</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QRadioButton" name="logoAlwaysAskRadioBtn" >
+              <property name="toolTip" >
+               <string>Always ask permission to download sponsor logos from the Nanorex server</string>
+              </property>
+              <property name="text" >
+               <string>Always ask before downloading</string>
+              </property>
+             </widget>
             </item>
            </layout>
-          </item>
-          <item row="1" column="1" >
-           <widget class="QPushButton" name="restore_bgcolor_btn" >
-            <property name="text" >
-             <string>Restore Default Color</string>
-            </property>
-            <property name="autoDefault" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="1" colspan="4" >
-        <widget class="QGroupBox" name="groupBox8" >
-         <property name="title" >
-          <string>View Rotation</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="textLabel1_5" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>1</hsizetype>
-              <vsizetype>5</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text" >
-             <string>View Animation Speed:</string>
-            </property>
-            <property name="scaledContents" >
-             <bool>false</bool>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>189</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="3" column="0" >
-           <widget class="QLabel" name="rotationSensitivity_txtlbl" >
-            <property name="text" >
-             <string>Mouse Speed During Rotation:</string>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="buddy" >
-             <cstring>mouseSpeedDuringRotation_slider</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3" >
-           <widget class="QLabel" name="textLabel3_4" >
-            <property name="text" >
-             <string>Fast</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>27</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="2" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>88</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="1" >
-           <widget class="QLabel" name="textLabel2_3" >
-            <property name="text" >
-             <string>Slow</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="3" >
-           <widget class="QSlider" name="animation_speed_slider" >
-            <property name="toolTip" >
-             <string>View Animation Speed</string>
-            </property>
-            <property name="minimum" >
-             <number>-300</number>
-            </property>
-            <property name="maximum" >
-             <number>-25</number>
-            </property>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>27</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="3" column="1" colspan="3" >
-           <widget class="QSlider" name="mouseSpeedDuringRotation_slider" >
-            <property name="minimum" >
-             <number>30</number>
-            </property>
-            <property name="maximum" >
-             <number>100</number>
-            </property>
-            <property name="value" >
-             <number>50</number>
-            </property>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>87</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="3" >
-           <widget class="QLabel" name="textLabel3_4_2" >
-            <property name="text" >
-             <string>Fast</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="4" >
-           <widget class="QToolButton" name="resetMouseSpeedDuringRotation_btn" >
-            <property name="enabled" >
-             <bool>false</bool>
-            </property>
-            <property name="toolTip" >
-             <string>Restore default value</string>
-            </property>
-            <property name="text" >
-             <string/>
-            </property>
-            <property name="icon" >
-             <iconset>../../:icons/UserPrefsDialog_image0</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" >
-           <widget class="QLabel" name="textLabel2_3_2" >
-            <property name="text" >
-             <string>Slow</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="4" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>28</width>
-              <height>16</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="animate_views_checkbox" >
-            <property name="toolTip" >
-             <string>Enable/disable animation between current view and a new view</string>
-            </property>
-            <property name="text" >
-             <string>Animate between views</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="0" >
-        <widget class="QGroupBox" name="groupBox7_2" >
-         <property name="title" >
-          <string>Axes</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="1" column="0" >
-           <widget class="QCheckBox" name="display_pov_axis_checkbox" >
-            <property name="toolTip" >
-             <string>Show/Hide Point of View Axis</string>
-            </property>
-            <property name="text" >
-             <string>Display Point of View Axis</string>
-            </property>
-            <property name="checked" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="display_origin_axis_checkbox" >
-            <property name="toolTip" >
-             <string>Show/Hide Origin Axis</string>
-            </property>
-            <property name="text" >
-             <string>Display Origin Axis</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="1" colspan="2" >
-        <widget class="QGroupBox" name="groupBox17_2" >
-         <property name="title" >
-          <string>Compass</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="2" column="0" >
-           <layout class="QHBoxLayout" >
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="rulersGroupBox" >
+           <property name="title" >
+            <string>Rulers</string>
+           </property>
+           <layout class="QGridLayout" >
             <property name="margin" >
-             <number>0</number>
+             <number>9</number>
             </property>
             <property name="spacing" >
              <number>6</number>
             </property>
-            <item>
-             <widget class="QLabel" name="textLabel1_4" >
+            <item row="1" column="1" >
+             <widget class="QDoubleSpinBox" name="rulerOpacityDoubleSpinBox" >
+              <property name="maximum" >
+               <double>1.000000000000000</double>
+              </property>
+              <property name="singleStep" >
+               <double>0.100000000000000</double>
+              </property>
+              <property name="value" >
+               <double>0.700000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="label_5" >
               <property name="text" >
-               <string>Location :</string>
+               <string>Ruler opacity:</string>
               </property>
               <property name="alignment" >
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QComboBox" name="compass_position_combox" >
-              <item>
-               <property name="text" >
-                <string>Upper Right</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Upper Left</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Lower Left</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Lower Right</string>
-               </property>
-              </item>
+            <item row="0" column="0" >
+             <widget class="QLabel" name="textLabel3_2_4" >
+              <property name="text" >
+               <string>Ruler color:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
              </widget>
             </item>
+            <item row="0" column="1" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QFrame" name="ruler_color_frame" >
+                <property name="minimumSize" >
+                 <size>
+                  <width>25</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="frameShape" >
+                 <enum>QFrame::Box</enum>
+                </property>
+                <property name="frameShadow" >
+                 <enum>QFrame::Plain</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="ruler_color_btn" >
+                <property name="text" >
+                 <string>Choose...</string>
+                </property>
+                <property name="autoDefault" >
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
            </layout>
-          </item>
-          <item row="1" column="0" >
-           <widget class="QCheckBox" name="display_compass_labels_checkbox" >
-            <property name="toolTip" >
-             <string>Show/Hide Display Compass</string>
-            </property>
-            <property name="text" >
-             <string>Display Compass Labels</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="display_compass_checkbox" >
-            <property name="toolTip" >
-             <string>Show/Hide Display Compass</string>
-            </property>
-            <property name="text" >
-             <string>Display Compass</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
-       <item row="0" column="3" >
-        <widget class="QGroupBox" name="default_projection_grpBox" >
-         <property name="toolTip" >
-          <string/>
-         </property>
-         <property name="title" >
-          <string>Default Projection</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" >
-           <widget class="QRadioButton" name="perspective_radioButton" >
-            <property name="text" >
-             <string>Perspective</string>
-            </property>
-            <property name="checked" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
-           <widget class="QRadioButton" name="orthographic_radioButton" >
-            <property name="text" >
-             <string>Orthographic</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item rowspan="2" row="2" column="0" colspan="2" >
+       <item row="2" column="0" colspan="2" >
         <widget class="QGroupBox" name="groupBox14" >
          <property name="title" >
           <string>Settings for Adjust</string>
@@ -1151,18 +710,553 @@
          </layout>
         </widget>
        </item>
-       <item row="2" column="4" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
+       <item row="0" column="3" >
+        <widget class="QGroupBox" name="default_projection_grpBox" >
+         <property name="toolTip" >
+          <string/>
          </property>
-         <property name="sizeHint" >
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
+         <property name="title" >
+          <string>Default Projection</string>
          </property>
-        </spacer>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="0" >
+           <widget class="QRadioButton" name="perspective_radioButton" >
+            <property name="text" >
+             <string>Perspective</string>
+            </property>
+            <property name="checked" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QRadioButton" name="orthographic_radioButton" >
+            <property name="text" >
+             <string>Orthographic</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="1" colspan="2" >
+        <widget class="QGroupBox" name="groupBox17_2" >
+         <property name="title" >
+          <string>Compass</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="2" column="0" >
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="textLabel1_4" >
+              <property name="text" >
+               <string>Location :</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="compass_position_combox" >
+              <item>
+               <property name="text" >
+                <string>Upper Right</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Upper Left</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Lower Left</string>
+               </property>
+              </item>
+              <item>
+               <property name="text" >
+                <string>Lower Right</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QCheckBox" name="display_compass_labels_checkbox" >
+            <property name="toolTip" >
+             <string>Show/Hide Display Compass</string>
+            </property>
+            <property name="text" >
+             <string>Display Compass Labels</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QCheckBox" name="display_compass_checkbox" >
+            <property name="toolTip" >
+             <string>Show/Hide Display Compass</string>
+            </property>
+            <property name="text" >
+             <string>Display Compass</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="0" column="0" >
+        <widget class="QGroupBox" name="groupBox7_2" >
+         <property name="title" >
+          <string>Axes</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="1" column="0" >
+           <widget class="QCheckBox" name="display_pov_axis_checkbox" >
+            <property name="toolTip" >
+             <string>Show/Hide Point of View Axis</string>
+            </property>
+            <property name="text" >
+             <string>Display Point of View Axis</string>
+            </property>
+            <property name="checked" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QCheckBox" name="display_origin_axis_checkbox" >
+            <property name="toolTip" >
+             <string>Show/Hide Origin Axis</string>
+            </property>
+            <property name="text" >
+             <string>Display Origin Axis</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="1" colspan="4" >
+        <widget class="QGroupBox" name="groupBox8" >
+         <property name="title" >
+          <string>View Rotation</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="textLabel1_5" >
+            <property name="sizePolicy" >
+             <sizepolicy>
+              <hsizetype>1</hsizetype>
+              <vsizetype>5</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text" >
+             <string>View Animation Speed:</string>
+            </property>
+            <property name="scaledContents" >
+             <bool>false</bool>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>189</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="3" column="0" >
+           <widget class="QLabel" name="rotationSensitivity_txtlbl" >
+            <property name="text" >
+             <string>Mouse Speed During Rotation:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>mouseSpeedDuringRotation_slider</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3" >
+           <widget class="QLabel" name="textLabel3_4" >
+            <property name="text" >
+             <string>Fast</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>27</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="2" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>88</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="1" >
+           <widget class="QLabel" name="textLabel2_3" >
+            <property name="text" >
+             <string>Slow</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="3" >
+           <widget class="QSlider" name="animation_speed_slider" >
+            <property name="toolTip" >
+             <string>View Animation Speed</string>
+            </property>
+            <property name="minimum" >
+             <number>-300</number>
+            </property>
+            <property name="maximum" >
+             <number>-25</number>
+            </property>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>27</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="3" column="1" colspan="3" >
+           <widget class="QSlider" name="mouseSpeedDuringRotation_slider" >
+            <property name="minimum" >
+             <number>30</number>
+            </property>
+            <property name="maximum" >
+             <number>100</number>
+            </property>
+            <property name="value" >
+             <number>50</number>
+            </property>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>87</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="3" >
+           <widget class="QLabel" name="textLabel3_4_2" >
+            <property name="text" >
+             <string>Fast</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="4" >
+           <widget class="QToolButton" name="resetMouseSpeedDuringRotation_btn" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <property name="toolTip" >
+             <string>Restore default value</string>
+            </property>
+            <property name="text" >
+             <string/>
+            </property>
+            <property name="icon" >
+             <iconset>../../:icons/UserPrefsDialog_image0</iconset>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" >
+           <widget class="QLabel" name="textLabel2_3_2" >
+            <property name="text" >
+             <string>Slow</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="4" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>28</width>
+              <height>16</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QCheckBox" name="animate_views_checkbox" >
+            <property name="toolTip" >
+             <string>Enable/disable animation between current view and a new view</string>
+            </property>
+            <property name="text" >
+             <string>Animate between views</string>
+            </property>
+            <property name="checked" >
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" >
+        <widget class="QGroupBox" name="bg_groupbox" >
+         <property name="title" >
+          <string>Background Color</string>
+         </property>
+         <layout class="QGridLayout" >
+          <property name="margin" >
+           <number>9</number>
+          </property>
+          <property name="spacing" >
+           <number>6</number>
+          </property>
+          <item row="0" column="0" colspan="2" >
+           <layout class="QHBoxLayout" >
+            <property name="margin" >
+             <number>0</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item>
+             <layout class="QVBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="fill_type_lbl" >
+                <property name="enabled" >
+                 <bool>true</bool>
+                </property>
+                <property name="text" >
+                 <string>Fill Type :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="bg1_color_lbl" >
+                <property name="text" >
+                 <string>Color :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QComboBox" name="fill_type_combox" >
+                <property name="enabled" >
+                 <bool>true</bool>
+                </property>
+                <property name="toolTip" >
+                 <string>Background fill type</string>
+                </property>
+                <item>
+                 <property name="text" >
+                  <string>Solid</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Blue Sky</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="bg1_color_frame" >
+                  <property name="minimumSize" >
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="frameShape" >
+                   <enum>QFrame::Box</enum>
+                  </property>
+                  <property name="frameShadow" >
+                   <enum>QFrame::Plain</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="choose_bg1_color_btn" >
+                  <property name="text" >
+                   <string>Choose...</string>
+                  </property>
+                  <property name="autoDefault" >
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QPushButton" name="restore_bgcolor_btn" >
+            <property name="text" >
+             <string>Restore Default Color</string>
+            </property>
+            <property name="autoDefault" >
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <spacer>
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType" >
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" >
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>

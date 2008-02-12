@@ -51,6 +51,8 @@ from prefs_constants import displayCompass_prefs_key
 from prefs_constants import displayCompassLabels_prefs_key
 from prefs_constants import displayPOVAxis_prefs_key
 from prefs_constants import animateStandardViews_prefs_key
+from prefs_constants import rulerColor_prefs_key
+from prefs_constants import rulerOpacity_prefs_key
 from prefs_constants import Adjust_watchRealtimeMinimization_prefs_key
 from prefs_constants import Adjust_minimizationEngine_prefs_key
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
@@ -507,6 +509,8 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.setUI_LogoDownloadPermissions()
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
+        self.connect(self.ruler_color_btn,SIGNAL("clicked()"),self.change_ruler_color)
+        self.connect(self.rulerOpacityDoubleSpinBox,SIGNAL("valueChanged(double)"),self.change_ruler_opacity)
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
         self.connect(self.ballstick_bondcolor_btn,SIGNAL("clicked()"),self.change_ballstick_bondcolor)
         self.connect(self.bond_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_hilite_color)
@@ -1008,6 +1012,9 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
+        
+        connect_colorpref_to_colorframe( rulerColor_prefs_key, self.ruler_color_frame)
+        self.rulerOpacityDoubleSpinBox.setValue(env.prefs[rulerOpacity_prefs_key])
 
         if env.prefs[defaultProjection_prefs_key] == 0:
             self.perspective_radioButton.setChecked(True)
@@ -1822,6 +1829,18 @@ restored when the user undoes a structural change.</p>
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
+            
+    def change_ruler_color(self):
+        """
+        Change the ruler color.
+        """
+        self.usual_change_color( rulerColor_prefs_key)
+        
+    def change_ruler_opacity(self, opacity):
+        """
+        Change the ruler opacity.
+        """
+        env.prefs[rulerOpacity_prefs_key] = opacity
 
     def changeZoomBehaviorPreference(self):
         """

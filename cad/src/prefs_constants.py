@@ -35,7 +35,7 @@ getDefaultWorkingDirectory.
 
 ### do no imports that would not be ok for constants.py to do! ###
 
-from constants import yellow, pink, red, black, magenta
+from constants import yellow, pink, red, black, magenta, mustard
 from constants import blue, gray, white, green, lightgray
 from constants import ave_colors, diTUBES
 
@@ -99,6 +99,8 @@ mouseSpeedDuringRotation_prefs_key = 'A9/Mouse Speed During Rotation' #Ninad 060
 displayOriginAsSmallAxis_prefs_key = 'A9/Display Origin As Small Axis' #Ninad 060920
 zoomAboutScreenCenter_prefs_key = 'A9/Zoom To Screen Center' #Ninad 060926
 displayRulers_prefs_key = 'A10/Display rulers'
+rulerColor_prefs_key = 'A10/Ruler Color'
+rulerOpacity_prefs_key = 'A10/Ruler Opacity'
 
 #ToolTip Prefs
 dynamicToolTipWakeUpDelay_prefs_key = 'A9/DynamicToolTip Wake Up Delay'
@@ -380,7 +382,11 @@ prefs_table = (
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
     ('zoom to screen center', 'boolean', zoomAboutScreenCenter_prefs_key, False), # Ninad 060924
+    
+    # Ruler prefs. Mark 2008-02-12
     ('', 'boolean', displayRulers_prefs_key, True),
+    ('', 'color', rulerColor_prefs_key, mustard),
+    ('', 'float', rulerOpacity_prefs_key, 0.7),
     
     #Ninad 20070509 Adjust,Minimize and Simulation(Dynamics)preferences for DNA 
     #reduced model(enable or disable elecrostatics)
