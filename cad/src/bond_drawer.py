@@ -26,7 +26,7 @@ except:
 from PyQt4.Qt import QFont, QString, QColor
 
 from geometry.VQT import V
-from geometry.VQT import norm
+from geometry.VQT import norm, vlen
 
 from drawer import ColorSorter
 from drawer import drawline
@@ -43,12 +43,15 @@ from elements import Singlet
 from debug import print_compact_stack, print_compact_traceback
 
 from constants import diDEFAULT
+from constants import diINVISIBLE
 from constants import diLINES
 from constants import diBALL
 from constants import diTUBES
+from constants import diTrueCPK
+
 from constants import TubeRadius
-from constants import diINVISIBLE
 from constants import diBALL_SigmaBondRadius
+
 from constants import ave_colors
 from constants import green
 from constants import yellow
@@ -161,6 +164,20 @@ class writepov_to_file:
 
 # ==
 
+def bond_draw_in_CPK(self): #bruce 080212 # todo: make this a Bond method
+    """
+    Should the bond 'self' be drawn in CPK display mode?
+    """
+    if self.is_rung_bond():
+        return False
+    dispjunk, radius1 = self.atom1.howdraw(diTrueCPK) # inline for speed??
+    dispjunk, radius2 = self.atom2.howdraw(diTrueCPK)
+    pos1 = self.atom1.posn() # use baseposn for speed? (would only be correct for internal bonds)
+    pos2 = self.atom2.posn()
+    # don't bother drawing if atoms touch, even if some of self would be visible
+    # if they just barely touch.
+    return ( vlen(pos1 - pos2) > radius1 + radius2 )
+    
 def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullBondLength = False):
     #bruce 050702 adding shorten_tubes option; 050727 that's now implied by new highlighted option
     """
@@ -176,6 +193,17 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullB
     if disp == diDEFAULT:
         disp = dispdef
 
+    if disp == diTrueCPK:
+        # new feature (previously we never drew these bonds):
+        # only draw the bond if it's sufficiently long to be visible
+        # and not a "dna rung bond".
+        # warning: this code is duplicated in two places in this file.
+        # [bruce 080212, after discussion]
+        if bond_draw_in_CPK(self):
+            disp = diTUBES # determines bond thickness and style; might be revised
+        else:
+            return
+    
     if disp not in (diLINES, diBALL, diTUBES):
         return
 
@@ -407,7 +435,7 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
                 # debug print if self is a rung bond (means error in dna updater)
                 # note: always on, for now;
                 # TODO: condition on DEBUG_DNA_UPDATER but first move that out of dna package
-                roles = (atom1.element.role, atom2.element.role)
+                roles = (atom1.element.role, atom2.element.role) # inlined self.is_rung_bond()
                 if roles == ('axis', 'strand') or roles == ('strand', 'axis'):
                     print "\n*** bug in dna updater: errors not propogated along %r" % self
         #bruce 071016 (tentative -- needs mouseover msg, as said above)
@@ -779,6 +807,14 @@ def writepov_bond(self, file, dispdef, col):
         disp = dispdef
     if disp < 0:
         disp = dispdef
+    if disp == diTrueCPK:
+        # new feature, described in the other instance of this code.
+        # warning: this code is duplicated in two places in this file.
+        # [bruce 080212]
+        if bond_draw_in_CPK(self):
+            disp = diTUBES
+        else:
+            return
     if disp in (diLINES, diBALL, diTUBES):
         # (note: self is a bond.)
         povfile = writepov_to_file(file, col)

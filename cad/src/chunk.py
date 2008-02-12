@@ -112,10 +112,11 @@ from constants import darkgreen
 from constants import gensym, genKey
 
 from constants import diDEFAULT
+from constants import diINVISIBLE
 from constants import diBALL
 from constants import diLINES
 from constants import diTUBES
-from constants import diINVISIBLE
+from constants import diTrueCPK
 
 from elements import PeriodicTable
 from ChunkProp import ChunkProp
@@ -1825,8 +1826,11 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # So I'm removing that now, and doing this optim.
                 ###e (I might need to specialcase it for singlets so their bond-valence number is still drawn...)
                 # [bruce 050513]
+                #bruce 080212: this optim got a lot less effective since a few CPK bonds
+                # are now also drawn (though most are not).
                 
-                if atomdisp in (diBALL, diLINES, diTUBES): #e should we move this tuple into bonds module or Bond class?
+                if atomdisp in (diBALL, diLINES, diTUBES, diTrueCPK):
+                    # todo: move this tuple into bonds module or Bond class
                     for bon in atm.bonds:
                         if bon.key not in drawn:
                             ## if bon.other(atm).molecule != self: could be faster [bruce 050513]:

@@ -1810,6 +1810,15 @@ class Bond(BondBase, StateMixin, Selobj_API):
         from bond_utils import bond_menu_section
         return bond_menu_section(self, quat = quat)
 
+    # ==
+
+    def is_rung_bond(self): #bruce 080212
+        """
+        Is self a dna "ladder rung" bond (between axis and strand)?
+        """
+        roles = (self.atom1.element.role, self.atom2.element.role)
+        return (roles == ('axis', 'strand') or roles == ('strand', 'axis'))
+
     pass # end of class Bond
 
 register_class_changedicts( Bond, _Bond_global_dicts )
