@@ -196,7 +196,7 @@ layer_aliases = {
     "graphics_behavior" : "graphics_behaviors",
     "graphics_drawable" : "graphics_drawables",
     "graphics_mode"     : "graphics_modes",
-    "graphics_view"     : "graphics_views",
+    "graphics_view"     : "graphics_views", # should rename right here to graphics_display_styles
     "graphics_widget"   : "graphics_widgets",
     "operation"         : "operations",
     "temporary_command" : "temporary_commands",
@@ -271,7 +271,6 @@ packageMapping_for_files = {
     "bond_utils"                       : "operation", # maybe also some ui
     "BoundingBox"                      : "geometry", # mostly geometry, some graphics, some hardcoded distance constants from model
     "BreakStrands_Command"              : "command|dna/commands/BreakStrands", # plural BreakStrands to match featurename as of 080104
-    "JoinStrands_Command"              : "command|dna/commands/JoinStrands",
     "BuildAtomsPropertyManager"        : "ui/propmgr|commands/BuildAtoms",
     "BuildAtoms_Command"               : "command|commands/BuildAtoms",
     "BuildAtoms_GraphicsMode"          : "graphics_mode|commands/BuildAtoms",
@@ -305,20 +304,21 @@ packageMapping_for_files = {
 
     "crossovers"                       : "operation|dna/operations",
     "cursors"                          : "ui|ne1_ui",
-    "CylinderChunks"                   : "graphics_view",#? a ChunkDisplayMode; graphics_what? _view? _style?
+    "CylinderChunks"                   : "graphics_view", # a ChunkDisplayMode
     "debug"                            : "utilities",
     "DebugMenuMixin"                   : "ui|widgets", # standard debug menu, used by multiple widgets
     "debug_prefs"                      : "utilities",
     "depositMode"                      : "unsplit_mode|commands/BuildAtoms", # Build Atoms Command and GraphicsMode
     "dimensions"                       : "graphics_drawing", # graphics output, not opengl-specific in principle
     "DirectionArrow"                   : "graphics_drawable", # a kind of DragHandler (drawable with behavior)
-    "displaymodes"                     : "graphics_view", # ChunkDisplayMode; graphics_what?
-    "DnaGenHelper"                     : "operation|dna/commands/BuildDuplex_old",
+    "displaymodes"                     : "graphics_view", # ChunkDisplayMode
+    "DnaCylinderChunks"                : "graphics_view", # a ChunkDisplayMode
     "DnaDuplex"                        : "operation|dna/commands/BuildDuplex", # class to help construct model objects defined elsewhere
     "DnaDuplex_EditCommand"            : "command|dna/commands/BuildDuplex",
     "DnaDuplexPropertyManager"         : "ui/propmgr|dna/commands/BuildDuplex",
     "DnaGenerator"                     : "command|dna/commands/BuildDuplex_old",
     "DnaGeneratorPropertyManager"      : "ui/propmgr|dna/commands/BuildDuplex_old",
+    "DnaGenHelper"                     : "operation|dna/commands/BuildDuplex_old",
     "DnaLineMode"                      : "temporary_command|dna/temporary_commands", #?
     "DnaSegment_EditCommand"           : "command|dna/commands/DnaSegment",
     "DnaSegment_GraphicsMode"          : "graphics_mode|dna/commands/DnaSegment",
@@ -413,6 +413,7 @@ packageMapping_for_files = {
     "JobManager"                       : "ui|GAMESS", # ui/operations/io; scratch; needs refactoring; job_manager package?
         # note: this is in GAMESS only due to an import cycle issue. It should be in processes or in its own toplevel package.
     "JobManagerDialog"                 : "ui|GAMESS", # same package as JobManager (wrong now, see its note for why)
+    "JoinStrands_Command"              : "command|dna/commands/JoinStrands",
     "Line"                             : "model",
     "LinearMotor_EditCommand"          : "command|commands/LinearMotorProperties?",
     "LinearMotorPropertyManager"       : "ui/propmgr|commands/LinearMotorProperties?",
