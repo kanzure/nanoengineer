@@ -3153,22 +3153,21 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         if ccdp2:
             self.draw_conf_corner_bg_image()
 
-        # draw the confirmation corner itself, and/or related overlays
+        # draw various overlays
 
         self.drawing_phase = 'overlay'
         
         # Draw ruler(s) if "View > Rulers" is checked.
         if self.ortho and env.prefs[displayRulers_prefs_key]:
-            # Should this be added to graphicsMode.draw_overlay() since it
-            # (probably) should be considered an overlay?  Ask Bruce.
-            # Mark 2008-02-05.
             drawRulers.drawRulers(self)
-            
+        
+        # draw the confirmation corner
         try:
             glMatrixMode(GL_MODELVIEW) #k needed?
-            self.graphicsMode.draw_overlay() #bruce 070405
+            self.graphicsMode.draw_overlay() #bruce 070405 (misnamed)
         except:
             print_compact_traceback( "exception in self.graphicsMode.draw_overlay(): " )
+        
         self.drawing_phase = '?'
 
         # restore standard glMatrixMode, in case drawing code outside of paintGL forgets to do this [precaution]
