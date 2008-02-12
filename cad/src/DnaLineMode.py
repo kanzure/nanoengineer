@@ -6,14 +6,13 @@
 @license:   GPL
 
 TODO:
-- The DNA rubberband line drawn as a ladder needs to be always parallel to 
-  the screen 
 - User Preferences for different rubberband line display styles 
 """
 
 from LineMode import LineMode
 
-from drawer import drawDnaLadder, drawDnaRibbons
+from drawDnaLadder import drawDnaLadder
+from drawDnaRibbons import drawDnaRibbons
 
 from constants import black, darkred, blue, white
 

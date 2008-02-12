@@ -1797,335 +1797,6 @@ def drawSineWave(color, startPoint, endPoint, numberOfPoints, phaseAngle):
     """
     pass    
 
-def drawDnaLadder(endCenter1,  
-                  endCenter2,
-                  duplexRise, 
-                  glpaneScale,
-                  lineOfSightVector,
-                  ladderWidth = 17.0,
-                  beamThickness = 2.0,
-                  beam1Color = None, 
-                  beam2Color = None,
-                  stepColor = None
-                  ):
-    """
-    Draw a DNA ladder.
-    
-    @param endCenter1: Ladder center at end 1
-    @type endCenter1: B{V}
-    @param endCenter2: Ladder center at end 2
-    @type endCenter2: B{V}
-    @param duplexRise: Center to center distance between consecutive steps
-    @type duplexRise: float
-    @param glpaneScale: GLPane scale used in scaling arrow head drawing 
-    @type glpaneScale: float
-    @param lineOfSightVector: Glpane lineOfSight vector, used to compute the 
-                              the vector along the ladder step. 
-    @type: B{V}    
-    @param ladderWidth: width of the ladder
-    @type ladderWidth: float
-    @param beamThickness: Thickness of the two ladder beams
-    @type beamThickness: float
-    @param beam1Color: Color of beam1
-    @param beam2Color: Color of beam2
-    @see: B{DnaLineMode.Draw } (where it is used) for comments on color 
-          convention
-    """    
-    
-    arrowLengthVector  = V(0, 0, 0)
-    arrowHeightVector = V(0, 0, 0)
-            
-    #Should this method be moved to DnaLineMode class? Don't know. Okay if it 
-    #stays here in drawer.py
-    
-    ladderLength = vlen(endCenter1 - endCenter2)
-    
-    #Don't draw the vertical line (step) passing through the startpoint unless 
-    #the ladderLength is atleast equal to the duplexRise. 
-    # i.e. do the drawing only when there are atleast two ladder steps. 
-    # This prevents a 'revolving line' effect due to the single ladder step at 
-    # the first endpoint 
-    if ladderLength < duplexRise:
-        return
-    
-    unitVector = norm(endCenter2 - endCenter1)
-    
-    glDisable(GL_LIGHTING) 
-    glPushMatrix()
-    glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2]) 
-    pointOnAxis = V(0, 0, 0)
-        
-    vectorAlongLadderStep =  cross(-lineOfSightVector, unitVector)
-    unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
-       
-    ladderBeam1Point = pointOnAxis + unitVectorAlongLadderStep*0.5*ladderWidth    
-    ladderBeam2Point = pointOnAxis - unitVectorAlongLadderStep*0.5*ladderWidth
-    
-    #Following limits the arrowHead Size to the given value. When you zoom out, 
-    #the rest of ladder drawing becomes smaller (expected) and the following
-    #check ensures that the arrowheads are drawn proportinately. 
-    # (Not using a 'constant' to do this as using glpaneScale gives better 
-    #results)
-    if glpaneScale > 40:
-        arrowDrawingScale = 40
-    else:
-        arrowDrawingScale = glpaneScale
-     #Draw the arrow head on beam1  
-    drawArrowHead(beam2Color, 
-                  ladderBeam2Point, 
-                  arrowDrawingScale,
-                  -unitVectorAlongLadderStep, 
-                  - unitVector)
-            
-    x = 0.0
-    while x < ladderLength:        
-        drawPoint(stepColor, pointOnAxis)
-        
-        previousPoint = pointOnAxis        
-        previousLadderBeam1Point = ladderBeam1Point
-        previousLadderBeam2Point = ladderBeam2Point
-
-        pointOnAxis = pointOnAxis + unitVector*duplexRise		
-        x += duplexRise
-
-        ladderBeam1Point = previousPoint + unitVectorAlongLadderStep*0.5*ladderWidth
-        ladderBeam2Point = previousPoint - unitVectorAlongLadderStep*0.5*ladderWidth
-        
-        if previousLadderBeam1Point:
-            drawline(beam1Color, 
-                     previousLadderBeam1Point, 
-                     ladderBeam1Point, 
-                     width = beamThickness,
-                     isSmooth = True )
-
-            drawline(beam2Color, 
-                     previousLadderBeam2Point, 
-                     ladderBeam2Point, 
-                     width = beamThickness, 
-                     isSmooth = True )
-            
-            drawline(stepColor, ladderBeam1Point, ladderBeam2Point)
-            
-    drawArrowHead(beam1Color, 
-                  ladderBeam1Point,
-                  arrowDrawingScale,
-                  unitVectorAlongLadderStep, 
-                  unitVector)                       
-    glPopMatrix()
-    glEnable(GL_LIGHTING)
-
-
-
-def drawDnaRibbons(endCenter1,  
-                   endCenter2,
-                   basesPerTurn,
-                   duplexRise, 
-                   glpaneScale,
-                   lineOfSightVector,
-                   peakDeviationFromCenter = 9.5,
-                   ribbonThickness = 2.0,
-                   ribbon1Color = None, 
-                   ribbon2Color = None,
-                   stepColor = None):
-    """
-    Draw DNA ribbons where each strand is represented as a ribbon. DNA ribbons
-    are drawn as sine waves with appropriate phase angles, with the phase
-    angles computed in this method.
-    
-    @param endCenter1: Axis end 1
-    @type  endCenter1: B{V}
-    @param endCenter2: Axis end 2
-    @type  endCenter2: B{V}
-    @param basesPerTurn: Number of bases in a full turn.
-    @type  basesPerTurn: float
-    @param duplexRise: Center to center distance between consecutive steps
-    @type  duplexRise: float
-    @param glpaneScale: GLPane scale used in scaling arrow head drawing 
-    @type  glpaneScale: float
-    @param lineOfSightVector: Glpane lineOfSight vector, used to compute the 
-                              the vector along the ladder step. 
-    @type: B{V}    
-    @param peakDeviationFromCenter: Distance of a peak from the axis 
-                                    Also known as 'Amplitude' of a sine wave. 
-    @type peakDeviationFromCenter: float
-    @param ribbonThickness: Thickness of each of the the two ribbons
-    @type ribbonThickness: float
-    @param ribbon1Color: Color of ribbon1
-    @param ribbon2Color: Color of ribbon2
-    @see: B{DnaLineMode.Draw } (where it is used) for comments on color 
-          convention
-          
-    TODO: 
-      - See if a direct formula for a helix can be used. May not be necessary 
-      -  This method is long mainly because of a number of custom drawing 
-         See if that can be refactored e.g. methods like _drawRibbon1/strand1, 
-         drawRibbon2 / strand2 etc. 
-      - Further optimization / refactoring (low priority) 
-      - Should this method be moved to something like 'dna_drawer.py' ? 
-    """
-    #Should this method be moved to DnaLineMode class or a new dna_drawer.py?
-    #Okay if it stays here in drawer.py    
-    ribbonLength = vlen(endCenter1 - endCenter2)
-    
-    #Don't draw the vertical line (step) passing through the startpoint unless 
-    #the ribbonLength is atleast equal to the duplexRise. 
-    # i.e. do the drawing only when there are atleast two ladder steps. 
-    # This prevents a 'revolving line' effect due to the single ladder step at 
-    # the first endpoint 
-    if ribbonLength < duplexRise:
-        return
-    
-    unitVectorAlongLength = norm(endCenter2 - endCenter1)
-         
-    glDisable(GL_LIGHTING) 
-    glPushMatrix()
-    glTranslatef(endCenter1[0], endCenter1[1], endCenter1[2]) 
-    pointOnAxis = V(0, 0, 0)
-        
-    vectorAlongLadderStep =  cross(-lineOfSightVector, unitVectorAlongLength)
-    unitVectorAlongLadderStep = norm(vectorAlongLadderStep)    
-   
-    #Following limits the arrowHead Size to the given value. When you zoom out, 
-    #the rest of ladder drawing becomes smaller (expected) and the following
-    #check ensures that the arrowheads are drawn proportinately. 
-    # (Not using a 'constant' to do this as using glpaneScale gives better 
-    #results)
-    if glpaneScale > 40:
-        arrowDrawingScale = 40
-    else:
-        arrowDrawingScale = glpaneScale
-    
-    #Formula .. Its a Sine Wave.
-    # y(x) = A.sin(2*pi*f*x + phase_angle)  ------[1]
-    # where --
-    #      f = 1/T 
-    #      A = Amplitude of the sine wave (or 'peak deviation from center') 
-    #      y = y coordinate  of the sine wave -- distance is in Angstroms
-    #      x = the x coordinate
-    # phase_angle is computed for each wave. We know y at x =0. For example, 
-    # for ribbon_1, , at x = 0, y = A. Putting these values in equation [1] 
-    # we get the phase_angle. Similarly, for ribbon_2, at x = 0, y = -6 
-    # Putting these values will give use the phase_angle_2. 
-    # Note that for ribbon2_point, we subtract the value of equation [1] from 
-    # the point on axis. 
-                      
-    x = 0.0
-    T =  duplexRise * basesPerTurn 
-        # The 'Period' of the sine wave
-        # (i.e.peak to peak distance between consecutive crests)
-              
-    amplitude = peakDeviationFromCenter
-    amplitudeVector = unitVectorAlongLadderStep * amplitude
-              
-    phase_angle_ribbon_1 = HALF_PI    
-    theta_ribbon_1 = (TWICE_PI * x / T) + phase_angle_ribbon_1
-    
-    phase_angle_ribbon_2 = asin(-6.0/(amplitude))
-    theta_ribbon_2 = (TWICE_PI * x / T) - phase_angle_ribbon_2    
-    
-    #Initialize ribbon1_point and ribbon2_point
-    ribbon1_point = pointOnAxis + amplitudeVector * sin(theta_ribbon_1)    
-    ribbon2_point = pointOnAxis - amplitudeVector * sin(theta_ribbon_2)
-    
-    #Constants for drawing the ribbon points as spheres.
-    SPHERE_RADIUS = 1.0
-    SPHERE_DRAWLEVEL = 2
-    SPHERE_OPACITY = 1.0
-    
-    #Constants for drawing the second axis end point (as a sphere). 
-    AXIS_ENDPOINT_SPHERE_COLOR = white
-    AXIS_ENDPOINT_SPHERE_RADIUS = 1.0
-    AXIS_ENDPOINT_SPHERE_DRAWLEVEL = 2
-    AXIS_ENDPOINT_SPHERE_OPACITY = 0.5
-    
-    while x < ribbonLength:          
-        #Draw the axis point.
-        drawPoint(stepColor, pointOnAxis)       
-        
-        previousPointOnAxis = pointOnAxis        
-        previous_ribbon1_point = ribbon1_point
-        previous_ribbon2_point = ribbon2_point
-        
-        theta_ribbon_1 = (TWICE_PI * x / T) + phase_angle_ribbon_1
-        theta_ribbon_2 = (TWICE_PI * x / T) - phase_angle_ribbon_2
-        
-        ribbon1_point = previousPointOnAxis + amplitudeVector * sin(theta_ribbon_1)
-        ribbon2_point = previousPointOnAxis - amplitudeVector * sin(theta_ribbon_2)
-        
-        #Use previous_ribbon1_point and not ribbon1_point. This ensures that 
-        # the 'last point' on ribbon1 is not drawn as a sphere but is drawn as 
-        #an arrowhead. (that arrow head is drawn later , after the while loop) 
-        drawsphere(ribbon1Color, 
-                   previous_ribbon1_point, 
-                   SPHERE_RADIUS,
-                   SPHERE_DRAWLEVEL,
-                   opacity = SPHERE_OPACITY)       
-               
-        if x != 0.0:
-            # For ribbon_2 , don't draw the first sphere (when x = 0) , instead 
-            # an arrow head will be drawnfor y at x = 0 
-            # (see condition x == duplexRise )
-            drawsphere(ribbon2Color, 
-                       ribbon2_point, 
-                       SPHERE_RADIUS,
-                       SPHERE_DRAWLEVEL,
-                       opacity = SPHERE_OPACITY)
-            
-        if x == duplexRise:   
-            # For ribbon_2 we need to draw an arrow head for y at x = 0. 
-            # To do this, we need the 'next ribbon_2' point in order to 
-            # compute the appropriate vectors. So when x = duplexRise, the 
-            # previous_ribbon2_point is nothing but y at x = 0. 
-            arrowLengthVector2  = norm(ribbon2_point - previous_ribbon2_point )              
-            arrowHeightVector2  = cross(-lineOfSightVector, arrowLengthVector2)            
-            drawArrowHead( ribbon2Color, 
-                           previous_ribbon2_point,
-                           arrowDrawingScale,
-                           -arrowHeightVector2, 
-                           -arrowLengthVector2)
-            
-        #Increament the pointOnAxis and x
-        pointOnAxis = pointOnAxis + unitVectorAlongLength * duplexRise        
-        x += duplexRise
-  
-        if previous_ribbon1_point:
-            drawline(ribbon1Color, 
-                     previous_ribbon1_point, 
-                     ribbon1_point,
-                     width = ribbonThickness,
-                     isSmooth = True )
-            arrowLengthVector1  = norm(ribbon1_point - previous_ribbon1_point)
-            arrowHeightVector1 = cross(-lineOfSightVector, arrowLengthVector1)
-            
-            drawline(ribbon2Color, 
-                     previous_ribbon2_point, 
-                     ribbon2_point,
-                     width = ribbonThickness,
-                     isSmooth = True )            
-            
-            drawline(stepColor, ribbon1_point, ribbon2_point)
-           
-    #Arrow head for endpoint of ribbon_1. 
-    drawArrowHead(ribbon1Color, 
-                  ribbon1_point,
-                  arrowDrawingScale,
-                  arrowHeightVector1, 
-                  arrowLengthVector1) 
-    
-    #The second axis endpoint of the dna is drawn as a transparent sphere. 
-    #Note that the second axis endpoint is NOT NECESSARILY endCenter2 . In fact 
-    # those two are equal only at the ladder steps. In other case (when the
-    # ladder step is not completed, the endCenter1 is ahead of the 
-    #'second axis endpoint of the dna' 
-    drawsphere(AXIS_ENDPOINT_SPHERE_COLOR, 
-               previousPointOnAxis, 
-               AXIS_ENDPOINT_SPHERE_RADIUS,
-               AXIS_ENDPOINT_SPHERE_DRAWLEVEL,
-               opacity = AXIS_ENDPOINT_SPHERE_OPACITY)
-
-                  
-    glPopMatrix()
-    glEnable(GL_LIGHTING)
     
 def drawArrowHead(color, 
                   basePoint, 
@@ -2347,252 +2018,6 @@ def segend():
     glEnable(GL_LIGHTING)
     return
 
-def drawRulers(glpane):
-    """
-    Draws a vertical ruler on the left side of the 3D graphics area.
-    
-    A 2D window (pixel) coordinate system is created locally, where:
-    - The lower left corner is  (   0.0,    0.0, 0.0)
-    - The upper right corner is ( width, height, 0.0)
-    
-    It doesn't matter what coordinate system you are in when you call this
-    function, and the system will not be harmed, but it does use one level
-    on each matrix stack, and it does set matrixmode to GL_MODELVIEW before
-    returning.
-    
-    Still to do:
-    - Transparent ruler and its tickmarks are obscured by the model (but not
-      the labels). Fix this.
-    - Once we're happy with the vertical ruler, add support for an (optional)
-      horizontal ruler.
-    
-    @param glpane: the 3D graphics area.
-    @type  glpane: L{GLPane)
-    """
-    
-    width = glpane.width
-    height = glpane.height
-    scale = glpane.scale
-    
-    glViewport (0, 0, int(width), int(height) )
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix()
-    glLoadIdentity()
-    glMatrixMode(GL_PROJECTION)
-    glPushMatrix()
-    glLoadIdentity() # needed!
-    gluOrtho2D(0.0, float(width), 0.0, float(height))
-    
-    # Turn off depth masking so anything under the cursor will still get picked.
-    glDepthMask(GL_FALSE)
-    
-    ruler_bg_color = lightgray
-    tickmark_color = darkgray
-    text_color = black
-    font_size = 8
-    
-    long_tick_len   = 15
-    medium_tick_len = 10
-    short_tick_len  = 5
-    ruler_thickness = long_tick_len + 4
-    
-    # Set to False for left justified tickmarks
-    tickmarks_right_justified = True 
-    
-    num_horz_ticks = int(scale * 2.0)
-    tickmark_spacing = 0.5 / scale * height
-    tickmark_spacing_multiplier = 1.0
-    
-    # Be careful if you changes these values.
-    # Talk to Bruce about this section. Should I build some kind of hash/dict?
-    # Mark 2008-02-07
-    if scale <= 2.75:
-        units_text = "A" # Angstroms
-        units_format = "%2d"
-        units_scale = 1.0
-        unit_label_inc = 1
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-    elif scale <= 10.1:
-        units_text = "A" # Angstroms
-        units_format = "%2d"
-        units_scale = 1.0
-        unit_label_inc = 5
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-    elif scale <= 25.1:
-        units_text = "nm" # nanometers
-        units_format = "%-3.1f"
-        units_scale = 0.1
-        unit_label_inc = 5
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-    elif scale <= 51.0:
-        units_text = "nm" # nanometers
-        units_format = "%2d"
-        units_scale = 0.1
-        unit_label_inc = 10
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-    elif scale <= 101.0:
-        units_text = "nm" # nanometers
-        units_format = "%2d"
-        units_scale = .5
-        unit_label_inc = 2
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 2
-        num_horz_ticks = int(num_horz_ticks * 0.2)
-        tickmark_spacing_multiplier = 5.0
-    elif scale <= 501.0:
-        units_text = "nm" # nanometers
-        units_format = "%2d"
-        units_scale = 1.0
-        unit_label_inc = 5
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-        num_horz_ticks = int(num_horz_ticks * 0.1)
-        tickmark_spacing_multiplier = 10.0
-    elif scale <= 1001.0:
-        units_text = "nm" # nanometers
-        units_format = "%2d"
-        units_scale = 1.0
-        unit_label_inc = 10
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-        num_horz_ticks = int(num_horz_ticks * 0.1)
-        tickmark_spacing_multiplier = 10.0
-    elif scale <= 2505.0:
-        units_text = "nm" # nanometers
-        units_format = "%2d"
-        units_scale = 2.0
-        unit_label_inc = 10
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-        num_horz_ticks = int(num_horz_ticks * 0.05)
-        tickmark_spacing_multiplier = 20.0
-    elif scale <= 5005.0:
-        units_text = "Um" # micrometers
-        units_format = "%-3.1f"
-        units_scale = 0.01
-        unit_label_inc = 10
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-        num_horz_ticks = int(num_horz_ticks * 0.01)
-        tickmark_spacing_multiplier = 100.0
-    elif scale <= 15005.0:
-        units_text = "Um" # micrometers
-        units_format = "%-3.1f"
-        units_scale = 0.1
-        unit_label_inc = 1
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-        num_horz_ticks = int(num_horz_ticks * 0.001)
-        tickmark_spacing_multiplier = 1000.0
-    elif scale <= 25005.0:
-        units_text = "Um" # micrometers
-        units_format = "%-3.1f"
-        units_scale = 0.1
-        unit_label_inc = 5
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-        num_horz_ticks = int(num_horz_ticks * 0.001)
-        tickmark_spacing_multiplier = 1000.0
-    else:
-        units_text = "Um" # micrometers
-        units_format = "%2d"
-        units_scale = 0.1
-        unit_label_inc = 10
-        long_tickmark_inc = 10
-        medium_tickmark_inc = 5
-        num_horz_ticks = int(num_horz_ticks * 0.001)
-        tickmark_spacing_multiplier = 1000.0
-    
-    DEBUG = False
-    if DEBUG:
-        print "ticks=", num_horz_ticks, "tickmark_spacing=", tickmark_spacing, "scale=", scale
-        print "units_scale=", units_scale, "unit_label_inc=", unit_label_inc
-    
-    # Draw semi-transparent ruler rectangle.
-    if 1:
-        ruler_opacity = 0.7
-        glColor4fv(list(lightgray) + [ruler_opacity])
-        glDisable(GL_LIGHTING)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-        glRectf(0.0, 0.0, ruler_thickness, height)
-        glEnable(GL_LIGHTING)
-        glDisable(GL_BLEND)
-        
-        # Draw vertical line along right edge of ruler.
-        pt1 = V(ruler_thickness, 0.0, 0.0)
-        pt2 = V(ruler_thickness, height, 0.0)
-        drawline(tickmark_color, pt1, pt2)
-        
-        # Draw horizontal line along bottom edge of ruler.
-        if 0:
-            pt1 = V(  0.0, height - ruler_thickness, 0.0)
-            pt2 = V(width, height - ruler_thickness, 0.0)
-            drawline(tickmark_color, pt1, pt2)
-    
-    units_text_origin = V(2.0, height - ruler_thickness + 4.0, 0.0)
-    
-    # Draw unit of measurement in upper left corner (A or nm).
-    drawtext(units_text, text_color, units_text_origin, font_size, glpane)
-    
-    # Initialize pt1 and pt2. They are both modified in the loop below.
-    # Left/right justification needed if we decide to allow rules on left or 
-    # right side of glpane.
-    if tickmarks_right_justified:
-        pt1 = V(ruler_thickness, height - ruler_thickness, 0.0)
-        pt2 = pt1 + V(-ruler_thickness, 0.0, 0.0)
-        long_tick_len   *= -1.0
-        medium_tick_len *= -1.0
-        short_tick_len  *= -1.0
-        HORZ_UNITS_X_OFFSET =  -ruler_thickness
-        HORZ_UNITS_Y_OFFSET =  -10.0
-    else:
-        pt1 = V(0.0, height - ruler_thickness, 0.0)
-        pt2 = pt1 + V(ruler_thickness, 0.0, 0.0)
-        HORZ_UNITS_X_OFFSET =  0
-        HORZ_UNITS_Y_OFFSET =  -10.0
-    
-    # Save starting points. They are used by each iteration of the loop below.
-    start_pt1 = pt1
-    start_pt2 = pt2
-
-    # Draw vertical ruler tickmarks, including numeric unit labels
-    for tick_num in range(num_horz_ticks + 1):
-        
-        # pt1 and pt2 are modified by each iteration of the loop (below).
-        drawline(tickmark_color, pt1, pt2)
-        
-        # Draw units number below long tickmarks.
-        if not tick_num % unit_label_inc:
-            units_num_origin = pt1 + V(HORZ_UNITS_X_OFFSET, HORZ_UNITS_Y_OFFSET, 0.0)
-            units_num = units_format % (tick_num * units_scale)
-            drawtext(units_num, text_color, units_num_origin, font_size, glpane)
-            
-        # Update tickmark endpoints for next tickmark.
-        pt1 = \
-            start_pt1 + \
-            V(0.0, 
-              -tickmark_spacing * tickmark_spacing_multiplier * (tick_num + 1),
-              0.0)
-        
-        if not (tick_num + 1) % long_tickmark_inc:
-            pt2 = pt1 + V(long_tick_len, 0.0, 0.0)
-        elif not (tick_num + 1) % medium_tickmark_inc:
-            pt2 = pt1 + V(medium_tick_len, 0.0, 0.0)
-        else:
-            pt2 = pt1 + V(short_tick_len, 0.0, 0.0)
-    
-    glDepthMask(GL_TRUE)
-    glMatrixMode(GL_PROJECTION)
-    glPopMatrix()
-    glMatrixMode(GL_MODELVIEW)
-    glPopMatrix()
-    return # from drawRulers
-
 def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
     '''Draw chunk or jig axis'''
     #ninad060907 Note that this is different than draw 
@@ -2778,8 +2203,11 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
     #end draw solid arrow heads  for  X , Y and Z axes
     return
 
-def drawDirectionArrow(color, tailPoint, arrowBasePoint, 
-                       scale, flipDirection = False):
+def drawDirectionArrow(color, 
+                       tailPoint, 
+                       arrowBasePoint, 
+                       scale,  
+                       flipDirection = False):
     '''Draw a directional arrow staring at <tailPoint>
 	with an endpoint decided by the vector between 
 	<arrowBasePoint> and <tailPoint> and the glpane scale <scale>
@@ -2787,34 +2215,56 @@ def drawDirectionArrow(color, tailPoint, arrowBasePoint,
 
     vec = arrowBasePoint - tailPoint
     vec = scale*0.07*vec
-    radius = vlen(vec)*0.07
+    ##radius = vlen(vec)*0.07
+    radius = vlen(vec)*0.9
     arrowBase =  radius*2.0
-    arrowHeight =  arrowBase*2.0
+    arrowHeight =  arrowBase*1.60
     axis = norm(vec)
-
+    
+    
     scaledBasePoint = tailPoint + vlen(vec)*axis
 
     drawcylinder(color, tailPoint, scaledBasePoint, radius, capped = True)
+    
+    pos = arrowBasePoint
+    arrowRadius = arrowBase
+    
+    glePolyCone([[pos[0] - 2 * axis[0], 
+                          pos[1] - 2 * axis[1],
+                          pos[2] - 2 * axis[2]],
+                         [pos[0] - axis[0], 
+                          pos[1] - axis[1], 
+                          pos[2] - axis[2]],
+                         [pos[0] + arrowHeight * axis[0], 
+                          pos[1] + arrowHeight * axis[1],
+                          pos[2] + arrowHeight * axis[2]],
+                         [pos[0] + (arrowHeight + 1) * axis[0], 
+                          pos[1] + (arrowHeight + 1) * axis[1],
+                          pos[2] + (arrowHeight + 1) * axis[2]]], # Point array (the two end
+                                                  # points not drawn)
+                        None, # Color array (None means use current color)
+                        [arrowRadius, arrowRadius, 0, 0] # Radius array
+                       )
 
-    #start draw solid arrow heads
-    glPushMatrix() 
-    glColor3fv(color)
-    glTranslatef(scaledBasePoint[0],scaledBasePoint[1], scaledBasePoint[2])
+    ##start draw solid arrow heads
+    #glPushMatrix() 
+    #glColor3fv(color)
+    #glTranslatef(scaledBasePoint[0],scaledBasePoint[1], scaledBasePoint[2])
 
-    if flipDirection:
-        glRotatef(0,0.0,1.0,0.0)
-    else:
-        glRotatef(180,0.0,1.0,0.0)
+    #if flipDirection:
+        #glRotatef(0,0.0,1.0,0.0)
+    #else:
+        #glRotatef(90,0.0,1.0,0.0)
 
 
-    glePolyCone([[0, 0, -1], 
-                 [0, 0, 0], 
-                 [0, 0, arrowHeight], 
-                 [0, 0, arrowHeight+1]], 
-                 None, 
-                 [arrowBase, arrowBase, 0, 0])
+    #glePolyCone([[0, 0, -1],                  
+                 #[0, 0, 0], 
+                 #[0, 0, arrowHeight], 
+                 #[0, 0, arrowHeight+1]], 
+                 #None, 
+                 #[arrowBase, arrowBase, 0, 0])
 
-    glPopMatrix()
+    #glPopMatrix()
 
 
 def findCell(pt, latticeType):

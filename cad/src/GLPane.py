@@ -122,6 +122,7 @@ except:
 from geometry.VQT import V, Q, A, norm, vlen
 from Numeric import dot
 import drawer
+import drawRulers
 
 # note: the list of preloaded_command_classes for the Command Sequencer
 # has been moved from here (where it didn't belong) to a new file,
@@ -3161,7 +3162,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
             # Should this be added to graphicsMode.draw_overlay() since it
             # (probably) should be considered an overlay?  Ask Bruce.
             # Mark 2008-02-05.
-            drawer.drawRulers(self)
+            drawRulers.drawRulers(self)
             
         try:
             glMatrixMode(GL_MODELVIEW) #k needed?

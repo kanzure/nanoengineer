@@ -44,7 +44,7 @@ from dna_model.DnaSegment import DnaSegment
 
 from DnaLineMode import DnaLine_GM
 
-from drawer import drawDnaRibbons
+from drawDnaRibbons import drawDnaRibbons
 
 import env
 from prefs_constants import bdnaBasesPerTurn_prefs_key
