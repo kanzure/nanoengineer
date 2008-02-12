@@ -36,7 +36,7 @@ getDefaultWorkingDirectory.
 ### do no imports that would not be ok for constants.py to do! ###
 
 from constants import yellow, pink, red, black, magenta
-from constants import blue, gray, white, green
+from constants import blue, gray, white, green, lightgray
 from constants import ave_colors, diTUBES
 
 import sys, os # for getDefaultWorkingDirectory
@@ -463,7 +463,7 @@ prefs_table = (
     ('', 'float', bdnaRise_prefs_key, 3.180),
     ('', 'float', zdnaBasesPerTurn_prefs_key, 10.0),
     ('', 'float', zdnaRise_prefs_key, 3.715),
-    ('', 'color', dnaDefaultSegmentColor_prefs_key, white),
+    ('', 'color', dnaDefaultSegmentColor_prefs_key, gray),
     ('', 'int', dnaColorBasesBy_prefs_key, 0),
     ('', 'float', dnaStrutScaleFactor_prefs_key, 1.0),
     
