@@ -78,6 +78,7 @@ def _master_model_updater( warn_if_needed = False ):
     other calls mentioned above, and none of them pass warn_if_needed.
     """
 
+    # 0. Don't run while mmp file is being read [###FIX, use one global flag]
     if 1:
         # KLUGE; the changedicts and updater should really be per-assy...
         # this is a temporary scheme for detecting the unanticipated
@@ -92,7 +93,16 @@ def _master_model_updater( warn_if_needed = False ):
             print_compact_stack(msg + ": ") # soon change to print...
             return
         pass
-    
+
+    _run_dna_updater()
+
+    _run_bond_updater( warn_if_needed = warn_if_needed)
+
+    return # from _master_model_updater
+
+# ==
+
+def _run_dna_updater(): #bruce 080210 split this out
     # TODO: check some dicts first, to optimize this call when not needed?
     # TODO: zap the temporary function calls here
     if debug_pref_use_dna_updater(): # soon will be if 1
@@ -109,10 +119,17 @@ def _master_model_updater( warn_if_needed = False ):
             msg2 = "Error: exception in dna updater (see console for details); will attempt to continue"
             env.history.message(redmsg(msg2))
         pass
+    return
 
+# ==
+
+def _run_bond_updater(warn_if_needed = False): #bruce 080210 split this out
+    
     if not (changed_structure_atoms or changed_bond_types):
         # Note: this will be generalized to:
         # if no changes of any kind, since the last call
+        # Note: the dna updater processes changes in other dicts,
+        # but we don't need to check those in this function.
         return
     
     # some changes occurred, so this function needed to be called
@@ -155,7 +172,7 @@ def _master_model_updater( warn_if_needed = False ):
             # not us!
         changed_bond_types.clear()
     
-    return # from _master_model_updater
+    return # from _run_bond_updater
 
 # ==
 
@@ -199,6 +216,8 @@ def _reload_dna_updater():
     # no need to reinit
     return
 
+# ==
+
 def initialize():
     """
     Register one or more related post_event_model_updaters
@@ -206,8 +225,8 @@ def initialize():
     run by env.do_post_event_updates().
     """
     if debug_pref_use_dna_updater():
-##        from dna_updater import dna_updater_init
-##        dna_updater_init.initialize()
+        ## from dna_updater import dna_updater_init
+        ## dna_updater_init.initialize()
         _ensure_ok_to_call_dna_updater() # TODO: replace with the commented out 2 lines above
 
     env.register_post_event_model_updater( _master_model_updater)
