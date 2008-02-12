@@ -39,7 +39,7 @@ LDFLAGS=-L/usr/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
-PYREXC=$(shell python -c "import platform; print platform.find_pyrexc()")
+PYREXC=$(shell python -c "import PlatformDependent; print PlatformDependent.find_pyrexc()")
 LDFLAGS+=-L/usr/lib -lm
 LDFLAGS+=-L/usr/X11R6/lib -lGL
 CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
@@ -82,6 +82,8 @@ pyclean:
 
 clean:
 	rm -f *.pyc *~ *.o *.so *.a *.dll *.def atombase.c core*
+
+pyrex: $(PYREXTARGET)
 
 abt: $(PYREXTARGET) atombasetests.py
 	python atombasetests.py

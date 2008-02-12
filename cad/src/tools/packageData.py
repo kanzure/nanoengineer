@@ -394,7 +394,7 @@ packageMapping_for_files = {
     "handles"                          : "graphics_drawable", # graphical handles (for Extrude, but could be general)
     "help"                             : "ui/dialog|ne1_ui/help",
     "HelpDialog"                       : "ui/dialog|ne1_ui/help",
-    "HistoryWidget"                    : "ui|History", # the History subsystem (should be split into several files)
+    "HistoryWidget"                    : "ui|history", # the history subsystem (should be split into several files)
     "icon_utilities"                   : "io|utilities", #? - could be considered utilities, io, or platform, or maybe images
     "ImageUtils"                       : "graphics_images", # graphics_images? images? graphics? graphics_io? (only use of graphics_images)
     "_import_roots"                    : "top_level",
@@ -424,8 +424,8 @@ packageMapping_for_files = {
     "menu_helpers"                     : "widgets",
     "MinimizeEnergyProp"               : "ui/dialog|commands/MinimizeEnergy",
     "MinimizeEnergyPropDialog"         : "ui/dialog|commands/MinimizeEnergy",
-    "modelTree"                        : "model|ModelTree", # a model which implems the api class for modelTreeGui
-    "modelTreeGui"                     : "widget|ModelTree", # a widget with view & maybe some control code
+    "ModelTree"                        : "model|modelTree", # a model which implems the api class for modelTreeGui (rename modelTree.py to modelTree/ModelTree.py)
+    "modelTreeGui"                     : "widget|modelTree", # a widget with view & maybe some control code
     "modes"                            : "unsplit_mode|command_support",
     "modifyMode"                       : "unsplit_mode|commands/Move", #? MoveChunks?? probably not, we'll deemphasize Chunks to users
     "MotorPropertyManager"             : "ui/propmgr|command_support", # and rename to EditMotor_PM.py? but we don't have EditMotor.py ...
@@ -448,7 +448,7 @@ packageMapping_for_files = {
     "NanotubeGenerator"                : "command|commands/InsertNanotube",
     "NanotubeGeneratorPropertyManager" : "ui/propmgr|commands/InsertNanotube",
     "NE1ToolBar"                       : "widget", # Variant of QToolBar
-    "Node_as_MT_DND_Target"            : "controller|ModelTree",
+    "Node_as_MT_DND_Target"            : "controller|modelTree",
     "node_indices"                     : "foundation",
 
     "objectBrowse"                     : "utilities", # debug
@@ -727,8 +727,8 @@ listing_order = [ ### should be complete, but not yet properly ordered
     "commands",
     "temporary_commands",
     # major subsystems (order?)
-    "History",
-    "ModelTree",
+    "history",
+    "modelTree",
     "commandSequencer",
     "commandToolbar",
     "sponsors",

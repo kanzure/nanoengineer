@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-Ui_MainWindowWidgetConnects.py
+Ui_MainWindowWidgetConnections.py
 
 Creates all connects for all Main Window widgets used in menus and toolbars.
 

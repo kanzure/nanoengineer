@@ -25,6 +25,8 @@ debug_counter = 0 # uncomment the related code (far below) to find out what's ca
 # assuming you already fully understand the general inval/update pattern,
 # which is not explained here.
 
+# If it's not explained here, where is it explained?
+
 # Basically, a formula for attr1 is a _recompute_attr1 method in a client object,
 # with a class attribute _inputs_for_attr1 listing the names of other invalidatable attrs
 # (in the same instance) used by this formula. The formula must always use all of

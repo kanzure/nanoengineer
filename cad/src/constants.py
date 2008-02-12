@@ -387,7 +387,7 @@ else:
         # utilities package. When we do, activate the following code:
         ## assert os.path.basename(CAD_SRC_PATH) == "utilities"
         ## CAD_SRC_PATH = os.path.dirname(CAD_SRC_PATH)
-    print "CAD_SRC_PATH = %r" % CAD_SRC_PATH ### REMOVE WHEN WORKS, BEFORE COMMIT
+    #print "CAD_SRC_PATH = %r" % CAD_SRC_PATH ### REMOVE WHEN WORKS, BEFORE COMMIT
     # [review: in a built Mac release, CAD_SRC_PATH might be
     # .../Contents/Resources/Python/site-packages.zip, or a related pathname
     # containing one more directory component; but an env var RESOURCEPATH
