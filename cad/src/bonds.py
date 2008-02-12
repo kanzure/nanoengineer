@@ -719,53 +719,42 @@ class Bond(BondBase, StateMixin, Selobj_API):
             self._changed_bond_direction()
         return
 
-    def _changed_bond_direction(self): #bruce 070415
+    def _changed_bond_direction(self): #bruce 070415, bugfixed 080210
         """
         [private method]
-        Do whatever invalidations or change-notices are needed due to an internal change to self._direction.
-        (See also _undo_update, which calls this, and the other self.changed*() methods.)
+        Do whatever invalidations or change-notices are needed due to an
+        internal change to self._direction.
+        
+        @see: _undo_update, which calls this, and the other self.changed*()
+              methods.
         """        
         # For Undo, we only worry about changes to "definitive" (not derived) state. That's only in self.
         # Since Bonds use an optimized system for changetracking, we have to store self in a dictionary.
+        # (This is more efficient than calling atom._changed_structure on each of our atoms,
+        #  since that would make Undo scan more attributes.)
         _changed_Bonds[id(self)] = self # tells Undo that something in this bond has changed
         
         # Someday, doing that should also cover all modification notices to model object containers that contain us,
         # such as the file we're saved in. It might already do that, but I'm not sure, so do that explicitly:
         self.changed()
-        
-        # For appearance changes, we need to be far-reaching enough
-        # to hit Ax atoms which color themselves based on attached strand directions.
-        #
-        # In all, the bonds that need to know (re appearance or warnings) are self and the touching non-directional bonds,
-        # and the atoms that need to know are all the atoms on that set of bonds.
-        # [And *maybe* the touching directional bonds should know, if they (not just atoms in the middle)
-        # might draw differently if their direction is inconsistent with that of a neighboring directional bond.
-        # For now I'll assume that won't happen and leave it out.]
-        #
-        # I think there are no Atom and Bond methods for "changed appearance for miscellaneous causes",
-        # so for the atoms we just tell their Chunk that they need redrawing, and for bonds we just tell their atoms
-        # (i.e. their atoms' chunks). That should be fixed (or better yet, this whole scheme scrapped and replaced
-        #  with per-attr change/usage tracking, like in the exprs module), but for now, just handle it directly
-        # on the set of atoms we need to change. [BTW, this is inefficient compared to extending something
-        # like bond_updater.py to do this in a batch manner from a global dictionary of changed bonds. That's ok for now. #e]
-        dict1 = {}
-        def collect(atom):
-            mol = atom.molecule #bruce 071016 optim - only collect the mols
-            dict1[id(mol)] = mol
+
+        # tell the dna updater we changed the structure of both our atoms.
+        # (this is needed equally for internal and external bonds,
+        #  since it's not directly related to appearance.)
+        # [doing this is a bugfix when dna updater is active [bruce 080210]]
         for atom in (self.atom1, self.atom2):
-            for bond in atom.bonds:
-                #e don't bother checking bond.is_directional(), just catch them all,
-                # tho as explained above we only need the non-directional ones for now
-                #k Need to inval anything directly on the bond? I don't think so --
-                # geometric info has not changed, appearance is not cached except
-                # by whatever draws the atoms (handled by the changeapp calls below).
-                collect(bond.atom1)
-                collect(bond.atom2)
-        for mol in dict1.itervalues():
-            mol.changeapp(0)
-            #e need to call anything else?
-            # What about atom._changed_structure (for which we'd need to collect
-            # the individual atoms)? I think it's not related.
+            atom._f_changed_some_bond_direction()
+        
+        # For appearance changes, we only need to worry about direction arrows
+        # on self -- if the dna updater changes error codes (as far away as on
+        # other atoms in the same base pair as one of ours, or for an entire
+        # duplex we're in), it'll call changeapp() on its own.
+        # [note: pre-080211 code was calling changeapp() on several atoms'
+        #  chunks here, but this is no longer needed (even if the dna updater
+        #  is not turned on) since only the dna updater can set direction error
+        #  indications in current code.]
+        self._changed_bond_appearance()
+
         return
 
     def propogate_bond_direction_towards(self, atom): #bruce 070414
@@ -944,6 +933,9 @@ class Bond(BondBase, StateMixin, Selobj_API):
         if those exist (perhaps containing internal newlines).
         In the usual case, there are no such errors and we return "".
         """
+        ### BUG: doesn't show anything for whole-duplex errors,
+        # though atom.dna_updater_error_string() does. @@@@@
+        
         # not optimized for the common case -- doesn't matter, ok to be slow
         res = ""
         add_labelled_error_strings = False
@@ -1147,7 +1139,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
             self.changed_valence()
         return v_want - v_have # return actual increase (warning: order of subtraction differs in sister method)
 
-    def changed_valence(self):
+    def changed_valence(self): # MISNAMED, actually about bond order
         """
         [private method]
         This should be called whenever this bond's valence is changed
@@ -1159,22 +1151,57 @@ class Bond(BondBase, StateMixin, Selobj_API):
             # as of 060324, it's needed, since sim.getEquilibriumDistanceForBond depends on it
         # tell the atoms we're doing this
         self.atom1._modified_valence = self.atom2._modified_valence = True # (this uses a private attr of class atom; might be revised)
-        if self.atom1.molecule is self.atom2.molecule:
-            # we're in that molecule's display list, so it needs to know we'll look different when redrawn
-            self.atom1.molecule.changeapp(0)
-        else:
-            # Fix for bug 886 [bruce 050811]:
-            # Both atoms might look different if whether they have valence errors changes (re bug 886),
-            # so if valence errors are presently being displayed, invalidate both of their display lists.
-            # If valence errors are not being displayed, I think we don't have to inval either display list,
-            # but I'm not sure, so to be safe for A6, just do it regardless. Potential optim: check whether
-            # presence of valence error actually changes, for each atom. (But it often does, so nevermind for now.)
-            self.atom1.molecule.changeapp(0)
-            self.atom2.molecule.changeapp(0)
+        self._changed_bond_and_atom_appearances()
+            # Fix for bug 886 [bruce 050811, revised 080210]:
+            # Both atoms might look different if whether they have valence
+            # errors changes (re bug 886), so if valence errors are presently
+            # being displayed, invalidate both of their display lists.
+            #
+            # If valence errors are not being displayed, I think we don't have
+            # to inval either display list for an external bond (though we do
+            # for an internal bond), but I'm not sure, so to be safe for A6,
+            # just do it regardless.
+            #
+            # Potential optim: check whether presence of valence error actually
+            # changes, for each atom; if not, or if they are not being shown
+            # (due to pref not set or chunk or atom display style or hidden
+            # chunk), just call _changed_bond_appearance instead.
+            # (But it often does change, and is or ought to be shown,
+            # so nevermind for now.)
         global_model_changedicts.changed_bond_types[id(self)] = self
         _changed_Bonds[id(self)] = self #bruce 060322 (covers changes to self.v6)
         return
 
+    def _changed_bond_appearance(self): #bruce 080210
+        """
+        [private]
+        Self's appearance might have changed, but not that of its atoms.
+        Do necessary invals of chunk display lists.
+        """
+        mol1 = self.atom1.molecule
+        if mol1 is self.atom2.molecule:
+            # we're in that chunk's display list, so it needs to know
+            # we'll look different when redrawn
+            mol1.changeapp(0)
+        # otherwise we're not in any chunk's display list
+        # (since we're an external bond).
+        # todo: gl_update in some cases?
+        return
+
+    def _changed_atom_appearances(self): #bruce 080210 split this out
+        """
+        [private]
+        A change to self means that self's atoms' appearances
+        may have changed. Do necessary invals of chunk display lists.
+        """
+        # assume changeapp is fast, so don't bother checking
+        # whether this calls it twice on the same chunk
+        self.atom1.molecule.changeapp(0)
+        self.atom2.molecule.changeapp(0)
+        return
+
+    _changed_bond_and_atom_appearances = _changed_atom_appearances #bruce 080210
+    
     def changed(self): #bruce 050719
         """
         Mark this bond's atoms (and thus their chunks, part, and mmp file) as 
@@ -1203,7 +1230,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
         at1._changed_structure() #bruce 050725
         at2._changed_structure()
         assert at1 is not at2
-        self.key = 65536*min(at1.key,at2.key)+max(at1.key,at2.key) # used only in __eq__ as of 051018; problematic (see comments there)
+        self.key = 65536 * min(at1.key, at2.key) + max(at1.key, at2.key)
+            # used only in __eq__ as of 051018; problematic (see comments there)
         
 ##        #bruce 050608: kluge (in how it finds glpane and thus assumes just one of them is used; and since key is not truly unique)
 ##        self.atom1.molecule.assy.w.glpane.glselect_objs[self.key] = self #e dict should be stored in assy (or so) instead

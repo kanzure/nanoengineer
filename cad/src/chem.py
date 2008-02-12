@@ -280,7 +280,7 @@ register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed'
     #  is not yet used.)
 
 
-_changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set (not bond order #k)
+_changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set, bond direction (not bond order #k)
     # WARNING: there is also a related but different global dict in global_model_changedicts.py,
     # whose spelling differs only in 'A' vs 'a' in Atoms, and in having no initial underscore,
     # namely, changed_structure_atoms.
@@ -289,7 +289,7 @@ _changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set (n
     # and if efficiency demands it, first splitting this one into the part equivalent to that one, and the rest.
     #
     # Ways this one has more atoms added to it than that one does:
-    # jigs, info, kill. (See also the comment where the other one is defined.)
+    # jigs, info, kill, bond direction. (See also the comment where the other one is defined.)
     # See also: _changed_parent_Atoms, which also covers kill (probably in a better way).
     #
     # related attributes: bonds, element, atomtype, info, jigs # (not only '.jigs =', but '.jigs.remove' or '.jigs.append')
@@ -2901,13 +2901,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     # ==
 
     def _changed_structure(self): #bruce 050627; docstring revised and some required calls added, 050725; revised 051011
-        """[private method]
-           This must be called by all low-level methods which change this atom's or bondpoint's element, atomtype,
+        """
+        [private method]
+
+        This must be called by all low-level methods which change this atom's or bondpoint's element, atomtype,
         or set of bonds. It doesn't need to be called for changes to neighbor atoms, or for position changes,
         or for changes to chunk membership of this atom, or when this atom is killed (but it will be called indirectly
         when this atom is killed, when the bonds are broken, unless this atom has no bonds). Calling it when not needed
         is ok, but might slow down later update functions by making them inspect this atom for important changes.
-           All user events which can call this (indirectly) should also call env.do_post_event_updates() when they're done.
+
+        All user events which can call this (indirectly) should also call env.do_post_event_updates() when they're done.
         """
         ####@@@@ I suspect it is better to also call this for all killed atoms or bondpoints, but didn't do this yet. [bruce 050725]
         ## before 051011 this used id(self) for key
@@ -2915,6 +2918,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         global_model_changedicts.changed_structure_atoms[ self.key ] = self
         _changed_structure_Atoms[ self.key ] = self #bruce 060322
             # (see comment at _changed_structure_Atoms about how these two dicts are related)
+        return
+
+    def _f_changed_some_bond_direction(self): #bruce 080210
+        """
+        [friend method]
+        One of our bonds changed its bond direction.
+        Do necessarily invals on self (other than Undo
+        or changeapp, handled by our caller in the bond).
+        """
+        _changed_structure_Atoms[ self.key ] = self
         return
     
     # debugging methods (not yet fully tested; use at your own risk)
