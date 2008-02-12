@@ -105,33 +105,33 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     _parentDnaGroup = None    
 
-    endPoint1 = State( Point)
-    endPoint2 = State( Point)
-
+    handlePoint1 = State( Point)
+    handlePoint2 = State( Point)
+    
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
-    handleColor1 = State( Color, white)
-    handleColor2 = State( Color, white)
-    
+  
     duplexRise =  getDuplexRise('B-DNA')
     
     leftHandle = Instance(         
         DnaSegment_ResizeHandle(    
             command = _self,
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'),
-            origin = endPoint1,
-            fixedEndOfStructure = endPoint2,
-            direction = norm_Expr(endPoint1 - endPoint2)
+            origin = handlePoint1,
+            fixedEndOfStructure = handlePoint2,
+            direction = norm_Expr(handlePoint1 - handlePoint2)
             ))
 
     rightHandle = Instance( 
         DnaSegment_ResizeHandle(
             command = _self,
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth2'),
-            origin = endPoint2,
-            fixedEndOfStructure = endPoint1,
-            direction = norm_Expr(endPoint2 - endPoint1)
+            origin = handlePoint2,
+            fixedEndOfStructure = handlePoint1,
+            direction = norm_Expr(handlePoint2 - handlePoint1)
         ))
+    
+   
 
     def __init__(self, commandSequencer, struct = None):
         """
@@ -179,8 +179,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             self._parentDnaGroup = self.struct.get_DnaGroup() 
             self.propMgr.duplexRise, self.propMgr.basesPerTurn  = \
                 self.struct.getProps()  
-            print "***self.propMgr.duplexRise = %s, self.propMgr.basesPerTurn = %s" %(self.propMgr.duplexRise, self.propMgr.basesPerTurn)
-            
+            #Store the previous parameters. Important to set it after you 
+            #set duplexRise and basesPerTurn attrs in the propMgr. 
+            #self.previousParams is used in self._previewStructure and 
+            #self._finalizeStructure to check if self.stuct changed.
+            self.previousParams = self._gatherParameters()
             self._updateHandleList()
             self.updateHandlePositions()
 
@@ -191,32 +194,23 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         @see: DnaSegment_GraphicsMode._drawHandles()
         """
       
-        #endPoint1, endPoint2 = self.struct.getAxisEndPoints()
-
-        #self.endPoint1 = endPoint1 # used in self.leftHandle
-        #self.endPoint2 = endPoint2 # used in self.leftHandle
-        #self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
-        #self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
-
-        # note: if endPoint1 and/or endPoint2 can change more often than this 
+        
+        # note: if handlePoint1 and/or handlePoint2 can change more often than this 
         # runs, we'll need to rerun the two assignments above whenever they 
         # change and before the handle is drawn. An easy way would be to rerun
         # these assignments in the draw method of our GM. [bruce 080128]
         self.handles = [] # guess, but seems like a good idea [bruce 080128]
         self.handles.append(self.leftHandle)
         self.handles.append(self.rightHandle)
-
-
+        
     def updateHandlePositions(self):
         """
         Update handle positions
         """
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
-        endPoint1, endPoint2 = self.struct.getAxisEndPoints()
-
-        self.endPoint1 = endPoint1 # used in self.leftHandle
-        self.endPoint2 = endPoint2 # used in self.leftHandle
+        self.handlePoint1, self.handlePoint2 = self.struct.getAxisEndPoints()
+        
 
     def _createPropMgrObject(self):
         """
@@ -388,9 +382,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #Should this be an assertion? (assert self._parentDnaGroup is not 
             #None. For now lets just print a warning if parentDnaGroup is None 
             self._parentDnaGroup.addSegment(self.struct)
-
-        return 
-
+        return  
+ 
     def getCursorText(self):
         """
         This is used as a callback method in DnaLine mode 
@@ -446,13 +439,13 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
                                                                  length )
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+        
         self.preview_or_finalize_structure(previewing = True)  
-        self.handleColor1 = white
-        self.handleColor2 = white
-
+                
         self.updateHandlePositions()
         self.glpane.gl_update()
-
+               
+        
     #START- EXPERIMENTAL CODE Not called anywhere ==============================
 
     #Using an alternate graphics mode to draw DNA line? 
