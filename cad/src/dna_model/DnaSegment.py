@@ -202,24 +202,24 @@ class DnaSegment(DnaStrandOrSegment):
         Checks whether the object <obj> is contained within the DnaSegment
         
         Example: If the object is an Atom, it checks whether the 
-        atom's chunk is a member of this DnaSegment 
+        atom's chunk is a member of this DnaSegment (chunk.dad is self)
         
         @see: DnaSegment_GraphicsMode.leftDrag
         """
-        #NOTE: Need to check if the isinstance checks are accptable (apparently
+        #NOTE: Need to check if the isinstance checks are acceptable (apparently
         #don't add any import cycle) Also this method needs to be revised 
         #after we completely switch to dna data model. 
         if isinstance(obj, Atom):       
             chunk = obj.molecule                
-            if chunk in self.members:
+            if chunk.dad is self:
                 return True
         elif isinstance(obj, Bond):
             chunk1 = obj.atom1.molecule
             chunk2 = obj.atom1.molecule            
-            if (chunk1 in self.members) or (chunk2 in self.members):
+            if (chunk1.dad is self) or (chunk2.dad is self):
                 return True               
         elif isinstance(obj, Chunk):
-            if obj in self.members:
+            if obj.dad is self:
                 return True
                 
         return False    
