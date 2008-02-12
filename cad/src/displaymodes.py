@@ -1,10 +1,10 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 displaymodes.py -- support for new modular display modes.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Initially this only handles ChunkDisplayModes, which draw entire chunks (even if they are
 highlighted or selected) without drawing their atoms or bonds in the usual way. (Such a
@@ -103,6 +103,11 @@ class ChunkDisplayMode(DisplayMode):
         """
         Register the given subclass of ChunkDisplayMode as a new display mode for whole chunks,
         able to be drawn with, read/written in mmp files, and offered in the UI.
+
+        @warning: The order in which this is called for different display styles
+                  must correspond with the order in which disp index constants (diWhatever)
+                  are defined for them in constants.py. (This needs cleanup.)
+                  [bruce 080212 comment; related code has comments with same signature]
         """
         # Make sure we can read mmp files which refer to it as clas.mmp_code.
         # This also covers statusbar display and writemmp.

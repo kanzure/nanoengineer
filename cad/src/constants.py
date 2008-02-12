@@ -172,9 +172,14 @@ diTrueCPK = 2 # CPK [renamed from old name diVDW, bruce 060607; corresponding UI
 diLINES = 3
 diBALL = 4 # "Ball and Stick" [renamed from old incorrect name diCPK, bruce 060607; corresponding UI change was by mark 060307]
 diTUBES = 5
-diCYLINDER = 6 # kluge: has to match how lists below are extended
-diDNACYLINDER = 7 # kluge: ditto
-diSURFACE = 8 # kluge: ditto
+# WARNING (kluge):
+# the order of the following constants has to match how the lists dispNames and
+# dispLabel (defined below) are extended by side effects of imports of
+# corresponding display styles in startup_misc.py. (Needs cleanup.)
+# [bruce 080212 comment; related code has comments with same signature]
+diCYLINDER = 6
+diDNACYLINDER = 7
+diSURFACE = 8
 
 
 # note: some of the following lists are extended later at runtime. [as of bruce 060607]

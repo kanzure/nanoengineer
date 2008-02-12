@@ -138,6 +138,10 @@ def pre_main_show( win):
 #    print "Window width =",fooge.width(),", Window height =",fooge.height()
 
 def _initialize_custom_display_modes(win):
+    # note (kluge): the following imports do side effects whose order matters.
+    # They must match the order of related display style list-index definitions
+    # in constants.py.
+    # [bruce 080212 comment; related code has comments with same signature]
     import CylinderChunks #bruce 060609
     import DnaCylinderChunks #mark 2008-02-11
     import SurfaceChunks #mark 060610
