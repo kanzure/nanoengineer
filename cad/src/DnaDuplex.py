@@ -373,7 +373,6 @@ class Dna:
                       name = "Axis",
                       group = dnaGroup,
                       color = env.prefs[dnaDefaultSegmentColor_prefs_key])
-            axisChunk.setDisplay(diTUBES)
 
         return
 
@@ -611,7 +610,6 @@ class B_Dna_PAM3(B_Dna_PAM5):
         #       one from each Ax3 cap.
         for atom in Ax_caps:
             atom.Transmute(Element_Ae3)
-            atom.setDisplay(diBALL)
         
         # X_List will contain 6 singlets, 2 of which are killed (non-bonded).
         # The other 4 are the 2 pair of strand open bond singlets.
