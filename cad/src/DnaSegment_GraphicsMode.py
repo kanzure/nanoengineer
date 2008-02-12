@@ -32,10 +32,6 @@ modes so this should be refactored then.
 - Need to review methods in self.leftDrag and self.leftDown ..there might be 
  some bugs...not sure. 
  
-- When you left drag a strand atom to rotate it around its own axis, 
- the axis vector changes. May be there is a bug in 
- ops_select.rotateSpecifiedMovables? Need to check. 
-
 """
 from Numeric import dot
 from PyQt4.Qt import QMouseEvent
@@ -118,6 +114,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         """
         self.reset_drag_vars()
         
+               
         obj = self.get_obj_under_cursor(event)
 
         if obj is None:
@@ -176,8 +173,7 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         self.o.SaveMouse(event)
         self.picking = True
         self.dragdist = 0.0
-        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
-
+        farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)        
         self.leftADown(event)
         
 
@@ -216,8 +212,9 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         """
         Method called during Left up event. 
         """
-        
+                
         _superclass.leftUp(self, event)  
+        
         self.update_selobj(event)
         self.update_cursor()
         self.o.gl_update()
@@ -307,6 +304,11 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         freeDragWholeStructure = False # If true, the whole segment will be 
                                        #free dragged
         
+        #Refactoring / optimization TODO: May be we should set these flags in 
+        #leftDown (rather in self._leftDown_preparation_for_dragging)
+        #by defining a method such as self._setLeftDragsFlags and retieve 
+        #those in leftDrag (rather than computing them here everytime. 
+        #Same goes for movable list. -- Ninad 2008-02-12
         if self.command and self.command.struct:
             #Resultant axis is the axis of the segment itself. 
             resAxis = self.command.struct.getAxisVector()
@@ -335,8 +337,21 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                 mol.move(dx*resAxis)
 
         if rotateAboutAxis:
+            #Don't include the axis chunk in the list of movables. 
+            #Fixes (or works around) a bug due to which the axis chunk 
+            #displaces from its original position while rotating about that axis.
+            #The bug might be in the computation of common center in 
+            #ops_motion.rotateSpecifiedMovables or it could be some weired effect
+            # in chunk center computation ..because of which the common center
+            #of chunks is slightly off the axis. Considering only strand chunks 
+            # (and not axisChunk) is a workaround for this bug. Actual bug 
+            #might be harder to fix not sure. -- Ninad 2008-02-12
+            new_movables = list(movables)
+            for chunk in new_movables:
+                if chunk.isAxisChunk():
+                    new_movables.remove(chunk)
             self.o.assy.rotateSpecifiedMovables(Q(resAxis,-dy), 
-                                                movables = movables) 
+                                                movables = new_movables) 
         
         if freeDragWholeStructure:
             try:
@@ -356,9 +371,8 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
         self.o.assy.changed() #ninad060924 fixed bug 2278
         self.o.gl_update()
         return
-        
-
-
+    
+  
     def drawHighlightedChunk(self, glpane, selobj, hicolor):
         """
         [overrides SelectChunks_basicGraphicsMode method]
@@ -449,6 +463,6 @@ class DnaSegment_DragHandles_GraphicsMode(DnaLine_GM):
     
     def leftUp(self, event):
         """
-        Method to be called duringleftUp mouse event
+        Method to be called during leftUp mouse event
         """
         self.command.preview_or_finalize_structure(previewing = True)
