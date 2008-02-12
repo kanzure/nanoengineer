@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
 # Form implementation generated from reading ui file 'GridPlanePropDialog.ui'
 #
-# Created: Wed Sep 20 10:39:15 2006
-#      by: PyQt4 UI code generator 4.0.1
+# Created: Tue Feb 12 00:08:03 2008
+#      by: PyQt4 UI code generator 4.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -211,15 +210,12 @@ class Ui_GridPlanePropDialog(object):
         self.hboxlayout7.setObjectName("hboxlayout7")
 
         self.width_spinbox = QtGui.QSpinBox(GridPlanePropDialog)
-        self.width_spinbox.setMaximum(999)
-        self.width_spinbox.setMinimum(1)
-        self.width_spinbox.setProperty("value",QtCore.QVariant(10))
+        self.width_spinbox.setMaximum(9999)
+        self.width_spinbox.setMinimum(5)
+        self.width_spinbox.setSingleStep(10)
+        self.width_spinbox.setProperty("value",QtCore.QVariant(20))
         self.width_spinbox.setObjectName("width_spinbox")
         self.hboxlayout7.addWidget(self.width_spinbox)
-
-        self.textLabel2 = QtGui.QLabel(GridPlanePropDialog)
-        self.textLabel2.setObjectName("textLabel2")
-        self.hboxlayout7.addWidget(self.textLabel2)
 
         spacerItem6 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout7.addItem(spacerItem6)
@@ -231,15 +227,12 @@ class Ui_GridPlanePropDialog(object):
         self.hboxlayout8.setObjectName("hboxlayout8")
 
         self.height_spinbox = QtGui.QSpinBox(GridPlanePropDialog)
-        self.height_spinbox.setMaximum(999)
-        self.height_spinbox.setMinimum(1)
-        self.height_spinbox.setProperty("value",QtCore.QVariant(10))
+        self.height_spinbox.setMaximum(9999)
+        self.height_spinbox.setMinimum(5)
+        self.height_spinbox.setSingleStep(10)
+        self.height_spinbox.setProperty("value",QtCore.QVariant(20))
         self.height_spinbox.setObjectName("height_spinbox")
         self.hboxlayout8.addWidget(self.height_spinbox)
-
-        self.textLabel2_2 = QtGui.QLabel(GridPlanePropDialog)
-        self.textLabel2_2.setObjectName("textLabel2_2")
-        self.hboxlayout8.addWidget(self.textLabel2_2)
 
         spacerItem7 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout8.addItem(spacerItem7)
@@ -251,15 +244,12 @@ class Ui_GridPlanePropDialog(object):
         self.hboxlayout9.setObjectName("hboxlayout9")
 
         self.x_spacing_spinbox = QtGui.QSpinBox(GridPlanePropDialog)
-        self.x_spacing_spinbox.setMaximum(99)
+        self.x_spacing_spinbox.setMaximum(1000)
         self.x_spacing_spinbox.setMinimum(1)
+        self.x_spacing_spinbox.setSingleStep(5)
         self.x_spacing_spinbox.setProperty("value",QtCore.QVariant(1))
         self.x_spacing_spinbox.setObjectName("x_spacing_spinbox")
         self.hboxlayout9.addWidget(self.x_spacing_spinbox)
-
-        self.textLabel2_2_2 = QtGui.QLabel(GridPlanePropDialog)
-        self.textLabel2_2_2.setObjectName("textLabel2_2_2")
-        self.hboxlayout9.addWidget(self.textLabel2_2_2)
 
         spacerItem8 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout9.addItem(spacerItem8)
@@ -271,15 +261,12 @@ class Ui_GridPlanePropDialog(object):
         self.hboxlayout10.setObjectName("hboxlayout10")
 
         self.y_spacing_spinbox = QtGui.QSpinBox(GridPlanePropDialog)
-        self.y_spacing_spinbox.setMaximum(99)
+        self.y_spacing_spinbox.setMaximum(1000)
         self.y_spacing_spinbox.setMinimum(1)
+        self.y_spacing_spinbox.setSingleStep(5)
         self.y_spacing_spinbox.setProperty("value",QtCore.QVariant(1))
         self.y_spacing_spinbox.setObjectName("y_spacing_spinbox")
         self.hboxlayout10.addWidget(self.y_spacing_spinbox)
-
-        self.textLabel2_2_3 = QtGui.QLabel(GridPlanePropDialog)
-        self.textLabel2_2_3.setObjectName("textLabel2_2_3")
-        self.hboxlayout10.addWidget(self.textLabel2_2_3)
 
         spacerItem9 = QtGui.QSpacerItem(16,20,QtGui.QSizePolicy.Expanding,QtGui.QSizePolicy.Minimum)
         self.hboxlayout10.addItem(spacerItem9)
@@ -310,7 +297,6 @@ class Ui_GridPlanePropDialog(object):
 
     def retranslateUi(self, GridPlanePropDialog):
         GridPlanePropDialog.setWindowTitle(QtGui.QApplication.translate("GridPlanePropDialog", "Grid Plane Properties", None, QtGui.QApplication.UnicodeUTF8))
-        GridPlanePropDialog.setWindowIcon(QtGui.QIcon("ui/border/GridPlane"))
         self.ok_btn.setText(QtGui.QApplication.translate("GridPlanePropDialog", "&OK", None, QtGui.QApplication.UnicodeUTF8))
         self.ok_btn.setShortcut(QtGui.QApplication.translate("GridPlanePropDialog", "Alt+O", None, QtGui.QApplication.UnicodeUTF8))
         self.cancel_btn.setText(QtGui.QApplication.translate("GridPlanePropDialog", "&Cancel", None, QtGui.QApplication.UnicodeUTF8))
@@ -334,7 +320,8 @@ class Ui_GridPlanePropDialog(object):
         self.choose_grid_color_btn.setText(QtGui.QApplication.translate("GridPlanePropDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
         self.choose_border_color_btn.setToolTip(QtGui.QApplication.translate("GridPlanePropDialog", "Change color", None, QtGui.QApplication.UnicodeUTF8))
         self.choose_border_color_btn.setText(QtGui.QApplication.translate("GridPlanePropDialog", "Choose...", None, QtGui.QApplication.UnicodeUTF8))
-        self.textLabel2.setText(QtGui.QApplication.translate("GridPlanePropDialog", "Angstroms", None, QtGui.QApplication.UnicodeUTF8))
-        self.textLabel2_2.setText(QtGui.QApplication.translate("GridPlanePropDialog", "Angstroms", None, QtGui.QApplication.UnicodeUTF8))
-        self.textLabel2_2_2.setText(QtGui.QApplication.translate("GridPlanePropDialog", "Angstroms", None, QtGui.QApplication.UnicodeUTF8))
-        self.textLabel2_2_3.setText(QtGui.QApplication.translate("GridPlanePropDialog", "Angstroms", None, QtGui.QApplication.UnicodeUTF8))
+        self.width_spinbox.setSuffix(QtGui.QApplication.translate("GridPlanePropDialog", " Angstroms", None, QtGui.QApplication.UnicodeUTF8))
+        self.height_spinbox.setSuffix(QtGui.QApplication.translate("GridPlanePropDialog", " Angstroms", None, QtGui.QApplication.UnicodeUTF8))
+        self.x_spacing_spinbox.setSuffix(QtGui.QApplication.translate("GridPlanePropDialog", " Angstroms", None, QtGui.QApplication.UnicodeUTF8))
+        self.y_spacing_spinbox.setSuffix(QtGui.QApplication.translate("GridPlanePropDialog", " Angstroms", None, QtGui.QApplication.UnicodeUTF8))
+

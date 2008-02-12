@@ -59,8 +59,8 @@ class RectGadget(Jig):
     def __init__(self, assy, list, READ_FROM_MMP):
         Jig.__init__(self, assy, list)
         
-        self.width = 16
-        self.height = 16
+        self.width = 20
+        self.height = 20
         
         self.assy = assy
         self.cancelled = True # We will assume the user will cancel
@@ -242,8 +242,8 @@ class GridPlane(RectGadget):
         # Grid line types: "NO_LINE", "SOLID_LINE", "DASHED_LINE" or "DOTTED_LINE"
         self.line_type = SOLID_LINE 
         # Changed the spacing to 2 to 1. Mark 050923.
-        self.x_spacing = 1.0 # 1 Angstrom
-        self.y_spacing = 1.0 # 1 Angstrom
+        self.x_spacing = 5.0 # 5 Angstroms
+        self.y_spacing = 5.0 # 5 Angstroms
 
     def setProps(self, name, border_color, width, height, center, wxyz, grid_type, \
                            line_type, x_space, y_space, grid_color):
@@ -297,7 +297,7 @@ class GridPlane(RectGadget):
             drawLineLoop(color, corners_pos)
             
         if self.grid_type == SQUARE_GRID:
-            drawGPGrid(grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing,
+            drawGPGrid(glpane, grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing,
                        q.unrot(self.assy.o.up), q.unrot(self.assy.o.right))
         else:
             drawSiCGrid(grid_color, self.line_type, self.width, self.height,

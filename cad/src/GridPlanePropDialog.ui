@@ -1,7 +1,4 @@
 <ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
  <class>GridPlanePropDialog</class>
  <widget class="QDialog" name="GridPlanePropDialog" >
   <property name="geometry" >
@@ -491,21 +488,20 @@
              </property>
              <item>
               <widget class="QSpinBox" name="width_spinbox" >
+               <property name="suffix" >
+                <string> Angstroms</string>
+               </property>
                <property name="maximum" >
-                <number>999</number>
+                <number>9999</number>
                </property>
                <property name="minimum" >
-                <number>1</number>
+                <number>5</number>
                </property>
-               <property name="value" >
+               <property name="singleStep" >
                 <number>10</number>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="textLabel2" >
-               <property name="text" >
-                <string>Angstroms</string>
+               <property name="value" >
+                <number>20</number>
                </property>
               </widget>
              </item>
@@ -537,21 +533,20 @@
              </property>
              <item>
               <widget class="QSpinBox" name="height_spinbox" >
+               <property name="suffix" >
+                <string> Angstroms</string>
+               </property>
                <property name="maximum" >
-                <number>999</number>
+                <number>9999</number>
                </property>
                <property name="minimum" >
-                <number>1</number>
+                <number>5</number>
                </property>
-               <property name="value" >
+               <property name="singleStep" >
                 <number>10</number>
                </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="textLabel2_2" >
-               <property name="text" >
-                <string>Angstroms</string>
+               <property name="value" >
+                <number>20</number>
                </property>
               </widget>
              </item>
@@ -583,21 +578,20 @@
              </property>
              <item>
               <widget class="QSpinBox" name="x_spacing_spinbox" >
+               <property name="suffix" >
+                <string> Angstroms</string>
+               </property>
                <property name="maximum" >
-                <number>99</number>
+                <number>1000</number>
                </property>
                <property name="minimum" >
                 <number>1</number>
                </property>
+               <property name="singleStep" >
+                <number>5</number>
+               </property>
                <property name="value" >
                 <number>1</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="textLabel2_2_2" >
-               <property name="text" >
-                <string>Angstroms</string>
                </property>
               </widget>
              </item>
@@ -629,21 +623,20 @@
              </property>
              <item>
               <widget class="QSpinBox" name="y_spacing_spinbox" >
+               <property name="suffix" >
+                <string> Angstroms</string>
+               </property>
                <property name="maximum" >
-                <number>99</number>
+                <number>1000</number>
                </property>
                <property name="minimum" >
                 <number>1</number>
                </property>
+               <property name="singleStep" >
+                <number>5</number>
+               </property>
                <property name="value" >
                 <number>1</number>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="textLabel2_2_3" >
-               <property name="text" >
-                <string>Angstroms</string>
                </property>
               </widget>
              </item>
@@ -692,7 +685,6 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
  <tabstops>
   <tabstop>name_linedit</tabstop>
   <tabstop>grid_type_combox</tabstop>

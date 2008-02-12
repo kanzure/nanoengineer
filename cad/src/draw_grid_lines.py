@@ -55,6 +55,9 @@ from OpenGL.GL import glVertex3fv
 from OpenGL.GL import glEndList
 from OpenGL.GL import glColor3fv
 
+from drawer import drawtext
+from geometry.VQT import V
+
 from Font3D import Font3D
 
 SiCGridList = None # TODO: make this private
@@ -114,10 +117,12 @@ def setup_draw_grid_lines():
     glEndList()
     return
 
-def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
+def drawGPGrid(glpane, color, line_type, w, h, uw, uh, up, right):
     """
-    Draw grid lines for a Grid Plane, where:
-    color = grid line color
+    Draw grid lines for a Grid Plane.
+    
+    glpane = the glpane
+    color = grid line and unit text color
     line_type is: 0=None, 1=Solid, 2=Dashed" or 3=Dotted
     w = width
     h = height
@@ -150,7 +155,7 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
         elif line_type == DOTTED_LINE:
             glLineStipple (1, 0x0101)  #  dotted
         else:
-            print "drawer.drawGPGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
+            print "drawGPGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
             glLineStipple (1, 0x00FF)  #  dashed
     
     glBegin(GL_LINES)
@@ -185,41 +190,37 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
 
     if line_type > 1:
         glDisable (GL_LINE_STIPPLE)
-
-    glBegin(GL_LINES)
-
-    #Draw text for horizontal lines
+    
+    # Draw unit labels for gridlines (in nm).
+    text_color = color
+    font_size = 8
+    text_offset = 0.5 # Offset from edge of border, in Angstroms.
+    
+    # Draw unit text labels for horizontal lines (nm)
     y1 = 0
-    f3d = Font3D(xpos=hw, ypos=y1, right=right, up=up, rot90=False, glBegin=True)
     while y1 > -hh:
-        f3d.drawString("%g" % y1, y1)
         y1 -= uh
-    f3d.drawString("%g" % y1, y1)
+        drawtext("%g" % (-y1 / 10.0), text_color, V(hw + text_offset, y1, 0.0), font_size, glpane)
+    drawtext("%g" % (-y1 / 10.0), text_color, V(hw + text_offset, y1, 0.0), font_size, glpane)
 
     y1 = 0
     while y1 < hh:
-        f3d.drawString("%g" % y1, y1)
+        drawtext("%g" % (-y1 / 10.0), text_color, V(hw + text_offset, y1, 0.0), font_size, glpane)
         y1 += uh
-    f3d.drawString("%g" % y1, y1)
+    drawtext("%g" % (-y1 / 10.0), text_color, V(hw + text_offset, y1, 0.0), font_size, glpane)
 
-    #Draw text for vertical lines
+    # Draw unit text labels for vertical lines (nm).
     x1 = 0
-    f3d = Font3D(xpos=x1, ypos=hh, right=right, up=up, rot90=True, glBegin=True)
     while x1 < hw:
-        f3d.drawString("%g" % x1, x1)
+        drawtext("%g" % (x1 / 10.0), text_color, V(x1, hh + text_offset, 0.0), font_size, glpane)
         x1 += uw
-    f3d.drawString("%g" % x1, x1)
+    drawtext("%g" % (x1 / 10.0), text_color, V(x1, hh + text_offset, 0.0), font_size, glpane)
 
     x1 = 0
     while x1 > -hw:
-        f3d.drawString("%g" % x1, x1)
+        drawtext("%g" % (x1 / 10.0), text_color, V(x1, hh + text_offset, 0.0), font_size, glpane)
         x1 -= uw
-    f3d.drawString("%g" % x1, x1)
-
-    glEnd()
-
-    #glDisable(GL_LINE_SMOOTH)
-    #glDisable(GL_BLEND)
+    drawtext("%g" % (x1 / 10.0), text_color, V(x1, hh + text_offset, 0.0), font_size, glpane)
 
     glEnable(GL_LIGHTING)
     return
