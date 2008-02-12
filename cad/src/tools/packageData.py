@@ -636,9 +636,9 @@ packageMapping_for_files = {
     "VQT"                              : "geometry",
     
     "whatsthis_utilities"              : "foundation", #? or utilities?
-        # (this file is planned to be split out of gui/whatsthis; imports are foundation or above)
-        # this file will import env (for win; could be refactored to not do so, eg use an arg), nothing else high up.
-    "widget_helpers"                   : "widgets", # renamed from widgets.py
+        # (imports of this file are foundation or above)
+        # this file imports env (for win; could be refactored to not do so, eg use an arg), nothing else high up.
+    "widget_helpers"                   : "widgets", # soon to be renamed to this from widgets.py
     "widget_controllers"               : "widgets",
 
     "wiki_help"                        : "ui|foundation", # mostly ui, some io.

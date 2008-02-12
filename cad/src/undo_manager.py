@@ -84,7 +84,8 @@ class AssyUndoManager(UndoManager):
             win = assy.w
             from PyQt4.Qt import Qt
             win.editRedoAction.setShortcut(Qt.CTRL+Qt.SHIFT+Qt.Key_Z) # set up incorrectly (for Mac) as "Ctrl+Y"
-                # note: long before 060414 this is probably no longer needed (since now done in whatsthis.py),
+                # note: long before 060414 this is probably no longer needed
+                # (since now done in gui.WhatsThisText_for_MainWindow.py),
                 # but it's safe and can be left in as a backup.
         # exercise the debug-only old pref (deprecated to use it):
         self.auto_checkpoint_pref() # exercise this, so it shows up in the debug-prefs submenu right away
@@ -390,27 +391,27 @@ class AssyUndoManager(UndoManager):
         win.editUndoAction.setWhatsThis( win.editUndoText ) #e need Ctrl->Cmd; lack of it shows that these ran
         win.editRedoAction.setWhatsThis( win.editRedoText ) # they didn't break altered tooltips, but didn't make links either
             # but of course they didn't, we have to "fix them" by running more code. find that code! ###@@@
-        from gui.WhatsThisText_for_MainWindow import refix_whatsthis_text_and_links
-        import gui.WhatsThisText_for_MainWindow
+        from whatsthis_utilities import refix_whatsthis_text_and_links
+        import whatsthis_utilities
         if 0:
             # this works, but is overkill and is probably too slow, and prints huge numbers of console messages, like this:
             ## TypeError: invalid result type from MyWhatsThis.text()
             # (I bet I could fix the messages by modifying MyWhatsThis.text() to return "" (guess))
-            from gui.WhatsThisText_for_MainWindow import fix_whatsthis_text_and_links
+            from whatsthis_utilities import fix_whatsthis_text_and_links
             fix_whatsthis_text_and_links( win)
         if 0:
             # this prints no console messages, but doesn't work! (for whatsthis on tool buttons or menu items)
             # guess [much later]: it fails to actually do anything to these actions!
-            from gui.WhatsThisText_for_MainWindow import fix_whatsthis_text_and_links
+            from whatsthis_utilities import fix_whatsthis_text_and_links
             fix_whatsthis_text_and_links( win.editUndoAction )
             fix_whatsthis_text_and_links( win.editRedoAction )
             # try menu objects? and toolbars?
         if 1:
-            if gui.WhatsThisText_for_MainWindow.debug_refix:
+            if whatsthis_utilities.debug_refix:
                 print "refix_whatsthis_text_and_links" ###@@@
             refix_whatsthis_text_and_links( ) ###@@@ predict: will fix toolbuttons but not menu items
         etime = time.time()
-        if gui.WhatsThisText_for_MainWindow.debug_refix:
+        if whatsthis_utilities.debug_refix:
             print "whatsthis update took", etime - stime #e and is a huge memory leak too ###@@@ now <2 msec; for toolbutton fix only
         #060304 also disable/enable Clear Undo Stack
         action = win.editClearUndoStackAction

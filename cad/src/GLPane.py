@@ -541,10 +541,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         """
         Adds What's This description to this glpane.
         """
-        # We must do this here (and not in whatsthis.py) because in the future
+        # We must do this here (and not in gui.WhatsThisText_for_MainWindow) because in the future
         # there will be multiple part windows, each with its own glpane.
         # Problem - I don't believe this text is processed by fix_whatsthis_text_and_links()
-        # in whatsthis.py. Discuss this with Bruce. Mark 2007-06-01
+        # in whatsthis_utilities.py. Discuss this with Bruce. Mark 2007-06-01
 
         if sys.platform == "darwin":
             ctrl_or_cmd = "Cmd"
