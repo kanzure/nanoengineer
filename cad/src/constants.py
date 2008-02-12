@@ -173,7 +173,9 @@ diLINES = 3
 diBALL = 4 # "Ball and Stick" [renamed from old incorrect name diCPK, bruce 060607; corresponding UI change was by mark 060307]
 diTUBES = 5
 diCYLINDER = 6 # kluge: has to match how lists below are extended
-diSURFACE = 7 # kluge: ditto
+diDNACYLINDER = 7 # kluge: ditto
+diSURFACE = 8 # kluge: ditto
+
 
 # note: some of the following lists are extended later at runtime. [as of bruce 060607]
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
@@ -191,6 +193,7 @@ default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [M
 
 TubeRadius = 0.3 # (i.e. "TubesSigmaBondRadius")
 diBALL_SigmaBondRadius = 0.1
+diDNACYLINDER_SigmaBondRadius = 1.0
 
 # ==
 
@@ -289,6 +292,7 @@ olive = (0.3, 0.3, 0.0)
 steelblue = (0.3, 0.4, 0.5)
 brass = (0.5, 0.5, 0.0)
 copper = (0.3, 0.3, 0.1)
+mustard = (0.78, 0.78, 0.0)
 
 #ninad20060922 using it while drawing origin axis
 lightblue = ave_colors(0.03, white, blue) 

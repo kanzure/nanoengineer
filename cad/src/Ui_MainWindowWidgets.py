@@ -328,6 +328,10 @@ def setupUi(win):
     win.dispCylinderAction = QtGui.QAction(MainWindow)
     win.dispCylinderAction.setIcon(geticon("ui/actions/View/Display/Cylinder"))
     win.dispCylinderAction.setObjectName("dispCylinderAction")
+    
+    win.dispDnaCylinderAction = QtGui.QAction(MainWindow)
+    win.dispDnaCylinderAction.setIcon(geticon("ui/actions/View/Display/DnaCylinder"))
+    win.dispDnaCylinderAction.setObjectName("dispDnaCylinderAction")
 
     # This is currently NIY. Mark 2007-12-28
     win.dispSurfaceAction = QtGui.QAction(MainWindow)
@@ -1120,6 +1124,7 @@ def retranslateUi(win):
     win.dispHybridAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hybrid", None, QtGui.QApplication.UnicodeUTF8))
     win.dispSurfaceAction.setIconText(QtGui.QApplication.translate("MainWindow", "Surface", None, QtGui.QApplication.UnicodeUTF8))
     win.dispCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "Cylinder", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispDnaCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "DNA Cylinder", None, QtGui.QApplication.UnicodeUTF8))
 
     # FOLLOWING VIEW MENU ITEMS NEED SORTING
     win.viewFrontAction.setText(QtGui.QApplication.translate("MainWindow", "&Front", None, QtGui.QApplication.UnicodeUTF8))

@@ -230,6 +230,7 @@ def setupUi(win):
     win.connect(win.insertPovraySceneAction,SIGNAL("triggered()"),win.insertPovrayScene)
     win.connect(win.dispSurfaceAction,SIGNAL("triggered()"),win.dispSurface)
     win.connect(win.dispCylinderAction,SIGNAL("triggered()"),win.dispCylinder)
+    win.connect(win.dispDnaCylinderAction,SIGNAL("triggered()"),win.dispDnaCylinder)
     win.connect(win.simMinimizeEnergyAction,SIGNAL("triggered()"),win.simMinimizeEnergy)
     win.connect(win.fileImportOpenBabelAction,
                 SIGNAL("triggered()"),

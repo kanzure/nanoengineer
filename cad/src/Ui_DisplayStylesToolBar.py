@@ -1,6 +1,6 @@
 # Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
-$Id:$
+$Id$
 """
 
 from PyQt4 import QtGui
@@ -28,6 +28,7 @@ def setupUi(win):
     win.displayStylesToolBar.addAction(win.dispTubesAction)
     win.displayStylesToolBar.addAction(win.dispBallAction)
     win.displayStylesToolBar.addAction(win.dispCPKAction)
+    win.displayStylesToolBar.addAction(win.dispDnaCylinderAction)
     win.displayStylesToolBar.addAction(win.dispCylinderAction)
     win.displayStylesToolBar.addAction(win.dispSurfaceAction)
 

@@ -893,7 +893,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 	"Lines.png",
 	"Ball_and_Stick.png",
 	"Tubes.png",
-        "Cylinder.png" ]
+        "Cylinder.png",
+        "DnaCylinder.png"]
     hideicon_names = [
         "Default-hide.png",
         "Invisible-hide.png",
@@ -901,7 +902,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         "Lines-hide.png",
         "Ball_and_Stick-hide.png",
         "Tubes-hide.png",
-        "Cylinder-hide.png" ]
+        "Cylinder-hide.png",
+        "DnaCylinder-hide.png" ]
     mticon = []
     hideicon = []
     def init_icons(self):

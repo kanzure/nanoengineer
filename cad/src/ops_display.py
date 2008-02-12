@@ -21,6 +21,7 @@ from constants import diTrueCPK
 from constants import diTUBES
 from constants import diBALL
 from constants import diLINES
+from constants import diDNACYLINDER
 from constants import diCYLINDER
 from constants import diSURFACE
 from constants import diINVISIBLE
@@ -71,6 +72,15 @@ class displaySlotsMixin:
             return #ninad 061003  fixed bug 2286... Note: Once atoms and chunks are allowed to be sel at the same 
             #time , this fix might need further mods. 
         self.setDisplay(diCYLINDER)
+        
+    def dispDnaCylinder(self):
+        cmd = greenmsg("Set Display DNA Cylinder: ")
+        if self.assy and self.assy.selatoms:
+            # Fixes bug 2005. Mark 060702.
+            env.history.message(cmd + "Selected atoms cannot have their display mode set to Cylinder.")
+            return #ninad 061003  fixed bug 2286... Note: Once atoms and chunks are allowed to be sel at the same 
+            #time , this fix might need further mods. 
+        self.setDisplay(diDNACYLINDER)
 
     def dispSurface(self):
         cmd = greenmsg("Set Display Surface: ")

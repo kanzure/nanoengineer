@@ -139,6 +139,7 @@ def pre_main_show( win):
 
 def _initialize_custom_display_modes(win):
     import CylinderChunks #bruce 060609
+    import DnaCylinderChunks #mark 2008-02-11
     import SurfaceChunks #mark 060610
     from debug_prefs import debug_pref, Choice_boolean_False
     enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?",
@@ -148,6 +149,15 @@ def _initialize_custom_display_modes(win):
     win.dispSurfaceAction.setText("Surface (experimental, may be slow)")
     win.dispSurfaceAction.setEnabled(enable_SurfaceChunks)
     win.dispSurfaceAction.setVisible(enable_SurfaceChunks)
+    
+    enable_CylinderChunks = debug_pref("enable CylinderChunks next session?",
+                                      Choice_boolean_False, 
+                                      non_debug = True, 
+                                      prefs_key = True)
+    win.dispCylinderAction.setText("Cylinder (experimental)")
+    win.dispCylinderAction.setEnabled(enable_CylinderChunks)
+    win.dispCylinderAction.setVisible(enable_CylinderChunks)
+    
     return
 
 # ==
