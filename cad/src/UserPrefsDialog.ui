@@ -5,8 +5,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>609</width>
-    <height>642</height>
+    <width>588</width>
+    <height>648</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -22,7 +22,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="prefs_tab" >
      <property name="currentIndex" >
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -35,21 +35,8 @@
        <property name="spacing" >
         <number>6</number>
        </property>
-       <item row="2" column="4" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item row="2" column="2" colspan="2" >
-        <layout class="QVBoxLayout" >
+       <item row="2" column="0" >
+        <layout class="QHBoxLayout" >
          <property name="margin" >
           <number>0</number>
          </property>
@@ -57,17 +44,9 @@
           <number>6</number>
          </property>
          <item>
-          <widget class="QGroupBox" name="sponsorLogosGroupBox" >
-           <property name="sizePolicy" >
-            <sizepolicy>
-             <hsizetype>3</hsizetype>
-             <vsizetype>3</vsizetype>
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+          <widget class="QGroupBox" name="groupBox14" >
            <property name="title" >
-            <string>Sponsor Logos Download Permission</string>
+            <string>Settings for Adjust</string>
            </property>
            <layout class="QGridLayout" >
             <property name="margin" >
@@ -76,85 +55,7 @@
             <property name="spacing" >
              <number>6</number>
             </property>
-            <item row="2" column="0" >
-             <widget class="QRadioButton" name="logoNeverDownLoadRadioBtn" >
-              <property name="toolTip" >
-               <string>Never download sponsor logos from the Nanorex server</string>
-              </property>
-              <property name="text" >
-               <string>Never download</string>
-              </property>
-             </widget>
-            </item>
             <item row="1" column="0" >
-             <widget class="QRadioButton" name="logoNeverAskRadioBtn" >
-              <property name="toolTip" >
-               <string>Never ask permission before downloading sponsor logos from the Nanorex server</string>
-              </property>
-              <property name="text" >
-               <string>Never ask before downloading</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QRadioButton" name="logoAlwaysAskRadioBtn" >
-              <property name="toolTip" >
-               <string>Always ask permission to download sponsor logos from the Nanorex server</string>
-              </property>
-              <property name="text" >
-               <string>Always ask before downloading</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="rulersGroupBox" >
-           <property name="title" >
-            <string>Rulers</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="1" column="1" >
-             <widget class="QDoubleSpinBox" name="rulerOpacityDoubleSpinBox" >
-              <property name="maximum" >
-               <double>1.000000000000000</double>
-              </property>
-              <property name="singleStep" >
-               <double>0.100000000000000</double>
-              </property>
-              <property name="value" >
-               <double>0.700000000000000</double>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QLabel" name="label_5" >
-              <property name="text" >
-               <string>Ruler opacity:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QLabel" name="textLabel3_2_4" >
-              <property name="text" >
-               <string>Ruler color:</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1" >
              <layout class="QHBoxLayout" >
               <property name="margin" >
                <number>0</number>
@@ -163,461 +64,51 @@
                <number>6</number>
               </property>
               <item>
-               <widget class="QFrame" name="ruler_color_frame" >
-                <property name="minimumSize" >
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QCheckBox" name="watch_min_in_realtime_checkbox" >
+                  <property name="toolTip" >
+                   <string>Enable/disable real time graphical updates for &lt;b>Adjust All&lt;/b> or &lt;b>Adjust Selection&lt;/b></string>
+                  </property>
+                  <property name="text" >
+                   <string>Watch motion in real time</string>
+                  </property>
+                  <property name="checked" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QCheckBox" name="electrostaticsForDnaDuringAdjust_checkBox" >
+                  <property name="text" >
+                   <string>Enable Electrostatics for DNA Reduced Model</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <spacer>
+                <property name="orientation" >
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" >
                  <size>
-                  <width>25</width>
-                  <height>0</height>
+                  <width>40</width>
+                  <height>20</height>
                  </size>
                 </property>
-                <property name="frameShape" >
-                 <enum>QFrame::Box</enum>
-                </property>
-                <property name="frameShadow" >
-                 <enum>QFrame::Plain</enum>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="ruler_color_btn" >
-                <property name="text" >
-                 <string>Choose...</string>
-                </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
-                </property>
-               </widget>
+               </spacer>
               </item>
              </layout>
             </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer>
-           <property name="orientation" >
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" >
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item row="2" column="0" colspan="2" >
-        <widget class="QGroupBox" name="groupBox14" >
-         <property name="title" >
-          <string>Settings for Adjust</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="1" column="0" >
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item>
-             <layout class="QVBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QCheckBox" name="watch_min_in_realtime_checkbox" >
-                <property name="toolTip" >
-                 <string>Enable/disable real time graphical updates for &lt;b>Adjust All&lt;/b> or &lt;b>Adjust Selection&lt;/b></string>
-                </property>
-                <property name="text" >
-                 <string>Watch motion in real time</string>
-                </property>
-                <property name="checked" >
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QCheckBox" name="electrostaticsForDnaDuringAdjust_checkBox" >
-                <property name="text" >
-                 <string>Enable Electrostatics for DNA Reduced Model</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" >
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item row="2" column="0" >
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item>
-             <widget class="QGroupBox" name="update_btngrp" >
-              <property name="title" >
-               <string/>
-              </property>
-              <layout class="QVBoxLayout" >
-               <property name="margin" >
-                <number>9</number>
-               </property>
-               <property name="spacing" >
-                <number>6</number>
-               </property>
-               <item>
-                <widget class="QRadioButton" name="update_asap_rbtn" >
-                 <property name="toolTip" >
-                  <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
-                 </property>
-                 <property name="text" >
-                  <string>Update as fast as possible</string>
-                 </property>
-                 <property name="checked" >
-                  <bool>true</bool>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" >
-                 <property name="margin" >
-                  <number>0</number>
-                 </property>
-                 <property name="spacing" >
-                  <number>6</number>
-                 </property>
-                 <item>
-                  <widget class="QRadioButton" name="update_every_rbtn" >
-                   <property name="toolTip" >
-                    <string>Specify how often to update the screen during adjustments</string>
-                   </property>
-                   <property name="text" >
-                    <string>Update every</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="update_number_spinbox" >
-                   <property name="toolTip" >
-                    <string>Specify how often to update the screen during adjustments</string>
-                   </property>
-                   <property name="maximum" >
-                    <number>9999</number>
-                   </property>
-                   <property name="minimum" >
-                    <number>1</number>
-                   </property>
-                   <property name="value" >
-                    <number>1</number>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QComboBox" name="update_units_combobox" >
-                   <property name="toolTip" >
-                    <string>Specify how often to update the screen during adjustments</string>
-                   </property>
-                   <item>
-                    <property name="text" >
-                     <string>frames</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text" >
-                     <string>seconds</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text" >
-                     <string>minutes</string>
-                    </property>
-                   </item>
-                   <item>
-                    <property name="text" >
-                     <string>hours</string>
-                    </property>
-                   </item>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </widget>
-            </item>
-            <item>
-             <spacer>
-              <property name="orientation" >
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" >
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
-          </item>
-          <item row="3" column="0" >
-           <widget class="QGroupBox" name="groupBox20" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>5</hsizetype>
-              <vsizetype>5</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="title" >
-             <string>Convergence Criteria</string>
-            </property>
-            <layout class="QGridLayout" >
-             <property name="margin" >
-              <number>9</number>
-             </property>
-             <property name="spacing" >
-              <number>6</number>
-             </property>
-             <item row="0" column="0" >
-              <layout class="QHBoxLayout" >
-               <property name="margin" >
-                <number>0</number>
-               </property>
-               <property name="spacing" >
-                <number>6</number>
-               </property>
-               <item>
-                <layout class="QHBoxLayout" >
-                 <property name="margin" >
-                  <number>0</number>
-                 </property>
-                 <property name="spacing" >
-                  <number>6</number>
-                 </property>
-                 <item>
-                  <layout class="QVBoxLayout" >
-                   <property name="margin" >
-                    <number>0</number>
-                   </property>
-                   <property name="spacing" >
-                    <number>6</number>
-                   </property>
-                   <item>
-                    <widget class="QLabel" name="endrms_lbl" >
-                     <property name="toolTip" >
-                      <string>Target RMS force (pN)</string>
-                     </property>
-                     <property name="text" >
-                      <string>EndRMS :</string>
-                     </property>
-                     <property name="alignment" >
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="endmax_lbl" >
-                     <property name="toolTip" >
-                      <string>Target max force (pN)</string>
-                     </property>
-                     <property name="text" >
-                      <string>EndMax :</string>
-                     </property>
-                     <property name="alignment" >
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" >
-                   <property name="margin" >
-                    <number>0</number>
-                   </property>
-                   <property name="spacing" >
-                    <number>6</number>
-                   </property>
-                   <item>
-                    <widget class="QLineEdit" name="endrms_linedit" >
-                     <property name="maximumSize" >
-                      <size>
-                       <width>60</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                     <property name="toolTip" >
-                      <string>Target RMS force (pN)</string>
-                     </property>
-                     <property name="text" >
-                      <string>1.0</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="endmax_linedit" >
-                     <property name="maximumSize" >
-                      <size>
-                       <width>60</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                     <property name="toolTip" >
-                      <string>Target max force (pN)</string>
-                     </property>
-                     <property name="text" >
-                      <string>10.0</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <spacer>
-                 <property name="orientation" >
-                  <enum>Qt::Horizontal</enum>
-                 </property>
-                 <property name="sizeHint" >
-                  <size>
-                   <width>21</width>
-                   <height>20</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" >
-                 <property name="margin" >
-                  <number>0</number>
-                 </property>
-                 <property name="spacing" >
-                  <number>6</number>
-                 </property>
-                 <item>
-                  <layout class="QVBoxLayout" >
-                   <property name="margin" >
-                    <number>0</number>
-                   </property>
-                   <property name="spacing" >
-                    <number>6</number>
-                   </property>
-                   <item>
-                    <widget class="QLabel" name="cutoverrms_lbl" >
-                     <property name="toolTip" >
-                      <string>Cutover RMS force (pN)</string>
-                     </property>
-                     <property name="text" >
-                      <string>CutoverRMS :</string>
-                     </property>
-                     <property name="alignment" >
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="cutovermax_lbl" >
-                     <property name="toolTip" >
-                      <string>Cutover max force (pN)</string>
-                     </property>
-                     <property name="text" >
-                      <string>CutoverMax :</string>
-                     </property>
-                     <property name="alignment" >
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" >
-                   <property name="margin" >
-                    <number>0</number>
-                   </property>
-                   <property name="spacing" >
-                    <number>6</number>
-                   </property>
-                   <item>
-                    <widget class="QLineEdit" name="cutoverrms_linedit" >
-                     <property name="maximumSize" >
-                      <size>
-                       <width>60</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                     <property name="toolTip" >
-                      <string>Cutover RMS force (pN)</string>
-                     </property>
-                     <property name="text" >
-                      <string>50.0</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLineEdit" name="cutovermax_linedit" >
-                     <property name="maximumSize" >
-                      <size>
-                       <width>60</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                     <property name="toolTip" >
-                      <string>Cutover max force (pN)</string>
-                     </property>
-                     <property name="text" >
-                      <string>300.0</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </widget>
-          </item>
-          <item row="0" column="0" >
-           <layout class="QVBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item>
+            <item row="2" column="0" >
              <layout class="QHBoxLayout" >
               <property name="margin" >
                <number>0</number>
@@ -626,10 +117,94 @@
                <number>6</number>
               </property>
               <item>
-               <widget class="QLabel" name="min_options_label_4" >
-                <property name="text" >
-                 <string>Adjust Engine</string>
+               <widget class="QGroupBox" name="update_btngrp" >
+                <property name="title" >
+                 <string/>
                 </property>
+                <layout class="QVBoxLayout" >
+                 <property name="margin" >
+                  <number>9</number>
+                 </property>
+                 <property name="spacing" >
+                  <number>6</number>
+                 </property>
+                 <item>
+                  <widget class="QRadioButton" name="update_asap_rbtn" >
+                   <property name="toolTip" >
+                    <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
+                   </property>
+                   <property name="text" >
+                    <string>Update as fast as possible</string>
+                   </property>
+                   <property name="checked" >
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" >
+                   <property name="margin" >
+                    <number>0</number>
+                   </property>
+                   <property name="spacing" >
+                    <number>6</number>
+                   </property>
+                   <item>
+                    <widget class="QRadioButton" name="update_every_rbtn" >
+                     <property name="toolTip" >
+                      <string>Specify how often to update the screen during adjustments</string>
+                     </property>
+                     <property name="text" >
+                      <string>Update every</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QSpinBox" name="update_number_spinbox" >
+                     <property name="toolTip" >
+                      <string>Specify how often to update the screen during adjustments</string>
+                     </property>
+                     <property name="maximum" >
+                      <number>9999</number>
+                     </property>
+                     <property name="minimum" >
+                      <number>1</number>
+                     </property>
+                     <property name="value" >
+                      <number>1</number>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QComboBox" name="update_units_combobox" >
+                     <property name="toolTip" >
+                      <string>Specify how often to update the screen during adjustments</string>
+                     </property>
+                     <item>
+                      <property name="text" >
+                       <string>frames</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text" >
+                       <string>seconds</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text" >
+                       <string>minutes</string>
+                      </property>
+                     </item>
+                     <item>
+                      <property name="text" >
+                       <string>hours</string>
+                      </property>
+                     </item>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
                </widget>
               </item>
               <item>
@@ -637,498 +212,239 @@
                 <property name="orientation" >
                  <enum>Qt::Horizontal</enum>
                 </property>
-                <property name="sizeType" >
-                 <enum>QSizePolicy::Expanding</enum>
-                </property>
                 <property name="sizeHint" >
                  <size>
-                  <width>21</width>
-                  <height>16</height>
+                  <width>40</width>
+                  <height>20</height>
                  </size>
                 </property>
                </spacer>
               </item>
-              <item>
-               <widget class="QPushButton" name="grpbtn_4" >
-                <property name="sizePolicy" >
-                 <sizepolicy>
-                  <hsizetype>0</hsizetype>
-                  <vsizetype>0</vsizetype>
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="maximumSize" >
-                 <size>
-                  <width>16</width>
-                  <height>16</height>
-                 </size>
-                </property>
-                <property name="text" >
-                 <string/>
-                </property>
-                <property name="icon" >
-                 <iconset>../../../../:icons/MinimizeEnergyPropDialog_image6</iconset>
-                </property>
-                <property name="autoDefault" >
-                 <bool>false</bool>
-                </property>
-                <property name="default" >
-                 <bool>false</bool>
-                </property>
-                <property name="flat" >
-                 <bool>true</bool>
-                </property>
-               </widget>
-              </item>
              </layout>
             </item>
-            <item>
-             <widget class="QComboBox" name="minimize_engine_combobox" >
-              <property name="toolTip" >
-               <string>Choose the simulation engine with which to minimize energy.</string>
+            <item row="3" column="0" >
+             <widget class="QGroupBox" name="groupBox20" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>5</hsizetype>
+                <vsizetype>5</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <item>
-               <property name="text" >
-                <string>NanoDynamics-1 (Default)</string>
+              <property name="title" >
+               <string>Convergence Criteria</string>
+              </property>
+              <layout class="QGridLayout" >
+               <property name="margin" >
+                <number>9</number>
                </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>GROMACS with ND1 Force Field</string>
+               <property name="spacing" >
+                <number>6</number>
                </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Background GROMACS with ND1 Force Field</string>
-               </property>
-              </item>
+               <item row="0" column="0" >
+                <layout class="QHBoxLayout" >
+                 <property name="margin" >
+                  <number>0</number>
+                 </property>
+                 <property name="spacing" >
+                  <number>6</number>
+                 </property>
+                 <item>
+                  <layout class="QHBoxLayout" >
+                   <property name="margin" >
+                    <number>0</number>
+                   </property>
+                   <property name="spacing" >
+                    <number>6</number>
+                   </property>
+                   <item>
+                    <layout class="QVBoxLayout" >
+                     <property name="margin" >
+                      <number>0</number>
+                     </property>
+                     <property name="spacing" >
+                      <number>6</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="endrms_lbl" >
+                       <property name="toolTip" >
+                        <string>Target RMS force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>EndRMS :</string>
+                       </property>
+                       <property name="alignment" >
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="endmax_lbl" >
+                       <property name="toolTip" >
+                        <string>Target max force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>EndMax :</string>
+                       </property>
+                       <property name="alignment" >
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" >
+                     <property name="margin" >
+                      <number>0</number>
+                     </property>
+                     <property name="spacing" >
+                      <number>6</number>
+                     </property>
+                     <item>
+                      <widget class="QLineEdit" name="endrms_linedit" >
+                       <property name="maximumSize" >
+                        <size>
+                         <width>60</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="toolTip" >
+                        <string>Target RMS force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>1.0</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="endmax_linedit" >
+                       <property name="maximumSize" >
+                        <size>
+                         <width>60</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="toolTip" >
+                        <string>Target max force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>10.0</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                 <item>
+                  <spacer>
+                   <property name="orientation" >
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                   <property name="sizeHint" >
+                    <size>
+                     <width>21</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                  </spacer>
+                 </item>
+                 <item>
+                  <layout class="QHBoxLayout" >
+                   <property name="margin" >
+                    <number>0</number>
+                   </property>
+                   <property name="spacing" >
+                    <number>6</number>
+                   </property>
+                   <item>
+                    <layout class="QVBoxLayout" >
+                     <property name="margin" >
+                      <number>0</number>
+                     </property>
+                     <property name="spacing" >
+                      <number>6</number>
+                     </property>
+                     <item>
+                      <widget class="QLabel" name="cutoverrms_lbl" >
+                       <property name="toolTip" >
+                        <string>Cutover RMS force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>CutoverRMS :</string>
+                       </property>
+                       <property name="alignment" >
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLabel" name="cutovermax_lbl" >
+                       <property name="toolTip" >
+                        <string>Cutover max force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>CutoverMax :</string>
+                       </property>
+                       <property name="alignment" >
+                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" >
+                     <property name="margin" >
+                      <number>0</number>
+                     </property>
+                     <property name="spacing" >
+                      <number>6</number>
+                     </property>
+                     <item>
+                      <widget class="QLineEdit" name="cutoverrms_linedit" >
+                       <property name="maximumSize" >
+                        <size>
+                         <width>60</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="toolTip" >
+                        <string>Cutover RMS force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>50.0</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QLineEdit" name="cutovermax_linedit" >
+                       <property name="maximumSize" >
+                        <size>
+                         <width>60</width>
+                         <height>20</height>
+                        </size>
+                       </property>
+                       <property name="toolTip" >
+                        <string>Cutover max force (pN)</string>
+                       </property>
+                       <property name="text" >
+                        <string>300.0</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </item>
+                  </layout>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </widget>
             </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="3" >
-        <widget class="QGroupBox" name="default_projection_grpBox" >
-         <property name="toolTip" >
-          <string/>
-         </property>
-         <property name="title" >
-          <string>Default Projection</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" >
-           <widget class="QRadioButton" name="perspective_radioButton" >
-            <property name="text" >
-             <string>Perspective</string>
-            </property>
-            <property name="checked" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
-           <widget class="QRadioButton" name="orthographic_radioButton" >
-            <property name="text" >
-             <string>Orthographic</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="1" colspan="2" >
-        <widget class="QGroupBox" name="groupBox17_2" >
-         <property name="title" >
-          <string>Compass</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="2" column="0" >
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="textLabel1_4" >
-              <property name="text" >
-               <string>Location :</string>
-              </property>
-              <property name="alignment" >
-               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QComboBox" name="compass_position_combox" >
-              <item>
-               <property name="text" >
-                <string>Upper Right</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Upper Left</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Lower Left</string>
-               </property>
-              </item>
-              <item>
-               <property name="text" >
-                <string>Lower Right</string>
-               </property>
-              </item>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="1" column="0" >
-           <widget class="QCheckBox" name="display_compass_labels_checkbox" >
-            <property name="toolTip" >
-             <string>Show/Hide Display Compass</string>
-            </property>
-            <property name="text" >
-             <string>Display Compass Labels</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="display_compass_checkbox" >
-            <property name="toolTip" >
-             <string>Show/Hide Display Compass</string>
-            </property>
-            <property name="text" >
-             <string>Display Compass</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="0" >
-        <widget class="QGroupBox" name="groupBox7_2" >
-         <property name="title" >
-          <string>Axes</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="1" column="0" >
-           <widget class="QCheckBox" name="display_pov_axis_checkbox" >
-            <property name="toolTip" >
-             <string>Show/Hide Point of View Axis</string>
-            </property>
-            <property name="text" >
-             <string>Display Point of View Axis</string>
-            </property>
-            <property name="checked" >
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="display_origin_axis_checkbox" >
-            <property name="toolTip" >
-             <string>Show/Hide Origin Axis</string>
-            </property>
-            <property name="text" >
-             <string>Display Origin Axis</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="1" colspan="4" >
-        <widget class="QGroupBox" name="groupBox8" >
-         <property name="title" >
-          <string>View Rotation</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="textLabel1_5" >
-            <property name="sizePolicy" >
-             <sizepolicy>
-              <hsizetype>1</hsizetype>
-              <vsizetype>5</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text" >
-             <string>View Animation Speed:</string>
-            </property>
-            <property name="scaledContents" >
-             <bool>false</bool>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>189</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="3" column="0" >
-           <widget class="QLabel" name="rotationSensitivity_txtlbl" >
-            <property name="text" >
-             <string>Mouse Speed During Rotation:</string>
-            </property>
-            <property name="alignment" >
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="buddy" >
-             <cstring>mouseSpeedDuringRotation_slider</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3" >
-           <widget class="QLabel" name="textLabel3_4" >
-            <property name="text" >
-             <string>Fast</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="4" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>27</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="2" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>88</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="1" >
-           <widget class="QLabel" name="textLabel2_3" >
-            <property name="text" >
-             <string>Slow</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="3" >
-           <widget class="QSlider" name="animation_speed_slider" >
-            <property name="toolTip" >
-             <string>View Animation Speed</string>
-            </property>
-            <property name="minimum" >
-             <number>-300</number>
-            </property>
-            <property name="maximum" >
-             <number>-25</number>
-            </property>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="4" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>27</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="3" column="1" colspan="3" >
-           <widget class="QSlider" name="mouseSpeedDuringRotation_slider" >
-            <property name="minimum" >
-             <number>30</number>
-            </property>
-            <property name="maximum" >
-             <number>100</number>
-            </property>
-            <property name="value" >
-             <number>50</number>
-            </property>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>87</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="3" >
-           <widget class="QLabel" name="textLabel3_4_2" >
-            <property name="text" >
-             <string>Fast</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="4" >
-           <widget class="QToolButton" name="resetMouseSpeedDuringRotation_btn" >
-            <property name="enabled" >
-             <bool>false</bool>
-            </property>
-            <property name="toolTip" >
-             <string>Restore default value</string>
-            </property>
-            <property name="text" >
-             <string/>
-            </property>
-            <property name="icon" >
-             <iconset>../../:icons/UserPrefsDialog_image0</iconset>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" >
-           <widget class="QLabel" name="textLabel2_3_2" >
-            <property name="text" >
-             <string>Slow</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="4" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
-            </property>
-            <property name="sizeHint" >
-             <size>
-              <width>28</width>
-              <height>16</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="0" column="0" >
-           <widget class="QCheckBox" name="animate_views_checkbox" >
-            <property name="toolTip" >
-             <string>Enable/disable animation between current view and a new view</string>
-            </property>
-            <property name="text" >
-             <string>Animate between views</string>
-            </property>
-            <property name="checked" >
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QGroupBox" name="bg_groupbox" >
-         <property name="title" >
-          <string>Background Color</string>
-         </property>
-         <layout class="QGridLayout" >
-          <property name="margin" >
-           <number>9</number>
-          </property>
-          <property name="spacing" >
-           <number>6</number>
-          </property>
-          <item row="0" column="0" colspan="2" >
-           <layout class="QHBoxLayout" >
-            <property name="margin" >
-             <number>0</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item>
+            <item row="0" column="0" >
              <layout class="QVBoxLayout" >
               <property name="margin" >
                <number>0</number>
@@ -1136,59 +452,6 @@
               <property name="spacing" >
                <number>6</number>
               </property>
-              <item>
-               <widget class="QLabel" name="fill_type_lbl" >
-                <property name="enabled" >
-                 <bool>true</bool>
-                </property>
-                <property name="text" >
-                 <string>Fill Type :</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLabel" name="bg1_color_lbl" >
-                <property name="text" >
-                 <string>Color :</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QVBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QComboBox" name="fill_type_combox" >
-                <property name="enabled" >
-                 <bool>true</bool>
-                </property>
-                <property name="toolTip" >
-                 <string>Background fill type</string>
-                </property>
-                <item>
-                 <property name="text" >
-                  <string>Solid</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Blue Sky</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
               <item>
                <layout class="QHBoxLayout" >
                 <property name="margin" >
@@ -1198,7 +461,206 @@
                  <number>6</number>
                 </property>
                 <item>
-                 <widget class="QFrame" name="bg1_color_frame" >
+                 <widget class="QLabel" name="min_options_label_4" >
+                  <property name="text" >
+                   <string>Adjust Engine</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer>
+                  <property name="orientation" >
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeType" >
+                   <enum>QSizePolicy::Expanding</enum>
+                  </property>
+                  <property name="sizeHint" >
+                   <size>
+                    <width>21</width>
+                    <height>16</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="grpbtn_4" >
+                  <property name="sizePolicy" >
+                   <sizepolicy>
+                    <hsizetype>0</hsizetype>
+                    <vsizetype>0</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>16</width>
+                    <height>16</height>
+                   </size>
+                  </property>
+                  <property name="text" >
+                   <string/>
+                  </property>
+                  <property name="icon" >
+                   <iconset>../../../../:icons/MinimizeEnergyPropDialog_image6</iconset>
+                  </property>
+                  <property name="autoDefault" >
+                   <bool>false</bool>
+                  </property>
+                  <property name="default" >
+                   <bool>false</bool>
+                  </property>
+                  <property name="flat" >
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="QComboBox" name="minimize_engine_combobox" >
+                <property name="toolTip" >
+                 <string>Choose the simulation engine with which to minimize energy.</string>
+                </property>
+                <item>
+                 <property name="text" >
+                  <string>NanoDynamics-1 (Default)</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>GROMACS with ND1 Force Field</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Background GROMACS with ND1 Force Field</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" >
+           <property name="margin" >
+            <number>0</number>
+           </property>
+           <property name="spacing" >
+            <number>6</number>
+           </property>
+           <item>
+            <widget class="QGroupBox" name="sponsorLogosGroupBox" >
+             <property name="sizePolicy" >
+              <sizepolicy>
+               <hsizetype>3</hsizetype>
+               <vsizetype>3</vsizetype>
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title" >
+              <string>Sponsor Logos Download Permission</string>
+             </property>
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>9</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item row="2" column="0" >
+               <widget class="QRadioButton" name="logoNeverDownLoadRadioBtn" >
+                <property name="toolTip" >
+                 <string>Never download sponsor logos from the Nanorex server</string>
+                </property>
+                <property name="text" >
+                 <string>Never download</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QRadioButton" name="logoNeverAskRadioBtn" >
+                <property name="toolTip" >
+                 <string>Never ask permission before downloading sponsor logos from the Nanorex server</string>
+                </property>
+                <property name="text" >
+                 <string>Never ask before downloading</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" >
+               <widget class="QRadioButton" name="logoAlwaysAskRadioBtn" >
+                <property name="toolTip" >
+                 <string>Always ask permission to download sponsor logos from the Nanorex server</string>
+                </property>
+                <property name="text" >
+                 <string>Always ask before downloading</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="rulersGroupBox" >
+             <property name="title" >
+              <string>Rulers</string>
+             </property>
+             <layout class="QGridLayout" >
+              <property name="margin" >
+               <number>9</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item row="1" column="1" >
+               <widget class="QDoubleSpinBox" name="rulerOpacityDoubleSpinBox" >
+                <property name="maximum" >
+                 <double>1.000000000000000</double>
+                </property>
+                <property name="singleStep" >
+                 <double>0.100000000000000</double>
+                </property>
+                <property name="value" >
+                 <double>0.700000000000000</double>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="label_5" >
+                <property name="text" >
+                 <string>Ruler opacity:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0" >
+               <widget class="QLabel" name="textLabel3_2_4" >
+                <property name="text" >
+                 <string>Ruler color:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="1" >
+               <layout class="QHBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QFrame" name="ruler_color_frame" >
                   <property name="minimumSize" >
                    <size>
                     <width>25</width>
@@ -1214,7 +676,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="choose_bg1_color_btn" >
+                 <widget class="QPushButton" name="ruler_color_btn" >
                   <property name="text" >
                    <string>Choose...</string>
                   </property>
@@ -1226,37 +688,631 @@
                </layout>
               </item>
              </layout>
+            </widget>
+           </item>
+           <item>
+            <spacer>
+             <property name="orientation" >
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" >
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0" >
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="bg_groupbox" >
+           <property name="title" >
+            <string>Background Color</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="0" column="0" colspan="2" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="fill_type_lbl" >
+                  <property name="enabled" >
+                   <bool>true</bool>
+                  </property>
+                  <property name="text" >
+                   <string>Fill Type :</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="bg1_color_lbl" >
+                  <property name="text" >
+                   <string>Color :</string>
+                  </property>
+                  <property name="alignment" >
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" >
+                <property name="margin" >
+                 <number>0</number>
+                </property>
+                <property name="spacing" >
+                 <number>6</number>
+                </property>
+                <item>
+                 <widget class="QComboBox" name="fill_type_combox" >
+                  <property name="enabled" >
+                   <bool>true</bool>
+                  </property>
+                  <property name="toolTip" >
+                   <string>Background fill type</string>
+                  </property>
+                  <item>
+                   <property name="text" >
+                    <string>Solid</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text" >
+                    <string>Blue Sky</string>
+                   </property>
+                  </item>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" >
+                  <property name="margin" >
+                   <number>0</number>
+                  </property>
+                  <property name="spacing" >
+                   <number>6</number>
+                  </property>
+                  <item>
+                   <widget class="QFrame" name="bg1_color_frame" >
+                    <property name="minimumSize" >
+                     <size>
+                      <width>25</width>
+                      <height>0</height>
+                     </size>
+                    </property>
+                    <property name="frameShape" >
+                     <enum>QFrame::Box</enum>
+                    </property>
+                    <property name="frameShadow" >
+                     <enum>QFrame::Plain</enum>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="choose_bg1_color_btn" >
+                    <property name="text" >
+                     <string>Choose...</string>
+                    </property>
+                    <property name="autoDefault" >
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="1" >
+             <widget class="QPushButton" name="restore_bgcolor_btn" >
+              <property name="text" >
+               <string>Restore Default Color</string>
+              </property>
+              <property name="autoDefault" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
-          </item>
-          <item row="1" column="1" >
-           <widget class="QPushButton" name="restore_bgcolor_btn" >
-            <property name="text" >
-             <string>Restore Default Color</string>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox8" >
+           <property name="title" >
+            <string>View Rotation</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
             </property>
-            <property name="autoDefault" >
-             <bool>false</bool>
+            <property name="spacing" >
+             <number>6</number>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
-           <spacer>
-            <property name="orientation" >
-             <enum>Qt::Horizontal</enum>
+            <item row="1" column="0" >
+             <widget class="QLabel" name="textLabel1_5" >
+              <property name="sizePolicy" >
+               <sizepolicy>
+                <hsizetype>1</hsizetype>
+                <vsizetype>5</vsizetype>
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text" >
+               <string>View Animation Speed:</string>
+              </property>
+              <property name="scaledContents" >
+               <bool>false</bool>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0" >
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>189</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="3" column="0" >
+             <widget class="QLabel" name="rotationSensitivity_txtlbl" >
+              <property name="text" >
+               <string>Mouse Speed During Rotation:</string>
+              </property>
+              <property name="alignment" >
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+              <property name="buddy" >
+               <cstring>mouseSpeedDuringRotation_slider</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="3" >
+             <widget class="QLabel" name="textLabel3_4" >
+              <property name="text" >
+               <string>Fast</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="4" >
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>27</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="2" >
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>88</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="1" >
+             <widget class="QLabel" name="textLabel2_3" >
+              <property name="text" >
+               <string>Slow</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1" colspan="3" >
+             <widget class="QSlider" name="animation_speed_slider" >
+              <property name="toolTip" >
+               <string>View Animation Speed</string>
+              </property>
+              <property name="minimum" >
+               <number>-300</number>
+              </property>
+              <property name="maximum" >
+               <number>-25</number>
+              </property>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="4" >
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>27</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="3" column="1" colspan="3" >
+             <widget class="QSlider" name="mouseSpeedDuringRotation_slider" >
+              <property name="minimum" >
+               <number>30</number>
+              </property>
+              <property name="maximum" >
+               <number>100</number>
+              </property>
+              <property name="value" >
+               <number>50</number>
+              </property>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="2" >
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>87</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="2" column="3" >
+             <widget class="QLabel" name="textLabel3_4_2" >
+              <property name="text" >
+               <string>Fast</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="4" >
+             <widget class="QToolButton" name="resetMouseSpeedDuringRotation_btn" >
+              <property name="enabled" >
+               <bool>false</bool>
+              </property>
+              <property name="toolTip" >
+               <string>Restore default value</string>
+              </property>
+              <property name="text" >
+               <string/>
+              </property>
+              <property name="icon" >
+               <iconset>../../:icons/UserPrefsDialog_image0</iconset>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1" >
+             <widget class="QLabel" name="textLabel2_3_2" >
+              <property name="text" >
+               <string>Slow</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="4" >
+             <spacer>
+              <property name="orientation" >
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType" >
+               <enum>QSizePolicy::Expanding</enum>
+              </property>
+              <property name="sizeHint" >
+               <size>
+                <width>28</width>
+                <height>16</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="animate_views_checkbox" >
+              <property name="toolTip" >
+               <string>Enable/disable animation between current view and a new view</string>
+              </property>
+              <property name="text" >
+               <string>Animate between views</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" >
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox7_2" >
+           <property name="title" >
+            <string>Axes</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
             </property>
-            <property name="sizeType" >
-             <enum>QSizePolicy::Expanding</enum>
+            <property name="spacing" >
+             <number>6</number>
             </property>
-            <property name="sizeHint" >
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="display_pov_axis_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Point of View Axis</string>
+              </property>
+              <property name="text" >
+               <string>Display Point of View Axis</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="display_origin_axis_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Origin Axis</string>
+              </property>
+              <property name="text" >
+               <string>Display Origin Axis</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox17_2" >
+           <property name="title" >
+            <string>Compass</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
             </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="2" column="0" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="textLabel1_4" >
+                <property name="text" >
+                 <string>Location :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="compass_position_combox" >
+                <item>
+                 <property name="text" >
+                  <string>Upper Right</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Upper Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Lower Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Lower Right</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="display_compass_labels_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Display Compass</string>
+              </property>
+              <property name="text" >
+               <string>Display Compass Labels</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="display_compass_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Display Compass</string>
+              </property>
+              <property name="text" >
+               <string>Display Compass</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="default_projection_grpBox" >
+           <property name="toolTip" >
+            <string/>
+           </property>
+           <property name="title" >
+            <string>Default Projection</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="0" column="0" >
+             <widget class="QRadioButton" name="perspective_radioButton" >
+              <property name="text" >
+               <string>Perspective</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QRadioButton" name="orthographic_radioButton" >
+              <property name="text" >
+               <string>Orthographic</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -2839,19 +2895,6 @@
            <property name="spacing" >
             <number>6</number>
            </property>
-           <item>
-            <spacer>
-             <property name="orientation" >
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" >
-              <size>
-               <width>20</width>
-               <height>16</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
            <item>
             <widget class="QGroupBox" name="default_display_grpBox" >
              <property name="title" >
