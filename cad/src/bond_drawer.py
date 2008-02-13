@@ -876,8 +876,10 @@ def old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos, toolo
             # bruce 080213 pure guesses about how best to do this in povray;
             # ideally we'd just clean up all this code to use the same drawcylinder
             # calling API in both povray and non-povray.
-            bondcolor = env.prefs.get( diBALL_bondcolor_prefs_key) 
-            povfile.bond(a1pos, a2pos, bondcolor, rad) # .tube3 or .bond??
+            bondColor = povfile.getBondColor()
+            if not bondColor:
+                bondColor = color1
+            povfile.bond(a1pos, a2pos, bondColor, rad) # .tube3 or .bond??
     if disp == diTUBES:
         #Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
         # cylinder written to a pov file    
