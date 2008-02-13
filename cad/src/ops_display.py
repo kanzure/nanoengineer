@@ -17,15 +17,18 @@ mark 2008-02-02 split this out of MWsemantics.py.
 
 import env
 
-from constants import diTrueCPK
+# Keep these in the same order that they are defined in constants.py.
+# It really helps since some lists are dependent on the display mode order.
+# Mark 2008-02-13.
+from constants import diDEFAULT
+from constants import diINVISIBLE
+from constants import diLINES
 from constants import diTUBES
 from constants import diBALL
-from constants import diLINES
+from constants import diTrueCPK
 from constants import diDNACYLINDER
 from constants import diCYLINDER
 from constants import diSURFACE
-from constants import diINVISIBLE
-from constants import diDEFAULT
 
 from PyQt4.Qt import Qt, QColorDialog, QColor
 
@@ -43,28 +46,76 @@ class displaySlotsMixin:
     # set display formats in whatever is selected,
     # or the GLPane global default if nothing is
     def dispDefault(self):
+        """
+        Sets the selected chunks or atoms to I{Default} display mode. 
+        If nothing is selected when called, then the default display is 
+        changed to the display style defined in user preferences.
+        """
         self.setDisplay(diDEFAULT, True)
 
     def dispInvis(self):
+        """
+        Sets the selected chunks or atoms to I{Invisible} display mode. 
+        If nothing is selected when called, then the default display is 
+        changed to Invisible display mode.
+        """
         self.setDisplay(diINVISIBLE)
 
-    def dispCPK(self): #e this slot method (here and in .ui file) renamed from dispVdW to dispCPK [bruce 060607]
-        self.setDisplay(diTrueCPK)
-
-    def dispHybrid(self): #@@ Ninad 070308
-        print "Hybrid display is  Implemented yet"
-        pass
-
-    def dispTubes(self):
-        self.setDisplay(diTUBES)
-
-    def dispBall(self): #e this slot method (here and in .ui file) renamed from dispCPK to dispBall [bruce 060607]
-        self.setDisplay(diBALL)
-
     def dispLines(self):
+        """
+        Sets the selected chunks or atoms to I{Lines} display mode. 
+        If nothing is selected when called, then the default display is 
+        changed to Lines display mode.
+        """
         self.setDisplay(diLINES)
 
+    def dispTubes(self):
+        """
+        Sets the selected chunks or atoms to I{Tubes} display mode. 
+        If nothing is selected when called, then the default display is 
+        changed to Tubes display mode.
+        """
+        self.setDisplay(diTUBES)
+        
+    def dispBall(self): #e this slot method (here and in .ui file) renamed from dispCPK to dispBall [bruce 060607]
+        """
+        Sets the selected chunks or atoms to I{Ball and Stick} display mode. 
+        If nothing is selected when called, then the default display is 
+        changed to Ball and Stick display mode.
+        """
+        self.setDisplay(diBALL)
+        
+    def dispCPK(self): #e this slot method (here and in .ui file) renamed from dispVdW to dispCPK [bruce 060607]
+        """
+        Sets the selected chunks or atoms to I{CPK} (space fill) display mode. 
+        If nothing is selected when called, then the default display is 
+        changed to CPK display mode.
+        """
+        self.setDisplay(diTrueCPK)
+        
+    def dispDnaCylinder(self):
+        """
+        Sets the selected chunks to I{DNA Cylinder} display mode. If nothing
+        is selected, then the default display is changed to DNA Cylinder
+        display mode.
+        """
+        # This code was copied from dispCylinder(). Mark 2008-02-13.
+        cmd = greenmsg("Set Display DNA Cylinder: ")
+        if self.assy and self.assy.selatoms:
+            env.history.message(cmd + "Selected atoms cannot have their display mode set to DNA Cylinder.")
+            return
+        self.setDisplay(diDNACYLINDER)
+
     def dispCylinder(self):
+        """
+        Sets the selected chunks to I{Cylinder} display mode. If nothing
+        is selected, then the default display is changed to Cylinder
+        display mode.
+        
+        @note: I{Cylinder} is an experimental display style. It is disabled
+        by default. It can be enabled setting the debug (menu) pref
+        "enable CylinderChunks next session?" to True.
+        """
         cmd = greenmsg("Set Display Cylinder: ")
         if self.assy and self.assy.selatoms:
             # Fixes bug 2005. Mark 060702.
@@ -72,23 +123,27 @@ class displaySlotsMixin:
             return #ninad 061003  fixed bug 2286... Note: Once atoms and chunks are allowed to be sel at the same 
             #time , this fix might need further mods. 
         self.setDisplay(diCYLINDER)
-        
-    def dispDnaCylinder(self):
-        cmd = greenmsg("Set Display DNA Cylinder: ")
-        if self.assy and self.assy.selatoms:
-            # Fixes bug 2005. Mark 060702.
-            env.history.message(cmd + "Selected atoms cannot have their display mode set to Cylinder.")
-            return #ninad 061003  fixed bug 2286... Note: Once atoms and chunks are allowed to be sel at the same 
-            #time , this fix might need further mods. 
-        self.setDisplay(diDNACYLINDER)
-
+    
     def dispSurface(self):
+        """
+        Sets the selected chunks to I{Surface} display mode. If nothing
+        is selected, then the default display is changed to Surface
+        display mode.
+        
+        @note: I{Surface} is an experimental display style. It is disabled
+        by default. It can be enabled setting the debug (menu) pref
+        "enable CylinderChunks next session?" to True.
+        """
         cmd = greenmsg("Set Display Surface: ")
         if self.assy and self.assy.selatoms:
             # Fixes bug 2005. Mark 060702.
             env.history.message(cmd + "Selected atoms cannot have their display mode set to Surface.")
             return #ninad 061003 fixed bug 2286
         self.setDisplay(diSURFACE)
+        
+    def dispHybrid(self): #@@ Ninad 070308
+        print "Hybrid display is  Implemented yet"
+        pass
 
     def setDisplay(self, form, default_display=False):
         """
