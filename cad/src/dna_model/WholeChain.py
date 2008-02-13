@@ -173,7 +173,34 @@ class WholeChain(object):
         Return our chains, IN ARBITRARY ORDER (that might be revised)
         """
         return self._dict_of_rails.values()
-    
+
+    def end_chains(self): # bruce 080212
+        """
+        Return a list of those of our chains which have ends.
+        (asserted to be length 0 or 1 or 2; length 1 is possible
+        if we are a 1-chain ring.)
+        """
+        res = [chain for chain in self.chains() if chain.at_wholechain_end()]
+        assert len(res) <= 2
+        return res
+
+    def end_baseatoms(self):
+        """
+        Return a list of our end_baseatoms, based on chain.neighbor_baseatoms
+        for each of our chains (set by dna updater, not always valid during it).
+
+        @note: result is asserted length 0 or 2; will be 0 if we are a ring
+        or 2 if we are a chain.
+
+        @note: Intended for use by user ops between dna updater runs.
+        """
+        res = []
+        for chain in self.end_chains():
+            res.extend(chain.wholechain_end_baseatoms())
+        assert len(res) in (0,2), "impossible set of %r.end_baseatoms(): %r" % \
+               (self, res)
+        return res
+        
     def __repr__(self):
         classname = self.__class__.__name__.split('.')[-1]
         res = "<%s (%d bases, %d markers) at %#x>" % \

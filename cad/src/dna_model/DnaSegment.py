@@ -74,17 +74,29 @@ class DnaSegment(DnaStrandOrSegment):
         """
         Derives and returns the two axis end points based on the atom positions
         of the segment. 
+
+        @note: this method definition doesn't fully make sense, since a segment
+               can be a ring.
         
         @return: a list containing the two endPoints of the Axis.
         @rtype: list 
         """
+        endpoint1, endpoint2 = self._getAxisEndPoints_preDataModel()
+        if endpoint1 is None:
+            return self._getAxisEndPoints_postDataModel()
+        
+    def _getAxisEndPoints_preDataModel(self):
         #Temporary implementation that uses chunk class to distinguish an 
         #axis chunk from an ordinary chunk. This method can be revised after
         #Full dna data model implementation -- Ninad 2008-01-21
+        # (Note, this seems to assume that the axis is a single chunk.
+        #  This may often be true pre-data-model, but I'm not sure --
+        #  certainly it's not enforced, AFAIK. This will print_compact_stack
+        #  when more than one axis chunk is in a segment. [bruce 080212 comment])
         endPointList = []
-        for m in self.members:
-            if isinstance(m, Chunk) and m.isAxisChunk():
-                for atm in m.atoms.itervalues():
+        for member in self.members:
+            if isinstance(member, Chunk) and member.isAxisChunk():
+                for atm in member.atoms.itervalues():
                     if atm.element.symbol == 'Ae3':                        
                         endPointList.append(atm.posn())
         if len(endPointList) == 2:
@@ -92,6 +104,7 @@ class DnaSegment(DnaStrandOrSegment):
             #on the left side of the 3D workspace and endPoint2 is the one on 
             #the 'more right hand side' of the 3D workspace.
             #It uses some code from bond_constants.bonded_atoms_summary
+            # [following code is also duplicated in a method below]
             atmPosition1 = endPointList[0]
             atmPosition2 = endPointList[1]
             glpane = self.assy.o
@@ -99,13 +112,52 @@ class DnaSegment(DnaStrandOrSegment):
             vec = atmPosition2 - atmPosition1
             vec = quat.rot(vec)
             if vec[0] < 0.0:
-                atmPosition1, atmPosition2 = atmPosition2, atmPosition1                            
+                atmPosition1, atmPosition2 = atmPosition2, atmPosition1
             return atmPosition1, atmPosition2
         elif len(endPointList) > 2:
             print_compact_stack("bug:The axis chunk has more than 2 'Ae' atoms")
         else:
             return None, None
-            
+
+    def _getAxisEndPoints_postDataModel(self): # bruce 080212
+        atom1, atom2 = self.get_axis_end_baseatoms()
+        if atom1 is None:
+            return None, None
+        atmPosition1, atmPosition2 = [atom.posn() for atom in (atom1, atom2)]
+        # following code is duplicated from a method above
+        glpane = self.assy.o
+        quat = glpane.quat
+        vec = atmPosition2 - atmPosition1
+        vec = quat.rot(vec)
+        if vec[0] < 0.0:
+            atmPosition1, atmPosition2 = atmPosition2, atmPosition1                        
+        return atmPosition1, atmPosition2
+
+    def get_axis_end_baseatoms(self): # bruce 080212
+        """
+        Return a sequence of length 2 of atoms or None:
+        for a chain: its two end baseatoms (arbitrary order);
+        for a ring: None, None.
+        """
+        # this implem only works in the dna data model
+        from dna_model.DnaLadderRailChunk import DnaAxisChunk
+        # find an arbitrary DnaAxisChunk among our members
+        # (not the best way in theory, once we have proper attrs set,
+        #  namely our controlling marker)
+        member = None
+        for member in self.members:
+            if isinstance(member, DnaAxisChunk):
+                break
+        if not isinstance(member, DnaAxisChunk):
+            # no DnaAxisChunk members (should not happen)
+            return None, None
+        end_baseatoms = member.wholechain.end_baseatoms()
+        if not end_baseatoms:
+            # ring
+            return None, None
+        # chain
+        return end_baseatoms
+        
     def getAxisVector(self):
         """
         Returns the unit axis vector of the segment (vector between two axis 
@@ -171,12 +223,16 @@ class DnaSegment(DnaStrandOrSegment):
         """
         Returns the length of the segment.
         """
-        endPoint1, endPoint2 = self.getAxisEndPoints()        
+        endPoint1, endPoint2 = self.getAxisEndPoints()
+        if endPoint1 is None:
+            #bruce 080212 mitigate a bug
+            env.history.orangemsg("Warning: segment length can't be determined")
+            return 10
         segmentLength = vlen(endPoint1 - endPoint2)
         return segmentLength
     
            
-    def getNumberOfAxisAtoms(self):
+    def getNumberOfAxisAtoms(self): # review: post dna data model version?
         """
         Returns the number of axis atoms present within this dna segment 
         Returns None if more than one axis chunks are present 
@@ -189,7 +245,7 @@ class DnaSegment(DnaStrandOrSegment):
             if isinstance(m, Chunk) and m.isAxisChunk():
                 axisChunkList.append(m)
         #@BUG: What if the segment has more than one axis chunks? 
-        #We will only print a message for now in the consol
+        #We will only print a message for now in the console
         if len(axisChunkList) == 1:
             axisChunk = axisChunkList[0]
             

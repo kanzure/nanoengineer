@@ -405,7 +405,34 @@ class DnaChain(object):
             assert atom is None or atom.element.role in ['axis', 'strand']
                 # note: 'unpaired-base' won't appear in any chain
         return # from _f_update_neighbor_baseatoms
-    
+
+    def at_wholechain_end(self): # bruce 080212
+        """
+        Return True if we are located at one or both ends of our wholechain
+        (if it has any ends -- if it's a ring, it has none),
+        based on self.neighbor_baseatoms.
+        """
+        next1, next2 = self.neighbor_baseatoms
+        assert next1 != -1
+        assert next2 != -1
+        return (next1 is None) or (next2 is None)
+
+    def wholechain_end_baseatoms(self): # bruce 080212
+        """
+        Return a list of whichever end baseatoms of our wholechain
+        we have (as end baseatoms of self). (Length will be 0 to 2.)
+        """
+        next1, next2 = self.neighbor_baseatoms
+        assert next1 != -1
+        assert next2 != -1
+        res = []
+        if next1 is None:
+            res.append(self.baseatoms[0])
+        if next2 is None:
+            res.append(self.baseatoms[-1])
+        # note: for a len 1 wholechain, this has two copies of same atom -- good, i think
+        return res
+            
     pass # end of class DnaChain
 
 # ==
