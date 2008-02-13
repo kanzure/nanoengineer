@@ -66,7 +66,14 @@ class DraggableHandle_AlongCircle(DelegatingInstanceOrExpr):
     axis  = Option( Vector, DX, doc = "vector giving direction and scale")
     
     #radius Vector
-    radiusVector = Option( Vector, DX, doc = "vector giving direction and scale")
+    radiusVector = Option( Vector, 
+                           DX, 
+                           doc = "vector giving direction and scale")
+    
+    #angle range for the rotation 
+    range_for_rotation = Option(tuple_Expr, 
+                                None, 
+                                doc = "range limit of angle (tuple)")
     
 
     # == internal instances and formulae (modified from test_statearray_3.py)
@@ -85,12 +92,12 @@ class DraggableHandle_AlongCircle(DelegatingInstanceOrExpr):
         Highlightable(
             Translate(
                 appearance,
-                _drag_handler._translation #k ok?? only if that thing hangs around even in between drags, i guess!
+                _drag_handler._rotation #k ok?? only if that thing hangs around even in between drags, i guess!
                     #e #k not sure if this code-commoning is good, but it's tempting. hmm.
              ),
             highlighted = Translate(
                 appearance_highlighted,
-                _drag_handler._translation
+                _drag_handler._rotation
              ),
             sbar_text = sbar_text,
             behavior = _drag_handler,

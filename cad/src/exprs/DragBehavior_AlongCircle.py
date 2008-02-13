@@ -67,9 +67,10 @@ class DragBehavior_AlongCircle(DragBehavior):
     # specific methods
     def _C__rotation(self):
         """
-        Compute self._rotation from the externally stored height
+        Compute self._rotation from the externally stored rotation paramater
         """
         k = self.rotation_parameter_ref.value
+        ##rotation = k*self.radiusVector
         #REVISE THIS 
         return  None
         
