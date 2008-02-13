@@ -22,7 +22,7 @@ from qt4transition import qt4todo
 
 from utilities.Log import redmsg # Mark 050311
 from geometry.VQT import V
-from widgets import RGBf_to_QColor
+from widgets.widget_helpers import RGBf_to_QColor
 import env
 
 class elementColors(QDialog, Ui_ElementColorsDialog):

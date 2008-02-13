@@ -10,7 +10,7 @@ from PyQt4.Qt import QDialog
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
 from ThermoPropDialog import Ui_ThermoPropDialog
-from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
+from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 
 class ThermoProp(QDialog, Ui_ThermoPropDialog):
     def __init__(self, thermo, glpane):

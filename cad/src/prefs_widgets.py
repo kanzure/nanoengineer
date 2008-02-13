@@ -27,7 +27,7 @@ import env # for env.prefs
 from debug import print_compact_traceback
 
 from changes import Formula
-from widgets import RGBf_to_QColor
+from widgets.widget_helpers import RGBf_to_QColor
 from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QPalette

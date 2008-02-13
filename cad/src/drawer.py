@@ -2600,7 +2600,7 @@ def drawtext(text, color, origin, point_size, glpane):
     from PyQt4.Qt import QFont, QString, QColor
     font = QFont( QString("Helvetica"), point_size)
     #glpane.qglColor(QColor(75, 75, 75))
-    from widgets import RGBf_to_QColor
+    from widgets.widget_helpers import RGBf_to_QColor
     glpane.qglColor(RGBf_to_QColor(color))
     glpane.renderText(origin[0], origin[1], origin[2], QString(text), font)
 

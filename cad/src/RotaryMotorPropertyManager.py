@@ -22,7 +22,7 @@ from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_PushButton    import PM_PushButton
 
-from widgets import RGBf_to_QColor
+from widgets.widget_helpers import RGBf_to_QColor
 from constants import gray
 
 from MotorPropertyManager import MotorPropertyManager

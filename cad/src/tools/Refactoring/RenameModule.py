@@ -461,9 +461,10 @@ if (__name__ == '__main__'):
         print >>sys.stderr, "old module name is missing"
         usage()
     if (oldPackage == ""):
-        if (os.path.isdir(moduleToPath(oldModule))):
-            print >>sys.stderr, "old module name is a package"
-            usage()
+        pass
+        #if (os.path.isdir(moduleToPath(oldModule))):
+            #print >>sys.stderr, "old module name is a package"
+            #usage()
     else:
         if (os.path.isdir(moduleToPath(oldPackage + "." + oldModule))):
             print >>sys.stderr, "old module path is a package"

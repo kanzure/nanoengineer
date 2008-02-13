@@ -25,7 +25,7 @@ from debug import print_compact_traceback
 import env
 from utilities.Log import greenmsg, redmsg, _graymsg
 
-from widgets import PleaseConfirmMsgBox
+from widgets.widget_helpers import PleaseConfirmMsgBox
 
 # ==
 

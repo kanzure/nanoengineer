@@ -974,7 +974,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
          """
          Edit the color of the selected chunks using the Model Tree context menu
          """         
-         from widgets import RGBf_to_QColor
+         from widgets.widget_helpers import RGBf_to_QColor
          
          nodeset = self.modelTreeGui.topmost_selected_nodes()
          chunkList = []

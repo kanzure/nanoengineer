@@ -38,8 +38,8 @@ import preferences
 from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_False
 import env
-from widgets import RGBf_to_QColor, QColor_to_RGBf
-from widgets import double_fixup
+from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
+from widgets.widget_helpers import double_fixup
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 from utilities import debug_flags
 from PlatformDependent import screen_pos_size

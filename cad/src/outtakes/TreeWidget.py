@@ -1813,7 +1813,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             print "reloading",mod
             reload(mod)
         print "now remaking the model tree widget" #e should let subclass give us these details...
-        from modelTree import modelTree
+        from modelTree.ModelTree import modelTree
         # figure out where we are
         splitter = self.parent() # QSplitter
         sizes = splitter.sizes() # e.g. [207, 633]

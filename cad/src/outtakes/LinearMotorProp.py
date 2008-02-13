@@ -11,7 +11,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
 
 from LinearMotorPropDialog import Ui_LinearMotorPropDialog
-from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
+from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 
 class LinearMotorProp(QDialog, Ui_LinearMotorPropDialog):
     def __init__(self, motor, glpane):

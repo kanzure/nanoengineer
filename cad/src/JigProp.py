@@ -17,8 +17,8 @@ from icon_utilities import geticon
 
 from JigPropDialog import Ui_JigPropDialog
 
-from widgets import RGBf_to_QColor, QColor_to_RGBf
-from widgets import get_widget_with_color_palette
+from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
+from widgets.widget_helpers import get_widget_with_color_palette
 
 # This Jig Property dialog and its slot methods can be used for any simple jig
 # that has only a name and a color attribute changable by the user.  

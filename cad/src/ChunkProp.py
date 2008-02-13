@@ -14,7 +14,7 @@ from PyQt4 import QtGui
 from PyQt4.Qt import QDialog, SIGNAL, QColorDialog
 
 from ChunkPropDialog import Ui_ChunkPropDialog
-from widgets import RGBf_to_QColor, QColor_to_RGBf
+from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
 
 class ChunkProp(QDialog, Ui_ChunkPropDialog):
     def __init__(self, chunk):

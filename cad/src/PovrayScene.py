@@ -380,7 +380,7 @@ class PovrayScene(SimpleCopyMixin, Node):
             if 0: # Don't require confirmation for A8. Mark 060701. [but see comment below about why this is a bad bug]
             # if require_confirmation: 
                 msg = "Please confirm that you want to delete " + self.name
-                from widgets import PleaseConfirmMsgBox
+                from widgets.widget_helpers import PleaseConfirmMsgBox
                 confirmed = PleaseConfirmMsgBox( msg)
                 if not confirmed:
                     return

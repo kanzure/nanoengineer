@@ -149,7 +149,7 @@ class displaySlotsMixin:
             # assign initialColor its color.
             _selectedChunkColor = self.assy.selmols[0].color
             if _selectedChunkColor:
-                from widgets import RGBf_to_QColor
+                from widgets.widget_helpers import RGBf_to_QColor
                 initialColor = RGBf_to_QColor(_selectedChunkColor)
 
         elif _numSelectedObjects == 1 and self.assy.getNumberOfSelectedJigs() == 1:
@@ -158,12 +158,12 @@ class displaySlotsMixin:
             _selectedJig = self.assy.getSelectedJigs()
             _selectedJigColor = _selectedJig[0].normcolor
             if _selectedJigColor:
-                from widgets import RGBf_to_QColor
+                from widgets.widget_helpers import RGBf_to_QColor
                 initialColor = RGBf_to_QColor(_selectedJigColor)
 
         _c = QColorDialog.getColor(initialColor, self)
         if _c.isValid():
-            from widgets import QColor_to_RGBf
+            from widgets.widget_helpers import QColor_to_RGBf
             _newColor = QColor_to_RGBf(_c)
             list = []
             for ob in self.assy.selmols:

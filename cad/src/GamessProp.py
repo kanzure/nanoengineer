@@ -24,7 +24,7 @@ from ServerManager import ServerManager
 from utilities.Log import redmsg
 ##from files_gms import insertgms
 from debug import print_compact_traceback
-from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
+from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 from qt4transition import qt4todo
 
 

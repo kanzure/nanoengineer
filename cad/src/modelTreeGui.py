@@ -1772,7 +1772,7 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529-30 rewrite of
         
         # Model Tree background color. Mark 2007-06-04
         from prefs_constants import mtColor_prefs_key # In case we want to make it a user pref.
-        from widgets import RGBf_to_QColor
+        from widgets.widget_helpers import RGBf_to_QColor
         mtColor = RGBf_to_QColor(env.prefs[mtColor_prefs_key]) 
         from PM.PM_Colors  import getPalette
         self.setPalette(getPalette(None, QPalette.Window, mtColor))

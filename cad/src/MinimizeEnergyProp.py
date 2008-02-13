@@ -35,7 +35,7 @@ from debug import print_compact_traceback
 import env
 from utilities import debug_flags
 from UserPrefs import get_pref_or_optval
-from widgets import double_fixup
+from widgets.widget_helpers import double_fixup
 from debug_prefs import debug_pref, Choice_boolean_False
 from prefs_widgets import connect_checkbox_with_boolean_pref
 

@@ -11,7 +11,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
 
 from GridPlanePropDialog import Ui_GridPlanePropDialog
-from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
+from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 
 class GridPlaneProp(QDialog, Ui_GridPlanePropDialog):
     def __init__(self, gridPlane, glpane):

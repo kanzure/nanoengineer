@@ -30,7 +30,7 @@ from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy
 from GLPane import GLPane
 from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from icon_utilities import geticon
-from modelTree import modelTree
+from modelTree.ModelTree import modelTree
 from qt4transition import qt4warnDestruction, qt4todo
 from utilities import debug_flags
 import env

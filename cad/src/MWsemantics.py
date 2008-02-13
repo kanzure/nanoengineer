@@ -59,7 +59,7 @@ from debug_prefs import debug_pref, Choice_boolean_False
 
 from Ui_MainWindow import Ui_MainWindow
 from Ui_PartWindow import Ui_PartWindow
-from modelTree import modelTree
+from modelTree.ModelTree import modelTree
 from GLPane import GLPane 
 
 from utilities.Log import greenmsg, redmsg, orangemsg
@@ -1103,7 +1103,7 @@ class MWsemantics(QMainWindow,
         """
         ginfo = get_gl_info_string( self.glpane) #bruce 070308 added glpane arg
 
-        from widgets import TextMessageBox
+        from widgets.widget_helpers import TextMessageBox
         msgbox = TextMessageBox(self)
         msgbox.setWindowTitle("Graphics Card Info")
         msgbox.setText(ginfo)

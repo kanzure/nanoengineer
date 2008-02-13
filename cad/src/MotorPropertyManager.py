@@ -13,7 +13,7 @@ from PM.PM_GroupBox      import PM_GroupBox
 
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_Constants     import pmPreviewButton, pmRestoreDefaultsButton
-from widgets             import QColor_to_RGBf
+from widgets.widget_helpers import QColor_to_RGBf
 
 from GeneratorBaseClass  import AbstractMethod
 from EditCommand_PM   import EditCommand_PM

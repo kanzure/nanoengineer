@@ -12,7 +12,7 @@ from PyQt4.Qt import QDialog
 
 from ESPImagePropDialog import Ui_ESPImagePropDialog
 
-from widgets import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
+from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 
 class ESPImageProp(QDialog, Ui_ESPImagePropDialog):
     def __init__(self, esp_image, glpane):
