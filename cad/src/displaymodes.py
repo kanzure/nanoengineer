@@ -51,7 +51,7 @@ class DisplayMode:
 
     def __init__(self, ind):
         self.ind = ind
-        self._icon_name = getattr(self, "icon_name", "junk.png")
+        self._icon_name = getattr(self, "icon_name", "modeltree/junk.png")
         self._hide_icon_name = getattr(self, "hide_icon_name", self._icon_name)
 
     def get_icon(self, hidden):

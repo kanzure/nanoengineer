@@ -888,6 +888,16 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     # bruce 041202/050109 revised the icon code; see longer comment about
     # Jig.init_icons for explanation; this might be moved into class Node later
+
+    # Lists of icon basenames (relative to cad/src/ui/modeltree)
+    # in same order as dispNames / dispLabel. Each list has an entry
+    # for each atom display style. One list is for normal use,
+    # one for hidden chunks.
+    #
+    # Note: these lists should *not* include icons for ChunkDisplayModes
+    # such as DnaCylinderChunks. See 'def node_icon' below for the code
+    # that handles those. [bruce comment 080213]
+    
     mticon_names = [
 	"Default.png",
 	"Invisible.png",
@@ -895,6 +905,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 	"Lines.png",
 	"Ball_and_Stick.png",
 	"Tubes.png"]
+    
     hideicon_names = [
         "Default-hide.png",
         "Invisible-hide.png",

@@ -67,8 +67,11 @@ class Jig(Node, Selobj_API):
     """
     
     # Each Jig subclass must define the class variables:
-    # - icon_names -- a list of two icon basenames (one normal and one "hidden") (unless it overrides node_icon)
+    # - icon_names -- a list of two icon basenames (one normal and one "hidden")
+    #   to be passed to imagename_to_pixmap
+    #   (unless that Jig subclass overrides node_icon)
     icon_names = ("missing", "missing-hidden") # will show up as blank icons if not overridden
+        # (see also: "modeltree/junk.png", which exists, but has no hidden form)
     
     #
     # and the class constants:

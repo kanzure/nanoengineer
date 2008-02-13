@@ -260,8 +260,8 @@ class PluginlikeGenerator:
         # not only to this menu item, but to the generated dialog as well. this code to find it will be in setup_from_plugin_dir
         # I think. or maybe (also) called again each time we make the dialog?
         if not os.path.isfile(icon_path):
-            print "didn't find [%s], using junk.png" % icon_path
-            icon_path = "junk.png"
+            print "didn't find [%s], using modeltree/junk.png" % icon_path
+            icon_path = "modeltree/junk.png"
         # icon_path will be found later by imagename_to_pixmap I think; does it work with an abspath too?? #####@@@@@
         return icon_path
     
