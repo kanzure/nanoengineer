@@ -3533,7 +3533,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         """
         return self.__dict__.get('dnaStrandName', "")
         
-    def directional_bond_chain_status(self): # bruce 071016
+    def directional_bond_chain_status(self): # bruce 071016, revised 080212
         """
         Return a tuple (statuscode, bond1, bond2)
         indicating the status of self's bonds with respect to chains
@@ -3550,8 +3550,14 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
           so caller should treat this as not being in a chain
 
         Note that all we consider is whether a bond is directional, not whether
-        a direction is actually set. Similarly, when two bonds have directions
-        set, we don't consider whether their directions are consistent.
+        a direction is actually set (except for atoms with more than one open bond,
+        to disambiguate bare chain ends).
+
+        Similarly, when two bonds have directions set, we don't consider whether
+        their directions are consistent. (One reason is that we need to grow
+        a chain that covers both bonds so the user can set the entire
+        chain's direction. REVIEW: better to stop at such errors, so only
+        a consistent part of the chain would be changed at once??)
 
         But if self is monovalent (e.g. a bondpoint) and its neighbor is not,
         we consider its neighbor's status in determining its own.
@@ -3562,19 +3568,22 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         need their directional_bond_chain_status checked for errors.
         """
         # note: I think this implem is correct with or without open bonds
-        # being directional [bruce 071016]
+        # being directional [bruce 071016] [revised 080212 to make more true]
         if not self.element.bonds_can_be_directional:
             # optimization
             return DIRBOND_NONE, None, None
         if len(self.bonds) == 1:
-            # Special cases, in all but a few situations that I think will never happen.
-            # (But for those, fall thru to general case below.)
+            # Special cases. This then-clause covers all situations for
+            # self being monovalent, except a few that I think never happen.
+            # (But if they do, fall through to general case below.)
             bond = self.bonds[0]
             neighbor = bond.other(self)
             if len(neighbor.bonds) > 1:
-                # monovalents defer to non-monovalent neighbors
+                # Monovalents defer to non-monovalent neighbors
                 # (note: this applies to bondpoints (after mark 071014 changes)
                 #  or to "strand termination atoms".)
+                # Those neighbors may decide bond is not in their chain due
+                # to their other bonds.
                 statuscode, bond1, bond2 = neighbor.directional_bond_chain_status()
                 if statuscode == DIRBOND_NONE or statuscode == DIRBOND_ERROR:
                     return statuscode, None, None
@@ -3586,28 +3595,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                         # we're attached to the chain but not in it.
                         # REVIEW: return DIRBOND_ERROR in some cases??
                         # (For example, when an atom has ._dna_updater__error set on it?)
-# following debug print code superseded by more accurate code in dna updater,
-# so removed from here, two places (it was usually wrong anyway) [bruce 080131]
-##                        if debug_flags.atom_debug: #bruce 080117 only when atom_debug
-##                            msg =  "warning: %r has one directional bond (%r) " \
-##                                "by which it's attached to (but not in) a " \
-##                                "directional bond chain containing %r and %r" % \
-##                                (self, bond, bond1, bond2)
-##                            print msg
+                        # Note that for open bonds on bare strands, this happens routinely.
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 elif statuscode == DIRBOND_CHAIN_END:
-                    # it matters whether the neighbor's chain includes us
-                    # (though I suspect that it always does include us except in errors).
+                    # it matters whether the neighbor's chain includes us.
+                    # (for bare strand ends with two open bonds, this is up
+                    #  to that neighbor even if arbitrary, as of 080212)
                     if bond is bond1:
                         return DIRBOND_CHAIN_END, bond, None
                     else:
-##                        if debug_flags.atom_debug: #bruce 080117 only when atom_debug
-##                            msg = "warning: %r has one directional bond (%r) " \
-##                                "by which it's attached to (but not in) the end of a " \
-##                                "directional bond chain containing %r" % \
-##                                (self, bond, bond1)
-##                            print msg
                         return DIRBOND_NONE, None, None # DIRBOND_ERROR?
                     pass
                 else:
@@ -3633,31 +3630,44 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             return DIRBOND_NONE, None, None
         else:
             # more than 2 -- see if some of them can be ignored
-            # (WARNING: current behavior is not ideal at ends of bare strands) 
+            # [behavior at ends of bare strands was revised 080212]
             real_dirbonds = filter( lambda bond: not bond.is_open_bond(), dirbonds )
             num_real = len(real_dirbonds)
             if num_real == 2:
-                # This works around the near-term situation in which a single strand
+                # This works around the situation in which a single strand (not at the end)
                 # has open bonds where axis atoms ought to be, by ignoring those open bonds.
+                # (Note that they count as directional, even though if they became real
+                #  they would not be directional since one atom would be Ax.)
                 # POSSIBLE BUG: the propogate caller can reach this, if it can start on an
                 # ignored open bond. Maybe we should require that it is not offered in the UI
                 # in this case, by having it check this method before deciding. ### REVIEW
                 return DIRBOND_CHAIN_MIDDLE, real_dirbonds[0], real_dirbonds[1]
             else:
-                # some sort of error, or at least, a situation we can't propogate a chain in.
+                # we need to look at bond directions actually set
+                # (on open bonds anyway), to decide what to do.
+                #
                 # WARNING: this happens routinely at the end of a "bare strand" (no axis atoms),
                 # since it has one real and two open bonds, all directional.
-                # This situation will probably be deprecated but can happen at present.
-                # (REVIEW: in that situation would it be better to return DIRBOND_NONE, None, None?)
+                # 
                 # We might fix this by:
-                # - making that situation never occur
+                # - making that situation never occur [unlikely]
                 # - making bonds know whether they're directional even if they're open (bond subclass)
                 # - atom subclass for bondpoints
-                # - notice whether a direction is set on just one open bond;
-                #   construct open bonds on directional elements so the right number are set
-                #   (or preferably, marked as directional bonds without a direction being set)
+                # - notice whether a direction is set on just one open bond [done below, 080212];
+                # - construct open bonds on directional elements so the right number are set
+                #   [dna updater does that now, but a user bond dir change can make it false before calling us]
+                # - (or preferably, marked as directional bonds without a direction being set)
                 # REVIEW: return an error message string?
-                # [bruce 071112 updated comment]
+                # [bruce 071112, 080212 updated comment]
+                if num_real < 2:
+                    # new code (bugfix), bruce 080212 -- look at bonds with direction set
+                    # (assume dna updater has made the local structure make sense)
+                    # (only works if cmenu won't set dir on open bond to make 3 dirs set ### FIX)
+                    # kluge (bug): assume all real bonds have dir set. Easily fixable in the lambda if necessary.
+                    dirbonds_set = filter( lambda bond: bond._direction, dirbonds ) #k non-private method?
+                    if len(dirbonds_set) == 2:
+                        return DIRBOND_CHAIN_MIDDLE, dirbonds_set[0], dirbonds_set[1]
+                print "DIRBOND_ERROR", self #### bruce 080212
                 return DIRBOND_ERROR, None, None
         pass
     
@@ -3696,17 +3706,20 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     def directional_bonds(self): #bruce 070415
         """
         Return a list of our directional bonds. Its length might be 0, 1, or 2,
-        or in the case of erroneous structures [or possibly some legal ones as of
+        or in the case of erroneous structures [or some legal ones as of
         mark 071014 changes], 3 or more.
         """
         ### REVIEW: should this remain as a separate method, now that its result
         # can't be used naively?
         return filter(lambda bond: bond.is_directional(), self.bonds)
 
-    def bond_directions_are_set_and_consistent(self): #bruce 071204
+    def bond_directions_are_set_and_consistent(self): #bruce 071204 # REVIEW uses - replace with self._dna_updater__error??
         """
         Does self (a strand atom, base or base linker)
         have exactly two bond directions set, not inconsistently?
+
+        @note: still used, but in some ways superceded by dna updater
+               and the error code it can set.
         """
         count_plus, count_minus = 0, 0
         for bond in self.bonds:
