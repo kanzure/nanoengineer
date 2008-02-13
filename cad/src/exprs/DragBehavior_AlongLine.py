@@ -2,7 +2,7 @@
 """
 DragBehavior_AlongLine.py
 
-@author: bruce
+@author: Bruce
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
@@ -12,7 +12,13 @@ the DragBehavior in this file improves on the one in test_statearray_2.py:
 - computes the translation from the height (for internal and external use)
 - has a range limit
 
-But it needs a refactoring; see comments herein about "refactoring".
+TODO:
+
+needs a refactoring; see comments herein about "refactoring"
+
+[following comment came from DragBehavior.py, guessing it was about this class:]
+maybe revise how it works for off-line points -- not closest in space
+but closest within a plane perp to screen and -- what? ###
 """
 from exprs.Highlightable import SavedCoordsys
 from exprs.geometry_exprs import Ray
@@ -23,7 +29,7 @@ from exprs.__Symbols__ import Anything
 from exprs.DragBehavior import DragBehavior
 
 
-class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavior) # TODO: refile this, it's used in real code
+class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavior)
     """
     A drag behavior which moves the original hitpoint along a line,
     storing only its 1d-position-offset along the line's direction
@@ -143,3 +149,5 @@ class DragBehavior_AlongLine(DragBehavior): #070318 (compare to SimpleDragBehavi
     def on_release(self):
         pass
     pass # end of class DragBehavior_AlongLine
+
+# end

@@ -2,8 +2,7 @@
 """
 test_statearray_3.py
 
-
-@author: bruce
+@author: Bruce
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
@@ -11,7 +10,8 @@ test code for one kind of constrained dragging
 
 used in testexpr_35b thru 35d in exprs/test.py
 
-the DragBehavior in this file improves on the one in test_statearray_2.py:
+the DragBehavior in this file [now in its own file, DragBehavior_AlongLine]
+improves on the one in test_statearray_2.py:
 - uses its own coordsys, not the one in the Highlightable
 - computes the translation from the height (for internal and external use)
 - has a range limit
@@ -55,6 +55,7 @@ from exprs.DragBehavior_AlongLine import DragBehavior_AlongLine
 # including using a saved_coordsys as in SimpleDragBehavior. This new example has the same intent
 # as example 2, but cleaner code, and could entirely replace it once it works --
 # but now they both work (except for different lbox effects) so for now I'll keep them both around.
+# [note, that comment is partly about DragBehavior_AlongLine, now in its own file]
 
 class _height_dragger_3(DelegatingInstanceOrExpr):
     # args

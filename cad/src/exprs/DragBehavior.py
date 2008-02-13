@@ -1,10 +1,10 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 DragBehavior.py - the DragBehavior API and some useful specific behaviors
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 A DragBehavior
 
@@ -19,13 +19,6 @@ and that determines how drag events affect a position or position-determining st
 
 which this behavior is used to drag, and which usually (in part)
 determines the drawn position of the drag handle.
-
-TODO:
-
-clean up and move here a drag behavior for a line, from test_statearray_3.py.
-... but maybe revise how it works for off-line points -- not closest in space
-but closest within a plane perp to screen and -- what? ###
-
 """
 
 from exprs.instance_helpers import InstanceOrExpr
@@ -36,7 +29,10 @@ from exprs.Highlightable import SavedCoordsys
 
 
 class DragBehavior(InstanceOrExpr):
-    "abstract class [#doc, maybe more defaults]"
+    """
+    abstract class
+    [#doc, maybe more defaults]
+    """
     # default implems
     def on_press(self):
         pass
@@ -55,7 +51,11 @@ class DragBehavior(InstanceOrExpr):
 # ==
 
 class SimpleDragBehavior(DragBehavior): #works circa 070317; revised 070318
-    "the simplest kind of DragBehavior -- translate the passed state just like the mouse moves (screen-parallel) [#doc]"
+    """
+    the simplest kind of DragBehavior -- translate the passed state
+    just like the mouse moves (screen-parallel)
+    [#doc]
+    """
     ##e rename to indicate what it does -- translate, 3d, screen-parallel
     # (no limits, no grid, no constraint -- could add opts for those #e)
 
@@ -69,8 +69,10 @@ class SimpleDragBehavior(DragBehavior): #works circa 070317; revised 070318
     # and something to ask about the drag event (for now, highlightable, but later, a DragEvent object)
     # (best arg order unclear; it may turn out that the DragEvent to ask is our delegate in the future -- so let it come first)
 
-    highlightable = Arg(Anything) # for current_event_mousepoint (coordsys) -- will this always be needed? at least a DragEvent will be! 
-    translation_ref = Arg(StateRef, doc = "ref to translation state, e.g. call_Expr( LvalueFromObjAndAttr, some_obj, 'translation')")
+    highlightable = Arg(Anything)
+        # for current_event_mousepoint (coordsys) -- will this always be needed? at least a DragEvent will be! 
+    translation_ref = Arg(StateRef,
+                          doc = "ref to translation state, e.g. call_Expr( LvalueFromObjAndAttr, some_obj, 'translation')" )
 
     # state:
     saved_coordsys = Instance( SavedCoordsys() ) # provides transient state for saving a fixed coordsys to use throughout a drag
@@ -102,3 +104,4 @@ class SimpleDragBehavior(DragBehavior): #works circa 070317; revised 070318
     
     pass # end of class SimpleDragBehavior
 
+# end
