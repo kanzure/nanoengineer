@@ -514,6 +514,7 @@ packageMapping_for_files = {
     "RotaryMotor_EditCommand"          : "command|commands/RotaryMotorProperties?", ###?? to fit VerbNoun, and not conflict with model class @@@
     "RotaryMotorPropertyManager"       : "ui/propmgr|commands/RotaryMotorProperties?",
     "RotateMode"                       : "temporary_command",
+    "RotationHandle"                   : "graphics_drawable",#? needs reclassification?
     "runSim"                           : "simulation", # includes perhaps ui, controller, io
     
     "SelectAtoms_Command"              : "command|commands/SelectAtoms", # even though only used as a superclass now
