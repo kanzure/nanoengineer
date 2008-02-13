@@ -247,7 +247,7 @@ def insertpdb(assy, filename):
 #  in just one CONECT record instead of two.]
 
 # PDB exclude flags, used by writepdb() and its callers. 
-# Ask Bruce what "constants" file these should be moved to.
+# Ask Bruce what "constants" file these should be moved to (if any).
 # Mark 2007-06-11
 WRITE_ALL_ATOMS = 0
 EXCLUDE_BONDPOINTS = 1
@@ -279,11 +279,13 @@ def writepdb(part,
         where:
         WRITE_ALL_ATOMS = 0 (even writes hidden and invisble atoms)
         EXCLUDE_BONDPOINTS = 1 (excludes bondpoints)
-        EXCLUDE_HIDDEN_ATOMS = 2 (excludes both hidden and invisible atoms)
+        EXCLUDE_HIDDEN_ATOMS = 2 (excludes invisible atoms)
         EXCLUDE_DNA_ATOMS = 4 (excludes PAM-3 and PAM-5 pseudo atoms)
         EXCLUDE_DNA_AXIS_ATOMS = 8 (excludes PAM-3 axis atoms)
         EXCLUDE_DNA_AXIS_BONDS = 16 (supresses PAM-3 axis bonds)
     @type  excludeFlags: integer
+    
+    @note: Atoms and bonds of hidden chunks are never written.
     
     @see: U{B{PDB File Format}<http://www.wwpdb.org/documentation/format23/v2.3.html>}
     """
@@ -323,7 +325,7 @@ def writepdb(part,
             if atm.element == Singlet: 
                 return True # Exclude
         if excludeFlags & EXCLUDE_HIDDEN_ATOMS:
-            if not atm.visible() or atm.molecule.hidden:
+            if not atm.visible():
                 return True # Exclude
         if excludeFlags & EXCLUDE_DNA_AXIS_ATOMS:
             if atm.element.symbol in ('Ax3', 'Ae3'):
@@ -347,6 +349,9 @@ def writepdb(part,
         writePDB_Header(f)
         
     for mol in part.molecules:
+        if mol.hidden:
+            # Atoms and bonds of hidden chunks are never written.
+            continue
         for a in mol.atoms.itervalues():
             if exclude(a):
                 excluded += 1

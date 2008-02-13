@@ -250,7 +250,8 @@ REMARK   7\n""")
     molNum = 1
     for mol in part.molecules:
         if mol.hidden:
-            # Don't need to write records for hidden chunks. Mark 2008-02-13.
+            # Skip hidden chunks. See docstring in writepdb() for details.
+            # Mark 2008-02-13.
             continue
         f.write("REMARK   7 CHAIN: %s " % (molNum))
         f.write("  DISPLAY_STYLE: %s " % properDisplayNames[mol.display])
