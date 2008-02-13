@@ -30,6 +30,7 @@ class DragBehavior_AlongCircle(DragBehavior):
     
     #translation_parameter_ref = Arg(StateRef, 
                              #doc = "where translation is stored")
+    origin = Arg(StateRef, doc = "handle base point")
     
     center = Arg(StateRef, doc = "center of the circle")
     
@@ -70,9 +71,12 @@ class DragBehavior_AlongCircle(DragBehavior):
         Compute self._rotation from the externally stored rotation paramater
         """
         k = self.rotation_parameter_ref.value
+        
         ##rotation = k*self.radiusVector
+        
         #REVISE THIS 
-        return  None
+        from geometry.VQT import norm
+        return  self.origin#self.radiusVector + k*norm(self.radiusVector)
         
     def on_press(self):
         self.saved_coordsys.copy_from( self.highlightable) 

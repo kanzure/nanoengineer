@@ -45,8 +45,8 @@ class DraggableHandle_AlongCircle(DelegatingInstanceOrExpr):
                        doc = "statusbar text on mouseover")
 
     # state variable controlled by dragging
-    draggedDistanceRef = Option(StateRef, 
-                                doc = "stateref to a dagged disctance variable") 
+    rotationDistanceRef = Option(StateRef, 
+                                doc = "stateref to a dragged disctance variable") 
 
     
     # action options, for Highlightable to do after the ones that come from
@@ -57,6 +57,9 @@ class DraggableHandle_AlongCircle(DelegatingInstanceOrExpr):
     on_release_in = Option(Action, on_release)
     on_release_out = Option(Action, on_release)
     on_doubleclick = Option(Action)
+    
+    #origin of the handle itself
+    origin = Option( Point, ORIGIN)
     
     # Center of the circle whose perimeter serves as a path along which to 
     # drag 
@@ -81,13 +84,16 @@ class DraggableHandle_AlongCircle(DelegatingInstanceOrExpr):
     _drag_handler = Instance( 
         DragBehavior_AlongCircle(
             _self._delegate,
-            draggedDistanceRef,
+            rotationDistanceRef,
+            origin,
             center,
             axis,
             radiusVector,
             range_for_rotation = range_for_rotation))
     
     
+    #QUESTION: Should the 'RotateTranslate' transform from exprs.transforms be 
+    #used here? -- Ninad 2008-02-13
     delegate = \
         Highlightable(
             Translate(

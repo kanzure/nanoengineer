@@ -396,7 +396,16 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
                 for handle in self.command.handles:
                     handle.draw()
         
-        if self.command.grabbedHandle is not None:            
+        handleType = ''
+        if self.command.grabbedHandle is not None:
+            if self.command.grabbedHandle in [self.command.rotationHandle1, 
+                                              self.command.rotationHandle2]:
+                handleType = 'ROTATION_HANDLE'
+            else:
+                handleType = 'RESIZE_HANDLE'
+        
+        
+        if handleType and handleType == 'RESIZE_HANDLE':            
             # We have no easy way to get the original "bases per turn" value
             # that was used to create this segment, so we will use
             # the current "bases per turn" user pref value. This is really 

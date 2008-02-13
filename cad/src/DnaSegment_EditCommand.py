@@ -44,6 +44,7 @@ from Dna_Constants import getDuplexRise, getNumberOfBasePairsFromDuplexLength
 from utilities.Log  import redmsg
 
 from geometry.VQT import V, Veq, vlen
+from geometry.VQT import cross, norm
 
 from DnaDuplex      import B_Dna_PAM3
 from DnaDuplex      import B_Dna_PAM5
@@ -67,7 +68,9 @@ from prefs_widgets import ObjAttr_StateRef
 from exprs.ExprsConstants import Width, Point
 
 
+
 from DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
+from RotationHandle          import RotationHandle
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 
@@ -107,10 +110,15 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     handlePoint1 = State( Point)
     handlePoint2 = State( Point)
+    rotationHandleBasePoint1 = State( Point)
+    rotationHandleBasePoint2 = State( Point)
     
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
-  
+    #@TODO: modify the 'State params for rotation_distance 
+    rotation_distance1 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
+    rotation_distance2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
+    
     duplexRise =  getDuplexRise('B-DNA')
     
     leftHandle = Instance(         
@@ -130,6 +138,28 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             fixedEndOfStructure = handlePoint1,
             direction = norm_Expr(handlePoint2 - handlePoint1)
         ))
+    
+    rotationHandle1 = Instance(         
+        RotationHandle(    
+            command = _self,
+            rotationDistanceRef = call_Expr( ObjAttr_StateRef, _self, 'rotation_distance1'),
+            center = handlePoint1,
+            axis = norm_Expr(handlePoint1 - handlePoint2),
+            origin = rotationHandleBasePoint1,
+            radiusVector = norm_Expr(rotationHandleBasePoint1 - handlePoint1)
+            
+            ))
+    
+    rotationHandle2 = Instance(         
+        RotationHandle(    
+            command = _self,
+            rotationDistanceRef = call_Expr( ObjAttr_StateRef, _self, 'rotation_distance2'),
+            center = handlePoint2,
+            axis = norm_Expr(handlePoint2 - handlePoint1),
+            origin = rotationHandleBasePoint2,
+            radiusVector = norm_Expr(rotationHandleBasePoint2 - handlePoint2)
+            
+            ))
     
    
 
@@ -202,6 +232,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.handles = [] # guess, but seems like a good idea [bruce 080128]
         self.handles.append(self.leftHandle)
         self.handles.append(self.rightHandle)
+        self.handles.append(self.rotationHandle1)
+        self.handles.append(self.rotationHandle2)
         
     def updateHandlePositions(self):
         """
@@ -209,8 +241,19 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
+        self.rotation_distance1 = CYLINDER_WIDTH_DEFAULT_VALUE
+        self.rotation_distance2 = CYLINDER_WIDTH_DEFAULT_VALUE
         self.handlePoint1, self.handlePoint2 = self.struct.getAxisEndPoints()
         
+        #Following computes the base points for rotation handles. 
+        #to be revised -- Niand 2008-02-13
+        
+        unitVectorAlongAxis = norm(self.handlePoint1 - self.handlePoint2)
+        
+        v  = cross(self.glpane.lineOfSight, unitVectorAlongAxis)
+        
+        self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v)*4.0  
+        self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v)*4.0 
 
     def _createPropMgrObject(self):
         """
