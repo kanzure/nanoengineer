@@ -28,11 +28,16 @@ class DragBehavior_AlongCircle(DragBehavior):
     rotation_parameter_ref = Arg(StateRef, 
                              doc = "where anything proportional to angle is stored")
     
-    translation_parameter_ref = Arg(StateRef, 
-                             doc = "where translation is stored")
-           
-    constrain_to_circle = Arg(Ray, 
-                            doc = "the line/ray on which the height is interpreted as a position")
+    #translation_parameter_ref = Arg(StateRef, 
+                             #doc = "where translation is stored")
+    
+    center = Arg(StateRef, doc = "center of the circle")
+    
+    axis = Arg(StateRef, doc = "circle axis")
+    
+    radiusVector = Arg(StateRef, 
+                       doc = "radius of circle")
+    
     
     locked_parameter = Option(tuple_Expr, 
                                  None, 
@@ -65,19 +70,20 @@ class DragBehavior_AlongCircle(DragBehavior):
         Compute self._rotation from the externally stored height
         """
         k = self.rotation_parameter_ref.value
-        return self.constrain_to_circle.posn_from_params(k) 
+        #REVISE THIS 
+        return  None
         
     def on_press(self):
         self.saved_coordsys.copy_from( self.highlightable) 
         self.startpoint = self.current_event_mousepoint() 
         #Formula needs to be revised. 
-        self.offset = self.startpoint - (ORIGIN + self._rotation) 
-        self.circularPath = self.constrain_to_circle + self.offset 
+        ##self.offset = self.startpoint - (ORIGIN + self._rotation) 
+        ##self.circularPath = self.constrain_to_circle + self.offset 
         
     def on_drag(self):
         mouseray = self.current_event_mouseray()
-        k = self.circularPath.closest_pt_params_to_ray(mouseray)
-            
+        ##k = self.circularPath.closest_pt_params_to_ray(mouseray)
+        k = None    
         if k is not None:
             # store k, after range-limiting            
                        
