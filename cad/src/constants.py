@@ -161,9 +161,10 @@ def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from sel
 
 # ==
 
-# display modes:
-## These are arranged in order of increasing thickness of the bond representation. They are indices of dispNames and dispLabel.
-## Josh 11/2
+# Display modes:
+# These are arranged in order of increasing thickness of the bond representation.
+# They are indices of dispNames and dispLabel.
+# Josh 11/2
 diDEFAULT = 0 # the fact that diDEFAULT == 0 is public. [bruce 080206]
 diINVISIBLE = 1
 diTrueCPK = 2 # CPK [renamed from old name diVDW, bruce 060607; corresponding UI change was by mark 060307]
@@ -177,8 +178,8 @@ diTUBES = 5
 # dispLabel (defined below) are extended by side effects of imports of
 # corresponding display styles in startup_misc.py. (Needs cleanup.)
 # [bruce 080212 comment; related code has comments with same signature]
-diCYLINDER = 6
-diDNACYLINDER = 7
+diDNACYLINDER = 6
+diCYLINDER = 7
 diSURFACE = 8
 
 
@@ -186,8 +187,10 @@ diSURFACE = 8
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
     # these dispNames can't be easily revised, since they are used in mmp files; cpk and vdw are misleading as of 060307.
 
-# Mark 2007-06-25
-properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub"]
+# <properDisplayNames> used by write_qutemol_pdb_file() in qutemol.py only.
+# Set qxDNACYLINDER to "def" until "dnacylinder" is supported in QuteMolX.
+qxDNACYLINDER = "def" 
+properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub", qxDNACYLINDER]
 
 #dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
 dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
@@ -198,7 +201,7 @@ default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [M
 
 TubeRadius = 0.3 # (i.e. "TubesSigmaBondRadius")
 diBALL_SigmaBondRadius = 0.1
-diDNACYLINDER_SigmaBondRadius = 1.0
+diDNACYLINDER_SigmaBondRadius = 1.3
 
 # ==
 

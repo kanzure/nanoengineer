@@ -48,9 +48,11 @@ from constants import diLINES
 from constants import diBALL
 from constants import diTUBES
 from constants import diTrueCPK
+from constants import diDNACYLINDER
 
 from constants import TubeRadius
 from constants import diBALL_SigmaBondRadius
+from constants import diDNACYLINDER_SigmaBondRadius
 
 from constants import ave_colors
 from constants import green
@@ -71,6 +73,7 @@ from bond_constants import V_CARBOMERIC
 
 from prefs_constants import _default_toolong_hicolor ## not yet in prefs db?
 from prefs_constants import diBALL_BondCylinderRadius_prefs_key
+from prefs_constants import diDNACYLINDER_BondCylinderRadius_prefs_key
 from prefs_constants import pibondLetters_prefs_key
 from prefs_constants import pibondStyle_prefs_key
 from prefs_constants import arrowsOnFivePrimeEnds_prefs_key
@@ -193,20 +196,20 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullB
     if disp == diDEFAULT:
         disp = dispdef
 
-    if disp == diTrueCPK:
+    if disp in (diTrueCPK, diDNACYLINDER):
         # new feature (previously we never drew these bonds):
         # only draw the bond if it's sufficiently long to be visible
         # and not a "dna rung bond".
         # warning: this code is duplicated in two places in this file.
         # [bruce 080212, after discussion]
         if bond_draw_in_CPK(self):
-            disp = diTUBES # determines bond thickness and style; might be revised
+            disp = diDNACYLINDER # determines bond thickness and style; might be revised
         else:
             return
     
-    if disp not in (diLINES, diBALL, diTUBES):
+    if disp not in (diLINES, diBALL, diTUBES, diDNACYLINDER):
         return
-
+        
     # set proper glname, for highlighting (must be done whether or not highlighted is true)
     if atom1.element is Singlet:
         #bruce 050708 new feature -- borrow name from our singlet
@@ -260,6 +263,11 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
             # mark 051003 added " * env.prefs[diBALL_BondCylinderRadius_prefs_key]"
     elif disp == diTUBES:
         sigmabond_cyl_radius = TubeRadius
+    elif disp == diDNACYLINDER:
+        # diDNACYLINDER_BondCylinderRadius_prefs_key is not yet settable by 
+        # user. It's value is 1.0. Mark 2008-02-13.
+        sigmabond_cyl_radius = diDNACYLINDER_SigmaBondRadius \
+                             * env.prefs[diDNACYLINDER_BondCylinderRadius_prefs_key]
     else:
         return # bonds need not be drawn at all in the other display modes. (note: some callers already checked this.)
 
@@ -670,6 +678,11 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         drawcylinder(bondcolor, a1pos, a2pos, sigmabond_cyl_radius)
         if banding:
             drawcylinder(band_color, bandpos1, bandpos2, sigmabond_cyl_radius * 1.2)
+    elif disp == diDNACYLINDER:
+        if bondcolor is None:
+            # OK to use diBALL_bondcolor_prefs_key for now. Mark 2008-02-13.
+            bondcolor = env.prefs.get( diBALL_bondcolor_prefs_key) 
+        drawcylinder(bondcolor, a1pos, a2pos, sigmabond_cyl_radius)
     elif disp == diTUBES:
         if shorten_tubes:
             rad = TubeRadius * 1.1 * 0.9 # see Atom.howdraw for tubes; the constant (0.9) might need adjusting
@@ -807,15 +820,15 @@ def writepov_bond(self, file, dispdef, col):
         disp = dispdef
     if disp < 0:
         disp = dispdef
-    if disp == diTrueCPK:
+    if disp in (diTrueCPK, diDNACYLINDER):
         # new feature, described in the other instance of this code.
         # warning: this code is duplicated in two places in this file.
         # [bruce 080212]
         if bond_draw_in_CPK(self):
-            disp = diTUBES
+            disp = diDNACYLINDER
         else:
             return
-    if disp in (diLINES, diBALL, diTUBES):
+    if disp in (diLINES, diBALL, diTUBES, diDNACYLINDER):
         # (note: self is a bond.)
         povfile = writepov_to_file(file, col)
         level = 2 #k value probably has no effect

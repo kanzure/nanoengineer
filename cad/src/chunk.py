@@ -117,6 +117,7 @@ from constants import diBALL
 from constants import diLINES
 from constants import diTUBES
 from constants import diTrueCPK
+from constants import diDNACYLINDER
 
 from elements import PeriodicTable
 from ChunkProp import ChunkProp
@@ -893,18 +894,15 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 	"CPK.png",
 	"Lines.png",
 	"Ball_and_Stick.png",
-	"Tubes.png",
-        "Cylinder.png",
-        "DnaCylinder.png"]
+	"Tubes.png"]
     hideicon_names = [
         "Default-hide.png",
         "Invisible-hide.png",
         "CPK-hide.png",
         "Lines-hide.png",
         "Ball_and_Stick-hide.png",
-        "Tubes-hide.png",
-        "Cylinder-hide.png",
-        "DnaCylinder-hide.png" ]
+        "Tubes-hide.png"]
+
     mticon = []
     hideicon = []
     def init_icons(self):
@@ -1829,7 +1827,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 #bruce 080212: this optim got a lot less effective since a few CPK bonds
                 # are now also drawn (though most are not).
                 
-                if atomdisp in (diBALL, diLINES, diTUBES, diTrueCPK):
+                if atomdisp in (diBALL, diLINES, diTUBES, diTrueCPK, diDNACYLINDER):
                     # todo: move this tuple into bonds module or Bond class
                     for bon in atm.bonds:
                         if bon.key not in drawn:

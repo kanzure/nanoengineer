@@ -142,18 +142,13 @@ def _initialize_custom_display_modes(win):
     # They must match the order of related display style list-index definitions
     # in constants.py.
     # [bruce 080212 comment; related code has comments with same signature]
-    import CylinderChunks #bruce 060609
-    import DnaCylinderChunks #mark 2008-02-11
-    import SurfaceChunks #mark 060610
-    from debug_prefs import debug_pref, Choice_boolean_False
-    enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?",
-                                      Choice_boolean_False, 
-                                      non_debug = True, 
-                                      prefs_key = True)
-    win.dispSurfaceAction.setText("Surface (experimental, may be slow)")
-    win.dispSurfaceAction.setEnabled(enable_SurfaceChunks)
-    win.dispSurfaceAction.setVisible(enable_SurfaceChunks)
     
+    # diDNACYLINDER
+    import DnaCylinderChunks #mark 2008-02-11
+    
+    # diCYLINDER
+    import CylinderChunks #bruce 060609
+    from debug_prefs import debug_pref, Choice_boolean_False
     enable_CylinderChunks = debug_pref("enable CylinderChunks next session?",
                                       Choice_boolean_False, 
                                       non_debug = True, 
@@ -161,6 +156,16 @@ def _initialize_custom_display_modes(win):
     win.dispCylinderAction.setText("Cylinder (experimental)")
     win.dispCylinderAction.setEnabled(enable_CylinderChunks)
     win.dispCylinderAction.setVisible(enable_CylinderChunks)
+    
+    # diSURFACE
+    import SurfaceChunks #mark 060610
+    enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?",
+                                      Choice_boolean_False, 
+                                      non_debug = True, 
+                                      prefs_key = True)
+    win.dispSurfaceAction.setText("Surface (experimental, may be slow)")
+    win.dispSurfaceAction.setEnabled(enable_SurfaceChunks)
+    win.dispSurfaceAction.setVisible(enable_SurfaceChunks)
     
     return
 

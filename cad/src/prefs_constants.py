@@ -174,6 +174,7 @@ linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 #CPK cylinder radius (percentage), mark 051003
 diBALL_BondCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage' # about diBALL, called Ball and Stick as of 060307
     #bruce 060607 renamed cpkCylinderRadius_prefs_key -> diBALL_BondCylinderRadius_prefs_key ###DOIT
+diDNACYLINDER_BondCylinderRadius_prefs_key = 'A10/DNA Cylinder Bond Radius Percentage' 
 
 # DNA prefs
 adnaBasesPerTurn_prefs_key = 'A10/A-DNA bases per turn' # Twist computed from this.
@@ -460,6 +461,7 @@ prefs_table = (
     ('show_valence_errors', 'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
     ('', 'int', linesDisplayModeThickness_prefs_key, 1),
     ('', 'float', diBALL_BondCylinderRadius_prefs_key, 1.0),
+    ('', 'float', diDNACYLINDER_BondCylinderRadius_prefs_key, 1.0),
     
     # DNA preferences
     # All DNA default values need to be confirmed by Eric D and Paul R.
