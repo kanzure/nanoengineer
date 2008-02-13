@@ -218,17 +218,6 @@ class EditCommand_PM(PM_Dialog):
         """
         pass 
 
-    def updateMessage(self, message = ''):
-        """
-        Updates the message box with an informative message
-        @param message: Message to be displayed in the Message groupbox of 
-                        the property manager
-        @type  message: string
-        """
-        msg = message
-        self.MessageGroupBox.insertHtmlMessage(msg, 
-                                               setAsDefault = False,
-                                               minLines     = 5)  
 
     def _createFlyoutActions(self):
         self.exitEditCommandAction = QWidgetAction(self.win)
