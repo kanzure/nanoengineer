@@ -165,6 +165,7 @@ from prefs_constants import UPPER_LEFT
 from prefs_constants import LOWER_LEFT
 from prefs_constants import displayCompassLabels_prefs_key
 from prefs_constants import displayRulers_prefs_key
+from prefs_constants import showRulersInPerspectiveView_prefs_key
 
 from constants import diDEFAULT
 from constants import dispLabel
@@ -3158,8 +3159,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, G
         self.drawing_phase = 'overlay'
         
         # Draw ruler(s) if "View > Rulers" is checked.
-        if self.ortho and env.prefs[displayRulers_prefs_key]:
-            drawRulers.drawRulers(self)
+        if env.prefs[displayRulers_prefs_key]:
+            if (self.ortho or env.prefs[showRulersInPerspectiveView_prefs_key]):
+                drawRulers.drawRulers(self)
         
         # draw the confirmation corner
         try:

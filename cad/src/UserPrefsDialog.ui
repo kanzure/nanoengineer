@@ -22,7 +22,7 @@
    <item row="0" column="0" >
     <widget class="QTabWidget" name="prefs_tab" >
      <property name="currentIndex" >
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
@@ -619,25 +619,15 @@
                <number>6</number>
               </property>
               <item row="1" column="1" >
-               <widget class="QDoubleSpinBox" name="rulerOpacityDoubleSpinBox" >
-                <property name="maximum" >
-                 <double>1.000000000000000</double>
+               <widget class="QSpinBox" name="rulerOpacitySpinBox" >
+                <property name="suffix" >
+                 <string>%</string>
                 </property>
-                <property name="singleStep" >
-                 <double>0.100000000000000</double>
+                <property name="maximum" >
+                 <number>100</number>
                 </property>
                 <property name="value" >
-                 <double>0.700000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0" >
-               <widget class="QLabel" name="label_5" >
-                <property name="text" >
-                 <string>Ruler opacity:</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                 <number>70</number>
                 </property>
                </widget>
               </item>
@@ -687,6 +677,23 @@
                 </item>
                </layout>
               </item>
+              <item row="2" column="0" colspan="2" >
+               <widget class="QCheckBox" name="showRulersInPerspectiveViewCheckBox" >
+                <property name="text" >
+                 <string>Show rulers in Perspective view</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="label_5" >
+                <property name="text" >
+                 <string>Ruler opacity:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -704,6 +711,193 @@
             </spacer>
            </item>
           </layout>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="0" column="0" >
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox7_2" >
+           <property name="title" >
+            <string>Axes</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="display_pov_axis_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Point of View Axis</string>
+              </property>
+              <property name="text" >
+               <string>Display Point of View Axis</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="display_origin_axis_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Origin Axis</string>
+              </property>
+              <property name="text" >
+               <string>Display Origin Axis</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox17_2" >
+           <property name="title" >
+            <string>Compass</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="2" column="0" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="textLabel1_4" >
+                <property name="text" >
+                 <string>Location :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="compass_position_combox" >
+                <item>
+                 <property name="text" >
+                  <string>Upper Right</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Upper Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Lower Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Lower Right</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="display_compass_labels_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Display Compass</string>
+              </property>
+              <property name="text" >
+               <string>Display Compass Labels</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="display_compass_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Display Compass</string>
+              </property>
+              <property name="text" >
+               <string>Display Compass</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="default_projection_grpBox" >
+           <property name="toolTip" >
+            <string/>
+           </property>
+           <property name="title" >
+            <string>Default Projection</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="0" column="0" >
+             <widget class="QRadioButton" name="perspective_radioButton" >
+              <property name="text" >
+               <string>Perspective</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QRadioButton" name="orthographic_radioButton" >
+              <property name="text" >
+               <string>Orthographic</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </item>
          <item>
           <spacer>
@@ -1103,193 +1297,6 @@
               </property>
               <property name="text" >
                <string>Animate between views</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <spacer>
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" >
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="0" >
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
-         </property>
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <item>
-          <widget class="QGroupBox" name="groupBox7_2" >
-           <property name="title" >
-            <string>Axes</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="display_pov_axis_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Point of View Axis</string>
-              </property>
-              <property name="text" >
-               <string>Display Point of View Axis</string>
-              </property>
-              <property name="checked" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QCheckBox" name="display_origin_axis_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Origin Axis</string>
-              </property>
-              <property name="text" >
-               <string>Display Origin Axis</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox17_2" >
-           <property name="title" >
-            <string>Compass</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="2" column="0" >
-             <layout class="QHBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="textLabel1_4" >
-                <property name="text" >
-                 <string>Location :</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="compass_position_combox" >
-                <item>
-                 <property name="text" >
-                  <string>Upper Right</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Upper Left</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Lower Left</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Lower Right</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="display_compass_labels_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Display Compass</string>
-              </property>
-              <property name="text" >
-               <string>Display Compass Labels</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QCheckBox" name="display_compass_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Display Compass</string>
-              </property>
-              <property name="text" >
-               <string>Display Compass</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="default_projection_grpBox" >
-           <property name="toolTip" >
-            <string/>
-           </property>
-           <property name="title" >
-            <string>Default Projection</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="0" column="0" >
-             <widget class="QRadioButton" name="perspective_radioButton" >
-              <property name="text" >
-               <string>Perspective</string>
-              </property>
-              <property name="checked" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QRadioButton" name="orthographic_radioButton" >
-              <property name="text" >
-               <string>Orthographic</string>
               </property>
               <property name="checked" >
                <bool>true</bool>

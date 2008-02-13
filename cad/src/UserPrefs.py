@@ -53,6 +53,7 @@ from prefs_constants import displayPOVAxis_prefs_key
 from prefs_constants import animateStandardViews_prefs_key
 from prefs_constants import rulerColor_prefs_key
 from prefs_constants import rulerOpacity_prefs_key
+from prefs_constants import showRulersInPerspectiveView_prefs_key
 from prefs_constants import Adjust_watchRealtimeMinimization_prefs_key
 from prefs_constants import Adjust_minimizationEngine_prefs_key
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key
@@ -510,7 +511,7 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
         self.connect(self.ruler_color_btn,SIGNAL("clicked()"),self.change_ruler_color)
-        self.connect(self.rulerOpacityDoubleSpinBox,SIGNAL("valueChanged(double)"),self.change_ruler_opacity)
+        self.connect(self.rulerOpacitySpinBox,SIGNAL("valueChanged(int)"),self.change_ruler_opacity)
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
         self.connect(self.ballstick_bondcolor_btn,SIGNAL("clicked()"),self.change_ballstick_bondcolor)
         self.connect(self.bond_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_hilite_color)
@@ -1014,7 +1015,8 @@ restored when the user undoes a structural change.</p>
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
         
         connect_colorpref_to_colorframe( rulerColor_prefs_key, self.ruler_color_frame)
-        self.rulerOpacityDoubleSpinBox.setValue(env.prefs[rulerOpacity_prefs_key])
+        self.rulerOpacitySpinBox.setValue(int(env.prefs[rulerOpacity_prefs_key] * 100))
+        connect_checkbox_with_boolean_pref( self.showRulersInPerspectiveViewCheckBox, showRulersInPerspectiveView_prefs_key )
 
         if env.prefs[defaultProjection_prefs_key] == 0:
             self.perspective_radioButton.setChecked(True)
@@ -1840,7 +1842,7 @@ restored when the user undoes a structural change.</p>
         """
         Change the ruler opacity.
         """
-        env.prefs[rulerOpacity_prefs_key] = opacity
+        env.prefs[rulerOpacity_prefs_key] = opacity * 0.01
 
     def changeZoomBehaviorPreference(self):
         """

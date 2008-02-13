@@ -101,6 +101,7 @@ zoomAboutScreenCenter_prefs_key = 'A9/Zoom To Screen Center' #Ninad 060926
 displayRulers_prefs_key = 'A10/Display rulers'
 rulerColor_prefs_key = 'A10/Ruler Color'
 rulerOpacity_prefs_key = 'A10/Ruler Opacity'
+showRulersInPerspectiveView_prefs_key = 'A10/Show Rulers In Perspective View'
 
 #ToolTip Prefs
 dynamicToolTipWakeUpDelay_prefs_key = 'A9/DynamicToolTip Wake Up Delay'
@@ -388,6 +389,7 @@ prefs_table = (
     ('', 'boolean', displayRulers_prefs_key, True),
     ('', 'color', rulerColor_prefs_key, mustard),
     ('', 'float', rulerOpacity_prefs_key, 0.7),
+    ('', 'boolean', showRulersInPerspectiveView_prefs_key, False),
     
     #Ninad 20070509 Adjust,Minimize and Simulation(Dynamics)preferences for DNA 
     #reduced model(enable or disable elecrostatics)
