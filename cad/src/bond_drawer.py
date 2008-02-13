@@ -125,7 +125,9 @@ class writepov_to_file:
                    "," + Vector3ToString(col) + ")\n")
     def tube3(self, a1pos, a2pos, col, rad = None):
         self.writeradmacro(rad, "tube3r", "tube3")
-        self.file.write( povpoint(a1pos) + ", " + povpoint(a2pos) + ", " + Vector3ToString(col) + ")\n")
+        self.file.write( povpoint(a1pos) +
+                   ", " + povpoint(a2pos) +
+                   ", " + Vector3ToString(col) + ")\n")
     def tube2(self, a1pos, color1, center, a2pos, color2, rad = None):
         if 1:
             #e Possible optim: if color1 == color2, this could reduce to tube3.
@@ -495,7 +497,9 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None,
                     scale = 0.333 # I don't like this being so small, but it's in the spec
                     offset = 0.333 * 2
                 else:
-                    assert 0
+                    # pure guesses; used for diTrueCPK and diDNACYLINDER [bruce 080213]
+                    scale = 0.333
+                    offset = 0.333 * 2
                 # now modify geom for these other cyls
                 a1pos, c1, center, c2, a2pos, toolong = selfgeom
                 del c1, center, c2, toolong
@@ -602,12 +606,13 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
     # standard radius for both diBALL and diTUBES display styles. 
     # This is multiplied by the "DNA Strut Scale Factor" user preference to
     # compute the final radius. Mark 2008-01-31.
+    ### REVIEW: is this correct for diTrueCPK and/or diDNACYLINDER? [bruce comment 080213]
     if (atom1.element.pam or atom2.element.pam):
         if disp == diBALL or disp == diTUBES:
             sigmabond_cyl_radius = \
                 TubeRadius * env.prefs[dnaStrutScaleFactor_prefs_key]
         
-    # Figure out banding (only in CPK or Tubes display modes).
+    # Figure out banding (only in CPK [review -- old or true cpk?] or Tubes display modes).
     # This is only done in multicyl mode, because caller makes our v6 equal V_SINGLE otherwise.
     # If new color args are needed, they should be figured out here (perhaps by env.prefs lookup).
     # This code ought to be good enough for A6, but if Mark wants to, he and Huaicai can modify it in this file.
@@ -623,7 +628,9 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         band_color = ave_colors(0.7, red, white)
     else:
         banding = None # no banding needed on this cylinder
-    if banding and disp not in [diBALL, diTUBES]:
+    if banding and disp not in (diBALL, diTUBES):
+        # review: do we want banding in diTrueCPK as well?
+        # todo: if this ever happens, could optimize above instead
         banding = None
     if banding:
         band_order = float(banding - V_SINGLE)/V_SINGLE # 0.33, 0.5, or for carbomeric, in principle 1.5 but in practice 0.5
@@ -679,6 +686,11 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         if banding:
             drawcylinder(band_color, bandpos1, bandpos2, sigmabond_cyl_radius * 1.2)
     elif disp == diDNACYLINDER:
+        # note: this case is also used for diTrueCPK as of Mark 080212,
+        # since disp is reset from diTrueCPK to diDNACYLINDER by caller
+        # [bruce comment 080213]
+        # [note: there is a similar case in draw_bond_cyl and old_writepov_bondcyl
+        #  as of bruce 080213 povray bugfix]
         if bondcolor is None:
             # OK to use diBALL_bondcolor_prefs_key for now. Mark 2008-02-13.
             bondcolor = env.prefs.get( diBALL_bondcolor_prefs_key) 
@@ -737,6 +749,7 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         pass
 
     # maybe draw arrowhead showing bond direction [bruce 070415]
+    # review: do we want this in diTrueCPK and/or diDNACYLINDER? [bruce comment 080213]
     direction, is_directional = dir_info
     if (direction or is_directional) and (disp in (diBALL, diTUBES)):        
         # If the bond has a direction, draw an arrowhead in the middle of the bond-cylinder to show it.
@@ -853,6 +866,18 @@ def old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos, toolo
         if not bondColor:
             bondColor = color1
         povfile.bond(a1pos, a2pos, bondColor, rad)
+    elif disp == diDNACYLINDER:
+        # note: this case is also used for diTrueCPK as of Mark 080212,
+        # since disp is reset from diTrueCPK to diDNACYLINDER by caller
+        # [bruce comment 080213]
+        # [note: there is a similar case in draw_bond_cyl and old_writepov_bondcyl
+        #  as of bruce 080213 povray bugfix]
+        if 1:
+            # bruce 080213 pure guesses about how best to do this in povray;
+            # ideally we'd just clean up all this code to use the same drawcylinder
+            # calling API in both povray and non-povray.
+            bondcolor = env.prefs.get( diBALL_bondcolor_prefs_key) 
+            povfile.bond(a1pos, a2pos, bondcolor, rad) # .tube3 or .bond??
     if disp == diTUBES:
         #Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
         # cylinder written to a pov file    
