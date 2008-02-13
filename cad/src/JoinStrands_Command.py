@@ -8,10 +8,12 @@
 TODOs: 
 Many changes planned in JoinStrands_GraphicsMode . 
 """
-
+import changes
 
 from BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from BuildAtoms_Command    import BuildAtoms_Command
+from JoinStrands_PropertyManager import JoinStrands_PropertyManager
+
 # == GraphicsMode part
 
 _superclass_for_GM = BuildAtoms_GraphicsMode
@@ -44,7 +46,7 @@ class JoinStrands_Command(BuildAtoms_Command):
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
-    command_has_its_own_gui = False
+    command_has_its_own_gui = True
     
     flyoutToolbar = None
 
@@ -59,15 +61,22 @@ class JoinStrands_Command(BuildAtoms_Command):
                 self.flyoutToolbar = previousCommand.flyoutToolbar
             except AttributeError:
                 self.flyoutToolbar = None
+        if self.propMgr is None:
+            self.propMgr = JoinStrands_PropertyManager(self)
+            #@bug BUG: following is a workaround for bug 2494.
+            #This bug is mitigated as propMgr object no longer gets recreated
+            #for modes -- niand 2007-08-29
+            changes.keep_forever(self.propMgr)  
             
-        pass 
+        self.propMgr.show()    
+       
         
     def restore_gui(self):
         """
         Restore the GUI 
         """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.dnaDuplexAction.setChecked(False)
-        pass
+                    
+        if self.propMgr is not None:
+            self.propMgr.close()
     
    

@@ -107,7 +107,10 @@ class BuildDna_EditCommand(EditCommand):
         #This method is called during operation #2 and any changes to flyout 
         #toolbar are reset during #3  --- Ninad 2008-01-14
         if self.propMgr:
-            self.propMgr.updateListWidgets()
+            self.propMgr.updateListWidgets()        
+            
+        if self.flyoutToolbar:
+            self.flyoutToolbar.resetStateOfActions()
         
 
     def restore_gui(self):

@@ -8,22 +8,27 @@
 TODOs: [ as of 2008-01-04]
 - To be revised heavily . Still a stub, needs documentation.
 - bondLeftup deletes any bonds -- it should only break strands. 
-
+- Move BreakStrands_GraphicsMode into its own module when need arises. 
 """
 
-
+import changes
 from BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from BuildAtoms_Command    import BuildAtoms_Command
+from constants             import yellow
+##from constants             import darkred
+from BreakStrands_PropertyManager import BreakStrands_PropertyManager
+
+
 # == GraphicsMode part
 
 _superclass_for_GM = BuildAtoms_GraphicsMode
 
 class BreakStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
     """
-    
+    Graphics mode for Break Strands command. 
     """    
-    def bondLeftUp(self, b, event): 
-       
+    
+    def bondLeftUp(self, b, event):        
         """
         Delete the bond upon left up.
         """
@@ -36,9 +41,23 @@ class BreakStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
         Update the cursor for this mode.
         """               
         self.glpane.setCursor(self.win.DeleteCursor)
+        
+    def _getBondHighlightColor(self, selobj):
+        """
+	Return the Bond highlight color . Since its a BreakStrands graphics
+        mode, the color should really be 'darkred' by default. But since 
+        one of the strands of the duplex is rendered in darkred (by default)
+        the 'darkred' color for bond doesn't provide contrast. Therefore using 
+        yellow
+	@return: Highlight color of the object (Bond)
+	
+	""" 
+        return yellow
+        ##return darkred
     
   
 # == Command part
+
 
 class BreakStrands_Command(BuildAtoms_Command): 
     """
@@ -56,7 +75,7 @@ class BreakStrands_Command(BuildAtoms_Command):
     
     command_can_be_suspended = False
     command_should_resume_prevMode = True 
-    command_has_its_own_gui = False
+    command_has_its_own_gui = True
     
     flyoutToolbar = None
 
@@ -71,15 +90,23 @@ class BreakStrands_Command(BuildAtoms_Command):
                 self.flyoutToolbar = previousCommand.flyoutToolbar
             except AttributeError:
                 self.flyoutToolbar = None
+        
+        if self.propMgr is None:
+            self.propMgr = BreakStrands_PropertyManager(self)
+            #@bug BUG: following is a workaround for bug 2494.
+            #This bug is mitigated as propMgr object no longer gets recreated
+            #for modes -- niand 2007-08-29
+            changes.keep_forever(self.propMgr)  
             
-        pass 
+        self.propMgr.show()
+            
         
     def restore_gui(self):
         """
         Restore the GUI 
         """
-        if self.flyoutToolbar:
-            self.flyoutToolbar.dnaDuplexAction.setChecked(False)
-        pass
+            
+        if self.propMgr is not None:
+            self.propMgr.close()
     
    
