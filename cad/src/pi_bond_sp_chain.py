@@ -665,7 +665,7 @@ def p_vector_from_3_bonds(atom, bond, out = DFLT_OUT, up = DFLT_UP):
        We don't verify the atom is sp2, since we don't need to for this code to work,
     though our result would probably not make sense otherwise.
     """
-    others = map( lambda bon: bon.other(atom), atom.bonds)
+    others = map( lambda bond: bond.other(atom), atom.bonds)
     assert len(others) == 3
     other1 = bond.other(atom)
     others.remove(other1)
@@ -708,7 +708,7 @@ def p_vector_from_3_bonds(atom, bond, out = DFLT_OUT, up = DFLT_UP):
     pass
 
 def p_vector_from_sp2_2_bonds(atom, bond, out = DFLT_OUT, up = DFLT_UP):
-    others = map( lambda bon: bon.other(atom), atom.bonds)
+    others = map( lambda bond: bond.other(atom), atom.bonds)
     assert len(others) == 2
     other1 = bond.other(atom)
     others.remove(other1)

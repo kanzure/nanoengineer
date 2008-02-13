@@ -1409,11 +1409,11 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # following code simplified from self.draw()
         externs = []
         for atm in self.atoms.itervalues():
-            for bon in atm.bonds:
-                ## if bon.other(atm).molecule != self # slower than needed:
-                if bon.atom1.molecule is not self or bon.atom2.molecule is not self:
+            for bond in atm.bonds:
+                ## if bond.other(atm).molecule != self # slower than needed:
+                if bond.atom1.molecule is not self or bond.atom2.molecule is not self:
                     # external bond
-                    externs.append(bon)
+                    externs.append(bond)
         return externs
     
     def freeze(self):
@@ -1683,14 +1683,14 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # The better fix is for Extrude to set up part.repeated_bonds_dict
                 # when it draws its extra objects. We need a bug report for that.)
                 repeated_bonds_dict = {} # KLUGE
-            for bon in self.externs:
-                if bon.key not in repeated_bonds_dict:
+            for bond in self.externs:
+                if bond.key not in repeated_bonds_dict:
                     # BUG: disp and bondcolor depend on self, so the bond appearance
                     # may depend on which chunk draws it first (i.e. on their Model
                     # Tree order). How to fix this is the subject of a current design
                     # discussion. [bruce 070928 comment]
-                    repeated_bonds_dict[bon.key] = bon
-                    bon.draw(glpane, disp, bondcolor, drawLevel)
+                    repeated_bonds_dict[bond.key] = bond
+                    bond.draw(glpane, disp, bondcolor, drawLevel)
             pass
         ColorSorter.finish() # grantham 20051205
         return # from Chunk.draw()
@@ -1820,7 +1820,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # otherwise color and disp remain unchanged
                 
                 # end bruce hack 041014, except for use of color rather than
-                # self.color in atm.draw (but not in bon.draw -- good??)
+                # self.color in atm.draw (but not in bond.draw -- good??)
                 
                 atomdisp = atm.draw(glpane, disp, color, drawLevel)
 
@@ -1840,15 +1840,15 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 
                 if atomdisp in (diBALL, diLINES, diTUBES, diTrueCPK, diDNACYLINDER):
                     # todo: move this tuple into bonds module or Bond class
-                    for bon in atm.bonds:
-                        if bon.key not in drawn:
-                            ## if bon.other(atm).molecule != self: could be faster [bruce 050513]:
-                            if bon.atom1.molecule is not self or bon.atom2.molecule is not self:
-                                pass ## self.externs.append(bon) # bruce 050513 removing this
+                    for bond in atm.bonds:
+                        if bond.key not in drawn:
+                            ## if bond.other(atm).molecule != self: could be faster [bruce 050513]:
+                            if bond.atom1.molecule is not self or bond.atom2.molecule is not self:
+                                pass ## self.externs.append(bond) # bruce 050513 removing this
                             else:
                                 # internal bond, not yet drawn
-                                drawn[bon.key] = bon
-                                bon.draw(glpane, disp, bondcolor, drawLevel)  
+                                drawn[bond.key] = bond
+                                bond.draw(glpane, disp, bondcolor, drawLevel)  
             except:
                 # [bruce 041028 general workaround to make bugs less severe]
                 # exception in drawing one atom. Ignore it and try to draw the
@@ -1987,7 +1987,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             r = int(self.color[0]*255 + 0.5)
             g = int(self.color[1]*255 + 0.5)
             b = int(self.color[2]*255 + 0.5)
-            mapping.write("info chunk color = %d %d %d\n" % (r,g,b))
+            mapping.write("info chunk color = %d %d %d\n" % (r, g, b))
         return
 
     def writepov(self, file, disp):
@@ -2008,14 +2008,16 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # draw external bonds twice
         for atm in self.atoms.values():
             atm.writepov(file, disp, self.color)
-            for bon in atm.bonds:
-                if bon.key not in drawn:
-                    drawn[bon.key] = bon
-                    bon.writepov(file, disp, self.color)
+            for bond in atm.bonds:
+                if bond.key not in drawn:
+                    drawn[bond.key] = bond
+                    bond.writepov(file, disp, self.color)
 
     def writemdl(self, alist, f, disp):
-        if self.display != diDEFAULT: disp = self.display
-        if self.hidden or disp == diINVISIBLE: return
+        if self.display != diDEFAULT:
+            disp = self.display
+        if self.hidden or disp == diINVISIBLE:
+            return
         col = self.color
         for a in self.atoms.values(): 
             a.writemdl(alist, f, disp, self.color)
@@ -2188,8 +2190,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         
         # we've moved one end of each external bond, so invalidate them...
         # [bruce 050516 comment (95% sure it's right): note that we don't, and need not, inval internal bonds]
-        for bon in self.externs:
-            bon.setup_invalidate()
+        for bond in self.externs:
+            bond.setup_invalidate()
         return
 
     def set_atom_posns_from_atpos(self, atpos): #bruce 060308; revised 060313
@@ -3147,8 +3149,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # a counter stored in (and unique to) atm.molecule having
             # a specific stored value; in the new Chunk (self) this will
             # have a different value. So I can remove the following code:
-##            for bon in atm.bonds:
-##                bon.setup_invalidate()
+##            for bond in atm.bonds:
+##                bond.setup_invalidate()
         self.atoms.update(mol.atoms)
         self.invalidate_atom_lists()
         # be safe, since we just stole all mol's atoms:

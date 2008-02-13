@@ -318,8 +318,8 @@ class extrudeMode(basicMode):
         # incompatible with that rebonding.
         self.broken_externs = [] # pairs of singlets from breaking of externs
         self.broken_extern_s2s = {}
-        for bon in list(mol.externs):
-            s1, s2 = bon.bust() # these will be rebonded when we're done
+        for bond in list(mol.externs):
+            s1, s2 = bond.bust() # these will be rebonded when we're done
             assert s1.is_singlet() and s2.is_singlet()
             # order them so that s2 is in mol, s1 not in it [bruce 070514 Qt4: revised to fix bug 2311]
             if mol.contains_atom(s1):
@@ -2022,9 +2022,9 @@ class virtual_group_of_Chunks:
         is_ourmol = lambda mol: mol in ourmols
         res = []
         for mol in self._mols:
-            for bon in mol.externs:
-                if not (is_ourmol(bon.atom1.molecule) and is_ourmol(bon.atom2.molecule)):
-                    res.append(bon)
+            for bond in mol.externs:
+                if not (is_ourmol(bond.atom1.molecule) and is_ourmol(bond.atom2.molecule)):
+                    res.append(bond)
         return res
     def _get_singlets(self):
         res = []
