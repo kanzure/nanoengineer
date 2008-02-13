@@ -134,6 +134,10 @@ class DnaDuplex_EditCommand(EditCommand):
             #properly integrated into the Command/CommandSequencer API
             try:
                 self.flyoutToolbar = prevMode.flyoutToolbar
+                #Need a better way to deal with changing state of the 
+                #corresponding action in the flyout toolbar. To be revised 
+                #during command toolbar cleanup 
+                self.flyoutToolbar.dnaDuplexAction.setChecked(True)
             except AttributeError:
                 self.flyoutToolbar = None
             

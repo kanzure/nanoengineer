@@ -236,9 +236,9 @@ class DnaFlyout:
         Resets the state of actions in the flyout toolbar.
         Uncheck most of the actions. Basically it 
         unchecks all the actions EXCEPT the ExitDnaAction
-        @see: BreakStrands_Command.restore_gui()
         @see: self.deActivateFlyoutToolbar()
-        @see: self.activateBreakStrands_Command() for a comment
+        @see: self.activateBreakStrands_Command() 
+        @see: BuildDna_EditCommand.resume_gui()
         """
         
         
@@ -284,8 +284,7 @@ class DnaFlyout:
         for action in self.subControlActionGroup.actions():
             if action is not self.dnaDuplexAction and action.isChecked():
                 action.setChecked(False)
-            elif action is self.dnaDuplexAction and not action.isChecked():
-                action.setChecked(True)
+            
         
     
     def activateBreakStrands_Command(self, isChecked):
@@ -303,19 +302,7 @@ class DnaFlyout:
         for action in self.subControlActionGroup.actions():
             if action is not self.breakStrandAction and action.isChecked():
                 action.setChecked(False)
-            #Needs cleanup.
-            #Following makes sure that the Beak strands action is checked! 
-            #This is needed fo fix the following problem:
-            #Imagine you are in JoinStrands_Command.  Now you press 
-            #BreakStrands button in the flyout -- when you do this, program 
-            #a) first exits JoinStrands command  b) then resumes the parent 
-            #command which, in this case, is BuildDna_EditCommand 
-            #c) and then apparentlly enters the BreakStrands_Command. 
-            #During (b), the resume_method calls self.resetStateOfActions method
-            #therefore, it is necessary to make sure that
-            # the correct command action is checked. 
-            elif action is self.breakStrandAction and not action.isChecked():
-                action.setChecked(True)
+            
             
     
     def activateJoinStrands_Command(self, isChecked):
@@ -332,7 +319,8 @@ class DnaFlyout:
             if action is not self.joinStrandsAction and action.isChecked():
                 action.setChecked(False)
             elif action is self.joinStrandsAction and not action.isChecked():
-                action.setChecked(True)
+                pass
+                #action.setChecked(True)
         
     def activateDnaOrigamiEditCommand(self):
         """

@@ -59,6 +59,10 @@ class JoinStrands_Command(BuildAtoms_Command):
         if previousCommand.commandName == 'BUILD_DNA':
             try:
                 self.flyoutToolbar = previousCommand.flyoutToolbar
+                #Need a better way to deal with changing state of the 
+                #corresponding action in the flyout toolbar. To be revised 
+                #during command toolbar cleanup 
+                self.flyoutToolbar.joinStrandsAction.setChecked(True)
             except AttributeError:
                 self.flyoutToolbar = None
         if self.propMgr is None:
