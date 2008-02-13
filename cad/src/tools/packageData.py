@@ -270,7 +270,8 @@ packageMapping_for_files = {
     "bond_updater"                     : "model_updater",
     "bond_utils"                       : "operation", # maybe also some ui
     "BoundingBox"                      : "geometry", # mostly geometry, some graphics, some hardcoded distance constants from model
-    "BreakStrands_Command"              : "command|dna/commands/BreakStrands", # plural BreakStrands to match featurename as of 080104
+    "BreakStrands_Command"             : "command|dna/commands/BreakStrands", # plural BreakStrands to match featurename as of 080104
+    "BreakStrands_PropertyManager"     : "ui/propmgr|dna/commands/BreakStrands",
     "BuildAtomsPropertyManager"        : "ui/propmgr|commands/BuildAtoms",
     "BuildAtoms_Command"               : "command|commands/BuildAtoms",
     "BuildAtoms_GraphicsMode"          : "graphics_mode|commands/BuildAtoms",
@@ -414,6 +415,7 @@ packageMapping_for_files = {
         # note: this is in GAMESS only due to an import cycle issue. It should be in processes or in its own toplevel package.
     "JobManagerDialog"                 : "ui|GAMESS", # same package as JobManager (wrong now, see its note for why)
     "JoinStrands_Command"              : "command|dna/commands/JoinStrands",
+    "JoinStrands_PropertyManager"      : "ui/propmgr|dna/commands/JoinStrands",
     "Line"                             : "model",
     "LinearMotor_EditCommand"          : "command|commands/LinearMotorProperties?",
     "LinearMotorPropertyManager"       : "ui/propmgr|commands/LinearMotorProperties?",
