@@ -4,6 +4,7 @@
 #define NX_MOLECULESET_H
 
 #include <list>
+using namespace std;
 
 #include <openbabel/mol.h>
 using namespace OpenBabel;

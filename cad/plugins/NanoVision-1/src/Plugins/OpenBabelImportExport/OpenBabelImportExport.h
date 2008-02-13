@@ -3,12 +3,6 @@
 #ifndef NX_OPENBABELIMPORTEXPORT_H
 #define NX_OPENBABELIMPORTEXPORT_H
 
-#ifdef WIN32
-#	ifdef _MSC_VER
-#		pragma warning(disable:4786)
-#	endif
-#endif
-
 #include <QDir>
 #include <QFile>
 #include <QString>
@@ -18,6 +12,7 @@
 
 #include "Nanorex/Utility/NXLogger.h"
 #include "Nanorex/Utility/NXCommandResult.h"
+#include "Nanorex/Interface/NXMoleculeSet.h"
 #include "Nanorex/Interface/NXNanoVisionResultCodes.h"
 #include "Nanorex/Interface/NXDataImportExportPlugin.h"
 using namespace Nanorex;

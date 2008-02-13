@@ -1,9 +1,10 @@
 TEMPLATE = subdirs 
+
 CONFIG += warn_on \
           qt \
           thread \
- ordered
-OPENBABEL_INCPATH = /usr/include/openbabel-2.0
+ ordered \
+ debug_and_release
 
 SUBDIRS += Utility \
   Interface \

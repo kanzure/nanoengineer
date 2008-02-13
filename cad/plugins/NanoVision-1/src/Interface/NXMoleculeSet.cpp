@@ -3,8 +3,6 @@
 
 #include "Nanorex/Interface/NXMoleculeSet.h"
 
-using namespace std;
-
 namespace Nanorex {
 
 unsigned int NXMoleculeSet::NextMoleculeIndex = 0;

@@ -1,5 +1,6 @@
 
-LIBS += -lopenbabel \
+LIBS += -L$(OPENBABEL_LIBPATH) \
+ -lopenbabel \
  -L../../../lib \
  -lNanorexUtility
 
@@ -34,8 +35,8 @@ SOURCES += ../../Interface/NXDataStoreInfo.cpp \
 
 TEMPLATE = lib
 
-CONFIG += dll \
- debug \
+CONFIG += staticlib \
+ debug_and_release \
  stl
 
 TARGET = NanorexInterface
@@ -44,7 +45,6 @@ DESTDIR = ../../../lib
 
 TARGETDEPS += ../../../lib/libNanorexUtility.so
 macx : TARGETDEPS ~= s/.so/.dylib/g
+win32 : TARGETDEPS ~= s/.so/.a/g
 
-CONFIG -= release
 QT -= gui
-

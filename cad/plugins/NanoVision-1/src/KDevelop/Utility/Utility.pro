@@ -1,7 +1,7 @@
 TEMPLATE = lib
 
-CONFIG += dll \
- debug \
+CONFIG += staticlib \
+ debug_and_release \
  stl
 
 INCLUDEPATH += ../../../include
@@ -24,7 +24,6 @@ SOURCES += ../../../src/Utility/NXCommandLine.cpp \
 
 TARGET = NanorexUtility
 
-CONFIG -= release
 DESTDIR = ../../../lib
 
 QT -= gui
