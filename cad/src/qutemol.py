@@ -248,7 +248,10 @@ REMARK   7\n""")
 
     # Now write the REMARK records for each chunk (chain) in the part.
     molNum = 1
-    for mol in part.molecules:        
+    for mol in part.molecules:
+        if mol.hidden:
+            # Don't need to write records for hidden chunks. Mark 2008-02-13.
+            continue
         f.write("REMARK   7 CHAIN: %s " % (molNum))
         f.write("  DISPLAY_STYLE: %s " % properDisplayNames[mol.display])
         if mol.color:
