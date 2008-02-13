@@ -94,9 +94,15 @@ def _master_model_updater( warn_if_needed = False ):
             return
         pass
 
+    env.history.emit_all_deferred_summary_messages() #bruce 080212 (3 places)
+    
     _run_dna_updater()
 
+    env.history.emit_all_deferred_summary_messages()
+
     _run_bond_updater( warn_if_needed = warn_if_needed)
+
+    env.history.emit_all_deferred_summary_messages()
 
     return # from _master_model_updater
 
