@@ -84,6 +84,8 @@ class DnaSegment(DnaStrandOrSegment):
         endpoint1, endpoint2 = self._getAxisEndPoints_preDataModel()
         if endpoint1 is None:
             return self._getAxisEndPoints_postDataModel()
+        else:
+            return (endpoint1, endpoint2)
         
     def _getAxisEndPoints_preDataModel(self):
         #Temporary implementation that uses chunk class to distinguish an 
