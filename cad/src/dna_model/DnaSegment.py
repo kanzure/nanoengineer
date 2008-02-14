@@ -90,7 +90,34 @@ class DnaSegment(DnaStrandOrSegment):
                 for atm in member.atoms.itervalues():
                     if atm.element.symbol == 'Ae3':                        
                         endAtomList.append(atm)
+                                                    
+        if len(endAtomList) == 2:            
+            atm1 = endAtomList[0]
+            atm2 = endAtomList[1]
+            
+            #Figure out which end point (atom) is which. endPoint1 will be the 
+            #endPoint
+            #on the left side of the 3D workspace and endPoint2 is the one on 
+            #the 'more right hand side' of the 3D workspace.
+            #It uses some code from bond_constants.bonded_atoms_summary
+            # [following code is also duplicated in a method below]
+            atmPosition1 = atm1.posn()
+            atmPosition2 = atm2.posn()
+            
+            glpane = self.assy.o
+            quat = glpane.quat
+            vec = atmPosition2 - atmPosition1
+            vec = quat.rot(vec)
+            if vec[0] < 0.0:
+                atm1, atm2 = atm2, atm1
+            return atm1, atm2
+        elif len(endPointList) > 2:
+            print_compact_stack("bug:The axis chunk has more than 2 'Ae' atoms")
+        else:
+            return None, None
+        
         return endAtomList
+    
     
     def getStrandEndAtomsFor(self, strand):
         """
@@ -161,28 +188,20 @@ class DnaSegment(DnaStrandOrSegment):
         #  certainly it's not enforced, AFAIK. This will print_compact_stack
         #  when more than one axis chunk is in a segment. [bruce 080212 comment])
         endPointList = []
-        for atm in self.getAxisEndAtoms():            
-            endPointList.append(atm.posn())
+        for atm in self.getAxisEndAtoms(): 
+            if atm is not None:
+                endPointList.append(atm.posn())
+            else:
+                endPointList.append(None)
                                     
         if len(endPointList) == 2:
-            #Figure out which end point is which. endPoint1 will be the endPoint
-            #on the left side of the 3D workspace and endPoint2 is the one on 
-            #the 'more right hand side' of the 3D workspace.
-            #It uses some code from bond_constants.bonded_atoms_summary
-            # [following code is also duplicated in a method below]
             atmPosition1 = endPointList[0]
-            atmPosition2 = endPointList[1]
-            glpane = self.assy.o
-            quat = glpane.quat
-            vec = atmPosition2 - atmPosition1
-            vec = quat.rot(vec)
-            if vec[0] < 0.0:
-                atmPosition1, atmPosition2 = atmPosition2, atmPosition1
+            atmPosition2 = endPointList[1]           
+            
             return atmPosition1, atmPosition2
-        elif len(endPointList) > 2:
-            print_compact_stack("bug:The axis chunk has more than 2 'Ae' atoms")
-        else:
-            return None, None
+        
+        return None, None
+        
 
     def _getAxisEndPoints_postDataModel(self): # bruce 080212
         atom1, atom2 = self.get_axis_end_baseatoms()
