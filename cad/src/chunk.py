@@ -351,7 +351,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return False
 
     
-    # START of Dna-Strand chunk specific code ================================
+    # START of Dna-Strand-or-Axis chunk specific code ==========================
 
     # Note: all these methods will be removed from class Chunk once the
     # dna data model is always active. [bruce 080205 comment]
@@ -417,6 +417,33 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             complementBaseName= getComplementSequence(str(baseName))
             if strandAtomMate is not None:
                 strandAtomMate.setDnaBaseName(str(complementBaseName))  
+    def edit(self):
+        #Following must be revised (moved to appropriate class)
+        #post dna_model implementation .
+        if self.isStrandChunk():
+            commandSequencer = self.assy.w.commandSequencer
+            if commandSequencer.currentCommand.commandName != "DNA_STRAND":
+                commandSequencer.userEnterTemporaryCommand('DNA_STRAND')                
+            assert commandSequencer.currentCommand.commandName == 'DNA_STRAND'
+            commandSequencer.currentCommand.editStructure(self)
+        else:
+            cntl = ChunkProp(self) # Renamed MoleculeProp to ChunkProp.  Mark 050929
+            cntl.exec_()
+            self.assy.mt.mt_update()
+            ###e bruce 041109 comment: don't we want to repaint the glpane, too?
+            
+    def getProps(self):
+        """
+        To be revised post dna data model. Used in EditConmmand class and its 
+        subclasses.
+        """
+        return ()
+    
+    def setProps(self, params):
+        """
+        To be revised post dna data model
+        """
+        del params
         
     def isStrandChunk(self): # Ninad circa 080117, revised by Bruce 080117
         """
@@ -450,7 +477,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         
         return found_strand_atom    
     
-  
+
     def get_strand_atoms_in_bond_direction(self): # ninad 080205; bruce 080205 revised docstring
         """
         Return a list of atoms in a fixed direction -- from 5' to 3'
@@ -611,6 +638,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #TODO: could zap first and/or last element if they are bondpoints 
         #[bruce 080205 comment]        
         return atomList   
+       
        
     #END of Dna-Strand chunk specific  code ==================================
      
@@ -3091,11 +3119,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             count += a.Dehydrogenate()
         return count
             
-    def edit(self):
-        cntl = ChunkProp(self) # Renamed MoleculeProp to ChunkProp.  Mark 050929
-        cntl.exec_()
-        self.assy.mt.mt_update()
-        ###e bruce 041109 comment: don't we want to repaint the glpane, too?
+            
 
     def __str__(self):
         # bruce 041124 revised this; again, 060411 (can I just zap it so __repr__ is used?? Try this after A7. ##e)

@@ -161,6 +161,7 @@ class MWsemantics(QMainWindow,
         self.planePropMgr = None
         self.dnaDuplexPropMgr = None
         self.dnaSegmentPropMgr = None
+        self.dnaStrandPropMgr = None
         self.buildDnaPropMgr = None
 
         # These boolean flags, if True, stop the execution of slot 
@@ -1645,6 +1646,26 @@ class MWsemantics(QMainWindow,
             self.dnaSegmentPropMgr.setEditCommand(editCommand)
 
         return self.dnaSegmentPropMgr
+    
+    def createDnaStrandPropMgr_if_needed(self, editCommand):
+        """
+        Create the DnaStrand PM object (if one doesn't exist) 
+        If this object is already present, then set its editCommand to this
+        parameter
+        @parameter editCommand: The edit controller object for this PM 
+        @type editCommand: B{DnaSegment_EditCommand}
+        @see: B{DnaSegment_EditCommand._createPropMgrObject}
+        """
+        
+        from DnaStrand_PropertyManager import DnaStrand_PropertyManager
+        if self.dnaStrandPropMgr is None:
+            self.dnaStrandPropMgr = \
+                DnaStrand_PropertyManager(self, editCommand)
+            
+        else:
+            self.dnaStrandPropMgr.setEditCommand(editCommand)
+
+        return self.dnaStrandPropMgr
 
 
     def insertPovrayScene(self):

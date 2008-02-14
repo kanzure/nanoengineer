@@ -51,6 +51,7 @@ from SelectChunks_Command    import SelectChunks_Command
 from BreakStrands_Command     import BreakStrands_Command
 from BuildDna_EditCommand    import BuildDna_EditCommand
 from DnaSegment_EditCommand  import DnaSegment_EditCommand
+from DnaStrand_EditCommand   import DnaStrand_EditCommand
 from Move_Command            import Move_Command
 from RotateChunks_Command    import RotateChunks_Command
 from TranslateChunks_Command import TranslateChunks_Command
@@ -94,6 +95,7 @@ def preloaded_command_classes():
         JoinStrands_Command,
         BuildDna_EditCommand,
         DnaSegment_EditCommand, 
+        DnaStrand_EditCommand,
         RotateChunks_Command,
         TranslateChunks_Command, 
         FuseChunks_Command,
