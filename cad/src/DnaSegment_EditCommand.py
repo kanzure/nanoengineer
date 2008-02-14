@@ -254,13 +254,15 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             self.rotation_distance2 = CYLINDER_WIDTH_DEFAULT_VALUE
             #Following computes the base points for rotation handles. 
             #to be revised -- Ninad 2008-02-13
-            
-            unitVectorAlongAxis = norm(self.handlePoint1 - self.handlePoint2)
-            
-            v  = cross(self.glpane.lineOfSight, unitVectorAlongAxis)
-            
-            self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v)*4.0  
-            self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v)*4.0 
+
+            if self.handlePoint1 is not None:
+                # (condition is fix for deleted axis segment, bruce 080213)
+                unitVectorAlongAxis = norm(self.handlePoint1 - self.handlePoint2)
+                
+                v  = cross(self.glpane.lineOfSight, unitVectorAlongAxis)
+                
+                self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v)*4.0  
+                self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v)*4.0 
 
     def _createPropMgrObject(self):
         """
