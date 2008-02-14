@@ -118,15 +118,16 @@ class NamedView(SimpleCopyMixin, Node):
         # I'd have to verify it's not used internally, like Jig.__repr__ used to be!!
         return "<namedView " + self.name + ">"
     
-    def pick(self):
+    def MT_plain_left_click(self):
+        #bruce 080213 bugfix: override this new API method, not Node.pick.
         """
-        Changes to self's view, then picks the node in the model tree.
+        [overrides Node method]
+        Change to self's view, if not animating.
         """
-        # Precaution. Don't pick node if we're animating.
+        # Precaution. Don't change view if we're animating.
         if self.assy.o.is_animating:
             return
         
-        Node.pick(self)
         self.change_view()
     
     def change_view(self): #mark 060122
@@ -184,7 +185,7 @@ class NamedView(SimpleCopyMixin, Node):
         self.pov = V(glpane.pov[0], glpane.pov[1], glpane.pov[2])
         self.zoomFactor = glpane.zoomFactor
         
-    def sameAsCurrentView(self, view = None):
+    def sameAsCurrentView(self, view = None): # (not presently used as of 080213)
         """
         Tests if self is the same as I{view}, or the current view if I{view}
         is None (the default).
