@@ -74,6 +74,10 @@ from RotationHandle          import RotationHandle
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 
+#Flag that appends rotation handles to the self.handles (thus enabling their 
+#display and computation while in DnaSegment_EditCommand
+DEBUG_ROTATION_HANDLES = False
+
 class DnaSegment_EditCommand(State_preMixin, EditCommand):
     """
     Command to edit a DnaSegment object. 
@@ -232,8 +236,9 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.handles = [] # guess, but seems like a good idea [bruce 080128]
         self.handles.append(self.leftHandle)
         self.handles.append(self.rightHandle)
-        self.handles.append(self.rotationHandle1)
-        self.handles.append(self.rotationHandle2)
+        if DEBUG_ROTATION_HANDLES:
+            self.handles.append(self.rotationHandle1)
+            self.handles.append(self.rotationHandle2)
         
     def updateHandlePositions(self):
         """
@@ -241,19 +246,21 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
-        self.rotation_distance1 = CYLINDER_WIDTH_DEFAULT_VALUE
-        self.rotation_distance2 = CYLINDER_WIDTH_DEFAULT_VALUE
+        
         self.handlePoint1, self.handlePoint2 = self.struct.getAxisEndPoints()
         
-        #Following computes the base points for rotation handles. 
-        #to be revised -- Niand 2008-02-13
-        
-        unitVectorAlongAxis = norm(self.handlePoint1 - self.handlePoint2)
-        
-        v  = cross(self.glpane.lineOfSight, unitVectorAlongAxis)
-        
-        self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v)*4.0  
-        self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v)*4.0 
+        if DEBUG_ROTATION_HANDLES:
+            self.rotation_distance1 = CYLINDER_WIDTH_DEFAULT_VALUE
+            self.rotation_distance2 = CYLINDER_WIDTH_DEFAULT_VALUE
+            #Following computes the base points for rotation handles. 
+            #to be revised -- Ninad 2008-02-13
+            
+            unitVectorAlongAxis = norm(self.handlePoint1 - self.handlePoint2)
+            
+            v  = cross(self.glpane.lineOfSight, unitVectorAlongAxis)
+            
+            self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v)*4.0  
+            self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v)*4.0 
 
     def _createPropMgrObject(self):
         """
