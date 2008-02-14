@@ -69,6 +69,71 @@ class DnaSegment(DnaStrandOrSegment):
     #Following methods are likely to be revised in a fully functional dna data 
     # model. These methods are mainly created to get working many core UI 
     # operations for Rattlesnake.  -- Ninad 2008-02-01
+    
+    def getAxisEndAtoms(self):
+        """
+        To be modified post dna data model
+        """
+        #pre dna data model
+        return self._getAxisEndAtoms_preDataModel()
+        ##post dna data model ???
+        ##return self.get_axis_end_baseatoms()???
+        
+    
+    def _getAxisEndAtoms_preDataModel(self):
+        """
+        To be removed post dna data model
+        """
+        endAtomList = []
+        for member in self.members:
+            if isinstance(member, Chunk) and member.isAxisChunk():
+                for atm in member.atoms.itervalues():
+                    if atm.element.symbol == 'Ae3':                        
+                        endAtomList.append(atm)
+        return endAtomList
+    
+    def getStrandEndAtomsFor(self, strand):
+        """
+        TODO: To be revised/ removed post dna data model. 
+        returns the strand atoms connected to the ends of the 
+        axis atoms. The list could return 1 or 2 strand atoms. The caller 
+        should check for the correctness. 
+        @see: DnaStrand_EditCommand.updateHandlePositions()
+        """
+        assert strand.dad is self
+        
+        strandNeighbors = []
+        strandEndAtomList = []
+        
+        for axisEndAtom in self.getAxisEndAtoms():
+            strandNeighbors = axisEndAtom.strand_neighbors()
+            strand_end_atom_found = False
+            for atm in strandNeighbors:
+                if atm.molecule is strand:
+                    strandEndAtomList.append(atm)
+                    strand_end_atom_found = True
+                    break        
+            if not strand_end_atom_found:
+                strandEndAtomList.append(None)
+      
+        return strandEndAtomList
+    
+    def getStrandEndPointsFor(self, strand):
+        """
+        TODO: To be revised/ removed post dna data model.
+        @see: DnaStrand_EditCommand.updateHandlePositions()
+        @see: self.getStrandEndAtomsFor()
+        """
+        strandEndAtoms = self.getStrandEndAtomsFor(strand)
+        strandEndPoints = []
+        for atm in strandEndAtoms:
+            if atm is not None:
+                strandEndPoints.append(atm.posn())
+            else:
+                strandEndPoints.append(None)
+                
+        return strandEndPoints
+  
 
     def getAxisEndPoints(self):
         """
@@ -96,11 +161,9 @@ class DnaSegment(DnaStrandOrSegment):
         #  certainly it's not enforced, AFAIK. This will print_compact_stack
         #  when more than one axis chunk is in a segment. [bruce 080212 comment])
         endPointList = []
-        for member in self.members:
-            if isinstance(member, Chunk) and member.isAxisChunk():
-                for atm in member.atoms.itervalues():
-                    if atm.element.symbol == 'Ae3':                        
-                        endPointList.append(atm.posn())
+        for atm in self.getAxisEndAtoms():            
+            endPointList.append(atm.posn())
+                                    
         if len(endPointList) == 2:
             #Figure out which end point is which. endPoint1 will be the endPoint
             #on the left side of the 3D workspace and endPoint2 is the one on 
@@ -188,9 +251,7 @@ class DnaSegment(DnaStrandOrSegment):
         @see: DnaSegment_EditCommand.editStructure where it is used. 
         @see: DnaSegment_PropertyManager.getParameters
         @see: DnaSegmentEditCommand._createStructure        
-        """
-        
-                
+        """               
         numberOfBasePairs = self.getNumberOfAxisAtoms() 
         
         if self._duplexRise is None:
