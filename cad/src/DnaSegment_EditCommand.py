@@ -5,7 +5,7 @@ DnaSegment_EditCommand provides a way to edit an existing DnaSegment.
 To edit a segment, first enter BuildDna_EditCommand (accessed using Build> Dna) 
 then, select an axis chunk of an existing DnaSegment  within the DnaGroup you
 are editing. When you select the axis chunk, it enters DnaSegment_Editcommand
-and shows the prperty manager with its widgets showing the properties of 
+and shows the property manager with its widgets showing the properties of 
 selected segment. 
 
 While in this command, user can 
@@ -84,7 +84,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     To edit a segment, first enter BuildDna_EditCommand (accessed using Build> Dna) 
     then, select an axis chunk of an existing DnaSegment  within the DnaGroup you
     are editing. When you select the axis chunk, it enters DnaSegment_Editcommand
-    and shows the prperty manager with its widgets showing the properties of 
+    and shows the property manager with its widgets showing the properties of 
     selected segment.
     """
     cmd              =  'Dna Segment'
@@ -247,26 +247,29 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
         
-        self.handlePoint1, self.handlePoint2 = self.struct.getAxisEndPoints()
+        handlePoint1, handlePoint2 = self.struct.getAxisEndPoints()
         
-        if DEBUG_ROTATION_HANDLES:
-            self.rotation_distance1 = CYLINDER_WIDTH_DEFAULT_VALUE
-            self.rotation_distance2 = CYLINDER_WIDTH_DEFAULT_VALUE
-            #Following computes the base points for rotation handles. 
-            #to be revised -- Ninad 2008-02-13
+        if handlePoint1 is not None:
+            # (that condition is bugfix for deleted axis segment, bruce 080213)
+            
+            self.handlePoint1, self.handlePoint2 = handlePoint1, handlePoint2
+        
+            if DEBUG_ROTATION_HANDLES:
+                self.rotation_distance1 = CYLINDER_WIDTH_DEFAULT_VALUE
+                self.rotation_distance2 = CYLINDER_WIDTH_DEFAULT_VALUE
+                #Following computes the base points for rotation handles. 
+                #to be revised -- Ninad 2008-02-13
 
-            if self.handlePoint1 is not None:
-                # (condition is fix for deleted axis segment, bruce 080213)
                 unitVectorAlongAxis = norm(self.handlePoint1 - self.handlePoint2)
                 
                 v  = cross(self.glpane.lineOfSight, unitVectorAlongAxis)
                 
-                self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v)*4.0  
-                self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v)*4.0 
+                self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v) * 4.0  
+                self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v) * 4.0 
 
     def _createPropMgrObject(self):
         """
-        Creates a property manager  object (that defines UI things) for this 
+        Creates a property manager object (that defines UI things) for this 
         editCommand. 
         """
         assert not self.propMgr
