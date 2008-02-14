@@ -21,14 +21,15 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 	CPPUNIT_TEST(getSetName);
 	CPPUNIT_TEST(getSetDescription);
 	CPPUNIT_TEST(getSetNotes);
+
 	CPPUNIT_TEST(getSetParameters);
-	
 	CPPUNIT_TEST(getSetFilePath);
 	
 	CPPUNIT_TEST(getSetRunResult);
 	CPPUNIT_TEST(getSetStartTime);
 	CPPUNIT_TEST(getSetCPU_RunningTime);
 	CPPUNIT_TEST(getSetWallRunningTime);
+	CPPUNIT_TEST(getSetResults);
 	
 	CPPUNIT_TEST(getAddRemoveFrameSet);
 	CPPUNIT_TEST(getSetAggregationMode);
@@ -54,14 +55,15 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 		void getSetName();
 		void getSetDescription();
 		void getSetNotes();
-		void getSetParameters();
 		
+		void getSetParameters();
 		void getSetFilePath();
 		
 		void getSetRunResult();
 		void getSetStartTime();
 		void getSetCPU_RunningTime();
 		void getSetWallRunningTime();
+		void getSetResults();
 		
 		void getAddRemoveFrameSet();
 		void getSetAggregationMode();

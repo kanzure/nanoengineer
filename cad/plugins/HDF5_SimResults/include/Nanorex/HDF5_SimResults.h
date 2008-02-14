@@ -156,8 +156,23 @@ class HDF5_SimResults : public SimResultsDataStore {
 		int getWallRunningTime(float& wallRunningTime) const;
 		int setWallRunningTime(const float& wallRunningTime,
 							   std::string& message);
+
+		std::vector<std::string> getIntResultKeys() const;
+		int getIntResult(const std::string& key, int& value) const;
+		int setIntResult(const std::string& key, int value,
+							std::string& message);
 		
+		std::vector<std::string> getFloatResultKeys() const;
+		int getFloatResult(const std::string& key, float& value) const;
+		int setFloatResult(const std::string& key, float value,
+							  std::string& message);
 		
+		std::vector<std::string> getStringResultKeys() const;
+		int getStringResult(const std::string& key, std::string& value)
+			const;
+		int setStringResult(const std::string& key, const std::string& value,
+							   std::string& message);
+
 		std::vector<std::string> getFrameSetNames() const;
 		int addFrameSet(const char* name, std::string& message);
 		

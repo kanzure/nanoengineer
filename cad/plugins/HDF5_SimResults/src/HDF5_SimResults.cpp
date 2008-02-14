@@ -370,6 +370,67 @@ int HDF5_SimResults::setWallRunningTime(const float& wallRunningTime,
 }
 
 
+
+/* FUNCTION: getIntResultKeys */
+std::vector<std::string> HDF5_SimResults::getIntResultKeys() const {
+	return getGroupKeys("/Results-Ints");
+}
+
+
+/* FUNCTION: getIntResult */
+int HDF5_SimResults::getIntResult(const std::string& key, int& value) const {
+	return getIntAttribute("/Results-Ints", key, value);
+}
+
+
+/* FUNCTION: setIntResult */
+int HDF5_SimResults::setIntResult(const std::string& key, int value,
+									 std::string& message) {
+	return setIntAttribute("/Results-Ints", key, value, message);
+}
+
+
+/* FUNCTION: getFloatResultKeys */
+std::vector<std::string> HDF5_SimResults::getFloatResultKeys() const {
+	return getGroupKeys("/Results-Floats");
+}
+
+
+/* FUNCTION: getFloatResult */
+int HDF5_SimResults::getFloatResult(const std::string& key,
+									   float& value) const {
+	return getFloatAttribute("/Results-Floats", key, value);
+}
+
+
+/* FUNCTION: setFloatResult */
+int HDF5_SimResults::setFloatResult(const std::string& key, float value,
+									   std::string& message) {
+	return setFloatAttribute("/Results-Floats", key, value, message);
+}
+
+
+/* FUNCTION: getStringResultKeys */
+std::vector<std::string> HDF5_SimResults::getStringResultKeys() const {
+	return getGroupKeys("/Results-Strings");
+}
+
+
+/* FUNCTION: getStringResult */
+int HDF5_SimResults::getStringResult(const std::string& key,
+										std::string& value) const {
+	return getStringAttribute("/Results-Strings", key, value);
+}
+
+
+/* FUNCTION: setStringResult */
+int HDF5_SimResults::setStringResult(const std::string& key,
+										const std::string& value,
+										std::string& message) {
+	return setStringAttribute("/Results-Strings", key, value, message);
+}
+
+
 /* FUNCTION: getFrameSetNames */
 std::vector<std::string> HDF5_SimResults::getFrameSetNames() const {
     herr_t status;

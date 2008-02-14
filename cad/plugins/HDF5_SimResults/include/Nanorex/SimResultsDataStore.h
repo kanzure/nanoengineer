@@ -121,7 +121,7 @@ class SimResultsDataStore {
 	 * @return 0=successful or non-zero error code
 	 */
 	virtual int setNotes(const std::string& notes, std::string& message) = 0;
-
+	
 	
 	/*
 	 * Parameters
@@ -244,6 +244,24 @@ class SimResultsDataStore {
 	virtual int setWallRunningTime(const float& wallRunningTime,
 								   std::string& message) = 0;
 	
+	/*
+	 * Results
+	 */
+	virtual std::vector<std::string> getIntResultKeys() const = 0;
+	virtual int getIntResult(const std::string& key, int& value) const = 0;
+	virtual int setIntResult(const std::string& key, int value,
+							 std::string& message) = 0;
+	virtual std::vector<std::string> getFloatResultKeys() const = 0;
+	virtual int getFloatResult(const std::string& key, float& value)
+		const = 0;
+	virtual int setFloatResult(const std::string& key, float value,
+								  std::string& message) = 0;
+	virtual std::vector<std::string> getStringResultKeys() const = 0;
+	virtual int getStringResult(const std::string& key, std::string& value)
+		const = 0;
+	virtual int setStringResult(const std::string& key,
+								const std::string& value,
+								std::string& message) = 0;
 	/*
 	def getExtDataNames(self):
 		"""Returns an array of extension data-set names."""
