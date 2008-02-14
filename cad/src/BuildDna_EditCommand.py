@@ -168,6 +168,34 @@ class BuildDna_EditCommand(EditCommand):
         """
 
         self.preview_or_finalize_structure(previewing = True)
+        
+    
+    def editStructure(self, struct = None):
+        """
+        Overrides EditCommand.editStructure method. Provides a way to edit an 
+        existing structure. This implements a topLevel command that the client
+        can execute to edit an existing object(i.e. self.struct) that it wants.
+        
+        Example: If its a plane edit controller, this method will be used to 
+                edit an object of class Plane. 
+        
+        This method also creates a propMgr objects if it doesn't exist and 
+        shows this property manager 
+        
+        @see: L{self.createStructure} (another top level command that 
+              facilitates creation of a model object created by this 
+              editCommand
+        @see: L{Plane.edit} and L{Plane_EditCommand._createPropMgrObject} 
+        """
+        
+        if struct is not None:
+            #Should we always unpick the structure while editing it? 
+            #Makes sense for editing a Dna. If this is problematic, the 
+            #following should be done in the subclasses that need this.
+            if hasattr(struct, 'picked') and struct.picked:
+                struct.unpick()
+            
+        EditCommand.editStructure(self, struct) 
                
 
     def _createPropMgrObject(self):
