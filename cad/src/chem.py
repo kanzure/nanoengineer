@@ -152,12 +152,11 @@ from utilities.Log import orangemsg
 import debug
 from debug import print_compact_stack, print_compact_traceback, compact_stack
 
-from utilities import debug_flags # for atom_debug; note that uses of atom_debug should all grab it
-  # from debug_flags.atom_debug since it can be changed at runtime
+from utilities import debug_flags
 
 from PlatformDependent import fix_plurals
 import env
-from state_utils import StateMixin #bruce 060223
+from state_utils import StateMixin
 from undo_archive import register_undo_updater
 
 debug_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
@@ -1127,21 +1126,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         if color is None:
             color = self.element.color
         # see if warning color is needed
+        # (review: check Ax minor groove angle here??)
         if self._dna_updater__error: #bruce 080130
             color = orange
-# older code, never used:
-##        #e see if warning color is needed
-##        if self.element.symbol == 'Ax':
-##            pass
-##            ## color = orange # kluge for testing
-##            #e should we just use self.bad for this? not for this initial test anyway.
-##            #e call a method of the element or atomtype for this special case code??
-##            # get neighbors that are Ss or Sj,
-##            # get arb Ss neighbors of those,
-##            #  i.e. find the pattern self-Ss|Sj-Ss (but optimize)
-##            ## ... self.Ax_strands() ...
-##            # get bond direction vectors (bond.bond_direction_vector()...), check antiparallel,
-##            # check minor groove using cross... how do we write "methods on patterns of atomtypes"? on pattern classes?
         return color
 
     # bruce 070409 split this out of draw_atom_sphere; 
@@ -3667,7 +3654,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     dirbonds_set = filter( lambda bond: bond._direction, dirbonds ) #k non-private method?
                     if len(dirbonds_set) == 2:
                         return DIRBOND_CHAIN_MIDDLE, dirbonds_set[0], dirbonds_set[1]
-                print "DIRBOND_ERROR", self #### bruce 080212
+                if debug_flags.atom_debug:
+                    print "DIRBOND_ERROR noticed on", self
                 return DIRBOND_ERROR, None, None
         pass
     
@@ -3721,7 +3709,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         @note: still used, but in some ways superceded by dna updater
                and the error code it can set.
         """
-        count_plus, count_minus = 0, 0
+        count_plus, count_minus = 0, 0 # for all bonds
         for bond in self.bonds:
             dir = bond.bond_direction_from(self)
             if dir == 1:
@@ -3730,6 +3718,120 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 count_minus += 1
         return (count_plus, count_minus) == (1, 1)
 
+    def desired_new_real_bond_direction(self): #bruce 080213
+        """
+        Something is planning to make a new real directional bond
+        involving self, and will modify self's open bonds and/or
+        their bond directions, but not self's existing real bonds
+        or their bond directions. What bond direction (away from self)
+        should it give the new real bond?
+        """
+        count_plus, count_minus = 0, 0 # for real bonds only
+        for bond in self.bonds:
+            if not bond.is_open_bond(): # (could optim, doesn't matter)
+                dir = bond.bond_direction_from(self)
+                if dir == 1:
+                    count_plus += 1
+                elif dir == -1:
+                    count_minus += 1
+        counts = (count_plus, count_minus)
+        if counts == (1, 0):
+            return -1
+        elif counts == (0, 1):
+            return 1
+        else:
+            # Usually or always an error given how we are called,
+            # but let the caller worry about this.
+            # (Non-error cases are conceivable, e.g. within a dna generator,
+            #  or if isolated single bases are being bonded by the user.)
+            return 0
+        pass
+    
+    def fix_open_bond_directions(self, bondpoint, want_dir): #bruce 080213
+        """
+        Something is planning to make a new real directional bond
+        involving self, and will give it the bond direction want_dir
+        (measured away from self). If bondpoint is not None, it plans
+        to make this bond using that bondpoint (usually removing it).
+        Otherwise... which bondpoint will it remove, if any?? ###REVIEW CALLERS
+
+        If possible and advisable, fix all our open bond directions
+        to best fit this situation -- i.e.:
+
+        * make the direction from self to bondpoint equal want_dir
+        (if bondpoint is not None);
+
+        * if want_dir is not 0, remove equal directions from other
+        open bonds of self to make the resulting situation consistent
+        (do this even if you have to pick one arbitrarily? yes for now);
+
+        * if want_dir is 0, do nothing (don't move any direction set on
+        bondpoint to some other open bond of self, because this only
+        happens on error (due to how we are called) and we should do
+        as little as possible here, letting dna updater and/or user
+        see and fix the error).
+
+        @note: it's ok for this method to be slow.
+        """
+        debug = debug_flags.atom_debug
+        if debug:
+            print "debug fyi: fix_open_bond_directions%r" % ((self, bondpoint, want_dir),)
+
+        if bondpoint:
+            bondpoint_bond = bondpoint.bonds[0]
+            # redundant: assert bond.other(bondpoint) is self
+            bondpoint_bond.set_bond_direction_from( self, want_dir)
+        else:
+            bondpoint_bond = None
+            # print this until I see whether & how this happens:
+            msg = "not sure what fix_open_bond_directions%r should do since bondpoint is None" % \
+                  ((self, bondpoint, want_dir),)
+                # not sure, because we might want to deduct want_dir from the desired total direction
+                # we need to achieve on the other bonds, depending on what caller will do.
+                # (If caller will pick one arbitrarily, we need to know which one that is now!)
+            if debug_flags.atom_debug:
+                print_compact_stack(msg + ": ")
+            else:
+                print msg + " (set debug flag to see stack)"
+        
+        if not self.bond_directions_are_set_and_consistent():
+            if debug:
+                print "debug fyi: fix_open_bond_directions%r needs to fix other open bonds" % \
+                      ((self, bondpoint, want_dir),)
+            # Note: not doing the following would cause undesirable messages,
+            # including history messages from the dna updater,
+            # but AFAIK would cause no other harm when the dna updater is turned on
+            # (since the updater would fix the errors itself if this could have fixed them).
+            if want_dir:
+                num_fixed = [0]
+                fixable_open_bonds = filter( lambda bond:
+                                                 bond.is_open_bond() and
+                                                 bond is not bondpoint_bond and
+                                                 bond.bond_direction_from(self) != 0 ,
+                                             self.bonds )
+                def number_with_direction( bonds, dir1 ):
+                    "return the number of bonds in bonds which have the given direction from self"
+                    return len( filter ( lambda bond: bond.bond_direction_from(self) == dir1 , bonds ))
+                def fix_one( bonds, dir1):
+                    "fix one of those bonds (by clearing its direction)"
+                    bond_to_fix = filter ( lambda bond: bond.bond_direction_from(self) == dir1 , bonds )[0]
+                    if debug:
+                        print "debug fyi: fix_open_bond_directions(%r) clearing %r of direction %r" % \
+                              (self, bond_to_fix, dir1)
+                    bond_to_fix.clear_bond_direction()
+                    num_fixed[0] += 1
+                    assert num_fixed[0] <= len(self.bonds) # protect against infloop
+                for dir_to_fix in (1, -1): # or, only fix bonds of direction want_dir?
+                    while ( number_with_direction( self.bonds, dir_to_fix ) > 1 and
+                            number_with_direction( fixable_open_bonds, dir_to_fix ) > 0 ) :
+                        fix_one( fixable_open_bonds, dir_to_fix )
+                    continue
+            # if this didn't fix everything, let the dna updater complain
+            # (i.e. we don't need to ourselves)
+            pass
+            
+        return # from fix_open_bond_directions
+    
     def next_atom_in_bond_direction(self, bond_direction): #bruce 071204
         """
         Assuming self is in a chain of directional bonds

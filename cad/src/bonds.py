@@ -28,8 +28,6 @@ History:
    and some other modules import * from chem, so there is no guarantee these were not needed indirectly)
 """
 
-# TODO: some of these imports might not be needed
-
 debug_1951 = False # DO NOT COMMIT with True
 
 import struct
@@ -59,10 +57,10 @@ from bond_chains import grow_directional_bond_chain
 import global_model_changedicts
 import env
 
-from state_utils import StateMixin #bruce 060223
+from state_utils import StateMixin
 from changedicts import register_changedict, register_class_changedicts
-from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
-from utilities.Log import redmsg, quote_html #bruce 070601
+from debug_prefs import debug_pref, Choice_boolean_False
+from utilities.Log import redmsg, quote_html
 
 from state_constants import S_CACHE, S_DATA, S_PARENT, UNDO_SPECIALCASE_BOND
 
@@ -119,7 +117,7 @@ except ImportError:
 
 _bond_atoms_oldversion_noops_seen = {} #bruce 051216
 
-def bond_atoms_oldversion(a1,a2): #bruce 050502 renamed this from bond_atoms; it's called from the newer version of bond_atoms
+def bond_atoms_oldversion(a1, a2): #bruce 050502 renamed this from bond_atoms; it's called from the newer version of bond_atoms
     """
     Make a new bond between atoms a1 and a2 (and add it to their lists of bonds),
     if they are not already bonded; if they are already bonded do nothing. Return None.
@@ -227,7 +225,8 @@ def bond_atoms_faster(at1, at2, v6): #bruce 050513; docstring corrected 050706
     """
     Bond two atoms, which must not be already bonded (this might not be checked).
     Doesn't remove singlets. [###k should verify that by a test]
-    Return the new bond object (which is given the valence v6, which must be specified).
+    Return the new bond object (which is given the bond order code
+    (aka valence) v6, which must be specified).
     """
     b = Bond(at1, at2, v6) # (this does all necessary invals, including _changed_structure on atoms, and asserts at1 is not at2)
     at1.bonds.append(b)
@@ -272,7 +271,7 @@ def bonds_mmprecord( valence, atomcodes ):
     (given as atomcodes, a list of the strings used to encode them
      in the mmp file being written).
     """
-    ind = BOND_VALENCES.index(valence) # exception if not a supported valence
+    ind = BOND_VALENCES.index(valence) # exception if not a supported bond order code (aka valence)
     recname = BOND_MMPRECORDS[ind]
     return recname + " " + " ".join(atomcodes)
 
@@ -289,7 +288,8 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
     (but if that can happen, we should revise the API so an error message can be returned).
        Error if these two atoms are already bonded. [Question: is this detected? ###k]
        If provided, s1 and s2 are the existing singlets on a1 and a2 (respectively)
-    whose valence should be reduced (or eliminated, in which case they are deleted)
+    whose valence (i.e. bond order code on their open bonds)
+    should be reduced (or eliminated, in which case they are deleted)
     to provide valence (bond order) for the new bond. (If they don't have enough,
     other adjustments will be made; this function is free to alter, remove, or replace
     any existing singlets on either atom.)
@@ -322,16 +322,19 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
         assert no_corrections == False
         bond_atoms_oldversion( a1, a2) # warning [obs??#k]: mol.copy might rely on this being noop when bond already exists!
         return
+
+    make_corrections = not no_corrections
+    del no_corrections
     
     # quick hack for new version, using optimized/stricter old version
     ## assert vnew in BOND_VALENCES
-    assert not atoms_are_bonded(a1,a2)
+    assert not atoms_are_bonded(a1, a2)
     assert s1 is None or not s1._Atom__killed
     assert s2 is None or not s2._Atom__killed
     assert not a1._Atom__killed
     assert not a2._Atom__killed
 
-    if not no_corrections:
+    if make_corrections:
         # make sure atomtypes are set, so bondpoints other than the ones passed
         # won't be needlessly replaced or moved by Atom.update_valence below
         # [bruce 071019 revision to make this easier to use in DNA Generator] ### UNTESTED for that purpose
@@ -339,35 +342,75 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
         a2.atomtype
         assert s1 is None or not s1._Atom__killed
         assert s2 is None or not s2._Atom__killed
-                
-        # copy open bond directions if consistent [bruce 071017]
-        # note: sign of ._direction is not meaningful, without knowing atom
-        # order within the bond; we test it first since we're optimizing
-        # for no directions being set
-        dir1 = (s1 is not None and s1.bonds[0]._direction and - s1.bonds[0].bond_direction_from(s1))
-        dir2 = (s2 is not None and s2.bonds[0]._direction and + s2.bonds[0].bond_direction_from(s2))
 
-        ####### TEMPORARY DEBUG CODE bruce 071018
-        if debug_flags.atom_debug and (dir1 or dir2):
-            print "bond at open bonds with directions, %r and %r" % (s1 and s1.bonds[0], s2 and s2.bonds[0])
+        # depending on whether the new bond will be directional,
+        # adjust bond directions on all open bonds on a1 and a2 to fit
+        # (including open bonds not on s1 or s2). [bruce 080213]
+
+        ### NIM is_directional
+
+        want_dir = 0 # maybe modified below
+
+        new_bond_is_directional = (
+            a1.element.bonds_can_be_directional and
+            a2.element.bonds_can_be_directional
+         )
+
+        if new_bond_is_directional:
+            # figure out desired direction for new bond (measured from a1 to a2)
+
+            # first grab existing directions on s1 and s2 (from their baseatoms
+            # to them), for the rare cases where we need them
+            dir1 = (s1 is not None and s1.bonds[0].bond_direction_from(a1))
+            dir2 = (s2 is not None and s2.bonds[0].bond_direction_from(a2))
+                # note: these might be False, but Python guarantees that will
+                # act as 0 in the arithmetic below
+
+            # find out, for each atom, the desired new direction away from it,
+            # using existing open bond directions only to disambiguate
+            # (they're needed only if a bare X-Ss-X is permitted, or if some
+            #  directional real bonds have directions unset)
+            want_dir_a1 = a1.desired_new_real_bond_direction() or dir1
+            want_dir_a2 = a2.desired_new_real_bond_direction() or dir2
+
+            # decide on the desired direction for the new bond,
+            # measured from a1 to a2 (so negate the "from a2" variables)
+            
+            sumdir = want_dir_a1 + (- want_dir_a2)
+                # this is 0 if the dirs wanted by each side are inconsistent;
+                # otherwise its sign gives the new dir (if any)
+
+            want_dir = max(-1, min(1, sumdir))
+            del sumdir
+
+            # if possible, fix open bond directions in advance (matters??)
+            if want_dir != dir1:
+                a1.fix_open_bond_directions(s1, want_dir)
+
+            if want_dir != - dir2:
+                a2.fix_open_bond_directions(s2, - want_dir)
+
+            if debug_flags.atom_debug and (dir1 or dir2 or want_dir_a1 or want_dir_a2 or want_dir):
+                print "bond at open bonds with directions, %r and %r, => %r" % (s1 and s1.bonds[0], s2 and s2.bonds[0], want_dir)
 
         pass
     
-    bond = bond_atoms_faster(a1,a2, vnew) #bruce 050513 using this in place of surrounding commented-out code
+    bond = bond_atoms_faster(a1, a2, vnew) #bruce 050513
     assert bond is not None
     
-    if not no_corrections:
+    if make_corrections:
         if s1 is not None:
             s1.singlet_reduce_valence_noupdate(vnew)
         if s2 is not None:
             s2.singlet_reduce_valence_noupdate(vnew) ###k
         # REVIEW: should we also zero their open-bond direction if it was
         # used above or will be used below? Not needed for now; might be
-        # needed later if it affects update_valence somehow (seems unlikely).
+        # needed later if it affects update_valence somehow (seems unlikely)
+        # or if directional bonds can ever be higher-order than single.
         # [bruce 071019]
 
         # Note [bruce 071019]: update_valence kills bondpoints with zero or
-        # other illegal valence, and replaces/moves all bondpoints if it also
+        # other illegal bond order, and replaces/moves all bondpoints if it also
         # decides to change the atomtype and can do so to one which matches
         # the number of existing bonds. This can be prevented by passing it
         # the new option dont_revise_valid_bondpoints (untested), but for
@@ -380,15 +423,19 @@ def bond_atoms(a1, a2, vnew = None, s1 = None, s2 = None, no_corrections = False
         #  merge singlets to match atomtype; now it does]
         a1.update_valence()
         a2.update_valence()
-        
-        sumdir = dir1 + dir2 # note: this is 0 if the dirs are inconsistent; otherwise its sign gives the new dir
-        if sumdir and bond.is_directional():
+
+        assert new_bond_is_directional == bond.is_directional()
+        if bond.is_directional():
             # Note: we do this now (after update_valence removed zero-valence
             # bondpoints, presumably including s1 and s2) to make sure
-            # is_directional won't be confused by the bondpoints still
-            # being there. [bruce 071019]
-            newdir = (sumdir > 0) and 1 or -1
-            bond.set_bond_direction_from( a1, newdir)
+            # is_directional and the other code below won't be confused
+            # by the bondpoints still being there.
+            # If any open bond directions are unideal, the dna updater
+            # (if active) will complain and might fix them (it knows to
+            # preserve real bond directions like the one we're setting now).
+            # [bruce 071019, 080213]
+            bond.set_bond_direction_from( a1, want_dir)
+
         pass
     return bond
 
@@ -712,7 +759,12 @@ class Bond(BondBase, StateMixin, Selobj_API):
                 self.propogate_bond_direction_towards(self.atom2)
         return
 
-    def _clear_bond_direction(self): #bruce 070415
+    def clear_bond_direction(self): #bruce 070415; made public 080213
+        """
+        If self has a bond direction set, clear it.
+        (Legal to call even if self is not a directional bond.)
+        [public; does all needed invalidations]
+        """
         if self._direction:
             del self._direction # let default value (0) show through
             assert not self._direction
@@ -1255,7 +1307,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
                 print_compact_stack( "atom_debug: likely bug: bonding atoms whose parts differ: %r, %r" % (at1,at2))
 
         if self._direction and not self.is_directional(): #bruce 070415
-            self._clear_bond_direction()
+            self.clear_bond_direction()
         return
     
     def invalidate_bonded_mols(self): #bruce 041109
@@ -1540,7 +1592,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
 ##            # which clears directions if they are no longer allowed.
 ##            ### TODO: copy direction onto the newly created bonds to x1 and x2.
 ##            # [update 071105: I think that todo item is done now.]
-##            self._clear_bond_direction() #bruce 070415
+##            self.clear_bond_direction() #bruce 070415
         
         x1 = self.atom1.unbond(self, make_bondpoint = make_bondpoints) # does all needed invals
         x2 = self.atom2.unbond(self, make_bondpoint = make_bondpoints)
@@ -1831,27 +1883,48 @@ register_class_changedicts( Bond, _Bond_global_dicts )
 def bond_at_singlets(s1, s2, **opts):
     """
     [Public function; does all needed invalidations.]
-    s1 and s2 are singlets; make a bond between their real atoms in
-    their stead.
-       If the real atoms are in different molecules, and if move = 1
-    (the default), move s1's molecule to match the bond, and
+
+    s1 and s2 are bondpoints (formerly called singlets);
+    make a bond between their real atoms in their stead.
+
+    If the real atoms are in different chunks, and if move = 1
+    (the default), move s1's chunk to match the bond, and
     [bruce 041109 observes that this last part is not yet implemented]
     set its center to the bond point and its axis to the line of the bond.
-       It's an error if s1 == s2, or if they're on the same atom. It's a
+    [I suspect this feature is no longer operative -- should review,
+     update doc. -- bruce 080213]
+
+    It's an error if s1 == s2, or if they're on the same atom. It's a
     warning (no error, but no bond made) if the real atoms of the singlets
     are already bonded, unless we're able to make the existing bond have
-    higher valence, which we'll only attempt if increase_bond_order = True,
+    higher bond order, which we'll only attempt if increase_bond_order = True,
     and [bruce 050702] which is only possible if the bonded elements have suitable atomtypes.
-    If the singlets are bonded to their base atoms with different valences,
+
+    If the singlets are bonded to their base atoms with different bond orders,
     it's an error if we're unable to adjust those to match... #####@@@@@ #k.
     (We might add more error or warning conditions later.)
-       The return value says whether there was an error, and what was done:
-    we return (flag, status) where flag is 0 for ok (a bond was made or an
-    existing bond was given a higher valence, and s1 and s2 were killed)
-    or 1 or 2 for no bond made (1 = not an error, 2 = an error),
-    and status is a string explaining what was done, or why nothing was
-    done, suitable for displaying in a status bar.
-       If no bond is made due to an error, and if print_error_details = 1
+
+    If the bond directions on the open bonds of s1 and s2 are not what is
+    required for maintaining correct directions in a chain of directional
+    bonds, then we will try to fix them by altering bond directions on them
+    or any other open bonds on their base atoms, if we can be sure how this
+    ought to be done. This is not an error and causes no messages when the
+    final state can be fully correct (unless debug flags are set). Note that
+    this operates independently of and before the dna updater (which would
+    also try to fix such errors, but can't do it as well since it doesn't
+    know which bonds are new). This can be disabled by the option XXX.
+    [### NIM; intended new feature soon; implem is all in bond_atoms(); bruce 080213]
+
+    The return value says whether there was an error, and what was done:
+
+    @return: (flag, status),
+             where flag is 0 for ok (a bond was made or an existing bond was
+             given a higher bond order, and s1 and s2 were killed),
+             or 1 or 2 for no bond made (1 = not an error, 2 = an error),
+             and status is a string explaining what was done, or why nothing was
+             done, suitable for displaying in a status bar.
+
+    If no bond is made due to an error, and if option print_error_details = 1
     (the default), then we also print a nasty warning with the details
     of the error, saying it's a bug. 
     """
@@ -1862,10 +1935,10 @@ def bond_at_singlets(s1, s2, **opts):
     #   Now, with debug pref to not use OLD code below, it looks like we or an immediate subsequent update
     #   removes and remakes (in different posns) bondpoints other than the ones passed. Still working on it.
     # [bruce 071018 comment]
-    obj = bonder_at_singlets(s1, s2, **opts)
+    obj = _bonder_at_singlets(s1, s2, **opts)
     return obj.retval
 
-class bonder_at_singlets:
+class _bonder_at_singlets:
     """
     handles one call of bond_at_singlets
     """
@@ -1919,7 +1992,7 @@ class bonder_at_singlets:
                 return do_error("can't bond an atom (%r) to itself" % a1,
                   "asked to bond atom %r to itself,\n"
                   " from different singlets, %r and %r." % (a1, s1, s2))
-        if atoms_are_bonded(a1,a2):
+        if atoms_are_bonded(a1, a2):
             #bruce 041119, part of fix for bug #121
             # not an error (so arg2 is None)
             if self.increase_bond_order and a1.can_reduce_numbonds() and a2.can_reduce_numbonds():
@@ -1978,7 +2051,7 @@ class bonder_at_singlets:
                 "ok to move mol1 if we're about to bond it to mol2?"
                 return mol1.externs == []
                 #e you might prefer externs_except_to(mol1, [mol2]), but probably not
-            if ok_to_move(m1,m2):
+            if ok_to_move(m1, m2):
                 status += ", and moved %r to match" % m1.name
                 m1.rot(Q(a1.posn()-s1.posn(), s2.posn()-a2.posn()))
                 m1.move(s2.posn()-s1.posn())
@@ -1993,8 +2066,10 @@ class bonder_at_singlets:
         #e [bruce 041109 asks: does it matter that the following code forgets which
         #   singlets were involved, before bonding?]
         #####@@@@@ this needs to worry about valence of s1 and s2 bonds, and thus of new bond
-        s1, a1 = self.s1, self.a1
-        s2, a2 = self.s2, self.a2
+        s1 = self.s1
+        s2 = self.s2
+        a1 = self.a1
+        a2 = self.a2
 
         #bruce 071018, stop using old code here, finally; might fix open bond direction; clean up if so ###TODO
         USE_OLD_CODE = debug_pref("Bonds: use OLD code for actually_bond?",
@@ -2002,7 +2077,7 @@ class bonder_at_singlets:
                                   )
 
         v1 = s1.singlet_v6()
-        v2 = s2.singlet_v6() # assume new code is available [rm cmt when works]
+        v2 = s2.singlet_v6()
         
         if USE_OLD_CODE:
             new_code_needed = (v1 != V_SINGLE or v2 != V_SINGLE)
@@ -2012,19 +2087,21 @@ class bonder_at_singlets:
                     print "atom_debug: fyi (once per event): using OLD code for actually_bond"
                 s1.kill()
                 s2.kill()
-                bond_atoms(a1,a2)
+                bond_atoms(a1, a2)
                 return (0, self.status) # effectively from bond_at_singlets
 
         # new code, handles any valences for s1, s2
-        if debug_flags.atom_debug:
-            print "atom_debug: NEW code used for actually_bond" #####@@@@@
+##        if debug_flags.atom_debug:
+##            print "atom_debug: NEW code used for actually_bond"
         
-        vnew = min(v1,v2)
-        bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
+        vnew = min(v1, v2)
+        bond = bond_atoms(a1, a2, vnew, s1, s2)
+            # tell it the singlets to replace or reduce; let this do everything now, incl updates.
             # can that fail? I don't think so; if it could, it'd need to have new API and return us an error message explaining why.
             ###########@@@@@@@@@@ TODO bruce 071018: need to make this not harm any *other* singlets on these atoms,
             # since some callers already recorded them and want to call this immediately again to make other bonds.
             # it's good if it kills *these* singlets when that's correct, though.
+            # REVIEW: what's the status of that?
         
         vused = bond.v6 # this will be the created bond
         prefix = bond_type_names[vused] + '-'
@@ -2106,7 +2183,7 @@ class bonder_at_singlets:
         s1.singlet_reduce_valence_noupdate(vdelta)
         a1.update_valence() # this can change the atomtype of a1 to match the fact that it deletes a singlet [bruce comment 050728]
         return (0, "merged two bondpoints on atom %r" % (a1,))
-    pass # end of class bonder_at_singlets, the helper for function bond_at_singlets
+    pass # end of class _bonder_at_singlets, the helper for function bond_at_singlets
 
 # ===
 
@@ -2121,9 +2198,9 @@ class bonder_at_singlets:
 ##    as a boolean function as well).
 ##    """
 ##    res = []
-##    for bon in mol.externs:
-##        mol2 = bon.othermol(mol)
-##        assert mol2 != mol, "an internal bond %r was in self.externs of %r" % (bon, mol)
+##    for bond in mol.externs:
+##        mol2 = bond.othermol(mol)
+##        assert mol2 != mol, "an internal bond %r was in self.externs of %r" % (bond, mol)
 ##        if mol not in others:
 ##            if mol not in res:
 ##                res.append(mol)

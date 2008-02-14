@@ -420,7 +420,7 @@ def _unset_some_open_bond_direction(atom, direction):
     for bond in atom.bonds:
         if bond.is_open_bond() and \
            bond.bond_direction_from(atom) == direction: # bugfix 080201, care which direction is set, not just that some dir was set
-            bond._clear_bond_direction() # make non-private?
+            bond.clear_bond_direction()
             didit = True
             break
         continue
@@ -448,7 +448,7 @@ def _clear_illegal_direction(bond):
 
     @type bond: Bond
     """    
-    bond._clear_bond_direction()
+    bond.clear_bond_direction()
 
     summary_format = "Warning: dna updater cleared [N] bond directions on pseudoelements that don't permit one"
     env.history.deferred_summary_message( orangemsg(summary_format) )
