@@ -885,6 +885,17 @@ class Node( StateMixin):
         # we no longer call mode.UpdateDashboard() from here;
         # clipboard selection no longer affects Build mode dashboard. [bruce 050124]
 
+    def MT_plain_left_click(self): #bruce 080213 addition to Node API
+        """
+        Subclasses which want side effects from a plain, direct left click
+        in a model tree widget (after the usual effect of self.pick)
+        should implement those by overriding this method.
+
+        (Note that .pick, unlike this method, can also be called due to
+        selecting a Group, select all, context menu, or even Undo.)
+        """
+        pass
+    
     def unpick(self):
         """
         unselect the object, and all its ancestor nodes.

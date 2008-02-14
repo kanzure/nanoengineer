@@ -285,6 +285,14 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
         """
         raise Exception('overload me')
 
+    def MT_plain_left_click(self): #bruce 080213 addition to Node API
+        """
+        Do desired extra side effects (if any) from a plain, direct left click
+        in a model tree widget (after the usual effect of self.pick, which can
+        also happen in several other ways).
+        """
+        pass
+    
     def unpick(self):
         """
         unselect the object, and all its ancestor nodes.
@@ -1248,6 +1256,27 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             # But it probably has little effect now to not do it, because we probably do it anyway
             # during the selection phase above.
 
+        if eventInRect and not contextMenu \
+           and not (modifiers & Qt.ShiftModifier) and not (modifiers & Qt.ControlModifier):
+            # plain left click --
+            # also do direct left click effects for nodes that have any
+            # [new feature, bruce 080213]
+            assert item.node
+            try:
+                item.node.MT_plain_left_click
+            except AttributeError:
+                pass # soon, this should never happen
+            else:
+                self.mt_update()
+                    # kluge (not sure it'll work) -- try to update the MT
+                    # at the start, not end, of long-running side effects
+                    # in the following method, like animating a view change.
+                    # (But we will still do it again below, in case something
+                    #  changed during a long op here (this is ok since it
+                    #  should be fast if nothing changed).
+                item.node.MT_plain_left_click()
+            pass
+            
         if DEBUG:
             print "SELECTED AFTER <<<"
             print self.topmost_selected_nodes()
