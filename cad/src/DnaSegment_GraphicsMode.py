@@ -346,12 +346,16 @@ class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
             #of chunks is slightly off the axis. Considering only strand chunks 
             # (and not axisChunk) is a workaround for this bug. Actual bug 
             #might be harder to fix not sure. -- Ninad 2008-02-12
-            new_movables = list(movables)
-            for chunk in new_movables:
-                if chunk.isAxisChunk():
-                    new_movables.remove(chunk)
+            
+            #UPDATE 2008-02-13
+            #Disabled temporarily to see if this fixes a recently introduced 
+            #bug :strands don't rotate about segment's axis:
+            ##new_movables = list(movables)
+            ##for chunk in new_movables:
+                ##if chunk.isAxisChunk():
+                    ##new_movables.remove(chunk)
             self.o.assy.rotateSpecifiedMovables(Q(resAxis,-dy), 
-                                                movables = new_movables) 
+                                                movables = movables) 
         
         if freeDragWholeStructure:
             try:
