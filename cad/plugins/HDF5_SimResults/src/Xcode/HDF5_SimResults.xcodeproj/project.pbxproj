@@ -9,13 +9,14 @@
 /* Begin PBXBuildFile section */
 		E10AA5FD0BAE228300A9D4A6 /* Consumer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA53C0BAC78A700CE1FC6 /* Consumer.cpp */; };
 		E10AA5FE0BAE229700A9D4A6 /* Producer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA53E0BAC78A700CE1FC6 /* Producer.cpp */; };
+		E10DF35C0D64DE400030FB67 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */; };
+		E10DF35D0D64DE4A0030FB67 /* SimResultsDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */; };
+		E10DF35E0D64DE500030FB67 /* HDF5_SimResults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA5350BAC78A700CE1FC6 /* HDF5_SimResults.cpp */; };
+		E10DF35F0D64DE580030FB67 /* SimResultsDataStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA5380BAC78A700CE1FC6 /* SimResultsDataStore.cpp */; };
+		E10DF37A0D64DFAB0030FB67 /* libHDF5_SimResults.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E10DF3580D64DE150030FB67 /* libHDF5_SimResults.dylib */; };
 		E1ADA58F0BAC7B7100CE1FC6 /* HDF5_SimResultsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA5360BAC78A700CE1FC6 /* HDF5_SimResultsTest.cpp */; };
 		E1ADA5900BAC7B7100CE1FC6 /* HDF5_SimResultsTest.h in Headers */ = {isa = PBXBuildFile; fileRef = E1ADA5370BAC78A700CE1FC6 /* HDF5_SimResultsTest.h */; };
 		E1ADA5910BAC7B7100CE1FC6 /* CppUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA53D0BAC78A700CE1FC6 /* CppUnit.cpp */; };
-		E1ADA5A00BAC7E4700CE1FC6 /* HDF5_SimResults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA5350BAC78A700CE1FC6 /* HDF5_SimResults.cpp */; };
-		E1ADA5A10BAC7E4700CE1FC6 /* SimResultsDataStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1ADA5380BAC78A700CE1FC6 /* SimResultsDataStore.cpp */; };
-		E1B4E8030D47AC62002B19F8 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */; };
-		E1B4E8040D47AC62002B19F8 /* SimResultsDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */; };
 		E1B4E8050D47AC63002B19F8 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */; };
 		E1B4E8060D47AC63002B19F8 /* SimResultsDataStore.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */; };
 		E1B4E8070D47AC64002B19F8 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */; };
@@ -25,13 +26,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		E10AA57D0BAE190200A9D4A6 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E1ADA51F0BAC780800CE1FC6 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = E1ADA5990BAC7E2700CE1FC6;
-			remoteInfo = libHDF5_SimResults;
-		};
 		E10AA5EA0BAE21D800A9D4A6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E1ADA51F0BAC780800CE1FC6 /* Project object */;
@@ -39,11 +33,11 @@
 			remoteGlobalIDString = E10AA5E70BAE21C300A9D4A6;
 			remoteInfo = Consumer;
 		};
-		E1ADA5AC0BAC7EFA00CE1FC6 /* PBXContainerItemProxy */ = {
+		E10DF37B0D64DFCD0030FB67 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E1ADA51F0BAC780800CE1FC6 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = E1ADA5990BAC7E2700CE1FC6;
+			remoteGlobalIDString = E10DF3570D64DE150030FB67 /* libHDF5_SimResults */;
 			remoteInfo = libHDF5_SimResults;
 		};
 /* End PBXContainerItemProxy section */
@@ -51,6 +45,7 @@
 /* Begin PBXFileReference section */
 		E10AA57B0BAE18D100A9D4A6 /* Producer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Producer; sourceTree = BUILT_PRODUCTS_DIR; };
 		E10AA5E80BAE21C300A9D4A6 /* Consumer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Consumer; sourceTree = BUILT_PRODUCTS_DIR; };
+		E10DF3580D64DE150030FB67 /* libHDF5_SimResults.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libHDF5_SimResults.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1ADA5350BAC78A700CE1FC6 /* HDF5_SimResults.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HDF5_SimResults.cpp; sourceTree = "<group>"; };
 		E1ADA5360BAC78A700CE1FC6 /* HDF5_SimResultsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HDF5_SimResultsTest.cpp; sourceTree = "<group>"; };
 		E1ADA5370BAC78A700CE1FC6 /* HDF5_SimResultsTest.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HDF5_SimResultsTest.h; sourceTree = "<group>"; };
@@ -59,7 +54,6 @@
 		E1ADA53D0BAC78A700CE1FC6 /* CppUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CppUnit.cpp; sourceTree = "<group>"; };
 		E1ADA53E0BAC78A700CE1FC6 /* Producer.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Producer.cpp; sourceTree = "<group>"; };
 		E1ADA5880BAC7B1D00CE1FC6 /* CppUnit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CppUnit; sourceTree = BUILT_PRODUCTS_DIR; };
-		E1ADA59A0BAC7E2700CE1FC6 /* libHDF5_SimResults.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libHDF5_SimResults.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		E1B4E7E90D47AA66002B19F8 /* HDF5_SimResults.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HDF5_SimResults.h; sourceTree = "<group>"; };
 		E1B4E7EA0D47AA66002B19F8 /* SimResultsDataStore.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SimResultsDataStore.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,17 +73,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E1ADA5850BAC7B1D00CE1FC6 /* Frameworks */ = {
+		E10DF3560D64DE150030FB67 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E1ADA5980BAC7E2700CE1FC6 /* Frameworks */ = {
+		E1ADA5850BAC7B1D00CE1FC6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E10DF37A0D64DFAB0030FB67 /* libHDF5_SimResults.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -109,9 +104,9 @@
 			isa = PBXGroup;
 			children = (
 				E1ADA5880BAC7B1D00CE1FC6 /* CppUnit */,
-				E1ADA59A0BAC7E2700CE1FC6 /* libHDF5_SimResults.a */,
 				E10AA57B0BAE18D100A9D4A6 /* Producer */,
 				E10AA5E80BAE21C300A9D4A6 /* Consumer */,
+				E10DF3580D64DE150030FB67 /* libHDF5_SimResults.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -178,6 +173,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E10DF3540D64DE150030FB67 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E10DF35C0D64DE400030FB67 /* HDF5_SimResults.h in Headers */,
+				E10DF35D0D64DE4A0030FB67 /* SimResultsDataStore.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E1ADA5830BAC7B1D00CE1FC6 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -188,25 +192,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E1ADA5960BAC7E2700CE1FC6 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E1B4E8030D47AC62002B19F8 /* HDF5_SimResults.h in Headers */,
-				E1B4E8040D47AC62002B19F8 /* SimResultsDataStore.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		E1ADA5990BAC7E2700CE1FC6 /* libHDF5_SimResults */ = {
+		E10DF3570D64DE150030FB67 /* libHDF5_SimResults */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E1ADA59B0BAC7E4500CE1FC6 /* Build configuration list for PBXNativeTarget "libHDF5_SimResults" */;
+			buildConfigurationList = E10DF3590D64DE3C0030FB67 /* Build configuration list for PBXNativeTarget "libHDF5_SimResults" */;
 			buildPhases = (
-				E1ADA5960BAC7E2700CE1FC6 /* Headers */,
-				E1ADA5970BAC7E2700CE1FC6 /* Sources */,
-				E1ADA5980BAC7E2700CE1FC6 /* Frameworks */,
+				E10DF3540D64DE150030FB67 /* Headers */,
+				E10DF3550D64DE150030FB67 /* Sources */,
+				E10DF3560D64DE150030FB67 /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -214,8 +209,8 @@
 			);
 			name = libHDF5_SimResults;
 			productName = libHDF5_SimResults;
-			productReference = E1ADA59A0BAC7E2700CE1FC6 /* libHDF5_SimResults.a */;
-			productType = "com.apple.product-type.library.static";
+			productReference = E10DF3580D64DE150030FB67 /* libHDF5_SimResults.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
 
@@ -229,9 +224,9 @@
 			projectDirPath = "";
 			targets = (
 				E1ADA5870BAC7B1D00CE1FC6 /* CppUnit */,
-				E1ADA5990BAC7E2700CE1FC6 /* libHDF5_SimResults */,
 				E10AA57A0BAE18D100A9D4A6 /* Producer */,
 				E10AA5E70BAE21C300A9D4A6 /* Consumer */,
+				E10DF3570D64DE150030FB67 /* libHDF5_SimResults */,
 			);
 		};
 /* End PBXProject section */
@@ -277,6 +272,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		E10DF3550D64DE150030FB67 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E10DF35E0D64DE500030FB67 /* HDF5_SimResults.cpp in Sources */,
+				E10DF35F0D64DE580030FB67 /* SimResultsDataStore.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E1ADA5840BAC7B1D00CE1FC6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -286,32 +290,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E1ADA5970BAC7E2700CE1FC6 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				E1ADA5A00BAC7E4700CE1FC6 /* HDF5_SimResults.cpp in Sources */,
-				E1ADA5A10BAC7E4700CE1FC6 /* SimResultsDataStore.cpp in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		E10AA57E0BAE190200A9D4A6 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E1ADA5990BAC7E2700CE1FC6 /* libHDF5_SimResults */;
-			targetProxy = E10AA57D0BAE190200A9D4A6 /* PBXContainerItemProxy */;
-		};
 		E10AA5EB0BAE21D800A9D4A6 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = E10AA5E70BAE21C300A9D4A6 /* Consumer */;
 			targetProxy = E10AA5EA0BAE21D800A9D4A6 /* PBXContainerItemProxy */;
 		};
-		E1ADA5AD0BAC7EFA00CE1FC6 /* PBXTargetDependency */ = {
+		E10DF37C0D64DFCD0030FB67 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = E1ADA5990BAC7E2700CE1FC6 /* libHDF5_SimResults */;
-			targetProxy = E1ADA5AC0BAC7EFA00CE1FC6 /* PBXContainerItemProxy */;
+			target = E10DF3570D64DE150030FB67 /* libHDF5_SimResults */;
+			targetProxy = E10DF37B0D64DFCD0030FB67 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -326,7 +316,6 @@
 				E10AA5790BAE18D100A9D4A6 /* Rez */,
 			);
 			dependencies = (
-				E10AA57E0BAE190200A9D4A6 /* PBXTargetDependency */,
 				E10AA5EB0BAE21D800A9D4A6 /* PBXTargetDependency */,
 			);
 			name = Producer;
@@ -360,7 +349,7 @@
 				E1ADA5860BAC7B1D00CE1FC6 /* Rez */,
 			);
 			dependencies = (
-				E1ADA5AD0BAC7EFA00CE1FC6 /* PBXTargetDependency */,
+				E10DF37C0D64DFCD0030FB67 /* PBXTargetDependency */,
 			);
 			name = CppUnit;
 			productInstallPath = /usr/local/bin;
@@ -470,6 +459,40 @@
 			};
 			name = Release;
 		};
+		E10DF35A0D64DE3C0030FB67 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				EXECUTABLE_PREFIX = lib;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/lib;
+				OTHER_LDFLAGS = "-lhdf5";
+				PREBINDING = NO;
+				PRODUCT_NAME = HDF5_SimResults;
+				ZERO_LINK = YES;
+			};
+			name = Debug;
+		};
+		E10DF35B0D64DE3C0030FB67 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/lib;
+				OTHER_LDFLAGS = "-lhdf5";
+				PREBINDING = NO;
+				PRODUCT_NAME = HDF5_SimResults;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		E1ADA5210BAC780800CE1FC6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -493,12 +516,11 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = ../../include;
+				LIBRARY_SEARCH_PATHS = build/Debug;
 				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-lcppunit",
-					"-lHDF5_SimResults",
-				);
+				OTHER_LDFLAGS = "-lcppunit";
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = CppUnit;
 				REZ_EXECUTABLE = YES;
@@ -521,11 +543,7 @@
 				LIBRARY_SEARCH_PATHS = build/Release;
 				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = (
-					"-lcppunit",
-					"-lHDF5_SimResults",
-					"-lhdf5",
-				);
+				OTHER_LDFLAGS = "-lcppunit";
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = CppUnit;
 				REZ_EXECUTABLE = YES;
@@ -535,38 +553,6 @@
 					"-Wno-four-char-constants",
 					"-Wno-unknown-pragmas",
 				);
-				ZERO_LINK = NO;
-			};
-			name = Release;
-		};
-		E1ADA59C0BAC7E4500CE1FC6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_PATH = /usr/local/lib;
-				PREBINDING = NO;
-				PRODUCT_NAME = HDF5_SimResults;
-				USER_HEADER_SEARCH_PATHS = ../../include;
-				ZERO_LINK = YES;
-			};
-			name = Debug;
-		};
-		E1ADA59D0BAC7E4500CE1FC6 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				INSTALL_PATH = /usr/local/lib;
-				PREBINDING = NO;
-				PRODUCT_NAME = HDF5_SimResults;
-				USER_HEADER_SEARCH_PATHS = ../../include;
 				ZERO_LINK = NO;
 			};
 			name = Release;
@@ -592,6 +578,15 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		E10DF3590D64DE3C0030FB67 /* Build configuration list for PBXNativeTarget "libHDF5_SimResults" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E10DF35A0D64DE3C0030FB67 /* Debug */,
+				E10DF35B0D64DE3C0030FB67 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		E1ADA5200BAC780800CE1FC6 /* Build configuration list for PBXProject "HDF5_SimResults" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -606,15 +601,6 @@
 			buildConfigurations = (
 				E1ADA58B0BAC7B3C00CE1FC6 /* Debug */,
 				E1ADA58C0BAC7B3C00CE1FC6 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		E1ADA59B0BAC7E4500CE1FC6 /* Build configuration list for PBXNativeTarget "libHDF5_SimResults" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				E1ADA59C0BAC7E4500CE1FC6 /* Debug */,
-				E1ADA59D0BAC7E4500CE1FC6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

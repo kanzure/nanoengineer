@@ -121,96 +121,26 @@ class SimResultsDataStore {
 	 * @return 0=successful or non-zero error code
 	 */
 	virtual int setNotes(const std::string& notes, std::string& message) = 0;
-		
-	
-	/*
-	 * Timestep
-	 */
-	/** Retrieves the simulation timestep in seconds.
-	 *
-	 * @return 0=successful or non-zero if no value was found.
-	 */
-	virtual int getTimestep(float& timestep) const = 0;
-	
-	/** Sets the simulation timestep.
-	 *
-	 * @param message description of the error when a non-zero value is returned
-	 * @return 0=successful or non-zero error code
-	 */
-	virtual int setTimestep(const float& timestep, std::string& message) = 0;
-	
-	
-	/*
-	 * StartStep
-	 */
-	/** Retrieves the simulation starting step number.
-	 *
-	 * @return 0=successful or non-zero if no value was found.
-	 */
-	virtual int getStartStep(int& startStep) const = 0;
-	
-	/** Sets the simulation starting step number.
-	 *
-	 * @param message description of the error when a non-zero value is returned
-	 * @return 0=successful or non-zero error code
-	 */
-	virtual int setStartStep(const int& startStep, std::string& message) = 0;
-	
-
-	/*
-	 * MaxSteps
-	 */
-	/** Retrieves the maximum number of steps to simulate.
-	 *
-	 * @return 0=successful or non-zero if no value was found.
-	 */
-	virtual int getMaxSteps(int& maxSteps) const = 0;
-	
-	/** Sets the maximum number of steps to simulate.
-	 *
-	 * @param message description of the error when a non-zero value is returned
-	 * @return 0=successful or non-zero error code
-	 */
-	virtual int setMaxSteps(const int& maxSteps, std::string& message) = 0;
-	
-	
-	/*
-	 * EnvironmentTemperature
-	 */
-	/** Retrieves the simulation environment temperature in Kelvin.
-	 *
-	 * @return 0=successful or non-zero if no value was found.
-	 */
-	virtual int getEnvironmentTemperature(float& envTemp) const = 0;
-	
-	/** Sets the simulation environment temperature.
-	 *
-	 * @param envTemp in Kelvin
-	 * @param message description of the error when a non-zero value is returned
-	 * @return 0=successful or non-zero error code
-	 */
-	virtual int setEnvironmentTemperature(const float& envTemp,
-										  std::string& message) = 0;
-
-	/*
-	 * EnvironmentPressure
-	 */
-	/** Retrieves the simulation environment pressure in Pascals.
-	 *
-	 * @return 0=successful or non-zero if no value was found.
-	 */
-	virtual int getEnvironmentPressure(float& envPress) const = 0;
-	
-	/** Sets the simulation environment pressure.
-	 *
-	 * @param envTemp in Pascals
-	 * @param message description of the error when a non-zero value is returned
-	 * @return 0=successful or non-zero error code
-	 */
-	virtual int setEnvironmentPressure(const float& envPress,
-									   std::string& message) = 0;
 
 	
+	/*
+	 * Parameters
+	 */
+	virtual std::vector<std::string> getIntParameterKeys() const = 0;
+	virtual int getIntParameter(const std::string& key, int& value) const = 0;
+	virtual int setIntParameter(const std::string& key, int value,
+								std::string& message) = 0;
+	virtual std::vector<std::string> getFloatParameterKeys() const = 0;
+	virtual int getFloatParameter(const std::string& key, float& value)
+		const = 0;
+	virtual int setFloatParameter(const std::string& key, float value,
+								  std::string& message) = 0;
+	virtual std::vector<std::string> getStringParameterKeys() const = 0;
+	virtual int getStringParameter(const std::string& key, std::string& value)
+		const = 0;
+	virtual int setStringParameter(const std::string& key,
+								   const std::string& value,
+								   std::string& message) = 0;
 	/*
 	 * FilePath
 	 */
@@ -261,23 +191,6 @@ class SimResultsDataStore {
 	 */
 	virtual int setRunResult(const int& code, const char* failureDescription,
 							 std::string& message) = 0;
-	
-
-	/*
-	 * StepCount
-	 */
-	/** Retrieves the number of steps successfully simulated.
-	 *
-	 * @return 0=successful or non-zero if no value was found.
-	 */
-	virtual int getStepCount(int& stepCount) const = 0;
-
-	/** Sets the number of steps successfully simulated.
-	 *
-	 * @param message description of the error when a non-zero value is returned
-	 * @return 0=successful or non-zero error code
-	 */
-	virtual int setStepCount(const int& stepCount, std::string& message) = 0;
 
 	
 	/*

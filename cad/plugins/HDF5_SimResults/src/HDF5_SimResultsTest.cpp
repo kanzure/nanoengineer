@@ -98,25 +98,47 @@ void HDF5_SimResultsTest::getSetNotes() {
 }
 
 
-/* FUNCTION: getSetTimestep */
-void HDF5_SimResultsTest::getSetTimestep() {
+/* FUNCTION: getSetParameters */
+void HDF5_SimResultsTest::getSetParameters() {
 	int status;
 	std::string message;
 	
-	float timestep;
-	status = simResults->getTimestep(timestep);
+	int intValue = 5;
+	status = simResults->getIntParameter("int value", intValue);
 	CPPUNIT_ASSERT(status != 0);
 	
-	status = simResults->setTimestep(1.234f, message);
+	status = simResults->setIntParameter("int value", 99, message);
 	CPPUNIT_ASSERT(status == 0);
 	
-	status = simResults->getTimestep(timestep);
+	status = simResults->getIntParameter("int value", intValue);
 	CPPUNIT_ASSERT(status == 0);
-	CPPUNIT_ASSERT_DOUBLES_EQUAL(1.234, timestep, 0.0001);
+	CPPUNIT_ASSERT(intValue == 99);
+	
+	float floatValue = 5.0;
+	status = simResults->getFloatParameter("float value", floatValue);
+	CPPUNIT_ASSERT(status != 0);
+	
+	status = simResults->setFloatParameter("float value", 99.99, message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	status = simResults->getFloatParameter("float value", floatValue);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(99.99, floatValue, 0.001);
+	
+	std::string stringValue = "foo";
+	status = simResults->getStringParameter("string value", stringValue);
+	CPPUNIT_ASSERT(status != 0);
+	
+	status = simResults->setStringParameter("string value", "bar", message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	status = simResults->getStringParameter("string value", stringValue);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT(stringValue == "bar");
 }
 
 
-/* FUNCTION: getSetStartStep */
+/* FUNCTION: getSetStartStep 
 void HDF5_SimResultsTest::getSetStartStep() {
 	int status;
 	std::string message;
@@ -131,9 +153,9 @@ void HDF5_SimResultsTest::getSetStartStep() {
 	status = simResults->getStartStep(startStep);
 	CPPUNIT_ASSERT((status == 0) && (startStep == 5));
 }
+*/
 
-
-/* FUNCTION: getSetMaxSteps */
+/* FUNCTION: getSetMaxSteps 
 void HDF5_SimResultsTest::getSetMaxSteps() {
 	int status;
 	std::string message;
@@ -148,9 +170,9 @@ void HDF5_SimResultsTest::getSetMaxSteps() {
 	status = simResults->getMaxSteps(maxSteps);
 	CPPUNIT_ASSERT((status == 0) && (maxSteps == 10));
 }
+*/
 
-
-/* FUNCTION: getSetEnvironmentTemperature */
+/* FUNCTION: getSetEnvironmentTemperature 
 void HDF5_SimResultsTest::getSetEnvironmentTemperature() {
 	int status;
 	std::string message;
@@ -166,9 +188,9 @@ void HDF5_SimResultsTest::getSetEnvironmentTemperature() {
 	CPPUNIT_ASSERT(status == 0);
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(5.678, envTemp, 0.0001);
 }
+*/
 
-
-/* FUNCTION: getSetEnvironmentPressure */
+/* FUNCTION: getSetEnvironmentPressure 
 void HDF5_SimResultsTest::getSetEnvironmentPressure() {
 	int status;
 	std::string message;
@@ -184,7 +206,7 @@ void HDF5_SimResultsTest::getSetEnvironmentPressure() {
 	CPPUNIT_ASSERT(status == 0);
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(9.101, envPress, 0.0001);
 }
-
+*/
 
 /* FUNCTION: getSetFilePath */
 void HDF5_SimResultsTest::getSetFilePath() {
@@ -239,7 +261,7 @@ void HDF5_SimResultsTest::getSetRunResult() {
 }
 
 
-/* FUNCTION: getSetStepCount */
+/* FUNCTION: getSetStepCount 
 void HDF5_SimResultsTest::getSetStepCount() {
 	int status;
 	std::string message;
@@ -254,7 +276,7 @@ void HDF5_SimResultsTest::getSetStepCount() {
 	status = simResults->getStepCount(stepCount);
 	CPPUNIT_ASSERT((status == 0) && (stepCount == 100));
 }
-
+*/
 
 /* FUNCTION: getSetStartTime */
 void HDF5_SimResultsTest::getSetStartTime() {

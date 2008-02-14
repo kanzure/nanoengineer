@@ -225,92 +225,69 @@ int HDF5_SimResults::setNotes(const std::string& notes, std::string& message) {
 }
 
 
-/* FUNCTION: getTimestep */
-int HDF5_SimResults::getTimestep(float& timestep) const {
-	return getFloatAttribute("/Parameters", "Timestep", timestep);
+/* FUNCTION: getIntParameterKeys */
+std::vector<std::string> HDF5_SimResults::getIntParameterKeys() const {
+	return getGroupKeys("/Parameters-Ints");
 }
 
 
-/* FUNCTION: setTimestep */
-int HDF5_SimResults::setTimestep(const float& timestep, std::string& message) {
-	return setFloatAttribute("/Parameters", "Timestep", timestep, message);
+/* FUNCTION: getIntParameter */
+int HDF5_SimResults::getIntParameter(const std::string& key, int& value) const {
+	return getIntAttribute("/Parameters-Ints", key, value);
 }
 
 
-/* FUNCTION: getStartStep */
-int HDF5_SimResults::getStartStep(int& startStep) const {
-	return getIntAttribute("/Parameters", "StartStep", startStep);
+/* FUNCTION: setIntParameter */
+int HDF5_SimResults::setIntParameter(const std::string& key, int value,
+									 std::string& message) {
+	return setIntAttribute("/Parameters-Ints", key, value, message);
 }
 
 
-/* FUNCTION: setStartStep */
-int HDF5_SimResults::setStartStep(const int& startStep, std::string& message) {
-	return setIntAttribute("/Parameters", "StartStep", startStep, message);
+/* FUNCTION: getFloatParameterKeys */
+std::vector<std::string> HDF5_SimResults::getFloatParameterKeys() const {
+	return getGroupKeys("/Parameters-Floats");
 }
 
 
-/* FUNCTION: getMaxSteps */
-int HDF5_SimResults::getMaxSteps(int& maxSteps) const {
-	return getIntAttribute("/Parameters", "MaxSteps", maxSteps);
+/* FUNCTION: getFloatParameter */
+int HDF5_SimResults::getFloatParameter(const std::string& key,
+									   float& value) const {
+	return getFloatAttribute("/Parameters-Floats", key, value);
 }
 
 
-/* FUNCTION: setMaxSteps */
-int HDF5_SimResults::setMaxSteps(const int& maxSteps, std::string& message) {
-	return setIntAttribute("/Parameters", "MaxSteps", maxSteps, message);
+/* FUNCTION: setFloatParameter */
+int HDF5_SimResults::setFloatParameter(const std::string& key, float value,
+									   std::string& message) {
+	return setFloatAttribute("/Parameters-Floats", key, value, message);
 }
 
 
-/* FUNCTION: getEnvironmentTemperature */
-int HDF5_SimResults::getEnvironmentTemperature(float& envTemp) const {
-	return getFloatAttribute("/Parameters", "EnvironmentTemperature", envTemp);
+/* FUNCTION: getStringParameterKeys */
+std::vector<std::string> HDF5_SimResults::getStringParameterKeys() const {
+	return getGroupKeys("/Parameters-Strings");
 }
 
 
-/* FUNCTION: setEnvironmentTemperature */
-int HDF5_SimResults::setEnvironmentTemperature(const float& envTemp,
-											   std::string& message) {
-	return setFloatAttribute("/Parameters", "EnvironmentTemperature", envTemp,
-							 message);
+/* FUNCTION: getStringParameter */
+int HDF5_SimResults::getStringParameter(const std::string& key,
+										std::string& value) const {
+	return getStringAttribute("/Parameters-Strings", key, value);
 }
 
 
-/* FUNCTION: getEnvironmentPressure */
-int HDF5_SimResults::getEnvironmentPressure(float& envPress) const {
-	return getFloatAttribute("/Parameters", "EnvironmentPressure", envPress);
-}
-
-
-/* FUNCTION: setEnvironmentPressure */
-int HDF5_SimResults::setEnvironmentPressure(const float& envPress,
-											std::string& message) {
-	return setFloatAttribute("/Parameters", "EnvironmentPressure", envPress,
-							 message);
+/* FUNCTION: setStringParameter */
+int HDF5_SimResults::setStringParameter(const std::string& key,
+										const std::string& value,
+										std::string& message) {
+	return setStringAttribute("/Parameters-Strings", key, value, message);
 }
 
 
 /* FUNCTION: getFilePathKeys */
-std::vector<std::string> HDF5_SimResults::getFilePathKeys() const {	
-	std::vector<std::string> keys;
-	
-	// See if the group exists and open it
-	hid_t groupId = H5Gopen(fileId, "/InputFilePaths");
-	if (groupId > -1) {
-		// Get an attribute count
-		int attrCount = H5Aget_num_attrs(groupId);
-		
-		// Build key list
-		hid_t attributeId;
-		char buffer[64];
-		for (int attrIndex = 0; attrIndex < attrCount; attrIndex++) {
-			attributeId = H5Aopen_idx(groupId, attrIndex);
-			H5Aget_name(attributeId, sizeof(buffer), buffer);
-			H5Aclose(attributeId);
-			keys.push_back(buffer);
-		}
-		H5Gclose(groupId);
-	}		
-	return keys;
+std::vector<std::string> HDF5_SimResults::getFilePathKeys() const {
+	return getGroupKeys("/InputFilePaths");
 }
 
 
@@ -349,18 +326,6 @@ int HDF5_SimResults::setRunResult(const int& code,
 			setStringAttribute("/Results", "RunResultMessage",
 							   failureDescription, message);
 	return status;
-}
-
-
-/* FUNCTION: getStepCount */
-int HDF5_SimResults::getStepCount(int& stepCount) const {
-	return getIntAttribute("/Results", "StepCount", stepCount);
-}
-
-
-/* FUNCTION: setStepCount */
-int HDF5_SimResults::setStepCount(const int& stepCount, std::string& message) {
-	return setIntAttribute("/Results", "StepCount", stepCount, message);
 }
 
 
@@ -2572,6 +2537,32 @@ int HDF5_SimResults::setTimeAttribute(const std::string& groupName,
 	H5Gclose(groupId);
 	
 	return resultCode;
+}
+
+
+/* FUNCTION: getGroupKeys */
+std::vector<std::string> HDF5_SimResults::getGroupKeys
+		(const std::string& group) const {
+	std::vector<std::string> keys;
+	
+	// See if the group exists and open it
+	hid_t groupId = H5Gopen(fileId, group.c_str());
+	if (groupId > -1) {
+		// Get an attribute count
+		int attrCount = H5Aget_num_attrs(groupId);
+		
+		// Build key list
+		hid_t attributeId;
+		char buffer[64];
+		for (int attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+			attributeId = H5Aopen_idx(groupId, attrIndex);
+			H5Aget_name(attributeId, sizeof(buffer), buffer);
+			H5Aclose(attributeId);
+			keys.push_back(buffer);
+		}
+		H5Gclose(groupId);
+	}		
+	return keys;
 }
 
 } // Nanorex::

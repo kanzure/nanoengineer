@@ -21,16 +21,11 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 	CPPUNIT_TEST(getSetName);
 	CPPUNIT_TEST(getSetDescription);
 	CPPUNIT_TEST(getSetNotes);
-	CPPUNIT_TEST(getSetTimestep);
-	CPPUNIT_TEST(getSetStartStep);
-	CPPUNIT_TEST(getSetMaxSteps);
-	CPPUNIT_TEST(getSetEnvironmentTemperature);
-	CPPUNIT_TEST(getSetEnvironmentPressure);
+	CPPUNIT_TEST(getSetParameters);
 	
 	CPPUNIT_TEST(getSetFilePath);
 	
 	CPPUNIT_TEST(getSetRunResult);
-	CPPUNIT_TEST(getSetStepCount);
 	CPPUNIT_TEST(getSetStartTime);
 	CPPUNIT_TEST(getSetCPU_RunningTime);
 	CPPUNIT_TEST(getSetWallRunningTime);
@@ -59,16 +54,11 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 		void getSetName();
 		void getSetDescription();
 		void getSetNotes();
-		void getSetTimestep();
-		void getSetStartStep();
-		void getSetMaxSteps();
-		void getSetEnvironmentTemperature();
-		void getSetEnvironmentPressure();
+		void getSetParameters();
 		
 		void getSetFilePath();
 		
 		void getSetRunResult();
-		void getSetStepCount();
 		void getSetStartTime();
 		void getSetCPU_RunningTime();
 		void getSetWallRunningTime();
