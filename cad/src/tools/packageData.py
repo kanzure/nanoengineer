@@ -326,6 +326,10 @@ packageMapping_for_files = {
     "DnaSegment_PropertyManager"       : "ui/propmgr|dna/commands/DnaSegment",
     "DnaSegment_ResizeHandle"          : "graphics_drawable|dna/commands/DnaSegment", # [bruce 080207 reclassified to stay with command]
     "DnaSequenceEditor"                : "widget|DnaSequenceEditor", # a major ui component, and maybe a widget (guess, didn't look at code)
+    "DnaStrand_EditCommand"            : "command|dna/commands/DnaStrand",
+    "DnaStrand_GraphicsMode"           : "graphics_mode|dna/commands/DnaStrand",
+    "DnaStrand_PropertyManager"        : "ui/propmgr|dna/commands/DnaStrand",
+    "DnaStrand_ResizeHandle"           : "graphics_drawable|dna/commands/DnaStrand",
     "Dna_Constants"                    : "model|dna/model", # (since used by lots of files in several dna-related commands)
     "DragHandler"                      : "graphics_drawable",
     "drawDnaRibbons"                   : "graphics_drawing",
