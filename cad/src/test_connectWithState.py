@@ -93,7 +93,9 @@ class State_preMixin( IorE_guest_mixin):
     _e_has_args = True # not needed -- only purpose is to remove "w/o a" from repr(self)
 
     def __init__(self, glpane, *args, **kws):
-        debug_init = True # temporary
+        
+        #Following flag , if True, enables some debug prints in console
+        debug_init = False 
         if debug_init:
             print "State_preMixin.__init__", glpane, args, kws
         IorE_guest_mixin.__init__(self, glpane)
