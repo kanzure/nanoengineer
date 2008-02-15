@@ -6,6 +6,7 @@ DnaSegment.py - ...
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
+import env
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 from debug import print_compact_stack
 from chunk import Chunk
@@ -43,7 +44,7 @@ class DnaSegment(DnaStrandOrSegment):
     _duplexRise = None
     _numberOfBasesPerTurn = None
     
-    def __init__(self, name, assy, dad, members = (), editCommand = None):        
+    def __init__(self, name, assy, dad, members = (), editCommand = None): 
         self._duplexRise = None
         self._numberOfBasesPerTurn = None
         
@@ -111,7 +112,7 @@ class DnaSegment(DnaStrandOrSegment):
             if vec[0] < 0.0:
                 atm1, atm2 = atm2, atm1
             return atm1, atm2
-        elif len(endPointList) > 2:
+        elif len(endAtomList) > 2:
             print_compact_stack("bug:The axis chunk has more than 2 'Ae' atoms")
         else:
             return None, None
@@ -186,7 +187,7 @@ class DnaSegment(DnaStrandOrSegment):
         # (Note, this seems to assume that the axis is a single chunk.
         #  This may often be true pre-data-model, but I'm not sure --
         #  certainly it's not enforced, AFAIK. This will print_compact_stack
-        #  when more than one axis chunk is in a segment. [bruce 080212 comment])
+        # when more than one axis chunk is in a segment. [bruce 080212 comment])
         endPointList = []
         for atm in self.getAxisEndAtoms(): 
             if atm is not None:
@@ -214,7 +215,7 @@ class DnaSegment(DnaStrandOrSegment):
         vec = atmPosition2 - atmPosition1
         vec = quat.rot(vec)
         if vec[0] < 0.0:
-            atmPosition1, atmPosition2 = atmPosition2, atmPosition1                        
+            atmPosition1, atmPosition2 = atmPosition2, atmPosition1    
         return atmPosition1, atmPosition2
 
     def get_axis_end_baseatoms(self): # bruce 080212
@@ -270,8 +271,7 @@ class DnaSegment(DnaStrandOrSegment):
         @see: DnaSegment_EditCommand.editStructure where it is used. 
         @see: DnaSegment_PropertyManager.getParameters
         @see: DnaSegmentEditCommand._createStructure        
-        """               
-        numberOfBasePairs = self.getNumberOfAxisAtoms() 
+        """                
         
         if self._duplexRise is None:
             self._duplexRise = self._computeDuplexRise() 
