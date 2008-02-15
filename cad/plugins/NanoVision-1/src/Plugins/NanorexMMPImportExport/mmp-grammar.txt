@@ -87,12 +87,16 @@ atom-property-value-list :   atom-property-value-key
                            | atom-property-value-key  atom-property-value-list
 
 
-// **TODO** may have to refine property categories so that only correct values may be assigned to them
 atom-property-value-key : atom-property-name '=' atom-property-value
 
-atom-property-name : **TODO**
+atom-property-name : 'atomtype'
 
-atom-property-value : **TODO**
+atom-property-value :   'sp'
+                      | 'sp2'
+                      | 'sp2_g'
+                      | 'sp3'
+                      | 'sp3d'
+
 
 end-stmt : 'end'  string-list  '\n'
 

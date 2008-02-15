@@ -1,18 +1,31 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include "NanorexMMPImportExport.h"
-#include <fstream>
-#include <sstream>
+
+
 
 /* CONSTRUCTOR */
 NanorexMMPImportExport::NanorexMMPImportExport()
 {
+    reset();
 }
 
 /* DESTRUCTOR */
 NanorexMMPImportExport::~NanorexMMPImportExport()
 {
 }
+
+
+void NanorexMMPImportExport::reset(void)
+{
+}
+
+void NanorexMMPImportExport::readMMP(istream& instream,
+                                     NXMoleculeSet *moleculeSet)
+{
+}
+
+
 
 NXCommandResult*
 NanorexMMPImportExport::
@@ -33,10 +46,10 @@ importFromFile(NXMoleculeSet* moleculeSet,
         success = false;
     }
     else {
-        readMMP_mol(infile, moleculeSet);
+        readMMP(infile, moleculeSet);
     }
     
-    // Retrieve and set the meta information about the data store.
+// Retrieve and set the meta information about the data store.
     if (success) {
         QFileInfo fileInfo(filename.c_str());
         dataStoreInfo->addInputStructure(qPrintable(fileInfo.fileName()),
@@ -57,14 +70,4 @@ exportToFile(NXMoleculeSet* moleculeSet,
     /// @todo
 }
 
-
-/* FUNCTION: populateCommandResult */
-void NanorexMMPImportExport::populateCommandResult
-(NXCommandResult* result, const string& message) {
-    result->setResult(NX_PLUGIN_REPORTS_ERROR);
-    vector<QString> resultVector;
-    resultVector.push_back("OpenBabelImportExport");
-    resultVector.push_back(message.c_str());
-    result->setParamVector(resultVector);
-}
 
