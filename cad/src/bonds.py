@@ -1362,6 +1362,14 @@ class Bond(BondBase, StateMixin, Selobj_API):
         # so I'm removing the explicit resets of havelist here, which were often
         # more than needed since they hit both mols of external bonds.
         # This change might speed up some redraws, esp. in move or deposit modes.
+
+        # new feature, bruce 080214:
+        atom1 = self.atom1
+        if atom1._f_checks_neighbor_geom and atom1._f_valid_neighbor_geom:
+            atom1._f_invalidate_neighbor_geom()
+        atom2 = self.atom2
+        if atom2._f_checks_neighbor_geom and atom2._f_valid_neighbor_geom:
+            atom2._f_invalidate_neighbor_geom()
         return
 
     def bond_to_abs_coords_quat(self): #bruce 050722
@@ -1382,7 +1390,9 @@ class Bond(BondBase, StateMixin, Selobj_API):
         
     def _recompute_geom(self, abs_coords = False): #bruce 050516 made this from __setup_update
         """
-        [private method meant for our __getattr__ method, and for writepov]
+        [private method meant for our __getattr__ method, and for writepov,
+         but also called as "friend method" from draw_bond_main in another file]
+        
         Recompute and return (but don't store)
         the 6-tuple (a1pos, c1, center, c2, a2pos, toolong),
         which describes this bond's geometry, useful for drawing (OpenGL 
@@ -1512,7 +1522,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         Given one atom the bond is connected to, return the other one
         """
-        if self.atom1 is atm: return self.atom2
+        if self.atom1 is atm:
+            return self.atom2
         assert self.atom2 is atm #bruce 041029
         return self.atom1
 
@@ -1726,28 +1737,34 @@ class Bond(BondBase, StateMixin, Selobj_API):
 ##                print "%s: %r not in %r.bonds" % (prefix, self, atom)
 ##        return
         
-    def draw(self, glpane, dispdef, col, level, highlighted = False, bool_fullBondLength = False): #bruce 050727 moving implem to separate file
+    def draw(self, glpane, dispdef, col, level,
+             highlighted = False,
+             bool_fullBondLength = False ):
         """
-        Draw the bond. Note that for external bonds, this is called twice,
-        once for each bonded molecule (in arbitrary order)
+        Draw the bond. Note that for external bonds, this is [or used to be?]
+        called twice, once for each bonded molecule (in arbitrary order)
         (and is never cached in either mol's display list);
         each of these calls gets dispdef, col, and level from a different mol.
         [bruce, 041104, thinks that leads to some bugs in bond looks.]
-           Bonds are drawn only in certain display modes (CPK, LINES, TUBES).
+           Bonds are drawn only in certain display modes.
         The display mode is inherited from the atoms or molecule (as passed in
         via dispdef from the calling molecule -- this might cause bugs if some
-        callers change display mode but don't set havelist = 0, but maybe they do).
-        Lines or tubes change color from atom to atom, and are red in the middle
-        for long bonds. CPK bonds are drawn in the calling molecule's color or
-        in the user pref color whose default value used to be called bondColor (which is light gray).
+        callers change display mode but don't set havelist = 0, but maybe they
+        do). Lines or tubes change color from atom to atom, and are red in the
+        middle for long bonds. oldCPK(?) bonds are drawn in the calling chunk's
+        color or in the user pref color whose default value used to be called
+        bondColor (which is light gray).
            Note that all drawing coords are based on either .posn or .baseposn
         of the atoms, according to whether this is an external or internal bond,
         and the caller has to draw those kinds of bonds in the proper coordinate
-        system (absolute or mol-relative for external or internal bonds respectively).
+        system (absolute or chunk-relative for external or internal bonds
+        respectively).
+
+        @param bool_fullBondLength: whether full bond length to be drawn
         """
-        #Note: bool_fullBondLength represent whether full bond length to be drawn
-        #it is used only in select Chunks mode while highlighting the whole chunk and when
-        #the atom display is Tubes display -- ninad 070214
+        # note: bool_fullBondLength is used only in select Chunks mode while
+        # highlighting the whole chunk and when the atom display is Tubes
+        # -- ninad 070214
         
         #bruce 041104 revised docstring, added comments about possible bugs.
         # Note that this code depends on finding the attrs toolong, center,
@@ -1756,9 +1773,20 @@ class Bond(BondBase, StateMixin, Selobj_API):
         # The attr toolong is new as of 041112.
         if debug_flags.atom_debug:
             import bond_drawer
-            reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event to remove intolerable slowdown
+            reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event
         from bond_drawer import draw_bond
         draw_bond( self, glpane, dispdef, col, level, highlighted, bool_fullBondLength)
+        # if we're an external bond, also draw our atoms'
+        # geometry_error_indicators, so those stay out of their chunk
+        # display lists (since they depend on external info, namely,
+        # this bond). (not needed when a chunk is highlighted, but the caller
+        # is not passing that flag then; don't know if needed when self alone
+        # is highlighted.) [bruce 080214]
+        if self.atom1.molecule is not self.atom2.molecule:
+            if self.atom1.check_bond_geometry(external = True):
+                self.atom1.overdraw_bond_geometry_error_indicator()
+            if self.atom2.check_bond_geometry(external = True):
+                self.atom2.overdraw_bond_geometry_error_indicator()
         return
 
     def legal_for_atomtypes(self): #bruce 050716

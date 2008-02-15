@@ -1058,6 +1058,184 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         lis = map((lambda b: b.other(self).element.symbol), self.bonds)
         print self.element.name, lis
 
+    _f_valid_neighbor_geom = False # privately, also used as valid_data tuple
+        # this is reset to False by some Atom methods, and when any bond of self
+        # is invalidated, which covers (I think) motion or element change of a
+        # neighbor atom.
+    _f_checks_neighbor_geom = False # kluge: set in _changed_structure based on element
+    bond_geometry_error_string = ""
+
+    def _f_invalidate_neighbor_geom(self): # bruce 080214
+        """
+        Cause self.bond_geometry_error_string to be recomputed
+        when self.check_bond_geometry() is next called.
+        [friend method for classes Atom & Bond]
+        """
+        self._f_valid_neighbor_geom = False
+
+        # too slow to also do this:
+        ## self.molecule.changeapp(0)
+        #
+        # Note: in theory we should now do self.molecule.changeapp(0).
+        # In practice this is too slow -- it would remake chunk display lists
+        # whenever they were dragged (on every mouse motion), even if a lot of
+        # chunks are being dragged together.
+        #
+        # Possible solutions:
+        #
+        # - short term mitigation: do a changeapp later, when something else calls
+        #   check_bond_geometry. This seems to happen at the end of the drag
+        #   or shortly after (not sure why). Note, this may be an illegal or lost
+        #   call of changeapp, since it can happen when drawing that same chunk.
+        #   ### REVIEW THIS... could we replace it with an incr of a counter in
+        #   the chunk, added to havelist data... or just put that inside changeapp
+        #   itself, so calls of changeapp at any time are permitted...??)
+        #
+        # - long term: when dragging selections rigidly, optimize by knowing
+        #   what needs recomputing due to "crossing the boundary" (between
+        #   selected and non-selected).
+        #
+        # - short term kluge: when drawing an external bond, have it overdraw the
+        #   error atoms with error indicators for this purpose. Since those bonds
+        #   are always drawn, let them be the only indicator of this error for
+        #   atoms that have any external bonds (otherwise we'd fail to turn off
+        #   error indicators soon enough when errors in a chunk were fixed by
+        #   dragging that chunk). For an interior atom, if a neighbor moves (other
+        #   than during rigid motion of their shared chunk), that will invalidate
+        #   its chunk's display list, ensuring it gets redrawn right away,
+        #   so no other inval is needed. AFAIK this is complete and correct.
+        #
+        # I'll do only the "short term kluge" solution, for now. [bruce 080214]
+        return
+    
+    def check_bond_geometry(self, external = -1): # bruce 080214
+        # todo: probably should move this method within class
+        """
+        Check the geometry of our bonds, and update
+        self.bond_geometry_error_string with current data.
+        Also return it for convenience, as modified by the
+        external option.
+
+        Be fast if nothing relevant has changed.
+
+        @param external: If -1 (default), return the new or
+                         changed value of self.bond_geometry_error_string.
+                         If False, only return that value if
+                         self._f_draw_bond_geometry_error_indicator_externally
+                         is False, otherwise return "".
+                         This returns the error indication to use when drawing
+                         this atom itself into a chunk display list.
+                         If True, only return that value if
+                         self._f_draw_bond_geometry_error_indicator_externally
+                         is True, otherwise return "".
+                         This returns the error indication to use when drawing
+                         external bonds connected to this atom (which are not
+                         drawn into a chunk display list).
+
+        @return: new or unchanged value of self.bond_geometry_error_string,
+                 unless external is passed (see that param's doc for more info).
+                
+        """
+##        # TODO: update this while dragging a chunk, for that chunk's
+##        # external bonds; right now it only updates when the drag is done.
+##        # (Not sure if that's due to a lack of inval or a lack of calling this.
+##        #  Or more likely it's a LOGIC BUG -- this does changeapp, but that is needed
+##        #  when this is invalled, if it would happen when we recompute!
+##        #  In fact, it might be illegal to do it here (since we might be drawing
+##        #  that very same chunk).
+        current_data = (self.molecule.bond_inval_count,) # must never equal False
+        if self._f_valid_neighbor_geom != current_data:
+            # need to recompute/update
+            self._f_valid_neighbor_geom = current_data
+            try:
+                error_string = self._recompute_bond_geometry_error_string()
+            except:
+                error_string = \
+                    "exception in _recompute_bond_geometry_error_string"
+                        # only seen in case of bugs
+                msg = "\n*** BUG: %s: " % error_string
+                print_compact_stack(msg)                
+            if error_string != self.bond_geometry_error_string:
+                # error string changed
+                if (not error_string) != (not self.bond_geometry_error_string):
+                    # even its set- or cleared-ness changed
+                    ## self.molecule.changeapp(0) # in case of error color, etc
+                        # this might not be safe, and is not sufficient,
+                        # so don't do it at all. (For more info see comment in
+                        # _f_invalidate_neighbor_geom.)
+                    if debug_pref("report bond_geometry_error_string set or clear?",
+                                  Choice_boolean_False,
+                                  prefs_key = True ):
+                        print "fyi: check_bond_geometry(%r) set or cleared error string %r" % (self, error_string)
+                self.bond_geometry_error_string = error_string
+            pass
+        if self.bond_geometry_error_string:
+            # make sure drawing code knows whether to draw the error indicator
+            # into the chunk display list or not (for explanation, see comment
+            # in _f_invalidate_neighbor_geom)
+            draw_externally = not not self.has_external_bonds()
+            self._f_draw_bond_geometry_error_indicator_externally = draw_externally # this attr might never be used
+            if external == -1 or external == draw_externally:
+                return self.bond_geometry_error_string
+        return ""
+
+    _f_draw_bond_geometry_error_indicator_externally = True
+
+    def has_external_bonds(self): # bruce 080214 # should refile within this class
+        """
+        Does self have any external bonds?
+        (i.e. bonds to atoms in different chunks)
+        """
+        for bond in self.bonds:
+            if bond.atom1.molecule is not bond.atom2.molecule:
+                ## todo: def bond.is_external()?
+                return True
+        return False
+    
+    def _recompute_bond_geometry_error_string(self): # bruce 080214
+        # todo: should refactor, put some in AxisAtom section, or atomtype
+        """
+        Recompute and return an error string about our bond geometry,
+        which is "" if there is no error.
+        """
+        if not self._f_checks_neighbor_geom:
+            # optimize elements that don't do checks at all
+            return ""
+        if self.element.symbol in ('Ax3', 'Ax5', 'Ae3', 'Ae5'): # not correct for Gv5!
+            # Prototype implem for just these elements.
+            # (Ideally, the specific code for this would be in the atomtype.)
+            if len(self.bonds) != self.atomtype.valence: # differs for Ax and Ae
+                return "valence error"
+            strand_neighbors = self.strand_neighbors()
+            if not len(strand_neighbors) in (1, 2):
+                return "wrong number of strand neighbors"
+            if len(strand_neighbors) == 2:
+                # check minor groove angle
+                # REVIEW: when this error happens, can we or dna updater
+                # propogate it throughout base pair?
+                ss1, ss2 = strand_neighbors
+                angle = atom_angle_radians( ss1, self, ss2 ) * 180/math.pi
+                angle = int(angle + 0.5)
+                low, high = 130, 155 # todo: put legal range in user prefs
+                if not (low <= angle <= high): 
+                    error = "minor groove angle %d degrees (should be %d-%d)" % \
+                            (angle, low, high)
+                    return error
+        return ""
+
+    _BOND_GEOM_ERROR_RADIUS_MULTIPLIER = 1.5 # not sure this big is good
+        # (or that a solid sphere is the best error indicator)
+    
+    def overdraw_bond_geometry_error_indicator(self): #bruce 080214
+        """
+        """
+        assert self._f_draw_bond_geometry_error_indicator_externally # for now
+        assert self.bond_geometry_error_string # make private??
+        from constants import ave_colors, red
+        color = ave_colors(0.5, orange, red) # revise? 
+        self.overdraw_with_special_color( color,
+            factor = self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER)
+
     def draw(self, glpane, dispdef, col, level):
         """
         Draw this atom (self), using an appearance which depends on
@@ -1126,9 +1304,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         if color is None:
             color = self.element.color
         # see if warning color is needed
-        # (review: check Ax minor groove angle here??)
-        if self._dna_updater__error: #bruce 080130
+        if self.check_bond_geometry(): #bruce 080214 (minor groove angle)
+            ### REVIEW: should this be done for interior atoms? maybe only for some calls of this method??
             color = orange
+        elif self._dna_updater__error: #bruce 080130
+            color = orange
+        
         return color
 
     # bruce 070409 split this out of draw_atom_sphere; 
@@ -1200,7 +1381,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 color = orange
             else:
                 return
-        if self._dna_updater__error: #bruce 080130; needed both here and in self.drawing_color()
+        if self.check_bond_geometry(external = False): #bruce 080214 (needed?)
+            color = orange
+        elif self._dna_updater__error: #bruce 080130; needed both here and in self.drawing_color()
             color = orange
         if style == 'bondpoint-stub':
             #bruce 060629/30 experiment -- works, incl for highlighting,
@@ -1429,10 +1612,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             msg += " (%s)" % more
         return msg
 
-    def overdraw_with_special_color(self, color, level = None):
+    def overdraw_with_special_color(self, color, level = None, factor = 1.0):
         """
         Draw this atom slightly larger than usual with the given
         special color and optional drawlevel, in abs coords.
+
+        @param factor: if provided, multiply our usual slightly larger radius by factor.
         """
         #bruce 050324; meant for use in Fuse Chunks mode;
         # also could perhaps speed up Extrude's singlet-coloring #e
@@ -1440,12 +1625,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             level = self.molecule.assy.drawLevel
         pos = self.posn() # note, unlike for draw_as_selatom, this is in main model coordinates
         drawrad = self.selatom_radius() # slightly larger than normal drawing radius
+        drawrad *= factor #bruce 080214 new feature
         ## drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
         self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
             #bruce 070409 bugfix (draw_atom_sphere); important if it's really a cone
         return
     
-
     def draw_in_abs_coords(self, glpane, color, useSmallAtomRadius = False): #bruce 050610
         ###@@@ needs to be told whether or not to "draw as selatom"; now it does [i.e. it's misnamed]
         """
@@ -1465,11 +1650,15 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         level = self.molecule.assy.drawLevel # this doesn't work if atom has been killed!
         pos = self.posn()
         ###@@@ remaining code might or might not be correct (issues: larger radius, display-mode independence)
-        
+
         if useSmallAtomRadius:
             drawrad = self.selatom_small_radius()
+            # review: does this need to be bigger when self.bond_geometry_error_string
+            # to make tooltip work on self?
         else:
             drawrad = self.selatom_radius() # slightly larger than normal drawing radius
+            if self.bond_geometry_error_string:
+                drawrad *= self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER * 1.02
         ## drawsphere(color, pos, drawrad, level)
         self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
             # always draw, regardless of display mode
@@ -1522,7 +1711,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 drawrad *= 1.02
         return drawrad
 
-
     def selatom_small_radius(self, dispdef = None): #ninad070213 for chunk highlighting
         if dispdef is None:
             dispdef = self.molecule.get_dispdef()
@@ -1532,6 +1720,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 # increased radius might not be needed, if we would modify the
                 # OpenGL depth threshhold criterion used by GL_DEPTH_TEST
                 # to overwrite when depths are equal [bruce 041206]
+        # review: the following code has no effect; what was its intent?
+        # [bruce 080214 comment]
         else:
             if disp == diTUBES:
                 drawrad *= 1.0
@@ -1724,25 +1914,32 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             mapping.write( bond.mmprecord_bond_direction(self, mapping) + "\n") #bruce 070415
         return
 
-    def readmmp_info_atom_setitem( self, key, val, interp ): #bruce 050511
+    def readmmp_info_atom_setitem( self, key, val, interp ):
         """
         Reads an atom info record from the MMP file.
         
         @see: The docstring of an analogous method, such as
               L{Node.readmmp_info_leaf_setitem()}.
         """
-        if key == ['atomtype']:
-            # val should be the name of one of self.element's atomtypes (not an error if unrecognized)
+        if key == ['atomtype']: #bruce 050511
+            # val should be the name of one of self.element's atomtypes
+            # (not an error if unrecognized)
             try:
                 atype = self.element.find_atomtype(val)
             except:
-                # didn't find it. (#e We ought to have a different API so a real error could be distinguished from that.)
+                # didn't find it.
+                # (todo: find_atomtype ought to have a different API, so a
+                #  real error could be distinguished from not finding val.)
                 if debug_flags.atom_debug:
-                    print "atom_debug: fyi: info atom atomtype (in class Atom) with unrecognized atomtype %r (not an error)" % (val,)
+                    print "atom_debug: fyi: " \
+                          "info atom atomtype (in class Atom) with " \
+                          "unrecognized atomtype %r (not an error)" % (val,)
                 pass
             else:
                 self.set_atomtype_but_dont_revise_singlets( atype)
-                    # don't add singlets, since this mmp record comes before the bonds, including bonds to singlets
+                    # don't add bondpoints (aka singlets), since this
+                    # mmp record comes before the bonds, including bonds
+                    # to bondpoints
         
         elif key == ['dnaBaseName']: # Mark 2007-08-16
             try:
@@ -2905,6 +3102,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         global_model_changedicts.changed_structure_atoms[ self.key ] = self
         _changed_structure_Atoms[ self.key ] = self #bruce 060322
             # (see comment at _changed_structure_Atoms about how these two dicts are related)
+        self._f_valid_neighbor_geom = False
+        self._f_checks_neighbor_geom = (self.element.role == 'axis')
         return
 
     def _f_changed_some_bond_direction(self): #bruce 080210
@@ -3974,7 +4173,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     def dna_updater_error_string(self,
                                  include_propogated_error_details = True,
                                  newline = '\n'
-                                 ): #bruce 080206
+                                 ): #bruce 080206; 080214 also covers check_bond_geometry
         """
         Return "" if self has no dna updater error (recorded by the dna updater
         in the private attribute self._dna_updater__error), or an error string
@@ -3997,6 +4196,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         @see: helper functions like _atom_set_dna_updater_error which should
               eventually become friend methods in a subclass of Atom.
         """
+        if self.check_bond_geometry():
+            # bruce 080214; initial kluge -- if this happens, ignore the rest (non-ideal)
+            return self.check_bond_geometry() # (redoing this is fast)
         if not self._dna_updater__error:
             # report errors from self's DnaLadder, if it has one
             ladder = getattr(self.molecule, 'ladder', None) # kluge for .ladder
