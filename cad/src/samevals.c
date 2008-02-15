@@ -131,14 +131,23 @@ static PyObject *
 internal_copy_val(PyObject *v)
 {
     PyTypeObject *typ;
+    PyObject *copy;
+    
     typ = v->ob_type;
     if (typ == &PyInt_Type ||
 	typ == &PyLong_Type ||
 	typ == &PyFloat_Type ||
 	typ == &PyComplex_Type ||
-	typ == &PyString_Type) {
+	typ == &PyString_Type ||
+	typ == &PyUnicode_Type) {
 	Py_INCREF(v);
 	return v;
+    } else if (v == Py_False) {
+        Py_RETURN_FALSE;
+    } else if (v == Py_True) {
+        Py_RETURN_TRUE;
+    } else if (v == Py_None) {
+        Py_RETURN_NONE;
     } else if (typ == &PyDict_Type) {
 	int i, n = PyDict_Size(v);
 	PyObject *newdict = PyDict_New();
@@ -164,11 +173,23 @@ internal_copy_val(PyObject *v)
 			   internal_copy_val(PyTuple_GetItem(v, i)));
 	return newtuple;
     } else if (typ == &PyInstance_Type) {
-	return PyObject_CallObject(instanceCopier, v);
+        PyObject *args = PyTuple_New(1);
+        Py_INCREF(v);
+        PyTuple_SetItem(args, 0, v);
+        copy = PyObject_CallObject(instanceCopier, args);
+        Py_DECREF(args);
+        return copy;
     } else if (typ == arraytype) {
-	return PyObject_CallObject(arrayCopier, v);
+        PyObject *args = PyTuple_New(1);
+        PyTuple_SetItem(args, 0, v);
+        Py_INCREF(v);
+	copy = PyObject_CallObject(arrayCopier, args);
+        Py_DECREF(args);
+        return copy;
     } else {
 	// no good ideas here...
+        fprintf(stderr, "copy_val(0x%x): not copying, type == %s\n", (int)v, typ->tp_name);
+	Py_INCREF(v);
 	return v;
     }
 }
@@ -189,8 +210,9 @@ copy_val(PyObject *self, PyObject *args)
 	PyErr_SetString(PyExc_RuntimeError, "please set arrayCopier first");
 	return NULL;
     }
-    if (!PyArg_ParseTuple(args, "O", &v))
-	return NULL;
+    if (!PyArg_ParseTuple(args, "O", &v)) {
+        return NULL;
+    }
     return internal_copy_val(v);
 }
 

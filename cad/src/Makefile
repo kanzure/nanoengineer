@@ -8,6 +8,8 @@ PYDVER := $(shell python -c "import sys; print sys.version[:3]")
 # un-dotted python version (23, 24)
 PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
 
+SHARED=atombase.lib samevals.lib
+
 ifeq ($(OS),Windows_NT)
 #---------------------------------------- Start Windows stuff
 # One dollar sign for DOS and two for Cygwin
@@ -19,6 +21,7 @@ LDFLAGS=-L"C:/MinGW/lib"
 PYREXTARGET=atombase.dll
 STDC99=
 PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py
+SHARED_LIBRARIES = $(SHARED:.lib=.dll)
 #---------------------------------------- End of Windows stuff
 else
 #---------------------------------------- Start Unix/Mac stuff
@@ -39,6 +42,7 @@ LDFLAGS=-L/usr/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
+SHARED_LIBRARIES = $(SHARED:.lib=.so)
 PYREXC=$(shell python -c "import PlatformDependent; print PlatformDependent.find_pyrexc()")
 LDFLAGS+=-L/usr/lib -lm
 LDFLAGS+=-L/usr/X11R6/lib -lGL
@@ -77,11 +81,14 @@ $(PYFILES0) : %.py : %.ui
 doc:
 	epydoc $(DOC_MODULES)
 
-pyclean:
-	rm -f $(PYFILES0) *.pyc *~
+cleanpyc:
+	find . -name \*.pyc -delete
 
-clean:
-	rm -f *.pyc *~ *.o *.so *.a *.dll *.def atombase.c core*
+pyclean: cleanpyc
+	rm -f $(PYFILES0) *~
+
+clean: cleanpyc
+	rm -f *~ *.o *.so *.a *.dll *.def atombase.c core*
 
 pyrex: $(PYREXTARGET)
 
@@ -94,11 +101,20 @@ atombase.c: atombasehelp.c atombase.pyx
 libpython$(PYVER).a: libpython$(PYVER).a.gz
 	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
 
+shared: $(SHARED_LIBRARIES)
+
 # On Windows, use "make atombase.dll"
 atombase.dll: atombase.c $(PYREXOBJS) libpython$(PYVER).a
 	gcc -shared -I"C:/Python$(PYVER)/include" -o atombase.dll $(PYREXOBJS) \
 		-Wl,--output-def,atombase.def -L. -lpython$(PYVER)
 
+samevals.dll: samevals.c $(PYREXOBJS) libpython$(PYVER).a
+	gcc -shared -I"C:/Python$(PYVER)/include" -o samevals.dll $(PYREXOBJS) \
+		-Wl,--output-def,samevals.def -L. -lpython$(PYVER)
+
 # On Mac and Linux, use "make atombase.so"
 atombase.so: atombase.o
 	$(LDSHARED) atombase.o -o atombase.so $(LDFLAGS)
+
+samevals.so: samevals.o
+	$(LDSHARED) samevals.o -o samevals.so $(LDFLAGS)
