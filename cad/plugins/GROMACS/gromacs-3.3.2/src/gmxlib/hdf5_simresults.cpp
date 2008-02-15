@@ -14,7 +14,7 @@ Nanorex::HDF5_SimResults* simResults = 0;
 
 /* FUNCTION: openHDF5dataStore */
 void openHDF5dataStore(const char* dataStoreName) {
-printf(">>> hdf5simresults.cpp:openHDF5dataStore\n");
+printf(">>> hdf5simresults.cpp: openHDF5dataStore\n");
 	
 	// The dataStoreName string will be something like foo.nh5. Strip the .nh5
 	// off to form the directory name.
@@ -84,6 +84,67 @@ printf(">>> hdf5simresults.cpp:openHDF5dataStore\n");
 	}
 }
 
+
+/* FUNCTION: addHDF5inputParameters */
+void addHDF5inputParameters(const HDF5inputParameters* inputParams) {
+	if (simResults == 0)
+		return; // Short-circuit
+
+	std::string message;
+	simResults->setStringParameter
+		("GMX.pbc", inputParams->pbc, message);
+	simResults->setStringParameter
+		("GMX.integrator", inputParams->integrator, message);
+	simResults->setStringParameter
+		("GMX.ns_type", inputParams->ns_type, message);
+	simResults->setIntParameter
+		("GMX.nsteps", inputParams->nsteps, message);
+	simResults->setIntParameter
+		("GMX.nstcgsteep", inputParams->nstcgsteep, message);
+	simResults->setIntParameter
+		("GMX.nstlist", inputParams->nstlist, message);
+	simResults->setFloatParameter
+		("GMX.rlist", inputParams->rlist, message);
+	simResults->setFloatParameter
+		("GMX.rcoulomb", inputParams->rcoulomb, message);
+	simResults->setFloatParameter
+		("GMX.rvdw", inputParams->rvdw, message);
+	simResults->setFloatParameter
+		("GMX.epsilon_r", inputParams->epsilon_r, message);
+	simResults->setFloatParameter
+		("GMX.emtol", inputParams->emtol, message);
+	simResults->setFloatParameter
+		("GMX.emstep", inputParams->emstep, message);
+}
+
+
+/* FUNCTION: addHDF5resultsData */
+void addHDF5resultsData(const HDF5resultsData* resultsData) {
+	if (simResults == 0)
+		return; // Short-circuit
+
+	std::string message, reason;
+	int result = 2;
+	if (resultsData->converged) {
+		result = 0; // success
+		
+	} else if (resultsData->convergedToMachinePrecision) {
+		result = 2; // failure
+		reason = "Converged to machine precision.";
+		
+	} else if (resultsData->gotSIGTERM) {
+		result = 3; // aborted
+		reason = "Received SIGTERM.";
+	}
+	simResults->setRunResult(result, reason.c_str(), message);
+	
+	simResults->setIntResult
+		("FinalStep", resultsData->finalStep, message);
+	simResults->setFloatResult
+		("TotalEnergy", resultsData->totalEnergy, message);
+	simResults->setFloatResult
+		("MaximumForce", resultsData->maxForce, message);
+}
 
 /* FUNCTION: addHDF5frame */
 void addHDF5frame(float time) {
@@ -182,5 +243,12 @@ void flushHDF5() {
 		return; // Short-circuit
 
 	simResults->flush();	
+}
+
+
+/* FUNCTION: closeHDF5dataStore */
+void closeHDF5dataStore() {
+	delete simResults;
+	simResults = 0;
 }
 

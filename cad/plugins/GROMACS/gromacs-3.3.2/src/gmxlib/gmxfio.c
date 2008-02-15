@@ -831,8 +831,8 @@ void fio_close(int fio)
     sfree(FIO[fio].xdr);
   }
   else if (FIO[fio].iFTP == efNH5) {
-    // Close the NH5 file. Never reached as far as I can see.
-    printf(">>>gmxfio.c:fio_close: close hdf5 file\n");
+    printf(">>> gmxfio.c:fio_close: close hdf5 file\n");
+	closeHDF5dataStore();
   }
   else {
     /* Don't close stdin and stdout! */

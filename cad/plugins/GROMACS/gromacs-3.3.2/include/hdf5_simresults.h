@@ -8,15 +8,32 @@
 extern "C" {
 #endif
 
-extern void openHDF5dataStore(const char* dataStoreName);
-extern void addHDF5frame(float time);
-extern void addHDF5atomIds(const unsigned int* atomIds, unsigned int atomCount);
-extern void addHDF5atomicNumbers(const unsigned int* atomicNumbers,
+typedef struct {
+	char pbc[4];
+	char integrator[8];
+	char ns_type[8];
+	int nsteps, nstcgsteep, nstlist;
+	float rlist, rcoulomb, rvdw, epsilon_r, emtol, emstep;
+} HDF5inputParameters;
+
+typedef struct {
+	int gotSIGTERM, converged, convergedToMachinePrecision;
+	int finalStep;
+	float totalEnergy, maxForce;
+} HDF5resultsData;
+
+void openHDF5dataStore(const char* dataStoreName);
+void addHDF5inputParameters(const HDF5inputParameters* inputParams);
+void addHDF5resultsData(const HDF5resultsData* resultsData);
+void addHDF5frame(float time);
+void addHDF5atomIds(const unsigned int* atomIds, unsigned int atomCount);
+void addHDF5atomicNumbers(const unsigned int* atomicNumbers,
 								 unsigned int atomCount);
-extern void addHDF5bonds(const void* bonds, unsigned int bondCount);
-extern void addHDF5atomCoordinates(const float* coordinates,
+void addHDF5bonds(const void* bonds, unsigned int bondCount);
+void addHDF5atomCoordinates(const float* coordinates,
 								   unsigned int atomCount);
-extern void flushHDF5();
+void flushHDF5();
+void closeHDF5dataStore();
 
 #ifdef __cplusplus
 } // extern "C" {

@@ -37,6 +37,7 @@
 #include <config.h>
 #endif
 
+#include <signal.h>
 #include <string.h>
 #include <time.h>
 #include <math.h>
@@ -72,6 +73,19 @@
 #include "gmx_random.h"
 #include "physics.h"
 #include "xvgr.h"
+
+#include "hdf5_simresults.h"
+
+volatile bool bbGotTermSignal = FALSE;
+
+static RETSIGTYPE signal_handler(int n)
+{
+  switch (n) {
+  case SIGTERM:
+    bbGotTermSignal = TRUE;
+    break;
+  }
+}
 
 static void sp_header(FILE *out,const char *minimizer,real ftol,int nsteps)
 {
@@ -301,11 +315,15 @@ time_t do_cg(FILE *log,int nfile,t_filenm fnm[],
   int    number_steps,neval=0,naccept=0,nstcg=inputrec->nstcgsteep;
   int    fp_ene,fp_trn;
   int    i,m,nfmax,start,end,niti,gf,step,nminstep;
-  real   terminate=0;  
+  real   terminate=0;
+  char* trajFileName = ftp2fn(efTRN,nfile,fnm);
 
 
   step=0;
 
+  /* Handle SIGTERM signals */
+  signal(SIGTERM,signal_handler);
+  
   init_em(log,CG,inputrec,&lambda,&mynrnb,mu_tot,state->box,
 	  fr,mdatoms,top,nsb,cr,&vcm,&start,&end);
   
@@ -430,8 +448,10 @@ time_t do_cg(FILE *log,int nfile,t_filenm fnm[],
    * Each successful step is counted, and we continue until
    * we either converge or reach the max number of steps.
    */
-  for(step=0,converged=FALSE;( step<=number_steps || number_steps==0) && !converged;step++) {
-    
+  for(step=0,converged=FALSE;
+	  (step<=number_steps || number_steps==0) && !converged && !bbGotTermSignal;
+	  step++) {
+	  
     /* start taking steps in a new direction 
      * First time we enter the routine, beta=0, and the direction is 
      * simply the negative gradient.
@@ -504,7 +524,25 @@ time_t do_cg(FILE *log,int nfile,t_filenm fnm[],
 			lambda,nrnb,nsb->natoms,
 			do_x ? state->x  : NULL,NULL,  /* we never have velocities */
 			do_f ? f  : NULL,state->box, top);
-    
+
+	// Write input parameters to the HDF5 data store
+	if ((step == 0) && (fn2ftp(trajFileName) == efNH5)) {
+		HDF5inputParameters inputParams;
+		strcpy(inputParams.pbc, EPBC(inputrec->ePBC));
+		strcpy(inputParams.integrator, EI(inputrec->eI));
+		strcpy(inputParams.ns_type, ENS(inputrec->ns_type));
+		inputParams.nsteps = inputrec->nsteps;
+		inputParams.nstcgsteep = inputrec->nstcgsteep;
+		inputParams.nstlist = inputrec->nstlist;
+		inputParams.rlist = inputrec->rlist;
+		inputParams.rcoulomb = inputrec->rcoulomb;
+		inputParams.rvdw = inputrec->rvdw;
+		inputParams.epsilon_r = inputrec->epsilon_r;
+		inputParams.emtol = inputrec->em_tol;
+		inputParams.emstep = inputrec->em_stepsize;
+		addHDF5inputParameters(&inputParams);
+	}
+
     /* Take a step downhill.
      * In theory, we should minimize the function along this direction.
      * That is quite possible, but it turns out to take 5-10 function evaluations
@@ -822,9 +860,23 @@ time_t do_cg(FILE *log,int nfile,t_filenm fnm[],
     fprintf(stderr,"\nwriting lowest energy coordinates.\n");
   
   /* Only write the trajectory if we didn't do it last step */
-  fp_trn = write_traj(log,cr,ftp2fn(efTRN,nfile,fnm),
+  fp_trn = write_traj(log,cr,trajFileName,
 		      nsb,step,(real)step,
 		      lambda,nrnb,nsb->natoms,!do_x ? state->x : NULL ,NULL,!do_f ? f : NULL,state->box, top);
+  
+  // Write results data to the HDF5 data store
+  if (fn2ftp(trajFileName) == efNH5) {	  	  
+		HDF5resultsData resultsData;
+		resultsData.gotSIGTERM = bbGotTermSignal;
+		resultsData.converged = converged;
+		resultsData.convergedToMachinePrecision =
+			(!converged && (step < number_steps));
+		resultsData.finalStep = step;
+		resultsData.totalEnergy = Epot0; // kJ/mol
+		resultsData.maxForce = fmax; // kJ/(mol nm)
+		addHDF5resultsData(&resultsData);
+  }
+  
   if (MASTER(cr))
     write_sto_conf(ftp2fn(efSTO,nfile,fnm),
 		   *top->name, &(top->atoms),state->x,NULL,state->box);
