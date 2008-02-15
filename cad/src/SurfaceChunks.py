@@ -27,11 +27,16 @@ from constants import diTrueCPK
 from prefs_constants import atomHighlightColor_prefs_key
 
 _psurface_ok = False
+#Flag that supress the console print  that reports failed psurface import. 
+#The psurface feature (surface chunks display) is not a part of NE1 anymore 
+#(as of 2008-02-15) 
+_VERBOSE_IMPORT_ERROR = False
 try:
     import psurface
     _psurface_ok = True
 except ImportError:
-    print "psurface not imported, check if it has been built"
+    if _VERBOSE_IMPORT_ERROR:
+        print "psurface not imported, check if it has been built"
 
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
@@ -51,7 +56,7 @@ class Interval:
         s += "%s " % self.min
         s += "%s " % self.max
         return s
-        
+
     def Empty(self):
         """clear interval"""
         self.min = 1000000   
@@ -60,7 +65,7 @@ class Interval:
     def Center(self):
         """calculate center"""
         return (self.max + self.min) / 2   
-  
+
     def Extent(self):
         """calculate extent"""
         return (self.max - self.min) / 2   
@@ -95,7 +100,7 @@ class Box:
             pass
         if len(args) == 3:
             self.x, self.y, self.z = args
- 
+
     def __str__(self):
         """returns the box in a textual form"""
         s = ""
@@ -103,7 +108,7 @@ class Box:
         s += "%s " % self.y
         s += "%s " % self.z
         return s
-        
+
     def Empty(self):
         """clear box"""
         self.x.Empty()   
@@ -113,7 +118,7 @@ class Box:
     def Center(self):
         """calculate center"""
         return Triple(self.x.Center(),self.y.Center(),self.z.Center())
-    
+
     def Min(self):
         """calculate min"""
         return Triple(self.x.min,self.y.min,self.z.min)
@@ -135,7 +140,7 @@ class Box:
         self.x.Enclose(p.x)
         self.y.Enclose(p.y)
         self.z.Enclose(p.z)
-        
+
 class Triple:
 
     def __init__(self, *args):
@@ -172,7 +177,7 @@ class Triple:
         s += "%s " % self.y
         s += "%s " % self.z
         return s
-        
+
     def Len2(self):
         """square of vector length"""
         return self.x * self.x + self.y * self.y + self.z * self.z    
@@ -180,7 +185,7 @@ class Triple:
     def Len(self):
         """vector length"""
         return sqrt(self.Len2())
-    
+
     def Normalize(self):
         """normalizes vector to unit length"""
         length = self.Len();
@@ -206,7 +211,7 @@ class Triple:
         """operator a + b"""
         t = Triple(rhs)
         return Triple(self.x + t.x, self.y + t.y, self.z + t.z)
-    
+
     def __radd__( self, lhs ):
         """operator b + a"""
         t = Triple(lhs)
@@ -219,7 +224,7 @@ class Triple:
         """operator a - b"""
         t = Triple(rhs)
         return Triple(self.x - t.x, self.y - t.y, self.z - t.z)
-    
+
     def __rsub__( self, lhs ):
         """operator b - a"""
         t = Triple(lhs)
@@ -245,7 +250,7 @@ class Triple:
         """operator a / b"""
         t = Triple(rhs)
         return Triple(self.x / t.x, self.y / t.y, self.z / t.z)
-    
+
     def __rdiv__( self, lhs ):
         """operator b / a"""
         t = Triple(lhs)
@@ -267,10 +272,10 @@ class Surface:
 
     def __init__(self):
         """surface constructor"""
-       
+
         self.spheres = []
-	self.radiuses = []
-                    
+        self.radiuses = []
+
     def Predicate(self, p):
         """calculate omega function:
            positive inside molecula,
@@ -288,21 +293,21 @@ class Surface:
                 if om < s: 
                     om = s
         return om     
-    
+
     def SurfaceTriangles(self, trias):
         """make projection all points onto molecula"""
-	self.colors = []
-	self.points = []
-	self.trias = []
-	self.Duplicate(trias)
-	self.SurfaceNormals()
-	np = len(self.points)
+        self.colors = []
+        self.points = []
+        self.trias = []
+        self.Duplicate(trias)
+        self.SurfaceNormals()
+        np = len(self.points)
         for j in range(np):
-	    p = self.points[j]
+            p = self.points[j]
             pt = Triple(p[0],p[1],p[2])
-	    n = self.normals[j]
-	    nt = -Triple(n[0],n[1],n[2])
-	    nt.Normalize()
+            n = self.normals[j]
+            nt = -Triple(n[0],n[1],n[2])
+            nt.Normalize()
             om = self.Predicate(pt)
             if om < -2.0 : om = -2.0
             pn = pt - 0.5 * om * nt
@@ -311,135 +316,135 @@ class Surface:
 
     def Duplicate(self, trias):
         """delete duplicate points"""
-	eps = 0.0000001
-	n = len(trias)
-	n3 = 3 * n
-	ia = []
-	for i in range(n3):
-	    ia.append(i + 1)
-	   
-	#find and mark duplicate points
-	points = []
-	for i in range(n):
-	    t = trias[i]
-	    points.append(Triple(t[0][0],t[0][1],t[0][2]))
-	    points.append(Triple(t[1][0],t[1][1],t[1][2]))
-	    points.append(Triple(t[2][0],t[2][1],t[2][2]))
-	nb = 17 
-	#use bucket for increase speed
-	bucket = Bucket(nb,points)    
-	for i in range(n3):
-	    p = points[i]
-	    v = bucket.Array(p)
-	    for jv in range(len(v)):
-		j = v[jv]
-		if i == j : continue
-		if ia[j] > 0 :
-		    pj = points[j]
-		    if (p - pj).Len2() < eps :
-			ia[j] = - ia[i]
+        eps = 0.0000001
+        n = len(trias)
+        n3 = 3 * n
+        ia = []
+        for i in range(n3):
+            ia.append(i + 1)
+
+        #find and mark duplicate points
+        points = []
+        for i in range(n):
+            t = trias[i]
+            points.append(Triple(t[0][0],t[0][1],t[0][2]))
+            points.append(Triple(t[1][0],t[1][1],t[1][2]))
+            points.append(Triple(t[2][0],t[2][1],t[2][2]))
+        nb = 17 
+        #use bucket for increase speed
+        bucket = Bucket(nb,points)    
+        for i in range(n3):
+            p = points[i]
+            v = bucket.Array(p)
+            for jv in range(len(v)):
+                j = v[jv]
+                if i == j : continue
+                if ia[j] > 0 :
+                    pj = points[j]
+                    if (p - pj).Len2() < eps :
+                        ia[j] = - ia[i]
         #change array for points & normals
         #change index
-	for i in range(n3):
-	    if ia[i] > 0 :
-		self.points.append((points[i].x,points[i].y,points[i].z))
-		ia[i] = len(self.points)
-	    else:
-		ir = ia[i]
-		if ir < 0 : ir = -ir
-		ia[i] = ia[ir - 1]
-	for i in range(n):
-	    self.trias.append((ia[3*i]-1,ia[3*i+1]-1,ia[3*i+2]-1))
-	
+        for i in range(n3):
+            if ia[i] > 0 :
+                self.points.append((points[i].x,points[i].y,points[i].z))
+                ia[i] = len(self.points)
+            else:
+                ir = ia[i]
+                if ir < 0 : ir = -ir
+                ia[i] = ia[ir - 1]
+        for i in range(n):
+            self.trias.append((ia[3*i]-1,ia[3*i+1]-1,ia[3*i+2]-1))
+
     def SurfaceNormals(self):
         """calculate surface normals for all points"""
-	normals = []
-	for i in range(len(self.points)):
-	    normals.append(V(0.0,0.0,0.0))
-	for i in range(len(self.trias)):
-	    t = self.trias[i]
-	    p0 = self.points[t[0]]
-	    p1 = self.points[t[1]]
-	    p2 = self.points[t[2]]
+        normals = []
+        for i in range(len(self.points)):
+            normals.append(V(0.0,0.0,0.0))
+        for i in range(len(self.trias)):
+            t = self.trias[i]
+            p0 = self.points[t[0]]
+            p1 = self.points[t[1]]
+            p2 = self.points[t[2]]
             v0 = V(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2])
             v1 = V(p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2])
-	    n = cross(v0, v1)
-	    normals[t[0]] += n
-	    normals[t[1]] += n
-	    normals[t[2]] += n
-	self.normals = []
-	for n in normals:
-	    self.normals.append((n[0],n[1],n[2]))
-	return self.normals    
+            n = cross(v0, v1)
+            normals[t[0]] += n
+            normals[t[1]] += n
+            normals[t[2]] += n
+        self.normals = []
+        for n in normals:
+            self.normals.append((n[0],n[1],n[2]))
+        return self.normals    
 
     def CalculateTorus(self, a, b, u, v):
         """calculate point on torus"""
-	pi2 = 2 * pi
-	#transformation function - torus
-	cf = cos(pi2*u)
-	sf = sin(pi2*u)
-	ct = cos(pi2*v)
-	st = sin(pi2*v)
-	#point on torus
-	return Triple((a+b*ct)*cf, (a+b*ct)*sf, b*st)
+        pi2 = 2 * pi
+        #transformation function - torus
+        cf = cos(pi2*u)
+        sf = sin(pi2*u)
+        ct = cos(pi2*v)
+        st = sin(pi2*v)
+        #point on torus
+        return Triple((a+b*ct)*cf, (a+b*ct)*sf, b*st)
 
     def TorusTriangles(self, a, b, n):
         """generate triangles on torus"""
-	n6 = int(6*a*n)
-	if (n6 == 0): n6 = 6
-	n2 = int(6*b*n)
-	if (n2 == 0): n2 = 6
-	trias = []
-	for i in range(n6):
-	    u0 = i / float(n6)
-	    u1 = (i +1) / float(n6)
-	    for j in range(n2):
-		v0 = j / float(n2);
-		v1 = (j + 1) / float(n2)
-		
-		p0 = self.CalculateTorus(a,b,u0,v0)
-		p1 = self.CalculateTorus(a,b,u1,v0)
-		p2 = self.CalculateTorus(a,b,u1,v1)
-		p3 = self.CalculateTorus(a,b,u0,v1)
-		
-		t1 = ((p0.x,p0.y,p0.z),(p1.x,p1.y,p1.z),(p2.x,p2.y,p2.z))
-		t2 = ((p0.x,p0.y,p0.z),(p2.x,p2.y,p2.z),(p3.x,p3.y,p3.z))
-		
-		trias.append(t1)
-		trias.append(t2)
-	return trias	
+        n6 = int(6*a*n)
+        if (n6 == 0): n6 = 6
+        n2 = int(6*b*n)
+        if (n2 == 0): n2 = 6
+        trias = []
+        for i in range(n6):
+            u0 = i / float(n6)
+            u1 = (i +1) / float(n6)
+            for j in range(n2):
+                v0 = j / float(n2);
+                v1 = (j + 1) / float(n2)
+
+                p0 = self.CalculateTorus(a,b,u0,v0)
+                p1 = self.CalculateTorus(a,b,u1,v0)
+                p2 = self.CalculateTorus(a,b,u1,v1)
+                p3 = self.CalculateTorus(a,b,u0,v1)
+
+                t1 = ((p0.x,p0.y,p0.z),(p1.x,p1.y,p1.z),(p2.x,p2.y,p2.z))
+                t2 = ((p0.x,p0.y,p0.z),(p2.x,p2.y,p2.z),(p3.x,p3.y,p3.z))
+
+                trias.append(t1)
+                trias.append(t2)
+        return trias	
 
 
 class Bucket: 
 
     def __init__(self, n, points):
         """bucket constructor"""
-	self.n = n
-	self.nn = n * n
-	self.nnn = self.nn * n
-	self.a = []
-	for i in range(self.nnn):
-	    self.a.append([])
-	count = 0    
-	for p in points:
-	    self.a[self.Index(p)].append(count)
-	    count += 1
-    
+        self.n = n
+        self.nn = n * n
+        self.nnn = self.nn * n
+        self.a = []
+        for i in range(self.nnn):
+            self.a.append([])
+        count = 0    
+        for p in points:
+            self.a[self.Index(p)].append(count)
+            count += 1
+
     def Index(self, p):
         """calculate index in bucket for point p"""
-	i = (int)(self.n * (p.x + 1) / 2)
-	if i >= self.n : i = self.n - 1
-	j = (int)(self.n * (p.y + 1) / 2)
-	if j >= self.n : j = self.n - 1
-	k = (int)(self.n * (p.z + 1) / 2)
-	if k >= self.n : k = self.n - 1
-	return i * self.nn + j * self.n + k
-    
+        i = (int)(self.n * (p.x + 1) / 2)
+        if i >= self.n : i = self.n - 1
+        j = (int)(self.n * (p.y + 1) / 2)
+        if j >= self.n : j = self.n - 1
+        k = (int)(self.n * (p.z + 1) / 2)
+        if k >= self.n : k = self.n - 1
+        return i * self.nn + j * self.n + k
+
     def Array(self, p):
         """get array from bucket for point p"""
-	return self.a[self.Index(p)]
-	
-	
+        return self.a[self.Index(p)]
+
+
 class SurfaceChunks(ChunkDisplayMode):
     """
     example chunk display mode, which draws the chunk as a surface,
@@ -473,12 +478,12 @@ class SurfaceChunks(ChunkDisplayMode):
         pos, radius, color, tm, nm = memo
         if highlighted:
             color = ave_colors(0.5, color, env.prefs[chunkHighlightColor_prefs_key]) #e should the caller compute this somehow?
-	# THIS IS WHERE OLEKSANDR SHOULD CALL HIS NEW CODE TO RENDER THE SURFACE (NOT CYLINDER).
-	#   But if this requires time-consuming computations which depend on atom positions (etc) but not on point of view,
-	# those should be done in compute_memo, not here, and their results will be passed here in the memo argument.
-	# (This method drawchunk will not be called on every frame, but it will usually be called much more often than compute_memo.)
-	#   For example, memo might contain a Pyrex object pointer to a C object representing some sort of mesh,
-	# which can be rendered quickly by calling a Pyrex method on it.
+        # THIS IS WHERE OLEKSANDR SHOULD CALL HIS NEW CODE TO RENDER THE SURFACE (NOT CYLINDER).
+        #   But if this requires time-consuming computations which depend on atom positions (etc) but not on point of view,
+        # those should be done in compute_memo, not here, and their results will be passed here in the memo argument.
+        # (This method drawchunk will not be called on every frame, but it will usually be called much more often than compute_memo.)
+        #   For example, memo might contain a Pyrex object pointer to a C object representing some sort of mesh,
+        # which can be rendered quickly by calling a Pyrex method on it.
         drawer.drawsurface(color, pos, radius, tm, nm)
         return
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
@@ -501,7 +506,7 @@ class SurfaceChunks(ChunkDisplayMode):
         # around an already-rendered surface.
         # (For a selected chunk, both this and drawchunk will be called -- not necessarily in that order.)
         drawer.drawsurface_wireframe(color, pos, radius + alittle, tm, nm)
-	return
+        return
     def compute_memo(self, chunk):
         """If drawing chunk in this display mode can be optimized by precomputing some info from chunk's appearance,
         compute that info and return it.
@@ -522,106 +527,106 @@ class SurfaceChunks(ChunkDisplayMode):
         # it's best to just use the axis and center, then recompute a bounding cylinder.
         if not chunk.atoms:
             return None
-	
-	# Put up hourglass cursor to indicate we are busy. Restore the cursor below. Mark 060621.
-	QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-	env.history.message(self.cmdname + "Computing surface. Please wait...") # Mark 060621.
-	env.history.h_update() # Update history widget with last message. # Mark 060623.
-	
-	if _psurface_ok: # cpp surface stuff
-	    center = chunk.center
-	    bcenter = chunk.abs_to_base(center)
-	    rad = 0.0
-	    margin = 0
-	    radiuses = []
-	    spheres = []
-	    atoms = []
+
+        # Put up hourglass cursor to indicate we are busy. Restore the cursor below. Mark 060621.
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        env.history.message(self.cmdname + "Computing surface. Please wait...") # Mark 060621.
+        env.history.h_update() # Update history widget with last message. # Mark 060623.
+
+        if _psurface_ok: # cpp surface stuff
+            center = chunk.center
+            bcenter = chunk.abs_to_base(center)
+            rad = 0.0
+            margin = 0
+            radiuses = []
+            spheres = []
+            atoms = []
             coltypes = []
-	    for a in chunk.atoms.values():
-		col = a.drawing_color()
-		ii = 0 
-		for ic in range(len(coltypes)):
-		    ct = coltypes[ic]
-		    if ct == col:
-			break;
-		    ii += 1
-		if ii >= len(coltypes):
-		    coltypes.append(col);
-		atoms.append(ii)
-		dispjunk, ra = a.howdraw(diTrueCPK)
-		if ra > margin : margin = ra
-		radiuses.append(ra)
-		p = a.posn() - center
-		spheres.append(p)
-		r = p[0]**2+p[1]**2+p[2]**2
-		if r > rad: rad = r
-	    rad = sqrt(rad)
-	    radius = rad + margin
-	    cspheres = []
+            for a in chunk.atoms.values():
+                col = a.drawing_color()
+                ii = 0 
+                for ic in range(len(coltypes)):
+                    ct = coltypes[ic]
+                    if ct == col:
+                        break;
+                    ii += 1
+                if ii >= len(coltypes):
+                    coltypes.append(col);
+                atoms.append(ii)
+                dispjunk, ra = a.howdraw(diTrueCPK)
+                if ra > margin : margin = ra
+                radiuses.append(ra)
+                p = a.posn() - center
+                spheres.append(p)
+                r = p[0]**2+p[1]**2+p[2]**2
+                if r > rad: rad = r
+            rad = sqrt(rad)
+            radius = rad + margin
+            cspheres = []
             from debug_prefs import debug_pref, Choice_boolean_True
             use_colors = debug_pref("surface: use colors?", Choice_boolean_True) #bruce 060927 (old code had 0 for use_colors)
-	    for i in range(len(spheres)):
-		st = spheres[i] / radius
-		rt = radiuses[i] / radius
-		# cspheres.append((st[0],st[1],st[2],rt,use_colors))
-		cspheres.append((st[0],st[1],st[2],rt,atoms[i]))
-	    #cspheres.append((-0.3,0,0,0.3,1))
-	    #cspheres.append((0.3,0,0,0.3,2))
-	    color = chunk.drawing_color()
-	    if color is None:
-		color = V(0.5,0.5,0.5)
-	    #  create surface 
-	    level = 3
-	    if rad > 6 : level = 4
-	    ps = psurface
-	    # 0 - sphere triangles
-	    # 1 - torus rectangles
-	    # 2 - omega rectangles
-	    method = 2
-	    ((em,pm,am), nm) = ps.CreateSurface(cspheres, level, method)
-	    cm = []
-	    if True: # True for color
-		for i in range(len(am)):
-		    cm.append(coltypes[am[i]])
-	    else:
-		for i in range(len(am)):
-		    cm.append((0.5,0.5,0.5))
-	    tm = (em,pm,cm)
-	else : # python surface stuff
-	    center = chunk.center
-	    bcenter = chunk.abs_to_base(center)
-	    rad = 0.0
-	    s = Surface()
-	    margin = 0
-	    for a in chunk.atoms.values():
-		dispjunk, ra = a.howdraw(diTrueCPK)
-		if ra > margin : margin = ra
-		s.radiuses.append(ra)
-		p = a.posn() - center
-		s.spheres.append(Triple(p[0], p[1], p[2]))
-		r = p[0]**2+p[1]**2+p[2]**2
-		if r > rad: rad = r
-	    rad = sqrt(rad)
-	    radius = rad + margin
-	    for i in range(len(s.spheres)):
-		s.spheres[i] /= radius
-		s.radiuses[i] /= radius
-	    color = chunk.drawing_color()
-	    if color is None:
-		color = V(0.5,0.5,0.5)
-	    #  create surface 
-	    level = 3
-	    if rad > 6 : level = 4
-	    ts = drawer.getSphereTriangles(level)
-	    #ts = s.TorusTriangles(0.7, 0.3, 20)
-	    tm = s.SurfaceTriangles(ts)
-	    nm = s.SurfaceNormals()
-	    
-	QApplication.restoreOverrideCursor() # Restore the cursor. Mark 060621.
-	env.history.message(self.cmdname + "Done.") # Mark 060621.
-	
+            for i in range(len(spheres)):
+                st = spheres[i] / radius
+                rt = radiuses[i] / radius
+                # cspheres.append((st[0],st[1],st[2],rt,use_colors))
+                cspheres.append((st[0],st[1],st[2],rt,atoms[i]))
+            #cspheres.append((-0.3,0,0,0.3,1))
+            #cspheres.append((0.3,0,0,0.3,2))
+            color = chunk.drawing_color()
+            if color is None:
+                color = V(0.5,0.5,0.5)
+            #  create surface 
+            level = 3
+            if rad > 6 : level = 4
+            ps = psurface
+            # 0 - sphere triangles
+            # 1 - torus rectangles
+            # 2 - omega rectangles
+            method = 2
+            ((em,pm,am), nm) = ps.CreateSurface(cspheres, level, method)
+            cm = []
+            if True: # True for color
+                for i in range(len(am)):
+                    cm.append(coltypes[am[i]])
+            else:
+                for i in range(len(am)):
+                    cm.append((0.5,0.5,0.5))
+            tm = (em,pm,cm)
+        else : # python surface stuff
+            center = chunk.center
+            bcenter = chunk.abs_to_base(center)
+            rad = 0.0
+            s = Surface()
+            margin = 0
+            for a in chunk.atoms.values():
+                dispjunk, ra = a.howdraw(diTrueCPK)
+                if ra > margin : margin = ra
+                s.radiuses.append(ra)
+                p = a.posn() - center
+                s.spheres.append(Triple(p[0], p[1], p[2]))
+                r = p[0]**2+p[1]**2+p[2]**2
+                if r > rad: rad = r
+            rad = sqrt(rad)
+            radius = rad + margin
+            for i in range(len(s.spheres)):
+                s.spheres[i] /= radius
+                s.radiuses[i] /= radius
+            color = chunk.drawing_color()
+            if color is None:
+                color = V(0.5,0.5,0.5)
+            #  create surface 
+            level = 3
+            if rad > 6 : level = 4
+            ts = drawer.getSphereTriangles(level)
+            #ts = s.TorusTriangles(0.7, 0.3, 20)
+            tm = s.SurfaceTriangles(ts)
+            nm = s.SurfaceNormals()
+
+        QApplication.restoreOverrideCursor() # Restore the cursor. Mark 060621.
+        env.history.message(self.cmdname + "Done.") # Mark 060621.
+
         return (bcenter, radius, color, tm, nm)
-    
+
     pass # end of class SurfaceChunks
 
 ChunkDisplayMode.register_display_mode_class(SurfaceChunks)
