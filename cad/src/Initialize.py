@@ -57,7 +57,7 @@ Takes on one of three values::
 Note that a missing key means the same as False.
 """
 
-_VERBOSE = True
+_VERBOSE = False
 
 import exceptions
 
