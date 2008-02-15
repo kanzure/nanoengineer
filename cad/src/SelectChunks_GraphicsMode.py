@@ -623,7 +623,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         hicolor = highlight color
 
         @return: whether the caller should skip the usual selobj drawing
-        (usually, this is just whether we drew something) (boolean)
+                 (usually, this is just whether we drew something)
+        @rtype: boolean
         """
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into 
         # selectMolsMode and slightly revised it (including, adding the return 
@@ -658,6 +659,13 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                 hiatom.draw_in_abs_coords(glpane, hicolor, 
                                           useSmallAtomRadius = True)
                 for hibond in hiatom.bonds:
+                    # Note: this draws interior bonds twice.
+                    # For a dna-related chunk this is 1/2 or 1/3 of the bonds.
+                    # It could easily be optimized to avoid that
+                    # (like Chunk.draw does).
+                    # Same for the other cases in this method
+                    # (one of which can draw external bonds twice).
+                    # [bruce 080214 comment]
                     hibond.draw_in_abs_coords(glpane, hicolor,
                                               bool_fullBondLength)
             return True
@@ -676,12 +684,16 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                         hibond.draw_in_abs_coords(glpane, hicolor, 
                                                   bool_fullBondLength)
             else:
+                # Note: this draws external bonds twice if they go
+                # between chunk1 and chunk2. [bruce 080214 comment]
                 for hiatom in chunk1.atoms.itervalues():
                     hiatom.draw_in_abs_coords(glpane, hicolor,
                                               useSmallAtomRadius = True)
                     for hibond in hiatom.bonds:
                         hibond.draw_in_abs_coords(glpane, hicolor,
                                                   bool_fullBondLength)
+                # why does the following substitute orange for hicolor
+                # in chunk2? [bruce 080214 question]
                 for hiatom in chunk2.atoms.itervalues():
                     hiatom.draw_in_abs_coords(glpane, orange,
                                               useSmallAtomRadius = True)
