@@ -13,17 +13,17 @@ import changes
 from BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from BuildAtoms_Command    import BuildAtoms_Command
 from JoinStrands_PropertyManager import JoinStrands_PropertyManager
-
+from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 # == GraphicsMode part
 
 _superclass_for_GM = BuildAtoms_GraphicsMode
 
-class JoinStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
+class JoinStrands_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
+                                BuildAtoms_GraphicsMode ):
     """
     Graphics mode for Join strands command
     
-    """  
-    
+    """      
     pass  
     
   

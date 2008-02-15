@@ -11,10 +11,12 @@ Created 2008-02-14
 
 """
 from BuildDna_GraphicsMode import BuildDna_GraphicsMode
+from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 _superclass = BuildDna_GraphicsMode
 
-class DnaStrand_GraphicsMode(BuildDna_GraphicsMode):
+class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
+                             BuildDna_GraphicsMode):
     
     _handleDrawingRequested = True
     

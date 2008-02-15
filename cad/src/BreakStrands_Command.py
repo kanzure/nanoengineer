@@ -18,12 +18,13 @@ from constants             import yellow
 ##from constants             import darkred
 from BreakStrands_PropertyManager import BreakStrands_PropertyManager
 
-
+from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 # == GraphicsMode part
 
 _superclass_for_GM = BuildAtoms_GraphicsMode
 
-class BreakStrands_GraphicsMode( BuildAtoms_GraphicsMode ):
+class BreakStrands_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
+                                 BuildAtoms_GraphicsMode ):
     """
     Graphics mode for Break Strands command. 
     """    

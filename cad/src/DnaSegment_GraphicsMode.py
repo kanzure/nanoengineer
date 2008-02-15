@@ -39,6 +39,7 @@ from BuildDna_GraphicsMode import BuildDna_GraphicsMode
 from dna_model.DnaSegment import DnaSegment
 
 from DnaLineMode import DnaLine_GM
+from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
 from drawDnaRibbons import drawDnaRibbons
 
@@ -58,7 +59,8 @@ SPHERE_DRAWLEVEL = 2
 
 _superclass = BuildDna_GraphicsMode
 
-class DnaSegment_GraphicsMode(BuildDna_GraphicsMode):
+class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
+                              BuildDna_GraphicsMode):
     """
     Graphics mode for DnaSegment_EditCommand. 
     """
