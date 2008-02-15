@@ -18,6 +18,8 @@ from utilities import debug_flags
 from icon_utilities import geticon
 from icon_utilities import getpixmap
 
+from PyQt4.Qt import Qt
+
 from PM.PM_Colors import pmColor
 from PM.PM_Colors import pmHeaderFrameColor
 from PM.PM_Colors import pmHeaderTitleColor
@@ -146,6 +148,26 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         except:
             print_compact_traceback("Error loading tool tip text for this " \
                                     "property manager.")
+    
+    def keyPressEvent(self, event):
+        """
+        Handles keyPress event. 
+        
+        NOTE: 
+        Subclasses should carefully override this. 
+        Note that the default implementation  doesn't permit ESC key 
+        as a way to close the PM_dialog. (this is typically dsesirable
+        for Property Managers) If any subclass need to implement the key press, 
+        they should first call this method(i.e. superclass.keyPressEvent) and then 
+        implement specific code that closed the dialog when ESC key is pressed.
+        """
+        key = event.key()
+        # Don't use ESC key to close the PM dialog. Fixes bug 2596
+        if key == Qt.Key_Escape:
+            pass
+        else:
+            super(PM_Dialog, self).keyPressEvent(event) 
+        return
                                     
     
     def _addGroupBoxes(self):
