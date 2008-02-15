@@ -75,6 +75,8 @@ from geometry.VQT import V, Q, A, vlen
 
 from Utility import Node
 
+from utilities.Log import orangemsg, redmsg, quote_html, graymsg
+
 from debug import print_compact_stack, print_compact_traceback, safe_repr
 
 from inval import InvalMixin
@@ -1744,6 +1746,14 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         [private submethod of self.draw]
         """
+        if debug_pref("GLPane: report remaking of chunk display lists?",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True ): #bruce 080214
+            print "debug fyi: remaking display lists for chunk %r" % self
+            summary_format = graymsg( "debug fyi: remade display lists for [N] chunk(s)" )
+            env.history.deferred_summary_message(summary_format)
+                      
         hd, delegate_draw_atoms, delegate_draw_chunk = hd_info
 
         # draw something for the chunk as a whole
@@ -2447,22 +2457,23 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 self.part.selmols_append(self)
                 
             ##Earlier comment from Bruce (when chunk was selected as a 'wireframe' 
-            ##instead of a colored selection -- ninad 070406
+            ##instead of a colored selection -- ninad 070406)
             # bruce 041207 thinks self.havelist = 0 is no longer needed here,
             # since self.draw uses self.picked outside of its display list,
             # so I'm removing that! This might speed up some things.
             
-            #@@@ ninad 070406: enabled 'havelist'  to permit chunk picking 
-            #as a colored selection. (the selected chunk is shown in 'green color' 
+            #@@@ ninad 070406: enabled reset of 'havelist' to permit chunk picking 
+            #as a colored selection. (the selected chunk is shown in 'green color')
             #earlier I was using the same code as used for highlighting a chunk 
-            #but it was slow. Enabling the 'havelist' speeds up the selection 
+            #but it was slow. Enabling the 'havelist reset' speeds up the selection 
             #based on my tests. (Selecting chunks in Pump.mmp is about 
-            #1.5 seconds faster using display list than draiwing using the code that 
-            #is used to highlight the chunk.     
+            #1.5 seconds faster using display list than drawing using the code that 
+            #is used to highlight the chunk.)
             #Note: There needs to be a user preference that will allow user to 
-            # seletc the chunk as a wireframe --  ninad
+            # select the chunk as a wireframe --  ninad
+            
             self.havelist = 0 
-            # bruce 041227 moved history message from here to one caller, pick_at_event
+                        
         return
     
     def unpick(self):
@@ -2479,20 +2490,16 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 self.part.selmols_remove(self)
             
             ##Earlier comment from Bruce (when chunk was selected as a 'wireframe' 
-            ##instead of a colored selection -- ninad 070406
+            ##instead of a colored selection -- ninad 070406)
             # bruce 041207 thinks self.havelist = 0 is no longer needed here
             # (see comment in self.pick).
             
-            #@@@ ninad 070406: enabled 'havelist'  to permit chunk unpicking 
-            #which was selected as a colored selection/
-            #(the selected chunk is shown in 'green color' )
-            #earlier I was using the same code as used for highlighting a chunk 
-            #but it was slow. Enabling the 'havelist' speeds up the de-selection 
-            #based on my tests. (DeSelecting chunks in Pump.mmp is about 
-            #1.5-2 seconds faster using display list than draiwing using the code
-            #that is used to highlight the chunk.     
-            #Note: There needs to be a user preference that will allow user to 
-            # seletc the chunk as a wireframe --  ninad
+            #@@@ ninad 070406: enabled 'havelist reset' to permit chunk unpicking 
+            #which was selected as a colored selection
+            #(the selected chunk is shown in 'green color').
+            # See also comments in 'def pick'... this sped up deselection
+            # of the same example mentioned there by about 1.5-2 seconds.
+            
             self.havelist = 0 
             
         return
@@ -3483,7 +3490,6 @@ def debug_make_BorrowerChunk_no_addmol(target):
     debug_make_BorrowerChunk_raw(False)
 
 def debug_make_BorrowerChunk_raw(do_addmol = True):
-    from utilities.Log import orangemsg, redmsg, quote_html
     win = env.mainwindow()
     atomset = win.assy.selatoms
     if not atomset:
