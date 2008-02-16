@@ -37,7 +37,6 @@ from PM.PM_Constants     import pmWhatsThisButton
 from PM.PM_Constants     import pmCancelButton
 from PM.PM_Colors        import pmReferencesListWidgetColor
 from utilities.Comparison import same_vals
-from chunk                import Chunk
 from dna_model.DnaSegment import DnaSegment
 
 class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):

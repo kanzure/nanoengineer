@@ -29,13 +29,11 @@ from PyQt4.Qt import SIGNAL
 from MovePropertyManager import MovePropertyManager
 from icon_utilities import geticon
 from SelectChunks_Command import SelectChunks_basicCommand
-from Move_GraphicsMode  import Move_GraphicsMode
 from GraphicsMode_API import GraphicsMode_API
 from geometry.BoundingBox import BBox
 from utilities.Log import redmsg
-from geometry.VQT import V, Q, A, norm, vlen
+from geometry.VQT import V, Q
 from debug import print_compact_traceback
-
 from TranslateChunks_GraphicsMode import TranslateChunks_GraphicsMode
 from RotateChunks_GraphicsMode import RotateChunks_GraphicsMode
 
@@ -175,7 +173,10 @@ class Move_basicCommand(SelectChunks_basicCommand):
         self.rotateTheta( rotype, theta)
 
     def rotateTheta(self, rotype, theta):
-        "Rotate the selected chunk(s) /jig(s) around the specified axis by theta (degrees)"
+        """"
+        Rotate the selected chunk(s) /jig(s) around the specified axis 
+        by theta (degrees)
+	"""
 
         selectedMovables = self.o.assy.getSelectedMovables()
         if not selectedMovables: 
@@ -234,9 +235,11 @@ class Move_basicCommand(SelectChunks_basicCommand):
         self.o.gl_update()
 
     def moveAbsolute(self):
-        '''Move selected chunk(s), jig(s) to absolute X, Y, and Z by computing the bbox center
-        of everything as if they were one big chunk, then move everything as a unit.
-        '''
+        """
+        Move selected chunk(s), jig(s) to absolute X, Y, and Z by computing 
+        the bbox center of everything as if they were one big chunk, then move
+        everything as a unit.
+        """
         movables = self.o.assy.getSelectedMovables()
         if not movables: 
             env.history.message(redmsg("No chunks or movable jigs selected."))
