@@ -1677,15 +1677,29 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             
         glPopMatrix()
 
-        # Could we return now if display mode "disp" never draws bonds?
+        # draw external bonds.
+        
+        # Could we skip this if display mode "disp" never draws bonds?
         # No -- individual atoms might override that display mode.
         # Someday we might decide to record whether that's true when recomputing externs,
         # and to invalidate it as needed -- since it's rare for atoms to override display modes.
         # Or we might even keep a list of all our atoms which override our display mode. ###e
         # [bruce 050513 comment]
-        bondcolor = self.drawing_color()
-        ColorSorter.start() # grantham 20051205
+
         if self.externs:
+            self._draw_external_bonds(glpane, disp, drawLevel)
+
+        return # from Chunk.draw()
+
+    def _draw_external_bonds(self, glpane, disp, drawLevel): #bruce 080215 split this out, added debug_pref
+        if not self.assy.o.is_animating or \
+           not debug_pref("GLPane: suppress external bonds when animating?",
+                          Choice_boolean_False,
+                          non_debug = True,
+                          prefs_key = True
+           ):
+            bondcolor = self.drawing_color()
+            ColorSorter.start() # grantham 20051205
             # draw external bonds.
             #
             # Note: to prevent them from being drawn twice,
@@ -1721,9 +1735,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     # discussion. [bruce 070928 comment]
                     repeated_bonds_dict[bond.key] = bond
                     bond.draw(glpane, disp, bondcolor, drawLevel)
-            pass
-        ColorSorter.finish() # grantham 20051205
-        return # from Chunk.draw()
+            ColorSorter.finish() # grantham 20051205
+        return # from _draw_external_bonds
 
 ##    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd): #bruce 060608 split this out of self.draw
 ##        "[private submethod of self.draw]"
