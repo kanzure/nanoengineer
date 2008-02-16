@@ -1,14 +1,18 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-debug_prefs.py
+debug_prefs.py -- user-settable flags to help with debugging;
+serves as a prototype of general first-class-preference-variables system.
 
-Some prototype general-prefs code, useful now for "debugging prefs",
-i.e. user-settable temporary flags to help with debugging.
+Also contains some general color/icon/pixmap utilities which should be refiled.
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
+History:
+
+By Bruce, 050614
 """
-__author__ = "bruce" # 050614
 
 from constants import noop
 from constants import black, white, red, green, blue, gray, orange, yellow, magenta, pink
@@ -29,7 +33,8 @@ _NOT_PASSED = [] # private object for use as keyword arg default [bruce 070110, 
 debug_prefs = {} # maps names of debug prefs to "pref objects"
 
 def debug_pref(name, dtype, **options ): #bruce 070613 added call_with_new_value
-    """Public function for declaring and registering a debug pref and querying its value.
+    """
+    Public function for declaring and registering a debug pref and querying its value.
        Example call: chem.py rev 1.151 (might not  be present in later versions).
        Details: If debug_prefs[name] is known (so far in this session),
     return its current value, and perhaps record the fact that it was used.
@@ -61,18 +66,24 @@ def debug_pref(name, dtype, **options ): #bruce 070613 added call_with_new_value
     return dp.current_value()
 
 def debug_pref_object(name): #bruce 060213 experiment
-    # might be useful for adding subscribers, but, this implem has error if no one called debug_pref on name yet!
+    # might be useful for adding subscribers, but, this implem has error
+    # if no one called debug_pref on name yet!
     # basic logic of scheme for this needs revision.
     return debug_prefs[name]
 
-class Pref: #e might be merged with the DataType (aka PrefDataType) objects
-    "Pref objects record all you need to know about a currently active preference lvalue [with optional persistence as of 060124]"
+class Pref:
+    # might be merged with the DataType (aka PrefDataType) objects;
+    # only used in DebugPref as of long before 080215
+    """
+    Pref objects record all you need to know about a currently active
+    preference lvalue [with optional persistence as of 060124]
+    """
     # class constants or instance variable initial values (some might be overridden in subclasses)
     prefs_key = None
     print_changes = False
     non_debug = False # should this be True here and False in DebugPref subclass? decide when it matters.
     classname_for_repr = 'Pref' #bruce 070430
-    starts_out_from_where = "from prefs db" #bruce 070430 (used in some history messages)
+##    starts_out_from_where = "from prefs db"
     def __init__(self, name, dtype, prefs_key = False, non_debug = False, subs = ()): #bruce 060124 added prefs_key & non_debug options
         #e for now, name is used locally (for UI, etc, and maybe for prefs db);
         # whether/how to find this obj using name is up to the caller
@@ -100,8 +111,8 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
                 # here -- but if it's too early to print to history widget, env.history
                 # will print to console, and we don't want it to get printed there twice,
                 # so we check for that before printing it to console ourselves. [bruce 071018]
-                msg = "Note: %s (default %r) starts out %r %s" % \
-                      (self, self._dfltval, self.value, self.starts_out_from_where)
+                msg = "Note: %s (default %r) starts out %r" % \
+                      (self, self._dfltval, self.value) ## + " %s" % self.starts_out_from_where
                 if not getattr(env.history, 'too_early', False):
                     print msg
                 env.history.message(msg, quote_html = True, color = 'orange')
@@ -115,7 +126,8 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
         return
     __call_with_new_value_function = None
     def set_call_with_new_value_function(self, func):
-        """Save func as our new "call with new value" function. If not None,
+        """
+        Save func as our new "call with new value" function. If not None,
         it will be called whenever our value changes due to use of the debug menu.
         (In the future we may extend this to also call it if the value changes by other means.)
         It will be discarded if this method is called again (to set a new such function or None).
@@ -138,7 +150,8 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             pass
         return
     def subscribe_to_changes(self, func): #bruce 060216, untested, maybe not yet called, but intended to remain as a feature ###@@@
-        """Call func with no arguments after every change to our value from the debug menu,
+        """
+        Call func with no arguments after every change to our value from the debug menu,
         until func() first returns true or raises an exception (for which we'll print a traceback).
            Note: Doesn't detect independent changes to env.prefs[prefs_key] -- for that, suggest using
         env.pref's subscription system instead.
@@ -154,7 +167,8 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             self.value = env.prefs[self.prefs_key] #k probably we could just return this and ignore self.value in this case
         return self.value
     def changer_menuspec(self):
-        """return a menu_spec suitable for including in some larger menu (as item or submenu is up to us)
+        """
+        Return a menu_spec suitable for including in some larger menu (as item or submenu is up to us)
         which permits this pref's value to be seen and/or changed;
         how to do this depends on datatype (#e and someday on other prefs!)
         """
@@ -204,13 +218,14 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
 class DebugPref(Pref):
     classname_for_repr = 'debug_pref' #bruce 070430, for clearer History messages
     print_changes = True
-    starts_out_from_where = "(from debug prefs submenu)" #bruce 070430, for clearer History messages
+##    starts_out_from_where = "(from debug prefs submenu)"
     pass
 
 # == datatypes
 
 class DataType:
-    """abstract class for data types for preferences
+    """
+    abstract class for data types for preferences
     (subclasses are for specific kinds of data types;
      instances are for data types themselves,
      but are independent from a specific preference-setting
@@ -222,7 +237,8 @@ class DataType:
     #e some default method implems; more could be added
     ###e what did i want to put here??
     def changer_menu_text(self, instance_name, curval = None):
-        """Return some default text for a menu meant to display and permit changes to a pref setting
+        """
+        Return some default text for a menu meant to display and permit changes to a pref setting
         of this type and the given instance-name (of the pref variable) and current value.
         (API kluge: curval = None means curval not known, unless None's a legal value.
         Better to separate these into two args, perhaps optionally if that can be clean. #e)
@@ -235,14 +251,17 @@ class DataType:
     def short_name_of_value(self, value):
         return self.name_of_value(value)
     def normalize_value(self, value):
-        """most subclasses should override this; see comments in subclass methods;
+        """
+        most subclasses should override this; see comments in subclass methods;
         not yet decided whether it should be required to detect illegal values, and if so, what to do then;
         guess: most convenient to require nothing about calling it with illegal values; but not sure;
         ##e maybe split into public and raw forms, public has to detect illegals and raise ValueError (only).
         """
         return value # wrong for many subclasses, but not all (assuming value is legal)
     def legal_value(self, value):
-        """Is value legal for this type? [Not sure whether this should include "after self.normalize_value" or not] """
+        """
+        Is value legal for this type? [Not sure whether this should include "after self.normalize_value" or not]
+        """
         try:
             self.normalize_value(value) # might raise recursion error if that routine checks for value being legal! #e clean up
             return True # not always correct!
@@ -255,8 +274,12 @@ class DataType:
 def autoname(thing):
     return `thing` # for now
 
-class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePref and merged with Pref class to include a prefname etc
-    """DataType for a choice between one of a few specific values, perhaps with names and comments and order and default.
+class Choice(DataType):
+    #e might be renamed ChoicePrefType, or renamed ChoicePref and merged
+    # with Pref class to include a prefname etc
+    """
+    DataType for a choice between one of a few specific values,
+    perhaps with names and comments and order and default.
     """
     # WARNING: before 070110, there was a bug if None was used as one of the choices, but it should be ok now,
     # except that the "API kluge: curval = None means curval not known, unless None's a legal value"
@@ -305,7 +328,10 @@ class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePre
         # AFAIK it has only two defs and two calls, all in this file. [bruce 070831]
         return self._defaultValue
     def legal_value(self, value):
-        """Is value legal for this type? [Not sure whether this should include "after self.normalize_value" or not] """
+        """
+        Is value legal for this type?
+        [Not sure whether this should include "after self.normalize_value" or not]
+        """
         return value in self.values
     def changer_menuspec( self, instance_name, newval_receiver_func, curval = None): # for Choice (aka ChoicePrefType)
         #e could have special case for self.values == [True, False] or the reverse
@@ -353,7 +379,8 @@ def submenu_from_name_value_pairs( nameval_pairs, newval_receiver_func,
     return submenu
 
 class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
-    """Pref Data Type for a color. We store all colors internally as a 3-tuple of floats
+    """
+    Pref Data Type for a color. We store all colors internally as a 3-tuple of floats
     (but assume ints in [0,255] are also enough -- perhaps that would be a better internal format #e).
     """
     #e should these classes all be named XxxPrefType or so? Subclasses might specialize in prefs-UI but not datatype per se...
@@ -362,7 +389,8 @@ class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
             defaultValue = (0.5, 0.5, 0.5) # gray
         self._defaultValue = self.normalize_value( defaultValue)
     def normalize_value(self, value):
-        """Turn any standard kind of color value into the kind we use internally -- a 3-tuple of floats from 0.0 to 1.0.
+        """
+        Turn any standard kind of color value into the kind we use internally -- a 3-tuple of floats from 0.0 to 1.0.
         Return the normalized value.
         If value is not legal, we might just return it or we might raise an exception.
         (Preferably ValueError, but for now this is NIM, it might be any exception, or none.)
@@ -412,7 +440,9 @@ class ColorType(DataType): #e might be renamed ColorPrefType or ColorPref
         names = map( self.short_name_of_value, values)
         # include the actual color in the menu item (in place of the checkmark-position; looks depressed when "checked")
         def mitem_value_func( mitem, value):
-            "add options to mitem based on value and return new mitem"
+            """
+            add options to mitem based on value and return new mitem
+            """
             ###e should probably cache these things? Not sure... but it might be needed
             # (especially on Windows, based on Qt doc warnings)
             iconset = iconset_from_color( value)
@@ -447,7 +477,10 @@ def qcolor_from_anything(color):
     return ColorType(color).value_as_QColor() ###k untested call
 
 def contrasting_color(qcolor, notwhite = False ):
-    "return a QColor which contrasts with qcolor; if notwhite is true, it should also contrast with white."
+    """
+    return a QColor which contrasts with qcolor;
+    if notwhite is true, it should also contrast with white.
+    """
     rgb = qcolor.red(), qcolor.green(), qcolor.blue() / 2 # blue is too dark, have to count it as closer to black
     from PyQt4.Qt import Qt
     if max(rgb) > 90: # threshhold is a guess, mostly untested; even blue=153 seemed a bit too low so this is dubiously low.
@@ -458,7 +491,9 @@ def contrasting_color(qcolor, notwhite = False ):
     return Qt.white
     
 def pixmap_from_color_and_size(color, size):
-    "#doc; size can be int or (int,int)"
+    """
+    #doc; size can be int or (int,int)
+    """
     if type(size) == type(1):
         size = size, size
     w,h = size
@@ -469,7 +504,8 @@ def pixmap_from_color_and_size(color, size):
     return qp
 
 def iconset_from_color(color):
-    """Return a QIcon suitable for showing the given color in a menu item or (###k untested, unreviewed) some other widget.
+    """
+    Return a QIcon suitable for showing the given color in a menu item or (###k untested, unreviewed) some other widget.
     The color can be a QColor or any python type we use for colors (out of the few our helper funcs understand).
     """
     # figure out desired size of a small icon
@@ -488,7 +524,8 @@ def iconset_from_color(color):
 
 def modify_iconset_On_states( iconset, color = white, checkmark = False, use_color = None):
     #bruce 050729 split this out of iconset_from_color
-    """Modify the On states of the pixmaps in iconset, so they can be distinguished from the (presumably equal) Off states.
+    """
+    Modify the On states of the pixmaps in iconset, so they can be distinguished from the (presumably equal) Off states.
     (Warning: for now, only the Normal On states are modified, not the Active or Disabled On states.)
     By default, the modification is to add a surrounding square outline whose color contrasts with white,
     *and* also with the specified color if one is provided. If checkmark is true, the modification is to add a central
@@ -558,7 +595,8 @@ def modify_iconset_On_states( iconset, color = white, checkmark = False, use_col
 # and has new API to return a list of menu items (perhaps empty) rather than exactly one.
 
 def debug_prefs_menuspec( atom_debug):
-    """Return a list of zero or more menu items or submenus (as menu_spec tuples or lists)
+    """
+    Return a list of zero or more menu items or submenus (as menu_spec tuples or lists)
     usable to see and edit settings of all active debug prefs (for atom_debug true)
     or all the ones that have their non_debug flag set (for atom_debug false).
     """
@@ -573,6 +611,7 @@ def debug_prefs_menuspec( atom_debug):
         if pref.non_debug or atom_debug:
             submenu.append( pref.changer_menuspec() )
     if submenu:
+        ## print "returning debug prefs submenu with %d items" % len(submenu) #######
         return [ ( text, submenu) ]
     else:
         if atom_debug:
@@ -585,9 +624,13 @@ def debug_prefs_menuspec( atom_debug):
 
 # specific debug_pref exerciser/access functions can go here,
 # if they need to be imported early during startup or by several source files
+# [this location is deprecated -- use GlobalPreferences.py instead. --bruce 080215]
 
 def _permit_property_pane():
-    "should we set up this session to look a bit worse, but permit experimental property pane code to be used?"
+    """
+    should we set up this session to look a bit worse,
+    but permit experimental property pane code to be used?
+    """
     return debug_pref("property pane debug pref offered? (next session)",
                       Choice_boolean_False,
                       non_debug = True,
@@ -596,7 +639,9 @@ def _permit_property_pane():
 _this_session_permit_property_pane = 'unknown' # too early to evaluate _permit_property_pane() during this import
 
 def this_session_permit_property_pane():
-    "this has to give the same answer throughout one session"
+    """
+    this has to give the same answer throughout one session
+    """
     global _this_session_permit_property_pane
     if _this_session_permit_property_pane == 'unknown':
         _this_session_permit_property_pane = _permit_property_pane()
@@ -609,7 +654,8 @@ def _use_property_pane():
                       prefs_key = "A8 devel/use property pane")
     
 def use_property_pane():
-    """should we actually use a property pane?
+    """
+    should we actually use a property pane?
     (only works if set before the first time a participating dialog is used)
     (only offered in debug menu if a property pane is permitted this session)
     """
