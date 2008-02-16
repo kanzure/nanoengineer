@@ -187,7 +187,8 @@ class Pref:
                 # note: when value is looked up, this is the assignment that counts (it overrides self.value) [as of 060209 bugfix]
                 extra = " (also in prefs db)"
             if self.print_changes:
-                msg = "changed %r to %r%s" % (self, newval, extra)
+                ## msg = "changed %r to %r%s" % (self, newval, extra)
+                msg = "changed %s to %r%s" % (self, newval, extra) # shorter version for console too [bruce 080215]
                 print msg
                 msg = "changed %s to %r%s" % (self, newval, extra) # shorter version (uses %s) for history [bruce 060126]
                 env.history.message(msg, quote_html = True, color = 'gray') #bruce 060126 new feature
@@ -603,21 +604,74 @@ def debug_prefs_menuspec( atom_debug):
     from utilities import debug_flags
     if debug_flags.atom_debug: #bruce 050808 (it's ok that this is not the atom_debug argument)
         testcolor = debug_pref("atom_debug test color", ColorType(green))
-    text = "debug prefs submenu"
-    submenu = []
-    items = debug_prefs.items()
+    max_menu_length = debug_pref(
+        "(max debug prefs submenu length?)", #bruce 080215
+             # initial paren or space puts it at start of menu
+         Choice([40,30,20,10,50,60,70]),
+             # personally I like 20, but 40 is a better default
+             # since it's closer to previous non-atom_debug behavior
+         prefs_key = True
+     )
+    items = [(name.lower(), name, pref) for name, pref in debug_prefs.items()]
+        # use name.lower() as sortkey;
+        # name is included to disambiguate cases where sortkey is identical
     items.sort()
-    for name, pref in items:
+    items_wanted = []
+        # will become a list of (sortkey, menuspec) pairs
+    for sortkey, name_junk, pref in items:
         if pref.non_debug or atom_debug:
-            submenu.append( pref.changer_menuspec() )
-    if submenu:
-        ## print "returning debug prefs submenu with %d items" % len(submenu) #######
-        return [ ( text, submenu) ]
-    else:
+            items_wanted.append( (sortkey, pref.changer_menuspec()) )
+        # print name_junk, to see the list for determining good ranges below
+    if not items_wanted:
         if atom_debug:
-            return [ ( text, noop, "disabled" ) ]
+            return [ ( "debug prefs submenu", noop, "disabled" ) ]
         else:
             return []
+    elif len(items_wanted) <= max_menu_length:
+        submenu = [menuspec for sortkey, menuspec in items_wanted]
+        return [ ( "debug prefs submenu", submenu) ]
+    else:
+        # split the menu into smaller sections;
+        # use the first splitting scheme of the following which works
+        # (or the last one even if it doesn't work)
+        schemes = [
+            # these ranges were made by evenly splitting 62 debug prefs
+            # (there are a lot each of d, e, g, u, and a bunch each of c, m, p, t)
+            ("a-e", "f-z"), 
+            ("a-d", "e-j", "k-z"),
+            ("a-c", "d-e", "f-m", "n-z")
+         ]
+        best_so_far = None
+        for scheme in schemes:
+            # split according to scheme, then stop if it's good enough
+            pointer = 0
+            res = []
+            good_enough = True # set to False if any submenu is still too long
+            total = 0 # count items, for an assert
+            for range in scheme:
+                # grab the remaining ones up to the end of this range
+                one_submenu = []
+                while (pointer < len(items_wanted) and
+                       (range == scheme[-1] or
+                        items_wanted[pointer][0][0] <= range[-1])):
+                    menuspec = items_wanted[pointer][1]
+                    pointer += 1
+                    one_submenu.append( menuspec )
+                # and put them into a submenu labelled with the range
+                good_enough = good_enough and len(one_submenu) <= max_menu_length
+                total += len(one_submenu)
+                res.append( ("debug prefs (%s)" % range, one_submenu) )
+                    # (even if one_submenu is empty)
+                continue # next range
+            assert total == len(items_wanted)
+            assert len(res) == len(scheme) # revise if we drop empty ones
+            best_so_far = res
+            if good_enough:
+                break
+            continue
+        # good enough, or as good as we can get
+        assert best_so_far
+        return best_so_far
     pass
 
 # ==
