@@ -1014,39 +1014,37 @@ class Bond(BondBase, StateMixin, Selobj_API):
 
     #- end of DNA bond helper functions ----------------------------
     
-    def getToolTipInfo(self, glpane, isBondChunkInfo, isBondLength, atomDistPrecision): #Ninad 060830
+    def getToolTipInfo(self,                       
+                       isBondChunkInfo, 
+                       isBondLength, 
+                       atomDistPrecision):
         """
         Returns a string that has bond related info, for use in Dynamic Tool Tip
         """
-        ### CLEANUP NEEDED: this method uses both self and glpane.selobj, and appears
-        # to assume they are the same object. [bruce 070414 comment]
-        #ninad060830 moved these methods from the class DynamicTip
-        bondInfoStr = str(glpane.selobj) # might be extended below
+        bondInfoStr = str(self) # might be extended below
         dna_error = self._dna_updater_error_tooltip_info() #bruce 080206
         if dna_error:
             bondInfoStr += "\n" + dna_error
         # check for user pref 'bond_chunk_info'
         if isBondChunkInfo:
-            bondChunkInfo = self.getBondChunkInfo(glpane)
+            bondChunkInfo = self.getBondChunkInfo()
             bondInfoStr +=  "\n" + bondChunkInfo
         #check for user pref 'bond length'
         if isBondLength:
-            bondLength = self.getBondLength(glpane, atomDistPrecision)
+            bondLength = self.getBondLength(atomDistPrecision)
             bondInfoStr += "\n" + bondLength
                 #ninad060823  don't use "<br>" ..it is weird. doesn't break into a new line.
                 #perhaps because I am not using html stuff in getBondLength etc functions??
         return bondInfoStr
             
-    def getBondChunkInfo(self, glpane, quat = Q(1,0,0,0)): #Ninad 060830
+    def getBondChunkInfo(self, quat = Q(1,0,0,0)): #Ninad 060830
         """
         Returns chunk information of the atoms forming a bond. 
         Returns none if Bond chunk user pref is unchecked.
         It uses some code of bonded_atoms_summary method.
         """
-        ### CLEANUP NEEDED: this method does not use self, and appears to
-        # assume glpane.selobj can stand in for self. [bruce 070414 comment]
-        a1 = glpane.selobj.atom1
-        a2 = glpane.selobj.atom2
+        a1 = self.atom1
+        a2 = self.atom2
         chunk1 = a1.molecule.name
         chunk2 = a2.molecule.name
             #ninad060822 I am not checking if chunk 1 and 2 are the same.
@@ -1055,18 +1053,17 @@ class Bond(BondBase, StateMixin, Selobj_API):
         bondChunkInfo = str(a1) + " in [" + str(chunk1) + "]\n" + str(a2) + " in [" + str(chunk2) + "]"
         return bondChunkInfo
             
-    def getBondLength(self, glpane, atomDistPrecision):#Ninad 060830
+    def getBondLength(self, atomDistPrecision):#Ninad 060830
         """
         Returns the atom center distance between the atoms connected 
         by the highlighted bond.
         
         @note: this does *not* return the covalent bondlength.
         """
-        ### CLEANUP NEEDED: this method does not use self, and appears to
-        # assume glpane.selobj can stand in for self. [bruce 070414 comment]
+        #NOTE: glpane attr is not used. this needs another general cleanup.
 
-        a1 = glpane.selobj.atom1
-        a2 = glpane.selobj.atom2
+        a1 = self.atom1
+        a2 = self.atom2
 
         nuclearDist = str(round(vlen(a1.posn() - a2.posn()), atomDistPrecision))
         bondLength = "Distance " + str(a1) + "-" + str(a2) + ": " + nuclearDist + " A"

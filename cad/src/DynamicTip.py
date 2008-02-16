@@ -255,8 +255,7 @@ class DynamicTip: # Mark and Ninad 060817.
         #      ---- Atom Info ----
         if isinstance(glpane.selobj, Atom):
             selAtom     = glpane.selobj
-            atomInfoStr = selAtom.getToolTipInfo(glpane, 
-                                                 self.isAtomPosition,
+            atomInfoStr = selAtom.getToolTipInfo(self.isAtomPosition,
                                                  self.isAtomChunkInfo, 
                                                  self.isAtomMass, 
                                                  atomDistPrecision)
@@ -265,8 +264,7 @@ class DynamicTip: # Mark and Ninad 060817.
         #       ----Bond Info----
         if isinstance(glpane.selobj, Bond):
             selBond     = glpane.selobj
-            bondInfoStr = selBond.getToolTipInfo(glpane, 
-                                                 self.isBondChunkInfo, 
+            bondInfoStr = selBond.getToolTipInfo(self.isBondChunkInfo, 
                                                  self.isBondLength, 
                                                  atomDistPrecision)
             return  bondInfoStr

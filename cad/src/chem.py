@@ -2178,18 +2178,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             res += "(%s)" % self.dnaStrandName
         return res
 
-    def getToolTipInfo(self, glpane,
-                       isAtomPosition, isAtomChunkInfo,
-                       isAtomMass, atomDistPrecision):
+    def getToolTipInfo(self,
+                       isAtomPosition, 
+                       isAtomChunkInfo,
+                       isAtomMass, 
+                       atomDistPrecision):
         """
         Returns atom's basic info string for the dynamic tooltip
         """
-        # CLEANUP NEEDED: # atom self glpane.selobj
-        # I think glpane.selobj in this method is supposed to be self
-        # and should be replaced with self (if this guess is confirmed).
-        # [bruce 080130/080206 comment]
-
-        atom = glpane.selobj # should replace with self [bruce 080206]
+        
+        atom = self
 
         atomStr        = atom.getInformationString()
         elementNameStr = " [" + atom.element.name + "]"
