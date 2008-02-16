@@ -47,6 +47,8 @@ class DnaCylinderChunks(ChunkDisplayMode):
     - Hover highlighting does not work.
     - Selected chunks are not colored in the selection color.
     - Cannot drag/move a selected cylinder interactively.
+    - DNA Cylinders are not written to POV-Ray file.
+    - DNA Cylinders are not written to PDB file and displayed in QuteMolX.
 
     @note: Nothing else is rendered (no atoms, sugar atoms, etc) when 
         set to this display mode.
