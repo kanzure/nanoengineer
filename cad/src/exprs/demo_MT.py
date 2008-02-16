@@ -23,7 +23,7 @@ bugs to fix:
 - see "nim issues" comment below
 
 nfrs:
-- use DisplistChunk
+- use DisplayListChunk
 - see "needed polish" comment below, etc
 
 [renamed from MT_demo.py, 070106]
@@ -134,7 +134,7 @@ from exprs.transforms import Translate
 from exprs.projection import DrawInCenter #e but what we need is not those, but DrawInAbsCoords or DrawInThingsCoords
     # or really, just get the place (or places) a thing will draw in, in local coords (see projection.py for more discussion)
 
-from exprs.DisplistChunk import DisplistChunk
+from exprs.DisplayListChunk import DisplayListChunk
 from exprs.Exprs import call_Expr, list_Expr, getattr_Expr, not_Expr, format_Expr
 from exprs.Exprs import is_expr_Instance
 from exprs.Exprs import is_Expr
@@ -530,8 +530,8 @@ class _MT_try2_node_helper(DelegatingInstanceOrExpr):
     
     ##e selection behavior too
 
-    label = DisplistChunk(
-        # added DisplistChunk 070213 late -- does it speed it up? not much; big new-item slowness bug remains. retain, since doesn't hurt.
+    label = DisplayListChunk(
+        # added DisplayListChunk 070213 late -- does it speed it up? not much; big new-item slowness bug remains. retain, since doesn't hurt.
         TextRect( call_Expr(node_name, node) + name_suffix )
      )
         ###e will need revision to Node or proxy for it, so node.name is usage/mod-tracked

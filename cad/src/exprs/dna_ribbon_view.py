@@ -109,7 +109,7 @@ from exprs.Rect import Rect, Spacer, Sphere, Line
 
 from exprs.Column import SimpleColumn, SimpleRow
 
-from exprs.DisplistChunk import DisplistChunk
+from exprs.DisplayListChunk import DisplayListChunk
 
 from exprs.Highlightable import Highlightable
 
@@ -352,7 +352,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
             for c in points:
                 ##e It might be interesting to set a clipping plane to cut off the sphere inside the ribbon-quad;
                 # but that kind of fanciness belongs in the caller, passing us something to draw for each base
-                # (in a base-relative coordsys), presumably a DisplistChunk instance. (Or a set of things to draw,
+                # (in a base-relative coordsys), presumably a DisplayListChunk instance. (Or a set of things to draw,
                 #  for different kinds of bases, in the form of a "base view" base->expr function.)
                 drawsphere(color, c, kluge_hardcoded_size, 2)
         if self.showlines:
@@ -707,7 +707,7 @@ def dna_ribbon_view_toolcorner_expr_maker(world_holder): #070201 modified from d
             ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
          ),
         Overlay(
-            DisplistChunk(TextRect( format_Expr( "(%d objects in world)" , number_of_objs ))),
+            DisplayListChunk(TextRect( format_Expr( "(%d objects in world)" , number_of_objs ))),
             If( eq_Expr( number_of_objs, 0),
                 DrawInCenter(corner = (0,0))( TextRect("(empty model)") ),
                 Spacer() ),
@@ -723,7 +723,7 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
     world = Option(World, World(), doc = "the set of model objects") # revised 070228 for use in _30j
     # internals
 ##    world = Instance( World() ) # maintains the set of objects in the model
-    _value = DisplistChunk( world)
+    _value = DisplayListChunk( world)
     
     _cmd_Make_DNA_Cylinder_tooltip = "make a DNA_Cylinder" ###e or parse it out of method docstring, marked by special syntax??
     def _cmd_Make_DNA_Cylinder(self):
@@ -734,14 +734,14 @@ class World_dna_holder(InstanceMacro): #070201 modified from GraphDrawDemo_Fixed
         # Note: ideally, only that much (expr, at this point) would be stored as world's state, with the following wrappers
         # added on more dynamically as part of finding the viewer for the model objects in world. ###e
         # (Nice side effect: then code-reloading of the viewer would not require clearing and remaking the model objs.)
-        expr = DisplistChunk( expr) # displist around cylinder itself -- speeds(unverified) redraw of cyl while it's dragged, or anywhen [070203]
+        expr = DisplayListChunk( expr) # displist around cylinder itself -- speeds(unverified) redraw of cyl while it's dragged, or anywhen [070203]
             ###BUG (though this being the cause is only suspected): prefs changes remake the displist only the first time in a series of them,
             # until the next time the object is highlighted or certain other things happen (exact conditions not yet clear); not yet diagnosed;
             # might relate to nested displists, since this is apparently the first time we've used them.
-            # This is now in BUGS.txt as "070203 DisplistChunk update bug: series of prefs checkbox changes (eg show central cyl,
+            # This is now in BUGS.txt as "070203 DisplayListChunk update bug: series of prefs checkbox changes (eg show central cyl,
             #  testexpr_30g) fails to remake the displist after the first change", along with suggestions for investigating it. #####TRYTHEM
         expr = DraggableObject( expr)
-        ## expr = DisplistChunk( expr) # displist around drag-repositioned cyl -- prevents drag of this cyl from recompiling world's dlist
+        ## expr = DisplayListChunk( expr) # displist around drag-repositioned cyl -- prevents drag of this cyl from recompiling world's dlist
             ###BUG: seems to be messed up by highlighting/displist known bug, enough that I can't tell if it's working in other ways --
             # the printed recompile graph makes sense, but the number of recomps (re changetrack prediction as I drag more)
             # seems wrong (it only recompiles when the drag first starts, but I think every motion ought to do it),

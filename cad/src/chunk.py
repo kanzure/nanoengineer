@@ -712,7 +712,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # (Note: most of these methods could be moved with few changes to a
     # new mixin class concerned with maintaining self.displist for any
     # sort of object that needs one. If that's done, see also
-    # GLPane_mixin_for_DisplistChunk for useful features of other kinds
+    # GLPane_mixin_for_DisplayListChunk for useful features of other kinds
     # to integrate into that code. [bruce 071103 comment])
     
     def _get_displist(self):

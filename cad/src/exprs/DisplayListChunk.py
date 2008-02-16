@@ -1,18 +1,20 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-DisplistChunk.py
+DisplayListChunk.py
 
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 
-$Id$
-
-
-history:
+History:
 
 061231 prototyped this code in NewInval.py
 
 070102 moved it here 1-2 days ago, and revised it to seem correct; imports/reloads ok, but otherwise untested
 
 070103 works, with important caveats re Highlightable (described below)
+
+080215 renamed from DisplistChunk to DisplayListChunk
 
 ==
 
@@ -27,9 +29,11 @@ Still needed:
 
 caveats re Highlightable [as of 070103]:
 
-a Highlightable inside a DisplistChunk only works properly (without highlight-position errors)
-if no coord transform occurs from the DisplistChunk to the Highlightable,
+a Highlightable inside a DisplayListChunk only works properly (without highlight-position errors)
+if no coord transform occurs from the DisplayListChunk to the Highlightable,
 and no trackballing or other motion of whole thing from the last time the instance was made.
+The second condition is impossible to guarantee, so in practice,
+you should not use a Highlightable inside a DisplayListChunk until this is fixed.
 
 Theory: the gl matrix is saved only once and only as it was when the displist was compiled.
 Note, the rules would be even weirder (I predict) if nested display lists were involved --
@@ -58,19 +62,19 @@ from exprs.instance_helpers import DelegatingInstanceOrExpr
 from exprs.widget2d import Widget
 from exprs.py_utils import printfyi
 
-##e comment during devel -- see also some comments in lvals-outtakes.py and DisplistChunk-outtakes.py (in cvs, only during devel)
+##e comment during devel -- see also some comments in lvals-outtakes.py and DisplayListChunk-outtakes.py (in cvs, only during devel)
 # (including long docstrings/comments that might be correct, but are unreviewed and partly redundant now)
 
 # ==
 
-# moved class GLPane_mixin_for_DisplistChunk from here into GLPane.py, bruce 070110
+# moved class GLPane_mixin_for_DisplayListChunk from here into GLPane.py, bruce 070110
 
 # ==
 
 ###@@@ Q: do we separate the object to own a displist, below, and the one to represent various Instances,
-# like one for DisplistChunk and one for defining a displist-subroutine?
+# like one for DisplayListChunk and one for defining a displist-subroutine?
 # (Do these even differ? [062023 addendum: One way they differ: whether highlighting treats their instances as separate objects.
-#   But it might turn out this is just a matter of whether we use a DisplistChunk inside something for highlighting
+#   But it might turn out this is just a matter of whether we use a DisplayListChunk inside something for highlighting
 #   which pushes its own glname for everything inside it, crossing it with whatever ones are inside it rather than being
 #   overridden by them (just a flag on the name which matters when it's interpreted).])
 # If we do, is the class below even an Instance with a draw method? (I doubt it. I bet it's an internal displist-owner helper object.)
@@ -78,7 +82,7 @@ from exprs.py_utils import printfyi
 #e digr: someday: it might be good for glpane to have a dict from allocated dlist names to their owning objects.
 # Could we use displist names as keys, for that purpose?
 
-class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageTrackingMixin ):
+class DisplayListChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageTrackingMixin ):
     """#doc
     [Note: the implicit value for SelfUsageTrackingMixin is the total drawing effect of calling our displist in immediate mode.
      This has an inval flag and invalidator, but we also have another pair of those for our display list's OpenGL contents,
@@ -125,7 +129,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         ### NOTE: usage tracking should turn up nothing -- we use nothing
         "allocate a new display list name (a 32-bit int) in our GL context"
         if self.displist_disabled(): # revised this cond (true more often), 070215
-            printfyi("bug: why does .displist get requested in a disabled DisplistChunk??") # (i never saw this)
+            printfyi("bug: why does .displist get requested in a disabled DisplayListChunk??") # (i never saw this)
             return 0
         
         self.glpane.makeCurrent() # not sure when this compute method might get called, so make sure our GL context is current
@@ -140,7 +144,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
     def __repr__(self):
         try:
             if not self._e_is_instance:
-                return super(DisplistChunk,self).__repr__()
+                return super(DisplayListChunk, self).__repr__()
             _debug_print_name = self._debug_print_name # only legal on an instance
         except:
             print "exception in self._debug_print_name discarded" #e print more, at least id(self), maybe traceback, if this happens
@@ -154,7 +158,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
     def displist_disabled(self): #070215 split this out, modified it to notice _exprs__warpfuncs
         "Is the use of our displist (or of all displists) disabled at the moment?"
         return self._disabled or \
-               debug_pref("disable DisplistChunk?", Choice_boolean_False, prefs_key = True) or \
+               debug_pref("disable DisplayListChunk?", Choice_boolean_False, prefs_key = True) or \
                getattr(self.env.glpane, '_exprs__warpfuncs', None) ###BUG: this will be too inefficient a response for nice dragging.
     
     def draw(self):
@@ -288,18 +292,18 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
     '''
 atom_debug: fyi: <OneTimeSubsList(<LvalForState(<World#16291(i)>|transient.nodelist|('world', (0, (0, 'NullIpath')))) at 0x101a7b98>) at 0x10583850>'s 
 event already occurred, fulfilling new subs 
-<bound method usage_tracker_obj.standard_inval of <usage_tracker_obj(<DisplistChunk(<no name>) at 0x111b7670>) at 0x112086e8>> immediately: 
+<bound method usage_tracker_obj.standard_inval of <usage_tracker_obj(<DisplayListChunk(<no name>) at 0x111b7670>) at 0x112086e8>> immediately: 
 
 [atom.py:414] [GLPane.py:1847] [GLPane.py:1884] [testmode.py:67] [testdraw.py:251] [GLPane_overrider.py:127]
 [GLPane_overrider.py:138] [GLPane_overrider.py:298] [testmode.py:75] [testdraw.py:275] [testdraw.py:385]
 [testdraw.py:350] [testdraw.py:384] [testdraw.py:530] [test.py:1231] [Overlay.py:57] [Overlay.py:57]
-[Overlay.py:57] [DisplistChunk.py:286] [DisplistChunk.py:124] [state_utils.py:156] [DisplistChunk.py:116]
-[DisplistChunk.py:358] [changes.py:352] [changes.py:421] [changes.py:72]
+[Overlay.py:57] [DisplayListChunk.py:286] [DisplayListChunk.py:124] [state_utils.py:156] [DisplayListChunk.py:116]
+[DisplayListChunk.py:358] [changes.py:352] [changes.py:421] [changes.py:72]
 
 exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
 
 [testdraw.py:350] [testdraw.py:384] [testdraw.py:530] [test.py:1231] [Overlay.py:57] [Overlay.py:57]
-[Overlay.py:57] [DisplistChunk.py:286] [DisplistChunk.py:127] [DisplistChunk.py:314]
+[Overlay.py:57] [DisplayListChunk.py:286] [DisplayListChunk.py:127] [DisplayListChunk.py:314]
 '''
     def __you_called_dlist(self, dlist):
         "[private]"
@@ -358,7 +362,7 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
                     # the only thing it doesn't cover is subscribing it to inval of our own displist's contents,
                     # so we manually call it in invalidate_contents.
         if self.drawing_effects_valid:
-            if debug_pref("DisplistChunk: permit optim 070204?", Choice_boolean_False):
+            if debug_pref("DisplayListChunk: permit optim 070204?", Choice_boolean_False):
                 ###BUG: this old optim seems to cause the bug 070203 -- I don't know why, but disabling it seems to fix the bug ###k
                 print "doing optim 070204"#e and listnames [#e only print if the optim makes a difference?]
                 return {} # optim; only possible when self.contents_valid,
@@ -413,6 +417,6 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
         self.glpane.glCallList( self.displist)
         return
     
-    pass # end of class DisplistChunk
+    pass # end of class DisplayListChunk
 
 # end

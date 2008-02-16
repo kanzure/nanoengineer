@@ -24,7 +24,7 @@ class LvalForDisplistEffects(Lval): #stub -- see NewInval.py and paper notes
 DelegatingWidget # 2D or 3D -- I hope we don't have to say which one in the superclass! ###
 # Can the Delegating part be a mixin? Even if it is, we still have to avoid having to say the 2D or 3D part... ###
 
-class DisplistChunk(DelegatingWidget):
+class DisplayListChunk(DelegatingWidget):
     def _init_instance(self):
         DelegatingWidget._init_instance(self)
         instance_of_arg1 # what is this? it needs to be set up by the prior statement, or by that time... see our make_in code... ###
@@ -142,7 +142,7 @@ each having one inval flag, rather than one, handling two flags? ####@@@@
 
 
 
-in class DisplistChunk:
+in class DisplayListChunk:
     """Each object of this class owns one OpenGL display list (initially unallocated) in a specific OpenGL context,
     and keeps track of whether its contents (OpenGL commands, as actually stored in our GL context) might be invalid,
     and whether any of its kids' contents might be invalid.

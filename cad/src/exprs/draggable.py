@@ -62,7 +62,7 @@ from exprs.transforms import Translate, RotateTranslate
 
 from exprs.Highlightable import Highlightable
 
-from exprs.DisplistChunk import DisplistChunk
+from exprs.DisplayListChunk import DisplayListChunk
 
 from exprs.demo_MT import node_name #e really this belongs in a file which defines ModelTreeNodeInterface
 
@@ -106,7 +106,7 @@ class WarpColors(DelegatingInstanceOrExpr):
         #  if there are, it would be much better & more efficient to use them --
         #  but other things will end up needing this scheme)
         glpane = self.env.glpane
-        old_warpfuncs = getattr(glpane, '_exprs__warpfuncs', None) # note: attr also used in DisplistChunk and fix_color method
+        old_warpfuncs = getattr(glpane, '_exprs__warpfuncs', None) # note: attr also used in DisplayListChunk and fix_color method
         glpane._exprs__warpfuncs = (self.warpfunc, old_warpfuncs) # temporary
             #e also modify a similar sequence of hashable func-effect data -- unless presence of any funcs turns off all displists
             # (we'll do that to start with, since simplest)
@@ -141,8 +141,8 @@ class DraggableObject(DelegatingInstanceOrExpr):
        In fact, it's more complicated than that: the selection-click controller will wrap single objects,
     but the draggability wrapper is more likely to be organized something like this,
     where the named localvars refer to sets whose membership depends on selection:
-      visibles = DisplistChunk(fixed_stuff) + distortedly_moving_stuff +
-        DraggableObject(DisplistChunk(dragging_as_a_unit_stuff)).
+      visibles = DisplayListChunk(fixed_stuff) + distortedly_moving_stuff +
+        DraggableObject(DisplayListChunk(dragging_as_a_unit_stuff)).
     The distortedly_moving_stuff includes things like external bonds between fixed and being-dragged atoms,
     which have to stretch in individual ways during the drag.
     """
@@ -251,11 +251,11 @@ class DraggableObject(DelegatingInstanceOrExpr):
         RotateTranslate( obj_drawn, rotation, use_motion),
         # hover-highlighted appearance (also used when dragging, below)
         highlighted = RotateTranslate(
-            DisplistChunk(
-                # This inner DisplistChunk, in theory, might help make up for current implem of disabling them inside WarpColors...
+            DisplayListChunk(
+                # This inner DisplayListChunk, in theory, might help make up for current implem of disabling them inside WarpColors...
                 # in my tests, it didn't make a noticeable difference (probably since obj is fast to draw). [070216 2pm]
                 #
-                # Note: if obj has its own DisplistChunk, does that notice the value of whatever dynenv var is altered by WarpColors??
+                # Note: if obj has its own DisplayListChunk, does that notice the value of whatever dynenv var is altered by WarpColors??
                 # We'll have to make it do so somehow -- perhaps by altering the displist name by that, or turning off displists due to it.
                 # For this initial implem [070215 4pm], we did the latter.
 
@@ -540,7 +540,7 @@ class DraggablyBoxed(Boxed): # 070316; works 070317 [testexpr_36] before ww,hh S
             Translate( resizer, V_expr( - thing.bleft - extra1 + ww, thing.btop + extra1 - hh))
          )
      ))
-    _value = Translate( drawme, ## DisplistChunk( drawme), ###k this DisplistChunk might break the Highlightable in rectframe_h #####
+    _value = Translate( drawme, ## DisplayListChunk( drawme), ###k this DisplayListChunk might break the Highlightable in rectframe_h #####
                         translation
                        )
     pass # end of class DraggablyBoxed

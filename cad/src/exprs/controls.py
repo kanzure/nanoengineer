@@ -35,7 +35,7 @@ from exprs.images import IconImage
 
 from exprs.staterefs import PrefsKey_StateRef
 
-from exprs.DisplistChunk import DisplistChunk
+from exprs.DisplayListChunk import DisplayListChunk
 
 from exprs.If_expr import If_kluge
 If = If_kluge # until debugged
@@ -303,14 +303,14 @@ class checkbox_pref(InstanceMacro):
             checkbox_image('mac_checkbox_on.jpg'),
             checkbox_image('mac_checkbox_off.jpg'),
         )
-    _value = DisplistChunk( Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
-                            ## on_press = Set(debug_evals_of_Expr(stateref.value), not_Expr(var) ), #070119 debug_evals_of_Expr - worked
-                            on_press = _self.on_press,
+    _value = DisplayListChunk( Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
+                               ## on_press = Set(debug_evals_of_Expr(stateref.value), not_Expr(var) ), #070119 debug_evals_of_Expr - worked
+                               on_press = _self.on_press,
                                            # the following works too, but I wanted to intercept it to add some py code [070305]:
                                            ## Set( stateref.value, not_Expr(var) ),
-                            sbar_text = use_sbar_text) )
-        # note: using DisplistChunk in _value works & is faster [070103]
-        #070124 comment: the order DisplistChunk( Highlightable( )) presumably means that the selobj
+                               sbar_text = use_sbar_text) )
+        # note: using DisplayListChunk in _value works & is faster [070103]
+        #070124 comment: the order DisplayListChunk( Highlightable( )) presumably means that the selobj
         # (which draws the highlightable's delegate) doesn't include the displist; doesn't matter much;
         # that CenterY(use_label) inside might be ok, or might be a bug which is made up for by the +0.5 I'm adding to drawfont2
         # in testdraw.py today -- not sure.
@@ -351,8 +351,9 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
                         bordercolor = blue, # should color adapt to bg? is it a bad idea to put this over bg rather than over button?
                         borderthickness = 1.5 * PIXELS,
                         gap = 1 * PIXELS, ) ###k ????   -- note, this doesn't include the label -- ok?
-    plain =       DisplistChunk( SimpleRow( plain_button,       CenterY(use_label))) # align = CenterY is nim
-    highlighted = DisplistChunk( SimpleRow( highlighted_button, CenterY(use_label), pixelgap = 0.5)) #k ok to wrap with DisplistChunk? [seems so]
+    plain =       DisplayListChunk( SimpleRow( plain_button,       CenterY(use_label))) # align = CenterY is nim
+    highlighted = DisplayListChunk( SimpleRow( highlighted_button, CenterY(use_label), pixelgap = 0.5))
+            #k ok to wrap with DisplayListChunk? [seems so]
         ### KLUGE: without the pixelgap adjustment (to this particular weird-looking value, i guess),
         # the label moves to the right when highlighted, due to the Boxed being used to position it in the row.
         ### BUG: CenterY is not perfectly working. Guess -- lbox for TextRect is slightly wrong.

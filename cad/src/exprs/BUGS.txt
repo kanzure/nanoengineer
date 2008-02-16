@@ -170,7 +170,7 @@ does get drawn in a frame or not. (Just set a "last drawn in this frame" ivar in
 070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
 
 [in earlier commits today, I misnamed this bug based on an incorrect theory of its cause:
-070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"]
+070115 "DisplayListChunk breaks highlighting of testexpr_19f old nodes"]
 
 [I'll remove these debugging notes sometime after this commit, and leave only the correct parts:]
 
@@ -198,7 +198,7 @@ trying again carefully in $W, I note:
 
 - remake main instance, now i can make a new node, and can drag an old node
 
-  (so I wonder if this is caused by the highlighting bug related to DisplistChunk -- try disabling all those ###)
+  (so I wonder if this is caused by the highlighting bug related to DisplayListChunk -- try disabling all those ###)
   
   and the old node is no longer tilted -- i think that indicates some sort of displist update bug!
   either that, or it's a bug in the drawing code that it implicitly uses the to-screen direction...
@@ -209,7 +209,7 @@ and affect sbar on mouseover, some just made and some from before remake main in
 both before and after untilting using "home view")
 
 conclusion: guess: bug is either in displist updating, or interaction of displist and highlight.
-I'll add comments to DisplistChunk and Highlightable mentioning this bug.
+I'll add comments to DisplayListChunk and Highlightable mentioning this bug.
 
 WRONG -- not so simple: trying it more, even with that debug_pref disabled, it is intermittent --
 it might depend on how long I leave the mouse down when I make the node, or whether I move it over
@@ -228,8 +228,8 @@ Not sure if it can relate to this bug, anyway.
 
 Fix that, try again in fresh session:
 
-I still get the bug, and this time, no big chance DisplistChunk or file reload could be involved.
-WAIT, my debug_pref to disable DisplistChunk is not persistent! So maybe it's still causing this.
+I still get the bug, and this time, no big chance DisplayListChunk or file reload could be involved.
+WAIT, my debug_pref to disable DisplayListChunk is not persistent! So maybe it's still causing this.
 Turning it off & remaking instance, bug can still happen on new nodes. I'll need to make that debug_pref
 persistent and test again more carefully. ### TRY THAT LATER [I did]
 
@@ -298,14 +298,14 @@ a likely cause of that (an optim-bug in MT_try2).
 
 ==
 
-070203 DisplistChunk update bug: series of prefs checkbox changes (eg show central cyl,
+070203 DisplayListChunk update bug: series of prefs checkbox changes (eg show central cyl,
 testexpr_30g) fails to remake the displist after the first change, until certain other things
 happen, not yet characterized but including highlighting the affected object.
 
 Not yet understood; no evidence it's due to displists except that it doesn't happen if
-DisplistChunk is disabled (ie if it draws directly without using its displist). It was not
+DisplayListChunk is disabled (ie if it draws directly without using its displist). It was not
 noticed except in the first- tried case of a nested displist, so maybe it relates to that. The
-code it affects seems to be the DisplistChunk in the following (in dna_ribbon_view.py.py); see
+code it affects seems to be the DisplayListChunk in the following (in dna_ribbon_view.py.py); see
 also the comments in this code excerpt.
 
 Things to try: see if removing one or the other of the nested displists (the one shown below
@@ -317,12 +317,12 @@ should fix it; if not, probably only the following one's, or only both's, remova
         # Note: ideally, only that much (expr, at this point) would be stored as world's state, with the following wrappers
         # added on more dynamically as part of finding the viewer for the model objects in world. ###e
         # (Nice side effect: then code-reloading of the viewer would not require clearing and remaking the model objs.)
-        expr = DisplistChunk( expr) # displist around cylinder itself -- speeds(unverified) redraw of cyl while it's dragged, or anywhen [070203]
+        expr = DisplayListChunk( expr) # displist around cylinder itself -- speeds(unverified) redraw of cyl while it's dragged, or anywhen [070203]
             ###BUG (though this being the cause is only suspected): prefs changes remake the displist only the first time in a series of them,
             # until the next time the object is highlighted or certain other things happen (exact conditions not yet clear); not yet diagnosed;
             # might relate to nested displists, since this is apparently the first time we've used them.
         expr = DraggableObject( expr)
-        ## expr = DisplistChunk( expr) # displist around drag-repositioned cyl -- prevents drag of this cyl from recompiling world's dlist
+        ## expr = DisplayListChunk( expr) # displist around drag-repositioned cyl -- prevents drag of this cyl from recompiling world's dlist
             ###BUG: seems to be messed up by highlighting/displist known bug, enough that I can't tell if it's working in other ways --
             # the printed recompile graph makes sense, but the number of recomps (re changetrack prediction as I drag more)
             # seems wrong (it only recompiles when the drag first starts, but I think every motion ought to do it),
@@ -331,10 +331,10 @@ should fix it; if not, probably only the following one's, or only both's, remova
         self.world.make_and_add( expr)
         return
 
-update 070204: turning off an old optim in DisplistChunk (comment contains "070204") fixes this bug --
+update 070204: turning off an old optim in DisplayListChunk (comment contains "070204") fixes this bug --
 but I won't resolve it fixed until I understand why the optim caused it, whether it's entirely fixed,
 etc. Meanwhile the optim is off, but can be turned back on by a debug pref,
-"DisplistChunk: permit optim 070204?"; when on it prints something whenever it's used
+"DisplayListChunk: permit optim 070204?"; when on it prints something whenever it's used
 (even if the use makes no difference); it's printed a lot of times on each redraw.
 
 ==

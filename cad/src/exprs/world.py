@@ -192,7 +192,7 @@ class World(InstanceOrExpr): #070205 revised, public nodelist -> private _nodese
         
     def draw(self):
         # draw all the nodes [#e 070228 ###e in future we're more likely to draw X(node) for X supplied from caller & subset of nodes]
-        # [optim idea 070103 late: have caller put this in a DisplistChunk; will it actually work?
+        # [optim idea 070103 late: have caller put this in a DisplayListChunk; will it actually work?
         #  the hope is, yes for animating rotation, with proper inval when nodelist changes. It ought to work! Try it. It works!]
         self._coordsys_holder.save_coords_if_safe() #070401
         for node in self._sorted_objects:

@@ -147,7 +147,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
     #   bugs when it doesn't [usual state & state I'll leave it in]:
     #   - not tested with displists off, maybe ###
     #   - fuzzy text in testexpr_18 [not yet understood]
-    #   - [fixed] fuzzy text in "current redraw" textlabel during anything's highlighting [fixed by removing DisplistChunk from that]
+    #   - [fixed] fuzzy text in "current redraw" textlabel during anything's highlighting [fixed by removing DisplayListChunk from that]
     #   - [no bug in clarity of text in highlighted checkbox prefs themselves]
     # - works with displists on or off now
     # - is disable_translate helping?? not sure (only matters when it computes pixelwidth here -- not now)

@@ -151,7 +151,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
     restore them later, and do OpenGL state queries within them.
        Superclass of Highlightable [though maybe it could just own one of us in an attr, instead?? ##e];
     and of SavedCoordsys, for holding a saved static coordsys.
-       WARNING: implem and API may change once we introduce "draw decorators" to fix Highlightable/DisplistChunk bugs.
+       WARNING: implem and API may change once we introduce "draw decorators" to fix Highlightable/DisplayListChunk bugs.
     """
     projection = Option(bool, False) # whether to save projection matrix too... would be default True except inefficient
 
@@ -451,7 +451,7 @@ class _CoordsysHolder(InstanceOrExpr): # split out of class Highlightable, 07031
         [as of 070226 it always does, and has ###BUGS inside display lists after trackballing].
            WARNING: Proper behavior inside a display list is not yet defined; maybe it will have to assume
         something about the list's initial coords... or the caller will have to pass those...
-        or self will have to know how to ask a parent DisplistChunk for those. ##e
+        or self will have to know how to ask a parent DisplayListChunk for those. ##e
         """
         ###UNTESTED, NOT YET USED
         ran_already_flag, funcres = self.run_OpenGL_in_local_coords( lambda p = point: gluProject(p[0],p[1],p[2]) )

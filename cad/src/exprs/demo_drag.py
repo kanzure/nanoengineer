@@ -50,7 +50,7 @@ from exprs.controls import checkbox_pref, ActionButton
 
 from exprs.Column import SimpleColumn ##, SimpleRow
 
-from exprs.DisplistChunk import DisplistChunk
+from exprs.DisplayListChunk import DisplayListChunk
 
 from exprs.world import World
 
@@ -408,7 +408,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
                        )
     use_highlightable_background = If( test_background_object,
                                        BackgroundObject( highlightable_background, hide = hide_background_object),
-                                       DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
+                                       DisplayListChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
                                            highlightable_background
                                         )
                                     )
@@ -416,10 +416,10 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
     _value = Overlay(
         use_highlightable_background,
         If( _self.use_VertexView,
-            DisplistChunk( WithViewerFunc(world, viewerfunc) ),
-            # try DisplistChunk, 070103 later -- works, doesn't break dragging of contained old nodes.
-            DisplistChunk( world) ##, debug_prints = "World")
-            ## world # zap DisplistChunk to see if it fixes new 070115 bug about dragging old nodes -- nope
+            DisplayListChunk( WithViewerFunc(world, viewerfunc) ),
+            # try DisplayListChunk, 070103 later -- works, doesn't break dragging of contained old nodes.
+            DisplayListChunk( world) ##, debug_prints = "World")
+            ## world # zap DisplayListChunk to see if it fixes new 070115 bug about dragging old nodes -- nope
         )
     )
 
@@ -507,7 +507,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
             # For the simple things we have there, there are no subobjects, and no actions except drag or later select the whole thing.
             # A simple model is "one thing was hit, but some things are specified by a specific series of two or more glnames".
             # In general the outer name decides how to interpret (or whether to ignore) the inner names.
-            # It can map the inner ones somehow... not sure how. This will relate a lot to DisplistChunk when we have that.
+            # It can map the inner ones somehow... not sure how. This will relate a lot to DisplayListChunk when we have that.
             # Mere nested Highlightables might push two names but both would be unique. Outer name might just defer to inner one then.
             
         if 0:

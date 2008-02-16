@@ -4,7 +4,7 @@ NewInval.py [to be cannibalized -- as of 061231, obs or mostly obs]
 
 $Id$
 
-061231 moved the displist comments and code from here to DisplistChunk.py;
+061231 moved the displist comments and code from here to DisplayListChunk.py;
 what remains here is obs or mostly obs
 '''
 

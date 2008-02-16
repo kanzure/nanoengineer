@@ -108,7 +108,7 @@ from exprs.projection import DrawInCorner_projection, DrawInCorner
 
 ##from exprs.ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
 
-from exprs.DisplistChunk import DisplistChunk
+from exprs.DisplayListChunk import DisplayListChunk
 
 ##import demo_polygon # stub 070103
     # commented out 070117 since it's a scratch file with syntax errors
@@ -1251,21 +1251,21 @@ testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]; works in 
 testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default options are far from perfect)
     # see also kluge_dragtool_state_prefs_default and _19*
 
-# == test DisplistChunk
+# == test DisplayListChunk
 
   ##BUG in general when not wrapped directly around translated Highlightable, or when an HL is trackballed.
   # Most of these are not marked as indiv ##BUGs.
 
-testexpr_23 = DisplistChunk(Rect(1,green)) # might work
-testexpr_23x = DisplistChunk(Rect(1,green), debug_prints = "dlc1") # might work
+testexpr_23 = DisplayListChunk(Rect(1,green)) # might work
+testexpr_23x = DisplayListChunk(Rect(1,green), debug_prints = "dlc1") # might work
 
 # try to detect the speedup of trackball or animated rotation. some of these may fail immediately due to highlighting issue.
 # (remember to turn off testbed for speed tests.)
 testexpr_23a1 = TextRect("hjfdfhjksdhfkjafhjksdhfkafdftftytudyufdyufua\n" * 26, max_lines = 100, max_cols = 100) # works
-testexpr_23a2 = DisplistChunk(testexpr_23a1) # works -- *much* faster (as eyeballed using rotate view 90)
+testexpr_23a2 = DisplayListChunk(testexpr_23a1) # works -- *much* faster (as eyeballed using rotate view 90)
     # WHY does this not fail due to highlighting issue? Maybe TextRect is not natively highlightable. Ah, that must be it.
 testexpr_23a1h = Highlightable(testexpr_23a1) # works
-testexpr_23a2h = DisplistChunk(testexpr_23a1h) # doesn't crash, and even its highlighting sbar msg works! WHY??? ####
+testexpr_23a2h = DisplayListChunk(testexpr_23a1h) # doesn't crash, and even its highlighting sbar msg works! WHY??? ####
     # At least it does have a bug -- the highlight is drawn in the home position of the main thing, ignoring trackball rot/shift.
     # Guess: loading the matrix doesn't fail while compiling a displist, it just loads the wrong matrix.
     # If so (and if indep of opengl driver), I can leave this unfixed until I need highlighting behavior inside one of these.
@@ -1275,23 +1275,23 @@ testexpr_23a2h = DisplistChunk(testexpr_23a1h) # doesn't crash, and even its hig
     # This may also mean it can work fine for exprs that are shown in fixed places, like widgets in our testbed.
 
 # I suspect it may have another highlighting bug besides coords, namely, in use of a different appearance for highlighting.
-# But it turns out it doesn't. Later: I guess that's because in DisplistChunk(Highlightable(...)), the draw_in_abs_coords
+# But it turns out it doesn't. Later: I guess that's because in DisplayListChunk(Highlightable(...)), the draw_in_abs_coords
 # is called directly on the inner Highlightable, so the displist is only used when running the usual draw on the whole thing.
 testexpr_23b = testexpr_9c(fakeoption=0) # customize it just to make it nonequal - works
-testexpr_23bh = DisplistChunk(testexpr_9c) # sort of works - top rect works except for coords, bottom rect doesn't work at all,
+testexpr_23bh = DisplayListChunk(testexpr_9c) # sort of works - top rect works except for coords, bottom rect doesn't work at all,
     # maybe [wrong] since not moused until after trackball, or trackball too far for it??
     # or [right i think] since not drawn at origin?
     # if the latter, it probably breaks the hopes of making this work trivially for testbed widgets.
-# ... maybe it would turn out differently if the DisplistChunk was embedded deeper inside them:
-testexpr_23bh2 = SimpleColumn( DisplistChunk(testexpr_9a), DisplistChunk(testexpr_9b)) # works.
+# ... maybe it would turn out differently if the DisplayListChunk was embedded deeper inside them:
+testexpr_23bh2 = SimpleColumn( DisplayListChunk(testexpr_9a), DisplayListChunk(testexpr_9b)) # works.
 
 # so I put it in checkbox_pref, and this sped up the testbed expr with 5 of them, so I adopted it in there as standard.
 # I also retested demo_drag (_19d) re that; it works.
 
 testexpr_23ch = Highlightable(testexpr_10c) # works, but prints debug fyi: len(names) == 2 (names = (429L, 439L)) due to glname nesting
-testexpr_23cd = DisplistChunk(testexpr_10c) # has expected coord ##BUG -- outermost toggle works, inner one as if not highlightable
+testexpr_23cd = DisplayListChunk(testexpr_10c) # has expected coord ##BUG -- outermost toggle works, inner one as if not highlightable
     # probably a bit faster (smoother rot90) than bare testexpr_10c, tho hard to be sure.
-    ###e sometime try improving demo_MT to use DisplistChunk inside -- should not be hard -- but not right now.
+    ###e sometime try improving demo_MT to use DisplayListChunk inside -- should not be hard -- but not right now.
 
     # but I did improve demo_drag inside... testexpr_19d still works, and seems to be faster (hard to be sure)
 
@@ -1376,9 +1376,9 @@ testexpr_29aox3  = If_OpExpr(False, TextRect("True"), TextRect("False")) # -- wo
     # in terms of a real implem, re default else clause, or refraining from even evalling (not just from instantiating) unused clauses
 
 # == test dna_ribbon_view.py
-testexpr_30 =  DNA_Cylinder() # works 070131 (has no DisplistChunk inside it)
-testexpr_30a =  DisplistChunk(DNA_Cylinder()) # works 070131
-    # (but it'd be more sensible to include DisplistChunk inside it instead, so it can have one per display style pref setting)
+testexpr_30 =  DNA_Cylinder() # works 070131 (has no DisplayListChunk inside it)
+testexpr_30a =  DisplayListChunk(DNA_Cylinder()) # works 070131
+    # (but it'd be more sensible to include DisplayListChunk inside it instead, so it can have one per display style pref setting)
 
 # try modifying testexpr_19g to put in some controls
 testexpr_30b = World_dna_holder()
@@ -1613,7 +1613,7 @@ testexpr = testexpr_35b ### testexpr_11pd5a # testexpr_36f # testexpr_38 # teste
         # after I fixed 3 bugs, including adding a mostly-complete pure-expr __eq__ (which has loose ends in Expr.__eq__ comments,
         # which don't affect testexpr_21g/_21e).
     ## testexpr_22 ChoiceRow (in corner)
-    ## testexpr_23bh2 DisplistChunk
+    ## testexpr_23bh2 DisplayListChunk
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]
@@ -1833,7 +1833,7 @@ def _delete_current_test():
 
 class _test_show_and_choose(DelegatingInstanceOrExpr):
     delegate = Highlightable(
-        DisplistChunk( CenterY( TextRect( format_Expr("testname: %r", _app.testname)))),
+        DisplayListChunk( CenterY( TextRect( format_Expr("testname: %r", _app.testname)))),
         sbar_text = "current test (has recent tests context menu)",
         cmenu_maker = _self
      )
@@ -1909,23 +1909,23 @@ debug_corner_stuff = Boxed(SimpleColumn(   # 070326 renamed bottom_left_corner -
                       dflt = True)
      ),
     checkbox_pref("A9 devel/exprs/show redraw_counter?", "show redraw_counter? (slows redraw)", dflt = True), # works [new dflt & prefs key 070227]
-    Highlightable(DisplistChunk(
+    Highlightable(DisplayListChunk(
         CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) )),
             # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
     If( call_Expr(get_pref, "A9 devel/exprs/show redraw_counter?", True),
-        # 070124 disabled both orders of Highlightable(DisplistChunk(, since fuzzy during highlighting after my testdraw.py fixes
-        ##Highlightable(DisplistChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )), 
-        ## DisplistChunk (Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
+        # 070124 disabled both orders of Highlightable(DisplayListChunk(, since fuzzy during highlighting after my testdraw.py fixes
+        ##Highlightable(DisplayListChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )), 
+        ## DisplayListChunk (Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
         # 070124 just don't use a displist, since it'd be remade on every draw anyway (except for glselect and main in same-counted one)
         Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ),
             # should be properly usage/change tracked
             # note: used to have continuous redraw bug, never yet fully understood...
             # after checking the checkbox above, the bug showed up only after the selobj changes away from that checkbox.
             # update 070110 1040p: the bug is fixed in GLPane.py/changes.py; still not fully understood; more info to follow. ###e
-        Highlightable(DisplistChunk(TextRect("current redraw: checkbox shows counter"))) ####
+        Highlightable(DisplayListChunk(TextRect("current redraw: checkbox shows counter"))) ####
     ),
 ##    # this old form is redundant now, but was useful for debugging the failure of the new one to update:
-##    Highlightable(DisplistChunk( CenterY(TextRect(max_cols = 100)( format_Expr("testname: %r (_app %r)", _app.testname, _app))) ),
+##    Highlightable(DisplayListChunk( CenterY(TextRect(max_cols = 100)( format_Expr("testname: %r (_app %r)", _app.testname, _app))) ),
 ##                  sbar_text = "current test" #e give it a cmenu? we need an obj to make the menu from a list of recent tests...
 ##                  ),
     _test_show_and_choose(), #070227 - like "testname: %r" % _app.testname, but has cmenu with list of recent tests

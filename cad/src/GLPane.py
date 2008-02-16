@@ -250,7 +250,9 @@ button_names = {Qt.NoButton:None, Qt.LeftButton:'LMB', Qt.RightButton:'RMB', Qt.
 
 # ==
 
-class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from exprs/DisplistChunk.py and made GLPane inherit it
+class GLPane_mixin_for_DisplayListChunk(object):
+    #bruce 070110 moved this here from exprs/DisplayListChunk.py and made GLPane inherit it
+    #bruce 080215 renamed this
     """
     Private mixin class for GLPane. Attr and method names must not interfere with GLPane.
     Likely to be merged into class GLPane in future (as directly included methods rather than a mixin superclass).
@@ -304,8 +306,8 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
         return
     def ensure_dlist_ready_to_call( self, dlist_owner_1 ): #e rename the local vars, revise term "owner" in it [070102 cmt]
         """
-        [private helper method for use by DisplistChunk]
-           This implements the recursive algorithm described in DisplistChunk.__doc__.
+        [private helper method for use by DisplayListChunk]
+           This implements the recursive algorithm described in DisplayListChunk.__doc__.
         dlist_owner_1 should be a DisplistOwner ###term; we use private attrs and/or methods of that class,
         including _key, _recompile_if_needed_and_return_sublists_dict().
            What we do: make sure that dlist_owner_1's display list can be safely called (executed) right after we return,
@@ -335,11 +337,12 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
                 # A: it does it in reverse logic dir and reverse arrow dir (due to transclose) as inval prop, so it's ok.
                 # Note: that comment won't be understandable in a month [from 070102]. Need to explain it better. ####doc
         return
-    pass # end of class GLPane_mixin_for_DisplistChunk
+    pass # end of class GLPane_mixin_for_DisplayListChunk
 
 # ==
 
-class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane_mixin_for_DisplistChunk, object):
+class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
+             GLPane_mixin_for_DisplayListChunk, object):
     """
     Mouse input and graphics output in the main view window.
     """

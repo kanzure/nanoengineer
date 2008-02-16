@@ -1,6 +1,8 @@
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 """
 $Id$
+
+unfinished.
 """
 
 from basic import *
@@ -14,7 +16,7 @@ class ImageChunk(InstanceOrExpr, DelegatingMixin):
     constant pictures or text, at least for now while our text drawing is inefficient 
     and we don't yet have the display-list equivalent of ImageChunk.
        WARNING: See the caveats below about significant limitations in when and how 
-    ImageChunk can be used. See also DisplayListChunk [nim, more widely applicable].
+    ImageChunk can be used. See also DisplayListChunk [more widely applicable].
        The default options redraw the image normally at least once per session,
     and never store it on disk (except perhaps in temporary files due to implementation kluges).
     They draw it normally again (and cache a new image) whenever some variable used to draw it
