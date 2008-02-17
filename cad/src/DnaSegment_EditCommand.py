@@ -73,6 +73,7 @@ from DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
 from RotationHandle          import RotationHandle
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
+ORIGIN = V(0,0,0)
 
 #Flag that appends rotation handles to the self.handles (thus enabling their 
 #display and computation while in DnaSegment_EditCommand
@@ -112,10 +113,10 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     _parentDnaGroup = None    
 
-    handlePoint1 = State( Point)
-    handlePoint2 = State( Point)
-    rotationHandleBasePoint1 = State( Point)
-    rotationHandleBasePoint2 = State( Point)
+    handlePoint1 = State( Point, ORIGIN)
+    handlePoint2 = State( Point, ORIGIN)
+    rotationHandleBasePoint1 = State( Point, ORIGIN)
+    rotationHandleBasePoint2 = State( Point, ORIGIN)
     
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
