@@ -1,17 +1,18 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 IorE_guest_mixin.py -- WILL BE RENAMED to fit class, when class is renamed
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 070815 split IorE_guest_mixin superclass out of InstanceOrExpr
 and moved it into this new file
-
 """
 
 from exprs.lvals import call_but_discard_tracked_usage
 
-from exprs.widget_env import thisname_of_class, widget_env # widget_env not used, but keep it for safety since it overrides module name
+from exprs.widget_env import thisname_of_class, widget_env
 
 from debug import safe_repr
 from debug import print_compact_stack
@@ -49,9 +50,10 @@ debug070120 = False # some debug prints, useful if bugs come up again in stuff r
 
 class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr subclass
     """
-    NOTE: This class will be renamed and probably further split.
-    For most doc, see our InstanceOrExpr subclass.
-       This is the part of InstanceOrExpr which supports sub-instance making
+    @note: This class will be renamed and probably further split.
+           For most doc, see our InstanceOrExpr subclass.
+
+    This is the part of InstanceOrExpr which supports sub-instance making
     (requiring self.env and self.ipath i think),
     and formula/Arg/Option/State eval in attr decl formulae in a subclass,
     and some standard stateplaces for use by State then;
@@ -69,7 +71,6 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         (The keyword args are not meant to be passed from IorE itself, or its subclasses.)
         _e_glpane can be passed as a positional argument. We might rename these w/o _e_.
         """
-        
         self._e_init_e_serno() #k needed?
 
         if self._e_is_instance:
@@ -99,7 +100,6 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         """
         (in principle, only needed if self should support formulae or subinstances)
         """
-        
         assert self._e_is_instance
         
         self.env = env #k ok, or does it need modification of some kind?
@@ -124,8 +124,11 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return # from _init_self_as_Instance
 
     def _init_instance(self): #e let it be name-mangled, and call in mro order?
-        """called once per python instance, but only when it represents a semantic Instance ###doc -- explain better
-        [some subclasses should extend this, starting their versions with super(TheirName, self)._init_instance()]
+        """
+        called once per python instance, but only when it represents
+        a semantic Instance ###doc -- explain better
+        [some subclasses should extend this, starting their versions
+         with super(TheirName, self)._init_instance()]
         """
     def _debug_init_instance(self):
         if debug070120:
@@ -141,7 +144,10 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
     #k (not sure this is not needed in some other classes too, but all known needs are here)
 
     def _i_env_ipath_for_formula_at_index( self, index, env = None): # split out of Expr._e_compute_method 070117; revised 070120
-        "#doc; semi-private helper method for Expr._e_compute_method and (after EVAL_REFORM) self._i_instance"
+        """
+        #doc; semi-private helper method for Expr._e_compute_method
+        and (after EVAL_REFORM) self._i_instance
+        """
         ###e needs cleanup, once recent changes are tested and stable [070120]
         instance = self
         assert instance._e_is_instance
@@ -162,10 +168,15 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return env, ipath
 
     def Instance(self, expr, index = None, permit_expr_to_vary = False, skip_expr_compare = False): #070207 added permit_expr_to_vary
-        """toplevel interface (public for use in exprs) to self._i_instance; needs ##doc;
+        """
+        toplevel interface (public for use in exprs) to self._i_instance;
+        needs ##doc;
         similar to Instance macro for use in class assignments;
-        except where that uses ipaths relative to _self, this uses them relative to self.
-        WARNING: Index arg is required for now, and matters a lot (unintended nonuniqueness is allowed but causes bugs).
+        except where that uses ipaths relative to _self, this uses them
+        relative to self.
+
+        @warning: Index arg is required for now, and matters a lot
+                  (unintended nonuniqueness is allowed but causes bugs).
         """
         #070122; works, official for now; note relationship to Instance macro (also "def Instance")
         
@@ -181,10 +192,13 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
     
     def _i_instance( self, expr, index, _lvalue_flag = False,  permit_expr_to_vary = False, skip_expr_compare = False ):
         # see also def Instance (the method, just above, not the macro)
-        """[semi-private; used by macros like Instance, Arg, Option]
+        """
+        [semi-private; used by macros like Instance, Arg, Option]
+
         Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
         an Instance of expr, contained in self, at the given relative index, and in the same env [#e generalize env later?].
-           Error (perhaps not detected) if called with same index and different other args;
+
+        Error (perhaps not detected) if called with same index and different other args;
         when a cached instance is returned, the other args are not used except perhaps to check for this error.
         (When an instance is recomputed, if this error happens, are new args used? undefined.)
         (#e Should we change this to make the expr effectively part of the index, for caching? Probably not; not sure.)
@@ -197,7 +211,9 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         # evals are done before this is called, then this either returns constants (numbers, Instances) unchanged,
         # or instantiates exprs. It can no longer be called with _lvalue_flag when EVAL_REFORM (as of late 070119).
         def __debug_frame_repr__(locals):
-            "return a string for inclusion in some calls of print_compact_stack"
+            """
+            return a string for inclusion in some calls of print_compact_stack
+            """
             return "_i_instance(index = %r, expr = %r), self = %r" % (index,expr,self)
         assert self._e_is_instance
         if not EVAL_REFORM:
@@ -309,7 +325,11 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return res
 
     def _debug_i_instance_retval(self, res): #070212
-        "[private] res is about to be returned from self._i_instance; perform debug checks [#e someday maybe do other things]"
+        """
+        [private]
+        res is about to be returned from self._i_instance;
+        perform debug checks [#e someday maybe do other things]
+        """
 ##        NumericArrayType = type(ORIGIN)
 ##        if isinstance(res, NumericArrayType):
 ##            return res # has no __class__, but legitimate
@@ -322,7 +342,9 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return
 
     def _CV__i_instance_CVdict(self, index):
-        """[private] value-recomputing function for self._i_instance_CVdict.
+        """
+        [private]
+        value-recomputing function for self._i_instance_CVdict.
         Before calling this, the caller must store an expr for this instance
         into self._i_instance_decl_data[index] (an ordinary dict).
            If it's permitted for that expr to change with time (which I doubt, but don't know yet for sure #k),
@@ -430,7 +452,10 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return res # from _CV__i_instance_CVdict
 
     def _i_eval_dfltval_expr(self, expr, index): ##e maybe unify with above, but unclear when we soon split eval from instantiate
-        "evaluate a dfltval expr as used in State macro of 061203; using similar code as _CV__i_instance_CVdict for Instance..."
+        """
+        evaluate a dfltval expr as used in State macro of 061203;
+        using similar code as _CV__i_instance_CVdict for Instance...
+        """
         # WARNING: similar code to end of _CV__i_instance_CVdict
         # note: this (used-to-be-redundantly) grabs env from self
         # Note about EVAL_REFORM: I think this needs no change, since these exprs can now be evalled to pure exprs,
@@ -447,7 +472,9 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return res
         
     def _i_grabarg( self, attr, argpos, dflt_expr, _arglist = False): 
-        "#doc, especially the special values for some of these args"
+        """
+        #doc, especially the special values for some of these args
+        """
         debug = False ## _arglist
         if debug:
             print_compact_stack( "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r, _arglist %r): " % \
@@ -495,7 +522,8 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return res
 
     def env_for_arg(self, index): # 070105 experiment -- for now, it only exists so we can override it in certain primitive subclasses
-        """Return the env to use for the arg (or kid?) at the given index (attr or argpos, I guess, for now #k).
+        """
+        Return the env to use for the arg (or kid?) at the given index (attr or argpos, I guess, for now #k).
         By default this is just self.env_for_args.
         Certain subclasses [intended to be dynenv-modifying primitives, not user macros]
         can override this (for specific indices) to supply other envs based on self.env_for_args or self.env,
@@ -508,7 +536,9 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return self.env_for_args
         
     def _C_env_for_args(self):###NAMECONFLICT? i.e. an attr whose name doesn't start with _ (let alone __ _i_ or _e_) in some exprs
-        "#doc"
+        """
+        #doc
+        """
         lexmods = {} # lexmods for the args, relative to our env
         thisname = thisname_of_class(self.__class__) ##e someday make it safe for duplicate-named classes
             # (Direct use of Symbol('_this_Xxx') will work now, but is pretty useless since those symbols need to be created/imported.
@@ -524,7 +554,10 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return self.env.with_lexmods(lexmods)
 
     def _C_env_for_formulae(self):#070120 for fixing bug in kluge070119
-        "compute method for self.env_for_formulae -- memoized environment for use by our internal formulae (class-assigned exprs)"
+        """
+        compute method for self.env_for_formulae -- memoized environment
+        for use by our internal formulae (class-assigned exprs)
+        """
         res = self.env.with_literal_lexmods( _self = self)
             # This used to be done (each time needed) in _e_compute_method and _i_env_ipath_for_formula_at_index --
             # doing it there was wrong since it sometimes did it after env mods by kluge070119 that needed to be done after it
@@ -533,7 +566,10 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
         return res
 
     def _i_grabarg_0( self, attr, argpos, dflt_expr, _arglist = False):
-        "[private helper for _i_grabarg] return the pair (external-flag, expr to use for this arg)"
+        """
+        [private helper for _i_grabarg]
+        return the pair (external-flag, expr to use for this arg)
+        """
         # i think dflt_expr can be _E_REQUIRED_ARG_, or any (other) expr
         if dflt_expr is _E_REQUIRED_ARG_:
             required = True
@@ -594,9 +630,12 @@ class IorE_guest_mixin(Expr): #bruce 070815 split this out of its InstanceOrExpr
 
     def _StateRef__attr_ref(self, attr): #bruce 070815 experimental
         """
-        Return a stateref for our attr of the given name, or None if we can't do that. (#e option for error if we can't?)
-           Part of an API for objects which can return StateRefs for some of their attrs.
-        See StateRef_API for more info.
+        Return a stateref for our attr of the given name,
+        or None if we can't do that.
+        (#e option for error if we can't?)
+
+        Part of an API for objects which can return StateRefs
+        for some of their attrs. See StateRef_API for more info.
         """
         descriptor = getattr( self.__class__, attr, None)
         # for devel, assume it should work, fail if not. ###FIX or REDOC
