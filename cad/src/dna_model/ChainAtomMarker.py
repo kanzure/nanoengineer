@@ -78,6 +78,7 @@ class ChainAtomMarker(Jig):
 
     marked_atom = None
     next_atom = None
+    _length_1_chain = False #bruce 080216
 
     # declare attributes involved in copy, undo, mmp save
     
@@ -96,6 +97,12 @@ class ChainAtomMarker(Jig):
     def __init__(self, assy, atomlist):
         """
         """
+        if len(atomlist) == 2 and atomlist[0] is atomlist[1]:
+            # let caller pass two atoms the same, but reduce it to one copy
+            # (compensating in setAtoms)
+            # (this is to make length-1 wholechains easier) [bruce 080216]
+            atomlist = atomlist[:1]
+            self._length_1_chain = True
         Jig.__init__(self, assy, atomlist) # calls self.setAtoms
         return
 
@@ -105,7 +112,11 @@ class ChainAtomMarker(Jig):
             marked_atom, next_atom = atomlist
             self.marked_atom = marked_atom
             self.next_atom = next_atom
-            self._check_atom_order()
+            assert not self._length_1_chain
+        elif len(atomlist) == 1 and self._length_1_chain:
+            #bruce 080216, for 1-atom wholechains
+            # (the flag test is to make sure it's only used then)
+            self.marked_atom = self.next_atom = atomlist[0]
         else:
             # We are probably being called by _copy_fixup_at_end
             # with fewer or no atoms, or by __init__ in first stage of copy
@@ -117,7 +128,8 @@ class ChainAtomMarker(Jig):
             if atomlist:
                 print "bug? %r.setAtoms(%r), len != _NUMBER_OF_MARKER_ATOMS or 0" % \
                       self, atomlist
-            pass
+            self.marked_atom = self.next_atom = None #bruce 080216
+        self._check_atom_order() #bruce 080216 do in all cases, was just main one
         return
             
     def needs_atoms_to_survive(self):
@@ -143,7 +155,7 @@ class ChainAtomMarker(Jig):
         """
         # check a few things, then call superclass method
         assert not self.is_homeless() # redundant as of 080111, that's ok
-        assert len(self.atoms) == _NUMBER_OF_MARKER_ATOMS
+        assert len(self.atoms) in (1, _NUMBER_OF_MARKER_ATOMS)
         self._check_atom_order()
         
         return Jig.writemmp(self, mapping)
@@ -172,7 +184,14 @@ class ChainAtomMarker(Jig):
         assert len(self.atoms) <= _NUMBER_OF_MARKER_ATOMS
         if len(self.atoms) == _NUMBER_OF_MARKER_ATOMS:
             assert [self.marked_atom, self.next_atom] == self.atoms
+        elif len(self.atoms) == 1 and self._length_1_chain:
+            assert self.marked_atom is self.next_atom is self.atoms[0]
         return
+
+    def _expected_number_of_atoms(self): #bruce 080216
+        if self._length_1_chain:
+            return 1
+        return _NUMBER_OF_MARKER_ATOMS
     
     def is_homeless(self): # REVIEW: Maybe rename to needs_update?
         """
@@ -180,7 +199,8 @@ class ChainAtomMarker(Jig):
         [misnamed, since if only next_atom is killed, we're not really
          homeless -- we just need an update.]
         """
-        return len(self.atoms) < _NUMBER_OF_MARKER_ATOMS
+        return len(self.atoms) < self._expected_number_of_atoms()
+    
 # old code:
 ##        res = (not self.atoms) and (self._old_atom is not None)
 ##        if res:

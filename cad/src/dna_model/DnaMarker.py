@@ -171,22 +171,12 @@ class DnaMarker( ChainAtomMarker):
     
     # guess: also needs a ladder, and indices into the ladder (which rail, rail/chain posn, rail/chain direction)@@@@
     
-# suspect not needed 080116 @@@
-##    _chain = None # (not undoable or copyable)
-
-
     # == Jig or Node API methods (overridden or extended from ChainAtomMarker == _superclass):
 
-    def __init__(self, assy, atomlist): #####, chain = None):
-##        # [can chain be None after we get copied? I think so...]
-##        # (chain arg is not needed in _um_initargs since copying it can/should make it None. REVIEW, is that right? ###]
+    def __init__(self, assy, atomlist):
         """
-##        @param chain: the atom chain or ring which we reside on when created (can it be None??)
-##        @type chain: AtomChainOrRing instance ### REVIEW
         """
-        _superclass.__init__(self, assy, atomlist)
-##        if chain is not None:
-##            self.set_chain(chain) ### prob not needed @@@@
+        _superclass.__init__(self, assy, atomlist) # see also super's _length_1_chain attr
         global _marker_newness_counter
         _marker_newness_counter += 1
         self._newness = _marker_newness_counter
