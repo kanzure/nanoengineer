@@ -83,7 +83,7 @@ class Ui_PartWindow(QWidget):
     not used.
     
     A "part window" splitter lives between the left and right areas that 
-    allow the user to resize the shared area ocuppied by them. There is no 
+    allow the user to resize the shared area occupied by them. There is no 
     splitter between the top and bottom areas.
     
     This class supports and is limited to a B{Single Document Interface (SDI)}.
@@ -111,6 +111,9 @@ class Ui_PartWindow(QWidget):
         QWidget.__init__(self, parent)
         self.parent = parent
         self.assy = assy
+            # note: to support MDI, self.assy would probably need to be a
+            # different assembly for each PartWindow.
+            # [bruce 080216 comment]
         self.setWindowIcon(geticon("ui/border/Part.png"))
         self.updateWindowTitle()
         
@@ -221,6 +224,9 @@ class Ui_PartWindow(QWidget):
 
         # Create the glpane and make it a child of the part splitter.
         self.glpane = GLPane(assy, self, 'glpane name', parent)
+            # note: our owner (MWsemantics) assumes
+            # there is just this one GLPane for assy, and stores it
+            # into assy as assy.o and assy.glpane. [bruce 080216 comment]
         self.pwProjectTabWidget.KLUGE_setGLPane(self.glpane) 
             # help fix bug 2522 [bruce 070829]
         qt4warnDestruction(self.glpane, 'GLPane of PartWindow')
@@ -254,7 +260,7 @@ class Ui_PartWindow(QWidget):
     def updateWindowTitle(self, changed = False): 
         #by mark; bruce 050810 revised this in several ways, fixed bug 785
         """
-        Update the window title (caption) at the top of the of the part window. 
+        Update the window title (caption) at the top of the part window. 
         Example:  "partname.mmp"
         
         This implements the standard way most applications indicate that a
