@@ -489,7 +489,8 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
                 else:
                     text = 'Add bondpoints' # this text is only used if it 
                                             #doesn't have enough
-                self.Menu_spec.append(( text, selatom.remake_bondpoints ))
+                cmd = (lambda a = selatom: self.RepositionBondpoints_command(a))
+                self.Menu_spec.append(( text, cmd ))
                 ##e should finish and use remake_baggage (and baggageNeighbors)
         
         # selobj-specific menu items.  
@@ -540,7 +541,13 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
             # (we should also rename self.select)
         
         return # from makeMenus
-    
+
+    def RepositionBondpoints_command(self, atom):
+        del self
+        atom.remake_bondpoints()
+        atom.molecule.assy.glpane.gl_update() #bruce 080216 bugfix
+        return
+        
     def isAtomsToolActive(self):
         """
         Tells whether the Atoms Tool is active (boolean)  
