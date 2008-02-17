@@ -14,7 +14,7 @@ actual model.
 """
 
 from math import asin
-from Numeric import sin,  pi
+from Numeric import sin, cos, pi
 ONE_RADIAN = 180.0 / pi
 HALF_PI  = pi/2.0
 TWICE_PI = 2*pi
@@ -79,15 +79,12 @@ def drawDnaRibbons(endCenter1,
          See if that can be refactored e.g. methods like _drawRibbon1/strand1, 
          drawRibbon2 / strand2 etc. 
       - Further optimization / refactoring (low priority) 
-      - Should this method be moved to something like 'dna_drawer.py' ? 
     """
-    #Should this method be moved to DnaLineMode class or a new dna_drawer.py?
-    #Okay if it stays here in drawer.py    
     ribbonLength = vlen(endCenter1 - endCenter2)
     
     #Don't draw the vertical line (step) passing through the startpoint unless 
-    #the ribbonLength is atleast equal to the duplexRise. 
-    # i.e. do the drawing only when there are atleast two ladder steps. 
+    #the ribbonLength is at least equal to the duplexRise. 
+    # i.e. do the drawing only when there are at least two ladder steps. 
     # This prevents a 'revolving line' effect due to the single ladder step at 
     # the first endpoint 
     if ribbonLength < duplexRise:
@@ -101,11 +98,12 @@ def drawDnaRibbons(endCenter1,
     pointOnAxis = V(0, 0, 0)
         
     vectorAlongLadderStep =  cross(-lineOfSightVector, unitVectorAlongLength)
-    unitVectorAlongLadderStep = norm(vectorAlongLadderStep)    
+    unitVectorAlongLadderStep = norm(vectorAlongLadderStep)
+    unitDepthVector = cross(unitVectorAlongLength, unitVectorAlongLadderStep) * -1 #bruce 080216
    
     #Following limits the arrowHead Size to the given value. When you zoom out, 
     #the rest of ladder drawing becomes smaller (expected) and the following
-    #check ensures that the arrowheads are drawn proportinately. 
+    #check ensures that the arrowheads are drawn proportionately. 
     # (Not using a 'constant' to do this as using glpaneScale gives better 
     #results)
     if glpaneScale > 40:
@@ -130,10 +128,14 @@ def drawDnaRibbons(endCenter1,
     x = 0.0
     T =  duplexRise * basesPerTurn 
         # The 'Period' of the sine wave
-        # (i.e.peak to peak distance between consecutive crests)
+        # (i.e. peak to peak distance between consecutive crests)
               
     amplitude = peakDeviationFromCenter
     amplitudeVector = unitVectorAlongLadderStep * amplitude
+    depthVector = unitDepthVector * amplitude
+        # Note: to reduce the effect of perspective view on rung direction,
+        # we could multiply depthVector by 0.1 or 0.01. But this would lessen
+        # the depth realism of line/sphere intersections. [bruce 080216]
               
     phase_angle_ribbon_1 = HALF_PI    
     theta_ribbon_1 = (TWICE_PI * x / T) + phase_angle_ribbon_1
@@ -142,8 +144,10 @@ def drawDnaRibbons(endCenter1,
     theta_ribbon_2 = (TWICE_PI * x / T) - phase_angle_ribbon_2    
     
     #Initialize ribbon1_point and ribbon2_point
-    ribbon1_point = pointOnAxis + amplitudeVector * sin(theta_ribbon_1)    
-    ribbon2_point = pointOnAxis - amplitudeVector * sin(theta_ribbon_2)
+    ribbon1_point = pointOnAxis + amplitudeVector * sin(theta_ribbon_1) + \
+                                      depthVector * cos(theta_ribbon_1)
+    ribbon2_point = pointOnAxis - amplitudeVector * sin(theta_ribbon_2) - \
+                                      depthVector * cos(theta_ribbon_2)
     
     #Constants for drawing the ribbon points as spheres.
     SPHERE_RADIUS = 1.0
@@ -167,8 +171,10 @@ def drawDnaRibbons(endCenter1,
         theta_ribbon_1 = (TWICE_PI * x / T) + phase_angle_ribbon_1
         theta_ribbon_2 = (TWICE_PI * x / T) - phase_angle_ribbon_2
         
-        ribbon1_point = previousPointOnAxis + amplitudeVector * sin(theta_ribbon_1)
-        ribbon2_point = previousPointOnAxis - amplitudeVector * sin(theta_ribbon_2)
+        ribbon1_point = pointOnAxis + amplitudeVector * sin(theta_ribbon_1) + \
+                                          depthVector * cos(theta_ribbon_1)
+        ribbon2_point = pointOnAxis - amplitudeVector * sin(theta_ribbon_2) - \
+                                          depthVector * cos(theta_ribbon_2)
         
         #Use previous_ribbon1_point and not ribbon1_point. This ensures that 
         # the 'last point' on ribbon1 is not drawn as a sphere but is drawn as 
@@ -181,7 +187,7 @@ def drawDnaRibbons(endCenter1,
                
         if x != 0.0:
             # For ribbon_2 , don't draw the first sphere (when x = 0) , instead 
-            # an arrow head will be drawnfor y at x = 0 
+            # an arrow head will be drawn for y at x = 0 
             # (see condition x == duplexRise )
             drawsphere(ribbon2Color, 
                        ribbon2_point, 
@@ -202,7 +208,7 @@ def drawDnaRibbons(endCenter1,
                            -arrowHeightVector2, 
                            -arrowLengthVector2)
             
-        #Increament the pointOnAxis and x
+        #Increment the pointOnAxis and x
         pointOnAxis = pointOnAxis + unitVectorAlongLength * duplexRise        
         x += duplexRise
   
