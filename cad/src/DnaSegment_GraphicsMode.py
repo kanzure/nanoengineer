@@ -379,7 +379,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         return
     
   
-    def drawHighlightedChunk(self, glpane, selobj, hicolor):
+    def drawHighlightedChunk(self, glpane, selobj, hicolor, hicolor2):
         """
         [overrides SelectChunks_basicGraphicsMode method]
         """

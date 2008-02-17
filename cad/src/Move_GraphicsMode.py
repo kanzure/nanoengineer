@@ -462,7 +462,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         """
         return
     
-    def drawHighlightedChunk(self, glpane, selobj, hicolor):
+    def drawHighlightedChunk(self, glpane, selobj, hicolor, hicolor2):
         """
         [overrides SelectChunks_basicGraphicsMode method]
         """

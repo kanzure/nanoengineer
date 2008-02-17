@@ -39,9 +39,8 @@ from chem import Atom
 from Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 from chunk import Chunk 
 from debug import print_compact_traceback, print_compact_stack
-from constants import orange
 
-from constants import yellow
+from constants import yellow, orange, ave_colors
 
 from geometry.VQT import V, vlen
 
@@ -616,11 +615,18 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                   "Invalid modkey=", self.o.modkeys
         return
     
-    def drawHighlightedChunk(self, glpane, selobj, hicolor): 
+    def drawHighlightedChunk(self, glpane, selobj, hicolor, hicolor2): 
         """
-        Highlight the whole chunk to which 'selobj' belongs, using the 'hicolor'
-        selobj = highlighted object 
-        hicolor = highlight color
+        Highlight the whole chunk to which 'selobj' belongs, using the 'hicolor'.
+        If selobj is an external bond, highlight both its atoms' chunks,
+        one in hicolor and one in hicolor2. (External bonds between them might
+        get drawn in either color.)
+        
+        @param selobj: the atom or bond (or other object) under the mouse
+        
+        @param hicolor: highlight color for selobj's chunk
+        
+        @param hicolor2: highlight color for selobj's "other chunk", if any
 
         @return: whether the caller should skip the usual selobj drawing
                  (usually, this is just whether we drew something)
@@ -629,12 +635,14 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into 
         # selectMolsMode and slightly revised it (including, adding the return 
         # value).
+        # Bruce 080217 formalized hicolor2 as an arg (was hardcoded orange).
 
         # Note: bool_fullBondLength represent whether full bond length to be
         # drawn it is used only in select Chunks mode while highlighting the 
         # whole chunk and when the atom display is Tubes display -- ninad 070214
 
         assert hicolor is not None #bruce 070919
+        assert hicolor2 is not None
         del self
 
         bool_fullBondLength = True
@@ -671,10 +679,8 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             return True
 
         elif isinstance(selobj, Bond):         
-            hiatom1 = selobj.atom1
-            hiatom2 = selobj.atom2                 
-            chunk1 = hiatom1.molecule
-            chunk2 = hiatom2.molecule
+            chunk1 = selobj.atom1.molecule
+            chunk2 = selobj.atom2.molecule
 
             if chunk1 is chunk2:
                 for hiatom in chunk1.atoms.itervalues():
@@ -684,6 +690,11 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                         hibond.draw_in_abs_coords(glpane, hicolor, 
                                                   bool_fullBondLength)
             else:
+                # Todo: swap chunk1 and chunk2 if necessary, so that
+                # mouse hitpoint was closer to the self atom in chunk1.
+                # (This probably requires arguments we are not being passed.)
+                # [bruce 080217 NFR]
+
                 # Note: this draws external bonds twice if they go
                 # between chunk1 and chunk2. [bruce 080214 comment]
                 for hiatom in chunk1.atoms.itervalues():
@@ -692,13 +703,13 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                     for hibond in hiatom.bonds:
                         hibond.draw_in_abs_coords(glpane, hicolor,
                                                   bool_fullBondLength)
-                # why does the following substitute orange for hicolor
+                # why does the following substitute hicolor2 for hicolor
                 # in chunk2? [bruce 080214 question]
                 for hiatom in chunk2.atoms.itervalues():
-                    hiatom.draw_in_abs_coords(glpane, orange,
+                    hiatom.draw_in_abs_coords(glpane, hicolor2,
                                               useSmallAtomRadius = True)
                     for hibond in hiatom.bonds:
-                        hibond.draw_in_abs_coords(glpane, orange,
+                        hibond.draw_in_abs_coords(glpane, hicolor2,
                                                   bool_fullBondLength)
             return True
 
@@ -709,14 +720,17 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         [overrides superclass method]
         """
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into 
-        # selectMolsMode and slightly revised it. 
+        # selectMolsMode and slightly revised it.
+        ## hicolor2 = orange # intended to visually differ from hicolor
+        hicolor2 = ave_colors(0.5, yellow, orange)
+            #bruce 080217 revision to hicolor2 (since orange is a warning color)
         skip_usual_selobj_highlighting = self.drawHighlightedChunk(glpane, 
                                                                    selobj, 
-                                                                   hicolor)
-
-            # Note: if subclasses don't like that, they should override 
-            # drawHighlightedChunk to do nothing and return False. 
-            # The prior code was equivalent to every subclass doing that. 
+                                                                   hicolor,
+                                                                   hicolor2)
+            # Note: if subclasses don't want that call, they should override
+            # drawHighlightedChunk to do nothing and return False.
+            # The prior code was equivalent to every subclass doing that.
             # - [bruce 071008]
         if not skip_usual_selobj_highlighting:
             _superclass.drawHighlightedObjectUnderMouse(self, 
