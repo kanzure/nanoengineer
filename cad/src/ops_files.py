@@ -1508,13 +1508,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         #bruce 050907 comment: this is only called from two file ops in this mixin, so I moved it here from MWsemantics
         # even though its name-mangled name was thereby changed. It should really be given a normal name.
         # Some comments in other files still call it MWsemantics.__clear. [See also the 060127 kluge below.]
+
+        # see also MWsemantics.__init__, which contains similar code.
         
         self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
             #bruce 060127 added own_window_UI flag to help fix bug 1403
         self.update_mainwindow_caption()
         self.glpane.setAssy(self.assy) # leaves currentCommand as nullmode
-        self.assy.mt = self.mt
-
+            # does that call assy.set_glpane?
+        self.assy.set_modelTree(self.mt)
+        
         ### Hack by Huaicai 2/1 to fix bug 369
         self.mt.resetAssy_and_clear() 
         

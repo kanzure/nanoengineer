@@ -117,8 +117,8 @@ class PM_PartLib(PM_GroupBox):
             mmpFile = str(item.getFileObj())
             if os.path.isfile(mmpFile):
                 self.newModel = assembly(self.w, 
-                                         os.path.normpath(mmpFile)) 
-                self.newModel.o = self.elementViewer 
+                                         os.path.normpath(mmpFile))
+                self.newModel.set_glpane(self.elementViewer) # sets its .o and .glpane
                 readmmp(self.newModel, mmpFile)
                 self.newModel.update_parts() #k not sure if needed after readmmp
                 self.newModel.checkparts()

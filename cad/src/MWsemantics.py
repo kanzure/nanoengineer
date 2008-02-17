@@ -1,9 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 MWsemantics.py provides the main window class, MWsemantics.
 
-
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History: too much to mention, except for breakups of the file.
 
@@ -19,23 +19,25 @@ split up the class MWsemantics (as for cookieMode), not just the file.]
 [some of that splitup has been done, now, by Ninad in the Qt4 branch]
 """
 
-from qt4transition import qt4todo
+##from qt4transition import qt4todo
 from qt4transition import qt4warning
 
 from PyQt4 import QtGui, QtCore
 
-from PyQt4.Qt import Qt
+from PyQt4.Qt import Qt # not sure if used
 from PyQt4.Qt import QFont
-from PyQt4.Qt import QAction
-from PyQt4.Qt import QVBoxLayout
-from PyQt4.Qt import QGridLayout
+##from PyQt4.Qt import QAction
+##from PyQt4.Qt import QVBoxLayout
+##from PyQt4.Qt import QGridLayout
 from PyQt4.Qt import QMenu
 from PyQt4.Qt import QIcon
 from PyQt4.Qt import QSettings
 from PyQt4.Qt import QVariant
 
-from PyQt4.Qt import QMainWindow, QFrame, SIGNAL, QWidget
-from PyQt4.Qt import QSplitter, QMessageBox
+from PyQt4.Qt import QMainWindow, SIGNAL
+##from PyQt4.Qt import QWidget, QFrame
+##from PyQt4.Qt import QSplitter
+from PyQt4.Qt import QMessageBox
 from PyQt4.Qt import QToolBar
 from PyQt4.Qt import QStatusBar
 
@@ -48,7 +50,7 @@ import time
 from utilities import debug_flags
 
 from PlatformDependent import find_or_make_Nanorex_directory
-from PlatformDependent import make_history_filename
+##from PlatformDependent import make_history_filename
 from PlatformDependent import open_file_in_editor
 from PlatformDependent import find_or_make_Nanorex_subdir
 
@@ -59,14 +61,12 @@ from debug_prefs import debug_pref, Choice_boolean_False
 
 from Ui_MainWindow import Ui_MainWindow
 from Ui_PartWindow import Ui_PartWindow
-from modelTree.ModelTree import modelTree
-from GLPane import GLPane 
+##from modelTree.ModelTree import modelTree
+##from GLPane import GLPane 
 
 from utilities.Log import greenmsg, redmsg, orangemsg
 
 import Ui_DnaFlyout
-
-
 
 from ops_files import fileSlotsMixin
 from ops_view import viewSlotsMixin
@@ -91,13 +91,10 @@ from prefs_constants import captionSuffix_prefs_key
 from prefs_constants import captionFullPath_prefs_key
 from prefs_constants import displayRulers_prefs_key
 
-# Marked for removal. Cannot find any reference to it. Mark 2008-02-02
-#@ elementSelectorWin = None 
-
 eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
 
 eCCBtab2 = {}
-for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
+for i, elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
 
 # Debugging for "Open Recent Files" menu. Mark 2007-12-28
@@ -211,17 +208,21 @@ class MWsemantics(QMainWindow,
         env.setMainWindow(self)
 
         # Start NE1 with an empty document called "Untitled".
+        # See also __clear method in ops_files, which creates and inits an assy
+        # using similar code.
+        #
         # Note: It is very desirable to change this startup behavior so that
         # the user must select "File > New" to open an empty document after
         # NE1 starts. Mark 2007-12-30.
-        self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
-            #bruce 060127 added own_window_UI flag to help fix bug 1403
+        self.assy = assembly(self, "Untitled", own_window_UI = True)
+            #bruce 060127 added own_window_UI flag to help fix bug 1403;
+            # it's required for this assy to support Undo
         #bruce 050429: as part of fixing bug 413, it's now required to call
         # self.assy.reset_changed() sometime in this method; it's called below.
         
         pw = Ui_PartWindow(self.assy, self)
-        self.assy.o = pw.glpane
-        self.assy.mt = pw.modelTree #bruce 070509 revised this, was pw.modelTree.modelTreeGui
+        self.assy.set_glpane(pw.glpane) # sets assy.o and assy.glpane
+        self.assy.set_modelTree(pw.modelTree) # sets assy.mt
         self._activepw = pw
         # Note: nothing in this class can set self._activepw (except to None),
         # which one might guess means that no code yet switches between partwindows,

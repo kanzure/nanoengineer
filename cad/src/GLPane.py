@@ -771,7 +771,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
            Revised 050911: leaves mode as nullmode.
         """
         ##e should previous self.assy be destroyed, or at least made to no longer point to self? [bruce 051227 question]
-        assy.o = self ###@@@ should only the part know the glpane?? or, only the mode itself? [bruce 050418 comment]
+        assy.set_glpane(self) # sets assy.o and assy.glpane
         self.assy = assy
         mainpart = assy.tree.part
         assert mainpart

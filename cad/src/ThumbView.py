@@ -748,17 +748,9 @@ class ElementView(ThumbView):
         @return: the Chunk which contains the geometry model.
         @rtype: L{Chunk}
         """
-        class DummyAssy:
-            """Dummy assemby class"""
-            drawLevel = 2
-            
-        if 0: #1:
-            assy = DummyAssy()
-        else:
-            assy = assembly(None)
-            assy.o = self
-                
-        mol = Chunk(assy, 'dummy') 
+        assy = assembly(None)
+        assy.set_glpane(self) # sets .o and .glpane
+        mol = Chunk(assy, 'dummy')
         atm = Atom(elm.symbol, pos, mol)
         atm.display = dispMode
         ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom:
@@ -842,7 +834,6 @@ class MMKitView(ThumbView):
     def changeHybridType(self, name):
         self.hybrid_type_name = name
     
-    
     def resetView(self):
         """
         Reset current view.
@@ -850,14 +841,12 @@ class MMKitView(ThumbView):
         ThumbView.resetView(self)
         self.scale = 2.0
     
-    
     def drawSelected(self, obj):
         """
         Override the parent version. Specific drawing code for the object.
         """
         if isinstance(obj, Atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])
-
             
     def constructModel(self, elm, pos, dispMode):
         """
@@ -874,16 +863,8 @@ class MMKitView(ThumbView):
         @return: the Chunk which contains the geometry model.
         @rtype: L{Chunk}
         """
-        class DummyAssy:
-            """dummy assemby class"""
-            drawLevel = 2
-            
-        if 0:#1:
-            assy = DummyAssy()
-        else:
-            assy = assembly(None)
-            assy.o = self
-                
+        assy = assembly(None)
+        assy.set_glpane(self) # sets .o and .glpane
         mol = Chunk(assy, 'dummy') 
         atm = Atom(elm.symbol, pos, mol)
         atm.display = dispMode
@@ -896,7 +877,6 @@ class MMKitView(ThumbView):
         
         self.elementMode = True
         return mol
-    
 
     def leftDown(self, event):
         """

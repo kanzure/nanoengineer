@@ -203,9 +203,11 @@ class assembly( StateMixin, Assembly_API):
         # the MWsemantics displaying this assembly (or None, when called from ThumbView)
         self.w = win # deprecated but widely used [bruce 071008]
         self.win = win #bruce 071008
-        # self.mt = win.modelTreeView [or win.mt, probably the same thing, not 100% clear -- bruce 070503 comment]
-        # self.o = win.glpane
-        #  ... done in MWsemantics to avoid a circularity
+        # both of the following are done later in MWsemantics
+        # to avoid a circularity, via self.set_glpane and
+        # self.set_modelTree:
+        #   self.mt = win.modelTreeView [or win.mt, probably the same thing, not 100% clear -- bruce 070503 comment]
+        #   self.o = win.glpane
         
         # the name if any
         self.name = str(name or gensym("Assembly"))
@@ -363,6 +365,15 @@ class assembly( StateMixin, Assembly_API):
         
         return # from assembly.__init__
 
+    def set_glpane(self, glpane): #bruce 080216
+        self.o = glpane # historical name for our glpane, widely used
+        self.glpane = glpane # clearer name, added 080216
+        return
+
+    def set_modelTree(self, modelTree): #bruce 080216
+        self.mt = modelTree
+        return
+    
     def __repr__(self): #bruce 080117
         res = "<%s %r at %#x>" % \
               (self.__class__.__name__.split('.')[-1],
