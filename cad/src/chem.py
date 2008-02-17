@@ -338,10 +338,12 @@ _Atom_global_dicts = [_changed_parent_Atoms, _changed_structure_Atoms, _changed_
 # ==
 
 def Atom_prekill_prep(): #bruce 060328
-    """Prepare to kill some set of atoms (known to the caller) more efficiently than otherwise.
+    """
+    Prepare to kill some set of atoms (known to the caller) more efficiently than otherwise.
     Return a value which the caller should pass to the _prekill method on all (and ONLY) those atoms,
     before killing them.
-       [#e Note: If we can ever kill atoms and chunks in the same operation, we'll need to revise some APIs
+
+    [#e Note: If we can ever kill atoms and chunks in the same operation, we'll need to revise some APIs
     so they can all use the same value of _will_kill_count, if we want to make that most efficient.]
     """
     ###e this should be merged with similar code in class Node
@@ -353,7 +355,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     # (so we have to assign atom = Atom, after this class definition, until all code has been revised)
     # update, bruce 071113: I am removing that assignment below. See comment there.
-    """An Atom instance represents one real atom, or one "singlet"
+    """
+    An Atom instance represents one real atom, or one "singlet"
     (a place near a real atom where another atom could bond to it).
        At any time, each atom has an element, a position in space,
     a list of bond objects it's part of, a list of jigs it's part of,
@@ -518,7 +521,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         StateMixin._undo_update(self)
 
     def __init__(self, sym, where, mol = None): #bruce 060612 let mol be left out
-        """Create an Atom of element sym
+        """
+        Create an Atom of element sym
         (e.g. 'C' -- sym can be an element, atomtype, or element-symbol, or another atom to copy these from)
         at location 'where' (e.g. V(36, 24, 36))
         belonging to molecule mol (can be None or missing).
@@ -597,7 +601,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return # from Atom.__init__
 
     def _undo_aliveQ(self, archive): #bruce 060406
-        """Would this (Atom) object be picked up as a child object in a (hypothetical) complete scan of children
+        """
+        Would this (Atom) object be picked up as a child object in a (hypothetical) complete scan of children
         (including change-tracked objects) by the given undo_archive (or, optional to consider, by some other one)?
         The caller promises it will only call this when it's just done ... ###doc
         """
@@ -769,7 +774,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             return InvalMixin.__getattr__(self, attr)
 
     def destroy(self): #bruce 060322 (not yet called) ###@@@
-        """[see comments in Node.destroy or perhaps StateMixin.destroy]
+        """
+        [see comments in Node.destroy or perhaps StateMixin.destroy]
         Note: it should be legal to call this multiple times, in any order w/ other objs' destroy methods.
         SEMANTICS ARE UNCLEAR -- whether it should destroy bonds in self.bonds (esp in light of rebond method).
         See comments in assy_clear by bruce 060322 (the "misguided" ones, written as if that was assy.destroy, which it's not).
@@ -796,7 +802,10 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
     
     def unset_atomtype(self): #bruce 050707
-        "Unset self.atomtype, so that it will be guessed when next used from the number of bonds at that time."
+        """
+        Unset self.atomtype, so that it will be guessed when next used
+        from the number of bonds at that time.
+        """
         try:
             del self.atomtype
         except:
@@ -905,7 +914,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return self.atomtype.name
 
     def posn(self):
-        """Return the absolute position of the atom in space.
+        """
+        Return the absolute position of this atom in space.
         [Public method; should be ok to call for any atom at any time.]
         """
         #bruce 041104,041112 revised docstring
@@ -930,10 +940,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return res
     
     def sim_posn(self): #bruce 060111
-        """Return our posn, as the simulator should see it -- same as posn except for Singlets,
+        """
+        Return our posn, as the simulator should see it -- same as posn except for Singlets,
         which should pretend to be H and correct their distance from base atom accordingly.
         Should work even for killed atoms (e.g. singlets with no bonds).
-           Note that if this is used on a corrected singlet position derived from a simulated H position
+
+        Note that if this is used on a corrected singlet position derived from a simulated H position
         (as in the 060111 approximate fix of bug 1297), it's only approximate, since the actual H position
         might not have been exactly its equilibrium position.
         """
@@ -943,7 +955,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return self.posn()
 
     def baseposn(self): #bruce 041107; rewritten 041201 to help fix bug 204; optimized 050513
-        """Like posn, but return the mol-relative position.
+        """
+        Like posn, but return the mol-relative position.
         Semi-private method -- should always be legal, but assumes you have
         some business knowing about the mol-relative coordinate system, which is
         somewhat private since it's semi-arbitrary and is changed by some
@@ -968,7 +981,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return mol.quat.unrot(self.posn() - mol.basecenter) # this inlines mol.abs_to_base( self.posn() ) [bruce 060411 comment]
 
     def setposn(self, pos):
-        """set the atom's absolute position,
+        """
+        set this atom's absolute position,
         adjusting or invalidating whatever is necessary as a result.
         (public method; ok for atoms in frozen molecules too)
         """
@@ -1004,7 +1018,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return # from setposn_no_chunk_or_bond_invals
     
     def adjBaggage(self, atom, nupos): #bruce 051209 revised meaning and name from adjSinglets
-        """We're going to move atom, a neighbor of yours, to nupos,
+        """
+        We're going to move atom, a neighbor of yours, to nupos,
         so adjust the positions of your singlets (and other baggage) to match.
         """
         ###k could this be called for atom being itself a singlet, when dragging a singlet? [bruce 050502 question]
@@ -1053,7 +1068,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return self.element.symbol_for_printing + str(self.key)
 
     def prin(self):
-        """for debugging
+        """
+        for debugging
         """
         lis = map((lambda b: b.other(self).element.symbol), self.bonds)
         print self.element.name, lis
@@ -1134,7 +1150,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
 
         @return: new or unchanged value of self.bond_geometry_error_string,
                  unless external is passed (see that param's doc for more info).
-                
         """
 ##        # TODO: update this while dragging a chunk, for that chunk's
 ##        # external bonds; right now it only updates when the drag is done.
@@ -1335,7 +1350,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         and making it easier for L{draw_atom_sphere} to fallback to its default 
         style when those conditions fail.
         """
-
         # WARNING: various routines make use of this return value in different ways,
         # but these ways are not independent (e.g. one might draw a cone and one might estimate its size),
         # so changes in any of the uses need to be reviewed for possibly needing changes in the others. [bruce 070409]
@@ -1512,14 +1526,22 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
 
     def max_pixel_radius(self): #bruce 070409
-        "Return an estimate (upper bound) of the maximum distance from self's center to any pixel drawn for self."
+        """
+        Return an estimate (upper bound) of the maximum distance
+        from self's center to any pixel drawn for self.
+        """
         res = self.selatom_radius() + 0.2
         if self._draw_atom_style().startswith('arrowhead-'):
             res *= 3
         return res
     
     def bad(self): #bruce 041217 experiment; note: some of this is inlined into self.getinfo()
-        "is this atom breaking any rules? [note: this is used to change the color of the atom.picked wireframe]"
+        """
+        is this atom breaking any rules?
+        @note: this is used to change the color of the atom.picked wireframe
+        @note: not all kinds of rules are covered.
+        @see: _dna_updater__error (not covered by this; maybe it should be)
+        """
         if self.element is Singlet:
             # should be correct, but this case won't be used as of 041217 [probably no longer needed even if used -- 050511]
             numbonds = 1
@@ -1528,7 +1550,10 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return numbonds != len(self.bonds) ##REVIEW: this doesn't check bond valence at all... should it??
 
     def bad_valence(self): #bruce 050806; should review uses (or inlinings) of self.bad() to see if they need this too ##REVIEW
-        "is this atom's valence clearly wrong, considering valences presently assigned to its bonds?"
+        """
+        is this atom's valence clearly wrong, considering
+        valences presently assigned to its bonds?
+        """
         # WARNING: keep the code of self.bad_valence() and self.bad_valence_explanation() in sync! 
         #e we might optimize this by memoizing it (in a public attribute), and letting changes to any bond invalidate it.
         bonds = self.bonds
@@ -2184,9 +2209,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                        isAtomMass, 
                        atomDistPrecision):
         """
-        Returns atom's basic info string for the dynamic tooltip
+        Returns this atom's basic info string for the dynamic tooltip
         """
-        
         atom = self
 
         atomStr        = atom.getInformationString()
@@ -2274,7 +2298,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     def pick(self):
         """
-        make the atom selected
+        make this atom selected
         """
         if self.element is Singlet:
             return
@@ -2321,7 +2345,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     def unpick(self, filtered = True): #bruce 060331 adding filtered = False option, as part of fixing bug 1796
         """
-        Make the atom (self) unselected, if the selection filter permits this or if filtered = False.
+        Make this atom (self) unselected, if the selection filter
+        permits this or if filtered = False.
         """
         # note: this is inlined (perhaps with filtered = False, not sure) into assembly.unpickatoms (in ops_select.py)
         # bruce 041214: singlets should never be picked, so Singlet test is not needed,
@@ -2767,12 +2792,15 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return False
 
     def Hydrogenate(self):
-        """[Public method; does all needed invalidations:]
+        """
+        [Public method; does all needed invalidations:]
         If this atom is a singlet, change it to a hydrogen,
         and move it so its distance from its neighbor is correct
         (regardless of prior distance, but preserving prior direction).
         [#e sometimes it might be better to fix the direction too, like in depositMode...]
-           If hydrogenate succeeds return number 1, otherwise, 0.
+
+        @return: If hydrogenate succeeds, the int 1, otherwise, 0.
+        @rtype: int
         """
         # Huaicai 1/19/05 added return value.
         if not self.element is Singlet: return 0
@@ -2786,7 +2814,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         
     def ideal_posn_re_neighbor(self, neighbor, pretend_I_am = None): # see also snuggle
         #bruce 050404 to help with bug 254 and maybe Hydrogenate
-        """Given one of our neighbor atoms (real or singlet)
+        """
+        Given one of our neighbor atoms (real or singlet)
         [neighborness not verified! only posn is used, not the bond --
          this might change when we have bond-types #e]
         and assuming it should remain fixed and our bond to it should
@@ -2822,7 +2851,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return it + newlen * it_to_me_direction
     
     def Dehydrogenate(self):
-        """[Public method; does all needed invalidations:]
+        """
+        [Public method; does all needed invalidations:]
         If this is a hydrogen atom (and if it was not already killed),
         kill it and return 1 (int, not boolean), otherwise return 0.
         (Killing it should produce a singlet unless it was bonded to one.)
@@ -2846,10 +2876,12 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         pass
 
     def snuggle(self): #bruce 051221 revised docstring re bug 1239
-        """self is a singlet and the simulator has moved it out to the
+        """
+        self is a singlet and the simulator has moved it out to the
         radius of an H. move it back. the molecule may or may not be still
         in frozen mode. Do all needed invals.
-           WARNING: if you are moving several atoms at once, first move them all,
+
+        @warning: if you are moving several atoms at once, first move them all,
         then snuggle them all, since snuggling self is only correct after self's
         real neighbor has already been moved to its final position. [Ignorance of
         this issue was the cause of bug 1239.]
@@ -2873,7 +2905,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
 
     def Passivate(self): ###@@@ not yet modified for atomtypes since it's not obvious what it should do! [bruce 050511]
-        """[Public method, does all needed invalidations:]
+        """
+        [Public method, does all needed invalidations:]
         Change the element type of this atom to match the number of
         bonds with other real atoms, and delete singlets.
         """
@@ -2902,8 +2935,13 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     def is_singlet(self):
         return self.element is Singlet # [bruce 050502 comment: it's possible self is killed and len(self.bonds) is 0]
     
-    def singlet_neighbor(self): #bruce 041109 moved here from extrudeMode.py
-        "return the atom self (a known singlet) is bonded to, checking assertions"
+    def singlet_neighbor(self):
+        """
+        Assume self is a bondpoint (aka singlet).
+        Such an atom should be bonded to exactly one neighbor, a real atom
+        (i.e. non-bondpoint).
+        Return that neighbor atom, after checking some assertions.
+        """
         assert self.element is Singlet, "%r should be a singlet but is %s" % (self, self.element.name)
             #bruce 050221 added data to the assert, hoping to track down bug 372 when it's next seen
         obond = self.bonds[0]
@@ -3028,21 +3066,26 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     def best_atomtype_for_numbonds(self, atype_now = None, elt = None): #bruce 050702; elt arg added 050707
         # see also best_atype in bond_utils.py, which does something different but related [bruce 060523]
-        """Compute and return the best guess for this atom's atomtype,
-        given its current element (or the passed one),"""
-        """[Public method]
-           Compute and return the best atomtype for this atom's element (or the passed one if any)
+        """
+        [Public method]
+
+        Compute and return the best choice of atomtype for this atom's element
+        (or for the passed element <elt>, if any)
         and number of bonds (including open bonds),
-        breaking ties by favoring atype_now (if provided), otherwise favoring atomtypes which come earlier
+        breaking ties by favoring <atype_now> (if provided),
+        otherwise favoring atomtypes which come earlier
         in the list of this element's (or elt's) possible atomtypes.
-           For comparing atomtypes which err in different directions (which I doubt can ever matter in
+
+        For comparing atomtypes which err in different directions (which I doubt can ever matter in
         practice, since the range of numbonds of an element's atomtypes will be contiguous),
         we'll say it's better for an atom to have too few bonds than too many.
         In fact, we'll say any number of bonds too few (on the atom, compared to the atomtype)
         is better than even one bond too many.
-           This means: the "best" atomtype is the one with the right number of bonds, or the fewest extra bonds,
+
+        This means: the "best" atomtype is the one with the right number of bonds, or the fewest extra bonds,
         or (if all of them have fewer bonds than this atom) with the least-too-few bonds.
-           (This method is used in Build mode, and might later be used when reading mmp files or pdb files, or in other ways.
+
+        (This method is used in Build mode, and might later be used when reading mmp files or pdb files, or in other ways.
         As of 050707 it's also used in Transmute.)
         [###k Should we also take into account positions of bonds, or their estimated orders, or neighbor elements??]
         """
@@ -3067,7 +3110,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return best_atype # might or might not be the same as atype_now
 
     def can_reduce_numbonds(self): #bruce 050702, part of fixing bug 121
-        """Say whether this atom's element has any atomtype which would
+        """
+        Say whether this atom's element has any atomtype which would
         better match this atom if it had one fewer bond.
         Note that this can be true even if that element has only one atomtype
         (when the number of bonds is currently incorrect). 
@@ -3117,7 +3161,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     # debugging methods (not yet fully tested; use at your own risk)
     
     def invalidate_everything(self): # for an atom, remove it and then readd it to its mol
-        "debugging method"
+        """
+        debugging method
+        """
         if len(self.molecule.atoms) == 1:
             print "warning: invalidate_everything on the only atom in mol %r\n" \
                   " might kill mol as a side effect!" % self.molecule
@@ -3305,7 +3351,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return permitted
 
     def direct_Transmute(self, elt, atomtype): #bruce 050511 split this out of Transmute
-        """[Public method, does all needed invalidations:]
+        """
+        [Public method, does all needed invalidations:]
         With no checks except that the operation is legal,
         kill all bondpoints, change elt and atomtype
         (both must be provided and must match), and make new bondpoints.
@@ -3317,13 +3364,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return # from direct_Transmute
 
     def reposition_baggage(self, baggage = None, planned_atom_nupos = None): #bruce 060629 for bondpoint problem
-        """Your baggage atoms (or the given subset of them) might no longer be sensibly located,
+        """
+        Your baggage atoms (or the given subset of them) might no longer be sensibly located,
         since you and/or some neighbor atoms have moved (or are about to move, re planned_atom_nupos as explained below),
         so fix up their positions based on your other neighbors' positions, using old baggage positions only as hints.
-           BUT one of your other neighbors (but not self) might be about to move (rather than already having moved) --
+
+        BUT one of your other neighbors (but not self) might be about to move (rather than already having moved) --
         if so, planned_atom_nupos = (that neighbor, its planned posn),
         and use that posn instead of its actual posn to decide what to do.
-           WARNING: we assume baggage is a subset of self.baggageNeighbors(), but don't check this except when ATOM_DEBUG is set.
+
+        @warning: we assume baggage is a subset of self.baggageNeighbors(), but don't check this except when ATOM_DEBUG is set.
         """
         try:
             import reposition_baggage
