@@ -19,6 +19,7 @@ TODO: as of 2008-02-14
 """
 from debug import print_compact_stack
 
+from geometry.VQT import  V
 from geometry.VQT import  vlen
 from geometry.VQT import  norm
 
@@ -39,6 +40,8 @@ from EditCommand import EditCommand
 from dna_model.DnaSegment import DnaSegment
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
+
+ORIGIN = V(0,0,0)
 
 class DnaStrand_EditCommand(State_preMixin, EditCommand):
     """
@@ -73,10 +76,10 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     #used in computation. 
     #@see: DnaStrand_ResizeHandle and handle declaration in this class 
     #definition
-    handlePoint1 = State( Point)
-    handlePoint2 = State( Point)    
-    axisEnd1 = State( Point)
-    axisEnd2 = State( Point)
+    handlePoint1 = State( Point, ORIGIN)
+    handlePoint2 = State( Point, ORIGIN)    
+    axisEnd1 = State( Point, ORIGIN)
+    axisEnd2 = State( Point, ORIGIN)
     #TODO: 'cylinderWidth attr used for resize handles -- needs to be renamed 
     #along with 'height_ref attr in exprs.DraggableHandle_AlongLine
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
@@ -216,30 +219,39 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
            self.struct.dad is self._parentDnaSegment:
             
             #axis end atom positions
-            self.axisEnd1, self.axisEnd2 = \
+            axisEnd1, axisEnd2 = \
                 self._parentDnaSegment.getAxisEndPoints()
-            
-            #List of *positions* of strand atoms connected to the axis end atoms.
-            strandEndPoints = self._parentDnaSegment.getStrandEndPointsFor(self.struct)
-            
-            if len(strandEndPoints) != 2:
-                print_compact_stack("BUG in drawing handles dna segment "\
-                                    "probably doesn't have exactly two end"\
-                                    " axis atoms"
-                                    )
-                return
-            
-            #Now comput the handle base positions. for Strand resize handles, 
-            #the base position will lie midway between the axis end atom 
-            #and corresponding strand end atom of the strand. 
-            strandEnd1 = strandEndPoints[0]
-            strandEnd2 = strandEndPoints[1]
-            if strandEnd1 is not None:
-                v1 = strandEnd1- self.axisEnd1
-                self.handlePoint1 = self.axisEnd1 + norm(v1)*vlen(v1)/2.0
-            if strandEnd2 is not None:
-                v2 = strandEnd2 - self.axisEnd2
-                self.handlePoint2 = self.axisEnd2 + norm(v2)*vlen(v2)/2.0
+
+            if axisEnd1 is not None and axisEnd2 is not None:
+                # note: this condition was an attempt to fix traceback
+                # when dna udpater is on. It didn't fix it, and is not necessary
+                # for the real fix to work (default values of ORIGIN in the
+                # State declarations). But it seems like a good idea anyway
+                # so I will leave it in place. [bruce 080216]
+
+                self.axisEnd1, self.axisEnd2 = axisEnd1, axisEnd2
+                
+                #List of *positions* of strand atoms connected to the axis end atoms.
+                strandEndPoints = self._parentDnaSegment.getStrandEndPointsFor(self.struct)
+                
+                if len(strandEndPoints) != 2:
+                    print_compact_stack("BUG in drawing handles: dna segment "\
+                                        "probably doesn't have exactly two end"\
+                                        " axis atoms: "
+                                        )
+                    return
+                
+                #Now comput the handle base positions. for Strand resize handles, 
+                #the base position will lie midway between the axis end atom 
+                #and corresponding strand end atom of the strand. 
+                strandEnd1 = strandEndPoints[0]
+                strandEnd2 = strandEndPoints[1]
+                if strandEnd1 is not None:
+                    v1 = strandEnd1 - self.axisEnd1
+                    self.handlePoint1 = self.axisEnd1 + norm(v1)*vlen(v1)/2.0
+                if strandEnd2 is not None:
+                    v2 = strandEnd2 - self.axisEnd2
+                    self.handlePoint2 = self.axisEnd2 + norm(v2)*vlen(v2)/2.0
 
     
     def modifyStructure(self):
