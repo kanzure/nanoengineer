@@ -13,6 +13,7 @@
 #include <QMainWindow>
 #include <QDockWidget>
 #include <QWorkspace>
+#include <QTreeWidget>
 
 #include "Nanorex/Interface/NXEntityManager.h"
 using namespace Nanorex;
@@ -50,7 +51,9 @@ private:
 	
 	NXEntityManager* entityManager;
 	
-	void setCurrentFile(const QString &fileName);
+    QTreeWidget *modelTree;
+    
+    void setCurrentFile(const QString &fileName);
 	QString strippedName(const QString &fullFileName);
 };
 

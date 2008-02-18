@@ -13,11 +13,20 @@
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" >
-   <property name="margin" >
-    <number>9</number>
-   </property>
    <property name="spacing" >
     <number>6</number>
+   </property>
+   <property name="leftMargin" >
+    <number>9</number>
+   </property>
+   <property name="topMargin" >
+    <number>9</number>
+   </property>
+   <property name="rightMargin" >
+    <number>9</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>9</number>
    </property>
    <item>
     <widget class="QSplitter" name="splitter" >
@@ -39,41 +48,27 @@
         <string>Tab 1</string>
        </attribute>
        <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>9</number>
-        </property>
         <property name="spacing" >
          <number>6</number>
         </property>
-        <item>
-         <widget class="QLabel" name="label" >
-          <property name="sizePolicy" >
-           <sizepolicy>
-            <hsizetype>3</hsizetype>
-            <vsizetype>5</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text" >
-           <string>___ Results tree ___</string>
-          </property>
-          <property name="scaledContents" >
-           <bool>false</bool>
-          </property>
-          <property name="alignment" >
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
+        <property name="leftMargin" >
+         <number>9</number>
+        </property>
+        <property name="topMargin" >
+         <number>9</number>
+        </property>
+        <property name="rightMargin" >
+         <number>9</number>
+        </property>
+        <property name="bottomMargin" >
+         <number>9</number>
+        </property>
        </layout>
       </widget>
      </widget>
      <widget class="QWidget" native="1" name="widget" >
       <property name="sizePolicy" >
-       <sizepolicy>
-        <hsizetype>3</hsizetype>
-        <vsizetype>5</vsizetype>
+       <sizepolicy vsizetype="Preferred" hsizetype="MinimumExpanding" >
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -85,11 +80,20 @@
        </size>
       </property>
       <layout class="QVBoxLayout" >
-       <property name="margin" >
-        <number>9</number>
-       </property>
        <property name="spacing" >
         <number>6</number>
+       </property>
+       <property name="leftMargin" >
+        <number>9</number>
+       </property>
+       <property name="topMargin" >
+        <number>9</number>
+       </property>
+       <property name="rightMargin" >
+        <number>9</number>
+       </property>
+       <property name="bottomMargin" >
+        <number>9</number>
        </property>
       </layout>
      </widget>

@@ -4,19 +4,19 @@ CONFIG -= release
 
 CONFIG += debug \
 stl \
-opengl
+opengl \
+ debug_and_release
 
 QT += opengl
 
 LIBS += -lopenbabel \
--L../../../lib \
 -lNanorexInterface \
--lNanorexUtility
+-lNanorexUtility \
+ -L../../../lib/ \
+ -L../../../lib \
+ -L/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/lib
 
-TARGETDEPS += ../../../lib/libNanorexUtility.so \
-../../../lib/libNanorexInterface.so \
-../../../lib/libHDF5_SimResultsImportExport.so
-macx:TARGETDEPS ~= s/.so/.dylib/g
+macx : TARGETDEPS ~= s/.so/.dylib/g
 
 SOURCES += ../../DataWindow.cpp \
 ../../LogHandlerWidget.cpp \

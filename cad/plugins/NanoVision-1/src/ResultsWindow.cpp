@@ -15,8 +15,27 @@ ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
  	        this, SLOT(parent->updateMenus()));
 	windowMapper = new QSignalMapper(this);
 	connect(windowMapper, SIGNAL(mapped(QWidget *)),
-	        workspace, SLOT(setActiveWindow(QWidget *)));
+            workspace, SLOT(setActiveWindow(QWidget *)));
 	
+    // manoj modelTree UI experiment
+    modelTree = new QTreeWidget(tabWidget);
+    modelTree->setHeaderLabel(tr("foo.mmp"));
+    QList<QTreeWidgetItem*> modelTreeItemList;
+    QTreeWidgetItem *homeItem = new QTreeWidgetItem(modelTree);
+    QIcon homeIcon(tr("/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/Icons/home.png"));
+    homeItem->setIcon(0, homeIcon);
+    homeItem->setText(0, tr("Home"));
+    modelTreeItemList.append(homeItem);
+    QTreeWidgetItem *partItem = new QTreeWidgetItem(modelTree);
+    QIcon partIcon(tr("/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/Icons/Model_Tree.png"));
+    partItem->setIcon(0, partIcon);
+    partItem->setText(0, tr("Part"));
+    modelTreeItemList.append(partItem);
+    modelTree->addTopLevelItems(modelTreeItemList);
+    
+
+    int modelTreePos = tabWidget->addTab(modelTree, tr("Model Tree"));
+            
 	splitter->insertWidget(1, workspace);
 	delete widget;
 }
