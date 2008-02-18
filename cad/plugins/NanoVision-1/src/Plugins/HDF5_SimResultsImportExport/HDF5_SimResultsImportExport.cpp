@@ -153,8 +153,11 @@ void HDF5_SimResultsImportExport::populateDataStoreInfo
 		(NXDataStoreInfo* dataStoreInfo, HDF5_SimResults* simResults,
 		 int frameSetId) {
 		
-	dataStoreInfo->addTrajectory("frame-set-1", frameSetId);
 	
+	dataStoreInfo->setIsSimulationResults(true);
+	dataStoreInfo->setHasInputParameters(true);
+	
+	dataStoreInfo->addTrajectory("frame-set-1", frameSetId);
 	// TODO: Add all the other stuff, use frameSetId = -1 for to-be-imported
 	//		 frame sets.
 }

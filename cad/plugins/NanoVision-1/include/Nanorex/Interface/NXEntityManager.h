@@ -125,7 +125,7 @@ public:
 			// See if there's a new frame
 			result =
 				entityManager->importFromFile
-					(dataStoreInfo->getFilename(frameSetId), frameSetId,
+					(dataStoreInfo->getFileName(frameSetId), frameSetId,
 												true); // inPollingThread
 		
 			// TODO: Handle if result != 0

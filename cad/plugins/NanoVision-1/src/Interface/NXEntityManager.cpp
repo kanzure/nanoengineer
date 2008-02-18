@@ -172,7 +172,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 		
 		if (frameSetId == -1)
 			frameSetId = addFrameSet();
-		dataStoreInfo->setFilename(filename, frameSetId);
+		dataStoreInfo->setFileName(filename, frameSetId);
 		int frameIndex = getFrameCount(frameSetId);
 		NXMoleculeSet* moleculeSet = new NXMoleculeSet();
 

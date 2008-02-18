@@ -19,88 +19,61 @@ namespace Nanorex {
  */
 class NXDataStoreInfo {
 	public:
-		NXDataStoreInfo() { }
+		NXDataStoreInfo();
 		
 		//
-		// Discovery API start
+		// Single structures
 		//
+		bool isSingleStructure();
+		void setIsSingleStructure(bool _isSingleStructure);
 		
-		/* @return	True if this data store encapsulates simulation results. */
-		bool isSimulationResults() { return false; }
-		
-		/* @return	True if this data store has only a single frame of structure
-		 *			data such as in an MMP or PDB file. */
-		bool isSingleFrame() { return false; }
-		
-		/* @return	True if this data store has a set of input parameters. */
-		bool hasInputParameters() { return false; }
-		
-		/* @return	A vector of input file names. The vector will be empty if
-		 *			there are no input file names in this data store. */
-		vector<string> inputFileNames() { vector<string> names; return names; }
-		
-		/* @return	True if this data store has a set of result summary data. */
-		bool hasResultsSummary() { return false; }
-		
-		/* @return	A vector of trajectory names. The vector will be empty if
-		 *			there are no trajectories in this data store. */
-		vector<string> trajectoryNames() { vector<string> names; return names; }
-		
-		/* @return	True if the frame set specified by the frameSetId is
-		 *			complete, and false if something is still writing frames
-		 *			to the specified frame set. */
-		bool storeIsComplete(int frameSetId) {
-			return _storeIsComplete[frameSetId];
-		}
+		const string& getSingleStructureFileName();
+		int getSingleStructureId();
 		
 		//
-		// Discovery API end
+		// Simulation results
 		//
+		bool isSimulationResults();
+		void setIsSimulationResults(bool _isSimulationResults);
 		
-		// TODO: check for existence in getters
+		bool hasInputParameters();
+		void setHasInputParameters(bool _hasInputParameters);
 		
-		// Filenames
-		const string& getFilename(int frameSetId) {
-			return _filenames[frameSetId];
-		}
-		void setFilename(const string& filename, int frameSetId) {
-			_filenames[frameSetId] = filename;
-		}
+		vector<string> getInputFileNames();
+		void addInputStructure(const string& fileName, int frameSetId);
+		int getInputStructureId(const string& fileName);
 		
-		// Input structures
-		void addInputStructure(string name, int frameSetId) {
-			_inputStructures[name] = frameSetId;
-		}
+		bool hasResultsSummary();
+		void setHasResultsSummary(bool _hasResultsSummary);
 		
-		// Trajectories
-		void addTrajectory(string name, int frameSetId) {
-			_trajectories[name] = frameSetId;
-		}
-		int getTrajectoryId(string name) { return _trajectories[name]; }
-		//vector<string> getTrajectoryNames();
+		vector<string> getTrajectoryNames();
+		void addTrajectory(const string& name, int frameSetId);
+		int getTrajectoryId(const string& name);
 		
-		// Last frame flags (whether the last frame-index is the last
-		// frame available in the data store, ie, stop trying to read frames
-		// (for now.))
-		void setLastFrame(int frameSetId, bool isLastFrame) {
-			_isLastFrame[frameSetId] = isLastFrame;
-		}
-		bool isLastFrame(int frameSetId) { return _isLastFrame[frameSetId]; }
+		void setLastFrame(int frameSetId, bool isLastFrame);
+		bool isLastFrame(int frameSetId);
 		
-		// Store complete flags (whether the data store's frame set is complete
-		// (true) or if something is still writing new frames to it (false.))
-		void setStoreComplete(int frameSetId, bool storeIsComplete) {
-			_storeIsComplete[frameSetId] = storeIsComplete;
-		}
+		bool storeIsComplete(int frameSetId);
+		void setStoreComplete(int frameSetId, bool storeIsComplete);
+		
+		
+		//
+		// General
+		//
+		// Data store file names
+		const string& getFileName(int frameSetId);
+		void setFileName(const string& fileName, int frameSetId);
 
-		// (Data store/file) handles
-		void setHandle(int frameSetId, void* handle) {
-			_handle[frameSetId] = handle;
-		}
-		void* getHandle(int frameSetId) { return _handle[frameSetId]; }
+		// Data store file handles
+		void setHandle(int frameSetId, void* handle);
+		void* getHandle(int frameSetId);
 		
 	private:
-		map<int, string> _filenames;
+		bool _isSimulationResults, _isSingleStructure, _hasInputParameters;
+		bool _hasResultsSummary;
+	
+		// Maps frame set id to its source file name.
+		map<int, string> _fileNames;
 		
 		// Maps input structure name to its frame set id.
 		map<string, int> _inputStructures;
