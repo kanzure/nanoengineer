@@ -4,6 +4,7 @@
 #define NX_DATASTOREINFO_H
 
 #include <map>
+#include <vector>
 #include <string>
 using namespace std;
 
@@ -19,6 +20,42 @@ namespace Nanorex {
 class NXDataStoreInfo {
 	public:
 		NXDataStoreInfo() { }
+		
+		//
+		// Discovery API start
+		//
+		
+		/* @return	True if this data store encapsulates simulation results. */
+		bool isSimulationResults() { return false; }
+		
+		/* @return	True if this data store has only a single frame of structure
+		 *			data such as in an MMP or PDB file. */
+		bool isSingleFrame() { return false; }
+		
+		/* @return	True if this data store has a set of input parameters. */
+		bool hasInputParameters() { return false; }
+		
+		/* @return	A vector of input file names. The vector will be empty if
+		 *			there are no input file names in this data store. */
+		vector<string> inputFileNames() { vector<string> names; return names; }
+		
+		/* @return	True if this data store has a set of result summary data. */
+		bool hasResultsSummary() { return false; }
+		
+		/* @return	A vector of trajectory names. The vector will be empty if
+		 *			there are no trajectories in this data store. */
+		vector<string> trajectoryNames() { vector<string> names; return names; }
+		
+		/* @return	True if the frame set specified by the frameSetId is
+		 *			complete, and false if something is still writing frames
+		 *			to the specified frame set. */
+		bool storeIsComplete(int frameSetId) {
+			return _storeIsComplete[frameSetId];
+		}
+		
+		//
+		// Discovery API end
+		//
 		
 		// TODO: check for existence in getters
 		
@@ -55,10 +92,7 @@ class NXDataStoreInfo {
 		void setStoreComplete(int frameSetId, bool storeIsComplete) {
 			_storeIsComplete[frameSetId] = storeIsComplete;
 		}
-		bool storeIsComplete(int frameSetId) {
-			return _storeIsComplete[frameSetId];
-		}
-		
+
 		// (Data store/file) handles
 		void setHandle(int frameSetId, void* handle) {
 			_handle[frameSetId] = handle;
