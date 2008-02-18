@@ -42,6 +42,8 @@ from debug import print_compact_traceback, print_compact_stack
 
 from constants import yellow, orange, ave_colors
 
+from debug_prefs import debug_pref, Choice_boolean_True
+
 from geometry.VQT import V, vlen
 
 import time
@@ -619,8 +621,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         """
         Highlight the whole chunk to which 'selobj' belongs, using the 'hicolor'.
         If selobj is an external bond, highlight both its atoms' chunks,
-        one in hicolor and one in hicolor2. (External bonds between them might
-        get drawn in either color.)
+        one in hicolor and one in hicolor2 (which chunk is which is arbitrary,
+        for now). (External bonds connecting those two chunks will get drawn
+        in hicolor.)
         
         @param selobj: the atom or bond (or other object) under the mouse
         
@@ -637,80 +640,66 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # value).
         # Bruce 080217 formalized hicolor2 as an arg (was hardcoded orange).
 
-        # Note: bool_fullBondLength represent whether full bond length to be
-        # drawn it is used only in select Chunks mode while highlighting the 
-        # whole chunk and when the atom display is Tubes display -- ninad 070214
-
         assert hicolor is not None #bruce 070919
         assert hicolor2 is not None
         del self
 
+        # Note: bool_fullBondLength represent whether full bond length is to be
+        # drawn. It is used only in select Chunks mode while highlighting the 
+        # whole chunk and when the atom display is Tubes display -- ninad 070214
         bool_fullBondLength = True
 
+        draw_bonds_only_once = debug_pref(
+            "GLPane: drawHighlightedChunk draw bonds only once?",
+            Choice_boolean_True )
+            # turn off to test effect of this optimization;
+            # when testing is done, hardcode this as True
+            # [bruce 080217]
+
+        drawn_bonds = {}
+
+        def draw_chunk(chunk, color):
+            for atom in chunk.atoms.itervalues():
+                # draw atom and its (not yet drawn) bonds
+                atom.draw_in_abs_coords(glpane, color, useSmallAtomRadius = True)
+                for bond in atom.bonds:
+                    if draw_bonds_only_once:
+                        if drawn_bonds.has_key(id(bond)):
+                            continue # to next bond
+                        drawn_bonds[id(bond)] = bond
+                    bond.draw_in_abs_coords(glpane, color, bool_fullBondLength)
+            return
+        
         if isinstance(selobj, Chunk):
             print "I think this is never called "\
                   "(drawHighlightedChunk with selobj a Chunk)" #bruce 071008
-            chunk = selobj
-            for hiatom in chunk.atoms.itervalues():
-                hiatom.draw_in_abs_coords(glpane, hicolor, 
-                                          useSmallAtomRadius = True)
-                for hibond in hiatom.bonds:
-                    hibond.draw_in_abs_coords(glpane, hicolor,
-                                              bool_fullBondLength)
-
+            draw_chunk(selobj, hicolor)
             return False # not sure False is right, but it imitates 
                             # the prior code [bruce 071008]
 
         elif isinstance(selobj, Atom):
-            chunk = selobj.molecule
-            for hiatom in chunk.atoms.itervalues():
-                hiatom.draw_in_abs_coords(glpane, hicolor, 
-                                          useSmallAtomRadius = True)
-                for hibond in hiatom.bonds:
-                    # Note: this draws interior bonds twice.
-                    # For a dna-related chunk this is 1/2 or 1/3 of the bonds.
-                    # It could easily be optimized to avoid that
-                    # (like Chunk.draw does).
-                    # Same for the other cases in this method
-                    # (one of which can draw external bonds twice).
-                    # [bruce 080214 comment]
-                    hibond.draw_in_abs_coords(glpane, hicolor,
-                                              bool_fullBondLength)
+            draw_chunk(selobj.molecule, hicolor)
             return True
 
-        elif isinstance(selobj, Bond):         
+        elif isinstance(selobj, Bond):
             chunk1 = selobj.atom1.molecule
             chunk2 = selobj.atom2.molecule
 
             if chunk1 is chunk2:
-                for hiatom in chunk1.atoms.itervalues():
-                    hiatom.draw_in_abs_coords(glpane, hicolor, 
-                                              useSmallAtomRadius = True)
-                    for hibond in hiatom.bonds:
-                        hibond.draw_in_abs_coords(glpane, hicolor, 
-                                                  bool_fullBondLength)
+                draw_chunk(chunk1, hicolor)
             else:
-                # Todo: swap chunk1 and chunk2 if necessary, so that
-                # mouse hitpoint was closer to the self atom in chunk1.
+                # Use two colors so the two chunks (and the fact that there
+                # *are* two chunks) are distinguishable.
+                #
+                # Todo: make which chunk is which deterministic, somehow.
+                # Maybe: let chunk1 come from the atom of selobj which is
+                # closest to the mouse hitpoint on selobj.
                 # (This probably requires arguments we are not being passed.)
+                # Or, let the most recent Atom selobj determine chunk1.
                 # [bruce 080217 NFR]
-
-                # Note: this draws external bonds twice if they go
-                # between chunk1 and chunk2. [bruce 080214 comment]
-                for hiatom in chunk1.atoms.itervalues():
-                    hiatom.draw_in_abs_coords(glpane, hicolor,
-                                              useSmallAtomRadius = True)
-                    for hibond in hiatom.bonds:
-                        hibond.draw_in_abs_coords(glpane, hicolor,
-                                                  bool_fullBondLength)
-                # why does the following substitute hicolor2 for hicolor
-                # in chunk2? [bruce 080214 question]
-                for hiatom in chunk2.atoms.itervalues():
-                    hiatom.draw_in_abs_coords(glpane, hicolor2,
-                                              useSmallAtomRadius = True)
-                    for hibond in hiatom.bonds:
-                        hibond.draw_in_abs_coords(glpane, hicolor2,
-                                                  bool_fullBondLength)
+                draw_chunk(chunk1, hicolor)
+                draw_chunk(chunk2, hicolor2)
+                
             return True
 
         return False # drew nothing
