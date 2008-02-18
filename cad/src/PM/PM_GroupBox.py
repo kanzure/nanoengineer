@@ -332,21 +332,37 @@ class PM_GroupBox( QGroupBox ):
         #This also needs to be implemented for PM_RadioButton, but at present 
         #the following code doesn't support PM_RadioButton. 
         if isinstance(pmWidget, PM_CheckBox):
-            # Set the widget's row and column parameters.
-            widgetRow      = row
-            widgetColumn   = pmWidget.widgetColumn
-            widgetSpanCols = 1
-            widgetAlignment = pmLeftAlignment
-            rowIncrement   = 1
-            #set a virtual label
-            labelRow       = row
-            labelSpanCols  = 1
-            labelAlignment = pmRightAlignment
-                        
-            if widgetColumn == 0:
-                labelColumn   = 1                              
-            elif widgetColumn == 1:
-                labelColumn   = 0
+            spanWidth = pmWidget.spanWidth
+            
+            if not spanWidth:
+                # Set the widget's row and column parameters.
+                widgetRow      = row
+                widgetColumn   = pmWidget.widgetColumn
+                widgetSpanCols = 1
+                widgetAlignment = pmLeftAlignment
+                rowIncrement   = 1
+                #set a virtual label
+                labelRow       = row
+                labelSpanCols  = 1
+                labelAlignment = pmRightAlignment
+                            
+                if widgetColumn == 0:
+                    labelColumn   = 1                              
+                elif widgetColumn == 1:
+                    labelColumn   = 0
+            else:                
+                # Set the widget's row and column parameters.
+                widgetRow      = row
+                widgetColumn   = pmWidget.widgetColumn
+                widgetSpanCols = 2
+                widgetAlignment = pmLeftAlignment
+                rowIncrement   = 1
+                #no label 
+                labelRow       = 0
+                labelColumn    = 0
+                labelSpanCols  = 0
+                labelAlignment = pmRightAlignment
+                
             
             return widgetRow, \
                widgetColumn, \

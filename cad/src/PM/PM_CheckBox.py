@@ -82,7 +82,8 @@ class PM_CheckBox( QCheckBox ):
                  text          = '', 
                  widgetColumn  = 1,
                  state         = Qt.Unchecked, 
-                 setAsDefault  = True
+                 setAsDefault  = True,
+                 spanWidth = False
                  ):
         """
         Appends a QCheckBox (Qt) widget to the bottom of I{parentWidget}, 
@@ -108,6 +109,12 @@ class PM_CheckBox( QCheckBox ):
         @param setAsDefault: If True, will restore I{state} when the 
                              "Restore Defaults" button is clicked.
         @type  setAsDefault: bool
+        
+        @param spanWidth: if True, the widget and its label will span the width
+                      of the group box. Its label will appear directly above
+                      the widget (unless the label is empty) and is left 
+                      justified.
+        @type  spanWidth: bool
      
         
         @see: U{B{QCheckBox}<http://doc.trolltech.com/4/qcheckbox.html>}
@@ -118,6 +125,8 @@ class PM_CheckBox( QCheckBox ):
         self.setText(text)
         self.widgetColumn = widgetColumn
         self.setAsDefault = setAsDefault
+        self.spanWidth = spanWidth
+        
         if self.setAsDefault:
             self.setDefaultState(state)
             
