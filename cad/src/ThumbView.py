@@ -824,6 +824,19 @@ class MMKitView(ThumbView):
         if self.model:
             if isinstance(self.model, Chunk) or \
                isinstance(self.model, Group):
+                # this can fail if the dna updater kills a bare Ax,
+                # since its chunk is then killed and its .assy set to None,
+                # so make it a disabled debug print and non-fatal for now:
+                # [bruce 080219]
+                ## assert self.model.assy is not None, \
+                if not (self.model.assy is not None):
+                    if 0: # too verbose to be useful; seemingly happens even for Ss3 (why??);
+                        # todo: check if it's due to Ax or to something we didn't expect,
+                        # so as not to risk hiding other bugs
+                        print "dna updater fyi: in model_is_valid: " \
+                           "%r.model %r has .assy None" % \
+                           (self, self.model)
+                    return False
                 return self.model.assy.assy_valid
             else: ## assembly
                 return self.model.assy_valid
