@@ -3697,8 +3697,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 character(s).
         
         """
-        assert self.element.symbol in ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5'), \
-            "Can only assign dnaBaseNames to Ss or Sj (PAM) atoms. \
+        assert self.element.symbol in ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5'), \
+            "Can only assign dnaBaseNames to Ss or Sj or Sh (PAM) atoms. \
             Attempting to assign dnaBaseName %r to element %r." \
             % (dnaBaseName, self.element.name)
         
@@ -3758,11 +3758,11 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         @param dnaStrandName: The DNA strand name.
         @type  dnaStrandName: str
         
-        @raise: If self is not a Pe atom.
+        @raise: If self is not a Pe or Pl or Se atom.
         
         """
-        assert self.element.symbol in ('Se3', 'Pe5'), \
-            "Can only assign dnaStrandNames to Pe (PAM) atoms. \
+        assert self.element.symbol in ('Se3', 'Pe5', 'Pl5'), \
+            "Can only assign dnaStrandNames to Se, Pe or Pl (PAM) atoms. \
             Attempting to assign dnaStrandName %r to element %r." \
             % (dnaStrandName, self.element.name)
         

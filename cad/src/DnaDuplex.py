@@ -317,31 +317,13 @@ class Dna:
                  I{StrandA}, I{StrandB} and I{Axis}.
         @rtype:  L{Group}
         """
-        #@ To do: Add support for PAM5 models. Mark 2007-10-18
+         #Get the lists of atoms (two lists for two strands and one for the axis
+         #for creating new chunks 
+         
+        _strandA_list, _strandB_list, _axis_list = \
+                     self._create_atomLists_for_regrouping(dnaGroup)
         
-        _strandA_list  =  []
-        _strandB_list  =  []
-        _axis_list     =  []
         
-        # Build strand and chunk atom lists.
-        for m in dnaGroup.members:
-            for atom in m.atoms.values():
-                if atom.element.symbol in ('Ss3'):
-                    if atom.dnaBaseName == 'a':
-                        _strandA_list.append(atom)
-                        #Now reset the DnaBaseName for the added atom 
-                        # to 'unassigned' base i.e. 'X'
-                        atom.setDnaBaseName('X')
-                    elif atom.dnaBaseName == 'b':
-                        _strandB_list.append(atom)
-                        #Now reset the DnaBaseName for the added atom 
-                        # to 'unassigned' base i.e. 'X'
-                        atom.setDnaBaseName('X')
-                    else:
-                        msg = "Ss3 atom not assigned to strand 'a' or 'b'."
-                        raise PluginBug(msg)
-                elif atom.element.symbol in ('Ax3', 'Ae3'):
-                    _axis_list.append(atom)
                 
         # Create strand and axis chunks from atom lists and add 
         # them to the dnaGroup.
@@ -561,7 +543,48 @@ class B_Dna_PAM5(B_Dna):
             # intimate knowledge) -- instead we need to find and fix the bug 
             # in the rest of generator when number of bases == 1.
         return
-    pass
+    
+    def _create_atomLists_for_regrouping(self, dnaGroup):
+        """
+        Creates and returns the atom lists that will be used to regroup the 
+        chunks  within the DnaGroup. 
+        
+        @param dnaGroup: The DnaGroup whose atoms will be filtered and put into 
+                         individual strand A or strandB or axis atom lists.
+        @return: Returns a tuple containing three atom lists 
+                 -- two atom lists for strand chunks and one for axis chunk. 
+        @see: self._regroup()
+        """
+        _strandA_list  =  []
+        _strandB_list  =  []
+        _axis_list     =  []
+        # Build strand and chunk atom lists.
+        for m in dnaGroup.members:
+            for atom in m.atoms.values():
+                
+                if atom.element.symbol in ('Pl5', 'Pe5'):
+                    if atom.dnaStrandName == 'Strand1':
+                        _strandA_list.append(atom)
+                    elif atom.dnaStrandName == 'Strand2':
+                        _strandB_list.append(atom)                        
+                if atom.element.symbol in ('Ss5', 'Sh5'):
+                    if atom.dnaBaseName == 'a':
+                        _strandA_list.append(atom)
+                        #Now reset the DnaBaseName for the added atom 
+                        # to 'unassigned' base i.e. 'X'
+                        atom.setDnaBaseName('X')
+                    elif atom.dnaBaseName == 'b':
+                        _strandB_list.append(atom)
+                        #Now reset the DnaBaseName for the added atom 
+                        # to 'unassigned' base i.e. 'X'
+                        atom.setDnaBaseName('X')
+                    else:
+                        msg = "Ss3 atom not assigned to strand 'a' or 'b'."
+                        raise PluginBug(msg)
+                elif atom.element.symbol in ('Ax5', 'Ae5', 'Gv5', 'Gr5'):
+                    _axis_list.append(atom)
+                    
+        return (_strandA_list, _strandB_list, _axis_list)
 
 class B_Dna_PAM3(B_Dna_PAM5):
     """
@@ -625,6 +648,45 @@ class B_Dna_PAM3(B_Dna_PAM5):
                 continue
             adjustSinglet(singlet)
         return
+    
+    def _create_atomLists_for_regrouping(self, dnaGroup):
+        """
+        Creates and returns the atom lists that will be used to regroup the 
+        chunks  within the DnaGroup. 
+        
+        @param dnaGroup: The DnaGroup whose atoms will be filtered and put into 
+                         individual strand A or strandB or axis atom lists.
+        @return: Returns a tuple containing three atom lists 
+                 -- two atom lists for strand chunks and one for axis chunk. 
+        @see: self._regroup()
+        """
+        _strandA_list  =  []
+        _strandB_list  =  []
+        _axis_list     =  []
+        
+        # Build strand and chunk atom lists.
+        for m in dnaGroup.members:
+            for atom in m.atoms.values():
+                if atom.element.symbol in ('Ss3'):
+                    if atom.dnaBaseName == 'a':
+                        _strandA_list.append(atom)
+                        #Now reset the DnaBaseName for the added atom 
+                        # to 'unassigned' base i.e. 'X'
+                        atom.setDnaBaseName('X')
+                    elif atom.dnaBaseName == 'b':
+                        _strandB_list.append(atom)
+                        #Now reset the DnaBaseName for the added atom 
+                        # to 'unassigned' base i.e. 'X'
+                        atom.setDnaBaseName('X')
+                    else:
+                        msg = "Ss3 atom not assigned to strand 'a' or 'b'."
+                        raise PluginBug(msg)
+                elif atom.element.symbol in ('Ax3', 'Ae3'):
+                    _axis_list.append(atom)
+                    
+        return (_strandA_list, _strandB_list, _axis_list)
+        
+    
 
 class Z_Dna(Dna):
     """
