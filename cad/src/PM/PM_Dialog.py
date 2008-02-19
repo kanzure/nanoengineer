@@ -166,7 +166,7 @@ class PM_Dialog( QDialog, SponsorableMixin ):
         if key == Qt.Key_Escape:
             pass
         else:
-            super(PM_Dialog, self).keyPressEvent(event) 
+            QDialog.keyPressEvent(self, event) 
         return
                                     
     
