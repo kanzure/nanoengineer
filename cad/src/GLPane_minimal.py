@@ -80,6 +80,8 @@ class GLPane_minimal(QGLWidget): #bruce 070914
 
     shareWidget = None
 
+    is_animating = False #bruce 080219 fix bug 2632 (unverified)
+
     # default values of subclass-specific constants
 
     permit_draw_bond_letters = True #bruce 071023
