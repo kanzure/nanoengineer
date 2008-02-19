@@ -116,7 +116,9 @@ OK_Cancel.png
 OK_pressed.png
 OK_Cancel_DnaLine.png
 OK_pressed_DnaLine.png
-Cancel_pressed_DnaLine.png""".split()
+Cancel_pressed_DnaLine.png
+BigOK_DnaLine.png
+BigOK_pressed_DnaLine.png""".split()
 
 class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can be returned from find_or_make
     """
@@ -245,7 +247,11 @@ class cc_MouseEventHandler(MouseEventHandler_API): #e rename # an instance can b
                 imagename = "Cancel_pressed_DnaLine.png"
             else:
                 imagename = "OK_Cancel_DnaLine.png"
-            
+        elif self.button_codes == ['Transient-Done']:
+            if self.pressed_button == 'Transient-Done':
+                imagename = "BigOK_pressed_DnaLine.png"
+            else:
+                imagename = "BigOK_DnaLine.png"            
         else:
             assert 0, "unsupported list of buttoncodes: %r" % (self.button_codes,)
 
