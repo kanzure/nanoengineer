@@ -146,6 +146,8 @@ class ThumbView(GLPane_minimal):
         self.far = 2.0  
         # start in perspective mode
         self.ortho = False #True
+
+        self.scale # make sure superclass set this [bruce 080219]
         
         # default color and gradient values.
         self.backgroundColor = gray
@@ -264,6 +266,11 @@ class ThumbView(GLPane_minimal):
         scale = self.scale #bruce 050608 used this to clarify following code
         near, far = self.near, self.far
 
+        #bruce 080219 moved these from one of two callers into here,
+        # to fix bug when insert from partlib is first operation in NE1
+        self.aspect = (self.width + 0.0) / (self.height + 0.0)
+        self.vdist = 6.0 * scale
+
         if glselect:
             x, y, w, h = glselect
             gluPickMatrix(
@@ -322,8 +329,8 @@ class ThumbView(GLPane_minimal):
             glLoadIdentity()
             drawer.drawFullWindow(bluesky) # "Blue Sky" gradient
         
-        self.aspect = (self.width + 0.0) / (self.height + 0.0)
-        self.vdist = 6.0 * self.scale
+##        self.aspect = (self.width + 0.0) / (self.height + 0.0)
+##        self.vdist = 6.0 * self.scale
         self._setup_projection()
         
         glMatrixMode(GL_MODELVIEW)
