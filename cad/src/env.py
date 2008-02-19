@@ -426,8 +426,8 @@ def node_departing_assy(node, assy): #bruce 060315 for Undo
     try:
         um = assy.undo_manager
     except AttributeError:
-        # for assy is None or == a certain string
-        assert assy is None or type(assy) == type("assembly") and "assembly" in assy # could be more specific
+        # for assy is None or a certain string constant
+        assert assy is None or type(assy) == type("") and "assembly" in assy # could be more specific
         return
     if um is not None:
         um.node_departing_assy(node, assy)

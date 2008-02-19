@@ -727,8 +727,16 @@ class DnaLadder(object):
         """
         if len(self.strand_rails) == 2:
             return [self.strand_rails[0], self.axis_rail, self.strand_rails[1]]
-        else:
+        elif len(self.strand_rails) == 1:
             return [self.strand_rails[0], self.axis_rail, None]
+        else:
+            # this happens, after certain bugs, in debug code with self.error already set;
+            # make sure we notice if it happens without self.error being set: [bruce 080219]
+            if not self.error:
+                self.error = "late-detected wrong number of strands, %d" % len(self.strand_rails)
+                print "\n***BUG: %r: %s" % (self, self.error)
+            return [None, self.axis_rail, None] # not sure this will work in callers
+        pass
     
     def remake_chunks(self):
         """

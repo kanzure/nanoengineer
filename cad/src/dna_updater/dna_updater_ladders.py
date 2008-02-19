@@ -336,8 +336,21 @@ def make_new_ladders(axis_chains, strand_chains):
                 ### REVIEW or BUG: why can we assume this works, for an arb (not just end) strand atom? @@@@
                 # but wait, it's not an arb atom, it's a strand_rail end atom. Should be ok -- FIX THE COMMENT ABOVE.
                 # but there is a bug where dissolving a ladder failed to put axis atoms into changed_atoms... 080120 327p
-                ladder = ladder_locator[atom.key]
-                ladder.add_strand_rail(strand_rail)
+                try:
+                    ladder = ladder_locator[atom.key]
+                except KeyError:
+                    # this happens in a bug tom reported thismorning, so try to survive it and print debug info
+                    # [bruce 080219]
+                    print "\n***BUG: dna updater: ladder_locator lacks %r -- specialcase might cause bugs" % (atom,) # @@@@@
+                    # specialcase is variant of single strand code above
+                    for atom2 in strand_rail.baseatoms:
+                        if not (atom2.axis_neighbor() is None):
+                            print " sub-bug: %r has %r with an axis_neighbor, %r" % \
+                                  (strand_rail, atom2, atom2.axis_neighbor())
+                    singlestrand = DnaSingleStrandDomain(strand_rail)
+                    singlestrands.append(singlestrand)
+                else:
+                    ladder.add_strand_rail(strand_rail)
 
     for ladder in ladders:
         ladder.finished()

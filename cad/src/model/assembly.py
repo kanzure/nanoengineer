@@ -117,7 +117,7 @@ debug_assy_changes = 0 #bruce 050429
 if 1: #bruce 060124 debug code; safe but dispensable ######@@@@@@
     debug_assy_changes = debug_assy_changes or undo_archive.debug_undo2
 
-assy_number = 0 # count assembly objects [bruce 050429]
+_global_assy_number = 0 # count assembly objects [bruce 050429]
 
 _assy_owning_win = None #bruce 060122; assumes there's only one main window; probably needs cleanup
 
@@ -213,9 +213,10 @@ class assembly( StateMixin, Assembly_API):
         self.name = str(name or gensym("Assembly"))
 
         #bruce 050429
-        global assy_number
-        assy_number += 1
-        self._debug_name = self.name + "-%d" % assy_number
+        global _global_assy_number
+        _global_assy_number += 1
+        self._debug_name = self.name + "-%d" % _global_assy_number
+        self._assy_number = _global_assy_number # use in __repr__, bruce 080219
 
         want_undo_manager = False
         if own_window_UI:
@@ -374,9 +375,15 @@ class assembly( StateMixin, Assembly_API):
         self.mt = modelTree
         return
     
-    def __repr__(self): #bruce 080117
-        res = "<%s %r at %#x>" % \
+    def __repr__(self): #bruce 080117; report _assy_number & main-ness, bruce 080219
+        global _global_assy_number
+        res = "<%s #%d/%d %s %r at %#x>" % \
               (self.__class__.__name__.split('.')[-1],
+               self._assy_number,
+               _global_assy_number, # this lets you tell if it's the most
+                   # recent one -- but beware of confusion from partlib assys;
+                   # so also report whether it's currently the main one:
+               (self is env.mainwindow().assy) and "(main)" or "(NOT MAIN)",
                self.name,
                id(self))
         return res

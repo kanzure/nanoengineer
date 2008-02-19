@@ -259,7 +259,29 @@ class AssyUndoManager(UndoManager):
 
     def node_departing_assy(self, node, assy): #bruce 060315;
         # revised 060330 to make it almost a noop, since implem was obsolete and it caused bug 1797
-        assert assy is self.assy # has to be true, since we were accessed as assy.undo_manager
+        #bruce 080219 making this a debug print only, since it happens with dna updater
+        # (probably a bug) but exception may be causing further bugs; also adding a message.
+        # Now I have a theory about the bug's cause: if this happens in a closed assy,
+        # deinit has set self.assy to None. To repeat, open and close a dna file with dna updater
+        # off, then turn dna updater on. Now this should cause the "bug (harmless?)" print below.
+        if assy is None or node is None:
+            print "\n*** BUG: node_departing_assy(%r, %r, %r) sees assy or node is None" % \
+                  (self, node, assy)
+            return
+        if self.assy is None:
+            # this will happen for now when the conditions that caused today's bug reoccur,
+            # until we fix the dna updater to never run inside a closed assy (desirable)
+            # [bruce 080219]
+            print "\nbug (harmless?): node_departing_assy(%r, %r, %r), but " \
+                  "self.assy is None (happens when self's file is closed)" % \
+                  (self, node, assy)
+            return
+        if not (assy is self.assy):
+            print "\n*** BUG: " \
+               "node_departing_assy(%r, %r, %r) sees wrong self.assy = %r" % \
+               (self, node, assy, self.assy)
+            # assy is self.assy has to be true (given that neither is None),
+            # since we were accessed as assy.undo_manager.
         return
 
     # ==

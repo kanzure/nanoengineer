@@ -2530,6 +2530,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # bruce 041222 removed side effect on self.picked
         if self.molecule is numol:
             return
+        if self.molecule.assy is not numol.assy: #bruce 080219 debug code, might be slow, might print routinely ##
+            print "\nBUG?: hopmol(%r, %r) but self.molecule %r .assy %r != numol.assy %r" % \
+                  (self, numol, self.molecule, self.molecule.assy, numol.assy)
         self.molecule.delatom(self) # this also invalidates our bonds
         numol.addatom(self)
         for atm in self.singNeighbors():
