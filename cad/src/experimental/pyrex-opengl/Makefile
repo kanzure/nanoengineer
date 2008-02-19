@@ -2,12 +2,6 @@
 
 # Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
 
-# If there is a problem building this on the Mac, it's possible that the
-# 'F' in "AGL.framework" was incorrectly capitalized.
-#                                                 V--- RIGHT HERE
-#CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.framework/Headers \
-#	-I/usr/include/python$(PYDVER)
-
 UNAME := $(shell uname)
 # dotted python version (2.3, 2.4)
 PYDVER := $(shell python -c "import sys; print sys.version[:3]")
@@ -35,8 +29,12 @@ else
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
 PYREXC=/Library/Python/$(PYDVER)/Pyrex-0.9.3.1/bin/pyrexc
-CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers \
+CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.framework/Headers \
 	-I/usr/include/python$(PYDVER)
+# Note: OpenGL.framework is probably better than AGL.framework,
+# though it may not matter for the headers we need. 
+# See also "-framework OpenGL" which works better than "-L/usr/X11R6/lib -lGL"
+# in cad/src/Makefile for atombase.so. [bruce 080218 comment]
 LDFLAGS=-L/usr/X11R6/lib -L/usr/lib/python$(PYDVER)/config -lm -lGL \
 	-lpython$(PYDVER)
 else
