@@ -3,8 +3,15 @@
 #ifndef VIEWPARAMETERSWINDOW_H
 #define VIEWPARAMETERSWINDOW_H
 
+#include <string>
+#include <vector>
+using namespace std;
+
 #include <QWidget>
 #include <QDialog>
+
+#include "Nanorex/Utility/NXProperties.h"
+using namespace Nanorex;
 
 #include "ui_ViewParametersWindow.h"
 
@@ -14,7 +21,7 @@ class ViewParametersWindow : public QDialog, private Ui_ViewParametersWindow {
 	Q_OBJECT
 
 public:
-	ViewParametersWindow(QWidget *parent = 0);
+	ViewParametersWindow(NXProperties* properties, QWidget *parent = 0);
 	~ViewParametersWindow();
 };
 

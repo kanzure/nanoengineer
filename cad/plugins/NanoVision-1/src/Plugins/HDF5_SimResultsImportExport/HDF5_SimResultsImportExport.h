@@ -17,6 +17,7 @@
 
 #include "Nanorex/HDF5_SimResults.h"
 #include "Nanorex/Utility/NXLogger.h"
+#include "Nanorex/Utility/NXUtility.h"
 #include "Nanorex/Utility/NXCommandResult.h"
 #include "Nanorex/Interface/NXNumbers.h"
 #include "Nanorex/Interface/NXNanoVisionResultCodes.h"
@@ -24,6 +25,7 @@
 using namespace Nanorex;
 
 #include <vector>
+#include <string>
 using namespace std;
 
 

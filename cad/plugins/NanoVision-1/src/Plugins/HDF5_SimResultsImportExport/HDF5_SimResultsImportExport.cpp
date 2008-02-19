@@ -152,14 +152,74 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 void HDF5_SimResultsImportExport::populateDataStoreInfo
 		(NXDataStoreInfo* dataStoreInfo, HDF5_SimResults* simResults,
 		 int frameSetId) {
-		
 	
 	dataStoreInfo->setIsSimulationResults(true);
-	dataStoreInfo->setHasInputParameters(true);
 	
+	// Input parameters
+	NXProperties* properties = new NXProperties();
+	vector<string> keys = simResults->getIntParameterKeys();
+	vector<string>::iterator iter = keys.begin();
+	int intValue;
+	while (iter != keys.end()) {
+		simResults->getIntParameter(*iter, intValue);
+		properties->setProperty(*iter, NXUtility::itos(intValue));
+		iter++;
+	}
+	keys = simResults->getFloatParameterKeys();
+	iter = keys.begin();
+	float floatValue;
+	char charBuffer[16];
+	while (iter != keys.end()) {
+		simResults->getFloatParameter(*iter, floatValue);
+		NXRealUtils::ToChar(floatValue, charBuffer, 5);
+		properties->setProperty(*iter, charBuffer);
+		iter++;
+	}
+	keys = simResults->getStringParameterKeys();
+	iter = keys.begin();
+	string stringValue;
+	while (iter != keys.end()) {
+		simResults->getStringParameter(*iter, stringValue);
+		properties->setProperty(*iter, stringValue);
+		iter++;
+	}
+	dataStoreInfo->setInputParameters(properties);
+
+	// Input files
+	keys = simResults->getFilePathKeys();
+	iter = keys.begin();
+	while (iter != keys.end()) {
+		dataStoreInfo->addInputStructure(*iter);
+		iter++;
+	}
+	
+	// Results summary
+	properties = new NXProperties();
+	keys = simResults->getIntResultKeys();
+	iter = keys.begin();
+	while (iter != keys.end()) {
+		simResults->getIntResult(*iter, intValue);
+		properties->setProperty(*iter, NXUtility::itos(intValue));
+		iter++;
+	}
+	keys = simResults->getFloatResultKeys();
+	iter = keys.begin();
+	while (iter != keys.end()) {
+		simResults->getFloatResult(*iter, floatValue);
+		NXRealUtils::ToChar(floatValue, charBuffer, 5);
+		properties->setProperty(*iter, charBuffer);
+		iter++;
+	}
+	keys = simResults->getStringResultKeys();
+	iter = keys.begin();
+	while (iter != keys.end()) {
+		simResults->getStringResult(*iter, stringValue);
+		properties->setProperty(*iter, stringValue);
+		iter++;
+	}
+	dataStoreInfo->setResultsSummary(properties);
+
 	dataStoreInfo->addTrajectory("frame-set-1", frameSetId);
-	// TODO: Add all the other stuff, use frameSetId = -1 for to-be-imported
-	//		 frame sets.
 }
 
 

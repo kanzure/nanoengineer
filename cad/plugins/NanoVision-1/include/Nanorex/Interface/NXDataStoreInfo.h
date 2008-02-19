@@ -8,6 +8,8 @@
 #include <string>
 using namespace std;
 
+#include "Nanorex/Utility/NXProperties.h"
+
 namespace Nanorex {
 
 
@@ -36,15 +38,15 @@ class NXDataStoreInfo {
 		bool isSimulationResults();
 		void setIsSimulationResults(bool _isSimulationResults);
 		
-		bool hasInputParameters();
-		void setHasInputParameters(bool _hasInputParameters);
+		NXProperties* getInputParameters();
+		void setInputParameters(NXProperties* parameters);
 		
 		vector<string> getInputFileNames();
-		void addInputStructure(const string& fileName, int frameSetId);
+		void addInputStructure(const string& fileName);
 		int getInputStructureId(const string& fileName);
 		
-		bool hasResultsSummary();
-		void setHasResultsSummary(bool _hasResultsSummary);
+		NXProperties* getResultsSummary();
+		void setResultsSummary(NXProperties* resultsSummary);
 		
 		vector<string> getTrajectoryNames();
 		void addTrajectory(const string& name, int frameSetId);
@@ -69,8 +71,8 @@ class NXDataStoreInfo {
 		void* getHandle(int frameSetId);
 		
 	private:
-		bool _isSimulationResults, _isSingleStructure, _hasInputParameters;
-		bool _hasResultsSummary;
+		bool _isSimulationResults, _isSingleStructure;
+		NXProperties* _inputParameters, *_resultsSummary;
 	
 		// Maps frame set id to its source file name.
 		map<int, string> _fileNames;

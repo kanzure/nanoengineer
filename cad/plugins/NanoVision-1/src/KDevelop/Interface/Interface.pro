@@ -35,9 +35,9 @@ SOURCES += ../../Interface/NXDataStoreInfo.cpp \
 
 TEMPLATE = lib
 
-CONFIG += staticlib \
- debug_and_release \
- stl
+CONFIG += debug_and_release \
+ stl \
+ dll
 
 TARGET = NanorexInterface
 

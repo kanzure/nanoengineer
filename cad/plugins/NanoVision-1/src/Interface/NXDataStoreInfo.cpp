@@ -10,7 +10,7 @@ namespace Nanorex {
 NXDataStoreInfo::NXDataStoreInfo() {
 	_isSimulationResults = false;
 	_isSingleStructure = false;
-	_hasInputParameters = false;
+	_inputParameters = _resultsSummary = 0;
 }
 
 
@@ -53,16 +53,18 @@ void NXDataStoreInfo::setIsSimulationResults(bool _isSimulationResults) {
 }
 
 
-/* FUNCTION: hasInputParameters */
+/* FUNCTION: getInputParameters */
 /*
- * @return	True if this data store has a set of input parameters.
+ * @return	Null if this data store doens't have any input parameters.
  */
-bool NXDataStoreInfo::hasInputParameters() { return false; }
+NXProperties* NXDataStoreInfo::getInputParameters() {
+	return _inputParameters;
+}
 
 
-/* FUNCTION: setHasInputParameters */
-void NXDataStoreInfo::setHasInputParameters(bool _hasInputParameters) {
-	this->_hasInputParameters = _hasInputParameters;
+/* FUNCTION: setInputParameters */
+void NXDataStoreInfo::setInputParameters(NXProperties* parameters) {
+	_inputParameters = parameters;
 }
 
 
@@ -74,16 +76,17 @@ void NXDataStoreInfo::setHasInputParameters(bool _hasInputParameters) {
 vector<string> NXDataStoreInfo::getInputFileNames() {
 	map<string, int>::iterator iter = _inputStructures.begin();
 	vector<string> names;
-	while (iter != _inputStructures.end())
+	while (iter != _inputStructures.end()) {
 		names.push_back((*iter).first);
+		iter++;
+	}
 	return names;
 }
 
 
 /* FUNCTION: addInputStructure */
-void NXDataStoreInfo::addInputStructure(const string& fileName,
-										int frameSetId) {
-	_inputStructures[fileName] = frameSetId;
+void NXDataStoreInfo::addInputStructure(const string& fileName) {
+	_inputStructures[fileName] = -1;
 }
 
 
@@ -96,16 +99,18 @@ int NXDataStoreInfo::getInputStructureId(const string& fileName) {
 }
 
 
-/* FUNCTION: hasResultsSummary */
+/* FUNCTION: getResultsSummary */
 /*
- * @return	True if this data store has a set of result summary data.
+ * @return	Null if this data store doesn't have any results summary data.
  */
-bool NXDataStoreInfo::hasResultsSummary() { return false; }
+NXProperties* NXDataStoreInfo::getResultsSummary() {
+	return _resultsSummary;
+}
 
 
-/* FUNCTION: setHasResultsSummary */
-void NXDataStoreInfo::setHasResultsSummary(bool _hasResultsSummary) {
-	this->_hasResultsSummary = _hasResultsSummary;
+/* FUNCTION: setResultsSummary */
+void NXDataStoreInfo::setResultsSummary(NXProperties* resultsSummary) {
+	_resultsSummary = resultsSummary;
 }
 
 
@@ -117,8 +122,10 @@ void NXDataStoreInfo::setHasResultsSummary(bool _hasResultsSummary) {
 vector<string> NXDataStoreInfo::getTrajectoryNames() {
 	map<string, int>::iterator iter = _trajectories.begin();
 	vector<string> names;
-	while (iter != _trajectories.end())
+	while (iter != _trajectories.end()) {
 		names.push_back((*iter).first);
+		iter++;
+	}
 	return names;
 }
 

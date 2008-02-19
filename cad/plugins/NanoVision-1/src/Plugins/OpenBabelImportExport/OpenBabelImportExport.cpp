@@ -54,11 +54,9 @@ NXCommandResult* OpenBabelImportExport::importFromFile
 		}
 	}
 	
-	// Retrieve and set the meta information about the data store.
+	// Set the meta information about the data store.
 	if (success) {
-		QFileInfo fileInfo(filename.c_str());
-		dataStoreInfo->addInputStructure(qPrintable(fileInfo.fileName()),
-										 frameSetId);
+		dataStoreInfo->setIsSingleStructure(true);
 	}
 	
 	return result;

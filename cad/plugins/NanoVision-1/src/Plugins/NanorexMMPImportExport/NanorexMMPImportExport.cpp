@@ -36,12 +36,10 @@ importFromFile(NXMoleculeSet* moleculeSet,
         readMMP_mol(infile, moleculeSet);
     }
     
-    // Retrieve and set the meta information about the data store.
-    if (success) {
-        QFileInfo fileInfo(filename.c_str());
-        dataStoreInfo->addInputStructure(qPrintable(fileInfo.fileName()),
-                                         frameSetId);
-    }
+	// Set the meta information about the data store.
+	if (success) {
+		dataStoreInfo->setIsSingleStructure(true);
+	}
     
     return result;
 }

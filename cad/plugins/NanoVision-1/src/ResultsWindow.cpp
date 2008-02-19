@@ -92,11 +92,11 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 	workspace->addWindow(child);
 	child->show();
 */
-/* Floating data window example
-	ViewParametersWindow* viewParametersWindow =
-		new ViewParametersWindow(this);
-	viewParametersWindow->show();
-*/
+		// Floating data window example
+		ViewParametersWindow* viewParametersWindow =
+			new ViewParametersWindow(dataStoreInfo->getInputParameters(), this);
+		viewParametersWindow->show();
+		
 		QString message = tr("File loaded: %1").arg(fileName);
 		NXLOG_INFO("ResultsWindow", qPrintable(message));
 	}
