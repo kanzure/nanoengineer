@@ -76,8 +76,8 @@ class BuildDna_EditCommand(EditCommand):
         
         @see: L{self.restore_gui}
         """
-        EditCommand.init_gui(self)        
-    
+        EditCommand.init_gui(self)    
+            
         if self.flyoutToolbar is None:
             self.flyoutToolbar = DnaFlyout(self.win, self.propMgr)
         
@@ -196,7 +196,23 @@ class BuildDna_EditCommand(EditCommand):
                 struct.unpick()
             
         EditCommand.editStructure(self, struct) 
-               
+        
+    def hasValidStructure(self):
+        """
+        Tells the caller if this edit command has a valid structure. 
+        Overrides EditCommand.hasValidStructure()
+        """        
+        if self.struct is None:
+            return False
+                
+        if self.struct.killed():
+            return False
+                
+        if isinstance(self.struct, DnaGroup): 
+            return True    
+        
+        return False
+                       
 
     def _createPropMgrObject(self):
         """
@@ -334,8 +350,7 @@ class BuildDna_EditCommand(EditCommand):
         """
         Cancel the structure
 	"""
-        EditCommand.cancelStructure(self)
-        print "*** self.struct in BuildDna_EditCommand= ", self.struct  
+        EditCommand.cancelStructure(self) 
         if self.struct is not None:
             if self.struct.isEmpty():
                 self._removeStructure()
@@ -365,6 +380,7 @@ class BuildDna_EditCommand(EditCommand):
         
         @see: DnaDuplex_EditCommand.restore_gui
         """      
+        
         if self.struct is None:
             self.struct = self._createStructure()  
               

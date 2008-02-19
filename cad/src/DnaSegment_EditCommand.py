@@ -224,9 +224,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     
     def hasValidStructure(self):
         """
-        Tells the caller if this edit command has a valid structure. This method
-        is overridden in subclasses. 
-        @see: DnaSegment_EditCommand.hasValidStructure() 
+        Tells the caller if this edit command has a valid structure. 
+        Overrides EditCommand.hasValidStructure()
         """
         #(By Bruce 2008-02-13)
         

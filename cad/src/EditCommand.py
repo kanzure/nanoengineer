@@ -282,6 +282,26 @@ class EditCommand(Select_Command):
         self.existingStructForEditing = True
         self.old_props = self.struct.getProps()
         self.propMgr.show() 
+        
+    def hasValidStructure(self):
+        """
+        Tells the caller if this edit command has a valid structure. This is an 
+        abstract method and must be  overridden by the subclasses. 
+        @see: DnaSegment_EditCommand.hasValidStructure() 
+        """
+        #alternatively we can have the folloiwng default implementation. 
+        #but it is dangerous -- by because if caller simply calls this method 
+        #like self.hasValidStructure() , it will return True for option 
+        #'UNDETERMINED'. So lets not use it and simply have subclasses override
+        #this method instead. 
+        ##if self.struct is None:
+            ##return False                
+        ##if self.struct.killed(): # (bruce080213: can this happen?)
+            ##return False        
+        ##return 'UNDETERMINED' 
+        
+        raise AbstractMethod()
+        
             
     def _createStructure(self):
         """
