@@ -22,7 +22,6 @@ from EditCommand_PM import EditCommand_PM
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
-from PM.PM_Constants     import pmCancelButton
 
 
 class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
@@ -69,7 +68,6 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( pmDoneButton | \
-                                pmCancelButton | \
                                 pmWhatsThisButton)
         
         self._loadSequenceEditor()
