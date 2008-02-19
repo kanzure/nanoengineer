@@ -1058,13 +1058,16 @@ class Bond(BondBase, StateMixin, Selobj_API):
             
     def getBondLength(self, atomDistPrecision):#Ninad 060830
         """
-        Returns the atom center distance between the atoms connected 
-        by the highlighted bond.
-        
+        Returns a string describing the distance between the centers of atoms,
+        bonded by the highlighted bond.
+        @param atomDistPrecision: Number of digits after the decimals. (atom 
+                                  distance precision) to be included  in the 
+                                  string that returns the distance
+        @type atomDistPrecision: int
+        @return the string that gives bond length information. 
         @note: this does *not* return the covalent bondlength.
         """
-        #NOTE: glpane attr is not used. this needs another general cleanup.
-
+        
         a1 = self.atom1
         a2 = self.atom2
 
