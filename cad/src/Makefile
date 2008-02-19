@@ -32,20 +32,24 @@ STDC99=-std=c99
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
 CFLAGS=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
-   -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
+   -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/ \
+   -DMACOSX -I/System/Library/Frameworks/OpenGL.framework/Headers
 LDFLAGS=-Wl,-F. -framework Python
+LDFLAGS+=-L/usr/lib -lm
+## LDFLAGS+=-L/usr/X11R6/lib -lGL
+LDFLAGS+=-framework OpenGL
 LDSHARED=gcc -bundle
 else
 #---------------------------------------- Unix
 CFLAGS=-pthread -I/usr/include/python$(PYDVER)
 LDFLAGS=-L/usr/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
+LDFLAGS+=-L/usr/lib -lm
+LDFLAGS+=-L/usr/X11R6/lib -lGL
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
 SHARED_LIBRARIES = $(SHARED:.lib=.so)
 PYREXC=$(shell python -c "import PlatformDependent; print PlatformDependent.find_pyrexc()")
-LDFLAGS+=-L/usr/lib -lm
-LDFLAGS+=-L/usr/X11R6/lib -lGL
 CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
   -Wstrict-prototypes -fPIC
 # These CFLAGS and LDFLAGS are not used by distutils. If asked to
