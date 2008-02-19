@@ -96,12 +96,15 @@ class DnaGroup(Block):
         into controlling_marker and/or wholechain,
         so don't do those things here.)
         """
+        assert not self.killed(), \
+               "self must not be killed in %r.make_DnaStrandOrSegment_for_marker" % self
         class1 = controlling_marker.DnaStrandOrSegment_class()
         name = gensym(class1.__name__.split('.')[-1]) ###STUB -- should use class constant prefix, ensure unique names
             # todo: sensible name? (if we split a seg, is name related to old seg; if so how?)
         assy = controlling_marker.assy # it's a Jig so it has one
         obj = class1(name, assy, None) # note: these args are for Group.__init__
-        self.addchild(obj)
+        self.addchild(obj) # note: this asserts self.assy is not None
+            # (but it can't assert not self.killed(), see its comment for why)
         return obj
     
     # Note: some methods below this point are examples or experiments or stubs,
@@ -343,12 +346,26 @@ def find_or_make_DnaGroup_for_homeless_object(node):
         print "likely bug: %r in %r has no .part" % \
               (node, node.assy)
     try:
-        return _f_DnaGroup_for_homeless_objects_in_Part[part]
+        res = _f_DnaGroup_for_homeless_objects_in_Part[part]
     except KeyError:
-        dnaGroup = _make_DnaGroup_for_homeless_objects_in_Part(part)
-        _f_DnaGroup_for_homeless_objects_in_Part[part] = dnaGroup
-        return dnaGroup
-    pass
+        res = None
+    if res:
+        # found one -- make sure it's still ok
+        # maybe: also make sure it's still in the same part, assy, etc.
+        # (not urgent, now that this only lasts for one run of the updater)
+        if res.killed():
+            # discard it, after complaining [bruce 080218 bugfix for when this
+            # got killed by user; works, but now should never happen due to the
+            # better fix of calling clear_updater_run_globals() at start and end
+            # of every updater run]
+            print "\nBUG: _f_DnaGroup_for_homeless_objects_in_Part[%r] " \
+                  "found %r which is killed -- discarding it" % \
+                  (part, res)
+            res = None
+    if not res:
+        res = _make_DnaGroup_for_homeless_objects_in_Part(part)
+        _f_DnaGroup_for_homeless_objects_in_Part[part] = res
+    return res
 
 def _make_DnaGroup_for_homeless_objects_in_Part(part):
     # not needed, done in addnode: part.ensure_toplevel_group()
@@ -358,8 +375,8 @@ def _make_DnaGroup_for_homeless_objects_in_Part(part):
     dnaGroup = DnaGroup(name, assy, dad) # same args as for Group.__init__
     part.addnode(dnaGroup)
     if DEBUG_DNA_UPDATER:
-        print "dna_updater fallback (bug, or mmp file not fixed when read): " \
-              " made new dnaGroup %r" % dnaGroup
+        print "dna_updater: made new dnaGroup %r" % dnaGroup, \
+              "(bug or unfixed mmp file)"
     return dnaGroup
     
 # end

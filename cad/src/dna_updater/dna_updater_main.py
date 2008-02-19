@@ -10,6 +10,7 @@ including DnaGroups, AxisChunks, PAM atoms, etc.
 
 from dna_updater.dna_updater_globals import get_changes_and_clear
 from dna_updater.dna_updater_globals import ignore_new_changes
+from dna_updater.dna_updater_globals import clear_updater_run_globals
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
@@ -37,6 +38,17 @@ def full_dna_update():
            and some from a just-opened part library part.
 
     @return: None
+    """
+    clear_updater_run_globals()
+    try:
+        _full_dna_update_0()
+    finally:
+        clear_updater_run_globals()
+    return
+
+def _full_dna_update_0():
+    """
+    [private helper for full_dna_update -- do all the work]
     """
     changed_atoms = get_changes_and_clear()
     
@@ -82,6 +94,6 @@ def full_dna_update():
 
     ignore_new_changes("as full_dna_update returns", changes_ok = False )
 
-    return
+    return # from _full_dna_update_0
 
 # end

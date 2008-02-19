@@ -313,9 +313,10 @@ class WholeChain(object):
             # and just print a warning here, trusting that in the future
             # the group cleanup of just-read mmp files will fix things better.
             if chunk.parent_node_of_class(DnaStrandOrSegment):
-                print "dna updater fallback (bug, or mmp file not fixed when read): " \
-                      "discarding at least one preexisting %r which was not in a DnaGroup" \
-                      % (chunk.parent_node_of_class(DnaStrandOrSegment),)
+                print "dna updater: " \
+                      "will discard preexisting %r which was not in a DnaGroup" \
+                      % (chunk.parent_node_of_class(DnaStrandOrSegment),), \
+                      "(bug or unfixed mmp file)"
             dnaGroup = find_or_make_DnaGroup_for_homeless_object(chunk)
                 # Note: all our chunks will eventually get moved from
                 # whereever they are now into this new DnaGroup.
