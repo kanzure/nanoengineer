@@ -328,7 +328,7 @@ class Group(Node):
         self.addchild( node, top = before_or_top)
         return
 
-    def addchild(self, newchild, _guard_ = 050201, top = False, after = None, before = None): # [renamed from addmember - bruce 050113]
+    def addchild(self, newchild, _guard_ = 050201, top = False, after = None, before = None):
         """
         Add the given node, newchild, to the end (aka. bottom) of this Group's members list,
         or to the specified place (top aka. beginning, or after some child or index,
@@ -352,6 +352,7 @@ class Group(Node):
          but they should treat the mapping from nodes to parts as completely arbitrary,
          except for calling inherit_part to help maintain it.]
         """
+        #bruce 050113 renamed from addmember
         #bruce 050110/050206 updated docstring based on current code
         # Note: Lots of changes implemented at home 050201-050202 but not committed until
         # 050206 (after Alpha out); most dates 050201-050202 below are date of change at home.
@@ -360,9 +361,29 @@ class Group(Node):
         if newchild is None:
             #bruce 050201 comment: sometimes newchild was the number 0,
             # since Group.copy returned that as a failure code!!!
-            # Or it can be None (Jig.copy, or Group.copy after I changed it).
+            # Or it can be None (Jig.copy, or Group.copy after I revised it).
             return
 
+        # check self and newchild are ok and in same assy [bruce 080218]
+        # Note: we can't assert not self.killed() or not newchild.killed(),
+        # since new nodes look killed due to .dad being None (a defect in
+        # current implem of killed? or a misnaming of it, if it really means
+        # "in the model"?). If we try, we fail while making any new Group
+        # with a members list, including assy.root. Should revise Node.killed
+        # to not be true for new nodes, only for killed but not revived ones.
+        ## assert not self.killed(), "self must not be killed in %r.addchild(%r)" % \
+        ##        (self, newchild)
+        # But this should fail for really-killed self or newchild, as long as
+        # we keep setting their assy to None -- but the 2nd one is temporarily
+        # just a debug print, since it fails in DnaDuplex_EditCommand.py when
+        # used with dna updater (need to fix that soon):
+        assert self.assy is not None, "%r has no .assy in addchild" % self
+        ## assert self.assy is newchild.assy, \
+        if not (self.assy is newchild.assy):
+            print "\nBUG***: " \
+               "%r.addchild(%r) assy mismatch: %r is not %r" % \
+               (self, newchild, self.assy, newchild.assy)
+        
         #bruce 050205:
         # adding several safety checks (and related new feature of auto-delmember)
         # for help with MT DND; they're a good idea anyway.

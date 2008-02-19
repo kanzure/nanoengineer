@@ -1005,8 +1005,12 @@ class Node( StateMixin):
         ## changed.dads.record(node) # make sure node's Part will be updated later if needed [bruce 050303]
         assert node.dad is not None #k not sure if good to need this, but seems to fit existing calls... that might change [050205 comment]
             #e if no dad: assy, space, selgroup is None.... or maybe keep prior ones around until new real dad, not sure
-        assert node.assy is node.dad.assy or node.assy is None
-            # bruce 050308, since following assy code & part code has no provision yet for coexisting assemblies
+        assert node.assy is node.dad.assy or node.assy is None, \
+               "node.assy is not node.dad.assy or None: " \
+               "node %r, .assy %r, .dad %r, .dad.assy %r" % \
+               (node, node.assy, node.dad, node.dad.assy )
+            # bruce 050308/080218, since following assy code & part code
+            # has no provision yet for coexisting assemblies
         node.assy = node.dad.assy # this might change soon, or might not... but if it's valid at all, it needs to be propogated down!
             # we leave it like this for now only in case it's ever being used to init the assy field from None.
         #bruce 050308: continually let assigned node.dad.part get inherited by unassigned node.part (recursively)
