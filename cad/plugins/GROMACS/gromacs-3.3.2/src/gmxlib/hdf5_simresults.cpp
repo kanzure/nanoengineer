@@ -115,6 +115,10 @@ void addHDF5inputParameters(const HDF5inputParameters* inputParams) {
 		("GMX.emtol", inputParams->emtol, message);
 	simResults->setFloatParameter
 		("GMX.emstep", inputParams->emstep, message);
+	
+	// Hard-coded for now
+	simResults->setFilePath((const char*)("input.mmp"),
+							(const char*)("input.mmp"), message);
 }
 
 
@@ -224,7 +228,6 @@ void addHDF5atomCoordinates(const float* coordinates, unsigned int atomCount) {
 		return; // Short-circuit
 	
 	std::string message;
-//printf("coords: %g %g %g\n", coordinates[0], coordinates[1], coordinates[2]);
 	int status =
 		simResults->setFrameAtomPositions(HDF5_FRAMESET_NAME, frameIndex,
 										  coordinates, atomCount, message);
