@@ -217,6 +217,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                
         if self.struct is not None and \
            self.struct.dad is self._parentDnaSegment:
+            print "*** in updateHandlePositions"
             
             #axis end atom positions
             axisEnd1, axisEnd2 = \

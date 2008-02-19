@@ -22,7 +22,6 @@ from DebugMenuMixin import DebugMenuMixin
 from PM.PM_Dialog import PM_Dialog
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
-from PM.PM_Constants     import pmCancelButton
 
 class BreakStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
     """
@@ -63,7 +62,6 @@ class BreakStrands_PropertyManager( PM_Dialog, DebugMenuMixin ):
         DebugMenuMixin._init1( self )
 
         self.showTopRowButtons( pmDoneButton | \
-                                pmCancelButton | \
                                 pmWhatsThisButton)
         
         
