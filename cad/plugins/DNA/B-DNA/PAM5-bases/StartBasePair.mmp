@@ -23,10 +23,12 @@ atom 6 (201) (4943, -4610, 0) def
 info atom dnaBaseName = b
 bond1 1
 atom 7 (202) (4562, -7863, -1590) def
+info atom dnaStrandName = Strand2
 bond1 6
 atom 8 (0) (3056, -7221, -2385) def
 bond1 7
 atom 9 (206) (6553, -4306, 795) def
+info atom dnaBaseName = b
 bond1 6
 egroup (StartBasePair)
 end1

@@ -17,6 +17,7 @@ atom 4 (201) (1, 6759, 0) def
 info atom dnaBaseName = a
 bond1 1
 atom 5 (202) (-2637, 8697, 1590) def
+info atom dnaStrandName = Strand1
 bond1 4
 atom 6 (0) (-3195, 7159, 2385) def
 bond1 5
@@ -26,6 +27,7 @@ atom 8 (201) (4942, -4610, 0) def
 info atom dnaBaseName = b
 bond1 1
 atom 9 (202) (4561, -7862, -1590) def
+info atom dnaStrandName = Strand2
 bond1 8
 atom 10 (0) (3055, -7221, -2385) def
 bond1 9
