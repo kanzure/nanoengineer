@@ -57,6 +57,8 @@ from bond_chains import grow_directional_bond_chain
 import global_model_changedicts
 import env
 
+from GlobalPreferences import enablePyrexAtoms
+
 from state_utils import StateMixin
 from changedicts import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False
@@ -79,9 +81,7 @@ BN_GRAPHITIC_BONDLENGTH = 1.446   # page 1650
 # ==
 
 try:
-    if not debug_pref("Enable pyrex atoms next time",
-                      Choice_boolean_False,
-                      prefs_key = True ):
+    if not enablePyrexAtoms():
         raise ImportError
     from atombase import BondSetBase, BondBase
     class BondSet(BondSetBase):
@@ -97,7 +97,10 @@ try:
                 # [bruce 071107 comment]
             return
         pass
-except ImportError:
+    print "Use Pyrex atoms in bonds.py"
+except ImportError, ValueError: # see comment on similar code in chem.py
+    if enablePyrexAtoms():
+        print "Unable to use Pyrex atoms in bonds.py as requested (exception discarded)"
     def BondSet():
         return { }
     class BondBase:

@@ -17,6 +17,15 @@ yet.
 from prefs_constants import permit_atom_chunk_coselection_prefs_key
 from debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
 
+def enablePyrexAtoms(): #bruce 080218
+    """
+    Should we try to import atombase (compiled from atombase.pyx)?
+    """
+    res = debug_pref("Enable pyrex atoms next time",
+                     Choice_boolean_False,
+                     prefs_key = True)
+    return res
+
 # bruce 060721; intended to become constant True for A9
 def permit_atom_chunk_coselection():
     res = debug_pref("permit atom/chunk coselection?",
@@ -40,6 +49,8 @@ def disable_do_not_draw_open_bonds():
                      Choice_boolean_False,
                      prefs_key = True)
     return res
+
+# ==
 
 DEBUG_BAREMOTION = False #bruce 080129, for bug 2606; should be disabled for commits
 
