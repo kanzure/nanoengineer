@@ -221,6 +221,28 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             self.previousParams = self._gatherParameters()
             self._updateHandleList()
             self.updateHandlePositions()
+    
+    def hasValidStructure(self):
+        """
+        Tells the caller if this edit command has a valid structure. This method
+        is overridden in subclasses. 
+        @see: DnaSegment_EditCommand.hasValidStructure() 
+        """
+        #(By Bruce 2008-02-13)
+        
+        if self.struct is None:
+            return False
+                
+        if self.struct.killed(): # (bruce080213: can this happen?)
+            return False
+        
+        if not isinstance(self.struct, DnaSegment): 
+            return False    
+        
+        # would like to check here whether it's empty of axis chunks;
+        # instead, this will do for now (probably too slow, though):
+        p1, p2 = self.struct.getAxisEndPoints()
+        return (p1 is not None)
 
     def _updateHandleList(self):
         """        

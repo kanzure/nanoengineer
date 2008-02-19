@@ -392,30 +392,13 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         if self._handleDrawingRequested:
             self._drawHandles()     
         _superclass.Draw(self)
-
-    def _command_struct_is_valid(self):
-        # bruce 080213; if kept, probably belongs in the command object
-        # (Ninad, feel free to edit this however you want, remove comments, etc --
-        #  the comments are just for your review)
-        """
-        Is self.command.struct valid for drawing handles for, editing, etc?
-        """
-        struct = self.command.struct
-        if not isinstance(struct, DnaSegment): # (this was checked in the older code)
-            return False
-        if self.command.struct.killed(): # (can this happen?)
-            return False
-        # would like to check here whether it's empty of axis chunks;
-        # instead, this will do for now (probably too slow, though):
-        p1, p2 = struct.getAxisEndPoints()
-        return (p1 is not None)
               
     def _drawHandles(self):
         """
         Draw the handles for the command.struct 
         """    
         if self.command and self.command.struct:
-            if self._command_struct_is_valid():
+            if self.command.hasValidStructure():
                 for handle in self.command.handles:
                     handle.draw()
         
