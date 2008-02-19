@@ -862,7 +862,13 @@ time_t do_cg(FILE *log,int nfile,t_filenm fnm[],
   /* Only write the trajectory if we didn't do it last step */
   fp_trn = write_traj(log,cr,trajFileName,
 		      nsb,step,(real)step,
-		      lambda,nrnb,nsb->natoms,!do_x ? state->x : NULL ,NULL,!do_f ? f : NULL,state->box, top);
+		      lambda,nrnb,nsb->natoms,
+
+			  // Always write the coordinates for HDF5 files.
+			  !do_x || (fn2ftp(trajFileName) == efNH5) ? state->x : NULL,
+			  //!do_x ? state->x : NULL,
+
+			  NULL,!do_f ? f : NULL,state->box, top);
   
   // Write results data to the HDF5 data store
   if (fn2ftp(trajFileName) == efNH5) {	  	  
