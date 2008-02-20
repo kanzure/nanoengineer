@@ -63,6 +63,17 @@ from CommandToolbar_Constants import cmdTbarCmdAreaBtnColor
 
 from PM.PM_Colors import getPalette
 
+#debug flag for bug 2633 (in Qt4.3 all control area buttons collapse into a 
+#single button. The following flag, if True, sets the controlarea as a 
+#QWidget instead of a QToolbar. As of 2008-02-20, we are not using any of the 
+#QToolbar features to make the control area a Qtoolbar. (In future we will 
+#use some features such as adding new actions to the toolbar or autohiding 
+#actions/ items that don't fit the specified width (accessible via '>>' 
+#indicator). The command toolbar code is likely to be revised post FNANO08
+#that time, this can be cleaned up further. Till then, the default 
+#implementation will use controlarea as a QWidget object instead of QToolbar 
+DEFINE_CONTROL_AREA_AS_A_QWIDGET = True
+
 class Ui_CommandToolbar( QWidget ):
     """ 
     This provides most of the User Interface for the command toolbar 
@@ -89,13 +100,18 @@ class Ui_CommandToolbar( QWidget ):
         #I have set the vertical policy as fixed. Works fine. There are some 
         # MainWindow resizing problems for but those are not due to this 
         #size policy AFAIK        
-        self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
                 
         layout_cmdtoolbar = QHBoxLayout(self)
         layout_cmdtoolbar.setMargin(2)
         layout_cmdtoolbar.setSpacing(2)
-                                    
-        self.cmdToolbarControlArea = QToolBar_WikiHelp(self)             
+        
+        #See comment at the top for details about this flag
+        if DEFINE_CONTROL_AREA_AS_A_QWIDGET:
+            self.cmdToolbarControlArea = QWidget(self)    
+        else:
+            self.cmdToolbarControlArea = QToolBar_WikiHelp(self)
+            
         self.cmdToolbarControlArea.setAutoFillBackground(True)
                 
         self.ctrlAreaPalette = self.getCmdMgrCtrlAreaPalette()  
@@ -105,6 +121,12 @@ class Ui_CommandToolbar( QWidget ):
         self.cmdToolbarControlArea.setMinimumWidth(310)
         self.cmdToolbarControlArea.setSizePolicy(QSizePolicy.Fixed, 
                                                  QSizePolicy.Fixed)  
+        
+        #See comment at the top for details about this flag
+        if DEFINE_CONTROL_AREA_AS_A_QWIDGET:
+            layout_controlArea = QHBoxLayout(self.cmdToolbarControlArea)
+            layout_controlArea.setMargin(0)
+            layout_controlArea.setSpacing(0)
         
         self.cmdButtonGroup = QButtonGroup()    
         btn_index = 0
@@ -125,13 +147,15 @@ class Ui_CommandToolbar( QWidget ):
             btn.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
             btn.setPalette(self.ctrlAreaPalette)
             self.cmdButtonGroup.addButton(btn, btn_index)
-            btn_index += 1           
-            self.cmdToolbarControlArea.layout().addWidget(btn)
-            
-            #following has issues. so not adding widget directly to the 
-            #toolbar. (instead adding it in its layout)-- ninad 070124 
-            
-            #self.cmdToolbarControlArea.addWidget(btn)      
+            btn_index += 1        
+            #See comment at the top for details about this flag
+            if DEFINE_CONTROL_AREA_AS_A_QWIDGET:
+                layout_controlArea.addWidget(btn)
+            else:
+                self.cmdToolbarControlArea.layout().addWidget(btn)                
+                #following has issues. so not adding widget directly to the 
+                #toolbar. (instead adding it in its layout)-- ninad 070124
+                ##self.cmdToolbarControlArea.addWidget(btn)      
         
         layout_cmdtoolbar.addWidget(self.cmdToolbarControlArea) 
         
@@ -286,10 +310,18 @@ class Ui_CommandToolbar( QWidget ):
         """ Return a palette for Command Manager control area 
         (Palette for Tool Buttons in command toolbar control area)
         """
-        return getPalette(None,
-                          QPalette.Button,
-                          cmdTbarCntrlAreaBtnColor
-                          )
+        #See comment at the top for details about this flag
+        if DEFINE_CONTROL_AREA_AS_A_QWIDGET:
+            return getPalette(None,
+                              QPalette.Window,
+                              cmdTbarCntrlAreaBtnColor
+                              )
+        else:
+            return getPalette(None,
+                              QPalette.Button,
+                              cmdTbarCntrlAreaBtnColor
+                              )
+            
     
     def getCmdMgrSubCtrlAreaPalette(self):
         """ Return a palette for Command Manager sub control area 
