@@ -56,7 +56,7 @@ bruce 050803 new features to help with graphics updates when preferences are cha
 bruce 050913 converted most or all remaining uses of win.history to env.history,
 and officially deprecated win.history.
 
-bruce 080219 split glselect_name_dict.py out of env.py so we can make it per-assy.
+bruce 080220 split glselect_name_dict.py out of env.py so we can make it per-assy.
 """
 
 _mainWindow = None
@@ -284,8 +284,12 @@ def change_counter_for_changed_objects():
 
 # temporary compatibility functions
 
-# [bruce 080219 split out the originals, and will remove these soon,
-#  replacing them with per-assy instances of glselect_name_dict]
+# [bruce 080220 split out the originals, and will remove these soon,
+#  replacing them with per-assy instances of glselect_name_dict;
+#  as an intermediate state, this one is shared by each assy,
+#  so code can be incrementally switched to access it through assy
+#  or glpane; when all code does that, these will be removed
+#  and each assy will make its own glselect_name_dict.]
 
 from glselect_name_dict import glselect_name_dict
 

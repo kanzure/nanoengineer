@@ -8,7 +8,7 @@ glselect_name_dict.py - allocate GL_SELECT names and record their owners.
 
 History:
 
-bruce 080219 split this out of env.py so we can make it per-assy.
+bruce 080220 split this out of env.py so we can make it per-assy.
 """
 
 _last_glselect_name = 0
@@ -44,7 +44,9 @@ class glselect_name_dict(object):
     """
     def __init__(self):
         self.obj_with_glselect_name = {} # public for lookup
-            ###e this needs to be made weak-valued ASAP! (or, call destroy methods to dealloc) ###@@@
+            # [Note: we might make this private
+            #  when access from env.py is no longer needed]
+            # TODO: clear this when destroying the assy which owns self
     
     def alloc_my_glselect_name(self, obj):
         """
@@ -54,36 +56,47 @@ class glselect_name_dict(object):
         
         @see: Selobj_API
         """
-        name = _new_glselect_name()
-        self.obj_with_glselect_name[name] = obj
-        return name
+        glname = _new_glselect_name()
+        self.obj_with_glselect_name[glname] = obj
+        return glname
 
-    # Maybe todo: add methods for temporarily removing name from dict (without deallocating it)
+    def object_for_glselect_name(self, glname):
+        """
+        #doc [todo: get material from docstring of same method in assembly.py]
+        """
+        return self.obj_with_glselect_name.get( glname)
+
+    # Maybe todo: add methods for temporarily removing glname from dict (without deallocating it)
     # and for restoring it, so killed objects needn't have names in the dict.
     # This would mean we needn't remove the name when destroying a killed object,
     # thus, needn't find the object at all. But when this class is per-assy, there
     # won't be a need for that when destroying an entire assy, so it might not be
     # needed at all.
     
-    def dealloc_my_glselect_name(self, obj, name):
+    def dealloc_my_glselect_name(self, obj, glname):
         """
-        #doc
+        #doc [todo: get material from docstring of same method in assembly.py]
 
+        @note: the glname arg is permitted to be 0 or None, in which case we
+               do nothing, to make it easier for callers to implement repeatable
+               destroy methods which forget their glname, or work if they never
+               allocated one yet. (Note that this is only ok because we never
+               allocate a glname of 0.)
+               
         @see: Selobj_API
         """
-        # objs have to pass the name, since we don't know where they keep it and don't want to have to keep a reverse dict;
+        # objs have to pass the glname, since we don't know where they keep it and don't want to have to keep a reverse dict;
         # but we make sure they own it before zapping it!
         #e this function could be dispensed with if our dict was weak, but maybe it's useful for other reasons too, who knows
-        if not name:
-            # make repeated destroy methods easier to implement; ok since we never allocate a name of 0
+        if not glname:
             return
-        obj1 = self.obj_with_glselect_name.get(name)
+        obj1 = self.obj_with_glselect_name.get(glname)
         if obj1 is obj:
-            del self.obj_with_glselect_name[name]
+            del self.obj_with_glselect_name[glname]
     ##    elif obj1 is None:
-    ##        pass # repeated destroy should be legal, and might call this (unlikely, since obj would not know name -- hmm... ok, zap it)
+    ##        pass # repeated destroy should be legal, and might call this (unlikely, since obj would not know glname -- hmm... ok, zap it)
         else:
-            print "bug: dealloc_my_glselect_name(obj, name) mismatch for name %r: real owner is %r, not" % (name, obj1), obj
+            print "bug: dealloc_my_glselect_name(obj, glname) mismatch for glname %r: real owner is %r, not" % (glname, obj1), obj
                 # print obj separately in case of exceptions in its repr
         return
 

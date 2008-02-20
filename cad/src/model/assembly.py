@@ -362,10 +362,14 @@ class assembly( StateMixin, Assembly_API):
         assert self.tree.node_depth() == 1
         assert self.shelf.node_depth() == 1
 
+        self._init_glselect_name_dict()
+
         self.assy_valid = True
         
         return # from assembly.__init__
 
+    # ==
+    
     def set_glpane(self, glpane): #bruce 080216
         self.o = glpane # historical name for our glpane, widely used
         self.glpane = glpane # clearer name, added 080216
@@ -394,6 +398,58 @@ class assembly( StateMixin, Assembly_API):
             self.undo_manager.deinit()
             #e more? forget self.w?? maybe someday, in case someone uses it now who should be using env.mainwindow()
         return
+
+    # ==
+
+    _glselect_name_dict = None # in case of access before init
+    
+    def _init_glselect_name_dict(self): #bruce 080220
+        if 0:
+            # use this code as soon as all users of env.py *glselect_name funcs/attrs
+            # are replaced with calls of our replacement methods below. [bruce 080220]
+            from glselect_name_dict import glselect_name_dict
+            self._glselect_name_dict = glselect_name_dict()
+            # todo: clear this when we are destroyed, and make sure accesses to it
+            # either never happen or don't mind not finding an object for a name.
+        else:
+            # use the global one in env.py, until we are able to use the above code
+            # and can remove the one in env.py and its access functions/attrs.
+            self._glselect_name_dict = env._shared_glselect_name_dict
+        return
+
+    def alloc_my_glselect_name(self, obj): #bruce 080220
+        """
+        Allocate a GL_SELECT name for obj to pass to glPushName
+        during its OpenGL drawing, and record obj as its owner
+        for purposes of hit-testing by our GLPane.
+        
+        @see: glselect_name_dict.alloc_my_glselect_name for details.
+        @see: our method dealloc_my_glselect_name
+        """
+        return self._glselect_name_dict.alloc_my_glselect_name(obj)
+    
+    def dealloc_my_glselect_name(self, obj, name): #bruce 080220
+        """
+        Deallocate the GL_SELECT name which was allocated for obj
+        using self.alloc_my_glselect_name.
+        
+        @see: glselect_name_dict.dealloc_my_glselect_name for details.
+        """
+        return self._glselect_name_dict.dealloc_my_glselect_name(obj, name)
+
+    def object_for_glselect_name(self, name): #bruce 080220
+        """
+        Look up the owning object for a GL_SELECT name
+        which was allocated for obj using self.alloc_my_glselect_name.
+
+        @return: the object we find, or None if none is found.
+        
+        @see: glselect_name_dict.obj_with_glselect_name (attr) for details.
+        """
+        # (I don't know if the following test for self._glselect_name_dict
+        #  already existing is needed.)
+        return self._glselect_name_dict and \
+               self._glselect_name_dict.object_for_glselect_name(name)
 
     # ==
 
