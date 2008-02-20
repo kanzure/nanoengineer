@@ -472,8 +472,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # selectAtomsMode will not hover highlight objects under the cursor. mark 060404
 
         # [bruce 050608]
-        self.glselect_dict = {} # only used within individual runs
-            # see also env.obj_with_glselect_name
+        self.glselect_dict = {} # only used within individual runs [of what? paintGL I guess?]
+            # see also self.object_for_glselect_name()
+            # (which replaces env.obj_with_glselect_name[] as of 080220)
 
         self._last_few_repaint_times = []
             # repaint times will be appended to this,
@@ -3265,7 +3266,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                         print "%d(g) partial workaround for bug 1527: removing 0 from end of namestack:" % env.redraw_counter, names
                         names = names[:-1]
 ##                        if names:
-##                            print " new last element maps to %r" % env.obj_with_glselect_name.get(names[-1])
+##                            print " new last element maps to %r" % self.object_for_glselect_name(names[-1])
                 if names:
                     # for now, len is always 0 or 1, i think; if not, best to use only the last element...
                     # tho if we ever support "name/subname paths" we'll probably let first name interpret the remaining ones.
@@ -3277,7 +3278,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
                                 print "debug (once-per-session message): why are some glnames duplicated on the namestack?",names
                         else:
                             print "debug fyi: len(names) == %d (names = %r)" % (len(names), names)
-                    obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
+                    obj = self.object_for_glselect_name(names[-1]) #k should always return an obj
                     if obj is None:
                         print "bug: obj_with_glselect_name returns None for name %r at end of namestack %r" % (names[-1],names)
                     self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
@@ -3285,6 +3286,11 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # (or this could be done lower down, where it's used.)
 
         return # from do_glselect_if_wanted
+
+    def object_for_glselect_name(self, glname): #bruce 080220
+        """
+        """
+        return self.assy.object_for_glselect_name(glname)
 
     def draw_highlighted_objectUnderMouse(self, selobj, hicolor): #bruce 070920 split this out
         """
