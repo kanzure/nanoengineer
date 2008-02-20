@@ -435,6 +435,27 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     _s_attr_bonds = S_CHILDREN
 
     _s_attr_molecule = S_PARENT # note: most direct sets of self.molecule are in chunk.py
+        # note: self.molecule is initially None. Later it's self's chunk.
+        # If self is then killed, it's _nullMol. Some buglike behavior might effectively
+        # kill or never-make-fully-alive self's chunk, without removing self from it
+        # (especially in nonstandardly-handled assys like the ones for the partlib).
+        # Finally, undoing to before self was created will cause its .molecule to become None again.
+        # In that state there is no direct way to figure out self's assy,
+        # but it might have one, since it might be in its undo_archive and be able
+        # to come back to life that way, by Redo. Or the redo stack might get cleared,
+        # but self might still be listed in some dicts in that undo_archive (not sure),
+        # and maybe in various global dicts (changedicts, glname dict, dna updater error dict, etc).
+        # This makes it hard to destroy self and all its storage, when self's assy is destroyed.
+        # To fix this, we might keep a dict in assy of all atoms ever in it (via chunk.addatom and its inlinings)
+        # and/or keep a permanent _assy field in self. Not yet decided. Making _nullMol per-assy
+        # would not help unless we can always use it rather than None, but that's hard because
+        # atoms initially don't know assy, and Undo probably assumes the initial state of .molecule
+        # is None. So a lot of code would need analysis to fix that, whereas a new one-purpose
+        # system to know self's assy would be simpler. But it takes RAM and might not really be needed.
+        # The main potential need is to handle atoms found in changedicts with .molecule of None or _nullMol,
+        # to ask their assy if it's destroyed (updater should ignore atom) or not (updater should handle
+        # atom if it handles killed atoms). But do updaters ever need to handle killed atoms?
+        # [bruce 080219 comment]
 
     assert ATOM_CHUNK_ATTRIBUTE_NAME == 'molecule'
         # must match this _s_attr_molecule decl attr name,
@@ -604,6 +625,11 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # (note that the assembly is not explicitly stored
         #  and that the index is only set later by methods in the molecule)
         self.molecule = None # checked/replaced by mol.addatom
+            # Note: for info about what self.molecule is set to
+            # when it's not self's chunk, see the long comment below the
+            # undo declaration for the .molecule attribute
+            # (i.e. the assignment of class attr _s_attr_molecule, above).
+            # [bruce 080219 comment]
         if mol is not None:
             mol.addatom(self)
         else:
@@ -614,6 +640,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         ## if debug_flags.atom_debug:
         ##     self._source = compact_stack()
         self.set_atomtype_but_dont_revise_singlets( atype)
+
         return # from Atom.__init__
 
     def _undo_aliveQ(self, archive): #bruce 060406
