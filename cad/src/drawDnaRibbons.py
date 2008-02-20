@@ -33,13 +33,28 @@ from drawer import drawsphere
 
 from geometry.VQT import norm, vlen, V, cross
 from constants import white
+from constants import diBALL, diTrueCPK, diTUBES, diLINES
+
+
+#Constants for drawing the ribbon points as spheres.
+SPHERE_RADIUS = 1.0
+SPHERE_DRAWLEVEL = 2
+SPHERE_OPACITY = 1.0
+
+#Constants for drawing the second axis end point (as a sphere). 
+AXIS_ENDPOINT_SPHERE_COLOR = white
+AXIS_ENDPOINT_SPHERE_RADIUS = 1.0
+AXIS_ENDPOINT_SPHERE_DRAWLEVEL = 2
+AXIS_ENDPOINT_SPHERE_OPACITY = 0.5
+    
 
 def drawDnaRibbons(endCenter1,  
                    endCenter2,
                    basesPerTurn,
                    duplexRise, 
-                   glpaneScale,
+                   glpaneScale,                   
                    lineOfSightVector,
+                   displayStyle,
                    peakDeviationFromCenter = 9.5,
                    ribbonThickness = 2.0,
                    ribbon1Color = None, 
@@ -63,6 +78,10 @@ def drawDnaRibbons(endCenter1,
     @param lineOfSightVector: Glpane lineOfSight vector, used to compute the 
                               the vector along the ladder step. 
     @type: B{V}    
+    @param displayStyle: Rubberband display style (specified as an integer)
+                         see comment in the method below. 
+                         See also GLpane.displayStyle.
+    @type  displayStyle: int
     @param peakDeviationFromCenter: Distance of a peak from the axis 
                                     Also known as 'Amplitude' of a sine wave. 
     @type peakDeviationFromCenter: float
@@ -80,6 +99,32 @@ def drawDnaRibbons(endCenter1,
          drawRibbon2 / strand2 etc. 
       - Further optimization / refactoring (low priority) 
     """
+    
+    #Try to match the rubberband display style as closely as possible to 
+    #either the glapan's current display or the chunk display of the segment 
+    #being edited. The caller should do the job of specifying the display style
+    #it desires. As of 2008-02-20, this method only supports following display 
+    #styles --Tubes, Ball and Stick, CPK and lines. the sphere radius 
+    #for ball and stick or CPK is calculated approximately. 
+    
+    if displayStyle == diTrueCPK:
+        SPHERE_RADIUS = 3.5
+        ribbonThickness = 2.0
+    elif displayStyle == diTUBES:
+        SPHERE_RADIUS = 0.01
+        ribbonThickness = 2.0
+    elif displayStyle == diLINES:
+        #Lines display and all other unsupported display styles
+        SPHERE_RADIUS = 0.01
+        ribbonThickness = 1.0
+    else:
+        #ball and stick display style. All other unsupported displays 
+        #will be rendered in ball and stick display style
+        SPHERE_RADIUS = 1.0
+        ribbonThickness = 2.0
+        
+        
+        
     ribbonLength = vlen(endCenter1 - endCenter2)
     
     #Don't draw the vertical line (step) passing through the startpoint unless 
@@ -149,16 +194,7 @@ def drawDnaRibbons(endCenter1,
     ribbon2_point = pointOnAxis - amplitudeVector * sin(theta_ribbon_2) - \
                                       depthVector * cos(theta_ribbon_2)
     
-    #Constants for drawing the ribbon points as spheres.
-    SPHERE_RADIUS = 1.0
-    SPHERE_DRAWLEVEL = 2
-    SPHERE_OPACITY = 1.0
     
-    #Constants for drawing the second axis end point (as a sphere). 
-    AXIS_ENDPOINT_SPHERE_COLOR = white
-    AXIS_ENDPOINT_SPHERE_RADIUS = 1.0
-    AXIS_ENDPOINT_SPHERE_DRAWLEVEL = 2
-    AXIS_ENDPOINT_SPHERE_OPACITY = 0.5
     
     while x < ribbonLength:          
         #Draw the axis point.
@@ -175,6 +211,7 @@ def drawDnaRibbons(endCenter1,
                                           depthVector * cos(theta_ribbon_1)
         ribbon2_point = pointOnAxis - amplitudeVector * sin(theta_ribbon_2) - \
                                           depthVector * cos(theta_ribbon_2)
+        
         
         #Use previous_ribbon1_point and not ribbon1_point. This ensures that 
         # the 'last point' on ribbon1 is not drawn as a sphere but is drawn as 

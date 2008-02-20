@@ -223,14 +223,20 @@ class DnaDuplex_EditCommand(EditCommand):
         
         self.preview_or_finalize_structure(previewing = True)
         
-        #Unpick the dna segments created earlier (while this command was still 
-        #running. )
+        #Unpick the dna segments (while this command was still 
+        #running. ) This is necessary , so that when you strat drawing 
+        #rubberband line, it matches the display style of the glpane. 
+        #If something was selected, and while in DnaLineMode you changed the
+        #display style, it will be applied only to the selected chunk. 
+        #(and the glpane's display style will not change. This , in turn 
+        #won't change the display of the rubberband line being drawn. 
+        #Another bug: What if something else in the glpane is selected? 
+        #complete fix would be to call unpick_all_in_the_glpane. But 
+        #that itself is undesirable. Okay for now -- Ninad 2008-02-20
         for segment in self._segmentList:
             segment.unpick()
             
-        #Select the newly created structure
-        self.struct.pick()    
-        
+                
         #set some properties such as duplexRise and number of bases per turn
         #This information will be stored on the DnaSegment object so that
         #it can be retrieved while editing this object. Its a temporary 

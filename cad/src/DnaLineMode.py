@@ -132,6 +132,7 @@ class DnaLine_GM( LineMode.GraphicsMode_class ):
                                self.command.duplexRise,
                                self.glpane.scale,
                                self.glpane.lineOfSight,
+                               self.glpane.displayMode,
                                ribbonThickness = 4.0,
                                ribbon1Color = darkred,
                                ribbon2Color = blue,

@@ -432,13 +432,21 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             # much easier to fix once the DNA updater/data model is 
             # implemented (soon), so let's wait until then. Mark 2008-02-10.
             basesPerTurn = env.prefs[bdnaBasesPerTurn_prefs_key]
-        
+            
+            #Note: The displayStyle argument for the rubberband line should 
+            #really be obtained from self.command.struct. But the struct 
+            #is a DnaSegment (a Group) and doesn't have attr 'display'
+            #Should we then obtain this information from one of its strandChunks?
+            #but what if two strand chunks and axis chunk are rendered 
+            #in different display styles? since situation may vary, lets 
+            #use self.glpane.displayMode for rubberbandline displayMode
             drawDnaRibbons(self.command.grabbedHandle.fixedEndOfStructure,
                            self.command.grabbedHandle.currentPosition,
                            basesPerTurn,
                            self.command.duplexRise,
                            self.glpane.scale,
                            self.glpane.lineOfSight,
+                           self.glpane.displayMode,
                            ribbonThickness = 4.0,
                            ribbon1Color = darkred,
                            ribbon2Color = blue,
