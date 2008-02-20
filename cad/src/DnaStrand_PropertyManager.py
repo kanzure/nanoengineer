@@ -22,6 +22,8 @@ from EditCommand_PM import EditCommand_PM
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton
+from PM.PM_LineEdit      import PM_LineEdit
+from PM.PM_GroupBox      import PM_GroupBox
 
 
 class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
@@ -72,11 +74,23 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self._loadSequenceEditor()
     
-    def _addGroupBoxes(self):
+    def _addGroupBoxes( self ):
         """
-        Add group boxes to this property manager
+        Add the DNA Property Manager group boxes.
+        """        
+                
+        self._pmGroupBox1 = PM_GroupBox( self, title = "Parameters" )
+        self._loadGroupBox1( self._pmGroupBox1 )
+    
+    def _loadGroupBox1(self, pmGroupBox):
         """
-        pass
+        Load widgets in group box 4.
+        """
+        
+        self.nameLineEdit = PM_LineEdit( pmGroupBox,
+                         label         =  "Strand name ",
+                         text          =  "",
+                         setAsDefault  =  False)
     
             
     def _loadSequenceEditor(self):
@@ -150,9 +164,32 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Show this PM 
         As of 2007-11-20, it also shows the Sequence Editor widget and hides 
         the history widget. This implementation may change in the near future
+        This method also retrives the name information from the 
+        editCommand's structure for its name line edit field. 
+        @see: DnaStrand_EditCommand.getStructureName()
+        @see: self.close()
         """
         EditCommand_PM.show(self) 
         self._showSequenceEditor()
+        if self.editCommand is not None:
+            name = self.editCommand.getStructureName()
+            if name is not None:
+                self.nameLineEdit.setText(name)
+                
+    
+    def close(self):
+        """
+        Close this property manager. 
+        Also sets the name of the self.editCommand's structure to the one 
+        displayed in the line edit field.
+        @see self.show()
+        @see: DnaSegment_EditCommand.setStructureName
+        """
+        if self.editCommand is not None:
+            name = str(self.nameLineEdit.text())
+            self.editCommand.setStructureName(name)
+            
+        EditCommand_PM.close(self)
             
     def _showSequenceEditor(self):
         if self.sequenceEditor:

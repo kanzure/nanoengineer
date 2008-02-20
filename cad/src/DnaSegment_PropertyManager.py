@@ -60,9 +60,7 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         self.endPoint1 = V(0, 0, 0)
         self.endPoint2 = V(0, 0, 0)
-        
-        
-        
+                
         self._numberOfBases = 0 
         self._conformation = 'B-DNA'
         self.duplexRise = 3.18
@@ -97,7 +95,34 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect( self.numberOfBasePairsSpinBox,
                       SIGNAL("valueChanged(int)"),
                       self.numberOfBasesChanged )
-        
+    
+    def show(self):
+        """
+        Show this property manager. Overrides EditCommand_PM.show()
+        This method also retrives the name information from the 
+        editCommand's structure for its name line edit field. 
+        @see: DnaSegment_EditCommand.getStructureName()
+        @see: self.close()
+        """
+        EditCommand_PM.show(self)
+        if self.editCommand is not None:
+            name = self.editCommand.getStructureName()
+            if name is not None:
+                self.nameLineEdit.setText(name)
+            
+    
+    def close(self):
+        """
+        Close this property manager. 
+        Also sets the name of the self.editCommand's structure to the one 
+        displayed in the line edit field.
+        @see self.show()
+        @see: DnaSegment_EditCommand.setStructureName
+        """
+        if self.editCommand is not None:
+            name = str(self.nameLineEdit.text())
+            self.editCommand.setStructureName(name)
+        EditCommand_PM.close(self)
 
     def getParameters(self):
         """
@@ -166,6 +191,10 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Load widgets in group box 4.
         """
         
+        self.nameLineEdit = PM_LineEdit( pmGroupBox,
+                         label         =  "Segment name ",
+                         text          =  "",
+                         setAsDefault  =  False)
                                                    
         # Strand Length (i.e. the number of bases)
         self.numberOfBasePairsSpinBox = \

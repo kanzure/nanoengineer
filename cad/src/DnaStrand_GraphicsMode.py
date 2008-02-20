@@ -37,7 +37,10 @@ class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         if self.command and self.command.handles:
             if not self._handleDrawingRequested:
                 self._handleDrawingRequested = True
-                    
+        
+        #@see: comment in DnaSegment_GraphicsMode.leftUp on why the following 
+        #doesn't call command.preview_finialize_structure before calling 
+        #command.Done()
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.command.Done()
     

@@ -228,7 +228,18 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
             if not self._handleDrawingRequested:
                 self._handleDrawingRequested = True
                     
-        if self.cursor_over_when_LMB_pressed == 'Empty Space':
+        if self.cursor_over_when_LMB_pressed == 'Empty Space':   
+            #Exit this command by directly calling command.Done. 
+            #This skips call of command.preview_or_finalize_structure
+            #Not calling 'preview_or_finialize_structure before calling 
+            #command.Done(), has an advantage. As of 2008-02-20, we
+            #remove the structure (segment) and recreate it upon done. 
+            #This also removes, for instance, any cross overs you created 
+            #earlier. although same thing happens when you hit 'Done button', 
+            #it is likely to happen by accident while you are in segment edit 
+            #mode and just click on empty space, Therefore, we simply call 
+            #Command.Done(). See a related bug mentioned in 
+            #DnaSegment_EditCommand.setStructureName
             self.command.Done()
 
 

@@ -31,6 +31,7 @@ from exprs.Exprs import norm_Expr
 from prefs_widgets import ObjAttr_StateRef
 from exprs.ExprsConstants import Width, Point
 
+from chunk import Chunk
 
 from DnaStrand_GraphicsMode import DnaStrand_GraphicsMode
 from DnaStrand_ResizeHandle import DnaStrand_ResizeHandle
@@ -179,6 +180,36 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         """    
         pass
     
+    def getStructureName(self):
+        """
+        Returns the name string of self.struct if there is a valid structure. 
+        Otherwise returns None. This information is used by the name edit field 
+        of  this command's PM when we call self.propMgr.show()
+        @see: DnaStrand_PropertyManager.show()        
+        @see: self.setStructureName
+        """
+        if self.hasValidStructure():
+            return self.struct.name
+        else:
+            return None
+        
+    def setStructureName(self, name):
+        """
+        Sets the name of self.struct to param <name> (if there is a valid 
+        structure. 
+        The PM of this command callss this method while closing itself 
+        @param name: name of the structure to be set.
+        @type name: string
+        @see: DnaStrand_PropertyManager.close()
+        @see: self.getStructureName()
+        @see: DnaSegment_GraphicsMode.leftUp , 
+              DnaSegment_editCommand.setStructureName for comments about some 
+              issues.         
+        """
+               
+        if self.hasValidStructure():
+            self.struct.name = name
+    
     def editStructure(self, struct = None):
         """
         Edit the structure 
@@ -193,6 +224,23 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                 
             self._updateHandleList()
             self.updateHandlePositions()
+    
+    def hasValidStructure(self):
+        """
+        Tells the caller if this edit command has a valid structure. 
+        Overrides EditCommand.hasValidStructure()
+        """
+        
+        if self.struct is None:
+            return False
+                
+        if self.struct.killed(): # (bruce080213: can this happen?)
+            return False
+        
+        if isinstance(self.struct, Chunk) and self.struct.isStrandChunk(): 
+            return True
+        
+        return False
 
     def _updateHandleList(self):
         """        

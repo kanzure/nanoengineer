@@ -312,6 +312,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """     
         return self.propMgr.getParameters()
 
+
     def _createStructure(self):
         """
         Creates and returns the structure (in this case a L{Group} object that 
@@ -460,7 +461,43 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #None. For now lets just print a warning if parentDnaGroup is None 
             self._parentDnaGroup.addSegment(self.struct)
         return  
- 
+    
+    def getStructureName(self):
+        """
+        Returns the name string of self.struct if there is a valid structure. 
+        Otherwise returns None. This information is used by the name edit field 
+        of  this command's PM when we call self.propMgr.show()
+        @see: DnaSegment_PropertyManager.show()
+        @see: self.setStructureName
+        """
+        if self.hasValidStructure():
+            return self.struct.name
+        else:
+            return None
+        
+    def setStructureName(self, name):
+        """
+        Sets the name of self.struct to param <name> (if there is a valid 
+        structure. 
+        The PM of this command callss this method while closing itself 
+        @param name: name of the structure to be set.
+        @type name: string
+        @see: DnaSegment_PropertyManager.close()
+        @see: self.getStructureName()
+        
+        """
+        #@BUG: We call this method in self.propMgr.close(). But propMgr.close() 
+              #is called even when the command is 'cancelled'. That means the 
+              #structure will get changed even when user hits cancel button or
+              #exits the command by clicking on empty space. 
+              #This should really be done in self._finalizeStructure but that 
+              #method doesn't get called when you click on empty space to exit 
+              #the command. See DnaSegment_GraphicsMode.leftUp for a detailed 
+              #comment. 
+               
+        if self.hasValidStructure():
+            self.struct.name = name
+
     def getCursorText(self):
         """
         This is used as a callback method in DnaLine mode 
