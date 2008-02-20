@@ -857,16 +857,16 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # check atom-atom bonds
         for b in self.externs[:]:
             #e should this loop body be a bond method??
-            m1 = b.atom1.molecule # one of m1,m2 is self but we won't bother finding out which
+            m1 = b.atom1.molecule # one of m1, m2 is self but we won't bother finding out which
             m2 = b.atom2.molecule
             try:
                 bad = (m1.part is not m2.part)
             except: # bruce 060411 bug-safety
                 if m1 is None:
-                    m1 = b.atom1.molecule = get_nullMol()
+                    m1 = b.atom1.molecule = _get_nullMol()
                     print "bug: %r.atom1.molecule was None (changing it to _nullMol)" % b
                 if m2 is None:
-                    m2 = b.atom2.molecule = get_nullMol()
+                    m2 = b.atom2.molecule = _get_nullMol()
                     print "bug: %r.atom2.molecule was None (changing it to _nullMol)" % b
                 bad = True
             if bad:
@@ -1049,7 +1049,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # make atom independent of self
         assert atm.molecule is self
         atm.index = -1 # illegal value
-        # inlined get_nullMol:
+        # inlined _get_nullMol:
         global _nullMol
         if _nullMol is None:
             # this caused a bus error when done right after class Chunk
@@ -3256,7 +3256,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 # So we do it when first needed, in delatom, instead. [bruce 041116]
 ## _nullMol = Chunk("<not an assembly>")
 
-def get_nullMol():
+def _get_nullMol():
     """
     return _nullMol, after making sure it's initialized
     """
