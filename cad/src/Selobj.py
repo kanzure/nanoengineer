@@ -141,8 +141,10 @@ class Selobj_API:
 # methods desired by glpane for analyzing hits, responding to them
 
 # - object.glname (?)
+#    [note, not really a public attribute; e.g. class Atom made it private
+#     and introduced get_glname method on 080220]
 # - and the env table for glname to object -- in future that goes to first kind of obj,
-#  it returns 2nd kind
+#  it returns 2nd kind [note: being moved from env to assy as of bruce 080220]
 #   (and does glpane need to remember more than just one selobj it returns??)
 
 # and by mode for passing on events:

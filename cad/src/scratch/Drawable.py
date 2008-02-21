@@ -58,6 +58,9 @@ class Drawable(Selobj_API):
     win out in terms of how selectAtomsMode interacted with it.
 
     *** __init__ must set self.glname using env.alloc_my_glselect_name
+    [note, this has been revised, bruce 080220; class Atom now sets
+     self._glname using assy.alloc_my_glselect_name]
+    
     *** Needs a draw_in_abs_coords method
     
     Among the special cases will be for mouse down, mouse drag, mouse

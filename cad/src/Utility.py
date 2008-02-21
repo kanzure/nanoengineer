@@ -1363,7 +1363,7 @@ class Node( StateMixin):
         # to verify it's not called when it shouldn't be (e.g. when that node might still be revived by Undo). ###@@@
         # BTW, as of 060322 the appropriate init, alloc, and draw code for glname is only done (or needed) in Jig.
 
-        ## env.dealloc_my_glselect_name( self, self.glname )
+        ## env.dealloc_my_glselect_name( self, self.glname ) -- only ok for some subclasses; some have ._glname instead
 
         ##e more is needed too... see Atom and Bond methods
         # do we want this:
