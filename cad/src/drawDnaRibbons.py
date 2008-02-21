@@ -112,7 +112,7 @@ def drawDnaRibbons(endCenter1,
         ribbonThickness = 2.0
     elif displayStyle == diTUBES:
         SPHERE_RADIUS = 0.01
-        ribbonThickness = 2.0
+        ribbonThickness = 5.0
     elif displayStyle == diLINES:
         #Lines display and all other unsupported display styles
         SPHERE_RADIUS = 0.01
@@ -121,7 +121,7 @@ def drawDnaRibbons(endCenter1,
         #ball and stick display style. All other unsupported displays 
         #will be rendered in ball and stick display style
         SPHERE_RADIUS = 1.0
-        ribbonThickness = 2.0
+        ribbonThickness = 3.0
         
         
         
