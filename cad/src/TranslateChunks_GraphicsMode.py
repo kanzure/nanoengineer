@@ -14,33 +14,13 @@ TODO: [as of 2008-01-25]
 The class TranslateChunks_GraphicsMode may be renamed to  
 Translate_GraphicsMode or TranslateComponents_GraphicsMode. 
 """
-
 from utilities import debug_flags 
 import math
-from Numeric import dot, sign
-
-from PyQt4.Qt import QMouseEvent
-from PyQt4.Qt import Qt
-
+from Numeric import dot
 import env
-
-from modes import basicMode
-from bonds import Bond
-from chem import Atom
-
-from Select_GraphicsMode import DRAG_STICKINESS_LIMIT
-from chunk import Chunk 
-from debug import print_compact_traceback, print_compact_stack
-from constants import orange
-
-from constants import yellow
-
-from geometry.VQT import V, Q, A, vlen, norm
-
-import time
-
+from debug import print_compact_traceback
+from geometry.VQT import V, A, vlen, norm
 from Move_GraphicsMode import Move_GraphicsMode
-
 
 _superclass = Move_GraphicsMode
 

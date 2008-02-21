@@ -30,7 +30,7 @@ import sys
 # the imports from math vs. Numeric are as discovered in existing code
 # as of 2007/06/25.  It's not clear why acos is coming from math...
 from math import acos, floor, ceil
-from math import asin
+
 
 import Numeric
 from Numeric import sin, cos, sqrt, pi
@@ -107,14 +107,12 @@ from OpenGL.GL import glPolygonMode
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPopName
 from OpenGL.GL import GL_POSITION
-from OpenGL.GL import GL_PROJECTION
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glPushName
 from OpenGL.GL import GL_QUADS
 from OpenGL.GL import GL_QUAD_STRIP
 from OpenGL.GL import GL_RENDERER
 from OpenGL.GL import GL_RGBA
-from OpenGL.GL import glRectf
 from OpenGL.GL import glRotate
 from OpenGL.GL import glRotatef
 from OpenGL.GL import GL_SHININESS
@@ -137,12 +135,11 @@ from OpenGL.GL import glVertex3f
 from OpenGL.GL import glVertex3fv
 from OpenGL.GL import GL_VERTEX_ARRAY
 from OpenGL.GL import glVertexPointer
-from OpenGL.GL import glViewport
 from OpenGL.GL import glPointSize
 from OpenGL.GL import GL_POINTS
 from OpenGL.GL import GL_POINT_SMOOTH
 from OpenGL.GLU import gluBuild2DMipmaps
-from OpenGL.GLU import gluOrtho2D
+
 
 try:
     from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
@@ -185,11 +182,11 @@ except:
     # The installed version of OpenGL requires argument-typed glFog calls.
     from OpenGL.GL import glFogf as glFog	
 
-from geometry.VQT import norm, vlen, V, Q, A, cross
+from geometry.VQT import norm, vlen, V, Q, A
 import env #bruce 051126
 
-from constants import white, black, blue, red
-from constants import darkgreen, lightblue, darkgray, lightgray
+from constants import white, blue, red
+from constants import darkgreen, lightblue
 from constants import DIAMOND_BOND_LENGTH
 from prefs_constants import material_specular_highlights_prefs_key
 from prefs_constants import material_specular_shininess_prefs_key

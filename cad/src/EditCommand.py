@@ -33,9 +33,7 @@ TODO:
   editcommand classes.
 """
 
-from utilities import debug_flags
 import changes
-from utilities.Log        import greenmsg
 from utilities.Comparison import same_vals
 
 from constants            import permit_gensym_to_reuse_name

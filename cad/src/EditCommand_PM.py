@@ -14,7 +14,7 @@ from this class to use common methods such as ok_btn_cliked.
 import env
 
 from PM.PM_Dialog import PM_Dialog
-from PyQt4.Qt import QFileDialog, QMessageBox, QString, QWidgetAction, QAction
+from PyQt4.Qt import QWidgetAction
 from PyQt4.Qt import SIGNAL
 
 from GeneratorBaseClass import AbstractMethod
@@ -217,7 +217,6 @@ class EditCommand_PM(PM_Dialog):
         Show what's this text
         """
         pass 
-
 
     def _createFlyoutActions(self):
         self.exitEditCommandAction = QWidgetAction(self.win)

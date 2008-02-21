@@ -1,35 +1,22 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 
-@author: Ninad,
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@author: Ninad
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 @version:$Id$
 
 History:
 ninad 20070602: Created.
 
 """
-__author__ = "Ninad"
-
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
-from PyQt4.Qt import QAction
-from PyQt4.Qt import QActionGroup
-from PyQt4.Qt import QButtonGroup
-
 from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
-from PM.PM_ComboBox      import PM_ComboBox
-from PM.PM_SpinBox       import PM_SpinBox
-from PM.PM_PushButton    import PM_PushButton
 from PM.PM_CheckBox      import PM_CheckBox
-from PM.PM_RadioButton   import PM_RadioButton
 from PM.PM_RadioButtonList import PM_RadioButtonList
-
 from PM.PM_Constants     import pmRestoreDefaultsButton
-
 from EditCommand_PM import EditCommand_PM
-
 import env
 
 # Placement Options radio button list to create radio button list.
