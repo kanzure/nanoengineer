@@ -155,16 +155,35 @@ class ThumbView(GLPane_minimal):
 
     def drawModel(self):
         """
-        This is an abstract method of drawing models, subclass should override
-        it with concrete model drawing statements.
+        This is an abstract method for drawing self's "model".
+
+        [subclasses which need to draw anything must override this method]
         """        
         pass
     
     def drawSelected(self, obj):
         """
-        Draw the selected object. Subclass need to override it.
+        Draw the selected object.
+        
+        [subclasses can override this method]
         """
         pass
+
+    def _get_assy(self): #bruce 080220
+        """
+        Return the assy which contains all objects we are drawing
+        (or None if this is not possible).
+
+        [subclasses must override this method]
+        """
+        return None
+
+    def __get_assy(self): #bruce 080220
+        # this glue method is a necessary kluge so that the following property
+        # for self.assy will use a subclass's overridden version of _get_assy
+        return self._get_assy()
+
+    assy = property(__get_assy) #bruce 080220, for per-assy glname dict
     
     def _setup_lighting(self): # as of bruce 060415, this is mostly duplicated between GLPane (has comments) and ThumbView ###@@@
         """
@@ -289,7 +308,6 @@ class ThumbView(GLPane_minimal):
                          self.vdist * near         , self.vdist * far)
         return
     
-    
     def paintGL(self):        
         """
         Called by QtGL when redrawing is needed. For every redraw, color & 
@@ -297,11 +315,6 @@ class ThumbView(GLPane_minimal):
         orientation are also reset. 
         """
         if not self.initialised:
-            return
-
-        if not self.model_is_valid():
-            #bruce 080117 precaution (perhaps a bugfix);
-            # see similar code in GLPane
             return
         
         self._call_whatever_waits_for_gl_context_current() #bruce 071103
@@ -341,10 +354,22 @@ class ThumbView(GLPane_minimal):
         
         glRotatef(q.angle * 180.0 / math.pi, q.x, q.y, q.z)
         glTranslatef(self.pov[0], self.pov[1], self.pov[2])
-        
-        self.drawModel()
+
+        if self.model_is_valid():
+            #bruce 080117 [testing this at start of paintGL to skip most of it]:
+            # precaution (perhaps a bugfix); see similar code in GLPane.
+            #
+            # update, bruce 080220: this may have caused a bug by making this
+            # not draw a blank-background graphics area when it has no model.
+            # E.g. the partlib has no model when first entered.
+            # Fixing this by only not drawing the model itself in that case [UNTESTED].
+            # (The GLPane always has a model, so has no similar issue.)
+            # I'm not moving the coordinate transforms into this if statement,
+            # since I don't know if they might be depended on by non-paintGL
+            # drawing (e.g. for highlighting, called selection in some method
+            # names and comments). [bruce 080220]
+            self.drawModel()
    
-    
     def __getattr__(self, name): # in class ThumbView
         if name == 'lineOfSight':
             return self.quat.unrot(V(0, 0, -1))
@@ -361,8 +386,6 @@ class ThumbView(GLPane_minimal):
         else:
             raise AttributeError, 'ThumbView has no "%s"' % name #bruce 060209 revised text
     
-        
-   
     def mousePressEvent(self, event):
         """
         Dispatches mouse press events depending on shift and
@@ -519,7 +542,7 @@ class ThumbView(GLPane_minimal):
         
         if self.selectedObj is not None:
             stencilbit = glReadPixelsi(wX, wY, 1, 1, GL_STENCIL_INDEX)[0][0]
-            if stencilbit: # If it's the same highlighting object, no disply change needed.
+            if stencilbit: # If it's the same highlighting object, no display change needed.
                 return   
         
         self.updateGL()
@@ -571,6 +594,18 @@ class ThumbView(GLPane_minimal):
         pxyz = A(gluUnProject(wX, wY, gz))
         pn = self.out
         pxyz -= 0.0002*pn
+            # Note: if this runs before the model is drawn, this can have an
+            # exception "OverflowError: math range error", presumably because
+            # appropriate state for gluUnProject was not set up. That doesn't
+            # normally happen but can happen due to bugs (no known open bugs
+            # of that kind).
+            # Sometimes our drawing area can become "stuck at gray",
+            # and when that happens, the same exception can occur from this line.
+            # Could it be that too many accidental mousewheel scrolls occurred
+            # and made the scale unreasonable? (To mitigate, we should prevent
+            # those from doing anything unless we have a valid model, and also
+            # reset that scale when loading a new model (latter is probably
+            # already done, but I didn't check).) [bruce 080220 comment]
         dp = - dot(pxyz, pn)
         
         #Save projection matrix before it's changed.
@@ -618,10 +653,12 @@ class ThumbView(GLPane_minimal):
                 # in spite of the 1-pixel drawing window (presumably they're vertices
                 # taken from unclipped primitives, not clipped ones).
             if names:
-                obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
-                return obj 
+                name = names[-1]
+                assy = self.assy
+                obj = assy and assy.object_for_glselect_name(name)
+                    #k should always return an obj
+                return obj
         return None # from ThumbView.select
-
 
     def highlightSelected(self, obj):
         # TODO: merge with GLPane (from which this was copied and modified)
@@ -722,6 +759,12 @@ class ElementView(ThumbView):
         [overrides GLPane_minimal method]
         """
         return self.mol and self.mol.assy.assy_valid
+
+    def _get_assy(self):
+        """
+        [overrides ThumbView method]
+        """
+        return self.mol and self.mol.assy
     
     def refreshDisplay(self, elm, dispMode = diTrueCPK):
         """
@@ -815,32 +858,41 @@ class MMKitView(ThumbView):
                 self.model.draw(self, None)
             else: ## assembly
                 self.model.draw(self)
+        return
 
-    def model_is_valid(self): #bruce 080117
+    def model_is_valid(self): #bruce 080117, revised 080220
         """
         whether our model is currently valid for drawing
         [overrides GLPane_minimal method]
         """
+        assy = self.assy
+        if assy is not None:
+            return assy.assy_valid
+        return False
+
+    def _get_assy(self): #bruce 080220
+        """
+        [overrides ThumbView method]
+        """
         if self.model:
             if isinstance(self.model, Chunk) or \
                isinstance(self.model, Group):
-                # this can fail if the dna updater kills a bare Ax,
-                # since its chunk is then killed and its .assy set to None,
-                # so make it a disabled debug print and non-fatal for now:
-                # [bruce 080219]
-                ## assert self.model.assy is not None, \
-                if not (self.model.assy is not None):
-                    if 0: # too verbose to be useful; seemingly happens even for Ss3 (why??);
-                        # todo: check if it's due to Ax or to something we didn't expect,
-                        # so as not to risk hiding other bugs
-                        print "dna updater fyi: in model_is_valid: " \
-                           "%r.model %r has .assy None" % \
-                           (self, self.model)
-                    return False
-                return self.model.assy.assy_valid
-            else: ## assembly
-                return self.model.assy_valid
-        return False
+                assy = self.model.assy
+                    # Note: assy can be None, if the dna updater kills a bare Ax,
+                    # since its chunk is then killed and its .assy set to None.
+                    # But the following is too verbose to be useful; also it
+                    # seemingly happens even for Ss3 (why??).
+                    # Todo: check if it's due to Ax (ok to not print it here)
+                    # or to something we didn't expect (needs print so as not
+                    # to risk hiding other bugs).
+                ## if res is None:
+                ##     print "dna updater fyi: in model_is_valid: " \
+                ##        "%r.model %r has .assy None" % \
+                ##        (self, self.model)
+                return assy
+            else: ## self.model is an assembly
+                return self.model
+        return None
     
     def refreshDisplay(self, elm, dispMode = diTrueCPK):
         """
@@ -850,7 +902,6 @@ class MMKitView(ThumbView):
         self.model = self.constructModel(elm, self.pos, dispMode)
         self.updateGL()
         
-
     def changeHybridType(self, name):
         self.hybrid_type_name = name
     
@@ -867,6 +918,7 @@ class MMKitView(ThumbView):
         """
         if isinstance(obj, Atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])
+        return
             
     def constructModel(self, elm, pos, dispMode):
         """
@@ -944,7 +996,7 @@ class MMKitView(ThumbView):
             
             self.hotspotAtom = obj
             self.updateGL()
-         
+        return         
 
     def gl_update(self): #bruce 070502 bugfix (can be called when ESPImage jigs appear in a partlib part)
         self.updateGL() #k guess at correct/safe thing to do
@@ -962,7 +1014,6 @@ class MMKitView(ThumbView):
         """
         Set new chunk or assembly for display.
         """
-    
         self.model = newObj
 
         #Reset hotspot related stuff for a new assembly
@@ -1006,15 +1057,15 @@ class MMKitView(ThumbView):
         else:
             self.hotspotAtom = None                
             self.lastHotspotChunk = None
-        
-    
+        return
     
     def setDisplay(self, mode):
         self.displayMode = mode
-    
+        return
     
     def _fitInWindow(self):
-        if not self.model: return
+        if not self.model:
+            return
         
         self.quat = Q(1, 0, 0, 0)
         
@@ -1083,7 +1134,13 @@ class ChunkView(ThumbView):
         [overrides GLPane_minimal method]
         """
         return self.mol and self.mol.assy.assy_valid
-    
+
+    def _get_assy(self):
+        """
+        [overrides ThumbView method]
+        """
+        return self.mol and self.mol.assy
+
     def updateModel(self, newChunk):
         """
         Set new chunk for display.
@@ -1099,6 +1156,7 @@ class ChunkView(ThumbView):
         if isinstance(obj, Atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, 
                                    env.prefs[bondpointHighlightColor_prefs_key])
+        return
 
     pass # end of class ChunkView
 

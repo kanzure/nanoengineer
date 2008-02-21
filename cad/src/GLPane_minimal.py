@@ -64,7 +64,7 @@ DEPTH_TWEAK_CHOICE = \
              10000, 100000, 10**6, 10**7, 10**8],
             defaultValue = DEPTH_TWEAK_VALUE )
 
-class GLPane_minimal(QGLWidget): #bruce 070914
+class GLPane_minimal(QGLWidget, object): #bruce 070914
     """
     Mostly a stub superclass, just so GLPane and ThumbView can have a common
     superclass.
@@ -74,6 +74,16 @@ class GLPane_minimal(QGLWidget): #bruce 070914
     Once that happens, it might as well get renamed.
     """
 
+    # bruce 070920 added object superclass to our subclass GLPane;
+    # bruce 080220 moved object superclass from GLPane to this class.
+    # Purpose is to make this a new-style class so as to allow
+    # defining a python property in any subclass.
+
+    # note: every subclass defines .assy as an instance variable or property
+    # (as of bruce 080220), but we can't define a default value or property
+    # for that here, since some subclasses define it in each way
+    # (and we'd have to know which way to define a default value correctly).
+    
     # default values of instance variables:
     
     glselectBufferSize = 10000 # guess, probably overkill, seems to work, no other value was tried
@@ -154,7 +164,7 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         at the beginning and return immediately if it's false.
         """
         return False
-    
+
     # ==
 
     def _call_whatever_waits_for_gl_context_current(self): #bruce 071103
@@ -226,11 +236,18 @@ class GLPane_minimal(QGLWidget): #bruce 070914
     
     def current_view_for_Undo(self, assy): #e shares code with saveNamedView
         """
-        Return the current view in this glpane which is showing this assy,
-        with additional attributes saved along with the view by Undo (i.e. the index of the current selection group).
+        Return the current view in this glpane (which we assume is showing
+        this assy), with additional attributes saved along with the view by Undo
+        (i.e. the index of the current selection group).
         (The assy arg is used for multiple purposes specific to Undo.)
-        WARNING: present implem of saving current Part (using its index in MT) is not suitable for out-of-order Redo.
+
+        @warning: present implem of saving current Part (using its index in MT)
+                  is not suitable for out-of-order Redo.
         """
+        # WARNING: not reviewed for use in subclasses which don't
+        # have and draw a .assy attribute, though by passing assy into this method,
+        # we remove any obvious bug from that. [bruce 080220 comment]
+        
         oldc = assy.all_change_counters()
 
         namedView = NamedView(assy, "name", self.scale, self.pov, self.zoomFactor, self.quat)
@@ -238,9 +255,11 @@ class GLPane_minimal(QGLWidget): #bruce 070914
         newc = assy.all_change_counters()
         assert oldc == newc
 
-        namedView.current_selgroup_index = assy.current_selgroup_index() # storing this on the namedView is a kluge, but should be safe
+        namedView.current_selgroup_index = assy.current_selgroup_index()
+            # storing this on the namedView is a kluge, but should be safe
 
-        return namedView # ideally would not return a Node but just a "view object" with the same 4 elements in it as passed to NamedView
+        return namedView # ideally would not return a Node but just a
+            # "view object" with the same 4 elements in it as passed to NamedView
 
     def set_view_for_Undo(self, assy, namedView): # shares code with NamedView.set_view; might be very similar to some GLPane method, too
         """

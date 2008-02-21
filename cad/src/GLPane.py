@@ -342,12 +342,13 @@ class GLPane_mixin_for_DisplayListChunk(object):
 # ==
 
 class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
-             GLPane_mixin_for_DisplayListChunk, object):
+             GLPane_mixin_for_DisplayListChunk):
     """
     Mouse input and graphics output in the main view window.
     """
     # bruce 070920 added object superclass, to make this a new-style class
-    # (so I can use a property in it)
+    # (so I can use a property in it); bruce 080220 moved object superclass
+    # into our superclass GLPane_minimal
 
     # Note: classes GLPane and ThumbView share lots of code,
     # which ought to be merged into their common superclass GLPane_minimal
