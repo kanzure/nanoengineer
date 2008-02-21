@@ -15,6 +15,8 @@ using namespace Nanorex;
 #include "ResultsWindow.h"
 #include "LogHandlerWidget.h"
 #include "MainWindowTabWidget.h"
+#include "JobManagement/JobHandle.h"
+#include "JobManagement/GROMACS_JobHandle.h"
 
 
 /* CLASS: nv1 */

@@ -11,16 +11,13 @@ DataWindow::DataWindow(QWidget *parent) : QWidget(parent) {
 	QString curFile = tr("document%1").arg(sequenceNumber++);
 	setWindowTitle(curFile);
 	
+	/*
 	TrajectoryGraphicsPane* trajectoryGraphicsPane =
 		new TrajectoryGraphicsPane(this);
     QVBoxLayout *vboxLayout;
     vboxLayout = new QVBoxLayout(this);
     vboxLayout->addWidget(trajectoryGraphicsPane);
-}
-
-
-/* DESTRUCTOR */
-DataWindow::~DataWindow() {
+	*/
 }
 
 

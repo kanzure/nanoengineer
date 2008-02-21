@@ -26,7 +26,9 @@ SOURCES += ../../DataWindow.cpp \
 ../../ResultsWindow.cpp \
 ../../TrajectoryGraphicsPane.cpp \
 ../../ViewParametersWindow.cpp \
-../../ErrorDialog.cpp
+../../ErrorDialog.cpp \
+../../JobManagement/GROMACS_JobHandle.cpp \
+../../JobManagement/JobHandle.cpp
 
 HEADERS += ../../DataWindow.h \
 ../../LogHandlerWidget.h \
@@ -36,7 +38,9 @@ HEADERS += ../../DataWindow.h \
 ../../ResultsWindow.h \
 ../../TrajectoryGraphicsPane.h \
 ../../ViewParametersWindow.h \
-../../ErrorDialog.h
+../../ErrorDialog.h \
+../../JobManagement/GROMACS_JobHandle.h \
+../../JobManagement/JobHandle.h
 
 FORMS += ../../LogHandlerWidget.ui \
 ../../MainWindowTabWidget.ui \

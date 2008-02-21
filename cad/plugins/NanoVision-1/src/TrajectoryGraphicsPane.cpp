@@ -5,7 +5,7 @@
 
 /* CONSTRUCTOR */
 TrajectoryGraphicsPane::TrajectoryGraphicsPane(QWidget *parent)
-		: QWidget(parent), Ui_TrajectoryGraphicsPane() {
+		: DataWindow(parent), Ui_TrajectoryGraphicsPane() {
 
 	setupUi(this);
 	

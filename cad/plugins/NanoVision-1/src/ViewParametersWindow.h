@@ -13,11 +13,13 @@ using namespace std;
 #include "Nanorex/Utility/NXProperties.h"
 using namespace Nanorex;
 
+#include "DataWindow.h"
 #include "ui_ViewParametersWindow.h"
 
 
 /* CLASS: ViewParametersWindow */
-class ViewParametersWindow : public QDialog, private Ui_ViewParametersWindow {
+class ViewParametersWindow
+		: public QDialog, private Ui_ViewParametersWindow {
 	Q_OBJECT
 
 public:

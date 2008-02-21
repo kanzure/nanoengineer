@@ -48,6 +48,14 @@ void nv1::processCommandLine(int argc, char *argv[]) {
 		(commandLine.HasSwitch("-f"))) {
 		string filename = commandLine.GetArgument("-f", 0);
 		
+		JobHandle* jobHandle = 0;
+		if (commandLine.GetArgumentCount("-p") == 2) {
+			string processType = commandLine.GetArgument("-p", 0);
+			string processInit = commandLine.GetArgument("-p", 1);
+			if (processType == "GMX")
+				jobHandle = new GROMACS_JobHandle(processInit);
+		}
+		
 		QString message = tr("Opening file: %1").arg(filename.c_str());
 		NXLOG_INFO("", qPrintable(message));
 		
@@ -129,17 +137,17 @@ void nv1::updateWindowMenu() {
 		DataWindow* window = qobject_cast<DataWindow*>(windows.at(index));
 
 		QString windowTitle;
-		if (window == 0)
-			windowTitle = "null window"; // TODO: fix underlying problem
-		else
+		if (window == 0) {
+			windowTitle = "--";
+			NXLOG_DEBUG("nv1::updateWindowMenu()", "window is null");
+		} else
 			windowTitle = window->windowTitle();
 		
 		QString text;
-		if (index < 9) {
+		if (index < 9)
 			text = tr("&%1 %2").arg(index + 1).arg(windowTitle);
-		} else {
+		else
 			text = tr("%1 %2").arg(index + 1).arg(windowTitle);
-		}
 
 		QAction *action  = windowMenu->addAction(text);
 		action->setCheckable(true);

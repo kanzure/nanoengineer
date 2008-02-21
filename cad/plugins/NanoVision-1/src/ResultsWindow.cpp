@@ -95,7 +95,8 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 */
 		// Floating data window example
 		ViewParametersWindow* viewParametersWindow =
-			new ViewParametersWindow(dataStoreInfo->getInputParameters(), this);
+			new ViewParametersWindow(dataStoreInfo->getInputParameters(),
+									 (QWidget*)(parent()));
 		viewParametersWindow->show();
 		
 		QString message = tr("File loaded: %1").arg(fileName);

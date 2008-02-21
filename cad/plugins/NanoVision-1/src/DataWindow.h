@@ -6,7 +6,7 @@
 #include <QtGui>
 #include <QWidget>
 
-#include "TrajectoryGraphicsPane.h"
+//#include "TrajectoryGraphicsPane.h"
 
 
 /* CLASS: DataWindow */
@@ -15,7 +15,7 @@ class DataWindow : public QWidget {
 
 public:
 	DataWindow(QWidget *parent = 0);
-	~DataWindow();
+	virtual ~DataWindow() {};
 
 protected:
 	void closeEvent(QCloseEvent *event);

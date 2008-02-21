@@ -8,12 +8,13 @@
 #include "Nanorex/Interface/NXEntityManager.h"
 using namespace Nanorex;
 
+#include "DataWindow.h"
 #include <ui_TrajectoryGraphicsPane.h>
 
 
 /* CLASS: TrajectoryGraphicsPane */
 class TrajectoryGraphicsPane
-		: public QWidget, private Ui_TrajectoryGraphicsPane {
+		: public DataWindow, private Ui_TrajectoryGraphicsPane {
 			
 	Q_OBJECT
 
