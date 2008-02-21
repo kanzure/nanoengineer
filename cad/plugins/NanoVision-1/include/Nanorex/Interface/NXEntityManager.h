@@ -88,6 +88,7 @@ class NXEntityManager : public QObject {
 		// growing frame sets.
 		void newFrameAdded(int frameSetId, int frameIndex,
 						   NXMoleculeSet* moleculeSet);
+		void dataStoreComplete();
 
 	private:
 		string importFileTypesString, exportFileTypesString;

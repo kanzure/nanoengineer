@@ -231,6 +231,11 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 				
 			} else
 				delete moleculeSet;
+				
+			if (inPollingThread && dataStoreInfo->storeIsComplete(frameSetId)) {
+				NXLOG_DEBUG("NXEntityManager", "emit dataStoreComplete()");
+				emit dataStoreComplete();
+			}
 
 		} catch (...) {
 			delete moleculeSet;

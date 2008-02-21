@@ -128,14 +128,19 @@ void nv1::updateWindowMenu() {
 	for (int index = 0; index < windows.size(); ++index) {
 		DataWindow* window = qobject_cast<DataWindow*>(windows.at(index));
 
+		QString windowTitle;
+		if (window == 0)
+			windowTitle = "null window"; // TODO: fix underlying problem
+		else
+			windowTitle = window->windowTitle();
+		
 		QString text;
 		if (index < 9) {
-			text = tr("&%1 %2").arg(index + 1)
-			       .arg(window->windowTitle());
+			text = tr("&%1 %2").arg(index + 1).arg(windowTitle);
 		} else {
-			text = tr("%1 %2").arg(index + 1)
-			       .arg(window->windowTitle());
+			text = tr("%1 %2").arg(index + 1).arg(windowTitle);
 		}
+
 		QAction *action  = windowMenu->addAction(text);
 		action->setCheckable(true);
 		action->setChecked(window == resultsWindow->activeDataWindow());
@@ -213,6 +218,8 @@ void nv1::createMenus() {
 	fileMenu->addSeparator();
 	fileMenu->addAction(exitAction);
 
+	processMenu = menuBar()->addMenu(tr("&Process"));
+	
 	windowMenu = menuBar()->addMenu(tr("&Window"));
 	updateWindowMenu();
 	connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowMenu()));

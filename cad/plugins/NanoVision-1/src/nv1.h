@@ -30,19 +30,22 @@ public:
 protected:
 	void closeEvent (QCloseEvent *event);
 
+public slots:
+	void updateMenus();
+
 private slots:
 	void open();
 	void about();
-	void updateMenus();
 	void updateWindowMenu();
 
 private:
 	NXEntityManager* entityManager;
 	
-	QMenu *fileMenu;
-	QMenu *windowMenu;
-	QMenu *helpMenu;
-	QToolBar *fileToolBar;
+	QMenu* fileMenu;
+	QMenu* processMenu;
+	QMenu* windowMenu;
+	QMenu* helpMenu;
+	QToolBar* fileToolBar;
 
 	MainWindowTabWidget* mainWindowTabs;
 	ResultsWindow* resultsWindow;

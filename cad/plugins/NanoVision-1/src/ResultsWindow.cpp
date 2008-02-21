@@ -12,7 +12,7 @@ ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
 
 	workspace = new QWorkspace();
  	connect(workspace, SIGNAL(windowActivated(QWidget *)),
- 	        this, SLOT(parent->updateMenus()));
+ 	        parent, SLOT(updateMenus()));
 	windowMapper = new QSignalMapper(this);
 	connect(windowMapper, SIGNAL(mapped(QWidget *)),
             workspace, SLOT(setActiveWindow(QWidget *)));
@@ -58,6 +58,7 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 	// Read file
 	NXCommandResult* commandResult =
 		entityManager->importFromFile(qPrintable(fileName));
+
 	QApplication::restoreOverrideCursor();
 	
 	bool success = true;
