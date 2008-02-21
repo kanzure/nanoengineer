@@ -58,6 +58,11 @@ class PartLibPropertyManager(PastePropertyManager):
         self.partLibGroupBox = None
         
         PastePropertyManager.__init__(self, parentMode)
+        self.updateMessage(
+        """The part library contains many structures and molecules
+        that can be added to a project by selecting the item from the directory
+        and double clicking in the 3D graphics area."""
+        )
     
     def model_changed(self):
         """
@@ -103,18 +108,22 @@ class PartLibPropertyManager(PastePropertyManager):
         """        
         return self.partLibGroupBox.newModel, \
                self.previewGroupBox.elementViewer.hotspotAtom
-        
-        
-    
-    def _addWhatsThisText( self ):
+
+    def _addWhatsThisText(self):
         """
         What's This text for widgets in this Property Manager.  
         """
-        pass
-                
+        from gui.WhatsThisText_for_PropertyManagers import \
+        whatsThis_PartLibPropertyManager
+        whatsThis_PartLibPropertyManager(self)
+        return
+        
+    
+                   
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        pass
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_PartLibPropertyManager
+        ToolTip_PartLibPropertyManager(self)
     

@@ -1030,4 +1030,23 @@ def whatsThis_BuildAtomsPropertyManager(propMgr):
         These coordinates can also be adjusted with provided spin boxes.
         </p>""")
     
-    return
+def whatsThis_PartLibPropertyManager(propMgr):
+        """
+        Add "What's This" text for widgets in the Part Library Property Manager.
+        """
+        propMgr.previewGroupBox.setWhatsThis(
+            """<b>Preview Window</b>
+            <p>
+            This window displays the selected part chosen from the library.
+            The user may also rotate the part and set a hot spot while 
+            the part is displayed in the preview window""" )
+       
+        
+        propMgr.partLibGroupBox .setWhatsThis(
+            """<b>Part Library</b>
+            <p>
+            This is a directory of available parts contained 
+            in the part library """ )
+
+    
+   

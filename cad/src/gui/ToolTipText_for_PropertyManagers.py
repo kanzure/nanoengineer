@@ -302,5 +302,12 @@ def ToolTip_QuteMolPropertyManager(propMgr):
 
     propMgr.basesCombobox.setToolTip("Render Bases")
 
-
+def ToolTip_PartLibPropertyManager(propMgr) :
+    """
+    Add "What's This" text for widgets in the Part Library Property Manager.
+    """
+    propMgr.previewGroupBox.setToolTip("Preview Window")
+    
+    propMgr.partLibGroupBox.setToolTip("Part Library")
+        
 

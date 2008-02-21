@@ -38,7 +38,7 @@ class PM_PartLib(PM_GroupBox):
     """
     def __init__(self, 
                  parentWidget,
-                 title = 'Partlib',
+                 title = 'Part Library',
                  win   = None,
                  elementViewer = None
                  ):            
@@ -129,5 +129,6 @@ class PM_PartLib(PM_GroupBox):
                     self.newModel.checkparts() #k probably not needed
                     
         self._updateElementViewer(self.newModel)
-        return
+        
+
  
