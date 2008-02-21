@@ -51,6 +51,11 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         """    
         self.clipboardGroupBox = None
         BuildAtomsPropertyManager.__init__(self, parentMode)
+        self.updateMessage("Double click on empty space inside the 3D" \
+                 "workspace, to paste the item shown in "\
+                 "the <b> Preview </b> box. To return to the previous"\
+                 "mode hit, <b>Escape </b> key or press "\
+                "<b> Done </b>")
     
     def model_changed(self):
         """
@@ -116,7 +121,7 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         """
         if self.clipboardGroupBox:
             self.clipboardGroupBox.update()    
-    
+
     def updateMessage(self, msg = ''):
         """
         Update the message box in the property manager with an informative 
@@ -131,15 +136,17 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         # Post message.
         self.MessageGroupBox.insertHtmlMessage(msg, minLines = 5)
         
-    def _addWhatsThisText( self ):
+    def _addWhatsThisText(self):
         """
         What's This text for widgets in this Property Manager.  
         """
-        pass
-                
+        from gui.WhatsThisText_for_PropertyManagers import whatsThis_PasteItemsPropertyManager
+        whatsThis_PasteItemsPropertyManager(self)
+        
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
-        pass
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_PasteItemPropertyManager
+        ToolTip_PasteItemPropertyManager(self)
     

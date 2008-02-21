@@ -311,3 +311,10 @@ def ToolTip_PartLibPropertyManager(propMgr) :
     propMgr.partLibGroupBox.setToolTip("Part Library")
         
 
+def ToolTip_PasteItemPropertyManager(propMgr) :
+    """
+    Add "What's This" text for widgets in the Paste Items Property Manager.
+    """
+    propMgr.previewGroupBox.setToolTip("Preview Window")
+    
+    propMgr.clipboardGroupBox.setToolTip("Clip Board")
