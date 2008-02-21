@@ -138,7 +138,7 @@ try:
         pass
     print "Use Pyrex atoms in chem.py"
     _using_pyrex_atoms = True
-except ImportError, ValueError:
+except (ImportError, ValueError):
     # TODO: print the exception unless it is the one raised artificially above.
     #
     # Note: a ValueError can be printed like this, perhaps due to compiling with

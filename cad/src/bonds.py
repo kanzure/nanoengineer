@@ -98,7 +98,7 @@ try:
             return
         pass
     print "Use Pyrex atoms in bonds.py"
-except ImportError, ValueError: # see comment on similar code in chem.py
+except (ImportError, ValueError): # see comment on similar code in chem.py
     if enablePyrexAtoms():
         print "Unable to use Pyrex atoms in bonds.py as requested (exception discarded)"
     def BondSet():
