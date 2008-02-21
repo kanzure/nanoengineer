@@ -241,7 +241,6 @@ class QuteMolPropertyManager(PM_Dialog):
                         the property manager
         @type  msg: string
         """
-        msg = message
         self.MessageGroupBox.insertHtmlMessage(msg, 
                                                setAsDefault = False,
                                                minLines     = 5)
