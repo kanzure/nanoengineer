@@ -332,14 +332,13 @@ class PlanePropertyManager(EditCommand_PM):
             dirArrow = self.editCommand.struct.offsetParentGeometry.directionArrow 
             dirArrow.setDrawRequested(False)
     
-    def updateMessage(self, message = ''):
+    def updateMessage(self, msg = ''):
         """
         Updates the message box with an informative message
         @param message: Message to be displayed in the Message groupbox of 
                         the property manager
         @type  message: string
         """
-        msg = message
         self.MessageGroupBox.insertHtmlMessage(msg, 
                                                setAsDefault = False,
                                                minLines     = 5)

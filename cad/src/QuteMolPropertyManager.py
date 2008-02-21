@@ -234,12 +234,12 @@ class QuteMolPropertyManager(PM_Dialog):
                        SIGNAL("toggled(bool)"), 
                        self.launchQuteMol)
     
-    def updateMessage(self, message = ''):
+    def updateMessage(self, msg = ''):
         """
         Updates the message box with an informative message
-        @param message: Message to be displayed in the Message groupbox of 
+        @param msg: Message to be displayed in the Message groupbox of 
                         the property manager
-        @type  message: string
+        @type  msg: string
         """
         msg = message
         self.MessageGroupBox.insertHtmlMessage(msg, 

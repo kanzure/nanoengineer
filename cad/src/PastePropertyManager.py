@@ -117,16 +117,16 @@ class PastePropertyManager(BuildAtomsPropertyManager):
         if self.clipboardGroupBox:
             self.clipboardGroupBox.update()    
     
-    def updateMessage(self):
+    def updateMessage(self, msg = ''):
         """
         Update the message box in the property manager with an informative 
         message.
         """  
-        
-        msg = "Double click on empty space inside the 3D workspace,"\
-            " to paste the item shown in the <b> Preview </b> box. <br>" \
-            " To return to the previous mode hit, <b>Escape </b> key or press "\
-            "<b> Done </b>"
+        if not msg:   
+            msg = "Double click on empty space inside the 3D workspace,"\
+                " to paste the item shown in the <b> Preview </b> box. <br>" \
+                " To return to the previous mode hit, <b>Escape </b> key or press "\
+                "<b> Done </b>"
 
         # Post message.
         self.MessageGroupBox.insertHtmlMessage(msg, minLines = 5)
