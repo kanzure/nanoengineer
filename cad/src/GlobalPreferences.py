@@ -22,6 +22,7 @@ from debug import print_compact_traceback
 # ==
 
 _pyrex_atoms_failed = False
+_pyrex_atoms_succeeded = False
 
 def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
     """
@@ -29,17 +30,22 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
     from atombase (compiled from atombase.pyx and associated files)
     for using the "Pyrex atoms" C/Pyrex code to optimize classes Atom and Bond?
     """
-    global _pyrex_atoms_failed
+    global _pyrex_atoms_failed, _pyrex_atoms_succeeded
     
     if _pyrex_atoms_failed:
         return False
+    if _pyrex_atoms_succeeded:
+        return True
     
     res = debug_pref("Enable pyrex atoms next time",
                      Choice_boolean_False,
                      prefs_key = True)
 
-    # uncomment this line to temporarily override the above debug_pref:
-    ## res = True # do not commit with this line active
+    # uncomment the following line to temporarily override the above debug_pref,
+    # e.g. to recover from trying it out and having it abort NE1 on startup
+    # (hypothetical error, not known to happen):
+    
+    ## res = False # do not commit with this line active
     
     if res:
         # make sure it works, before telling caller to use it
@@ -57,6 +63,7 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
             env.history.redmsg("ERROR: unable to use experimental Pyrex Atoms and Bonds from atombase module; see console prints")
             res = False
         else:
+            _pyrex_atoms_succeeded = True
             # for now, we need a can't miss note for success, as well (red, though not an error):
             print "\nNOTE: using experimental Pyrex Atoms and Bonds from atombase module\n"
             import env # import cycle??
@@ -66,9 +73,7 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
 
 def _test_atombase():
     import atombase # this must not be made into a toplevel import!
-    from atombase import AtomBase, AtomDictBase, BondBase, BondSetBase
-        # presently I get:
-        #   ImportError: cannot import name BondSetBase [bruce 070220]
+    from atombase import AtomBase, AtomDictBase, BondBase, BondDictBase
     return
 
 # ==

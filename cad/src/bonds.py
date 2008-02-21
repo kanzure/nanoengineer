@@ -86,10 +86,10 @@ BN_GRAPHITIC_BONDLENGTH = 1.446   # page 1650
 if usePyrexAtomsAndBonds(): #bruce 080220 revised this
     # usePyrexAtomsAndBonds tests that we want to, and can, import all
     # necessary symbols from atombase
-    from atombase import BondSetBase, BondBase
-    class BondSet(BondSetBase):
+    from atombase import BondDictBase, BondBase
+    class BondSet(BondDictBase):
         def __init__(self):
-            BondSetBase.__init__(self)
+            BondDictBase.__init__(self)
             self.key = atKey.next() # FIX: Undefined variable 'atKey'.
                 # This atKey should be distinct from the one in chem.py, i think
                 # (and thus needs a different name, and no import of chem).
@@ -100,7 +100,7 @@ if usePyrexAtomsAndBonds(): #bruce 080220 revised this
                 # [bruce 071107 comment]
             return
         pass
-    print "Using Pyrex atoms in bonds.py"
+    print "Using atombase.pyx in bonds.py"
 else:
     def BondSet():
         return { }

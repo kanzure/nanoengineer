@@ -140,7 +140,7 @@ if usePyrexAtomsAndBonds(): #bruce 080220 revised this
             self.key = atKey.next()
             return
         pass
-    print "Using Pyrex atoms in chem.py"
+    print "Using atombase.pyx in chem.py"
     _using_pyrex_atoms = True
 else:
     def AtomDict():
