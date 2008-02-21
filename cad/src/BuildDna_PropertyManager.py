@@ -257,7 +257,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
          
         selectedStrands = []
         selectedSegments = []
-        if self.editCommand and self.editCommand.struct:
+        if self.editCommand is not None and self.editCommand.hasValidStructure():
             selectedStrands = self.editCommand.struct.getSelectedStrands()
             selectedSegments = self.editCommand.struct.getSelectedSegments()
              
@@ -363,7 +363,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
     def _editDnaSegment(self):
         """
         """
-        if self.editCommand and self.editCommand.struct: 
+        if self.editCommand is not None and self.editCommand.hasValidStructure(): 
             selectedSegments = self.editCommand.struct.getSelectedSegments()
             if len(selectedSegments) == 1:
                 selectedSegments[0].edit()
@@ -410,7 +410,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         #will do an isinstance(node, Chunk) check . Note that it includes both  
         #Strands and Axis chunks -- Ninad 2008-01-09
         
-        if self.editCommand and self.editCommand.struct:
+        if self.editCommand and self.editCommand.hasValidStructure():
             strandChunkList = self.editCommand.struct.getStrands()
             
             self.strandListWidget.insertItems(
