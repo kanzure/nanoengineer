@@ -99,7 +99,7 @@ from constants import ErrorPickedColor
 from constants import PickedColor
 
 from GlobalPreferences import disable_do_not_draw_open_bonds
-from GlobalPreferences import enablePyrexAtoms
+from GlobalPreferences import usePyrexAtomsAndBonds
 
 from bond_constants import V_SINGLE
 from bond_constants import min_max_valences_from_v6
@@ -125,10 +125,14 @@ from Selobj import Selobj_API
 
 # ==
 
+# define AtomDict and AtomBase differently depending on whether we are
+# using Pyrex Atoms and Bonds (atombase.pyx):
+
 _using_pyrex_atoms = False
-try:
-    if not enablePyrexAtoms():
-        raise ImportError
+
+if usePyrexAtomsAndBonds(): #bruce 080220 revised this
+    # usePyrexAtomsAndBonds tests that we want to, and can, import all
+    # necessary symbols from atombase
     from atombase import AtomDictBase, AtomBase
     class AtomDict(AtomDictBase):
         def __init__(self):
@@ -136,22 +140,9 @@ try:
             self.key = atKey.next()
             return
         pass
-    print "Use Pyrex atoms in chem.py"
+    print "Using Pyrex atoms in chem.py"
     _using_pyrex_atoms = True
-except (ImportError, ValueError):
-    # TODO: print the exception unless it is the one raised artificially above.
-    #
-    # Note: a ValueError can be printed like this, perhaps due to compiling with
-    # the wrong Numeric/arrayobject.h (guess, not yet verified):
-    #   File "/Nanorex/trunk/cad/src/atombase.pyx", line 60, in atombase
-    #   ctypedef class Numeric.ArrayType [object PyArrayObject]:
-    #   ValueError: Numeric.ArrayType does not appear to be the correct type object
-    # But it doesn't seem to be caught here, so perhaps it's printed at a lower
-    # level and causes immediate exit. If you get stuck in this state, edit the
-    # definition of enablePyrexAtoms to return False (not just this use of it,
-    # since it's used like this in more than one file). [bruce 080218]
-    if enablePyrexAtoms():
-        print "Unable to use Pyrex atoms in chem.py as requested (exception discarded)"
+else:
     def AtomDict():
         return { }
     class AtomBase:

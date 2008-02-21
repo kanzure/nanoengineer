@@ -7,7 +7,8 @@ Routines that test for various global user preferences.
 Note: this module is likely to be imported early, and should be
 considered a low level support module.  As such, importing it should
 not drag in much else.  As of 2007/09/05, that's probably not true
-yet.
+yet. [That goal may be impractical and not really necessary, given
+the kinds of things in it so far -- bruce 080220 comment]
 
 @author: Eric Messick
 @version: $Id$
@@ -16,15 +17,61 @@ yet.
 
 from prefs_constants import permit_atom_chunk_coselection_prefs_key
 from debug_prefs import debug_pref, Choice_boolean_False ##, Choice_boolean_True
+from debug import print_compact_traceback
 
-def enablePyrexAtoms(): #bruce 080218
+# ==
+
+_pyrex_atoms_failed = False
+
+def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
     """
-    Should we try to import atombase (compiled from atombase.pyx)?
+    Should we, and if so can we successfully, import the necessary symbols
+    from atombase (compiled from atombase.pyx and associated files)
+    for using the "Pyrex atoms" C/Pyrex code to optimize classes Atom and Bond?
     """
+    global _pyrex_atoms_failed
+    
+    if _pyrex_atoms_failed:
+        return False
+    
     res = debug_pref("Enable pyrex atoms next time",
                      Choice_boolean_False,
                      prefs_key = True)
+
+    # uncomment this line to temporarily override the above debug_pref:
+    ## res = True # do not commit with this line active
+    
+    if res:
+        # make sure it works, before telling caller to use it
+        try:
+            _test_atombase()
+        except:
+            # note: the known possible exceptions would be caught by
+            # "except (ImportError, ValueError):"
+            _pyrex_atoms_failed = True # don't try it again
+            msg = "exception importing atombase as requested -- won't use it: "
+            print_compact_traceback(msg)
+            import env # import cycle??
+            # note: in present implem of history [080220], this is printed too
+            # early to show up in the widget, but hopefully that will be fixed
+            env.history.redmsg("ERROR: unable to use experimental Pyrex Atoms and Bonds from atombase module; see console prints")
+            res = False
+        else:
+            # for now, we need a can't miss note for success, as well (red, though not an error):
+            print "\nNOTE: using experimental Pyrex Atoms and Bonds from atombase module\n"
+            import env # import cycle??
+            env.history.redmsg("NOTE: using experimental Pyrex Atoms and Bonds from atombase module")
+        pass
     return res
+
+def _test_atombase():
+    import atombase # this must not be made into a toplevel import!
+    from atombase import AtomBase, AtomDictBase, BondBase, BondSetBase
+        # presently I get:
+        #   ImportError: cannot import name BondSetBase [bruce 070220]
+    return
+
+# ==
 
 # bruce 060721; intended to become constant True for A9
 def permit_atom_chunk_coselection():

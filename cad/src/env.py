@@ -242,6 +242,7 @@ class pre_init_fake_history_widget: #bruce 050901 moved this here from MWsemanti
         print msg
         # REVIEW: should we use print_compact_stack instead, if atom_debug is set?
         return
+    redmsg = orangemsg = greenmsg = message #bruce 080220
     pass
 
 history = pre_init_fake_history_widget() # this will be changed by MWsemantics.__init__ [bruce 050727]
