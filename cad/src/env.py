@@ -296,6 +296,8 @@ from glselect_name_dict import glselect_name_dict
 _shared_glselect_name_dict = glselect_name_dict()
 
 obj_with_glselect_name = _shared_glselect_name_dict.obj_with_glselect_name
+    # client code should be revised to use assy.object_for_glselect_name
+    # in place of env.obj_with_glselect_name.get
 
 alloc_my_glselect_name = _shared_glselect_name_dict.alloc_my_glselect_name
 

@@ -6,6 +6,8 @@ glselect_name_dict.py - allocate GL_SELECT names and record their owners.
 @version: $Id$
 @copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 
+Module classification: ### TODO
+
 History:
 
 bruce 080220 split this out of env.py so we can make it per-assy.
@@ -66,6 +68,10 @@ class glselect_name_dict(object):
         """
         return self.obj_with_glselect_name.get( glname)
 
+    # Todo: add a variant of object_for_glselect_name to which the entire
+    # name stack should be passed. Current code (080220) passes the last
+    # (innermost) element of the name stack.
+    
     # Maybe todo: add methods for temporarily removing glname from dict (without deallocating it)
     # and for restoring it, so killed objects needn't have names in the dict.
     # This would mean we needn't remove the name when destroying a killed object,
