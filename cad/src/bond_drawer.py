@@ -217,9 +217,9 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False, bool_fullB
         #bruce 050708 new feature -- borrow name from our singlet
         # (only works because we have at most one)
         # (also required a change in Atom.draw_in_abs_coords)
-        glname = atom1.glname
+        glname = atom1.get_glname(glpane)
     elif atom2.element is Singlet:
-        glname = atom2.glname
+        glname = atom2.get_glname(glpane)
     else:
         glname = self.glname
 

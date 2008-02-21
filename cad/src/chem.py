@@ -446,8 +446,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # but self might still be listed in some dicts in that undo_archive (not sure),
         # and maybe in various global dicts (changedicts, glname dict, dna updater error dict, etc).
         # This makes it hard to destroy self and all its storage, when self's assy is destroyed.
-        # To fix this, we might keep a dict in assy of all atoms ever in it (via chunk.addatom and its inlinings)
-        # and/or keep a permanent _assy field in self. Not yet decided. Making _nullMol per-assy
+        # To fix this, we might keep a dict in assy of all atoms ever in it,
+        # and/or keep a permanent _f_assy field in self. Not yet decided. Making _nullMol per-assy
         # would not help unless we can always use it rather than None, but that's hard because
         # atoms initially don't know assy, and Undo probably assumes the initial state of .molecule
         # is None. So a lot of code would need analysis to fix that, whereas a new one-purpose
@@ -510,8 +510,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     _s_attr_atomtype = S_DATA
 
-    # these are needed for repeated destroy [bruce 060322]
-    glname = 0
+    # these are needed for repeated destroy: [bruce 060322]
+    _glname = 0 # made this private, bruce 080220
     if not _using_pyrex_atoms:
         key = 0   # BAD FOR PYREX ATOMS - class variable vs. instance variable
 
@@ -573,7 +573,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         _changed_parent_Atoms[self.key] = self # since this dict tracks all new atoms (i.e. liveness of atoms) (among other things)
 
         # done later, since our assy is not yet known: [bruce 080220]
-        ## self.glname = assy.alloc_my_glselect_name( self)
+        ## self._glname = assy.alloc_my_glselect_name( self)
         
         # self.element is an Elem object which specifies this atom's element
         # (this will be redundant with self.atomtype when that's set,
@@ -651,11 +651,16 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
     
     def _f_set_assy(self, assy): #bruce 080220
         """
-        [friend method for Chunk.addatom and anything that can set
-         our .molecule]
+        [friend method for anything that can change our assy or be the first
+         to realize what it is.]
         
         Set a new or different value of self._f_assy.
         Do necessary internal updates.
+
+        @warning: NOT YET CALLED ENOUGH to be sure all atoms have _f_assy set
+                  which have a well-defined assy. If that is needed by anything
+                  that might run on non-live atoms, we'll have to find more places
+                  to set it so we can be sure it's known for them.
 
         @note: self._f_assy might be None, or a different assy.
                (But I don't know if the "different assy" case
@@ -665,24 +670,28 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                if assy is not self._f_assy.
 
         @note: the caller may or may not have already changed self.molecule
-               to a chunk in assy. (Existing callers differ in this, as of 080220.)
+               to be consistent with assy, so we can't assume it's consistent.
+               This could probably be changed if necessary.
         """
         assert assy is not None
         # (in fact it has to be an assembly object, but no assert is needed
         #  since the methods calls below will fail if it's not;
         #  but at least during devel we'll assert it's not the fake one from _nullMol:)
-        assert type(assy) is not type("") # from _nullMol?
-            # if so, need special case in addatom in that class.
+        assert type(assy) is not type("")
+            # make sure we're not given a fake assy from _nullMol.
+            # If we ever are, we'll need a special case in the caller.
         
         # leave old assy, if any
         if self._f_assy is not None:
             print "%r._f_set_assy: leaving old assy %r, for new one %r. Implem of this case is untested." % \
                   (self, self._f_assy, assy)
-            self._f_assy.dealloc_my_glselect_name( self, self.glname)
+            self._f_assy.dealloc_my_glselect_name( self, self._glname)
 
         # join new assy
-        self.glname = assy.alloc_my_glselect_name( self)
-            # needed before drawing self or its bonds
+        self._glname = assy.alloc_my_glselect_name( self)
+            # needed before drawing self or its bonds,
+            # so those must ask for it via self.get_glname(glpane),
+            # which calls this method if necessary to set it
             # [bruce 050610, revised 080220]
         self._f_assy = assy
         
@@ -901,8 +910,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # Ideally we'd remove cycles, not worry about transient refs in change-trackers, make change-trackers robust
         # to being told about destroyed atoms, and that would be enough. Not yet sure whether that's practical.
         # [bruce 060327 comment]
-        env.dealloc_my_glselect_name( self, self.glname )
-        self.glname = 0
+        env.dealloc_my_glselect_name( self, self._glname )
+        self._glname = 0
         key = self.key
         for dict1 in _Atom_global_dicts:
             #e even this might be done by StateMixin if we declare these dicts to it for the class
@@ -1365,6 +1374,42 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         self.overdraw_with_special_color( color,
             factor = self._BOND_GEOM_ERROR_RADIUS_MULTIPLIER)
 
+    def get_glname(self, glpane): #bruce 080220
+        """
+        Return our OpenGL GLSELECT name, allocating it now
+        (in self._f_set_assy, using glpane for its assy)
+        if necessary.
+        """
+        glname = self._glname # made this private, 080220
+        if not glname:
+            # Note: testing for this here seems correct, and might even be more
+            # principled than in Chunk.addatom (where I iniiially tried testing
+            # for self._f_assy, an equivalent test for now, 080220), and is
+            # surely more efficient, and is easier since addatom is inlined a
+            # lot. BUT this place alone is not enough to guarantee self._f_assy
+            # gets set for all atoms that have one. See comment about that in
+            # self._f_set_assy(). [bruce 080220]
+            assert self._f_assy is None
+            if glpane.assy is not self.molecule.assy:
+                print "\nbug?: glpane %r .assy %r is not %r.molecule %r .assy %r" % \
+                      (glpane, glpane.assy, self, self.molecule, self.molecule.assy )
+            assy = glpane.assy
+                # todo: in principle we'd prefer self.molecule.assy if it's always set;
+                # but unless we add code to look for it carefully and fall back to
+                # glpane.assy, that's less safe, so use this for now. This is the only
+                # reason we need glpane as an argument, btw. The glname doesn't depend
+                # on it and will never need to AFAIK.
+            self._f_set_assy( assy) # this sets self._glname (and nothing else does)
+                # note: it's not clearly better to set _f_assy than to just set _glname
+                # directly here. This will change if more things use _f_assy, but then
+                # other places to set it will also be needed.
+            glname = self._glname
+            assert glname
+            ## print "fyi: set glname during draw of %r, assy = %r, glpane = %r" % \
+            ##       (self, assy, glpane)
+            pass
+        return glname
+
     def draw(self, glpane, dispdef, col, level):
         """
         Draw this atom (self), using an appearance which depends on
@@ -1387,6 +1432,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         (caller can draw selatom separately, on top of the regular atom).
         """
         assert not self.__killed
+
+        glname = self.get_glname(glpane)
+
         disp = default_display_mode # to be returned in case of early exception
 
         # note use of basepos (in atom.baseposn) since it's being drawn under
@@ -1399,8 +1447,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             pickedrad = drawrad * 1.1
         color = col or self.drawing_color()
 
-        glname = self.glname
-        assert glname
         glPushName( glname) #bruce 050610 (for comments, see same code in Bond.draw)
             # (Note: these names won't be nested, since this method doesn't draw bonds;
             #  if it did, they would be, and using the last name would be correct,

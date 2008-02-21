@@ -1014,9 +1014,10 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #   whether its bonds are valid.]
         # make atom know self as its .molecule
         assert atm.molecule is None or atm.molecule is _nullMol
-        if atm._f_assy is not self.assy:
-            #bruce 080220 new feature
-            atm._f_set_assy(self.assy)
+#bruce 080220 new feature -- but now being done elsewhere (more efficient,
+# and useless here unless also done in all inlined versions, which is hard):
+##        if atm._f_assy is not self.assy:
+##            atm._f_set_assy(self.assy)
         atm.molecule = self
         chem._changed_parent_Atoms[atm.key] = atm #bruce 060322
         atm.index = -1 # illegal value
