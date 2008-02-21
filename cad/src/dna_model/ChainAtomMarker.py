@@ -127,7 +127,7 @@ class ChainAtomMarker(Jig):
             assert len(atomlist) <= _NUMBER_OF_MARKER_ATOMS
             if atomlist:
                 print "bug? %r.setAtoms(%r), len != _NUMBER_OF_MARKER_ATOMS or 0" % \
-                      self, atomlist
+                      (self, atomlist)
             self.marked_atom = self.next_atom = None #bruce 080216
         self._check_atom_order() #bruce 080216 do in all cases, was just main one
         return
