@@ -130,4 +130,16 @@ class PastePropertyManager(BuildAtomsPropertyManager):
 
         # Post message.
         self.MessageGroupBox.insertHtmlMessage(msg, minLines = 5)
+        
+    def _addWhatsThisText( self ):
+        """
+        What's This text for widgets in this Property Manager.  
+        """
+        pass
+                
+    def _addToolTipText(self):
+        """
+        Tool Tip text for widgets in this Property Manager.  
+        """
+        pass
     
