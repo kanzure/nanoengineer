@@ -34,6 +34,7 @@ from EditCommand import EditCommand
 
 
 from dna_model.DnaSegment import DnaSegment
+from dna_model.DnaGroup   import DnaGroup
 
 
 from utilities.Log  import redmsg, greenmsg
@@ -89,23 +90,47 @@ class DnaDuplex_EditCommand(EditCommand):
     #(which is BuildDna_Editcommand as of 2008-01-11) provides. When user exits
     #this command and returns back to the previous one (BuildDna_EditCommand),
     #it calls this method and provides a list of segments created while this 
-    #command was  running (self._segmentList). 
+    #command was  running. (the segments are stored within a temporary dna group
+    #see self._temporary_dnaGroup
     callback_addSegments  = None
     
     #This is set to BuildDna_EditCommand.flyoutToolbar (as of 2008-01-14, 
     #it only uses 
     flyoutToolbar = None
     
-    _segmentList = []
+    
 
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for DnaDuplex_EditCommand
         """
-        EditCommand.__init__(self, commandSequencer)
+        
+        EditCommand.__init__(self, commandSequencer)        
+        
+        #_temporary_dnaGroup stores the DnaSegments created while in 
+        #this command. While exiting the command the list of segments of this group
+        #is given to the BuildDna_EditCommand where they get their new parent. 
+        #see self.restore_gui
+        self._temporary_dnaGroup = None
         self.struct = struct
+        
+    def _createTemporaryDnaGroup(self):
+        """
+        Creates a temporary DnaGroup object in which all the DnaSegments 
+        created while in this command will be added as members. 
+        While exiting this command, these segments will be added first taken 
+        away from the temporary group and then added to the DnaGroup of
+        BuildDna_EditCommand 
+        @see: self.restore_gui
+        @see: BuildDna_EditCommand.callback_addSegments()
+        """
+        if self._temporary_dnaGroup is None:
+            self.win.assy.part.ensure_toplevel_group()
+            self._temporary_dnaGroup =  DnaGroup("temporary Dna", 
+                             self.win.assy,
+                             self.win.assy.part.topnode )
+        
             
-    
     def init_gui(self):
         """
         Do changes to the GUI while entering this command. This includes opening 
@@ -146,8 +171,6 @@ class DnaDuplex_EditCommand(EditCommand):
                 if not self.flyoutToolbar.dnaDuplexAction.isChecked():
                     self.flyoutToolbar.dnaDuplexAction.setChecked(True)
                 
-        
-        self._segmentList = []
                     
 
     def restore_gui(self):
@@ -157,8 +180,7 @@ class DnaDuplex_EditCommand(EditCommand):
         Note: The slot connection/disconnection in property manager and 
         command toolbar is handled in those classes.
         @see: L{self.init_gui}
-        """
-                    
+        """                    
         EditCommand.restore_gui(self)
         
         if isinstance(self.graphicsMode, DnaLine_GM):
@@ -167,20 +189,29 @@ class DnaDuplex_EditCommand(EditCommand):
         self.graphicsMode.resetVariables()
         
         #See BuildDna_EditCommand.callback_addSegments
-        self.callback_addSegments(self._segmentList)
-        
+        segmentList = []
+        if self._temporary_dnaGroup is not None:
+            #dna_updater need to tolerate the following 
+            #temporarily (hopefully no update will happen in the mean time)
+            #the dnaSegments will not be contained within 
+            #a dnaGroup. This will be fixed immediately in 
+            #self.callback_addSegments.
+            segmentList = self._temporary_dnaGroup.steal_members()
+            self._temporary_dnaGroup.kill()        
+            self._temporary_dnaGroup = None
+            
+        self.callback_addSegments(segmentList)    
+
         if self.flyoutToolbar:
             self.flyoutToolbar.dnaDuplexAction.setChecked(False)
-        
-        self._segmentList = []
-                
-        
+
     
     def runCommand(self):
         """
         Overrides EditCommand.runCommand
         """
-        self.struct = None     
+        self.struct = None   
+        self._createTemporaryDnaGroup()
 
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
         """
@@ -233,8 +264,9 @@ class DnaDuplex_EditCommand(EditCommand):
         #Another bug: What if something else in the glpane is selected? 
         #complete fix would be to call unpick_all_in_the_glpane. But 
         #that itself is undesirable. Okay for now -- Ninad 2008-02-20
-        for segment in self._segmentList:
-            segment.unpick()
+        if self._temporary_dnaGroup is not None:
+            for segment in self._temporary_dnaGroup.members:
+                segment.unpick()
             
                 
         #set some properties such as duplexRise and number of bases per turn
@@ -246,12 +278,7 @@ class DnaDuplex_EditCommand(EditCommand):
                   self.propMgr.basesPerTurnDoubleSpinBox.value())
         
         self.struct.setProps(params)
-        
-        #Now append the new structure in self._segmentList (this list of 
-        #segments
-        #will be provided to the previous command (BuildDna_EditCommand)
-        self._segmentList.append(self.struct)
-        
+                
         #clear the mouseClickPoints list
         self.mouseClickPoints = [] 
         self.graphicsMode.resetVariables()
@@ -331,14 +358,6 @@ class DnaDuplex_EditCommand(EditCommand):
         self.previousParams = params
 
         self.struct = self._createStructure()
-        #Now append the new structure in self._segmentList (this list of 
-        #segments
-        #will be provided to the previous command (BuildDna_EditCommand)
-        #TODO: Should self._createStructure does the job of appending the 
-        #structure 
-        #to the list of segments? This fixes bug 2599 
-        #(see also BuildDna_PropertyManager.Ok 
-        self._segmentList.append(self.struct)
         return 
     
     def cancelStructure(self):
@@ -352,22 +371,19 @@ class DnaDuplex_EditCommand(EditCommand):
     
     def _removeSegments(self):
         """
-        Remove the segments in self._segmentList. This deletes all the segments
-        created while this command was running
+        Remove the segments in self._temporary_dnaGroup. 
+        This deletes all the segments created while this command was running
         @see: L{self.cancelStructure}
         """
-        if self._segmentList:
-            for segment in self._segmentList:   
+        if self._temporary_dnaGroup is not None:
+            segmentList = self._temporary_dnaGroup.steal_members() 
+            for segment in segmentList:   
                 segment.kill()       
                 self._revertNumber()
             
-            self._segmentList = []
-            self.win.win_update() 
-    
-    def _removeStructure(self):
-        if self.struct in self._segmentList:
-            self._segmentList.remove(self.struct)            
-        EditCommand._removeStructure(self)
+            self._temporary_dnaGroup.kill()
+            self._temporary_dnaGroup = None
+            self.win.win_update()
         
 
     def NOT_USED_acceptParamsFromTemporaryMode(self, commandName, params):
@@ -492,11 +508,15 @@ class DnaDuplex_EditCommand(EditCommand):
         # --Part.ensure_toplevel_group method. This is an important line
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
-        if 1:
-            dnaSegment = DnaSegment(self.name, 
-                         self.win.assy,
-                         self.win.assy.part.topnode,
-                         editCommand = self  )
+        
+        if self._temporary_dnaGroup is None:
+            self._createTemporaryDnaGroup()
+        
+        
+        dnaSegment = DnaSegment(self.name, 
+                     self.win.assy,
+                     self._temporary_dnaGroup,
+                     editCommand = self  )
         try:
             # Make the DNA duplex. <dnaGroup> will contain three chunks:
             #  - Strand1
@@ -509,7 +529,7 @@ class DnaDuplex_EditCommand(EditCommand):
                      endPoint1,
                      endPoint2)
         
-            return dnaSegment
+            return self._temporary_dnaGroup
 
         except (PluginBug, UserError):
             # Why do we need UserError here? Mark 2007-08-28
