@@ -17,7 +17,8 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXSceneGraph.h \
  ../../../include/Nanorex/Interface/NXTrackball.h \
  ../../../include/Nanorex/Interface/NXRendererPlugin.h \
- ../../../include/Nanorex/Interface/NXRenderingEngine.h
+ ../../../include/Nanorex/Interface/NXRenderingEngine.h \
+ ../../../include/Nanorex/Interface/NXAtomData.h
 
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH)
@@ -31,7 +32,8 @@ SOURCES += ../../Interface/NXDataStoreInfo.cpp \
  ../../Interface/NXBondRenderData.cpp \
  ../../Interface/NXNanoVisionResultCodes.cpp \
  ../../Interface/NXSceneGraph.cpp \
- ../../Interface/NXRenderingEngine.cpp
+ ../../Interface/NXRenderingEngine.cpp \
+ ../../Interface/NXAtomData.cpp
 
 TEMPLATE = lib
 

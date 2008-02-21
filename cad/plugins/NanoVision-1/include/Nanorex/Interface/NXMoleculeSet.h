@@ -4,6 +4,7 @@
 #define NX_MOLECULESET_H
 
 #include <list>
+#include <string>
 using namespace std;
 
 #include <openbabel/mol.h>
@@ -27,39 +28,44 @@ typedef std::list<OBMol*>::iterator OBMolIterator;
  * @ingroup ChemistryDataModel, NanorexInterface
  */
 class NXMoleculeSet {
-	public:
-		NXMoleculeSet();
-		~NXMoleculeSet();
-		
-		void addChild(NXMoleculeSet* child) { children.push_back(child); }
-		NXMoleculeSetIterator childrenBegin() { return children.begin(); }
-		NXMoleculeSetIterator childrenEnd() { return children.end(); }
-		NXMSInt childCount() { return children.size(); }
-
-		//
-		// Molecules
-		//
-		OBMol* newMolecule();
-		OBMolIterator moleculesBegin() { return molecules.begin(); }
-		OBMolIterator moleculesEnd() { return molecules.end(); }
-		NXABMInt moleculeCount() { return molecules.size(); }
-		
-		void getCounts(unsigned int& moleculeCount, unsigned int& atomCount,
-					   unsigned int& bondCount);
-
-        /// Does the molecule-set tree have any atoms?
-        bool empty(void);
+public:
+    NXMoleculeSet();
+    ~NXMoleculeSet();
     
-	private:
-		static unsigned int NextMoleculeIndex;
-		
-		std::list<NXMoleculeSet*> children;
-		std::list<OBMol*> molecules;
-		
-		void getCountsHelper(unsigned int& moleculeCount,
-							 unsigned int& atomCount,
-							 unsigned int& bondCount,
-							 NXMoleculeSet* moleculeSet);		
+    void addChild(NXMoleculeSet* child) { children.push_back(child); }
+    NXMoleculeSetIterator childrenBegin() { return children.begin(); }
+    NXMoleculeSetIterator childrenEnd() { return children.end(); }
+    NXMSInt childCount() { return children.size(); }
+    
+        //
+        // Molecules
+        //
+    OBMol* newMolecule();
+    OBMolIterator moleculesBegin() { return molecules.begin(); }
+    OBMolIterator moleculesEnd() { return molecules.end(); }
+    NXABMInt moleculeCount() { return molecules.size(); }
+    
+    void getCounts(unsigned int& moleculeCount, unsigned int& atomCount,
+                   unsigned int& bondCount);
+    
+    /// Does the molecule-set tree have any atoms?
+    bool empty(void);
+    
+    void setTitle(std::string const& theTitle) { title = theTitle; }
+    std::string const& getTitle(void) const { return title; }
+    
+private:
+    static unsigned int NextMoleculeIndex;
+    
+    std::list<NXMoleculeSet*> children;
+    std::list<OBMol*> molecules;
+    
+    std::string title;
+    
+    void getCountsHelper(unsigned int& moleculeCount,
+                         unsigned int& atomCount,
+                         unsigned int& bondCount,
+                         NXMoleculeSet* moleculeSet);		
 };
 
 
