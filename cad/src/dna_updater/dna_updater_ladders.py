@@ -380,25 +380,39 @@ def merge_ladders(new_ladders):
     # or some sort of real or virtual atom chains (merge is faster).
     # (As of 080114 I think they are real atom chains, not yet associated
     #  with chunks.)
+    
     res = [] # collects ladders that can't be merged
+    
     while new_ladders: # has ladders untested for can_merge
+        
+        # note about invalid ladders during these loops:
+        # in the first iteration of this outer loop, the ladders in
+        # new_ladders are newly made, all valid (though they might be invalid
+        # by the time the inner loop reaches them, if they got merged into a
+        # ladder encountered earlier in that loop over new_ladders). In all
+        # other iterations they are newly merged ladders, but they might
+        # *already* be invalid if they got merged again by a later ladder
+        # in the inner loop that merged them. (Or they might become invalid
+        # during the loop, just as in the first iteration.)
+        # In all cases it means nothing if they are invalid now,
+        # and they should just be skipped if they are invalid when encountered.
+        # [comment and behavior revised to fix bug from incorrect assertion,
+        #  bruce 080222; earlier partial version of skip, bruce 080122]
+        
         next = [] # new_ladders for next iteration
-        for ladder in new_ladders:
-            assert ladder.valid # should be true as we start the following inner loop
-                # (not sure it's required, but it's a sanity check --
-                #  in first outer loop iteration these are newly made ladders,
-                #  in all other iterations they are newly merged ladders)
+        
         for ladder in new_ladders:
             if not ladder.valid:
-                # this means ladder got merged into another ladder
-                # (as "other", for the other ladder being "self" in can_merge)
-                # earlier during this loop. Don't include it in the result! (bugfix 080122 3pm [unconfirmed])
+                # just skip it (not an error, as explained above)
                 pass
             else:
                 can_merge_info = ladder.can_merge() # (at either end)
                 if can_merge_info:
                     merged_ladder = ladder.do_merge(can_merge_info)
-                        # note: invals the old ladders
+                        # note: this invals the old ladders, one of which is
+                        # ladder; the other might be later in new_ladders, or
+                        # already appended to next earlier during this loop,
+                        # or not known to this function.
                         # Q: what if the rails (also merged here) are already
                         # contained in wholechains?
                         # A: they're not yet contained in those -- we find those
