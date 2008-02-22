@@ -337,7 +337,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
             ##@@ use more, also know is_mutable about them, maybe more policy about del on copy
             # as of 060330 this is only used by commented-out code not yet adapted from attr to attrcode.
         self.warn = True # from decls seen so far, do we need to warn about this class (once, when we encounter it)?
-        self.debug_all_attrs = False # was env.debug(); can normally be False now that system works
+        self.debug_all_attrs = False # was env.debug(); can normally be False now that system works # DEBUG_PYREX_ATOMS?
         
         self._find_attr_decls(class1) # fills self.policies and some other instance variables derived from them
 
@@ -351,14 +351,14 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or hasattr(class1, '_s_deepcopy')
             # WARNING: this code is duplicated/optimized in _same_InstanceType_helper [as of bruce 060419, for A7]
 
-        if self.warn and env.debug():
+        if self.warn and (env.debug() or DEBUG_PYREX_ATOMS):
             # note: this should not be env.debug() since anyone adding new classes needs to see it...
             # but during development, with known bugs like this, we should not print stuff so often...
             # so it's env.debug for now, ####@@@@ FIX THAT LATER  [060227]
             print "InstanceClassification for %r sees no mixin or _s_attr decls; please add them or register it (nim)" \
                   % class1.__name__
 
-        if env.debug() and not self.attrcodes_with_no_dflt and self.attrcode_dflt_pairs: #060302; doesn't get printed (good)
+        if (env.debug() or DEBUG_PYREX_ATOMS) and not self.attrcodes_with_no_dflt and self.attrcode_dflt_pairs: #060302; doesn't get printed (good)
             print "InstanceClassification for %r: all attrs have defaults, worry about bug resetting all-default objects"\
                   % class1.__name__
         return
@@ -441,8 +441,8 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                         attrcode = (attr_its_about, acode)
                         self.attrcode_dflt_pairs.append( (attrcode, dflt) )
                         self.attrcode_defaultvals[attrcode] = dflt
-                        if env.debug() and is_mutable(dflt): #env.debug() (redundant here) is just to make prerelease snapshot safer
-                            if env.debug():
+                        if (env.debug() or DEBUG_PYREX_ATOMS) and is_mutable(dflt): #env.debug() (redundant here) is just to make prerelease snapshot safer
+                            if (env.debug() or DEBUG_PYREX_ATOMS):
                                 print "debug warning: dflt val for %r in %r is mutable: %r" % (attr_its_about, class1, dflt)
                             pass # when we see what is warned about, we'll decide what this should do then [060302]
                                 # e.g. debug warning: dflt val for 'axis' in <class jigs_motors.LinearMotor at 0x3557d50>
@@ -612,7 +612,7 @@ def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficienc
     (See a code comment for the reason we can't just use the standard Python copy module for this.)
     """
     global _debug_deepcopy
-    _debug_deepcopy = debug_flags.atom_debug # inlined env.debug()
+    _debug_deepcopy = debug_flags.atom_debug # inlined env.debug() # DEBUG_PYREX_ATOMS?
         ##e ideally we'd have a recursive _copy_val_helper that doesn't check this debug flag at all
     try:
         # wware 060308 small performance improvement (use try/except); made safer by bruce, same day
@@ -766,7 +766,7 @@ known_type_scanners[ InstanceType ] = scan_InstanceType
 
 def copy_Numeric_array(obj):
     if obj.typecode() == PyObject:
-        if env.debug():
+        if (env.debug() or DEBUG_PYREX_ATOMS):
             print "atom_debug: ran copy_Numeric_array, PyObject case" # remove when works once ###@@@
         return array( map( copy_val, obj) )
             ###e this is probably incorrect for multiple dimensions; doesn't matter for now.
@@ -784,7 +784,7 @@ def copy_Numeric_array(obj):
 
 def scan_Numeric_array(obj, func):
     if obj.typecode() == PyObject: # note: this doesn't imply each element is an InstanceType instance, just an arbitrary Python value
-        if env.debug():
+        if (env.debug() or DEBUG_PYREX_ATOMS):
             print "atom_debug: ran scan_Numeric_array, PyObject case" # remove when works once ###@@@
         ## map( func, obj)
         for elt in obj:
@@ -799,7 +799,7 @@ def scan_Numeric_array(obj, func):
 try:
     from Numeric import array, PyObject
 except:
-    if env.debug():
+    if (env.debug() or DEBUG_PYREX_ATOMS):
         print "fyi: can't import array, PyObject from Numeric, so not registering its copy & scan functions"
 else:
     # note: related code exists in utilities/Comparison.py.
@@ -816,7 +816,7 @@ else:
 def copy_QColor(obj):
     from PyQt4.Qt import QColor
     assert obj.__class__ is QColor # might fail (in existing calls) if some other class has the same name
-    if env.debug():
+    if (env.debug() or DEBUG_PYREX_ATOMS):
         print "atom_debug: ran copy_QColor" # remove when works once; will equality work right? ###@@@
     return QColor(obj)
 
@@ -827,7 +827,7 @@ try:
     # (it is in theory).
     from PyQt4.Qt import QColor
 except:
-    if env.debug():
+    if (env.debug() or DEBUG_PYREX_ATOMS):
         print "fyi: can't import QColor from qt, so not registering its copy function"
 else:
     QColor_type = type(QColor())
@@ -1306,7 +1306,7 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
     #  which knows the attrs it contains? yes, that would be good... for some pseudocode
     #  related to this, see commented-out method xxx, just below.]
     chgd_atoms, chgd_bonds = archive.get_and_clear_changed_objs()
-    if env.debug():
+    if (env.debug() or DEBUG_PYREX_ATOMS):
         print "\nchanged objects: %d atoms, %d bonds" % (len(chgd_atoms), len(chgd_bonds))
     # discard wrong assy atoms... can we tell by having an objkey? ... imitate collect_s_children and (mainly) collect_state
     keyknower = archive.objkey_allocator
@@ -1474,7 +1474,7 @@ class StatePlace:
         # predicted bug if we try this on the initial state, so, need caller to use StatePlace there ####@@@@
         # (this bug never materialized, but I don't know why not!!! [bruce 060309])
         # sanity check re that:
-        if 0 and env.debug(): #060309
+        if 0 and env.debug(): #060309 # DEBUG_PYREX_ATOMS?
             print "debug: fyi: calling get_snap_back_to_self", self
                 # note: typically called twice per undoable command --
                 # is this due to (guess no) begin and end cp, or (guess yes) one recursive call??
@@ -1596,6 +1596,10 @@ class obj_classifier:
         Obj is known to be of InstanceType. Classify it (memoizing classifications per class when possible).
         It might be a StateHolder, Data object, or neither.
         """
+        if DEBUG_PYREX_ATOMS:
+            if not type(obj) is InstanceType:
+                print "bug: type(%r) is not InstanceType" % (obj,) ### too verbose if fails!! btw why is it a bug?
+                    # and i ought to review all other uses of InstanceType in this file. [bruce 080221 re DEBUG_PYREX_ATOMS]
         class1 = obj.__class__
         try:
             # easy & usual case: we recognize that __class__ -- just return the memoized answer.
@@ -1683,7 +1687,7 @@ class obj_classifier:
             """
             # note, obj1 might be (what we consider) either a StateHolder or a Data object (or neither).
             # Its clas will know what to do.
-            if env_debug:
+            if env_debug or DEBUG_PYREX_ATOMS:
                 #bruce 060314: realized there was a bug in scan_val -- it stops at all elements of lists, tuples, and dicts,
                 # rather than recursing as intended and only stopping at InstanceType objects.
                 # (copy_val and same_vals (py implems anyway) don't have this bug.)
@@ -1706,7 +1710,7 @@ class obj_classifier:
                                 deferred_category_collectors = deferred_category_collectors,
                                 exclude_layers = exclude_layers )
         allobjs = transclose( saw, obj_and_dict) #e rename both args
-        if 0 and env.debug(): 
+        if DEBUG_PYREX_ATOMS: ## 0 and env.debug(): 
             print "atom_debug: collect_s_children had %d roots, from which it reached %d objs, of which %d were data" % \
                   (len(saw), len(allobjs), len(data_objs))
         # allobjs includes both state-holding and data-holding objects. Remove the latter.
@@ -1755,7 +1759,7 @@ class obj_classifier:
             for attrcode, dflt in clas.attrcode_dflt_pairs: # for attrs holding state (S_DATA, S_CHILD*, S_PARENT*, S_REF*) with dflts
                 attr, acode_unused = attrcode
                 if clas.exclude(attr, exclude_layers):
-                    if env.debug():###@@@ rm when works
+                    if env.debug() or DEBUG_PYREX_ATOMS:###@@@ rm when works
                         print "debug: collect_state exclude_layers1 excludes", attr, "of", obj
                     continue
                 val = getattr(obj, attr, dflt)
@@ -1778,7 +1782,7 @@ class obj_classifier:
                 #attrdict[key] = valcopy
                 attr, acode_unused = attrcode
                 if clas.exclude(attr, exclude_layers):
-                    if env.debug():###@@@ rm when works
+                    if env.debug() or DEBUG_PYREX_ATOMS:###@@@ rm when works
                         print "debug: collect_state exclude_layers2 excludes", attr, "of", obj
                     continue
                 attrdicts[attrcode][key] = copy_val(getattr(obj, attr, _Bugval))
