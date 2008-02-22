@@ -23,6 +23,7 @@ nv1::nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget)
 	createActions();
 	createMenus();
 	createToolBars();
+	updateMenus();
 	createStatusBar();
 
 	readSettings();
@@ -48,16 +49,22 @@ void nv1::processCommandLine(int argc, char *argv[]) {
 		(commandLine.HasSwitch("-f"))) {
 		string filename = commandLine.GetArgument("-f", 0);
 		
+		string processType, processInit;
 		JobHandle* jobHandle = 0;
 		if (commandLine.GetArgumentCount("-p") == 2) {
-			string processType = commandLine.GetArgument("-p", 0);
-			string processInit = commandLine.GetArgument("-p", 1);
+			processType = commandLine.GetArgument("-p", 0);
+			processInit = commandLine.GetArgument("-p", 1);
 			if (processType == "GMX")
-				jobHandle = new GROMACS_JobHandle(processInit);
+				jobHandle = new GROMACS_JobHandle(processInit, this);
 		}
 		
 		QString message = tr("Opening file: %1").arg(filename.c_str());
-		NXLOG_INFO("", qPrintable(message));
+		if (jobHandle != 0)
+			message =
+				tr("%1 with job handle info: %2 %3")
+					.arg(message).arg(processType.c_str())
+					.arg(processInit.c_str());
+		NXLOG_INFO("nv1", qPrintable(message));
 		
 		if (resultsWindow->loadFile(filename.c_str())) {
 			statusBar()->showMessage(tr("File loaded"), 2000);
@@ -104,7 +111,7 @@ void nv1::about() {
 
 /* FUNCTION: updateMenus */
 void nv1::updateMenus() {
-	bool hasResultsWindow = (resultsWindow != 0);
+	bool hasResultsWindow = resultsWindow->isVisible();
 	closeAction->setEnabled(hasResultsWindow);
 	closeAllAction->setEnabled(hasResultsWindow);
 	tileAction->setEnabled(hasResultsWindow);
@@ -226,7 +233,7 @@ void nv1::createMenus() {
 	fileMenu->addSeparator();
 	fileMenu->addAction(exitAction);
 
-	processMenu = menuBar()->addMenu(tr("&Process"));
+	processMenu = menuBar()->addMenu(tr("&Job Management"));
 	
 	windowMenu = menuBar()->addMenu(tr("&Window"));
 	updateWindowMenu();

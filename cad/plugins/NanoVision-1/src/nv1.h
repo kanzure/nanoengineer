@@ -47,22 +47,31 @@ private:
 	QMenu* processMenu;
 	QMenu* windowMenu;
 	QMenu* helpMenu;
+	
 	QToolBar* fileToolBar;
 
 	MainWindowTabWidget* mainWindowTabs;
 	ResultsWindow* resultsWindow;
 	
-	QAction *openAction;
-	QAction *exitAction;
-	QAction *closeAction;
-	QAction *closeAllAction;
-	QAction *tileAction;
-	QAction *cascadeAction;
-	QAction *arrangeAction;
-	QAction *nextAction;
-	QAction *previousAction;
-	QAction *separatorAction;
-	QAction *aboutAction;
+	// File
+	QAction* openAction;
+	QAction* exitAction;
+	
+	// Job Management
+	QAction* abortJobAction;
+	
+	// Window
+	QAction* closeAction;
+	QAction* closeAllAction;
+	QAction* tileAction;
+	QAction* cascadeAction;
+	QAction* arrangeAction;
+	QAction* nextAction;
+	QAction* previousAction;
+	QAction* separatorAction;
+	
+	// Help
+	QAction* aboutAction;
 	
 	void createActions();
 	void createMenus();

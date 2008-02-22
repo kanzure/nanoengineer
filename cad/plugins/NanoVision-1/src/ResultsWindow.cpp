@@ -73,7 +73,6 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 	} else {
 		setCurrentFile(fileName);
 
-		//
 		// Discover a store-not-complete trajectory frame set
 		NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
 		int trajId = dataStoreInfo->getTrajectoryId("frame-set-1");
