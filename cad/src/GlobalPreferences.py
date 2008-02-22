@@ -23,6 +23,7 @@ from debug import print_compact_traceback
 
 _pyrex_atoms_failed = False
 _pyrex_atoms_succeeded = False
+_pyrex_atoms_unwanted_this_session = False
 
 def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
     """
@@ -30,15 +31,16 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
     from atombase (compiled from atombase.pyx and associated files)
     for using the "Pyrex atoms" C/Pyrex code to optimize classes Atom and Bond?
     """
-    global _pyrex_atoms_failed, _pyrex_atoms_succeeded
+    global _pyrex_atoms_failed, _pyrex_atoms_succeeded, _pyrex_atoms_unwanted_this_session
     
-    if _pyrex_atoms_failed:
+    if _pyrex_atoms_failed or _pyrex_atoms_unwanted_this_session:
         return False
     if _pyrex_atoms_succeeded:
         return True
     
-    res = debug_pref("Enable pyrex atoms next time",
+    res = debug_pref("Enable pyrex atoms in next session?",
                      Choice_boolean_False,
+                     non_debug = True, # revised this option and menu text (thus prefs key), bruce 080221
                      prefs_key = True)
 
     # uncomment the following line to temporarily override the above debug_pref,
@@ -69,6 +71,14 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
             import env # import cycle??
             env.history.redmsg("NOTE: using experimental Pyrex Atoms and Bonds from atombase module")
         pass
+
+    if not res:
+        _pyrex_atoms_unwanted_this_session = True # might be because it failed
+    
+    assert _pyrex_atoms_failed or _pyrex_atoms_succeeded or _pyrex_atoms_unwanted_this_session
+        # be sure we make up our mind whether to use them only once per session
+        # (so debug pref change does not take effect until we rerun NE1)
+    
     return res
 
 def _test_atombase():
@@ -76,6 +86,12 @@ def _test_atombase():
     from atombase import AtomBase, AtomDictBase, BondBase, BondDictBase
     return
 
+def debug_pyrex_atoms():
+    res = debug_pref("debug pyrex atoms?",
+                     Choice_boolean_False,
+                     non_debug = True,
+                     prefs_key = True )
+    return res
 # ==
 
 # bruce 060721; intended to become constant True for A9

@@ -35,6 +35,10 @@ from utilities import debug_flags
 from utilities.Comparison import same_vals, SAMEVALS_SPEEDUP
 from constants import remove_prefix
 
+from GlobalPreferences import debug_pyrex_atoms
+
+DEBUG_PYREX_ATOMS = debug_pyrex_atoms()
+
 ### TODO:
 '''
 Where is _s_deepcopy (etc) documented? (In code and on wiki?)
@@ -1628,6 +1632,13 @@ class obj_classifier:
 ##            ....
 ##            self.kluge_attr2metainfo[attr] = attr_metainfo
 ##            self.kluge_attr2metainfo_from_class[attr] = clas # only for debugging
+            if DEBUG_PYREX_ATOMS:
+                if not env.seen_before("DEBUG_PYREX_ATOMS"):
+                    from GlobalPreferences import usePyrexAtomsAndBonds
+                    on = usePyrexAtomsAndBonds()
+                    print "\nDEBUG_PYREX_ATOMS: Pyrex atoms is", on and "ON" or "OFF"
+                    print
+                print "DEBUG_PYREX_ATOMS: classify_class made InstanceClassification for %s" % (clas.class1.__name__,)
             return clas
         pass
     
@@ -1724,13 +1735,15 @@ class obj_classifier:
             # make a place to keep all the values we're about to grab
         attrdicts = snapshot.attrdicts
         len1 = len(objdict)
+        if DEBUG_PYREX_ATOMS:
+            print "\nDEBUG_PYREX_ATOMS: collect_state len(objdict) = %d" % len1
         for obj in objdict.itervalues():
             key = key4obj(obj)
             clas = self.classify_instance(obj)
-            if 0 and 'ENABLE SLOW TEST CODE':
+            if DEBUG_PYREX_ATOMS: ## if 0 and 'ENABLE SLOW TEST CODE': # @@@@@@@ 080221
                 if exclude_layers:
                     assert exclude_layers == ('atoms',) # the only one we support right here
-                    print "remove when works, once this code is debugged -- too slow!" ### bruce 071114
+                    ## print "remove when works, once this code is debugged -- too slow!" ### bruce 071114
                     ## if not ( clas.class1.__name__ not in ('Atom', 'Bond') ):
                     if getattr(obj, '_s_undo_specialcase', None) in (UNDO_SPECIALCASE_ATOM,
                                                                      UNDO_SPECIALCASE_BOND):
