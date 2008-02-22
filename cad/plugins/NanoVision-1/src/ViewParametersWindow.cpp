@@ -11,6 +11,7 @@ ViewParametersWindow::ViewParametersWindow(NXProperties* properties,
 	setupUi(this);
 	
 	textEdit->insertHtml("<b><i>InputParameters</i></b><br>");
+    if(properties == NULL) return;
 	vector<string> keys = properties->getPropertyKeys();
 	vector<string>::iterator iter = keys.begin();
 	QString line;
