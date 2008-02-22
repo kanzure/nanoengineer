@@ -317,4 +317,4 @@ def ToolTip_PasteItemPropertyManager(propMgr) :
     """
     propMgr.previewGroupBox.setToolTip("Preview Window")
     
-    propMgr.clipboardGroupBox.setToolTip("Clip Board")
+    propMgr.clipboardGroupBox.setToolTip("Clipboard")

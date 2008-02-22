@@ -1061,8 +1061,8 @@ def whatsThis_PasteItemsPropertyManager(propMgr):
        
         
         propMgr.clipboardGroupBox.setWhatsThis(
-            """<b>Clip Board</b>
+            """<b>Clipboard</b>
             <p>
-            This is a list of items contained on the Clip Board """ )
+            This is a list of items contained on the Clipboard """ )
     
    
