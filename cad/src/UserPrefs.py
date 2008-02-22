@@ -51,6 +51,9 @@ from prefs_constants import displayCompass_prefs_key
 from prefs_constants import displayCompassLabels_prefs_key
 from prefs_constants import displayPOVAxis_prefs_key
 from prefs_constants import animateStandardViews_prefs_key
+from prefs_constants import displayVertRuler_prefs_key
+from prefs_constants import displayHorzRuler_prefs_key
+from prefs_constants import rulerPosition_prefs_key
 from prefs_constants import rulerColor_prefs_key
 from prefs_constants import rulerOpacity_prefs_key
 from prefs_constants import showRulersInPerspectiveView_prefs_key
@@ -510,6 +513,8 @@ class UserPrefs(QDialog, Ui_UserPrefsDialog):
         self.setUI_LogoDownloadPermissions()
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
+        self.connect(self.rulerDisplayComboBox,SIGNAL("currentIndexChanged(int)"),self.set_ruler_display)
+        self.connect(self.rulerPositionComboBox,SIGNAL("currentIndexChanged(int)"),self.set_ruler_position)
         self.connect(self.ruler_color_btn,SIGNAL("clicked()"),self.change_ruler_color)
         self.connect(self.rulerOpacitySpinBox,SIGNAL("valueChanged(int)"),self.change_ruler_opacity)
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
@@ -1014,6 +1019,14 @@ restored when the user undoes a structural change.</p>
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentIndex(self.glpane.compassPosition)
         
+        if env.prefs[displayVertRuler_prefs_key] and env.prefs[displayHorzRuler_prefs_key]:
+            self.rulerDisplayComboBox.setCurrentIndex(0)
+        elif not env.prefs[displayHorzRuler_prefs_key]:
+            self.rulerDisplayComboBox.setCurrentIndex(1)
+        elif not env.prefs[displayVertRuler_prefs_key]:
+            self.rulerDisplayComboBox.setCurrentIndex(2)
+        
+        self.rulerPositionComboBox.setCurrentIndex(env.prefs[rulerPosition_prefs_key])
         connect_colorpref_to_colorframe( rulerColor_prefs_key, self.ruler_color_frame)
         self.rulerOpacitySpinBox.setValue(int(env.prefs[rulerOpacity_prefs_key] * 100))
         connect_checkbox_with_boolean_pref( self.showRulersInPerspectiveViewCheckBox, showRulersInPerspectiveView_prefs_key )
@@ -1831,7 +1844,48 @@ restored when the user undoes a structural change.</p>
             self.bg_gradient_setup()
         else:
             self.bg_solid_setup()
-            
+    
+    def set_ruler_display(self, display):
+        """
+        Set display of individual rulers.
+        
+        @param display: The ruler display, where:
+                    - 0 = display both rulers
+                    - 1 = display vertical ruler only
+                    - 2 = display horizontal ruler only
+        
+        @type  display: int
+        """
+        env.prefs[displayVertRuler_prefs_key] = True
+        env.prefs[displayHorzRuler_prefs_key] = True
+        
+        if display == 1:
+            env.prefs[displayHorzRuler_prefs_key] = False
+        
+        elif display == 2:
+            env.prefs[displayVertRuler_prefs_key] = False
+        
+        # update the glpane
+        self.glpane.gl_update()
+        
+    def set_ruler_position(self, position):
+        """
+        Set position of ruler(s).
+        
+        @param position: The ruler position, where:
+                    - 0 = lower left
+                    - 1 = upper left
+                    - 2 = lower right
+                    - 3 = lower right
+        
+        @type  position: int
+        """
+        # set the pref
+        env.prefs[rulerPosition_prefs_key] = position
+        
+        # update the glpane
+        self.glpane.gl_update()
+        
     def change_ruler_color(self):
         """
         Change the ruler color.

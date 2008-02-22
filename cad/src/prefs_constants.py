@@ -99,6 +99,9 @@ mouseSpeedDuringRotation_prefs_key = 'A9/Mouse Speed During Rotation' #Ninad 060
 displayOriginAsSmallAxis_prefs_key = 'A9/Display Origin As Small Axis' #Ninad 060920
 zoomAboutScreenCenter_prefs_key = 'A9/Zoom To Screen Center' #Ninad 060926
 displayRulers_prefs_key = 'A10/Display rulers'
+displayVertRuler_prefs_key = 'A10/Display vertical ruler'
+displayHorzRuler_prefs_key = 'A10/Display horizontal ruler'
+rulerPosition_prefs_key = 'A10/Ruler Position'
 rulerColor_prefs_key = 'A10/Ruler Color'
 rulerOpacity_prefs_key = 'A10/Ruler Opacity'
 showRulersInPerspectiveView_prefs_key = 'A10/Show Rulers In Perspective View'
@@ -386,7 +389,11 @@ prefs_table = (
     ('zoom to screen center', 'boolean', zoomAboutScreenCenter_prefs_key, False), # Ninad 060924
     
     # Ruler prefs. Mark 2008-02-12
+    # Ruler constants defined in Constants_Rulers.py. 
     ('', 'boolean', displayRulers_prefs_key, True),
+    ('', 'boolean', displayVertRuler_prefs_key, True),
+    ('', 'boolean', displayHorzRuler_prefs_key, True),
+    ('', 'string', rulerPosition_prefs_key, 0), # 0 = lower left
     ('', 'color', rulerColor_prefs_key, mustard),
     ('', 'float', rulerOpacity_prefs_key, 0.7),
     ('', 'boolean', showRulersInPerspectiveView_prefs_key, False),

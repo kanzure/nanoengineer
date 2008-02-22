@@ -618,30 +618,61 @@
               <property name="spacing" >
                <number>6</number>
               </property>
-              <item row="1" column="1" >
-               <widget class="QSpinBox" name="rulerOpacitySpinBox" >
-                <property name="suffix" >
-                 <string>%</string>
-                </property>
-                <property name="maximum" >
-                 <number>100</number>
-                </property>
-                <property name="value" >
-                 <number>70</number>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0" >
-               <widget class="QLabel" name="textLabel3_2_4" >
+              <item row="3" column="0" >
+               <widget class="QLabel" name="label_5" >
                 <property name="text" >
-                 <string>Ruler color:</string>
+                 <string>Opacity:</string>
                 </property>
                 <property name="alignment" >
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
-              <item row="0" column="1" >
+              <item row="2" column="0" >
+               <widget class="QLabel" name="textLabel3_2_4" >
+                <property name="text" >
+                 <string>Color:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0" >
+               <widget class="QLabel" name="label_10" >
+                <property name="text" >
+                 <string>Position:</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1" >
+               <widget class="QComboBox" name="rulerPositionComboBox" >
+                <item>
+                 <property name="text" >
+                  <string>Lower Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Upper Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Lower Right</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Upper Right</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="2" column="1" >
                <layout class="QHBoxLayout" >
                 <property name="margin" >
                  <number>0</number>
@@ -653,8 +684,14 @@
                  <widget class="QFrame" name="ruler_color_frame" >
                   <property name="minimumSize" >
                    <size>
-                    <width>25</width>
-                    <height>0</height>
+                    <width>23</width>
+                    <height>23</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize" >
+                   <size>
+                    <width>23</width>
+                    <height>23</height>
                    </size>
                   </property>
                   <property name="frameShape" >
@@ -677,20 +714,52 @@
                 </item>
                </layout>
               </item>
-              <item row="2" column="0" colspan="2" >
-               <widget class="QCheckBox" name="showRulersInPerspectiveViewCheckBox" >
-                <property name="text" >
-                 <string>Show rulers in Perspective view</string>
+              <item row="3" column="1" >
+               <widget class="QSpinBox" name="rulerOpacitySpinBox" >
+                <property name="suffix" >
+                 <string>%</string>
+                </property>
+                <property name="maximum" >
+                 <number>100</number>
+                </property>
+                <property name="value" >
+                 <number>70</number>
                 </property>
                </widget>
               </item>
-              <item row="1" column="0" >
-               <widget class="QLabel" name="label_5" >
+              <item row="0" column="1" >
+               <widget class="QComboBox" name="rulerDisplayComboBox" >
+                <item>
+                 <property name="text" >
+                  <string>Both rulers</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Vertical ruler only</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Horizontal ruler only</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="0" column="0" >
+               <widget class="QLabel" name="label_12" >
                 <property name="text" >
-                 <string>Ruler opacity:</string>
+                 <string>Display:</string>
                 </property>
                 <property name="alignment" >
                  <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0" colspan="2" >
+               <widget class="QCheckBox" name="showRulersInPerspectiveViewCheckBox" >
+                <property name="text" >
+                 <string>Show rulers in Perspective view</string>
                 </property>
                </widget>
               </item>
@@ -711,193 +780,6 @@
             </spacer>
            </item>
           </layout>
-         </item>
-         <item>
-          <spacer>
-           <property name="orientation" >
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" >
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-       <item row="0" column="0" >
-        <layout class="QHBoxLayout" >
-         <property name="margin" >
-          <number>0</number>
-         </property>
-         <property name="spacing" >
-          <number>6</number>
-         </property>
-         <item>
-          <widget class="QGroupBox" name="groupBox7_2" >
-           <property name="title" >
-            <string>Axes</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="display_pov_axis_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Point of View Axis</string>
-              </property>
-              <property name="text" >
-               <string>Display Point of View Axis</string>
-              </property>
-              <property name="checked" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QCheckBox" name="display_origin_axis_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Origin Axis</string>
-              </property>
-              <property name="text" >
-               <string>Display Origin Axis</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox17_2" >
-           <property name="title" >
-            <string>Compass</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="2" column="0" >
-             <layout class="QHBoxLayout" >
-              <property name="margin" >
-               <number>0</number>
-              </property>
-              <property name="spacing" >
-               <number>6</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="textLabel1_4" >
-                <property name="text" >
-                 <string>Location :</string>
-                </property>
-                <property name="alignment" >
-                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QComboBox" name="compass_position_combox" >
-                <item>
-                 <property name="text" >
-                  <string>Upper Right</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Upper Left</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Lower Left</string>
-                 </property>
-                </item>
-                <item>
-                 <property name="text" >
-                  <string>Lower Right</string>
-                 </property>
-                </item>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QCheckBox" name="display_compass_labels_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Display Compass</string>
-              </property>
-              <property name="text" >
-               <string>Display Compass Labels</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="0" >
-             <widget class="QCheckBox" name="display_compass_checkbox" >
-              <property name="toolTip" >
-               <string>Show/Hide Display Compass</string>
-              </property>
-              <property name="text" >
-               <string>Display Compass</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="default_projection_grpBox" >
-           <property name="toolTip" >
-            <string/>
-           </property>
-           <property name="title" >
-            <string>Default Projection</string>
-           </property>
-           <layout class="QGridLayout" >
-            <property name="margin" >
-             <number>9</number>
-            </property>
-            <property name="spacing" >
-             <number>6</number>
-            </property>
-            <item row="0" column="0" >
-             <widget class="QRadioButton" name="perspective_radioButton" >
-              <property name="text" >
-               <string>Perspective</string>
-              </property>
-              <property name="checked" >
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0" >
-             <widget class="QRadioButton" name="orthographic_radioButton" >
-              <property name="text" >
-               <string>Orthographic</string>
-              </property>
-              <property name="checked" >
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
          </item>
          <item>
           <spacer>
@@ -1015,8 +897,14 @@
                    <widget class="QFrame" name="bg1_color_frame" >
                     <property name="minimumSize" >
                      <size>
-                      <width>25</width>
-                      <height>0</height>
+                      <width>23</width>
+                      <height>23</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize" >
+                     <size>
+                      <width>23</width>
+                      <height>23</height>
                      </size>
                     </property>
                     <property name="frameShape" >
@@ -1321,6 +1209,193 @@
          </item>
         </layout>
        </item>
+       <item row="0" column="0" >
+        <layout class="QHBoxLayout" >
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>6</number>
+         </property>
+         <item>
+          <widget class="QGroupBox" name="groupBox7_2" >
+           <property name="title" >
+            <string>Axes</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="display_pov_axis_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Point of View Axis</string>
+              </property>
+              <property name="text" >
+               <string>Display Point of View Axis</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="display_origin_axis_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Origin Axis</string>
+              </property>
+              <property name="text" >
+               <string>Display Origin Axis</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox17_2" >
+           <property name="title" >
+            <string>Compass</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="2" column="0" >
+             <layout class="QHBoxLayout" >
+              <property name="margin" >
+               <number>0</number>
+              </property>
+              <property name="spacing" >
+               <number>6</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="textLabel1_4" >
+                <property name="text" >
+                 <string>Location :</string>
+                </property>
+                <property name="alignment" >
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QComboBox" name="compass_position_combox" >
+                <item>
+                 <property name="text" >
+                  <string>Upper Right</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Upper Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Lower Left</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text" >
+                  <string>Lower Right</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QCheckBox" name="display_compass_labels_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Display Compass</string>
+              </property>
+              <property name="text" >
+               <string>Display Compass Labels</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0" >
+             <widget class="QCheckBox" name="display_compass_checkbox" >
+              <property name="toolTip" >
+               <string>Show/Hide Display Compass</string>
+              </property>
+              <property name="text" >
+               <string>Display Compass</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="default_projection_grpBox" >
+           <property name="toolTip" >
+            <string/>
+           </property>
+           <property name="title" >
+            <string>Default Projection</string>
+           </property>
+           <layout class="QGridLayout" >
+            <property name="margin" >
+             <number>9</number>
+            </property>
+            <property name="spacing" >
+             <number>6</number>
+            </property>
+            <item row="0" column="0" >
+             <widget class="QRadioButton" name="perspective_radioButton" >
+              <property name="text" >
+               <string>Perspective</string>
+              </property>
+              <property name="checked" >
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0" >
+             <widget class="QRadioButton" name="orthographic_radioButton" >
+              <property name="text" >
+               <string>Orthographic</string>
+              </property>
+              <property name="checked" >
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <spacer>
+           <property name="orientation" >
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" >
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="TabPage" >
@@ -1468,8 +1543,14 @@
                     <widget class="QFrame" name="bondpoint_hilite_color_frame" >
                      <property name="minimumSize" >
                       <size>
-                       <width>25</width>
-                       <height>0</height>
+                       <width>23</width>
+                       <height>23</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize" >
+                      <size>
+                       <width>23</width>
+                       <height>23</height>
                       </size>
                      </property>
                      <property name="frameShape" >
@@ -1507,8 +1588,14 @@
                     <widget class="QFrame" name="atom_hilite_color_frame" >
                      <property name="minimumSize" >
                       <size>
-                       <width>25</width>
-                       <height>0</height>
+                       <width>23</width>
+                       <height>23</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize" >
+                      <size>
+                       <width>23</width>
+                       <height>23</height>
                       </size>
                      </property>
                      <property name="frameShape" >
@@ -1543,8 +1630,14 @@
                     <widget class="QFrame" name="hotspot_color_frame" >
                      <property name="minimumSize" >
                       <size>
-                       <width>25</width>
-                       <height>0</height>
+                       <width>23</width>
+                       <height>23</height>
+                      </size>
+                     </property>
+                     <property name="maximumSize" >
+                      <size>
+                       <width>23</width>
+                       <height>23</height>
                       </size>
                      </property>
                      <property name="frameShape" >
@@ -2011,14 +2104,14 @@
                <widget class="QFrame" name="bond_stretch_color_frame" >
                 <property name="minimumSize" >
                  <size>
-                  <width>25</width>
-                  <height>0</height>
+                  <width>23</width>
+                  <height>23</height>
                  </size>
                 </property>
                 <property name="maximumSize" >
                  <size>
-                  <width>32767</width>
-                  <height>32767</height>
+                  <width>23</width>
+                  <height>23</height>
                  </size>
                 </property>
                 <property name="frameShape" >
@@ -2056,14 +2149,14 @@
                <widget class="QFrame" name="bond_hilite_color_frame" >
                 <property name="minimumSize" >
                  <size>
-                  <width>25</width>
-                  <height>0</height>
+                  <width>23</width>
+                  <height>23</height>
                  </size>
                 </property>
                 <property name="maximumSize" >
                  <size>
-                  <width>32767</width>
-                  <height>32767</height>
+                  <width>23</width>
+                  <height>23</height>
                  </size>
                 </property>
                 <property name="frameShape" >
@@ -2108,8 +2201,14 @@
                <widget class="QFrame" name="ballstick_bondcolor_frame" >
                 <property name="minimumSize" >
                  <size>
-                  <width>25</width>
-                  <height>0</height>
+                  <width>23</width>
+                  <height>23</height>
+                 </size>
+                </property>
+                <property name="maximumSize" >
+                 <size>
+                  <width>23</width>
+                  <height>23</height>
                  </size>
                 </property>
                 <property name="frameShape" >
@@ -2178,14 +2277,14 @@
                <widget class="QFrame" name="bond_vane_color_frame" >
                 <property name="minimumSize" >
                  <size>
-                  <width>25</width>
-                  <height>0</height>
+                  <width>23</width>
+                  <height>23</height>
                  </size>
                 </property>
                 <property name="maximumSize" >
                  <size>
-                  <width>32767</width>
-                  <height>32767</height>
+                  <width>23</width>
+                  <height>23</height>
                  </size>
                 </property>
                 <property name="frameShape" >
