@@ -23,7 +23,6 @@ using namespace Nanorex;
 #include "ErrorDialog.h"
 #include "ViewParametersWindow.h"
 #include "TrajectoryGraphicsPane.h"
-#include "JobManagement/JobHandle.h"
 
 
 /* CLASS: ResultsWindow */

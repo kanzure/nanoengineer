@@ -50,16 +50,18 @@ void nv1::processCommandLine(int argc, char *argv[]) {
 		string filename = commandLine.GetArgument("-f", 0);
 		
 		string processType, processInit;
-		JobHandle* jobHandle = 0;
+		JobMonitor* jobMonitor = 0;
 		if (commandLine.GetArgumentCount("-p") == 2) {
 			processType = commandLine.GetArgument("-p", 0);
 			processInit = commandLine.GetArgument("-p", 1);
-			if (processType == "GMX")
-				jobHandle = new GROMACS_JobHandle(processInit, this);
+			if (processType == "GMX") {
+				jobMonitor = new GROMACS_JobMonitor(processInit);
+				jobMonitor->start();
+			}
 		}
 		
 		QString message = tr("Opening file: %1").arg(filename.c_str());
-		if (jobHandle != 0)
+		if (jobMonitor != 0)
 			message =
 				tr("%1 with job handle info: %2 %3")
 					.arg(message).arg(processType.c_str())
