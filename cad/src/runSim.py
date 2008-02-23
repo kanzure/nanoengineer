@@ -379,8 +379,8 @@ class SimRunner:
                         # Launch the NV1 process
                         nv1Process = Process()
                         nv1Args = [
-                            "-f",
-                            hdf5DataStoreDir + ".nh5",
+                            "-f", hdf5DataStoreDir + ".nh5",
+							"-p", "GMX", "%d" % pid,
                             ]
                         nv1Process.setStandardOutputPassThrough(True)
                         nv1Process.setStandardErrorPassThrough(True)
