@@ -3,6 +3,10 @@
 #ifndef NV1_H
 #define NV1_H
 
+#include <map>
+#include <string>
+using namespace std;
+
 #include <QtGui>
 #include <QMainWindow>
 #include <QFileDialog>
@@ -34,11 +38,14 @@ protected:
 
 public slots:
 	void updateMenus();
+	void addMonitoredJob(const QString& id, const QString& title);
+	void removeMonitoredJob(const QString& id);
 
 private slots:
 	void open();
 	void about();
 	void updateWindowMenu();
+	void abortJob(const QString& id);
 
 private:
 	NXEntityManager* entityManager;
@@ -72,6 +79,8 @@ private:
 	
 	// Help
 	QAction* aboutAction;
+	
+	map<QString, JobMonitor*> jobMonitors;
 	
 	void createActions();
 	void createMenus();

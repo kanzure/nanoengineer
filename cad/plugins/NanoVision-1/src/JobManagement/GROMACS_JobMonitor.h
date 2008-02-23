@@ -4,9 +4,10 @@
 #define GROMACS_JOBMONITOR_H
 
 #include <QObject>
+#include <QString>
 
-#include <string>
-using namespace std;
+#include "Nanorex/Utility/NXLogger.h"
+using namespace Nanorex;
 
 #include "JobMonitor.h"
 
@@ -17,21 +18,22 @@ class GROMACS_JobMonitor : public JobMonitor {
 	Q_OBJECT
 
 	public:
-		GROMACS_JobMonitor(const string& initString);
+		GROMACS_JobMonitor(const QString& initString);
 		~GROMACS_JobMonitor();
 		
 		void run();
 		
 	signals:
-		void startedMonitoring(const string& id, const string& title);
-		void jobFinished(const string& id);
-		void jobAborted(const string& id);
+		void startedMonitoring(const QString id, const QString title);
+		void jobFinished(const QString& id);
+		void jobAborted(const QString& id);
 	
 	public slots:
 		void abortJob();
 		
 	private:
-		bool monitor;
+		bool aborted;
+		QMutex jobControlMutex;
 };
 
 #endif

@@ -5,7 +5,7 @@
 
 
 /* CONSTRUCTOR */
-JobMonitor::JobMonitor(const string& initString) {
+JobMonitor::JobMonitor(const QString& initString) : QThread() {
 	this->initString = initString;
 }
 

@@ -55,7 +55,20 @@ void nv1::processCommandLine(int argc, char *argv[]) {
 			processType = commandLine.GetArgument("-p", 0);
 			processInit = commandLine.GetArgument("-p", 1);
 			if (processType == "GMX") {
-				jobMonitor = new GROMACS_JobMonitor(processInit);
+				jobMonitor = new GROMACS_JobMonitor(processInit.c_str());
+			}
+			if (jobMonitor != 0) {
+				connect(jobMonitor,
+						SIGNAL(startedMonitoring(const QString&,
+												 const QString&)),
+						this,
+						SLOT(addMonitoredJob(const QString&,
+											 const QString&)));
+				connect(jobMonitor, SIGNAL(jobFinished(const QString&)),
+						this, SLOT(removeMonitoredJob(const QString&)));
+				connect(jobMonitor, SIGNAL(jobAborted(const QString&)),
+						this, SLOT(removeMonitoredJob(const QString&)));
+				jobMonitors[processInit.c_str()] = jobMonitor;
 				jobMonitor->start();
 			}
 		}
@@ -279,3 +292,41 @@ void nv1::writeSettings() {
 	settings.setValue("Layout/Position", pos());
 	settings.setValue("Layout/Size", size());
 }
+
+
+/* FUNCTION: addMonitoredJob */
+void nv1::addMonitoredJob(const QString& id, const QString& title) {
+	QString actionTitle = tr("Abort %1").arg(title);
+	abortJobAction =
+		new QAction(QIcon(":/Icons/File/Open.png"), actionTitle, this);
+	abortJobAction->setStatusTip(tr("Abort a running job"));
+	
+	QSignalMapper* signalMapper = new QSignalMapper(this);
+	connect(abortJobAction, SIGNAL(triggered()), signalMapper, SLOT(map()));
+	signalMapper->setMapping(abortJobAction, id);
+	connect(signalMapper, SIGNAL(mapped(const QString &)),
+			this, SLOT(abortJob(const QString&)));
+	
+	processMenu->addAction(abortJobAction);
+}
+
+
+/* FUNCTION: removeMonitoredJob */
+void nv1::removeMonitoredJob(const QString& id) {
+	processMenu->removeAction(abortJobAction);
+	delete abortJobAction;
+	
+	JobMonitor* jobMonitor = jobMonitors[id];
+	if (jobMonitor->isFinished())
+		delete jobMonitor;
+	else
+		NXLOG_INFO("nv1::removeMonitoredJob",
+				   "jobMonitor wasn't finished - MEMORY LEAK");
+}
+
+
+/* FUNCTION: abortJob */
+void nv1::abortJob(const QString& id) {
+	jobMonitors[id]->abortJob();
+}
+

@@ -47,6 +47,9 @@ int main(int argc, char *argv[]) {
 		logger->addHandler(logHandler);
 	}
 	
+	// Emit verbose config level log messages
+	NXLOG_CONFIG("main", "spew QSysInfo information here");
+	
 	// Dock widget logging
 	LogHandlerWidget* logHandlerWidget =
 		new LogHandlerWidget(NXLogLevel_Config);

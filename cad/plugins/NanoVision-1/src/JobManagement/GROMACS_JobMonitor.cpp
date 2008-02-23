@@ -4,7 +4,7 @@
 
 
 /* CONSTRUCTOR */
-GROMACS_JobMonitor::GROMACS_JobMonitor(const string& initString)
+GROMACS_JobMonitor::GROMACS_JobMonitor(const QString& initString)
 		: JobMonitor(initString) {
 }
 
@@ -14,25 +14,78 @@ GROMACS_JobMonitor::~GROMACS_JobMonitor() {
 }
 
 
-/* FUNCTION: run */
+/* FUNCTION: run
+ *
+ * Note: initString is the GROMACS process id (pid.)
+ */
 void GROMACS_JobMonitor::run() {
 	
-	string title = string("GROMACS process ") + initString;
+	QString title = tr("GROMACS process %1").arg(initString);
+	QString debugMessage =
+		tr("Emitting startedMonitoring(%1, %2)").arg(initString).arg(title);
+	NXLOG_DEBUG("GROMACS_JobMonitor", qPrintable(debugMessage));
 	emit startedMonitoring(initString, title);
 	
-	monitor = true;
-	while (monitor) {
-		printf("%s ", initString);
-		sleep(1);
+	bool _aborted = aborted = false;
+	bool monitorError = false;
+	bool stillRunning = true;
+	int status;
+	static int bufferSize = 64;
+	char buffer[bufferSize];
+	QString pid = initString;
+	QString command = QString("ps -A | grep %1").arg(pid);
+	FILE* commandPipe;
+	while (stillRunning && !_aborted && !monitorError) {
+		commandPipe = popen(qPrintable(command), "r");
+		if (commandPipe == 0) {
+			QString logMessage = tr("Command failed: %1").arg(command);
+			NXLOG_SEVERE("GROMACS_JobMonitor::run", qPrintable(logMessage));
+			monitorError = true;
+			continue;
+		}
+
+		stillRunning = false;
+		while (fgets(buffer, bufferSize, commandPipe) != 0) {
+			if (strncmp(buffer, qPrintable(pid), pid.length()) == 0)
+				stillRunning = true;
+		}
+
+		status = pclose(commandPipe);
+		if (status == -1)
+			NXLOG_DEBUG("GROMACS_JobMonitor::run", "close pipe failed");
+		
+		if (stillRunning) {
+			sleep(1);
+			jobControlMutex.lock();
+			_aborted = aborted;
+			jobControlMutex.unlock();
+		}
 	}
 	
-	emit jobAborted(initString);
+	if (_aborted) {
+		debugMessage = tr("Emitting jobAborted(%1)").arg(initString);
+		NXLOG_DEBUG("GROMACS_JobMonitor", qPrintable(debugMessage));
+		emit jobAborted(initString);
+		
+	} else if (monitorError) {
+		;// TODO: handle this
+		
+	} else {
+		debugMessage = tr("Emitting jobFinished(%1)").arg(initString);
+		NXLOG_DEBUG("GROMACS_JobMonitor", qPrintable(debugMessage));
+		emit jobFinished(initString);
+	}
 }
 
 
 /* FUNCTION: abortJob */
 void GROMACS_JobMonitor::abortJob() {
-	monitor = false;
+	QMutexLocker locker(&jobControlMutex);
+	
+	QString command = QString("kill -15 %1").arg(initString);
+	int status = system(qPrintable(command));
+	if (status == 0)
+		aborted = true;
 }
 
 
