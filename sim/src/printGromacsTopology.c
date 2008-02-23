@@ -369,6 +369,7 @@ printGromacsToplogy(char *basename, struct part *p)
     fprintf(mdp, "nstcgsteep          =  100\n"); // frequency of steep steps during cg
     fprintf(mdp, "nstlist             =  10\n"); // update frequency for neighbor list
     fprintf(mdp, "ns_type             =  simple\n"); // neighbor search type, must be simple for pbc=no
+	fprintf(mdp, "nstxout             =  10\n"); // frequency to write coordinates to output trajectory file
 
     if (VanDerWaalsCutoffRadius < 0) {
         vdwCutoff = 1.0;
