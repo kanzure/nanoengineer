@@ -24,6 +24,7 @@ bool NXDataStoreInfo::isSingleStructure() { return _isSingleStructure; }
 
 /* FUNCTION: setIsSingleStructure */
 void NXDataStoreInfo::setIsSingleStructure(bool _isSingleStructure) {
+	this->_isSimulationResults = !_isSingleStructure;
 	this->_isSingleStructure = _isSingleStructure;
 }
 
@@ -50,6 +51,7 @@ bool NXDataStoreInfo::isSimulationResults() { return _isSimulationResults; }
 /* FUNCTION: setIsSimulationResults */
 void NXDataStoreInfo::setIsSimulationResults(bool _isSimulationResults) {
 	this->_isSimulationResults = _isSimulationResults;
+	this->_isSingleStructure = !_isSimulationResults;
 }
 
 
@@ -96,6 +98,13 @@ void NXDataStoreInfo::addInputStructure(const string& fileName) {
  */
 int NXDataStoreInfo::getInputStructureId(const string& fileName) {
 	return _inputStructures[fileName];
+}
+
+
+/* FUNCTION: setInputStructureId */
+void NXDataStoreInfo::setInputStructureId(const string& fileName,
+										  int frameSetId) {
+	_inputStructures[fileName] = frameSetId;
 }
 
 

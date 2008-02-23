@@ -18,7 +18,7 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		(NXMoleculeSet* moleculeSet, NXDataStoreInfo* dataStoreInfo,
 		 const string& filename, int frameSetId, int frameIndex) {
 
-	H5Eset_auto(0, 0); // Turn off HDF5 errors to stdout when threaded
+	H5Eset_auto(0, 0); // Turn off HDF5 messages to stdout
 
 	NXCommandResult* result = new NXCommandResult();
 	result->setResult(NX_CMD_SUCCESS);

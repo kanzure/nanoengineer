@@ -159,7 +159,8 @@ void NXEntityManager::loadDataImportExportPlugins(NXProperties* properties) {
  */
 NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 												 int frameSetId,
-												 bool inPollingThread) {
+												 bool inPollingThread,
+												 bool inRecursiveCall) {
 	NXCommandResult* result;
 	//PR_Lock(importExportPluginsMutex);
 	
@@ -172,7 +173,8 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 		
 		if (frameSetId == -1)
 			frameSetId = addFrameSet();
-		dataStoreInfo->setFileName(filename, frameSetId);
+		if (!inPollingThread && !inRecursiveCall)
+			dataStoreInfo->setFileName(filename, frameSetId);
 		int frameIndex = getFrameCount(frameSetId);
 		NXMoleculeSet* moleculeSet = new NXMoleculeSet();
 
@@ -183,6 +185,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 									   frameIndex);
 			
 			if (result->getResult() == NX_CMD_SUCCESS) {
+				QFileInfo fileInfo(filename.c_str());
 			
 				// Delete the molecule (and don't add the frame) if the
 				// molecule set wasn't populated.
@@ -191,18 +194,26 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 					delete moleculeSet;
 					
 				} else {
-					int idx = addFrame(frameSetId, moleculeSet);
+					frameIndex = addFrame(frameSetId, moleculeSet);
 					if (inPollingThread) {
 						NXLOG_DEBUG("NXEntityManager", "emit newFrameAdded()");
 						emit newFrameAdded(frameSetId, frameIndex, moleculeSet);
 					}
+					
+					// Update the frameSetId stored in the dataStoreInfo if this
+					// is an input file for a simulation results data store.
+					if (inRecursiveCall) {
+						string inputFileName = qPrintable(fileInfo.fileName());
+						if (dataStoreInfo->getInputStructureId(inputFileName)
+								== -1)
+							dataStoreInfo->setInputStructureId(inputFileName,
+															   frameSetId);
+					}
 				}
-			
-				// TODO:
-				// Finish the current frame set, then examine the dataStoreInfo
-				// for additional files to import.
 				
-				while ((!dataStoreInfo->isLastFrame(frameSetId)) &&
+				// Read more frames if available
+				while (!inRecursiveCall &&
+					   (!dataStoreInfo->isLastFrame(frameSetId)) &&
 					   (result->getResult() == NX_CMD_SUCCESS)) {
 					frameIndex = addFrame(frameSetId);
 					result =
@@ -219,10 +230,43 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 											   
 					// TODO: handle result == failed
 				}
+			
+				// Examine the dataStoreInfo for additional files to import
+				if (!inPollingThread && !inRecursiveCall) {
+					vector<string> inputFileNames =
+						dataStoreInfo->getInputFileNames();
+					vector<string>::iterator iter = inputFileNames.begin();
+					while (iter != inputFileNames.end()) {
+						if (dataStoreInfo->getInputStructureId(*iter) == -1) {
+							// Load input file
+							QString inputFileName =
+								QString("%1/%2").arg(fileInfo.absolutePath())
+												.arg((*iter).c_str());
+							result =
+								importFromFile(qPrintable(inputFileName),
+											   -1 /* frameSetId */,
+											   inPollingThread,
+											   !inRecursiveCall);
+								
+							// Set the dataStoreInfo back to a simulation
+							// results data store
+							dataStoreInfo->setIsSimulationResults(true);
+							
+							if (result->getResult() != NX_CMD_SUCCESS) {
+								QString logMessage =
+									tr("Couldn't load input file: %1")
+										.arg(GetNV1ResultCodeString(result));
+								NXLOG_WARNING("NXEntityManager",
+											  qPrintable(logMessage));
+							}
+						}
+						iter++;
+					}
+				}
 				
 				// Spawn a thread to keep reading incomplete data stores
 				// as necessary
-				if (!inPollingThread &&
+				if (!inPollingThread && !inRecursiveCall &&
 					!dataStoreInfo->storeIsComplete(frameSetId)) {
 					DataStorePollingThread* pollingThread =
 						new DataStorePollingThread(this, frameSetId);

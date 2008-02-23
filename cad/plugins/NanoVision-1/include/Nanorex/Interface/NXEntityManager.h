@@ -45,7 +45,8 @@ class NXEntityManager : public QObject {
 		void loadDataImportExportPlugins(NXProperties* properties);
 		NXCommandResult* importFromFile(const string& filename,
 										int frameSetId = -1,
-										bool inPollingThread = false);
+										bool inPollingThread = false,
+										bool inRecursiveCall = false);
 		NXCommandResult* exportToFile(const string& filename,
 									  int frameSetId = -1, int frameIndex = 0);
 

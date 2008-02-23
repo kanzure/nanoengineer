@@ -44,6 +44,7 @@ class NXDataStoreInfo {
 		vector<string> getInputFileNames();
 		void addInputStructure(const string& fileName);
 		int getInputStructureId(const string& fileName);
+		void setInputStructureId(const string& fileName, int frameSetId);
 		
 		NXProperties* getResultsSummary();
 		void setResultsSummary(NXProperties* resultsSummary);
