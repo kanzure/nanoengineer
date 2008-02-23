@@ -59,7 +59,6 @@ private:
     QIcon resultsIcon;
     QIcon resultsSummaryIcon;
     QIcon resultsTrajectoriesIcon;
-	QTreeWidget* resultsTree;
     
     void setCurrentFile(const QString &fileName);
 	QString strippedName(const QString &fullFileName);
