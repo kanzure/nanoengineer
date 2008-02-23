@@ -539,6 +539,17 @@ class Node( StateMixin):
         # But it's wrong for PartGroup itself (thus is overridden by it).
         return self.dad and self.dad.is_selection_group_container()
 
+    def is_higher_than_selection_group(self): #bruce 080222
+        """
+        Whether this node is higher than any node which satisfies
+        node.is_top_of_selection_group(). True only of assy.shelf
+        and assy.root in the current arrangement of an assembly.
+        """
+        # This implem is not ideal -- it knows too much about assy.
+        # Probably it'd be better to ask self.assy if self has this property
+        # within it. [todo: refactor it like that]
+        return (self is self.assy.shelf or self is self.assy.root)
+    
     no_selgroup_is_ok = False
         #bruce 050612 class constant, could be overridden in some subclasses
         # [not presently needed, but tested]
