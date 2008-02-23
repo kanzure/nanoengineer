@@ -15,12 +15,6 @@ from dna_model.DnaMarker import DnaMarker # for isinstance
 from dna_model.DnaMarker import DnaSegmentMarker # constructor
 from dna_model.DnaMarker import DnaStrandMarker # constructor
 
-# for parent_node_of_class:
-from dna_model.DnaGroup import DnaGroup
-from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
-
-from dna_model.DnaGroup import find_or_make_DnaGroup_for_homeless_object
-
 from debug import print_compact_traceback
 
 class WholeChain(object):
@@ -126,9 +120,13 @@ class WholeChain(object):
 ##        chunk = None # for self._arbitrary_chunk; modified during loop
         markers = {} # collects markers from all our atoms during loop
         num_bases = 0
+        end0_baseatoms = self._end0_baseatoms = {} # end0 atom key -> rail (aka chain)
+        end1_baseatoms = self._end1_baseatoms = {}
         for rail in dict_of_rails.itervalues():
             baseatoms = rail.baseatoms
             num_bases += len(baseatoms)
+            end0_baseatoms[baseatoms[0].key] = rail
+            end1_baseatoms[baseatoms[-1].key] = rail
             chunk = baseatoms[0].molecule
             chunk.set_wholechain(self)
             for atom in rail.baseatoms:
@@ -219,6 +217,7 @@ class WholeChain(object):
         Choose or make one of your markers to be controlling,
         then tell them all that you own them and whether
         they're controlling (which might kill some of them).
+        (But don't move them in the model tree, not even the newly made ones.)
         
         Also cache whatever base-indexing info is needed
         (in self, our rails/chains/chunks, and/or their atoms).
@@ -227,21 +226,33 @@ class WholeChain(object):
         self._controlling_marker = self._choose_or_make_controlling_marker()
         for marker in self._all_markers[:]:
 ##            print "debug loop: %r.own_marker %r" % (self, marker)
-            assert not marker.killed(), \
+            controllingQ = (marker is self._controlling_marker)
+            ## assert not marker.killed(), \
+            # [precaution 080222 - change assert to debug print & bug mitigation:]
+            if marker.killed():
+                print "\n***BUG: " \
                    "marker %r (our controlling = %r) is killed" % \
-                   ( marker, (marker is self._controlling_marker) )
+                   ( marker, controllingQ )
                 # this might fail if they're not yet all in the model,
                 # but we put them there when we make them, and we don't kill them when they
                 # lose atoms, so they ought to be there @@@
                 # (it should not fail from them being killed between __init__ and now
                 #  and unable to tell us, since nothing happens in caller to kill them)
-            controlling = (marker is self._controlling_marker)
-            marker.set_wholechain(self, controlling = controlling)
+                self._f_marker_killed(marker) #k guess 080222
+                continue
+            marker.set_wholechain(self, controlling = controllingQ)
                 # own it; tell it whether controlling (some might die then,
                 # and if so they'll call self._f_marker_killed
                 # which removes them from self._all_markers)
-        for marker in self._all_markers:
-            assert not marker.killed(), "marker %r died without telling %r" % (marker, self)
+            continue
+        for marker in self._all_markers[:]:
+            # [precaution 080222 - change assert to debug print & bug mitigation:]
+            ## assert not marker.killed(), \
+            if marker.killed():
+                print "\n***BUG: " \
+                    "marker %r died without telling %r" % (marker, self)
+                self._f_marker_killed(marker)
+            continue
         
         # todo: use controlling marker to work out base indexing per rail...
         
@@ -252,15 +263,17 @@ class WholeChain(object):
         [friend method for DnaMarker]
         One of our markers is being killed
         (and calls this to advise us of that).
+        [Also called by self if we realize that failed to happen.]
         """
         try:
             self._all_markers.remove(marker)
         except:
-            print_compact_traceback("bug: can't remove %r from %r._all_markers: " %
-                                    ( marker, self)
-                                    )
+            msg = "bug: can't remove %r from %r._all_markers: " % (marker, self)
+            print_compact_traceback( msg)
             pass
         return
+
+    # ==
     
     def find_strand_or_segment(self):
         """
@@ -272,60 +285,16 @@ class WholeChain(object):
 
     def find_or_make_strand_or_segment(self):
         """
-        Return our associated DnaStrandOrSegment, finding it if necessary
-        by choosing or making a controlling marker, and making it anew
-        if our controlling marker doesn't have one.
+        Return our associated DnaStrandOrSegment. If we don't yet know it
+        or don't have one, ask our controlling marker (which we must have
+        before now) to find or make it.
         """
         if self._strand_or_segment:
             return self._strand_or_segment
         assert self._controlling_marker, "%r should have called _choose_or_make_controlling_marker before now" % self
-        strand_or_segment = self._controlling_marker._f_get_owning_strand_or_segment()
-        if not strand_or_segment:
-            strand_or_segment = self._make_strand_or_segment( self._controlling_marker)
-            self._controlling_marker._f_set_owning_strand_or_segment( strand_or_segment)
+        strand_or_segment = self._controlling_marker._f_get_owning_strand_or_segment(make = True)
+        assert strand_or_segment
         self._strand_or_segment = strand_or_segment
-        return strand_or_segment
-
-    def _make_strand_or_segment(self, controlling_marker): # review: put some of this code in marker?
-        """
-        [private]
-        """
-##        chunk = self._arbitrary_chunk
-##            # review: or maybe could use chunk of controlling marker's atom
-        chunk = controlling_marker.marked_atom.molecule # 080120 7pm untested
-        # find the right DnaGroup (or make one if there is none).
-        # ASSUME the chunk was created inside the right DnaGroup
-        # if there is one. There is no way to check this here -- user
-        # operations relying on dna updater have to put new PAM atoms
-        # inside an existing DnaGroup if they want to use it.
-        # We'll leave them there (or put them all into an arbitrary
-        # one if different atoms in a wholechain are in different
-        # DnaGroups -- which is an error by the user op).
-        dnaGroup = chunk.parent_node_of_class(DnaGroup)
-        if dnaGroup is None:
-            # If it was not in a DnaGroup, it should not be in a DnaStrand or
-            # DnaSegment either (since we should never make those without
-            # immediately putting them into a valid DnaGroup or making them
-            # inside one). But until we implement the group cleanup of just-
-            # read mmp files, we can't assume it's not in one here!
-            # However, we can ignore it if it is (discarding it and making
-            # our own new one to hold our chunks and markers),
-            # and just print a warning here, trusting that in the future
-            # the group cleanup of just-read mmp files will fix things better.
-            if chunk.parent_node_of_class(DnaStrandOrSegment):
-                print "dna updater: " \
-                      "will discard preexisting %r which was not in a DnaGroup" \
-                      % (chunk.parent_node_of_class(DnaStrandOrSegment),), \
-                      "(bug or unfixed mmp file)"
-            dnaGroup = find_or_make_DnaGroup_for_homeless_object(chunk)
-                # Note: all our chunks will eventually get moved from
-                # whereever they are now into this new DnaGroup.
-                # If some are old and have group structure around them,
-                # it will be discarded. To avoid this, newly read old mmp files
-                # should get preprocessed separately (as discussed also in
-                # update_DNA_groups).
-        # now make a strand or segment in that DnaGroup (review: in a certain Block?)
-        strand_or_segment = dnaGroup.make_DnaStrandOrSegment_for_marker(controlling_marker, self)
         return strand_or_segment
 
     # == ### review below
@@ -376,11 +345,12 @@ class WholeChain(object):
         items.sort()
         return items[-1][1]
 
-    def _make_new_controlling_marker(self):### STUB -- nontrivial to pick the atom... @@@@
+    def _make_new_controlling_marker(self):
         """
         [private]
         self has no marker which wants_to_be_controlling().
         Make one (on some good choice of atom on self)
+        (and in the same group in the model tree as that atom)
         and return it. (Don't store it as our controlling marker,
         or tell it it's controlling -- caller must do that if desired.
         But *do* add it to our list of all markers on our atoms.)
@@ -390,20 +360,50 @@ class WholeChain(object):
          or fully correct one).
         We do that because the callers really need every wholechain to have one.
         """
-        # STUB - pick arbitrary baseatom and next_atom! THIS WON'T BE VERY NICE - it's just to not crash. @@@@
-##        chunk = self._arbitrary_chunk
-##        chain = chunk.chain # only use of chunk.chain - needed?? @@@@ [removed 080120 7pm, untested]
-        chain = self.chains()[0] # arbitrary chain [080120 7pm, untested]
-        atom = chain.baseatoms[0]
+        # improvements, 080222: should pick end atom with lowest .key, but to be easier and work for rings,
+        # might pick end atom of any chain with lowest key (over all chains). Also this is best for segments
+        # and also ok for strands but maybe not best for strands (who should look at Ax atoms in same basepairs,
+        # but note, these can be same for different strand atoms!).
+
+        end_atoms = self.end_baseatoms() # should find 2 atoms unless we're a ring
+        if not end_atoms:
+            # we're a ring - just consider all end atoms of all our chains
+            # (don't bother not including some twice for length-1 chains,
+            #  no need in following code)
+            end_atoms = []
+            for chain in self.chains():
+                end_atoms.append( chain.baseatoms[0] )
+                end_atoms.append( chain.baseatoms[-1] )
+            pass
+        assert end_atoms
+
+        candidates = [(atom.key, atom) for atom in end_atoms]
+            # todo: for strands, first sort by attached Ax key?
+            # todo: include info to help find next_atom?
+        candidates.sort() # lowest key means first-made basepair by Dna Generator
+        atom = candidates[0][1]
+        
+        # now pick the best next_atom
+
+        chain, index = self._find_end_atom_chain_and_index( atom)
+            # Q. is index for end1 positive or -1?
+            # A. positive (or 0 for length-1 chain), but following code doesn't care.
+            # Q. does best next_atom come from same chain if possible?
+            # A. (guess yes, doing that for now)
+        direction_into_chain = index and -1 or 1
+        
         if len(chain.baseatoms) > 1:
-            next_atom = chain.baseatoms[1]
-        elif chain.neighbor_baseatoms[LADDER_END1]:
+            next_atom = chain.baseatoms[index + direction_into_chain]
+        elif chain.neighbor_baseatoms[LADDER_END1]: # ignore index and direction_into_chain
             next_atom = chain.neighbor_baseatoms[LADDER_END1]
         elif chain.neighbor_baseatoms[LADDER_END0]:
             next_atom = chain.neighbor_baseatoms[LADDER_END0] # reverse direction!
             atom, next_atom = next_atom, atom
         else:
-            # a 1-atom wholechain, hmm ... DnaMarker support for this added 080216, not fully tested
+            # a 1-atom wholechain, hmm ...
+            # DnaMarker support for this added 080216, not fully tested
+            # (note that a 1-atom wholechain *ring* is not possible,
+            #  but if it was it'd be handled by the above if/else cases)
             next_atom = atom
 
         # now make the marker on those atoms
@@ -423,17 +423,39 @@ class WholeChain(object):
         marker_class = self._DnaMarker_class # subclass-specific constant
         marker = marker_class(assy, [atom, next_atom]) # doesn't give it a wholechain yet
 
-        # give it a temporary home in the model (so it doesn't seem killed)
+        # give it a temporary home in the model (so it doesn't seem killed) --
+        # in fact, it matters where we put it, since later code assumes it
+        # *might* already be inside the right DnaStrandOrSegment (and checks
+        # this). So we put it in the same group as the marked atom.
+
         part = atom.molecule.part
-        part.place_new_jig(marker) # overkill, since we'll move it later,
-            # but good for now, since this location ought to mitigate bugs
-            # if that doesn't happen (e.g. it's probably in the correct DnaGroup)
+        part.place_new_jig(marker)
+            # (overkill in runtime, but should be correct, since both marker's
+            #  atoms should be in the same group)
         
-        # and remember it exists on our atoms
+        # and remember it's on our atoms
         self._all_markers.append(marker)
         
         return marker
-    
+
+    def _find_end_atom_chain_and_index(self, atom):
+        """
+        Assume atom is an end_baseatom of one of our chains (aka rails).
+        (If not true, raise KeyError.)
+        Find that chain and its index in it, and return them as (chain, index).
+        The index is nonnegative, meaning that we use 0 for
+        either end of a length-1 chain (there is no distinction
+        between the ends in that case).
+        """
+        try:
+            chain = self._end0_baseatoms[atom.key]
+            return chain, 0
+        except KeyError:
+            chain = self._end1_baseatoms[atom.key]
+                # raise KeyError if atom is not an end_atom of any of our chains
+            return chain, len(chain) - 1
+        pass
+        
     # todo: methods related to base indexing
 
     # todo: methods to help move markers, derived from or related to

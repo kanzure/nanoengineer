@@ -371,8 +371,9 @@ def update_PAM_chunks( changed_atoms):
     for wholechain in new_wholechains:
         wholechain.own_markers()
         # - own markers
-        # - and choose or make controlling marker
-        # - and tell markers whether controlling (might kill some of them)
+        # - and (in own_markers)
+        #   - choose or make controlling marker,
+        #   - and tell markers whether they're controlling (might kill some of them)
     if DEBUG_DNA_UPDATER:
         print "dna updater: owned markers of those %d new or changed wholechains" % len(new_wholechains)
 

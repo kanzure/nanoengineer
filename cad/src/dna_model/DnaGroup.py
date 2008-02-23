@@ -79,21 +79,21 @@ class DnaGroup(Block):
         else:
             return imagename_to_pixmap( self.iconPath)     
 
-    def make_DnaStrandOrSegment_for_marker(self, controlling_marker, wholechain):
+    def make_DnaStrandOrSegment_for_marker(self, controlling_marker): # review: wholechain arg needed? @@@
         """
-        The given DnaMarker is either newly made to control wholechain,
+        The given DnaMarker is either newly made to control a wholechain,
         or old but newly controlling it; but it has no DnaStrandOrSegment.
         
         Make and return a new DnaStrand or DnaSegment
-        (ask wholechain or marker what class to use)
-        inside self (review: inside some Block?),
+        (ask marker what class to use)
+        inside self (review: inside some Block in self?),
         perhaps making use of info in controlling_marker
         to help decide how to initialize some of its attributes.
         
         (Assume calling code will later move all chunks
-        and markers from wholechain into the new object,
+        and markers from marker's wholechain into the new DnaStrandOrSegment,
         and will store references to it as needed
-        into controlling_marker and/or wholechain,
+        into controlling_marker and/or its wholechain,
         so don't do those things here.)
         """
         assert not self.killed(), \

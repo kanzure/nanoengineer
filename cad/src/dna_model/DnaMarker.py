@@ -19,7 +19,13 @@ from dna_model.ChainAtomMarker import ChainAtomMarker
 
 from dna_model.DnaStrand import DnaStrand
 from dna_model.DnaSegment import DnaSegment
+
+# for parent_node_of_class:
 from dna_model.DnaGroup import DnaGroup
+from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
+
+from dna_model.DnaGroup import find_or_make_DnaGroup_for_homeless_object
+
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
@@ -162,7 +168,11 @@ class DnaMarker( ChainAtomMarker):
     
     controlling = _CONTROLLING_IS_UNKNOWN
 
-    _owning_strand_or_segment = None
+##    _owning_strand_or_segment = None
+
+    _inside_its_own_strand_or_segment = False # 080222 ### REVIEW: behavior when copied? undo? (copy this attr along with .dad?) @@@@
+        # whether self is inside the right DnaStrandOrSegment in the model tree
+        # (guess: matters only for controlling markers)
 
     _advise_new_chain_direction = 0 ###k needed??? @@@
         # temporarily set to 0 or -1 or 1 for use when moving self and setting a new chain
@@ -194,7 +204,7 @@ class DnaMarker( ChainAtomMarker):
         if self.wholechain:
             self.wholechain._f_marker_killed(self)
             self.wholechain = None
-        # review: what about self._owning_strand_or_segment? @@@
+        self._inside_its_own_strand_or_segment = False # guess
         _superclass.kill(self)
         return
     
@@ -227,7 +237,7 @@ class DnaMarker( ChainAtomMarker):
         Cause whatever graphics areas show self to update themselves.
 
         [Should be made a Node API method, but revised to do the right thing
-        for nodes drawn into display lists.]
+         for nodes drawn into display lists.]
         """
         self.assy.glpane.gl_update()
     
@@ -342,28 +352,115 @@ class DnaMarker( ChainAtomMarker):
         """
         return self.parent_node_of_class( DnaStrandOrSegment)
         
-    def _f_get_owning_strand_or_segment(self):
+    def _f_get_owning_strand_or_segment(self, make = False):
         """
         [friend method for dna updater]
         Return the DnaStrand or DnaSegment which owns this marker,
         or None if there isn't one,
-        even if the internal Node tree structure (node.dad)
+        even if the internal model tree
         has not yet been updated to reflect this properly
-        (which may only happen when self is homeless).
+        (which may only happen when self is newly made or
+         perhaps homeless).
 
+        @param make: if True, never return None, but instead make a new
+                     owning DnaStrandOrSegment and move self into it,
+                     or decide that one we happen to be in can own us.
+        
         Note: non-friend callers (outside the dna updater, and not running
         just after creating this before the updater has a chance to run
         or gets called explicitly) should instead use the appropriate
         method out of get_DnaStrand or get_DnaSegment.
         """
         # fyi - used in WholeChain.find_or_make_strand_or_segment
-        return self._owning_strand_or_segment
+        # revised, and make added, 080222
+        if self._inside_its_own_strand_or_segment:
+            return self._get_DnaStrandOrSegment()
+        if make:
+            # if we're in a good enough one already, just make it official
+            in_this_already = self._already_in_suitable_DnaStrandOrSegment()
+            if in_this_already:
+                self._inside_its_own_strand_or_segment = True
+                return in_this_already # optim of return self._get_DnaStrandOrSegment()
+            # otherwise make a new one and move into it (and return it)
+            return self._make_strand_or_segment()
+        return None
 
-    def _f_set_owning_strand_or_segment(self, strand_or_segment):
+    def _already_in_suitable_DnaStrandOrSegment(self):
         """
-        [friend method for dna updater]
+        [private helper for _f_get_owning_strand_or_segment]
+        We're some wholechain's controlling marker,
+        but we have no owning strand or segment.
+        Determine whether the one we happen to be inside (if any)
+        can own us. If it can, return it (but don't make it actually
+         own us). Otherwise return None.
         """
-        self._owning_strand_or_segment = strand_or_segment
+        candidate = self._get_DnaStrandOrSegment() # looks above us in model tree
+        if not candidate:
+            return None
+        if candidate is not self.dad:
+            return None
+        if not isinstance( candidate, self._DnaStrandOrSegment_class):
+            return None
+        # does it own anyone else already?
+        for member in candidate.members:
+            if isinstance(member, self.__class__):
+                if member._inside_its_own_strand_or_segment:
+                    return None
+        return candidate
+
+    def _make_strand_or_segment(self):
+        """
+        [private helper for _f_get_owning_strand_or_segment]
+        We're some wholechain's controlling marker,
+        and we need a new owning strand or segment.
+        Make one and move into it (in the model tree).
+        """
+        chunk = self.marked_atom.molecule # 080120 7pm untested [when written, in class WholeChain]
+        # find the right DnaGroup (or make one if there is none).
+        # ASSUME the chunk was created inside the right DnaGroup
+        # if there is one. There is no way to check this here -- user
+        # operations relying on dna updater have to put new PAM atoms
+        # inside an existing DnaGroup if they want to use it.
+        # We'll leave them there (or put them all into an arbitrary
+        # one if different atoms in a wholechain are in different
+        # DnaGroups -- which is an error by the user op).
+        dnaGroup = chunk.parent_node_of_class(DnaGroup)
+        if dnaGroup is None:
+            # If it was not in a DnaGroup, it should not be in a DnaStrand or
+            # DnaSegment either (since we should never make those without
+            # immediately putting them into a valid DnaGroup or making them
+            # inside one). But until we implement the group cleanup of just-
+            # read mmp files, we can't assume it's not in one here!
+            # However, we can ignore it if it is (discarding it and making
+            # our own new one to hold our chunks and markers),
+            # and just print a warning here, trusting that in the future
+            # the group cleanup of just-read mmp files will fix things better.
+            if chunk.parent_node_of_class(DnaStrandOrSegment):
+                print "dna updater: " \
+                      "will discard preexisting %r which was not in a DnaGroup" \
+                      % (chunk.parent_node_of_class(DnaStrandOrSegment),), \
+                      "(bug or unfixed mmp file)"
+            dnaGroup = find_or_make_DnaGroup_for_homeless_object(chunk)
+                # Note: all our chunks will eventually get moved from
+                # whereever they are now into this new DnaGroup.
+                # If some are old and have group structure around them,
+                # it will be discarded. To avoid this, newly read old mmp files
+                # should get preprocessed separately (as discussed also in
+                # update_DNA_groups).
+        # now make a strand or segment in that DnaGroup (review: in a certain Block?)
+        strand_or_segment = dnaGroup.make_DnaStrandOrSegment_for_marker(self)
+        strand_or_segment.move_into_your_members(self)
+            # this is necessary for the following assignment to make sense
+            # (review: is it ok that we ignore the return value here?? @@@@)
+        assert self._get_DnaStrandOrSegment() is strand_or_segment
+        self._inside_its_own_strand_or_segment = True
+        return strand_or_segment
+
+##    def _f_set_owning_strand_or_segment(self, strand_or_segment):
+##        """
+##        [friend method for dna updater]
+##        """
+##        self._owning_strand_or_segment = strand_or_segment
         
     # ==
     

@@ -64,10 +64,14 @@ def update_DNA_groups( new_chunks, new_wholechains ):
     # in a separate step, after reading them and before (or after?) running
     # this updater. @@@
     
-    # basic algorithm: [080111 comment]
-    # - markers have moved, or if not, finish that... and pick controlling one on each wholechain (new or modified)
-    #   (they are immutable so modified == new, but the point is, some new ones are made in part of untouched smaller chains).
-    # - for segments: this tells you which existing or new DnaSegment owns each marker and DnaSegmentChunk. Move nodes.
+    # Note:
+    # - before we're called, markers have moved to the right place, died, been made,
+    #   so that every wholechain has one controlling marker. But nothing has moved
+    #   into new groups in the internal model tree. Markers that need new DnaSegments
+    #   or DnaStrands don't yet have them, and might be inside the wrong ones.
+
+    # revise comment:
+    # - for segments: [this] tells you which existing or new DnaSegment owns each marker and DnaSegmentChunk. Move nodes.
     # - for strands: ditto; move markers into DnaStrand, and chunks into that or DnaSegment (decide this soon).
 
     ignore_new_changes("as update_DNA_groups starts", changes_ok = False,
@@ -75,7 +79,8 @@ def update_DNA_groups( new_chunks, new_wholechains ):
 
     old_groups = {}
 
-    # make missing strand_or_segment, and move markers into it if needed
+    # find or make a DnaStrand or DnaSegment for each controlling marker
+    # (via its wholechain), and move markers in the model tree as needed
     for wholechain in new_wholechains:
         strand_or_segment = wholechain.find_or_make_strand_or_segment()
         for marker in wholechain.all_markers():
@@ -113,30 +118,61 @@ def update_DNA_groups( new_chunks, new_wholechains ):
                        debug_print_even_if_none = _DEBUG_GROUPS )
 
     # Clean up old_groups:
-    # for any group we moved anything out of, perhaps delete it if it is now empty
-    # or (especially) dissolve it if it now has only one member and we made that member.
-    # This is important when updating an old mmp file with existing groups
-    # containing ordinary dna-containing chunks, since otherwise we'll bury the new DnaGroup
-    # inside one of those and leave the others empty.
+    #
+    # For any group we moved anything out of (or are about to delete something
+    # from now), we assume it is either a DnaSegment or DnaStrand that we moved
+    # a chunk or marker out of, or a Block that we delete all the contents of,
+    # or a DnaGroup that we deleted everything from (might happen if we mark it
+    # all as having new per-atom errors), or an ordinary group that contained
+    # ordinary chunks of PAM DNA, or an ordinary group that contained a DnaGroup
+    # we'll delete here.
+    #
+    # In some of these cases, if the group has become
+    # completely empty we should delete it. In theory we should ask the group
+    # whether to do this. Right now I think it's correct for all the kinds listed
+    # so I'll always do it.
+    #
+    # If the group now has exactly one member, should we dissolve it
+    # (using ungroup)? Not for a 1-member DnaSomething, probably not
+    # for a Block, probably not for an ordinary group, so for now,
+    # never do this. (Before 080222 we might do this even for a
+    # DnaSegment or DnaStrand, I think -- probably a bug.)
     #
     # Note, we need to do the innermost (deepest) ones first.
+    # We also need to accumulate new groups that we delete things from,
+    # or more simply, just transclose to include all dads from the start.
+    # (Note: only correct since we avoid dissolving groups that are equal to
+    #  or outside the top of a selection group. Also assumes we never dissolve
+    #  singletons; otherwise we'd need to record which groups not in our
+    #  original list we delete things from below, and only consider those
+    #  (and groups originally in our list) for dissolution.)
+
+    from state_utils import transclose # todo: make toplevel import
+    def collector(group, dict1):
+        # group can't be None, but an optim to earlier code might change that,
+        # so permit it here
+        if group and group.dad:
+            dict1[id(group.dad)] = group.dad
+    transclose( old_groups, collector)
 
     depth_group_pairs = [ (group.node_depth(), group)
-                          for group in old_groups.values() ]
+                          for group in old_groups.itervalues() ]
     depth_group_pairs.sort()
     depth_group_pairs.reverse() # deepest first
     
     for depth_junk, old_group in depth_group_pairs:
-        if old_group.is_top_of_selection_group():
-            ###k really, if it's too high to dissolve... should be equiv since we modified members...
-            # provided parts had toplevel groups before we started here, MAYBE NOT TRUE...
-            # but by now they do since there is a DnaGroup somewhere (made above if nec.)... review sometime.
+        if old_group.is_top_of_selection_group() or \
+           old_group.is_higher_than_selection_group():
+            # too high to dissolve
             continue
         if len(old_group.members) == 0:
-            old_group.kill() ###k is this always ok?? desirable?
-            # might affect members of less deep groups
-        elif len(old_group.members) == 1:
-            old_group.ungroup() ###k always ok? desirable? [dissolves the group; could use this in len 0 case too]
+            # todo: ask old_group whether to do this:
+            old_group.kill()
+            # note: affects number of members of less deep groups
+        # no need for this code when that len is 1:
+        ## old_group.ungroup()
+        ##     # dissolves the group; could use in length 0 case too
+        continue
 
     ignore_new_changes("from trimming groups we removed things from",
                        changes_ok = False,
