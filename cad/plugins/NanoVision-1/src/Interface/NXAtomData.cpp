@@ -1,6 +1,6 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
-#include "NXAtomData.h"
+#include "Nanorex/Interface/NXAtomData.h"
 
 namespace Nanorex {
 

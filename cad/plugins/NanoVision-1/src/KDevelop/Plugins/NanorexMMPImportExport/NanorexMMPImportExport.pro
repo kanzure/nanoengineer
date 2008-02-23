@@ -2,9 +2,8 @@ TEMPLATE = lib
 
 CONFIG += dll \
 plugin \
-debug \
+debug_and_release \
  stl
-CONFIG -= release
 
 
 SOURCES += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.cpp
@@ -15,7 +14,11 @@ HEADERS += ../../../Plugins/NanorexMMPImportExport/NanorexMMPImportExport.h \
 ../../../Plugins/NanorexMMPImportExport/ragelistreamptr.h
 QT -= gui
 
-LIBS += -lopenbabel
+LIBS += -L../../../../lib \
+ -lNanorexInterface \
+ -lNanorexUtility \
+ -L$(OPENBABEL_LIBPATH) \
+ -lopenbabel
 
 INCLUDEPATH += $(OPENBABEL_INCPATH) \
 ../../../../include

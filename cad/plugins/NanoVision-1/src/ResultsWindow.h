@@ -51,7 +51,8 @@ private:
 	
 	NXEntityManager* entityManager;
 	
-    QTreeWidget *modelTree;
+    //QTreeWidget* modelTree;
+	QTreeWidget* resultsTree;
     
     void setCurrentFile(const QString &fileName);
 	QString strippedName(const QString &fullFileName);
