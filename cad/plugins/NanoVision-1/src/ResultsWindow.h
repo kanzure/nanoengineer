@@ -51,11 +51,22 @@ private:
 	
 	NXEntityManager* entityManager;
 	
-    //QTreeWidget* modelTree;
+    QTreeWidget *resultsTree;
+    QIcon mmpFileIcon;
+    QIcon inputParametersIcon;
+    QIcon inputFilesIcon;
+    QIcon inputFileIcon;
+    QIcon resultsIcon;
+    QIcon resultsSummaryIcon;
+    QIcon resultsTrajectoriesIcon;
 	QTreeWidget* resultsTree;
     
     void setCurrentFile(const QString &fileName);
 	QString strippedName(const QString &fullFileName);
+    
+    void updateResultsTree(NXDataStoreInfo *dataStoreInfo);
+    void setupSingleStructureTree(NXDataStoreInfo *dataStoreInfo);
+    void setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo);
 };
 
 #endif

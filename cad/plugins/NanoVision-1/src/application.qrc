@@ -6,6 +6,12 @@
       <file>Icons/home.png</file>
       <file>Icons/Model_Tree.png</file>
       <file>Icons/nanoENGINEER-1.ico</file>
+      <file>Icons/input_file.png</file>
+      <file>Icons/input_files.png</file>
+      <file>Icons/input_parameters.png</file>
+      <file>Icons/results.png</file>
+      <file>Icons/results_summary.png</file>
+      <file>Icons/trajectories.png</file>
       <file>Icons/error.png</file>
 </qresource>
 </RCC>

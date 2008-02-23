@@ -5,7 +5,17 @@
 
 /* CONSTRUCTOR */
 ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
-: QWidget(parent), Ui_ResultsWindow() {
+: QWidget(parent), Ui_ResultsWindow(),
+    workspace(NULL), windowMapper(NULL), curFile(),
+    entityManager(NULL), resultsTree(NULL),
+    mmpFileIcon(tr(":/Icons/nanoENGINEER-1.ico")),
+    inputParametersIcon(tr(":/Icons/input_parameters.png")),
+    inputFilesIcon(tr(":/Icons/input_files.png")),
+    inputFileIcon(tr(":/Icons/input_file.png")),
+    resultsIcon(tr(":/Icons/results.png")),
+    resultsSummaryIcon(tr(":/Icons/results_summary.png")),
+    resultsTrajectoriesIcon(tr(":/Icons/trajectories.png"))
+{
     this->entityManager = entityManager;
     
     setupUi(this);
@@ -19,6 +29,7 @@ ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
     
     // Create empty results-tree
     resultsTree = new QTreeWidget(tabWidget);
+    resultsTree->setHeaderLabel(tr(""));
     tabWidget->removeTab(0);
     tabWidget->insertTab(0,resultsTree,tr("Results Tree"));
     
@@ -59,40 +70,24 @@ bool ResultsWindow::loadFile(const QString &fileName) {
     } else {
         setCurrentFile(fileName);
         
+        NXDataStoreInfo *dataStoreInfo = entityManager->getDataStoreInfo();
+        
         // populate results tree
-        QWidget *tab1Widget = tabWidget->widget(0);
-        resultsTree = dynamic_cast<QTreeWidget*>(tab1Widget);
-        resultsTree->clear();
-        NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
-        if(dataStoreInfo->isSingleStructure()) {
-            // MMP or OpenBabel file import
-            string const& singleStructureFileName =
-                dataStoreInfo->getSingleStructureFileName();
-            QString const fileFullPath(singleStructureFileName.c_str());
-            QFileInfo fileInfo(fileFullPath);
-            QString const fileName = fileInfo.fileName();
-            QTreeWidgetItem *fileItem = new QTreeWidgetItem(resultsTree);
-            QIcon fileIcon(tr(":/Icons/nanoENGINEER-1.ico"));
-            fileItem->setIcon(0, fileIcon);
-            fileItem->setText(0, fileName);
-            resultsTree->addTopLevelItem(fileItem);
-            QString const fileSuffix = fileInfo.suffix();
-            resultsTree->setHeaderLabel(fileSuffix.toUpper() + " file");
-        }
-        else {
+        updateResultsTree(dataStoreInfo);
+        
         // Discover a store-not-complete trajectory frame set
-            int trajId = dataStoreInfo->getTrajectoryId("frame-set-1");
-            TrajectoryGraphicsPane* trajPane = new TrajectoryGraphicsPane();
-            trajPane->setEntityManager(entityManager);
-            workspace->addWindow(trajPane);
-            trajPane->show();
-            if (!dataStoreInfo->storeIsComplete(trajId)) {
-                QObject::connect(entityManager,
-                                 SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
-                                 trajPane,
-                                 SLOT(newFrame(int, int, NXMoleculeSet*)));
-            }
-        }        
+        int trajId = dataStoreInfo->getTrajectoryId("frame-set-1");
+        TrajectoryGraphicsPane* trajPane = new TrajectoryGraphicsPane();
+        trajPane->setEntityManager(entityManager);
+        workspace->addWindow(trajPane);
+        trajPane->show();
+        if (!dataStoreInfo->storeIsComplete(trajId)) {
+            QObject::connect(entityManager,
+                                SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
+                                trajPane,
+                                SLOT(newFrame(int, int, NXMoleculeSet*)));
+        }
+        
 /* MDI data window example
     DataWindow *child = new DataWindow;
     workspace->addWindow(child);
@@ -109,6 +104,122 @@ bool ResultsWindow::loadFile(const QString &fileName) {
     }
     delete commandResult;
     return success;
+}
+
+
+/* FUNCTION: updateResultsTree */
+void ResultsWindow::updateResultsTree(NXDataStoreInfo *dataStoreInfo)
+{
+    // NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
+    // MMP or OpenBabel file import
+    if(dataStoreInfo->isSingleStructure()) {
+        setupSingleStructureTree(dataStoreInfo);
+    }
+    // Simulation results import
+    else if(dataStoreInfo->isSimulationResults()) {
+        setupSimulationResultsTree(dataStoreInfo);
+    }
+}
+
+
+/* FUNCTION: setupSimulationResultsTree */
+void ResultsWindow::setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo)
+{
+    QWidget *tab1Widget = tabWidget->widget(0);
+    resultsTree = dynamic_cast<QTreeWidget*>(tab1Widget);
+    resultsTree->clear();
+    resultsTree->setHeaderLabel("Sim Results");
+    
+    // input parameters
+    NXProperties *inputParameters = dataStoreInfo->getInputParameters();
+    if(inputParameters != NULL) {
+        QTreeWidgetItem *inputParametersItem = new QTreeWidgetItem(resultsTree);
+        inputParametersItem->setIcon(0, inputParametersIcon);
+        inputParametersItem->setText(0, tr("Input parameters"));
+        resultsTree->addTopLevelItem(inputParametersItem);
+    }
+    
+    // input files
+    vector<string> inputFileNames = dataStoreInfo->getInputFileNames();
+    if(inputFileNames.size() > 0) {
+        QTreeWidgetItem *inputFilesItem = new QTreeWidgetItem(resultsTree);
+        inputFilesItem->setIcon(0, inputFilesIcon);
+        inputFilesItem->setText(0, tr("Input files"));
+        
+        vector<string>::const_iterator inputFileIter;
+        for(inputFileIter = inputFileNames.begin();
+            inputFileIter != inputFileNames.end();
+            ++inputFileIter)
+        {
+            QTreeWidgetItem *inputFileItem = new QTreeWidgetItem(inputFilesItem);
+            inputFileItem->setIcon(0, inputFileIcon);
+            inputFileItem->setText(0, QString(inputFileIter->c_str()));
+            // inputFilesItem->addChild(inputFileItem);
+        }
+        
+        resultsTree->addTopLevelItem(inputFilesItem);
+    }
+    
+    // Results
+    
+    NXProperties *resultsSummary = dataStoreInfo->getResultsSummary();
+    vector<string> trajectoryNames = dataStoreInfo->getTrajectoryNames();
+    
+    // don't create if no children
+    if(resultsSummary == NULL && trajectoryNames.size()==0) return;
+    
+    QTreeWidgetItem *resultsItem = new QTreeWidgetItem(resultsTree);
+    resultsItem->setIcon(0, resultsIcon);
+    resultsItem->setText(0, tr("Results"));
+    resultsTree->addTopLevelItem(resultsItem);
+    
+    // Results -> Summary
+    QTreeWidgetItem *resultsSummaryItem = NULL;
+    if(resultsSummary != NULL) {
+        resultsSummaryItem = new QTreeWidgetItem(resultsItem);
+        resultsSummaryItem->setIcon(0, resultsSummaryIcon);
+        resultsSummaryItem->setText(0, tr("Summary"));
+    }
+    
+    // Results -> Trajectories
+    if(trajectoryNames.size() > 0) {
+        QTreeWidgetItem *trajectoryItem = new QTreeWidgetItem(resultsItem);
+        trajectoryItem->setIcon(0, resultsTrajectoriesIcon);
+        trajectoryItem->setText(0, tr("Trajectories"));
+        
+        vector<string>::const_iterator trajectoryNameIter;
+        for(trajectoryNameIter = trajectoryNames.begin();
+            trajectoryNameIter != trajectoryNames.end();
+            ++trajectoryNameIter)
+        {
+            QTreeWidgetItem *trajectoryNameItem =
+                new QTreeWidgetItem(trajectoryItem);
+            trajectoryNameItem->setIcon(0, resultsTrajectoriesIcon);
+            trajectoryNameItem->setText(0, QString(trajectoryNameIter->c_str()));
+            // trajectoryItem->addChild(trajectoryNameItem);
+        }
+    }
+}
+
+
+/* FUNCTION: setupSingleStructureTree */
+void ResultsWindow::setupSingleStructureTree(NXDataStoreInfo *dataStoreInfo)
+{
+    QWidget *tab1Widget = tabWidget->widget(0);
+    resultsTree = dynamic_cast<QTreeWidget*>(tab1Widget);
+    resultsTree->clear();
+    
+    string const& singleStructureFileName =
+        dataStoreInfo->getSingleStructureFileName();
+    QString const fileFullPath(singleStructureFileName.c_str());
+    QFileInfo fileInfo(fileFullPath);
+    QString const fileName = fileInfo.fileName();
+    QTreeWidgetItem *fileItem = new QTreeWidgetItem(resultsTree);
+    fileItem->setIcon(0, mmpFileIcon);
+    fileItem->setText(0, fileName);
+    resultsTree->addTopLevelItem(fileItem);
+    QString const fileSuffix = fileInfo.suffix();
+    resultsTree->setHeaderLabel(fileSuffix.toUpper() + " file");
 }
 
 
