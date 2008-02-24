@@ -351,7 +351,7 @@ def update_PAM_chunks( changed_atoms):
     new_wholechains = (
         map( Axis_WholeChain, 
              algorithm( merged_axis_ladders,
-                        lambda ladder: [ladder.axis_rail] ) ) +
+                        lambda ladder: ladder.axis_rails() ) ) +
         map( Strand_WholeChain,
              algorithm( merged_ladders, # must do both kinds at once!
                         lambda ladder: ladder.strand_rails ) )

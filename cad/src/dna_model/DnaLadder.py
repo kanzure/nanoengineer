@@ -415,25 +415,6 @@ class DnaLadder(object):
             if atom2 is not atom1:
                 yield atom2
         return
-    
-    def kill_strand_chunks(self):
-        """
-        Kill all the strand chunks (DnaStrandChunk objects) of this 
-        DnaLadder. 
-        @TODO: 
-        - Do we need to invalidate the ladder or DnaUpdater should take cared of
-         this??
-        - Should called always call ladder.kill and never call 
-          kill_strand_chunks?  (i.e. should the callers be permitted to kill 
-          the ladder as a whole (DnaAxisChunks and DnaStrandChunks)
-          and not some chunks defined by it??? May be this is desirable. 
-        @see: dna_model.DnaSegment.kill_with_contents (the caller)
-        """
-        for rail in self.all_rails():
-            if rail is not self.axis_rail:
-                #Its a DnaStrandChunk
-                strandChunk = rail.baseatoms[0].molecule 
-                strandChunk.kill()
         
     def invalidate(self):
         # note: this is called from dna updater and from
@@ -737,6 +718,18 @@ class DnaLadder(object):
         [implem is subclass-specific]
         """
         return [self.axis_rail] + self.strand_rails
+
+    # TODO: make self.strand_rails private; define a method of the same name for external use,
+    # to be uniform with axis_rails and all_rails methods [bruce 080224 comment]
+
+    def axis_rails(self):
+        """
+        Return a list of all our axis rails (currently, 1 in this class,
+        0 in some subclasses), in arbitrary order,
+        not including missing rails.
+        [implem is subclass-specific]
+        """
+        return [self.axis_rail]
     
     def all_rail_slots_from_top_to_bottom(self):
         """
@@ -756,6 +749,8 @@ class DnaLadder(object):
                 print "\n***BUG: %r: %s" % (self, self.error)
             return [None, self.axis_rail, None] # not sure this will work in callers
         pass
+
+    # ==
     
     def remake_chunks(self):
         """
@@ -827,7 +822,78 @@ class DnaLadder(object):
             # or if you know a group you want it in, call group.addchild(chunk) instead of this.
             res.append(chunk)
         return res
+
+    # == chunk access methods
+
+    def strand_chunks(self):
+        """
+        Return a list of all the strand chunks (DnaStrandChunk objects) of this DnaLadder.
+
+        @see: our methods strand_chunks, all_chunks, axis_chunks,
+              kill_ versions of each of those.
+        """
+        ###FIX: self.strand_rails is an attr, self.axis_rails is a method.
+        return [rail.baseatoms[0].molecule for rail in self.strand_rails]
+
+    def axis_chunks(self):
+        """
+        Return a list of all the axis chunks (DnaAxisChunk objects) of this DnaLadder.
+
+        @see: our methods strand_chunks, all_chunks, axis_chunks,
+              kill_ versions of each of those.
+        """
+        return [rail.baseatoms[0].molecule for rail in self.axis_rails()]
+
+    def all_chunks(self):
+        """
+        Return a list of all the strand and axis chunks (DnaLadderRailChunk objects) of this DnaLadder.
+
+        @see: our methods strand_chunks, all_chunks, axis_chunks,
+              kill_ versions of each of those.
+        """
+        return [rail.baseatoms[0].molecule for rail in self.all_rails()]
+
+    # == convenience methods
     
+    def kill_strand_chunks(self):
+        """
+        Kill all the strand chunks (DnaStrandChunk objects) of this DnaLadder.
+
+        @note: doesn't invalidate the ladder -- that's up to the dna updater
+               to do later if it wants to.
+
+        @see: our methods strand_chunks, all_chunks, axis_chunks,
+              kill_ versions of each of those.
+        """
+        for chunk in self.strand_chunks():
+            chunk.kill()
+
+    def kill_axis_chunks(self):
+        """
+        Kill all the axis chunks (DnaAxisChunk objects) of this DnaLadder.
+
+        @note: doesn't invalidate the ladder -- that's up to the dna updater
+               to do later if it wants to.
+
+        @see: our methods strand_chunks, all_chunks, axis_chunks,
+              kill_ versions of each of those.
+        """
+        for chunk in self.axis_chunks():
+            chunk.kill()
+
+    def kill_all_chunks(self):
+        """
+        Kill all the strand and axis chunks (DnaLadderRailChunk objects) of this DnaLadder.
+
+        @note: doesn't invalidate the ladder -- that's up to the dna updater
+               to do later if it wants to.
+
+        @see: our methods strand_chunks, all_chunks, axis_chunks,
+              kill_ versions of each of those.
+        """
+        for chunk in self.all_chunks():
+            chunk.kill()
+
     pass # end of class DnaLadder
 
 # ==
@@ -867,6 +933,12 @@ class DnaSingleStrandDomain(DnaLadder):
         [implem is subclass-specific]
         """
         return self.strand_rails
+    def axis_rails(self):
+        """
+        Return a list of all our axis rails (none, in this subclass).
+        [implem is subclass-specific]
+        """
+        return []
     def all_rail_slots_from_top_to_bottom(self):
         """
         Return a list of all our rails (1 strand), in top to bottom order,
