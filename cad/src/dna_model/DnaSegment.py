@@ -8,7 +8,9 @@ DnaSegment.py - ...
 """
 import env
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
-from debug import print_compact_stack
+from dna_model.DnaLadderRailChunk import DnaAxisChunk
+
+from debug import print_compact_stack, print_compact_traceback
 from chunk import Chunk
 from chem  import Atom
 from bonds import Bond
@@ -66,10 +68,39 @@ class DnaSegment(DnaStrandOrSegment):
             
         assert commandSequencer.currentCommand.commandName == 'DNA_SEGMENT'
         commandSequencer.currentCommand.editStructure(self)
+    
 
     #Following methods are likely to be revised in a fully functional dna data 
     # model. These methods are mainly created to get working many core UI 
     # operations for Rattlesnake.  -- Ninad 2008-02-01
+     
+    def kill_with_contents(self):  
+        """
+        Kill this Node including the 'logical contents' of the node. i.e. 
+        the contents of the node that are self.members as well as non-members. 
+        Example: A DnaSegment's logical contents are AxisChunks and StrandChunks 
+        Out of these, only AxisChunks are the direct members of the DnaSegment
+        but the 'StrandChunks are logical contents of it (non-members) . 
+        So, some callers may specifically want to delete self along with its 
+        members and logical contents. These callers should use this method. 
+        The default implementation just calls self.kill()
+        @see: B{Node.DnaSegment.kill_with_contents}  which is overridden here
+              method. 
+        @see: EditCommand._removeStructure() which calls this Node API method
+        @see: DnaDuplex_EditCommand._removeSegments()
+        @see: 
+        
+        """   
+        for member in self.members:
+            if isinstance(member, DnaAxisChunk):
+                ladder = member.ladder
+                try:
+                    ladder.kill()
+                except:
+                    print_compact_traceback("bug in killing the ladder chunk")
+        
+        DnaStrandOrSegment.kill_with_contents(self)
+        
     
     def getAxisEndAtoms(self):
         """
@@ -225,7 +256,7 @@ class DnaSegment(DnaStrandOrSegment):
         for a ring: None, None.
         """
         # this implem only works in the dna data model
-        from dna_model.DnaLadderRailChunk import DnaAxisChunk
+        
         # find an arbitrary DnaAxisChunk among our members
         # (not the best way in theory, once we have proper attrs set,
         #  namely our controlling marker)

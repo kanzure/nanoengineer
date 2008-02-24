@@ -1306,6 +1306,28 @@ class Node( StateMixin):
     
     # ==
     
+    def kill_with_contents(self):
+        """
+        Kill this Node including the 'logical contents' of the node. i.e. 
+        the contents of the node that are self.members as well as non-members. 
+        Example: A naSegment's logical contents are AxisChunks and StrandChunks 
+        Out of these, only AxisChunks are the direct members of the DnaSegment
+        but the 'StrandChunks are logical contents of it (non-members) . 
+        So, some callers may specifically want to delete self along with its 
+        members and logical contents. These callers should use this method. 
+        The default implementation just calls self.kill()
+        @see: dna_model.DnaSegment.kill_with_contents  which overrides this 
+              method. 
+        @see: EditCommand._removeStructure() which calls this Node API method
+        @see: DnaDuplex_EditCommand._removeSegments()
+        """
+        #NOTE: This method was defined on 2008-02-22 to support dna_updater
+        #implementation in DnaDuplex_EditCommand. 
+        #This method is called in EditCommands instead of calling widely used 
+        #'kill' method.(Example: we are not modifying DnaSegment.kill to delete 
+        #even the non-members of DnaSegment, to avoid potential internal bugs) 
+        self.kill()    
+    
     def kill(self): # see also self.destroy()
         """
         Remove self from its parents and (maybe) destroy enough of its content that it takes little room (but be Undoable).
