@@ -415,6 +415,25 @@ class DnaLadder(object):
             if atom2 is not atom1:
                 yield atom2
         return
+    
+    def kill_strand_chunks(self):
+        """
+        Kill all the strand chunks (DnaStrandChunk objects) of this 
+        DnaLadder. 
+        @TODO: 
+        - Do we need to invalidate the ladder or DnaUpdater should take cared of
+         this??
+        - Should called always call ladder.kill and never call 
+          kill_strand_chunks?  (i.e. should the callers be permitted to kill 
+          the ladder as a whole (DnaAxisChunks and DnaStrandChunks)
+          and not some chunks defined by it??? May be this is desirable. 
+        @see: dna_model.DnaSegment.kill_with_contents (the caller)
+        """
+        for rail in self.all_rails():
+            if rail is not self.axis_rail:
+                #Its a DnaStrandChunk
+                strandChunk = rail.baseatoms[0].molecule 
+                strandChunk.kill()
         
     def invalidate(self):
         # note: this is called from dna updater and from

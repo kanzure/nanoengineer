@@ -88,14 +88,18 @@ class DnaSegment(DnaStrandOrSegment):
               method. 
         @see: EditCommand._removeStructure() which calls this Node API method
         @see: DnaDuplex_EditCommand._removeSegments()
-        @see: 
+        @see: dna_model.DnaLadder.kill_strand_chunks() for a comment.
         
         """   
         for member in self.members:
-            if isinstance(member, DnaAxisChunk):
+            
+            if isinstance(member, DnaAxisChunk):                
                 ladder = member.ladder
                 try:
-                    ladder.kill()
+                    #See a note in dna_model.kill_strand_chunks. Should we 
+                    #instead call ladder.kill() and thus kill bothstrand 
+                    #and axis chunks. ?
+                    ladder.kill_strand_chunks()
                 except:
                     print_compact_traceback("bug in killing the ladder chunk")
         
