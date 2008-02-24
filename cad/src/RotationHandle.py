@@ -19,7 +19,6 @@ from exprs.__Symbols__      import _self
 from exprs.Overlay          import Overlay
 from exprs.ExprsConstants   import Drawable
 from exprs.ExprsConstants   import Color
-from exprs.ExprsConstants   import Point
 from exprs.ExprsConstants   import ORIGIN, DX , DY
 
 from exprs.dna_ribbon_view  import Cylinder

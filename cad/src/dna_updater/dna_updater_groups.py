@@ -9,12 +9,6 @@ dna_updater_groups.py - enforce rules on chunks containing changed PAM atoms
 
 from dna_updater.dna_updater_globals import ignore_new_changes
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
-
-from dna_model.DnaGroup import DnaGroup
-
-from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
-
 _DEBUG_GROUPS = False
 
 # ==

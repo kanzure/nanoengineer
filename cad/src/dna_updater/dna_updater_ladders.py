@@ -17,8 +17,6 @@ from dna_updater.dna_updater_follow_strand import dna_updater_follow_strand
 from dna_model.DnaLadder import DnaLadder, DnaSingleStrandDomain
 from dna_model.DnaLadder import _f_get_invalid_dna_ladders
 
-from dna_model.DnaLadderRailChunk import DnaLadderRailChunk # import not needed?
-
 from dna_model.dna_model_constants import MAX_LADDER_LENGTH
 
 # ==

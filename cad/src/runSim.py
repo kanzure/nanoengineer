@@ -55,7 +55,7 @@ from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_
 from constants import filesplit
 from Process import Process
 from Plugins import checkPluginPreferences
-from StatusBar import StatusBar, AbortHandler
+from StatusBar import AbortHandler
 from PyrexSimulator import thePyrexSimulator
 
 from prefs_constants import electrostaticsForDnaDuringAdjust_prefs_key

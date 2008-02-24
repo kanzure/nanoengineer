@@ -106,9 +106,6 @@ from debug import print_compact_stack
 from prefs_constants import bondHighlightColor_prefs_key
 from prefs_constants import deleteBondHighlightColor_prefs_key
 
-from prefs_constants import atomHighlightColor_prefs_key
-from prefs_constants import deleteAtomHighlightColor_prefs_key
-
 from utilities import debug_flags
 
 

@@ -17,7 +17,6 @@ from chunk import Chunk
 from constants import gensym
 from Dna_Constants import getNextStrandColor
 import env
-import random
 from debug_prefs import debug_pref, Choice_boolean_False
 from debug import print_compact_stack
 from runSim import adjustSinglet
@@ -234,7 +233,7 @@ class ops_rechunk_Mixin:
         The new strand chunk, which includes the atoms between the 3' end of
         the original strand and the new 5' end (i.e. the break point), is 
         added to the same DNA group as the original strand and assigned a 
-        different (random) color.
+        different color.
         
         @param x1: The first of two singlets created by busting a strand
                    backbone bond. It is either the 3' or 5' open bond singlet,

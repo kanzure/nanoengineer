@@ -7,18 +7,16 @@ DnaChain.py - Dna-aware AtomChainOrRing subclasses, AxisChain and StrandChain
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_model.DnaMarker import DnaMarker # only for issubclass
 from dna_model.DnaMarker import DnaSegmentMarker
 from dna_model.DnaMarker import DnaStrandMarker
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
 
 from dna_model.dna_model_constants import LADDER_ENDS
 from dna_model.dna_model_constants import LADDER_END0
 
 import env
-from utilities.Log import redmsg, quote_html
+from utilities.Log import redmsg
 
 from bond_constants import find_bond
 

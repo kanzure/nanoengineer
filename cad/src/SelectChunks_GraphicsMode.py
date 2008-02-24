@@ -48,8 +48,6 @@ from geometry.VQT import V, vlen
 
 import time
 
-from Select_Command import Select_Command
-
 from Select_GraphicsMode import Select_basicGraphicsMode
 
 from GlobalPreferences import DEBUG_BAREMOTION

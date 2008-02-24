@@ -1,8 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Ui_PartWindow.py provides the part window class.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 To Do:
 - Reorder widget and layout creation so that the code is easier to follow
@@ -25,18 +26,16 @@ key attrs and widgets (i.e. pwLeftArea and pwBottomArea)
 
 import os
 
-from PyQt4.Qt import Qt, QWidget, QFrame, QHBoxLayout, QVBoxLayout, QSplitter
+from PyQt4.Qt import Qt, QWidget, QFrame, QVBoxLayout, QSplitter
 from PyQt4.Qt import QTabWidget, QScrollArea, QSizePolicy
 from GLPane import GLPane
 from PropMgr_Constants import pmDefaultWidth, pmMaxWidth, pmMinWidth
 from icon_utilities import geticon
 from modelTree.ModelTree import modelTree
-from qt4transition import qt4warnDestruction, qt4todo
+from qt4transition import qt4warnDestruction
 from utilities import debug_flags
 import env
-from PlatformDependent import make_history_filename
-from PM.PM_Colors  import   getPalette
-from debug import print_compact_traceback #bruce 070627 bugfix
+from debug import print_compact_traceback
 
 from prefs_constants import captionFullPath_prefs_key
 
