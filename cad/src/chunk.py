@@ -484,7 +484,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         Return a list of atoms in a fixed direction -- from 5' to 3'
         
-        NOTE: this is a stub and we can modify it so that
+        @note: this is a stub and we can modify it so that
         it can accept other direction i.e. 3' to 5' , as an argument.
         
         BUG: ? : This also includes the bondpoints (X)  .. I think this is 
@@ -1405,7 +1405,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     _inputs_for_bbox = ['atpos']
     def _recompute_bbox(self):
-        "Make a new bounding box from the atom positions (including singlets)."
+        """
+        Make a new bounding box from the atom positions (including singlets).
+        """
         self.bbox = BBox(self.atpos)
 
     # Center.
@@ -3303,11 +3305,13 @@ class BorrowerChunk(Chunk):
     A temporary Chunk (mostly transparent to users and Undo, when not added to MT) whose atoms belong in other chunks.
     Useful for optimizing redraws, since it has one perhaps-small display list, and the other chunks' display lists
     won't be modified when our atoms change (except once when we first steal their atoms, and when we add them back).
-       WARNING: removing atoms from, or adding atoms to, this pseudo-chunk is not supported.
+
+    @warning: removing atoms from, or adding atoms to, this pseudo-chunk is not supported.
     Except for debugging purposes, it should never be added to the MT, or permitted to exist when arbitrary user-ops are possible.
     Its only known safe usage pattern is to be created, used, and destroyed, during one extended operation such as a mouse-drag.
     [If more uses are thought of, these limitations could all be removed. #e]
-       update 060412: trying to make it fully safe for Undo cp, and in case it's accidently left alive (in GLPane or MT).
+
+    update 060412: trying to make it fully safe for Undo cp, and in case it's accidently left alive (in GLPane or MT).
     But not trying to make results perfectly transparent or "correct" in those cases, since we'll try to prevent them.
     E.g. for mmp save, it'll save as a normal Chunk would.
     """
@@ -3329,9 +3333,9 @@ class BorrowerChunk(Chunk):
     def take_atomset(self, atomset, name = None):
         """
         #doc; atomset maps atom.key -> atom for some atoms we'll temporarily own
-        [WARNING: if all of another chunk's atoms are in atomset, creating us will kill that chunk.]
-        [WARNING: it's up to the caller to make sure all singlet neighbors of atoms in atomset
-         are also in atomset! Likely bugs if it doesn't.]
+        @warning: if all of another chunk's atoms are in atomset, creating us will kill that chunk.
+        @warning: it's up to the caller to make sure all singlet neighbors of atoms in atomset
+                  are also in atomset! Likely bugs if it doesn't.
         If you want to call this again on new atoms, call self.demolish first.
         """
         if not name:

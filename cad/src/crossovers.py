@@ -428,7 +428,7 @@ class Pl5_recognizer(StaticRecognizer):
         if not self.in_only_one_helix:
             raise RecognizerError("Pl5 atom must be in_only_one_helix")
         res = self._involved_atoms_for_make_or_remove_crossover
-        if not len(res) == 5: # can this ever fail do to a structural error?? actually it can -- Ax atoms can be the same
+        if not len(res) == 5: # can this ever fail due to a structural error?? actually it can -- Ax atoms can be the same
             raise RecognizerError("structural error (two bases on one Pl and one Ax??)")
         return res
     def _C_involved_atoms_for_remove_crossover(self): #bruce 070604

@@ -1,13 +1,13 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 images.py - provide some image-displaying utilities and primitives
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 
-semi-obs:
+semi-obs documentation:
 
 Image(filename) # a tile, exact same size as image in file (which loads into a texture, rounded up to twopow sizes)
 
@@ -112,7 +112,8 @@ courierfile = os.path.join( image_directory(), "ui/exprs/text/courier-128.png") 
 debug_glGenTextures = True #070308 #####
 
 class _texture_holder(object):
-    """[private class for use in a public MemoDict]
+    """
+    [private class for use in a public MemoDict]
     From a filename and other data, create on demand, and cache, a PIL Image object and an optional OpenGL texture object;
     objects of this class are meant to be saved as a memoized dict value with the filename being the dict key
     """
@@ -131,11 +132,15 @@ class _texture_holder(object):
         #e no provision yet for file contents changing; when there is, update policy or uniqid might need to be part of tex_key
         #e more options? maybe, but by default, get those from queries, store an optimal set of shared versions [nim]
     def _C__image(self):
-        "define self._image -- create a PIL Image object (enclosed in an neImageOps container) from the file, and return it"
+        """
+        define self._image -- create a PIL Image object (enclosed in an neImageOps container) from the file, and return it
+        """
         return texture_helpers.create_PIL_image_obj_from_image_file(self.filename, **self.pil_kws)
             # (trivial glue function into ImageUtils.py class nEImageOps -- return nEImageOps(image_file, **kws))
     def _C_tex_name(self):
-        "define self.tex_name -- allocate a texture name"
+        """
+        define self.tex_name -- allocate a texture name
+        """
         # code copied from texture_helpers.loadTexture (even though we call it, below, for its other code):
         tex_name = glGenTextures(1)
         if debug_glGenTextures and seen_before(('debug_glGenTextures', self.filename)):
@@ -148,7 +153,8 @@ class _texture_holder(object):
         assert tex_name != 0
         return tex_name
     def _C_loaded_texture_data(self):
-        """define self.loaded_texture_data = (have_mipmaps, tex_name),
+        """
+        define self.loaded_texture_data = (have_mipmaps, tex_name),
         which stands for the side effect of guaranteeing the texture is loaded
         (but not necessarily currently bound)
         """
@@ -166,7 +172,9 @@ class _texture_holder(object):
         assert tex_name == self.tex_name
         return have_mipmaps, tex_name
     def bind_texture(self, clamp = False, use_mipmaps = True, decal = False, pixmap = False):
-        "bind our texture, and set texture-related GL params as specified"
+        """
+        bind our texture, and set texture-related GL params as specified
+        """
         # Notes [some of this belongs in docstring]:
         #e - we might want to pass these tex params as one chunk, or a flags word
         #e - we might want to optim for when they don't change
@@ -233,8 +241,11 @@ texture_holder_for_filename = MemoDict(_texture_holder)
 DEBUG_IMAGE_SEARCH = False
 
 def canon_image_filename( filename):
-    """Figure out (or guess) the right absolute pathname for loading the given image file into OpenGL.
-    WARNING: the answer depends on what files are found on your disk, so it might differ for different users!
+    """
+    Figure out (or guess) the right absolute pathname for loading the given image file into OpenGL.
+
+    @warning: the answer depends on what files are found on your disk, so it might differ for different users!
+
     [Note: It's not yet clear whether that's merely a development kluge, or a feature, or some of each;
      someday there might even be user prefs for image search paths, except that plugins can provide their own images.... ##e]
     """
@@ -310,7 +321,8 @@ def canon_image_filename( filename):
     pass # end of canon_image_filename
 
 class Image(Widget2D):
-    """Image(filename, size = Rect(2)) draws a rectangular textured image based on the given image file,
+    """
+    Image(filename, size = Rect(2)) draws a rectangular textured image based on the given image file,
     using the same size and position in model space as the lbox of an instance of self.size
     (a Widget2D, usually a Rect, Rect(2) by default, i.e. about 30 pixels square in home view).
        It uses an OpenGL texture size (resolution) given by options ideal_width and ideal_height
@@ -324,17 +336,20 @@ class Image(Widget2D):
     [###WRONG or REVIEW -- isn't it the nEImageOps object which has that name??])
        Options that affect how the texture gets made from the loaded image include... none yet, I think. Someday
     we'll want make_mipmaps (with filtering options for its use) and probably others. [###k need to verify none are used for this]
-       WARNING: variations in the above options (between instances, or over time [if that's implemented -- untested,
-    unsure ##k]) cause both a new OpenGL texture to be created, and (even if it would not be necessarily in a smarter
-    implem [i think] -- but the lack of image->texture options makes this academic for now) a new PIL Image to be created
-    from the image file on disk.
+
+    @warning: variations in the above options (between instances, or over time [if that's implemented -- untested,
+              unsure ##k]) cause both a new OpenGL texture to be created, and (even if it would not be necessarily in a smarter
+              implem [i think] -- but the lack of image->texture options makes this academic for now) a new PIL Image to be created
+              from the image file on disk.
+
        Options that affect how the texture is drawn (in any instance, at any moment) include:
     clamp, pixmap [#e misnamed], use_mipmaps, decal, tex_origin, nreps [#doc these].
     [#e More options of this kind are needed.]
     All the texture-drawing options can be varied, either in different instances or over time in one instance
     (by passing them as formulae), without causing a new texture or PIL Image to be loaded as they vary. 
-       WARNING: the image is not visible from the back, which is only ok for some uses, such as 2D widgets
-    or solid-object faces or decals. We should add an option to make it visible from both sides (easy) #e.
+
+    @warning: the image is not visible from the back, which is only ok for some uses, such as 2D widgets
+              or solid-object faces or decals. We should add an option to make it visible from both sides (easy) #e.
     """
     ##e about options ideal_width and ideal_height:
     #e should be a single option, resolution or tex_size, number or pair, or smth to pick size based on image native size
@@ -383,7 +398,7 @@ class Image(Widget2D):
     
     ### WARNING: hard to disable those correctly (re restoring state)
     # if we ever get drawn in a larger thing that disables one of them -- as we might,
-    #  do to selobj highlighting! ###k CHECK THIS for other new disables too, alpha and blend...
+    #  due to selobj highlighting! ###k CHECK THIS for other new disables too, alpha and blend...
     
     nreps = Option(float, 1.0) #e rename - repeat count; mostly only useful when clamp is False, but ought to work otherwise too
         ##e generalize to let caller supply tex_dx and tex_dy vectors, for rotating the texture within the drawing region;
@@ -539,7 +554,8 @@ IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode 
 # ==
 
 class NativeImage(DelegatingInstanceOrExpr): #070304 [works (imperfectly? see comments there) in testexpr_11u6]
-    """Show an image in its native size and aspect ratio --
+    """
+    Show an image in its native size and aspect ratio --
     that is, one image pixel == one texture pixel == one screen pixel,
     when the local coordsys is the standard viewing coordsys.
        Note: callers are advised to enclose this inside Highlightable, at least until
@@ -573,7 +589,8 @@ class NativeImage(DelegatingInstanceOrExpr): #070304 [works (imperfectly? see co
 #e search for "visual regression test framework" for ideas on that in comment below; refile them into PixelTester.py ##e
 
 class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision to provide more control over when to save, button-compatible
-    """Act like our first argument, but after the first(??) draw call,
+    """
+    Act like our first argument, but after the first(??) draw call,
     save an image of the rendered pixels into the file named by arg2.
     """
     ### issues:

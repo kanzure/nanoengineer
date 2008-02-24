@@ -189,7 +189,8 @@ def _undo_update_Atom_jigs(archive, assy):
     """
     [register this to run after all Jigs, atoms, and bonds are updated,
     as cache-invalidator for a.jigs and b.pi_bond_obj]
-    [WARNING: as of 060414 this also does essential undo updates unrelated to jigs]
+
+    @warning: as of 060414 this also does essential undo updates unrelated to jigs.
     """
     del archive
     if 1:
@@ -803,7 +804,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         'Hp5': ['Ss5'], #bruce 070412 added Ss <-> Hp; not sure if that's enough entries for Hp
         }
     def make_selobj_cmenu_items(self, menu_spec):
-        """Add self-specific context menu items to <menu_spec> list when self is the selobj,
+        """
+        Add self-specific context menu items to <menu_spec> list when self is the selobj,
         in modes that support it (e.g. depositMode and selectMode and subclasses).
         """
         fromSymbol = self.element.symbol
@@ -945,8 +947,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         and given its current real bonds and open bond user-assigned types
         (but don't save this, and don't compare it to the current self.atomtype).
 
-        WARNING: This is only correct for a new atom if it has
-        already been given all its bonds (real or open).
+        @warning: This is only correct for a new atom if it has
+                  already been given all its bonds (real or open).
         """
         #bruce 050702 revised this; 050707 using it much less often (only on special request ###doc what)
         ###@@@ Bug: This does not yet [050707] guess correctly for all bond patterns; e.g. it probably never picks N/sp2(graphitic).
@@ -4504,10 +4506,12 @@ def move_alist_and_snuggle(alist, newPositions):
     Move the atoms in alist to the new positions in the given array or sequence
     (which must have the same length);
     then for any singlets in alist, correct their positions using Atom.snuggle.
-       WARNING: it would be wrong to call this on several alists in a row if they might overlap
+
+    @warning: it would be wrong to call this on several alists in a row if they might overlap
     or were connected by bonded atoms, for the same reason that the snuggle has to be done in a separate loop
     (see snuggle docstring for details, re bug 1239).
-       WARNING: I'm not sure if it does all required invals; it doesn't do gl_update.
+
+    @warning: I'm not sure if it does all required invals; it doesn't do gl_update.
     """
     #bruce 051221 split this out of class Movie so its bug1239 fix can be used in jig_Gamess.
     assert len(alist) == len(newPositions)
