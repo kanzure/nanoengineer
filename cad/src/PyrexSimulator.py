@@ -1,12 +1,16 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
-
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-Wrapper around the pyrex/C simulator code.  Responsible for
-maintaining references to strings which are passed to the C code, and
-end up referenced by variables defined in src/sim/globals.c.
+PyrexSimulator.py - Wrapper around the pyrex/C ND-1 simulator code.
+Responsible for maintaining references to strings which are passed
+to the C code, and which end up referenced by variables defined in
+src/sim/globals.c.
+
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 
 import os
+import env
 from PlatformDependent import find_plugin_dir
 
 _thePyrexSimulator = None
@@ -14,14 +18,14 @@ _thePyrexSimulator = None
 class _PyrexSimulator(object):
     def __init__(self):
         global _thePyrexSimulator
-        assert(_thePyrexSimulator is None)
+        assert (_thePyrexSimulator is None)
         _thePyrexSimulator = self
-        import sim
+        import sim # this import must not be done at toplevel
         self.sim = sim.theSimulator()
 
         ok, nd1_plugin_path = find_plugin_dir("NanoDynamics-1")
         if (not ok):
-            env.history.message(redmsg(nd1_plugin_path))
+            env.history.redmsg("Error: can't find " + nd1_plugin_path)
             nd1_plugin_path = "."
         self.system_parameters_file = os.path.join(nd1_plugin_path, "sim-params.txt")
 
@@ -46,7 +50,7 @@ class _PyrexSimulator(object):
     def setOutputFileName(self, filename):
         self.outputFileName = filename
 
-    def run(self, frame_callback=None, trace_callback=None):
+    def run(self, frame_callback = None, trace_callback = None):
         if (self.outputFileName is None):
             if (self.sim.DumpAsText):
                 outputExtension = "xyz"
