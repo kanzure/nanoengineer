@@ -6,7 +6,11 @@ glselect_name_dict.py - allocate GL_SELECT names and record their owners.
 @version: $Id$
 @copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 
-Module classification: ### TODO
+Module classification:  [bruce 080223]
+
+It imports nothing, but the code that needs to use it is OpenGL drawing code
+or a framework that supports it, so it seems more natural as graphics/drawing.
+(It's really an "opengl drawing utility".)
 
 History:
 
