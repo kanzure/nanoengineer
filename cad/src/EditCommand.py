@@ -367,8 +367,6 @@ class EditCommand(Select_Command):
         
         if self.struct is None:                
             self.struct = self._createStructure()
-            print "** in _previewStructure, self.struct = ", self.struct
-            print "***self.struct.members ", self.struct.members
             self.previousParams = self._gatherParameters()
             return  
         
@@ -436,7 +434,6 @@ class EditCommand(Select_Command):
         @see: L{self.cancelStructure}
         """
         if self.struct is not None:   
-            print "***in _removeStructure, self.struct = ", self.struct
             self.struct.kill_with_contents()
             self.struct = None       
             self._revertNumber()
