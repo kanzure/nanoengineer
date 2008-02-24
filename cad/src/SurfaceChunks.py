@@ -1,14 +1,20 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-'''
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
 SurfaceChunks.py -- define a new whole-chunk display mode,
 which uses Oleksandr's new code to display a chunk as a surface in the chunk's color.
 
-$Id$
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 See also CylinderChunks.py for comparison.
-'''
 
-__author__ = 'bruce'
+See renderSurface and drawsurface* in drawer.py for rendering code.
+
+How to demo the pyrex/C code for SurfaceChunks
+(which only computes the mesh -- it doesn't draw it):
+
+see cad/src/experimental/oleksandr/README.txt.
+"""
 
 from Numeric import sqrt, pi, sin, cos
 import types
@@ -26,17 +32,36 @@ from constants import ave_colors
 from constants import diTrueCPK
 from prefs_constants import atomHighlightColor_prefs_key
 
-_psurface_ok = False
-#Flag that supress the console print  that reports failed psurface import. 
+_psurface_import_worked = False
+
+#Flag that suppresses the console print that reports failed psurface import. 
 #The psurface feature (surface chunks display) is not a part of NE1 anymore 
-#(as of 2008-02-15) 
+#by default (as of before 2008-02-15) 
 _VERBOSE_IMPORT_ERROR = False
+
+_psurface_import_status_has_been_reported = False
+
+def _report_psurface_import_status(): #bruce 080223; only run if feature is used, by default
+    """
+    Print whether import psurface succeeded, but only
+    the first time this is called per session.
+    """
+    global _psurface_import_status_has_been_reported
+    if not _psurface_import_status_has_been_reported:
+        _psurface_import_status_has_been_reported = True
+        if not _psurface_import_worked:
+            print "psurface not imported, check if it has been built"
+            print " (will use slow python version instead)"
+        else:
+            print "fyi: psurface import succeeded:", psurface
+    return
+
 try:
     import psurface
-    _psurface_ok = True
+    _psurface_import_worked = True
 except ImportError:
     if _VERBOSE_IMPORT_ERROR:
-        print "psurface not imported, check if it has been built"
+        _report_psurface_import_status()
 
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
@@ -533,7 +558,9 @@ class SurfaceChunks(ChunkDisplayMode):
         env.history.message(self.cmdname + "Computing surface. Please wait...") # Mark 060621.
         env.history.h_update() # Update history widget with last message. # Mark 060623.
 
-        if _psurface_ok: # cpp surface stuff
+        _report_psurface_import_status() # prints only once per session
+        
+        if _psurface_import_worked: # cpp surface stuff
             center = chunk.center
             bcenter = chunk.abs_to_base(center)
             rad = 0.0
