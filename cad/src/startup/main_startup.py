@@ -156,11 +156,11 @@ def startup_script( main_globals):
     
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
-        meth = atom_debug_pre_main_show
-    except:
+        func = atom_debug_pre_main_show
+    except NameError:
         pass
     else:
-        meth()
+        func()
 
 
     # Do other things that should be done just before showing the main window
@@ -205,11 +205,11 @@ def startup_script( main_globals):
 
     try:
         # do this, if user asked us to by defining it in .atom-debug-rc
-        meth = atom_debug_post_main_show 
-    except:
+        func = atom_debug_post_main_show 
+    except NameError:
         pass
     else:
-        meth()
+        func()
 
 
     # do other things after showing the main window

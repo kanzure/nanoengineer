@@ -1250,7 +1250,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         try:
             shutil.copytree(oldPartFilesDir, newPartFilesDir)
         except Exception, e:
-            eic.handle_exception()
+            eic.handle_exception() # BUG: Undefined variable eic (fyi, no handle_exception method is defined in NE1)
             set_waitcursor(False)
             return 1, ("Problem copying files to the new parts file directory " + newPartFilesDir
                        + " - ".join(map(str, e.args)))

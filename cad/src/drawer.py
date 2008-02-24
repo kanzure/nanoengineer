@@ -2587,7 +2587,10 @@ def drawFullWindow(vtColors):
     return
 
 def drawtext(text, color, origin, point_size, glpane):
-
+    """
+    """
+    # see also: _old_code_for_drawing_text()
+    
     if not text:
         return
     
@@ -2604,6 +2607,26 @@ def drawtext(text, color, origin, point_size, glpane):
     glEnable(GL_DEPTH_TEST)
     glEnable(GL_LIGHTING)
     return
+
+##Junk code###
+## The following code used to be for drawing text on a QGLWidget --
+# some of it might still be useful if integrated into drawtext() above
+# [moved here from elementColors.py and slightly cleaned up by bruce 080223]
+def _old_code_for_drawing_text(glpane):
+    self = glpane
+    glDisable(GL_LIGHTING)
+    glDisable(GL_DEPTH_TEST) 
+    self.qglColor(QColor(0, 0, 0))
+    font = QFont( QString("Times"), 10)
+    text = QString('Rvdw = ' + str(self.rad))
+    fontMecs = QFontMetrics(font)
+    strWd = fontMecs.width(text)
+    strHt = fontMecs.height()
+    w = self.width/2 - strWd/2
+    h = self.height - strHt/2 
+    self.renderText(w, h, text, font)
+    glEnable(GL_DEPTH_TEST)
+    glEnable(GL_LIGHTING)        
 
 def drawcylinder_wireframe(color, end1, end2, radius): #bruce 060608
     "draw a wireframe cylinder (not too pretty, definitely could look nicer, but it works)"

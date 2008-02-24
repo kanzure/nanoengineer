@@ -1,7 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-Draws the DNA ribbons where each strand is represented as a ribbon. DNA ribbons
-are drawn as sine waves 
+drawRulers.py - draws rulers along the edges of the 3D graphics area
 
 @author:    Mark
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
@@ -38,6 +37,8 @@ from drawer import drawline
 from drawer import drawtext
 from geometry.VQT import V
 from constants import  lightgray, darkgray, black
+
+from debug import print_compact_stack
 
 import env
 from prefs_constants import displayVertRuler_prefs_key

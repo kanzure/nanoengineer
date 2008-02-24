@@ -409,7 +409,7 @@ class ops_copy_Mixin:
         @param chunkToPaste: The chunk to be pasted in the 3D workspace
         @type  chunkToPaste: L{Chunk}
         
-        @param mousePosition: These is the coordinates during mouse double 
+        @param mousePosition: These are the coordinates during mouse double 
                               click. 
         @type mousePosition:  Array containing the x, y, z positions on the 
                               screen or 'None'
@@ -446,14 +446,14 @@ class ops_copy_Mixin:
         
     def _pasteGroup(self, groupToPaste, mousePosition = None):
         """
-        Paste the given group (and all its members) in the 3 D workspace. 
+        Paste the given group (and all its members) in the 3 D workspace.
         @param groupToPaste: The group to be pasted in the 3D workspace
         @type  groupToPaste: L{Group}
         
-        @param mousePosition: These is the coordinates during mouse 
-                                  double click. 
+        @param mousePosition: These are the coordinates during mouse 
+                              double click. 
         @type mousePosition:  Array containing the x, y, z 
-                                  positions on the screen or 'None'
+                              positions on the screen or 'None'
         @see: L{self.paste} for implementation notes.
         """
         assert isinstance(groupToPaste, Group)
@@ -474,7 +474,7 @@ class ops_copy_Mixin:
         
         if not newNodeList:
             errorMsg = orangemsg("Clipboard item is an empty group."\
-                             "Paste cancelled")
+                                 "Paste cancelled")
             return newGroup, errorMsg
         
             
@@ -511,11 +511,11 @@ class ops_copy_Mixin:
     
     def _pasteJig(self, jigToPaste, mousePosition = None):
         """
-        Paste the given chunk in the 3 D workspace. 
+        Paste the given Jig in the 3 D workspace. 
         @param jigToPaste: The chunk to be pasted in the 3D workspace
         @type  jigToPaste: L{Jig}
         
-        @param mousePosition: These is the coordinates during mouse double 
+        @param mousePosition: These are the coordinates during mouse double 
                               click. 
         @type mousePosition:  Array containing the x, y, z positions on the 
                               screen or 'None'
@@ -540,7 +540,7 @@ class ops_copy_Mixin:
             moveOffset += 0.2 * self.assy.o.down         
             
         newJig.move(moveOffset) 
-        assy.addnode(newJig) ### BUG: Undefined variable 'assy'
+        self.assy.addnode(newJig)
         
         return newJig, errorMsg
 

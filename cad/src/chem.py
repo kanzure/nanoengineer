@@ -689,7 +689,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         
         return
 
-    def _assy_may_have_changed(self): #bruce 080220; not yet used, see comment
+    def _assy_may_have_changed(self): #bruce 080220; UNFINISHED, not yet used, see comment
         """
         [private method, for _undo_update or similar code]
         See if our assy changed, and if so, call _f_set_assy.
@@ -705,10 +705,11 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         # So I did not yet figure out where to add a call to it for
         # Undo (I'm not sure if .molecule has changed when _undo_update
         # is called, since IIRC it's changed in a special case step in
-        # undo). So, it is not yet being called, and is UNTESTED.
-        # [bruce 080220]
+        # undo). So, it is not yet being called, and is UNFINISHED
+        # (since is_nullMol needs implem) and UNTESTED.
+        # [bruce 080220/080223]
         chunk = self.molecule
-        if chunk is not None and chunk is not _nullMol:
+        if chunk is not None and not chunk.is_nullMol(): # IMPLEM, and rename to is_FakeChunkForDeadAtoms()
             assy = chunk.assy
             if self._f_assy is not assy:
                 self._f_set_assy(assy)
@@ -2632,9 +2633,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                       ( self._will_kill , Utility._will_kill_count )
                 return None
         if self.__killed:
-            #bruce 080208 new feature (should never happen)
+            #bruce 080208 new debug print (should never happen)
             msg = "bug: killed atom %r still had bond %r, being unbonded now" % \
-                  ( atom, b )
+                  ( self, b )
             print msg
             return None
         if debug_1779:

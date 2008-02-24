@@ -3289,6 +3289,11 @@ class _nullMol_Chunk(Chunk):
     [private]
     subclass for _nullMol
     """
+    # todo:
+    # - IMPLEM chunk.is_nullMol() to replace comparisons to _nullMol
+    #   (helps with imports, replaces set_undo_nullMol, permits per-assy _nullMol if desired),
+    # - rename is_nullMol to is_FakeChunkForDeadAtoms etc
+    # [bruce comment 080223]
     def changed_selection(self):
         msg = "bug: _nullMol.changed_selection() should never be called"
         if env.debug():

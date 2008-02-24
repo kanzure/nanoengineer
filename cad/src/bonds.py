@@ -87,9 +87,10 @@ if usePyrexAtomsAndBonds(): #bruce 080220 revised this
     # usePyrexAtomsAndBonds tests that we want to, and can, import all
     # necessary symbols from atombase
     from atombase import BondDictBase, BondBase
-    class BondSet(BondDictBase):
+    class BondSet(BondDictBase): # not yet used? rename?
         def __init__(self):
             BondDictBase.__init__(self)
+            atKey = 'stub' # NIM
             self.key = atKey.next() # FIX: Undefined variable 'atKey'.
                 # This atKey should be distinct from the one in chem.py, i think
                 # (and thus needs a different name, and no import of chem).
@@ -97,7 +98,8 @@ if usePyrexAtomsAndBonds(): #bruce 080220 revised this
                 # maybe the (experimental) C code assumes all atom & bond keys
                 # are distinct in a single namespace.
                 # If so, we should make a single global key allocator in env.
-                # [bruce 071107 comment]
+                # [but note that this is not a bond key, it's a BondSet key]
+                # [bruce 071107/080223 comment]
             return
         pass
     print "Using atombase.pyx in bonds.py"

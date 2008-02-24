@@ -1274,7 +1274,7 @@ class _readmmp_state:
         m = new_csyspat.match(card)
         if m:        
             name = m.group(1)
-            name = self.decode_name(name) #bruce 050618
+            name = self.decode_name(name)
             wxyz = A(map(float, [m.group(2), m.group(3),
                      m.group(4), m.group(5)]))
             scale = float(m.group(6))
@@ -1290,7 +1290,7 @@ class _readmmp_state:
             m = old_csyspat.match(card)
             if m:
                 name = m.group(1)
-                name = self.decode_name(name) #bruce 050618
+                name = self.decode_name(name)
                 wxyz = A(map(float, [m.group(2), m.group(3),
                          m.group(4), m.group(5)]))
                 scale = float(m.group(6))
@@ -1304,7 +1304,7 @@ class _readmmp_state:
                 self.addmember(homeView)
                 self.addmember(lastView)
             else:
-                print "bad format in csys record, ignored:", csys #bruce 050418
+                print "bad format in csys record, ignored:", card
         return
 
     def _read_datum(self, card): # datum -- Datum object -- old version deprecated by bruce 050417

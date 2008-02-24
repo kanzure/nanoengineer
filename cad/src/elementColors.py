@@ -455,26 +455,7 @@ def saveElementColors(fileName, elemTable):
     
     f.close()
 
-# ==
 
-##Junk code###
-## The following code used to be for drawing text on a QGLWidget
-if 0:
-           glDisable(GL_LIGHTING)
-           glDisable(GL_DEPTH_TEST) 
-           self.qglColor(QColor(0, 0, 0))
-           font = QFont( QString("Times"), 10)
-           text = QString('Rvdw = ' + str(self.rad))
-           fontMecs = QFontMetrics(font)
-           strWd = fontMecs.width(text)
-           strHt = fontMecs.height()
-           w = self.width/2 - strWd/2
-           h = self.height - strHt/2 
-           self.renderText(w, h, text, font)
-           glEnable(GL_DEPTH_TEST)
-           glEnable(GL_LIGHTING)        
-      
-        
 # == Test code
 
 import sys
