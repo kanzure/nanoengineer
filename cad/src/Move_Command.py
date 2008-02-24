@@ -343,7 +343,7 @@ class Move_basicCommand(SelectChunks_basicCommand):
 class Move_Command(Move_basicCommand):
     """
     @see: B{Move_basicCommand}
-    @see: splitting_a_mode.py
+    @see: cad/doc/splitting_a_mode.py
     """
     GraphicsMode_class = TranslateChunks_GraphicsMode
     

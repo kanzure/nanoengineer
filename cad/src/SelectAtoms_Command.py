@@ -157,7 +157,7 @@ class SelectAtoms_Command(SelectAtoms_basicCommand):
     """
     SelectAtoms_Command  
     @see: B{SelectAtoms_basicCommand}
-    @see: splitting_a_mode.py
+    @see: cad/doc/splitting_a_mode.py
     """
     GraphicsMode_class = SelectAtoms_GraphicsMode
     

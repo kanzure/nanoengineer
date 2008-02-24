@@ -143,7 +143,7 @@ class SelectChunks_basicCommand(Select_basicCommand):
 class SelectChunks_Command(SelectChunks_basicCommand):
     """
     @see: B{SelectChunks_basicCommand}
-    @see: splitting_a_mode.py
+    @see: cad/doc/splitting_a_mode.py
     """
     GraphicsMode_class = SelectChunks_GraphicsMode
     

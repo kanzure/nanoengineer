@@ -1059,7 +1059,7 @@ class BuildAtoms_Command(BuildAtoms_basicCommand):
     """
     BuildAtoms_Command  
     @see: B{BuildAtoms_basicCommand}
-    @see: splitting_a_mode.py
+    @see: cad/doc/splitting_a_mode.py
     """
     GraphicsMode_class = BuildAtoms_GraphicsMode
     

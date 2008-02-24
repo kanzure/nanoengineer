@@ -46,7 +46,7 @@ class Select_basicCommand(basicCommand):
       and the code is still clean, *and* no command-half subclass needs
       to override them).
     
-    @see: splitting_a_mode.py that gives a detailed explanation on how
+    @see: cad/doc/splitting_a_mode.py that gives a detailed explanation on how
           this is implemented. 
     @see: B{Select_GraphicsMode}, B{Select_basicGraphicsMode}
     @see: B{Select_Command}, B{selectMode}

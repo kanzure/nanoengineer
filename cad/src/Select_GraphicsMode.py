@@ -15,8 +15,8 @@ For example:
 
 TODO:   
 -  Select_basicGraphicsMode is the main GM class. It is inherited by 
-    a 'glue-in' class Select_GraphicsMode. See splitting_a_mode.py for a 
-    detailed explanation on how this is used. Not that the glue-in classes
+    a 'glue-in' class Select_GraphicsMode. See cad/doc/splitting_a_mode.py for
+    a detailed explanation on how this is used. Note that the glue-in classes
     will be used until all the selectMode subclasses are split into GM
     and Command part. Once thats done you the class Select_basicGraphicsMode
     needs to be used (and rename that to Select_GraphicsMode)
@@ -160,8 +160,8 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
     - Mouse events, cursors (for use in graphics area), 
     - Key bindings or context menu (for use in graphics area).
     
-    @see: splitting_a_mode.py that gives a detailed explanation about how
-          this is implemented. 
+    @see: cad/doc/splitting_a_mode.py that gives a detailed explanation about
+          how this is implemented. 
     @see: B{Select_GraphicsMode}
     @see: B{Select_Command}, B{Select_basicCommand}, B{selectMode}
     @see: B{Select_GraphicsMode_DrawMethod_preMixin}

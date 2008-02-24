@@ -70,8 +70,8 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
     - Mouse events, cursors (for use in graphics area), 
     - Key bindings or context menu (for use in graphics area).
     
-    @see: splitting_a_mode.py that gives a detailed explanation about how
-          this is implemented. 
+    @see: cad/doc/splitting_a_mode.py that gives a detailed explanation about
+          how this is implemented. 
     @see: B{SelectAtoms_GraphicsMode}
     @see: B{SelectAtoms_Command}, B{SelectAtoms_basicCommand}, 
           B{selectAtomsMode}
