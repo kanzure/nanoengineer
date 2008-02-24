@@ -63,6 +63,7 @@ from OpenGL.GL import glAlphaFunc
 from OpenGL.GL import glDisable
 from OpenGL.GL import glFlush
 ##from OpenGL.GL import glFinish
+from OpenGL.GL import GL_CULL_FACE
 
 from OpenGL.GLU import gluProject
 
@@ -348,8 +349,10 @@ class Image(Widget2D):
     All the texture-drawing options can be varied, either in different instances or over time in one instance
     (by passing them as formulae), without causing a new texture or PIL Image to be loaded as they vary. 
 
-    @warning: the image is not visible from the back, which is only ok for some uses, such as 2D widgets
-              or solid-object faces or decals. We should add an option to make it visible from both sides (easy) #e.
+    @warning: the image is not visible from the back by default,
+              which is only ok for some uses, such as 2D widgets
+              or solid-object faces or decals. Use two_sided = True
+              to make it visible from both sides.
     """
     ##e about options ideal_width and ideal_height:
     #e should be a single option, resolution or tex_size, number or pair, or smth to pick size based on image native size
@@ -388,6 +391,8 @@ class Image(Widget2D):
     alpha_test = Option(bool, _self.blend,
                         doc = "whether to use GL_ALPHA_TEST (by default, use it when blend option is true)" ) #070404
         # this is effectively an option to not use GL_ALPHA_TEST when blend is True (as we'd normally do then)
+
+    two_sided = Option(bool, False, doc = "whether to disable GL_CULL_FACE so that both sides get drawn") #080223
         
     ###e should add option to turn off depth buffer writing -- see warning below
         
@@ -454,7 +459,9 @@ class Image(Widget2D):
     _image = _self._texture_holder._image
 
     def bind_texture(self, **kws):
-        "bind our texture (and set other GL params needed to draw with it)"
+        """
+        bind our texture (and set other GL params needed to draw with it)
+        """
         self._texture_holder.bind_texture(**kws)
     
     def draw(self):
@@ -488,6 +495,7 @@ class Image(Widget2D):
         
         blend = self.blend
         alpha_test = self.alpha_test
+        two_sided = self.two_sided
         shape = self.shape # for now, None or a symbolic string (choices are hardcoded below)
                 
         if blend:
@@ -497,6 +505,8 @@ class Image(Widget2D):
             glEnable(GL_ALPHA_TEST) # (red book p.462-463)
             glAlphaFunc(GL_GREATER, 0.0) # don't draw the fully transparent parts into the depth or stencil buffers
                 ##e maybe let that 0.0 be an option? eg the value of alpha_test itself? Right now, it can be False ~== 0 (not None).
+        if two_sided:
+            glDisable(GL_CULL_FACE)
 
         if not shape:
             draw_textured_rect( origin, dx, dy, tex_origin, tex_dx, tex_dy)
@@ -524,6 +534,8 @@ class Image(Widget2D):
             glDisable(GL_BLEND)
         if alpha_test:
             glDisable(GL_ALPHA_TEST)
+        if two_sided:
+            glEnable(GL_CULL_FACE)
             
         return # from Image.draw
 

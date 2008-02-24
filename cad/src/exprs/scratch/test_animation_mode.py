@@ -1258,7 +1258,7 @@ class test_animation_mode(_superclass, IorE_guest_mixin): # list of supers might
         if 0:
             expr = Rect() # works
         if 1:
-            expr = Image("/Users/bruce/Desktop/IMG_0560 clouds g5 2.jpg", size = Rect())
+            expr = Image("/Users/bruce/Desktop/IMG_0560 clouds g5 2.jpg", size = Rect(), two_sided = True)
         
         # note: this code is similar to expr_instance_for_imagename in confirmation_corner.py
         ih = get_glpane_InstanceHolder(glpane)
