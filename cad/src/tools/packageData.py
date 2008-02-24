@@ -369,8 +369,12 @@ packageMapping_for_files = {
     "files_nh"                         : "io|ESP", 
     "files_pdb"                        : "io|files/pdb",
     "Font3D"                           : "graphics_drawing",
+    
+    "FuseChunks_Command"               : "command|commands/Fuse",
+    "FuseChunks_GraphicsMode"          : "graphics_mode|commands/Fuse",
     "fusechunksMode"                   : "unsplit_mode|commands/Fuse",
     "FusePropertyManager"              : "ui/propmgr|commands/Fuse",
+    
     "GamessJob"                        : "operations|GAMESS", # contains operations and io
     "GamessProp"                       : "ui|GAMESS",
     "GamessPropDialog"                 : "ui|GAMESS",
@@ -382,8 +386,11 @@ packageMapping_for_files = {
     "geometry"                         : "geometry",
     "GlobalPreferences"                : "utilities", #? - imports debug_prefs & prefs_constants, dubious for utilities; or constants??
     "global_model_changedicts"         : "model",
+    
     "GLPane"                           : "graphics_widgets",
     "GLPane_minimal"                   : "graphics_widgets",
+    "glselect_name_dict"               : "graphics_drawing", #bruce 080223; really an "OpenGL drawing utility"
+    
     "gpl_only"                         : "platform",
     "GrapheneGenerator"                : "command|commands/InsertGraphene",
     "GrapheneGeneratorPropertyManager" : "ui/propmgr|commands/InsertGraphene",
@@ -505,7 +512,8 @@ packageMapping_for_files = {
     "prefs_widgets"                    : "widgets", #? - might not work -- ### needs splitting, some goes in foundation
     "Process"                          : "io|processes",
     "PropMgr_Constants"                : "PM",
-    "pyrex_test"                       : "top_level", #? I don't know if this matters - pyrex_test only exists as .c and .pyx and .so
+    "PyrexSimulator"                   : "io|simulation",
+    "pyrex_test"                       : "top_level", #? maybe not needed here -- it exists as .c and .pyx and .so, not as .py
     
     "qt4transition"                    : "utilities",
     
