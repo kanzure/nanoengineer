@@ -1,6 +1,6 @@
-# Makefile for the simulator
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 # $Id$
+# modified from: Makefile for the simulator
 
 UNAME := $(shell uname)
 # dotted python version (2.3, 2.4)
@@ -32,20 +32,24 @@ CFLAGS:=$(shell python distutils_compile_options.py compiler_so)
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
 CFLAGS+=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
-    -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
+    -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/ \
+   -DMACOSX -I/System/Library/Frameworks/OpenGL.framework/Headers
 LDFLAGS=-Wl,-F. -framework Python
+## LDFLAGS+=-L/usr/X11R6/lib -lGL
+LDFLAGS+=-framework OpenGL
+LDFLAGS+=-L/usr/lib -lm
 LDSHARED=gcc -bundle
 else
 #---------------------------------------- Unix
 PYBASE:=$(shell which python | sed "s%/bin/python%%")
 CFLAGS+=-I$(PYBASE)/include/python$(PYDVER)
 LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
+LDFLAGS+=-L/usr/X11R6/lib -lGL
+LDFLAGS+=-L/usr/lib -lm
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
 PYREXC=$(shell python -c "import findpyrex; print findpyrex.find_pyrexc()")
-LDFLAGS+=-L/usr/X11R6/lib -lGL
-LDFLAGS+=-L/usr/lib -lm
 CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
   -Wstrict-prototypes -fPIC
 # These CFLAGS and LDFLAGS are not used by distutils. If asked to
