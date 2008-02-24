@@ -2,7 +2,7 @@
 """
 DraggableHandle.py - some convenience exprs for draggable handles
 
-@author: bruce
+@author: Bruce
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
@@ -24,7 +24,7 @@ from exprs.Rect import Rect
 from exprs.Exprs import tuple_Expr, call_Expr
 from exprs.__Symbols__ import _self
 from exprs.instance_helpers import DelegatingInstanceOrExpr
-from DragBehavior_AlongLine import DragBehavior_AlongLine ### TODO: refile (DragBehavior.py) and clean up
+from exprs.DragBehavior_AlongLine import DragBehavior_AlongLine # old todo: clean up
 from exprs.geometry_exprs import Ray
 from exprs.Set import Action
 

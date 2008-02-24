@@ -1,5 +1,6 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
+$Id$
 """
 
 from constants import white
@@ -15,7 +16,7 @@ from exprs.Rect import Rect
 from exprs.Exprs import tuple_Expr, call_Expr
 from exprs.__Symbols__ import _self
 from exprs.instance_helpers import DelegatingInstanceOrExpr
-from DragBehavior_AlongCircle import DragBehavior_AlongCircle
+from exprs.DragBehavior_AlongCircle import DragBehavior_AlongCircle
 from exprs.geometry_exprs import Ray
 from exprs.Set import Action
 
