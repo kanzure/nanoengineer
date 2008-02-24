@@ -39,6 +39,7 @@ from PlatformDependent import hhmmss_str
 from PlatformDependent import find_plugin_dir
 import os, sys, time
 from math import sqrt
+from time import sleep
 from datetime import datetime
 from SimSetup import SimSetup
 from PyQt4.Qt import QApplication, QCursor, Qt, QStringList
@@ -377,10 +378,11 @@ class SimRunner:
                         self.part.writemmpfile(inputFileName)
                         
                         # Launch the NV1 process
+                        sleep(1) # Give GMX/HDF5 a chance to write basic info
                         nv1Process = Process()
                         nv1Args = [
                             "-f", hdf5DataStoreDir + ".nh5",
-							"-p", "GMX", "%d" % pid,
+                            "-p", "GMX", "%d" % pid,
                             ]
                         nv1Process.setStandardOutputPassThrough(True)
                         nv1Process.setStandardErrorPassThrough(True)
