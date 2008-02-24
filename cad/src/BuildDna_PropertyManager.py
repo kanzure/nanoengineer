@@ -211,6 +211,15 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if same_vals(newSelectionParams, self.previousSelectionParams):
             return
         
+        #Update the strand and segmment list widgets. 
+        #Ideally it should only update when the structure is modified 
+        #example --when structure is deleted. But as of 2008-02-21
+        #this feature is not easily available in the API method. 
+        #see Command class for some proposed methods such as 'something_changed'
+        #etc. The list widgets are updated even when selection changes. 
+        if self.editCommand.hasValidStructure():
+           self.updateListWidgets()
+                
         self.previousSelectionParams = newSelectionParams  
         
         selectedStrands, selectedSegments = newSelectionParams
@@ -412,7 +421,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         if self.editCommand and self.editCommand.hasValidStructure():
             strandChunkList = self.editCommand.struct.getStrands()
-            
+                        
             self.strandListWidget.insertItems(
                 row = 0,
                 items = strandChunkList)

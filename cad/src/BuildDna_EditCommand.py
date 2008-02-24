@@ -364,10 +364,27 @@ class BuildDna_EditCommand(EditCommand):
 	previous mode to the temporary mode .	 
 	@see: B{DnaLineMode}
 	@see: self.acceptParamsFromTemporaryMode 
+        
+        @see DnaDuplex_EditCommand._createSegment(), 
+        @see: DnaDuplex_EditCommand.createStructure()
+        @see: DnaDuplex_EditCommand.restore_gui()
         """
         params = None
+   
         if temporaryModeName == 'DNA_DUPLEX':
-            params = (self.callback_addSegments)
+            #Pass the self.struct to the DnaDuplex_EdiCommand
+            #This deprecates use of self.callback_addSegments (in which 
+            #segments created while in DnaDuplex command are added after 
+            #returning to BuildDna mode) The new implementation provides the 
+            #DnaGroup to the DnaDuplex command and then adds the created 
+            #segments directly to it. 
+            #See: DnaDuplex_EditCommand._createSegment(), 
+            #    DnaDuplex_EditCommand.createStructure(), and
+            #    DnaDuplex_EditCommand.restore_gui()
+            
+            if self.struct is None:
+                self.struct = self._createStructure()
+            params = (self.callback_addSegments, self.struct)
         
         return params    
     
@@ -379,6 +396,11 @@ class BuildDna_EditCommand(EditCommand):
         To be revised and renamed. 
         
         @see: DnaDuplex_EditCommand.restore_gui
+        
+        @TODO: Remove this method when safe. DEPRECATED AS OF 2008-02-24
+               See self.provideParametersForTemporaryMode which pass on 
+               self.struct (a DnaGroup) to be used in DnaDuplex_EditCommand 
+               (which adds created DnaSegments to it ) 
         """      
         
         if self.struct is None:
