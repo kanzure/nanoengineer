@@ -21,6 +21,7 @@ in popular cad softwares. (it probably shouldn't be in a Property manager).
 
 from PastePropertyManager import PastePropertyManager
 from PM.PM_PartLib import PM_PartLib
+from gui.WhatsThisText_for_PropertyManagers import whatsThis_PartLibPropertyManager
 
 class PartLibPropertyManager(PastePropertyManager):
     """
@@ -113,8 +114,6 @@ class PartLibPropertyManager(PastePropertyManager):
         """
         What's This text for widgets in this Property Manager.  
         """
-        from gui.WhatsThisText_for_PropertyManagers import \
-        whatsThis_PartLibPropertyManager
         whatsThis_PartLibPropertyManager(self)
         return
         
