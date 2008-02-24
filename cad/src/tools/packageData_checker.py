@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 packageData_checker.py - script for checking and reporting on packageData.py
 
@@ -9,10 +9,14 @@ before making other use of it (eg for import graphing).
 
 @author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-import sys #bruce 080107 bugfix
+import sys
+import os
+
+LIST_UNCLASSIFIED_FILES = True
+
 
 #bruce 080107 temporary debug prints to find out why SEMBot run of this seems to do nothing
 print >> sys.stderr, "packageData_checker.py debug: starting import"
@@ -252,6 +256,24 @@ def collect_virtual_listing( packageDict, ftype ):
     return
 
 def print_listings():
+    """
+    """
+    
+    global packageMapping_for_files
+
+    if LIST_UNCLASSIFIED_FILES: #bruce 080223; usage: pass cad/src/*.py == ../*.py as arguments
+        packageMapping_for_files = dict(packageMapping_for_files)
+        for pyfile in sys.argv[1:]:
+            if pyfile.endswith('.py'):
+                basename_ext = os.path.basename(pyfile)
+                basename, ext = os.path.splitext(basename_ext)
+                if not packageMapping_for_files.has_key(basename):
+                    packageMapping_for_files[basename] = " NOT YET CLASSIFIED: "
+                    # print "missing file:", basename
+            else:
+                print "unrecognized argument: %r" % (pyfile,)
+            continue
+    
     collect_virtual_listing( packageMapping_for_files, T_MODULE)
     collect_virtual_listing( packageMapping_for_packages, T_PACKAGE)
 

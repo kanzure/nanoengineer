@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# $Id$
+
 HERE=/home/httpd/vhosts/nanohive-1.org/httpdocs/Engineering
 
 cd SVN-D/cad/src
@@ -15,7 +17,7 @@ echo creating color package graph
 
 echo "creating proposed source file listing based on package classification..."
 cd tools
-/usr/local/bin/python packageData_checker.py > $HERE/proposed_file_listing.txt
+/usr/local/bin/python packageData_checker.py ../*.py > $HERE/proposed_file_listing.txt
 echo " ... done"
 
 cd $HERE
