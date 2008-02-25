@@ -38,6 +38,18 @@ class NXEntityManager : public QObject {
 	public:
 		NXEntityManager();
 		~NXEntityManager();
+    
+    void reset(void) {
+        dataStoreInfo->reset();
+        vector<vector<NXMoleculeSet*> >::iterator v;
+        for(v = moleculeSets.begin(); v != moleculeSets.end(); ++v) {
+            vector<NXMoleculeSet*>::iterator w;
+            for(w = v->begin(); w != v->end(); ++w) {
+                delete *w;
+            }
+        }
+        moleculeSets.clear();
+    }
 
 		//
 		// Import/export plugins

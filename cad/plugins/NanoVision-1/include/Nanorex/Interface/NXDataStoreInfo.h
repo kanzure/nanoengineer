@@ -70,6 +70,8 @@ class NXDataStoreInfo {
 		// Data store file handles
 		void setHandle(int frameSetId, void* handle);
 		void* getHandle(int frameSetId);
+    
+    void reset(void);
 		
 	private:
 		bool _isSimulationResults, _isSingleStructure;
