@@ -18,7 +18,7 @@ nv1::nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget)
 	mainWindowTabs->vboxLayout->removeWidget(mainWindowTabs->widget);
 	delete mainWindowTabs->widget;
 	mainWindowTabs->vboxLayout->addWidget(resultsWindow);
-	resultsWindow->hide();
+    // resultsWindow->hide();
 
 	createActions();
 	createMenus();
@@ -114,6 +114,12 @@ void nv1::open() {
 }
 
 
+/* FUNCTION: close */
+void nv1::close() {
+    resultsWindow->closeFile();
+}
+
+
 /* FUNCTION: about */
 void nv1::about() {
 	QMessageBox::about(this,
@@ -127,33 +133,33 @@ void nv1::about() {
 /* FUNCTION: updateMenus */
 void nv1::updateMenus() {
 	bool hasResultsWindow = resultsWindow->isVisible();
-	closeAction->setEnabled(hasResultsWindow);
-	closeAllAction->setEnabled(hasResultsWindow);
-	tileAction->setEnabled(hasResultsWindow);
-	cascadeAction->setEnabled(hasResultsWindow);
-	arrangeAction->setEnabled(hasResultsWindow);
-	nextAction->setEnabled(hasResultsWindow);
-	previousAction->setEnabled(hasResultsWindow);
-	separatorAction->setVisible(hasResultsWindow);
+	windowCloseAction->setEnabled(hasResultsWindow);
+	windowCloseAllAction->setEnabled(hasResultsWindow);
+	windowTileAction->setEnabled(hasResultsWindow);
+	windowCascadeAction->setEnabled(hasResultsWindow);
+	windowArrangeAction->setEnabled(hasResultsWindow);
+	windowNextAction->setEnabled(hasResultsWindow);
+	windowPreviousAction->setEnabled(hasResultsWindow);
+	windowSeparatorAction->setVisible(hasResultsWindow);
 }
 
 
 /* FUNCTION: updateWindowMenu */
 void nv1::updateWindowMenu() {
 	windowMenu->clear();
-	windowMenu->addAction(closeAction);
-	windowMenu->addAction(closeAllAction);
+	windowMenu->addAction(windowCloseAction);
+	windowMenu->addAction(windowCloseAllAction);
 	windowMenu->addSeparator();
-	windowMenu->addAction(tileAction);
-	windowMenu->addAction(cascadeAction);
-	windowMenu->addAction(arrangeAction);
+	windowMenu->addAction(windowTileAction);
+	windowMenu->addAction(windowCascadeAction);
+	windowMenu->addAction(windowArrangeAction);
 	windowMenu->addSeparator();
-	windowMenu->addAction(nextAction);
-	windowMenu->addAction(previousAction);
-	windowMenu->addAction(separatorAction);
+	windowMenu->addAction(windowNextAction);
+	windowMenu->addAction(windowPreviousAction);
+	windowMenu->addAction(windowSeparatorAction);
 
 	QList<QWidget*> windows = resultsWindow->workspace->windowList();
-	separatorAction->setVisible(!windows.isEmpty());
+	windowSeparatorAction->setVisible(!windows.isEmpty());
 
 	for (int index = 0; index < windows.size(); ++index) {
 		DataWindow* window = qobject_cast<DataWindow*>(windows.at(index));
@@ -190,50 +196,56 @@ void nv1::createActions() {
 	openAction->setStatusTip(tr("Open an existing file"));
 	connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
-	exitAction = new QAction(tr("E&xit"), this);
+    closeAction =
+        new QAction(QIcon(":/Icons/File/Close.png"), tr("&Close"), this);
+    closeAction->setShortcut(tr("Ctrl+W"));
+    closeAction->setStatusTip(tr("Close and open file"));
+    connect(closeAction, SIGNAL(triggered()), this, SLOT(close()));
+    
+    exitAction = new QAction(tr("E&xit"), this);
 	exitAction->setShortcut(tr("Ctrl+Q"));
 	exitAction->setStatusTip(tr("Exit NanoVision-1"));
 	connect(exitAction, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
-	closeAction = new QAction(tr("Cl&ose"), this);
-	closeAction->setShortcut(tr("Ctrl+F4"));
-	closeAction->setStatusTip(tr("Close the active window"));
- 	connect(closeAction, SIGNAL(triggered()),
+	windowCloseAction = new QAction(tr("Cl&ose"), this);
+	windowCloseAction->setShortcut(tr("Ctrl+F4"));
+	windowCloseAction->setStatusTip(tr("Close the active window"));
+ 	connect(windowCloseAction, SIGNAL(triggered()),
  	        resultsWindow->workspace, SLOT(closeActiveWindow()));
 
-	closeAllAction = new QAction(tr("Close &All"), this);
-	closeAllAction->setStatusTip(tr("Close all the windows"));
- 	connect(closeAllAction, SIGNAL(triggered()),
+	windowCloseAllAction = new QAction(tr("Close &All"), this);
+	windowCloseAllAction->setStatusTip(tr("Close all the windows"));
+ 	connect(windowCloseAllAction, SIGNAL(triggered()),
  	        resultsWindow->workspace, SLOT(closeAllWindows()));
 
-	tileAction = new QAction(tr("&Tile"), this);
-	tileAction->setStatusTip(tr("Tile the windows"));
-	connect(tileAction, SIGNAL(triggered()), resultsWindow->workspace,
+	windowTileAction = new QAction(tr("&Tile"), this);
+	windowTileAction->setStatusTip(tr("Tile the windows"));
+	connect(windowTileAction, SIGNAL(triggered()), resultsWindow->workspace,
 			SLOT(tile()));
 
-	cascadeAction = new QAction(tr("&Cascade"), this);
-	cascadeAction->setStatusTip(tr("Cascade the windows"));
- 	connect(cascadeAction, SIGNAL(triggered()), resultsWindow->workspace, 
+	windowCascadeAction = new QAction(tr("&Cascade"), this);
+	windowCascadeAction->setStatusTip(tr("Cascade the windows"));
+ 	connect(windowCascadeAction, SIGNAL(triggered()), resultsWindow->workspace, 
  			SLOT(cascade()));
 
-	arrangeAction = new QAction(tr("Arrange &icons"), this);
-	arrangeAction->setStatusTip(tr("Arrange the icons"));
- 	connect(arrangeAction, SIGNAL(triggered()), resultsWindow->workspace, 
+	windowArrangeAction = new QAction(tr("Arrange &icons"), this);
+	windowArrangeAction->setStatusTip(tr("Arrange the icons"));
+ 	connect(windowArrangeAction, SIGNAL(triggered()), resultsWindow->workspace, 
  			SLOT(arrangeIcons()));
 
-	nextAction = new QAction(tr("Ne&xt"), this);
-	nextAction->setStatusTip(tr("Move the focus to the next window"));
- 	connect(nextAction, SIGNAL(triggered()),
+	windowNextAction = new QAction(tr("Ne&xt"), this);
+	windowNextAction->setStatusTip(tr("Move the focus to the next window"));
+ 	connect(windowNextAction, SIGNAL(triggered()),
  	        resultsWindow->workspace, SLOT(activateNextWindow()));
 
-	previousAction = new QAction(tr("Pre&vious"), this);
-	previousAction->setStatusTip(tr("Move the focus to the previous "
+	windowPreviousAction = new QAction(tr("Pre&vious"), this);
+	windowPreviousAction->setStatusTip(tr("Move the focus to the previous "
 	                                "window"));
- 	connect(previousAction, SIGNAL(triggered()),
+ 	connect(windowPreviousAction, SIGNAL(triggered()),
  	        resultsWindow->workspace, SLOT(activatePreviousWindow()));
 
-	separatorAction = new QAction(this);
-	separatorAction->setSeparator(true);
+	windowSeparatorAction = new QAction(this);
+	windowSeparatorAction->setSeparator(true);
 
 	aboutAction = new QAction(tr("&About"), this);
 	aboutAction->setStatusTip(tr("Show NanoVision-1's About box"));
@@ -245,6 +257,7 @@ void nv1::createActions() {
 void nv1::createMenus() {
 	fileMenu = menuBar()->addMenu(tr("&File"));
 	fileMenu->addAction(openAction);
+    fileMenu->addAction(closeAction);
 	fileMenu->addSeparator();
 	fileMenu->addAction(exitAction);
 
@@ -265,6 +278,7 @@ void nv1::createMenus() {
 void nv1::createToolBars() {
 	fileToolBar = addToolBar(tr("File"));
 	fileToolBar->addAction(openAction);
+    fileToolBar->addAction(closeAction);
 }
 
 

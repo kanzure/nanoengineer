@@ -37,6 +37,8 @@ public:
 	~ResultsWindow();
 
 	bool loadFile(const QString &fileName);
+    bool closeFile(void);
+    
 	QString userFriendlyCurrentFile();
 	QString currentFile() {
 		return curFile;

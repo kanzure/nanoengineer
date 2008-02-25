@@ -1,6 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
       <file>Icons/File/Open.png</file>
+      <file>Icons/File/Close.png</file>
       <file>Icons/splashscreen.png</file>
       <file>Icons/eye-icon.png</file>
       <file>Icons/home.png</file>
@@ -12,6 +13,8 @@
       <file>Icons/results.png</file>
       <file>Icons/results_summary.png</file>
       <file>Icons/trajectories.png</file>
+      <file>Icons/atom.png</file>
+      <file>Icons/atom_set.png</file>
       <file>Icons/error.png</file>
 </qresource>
 </RCC>

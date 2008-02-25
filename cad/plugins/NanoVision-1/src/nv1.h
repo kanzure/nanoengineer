@@ -43,6 +43,7 @@ public slots:
 
 private slots:
 	void open();
+    void close();
 	void about();
 	void updateWindowMenu();
 	void abortJob(const QString& id);
@@ -62,20 +63,21 @@ private:
 	
 	// File
 	QAction* openAction;
-	QAction* exitAction;
+    QAction* closeAction;
+    QAction* exitAction;
 	
 	// Job Management
 	QAction* abortJobAction;
 	
 	// Window
-	QAction* closeAction;
-	QAction* closeAllAction;
-	QAction* tileAction;
-	QAction* cascadeAction;
-	QAction* arrangeAction;
-	QAction* nextAction;
-	QAction* previousAction;
-	QAction* separatorAction;
+    QAction* windowCloseAction;
+	QAction* windowCloseAllAction;
+	QAction* windowTileAction;
+	QAction* windowCascadeAction;
+	QAction* windowArrangeAction;
+	QAction* windowNextAction;
+	QAction* windowPreviousAction;
+	QAction* windowSeparatorAction;
 	
 	// Help
 	QAction* aboutAction;

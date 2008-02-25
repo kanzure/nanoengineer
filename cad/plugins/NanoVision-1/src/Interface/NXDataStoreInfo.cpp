@@ -7,10 +7,29 @@ namespace Nanorex {
 
 
 /* CONSTRUCTOR */
-NXDataStoreInfo::NXDataStoreInfo() {
-	_isSimulationResults = false;
-	_isSingleStructure = false;
-	_inputParameters = _resultsSummary = 0;
+NXDataStoreInfo::NXDataStoreInfo() 
+    : _isSimulationResults(false),
+    _isSingleStructure(false),
+    _inputParameters(NULL),
+    _resultsSummary(NULL)
+{
+}
+
+
+/* FUNCTION: reset */
+void NXDataStoreInfo::reset(void)
+{
+    _fileNames.clear();
+    _inputStructures.clear();
+    _trajectories.clear();
+    _handle.clear();
+    _isLastFrame.clear();
+    _storeIsComplete.clear();
+    _isSimulationResults = false;
+    _isSingleStructure = false;
+    if(_inputParameters != NULL) delete _inputParameters;
+    if(_resultsSummary != NULL) delete _resultsSummary;
+    _inputParameters = _resultsSummary = NULL;
 }
 
 

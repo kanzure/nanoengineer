@@ -49,6 +49,18 @@ ResultsWindow::~ResultsWindow() {
 }
 
 
+/* FUNCTION: closeFile */
+bool ResultsWindow::closeFile(void)
+{
+    QWidget *tab1Widget = tabWidget->widget(0);
+    resultsTree = dynamic_cast<QTreeWidget*>(tab1Widget);
+    resultsTree->clear();
+    resultsTree->setHeaderLabel(tr(""));
+    entityManager->reset();
+    return true;
+}
+
+
 /* FUNCTION: loadFile */
 bool ResultsWindow::loadFile(const QString &fileName) {
     
@@ -77,7 +89,7 @@ bool ResultsWindow::loadFile(const QString &fileName) {
         // populate results tree
         updateResultsTree();
         
-        // Discover a store-not-complete trajectory frame set
+/*        // Discover a store-not-complete trajectory frame set
         int trajId = dataStoreInfo->getTrajectoryId("frame-set-1");
         TrajectoryGraphicsPane* trajPane = new TrajectoryGraphicsPane();
         trajPane->setEntityManager(entityManager);
@@ -88,7 +100,7 @@ bool ResultsWindow::loadFile(const QString &fileName) {
                                 SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
                                 trajPane,
                                 SLOT(newFrame(int, int, NXMoleculeSet*)));
-        }
+        }*/
         
 /* MDI data window example
     DataWindow *child = new DataWindow;

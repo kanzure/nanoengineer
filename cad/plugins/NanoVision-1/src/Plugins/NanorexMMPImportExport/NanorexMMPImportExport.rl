@@ -47,12 +47,12 @@ inline void DEBUG_MSG(string const& filename, int line, string const& s)
     ${stringval = stringval + fc; }
     ;
     
-    charStringWithSpace = ('_' | alnum)  (space | '_' | alnum)*
+    charStringWithSpace = ('_' | alnum)  (space | [_\-] | alnum)*
         >to{stringval.clear(); stringval = stringval + fc;}
     ${stringval = stringval + fc; }
     ;
     
-    charStringWithSpace2 = ('_' | alnum)  (space | '-' | alnum)*
+    charStringWithSpace2 = ('_' | alnum)  (space | [_\-] | alnum)*
         >to{stringval2.clear();  stringval2 = stringval2 + fc;}
     ${stringval2 = stringval2 + fc; }
     ;
