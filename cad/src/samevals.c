@@ -28,6 +28,7 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
 	 * with atom/bond-sets because we know a lot about their
 	 * internal structure. Dictionaries are black magic.
 	 */
+        printf("WARNING: samevals.c comparing dicts, may get false negatives\n");
 	return _same_vals_helper(PyDict_Items(v1),
 				PyDict_Items(v2));
     } else if (typ1 == &PyList_Type) {

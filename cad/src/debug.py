@@ -120,6 +120,17 @@ class Stopwatch:
     def now(self):
         return time.time() - self.__start
 
+# usage:
+#    start = begin_timing("description of stuff")
+#    ...stuff to be timed...
+#    end_timing(start, "description of stuff")
+def begin_timing(msg = ""):
+    print "begin_timing: %s" % msg
+    return time.time()
+
+def end_timing(start, msg = ""):
+    print "end_timing: %s %s" % (msg, time.time() - start)
+
 def time_taken(func):
     """
     call func and measure how long this takes.

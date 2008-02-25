@@ -4533,3 +4533,6 @@ def move_alist_and_snuggle(alist, newPositions):
     return
 
 # end
+
+from state_utils import known_type_scanners, scan_InstanceType
+known_type_scanners[ Atom ] = scan_InstanceType
