@@ -27,6 +27,7 @@ def setupUi(win):
     win.editMenu.addAction(win.editDeleteAction)
     win.editMenu.addSeparator()
     win.editMenu.addAction(win.dispObjectColorAction)
+    win.editMenu.addAction(win.resetChunkColorAction)
 
 def retranslateUi(win):
     """

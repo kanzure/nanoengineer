@@ -32,11 +32,12 @@ def setupUi(win):
     win.connect(win.dispLightingAction,SIGNAL("triggered()"),win.dispLighting)
     win.connect(win.dispLinesAction,SIGNAL("triggered()"),win.dispLines)
     win.connect(win.dispObjectColorAction,SIGNAL("triggered()"),win.dispObjectColor)
+    win.connect(win.resetChunkColorAction,SIGNAL("triggered()"),win.dispResetChunkColor)
     win.connect(win.dispResetAtomsDisplayAction,SIGNAL("triggered()"),win.dispResetAtomsDisplay)
-    win.connect(win.dispResetChunkColorAction,SIGNAL("triggered()"),win.dispResetChunkColor)
     win.connect(win.dispShowInvisAtomsAction,SIGNAL("triggered()"),win.dispShowInvisAtoms)
     win.connect(win.dispTubesAction,SIGNAL("triggered()"),win.dispTubes)
     win.connect(win.dispCPKAction,SIGNAL("triggered()"),win.dispCPK)
+    win.connect(win.dispHideAction,SIGNAL("triggered()"),win.hideSelection)
     win.connect(win.dispHybridAction,SIGNAL("triggered()"),win.dispHybrid)
 
     win.connect(win.editAutoCheckpointingAction,SIGNAL("toggled(bool)"),win.editAutoCheckpointing)
@@ -176,6 +177,7 @@ def setupUi(win):
     win.connect(win.selectExpandAction,SIGNAL("triggered()"),win.selectExpand)
     win.connect(win.selectInvertAction,SIGNAL("triggered()"),win.selectInvert)
     win.connect(win.selectNoneAction,SIGNAL("triggered()"),win.selectNone)
+    
 
     win.connect(win.viewOrientationAction,SIGNAL("triggered()"),win.showOrientationWindow) #ninad061114
 

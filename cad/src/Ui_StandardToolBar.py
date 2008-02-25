@@ -40,6 +40,8 @@ def setupUi(win):
     win.standardToolBar.addAction(win.simMinimizeEnergyAction)
     win.standardToolBar.addSeparator()
     win.standardToolBar.addAction(win.dispObjectColorAction)
+    win.standardToolBar.addAction(win.resetChunkColorAction)
+    win.standardToolBar.addSeparator()
     win.standardToolBar.addAction(win.editPrefsAction)
     win.standardToolBar.addSeparator()  
     win.standardToolBar.addAction(win.helpWhatsThisAction)

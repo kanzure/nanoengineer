@@ -343,8 +343,30 @@ class ops_select_Mixin:
         msg = fix_plurals(str(natoms) + " atom(s) unselected.")
         env.history.message(msg)
 
-        self.w.win_update()
+        self.w.win_update() # Needed? Mark 2008-02-14
 
+    def hideSelection(self):
+        """
+        Hides the current selection. Selected atoms are made invisible. 
+        Selected chunks and/or any other object (i.e. jigs, planes, etc.) 
+        are hidden.
+        """
+        # Added by Mark 2008-02-14.
+
+        cmd = "Hide Selection: "
+        env.history.message(greenmsg(cmd))
+        
+        # Hide selected objects.
+        self.assy.Hide()
+        
+        if not self.selatoms:
+            return
+
+        # Hide selected atoms by changing their display style to invisible.
+        assert self.selwhat == SELWHAT_ATOMS
+        for a in self.selatoms.values():
+            a.setDisplay(diINVISIBLE)
+    
     # ==
 
     def selectChunksWithSelAtoms(self): #bruce 060721 renamed from selectParts; see also permit_pick_parts

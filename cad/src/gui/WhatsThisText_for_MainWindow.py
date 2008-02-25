@@ -898,16 +898,20 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.dispSurfaceAction.setWhatsThis(dispSurfaceActionText )
 
-    #Reset Chunk Color
+    # Reset Chunk Color
+    
     dispResetChunkColorText = \
         "<u><b>Reset Chunk Color</b></u>"\
-        "Resets the user defined chunk color and renders "\
-        "the atoms(in the chunk) with their own "\
-        "element colors"
+        "<p>"\
+        "<img source=\"ui/actions/Edit/Reset_Chunk_Color.png\"><br> "\
+        "Resets (removes) the user defined color of all selected chunks. "\
+        "All atoms and bonds in the chunk are rendered in their normal "\
+        "element colors."\
+        "</p>"
 
-    win.dispResetChunkColorAction.setWhatsThis(dispResetChunkColorText )
+    win.resetChunkColorAction.setWhatsThis(dispResetChunkColorText )
 
-    #Reset Atoms Display
+    # Reset Atoms Display
 
     dispResetAtomsDisplayText = \
         "<u><b>Reset Atoms Display</b></u>"\
@@ -917,7 +921,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.dispResetAtomsDisplayAction.setWhatsThis(dispResetAtomsDisplayText)
 
-    #Show Invisible Atoms
+    # Show Invisible Atoms
 
     dispShowInvisAtomsText = \
         "<u><b>Show Invisible Atoms</b></u>"\
@@ -1034,6 +1038,19 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.selectContractAction.setWhatsThis(selectContractActionText )
 
+    # Hide Selection
+
+    selectContractActionText = \
+        "<u><b>Hide Selection</b></u>    "\
+        "(Ctrl + Shift + H)"\
+        "<p>"\
+        "<img source=\"ui/actions/Tools/Select/Hide_Selection.png\"><br> "\
+        "Hides the current selection. Works on atoms, chunks and/or any "\
+        "other object that can be hidden."\
+        "</p>"
+
+    win.selectContractAction.setWhatsThis(selectContractActionText )
+    
     #
     # Modify Toolbar
     #
@@ -1355,10 +1372,11 @@ def createWhatsThisTextForMainWindowWidgets(win):
     # Change Chunk Color
     
     dispObjectColorActionText = \
-        "<u><b>Edit Chunk Color</b></u>"\
+        "<u><b>Edit Color</b></u>"\
         "<p>"\
         "<img source=\"ui/actions/Edit/Edit_Color.png\"><br> "\
-        "Allows the user to customize chunk color"\
+        "Allows the user to change the color of all selected chunks and/or "\
+        "jigs (i.e. Rotary Motor)."\
         "</p>"
     
     win.dispObjectColorAction.setWhatsThis(  dispObjectColorActionText )

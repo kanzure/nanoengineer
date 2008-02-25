@@ -31,6 +31,8 @@ def setupUi(win):
     win.displayMenu.addAction(win.dispCylinderAction)
     win.displayMenu.addAction(win.dispSurfaceAction)
     win.displayMenu.addSeparator()
+    win.displayMenu.addAction(win.dispHideAction)
+    win.displayMenu.addSeparator()
     win.displayMenu.addAction(win.setViewPerspecAction)
     win.displayMenu.addAction(win.setViewOrthoAction)
     win.displayMenu.addSeparator()

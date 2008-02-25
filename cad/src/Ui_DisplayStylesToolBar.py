@@ -31,6 +31,8 @@ def setupUi(win):
     win.displayStylesToolBar.addAction(win.dispDnaCylinderAction)
     win.displayStylesToolBar.addAction(win.dispCylinderAction)
     win.displayStylesToolBar.addAction(win.dispSurfaceAction)
+    win.displayStylesToolBar.addSeparator()
+    win.displayStylesToolBar.addAction(win.dispHideAction) 
 
 def retranslateUi(win):
     """

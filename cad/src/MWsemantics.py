@@ -1026,6 +1026,14 @@ class MWsemantics(QMainWindow,
         a bond to an unselected atom, or which has any open bonds.
         """
         self.assy.selectContract()
+        
+    def hideSelection(self):
+        """
+        Slot for Hide Selection which hides the current selection. 
+        This operation works on atoms, chunks and/or any other object that
+        can be hidden.
+        """
+        self.assy.hideSelection()
 
     ###################################
     # Jig Toolbar Slots

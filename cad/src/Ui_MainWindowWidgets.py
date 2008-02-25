@@ -158,6 +158,10 @@ def setupUi(win):
     win.dispObjectColorAction = QtGui.QAction(MainWindow)
     win.dispObjectColorAction.setIcon(geticon("ui/actions/Edit/Edit_Color"))
     win.dispObjectColorAction.setObjectName("dispObjectColorAction")
+    
+    win.resetChunkColorAction = QtGui.QAction(MainWindow)
+    win.resetChunkColorAction.setIcon(geticon("ui/actions/Edit/Reset_Chunk_Color"))
+    win.resetChunkColorAction.setObjectName("resetChunkColorAction")
 
     #= View (menu and toolbar) actions.
     
@@ -332,6 +336,11 @@ def setupUi(win):
     win.dispDnaCylinderAction = QtGui.QAction(MainWindow)
     win.dispDnaCylinderAction.setIcon(geticon("ui/actions/View/Display/DnaCylinder"))
     win.dispDnaCylinderAction.setObjectName("dispDnaCylinderAction")
+    
+    win.dispHideAction = QtGui.QAction(MainWindow)
+    win.dispHideAction.setIcon(
+        geticon("ui/actions/View/Display/Hide"))
+    win.dispHideAction.setObjectName("dispHideAction")
 
     # This is currently NIY. Mark 2007-12-28
     win.dispSurfaceAction = QtGui.QAction(MainWindow)
@@ -357,9 +366,6 @@ def setupUi(win):
     win.viewRaytraceSceneAction.setIcon(
         geticon("ui/actions/View/Display/Raytrace_Scene"))
     win.viewRaytraceSceneAction.setObjectName("viewRaytraceSceneAction")
-
-    win.dispResetChunkColorAction = QtGui.QAction(MainWindow)
-    win.dispResetChunkColorAction.setObjectName("dispResetChunkColorAction")
 
     win.dispSetEltable1Action = QtGui.QAction(MainWindow)
     win.dispSetEltable1Action.setObjectName("dispSetEltable1Action")
@@ -414,7 +420,7 @@ def setupUi(win):
     win.insertMenu = QtGui.QMenu(win.MenuBar)
     win.insertMenu.setObjectName("Insert")
     
-    # Create the "Display" menu, a submenu of the "View" menu.
+    # Create the "Reference Geometry" menu, a submenu of the "Insert" menu.
     win.referenceGeometryMenu = QtGui.QMenu(win.insertMenu)
     win.referenceGeometryMenu.setObjectName("referenceGeometryMenu")
 
@@ -1125,6 +1131,9 @@ def retranslateUi(win):
     win.dispSurfaceAction.setIconText(QtGui.QApplication.translate("MainWindow", "Surface", None, QtGui.QApplication.UnicodeUTF8))
     win.dispCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "Cylinder", None, QtGui.QApplication.UnicodeUTF8))
     win.dispDnaCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "DNA Cylinder", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispHideAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hide", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispHideAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hide (Ctrl+H)", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispHideAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+H", None, QtGui.QApplication.UnicodeUTF8))
 
     # FOLLOWING VIEW MENU ITEMS NEED SORTING
     win.viewFrontAction.setText(QtGui.QApplication.translate("MainWindow", "&Front", None, QtGui.QApplication.UnicodeUTF8))
@@ -1153,8 +1162,8 @@ def retranslateUi(win):
     win.viewRotate180Action.setStatusTip(QtGui.QApplication.translate("MainWindow", "Rotate View 180", None, QtGui.QApplication.UnicodeUTF8))
     win.viewIsometricAction.setText(QtGui.QApplication.translate("MainWindow", "&Isometric", None, QtGui.QApplication.UnicodeUTF8))
     win.viewIsometricAction.setIconText(QtGui.QApplication.translate("MainWindow", "Isometric", None, QtGui.QApplication.UnicodeUTF8))
-    win.dispResetChunkColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Reset Chunk Color", None, QtGui.QApplication.UnicodeUTF8))
-    win.dispResetChunkColorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Reset Chunk Color", None, QtGui.QApplication.UnicodeUTF8))
+    win.resetChunkColorAction.setText(QtGui.QApplication.translate("MainWindow", "&Reset Chunk Color", None, QtGui.QApplication.UnicodeUTF8))
+    win.resetChunkColorAction.setIconText(QtGui.QApplication.translate("MainWindow", "Reset Chunk Color", None, QtGui.QApplication.UnicodeUTF8))
 
     #= Insert (menu and toolbar) actions.
     win.jigsAtomSetAction.setIconText(QtGui.QApplication.translate(
@@ -1463,7 +1472,7 @@ def retranslateUi(win):
     win.selectContractAction.setIconText(QtGui.QApplication.translate("MainWindow", "Contract", None, QtGui.QApplication.UnicodeUTF8))
     win.selectContractAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Contract Selection (Ctrl+Shift+D)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectContractAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+D", None, QtGui.QApplication.UnicodeUTF8))
-
+    
     #= "Simulation" (menu and toolbar) actions.
     win.simSetupAction.setText(QtGui.QApplication.translate(
         "MainWindow", " Run Dynamics...", None, QtGui.QApplication.UnicodeUTF8))
