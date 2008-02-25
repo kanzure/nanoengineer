@@ -185,7 +185,6 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 									   frameIndex);
 			
 			if (result->getResult() == NX_CMD_SUCCESS) {
-				QFileInfo fileInfo(filename.c_str());
 			
 				// Delete the molecule (and don't add the frame) if the
 				// molecule set wasn't populated.
@@ -203,10 +202,9 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 					// Update the frameSetId stored in the dataStoreInfo if this
 					// is an input file for a simulation results data store.
 					if (inRecursiveCall) {
-						string inputFileName = qPrintable(fileInfo.fileName());
-						if (dataStoreInfo->getInputStructureId(inputFileName)
+						if (dataStoreInfo->getInputStructureId(filename)
 								== -1)
-							dataStoreInfo->setInputStructureId(inputFileName,
+							dataStoreInfo->setInputStructureId(filename,
 															   frameSetId);
 					}
 				}
@@ -240,11 +238,6 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 					while (iter != inputFileNames.end()) {
 						if (dataStoreInfo->getInputStructureId(*iter) == -1) {
 							// Load input file
-							/*
-							QString inputFileName =
-								QString("%1/%2").arg(fileInfo.absolutePath())
-												.arg((*iter).c_str());
-												*/
 							_result =
 								importFromFile(*iter,
 											   -1 /* frameSetId */,
