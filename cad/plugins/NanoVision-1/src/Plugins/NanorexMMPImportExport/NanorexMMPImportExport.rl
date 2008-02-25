@@ -15,7 +15,7 @@ inline void DEBUG_MSG(string const& filename, int line, string const& s)
 {
     ostringstream msg;
     msg << line << ": " << s;
-    NXLOG_INFO(filename, msg.str());
+    NXLOG_DEBUG(filename, msg.str());
 /*    Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance();
     if (logger != 0)
         logger->log(Nanorex::NXLogLevel_Info, filename, msg.str());*/
