@@ -140,14 +140,40 @@ class NamedView(SimpleCopyMixin, Node):
         msg = 'Current view is "%s".' % (self.name)
         env.history.message( cmd + msg )
         
-    def __disabledCM_Replace_View_with_This_View(self): #mark 060122
+    def __CM_Replace_with_this_View(self): #mark 060122
         """
         This slot method replaces self's view with the current view.
         
-        This also adds the menu item B{Replace View with This View} to this
+        This also adds the menu item B{Replace with this View} to this
         node's context menu.
+        
+        @note: This menu item should be disabled (which I beleive grays it out)
+        if the current view the the Named View are the same.
         """
+        if self.sameAsCurrentView():
+            return
         self.set_to_current_view()
+        
+    def __CM_Return_to_previous_View(self): #mark 060122
+        """
+        Return to the previous (last) view. 
+        
+        This also adds the menu item B{Return to previous View} to this
+        node's context menu.
+        
+        @note: This is very helpful when the user accidentally clicks
+        a Named View node and needs an easy way to restore the previous view.
+        """
+        self.restore_previous_view()
+    
+    def restore_previous_view(self):
+        """
+        Restores the previous view.
+        
+        @warning: Not implemented yet. Mark 2008-02-14
+        """
+        print "Not implemented yet."
+        return
     
     def set_to_current_view(self): #mark 060122
         """
