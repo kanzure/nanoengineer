@@ -395,7 +395,7 @@ class DnaDuplex_EditCommand(EditCommand):
 
     def _removeSegments(self):
         """
-        Remove the segments created while in this commandself._fallbackDnaGroup 
+        Remove the segments created while in this command self._fallbackDnaGroup 
         (if one exists its a bug).
 
         This deletes all the segments created while this command was running
@@ -407,9 +407,8 @@ class DnaDuplex_EditCommand(EditCommand):
         if self._parentDnaGroup is not None:
             segmentList = self._segmentList
         elif self._fallbackDnaGroup is not None:
-            segmentList = self._fallbackDnaGroup.steal_members() 
-            self._fallbackDnaGroup.kill()
-            self._fallbackDnaGroup = None
+            segmentList = self._fallbackDnaGroup.get_segments()
+            
 
         for segment in segmentList: 
             #can segment be None?  Lets add this condition to be on the safer 
@@ -417,6 +416,11 @@ class DnaDuplex_EditCommand(EditCommand):
             if segment is not None: 
                 segment.kill_with_contents()
             self._revertNumber()
+        
+        if self._fallbackDnaGroup is not None:
+            self._fallbackDnaGroup.kill()
+            self._fallbackDnaGroup = None
+            
 
         self._segmentList = []	
         self.win.win_update()

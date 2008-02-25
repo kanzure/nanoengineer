@@ -228,12 +228,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         Overrides EditCommand.hasValidStructure()
         """
         #(By Bruce 2008-02-13)
-        
-        if self.struct is None:
-            return False
                 
-        if self.struct.killed(): # (bruce080213: can this happen?)
-            return False
+        isValid = EditCommand.hasValidStructure(self)
+        
+        if not isValid:
+            return isValid
         
         if not isinstance(self.struct, DnaSegment): 
             return False    

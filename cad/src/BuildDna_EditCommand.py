@@ -196,17 +196,16 @@ class BuildDna_EditCommand(EditCommand):
                 struct.unpick()
             
         EditCommand.editStructure(self, struct) 
-        
+    
     def hasValidStructure(self):
         """
         Tells the caller if this edit command has a valid structure. 
         Overrides EditCommand.hasValidStructure()
         """        
-        if self.struct is None:
-            return False
-                
-        if self.struct.killed():
-            return False
+        isValid = EditCommand.hasValidStructure(self)
+        
+        if not isValid:
+            return isValid
                 
         if isinstance(self.struct, DnaGroup): 
             return True    
