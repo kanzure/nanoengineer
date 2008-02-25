@@ -353,7 +353,7 @@ class ops_select_Mixin:
         """
         # Added by Mark 2008-02-14.
 
-        cmd = "Hide Selection: "
+        cmd = "Hide: "
         env.history.message(greenmsg(cmd))
         
         # Hide selected objects.
@@ -366,6 +366,29 @@ class ops_select_Mixin:
         assert self.selwhat == SELWHAT_ATOMS
         for a in self.selatoms.values():
             a.setDisplay(diINVISIBLE)
+            
+    def unhideSelection(self):
+        """
+        Unhides the current selection. Selected atoms are made invisible. 
+        Selected chunks and/or any other object (i.e. jigs, planes, etc.) 
+        are hidden.
+        """
+        # Added by Mark 2008-02-25.
+
+        cmd = "Unhide: "
+        env.history.message(greenmsg(cmd))
+        
+        # Hide selected objects.
+        self.assy.Unhide()
+        
+        if not self.selatoms:
+            self.selectNone()
+            return
+
+        # Unhide selected atoms by changing their display style to default.
+        assert self.selwhat == SELWHAT_ATOMS
+        for a in self.selatoms.values():
+            a.setDisplay(diDEFAULT)
     
     # ==
 

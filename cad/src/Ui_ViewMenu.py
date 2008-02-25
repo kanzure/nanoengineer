@@ -23,7 +23,7 @@ def setupUi(win):
     
     # Populate the "Display" submenu.
     win.displayMenu.addAction(win.dispDefaultAction)
-    win.displayMenu.addAction(win.dispInvisAction)
+    #win.displayMenu.addAction(win.dispInvisAction) # removed by mark 2008-02-25
     win.displayMenu.addAction(win.dispLinesAction)
     win.displayMenu.addAction(win.dispTubesAction)
     win.displayMenu.addAction(win.dispBallAction)
@@ -32,6 +32,7 @@ def setupUi(win):
     win.displayMenu.addAction(win.dispSurfaceAction)
     win.displayMenu.addSeparator()
     win.displayMenu.addAction(win.dispHideAction)
+    win.displayMenu.addAction(win.dispUnhideAction)
     win.displayMenu.addSeparator()
     win.displayMenu.addAction(win.setViewPerspecAction)
     win.displayMenu.addAction(win.setViewOrthoAction)

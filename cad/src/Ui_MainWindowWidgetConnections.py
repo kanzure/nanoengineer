@@ -37,7 +37,8 @@ def setupUi(win):
     win.connect(win.dispShowInvisAtomsAction,SIGNAL("triggered()"),win.dispShowInvisAtoms)
     win.connect(win.dispTubesAction,SIGNAL("triggered()"),win.dispTubes)
     win.connect(win.dispCPKAction,SIGNAL("triggered()"),win.dispCPK)
-    win.connect(win.dispHideAction,SIGNAL("triggered()"),win.hideSelection)
+    win.connect(win.dispHideAction,SIGNAL("triggered()"),win.dispHide)
+    win.connect(win.dispUnhideAction,SIGNAL("triggered()"),win.dispUnhide)
     win.connect(win.dispHybridAction,SIGNAL("triggered()"),win.dispHybrid)
 
     win.connect(win.editAutoCheckpointingAction,SIGNAL("toggled(bool)"),win.editAutoCheckpointing)

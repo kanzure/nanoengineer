@@ -859,6 +859,31 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.dispCPKAction.setWhatsThis(dispCPKActionText )
+    
+    # Hide (Selection)
+
+    hideActionText = \
+        "<u><b>Hide</b></u>    "\
+        "(Ctrl + H)"\
+        "<p>"\
+        "<img source=\"ui/actions/View/Display/Hide.png\"><br> "\
+        "Hides the current selection. Works on atoms, chunks and/or any "\
+        "other object that can be hidden."\
+        "</p>"
+
+    win.dispHideAction.setWhatsThis(hideActionText)
+    
+    # Unhide (Selection)
+
+    unhideActionText = \
+        "<u><b>Unhide</b></u>    "\
+        "<p>"\
+        "<img source=\"ui/actions/View/Display/Unhide.png\"><br> "\
+        "Unhides the current selection. Works on atoms, chunks and/or any "\
+        "other object that can be hidden."\
+        "</p>"
+
+    win.dispUnhideAction.setWhatsThis(unhideActionText)
 
     # Display Cylinder
 
@@ -1038,19 +1063,6 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     win.selectContractAction.setWhatsThis(selectContractActionText )
 
-    # Hide Selection
-
-    selectContractActionText = \
-        "<u><b>Hide Selection</b></u>    "\
-        "(Ctrl + Shift + H)"\
-        "<p>"\
-        "<img source=\"ui/actions/Tools/Select/Hide_Selection.png\"><br> "\
-        "Hides the current selection. Works on atoms, chunks and/or any "\
-        "other object that can be hidden."\
-        "</p>"
-
-    win.selectContractAction.setWhatsThis(selectContractActionText )
-    
     #
     # Modify Toolbar
     #

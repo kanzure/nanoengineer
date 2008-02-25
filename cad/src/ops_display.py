@@ -144,6 +144,23 @@ class displaySlotsMixin:
     def dispHybrid(self): #@@ Ninad 070308
         print "Hybrid display is  Implemented yet"
         pass
+    
+    # Hide/unhide 
+    def dispHide(self):
+        """
+        Slot for "Hide" which hides the current selection. 
+        This operation works on atoms, chunks and/or any other object that
+        can be hidden.
+        """
+        self.assy.hideSelection()
+        
+    def dispUnhide(self):
+        """
+        Slot for "Unhide" which unhides the current selection. 
+        This operation works on atoms, chunks and/or any other object that
+        can be hidden.
+        """
+        self.assy.unhideSelection()
 
     def setDisplay(self, form, default_display=False):
         """

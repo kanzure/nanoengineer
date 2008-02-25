@@ -23,7 +23,7 @@ def setupUi(win):
 
     # Populate the "Display Styles" toolbar.
     win.displayStylesToolBar.addAction(win.dispDefaultAction)
-    win.displayStylesToolBar.addAction(win.dispInvisAction)
+    #win.displayStylesToolBar.addAction(win.dispInvisAction) # removed by mark 2008-02-25
     win.displayStylesToolBar.addAction(win.dispLinesAction)
     win.displayStylesToolBar.addAction(win.dispTubesAction)
     win.displayStylesToolBar.addAction(win.dispBallAction)
@@ -32,7 +32,8 @@ def setupUi(win):
     win.displayStylesToolBar.addAction(win.dispCylinderAction)
     win.displayStylesToolBar.addAction(win.dispSurfaceAction)
     win.displayStylesToolBar.addSeparator()
-    win.displayStylesToolBar.addAction(win.dispHideAction) 
+    win.displayStylesToolBar.addAction(win.dispHideAction)
+    win.displayStylesToolBar.addAction(win.dispUnhideAction) 
 
 def retranslateUi(win):
     """

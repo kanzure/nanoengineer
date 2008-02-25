@@ -341,6 +341,11 @@ def setupUi(win):
     win.dispHideAction.setIcon(
         geticon("ui/actions/View/Display/Hide"))
     win.dispHideAction.setObjectName("dispHideAction")
+    
+    win.dispUnhideAction = QtGui.QAction(MainWindow)
+    win.dispUnhideAction.setIcon(
+        geticon("ui/actions/View/Display/Unhide"))
+    win.dispUnhideAction.setObjectName("dispUnhideAction")
 
     # This is currently NIY. Mark 2007-12-28
     win.dispSurfaceAction = QtGui.QAction(MainWindow)
@@ -1134,6 +1139,9 @@ def retranslateUi(win):
     win.dispHideAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hide", None, QtGui.QApplication.UnicodeUTF8))
     win.dispHideAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hide (Ctrl+H)", None, QtGui.QApplication.UnicodeUTF8))
     win.dispHideAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+H", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispUnhideAction.setIconText(QtGui.QApplication.translate("MainWindow", "Unhide", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispUnhideAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Unhide (Ctrl+Shift+H)", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispUnhideAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+H", None, QtGui.QApplication.UnicodeUTF8))
 
     # FOLLOWING VIEW MENU ITEMS NEED SORTING
     win.viewFrontAction.setText(QtGui.QApplication.translate("MainWindow", "&Front", None, QtGui.QApplication.UnicodeUTF8))
@@ -1392,8 +1400,6 @@ def retranslateUi(win):
                                                                          None, QtGui.QApplication.UnicodeUTF8))
     win.modifyHydrogenateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hydrogenate", 
                                                                         None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyHydrogenateAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+H", 
-                                                                         None, QtGui.QApplication.UnicodeUTF8))
     win.modifyDehydrogenateAction.setText(QtGui.QApplication.translate("MainWindow", "&Dehydrogenate", 
                                                                        None, QtGui.QApplication.UnicodeUTF8))
     win.modifyDehydrogenateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Dehydrogenate", 
