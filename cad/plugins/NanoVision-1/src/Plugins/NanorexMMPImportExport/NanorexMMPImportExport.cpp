@@ -1146,7 +1146,7 @@ NanorexMMPImportExport::populateCommandResult (NXCommandResult* result,
 {
     result->setResult(NX_PLUGIN_REPORTS_ERROR);
     vector<QString> resultVector;
-    resultVector.push_back("OpenBabelImportExport");
+    resultVector.push_back("NanorexMMPImportExport");
     resultVector.push_back(message.c_str());
     result->setParamVector(resultVector);
 }

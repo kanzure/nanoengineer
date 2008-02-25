@@ -132,7 +132,7 @@ void ResultsWindow::setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo)
     
     // input parameters
     NXProperties *inputParameters = dataStoreInfo->getInputParameters();
-    if(inputParameters != NULL) {
+    if (inputParameters != NULL) {
         QTreeWidgetItem *inputParametersItem = new QTreeWidgetItem(resultsTree);
         inputParametersItem->setIcon(0, inputParametersIcon);
         inputParametersItem->setText(0, tr("Input parameters"));
@@ -141,19 +141,20 @@ void ResultsWindow::setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo)
     
     // input files
     vector<string> inputFileNames = dataStoreInfo->getInputFileNames();
-    if(inputFileNames.size() > 0) {
+    if (inputFileNames.size() > 0) {
         QTreeWidgetItem *inputFilesItem = new QTreeWidgetItem(resultsTree);
         inputFilesItem->setIcon(0, inputFilesIcon);
         inputFilesItem->setText(0, tr("Input files"));
         
         vector<string>::const_iterator inputFileIter;
-        for(inputFileIter = inputFileNames.begin();
+        for (inputFileIter = inputFileNames.begin();
             inputFileIter != inputFileNames.end();
             ++inputFileIter)
         {
             QTreeWidgetItem *inputFileItem = new QTreeWidgetItem(inputFilesItem);
             inputFileItem->setIcon(0, inputFileIcon);
-            inputFileItem->setText(0, QString(inputFileIter->c_str()));
+            inputFileItem->setText
+				(0, strippedName(QString(inputFileIter->c_str())));
             // inputFilesItem->addChild(inputFileItem);
         }
         
@@ -166,7 +167,7 @@ void ResultsWindow::setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo)
     vector<string> trajectoryNames = dataStoreInfo->getTrajectoryNames();
     
     // don't create if no children
-    if(resultsSummary == NULL && trajectoryNames.size()==0) return;
+    if (resultsSummary == NULL && trajectoryNames.size()==0) return;
     
     QTreeWidgetItem *resultsItem = new QTreeWidgetItem(resultsTree);
     resultsItem->setIcon(0, resultsIcon);
@@ -175,20 +176,20 @@ void ResultsWindow::setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo)
     
     // Results -> Summary
     QTreeWidgetItem *resultsSummaryItem = NULL;
-    if(resultsSummary != NULL) {
+    if (resultsSummary != NULL) {
         resultsSummaryItem = new QTreeWidgetItem(resultsItem);
         resultsSummaryItem->setIcon(0, resultsSummaryIcon);
         resultsSummaryItem->setText(0, tr("Summary"));
     }
     
     // Results -> Trajectories
-    if(trajectoryNames.size() > 0) {
+    if (trajectoryNames.size() > 0) {
         QTreeWidgetItem *trajectoryItem = new QTreeWidgetItem(resultsItem);
         trajectoryItem->setIcon(0, resultsTrajectoriesIcon);
         trajectoryItem->setText(0, tr("Trajectories"));
         
         vector<string>::const_iterator trajectoryNameIter;
-        for(trajectoryNameIter = trajectoryNames.begin();
+        for (trajectoryNameIter = trajectoryNames.begin();
             trajectoryNameIter != trajectoryNames.end();
             ++trajectoryNameIter)
         {

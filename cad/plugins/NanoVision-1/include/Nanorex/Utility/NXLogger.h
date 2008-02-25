@@ -166,6 +166,7 @@ class NXConsoleLogHandler : public NXLogHandler {
 					   (logRecord.getSource().length() == 0 ?
 							"" : logRecord.getSource().append(":").c_str()),
 					   logRecord.getMessage().c_str());
+				fflush(0);
 				mutex.unlock();
 			}
 		}

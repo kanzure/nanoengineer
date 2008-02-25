@@ -42,17 +42,18 @@ public:
                 // NXDataImportExportPlugin implementation
     NXCommandResult* importFromFile(NXMoleculeSet* moleculeSet,
                                     NXDataStoreInfo* dataStoreInfo,
-                                    const std::string& filename,
+                                    const string& filename,
                                     int frameSetId, int frameIndex);
     NXCommandResult* exportToFile(NXMoleculeSet* moleculeSet,
                                 NXDataStoreInfo* dataStoreInfo,
-                                const std::string& filename,
+                                const string& filename,
                                 int frameSetId, int frameIndex);
     
 private:
     void populateDataStoreInfo(NXDataStoreInfo* dataStoreInfo,
-                            HDF5_SimResults* simResults,
-                            int frameSetId);
+							   HDF5_SimResults* simResults,
+							   const string& hdf5FileDirectory,
+							   int frameSetId);
     void exportToFileHelper(NXMoleculeSet* moleculeSet,
                             unsigned int atomIndex, unsigned int bondIndex,
                             unsigned int* atomIds,
@@ -61,7 +62,7 @@ private:
                             NXCommandResult* result);
     void populateCommandResult(NXCommandResult* result,
                             const string& message);
-	string parseSuffix(const string& filename);
+	string getHDF5fileDirectory(const string& filename);
 };
 
 #endif

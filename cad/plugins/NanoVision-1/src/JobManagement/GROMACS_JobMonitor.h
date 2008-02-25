@@ -3,6 +3,9 @@
 #ifndef GROMACS_JOBMONITOR_H
 #define GROMACS_JOBMONITOR_H
 
+#include <string>
+using namespace std;
+
 #include <QObject>
 #include <QString>
 

@@ -46,7 +46,10 @@ void GROMACS_JobMonitor::run() {
 
 		stillRunning = false;
 		while (fgets(buffer, bufferSize, commandPipe) != 0) {
-			if (strncmp(buffer, qPrintable(pid), pid.length()) == 0)
+			string bufferString = buffer;
+			while ((bufferString.length() > 0) && (bufferString[0] == ' '))
+				bufferString = bufferString.substr(1);
+			if (bufferString.compare(0, pid.length(), qPrintable(pid)) == 0)
 				stillRunning = true;
 		}
 

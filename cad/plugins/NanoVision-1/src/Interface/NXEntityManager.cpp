@@ -233,17 +233,20 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 			
 				// Examine the dataStoreInfo for additional files to import
 				if (!inPollingThread && !inRecursiveCall) {
+					NXCommandResult* _result;
 					vector<string> inputFileNames =
 						dataStoreInfo->getInputFileNames();
 					vector<string>::iterator iter = inputFileNames.begin();
 					while (iter != inputFileNames.end()) {
 						if (dataStoreInfo->getInputStructureId(*iter) == -1) {
 							// Load input file
+							/*
 							QString inputFileName =
 								QString("%1/%2").arg(fileInfo.absolutePath())
 												.arg((*iter).c_str());
-							result =
-								importFromFile(qPrintable(inputFileName),
+												*/
+							_result =
+								importFromFile(*iter,
 											   -1 /* frameSetId */,
 											   inPollingThread,
 											   !inRecursiveCall);
@@ -252,12 +255,18 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 							// results data store
 							dataStoreInfo->setIsSimulationResults(true);
 							
-							if (result->getResult() != NX_CMD_SUCCESS) {
+							if (_result->getResult() != NX_CMD_SUCCESS) {
 								QString logMessage =
 									tr("Couldn't load input file: %1")
-										.arg(GetNV1ResultCodeString(result));
+										.arg(GetNV1ResultCodeString(_result));
 								NXLOG_WARNING("NXEntityManager",
 											  qPrintable(logMessage));
+							} else {
+								QString logMessage =
+									tr("Input file loaded: %1")
+										.arg((*iter).c_str());
+								NXLOG_INFO("NXEntityManager",
+										   qPrintable(logMessage));
 							}
 						}
 						iter++;

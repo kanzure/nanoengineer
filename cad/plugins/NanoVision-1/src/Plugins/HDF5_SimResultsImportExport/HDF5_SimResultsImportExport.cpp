@@ -39,10 +39,10 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 
 	// Open the actual data store.
 	int status;
-	string message;
+	string message, hdf5FileDirectory;
 	if ((frameIndex == 0) && (result->getResult() == NX_CMD_SUCCESS)) {
-		string directory = parseSuffix(filename);
-		status = simResults->openDataStore(directory.c_str(), message);
+		hdf5FileDirectory = getHDF5fileDirectory(filename);
+		status = simResults->openDataStore(hdf5FileDirectory.c_str(), message);
 		if (status)
 			populateCommandResult(result, message.c_str());
 	}
@@ -60,7 +60,8 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 	// information about the data store, and other data.
 	if ((frameIndex == 0) && (frameSetId == 0) &&
 		(result->getResult() == NX_CMD_SUCCESS)) {
-		populateDataStoreInfo(dataStoreInfo, simResults, frameSetId);
+		populateDataStoreInfo(dataStoreInfo, simResults, hdf5FileDirectory,
+							  frameSetId);
 	}
 	
 	// Retrieve stored counts and run status
@@ -151,7 +152,7 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 /* FUNCTION: populateDataStoreInfo */
 void HDF5_SimResultsImportExport::populateDataStoreInfo
 		(NXDataStoreInfo* dataStoreInfo, HDF5_SimResults* simResults,
-		 int frameSetId) {
+		 const string& hdf5FileDirectory, int frameSetId) {
 	
 	dataStoreInfo->setIsSimulationResults(true);
 	
@@ -189,7 +190,7 @@ void HDF5_SimResultsImportExport::populateDataStoreInfo
 	keys = simResults->getFilePathKeys();
 	iter = keys.begin();
 	while (iter != keys.end()) {
-		dataStoreInfo->addInputStructure(*iter);
+		dataStoreInfo->addInputStructure(hdf5FileDirectory + "/" + *iter);
 		iter++;
 	}
 	
@@ -251,7 +252,7 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 	int status;
 	string message;
 	if ((frameIndex == 0) && (result->getResult() == NX_CMD_SUCCESS)) {
-		string directory = parseSuffix(filename);
+		string directory = getHDF5fileDirectory(filename);
 		QDir pwd;
 		pwd.mkdir(directory.c_str());
 		QString hdf5Filename(directory.c_str());
@@ -408,8 +409,9 @@ void HDF5_SimResultsImportExport::populateCommandResult
 }
 
 
-/* FUNCTION: parseSuffix */
-string HDF5_SimResultsImportExport::parseSuffix(const string& filename) {
+/* FUNCTION: getHDF5fileDirectory */
+string HDF5_SimResultsImportExport::getHDF5fileDirectory
+		(const string& filename) {
 	string directory;
 	QFileInfo fileInfo(filename.c_str());
 	if (fileInfo.suffix() == "h5") {
