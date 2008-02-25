@@ -335,7 +335,6 @@ packageMapping_for_files = {
     "drawDnaRibbons"                   : "graphics_drawing",
     "drawDnaLadder"                    : "graphics_drawing",
     "drawer"                           : "graphics_drawing",
-    "drawRulers"                       : "graphics_drawing",
     "draw_bond_vanes"                  : "graphics_drawing",
     "draw_grid_lines"                  : "graphics_drawing",
     "DynamicTip"                       : "graphics_widgets", # but some should be refactored into GraphicsMode
@@ -403,6 +402,7 @@ packageMapping_for_files = {
     "GroupButtonMixin"                 : "PM", # (deprecated, and its only callers should use things from PM instead)
     "GroupProp"                        : "ui/dialog|commands/GroupProperties?",
     "GroupPropDialog"                  : "ui/dialog|commands/GroupProperties?",
+    "Guides"                           : "graphics_widgets",
     "handles"                          : "graphics_drawable", # graphical handles (for Extrude, but could be general)
     "help"                             : "ui/dialog|ne1_ui/help",
     "HelpDialog"                       : "ui/dialog|ne1_ui/help",
