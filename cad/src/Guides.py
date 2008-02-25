@@ -5,7 +5,7 @@ Guides.py - Draws horizontal and vertical rulers along the edges of the
 
 @author:    Mark Sims
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
-@version:   $Id:$
+@version:   $Id$
 @license:   GPL
 """
 
@@ -44,6 +44,7 @@ from constants import  lightgray, darkgray, black
 
 from debug import print_compact_stack
 
+import sys
 import env
 from prefs_constants import displayVertRuler_prefs_key
 from prefs_constants import displayHorzRuler_prefs_key
@@ -117,7 +118,11 @@ class Guides(object):
     aspect = 0.0
     ruler_drawing_params = ()
     
-    rulerFontPointSize = 7 
+    if sys.platform == "darwin":
+        # Anything smaller than 9 pt on Mac OS X results in un-rendered text.
+        rulerFontPointSize = 9 
+    else:
+        rulerFontPointSize = 7
     rulerFont = QFont( QString("Helvetica"), rulerFontPointSize)
     
     def __init__(self, glpane):
