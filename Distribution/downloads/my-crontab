@@ -1,5 +1,0 @@
-SHELL=/bin/sh
-MAILTO=wware
-LOGNAME=/home/wware/cron-log
-#
-45 5 * * 0,3   /usr/bin/python /home/wware/polosims/Distribution/downloads/getTarballs.py sendReminder
