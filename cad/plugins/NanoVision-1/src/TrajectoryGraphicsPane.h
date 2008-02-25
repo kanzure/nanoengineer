@@ -1,7 +1,7 @@
 // Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
-#ifndef TRAJECTORYGRAPHICSPANE_H
-#define TRAJECTORYGRAPHICSPANE_H
+#ifndef TRAJECTORYGRAPHICSWINDOW_H
+#define TRAJECTORYGRAPHICSWINDOW_H
 
 #include <QWidget>
 
@@ -9,18 +9,18 @@
 using namespace Nanorex;
 
 #include "DataWindow.h"
-#include <ui_TrajectoryGraphicsPane.h>
+#include <ui_TrajectoryGraphicsWindow.h>
 
 
-/* CLASS: TrajectoryGraphicsPane */
-class TrajectoryGraphicsPane
-		: public DataWindow, private Ui_TrajectoryGraphicsPane {
+/* CLASS: TrajectoryGraphicsWindow */
+class TrajectoryGraphicsWindow
+		: public DataWindow, private Ui_TrajectoryGraphicsWindow {
 			
 	Q_OBJECT
 
 	public:
-		TrajectoryGraphicsPane(QWidget *parent = 0);
-		~TrajectoryGraphicsPane();
+		TrajectoryGraphicsWindow(QWidget *parent = 0);
+		~TrajectoryGraphicsWindow();
 		
 		void setEntityManager(NXEntityManager* entityManager) {
 			this->entityManager = entityManager;

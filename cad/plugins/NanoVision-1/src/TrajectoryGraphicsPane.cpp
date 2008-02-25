@@ -1,11 +1,11 @@
 // Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
-#include "TrajectoryGraphicsPane.h"
+#include "TrajectoryGraphicsWindow.h"
 
 
 /* CONSTRUCTOR */
-TrajectoryGraphicsPane::TrajectoryGraphicsPane(QWidget *parent)
-		: DataWindow(parent), Ui_TrajectoryGraphicsPane() {
+TrajectoryGraphicsWindow::TrajectoryGraphicsWindow(QWidget *parent)
+		: DataWindow(parent), Ui_TrajectoryGraphicsWindow() {
 
 	setupUi(this);
 	
@@ -14,12 +14,12 @@ TrajectoryGraphicsPane::TrajectoryGraphicsPane(QWidget *parent)
 
 
 /* DESTRUCTOR */
-TrajectoryGraphicsPane::~TrajectoryGraphicsPane() {
+TrajectoryGraphicsWindow::~TrajectoryGraphicsWindow() {
 }
 
 
 /* FUNCTION: newFrame */
-void TrajectoryGraphicsPane::newFrame(int frameSetId, int frameIndex,
+void TrajectoryGraphicsWindow::newFrame(int frameSetId, int frameIndex,
 									  NXMoleculeSet* newMoleculeSet) {
 	
 	// Start printing all frames available from the first render() call
