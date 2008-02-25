@@ -67,13 +67,12 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         
         #For model changed signal
         self.previousSelectionParams = None
-        
+                
         #see self.connect_or_disconnect_signals for comment about this flag
         self.isAlreadyConnected = False
         self.isAlreadyDisconnected = False
         
-        self.sequenceEditor = None      
-        
+        self.sequenceEditor = None              
         
         EditCommand_PM.__init__( self, 
                                     win,
@@ -205,25 +204,13 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                methods in the API are revised to be called at appropiraite 
                time. 
         """  
-        newSelectionParams = self._currentSelectionParams()
-        
-                
+        newSelectionParams = self._currentSelectionParams()          
         if same_vals(newSelectionParams, self.previousSelectionParams):
             return
         
-        #Update the strand and segmment list widgets. 
-        #Ideally it should only update when the structure is modified 
-        #example --when structure is deleted. But as of 2008-02-21
-        #this feature is not easily available in the API method. 
-        #see Command class for some proposed methods such as 'something_changed'
-        #etc. The list widgets are updated even when selection changes. 
-        if self.editCommand.hasValidStructure():
-           self.updateListWidgets()
-                
         self.previousSelectionParams = newSelectionParams  
         
         selectedStrands, selectedSegments = newSelectionParams
-               
         self.strandListWidget.updateSelection(selectedStrands) 
         self.segmentListWidget.updateSelection(selectedSegments)
         
@@ -243,10 +230,27 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         else:
             self.editSegmentPropertiesButton.setEnabled(False)
                          
-        
+        #Update the strand and segmment list widgets. 
+        #Ideally it should only update when the structure is modified 
+        #example --when structure is deleted. But as of 2008-02-21
+        #this feature is not easily available in the API method. 
+        #see Command class for some proposed methods such as 'something_changed'
+        #etc. The list widgets are updated even when selection changes.         
+        #NOTE: If this is called before listwidget's 'updateSelection' call, 
+        #done above, it 'may give' (as of 2008-02-25, it is unlikely to happen 
+        #because of a better implementation)  C/C++ object deleted errors. 
+        #So better to do it in the end. Cause -- unknown. 
+        #Guess : something to do with clearing the widget list and them readding
+        #items (done by self.updateListWidgets)
+        #..This probably interferes with the selection
+        #within that list. So better to do it after updating the selection.
+        if not same_vals(self.strandListWidget.count(), 
+                         self._currentStructureParams()):  
+            self.updateListWidgets()   
+                      
     def _currentSelectionParams(self):
         """
-        NOT CALLED YET. This needs commandSequencer to treat various 
+        This needs commandSequencer to treat various 
         edit controllers as commands. Until then, the 'model_changed' method 
         (and thus this method) will  never be called.
         
@@ -268,12 +272,32 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         selectedSegments = []
         if self.editCommand is not None and self.editCommand.hasValidStructure():
             selectedStrands = self.editCommand.struct.getSelectedStrands()
-            selectedSegments = self.editCommand.struct.getSelectedSegments()
-             
+            selectedSegments = self.editCommand.struct.getSelectedSegments()             
                     
         return (selectedStrands, selectedSegments)
-                
-             
+    
+    def _currentStructureParams(self):
+        """
+        Return current structure parameters of interest to self.model_changed. 
+        Right now it only returns the number of strands within the structure
+        (or None) .  This is a good enough check (and no need to compare 
+        each and evry strand within the structure with a previously stored 
+        set of strands)         
+        """
+        #Can it happen that the total number of strands remains the same even 
+        #after some alterations to the strands? Unlikely. (Example: a single
+        #Break strands operation will increase the number of strands by one. 
+        #Or Join strands decrease it by 1)
+        params = None
+        
+        if self.editCommand and self.editCommand.hasValidStructure():
+            strandList = []
+            strandList = self.editCommand.struct.getStrands()
+            params = len(strandList)
+            
+        return params 
+    
+  
     def ok_btn_clicked(self):
         """
         Slot for the OK button
@@ -433,14 +457,14 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         Update the list of segments shown in the segments list widget
         @see: self.updateListWidgets, self.updateStrandListWidget
         """
+        
         segmentList = []
-        if self.editCommand and self.editCommand.struct: 
+        if self.editCommand and self.editCommand.hasValidStructure(): 
             def func(node):
                 if isinstance(node, DnaSegment):
                     segmentList.append(node)    
                     
             self.editCommand.struct.apply2all(func)
-            
             self.segmentListWidget.insertItems(
                 row = 0,
                 items = segmentList)
