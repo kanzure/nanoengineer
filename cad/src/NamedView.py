@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 NamedView.py -- a named view (including coordinate system for viewing)
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -12,8 +12,7 @@ Mark wrote this in Utility.py.
 
 bruce 071026 moved it from Utility into a new file.
 
-To do: 
-- rename Csys to NamedView. Mark 2008-02-03.
+Mark renamed Csys to NamedView, on or after 2008-02-03.
 """
 
 from constants import gensym
@@ -35,9 +34,9 @@ class NamedView(SimpleCopyMixin, Node):
     """
     
     sym = "View"
-    featurename = "Named View" #bruce 070604 added this
+    featurename = "Named View"
 
-    copyable_attrs = Node.copyable_attrs + ('scale', 'pov', 'zoomFactor', 'quat') #bruce 060523
+    copyable_attrs = Node.copyable_attrs + ('scale', 'pov', 'zoomFactor', 'quat')
         # (note: for copy, this is redundant with _um_initargs (that's ok),
         #  but for Undo, it's important to list these here or give them _s_attr decls.
         #  This fixes a presumed bug (perhaps unreported -- now bug 1942) in Undo of Set_to_Current_View.
@@ -51,7 +50,6 @@ class NamedView(SimpleCopyMixin, Node):
             Node.__init__(self, assy, name)
         else:
             Node.__init__(self, assy, gensym("%s-" % self.sym))
-                #bruce 070604 genViewNum -> gensym [##e can we someday teach superclass to do this?]
         self.scale = scale
         assert type(pov) is type(V(1, 0, 0))
         self.pov = V(pov[0], pov[1], pov[2])
@@ -73,7 +71,12 @@ class NamedView(SimpleCopyMixin, Node):
         return
 
     def _um_initargs(self): #bruce 060523 to help make it copyable from the UI (fixes bug 1369 along with SimpleCopyMixin)
-        "#doc [warning: see comment where this is called in this class -- it has to do more than its general spec requires]"
+        """
+        #doc
+
+        @warning: see comment where this is called in this class --
+                  it has to do more than its general spec requires
+        """
         # (split out of self.copy)
         if "a kluge is ok since I'm in a hurry":
             # the data in this NamedView might not be up-to-date, since the glpane "caches it"
@@ -88,7 +91,9 @@ class NamedView(SimpleCopyMixin, Node):
         # and useless for anything except being renamed by dblclick (which can lead to bugs
         # if the names are still used when files_mmp reads the mmp file again). For Beta we plan
         # to make them useful and safe, and then make them showable again.
-        "[overrides Node method]"
+        """
+        [overrides Node method]
+        """
         return True # changed retval to True to support Named Views.  mark 060124.
 
     def writemmp(self, mapping):
@@ -118,7 +123,7 @@ class NamedView(SimpleCopyMixin, Node):
         # I'd have to verify it's not used internally, like Jig.__repr__ used to be!!
         return "<namedView " + self.name + ">"
     
-    def MT_plain_left_click(self):
+    def ModelTree_plain_left_click(self):
         #bruce 080213 bugfix: override this new API method, not Node.pick.
         """
         [overrides Node method]
@@ -129,6 +134,51 @@ class NamedView(SimpleCopyMixin, Node):
             return
         
         self.change_view()
+        return
+
+    def ModelTree_context_menu_section(self): #bruce 080225, for Mark to review and revise
+        """
+        Return a menu_spec list to be included in the Model Tree's context
+        menu for this node, when this is the only selected node
+        (which implies the context menu is specifically for this node).
+
+        [extends superclass implementation]
+        """
+        # start with superclass version
+        menu_spec = Node.ModelTree_context_menu_section(self)
+        
+        # then add more items to it, in order:
+
+        # Change to this view
+
+        text = "Change to '%s' (left click)" % (self.name,)
+        command = self.ModelTree_plain_left_click
+        disabled = self.sameAsCurrentView()
+        menu_spec.append( (text, command, disabled and 'disabled' or None) )
+        
+        # Replace saved view with current view
+        
+        text = "Replace '%s' with the current view" % (self.name,)
+            # (fyi, I don't know how to include bold text here, or whether it's possible)
+        command = self._replace_saved_view_with_current_view
+        disabled = self.sameAsCurrentView()
+        menu_spec.append( (text, command, disabled and 'disabled' or None) )
+
+        # Return to previous view (NIM) [mark 060122]
+        
+        # @note: This is very helpful when the user accidentally clicks
+        # a Named View node and needs an easy way to restore the previous view.
+        
+        if 0:
+            text = "Return to previous View"
+            command = self.restore_previous_view
+            disabled = True # should be: disabled if no previous view is available
+            menu_spec.append( (text, command, disabled and 'disabled' or None) )
+        
+        # Note: we could also add other items here instead of defining them in __CM methods.
+        # If they never need to be disabled, just use menu_spec.append( (text, command) ).
+        
+        return menu_spec
     
     def change_view(self): #mark 060122
         """
@@ -140,32 +190,14 @@ class NamedView(SimpleCopyMixin, Node):
         msg = 'Current view is "%s".' % (self.name)
         env.history.message( cmd + msg )
         
-    def __CM_Replace_with_this_View(self): #mark 060122
+    def _replace_saved_view_with_current_view(self): #bruce 080225 split this out
         """
-        This slot method replaces self's view with the current view.
-        
-        This also adds the menu item B{Replace with this View} to this
-        node's context menu.
-        
-        @note: This menu item should be disabled (which I beleive grays it out)
-        if the current view the the Named View are the same.
+        Replace self's saved view with the current view, if they differ.
         """
-        if self.sameAsCurrentView():
-            return
-        self.set_to_current_view()
-        
-    def __CM_Return_to_previous_View(self): #mark 060122
-        """
-        Return to the previous (last) view. 
-        
-        This also adds the menu item B{Return to previous View} to this
-        node's context menu.
-        
-        @note: This is very helpful when the user accidentally clicks
-        a Named View node and needs an easy way to restore the previous view.
-        """
-        self.restore_previous_view()
-    
+        if not self.sameAsCurrentView():
+            self._set_to_current_view()
+        return
+
     def restore_previous_view(self):
         """
         Restores the previous view.
@@ -175,15 +207,21 @@ class NamedView(SimpleCopyMixin, Node):
         print "Not implemented yet."
         return
     
-    def set_to_current_view(self): #mark 060122
+    def _set_to_current_view(self): #mark 060122
         """
-        Set self to current view.
+        Set self to current view, marks self.assy as changed,
+        and emits a history message. Intended for use on
+        user-visible Named View objects in the model tree.
+        Does not check whether self is already the current view
+        (for that, see self.sameAsCurrentView()).
+
+        @see: setToCurrentView, for use on internal view objects.
         """
-        self.scale = self.assy.o.scale
-        self.pov = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
-        self.zoomFactor = self.assy.o.zoomFactor
-        self.quat = Q(self.assy.o.quat)
-        self.assy.changed() ###e we should make this check whether it really changed? (or will Undo do that??)
+        #bruce 080225 revised this to remove duplicated code,
+        # made it private, revised related docstrings
+        self.setToCurrentView( self.assy.glpane)
+        self.assy.changed()
+            # maybe: make this check whether it really changed (or will Undo do that?)
         
         cmd = greenmsg("Set View: ")
         msg = 'View "%s" now set to the current view.' % (self.name)
@@ -199,7 +237,11 @@ class NamedView(SimpleCopyMixin, Node):
 
     def setToCurrentView(self, glpane):
         """
-        Save the current view in self.
+        Save the current view in self, but don't mark self.assy as changed
+        or emit any history messages. Can be called directly on internal
+        view objects (e.g. glpane.HomeView), or as part of the implementation
+        of replacing self with the current view for user-visible Named View
+        objects in the model tree.
         
         @param glpane: the 3D graphics area.
         @type  glpane: L{GLPane)
@@ -211,38 +253,37 @@ class NamedView(SimpleCopyMixin, Node):
         self.pov = V(glpane.pov[0], glpane.pov[1], glpane.pov[2])
         self.zoomFactor = glpane.zoomFactor
         
-    def sameAsCurrentView(self, view = None): # (not presently used as of 080213)
+    def sameAsCurrentView(self, view = None):
         """
         Tests if self is the same as I{view}, or the current view if I{view}
         is None (the default).
         
-        @param view: A named view to compare with self. If None (the default)
+        @param view: A named view to compare with self. If None (the default),
                      self is compared to the current view (i.e. the 3D graphics
                      area).
         @type  view: L{NamedView}
         
         @return: True if they are the same. Otherwise, returns False.
         @rtype:  boolean
-        
-        @note: I'm guessing this could be rewritten to be more 
-        efficient/concise. For example, it seems possible to implement 
-        this using a simple conditional like this:
-               
-        if self == view:
-           return True
-        else:
-           return False
-        
-        It occurs to me that the GPLane class should use a NamedView attr 
-        along with (or in place of) quat, scale, pov and zoomFactor attrs.
-        That would make this method (and possibly other code) easier to 
-        write and understand.
-        
-        Ask Bruce about all this.
-        
-        BTW, this code was originally copied/borrowed from 
-        GLPane.animateToView(). Mark 2008-02-03.
-        """ 
+        """
+        # Note: I'm guessing this could be rewritten to be more 
+        # efficient/concise. For example, it seems possible to implement 
+        # this using a simple conditional like this:
+        #        
+        # if self == view:
+        #    return True
+        # else:
+        #    return False
+        # 
+        # It occurs to me that the GPLane class should use a NamedView attr 
+        # along with (or in place of) quat, scale, pov and zoomFactor attrs.
+        # That would make this method (and possibly other code) easier to 
+        # write and understand.
+        # 
+        # Ask Bruce about all this.
+        # 
+        # BTW, this code was originally copied/borrowed from 
+        # GLPane.animateToView(). Mark 2008-02-03.
     
         # Make copies of self parameters.
         q1 = Q(self.quat)
@@ -250,20 +291,19 @@ class NamedView(SimpleCopyMixin, Node):
         p1 = V(self.pov[0], self.pov[1], self.pov[2])
         z1 = self.zoomFactor
         
-        if view:
-            # Copy the view parameters (for comparison).
-            q2 = Q(view.quat)
-            s2 = view.scale
-            p2 = V(view.pov[0], view.pov[1], view.pov[2])
-            z2 = view.zoomFactor 
-        else:
-            # Copy the current view parameters of the 3D graphics area.
-            q2 = Q(self.assy.o.quat)
-            s2 = self.assy.o.scale
-            p2 = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
-            z2 = self.assy.o.zoomFactor 
+        if view is None:
+            # use the graphics area in which self is displayed
+            # (usually the main 3D graphics area; code in this class
+            #  has not been reviewed for working in other GLPane_minimal instances)
+            view = self.assy.glpane
+        
+        # Copy the parameters of view for comparison
+        q2 = Q(view.quat)
+        s2 = view.scale
+        p2 = V(view.pov[0], view.pov[1], view.pov[2])
+        z2 = view.zoomFactor
 
-        # Compute the deltas.
+        # Compute the deltas
         deltaq = q2 - q1
         deltap = vlen(p2 - p1)
         deltas = abs(s2 - s1)

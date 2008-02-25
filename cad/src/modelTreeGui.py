@@ -285,7 +285,7 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
         """
         raise Exception('overload me')
 
-    def MT_plain_left_click(self): #bruce 080213 addition to Node API
+    def ModelTree_plain_left_click(self): #bruce 080213 addition to Node API
         """
         Do desired extra side effects (if any) from a plain, direct left click
         in a model tree widget (after the usual effect of self.pick, which can
@@ -1263,7 +1263,7 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             # [new feature, bruce 080213]
             assert item.node
             try:
-                item.node.MT_plain_left_click
+                item.node.ModelTree_plain_left_click
             except AttributeError:
                 pass # soon, this should never happen
             else:
@@ -1274,7 +1274,7 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
                     # (But we will still do it again below, in case something
                     #  changed during a long op here (this is ok since it
                     #  should be fast if nothing changed).
-                item.node.MT_plain_left_click()
+                item.node.ModelTree_plain_left_click()
             pass
             
         if DEBUG:

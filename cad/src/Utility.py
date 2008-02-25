@@ -896,7 +896,7 @@ class Node( StateMixin):
         # we no longer call mode.UpdateDashboard() from here;
         # clipboard selection no longer affects Build mode dashboard. [bruce 050124]
 
-    def MT_plain_left_click(self): #bruce 080213 addition to Node API
+    def ModelTree_plain_left_click(self): #bruce 080213 addition to Node API
         """
         Subclasses which want side effects from a plain, direct left click
         in a model tree widget (after the usual effect of self.pick)
@@ -906,6 +906,23 @@ class Node( StateMixin):
         selecting a Group, select all, context menu, or even Undo.)
         """
         pass
+
+    def ModelTree_context_menu_section(self): #bruce 080225 addition to Node API
+        """
+        Return a menu_spec list to be included in the Model Tree's context
+        menu for this node, when this is the only selected node
+        (which implies the context menu is specifically for this node).
+
+        Default implementation returns []. Subclasses which want to extend this
+        should in most cases first call the superclass version of this method,
+        and then append their menu item tuples to the end of the list it returns,
+        and return that. But in principle they could prepend or insert new items
+        between specific items in the superclass value, or even remove superclass
+        items, add wrappers to their methods, etc.
+
+        @see: makemenu_helper, for documentation of the menu_spec format.
+        """
+        return []
     
     def unpick(self):
         """

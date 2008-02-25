@@ -585,7 +585,10 @@ class modelTree(modelTreeGui.Ne1Model_api):
             if node.rename_enabled():
                 res.append(("Rename node...", self.cmRenameNode)) ##k should it be called node or item in this menu text?
 
-        # subsection of menu (not a submenu unless they specify one) for node-class-specific menu items, when exactly one node
+        # subsection of menu (not a submenu unless they specify one)
+        # for node-class-specific menu items, when exactly one node
+        # (old way, based on methodnames that start with __CM;
+        #  and new better way, using Node method ModelTree_context_menu_section)
         if len(nodeset) == 1:
             node = nodeset[0]
             submenu = []
@@ -627,6 +630,21 @@ class modelTree(modelTreeGui.Ne1Model_api):
             if submenu:
                 ## res.append(( 'other', submenu )) #e improve submenu name, ordering, location
                 res.extend(submenu) # changed append to extend -- Mark and Bruce at Retreat 050621
+            
+            # new system, used in addition to __CM above (preferred in new code):
+            # [bruce 080225]
+            try:
+                submenu = node.ModelTree_context_menu_section()
+                assert submenu is not None # catch a likely possible error specifically
+                assert type(submenu) is type([]) # it should be a menu_spec list
+            except:
+                print_compact_traceback("exception ignored in %r.%s() " \
+                                        "or in checking its result: " % \
+                                        (node, 'ModelTree_context_menu_section'))
+                submenu = []
+            if submenu:
+                res.extend(submenu)
+            pass
 
         # Customize command [bruce 050602 experiment -- unfinished and commented out ###@@@]
         # [later comment, bruce 050704: I think this was intended to suggest PrefsNodes applicable to the selected item or items,
