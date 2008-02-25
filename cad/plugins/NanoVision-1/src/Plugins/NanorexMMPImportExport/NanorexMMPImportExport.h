@@ -24,32 +24,6 @@ using namespace Nanorex;
 
 namespace Nanorex {
 
-#if 0
-/* CLASS: NXRagelFilePtr */
-/**
- * Behaves like a char* but actually sequentially accesses a file.
- * This is to fool Ragel into thinking that it is accessing a char[] with
- * MMP strings to be parsed. Implements just enough methods to be compatible
- * with Ragel v5.25
- */
-
-class NXRagelFilePtr {
-public:
-    RagelFilePtr(char const *const filename)
-        : infile(filename, std::ios::in) , c('\0')
-    { if(infile) c = infile.peek(); }
-    ~RagelFilePtr() { if(infile.is_open()) infile.close(); }
-      // allow advancement or pointer
-    ragelfile_ptr& operator += (int n)
-    { for(int i=0;i<n;++i) infile.get(c); return *this;}
-      // allow access to current character
-    char operator * () { return c; }
-private:
-    std::ifstream infile;
-    char c;
-};
-#endif
-
 
 /* CLASS: NanorexMMPImportExport */
 class NanorexMMPImportExport : public QObject, public NXDataImportExportPlugin

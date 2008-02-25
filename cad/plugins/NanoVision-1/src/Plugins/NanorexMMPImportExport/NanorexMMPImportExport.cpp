@@ -9,11 +9,16 @@
 
 #define VERBOSE
 
-#ifdef VERBOSE
-#define CDEBUG(x) { \
-    ostringstream msg; \
-    msg << filename << ':' << line << ": " << (x) << endl; \
-    NXLOG_DEBUG("NanorexMMPImportExport::readMMP", msg.str().c_str()); \
+#if defined(VERBOSE)
+#define CDEBUG(x) DEBUG_MSG(filename, line, x)
+inline void DEBUG_MSG(string const& filename, int line, string const& s)
+{
+    ostringstream msg;
+    msg << line << ": " << s;
+    NXLOG_INFO(filename, msg.str());
+/*    Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance();
+    if (logger != 0)
+        logger->log(Nanorex::NXLogLevel_Info, filename, msg.str());*/
 }
 #else
 #define CDEBUG(x)
@@ -22,12 +27,12 @@
 
 
 
-#line 254 "NanorexMMPImportExport.rl"
+#line 270 "NanorexMMPImportExport.rl"
 
 
-#line 258 "NanorexMMPImportExport.rl"
+#line 274 "NanorexMMPImportExport.rl"
 
-#line 31 "NanorexMMPImportExport.cpp"
+#line 36 "NanorexMMPImportExport.cpp"
 static const char _mmp_parser_actions[] = {
 	0, 1, 0, 1, 1, 1, 3, 1, 
 	4, 1, 5, 1, 6, 1, 7, 1, 
@@ -424,7 +429,7 @@ static const int mmp_parser_en_group_record = 129;
 static const int mmp_parser_en_egroup_record = 135;
 static const int mmp_parser_en_main = 136;
 
-#line 259 "NanorexMMPImportExport.rl"
+#line 275 "NanorexMMPImportExport.rl"
 
 
 // static data
@@ -470,12 +475,12 @@ void NanorexMMPImportExport::reset(void)
     
     // initialize the ragel engine
     
-#line 474 "NanorexMMPImportExport.cpp"
+#line 479 "NanorexMMPImportExport.cpp"
 	{
 	cs = mmp_parser_start;
 	top = 0;
 	}
-#line 304 "NanorexMMPImportExport.rl"
+#line 320 "NanorexMMPImportExport.rl"
 }
 
 
@@ -530,7 +535,7 @@ bool NanorexMMPImportExport::readMMP(istream& instream,
     // Ragel parser implementation
     bool success = true;
     
-#line 534 "NanorexMMPImportExport.cpp"
+#line 539 "NanorexMMPImportExport.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -605,80 +610,81 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 1:
-#line 34 "NanorexMMPImportExport.rl"
+#line 39 "NanorexMMPImportExport.rl"
 	{intval = intval*10 + ((*p)-'0');}
 	break;
 	case 2:
-#line 37 "NanorexMMPImportExport.rl"
+#line 42 "NanorexMMPImportExport.rl"
 	{intval=-intval;}
 	break;
 	case 4:
-#line 46 "NanorexMMPImportExport.rl"
+#line 51 "NanorexMMPImportExport.rl"
 	{stringval = stringval + (*p); }
 	break;
 	case 6:
-#line 51 "NanorexMMPImportExport.rl"
+#line 56 "NanorexMMPImportExport.rl"
 	{stringval2 = stringval2 + (*p); }
 	break;
 	case 7:
-#line 56 "NanorexMMPImportExport.rl"
+#line 61 "NanorexMMPImportExport.rl"
 	{atomID = intval;}
 	break;
 	case 8:
-#line 57 "NanorexMMPImportExport.rl"
+#line 62 "NanorexMMPImportExport.rl"
 	{atomicNum = intval;}
 	break;
 	case 9:
-#line 60 "NanorexMMPImportExport.rl"
+#line 65 "NanorexMMPImportExport.rl"
 	{ x=intval;}
 	break;
 	case 10:
-#line 61 "NanorexMMPImportExport.rl"
+#line 66 "NanorexMMPImportExport.rl"
 	{ y=intval;}
 	break;
 	case 11:
-#line 62 "NanorexMMPImportExport.rl"
+#line 67 "NanorexMMPImportExport.rl"
 	{ z=intval;}
 	break;
 	case 12:
-#line 65 "NanorexMMPImportExport.rl"
+#line 70 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::DEF;}
 	break;
 	case 13:
-#line 66 "NanorexMMPImportExport.rl"
+#line 71 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::INV;}
 	break;
 	case 14:
-#line 67 "NanorexMMPImportExport.rl"
+#line 72 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::VDW;}
 	break;
 	case 15:
-#line 68 "NanorexMMPImportExport.rl"
+#line 73 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::LIN;}
 	break;
 	case 16:
-#line 69 "NanorexMMPImportExport.rl"
+#line 74 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::CPK;}
 	break;
 	case 17:
-#line 70 "NanorexMMPImportExport.rl"
+#line 75 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::TUB;}
 	break;
 	case 18:
-#line 82 "NanorexMMPImportExport.rl"
+#line 87 "NanorexMMPImportExport.rl"
 	{
             ++line;
             if(molPtr != NULL) {
-                map<int,OBAtom*>::iterator atomExistsQuery = foundAtomList.find(atomID);
+                map<int,OBAtom*>::iterator atomExistsQuery = 
+                    foundAtomList.find(atomID);
                 // guard against duplicates
-                // also a hack to protect against Ragel's duplicate parsing when encountering a blank line
+                // also a hack to protect against Ragel's duplicate
+                // parsing when encountering a blank line
                 if(atomExistsQuery == foundAtomList.end()) {
                     // atom was not previously encountered, include
                     ostringstream msg;
-                    msg << filename << ':' << line << ": "
-                        << etab.GetSymbol(atomicNum)
-                        << " atom with index " << atomID << endl;
-                    CDEBUG(msg.str());
+                    msg << etab.GetSymbol(atomicNum)
+                        << " atom with index " << atomID;
+                    CDEBUG(msg.str().c_str());
                     atomPtr = molPtr->NewAtom();
                     NXAtomData *atomIDData = new NXAtomData;
                     atomIDData->SetIdx(atomID);
@@ -693,64 +699,69 @@ _match:
         }
 	break;
 	case 19:
-#line 112 "NanorexMMPImportExport.rl"
+#line 118 "NanorexMMPImportExport.rl"
 	{bond_order=1;}
 	break;
 	case 20:
-#line 113 "NanorexMMPImportExport.rl"
+#line 119 "NanorexMMPImportExport.rl"
 	{bond_order=2;}
 	break;
 	case 21:
-#line 114 "NanorexMMPImportExport.rl"
+#line 120 "NanorexMMPImportExport.rl"
 	{bond_order=3;}
 	break;
 	case 22:
-#line 115 "NanorexMMPImportExport.rl"
+#line 121 "NanorexMMPImportExport.rl"
 	{bond_order=4;}
 	break;
 	case 23:
-#line 116 "NanorexMMPImportExport.rl"
+#line 122 "NanorexMMPImportExport.rl"
 	{bond_order=5;}
 	break;
 	case 24:
-#line 117 "NanorexMMPImportExport.rl"
+#line 123 "NanorexMMPImportExport.rl"
 	{bond_order=6;}
 	break;
 	case 25:
-#line 120 "NanorexMMPImportExport.rl"
+#line 126 "NanorexMMPImportExport.rl"
 	{
             int const& targetAtomIdx = intval;
-            map<int,OBAtom*>::iterator targetAtomExistsQuery = foundAtomList.find(targetAtomIdx);
+            map<int,OBAtom*>::iterator targetAtomExistsQuery =
+                foundAtomList.find(targetAtomIdx);
             if(targetAtomExistsQuery == foundAtomList.end()) {
                 ostringstream errMsg;
-                errMsg << "**ERROR** attempting to bond to non-existent atomID " << targetAtomIdx;
+                errMsg << "**ERROR** attempting to bond to non-existent atomID "
+                       << targetAtomIdx;
                 CDEBUG(errMsg.str());
             }
             else {
                 OBAtom *targetAtomPtr = foundAtomList[targetAtomIdx];
                 // guard against duplicates
-                // also a hack to protect against Ragel's duplicate parsing when encountering a blank line
+                // also a hack to protect against Ragel's duplicate parsing
+                // when encountering a blank line
                 if(molPtr->GetBond(atomPtr, targetAtomPtr) == NULL) {
                     // bond was not previously encountered, include
                     ostringstream msg;
-                    msg << "bonding atom #" << atomPtr->GetIdx() << " to atom #" << targetAtomPtr->GetIdx();
+                    msg << "bonding atom #" << atomPtr->GetIdx() << " to atom #"
+                        << targetAtomPtr->GetIdx();
                     CDEBUG(msg.str());
                     targetAtomList.push_back(targetAtomPtr);
                 }
                 else {
                     ostringstream msg;
-                    msg << "bond to atom #" << targetAtomIdx << " already exists";
+                    msg << "bond to atom #" << targetAtomIdx
+                        << " already exists";
                     CDEBUG(msg.str());
                 }
             }
         }
 	break;
 	case 26:
-#line 150 "NanorexMMPImportExport.rl"
+#line 161 "NanorexMMPImportExport.rl"
 	{ CDEBUG("clearing targetAtomList"); targetAtomList.clear(); }
 	break;
 	case 27:
-#line 154 "NanorexMMPImportExport.rl"
+#line 165 "NanorexMMPImportExport.rl"
 	{
             ++line;
             {
@@ -778,7 +789,7 @@ _match:
         }
 	break;
 	case 28:
-#line 187 "NanorexMMPImportExport.rl"
+#line 201 "NanorexMMPImportExport.rl"
 	{
             ++line;
             createNewMolecule();
@@ -792,24 +803,25 @@ _match:
         }
 	break;
 	case 29:
-#line 202 "NanorexMMPImportExport.rl"
+#line 217 "NanorexMMPImportExport.rl"
 	{  {
                           ostringstream msg;
-                          msg << "atom-property: " << stringval << " = " << stringval2;
+                          msg << "atom-property: " << stringval
+                              << " = " << stringval2;
                           CDEBUG(msg.str());
                       }
                           applyAtomType(stringval, stringval2);
                       }
 	break;
 	case 30:
-#line 211 "NanorexMMPImportExport.rl"
+#line 227 "NanorexMMPImportExport.rl"
 	{
             ++line;
             {cs = stack[--top]; goto _again;}
         }
 	break;
 	case 31:
-#line 218 "NanorexMMPImportExport.rl"
+#line 234 "NanorexMMPImportExport.rl"
 	{
             ++line;
             createNewMoleculeSet();
@@ -822,7 +834,7 @@ _match:
         }
 	break;
 	case 32:
-#line 232 "NanorexMMPImportExport.rl"
+#line 248 "NanorexMMPImportExport.rl"
 	{
             ++line;
             closeMoleculeSet();
@@ -830,42 +842,42 @@ _match:
         }
 	break;
 	case 33:
-#line 241 "NanorexMMPImportExport.rl"
+#line 257 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 129; goto _again;}}
 	break;
 	case 34:
-#line 242 "NanorexMMPImportExport.rl"
+#line 258 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 135; goto _again;}}
 	break;
 	case 35:
-#line 243 "NanorexMMPImportExport.rl"
+#line 259 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 98; goto _again;}}
 	break;
 	case 36:
-#line 244 "NanorexMMPImportExport.rl"
+#line 260 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 40; goto _again;}}
 	break;
 	case 37:
-#line 245 "NanorexMMPImportExport.rl"
+#line 261 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 88; goto _again;}}
 	break;
 	case 38:
-#line 246 "NanorexMMPImportExport.rl"
+#line 262 "NanorexMMPImportExport.rl"
 	{++line;{stack[top++] = cs; cs = 118; goto _again;}}
 	break;
 	case 39:
-#line 247 "NanorexMMPImportExport.rl"
+#line 263 "NanorexMMPImportExport.rl"
 	{++line; CDEBUG("comment"); }
 	break;
 	case 40:
-#line 248 "NanorexMMPImportExport.rl"
+#line 264 "NanorexMMPImportExport.rl"
 	{++line; CDEBUG("ignored"); }
 	break;
 	case 41:
-#line 251 "NanorexMMPImportExport.rl"
+#line 267 "NanorexMMPImportExport.rl"
 	{success = false;}
 	break;
-#line 869 "NanorexMMPImportExport.cpp"
+#line 881 "NanorexMMPImportExport.cpp"
 		}
 	}
 
@@ -875,18 +887,18 @@ _again:
 	while ( _nacts-- > 0 ) {
 		switch ( *_acts++ ) {
 	case 0:
-#line 33 "NanorexMMPImportExport.rl"
+#line 38 "NanorexMMPImportExport.rl"
 	{intval=0;}
 	break;
 	case 3:
-#line 45 "NanorexMMPImportExport.rl"
+#line 50 "NanorexMMPImportExport.rl"
 	{stringval.clear(); stringval = stringval + (*p);}
 	break;
 	case 5:
-#line 50 "NanorexMMPImportExport.rl"
+#line 55 "NanorexMMPImportExport.rl"
 	{stringval2.clear();  stringval2 = stringval2 + (*p);}
 	break;
-#line 890 "NanorexMMPImportExport.cpp"
+#line 902 "NanorexMMPImportExport.cpp"
 		}
 	}
 
@@ -902,25 +914,25 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 39:
-#line 247 "NanorexMMPImportExport.rl"
+#line 263 "NanorexMMPImportExport.rl"
 	{++line; CDEBUG("comment"); }
 	break;
 	case 40:
-#line 248 "NanorexMMPImportExport.rl"
+#line 264 "NanorexMMPImportExport.rl"
 	{++line; CDEBUG("ignored"); }
 	break;
 	case 41:
-#line 251 "NanorexMMPImportExport.rl"
+#line 267 "NanorexMMPImportExport.rl"
 	{success = false;}
 	break;
-#line 917 "NanorexMMPImportExport.cpp"
+#line 929 "NanorexMMPImportExport.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 358 "NanorexMMPImportExport.rl"
+#line 374 "NanorexMMPImportExport.rl"
     
     // End-of-parsing sanity checks
     if(molSetPtrStack.size() != 1) {
@@ -1053,8 +1065,8 @@ void NanorexMMPImportExport::PrintMolecule(ostream& o,
           << ") " << GetAtomRenderStyleName(atomPtr) << endl;
         
         if(atomPtr->GetHyb() != 0) {
-            cout << "info atom atomtype = "
-                 << _s_hybridizationName[atomPtr->GetHyb()] << endl;
+            o << "info atom atomtype = "
+              << _s_hybridizationName[atomPtr->GetHyb()] << endl;
         }
         
         // ... write the 'bond' lines for this atom ...
@@ -1146,7 +1158,7 @@ NanorexMMPImportExport::populateCommandResult (NXCommandResult* result,
 {
     result->setResult(NX_PLUGIN_REPORTS_ERROR);
     vector<QString> resultVector;
-    resultVector.push_back("NanorexMMPImportExport");
+    resultVector.push_back("OpenBabelImportExport");
     resultVector.push_back(message.c_str());
     result->setParamVector(resultVector);
 }

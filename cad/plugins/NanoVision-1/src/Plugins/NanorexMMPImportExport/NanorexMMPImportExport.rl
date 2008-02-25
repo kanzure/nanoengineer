@@ -5,14 +5,20 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include "NanorexMMPImportExport.h"
+#include <QFileInfo>
 
 #define VERBOSE
 
-#ifdef VERBOSE
-#define CDEBUG(x) { \
-    ostringstream msg; \
-    msg << filename << ':' << line << ": " << (x) << endl; \
-    NXLOG_DEBUG("NanorexMMPImportExport::readMMP", msg.str().c_str()); \
+#if defined(VERBOSE)
+#define CDEBUG(x) DEBUG_MSG(filename, line, x)
+inline void DEBUG_MSG(string const& filename, int line, string const& s)
+{
+    ostringstream msg;
+    msg << line << ": " << s;
+    NXLOG_INFO(filename, msg.str());
+/*    Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance();
+    if (logger != 0)
+        logger->log(Nanorex::NXLogLevel_Info, filename, msg.str());*/
 }
 #else
 #define CDEBUG(x)
@@ -82,16 +88,17 @@ atom_record :=
         @{
             ++line;
             if(molPtr != NULL) {
-                map<int,OBAtom*>::iterator atomExistsQuery = foundAtomList.find(atomID);
+                map<int,OBAtom*>::iterator atomExistsQuery = 
+                    foundAtomList.find(atomID);
                 // guard against duplicates
-                // also a hack to protect against Ragel's duplicate parsing when encountering a blank line
+                // also a hack to protect against Ragel's duplicate
+                // parsing when encountering a blank line
                 if(atomExistsQuery == foundAtomList.end()) {
                     // atom was not previously encountered, include
                     ostringstream msg;
-                    msg << filename << ':' << line << ": "
-                        << etab.GetSymbol(atomicNum)
-                        << " atom with index " << atomID << endl;
-                    CDEBUG(msg.str());
+                    msg << etab.GetSymbol(atomicNum)
+                        << " atom with index " << atomID;
+                    CDEBUG(msg.str().c_str());
                     atomPtr = molPtr->NewAtom();
                     NXAtomData *atomIDData = new NXAtomData;
                     atomIDData->SetIdx(atomID);
@@ -119,26 +126,31 @@ atom_record :=
         whole_number
         %{
             int const& targetAtomIdx = intval;
-            map<int,OBAtom*>::iterator targetAtomExistsQuery = foundAtomList.find(targetAtomIdx);
+            map<int,OBAtom*>::iterator targetAtomExistsQuery =
+                foundAtomList.find(targetAtomIdx);
             if(targetAtomExistsQuery == foundAtomList.end()) {
                 ostringstream errMsg;
-                errMsg << "**ERROR** attempting to bond to non-existent atomID " << targetAtomIdx;
+                errMsg << "**ERROR** attempting to bond to non-existent atomID "
+                       << targetAtomIdx;
                 CDEBUG(errMsg.str());
             }
             else {
                 OBAtom *targetAtomPtr = foundAtomList[targetAtomIdx];
                 // guard against duplicates
-                // also a hack to protect against Ragel's duplicate parsing when encountering a blank line
+                // also a hack to protect against Ragel's duplicate parsing
+                // when encountering a blank line
                 if(molPtr->GetBond(atomPtr, targetAtomPtr) == NULL) {
                     // bond was not previously encountered, include
                     ostringstream msg;
-                    msg << "bonding atom #" << atomPtr->GetIdx() << " to atom #" << targetAtomPtr->GetIdx();
+                    msg << "bonding atom #" << atomPtr->GetIdx() << " to atom #"
+                        << targetAtomPtr->GetIdx();
                     CDEBUG(msg.str());
                     targetAtomList.push_back(targetAtomPtr);
                 }
                 else {
                     ostringstream msg;
-                    msg << "bond to atom #" << targetAtomIdx << " already exists";
+                    msg << "bond to atom #" << targetAtomIdx
+                        << " already exists";
                     CDEBUG(msg.str());
                 }
             }
@@ -183,7 +195,10 @@ bond_record :=
 # Read in molecule
     mol_style = ('def' | 'inv' | 'vdw' | 'cpk' | 'lin' | 'tub') ;
 #ignore molecule style for now
-mol_record := space+ '(' space*  charStringWithSpace  space* ')' space+ mol_style space* EOL
+mol_record := space+
+              '(' space*  charStringWithSpace  space* ')'
+              space+ mol_style space*
+              EOL
         @{
             ++line;
             createNewMolecule();
@@ -197,11 +212,13 @@ mol_record := space+ '(' space*  charStringWithSpace  space* ')' space+ mol_styl
         }
     ;
     
-# @todo - spaces allowed in keys and values but there should only be one pair per line?
+# @todo - spaces allowed in keys and values but there
+#         should only be one pair per line?
 info_atom_record := ( space+ charStringWithSpace space* '=' space* charStringWithSpace2
                       %{  {
                           ostringstream msg;
-                          msg << "atom-property: " << stringval << " = " << stringval2;
+                          msg << "atom-property: " << stringval
+                              << " = " << stringval2;
                           CDEBUG(msg.str());
                       }
                           applyAtomType(stringval, stringval2);
@@ -487,8 +504,8 @@ void NanorexMMPImportExport::PrintMolecule(ostream& o,
           << ") " << GetAtomRenderStyleName(atomPtr) << endl;
         
         if(atomPtr->GetHyb() != 0) {
-            cout << "info atom atomtype = "
-                 << _s_hybridizationName[atomPtr->GetHyb()] << endl;
+            o << "info atom atomtype = "
+              << _s_hybridizationName[atomPtr->GetHyb()] << endl;
         }
         
         // ... write the 'bond' lines for this atom ...

@@ -1,6 +1,14 @@
 #ifndef __RAGELISTREAMPTR_H__
 #define __RAGELISTREAMPTR_H__
 
+/* CLASS: RagelIstreamPtr */
+/**
+ * Behaves like a char* but actually sequentially accesses a file.
+ * This is to fool Ragel into thinking that it is accessing a char[].
+ * Implements just enough methods to be compatible with Ragel v6.0.
+ */
+
+
 class RagelIstreamPtr {
 public:
     RagelIstreamPtr() {}
