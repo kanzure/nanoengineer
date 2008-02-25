@@ -210,6 +210,11 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         #  the graphics-related attrs of self, in the mixed case, but are
         #  referred to as self.graphicsMode.attr so this will work in the split
         #  case as well), which is a kluge.)
+        
+        #Initialize the flag often used in leftDrag methods of the subclasses
+        #to avoid any attr errors. Note that this flag will often be reset in
+        #self.reset_frag_vars()
+        self.cursor_over_when_LMB_pressed = None
         return    
     
     def reset_drag_vars(self):
