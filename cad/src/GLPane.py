@@ -122,7 +122,6 @@ except:
 from geometry.VQT import V, Q, A, norm, vlen
 from Numeric import dot
 import drawer
-import drawRulers
 
 # note: the list of preloaded_command_classes for the Command Sequencer
 # has been moved from here (where it didn't belong) to a new file,
@@ -143,6 +142,7 @@ import env
 from changes import SubUsageTrackingMixin
 
 from DynamicTip import DynamicTip
+from Guides import Guides
 
 from state_utils import transclose
 
@@ -523,6 +523,9 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
 
         self.dynamicToolTip = DynamicTip(self)
+        
+        # Guides include rulers and soon, grid lines. Mark 2008-02-24.
+        self.guides = Guides(self) 
 
         self.add_whats_this_text()
 
@@ -3166,7 +3169,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         # Draw ruler(s) if "View > Rulers" is checked.
         if env.prefs[displayRulers_prefs_key]:
             if (self.ortho or env.prefs[showRulersInPerspectiveView_prefs_key]):
-                drawRulers.drawRulers(self)
+                self.guides.draw()
         
         # draw the confirmation corner
         try:
