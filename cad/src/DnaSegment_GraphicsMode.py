@@ -51,6 +51,8 @@ from geometry.VQT import V, norm, A, Q, vlen
 from constants import darkred, blue, black
 from debug import print_compact_traceback
 
+from Select_GraphicsMode import DRAG_STICKINESS_LIMIT
+
 from chem import Atom
 from bonds import Bond
 
@@ -247,6 +249,10 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         """
         Method called during Left drag event. 
         """            
+        if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
+            # [let this happen even for drag_handlers -- bruce 060728]
+            return
+        
         #If there is a drag handler (e.g. a segment resize handle is being 
         #dragged, call its drag method and don't proceed further. 
         
@@ -261,7 +267,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         #So it doesn't get registered in the selectMovables list. Thats why 
         #we are not calling _superclass.leftDrag. The above mentioned 
         #method in the superclass needs to be revised -- Ninad 2008-02-01
-        
+    
         if self.drag_handler is not None:
             self.dragHandlerDrag(self.drag_handler, event)
             return
@@ -408,10 +414,9 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         """
         Draw the handles for the command.struct 
         """    
-        if self.command and self.command.struct:
-            if self.command.hasValidStructure():
-                for handle in self.command.handles:
-                    handle.draw()
+        if self.command and self.command.hasValidStructure():            
+            for handle in self.command.handles:
+                handle.draw()
         
         handleType = ''
         if self.command.grabbedHandle is not None:
