@@ -9,6 +9,8 @@ ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
     workspace(NULL), windowMapper(NULL), curFile(),
     entityManager(NULL), resultsTree(NULL),
     mmpFileIcon(tr(":/Icons/nanoENGINEER-1.ico")),
+    atomIcon(tr(":/Icons/atom.png")),
+    atomSetIcon(tr(":/Icons/atom_set.png")),
     inputParametersIcon(tr(":/Icons/input_parameters.png")),
     inputFilesIcon(tr(":/Icons/input_files.png")),
     inputFileIcon(tr(":/Icons/input_file.png")),
@@ -73,7 +75,7 @@ bool ResultsWindow::loadFile(const QString &fileName) {
         NXDataStoreInfo *dataStoreInfo = entityManager->getDataStoreInfo();
         
         // populate results tree
-        updateResultsTree(dataStoreInfo);
+        updateResultsTree();
         
         // Discover a store-not-complete trajectory frame set
         int trajId = dataStoreInfo->getTrajectoryId("frame-set-1");
@@ -108,23 +110,34 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 
 
 /* FUNCTION: updateResultsTree */
-void ResultsWindow::updateResultsTree(NXDataStoreInfo *dataStoreInfo)
+void ResultsWindow::updateResultsTree(void)
 {
-    // NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
+    NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
     // MMP or OpenBabel file import
     if(dataStoreInfo->isSingleStructure()) {
-        setupSingleStructureTree(dataStoreInfo);
+        setupSingleStructureTree();
     }
     // Simulation results import
     else if(dataStoreInfo->isSimulationResults()) {
-        setupSimulationResultsTree(dataStoreInfo);
+        setupSimulationResultsTree();
     }
 }
 
 
-/* FUNCTION: setupSimulationResultsTree */
-void ResultsWindow::setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo)
+/* FUNCTION: isMMPFile */
+bool ResultsWindow::isMMPFile(string const& filename)
 {
+    QFileInfo fileInfo(filename.c_str());
+    bool result =
+        (fileInfo.suffix().compare(tr("mmp"), Qt::CaseInsensitive) == 0);
+    return result;
+}
+
+
+/* FUNCTION: setupSimulationResultsTree */
+void ResultsWindow::setupSimulationResultsTree(void)
+{
+    NXDataStoreInfo *dataStoreInfo = entityManager->getDataStoreInfo();
     QWidget *tab1Widget = tabWidget->widget(0);
     resultsTree = dynamic_cast<QTreeWidget*>(tab1Widget);
     resultsTree->clear();
@@ -156,6 +169,10 @@ void ResultsWindow::setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo)
             inputFileItem->setText
 				(0, strippedName(QString(inputFileIter->c_str())));
             // inputFilesItem->addChild(inputFileItem);
+            
+            if(isMMPFile(*inputFileIter))
+                setupMoleculeSetResultsSubtree(inputFileItem);
+
         }
         
         resultsTree->addTopLevelItem(inputFilesItem);
@@ -203,9 +220,57 @@ void ResultsWindow::setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo)
 }
 
 
-/* FUNCTION: setupSingleStructureTree */
-void ResultsWindow::setupSingleStructureTree(NXDataStoreInfo *dataStoreInfo)
+/* FUNCTION: setupMoleculeSetResultsSubtree */
+void
+ResultsWindow::
+setupMoleculeSetResultsSubtree(QTreeWidgetItem *const mmpFileItem)
 {
+    NXDataStoreInfo *const dataStoreInfo = entityManager->getDataStoreInfo();
+    int frameSetID = dataStoreInfo->getSingleStructureId();
+    NXMoleculeSet *rootMoleculeSet = 
+        entityManager->getRootMoleculeSet(frameSetID, 0);
+    
+    setupMoleculeSetResultsSubtree_helper(rootMoleculeSet, mmpFileItem);
+}
+
+
+/* FUNCTION: setupMoleculeSetResultsSubtree_helper */
+void
+ResultsWindow::
+setupMoleculeSetResultsSubtree_helper(NXMoleculeSet *molSetPtr,
+                                      QTreeWidgetItem *const molSetItem)
+{
+    OBMolIterator molIter;
+    for(molIter = molSetPtr->moleculesBegin();
+        molIter != molSetPtr->moleculesEnd();
+        ++molIter)
+    {
+        OBMol *molPtr = *molIter;
+        QTreeWidgetItem *molItem = new QTreeWidgetItem(molSetItem);
+        molItem->setIcon(0,atomIcon);
+        molItem->setText(0, tr(molPtr->GetTitle()));
+    }
+    
+    NXMoleculeSetIterator childMolSetIter;
+    for(childMolSetIter = molSetPtr->childrenBegin();
+        childMolSetIter != molSetPtr->childrenEnd();
+        ++childMolSetIter)
+    {
+        NXMoleculeSet *childMolSetPtr = *childMolSetIter;
+        QTreeWidgetItem * childMolSetNode = new QTreeWidgetItem(molSetItem);
+        childMolSetNode->setIcon(0, atomSetIcon);
+        char const *const childMolSetTitle =
+            (childMolSetPtr->getTitle()).c_str();
+        childMolSetNode->setText(0, tr(childMolSetTitle));
+        setupMoleculeSetResultsSubtree_helper(childMolSetPtr, childMolSetNode);
+    }
+}
+
+
+/* FUNCTION: setupSingleStructureTree */
+void ResultsWindow::setupSingleStructureTree(void)
+{
+    NXDataStoreInfo *const dataStoreInfo = entityManager->getDataStoreInfo();
     QWidget *tab1Widget = tabWidget->widget(0);
     resultsTree = dynamic_cast<QTreeWidget*>(tab1Widget);
     resultsTree->clear();
@@ -221,6 +286,9 @@ void ResultsWindow::setupSingleStructureTree(NXDataStoreInfo *dataStoreInfo)
     resultsTree->addTopLevelItem(fileItem);
     QString const fileSuffix = fileInfo.suffix();
     resultsTree->setHeaderLabel(fileSuffix.toUpper() + " file");
+    
+    if(isMMPFile(singleStructureFileName))
+       setupMoleculeSetResultsSubtree(fileItem);
 }
 
 

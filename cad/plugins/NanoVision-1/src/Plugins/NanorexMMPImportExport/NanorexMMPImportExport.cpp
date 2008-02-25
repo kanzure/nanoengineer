@@ -6,6 +6,7 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include "NanorexMMPImportExport.h"
+#include <QFileInfo>
 
 #define VERBOSE
 
@@ -27,12 +28,12 @@ inline void DEBUG_MSG(string const& filename, int line, string const& s)
 
 
 
-#line 270 "NanorexMMPImportExport.rl"
+#line 271 "NanorexMMPImportExport.rl"
 
 
-#line 274 "NanorexMMPImportExport.rl"
+#line 275 "NanorexMMPImportExport.rl"
 
-#line 36 "NanorexMMPImportExport.cpp"
+#line 37 "NanorexMMPImportExport.cpp"
 static const char _mmp_parser_actions[] = {
 	0, 1, 0, 1, 1, 1, 3, 1, 
 	4, 1, 5, 1, 6, 1, 7, 1, 
@@ -429,7 +430,7 @@ static const int mmp_parser_en_group_record = 129;
 static const int mmp_parser_en_egroup_record = 135;
 static const int mmp_parser_en_main = 136;
 
-#line 275 "NanorexMMPImportExport.rl"
+#line 276 "NanorexMMPImportExport.rl"
 
 
 // static data
@@ -475,12 +476,12 @@ void NanorexMMPImportExport::reset(void)
     
     // initialize the ragel engine
     
-#line 479 "NanorexMMPImportExport.cpp"
+#line 480 "NanorexMMPImportExport.cpp"
 	{
 	cs = mmp_parser_start;
 	top = 0;
 	}
-#line 320 "NanorexMMPImportExport.rl"
+#line 321 "NanorexMMPImportExport.rl"
 }
 
 
@@ -535,7 +536,7 @@ bool NanorexMMPImportExport::readMMP(istream& instream,
     // Ragel parser implementation
     bool success = true;
     
-#line 539 "NanorexMMPImportExport.cpp"
+#line 540 "NanorexMMPImportExport.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -610,67 +611,67 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 1:
-#line 39 "NanorexMMPImportExport.rl"
+#line 40 "NanorexMMPImportExport.rl"
 	{intval = intval*10 + ((*p)-'0');}
 	break;
 	case 2:
-#line 42 "NanorexMMPImportExport.rl"
+#line 43 "NanorexMMPImportExport.rl"
 	{intval=-intval;}
 	break;
 	case 4:
-#line 51 "NanorexMMPImportExport.rl"
+#line 52 "NanorexMMPImportExport.rl"
 	{stringval = stringval + (*p); }
 	break;
 	case 6:
-#line 56 "NanorexMMPImportExport.rl"
+#line 57 "NanorexMMPImportExport.rl"
 	{stringval2 = stringval2 + (*p); }
 	break;
 	case 7:
-#line 61 "NanorexMMPImportExport.rl"
+#line 62 "NanorexMMPImportExport.rl"
 	{atomID = intval;}
 	break;
 	case 8:
-#line 62 "NanorexMMPImportExport.rl"
+#line 63 "NanorexMMPImportExport.rl"
 	{atomicNum = intval;}
 	break;
 	case 9:
-#line 65 "NanorexMMPImportExport.rl"
+#line 66 "NanorexMMPImportExport.rl"
 	{ x=intval;}
 	break;
 	case 10:
-#line 66 "NanorexMMPImportExport.rl"
+#line 67 "NanorexMMPImportExport.rl"
 	{ y=intval;}
 	break;
 	case 11:
-#line 67 "NanorexMMPImportExport.rl"
+#line 68 "NanorexMMPImportExport.rl"
 	{ z=intval;}
 	break;
 	case 12:
-#line 70 "NanorexMMPImportExport.rl"
+#line 71 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::DEF;}
 	break;
 	case 13:
-#line 71 "NanorexMMPImportExport.rl"
+#line 72 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::INV;}
 	break;
 	case 14:
-#line 72 "NanorexMMPImportExport.rl"
+#line 73 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::VDW;}
 	break;
 	case 15:
-#line 73 "NanorexMMPImportExport.rl"
+#line 74 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::LIN;}
 	break;
 	case 16:
-#line 74 "NanorexMMPImportExport.rl"
+#line 75 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::CPK;}
 	break;
 	case 17:
-#line 75 "NanorexMMPImportExport.rl"
+#line 76 "NanorexMMPImportExport.rl"
 	{atomStyleID = NXAtomData::TUB;}
 	break;
 	case 18:
-#line 87 "NanorexMMPImportExport.rl"
+#line 88 "NanorexMMPImportExport.rl"
 	{
             ++line;
             if(molPtr != NULL) {
@@ -699,31 +700,31 @@ _match:
         }
 	break;
 	case 19:
-#line 118 "NanorexMMPImportExport.rl"
+#line 119 "NanorexMMPImportExport.rl"
 	{bond_order=1;}
 	break;
 	case 20:
-#line 119 "NanorexMMPImportExport.rl"
+#line 120 "NanorexMMPImportExport.rl"
 	{bond_order=2;}
 	break;
 	case 21:
-#line 120 "NanorexMMPImportExport.rl"
+#line 121 "NanorexMMPImportExport.rl"
 	{bond_order=3;}
 	break;
 	case 22:
-#line 121 "NanorexMMPImportExport.rl"
+#line 122 "NanorexMMPImportExport.rl"
 	{bond_order=4;}
 	break;
 	case 23:
-#line 122 "NanorexMMPImportExport.rl"
+#line 123 "NanorexMMPImportExport.rl"
 	{bond_order=5;}
 	break;
 	case 24:
-#line 123 "NanorexMMPImportExport.rl"
+#line 124 "NanorexMMPImportExport.rl"
 	{bond_order=6;}
 	break;
 	case 25:
-#line 126 "NanorexMMPImportExport.rl"
+#line 127 "NanorexMMPImportExport.rl"
 	{
             int const& targetAtomIdx = intval;
             map<int,OBAtom*>::iterator targetAtomExistsQuery =
@@ -757,11 +758,11 @@ _match:
         }
 	break;
 	case 26:
-#line 161 "NanorexMMPImportExport.rl"
+#line 162 "NanorexMMPImportExport.rl"
 	{ CDEBUG("clearing targetAtomList"); targetAtomList.clear(); }
 	break;
 	case 27:
-#line 165 "NanorexMMPImportExport.rl"
+#line 166 "NanorexMMPImportExport.rl"
 	{
             ++line;
             {
@@ -789,7 +790,7 @@ _match:
         }
 	break;
 	case 28:
-#line 201 "NanorexMMPImportExport.rl"
+#line 202 "NanorexMMPImportExport.rl"
 	{
             ++line;
             createNewMolecule();
@@ -803,7 +804,7 @@ _match:
         }
 	break;
 	case 29:
-#line 217 "NanorexMMPImportExport.rl"
+#line 218 "NanorexMMPImportExport.rl"
 	{  {
                           ostringstream msg;
                           msg << "atom-property: " << stringval
@@ -814,14 +815,14 @@ _match:
                       }
 	break;
 	case 30:
-#line 227 "NanorexMMPImportExport.rl"
+#line 228 "NanorexMMPImportExport.rl"
 	{
             ++line;
             {cs = stack[--top]; goto _again;}
         }
 	break;
 	case 31:
-#line 234 "NanorexMMPImportExport.rl"
+#line 235 "NanorexMMPImportExport.rl"
 	{
             ++line;
             createNewMoleculeSet();
@@ -834,7 +835,7 @@ _match:
         }
 	break;
 	case 32:
-#line 248 "NanorexMMPImportExport.rl"
+#line 249 "NanorexMMPImportExport.rl"
 	{
             ++line;
             closeMoleculeSet();
@@ -842,42 +843,42 @@ _match:
         }
 	break;
 	case 33:
-#line 257 "NanorexMMPImportExport.rl"
+#line 258 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 129; goto _again;}}
 	break;
 	case 34:
-#line 258 "NanorexMMPImportExport.rl"
+#line 259 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 135; goto _again;}}
 	break;
 	case 35:
-#line 259 "NanorexMMPImportExport.rl"
+#line 260 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 98; goto _again;}}
 	break;
 	case 36:
-#line 260 "NanorexMMPImportExport.rl"
+#line 261 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 40; goto _again;}}
 	break;
 	case 37:
-#line 261 "NanorexMMPImportExport.rl"
+#line 262 "NanorexMMPImportExport.rl"
 	{{stack[top++] = cs; cs = 88; goto _again;}}
 	break;
 	case 38:
-#line 262 "NanorexMMPImportExport.rl"
+#line 263 "NanorexMMPImportExport.rl"
 	{++line;{stack[top++] = cs; cs = 118; goto _again;}}
 	break;
 	case 39:
-#line 263 "NanorexMMPImportExport.rl"
+#line 264 "NanorexMMPImportExport.rl"
 	{++line; CDEBUG("comment"); }
 	break;
 	case 40:
-#line 264 "NanorexMMPImportExport.rl"
+#line 265 "NanorexMMPImportExport.rl"
 	{++line; CDEBUG("ignored"); }
 	break;
 	case 41:
-#line 267 "NanorexMMPImportExport.rl"
+#line 268 "NanorexMMPImportExport.rl"
 	{success = false;}
 	break;
-#line 881 "NanorexMMPImportExport.cpp"
+#line 882 "NanorexMMPImportExport.cpp"
 		}
 	}
 
@@ -887,18 +888,18 @@ _again:
 	while ( _nacts-- > 0 ) {
 		switch ( *_acts++ ) {
 	case 0:
-#line 38 "NanorexMMPImportExport.rl"
+#line 39 "NanorexMMPImportExport.rl"
 	{intval=0;}
 	break;
 	case 3:
-#line 50 "NanorexMMPImportExport.rl"
+#line 51 "NanorexMMPImportExport.rl"
 	{stringval.clear(); stringval = stringval + (*p);}
 	break;
 	case 5:
-#line 55 "NanorexMMPImportExport.rl"
+#line 56 "NanorexMMPImportExport.rl"
 	{stringval2.clear();  stringval2 = stringval2 + (*p);}
 	break;
-#line 902 "NanorexMMPImportExport.cpp"
+#line 903 "NanorexMMPImportExport.cpp"
 		}
 	}
 
@@ -914,25 +915,25 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 39:
-#line 263 "NanorexMMPImportExport.rl"
+#line 264 "NanorexMMPImportExport.rl"
 	{++line; CDEBUG("comment"); }
 	break;
 	case 40:
-#line 264 "NanorexMMPImportExport.rl"
+#line 265 "NanorexMMPImportExport.rl"
 	{++line; CDEBUG("ignored"); }
 	break;
 	case 41:
-#line 267 "NanorexMMPImportExport.rl"
+#line 268 "NanorexMMPImportExport.rl"
 	{success = false;}
 	break;
-#line 929 "NanorexMMPImportExport.cpp"
+#line 930 "NanorexMMPImportExport.cpp"
 		}
 	}
 	}
 
 	_out: {}
 	}
-#line 374 "NanorexMMPImportExport.rl"
+#line 375 "NanorexMMPImportExport.rl"
     
     // End-of-parsing sanity checks
     if(molSetPtrStack.size() != 1) {
@@ -948,6 +949,7 @@ void NanorexMMPImportExport::createNewMoleculeSet(void)
 {
     if(molSetPtr != NULL) {
         NXMoleculeSet *newMolSetPtr = new NXMoleculeSet;
+        newMolSetPtr->setTitle(stringval);
         molSetPtr->addChild(newMolSetPtr);
         molSetPtrStack.push(newMolSetPtr);
         molSetPtr = newMolSetPtr;
@@ -1066,7 +1068,7 @@ void NanorexMMPImportExport::PrintMolecule(ostream& o,
         
         if(atomPtr->GetHyb() != 0) {
             o << "info atom atomtype = "
-              << _s_hybridizationName[atomPtr->GetHyb()] << endl;
+              << _s_hybridizationName[atomPtr->GetHyb()];
         }
         
         // ... write the 'bond' lines for this atom ...

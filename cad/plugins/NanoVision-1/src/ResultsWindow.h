@@ -53,6 +53,8 @@ private:
 	
     QTreeWidget *resultsTree;
     QIcon mmpFileIcon;
+    QIcon atomIcon;
+    QIcon atomSetIcon;
     QIcon inputParametersIcon;
     QIcon inputFilesIcon;
     QIcon inputFileIcon;
@@ -63,9 +65,14 @@ private:
     void setCurrentFile(const QString &fileName);
 	QString strippedName(const QString &fullFileName);
     
-    void updateResultsTree(NXDataStoreInfo *dataStoreInfo);
-    void setupSingleStructureTree(NXDataStoreInfo *dataStoreInfo);
-    void setupSimulationResultsTree(NXDataStoreInfo *dataStoreInfo);
+    bool isMMPFile(std::string const& filename);
+    
+    void updateResultsTree(void);
+    void setupSingleStructureTree(void);
+    void setupSimulationResultsTree(void);
+    void setupMoleculeSetResultsSubtree(QTreeWidgetItem *const mmpFileItem);
+    void setupMoleculeSetResultsSubtree_helper(NXMoleculeSet *molSetPtr,
+                                               QTreeWidgetItem *const molSetItem);
 };
 
 #endif

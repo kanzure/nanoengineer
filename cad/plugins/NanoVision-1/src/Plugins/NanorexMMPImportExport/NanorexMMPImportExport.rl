@@ -387,6 +387,7 @@ void NanorexMMPImportExport::createNewMoleculeSet(void)
 {
     if(molSetPtr != NULL) {
         NXMoleculeSet *newMolSetPtr = new NXMoleculeSet;
+        newMolSetPtr->setTitle(stringval);
         molSetPtr->addChild(newMolSetPtr);
         molSetPtrStack.push(newMolSetPtr);
         molSetPtr = newMolSetPtr;
@@ -505,7 +506,7 @@ void NanorexMMPImportExport::PrintMolecule(ostream& o,
         
         if(atomPtr->GetHyb() != 0) {
             o << "info atom atomtype = "
-              << _s_hybridizationName[atomPtr->GetHyb()] << endl;
+              << _s_hybridizationName[atomPtr->GetHyb()];
         }
         
         // ... write the 'bond' lines for this atom ...
