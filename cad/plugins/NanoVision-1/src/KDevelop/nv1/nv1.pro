@@ -24,11 +24,11 @@ SOURCES += ../../DataWindow.cpp \
 ../../MainWindowTabWidget.cpp \
 ../../nv1.cpp \
 ../../ResultsWindow.cpp \
-../../TrajectoryGraphicsPane.cpp \
 ../../ViewParametersWindow.cpp \
 ../../ErrorDialog.cpp \
 ../../JobManagement/GROMACS_JobMonitor.cpp \
-../../JobManagement/JobMonitor.cpp
+../../JobManagement/JobMonitor.cpp \
+ ../../TrajectoryGraphicsWindow.cpp
 
 HEADERS += ../../DataWindow.h \
 ../../LogHandlerWidget.h \
@@ -36,18 +36,18 @@ HEADERS += ../../DataWindow.h \
 ../../MainWindowTabWidget.h \
 ../../nv1.h \
 ../../ResultsWindow.h \
-../../TrajectoryGraphicsPane.h \
 ../../ViewParametersWindow.h \
 ../../ErrorDialog.h \
 ../../JobManagement/GROMACS_JobMonitor.h \
-../../JobManagement/JobMonitor.h
+../../JobManagement/JobMonitor.h \
+ ../../TrajectoryGraphicsWindow.h
 
 FORMS += ../../LogHandlerWidget.ui \
 ../../MainWindowTabWidget.ui \
 ../../ResultsWindow.ui \
-../../TrajectoryGraphicsPane.ui \
 ../../ViewParametersWindow.ui \
-../../ErrorDialog.ui
+../../ErrorDialog.ui \
+ ../../TrajectoryGraphicsWindow.ui
 
 RESOURCES += ../../application.qrc
 

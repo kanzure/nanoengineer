@@ -91,14 +91,14 @@ bool ResultsWindow::loadFile(const QString &fileName) {
         
 /*        // Discover a store-not-complete trajectory frame set
         int trajId = dataStoreInfo->getTrajectoryId("frame-set-1");
-        TrajectoryGraphicsPane* trajPane = new TrajectoryGraphicsPane();
+        TrajectoryGraphicsWindow* trajWindow = new TrajectoryGraphicsWindow();
         trajPane->setEntityManager(entityManager);
-        workspace->addWindow(trajPane);
-        trajPane->show();
+        workspace->addWindow(trajWindow);
+        trajWindow->show();
         if (!dataStoreInfo->storeIsComplete(trajId)) {
             QObject::connect(entityManager,
                                 SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
-                                trajPane,
+                                trajWindow,
                                 SLOT(newFrame(int, int, NXMoleculeSet*)));
         }*/
         

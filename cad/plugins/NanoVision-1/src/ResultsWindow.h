@@ -22,7 +22,7 @@ using namespace Nanorex;
 #include "DataWindow.h"
 #include "ErrorDialog.h"
 #include "ViewParametersWindow.h"
-#include "TrajectoryGraphicsPane.h"
+#include "TrajectoryGraphicsWindow.h"
 
 
 /* CLASS: ResultsWindow */
