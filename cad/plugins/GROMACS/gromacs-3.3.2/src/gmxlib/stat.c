@@ -306,8 +306,6 @@ printf(">>> stat.c:write_traj: hdf5 datastore opened - writing topo\n");
         addHDF5bonds(bonds, bondCount);
         free(bonds);
     }
-    if (fn2ftp(traj) == efNH5)
-        flushHDF5();
 
     fio_flush(fp);
   }

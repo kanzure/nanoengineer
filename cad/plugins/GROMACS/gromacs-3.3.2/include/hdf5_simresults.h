@@ -32,7 +32,6 @@ void addHDF5atomicNumbers(const unsigned int* atomicNumbers,
 void addHDF5bonds(const void* bonds, unsigned int bondCount);
 void addHDF5atomCoordinates(const float* coordinates,
 								   unsigned int atomCount);
-void flushHDF5();
 void closeHDF5dataStore();
 
 #ifdef __cplusplus

@@ -82,6 +82,7 @@ printf(">>> hdf5simresults.cpp: openHDF5dataStore\n");
 			simResults = 0;
 		}
 	}
+	simResults->flush();
 }
 
 
@@ -119,6 +120,7 @@ void addHDF5inputParameters(const HDF5inputParameters* inputParams) {
 	// Hard-coded for now
 	simResults->setFilePath((const char*)("input.mmp"),
 							(const char*)("input.mmp"), message);
+	simResults->flush();
 }
 
 
@@ -148,6 +150,8 @@ void addHDF5resultsData(const HDF5resultsData* resultsData) {
 		("TotalEnergy", resultsData->totalEnergy, message);
 	simResults->setFloatResult
 		("MaximumForce", resultsData->maxForce, message);
+		
+	simResults->flush();
 }
 
 /* FUNCTION: addHDF5frame */
@@ -182,6 +186,7 @@ void addHDF5atomIds(const unsigned int* atomIds, unsigned int atomCount) {
 		delete simResults;
 		simResults = 0;
 	}
+	simResults->flush();
 }
 
 
@@ -201,6 +206,7 @@ void addHDF5atomicNumbers(const unsigned int* atomicNumbers,
 		delete simResults;
 		simResults = 0;
 	}
+	simResults->flush();
 }
 
 
@@ -219,6 +225,7 @@ void addHDF5bonds(const void* bonds, unsigned int bondCount) {
 		delete simResults;
 		simResults = 0;
 	}
+	simResults->flush();
 }
 
 
@@ -237,15 +244,7 @@ void addHDF5atomCoordinates(const float* coordinates, unsigned int atomCount) {
 		delete simResults;
 		simResults = 0;
 	}
-}
-
-
-/* FUNCTION: flushHDF5 */
-void flushHDF5() {
-	if (simResults == 0)
-		return; // Short-circuit
-
-	simResults->flush();	
+	simResults->flush();
 }
 
 
