@@ -52,6 +52,7 @@ import math
 import string
 
 from Numeric import dot
+
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
 
@@ -59,6 +60,7 @@ from drawer import ColorSorter
 from drawer import drawcylinder
 from drawer import drawsphere
 from drawer import drawwiresphere
+
 from elements import Singlet
 from elements import Hydrogen
 from elements import PeriodicTable
@@ -75,10 +77,15 @@ from geometry.VQT import atom_angle_radians
 
 from mdldata import marks, links, filler
 from povheader import povpoint
+
+import debug
+from debug import print_compact_stack, print_compact_traceback, compact_stack
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
+
 from changedicts import register_changedict, register_class_changedicts
 
 from utilities.Printing import Vector3ToString
+from utilities.Log import orangemsg
 
 from constants import genKey
 
@@ -121,7 +128,40 @@ from state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
 
 from Selobj import Selobj_API
 
-# more imports below
+
+from utilities import debug_flags
+
+from PlatformDependent import fix_plurals
+
+import env
+
+from state_utils import StateMixin
+from state_utils import register_instancelike_class
+
+import undo_archive
+from undo_archive import register_undo_updater
+
+from displaymodes import remap_atom_dispdefs
+    # (moved from chem to displaymodes to break import cycle, bruce 071102)
+
+from inval import InvalMixin #bruce 050510
+
+import Utility
+from jigs import Jig
+
+from crossovers import crossover_menu_spec
+
+# ==
+
+debug_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
+
+BALL_vs_CPK = 0.25 # ratio of default diBALL radius to default diTrueCPK radius [renamed from CPKvdW by bruce 060607]
+
+atKey = genKey(start = 1) # generator for atom.key attribute.
+    # As of bruce 050228, we now make use of the fact that this produces keys
+    # which sort in the same order as atoms are created (e.g. the order they're
+    # read from an mmp file), so we now require this in the future even if the
+    # key type is changed.
 
 # ==
 
@@ -153,39 +193,7 @@ else:
         pass
     pass
 
-# ==
-
-from utilities.Log import orangemsg
-import debug
-from debug import print_compact_stack, print_compact_traceback, compact_stack
-
-from utilities import debug_flags
-
-from PlatformDependent import fix_plurals
-import env
-from state_utils import StateMixin
-from state_utils import register_instancelike_class
-
-from undo_archive import register_undo_updater
-
-debug_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
-
-# ==
-
-from displaymodes import remap_atom_dispdefs
-    # (moved from chem to displaymodes to break import cycle, bruce 071102)
-
-BALL_vs_CPK = 0.25 # ratio of default diBALL radius to default diTrueCPK radius [renamed from CPKvdW by bruce 060607]
-
-atKey = genKey(start = 1) # generator for atom.key attribute.
-    # As of bruce 050228, we now make use of the fact that this produces keys
-    # which sort in the same order as atoms are created (e.g. the order they're
-    # read from an mmp file), so we now require this in the future even if the
-    # key type is changed.
-
-# == Atom
-
-from inval import InvalMixin #bruce 050510
+# == class Atom (and support code)
 
 def _undo_update_Atom_jigs(archive, assy):
     """
@@ -204,9 +212,7 @@ def _undo_update_Atom_jigs(archive, assy):
         # A more principled and safer fix would be either for kill functions participating in "prekill" to take
         # an argument, unique per prekill/kill event, or to ensure the global counter (acting as if it was that argument)
         # was unique by again incrementing it after the kill call returns within the same code that had initiated the prekill.
-        import Utility
         Utility._will_kill_count += 1
-    from jigs import Jig
     mols = assy.allNodes(chunk.Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part.
     jigs = assy.allNodes(Jig)
         # Note: if we wanted to avoid those imports of Chunk and Jig,
@@ -357,7 +363,6 @@ def Atom_prekill_prep(): #bruce 060328
     so they can all use the same value of _will_kill_count, if we want to make that most efficient.]
     """
     ###e this should be merged with similar code in class Node
-    import Utility
     Utility._will_kill_count += 1
     return Utility._will_kill_count
     
@@ -839,7 +844,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
 ##                        reload(crossovers)### REMOVE WHEN DEVEL IS DONE; for debug only; will fail in a built release
 ##                    except:
 ##                        print "can't reload crossovers"
-                    from crossovers import crossover_menu_spec
                     ms1 = crossover_menu_spec(self, selatoms)
                     if ms1:
                         menu_spec.append(None) # separator
@@ -869,7 +873,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                 menu_spec.append((cmdname, command))
                 continue
         if debug_flags.atom_debug:
-            from undo_archive import _undo_debug_obj
+            from undo_archive import _undo_debug_obj # don't do this at toplevel
             if self is _undo_debug_obj:
                 checked = 'checked'
             else:
@@ -879,7 +883,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return
 
     def set_as_undo_debug_obj(self):
-        import undo_archive
         undo_archive._undo_debug_obj = self
         undo_archive._undo_debug_message( '_undo_debug_obj = %r' % self )
         return
@@ -2628,7 +2631,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             return None
         if 1:
             #bruce 060327 optim of chunk.kill: if we're being killed right now, don't make a new bondpoint
-            import Utility
             if self._will_kill == Utility._will_kill_count:
                 if debug_1779:
                     print "debug_1779: self._will_kill %r == Utility._will_kill_count %r" % \
@@ -3702,8 +3704,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                     spin = spin + Q(r, math.pi/3.0) # 60 degrees of extra spin
             else: spin = Q(1,0,0,0)
             mol = self.molecule
-            if 1: # see comment below
-                from debug_prefs import debug_pref, Choice # bruce 050614
+            if 1: # see comment below [bruce 050614]
                 spinsign = debug_pref("spinsign", Choice([1,-1]))
             for q in atype.quats:
                 # the following old code has the wrong sign on spin, thus causing bug 661: [fixed by bruce 050614]
@@ -4487,6 +4488,7 @@ register_class_changedicts( Atom, _Atom_global_dicts )
 ##    # tell undo to treat the class as Atom when grabbing and storing diffs:
 ##    _s_undo_class_alias = Atom
 ##    pass
+##register_instancelike_class( Atom2)
 
 # ==
 
