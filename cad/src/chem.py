@@ -164,6 +164,8 @@ from utilities import debug_flags
 from PlatformDependent import fix_plurals
 import env
 from state_utils import StateMixin
+from state_utils import register_instancelike_class
+
 from undo_archive import register_undo_updater
 
 debug_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
@@ -4465,6 +4467,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
 
 # ==
 
+register_instancelike_class( Atom) # ericm & bruce 080225
+
 register_class_changedicts( Atom, _Atom_global_dicts )
     # error if one class has two same-named changedicts (so be careful re module reload)
 
@@ -4539,6 +4543,3 @@ def move_alist_and_snuggle(alist, newPositions):
     return
 
 # end
-
-from state_utils import known_type_scanners, scan_InstanceType
-known_type_scanners[ Atom ] = scan_InstanceType

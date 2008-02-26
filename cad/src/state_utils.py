@@ -764,6 +764,42 @@ known_type_scanners[ InstanceType ] = scan_InstanceType
 
 # ==
 
+def register_instancelike_class( class1 ):
+    """
+    Classes whose instances need to be treated like InstanceType objects
+    by scan_vals, copy_val, same_vals, and Undo, but which might not be
+    InstanceType objects (e.g. they might be instances of new-style or extension
+    classes or their subclasses, which have their class as their type),
+    must call this function immediately after they are defined
+    (before the above-mentioned code could possibly be called).
+
+    If they are in fact classic classes (and therefore don't need to call it),
+    it's a noop, or has ignorable effects. It's ok to call it more than once
+    for the same class.
+
+    Note that their subclasses must also call it explicitly -- they are not
+    automatically registered because their superclasses are.
+
+    @param class1: the class to be registered.
+    @type class1: any kind of class (classic, new-style, or extension).
+
+    @warning: The error of not calling this when you should is not yet detected.
+              Nor is the error of calling it with an illegal value.
+
+    @warning: This is only implemented for scan_val Python version
+              as of 080225 -- not yet for copy_val, same_vals, or the C version
+              of those or (if it has a C version) scan_val. It may be implemented
+              for Undo by virtue of being implemented for scan_val, but this is
+              not yet reviewed in detail.
+    """
+    known_type_scanners[ class1 ] = scan_InstanceType
+        # note: if class1 is a classic class, this entry is not needed,
+        # but causes no harm since it will never be used (since no object
+        # has a type of class1 in that case).
+    return
+
+# ==
+
 def copy_Numeric_array(obj):
     if obj.typecode() == PyObject:
         if (env.debug() or DEBUG_PYREX_ATOMS):

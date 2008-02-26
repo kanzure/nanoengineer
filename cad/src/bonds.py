@@ -60,6 +60,8 @@ import env
 from GlobalPreferences import usePyrexAtomsAndBonds
 
 from state_utils import StateMixin
+from state_utils import register_instancelike_class
+
 from changedicts import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False
 from utilities.Log import redmsg, quote_html
@@ -1923,6 +1925,8 @@ class Bond(BondBase, StateMixin, Selobj_API):
 
     pass # end of class Bond
 
+register_instancelike_class( Bond) # ericm & bruce 080225
+
 register_class_changedicts( Bond, _Bond_global_dicts )
     # error if one class has two same-named changedicts (so be careful re module reload)
 
@@ -2236,9 +2240,6 @@ class _bonder_at_singlets:
     pass # end of class _bonder_at_singlets, the helper for function bond_at_singlets
 
 # ===
-
-from state_utils import known_type_scanners, scan_InstanceType
-known_type_scanners[ Bond ] = scan_InstanceType
 
 # some unused old code that would be premature to completely remove [moved here by bruce 050502]
 
