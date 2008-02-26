@@ -2221,6 +2221,9 @@ class _bonder_at_singlets:
 
 # ===
 
+from state_utils import known_type_scanners, scan_InstanceType
+known_type_scanners[ Bond ] = scan_InstanceType
+
 # some unused old code that would be premature to completely remove [moved here by bruce 050502]
 
 ##def externs_except_to(mol, others): #bruce 041123; not yet used or tested
