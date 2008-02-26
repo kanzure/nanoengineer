@@ -1388,7 +1388,7 @@ class ColorSorter:
         else:
             if debug_which_renderer:
                 print "using Python renderer: use_color_sorted_dls %s enabled" \
-                      % 'IS' if use_color_sorted_dls else 'is NOT'
+                      % (use_color_sorted_dls and 'IS' or 'is NOT')
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
 
