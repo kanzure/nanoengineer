@@ -79,7 +79,7 @@ def mmp_state_from_assy(archive, assy,
     """
     if use_060213_format:
         # [guess as of 060329: initial arg doesn't matter for this
-        #  scanning method, or, we never scan it before fully inited anyway]
+        #  scanning method, or, we never scan it before fully initialized anyway]
         return mmp_state_by_scan(archive, assy, **options)
         ## return ('scan_whole', mmp_state_by_scan(archive, assy, **options) )
 
@@ -1437,6 +1437,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
      If user does an undo, and then wants to change the view before deciding whether to redo, we'd better not make that
     destroy their ability to redo! So until we support out-of-order undo/redo and a separate undo stack for view changes
     (as it should appear in the UI for this), we won't let view changes count as a "new do" which would eliminate the redo stack.
+
+    Each AssyUndoArchive is created by an AssyUndoManager, in a 1 to 1
+    relationship.  An AssyUndoManager is created by an assembly, also
+    in a 1 to 1 relationship, although the assembly may choose to not
+    create an AssyUndoManager.  So, there is essentially one
+    AssyUndoArchive per assembly, if it chooses to have one.
     """
     
     next_cp = None
@@ -1448,7 +1454,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
     copy_val = state_utils.copy_val #060216, might turn out to be a temporary kluge ###@@@
 
-    inited = False
+    _undo_archive_initialized = False
     
     def __init__(self, assy):
         """
@@ -1478,7 +1484,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.all_changed_Bonds = {} # id(bond) -> bond, for all changed Bonds (all attrs)
         self.ourdicts = (self.all_changed_Atoms, self.all_changed_Bonds,) #e use this more
         # rest of init is done later, by self.initial_checkpoint, when caller is more ready [060223]
-        ###e not sure were really inited enough to return... we'll see
+        ###e not sure were really initialized enough to return... we'll see
         return
 
     def sub_or_unsub_changedicts(self, subQ): #060329, rewritten 060330
@@ -1528,13 +1534,13 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.stored_ops = {}
         self.objkey_allocator.clear() # after this, all existing keys (in diffs or checkpoints) are nonsense...
         # ... so we'd better get rid of them (above and here):
-        self.inited = False
+        self._undo_archive_initialized = False
         self.initial_checkpoint() # should we clean up the code by making this the only way to call initial_checkpoint?
         return
 
     def initial_checkpoint(self): # called by clear_undo_stack in two ways??? one by undo_manager? ###doc situation [060304]
         # note: this can definitely be called twice, one way is by _clear and clear_undo_stack, that happens 2nd...
-        assert not self.inited
+        assert not self._undo_archive_initialized
         assy = self.assy
         cp = make_empty_checkpoint(assy, 'initial') # initial checkpoint
         #e the next three lines are similar to some in self.checkpoint --
@@ -1554,7 +1560,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self._changedicts = [] # ditto
         self.sub_or_unsub_changedicts(True)
         self.setup_changedicts() # do this after sub_or_unsub, to test its system for hearing about redefined classes later [060330]
-        self.inited = True # should come before _setup_next_cp
+        self._undo_archive_initialized = True # should come before _setup_next_cp
         self._setup_next_cp() # don't know cptype yet (I hope it's 'begin_cmd'; should we say that to the call? #k)
         ## self.notify_observers() # current API doesn't permit this to do anything during __init__, since subs is untouched then
         return
@@ -1825,7 +1831,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.last_cp is set; make (incomplete) self.next_cp, and self.current_diff to go between them.
         Index it... actually we probably can't fully index it yet if that depends on its state-subset vers.... #####@@@@@
         """
-        assert self.inited
+        assert self._undo_archive_initialized
         assert self.next_cp is None
         self.next_cp = make_empty_checkpoint(self.assy) # note: we never know cptype yet, tho we might know what we hope it is...
         self.current_diff = SimpleDiff(self.last_cp, self.next_cp) # this is a slot for the actual diff, whose content is not yet known
@@ -1844,7 +1850,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         it would be a separate undoable diff and would prevent Redo from being available. So we might want to assert that doesn't happen,
         but if such changes *do* happen it's the logically correct consequence, so we don't want to try to alter that consequence.)
         """
-        assert self.inited
+        assert self._undo_archive_initialized
         assert self.last_cp is not None
         assert self.next_cp is not None
         assert self.current_diff is not None
@@ -1872,7 +1878,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.get_and_clear_changed_objs(want_retval = False)
         
     def clear_undo_stack(self): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack) [060304 removed *args, **kws]
-        assert self.inited # note: the same-named method in undo_manager instead calls initial_checkpoint the first time
+        assert self._undo_archive_initialized # note: the same-named method in undo_manager instead calls initial_checkpoint the first time
         if self.current_diff: #k probably always true; definitely required for it to be safe to do what follows.
             self.current_diff.suppress_storing_undo_redo_ops = True # note: this is useless if the current diff turns out to be empty.
 
@@ -1947,9 +1953,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         Thus, if this is the end-checkpoint after an Undo command, it might find last_cp being the cp "undone to" by that command
         (guess as of 060301 1159am, nim #k ###@@@).
         """
-        if not self.inited:
+        if not self._undo_archive_initialized:
             if env.debug():
-                print_compact_stack("debug note: undo_archive not yet inited (maybe not an error)")
+                print_compact_stack("debug note: undo_archive not yet initialized (maybe not an error)")
             return
 
 ##        if 0: # bug 1440 debug code 060320, and 1747 060323
@@ -2218,9 +2224,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     
     def current_command_info(self, *args, **kws): ##e should rename add_... to make clear it's not finding and returning it
         assert not args
-        if not self.inited:
+        if not self._undo_archive_initialized:
             if env.debug():
-                print_compact_stack("debug note: undo_archive not yet inited (maybe not an error)")
+                print_compact_stack("debug note: undo_archive not yet initialized (maybe not an error)")
             return
         self.current_diff.command_info.update(kws) # recognized keys include cmd_name
             ######@@@@@@ somewhere in... what? a checkpoint? a diff? something larger? (yes, it owns diffs, in 1 or more segments)
@@ -2242,7 +2248,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         otherwise [nim as of 060118] make a new checkpoint, ver, and diff to stand for the new state, though some state-subset
         varid_vers (from inside the diff) will usually be reused. (Always, in all cases I know how to code yet; maybe not for list ops.)        
         """
-        assert self.inited
+        assert self._undo_archive_initialized
         # self.current_diff is accumulating changes that occur now,
         # including the ones we're about to do by applying self to assy.
         # Make sure it is not itself later stored (redundantly) as a diff that can be undone or redone.
@@ -2307,7 +2313,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         @param warn_when_change_counters_seem_wrong: see code and comments.
         """
         #e also pass state_version? for now rely on self.last_cp or some new state-pointer...
-        if not self.inited:
+        if not self._undo_archive_initialized:
             return []
 
         if warn_when_change_counters_seem_wrong:
@@ -2371,7 +2377,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return res.values()
     
     def store_op(self, op):
-        assert self.inited
+        assert self._undo_archive_initialized
         for varver in op.varid_vers():
             ops = self.stored_ops.setdefault(varver, [])
             ops.append(op)

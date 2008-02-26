@@ -53,8 +53,8 @@ class AssyUndoManager(UndoManager):
     """
     An UndoManager specialized for handling the state held by an assy (an instance of class assembly).
     """
-    active = True #060223 changed this to True, since False mainly means it died, not that it's being inited [060223]
-    inited = False #060223
+    active = True #060223 changed this to True, since False mainly means it died, not that it's being initialized [060223]
+    _undo_manager_initialized = False #060223
     def __init__(self, assy, menus = ()): # called from assy.__init__
         """
         Do what can be done early in assy.__init__; caller must also (subsequently) call init1
@@ -96,7 +96,7 @@ class AssyUndoManager(UndoManager):
     
     def _initial_checkpoint(self): #bruce 060223; not much happens until this is called (order is __init__, init1, _initial_checkpoint)
         """
-        [private]
+        Only called from self.clear_undo_stack().
         """
         set_initial_AutoCheckpointing_enabled( True )
             # might have to be True for initial_checkpoint; do no UI effects or history msg; kluge that the flag is a global [060314]
@@ -105,7 +105,7 @@ class AssyUndoManager(UndoManager):
         self.remake_UI_menuitems() # try to fix bug 1387 [060126]
         self.active = True # redundant
         env.command_segment_subscribers.append( self._in_event_loop_changed )
-        self.inited = True
+        self._undo_manager_initialized = True
         ## redundant call (bug); i hope this is the right one to remove: self.archive.initial_checkpoint()
         
         # make sure the UI reflects the current pref for auto-checkpointing [060314]
@@ -144,7 +144,7 @@ class AssyUndoManager(UndoManager):
 ##        return
 
     def clear_undo_stack(self, *args, **kws): # this is now callable from a debug menu / other command, as of 060301 (experimental)
-        if not self.inited:
+        if not self._undo_manager_initialized:
             self._initial_checkpoint() # have to do this here, not in archive.clear_undo_stack
         return self.archive.clear_undo_stack(*args, **kws)
     
