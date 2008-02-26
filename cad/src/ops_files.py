@@ -675,9 +675,21 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if fn:
             self.updateRecentFileList(fn)
 
-            self.__clear()
+            self.__clear() # this resets self.assy to a new, empty assembly object
+
             self.commandSequencer.start_using_mode( '$DEFAULT_MODE') #bruce 050911 [now needed here, to open files in default mode]
                 
+            self.assy.clear_undo_stack()
+                # possible optimization -- the first call of this (for a given
+                # value of self.assy) does two initial checkpoints, and later
+                # calls do only one. Initial checkpoints (which scan all the
+                # objects that hold undoable state which are accessible from
+                # assy) are fast now (since assy is empty), but might be quite
+                # slow later (after readmmp). So calling it now should speed up
+                # the later call (near end of this method).
+                # I tested that it seems to be ok; speedup not yet measured.
+                # [bruce 080225, based on profiling by ericm]
+            
             fn = str(fn)
             if not os.path.exists(fn):
                 return
