@@ -3891,6 +3891,9 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         return None
     
     def setDnaStrandName(self, dnaStrandName): # Mark 2007-09-04
+        # Note: this (and probably its calls) need revision for the
+        # dna data model.
+        # [bruce 080225 comment]
         """
         Set the Dna strand name. This is only valid for PAM-5 Pe atoms.
         
@@ -3916,10 +3919,13 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
         self.dnaStrandName = dnaStrandName
         
     def getDnaStrandName(self):
+        # Note: this (and probably its calls) need revision for the
+        # dna data model.
+        # [bruce 080225 comment]
         """
-        Returns the value of attr I{dnaStrandName}.
+        Returns the value of attr I{dnaStrandName}, or "" if it doesn't exist.
         
-        @return: The DNA strand name, or None if the attr I{dnaStrandName} does 
+        @return: The DNA strand name, or "" if the attr I{dnaStrandName} does 
                  not exist.
         @rtype:  str
         """

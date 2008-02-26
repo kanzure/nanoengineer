@@ -886,7 +886,12 @@ class Bond(BondBase, StateMixin, Selobj_API):
     
     #- DNA helper functions. ------------------------------------------
     
-    def getStrandName(self): # TODO: revise this when Strand object is implemented.
+    def getStrandName(self): # probably by Mark
+        # Note: used only in SelectAtoms_GraphicsMode.bondDelete,
+        # for a history message, as of before 080225. Probably obsolete
+        # (if not, needs renaming and revision for dna data model).
+        # See also: Atom.getDnaStrandName.
+        # [bruce 080225 comment]
         """
         Return the strand name, which is this bond's chunk name.
         
@@ -900,25 +905,32 @@ class Bond(BondBase, StateMixin, Selobj_API):
             return self.atom1.molecule.name
         return ""
     
-    def setStrandName(self, name): # TODO: revise this when Strand object is implemented.
-        """
-        Sets the name of the chunk this bond belongs to. This will fail if 
-        the bond belongs to two different chunks.
-        
-        @param name: The strand name.
-        @type  name: str
-        
-        @return: Success = True, Failure = 0. 
-        @rtype:  bool
-        
-        @see: L{getStrandName}
-        """
-        if self.atom1.molecule is self.atom2.molecule:
-            self.atom1.molecule.name = name
-            return True
-        return False
+##    def setStrandName(self, name): # probably by Mark
+##        # Note: not used as of before 080225. Probably obsolete.
+##        # See also: Atom.setDnaStrandName.
+##        # [bruce 080225 comment]
+##        """
+##        Sets the name of the chunk this bond belongs to. This will fail if 
+##        the bond belongs to two different chunks.
+##        
+##        @param name: The strand name.
+##        @type  name: str
+##        
+##        @return: Success = True, Failure = 0. 
+##        @rtype:  bool
+##        
+##        @see: L{getStrandName}
+##        """
+##        if self.atom1.molecule is self.atom2.molecule:
+##            self.atom1.molecule.name = name
+##            return True
+##        return False
     
-    def isStrandBond(self):
+    def isStrandBond(self): # by Mark
+        # Note: still used as of 080225. Not quite correct
+        # for bonds on free-floating single strands -- probably
+        # it ought to check whether a direction is set. ###FIX
+        # [bruce 080225 comment]
         """
         Checks if this bond is a DNA (backbone) bond.
         
@@ -930,7 +942,9 @@ class Bond(BondBase, StateMixin, Selobj_API):
         """
         return self.is_directional()
     
-    def isStrandOpenBond(self):
+    def isStrandOpenBond(self): # by Mark
+        # Note: not used as of before 080225. Maybe obsolete.
+        # [bruce 080225 comment]
         """
         Checks if this bond is a DNA (backbone) open bond. An open bond
         is a strand bond that has a singlet as one of its atoms.
@@ -943,7 +957,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
             return self.is_open_bond()
         return False
         
-    def isThreePrimeOpenBond(self):
+    def isThreePrimeOpenBond(self): # by Mark
         """
         Checks if this is a 3' open bond.
         
@@ -958,7 +972,7 @@ class Bond(BondBase, StateMixin, Selobj_API):
                         return True
         return False
     
-    def isFivePrimeOpenBond(self):
+    def isFivePrimeOpenBond(self): # by Mark
         """
         Returns True if this is a 5' open bond.
         """
@@ -970,7 +984,9 @@ class Bond(BondBase, StateMixin, Selobj_API):
                         return True
         return False
     
-    def getStrandThreePrimeAtom(self):
+    def getStrandThreePrimeAtom(self): # probably by Mark
+        # Note: NIM, and has no uses. Maybe obsolete.
+        # [bruce 080225 comment]
         """
         Returns the 3' atom (i.e. a Ss3 atom and never a singlet) belonging to
         the strand this bond is a member of.
