@@ -28,7 +28,8 @@ bruce 051231 partly-done code for using pyrex interface to sim; see use_dylib
 """
 
 from debug import print_compact_traceback
-from DebugMenuMixin import sim_params_set # DebugMenuMixin needs refactoring
+import DebugMenuMixin
+#from DebugMenuMixin import sim_params_set # DebugMenuMixin needs refactoring
     # to move this variable (sim_params_set) (and related code?) out of it;
     # see its module docstring for more info [bruce 080104 comment]
 from qt4transition import qt4todo
@@ -882,8 +883,8 @@ class SimRunner:
             sim = thePyrexSimulator()
             sim.setup(mflag, infile)
             simobj = sim.sim
-            if sim_params_set:
-                for attr, value in _sim_param_values.items():
+            if DebugMenuMixin.sim_params_set:
+                for attr, value in DebugMenuMixin.sim_param_values.items():
                     setattr(simobj, attr, value)
             simopts = simobj
             # order of set of remaining options should not matter;
@@ -1335,8 +1336,8 @@ class SimRunner:
 
                 from sim import SimulatorInterrupted #bruce 060112 - not sure this will work here vs outside 'def' ###k
                 self.sim_frame_callback_prep()
-                if sim_params_set:
-                    for attr, expected in _sim_param_values.items():
+                if DebugMenuMixin.sim_params_set:
+                    for attr, expected in DebugMenuMixin.sim_param_values.items():
                         found = getattr(simobj, attr)
                         if found != expected:
                             env.history.message(orangemsg(attr + ' expected=' + str(expected) + ' found=' + str(found)))

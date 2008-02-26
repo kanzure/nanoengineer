@@ -460,10 +460,10 @@ class SimParameterDialog(QDialog):
         btn.setText('Done')
         layout.addWidget(btn, len(_sim_param_table), 0, len(_sim_param_table), 4)
         def done(self = self):
-            import pprint
             global sim_params_set
             sim_params_set = True
-            pprint.pprint(sim_param_values)
+            #import pprint
+            #pprint.pprint(sim_param_values)
             self.close()
         self.connect(btn, SIGNAL("clicked()"), done)
 
