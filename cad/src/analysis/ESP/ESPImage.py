@@ -88,12 +88,12 @@ from constants import SUBTRACT_FROM_SELECTION
 from jigs_planes import RectGadget
 from jigs_planes import povStrVec
 
-from ESPImageProp import ESPImageProp
+from analysis.ESP.ESPImageProp import ESPImageProp
 from PlatformDependent import find_or_make_Nanorex_subdir
 
-from NanoHiveUtils import get_nh_espimage_filename
-from NanoHiveUtils import run_nh_simulation
-from NanoHive_SimParameters import NanoHive_SimParameters
+from analysis.ESP.NanoHiveUtils import get_nh_espimage_filename
+from analysis.ESP.NanoHiveUtils import run_nh_simulation
+from analysis.ESP.NanoHive_SimParameters import NanoHive_SimParameters
 
 # ==
 

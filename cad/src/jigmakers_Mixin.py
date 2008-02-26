@@ -103,7 +103,7 @@ class jigmakers_Mixin:
             if ret == 1: # Cancel
                 return
                 
-        from jig_Gamess import Gamess
+        from analysis.GAMESS.jig_Gamess import Gamess
         m = Gamess(self.assy, atoms)
         m.edit()
             #bruce 050701 split edit method out of the constructor, so the
@@ -241,7 +241,7 @@ class jigmakers_Mixin:
             env.history.message(cmd + redmsg(msg))
             return
         
-        from ESPImage import ESPImage
+        from analysis.ESP.ESPImage import ESPImage
         m = ESPImage(self.assy, atoms)
         m.edit()
         if m.cancelled: # User hit 'Cancel' button in the jig dialog.

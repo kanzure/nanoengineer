@@ -139,7 +139,7 @@ set_DRAG_STICKINESS_LIMIT_from_pref() # also called in selectAtomsMode.leftDown
 
 # ==
 
-from GraphicsMode import basicGraphicsMode
+from command_support.GraphicsMode import basicGraphicsMode
 
 from Select_GraphicsMode_MouseHelpers_preMixin import Select_GraphicsMode_MouseHelpers_preMixin
 from Select_GraphicsMode_DrawMethod_preMixin import Select_GraphicsMode_DrawMethod_preMixin

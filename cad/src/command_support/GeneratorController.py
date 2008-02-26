@@ -17,7 +17,7 @@ so it can be maintained in trivial ways (imports, external method names).
 
 import env
 
-from GeneratorBaseClass import GeneratorBaseClass
+from command_support.GeneratorBaseClass import GeneratorBaseClass
 
 class GeneratorController(GeneratorBaseClass):
     """

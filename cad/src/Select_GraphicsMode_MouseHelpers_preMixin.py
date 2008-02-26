@@ -32,7 +32,7 @@ _count = 0
 
 # ==
 
-from GraphicsMode import commonGraphicsMode
+from command_support.GraphicsMode import commonGraphicsMode
 
 class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
     """

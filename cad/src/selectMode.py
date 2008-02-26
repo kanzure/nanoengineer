@@ -30,7 +30,7 @@ code works.]
 from Select_Command import Select_basicCommand
 from Select_GraphicsMode import Select_basicGraphicsMode
 
-from modes import anyMode
+from command_support.modes import anyMode
 
 from constants import GLPANE_IS_COMMAND_SEQUENCER
 

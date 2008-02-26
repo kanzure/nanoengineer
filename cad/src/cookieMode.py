@@ -33,7 +33,7 @@ from PyQt4.Qt import QCursor
 
 import env
 from geometry.VQT import V, Q, A, norm, vlen
-from modes import basicMode
+from command_support.modes import basicMode
 from CookieCtrlPanel import CookieCtrlPanel
 from utilities.Log import orangemsg
 from utilities.Log import redmsg

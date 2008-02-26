@@ -42,7 +42,7 @@ from Dna_Constants  import basesDict, getReverseSequence
 from DnaGenHelper   import B_Dna_PAM3, B_Dna_PAM5
 from DnaGenHelper   import basepath_ok
 
-from GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
+from command_support.GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
 from DnaGeneratorPropertyManager import DnaGeneratorPropertyManager
 
 ############################################################################

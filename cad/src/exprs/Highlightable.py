@@ -1081,7 +1081,7 @@ def _setup_UNKNOWN_SELOBJ_on_graphicsMode(graphicsMode): #061218, revised 071010
     ## assert isinstance(graphicsMode, anyGraphicsMode)
     #
     # bruce 071028 reinstating it in a harmless form:
-    from GraphicsMode_API import GraphicsMode_API
+    from command_support.GraphicsMode_API import GraphicsMode_API
     assert isinstance(graphicsMode, GraphicsMode_API)
     
     if not hasattr(graphicsMode, 'UNKNOWN_SELOBJ'):

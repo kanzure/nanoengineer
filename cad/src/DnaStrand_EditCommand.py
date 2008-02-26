@@ -36,7 +36,7 @@ from chunk import Chunk
 from DnaStrand_GraphicsMode import DnaStrand_GraphicsMode
 from DnaStrand_ResizeHandle import DnaStrand_ResizeHandle
 
-from EditCommand import EditCommand 
+from command_support.EditCommand import EditCommand 
 
 from dna_model.DnaSegment import DnaSegment
 

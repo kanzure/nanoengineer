@@ -33,7 +33,7 @@ from bond_constants import V_GRAPHITE, V_SINGLE
 from bond_constants import atoms_are_bonded
 
 from NanotubeGeneratorPropertyManager import NanotubeGeneratorPropertyManager
-from GeneratorBaseClass import GeneratorBaseClass
+from command_support.GeneratorBaseClass import GeneratorBaseClass
 from utilities.Log import orangemsg, greenmsg ##, redmsg
 
 

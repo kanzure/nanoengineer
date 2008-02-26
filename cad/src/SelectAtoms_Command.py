@@ -33,7 +33,7 @@ from runSim import LocalMinimize_function
 from debug import print_compact_traceback
 
 from Select_Command import Select_basicCommand
-from GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 from SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
 class SelectAtoms_basicCommand(Select_basicCommand):

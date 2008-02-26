@@ -15,7 +15,7 @@ from utilities.Log import greenmsg
 
 from PyQt4.Qt import QDialog
 from RotaryMotorGeneratorDialog import RotaryMotorPropMgr
-from GeneratorBaseClass import GeneratorBaseClass
+from command_support.GeneratorBaseClass import GeneratorBaseClass
 
 # RotaryMotorPropMgr must come BEFORE GeneratorBaseClass in this list.
 class RotaryMotorGenerator(RotaryMotorPropMgr, GeneratorBaseClass):

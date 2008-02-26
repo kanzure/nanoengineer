@@ -21,10 +21,10 @@ BUGS:
 """
 
 
-from EditCommand import EditCommand
+from command_support.EditCommand import EditCommand
 from dna_model.DnaGroup import DnaGroup
 from utilities.Log  import greenmsg
-from GeneratorBaseClass import PluginBug, UserError
+from command_support.GeneratorBaseClass import PluginBug, UserError
 
 from constants import gensym
 from Ui_DnaFlyout import DnaFlyout

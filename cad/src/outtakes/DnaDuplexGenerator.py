@@ -19,7 +19,7 @@ from utilities.Log  import redmsg, greenmsg
 from geometry.VQT import V, Veq
 from DnaDuplex      import B_Dna_PAM3
 
-from GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
+from command_support.GeneratorBaseClass import GeneratorBaseClass, CadBug, PluginBug, UserError
 from DnaDuplexPropertyManager import DnaDuplexPropertyManager
 
 ############################################################################

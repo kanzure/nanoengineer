@@ -12,7 +12,7 @@ import sys
 from jigs import Jig
 from drawer import drawwirecube
 from povheader import povpoint # Fix for bug 692 Mark 050628
-from files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
+from analysis.GAMESS.files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
 from utilities.Log import redmsg, greenmsg
 import env
 from utilities.Log import redmsg
@@ -20,30 +20,30 @@ from chem import move_alist_and_snuggle
 import state_utils
 from debug import print_compact_traceback
 
-from GamessJob import GamessJob
-from GamessProp import scftyp
-from GamessProp import ecm
-from GamessProp import pcgms_dfttyp_items
-from GamessProp import gms_dfttyp_items
-from GamessProp import runtyp
-from GamessProp import mplevl
-from GamessProp import inttyp
-from GamessProp import pcgms_gridsize
-from GamessProp import tf
-from GamessProp import conv
-from GamessProp import ncore
-from GamessProp import gms_gridsize
-from GamessProp import opttol
-from GamessProp import gbasis
-from GamessProp import contrl
-from GamessProp import scf
-from GamessProp import system
-from GamessProp import mp2
-from GamessProp import dft
-from GamessProp import guess
-from GamessProp import statpt
-from GamessProp import basis
-from GamessProp import ui
+from analysis.GAMESS.GamessJob import GamessJob
+from analysis.GAMESS.GamessProp import scftyp
+from analysis.GAMESS.GamessProp import ecm
+from analysis.GAMESS.GamessProp import pcgms_dfttyp_items
+from analysis.GAMESS.GamessProp import gms_dfttyp_items
+from analysis.GAMESS.GamessProp import runtyp
+from analysis.GAMESS.GamessProp import mplevl
+from analysis.GAMESS.GamessProp import inttyp
+from analysis.GAMESS.GamessProp import pcgms_gridsize
+from analysis.GAMESS.GamessProp import tf
+from analysis.GAMESS.GamessProp import conv
+from analysis.GAMESS.GamessProp import ncore
+from analysis.GAMESS.GamessProp import gms_gridsize
+from analysis.GAMESS.GamessProp import opttol
+from analysis.GAMESS.GamessProp import gbasis
+from analysis.GAMESS.GamessProp import contrl
+from analysis.GAMESS.GamessProp import scf
+from analysis.GAMESS.GamessProp import system
+from analysis.GAMESS.GamessProp import mp2
+from analysis.GAMESS.GamessProp import dft
+from analysis.GAMESS.GamessProp import guess
+from analysis.GAMESS.GamessProp import statpt
+from analysis.GAMESS.GamessProp import basis
+from analysis.GAMESS.GamessProp import ui
 
 from utilities import debug_flags
 

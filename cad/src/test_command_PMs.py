@@ -11,7 +11,7 @@ from PM.PM_GroupBox      import PM_GroupBox
 from PM.PM_DoubleSpinBox import PM_DoubleSpinBox
 from PM.PM_ComboBox      import PM_ComboBox
 
-from GeneratorBaseClass import GeneratorBaseClass
+from command_support.GeneratorBaseClass import GeneratorBaseClass
 
 import time
 

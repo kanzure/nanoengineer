@@ -28,7 +28,7 @@ from elements import PeriodicTable
 from utilities.Log import greenmsg
 
 from GrapheneGeneratorPropertyManager import GrapheneGeneratorPropertyManager
-from GeneratorBaseClass import GeneratorBaseClass
+from command_support.GeneratorBaseClass import GeneratorBaseClass
 
 sqrt3 = 3 ** 0.5
 quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))

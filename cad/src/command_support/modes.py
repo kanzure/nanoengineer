@@ -55,11 +55,11 @@ since those are all split now.]
 
 from constants import GLPANE_IS_COMMAND_SEQUENCER
 
-from Command import anyCommand, nullCommand, basicCommand
+from command_support.Command import anyCommand, nullCommand, basicCommand
 
-from GraphicsMode import nullGraphicsMode, basicGraphicsMode
+from command_support.GraphicsMode import nullGraphicsMode, basicGraphicsMode
 
-from GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 
 # ==
 

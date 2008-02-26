@@ -20,11 +20,11 @@ import env
 from constants import filesplit
 from utilities.Log import redmsg, greenmsg, orangemsg
 
-from NanoHiveDialog import Ui_NanoHiveDialog
-from ESPImage import ESPImage # no longer a cyclic import [bruce 071215]
-from NanoHiveUtils import run_nh_simulation
+from analysis.ESP.NanoHiveDialog import Ui_NanoHiveDialog
+from analysis.ESP.ESPImage import ESPImage # no longer a cyclic import [bruce 071215]
+from analysis.ESP.NanoHiveUtils import run_nh_simulation
 
-from NanoHive_SimParameters import NanoHive_SimParameters
+from analysis.ESP.NanoHive_SimParameters import NanoHive_SimParameters
 
 cmd = greenmsg("Nano-Hive: ")
 

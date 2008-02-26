@@ -28,7 +28,7 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
 
 """
 
-from ESPImage import ESPImage
+from analysis.ESP.ESPImage import ESPImage
 from PyQt4.Qt import QMouseEvent
 
 import env

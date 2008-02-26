@@ -29,7 +29,7 @@ from PyQt4.Qt import SIGNAL
 from MovePropertyManager import MovePropertyManager
 from icon_utilities import geticon
 from SelectChunks_Command import SelectChunks_basicCommand
-from GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 from geometry.BoundingBox import BBox
 from utilities.Log import redmsg
 from geometry.VQT import V, Q

@@ -195,11 +195,11 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
     assy.writemmpfile(get_nh_mmp_filename(sim_id))
         
     # 3. Write the sim-spec file using the parameters from the Nano-Hive dialog widgets
-    from files_nh import write_nh_simspec_file
+    from analysis.ESP.files_nh import write_nh_simspec_file
     write_nh_simspec_file(sim_id, sim_parms, sims_to_run, results_to_save, output_dir)
     
     # 4. Write the Sim Workflow file
-    from files_nh import write_nh_workflow_file
+    from analysis.ESP.files_nh import write_nh_workflow_file
     write_nh_workflow_file(sim_id)
     
     # 5. Send commands to Nano-Hive.  There can be no spaces in partname.  Need to fix this.

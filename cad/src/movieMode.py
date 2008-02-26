@@ -28,7 +28,7 @@ import env
 import changes
 
 from movie import find_saved_movie
-from modes import basicMode
+from command_support.modes import basicMode
 from utilities.Log import greenmsg
 from utilities.Log import redmsg, orangemsg
 from MoviePropertyManager import MoviePropertyManager

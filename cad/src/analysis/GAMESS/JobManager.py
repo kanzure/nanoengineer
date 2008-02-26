@@ -120,13 +120,13 @@ def get_job_manager_job_id_and_dir():
             return str(job_id), job_id_dir
 
 
-from GamessJob import GamessJob # used in two places: value in jobType, constructor in __createJobs
+from analysis.GAMESS.GamessJob import GamessJob # used in two places: value in jobType, constructor in __createJobs
 
 ###Huaicai: Temporary fix the problem of bug 754: an older version of PyQt has problem working with
 ###Qt3.3.3 for the QTable class.
 ###Will: Hopefully that will be resolved in Qt 4.1.
 
-from JobManagerDialog import Ui_JobManagerDialog
+from analysis.GAMESS.JobManagerDialog import Ui_JobManagerDialog
 
 class JobManager(QWidget, Ui_JobManagerDialog):
     """

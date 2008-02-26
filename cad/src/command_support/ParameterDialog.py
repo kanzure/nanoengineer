@@ -46,7 +46,7 @@ from PyQt4.Qt import QApplication
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import SLOT
 
-from generator_button_images import image0_data,  image1_data,  image2_data,  image3_data,  image4_data,  image5_data,  image6_data,  image7_data
+from command_support.generator_button_images import image0_data, image1_data, image2_data, image3_data, image4_data, image5_data, image6_data, image7_data
 
 from widget_controllers import CollapsibleGroupController_Qt, FloatLineeditController_Qt #e might be gotten from env instead...
 

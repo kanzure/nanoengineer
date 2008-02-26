@@ -17,7 +17,7 @@ from PM.PM_Dialog import PM_Dialog
 from PyQt4.Qt import QWidgetAction
 from PyQt4.Qt import SIGNAL
 
-from GeneratorBaseClass import AbstractMethod
+from command_support.GeneratorBaseClass import AbstractMethod
 from icon_utilities import geticon
 
 class EditCommand_PM(PM_Dialog):

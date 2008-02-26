@@ -34,10 +34,10 @@ import env
 import os
 import sys
 
-from modes import nullMode
+from command_support.modes import nullMode
 
-from Command import anyCommand # only needed for an isinstance assertion
-from GraphicsMode_API import GraphicsMode_API 
+from command_support.Command import anyCommand # only needed for an isinstance assertion
+from command_support.GraphicsMode_API import GraphicsMode_API 
 
 # ==
 

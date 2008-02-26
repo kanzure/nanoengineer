@@ -24,7 +24,7 @@ from PM.PM_TextEdit        import PM_TextEdit
 from PM.PM_ToolButton      import PM_ToolButton
 from PM.PM_ToolButtonGrid  import PM_ToolButtonGrid
 
-from GeneratorBaseClass import GeneratorBaseClass
+from command_support.GeneratorBaseClass import GeneratorBaseClass
 
 # Options for radio button list to create a PM_RadioButtonList widget.
 # Format: buttonId, buttonText, tooltip

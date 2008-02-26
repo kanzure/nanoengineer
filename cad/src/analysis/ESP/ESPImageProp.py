@@ -10,7 +10,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import QDialog
 
-from ESPImagePropDialog import Ui_ESPImagePropDialog
+from analysis.ESP.ESPImagePropDialog import Ui_ESPImagePropDialog
 
 from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf, get_widget_with_color_palette
 

@@ -22,7 +22,7 @@ from debug import print_compact_traceback
 from chunk       import Chunk
 from jigs        import Jig
 from jigs_motors import Motor
-from ESPImage    import ESPImage
+from analysis.ESP.ESPImage import ESPImage
 from Group       import Group
 
 

@@ -33,8 +33,8 @@ from PyQt4.Qt import QThread
 from PyQt4.Qt import QMutex
 
 from SimJob import SimJob
-from GamessProp import GamessProp
-from files_gms import writegms_inpfile
+from analysis.GAMESS.GamessProp import GamessProp
+from analysis.GAMESS.files_gms import writegms_inpfile
 ## from files_gms import writegms_batfile
 import preferences
 import env # for setting prefs and doing recursive event processing
@@ -101,7 +101,7 @@ class GamessJob(SimJob):
                  2 = Failed
         """
         # Get a unique Job Id and the Job Id directory for this run.
-        from JobManager import get_job_manager_job_id_and_dir
+        from analysis.GAMESS.JobManager import get_job_manager_job_id_and_dir
             ### this causes an import cycle.
             ### FIX - pass in an obj providing this func? or just move this func into SimJob.py?
             # [bruce 071216 comment]

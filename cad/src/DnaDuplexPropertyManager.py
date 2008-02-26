@@ -36,7 +36,7 @@ from PM.PM_CoordinateSpinBoxes import PM_CoordinateSpinBoxes
 from PM.PM_CheckBox   import PM_CheckBox
 
 from DebugMenuMixin import DebugMenuMixin
-from EditCommand_PM import EditCommand_PM
+from command_support.EditCommand_PM import EditCommand_PM
 from geometry.VQT import V
 
 from PM.PM_Constants     import pmDoneButton

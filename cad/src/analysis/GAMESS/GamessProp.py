@@ -19,7 +19,7 @@ from PyQt4.Qt import QColorDialog
 
 import env
 
-from GamessPropDialog import Ui_GamessPropDialog
+from analysis.GAMESS.GamessPropDialog import Ui_GamessPropDialog
 from ServerManager import ServerManager
 from utilities.Log import redmsg
 ##from files_gms import insertgms
@@ -595,7 +595,7 @@ class GamessProp(QDialog, Ui_GamessPropDialog):
         tmp_inputfile = os.path.join(tmpdir, "%s.inp" % basename)
         
         # Write INP file (in ~/Nanorex/temp subdirectory)
-        from files_gms import writegms_inpfile
+        from analysis.GAMESS.files_gms import writegms_inpfile
         writegms_inpfile(tmp_inputfile, self.gamessJig)
         
         from PlatformDependent import open_file_in_editor

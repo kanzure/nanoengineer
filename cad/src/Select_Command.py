@@ -28,10 +28,10 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
                           selectMode.py
 
 """
-from Command import basicCommand
+from command_support.Command import basicCommand
 from Select_GraphicsMode import Select_GraphicsMode
 
-from GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 
 class Select_basicCommand(basicCommand):
     """    

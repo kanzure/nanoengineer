@@ -40,7 +40,7 @@ FUSEATOMS = 'Fuse Overlapping Atoms'
 from FuseChunks_GraphicsMode import FuseChunks_GraphicsMode
 from FuseChunks_GraphicsMode import Translate_in_FuseChunks_GraphicsMode
 from FuseChunks_GraphicsMode import Rotate_in_FuseChunks_GraphicsMode
-from GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 
 class FuseChunks_Command(Move_Command, fusechunksBase):
     """

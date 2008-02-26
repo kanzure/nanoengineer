@@ -37,7 +37,7 @@ import changes
 from utilities.Comparison import same_vals
 
 from constants            import permit_gensym_to_reuse_name
-from GeneratorBaseClass   import AbstractMethod
+from command_support.GeneratorBaseClass import AbstractMethod
 
 from Select_Command import Select_Command
 

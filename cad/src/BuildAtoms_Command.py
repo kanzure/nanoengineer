@@ -51,7 +51,7 @@ from prefs_constants import keepBondsDuringTransmute_prefs_key
 from BuildAtomsPropertyManager import BuildAtomsPropertyManager
 from SelectAtoms_Command import SelectAtoms_basicCommand
 
-from GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 from BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 
 

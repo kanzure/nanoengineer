@@ -30,7 +30,7 @@ from elements import PeriodicTable
 from utilities.Log import greenmsg
 
 from AtomGeneratorPropertyManager import AtomGeneratorPropertyManager
-from GeneratorBaseClass import GeneratorBaseClass
+from command_support.GeneratorBaseClass import GeneratorBaseClass
 
 def enableAtomGenerator(enable):
     """

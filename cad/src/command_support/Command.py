@@ -45,7 +45,7 @@ from jigs import Jig
     # this is used only for cmenu making
     # TODO: probably it should be factored into a method on the object being tested
 
-from GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 
 # ==
 

@@ -50,7 +50,7 @@ from PyQt4.Qt import QCursor
 
 from debug_prefs import debug_pref, Choice, Choice_boolean_False ##, Choice_boolean_True
 
-from modes import basicMode
+from command_support.modes import basicMode
 from debug import print_compact_traceback, print_compact_stack
 from bonds import bond_at_singlets
 from icon_utilities import geticon

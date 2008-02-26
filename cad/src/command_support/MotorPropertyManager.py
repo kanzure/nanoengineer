@@ -15,8 +15,8 @@ from PM.PM_SelectionListWidget import PM_SelectionListWidget
 from PM.PM_Constants     import pmPreviewButton, pmRestoreDefaultsButton
 from widgets.widget_helpers import QColor_to_RGBf
 
-from GeneratorBaseClass  import AbstractMethod
-from EditCommand_PM   import EditCommand_PM
+from command_support.GeneratorBaseClass import AbstractMethod
+from command_support.EditCommand_PM import EditCommand_PM
 
 
 from debug               import print_compact_traceback

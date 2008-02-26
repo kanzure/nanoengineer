@@ -55,7 +55,7 @@ def register_MMP_RecordParsers(): #bruce 071019
     import Comment
     Comment.register_MMP_RecordParser_for_Comment()
 
-    import jig_Gamess
+    import analysis.GAMESS.jig_Gamess as jig_Gamess
     jig_Gamess.register_MMP_RecordParser_for_Gamess()
 
     import PovrayScene

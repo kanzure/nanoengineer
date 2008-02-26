@@ -30,7 +30,7 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
 """
 from Select_Command import Select_basicCommand
 from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
-from GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 
 class SelectChunks_basicCommand(Select_basicCommand):
     """

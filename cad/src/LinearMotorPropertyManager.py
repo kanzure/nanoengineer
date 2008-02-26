@@ -19,7 +19,7 @@ from PM.PM_PushButton    import PM_PushButton
 
 from widgets.widget_helpers import RGBf_to_QColor
 
-from MotorPropertyManager import MotorPropertyManager
+from command_support.MotorPropertyManager import MotorPropertyManager
 
 from constants import gray
 

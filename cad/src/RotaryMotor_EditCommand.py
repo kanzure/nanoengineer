@@ -14,7 +14,7 @@ import env
 from utilities.Log   import redmsg, greenmsg, orangemsg
 from jigs_motors     import RotaryMotor
 from jigmakers_Mixin import atom_limit_exceeded_and_confirmed
-from EditCommand  import EditCommand
+from command_support.EditCommand import EditCommand
 
 from SelectAtoms_GraphicsMode   import SelectAtoms_GraphicsMode
 

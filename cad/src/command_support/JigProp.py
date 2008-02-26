@@ -15,7 +15,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QColorDialog
 from icon_utilities import geticon
 
-from JigPropDialog import Ui_JigPropDialog
+from command_support.JigPropDialog import Ui_JigPropDialog
 
 from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
 from widgets.widget_helpers import get_widget_with_color_palette

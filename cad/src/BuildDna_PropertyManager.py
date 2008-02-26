@@ -30,7 +30,7 @@ from PM.PM_PushButton    import PM_PushButton
 from PM.PM_SelectionListWidget import PM_SelectionListWidget
 
 from DebugMenuMixin import DebugMenuMixin
-from EditCommand_PM import EditCommand_PM
+from command_support.EditCommand_PM import EditCommand_PM
 
 from PM.PM_Constants     import pmDoneButton
 from PM.PM_Constants     import pmWhatsThisButton

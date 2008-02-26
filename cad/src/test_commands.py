@@ -45,11 +45,11 @@ from test_command_PMs import ExampleCommand2_PM
 
 from PM.PM_WidgetsDemoPropertyManager import PM_WidgetsDemoPropertyManager
 
-from modes import basicMode
+from command_support.modes import basicMode
 ## from selectAtomsMode import selectAtomsMode
 
-from GraphicsMode import GraphicsMode
-from Command import Command
+from command_support.GraphicsMode import GraphicsMode
+from command_support.Command import Command
 
 # ==
 

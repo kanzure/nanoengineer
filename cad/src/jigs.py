@@ -839,7 +839,7 @@ class Anchor(Jig):
         # Changed from GroundProp to more general JigProp, which can be used for any simple jig
         # that has only a name and a color attribute changable by the user. JigProp supersedes GroundProp.
         # Mark 050928.
-        from JigProp import JigProp
+        from command_support.JigProp import JigProp
         self.cntl = JigProp(self, self.assy.o)
             
     # Write "anchor" record to POV-Ray file in the format:
@@ -1120,7 +1120,7 @@ class AtomSet(Jig):
 
     def set_cntl(self):
         # Fixed bug 1011.  Mark 050927.
-        from JigProp import JigProp
+        from command_support.JigProp import JigProp
         self.cntl = JigProp(self, self.assy.o)
 
     # it's drawn as a wire cube around each atom (default color = black)

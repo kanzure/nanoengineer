@@ -58,8 +58,8 @@ from PM.PM_CheckBox import PM_CheckBox
 
 ##from modes import *
 ##from modes import basicMode
-from Command import Command
-from GraphicsMode import GraphicsMode
+from command_support.Command import Command
+from command_support.GraphicsMode import GraphicsMode
 
 from debug import print_compact_traceback, register_debug_menu_command
 import time, math

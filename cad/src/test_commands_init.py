@@ -57,7 +57,7 @@ def enter_example_command(widget, example_command_classname):
         # reload before use (this module only)
         if 0 and 'try reloading preqs too': ### can't work easily, glpane stores all the mode classes (not just their names)...
             glpane._reinit_modes() # just to get out of current mode safely
-            import modes
+            import command_support.modes as modes
             reload(modes)
             ## from selectAtomsMode import selectAtomsMode # commented so it doesn't affect import dependency tools
             _superclass = 'Undefined variable' # FIX

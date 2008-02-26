@@ -30,7 +30,7 @@ from debug_prefs import debug_pref
 from debug_prefs import Choice
 from debug import print_compact_stack
 
-from GraphicsMode import commonGraphicsMode
+from command_support.GraphicsMode import commonGraphicsMode
 
 class Select_GraphicsMode_DrawMethod_preMixin(commonGraphicsMode):
     """

@@ -12,9 +12,9 @@ TemporaryCommand.py -- provides several kinds of TemporaryCommand superclasses
 
 from PyQt4.Qt import Qt
 
-from Command import Command, commonCommand
+from command_support.Command import Command, commonCommand
 
-from GraphicsMode import GraphicsMode, commonGraphicsMode
+from command_support.GraphicsMode import GraphicsMode, commonGraphicsMode
 
 
 # == useful pieces -- Command

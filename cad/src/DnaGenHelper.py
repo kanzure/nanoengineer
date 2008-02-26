@@ -52,7 +52,7 @@ from files_mmp          import readmmp
 from geometry.VQT import V
 from fusechunksMode     import fusechunksBase
 from utilities.Log import orangemsg
-from GeneratorBaseClass import PluginBug
+from command_support.GeneratorBaseClass import PluginBug
 
 from Dna_Constants import basesDict, dnaDict
 

@@ -34,11 +34,11 @@ DnaSegment_editCommand doesn't retain , for instance, crossovers. This can be
 fixed after dna_data model is fully implemented
 
 """
-from EditCommand import EditCommand 
+from command_support.EditCommand import EditCommand 
 from dna_model.DnaSegment import DnaSegment
 from DnaSegment_GraphicsMode import DnaSegment_GraphicsMode
 from DnaSegment_GraphicsMode import DnaSegment_DragHandles_GraphicsMode
-from GraphicsMode_API  import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 from Dna_Constants import getDuplexRise, getNumberOfBasePairsFromDuplexLength
 
 from utilities.Log  import redmsg
@@ -49,7 +49,7 @@ from geometry.VQT import cross, norm
 from DnaDuplex      import B_Dna_PAM3
 from DnaDuplex      import B_Dna_PAM5
 
-from GeneratorBaseClass import  PluginBug, UserError
+from command_support.GeneratorBaseClass import PluginBug, UserError
 
 from exprs.ExprsConstants import Color
 

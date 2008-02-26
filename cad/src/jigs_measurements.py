@@ -154,7 +154,7 @@ class MeasurementJig(Jig):
     
     # move into base class, wware 051103
     def set_cntl(self):
-        from JigProp import JigProp
+        from command_support.JigProp import JigProp
         self.cntl = JigProp(self, self.assy.o)
 
     # move into base class, wware 051103

@@ -1268,7 +1268,7 @@ class MWsemantics(QMainWindow,
 
         @note: This is not implemented.
         """
-        from JobManager import JobManager
+        from analysis.GAMESS.JobManager import JobManager
         dialog = JobManager(self)
         if dialog:
             self.jobmgrcntl = dialog

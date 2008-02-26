@@ -15,7 +15,7 @@ from PM.PM_ToolButtonGrid import PM_ToolButtonGrid
 from constants import diTUBES
 from debug import print_compact_traceback
 
-from GeneratorBaseClass import AbstractMethod
+from command_support.GeneratorBaseClass import AbstractMethod
 
 
 class PM_MolecularModelingKit( PM_GroupBox ):

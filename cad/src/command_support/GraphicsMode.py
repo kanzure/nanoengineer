@@ -53,7 +53,7 @@ from Group import Group
 
 import time
 
-from GraphicsMode_API import GraphicsMode_API
+from command_support.GraphicsMode_API import GraphicsMode_API
 
 # ==
 

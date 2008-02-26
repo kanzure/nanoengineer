@@ -29,7 +29,7 @@ TODO:
   necessary to correctly edit the dna structure ad this problem will
   be fixed -- Ninad 2007-12-20
 """
-from EditCommand import EditCommand
+from command_support.EditCommand import EditCommand
 
 
 
@@ -42,7 +42,7 @@ from geometry.VQT import V, Veq, vlen
 from DnaDuplex      import B_Dna_PAM3
 from DnaDuplex      import B_Dna_PAM5
 
-from GeneratorBaseClass import  PluginBug, UserError
+from command_support.GeneratorBaseClass import PluginBug, UserError
 from DnaDuplexPropertyManager import DnaDuplexPropertyManager
 
 from constants import gensym
