@@ -345,7 +345,6 @@ DataWindow* ResultsWindow::activeDataWindow() {
 /* FUNCTION: resultsTreeItemDoubleClicked */
 void ResultsWindow::resultsTreeItemDoubleClicked(QTreeWidgetItem* treeItem,
 												 int /*column*/) {
-printf("\n\nResultsWindow::resultsTreeItemDoubleClicked: %d\n", treeItem);fflush(0);
 	if ((treeItem != NULL) && (treeItem->flags() & Qt::ItemIsSelectable))
 		((DataWindowTreeItem*)treeItem)->showWindow();
 }
@@ -396,8 +395,7 @@ void InputParametersTreeItem::showWindow() {
 		NXDataStoreInfo* dataStoreInfo =
 			resultsWindow->entityManager->getDataStoreInfo();
 		inputParametersWindow =
-			new InputParametersWindow(dataStoreInfo->getInputParameters(),
-									  (QWidget*)(parent()));
+			new InputParametersWindow(dataStoreInfo->getInputParameters());
 	}
 	inputParametersWindow->show();
 }
@@ -423,18 +421,13 @@ ResultsSummaryTreeItem::~ResultsSummaryTreeItem() {
 
 /* FUNCTION: showWindow */
 void ResultsSummaryTreeItem::showWindow() {
-printf("\nResultsSummaryTreeItem::showWindow\n");fflush(0);
 	if (resultsSummaryWindow == NULL) {
 		NXDataStoreInfo* dataStoreInfo =
 			resultsWindow->entityManager->getDataStoreInfo();
-printf("	%d, %d\n", dataStoreInfo, dataStoreInfo->getResultsSummary());
 		resultsSummaryWindow =
-			new ResultsSummaryWindow(dataStoreInfo->getResultsSummary(),
-									 (QWidget*)(parent()));
+			new ResultsSummaryWindow(dataStoreInfo->getResultsSummary());
 	}
-printf("	about to show\n");fflush(0);
 	resultsSummaryWindow->show();
-printf("	done\n");fflush(0);
 }
 
 

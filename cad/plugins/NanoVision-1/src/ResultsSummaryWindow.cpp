@@ -7,12 +7,9 @@
 ResultsSummaryWindow::ResultsSummaryWindow(NXProperties* properties,
 										   QWidget *parent)
 		: QDialog(parent), Ui_ResultsSummaryWindow() {
-printf("ResultsSummaryWindow::ResultsSummaryWindow\n");fflush(0);
 
 	setupUi(this);
 	setWindowFlags(Qt::Dialog | Qt::Tool);
-	
-printf("\n\nResultsSummaryWindow::ResultsSummaryWindow: %d\n", properties);fflush(0);
 	textEdit->insertHtml("<b><i>Results Summary</i></b><br>");
     if (properties == NULL) return;
 	vector<string> keys = properties->getPropertyKeys();
