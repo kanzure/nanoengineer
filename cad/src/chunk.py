@@ -105,7 +105,7 @@ import bonds # TODO: import specific functions, since no longer an import cycle
 from elements import Singlet
 
 from geometry.BoundingBox import BBox
-from drawer import ColorSorter
+from drawer import ColorSorter, DispList
 ##from drawer import drawlinelist
 
 ##from constants import PickedColor
@@ -732,9 +732,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # full_inval_and_update to ignore 'displist' as a special case. WARNING: for this method
         # it's appropriate to set self.displist as well as returning it, but for most uses of
         # _get_xxx methods, setting it would be wrong.
-        self.displist = glGenLists(1)
-        assert type(self.displist) in (type(1), type(1L)) #bruce 070521 added these two asserts
-        assert self.displist != 0 # this failed on Linux in Extrude, when we did it in __init__ (bug 2042)
+        self.displist = DispList()                        # russ 080225: Moved state into a class.
         return self.displist
 
     # new feature [bruce 071103]:
@@ -760,10 +758,11 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # Note: we can't use hasattr for that test, since it would
             # allocate self.displist (by calling _get_displist) if we
             # don't have one yet.
-            assert self.displist != 0
-            glDeleteLists(self.displist, 1)
+            #russ 080225: Moved deallocation into DispList class for ColorSorter.
+            top = self.displist.dl
+            self.displist.deallocate_displists()
             if debug_pref("GLPane: print deleted display lists", Choice_boolean_False): #bruce 071205 made debug pref
-                print "fyi: deleted OpenGL display list %r belonging to %r" % (self.displist, self)
+                print "fyi: deleted OpenGL display list %r belonging to %r" % (top, self)
                 # keep this print around until this feature is tested on all platforms
             self.displist = None
             del self.displist
@@ -1618,7 +1617,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             matprefs = drawer._glprefs.materialprefs_summary() #bruce 051126
             #bruce 060215 adding drawLevel to havelist
             if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
-                glCallList(self.displist)
+                glCallList(self.displist.dl)
             else:
                 if 1:
                     #bruce 060608: record info to help per-chunk display modes
@@ -1636,13 +1635,10 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     print_compact_traceback("exception (a bug) ignored: ")
                     wantlist = True
                 if wantlist:
+                    ##print "Regenerating display list for %s" % self.name
                     match_checking_code = self.begin_tracking_usage()
-                    try:
-                        glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
-                    except:
-                        print "data related to following exception: self.displist = %r" % (self.displist,) #bruce 070521
-                        raise
-                    ColorSorter.start() # grantham 20051205
+                    #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
+                    ColorSorter.start(self) # grantham 20051205 #russ 080225: Added arg.
 
                 # bruce 041028 -- protect against exceptions while making display
                 # list, or OpenGL will be left in an unusable state (due to the lack
@@ -1655,7 +1651,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
                 if wantlist:
                     ColorSorter.finish() # grantham 20051205
-                    glEndList()
+                    #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
+
                     self.end_tracking_usage( match_checking_code, self.inval_display_list )
                     # This is the only place where havelist is set to anything true;
                     # the value it's set to must match the value it's compared with, above.
@@ -1691,7 +1688,6 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # and to invalidate it as needed -- since it's rare for atoms to override display modes.
         # Or we might even keep a list of all our atoms which override our display mode. ###e
         # [bruce 050513 comment]
-
         if self.externs:
             self._draw_external_bonds(glpane, disp, drawLevel)
 
@@ -1705,7 +1701,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                           prefs_key = True
            ):
             bondcolor = self.drawing_color()
-            ColorSorter.start() # grantham 20051205
+            ColorSorter.start(None) # grantham 20051205 #russ 080225: Added arg.
+
             # draw external bonds.
             #
             # Note: to prevent them from being drawn twice,

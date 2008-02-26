@@ -59,6 +59,7 @@ from OpenGL.GL import glPopName
 from drawer import ColorSorter
 from drawer import drawcylinder
 from drawer import drawsphere
+from drawer import drawpolycone
 from drawer import drawwiresphere
 
 from elements import Singlet
@@ -1627,11 +1628,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
             # thus cone tip at pos + 3 * axis.
             # WARNING: this cone would obscure the wirespheres, except for special cases in self.draw_wirespheres().
             # If you make the cone bigger you might need to change that code too.
-
-            drawsphere(color, pos, drawrad, 0) #KLUGE (harmless but slow) to set color and also to verify cone encloses sphere
-
-            from drawer import glePolyCone
-            glePolyCone([[pos[0] - 2 * axis[0], 
+            drawpolycone(color,
+                         [[pos[0] - 2 * axis[0], 
                           pos[1] - 2 * axis[1],
                           pos[2] - 2 * axis[2]],
                          [pos[0] - axis[0], 
@@ -1644,7 +1642,6 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
                           pos[1] + 5 * axis[1],
                           pos[2] + 5 * axis[2]]], # Point array (the two end
                                                   # points not drawn)
-                        None, # Color array (None means use current color)
                         [arrowRadius, arrowRadius, 0, 0] # Radius array
                        )
         else:

@@ -31,7 +31,7 @@ from drawer import genDiam
 from drawer import drawcylinder
 from drawer import drawsphere
 from drawer import drawline
-from drawer import ColorSorter
+from drawer import ColorSorter, DispList
 
 from constants import SUBTRACT_FROM_SELECTION
 from constants import OUTSIDE_SUBTRACT_FROM_SELECTION
@@ -111,7 +111,7 @@ class CookieShape(shape):
         # Each element is a dictionary for the bonds info for a layer
         self.bondLayers = {} 
 
-        self.displist = glGenLists(1)
+        self.displist = DispList()
         self.havelist = 0
         self.dispMode = mode
         self.latticeType = latticeType
@@ -285,9 +285,9 @@ class CookieShape(shape):
         The original way of selecting cookies, but do it layer by layer, so we can control how to display each layer.
         """
         if self.havelist:
-            glCallList(self.displist)
+            glCallList(self.displist.dl)
             return
-        glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
+        glNewList(self.displist.dl, GL_COMPILE_AND_EXECUTE)
         for layer in self.layeredCurves.keys():
             bbox = self.layeredCurves[layer][0]
             curves = self.layeredCurves[layer][1:]
@@ -771,10 +771,10 @@ class CookieShape(shape):
         markedAtoms = self.markedAtoms
         
         if self.havelist:
-            glCallList(self.displist)
+            glCallList(self.displist.dl)
             return
-        glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
-        ColorSorter.start() # grantham 20051205
+        #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
+        ColorSorter.start(self) # grantham 20051205 #russ 080225: Added arg.
         try:
             for layer, bonds in self.bondLayers.items():
                 color = layerColor[layer]
@@ -836,8 +836,10 @@ class CookieShape(shape):
             print "cK: ", cK
             print_compact_traceback( "bug: exception in shape.draw's displist; ignored: ")
         self.markedAtoms = {}
+
         ColorSorter.finish() # grantham 20051205
-        glEndList()
+        #russ 080225: Moved glEndList into ColorSorter.finish for displist re-org.
+
         self.havelist = 1 # always set this flag, even if exception happened.
     
     def buildChunk(self, assy):

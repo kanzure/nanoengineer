@@ -32,6 +32,7 @@ from drawer import ColorSorter
 from drawer import drawline
 from drawer import drawcylinder
 from drawer import drawsphere
+from drawer import drawpolycone
 
 import env
 from utilities import debug_flags
@@ -807,8 +808,7 @@ def draw_bond_cyl_arrowhead( a1pos,
         pos = a1pos
         axis = a2pos - a1pos
         drawrad = sigmabond_cyl_radius
-        drawsphere(color, pos + 0.8 * axis, drawrad * 0.1, 1) ###KLUGE to set color
-        glePolyCone([[pos[0] + 0.5 * axis[0], pos[1] + 0.5 * axis[1],
+        drawpolycone(color, [[pos[0] + 0.5 * axis[0], pos[1] + 0.5 * axis[1],
                       pos[2] + 0.5 * axis[2]],
                      [pos[0] + 0.6 * axis[0], pos[1] + 0.6 * axis[1],
                       pos[2] + 0.6 * axis[2]],
@@ -817,7 +817,6 @@ def draw_bond_cyl_arrowhead( a1pos,
                      [pos[0] + 1.1 * axis[0], pos[1] + 1.1 * axis[1],
                       pos[2] + 1.1 * axis[2]]], # Point array (the two end
                                                 # points not drawn)
-                    None, # Color array (None means use current the color)
                     [drawrad * 2, drawrad * 2, 0, 0] # Radius array
                    )
     return

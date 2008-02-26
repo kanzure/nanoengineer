@@ -37,7 +37,9 @@ from bonds import Bond
 from chem import Atom
 
 from Select_GraphicsMode import DRAG_STICKINESS_LIMIT
-from chunk import Chunk 
+from chunk import Chunk
+from drawer import apply_material, allow_color_sorting, use_color_sorted_dls
+from OpenGL.GL import glCallList
 from debug import print_compact_traceback, print_compact_stack
 
 from constants import yellow, orange, ave_colors
@@ -637,7 +639,6 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # selectMolsMode and slightly revised it (including, adding the return 
         # value).
         # Bruce 080217 formalized hicolor2 as an arg (was hardcoded orange).
-
         assert hicolor is not None #bruce 070919
         assert hicolor2 is not None
         del self
@@ -657,15 +658,23 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         drawn_bonds = {}
 
         def draw_chunk(chunk, color):
-            for atom in chunk.atoms.itervalues():
-                # draw atom and its (not yet drawn) bonds
-                atom.draw_in_abs_coords(glpane, color, useSmallAtomRadius = True)
-                for bond in atom.bonds:
-                    if draw_bonds_only_once:
-                        if drawn_bonds.has_key(id(bond)):
-                            continue # to next bond
-                        drawn_bonds[id(bond)] = bond
-                    bond.draw_in_abs_coords(glpane, color, bool_fullBondLength)
+            if allow_color_sorting and use_color_sorted_dls:
+                #russ 080225: Alternate drawing method using colorless display list.
+                assert chunk.__dict__.has_key('displist')
+                apply_material(color)
+                chunk.pushMatrix()
+                glCallList(chunk.displist.nocolor_dl)
+                chunk.popMatrix()
+            else:
+                for atom in chunk.atoms.itervalues():
+                    # draw atom and its (not yet drawn) bonds
+                    atom.draw_in_abs_coords(glpane, color, useSmallAtomRadius = True)
+                    for bond in atom.bonds:
+                        if draw_bonds_only_once:
+                            if drawn_bonds.has_key(id(bond)):
+                                continue # to next bond
+                            drawn_bonds[id(bond)] = bond
+                        bond.draw_in_abs_coords(glpane, color, bool_fullBondLength)
             return
         
         if isinstance(selobj, Chunk):

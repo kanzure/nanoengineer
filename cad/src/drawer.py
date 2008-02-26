@@ -22,6 +22,11 @@ At some point Bruce partly cleaned up the use of display lists.
 
 071030 bruce split some functions and globals into draw_grid_lines.py
 and removed some obsolete functions.
+
+080210 russ Split the single display-list into two second-level lists (with and without color)
+and a set of per-color sublists so selection and hover-highlight can over-ride Chunk base colors.
+DispList is now a class in the parent's displist attr to keep track of all that stuff.
+
 """
 
 import os
@@ -51,6 +56,7 @@ from OpenGL.GL import glColor3f
 from OpenGL.GL import glColor3fv
 from OpenGL.GL import glColor4fv
 from OpenGL.GL import GL_COMPILE
+from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 from OpenGL.GL import GL_CONSTANT_ATTENUATION
 from OpenGL.GL import GL_CULL_FACE
 from OpenGL.GL import glDeleteTextures
@@ -100,6 +106,7 @@ from OpenGL.GL import glMaterialfv
 from OpenGL.GL import glMatrixMode
 from OpenGL.GL import GL_MODELVIEW
 from OpenGL.GL import glNewList
+from OpenGL.GL import glDeleteLists
 from OpenGL.GL import glNormal3fv
 from OpenGL.GL import GL_ONE_MINUS_SRC_ALPHA
 from OpenGL.GL import GL_POLYGON
@@ -206,6 +213,8 @@ import EndUser
 # ColorSorter control
 allow_color_sorting = allow_color_sorting_default = False #bruce 060323 changed this to False for A7 release
 allow_color_sorting_prefs_key = "allow_color_sorting_rev2" #bruce 060323 changed this to disconnect it from old pref setting
+use_color_sorted_dls = use_color_sorted_dls_default = False #russ 080225: Added.
+use_color_sorted_dls_prefs_key = "use_color_sorted_dls"
 
 # Experimental native C renderer (quux module in cad/src/experimental/pyrex-opengl)
 use_c_renderer = use_c_renderer_default = False
@@ -420,7 +429,7 @@ class glprefs:
         (Our drawing code still does that in other places -- those might also benefit from this system,
          though this will soon be moot when low-level drawing code gets rewritten in C.)
         """
-        global use_c_renderer, allow_color_sorting
+        global use_c_renderer, allow_color_sorting, use_color_sorted_dls
         self.enable_specular_highlights = not not env.prefs[material_specular_highlights_prefs_key] # boolean
         if self.enable_specular_highlights:
             self.override_light_specular = None # used in glpane
@@ -442,7 +451,8 @@ class glprefs:
 
         allow_color_sorting = env.prefs.get(allow_color_sorting_prefs_key,
                                             allow_color_sorting_default)
-
+        use_color_sorted_dls = env.prefs.get(use_color_sorted_dls_prefs_key,
+                                            use_color_sorted_dls_default)
         use_c_renderer = quux_module_import_succeeded and \
                        env.prefs.get(use_c_renderer_prefs_key, use_c_renderer_default)
 
@@ -470,7 +480,8 @@ class glprefs:
         # color sorting pref is changed.
         res += (env.prefs.get(allow_color_sorting_prefs_key,
                               allow_color_sorting_default),)
-
+        res += (env.prefs.get(use_color_sorted_dls_prefs_key,
+                              use_color_sorted_dls_default),)
         return res
 
     pass # end of class glprefs
@@ -773,6 +784,18 @@ def drawcylinder_worker(params):
 
     return
 
+def drawpolycone_worker(params):
+    """
+    Draw a polycone.  Receive parameters through a sequence so that this
+    function and its parameters can be passed to another function for
+    deferment.  Right now this is only ColorSorter.schedule (see below)
+    """
+
+    global CylList, CapList
+    (pos_array, rad_array) = params
+    glePolyCone(pos_array, None, rad_array)
+    return
+
 def drawsurface_worker(params):
     """Draw a surface.  Receive parameters through a sequence so that this
     function and its parameters can be passed to another function for
@@ -1072,6 +1095,28 @@ class ShapeList:
         del self.cylinder_names
 
 
+class DispList:         #russ 080225: Added.
+    """One of these goes in the ColorSorter parent's displist attr to keep track of
+    color-sorted display list state.
+    """
+    def __init__(self):
+        self.dl = glGenLists(1) # Display list id for the current appearance.
+        assert type(self.dl) in (type(1), type(1L)) #bruce 070521 added these two asserts
+        assert self.dl != 0     # this failed on Linux in Extrude, when we did it in __init__ (bug 2042)
+
+        self.color_dl = 0       # Second-level display list setting color and calling sublists
+        self.nocolor_dl = 0     # 2nd level call-list without colors, used for color over-ride.
+        self.per_color_dls = [] # Per-color sublists.
+        
+    def deallocate_displists(self):
+        for l in [self.dl, self.color_dl, self.nocolor_dl] + \
+                 [dl for clr, dl in self.per_color_dls]:
+            if l != 0:
+                glDeleteLists(l, 1)
+                pass
+            pass
+        self.dl = self.color_dl = self.nocolor_dl = self.per_color_dls = None # Forget.
+
 class ColorSorter:
 
     """\
@@ -1250,6 +1295,28 @@ class ColorSorter:
 
     schedule_cylinder = staticmethod(schedule_cylinder)
 
+    def schedule_polycone(color, pos_array, rad_array, opacity = 1.0):
+        """\
+        Schedule a polycone for rendering whenever ColorSorter thinks is
+        appropriate.
+        """
+        if use_c_renderer and ColorSorter.sorting:
+            if len(color) == 3:
+                lcolor = (color[0], color[1], color[2], 1.0)
+            else:
+                lcolor = color
+            ColorSorter._cur_shapelist.add_polycone(lcolor, pos_array, rad_array,
+                                                    ColorSorter._gl_name_stack[-1], capped)
+        else:
+            if len(color) == 3:		
+                lcolor = (color[0], color[1], color[2], opacity)
+            else:
+                lcolor = color		    
+
+            ColorSorter.schedule(lcolor, drawpolycone_worker, (pos_array, rad_array))
+
+    schedule_polycone = staticmethod(schedule_polycone)
+
     def schedule_surface(color, pos, radius, tm, nm):
         """\
         Schedule a surface for rendering whenever ColorSorter thinks is
@@ -1260,11 +1327,24 @@ class ColorSorter:
     schedule_surface = staticmethod(schedule_surface)
 
 
-    def start():
+    def start(dl_parent):
         """\
         Start sorting - objects provided to "schedule", "schedule_sphere", and
         "schedule_cylinder" will be stored for a sort at the time "finish" is called.
+        The display-list parent may be None, in which case immediate drawing is done.
         """
+
+        #russ 080225: Moved glNewList here for displist re-org.
+        ColorSorter.dl_parent = dl_parent # Remember, used by finish().
+        if dl_parent != None:
+            parent_top = dl_parent.displist.dl # Side effect allocates top display list id the first time.
+            if not (allow_color_sorting and use_color_sorted_dls):
+                try:
+                        glNewList(parent_top, GL_COMPILE_AND_EXECUTE) # Start single-level list.
+                except:
+                    print "data related to following exception: parent_top = %r" % (parent_top,) #bruce 070521
+                    raise
+
         assert not ColorSorter.sorting, "Called ColorSorter.start but already sorting?!"
         ColorSorter.sorting = True
         if use_c_renderer and ColorSorter.sorting:
@@ -1283,6 +1363,8 @@ class ColorSorter:
         """
         from debug_prefs import debug_pref, Choice_boolean_False
         debug_which_renderer = debug_pref("debug print which renderer", Choice_boolean_False) #bruce 060314, imperfect but tolerable
+
+        parent = ColorSorter.dl_parent
         if use_c_renderer:
             quux.shapeRendererInit()
             if debug_which_renderer:
@@ -1305,20 +1387,78 @@ class ColorSorter:
 
         else:
             if debug_which_renderer:
-                print "using Python renderer"
+                print "using Python renderer: use_color_sorted_dls %s enabled" \
+                      % 'IS' if use_color_sorted_dls else 'is NOT'
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
-            for color, funcs in ColorSorter.sorted_by_color.iteritems():
-                apply_material(color)
-                for func, params, name in funcs:
-                    objects_drawn += 1
-                    if name != 0:
-                        glPushName(name)
-                    func(params)
-                    if name != 0:
-                        glPopName()
+
+            if not (allow_color_sorting and use_color_sorted_dls) or parent == None: #russ 080225
+
+                # All in one display list.
+                for color, funcs in ColorSorter.sorted_by_color.iteritems():
+                    apply_material(color)
+                    for func, params, name in funcs:
+                        objects_drawn += 1
+                        if name != 0:
+                            glPushName(name)
+                        func(params)
+                        if name != 0:
+                            glPopName()
+                            pass
+                        pass
+                    pass
+                pass
+
+            else: #russ 080225
+
+                # First build the per-color sublists.
+                parent_dl = parent.displist
+                for color, funcs in ColorSorter.sorted_by_color.iteritems():
+                    sublist = glGenLists(1)
+                    parent_dl.per_color_dls.append([color, sublist]) # Remember.
+                    glNewList(sublist, GL_COMPILE)
+                    for func, params, name in funcs:
+                        objects_drawn += 1
+                        if name != 0:
+                            glPushName(name)
+                        func(params)
+                        if name != 0:
+                            glPopName()
+                            pass
+                        pass
+                    glEndList()
+                    pass
+
+                # Now the two second-level lists, one with colors and the other without.
+                color_dl = parent_dl.color_dl = glGenLists(1)
+                glNewList(color_dl, GL_COMPILE)
+                for color, dl in parent_dl.per_color_dls:
+                    apply_material(color)
+                    glCallList(dl)
+                    pass
+                glEndList()
+
+                nocolor_dl = parent_dl.nocolor_dl = glGenLists(1)
+                glNewList(nocolor_dl, GL_COMPILE)
+                for color, dl in parent_dl.per_color_dls:
+                    glCallList(dl)
+                    pass
+                glEndList()
+
+                # Default to the normal-color list.
+                parent_dl.dl = color_dl
+                glCallList(color_dl) # Draw it now.
+                pass
+
             ColorSorter.sorted_by_color = None
-            ColorSorter.sorting = False
+            pass
+        ColorSorter.sorting = False
+
+        #russ 080225: Moved glEndList here for displist re-org.
+        if parent != None and not (allow_color_sorting and use_color_sorted_dls):
+            glEndList()
+            pass
+        return
 
     finish = staticmethod(finish)
 
@@ -1577,6 +1717,10 @@ def setup_drawer():
                                           initial_choice, prefs_key = allow_color_sorting_prefs_key)
         #bruce 060323 removed non_debug = True for A7 release, changed default value to False (far above),
         # and changed its prefs_key so developers start with the new default value.
+    #russ 080225: Added.
+    initial_choice = choices[use_color_sorted_dls_default]
+    use_color_sorted_dls_pref = debug_pref("Use Color-sorted Display Lists?",
+                                           initial_choice, prefs_key = use_color_sorted_dls_prefs_key)
 
     # 20060313 grantham Added use_c_renderer debug pref, can
     # take out when C renderer used by default.
@@ -1781,6 +1925,11 @@ def drawcylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
             return
     ColorSorter.schedule_cylinder(color, pos1, pos2, radius, 
                                   capped = capped, opacity = opacity)
+
+def drawpolycone(color, pos_array, rad_array, opacity = 1.0):
+    """Schedule a polycone for rendering whenever ColorSorter thinks is
+    appropriate."""
+    ColorSorter.schedule_polycone(color, pos_array, rad_array, opacity = 1.0)
 
 def drawsurface(color, pos, radius, tm, nm):
     """
@@ -2218,15 +2367,12 @@ def drawDirectionArrow(color,
     arrowHeight =  arrowBase*1.60
     axis = norm(vec)
     
-    
     scaledBasePoint = tailPoint + vlen(vec)*axis
-
     drawcylinder(color, tailPoint, scaledBasePoint, radius, capped = True)
     
     pos = arrowBasePoint
     arrowRadius = arrowBase
-    
-    glePolyCone([[pos[0] - 2 * axis[0], 
+    drawpolycone(color, [[pos[0] - 2 * axis[0], 
                           pos[1] - 2 * axis[1],
                           pos[2] - 2 * axis[2]],
                          [pos[0] - axis[0], 
@@ -2239,7 +2385,6 @@ def drawDirectionArrow(color,
                           pos[1] + (arrowHeight + 1) * axis[1],
                           pos[2] + (arrowHeight + 1) * axis[2]]], # Point array (the two end
                                                   # points not drawn)
-                        None, # Color array (None means use current color)
                         [arrowRadius, arrowRadius, 0, 0] # Radius array
                        )
 
