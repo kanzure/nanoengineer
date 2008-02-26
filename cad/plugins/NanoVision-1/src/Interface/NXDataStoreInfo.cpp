@@ -138,6 +138,8 @@ NXProperties* NXDataStoreInfo::getResultsSummary() {
 
 /* FUNCTION: setResultsSummary */
 void NXDataStoreInfo::setResultsSummary(NXProperties* resultsSummary) {
+	if (_resultsSummary != NULL)
+		delete _resultsSummary;
 	_resultsSummary = resultsSummary;
 }
 

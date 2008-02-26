@@ -54,6 +54,7 @@ private:
 							   HDF5_SimResults* simResults,
 							   const string& hdf5FileDirectory,
 							   int frameSetId);
+	NXProperties* getResultsSummary(HDF5_SimResults* simResults);
     void exportToFileHelper(NXMoleculeSet* moleculeSet,
                             unsigned int atomIndex, unsigned int bondIndex,
                             unsigned int* atomIds,

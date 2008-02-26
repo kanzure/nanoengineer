@@ -25,6 +25,8 @@ using namespace std;
 
 namespace Nanorex {
 
+class DataStorePollingThread;
+	
 
 /* CLASS: NXEntityManager */
 /**
@@ -39,18 +41,8 @@ class NXEntityManager : public QObject {
 		NXEntityManager();
 		~NXEntityManager();
     
-    void reset(void) {
-        dataStoreInfo->reset();
-        vector<vector<NXMoleculeSet*> >::iterator v;
-        for(v = moleculeSets.begin(); v != moleculeSets.end(); ++v) {
-            vector<NXMoleculeSet*>::iterator w;
-            for(w = v->begin(); w != v->end(); ++w) {
-                delete *w;
-            }
-        }
-        moleculeSets.clear();
-    }
-
+		void reset(void);
+		
 		//
 		// Import/export plugins
 		//
@@ -109,6 +101,7 @@ class NXEntityManager : public QObject {
 		map<string, NXDataImportExportPlugin*> dataExportTable;
 		
 		NXDataStoreInfo* dataStoreInfo;
+		DataStorePollingThread* pollingThread;
 		
 		QMutex frameAccessMutex;
 		vector<vector<NXMoleculeSet*> > moleculeSets;
@@ -128,13 +121,15 @@ public:
 			: QThread() {
 		this->entityManager = entityManager;
 		this->frameSetId = frameSetId;
+		_stop = false;
 	}
 	
 	void run() {
 		NXCommandResult* result = 0;
 		NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
-		while (!dataStoreInfo->storeIsComplete(frameSetId) ||
-			   !dataStoreInfo->isLastFrame(frameSetId)) {
+		while (!_stop &&
+				(!dataStoreInfo->storeIsComplete(frameSetId) ||
+				 !dataStoreInfo->isLastFrame(frameSetId))) {
 				
 			// See if there's a new frame
 			result =
@@ -148,8 +143,11 @@ public:
 		}
 	}
 	
+	void stop() { _stop = true; }
+	
 private:
 	int frameSetId;
+	bool _stop;
 	NXEntityManager* entityManager;
 };
 

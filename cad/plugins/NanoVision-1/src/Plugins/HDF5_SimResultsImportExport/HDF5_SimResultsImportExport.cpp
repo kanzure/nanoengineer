@@ -76,13 +76,20 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		simResults->getFrameCount("frame-set-1", frameCount);
 		dataStoreInfo->setLastFrame(frameSetId, frameIndex > frameCount - 2);
 		
-		int runResult = -1; //0=success, 1=still running, 2=failure, 3=aborted
+		int runResult = -1; // 0=success, 1=still running, 2=failure, 3=aborted
 		string failureDescription;
 		simResults->getRunResult(runResult, failureDescription);
 		if (runResult == 1)
 			dataStoreInfo->setStoreComplete(frameSetId, false);
-		else
+		else {
+			if (((frameIndex != 0) || (frameSetId != 0)) &&
+				!dataStoreInfo->storeIsComplete(frameSetId)) {
+				// The data store just completed, read the results summary info
+				NXProperties* properties = getResultsSummary(simResults);
+				dataStoreInfo->setResultsSummary(properties);
+			}
 			dataStoreInfo->setStoreComplete(frameSetId, true);
+		}
 	}
 	
 	unsigned int atomIds[atomCount];
@@ -195,9 +202,21 @@ void HDF5_SimResultsImportExport::populateDataStoreInfo
 	}
 	
 	// Results summary
-	properties = new NXProperties();
-	keys = simResults->getIntResultKeys();
-	iter = keys.begin();
+	properties = getResultsSummary(simResults);
+	dataStoreInfo->setResultsSummary(properties);
+
+	dataStoreInfo->addTrajectory("frame-set-1", frameSetId);
+}
+
+
+/* FUNCTION: getResultsSummary */
+NXProperties* HDF5_SimResultsImportExport::getResultsSummary
+		(HDF5_SimResults* simResults) {
+		
+	NXProperties* properties = new NXProperties();
+	vector<string> keys = simResults->getIntResultKeys();
+	vector<string>::iterator iter = keys.begin();
+	int intValue;
 	while (iter != keys.end()) {
 		simResults->getIntResult(*iter, intValue);
 		properties->setProperty(*iter, NXUtility::itos(intValue));
@@ -205,6 +224,8 @@ void HDF5_SimResultsImportExport::populateDataStoreInfo
 	}
 	keys = simResults->getFloatResultKeys();
 	iter = keys.begin();
+	float floatValue;
+	char charBuffer[16];
 	while (iter != keys.end()) {
 		simResults->getFloatResult(*iter, floatValue);
 		NXRealUtils::ToChar(floatValue, charBuffer, 5);
@@ -213,16 +234,15 @@ void HDF5_SimResultsImportExport::populateDataStoreInfo
 	}
 	keys = simResults->getStringResultKeys();
 	iter = keys.begin();
+	string stringValue;
 	while (iter != keys.end()) {
 		simResults->getStringResult(*iter, stringValue);
 		properties->setProperty(*iter, stringValue);
 		iter++;
 	}
-	dataStoreInfo->setResultsSummary(properties);
-
-	dataStoreInfo->addTrajectory("frame-set-1", frameSetId);
+	return properties;
 }
-
+		 
 
 /* FUNCTION: exportToFile */
 NXCommandResult* HDF5_SimResultsImportExport::exportToFile

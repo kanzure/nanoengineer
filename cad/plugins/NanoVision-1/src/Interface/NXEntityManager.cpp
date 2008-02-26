@@ -10,13 +10,36 @@ namespace Nanorex {
 NXEntityManager::NXEntityManager() {
 	importFileTypesString = "";
 	exportFileTypesString = "";
-	dataStoreInfo = new NXDataStoreInfo(); 
+	dataStoreInfo = new NXDataStoreInfo();
+	pollingThread = NULL;
 }
 
 
 /* DESTRUCTOR */
 NXEntityManager::~NXEntityManager() {
 	//delete rootMoleculeSet;
+}
+
+
+/* FUNCTION: reset */
+void NXEntityManager::reset(void) {
+	dataStoreInfo->reset();
+	vector<vector<NXMoleculeSet*> >::iterator v;
+	for (v = moleculeSets.begin(); v != moleculeSets.end(); ++v) {
+		vector<NXMoleculeSet*>::iterator w;
+		for (w = v->begin(); w != v->end(); ++w) {
+			delete *w;
+		}
+	}
+	moleculeSets.clear();
+	
+	if (pollingThread != NULL) {
+		NXLOG_DEBUG("NXEntityManager", "Stopping data store polling thread.");
+		pollingThread->stop();
+		pollingThread->wait();
+		delete pollingThread;
+		pollingThread = NULL;
+	}
 }
 
 
@@ -270,7 +293,7 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 				// as necessary
 				if (!inPollingThread && !inRecursiveCall &&
 					!dataStoreInfo->storeIsComplete(frameSetId)) {
-					DataStorePollingThread* pollingThread =
+					pollingThread =
 						new DataStorePollingThread(this, frameSetId);
 					pollingThread->start();
 				}
