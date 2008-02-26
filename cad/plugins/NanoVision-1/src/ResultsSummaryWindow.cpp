@@ -1,18 +1,20 @@
 // Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
-#include "InputParametersWindow.h"
+#include "ResultsSummaryWindow.h"
 
 
 /* CONSTRUCTOR */
-InputParametersWindow::InputParametersWindow(NXProperties* properties,
-											 QWidget *parent)
-		: QDialog(parent), Ui_InputParametersWindow() {
+ResultsSummaryWindow::ResultsSummaryWindow(NXProperties* properties,
+										   QWidget *parent)
+		: QDialog(parent), Ui_ResultsSummaryWindow() {
+printf("ResultsSummaryWindow::ResultsSummaryWindow\n");fflush(0);
 
 	setupUi(this);
 	setWindowFlags(Qt::Dialog | Qt::Tool);
 	
-	textEdit->insertHtml("<b><i>Input Parameters</i></b><br>");
-    if(properties == NULL) return;
+printf("\n\nResultsSummaryWindow::ResultsSummaryWindow: %d\n", properties);fflush(0);
+	textEdit->insertHtml("<b><i>Results Summary</i></b><br>");
+    if (properties == NULL) return;
 	vector<string> keys = properties->getPropertyKeys();
 	vector<string>::iterator iter = keys.begin();
 	QString line;
@@ -28,7 +30,7 @@ InputParametersWindow::InputParametersWindow(NXProperties* properties,
 
 
 /* DESTRUCTOR */
-InputParametersWindow::~InputParametersWindow() {
+ResultsSummaryWindow::~ResultsSummaryWindow() {
 }
 
 

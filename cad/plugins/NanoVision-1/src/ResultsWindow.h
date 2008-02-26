@@ -21,6 +21,7 @@ using namespace Nanorex;
 #include "ui_ResultsWindow.h"
 #include "DataWindow.h"
 #include "ErrorDialog.h"
+#include "ResultsSummaryWindow.h"
 #include "InputParametersWindow.h"
 #include "TrajectoryGraphicsWindow.h"
 
@@ -107,7 +108,7 @@ class InputParametersTreeItem : public DataWindowTreeItem {
 };
 
 
-/* CLASS: ResultsSummaryTreeItem 
+/* CLASS: ResultsSummaryTreeItem */
 class ResultsSummaryTreeItem : public DataWindowTreeItem {
 
 	public:
@@ -120,7 +121,7 @@ class ResultsSummaryTreeItem : public DataWindowTreeItem {
 	private:
 		ResultsSummaryWindow* resultsSummaryWindow;
 };
-*/
+
 
 /* CLASS: TrajectoryGraphicsTreeItem */
 class TrajectoryGraphicsTreeItem : public DataWindowTreeItem {

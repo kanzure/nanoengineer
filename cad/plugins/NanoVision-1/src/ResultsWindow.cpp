@@ -162,6 +162,7 @@ void ResultsWindow::setupSimulationResultsTree(void)
 			new InputParametersTreeItem(this, resultsTree);
         inputParametersItem->setIcon(0, inputParametersIcon);
         inputParametersItem->setText(0, tr("Input parameters"));
+		inputParametersItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
         resultsTree->addTopLevelItem(inputParametersItem);
     }
     
@@ -171,6 +172,7 @@ void ResultsWindow::setupSimulationResultsTree(void)
         QTreeWidgetItem *inputFilesItem = new QTreeWidgetItem(resultsTree);
         inputFilesItem->setIcon(0, inputFilesIcon);
         inputFilesItem->setText(0, tr("Input files"));
+		inputFilesItem->setFlags(Qt::ItemIsEnabled);
         
         vector<string>::const_iterator inputFileIter;
         for (inputFileIter = inputFileNames.begin();
@@ -181,6 +183,7 @@ void ResultsWindow::setupSimulationResultsTree(void)
             inputFileItem->setIcon(0, inputFileIcon);
             inputFileItem->setText
 				(0, strippedName(QString(inputFileIter->c_str())));
+			inputFileItem->setFlags(Qt::ItemIsEnabled);
             // inputFilesItem->addChild(inputFileItem);
             
             if(isMMPFile(*inputFileIter))
@@ -202,14 +205,16 @@ void ResultsWindow::setupSimulationResultsTree(void)
     QTreeWidgetItem *resultsItem = new QTreeWidgetItem(resultsTree);
     resultsItem->setIcon(0, resultsIcon);
     resultsItem->setText(0, tr("Results"));
+	resultsItem->setFlags(Qt::ItemIsEnabled);
     resultsTree->addTopLevelItem(resultsItem);
     
     // Results -> Summary
-    QTreeWidgetItem *resultsSummaryItem = NULL;
+    DataWindowTreeItem *resultsSummaryItem = NULL;
     if (resultsSummary != NULL) {
-        resultsSummaryItem = new QTreeWidgetItem(resultsItem);
+        resultsSummaryItem = new ResultsSummaryTreeItem(this, resultsItem);
         resultsSummaryItem->setIcon(0, resultsSummaryIcon);
         resultsSummaryItem->setText(0, tr("Summary"));
+		resultsSummaryItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
     
     // Results -> Trajectories
@@ -217,6 +222,7 @@ void ResultsWindow::setupSimulationResultsTree(void)
         QTreeWidgetItem *trajectoryItem = new QTreeWidgetItem(resultsItem);
         trajectoryItem->setIcon(0, resultsTrajectoriesIcon);
         trajectoryItem->setText(0, tr("Trajectories"));
+		trajectoryItem->setFlags(Qt::ItemIsEnabled);
         
         vector<string>::const_iterator trajectoryNameIter;
         for (trajectoryNameIter = trajectoryNames.begin();
@@ -229,6 +235,7 @@ void ResultsWindow::setupSimulationResultsTree(void)
 											   trajectoryItem);
             trajectoryNameItem->setIcon(0, resultsTrajectoriesIcon);
             trajectoryNameItem->setText(0, QString(trajectoryNameIter->c_str()));
+			trajectoryNameItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
             // trajectoryItem->addChild(trajectoryNameItem);
         }
     }
@@ -264,6 +271,7 @@ setupMoleculeSetResultsSubtree_helper(NXMoleculeSet *molSetPtr,
         QTreeWidgetItem *molItem = new QTreeWidgetItem(molSetItem);
         molItem->setIcon(0,atomIcon);
         molItem->setText(0, tr(molPtr->GetTitle()));
+		molItem->setFlags(Qt::ItemIsEnabled);
     }
     
     NXMoleculeSetIterator childMolSetIter;
@@ -277,6 +285,7 @@ setupMoleculeSetResultsSubtree_helper(NXMoleculeSet *molSetPtr,
         char const *const childMolSetTitle =
             (childMolSetPtr->getTitle()).c_str();
         childMolSetNode->setText(0, tr(childMolSetTitle));
+		childMolSetNode->setFlags(Qt::ItemIsEnabled);
         setupMoleculeSetResultsSubtree_helper(childMolSetPtr, childMolSetNode);
     }
 }
@@ -298,6 +307,7 @@ void ResultsWindow::setupSingleStructureTree(void)
     QTreeWidgetItem *fileItem = new QTreeWidgetItem(resultsTree);
     fileItem->setIcon(0, mmpFileIcon);
     fileItem->setText(0, fileName);
+	fileItem->setFlags(Qt::ItemIsEnabled);
     resultsTree->addTopLevelItem(fileItem);
     QString const fileSuffix = fileInfo.suffix();
     resultsTree->setHeaderLabel(fileSuffix.toUpper() + " file");
@@ -335,7 +345,8 @@ DataWindow* ResultsWindow::activeDataWindow() {
 /* FUNCTION: resultsTreeItemDoubleClicked */
 void ResultsWindow::resultsTreeItemDoubleClicked(QTreeWidgetItem* treeItem,
 												 int /*column*/) {
-	if (treeItem != NULL)
+printf("\n\nResultsWindow::resultsTreeItemDoubleClicked: %d\n", treeItem);fflush(0);
+	if ((treeItem != NULL) && (treeItem->flags() & Qt::ItemIsSelectable))
 		((DataWindowTreeItem*)treeItem)->showWindow();
 }
 
@@ -389,6 +400,41 @@ void InputParametersTreeItem::showWindow() {
 									  (QWidget*)(parent()));
 	}
 	inputParametersWindow->show();
+}
+
+
+/* ************************ ResultsSummaryTreeItem ************************ */
+
+
+/* CONSTRUCTOR */
+ResultsSummaryTreeItem::ResultsSummaryTreeItem(ResultsWindow* resultsWindow,
+											   QTreeWidgetItem* treeWidgetItem)
+		: DataWindowTreeItem(resultsWindow, treeWidgetItem) {
+	resultsSummaryWindow = NULL;
+}
+
+
+/* DESTRUCTOR */
+ResultsSummaryTreeItem::~ResultsSummaryTreeItem() {
+	if (resultsSummaryWindow != NULL)
+		delete resultsSummaryWindow;
+}
+
+
+/* FUNCTION: showWindow */
+void ResultsSummaryTreeItem::showWindow() {
+printf("\nResultsSummaryTreeItem::showWindow\n");fflush(0);
+	if (resultsSummaryWindow == NULL) {
+		NXDataStoreInfo* dataStoreInfo =
+			resultsWindow->entityManager->getDataStoreInfo();
+printf("	%d, %d\n", dataStoreInfo, dataStoreInfo->getResultsSummary());
+		resultsSummaryWindow =
+			new ResultsSummaryWindow(dataStoreInfo->getResultsSummary(),
+									 (QWidget*)(parent()));
+	}
+printf("	about to show\n");fflush(0);
+	resultsSummaryWindow->show();
+printf("	done\n");fflush(0);
 }
 
 
