@@ -1,14 +1,15 @@
 // Copyright 2007 Nanorex, Inc.  See LICENSE file for details.
 
-#include "ViewParametersWindow.h"
+#include "InputParametersWindow.h"
 
 
 /* CONSTRUCTOR */
-ViewParametersWindow::ViewParametersWindow(NXProperties* properties,
-										   QWidget *parent)
-		: QDialog(parent), Ui_ViewParametersWindow() {
+InputParametersWindow::InputParametersWindow(NXProperties* properties,
+											 QWidget *parent)
+		: QDialog(parent), Ui_InputParametersWindow() {
 
 	setupUi(this);
+	setWindowFlags(Qt::Dialog | Qt::Tool);
 	
 	textEdit->insertHtml("<b><i>InputParameters</i></b><br>");
     if(properties == NULL) return;
@@ -27,7 +28,7 @@ ViewParametersWindow::ViewParametersWindow(NXProperties* properties,
 
 
 /* DESTRUCTOR */
-ViewParametersWindow::~ViewParametersWindow() {
+InputParametersWindow::~InputParametersWindow() {
 }
 
 

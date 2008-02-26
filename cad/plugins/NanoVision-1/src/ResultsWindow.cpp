@@ -86,33 +86,29 @@ bool ResultsWindow::loadFile(const QString &fileName) {
         
         NXDataStoreInfo *dataStoreInfo = entityManager->getDataStoreInfo();
         
-        // populate results tree
+        // Populate results tree
         updateResultsTree();
         
-/*        // Discover a store-not-complete trajectory frame set
-        int trajId = dataStoreInfo->getTrajectoryId("frame-set-1");
-        TrajectoryGraphicsWindow* trajWindow = new TrajectoryGraphicsWindow();
-        trajPane->setEntityManager(entityManager);
-        workspace->addWindow(trajWindow);
-        trajWindow->show();
-        if (!dataStoreInfo->storeIsComplete(trajId)) {
-            QObject::connect(entityManager,
-                                SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
-                                trajWindow,
-                                SLOT(newFrame(int, int, NXMoleculeSet*)));
-        }*/
-        
-/* MDI data window example
-    DataWindow *child = new DataWindow;
-    workspace->addWindow(child);
-    child->show();
-*/
-        // Floating data window example
-        ViewParametersWindow* viewParametersWindow =
-            new ViewParametersWindow(dataStoreInfo->getInputParameters(),
-                                     (QWidget*)(parent()));
-        viewParametersWindow->show();
-        
+		// Choose some graphics to show once the file is loaded
+		if (dataStoreInfo->isSingleStructure()) {
+			; // show it
+			
+		} else if (dataStoreInfo->isSimulationResults()) {
+			vector<string> trajectoryNames =
+				dataStoreInfo->getTrajectoryNames();
+			if (trajectoryNames.size() != 0) {
+				string trajName = trajectoryNames[0];
+//				showTrajectoryWindow(trajName);
+				
+			} else {
+				vector<string> inputFileNames =
+					dataStoreInfo->getInputFileNames();
+				if (inputFileNames.size() != 0) {
+					string inputFileName = inputFileNames[0];
+					// showStructureWindow(inputFileName);
+				}
+			}
+		}        
         QString message = tr("File loaded: %1").arg(fileName);
         NXLOG_INFO("ResultsWindow", qPrintable(message));
     }
@@ -126,13 +122,17 @@ void ResultsWindow::updateResultsTree(void)
 {
     NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
     // MMP or OpenBabel file import
-    if(dataStoreInfo->isSingleStructure()) {
+    if (dataStoreInfo->isSingleStructure()) {
         setupSingleStructureTree();
     }
     // Simulation results import
-    else if(dataStoreInfo->isSimulationResults()) {
+    else if (dataStoreInfo->isSimulationResults()) {
         setupSimulationResultsTree();
     }
+	connect(resultsTree,
+			SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+			this,
+			SLOT(resultsTreeItemDoubleClicked(QTreeWidgetItem*, int)));		
 }
 
 
@@ -158,7 +158,8 @@ void ResultsWindow::setupSimulationResultsTree(void)
     // input parameters
     NXProperties *inputParameters = dataStoreInfo->getInputParameters();
     if (inputParameters != NULL) {
-        QTreeWidgetItem *inputParametersItem = new QTreeWidgetItem(resultsTree);
+        DataWindowTreeItem* inputParametersItem =
+			new InputParametersTreeItem(this, resultsTree);
         inputParametersItem->setIcon(0, inputParametersIcon);
         inputParametersItem->setText(0, tr("Input parameters"));
         resultsTree->addTopLevelItem(inputParametersItem);
@@ -222,8 +223,10 @@ void ResultsWindow::setupSimulationResultsTree(void)
             trajectoryNameIter != trajectoryNames.end();
             ++trajectoryNameIter)
         {
-            QTreeWidgetItem *trajectoryNameItem =
-                new QTreeWidgetItem(trajectoryItem);
+            TrajectoryGraphicsTreeItem* trajectoryNameItem =
+                new TrajectoryGraphicsTreeItem(*trajectoryNameIter,
+											   this,
+											   trajectoryItem);
             trajectoryNameItem->setIcon(0, resultsTrajectoriesIcon);
             trajectoryNameItem->setText(0, QString(trajectoryNameIter->c_str()));
             // trajectoryItem->addChild(trajectoryNameItem);
@@ -329,10 +332,103 @@ DataWindow* ResultsWindow::activeDataWindow() {
 }
 
 
-/* FUNCTION: createResultsWindow */
-DataWindow* ResultsWindow::createDataWindow() {
-    DataWindow* window = new DataWindow;
-    workspace->addWindow(window);
-    
-    return window;
+/* FUNCTION: resultsTreeItemDoubleClicked */
+void ResultsWindow::resultsTreeItemDoubleClicked(QTreeWidgetItem* treeItem,
+												 int /*column*/) {
+	if (treeItem != NULL)
+		((DataWindowTreeItem*)treeItem)->showWindow();
 }
+
+
+/* ************************ DataWindowTreeItem ************************ */
+
+
+/* CONSTRUCTORS */
+DataWindowTreeItem::DataWindowTreeItem(ResultsWindow* resultsWindow,
+									   QTreeWidget* treeWidget)
+		: QTreeWidgetItem(treeWidget) {
+	this->resultsWindow = resultsWindow;
+}
+DataWindowTreeItem::DataWindowTreeItem(ResultsWindow* resultsWindow,
+									   QTreeWidgetItem* treeWidgetItem)
+		: QTreeWidgetItem(treeWidgetItem) {
+	this->resultsWindow = resultsWindow;
+}
+
+
+/* DESTRUCTOR */
+DataWindowTreeItem::~DataWindowTreeItem() {
+}
+
+
+/* ************************ InputParametersTreeItem ************************ */
+
+
+/* CONSTRUCTOR */
+InputParametersTreeItem::InputParametersTreeItem(ResultsWindow* resultsWindow,
+												 QTreeWidget* treeWidget)
+		: DataWindowTreeItem(resultsWindow, treeWidget) {
+	inputParametersWindow = NULL;
+}
+
+
+/* DESTRUCTOR */
+InputParametersTreeItem::~InputParametersTreeItem() {
+	if (inputParametersWindow != NULL)
+		delete inputParametersWindow;
+}
+
+
+/* FUNCTION: showWindow */
+void InputParametersTreeItem::showWindow() {
+	if (inputParametersWindow == NULL) {
+		NXDataStoreInfo* dataStoreInfo =
+			resultsWindow->entityManager->getDataStoreInfo();
+		inputParametersWindow =
+			new InputParametersWindow(dataStoreInfo->getInputParameters(),
+									  (QWidget*)(parent()));
+	}
+	inputParametersWindow->show();
+}
+
+
+/* *********************** TrajectoryGraphicsTreeItem *********************** */
+
+
+/* CONSTRUCTOR */
+TrajectoryGraphicsTreeItem::TrajectoryGraphicsTreeItem
+		(const string& trajectoryName,
+		 ResultsWindow* resultsWindow,
+		 QTreeWidgetItem* treeWidgetItem)
+		: DataWindowTreeItem(resultsWindow, treeWidgetItem) {
+	trajWindow = NULL;
+	this->trajectoryName = trajectoryName;
+}
+
+
+/* DESTRUCTOR */
+TrajectoryGraphicsTreeItem::~TrajectoryGraphicsTreeItem() {
+	if (trajWindow != NULL)
+		delete trajWindow;
+}
+
+
+/* FUNCTION: showWindow */
+void TrajectoryGraphicsTreeItem::showWindow() {
+	if (trajWindow == NULL) {
+		NXEntityManager* entityManager = resultsWindow->entityManager;
+		NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
+		int trajId = dataStoreInfo->getTrajectoryId(trajectoryName);
+		trajWindow = new TrajectoryGraphicsWindow();
+		trajWindow->setEntityManager(entityManager);
+		resultsWindow->workspace->addWindow(trajWindow);
+		if (!dataStoreInfo->storeIsComplete(trajId)) {
+			QObject::connect(entityManager,
+							 SIGNAL(newFrameAdded(int, int, NXMoleculeSet*)),
+							 trajWindow,
+							 SLOT(newFrame(int, int, NXMoleculeSet*)));
+		}
+	}
+	trajWindow->show();
+}
+
