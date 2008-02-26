@@ -402,7 +402,7 @@ packageMapping_for_files = {
     "GroupButtonMixin"                 : "PM", # (deprecated, and its only callers should use things from PM instead)
     "GroupProp"                        : "ui/dialog|commands/GroupProperties?",
     "GroupPropDialog"                  : "ui/dialog|commands/GroupProperties?",
-    "Guides"                           : "graphics_widgets",
+    "Guides"                           : "graphics_drawing", # drawing code for rulers 
     "handles"                          : "graphics_drawable", # graphical handles (for Extrude, but could be general)
     "help"                             : "ui/dialog|ne1_ui/help",
     "HelpDialog"                       : "ui/dialog|ne1_ui/help",
