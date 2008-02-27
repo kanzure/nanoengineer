@@ -1780,6 +1780,64 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         else:
             self.standard_draw_atoms(glpane, disp0)
         return
+    
+    def draw_highlighted(self, glpane, color):
+        """
+        Draws this chunk as highlighted with the specified color. 
+        @param: GLPane object
+        @param color: The highlight color
+        @see: dna_model.DnaGroup.draw_highlighted
+        @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
+        @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
+        
+        """        
+        from drawer import apply_material, allow_color_sorting, use_color_sorted_dls
+        from debug_prefs import debug_pref, Choice_boolean_True
+        from OpenGL.GL import glCallList        
+        #This was originally a sub-method in 
+        #SelectChunks_GraphicsMode.drawHighlightedChunks. Moved here 
+        #(Chunk.draw_highlighted on 2008-02-26
+        
+        # Note: bool_fullBondLength represent whether full bond length is to be
+        # drawn. It is used only in select Chunks mode while highlighting the 
+        # whole chunk and when the atom display is Tubes display -- ninad 070214
+        # UPDATE: Looks like this flag is always True in this method. 
+        # may be an effect of an earlier refactoring (note that original comment 
+        # as above was written over an year ago). -- Ninad 2008-02-26
+        bool_fullBondLength = True
+
+        draw_bonds_only_once = debug_pref(
+            "GLPane: drawHighlightedChunk draw bonds only once?",
+            Choice_boolean_True )
+            # turn off to test effect of this optimization;
+            # when testing is done, hardcode this as True
+            # [bruce 080217]
+            
+        drawn_bonds = {}
+
+        if allow_color_sorting and use_color_sorted_dls:
+            #russ 080225: Alternate drawing method using colorless display list.
+            assert self.__dict__.has_key('displist')
+            apply_material(color)
+            self.pushMatrix()
+            glCallList(self.displist.nocolor_dl)
+            self.popMatrix()
+        else:
+            for atom in self.atoms.itervalues():
+                # draw atom and its (not yet drawn) bonds
+                atom.draw_in_abs_coords(glpane, 
+                                        color, 
+                                        useSmallAtomRadius = True)
+                for bond in atom.bonds:
+                    if draw_bonds_only_once:
+                        if drawn_bonds.has_key(id(bond)):
+                            continue # to next bond
+                        drawn_bonds[id(bond)] = bond
+                    bond.draw_in_abs_coords(glpane,
+                                            color, 
+                                            bool_fullBondLength)
+                    
+        return    
 
     def standard_draw_chunk(self, glpane, disp0, highlighted = False): #bruce 060608 split this out of draw_displist
         """

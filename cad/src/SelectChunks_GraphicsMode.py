@@ -634,6 +634,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @return: whether the caller should skip the usual selobj drawing
                  (usually, this is just whether we drew something)
         @rtype: boolean
+        @see: self._get_objects_to_highlight()
+        @see: self._is_dnaGroup_highlighting_enabled()
+        @see : self.drawHighlightedObjectUnderMouse()
         """
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into 
         # selectMolsMode and slightly revised it (including, adding the return 
@@ -641,79 +644,121 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         # Bruce 080217 formalized hicolor2 as an arg (was hardcoded orange).
         assert hicolor is not None #bruce 070919
         assert hicolor2 is not None
-        del self
-
-        # Note: bool_fullBondLength represent whether full bond length is to be
-        # drawn. It is used only in select Chunks mode while highlighting the 
-        # whole chunk and when the atom display is Tubes display -- ninad 070214
-        bool_fullBondLength = True
-
-        draw_bonds_only_once = debug_pref(
-            "GLPane: drawHighlightedChunk draw bonds only once?",
-            Choice_boolean_True )
-            # turn off to test effect of this optimization;
-            # when testing is done, hardcode this as True
-            # [bruce 080217]
-
-        drawn_bonds = {}
-
-        def draw_chunk(chunk, color):
-            if allow_color_sorting and use_color_sorted_dls:
-                #russ 080225: Alternate drawing method using colorless display list.
-                assert chunk.__dict__.has_key('displist')
-                apply_material(color)
-                chunk.pushMatrix()
-                glCallList(chunk.displist.nocolor_dl)
-                chunk.popMatrix()
-            else:
-                for atom in chunk.atoms.itervalues():
-                    # draw atom and its (not yet drawn) bonds
-                    atom.draw_in_abs_coords(glpane, color, useSmallAtomRadius = True)
-                    for bond in atom.bonds:
-                        if draw_bonds_only_once:
-                            if drawn_bonds.has_key(id(bond)):
-                                continue # to next bond
-                            drawn_bonds[id(bond)] = bond
-                        bond.draw_in_abs_coords(glpane, color, bool_fullBondLength)
-            return
         
-        if isinstance(selobj, Chunk):
-            print "I think this is never called "\
-                  "(drawHighlightedChunk with selobj a Chunk)" #bruce 071008
-            draw_chunk(selobj, hicolor)
-            return False # not sure False is right, but it imitates 
-                            # the prior code [bruce 071008]
-
-        elif isinstance(selobj, Atom):
-            draw_chunk(selobj.molecule, hicolor)
-            return True
-
-        elif isinstance(selobj, Bond):
+        something_drawn_highlighted = False
+        
+        #dictionary of objects to highlight. 
+        highlightObjectDict =  self._get_objects_to_highlight(selobj, 
+                                                              hicolor,
+                                                              hicolor2)
+        
+        #We could have even used simple lists here. one for objects to be 
+        #highlighted and one for highlight colors. Easy to change to that 
+        #implementation if we need to.         
+        
+        for obj, color in highlightObjectDict.iteritems():
+            #obj = object to be drawn highlighted 
+            #color = highlight color
+            if hasattr( obj, 'draw_highlighted'):
+                obj.draw_highlighted(self.glpane, color)                
+                something_drawn_highlighted = True                
+                
+        return  something_drawn_highlighted   
+        
+    def _get_objects_to_highlight(self, selobj, hiColor1, hiColor2):
+        """
+        Returns a python dictionary with objects to be drawn highlighted as its 
+        keys and highlight color as their corresponding values. 
+        
+        The object to be highlighted is determined based the current graphics 
+        mode using the glpane.selobj. The subclasses can override this method to
+        return objects to be highlighted in that particular graphics mode. 
+        @param selobj: GLPane.selobj (object under cursoe which can be registered
+                       as a GLPane.selobj
+        @param hiColor1 : highlight color 1 
+        @paramhiColor2: alternative highlight color. Example: If there are two 
+                        chunks that need to be highlighted, one chunk gets 
+                        hiColor1 and other gets hiColor2. 
+        
+        @TODO: 
+        - may be hiColors should be in a list to make it more general
+        @return: dictionary of objects to be highlighted. 
+        @rtype: dict
+        @see: self._is_dnaGroup_highlighting_enabled()
+        @see: self.drawHighlightedChunk()
+        @see : self.drawHighlightedObjectUnderMouse()
+	"""
+       
+        #Create a dictionary of objects to be drawn highlighted. 
+        #(object_to_highlight, highlight_color) will 
+        objectDict = {}  
+        
+        #As of 2008-02-26, its impossible to have the following condition 
+        #isinstance(selobj, Chunk). So commenting out the code that checks it.
+        #The commented out code should be removed after more testing. -- Ninad
+        ##if isinstance(selobj, Chunk):            
+            ##print "I think this is never called "\
+                  ##"(drawHighlightedChunk with selobj a Chunk)" #bruce 071008
+            ##objectDict[selobj] = hiColor1
+        
+        assert not isinstance(selobj, Chunk)
+        
+        chunkList = []
+        colorList = []
+        
+        if isinstance(selobj, Atom):
+            chunkList = [selobj.molecule]     
+            colorList = [hiColor1]
+        elif isinstance(selobj, Bond):            
             chunk1 = selobj.atom1.molecule
             chunk2 = selobj.atom2.molecule
-
             if chunk1 is chunk2:
-                draw_chunk(chunk1, hicolor)
+                chunkList = [chunk1] 
+                colorList = [hiColor1]
             else:
-                # Use two colors so the two chunks (and the fact that there
-                # *are* two chunks) are distinguishable.
-                #
-                # Todo: make which chunk is which deterministic, somehow.
-                # Maybe: let chunk1 come from the atom of selobj which is
-                # closest to the mouse hitpoint on selobj.
-                # (This probably requires arguments we are not being passed.)
-                # Or, let the most recent Atom selobj determine chunk1.
-                # [bruce 080217 NFR]
-                draw_chunk(chunk1, hicolor)
-                draw_chunk(chunk2, hicolor2)
-                
-            return True
+                chunkList = [chunk1, chunk2]
+                colorList = [hiColor1, hiColor2]
 
-        return False # drew nothing
+        if self._is_dnaGroup_highlighting_enabled(): 
+            for c in chunkList:
+                i = chunkList.index(c) 
+                dnaGroup = c.getDnaGroup()
+                if dnaGroup is not None:
+                    if not objectDict.has_key(dnaGroup):                                                           
+                        objectDict[dnaGroup] = colorList[i]
+                else:
+                    objectDict[c] = colorList[i]   
+        else:
+            for c in chunkList:
+                i = chunkList.index(c) 
+                objectDict[c] = colorList[i] 
+            
+        return objectDict
     
+    def _is_dnaGroup_highlighting_enabled(self):
+        """
+        Returns a boolean that decides whether to highlight the whole 
+        DnaGroup or just the chunk of the glpane.selobj. 
+        Example: In default mode (SelectChunks_graphicsMode) if the cursor is
+        over an atom or a bond which belongs to a DnaGroup, the whole 
+        DnaGroup is highlighted. But if you are in buildDna mode, the 
+        individual strand and axis chunks will be highlighted in this case. 
+        Therefore, subclasses of SelectChunks_graphicsMode should override this
+        method to enable or disable the DnaGroup highlighting. (the Default 
+        implementation returns True)
+        @see: self._get_objects_to_highlight()
+        @see: self.drawHighlightedChunk()
+        @see : self.drawHighlightedObjectUnderMouse()
+	"""
+        return True
+     
     def drawHighlightedObjectUnderMouse(self, glpane, selobj, hicolor):
         """
         [overrides superclass method]
+        @see: self._get_objects_to_highlight()
+        @see: self.drawHighlightedChunk()
+        
+        
         """
         # Ninad 070214 wrote this in GLPane; bruce 071008 moved it into 
         # selectMolsMode and slightly revised it.

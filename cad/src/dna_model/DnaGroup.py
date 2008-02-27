@@ -133,7 +133,7 @@ class DnaGroup(Block):
         ## assert isinstance(segment, DnaSegment)
         
         self.addchild(segment)
-
+    
     def getProps(self):
         """
 	Method to support Dna duplex editing. see Group.__init__ for 
@@ -318,6 +318,23 @@ class DnaGroup(Block):
         
         self.apply2all(func)
         return atomList
+    
+    def draw_highlighted(self, glpane, color):
+        """
+        Draw the strand and axis chunks as highlighted. (Calls the related 
+        methods in the chunk class)
+        @param: GLPane object 
+        @param color: The highlight color
+        @see: Chunk.draw_highlighted()
+        @see: SelectChunks_GraphicsMode.draw_highlightedChunk()
+        @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
+        @see: SelectChunks_GraphicsMode._is_dnaGroup_highlighting_enabled()        
+        """  
+        for c in self.getStrands():
+            c.draw_highlighted(glpane, color)
+        for c in self.getAxisChunks():
+            c.draw_highlighted(glpane, color)
+   
  
     pass # end of class DnaGroup
 

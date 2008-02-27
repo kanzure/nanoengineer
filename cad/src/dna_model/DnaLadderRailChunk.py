@@ -288,6 +288,22 @@ class DnaAxisChunk(DnaLadderRailChunk):
 
     Internal model object; same comments as in DnaStrandChunk docstring apply.
     """
+    def isAxisChunk(self):
+        """
+        This should always return True. It directly returns True ... bypassing
+        the things done in Chunk class ... thereby making this a little faster.
+        @see: Chunk.isAxisChunk() , overridden here.  
+        """
+        return True
+    
+    def isStrandChunk(self):
+        """
+        This should always return False. It directly returns False ... bypassing
+        the things done in Chunk class ... thereby making this a little faster.
+        @see: Chunk.isStrandChunk() , overridden here.  
+        """
+        return not self.isAxisChunk()
+    
     pass
 
 # ==
@@ -303,6 +319,24 @@ class DnaStrandChunk(DnaLadderRailChunk):
     updater to make one, is not yet decided. Likewise, whether self.draw is
     normally called is not yet decided.)
     """
+    def isAxisChunk(self):
+        """
+        This should always return False. It directly returns False ... bypassing
+        the things done in Chunk class ... thereby making this a little faster. 
+        
+        @see: Chunk.isAxisChunk() overridden here.          
+        @see: DnaAxisChunk.isAxisChunk()
+        """
+        return False
+    
+    def isStrandChunk(self):
+        """
+        This should always return True. It directly returns True ... bypassing
+        the things done in Chunk class ... thereby making this a little faster. 
+        @see: Chunk.isStrandChunk() , overridden here.         
+        """
+        return not self.isAxisChunk()
+    
     def _grab_atoms_from_chain(self, chain): # misnamed, doesn't take them out of chain
         """
         [extends superclass version]
