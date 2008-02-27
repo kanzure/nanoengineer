@@ -120,10 +120,16 @@ Welcome to the Nanorex Software-Engineering Mechanisms Robot (SEMBot).
           <td valign="top" align="right">Import dependencies: </td>
           <td valign="top"><span class="summary-name">Modules (arcs): <?php include 'depend.dot.lines'; ?>&nbsp;</span></td>
           <td><a href="depend.dot">depend.dot</a></td></tr>
+  <!-- 
+     Note: the import dependencies tool is currently broken for packages, 
+     so dependpack.dot is nonsense, so leave it out until this is fixed.
+     It is still generated nightly and can be seen at the same URL as before.
+     -- Bruce 080227
         <tr>
           <td></td>
           <td valign="top"><span class="summary-name">Packages (arcs): <?php include 'dependpack.dot.lines'; ?>&nbsp;</span></td>
           <td><a href="dependpack.dot">dependpack.dot</a></td></tr>
+   -->
         <tr>
           <td align="right">Module classification: </td>
           <td><a href="proposed_file_listing.txt">proposed package/module listing</a></td></tr>
