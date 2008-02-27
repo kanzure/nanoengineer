@@ -1365,7 +1365,6 @@ class MWsemantics(QMainWindow,
                 commandSequencer.userEnterCommand('BUILD_DNA')
             
             assert self.commandSequencer.currentCommand.commandName == 'BUILD_DNA'          
-                
             self.commandSequencer.currentCommand.runCommand()
     
         
@@ -1446,6 +1445,8 @@ class MWsemantics(QMainWindow,
             if currentCommand.commandName != "DNA_DUPLEX":
                 commandSequencer.userEnterTemporaryCommand(
                     'DNA_DUPLEX')
+                assert commandSequencer.currentCommand.commandName == 'DNA_DUPLEX'
+                commandSequencer.currentCommand.runCommand()
             else:        
                 currentCommand = self.commandSequencer.currentCommand
                 if currentCommand.commandName == 'DNA_DUPLEX':
