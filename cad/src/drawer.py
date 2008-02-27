@@ -1340,6 +1340,11 @@ class ColorSorter:
         if csdl != None:
             parent_top = csdl.dl
             if not (allow_color_sorting and use_color_sorted_dls):
+                # This is the beginning of the single display list created when color
+                # sorting is turned off.  It is ended in ColorSorter.finish .  In
+                # between, the calls to draw{sphere,cylinder,polycone} methods pass
+                # through ColorSorter.schedule_* but are immediately sent to *_worker
+                # where they do OpenGL drawing that is captured into the display list.
                 try:
                         glNewList(parent_top, GL_COMPILE_AND_EXECUTE) # Start single-level list.
                 except:
@@ -1410,8 +1415,9 @@ class ColorSorter:
                     continue
 
                 #russ 080225: Moved glEndList here for displist re-org.
-                # Terminate a single display list.
                 if parent_csdl is not None:
+                    # Terminate a single display list, created when color sorting
+                    # is turned off.  It was started in ColorSorter.start .
                     glEndList()
                     pass
 
