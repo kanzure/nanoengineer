@@ -42,7 +42,7 @@ from drawer import apply_material, allow_color_sorting, use_color_sorted_dls
 from OpenGL.GL import glCallList
 from debug import print_compact_traceback, print_compact_stack
 
-from constants import yellow, orange, ave_colors
+from constants import yellow, orange, ave_colors, red
 
 from debug_prefs import debug_pref, Choice_boolean_True
 
@@ -142,10 +142,18 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @see: self.atomLeftDown
         @see: self.chunkLeftDown
         """
+        
+        assert isinstance(a_chunk, Chunk)
+        
         m = a_chunk
         
-        assert isinstance(m, Chunk)
-                
+        if self._is_dnaGroup_highlighting_enabled():
+            #If this graphicsmode highlights the whole DnaGroup, 
+            #pick that whole dna group when leftDown event occurs.
+            dnaGroup = a_chunk.getDnaGroup()
+            if dnaGroup is not None:
+                m = dnaGroup
+    
         if not m.picked and self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
             m.pick()
@@ -191,10 +199,18 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             "call selectMode.objectSpecificLeftUp before calling "
             "selectMolsMode.chunkLeftUp: ")
             return
+               
+                
+        assert isinstance(a_chunk, Chunk)    
         
         m = a_chunk
-                
-        assert isinstance(m, Chunk)    
+        
+        if self._is_dnaGroup_highlighting_enabled():
+            #If this graphicsmode highlights the whole DnaGroup, 
+            #pick that whole dna group when leftDown event occurs.
+            dnaGroup = a_chunk.getDnaGroup()
+            if dnaGroup is not None:
+                m = dnaGroup
         
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
@@ -787,6 +803,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 	The default implementation returns 'None' . Subclasses should override
 	this method if they need atom highlight color.
 	""" 
+        if self.o.modkeys == 'Shift+Control':
+            return red
+        
         return yellow
 
     def _getBondHighlightColor(self, selobj):
@@ -796,6 +815,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 	The default implementation returns 'None' . Subclasses should override
 	this method if they need bond highlight color.
 	""" 
+        if self.o.modkeys == 'Shift+Control':
+            return red
+        
         return yellow
 
 class SelectChunks_GraphicsMode(SelectChunks_basicGraphicsMode):
