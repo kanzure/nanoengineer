@@ -31,7 +31,7 @@ from drawer import genDiam
 from drawer import drawcylinder
 from drawer import drawsphere
 from drawer import drawline
-from drawer import ColorSorter, DispList
+from drawer import ColorSorter, ColorSortedDisplayList
 
 from constants import SUBTRACT_FROM_SELECTION
 from constants import OUTSIDE_SUBTRACT_FROM_SELECTION
@@ -111,7 +111,7 @@ class CookieShape(shape):
         # Each element is a dictionary for the bonds info for a layer
         self.bondLayers = {} 
 
-        self.displist = DispList()
+        self.displist = ColorSortedDisplayList()
         self.havelist = 0
         self.dispMode = mode
         self.latticeType = latticeType
@@ -774,7 +774,8 @@ class CookieShape(shape):
             glCallList(self.displist.dl)
             return
         #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
-        ColorSorter.start(self) # grantham 20051205 #russ 080225: Added arg.
+        #russ 080225: displist side effect allocates a ColorSortedDisplayList.
+        ColorSorter.start(self.displist) # grantham 20051205
         try:
             for layer, bonds in self.bondLayers.items():
                 color = layerColor[layer]

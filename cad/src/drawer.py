@@ -25,7 +25,7 @@ and removed some obsolete functions.
 
 080210 russ Split the single display-list into two second-level lists (with and without color)
 and a set of per-color sublists so selection and hover-highlight can over-ride Chunk base colors.
-DispList is now a class in the parent's displist attr to keep track of all that stuff.
+ColorSortedDisplayList is now a class in the parent's displist attr to keep track of all that stuff.
 
 """
 
@@ -790,8 +790,6 @@ def drawpolycone_worker(params):
     function and its parameters can be passed to another function for
     deferment.  Right now this is only ColorSorter.schedule (see below)
     """
-
-    global CylList, CapList
     (pos_array, rad_array) = params
     glePolyCone(pos_array, None, rad_array)
     return
@@ -816,7 +814,7 @@ def drawsurface_worker(params):
 
 class ShapeList_inplace:
 
-    """\
+    """
     Records sphere and cylinder data and invokes it through the native C++
     rendering system.
 
@@ -850,7 +848,7 @@ class ShapeList_inplace:
 
     def draw(self):
 
-        """\
+        """
         Draw all the objects represented in this shape list.
         """
 
@@ -861,7 +859,7 @@ class ShapeList_inplace:
 
 
     def add_sphere(self, color4, pos, radius, name = 0):
-        """\
+        """
         Add a sphere to this shape list.
 
         "color4" must have 4 elements.  "name" is the GL selection name.
@@ -894,7 +892,7 @@ class ShapeList_inplace:
 
 
     def add_cylinder(self, color4, pos1, pos2, radius, name = 0, capped=0):
-        """\
+        """
         Add a cylinder to this shape list.
 
         "color4" must have 4 elements.  "name" is the GL selection name.
@@ -931,7 +929,7 @@ class ShapeList_inplace:
 
 
     def petrify(self):
-        """\
+        """
         Make this object
 
         Since the last block of shapes might not be full, this
@@ -960,7 +958,7 @@ class ShapeList_inplace:
 
 class ShapeList:
 
-    """\
+    """
     Records sphere and cylinder data and invokes it through the native C++
     rendering system.
 
@@ -988,7 +986,7 @@ class ShapeList:
 
     def _memoize(self):
 
-        """\
+        """
         Internal function that creates Numeric arrays from the data stored
         in add_sphere and add-cylinder.
         """
@@ -1013,7 +1011,7 @@ class ShapeList:
 
     def draw(self):
 
-        """\
+        """
         Draw all the objects represented in this shape list.
         """
 
@@ -1041,7 +1039,7 @@ class ShapeList:
 
 
     def add_sphere(self, color4, pos, radius, name = 0):
-        """\
+        """
         Add a sphere to this shape list.
 
         "color4" must have 4 elements.  "name" is the GL selection name.
@@ -1055,7 +1053,7 @@ class ShapeList:
 
 
     def add_cylinder(self, color4, pos1, pos2, radius, name = 0, capped=0):
-        """\
+        """
         Add a cylinder to this shape list.
 
         "color4" must have 4 elements.  "name" is the GL selection name.
@@ -1071,7 +1069,7 @@ class ShapeList:
 
 
     def petrify(self):
-        """\
+        """
         Delete all but the cached Numeric arrays.
 
         Call this when you're sure you don't have any more shapes to store
@@ -1095,31 +1093,33 @@ class ShapeList:
         del self.cylinder_names
 
 
-class DispList:         #russ 080225: Added.
-    """One of these goes in the ColorSorter parent's displist attr to keep track of
-    color-sorted display list state.
+class ColorSortedDisplayList:         #Russ 080225: Added.
+    """
+    The ColorSorter's parent uses one of these to store color-sorted display list
+    state.  It's passed in to ColorSorter.start() .
     """
     def __init__(self):
         self.dl = glGenLists(1) # Display list id for the current appearance.
         assert type(self.dl) in (type(1), type(1L)) #bruce 070521 added these two asserts
-        assert self.dl != 0     # this failed on Linux in Extrude, when we did it in __init__ (bug 2042)
+        assert self.dl != 0     # This failed on Linux, keep checking. (bug 2042)
 
         self.color_dl = 0       # Second-level display list setting color and calling sublists
         self.nocolor_dl = 0     # 2nd level call-list without colors, used for color over-ride.
         self.per_color_dls = [] # Per-color sublists.
         
     def deallocate_displists(self):
-        for l in [self.dl, self.color_dl, self.nocolor_dl] + \
+        for dl in [self.dl, self.color_dl, self.nocolor_dl] + \
                  [dl for clr, dl in self.per_color_dls]:
-            if l != 0:
-                glDeleteLists(l, 1)
+            if dl != 0:
+                glDeleteLists(dl, 1)
                 pass
-            pass
-        self.dl = self.color_dl = self.nocolor_dl = self.per_color_dls = None # Forget.
+            continue
+        self.dl = self.color_dl = self.nocolor_dl = 0 # Forget.
+        self.per_color_dls = []
 
 class ColorSorter:
 
-    """\
+    """
     State Sorter specializing in color (Really any object that can be
     passed to apply_material, which on 20051204 is only color 4-tuples)
 
@@ -1157,7 +1157,7 @@ class ColorSorter:
     _gl_name_stack = [0]       # internal record of GL name stack; 0 is a sentinel
 
     def pushName(glname):
-        """\
+        """
         Record the current pushed GL name, which must not be 0.
         """
         assert glname, "glname of 0 is illegal (used as sentinel)" #bruce 060217 added this assert
@@ -1167,7 +1167,7 @@ class ColorSorter:
 
 
     def popName():
-        """\
+        """
         Record a pop of the GL name.
         """
         del ColorSorter._gl_name_stack[-1]
@@ -1176,7 +1176,7 @@ class ColorSorter:
 
 
     def _printstats():
-        """\
+        """
         Internal function for developers to call to print stats on number of
         sorted and immediately-called objects.
         """
@@ -1188,7 +1188,7 @@ class ColorSorter:
 
 
     def _add_to_sorter(color, func, params):
-        """\
+        """
         Internal function that stores 'scheduled' operations for a later
         sort, between a start/finish
         """
@@ -1246,7 +1246,7 @@ class ColorSorter:
     schedule = staticmethod(schedule)
 
     def schedule_sphere(color, pos, radius, detailLevel, opacity = 1.0):
-        """\
+        """
         Schedule a sphere for rendering whenever ColorSorter thinks is
         appropriate.
         """
@@ -1274,7 +1274,7 @@ class ColorSorter:
 
 
     def schedule_cylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0 ):
-        """\
+        """
         Schedule a cylinder for rendering whenever ColorSorter thinks is
         appropriate.
         """
@@ -1296,7 +1296,7 @@ class ColorSorter:
     schedule_cylinder = staticmethod(schedule_cylinder)
 
     def schedule_polycone(color, pos_array, rad_array, opacity = 1.0):
-        """\
+        """
         Schedule a polycone for rendering whenever ColorSorter thinks is
         appropriate.
         """
@@ -1305,7 +1305,8 @@ class ColorSorter:
                 lcolor = (color[0], color[1], color[2], 1.0)
             else:
                 lcolor = color
-            ColorSorter._cur_shapelist.add_polycone(lcolor, pos_array, rad_array,
+            assert 0, "Need to implement a C add_polycone function."
+            ColorSorter._cur_shapelist.add_polycone(Lcolor, pos_array, rad_array,
                                                     ColorSorter._gl_name_stack[-1], capped)
         else:
             if len(color) == 3:		
@@ -1318,7 +1319,7 @@ class ColorSorter:
     schedule_polycone = staticmethod(schedule_polycone)
 
     def schedule_surface(color, pos, radius, tm, nm):
-        """\
+        """
         Schedule a surface for rendering whenever ColorSorter thinks is
         appropriate.
         """
@@ -1327,17 +1328,17 @@ class ColorSorter:
     schedule_surface = staticmethod(schedule_surface)
 
 
-    def start(dl_parent):
-        """\
+    def start(csdl):
+        """
         Start sorting - objects provided to "schedule", "schedule_sphere", and
         "schedule_cylinder" will be stored for a sort at the time "finish" is called.
-        The display-list parent may be None, in which case immediate drawing is done.
+        csdl is a ColorSortedDisplayList or None, in which case immediate drawing is done.
         """
 
         #russ 080225: Moved glNewList here for displist re-org.
-        ColorSorter.dl_parent = dl_parent # Remember, used by finish().
-        if dl_parent != None:
-            parent_top = dl_parent.displist.dl # Side effect allocates top display list id the first time.
+        ColorSorter.parent_csdl = csdl # Remember, used by finish().
+        if csdl != None:
+            parent_top = csdl.dl
             if not (allow_color_sorting and use_color_sorted_dls):
                 try:
                         glNewList(parent_top, GL_COMPILE_AND_EXECUTE) # Start single-level list.
@@ -1357,14 +1358,14 @@ class ColorSorter:
 
 
     def finish():
-        """\
+        """
         Finish sorting - objects recorded since "start" will
         be sorted and invoked now.
         """
         from debug_prefs import debug_pref, Choice_boolean_False
         debug_which_renderer = debug_pref("debug print which renderer", Choice_boolean_False) #bruce 060314, imperfect but tolerable
 
-        parent = ColorSorter.dl_parent
+        parent_csdl = ColorSorter.parent_csdl
         if use_c_renderer:
             quux.shapeRendererInit()
             if debug_which_renderer:
@@ -1392,9 +1393,9 @@ class ColorSorter:
             color_groups = len(ColorSorter.sorted_by_color)
             objects_drawn = 0
 
-            if not (allow_color_sorting and use_color_sorted_dls) or parent == None: #russ 080225
+            if not (allow_color_sorting and use_color_sorted_dls) or parent_csdl is None: #russ 080225
 
-                # All in one display list.
+                # Either all in one display list, or immediate-mode drawing.
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
                     apply_material(color)
                     for func, params, name in funcs:
@@ -1405,17 +1406,23 @@ class ColorSorter:
                         if name != 0:
                             glPopName()
                             pass
-                        pass
+                        continue
+                    continue
+
+                #russ 080225: Moved glEndList here for displist re-org.
+                # Terminate a single display list.
+                if parent_csdl is not None:
+                    glEndList()
                     pass
+
                 pass
 
             else: #russ 080225
 
                 # First build the per-color sublists.
-                parent_dl = parent.displist
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
                     sublist = glGenLists(1)
-                    parent_dl.per_color_dls.append([color, sublist]) # Remember.
+                    parent_csdl.per_color_dls.append([color, sublist]) # Remember.
                     glNewList(sublist, GL_COMPILE)
                     for func, params, name in funcs:
                         objects_drawn += 1
@@ -1425,39 +1432,34 @@ class ColorSorter:
                         if name != 0:
                             glPopName()
                             pass
-                        pass
+                        continue
                     glEndList()
-                    pass
+                    continue
 
                 # Now the two second-level lists, one with colors and the other without.
-                color_dl = parent_dl.color_dl = glGenLists(1)
+                color_dl = parent_csdl.color_dl = glGenLists(1)
                 glNewList(color_dl, GL_COMPILE)
-                for color, dl in parent_dl.per_color_dls:
+                for color, dl in parent_csdl.per_color_dls:
                     apply_material(color)
                     glCallList(dl)
-                    pass
+                    continue
                 glEndList()
 
-                nocolor_dl = parent_dl.nocolor_dl = glGenLists(1)
+                nocolor_dl = parent_csdl.nocolor_dl = glGenLists(1)
                 glNewList(nocolor_dl, GL_COMPILE)
-                for color, dl in parent_dl.per_color_dls:
+                for color, dl in parent_csdl.per_color_dls:
                     glCallList(dl)
-                    pass
+                    continue
                 glEndList()
 
                 # Default to the normal-color list.
-                parent_dl.dl = color_dl
+                parent_csdl.dl = color_dl
                 glCallList(color_dl) # Draw it now.
                 pass
 
             ColorSorter.sorted_by_color = None
             pass
         ColorSorter.sorting = False
-
-        #russ 080225: Moved glEndList here for displist re-org.
-        if parent != None and not (allow_color_sorting and use_color_sorted_dls):
-            glEndList()
-            pass
         return
 
     finish = staticmethod(finish)

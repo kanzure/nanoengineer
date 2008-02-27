@@ -100,7 +100,7 @@ import bonds # TODO: import specific functions, since no longer an import cycle
 from elements import Singlet
 
 from geometry.BoundingBox import BBox
-from drawer import ColorSorter, DispList
+from drawer import ColorSorter, ColorSortedDisplayList
 ##from drawer import drawlinelist
 
 ##from constants import PickedColor
@@ -727,7 +727,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # full_inval_and_update to ignore 'displist' as a special case. WARNING: for this method
         # it's appropriate to set self.displist as well as returning it, but for most uses of
         # _get_xxx methods, setting it would be wrong.
-        self.displist = DispList()                        # russ 080225: Moved state into a class.
+        self.displist = ColorSortedDisplayList()      # russ 080225: Moved state into a class.
         return self.displist
 
     # new feature [bruce 071103]:
@@ -753,7 +753,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # Note: we can't use hasattr for that test, since it would
             # allocate self.displist (by calling _get_displist) if we
             # don't have one yet.
-            #russ 080225: Moved deallocation into DispList class for ColorSorter.
+            #russ 080225: Moved deallocation into ColorSortedDisplayList class for ColorSorter.
             top = self.displist.dl
             self.displist.deallocate_displists()
             if debug_pref("GLPane: print deleted display lists", Choice_boolean_False): #bruce 071205 made debug pref
@@ -1633,7 +1633,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     ##print "Regenerating display list for %s" % self.name
                     match_checking_code = self.begin_tracking_usage()
                     #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
-                    ColorSorter.start(self) # grantham 20051205 #russ 080225: Added arg.
+                    #russ 080225: displist side effect allocates a ColorSortedDisplayList.
+                    ColorSorter.start(self.displist) # grantham 20051205
 
                 # bruce 041028 -- protect against exceptions while making display
                 # list, or OpenGL will be left in an unusable state (due to the lack
