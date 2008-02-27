@@ -14,8 +14,7 @@ TODOs: [ as of 2008-01-04]
 import changes
 from BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from BuildAtoms_Command    import BuildAtoms_Command
-from constants             import yellow
-##from constants             import darkred
+from constants             import red
 from BreakStrands_PropertyManager import BreakStrands_PropertyManager
 
 from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
@@ -46,15 +45,12 @@ class BreakStrands_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
     def _getBondHighlightColor(self, selobj):
         """
 	Return the Bond highlight color . Since its a BreakStrands graphics
-        mode, the color should really be 'darkred' by default. But since 
-        one of the strands of the duplex is rendered in darkred (by default)
-        the 'darkred' color for bond doesn't provide contrast. Therefore using 
-        yellow
+        mode, the color is 'red' by default. 
 	@return: Highlight color of the object (Bond)
 	
 	""" 
-        return yellow
-        ##return darkred
+        return red
+        
     
   
 # == Command part
