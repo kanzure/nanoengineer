@@ -18,10 +18,6 @@ from OpenGL.GL import glPopName
 from OpenGL.GL import GL_LIGHTING
 from OpenGL.GL import glDisable
 from OpenGL.GL import glEnable
-try:
-    from OpenGL.GLE import glePolyCone
-except:
-    from OpenGL._GLE import glePolyCone
 
 from PyQt4.Qt import QFont, QString, QColor
 

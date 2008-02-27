@@ -23,7 +23,7 @@ But it'll end up in a package for Build Crystal, so this might be ok.
 from Numeric import dot, floor
 
 from geometry.VQT import vlen, V
-from OpenGL.GL import glNewList, glEndList, glCallList, glGenLists
+from OpenGL.GL import glNewList, glEndList, glCallList
 from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 
 from drawer import drawCircle

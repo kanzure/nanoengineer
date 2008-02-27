@@ -51,8 +51,6 @@ and will need fixing to work properly for subclasses with different names.
 import math
 import string
 
-from Numeric import dot
-
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
 

@@ -55,16 +55,11 @@ from Numeric import compress
 from Numeric import take
 from Numeric import argmax
 
-from OpenGL.GL import glGenLists
-from OpenGL.GL import glDeleteLists
 from OpenGL.GL import glPushMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glCallList
-from OpenGL.GL import GL_COMPILE_AND_EXECUTE
-from OpenGL.GL import glNewList
-from OpenGL.GL import glEndList
 
 # chunk and chem form a two element import cycle
 # (chem is used here only for class Atom and one global changedict,
