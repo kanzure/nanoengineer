@@ -83,7 +83,7 @@ class RectGadget(Jig):
         """
         if self.atoms:
             print "fyi: bug? setAtoms overwrites existing atoms on %r" % self
-        self.atoms = list(atomlist) # bruce 050316 (in super method): copy the list
+        self.atoms = list(atomlist)
         
         
     def __init_quat_center(self, list):
@@ -158,8 +158,8 @@ class RectGadget(Jig):
 ##        """
 ##        return False
 
-    ###[Huaicai 9/29/05: The following two methods are temporarally copied here, this is try to fix jig copy related bugs
-    ### not fully analynized how the copy works yet. It fixed some problems, but not sure if it's completely right.
+    ###[Huaicai 9/29/05: The following two methods are temporarily copied here, this is try to fix jig copy related bugs
+    ### not fully analyzed how the copy works yet. It fixed some problems, but not sure if it's completely right.
     def copy_full_in_mapping(self, mapping): #bruce 070430 revised to honor mapping.assy
         clas = self.__class__
         new = clas(mapping.assy, [], True) # don't pass any atoms yet (maybe not all of them are yet copied)

@@ -508,7 +508,7 @@ class _readmmp_state:
     
     def __init__(self, assy, isInsert):
         self.assy = assy
-            #bruce 060117 comment: self.assy is only used to pass to Node constructors (including MarkerNode),
+            #bruce 060117 comment: self.assy is only used to pass to Node constructors (including _MarkerNode),
             # and to set assy.temperature and assy.mmpformat (only done if not isInsert, which looks like only use of isInsert here).
         self.isInsert = isInsert
         #bruce 050405 made the following from old _readmmp localvars, and revised their comments
@@ -743,7 +743,7 @@ class _readmmp_state:
         """
         #bruce 080115 generalized this to use or save group classifications
         name, rest = self.get_decoded_name_and_rest(card, "Grp")
-        assert name is not None #bruce 050405
+        assert name is not None
         old_opengroup = self.groupstack[-1]
         constructor = Group
         extra_classifications = []
@@ -773,20 +773,20 @@ class _readmmp_state:
         @see: self._read_group
         """        
         name = self.get_name(card, "Grp")
-        assert name is not None #bruce 050405
-        name = self.decode_name(name) #bruce 050618
+        assert name is not None
+        name = self.decode_name(name)
         if len(self.groupstack) == 1:
             return "egroup %r when no groups remain unclosed" % (name,)
         curgroup = self.groupstack.pop()
         curname = curgroup.name
         if name != curname:
             # note, unlike old code we've already popped a group; shouldn't matter [bruce 050405]
-            return "mismatched group records: egroup %r tried to match group %r" % (name, curname) #bruce 050405 revised this msg
+            return "mismatched group records: egroup %r tried to match group %r" % (name, curname)
         return None # success
     
     def _read_mol(self, card): # mol: start a Chunk
         name = self.get_name(card, "Mole")
-        name = self.decode_name(name) #bruce 050618
+        name = self.decode_name(name)
         mol = Chunk(self.assy,  name)
         self.prevchunk = mol
             # so its atoms, etc, can find it (might not be needed if they'd search for it) [bruce 050405 comment]
@@ -794,12 +794,10 @@ class _readmmp_state:
             # so we'd detect more errors if they did search for it [bruce 050405]
         disp = molpat.match(card)
         if disp:
-            try: mol.setDisplay(dispNames.index(disp.group(1)))
-            except ValueError: pass
-        #bruce 050405: removing the following, since disp is already that,
-        # and its other side effects are not needed unless disp changes.
-##            else:
-##                mol.setDisplay(diDEFAULT)
+            try:
+                mol.setDisplay(dispNames.index(disp.group(1)))
+            except ValueError:
+                pass
         self.addmember(mol) #bruce 050405; removes need for _addMolecule
 
     def _read_atom(self, card):
@@ -819,7 +817,7 @@ class _readmmp_state:
             sym = "C"
             errmsg = "unsupported element in this mmp line; using %s: %s" % (sym, card,)
             self.format_error(errmsg)
-        xyz = A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
+        xyz = A(map(float, [m.group(3), m.group(4), m.group(5)])) / 1000.0
         if self.prevchunk is None:
             #bruce 050405 new feature for reading new bare sim-input mmp files
             self.guess_sim_input('missing_group_or_chunk')
@@ -856,7 +854,7 @@ class _readmmp_state:
         return self.read_bond_record(card, V_CARBOMERIC)
 
     def read_bond_record(self, card, valence):
-        list1 = map(int, re.findall("\d+",card[5:])) # note: this assumes all bond mmp-record-names are the same length, 5 chars.
+        list1 = map(int, re.findall("\d+", card[5:])) # note: this assumes all bond mmp-record-names are the same length, 5 chars.
         try:
             for a in map((lambda n: self.ndix[n]), list1):
                 bond_atoms( self.prevatom, a, valence, no_corrections = True) # bruce 050502 revised this
@@ -873,22 +871,35 @@ class _readmmp_state:
             bond = find_bond(atom1, atom2)
             bond.set_bond_direction_from(atom1, 1)
         return
+
+    # == jig reading methods.
+
+    # Note that there are at least three different ways various jigs handle
+    # reading their atom list: in a separate shaft record which occurs after
+    # their main mmp record, whose atoms are passed to jig.setShaft;
+    # or in the same record, passed to the constructor;
+    # or in the same record, but passed to setProps after the jig is made.
+    # This ought to be cleaned up sometime.
+    # See also self.read_new_jig, which is the beginning of a partial cleanup.
+    # [bruce 080227 comment]
     
     # Read the MMP record for a Rotary Motor as either:
     # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az) length, radius, spoke_radius
     # rmotor (name) (r, g, b) torque speed (cx, cy, cz) (ax, ay, az)
+    # (note: the atoms are read separately from a subsequent shaft record)
     def _read_rmotor(self, card):
         m = new_rmotpat.match(card) # Try to read card with new format
-        if not m: m = old_rmotpat.match(card) # If that didn't work, read card with old format
+        if not m:
+            m = old_rmotpat.match(card) # If that didn't work, read card with old format
         ngroups = len(m.groups()) # ngroups = number of fields found (12=old, 15=new)
         name = m.group(1)
-        name = self.decode_name(name) #bruce 050618
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        name = self.decode_name(name)
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
         torq = float(m.group(5))
         sped = float(m.group(6))
-        cxyz = A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
-        axyz = A(map(float, [m.group(10),m.group(11),m.group(12)]))/1000.0
+        cxyz = A(map(float, [m.group(7), m.group(8), m.group(9)])) / 1000.0
+        axyz = A(map(float, [m.group(10), m.group(11), m.group(12)])) / 1000.0
         if ngroups == 15: # if we have 15 fields, we have the length, radius and spoke radius.
             length = float(m.group(13))
             radius = float(m.group(14))
@@ -907,25 +918,27 @@ class _readmmp_state:
         self.prevmotor = motor # might not be needed if we just looked for it when we need it [bruce 050405 comment]
 
     def _read_shaft(self, card):
-        list1 = map(int, re.findall("\d+",card[6:]))
+        list1 = map(int, re.findall("\d+", card[6:]))
         list1 = map((lambda n: self.ndix[n]), list1)
         self.prevmotor.setShaft(list1)
           
     # Read the MMP record for a Linear Motor as:
     # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az) length, width, spoke_radius
     # lmotor (name) (r, g, b) force stiffness (cx, cy, cz) (ax, ay, az)
+    # (note: the atoms are read separately from a subsequent shaft record)
     def _read_lmotor(self, card):
         m = new_lmotpat.match(card) # Try to read card with new format
-        if not m: m = old_lmotpat.match(card) # If that didn't work, read card with old format
+        if not m:
+            m = old_lmotpat.match(card) # If that didn't work, read card with old format
         ngroups = len(m.groups()) # ngroups = number of fields found (12=old, 15=new)
         name = m.group(1)
-        name = self.decode_name(name) #bruce 050618
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        name = self.decode_name(name)
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
         force = float(m.group(5))
         stiffness = float(m.group(6))
-        cxyz = A(map(float, [m.group(7),m.group(8),m.group(9)]))/1000.0
-        axyz = A(map(float, [m.group(10),m.group(11),m.group(12)]))/1000.0
+        cxyz = A(map(float, [m.group(7), m.group(8), m.group(9)])) / 1000.0
+        axyz = A(map(float, [m.group(10), m.group(11), m.group(12)])) / 1000.0
         if ngroups == 15: # if we have 15 fields, we have the length, width and spoke radius.
             length = float(m.group(13))
             width = float(m.group(14))
@@ -948,12 +961,12 @@ class _readmmp_state:
         m = gridplane_pat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
-        border_color = map(lambda (x): int(x)/255.0, [m.group(2),m.group(3),m.group(4)])
+        border_color = map(lambda (x): int(x) / 255.0, [m.group(2), m.group(3), m.group(4)])
         width = float(m.group(5)); height = float(m.group(6)); 
         center = A(map(float, [m.group(7), m.group(8), m.group(9)]))
         quat = A(map(float, [m.group(10), m.group(11), m.group(12), m.group(13)]))
         grid_type = int(m.group(14)); line_type = int(m.group(15)); x_space = float(m.group(16)); y_space = float(m.group(17))
-        grid_color = map(lambda (x): int(x)/255.0, [m.group(18),m.group(19),m.group(20)])
+        grid_color = map(lambda (x): int(x) / 255.0, [m.group(18), m.group(19), m.group(20)])
         
         gridPlane = GridPlane(self.assy, [], READ_FROM_MMP=True)
         gridPlane.setProps(name, border_color, width, height, center, quat, grid_type, \
@@ -972,7 +985,7 @@ class _readmmp_state:
         name = self.decode_name(name)
         #border_color = color of the border for front side of the reference plane. 
         #user can't set it for now. -- ninad 20070104
-        border_color = map(lambda (x): int(x)/255.0, [m.group(2),m.group(3),m.group(4)])
+        border_color = map(lambda (x): int(x) / 255.0, [m.group(2), m.group(3), m.group(4)])
         width = float(m.group(5)); height = float(m.group(6)); 
         center = A(map(float, [m.group(7), m.group(8), m.group(9)]))
         quat = A(map(float, [m.group(10), m.group(11), m.group(12), m.group(13)]))
@@ -989,12 +1002,12 @@ class _readmmp_state:
         m = atmsetpat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
 
         # Read in the list of atoms
-        card = card[card.index(")")+1:] # skip past the color field
-        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        card = card[card.index(")") + 1:] # skip past the color field
+        list1 = map(int, re.findall("\d+", card[card.index(")") + 1:]))
         list1 = map((lambda n: self.ndix[n]), list1)
         
         as = AtomSet(self.assy, list1) # create atom set and set props
@@ -1012,12 +1025,12 @@ class _readmmp_state:
         m = esppat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
-        border_color = map(lambda (x): int(x)/255.0, [m.group(2),m.group(3),m.group(4)])
+        border_color = map(lambda (x): int(x) / 255.0, [m.group(2), m.group(3), m.group(4)])
         width = float(m.group(5)); height = float(m.group(6)); resolution = int(m.group(7))
         center = A(map(float, [m.group(8), m.group(9), m.group(10)]))
         quat = A(map(float, [m.group(11), m.group(12), m.group(13), m.group(14)]))
         trans = float(m.group(15))
-        fill_color = map(lambda (x): int(x)/255.0, [m.group(16),m.group(17),m.group(18)])
+        fill_color = map(lambda (x): int(x) / 255.0, [m.group(16), m.group(17), m.group(18)])
         show_bbox = int(m.group(19))
         win_offset = float(m.group(20)); edge_offset = float(m.group(21))
         
@@ -1040,13 +1053,13 @@ class _readmmp_state:
     def _read_ground(self, card): # see also _read_anchor
         m = grdpat.match(card)
         name = m.group(1)
-        name = self.decode_name(name) #bruce 050618
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        name = self.decode_name(name)
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
 
         # Read in the list of atoms
-        card = card[card.index(")")+1:] # skip past the color field
-        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        card = card[card.index(")") + 1 :] # skip past the color field
+        list1 = map(int, re.findall("\d+", card[card.index(")") + 1 :]))
         list1 = map((lambda n: self.ndix[n]), list1)
         
         gr = Anchor(self.assy, list1) # create ground and set props
@@ -1064,9 +1077,9 @@ class _readmmp_state:
         m = mdistancepat.match(card) # Try to read card
         assert len(m.groups()) == 8
         name = m.group(1)
-        name = self.decode_name(name) #bruce 050618
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        name = self.decode_name(name)
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
         font_name = m.group(5)
         font_size = int(m.group(6))
         atomlist = map(int, [m.group(7), m.group(8)])
@@ -1082,9 +1095,9 @@ class _readmmp_state:
         m = manglepat.match(card) # Try to read card
         assert len(m.groups()) == 9
         name = m.group(1)
-        name = self.decode_name(name) #bruce 050618
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        name = self.decode_name(name)
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
         font_name = m.group(5)
         font_size = int(m.group(6))
         atomlist = map(int, [m.group(7), m.group(8), m.group(9)])
@@ -1100,9 +1113,9 @@ class _readmmp_state:
         m = mdihedralpat.match(card) # Try to read card
         assert len(m.groups()) == 10
         name = m.group(1)
-        name = self.decode_name(name) #bruce 050618
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        name = self.decode_name(name)
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
         font_name = m.group(5)
         font_size = int(m.group(6))
         atomlist = map(int, [m.group(7), m.group(8), m.group(9), m.group(10)])
@@ -1129,12 +1142,16 @@ class _readmmp_state:
         m = jigpat.match(card)
         name = m.group(1)
         name = self.decode_name(name)
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
 
-        # Read in the list of atoms [max number of atoms is limited by max mmp-line length of 511 bytes]
-        card = card[card.index(")")+1:] # skip past the color field
-        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        # Read in the list of atoms
+        # [max number of atoms used to be limited by max mmp-line length
+        #  of 511 bytes; I think that limit was removed long ago
+        #  but this should be verified (in cad and sim readers)
+        #  [bruce 080227 comment]]
+        card = card[card.index(")") + 1:] # skip past the color field
+        list1 = map(int, re.findall("\d+", card[card.index(")") + 1:]))
         list1 = map((lambda n: self.ndix[n]), list1)
         
         jig = constructor(self.assy, list1) # create jig and set some properties -- constructor must not put up a dialog
@@ -1150,15 +1167,15 @@ class _readmmp_state:
     def _read_stat(self, card):
         m = statpat.match(card)
         name = m.group(1)
-        name = self.decode_name(name) #bruce 050618
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        name = self.decode_name(name)
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
         temp = m.group(5)
 
         # Read in the list of atoms
-        card = card[card.index(")")+1:] # skip past the color field
-        card = card[card.index(")")+1:] # skip past the temp field
-        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        card = card[card.index(")") + 1:] # skip past the color field
+        card = card[card.index(")") + 1:] # skip past the temp field
+        list1 = map(int, re.findall("\d+", card[card.index(")") + 1:]))
         
         # We want "list1" to contain only the 3rd item, so let's remove 
         # first_atom (1st item) and last_atom (2nd item) in list1.
@@ -1188,13 +1205,13 @@ class _readmmp_state:
     def _read_thermo(self, card):
         m = thermopat.match(card)
         name = m.group(1)
-        name = self.decode_name(name) #bruce 050618
-        col = map(lambda (x): int(x)/255.0,
-                [m.group(2),m.group(3),m.group(4)])
+        name = self.decode_name(name)
+        col = map(lambda (x): int(x) / 255.0,
+                  [m.group(2), m.group(3), m.group(4)] )
 
         # Read in the list of atoms
-        card = card[card.index(")")+1:] # skip past the color field
-        list1 = map(int, re.findall("\d+",card[card.index(")")+1:]))
+        card = card[card.index(")") + 1:] # skip past the color field
+        list1 = map(int, re.findall("\d+", card[card.index(")") + 1:]))
         
         # We want "list1" to contain only the 3rd item, so let's remove 
         # first_atom (1st item) and last_atom (2nd item) in list1.
@@ -1237,9 +1254,8 @@ class _readmmp_state:
         # those special names when it needs to.       
         m = namedviewpat.match(card)      
         name = m.group(1)
-        name = self.decode_name(name) #bruce 050618
-        wxyz = A(map(float, [m.group(2), m.group(3),
-                 m.group(4), m.group(5)]))
+        name = self.decode_name(name)
+        wxyz = A(map(float, [m.group(2), m.group(3), m.group(4), m.group(5)]))
         scale = float(m.group(6))
         pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
         zoomFactor = float(m.group(10))
@@ -1276,7 +1292,7 @@ class _readmmp_state:
             name = m.group(1)
             name = self.decode_name(name)
             wxyz = A(map(float, [m.group(2), m.group(3),
-                     m.group(4), m.group(5)]))
+                                 m.group(4), m.group(5)] ))
             scale = float(m.group(6))
             pov = A(map(float, [m.group(7), m.group(8), m.group(9)]))
             zoomFactor = float(m.group(10))
@@ -1292,7 +1308,7 @@ class _readmmp_state:
                 name = m.group(1)
                 name = self.decode_name(name)
                 wxyz = A(map(float, [m.group(2), m.group(3),
-                         m.group(4), m.group(5)]))
+                                     m.group(4), m.group(5)] ))
                 scale = float(m.group(6))
                 homeView = NamedView(self.assy, "OldVersion", scale, V(0,0,0), 1.0, wxyz)
                     #bruce 050417 comment
@@ -1300,7 +1316,8 @@ class _readmmp_state:
                     # this name "OldVersion" is detected in fix_assy_and_glpane_views_after_readmmp
                     # (called from MWsemantics.fileOpen, one of our callers)
                     # and changed to "HomeView", also triggering other side effects on glpane at that time.
-                lastView = NamedView(self.assy, "LastView", scale, V(0,0,0), 1.0, A([0.0, 1.0, 0.0, 0.0]))
+                lastView = NamedView(self.assy, "LastView", scale, V(0,0,0),
+                                     1.0, A([0.0, 1.0, 0.0, 0.0]) )
                 self.addmember(homeView)
                 self.addmember(lastView)
             else:
@@ -1364,13 +1381,15 @@ class _readmmp_state:
         return
     
     def _read_forward_ref(self, card):
-        "forward_ref (%s) ..."
+        """
+        forward_ref (%s) ...
+        """
         # add a marker which can be used later to insert the target node in the right place,
         # and also remember the marker here in the mapping (so we can offer that service) ###doc better
         lp_id_rp = card.split()[1]
         assert lp_id_rp[0] + lp_id_rp[-1] == "()"
         ref_id = lp_id_rp[1:-1]
-        marker = MarkerNode(self.assy, ref_id) # note: we remove this if not used, so its node type might not matter much.
+        marker = _MarkerNode(self.assy, ref_id) # note: we remove this if not used, so its node type might not matter much.
         self.addmember(marker)
         self.markers[ref_id] = marker
 
@@ -1415,7 +1434,7 @@ class _readmmp_state:
 
 # helper for forward_ref
 
-class MarkerNode(Node):
+class _MarkerNode(Node):
     def __init__(self, assy, ref_id):
         name = ref_id
         Node.__init__(self, assy, name) # will passing no assy be legal? I doubt it... so don't bother trying.

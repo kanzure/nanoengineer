@@ -176,18 +176,26 @@ class Jig(Node, Selobj_API):
         
     def setAtoms(self, atomList):
         """
-        Set the jig's atoms to the atoms in the parameter atomList. If this 
-        jig already has atoms, it first removes its reference. It also makes 
-        sure that this jig is not already in the atom.jigs (a list that each 
-        individual atom in the atomList maintains) 
+        Set self's atoms to the atoms in atomList, and append self to atom.jigs
+        for each such atom, doing proper invalidations on self and those atoms.
+
+        If self already has atoms when this is called, first remove them (which
+        includes removing self from atom.jigs for each such atom, doing proper
+        invalidations on that atom).
+
+        Report errors if self's membership in atom.jigs lists is not as expected.
+
+        Subclasses can override this if they need to take special action
+        when their atomlist is initialized. (It's called in Jig.__init__
+        and in Jig._copy_fixup_at_end.)
+
         @param atomList: List of atoms to which this jig needs to be attached. 
         @type  atomList: list
+        
         @see: L{self._remove_all_atoms}
         @see: L{RotaryMotor_EditCommand._modifyStructure} for an example use
-        @see: L{self.setShaft}
+        @see: L{self.setShaft} (for certain subclasses)
         """
-        # [as of 050415 (and long before) this is only used for 
-        # motors; __init__ does same thing for other jigs]
         if self.atoms:
             # intended to fix bug 2561 more safely than the prior change [bruce 071010]
             self._remove_all_atoms() 
