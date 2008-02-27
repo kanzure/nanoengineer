@@ -82,7 +82,7 @@ from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
 from prefs_constants import bondpointHotspotColor_prefs_key
 import env
 import drawer
-from undo_archive import register_class_nickname, set_undo_nullMol
+from undo_archive import set_undo_nullMol
 from utilities.Comparison import same_vals
 ##from state_utils import copy_val
 from displaymodes import get_display_mode_handler
@@ -122,6 +122,10 @@ from ChunkProp import ChunkProp
 from Dna_Constants import getComplementSequence
 
 from bond_chains import grow_directional_bond_chain
+
+from drawer import apply_material, allow_color_sorting, use_color_sorted_dls
+
+
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -1784,6 +1788,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def draw_highlighted(self, glpane, color):
         """
         Draws this chunk as highlighted with the specified color. 
+        In future 'draw_in_abs_coords' defined on some node classes
+        could be merged into this method (for highlighting various objects).
+        
         @param: GLPane object
         @param color: The highlight color
         @see: dna_model.DnaGroup.draw_highlighted
@@ -1791,9 +1798,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         @see: SelectChunks_GraphicsMode._get_objects_to_highlight()
         
         """        
-        from drawer import apply_material, allow_color_sorting, use_color_sorted_dls
-        from debug_prefs import debug_pref, Choice_boolean_True
-        from OpenGL.GL import glCallList        
+               
         #This was originally a sub-method in 
         #SelectChunks_GraphicsMode.drawHighlightedChunks. Moved here 
         #(Chunk.draw_highlighted on 2008-02-26
