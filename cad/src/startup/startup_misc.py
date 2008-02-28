@@ -1,9 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 startup_misc.py - miscellaneous application startup functions
 which are free to do whatever imports they need to.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -15,6 +16,8 @@ this new file startup/startup_misc.py.
 """
 
 # note: toplevel imports are now ok in this module [bruce 071008 change]
+
+from debug import print_compact_traceback
 
 def call_module_init_functions(): #bruce 071005 split this out of main_startup.startup_script
     """
@@ -61,6 +64,13 @@ def register_MMP_RecordParsers(): #bruce 071019
     import PovrayScene
     PovrayScene.register_MMP_RecordParser_for_PovrayScene()
 
+    try:
+        import dna_model.DnaMarker as DnaMarker
+        DnaMarker.register_MMP_RecordParser_for_DnaMarkers()
+    except:
+        print_compact_traceback("bug: ignoring exception in register_MMP_RecordParser_for_DnaMarkers: ")
+        pass
+
     # TODO: add more of these.
     
     return
@@ -68,7 +78,10 @@ def register_MMP_RecordParsers(): #bruce 071019
 # (MWsemantics.__init__ is presumably run after the above functions and before the following ones.)
 
 def pre_main_show( win):
-    "Do whatever should be done after the main window is created but before it's first shown."
+    """
+    Do whatever should be done after the main window is created
+    but before it's first shown.
+    """
 
     # Determine the screen resolution and compute the normal window size for NE-1
     # [bruce 041230 corrected this for Macintosh, and made sure it never exceeds

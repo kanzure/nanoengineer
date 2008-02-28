@@ -38,6 +38,9 @@ from constants import orange
 
 from debug_prefs import debug_pref, Choice_boolean_False
 
+from files_mmp import MMP_RecordParser
+from files_mmp import register_MMP_RecordParser
+
 # ==
 
 # constants
@@ -278,9 +281,16 @@ class DnaMarker( ChainAtomMarker):
     def _undo_update(self): # in class DnaMarker
         """
         """
-        print "bug: undo_update is partly nim in %r" % self ### @@@@
+        ## print "note: undo_update is partly nim in %r" % self
         _homeless_dna_markers[id(self)] = self # ok?? sufficient?? [080118]
-
+        # guess, 080227: this should be enough, since our own attrs (in superclass)
+        # are declared as undoable state... but just to be safe, do these as well:
+        self.wholechain = None
+        self.controlling = _CONTROLLING_IS_UNKNOWN
+        self._inside_its_own_strand_or_segment = False
+        _superclass._undo_update(self)
+        return
+    
     def remove_atom(self, atom):
         """
         [extends superclass method]
@@ -761,7 +771,7 @@ class DnaSegmentMarker(DnaMarker): #e rename to DnaAxisMarker? guess: no...
     """
     _DnaStrandOrSegment_class = DnaSegment
     featurename = "Dna Segment Marker" # might never be visible
-    mmp_record_name = "DnaSegmentMarker" # @@@@ not yet read
+    mmp_record_name = "DnaSegmentMarker"
     def get_DnaSegment(self):
         """
         Return the DnaSegment that owns us, or None if none does.
@@ -787,7 +797,7 @@ class DnaStrandMarker(DnaMarker):
     """
     _DnaStrandOrSegment_class = DnaStrand
     featurename = "Dna Strand Marker" # might never be visible
-    mmp_record_name = "DnaStrandMarker" # @@@@ not yet read
+    mmp_record_name = "DnaStrandMarker"
     def get_DnaStrand(self):
         """
         Return the DnaStrand that owns us, or None if none does.
@@ -803,5 +813,47 @@ class DnaStrandMarker(DnaMarker):
         assert isinstance(res, DnaStrand)
         return res
     pass
+
+# ==
+
+class _MMP_RecordParser_for_DnaSegmentMarker( MMP_RecordParser): #bruce 080227
+    """
+    Read the MMP record for a DnaSegmentMarker Jig.
+    """
+    def read_record(self, card):
+        constructor = DnaSegmentMarker
+        jig = self.read_new_jig(card, constructor)
+            # note: for markers with marked_atom == next_atom,
+            # the mmp record will have exactly one atom;
+            # current reading code trusts this and sets self._length_1_chain
+            # in __init__, but it would be better to second-guess it and verify
+            # that the chain is length 1, and mark self as invalid if not.
+            # [bruce 080227 comment]
+            #
+            # note: this includes a call of self.addmember
+            # to add the new jig into the model
+        return
+    pass
+
+class _MMP_RecordParser_for_DnaStrandMarker( MMP_RecordParser): #bruce 080227
+    """
+    Read the MMP record for a DnaStrandMarker Jig.
+    """
+    def read_record(self, card):
+        constructor = DnaStrandMarker
+        jig = self.read_new_jig(card, constructor)
+            # see comments in _MMP_RecordParser_for_DnaSegmentMarker
+        return
+    pass
+
+def register_MMP_RecordParser_for_DnaMarkers(): #bruce 080227
+    """
+    [call this during init, before reading any mmp files]
+    """
+    register_MMP_RecordParser( DnaSegmentMarker.mmp_record_name,
+                               _MMP_RecordParser_for_DnaSegmentMarker )
+    register_MMP_RecordParser( DnaStrandMarker.mmp_record_name,
+                               _MMP_RecordParser_for_DnaStrandMarker )
+    return
 
 # end

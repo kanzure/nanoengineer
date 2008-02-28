@@ -460,7 +460,9 @@ def register_MMP_RecordParser(recordname, recordParser):
 _RECORDNAMES_THAT_MUST_BE_REGISTERED = [
     'comment',
     'gamess',
-    'povrayscene'
+    'povrayscene',
+    'DnaSegmentMarker',
+    'DnaStrandMarker',
  ]
     ### TODO: extend this list as more parsers are moved out of this file
 

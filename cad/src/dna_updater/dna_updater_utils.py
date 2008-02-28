@@ -91,7 +91,7 @@ def remove_killed_atoms( atomdict):
     """
     killed = []
     for atom in atomdict.itervalues():
-        if atom.killed(): ### MAKE THIS FAST, or make it an attribute of all model objects
+        if atom.killed():
             killed.append(atom)
     if DEBUG_DNA_UPDATER and killed:
         print "dna_updater: ignoring %d killed atoms" % len(killed)

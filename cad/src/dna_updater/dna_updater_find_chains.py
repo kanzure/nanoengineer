@@ -57,7 +57,11 @@ class axis_bond_chain_analyzer(dna_bond_chain_analyzer):
     def atom_ok(self, atom):
         if not atom.molecule:
             # I've seen this after Undo, presumably since it's buggy [080122]
-            print_compact_stack( "bug: axis_bond_chain_analyzer skipping %r with no .molecule: " % atom)
+            # (To repeat: make a duplex, delete some atoms, Undo, Redo.
+            #  [bruce 080226 comment])
+            print_compact_stack( "bug: axis_bond_chain_analyzer skipping %r " \
+                                 "with no .molecule (killed = %r, _f_assy = %r): " \
+                                 % (atom, atom.killed(), atom._f_assy) )
             return False
         if atom._dna_updater__error:
             return False

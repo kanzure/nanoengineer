@@ -45,6 +45,11 @@ class DnaSegment(DnaStrandOrSegment):
     
     _duplexRise = None
     _numberOfBasesPerTurn = None
+        # TODO: undo or copy code for those attrs,
+        # and updating them when the underlying structure changes.
+        # But maybe that won't be needed, if they are replaced
+        # by computing them from the atom geometry as needed.
+        # [bruce 080227 comment]
     
     def __init__(self, name, assy, dad, members = (), editCommand = None): 
         self._duplexRise = None
@@ -56,6 +61,10 @@ class DnaSegment(DnaStrandOrSegment):
                                     dad, 
                                     members = members, 
                                     editCommand = editCommand)
+        ###BUG: not all callers pass an editCommand. It would be better
+        # to figure out on demand which editCommand would be appropriate.
+        # [bruce 080227 comment]
+        return
         
     def edit(self):
         """

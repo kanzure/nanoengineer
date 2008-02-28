@@ -47,7 +47,8 @@ class DnaLadderRailChunk(Chunk):
     _num_old_atoms_hidden = 0
     _num_old_atoms_not_hidden = 0
     
-    ###e todo: undo, copy for those attrs?
+    # review: undo, copy for those attrs? as of 080227 I think that is not needed
+    # except for resetting some of them in _undo_update.
 
     # == init methods
 
@@ -85,6 +86,9 @@ class DnaLadderRailChunk(Chunk):
             self.wholechain = None
 ##        self.chain = None #k ok?
         self.invalidate_ladder() # review: sufficient? set it to None?
+        self.ladder = None #bruce 080227 guess, based on comment where class constand default value is assigned
+        for atom in self.atoms.itervalues():
+            atom._changed_structure() #bruce 080227 precaution, might be redundant with invalidating the ladder... @@@
         _superclass._undo_update(self)
         return
     
@@ -97,6 +101,8 @@ class DnaLadderRailChunk(Chunk):
         """
         # common code -- just pull in baseatoms and their bondpoints.
         # subclass must extend as needed.
+        assert not self._num_old_atoms_hidden #bruce 080227
+        assert not self._num_old_atoms_not_hidden #bruce 080227
         for atom in chain.baseatoms:
             self._grab_atom(atom)
                 # note: this immediately kills atom's old chunk if it becomes empty

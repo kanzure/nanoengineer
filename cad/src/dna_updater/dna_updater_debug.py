@@ -62,14 +62,19 @@ def assert_unique_wholechain_baseatoms(wholechains, when = ""):
 
 # some of the following might be of more general use
 
-def find_atom_by_name(assy, name): ## BUG, failed to find Ss3-600 from "600"
+def find_atom_by_name(assy, name): # todo: refile to debug or assy
+    """
+    Find atom in assy by its name (case sensitive) or number.
+
+    @warning: current implementation only works in the current Part.
+    """
     name = str(name) # in case it's an int
-    # bug: this version only works in the current part
+    # bug: this version only works in the current Part
     for mol in assy.molecules:
         for atom in mol.atoms.itervalues():
             foundname = str(atom)
             foundnumber = str(atom.key)
-            if name == foundname or name == foundname:
+            if name in (foundname, foundnumber): # bugfix 080227: foundnumber
                 return atom
     return None
 
@@ -154,8 +159,8 @@ def mark_atom_by_name_command(glpane):
     # review: is this really what the arg always is? i bet it's whatever widget this appeared in...
     from exprs.demo_draw_on_surface import grab_text_using_dialog # TODO: refile into widgets.py? has special features, see code
     ok, text = grab_text_using_dialog( default = "Ss3-564",
-                                           title = "dialog title", #e
-                                           label = "label" )
+                                       title = "Mark atom by name",
+                                       label = "atom name or number:" )
     if ok:
         name = text
         assy = glpane.assy
@@ -199,5 +204,38 @@ def mark_selected_atoms_command(glpane): # untested
     return
 
 register_debug_menu_command( "Mark selected atoms", mark_selected_atoms_command )
+
+# ==
+
+_found = None
+_found_molecule = -1 # impossible value of _found.molecule
+
+# convenience methods -- add code to these locally, to print things
+# at start and end of every dna updater run; runcount counts the runs of it
+# in one session; changed_atoms should not be modified, has not been filtered at all
+
+def debug_prints_as_dna_updater_starts( runcount, changed_atoms):
+    # print "\ndebug_prints_as_dna_updater_starts: %d, len %d\n" % \
+    # (runcount, len(changed_atoms))
+    global _found, _found_molecule
+    if _found is None:
+        import env
+        win = env.mainwindow()
+        _found = find_atom_by_name(win.assy, 37)
+        if _found is not None:
+            print "\nfound atom", _found
+    if _found is not None and _found_molecule is not _found.molecule:
+        print "start %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
+        _found_molecule = _found.molecule
+    return
+
+def debug_prints_as_dna_updater_ends( runcount):
+    # print "\ndebug_prints_as_dna_updater_ends: %d\n" % ( runcount, )
+    global _found, _found_molecule
+    if _found is not None and _found_molecule is not _found.molecule:
+        print "end %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
+        _found_molecule = _found.molecule
+    return
+
 
 # end

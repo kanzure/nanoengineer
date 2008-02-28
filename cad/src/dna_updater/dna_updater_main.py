@@ -23,7 +23,12 @@ from dna_updater.dna_updater_chunks import update_PAM_chunks
 
 from dna_updater.dna_updater_groups import update_DNA_groups
 
+from dna_updater.dna_updater_debug import debug_prints_as_dna_updater_starts
+from dna_updater.dna_updater_debug import debug_prints_as_dna_updater_ends
+
 # ==
+
+_runcount = 0 # for debugging [bruce 080227]
 
 def full_dna_update():
     """
@@ -39,18 +44,25 @@ def full_dna_update():
 
     @return: None
     """
+    global _runcount
+    _runcount += 1
     clear_updater_run_globals()
     try:
-        _full_dna_update_0()
+        _full_dna_update_0( _runcount) # includes debug_prints_as_dna_updater_starts
     finally:
+        debug_prints_as_dna_updater_ends( _runcount)
         clear_updater_run_globals()
     return
 
-def _full_dna_update_0():
+def _full_dna_update_0( _runcount):
     """
     [private helper for full_dna_update -- do all the work]
     """
     changed_atoms = get_changes_and_clear()
+
+    debug_prints_as_dna_updater_starts( _runcount, changed_atoms)
+        # note: this function should not modify changed_atoms.
+        # note: the corresponding _ends call is in our caller.
     
     if not changed_atoms:
         return # optimization (might not be redundant with caller)

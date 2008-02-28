@@ -229,6 +229,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         state). See also _f_invalidate_atom_lists_and_maybe_deallocate_displist,
         which is called (later) whether we are now alive or dead.
         """
+        assert self.assy is not None #bruce 080227 guess
         # One thing we know is required: if self.atoms changes, invalidate self.atlist.
         # This permits us to not store atom.index as undoable state, and to not update self.atpos before undo checkpoints.
         # [bruce 060313]
@@ -791,8 +792,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         right now (assuming our OpenGL context is current).
         """
         return len(self.atoms) == 0
-            # self.killed() does not seem to be implemented,
-            # and would be redundant with this anyway
+            # self.killed() might also be correct,
+            # but would be redundant with this anyway
 
     def _gl_context_if_any(self): #bruce 071103
         """
@@ -868,14 +869,23 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     print "bug: %r.atom2.molecule was None (changing it to _nullMol)" % b
                 bad = True
             if bad:
-                if not (m1.part is not None and m2.part is not None):
-                    print_compact_stack( "bug: one of %r's atom's mol's .parts is None: " % b )
+                #bruce 080227 revised following debug prints; maybe untested
+                if m1.part is None:
+                    msg = "bug: %r .atom1 == %r .mol == %r .part is None: " % \
+                          ( b, b.atom1, m1 )
+                    print_compact_stack( msg )
+                if m2.part is None:
+                    msg = "bug: %r .atom2 == %r .mol == %r .part is None: " % \
+                          ( b, b.atom2, m2 )
+                    print_compact_stack( msg )
                         # bruce 060412 print -> print_compact_stack
                         # e.g. this will happen if above code sets a mol to _nullMol
                 b.bust() 
-        # check atom-jig bonds ####@@@@ in the future! Callers also need to handle some jigs specially first, which this would destroy
-        ### actually this would be inefficient from this side (it would scan all atoms), so let's let the jigs handle it...
-        # tho that won't work when we can later apply this to a subtree... so review it then.
+        # someday, maybe: check atom-jig bonds ... but callers need to handle
+        # some jigs specially first, which this would destroy...
+        # actually this would be inefficient from this side (it would scan
+        # all atoms), so let's let the jigs handle it... though that won't work
+        # when we can later apply this to a subtree... so review it then.
         return
     
     def set_hotspot(self, hotspot, silently_fix_if_invalid = False, store_if_invalid = False):

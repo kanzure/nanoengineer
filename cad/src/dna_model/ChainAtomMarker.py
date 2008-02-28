@@ -82,13 +82,13 @@ class ChainAtomMarker(Jig):
 
     # declare attributes involved in copy, undo, mmp save
     
-    copyable_attrs = Jig.copyable_attrs + ('marked_atom', 'next_atom')
+    copyable_attrs = Jig.copyable_attrs + ('marked_atom', 'next_atom', '_length_1_chain')
         # that sets them up for copy and undo;
         # no need for mmp write/read code for these, since they're written as part of self.atoms
         # and reinitialized from that when we're constructed,
         # but do REVIEW and assert that they're in the right order when written.
         
-        # note: more copyable_attrs are needed in subclasses
+        # note: more copyable_attrs might be needed in subclasses
     
 ##    _old_atom = None # (not undoable or copyable) (but see comment on "make _old_atom undoable" below)
     
@@ -102,6 +102,14 @@ class ChainAtomMarker(Jig):
             # (compensating in setAtoms)
             # (this is to make length-1 wholechains easier) [bruce 080216]
             atomlist = atomlist[:1]
+            self._length_1_chain = True
+        elif len(atomlist) == 1:
+            # [bruce 080227 to support mmp read of 1-atom case]
+            # TODO: print warning unless this is called from mmp read
+            # (which is the only time it's not an error, AFAIK)
+            # and mark self invalid unless we verify that marked_atom
+            # is indeed on a length-1 chain (this might need to be
+            # done later by dna updater).
             self._length_1_chain = True
         Jig.__init__(self, assy, atomlist) # calls self.setAtoms
         return
@@ -186,6 +194,7 @@ class ChainAtomMarker(Jig):
             assert [self.marked_atom, self.next_atom] == self.atoms
         elif len(self.atoms) == 1 and self._length_1_chain:
             assert self.marked_atom is self.next_atom is self.atoms[0]
+        # nothing is asserted when len(self.atoms) == 1 and not self._length_1_chain
         return
 
     def _expected_number_of_atoms(self): #bruce 080216
