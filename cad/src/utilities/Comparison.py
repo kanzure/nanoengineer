@@ -1,9 +1,11 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 utilities/Comparison.py - provides same_vals, for correct equality comparison.
 See also state_utils.py, which contains the closely related copy_val.
 
-$Id$
+@author: Bruce
+@version: $Id$
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -54,6 +56,7 @@ if SAMEVALS_SPEEDUP:
         from samevals import setArrayType
         import Numeric
         setArrayType(type(Numeric.array((1,2,3))))
+        print "SAMEVALS_SPEEDUP is True, and import samevals succeeded"
     except ImportError:
         # Note: this error could be from importing samevals
         # (an optional dll built from samevals.c) or Numeric.

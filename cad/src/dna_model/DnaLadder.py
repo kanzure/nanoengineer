@@ -131,8 +131,8 @@ class DnaLadder(object):
     def __init__(self, axis_rail):
         self.axis_rail = axis_rail
         self.assy = axis_rail.baseatoms[0].molecule.assy #k
-        assert self.assy
         self.strand_rails = []
+        assert self.assy is not None, "%r.__init__: assy is None" % self
     def baselength(self):
         return len(self.axis_rail)
     def __len__(self):
@@ -786,11 +786,14 @@ class DnaLadder(object):
             if not part:
                 # will this happen in MMKit? get it from assy
                 assy = old_chunk.assy
-                print "bug: %r in %r has no .part" % \
+                print "\nbug: %r in assy %r has no .part" % \
                       (old_chunk, assy)
                 assert assy is self.assy
+                # note: when some bugs happen, assy is None here [080227]
+                assert assy is not None, "%r.remake_chunks notices self.assy is None" % self
                 part = assy.part
-            assert part # will this work in MMKit?
+                assert part, "%r.remake_chunks(): %r.part is None" % (self, assy)
+                    # will this work in MMKit?
             # todo: assert rail atoms are in this part
             part.ensure_toplevel_group()
             group = old_chunk.dad # put new chunk in same group as old
@@ -919,6 +922,7 @@ class DnaSingleStrandDomain(DnaLadder):
         self.axis_rail = None
         self.assy = strand_rail.baseatoms[0].molecule.assy
         self.strand_rails = [strand_rail]
+        assert self.assy is not None, "%r.__init__: assy is None" % self
         self._finish_strand_rails()
             # check bond direction, reverse if needed
     def baselength(self):

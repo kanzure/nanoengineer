@@ -871,11 +871,11 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if bad:
                 #bruce 080227 revised following debug prints; maybe untested
                 if m1.part is None:
-                    msg = "bug: %r .atom1 == %r .mol == %r .part is None: " % \
+                    msg = "\nbug: %r .atom1 == %r .mol == %r .part is None: " % \
                           ( b, b.atom1, m1 )
                     print_compact_stack( msg )
                 if m2.part is None:
-                    msg = "bug: %r .atom2 == %r .mol == %r .part is None: " % \
+                    msg = "\nbug: %r .atom2 == %r .mol == %r .part is None: " % \
                           ( b, b.atom2, m2 )
                     print_compact_stack( msg )
                         # bruce 060412 print -> print_compact_stack
