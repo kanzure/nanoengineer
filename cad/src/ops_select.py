@@ -369,9 +369,9 @@ class ops_select_Mixin:
             
     def unhideSelection(self):
         """
-        Unhides the current selection. Selected atoms are made invisible. 
+        Unhides the current selection. Selected atoms are made visible. 
         Selected chunks and/or any other object (i.e. jigs, planes, etc.) 
-        are hidden.
+        are unhidden.
         """
         # Added by Mark 2008-02-25.
 

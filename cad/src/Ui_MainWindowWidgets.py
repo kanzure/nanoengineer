@@ -843,6 +843,10 @@ def retranslateUi(win):
     @type  MainWindow: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
 
     @see: U{B{The Qt Linquist Manual}<http://doc.trolltech.com/4/linguist-manual.html>}
+    
+    @attention: It is never OK to set the shortcut "Ctrl+H or Cmd+H on Mac)"  
+    via setShortcut() since this shortcut is reserved on Mac OS X for hiding a 
+    window.
     """
 
     #= File (menu and toolbar) actions.
@@ -1137,11 +1141,9 @@ def retranslateUi(win):
     win.dispCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "Cylinder", None, QtGui.QApplication.UnicodeUTF8))
     win.dispDnaCylinderAction.setIconText(QtGui.QApplication.translate("MainWindow", "DNA Cylinder", None, QtGui.QApplication.UnicodeUTF8))
     win.dispHideAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hide", None, QtGui.QApplication.UnicodeUTF8))
-    win.dispHideAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hide (Ctrl+H)", None, QtGui.QApplication.UnicodeUTF8))
-    win.dispHideAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+H", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispHideAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hide", None, QtGui.QApplication.UnicodeUTF8))
     win.dispUnhideAction.setIconText(QtGui.QApplication.translate("MainWindow", "Unhide", None, QtGui.QApplication.UnicodeUTF8))
-    win.dispUnhideAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Unhide (Ctrl+Shift+H)", None, QtGui.QApplication.UnicodeUTF8))
-    win.dispUnhideAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+H", None, QtGui.QApplication.UnicodeUTF8))
+    win.dispUnhideAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Unhide", None, QtGui.QApplication.UnicodeUTF8))
 
     # FOLLOWING VIEW MENU ITEMS NEED SORTING
     win.viewFrontAction.setText(QtGui.QApplication.translate("MainWindow", "&Front", None, QtGui.QApplication.UnicodeUTF8))

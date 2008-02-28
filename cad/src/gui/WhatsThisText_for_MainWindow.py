@@ -864,7 +864,6 @@ def createWhatsThisTextForMainWindowWidgets(win):
 
     hideActionText = \
         "<u><b>Hide</b></u>    "\
-        "(Ctrl + H)"\
         "<p>"\
         "<img source=\"ui/actions/View/Display/Hide.png\"><br> "\
         "Hides the current selection. Works on atoms, chunks and/or any "\
