@@ -24,6 +24,7 @@
 
 #include <openbabel/mol.h>
 
+#include "NXOpenGLCamera.h"
 
 namespace Nanorex
 {
@@ -31,19 +32,19 @@ namespace Nanorex
 // fwd decls from NV-1
 class NXMoleculeSet;
 
-    /* CLASS: NXOpenGLRenderingEngine */
-    /**
-     *  Renders the molecule set using plain OpenGL
-     *
-     * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
-     */
+/* CLASS: NXOpenGLRenderingEngine */
+/**
+    *  Renders the molecule set using plain OpenGL
+    *
+    * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
+    */
 class NXOpenGLRenderingEngine : public QGLWidget, public NXRenderingEngine
 {
+    Q_OBJECT;
 public:
     
-    Q_OBJECT
-        
-        NXOpenGLRenderingEngine ( QWidget *parent = 0 );
+    
+    NXOpenGLRenderingEngine ( QWidget *parent = 0 );
     
     virtual ~NXOpenGLRenderingEngine();
     
@@ -63,9 +64,14 @@ public:
         rootSceneGraphNode = createSceneGraph ( rootMoleculeSet );
     }
     
-            /// Reset the view based on the atom-bond distribution in the
-            /// molecule-set
+    /// Reset the view based on the atom-bond distribution in the molecule-set
     void resetView ( void );
+    
+    // Mouse-event handlers
+    void mousePressEvent(QMouseEvent *mouseEvent);
+    void mouseReleaseEvent(QMouseEvent *mouseEvent);
+    void mouseMoveEvent(QMouseEvent *mouseEvent);
+    
     
 #ifdef NX_DEBUG
     void setPlugin ( NXOpenGLRendererPlugin *const plugin )
@@ -78,6 +84,8 @@ private:
     
     typedef unsigned int uint;
     
+    NXOpenGLCamera camera;
+    
     NXMoleculeSet *rootMoleculeSet;
     NXSGNode *rootSceneGraphNode;
     
@@ -89,10 +97,10 @@ private:
     std::vector<GltLight> lights;
     GltLightModel lightModel;
     
-    bool isOrthographicProjection;
-    GltOrtho orthographicProjection;
-    GltFrustum perspectiveProjection;
-    GltViewport viewport;
+    // bool isOrthographicProjection;
+    // GltOrtho orthographicProjection;
+    // GltFrustum perspectiveProjection;
+    // GltViewport viewport;
     
     std::map<uint, NXRGBColor> elementColorMap;
     NXOpenGLMaterial defaultAtomMaterial;

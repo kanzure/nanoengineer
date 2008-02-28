@@ -140,12 +140,14 @@ public:
     
     bool apply(void) const throw () {glCallList(display_list_id); return true;}
     
+    /// Calls glNewList(). Call the plugin's render-method after this so that
+    /// what the plugin draws using OpenGL becomes part of this display list
     NXCommandResult beginRender(void) const throw ();
     
+    /// Calls glEndList(). Call after the plugin does its OpenGL rendering.
     NXCommandResult endRender(void) const throw ();
     
 	void deleteRecursive(void) { }
-	bool applyRecursive(void) const { return true; }
 
 #ifdef NX_DEBUG
     GLuint getDisplayListID(void) const { return display_list_id; }
@@ -163,11 +165,10 @@ public:
         : NXSGNode(), NXOpenGLMaterial(mat) {}
 	~NXSGOpenGLMaterial() throw () {}
     /// Copy assignment from GL-material
-    NXSGOpenGLMaterial& operator = (NXOpenGLMaterial const& mat) throw ();
+    // NXSGOpenGLMaterial& operator = (NXOpenGLMaterial const& mat) throw ();
     bool apply(void) const throw ();
 
 	void deleteRecursive(void) { }
-	bool applyRecursive(void) const { return true; }
 };
 
 } // Nanorex
