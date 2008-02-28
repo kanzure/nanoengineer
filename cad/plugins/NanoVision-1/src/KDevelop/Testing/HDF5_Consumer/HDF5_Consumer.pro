@@ -7,11 +7,10 @@ INCLUDEPATH += $(OPENBABEL_INCPATH) \
 
 LIBS += -lopenbabel \
 -L../../../../lib \
--lHDF5_SimResultsImportExport \
 -lNanorexInterface \
 -lNanorexUtility
 
-TARGETDEPS += ../../../../lib/libHDF5_SimResultsImportExport.so \
+TARGETDEPS += ../../../../lib/HDF5_SimResultsImportExport.so \
 ../../../../lib/libNanorexInterface.so \
 ../../../../lib/libNanorexUtility.so
 macx:TARGETDEPS ~= s/.so/.dylib/g

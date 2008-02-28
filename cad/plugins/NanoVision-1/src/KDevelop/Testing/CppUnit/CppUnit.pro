@@ -18,8 +18,7 @@ LIBS += -lcppunit \
  -lopenbabel \
  -L../../../../lib \
  -lNanorexUtility \
- -lNanorexInterface \
- -lHDF5_SimResultsImportExport
+ -lNanorexInterface
 
 INCLUDEPATH += ../../../../include \
  $(OPENBABEL_INCPATH)
@@ -37,7 +36,7 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
 
 TARGETDEPS += ../../../../lib/libNanorexUtility.so \
 ../../../../lib/libNanorexInterface.so \
-../../../../lib/libHDF5_SimResultsImportExport.so
+../../../../lib/HDF5_SimResultsImportExport.so
 macx:TARGETDEPS ~= s/.so/.dylib/g
 
 DESTDIR = ../../../../bin

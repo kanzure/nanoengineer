@@ -2,10 +2,9 @@ TEMPLATE = lib
 
 CONFIG += dll \
 plugin \
-debug \
+debug_and_release \
 stl \
 opengl
-CONFIG -= release
 
 QT += opengl
 
@@ -39,4 +38,8 @@ SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAnd
 TARGET = NXBallAndStickOpenGLRenderer
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
+
+# Remove the "lib" from the start of the library
+QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
+macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
 

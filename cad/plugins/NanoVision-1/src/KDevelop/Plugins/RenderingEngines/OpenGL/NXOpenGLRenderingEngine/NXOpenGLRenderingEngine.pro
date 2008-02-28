@@ -1,7 +1,7 @@
 TEMPLATE = lib
 
 CONFIG += dll \
- debug \
+ debug_and_release \
  stl \
  opengl \
  plugin
@@ -16,7 +16,6 @@ HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../../../../include/Nanorex/Interface/NXRGBColor.h \
  ../../../../../../include/Nanorex/Interface/NXSceneGraph.h \
  ../../../../../../include/Nanorex/Interface/NXOpenGLMaterial.h
-CONFIG -= release
 
 QT += opengl
 
@@ -44,4 +43,8 @@ DESTDIR = ../../../../../../lib
 SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine.cpp
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
+
+# Remove the "lib" from the start of the library
+QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
+macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
 
