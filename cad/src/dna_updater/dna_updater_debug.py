@@ -213,8 +213,8 @@ register_debug_menu_command( "Mark selected atoms", mark_selected_atoms_command 
 
 # ==
 
-_found = None
-_found_molecule = -1 # impossible value of _found.molecule
+##_found = None
+##_found_molecule = -1 # impossible value of _found.molecule
 
 # convenience methods -- add code to these locally, to print things
 # at start and end of every dna updater run; runcount counts the runs of it
@@ -223,15 +223,15 @@ _found_molecule = -1 # impossible value of _found.molecule
 def debug_prints_as_dna_updater_starts( runcount, changed_atoms):
     # print "\ndebug_prints_as_dna_updater_starts: %d, len %d\n" % \
     # (runcount, len(changed_atoms))
-    global _found, _found_molecule
-    if _found is None:
-        win = env.mainwindow()
-        _found = find_atom_by_name(win.assy, 37)
-        if _found is not None:
-            print "\nfound atom", _found
-    if _found is not None and _found_molecule is not _found.molecule:
-        print "\nstart %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
-        _found_molecule = _found.molecule
+##    global _found, _found_molecule
+##    if _found is None:
+##        win = env.mainwindow()
+##        _found = find_atom_by_name(win.assy, 37)
+##        if _found is not None:
+##            print "\nfound atom", _found
+##    if _found is not None and _found_molecule is not _found.molecule:
+##        print "\nstart %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
+##        _found_molecule = _found.molecule
     if DNA_UPDATER_SLOW_ASSERTS:
         win = env.mainwindow()
         win.assy.checkparts("start dna updater %d" % runcount)
@@ -239,14 +239,13 @@ def debug_prints_as_dna_updater_starts( runcount, changed_atoms):
 
 def debug_prints_as_dna_updater_ends( runcount):
     # print "\ndebug_prints_as_dna_updater_ends: %d\n" % ( runcount, )
-    global _found, _found_molecule
-    if _found is not None and _found_molecule is not _found.molecule:
-        print "\nend %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
-        _found_molecule = _found.molecule
+##    global _found, _found_molecule
+##    if _found is not None and _found_molecule is not _found.molecule:
+##        print "\nend %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
+##        _found_molecule = _found.molecule
     if DNA_UPDATER_SLOW_ASSERTS:
         win = env.mainwindow()
         win.assy.checkparts("end dna updater %d" % runcount)
     return
-
 
 # end

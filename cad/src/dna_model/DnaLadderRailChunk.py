@@ -14,12 +14,15 @@ from constants import black
 from constants import ave_colors
 
 from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+
+_DEBUG_REUSE_CHUNKS = DEBUG_DNA_UPDATER_VERBOSE
 
 import env
 from utilities.Log import orangemsg, graymsg
 
 from elements import Singlet
-
+ 
 # see also:
 ## from dna_model.DnaLadder import _rail_end_atom_to_ladder
 # (below, perhaps in a cycle)
@@ -36,15 +39,15 @@ class DnaLadderRailChunk(Chunk):
 
     # initial values of instance variables:
     
-##    chain = None # will be a DnaChain in finished instances #k needed? probably... actually i am not sure why, let's find out @@@@
-##        # only used in wholechain._make_new_controlling_marker; guess not needed... removed that use [080120 7pm untested]
-
-    wholechain = None # will be a WholeChain once dna_updater is done (can be set to None by Undo ### REVIEW CODE FOR THAT @@@@) --
+    wholechain = None # will be a WholeChain once dna_updater is done;
         # set by update_PAM_chunks in the updater run that made self,
         # and again in each updater run that made a new wholechain
-        # running through self
+        # running through self. Can be set to None by Undo.
     
-    ladder = None # will be a DnaLadder in finished instances; can be set to None by Undo #### FIX MORE CODE FOR THAT @@@@
+    ladder = None # will be a DnaLadder in finished instances;
+        # can be set to None by Undo;
+        # can be set to a new value (after self is modified or unmodified)
+        # by _f_set_new_ladder.
 
     _num_old_atoms_hidden = 0
     _num_old_atoms_not_hidden = 0
@@ -72,7 +75,6 @@ class DnaLadderRailChunk(Chunk):
         # name should not be seen, but it is for now...
         name = gensym(self.__class__.__name__.split('.')[-1]) + ' (internal)'
         _superclass.__init__(self, assy, name)
-##        self.chain = chain
         # add atoms before setting self.ladder, so adding them doesn't invalidate it
 
         if reuse_old_chunk_if_possible:
@@ -90,16 +92,18 @@ class DnaLadderRailChunk(Chunk):
             # chains anyway but let them share the same chunks) [bruce 080228]
             old_chunk = self._old_chunk_we_could_reuse(chain)
             if old_chunk is not None:
-                print "dna updater will reuse %r rather than new %r" % \
-                      (old_chunk, self) # reduce when works -- summary debug msg? @@@
+                if _DEBUG_REUSE_CHUNKS:
+                    print "dna updater will reuse %r rather than new %r" % \
+                          (old_chunk, self) 
                 # to do this, set a flag and return early from __init__
                 # (we have no atoms; caller must kill us, and call
                 #  _f_set_new_ladder on the old chunk it's reusing).
                 assert not self.atoms
                 self._please_reuse_this_chunk = old_chunk
                 return
-            print "not reusing an old chunk for %r (will grab %d atoms)" % (self, self._counted_atoms) ##### remove when works
-            print " data: atoms were in these old chunks: %r", self._counted_chunks.values() #####
+            if _DEBUG_REUSE_CHUNKS:
+                print "not reusing an old chunk for %r (will grab %d atoms)" % (self, self._counted_atoms)
+                print " data: atoms were in these old chunks: %r" % (self._counted_chunks.values(),)
             pass
 
         self._grab_atoms_from_chain(chain, False) #e we might change when we call this, if we implem copy for this class
@@ -124,25 +128,21 @@ class DnaLadderRailChunk(Chunk):
         Make sure the old one is invalid or missing (debug print if not).
         Then properly record the new one.
         """
-##        print "predict even earlier failure in [dna_updater_chunks.py:404] til we implem this"
-##        return ##### REMOVE THIS 
         if self.ladder and self.ladder.valid:
             print "bug? but working around it: reusing %r but its old ladder %r was valid" % (self, self.ladder)
             self.ladder.invalidate()
         self.ladder = ladder
-# can't do this, no self.chain; could do it if passed the chain:
-##        from dna_model.DnaLadder import _rail_end_atom_to_ladder
-##        assert self.ladder == _rail_end_atom_to_ladder( self.chain.baseatoms[0] )
+        # can't do this, no self.chain; could do it if passed the chain:
+        ## from dna_model.DnaLadder import _rail_end_atom_to_ladder
+        ## assert self.ladder == _rail_end_atom_to_ladder( self.chain.baseatoms[0] )
         return
     
     def _undo_update(self):
-        # this implem is basically just a guess @@@
         if self.wholechain:
-            self.wholechain.destroy() # IMPLEM
+            self.wholechain.destroy()
             self.wholechain = None
-##        self.chain = None #k ok?
         self.invalidate_ladder() # review: sufficient? set it to None?
-        self.ladder = None #bruce 080227 guess, based on comment where class constand default value is assigned
+        self.ladder = None #bruce 080227 guess, based on comment where class constant default value is assigned
         for atom in self.atoms.itervalues():
             atom._changed_structure() #bruce 080227 precaution, might be redundant with invalidating the ladder... @@@
         _superclass._undo_update(self)
@@ -170,11 +170,21 @@ class DnaLadderRailChunk(Chunk):
                 if self.__class__ is old_chunk.__class__:
                     return old_chunk
                 else:
-                    print "fyi: dna updater could reuse, except for class: %r" % old_chunk
-                        # predict this will be common in mmp read; if so, make it debug only; if not, debug that! @@@                
+                    # could reuse, except for class -- common in mmp read
+                    # or after dna generator, but could happen other times too.
+                    if _DEBUG_REUSE_CHUNKS:
+                        print "fyi: dna updater could reuse, except for class: %r" % old_chunk
+                    # todo: OPTIM: it might be a useful optim, for mmp read, to just change that chunk's class and reuse it.
+                    # To decide if this would help, look at cumtime of _grab_atoms_from_chain in a profile.
+                    # I think this is only safe if Undo never saw it in a snapshot. This should be true after mmp read,
+                    # and maybe when using the Dna Generator, so it'd be useful. I'm not sure how to detect it -- we might
+                    # need to add a specialcase flag for Undo to set, or notice a method it already calls. @@@
+                    # [bruce 080228]
         return None
 
     def _grab_atoms_from_chain(self, chain, just_count):
+        # if this is slow, see comment at end of _old_chunk_we_could_reuse
+        # for a possible optimization [bruce 080228]
         """
         Assume we're empty of atoms;
         pull in all baseatoms from the given DnaChain,
