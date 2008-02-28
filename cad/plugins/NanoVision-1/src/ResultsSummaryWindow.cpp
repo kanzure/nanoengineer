@@ -4,13 +4,33 @@
 
 
 /* CONSTRUCTOR */
-ResultsSummaryWindow::ResultsSummaryWindow(NXProperties* properties,
+ResultsSummaryWindow::ResultsSummaryWindow(NXDataStoreInfo* dataStoreInfo,
 										   QWidget *parent)
 		: QDialog(parent), Ui_ResultsSummaryWindow() {
+	this->dataStoreInfo = dataStoreInfo;
 
 	setupUi(this);
 	setWindowFlags(Qt::Dialog | Qt::Tool);
+	printSummary();
+}
+
+
+/* DESTRUCTOR */
+ResultsSummaryWindow::~ResultsSummaryWindow() {
+}
+
+
+/* FUNCTION: refresh */
+void ResultsSummaryWindow::refresh() {
+	printSummary();
+}
+
+
+/* FUNCTION: printSummary */
+void ResultsSummaryWindow::printSummary() {
+	textEdit->clear();
 	textEdit->insertHtml("<b><i>Results Summary</i></b><br>");
+	NXProperties* properties = dataStoreInfo->getResultsSummary();
     if (properties == NULL) return;
 	vector<string> keys = properties->getPropertyKeys();
 	vector<string>::iterator iter = keys.begin();
@@ -23,11 +43,6 @@ ResultsSummaryWindow::ResultsSummaryWindow(NXProperties* properties,
 		textEdit->insertHtml(line);
 		iter++;
 	}
+	textEdit->insertHtml("0=success, 1=still running, 2=failure, 3=aborted");
 }
-
-
-/* DESTRUCTOR */
-ResultsSummaryWindow::~ResultsSummaryWindow() {
-}
-
 

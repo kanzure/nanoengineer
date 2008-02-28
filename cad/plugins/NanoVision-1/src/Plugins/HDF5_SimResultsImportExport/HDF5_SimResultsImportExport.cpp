@@ -45,16 +45,17 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		status = simResults->openDataStore(hdf5FileDirectory.c_str(), message);
 		if (status)
 			populateCommandResult(result, message.c_str());
-	}
-	
-	simResults->synchronize();
+	} else
+		simResults->synchronize();
 	
 	// See if the requested frame exists (yet) and abort if it doesn't
 	// signaling to delete the frame for the given frameIndex.
 	int frameCount = 0;
 	simResults->getFrameCount("frame-set-1", frameCount);
-	if (frameCount == 0)
+	if (frameCount == 0) {
+		dataStoreInfo->setLastFrame(frameSetId, true);
 		return result;
+	}
 	
 	// If this is the first call to import the data store, retrieve the meta
 	// information about the data store, and other data.
@@ -75,6 +76,7 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		int frameCount = 0;
 		simResults->getFrameCount("frame-set-1", frameCount);
 		dataStoreInfo->setLastFrame(frameSetId, frameIndex > frameCount - 2);
+//printf("HDF5_SimResultsImportExport::importFromFile: setLastFrame(frameSetId=%d, frameIndex=%d > frameCount=%d - 2)\n", frameSetId, frameIndex, frameCount);fflush(0);
 		
 		int runResult = -1; // 0=success, 1=still running, 2=failure, 3=aborted
 		string failureDescription;
@@ -240,6 +242,10 @@ NXProperties* HDF5_SimResultsImportExport::getResultsSummary
 		properties->setProperty(*iter, stringValue);
 		iter++;
 	}
+	
+	simResults->getRunResult(intValue, stringValue);
+	properties->setProperty("RunResult", NXUtility::itos(intValue));
+	properties->setProperty("RunResultMessage", stringValue);
 	return properties;
 }
 		 

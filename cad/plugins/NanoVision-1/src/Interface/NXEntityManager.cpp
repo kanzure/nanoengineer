@@ -34,7 +34,9 @@ void NXEntityManager::reset(void) {
 	moleculeSets.clear();
 	
 	if (pollingThread != NULL) {
-		NXLOG_DEBUG("NXEntityManager", "Stopping data store polling thread.");
+		if (pollingThread->isRunning())
+			NXLOG_DEBUG("NXEntityManager",
+						"Stopping data store polling thread.");
 		pollingThread->stop();
 		pollingThread->wait();
 		delete pollingThread;
@@ -194,11 +196,13 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 	if (iter != dataImportTable.end()) {
 		NXDataImportExportPlugin* plugin = iter->second;
 		
-		if (frameSetId == -1)
+		if (frameSetId == -1) {
 			frameSetId = addFrameSet();
+			storeIsComplete_Emitted[frameSetId] = false;
+		}
 		if (!inPollingThread && !inRecursiveCall)
 			dataStoreInfo->setFileName(filename, frameSetId);
-		int frameIndex = getFrameCount(frameSetId);
+		int frameIndex = getFrameCount(frameSetId); // Theoretical new frame id
 		NXMoleculeSet* moleculeSet = new NXMoleculeSet();
 
 		try {
@@ -216,9 +220,14 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 					delete moleculeSet;
 					
 				} else {
+					int oldFrameIndex = frameIndex;
 					frameIndex = addFrame(frameSetId, moleculeSet);
+					if (frameIndex != oldFrameIndex)
+						NXLOG_WARNING("NXEntityManager::importFromFile",
+									  "Frame indexes out of sync.");
 					if (inPollingThread) {
-						NXLOG_DEBUG("NXEntityManager", "emit newFrameAdded()");
+						NXLOG_DEBUG("NXEntityManager::importFromFile",
+									"emit newFrameAdded()");
 						emit newFrameAdded(frameSetId, frameIndex, moleculeSet);
 					}
 					
@@ -301,9 +310,11 @@ NXCommandResult* NXEntityManager::importFromFile(const string& filename,
 			} else
 				delete moleculeSet;
 				
-			if (inPollingThread && dataStoreInfo->storeIsComplete(frameSetId)) {
+			if (inPollingThread && dataStoreInfo->storeIsComplete(frameSetId) &&
+				!storeIsComplete_Emitted[frameSetId]) {
 				NXLOG_DEBUG("NXEntityManager", "emit dataStoreComplete()");
 				emit dataStoreComplete();
+				storeIsComplete_Emitted[frameSetId] = true;
 			}
 
 		} catch (...) {

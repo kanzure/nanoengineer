@@ -106,6 +106,8 @@ class NXEntityManager : public QObject {
 		QMutex frameAccessMutex;
 		vector<vector<NXMoleculeSet*> > moleculeSets;
 		
+		map<int, bool> storeIsComplete_Emitted;
+		
 		string getFileType(const string& filename);
 };
 
@@ -138,8 +140,12 @@ public:
 												true); // inPollingThread
 		
 			// TODO: Handle if result != 0
+			if (result->getResult() != NX_CMD_SUCCESS) {
+				NXLOG_WARNING("DataStorePollingThread",
+							  qPrintable(GetNV1ResultCodeString(result)));
+			}
 			
-			msleep(100);
+			msleep(500);//100);
 		}
 	}
 	

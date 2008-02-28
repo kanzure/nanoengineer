@@ -6,16 +6,15 @@
 /* CONSTRUCTOR */
 ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
 : QWidget(parent), Ui_ResultsWindow(),
-    workspace(NULL), windowMapper(NULL), curFile(),
-    entityManager(NULL), resultsTree(NULL),
-    mmpFileIcon(tr(":/Icons/nanoENGINEER-1.ico")),
-    atomIcon(tr(":/Icons/atom.png")),
-    atomSetIcon(tr(":/Icons/atom_set.png")),
-    inputParametersIcon(tr(":/Icons/input_parameters.png")),
-    inputFilesIcon(tr(":/Icons/input_files.png")),
-    inputFileIcon(tr(":/Icons/input_file.png")),
-    resultsIcon(tr(":/Icons/results.png")),
-    resultsSummaryIcon(tr(":/Icons/results_summary.png")),
+    workspace(NULL),		windowMapper(NULL),		curFile(),
+    entityManager(NULL),	resultsTree(NULL),
+    mmpFileIcon(			tr(":/Icons/nanoENGINEER-1.ico")),
+    atomIcon(				tr(":/Icons/atom.png")),
+    atomSetIcon(			tr(":/Icons/atom_set.png")),
+    inputParametersIcon(	tr(":/Icons/input_parameters.png")),
+    inputFilesIcon(			tr(":/Icons/input_files.png")),
+    inputFileIcon(			tr(":/Icons/input_file.png")),
+    resultsIcon(			tr(":/Icons/results.png")),
     resultsTrajectoriesIcon(tr(":/Icons/trajectories.png"))
 {
     this->entityManager = entityManager;
@@ -84,31 +83,9 @@ bool ResultsWindow::loadFile(const QString &fileName) {
     } else {
         setCurrentFile(fileName);
         
-        NXDataStoreInfo *dataStoreInfo = entityManager->getDataStoreInfo();
-        
         // Populate results tree
         updateResultsTree();
-        
-		// Choose some graphics to show once the file is loaded
-		if (dataStoreInfo->isSingleStructure()) {
-			; // show it
-			
-		} else if (dataStoreInfo->isSimulationResults()) {
-			vector<string> trajectoryNames =
-				dataStoreInfo->getTrajectoryNames();
-			if (trajectoryNames.size() != 0) {
-				string trajName = trajectoryNames[0];
-//				showTrajectoryWindow(trajName);
-				
-			} else {
-				vector<string> inputFileNames =
-					dataStoreInfo->getInputFileNames();
-				if (inputFileNames.size() != 0) {
-					string inputFileName = inputFileNames[0];
-					// showStructureWindow(inputFileName);
-				}
-			}
-		}        
+
         QString message = tr("File loaded: %1").arg(fileName);
         NXLOG_INFO("ResultsWindow", qPrintable(message));
     }
@@ -209,10 +186,9 @@ void ResultsWindow::setupSimulationResultsTree(void)
     resultsTree->addTopLevelItem(resultsItem);
     
     // Results -> Summary
-    DataWindowTreeItem *resultsSummaryItem = NULL;
+    DataWindowTreeItem* resultsSummaryItem = NULL;
     if (resultsSummary != NULL) {
         resultsSummaryItem = new ResultsSummaryTreeItem(this, resultsItem);
-        resultsSummaryItem->setIcon(0, resultsSummaryIcon);
         resultsSummaryItem->setText(0, tr("Summary"));
 		resultsSummaryItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
     }
@@ -235,8 +211,28 @@ void ResultsWindow::setupSimulationResultsTree(void)
 											   trajectoryItem);
             trajectoryNameItem->setIcon(0, resultsTrajectoriesIcon);
             trajectoryNameItem->setText(0, QString(trajectoryNameIter->c_str()));
-			trajectoryNameItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+			trajectoryNameItem->setFlags(Qt::ItemIsSelectable |
+										 Qt::ItemIsEnabled);
             // trajectoryItem->addChild(trajectoryNameItem);
+			
+			// Show some graphics right away
+			if (trajectoryNameIter == trajectoryNames.begin())
+				trajectoryNameItem->showWindow();
+
+			// Signal the results summary window once the data store is
+			// complete so it can refresh itself
+			int trajectoryId =
+				dataStoreInfo->getTrajectoryId(*trajectoryNameIter);
+			if ((resultsSummaryItem != NULL) &&
+				(!dataStoreInfo->storeIsComplete(trajectoryId))) {
+				QObject::connect(entityManager,
+								 SIGNAL(dataStoreComplete()),
+								 resultsSummaryItem,
+								 SLOT(refresh()));
+				((ResultsSummaryTreeItem*)resultsSummaryItem)
+					->setTrajectoryId(trajectoryId);
+				resultsSummaryItem->refresh();
+			}
         }
     }
 }
@@ -371,6 +367,10 @@ DataWindowTreeItem::~DataWindowTreeItem() {
 }
 
 
+/* FUNCTION: refresh */
+void DataWindowTreeItem::refresh() { }
+
+
 /* ************************ InputParametersTreeItem ************************ */
 
 
@@ -407,8 +407,13 @@ void InputParametersTreeItem::showWindow() {
 /* CONSTRUCTOR */
 ResultsSummaryTreeItem::ResultsSummaryTreeItem(ResultsWindow* resultsWindow,
 											   QTreeWidgetItem* treeWidgetItem)
-		: DataWindowTreeItem(resultsWindow, treeWidgetItem) {
+		: DataWindowTreeItem(resultsWindow, treeWidgetItem),
+    resultsSummaryIcon(tr(":/Icons/results_summary.png")),
+    resultsSummaryIcon2(tr(":/Icons/results_summary2.png")) {
+
+	trajectoryId = -1;
 	resultsSummaryWindow = NULL;
+	setIcon(0, resultsSummaryIcon);
 }
 
 
@@ -424,10 +429,25 @@ void ResultsSummaryTreeItem::showWindow() {
 	if (resultsSummaryWindow == NULL) {
 		NXDataStoreInfo* dataStoreInfo =
 			resultsWindow->entityManager->getDataStoreInfo();
-		resultsSummaryWindow =
-			new ResultsSummaryWindow(dataStoreInfo->getResultsSummary());
+		resultsSummaryWindow = new ResultsSummaryWindow(dataStoreInfo);
 	}
 	resultsSummaryWindow->show();
+}
+
+
+/* FUNCTION: refresh */
+void ResultsSummaryTreeItem::refresh() {
+printf("ResultsSummaryTreeItem::refresh: trajId=%d storeComplete=%d\n", trajectoryId, resultsWindow->entityManager->getDataStoreInfo()
+			->storeIsComplete(trajectoryId));
+	if (resultsSummaryWindow != NULL)
+		resultsSummaryWindow->refresh();
+
+	if ((trajectoryId != -1) &&
+		!resultsWindow->entityManager->getDataStoreInfo()
+			->storeIsComplete(trajectoryId))
+		setIcon(0, resultsSummaryIcon2);
+	else
+		setIcon(0, resultsSummaryIcon);
 }
 
 

@@ -4,16 +4,17 @@
 #define RESULTSWINDOW_H
 
 #include <QtGui>
-#include <QWidget>
 #include <QFile>
-#include <QMessageBox>
-#include <QApplication>
-#include <QCloseEvent>
+#include <QWidget>
+#include <QObject>
 #include <QFileInfo>
-#include <QMainWindow>
-#include <QDockWidget>
 #include <QWorkspace>
 #include <QTreeWidget>
+#include <QMainWindow>
+#include <QDockWidget>
+#include <QMessageBox>
+#include <QCloseEvent>
+#include <QApplication>
 
 #include "Nanorex/Interface/NXEntityManager.h"
 using namespace Nanorex;
@@ -59,7 +60,6 @@ class ResultsWindow : public QWidget, private Ui_ResultsWindow {
 		QIcon inputFilesIcon;
 		QIcon inputFileIcon;
 		QIcon resultsIcon;
-		QIcon resultsSummaryIcon;
 		QIcon resultsTrajectoriesIcon;
 		
 		void setCurrentFile(const QString &fileName);
@@ -77,8 +77,10 @@ class ResultsWindow : public QWidget, private Ui_ResultsWindow {
 
 
 /* CLASS: DataWindowTreeItem */
-class DataWindowTreeItem : public QTreeWidgetItem {
+class DataWindowTreeItem : public QObject, public QTreeWidgetItem {
 
+	Q_OBJECT
+	
 	public:
 		DataWindowTreeItem(ResultsWindow* resultsWindow,
 						   QTreeWidget* treeWidget);
@@ -87,6 +89,9 @@ class DataWindowTreeItem : public QTreeWidgetItem {
 		virtual ~DataWindowTreeItem();
 		
 		virtual void showWindow() = 0;
+		
+	public slots:
+		virtual void refresh();
 		
 	protected:
 		ResultsWindow* resultsWindow;
@@ -109,17 +114,29 @@ class InputParametersTreeItem : public DataWindowTreeItem {
 
 
 /* CLASS: ResultsSummaryTreeItem */
-class ResultsSummaryTreeItem : public DataWindowTreeItem {
+class ResultsSummaryTreeItem : public QWidget, public DataWindowTreeItem {
 
+	Q_OBJECT
+	
 	public:
 		ResultsSummaryTreeItem(ResultsWindow* resultsWindow,
 							   QTreeWidgetItem* treeWidgetItem);
 		~ResultsSummaryTreeItem();
 		
 		void showWindow();
+		void setTrajectoryId(int trajectoryId) {
+			this->trajectoryId = trajectoryId;
+		}
+		
+	public slots:
+		void refresh();
 		
 	private:
+		int trajectoryId;
 		ResultsSummaryWindow* resultsSummaryWindow;
+		
+		QIcon resultsSummaryIcon;
+		QIcon resultsSummaryIcon2;
 };
 
 

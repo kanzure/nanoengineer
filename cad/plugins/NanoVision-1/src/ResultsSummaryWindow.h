@@ -11,6 +11,7 @@ using namespace std;
 #include <QDialog>
 
 #include "Nanorex/Utility/NXProperties.h"
+#include "Nanorex/Interface/NXDataStoreInfo.h"
 using namespace Nanorex;
 
 #include "DataWindow.h"
@@ -22,9 +23,17 @@ class ResultsSummaryWindow
 		: public QDialog, private Ui_ResultsSummaryWindow {
 	Q_OBJECT
 
-public:
-	ResultsSummaryWindow(NXProperties* properties, QWidget *parent = 0);
-	~ResultsSummaryWindow();
+	public:
+		ResultsSummaryWindow(NXDataStoreInfo* dataStoreInfo,
+							 QWidget *parent = 0);
+		~ResultsSummaryWindow();
+		
+		void refresh();
+	
+	private:
+		NXDataStoreInfo* dataStoreInfo;
+		
+		void printSummary();
 };
 
 #endif
