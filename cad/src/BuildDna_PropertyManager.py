@@ -546,4 +546,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         Tool Tip text for widgets in the DNA Property Manager.  
         """
+        from gui.ToolTipText_for_PropertyManagers import ToolTip_SequenceEditor
+        ToolTip_SequenceEditor(self)
+        print "inside add tool tiptest"
         pass

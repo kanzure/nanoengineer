@@ -74,46 +74,105 @@ class CookieCtrlPanel(CookiePropertyManager):
         self.DefaultSelAction.setObjectName("DEFAULT")
         self.DefaultSelAction.setText("Default")        
         self.subControlAreaActionList.append(self.DefaultSelAction)
+        self.DefaultSelAction.setToolTip( "Default Selection (D)")
+        self.DefaultSelAction.setWhatsThis(
+        """<b>Default </b>
+        <p>
+       Defines the crystal shape as a polygon with the user specifying the 
+       sides
+        </p>""")
         
         self.CircleSelAction = QWidgetAction(self.w)    
         self.CircleSelAction.setObjectName("CIRCLE")
         self.CircleSelAction.setText("Circle")  
         self.subControlAreaActionList.append(self.CircleSelAction)
-        
+        self.CircleSelAction.setToolTip( "Circle (C)")
+        self.CircleSelAction.setWhatsThis(
+        """<b>Circle </b>
+        <p>
+        Draws the crystal geometry as a circle
+        </p>""")
+  
         self.RectCtrSelAction = QWidgetAction(self.w)   
         self.RectCtrSelAction.setObjectName("RECTANGLE")
         self.RectCtrSelAction.setText("RectCenter")
         self.subControlAreaActionList.append(self.RectCtrSelAction)
+        self.RectCtrSelAction.setToolTip( "Rectangular Center (R)")
+        self.RectCtrSelAction.setWhatsThis(
+        """<b>Rectangle - Center Select</b>
+        <p>
+        Draws the crystal geometry as a rectangle with the cursor defining
+        the center of the rectangle
+        </p>""")
                 
         self.HexagonSelAction = QWidgetAction(self.w)
         self.HexagonSelAction.setObjectName("HEXAGON")
         self.HexagonSelAction.setText("Hexagon")
         self.subControlAreaActionList.append(self.HexagonSelAction)
-        
+        self.HexagonSelAction.setToolTip( "Hexagon (H)")
+        self.HexagonSelAction.setWhatsThis(
+        """<b>Hexagon </b>
+        <p>
+        Draws the crystal geometry as a hexagon
+        </p>""")
+                
         self.TriangleSelAction = QWidgetAction(self.w)
         self.TriangleSelAction.setObjectName("TRIANGLE")
         self.TriangleSelAction.setText("Triangle")
         self.subControlAreaActionList.append(self.TriangleSelAction)
-        
+        self.TriangleSelAction.setToolTip( "Triangle (T)")
+        self.TriangleSelAction.setWhatsThis(
+        """<b>Triangle </b>
+        <p>
+        Draws the crystal geometry as a triangle
+        </p>""")
+                
+                
         self.RectCornerSelAction = QWidgetAction(self.w)
         self.RectCornerSelAction.setObjectName("RECT_CORNER")
         self.RectCornerSelAction.setText("RectCorners")
         self.subControlAreaActionList.append(self.RectCornerSelAction)
+        self.RectCornerSelAction.setToolTip( "Rectangular Corner (Shift+R)")
+        self.RectCornerSelAction.setWhatsThis(
+        """<b>Rectangle - Corner Select</b>
+        <p>
+        Draws the crystal geometry as a rectangle with the cursor defining 
+        the initial corner 
+        </p>""")
         
+               
         self.LassoSelAction = QWidgetAction(self.w)     
         self.LassoSelAction.setObjectName("LASSO")
         self.LassoSelAction.setText("Lasso")
         self.subControlAreaActionList.append(self.LassoSelAction)
+        self.LassoSelAction.setToolTip( "Lasso (L)")
+        self.LassoSelAction.setWhatsThis(
+        """<b>Lasso</b>
+        <p>
+        Can be used to draw irregular crystal geometries 
+        </p>""")
         
         self.DiamondSelAction = QWidgetAction(self.w)
         self.DiamondSelAction.setObjectName("DIAMOND")
         self.DiamondSelAction.setText("Diamond")
         self.subControlAreaActionList.append(self.DiamondSelAction)
+        self.DiamondSelAction.setToolTip( "Diamond (D)")
+        self.DiamondSelAction.setWhatsThis(
+        """<b>Diamond</b>
+        <p>
+        Draws the crystal geometry as a diamond
+        </p>""")
         
         self.SquareSelAction = QWidgetAction(self.w)
         self.SquareSelAction.setObjectName("SQUARE")
         self.SquareSelAction.setText("Square")
         self.subControlAreaActionList.append(self.SquareSelAction)
+        self.SquareSelAction.setToolTip( "Square(S)")
+        self.SquareSelAction.setWhatsThis(
+        """<b>Square</b>
+        <p>
+        Draws the crystal geometry as a square
+        </p>""")
         
         for action in self.subControlAreaActionList[1:]:
             if action.__class__.__name__ is QtGui.QWidgetAction.__name__:               

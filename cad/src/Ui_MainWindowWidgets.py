@@ -443,6 +443,8 @@ def setupUi(win):
     win.partLibAction.setObjectName("partLibAction")
     win.partLibAction.setText("Part from partlib...")    
     win.partLibAction.setIcon(geticon('ui/actions/Insert/Partlib'))
+    win.partLibAction.setWhatsThis("Insert Part from Library" )
+    
 
     win.insertCommentAction = QtGui.QAction(MainWindow)
     win.insertCommentAction.setIcon(geticon("ui/actions/Insert/Comment"))
@@ -856,6 +858,9 @@ def retranslateUi(win):
     win.fileOpenAction.setIconText(
         QtGui.QApplication.translate(
             "MainWindow", "Open", None, QtGui.QApplication.UnicodeUTF8))
+    win.fileOpenAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Open(Ctrl+O)", None, QtGui.QApplication.UnicodeUTF8))      
     win.fileOpenAction.setShortcut(
         QtGui.QApplication.translate(
             "MainWindow", "Ctrl+O", None, QtGui.QApplication.UnicodeUTF8))
@@ -868,6 +873,9 @@ def retranslateUi(win):
     win.fileSaveAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "&Save", None, QtGui.QApplication.UnicodeUTF8))
+    win.fileSaveAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Save (Ctrl+S)", None, QtGui.QApplication.UnicodeUTF8))    
     win.fileSaveAction.setIconText(
         QtGui.QApplication.translate(
             "MainWindow", "Save", None, QtGui.QApplication.UnicodeUTF8))
@@ -948,6 +956,9 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Ctrl+Z", 
             None, QtGui.QApplication.UnicodeUTF8))
+    win.editUndoAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Undo (Ctrl+Z)", None, QtGui.QApplication.UnicodeUTF8))  
     win.editRedoAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "&Redo", 
@@ -960,6 +971,9 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Ctrl+Y", 
             None, QtGui.QApplication.UnicodeUTF8))
+    win.editRedoAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Redo (Ctrl+Y)", None, QtGui.QApplication.UnicodeUTF8))    
     win.editCutAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "&Cut", 
@@ -972,6 +986,9 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Ctrl+X", 
             None, QtGui.QApplication.UnicodeUTF8))
+    win.editCutAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Cut (Ctrl+X)", None, QtGui.QApplication.UnicodeUTF8))
     win.editCopyAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "C&opy", 
@@ -984,6 +1001,9 @@ def retranslateUi(win):
         QtGui.QApplication.translate(
             "MainWindow", "Ctrl+C", 
             None, QtGui.QApplication.UnicodeUTF8))
+    win.editCopyAction.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Copy (Ctrl+V)", None, QtGui.QApplication.UnicodeUTF8))    
     win.editPasteAction.setText(
         QtGui.QApplication.translate(
             "MainWindow", "&Paste", 
@@ -1099,7 +1119,7 @@ def retranslateUi(win):
             None, QtGui.QApplication.UnicodeUTF8))
     win.zoomInOutAction.setToolTip(
         QtGui.QApplication.translate(
-            "MainWindow", "Zoom",
+            "MainWindow", "Zoom In . (dot) | Zoom Out , (comma)",
             None, QtGui.QApplication.UnicodeUTF8))
 
     win.panToolAction.setText(QtGui.QApplication.translate("MainWindow", "&Pan", None, QtGui.QApplication.UnicodeUTF8))
@@ -1400,7 +1420,7 @@ def retranslateUi(win):
                                                                      None, QtGui.QApplication.UnicodeUTF8))
     win.modifyHydrogenateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hydrogenate", 
                                                                          None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyHydrogenateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hydrogenate", 
+    win.modifyHydrogenateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hydrogenate (Ctrl+Shift+H)", 
                                                                         None, QtGui.QApplication.UnicodeUTF8))
     win.modifyDehydrogenateAction.setText(QtGui.QApplication.translate("MainWindow", "&Dehydrogenate", 
                                                                        None, QtGui.QApplication.UnicodeUTF8))
@@ -1457,19 +1477,19 @@ def retranslateUi(win):
     #TOOLS > SELECT  MENU ITEMS
     win.selectAllAction.setText(QtGui.QApplication.translate("MainWindow", "&All", None, QtGui.QApplication.UnicodeUTF8))
     win.selectAllAction.setIconText(QtGui.QApplication.translate("MainWindow", "All", None, QtGui.QApplication.UnicodeUTF8))
-    win.selectAllAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Select All", None, QtGui.QApplication.UnicodeUTF8))
+    win.selectAllAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Select All (Ctrl+A)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectAllAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+A", None, QtGui.QApplication.UnicodeUTF8))
     win.selectNoneAction.setText(QtGui.QApplication.translate("MainWindow", "&None", None, QtGui.QApplication.UnicodeUTF8))
     win.selectNoneAction.setIconText(QtGui.QApplication.translate("MainWindow", "None", None, QtGui.QApplication.UnicodeUTF8))
-    win.selectNoneAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Select None", None, QtGui.QApplication.UnicodeUTF8))
+    win.selectNoneAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Select None (Ctrl+N)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectNoneAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+N", None, QtGui.QApplication.UnicodeUTF8))
     win.selectInvertAction.setText(QtGui.QApplication.translate("MainWindow", "&Invert", None, QtGui.QApplication.UnicodeUTF8))
     win.selectInvertAction.setIconText(QtGui.QApplication.translate("MainWindow", "Invert", None, QtGui.QApplication.UnicodeUTF8))
-    win.selectInvertAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Select Invert", None, QtGui.QApplication.UnicodeUTF8))
+    win.selectInvertAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Select Invert (Ctrl+Shift+I)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectInvertAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+I", None, QtGui.QApplication.UnicodeUTF8))
     win.selectConnectedAction.setText(QtGui.QApplication.translate("MainWindow", "&Connected", None, QtGui.QApplication.UnicodeUTF8))
     win.selectConnectedAction.setIconText(QtGui.QApplication.translate("MainWindow", "Connected", None, QtGui.QApplication.UnicodeUTF8))
-    win.selectConnectedAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Select Connected", None, QtGui.QApplication.UnicodeUTF8))
+    win.selectConnectedAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Select Connected (Ctrl+Shift+C)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectConnectedAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+C", None, QtGui.QApplication.UnicodeUTF8))
     win.selectDoublyAction.setText(QtGui.QApplication.translate("MainWindow", "&Doubly", None, QtGui.QApplication.UnicodeUTF8))
     win.selectDoublyAction.setIconText(QtGui.QApplication.translate("MainWindow", "Doubly", None, QtGui.QApplication.UnicodeUTF8))

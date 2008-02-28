@@ -230,13 +230,13 @@ def ToolTip_MovePropertyManager(propMgr):
 
     propMgr.transFreeButton.setToolTip("Unconstrained Translation")
 
-    propMgr.transXButton.setToolTip("X Translation")
+    propMgr.transXButton.setToolTip("X Translation (X)")
 
-    propMgr.transYButton.setToolTip("Y Translation")
+    propMgr.transYButton.setToolTip("Y Translation (Y)")
 
-    propMgr.transZButton.setToolTip("Z Translation")
+    propMgr.transZButton.setToolTip("Z Translation (Z)")
 
-    propMgr.transAlongAxisButton.setToolTip("Axial Translation/Rotation")
+    propMgr.transAlongAxisButton.setToolTip("Axial Translation/Rotation (A)")
 
     propMgr.moveFromToButton.setToolTip("Translate between two defined points")
 
@@ -273,13 +273,13 @@ def ToolTip_MovePropertyManager(propMgr):
 
     propMgr.rotateFreeButton.setToolTip("Unconstrained Rotation")
 
-    propMgr.rotateXButton.setToolTip("X Rotation")
+    propMgr.rotateXButton.setToolTip("X Rotation (X)")
 
-    propMgr.rotateYButton.setToolTip("Y Rotation")
+    propMgr.rotateYButton.setToolTip("Y Rotation (Y)")
 
-    propMgr.rotateZButton.setToolTip("Z Rotation")
+    propMgr.rotateZButton.setToolTip("Z Rotation (Z)")
 
-    propMgr.rotAlongAxisButton.setToolTip("Axial Translation/Rotation")
+    propMgr.rotAlongAxisButton.setToolTip("Axial Translation/Rotation (A)")
 
     propMgr.rotateAsUnitCB.setToolTip("Rotate As Unit")
 
