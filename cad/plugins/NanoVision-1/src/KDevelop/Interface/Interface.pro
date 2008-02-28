@@ -1,8 +1,8 @@
 
 LIBS += -L$(OPENBABEL_LIBPATH) \
- -lopenbabel \
  -L../../../lib \
- -lNanorexUtility
+ -lNanorexUtility \
+ -lopenbabel
 
 HEADERS += \
 ../../../include/Nanorex/Interface/NXDataImportExportPlugin.h \
@@ -40,6 +40,8 @@ TEMPLATE = lib
 CONFIG += debug_and_release \
  stl \
  dll
+win32 : CONFIG -= dll
+win32 : CONFIG += staticlib
 
 TARGET = NanorexInterface
 

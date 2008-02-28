@@ -9,14 +9,11 @@ opengl \
 
 QT += opengl
 
-LIBS += -lopenbabel \
+LIBS +=  -L../../../lib/ \
+-L$(OPENBABEL_LIBPATH) \
 -lNanorexInterface \
 -lNanorexUtility \
- -L../../../lib/ \
- -L../../../lib \
- -L/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/lib
-
-macx : TARGETDEPS ~= s/.so/.dylib/g
+-lopenbabel
 
 SOURCES += ../../DataWindow.cpp \
 ../../LogHandlerWidget.cpp \
@@ -63,4 +60,6 @@ DESTDIR = ../../../bin
 
 # This tells qmake to not create a Mac bundle for this application.
 CONFIG -= app_bundle
+
+#macx : TARGETDEPS ~= s/.so/.dylib/g
 

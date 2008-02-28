@@ -5,15 +5,16 @@ TEMPLATE = app
 INCLUDEPATH += $(OPENBABEL_INCPATH) \
 ../../../../include
 
-LIBS += -lopenbabel \
+LIBS += -L$(OPENBABEL_LIBPATH) \
 -L../../../../lib \
 -lNanorexInterface \
--lNanorexUtility
+-lNanorexUtility \
+-lopenbabel
 
-TARGETDEPS += ../../../../lib/HDF5_SimResultsImportExport.so \
-../../../../lib/libNanorexInterface.so \
+TARGETDEPS += ../../../../lib/libNanorexInterface.so \
 ../../../../lib/libNanorexUtility.so
-macx:TARGETDEPS ~= s/.so/.dylib/g
+macx : TARGETDEPS ~= s/.so/.dylib/g
+win32 : TARGETDEPS ~= s/.so/.a/g
 
 DESTDIR = ../../../../bin/
 

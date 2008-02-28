@@ -15,8 +15,8 @@ CONFIG += dll \
 LIBS += -L../../../../lib \
 -L$(OPENBABEL_LIBPATH) \
 -L$(HDF5_SIMRESULTS_LIBPATH) \
--lNanorexUtility \
 -lNanorexInterface \
+-lNanorexUtility \
 -lopenbabel \
 -lHDF5_SimResults \
 -lhdf5
@@ -29,6 +29,6 @@ win32 : TARGETDEPS ~= s/.so/.a/g
 DESTDIR = ../../../../lib
 
 # Remove the "lib" from the start of the library
-QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
+unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
 macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
 

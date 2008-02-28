@@ -54,7 +54,7 @@
 // Windows Config
 //
 
-#if defined(_MSC_VER) || defined(__BORLANDC__)
+#if defined(WIN32) || defined(__BORLANDC__)
 
 #define GLT_WIN32
 #define GLT_LITTLE_ENDIAN

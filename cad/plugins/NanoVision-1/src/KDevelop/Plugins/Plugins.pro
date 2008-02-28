@@ -2,9 +2,9 @@ TEMPLATE = subdirs
 
 
 SUBDIRS += HDF5_SimResultsImportExport \
- RenderingEngines \
  OpenBabelImportExport \
- NanorexMMPImportExport
+ NanorexMMPImportExport \
+ RenderingEngines
 
 CONFIG += ordered
 

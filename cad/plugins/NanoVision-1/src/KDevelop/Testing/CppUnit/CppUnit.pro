@@ -6,22 +6,25 @@ SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Utility/NXStringTokenizerTest.cpp \
  ../../../Utility/NXUtilityTest.cpp \
  ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.cpp \
- ../../../Interface/NXSceneGraphTest.cpp \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.cpp \
- ../../../Utility/NXPointTest.cpp
+ ../../../Utility/NXPointTest.cpp \
+ ../../../Interface/NXSceneGraphTest.cpp
 
 TEMPLATE = app
 
 TARGET = CppUnit
 
-LIBS += -lcppunit \
- -lopenbabel \
- -L../../../../lib \
+LIBS += -L../../../../lib \
+ -L$(OPENBABEL_LIBPATH) \
+ -L$(HDF5_SIMRESULTS_INCPATH) \
+ -lNanorexInterface \
  -lNanorexUtility \
- -lNanorexInterface
+ -lcppunit \
+ -lopenbabel
 
 INCLUDEPATH += ../../../../include \
- $(OPENBABEL_INCPATH)
+ $(OPENBABEL_INCPATH) \
+ $(HDF5_SIMRESULTS_INCPATH)
 
 HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Utility/NXLoggerTest.h \
@@ -31,13 +34,13 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Interface/NXNumbersTest.h \
 ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.h \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.h \
- ../../../Interface/NXSceneGraphTest.h \
- ../../../Utility/NXPointTest.h
+ ../../../Utility/NXPointTest.h \
+ ../../../Interface/NXSceneGraphTest.h
 
 TARGETDEPS += ../../../../lib/libNanorexUtility.so \
-../../../../lib/libNanorexInterface.so \
-../../../../lib/HDF5_SimResultsImportExport.so
-macx:TARGETDEPS ~= s/.so/.dylib/g
+../../../../lib/libNanorexInterface.so
+macx : TARGETDEPS ~= s/.so/.dylib/g
+win32 : TARGETDEPS ~= s/.so/.a/g
 
 DESTDIR = ../../../../bin
 

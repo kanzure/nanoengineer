@@ -11,9 +11,9 @@ int main(int argc, char *argv[]) {
 	QApplication* app = new QApplication(argc, argv);
 	
 	// Show splashscreen
-	QPixmap pixmap(":/Icons/splashscreen.png");
-	SplashScreen* splash = new SplashScreen(pixmap);
- 	splash->show();
+	//QPixmap pixmap(":/Icons/splashscreen.png");
+	//SplashScreen* splash = new SplashScreen(pixmap);
+ 	//splash->show();
 
 	// Get user settings
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope,
@@ -21,8 +21,8 @@ int main(int argc, char *argv[]) {
 
 	// Start logger
 	//
-	splash->showMessage("Starting logger...");
-	splash->repaint();
+	//splash->showMessage("Starting logger...");
+	//splash->repaint();
 	int logLevel = 0;
 	NXLogger* logger = new NXLogger();
 	
@@ -56,13 +56,12 @@ int main(int argc, char *argv[]) {
 	logger->addHandler(logHandlerWidget);
 
 	// Initialize entity manager and load import/export plugins
-	splash->showMessage("Loading entity manager...");
-	splash->repaint();
+	//splash->showMessage("Loading entity manager...");
+	//splash->repaint();
 	NXProperties* properties = new NXProperties();
 	
 	QString pluginsSearchPath =
 		settings.value("Miscellaneous/PluginsSearchPath").toString();
-printf("pSP=%s\n", qPrintable(pluginsSearchPath));
 	properties->setProperty("PluginsSearchPath", qPrintable(pluginsSearchPath));
 	settings.beginGroup("NXEntityManager");
 	QStringList keys = settings.allKeys();
@@ -78,13 +77,13 @@ printf("pSP=%s\n", qPrintable(pluginsSearchPath));
 	// Create main window
 	nv1* mainWindow = new nv1(entityManager, logHandlerWidget);
 	mainWindow->show();
-	splash->repaint();
+	//splash->repaint();
 	
 	mainWindow->processCommandLine(argc, argv);
 	
-	sleep(1);	
-	splash->finish(mainWindow);
-	delete splash;
+	//sleep(1);	
+	//splash->finish(mainWindow);
+	//delete splash;
 	int appReturn = app->exec();
 	delete app;
 	return appReturn;
