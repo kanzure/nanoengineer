@@ -21,8 +21,10 @@
 #define GROUP_NAME_SIZE_HINT		64
 
 #define USE_CHUNKING				1
-#define USE_SHUFFLING				1
-#define USE_COMPRESSION				1
+//#define USE_SHUFFLING				1
+//#define USE_COMPRESSION			1
+#define USE_SHUFFLING				0
+#define USE_COMPRESSION				0
 #define COMPRESSION_LVL				6
 
 #define TOTAL_ENERGY_MSRMT			0
