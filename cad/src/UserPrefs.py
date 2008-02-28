@@ -1876,7 +1876,7 @@ restored when the user undoes a structural change.</p>
                     - 0 = lower left
                     - 1 = upper left
                     - 2 = lower right
-                    - 3 = lower right
+                    - 3 = upper right
         
         @type  position: int
         """
