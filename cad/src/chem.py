@@ -2780,28 +2780,35 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
 
     def changed(self): #bruce 050509; perhaps should use more widely
         mol = self.molecule
-        if mol is None: return #k needed??
+        if mol is None:
+            return #k needed??
         mol.changed()
         return
 
-    def killed(self): #bruce 041029; totally revised by bruce 050702
+    def killed(self): #bruce 041029; totally revised 050702; revised 080227
         """
         (Public method)
         Report whether an atom has been killed.
         """
-        # Note: some "friend code" inlines this method for speed
-        # (and omits the debug code). To find it, search for _Atom__killed
-        # (the mangled version of __killed). [bruce 071018 comment]
+        # Note: some "friend code" inlines an old incomplete version of
+        # this method for speed (and omits the debug code). To find it,
+        # search for _Atom__killed (the mangled version of __killed).
+        # [bruce 071018/080227 comment]
+        #
+        # Note: (theory about an Undo bug in dna updater, bruce 080227):
+        # Undo can be too lazy to set __killed, but then it clears .molecule.
+        # And, break_interpart_bonds can then dislike .molecule being None
+        # and set it back to _nullMol. So test for these values too. 
+        mol = self.molecule
+        from chunk import _nullMol
+        res = self.__killed or mol is None or mol is _nullMol
         if debug_flags.atom_debug: # this cond is for speed
-            mol = self.molecule
-            from chunk import _nullMol
-            better_alive_answer = mol is not None and self.key in mol.atoms and mol is not _nullMol ##e and mol is not killed???
+            better_alive_answer = mol is not None and self.key in mol.atoms and mol is not _nullMol ##e and mol is not killed??
             if (not not better_alive_answer) != (not self.__killed):
-                if debug_flags.atom_debug:
-                    #bruce 060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
-                    #bruce 071018 fixed typo of () after debug_flags.atom_debug -- could that be why it never printed it?!?
-                    print "debug: better_alive_answer is %r but (not self.__killed) is %r" % (better_alive_answer , not self.__killed)
-        return self.__killed
+                #bruce 060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
+                #bruce 071018 fixed typo of () after debug_flags.atom_debug -- could that be why it never printed it?!?
+                print "debug: better_alive_answer is %r but (not self.__killed) is %r" % (better_alive_answer , not self.__killed)
+        return res
     
     def killed_with_debug_checks(self): # renamed by bruce 050702; was called killed(); by bruce 041029
         """
