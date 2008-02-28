@@ -759,17 +759,15 @@ class assembly( StateMixin, Assembly_API):
 
     # == Part-related debugging functions
 
-    def checkparts(self):
+    def checkparts(self, when = ""):
         """
         make sure each selgroup has its own Part, and all is correct about them
         """
         # presumably this is only called when debug_flags.atom_debug, but that's up to the caller
         for node in self.topnodes_with_own_parts():
-            ## print "checking part-related stuff about node:" ,node
-            #e print the above in an except clause, so on asfail we'd see it...
             try:
                 assert node.is_top_of_selection_group() ##e rename node.is_selection_group()??
-                assert node.part.topnode is node # this also verifies each node has a different part
+                assert node.part.topnode is node # this also verifies each node has a different part, which is not None
                 kids = []
                 node.apply2all( kids.append ) # includes node itself
                 for kid in kids:
@@ -777,7 +775,8 @@ class assembly( StateMixin, Assembly_API):
                     assert kid.part is node.part, "%r.part == %r, %r.part is %r, should be same" % (kid, kid.part, node, node.part)
                 assert node.part.nodecount == len(kids), "node.part.nodecount %d != len(kids) %d" % (node.part.nodecount, len(kids))
             except:
-                print "exception while checking part-related stuff about node:", node, "in assy", self
+                print "following exception is in checkparts(%s) of %r about node %r" % \
+                      (when and `when` or "", self, node)
                 raise
         return
 
