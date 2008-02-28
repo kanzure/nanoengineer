@@ -18,6 +18,8 @@ from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
 import env
 from utilities.Log import orangemsg, graymsg
 
+from elements import Singlet
+
 # see also:
 ## from dna_model.DnaLadder import _rail_end_atom_to_ladder
 # (below, perhaps in a cycle)
@@ -50,9 +52,13 @@ class DnaLadderRailChunk(Chunk):
     # review: undo, copy for those attrs? as of 080227 I think that is not needed
     # except for resetting some of them in _undo_update.
 
+    # default value of variable used to return info from __init__:
+
+    _please_reuse_this_chunk = None
+    
     # == init methods
 
-    def __init__(self, assy, chain_or_something_else):
+    def __init__(self, assy, chain, reuse_old_chunk_if_possible = False):
 
         if _DEBUG_HIDDEN:
             self._atoms_were_hidden = []
@@ -61,14 +67,47 @@ class DnaLadderRailChunk(Chunk):
 
         # TODO: check if this arg signature is ok re undo, copy, etc;
         # and if ok for rest of Node API if that matters for this kind of chunk;
-        # for now just assume chain_or_something_else is a DnaChain
-        chain = chain_or_something_else
+        # for now just assume chain is a DnaChain
+
         # name should not be seen, but it is for now...
         name = gensym(self.__class__.__name__.split('.')[-1]) + ' (internal)'
         _superclass.__init__(self, assy, name)
 ##        self.chain = chain
         # add atoms before setting self.ladder, so adding them doesn't invalidate it
-        self._grab_atoms_from_chain(chain) #e we might change when this is done, if we implem copy for this class
+
+        if reuse_old_chunk_if_possible:
+            # before we add our atoms, count the ones we would add (and how
+            # many chunks they come from) to see if we can just reuse their
+            # single old chunk; this is both an Undo bugfix (since when Undo
+            # recreates an old state and might do so again from the same
+            # Undo stack, it doesn't like it if we replace objects that
+            # are used in that state without counting it as a change which
+            # branches off that timeline and destroys the redo stack
+            # [theory, not yet proven to cause the bugs being debugged now]),
+            # and probably a general optimization (since atoms can change in
+            # various ways, many of which make the dna updater run but don't
+            # require different DnaLadders -- this will remake ladders and
+            # chains anyway but let them share the same chunks) [bruce 080228]
+            old_chunk = self._old_chunk_we_could_reuse(chain)
+            if old_chunk is not None:
+                print "dna updater will reuse %r rather than new %r" % \
+                      (old_chunk, self) # reduce when works -- summary debug msg? @@@
+                # to do this, set a flag and return early from __init__
+                # (we have no atoms; caller must kill us, and call
+                #  _f_set_new_ladder on the old chunk it's reusing).
+                assert not self.atoms
+                self._please_reuse_this_chunk = old_chunk
+                return
+            print "not reusing an old chunk for %r (will grab %d atoms)" % (self, self._counted_atoms) ##### remove when works
+            print " data: atoms were in these old chunks: %r", self._counted_chunks.values() #####
+            pass
+
+        self._grab_atoms_from_chain(chain, False) #e we might change when we call this, if we implem copy for this class
+
+        if reuse_old_chunk_if_possible:
+            # check that it counted correctly vs the atoms we actually grabbed
+            assert self._counted_atoms == len(self.atoms)
+        
         # following import is a KLUGE to avoid recursive import
         # (still has import cycle, ought to ### FIX -- should refile that func somehow)
         from dna_model.DnaLadder import _rail_end_atom_to_ladder
@@ -79,6 +118,23 @@ class DnaLadderRailChunk(Chunk):
 
         return
 
+    def _f_set_new_ladder(self, ladder):
+        """
+        We are being reused by a new ladder.
+        Make sure the old one is invalid or missing (debug print if not).
+        Then properly record the new one.
+        """
+##        print "predict even earlier failure in [dna_updater_chunks.py:404] til we implem this"
+##        return ##### REMOVE THIS 
+        if self.ladder and self.ladder.valid:
+            print "bug? but working around it: reusing %r but its old ladder %r was valid" % (self, self.ladder)
+            self.ladder.invalidate()
+        self.ladder = ladder
+# can't do this, no self.chain; could do it if passed the chain:
+##        from dna_model.DnaLadder import _rail_end_atom_to_ladder
+##        assert self.ladder == _rail_end_atom_to_ladder( self.chain.baseatoms[0] )
+        return
+    
     def _undo_update(self):
         # this implem is basically just a guess @@@
         if self.wholechain:
@@ -91,8 +147,34 @@ class DnaLadderRailChunk(Chunk):
             atom._changed_structure() #bruce 080227 precaution, might be redundant with invalidating the ladder... @@@
         _superclass._undo_update(self)
         return
-    
-    def _grab_atoms_from_chain(self, chain):
+
+    def _old_chunk_we_could_reuse(self, chain): #bruce 080228
+        """
+        [it's only ok to call this during __init__, and early enough,
+         i.e. before _grab_atoms_from_chain with justcount == False]
+        
+        If there is an old chunk we could reuse, find it and return it.
+        (If we "just miss", debug print.)
+        """
+        self._counted_atoms = 0
+        self._counted_chunks = {}
+        self._grab_atoms_from_chain(chain, True)
+        if len(self._counted_chunks) == 1:
+            # all our atoms come from the same old chunk (but are they all of its atoms?)
+            old_chunk = self._counted_chunks.values()[0]
+            assert not old_chunk.killed() # sanity check on old_chunk itself
+            if self._counted_atoms == len(old_chunk.atoms):
+                for atom in old_chunk.atoms.itervalues(): # sanity check on old_chunk itself (also valid outside this if, but too slow)
+                    assert atom.molecule is old_chunk # remove when works - slow - or put under SLOW_ASSERTS (otherfile baseatom check too?)
+                # caller can reuse old_chunk in place of self, if class is correct
+                if self.__class__ is old_chunk.__class__:
+                    return old_chunk
+                else:
+                    print "fyi: dna updater could reuse, except for class: %r" % old_chunk
+                        # predict this will be common in mmp read; if so, make it debug only; if not, debug that! @@@                
+        return None
+
+    def _grab_atoms_from_chain(self, chain, just_count):
         """
         Assume we're empty of atoms;
         pull in all baseatoms from the given DnaChain,
@@ -104,17 +186,26 @@ class DnaLadderRailChunk(Chunk):
         assert not self._num_old_atoms_hidden #bruce 080227
         assert not self._num_old_atoms_not_hidden #bruce 080227
         for atom in chain.baseatoms:
-            self._grab_atom(atom)
+            self._grab_atom(atom, just_count)
                 # note: this immediately kills atom's old chunk if it becomes empty
         return
 
-    def _grab_atom(self, atom):
+    def _grab_atom(self, atom, just_count):
         """
-        Grab the given atom (and its bondpoints) to be one of our own,
-        recording info about its old chunk which will be used later
+        Grab the given atom (and its bondpoints; atom itself must not be a bondpoint)
+        to be one of our own, recording info about its old chunk which will be used later
         (in self._set_properties_from_grab_atom_info, called at end of __init__)
         in setting properties of self to imitate those of our atoms' old chunks.
+
+        If just_count is true, don't really grab it, just count up some things
+        that will help __init__ decide whether to abandon making self in favor
+        of the caller just reusing an old chunk instead of self.
         """
+        assert not atom.element is Singlet
+        if just_count:
+            self._count_atom(atom) # also counts chunks
+            self._count_bondpoints( atom.singNeighbors() )
+            return
         # first grab info
         old_chunk = atom.molecule
         # maybe: self._old_chunks[id(old_chunk)] = old_chunk
@@ -137,6 +228,22 @@ class DnaLadderRailChunk(Chunk):
             self._num_extra_bondpoints += extra
         return
 
+    def _count_atom(self, atom): 
+        """
+        """
+        self._counted_atoms += 1
+        chunk = atom.molecule
+        # no need to check chunk for being None, killed, _nullMol, etc --
+        # caller will do that if necessary
+        self._counted_chunks[id(chunk)] = chunk
+        return
+    
+    def _count_bondpoints(self, bondpoints): 
+        """
+        """
+        self._counted_atoms += len(bondpoints)
+        return
+    
     def _set_properties_from_grab_atom_info(self): # 080201
         # if *all* atoms were hidden, hide self.
         # if any or all were hidden, emit an appropriate summary message.
@@ -286,6 +393,19 @@ class DnaLadderRailChunk(Chunk):
     
     pass # end of class DnaLadderRailChunk
 
+def _make_or_reuse_DnaLadderRailChunk(constructor, assy, chain, ladder):
+    """
+    """
+    new_chunk = constructor(assy, chain, reuse_old_chunk_if_possible = True)
+    res = new_chunk # tentative
+    if new_chunk._please_reuse_this_chunk:
+        res = new_chunk._please_reuse_this_chunk # it's an old chunk
+        assert not new_chunk.atoms
+        new_chunk.kill() # it has no atoms, but can't safely do this itself
+            # review: is this needed, and safe? maybe it's not in the model yet?
+        res._f_set_new_ladder(ladder)
+    return res
+
 # == these subclasses might be moved to separate files, if they get long
 
 class DnaAxisChunk(DnaLadderRailChunk):
@@ -308,9 +428,14 @@ class DnaAxisChunk(DnaLadderRailChunk):
         the things done in Chunk class ... thereby making this a little faster.
         @see: Chunk.isStrandChunk() , overridden here.  
         """
-        return not self.isAxisChunk()
+        return False
     
     pass
+
+def make_or_reuse_DnaAxisChunk(assy, chain, ladder):
+    """
+    """
+    return _make_or_reuse_DnaLadderRailChunk( DnaAxisChunk, assy, chain, ladder)
 
 # ==
 
@@ -341,13 +466,13 @@ class DnaStrandChunk(DnaLadderRailChunk):
         the things done in Chunk class ... thereby making this a little faster. 
         @see: Chunk.isStrandChunk() , overridden here.         
         """
-        return not self.isAxisChunk()
+        return True
     
-    def _grab_atoms_from_chain(self, chain): # misnamed, doesn't take them out of chain
+    def _grab_atoms_from_chain(self, chain, just_count): # misnamed, doesn't take them out of chain
         """
         [extends superclass version]
         """
-        DnaLadderRailChunk._grab_atoms_from_chain(self, chain)
+        DnaLadderRailChunk._grab_atoms_from_chain(self, chain, just_count)
         for atom in chain.baseatoms:
             # pull in Pls too (if they prefer this Ss to their other one)
             # and also directly bonded unpaired base atoms (which should
@@ -365,25 +490,34 @@ class DnaStrandChunk(DnaLadderRailChunk):
                 elif atom2.element.role == 'unpaired-base':
                     grab_atom2 = True
                 if grab_atom2:
-                    if atom2.molecule is self:
-                        print "dna updater: should not happen: %r is already in %r" % \
-                              (atom2, self)
-                        # since self is new, just now being made,
-                        # and since we think only one Ss can want to pull in atom2
+                    if just_count:
+                        self._count_atom(atom2)
                     else:
-                        ## atom2.hopmol(self)
-                        self._grab_atom(atom2)
-                            # review: does this harm the chunk losing it if it too is new? @@@
-                            # (guess: yes; since we overrode delatom to panic... not sure about Pl etc)
-                            # academic for now, since it can't be new, afaik
-                            # (unless some unpaired-base atom is bonded to two Ss atoms,
-                            #  which we ought to prevent in the earlier bond-checker @@@@ NIM)
-                            # (or except for inconsistent bond directions, ditto)
+                        if atom2.molecule is self:
+                            print "dna updater: should not happen: %r is already in %r" % \
+                                  (atom2, self)
+                            # since self is new, just now being made,
+                            # and since we think only one Ss can want to pull in atom2
+                        else:
+                            ## atom2.hopmol(self)
+                            self._grab_atom(atom2)
+                                # review: does this harm the chunk losing it if it too is new? @@@
+                                # (guess: yes; since we overrode delatom to panic... not sure about Pl etc)
+                                # academic for now, since it can't be new, afaik
+                                # (unless some unpaired-base atom is bonded to two Ss atoms,
+                                #  which we ought to prevent in the earlier bond-checker @@@@ NIM)
+                                # (or except for inconsistent bond directions, ditto)
+                            pass
                         pass
                     pass
                 continue
             continue
         return # from _grab_atoms_from_chain
     pass # end of class DnaStrandChunk
+
+def make_or_reuse_DnaStrandChunk(assy, chain, ladder):
+    """
+    """
+    return _make_or_reuse_DnaLadderRailChunk(DnaStrandChunk, assy, chain, ladder)
 
 # end

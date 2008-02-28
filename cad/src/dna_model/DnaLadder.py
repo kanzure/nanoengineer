@@ -53,7 +53,8 @@ from bond_constants import atoms_are_bonded
 
 from dna_model.DnaChain import merged_chain
 
-from dna_model.DnaLadderRailChunk import DnaAxisChunk, DnaStrandChunk
+from dna_model.DnaLadderRailChunk import make_or_reuse_DnaAxisChunk
+from dna_model.DnaLadderRailChunk import make_or_reuse_DnaStrandChunk
     # note: if these imports are an issue, they could be moved
     # to a controller class, since they are needed only by remake_chunks method
 
@@ -778,9 +779,9 @@ class DnaLadder(object):
         # to last, so they can be preserved until errors are removed.
         for rail in self.all_rails():
             if rail is self.axis_rail:
-                want_class = DnaAxisChunk
+                constructor = make_or_reuse_DnaAxisChunk
             else:
-                want_class = DnaStrandChunk
+                constructor = make_or_reuse_DnaStrandChunk
             old_chunk = rail.baseatoms[0].molecule # from arbitrary baseatom in rail
             part = old_chunk.part
             if not part:
@@ -806,7 +807,11 @@ class DnaLadder(object):
                 group = part.topnode
             assert group.is_group()
             assert group.part is part
-            chunk = want_class(self.assy, rail)
+            chunk = constructor(self.assy, rail, self)
+                # Note: these constructors need to be passed self,
+                # in case they reuse an old chunk, which self takes over.
+                # (Even though in theory they could figure out self somehow.)
+                #
                 # this pulls in all atoms belonging to rail
                 # (including certain kinds of attached atoms);
                 # it also may copy in certain kinds of info

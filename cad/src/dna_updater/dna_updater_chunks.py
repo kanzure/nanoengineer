@@ -401,7 +401,8 @@ def _find_rail_of_atom( atom, ladder_to_rails_function):
             for end_atom in rail.end_baseatoms():
                 if end_atom is atom:
                     return rail
-        assert 0
+        assert 0, "can't find any rail in ladder %r (rails %r) which has %r as an end_atom" % \
+               ( atom.molecule.ladder, rails, atom )
     except:
         print "\n*** BUG: following exception is about _find_rail_of_atom( %r, .mol = %r, ._dna_updater__error = %r, %r): " % \
               (atom, atom.molecule, atom._dna_updater__error, ladder_to_rails_function )

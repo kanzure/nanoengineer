@@ -7,6 +7,26 @@ dna_updater_debug.py -- debug code for dna_updater
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
+from dna_updater.dna_updater_constants import DNA_UPDATER_SLOW_ASSERTS
+
+from drawer import drawline
+
+from jigs import Jig
+
+import env
+
+from utilities.Log import quote_html
+
+from debug import register_debug_menu_command
+
+from PlatformDependent import fix_plurals
+
+from constants import gensym
+
+from exprs.demo_draw_on_surface import grab_text_using_dialog # TODO: refile into widgets.py? has special features, see code
+
+# ==
+
 def assert_unique_chain_baseatoms(chains, when = ""):
     if when:
         when = " (%s)" % when
@@ -78,19 +98,6 @@ def find_atom_by_name(assy, name): # todo: refile to debug or assy
                 return atom
     return None
 
-from drawer import drawline
-
-from jigs import Jig
-
-import env
-from utilities.Log import quote_html
-
-from debug import register_debug_menu_command
-
-from PlatformDependent import fix_plurals
-
-from constants import gensym
-
 class VeryVisibleAtomMarker(Jig):
     mmp_record_name = "VeryVisibleAtomMarker" #k ok? note that it has no reading code...
     # todo: mmp reading code; icon
@@ -157,7 +164,6 @@ def mark_atoms(atoms):
 
 def mark_atom_by_name_command(glpane):
     # review: is this really what the arg always is? i bet it's whatever widget this appeared in...
-    from exprs.demo_draw_on_surface import grab_text_using_dialog # TODO: refile into widgets.py? has special features, see code
     ok, text = grab_text_using_dialog( default = "Ss3-564",
                                        title = "Mark atom by name",
                                        label = "atom name or number:" )
@@ -219,22 +225,27 @@ def debug_prints_as_dna_updater_starts( runcount, changed_atoms):
     # (runcount, len(changed_atoms))
     global _found, _found_molecule
     if _found is None:
-        import env
         win = env.mainwindow()
         _found = find_atom_by_name(win.assy, 37)
         if _found is not None:
             print "\nfound atom", _found
     if _found is not None and _found_molecule is not _found.molecule:
-        print "start %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
+        print "\nstart %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
         _found_molecule = _found.molecule
+    if DNA_UPDATER_SLOW_ASSERTS:
+        win = env.mainwindow()
+        win.assy.checkparts("start dna updater %d" % runcount)
     return
 
 def debug_prints_as_dna_updater_ends( runcount):
     # print "\ndebug_prints_as_dna_updater_ends: %d\n" % ( runcount, )
     global _found, _found_molecule
     if _found is not None and _found_molecule is not _found.molecule:
-        print "end %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
+        print "\nend %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
         _found_molecule = _found.molecule
+    if DNA_UPDATER_SLOW_ASSERTS:
+        win = env.mainwindow()
+        win.assy.checkparts("end dna updater %d" % runcount)
     return
 
 
