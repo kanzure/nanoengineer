@@ -188,7 +188,7 @@
                 <string/>
                </property>
                <property name="icon" >
-                <iconset>Icons/trajectory_first.png</iconset>
+                <iconset resource="application.qrc" >:/Icons/trajectory_first.png</iconset>
                </property>
               </widget>
              </item>
@@ -207,7 +207,7 @@
                 <string/>
                </property>
                <property name="icon" >
-                <iconset>Icons/trajectory_minusfive.png</iconset>
+                <iconset resource="application.qrc" >:/Icons/trajectory_minusfive.png</iconset>
                </property>
               </widget>
              </item>
@@ -226,7 +226,7 @@
                 <string/>
                </property>
                <property name="icon" >
-                <iconset>Icons/trajectory_minusone.png</iconset>
+                <iconset resource="application.qrc" >:/Icons/trajectory_minusone.png</iconset>
                </property>
               </widget>
              </item>
@@ -245,7 +245,7 @@
                 <string/>
                </property>
                <property name="icon" >
-                <iconset>Icons/trajectory_play.png</iconset>
+                <iconset resource="application.qrc" >:/Icons/trajectory_play.png</iconset>
                </property>
               </widget>
              </item>
@@ -264,7 +264,7 @@
                 <string/>
                </property>
                <property name="icon" >
-                <iconset>Icons/trajectory_stop.png</iconset>
+                <iconset resource="application.qrc" >:/Icons/trajectory_stop.png</iconset>
                </property>
               </widget>
              </item>
@@ -283,7 +283,7 @@
                 <string/>
                </property>
                <property name="icon" >
-                <iconset>Icons/trajectory_plusone.png</iconset>
+                <iconset resource="application.qrc" >:/Icons/trajectory_plusone.png</iconset>
                </property>
               </widget>
              </item>
@@ -302,7 +302,7 @@
                 <string/>
                </property>
                <property name="icon" >
-                <iconset>Icons/trajectory_plusfive.png</iconset>
+                <iconset resource="application.qrc" >:/Icons/trajectory_plusfive.png</iconset>
                </property>
               </widget>
              </item>
@@ -312,7 +312,7 @@
                 <string/>
                </property>
                <property name="icon" >
-                <iconset>Icons/trajectory_last.png</iconset>
+                <iconset resource="application.qrc" >:/Icons/trajectory_last.png</iconset>
                </property>
               </widget>
              </item>
@@ -367,6 +367,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="application.qrc" />
+ </resources>
  <connections/>
 </ui>

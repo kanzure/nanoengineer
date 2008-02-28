@@ -17,5 +17,14 @@
       <file>Icons/atom.png</file>
       <file>Icons/atom_set.png</file>
       <file>Icons/error.png</file>
+      <file>Icons/trajectory_play.png</file>
+      <file>Icons/trajectory_pause.png</file>
+      <file>Icons/trajectory_stop.png</file>
+      <file>Icons/trajectory_first.png</file>
+      <file>Icons/trajectory_minusfive.png</file>
+      <file>Icons/trajectory_minusone.png</file>
+      <file>Icons/trajectory_plusone.png</file>
+      <file>Icons/trajectory_plusfive.png</file>
+      <file>Icons/trajectory_last.png</file>
 </qresource>
 </RCC>
