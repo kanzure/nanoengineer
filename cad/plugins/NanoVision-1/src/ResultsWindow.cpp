@@ -6,8 +6,8 @@
 /* CONSTRUCTOR */
 ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
 : QWidget(parent), Ui_ResultsWindow(),
-    workspace(NULL),		windowMapper(NULL),		curFile(),
-    entityManager(NULL),	resultsTree(NULL),
+    workspace(NULL),		windowMapper(NULL),
+    entityManager(NULL),	curFile(),     resultsTree(NULL),
     mmpFileIcon(			tr(":/Icons/nanoENGINEER-1.ico")),
     atomIcon(				tr(":/Icons/atom.png")),
     atomSetIcon(			tr(":/Icons/atom_set.png")),
@@ -42,6 +42,7 @@ ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
 /* DESTRUCTOR */
 ResultsWindow::~ResultsWindow() {
     workspace->closeAllWindows();
+    closeFile();
     if (activeDataWindow()) {
         ; // Can't delete?
     }
@@ -56,6 +57,7 @@ bool ResultsWindow::closeFile(void)
     resultsTree->clear();
     resultsTree->setHeaderLabel(tr(""));
     entityManager->reset();
+    NXLOG_INFO("ResultsWindow", string("closed ") + qPrintable(curFile));
     return true;
 }
 
@@ -84,7 +86,7 @@ bool ResultsWindow::loadFile(const QString &fileName) {
         setCurrentFile(fileName);
         
         // Populate results tree
-        updateResultsTree();
+        setupResultsTree();
 
         QString message = tr("File loaded: %1").arg(fileName);
         NXLOG_INFO("ResultsWindow", qPrintable(message));
@@ -94,8 +96,8 @@ bool ResultsWindow::loadFile(const QString &fileName) {
 }
 
 
-/* FUNCTION: updateResultsTree */
-void ResultsWindow::updateResultsTree(void)
+/* FUNCTION: setupResultsTree */
+void ResultsWindow::setupResultsTree(void)
 {
     NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
     // MMP or OpenBabel file import
@@ -109,7 +111,7 @@ void ResultsWindow::updateResultsTree(void)
 	connect(resultsTree,
 			SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
 			this,
-			SLOT(resultsTreeItemDoubleClicked(QTreeWidgetItem*, int)));		
+			SLOT(resultsTreeItemDoubleClicked(QTreeWidgetItem*, int)));
 }
 
 
@@ -151,20 +153,25 @@ void ResultsWindow::setupSimulationResultsTree(void)
         inputFilesItem->setText(0, tr("Input files"));
 		inputFilesItem->setFlags(Qt::ItemIsEnabled);
         
-        vector<string>::const_iterator inputFileIter;
-        for (inputFileIter = inputFileNames.begin();
-            inputFileIter != inputFileNames.end();
-            ++inputFileIter)
+        vector<string>::const_iterator inputFileNameIter;
+        for (inputFileNameIter = inputFileNames.begin();
+            inputFileNameIter != inputFileNames.end();
+            ++inputFileNameIter)
         {
             QTreeWidgetItem *inputFileItem = new QTreeWidgetItem(inputFilesItem);
             inputFileItem->setIcon(0, inputFileIcon);
             inputFileItem->setText
-				(0, strippedName(QString(inputFileIter->c_str())));
+				(0, strippedName(QString(inputFileNameIter->c_str())));
 			inputFileItem->setFlags(Qt::ItemIsEnabled);
             // inputFilesItem->addChild(inputFileItem);
             
-            if(isMMPFile(*inputFileIter))
-                setupMoleculeSetResultsSubtree(inputFileItem);
+            if(isMMPFile(*inputFileNameIter)) {
+                int mmpFileFrameSetId = 
+                    dataStoreInfo->getInputStructureId(*inputFileNameIter);
+                NXMoleculeSet *rootMoleculeSet = 
+                    entityManager->getRootMoleculeSet(mmpFileFrameSetId, 0);
+                setupMoleculeSetResultsSubtree(rootMoleculeSet, inputFileItem);
+            }
 
         }
         
@@ -237,7 +244,7 @@ void ResultsWindow::setupSimulationResultsTree(void)
     }
 }
 
-
+#if 0
 /* FUNCTION: setupMoleculeSetResultsSubtree */
 void
 ResultsWindow::
@@ -250,13 +257,13 @@ setupMoleculeSetResultsSubtree(QTreeWidgetItem *const mmpFileItem)
     
     setupMoleculeSetResultsSubtree_helper(rootMoleculeSet, mmpFileItem);
 }
+#endif
 
-
-/* FUNCTION: setupMoleculeSetResultsSubtree_helper */
+/* FUNCTION: setupMoleculeSetResultsSubtree */
 void
 ResultsWindow::
-setupMoleculeSetResultsSubtree_helper(NXMoleculeSet *molSetPtr,
-                                      QTreeWidgetItem *const molSetItem)
+setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
+                               QTreeWidgetItem *const molSetItem)
 {
     OBMolIterator molIter;
     for(molIter = molSetPtr->moleculesBegin();
@@ -282,7 +289,7 @@ setupMoleculeSetResultsSubtree_helper(NXMoleculeSet *molSetPtr,
             (childMolSetPtr->getTitle()).c_str();
         childMolSetNode->setText(0, tr(childMolSetTitle));
 		childMolSetNode->setFlags(Qt::ItemIsEnabled);
-        setupMoleculeSetResultsSubtree_helper(childMolSetPtr, childMolSetNode);
+        setupMoleculeSetResultsSubtree(childMolSetPtr, childMolSetNode);
     }
 }
 
@@ -308,8 +315,12 @@ void ResultsWindow::setupSingleStructureTree(void)
     QString const fileSuffix = fileInfo.suffix();
     resultsTree->setHeaderLabel(fileSuffix.toUpper() + " file");
     
-    if(isMMPFile(singleStructureFileName))
-       setupMoleculeSetResultsSubtree(fileItem);
+    if(isMMPFile(singleStructureFileName)) {
+        int frameSetID = dataStoreInfo->getSingleStructureId();
+        NXMoleculeSet *rootMoleculeSet = 
+            entityManager->getRootMoleculeSet(frameSetID, 0);
+        setupMoleculeSetResultsSubtree(rootMoleculeSet, fileItem);
+    }
 }
 
 

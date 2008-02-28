@@ -67,12 +67,13 @@ class ResultsWindow : public QWidget, private Ui_ResultsWindow {
 		
 		bool isMMPFile(std::string const& filename);
 		
-		void updateResultsTree(void);
+        void setupResultsTree(void);
 		void setupSingleStructureTree(void);
 		void setupSimulationResultsTree(void);
-		void setupMoleculeSetResultsSubtree(QTreeWidgetItem *const mmpFileItem);
-		void setupMoleculeSetResultsSubtree_helper
-			(NXMoleculeSet *molSetPtr, QTreeWidgetItem *const molSetItem);	
+		void setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
+                                            QTreeWidgetItem *const molSetItem);
+    // void setupMoleculeSetResultsSubtree_helper
+    // 	(NXMoleculeSet *molSetPtr, QTreeWidgetItem *const molSetItem);	
 };
 
 

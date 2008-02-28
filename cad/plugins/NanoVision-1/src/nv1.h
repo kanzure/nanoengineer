@@ -83,6 +83,9 @@ private:
 	QAction* aboutAction;
 	
 	map<QString, JobMonitor*> jobMonitors;
+    
+    // currently opened file
+    QString fileName;
 	
 	void createActions();
 	void createMenus();
