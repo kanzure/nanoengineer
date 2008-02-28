@@ -5,36 +5,46 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>436</width>
-    <height>300</height>
+    <width>1031</width>
+    <height>615</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="margin" >
-    <number>9</number>
-   </property>
    <property name="spacing" >
     <number>6</number>
    </property>
+   <property name="leftMargin" >
+    <number>9</number>
+   </property>
+   <property name="topMargin" >
+    <number>9</number>
+   </property>
+   <property name="rightMargin" >
+    <number>9</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>9</number>
+   </property>
    <item>
-    <widget class="QTextEdit" name="textEdit" />
+    <widget class="QTextEdit" name="textEdit" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Expanding" hsizetype="Expanding" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QFrame" name="frame" >
-     <property name="minimumSize" >
-      <size>
-       <width>16</width>
-       <height>100</height>
-      </size>
-     </property>
-     <property name="maximumSize" >
-      <size>
-       <width>16777215</width>
-       <height>100</height>
-      </size>
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
      <property name="frameShape" >
       <enum>QFrame::StyledPanel</enum>
@@ -42,6 +52,317 @@
      <property name="frameShadow" >
       <enum>QFrame::Raised</enum>
      </property>
+     <layout class="QHBoxLayout" >
+      <item>
+       <widget class="QGroupBox" name="simulationGroupBox" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="MinimumExpanding" >
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title" >
+         <string>Simulation</string>
+        </property>
+        <layout class="QVBoxLayout" >
+         <item>
+          <widget class="QProgressBar" name="simulationProgressBar" >
+           <property name="value" >
+            <number>0</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QLabel" name="label" >
+             <property name="text" >
+              <string>Status:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="simulationStatusLineEdit" >
+             <property name="readOnly" >
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" >
+           <item>
+            <widget class="QPushButton" name="simulationPauseButton" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip" >
+              <string>Pause the simulation</string>
+             </property>
+             <property name="statusTip" >
+              <string>Pause the simulation</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Pauses the simulation</string>
+             </property>
+             <property name="text" >
+              <string>Pause</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="simulationAbortButton" >
+             <property name="sizePolicy" >
+              <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip" >
+              <string>Abort the simulation</string>
+             </property>
+             <property name="statusTip" >
+              <string>Abort the simulation</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Aborts the simulation</string>
+             </property>
+             <property name="text" >
+              <string>Abort</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="visualizationGroupBox" >
+        <property name="sizePolicy" >
+         <sizepolicy vsizetype="Preferred" hsizetype="Expanding" >
+          <horstretch>2</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title" >
+         <string>Visualization</string>
+        </property>
+        <layout class="QHBoxLayout" >
+         <item>
+          <layout class="QVBoxLayout" >
+           <item>
+            <widget class="QSlider" name="horizontalSlider" >
+             <property name="toolTip" >
+              <string>Indicates animation progress</string>
+             </property>
+             <property name="statusTip" >
+              <string>Indicates animation progress</string>
+             </property>
+             <property name="whatsThis" >
+              <string>Indicates animation progress</string>
+             </property>
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QPushButton" name="trajectoryFirstButton" >
+               <property name="toolTip" >
+                <string>First frame</string>
+               </property>
+               <property name="statusTip" >
+                <string>First frame</string>
+               </property>
+               <property name="whatsThis" >
+                <string>Sets the display to show the first frame</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+               <property name="icon" >
+                <iconset>Icons/trajectory_first.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="trajectoryMinusFiveButton" >
+               <property name="toolTip" >
+                <string>Retreat 5 frames</string>
+               </property>
+               <property name="statusTip" >
+                <string>Retreat 5 frames</string>
+               </property>
+               <property name="whatsThis" >
+                <string>Sets the display back by 5 frames</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+               <property name="icon" >
+                <iconset>Icons/trajectory_minusfive.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="trajectoryMinusOneButton" >
+               <property name="toolTip" >
+                <string>Retreat to previous frame</string>
+               </property>
+               <property name="statusTip" >
+                <string>Retreat to previous frame</string>
+               </property>
+               <property name="whatsThis" >
+                <string>Displays the previous frame</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+               <property name="icon" >
+                <iconset>Icons/trajectory_minusone.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="trajectoryPlayPauseButton" >
+               <property name="toolTip" >
+                <string>Play the trajectory</string>
+               </property>
+               <property name="statusTip" >
+                <string>Play the trajectory</string>
+               </property>
+               <property name="whatsThis" >
+                <string>Plays the animation of the trajectory</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+               <property name="icon" >
+                <iconset>Icons/trajectory_play.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="trajectoryStopButton" >
+               <property name="toolTip" >
+                <string>Stop the animation</string>
+               </property>
+               <property name="statusTip" >
+                <string>Stop the animation</string>
+               </property>
+               <property name="whatsThis" >
+                <string>Stops the animation, if it is playing</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+               <property name="icon" >
+                <iconset>Icons/trajectory_stop.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="trajectoryPlusOneButton" >
+               <property name="toolTip" >
+                <string>Advance to next frame</string>
+               </property>
+               <property name="statusTip" >
+                <string>Advance to next frame</string>
+               </property>
+               <property name="whatsThis" >
+                <string>Advances display to next frame</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+               <property name="icon" >
+                <iconset>Icons/trajectory_plusone.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="trajectoryPlusFiveButton" >
+               <property name="toolTip" >
+                <string>Advance 5 frames</string>
+               </property>
+               <property name="statusTip" >
+                <string>Advance 5 frames</string>
+               </property>
+               <property name="whatsThis" >
+                <string>Advances display by 5 frames</string>
+               </property>
+               <property name="text" >
+                <string/>
+               </property>
+               <property name="icon" >
+                <iconset>Icons/trajectory_plusfive.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="trajectoryLastButton" >
+               <property name="text" >
+                <string/>
+               </property>
+               <property name="icon" >
+                <iconset>Icons/trajectory_last.png</iconset>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="Line" name="line" >
+           <property name="orientation" >
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" >
+           <item>
+            <layout class="QHBoxLayout" >
+             <item>
+              <widget class="QSpinBox" name="playbackSpeedSpinBox" />
+             </item>
+             <item>
+              <widget class="QLabel" name="playbackSpeedLabel" >
+               <property name="text" >
+                <string>% Playback Speed</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="continuousLoopCheckBox" >
+             <property name="text" >
+              <string>Continuous loop</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="playInReverseCheckBox" >
+             <property name="text" >
+              <string>Play in reverse</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
