@@ -926,20 +926,41 @@ class basicGraphicsMode(GraphicsMode_API):
 
     # the old key event API (for modes which don't override keyPressEvent etc)
 
-    def keyPress(self,key): # several modes extend this method, some might replace it
+    def keyPress(self, key): # several modes extend this method, some might replace it
+        
+        def zoom(dScale):
+            self.o.scale *= dScale
+            self.o.gl_update()
+            
         if key == Qt.Key_Delete:
             self.w.killDo()
         elif key == Qt.Key_Escape: # Select None. mark 060129.
             self.o.assy.selectNone()
-        # Zoom in (Ctrl/Cmd+.) & out (Ctrl/Cmd+,) for Eric.  Right now, this will work with or without
-        # the Ctrl/Cmd key pressed.  We'll fix this later, at the same time we address the issue of
-        # more than one modifier key being pressed (see Bruce's notes below). Mark 050923.
-        elif key == Qt.Key_Period:
-            self.o.scale *= .95
-            self.o.gl_update()
-        elif key == Qt.Key_Comma: 
-            self.o.scale *= 1.05
-            self.o.gl_update()
+            
+        # Zoom in & out for Eric and Paul:
+        # - Eric D. requested Period/Comma keys for zoom in/out.
+        # - Paul R. requested Minus/Equal keys for zoom in/out.
+        # Both sets of keys work with Ctrl/Cmd pressed for less zoom.
+        # I took the liberty of implementing Plus and Less keys for zoom out
+        # a lot, and Underscore and Greater keys for zoom in a lot. If this
+        # conflicts with other uses of these keys, it can be easily changed.
+        # Mark 2008-02-28.
+        elif key in (Qt.Key_Minus, Qt.Key_Period):  # Zoom in.         
+            dScale = 0.95
+            if self.o.modkeys == 'Control': # Zoom in a little.
+                dScale = 0.995
+            zoom(dScale)
+        elif key in (Qt.Key_Underscore, Qt.Key_Greater):  # Zoom in a lot.         
+            dScale = 0.8
+            zoom(dScale)
+        elif key in (Qt.Key_Equal, Qt.Key_Comma): # Zoom out.          
+            dScale = 1.05
+            if self.o.modkeys == 'Control':
+                dScale = 1.005
+            zoom(dScale)
+        elif key in (Qt.Key_Plus, Qt.Key_Less):  # Zoom out a lot.         
+            dScale = 1.2
+            zoom(dScale)
         # comment out wiki help feature until further notice, wware 051101
         # [bruce 051130 revived/revised it, elsewhere in file]
         #if key == Qt.Key_F1:
