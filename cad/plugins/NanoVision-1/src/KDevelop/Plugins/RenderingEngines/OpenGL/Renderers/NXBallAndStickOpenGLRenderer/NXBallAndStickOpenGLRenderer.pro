@@ -1,10 +1,11 @@
 TEMPLATE = lib
 
-CONFIG += dll \
-plugin \
-debug_and_release \
+CONFIG += debug_and_release \
 stl \
-opengl
+opengl \
+staticlib
+# dll
+# plugin
 
 QT += opengl
 

@@ -1,11 +1,14 @@
-CONFIG -= release \
-qt \
+
+CONFIG -= qt \
 thread
-CONFIG += debug \
+
+CONFIG += debug_and_release \
 opengl \
 staticlib
+
 QT -= core \
 gui
+
 TEMPLATE = lib
 
 SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/bbox.cpp \

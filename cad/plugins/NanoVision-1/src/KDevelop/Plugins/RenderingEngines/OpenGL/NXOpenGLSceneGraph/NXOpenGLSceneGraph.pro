@@ -5,9 +5,8 @@ HEADERS += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLMaterial.h \
 TEMPLATE = lib
 
 CONFIG += staticlib \
-debug \
+debug_and_release \
 opengl
-CONFIG -= release
 
 QT -= gui
 

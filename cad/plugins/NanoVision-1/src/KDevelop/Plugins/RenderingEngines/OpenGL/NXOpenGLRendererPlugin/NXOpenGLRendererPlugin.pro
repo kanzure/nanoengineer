@@ -2,9 +2,9 @@ SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRendererPlugin
 TEMPLATE = lib
 
 CONFIG += staticlib \
-debug \
+debug_and_release \
 opengl
-CONFIG -= release
+
 TARGET = NXOpenGLRendererPlugin
 
 HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \

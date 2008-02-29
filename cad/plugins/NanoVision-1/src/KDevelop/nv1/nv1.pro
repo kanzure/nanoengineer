@@ -1,22 +1,21 @@
 TEMPLATE = app
 
-CONFIG -= release
-
-CONFIG += debug \
+CONFIG += debug_and_release \
 stl \
-opengl \
- debug_and_release
+opengl
 
 QT += opengl
 
 LIBS +=  -L$(OPENBABEL_LIBPATH) \
--lNanorexInterface \
--lNanorexUtility \
  -L../../../lib \
  -lNXOpenGLRenderingEngine \
  -lNXOpenGLSceneGraph \
  -lGLT \
--lopenbabel
+ -lNanorexInterface \
+ -lNanorexUtility \
+ -lopenbabel
+# qmake puts these library declarations too early in the g++ command on win32
+win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
 
 SOURCES += ../../DataWindow.cpp \
 ../../LogHandlerWidget.cpp \

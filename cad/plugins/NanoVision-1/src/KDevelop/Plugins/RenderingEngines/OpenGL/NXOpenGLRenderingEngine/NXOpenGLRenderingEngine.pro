@@ -1,10 +1,11 @@
 TEMPLATE = lib
 
-CONFIG += dll \
- debug_and_release \
+CONFIG += debug_and_release \
+ staticlib \
  stl \
- plugin
-# opengl
+ opengl
+# dll
+# plugin
 
 HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../../../../include/Nanorex/Interface/NXBondRenderData.h \
@@ -38,8 +39,6 @@ LIBS += -L$(OPENBABEL_LIBPATH) \
  -lopenbabel
 # qmake puts these library declarations too early in the g++ command on win32
 win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
-
-CONFIG += opengl
 
 TARGETDEPS += ../../../../../../lib/libNanorexUtility.so \
 ../../../../../../lib/libNanorexInterface.so \
