@@ -7,7 +7,7 @@ dna_updater_utils.py -- miscellaneous utilities for dna_updater
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from utilities import debug_flags
 
 # ==
 
@@ -62,7 +62,7 @@ def replace_atom_class( atom, newclass, *atomdicts): #e refile?
     # See outtakes/Atom_replace_class.py for unfinished code which does
     # some of that work, and a more detailed comment about what would have
     # to be done, also covering analogous replacements for Bond and Chunk.
-    if DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER:
         print "dna_updater: replacing %r class %r with %r" % (atom, atom.__class__, newclass)
     atom.__class__ = newclass
     return
@@ -72,7 +72,7 @@ def replace_bond_class( bond, newclass, *bonddicts): #e refile?
     Like replace_atom_class, except for Bonds.
     The bonddicts map id(bond) -> bond.
     """
-    if DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER:
         print "dna_updater: replacing %r class %r with %r" % (bond, bond.__class__, newclass)
     bond.__class__ = newclass
     return
@@ -93,7 +93,7 @@ def remove_killed_atoms( atomdict):
     for atom in atomdict.itervalues():
         if atom.killed():
             killed.append(atom)
-    if DEBUG_DNA_UPDATER and killed:
+    if debug_flags.DEBUG_DNA_UPDATER and killed:
         print "dna_updater: ignoring %d killed atoms" % len(killed)
     for atom in killed:
         del atomdict[atom.key]
@@ -107,7 +107,7 @@ def remove_error_atoms( atomdict):
     for atom in atomdict.itervalues():
         if atom._dna_updater__error:
             error_atoms.append(atom)
-    if DEBUG_DNA_UPDATER and error_atoms:
+    if debug_flags.DEBUG_DNA_UPDATER and error_atoms:
         print "dna_updater: ignoring %d atoms with _dna_updater__error" % len(error_atoms)
     for atom in error_atoms:
         del atomdict[atom.key]

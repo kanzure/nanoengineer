@@ -7,7 +7,7 @@ dna_updater_debug.py -- debug code for dna_updater
 @copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater.dna_updater_constants import DNA_UPDATER_SLOW_ASSERTS
+from utilities import debug_flags
 
 from drawer import drawline
 
@@ -232,7 +232,7 @@ def debug_prints_as_dna_updater_starts( runcount, changed_atoms):
 ##    if _found is not None and _found_molecule is not _found.molecule:
 ##        print "\nstart %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
 ##        _found_molecule = _found.molecule
-    if DNA_UPDATER_SLOW_ASSERTS:
+    if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         win = env.mainwindow()
         win.assy.checkparts("start dna updater %d" % runcount)
     return
@@ -243,7 +243,7 @@ def debug_prints_as_dna_updater_ends( runcount):
 ##    if _found is not None and _found_molecule is not _found.molecule:
 ##        print "\nend %d: %r.molecule = %r" % (runcount, _found, _found.molecule)
 ##        _found_molecule = _found.molecule
-    if DNA_UPDATER_SLOW_ASSERTS:
+    if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         win = env.mainwindow()
         win.assy.checkparts("end dna updater %d" % runcount)
     return

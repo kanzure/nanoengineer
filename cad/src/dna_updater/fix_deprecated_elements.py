@@ -11,8 +11,7 @@ from elements import PeriodicTable
 
 from constants import diDEFAULT
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+from utilities import debug_flags
 
 from dna_updater.dna_updater_prefs import pref_fix_deprecated_PAM3_atoms
 from dna_updater.dna_updater_prefs import pref_fix_deprecated_PAM5_atoms
@@ -68,7 +67,7 @@ def fix_deprecated_elements( changed_atoms):
             # or later
             # (review whether it's still going to happen in the current master_updater call)? ####
 
-            if DEBUG_DNA_UPDATER_VERBOSE:
+            if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
                 print "dna updater: kill deprecated atom %r" % (atom,)
             summary_format = \
                 "Warning: dna updater killed [N] deprecated %s pseudoatom(s)" % \
@@ -87,7 +86,7 @@ def fix_deprecated_elements( changed_atoms):
             #
             # Use mvElement to avoid remaking existing bondpoints.
             elt = PeriodicTable.getElement(deprecated_to)
-            if DEBUG_DNA_UPDATER_VERBOSE:
+            if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
                 print "dna updater: transmute deprecated atom %r to element %s" % \
                       (atom, elt.symbol)
             summary_format = \

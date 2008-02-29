@@ -15,7 +15,7 @@ from dna_updater.dna_updater_globals import ignore_new_changes
 from dna_updater.dna_updater_utils import remove_killed_atoms
 from dna_updater.dna_updater_utils import remove_error_atoms
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from utilities import debug_flags
 
 from dna_updater.fix_atom_classes import fix_atom_classes
 
@@ -130,7 +130,7 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     new_atoms = get_changes_and_clear()
 
     if new_atoms:
-        if DEBUG_DNA_UPDATER:            
+        if debug_flags.DEBUG_DNA_UPDATER:            
             print "dna_updater: will scan %d new changes from delete_bare_atoms" % len(new_atoms)    
         changed_atoms.update( new_atoms )
 
@@ -159,7 +159,7 @@ def update_PAM_atoms_and_bonds(changed_atoms):
     new_atoms = get_changes_and_clear()
 
     if new_atoms:
-        if DEBUG_DNA_UPDATER:            
+        if debug_flags.DEBUG_DNA_UPDATER:            
             print "dna_updater: will scan %d new changes from fix_local_bond_directions" % len(new_atoms)    
         changed_atoms.update( new_atoms )
 

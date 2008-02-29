@@ -8,7 +8,7 @@ and their lowest-level accessors.
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from utilities import debug_flags
 
 from changedicts import refreshing_changedict_subscription
 from changedicts import _cdproc_for_dictid # but it's private!
@@ -92,7 +92,7 @@ def ignore_new_changes( from_what, changes_ok = True, debug_print_even_if_none =
 
     if ignore_these or debug_print_even_if_none:
         if (not ignore_these) or changes_ok:
-            if DEBUG_DNA_UPDATER:
+            if debug_flags.DEBUG_DNA_UPDATER:
                 print "dna updater: ignoring %d new changes %s" % (len(ignore_these), from_what)
         else:
             msg = "\nBUG: dna updater: ignoring %d new changes %s -- any such changes are a bug: " % \

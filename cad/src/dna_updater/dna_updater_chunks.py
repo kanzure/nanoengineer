@@ -11,8 +11,7 @@ from state_utils import transclose
 
 from dna_updater.dna_updater_globals import ignore_new_changes
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater.dna_updater_constants import DNA_UPDATER_SLOW_ASSERTS
+from utilities import debug_flags
 
 from dna_updater.dna_updater_debug import assert_unique_chain_baseatoms
 from dna_updater.dna_updater_debug import assert_unique_ladder_baseatoms
@@ -70,7 +69,7 @@ def update_PAM_chunks( changed_atoms):
             # move (if possible), and record info (old neighbor atoms?)
             # for later use in determining new baseindex direction advice
             # for new wholechain
-        if DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER:
             print "dna updater: moved_step1 marker %r, still_alive = %r" % (marker, still_alive)
         if still_alive:
             live_markers.append(marker)
@@ -113,7 +112,7 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("from find_axis_and_strand_chains_or_rings", changes_ok = False )
 
-    if DNA_UPDATER_SLOW_ASSERTS:
+    if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         assert_unique_chain_baseatoms(axis_chains + strand_chains)
     
 # redundant:
@@ -165,7 +164,7 @@ def update_PAM_chunks( changed_atoms):
 ##            # stored in the marker and based on the direction of its new atoms
 ##            # in its old chain (if enough of them remain adjacent, currently 2);
 ##            # but the new chain will later take that advice from at most one marker.
-##        if DEBUG_DNA_UPDATER:
+##        if debug_flags.DEBUG_DNA_UPDATER:
 ##            print "dna updater: moved_step2 marker %r, still_alive = %r" % (marker, still_alive)
 ##        # Note: we needn't record the markers whose atoms are still alive,
 ##        # since we'll find them all later on a new chain. Any marker
@@ -235,7 +234,7 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("from make_new_ladders", changes_ok = False)
 
-    if DNA_UPDATER_SLOW_ASSERTS:
+    if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         assert_unique_ladder_baseatoms( new_axis_ladders + new_singlestrand_ladders)
 
     # merge axis ladders (ladders with an axis, and 1 or 2 strands)
@@ -248,7 +247,7 @@ def update_PAM_chunks( changed_atoms):
     ignore_new_changes("from merging/splitting axis ladders", changes_ok = False)
 
 # redundant with new debug prints in merge_and_split_ladders:
-##    if DEBUG_DNA_UPDATER:
+##    if debug_flags.DEBUG_DNA_UPDATER:
 ##        print "dna updater: merged %d -> %d axis ladders" % \
 ##              ( len(new_axis_ladders), len(merged_axis_ladders) )
     del new_axis_ladders
@@ -262,14 +261,14 @@ def update_PAM_chunks( changed_atoms):
 
     ignore_new_changes("from merging/splitting singlestrand ladders", changes_ok = False)
 
-##    if DEBUG_DNA_UPDATER:
+##    if debug_flags.DEBUG_DNA_UPDATER:
 ##        print "dna updater: merged %d -> %d singlestrand ladders" % \
 ##              ( len(new_singlestrand_ladders), len(merged_singlestrand_ladders) )
     del new_singlestrand_ladders
 
     merged_ladders = merged_axis_ladders + merged_singlestrand_ladders
     
-    if DNA_UPDATER_SLOW_ASSERTS:
+    if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         assert_unique_ladder_baseatoms( merged_ladders)
 
     # Now make or remake chunks as needed, so that each ladder-rail is a chunk.
@@ -356,10 +355,10 @@ def update_PAM_chunks( changed_atoms):
              algorithm( merged_ladders, # must do both kinds at once!
                         lambda ladder: ladder.strand_rails ) )
      )
-    if DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER:
         print "dna updater: made %d new or changed wholechains..." % len(new_wholechains)
 
-    if DNA_UPDATER_SLOW_ASSERTS:
+    if debug_flags.DNA_UPDATER_SLOW_ASSERTS:
         assert_unique_wholechain_baseatoms(new_wholechains)
             # predict bug noticed by this [confirmed, then fixed] [circa 080120]
     
@@ -374,7 +373,7 @@ def update_PAM_chunks( changed_atoms):
         # - and (in own_markers)
         #   - choose or make controlling marker,
         #   - and tell markers whether they're controlling (might kill some of them)
-    if DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER:
         print "dna updater: owned markers of those %d new or changed wholechains" % len(new_wholechains)
 
     ignore_new_changes("from making wholechains and owning/choosing/making markers",

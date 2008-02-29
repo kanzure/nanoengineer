@@ -16,7 +16,7 @@ from icon_utilities import imagename_to_pixmap
 
 from dna_updater.dna_updater_globals import _f_DnaGroup_for_homeless_objects_in_Part
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from utilities import debug_flags
 
 
 # Following import is disabled. See addSegment method for reason.
@@ -391,7 +391,7 @@ def _make_DnaGroup_for_homeless_objects_in_Part(part):
     dad = None
     dnaGroup = DnaGroup(name, assy, dad) # same args as for Group.__init__
     part.addnode(dnaGroup)
-    if DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER:
         print "dna_updater: made new dnaGroup %r" % dnaGroup, \
               "(bug or unfixed mmp file)"
     return dnaGroup

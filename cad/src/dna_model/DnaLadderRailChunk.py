@@ -13,10 +13,10 @@ from constants import gensym
 from constants import black
 from constants import ave_colors
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+from utilities import debug_flags
 
-_DEBUG_REUSE_CHUNKS = DEBUG_DNA_UPDATER_VERBOSE
+def _DEBUG_REUSE_CHUNKS():
+    return debug_flags.DEBUG_DNA_UPDATER_VERBOSE
 
 import env
 from utilities.Log import orangemsg, graymsg
@@ -92,7 +92,7 @@ class DnaLadderRailChunk(Chunk):
             # chains anyway but let them share the same chunks) [bruce 080228]
             old_chunk = self._old_chunk_we_could_reuse(chain)
             if old_chunk is not None:
-                if _DEBUG_REUSE_CHUNKS:
+                if _DEBUG_REUSE_CHUNKS():
                     print "dna updater will reuse %r rather than new %r" % \
                           (old_chunk, self) 
                 # to do this, set a flag and return early from __init__
@@ -101,7 +101,7 @@ class DnaLadderRailChunk(Chunk):
                 assert not self.atoms
                 self._please_reuse_this_chunk = old_chunk
                 return
-            if _DEBUG_REUSE_CHUNKS:
+            if _DEBUG_REUSE_CHUNKS():
                 print "not reusing an old chunk for %r (will grab %d atoms)" % (self, self._counted_atoms)
                 print " data: atoms were in these old chunks: %r" % (self._counted_chunks.values(),)
             pass
@@ -172,7 +172,7 @@ class DnaLadderRailChunk(Chunk):
                 else:
                     # could reuse, except for class -- common in mmp read
                     # or after dna generator, but could happen other times too.
-                    if _DEBUG_REUSE_CHUNKS:
+                    if _DEBUG_REUSE_CHUNKS():
                         print "fyi: dna updater could reuse, except for class: %r" % old_chunk
                     # todo: OPTIM: it might be a useful optim, for mmp read, to just change that chunk's class and reuse it.
                     # To decide if this would help, look at cumtime of _grab_atoms_from_chain in a profile.
@@ -259,7 +259,7 @@ class DnaLadderRailChunk(Chunk):
         # if any or all were hidden, emit an appropriate summary message.
         if self._num_old_atoms_hidden and not self._num_old_atoms_not_hidden:
             self.hide()
-            if DEBUG_DNA_UPDATER:
+            if debug_flags.DEBUG_DNA_UPDATER:
                 summary_format = "DNA updater: debug fyi: remade [N] hidden chunk(s)"
                 env.history.deferred_summary_message( graymsg(summary_format) )
         elif self._num_old_atoms_hidden:
@@ -267,7 +267,7 @@ class DnaLadderRailChunk(Chunk):
             env.history.deferred_summary_message( orangemsg(summary_format),
                                                   count = self._num_old_atoms_hidden
                                                  )
-            if DEBUG_DNA_UPDATER:
+            if debug_flags.DEBUG_DNA_UPDATER:
                 ## todo: summary_format2 = "Note: it unhid them due to [N] unhidden atom(s)"
                 summary_format2 = "Note: DNA updater must unhide some hidden atoms due to [N] unhidden atom(s)"
                 env.history.deferred_summary_message( graymsg(summary_format2),
@@ -366,7 +366,7 @@ class DnaLadderRailChunk(Chunk):
         return
 
     def merge(self, other): # overridden just for debug, 080120 9pm
-        if DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER:
             print "dna updater debug: fyi: calling %r.merge(%r)" % (self, other)
         return _superclass.merge(self, other)
 

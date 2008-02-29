@@ -10,7 +10,7 @@ DnaChain.py - Dna-aware AtomChainOrRing subclasses, AxisChain and StrandChain
 from dna_model.DnaMarker import DnaSegmentMarker
 from dna_model.DnaMarker import DnaStrandMarker
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from utilities import debug_flags
 
 from dna_model.dna_model_constants import LADDER_ENDS
 from dna_model.dna_model_constants import LADDER_END0
@@ -109,14 +109,14 @@ class DnaChain(object):
         return (self.baseatoms[0], self.baseatoms[-1]) # might be same atom
 
     def reverse_baseatoms(self):
-        if DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER:
             self.debug_check_bond_direction("reverse_baseatoms start")
         self.baseatoms = list(self.baseatoms)
         self.baseatoms.reverse()
         self.index_direction *= -1
         self._bond_direction *= -1
         self._reverse_neighbor_baseatoms()
-        if DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER:
             self.debug_check_bond_direction("reverse_baseatoms end")
         return
 
@@ -458,7 +458,7 @@ class _DnaChainFragment(DnaChain): #e does it need to know ringQ? is it misnamed
             bond_direction = bond_direction or 0
             bond_direction_error = bond_direction_error or False
             self._f_set_bond_direction( bond_direction, bond_direction_error)
-        if DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER:
             self.debug_check_bond_direction("_DnaChainFragment.__init__")
     pass
 
@@ -555,7 +555,7 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
 ##        # changing. If so, some invalidation of those chain attributes
 ##        # might be needed.)
 ##
-##        if DEBUG_DNA_UPDATER_VERBOSE:
+##        if debug_flags.DEBUG_DNA_UPDATER_VERBOSE:
 ##            print "%r._f_own_atoms() is a stub - always makes a new marker" % self #####FIX
 ##        chain = self.chain_or_ring
 ##        # stub -- just make a new marker! we'll need code for this anyway...
@@ -580,7 +580,7 @@ class DnaChain_AtomChainWrapper(DnaChain): ###### TODO: refactor into what code 
         [as of 080109 these are created in make_new_ladders() and passed into DnaLadder as its rail chains
          via init arg and add_strand_rail]
         """
-        if DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER:
             self.debug_check_bond_direction("entering DnaChain_AtomChainWrapper.virtual_fragment")
         # current implem always returns a real fragment; might be ok
         baseindex = start_baseindex - self.start_baseindex()
@@ -647,7 +647,7 @@ class StrandChain(DnaChain_AtomChainWrapper):
     _marker_class = DnaStrandMarker
     def __init__(self, chain_or_ring):
 # nevermind:
-##        if DEBUG_DNA_UPDATER:
+##        if debug_flags.DEBUG_DNA_UPDATER:
 ##            chain_or_ring.debug_check_bond_direction("init arg to %r" % self)
 ##            ## AttributeError: 'AtomChain' object has no attribute 'debug_check_bond_direction'
         DnaChain_AtomChainWrapper.__init__(self, chain_or_ring)
@@ -723,7 +723,7 @@ class StrandChain(DnaChain_AtomChainWrapper):
         # 1 or -1: every bond inside and adjacent to chain has this direction
         assert dir_so_far, "bond direction error in %r, no point in continuing" % self
         self._f_set_bond_direction(dir_so_far)
-        if DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER:
             self.debug_check_bond_direction("end of init")
             # note: this assertfails if direction is 0,
             # and if it didn't, later code would have bugs,

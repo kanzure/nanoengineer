@@ -7,7 +7,7 @@ dna_updater_find_chains.py - helper for dna_updater_chunks
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
+from utilities import debug_flags
 
 from bond_chains import abstract_bond_chain_analyzer
 
@@ -162,7 +162,7 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
     if not axis_atoms and not strand_atoms:
         return (), () # optimization
 
-    if DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER:
         print "dna updater: %d axis atoms, %d strand atoms" % (len(axis_atoms), len(strand_atoms))
     
     axis_chains = axis_analyzer.find_chains_or_rings( axis_atoms )
@@ -181,14 +181,14 @@ def find_axis_and_strand_chains_or_rings( changed_atoms):
     ##     SyntaxError: can not delete variable 'axis_atoms' referenced in nested scope
     axis_atoms = None # not a dict, bug if used
 
-    if DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER:
         print "dna updater: found %d axis chains or rings" % len(axis_chains)
     
     # 
     strand_chains = strand_analyzer.find_chains_or_rings( strand_atoms )
     assert not strand_atoms ### REMOVE WHEN WORKS
     strand_atoms = None # not a dict, bug if used
-    if DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER:
         print "dna updater: found %d strand chains or rings" % len(strand_chains)
 
     return axis_chains, strand_chains # from find_axis_and_strand_chains_or_rings

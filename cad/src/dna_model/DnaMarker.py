@@ -26,9 +26,7 @@ from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
 from dna_model.DnaGroup import find_or_make_DnaGroup_for_homeless_object
 
-
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+from utilities import debug_flags
 
 from drawer import drawwirecube
 
@@ -193,7 +191,7 @@ class DnaMarker( ChainAtomMarker):
         global _marker_newness_counter
         _marker_newness_counter += 1
         self._newness = _marker_newness_counter
-        if DEBUG_DNA_UPDATER_VERBOSE: # made verbose on 080201
+        if debug_flags.DEBUG_DNA_UPDATER_VERBOSE: # made verbose on 080201
             print "dna updater: made %r" % (self,)
         return
 
@@ -201,7 +199,7 @@ class DnaMarker( ChainAtomMarker):
         """
         Extend Node method, for debugging and for notifying self.wholechain
         """
-        if DEBUG_DNA_UPDATER:
+        if debug_flags.DEBUG_DNA_UPDATER:
             msg = "dna updater: killing %r" % (self,)
             print msg
         if self.wholechain:

@@ -12,8 +12,7 @@ from dna_updater.dna_updater_globals import get_changes_and_clear
 from dna_updater.dna_updater_globals import ignore_new_changes
 from dna_updater.dna_updater_globals import clear_updater_run_globals
 
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER
-from dna_updater.dna_updater_constants import DEBUG_DNA_UPDATER_VERBOSE
+from utilities import debug_flags
 
 from dna_updater.dna_updater_utils import remove_killed_atoms
 
@@ -67,14 +66,14 @@ def _full_dna_update_0( _runcount):
     if not changed_atoms:
         return # optimization (might not be redundant with caller)
 
-    if DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER:
         print "\ndna updater: %d changed atoms to scan" % len(changed_atoms)
-    if DEBUG_DNA_UPDATER: # should be _VERBOSE, but has been useful enough to keep seeing for awhile
+    if debug_flags.DEBUG_DNA_UPDATER: # should be _VERBOSE, but has been useful enough to keep seeing for awhile
         items = changed_atoms.items()
         items.sort()
         atoms = [item[1] for item in items]
         NUMBER_TO_PRINT = 10
-        if DEBUG_DNA_UPDATER_VERBOSE or len(atoms) <= NUMBER_TO_PRINT:
+        if debug_flags.DEBUG_DNA_UPDATER_VERBOSE or len(atoms) <= NUMBER_TO_PRINT:
             print " they are: %r" % atoms
         else:
             print " the first %d of them are: %r ..." % \
