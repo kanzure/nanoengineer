@@ -11,7 +11,10 @@ class NXTrackball {
 public:
     NXTrackball()
         : w2(0.0), h2(0.0), scale(0.0), mouseSpeedDuringRotation(1.0) {}
-    NXTrackball(int const& w, int const& h) { resize(w, h); }
+    NXTrackball(int const& w, int const& h) {
+        resize(w, h);
+        mouseSpeedDuringRotation = 1.0;
+    }
     ~NXTrackball() {} // in-case someone wants to inherit
     
     // accessors
@@ -20,7 +23,7 @@ public:
     void resize(int const& w, int const& h) {
         w2 = 0.5*((double)w);
         h2 = 0.5*((double)h);
-        scale = 1.1 / (w2 < h2) ? w2 : h2;
+        scale = 1.1 / ((w2 < h2) ? w2 : h2);
     }
     
     double const *const getOldMouse(void) const { return oldMouse; }
@@ -36,7 +39,7 @@ public:
     }
     
     void update(int const& x, int const& y) {
-        proj2sphere( oldMouse,
+        proj2sphere( newMouse,
                      (double(x) - w2) * scale * mouseSpeedDuringRotation,
                      (h2 - double(y)) * scale * mouseSpeedDuringRotation );
     }
@@ -50,7 +53,7 @@ private:
     double newMouse[3];
     
     /// Project screen coords (x,y) in [-1,1]^2 to unit-sphere and store in wpt
-    static void proj2sphere(double wpt[3], double const& x, double const& y) {
+    static void proj2sphere(double *wpt, double const& x, double const& y) {
         double const d = sqrt(x*x+y*y);
         double const theta = M_PI * 0.5 * d;
         if(d > 0.0001) {

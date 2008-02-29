@@ -16,7 +16,7 @@ using namespace std;
 #include "glt_string.h"
 #include "glt_umatrix.h"
 
-double Matrix::_identity[16] = 
+double GltMatrix::_identity[16] = 
 {
    1.0, 0.0, 0.0, 0.0,
    0.0, 1.0, 0.0, 0.0,
@@ -24,48 +24,38 @@ double Matrix::_identity[16] =
    0.0, 0.0, 0.0, 1.0
 };
 
-Matrix::Matrix()
+GltMatrix::GltMatrix()
 {
 	reset();
 }
 
-Matrix::Matrix(const Matrix &matrix)
+GltMatrix::GltMatrix(const GltMatrix &matrix)
 {
 	(*this) = matrix;
 }
 
-Matrix::Matrix(const float *matrix)
+GltMatrix::GltMatrix(const float *matrix)
 {
 	      real  *i = _matrix;
 	const float *j =  matrix;
 	for (int k=0; k<16; i++,j++,k++)
-		*i = *j;
+        *i = (real) *j;
 }
 
-Matrix::Matrix(const double *matrix)
+GltMatrix::GltMatrix(const double *matrix)
 {
 	      real   *i = _matrix;
 	const double *j =  matrix;
 	for (int k=0; k<16; i++,j++,k++)
-		*i = *j;
+        *i = (real) *j;
 }
 
-Matrix::Matrix(const unsigned int glMatrix)
+GltMatrix::GltMatrix(GLenum glMatrixMode)
 {
-	switch (glMatrix)
-	{
-	case GL_MODELVIEW_MATRIX:
-		glGetDoublev(GL_MODELVIEW_MATRIX,_matrix);
-		break;
-	case GL_PROJECTION_MATRIX:
-		glGetDoublev(GL_PROJECTION_MATRIX,_matrix);
-		break;
-	default:
-		break;
-	}
+    glGet(glMatrixMode);
 }
 
-Matrix::Matrix(const string &str)
+GltMatrix::GltMatrix(const string &str)
 {
 	#ifndef NDEBUG
 	const int n = 
@@ -75,18 +65,18 @@ Matrix::Matrix(const string &str)
 	assert(n==16);
 }
 
-Matrix &
-Matrix::operator=(const Matrix &m)
+GltMatrix &
+GltMatrix::operator=(const GltMatrix &m)
 {
 	memcpy(_matrix,m._matrix,sizeof(_matrix));
 
 	return *this;
 }
 
-Matrix 
-Matrix::operator *(const Matrix &m) const
+GltMatrix 
+GltMatrix::operator *(const GltMatrix &m) const
 {
-	Matrix prod;
+	GltMatrix prod;
 
 	for (int c=0;c<4;c++)
 		for (int r=0;r<4;r++)
@@ -99,8 +89,8 @@ Matrix::operator *(const Matrix &m) const
 	return prod;
 }
 
-Matrix &
-Matrix::operator*=(const Matrix &m)
+GltMatrix &
+GltMatrix::operator*=(const GltMatrix &m)
 {
 	// Potential optimisation here to
 	// skip a temporary copy
@@ -109,7 +99,7 @@ Matrix::operator*=(const Matrix &m)
 }
 
 Vector    
-Matrix::operator*(const Vector &v) const
+GltMatrix::operator*(const Vector &v) const
 {
 	double prod[4] = { 0,0,0,0 };
 
@@ -127,75 +117,118 @@ Matrix::operator*(const Vector &v) const
 }
 
 void 
-Matrix::reset()
+GltMatrix::reset()
 {
 	memcpy(_matrix,_identity,16*sizeof(double));
 }
 
 void 
-Matrix::identity()
+GltMatrix::identity()
 {
 	reset();
 }
 
 bool 
-Matrix::isIdentity() const
+GltMatrix::isIdentity() const
 {
 	return !memcmp(_matrix,_identity,sizeof(_matrix));
 }
 
 const double & 
-Matrix::operator[](const int i) const
+GltMatrix::operator[](const int i) const
 {
 	assert(i>=0 && i<16);
 	return _matrix[i];
 }
 
 double & 
-Matrix::operator[](const int i)
+GltMatrix::operator[](const int i)
 {
 	assert(i>=0 && i<16);
 	return _matrix[i];
 }
 
 bool 
-Matrix::operator==(const Matrix &m) const
+GltMatrix::operator==(const GltMatrix &m) const
 {
 	return !memcmp(_matrix,m._matrix,sizeof(_matrix));
 }
 
 bool 
-Matrix::operator!=(const Matrix &m) const
+GltMatrix::operator!=(const GltMatrix &m) const
 {
 	return memcmp(_matrix,m._matrix,sizeof(_matrix))!=0;
 }
 
-Matrix::operator double *()
+GltMatrix::operator real *()
 {
 	return _matrix;
 }
 
-Matrix::operator const double *() const
+GltMatrix::operator const real *() const
 {
 	return _matrix;
 }
 
 void
-Matrix::glMultMatrix() const
+GltMatrix::glMultMatrix() const
 {
-	glMultMatrixd(_matrix);
+    switch(sizeof(real)) {
+    case sizeof(GLfloat): glMultMatrixf((GLfloat*)_matrix); break;
+    case sizeof(GLdouble): glMultMatrixd((GLdouble*)_matrix); break;
+    }
 }
 
 void 
-Matrix::glLoadMatrix() const
+GltMatrix::glLoadMatrix() const
 {
-	glLoadMatrixd(_matrix);
+    switch(sizeof(real)) {
+    case sizeof(GLfloat): glLoadMatrixf((GLfloat*)_matrix); break;
+    case sizeof(GLdouble): glLoadMatrixd((GLdouble*)_matrix); break;
+    }
+}
+
+
+void GltMatrix::glGet(GLenum matrixMode)
+{
+    switch (matrixMode)
+    {
+    case GL_MODELVIEW:
+        if(sizeof(real)==sizeof(GLfloat))
+            glGetFloatv(GL_MODELVIEW_MATRIX, (GLfloat*)_matrix);
+        else if(sizeof(real)==sizeof(GLdouble))
+            glGetDoublev(GL_MODELVIEW_MATRIX, (GLdouble*)_matrix);
+        break;
+    case GL_PROJECTION:
+        if(sizeof(real)==sizeof(GLfloat))
+            glGetFloatv(GL_PROJECTION_MATRIX, (GLfloat*)_matrix);
+        else if(sizeof(real)==sizeof(GLdouble))
+            glGetDoublev(GL_PROJECTION_MATRIX, (GLdouble*)_matrix);
+        break;
+    }
+}
+
+
+void GltMatrix::glSet(GLenum matrixMode)
+{
+    switch(matrixMode) {
+    case GL_MODELVIEW:
+    case GL_PROJECTION:
+        glMatrixMode(matrixMode);
+        if(sizeof(real)==sizeof(GLfloat))
+            glLoadMatrixf((GLfloat*)_matrix);
+        else if(sizeof(real)==sizeof(GLdouble))
+            glLoadMatrixd((GLdouble*)_matrix);
+        break;
+    default:
+        break;
+    }
 }
 
 
 #if 0
 double const *
-Matrix::row(const unsigned int row) const
+GltMatrix::row(const unsigned int row) const
 {
 	static double r[4];
 
@@ -206,7 +239,7 @@ Matrix::row(const unsigned int row) const
 }
 
 double const *
-Matrix::column(const unsigned int column) const
+GltMatrix::column(const unsigned int column) const
 {
 	return _matrix+column*4;
 }
@@ -214,9 +247,9 @@ Matrix::column(const unsigned int column) const
 #endif
 
 ostream &
-Matrix::writePov(ostream &os) const
+GltMatrix::writePov(ostream &os) const
 {
-	UnMatrix um = unmatrix();
+	GltUnMatrix um = unmatrix();
 
 	os << "scale < ";
 	  os << um[U_SCALEX] << ',';
@@ -241,9 +274,9 @@ Matrix::writePov(ostream &os) const
 	\ingroup	Math
 */
 
-Matrix matrixScale(const double sf)
+GltMatrix matrixScale(const double sf)
 {
-	Matrix scale;
+	GltMatrix scale;
 
 	scale.set(0,0,sf);
 	scale.set(1,1,sf);
@@ -257,9 +290,9 @@ Matrix matrixScale(const double sf)
 	\ingroup	Math
 */
 
-Matrix matrixScale(const Vector sf)
+GltMatrix matrixScale(const Vector sf)
 {
-	Matrix scale;
+	GltMatrix scale;
 
 	scale.set(0,0,sf[0]);
 	scale.set(1,1,sf[1]);
@@ -273,9 +306,9 @@ Matrix matrixScale(const Vector sf)
 	\ingroup	Math
 */
 
-Matrix matrixTranslate(const Vector trans)
+GltMatrix matrixTranslate(const Vector trans)
 {
-	Matrix translate;
+	GltMatrix translate;
 
 	translate.set(3,0,trans[0]);
 	translate.set(3,1,trans[1]);
@@ -289,9 +322,9 @@ Matrix matrixTranslate(const Vector trans)
 	\ingroup	Math
 */
 
-Matrix matrixTranslate(const real x,const real y,const real z)
+GltMatrix matrixTranslate(const real x,const real y,const real z)
 {
-	Matrix translate;
+	GltMatrix translate;
 
 	translate.set(3,0,x);
 	translate.set(3,1,y);
@@ -307,9 +340,9 @@ Matrix matrixTranslate(const real x,const real y,const real z)
 	\param		angle	Angle in degrees
 */
 
-Matrix matrixRotate(const Vector axis, const double angle)
+GltMatrix matrixRotate(const Vector axis, const double angle)
 {
-	Matrix rotate;
+	GltMatrix rotate;
 
 	// Page 466, Graphics Gems
 
@@ -345,9 +378,9 @@ Matrix matrixRotate(const Vector axis, const double angle)
 	\param		elevation	North-South degrees
 */
 
-Matrix matrixRotate(const double azimuth, const double elevation)
+GltMatrix matrixRotate(const double azimuth, const double elevation)
 {
-	Matrix rotate;
+	GltMatrix rotate;
 
 	double ca = cos(azimuth*M_PI_DEG);
 	double sa = sin(azimuth*M_PI_DEG);
@@ -377,9 +410,9 @@ Matrix matrixRotate(const double azimuth, const double elevation)
 	\param		z	New orientation for +z
 */
 
-Matrix matrixOrient(const Vector &x,const Vector &y,const Vector &z)
+GltMatrix matrixOrient(const Vector &x,const Vector &y,const Vector &z)
 {
-	Matrix orient;
+	GltMatrix orient;
 
 	orient.set(0,0,x.x());
 	orient.set(0,1,x.y());
@@ -403,7 +436,7 @@ Matrix matrixOrient(const Vector &x,const Vector &y,const Vector &z)
 	\param      up          New orientation for +y
 */
 
-Matrix matrixOrient(const Vector &direction,const Vector &up)
+GltMatrix matrixOrient(const Vector &direction,const Vector &up)
 {
 	assert(direction.norm()>0.0);
 	assert(up.norm()>0.0);
@@ -423,7 +456,7 @@ Matrix matrixOrient(const Vector &direction,const Vector &up)
 */
 
 std::ostream &
-operator<<(std::ostream &os,const Matrix &m)
+operator<<(std::ostream &os,const GltMatrix &m)
 {
 	for (int r=0;r<4;r++)
 		for (int c=0;c<4;c++)
@@ -438,7 +471,7 @@ operator<<(std::ostream &os,const Matrix &m)
 */
 
 std::istream &
-operator>>(std::istream &is,Matrix &m)
+operator>>(std::istream &is,GltMatrix &m)
 {
 	for (int r=0;r<4;r++)
 		for (int c=0;c<4;c++)
@@ -451,18 +484,18 @@ operator>>(std::istream &is,Matrix &m)
 	return is;
 }
 
-Matrix 
-Matrix::inverse() const
+GltMatrix 
+GltMatrix::inverse() const
 {
-	Matrix inv;
+	GltMatrix inv;
 	invertMatrix(_matrix,inv._matrix);
 	return inv;
 }
 
-Matrix 
-Matrix::transpose() const
+GltMatrix 
+GltMatrix::transpose() const
 {
-	Matrix tmp;
+	GltMatrix tmp;
 	
 	for (int i=0;i<4;i++)
 		for (int j=0;j<4;j++)
@@ -480,7 +513,7 @@ Matrix::transpose() const
 //
 
 void 
-Matrix::invertMatrixGeneral( const double *m, double *out )
+GltMatrix::invertMatrixGeneral( const double *m, double *out )
 {
 
 /* NB. OpenGL Matrices are COLUMN major. */
@@ -592,7 +625,7 @@ Matrix::invertMatrixGeneral( const double *m, double *out )
 //
 
 void 
-Matrix::invertMatrix( const double *m, double *out )
+GltMatrix::invertMatrix( const double *m, double *out )
 {
 /* NB. OpenGL Matrices are COLUMN major. */
 #define MAT(m,r,c) (m)[(c)*4+(r)]

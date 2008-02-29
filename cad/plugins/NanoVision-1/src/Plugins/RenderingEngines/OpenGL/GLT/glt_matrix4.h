@@ -32,58 +32,59 @@
 
 #include <iosfwd>
 
+#include <GL/gl.h>
 #include "glt_real.h"
 #include "glt_vector3.h"
 
-////////////////////////// Matrix /////////////////////////////////
+////////////////////////// GltMatrix /////////////////////////////////
 
-/*! \class   Matrix 
+/*! \class   GltMatrix 
     \brief   4x4 Matrix
 	\ingroup Math
 	\author  Nigel Stewart, RMIT (nigels@nigels.com)
 	\todo    Nice pictures and explanation for 4x4 transformation matrices.
 */
 
-class UnMatrix;
+class GltUnMatrix;
 
-class Matrix
+class GltMatrix
 {
-	friend Matrix matrixScale(const double sf);
-	friend Matrix matrixScale(const Vector sf);
-	friend Matrix matrixTranslate(const Vector trans);
-	friend Matrix matrixTranslate(const real x,const real y,const real z);
-	friend Matrix matrixRotate(const Vector axis,const double angle);
-	friend Matrix matrixRotate(const double azimuth,const double elevation);
-	friend Matrix matrixOrient(const Vector &x,const Vector &y,const Vector &z);
-	friend Matrix matrixOrient(const Vector &direction,const Vector &up);
+	friend GltMatrix matrixScale(const double sf);
+	friend GltMatrix matrixScale(const Vector sf);
+	friend GltMatrix matrixTranslate(const Vector trans);
+	friend GltMatrix matrixTranslate(const real x,const real y,const real z);
+	friend GltMatrix matrixRotate(const Vector axis,const double angle);
+	friend GltMatrix matrixRotate(const double azimuth,const double elevation);
+	friend GltMatrix matrixOrient(const Vector &x,const Vector &y,const Vector &z);
+	friend GltMatrix matrixOrient(const Vector &direction,const Vector &up);
 
-	friend std::ostream &operator<<(std::ostream &os,const Matrix &m);
-	friend std::istream &operator>>(std::istream &is,      Matrix &m);
+	friend std::ostream &operator<<(std::ostream &os,const GltMatrix &m);
+	friend std::istream &operator>>(std::istream &is,      GltMatrix &m);
 
 public:
 
 	/// Default constructor
-	Matrix();
+	GltMatrix();
 	/// Copy constructor
-	Matrix(const Matrix &matrix);
+	GltMatrix(const GltMatrix &matrix);
 	/// Construct from array 
-	Matrix(const float *matrix);
+	GltMatrix(const GLfloat *matrix);
 	/// Construct from array 
-	Matrix(const double *matrix);
+	GltMatrix(const real *matrix);
 	/// Construct from OpenGL GL_MODELVIEW_MATRIX or GL_PROJECTION_MATRIX
-	Matrix(const unsigned int glMatrix);
+	GltMatrix(const unsigned int glMatrix);
 	/// Construct from string
-	Matrix(const std::string &str);
+	GltMatrix(const std::string &str);
 
 	/// Assignment operator
-	Matrix &operator=(const Matrix &);
+	GltMatrix &operator=(const GltMatrix &);
 
-	/// Matrix multiplication
-	Matrix  operator*(const Matrix &) const;
+	/// GltMatrix multiplication
+	GltMatrix  operator*(const GltMatrix &) const;
 	/// In-place matrix multiplication
-	Matrix &operator*=(const Matrix &);
+	GltMatrix &operator*=(const GltMatrix &);
 
-	/// Matrix transformation of 3D vector
+	/// GltMatrix transformation of 3D vector
 	Vector operator*(const Vector &) const;
 
 	/// Reset to identity matrix
@@ -94,27 +95,31 @@ public:
 	/// Is this matrix identity?
 	bool isIdentity() const;
 
+    /// Access i'th row, j'th column element
+    real& operator () (int i, int j) { return element(j, i); }
+    real const& operator () (int i, int j) const { return get(j, i); }
+    
 	/// Access i'th element of matrix
-	      double &operator[](const int i);
+	real &operator[](const int i);
 	/// Access i'th element of matrix
-	const double &operator[](const int i) const;
+	const real &operator[](const int i) const;
 
 	/// Access as array
-	operator double * ();
+	operator real * ();
 	/// Access as array
 	operator const double * () const;
 
 	/// Equality operator
-	bool operator==(const Matrix &) const;
+	bool operator==(const GltMatrix &) const;
 	/// Not-equal operator
-	bool operator!=(const Matrix &) const;
+	bool operator!=(const GltMatrix &) const;
 
 	/// Calculate matrix inverse
-	Matrix inverse() const;
+	GltMatrix inverse() const;
 	/// Calculate matrix transpose
-	Matrix transpose() const;
+	GltMatrix transpose() const;
 	/// Calculate unmatrix
-	UnMatrix unmatrix() const;
+	GltUnMatrix unmatrix() const;
 	/// Calculate matrix determinant
 	double det() const;
 
@@ -123,25 +128,31 @@ public:
 	/// Load current OpenGL matrix
 	void glLoadMatrix() const;
 
+    /// set to current model-view or projection matrix
+    void glGet(GLenum glMatrixMode);
+    
+    /// set current modelview or projection matrix
+    void glSet(GLenum glMatrixMode);
+    
 	/// Write matrix in Povray format
 	std::ostream &writePov(std::ostream &os) const;
 
 private:
 
-	double _matrix[16];
-	static double _identity[16];
+	real _matrix[16];
+	static real _identity[16];
 
-	inline void set(const int col,const int row,const double val) 
+	inline void set(const int col,const int row,const real& val) 
 	{ 
 		_matrix[col*4+row] = val;
 	}
 
-	inline double get(const int col,const int row) const
+	inline real const& get(const int col,const int row) const
 	{
 		return _matrix[col*4+row];
 	}
 
-	inline double &element(const int col,const int row) 
+	inline real& element(const int col,const int row) 
 	{
 		return _matrix[col*4+row];
 	}

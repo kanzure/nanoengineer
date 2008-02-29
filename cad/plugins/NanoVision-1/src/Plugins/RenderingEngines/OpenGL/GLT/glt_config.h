@@ -41,6 +41,8 @@
 
 */
 
+#include <GL/gl.h>
+
 /// GLT Version string
 #define GLT_VERSION_STRING "0.7-gamma"
 
@@ -148,10 +150,12 @@ typedef signed int     int32;
 
 #ifndef GLT_FAST_FLOAT
 /// GLT real can be float or double
-typedef double         real;
+typedef GLdouble         real;
+#define GLT_DOUBLE_PRECISION
 #else
 /// GLT real can be float or double
-typedef float          real;
+typedef GLfloat          real;
+#define GLT_SINGLE_PRECISION
 #endif
 
 #ifndef NULL

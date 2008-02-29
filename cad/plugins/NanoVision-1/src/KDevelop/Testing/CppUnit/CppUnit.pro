@@ -6,25 +6,22 @@ SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Utility/NXStringTokenizerTest.cpp \
  ../../../Utility/NXUtilityTest.cpp \
  ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.cpp \
+ ../../../Interface/NXSceneGraphTest.cpp \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.cpp \
- ../../../Utility/NXPointTest.cpp \
- ../../../Interface/NXSceneGraphTest.cpp
+ ../../../Utility/NXPointTest.cpp
 
 TEMPLATE = app
 
 TARGET = CppUnit
 
-LIBS += -L../../../../lib \
- -L$(OPENBABEL_LIBPATH) \
- -L$(HDF5_SIMRESULTS_INCPATH) \
- -lNanorexInterface \
+LIBS += -lcppunit \
+ -lopenbabel \
+ -L../../../../lib \
  -lNanorexUtility \
- -lcppunit \
- -lopenbabel
+ -lNanorexInterface
 
 INCLUDEPATH += ../../../../include \
- $(OPENBABEL_INCPATH) \
- $(HDF5_SIMRESULTS_INCPATH)
+ $(OPENBABEL_INCPATH)
 
 HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Utility/NXLoggerTest.h \
@@ -34,23 +31,26 @@ HEADERS += ../../../Utility/NXCommandResultTest.h \
 ../../../Interface/NXNumbersTest.h \
 ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.h \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.h \
- ../../../Utility/NXPointTest.h \
- ../../../Interface/NXSceneGraphTest.h
+ ../../../Interface/NXSceneGraphTest.h \
+ ../../../Utility/NXPointTest.h
 
 TARGETDEPS += ../../../../lib/libNanorexUtility.so \
-../../../../lib/libNanorexInterface.so
+../../../../lib/libNanorexInterface.so \
+../../../../lib/HDF5_SimResultsImportExport.so
 macx : TARGETDEPS ~= s/.so/.dylib/g
-win32 : TARGETDEPS ~= s/.so/.a/g
 
 DESTDIR = ../../../../bin
 
 CONFIG -= release
 
 CONFIG += debug \
-stl
+stl \
+ debug_and_release
 
 # This tell qmake to not create a Mac bundle for this application.
 CONFIG -= app_bundle
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+ -g \
+ -fno-inline
 

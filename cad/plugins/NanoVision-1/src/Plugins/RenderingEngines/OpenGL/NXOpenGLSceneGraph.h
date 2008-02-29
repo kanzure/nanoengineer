@@ -14,9 +14,9 @@
 #include <cstring>
 
 #include "Nanorex/Interface/NXSceneGraph.h"
-#include "Nanorex/Interface/NXOpenGLMaterial.h"
 #include "Nanorex/Utility/NXUtility.h"
 #include "Nanorex/Utility/NXCommandResult.h"
+#include "NXOpenGLMaterial.h"
 
 
 namespace Nanorex {

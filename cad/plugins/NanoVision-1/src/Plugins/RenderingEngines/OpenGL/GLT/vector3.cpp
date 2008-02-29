@@ -81,10 +81,10 @@ Vector::operator[](const int i)
 	return _vector[i];
 }
 
-Vector::operator real *()
-{
-	return (real *) _vector;
-}
+// Vector::operator real* (void)
+// {
+// 	return (real *) _vector;
+// }
 
       real &Vector::x()       { return _vector[0]; }
 const real &Vector::x() const { return _vector[0]; }
@@ -221,7 +221,7 @@ Vector::length() const
 }
 
 bool
-Vector::project(const Matrix &model,const Matrix &proj,const GltViewport &view)
+Vector::project(const GltMatrix &model,const GltMatrix &proj,const GltViewport &view)
 {
 	// TODO - No need to copy from x,y,z if real is GLdouble
 	
@@ -302,7 +302,7 @@ Vector::operator*=(const real &x)
 }
 
 Vector &
-Vector::operator*=(const Matrix &m)
+Vector::operator*=(const GltMatrix &m)
 {
 	return operator=(m*(*this));
 }
@@ -376,6 +376,22 @@ Vector::glTexCoord() const
 	glTexCoord3dv(_vector);
 	#endif
 }
+
+void
+Vector::glLight(GLenum light, GLenum pname) const
+{
+#ifdef GLT_FAST_FLOAT
+    glLightfv(light, pname, _vector);
+#else
+    GLfloat params[4];
+    params[0] = _vector[0];
+    params[1] = _vector[1];
+    params[2] = _vector[2];
+    params[3] = _vector[3];
+    glLightfv(light, pname, params);
+#endif
+}
+
 
 ////////////////////////// F R I E N D S
 

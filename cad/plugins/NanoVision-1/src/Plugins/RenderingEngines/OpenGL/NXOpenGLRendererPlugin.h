@@ -12,7 +12,7 @@
 #include "Nanorex/Interface/NXRendererPlugin.h"
 #include "Nanorex/Interface/NXAtomRenderData.h"
 #include "Nanorex/Interface/NXBondRenderData.h"
-#include "Nanorex/Interface/NXOpenGLSceneGraph.h"
+#include "NXOpenGLSceneGraph.h"
 
 namespace Nanorex {
 

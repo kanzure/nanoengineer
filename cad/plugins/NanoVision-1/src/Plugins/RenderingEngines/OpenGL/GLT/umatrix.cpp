@@ -31,23 +31,23 @@ using namespace std;
 // Returns true upon success, false if the matrix is singular.
 //
 
-UnMatrix::UnMatrix()
+GltUnMatrix::GltUnMatrix()
 {
 	memset(_tran,0,sizeof(_tran));
 }
 
-UnMatrix::UnMatrix(const UnMatrix &umatrix)
+GltUnMatrix::GltUnMatrix(const GltUnMatrix &umatrix)
 {
 	memcpy(_tran,umatrix._tran,sizeof(_tran));
 }
 
-UnMatrix::UnMatrix(const Matrix &matrix)
+GltUnMatrix::GltUnMatrix(const GltMatrix &matrix)
 {
-	UnMatrix umatrix = matrix.unmatrix();
+	GltUnMatrix umatrix = matrix.unmatrix();
 	memcpy(_tran,umatrix._tran,sizeof(_tran));
 }
 
-UnMatrix::~UnMatrix()
+GltUnMatrix::~GltUnMatrix()
 {
 }
 
@@ -72,14 +72,14 @@ static char *UnMatrixFieldDescription[] =
 };
 
 /*! 
-	\brief		UnMatrix difference
+	\brief		GltUnMatrix difference
 	\ingroup	Math
 */
 
-UnMatrix 
-operator-(const UnMatrix &b,const UnMatrix &a)
+GltUnMatrix 
+operator-(const GltUnMatrix &b,const GltUnMatrix &a)
 {
-	UnMatrix um;
+	GltUnMatrix um;
 
 	um[U_SCALEX]  = b._tran[U_SCALEX] - a._tran[U_SCALEX];
 	um[U_SCALEY]  = b._tran[U_SCALEY] - a._tran[U_SCALEY];
@@ -97,14 +97,14 @@ operator-(const UnMatrix &b,const UnMatrix &a)
 }
 
 /*! 
-	\brief		UnMatrix scaling
+	\brief		GltUnMatrix scaling
 	\ingroup	Math
 */
 
-UnMatrix 
-operator*(const UnMatrix &a,const double scaleFactor)
+GltUnMatrix 
+operator*(const GltUnMatrix &a,const double scaleFactor)
 {
-	UnMatrix um = a;
+	GltUnMatrix um = a;
 
 	um[U_SCALEX]  *= scaleFactor;
 	um[U_SCALEY]  *= scaleFactor;
@@ -122,14 +122,14 @@ operator*(const UnMatrix &a,const double scaleFactor)
 }
 
 /*! 
-	\brief		UnMatrix addition
+	\brief		GltUnMatrix addition
 	\ingroup	Math
 */
 
-UnMatrix 
-operator+(const UnMatrix &a,const UnMatrix &b)
+GltUnMatrix 
+operator+(const GltUnMatrix &a,const GltUnMatrix &b)
 {
-	UnMatrix um;
+	GltUnMatrix um;
 
 	um[U_SCALEX]  = b._tran[U_SCALEX] + a._tran[U_SCALEX];
 	um[U_SCALEY]  = b._tran[U_SCALEY] + a._tran[U_SCALEY];
@@ -148,7 +148,7 @@ operator+(const UnMatrix &a,const UnMatrix &b)
 
 
 /*! 
-	\brief		Output an UnMatrix field description to a text stream
+	\brief		Output an GltUnMatrix field description to a text stream
 	\ingroup	Math
 */
 
@@ -164,7 +164,7 @@ operator<<(std::ostream &os,const UnMatrixField &field)
 }
 
 /*! 
-	\brief		Read an UnMatrix field from a text stream
+	\brief		Read an GltUnMatrix field from a text stream
 	\ingroup	Math
 */
 
@@ -186,12 +186,12 @@ operator>>(istream &is,UnMatrixField &field)
 }
 
 /*! 
-	\brief		Write an UnMatrix to a text stream
+	\brief		Write an GltUnMatrix to a text stream
 	\ingroup	Math
 */
 
 std::ostream &
-operator<<(std::ostream &os,const UnMatrix &unMatrix)
+operator<<(std::ostream &os,const GltUnMatrix &unMatrix)
 {
 	for (int f=0;f<16;f++)
 		os << (UnMatrixField) f << ' ' << unMatrix._tran[f] << endl;
@@ -200,12 +200,12 @@ operator<<(std::ostream &os,const UnMatrix &unMatrix)
 }
 
 /*! 
-	\brief		Read an UnMatrix from a text stream
+	\brief		Read an GltUnMatrix from a text stream
 	\ingroup	Math
 */
 
 istream &
-operator>>(istream &is,UnMatrix &unMatrix)
+operator>>(istream &is,GltUnMatrix &unMatrix)
 {
 	for (int f=0;f<16;f++)
 	{
@@ -225,12 +225,12 @@ typedef struct {
 	double x,y,z,w;
 } Vector4;
 
-UnMatrix
-Matrix::unmatrix() const
+GltUnMatrix
+GltMatrix::unmatrix() const
 {
-	UnMatrix tran;
+	GltUnMatrix tran;
 
- 	Matrix locmat = (*this);
+ 	GltMatrix locmat = (*this);
 
 	if (locmat.element(3,3)==0.0)
 		return tran;
@@ -245,7 +245,7 @@ Matrix::unmatrix() const
  	 * an easy way to test for singularity of the upper 3x3 component.
  	 */
 
- 	Matrix pmat = locmat;
+ 	GltMatrix pmat = locmat;
 
  	for ( i=0; i<3; i++ )
  		pmat.set(i,3,0.0);
@@ -276,12 +276,12 @@ Matrix::unmatrix() const
  		/* Solve the equation by inverting pmat and multiplying
  		 * prhs by the inverse.  (This is the easiest way, not
  		 * necessarily the best.)
- 		 * inverse function (and det4x4, above) from the Matrix
+ 		 * inverse function (and det4x4, above) from the GltMatrix
  		 * Inversion gem in the first volume.
  		 */
 
-//		Matrix invpmat = pmat.inverse();
-//		Matrix tinvpmat = invpmat.transpose();
+//		GltMatrix invpmat = pmat.inverse();
+//		GltMatrix tinvpmat = invpmat.transpose();
 // 		V4MulPointByMatrix(&prhs, &tinvpmat, &psol);    // REVISIT
  
 		psol.x = 0.0;
@@ -384,7 +384,7 @@ Matrix::unmatrix() const
 //
 
 double
-Matrix::det() const
+GltMatrix::det() const
 {
     double ans;
     double a1, a2, a3, a4, b1, b2, b3, b4, c1, c2, c3, c4, d1, d2, d3, d4;
@@ -421,7 +421,7 @@ Matrix::det() const
 //
 
 double 
-Matrix::det3x3
+GltMatrix::det3x3
 ( 
 	const double a1, 
 	const double a2, 
@@ -443,7 +443,7 @@ Matrix::det3x3
 // Calculate the determinant of a 2x2 matrix.
 
 double
-Matrix::det2x2
+GltMatrix::det2x2
 ( 
 	const double a, 
 	const double b, 
@@ -456,7 +456,7 @@ Matrix::det2x2
 
 
 bool 
-UnMatrix::uniformScale(const double tol) const
+GltUnMatrix::uniformScale(const double tol) const
 {
 	if (fabs(_tran[U_SCALEX]-_tran[U_SCALEY])>tol) return false;
 	if (fabs(_tran[U_SCALEX]-_tran[U_SCALEZ])>tol) return false;
@@ -465,7 +465,7 @@ UnMatrix::uniformScale(const double tol) const
 }
 
 bool 
-UnMatrix::noRotation(const double tol) const
+GltUnMatrix::noRotation(const double tol) const
 {
 	if (fabs(_tran[U_ROTATEX])>tol) return false;
 	if (fabs(_tran[U_ROTATEY])>tol) return false;
@@ -474,7 +474,7 @@ UnMatrix::noRotation(const double tol) const
 }
 
 bool 
-UnMatrix::noShear(const double tol) const
+GltUnMatrix::noShear(const double tol) const
 {
 	if (fabs(_tran[U_SHEARXY])>tol) return false;
 	if (fabs(_tran[U_SHEARXZ])>tol) return false;
@@ -483,7 +483,7 @@ UnMatrix::noShear(const double tol) const
 }
 
 bool 
-UnMatrix::noPerspective(const double tol) const
+GltUnMatrix::noPerspective(const double tol) const
 {
 	if (fabs(_tran[U_PERSPX])>tol) return false;
 	if (fabs(_tran[U_PERSPY])>tol) return false;

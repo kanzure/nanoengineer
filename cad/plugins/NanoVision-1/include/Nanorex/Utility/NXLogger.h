@@ -132,7 +132,7 @@ class NXLogger {
 #define NXLOG_INFO(source, message) { \
 	Nanorex::NXLogger* logger = Nanorex::NXLogger::Instance(); \
 	if (logger != 0) \
-		logger->log(Nanorex::NXLogLevel_Info, source, message); \
+    logger->log(Nanorex::NXLogLevel_Info, (source), (message)); \
 };
 
 #define NXLOG_WARNING(source, message) { \

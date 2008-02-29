@@ -1,6 +1,6 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
-#include "Nanorex/Interface/NXOpenGLSceneGraph.h"
+#include "NXOpenGLSceneGraph.h"
 
 namespace Nanorex {
 
@@ -114,7 +114,7 @@ NXCommandResult NXSGOpenGLRenderable::endRender(void) const throw ()
     return result;
 }
 
-
+#if 0
 NXSGOpenGLMaterial& NXSGOpenGLMaterial::operator = (NXOpenGLMaterial const& mat) throw ()
 {
     face = mat.face;
@@ -126,11 +126,11 @@ NXSGOpenGLMaterial& NXSGOpenGLMaterial::operator = (NXOpenGLMaterial const& mat)
     shininess = mat.shininess;
     return *this;
 }
-
+#endif
 
 bool NXSGOpenGLMaterial::apply(void) const throw ()
 {
-    glMaterialfv(face, GL_AMBIENT, ambient);
+/*    glMaterialfv(face, GL_AMBIENT, ambient);
     bool const ok_ambient = (glGetError() == GL_NO_ERROR);
     glMaterialfv(face, GL_DIFFUSE, diffuse);
     bool const ok_diffuse = (glGetError() == GL_NO_ERROR);
@@ -145,7 +145,8 @@ bool NXSGOpenGLMaterial::apply(void) const throw ()
                      ok_specular &&
                      ok_emission &&
                      ok_shininess);
-    return ok;
+    return ok;*/
+    return true;
 }
 
 

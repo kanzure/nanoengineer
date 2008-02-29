@@ -182,7 +182,7 @@ BoundingBox::intersects(const BoundingBox &box) const
 }
 
 bool
-BoundingBox::project(const Matrix &model,const Matrix &proj,const GltViewport &view)
+BoundingBox::project(const GltMatrix &model,const GltMatrix &proj,const GltViewport &view)
 {
 	bool ok = true;
 

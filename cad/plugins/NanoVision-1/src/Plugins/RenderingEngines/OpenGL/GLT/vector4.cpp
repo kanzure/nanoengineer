@@ -74,10 +74,10 @@ Vector4::operator[](const int i)
 	return _vector[i];
 }
 
-Vector4::operator real *()
-{
-	return (real *) _vector;
-}
+// Vector4::operator real*  (void)
+// {
+// 	return (real *) _vector;
+// }
 
       real &Vector4::x()       { return _vector[0]; }
 const real &Vector4::x() const { return _vector[0]; }
@@ -88,6 +88,21 @@ const real &Vector4::z() const { return _vector[2]; }
       real &Vector4::w()       { return _vector[3]; }
 const real &Vector4::w() const { return _vector[3]; }
 
+
+void
+Vector4::glLight(GLenum light, GLenum pname) const
+{
+#ifdef GLT_FAST_FLOAT
+    glLightfv(light, pname, _vector);
+#else
+    GLfloat params[4];
+    params[0] = _vector[0];
+    params[1] = _vector[1];
+    params[2] = _vector[2];
+    params[3] = _vector[3];
+    glLightfv(light, pname, params);
+#endif
+}
 
 ////////////////////////// F R I E N D S
 

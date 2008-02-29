@@ -27,6 +27,6 @@ TARGET = NanorexMMPImportExport
 DESTDIR = ../../../../lib/
 
 # Remove the "lib" from the start of the library
-unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
+QMAKE_POST_LINK = "echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)"
 macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
 

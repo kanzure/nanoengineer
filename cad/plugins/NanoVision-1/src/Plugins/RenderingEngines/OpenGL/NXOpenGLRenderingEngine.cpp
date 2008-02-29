@@ -7,7 +7,6 @@
 
 #include "glt_bbox.h"
 
-#include "Nanorex/Interface/NXOpenGLRenderingEngine.h"
 // #include "Nanorex/Interface/NXSceneGraph.h"
 #include "Nanorex/Interface/NXEntityManager.h"
 // #include "Nanorex/Interface/NXAtomRenderData.h"
@@ -18,6 +17,8 @@
 // #include <openbabel/bond.h>
 #include <openbabel/mol.h>
 
+#include "NXOpenGLRenderingEngine.h"
+
 using namespace std;
 using namespace OpenBabel;
 
@@ -27,15 +28,16 @@ namespace Nanorex {
 NXOpenGLRenderingEngine::NXOpenGLRenderingEngine(QWidget *parent)
     : QGLWidget(parent),
     NXRenderingEngine(),
+    camera(this),
     rootSceneGraphNode(NULL),
     pluginList(),
     currentPluginIter(),
     lights(),
     lightModel(),
-    isOrthographicProjection(false),
-    orthographicProjection(),
-    perspectiveProjection(),
-    viewport(),
+    // isOrthographicProjection(false),
+    // orthographicProjection(),
+    // perspectiveProjection(),
+    // viewport(),
     elementColorMap(),
     defaultAtomMaterial(),
     defaultBondMaterial()
@@ -185,19 +187,34 @@ void NXOpenGLRenderingEngine::initializeDefaultMaterials(void)
 
 void NXOpenGLRenderingEngine::initializeGL(void)
 {
-    // initialize GL context
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    
     /// @todo change background to sky-blue gradient
     glClearColor(1.0, 1.0, 1.0, 1.0);
     glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
+    glEnable(GL_LIGHTING);
+    glEnable(GL_DEPTH_TEST);
+    
     /// @todo initialize light model
     setupDefaultLights();
 
     /// @todo anything else?
+    // Initialize the modelview matrix
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(0.0, 0.0, 1.0,
+              0.0, 0.0, 0.0,
+              0.0, 1.0, 0.0);
+    
+    glViewport(0, 0, width(), height());
+    
+    // Initialize the projection matrix
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(55, (GLdouble)width()/(GLdouble)height(), 0.1, 50);
+    
+    // Initialize camera from current OpenGL settings
+    camera.glGet();
 }
 
 
@@ -252,20 +269,32 @@ void NXOpenGLRenderingEngine::setupDefaultLights(void)
 
 void NXOpenGLRenderingEngine::resizeGL(int width, int height)
 {
-    if(isOrthographicProjection)
+    camera.resizeViewport(width, height);
+    camera.glSetViewport();
+    /// @todo set projection mode by calling camera method
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(55, (GLdouble)width/(GLdouble)height, 0.1, 50);
+    camera.glGetProjection();
+    camera.glGetViewport();
+    
+/*    if(isOrthographicProjection)
         orthographicProjection.set();
     else
         perspectiveProjection.set();
     
-    viewport.set((GLint) width, (GLint) height);
+    viewport.set((GLint) width, (GLint) height);*/
 }
 
 
 void NXOpenGLRenderingEngine::paintGL(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    camera.glSetPosition();
     // drawSkyBlueBackground();
     rootSceneGraphNode->applyRecursive();
+    glFlush();
+    swapBuffers();
 }
 
 
@@ -283,7 +312,8 @@ void NXOpenGLRenderingEngine::drawSkyBlueBackground(void)
 }
 
 
-NXSGNode* NXOpenGLRenderingEngine::createSceneGraph(NXMoleculeSet *const molSetPtr)
+NXSGNode*
+    NXOpenGLRenderingEngine::createSceneGraph(NXMoleculeSet *const molSetPtr)
 {
     // create a copy of the color map to pass to plugins
     
@@ -468,7 +498,13 @@ void NXOpenGLRenderingEngine::resetView(void)
     // create axis-aligned bounding box
     /// @todo
     BoundingBox bbox = GetMoleculeSetBoundingBox(rootMoleculeSet);
+    Vector bboxMin = 1.5 * bbox.min();
+    Vector bboxMax = 1.5 * bbox.max();
     
+    camera.glFrustum(bboxMin.x(), bboxMax.x(),
+                     bboxMin.y(), bboxMax.y(),
+                     bboxMin.z(), bboxMax.z());
+    updateGL();
 }
 
 
@@ -522,5 +558,49 @@ BoundingBox
     return bbox;
 }
 
+
+void NXOpenGLRenderingEngine::mousePressEvent(QMouseEvent *mouseEvent)
+{
+    if(mouseEvent->button() == Qt::MidButton &&
+       mouseEvent->modifiers() == Qt::NoModifier)
+    {
+        camera.rotateStartEvent(mouseEvent->x(), mouseEvent->y());
+        mouseEvent->accept();
+    }
+    else
+        mouseEvent->ignore();
+    
+    updateGL();
+}
+
+
+void NXOpenGLRenderingEngine::mouseMoveEvent(QMouseEvent *mouseEvent)
+{
+    assert(mouseEvent->button() == Qt::NoButton);
+    
+    if(mouseEvent->modifiers() == Qt::NoModifier)
+    {
+        camera.rotatingEvent(mouseEvent->x(), mouseEvent->y());
+        mouseEvent->accept();
+    }
+    else
+        mouseEvent->ignore();
+    
+    updateGL();
+}
+
+
+void NXOpenGLRenderingEngine::mouseReleaseEvent(QMouseEvent *mouseEvent)
+{
+    if(mouseEvent->button() == Qt::MidButton)
+    {
+        camera.rotateStopEvent(mouseEvent->x(), mouseEvent->y());
+        mouseEvent->accept();
+    }
+    else
+        mouseEvent->ignore();
+    
+    updateGL();
+}
 
 } // Nanorex

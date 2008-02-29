@@ -1,0 +1,38 @@
+// Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
+
+%class NXOpenGLCamera
+%header NXOpenGLCamera.h
+%start Trackball::Initial
+
+%map Trackball
+%%
+Initial
+{
+    rotateStartEvent(x: int, y: int)
+        Rotating
+        {
+            rotateStart(x,y);
+        }
+
+    Default
+        Initial
+        {
+        }
+}
+
+Rotating
+{
+    rotatingEvent(x: int, y: int)
+        Rotating
+        {
+            rotate(x, y);
+        }
+
+    rotateStopEvent(x: int, y: int)
+        Initial
+        {
+            rotateStop(x, y);
+        }
+}
+
+%%

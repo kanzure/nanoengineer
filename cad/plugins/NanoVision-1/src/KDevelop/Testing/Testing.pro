@@ -1,5 +1,6 @@
 TEMPLATE = subdirs
 
 SUBDIRS += CppUnit \
- HDF5_Consumer
+ HDF5_Consumer \
+ Plugins
 

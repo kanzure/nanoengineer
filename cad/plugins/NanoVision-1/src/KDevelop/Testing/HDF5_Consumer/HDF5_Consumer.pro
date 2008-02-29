@@ -5,16 +5,15 @@ TEMPLATE = app
 INCLUDEPATH += $(OPENBABEL_INCPATH) \
 ../../../../include
 
-LIBS += -L$(OPENBABEL_LIBPATH) \
+LIBS += -lopenbabel \
 -L../../../../lib \
 -lNanorexInterface \
--lNanorexUtility \
--lopenbabel
+-lNanorexUtility
 
-TARGETDEPS += ../../../../lib/libNanorexInterface.so \
+TARGETDEPS += ../../../../lib/HDF5_SimResultsImportExport.so \
+../../../../lib/libNanorexInterface.so \
 ../../../../lib/libNanorexUtility.so
 macx : TARGETDEPS ~= s/.so/.dylib/g
-win32 : TARGETDEPS ~= s/.so/.a/g
 
 DESTDIR = ../../../../bin/
 
@@ -22,4 +21,6 @@ HEADERS += ../../../Testing/HDF5_Consumer/HDF5_Consumer.h
 
 # This tell qmake to not create a Mac bundle for this application.
 CONFIG -= app_bundle
+
+CONFIG += debug_and_release
 

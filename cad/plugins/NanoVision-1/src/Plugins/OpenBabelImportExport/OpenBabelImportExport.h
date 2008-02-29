@@ -18,6 +18,12 @@
 using namespace Nanorex;
 
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <set>
+#include <map>
+#include <stack>
+#include <cassert>
 using namespace std;
 
 

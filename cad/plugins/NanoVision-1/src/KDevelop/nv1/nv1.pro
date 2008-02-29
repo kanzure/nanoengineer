@@ -9,10 +9,13 @@ opengl \
 
 QT += opengl
 
-LIBS +=  -L../../../lib/ \
--L$(OPENBABEL_LIBPATH) \
+LIBS +=  -L$(OPENBABEL_LIBPATH) \
 -lNanorexInterface \
 -lNanorexUtility \
+ -L../../../lib \
+ -lNXOpenGLRenderingEngine \
+ -lNXOpenGLSceneGraph \
+ -lGLT \
 -lopenbabel
 
 SOURCES += ../../DataWindow.cpp \
@@ -21,12 +24,13 @@ SOURCES += ../../DataWindow.cpp \
 ../../MainWindowTabWidget.cpp \
 ../../nv1.cpp \
 ../../ResultsWindow.cpp \
-../../InputParametersWindow.cpp \
-../../ResultsSummaryWindow.cpp \
 ../../ErrorDialog.cpp \
 ../../JobManagement/GROMACS_JobMonitor.cpp \
 ../../JobManagement/JobMonitor.cpp \
- ../../TrajectoryGraphicsWindow.cpp
+ ../../TrajectoryGraphicsWindow.cpp \
+ ../../StructureGraphicsWindow.cpp \
+ ../../InputParametersWindow.cpp \
+ ../../ResultsSummaryWindow.cpp
 
 HEADERS += ../../DataWindow.h \
 ../../LogHandlerWidget.h \
@@ -34,25 +38,28 @@ HEADERS += ../../DataWindow.h \
 ../../MainWindowTabWidget.h \
 ../../nv1.h \
 ../../ResultsWindow.h \
-../../InputParametersWindow.h \
-../../ResultsSummaryWindow.h \
 ../../ErrorDialog.h \
 ../../JobManagement/GROMACS_JobMonitor.h \
 ../../JobManagement/JobMonitor.h \
- ../../TrajectoryGraphicsWindow.h
+ ../../TrajectoryGraphicsWindow.h \
+ ../../StructureGraphicsWindow.h \
+ ../../InputParametersWindow.h \
+ ../../ResultsSummaryWindow.h
 
 FORMS += ../../LogHandlerWidget.ui \
 ../../MainWindowTabWidget.ui \
 ../../ResultsWindow.ui \
-../../InputParametersWindow.ui \
-../../ResultsSummaryWindow.ui \
 ../../ErrorDialog.ui \
- ../../TrajectoryGraphicsWindow.ui
+ ../../TrajectoryGraphicsWindow.ui \
+ ../../InputParametersWindow.ui \
+ ../../ResultsSummaryWindow.ui
 
 RESOURCES += ../../application.qrc
 
 INCLUDEPATH += ../../../include \
- $(OPENBABEL_INCPATH)
+ $(OPENBABEL_INCPATH) \
+ ../../Plugins/RenderingEngines/OpenGL/GLT \
+ ../../../src
 
 TARGET = nv1
 

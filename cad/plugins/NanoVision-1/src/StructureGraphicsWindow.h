@@ -5,7 +5,7 @@
 
 // #include <Nanorex/Interface/NXRenderingEngine.h>
 #include "Nanorex/Interface/NXEntityManager.h"
-#include "Nanorex/Interface/NXOpenGLRenderingEngine.h"
+#include "Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine.h"
 using namespace Nanorex;
 
 #include "DataWindow.h"

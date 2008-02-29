@@ -26,7 +26,7 @@
 */
 
 /*! \file 
-    \brief   4 UnMatrix
+    \brief   4 GltUnMatrix
 	\ingroup Math
 */
 
@@ -35,12 +35,12 @@
 #include "glt_real.h"
 #include "glt_vector3.h"
 
-class Matrix;
+class GltMatrix;
 
-////////////////////////// UnMatrix /////////////////////////////////
+////////////////////////// GltUnMatrix /////////////////////////////////
 
 /*! \enum    UnMatrixField 
-    \brief   4x4 UnMatrix Field
+    \brief   4x4 GltUnMatrix Field
 	\ingroup Math
 	\author  Nigel Stewart, RMIT (nigels@nigels.com)
 	\author  Spencer W. Thomas, University of Michigan
@@ -68,8 +68,8 @@ typedef enum
 	U_MAX
 } UnMatrixField;
 
-/*! \class   UnMatrix 
-    \brief   4x4 UnMatrix
+/*! \class   GltUnMatrix 
+    \brief   4x4 GltUnMatrix
 	\ingroup Math
 	\author  Nigel Stewart, RMIT (nigels@nigels.com)
 	\author  Spencer W. Thomas, University of Michigan
@@ -80,31 +80,31 @@ typedef enum
 	values.  These symbols make it easier to get the data back out.
 */
 
-class UnMatrix
+class GltUnMatrix
 {
-	friend class Matrix;
+	friend class GltMatrix;
 
 	friend std::ostream &operator<<(std::ostream &os,const UnMatrixField &field);
-	friend std::ostream &operator<<(std::ostream &os,const UnMatrix &unMatrix);
+	friend std::ostream &operator<<(std::ostream &os,const GltUnMatrix &unMatrix);
 
 	friend std::istream &operator>>(std::istream &is,UnMatrixField &field);
-	friend std::istream &operator>>(std::istream &is,UnMatrix &unMatrix);
+	friend std::istream &operator>>(std::istream &is,GltUnMatrix &unMatrix);
 
-	friend UnMatrix operator-(const UnMatrix &b,const UnMatrix &a);
-	friend UnMatrix operator*(const UnMatrix &a,const double scaleFactor);
-	friend UnMatrix operator+(const UnMatrix &a,const UnMatrix &b);
+	friend GltUnMatrix operator-(const GltUnMatrix &b,const GltUnMatrix &a);
+	friend GltUnMatrix operator*(const GltUnMatrix &a,const double scaleFactor);
+	friend GltUnMatrix operator+(const GltUnMatrix &a,const GltUnMatrix &b);
 
 public:
 	/// Constructor
-	UnMatrix();
+	GltUnMatrix();
 	/// Copy Constructor
-	UnMatrix(const UnMatrix &);
+	GltUnMatrix(const GltUnMatrix &);
 
 	/// Construct from 4x4 matrix
-	UnMatrix(const Matrix &matrix);
+	GltUnMatrix(const GltMatrix &matrix);
 
 	/// Destructor
-	~UnMatrix();
+	~GltUnMatrix();
 
 	/// Is the scale uniform?
 	bool uniformScale (const double tol = 1.0e-4) const;
@@ -115,7 +115,7 @@ public:
 	/// Is there no perspective transformation?
 	bool noPerspective(const double tol = 1.0e-4) const;
 
-	/// Access UnMatrix fields
+	/// Access GltUnMatrix fields
 	double &operator[](const UnMatrixField field) { return _tran[field]; };
 
 private:

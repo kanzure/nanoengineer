@@ -40,7 +40,7 @@
 	\todo    Rename BoundingBox to AABB (Axis-Aligned Bounding Box?)
 */
 
-class Matrix;
+class GltMatrix;
 class GltViewport;
 
 class BoundingBox
@@ -133,7 +133,7 @@ public:
 	bool intersects(const BoundingBox &box) const;
 
 	/// Map object co-ordinates to window co-ordinates
-	bool project(const Matrix &model,const Matrix &proj,const GltViewport &view);
+	bool project(const GltMatrix &model,const GltMatrix &proj,const GltViewport &view);
 
 //	/// Intersect ray
 //	Real   intersect        (const Vector &p0,const Vector &p1) const;

@@ -1,6 +1,8 @@
 // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include "NXBallAndStickOpenGLRenderer.h"
+#include <iostream>
+using namespace std;
 
 namespace Nanorex {
 
@@ -33,7 +35,11 @@ NXSGNode* NXBallAndStickOpenGLRenderer::renderAtom(NXAtomRenderData const& info)
         *static_cast<NXOpenGLMaterial const*>(paramVec[0]);
     NXSGOpenGLMaterial *atomNode = NULL;
     try { atomNode = new NXSGOpenGLMaterial(defaultMaterial); }
-    catch (...) { return NULL; } // fail silently
+    catch (...) { 
+        cerr << "NXBallAndStickOpenGLRenderer::renderAtom: "
+            "atomNode creation failed" << endl;
+        return NULL;
+    } // fail silently
     
     atomNode->addChild(RenderCanonicalSphere());
     return atomNode;

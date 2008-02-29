@@ -13,7 +13,7 @@ extern "C" {
 #endif
 }
 
-#include "Nanorex/Interface/NXOpenGLRendererPlugin.h"
+#include "../NXOpenGLRendererPlugin.h"
 #include "Nanorex/Interface/NXAtomRenderData.h"
 #include "Nanorex/Interface/NXBondRenderData.h"
 
