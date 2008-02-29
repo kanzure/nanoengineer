@@ -119,8 +119,6 @@ def setupUi(win):
     win.editMakeCheckpointAction.setIcon(
         geticon("ui/actions/Edit/Make_Checkpoint"))
     win.editMakeCheckpointAction.setObjectName("editMakeCheckpointAction")
-    # Hide the "Make Checkpoint" toolbar button/menu item. mark 060302.
-    win.editMakeCheckpointAction.setVisible(False)
 
     win.editAutoCheckpointingAction = QtGui.QAction(MainWindow)
     win.editAutoCheckpointingAction.setCheckable(True)

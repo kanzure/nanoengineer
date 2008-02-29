@@ -699,7 +699,17 @@ def editAutoCheckpointing(win, enabled, update_UI = True, print_to_history = Tru
         env.history.message( greenmsg(msg_short))
     
     if update_UI:
+        # Inserting/removing editMakeCheckpointAction from the standardToolBar
+        # keeps the toolbar the correct length (i.e. no empty space at the end).
+        if enabled:
+            win.standardToolBar.removeAction(win.editMakeCheckpointAction)
+        else:
+            win.standardToolBar.insertAction(win.editUndoAction, 
+                                             win.editMakeCheckpointAction)
+        
+        # This is needed to hide/show editMakeCheckpointAction in the "Edit" menu.
         win.editMakeCheckpointAction.setVisible(not enabled)
+        
         # this is only needed when the preference changed, not when the menu item slot is used:
         _editAutoCheckpointing_recursing = True
         try:
