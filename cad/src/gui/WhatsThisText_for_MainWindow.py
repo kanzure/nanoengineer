@@ -1298,8 +1298,8 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "<u><b>Extrude</b></u><!-- [[Feature:Extrude Mode]] --><br>"\
         "<p>"\
         "<img source=\"ui/actions/Insert/Features/Extrude.png\"><br> "\
-        "Activates <b>Extrude</b> mode, allowing you to "\
-        "reate a rod or ring using a chunk as a repeating "\
+        "Activates <b>Extrude</b> mode, allowing the user to "\
+        "create a rod or ring using one or more chunks as a repeating "\
         "unit.</p>"
 
     win.toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )
