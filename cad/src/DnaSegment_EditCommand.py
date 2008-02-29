@@ -54,6 +54,7 @@ from command_support.GeneratorBaseClass import PluginBug, UserError
 from exprs.ExprsConstants import Color
 
 from constants import gensym
+from constants import diTrueCPK, diDEFAULT
 
 from Dna_Constants import getDuplexLength
 from test_connectWithState import State_preMixin
@@ -73,6 +74,7 @@ from DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
 from RotationHandle          import RotationHandle
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
+HANDLE_RADIUS_DEFAULT_VALUE = 1.2
 ORIGIN = V(0,0,0)
 
 #Flag that appends rotation handles to the self.handles (thus enabling their 
@@ -115,8 +117,13 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     handlePoint1 = State( Point, ORIGIN)
     handlePoint2 = State( Point, ORIGIN)
+    
     rotationHandleBasePoint1 = State( Point, ORIGIN)
     rotationHandleBasePoint2 = State( Point, ORIGIN)
+    
+    #See self._determine_hresize_handle_radius where this gets changed. 
+    #also see DnaSegment_ResizeHandle to see how its implemented. 
+    handleSphereRadius = State(Width, HANDLE_RADIUS_DEFAULT_VALUE)
     
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
@@ -132,7 +139,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth'),
             origin = handlePoint1,
             fixedEndOfStructure = handlePoint2,
-            direction = norm_Expr(handlePoint1 - handlePoint2)
+            direction = norm_Expr(handlePoint1 - handlePoint2),
+            sphereRadius = handleSphereRadius
             ))
 
     rightHandle = Instance( 
@@ -141,7 +149,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             height_ref = call_Expr( ObjAttr_StateRef, _self, 'cylinderWidth2'),
             origin = handlePoint2,
             fixedEndOfStructure = handlePoint1,
-            direction = norm_Expr(handlePoint2 - handlePoint1)
+            direction = norm_Expr(handlePoint2 - handlePoint1),
+            sphereRadius = handleSphereRadius
         ))
     
     rotationHandle1 = Instance(         
@@ -167,7 +176,6 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             ))
     
    
-
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for DnaDuplex_EditCommand
@@ -247,9 +255,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         Updates the list of handles (self.handles) 
         @see: self.editStructure
         @see: DnaSegment_GraphicsMode._drawHandles()
-        """
-      
-        
+        """   
         # note: if handlePoint1 and/or handlePoint2 can change more often than this 
         # runs, we'll need to rerun the two assignments above whenever they 
         # change and before the handle is drawn. An easy way would be to rerun
@@ -264,10 +270,14 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     def updateHandlePositions(self):
         """
         Update handle positions
-        """
+        """        
+        
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
         
+        self._determine_resize_handle_radius()
+        
+                
         handlePoint1, handlePoint2 = self.struct.getAxisEndPoints()
         
         if handlePoint1 is not None:
@@ -287,6 +297,36 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 
                 self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v) * 4.0  
                 self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v) * 4.0 
+                
+    def _determine_resize_handle_radius(self):
+        """
+        Finds out the sphere radius to use for the resize handles, based on 
+        atom /chunk or glpane display (whichever decides the display of the end 
+        atoms.  The default  value is 1.2.
+        
+        Caveat: It just uses the first end point to determine this. If, for example
+        second endpoint is rendered as CPK and first as tubes, then the handles 
+        will have size based on tubes display (smaller sphere radius) and will
+        be hidden inside. I don't think this will be an issue. If it becomes an 
+        issue, later we will make anothe rstate variable
+        self.handlesphereRadius2 and compute similarly for endAtom2. 
+        
+        NOTE: As of 2008-02-29, Atom class doesn't have a method or instance var
+        that returns the drawing radius of the atom. When this gets implemented
+        in that class, the checks done in this method won't be required. 
+        
+        @see: self.updateHandlePositions()
+        """
+        atm1 , atm2 = self.struct.getAxisEndAtoms()        
+        if atm1 is not None:
+            if atm1.display == diTrueCPK:
+                self.handleSphereRadius = 4.0
+            elif atm1.molecule.display == diTrueCPK and atm1.display == diDEFAULT:
+                self.handleSphereRadius = 4.0
+            elif self.glpane.displayMode == diTrueCPK and atm1.molecule.display == diDEFAULT:
+                self.handleSphereRadius = 4.0
+            else:
+                self.handleSphereRadius = 1.2
 
     def _createPropMgrObject(self):
         """

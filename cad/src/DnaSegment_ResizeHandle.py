@@ -27,7 +27,7 @@ from constants              import white, yellow, purple, darkgreen
 
 from geometry.VQT import V
 from exprs.DraggableHandle import DraggableHandle_AlongLine
-
+from exprs.ExprsConstants import StateRef
 #Use this flag to test some 'fancy handle drawings' (the default apaprearance is
 #'sphere'
 DEBUG_FANCY_HANDLES = False
@@ -43,16 +43,21 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     #(given as an optional argument to 'Sphere')
     handleColor = State( Color, purple)
     
+    #The state ref that determines the radius (of the sphere) of this handle. 
+    #See DnaSegment_EditCommand._determine_resize_handle_radius() for more 
+    #details
+    sphereRadius = Option(StateRef, 1.2)
+    
     #Appearance of the handle. (note that it uses all the code from exprs module
     # and needs more documentation there). 
     #See exprs.Rect.Sphere for definition of a drawable 'Sphere' object. 
     appearance = Option( Drawable,
-                         Sphere(1.2, handleColor),
+                         Sphere(sphereRadius, handleColor),
                          doc = "handle appearance when not highlighted")
     
     #Handle appearance when highlighted
     appearance_highlighted = Option( Drawable,
-                                     Sphere(1.2, yellow),
+                                     Sphere(sphereRadius, yellow),
                                      doc = "handle appearance when highlighted")
     
     #Stateusbar text. Variable needs to be renamed in superclass. 
@@ -71,6 +76,7 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     #line  and also to specify the endPoint2 of the structure while modifying 
     #it. See DnaSegment_EditCommand.modifyStructure for details. 
     currentPosition = _self.origin + _self.direction*_self.height_ref.value
+    
     
     
     #Fixed end of the structure (self.command.struct) ..meaning that end won't 
