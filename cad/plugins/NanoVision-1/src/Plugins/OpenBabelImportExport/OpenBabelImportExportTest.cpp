@@ -16,7 +16,7 @@ void OpenBabelImportExportTest::setUp() {
 	NXProperties* properties = new NXProperties();
 	properties->setProperty("PluginsSearchPath", "../lib");
 	properties->setProperty("ImportExport.0.plugin",
-							"libOpenBabelImportExport");
+							"OpenBabelImportExport");
 	properties->setProperty("ImportExport.0.exportFormats",
 							"Protein Data Bank (*.pdb)");
 	properties->setProperty("ImportExport.0.importFormats",
