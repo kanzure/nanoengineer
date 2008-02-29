@@ -373,12 +373,21 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         @return: strand Sequence string
         @rtype: str
         """
-        sequenceString = ''            
+        sequenceString = ''  
         for atm in self.get_strand_atoms_in_bond_direction():
-            baseName = str(atm.getDnaBaseName())
+            baseName = str(atm.getDnaBaseName())        
             if baseName:
                 sequenceString = sequenceString + baseName
-                        
+            else:
+                #What if baseName is not assigned due to some error?? Example
+                #whilereading in an mmp file. 
+                #As a fallback, we should assign unassigned base letter 'X'
+                #to all the base atoms that don't have a baseletter defined
+                #also, make sure that the atom is not a bondpoint. 
+                if atm.element.symbol != 'X':                    
+                    baseName = 'X'
+                    sequenceString = sequenceString + baseName
+                    
         return sequenceString
         
     
