@@ -1121,7 +1121,7 @@ def createWhatsThisTextForMainWindowWidgets(win):
     # Passivate
 
     modifyPassivateActionText = \
-        "<u><b>Passivate</b></u>    (Ctrl + P)"\
+        "<u><b>Passivate</b></u>"\
         "<P>"\
         "<img source=\"ui/actions/Tools/Build Tools/Passivate.png\"><br> "\
         "Changes the types of incompletely bonded atoms "\

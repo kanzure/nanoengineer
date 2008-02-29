@@ -1420,7 +1420,7 @@ def retranslateUi(win):
                                                                      None, QtGui.QApplication.UnicodeUTF8))
     win.modifyHydrogenateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Hydrogenate", 
                                                                          None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyHydrogenateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hydrogenate (Ctrl+Shift+H)", 
+    win.modifyHydrogenateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Hydrogenate", 
                                                                         None, QtGui.QApplication.UnicodeUTF8))
     win.modifyDehydrogenateAction.setText(QtGui.QApplication.translate("MainWindow", "&Dehydrogenate", 
                                                                        None, QtGui.QApplication.UnicodeUTF8))
@@ -1430,10 +1430,8 @@ def retranslateUi(win):
                                                                    None, QtGui.QApplication.UnicodeUTF8))
     win.modifyPassivateAction.setIconText(QtGui.QApplication.translate("MainWindow", "Passivate", 
                                                                        None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyPassivateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Passivate (Ctrl+P)",
+    win.modifyPassivateAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Passivate",
                                                                       None, QtGui.QApplication.UnicodeUTF8))
-    win.modifyPassivateAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+P", 
-                                                                       None, QtGui.QApplication.UnicodeUTF8))
     win.modifyDeleteBondsAction.setText(QtGui.QApplication.translate(
         "MainWindow", "Cut &Bonds",None, QtGui.QApplication.UnicodeUTF8))
     win.modifyDeleteBondsAction.setIconText(QtGui.QApplication.translate(
