@@ -229,11 +229,9 @@ void NXOpenGLRenderingEngine::setupDefaultLights(void)
     GLint numSupportedOpenGLLights = 0;
     glGetIntegerv(GL_MAX_LIGHTS, &numSupportedOpenGLLights);
     lights.clear();
-    for(GLint iLight=GL_LIGHT0;
-        iLight<GL_LIGHT0+numSupportedOpenGLLights;
-        ++iLight)
+    for(GLint iLight=0; iLight<numSupportedOpenGLLights; ++iLight)
     {
-        lights.push_back(GltLight(iLight));
+        lights.push_back(GltLight(iLight+GL_LIGHT0));
     }
     
     GltColor const WHITE(1.0,1.0,1.0,1.0);
@@ -255,7 +253,7 @@ void NXOpenGLRenderingEngine::setupDefaultLights(void)
     lights[1].inEyeSpace() = true;
     lights[1].set();
     
-    for(GLint iLight=GL_LIGHT0+2; iLight<GL_LIGHT0+numSupportedOpenGLLights; ++iLight) {
+    for(GLint iLight=2; iLight<numSupportedOpenGLLights; ++iLight) {
         lights[iLight].isEnabled() = false;
         lights[iLight].ambient() = 0.1 * WHITE;
         lights[iLight].diffuse() = 0.5 * WHITE;
@@ -271,12 +269,14 @@ void NXOpenGLRenderingEngine::resizeGL(int width, int height)
 {
     camera.resizeViewport(width, height);
     camera.glSetViewport();
+    camera.glSetProjection();
     /// @todo set projection mode by calling camera method
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(55, (GLdouble)width/(GLdouble)height, 0.1, 50);
-    camera.glGetProjection();
-    camera.glGetViewport();
+    // glMatrixMode(GL_PROJECTION);
+    // glLoadIdentity();
+    // gluPerspective(55, (GLdouble)width/(GLdouble)height, 0.1, 50);
+    // camera.glGetProjection();
+    // camera.glGetViewport();
+    
     
 /*    if(isOrthographicProjection)
         orthographicProjection.set();
@@ -498,12 +498,26 @@ void NXOpenGLRenderingEngine::resetView(void)
     // create axis-aligned bounding box
     /// @todo
     BoundingBox bbox = GetMoleculeSetBoundingBox(rootMoleculeSet);
-    Vector bboxMin = 1.5 * bbox.min();
-    Vector bboxMax = 1.5 * bbox.max();
+    Vector bboxMin = bbox.min();
+    Vector bboxMax = bbox.max();
     
-    camera.glFrustum(bboxMin.x(), bboxMax.x(),
-                     bboxMin.y(), bboxMax.y(),
-                     bboxMin.z(), bboxMax.z());
+    real const bboxXWidth = bboxMax.x() - bboxMin.x();
+    real const bboxYWidth = bboxMax.y() - bboxMin.y();
+    real const bboxZDepth = bboxMax.z() - bboxMin.z();
+    
+    real const projCubeWidth = max(bboxXWidth, max(bboxYWidth, bboxZDepth));
+    real const twiceProjCubeWidth = projCubeWidth + projCubeWidth;
+    
+    Vector const bboxCenter = bbox.center();
+    
+    camera.gluLookAt(bboxCenter.x(), bboxCenter.y(), bboxMax.z()+twiceProjCubeWidth,
+                     bboxCenter.x(), bboxCenter.y(), bboxCenter.z(),
+                     0.0, 1.0, 0.0);
+    camera.glFrustum(bboxMin.x() - twiceProjCubeWidth,
+                     bboxMax.x() + twiceProjCubeWidth,
+                     bboxMin.y() - twiceProjCubeWidth,
+                     bboxMax.x() + twiceProjCubeWidth,
+                     projCubeWidth, 5.0 * projCubeWidth);
     updateGL();
 }
 

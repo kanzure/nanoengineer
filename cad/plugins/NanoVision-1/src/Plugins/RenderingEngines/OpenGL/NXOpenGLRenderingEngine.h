@@ -34,10 +34,10 @@ class NXMoleculeSet;
 
 /* CLASS: NXOpenGLRenderingEngine */
 /**
-    *  Renders the molecule set using plain OpenGL
-    *
-    * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
-    */
+  *  Renders the molecule set using plain OpenGL
+  *
+  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
+  */
 class NXOpenGLRenderingEngine : public QGLWidget, public NXRenderingEngine
 {
     Q_OBJECT;
@@ -62,6 +62,7 @@ public:
         deleteSceneGraph();
         rootMoleculeSet = moleculeSet;
         rootSceneGraphNode = createSceneGraph ( rootMoleculeSet );
+        resetView();
     }
     
     /// Reset the view based on the atom-bond distribution in the molecule-set
