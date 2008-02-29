@@ -143,7 +143,9 @@ def update_PAM_chunks( changed_atoms):
     ### WORRY ABOUT RING WRAPAROUND in this marker code,
     # where it's a current bug -- see scratch file for more info ###FIX @@@
 
-    print "i bet this marker-move-step2 code should now be done after new ladders are made, not before; nim now" #### @@@@
+    if debug_flags.DEBUG_DNA_UPDATER:
+        print "i bet this marker-move-step2 code should now be done after new ladders are made, not before; nim now" #### @@@@
+
 # HOW TO UPDATE THIS CODE:
 # just do what has to be done before making new ladders (reversing, merging chains, maybe rotating rings)
 # to help markers do their later direction-xfer or fixing...
