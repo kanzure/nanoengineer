@@ -57,6 +57,9 @@ from prefs_constants import workingDirectory_prefs_key
 
 from Ui_DnaSequenceEditor import Ui_DnaSequenceEditor
 
+from utilities import debug_flags
+from debug import print_compact_stack
+
 class DnaSequenceEditor(Ui_DnaSequenceEditor):
     """
     Creates a dockable sequence editor. The sequence editor has two text edit 
@@ -81,7 +84,10 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
         # Should parentWidget for a docwidget always be win? 
         #Not necessary but most likely it will be the case.        
         parentWidget = win                
-        Ui_DnaSequenceEditor.__init__(self, parentWidget)        
+        Ui_DnaSequenceEditor.__init__(self, parentWidget)  
+        self.isAlreadyConnected = False
+        self.isAlreadyDisconnected = False
+        
     
     def connect_or_disconnect_signals(self, isConnect):
         """
@@ -91,10 +97,29 @@ class DnaSequenceEditor(Ui_DnaSequenceEditor):
                           method. 
         @type  isConnect: boolean
         """
+        
+        #@see: BuildDna_PropertyManager.connect_or_disconnect_signals
+        #for a comment about these flags.
+        if isConnect and self.isAlreadyConnected:
+            if debug_flags.atom_debug:
+                print_compact_stack("warning: attempt to connect widgets"\
+                                    "in this PM that are already connected." )
+            return 
+        
+        if not isConnect and self.isAlreadyDisconnected:
+            if debug_flags.atom_debug:
+                print_compact_stack("warning: attempt to disconnect widgets"\
+                                    "in this PM that are already disconnected.")
+            return
+        
+        self.isAlreadyConnected = isConnect
+        self.isAlreadyDisconnected = not isConnect
+        
         if isConnect:
             change_connect = self.win.connect
         else:
             change_connect = self.win.disconnect
+        
   
         change_connect(self.loadSequenceButton, 
                      SIGNAL("clicked()"), 
