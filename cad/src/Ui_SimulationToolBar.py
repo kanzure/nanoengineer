@@ -29,6 +29,7 @@ def setupUi(win):
     win.simulationToolBar.addAction(win.jigsLinearMotorAction)
     win.simulationToolBar.addAction(win.jigsAnchorAction)
     win.simulationToolBar.addAction(win.jigsStatAction)
+    win.simulationToolBar.addAction(win.jigsThermoAction)
     
     # Create the "Simulation Jigs" menu, to be added to the Simuation toolbar.
     #win.simulationJigsMenu = QtGui.QMenu()
