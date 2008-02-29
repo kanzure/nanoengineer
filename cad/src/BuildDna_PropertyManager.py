@@ -531,7 +531,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.strandListWidget = PM_SelectionListWidget(pmGroupBox,
                                                        self.win,
                                                        label = "",
-                                                       heightByRows = 5 )
+                                                       heightByRows = 9 )
         self.strandListWidget.setTagInstruction('PICK_ITEM_IN_GLPANE')
     
         self.editStrandPropertiesButton = PM_PushButton( 
