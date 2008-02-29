@@ -45,9 +45,9 @@ bruce 051201 made new source file for it, extended it to other kinds of objects
 """
 
 from PyQt4 import QtGui
-from PyQt4.Qt import QToolBar
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import QTextBrowser
+from NE1_QToolBar import NE1_QToolBar
 
 from PyQt4.Qt import QWhatsThisClickedEvent
 from PyQt4.Qt import QGridLayout
@@ -246,7 +246,7 @@ def wiki_help_menuspec_for_featurename( featurename):
 
 # ==
 
-class QToolBar_WikiHelp(QToolBar):
+class QToolBar_WikiHelp(NE1_QToolBar):
     # Any widget can be extended this way. Wherever we need to have wiki help
     # active (presumably in a container with buttons or some such) we should
     # feel free to extend other container widgets as needed.
@@ -255,7 +255,7 @@ class QToolBar_WikiHelp(QToolBar):
             url = wiki_prefix() + evt.href()
             webbrowser_open(str(url)) # Must be string. mark 2007-05-10
             return True
-        return QToolBar.event(self, evt)
+        return NE1_QToolBar.event(self, evt)
 
 class WikiHelpBrowser(QDialog):
     """
