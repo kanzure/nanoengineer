@@ -67,6 +67,8 @@ if atom_debug:
 # since they are replaced by debug_pref values before use.
 # [bruce 080228 moved these here]
 
+DEBUG_DNA_UPDATER_MINIMAL = True
+
 DEBUG_DNA_UPDATER = True
 
 DEBUG_DNA_UPDATER_VERBOSE = False

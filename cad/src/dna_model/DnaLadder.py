@@ -75,7 +75,7 @@ from dna_model.dna_model_constants import LADDER_BOND_DIRECTION_TO_OTHER_AT_END_
 
 from dna_model.dna_model_constants import MAX_LADDER_LENGTH
 
-from debug_prefs import debug_pref, Choice_boolean_False
+from dna_updater.dna_updater_prefs import pref_per_ladder_colors
 
 from utilities.Log import orangemsg, redmsg, quote_html
 import env
@@ -767,10 +767,7 @@ class DnaLadder(object):
         # but don't assert not self.error
         res = []
         ladder_color = None # might be reassigned
-        if debug_pref("DNA: debug: per-ladder colors?",
-                      Choice_boolean_False,
-                      non_debug = True,
-                      prefs_key = True ):
+        if pref_per_ladder_colors():
             from Dna_Constants import getNextStrandColor
             # todo: apply this in Chunk.drawing_color (extend that method),
             # so it doesn't erase the saved color

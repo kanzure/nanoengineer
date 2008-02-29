@@ -9,11 +9,11 @@ fix_bond_directions.py - dna updater helper functions
 
 from elements import Singlet
 
-from debug_prefs import debug_pref, Choice_boolean_False
-
 import env
 from utilities.Log import orangemsg
 from PlatformDependent import fix_plurals
+
+from dna_updater.dna_updater_prefs import pref_print_bond_direction_errors
 
 # ==
 
@@ -51,12 +51,7 @@ def fix_local_bond_directions( changed_atoms):
     """
 
     global _DEBUG_PRINT_BOND_DIRECTION_ERRORS
-    _DEBUG_PRINT_BOND_DIRECTION_ERRORS = \
-        debug_pref( "DNA updater: print bond direction errors?",
-                    Choice_boolean_False,
-                    non_debug = True,
-                    prefs_key = True,
-                   )
+    _DEBUG_PRINT_BOND_DIRECTION_ERRORS = pref_print_bond_direction_errors()
     
     new_error_atoms = {} # note: only used for its length in a warning message
 

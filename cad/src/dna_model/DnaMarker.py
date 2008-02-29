@@ -26,6 +26,8 @@ from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 
 from dna_model.DnaGroup import find_or_make_DnaGroup_for_homeless_object
 
+from dna_updater.dna_updater_prefs import pref_draw_internal_markers
+
 from utilities import debug_flags
 
 from drawer import drawwirecube
@@ -33,8 +35,6 @@ from drawer import drawwirecube
 from debug import print_compact_stack
 
 from constants import orange
-
-from debug_prefs import debug_pref, Choice_boolean_False
 
 from files_mmp import MMP_RecordParser
 from files_mmp import register_MMP_RecordParser
@@ -226,14 +226,9 @@ class DnaMarker( ChainAtomMarker):
         return
 
     def _should_draw(self):
-        res = debug_pref("DNA: draw internal markers?",
-                         Choice_boolean_False,
-                         non_debug = True,
-                         prefs_key = True,
-                         call_with_new_value = (lambda val: self.gl_update_node) )
-        return res
+        return pref_draw_internal_markers()
 
-    def gl_update_node(self):
+    def gl_update_node(self): # not presently used
         """
         Cause whatever graphics areas show self to update themselves.
 

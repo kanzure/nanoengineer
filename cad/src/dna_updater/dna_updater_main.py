@@ -66,7 +66,7 @@ def _full_dna_update_0( _runcount):
     if not changed_atoms:
         return # optimization (might not be redundant with caller)
 
-    if debug_flags.DEBUG_DNA_UPDATER:
+    if debug_flags.DEBUG_DNA_UPDATER_MINIMAL:
         print "\ndna updater: %d changed atoms to scan" % len(changed_atoms)
     if debug_flags.DEBUG_DNA_UPDATER: # should be _VERBOSE, but has been useful enough to keep seeing for awhile
         items = changed_atoms.items()

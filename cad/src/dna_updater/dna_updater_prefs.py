@@ -19,6 +19,9 @@ from utilities import debug_flags
 # ==
 
 def initialize_prefs():
+    """
+    """
+    
     # make debug prefs appear in debug menu
     pref_fix_deprecated_PAM3_atoms()
     pref_fix_deprecated_PAM5_atoms()
@@ -26,8 +29,13 @@ def initialize_prefs():
     pref_fix_bare_PAM3_atoms()
     pref_fix_bare_PAM5_atoms()
 
+    pref_print_bond_direction_errors()
+    pref_per_ladder_colors()
+    pref_draw_internal_markers()
+
     _changed_debug_prefs('arbitrary value')
-        # makes them appear, and also sets debug flags
+        # makes them appear in the menu,
+        # and also sets their debug flags
         # to the current pref values
     
     return
@@ -66,11 +74,35 @@ def pref_fix_bare_PAM5_atoms():
                      call_with_new_value = _changed_prefs )
     return res
 
+def pref_print_bond_direction_errors():
+    res = debug_pref( "DNA updater: print bond direction errors?",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True,
+                     )
+    return res
+
+def pref_per_ladder_colors():
+    res = debug_pref("DNA: debug: per-ladder colors?",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = True )
+    return res
+
+def pref_draw_internal_markers():
+    res = debug_pref("DNA: draw internal markers?",
+                     Choice_boolean_False,
+                     non_debug = True,
+                     prefs_key = True,
+                     call_with_new_value = (lambda val: env.mainwindow().glpane.gl_update()) )
+    return res
+
 # ==
 
 def pref_debug_dna_updater(): # 080228
     res = debug_pref("DNA updater: debug prints",
-                     Choice(["off", "on", "verbose"], defaultValue = "on"), # todo: revise after debugging
+                     Choice(["off", "minimal", "on", "verbose"],
+                            defaultValue = "on"), # todo: revise defaultValue after debugging
                      non_debug = True,
                      prefs_key = True,
                      call_with_new_value = _changed_debug_prefs )
@@ -101,13 +133,15 @@ def _changed_debug_prefs(val):
     debug_flags.DEBUG_DNA_UPDATER
     debug_flags.DEBUG_DNA_UPDATER_VERBOSE
     debug_flags.DNA_UPDATER_SLOW_ASSERTS
+    debug_flags.DEBUG_DNA_UPDATER_MINIMAL
     
     # update them all from the debug prefs
 
-    debug_option = pref_debug_dna_updater() # "off", "on", or "verbose"
-    
-    debug_flags.DEBUG_DNA_UPDATER = (debug_option in ("on", "verbose",))
-    debug_flags.DEBUG_DNA_UPDATER_VERBOSE = (debug_option in ("verbose",))
+    debug_option = pref_debug_dna_updater() # "off", "minimal", "on", or "verbose"
+
+    debug_flags.DEBUG_DNA_UPDATER_MINIMAL = (debug_option in ("minimal", "on", "verbose",))
+    debug_flags.DEBUG_DNA_UPDATER         = (debug_option in            ("on", "verbose",))
+    debug_flags.DEBUG_DNA_UPDATER_VERBOSE = (debug_option in                  ("verbose",))
     
     debug_flags.DNA_UPDATER_SLOW_ASSERTS = pref_dna_updater_slow_asserts()
     
