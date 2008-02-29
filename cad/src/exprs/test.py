@@ -1803,7 +1803,7 @@ def _set_test(test):
     ##e need to print "doing it" or so into sbar, too, since redraw can take so long
     return
 
-def _set_test_from_dialog( ): # see also grab_text_using_dialog in another file
+def _set_test_from_dialog( ): # see also grab_text_using_dialog in another file; TODO: rewrite this to call that (easy)
     "#doc"
     # modified from debug_runpycode_from_a_dialog, which does the "run py code" debug menu command
     title = "title"

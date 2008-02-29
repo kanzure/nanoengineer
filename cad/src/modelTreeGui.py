@@ -74,6 +74,8 @@ from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, C
 from menu_helpers import makemenu_helper
 import env
 
+from widgets.simple_dialogs import grab_text_line_using_dialog
+
 from Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
 
 DEBUG0 = False # debug api compliance
@@ -1446,9 +1448,10 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
                 #e someday we might want to call try_rename on fake text
                 # to get a more specific error message... for now it doesn't have one.
         else:
-            ok, text = grab_text_line_using_dialog( title = "Rename",
-                                            label = "new name for node [%s]:" % oldname,
-                                            default = oldname )
+            ok, text = grab_text_line_using_dialog(
+                            title = "Rename",
+                            label = "new name for node [%s]:" % oldname,
+                            default = oldname )
         if ok:
             ok, text = node.try_rename(text)
         if ok:
@@ -1461,39 +1464,6 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         return
 
     pass # end of class ModelTreeGui_common
-
-# ==
-
-def grab_text_line_using_dialog( default = "", title = "title", label = "label" ): #bruce 070531 ##e refile this
-    """
-    Use a dialog to get one line of text from the user, with given default (initial) value,
-    dialog window title, and label text inside the dialog. If successful, return (True, text);
-    if not, return (False, "Reason why not"). Returned text is a python string (not unicode).
-    """
-    # WARNING: several routines contain very similar code.
-    # We should combine them into one and refile it into widgets.py or the like.
-    # This one was modified from grab_text_line_using_dialog() (in exprs module)
-    # which was modified from _set_test_from_dialog(),
-    # which was modified from debug_runpycode_from_a_dialog(),
-    # which does the "run py code" debug menu command.
-    from PyQt4.Qt import QInputDialog, QLineEdit
-    parent = None
-    text, ok = QInputDialog.getText(parent, title, label, QLineEdit.Normal, default) # parent arg needed only in Qt4
-    if not ok:
-        reason = "Cancelled"
-    if ok:
-        try:
-            # fyi: type(text) == <class '__main__.qt.QString'>
-            text = str(text) ###BUG: won't work for unicode
-        except:
-            ok = False
-            reason = "Unicode is not yet supported"
-        ## text = text.replace("@@@",'\n')
-    if ok:
-        return True, text
-    else:
-        return False, reason
-    pass
 
 # ==
 

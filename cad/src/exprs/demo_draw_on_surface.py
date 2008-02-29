@@ -1,13 +1,12 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 demo_draw_on_surface.py
 
-$Id$
-
+@author: Bruce
+@version: $Id$
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 070319 a standalone version of the so-called polyline example in demo_drag.py (testexpr_19g)
-
-experimental, not yet finished or called
 
 See also:
 - demo_polyline.py (and the other files it refers to, like demo_ui.py)
@@ -23,6 +22,8 @@ from OpenGL.GL import glVertex3fv
 from OpenGL.GL import glEnd
 
 from constants import yellow, purple, red, noop
+
+from widgets.simple_dialogs import grab_text_using_dialog
 
 from exprs.Exprs import list_Expr
 from exprs.If_expr import If
@@ -413,24 +414,6 @@ class TextEditField(DelegatingInstanceOrExpr):
             print "cancelled text edit, old text remains: %r" % (self.text,) #e some other place to put a message in the UI?
         return
     pass
-
-def grab_text_using_dialog( default = "", title = "title", label = "label" ): #e refile -- collect all our Qt code in one file
-    "#doc, esp the @@@ part, and the retval being True, text or False, None"
-    # modified from _set_test_from_dialog( ), which was modified from debug_runpycode_from_a_dialog,
-    # which does the "run py code" debug menu command
-    
-    # Qt4 version [070329; similar code in another exprs-module file]
-    from PyQt4.Qt import QInputDialog, QLineEdit
-    parent = None
-    text, ok = QInputDialog.getText(parent, title, label, QLineEdit.Normal, default) # parent arg needed only in Qt4
-    
-    if ok:
-        # fyi: type(text) == <class '__main__.qt.QString'>
-        text = str(text)
-        text = text.replace("@@@",'\n')
-    else:
-        pass # print "grab_text_using_dialog: cancelled"
-    return ok, text
 
 # ===
 

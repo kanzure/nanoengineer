@@ -391,6 +391,7 @@ def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in
 # ==
 
 def debug_timing_test_pycode_from_a_dialog( ): #bruce 051117
+    # TODO: rewrite this to call grab_text_using_dialog (should be easy)
     title = "debug: time python code"
     label = "one line of python to compile and exec REPEATEDLY in debug.py's globals()\n(or use @@@ to fake \\n for more lines)"
     from PyQt4.Qt import QInputDialog

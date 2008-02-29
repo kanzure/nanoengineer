@@ -23,7 +23,7 @@ from PlatformDependent import fix_plurals
 
 from constants import gensym
 
-from exprs.demo_draw_on_surface import grab_text_using_dialog # TODO: refile into widgets.py? has special features, see code
+from widgets.simple_dialogs import grab_text_using_dialog
 
 # ==
 

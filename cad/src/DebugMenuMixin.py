@@ -53,6 +53,7 @@ debug_events = 0 # set this to 1 to print info about many mouse events
 
 # this can probably be made a method on DebugMenuMixin
 def debug_runpycode_from_a_dialog( source = "some debug menu??"):
+    # TODO: rewrite this to call grab_text_using_dialog (should be easy)
     title = "debug: run py code"
     label = "one line of python to exec in debug.py's globals()\n(or use @@@ to fake \\n for more lines)\n(or use execfile)"
     parent = None
