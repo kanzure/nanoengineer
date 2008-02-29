@@ -41,7 +41,11 @@
 
 */
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 
 /// GLT Version string
 #define GLT_VERSION_STRING "0.7-gamma"
