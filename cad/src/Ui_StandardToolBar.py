@@ -3,22 +3,25 @@
 $Id$
 """
 from PyQt4 import QtGui
-from PyQt4.Qt import Qt
 from wiki_help import QToolBar_WikiHelp
 
-def setupUi(win):
+def setupUi(win, toolbarArea):
     """
     Creates and populates the "Standard" toolbar in the main window.
 
     @param win: NE1's main window object.
     @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    
+    @param toolbarArea: The ToolBarArea of the main window where this toolbar
+                        will live (i.e. top, right, left, bottom).
+    @type  toolbarArea: U{B{Qt.ToolBarArea enum}<http://doc.trolltech.com/4.2/qt.html#ToolBarArea-enum>}
     """
 
     # Create the "Standard" toolbar.
     win.standardToolBar = QToolBar_WikiHelp(win)
     win.standardToolBar.setEnabled(True)
     win.standardToolBar.setObjectName("standardToolBar") 
-    win.addToolBar(Qt.TopToolBarArea , win.standardToolBar)
+    win.addToolBar(toolbarArea , win.standardToolBar)
 
     # Populate the "Standard" toolbar.
     win.standardToolBar.addAction(win.fileOpenAction)
@@ -54,5 +57,10 @@ def retranslateUi(win):
     menu under "View > Toolbars".
     """
     win.standardToolBar.setWindowTitle(
-        QtGui.QApplication.translate("MainWindow", "Standard", 
-                                     None, QtGui.QApplication.UnicodeUTF8))
+        QtGui.QApplication.translate(
+            "MainWindow", "Standard", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.standardToolBar.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Standard Toolbar", 
+            None, QtGui.QApplication.UnicodeUTF8))

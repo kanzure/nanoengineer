@@ -169,6 +169,8 @@ def _initialize_custom_display_modes(win):
     win.dispCylinderAction.setText("Cylinder (experimental)")
     win.dispCylinderAction.setEnabled(enable_CylinderChunks)
     win.dispCylinderAction.setVisible(enable_CylinderChunks)
+    if enable_CylinderChunks:
+        win.displayStylesToolBar.addAction(win.dispCylinderAction)
     
     # diSURFACE
     import SurfaceChunks #mark 060610
@@ -179,6 +181,8 @@ def _initialize_custom_display_modes(win):
     win.dispSurfaceAction.setText("Surface (experimental, may be slow)")
     win.dispSurfaceAction.setEnabled(enable_SurfaceChunks)
     win.dispSurfaceAction.setVisible(enable_SurfaceChunks)
+    if enable_SurfaceChunks:
+        win.displayStylesToolBar.addAction(win.dispSurfaceAction)
     
     return
 

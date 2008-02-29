@@ -19,6 +19,7 @@ import Ui_ViewMenu
 import Ui_InsertMenu
 import Ui_ToolsMenu
 import Ui_SimulationMenu
+import Ui_RenderingMenu
 import Ui_HelpMenu
 
 import Ui_StandardToolBar
@@ -29,6 +30,7 @@ import Ui_SelectToolBar
 import Ui_SimulationToolBar
 import Ui_BuildToolsToolBar
 import Ui_BuildStructuresToolBar
+import Ui_RenderingToolBar
 
 from StatusBar import StatusBar
 
@@ -124,15 +126,26 @@ class Ui_MainWindow(object):
         Also restores the state of toolbars from the NE1 last session.
         """
         
-        # Set up the toolbars for the main window.
-        Ui_StandardToolBar.setupUi(self)       
-        Ui_ViewToolBar.setupUi(self)
-        Ui_StandardViewsToolBar.setupUi(self)
-        Ui_DisplayStylesToolBar.setupUi(self)
-        Ui_BuildToolsToolBar.setupUi(self)
-        Ui_BuildStructuresToolBar.setupUi(self)
-        Ui_SelectToolBar.setupUi(self)
-        Ui_SimulationToolBar.setupUi(self)
+        # Add toolbars to the Top area of the main window (first row)
+        toolbarArea = Qt.TopToolBarArea
+        Ui_StandardToolBar.setupUi(self, toolbarArea)
+        Ui_BuildToolsToolBar.setupUi(self, toolbarArea)
+        self.addToolBarBreak (toolbarArea) # Starts second row.
+        Ui_ViewToolBar.setupUi(self, toolbarArea)
+        Ui_StandardViewsToolBar.setupUi(self, toolbarArea)
+        Ui_SimulationToolBar.setupUi(self, toolbarArea)
+        
+        # Add toolbars to the Right area of the main window.
+        toolbarArea = Qt.RightToolBarArea
+        Ui_SelectToolBar.setupUi(self, toolbarArea)
+        Ui_DisplayStylesToolBar.setupUi(self, toolbarArea)
+        Ui_RenderingToolBar.setupUi(self, toolbarArea)
+        
+        # This is hidden the first time NE1 starts (below).
+        # BTW, I don't think the "Build Structures" toolbar is necessary since
+        # all its options are available prominentaly on the Command Toolbar.
+        # I intend to completely remove it soon. Mark 2008-02-29.
+        Ui_BuildStructuresToolBar.setupUi(self, toolbarArea)
         
         from prefs_constants import toolbar_state_prefs_key
         # This fixes bug 2482.
@@ -143,9 +156,6 @@ class Ui_MainWindow(object):
         else:
             # No previous session. Hide only these toolbars by default.
             self.buildStructuresToolBar.hide()
-            self.buildToolsToolBar.hide()
-            self.selectToolBar.hide()
-            self.simulationToolBar.hide()
         
         return
     
@@ -161,6 +171,7 @@ class Ui_MainWindow(object):
         Ui_InsertMenu.setupUi(self)
         Ui_ToolsMenu.setupUi(self)
         Ui_SimulationMenu.setupUi(self)
+        Ui_RenderingMenu.setupUi(self)
         Ui_HelpMenu.setupUi(self)
 
         # Add menus to the main window menu bar.
@@ -170,6 +181,7 @@ class Ui_MainWindow(object):
         self.MenuBar.addAction(self.insertMenu.menuAction())
         self.MenuBar.addAction(self.toolsMenu.menuAction())
         self.MenuBar.addAction(self.simulationMenu.menuAction())
+        self.MenuBar.addAction(self.renderingMenu.menuAction())
         self.MenuBar.addAction(self.helpMenu.menuAction())
 
         # Add the MenuBar to the main window.
@@ -201,6 +213,7 @@ class Ui_MainWindow(object):
         Ui_BuildToolsToolBar.retranslateUi(self)
         Ui_SelectToolBar.retranslateUi(self)
         Ui_SimulationToolBar.retranslateUi(self)
+        Ui_RenderingToolBar.retranslateUi(self)
 
         # Menus and submenus
         Ui_FileMenu.retranslateUi(self)
@@ -209,4 +222,5 @@ class Ui_MainWindow(object):
         Ui_InsertMenu.retranslateUi(self)
         Ui_ToolsMenu.retranslateUi(self)
         Ui_SimulationMenu.retranslateUi(self)
+        Ui_RenderingMenu.retranslateUi(self)
         Ui_HelpMenu.retranslateUi(self)

@@ -628,6 +628,8 @@ packageMapping_for_files = {
     "Ui_MovePropertyManager"           : "ui/propmgr|commands/Move",
     "Ui_MoviePropertyManager"          : "ui/propmgr|commands/PlayMovie",
     "Ui_PartWindow"                    : "widget|ne1_ui", #?
+    "Ui_RenderingMenu"                 : "ui/menu",
+    "Ui_RenderingToolBar"              : "ui/toolbar",
     "Ui_ReportsDockWidget"             : "widget|ne1_ui",
     "Ui_SelectMenu"                    : "ui/menu",
     "Ui_SelectToolBar"                 : "ui/toolbar",

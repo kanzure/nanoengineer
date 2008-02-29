@@ -4,22 +4,25 @@ $Id$
 """
 
 from PyQt4 import QtGui
-from PyQt4.Qt import Qt
 from wiki_help import QToolBar_WikiHelp
 
-def setupUi(win):
+def setupUi(win, toolbarArea):
     """
     Create and populate the "View" toolbar.
     
     @param win: NE1's main window object.
     @type  win: U{B{QMainWindow}<http://doc.trolltech.com/4/qmainwindow.html>}
+    
+    @param toolbarArea: The ToolBarArea of the main window where this toolbar
+                        will live (i.e. top, right, left, bottom).
+    @type  toolbarArea: U{B{Qt.ToolBarArea enum}<http://doc.trolltech.com/4.2/qt.html#ToolBarArea-enum>}
     """
     
     # Create the "View" toolbar.
     win.viewToolBar = QToolBar_WikiHelp(win)
     win.viewToolBar.setEnabled(True)
     win.viewToolBar.setObjectName("viewToolBar")
-    win.addToolBar(Qt.TopToolBarArea, win.viewToolBar)       
+    win.addToolBar(toolbarArea, win.viewToolBar)       
 
     # Populate the "View" toolbar.
     win.viewToolBar.addAction(win.setViewHomeAction)
@@ -40,9 +43,6 @@ def setupUi(win):
     win.viewToolBar.addAction(win.saveNamedViewAction)
     win.viewToolBar.addAction(win.viewNormalToAction)
     win.viewToolBar.addAction(win.viewParallelToAction)
-    win.viewToolBar.addSeparator()
-    win.viewToolBar.addAction(win.viewQuteMolAction)
-    win.viewToolBar.addAction(win.viewRaytraceSceneAction)
 
 def retranslateUi(win):
     """
@@ -55,4 +55,8 @@ def retranslateUi(win):
     win.viewToolBar.setWindowTitle(
         QtGui.QApplication.translate(
             "MainWindow", "View", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.viewToolBar.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "View Toolbar", 
             None, QtGui.QApplication.UnicodeUTF8))

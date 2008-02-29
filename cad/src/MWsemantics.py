@@ -476,7 +476,8 @@ class MWsemantics(QMainWindow,
             [self.standardToolBar, self.viewToolBar,
              self.standardViewsToolBar, self.displayStylesToolBar,
              self.simulationToolBar, self.buildToolsToolBar,
-             self.selectToolBar, self.buildStructuresToolBar]
+             self.selectToolBar, self.buildStructuresToolBar, 
+             self.renderingToolBar]
         
         for toolbar in contextMenuToolBars:
             menu.addAction(toolbar.toggleViewAction())

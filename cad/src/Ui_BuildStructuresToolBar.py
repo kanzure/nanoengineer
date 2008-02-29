@@ -4,10 +4,9 @@ $Id$
 """
 
 from PyQt4 import QtGui
-from PyQt4.Qt import Qt
 from wiki_help import QToolBar_WikiHelp
 
-def setupUi(win):
+def setupUi(win, toolbarArea):
     """
     Creates and populates the "Build Structures" toolbar in the main window.
 
@@ -19,7 +18,7 @@ def setupUi(win):
     win.buildStructuresToolBar = QToolBar_WikiHelp(win)
     win.buildStructuresToolBar.setEnabled(True)
     win.buildStructuresToolBar.setObjectName("buildStructuresToolBar")
-    win.addToolBar(Qt.RightToolBarArea, win.buildStructuresToolBar)
+    win.addToolBar(toolbarArea, win.buildStructuresToolBar)
     
     # Populate the "Build Structures" toolbar.
     win.buildStructuresToolBar.addAction(win.toolsDepositAtomAction)
@@ -41,4 +40,8 @@ def retranslateUi(win):
     win.buildStructuresToolBar.setWindowTitle(
         QtGui.QApplication.translate(
             "MainWindow", "Build Structures", 
+            None, QtGui.QApplication.UnicodeUTF8))
+    win.buildStructuresToolBar.setToolTip(
+        QtGui.QApplication.translate(
+            "MainWindow", "Build Structures Toolbar", 
             None, QtGui.QApplication.UnicodeUTF8))

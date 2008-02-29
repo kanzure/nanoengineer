@@ -323,7 +323,7 @@ def setupUi(win):
     win.dispBallAction.setIcon(geticon("ui/actions/View/Display/Ball_and_Stick"))
     win.dispBallAction.setObjectName("dispBallAction")
     
-    #@ Unused. See comments at the top of Ui_ViewMenu.py.
+    #@ This QAction is unused. See comments at the top of Ui_ViewMenu.py.
     win.dispHybridAction = QtGui.QAction(MainWindow)
     win.dispHybridAction.setIcon(geticon("ui/actions/View/Display/Hybrid"))
     win.dispHybridAction.setCheckable(True)
@@ -730,6 +730,12 @@ def setupUi(win):
     win.simNanoHiveAction = QtGui.QAction(MainWindow)
     win.simNanoHiveAction.setVisible(False)
     win.simNanoHiveAction.setObjectName("simNanoHiveAction")
+    
+    #= Rendering menu.
+    
+    # Create the "Tools" menu.
+    win.renderingMenu = QtGui.QMenu(win.MenuBar)
+    win.renderingMenu.setObjectName("Rendering")
 
     #= "Help" (menu and toolbar) widgets.
 
@@ -1401,8 +1407,7 @@ def retranslateUi(win):
         None, 
         QtGui.QApplication.UnicodeUTF8))
 
-    # Atom Generator example for developers. Mark and Jeff. 2007-06-13
-    #@ Jeff - add a link to the public wiki page when ready. Mark 2007-06-13.
+    # Atom Generator example for developers.
     win.insertAtomAction.setIconText(QtGui.QApplication.translate(
         "MainWindow", 
         "Atom", 
