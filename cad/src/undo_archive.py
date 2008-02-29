@@ -1525,8 +1525,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
     def _clear(self):
         """
         [private helper method for self.clear_undo_stack()]
-        Clear our main data stores, which are set up in __init__, and everything referring to undoable objects or objkeys.
+        Clear our main data stores, which are set up in __init__,
+        and everything referring to undoable objects or objkeys.
         (But don't clear our obj_classifier.)
+
+        Then take an initial checkpoint of all reachable data.
         """
         self.current_diff.destroy()
         self.current_diff = None
@@ -1538,8 +1541,29 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.initial_checkpoint() # should we clean up the code by making this the only way to call initial_checkpoint?
         return
 
-    def initial_checkpoint(self): # called by clear_undo_stack in two ways??? one by undo_manager? ###doc situation [060304]
-        # note: this can definitely be called twice, one way is by _clear and clear_undo_stack, that happens 2nd...
+    def initial_checkpoint(self):
+        """
+        Make an initial checkpoint, which consists mainly of
+        taking a complete snapshot of all undoable state
+        reachable from self.assy.
+        """
+        # WARNING: this is called twice by our undo_manager's clear_undo_stack
+        # method (though only once by self's method of that name)
+        # the first time it runs, but only once each subsequent time.
+        # (The first call is direct, when the undo_manager is not initialized;
+        #  the second call always occurs, via self.clear_undo_stack, calling
+        #  self._clear, which calls this method.)
+        #
+        # If the assy has lots of data by that time, it will thus be fully
+        # scanned twice, which is slow.
+        #
+        # Older comments imply that this situation arose unintentionally
+        # and was not realized at first. In principle, two calls of this are not
+        # needed, but in practice, it's not obvious how to safely remove
+        # one of them. See the clear_undo_stack docstring for advice about
+        # not wasting runtime due to this, which is now followed in our
+        # callers. [bruce 080229 comment]
+        
         assert not self._undo_archive_initialized
         assy = self.assy
         cp = make_empty_checkpoint(assy, 'initial') # initial checkpoint
@@ -1878,7 +1902,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.get_and_clear_changed_objs(want_retval = False)
         
     def clear_undo_stack(self): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack) [060304 removed *args, **kws]
-        assert self._undo_archive_initialized # note: the same-named method in undo_manager instead calls initial_checkpoint the first time
+        # note: see also: comments in self.initial_checkpoint,
+        # and in undo_manager.clear_undo_stack
+        assert self._undo_archive_initialized
+            # note: the same-named method in undo_manager instead calls
+            # initial_checkpoint the first time
         if self.current_diff: #k probably always true; definitely required for it to be safe to do what follows.
             self.current_diff.suppress_storing_undo_redo_ops = True # note: this is useless if the current diff turns out to be empty.
 

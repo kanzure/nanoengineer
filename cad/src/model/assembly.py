@@ -343,6 +343,9 @@ class assembly( StateMixin, Assembly_API):
             # in ways which currently differ for the first assembly created, and later ones.
             # This is not even done by the end of MWsemantics.__init__, as of now.
             # For details, search out the highest-level calls to clear_undo_stack. [bruce 060223]
+            # [update, 080229: be sure to call it before adding much data to the model, though,
+            # since it scans all current data twice the first time it's called, only once thereafter.
+            # See its docstring for details.]
             pass
 
         self._classnames = {}

@@ -61,6 +61,9 @@ class AssyUndoManager(UndoManager):
         and either _initial_checkpoint or (preferred) clear_undo_stack.
 
         @type assy: assembly.assembly
+
+        @warning: callers concerned with performance should heed the warning in
+                  the docstring of clear_undo_stack about when to first call it.
         """
         # assy owns the state whose changes we'll be managing...
         # [semiobs cmt:] should it have same undo-interface as eg chunks do??
@@ -143,7 +146,35 @@ class AssyUndoManager(UndoManager):
 ##            pass
 ##        return
 
-    def clear_undo_stack(self, *args, **kws): # this is now callable from a debug menu / other command, as of 060301 (experimental)
+    def clear_undo_stack(self, *args, **kws): #bruce 080229 revised docstring
+        """
+        Intialize self if necessary, and make an initial checkpoint,
+        discarding whatever undo archive data is recorded before that (if any).
+
+        This can be used by our client to complete our initialization
+        and define the earliest state which an Undo can get back to.
+        (It is the preferred way for external code to do that.)
+        
+        And, it can be used later to redefine that point, making all earlier
+        states inaccessible (as a user op for reducing RAM consumption).
+
+        @note: calling this several times in the same user op is allowed,
+               and leaves the state the same as if this had only been
+               called the last of those times.
+               
+        @warning: the first time this is called, it scans and copies all
+                  currently reachable undoable state *twice*. All subsequent
+                  times, it does this only once. This means it should be
+                  called as soon as the client assy is fully initialized
+                  (when it is almost empty of undoable state), even if it
+                  will always be called again soon thereafter, after
+                  some initial (potentially large) data has been added to
+                  the assy. Otherwise, that second call will be the one
+                  which scans its state twice, and will take twice as long
+                  as necessary.
+        """
+        # note: this is now callable from a debug menu / other command,
+        # as of 060301 (experimental)
         if not self._undo_manager_initialized:
             self._initial_checkpoint() # have to do this here, not in archive.clear_undo_stack
         return self.archive.clear_undo_stack(*args, **kws)
