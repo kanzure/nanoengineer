@@ -1,5 +1,5 @@
-HEADERS += ../../../../../../include/Nanorex/Interface/NXOpenGLMaterial.h \
- ../../../../../../include/Nanorex/Interface/NXOpenGLSceneGraph.h \
+HEADERS += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLMaterial.h \
+ ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLSceneGraph.h \
  ../../../../../../include/Nanorex/Interface/NXSceneGraph.h
 
 TEMPLATE = lib

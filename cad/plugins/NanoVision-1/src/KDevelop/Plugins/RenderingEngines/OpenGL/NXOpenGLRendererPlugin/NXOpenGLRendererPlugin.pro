@@ -9,9 +9,9 @@ TARGET = NXOpenGLRendererPlugin
 
 HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../../../../include/Nanorex/Interface/NXBondRenderData.h \
- ../../../../../../include/Nanorex/Interface/NXOpenGLMaterial.h \
- ../../../../../../include/Nanorex/Interface/NXOpenGLRendererPlugin.h \
- ../../../../../../include/Nanorex/Interface/NXOpenGLSceneGraph.h \
+ ../../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLMaterial.h \
+ ../../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRendererPlugin.h \
+ ../../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLSceneGraph.h \
  ../../../../../../include/Nanorex/Interface/NXRendererPlugin.h
 INCLUDEPATH += ../../../../../../include
 
