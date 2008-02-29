@@ -1596,6 +1596,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         @param event: A left mouse up event.
         @type  event: U{B{QMouseEvent}<http://doc.trolltech.com/4/qmouseevent.html>}
         """
+        # see also: bond_utils.delete_bond
         
         #bruce 041130 in case no update_selatom happened yet
         self.update_selatom(event)             
@@ -1621,10 +1622,16 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
                 # this fails to preserve the bond type on the open bonds 
                 # -- not sure if that's bad, but probably it is
 
-            # After bust() selobj.isStrandBond() is too fragile, so I set
-            # <_busted_strand_bond> and test it instead. - Mark 2007-10-23.
-            if _busted_strand_bond: # selobj.isStrandBond():
-                self.o.assy.makeStrandChunkFromBrokenStrand(x1, x2)
+            if 1:
+                # Note: this should be removed once the dna updater becomes
+                # turned on by default. (It will cause no harm, but will be a slowdown
+                # since everything it does will be undone or redone differently
+                # by the updater.) [bruce 080228 comment]
+                
+                # After bust() selobj.isStrandBond() is too fragile, so I set
+                # <_busted_strand_bond> and test it instead. - Mark 2007-10-23.
+                if _busted_strand_bond: # selobj.isStrandBond():
+                    self.o.assy.makeStrandChunkFromBrokenStrand(x1, x2)
 
             self.set_cmdname('Delete Bond')
             self.o.assy.changed() #k needed?

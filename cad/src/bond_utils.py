@@ -195,10 +195,22 @@ def _bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spe
     # this won't be needed until we have better bond inference (except maybe for bondpoints),
     # since right now [still true 060703] we never alter real bond types except when the user does an action on that specific bond.
     if not bond.is_open_bond():
-        command = ( lambda arg1=None, arg2=None, bond=bond: bond.bust() )
+        ## command = ( lambda arg1 = None, arg2 = None, bond = bond: bond.bust() )
+        command = ( lambda bond = bond: delete_bond(bond) )
         res.append(None) # separator
         res.append(("Delete Bond", command))
     return res
+
+def delete_bond(bond): #bruce 080228 to fix update bug reported by EricM
+    # see also: SelectAtoms_GraphicsMode.bondDelete
+    # (should we print to history like it does?)
+    assy = bond.atom1.molecule.assy
+    if assy.glpane.selobj is bond:
+        assy.glpane.selobj = None
+    bond.bust()
+    assy.changed()
+    assy.glpane.gl_update()
+    return
 
 ##def bond_type_submenu_spec(bond): #bruce 050705 (#e add options??); probably not used in Alpha6
 ##    """Return a menu_spec for changing the bond_type of this bond,
