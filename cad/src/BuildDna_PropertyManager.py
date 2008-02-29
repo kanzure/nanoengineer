@@ -14,6 +14,8 @@ TODO: as of 2008-01-11
 - Needs more documentation and the file is subjected to heavy revision. 
 This is an initial implementation of default Dna edit mode.
 - Methods such as callback_addSegments might be renamed.
+- DEPRECATE THE self.sequenceEditor. (that code has been commented out) 
+   see a comment in self,__init__
 BUGS:
 - Has bugs such as -- Flyout toolbar doesn't get updated when you return to 
   BuildDna_EditCommand from a a temporary command. 
@@ -85,11 +87,16 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                                 pmCancelButton | \
                                 pmWhatsThisButton)
         
-        self._loadSequenceEditor()
-                
+        #Loading the sequence editor is disabled. Instead, we will call the 
+        #DnaStrand_Editcommand which will load its own sequence editor. 
+        #After more testing, the sequence editor attr of the BuildDna_EditCommand
+        # /PM will be removed. -- Ninad 2008-02-29
+        ##self._loadSequenceEditor()                
             
     def _loadSequenceEditor(self):
         """
+        NOT CALLED AS OF 2008-02-29. SOON THIS WILL BE DEPRECATED. 
+        See comment in self.__init__
         Temporary code  that shows the Sequence editor ..a doc widget docked
         at the bottom of the mainwindow. The implementation is going to change
         before 'rattleSnake' product release.
@@ -146,9 +153,12 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                       self.assignStrandSequence)
         
                 
+        #change_connect(self.editStrandPropertiesButton,
+                      #SIGNAL("clicked()"),
+                      #self._showSequenceEditor)
         change_connect(self.editStrandPropertiesButton,
                       SIGNAL("clicked()"),
-                      self._showSequenceEditor)
+                      self._editDnaStrand)
         
         change_connect(self.editSegmentPropertiesButton,
                       SIGNAL("clicked()"),
@@ -344,7 +354,21 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         """
         EditCommand_PM.show(self) 
         self.updateListWidgets()    
-    
+        
+    def _editDnaStrand(self):  
+        """
+        Enter the DnaStrand_EditCommand to edit the selected strand. 
+        """
+        
+        if not self.editCommand.hasValidStructure():
+            return
+        
+        selectedStrandList = self.editCommand.struct.getSelectedStrands()
+        
+        if len(selectedStrandList) == 1:     
+            strand = selectedStrandList[0]
+            strand.edit()
+
     def _showSequenceEditor(self):
         if self.sequenceEditor:
             
