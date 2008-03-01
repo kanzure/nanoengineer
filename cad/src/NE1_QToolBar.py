@@ -36,10 +36,10 @@ class NE1_QToolBar(QToolBar):
         """
         Constructs an NE1 toolbar for the main window.
         """
-        QToolBar.__init__(self)
+        QToolBar.__init__(self, parent)
         self._separatorList = []
         
-        # ATTENTION - This signal-slot connection is not working and I'm not
+        # Attention: This signal-slot connection is not working and I'm not
         # sure why. As a workaround, I reimplemented QToolBar.moveEvent()
         # which does the job nicely. I'm leaving the connect() call here,
         # but commenting it out. I bet its a Qt bug and it might be fixed 
@@ -62,12 +62,12 @@ class NE1_QToolBar(QToolBar):
             
     def moveEvent(self, event):
         """
-        Reimplements moveEvent() of QToolBar. It is used as a workaround for
+        Reimplements QWidget.moveEvent(). It is used as a workaround for
         the orientationChanged() signal bug mentioned throughout.
         """
-        self.updateSeparatorPixmaps()
         QToolBar.moveEvent(self, event)
-    
+        self.updateSeparatorPixmaps()
+        
     def setSeparatorWidgetPixmap(self, widget, orientation):
         """
         Sets either the horizontal or the vertical pixmap to widget, depending
@@ -90,7 +90,7 @@ class NE1_QToolBar(QToolBar):
         """
         Reimplements the addSeparator() method of QToolBar.
         """
-        _toolbarSeparator = QtGui.QLabel()
+        _toolbarSeparator = QtGui.QLabel(self)
         if DEBUG:
             _name = "%s-Separator%d" % (self.objectName(), self._separatorNumber)
             _toolbarSeparator.setObjectName(_name)
@@ -99,7 +99,6 @@ class NE1_QToolBar(QToolBar):
         _toolbarSeparator.setAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
         self.addWidget(_toolbarSeparator)
         self._separatorList.append(_toolbarSeparator)
-        
         
     def insertSeparator(self):
         """
@@ -111,5 +110,4 @@ class NE1_QToolBar(QToolBar):
         print_compact_stack("insertSeparator() not supported. " \
             "Use addSeparator() instead or implement insertSeparator()")
         return
-    
     
