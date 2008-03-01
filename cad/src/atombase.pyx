@@ -278,7 +278,7 @@ cdef class _BondBase:
         # an underscore, give up immediately.
         if name[0] == 95:
             raise AttributeError, name
-        if strcmp(name, "key") == 0:
+        if strcmp(name, "bond_key") == 0:
             return self.data.key
         elif strcmp(name, "v6") == 0:
             return self.data.v6
@@ -288,7 +288,7 @@ cdef class _BondBase:
             raise AttributeError, name
 
     def __setattr__(self, name, value):
-        if name == "key":
+        if name == "bond_key":
             self.data.key = value
         elif name == "v6":
             self.data.v6 = value

@@ -1310,9 +1310,9 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
         # this version helps atombase.c not to fail when atom keys
         # exceed 32768, but is only unique for bonds attached to the
         # same atom.
-        #self.key = at1.key + at2.key
+        self.bond_key = at1.key + at2.key
 
-        self.key = 65536 * min(at1.key, at2.key) + max(at1.key, at2.key)
+        #self.bond_key = 65536 * min(at1.key, at2.key) + max(at1.key, at2.key)
             # used only in __eq__ as of 051018; problematic (see comments there)
             # !!!!!!! Nope, also used in chunk.standard_draw_atoms()
             # such that keys must be unique within the chunk.  But,
@@ -1321,7 +1321,7 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
             # atom.
         
 ##        #bruce 050608: kluge (in how it finds glpane and thus assumes just one of them is used; and since key is not truly unique)
-##        self.atom1.molecule.assy.w.glpane.glselect_objs[self.key] = self #e dict should be stored in assy (or so) instead
+##        self.atom1.molecule.assy.w.glpane.glselect_objs[self.bond_key] = self #e dict should be stored in assy (or so) instead
 ##            ###@@@ not key, use other attr name for that, obj.glname or glselect_name or so...
         #bruce 050317: debug warning for interpart bonds, or bonding killed atoms/chunks,
         # or bonding to chunks not yet added to any Part (but not warning about internal
@@ -1712,7 +1712,7 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
     # and revising bond_atoms accordingly (as an optim). One use of them is probably in a .count method in another file.
     #
     #bruce 051018 comment: I think this __eq__ might have bugs, once enough atoms have been defined (not nec. all at once)
-    # to overflow the constant 65536 used to compute self.key! For example, if the atkeys are (2,3) or (1,65536+3) we'll
+    # to overflow the constant 65536 used to compute self.bond_key! For example, if the atkeys are (2,3) or (1,65536+3) we'll
     # think the bonds are equal! OTOH, does this matter unless the bonds share an atom? But even if it only matters then,
     # it might hurt us if the shared atom is min in one bond and max in the other... I didn't yet find an example, nor prove
     # there isn't one. Surely the whole thing should be removed unless it can be made clearly correct... #####@@@@@
@@ -1726,7 +1726,7 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
     
     def __eq__(self, ob):
         if not isinstance(ob, Bond): return False
-        if (self is not ob) and ob.key == self.key:
+        if (self is not ob) and ob.bond_key == self.bond_key:
             # This seems to never happen, so let's find out if anyone ever sees it (by printing stack even when not atom_debug).
             # It could happen in two ways: a true bug (keys same but atoms different),
             # or an intentional use of the deprecated feature of two Bonds with same atoms comparing equal.
@@ -1755,7 +1755,7 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
             if 0 and debug_flags.atom_debug: #bruce 051216; disabled it since immediately found a call (using Build mode)
                 #bruce 070601 comment: I suspect this happens when asking "bond in atom.bonds" when making a new bond.
                 print_compact_stack( "atom_debug: deprecated Bond.__eq__ was called on %r and %r: " % (self,ob) )
-        return ob.key == self.key
+        return ob.bond_key == self.bond_key
 
     def __ne__(self, ob):
         # bruce 041028 -- python doc advises defining __ne__ whenever you define __eq__;

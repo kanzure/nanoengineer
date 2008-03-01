@@ -765,6 +765,8 @@ def scan_InstanceType(obj, func):
 
 known_type_scanners[ InstanceType ] = scan_InstanceType
 
+instancelike_classes = []
+
 # ==
 
 def register_instancelike_class( class1 ):
@@ -799,6 +801,10 @@ def register_instancelike_class( class1 ):
         # note: if class1 is a classic class, this entry is not needed,
         # but causes no harm since it will never be used (since no object
         # has a type of class1 in that case).
+    if (SAMEVALS_SPEEDUP):
+        instancelike_classes.append(class1)
+        from samevals import setInstanceLikeClasses
+        setInstanceLikeClasses(instancelike_classes)
     return
 
 # ==

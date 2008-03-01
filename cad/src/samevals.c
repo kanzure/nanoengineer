@@ -12,6 +12,7 @@
 static PyTypeObject *arraytype = NULL;
 static PyObject *instanceCopier = NULL;
 static PyObject *arrayCopier = NULL;
+static PyObject *instanceLikeClasses = NULL;
 
 static int
 _same_vals_helper(PyObject *v1, PyObject *v2)
@@ -188,6 +189,22 @@ internal_copy_val(PyObject *v)
         Py_DECREF(args);
         return copy;
     } else {
+        if (instanceLikeClasses != NULL) {
+          int listSize = PyList_Size(instanceLikeClasses);
+          int i;
+          for (i=0; i<listSize; i++) {
+            PyObject *cls = PyList_GetItem(instanceLikeClasses, i);
+            if (typ == (PyTypeObject *)cls) {
+              PyObject *args = PyTuple_New(1);
+              Py_INCREF(v);
+              PyTuple_SetItem(args, 0, v);
+              copy = PyObject_CallObject(instanceCopier, args);
+              Py_DECREF(args);
+              return copy;
+            }
+          }
+        }
+      
 	// no good ideas here...
         fprintf(stderr, "copy_val(0x%x): not copying, type == %s\n", (int)v, typ->tp_name);
 	Py_INCREF(v);
@@ -247,6 +264,21 @@ setArrayCopier(PyObject *self, PyObject *args)
     return Py_None;
 }
 
+static PyObject *
+setInstanceLikeClasses(PyObject *self, PyObject *args)
+{
+    Py_XDECREF(instanceLikeClasses);
+    if (!PyArg_ParseTuple(args, "O", &instanceLikeClasses))
+	return NULL;
+    if (!PyList_Check(instanceLikeClasses)) {
+	PyErr_SetString(PyExc_TypeError, "argument must be a list");
+	return NULL;
+    }
+    Py_INCREF(instanceLikeClasses);
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static struct PyMethodDef
 samevals_methods[] = {
     {"same_vals", (PyCFunction) same_vals, 1, same_vals_doc},
@@ -254,6 +286,7 @@ samevals_methods[] = {
     {"copy_val", (PyCFunction) copy_val, 1, NULL},
     {"setInstanceCopier", (PyCFunction) setInstanceCopier, 1, NULL},
     {"setArrayCopier", (PyCFunction) setArrayCopier, 1, NULL},
+    {"setInstanceLikeClasses", (PyCFunction) setInstanceLikeClasses, 1, NULL},
     {NULL, NULL}
 };
 

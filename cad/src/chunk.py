@@ -1750,12 +1750,12 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # when it draws its extra objects. We need a bug report for that.)
                 repeated_bonds_dict = {} # KLUGE
             for bond in self.externs:
-                if bond.key not in repeated_bonds_dict:
+                if id(bond) not in repeated_bonds_dict:
                     # BUG: disp and bondcolor depend on self, so the bond appearance
                     # may depend on which chunk draws it first (i.e. on their Model
                     # Tree order). How to fix this is the subject of a current design
                     # discussion. [bruce 070928 comment]
-                    repeated_bonds_dict[bond.key] = bond
+                    repeated_bonds_dict[id(bond)] = bond
                     bond.draw(glpane, disp, bondcolor, drawLevel)
             ColorSorter.finish() # grantham 20051205
         return # from _draw_external_bonds
@@ -1973,13 +1973,13 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 if atomdisp in (diBALL, diLINES, diTUBES, diTrueCPK, diDNACYLINDER):
                     # todo: move this tuple into bonds module or Bond class
                     for bond in atm.bonds:
-                        if bond.key not in drawn:
+                        if id(bond) not in drawn:
                             ## if bond.other(atm).molecule != self: could be faster [bruce 050513]:
                             if bond.atom1.molecule is not self or bond.atom2.molecule is not self:
                                 pass ## self.externs.append(bond) # bruce 050513 removing this
                             else:
                                 # internal bond, not yet drawn
-                                drawn[bond.key] = bond
+                                drawn[id(bond)] = bond
                                 bond.draw(glpane, disp, bondcolor, drawLevel)  
             except:
                 # [bruce 041028 general workaround to make bugs less severe]
@@ -2141,8 +2141,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         for atm in self.atoms.values():
             atm.writepov(file, disp, self.color)
             for bond in atm.bonds:
-                if bond.key not in drawn:
-                    drawn[bond.key] = bond
+                if id(bond) not in drawn:
+                    drawn[id(bond)] = bond
                     bond.writepov(file, disp, self.color)
 
     def writemdl(self, alist, f, disp):
