@@ -617,15 +617,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.setCurrentWorkingDirectory(dir)
 
     def fileOpen(self, recentFile = None):
-        ##### begin profiling code
-        # if this gets checked in by accident, just remove everything between begin and end
-        import profile_helper
-        profile_helper.set_function(self.fileOpen_profile)
-        profile_helper.set_arg1(recentFile)
-        profile_helper.run()
-
-    def fileOpen_profile(self, recentFile = None):
-        ##### end profiling code
         """
         Slot method for 'File > Open'.
         By default, users open a file through 'Open File' dialog. If <recentFile> is provided, it means user
