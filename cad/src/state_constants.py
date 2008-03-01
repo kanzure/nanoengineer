@@ -1,12 +1,13 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-state_constants.py -- constants for declaring attributes' roles in
+state_constants.py -- definitions needed by state_utils and its client code,
+including constants for declaring attributes' roles in
 holding state or referring to objects that hold state. (Also some
 names for the available kinds of specialcase treatment re Undo.)
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 See state_utils.py for more info and related classes/utilities.
 (It's undecided whether these declarations make sense
@@ -20,15 +21,19 @@ be watched for changes.
 Someday they might also be used for automatically knowing
 how to save objects to files, how to copy or diff or delete them,
 how to browse or edit their state from a UI, etc.
+
+Review:
+
+Should IdentityCopyMixin and similar small classes be moved
+into this file?
 """
 
-# This module should not import anything non-builtin,
+# NOTE: This module should not import anything non-builtin,
 # or define any name unsuitable for being a global in all modules.
 
 # ==
 
 # Possible values for _s_attr_xxx attribute declarations (needed by Undo)
-# (defining these in constants.py might be temporary; for now it does "import *" from here)
 
 S_DATA = 'S_DATA' # for attributes whose value changes should be saved or undone.
 
@@ -77,5 +82,39 @@ UNDO_SPECIALCASE_BOND = 'UNDO_SPECIALCASE_BOND'
 ##UNDO_SPECIALCASE_ATOM_OWNER = 'UNDO_SPECIALCASE_ATOM_OWNER' # not sure this is right, vs CHUNK -- also it may never be needed
 
 ATOM_CHUNK_ATTRIBUTE_NAME = 'molecule' # must match the Atom.molecule attrname
+
+# ==
+
+# Note: _UNSET_class should inherit from IdentityCopyMixin, but that would
+# only work when IdentityCopyMixin has been split out from state_utils,
+# since state_utils imports this file. Instead, we copy the methods here.
+
+class _UNSET_class:
+    """
+    [private class for _UNSET_, which sometimes represents
+     unset attribute values within Undo snapshots, and similar things]
+    """
+    # review: can we add a decl that makes the _s_attr system notice
+    # the bug if it ever hits this value in a real attrval? (should we?)
+    def __init__(self, name = "_???_"):
+        self.name = name
+    def __repr__(self):
+        return self.name
+    def _copyOfObject(self, copyfunc): # copied from IdentityCopyMixin
+        return self
+    def _isIdentityCopyMixin(self): # copied from IdentityCopyMixin
+        pass
+    pass
+
+# ensure only one instance of _UNSET_ itself, even if we reload this module
+try:
+    _UNSET_ 
+except:
+    _UNSET_ = _UNSET_class("_UNSET_")
+
+try:
+    _Bugval
+except:
+    _Bugval = _UNSET_class("_Bugval")
 
 # end

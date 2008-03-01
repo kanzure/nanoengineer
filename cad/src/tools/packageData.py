@@ -565,7 +565,6 @@ packageMapping_for_files = {
 
     "state_constants"                  : "foundation",
     "state_utils"                      : "foundation", # note: utilities/Comparison.py and samevals.c might go with this too
-    "state_utils_unset"                : "foundation",
     
     "StatProp"                         : "ui/dialog|commands/ThermostatProperties?",
     "StatPropDialog"                   : "ui/dialog|commands/ThermostatProperties?",

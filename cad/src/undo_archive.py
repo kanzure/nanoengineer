@@ -1,12 +1,12 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 undo_archive.py - Collect and organize a set
 of checkpoints of model state and diffs between them,
 providing undo/redo ops which apply those diffs to the model state.
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 [060223: out of date status info from this docstring was
  mostly moved to undo_archive-doc.text,
@@ -23,8 +23,7 @@ import state_utils
 from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state
 from state_utils import transclose, StatePlace, StateSnapshot
 
-from state_utils_unset import _UNSET_
-
+from state_constants import _UNSET_
 from state_constants import UNDO_SPECIALCASE_ATOM, UNDO_SPECIALCASE_BOND
 from state_constants import ATOM_CHUNK_ATTRIBUTE_NAME
 

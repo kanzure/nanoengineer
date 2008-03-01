@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 state_utils.py - general state-related utilities, and undo-related uses of them.
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: same_vals was moved from here into a new file, utilities/Comparison.py,
 to break an import cycle. It is closely related to copy_val which remains here.
@@ -25,9 +25,7 @@ from state_constants import S_REF, S_REFS
 from state_constants import S_PARENT, S_PARENTS
 from state_constants import UNDO_SPECIALCASE_ATOM, UNDO_SPECIALCASE_BOND
 from state_constants import ATOM_CHUNK_ATTRIBUTE_NAME
-
-from state_utils_unset import _UNSET_, _Bugval
-    # (these could reasonably be moved into state_constants)
+from state_constants import _UNSET_, _Bugval
 
 import env
 from debug import print_compact_stack
