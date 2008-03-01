@@ -461,6 +461,7 @@ packageMapping_for_files = {
     "NanotubeGenerator"                : "command|commands/InsertNanotube",
     "NanotubeGeneratorPropertyManager" : "ui/propmgr|commands/InsertNanotube",
     "NE1ToolBar"                       : "widget", # Variant of QToolBar
+    "NE1_QToolBar"                     : "widget", # New main toolbar class for the NE1 main window.
     "Node_as_MT_DND_Target"            : "controller|modelTree",
     "node_indices"                     : "foundation",
 
