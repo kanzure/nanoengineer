@@ -30,3 +30,8 @@ DESTDIR = ../../../../lib/
 unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
 macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
 
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+ -g \
+ -O0 \
+ -fno-inline
+

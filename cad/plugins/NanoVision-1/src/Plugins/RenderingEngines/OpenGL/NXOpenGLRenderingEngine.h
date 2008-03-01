@@ -57,16 +57,7 @@ public:
     
     void cleanupPlugins ( void ) { }
     
-    void setRootMoleculeSet ( NXMoleculeSet *const moleculeSet )
-    {
-        deleteSceneGraph();
-        rootMoleculeSet = moleculeSet;
-        rootSceneGraphNode = createSceneGraph ( rootMoleculeSet );
-        resetView();
-    }
-    
-    /// Reset the view based on the atom-bond distribution in the molecule-set
-    void resetView ( void );
+    void setRootMoleculeSet ( NXMoleculeSet *const moleculeSet );
     
     // Mouse-event handlers
     void mousePressEvent(QMouseEvent *mouseEvent);
@@ -130,6 +121,9 @@ private:
     void initializeGL ( void );
     void resizeGL ( int width, int height );
     void paintGL ( void );
+    
+    /// Reset the view based on the atom-bond distribution in the molecule-set
+    void resetView ( void );
     
     bool initializeElementColorMap();
     void initializeDefaultMaterials();

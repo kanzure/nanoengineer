@@ -11,7 +11,14 @@ extern "C" {
 using namespace std;
 
 NXOpenGLCamera::NXOpenGLCamera(QGLWidget *theParent)
-: parent(theParent), fsm(*this)
+: parent(theParent), fsm(*this),
+translation(), viewingQuaternion(),
+modelViewMatrix(), //projectionMatrix(),
+isPerspectiveProjection(false),
+orthographicProjection(), perspectiveProjection(),
+viewport(),
+oldMouseX(0), oldMouseY(0),
+oldViewingQuaternion()
 {
     reset();
 }
@@ -25,7 +32,8 @@ NXOpenGLCamera::~NXOpenGLCamera()
 void NXOpenGLCamera::reset(void)
 {
     modelViewMatrix.identity();
-    projectionMatrix.identity();
+    orthographicProjection.glReset();
+    isPerspectiveProjection = false;
     viewport.resize(0, 0, parent->width(), parent->height());
 }
 
@@ -65,6 +73,7 @@ void NXOpenGLCamera::rotate(int x, int y)
     Vector4 dragRotationQuat;
     trackball(dragRotationQuat, newx, newy, oldx, oldy);
     add_quats(oldViewingQuaternion, dragRotationQuat, viewingQuaternion);
+    buildModelViewMatrix();
 }
 
 
@@ -75,6 +84,35 @@ void NXOpenGLCamera::rotateStop(int x, int y)
 }
 
 
+void NXOpenGLCamera::translateStart(int x, int y)
+{
+    cerr << "translateStart @(" << x << ',' << y << ')' << endl;
+    translationInitialWpt = unproject(x,parent->height()-y);
+}
+
+
+void NXOpenGLCamera::translate(int x, int y)
+{
+    cerr << "translate @(" << x << ',' << y << ')' << endl;
+    Vector translationCurrentWpt = unproject(x,parent->height()-y);
+    Vector delta = translationCurrentWpt - translationInitialWpt;
+    translation += delta;
+    modelViewMatrix(0,3) = translation[0];
+    modelViewMatrix(1,3) = translation[1];
+    modelViewMatrix(2,3) = translation[2];
+    cerr << "translate by" << delta.x() << ',' << delta.y() << ','
+        << delta.z() << ')' << endl;
+}
+
+
+void NXOpenGLCamera::translateStop(int x, int y)
+{
+    cerr << "translateStop @(" << x << ',' << y << ')' << endl;
+    /// @todo
+}
+
+
+#if 0
 /// Reads the location-orientation, projection and viewport settings
 /// info from OpenGL
 void NXOpenGLCamera::glGet(void)
@@ -97,8 +135,9 @@ void NXOpenGLCamera::glGetPosition(void)
 void NXOpenGLCamera::glGetProjection(void)
 {
     projectionMatrix.glGet(GL_PROJECTION);
+    perspectiveProjection = projectionMatrix.isPerspective();
 }
-
+#endif
 
 /// Figure out camera's translation and rotation from model-view matrix
 /// Assumes the model-view matrix has an orthonormal rotational component
@@ -137,7 +176,6 @@ void NXOpenGLCamera::buildModelViewMatrix(void)
 /// Applies the camera's world-location and orientation settings to OpenGL
 void NXOpenGLCamera::glSetPosition(void)
 {
-    buildModelViewMatrix();
     modelViewMatrix.glSet(GL_MODELVIEW);
 }
 
@@ -145,7 +183,10 @@ void NXOpenGLCamera::glSetPosition(void)
 /// Applies the camera's projection-settings to OpenGL
 void NXOpenGLCamera::glSetProjection(void)
 {
-    projectionMatrix.glSet(GL_PROJECTION);
+    if(isPerspectiveProjection)
+        perspectiveProjection.glSet();
+    else
+        orthographicProjection.glSet();
 }
 
 
@@ -153,11 +194,27 @@ void NXOpenGLCamera::glSetProjection(void)
 void NXOpenGLCamera::resizeViewport(int w, int h)
 {
     viewport.resize(0, 0, w, h);
-    real aspectRatio = (real)w / (real)h;
-    projectionMatrix(0,0) *= aspectRatio;
-    projectionMatrix(0,2) *= aspectRatio;
-    projectionMatrix(1,1) *= aspectRatio;
-    projectionMatrix(1,2) *= aspectRatio;
+    real const aspectRatio = (real)w / (real)h;
+    
+    // adjust projection matrix
+    if(isPerspectiveProjection) {
+        // projectionMatrix(1,1) = projectionMatrix(0,0) / aspectRatio;
+        perspectiveProjection.aspect = aspectRatio;
+    }
+#if 0
+    else {
+        real const oldAspectRatio = projectionMatrix(1,1)/projectionMatrix(0,0);
+        real const aspectRatioFactor = aspectRatio / oldAspectRatio;
+        if(aspectRatioFactor < 1.0) {
+            // width has reduced in comparison to height - maintain y
+            projectionMatrix(0,0) /= aspectRatioFactor;
+        }
+        else {
+            // height has reduced in comparison to width - maintain x
+            projectionMatrix(1,1) *= aspectRatioFactor;
+        }
+    }
+#endif
 }
 
 
@@ -167,24 +224,58 @@ void NXOpenGLCamera::gluLookAt(real eyeX, real eyeY, real eyeZ,
                                real centerX, real centerY, real centerZ,
                                real upX, real upY, real upZ)
 {
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     ::gluLookAt(eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
     modelViewMatrix.glGet(GL_MODELVIEW);
+    parseModelViewMatrix();
 }
 
 
+/// Sets the camera's projection to the orthographic with the given bounding
+/// planes and applies it to OpenGL
+void NXOpenGLCamera::glOrtho(real l, real r, real b, real t, real n, real f)
+{
+    // glMatrixMode(GL_PROJECTION);
+    // glLoadIdentity();
+    // ::glOrtho(l, r, b, t, n, f);
+    // projectionMatrix.glGet(GL_PROJECTION);
+    isPerspectiveProjection = false;
+    orthographicProjection = OrthographicProjection(l, r, b, t, n, f);
+    orthographicProjection.glSet();
+}
+
+
+#if 0
 /// Sets the camera's projection to the given frustum and applies it to OpenGL
 void NXOpenGLCamera::glFrustum(real l, real r, real b, real t, real n, real f)
 {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
     ::glFrustum(l, r, b, t, n, f);
     projectionMatrix.glGet(GL_PROJECTION);
+    perspectiveProjection = true;
 }
-
+#endif
 
 /// Sets the camera's projection info to that given and applies it to OpenGL
 void NXOpenGLCamera::gluPerspective(real fovy, real aspect, real n, real f)
 {
-    ::gluPerspective(fovy, aspect, n, f);
-    projectionMatrix.glGet(GL_PROJECTION);
+    // glMatrixMode(GL_PROJECTION);
+    // glLoadIdentity();
+    // ::gluPerspective(fovy, aspect, n, f);
+    // projectionMatrix.glGet(GL_PROJECTION);
+    isPerspectiveProjection = true;
+    perspectiveProjection = PerspectiveProjection(fovy, aspect, n, f);
+    perspectiveProjection.glSet();
+}
+
+
+/// Sets the camera's viewport info and applies it to OpenGL
+void NXOpenGLCamera::glViewport(int x, int y, int w, int h)
+{
+    ::glViewport((GLint) x, (GLint) y, (GLsizei) w, (GLsizei) h);
+    viewport = GltViewport(x, y, w, h);
 }
 
 
@@ -193,14 +284,14 @@ void NXOpenGLCamera::gluPerspective(real fovy, real aspect, real n, real f)
 Vector NXOpenGLCamera::unproject(real x, real y, real z)
 {
     GLdouble worldX, worldY, worldZ;
+    GLdouble temp_projectionMatrix[16];
+    glGetDoublev(GL_PROJECTION_MATRIX, temp_projectionMatrix);
     
 #ifdef GLT_SINGLE_PRECISION
     // Create temporary store to catch differences in precision
     GLdouble temp_modelViewMatrix[16];
-    GLdouble temp_projectionMatrix[16];
     for(int i=0; i<16; ++i) {
         temp_modelViewMatrix[i] = modelViewMatrix[i];
-        temp_projectionMatrix[i] = projectionMatrix[i];
     }
     gluUnProject(x, y, z,
                  temp_modelViewMatrix,
@@ -210,7 +301,7 @@ Vector NXOpenGLCamera::unproject(real x, real y, real z)
 #else
     gluUnProject(x, y, z,
                  modelViewMatrix,
-                 projectionMatrix,
+                 temp_projectionMatrix,
                  viewport,
                  &worldX, &worldY, &worldZ);
 #endif

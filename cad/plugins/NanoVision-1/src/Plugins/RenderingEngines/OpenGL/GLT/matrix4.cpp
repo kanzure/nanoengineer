@@ -226,6 +226,52 @@ void GltMatrix::glSet(GLenum matrixMode)
 }
 
 
+bool GltMatrix::isOrtho() const
+{
+    bool diagonalsNonZero = (_matrix[0] != 0.0 &&
+                             _matrix[5] != 0.0 &&
+                             _matrix[10] != 0.0 &&
+                             _matrix[15] == 1.0);
+    bool offDiagonals3x3Zero = (_matrix[1] == 0.0 &&
+                                _matrix[2] == 0.0 &&
+                                _matrix[3] == 0.0 &&
+                                _matrix[4] == 0.0 &&
+                                _matrix[6] == 0.0 &&
+                                _matrix[7] == 0.0 &&
+                                _matrix[8] == 0.0 &&
+                                _matrix[9] == 0.0 &&
+                                _matrix[11] == 0.0);
+    bool lastColumn3NonZero = (_matrix[12] != 0.0 &&
+                               _matrix[13] != 0.0 &&
+                               _matrix[14] != 0.0);
+    bool result = diagonalsNonZero && offDiagonals3x3Zero && lastColumn3NonZero;
+    return result;
+}
+
+
+bool GltMatrix::isPerspective() const
+{
+    bool col0 = (_matrix[0] != 0.0 &&
+                 _matrix[1] == 0.0 &&
+                 _matrix[2] == 0.0 &&
+                 _matrix[3] == 0.0);
+    bool col1 = (_matrix[4] == 0.0 &&
+                 _matrix[5] != 0.0 &&
+                 _matrix[6] == 0.0 &&
+                 _matrix[7] == 0.0);
+    bool col2 = (_matrix[8] != 0.0 &&
+                 _matrix[9] != 0.0 &&
+                 _matrix[10] != 0.0 &&
+                 _matrix[11] == -1.0);
+    bool col3 = (_matrix[12] == 0.0 &&
+                 _matrix[13] == 0.0 &&
+                 _matrix[14] != 0.0 &&
+                 _matrix[15] == 0.0);
+    bool result = col0 && col1 && col2 && col3;
+    return result;
+}
+
+
 #if 0
 double const *
 GltMatrix::row(const unsigned int row) const

@@ -161,7 +161,7 @@ NXSGOpenGLRenderable*
     const double DELTA_PHI = 360.0 / (double) NUM_FACETS;
     GLdouble vertex[NUM_FACETS][2]; // store (x,y) values
     double x=0.0, y=0.0;
-    GLdouble const z = 0.5;
+    // GLdouble const z = 0.5;
     
     // generate vertices
     int iFacet = 0; // counter
@@ -192,12 +192,12 @@ NXSGOpenGLRenderable*
     /* Top cap - draw triangles instead of quads */
     glBegin(GL_TRIANGLE_FAN);
     glNormal3d(0,0,1);
-    glVertex3d(0.0, 0.0, z);
+    glVertex3d(0.0, 0.0, 1.0);
     for(iFacet=0; iFacet<NUM_FACETS; ++iFacet) {
-        glVertex3d(vertex[iFacet][0], vertex[iFacet][1], z);
+        glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 1.0);
     }
     // close top-cap
-    glVertex3d(vertex[0][0], vertex[0][1], z);
+    glVertex3d(vertex[0][0], vertex[0][1], 1.0);
     glEnd();
     
     
@@ -205,13 +205,13 @@ NXSGOpenGLRenderable*
     glBegin(GL_TRIANGLE_STRIP);
     for(iFacet=0; iFacet<NUM_FACETS; ++iFacet) {
         glNormal3d(vertex[iFacet][0], vertex[iFacet][1], 0.0);
-        glVertex3d(vertex[iFacet][0], vertex[iFacet][1], z);
-        glVertex3d(vertex[iFacet][0], vertex[iFacet][1], -z);
+        glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 1.0);
+        glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 0.0);
     }
     // close the side surface
     glNormal3d(vertex[0][0], vertex[0][1], 0.0);
-    glVertex3d(vertex[0][0], vertex[0][1], z);
-    glVertex3d(vertex[0][0], vertex[0][1], -z);
+    glVertex3d(vertex[0][0], vertex[0][1], 1.0);
+    glVertex3d(vertex[0][0], vertex[0][1], 0.0);
     glEnd();
     
     
@@ -220,12 +220,12 @@ NXSGOpenGLRenderable*
     glBegin(GL_TRIANGLE_FAN);
         /* Bottom pole */
     glNormal3d(0,0,-1);
-    glVertex3d(0.0, 0.0, -z);
+    glVertex3d(0.0, 0.0, 0.0);
     for(iFacet=0; iFacet<NUM_FACETS; ++iFacet) {
-        glVertex3d(vertex[iFacet][0], vertex[iFacet][1], -z);
+        glVertex3d(vertex[iFacet][0], vertex[iFacet][1], 0.0);
     }
     // close bottom-cap
-    glVertex3d(vertex[0][0], vertex[0][1], -z);
+    glVertex3d(vertex[0][0], vertex[0][1], 0.0);
     glEnd();
     
     renderResult = canonicalCylinderNode->endRender();

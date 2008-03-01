@@ -8,31 +8,50 @@
 %%
 Initial
 {
-    rotateStartEvent(x: int, y: int)
-        Rotating
-        {
-            rotateStart(x,y);
-        }
-
+    // trap meaningless actions
     Default
         Initial
-        {
-        }
+        { }
+
+    rotateStartEvent(x: int, y: int)
+        Rotating
+        { rotateStart(x,y); }
+
+    translateStartEvent(x: int, y: int)
+        Translating
+        { translateStart(x,y); }
 }
 
 Rotating
 {
+    // trap meaningless actions
+    Default
+        Rotating
+        { }
+
     rotatingEvent(x: int, y: int)
         Rotating
-        {
-            rotate(x, y);
-        }
+        { rotate(x, y); }
 
     rotateStopEvent(x: int, y: int)
         Initial
-        {
-            rotateStop(x, y);
-        }
+        { rotateStop(x, y); }
+}
+
+Translating
+{
+    // trap meaningless actions
+    Default
+        Translating
+        { }
+
+    translatingEvent(x: int, y: int)
+        Translating
+        { translate(x,y); }
+
+    translateStopEvent(x: int, y: int)
+        Initial
+        { translateStop(x,y); }
 }
 
 %%

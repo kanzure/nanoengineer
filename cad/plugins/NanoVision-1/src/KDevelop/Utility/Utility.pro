@@ -1,8 +1,8 @@
 TEMPLATE = lib
 
-CONFIG += debug_and_release \
- stl \
- dll
+CONFIG += stl \
+ dll \
+ debug
 win32 : CONFIG -= dll
 win32 : CONFIG += staticlib
 
@@ -29,3 +29,10 @@ TARGET = NanorexUtility
 DESTDIR = ../../../lib
 
 QT -= gui
+CONFIG -= release
+
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+ -g \
+ -O0 \
+ -fno-inline
+

@@ -142,28 +142,21 @@ NXSGNode* NXBallAndStickOpenGLRenderer::renderBond(NXBondRenderData const& info)
     /// @todo store canonical node for each one
     // note x-y displacements are not affected by z-scaling for length
     
-    bondScale->addChild(RenderCanonicalBond());
+    // single bond
+    if(info.getOrder() == 1 || info.getOrder() == 3) {
+        bondScale->addChild(RenderCanonicalBond());
+    }
     
-    NXSGNode *doubleBond = NULL;
-    if(info.getOrder()==2 || info.getOrder()==3) {
-        // for double bond, create two cylinders displace along x
-        doubleBond = new NXSGNode;
-        NXSGNode *subBond1 = new NXSGOpenGLTranslate( 0.5, 0.0, 0.0);
+    // double bond
+    if(info.getOrder() == 2 || info.getOrder() == 3) {
+        NXSGNode *const doubleBond = new NXSGNode;
+        NXSGNode *const subBond1 = new NXSGOpenGLTranslate( 0.5, 0.0, 0.0);
         subBond1->addChild(RenderCanonicalBond());
-        NXSGNode *subBond2 = new NXSGOpenGLTranslate(-0.5, 0.0, 0.0);
+        NXSGNode *const subBond2 = new NXSGOpenGLTranslate(-0.5, 0.0, 0.0);
         subBond2->addChild(RenderCanonicalBond());
         doubleBond->addChild(subBond1);
         doubleBond->addChild(subBond2);
         bondScale->addChild(doubleBond);
-    }
-    
-    // for triple bond, use ref to double bond but rotated 90 deg about z
-    if(info.getOrder()==3) {
-        assert(doubleBond != NULL);
-        NXSGNode *rotateDoubleBondZ = 
-            new NXSGOpenGLRotate(90.0, 0.0, 0.0, 1.0);
-        rotateDoubleBondZ->addChild(doubleBond);
-        bondScale->addChild(rotateDoubleBondZ);
     }
     
     return bondNode;

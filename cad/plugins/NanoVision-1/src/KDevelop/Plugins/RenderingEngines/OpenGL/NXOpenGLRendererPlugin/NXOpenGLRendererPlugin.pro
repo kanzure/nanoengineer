@@ -22,5 +22,8 @@ TARGETDEPS += ../../../../../../lib/libNXOpenGLSceneGraph.a
 
 DESTDIR = ../../../../../../lib
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+ -g \
+ -O0 \
+ -fno-inline
 

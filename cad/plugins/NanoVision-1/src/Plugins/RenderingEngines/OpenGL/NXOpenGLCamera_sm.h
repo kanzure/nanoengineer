@@ -3,12 +3,13 @@
 
 #define SMC_USES_IOSTREAMS
 
-#include "statemap.h"
+#include <statemap.h>
 
 // Forward declarations.
 class Trackball;
 class Trackball_Initial;
 class Trackball_Rotating;
+class Trackball_Translating;
 class Trackball_Default;
 class NXOpenGLCameraState;
 class NXOpenGLCameraContext;
@@ -29,6 +30,9 @@ public:
     virtual void rotateStartEvent(NXOpenGLCameraContext& context, int x, int y);
     virtual void rotateStopEvent(NXOpenGLCameraContext& context, int x, int y);
     virtual void rotatingEvent(NXOpenGLCameraContext& context, int x, int y);
+    virtual void translateStartEvent(NXOpenGLCameraContext& context, int x, int y);
+    virtual void translateStopEvent(NXOpenGLCameraContext& context, int x, int y);
+    virtual void translatingEvent(NXOpenGLCameraContext& context, int x, int y);
 
 protected:
 
@@ -41,6 +45,7 @@ public:
 
     static Trackball_Initial Initial;
     static Trackball_Rotating Rotating;
+    static Trackball_Translating Translating;
 };
 
 class Trackball_Default :
@@ -64,6 +69,7 @@ public:
 
     void Default(NXOpenGLCameraContext& context);
     void rotateStartEvent(NXOpenGLCameraContext& context, int x, int y);
+    void translateStartEvent(NXOpenGLCameraContext& context, int x, int y);
 };
 
 class Trackball_Rotating :
@@ -74,8 +80,22 @@ public:
     : Trackball_Default(name, stateId)
     {};
 
+    void Default(NXOpenGLCameraContext& context);
     void rotateStopEvent(NXOpenGLCameraContext& context, int x, int y);
     void rotatingEvent(NXOpenGLCameraContext& context, int x, int y);
+};
+
+class Trackball_Translating :
+    public Trackball_Default
+{
+public:
+    Trackball_Translating(const char *name, int stateId)
+    : Trackball_Default(name, stateId)
+    {};
+
+    void Default(NXOpenGLCameraContext& context);
+    void translateStopEvent(NXOpenGLCameraContext& context, int x, int y);
+    void translatingEvent(NXOpenGLCameraContext& context, int x, int y);
 };
 
 class NXOpenGLCameraContext :
@@ -118,6 +138,21 @@ public:
     void rotatingEvent(int x, int y)
     {
         (getState()).rotatingEvent(*this, x, y);
+    };
+
+    void translateStartEvent(int x, int y)
+    {
+        (getState()).translateStartEvent(*this, x, y);
+    };
+
+    void translateStopEvent(int x, int y)
+    {
+        (getState()).translateStopEvent(*this, x, y);
+    };
+
+    void translatingEvent(int x, int y)
+    {
+        (getState()).translatingEvent(*this, x, y);
     };
 
 private:

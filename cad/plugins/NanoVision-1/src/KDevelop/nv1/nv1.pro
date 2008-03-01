@@ -69,3 +69,8 @@ CONFIG -= app_bundle
 
 #macx : TARGETDEPS ~= s/.so/.dylib/g
 
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+ -g \
+ -O0 \
+ -fno-inline
+

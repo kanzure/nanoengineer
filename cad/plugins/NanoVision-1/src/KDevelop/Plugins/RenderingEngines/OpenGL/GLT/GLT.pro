@@ -47,7 +47,10 @@ HEADERS += ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_bbox.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_vector3.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_vector4.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_viewport.h \
- ../../../../../Plugins/RenderingEngines/OpenGL/GLT/matrix4.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/GLT/glt_rgb.h
 DESTDIR = ../../../../../../lib/
 
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+-g \
+-O0 \
+-fno-inline

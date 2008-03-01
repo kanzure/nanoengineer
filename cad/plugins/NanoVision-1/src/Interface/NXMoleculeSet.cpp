@@ -15,7 +15,13 @@ NXMoleculeSet::NXMoleculeSet() {
 
 /* DESTRUCTOR */
 NXMoleculeSet::~NXMoleculeSet() {
-	// TODO: Recursively delete sub-NXMSs
+    OBMolIterator molIter;
+    for(molIter = moleculesBegin(); molIter != moleculesEnd(); ++molIter)
+        delete *molIter;
+    
+    NXMoleculeSetIterator molSetIter;
+    for(molSetIter = childrenBegin(); molSetIter != childrenEnd(); ++molSetIter)
+        delete *molSetIter;
 }
 
 

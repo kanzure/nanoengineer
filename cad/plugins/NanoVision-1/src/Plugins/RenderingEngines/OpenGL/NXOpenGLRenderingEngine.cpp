@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cassert>
 #include <set>
+#include <cmath>
 
 #include "glt_bbox.h"
 
@@ -52,6 +53,15 @@ NXOpenGLRenderingEngine::NXOpenGLRenderingEngine(QWidget *parent)
 
 NXOpenGLRenderingEngine::~NXOpenGLRenderingEngine()
 {
+}
+
+
+void NXOpenGLRenderingEngine::setRootMoleculeSet(NXMoleculeSet *const moleculeSet)
+{
+    deleteSceneGraph();
+    rootMoleculeSet = moleculeSet;
+    rootSceneGraphNode = createSceneGraph ( rootMoleculeSet );
+    resetView();
 }
 
 
@@ -189,32 +199,23 @@ void NXOpenGLRenderingEngine::initializeGL(void)
 {
     /// @todo change background to sky-blue gradient
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    glClearDepth(1.0);
+    // glClearDepth(1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glEnable(GL_LIGHTING);
     glEnable(GL_DEPTH_TEST);
     
-    /// @todo initialize light model
+    lightModel.setLocalViewer(1);
+    lightModel.setTwoSide(0);
+    lightModel.set();
     setupDefaultLights();
-
-    /// @todo anything else?
-    // Initialize the modelview matrix
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(0.0, 0.0, 1.0,
-              0.0, 0.0, 0.0,
-              0.0, 1.0, 0.0);
     
-    glViewport(0, 0, width(), height());
+    camera.gluLookAt(0.0, 0.0, 1.0,
+                     0.0, 0.0, 0.0,
+                     0.0, 1.0, 0.0);
+    camera.glViewport(0, 0, width(), height());
+    camera.gluPerspective(55, (GLdouble)width()/(GLdouble)height(), 0.1, 50);
     
-    // Initialize the projection matrix
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(55, (GLdouble)width()/(GLdouble)height(), 0.1, 50);
-    
-    // Initialize camera from current OpenGL settings
-    camera.glGet();
 }
 
 
@@ -270,13 +271,11 @@ void NXOpenGLRenderingEngine::resizeGL(int width, int height)
     camera.resizeViewport(width, height);
     camera.glSetViewport();
     camera.glSetProjection();
-    /// @todo set projection mode by calling camera method
     // glMatrixMode(GL_PROJECTION);
     // glLoadIdentity();
     // gluPerspective(55, (GLdouble)width/(GLdouble)height, 0.1, 50);
     // camera.glGetProjection();
     // camera.glGetViewport();
-    
     
 /*    if(isOrthographicProjection)
         orthographicProjection.set();
@@ -290,8 +289,9 @@ void NXOpenGLRenderingEngine::resizeGL(int width, int height)
 void NXOpenGLRenderingEngine::paintGL(void)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    drawSkyBlueBackground();
     camera.glSetPosition();
-    // drawSkyBlueBackground();
+    camera.glSetProjection();
     rootSceneGraphNode->applyRecursive();
     glFlush();
     swapBuffers();
@@ -300,15 +300,28 @@ void NXOpenGLRenderingEngine::paintGL(void)
 
 void NXOpenGLRenderingEngine::drawSkyBlueBackground(void)
 {
+    glDisable(GL_LIGHTING);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    /// @todo create a square with appropriate vertex colors
-    // look up
-    // * GLPane.py::standard_repaint_self0()
+    // * GLPane.py::standard_repaint_0()
     // * drawer.py::drawFullWindow()
-    
+    GltColor vtColors0(0.9, 0.9, 0.9, 1.0);
+    GltColor vtColors1(0.9, 0.9, 0.9, 1.0);
+    GltColor vtColors2(0.33, 0.73, 1.0, 1.0);
+    GltColor vtColors3(0.33, 0.73, 1.0, 1.0);
+    glBegin(GL_QUADS);
+    vtColors0.glColor();
+    glVertex3f(-1, -1, 0.999);
+    vtColors1.glColor();
+    glVertex3f(1, -1, 0.999);
+    vtColors2.glColor();
+    glVertex3f(1, 1, 0.999);
+    vtColors3.glColor();
+    glVertex3f(-1, 1, 0.999);
+    glEnd();
+    glEnable(GL_LIGHTING);
 }
 
 
@@ -451,11 +464,11 @@ NXSGNode*
         Vector newZAxis = (nbrAtomPosition - atomPosition);
         newZAxis.normalize();
         Vector const rotationAxis = xProduct(zAxis, newZAxis);
-        real const rotationAngle = newZAxis * zAxis;
+        real const rotationAngleDeg = acos(newZAxis * zAxis) * 180.0 / M_PI;
         
         // align z-axis with bond
         NXSGOpenGLRotate *const rotateZAxisNode =
-            new NXSGOpenGLRotate(rotationAngle,
+            new NXSGOpenGLRotate(rotationAngleDeg,
                                  rotationAxis.x(),
                                  rotationAxis.y(),
                                  rotationAxis.z());
@@ -469,15 +482,17 @@ NXSGNode*
             (*currentPluginIter)->renderBond(bondRenderData);
         rotateZAxisNode->addChild(bondNode);
         
-        
-        double const bondLength = bondPtr->GetLength();
-        NXSGOpenGLTranslate *const translateToNbrAtomNode =
-            new NXSGOpenGLTranslate(0.0, 0.0, bondLength);
-        bondNode->addChild(translateToNbrAtomNode);
-        
+        // render neighbouring atom not already done, render submolecule
         set<OBAtom*>::iterator memberIter = renderedAtoms.find(nbrAtomPtr);
-        // render neighbouring atom not already done
         if(memberIter == renderedAtoms.end()) { 
+            
+            // translate to neighbouring atom center
+            double const bondLength = bondPtr->GetLength();
+            NXSGOpenGLTranslate *const translateToNbrAtomNode =
+                new NXSGOpenGLTranslate(0.0, 0.0, bondLength);
+            bondNode->addChild(translateToNbrAtomNode);
+            
+            // create scenegraph rooted at neighbouring atom
             NXSGNode *nbrAtomNode = createSceneGraph(molPtr,
                                                      nbrAtomPtr,
                                                      renderedAtoms,
@@ -496,28 +511,44 @@ void NXOpenGLRenderingEngine::resetView(void)
     if(rootMoleculeSet == NULL) return;
     
     // create axis-aligned bounding box
-    /// @todo
     BoundingBox bbox = GetMoleculeSetBoundingBox(rootMoleculeSet);
     Vector bboxMin = bbox.min();
     Vector bboxMax = bbox.max();
     
-    real const bboxXWidth = bboxMax.x() - bboxMin.x();
-    real const bboxYWidth = bboxMax.y() - bboxMin.y();
-    real const bboxZDepth = bboxMax.z() - bboxMin.z();
+    real const bboxXWidth = 1.0*(bboxMax.x() - bboxMin.x());
+    real const bboxYWidth = 1.0*(bboxMax.y() - bboxMin.y());
+    real const bboxZDepth = 1.0*(bboxMax.z() - bboxMin.z());
     
     real const projCubeWidth = max(bboxXWidth, max(bboxYWidth, bboxZDepth));
-    real const twiceProjCubeWidth = projCubeWidth + projCubeWidth;
-    
+    // real const twiceProjCubeWidth = projCubeWidth + projCubeWidth;
+    real const circumSphereRad = sqrt(3.0*0.25*projCubeWidth*projCubeWidth);
+    real const circumSphereDia = 2.0 * circumSphereRad;
     Vector const bboxCenter = bbox.center();
     
-    camera.gluLookAt(bboxCenter.x(), bboxCenter.y(), bboxMax.z()+twiceProjCubeWidth,
+    real l, r, b, t;
+    real const n = 1.0;
+    real const f = n + circumSphereDia;
+    real const aspect = real(width()) / real(height());
+    if(aspect < 1.0) {
+        l = bboxCenter.x() - circumSphereRad;
+        r = bboxCenter.x() + circumSphereRad;
+        b = bboxCenter.y() - circumSphereRad / aspect;
+        t = bboxCenter.y() + circumSphereRad / aspect;
+    }
+    else {
+        l = bboxCenter.x() - aspect * circumSphereRad;
+        r = bboxCenter.x() + aspect * circumSphereRad;
+        b = bboxCenter.y() - circumSphereRad;
+        t = bboxCenter.y() + circumSphereRad;
+    }
+    
+    makeCurrent();
+    camera.gluLookAt(bboxCenter.x(), bboxCenter.y(), bboxCenter.z()+circumSphereRad+n,
                      bboxCenter.x(), bboxCenter.y(), bboxCenter.z(),
                      0.0, 1.0, 0.0);
-    camera.glFrustum(bboxMin.x() - twiceProjCubeWidth,
-                     bboxMax.x() + twiceProjCubeWidth,
-                     bboxMin.y() - twiceProjCubeWidth,
-                     bboxMax.x() + twiceProjCubeWidth,
-                     projCubeWidth, 5.0 * projCubeWidth);
+    // camera.gluPerspective(60.0, double(width())/double(height()), n, f);
+    camera.glOrtho(l, r, b, t, n, f);
+
     updateGL();
 }
 
@@ -581,6 +612,12 @@ void NXOpenGLRenderingEngine::mousePressEvent(QMouseEvent *mouseEvent)
         camera.rotateStartEvent(mouseEvent->x(), mouseEvent->y());
         mouseEvent->accept();
     }
+    else if(mouseEvent->button() == Qt::LeftButton &&
+            mouseEvent->modifiers() == Qt::NoModifier)
+    {
+        camera.translateStartEvent(mouseEvent->x(), mouseEvent->y());
+        mouseEvent->accept();
+    }
     else
         mouseEvent->ignore();
     
@@ -591,10 +628,18 @@ void NXOpenGLRenderingEngine::mousePressEvent(QMouseEvent *mouseEvent)
 void NXOpenGLRenderingEngine::mouseMoveEvent(QMouseEvent *mouseEvent)
 {
     assert(mouseEvent->button() == Qt::NoButton);
+    Qt::MouseButtons buttons = mouseEvent->buttons();
     
-    if(mouseEvent->modifiers() == Qt::NoModifier)
+    if((buttons & Qt::MidButton) &&
+       mouseEvent->modifiers() == Qt::NoModifier)
     {
         camera.rotatingEvent(mouseEvent->x(), mouseEvent->y());
+        mouseEvent->accept();
+    }
+    else if((buttons & Qt::LeftButton) &&
+            mouseEvent->modifiers() == Qt::NoModifier)
+    {
+        camera.translatingEvent(mouseEvent->x(), mouseEvent->y());
         mouseEvent->accept();
     }
     else
@@ -609,6 +654,11 @@ void NXOpenGLRenderingEngine::mouseReleaseEvent(QMouseEvent *mouseEvent)
     if(mouseEvent->button() == Qt::MidButton)
     {
         camera.rotateStopEvent(mouseEvent->x(), mouseEvent->y());
+        mouseEvent->accept();
+    }
+    else if(mouseEvent->button() == Qt::LeftButton)
+    {
+        camera.translateStopEvent(mouseEvent->x(), mouseEvent->y());
         mouseEvent->accept();
     }
     else

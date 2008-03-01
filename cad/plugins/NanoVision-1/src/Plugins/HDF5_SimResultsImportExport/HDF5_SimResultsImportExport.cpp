@@ -35,7 +35,8 @@ NXCommandResult* HDF5_SimResultsImportExport::importFromFile
 		
 	if (simResults == 0)
 		populateCommandResult(result,
-							  "exportToFile: Could not instantiate or retrieve the HDF5_SimResults object.");
+							  "exportToFile: Could not instantiate or retrieve "
+                              "the HDF5_SimResults object.");
 
 	// Open the actual data store.
 	int status;
@@ -270,7 +271,8 @@ NXCommandResult* HDF5_SimResultsImportExport::exportToFile
 		
 	if (simResults == 0)
 		populateCommandResult(result,
-							  "exportToFile: Could not instantiate or retrieve the HDF5_SimResults object.");
+							  "exportToFile: Could not instantiate or retrieve"
+                              " the HDF5_SimResults object.");
 
 	// Create the actual data store. We assume that checks for existing data
 	// stores with the same name have already been done, and so clobber any

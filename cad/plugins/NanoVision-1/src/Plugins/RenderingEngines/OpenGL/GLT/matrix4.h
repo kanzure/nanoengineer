@@ -123,6 +123,12 @@ public:
 	/// Load current OpenGL matrix
 	void glLoadMatrix() const;
 
+    /// Is this an orthographic projection matrix?
+    bool isOrtho() const;
+    
+    /// Is this a perspective projection matrix?
+    bool isPerspective() const;
+    
 	/// Write matrix in Povray format
 	std::ostream &writePov(std::ostream &os) const;
 

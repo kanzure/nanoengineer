@@ -52,5 +52,8 @@ stl
 # This tell qmake to not create a Mac bundle for this application.
 CONFIG -= app_bundle
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+ -g \
+ -O0 \
+ -fno-inline
 

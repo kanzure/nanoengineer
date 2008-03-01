@@ -1,10 +1,9 @@
 TEMPLATE = lib
 
 CONFIG += debug_and_release \
- staticlib \
  stl \
- opengl
-# dll
+ opengl \
+ dll \
 # plugin
 
 HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
@@ -28,7 +27,8 @@ QT += opengl
 INCLUDEPATH += ../../../../../../include \
  ../../../../../../src \
  ../../../../../../src/Plugins/RenderingEngines/OpenGL/GLT \
- $(OPENBABEL_INCPATH)
+ $(OPENBABEL_INCPATH) \
+ ../../../../../../src/Plugins/RenderingEngines/OpenGL
 
 LIBS += -L$(OPENBABEL_LIBPATH) \
  -L../../../../../../lib \
@@ -56,9 +56,14 @@ SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngin
  ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLCamera_sm.cpp \
  ../../../../../Plugins/RenderingEngines/OpenGL/trackball.c
 
-QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG
+QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
+ -g \
+ -O0 \
+ -fno-inline
 
 # Remove the "lib" from the start of the library
 # unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
 # macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
+
+DISTFILES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLCamera.sm
 
