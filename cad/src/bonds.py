@@ -82,16 +82,24 @@ BN_GRAPHITIC_BONDLENGTH = 1.446   # page 1650
 
 # ==
 
-# define BondSet and BondBase differently depending on whether we are
+# define BondDict and BondBase differently depending on whether we are
 # using Pyrex Atoms and Bonds (atombase.pyx):
 
 if usePyrexAtomsAndBonds(): #bruce 080220 revised this
     # usePyrexAtomsAndBonds tests that we want to, and can, import all
     # necessary symbols from atombase
     from atombase import BondDictBase, BondBase
-    class BondSet(BondDictBase): # not yet used? rename?
+    class BondDict(BondDictBase):
+        # not yet used, except maybe in atombasetests.py
+        # renamed from BondSet, bruce 080229
+        # probably not correctly defined; see assert 0 message below
         def __init__(self):
             BondDictBase.__init__(self)
+            assert 0, "BondDictBase is probably incorrect after 080229 " \
+                      "renaming of bond.key to bond.bond_key, with new " \
+                      "formula which is much less globally unique than " \
+                      "before. (Before this, it probably had at least a" \
+                      "rare bug due to that nonuniqueness.)" #bruce 080229
             atKey = 'stub' # NIM
             self.key = atKey.next() # FIX: Undefined variable 'atKey'.
                 # This atKey should be distinct from the one in chem.py, i think
@@ -100,13 +108,13 @@ if usePyrexAtomsAndBonds(): #bruce 080220 revised this
                 # maybe the (experimental) C code assumes all atom & bond keys
                 # are distinct in a single namespace.
                 # If so, we should make a single global key allocator in env.
-                # [but note that this is not a bond key, it's a BondSet key]
+                # [but note that this is not a bond key, it's a BondDict key]
                 # [bruce 071107/080223 comment]
             return
         pass
     print "Using atombase.pyx in bonds.py"
 else:
-    def BondSet():
+    def BondDict():
         return { }
     class BondBase:
         def __init__(self):
@@ -1320,7 +1328,7 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
             # this only being unique for bonds attached to a single
             # atom.
         
-##        #bruce 050608: kluge (in how it finds glpane and thus assumes just one of them is used; and since key is not truly unique)
+##        #bruce 050608: kluge (in how it finds glpane and thus assumes just one of them is used; and since bond_key is not truly unique)
 ##        self.atom1.molecule.assy.w.glpane.glselect_objs[self.bond_key] = self #e dict should be stored in assy (or so) instead
 ##            ###@@@ not key, use other attr name for that, obj.glname or glselect_name or so...
         #bruce 050317: debug warning for interpart bonds, or bonding killed atoms/chunks,

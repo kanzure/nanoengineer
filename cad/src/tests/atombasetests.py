@@ -1,5 +1,5 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
-"""\
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
+"""
 Python atoms, atom sets, diff factories, diff objects (tests)
 
 http://tinyurl.com/rv7fx
@@ -9,10 +9,10 @@ May need changes to work in this location.  Used to be in cad/src.
 Probably depends on atombasehelp.c, which will likely move as the
 cad/src directory is cleaned out.
 
-$Id$
+@author: Will
+@version: $Id$
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-
-__author__ = "Will"
 
 import unittest
 from atombase import *
@@ -127,7 +127,7 @@ class BondTests(TestCase):
         assert bb.v6 == 2
 
     def test_bondset_keysSorted(self):
-        """\
+        """
         bondset.keys() # sorted
         bondset.values() # sorted by key
         bondset.items() # sorted by key
@@ -156,9 +156,13 @@ class BondTests(TestCase):
             ]
 
     def test_bondset_contains(self):
-        """\
+        """
         (bond.key in bondset) should be equivalent to, but
         much faster than, (bond.key in bondset.keys())
+
+        ###BUGS: bond.key is now named bond.bond_key;
+        # and it is not globally unique (it never was,
+        # but as of 080229 it collides much more often).
         """
         bondset = BondDict()
         # create them forwards
@@ -185,8 +189,12 @@ class BondTests(TestCase):
         assert bond5.key not in bondset
 
     def test_bondset_gracefulRemoves(self):
-        """\
+        """
         del bondset[bond.key]
+
+        ###BUGS: bond.key is now named bond.bond_key;
+        # and it is not globally unique (it never was,
+        # but as of 080229 it collides much more often).
         """
         bond1 = Bond()
         bond2 = Bond()
@@ -208,7 +216,7 @@ class BondTests(TestCase):
         assert bond3.sets.tolist() == [ ]
 
     def test_bondset_updateFromAnotherBondlist(self):
-        """\
+        """
         bondset.update( bondset2 )
         """
         alst = [ ]
@@ -224,7 +232,7 @@ class BondTests(TestCase):
         assert bondset2.keys() == [ 1, 2, 3, 4, 5 ]
 
     def test_bondset_updateFromDict(self):
-        """\
+        """
         bondset.update( any dict from bond.key to bond )
         """
         adct = { }
@@ -257,7 +265,7 @@ class BondTests(TestCase):
 class AtomDictTests(TestCase):
 
     def test_atomset_basic(self):
-        """\
+        """
         atomset[atom.key] = atom
         """
         atom1 = Atom()
@@ -270,7 +278,7 @@ class AtomDictTests(TestCase):
             pass
 
     def test_atomset_keysIn(self):
-        """\
+        """
         atomset.add(atm1)
         atm1.key in atomset --> True
         atm2.key in atomset --> False
@@ -286,7 +294,7 @@ class AtomDictTests(TestCase):
         assert atom2.key not in atomset
 
     def test_atomset_keysSorted(self):
-        """\
+        """
         atomset.keys() # sorted
         atomset.values() # sorted by key
         atomset.items() # sorted by key
@@ -315,7 +323,7 @@ class AtomDictTests(TestCase):
             ]
 
     def test_atomset_contains(self):
-        """\
+        """
         (atm.key in atomset) should be equivalent to, but
         much faster than, (atm.key in atomset.keys())
         """
@@ -344,7 +352,7 @@ class AtomDictTests(TestCase):
         assert atom5.key not in atomset
 
     def test_atomset_gracefulRemoves(self):
-        """\
+        """
         del atomset[atom.key]
         """
         atom1 = Atom()
@@ -367,7 +375,7 @@ class AtomDictTests(TestCase):
         assert atom3.sets.tolist() == [ ]
 
     def test_atomset_updateFromAnotherAtomlist(self):
-        """\
+        """
         atomset.update( atomset2 )
         """
         alst = [ ]
@@ -383,7 +391,7 @@ class AtomDictTests(TestCase):
         assert atomset2.keys() == [ 1, 2, 3, 4, 5 ]
 
     def test_atomset_updateFromDict(self):
-        """\
+        """
         atomset.update( any dict from atom.key to atom )
         """
         adct = { }

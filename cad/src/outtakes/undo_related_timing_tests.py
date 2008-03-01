@@ -185,8 +185,10 @@ def update_keyposdict_keyv6dict_from_mol( dict1, dictb, m):
         ## dict1[id(atm)] = pos
         dict1[atm.key] = pos
         for b in atm.bonds:
-            # use b.key -- not ideal but good enough test for now 
-            dictb[b.key] = b.v6 # this runs twice per bond
+            # use id(b) -- not ideal but good enough test for now
+            # (before 080229 this code used b.bond_key, which was usually but not entirely unique,
+            #  and now has frequent collisions; note, it was already in outtakes on that date)
+            dictb[id(b)] = b.v6 # this runs twice per bond
     return
 
 def diff_keyposdict_from_mol( dict1, dict2, m):
@@ -210,7 +212,7 @@ def blerg(mols):
         update_keyposdict_keyv6dict_from_mol( dict1, dictb, m)
         diff_keyposdict_from_mol( dict1, dict2, m)
     # now dict1 maps key->pos for every atom in the system
-    # and dictb has all v6's of all bonds
+    # and dictb has all v6's of all bonds (mapping from id(bond))
     return len(dict1), len(dictb)
 
 def blerg_cmd( target):

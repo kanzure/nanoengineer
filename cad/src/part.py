@@ -884,7 +884,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         """
         assert self.repeated_bonds_dict is None
         self.repeated_bonds_dict = {}
-            # This lets bonds avoid being drawn twice. It maps bond.key to bond
+            # This lets bonds avoid being drawn twice. It maps id(bond) to bond
             # for all bonds that might otherwise be drawn twice. It is public
             # for use and modification by anything that draws bonds.
             #
