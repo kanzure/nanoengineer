@@ -1,18 +1,18 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 NE1_QToolBar.py - Main NE1 toolbar class, which subclasses Qt's QToolBar
 class. All NE1 main window toolbars should use this class (except for the
 Command Toolbar).
 
 @author: Mark Sims
-@version: $Id:$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from PyQt4 import QtGui
-from PyQt4.Qt import Qt, QToolBar, SIGNAL, SLOT
+from PyQt4.Qt import Qt, QToolBar, SIGNAL
 from icon_utilities import getpixmap
-from debug import print_compact_traceback
+from debug import print_compact_stack
 
 class NE1_QToolBar(QToolBar):
     """
@@ -42,6 +42,8 @@ class NE1_QToolBar(QToolBar):
         print "updateSeparatorPixmaps(): HERE!"
         for separator in self._separatorList:
             setSeparatorWidgetPixmap(separator, self.orientation())
+                # REVIEW: should this line start with self.?
+                # REVIEW: should the arg be self.orientation() like here, or self.orientation like below?
             
     def setSeparatorWidgetPixmap(self, widget, orientation):
         """
@@ -78,7 +80,7 @@ class NE1_QToolBar(QToolBar):
         
         @note: If you need this method, please code it! Mark 2008-02-29.
         """
-        print_compact_traceback("insertSeparator() not supported. " \
+        print_compact_stack("insertSeparator() not supported. " \
             "Use addSeparator instead or implement insertSeparator()")
         return
     
