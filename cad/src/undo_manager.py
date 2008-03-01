@@ -701,17 +701,12 @@ def editAutoCheckpointing(win, enabled, update_UI = True, print_to_history = Tru
     if update_UI:
         # Inserting/removing editMakeCheckpointAction from the standardToolBar
         # keeps the toolbar the correct length (i.e. no empty space at the end).
-        # ## WARNING ### - This doesn't check for action already being present
-        # or already being missing, and nothing guarantees this
-        # will not get an exception from removing it when not there
-        # or adding it when already there, though this didn't happen
-        # in initial tests. --Mark 2008-03-01.
-        if enabled:
-            win.standardToolBar.removeAction(win.editMakeCheckpointAction)
-        else:
+        # BTW, it is ok to call removeAction() even when the action doesn't live
+        # in the toolbar. Mark 2008-03-01
+        win.standardToolBar.removeAction(win.editMakeCheckpointAction)
+        if not enabled:
             win.standardToolBar.insertAction(win.editUndoAction, 
                                              win.editMakeCheckpointAction)
-        
         # This is needed to hide/show editMakeCheckpointAction in the "Edit" menu.
         win.editMakeCheckpointAction.setVisible(not enabled)
         
