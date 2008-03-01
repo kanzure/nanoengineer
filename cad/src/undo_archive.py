@@ -16,6 +16,7 @@ providing undo/redo ops which apply those diffs to the model state.
 import time
 from utilities import debug_flags
 from debug import print_compact_traceback, print_compact_stack, safe_repr
+from debug import begin_timing, end_timing
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
 
@@ -1564,6 +1565,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         # not wasting runtime due to this, which is now followed in our
         # callers. [bruce 080229 comment]
         
+        start = begin_timing("initial_checkpoint")
         assert not self._undo_archive_initialized
         assy = self.assy
         cp = make_empty_checkpoint(assy, 'initial') # initial checkpoint
@@ -1587,6 +1589,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self._undo_archive_initialized = True # should come before _setup_next_cp
         self._setup_next_cp() # don't know cptype yet (I hope it's 'begin_cmd'; should we say that to the call? #k)
         ## self.notify_observers() # current API doesn't permit this to do anything during __init__, since subs is untouched then
+        end_timing(start, "initial_checkpoint")
         return
 
     def setup_changedicts(self):

@@ -61,6 +61,7 @@ from PyQt4.Qt import QFileDialog
 
 import env
 from utilities import debug_flags
+from state_utils import DataMixin
 
 from chunk import Chunk
 from chem import Atom
@@ -674,7 +675,7 @@ def getMultiplicity(objList): # only used in this file
     pass
 
 
-class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py, though only used in this file
+class image_mod_record(DataMixin): #bruce 060210; maybe should be refiled in ImageUtils.py, though only used in this file
     """
     record the mirror/flip/rotate history of an image in a short canonical form,
     and be able to write/read/do this
@@ -753,15 +754,14 @@ class image_mod_record: #bruce 060210; maybe should be refiled in ImageUtils.py,
         # Python requires this to return an int; i think a boolean should be ok
         return not not (self.mirrorQ or self.rot) # only correct since we always canonicalize rot by % 360
 
-    def _s_deepcopy(self, copyfunc): # (in class image_mod_record [bruce circa 060210])
+    # override abstract method of DataMixin
+    def _copyOfObject(self, copyfunc): # (in class image_mod_record [bruce circa 060210])
         # ignores copyfunc
         return self.__class__(self.mirrorQ, self.rot)
 
+    # override abstract method of DataMixin
     def __eq__(self, other): #bruce 060222 for Undo; but had a bug until we defined __ne__, since != never calls __eq__ on its own.
         return self.__class__ is other.__class__ and (self.mirrorQ, self.rot) == (other.mirrorQ, other.rot)
-
-    def __ne__(self, other): #bruce 060228
-        return not (self == other)
 
     pass # end of class image_mod_record
 

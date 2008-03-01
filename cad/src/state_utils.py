@@ -41,11 +41,11 @@ DEBUG_PYREX_ATOMS = debug_pyrex_atoms()
 
 ### TODO:
 '''
-Where is _s_deepcopy (etc) documented? (In code and on wiki?)
+Where is _copyOfObject (etc) documented? (In code and on wiki?)
 
 That should say:
 
-- When defining _s_deepcopy, consider:
+- When defining _copyOfObject, consider:
 
   - is it correct for any copyfunc argument? (esp in its assumption
     about what that returns, original or copy or transformed copy)
@@ -348,7 +348,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                                 self.attrs_declared_as(S_CHILDREN) + \
                                 self.attrs_declared_as(S_CHILDREN_NOT_DATA)  #e sorted somehow? no need yet.
         
-        self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or hasattr(class1, '_s_deepcopy')
+        self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or hasattr(class1, '_s_isPureData')
             # WARNING: this code is duplicated/optimized in _same_InstanceType_helper [as of bruce 060419, for A7]
 
         if self.warn and (env.debug() or DEBUG_PYREX_ATOMS):
@@ -460,7 +460,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                        attr_its_about == ATOM_CHUNK_ATTRIBUTE_NAME:
                         self.dict_of_all_Atom_chunk_attrcodes[ attrcode ] = None #071114
                 pass
-            elif name == '_s_deepcopy': # note: exact name (not a prefix), and doesn't end with '_'
+            elif name == '_s_isPureData': # note: exact name (not a prefix), and doesn't end with '_'
                 self.warn = False # enough to be legitimate data
             elif name == '_s_scan_children':
                 pass ## probably not: self.warn = False
@@ -538,7 +538,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         """
         Should obj (one of our class's instances) be considered a data object?
         """
-        return self._objs_are_data ## or hasattr(obj, '_s_deepcopy'), if we let individual instances override their classes on this
+        return self._objs_are_data ## or hasattr(obj, '_s_isPureData'), if we let individual instances override their classes on this
     
     def copy(self, val, func): # from outside, when in vals, it might as well be atomic! WRONG, it might add self to todo list...
         """
@@ -601,18 +601,18 @@ copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes w
 
 # scanners_for_class_names would work the same way, but we don't need it yet.
 
-_debug_deepcopy = False # initial value not used -- set to env.debug() in each run of copy_val [bruce 060311]
+_debug_copyOfObject = False # initial value not used -- set to env.debug() in each run of copy_val [bruce 060311]
 
 def copy_val(val): #bruce 060221 generalized semantics and rewrote for efficiency #bruce 060315 partly optimized env.debug() check
     """
     Efficiently copy a general Python value (so that mutable components are not shared with the original),
-    passing Python instances unchanged, unless they define a _s_deepcopy method,
+    passing Python instances unchanged, unless they define a _copyOfObject method,
     and passing unrecognized objects (e.g. QWidgets, bound methods) through unchanged.
 
     (See a code comment for the reason we can't just use the standard Python copy module for this.)
     """
-    global _debug_deepcopy
-    _debug_deepcopy = debug_flags.atom_debug # inlined env.debug() # DEBUG_PYREX_ATOMS?
+    global _debug_copyOfObject
+    _debug_copyOfObject = debug_flags.atom_debug # inlined env.debug() # DEBUG_PYREX_ATOMS?
         ##e ideally we'd have a recursive _copy_val_helper that doesn't check this debug flag at all
     try:
         # wware 060308 small performance improvement (use try/except); made safer by bruce, same day
@@ -637,7 +637,7 @@ def is_mutable(val): #060302 [###@@@ use this more]
      could probably be changed, but this doesn't matter for now).
     Treat unknown types with known_type_copiers entries as mutable (wrong in general, ok for now,
      and might cover some of the above cases).
-    Treat InstanceType objects as mutable if and only if they define an _s_deepcopy method.
+    Treat InstanceType objects as mutable if and only if they define an _s_isPureData method.
     (The other ones, we're thinking of as immutable references or object pointers,
     and we don't care whether the objects they point to are mutable.)
     """
@@ -659,7 +659,7 @@ def _is_mutable_helper(val): #060303
         return
     elif typ is InstanceType:
         # another special case
-        if hasattr(val, '_s_deepcopy'):
+        if hasattr(val, '_s_isPureData'):
             raise _IsMutable
         return
     else:
@@ -703,26 +703,29 @@ def copy_InstanceType(obj): #e pass copy_val as an optional arg?
     # not yet needed, since QColor is not InstanceType (but keep the code here for when it is needed):
     ##copier = copiers_for_InstanceType_class_names.get(obj.__class__.__name__)
     ##    # We do this by name so we don't need to import QColor (for example) unless we encounter one.
-    ##    # Similar code might be needed by anything that looks for _s_deepcopy (as a type test or to use it). ###@@@ DOIT, then remove cmt
+    ##    # Similar code might be needed by anything that looks for _copyOfObject (as a type test or to use it). ###@@@ DOIT, then remove cmt
     ##    #e There's no way around checking this every time, though we might optimize
     ##    # by storing specific classes which copy as selves into some dict;
     ##    # it's not too important since we'll optimize Atom and Bond copying in other ways.
     ##if copier is not None:
     ##    return copier(obj, copy_val) # e.g. for QColor
     try:
-        deepcopy_method = obj._s_deepcopy # note: not compatible with copy.deepcopy's __deepcopy__ method
+        # note: not compatible with copy.deepcopy's __deepcopy__ method
+        # see DataMixin and IdentityCopyMixin below.
+        copy_method = obj._copyOfObject 
     except AttributeError:
+        print "****************** needs _copyOfObject: %s" % repr(obj)
         return obj
-    res = deepcopy_method( copy_val)
-    if _debug_deepcopy and (obj != res or (not (obj == res))): #bruce 060311 adding _debug_deepcopy as optim (suggested by Will)
-        # Bug in deepcopy_method, which will cause false positives in change-detection in Undo (since we'll return res anyway).
+    res = copy_method( copy_val)
+    if _debug_copyOfObject and (obj != res or (not (obj == res))): #bruce 060311 adding _debug_copyOfObject as optim (suggested by Will)
+        # Bug in copy_method, which will cause false positives in change-detection in Undo (since we'll return res anyway).
         # (It's still better to return res than obj, since returning obj could cause Undo to completely miss changes.)
         #
         # Note: we require obj == res, but not res == obj (e.g. in case a fancy number turns into a plain one).
         # Hopefully the fancy object could define some sort of __req__ method, but we'll try to not force it to for now;
         # this has implications for how our diff-making archiver should test for differences. ###@@@doit
 
-        msg = "bug: obj != res or (not (obj == res)), res is _s_deepcopy of obj; " \
+        msg = "bug: obj != res or (not (obj == res)), res is _copyOfObject of obj; " \
               "obj is %r, res is %r, == is %r, != is %r: " % \
               (obj, res, obj == res, obj != res)
 
@@ -750,7 +753,7 @@ if SAMEVALS_SPEEDUP:
 
 # inlined:
 ## def is_mutable_InstanceType(obj): 
-##     return hasattr(obj, '_s_deepcopy')
+##     return hasattr(obj, '_s_isPureData')
   
 known_type_copiers[ InstanceType ] = copy_InstanceType
 
@@ -807,7 +810,7 @@ def copy_Numeric_array(obj):
         return array( map( copy_val, obj) )
             ###e this is probably incorrect for multiple dimensions; doesn't matter for now.
             # Note: We can't assume the typecode of the copied array should also be PyObject,
-            # since _s_deepcopy methods could return anything, so let it be inferred.
+            # since _copyOfObject methods could return anything, so let it be inferred.
             # In future we might decide to let this typecode be declared somehow...
 ##    if env.debug():
 ##        print "atom_debug: ran copy_Numeric_array, non-PyObject case" # remove when works once ... it did
@@ -1688,7 +1691,7 @@ class obj_classifier:
         found (recursively, on these same objects) in their attributes which were
         declared S_CHILD or S_CHILDREN or S_CHILDREN_NOT_DATA using the state attribute decl system... [#doc that more precisely]
         return them as the values of a dictionary whose keys are their python id()s.
-           Note: this scans through "data objects" (defined as those which define an '_s_deepcopy' method)
+           Note: this scans through "data objects" (defined as those which define an '_s_isPureData' method)
         only once, but doesn't include them in the return value. This is necessary (I think) because
         copy_val copies such objects. (Whether it's optimal is not yet clear.)
            If deferred_category_collectors is provided, it should be a dict from attr-category names
@@ -1892,28 +1895,74 @@ class StateMixin( _eq_id_mixin_ ):
 
 class DataMixin:
     """
-    Convenience mixin for classes that act as "data" when present
-    in values of declared state-holding attributes. Provides method stubs
-    to remind you when you haven't declared a necessary method. (not sure this is good)
-    Makes sure state system treats this object as data (and doesn't warn about it).
-       Note: it's not obligatory for data-like classes to inherit this, and as of 060302
-    I think none of them do (though maybe they should, to serve as examples #e). To find the
-    classes that are officially treated as data by Undo and other state_utils features,
-    search for _s_deepcopy methods.
+    Convenience mixin for classes that act as 'data' when present in
+    values of declared state-holding attributes. Provides method stubs
+    to remind you when you haven't declared a necessary method.  Makes
+    sure state system treats this object as data (and doesn't warn
+    about it).  All such data like classes which may be handled by
+    copy_val must inherit DataMixin.
     """
-    def _s_deepcopy(self, copyfunc): # note: presence of this method makes sure this object is treated as data.
-        "#doc [doc available in other implems of this method, and/or its calls; implem must be compatible with __eq__]"
-        print "_s_deepcopy needs to be overridden in", self
+    def _copyOfObject(self, copyfunc):
+        """
+        Implements the copying of an object for copy_val.  For data
+        objects (which inherit from DataMixin, or define
+        _s_isPureData), this should return a fresh object which will
+        compare __eq__ to the original, but which will have a
+        different id().  Implementation of this method must be
+        compatible with the implementation of __eq__ for this class.
+
+        This method is declared private solely for performance
+        reasons.  In particular, InvalMixin.__getattr__() has a fast
+        return for attributes which start with an underscore.  Many
+        objects (like atoms) inherit from InvalMixin, and looking up
+        non-existent attributes on them takes significantly longer if
+        the attribute name does not start with underscore.  In
+        general, such objects should inherit from IdentityCopyMixin as
+        well, and thus have _copyOfObject defined in order to avoid
+        exception processing overhead in copy_InstanceType(), so it
+        doesn't really matter.  Should something slip through the
+        cracks, at least we're only imposing one slowdown on the copy,
+        and not two.
+
+        It appears that copyfunc is never used, but could be needed
+        for a complex structure.
+        """
+        print "_copyOfObject needs to be overridden in", self
         print "  (implem must be compatible with __eq__)"
         return self
+    def _s_isPureData(self): # note: presence of this method makes sure this object is treated as data.
+        pass
     def __eq__(self, other):
         print "__eq__ needs to be overridden in", self ### don't put this mixin into Gamess til I test lack of __eq__ there
-        print "  (implem must be compatible with _s_deepcopy; don't forget to avoid '==' when comparing Numeric arrays)"
+        print "  (implem must be compatible with _copyOfObject; don't forget to avoid '==' when comparing Numeric arrays)"
         return self is other
     def __ne__(self, other):
         return not (self == other) # this uses the __eq__ above, or one which the main class defined
     pass
 
+class IdentityCopyMixin:
+    def _copyOfObject(self, copyfunc):
+        """
+        Implements the copying of an object for copy_val.  For objects
+        which care about their identity (which inherit from
+        IdentityCopyMixin), this will return a new reference to the
+        same object.  There is no need to override this method.
+        Compare this with the behavior of DataMixin._copyOfObject().
+        """
+        return self
+
+    def _isIdentityCopyMixin(self):
+        """
+        This method acts as a flag allowing us to tell the difference
+        between things which inherit from DataMixin and those which
+        inherit from IdentityCopyMixin.  Any given class should only
+        inherit from one of the above two mixin interfaces.  So, both
+        _isIdentityCopyMixin and _s_isPureData should not be defined
+        on the same object.  This can be used to check coverage of
+        types in copy_InstanceType().
+        """
+        pass
+    pass
 # ===
 
 # test code

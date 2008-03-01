@@ -47,6 +47,7 @@ from qutemol import write_qutemol_pdb_file
 
 from debug import print_compact_traceback
 from debug import linenum
+from debug import begin_timing, end_timing
 
 from utilities.Log import greenmsg, redmsg, orangemsg, _graymsg
 
@@ -616,6 +617,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.setCurrentWorkingDirectory(dir)
 
     def fileOpen(self, recentFile = None):
+        ##### begin profiling code
+        # if this gets checked in by accident, just remove everything between begin and end
+        import profile_helper
+        profile_helper.set_function(self.fileOpen_profile)
+        profile_helper.set_arg1(recentFile)
+        profile_helper.run()
+
+    def fileOpen_profile(self, recentFile = None):
+        ##### end profiling code
         """
         Slot method for 'File > Open'.
         By default, users open a file through 'Open File' dialog. If <recentFile> is provided, it means user
@@ -673,6 +683,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 return
 
         if fn:
+            start = begin_timing("File..Open")
             self.updateRecentFileList(fn)
 
             self.__clear() # this resets self.assy to a new, empty assembly object
@@ -742,6 +753,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # All set. Restore the normal cursor and print a history msg.
             env.history.message(_openmsg)
             QApplication.restoreOverrideCursor() # Restore the cursor
+            end_timing(start, "File..Open")
             
         self.setCurrentWorkingDirectory()
         

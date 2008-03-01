@@ -17,7 +17,8 @@ so the remaining part of this module can be classified as "geometry"
 """
 
 import math
-from utilities import debug_flags 
+from utilities import debug_flags
+from state_utils import DataMixin
 
 import Numeric 
 
@@ -156,7 +157,7 @@ Z_AXIS = V(0,0,1)
 
 # ==
 
-class Q: # by Josh; some comments and docstring revised by bruce 050518
+class Q(DataMixin): # by Josh; some comments and docstring revised by bruce 050518
     """
     Q(W, x, y, z) is the quaternion with axis vector x,y,z
     and sin(theta/2) = W
@@ -281,10 +282,6 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             #bruce 050518 comment: a copy of the quat x, or of any length-4 sequence [both forms are used]
             self.vec = V(x[0], x[1], x[2], x[3])
         return # from Q.__init__
-
-    def _s_deepcopy(self, copyfunc): #bruce 051003, for use by state_utils.copy_val (in class Q)
-        # ignores copyfunc
-        return self.__class__(self)
     
     def __getattr__(self, attr): # in class Q
         if attr.startswith('_'):
@@ -330,8 +327,14 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
 
     #bruce 060209 defining __eq__ and __ne__ for efficient state comparisons given presence of __getattr__ (desirable for Undo)
     # (I don't think it needs a __nonzero__ method, and if it had one I don't know if Q(1,0,0,0) should be False or True.)
-    #bruce 060222 note that it also now needs __eq__ and __ne__ to be compatible with its _s_deepcopy (they are).
+    #bruce 060222 note that it also now needs __eq__ and __ne__ to be compatible with its _copyOfObject (they are).
+
+    # override abstract method of DataMixin
+    def _copyOfObject(self, copyfunc): #bruce 051003, for use by state_utils.copy_val (in class Q)
+        # ignores copyfunc
+        return self.__class__(self)
     
+    # override abstract method of DataMixin
     def __eq__(self, other): #bruce 070227 revised this
         try:
             if self.__class__ is not other.__class__:
@@ -344,9 +347,6 @@ class Q: # by Josh; some comments and docstring revised by bruce 050518
             # which made Q(1, 0, 0, 0) == Q(0.877583, 0.287655, 0.38354, 0) (since they're equal in at least one component)!!
             # Apparently it was my own bug, since it says above that I wrote this method on 060209.
         pass
-
-    def __ne__(self, other):
-        return not (self == other)
         
     def __getitem__(self, num):
         return self.vec[num]

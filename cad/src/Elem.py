@@ -23,8 +23,9 @@ for PAM3 and PAM5 (etc). (Should we define new Elem subclasses for them?)
 """
 
 from atomtypes import AtomType
+from state_utils import IdentityCopyMixin
 
-class Elem: # bruce 050510 renamed this from 'elem' (not using 'Element' since too common in strings/comments)
+class Elem(IdentityCopyMixin): # bruce 050510 renamed this from 'elem' (not using 'Element' since too common in strings/comments)
     """
     There is exactly one of these objects for each supported element in the periodic table.
     Its identity (as a python object) never changes during the run.

@@ -69,7 +69,7 @@ from constants import diINVISIBLE
 import env
 
 from inval import InvalMixin
-from state_utils import StateMixin
+from state_utils import StateMixin, IdentityCopyMixin
 from jigmakers_Mixin import jigmakers_Mixin
 from ops_atoms     import ops_atoms_Mixin
 from ops_connected import ops_connected_Mixin
@@ -1095,7 +1095,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
 # == subclasses of Part
 
-class MainPart(Part):
+class MainPart(Part, IdentityCopyMixin):
     def immortal(self):
         return True
     def location_name(self):

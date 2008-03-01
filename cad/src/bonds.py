@@ -59,7 +59,7 @@ import env
 
 from GlobalPreferences import usePyrexAtomsAndBonds
 
-from state_utils import StateMixin
+from state_utils import StateMixin, IdentityCopyMixin
 from state_utils import register_instancelike_class
 
 from changedicts import register_changedict, register_class_changedicts
@@ -583,7 +583,7 @@ _Bond_global_dicts = [_changed_Bonds]
 # as of now there is only one use, in bond_atoms (used by molecule.bond).
 # I also rewrote lots of the code in class Bond.
 
-class Bond(BondBase, StateMixin, Selobj_API):
+class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
     """
     A Bond is essentially a record pointing to two atoms
     (either one of which might be a real atom or a "singlet"),
@@ -1306,8 +1306,19 @@ class Bond(BondBase, StateMixin, Selobj_API):
         at1._changed_structure() #bruce 050725
         at2._changed_structure()
         assert at1 is not at2
+
+        # this version helps atombase.c not to fail when atom keys
+        # exceed 32768, but is only unique for bonds attached to the
+        # same atom.
+        #self.key = at1.key + at2.key
+
         self.key = 65536 * min(at1.key, at2.key) + max(at1.key, at2.key)
             # used only in __eq__ as of 051018; problematic (see comments there)
+            # !!!!!!! Nope, also used in chunk.standard_draw_atoms()
+            # such that keys must be unique within the chunk.  But,
+            # with that use replaced with id(bond), we may be ok with
+            # this only being unique for bonds attached to a single
+            # atom.
         
 ##        #bruce 050608: kluge (in how it finds glpane and thus assumes just one of them is used; and since key is not truly unique)
 ##        self.atom1.molecule.assy.w.glpane.glselect_objs[self.key] = self #e dict should be stored in assy (or so) instead

@@ -650,13 +650,22 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
             new.info_gamess_setitem( name, valstring, interp, error_if_name_not_known = True )
         return new
 
-    def _s_deepcopy(self, copyfunc): #bruce 051003, for use by state_utils.copy_val
+    # override abstract method of DataMixin
+    def _copyOfObject(self, copyfunc): #bruce 051003, for use by state_utils.copy_val
         # ignores copyfunc
         return self.deepcopy(alter_name = False) ###k I'm not sure alter_name = False can ever be legal,
             # or (if it can be) whether it's good here. I think Mark or I should review this,
             # and we should not change the code to rely on copy_val alone on this object
             # (i.e. we should not remove the mutable_attr decl for pset and the related code that calls deepcopy directly)
             # until that's reviewed. [bruce 051003]
+
+    # override abstract method of DataMixin
+    def __eq__(self, other): #bruce 060306-08 for Undo bug 1616
+        # note: defining __eq__ is sufficient, but only because we inherit from state_utils.DataMixin, which defines __ne__ based on it
+        if other.__class__ is not self.__class__:
+            return False
+        return self.param_names_and_valstrings(canonical = True) == other.param_names_and_valstrings(canonical = True)
+            # without canonical = True, self has 0/1 where other has False/True, which caused first try of __eq__ to not fix bug 1616.
 
     def writemmp(self, mapping, pset_index): #bruce 050701
         mapping.write("# gamess parameter set %s for preceding jig\n" % pset_index)
@@ -695,13 +704,6 @@ class gamessParms(state_utils.DataMixin): #bruce 060306 added superclass
                 mapping.write(line)
         mapping.write("# end of gamess parameter set %s\n" % pset_index)
         return
-
-    def __eq__(self, other): #bruce 060306-08 for Undo bug 1616
-        # note: defining __eq__ is sufficient, but only because we inherit from state_utils.DataMixin, which defines __ne__ based on it
-        if other.__class__ is not self.__class__:
-            return False
-        return self.param_names_and_valstrings(canonical = True) == other.param_names_and_valstrings(canonical = True)
-            # without canonical = True, self has 0/1 where other has False/True, which caused first try of __eq__ to not fix bug 1616.
 
     boolparms = ('damp', 'diis', 'dirscf', 'extrap', 'ncore', 'rstrct', 'shift', 'soscf' )
         # these MUST MATCH info_gamess_setitem uses of decode_bool [bruce 060307, to help with bug 1616]

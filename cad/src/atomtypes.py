@@ -27,11 +27,12 @@ on __xxx__ attrs in python objects.
 from geometry.VQT import Q
 from utilities.Log import redmsg, orangemsg
 from utilities import debug_flags
+from state_utils import IdentityCopyMixin
 import env
 
 from bond_constants import V_SINGLE, V_DOUBLE, V_TRIPLE, V_AROMATIC, V_GRAPHITE, V_CARBOMERIC
 
-class AtomType:
+class AtomType(IdentityCopyMixin):
     """An atom type includes an element and its bonding pattern (and maybe more) --
     enough info to know how to construct things in Build mode using this element in this bonding pattern,
     something about how the user wants to simulate them or minimize them (externally or wirthin Build mode),

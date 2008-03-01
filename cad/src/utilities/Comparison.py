@@ -160,7 +160,7 @@ def _same_InstanceType_helper(obj1, obj2): #bruce 060419, relates to bug 1869; s
     # so for A7 (no time to clean this up) we'lljust duplicate its code instead (and optimize it too).
     class1 = obj1.__class__
     ###k don't check copiers_for_InstanceType_class_names.has_key(class1.__name__), since that's always False for now.
-    obj_is_data = hasattr(class1, '_s_deepcopy')
+    obj_is_data = hasattr(class1, '_s_isPureData')
     if obj_is_data:
         if obj1 != obj2: # rely on our implem of __eq__
             raise _NotTheSame

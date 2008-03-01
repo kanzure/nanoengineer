@@ -134,7 +134,7 @@ from PlatformDependent import fix_plurals
 
 import env
 
-from state_utils import StateMixin
+from state_utils import StateMixin, IdentityCopyMixin
 from state_utils import register_instancelike_class
 
 import undo_archive
@@ -365,7 +365,7 @@ def Atom_prekill_prep(): #bruce 060328
     Utility._will_kill_count += 1
     return Utility._will_kill_count
     
-class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API):
+class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     # (so we have to assign atom = Atom, after this class definition, until all code has been revised)
     # update, bruce 071113: I am removing that assignment below. See comment there.
