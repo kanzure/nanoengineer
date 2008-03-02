@@ -247,6 +247,21 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             self.chunkLeftDown(chunk1, event)
             return
         
+        if self._is_dnaGroup_highlighting_enabled():
+            dnaGroup1 = chunk1.getDnaGroup()
+            dnaGroup2 = chunk2.getDnaGroup()
+            
+            if dnaGroup1 is not None and dnaGroup1 is dnaGroup2:
+                self.chunkLeftDown(chunk1, event)
+                return        
+                
+            if dnaGroup1 is not None:
+                chunk1 = dnaGroup1
+                
+            if dnaGroup2 is not None:
+                chunk2 = dnaGroup2
+                           
+        
         if self.o.modkeys is None:
             if chunk1.picked and chunk2.picked:
                 pass
@@ -298,6 +313,20 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         if chunk1 is chunk2:
             self.chunkLeftUp(chunk1, event)
             return
+        
+        if self._is_dnaGroup_highlighting_enabled():
+            dnaGroup1 = chunk1.getDnaGroup()
+            dnaGroup2 = chunk2.getDnaGroup()
+            
+            if dnaGroup1 is not None and dnaGroup1 is dnaGroup2:
+                self.chunkLeftDown(chunk1, event)
+                return        
+                
+            if dnaGroup1 is not None:
+                chunk1 = dnaGroup1
+                
+            if dnaGroup2 is not None:
+                chunk2 = dnaGroup2
         
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane()
@@ -712,12 +741,17 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #As of 2008-02-26, its impossible to have the following condition 
         #isinstance(selobj, Chunk). So commenting out the code that checks it.
         #The commented out code should be removed after more testing. -- Ninad
-        ##if isinstance(selobj, Chunk):            
-            ##print "I think this is never called "\
-                  ##"(drawHighlightedChunk with selobj a Chunk)" #bruce 071008
-            ##objectDict[selobj] = hiColor1
+        if isinstance(selobj, Chunk):            
+            print "I think this is never called "\
+                  "(drawHighlightedChunk with selobj a Chunk)" #bruce 071008
+            dnaGroup = selobj.getDnaGroup()
+            if dnaGroup is not None:
+                objectDict[dnaGroup] = hiColor1
+            else:
+                objectDict[selobj] = hiColor1
+            
         
-        assert not isinstance(selobj, Chunk)
+        ##assert not isinstance(selobj, Chunk)
         
         chunkList = []
         colorList = []
