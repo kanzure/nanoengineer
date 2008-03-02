@@ -1099,23 +1099,60 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
     state.  It's passed in to ColorSorter.start() .
     """
     def __init__(self):
-        self.dl = glGenLists(1) # Display list id for the current appearance.
-        assert type(self.dl) in (type(1), type(1L)) #bruce 070521 added these two asserts
-        assert self.dl != 0     # This failed on Linux, keep checking. (bug 2042)
-
+        self.clear()
+        self.activate()
+        return
+    
+    def clear(self):
+        """
+        Empty state.
+        """
+        self.dl = 0             # The display list called for the current appearance.
         self.color_dl = 0       # Second-level display list setting color and calling sublists
         self.nocolor_dl = 0     # 2nd level call-list without colors, used for color over-ride.
         self.per_color_dls = [] # Per-color sublists.
-        
+        return
+
+    def not_clear(self):
+        """
+        Check for empty state.
+        """
+        return self.dl or self.color_dl or self.nocolor_dl or \
+               self.per_color_dls and len(self.per_color_dls)
+
+    def activate(self):
+        """
+        Make a top-level display list id ready, but don't fill it in.
+        """
+        self.dl = glGenLists(1) # Display list id for the current appearance.
+        assert type(self.dl) in (type(1), type(1L)) #bruce 070521 added these two asserts
+        assert self.dl != 0     # This failed on Linux, keep checking. (bug 2042)
+        return
+
+    def reset(self):
+        """
+        Return to ready state.
+        """
+        if self.not_clear():
+            self.deallocate_displists()
+            pass
+        self.activate()
+        return
+       
     def deallocate_displists(self):
+        """
+        Free any allocated display lists.
+        """
         for dl in [self.dl, self.color_dl, self.nocolor_dl] + \
                  [dl for clr, dl in self.per_color_dls]:
             if dl != 0:
                 glDeleteLists(dl, 1)
                 pass
             continue
-        self.dl = self.color_dl = self.nocolor_dl = 0 # Forget.
-        self.per_color_dls = []
+        self.clear()
+        return
+
+    pass # End of ColorSortedDisplayList.
 
 class ColorSorter:
 
@@ -1424,6 +1461,8 @@ class ColorSorter:
                 pass
 
             else: #russ 080225
+
+                parent_csdl.reset()
 
                 # First build the per-color sublists.
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
