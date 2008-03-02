@@ -209,8 +209,11 @@ class DnaGroup(Block):
         # a DnaGroup -- Ninad 2008-01-17        
         strandList = []
         def filterStrands(node):
-            if isinstance(node, Chunk) and node.isStrandChunk():
-                strandList.append(node)    
+            if node.__class__.__name__ == 'DnaStrand':
+                strandList.append(node)            
+            elif isinstance(node, Chunk) and node.isStrandChunk():
+                if not node.dad.__class__.__name__ == 'DnaStrand':
+                    strandList.append(node)    
                 
         self.apply2all(filterStrands)
         

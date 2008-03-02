@@ -7,10 +7,12 @@ DnaStrandOrSegment.py - abstract superclass for DnaStrand and DnaSegment
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from Group import Group
+##from Group import Group
+from dna_model.Block import Block
+
 from dna_model.DnaGroup import DnaGroup
 
-class DnaStrandOrSegment(Group):
+class DnaStrandOrSegment(Block):
     """
     Abstract superclass for DnaStrand and DnaSegment,
     which represent a Dna Strand or Dna Segment inside a Dna Group.

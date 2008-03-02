@@ -188,7 +188,8 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         if self.editCommand is not None:
             name = str(self.nameLineEdit.text())
             self.editCommand.setStructureName(name)
-            
+        if self.sequenceEditor is not None:
+            self.sequenceEditor.close()
         EditCommand_PM.close(self)
             
     def _showSequenceEditor(self):
@@ -232,7 +233,7 @@ class DnaStrand_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         titleString = 'Sequence Editor for ' + strand.name
                            
         self.sequenceEditor.setWindowTitle(titleString)
-        
+        print "***len(strand.getStrandSequence() ) = ", len(strand.getStrandSequence())
         sequenceString = strand.getStrandSequence()
         if sequenceString:
             sequenceString = QString(sequenceString) 

@@ -343,7 +343,11 @@ class BuildDna_EditCommand(EditCommand):
                 self._removeStructure()
                 self.win.win_update()
             else:
-                EditCommand._finalizeStructure(self)    
+                EditCommand._finalizeStructure(self) 
+            
+            #Make sure that he DnaGroup in the Model Tree is in collapsed state
+            #after finalizing the structure.
+            self.struct.open = False
                 
     def cancelStructure(self):
         """

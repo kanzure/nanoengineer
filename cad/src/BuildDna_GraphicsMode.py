@@ -12,6 +12,7 @@ TODO:
 
 from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from dna_model.DnaSegment import DnaSegment
+from dna_model.DnaStrand import DnaStrand
 
 _superclass = SelectChunks_GraphicsMode
 class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
@@ -25,11 +26,15 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
         
         if aChunk.picked:
             if aChunk.isAxisChunk():   
-                if isinstance(aChunk.dad, DnaSegment):
-                    segment = aChunk.dad
-                    segment.edit()
+                segmentGroup = aChunk.parent_node_of_class(DnaStrand)
+                if segmentGroup is not None:
+                    segmentGroup.edit()
             elif aChunk.isStrandChunk():
-                aChunk.edit()
+                strandGroup = aChunk.parent_node_of_class(DnaStrand)
+                if strandGroup is not None:
+                    strandGroup.edit()
+                else:
+                    aChunk.edit()
                 
     def _is_dnaGroup_highlighting_enabled(self):
         """

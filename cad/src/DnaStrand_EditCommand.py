@@ -39,6 +39,7 @@ from DnaStrand_ResizeHandle import DnaStrand_ResizeHandle
 from command_support.EditCommand import EditCommand 
 
 from dna_model.DnaSegment import DnaSegment
+from dna_model.DnaStrand  import DnaStrand
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 
@@ -237,7 +238,9 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         if self.struct.killed(): # (bruce080213: can this happen?)
             return False
         
-        if isinstance(self.struct, Chunk) and self.struct.isStrandChunk(): 
+        if isinstance(self.struct, DnaStrand):
+            return True
+        elif isinstance(self.struct, Chunk) and self.struct.isStrandChunk(): 
             return True
         
         return False
