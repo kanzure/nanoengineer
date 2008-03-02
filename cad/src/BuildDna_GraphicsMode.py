@@ -26,8 +26,8 @@ class BuildDna_GraphicsMode(SelectChunks_GraphicsMode):
         
         if aChunk.picked:
             if aChunk.isAxisChunk():   
-                segmentGroup = aChunk.parent_node_of_class(DnaStrand)
-                if segmentGroup is not None:
+                segmentGroup = aChunk.parent_node_of_class(DnaSegment)
+                if segmentGroup is not None:                    
                     segmentGroup.edit()
             elif aChunk.isStrandChunk():
                 strandGroup = aChunk.parent_node_of_class(DnaStrand)
