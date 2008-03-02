@@ -18,19 +18,18 @@ from exprs.Overlay          import Overlay
 from exprs.ExprsConstants   import Drawable
 from exprs.ExprsConstants   import Color
 from exprs.ExprsConstants   import Point
-from exprs.ExprsConstants   import ORIGIN, DX 
+from exprs.ExprsConstants   import ORIGIN
 
-from exprs.dna_ribbon_view  import Cylinder
 from exprs.Rect             import Sphere
+
+from exprs.Arrow import Arrow
    
-from constants              import white, yellow, purple, darkgreen
+from constants  import yellow, darkgreen
+from constants  import olive
 
 from geometry.VQT import V
 from exprs.DraggableHandle import DraggableHandle_AlongLine
 from exprs.ExprsConstants import StateRef
-#Use this flag to test some 'fancy handle drawings' (the default apaprearance is
-#'sphere'
-DEBUG_FANCY_HANDLES = False
 
 
 class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
@@ -41,24 +40,12 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     #Handle color will be changed depending on whether the the handle is grabbed
     #So this is a 'State variable and its value is used in 'appearance' 
     #(given as an optional argument to 'Sphere')
-    handleColor = State( Color, purple)
+    handleColor = State( Color, olive)
     
     #The state ref that determines the radius (of the sphere) of this handle. 
     #See DnaSegment_EditCommand._determine_resize_handle_radius() for more 
     #details
     sphereRadius = Option(StateRef, 1.2)
-    
-    #Appearance of the handle. (note that it uses all the code from exprs module
-    # and needs more documentation there). 
-    #See exprs.Rect.Sphere for definition of a drawable 'Sphere' object. 
-    appearance = Option( Drawable,
-                         Sphere(sphereRadius, handleColor),
-                         doc = "handle appearance when not highlighted")
-    
-    #Handle appearance when highlighted
-    appearance_highlighted = Option( Drawable,
-                                     Sphere(sphereRadius, yellow),
-                                     doc = "handle appearance when highlighted")
     
     #Stateusbar text. Variable needs to be renamed in superclass. 
     sbar_text = Option(str, 
@@ -76,49 +63,44 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
     #line  and also to specify the endPoint2 of the structure while modifying 
     #it. See DnaSegment_EditCommand.modifyStructure for details. 
     currentPosition = _self.origin + _self.direction*_self.height_ref.value
-    
-    
+        
     
     #Fixed end of the structure (self.command.struct) ..meaning that end won't 
     #move while user grabbs and draggs this handle (attached to a the other 
     #'moving endPoint) . This variable is used to specify endPoint1 of the 
     #structure while modifyin it.  See DnaSegment_EditCommand.modifyStructure 
     #and self.on_release for details.
-    fixedEndOfStructure = Option(Point, 
-                                 V(0, 0, 0))
+    fixedEndOfStructure = Option(Point, V(0, 0, 0))
+            
     
-    
-    if DEBUG_FANCY_HANDLES:           
-    
-        appearance_1 = Overlay(
-            Sphere(1.2, handleColor, center = ORIGIN + _self.direction*2*DX), 
-            Cylinder((ORIGIN, ORIGIN + _self.direction*2*DX), 1.2 ,handleColor))
+    appearance = Overlay(
+        Sphere(_self.sphereRadius, 
+               handleColor, 
+               center = ORIGIN), 
+               
+        Arrow( 
+            color = handleColor, 
+            arrowBasePoint = ORIGIN + _self.direction*2.0*_self.sphereRadius,
+            tailPoint = ORIGIN, 
+            tailRadius = _self.sphereRadius*0.3,
+            scale = _self.command.glpane.scale)
+            )
+
+    appearance_highlighted = Option(
+        Drawable,
+        Overlay(
+            Sphere(_self.sphereRadius,                       
+                   yellow, 
+                   center = ORIGIN),
+                   
+            Arrow( 
+                color = yellow, 
+                arrowBasePoint = ORIGIN + _self.direction*2.0*_self.sphereRadius, 
+                tailPoint = ORIGIN, 
+                tailRadius = _self.sphereRadius*0.3,
+                scale = _self.command.glpane.scale)
+            ))
         
-        appearance_highlighted_1 = Option(
-            Drawable,
-            Overlay(Sphere(1.2, yellow, center = ORIGIN + _self.direction*2*DX),
-                    Cylinder((ORIGIN,  ORIGIN + _self.direction*2*DX), 
-                              1.2 , yellow)),
-            doc = "handle appearance when highlighted")
-        
-        #Define class Arrow and enable import statement  before using this 
-        #appearance !
-        ##from exprs.Rect import Arrow
-        ##appearance_2 = Overlay(
-            ##Sphere(1.2, handleColor, center = ORIGIN),
-            ##Arrow( color = handleColor, 
-                   ##arrowBasePoint = ORIGIN + _self.direction*1.5*DX,
-                   ##tailPoint = ORIGIN +  _self.direction*0.25*DX,
-                   ##scale = _self.command.glpane.scale))
-        
-        ##appearance_highlighted_2 = Option(
-            ##Drawable,
-            ##Overlay(Sphere(1.2, yellow, center = ORIGIN),
-                    ##Arrow( color = yellow,
-                           ##arrowBasePoint = ORIGIN + _self.direction*1.5*DX, 
-                           ##tailPoint = ORIGIN + _self.direction*0.25*DX,
-                           ##scale = _self.command.glpane.scale)))
-    
     def on_press(self):  
         """
         Actions when handle is pressed (grabbed, during leftDown event)
@@ -151,7 +133,7 @@ class DnaSegment_ResizeHandle(DraggableHandle_AlongLine):
         @see: B{SelectChunks.GraphicsMode.leftUp}
         @see: B{DragHandle_API}
         """
-        self.handleColor = purple
+        self.handleColor = olive
         if self.command and hasattr(self.command, 'modifyStructure'): 
             self.command.modifyStructure()
             #Clear the grabbed handle attribute (the handle is no longer 
