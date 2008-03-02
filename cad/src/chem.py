@@ -1874,6 +1874,26 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
             pass
         self.molecule.popMatrix()
         return
+    
+    def drawing_radius(self):
+        """
+        Return the current drawing radius of the atom. It determines it using 
+        the following order -- Returns drawing radius based on atom's current 
+        display. If the atom's display is 'default display'it then looks for 
+        the chunk's display. If een the chunk's display is default display, 
+        it returns the GLPane's current display. Note that these things are 
+        done in self.molecule.get_dispdef() and self.howdraw()
+        
+        @see: DnaSegment_EditCommand._determine_resize_handle_radius() that 
+        uses this method to draw the resize handles.
+        
+        @see: self.howdraw()
+        @see: Chunk.get_dispdef()
+        """
+        dispdef = self.molecule.get_dispdef()
+        disp, drawrad = self.howdraw(dispdef)
+        return drawrad
+   
 
     def selatom_radius(self, dispdef = None): #bruce 041207, should integrate with draw_as_selatom
         if dispdef is None:
