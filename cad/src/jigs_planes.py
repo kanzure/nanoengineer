@@ -44,7 +44,7 @@ from prefs_constants import SOLID_LINE
 
 from geometry.BoundingBox import BBox
 
-from GridPlaneProp import GridPlaneProp
+from commands.GridPlaneProperties.GridPlaneProp import GridPlaneProp
 
 # == RectGadget
 

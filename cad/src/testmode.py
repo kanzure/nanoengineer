@@ -34,7 +34,7 @@ in built releases).
 import time
 
 from geometry.VQT import V, Q
-from depositMode import depositMode
+from commands.BuildAtoms.depositMode import depositMode
 
 from debug import print_compact_traceback
 from debug_prefs import Choice_boolean_True

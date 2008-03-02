@@ -34,7 +34,7 @@ from PyQt4.Qt import Qt, QColorDialog, QColor
 
 from utilities.Log import greenmsg, redmsg, orangemsg
 
-from elementColors import elementColors
+from commands.ElementColors.elementColors import elementColors
 
 elementColorsWin = None
 

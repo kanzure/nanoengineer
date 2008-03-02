@@ -95,7 +95,7 @@ from part import MainPart
 from part import ClipboardItemPart
 
 from icon_utilities import imagename_to_pixmap
-from PartProp import PartProp
+from commands.PartProperties.PartProp import PartProp
 from PyQt4 import QtGui
 
 from Assembly_API import Assembly_API

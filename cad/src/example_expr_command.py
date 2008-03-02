@@ -76,8 +76,8 @@ class TextState(InstanceMacro): # rename?
 from test_commands import ExampleCommand2
 
 ##from selectAtomsMode import selectAtomsMode
-from SelectAtoms_Command      import SelectAtoms_Command # used indirectly via ExampleCommand2
-from SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
+from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command # used indirectly via ExampleCommand2
+from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
 ##fyi: class selectAtomsMode(SelectAtoms_basicCommand, 
 ##                           SelectAtoms_basicGraphicsMode)

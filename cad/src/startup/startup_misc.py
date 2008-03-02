@@ -231,7 +231,7 @@ def _init_command_Atom_Generator():
     # TODO: this function should be moved into AtomGenerator.py
     # Atom Generator debug pref. Mark and Jeff. 2007-06-13
     from debug_prefs import debug_pref, Choice_boolean_False
-    from AtomGenerator import enableAtomGenerator
+    from commands.BuildAtom.AtomGenerator import enableAtomGenerator
     _atomGeneratorIsEnabled = \
                     debug_pref("Atom Generator example code: enabled?", 
                                Choice_boolean_False, 

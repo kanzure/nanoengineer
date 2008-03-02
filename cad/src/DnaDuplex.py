@@ -23,7 +23,7 @@ from debug import print_compact_traceback
 from PlatformDependent  import find_plugin_dir
 from files_mmp          import readmmp
 from geometry.VQT import Q, V, angleBetween, cross, vlen
-from fusechunksMode     import fusechunksBase
+from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg
 from command_support.GeneratorBaseClass import PluginBug
 from constants          import gensym, darkred, blue

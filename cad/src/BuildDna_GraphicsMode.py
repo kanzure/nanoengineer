@@ -10,7 +10,7 @@ History:
 TODO:
 """
 
-from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
+from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from dna_model.DnaSegment import DnaSegment
 from dna_model.DnaStrand import DnaStrand
 

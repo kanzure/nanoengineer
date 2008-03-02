@@ -117,7 +117,7 @@ from constants import diTrueCPK
 from constants import diDNACYLINDER
 
 from elements import PeriodicTable
-from ChunkProp import ChunkProp
+from commands.ChunkProperties.ChunkProp import ChunkProp
 
 from Dna_Constants import getComplementSequence
 

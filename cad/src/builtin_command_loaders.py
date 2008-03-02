@@ -30,11 +30,11 @@ we register the loading code herein, so it can load
 some commands lazily.
 """
 
-from cookieMode      import cookieMode 
-from extrudeMode     import extrudeMode
-from PasteMode       import PasteMode
-from PartLibraryMode import PartLibraryMode
-from movieMode       import movieMode
+from commands.BuildCrystal.cookieMode import cookieMode 
+from commands.Extrude.extrudeMode import extrudeMode
+from commands.Paste.PasteMode import PasteMode
+from commands.PartLibrary.PartLibraryMode import PartLibraryMode
+from commands.PlayMovie.movieMode import movieMode
 from ZoomToAreaMode  import ZoomToAreaMode
 from ZoomInOutMode   import ZoomInOutMode
 from PanMode         import PanMode
@@ -42,20 +42,20 @@ from RotateMode      import RotateMode
 from LineMode        import LineMode
 from DnaLineMode     import DnaLineMode
 from DnaDuplex_EditCommand import DnaDuplex_EditCommand
-from Plane_EditCommand     import Plane_EditCommand
-from RotaryMotor_EditCommand import RotaryMotor_EditCommand
-from LinearMotor_EditCommand import LinearMotor_EditCommand
-from BuildAtoms_Command      import BuildAtoms_Command
-from SelectAtoms_Command     import SelectAtoms_Command
-from SelectChunks_Command    import SelectChunks_Command
+from commands.PlaneProperties.Plane_EditCommand import Plane_EditCommand
+from commands.RotaryMotorProperties.RotaryMotor_EditCommand import RotaryMotor_EditCommand
+from commands.LinearMotorProperties.LinearMotor_EditCommand import LinearMotor_EditCommand
+from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
+from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command
+from commands.SelectChunks.SelectChunks_Command import SelectChunks_Command
 from BreakStrands_Command     import BreakStrands_Command
 from BuildDna_EditCommand    import BuildDna_EditCommand
 from DnaSegment_EditCommand  import DnaSegment_EditCommand
 from DnaStrand_EditCommand   import DnaStrand_EditCommand
-from Move_Command            import Move_Command
-from RotateChunks_Command    import RotateChunks_Command
-from TranslateChunks_Command import TranslateChunks_Command
-from FuseChunks_Command      import FuseChunks_Command
+from commands.Move.Move_Command import Move_Command
+from commands.Rotate.RotateChunks_Command import RotateChunks_Command
+from commands.Translate.TranslateChunks_Command import TranslateChunks_Command
+from commands.Fuse.FuseChunks_Command import FuseChunks_Command
 from JoinStrands_Command     import JoinStrands_Command
 #from SketchMode    import SketchMode #Not implemented yet - 2007-10-25
 

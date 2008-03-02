@@ -335,7 +335,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
         if env.permit_atom_chunk_coselection(): #bruce 060721
             return
 
-        from selectMolsMode import selectMolsMode
+        from commands.SelectChunks.selectMolsMode import selectMolsMode
 
         #bruce 050519 revised docstring and totally rewrote code.
         assy = self.assy

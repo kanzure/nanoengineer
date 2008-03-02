@@ -315,9 +315,9 @@ class MWsemantics(QMainWindow,
         from help import Ne1HelpDialog
         self.help = Ne1HelpDialog()
 
-        from GrapheneGenerator import GrapheneGenerator
+        from commands.InsertGraphene.GrapheneGenerator import GrapheneGenerator
         self.graphenecntl = GrapheneGenerator(self)
-        from NanotubeGenerator import NanotubeGenerator
+        from commands.InsertNanotube.NanotubeGenerator import NanotubeGenerator
         self.nanotubecntl = NanotubeGenerator(self)
 
         # Use old DNA generator or new DNA Duplex generator?
@@ -338,22 +338,22 @@ class MWsemantics(QMainWindow,
             self.dnaEditCommand = DnaDuplex_EditCommand(self.glpane)	
             self.dnacntl = self.dnaEditCommand
 
-        from PovraySceneProp import PovraySceneProp
+        from commands.PovraySceneProperties.PovraySceneProp import PovraySceneProp
         self.povrayscenecntl = PovraySceneProp(self)
         
-        from CommentProp import CommentProp
+        from commands.CommentProperties.CommentProp import CommentProp
         self.commentcntl = CommentProp(self)
         
         # Minimize Energy dialog. Mark 060705.
-        from MinimizeEnergyProp import MinimizeEnergyProp
+        from commands.MinimizeEnergy.MinimizeEnergyProp import MinimizeEnergyProp
         self.minimize_energy = MinimizeEnergyProp(self)
 
         # Atom Generator example for developers. Mark and Jeff. 2007-06-13
-        from AtomGenerator import AtomGenerator
+        from commands.BuildAtom.AtomGenerator import AtomGenerator
         self.atomcntl = AtomGenerator(self)
 
         # QuteMolX Property Manager. Mark 2007-12-02.
-        from QuteMolPropertyManager import QuteMolPropertyManager
+        from commands.QuteMol.QuteMolPropertyManager import QuteMolPropertyManager
         self.qutemolPM = QuteMolPropertyManager(self)
 
         # We must enable keyboard focus for a widget if it processes
@@ -1247,7 +1247,7 @@ class MWsemantics(QMainWindow,
 	(i.e. a movie file has been opened in the Movie Player).
 	For details see subroutine's docstring.
         """
-        from PlotTool import simPlot
+        from commands.Plot.PlotTool import simPlot
         dialog = simPlot(self.assy) # Returns "None" if there is no current movie file. [mark 2007-05-03]
         if dialog:
             self.plotcntl = dialog #probably useless, but done since old code did it;
@@ -1259,7 +1259,7 @@ class MWsemantics(QMainWindow,
         """
         Plays a DPB movie file created by the simulator.
         """
-        from movieMode import simMoviePlayer
+        from commands.PlayMovie.movieMode import simMoviePlayer
         simMoviePlayer(self.assy)
         return
 
@@ -1541,7 +1541,7 @@ class MWsemantics(QMainWindow,
         @type editCommand: B{RotaryMotor_EditCommand}
         @see: B{RotaryMotor_EditCommand._createPropMgrObject}
         """
-        from RotaryMotorPropertyManager import RotaryMotorPropertyManager
+        from commands.RotaryMotorProperties.RotaryMotorPropertyManager import RotaryMotorPropertyManager
         if self.rotaryMotorPropMgr is None:
             self.rotaryMotorPropMgr = \
                 RotaryMotorPropertyManager(self, editCommand)  
@@ -1560,7 +1560,7 @@ class MWsemantics(QMainWindow,
         @type editCommand: B{LinearMotor_EditCommand}
         @see: B{LinearMotor_EditCommand._createPropMgrObject}
         """
-        from LinearMotorPropertyManager import LinearMotorPropertyManager
+        from commands.LinearMotorProperties.LinearMotorPropertyManager import LinearMotorPropertyManager
         if self.linearMotorPropMgr is None:
             self.linearMotorPropMgr = \
                 LinearMotorPropertyManager( self, editCommand)  
@@ -1578,7 +1578,7 @@ class MWsemantics(QMainWindow,
         @type editCommand: B{RotaryMotor_EditCommand}
         @see: B{Plane_EditCommand._createPropMgrObject}
         """
-        from PlanePropertyManager import PlanePropertyManager
+        from commands.PlaneProperties.PlanePropertyManager import PlanePropertyManager
         if self.planePropMgr is None:
             self.planePropMgr = \
                 PlanePropertyManager(self, editCommand)  

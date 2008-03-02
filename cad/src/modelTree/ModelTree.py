@@ -180,7 +180,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         """
         if permit_atom_chunk_coselection(): #bruce 060721
             return
-        from selectMolsMode import selectMolsMode
+        from commands.SelectChunks.selectMolsMode import selectMolsMode
         ## from selectAtomsMode import selectAtomsMode
         #bruce 050519 revised docstring and totally rewrote code.
         assy = self.assy

@@ -21,7 +21,7 @@ from utilities import debug_flags
 import env
 from state_constants import S_CHILDREN
 
-from GroupProp import GroupProp
+from commands.GroupProperties.GroupProp import GroupProp
 from icon_utilities import imagename_to_pixmap
 
 from Utility import Node

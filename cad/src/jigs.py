@@ -43,8 +43,8 @@ from utilities import debug_flags
 from Utility import Node
 from icon_utilities import imagename_to_pixmap
 from geometry.VQT import A
-from StatProp import StatProp
-from ThermoProp import ThermoProp
+from commands.ThermostatProperties.StatProp import StatProp
+from commands.ThermometerProperties.ThermoProp import ThermoProp
 
 from utilities.Log import orangemsg
 from povheader import povpoint

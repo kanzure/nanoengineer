@@ -12,8 +12,8 @@ TODOs: [ as of 2008-01-04]
 """
 
 import changes
-from BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
-from BuildAtoms_Command    import BuildAtoms_Command
+from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
+from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from constants             import red
 from BreakStrands_PropertyManager import BreakStrands_PropertyManager
 

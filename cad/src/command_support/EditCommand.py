@@ -39,7 +39,7 @@ from utilities.Comparison import same_vals
 from constants            import permit_gensym_to_reuse_name
 from command_support.GeneratorBaseClass import AbstractMethod
 
-from Select_Command import Select_Command
+from commands.Select.Select_Command import Select_Command
 
 
 class EditCommand(Select_Command):

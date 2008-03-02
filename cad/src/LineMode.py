@@ -18,8 +18,8 @@ TODOs:
 
 """
 
-from Select_Command import Select_Command
-from Select_GraphicsMode import Select_GraphicsMode
+from commands.Select.Select_Command import Select_Command
+from commands.Select.Select_GraphicsMode import Select_GraphicsMode
 
 from drawer import drawline, drawsphere
 from constants import black, darkred, blue

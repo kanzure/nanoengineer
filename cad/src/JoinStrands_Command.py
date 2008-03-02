@@ -10,8 +10,8 @@ Many changes planned in JoinStrands_GraphicsMode .
 """
 import changes
 
-from BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
-from BuildAtoms_Command    import BuildAtoms_Command
+from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
+from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from JoinStrands_PropertyManager import JoinStrands_PropertyManager
 from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 # == GraphicsMode part

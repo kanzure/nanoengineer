@@ -41,7 +41,7 @@ from prefs_constants import diBALL_BondCylinderRadius_prefs_key
 from Plugins import checkPluginPreferences
 
 from Process import Process
-from GroupProp import Statistics
+from commands.GroupProperties.GroupProp import Statistics
 from PlatformDependent import find_or_make_Nanorex_subdir
 
 def launch_qutemol(pdb_file):

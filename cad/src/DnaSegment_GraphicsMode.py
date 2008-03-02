@@ -51,7 +51,7 @@ from geometry.VQT import V, norm, A, Q, vlen
 from constants import darkred, blue, black
 from debug import print_compact_traceback
 
-from Select_GraphicsMode import DRAG_STICKINESS_LIMIT
+from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 
 from chem import Atom
 from bonds import Bond

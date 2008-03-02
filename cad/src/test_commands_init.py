@@ -62,9 +62,9 @@ def enter_example_command(widget, example_command_classname):
             ## from selectAtomsMode import selectAtomsMode # commented so it doesn't affect import dependency tools
             _superclass = 'Undefined variable' # FIX
             if _superclass is selectAtomsMode:
-                import selectMode
+                import commands.Select.selectMode as selectMode
                 reload(selectMode)
-                import selectAtomsMode
+                import commands.SelectAtoms.selectAtomsMode as selectAtomsMode
                 reload(selectAtomsMode)
             
             ## glpane.mode = glpane.nullmode = modes.nullMode()
