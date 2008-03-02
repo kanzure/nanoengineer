@@ -148,6 +148,7 @@ from OpenGL.GL import GL_POINT_SMOOTH
 from OpenGL.GLU import gluBuild2DMipmaps
 
 
+
 try:
     from OpenGL.GLE import glePolyCone, gleGetNumSides, gleSetNumSides
 except:
@@ -1976,7 +1977,7 @@ def drawcylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
 def drawpolycone(color, pos_array, rad_array, opacity = 1.0):
     """Schedule a polycone for rendering whenever ColorSorter thinks is
     appropriate."""
-    ColorSorter.schedule_polycone(color, pos_array, rad_array, opacity = 1.0)
+    ColorSorter.schedule_polycone(color, pos_array, rad_array, opacity = opacity)
 
 def drawsurface(color, pos, radius, tm, nm):
     """
@@ -1997,6 +1998,8 @@ def drawArrowHead(color,
                   unitBaseVector, 
                   unitHeightVector):
     
+    
+        
     arrowBase = drawingScale * 0.08
     arrowHeight = drawingScale * 0.12
     glDisable(GL_LIGHTING)
@@ -2399,32 +2402,55 @@ def drawOriginAsSmallAxis(scale, origin, dashEnabled = False):
 def drawDirectionArrow(color, 
                        tailPoint, 
                        arrowBasePoint, 
+                       tailRadius,
                        scale,  
-                       flipDirection = False):
-    '''Draw a directional arrow staring at <tailPoint>
-	with an endpoint decided by the vector between 
-	<arrowBasePoint> and <tailPoint> and the glpane scale <scale>
-	'''
+                       flipDirection = False,
+                       opacity = 1.0,
+                       numberOfSides = 20
+                       ):
+    """
+    Draw a directional arrow staring at <tailPoint> with an endpoint decided
+    by the vector between <arrowBasePoint> and <tailPoint> 
+    and the glpane scale <scale>
+    @param color : The arrow color
+    @type  color: Array
+    @param tailPoint: The point on the arrow tail where the arrow begins. 
+    @type   tailPoint: V
+    @param arrowBasePoint: A point on the arrow where the arrow head begins(??
+    @type  arrowBasePoint: V
+    @param tailRadius: The radius of the arrow tail (cylinder radius 
+                       representing the arrow tail)
+    @type  tailRaius: float
+    @param opacity: The opacity decides the opacity (or transparent display)
+                    of the rendered arrow. By default it is rendered as a solid 
+                    arrow. It varies between 0.0 to 1.0 ... 1.0 represents the 
+                    solid arrow renderring style
+    @type opacity: float
+    @param numberOfSides: The total number of sides for the arrow head 
+                        (a glePolycone) The default value if 20 (20 sided 
+                        polycone)
+    @type  numberOfSides: int
+    """
 
     vec = arrowBasePoint - tailPoint
     vec = scale*0.07*vec
-    ##radius = vlen(vec)*0.07
-    radius = vlen(vec)*0.9
-    arrowBase =  radius*2.0
-    arrowHeight =  arrowBase*1.60
+    arrowBase =  tailRadius*3.0
+    arrowHeight =  arrowBase*1.5
     axis = norm(vec)
     
     scaledBasePoint = tailPoint + vlen(vec)*axis
-    drawcylinder(color, tailPoint, scaledBasePoint, radius, capped = True)
+    drawcylinder(color, tailPoint, arrowBasePoint, tailRadius, capped = True, 
+                 opacity = opacity)
     
-    pos = arrowBasePoint
+    pos = scaledBasePoint
     arrowRadius = arrowBase
-    drawpolycone(color, [[pos[0] - 2 * axis[0], 
-                          pos[1] - 2 * axis[1],
-                          pos[2] - 2 * axis[2]],
-                         [pos[0] - axis[0], 
-                          pos[1] - axis[1], 
-                          pos[2] - axis[2]],
+    gleSetNumSides(numberOfSides)
+    drawpolycone(color, [[pos[0] - 1 * axis[0], 
+                          pos[1] - 1 * axis[1],
+                          pos[2] - 1 * axis[2]],
+                         [pos[0],# - axis[0], 
+                          pos[1], #- axis[1], 
+                          pos[2]], #- axis[2]],
                          [pos[0] + arrowHeight * axis[0], 
                           pos[1] + arrowHeight * axis[1],
                           pos[2] + arrowHeight * axis[2]],
@@ -2432,29 +2458,12 @@ def drawDirectionArrow(color,
                           pos[1] + (arrowHeight + 1) * axis[1],
                           pos[2] + (arrowHeight + 1) * axis[2]]], # Point array (the two end
                                                   # points not drawn)
-                        [arrowRadius, arrowRadius, 0, 0] # Radius array
+                        [arrowRadius, arrowRadius, 0, 0], # Radius array
+                        opacity = opacity
                        )
-
-    ##start draw solid arrow heads
-    #glPushMatrix() 
-    #glColor3fv(color)
-    #glTranslatef(scaledBasePoint[0],scaledBasePoint[1], scaledBasePoint[2])
-
-    #if flipDirection:
-        #glRotatef(0,0.0,1.0,0.0)
-    #else:
-        #glRotatef(90,0.0,1.0,0.0)
-
-
-    #glePolyCone([[0, 0, -1],                  
-                 #[0, 0, 0], 
-                 #[0, 0, arrowHeight], 
-                 #[0, 0, arrowHeight+1]], 
-                 #None, 
-                 #[arrowBase, arrowBase, 0, 0])
-
-    #glPopMatrix()
-
+    #reset the gle number of sides to the gle default of '20'
+    gleSetNumSides(20)
+    
 
 def findCell(pt, latticeType):
     """Return the cell which contains the point <pt> """

@@ -25,7 +25,7 @@ from OpenGL.GL import glPopMatrix
 
 from drawer    import drawDirectionArrow
 
-from geometry.VQT import V, norm
+from geometry.VQT import V, norm, vlen
 from math        import pi
 from constants   import gray, orange
 from debug       import print_compact_traceback
@@ -138,16 +138,22 @@ class DirectionArrow(DragHandler_API, Selobj_API):
             #direction arrow outside of the parent object 
             #requesting this drawing.--ninad 20070612
             
-            headPoint = self.tailPoint + V(0,0,1) * 2.0
-            ##headPoint = self.tailPoint - 2.0 * norm(self.parent.getaxis())
+            ##headPoint = self.tailPoint + V(0,0,1) * 2.0
+            headPoint = self.tailPoint + 2.0 * norm(self.parent.getaxis())
         else:            
-            headPoint = self.tailPoint - V(0,0,1) * 2.0
-            ##headPoint = self.tailPoint + 2.0 * self.parent.getaxis()
-          
+            ##headPoint = self.tailPoint - V(0,0,1) * 2.0
+            headPoint = self.tailPoint - 2.0 * self.parent.getaxis()
+        
+         
+        
+        vec = vlen(headPoint - self.tailPoint)
+        vec = self.glpane.scale*0.07*vec
+        tailRadius = vlen(vec)*0.16
        
         drawDirectionArrow(color, 
                            self.tailPoint, 
                            headPoint,
+                           tailRadius,
                            self.glpane.scale,
                            flipDirection = flipDirection)
  
@@ -158,22 +164,12 @@ class DirectionArrow(DragHandler_API, Selobj_API):
         @type  glpane: L{GLPane"
         @param color: Highlight color 
         """    
-        q = self.parent.quat  
-        glPushMatrix()
-        glTranslatef( self.parent.center[0],
-                      self.parent.center[1], 
-                      self.parent.center[2])
-        glRotatef( q.angle * ONE_RADIAN, 
-                   q.x,
-                   q.y,
-                   q.z)            
+                  
         if self.flipDirection:            
             self._draw(flipDirection = self.flipDirection, 
                        highlighted   = True)    
         else:
             self._draw(highlighted   = True)
-        
-        glPopMatrix()
         
     ###=========== Drag Handler interface Starts =============###
     #@TODO Need some documentation. Basically it implements the drag handler 
