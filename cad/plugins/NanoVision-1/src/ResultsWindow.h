@@ -24,6 +24,7 @@ using namespace Nanorex;
 #include "ErrorDialog.h"
 #include "ResultsSummaryWindow.h"
 #include "InputParametersWindow.h"
+#include "StructureGraphicsWindow.h"
 #include "TrajectoryGraphicsWindow.h"
 
 
@@ -138,6 +139,28 @@ class ResultsSummaryTreeItem : public QWidget, public DataWindowTreeItem {
 		
 		QIcon resultsSummaryIcon;
 		QIcon resultsSummaryIcon2;
+};
+
+
+/* CLASS: StructureGraphicsTreeItem */
+class StructureGraphicsTreeItem : public DataWindowTreeItem {
+    
+public:
+    StructureGraphicsTreeItem(NXMoleculeSet *molSetPtr,
+                               ResultsWindow* resultsWindow,
+                               QTreeWidgetItem* treeWidgetItem);
+    StructureGraphicsTreeItem(OBMol *molPtr,
+                            ResultsWindow *resultsWindow,
+                            QTreeWidgetItem *treeWidgetItem);
+    ~StructureGraphicsTreeItem();
+    
+    void showWindow();
+    
+private:
+    NXMoleculeSet *molSetPtr;
+    OBMol *molPtr;
+    bool isSingleMolecule;
+    StructureGraphicsWindow* structureWindow;
 };
 
 

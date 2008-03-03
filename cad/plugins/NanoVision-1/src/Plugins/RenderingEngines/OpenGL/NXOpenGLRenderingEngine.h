@@ -19,12 +19,12 @@
 
 #include "Nanorex/Interface/NXRenderingEngine.h"
 #include "Nanorex/Utility/NXRGBColor.h"
-#include "Nanorex/Interface/NXSceneGraph.h"
+#include "NXOpenGLSceneGraph.h"
 #include "NXOpenGLRendererPlugin.h"
+#include "NXOpenGLCamera.h"
 
 #include <openbabel/mol.h>
 
-#include "NXOpenGLCamera.h"
 
 namespace Nanorex
 {
@@ -53,24 +53,19 @@ public:
     NXRenderingEngine::EngineID getID ( void ) const
     { return NXRenderingEngine::OPENGL; }
     
-    void initializePlugins ( void ) { }
+    bool initializePlugins(void);
     
-    void cleanupPlugins ( void ) { }
+    bool cleanupPlugins(void);
     
     void setRootMoleculeSet ( NXMoleculeSet *const moleculeSet );
+    void setMolecule ( OpenBabel::OBMol *mol );
     
     // Mouse-event handlers
     void mousePressEvent(QMouseEvent *mouseEvent);
     void mouseReleaseEvent(QMouseEvent *mouseEvent);
     void mouseMoveEvent(QMouseEvent *mouseEvent);
     
-    
-#ifdef NX_DEBUG
-    void setPlugin ( NXOpenGLRendererPlugin *const plugin )
-    {
-        currentPluginIter = pluginList.insert(pluginList.end(), plugin);
-    }
-#endif
+    bool setRenderer(NXOpenGLRendererPlugin *const plugin);
     
 private:
     
@@ -79,13 +74,18 @@ private:
     NXOpenGLCamera camera;
     
     NXMoleculeSet *rootMoleculeSet;
-    NXSGNode *rootSceneGraphNode;
+    OpenBabel::OBMol *mol;
+    bool isSingleMolecule;
+    NXSGOpenGLNode *rootSceneGraphNode;
     
-    typedef std::list<NXOpenGLRendererPlugin*> PluginList;
+/*    typedef std::list<NXOpenGLRendererPlugin*> PluginList;
     PluginList pluginList;
-    PluginList::iterator currentPluginIter;
+    PluginList::iterator currentPluginIter;*/
     
-            // OpenGL settings
+    NXOpenGLRendererPlugin *renderer;
+    bool rendererInitialized;
+    
+    // OpenGL settings
     std::vector<GltLight> lights;
     GltLightModel lightModel;
     
@@ -98,41 +98,46 @@ private:
     NXOpenGLMaterial defaultAtomMaterial;
     NXOpenGLMaterial defaultBondMaterial;
     
-    NXSGNode* createSceneGraph ( NXMoleculeSet *const molSetPtr );
+    NXCommandResult commandResult;
+    static void SetResult(NXCommandResult cmdResult,
+                          int errCode, std::string const& errMsg);
     
-    NXSGNode* createSceneGraph ( OpenBabel::OBMol *const molPtr );
     
-    NXSGNode* createSceneGraph ( OpenBabel::OBMol *const molPtr,
-                                 OpenBabel::OBAtom *const atomPtr,
-                                 std::set<OpenBabel::OBAtom*>& renderedAtoms,
-                                 Vector const& zAxis );
+    
+    NXSGOpenGLNode* createSceneGraph ( NXMoleculeSet *const molSetPtr );
+    
+    NXSGOpenGLNode* createSceneGraph ( OpenBabel::OBMol *const molPtr );
+    
+    NXSGOpenGLNode* createSceneGraph ( OpenBabel::OBMol *const molPtr,
+                                       OpenBabel::OBAtom *const atomPtr,
+                                       std::set<OpenBabel::OBAtom*>& renderedAtoms,
+                                       Vector const& zAxis );
     
     void deleteSceneGraph ( void )
     {
-        if ( rootSceneGraphNode != ( NXSGNode* ) NULL )
+        if ( rootSceneGraphNode != ( NXSGOpenGLNode* ) NULL )
         {
             rootSceneGraphNode->deleteRecursive();
             delete rootSceneGraphNode;
-            rootSceneGraphNode = ( NXSGNode* ) NULL;
+            rootSceneGraphNode = ( NXSGOpenGLNode* ) NULL;
         }
     }
     
-            // QGLWidget methods to be overriden
-    void initializeGL ( void );
-    void resizeGL ( int width, int height );
-    void paintGL ( void );
+    // QGLWidget methods to be overriden
+    void initializeGL(void);
+    void resizeGL(int width, int height);
+    void paintGL(void);
     
     /// Reset the view based on the atom-bond distribution in the molecule-set
-    void resetView ( void );
+    void resetView (void);
     
-    bool initializeElementColorMap();
-    void initializeDefaultMaterials();
-    void setupDefaultLights ( void );
-    void drawSkyBlueBackground ( void );
+    bool initializeElementColorMap(void);
+    void initializeDefaultMaterials(void);
+    void setupDefaultLights(void);
+    void drawSkyBlueBackground(void);
     
-    static BoundingBox
-        GetMoleculeSetBoundingBox ( NXMoleculeSet *const molSetPtr );
-    static BoundingBox GetMoleculeBoundingBox ( OpenBabel::OBMol *molPtr );
+    static BoundingBox GetMoleculeSetBoundingBox(NXMoleculeSet *const molSetPtr);
+    static BoundingBox GetMoleculeBoundingBox(OpenBabel::OBMol *molPtr);
     
 };
 

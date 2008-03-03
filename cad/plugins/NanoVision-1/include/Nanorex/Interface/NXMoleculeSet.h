@@ -37,9 +37,9 @@ public:
     NXMoleculeSetIterator childrenEnd() { return children.end(); }
     NXMSInt childCount() { return children.size(); }
     
-        //
-        // Molecules
-        //
+    //
+    // Molecules
+    //
     OBMol* newMolecule();
     OBMolIterator moleculesBegin() { return molecules.begin(); }
     OBMolIterator moleculesEnd() { return molecules.end(); }

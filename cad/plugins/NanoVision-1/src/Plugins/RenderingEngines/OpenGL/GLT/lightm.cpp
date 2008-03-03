@@ -37,13 +37,13 @@ GltLightModel::get()
 	GLint localViewer;
 	GLint twoSide;
 
-	GLERROR
+	GLERROR(std::cerr);
 
 	glGetFloatv(GL_LIGHT_MODEL_AMBIENT,_ambient);
 	glGetIntegerv(GL_LIGHT_MODEL_LOCAL_VIEWER,&localViewer);
 	glGetIntegerv(GL_LIGHT_MODEL_TWO_SIDE,&twoSide);
 
-	GLERROR
+	GLERROR(std::cerr);
 
 	_localViewer = localViewer!=0;
 	_twoSide     = twoSide!=0;
@@ -52,19 +52,19 @@ GltLightModel::get()
 void 
 GltLightModel::set()
 {
-	GLERROR
+	GLERROR(std::cerr);
 
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,_ambient);
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,_localViewer ? 1 : 0);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,_twoSide ? 1 : 0);
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 void 
 GltLightModel::setAmbient(const GLfloat r,const GLfloat g,const GLfloat b,const GLfloat a)
 {
-	GLERROR
+	GLERROR(std::cerr);
 
 	_ambient[0] = r;
 	_ambient[1] = g;
@@ -72,29 +72,29 @@ GltLightModel::setAmbient(const GLfloat r,const GLfloat g,const GLfloat b,const 
 	_ambient[3] = a;
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT,_ambient);
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 void 
 GltLightModel::setLocalViewer(const GLboolean localViewer)
 {
-	GLERROR
+	GLERROR(std::cerr);
 
 	_localViewer = localViewer;
 	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER,_localViewer ? 1 : 0);
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 void 
 GltLightModel::setTwoSide(const GLboolean twoSide)
 {
-	GLERROR
+	GLERROR(std::cerr);
 
 	_twoSide = twoSide;
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE,_twoSide ? 1 : 0);
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 GLfloat   *GltLightModel::ambient()     { return _ambient;       }

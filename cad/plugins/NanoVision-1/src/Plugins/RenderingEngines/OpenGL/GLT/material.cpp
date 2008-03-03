@@ -99,7 +99,7 @@ GltMaterial::get()
 	// Can't query front and back at same time - beware
 	const GLenum face = (_face==GL_FRONT_AND_BACK ? GL_FRONT : _face);
 
-	GLERROR
+	GLERROR(std::cerr);
 
 	_ambient. glGetMaterial(face,GL_AMBIENT);
 	_diffuse. glGetMaterial(face,GL_DIFFUSE);
@@ -108,13 +108,13 @@ GltMaterial::get()
 
 	glGetMaterialfv(face, GL_SHININESS, &_shininess);
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 void 
 GltMaterial::set() const
 {
-	GLERROR
+	GLERROR(std::cerr);
 
 	_ambient. glMaterial(_face,GL_AMBIENT);
 	_diffuse. glMaterial(_face,GL_DIFFUSE);
@@ -123,7 +123,7 @@ GltMaterial::set() const
 
 	glMaterialfv(_face, GL_SHININESS, &_shininess);
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 GLenum   &GltMaterial::face()       { return _face;       }

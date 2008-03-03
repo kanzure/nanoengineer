@@ -1,66 +1,228 @@
  // Copyright 2008 Nanorex, Inc.  See LICENSE file for details.
 
 #include "NXOpenGLRendererPlugin.h"
+#include <Nanorex/Interface/NXNanoVisionResultCodes.h>
+#include <glt_error.h>
+#include <sstream>
+
+using namespace std;
 
 namespace Nanorex {
 
 
-NXSGOpenGLRenderable *NXOpenGLRendererPlugin::canonicalSphereNode(NULL);
-NXSGOpenGLRenderable *NXOpenGLRendererPlugin::canonicalCylinderNode(NULL);
+NXSGOpenGLRenderable *NXOpenGLRendererPlugin::_s_canonicalSphereNode(NULL);
+NXSGOpenGLRenderable *NXOpenGLRendererPlugin::_s_canonicalCylinderNode(NULL);
 
-NXOpenGLRendererPlugin::NXOpenGLRendererPlugin()
+
+/// Initializes the plugin by rendering the canonical sphere and cylinder
+/// Must be called after the calling engine makes its OpenGL context current
+NXCommandResult* NXOpenGLRendererPlugin::initialize(void)
 {
-/*    if(canonicalSphereNode == NULL)
-        renderCanonicalSphere();
+    InitializeCanonicalSphereNode();
+    InitializeCanonicalCylinderNode();
     
-    if(canonicalCylinderNode == NULL)
-        renderCanonicalCylinder();*/
+    if(_s_canonicalSphereNode == NULL || _s_canonicalCylinderNode == NULL) {
+        // copy static context error to instance
+        commandResult = _s_commandResult;
+        // deallocate which went through
+        if(_s_canonicalSphereNode != NULL) {
+            delete _s_canonicalSphereNode;
+            _s_canonicalSphereNode = NULL;
+        }
+        if(_s_canonicalCylinderNode != NULL) {
+            delete _s_canonicalCylinderNode;
+            _s_canonicalCylinderNode = NULL;
+        }
+        return &commandResult;
+    }
+    
+    
+    // assign a minimum ref count of 1. If all nodes that access these canonical
+    // nodes as parents cleanup, then these nodes will be deleted when their
+    // ref count becomes zero. This initial increment will ensure that the
+    // ref count is at least one if all other nodes behave correctly
+    canonicalSphereNodeGuard.addChild(_s_canonicalSphereNode);
+    canonicalCylinderNodeGuard.addChild(_s_canonicalCylinderNode);
+    
+    if(_s_canonicalSphereNode->getRefCount() != 1 ||
+       _s_canonicalCylinderNode->getRefCount() != 1)
+    {
+        SetWarning(commandResult,
+                   "Reference-counting error in plugin initialization");
+    }
+    else {
+        commandResult.setResult(NX_CMD_SUCCESS);
+    }
+    return &commandResult;
+}
+
+
+/// Cleanup
+NXCommandResult* NXOpenGLRendererPlugin::cleanup(void)
+{
+    commandResult.setResult(NX_CMD_SUCCESS);
+    vector<QString> message;
+    commandResult.setParamVector(message);
     
 #if 0
-    if(canonicalSphereDisplayListID == 0)
-        renderCanonicalSphere();
+    if(_s_canonicalSphereNode != NULL) {
+        if(_s_canonicalSphereNode->getRefCount() != 1) {
+            SetWarning(commandResult,
+                       "Reference-counting audit failed at plugin cleanup");
+        }
+        delete _s_canonicalSphereNode;
+        _s_canonicalSphereNode = NULL;
+    }
     
-    if(canonicalCylinderDisplayListID == 0)
-        renderCanonicalCylinder();
+    if(_s_canonicalCylinderNode != NULL) {
+        if(_s_canonicalCylinderNode->getRefCount() != 1) {
+            SetWarning(commandResult,
+                       "Reference-counting audit failed at plugin cleanup");
+        }
+        delete _s_canonicalCylinderNode;
+        _s_canonicalCylinderNode = NULL;
+    }
 #endif
+    return &commandResult;
+}
+
+
+
+/*static*/
+void NXOpenGLRendererPlugin::InitializeCanonicalSphereNode(void)
+{
+    // quick return if node is already created
+    if(_s_canonicalSphereNode != NULL)
+        return;
+    
+    try {
+        _s_canonicalSphereNode = new NXSGOpenGLRenderable;
+    }
+    catch (...) {
+        // fail silently if unable to create for any reason
+        _s_canonicalSphereNode = NULL;
+    }
+    
+    if(_s_canonicalSphereNode == NULL)
+        return;
+    
+    
+    bool beginRenderOK = _s_canonicalSphereNode->beginRender();
+    if(!beginRenderOK) {
+        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetContextError();
+        _s_commandResult.setResult(NX_PLUGIN_REPORTS_ERROR);
+        _s_commandResult.setParamVector(scenegraphCtxtError->getParamVector());
+        delete _s_canonicalSphereNode;
+        _s_canonicalSphereNode = NULL;
+        return;
+    }
+    
+    DrawOpenGLCanonicalSphere();
+    
+    bool const ok = (_s_commandResult.getResult() == (int) NX_CMD_SUCCESS);
+    if(!ok) {
+        delete _s_canonicalSphereNode;
+        _s_canonicalSphereNode = NULL;
+        return;
+    }
+    
+    bool endRenderOK = _s_canonicalSphereNode->endRender();
+    if(!endRenderOK) {
+        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetContextError();
+        _s_commandResult.setResult(NX_PLUGIN_REPORTS_ERROR);
+        _s_commandResult.setParamVector(scenegraphCtxtError->getParamVector());
+        delete _s_canonicalSphereNode;
+        _s_canonicalSphereNode = NULL;
+    }
+
 }
 
 
 /*static*/
-NXSGOpenGLRenderable*
-    NXOpenGLRendererPlugin::RenderCanonicalSphere(void)
+void NXOpenGLRendererPlugin::InitializeCanonicalCylinderNode(void)
 {
-    // canonicalSphereDisplayListID = glGenLists(1);
-    // quick return if node is already created
-    if(canonicalSphereNode != NULL) return canonicalSphereNode;
+    // quick return if already initialized
+    if(_s_canonicalCylinderNode != NULL)
+        return;
     
     try {
-        canonicalSphereNode = new NXSGOpenGLRenderable;
+        _s_canonicalCylinderNode = new NXSGOpenGLRenderable;
     }
     catch (...) {
         // fail silently if unable to create for any reason
-        delete canonicalSphereNode;
-        canonicalSphereNode = NULL;
-        return canonicalSphereNode;
+        _s_canonicalCylinderNode = NULL;
     }
     
-    // canonicalSphereNode != NULL if new goes through but just in case
-    if(canonicalSphereNode == NULL) return canonicalSphereNode;
+    // extra check for NULL before performing ops on it
+    if(_s_canonicalCylinderNode == NULL)
+        return;
     
-    NXCommandResult renderResult = canonicalSphereNode->beginRender();
-    /// @todo trap results - return if error freeing node and setting ptr to NULL
+    bool beginRenderOK = _s_canonicalCylinderNode->beginRender();
+    if(!beginRenderOK) {
+        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetContextError();
+        _s_commandResult.setResult(NX_PLUGIN_REPORTS_ERROR);
+        _s_commandResult.setParamVector(scenegraphCtxtError->getParamVector());
+        delete _s_canonicalCylinderNode;
+        _s_canonicalCylinderNode = NULL;
+        return;
+    }
     
+    
+    DrawOpenGLCanonicalCylinder();
+    
+    bool const ok = (_s_commandResult.getResult() == (int) NX_CMD_SUCCESS);
+    if(!ok) {
+        delete _s_canonicalCylinderNode;
+        _s_canonicalCylinderNode = NULL;
+        return;
+    }
+    
+    
+    bool endRenderOK = _s_canonicalCylinderNode->endRender();
+    if(!endRenderOK) {
+        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetContextError();
+        _s_commandResult.setResult(NX_PLUGIN_REPORTS_ERROR);
+        _s_commandResult.setParamVector(scenegraphCtxtError->getParamVector());
+        delete _s_canonicalCylinderNode;
+        _s_canonicalCylinderNode = NULL;
+    }
+}
+
+
+void NXOpenGLRendererPlugin::SetError(NXCommandResult& commandResult,
+                                      char const *const errMsg)
+{
+    commandResult.setResult(NX_PLUGIN_REPORTS_ERROR);
+    vector<QString> message;
+    message.push_back(QObject::tr(errMsg));
+    commandResult.setParamVector(message);
+}
+
+
+void NXOpenGLRendererPlugin::SetWarning(NXCommandResult& commandResult,
+                                        char const *const warnMsg)
+{
+    commandResult.setResult(NX_PLUGIN_REPORTS_WARNING);
+    vector<QString> message;
+    message.push_back(QObject::tr(warnMsg));
+    commandResult.setParamVector(message);
+}
+
+
+/* static */
+void NXOpenGLRendererPlugin::DrawOpenGLCanonicalSphere(void)
+{
     const double r = 1.0; /* radius */
     double theta, rSinTheta, phi, sinPhi, cosPhi;
     double theta2, rSinTheta2;
     GLint iTheta, iPhi;
     GLdouble x,y,z,z1,z2;
-    
+
     const int ALPHA = 5;
-    
+
     /* Automatic normalization of normals */
     glEnable(GL_NORMALIZE);
-    
+
     /* Top cap - draw triangles instead of quads */
     glBegin(GL_TRIANGLE_FAN);
     /* Top pole */
@@ -69,7 +231,7 @@ NXSGOpenGLRenderable*
     theta = ALPHA * M_PI/180.0;
     rSinTheta = r*sin(theta);
     z = r*cos(theta);
-    
+
     for(iPhi = 0; iPhi <= 360; iPhi += ALPHA) {
         phi = M_PI/180.0 * (GLdouble) iPhi;
         x = rSinTheta*cos(phi);
@@ -79,7 +241,7 @@ NXSGOpenGLRenderable*
         glVertex3d(x, y, z);
     }
     glEnd();
-    
+
     /* Sphere body - draw quad strips */
     for(iTheta = ALPHA; iTheta <= 180-(2*ALPHA); iTheta += ALPHA) {
         theta = M_PI/180.0 * (double) iTheta;
@@ -104,7 +266,7 @@ NXSGOpenGLRenderable*
         }
         glEnd();
     }
-    
+
     /* Bottom cap - draw triangle fan */
     iTheta = 180-ALPHA;
     theta = M_PI/180.0 * (GLdouble) iTheta;
@@ -123,40 +285,26 @@ NXSGOpenGLRenderable*
     }
     glEnd();
     
-    renderResult = canonicalSphereNode->endRender();
-    /// @todo - trap errors, free node, set to zero and return
     
-    return canonicalSphereNode;
-/*    GLenum const err = glGetError();
-    if(err != GL_NO_ERROR) {
-        canonicalSphereDisplayListID = 0;
-        /// @todo set commandResult
-    }*/
+    GLenum const err = glGetError();
+    if(err == GL_NO_ERROR) {
+        _s_commandResult.setResult(NX_CMD_SUCCESS);
+    }
+    else {
+#ifdef NX_DEBUG
+        ostringstream errMsgStream;
+        GLERROR(errMsgStream); //  glt_error.h
+        SetError(_s_commandResult,
+                 ("Error drawing openGL unit sphere"+errMsgStream.str()).c_str());
+#else
+        SetError(_s_commandResult, "Error drawing openGL unit sphere");
+#endif
+    }
 }
 
 
-/*static*/
-NXSGOpenGLRenderable*
-    NXOpenGLRendererPlugin::RenderCanonicalCylinder(void)
+void NXOpenGLRendererPlugin::DrawOpenGLCanonicalCylinder(void)
 {
-    // canonicalCylinderDisplayListID = glGenLists(1);
-    
-    // quick return if already initialized
-    if(canonicalCylinderNode != NULL) return canonicalCylinderNode;
-    
-    try {
-        canonicalCylinderNode = new NXSGOpenGLRenderable;
-    }
-    catch (...) {
-        // fail silently if unable to create for any reason
-        delete canonicalCylinderNode;
-        canonicalCylinderNode = NULL;
-        return canonicalCylinderNode;
-    }
-    
-    // extra check for NULL before performing ops on it
-    if(canonicalCylinderNode == NULL) return canonicalCylinderNode;
-    
     int const NUM_FACETS = 72;
     const double DELTA_PHI = 360.0 / (double) NUM_FACETS;
     GLdouble vertex[NUM_FACETS][2]; // store (x,y) values
@@ -179,9 +327,6 @@ NXSGOpenGLRenderable*
     }
     
     
-    NXCommandResult renderResult = canonicalCylinderNode->beginRender();
-    /// @todo trap errors, free node, set to NULL, return
-
     /* Automatic normalization of normals */
     glEnable(GL_NORMALIZE);
     
@@ -228,19 +373,22 @@ NXSGOpenGLRenderable*
     glVertex3d(vertex[0][0], vertex[0][1], 0.0);
     glEnd();
     
-    renderResult = canonicalCylinderNode->endRender();
-    /// @todo trap errors, free node, set to NULL, return
     
-    return canonicalCylinderNode;
-        
-/*    err = glGetError();
-    if(err != GL_NO_ERROR) {
-        canonicalCylinderDisplayListID = 0;
-            /// @todo set commandResult
-    }*/
-    
+    GLenum const err = glGetError();
+    if(err == GL_NO_ERROR) {
+        _s_commandResult.setResult(NX_CMD_SUCCESS);
+    }
+    else {
+#ifdef NX_DEBUG
+        ostringstream errMsgStream;
+        GLERROR(errMsgStream); //  glt_error.h
+        SetError(_s_commandResult,
+                 ("Error drawing openGL unit cylinder"+errMsgStream.str()).c_str());
+#else
+        SetError(_s_commandResult, "Error drawing openGL unit cylinder");
+#endif
+    }
 }
-
 
 } // Nanorex
 

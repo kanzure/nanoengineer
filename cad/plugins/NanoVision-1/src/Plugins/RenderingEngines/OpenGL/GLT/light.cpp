@@ -63,7 +63,7 @@ GltLight::get()
 {
 	assert(_light>=GL_LIGHT0 && _light<=GL_LIGHT7);
 
-	GLERROR
+	GLERROR(std::cerr);
 
 	_isEnabled = glIsEnabled(_light)!=0;
 
@@ -83,7 +83,7 @@ GltLight::get()
 	glGetLightfv(_light,GL_LINEAR_ATTENUATION   ,&_attenuationLinear);
 	glGetLightfv(_light,GL_QUADRATIC_ATTENUATION,&_attenuationQuadratic);
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 void 

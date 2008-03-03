@@ -2,6 +2,9 @@
 
 #include "ResultsWindow.h"
 #include <QFileInfo>
+#include <cassert>
+
+#include "Plugins/RenderingEngines/OpenGL/Renderers/NXBallAndStickOpenGLRenderer.h"
 
 /* CONSTRUCTOR */
 ResultsWindow::ResultsWindow(NXEntityManager* entityManager, QWidget* parent)
@@ -263,18 +266,32 @@ setupMoleculeSetResultsSubtree(QTreeWidgetItem *const mmpFileItem)
 void
 ResultsWindow::
 setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
-                               QTreeWidgetItem *const molSetItem)
+                               QTreeWidgetItem *const parentItem)
 {
+    StructureGraphicsTreeItem *molSetItem =
+        new StructureGraphicsTreeItem(molSetPtr, this, parentItem);
+    molSetItem->setIcon(0, atomSetIcon);
+    molSetItem->setText(0, (molSetPtr->getTitle()).c_str());
+    molSetItem->setFlags(Qt::ItemIsEnabled);
+    molSetItem->setFlags(Qt::ItemIsSelectable);
+    
+/*    QObject::connect((QTreeWidget*) molSetItem,
+                     SIGNAL(itemDoubleClicked(QTreeWidgetItem*, int)),
+                     this,
+                     SLOT(resultsTreeItemDoubleClicked(QTreeWidgetItem*, int)));*/
+    
     OBMolIterator molIter;
     for(molIter = molSetPtr->moleculesBegin();
         molIter != molSetPtr->moleculesEnd();
         ++molIter)
     {
         OBMol *molPtr = *molIter;
-        QTreeWidgetItem *molItem = new QTreeWidgetItem(molSetItem);
+        QTreeWidgetItem *molItem =
+            new StructureGraphicsTreeItem(molPtr, this, molSetItem);
         molItem->setIcon(0,atomIcon);
         molItem->setText(0, tr(molPtr->GetTitle()));
 		molItem->setFlags(Qt::ItemIsEnabled);
+        molItem->setFlags(Qt::ItemIsSelectable);
     }
     
     NXMoleculeSetIterator childMolSetIter;
@@ -283,13 +300,15 @@ setupMoleculeSetResultsSubtree(NXMoleculeSet *molSetPtr,
         ++childMolSetIter)
     {
         NXMoleculeSet *childMolSetPtr = *childMolSetIter;
-        QTreeWidgetItem * childMolSetNode = new QTreeWidgetItem(molSetItem);
+        
+/*        QTreeWidgetItem * childMolSetNode =
+            new StructureGraphicsTreeItem(this, molSetItem, childMolSetPtr);
         childMolSetNode->setIcon(0, atomSetIcon);
         char const *const childMolSetTitle =
             (childMolSetPtr->getTitle()).c_str();
         childMolSetNode->setText(0, tr(childMolSetTitle));
-		childMolSetNode->setFlags(Qt::ItemIsEnabled);
-        setupMoleculeSetResultsSubtree(childMolSetPtr, childMolSetNode);
+		childMolSetNode->setFlags(Qt::ItemIsEnabled);*/
+        setupMoleculeSetResultsSubtree(childMolSetPtr, molSetItem);
     }
 }
 
@@ -460,6 +479,64 @@ printf("ResultsSummaryTreeItem::refresh: trajId=%d storeComplete=%d\n", trajecto
 	else
 		setIcon(0, resultsSummaryIcon);
 }
+
+
+/* *********************** StructureGraphicsTreeItem *********************** */
+
+/* CONSTRUCTOR */
+StructureGraphicsTreeItem::StructureGraphicsTreeItem
+(NXMoleculeSet *_molSetPtr,
+ ResultsWindow* resultsWindow,
+ QTreeWidgetItem* treeWidgetItem)
+: DataWindowTreeItem(resultsWindow, treeWidgetItem),
+molSetPtr(_molSetPtr),
+molPtr(NULL),
+isSingleMolecule(false),
+structureWindow(NULL)
+{
+}
+
+
+/* CONSTRUCTOR */
+StructureGraphicsTreeItem::StructureGraphicsTreeItem
+(OBMol *_mol,
+ ResultsWindow* resultsWindow,
+ QTreeWidgetItem* treeWidgetItem)
+: DataWindowTreeItem(resultsWindow, treeWidgetItem),
+molSetPtr(NULL),
+molPtr(_mol),
+isSingleMolecule(true),
+structureWindow(NULL)
+{
+}
+
+
+/* DESTRUCTOR */
+StructureGraphicsTreeItem::~StructureGraphicsTreeItem() {
+    if (structureWindow != NULL)
+        delete structureWindow;
+}
+
+
+/* FUNCTION: showWindow */
+void StructureGraphicsTreeItem::showWindow() {
+    if (structureWindow == NULL) {
+        NXEntityManager* entityManager = resultsWindow->entityManager;
+        // NXDataStoreInfo* dataStoreInfo = entityManager->getDataStoreInfo();
+        // int structureId = dataStoreInfo->getStructureId(structureName);
+        structureWindow = new StructureGraphicsWindow();
+        assert(structureWindow != NULL);
+        structureWindow->setPlugin(new NXBallAndStickOpenGLRenderer);
+        if(isSingleMolecule)
+            structureWindow->setMolecule(molPtr);
+        else
+            structureWindow->setRootMoleculeSet(molSetPtr);
+        structureWindow->setEntityManager(entityManager);
+        resultsWindow->workspace->addWindow((DataWindow*)structureWindow);
+    }
+    structureWindow->NXOpenGLRenderingEngine::show();
+}
+
 
 
 /* *********************** TrajectoryGraphicsTreeItem *********************** */

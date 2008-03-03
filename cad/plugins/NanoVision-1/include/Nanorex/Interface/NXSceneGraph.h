@@ -20,26 +20,21 @@ class NXSGNode {
 public:
     typedef std::list<NXSGNode*> ChildrenList;
     
-    NXSGNode();
+    NXSGNode() throw();
     
     virtual ~NXSGNode();
 
-    int incrementRefCount(void) { ++ref_count; return ref_count; }
+    int getRefCount(void) const throw() { return ref_count; }
     
-    int decrementRefCount(void)
-    { if(ref_count > 0) --ref_count; return ref_count; }
-    
-    int getRefCount(void) const { return ref_count; }
-    
-    void addChild(NXSGNode *const child)
-    { child->incrementRefCount(); children.push_back(child); }
+    /// Return true if child could be added successfully
+    virtual bool addChild(NXSGNode *const child);
     
     /// Return true if child was found and was deleted
-    bool removeChild(NXSGNode *const child);
+    virtual bool removeChild(NXSGNode *const child);
     
-    ChildrenList const& getChildren(void) const { return children; }
+    ChildrenList const& getChildren(void) const throw() { return children; }
     
-    ChildrenList::size_type getNumChildren(void) const
+    ChildrenList::size_type getNumChildren(void) const throw()
     { return children.size(); }
     
     virtual bool apply(void) const { return true; };
@@ -51,15 +46,26 @@ public:
     /// Recursively delete all children. Deleting this node is up to the caller
     virtual void deleteRecursive(void);
     
-    bool isLeaf(void) const { return (children.size()==0); }
+    bool isLeaf(void) const throw() { return (children.size()==0); }
     
 #ifdef NX_DEBUG
     void reset(void) { ref_count=0; children.clear(); }
+    
+    /// @todo
+    // write scenegraph structure in GraphViz format
+    // virtual void writeDotGraph(std::ostream&) const;
 #endif
         
 protected:
     int ref_count;
     ChildrenList children;
+    
+    int incrementRefCount(void) throw() { ++ref_count; return ref_count; }
+    
+    int decrementRefCount(void) throw()
+    { if(ref_count > 0) --ref_count; return ref_count; }
+    
+    
 };
 
 

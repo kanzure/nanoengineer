@@ -21,8 +21,62 @@
 
 namespace Nanorex {
 
+/* CLASS: NXSGOpenGLNode */
+/**
+ * Base-class for all OpenGL scenegraph nodes. Helps to maintain debug checks
+ * for OpenGL state like matrix-stack depth etc.
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
+ */
+class NXSGOpenGLNode : public NXSGNode {
+public:
+    NXSGOpenGLNode() : modelViewStackDepth(0) {}
+    ~NXSGOpenGLNode() {}
+    
+    /// Prevent addition of generic nodes so that children are OpenGL
+    /// scenegraph nodes. Required to be able to propagate context checks
+    bool addChild(NXSGNode *const child);
+    
+    /// Add child if OpenGL state limits are not exceeded
+    virtual bool addChild(NXSGOpenGLNode *const child);
+    
+    int getModelViewStackDepth(void) { return modelViewStackDepth; }
+    
+    /// Called by parent when its stack depth is updated to recursively
+    /// propagate this info to leaves
+    virtual bool newParentModelViewStackDepth(int newMVStackDepth);
+    
+    // static members
+    
+    /// Assess OpenGL context limits.
+    /// Must be called after the OpenGL context is made current and
+    /// before OpenGL scenegraph module is used
+    bool InitializeContext(void);
+    
+    /// Last error in the context
+    static NXCommandResult* GetContextError(void) { return &commandResult; }
+    
+    static GLint const& GetMaxModelViewStackDepth(void)
+    { return _s_maxModelViewStackDepth; }
+    
+protected:
+    /// Maximum model-view stack depth in reaching this node from root
+    int modelViewStackDepth;
+    
+    // -- OpenGL context -- 
+    
+    /// model-view stack-size limit
+    static GLint _s_maxModelViewStackDepth;
+    
+    /// Most recent error - to be set by failing node
+    /// All calling nodes propagate boolean result back up to root
+    static NXCommandResult commandResult;
+    
+    static void SetError(int errCode, char const *const errMsg);
+};
 
-/* CLASS NXSGOpenGLTranslate */
+
+/* CLASS: NXSGOpenGLTransform */
 /**
  * Base class for OpenGL transforms
  * Re-implements the applyRecursive() method so that it pushes the modelview
@@ -31,13 +85,36 @@ namespace Nanorex {
  *
  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
-class NXSGOpenGLTransform : public NXSGNode {
+class NXSGOpenGLTransform : public NXSGOpenGLNode {
 public:
     NXSGOpenGLTransform() throw () {}
     ~NXSGOpenGLTransform() throw () {};
+};
+
+
+/* CLASS: NXSGOpenGLModelViewTransform */
+/**
+ * Base class for OpenGL transforms that affect the modelview matrix
+ *
+ * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
+ */
+class NXSGOpenGLModelViewTransform : public NXSGOpenGLTransform {
+public:
+    NXSGOpenGLModelViewTransform() throw()
+        : NXSGOpenGLTransform()
+    { ++modelViewStackDepth; /* must be >= 1 */ }
+    
+    ~NXSGOpenGLModelViewTransform() throw() {}
+    
+    bool addChild(NXSGOpenGLNode *child);
+    
+    /// Re-implement base-class method because this class increments
+    /// model-view stack-depth
+    bool newParentModelViewStackDepth(int parentMVStackDepth);
+    
     bool applyRecursive(void) const throw();
-	
-	void deleteRecursive(void) { }
+    
+    void deleteRecursive(void) { }
 };
 
 
@@ -47,7 +124,7 @@ public:
  *
  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
-class NXSGOpenGLTranslate : public NXSGOpenGLTransform {
+class NXSGOpenGLTranslate : public NXSGOpenGLModelViewTransform {
 public:
     NXSGOpenGLTranslate(double const& the_x,
                         double const& the_y,
@@ -67,7 +144,7 @@ private:
  *
  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
-class NXSGOpenGLRotate : public NXSGOpenGLTransform {
+class NXSGOpenGLRotate : public NXSGOpenGLModelViewTransform {
 public:
     NXSGOpenGLRotate(double const& the_angle,
                      double const& the_x,
@@ -87,7 +164,7 @@ private:
  *
  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
-class NXSGOpenGLScale : public NXSGOpenGLTransform {
+class NXSGOpenGLScale : public NXSGOpenGLModelViewTransform {
 public:
     NXSGOpenGLScale(double const& the_x,
                     double const& the_y,
@@ -131,7 +208,7 @@ private:
  *
  * @ingroup NanorexInterface, PluginArchitecture, GraphicsArchitecture
  */
-class NXSGOpenGLRenderable : public NXSGNode {
+class NXSGOpenGLRenderable : public NXSGOpenGLNode {
     
 public:
     NXSGOpenGLRenderable() throw (NXException);
@@ -142,10 +219,10 @@ public:
     
     /// Calls glNewList(). Call the plugin's render-method after this so that
     /// what the plugin draws using OpenGL becomes part of this display list
-    NXCommandResult beginRender(void) const throw ();
+    bool beginRender(void) const throw ();
     
     /// Calls glEndList(). Call after the plugin does its OpenGL rendering.
-    NXCommandResult endRender(void) const throw ();
+    bool endRender(void) const throw ();
     
 	void deleteRecursive(void) { }
 
@@ -158,11 +235,11 @@ protected:
 };
 
 
-class NXSGOpenGLMaterial : public NXSGNode, public NXOpenGLMaterial {
+class NXSGOpenGLMaterial : public NXSGOpenGLNode, public NXOpenGLMaterial {
 public:
-    NXSGOpenGLMaterial() throw () : NXSGNode() ,NXOpenGLMaterial() {}
+    NXSGOpenGLMaterial() throw () : NXSGOpenGLNode() ,NXOpenGLMaterial() {}
     NXSGOpenGLMaterial(NXOpenGLMaterial const& mat) throw()
-        : NXSGNode(), NXOpenGLMaterial(mat) {}
+        : NXSGOpenGLNode(), NXOpenGLMaterial(mat) {}
 	~NXSGOpenGLMaterial() throw () {}
     /// Copy assignment from GL-material
     // NXSGOpenGLMaterial& operator = (NXOpenGLMaterial const& mat) throw ();

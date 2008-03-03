@@ -5,9 +5,19 @@
 
 namespace Nanorex {
 
-NXSGNode::NXSGNode() : ref_count(0), children() {}
+NXSGNode::NXSGNode() throw() : ref_count(0), children() {}
 	
 NXSGNode::~NXSGNode() { deleteRecursive(); }
+
+bool NXSGNode::addChild(NXSGNode *const child)
+{
+    if(child == NULL) return false; // prevent seg-faults early
+    child->incrementRefCount();
+    try { children.push_back(child); }
+    catch(...) { return false; }
+    return true;
+}
+
 
 bool NXSGNode::removeChild(NXSGNode *const child)
 {

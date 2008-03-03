@@ -74,17 +74,17 @@ GltViewport::valid() const
 void 
 GltViewport::get()
 {
-	GLERROR
+	GLERROR(std::cerr);
 	glGetIntegerv(GL_VIEWPORT,(GLint *) _viewport);
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 void 
 GltViewport::set() const
 {
-	GLERROR
+	GLERROR(std::cerr);
 	glViewport(x(),y(),width(),height());
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 void 

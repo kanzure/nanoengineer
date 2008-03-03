@@ -3,6 +3,7 @@
 #ifndef NX_RENDERERPLUGIN_H
 #define NX_RENDERERPLUGIN_H
 
+#include <Nanorex/Utility/NXCommandResult.h>
 
 namespace Nanorex {
 
@@ -17,6 +18,9 @@ public:
     NXRendererPlugin() {}
     virtual ~NXRendererPlugin() {}
 
+    virtual NXCommandResult* initialize() = 0;
+    virtual NXCommandResult* cleanup() = 0;
+    
     // virtual void renderAtom(NXRenderAtomInfo const&) = 0;
     // virtual void renderBond(NXRenderBondInfo const&) = 0;
 };

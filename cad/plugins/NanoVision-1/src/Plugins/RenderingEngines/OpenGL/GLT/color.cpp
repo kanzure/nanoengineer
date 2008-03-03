@@ -165,12 +165,12 @@ GltColor::glMaterial(const GLenum face,const GLenum field) const
 	assert(face==GL_FRONT_AND_BACK || face==GL_FRONT || face==GL_BACK);
 	assert(field==GL_AMBIENT || field==GL_DIFFUSE || field==GL_SPECULAR || field==GL_EMISSION);
 
-	GLERROR
+    GLERROR(std::cerr);
 
 	const GLfloat val[4] = { x(), y(), z(), _alpha };
 	::glMaterialfv(face,field,val);
 
-	GLERROR
+    GLERROR(std::cerr);
 }
 
 void 
@@ -179,13 +179,13 @@ GltColor::glGetMaterial(const GLenum face,const GLenum field)
 	assert(face==GL_FRONT_AND_BACK || face==GL_FRONT || face==GL_BACK);
 	assert(field==GL_AMBIENT || field==GL_DIFFUSE || field==GL_SPECULAR || field==GL_EMISSION);
 
-	GLERROR
+	GLERROR(std::cerr);
 
 	GLfloat val[4];
 	::glGetMaterialfv(face,field,val);
 	x() = val[0]; y() = val[1]; z() = val[2]; _alpha = val[3];
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 void 
@@ -194,12 +194,12 @@ GltColor::glLight(const GLenum light,const GLenum field) const
 	assert(light>=GL_LIGHT0 && light<=GL_LIGHT7);
 	assert(field==GL_AMBIENT || field==GL_DIFFUSE || field==GL_SPECULAR || field==GL_POSITION || field==GL_SPOT_DIRECTION);
 
-	GLERROR
+	GLERROR(std::cerr);
 
 	const GLfloat val[4] = { x(), y(), z(), _alpha };
 	::glLightfv(light,field,val);
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 void 
@@ -208,13 +208,13 @@ GltColor::glGetLight(const GLenum light,const GLenum field)
 	assert(light>=GL_LIGHT0 && light<=GL_LIGHT7);
 	assert(field==GL_AMBIENT || field==GL_DIFFUSE || field==GL_SPECULAR || field==GL_POSITION || field==GL_SPOT_DIRECTION);
 
-	GLERROR
+	GLERROR(std::cerr);
 
 	GLfloat val[4];
 	::glGetLightfv(light,field,val);
 	x() = val[0]; y() = val[1]; z() = val[2]; _alpha = val[3];
 
-	GLERROR
+	GLERROR(std::cerr);
 }
 
 	  real &GltColor::red()    { return x();    }

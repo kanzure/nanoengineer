@@ -29,19 +29,38 @@ public:
     NXBallAndStickOpenGLRenderer() {}
     virtual ~NXBallAndStickOpenGLRenderer() {}
 
-    /// Call plugin to render the atom display list and return the scenegraph node.
-    /// Must set commandResult to indicate success or failure
-    NXSGNode* renderAtom(NXAtomRenderData const&);
+    NXCommandResult* initialize(void);
+    NXCommandResult* cleanup(void);
     
     /// Call plugin to render the atom display list and return the scenegraph node.
     /// Must set commandResult to indicate success or failure
-    NXSGNode* renderBond(NXBondRenderData const&);
+    NXSGOpenGLNode* renderAtom(NXAtomRenderData const&);
     
-    static NXSGNode* RenderCanonicalBond(void);
+    /// Call plugin to render the atom display list and return the scenegraph node.
+    /// Must set commandResult to indicate success or failure
+    NXSGOpenGLNode* renderBond(NXBondRenderData const&);
+    
+    
+protected:
+    static double const BOND_WIDTH;
+    static int const MAX_BONDS = 6;
+    static NXSGOpenGLNode *_s_canonicalBondNode[MAX_BONDS];
     
 private:
-    static double const BOND_WIDTH;
-    static NXSGNode *canonicalBondNode;
+    // the following add the eponymous static pointers above as children so that
+    // each initialized instance of NXBallAndStickOpenGLRenderer increments
+    // their reference count by 1. So the canonical bond nodes have a min
+    // scenegraph count of at least 1 till the last instance is destroyed
+    // after which these nodes will be cleaned up
+    NXSGNode canonicalBondNodeGuard[MAX_BONDS];
+    
+    static bool InitializeCanonicalBondNodes(void);
+    static void InitializeCanonicalSingleBondNode(void);
+    static void InitializeCanonicalDoubleBondNode(void);
+    static void InitializeCanonicalTripleBondNode(void);
+    static void InitializeCanonicalAromaticBondNode(void);
+    static void InitializeCanonicalCarbomericBondNode(void);
+    static void InitializeCanonicalGraphiticBondNode(void);
     
     friend class NXBallAndStickOpenGLRendererTest;
 };

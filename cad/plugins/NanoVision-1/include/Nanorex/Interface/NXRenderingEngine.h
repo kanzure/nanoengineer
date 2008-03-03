@@ -35,8 +35,8 @@ public:
     // Derived classes must override to identify themselves
     virtual EngineID getID(void) const = 0;
 
-    virtual void initializePlugins() = 0;
-    virtual void cleanupPlugins() = 0;
+    virtual bool initializePlugins() = 0;
+    virtual bool cleanupPlugins() = 0;
     
     // accessors
     

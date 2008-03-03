@@ -12,6 +12,7 @@
 #include <vector>
 #include <QString>
 
+
 namespace Nanorex {
 
 
@@ -23,16 +24,16 @@ namespace Nanorex {
  * @ingroup NanorexUtility
  */
 class NXCommandResult {
-	public:
-		NXCommandResult();
-		void setResult(int resultId);
-		int getResult();
-		void setParamVector(std::vector<QString>& paramVector);
-		const std::vector<QString>& getParamVector() const;
-
-	private:
-		int resultId;
-		std::vector<QString> paramVector;
+public:
+    NXCommandResult();
+    void setResult(int resultId);
+    int getResult();
+    void setParamVector(std::vector<QString> const& paramVector);
+    const std::vector<QString>& getParamVector() const;
+    
+private:
+    int resultId;
+    std::vector<QString> paramVector;
 };
 
 } // Nanorex::

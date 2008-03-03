@@ -26,46 +26,48 @@ namespace Nanorex {
 class NXOpenGLRendererPlugin : public NXRendererPlugin {
 public:
 
-    NXOpenGLRendererPlugin();
+    NXOpenGLRendererPlugin() {}
     virtual ~NXOpenGLRendererPlugin() {}
+    
+    NXCommandResult* initialize(void);
+    NXCommandResult* cleanup(void);
 
     /// Call plugin to render the atom display list and return the scenegraph node.
     /// Must set commandResult to indicate success or failure
-    virtual NXSGNode* renderAtom(NXAtomRenderData const&) = 0;
+    NXSGOpenGLNode* renderAtom(NXAtomRenderData const&);
     
     /// Call plugin to render the bond display list and return the scenegraph node.
     /// Must set commandResult to indicate success or failure
-    virtual NXSGNode* renderBond(NXBondRenderData const&) = 0;
+    NXSGOpenGLNode* renderBond(NXBondRenderData const&);
     
     NXCommandResult const& getCommandResult(void) const { return commandResult; }
     
-    // /// Get the OpenGL "name" of the display list for the canonical sphere - 0 if not sphere not created
-    // static GLuint const& getCanonicalSphereDisplayListID(void) { return canonicalSphereDisplayListID; }
-    
-    // /// Get the OpenGL "name" of the display list for the canonical cylinder - 0 if not sphere not created
-    // static GLuint const& getCanonicalCylinderDisplayListID(void) { return canonicalCylinderDisplayListID; }
+protected:
     
     /// Initialize canonical sphere scenegraph node for atoms
-    static NXSGOpenGLRenderable* RenderCanonicalSphere(void);
+    /// Returns NULL if unsuccessful
+    // static NXSGOpenGLRenderable *const GetCanonicalSphereNode(void);
     
     /// Initialize canonical cylinder scenegraph node for bonds
-    static NXSGOpenGLRenderable* RenderCanonicalCylinder(void);
+    /// Returns NULL if unsuccessful
+    // static NXSGOpenGLRenderable *const GetCanonicalCylinderNode(void);
     
-protected:
     NXCommandResult commandResult;
-    /// @todo should these be NXSGRenderable* instead?
-    // static GLuint canonicalSphereDisplayListID = 0;
-    // static GLuint canonicalCylinderDisplayListID = 0;
+    static NXCommandResult _s_commandResult;
+    static void SetError(NXCommandResult& cmdResult, char const *const errMsg);
+    static void SetWarning(NXCommandResult& cmResult, char const *const warnMsg);
     
-    static NXSGOpenGLRenderable *canonicalSphereNode;
-    static NXSGOpenGLRenderable *canonicalCylinderNode;
-/*    static NXSGRotate* GetVectorAlignmentNode(double const& x1,
-                                              double const& y1,
-                                              double const& z1,
-                                              double const& x2,
-                                              double const& y2,
-                                              double const& z2);*/
-
+    static NXSGOpenGLRenderable *_s_canonicalSphereNode;
+    static NXSGOpenGLRenderable *_s_canonicalCylinderNode;
+    
+private:
+    NXSGNode canonicalSphereNodeGuard;
+    static void InitializeCanonicalSphereNode(void);
+    static void DrawOpenGLCanonicalSphere(void);
+    
+    NXSGNode canonicalCylinderNodeGuard;
+    static void InitializeCanonicalCylinderNode(void);
+    static void DrawOpenGLCanonicalCylinder(void);
 };
 
 } // Nanorex

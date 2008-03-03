@@ -53,14 +53,14 @@
 
 	#include <iostream>
 
-	#define GLERROR											\
+    #define GLERROR(strm)											\
 	{														\
 		GLenum code = glGetError();							\
 		while (code!=GL_NO_ERROR)							\
 		{													\
-			std::cerr << __FILE__;							\
-			std::cerr << ':' << __LINE__;					\
-			std::cerr << ' ' << (char *) gluErrorString(code) << std::endl;	\
+			strm << __FILE__;							\
+			strm << ':' << __LINE__;					\
+			strm << ' ' << (char *) gluErrorString(code) << std::endl;	\
 			code = glGetError();							\
 		} 													\
 	}
