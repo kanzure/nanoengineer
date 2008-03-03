@@ -344,9 +344,13 @@ class BuildDna_EditCommand(EditCommand):
                 self.win.win_update()
             else:
                 EditCommand._finalizeStructure(self) 
-            
+        
+        if self.struct is not None:
             #Make sure that he DnaGroup in the Model Tree is in collapsed state
             #after finalizing the structure.
+            #DON'T DO self.struct.open = False in the above conditional
+            #because the EditCommand._finalizeStructure may have assigned
+            #'None' for 'self.struct'!
             self.struct.open = False
                 
     def cancelStructure(self):
