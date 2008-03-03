@@ -817,17 +817,20 @@ class basicGraphicsMode(GraphicsMode_API):
             ### REVIEW: this might need a fix_buttons call to work the same
             # on the Mac [bruce 041220]
         dScale = 1.0/1200.0
-        if mod & Qt.ShiftModifier: dScale *= 2.0
-        if mod & Qt.ControlModifier: dScale *= 0.25
-            # Switched Shift and Control zoom factors to be more intuitive.
-            # Shift + Wheel zooms in quickly (2x), Control + Wheel zooms in slowly (.25x). 
-            # mark 060321
+        if mod & Qt.ShiftModifier and mod & Qt.ControlModifier:
+            # Shift + Control + Wheel zooms at same rate as without a modkey.
+            pass
+        elif mod & Qt.ShiftModifier: 
+            # Shift + Wheel zooms in quickly (2x),
+            dScale *= 2.0
+        elif mod & Qt.ControlModifier:
+            # Control + Wheel zooms in slowly (.25x).
+            dScale *= 0.25
         farQ_junk, point = self.dragstart_using_GL_DEPTH( event)
             # russ 080116 Limit mouse acceleration on the Mac.
         delta = max( -360, min(event.delta(), 360))
-##        factor = 1.0 + dScale * delta
         factor = exp(dScale * delta)
-        ###print "Wheel factor=", factor, " delta=", delta
+        #print "Wheel factor=", factor, " delta=", delta
 
             #bruce 070402 bugfix: original formula, factor = 1.0 + dScale * delta, was not reversible by inverting delta,
             # so zooming in and then out (or vice versa) would fail to restore original scale precisely,
