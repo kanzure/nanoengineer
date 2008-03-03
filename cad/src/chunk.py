@@ -1846,6 +1846,20 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             self.pushMatrix()
             glCallList(self.displist.nocolor_dl)
             self.popMatrix()
+
+            #russ 080302: Draw external bonds.
+            if self.externs:
+                # From Chunk.draw().
+                drawLevel = self.assy.drawLevel
+                disp = self.get_dispdef(glpane)
+                # From Chunk._draw_external_bonds
+                ColorSorter.start(None)
+                for bond in self.externs:
+                    bond.draw(glpane, disp, color, drawLevel)
+                    continue
+                ColorSorter.finish()
+                pass
+            pass
         else:
             for atom in self.atoms.itervalues():
                 # draw atom and its (not yet drawn) bonds
@@ -1857,11 +1871,14 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                         if drawn_bonds.has_key(id(bond)):
                             continue # to next bond
                         drawn_bonds[id(bond)] = bond
+                        pass
                     bond.draw_in_abs_coords(glpane,
                                             color, 
                                             bool_fullBondLength)
-                    
-        return    
+                    continue
+                continue
+            pass
+        return
 
     def standard_draw_chunk(self, glpane, disp0, highlighted = False): #bruce 060608 split this out of draw_displist
         """
