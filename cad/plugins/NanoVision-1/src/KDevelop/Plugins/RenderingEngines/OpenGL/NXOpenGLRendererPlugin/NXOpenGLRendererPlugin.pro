@@ -30,4 +30,5 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
 
 CONFIG -= release
 
-LIBS += -lNXOpenGLSceneGraph
+LIBS += -lNXOpenGLSceneGraph \
+ -L../../../../../../lib
