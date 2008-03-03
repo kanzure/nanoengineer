@@ -2438,11 +2438,14 @@ def drawDirectionArrow(color,
     arrowHeight =  arrowBase*1.5
     axis = norm(vec)
     
-    scaledBasePoint = tailPoint + vlen(vec)*axis
+    #as of 2008-03-03 scaledBasePoint is not used so commenting out. 
+    #(will be removed after more testing)
+    ##scaledBasePoint = tailPoint + vlen(vec)*axis
     drawcylinder(color, tailPoint, arrowBasePoint, tailRadius, capped = True, 
                  opacity = opacity)
     
-    pos = scaledBasePoint
+    ##pos = scaledBasePoint
+    pos = arrowBasePoint
     arrowRadius = arrowBase
     gleSetNumSides(numberOfSides)
     drawpolycone(color, [[pos[0] - 1 * axis[0], 
