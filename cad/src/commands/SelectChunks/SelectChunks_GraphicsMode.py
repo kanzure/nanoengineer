@@ -26,7 +26,6 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
                           the old class selectChunksMode and moved the 
                           GraphicsMode related methods into this class from 
                           selectChunksMode.py
-
 """
 
 from PyQt4.Qt import QMouseEvent
@@ -45,6 +44,7 @@ from debug import print_compact_traceback, print_compact_stack
 from constants import yellow, orange, ave_colors, red
 
 from debug_prefs import debug_pref, Choice_boolean_True
+from utilities import debug_flags
 
 from geometry.VQT import V, vlen
 
@@ -188,16 +188,22 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @see: self.chunkLeftDown
         
         """
+        
         #Note: The following check is already done in 
         #selectMode.doObjectspecificLeftUp. 
         #self.chunkLeftUp method should never be called if
         #self.current_obj_clicked is False. The check below is added just 
-        #to be on a safer side and prints a warning.
+        #to be on a safer side and prints a warning. 
+        #UPDATE 2008-03-03: This warning is harmless. In certain situations, 
+        #(e.g. leftup on a bondPoint etc), this method is invoked. 
+        #although it is a bug, its harmless because we do proper check here.
+        #So print a warning message if ATOM_DEBUG flag is enabled. 
         if not self.current_obj_clicked:
-            print_compact_stack("Note: self.current_obj_clicked is False "
-            "and still selectMolsMode.chunkLeftUp is called. Make sure to "
-            "call selectMode.objectSpecificLeftUp before calling "
-            "selectMolsMode.chunkLeftUp: ")
+            if debug_flags.atom_debug:
+                print_compact_stack("Note: self.current_obj_clicked is False "
+                "and still selectMolsMode.chunkLeftUp is called. Make sure to "
+                "call selectMode.objectSpecificLeftUp before calling "
+                "selectMolsMode.chunkLeftUp: ")
             return
                
                 
@@ -425,6 +431,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 	@see : selectMolsMode.pseudoMoveModeLeftDrag
 
 	"""
+        
+        if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
+            return
 
         # Copying some drag_handler checker code from selectAtomsMode (with some
         # modifications) -- Ninad20070601
@@ -502,7 +511,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
 
         if not self.o.assy.getSelectedMovables():
             return
-
+        
         if self.movingPoint is None: 
             self.leftDown(event)    
             
@@ -552,6 +561,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         ##if not self.hover_highlighting_enabled:
             ##self.hover_highlighting_enabled = True
         
+                
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.emptySpaceLeftUp(event)
             return
@@ -562,6 +572,7 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                 # event, for passing to *leftUp methods [bruce 060728 comment]
 
         obj = self.current_obj
+        
   
         if obj is None: # Nothing dragged (or clicked); return.
             return
