@@ -2,7 +2,7 @@
 
 #include "NXOpenGLRendererPlugin.h"
 #include <Nanorex/Interface/NXNanoVisionResultCodes.h>
-#include <glt_error.h>
+#include "GLT/glt_error.h"
 #include <sstream>
 
 using namespace std;
