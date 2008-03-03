@@ -537,7 +537,7 @@ class BuildDna_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         self.editStrandPropertiesButton = PM_PushButton( 
             pmGroupBox,
             label = "",
-            text  = "Sequence Editor..." )
+            text  = "Edit Properties..." )
         self.editStrandPropertiesButton.setEnabled(False)
         
     def _loadGroupBox3(self, pmGroupBox):
