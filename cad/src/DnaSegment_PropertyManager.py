@@ -149,9 +149,9 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         @see: DnaSegment_EditCommand.editStructure()
         
         """
-        if self.struct:
+        if self.editCommand is not None and self.editCommand.hasValidStructure():
         
-            self.endPoint1, self.endPoint2 = self.struct.getAxisEndPoints()
+            self.endPoint1, self.endPoint2 = self.editCommand.struct.getAxisEndPoints()
                            
             duplexLength = vlen(self.endPoint1 - self.endPoint2)
         
