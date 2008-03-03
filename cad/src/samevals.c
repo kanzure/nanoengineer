@@ -241,6 +241,7 @@ setInstanceCopier(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &instanceCopier))
 	return NULL;
     if (!PyCallable_Check(instanceCopier)) {
+        instanceCopier = NULL ;
 	PyErr_SetString(PyExc_TypeError, "argument must be callable");
 	return NULL;
     }
@@ -256,6 +257,7 @@ setArrayCopier(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &arrayCopier))
 	return NULL;
     if (!PyCallable_Check(arrayCopier)) {
+        arrayCopier = NULL;
 	PyErr_SetString(PyExc_TypeError, "argument must be callable");
 	return NULL;
     }
@@ -271,6 +273,7 @@ setInstanceLikeClasses(PyObject *self, PyObject *args)
     if (!PyArg_ParseTuple(args, "O", &instanceLikeClasses))
 	return NULL;
     if (!PyList_Check(instanceLikeClasses)) {
+        instanceLikeClasses = NULL;
 	PyErr_SetString(PyExc_TypeError, "argument must be a list");
 	return NULL;
     }
