@@ -77,7 +77,7 @@ from dna_model.dna_model_constants import MAX_LADDER_LENGTH
 
 from dna_updater.dna_updater_prefs import pref_per_ladder_colors
 
-from utilities.Log import orangemsg, redmsg, quote_html
+from utilities.Log import orangemsg, redmsg ##, quote_html
 import env
 
 from Numeric import dot

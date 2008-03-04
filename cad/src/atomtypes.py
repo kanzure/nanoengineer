@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 atomtypes.py -- AtomType object, knows about one bonding pattern for one element.
 
 @author: Josh, Bruce
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -25,7 +25,7 @@ on __xxx__ attrs in python objects.
 # atom.atomtype -> current atomtype for that atom
 
 from geometry.VQT import Q
-from utilities.Log import redmsg, orangemsg
+from utilities.Log import redmsg
 from utilities import debug_flags
 from state_utils import IdentityCopyMixin
 import env

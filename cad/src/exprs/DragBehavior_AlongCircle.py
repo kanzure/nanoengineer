@@ -10,7 +10,7 @@ from exprs.Highlightable import SavedCoordsys
 from exprs.geometry_exprs import Ray
 from exprs.Exprs import tuple_Expr
 from exprs.attr_decl_macros import Arg, Option, Instance
-from exprs.ExprsConstants import StateRef, ORIGIN
+from exprs.ExprsConstants import StateRef ##, ORIGIN
 from exprs.__Symbols__ import Anything
 from exprs.DragBehavior import DragBehavior
 

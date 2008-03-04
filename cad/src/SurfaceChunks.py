@@ -24,8 +24,7 @@ from PyQt4.Qt import QApplication, Qt, QCursor
 import env
 import drawer
 from geometry.VQT import V, cross
-from utilities.Log import redmsg, orangemsg, greenmsg
-from debug import print_compact_traceback
+from utilities.Log import greenmsg
 from displaymodes import ChunkDisplayMode
 
 from constants import ave_colors

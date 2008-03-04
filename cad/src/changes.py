@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 changes.py - utilities for tracking changes, usage, nested events, etc.
 
 @author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -22,7 +22,6 @@ bruce 071106 split changedicts.py out of changes.py
 
 """
 
-import sys
 from debug import print_compact_traceback, print_compact_stack
 import env
 from constants import noop

@@ -16,12 +16,7 @@ and is referenced by qt4transition.qt4die.
 Therefore I didn't move it into outtakes or scratch.)
 """
 
-# REVIEW: might require some imports from debug.py
-
-import sys, os, time, types, traceback
-from constants import noop
-import env
-from utilities import debug_flags
+import sys, types
 
 ### BUG: undefined variable Finder
 

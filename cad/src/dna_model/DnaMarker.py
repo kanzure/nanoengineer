@@ -32,8 +32,6 @@ from utilities import debug_flags
 
 from drawer import drawwirecube
 
-from debug import print_compact_stack
-
 from constants import orange
 
 from files_mmp import MMP_RecordParser

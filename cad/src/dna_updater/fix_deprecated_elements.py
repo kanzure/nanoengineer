@@ -45,7 +45,7 @@ def fix_deprecated_elements( changed_atoms):
                 fix = False
             if fix:
                 deprecated_atoms.append(atom)
-            elif DEBUG_DNA_UPDATER:
+            elif debug_flags.DEBUG_DNA_UPDATER:
                 print "dna updater: debug_pref says don't alter deprecated atom %r" % (atom,)
         continue
 

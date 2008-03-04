@@ -26,14 +26,13 @@ term from "Python Megawidgets" (which are implemented in Tk rather than Qt).
 
 import sys, os, time
 
-from PyQt4 import QtCore, QtGui
+from PyQt4 import QtCore
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QTextEdit, QTextOption
 
 from utilities import debug_flags
 from PlatformDependent import mkdirs_in_filename
 from DebugMenuMixin import DebugMenuMixin
-from qt4transition import qt4todo
 import env
 
 from prefs_constants import historyMsgTimestamp_prefs_key

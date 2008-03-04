@@ -78,8 +78,9 @@ from mdldata import marks, links, filler
 from povheader import povpoint
 
 import debug
-from debug import print_compact_stack, print_compact_traceback, compact_stack
-from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True, Choice
+from debug import print_compact_stack, print_compact_traceback
+##from debug import compact_stack
+from debug_prefs import debug_pref, Choice_boolean_False, Choice
 
 from changedicts import register_changedict, register_class_changedicts
 

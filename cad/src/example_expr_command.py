@@ -1,12 +1,12 @@
-# Copyright 2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2007-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 example_expr_command.py -- example of how to use an interactive graphics
 expr in a command (unfinished, so partly scratch code); command and PM
 are each variants of ExampleCommand2's command and PM classes
  
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -76,7 +76,7 @@ class TextState(InstanceMacro): # rename?
 from test_commands import ExampleCommand2
 
 ##from selectAtomsMode import selectAtomsMode
-from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command # used indirectly via ExampleCommand2
+##from commands.SelectAtoms.SelectAtoms_Command import SelectAtoms_Command # used indirectly via ExampleCommand2
 from commands.SelectAtoms.SelectAtoms_GraphicsMode import SelectAtoms_GraphicsMode
 
 ##fyi: class selectAtomsMode(SelectAtoms_basicCommand, 

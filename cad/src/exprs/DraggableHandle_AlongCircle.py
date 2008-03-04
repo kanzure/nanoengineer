@@ -13,11 +13,10 @@ from exprs.ExprsConstants import Point, Drawable
 from exprs.ExprsConstants import ORIGIN, DX ##,DY
 from exprs.Highlightable import Highlightable
 from exprs.Rect import Rect
-from exprs.Exprs import tuple_Expr, call_Expr
+from exprs.Exprs import tuple_Expr
 from exprs.__Symbols__ import _self
 from exprs.instance_helpers import DelegatingInstanceOrExpr
 from exprs.DragBehavior_AlongCircle import DragBehavior_AlongCircle
-from exprs.geometry_exprs import Ray
 from exprs.Set import Action
 
 class DraggableHandle_AlongCircle(DelegatingInstanceOrExpr): 

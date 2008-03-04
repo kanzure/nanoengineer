@@ -1,17 +1,17 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 PovrayScene.py - The POV-Ray Scene class.
 
 @author: Mark
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
 mark 060601 - Created.
 """
 
-import os, sys
+import os
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import QPixmap
 from PyQt4.Qt import QLabel

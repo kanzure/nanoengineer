@@ -1,9 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 files_pdb.py -- reading and writing PDB files
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -27,7 +27,6 @@ from elements import PeriodicTable, Singlet
 from PlatformDependent import fix_plurals
 from utilities.Log import redmsg, orangemsg
 from geometry.VQT import A
-from debug_prefs import debug_pref, Choice_boolean_True
 from version import Version
 from datetime import datetime
 import env
