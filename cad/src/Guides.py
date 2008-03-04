@@ -59,12 +59,26 @@ _upper_left = 1
 _lower_right = 2
 _upper_right = 3
 
-def getRulerDrawingParameters(glpane, ruler_position):
+def getRulerDrawingParameters(width, height, aspect,
+                              scale, zoomFactor, 
+                              ruler_position):
     """
     Compute and return all the ruler drawing parameters needed by draw().
     
-    @param glpane: The 3D graphics area.
-    @type  glpane: L{GLPane}
+    @param width: Width of the 3D graphics area in pixels.
+    @type  width: int
+    
+    @param height: Height of the 3D graphics area in pixels.
+    @type  height: int
+    
+    @param aspect: The aspect ratio of the 3D graphics area (width / height)
+    @type  aspect: float
+    
+    @param scale: Half-height of the field of view in Angstroms.
+    @type  scale: float
+    
+    @param zoomFactor: Zoom factor.
+    @type  zoomFactor: float
     
     @param ruler_position: The ruler position, where:
                            - 0 = lower left
@@ -79,50 +93,47 @@ def getRulerDrawingParameters(glpane, ruler_position):
     # more general. I plan to implement them when time allows, but it is 
     # not urgent. --Mark.
     
-    width = glpane.width
-    height = glpane.height
-    scale = glpane.scale
-    aspect = glpane.aspect
+    viewHeight = scale * zoomFactor * 2.0 # In Angstroms.
     
     # num_horz_ticks gets initialized here, but may get changed further below.
     # num_vert_ticks is set after num_horz_ticks is finally set.
-    num_horz_ticks = int(scale * 2.0)
+    num_horz_ticks = int(viewHeight)
     
-    tickmark_spacing = 0.5 / scale * height
+    tickmark_spacing = 1.0 / viewHeight * height
     tickmark_spacing_multiplier = 1.0
     
     # This section computes the the tick mark drawing parameters based on
-    # the scale of the 3D graphics area. Be careful if you change these
+    # the viewHeight of the 3D graphics area. Be careful if you change these
     # values. Mark 2008-02-07
-    if scale <= 2.75:
+    if viewHeight <= 5.5:
         units_text = "A" # Angstroms
         units_format = "%2d"
         units_scale = 1.0
         unit_label_inc = 1
         long_tickmark_inc = 10
         medium_tickmark_inc = 5
-    elif scale <= 10.1:
+    elif viewHeight <= 20.1:
         units_text = "A" # Angstroms
         units_format = "%2d"
         units_scale = 1.0
         unit_label_inc = 5
         long_tickmark_inc = 10
         medium_tickmark_inc = 5
-    elif scale <= 25.1:
+    elif viewHeight <= 50.1:
         units_text = "nm" # nanometers
         units_format = "%-3.1f"
         units_scale = 0.1
         unit_label_inc = 5
         long_tickmark_inc = 10
         medium_tickmark_inc = 5
-    elif scale <= 51.0:
+    elif viewHeight <= 101.0:
         units_text = "nm" # nanometers
         units_format = "%2d"
         units_scale = 0.1
         unit_label_inc = 10
         long_tickmark_inc = 10
         medium_tickmark_inc = 5
-    elif scale <= 101.0:
+    elif viewHeight <= 201.0:
         units_text = "nm" # nanometers
         units_format = "%2d"
         units_scale = .5
@@ -131,7 +142,7 @@ def getRulerDrawingParameters(glpane, ruler_position):
         medium_tickmark_inc = 2
         num_horz_ticks = int(num_horz_ticks * 0.2)
         tickmark_spacing_multiplier = 5.0
-    elif scale <= 501.0:
+    elif viewHeight <= 1001.0:
         units_text = "nm" # nanometers
         units_format = "%2d"
         units_scale = 1.0
@@ -140,7 +151,7 @@ def getRulerDrawingParameters(glpane, ruler_position):
         medium_tickmark_inc = 5
         num_horz_ticks = int(num_horz_ticks * 0.1)
         tickmark_spacing_multiplier = 10.0
-    elif scale <= 1001.0:
+    elif viewHeight <= 2001.0:
         units_text = "nm" # nanometers
         units_format = "%2d"
         units_scale = 1.0
@@ -149,7 +160,7 @@ def getRulerDrawingParameters(glpane, ruler_position):
         medium_tickmark_inc = 5
         num_horz_ticks = int(num_horz_ticks * 0.1)
         tickmark_spacing_multiplier = 10.0
-    elif scale <= 2505.0:
+    elif viewHeight <= 5005.0:
         units_text = "nm" # nanometers
         units_format = "%2d"
         units_scale = 2.0
@@ -158,7 +169,7 @@ def getRulerDrawingParameters(glpane, ruler_position):
         medium_tickmark_inc = 5
         num_horz_ticks = int(num_horz_ticks * 0.05)
         tickmark_spacing_multiplier = 20.0
-    elif scale <= 5005.0:
+    elif viewHeight <= 10005.0:
         units_text = "Um" # micrometers
         units_format = "%-3.1f"
         units_scale = 0.01
@@ -167,7 +178,7 @@ def getRulerDrawingParameters(glpane, ruler_position):
         medium_tickmark_inc = 5
         num_horz_ticks = int(num_horz_ticks * 0.01)
         tickmark_spacing_multiplier = 100.0
-    elif scale <= 15005.0:
+    elif viewHeight <= 30005.0:
         units_text = "Um" # micrometers
         units_format = "%-3.1f"
         units_scale = 0.1
@@ -176,7 +187,7 @@ def getRulerDrawingParameters(glpane, ruler_position):
         medium_tickmark_inc = 5
         num_horz_ticks = int(num_horz_ticks * 0.001)
         tickmark_spacing_multiplier = 1000.0
-    elif scale <= 25005.0:
+    elif viewHeight <= 50005.0:
         units_text = "Um" # micrometers
         units_format = "%-3.1f"
         units_scale = 0.1
@@ -195,10 +206,10 @@ def getRulerDrawingParameters(glpane, ruler_position):
         num_horz_ticks = int(num_horz_ticks * 0.001)
         tickmark_spacing_multiplier = 1000.0
     
-    # Kludge alert. If the scale is very large (125000.0 = 25 Um), set a flag
-    # checked by draw() to determine it tick marks and unit text on rulers
-    # should be drawn.
-    if scale > 125000.0:
+    # Kludge alert. If viewHeight gets larger than 250000.0 (25 Um), set a
+    # flag passed to draw() so that it won't draw tick marks and unit text
+    # on rulers.
+    if viewHeight > 250000.0:
         draw_ticks_and_text = False
     else:
         draw_ticks_and_text = True
@@ -208,7 +219,7 @@ def getRulerDrawingParameters(glpane, ruler_position):
     DEBUG = False
     if DEBUG:
         print "hr ticks=", num_horz_ticks, "vr ticks=", num_vert_ticks
-        print "tickmark_spacing=", tickmark_spacing, "scale=", scale
+        print "tickmark_spacing=", tickmark_spacing, "viewHeight=", viewHeight
         print "units_scale=", units_scale, "unit_label_inc=", unit_label_inc
     
     # Compute ruler width based on font size, which should be a user pref
@@ -459,7 +470,7 @@ class Guides(object):
     
     Still to do:
     - Optimize. Don't call drawLine() multiple times; create a point list
-      and render all lines at once.
+      and render all tick marks at once.
     - Add support for 2D grid lines.
     - Allow user to control ruler thickness, ruler font size, tick mark color,
       etc via user preferences. (nice to have)
@@ -476,6 +487,7 @@ class Guides(object):
     
     ruler_position = None
     scale = 0.0
+    zoomFactor = 0.0
     aspect = 0.0
     ruler_drawing_params = ()
     
@@ -505,15 +517,18 @@ class Guides(object):
         # determine if they've changed. If any of them have, 
         # getRulerDrawingParameters() must be called to get new drawing parms.
         if (self.scale  != self.glpane.scale) or \
+           (self.zoomFactor  != self.glpane.zoomFactor) or \
            (self.aspect != self.glpane.aspect) or \
            (self.ruler_position != env.prefs[rulerPosition_prefs_key]):
             
             self.scale = self.glpane.scale
+            self.zoomFactor = self.glpane.zoomFactor
             self.aspect = self.glpane.aspect
             self.ruler_position = env.prefs[rulerPosition_prefs_key]
     
             self.ruler_drawing_params = \
-                getRulerDrawingParameters(self.glpane,
+                getRulerDrawingParameters(width, height, self.aspect,
+                                          self.scale, self.zoomFactor, 
                                           self.ruler_position)
             
         (draw_ticks_and_text,
@@ -555,6 +570,18 @@ class Guides(object):
         glPushMatrix()
         glLoadIdentity() # needed!
         gluOrtho2D(0.0, float(width), 0.0, float(height))
+        glMatrixMode(GL_MODELVIEW)
+        # About this glMatrixMode(GL_MODELVIEW) call, Bruce wrote in a review:
+        # The only reason this is desirable (it's not really needed) is if, 
+        # when someone is editing the large body of drawing code after this, 
+        # they inadvertently do something which is only correct if the matrix 
+        # mode is GL_MODELVIEW (e.g. if they use glTranslate to shift a ruler
+        # or tickmark position). Most of our drawing code assumes it can do 
+        # this, so a typical NE1 OpenGL programmer may naturally assume this,
+        # which is why it's good to leave the matrix mode as GL_MODELVIEW when
+        # entering into a large hunk of ordinary drawing code (especially if
+        # it might call other drawing functions, now or in the future).
+        # Mark 2008-03-03
         
         glDisable(GL_LIGHTING)
         glDisable(GL_DEPTH_TEST)
