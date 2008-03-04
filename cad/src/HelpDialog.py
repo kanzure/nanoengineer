@@ -49,7 +49,21 @@ class Ui_HelpDialog(object):
         self.gridlayout1.addWidget(self.keyboard_shortcuts_textbrowser,0,0,1,1)
         self.help_tab.addTab(self.tab1, "")
         self.vboxlayout.addWidget(self.help_tab)
-
+        
+        self.tab2 = QtGui.QWidget()
+        self.tab2.setObjectName("tab2")
+        
+        self.gridlayout2 = QtGui.QGridLayout(self.tab2)
+        self.gridlayout2.setMargin(0)
+        self.gridlayout2.setSpacing(6)
+        self.gridlayout2.setObjectName("gridlayout2")
+                   
+        self.selection_shortcuts_textbrowser = QtGui.QTextBrowser(self.tab2)
+        self.selection_shortcuts_textbrowser.setObjectName("selection_shortcuts_textbrowser")
+        self.gridlayout2.addWidget(self.selection_shortcuts_textbrowser,0,0,1,1)
+        self.help_tab.addTab(self.tab2, "")
+        self.vboxlayout.addWidget(self.help_tab)
+        
         self.hboxlayout = QtGui.QHBoxLayout()
         self.hboxlayout.setMargin(0)
         self.hboxlayout.setSpacing(6)
@@ -71,4 +85,5 @@ class Ui_HelpDialog(object):
         HelpDialog.setWindowTitle(QtGui.QApplication.translate("HelpDialog", "NanoEngineer-1 Help", None, QtGui.QApplication.UnicodeUTF8))
         self.help_tab.setTabText(self.help_tab.indexOf(self.tab), QtGui.QApplication.translate("HelpDialog", "Mouse Controls", None, QtGui.QApplication.UnicodeUTF8))
         self.help_tab.setTabText(self.help_tab.indexOf(self.tab1), QtGui.QApplication.translate("HelpDialog", "Keyboard Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
+        self.help_tab.setTabText(self.help_tab.indexOf(self.tab2), QtGui.QApplication.translate("HelpDialog", "Selection Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
         self.close_btn.setText(QtGui.QApplication.translate("HelpDialog", "Close", None, QtGui.QApplication.UnicodeUTF8))

@@ -95,6 +95,24 @@ class Ne1HelpDialog(QWidget, Ui_HelpDialog):
         else:
             msg =  "Help file " + htmlDoc + " not found."
             self.keyboard_shortcuts_textbrowser.setPlainText(msg)
+    
+    def _setup_selection_shortcuts_page(self):
+        """
+        Setup the Selection Shortcuts help page.
+        """
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        
+        if sys.platform == 'darwin':
+            htmlDoc = os.path.normpath(filePath + '/../doc/selectionshortcuts-mac.htm')
+        else:
+            htmlDoc = os.path.normpath(filePath + '/../doc/selectionshortcuts.htm')
+        
+        # Make sure help document exists.  If not, display msg in textbrowser.
+        if os.path.exists(htmlDoc):
+            self.selection_shortcuts_textbrowser.setHtml(open(htmlDoc).read())
+        else:
+            msg =  "Help file " + htmlDoc + " not found."
+            self.selection_shortcuts_textbrowser.setPlainText(msg)
         
     def setup_current_page(self, currentTabIndex):
         pagenumber = currentTabIndex
@@ -102,5 +120,7 @@ class Ne1HelpDialog(QWidget, Ui_HelpDialog):
             self._setup_mouse_controls_page()
         elif pagenumber is 1:
             self._setup_keyboard_shortcuts_page()
+        elif pagenumber is 2:
+            self._setup_selection_shortcuts_page()
         else:
             print 'Error: Help page unknown: ', pagenumber
