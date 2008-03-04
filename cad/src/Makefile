@@ -102,6 +102,9 @@ abt: $(PYREXTARGET) atombasetests.py
 atombase.c: atombasehelp.c atombase.pyx
 	$(PYREXC) atombase.pyx
 
+samevals.c: samevalshelp.c samevals.pyx
+	$(PYREXC) samevals.pyx
+
 libpython$(PYVER).a: libpython$(PYVER).a.gz
 	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
 

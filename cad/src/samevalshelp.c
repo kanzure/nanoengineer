@@ -9,7 +9,7 @@
 #define XX(z)    z
 //#define XX(z)
 
-static PyTypeObject *arraytype = NULL;
+static PyTypeObject *arrayType = NULL;
 static PyObject *instanceCopier = NULL;
 static PyObject *arrayCopier = NULL;
 static PyObject *instanceLikeClasses = NULL;
@@ -50,7 +50,7 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
 				 PyTuple_GetItem(v2, i)))
 		return 1;
 	return 0;
-    } else if (arraytype != NULL && typ1 == arraytype) {
+    } else if (arrayType != NULL && typ1 == arrayType) {
 	PyArrayObject *x = (PyArrayObject *) v1;
 	PyArrayObject *y = (PyArrayObject *) v2;
 	int i, elsize, howmany = 1;
@@ -94,39 +94,16 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
     return 1;
 }
 
-static char same_vals_doc[] = "\
-Try to emulate Bruce's version.";
-
 static PyObject *
-same_vals(PyObject *self, PyObject *args)
+c_same_vals(PyObject *o1, PyObject *o2)
 {
-    PyObject *v1, *v2;
-    if (arraytype == NULL) {
-	PyErr_SetString(PyExc_RuntimeError, "please set arraytype first");
+    if (arrayType == NULL) {
+	PyErr_SetString(PyExc_RuntimeError, "please set arrayType first");
 	return NULL;
     }
-    if (!PyArg_ParseTuple(args, "OO", &v1, &v2))
-	return NULL;
-    if (_same_vals_helper(v1, v2) != 0)
+    if (_same_vals_helper(o1, o2) != 0)
 	return PyInt_FromLong(0);  // false
     return PyInt_FromLong(1);  // true
-}
-
-static PyObject *
-setArrayType(PyObject *self, PyObject *args)
-{
-    PyObject *v;
-    Py_XDECREF(arraytype);
-    if (!PyArg_ParseTuple(args, "O", &v))
-	return NULL;
-    arraytype = (PyTypeObject *) v;
-    if (!PyType_Check(arraytype)) {
-	PyErr_SetString(PyExc_TypeError, "argument must be a type");
-	return NULL;
-    }
-    Py_INCREF(arraytype);
-    Py_INCREF(Py_None);
-    return Py_None;
 }
 
 static PyObject *
@@ -181,7 +158,7 @@ internal_copy_val(PyObject *v)
         copy = PyObject_CallObject(instanceCopier, args);
         Py_DECREF(args);
         return copy;
-    } else if (typ == arraytype) {
+    } else if (typ == arrayType) {
         PyObject *args = PyTuple_New(1);
         PyTuple_SetItem(args, 0, v);
         Py_INCREF(v);
@@ -213,11 +190,10 @@ internal_copy_val(PyObject *v)
 }
 
 static PyObject *
-copy_val(PyObject *self, PyObject *args)
+c_copy_val(PyObject *obj)
 {
-    PyObject *v;
-    if (arraytype == NULL) {
-	PyErr_SetString(PyExc_RuntimeError, "please set arraytype first");
+    if (arrayType == NULL) {
+	PyErr_SetString(PyExc_RuntimeError, "please set arrayType first");
 	return NULL;
     }
     if (instanceCopier == NULL) {
@@ -228,82 +204,37 @@ copy_val(PyObject *self, PyObject *args)
 	PyErr_SetString(PyExc_RuntimeError, "please set arrayCopier first");
 	return NULL;
     }
-    if (!PyArg_ParseTuple(args, "O", &v)) {
-        return NULL;
-    }
-    return internal_copy_val(v);
+    return internal_copy_val(obj);
 }
 
-static PyObject *
-setInstanceCopier(PyObject *self, PyObject *args)
+static void
+c_setArrayType(PyObject *atype)
 {
-    Py_XDECREF(instanceCopier);
-    if (!PyArg_ParseTuple(args, "O", &instanceCopier))
-	return NULL;
-    if (!PyCallable_Check(instanceCopier)) {
-        instanceCopier = NULL ;
-	PyErr_SetString(PyExc_TypeError, "argument must be callable");
-	return NULL;
-    }
-    Py_INCREF(instanceCopier);
-    Py_INCREF(Py_None);
-    return Py_None;
+  Py_XDECREF(arrayType);
+  arrayType = (PyTypeObject *)atype ;
+  Py_INCREF(arrayType);
 }
 
-static PyObject *
-setArrayCopier(PyObject *self, PyObject *args)
+static void
+c_setInstanceCopier(PyObject *copier)
 {
-    Py_XDECREF(arrayCopier);
-    if (!PyArg_ParseTuple(args, "O", &arrayCopier))
-	return NULL;
-    if (!PyCallable_Check(arrayCopier)) {
-        arrayCopier = NULL;
-	PyErr_SetString(PyExc_TypeError, "argument must be callable");
-	return NULL;
-    }
-    Py_INCREF(arrayCopier);
-    Py_INCREF(Py_None);
-    return Py_None;
+  Py_XDECREF(instanceCopier);
+  instanceCopier = copier ;
+  Py_INCREF(instanceCopier);
 }
 
-static PyObject *
-setInstanceLikeClasses(PyObject *self, PyObject *args)
+static void
+c_setArrayCopier(PyObject *copier)
 {
-    Py_XDECREF(instanceLikeClasses);
-    if (!PyArg_ParseTuple(args, "O", &instanceLikeClasses))
-	return NULL;
-    if (!PyList_Check(instanceLikeClasses)) {
-        instanceLikeClasses = NULL;
-	PyErr_SetString(PyExc_TypeError, "argument must be a list");
-	return NULL;
-    }
-    Py_INCREF(instanceLikeClasses);
-    Py_INCREF(Py_None);
-    return Py_None;
+  Py_XDECREF(arrayCopier);
+  arrayCopier = copier ;
+  Py_INCREF(arrayCopier);
 }
 
-static struct PyMethodDef
-samevals_methods[] = {
-    {"same_vals", (PyCFunction) same_vals, 1, same_vals_doc},
-    {"setArrayType", (PyCFunction) setArrayType, 1, NULL},
-    {"copy_val", (PyCFunction) copy_val, 1, NULL},
-    {"setInstanceCopier", (PyCFunction) setInstanceCopier, 1, NULL},
-    {"setArrayCopier", (PyCFunction) setArrayCopier, 1, NULL},
-    {"setInstanceLikeClasses", (PyCFunction) setInstanceLikeClasses, 1, NULL},
-    {NULL, NULL}
-};
-
-static char samevals_doc[] = "\
-copy_val is badly broken at the moment.\n\
-$Id$";
-
-static char *versionstring = "not ready for prime time";
-
-DL_EXPORT(void) initsamevals(void);
-DL_EXPORT(void) initsamevals(void)
+static void
+c_setInstanceLikeClasses(PyObject *classList)
 {
-    PyObject *m;
-    m = Py_InitModule3("samevals", samevals_methods, samevals_doc);
-    PyModule_AddStringConstant(m, "__version__", versionstring);
-    PyModule_AddStringConstant(m, "__author__", "Will");
+  Py_XDECREF(instanceLikeClasses);
+  instanceLikeClasses = classList ;
+  Py_INCREF(instanceLikeClasses);
 }
