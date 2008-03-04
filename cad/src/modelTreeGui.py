@@ -75,6 +75,7 @@ from menu_helpers import makemenu_helper
 import env
 
 from widgets.simple_dialogs import grab_text_line_using_dialog
+from icon_utilities import imagename_to_pixmap
 
 from Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
 
@@ -429,6 +430,7 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
         # someday these might also depend on parent node and/or on ModelTreeGui (i.e. widget)
     
     node_icon = node.node_icon(display_prefs) # a QPixmap object
+    
     try:
         pixmap = _cached_icons[node_icon]
     except KeyError:
@@ -455,6 +457,35 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
         painter.translate(0.5 * y + 4, 0.0)
             
     painter.drawPixmap(x, y, pixmap)
+    
+    # Draw a special symbol in the upper right corner of the node icon if one 
+    # of the following conditions is true:
+    # - draw a small yellow dot if the node contains atoms that have their 
+    #   display style set to something other than diDEFAULT.
+    # - draw a small white ghost if the node contains invisible or hidden 
+    #   chunks and/or atoms.
+    # - draw a small yellow ghost if the node contains invisible or hidden
+    #   chunks and/or atoms _and_ the node also contains atoms that have their
+    #   display style set to something other than diDEFAULT.
+    # Mark 2008-03-04
+    node_symbols = debug_pref("Model Tree: add special symbols to node icons?", 
+                              Choice_boolean_False, 
+                              non_debug = True, 
+                              prefs_key = False)
+    
+    if node_symbols: 
+        node_has_invisible_contents = node.hidden # Hidden nodes get ghosts.
+        node_has_special_display_contents = True # All other nodes get dots.
+        
+        if node_has_invisible_contents and node_has_special_display_contents:
+            painter.drawPixmap(x, y, 
+                               imagename_to_pixmap("modeltree/yellow_ghost.png"))
+        elif node_has_invisible_contents:
+            painter.drawPixmap(x, y, 
+                               imagename_to_pixmap("modeltree/white_ghost.png"))
+        elif node_has_special_display_contents:
+            painter.drawPixmap(x, y, 
+                               imagename_to_pixmap("modeltree/yellow_dot.png"))
 
     if selected: # before
         # draw a selection color as text bg color
