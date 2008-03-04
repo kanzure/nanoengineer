@@ -99,15 +99,18 @@ class ModelNode(InstanceOrExpr): #e rename since not a Node anymore (unless I ac
         if self.picked: # only draw when picked! (good?)
             draw_stuff(self.stuff, glpane) ### FIX: Undefined variable 'draw_stuff'
     def writemmp(self, mapping):
-        """Write this Node to an mmp file, as controlled by mapping,
-        which should be an instance of files_mmp.writemmp_mapping.
+        """
+        Write this Node to an mmp file, as controlled by mapping,
+        which should be an instance of writemmp_mapping.
         """
         line = "# nim: mmp record for %r" % self.__class__.__name__
         mapping.write(line + '\n')
         # no warning; this happens all the time as we make undo checkpoints
         return
     def __CM_upgrade_my_code(self): # experiment
-        "replace self with an updated version using the latest code, for self *and* self's data!"
+        """
+        replace self with an updated version using the latest code, for self *and* self's data!
+        """
         name = self.__class__.__name__
         print "name is",name # "DebugNode"
         print self.__class__.__module__ 
@@ -127,7 +130,9 @@ class ModelNode(InstanceOrExpr): #e rename since not a Node anymore (unless I ac
     pass
 
 class Sphere_ExampleModelNode(ModelNode):
-    "A sphere."
+    """
+    A sphere.
+    """
     pos = StateArg(Position, ORIGIN) ###IMPLEM StateArg , StateArgOrOption
         #e or can all arg/option formulas be treated as state, if we want them to be? (no, decl needed)
         #e or can/should the decl "this is changeable, ie state" as a flag option to the Arg macro?

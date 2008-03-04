@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_files.py - provides fileSlotsMixin for MWsemantics,
 with file slot methods and related helper methods.
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: most other ops_*.py files provide mixin classes for Part,
 not for MWsemantics like this one.
@@ -1082,7 +1082,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 type = "MMP"
                 part.writemmpfile( safile) ###@@@ WRONG, stub... this writes a smaller file, unreadable before A5, with no saved view.
                 #e also, that func needs to report errors; it probably doesn't now.
-                ###e we need variant of writemmpfile_assy, but the viewdata will differ... pass it a map from partindex to part?
+                ###e we need variant of writemmpfile_assy, but the viewdata will differ...
+                # pass it a map from partindex to part?
                 # or, another way, better if it's practical: ###@@@ DOIT
                 #   make a new assy (no shelf, same pov, etc) and save that. kill it at end.
                 #   might need some code cleanups. what's done to it? worry about saver code reset_changed on it...

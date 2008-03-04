@@ -591,7 +591,7 @@ class DebugNode(Node):
     def writemmp(self, mapping):
         """
         Write this Node to an mmp file, as controlled by mapping,
-        which should be an instance of files_mmp.writemmp_mapping.
+        which should be an instance of writemmp_mapping.
         """
         line = "# nim: mmp record for %r" % self.__class__.__name__
         mapping.write(line + '\n')

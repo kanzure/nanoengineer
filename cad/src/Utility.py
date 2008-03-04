@@ -1576,7 +1576,7 @@ class Node( StateMixin, IdentityCopyMixin):
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         """
         Write this Node to an mmp file, as controlled by mapping,
-        which should be an instance of files_mmp.writemmp_mapping.
+        which should be an instance of writemmp_mapping.
 
         [subclasses must override this if they need to be writable into an mmp file;
          we print a debug warning if they don't (and something tries to write them).]

@@ -1,5 +1,4 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
-
 """
 assembly.py -- provides class assembly, for everything stored in one mmp file,
 including one main part and zero or more clipboard items; see also part.py.
@@ -101,7 +100,7 @@ from PyQt4 import QtGui
 from Assembly_API import Assembly_API
 from prefsTree import MainPrefsGroupPart
 import undo_manager
-from files_mmp import writemmpfile_assy
+from files_mmp_writing import writemmpfile_assy
 
 # kluge for register_classname -- should use a
 # registration scheme: [bruce 080115]
@@ -289,9 +288,8 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
         # client code should call reset_changed instead, when appropriate.
         
         # the current version of the MMP file format
-        # this is set in files_mmp.writemmpfile_assy. Mark 050130
-        # [bruce 050325 comments: the code that sets it might be moved or renamed now;
-        #  it's not clear to me what this means
+        # this is set in files_mmp_writing.writemmpfile_assy. Mark 050130
+        # [bruce 050325 comments: it's not clear to me what this means
         #  (eg if you read an old file does this indicate that old file's format?)
         #  or why it needs to be set here at all.]
         self.mmpformat = ''

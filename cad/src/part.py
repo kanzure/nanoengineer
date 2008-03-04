@@ -1088,7 +1088,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         # as of 050412 this didn't yet turn singlets into H;
         # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!)
         #bruce 051209  -- now it only does that if **mapping_options ask it to.
-        from files_mmp import writemmpfile_part
+        from files_mmp_writing import writemmpfile_part
         writemmpfile_part( self, filename, **mapping_options)
 
     pass # end of class Part

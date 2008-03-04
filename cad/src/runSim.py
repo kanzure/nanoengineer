@@ -1,11 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 runSim.py -- setting up and running the simulator, for Simulate or Minimize
 (i.e. the same code that would change if the simulator interface changed),
 and part of the implementation of user-visible commands for those operations.
 
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -32,7 +32,6 @@ import DebugMenuMixin
 #from DebugMenuMixin import sim_params_set # DebugMenuMixin needs refactoring
     # to move this variable (sim_params_set) (and related code?) out of it;
     # see its module docstring for more info [bruce 080104 comment]
-from qt4transition import qt4todo
 from utilities import debug_flags
 from PlatformDependent import fix_plurals
 from PlatformDependent import find_or_make_Nanorex_subdir
@@ -2273,7 +2272,9 @@ class Minimize_CommandRun(CommandRun):
     As of 050412 the official distinction is stored in entire_part.]
     """
     def run(self):
-        """Minimize the Selection or the current Part"""
+        """
+        Minimize the Selection or the current Part
+        """
         #bruce 050324 made this method from the body of MWsemantics.modifyMinimize
         # and cleaned it up a bit in terms of how it finds the movie to use.
 
@@ -2709,7 +2710,6 @@ def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21.
     @see: L{Hydrogenate} for details about how we are using it to
 	  reposition singlets (via method 1 mentioned above).
     """
-
     if not singlet.is_singlet():
         return
 
@@ -2735,7 +2735,9 @@ def adjustSinglet(singlet, minimize = False): # Mark 2007-10-21.
 # for prefs we want last_started_simrun, for movies we want last_opened_movie (only if valid? not sure)...
 
 def atom_is_anchored(atm):
-    "is an atm anchored in space, when simulated?"
+    """
+    is an atm anchored in space, when simulated?
+    """
     ###e refile as atom method?
     #e permit filtering set of specific jigs (instances) that can affect it?
     #e really a Part method??
@@ -2848,14 +2850,19 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
     def natoms_fixed(self):
         return len(self.anchored_atoms_list)
     def nsinglets_H(self):
-        "return number of singlets to be written as H for the sim"
+        """
+        return number of singlets to be written as H for the sim
+        """
         singlets = filter( lambda atm: atm.is_singlet(), self._atoms_list )
         return len(singlets)
     def nsinglets_leftout(self):
-        "return number of singlets to be entirely left out of the sim input file"
+        """
+        return number of singlets to be entirely left out of the sim input file
+        """
         return 0 # for now
     def writemmpfile(self, filename):
-        #bruce 050404 (for most details). Imitates some of Part.writemmpfile aka files_mmp.writemmpfile_part.
+        #bruce 050404 (for most details).
+        # Imitates some of Part.writemmpfile aka files_mmp_writing.writemmpfile_part.
         #e refile into files_mmp so the mmp format code is in the same place? maybe just some of it.
         # in fact the mmp writing code for atoms and jigs is not in files_mmp anyway! tho the reading code is.
         """
@@ -2864,7 +2871,7 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
          That means the validity hash is really made up now, not when we're made.]
         """
         ## do we need to do a part.assy.update_parts() as a precaution?? if so, have to do it earlier, not now.
-        from files_mmp import writemmp_mapping
+        from files_mmp_writing import writemmp_mapping
         assy = self.part.assy
         fp = open(filename, "w")
         mapping = writemmp_mapping(assy, min = True)

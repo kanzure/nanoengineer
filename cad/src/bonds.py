@@ -875,7 +875,7 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
         which identifies self (which has already been written into the mmp file,
         along with both its atoms, just after the given atom was written),
         and encodes the direction of self,
-        using mapping (a writemmp_mapping(sp?) object) to find atom codes.
+        using mapping (a writemmp_mapping object) to find atom codes.
            Note that this API makes no provision for writing one record
         to encode the direction of more than one bond at a time
         (e.g. an entire strand). However, the record format we're writing
