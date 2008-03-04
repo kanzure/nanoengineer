@@ -1,9 +1,6 @@
 TEMPLATE = app
 
-CONFIG -= release
-
-CONFIG += debug \
-stl \
+CONFIG += stl \
 opengl \
  debug_and_release
 QT += opengl
