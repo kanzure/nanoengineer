@@ -224,6 +224,7 @@ def _init_experimental_commands():
     # [bruce 071005]
     _init_command_Atom_Generator()
     _init_command_Select_Bad_Atoms()
+    _init_command_Peptide_Generator() # piotr 080304
     _init_test_commands()
     return
 
@@ -239,6 +240,19 @@ def _init_command_Atom_Generator():
                                prefs_key = "A9/Atom Generator Visible",
                                call_with_new_value = enableAtomGenerator )
     enableAtomGenerator(_atomGeneratorIsEnabled)
+    return
+
+def _init_command_Peptide_Generator(): # piotr 080304 
+    # This function enables an experimental peptide generator.
+    from debug_prefs import debug_pref, Choice_boolean_False
+    from commands.InsertPeptide.PeptideGenerator import enablePeptideGenerator
+    _peptideGeneratorIsEnabled = \
+                    debug_pref("Peptide Generator: enabled?", 
+                               Choice_boolean_False, 
+                               non_debug = True, 
+                               prefs_key = "A9/Peptide Generator Visible",
+                               call_with_new_value = enablePeptideGenerator )
+    enablePeptideGenerator(_peptideGeneratorIsEnabled)
     return
 
 def _init_command_Select_Bad_Atoms():
