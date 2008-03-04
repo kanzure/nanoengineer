@@ -265,12 +265,20 @@ class GridPlane(RectGadget):
         
     def make_selobj_cmenu_items(self, menu_spec):
         """
-        Add GridPlane specific context menu items to <menu_spec> list when self is the selobj.
+        Add GridPlane specific context menu items to the <menu_spec> list when
+        self is the selobj (i.e. the selected object under the cursor when the 
+        context menu is displayed).
+        
+        @param menu_spec: A list of context menu items, where each member is a
+                          tuple (menu item string, method).
+        @type  menu_spec: list
+        
+        @note: This only works in "Build Atoms" (depositAtoms) mode.
         """
         item = ('Hide', self.Hide)
         menu_spec.append(item)
         menu_spec.append(None) # Separator
-        item = ('Properties...', self.edit)
+        item = ('Edit Properties...', self.edit)
         menu_spec.append(item)
         
     def _draw_jig(self, glpane, color, highlighted = False):

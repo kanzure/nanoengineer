@@ -819,7 +819,7 @@ class Jig(Node, Selobj_API):
             item = ('Disable', self.toggleJigDisabled, 'unchecked')
         menu_spec.append(item)
         menu_spec.append(None) # Separator
-        item = ('Properties...', self.edit)
+        item = ('Edit Properties...', self.edit)
         menu_spec.append(item)
 
     #e there might be other common methods to pull into here

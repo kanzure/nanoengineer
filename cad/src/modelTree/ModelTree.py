@@ -571,9 +571,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
                 res.append(( "debug._nodeset =", self.cm_set_node ))
         
         if len(nodeset) == 1 and nodeset[0].edit_props_enabled():
-            res.append(( 'Properties...', self.cm_properties ))
+            res.append(( 'Edit Properties...', self.cm_properties ))
         else:
-            res.append(( 'Properties...', noop, 'disabled' )) # nim for multiple items
+            res.append(( 'Edit Properties...', noop, 'disabled' )) # nim for multiple items
         
         #ninad 070320 - context menu option to edit color of multiple chunks
         if allstats.nchunks:
