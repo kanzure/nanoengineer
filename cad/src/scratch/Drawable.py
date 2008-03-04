@@ -116,7 +116,7 @@ class Drawable(Selobj_API):
     3d vector, then translate the object by that, then apply whatever
     constraints its position has (e.g. project to a plane it's
     confined to or limit the amount of the drag), but do this in a way
-    that lacks history-dependendence (this would matter when reaching
+    that lacks history-dependence (this would matter when reaching
     limits). We've never yet had drag-constraints except when dragging
     bondpoints.
     

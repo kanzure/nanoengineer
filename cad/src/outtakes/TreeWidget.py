@@ -505,7 +505,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         # what's left?
         # - selection.
-        # - drag-starting, whether for d&d or (saved for later #e) a selection range or rect.
+        # - drag-starting, whether for DND or (saved for later #e) a selection range or rect.
         # - hover behaviors (tooltip with help info or longer name; cmenu) (saved for later. #e)
         #####@@@@ need code to save event info for drag-starting
 
