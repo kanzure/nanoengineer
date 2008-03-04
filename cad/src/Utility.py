@@ -833,6 +833,10 @@ class Node( StateMixin, IdentityCopyMixin):
         two methods it can call! This was sometimes justified but in other cases
         was wrong and caused bugs.]
         """
+        ###REVIEW: how should each call of this behave if node is a group that
+        # acts like a leaf node for some purposes, e.g. DnaGroup? @@@@
+        # [bruce 080303 comment]
+
         # for a leaf node, add it to the dad node just after us;
         # note that Group implem has different behavior.
         # [bruce 071110 revised, as part of splitting Group into its own module]
@@ -853,8 +857,9 @@ class Node( StateMixin, IdentityCopyMixin):
         which is the openness-dict, or need to become an MT method.]
         """
         # Note: this is not presently used, but should be used, since it helped
-        # implement the MT arrow key bindings, which are desirable but were lost
-        # in the port to Qt4.
+        # implement the MT arrow key bindings, which are desirable but were left
+        # out in the port to Qt4, even though their implem has nothing to do
+        # with Qt except for receiving the arrow key events.
         # [bruce 071206 comment]
         if self.is_group() and self.open and self.openable(): #bruce 080108 added .openable cond (guess)
             visible_kids = self.MT_kids() #bruce 080108 .members -> .MT_kids()
@@ -1474,24 +1479,35 @@ class Node( StateMixin, IdentityCopyMixin):
         """
         return self is node # only correct for self being a leaf node
 
-    def moveto(self, node, before=False): #e should be renamed for d&d, and cleaned up; has several external calls
+    def moveto(self, node, before = False):
         """
-        Move self to a new location in the model tree, before or after node,
-        or if node is a Group, somewhere inside it (reinterpreting 'before' flag
-        as 'top' flag, to decide where inside it). Special case: if self is node,
-        return with no effect (even if node is a Group).
+        Move self to a new location in the model tree, before or after node
+        according to the <before> flag, or if node is a Group, somewhere
+        inside it (reinterpreting 'before' flag as 'top' flag, to decide where
+        inside it). Special case: if self is node, return with no effect
+        (even if node is a Group).
         """
+        #todo: rename for DND, and clean up; has several external calls
+
+        ###REVIEW: how should each call of this behave if node is a group that
+        # acts like a leaf node for some purposes, e.g. DnaGroup? @@@@
+        # [bruce 080303 comment]
+        
         #bruce 050110 updated docstring to fit current code.
         # (Note that this makes it even more clear, beyond what's said in addmember
         #  docstrings, that addmember interface mixes two things that ought to be
         #  separated.)
         
-        #bruce 050205 change: just go directly to addmember, after my addchild upgrades today.
-        # note, this 'before' is a positional arg for the before_or_top flag,
-        # not the named arg 'before' of addchild! Btw we *do* need to call addmember
-        # (with its dual personality dependending on node being leaf or not)
-        # for now, while DND uses drop_on groups to mean drop_under them.
-        node.addmember(self, before_or_top = before) # this needs to be addmember, not addchild or addsibling
+        #bruce 050205 change: just go directly to addmember, after my addchild
+        # upgrades today. note, this 'before' is a positional arg for the
+        # before_or_top flag, not the named arg 'before' of addchild!
+        # BTW we *do* need to call addmember (with its dual personality
+        # depending on node being a leaf or not) for now, while DND uses
+        # "drop onto a leaf node" to mean what "drop under it" ought to mean.
+        
+        node.addmember(self, before_or_top = before)
+            # note: this needs to be addmember, not addchild or addsibling
+        return
 
     def nodespicked(self):
         """

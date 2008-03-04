@@ -889,25 +889,30 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
     
     def _do_drop_or_raise_DoNotDrop(self, event): #bruce 070511 split this out
         """
-        [private] Do a drop, or raise a DoNotDrop exception. Print a message, but do appropriate updates only if we succeed.
+        [private] Do a drop, or raise a DoNotDrop exception.
+        Print a message, but do appropriate updates only if we succeed.
         """
         #bruce 070511 brought in several error messages from Qt3/TreeWidget.py,
-        # modified some of them, made them use statusbar_msg rather than history redmsg ###UNTESTED
+        # modified some of them, made them use statusbar_msg rather than history
+        # redmsg
         item, rectjunk = self.item_and_rect_at_event_pos(event)
         if item is None:
-            self.statusbar_msg( "drop into empty space ignored (drops under groups not supported; drop onto them instead)")
+            msg = "drop into empty space ignored (drops under groups " \
+                  "not supported; drop onto them instead)"
+            self.statusbar_msg( msg)
             raise DoNotDrop()
         nodes, drag_type = self._ongoing_DND_info
         targetnode = item.node
         if targetnode in nodes:
-            # don't print a message, it's probably common for small mouse motions
+            # don't print a message -- probably common for small mouse motions
             if DEBUG2:
                 print "debug warning: MT DND: targetnode in nodes, refusing drop" # new behavior, bruce 070509
             #e should generalize based on what Qt3 code does
             #k should find out why this is not redundant with drop_on_ok check below
             raise DoNotDrop()
         if not Node_as_MT_DND_Target(targetnode).drop_on_ok(drag_type, nodes):
-            self.statusbar_msg( "drop refused by %s" % quote_html(targetnode.name) )
+            msg = "drop refused by %s" % quote_html(targetnode.name)
+            self.statusbar_msg( msg )
             raise DoNotDrop()
         
         event.acceptProposedAction() # this should come after any DoNotDrop we might raise
@@ -975,8 +980,10 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
             pass
             
         # ... too common for a history message, i guess...
-        msg = "dropped %d item(s) onto %s" % (len(nodes), quote_html(targetnode.name))
-            #e should be more specific about what happened to them... ask the target node itself??
+        msg = "dropped %d item(s) onto %s" % \
+              (len(nodes), quote_html(targetnode.name))
+            #e should be more specific about what happened to them...
+            # ask the target node itself? have drop_on return this info?
         msg = fix_plurals(msg)
         self.statusbar_msg( msg)
         #bruce 050203: mt_update is not enough, in case selection changed

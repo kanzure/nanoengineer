@@ -1,10 +1,10 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Node_as_MT_DND_Target.py -- controller for a Node as a Model Tree DND target
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -22,8 +22,9 @@ TODO:
 
 - there's a longstanding request to revise the position under a group
 into which a node gets dropped (from new last child to new first child,
-I think). It has a bug number.
-
+I think). It has a bug number. One motivation is that there is some
+place it's not possible to drop a node unless this is revised,
+described in the bug report.
 """
 
 from Group import Group # for isinstance and for autogrouping; could remove by
@@ -33,11 +34,6 @@ from ops_copy import copy_nodes_in_order
 from ops_copy import copied_nodes_for_DND
 
 import env
-
-# (Note: both Utility and ops_copy are new indirect imports
-#  for our importer, modelTreeGui.py;
-#  I'd be very surprised if either of them will be in a new
-#  import cycle, but I don't know for sure.) [bruce 071025]
 
 # ==
 
@@ -56,35 +52,48 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
     """
     def __init__(self, node):
         """
-        @param node: one node (leaf or Group) currently displayed in the model tree.
+        @param node: one node (leaf or Group) currently displayed in the
+                     model tree.
         @type node: Node (can be Group or not).
         """
         self.node = node
     def drop_on_ok(self, drag_type, nodes):
+        # todo: return (ok, whynot/what) [bruce 080303 comment]
         """
-        Say whether "drag and drop" can drop the given set of nodes onto self.node,
-        when they are dragged in the given way ('move' or 'copy' -- nodes arg has the originals).
-        (Typically self.node (if it says ok) would insert the moved or copied nodes inside itself
-        as new members, but what it actually does with them is up to it;
-        as an initial kluge before we support dropping into gaps (if we ever don't),
-        dropping onto a leaf node might simulate dropping into the same-level gap below it
-        (i.e. make a sibling, like addmember does).
+        Say whether "drag and drop" should be allowed to drop the given set
+        of nodes onto self.node, when they are dragged in the given way
+        ('move' or 'copy' -- nodes arg has the originals, not the copies).
+        
+        (Typically, self.node (if it says ok by returning True from this method)
+        would insert the moved or copied nodes inside itself as new members,
+        or below itself as new siblings if it's a leaf node (until we support
+        dropping into gaps between nodes for that), if they were actually
+        dropped. For that bsee drop_on.)
+        
         [some subclasses should override this]
         """
-        #bruce 050216 add exception for cycle-forming request ###@@@ needs testing
-        # (to fix bug 360 item 6 comment 9, which had been fixed in the old MT's DND code too)
+        #bruce 050216 add exception for cycle-forming request ### needs testing
+        # (to fix bug 360 item 6 comment 9, which had been fixed in the old MT's
+        #  DND code too)
         if drag_type == 'move':
             for node in nodes:
-                if (node is not self.node and node.is_ascendant(self.node)) or (node is self.node and node.is_group()):
+                if (node is not self.node and node.is_ascendant(self.node)) or \
+                   (node is self.node and node.is_group()):
                     print "fyi: refusing drag-move since it would form a cycle"
                         #e should change retval-spec and get this into a redmsg
                     return False
-        return True #e probably change to False for leaf nodes, once we support dropping into gaps
+        return True #e probably change to False for leaf nodes, once we support
+            # dropping into gaps
 
     def drop_on(self, drag_type, nodes): ###@@@ needs a big cleanup
+        # todo: also return description of what we did (for statusbar text)
+        # [bruce 080303 comment]
         """
-        After a "drag and drop" of type 'move' or 'copy' (according to drag_type),
-        perform the drop of the given list of nodes onto self.node.
+        After a "drag and drop" of type 'move' or 'copy' (according to
+        drag_type), perform the drop of the given list of nodes
+        onto self.node. The list always contains the original nodes --
+        for drag_type == 'copy', this method should make the copies itself.
+        
         Exactly how to do this depends on whether self.node is a leaf or group;
         subclasses of Node can override this to change the UI behavior.
         (As of 050307, only the Clipboard overrides this. Update 071025:
@@ -92,16 +101,21 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
         which calls self.node.drop_on_should_autogroup, which is what
         the Clipboard overrides.)
 
-        Return value: if this operation creates new nodes
-        (normal for copy, but also happens in some cases for move),
-        return them in a list; otherwise return [].
+        @return: list of new nodes made by this operation, which is [] if it
+                 didn't make any (making them is normal for copy, but can also
+                 happen in some cases for move)
+        @rtype: list of nodes
         """
         autogroup_at_top = self.node.drop_on_should_autogroup(drag_type, nodes)
         if autogroup_at_top:
-            #bruce 050203: nodes dropped onto the clipboard come from one "space"
-            # and ought to stay that way by default; user can drag them one-at-a-time if desired.
-            # (In theory this grouping need only be done for the subsets of them which are bonded;
-            #  for now that's too hard -- maybe not for long, similar to bug 371.)
+            #bruce 050203/080303:
+            # nodes dropped onto the clipboard come from one
+            # "physical space" (Part) and ought to stay that way by default;
+            # user can drag them one-at-a-time if desired. (In theory this
+            #  autogrouping need only be done for the subsets of them which
+            #  are bonded; for now that's too hard -- maybe not for long,
+            #  similar to bug 371. But this simpler behavior might be better
+            #  anyway.)
             if drag_type == 'move':
                 name = self.node.assy.name_autogrouped_nodes_for_clipboard( nodes, howmade = drag_type )
                 new = Group(name, self.node.assy, None)
@@ -187,7 +201,7 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
     # Update, bruce 071025: if these methods become real, they might end up as the
     # drop_on methods of a different controller, InterNodeGap_as_MT_DND_Target or so.
 
-    def drop_under_ok(self, drag_type, nodes, after = None): ###@@@ honor it!
+    def drop_under_ok(self, drag_type, nodes, after = None): ###@@@ todo: honor it!
         """
         Say whether it's ok to drag these nodes (using drag_type)
         into a child-position under self.node,
@@ -202,7 +216,9 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
 
     # See comment above for status of unused method 'drop_under', which should be kept around. [bruce 070703]
     def drop_under(self, drag_type, nodes, after = None): #e move to Group[obs idea?], implem subrs, use ###@@@
-        "#doc"
+        """
+        #doc
+        """
         if drag_type == 'copy':
             nodes = copy_nodes_in_order(nodes) # make a homeless copy of the set (someday preserving inter-node bonds, etc)
         for node in nodes:

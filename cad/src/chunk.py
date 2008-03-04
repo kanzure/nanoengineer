@@ -273,13 +273,13 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
             # the counter it sets is always set, and always unique
         # note [bruce 041116]:
-        # new molecules are NOT automatically added to assy.
+        # new chunks are NOT automatically added to assy.
         # this has to be done separately (if desired) by assy.addmol
         # (or the equivalent).
         # addendum [bruce 050206 -- describing the situation, not endorsing it!]:
-        # (and for clipboard mols it should not be done at all!
-        #  also not for mols "created in a Group", if any; for those,
-        #  probably best to do addmol/moveto like files_mmp does.)
+        # (and for clipboard chunks it should not be done at all!
+        #  also not for chunks "created in a Group", if any; for those,
+        #  probably best to do addmol/moveto like [some code] does.)
         if not self.mticon:
             self.init_icons()
         self.init_InvalMixin()
@@ -290,7 +290,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # atoms in a dictionary, indexed by atom.key
         self.atoms = {}
         
-        # note: motors, grounds (aka "jigs") are stored on atoms, not here;
+        # note: Jigs are stored on atoms, not directly in Chunk;
         # so are bonds, but we have a list of external bonds, self.externs,
         # which is computed by __getattr__ and _recompute_externs; we have
         # several other attributes computed by _get_ or _recompute_ methods
