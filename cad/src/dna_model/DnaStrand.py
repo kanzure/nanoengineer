@@ -10,9 +10,14 @@ TODO:
 - See comments in self.getStrandSequence(), self.get_strand_atoms_in_bond_direction()
 """
 
+import re
+
 from dna_model.DnaStrandOrSegment import DnaStrandOrSegment
 from dna_model.DnaLadderRailChunk import DnaStrandChunk
 from icon_utilities import imagename_to_pixmap
+
+from debug import print_compact_stack
+from Dna_Constants import getComplementSequence
 
 from bond_chains import grow_directional_bond_chain
 
