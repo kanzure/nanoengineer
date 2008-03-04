@@ -7,7 +7,16 @@ opengl \
 QT += opengl
 
 LIBS +=  -L$(OPENBABEL_LIBPATH) \
- -lopenbabel 
+ -lopenbabel \
+ -L../../../lib \
+ -lNXBallAndStickOpenGLRenderer \
+ -lNXOpenGLRendererPlugin \
+ -lNXOpenGLRenderingEngine \
+ -lNXOpenGLSceneGraph \
+ -lGLT \
+ -lNanorexInterface \
+ -lNanorexUtility
+
 # qmake puts these library declarations too early in the g++ command on win32
 win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
 

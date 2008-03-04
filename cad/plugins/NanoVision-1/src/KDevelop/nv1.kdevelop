@@ -14,12 +14,12 @@
     <projectname>nv1</projectname>
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
-    <description></description>
-    <defaultencoding></defaultencoding>
+    <description/>
+    <defaultencoding/>
   </general>
   <kdevfileview>
     <groups>
-      <group pattern="*.cpp;*.cxx;*.h" name="Sources" />
+      <group pattern="*.cpp;*.cxx;*.h;*.rl" name="Sources" />
       <group pattern="*.ui" name="User Interface" />
       <group pattern="*.png" name="Icons" />
       <group pattern="*" name="Others" />
@@ -68,7 +68,7 @@
       <includePaths>.;</includePaths>
     </codecompletion>
     <creategettersetter>
-      <prefixGet></prefixGet>
+      <prefixGet/>
       <prefixSet>set</prefixSet>
       <prefixVariable>m_,_</prefixVariable>
       <parameterName>theValue</parameterName>
@@ -121,16 +121,16 @@
   </kdevdoctreeview>
   <kdevdebugger>
     <general>
-      <dbgshell></dbgshell>
+      <dbgshell/>
       <breakpoints/>
       <programargs/>
       <gdbpath>/usr/bin/gdb</gdbpath>
       <breakonloadinglibs>true</breakonloadinglibs>
       <separatetty>false</separatetty>
       <floatingtoolbar>false</floatingtoolbar>
-      <configGdbScript></configGdbScript>
-      <runShellScript></runShellScript>
-      <runGdbScript></runGdbScript>
+      <configGdbScript/>
+      <runShellScript/>
+      <runGdbScript/>
       <raiseGDBOnStart>false</raiseGDBOnStart>
     </general>
     <display>
@@ -142,18 +142,19 @@
   </kdevdebugger>
   <kdevtrollproject>
     <run>
-      <mainprogram>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</mainprogram>
-      <programargs></programargs>
+      <mainprogram>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/bin/nv1</mainprogram>
+      <programargs/>
       <directoryradio>executable</directoryradio>
-      <globaldebugarguments></globaldebugarguments>
-      <globalcwd>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</globalcwd>
-      <useglobalprogram>false</useglobalprogram>
+      <globaldebugarguments/>
+      <globalcwd>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/bin/</globalcwd>
+      <useglobalprogram>true</useglobalprogram>
       <terminal>false</terminal>
       <autocompile>false</autocompile>
       <autoinstall>false</autoinstall>
       <autokdesu>false</autokdesu>
       <envvars>
-        <envvar value="/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/lib" name="LD_LIBRARY_PATH" />
+        <envvar value="/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/lib:/usr/local/lib" name="LD_LIBRARY_PATH" />
+        <envvar value="/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop/count1" name="QMAKEFEATURES" />
       </envvars>
       <runarguments>
         <HDF5_SimResultsImportExport/>
@@ -163,6 +164,7 @@
         <HDF5_Consumer/>
         <nv1/>
         <NXBallAndStickOpenGLRendererTest/>
+        <count1/>
       </runarguments>
       <cwd>
         <HDF5_SimResultsImportExport>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</HDF5_SimResultsImportExport>
@@ -171,6 +173,8 @@
         <HDF5_Consumer>/home/bh/11Nano/SVN-D/cad/plugins/NanoVision-1/src/KDevelop</HDF5_Consumer>
         <nv1>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</nv1>
         <NXBallAndStickOpenGLRendererTest>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</NXBallAndStickOpenGLRendererTest>
+        <count1>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</count1>
+        <NXOpenGLRenderingEngineTest>/home/rmanoj/Nanorex/SVN/trunk/cad/plugins/NanoVision-1/src/KDevelop</NXOpenGLRenderingEngineTest>
       </cwd>
       <debugarguments>
         <HDF5_SimResultsImportExport/>
@@ -180,17 +184,18 @@
         <HDF5_Consumer/>
         <nv1/>
         <NXBallAndStickOpenGLRendererTest/>
+        <count1/>
       </debugarguments>
     </run>
     <general>
-      <activedir>Testing/CppUnit</activedir>
+      <activedir>nv1</activedir>
     </general>
     <make>
       <abortonerror>false</abortonerror>
       <runmultiplejobs>false</runmultiplejobs>
       <numberofjobs>1</numberofjobs>
       <dontact>false</dontact>
-      <makebin></makebin>
+      <makebin/>
       <prio>0</prio>
       <envvars/>
     </make>
@@ -212,6 +217,7 @@
       <type ext="qrc" />
       <type ext="cpp" />
       <type ext="h" />
+      <type ext="f77" />
       <type ext="ts" />
     </useglobaltypes>
   </kdevfilecreate>

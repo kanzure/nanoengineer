@@ -1,13 +1,24 @@
 TEMPLATE = app
 
+
 CONFIG += stl \
 opengl \
  debug_and_release
+
 QT += opengl
 
 INCLUDEPATH += ../../../../../../../../include \
 ../../../../../../../../src/Plugins/RenderingEngines/OpenGL/GLT \
 ../../../../../../../../src/Plugins/RenderingEngines/OpenGL/Renderers
+
+LIBS += -L../../../../../../../../lib \
+ -lNXOpenGLSceneGraph \
+ -lGLT \
+ -lNXOpenGLRendererPlugin \
+ -lNXBallAndStickOpenGLRenderer \
+ -lNanorexInterface \
+ -lNanorexUtility
+
 TARGETDEPS += ../../../../../../../../lib/libNXOpenGLSceneGraph.a \
  ../../../../../../../../lib/libGLT.a \
  ../../../../../../../../lib/libNXOpenGLRendererPlugin.so \

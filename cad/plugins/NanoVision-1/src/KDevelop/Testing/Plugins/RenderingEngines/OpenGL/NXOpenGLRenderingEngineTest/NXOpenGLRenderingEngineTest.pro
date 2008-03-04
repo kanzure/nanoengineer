@@ -4,7 +4,7 @@ CONFIG -= release
 
 CONFIG += debug_and_release \
 stl \
-opengl \
+opengl 
 QT += opengl
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
@@ -19,7 +19,14 @@ INCLUDEPATH += ../../../../../../../include \
 SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngineTest.cpp
 
 LIBS += -lopenbabel \
- -L../../../../../../../lib
+ -L../../../../../../../lib \
+ -lNXBallAndStickOpenGLRenderer \
+ -lNXOpenGLRendererPlugin \
+ -lNXOpenGLRenderingEngine \
+ -lNXOpenGLSceneGraph \
+ -lGLT \
+ -lNanorexInterface \
+ -lNanorexUtility
 
 DESTDIR = ../../../../../../../bin
 
