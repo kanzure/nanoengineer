@@ -5,14 +5,11 @@ DnaMarker.py - marked positions on atom chains, moving to live atoms as needed
 Used internally for base indexing in strands and segments; perhaps used in the
 future to mark subsequence endpoints for relations or display styles.
 
-    WARNING: this code [as of 080115] is broken and is being heavily revised,
-    since the marker really needs to
-    be on a higher-level WholeChain which covers multiple AtomChainOrRings.
-
-
 @author: Bruce
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
+
+TODO: complete the marker-moving code; don't kill markers instead of moving them.
 """
 
 from dna_model.ChainAtomMarker import ChainAtomMarker
@@ -34,8 +31,8 @@ from drawer import drawwirecube
 
 from constants import orange
 
-from files_mmp import MMP_RecordParser
-from files_mmp import register_MMP_RecordParser
+from files_mmp_registration import MMP_RecordParser
+from files_mmp_registration import register_MMP_RecordParser
 
 # ==
 

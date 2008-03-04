@@ -30,8 +30,8 @@ from PlatformDependent import find_or_make_Nanorex_subdir
 from debug import print_compact_traceback
 
 import re
-from files_mmp import MMP_RecordParser
-from files_mmp import register_MMP_RecordParser
+from files_mmp_registration import MMP_RecordParser
+from files_mmp_registration import register_MMP_RecordParser
 
 POVNum = 0
 

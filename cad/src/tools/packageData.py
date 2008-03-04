@@ -365,6 +365,7 @@ packageMapping_for_files = {
     "fileIO"                           : "graphics_io|graphics/rendering", # should be split into files_mdl and files_povray
     "files_gms"                        : "io|GAMESS", 
     "files_mmp"                        : "io|files/mmp", # along with a sibling doc file, files_mmp_format_version.txt
+    "files_mmp_registration"           : "foundation|files/mmp",
     "files_mmp_writing"                : "io|files/mmp",
     "files_nh"                         : "io|ESP", 
     "files_pdb"                        : "io|files/pdb",

@@ -1,24 +1,24 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 Comment.py - The Comment class.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
 mark 060530 - Comment class moved here from Utility.py.
 
 bruce 071019 - moved mmp reading code for Comment into this file;
-registering it with files_mmp instead of hardcoding it there
-
+registering it with files_mmp_registration instead of hardcoding it there
 """
 
 from Utility import SimpleCopyMixin, Node
 from icon_utilities import imagename_to_pixmap
 from constants import gensym
 
-from files_mmp import MMP_RecordParser
-from files_mmp import register_MMP_RecordParser
+from files_mmp_registration import MMP_RecordParser
+from files_mmp_registration import register_MMP_RecordParser
 
 # ==
 

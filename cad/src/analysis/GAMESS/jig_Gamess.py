@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 jig_Gamess.py
 
 @author: Mark
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
 import sys
@@ -49,8 +49,9 @@ from utilities import debug_flags
 
 from constants import magenta
 
-from files_mmp import MMP_RecordParser
-from files_mmp import register_MMP_RecordParser
+from files_mmp_registration import MMP_RecordParser
+from files_mmp_registration import register_MMP_RecordParser
+
 from files_mmp import mmp_interp_just_for_decode_methods # for a kluge
 
 # == GAMESS
