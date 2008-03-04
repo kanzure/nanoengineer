@@ -12,6 +12,7 @@ from chunk import Chunk
 from constants import gensym
 from constants import black
 from constants import ave_colors
+from constants import diDEFAULT
 
 from utilities import debug_flags
 
@@ -29,7 +30,9 @@ from elements import Singlet
 
 # ==
 
-_DEBUG_HIDDEN = True ### TEMPORARY, but True for commit for now; but soon, remove the code for this @@@@
+_FAKENAME = '[fake name, bug if seen]' # should be permitted by Node.__init__ but should not "look correct"
+
+_DEBUG_HIDDEN = False # soon, remove the code for this @@@@
 
 _superclass = Chunk
 
@@ -54,13 +57,15 @@ class DnaLadderRailChunk(Chunk):
     
     # review: undo, copy for those attrs? as of 080227 I think that is not needed
     # except for resetting some of them in _undo_update.
+    
+    _use_disp = diDEFAULT # display style to use at end of __init__, if not reset
 
     # default value of variable used to return info from __init__:
 
     _please_reuse_this_chunk = None
     
     # == init methods
-
+    
     def __init__(self, assy, chain, reuse_old_chunk_if_possible = False):
 
         if _DEBUG_HIDDEN:
@@ -72,12 +77,21 @@ class DnaLadderRailChunk(Chunk):
         # and if ok for rest of Node API if that matters for this kind of chunk;
         # for now just assume chain is a DnaChain
 
-        # name should not be seen, but it is for now...
-        name = gensym(self.__class__.__name__.split('.')[-1]) + ' (internal)'
-        _superclass.__init__(self, assy, name)
+        # actual name is set below, only if we don't return early
+        _superclass.__init__(self, assy, _FAKENAME )
         # add atoms before setting self.ladder, so adding them doesn't invalidate it
 
         if reuse_old_chunk_if_possible:
+            # Decide whether to abandon self and tell caller to reuse an old
+            # chunk instead (by setting self._please_reuse_this_chunk to the
+            # old_chunk to reuse, and immediately returning, without adding
+            # any atoms to self).
+            #
+            # (Ideally we'd refactor this to be decided by a helper function,
+            #  modified from self._old_chunk_we_could_reuse and its submethods,
+            #  and never create self in that case.)
+            #
+            # Details:
             # before we add our atoms, count the ones we would add (and how
             # many chunks they come from) to see if we can just reuse their
             # single old chunk; this is both an Undo bugfix (since when Undo
@@ -100,10 +114,45 @@ class DnaLadderRailChunk(Chunk):
                 #  _f_set_new_ladder on the old chunk it's reusing).
                 assert not self.atoms
                 self._please_reuse_this_chunk = old_chunk
+                
                 return
+            
             if _DEBUG_REUSE_CHUNKS():
                 print "not reusing an old chunk for %r (will grab %d atoms)" % (self, self._counted_atoms)
                 print " data: atoms were in these old chunks: %r" % (self._counted_chunks.values(),)
+            
+            # Now use the data gathered above to decide how to set some
+            # properties in the new chunk. Logically we should do this even if
+            # not reuse_old_chunk_if_possible, but the implem would need to
+            # differ (even if only by gathering self._counted_chunks some other
+            # way), so since that option is never false as of 080303, just do it
+            # here.
+            #
+            # There might be one or more old chunks --
+            # see if they all agree about properties, and if so,
+            # use those for self; in some cases some per-atom work by _grab_atom
+            # (below) might be needed.
+            if self._counted_chunks:
+                old_chunks = self._counted_chunks.values() # 1 or more
+                one_old_chunk = old_chunks.pop() # faster than [0] and [1:]
+                # for each property, if all old_chunks same as one_old_chunk,
+                # use that value (only one property for now, .display)
+                other_old_chunks = old_chunks
+                # reuse display style?
+                _use_disp = one_old_chunk.display
+                for chunk in other_old_chunks:
+                    if chunk.display != _use_disp:
+                        _use_disp = diDEFAULT
+                            # maybe, depending on what later code does:
+                            # do we need to distinguish this being result of
+                            # a conflict (like here) or an agreed value?
+                        break
+                self._use_disp = _use_disp
+                    # review: do we need atoms with individually set display styles
+                    # to not contribute their chunks to this calc?
+                # review:
+                # - what about selectedness?
+                # - what about being (or containing) glpane.selobj?
             pass
 
         self._grab_atoms_from_chain(chain, False) #e we might change when we call this, if we implem copy for this class
@@ -119,8 +168,16 @@ class DnaLadderRailChunk(Chunk):
             # review: make this import toplevel? right now it's probably in a cycle.
         self.ladder = _rail_end_atom_to_ladder( chain.baseatoms[0] )
         self._set_properties_from_grab_atom_info()
+            # uses self._use_disp, and other attrs,
+            # to set self.display and self.hidden
 
-        return
+        # name -- probably never seen by users, so don't spend lots of runtime
+        # or coding time on it -- we use gensym only to make names unique
+        # for debugging. (If it did become user-visible, we might want to derive
+        # and reuse a common prefix, except that there's no fast way to do that.)
+        self.name = gensym(self.__class__.__name__.split('.')[-1]) ## + ' (internal)'
+        
+        return # from __init__
 
     def _f_set_new_ladder(self, ladder):
         """
@@ -148,6 +205,9 @@ class DnaLadderRailChunk(Chunk):
         _superclass._undo_update(self)
         return
 
+    _counted_chunks = () # kluge, so len is always legal,
+        # but adding an element is an error unless it's initialized
+    
     def _old_chunk_we_could_reuse(self, chain): #bruce 080228
         """
         [it's only ok to call this during __init__, and early enough,
@@ -219,6 +279,9 @@ class DnaLadderRailChunk(Chunk):
         # first grab info
         old_chunk = atom.molecule
         # maybe: self._old_chunks[id(old_chunk)] = old_chunk
+
+        # could assert old_chunk is not None or _nullMol
+        
         if old_chunk and old_chunk.hidden:
             self._num_old_atoms_hidden += 1
             if _DEBUG_HIDDEN:
@@ -227,7 +290,13 @@ class DnaLadderRailChunk(Chunk):
             self._num_old_atoms_not_hidden += 1
             if _DEBUG_HIDDEN:
                 self._atoms_were_not_hidden.append( (atom, old_chunk) )
-        
+
+# unused, unfinished, remove soon [080303]:
+##        if len(self._counted_chunks) != 1:
+##            # (condition is optim; otherwise it's easy)
+##            if atom.display == diDEFAULT and old_chunk:
+##                # usually true; if this is too slow, just do it from chunks alone
+            
         # then grab the atom
         if _DEBUG_HIDDEN:
             have = len(self.atoms)
@@ -255,8 +324,11 @@ class DnaLadderRailChunk(Chunk):
         return
     
     def _set_properties_from_grab_atom_info(self): # 080201
-        # if *all* atoms were hidden, hide self.
-        # if any or all were hidden, emit an appropriate summary message.
+        """
+        If *all* atoms were in hidden chunks, hide self.
+        If any or all were hidden, emit an appropriate summary message.
+        Set display style to a common old one or a new one.
+        """
         if self._num_old_atoms_hidden and not self._num_old_atoms_not_hidden:
             self.hide()
             if debug_flags.DEBUG_DNA_UPDATER:
@@ -292,7 +364,7 @@ class DnaLadderRailChunk(Chunk):
                 missing_atoms = dict(self.atoms) # copy here, modify this copy below
                 for atom, chunk in self._atoms_were_hidden + self._atoms_were_not_hidden:
                     del missing_atoms[atom.key] # always there? bad bug if not, i think!
-                print "\n *** leftover atoms (including %d extra bonpoints): %r" % \
+                print "\n *** leftover atoms (including %d extra bondpoints): %r" % \
                       (self._num_extra_bondpoints, missing_atoms.values())
             else:
                 if not ( mixed == (not not (self._num_old_atoms_hidden and self._num_old_atoms_not_hidden)) ):
@@ -301,7 +373,11 @@ class DnaLadderRailChunk(Chunk):
             if mixed:
                 print "\n_DEBUG_HIDDEN fyi: hidden atoms = %r \n unhidden atoms = %r" % \
                       ( self._atoms_were_hidden, self._atoms_were_not_hidden )
-        return
+
+        # display style
+        self.display = self._use_disp
+
+        return # from _set_properties_from_grab_atom_info
         
     def set_wholechain(self, wholechain):
         """
