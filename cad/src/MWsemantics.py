@@ -352,6 +352,10 @@ class MWsemantics(QMainWindow,
         from commands.BuildAtom.AtomGenerator import AtomGenerator
         self.atomcntl = AtomGenerator(self)
 
+        # Peptide Generator. piotr 080304
+        from commands.InsertPeptide.PeptideGenerator import PeptideGenerator
+        self.peptidecntl = PeptideGenerator(self)
+
         # QuteMolX Property Manager. Mark 2007-12-02.
         from commands.QuteMol.QuteMolPropertyManager import QuteMolPropertyManager
         self.qutemolPM = QuteMolPropertyManager(self)
@@ -1322,6 +1326,10 @@ class MWsemantics(QMainWindow,
     def insertAtom(self):
         self.ensureInCommand('SELECTMOLS')
         self.atomcntl.show()
+
+    def insertPeptide(self): # piotr 080304
+        self.ensureInCommand('SELECTMOLS')
+        self.peptidecntl.show()
 
     def insertGraphene(self):
         self.ensureInCommand('SELECTMOLS')

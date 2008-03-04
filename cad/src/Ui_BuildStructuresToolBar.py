@@ -30,6 +30,9 @@ def setupUi(win, toolbarArea):
     # This adds the Atom Generator example for developers.
     win.buildStructuresToolBar.addAction(win.insertAtomAction)
     
+    # This adds the Peptide Generator (piotr 080304)
+    win.buildStructuresToolBar.addAction(win.insertPeptideAction)
+
 def retranslateUi(win):
     """
     Assigns the I{window title} property of the "Build Structures" toolbar.

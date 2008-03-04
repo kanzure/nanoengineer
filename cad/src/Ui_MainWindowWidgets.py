@@ -559,6 +559,12 @@ def setupUi(win):
         geticon("ui/actions/Toolbars/Smart/Deposit_Atoms.png"))
     win.insertAtomAction.setObjectName("insertAtomAction")
 
+    # Peptide Generator, piotr 080304
+    win.insertPeptideAction = QtGui.QWidgetAction(MainWindow)
+    win.insertPeptideAction.setIcon(
+        geticon("ui/actions/Tools/Build Structures/Peptide"))
+    win.insertPeptideAction.setObjectName("insertPeptideAction")
+
     #== "Tools > Build Tools" (menu and toolbar) widgets.
     
     win.modifyHydrogenateAction = QtGui.QWidgetAction(MainWindow)
@@ -1417,6 +1423,18 @@ def retranslateUi(win):
     win.insertAtomAction.setToolTip(QtGui.QApplication.translate(
         "MainWindow", 
         "Atom Generator (Developer Example)", 
+        None, 
+        QtGui.QApplication.UnicodeUTF8))
+
+    # Peptide Generator. piotr 080304
+    win.insertPeptideAction.setIconText(QtGui.QApplication.translate(
+        "MainWindow", 
+        "Peptide", 
+        None, 
+        QtGui.QApplication.UnicodeUTF8))
+    win.insertPeptideAction.setToolTip(QtGui.QApplication.translate(
+        "MainWindow", 
+        "Peptide Generator", 
         None, 
         QtGui.QApplication.UnicodeUTF8))
 

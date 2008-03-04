@@ -20,6 +20,7 @@ def setupUi(win):
     win.buildStructuresMenu.addAction(win.insertGrapheneAction)
     win.buildStructuresMenu.addAction(win.toolsCookieCutAction)
     win.buildStructuresMenu.addAction(win.insertAtomAction)
+    win.buildStructuresMenu.addAction(win.insertPeptideAction) # piotr 080304
     
     #Disabling Ui_DnaFlyout -- It is initialized by the DNA_DUPLEX command 
     #instead.  Command Toolbar code to be revised and 
