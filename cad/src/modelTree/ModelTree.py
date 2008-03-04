@@ -989,30 +989,30 @@ class modelTree(modelTreeGui.Ne1Model_api):
         self.win.win_update()
     
     def cmEditChunkColor(self): #Ninad 070321
-         """
-         Edit the color of the selected chunks using the Model Tree context menu
-         """         
-         from widgets.widget_helpers import RGBf_to_QColor
-         
-         nodeset = self.modelTreeGui.topmost_selected_nodes()
-         chunkList = []
-         #Find the chunks in the selection and store them temporarily
-         for m in nodeset:
-             if isinstance(m, Chunk):
-                 chunkList.append(m)
-         #Following selects the current color of the chunk 
-         #in the QColor dialog. If multiple chunks are selected, 
-         #it simply sets the selected color in the dialog as 'white'
-         if len(chunkList) == 1:
-             m = chunkList[0]            
-             if m.color:
-                 m_QColor =  RGBf_to_QColor(m.color)
-             else:
-                 m_QColor = None
-                
-             self.win.dispObjectColor(initialColor = m_QColor)
-         else:         
-             self.win.dispObjectColor()
+        """
+        Edit the color of the selected chunks using the Model Tree context menu
+        """         
+        from widgets.widget_helpers import RGBf_to_QColor
+        
+        nodeset = self.modelTreeGui.topmost_selected_nodes()
+        chunkList = []
+        #Find the chunks in the selection and store them temporarily
+        for m in nodeset:
+            if isinstance(m, Chunk):
+                chunkList.append(m)
+        #Following selects the current color of the chunk 
+        #in the QColor dialog. If multiple chunks are selected, 
+        #it simply sets the selected color in the dialog as 'white'
+        if len(chunkList) == 1:
+            m = chunkList[0]            
+            if m.color:
+                m_QColor =  RGBf_to_QColor(m.color)
+            else:
+                m_QColor = None
+               
+            self.win.dispObjectColor(initialColor = m_QColor)
+        else:         
+            self.win.dispObjectColor()
 
     def cmRenameNode(self): #bruce 070531
         """
