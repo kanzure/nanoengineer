@@ -1,8 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 jigs_measurements.py -- Classes for measurement jigs.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History: 
 
@@ -19,7 +20,6 @@ records.
 written over the last few days. No simulator support yet, but they
 work fine in the CAD system, and the MMP file records should be
 acceptable when the time comes for sim support.
-
 """
 
 import sys
@@ -31,7 +31,6 @@ import env
 from geometry.VQT import V, norm, cross, vlen, angleBetween
 from Utility import Node
 from utilities.Log import redmsg, greenmsg, orangemsg
-from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 from jigs import Jig
 from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
@@ -42,7 +41,8 @@ from prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key
 from prefs_constants import dynamicToolTipBendAnglePrecision_prefs_key
 
 def _constrainHandleToAngle(pos, p0, p1, p2):
-    """This works in two steps.
+    """
+    This works in two steps.
     (1) Project pos onto the plane defined by (p0, p1, p2).
     (2) Confine the projected point to lie within the angular arc.
     """
@@ -64,7 +64,9 @@ def _constrainHandleToAngle(pos, p0, p1, p2):
 
 # rename class for clarity, remove spurious methods, wware 051103
 class MeasurementJig(Jig):
-    "superclass for Measurement jigs"
+    """
+    superclass for Measurement jigs
+    """
     # constructor moved to base class, wware 051103
     def __init__(self, assy, atomlist):
         Jig.__init__(self, assy, atomlist)        
@@ -79,7 +81,8 @@ class MeasurementJig(Jig):
     copyable_attrs = Jig.copyable_attrs + ('font_name', 'font_size')
 
     def constrainedPosition(self):
-        """The jig maintains an unconstrained position. Constraining
+        """
+        The jig maintains an unconstrained position. Constraining
         the position can mean projecting it onto a particular surface,
         and/or confining it to a particular region satisfying some
         linear inequalities in position.
@@ -162,7 +165,9 @@ class MeasurementJig(Jig):
         sys.stderr.write(self.__class__.__name__ + ".writepov() not implemented yet")
     
     def will_copy_if_selected(self, sel, realCopy):
-        "copy only if all my atoms are selected [overrides Jig.will_copy_if_selected]"
+        """
+        copy only if all my atoms are selected [overrides Jig.will_copy_if_selected]
+        """
         # for measurement jigs, copy only if all atoms selected, wware 051107
         # [bruce 060329 adds: this doesn't prevent the copy if the jig is inside a Group, and that causes a bug]
         for atom in self.atoms:
@@ -198,9 +203,9 @@ class MeasurementJig(Jig):
 # == Measure Distance
 
 class MeasureDistance(MeasurementJig):
-    '''A Measure Distance jig has two atoms and draws a line with a distance label between them.
-    '''
-    
+    """
+    A Measure Distance jig has two atoms and draws a line with a distance label between them.
+    """
     sym = "Distance"
     icon_names = ["modeltree/Measure_Distance.png", "modeltree/Measure_Distance-hide.png"]
     featurename = "Measure Distance Jig" # added, wware 20051202
@@ -224,8 +229,9 @@ class MeasureDistance(MeasurementJig):
                     "[VdW Distance = " + str(self.get_vdw_distance()) + " ]"
                     
     def _getToolTipInfo(self): #ninad060825
-        "Return a string for display in Dynamic Tool tip "
-        
+        """
+        Return a string for display in Dynamic Tool tip
+        """
         #honor user preferences for digit after decimal
         distPrecision = env.prefs[dynamicToolTipAtomDistancePrecision_prefs_key] 
         nucleiDist = round(self.get_nuclei_distance(),distPrecision)
@@ -242,19 +248,24 @@ class MeasureDistance(MeasurementJig):
         
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
     def get_nuclei_distance(self):
-        '''Returns the distance between two atoms (nuclei)'''
+        """
+        Returns the distance between two atoms (nuclei)
+        """
         return vlen (self.atoms[0].posn()-self.atoms[1].posn())
         
     def get_vdw_distance(self):
-        '''Returns the VdW distance between two atoms'''
+        """
+        Returns the VdW distance between two atoms
+        """
         return self.get_nuclei_distance() - self.atoms[0].element.rvdw - self.atoms[1].element.rvdw
         
     # Measure Distance jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
     def _draw_jig(self, glpane, color, highlighted=False):
-        '''Draws a wire frame cube around two atoms and a line between them.
+        """
+        Draws a wire frame cube around two atoms and a line between them.
         A label displaying the VdW and nuclei distances (e.g. 1.4/3.5) is included.
-        '''
+        """
         MeasurementJig._draw_jig(self, glpane, color, highlighted)
         text = "%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance())
         # mechanical engineering style dimensions
@@ -267,10 +278,10 @@ class MeasureDistance(MeasurementJig):
         
 # == Measure Angle
 
-class MeasureAngle(MeasurementJig):
-    # new class.  wware 051031
-    '''A Measure Angle jig has three atoms.'''
-    
+class MeasureAngle(MeasurementJig): # new class.  wware 051031
+    """
+    A Measure Angle jig has three atoms.
+    """
     sym = "Angle"
     icon_names = ["modeltree/Measure_Angle.png", "modeltree/Measure_Angle-hide.png"]
     featurename = "Measure Angle Jig" # added, wware 20051202
@@ -287,8 +298,9 @@ class MeasureAngle(MeasurementJig):
                     "[Angle = " + str(self.get_angle()) + " ]"
                  
     def _getToolTipInfo(self): #ninad060825
-        "Return a string for display in Dynamic Tool tip "
-        
+        """
+        Return a string for display in Dynamic Tool tip
+        """
         #honor user preferences for digit after decimal
         anglePrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key] 
         bendAngle = round(self.get_angle(),anglePrecision)
@@ -304,7 +316,9 @@ class MeasureAngle(MeasurementJig):
         
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
     def get_angle(self):
-        '''Returns the angle between two atoms (nuclei)'''
+        """
+        Returns the angle between two atoms (nuclei)
+        """
         v01 = self.atoms[0].posn()-self.atoms[1].posn()
         v21 = self.atoms[2].posn()-self.atoms[1].posn()
         return angleBetween(v01, v21)
@@ -312,9 +326,10 @@ class MeasureAngle(MeasurementJig):
     # Measure Angle jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
     def _draw_jig(self, glpane, color, highlighted=False):
-        '''Draws a wire frame cube around two atoms and a line between them.
+        """
+        Draws a wire frame cube around two atoms and a line between them.
         A label displaying the angle is included.
-        '''
+        """
         MeasurementJig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
 
         text = "%.2f" % self.get_angle()
@@ -329,10 +344,10 @@ class MeasureAngle(MeasurementJig):
         
 # == Measure Dihedral
 
-class MeasureDihedral(MeasurementJig):
-    # new class.  wware 051031
-    '''A Measure Dihedral jig has four atoms.'''
-    
+class MeasureDihedral(MeasurementJig): # new class. wware 051031
+    """
+    A Measure Dihedral jig has four atoms.
+    """
     sym = "Dihedral"
     icon_names = ["modeltree/Measure_Dihedral.png", "modeltree/Measure_Dihedral-hide.png"]
     featurename = "Measure Dihedral Jig" # added, wware 20051202
@@ -353,8 +368,9 @@ class MeasureDihedral(MeasurementJig):
                     "[Dihedral = " + str(self.get_dihedral()) + " ]"
                     
     def _getToolTipInfo(self): #ninad060825
-        "Return a string for display in Dynamic Tool tip "
-        
+        """
+        Return a string for display in Dynamic Tool tip
+        """
         #honor user preferences for digit after decimal
         anglePrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key] 
         dihedral = round(self.get_dihedral(),anglePrecision)
@@ -370,7 +386,9 @@ class MeasureDihedral(MeasurementJig):
         
     # Helper functions for the measurement jigs.  Should these be general Atom functions?  Mark 051030.
     def get_dihedral(self):
-        '''Returns the dihedral between two atoms (nuclei)'''
+        """
+        Returns the dihedral between two atoms (nuclei)
+        """
         wx = self.atoms[0].posn()-self.atoms[1].posn()
         yx = self.atoms[2].posn()-self.atoms[1].posn()
         xy = -yx
@@ -385,9 +403,10 @@ class MeasureDihedral(MeasurementJig):
     # Measure Dihedral jig is drawn as a line between two atoms with a text label between them.
     # A wire cube is also drawn around each atom.
     def _draw_jig(self, glpane, color, highlighted=False):
-        '''Draws a wire frame cube around two atoms and a line between them.
+        """
+        Draws a wire frame cube around two atoms and a line between them.
         A label displaying the dihedral is included.
-        '''
+        """
         MeasurementJig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
 
         text = "%.2f" % self.get_dihedral()
