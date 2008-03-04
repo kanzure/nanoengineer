@@ -125,6 +125,7 @@ void NXBallAndStickOpenGLRenderer::InitializeCanonicalTripleBondNode(void)
         try {
             translateNode1 = new NXSGOpenGLTranslate(1.5*BOND_WIDTH, 0.0, 0.0);
             translateNode2 = new NXSGOpenGLTranslate(1.5*(-BOND_WIDTH), 0.0, 0.0);
+            _s_canonicalBondNode[2] = new NXSGOpenGLNode;
         }
         catch(...) {
             tripleBondOK = false;
@@ -149,6 +150,10 @@ void NXBallAndStickOpenGLRenderer::InitializeCanonicalTripleBondNode(void)
                 delete translateNode1;
             if(translateNode2 != NULL)
                 delete translateNode2;
+            if(_s_canonicalBondNode[2] != NULL) {
+                delete _s_canonicalBondNode[2];
+                _s_canonicalBondNode[2] = NULL;
+            }
         }
     }
 }
@@ -157,24 +162,51 @@ void NXBallAndStickOpenGLRenderer::InitializeCanonicalTripleBondNode(void)
 /* static */
 void NXBallAndStickOpenGLRenderer::InitializeCanonicalAromaticBondNode(void)
 {
-    /// @todo
-    _s_canonicalBondNode[3] = _s_canonicalBondNode[0];
+    /// @todo check NE-1 for aromatic bond representation and implement
+    try {
+        _s_canonicalBondNode[3] = new NXSGOpenGLNode;
+        if(!_s_canonicalBondNode[3]->addChild(_s_canonicalBondNode[0])) {
+            delete _s_canonicalBondNode[3];
+            _s_canonicalBondNode[3] = NULL;
+        }
+    }
+    catch(...) {
+        _s_canonicalBondNode[3] = NULL;
+    }
 }
 
 
 /* static */
 void NXBallAndStickOpenGLRenderer::InitializeCanonicalCarbomericBondNode(void)
 {
-    /// @todo
-    _s_canonicalBondNode[4] = _s_canonicalBondNode[0];
+    /// @todo check NE-1 for carbomeric bond representation and implement
+    try {
+        _s_canonicalBondNode[4] = new NXSGOpenGLNode;
+        if(!_s_canonicalBondNode[4]->addChild(_s_canonicalBondNode[0])) {
+            delete _s_canonicalBondNode[4];
+            _s_canonicalBondNode[4] = NULL;
+        }
+    }
+    catch(...) {
+        _s_canonicalBondNode[4] = NULL;
+    }
 }
 
 
 /* static */
 void NXBallAndStickOpenGLRenderer::InitializeCanonicalGraphiticBondNode(void)
 {
-    /// @todo
-    _s_canonicalBondNode[5] = _s_canonicalBondNode[0];
+    /// @todo check NE-1 for graphitic bond representation and implement
+    try {
+        _s_canonicalBondNode[5] = new NXSGOpenGLNode;
+        if(!_s_canonicalBondNode[5]->addChild(_s_canonicalBondNode[0])) {
+            delete _s_canonicalBondNode[5];
+            _s_canonicalBondNode[5] = NULL;
+        }
+    }
+    catch(...) {
+        _s_canonicalBondNode[5] = NULL;
+    }
 }
 
 
@@ -273,7 +305,7 @@ NXSGOpenGLNode* NXBallAndStickOpenGLRenderer::renderBond(NXBondRenderData const&
     // note x-y displacements are not affected by z-scaling for length
     
     // single bond
-    if(!bondScale->addChild(_s_canonicalBondNode[info.getOrder()])) {
+    if(!bondScale->addChild(_s_canonicalBondNode[info.getOrder()-1])) {
         SetError(commandResult,
                  "Error including canonical bond node in bond scenegraph");
         delete bondNode;

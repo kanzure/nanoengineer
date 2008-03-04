@@ -1,9 +1,9 @@
 TEMPLATE = lib
 
-CONFIG += debug_and_release \
- stl \
+CONFIG += stl \
  opengl \
  dll \
+ debug_and_release
 # plugin
 
 HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
@@ -31,11 +31,6 @@ INCLUDEPATH += ../../../../../../include \
  ../../../../../../src/Plugins/RenderingEngines/OpenGL
 
 LIBS += -L$(OPENBABEL_LIBPATH) \
- -L../../../../../../lib \
- -lNXOpenGLSceneGraph \
- -lNanorexInterface \
- -lNanorexUtility \
- -lGLT \
  -lopenbabel
 # qmake puts these library declarations too early in the g++ command on win32
 win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
@@ -65,5 +60,4 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
 # unix : QMAKE_POST_LINK = echo $(DESTDIR)$(TARGET) | sed -e \'s/\\(.*\\)lib\\(.*\\)\\(\\.so\\)/\1\2\3/\' | xargs mv $(DESTDIR)$(TARGET)
 # macx : QMAKE_POST_LINK ~= s/.so/.dylib/g
 
-DISTFILES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLCamera.sm
 

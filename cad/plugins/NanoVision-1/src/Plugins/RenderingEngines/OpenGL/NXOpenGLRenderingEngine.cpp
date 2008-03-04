@@ -62,6 +62,7 @@ NXOpenGLRenderingEngine::NXOpenGLRenderingEngine(QWidget *parent)
 
 NXOpenGLRenderingEngine::~NXOpenGLRenderingEngine()
 {
+    cleanupPlugins();
 }
 
 
@@ -232,6 +233,8 @@ void NXOpenGLRenderingEngine::initializeGL(void)
                      0.0, 1.0, 0.0);
     camera.glViewport(0, 0, width(), height());
     camera.gluPerspective(55, (GLdouble)width()/(GLdouble)height(), 0.1, 50);
+    
+    initializePlugins();
     
 }
 
@@ -848,7 +851,7 @@ bool NXOpenGLRenderingEngine::setRenderer(NXOpenGLRendererPlugin *const plugin)
 
 bool NXOpenGLRenderingEngine::initializePlugins(void)
 {
-    makeCurrent();
+    // called from initializeGL so context is current
     NXCommandResult *rendererInitializationResult = renderer->initialize();
     rendererInitialized = 
         (rendererInitializationResult->getResult() == (int) NX_CMD_SUCCESS);

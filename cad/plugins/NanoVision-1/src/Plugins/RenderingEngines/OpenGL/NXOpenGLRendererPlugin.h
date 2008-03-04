@@ -27,18 +27,18 @@ class NXOpenGLRendererPlugin : public NXRendererPlugin {
 public:
 
     NXOpenGLRendererPlugin() {}
-    virtual ~NXOpenGLRendererPlugin() {}
+    virtual ~NXOpenGLRendererPlugin() { cleanup(); }
     
     NXCommandResult* initialize(void);
     NXCommandResult* cleanup(void);
 
     /// Call plugin to render the atom display list and return the scenegraph node.
     /// Must set commandResult to indicate success or failure
-    NXSGOpenGLNode* renderAtom(NXAtomRenderData const&);
+    virtual NXSGOpenGLNode* renderAtom(NXAtomRenderData const&) { return NULL; }
     
     /// Call plugin to render the bond display list and return the scenegraph node.
     /// Must set commandResult to indicate success or failure
-    NXSGOpenGLNode* renderBond(NXBondRenderData const&);
+    virtual NXSGOpenGLNode* renderBond(NXBondRenderData const&) { return NULL; }
     
     NXCommandResult const& getCommandResult(void) const { return commandResult; }
     

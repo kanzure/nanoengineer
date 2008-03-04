@@ -15,6 +15,7 @@
 #include "glt_error.h"
 
 #include <cstring>
+#include <iostream>
 using namespace std;
 
 GltLightModel::GltLightModel(const bool getIt)

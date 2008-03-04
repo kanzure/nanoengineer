@@ -9,7 +9,7 @@ using namespace std;
 
 namespace Nanorex {
 
-
+NXCommandResult NXOpenGLRendererPlugin::_s_commandResult;
 NXSGOpenGLRenderable *NXOpenGLRendererPlugin::_s_canonicalSphereNode(NULL);
 NXSGOpenGLRenderable *NXOpenGLRendererPlugin::_s_canonicalCylinderNode(NULL);
 
@@ -109,7 +109,7 @@ void NXOpenGLRendererPlugin::InitializeCanonicalSphereNode(void)
     
     bool beginRenderOK = _s_canonicalSphereNode->beginRender();
     if(!beginRenderOK) {
-        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetContextError();
+        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetCommandResult();
         _s_commandResult.setResult(NX_PLUGIN_REPORTS_ERROR);
         _s_commandResult.setParamVector(scenegraphCtxtError->getParamVector());
         delete _s_canonicalSphereNode;
@@ -128,7 +128,7 @@ void NXOpenGLRendererPlugin::InitializeCanonicalSphereNode(void)
     
     bool endRenderOK = _s_canonicalSphereNode->endRender();
     if(!endRenderOK) {
-        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetContextError();
+        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetCommandResult();
         _s_commandResult.setResult(NX_PLUGIN_REPORTS_ERROR);
         _s_commandResult.setParamVector(scenegraphCtxtError->getParamVector());
         delete _s_canonicalSphereNode;
@@ -159,7 +159,7 @@ void NXOpenGLRendererPlugin::InitializeCanonicalCylinderNode(void)
     
     bool beginRenderOK = _s_canonicalCylinderNode->beginRender();
     if(!beginRenderOK) {
-        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetContextError();
+        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetCommandResult();
         _s_commandResult.setResult(NX_PLUGIN_REPORTS_ERROR);
         _s_commandResult.setParamVector(scenegraphCtxtError->getParamVector());
         delete _s_canonicalCylinderNode;
@@ -180,7 +180,7 @@ void NXOpenGLRendererPlugin::InitializeCanonicalCylinderNode(void)
     
     bool endRenderOK = _s_canonicalCylinderNode->endRender();
     if(!endRenderOK) {
-        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetContextError();
+        NXCommandResult *scenegraphCtxtError = NXSGOpenGLNode::GetCommandResult();
         _s_commandResult.setResult(NX_PLUGIN_REPORTS_ERROR);
         _s_commandResult.setParamVector(scenegraphCtxtError->getParamVector());
         delete _s_canonicalCylinderNode;
@@ -286,19 +286,14 @@ void NXOpenGLRendererPlugin::DrawOpenGLCanonicalSphere(void)
     glEnd();
     
     
-    GLenum const err = glGetError();
+    ostringstream errMsgStream;
+    GLenum const err = GLERROR(errMsgStream);
     if(err == GL_NO_ERROR) {
         _s_commandResult.setResult(NX_CMD_SUCCESS);
     }
     else {
-#ifdef NX_DEBUG
-        ostringstream errMsgStream;
-        GLERROR(errMsgStream); //  glt_error.h
         SetError(_s_commandResult,
                  ("Error drawing openGL unit sphere"+errMsgStream.str()).c_str());
-#else
-        SetError(_s_commandResult, "Error drawing openGL unit sphere");
-#endif
     }
 }
 
@@ -374,19 +369,14 @@ void NXOpenGLRendererPlugin::DrawOpenGLCanonicalCylinder(void)
     glEnd();
     
     
-    GLenum const err = glGetError();
+    ostringstream errMsgStream;
+    GLenum const err = GLERROR(errMsgStream);
     if(err == GL_NO_ERROR) {
         _s_commandResult.setResult(NX_CMD_SUCCESS);
     }
     else {
-#ifdef NX_DEBUG
-        ostringstream errMsgStream;
-        GLERROR(errMsgStream); //  glt_error.h
         SetError(_s_commandResult,
                  ("Error drawing openGL unit cylinder"+errMsgStream.str()).c_str());
-#else
-        SetError(_s_commandResult, "Error drawing openGL unit cylinder");
-#endif
     }
 }
 

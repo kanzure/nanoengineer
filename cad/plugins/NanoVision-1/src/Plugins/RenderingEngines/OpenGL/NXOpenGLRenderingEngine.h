@@ -115,9 +115,7 @@ private:
     
     void deleteSceneGraph ( void )
     {
-        if ( rootSceneGraphNode != ( NXSGOpenGLNode* ) NULL )
-        {
-            rootSceneGraphNode->deleteRecursive();
+        if ( rootSceneGraphNode != ( NXSGOpenGLNode* ) NULL ) {
             delete rootSceneGraphNode;
             rootSceneGraphNode = ( NXSGOpenGLNode* ) NULL;
         }

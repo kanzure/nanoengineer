@@ -36,6 +36,7 @@
 
 */
 
+#include <ostream>
 #include <string>
 
 /*! \define  GLERROR
@@ -45,26 +46,27 @@
 */
 
 #if defined(NDEBUG)
-	#define GLERROR
+// #define GLERROR
 #else
 	#include "glt_config.h"
 	#include "glt_gl.h"
 	#include "glt_glu.h"
 
-	#include <iostream>
 
-    #define GLERROR(strm)											\
-	{														\
-		GLenum code = glGetError();							\
-		while (code!=GL_NO_ERROR)							\
-		{													\
-			strm << __FILE__;							\
-			strm << ':' << __LINE__;					\
-			strm << ' ' << (char *) gluErrorString(code) << std::endl;	\
-			code = glGetError();							\
-		} 													\
-	}
 #endif
+
+
+inline GLenum GLERROR(std::ostream& strm)
+{
+    GLenum firstCode = glGetError();
+    for(GLenum code = firstCode; code!=GL_NO_ERROR; code = glGetError())
+    {
+        strm << __FILE__;
+        strm << ':' << __LINE__;
+        strm << ' ' << (char *) gluErrorString(code) << std::endl;
+    }
+    return firstCode;
+}
 
 /// Display warning 
 void gltError(const std::string &message);

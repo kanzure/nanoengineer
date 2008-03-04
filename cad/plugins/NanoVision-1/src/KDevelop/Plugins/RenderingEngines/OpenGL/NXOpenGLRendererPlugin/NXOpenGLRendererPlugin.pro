@@ -19,7 +19,10 @@ INCLUDEPATH += ../../../../../../include \
 
 QT -= gui
 
-TARGETDEPS += ../../../../../../lib/libNXOpenGLSceneGraph.a
+TARGETDEPS += ../../../../../../lib/libNXOpenGLSceneGraph.a \
+ ../../../../../../lib/libGLT.a \
+ ../../../../../../lib/libNanorexInterface.so \
+ ../../../../../../lib/libNanorexUtility.so
 
 DESTDIR = ../../../../../../lib
 
@@ -30,5 +33,3 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
 
 CONFIG -= release
 
-LIBS += -lNXOpenGLSceneGraph \
- -L../../../../../../lib

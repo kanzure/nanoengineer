@@ -33,6 +33,10 @@ public:
     NXSGOpenGLNode() : modelViewStackDepth(0) {}
     ~NXSGOpenGLNode() {}
     
+    // Override virtual methods
+    bool initializeContext(void);
+    bool cleanupContext(void);
+    
     /// Prevent addition of generic nodes so that children are OpenGL
     /// scenegraph nodes. Required to be able to propagate context checks
     bool addChild(NXSGNode *const child);
@@ -42,19 +46,12 @@ public:
     
     int getModelViewStackDepth(void) { return modelViewStackDepth; }
     
+    /// @todo - making this protected created compilation errors - gcc bug?
     /// Called by parent when its stack depth is updated to recursively
     /// propagate this info to leaves
     virtual bool newParentModelViewStackDepth(int newMVStackDepth);
     
     // static members
-    
-    /// Assess OpenGL context limits.
-    /// Must be called after the OpenGL context is made current and
-    /// before OpenGL scenegraph module is used
-    bool InitializeContext(void);
-    
-    /// Last error in the context
-    static NXCommandResult* GetContextError(void) { return &commandResult; }
     
     static GLint const& GetMaxModelViewStackDepth(void)
     { return _s_maxModelViewStackDepth; }
@@ -68,11 +65,11 @@ protected:
     /// model-view stack-size limit
     static GLint _s_maxModelViewStackDepth;
     
-    /// Most recent error - to be set by failing node
-    /// All calling nodes propagate boolean result back up to root
-    static NXCommandResult commandResult;
+    /// Assess OpenGL context limits.
+    /// Must be called after the OpenGL context is made current and
+    /// before OpenGL scenegraph module is used
+    bool InitializeContext(void);
     
-    static void SetError(int errCode, char const *const errMsg);
 };
 
 
@@ -101,20 +98,17 @@ public:
 class NXSGOpenGLModelViewTransform : public NXSGOpenGLTransform {
 public:
     NXSGOpenGLModelViewTransform() throw()
-        : NXSGOpenGLTransform()
     { ++modelViewStackDepth; /* must be >= 1 */ }
     
     ~NXSGOpenGLModelViewTransform() throw() {}
     
-    bool addChild(NXSGOpenGLNode *child);
+    // bool addChild(NXSGOpenGLNode *child);
+    
+    bool applyRecursive(void) const throw();
     
     /// Re-implement base-class method because this class increments
     /// model-view stack-depth
     bool newParentModelViewStackDepth(int parentMVStackDepth);
-    
-    bool applyRecursive(void) const throw();
-    
-    void deleteRecursive(void) { }
 };
 
 
@@ -224,8 +218,6 @@ public:
     /// Calls glEndList(). Call after the plugin does its OpenGL rendering.
     bool endRender(void) const throw ();
     
-	void deleteRecursive(void) { }
-
 #ifdef NX_DEBUG
     GLuint getDisplayListID(void) const { return display_list_id; }
 #endif
@@ -244,8 +236,6 @@ public:
     /// Copy assignment from GL-material
     // NXSGOpenGLMaterial& operator = (NXOpenGLMaterial const& mat) throw ();
     bool apply(void) const throw ();
-
-	void deleteRecursive(void) { }
 };
 
 } // Nanorex

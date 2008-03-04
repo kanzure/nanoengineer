@@ -22,6 +22,7 @@
 #include "glt_bbox.h"
 
 #include <cstring>
+#include <iostream>
 using namespace std;
 
 GltViewport::GltViewport(bool getIt)

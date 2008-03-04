@@ -2,14 +2,21 @@
 
 #include "NXOpenGLSceneGraph.h"
 #include <Nanorex/Interface/NXNanoVisionResultCodes.h>
+#include "GLT/glt_error.h"
+#include <sstream>
 
 using namespace std;
 
 namespace Nanorex {
 
+// static data
+GLint NXSGOpenGLNode::_s_maxModelViewStackDepth;
+
+
 // OpenGL Scenegraph context - only one per application
 bool NXSGOpenGLNode::InitializeContext(void)
 {
+    /// @todo Mutex locks
     bool success = true;
     
     // Read model-view stack max-depth
@@ -24,25 +31,20 @@ bool NXSGOpenGLNode::InitializeContext(void)
 }
 
 
-void NXSGOpenGLNode::SetError(int errCode, char const *const errMsg)
+bool NXSGOpenGLNode::initializeContext(void)
 {
-    commandResult.setResult(errCode);
-    vector<QString> message;
-    message.push_back(QObject::tr(errMsg));
-    commandResult.setParamVector(message);
+    bool const baseClassContextInitialized = NXSGNode::initializeContext();
+    bool const thisClassContextInitialized = InitializeContext();
+    bool const ok = baseClassContextInitialized && thisClassContextInitialized;
+    return ok;
 }
 
 
-#if 0 // unused class - commented out
-bool NXSGOpenGLGenericTransform::apply(void) const throw ()
+bool NXSGOpenGLNode::cleanupContext(void)
 {
-    glMultMatrixd(matrix);
-    GLenum const err = glGetError();
-    return (err == GL_NO_ERROR) ? true : false;
+    bool const baseClassContextCleanedUp = NXSGNode::cleanupContext();
+    return baseClassContextCleanedUp;
 }
-
-
-#endif
 
 
 bool NXSGOpenGLNode::addChild(NXSGNode *const /*child*/)
@@ -58,10 +60,6 @@ bool NXSGOpenGLNode::addChild(NXSGOpenGLNode *const child)
     bool included = NXSGNode::addChild(static_cast<NXSGNode*>(child));
     if(included) {
         child->newParentModelViewStackDepth(modelViewStackDepth);
-    }
-    else {
-        SetError(NX_INTERNAL_ERROR,
-                 "Could not include child node possibly because of lack of memory");
     }
     return included;
 }
@@ -132,43 +130,35 @@ NXSGOpenGLModelViewTransform::newParentModelViewStackDepth(int parentMVStackDept
 /// restores it afterwards
 bool NXSGOpenGLModelViewTransform::applyRecursive(void) const throw()
 {
-    // Record OpenGL current-matrix state
-    // GLenum currentMatrixMode;
-    // glGetIntegerv(GL_MATRIX_MODE, (GLint*)&currentMatrixMode);
-    
     // Save the modelview matrix
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     // trap stack overflow/underflow
     GLenum glError = glGetError();
     bool ok = (glError == GL_NO_ERROR);
-    bool childrenOK = true;
-    
-    if(ok) {
-        ok = apply();
-        if(ok) {
-            ChildrenList::const_iterator child_iter;
-            for(child_iter = children.begin();
-                child_iter != children.end() && childrenOK;
-                ++child_iter)
-            {
-                childrenOK = (*child_iter)->applyRecursive();
-            }
-        }
-        glPopMatrix();
-    }
-    
-    // Setup error info if this node caused the failure
     if(!ok) {
         SetError(NX_INTERNAL_ERROR,
-                 "Failure applying model-view transform in OpenGL scenegraph "
-                 "context");
+                 "OpenGL modelview stack overflow or invalid operation");
+        return false;
     }
     
-    ok = ok && childrenOK;
-    // restore the OpenGL matrix mode
-    // glMatrixMode(currentMatrixMode);
-    return ok;
+    // apply transform and quit if error
+    bool appliedOK = apply();
+    if(!appliedOK)
+        return false;
+    
+    bool childrenOK = true;
+    ChildrenList::const_iterator child_iter;
+    for(child_iter = children.begin();
+        child_iter != children.end() && childrenOK;
+        ++child_iter)
+    {
+        childrenOK = (*child_iter)->applyRecursive();
+    }
+    // Restore model-view matrix
+    glPopMatrix();
+    
+    return childrenOK;
 }
 
 
@@ -233,60 +223,30 @@ NXSGOpenGLRenderable::~NXSGOpenGLRenderable() throw (NXException)
 bool NXSGOpenGLRenderable::beginRender(void) const throw ()
 {
     glNewList(display_list_id, GL_COMPILE);
-    GLenum const err = glGetError();
-    bool ok = (err == GL_NO_ERROR);
-    if(!ok) {
-#ifdef NX_DEBUG
-        switch(err) {
-        case GL_INVALID_VALUE:
-            SetError(NX_INTERNAL_ERROR, "Begin-render with  display list id = 0");
-            break;
-        case GL_INVALID_OPERATION:
-            SetError(NX_INTERNAL_ERROR, "Invalid begin-render operation");
-            break;
-        case GL_OUT_OF_MEMORY:
-            SetError(NX_INTERNAL_ERROR, "Insufficient memory for begin-render op");
-            break;
-        default:
-            SetError(NX_INTERNAL_ERROR, "Unknown error in begin-render");
-            break;
-        }
-#else
+    ostringstream errMsgStream;
+    GLenum const err = GLERROR(errMsgStream);
+    if(err != GL_NO_ERROR) {
         SetError(NX_INTERNAL_ERROR,
-                 "Failure creating new OpenGL scenegraph display list");
-#endif
+                 errMsgStream.str().c_str());
+        return false;
     }
-    return ok;
+    
+    return true;
 }
 
 
 bool NXSGOpenGLRenderable::endRender(void) const throw ()
 {
     glEndList();
-    GLenum const err = glGetError();
-    bool ok = (err == GL_NO_ERROR);
-    if(!ok) {
-#ifdef NX_DEBUG
-        switch(err) {
-        case GL_INVALID_VALUE:
-            SetError(NX_INTERNAL_ERROR, "Begin-render with  display list id = 0");
-            break;
-        case GL_INVALID_OPERATION:
-            SetError(NX_INTERNAL_ERROR, "Invalid begin-render operation");
-            break;
-        case GL_OUT_OF_MEMORY:
-            SetError(NX_INTERNAL_ERROR, "Insufficient memory for begin-render op");
-            break;
-        default:
-            SetError(NX_INTERNAL_ERROR, "Unknown error in begin-render");
-            break;
-        }
-#else
+    ostringstream errMsgStream;
+    GLenum const err = GLERROR(errMsgStream);
+    if(err != GL_NO_ERROR) {
         SetError(NX_INTERNAL_ERROR,
-                 "Failure creating new OpenGL scenegraph display list");
-#endif
+                 errMsgStream.str().c_str());
+        return false;
     }
-    return ok;
+    
+    return true;
 }
 
 #if 0

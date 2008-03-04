@@ -18,11 +18,15 @@ public:
     NXRendererPlugin() {}
     virtual ~NXRendererPlugin() {}
 
+    /// Initialize the plugin, for example when its rendering context is ready
     virtual NXCommandResult* initialize() = 0;
-    virtual NXCommandResult* cleanup() = 0;
     
-    // virtual void renderAtom(NXRenderAtomInfo const&) = 0;
-    // virtual void renderBond(NXRenderBondInfo const&) = 0;
+    /// Cleanup the plugin. Must be called before deleting the object.
+    /// Implements a cleanup mechanism in parallel to the destructor.
+    /// This is necessary because the ability to cleanup may depend on external
+    /// circumstances, like the availability of a certain resource like a
+    /// rendering/drawing context. Subclasses must call <baseclass>::cleanup()
+    virtual NXCommandResult* cleanup() = 0;
 };
 
 

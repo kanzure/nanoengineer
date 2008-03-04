@@ -14,6 +14,7 @@
 
 #include <cstring>
 #include <cassert>
+#include <iostream>
 using namespace std;
 
 #include "glt_error.h"

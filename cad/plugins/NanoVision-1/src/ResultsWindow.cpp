@@ -526,7 +526,7 @@ void StructureGraphicsTreeItem::showWindow() {
         // int structureId = dataStoreInfo->getStructureId(structureName);
         structureWindow = new StructureGraphicsWindow();
         assert(structureWindow != NULL);
-        structureWindow->setPlugin(new NXBallAndStickOpenGLRenderer);
+        structureWindow->setRenderer(new NXBallAndStickOpenGLRenderer);
         if(isSingleMolecule)
             structureWindow->setMolecule(molPtr);
         else

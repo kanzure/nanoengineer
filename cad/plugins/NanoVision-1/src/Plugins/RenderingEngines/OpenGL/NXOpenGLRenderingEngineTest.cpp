@@ -55,10 +55,10 @@ int main(int argc, char *argv[])
     mainWindow.setCentralWidget(renderingEngine);
     NXBallAndStickOpenGLRenderer *renderer =
         new NXBallAndStickOpenGLRenderer;
-    renderingEngine->setPlugin(renderer);
+    renderingEngine->setRenderer(renderer);
     
     NXMoleculeSet theMoleculeSet;
-    OBMol *molPtr = theMoleculeSet.newMolecule();
+    // OBMol *molPtr = theMoleculeSet.newMolecule();
     // makeC2H6(molPtr);
     makeTheMoleculeSet(theMoleculeSet);
     

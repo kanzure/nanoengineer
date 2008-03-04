@@ -16,6 +16,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <iostream>
 using namespace std;
 
 GltMaterial::GltMaterial(const GLenum face,const bool getIt)

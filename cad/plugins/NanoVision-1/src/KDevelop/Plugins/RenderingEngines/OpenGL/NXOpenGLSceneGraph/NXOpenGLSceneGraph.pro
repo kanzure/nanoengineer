@@ -22,12 +22,11 @@ SOURCES += ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLSceneGraph.cpp
 
 DESTDIR = ../../../../../../lib
 
-LIBS += -L../../../../../../lib \
--lNanorexInterface \
--lNanorexUtility
 
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
  -O0 \
  -fno-inline
+
+QT += opengl
 

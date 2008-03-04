@@ -26,6 +26,9 @@ namespace Nanorex {
 class NXCommandResult {
 public:
     NXCommandResult();
+    NXCommandResult(int resId, std::vector<QString> const& prmVector)
+        : resultId(resId), paramVector(prmVector) { }
+    ~NXCommandResult() {}
     void setResult(int resultId);
     int getResult();
     void setParamVector(std::vector<QString> const& paramVector);

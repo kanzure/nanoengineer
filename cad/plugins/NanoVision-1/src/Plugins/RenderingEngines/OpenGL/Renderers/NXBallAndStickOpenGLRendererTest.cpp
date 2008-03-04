@@ -38,7 +38,9 @@ mat_shininess(50.0)
 
 TestMainWindow::~TestMainWindow()
 {
+    makeCurrent();
     if(renderer != NULL) {
+        renderer->cleanup();
         delete renderer;
         renderer = NULL;
     }
@@ -291,20 +293,38 @@ void TestMainWindow::setupScene(void)
         delete scene;
         scene = NULL;
     }
-    scene = new NXSGNode;
-    NXSGNode *atom1 = renderer->renderAtom(atomRenderData);
-    NXSGNode *atom1Move = new NXSGOpenGLTranslate(0.0f, 1.0f, 1.0f);
-    NXSGNode *atom2 = renderer->renderAtom(atomRenderData);
-    NXSGNode *atom2Move = new NXSGOpenGLTranslate(0.0f, -1.0f, -1.0f);
-    scene->addChild(atom1Move);
-    atom1Move->addChild(atom1);
-    scene->addChild(atom2Move);
-    atom2Move->addChild(atom2);
-    NXSGNode *bond12 = renderer->renderBond(bondRenderData);
+    scene = new NXSGOpenGLNode;
+    NXSGOpenGLNode *atom1 = renderer->renderAtom(atomRenderData);
+    NXSGOpenGLNode *atom1Move = new NXSGOpenGLTranslate(0.0f, 1.0f, 1.0f);
+    NXSGOpenGLNode *atom2 = renderer->renderAtom(atomRenderData);
+    NXSGOpenGLNode *atom2Move = new NXSGOpenGLTranslate(0.0f, -1.0f, -1.0f);
+    bool nodesCreated = (scene != NULL &&
+                         atom1 != NULL && atom1Move != NULL &&
+                         atom2 != NULL && atom2Move != NULL );
+    bool addedChildren = true;
+    if(nodesCreated) {
+        addedChildren = scene->addChild(atom1Move);
+        addedChildren = addedChildren && atom1Move->addChild(atom1);
+        addedChildren = addedChildren && scene->addChild(atom2Move);
+        addedChildren = addedChildren && atom2Move->addChild(atom2);
+    }
+    else {
+        cerr << "scene: Failed to create nodes" << endl;
+    }
+    if(!addedChildren) {
+        cerr << "scene: Failed to add children" << endl;
+        return;
+    }
+    NXSGOpenGLNode *bond12 = renderer->renderBond(bondRenderData);
     GLfloat const BOND_WIDTH = 0.25f;
-    NXSGNode *bond12Rotate = new NXSGOpenGLRotate(-45.0, 1.0, 0.0, 0.0);
-    scene->addChild(bond12Rotate);
-    bond12Rotate->addChild(bond12);
+    NXSGOpenGLNode *bond12Rotate = new NXSGOpenGLRotate(-45.0, 1.0, 0.0, 0.0);
+    if(bond12 != NULL && bond12Rotate != NULL) {
+        scene->addChild(bond12Rotate);
+        bond12Rotate->addChild(bond12);
+    }
+    else {
+        cerr << "scene: Failed to create bond nodes" << endl;
+    }
 }
 
 
@@ -353,10 +373,7 @@ void TestMainWindow::initializeGL(void)
     glLoadIdentity();
     gluLookAt(-4, -2, 3, 0, 0, 0, 0, 1, 0);
     
-    // draw canonical sphere in this OpenGL context
-    NXBallAndStickOpenGLRenderer::RenderCanonicalSphere();
-    NXBallAndStickOpenGLRenderer::RenderCanonicalCylinder();
-    
+    renderer->initialize();
     setupScene();
 }
 

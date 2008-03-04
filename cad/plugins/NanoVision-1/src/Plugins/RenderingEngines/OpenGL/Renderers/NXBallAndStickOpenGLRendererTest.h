@@ -51,7 +51,7 @@ private:
     NXBondRenderData bondRenderData;
     
     NXBallAndStickOpenGLRenderer *renderer;
-    NXSGNode *scene;
+    NXSGOpenGLNode *scene;
     
 #ifndef NO_GLT // using GLT
     Vector4 position;

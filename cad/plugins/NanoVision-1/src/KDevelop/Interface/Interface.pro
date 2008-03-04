@@ -14,11 +14,11 @@ HEADERS += \
  ../../../include/Nanorex/Interface/NXNumbers.h \
  ../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../include/Nanorex/Interface/NXBondRenderData.h \
- ../../../include/Nanorex/Interface/NXSceneGraph.h \
  ../../../include/Nanorex/Interface/NXTrackball.h \
  ../../../include/Nanorex/Interface/NXRendererPlugin.h \
  ../../../include/Nanorex/Interface/NXRenderingEngine.h \
- ../../../include/Nanorex/Interface/NXAtomData.h
+ ../../../include/Nanorex/Interface/NXAtomData.h \
+ ../../../include/Nanorex/Interface/NXSceneGraph.h
 
 INCLUDEPATH += ../../../include \
  $(OPENBABEL_INCPATH)
@@ -37,9 +37,9 @@ SOURCES += ../../Interface/NXDataStoreInfo.cpp \
 
 TEMPLATE = lib
 
-CONFIG += debug_and_release \
- stl \
- dll
+CONFIG += stl \
+ dll \
+ debug_and_release
 win32 : CONFIG -= dll
 win32 : CONFIG += staticlib
 
@@ -52,3 +52,4 @@ macx : TARGETDEPS ~= s/.so/.dylib/g
 win32 : TARGETDEPS ~= s/.so/.a/g
 
 QT -= gui
+

@@ -7,8 +7,7 @@ SOURCES += ../../../Testing/CppUnit/CppUnit.cpp \
  ../../../Utility/NXUtilityTest.cpp \
  ../../../Plugins/HDF5_SimResultsImportExport/HDF5_SimResultsImportExportTest.cpp \
  ../../../Plugins/OpenBabelImportExport/OpenBabelImportExportTest.cpp \
- ../../../Utility/NXPointTest.cpp \
- ../../../Interface/NXSceneGraphTest.cpp
+ ../../../Utility/NXPointTest.cpp
 
 TEMPLATE = app
 
