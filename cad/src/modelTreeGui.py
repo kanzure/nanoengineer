@@ -331,13 +331,16 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
         raise Exception('overload me')
 
 ##    def drop_on_ok(self, drag_type, nodes):
-##        """Say whether 'drag and drop' can drop the given set of nodes onto this node, when they are
-##        dragged in the given way
+##        """
+##        Say whether 'drag and drop' can drop the given set of nodes onto this node, when they are
+##        dragged in the given way, and if not, why not.
+##        @rtype: ( boolean, string )
 ##        """
 ##        raise Exception('overload me')
 ##
 ##    def drop_on(self, drag_type, nodes):
-##        """After a 'drag and drop' of type 'move' or 'copy' (according to drag_type), perform the
+##        """
+##        After a 'drag and drop' of type 'move' or 'copy' (according to drag_type), perform the
 ##        drop of the given list of nodes onto this node. Return any new nodes this creates (toplevel
 ##        nodes only, for copied groups).
 ##        """
@@ -905,13 +908,17 @@ class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of cla
         targetnode = item.node
         if targetnode in nodes:
             # don't print a message -- probably common for small mouse motions
+            # (thus, don't leave this for drop_on_ok to find)
+            # (not verified by test that it *will* find it, though it ought to)
             if DEBUG2:
                 print "debug warning: MT DND: targetnode in nodes, refusing drop" # new behavior, bruce 070509
-            #e should generalize based on what Qt3 code does
-            #k should find out why this is not redundant with drop_on_ok check below
+            #e should generalize based on what Qt3 code does [obs cmt?]
             raise DoNotDrop()
-        if not Node_as_MT_DND_Target(targetnode).drop_on_ok(drag_type, nodes):
+        ok, whynot = Node_as_MT_DND_Target(targetnode).drop_on_ok(drag_type, nodes)
+        if not ok:
             msg = "drop refused by %s" % quote_html(targetnode.name)
+            if whynot:
+                msg += ": %s" % (whynot,) #bruce 080303
             self.statusbar_msg( msg )
             raise DoNotDrop()
         
@@ -2016,19 +2023,19 @@ class TestNode(Node_api):
 ##                traceback.print_stack(file = sys.stdout)
 ##                print self, nodes, node, self.members
 ##                print 'node is in children already'
-##                return False
+##                return False, 'node is in children already'
 ##        # We can't drop things on chunks or jigs
 ##        if self.name.startswith("Chunk"):
 ##            traceback.print_stack(file = sys.stdout)
 ##            print self, node, self.members
 ##            print 'cannot drop on a chunk'
-##            return False
+##            return False, 'cannot drop on a chunk'
 ##        if self.name.startswith("Jig"):
 ##            traceback.print_stack(file = sys.stdout)
 ##            print self, node, self.members
 ##            print 'cannot drop on a jig'
-##            return False
-##        return True
+##            return False, 'cannot drop on a jig'
+##        return True, None
 ##    def drop_on(self, drag_type, nodes):
 ##        previous_parents = { }
 ##        for node in nodes:

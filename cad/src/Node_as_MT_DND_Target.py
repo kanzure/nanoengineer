@@ -45,6 +45,8 @@ class MT_DND_Target_API(object):
     # or the api gets more complicated.
     pass
 
+# ==
+
 class Node_as_MT_DND_Target( MT_DND_Target_API):
     """
     Control the use of a node as a Model Tree DND target.
@@ -57,21 +59,29 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
         @type node: Node (can be Group or not).
         """
         self.node = node
-    def drop_on_ok(self, drag_type, nodes):
-        # todo: return (ok, whynot/what) [bruce 080303 comment]
+        
+    def drop_on_ok(self, drag_type, nodes): #bruce 080303 revised return value
         """
         Say whether "drag and drop" should be allowed to drop the given set
         of nodes onto self.node, when they are dragged in the given way
-        ('move' or 'copy' -- nodes arg has the originals, not the copies).
+        ('move' or 'copy' -- nodes arg has the originals, not the copies),
+        and if not, why not.
         
         (Typically, self.node (if it says ok by returning True from this method)
         would insert the moved or copied nodes inside itself as new members,
         or below itself as new siblings if it's a leaf node (until we support
         dropping into gaps between nodes for that), if they were actually
-        dropped. For that bsee drop_on.)
+        dropped. For that see drop_on.)
+
+        @return: ( ok, whynot ), i.e. (False, whynot) or (True, arbitrary).
+        @rtype: 2-tuple of ( boolean, string), with string suitable for use
+                in a statusbar message.
         
         [some subclasses should override this]
         """
+        # someday: return ( True, what ) where what describes what we would do,
+        # for use in statusbar message while user mouses over a drop point.
+        #
         #bruce 050216 add exception for cycle-forming request ### needs testing
         # (to fix bug 360 item 6 comment 9, which had been fixed in the old MT's
         #  DND code too)
@@ -80,9 +90,10 @@ class Node_as_MT_DND_Target( MT_DND_Target_API):
                 if (node is not self.node and node.is_ascendant(self.node)) or \
                    (node is self.node and node.is_group()):
                     print "fyi: refusing drag-move since it would form a cycle"
-                        #e should change retval-spec and get this into a redmsg
-                    return False
-        return True #e probably change to False for leaf nodes, once we support
+                    whynot = "would form a cycle"
+                    return ( False, whynot )
+        return ( True, None)
+            # someday: probably change to False for leaf nodes, once we support
             # dropping into gaps
 
     def drop_on(self, drag_type, nodes): ###@@@ needs a big cleanup
