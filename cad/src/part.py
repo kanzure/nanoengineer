@@ -53,7 +53,7 @@ from Group   import Group
 from Assembly_API import Assembly_API
 
 from NamedView import NamedView
-from geometry.VQT import V
+from geometry.VQT import V, Q
 from debug import print_compact_traceback, print_compact_stack
 from utilities import debug_flags
 
@@ -198,8 +198,8 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # which are not yet added (and we don't want to assume topnode's
             # kids will all be added, though for now this might be true --
             # not sure).
-            self.homeView = NamedView(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
-            self.lastView = NamedView(self.assy, "LastView", 10.0, V(0,0,0), 1.0, 0.0, 1.0, 0.0, 0.0)
+            self.homeView = NamedView(self.assy, "HomeView", 10.0, V(0,0,0), 1.0, Q(1.0, 0.0, 0.0, 0.0))
+            self.lastView = NamedView(self.assy, "LastView", 10.0, V(0,0,0), 1.0, Q(1.0, 0.0, 0.0, 0.0))
 
         self.add(topnode)
         # for now:
@@ -793,7 +793,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         self.ensure_toplevel_group() # needed if, e.g., we use Build mode to add to a clipboard item
         self.topnode.addchild(mol)
             #bruce 050202 comment: if you don't want this location for the added mol,
-            # just call mol.moveto when you're done, like [some code in files_mmp.py] does.
+            # just call mol.moveto when you're done, like [some other code] does.
         ## done in addchild->changed_dad->inherit_part->Part.add:
         ## self.invalidate_attrs(['natoms','molecules']) # this also invals bbox and center, via molecules
 

@@ -13,6 +13,8 @@ Mark wrote this in Utility.py.
 bruce 071026 moved it from Utility into a new file.
 
 Mark renamed Csys to NamedView, on or after 2008-02-03.
+
+Bruce 080303 simplified NamedView.__init__ arg signature and some calling code.
 """
 
 from constants import gensym
@@ -44,30 +46,30 @@ class NamedView(SimpleCopyMixin, Node):
 
     scale = pov = zoomFactor = quat = None # Undo might require these to have default values (not sure) [bruce 060523]
 
-    def __init__(self, assy, name, scale, pov, zoomFactor, w, x = None, y = None, z = None):
+    def __init__(self, assy, name, scale, pov, zoomFactor, wxyz):
+        """
+        @param pov: the inverse of the "center of view" in model coordinates
+        @type pov: position vector (Numeric.array of 3 ints or floats, as made
+                   by V(x,y,z))
+
+        @param wxyz: orientation of view
+        @type wxyz: a Quaternion (class VQT.Q), or a sequence of 4 floats
+                    which can be passed to that class to make one, e.g.
+                    Q(W, x, y, z) is the quaternion with axis vector x,y,z
+                    and sin(theta/2) = W
+        """
         self.const_pixmap = imagename_to_pixmap("modeltree/NamedView.png")
-        if name:
-            Node.__init__(self, assy, name)
-        else:
-            Node.__init__(self, assy, gensym("%s-" % self.sym))
+        if not name:
+            name = gensym("%s-" % self.sym)
+        Node.__init__(self, assy, name)
         self.scale = scale
         assert type(pov) is type(V(1, 0, 0))
         self.pov = V(pov[0], pov[1], pov[2])
         self.zoomFactor = zoomFactor
-
-        #bruce 050516 probable bugfix, using "is None" rather than "if not x and not y and not z:"
-        if x is None and y is None and z is None:
-            self.quat = Q(w)
-            #bruce 050518 comment: this form is used with w an array of 4 floats (in same order
-            # as in mmp file's csys record), when parsing csys mmprecords,
-            # or with w a quat in other places.
-        else:
-            self.quat = Q(x, y, z, w)
-            #bruce 050518 question: why are these in different order than in arglist? bug?? ###k
-            # ... this is used with wxyz = 0.0, 1.0, 0.0, 0.0 to initialize both views for any Part. No other uses.
-            # And order is not consistent with mmp record, either. Therefore I can and should revise it. Later.
-            # Looks like the main error is that the vars are misnamed/misordered, both here and in init arglist.
-            # Best revision would probably just be to disallow this form! #e 
+        self.quat = Q(wxyz)
+            #bruce 050518/080303 comment: wxyz is passed as an array of 4 floats
+            # (in same order as in mmp file's csys record), when parsing
+            # csys mmp records, or with wxyz a quat in other places.
         return
 
     def _um_initargs(self): #bruce 060523 to help make it copyable from the UI (fixes bug 1369 along with SimpleCopyMixin)
