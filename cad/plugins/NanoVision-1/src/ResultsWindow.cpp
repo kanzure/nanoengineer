@@ -351,7 +351,7 @@ QString ResultsWindow::userFriendlyCurrentFile() {
 
 /* FUNCTION: setCurrentFile */
 void ResultsWindow::setCurrentFile(const QString &fileName) {
-    curFile = QFileInfo(fileName).canonicalFilePath();
+    curFile = QFileInfo(fileName).absoluteFilePath();
     setWindowTitle(userFriendlyCurrentFile() + "[*]");
 }
 

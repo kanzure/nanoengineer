@@ -31,6 +31,11 @@ INCLUDEPATH += ../../../../../../include \
  ../../../../../../src/Plugins/RenderingEngines/OpenGL
 
 LIBS += -L$(OPENBABEL_LIBPATH) \
+ -L../../../../../../lib \
+ -lNanorexInterface \
+ -lNXOpenGLSceneGraph \
+ -lNanorexUtility \
+ -lGLT \
  -lopenbabel
 # qmake puts these library declarations too early in the g++ command on win32
 win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32

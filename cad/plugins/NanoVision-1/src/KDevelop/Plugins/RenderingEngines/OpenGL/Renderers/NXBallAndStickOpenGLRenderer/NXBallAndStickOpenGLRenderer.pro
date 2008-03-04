@@ -36,6 +36,15 @@ SOURCES += ../../../../../../Plugins/RenderingEngines/OpenGL/Renderers/NXBallAnd
 
 TARGET = NXBallAndStickOpenGLRenderer
 
+LIBS += -L../../../../../../../lib \
+ -lNanorexInterface \
+ -lNXOpenGLRendererPlugin \
+ -lNXOpenGLSceneGraph \
+ -lNanorexUtility \
+ -lGLT
+# qmake puts these library declarations too early in the g++ command on win32
+win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
+
 QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -g \
  -O0 \

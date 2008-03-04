@@ -85,3 +85,6 @@ TARGETDEPS += ../../../lib/libNXBallAndStickOpenGLRenderer.so \
 ../../../lib/libGLT.a \
 ../../../lib/libNanorexInterface.so \
 ../../../lib/libNanorexUtility.so
+macx :    TARGETDEPS ~= s/.so/.dylib/g
+win32 :    TARGETDEPS ~= s/.so/.a/g
+

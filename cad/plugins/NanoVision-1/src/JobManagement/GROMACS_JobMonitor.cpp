@@ -22,9 +22,9 @@ void GROMACS_JobMonitor::run() {
 	
 	QString title = tr("GROMACS process %1").arg(initString);
 	QString debugMessage =
-		tr("Emitting startedMonitoring(%1, %2)").arg(initString).arg(title);
+		tr("Emitting startedMonitoring(GMX, %1, %2)").arg(initString).arg(title);
 	NXLOG_DEBUG("GROMACS_JobMonitor", qPrintable(debugMessage));
-	emit startedMonitoring(initString, title);
+	emit startedMonitoring("GMX", initString, title);
 	
 	bool _aborted = aborted = false;
 	bool monitorError = false;

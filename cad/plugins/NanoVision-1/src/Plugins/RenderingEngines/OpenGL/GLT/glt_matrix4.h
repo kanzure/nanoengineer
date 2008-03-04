@@ -32,7 +32,12 @@
 
 #include <iosfwd>
 
+#if defined(__APPLE__)
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
+
 #include "glt_real.h"
 #include "glt_vector3.h"
 
@@ -75,6 +80,9 @@ public:
 	GltMatrix(const unsigned int glMatrix);
 	/// Construct from string
 	GltMatrix(const std::string &str);
+#if defined(__APPLE__)
+	GltMatrix(GLenum glMatrixMode);
+#endif
 
 	/// Assignment operator
 	GltMatrix &operator=(const GltMatrix &);

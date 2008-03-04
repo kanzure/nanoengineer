@@ -3,7 +3,6 @@ TEMPLATE = lib
 
 CONFIG += opengl \
  dll \
- debug \
  debug_and_release
 
 TARGET = NXOpenGLRendererPlugin
@@ -23,6 +22,8 @@ TARGETDEPS += ../../../../../../lib/libNXOpenGLSceneGraph.a \
  ../../../../../../lib/libGLT.a \
  ../../../../../../lib/libNanorexInterface.so \
  ../../../../../../lib/libNanorexUtility.so
+macx : TARGETDEPS ~= s/.so/.dylib/g
+win32 : TARGETDEPS ~= s/.so/.a/g
 
 DESTDIR = ../../../../../../lib
 
@@ -31,5 +32,11 @@ QMAKE_CXXFLAGS_DEBUG += -DNX_DEBUG \
  -O0 \
  -fno-inline
 
-CONFIG -= release
+LIBS += -L../../../../../../lib \
+ -lNanorexInterface \
+ -lNXOpenGLSceneGraph \
+ -lNanorexUtility \
+ -lGLT
+# qmake puts these library declarations too early in the g++ command on win32
+win32 : LIBS += -lopengl32 -lglu32 -lgdi32 -luser32
 

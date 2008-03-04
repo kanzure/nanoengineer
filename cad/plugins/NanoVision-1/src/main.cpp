@@ -47,8 +47,8 @@ int main(int argc, char *argv[]) {
 		logger->addHandler(logHandler);
 	}
 	
-	// Emit verbose config level log messages
-	NXLOG_CONFIG("main", "spew QSysInfo information here");
+	// TODO: Emit verbose config level log messages
+	NXLOG_CONFIG("main", "spew QSysInfo and OpenGL config information here");
 	
 	// Dock widget logging
 	LogHandlerWidget* logHandlerWidget =

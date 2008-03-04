@@ -18,7 +18,8 @@ class JobMonitor : public QThread {
 		virtual ~JobMonitor();
 		
 	signals:
-		void startedMonitoring(const QString& id, const QString& title);
+		void startedMonitoring(const QString& processType, const QString& id,
+							   const QString& title);
 		void jobFinished(const QString& id);
 		void jobAborted(const QString& id);
 	

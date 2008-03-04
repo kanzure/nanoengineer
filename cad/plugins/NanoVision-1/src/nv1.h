@@ -38,7 +38,8 @@ protected:
 
 public slots:
 	void updateMenus();
-	void addMonitoredJob(const QString& id, const QString& title);
+	void addMonitoredJob(const QString& processType, const QString& id,
+						 const QString& title);
 	void removeMonitoredJob(const QString& id);
 
 private slots:
