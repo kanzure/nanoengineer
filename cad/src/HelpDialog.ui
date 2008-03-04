@@ -1,7 +1,4 @@
 <ui version="4.0" >
- <author></author>
- <comment></comment>
- <exportmacro></exportmacro>
  <class>HelpDialog</class>
  <widget class="QDialog" name="HelpDialog" >
   <property name="geometry" >
@@ -18,15 +15,18 @@
   <property name="windowIcon" >
    <iconset/>
   </property>
-  <layout class="QVBoxLayout" >
+  <layout class="QGridLayout" >
    <property name="margin" >
-    <number>11</number>
+    <number>9</number>
    </property>
    <property name="spacing" >
     <number>6</number>
    </property>
-   <item>
+   <item row="0" column="0" >
     <widget class="QTabWidget" name="help_tab" >
+     <property name="currentIndex" >
+      <number>2</number>
+     </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
        <string>Mouse Controls</string>
@@ -59,9 +59,25 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_2" >
+      <attribute name="title" >
+       <string>Selection Shortcuts</string>
+      </attribute>
+      <layout class="QGridLayout" >
+       <property name="margin" >
+        <number>0</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
+       </property>
+       <item row="0" column="0" >
+        <widget class="QTextBrowser" name="selection_shortcuts_textbrowser" />
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
-   <item>
+   <item row="1" column="0" >
     <layout class="QHBoxLayout" >
      <property name="margin" >
       <number>0</number>
@@ -97,7 +113,6 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11" />
- <pixmapfunction></pixmapfunction>
  <resources/>
  <connections>
   <connection>

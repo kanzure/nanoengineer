@@ -41,8 +41,9 @@ class Ne1HelpDialog(QWidget, Ui_HelpDialog):
         
         self.setWindowIcon(geticon('ui/border/MainWindow'))
         
-        if self.help_tab.currentIndex() == 0:
-            self._setup_mouse_controls_page()
+        self._setup_mouse_controls_page()
+        self.help_tab.setCurrentIndex(0)
+ 
         return
     
     def showDialog(self, pagenum):
@@ -51,6 +52,7 @@ class Ne1HelpDialog(QWidget, Ui_HelpDialog):
         pagenum is the page number, where:
         0 = Mouse Controls
         1 = Keyboard Shortcuts
+        2 = Selection Shortcuts
         """
         self.help_tab.setCurrentIndex(pagenum) # Sends signal to setup_current_page()
         
