@@ -122,6 +122,7 @@ def setupUi(win):
     win.connect(win.helpAboutAction,SIGNAL("triggered()"),win.helpAbout)
     win.connect(win.helpGraphicsCardAction,SIGNAL("triggered()"),win.helpGraphicsCard)
     win.connect(win.helpKeyboardShortcutsAction,SIGNAL("triggered()"),win.helpKeyboardShortcuts)
+    win.connect(win.helpSelectionShortcutsAction,SIGNAL("triggered()"),win.helpSelectionShortcuts)
     win.connect(win.helpMouseControlsAction,SIGNAL("triggered()"),win.helpMouseControls)
     win.connect(win.helpWhatsThisAction,SIGNAL("triggered()"),win.helpWhatsThis)
     #win.connect(win.buildDnaAction,SIGNAL("triggered()"),win.insertDna)

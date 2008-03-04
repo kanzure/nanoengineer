@@ -745,6 +745,9 @@ def setupUi(win):
 
     win.helpKeyboardShortcutsAction = QtGui.QAction(MainWindow)
     win.helpKeyboardShortcutsAction.setObjectName("helpKeyboardShortcutsAction")
+    
+    win.helpSelectionShortcutsAction = QtGui.QAction(MainWindow)
+    win.helpSelectionShortcutsAction.setObjectName("helpSelectionShortcutsAction")
 
     win.helpGraphicsCardAction = QtGui.QAction(MainWindow)
     win.helpGraphicsCardAction.setObjectName("helpGraphicsCardAction")
@@ -1572,6 +1575,11 @@ def retranslateUi(win):
     win.helpMouseControlsAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Mouse Controls", None, QtGui.QApplication.UnicodeUTF8))
     win.helpKeyboardShortcutsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Keyboard Shortcuts...", None, QtGui.QApplication.UnicodeUTF8))
     win.helpKeyboardShortcutsAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Keyboard Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
+    win.helpSelectionShortcutsAction.setIconText(QtGui.QApplication.translate("MainWindow", "Selection Shortcuts...", None, QtGui.QApplication.UnicodeUTF8))
+    win.helpSelectionShortcutsAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Selection Shortcuts", None, QtGui.QApplication.UnicodeUTF8))
+    
+    
+    
 
     # Other QActions not used in menus. These QActions are used in toolbars,
     # context menus, etc.

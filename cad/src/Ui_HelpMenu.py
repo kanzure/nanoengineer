@@ -16,6 +16,7 @@ def setupUi(win):
     # Populate the "Help" menu.
     win.helpMenu.addAction(win.helpKeyboardShortcutsAction)
     win.helpMenu.addAction(win.helpMouseControlsAction)
+    win.helpMenu.addAction(win.helpSelectionShortcutsAction)
     win.helpMenu.addAction(win.helpWhatsThisAction)
     win.helpMenu.addSeparator()
     win.helpMenu.addAction(win.helpGraphicsCardAction)

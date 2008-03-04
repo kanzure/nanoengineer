@@ -1099,6 +1099,9 @@ class MWsemantics(QMainWindow,
 
     def helpKeyboardShortcuts(self):
         self.help.showDialog(1)
+        
+    def helpSelectionShortcuts(self):
+        self.help.showDialog(2)
 
     def helpGraphicsCard(self):
         """
