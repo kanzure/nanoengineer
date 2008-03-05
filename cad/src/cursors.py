@@ -102,30 +102,30 @@ def loadCursors(w):
     # Build Atoms - Bond Tool cursors with no modkey pressed
     w.BondToolCursor = []
     w.BondToolCursor.append(QCursor(getCursorPixmap("SelectAtomsCursor.png"), 0, 0))
-    w.BondToolCursor.append(loadCursor("Bond1ToolCursor", 0, 0))
-    w.BondToolCursor.append(loadCursor("Bond2ToolCursor", 0, 0))
-    w.BondToolCursor.append(loadCursor("Bond3ToolCursor", 0, 0))
-    w.BondToolCursor.append(loadCursor("BondAToolCursor", 0, 0))
-    w.BondToolCursor.append(loadCursor("BondGToolCursor", 0, 0))
-    w.BondToolCursor.append(loadCursor("CutBondCursor", 0, 0))    
+    w.BondToolCursor.append(QCursor(getCursorPixmap("Bond1ToolCursor.png"), 0, 0))
+    w.BondToolCursor.append(QCursor(getCursorPixmap("Bond2ToolCursor.png"), 0, 0))
+    w.BondToolCursor.append(QCursor(getCursorPixmap("Bond3ToolCursor.png"), 0, 0))
+    w.BondToolCursor.append(QCursor(getCursorPixmap("BondAToolCursor.png"), 0, 0))
+    w.BondToolCursor.append(QCursor(getCursorPixmap("BondGToolCursor.png"), 0, 0))
+    w.BondToolCursor.append(QCursor(getCursorPixmap("CutBondCursor.png"), 0, 0))
 
     # Build Atoms - Bond Tool cursors with Shift modkey pressed
     w.BondToolAddCursor = []
     w.BondToolAddCursor.append(QCursor(getCursorPixmap("SelectAtomsAddCursor.png"), 0, 0))
-    w.BondToolAddCursor.append(loadCursor("Bond1ToolAddCursor", 0, 0))
-    w.BondToolAddCursor.append(loadCursor("Bond2ToolAddCursor", 0, 0))
-    w.BondToolAddCursor.append(loadCursor("Bond3ToolAddCursor", 0, 0))
-    w.BondToolAddCursor.append(loadCursor("BondAToolAddCursor", 0, 0))
-    w.BondToolAddCursor.append(loadCursor("BondGToolAddCursor", 0, 0))
+    w.BondToolAddCursor.append(QCursor(getCursorPixmap("Bond1ToolAddCursor.png"), 0, 0))
+    w.BondToolAddCursor.append(QCursor(getCursorPixmap("Bond2ToolAddCursor.png"), 0, 0))
+    w.BondToolAddCursor.append(QCursor(getCursorPixmap("Bond3ToolAddCursor.png"), 0, 0))
+    w.BondToolAddCursor.append(QCursor(getCursorPixmap("BondAToolAddCursor.png"), 0, 0))
+    w.BondToolAddCursor.append(QCursor(getCursorPixmap("BondGToolAddCursor.png"), 0, 0))
 
     # Build Atoms - Bond Tool cursors with Control/Cmd modkey pressed
     w.BondToolSubtractCursor = []
     w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("SelectAtomsSubtractCursor.png"), 0, 0))
-    w.BondToolSubtractCursor.append(loadCursor("Bond1ToolSubtractCursor", 0, 0))
-    w.BondToolSubtractCursor.append(loadCursor("Bond2ToolSubtractCursor", 0, 0))
-    w.BondToolSubtractCursor.append(loadCursor("Bond3ToolSubtractCursor", 0, 0))
-    w.BondToolSubtractCursor.append(loadCursor("BondAToolSubtractCursor", 0, 0))
-    w.BondToolSubtractCursor.append(loadCursor("BondGToolSubtractCursor", 0, 0))
+    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("Bond1ToolSubtractCursor.png"), 0, 0))
+    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("Bond2ToolSubtractCursor.png"), 0, 0))
+    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("Bond3ToolSubtractCursor.png"), 0, 0))
+    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("BondAToolSubtractCursor.png"), 0, 0))
+    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("BondGToolSubtractCursor.png"), 0, 0))
 
     # Select Chunks cursors
     w.SelectArrowCursor = QCursor(getCursorPixmap("SelectArrowCursor"), 0, 0)
