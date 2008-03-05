@@ -85,7 +85,7 @@ from debug_prefs import debug_pref, Choice_boolean_False, Choice
 from changedicts import register_changedict, register_class_changedicts
 
 from utilities.Printing import Vector3ToString
-from utilities.Log import orangemsg
+from utilities.Log import orangemsg, redmsg
 
 from constants import genKey
 
@@ -2145,19 +2145,27 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         elif key == ['dnaBaseName']: # Mark 2007-08-16
             try:
                 self.setDnaBaseName(val)
-            except:
-                print "Found Atom info record with problem: "\
-                      "dnaBaseName = %r, "\
-                      "atom = %r (continuing)" % (val, self.element.name)
+            except Exception, e:
+                #bruce 080304 revised printed error, added history summary
+                print "Error in mmp record, info atom dnaBaseName: %s" \
+                      " (continuing)" % (e,)
+                msg = "Error: illegal DNA base name on [N] atom(s) " \
+                      "(see console prints for details)"
+                summary_format = redmsg( msg )
+                env.history.deferred_summary_message(summary_format)
                 pass
         
         elif key == ['dnaStrandName']: # Mark 2007-09-04
             try:
                 self.setDnaStrandName(val)
-            except:
-                print "Found Atom info record with problem: "\
-                      "dnaStrandName = %r, "\
-                      "atom = %r (continuing)" % (val, self.element.name)
+            except Exception, e:
+                #bruce 080304 revised printed error, added history summary
+                print "Error in mmp record, info atom dnaStrandName: %s" \
+                      " (continuing)" % (e,)
+                msg = "Error: illegal DNA strand name on [N] atom(s) " \
+                      "(see console prints for details)"
+                summary_format = redmsg( msg )
+                env.history.deferred_summary_message(summary_format)
                 pass
                  
         else:
@@ -3863,15 +3871,15 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         
         """
         assert self.element.symbol in ('Se3', 'Ss3', 'Sj3', 'Ss5', 'Sj5', 'Sh5'), \
-            "Can only assign dnaBaseNames to Ss or Sj or Sh (PAM) atoms. \
-            Attempting to assign dnaBaseName %r to element %r." \
-            % (dnaBaseName, self.element.name)
+            "Can only assign dnaBaseNames to PAM strand sugar atoms. " \
+            "Attempting to assign dnaBaseName %r to %r of element %r." \
+            % (dnaBaseName, self, self.element.name)
         
         # Make sure dnaBaseName has all valid characters.
         
         for c in dnaBaseName:
             if not c in string.letters:
-                assert 0, "%r is not a valid dnaBaseName name." % (dnaBaseName)
+                assert 0, "%r is not a valid dnaBaseName name." % (dnaBaseName,)
                 
         self.dnaBaseName = dnaBaseName
         
@@ -3927,12 +3935,11 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         @type  dnaStrandName: str
         
         @raise: If self is not a Pe or Pl or Se atom.
-        
         """
         assert self.element.symbol in ('Se3', 'Pe5', 'Pl5'), \
-            "Can only assign dnaStrandNames to Se, Pe or Pl (PAM) atoms. \
-            Attempting to assign dnaStrandName %r to element %r." \
-            % (dnaStrandName, self.element.name)
+            "Can only assign dnaStrandNames to Se, Pe or Pl (PAM) atoms. " \
+            "Attempting to assign dnaStrandName %r to %r of element %r." \
+            % (dnaStrandName, self, self.element.name)
         
         # Make sure dnaStrandName has all valid characters.
         #@ Need to allow digits and letters. Mark 2007-09-04
@@ -3940,7 +3947,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         for c in dnaStrandName:
             if not c in string.letters:
                 assert 0, "Strand name %r has an invalid character (%r)." \
-                       % (dnaStrandName, c)"""
+                       % (dnaStrandName, c)
+            """
                 
         self.dnaStrandName = dnaStrandName
         
@@ -4343,8 +4351,11 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         axis_neighbors = filter( lambda atom: atom.element.role == 'axis',
                                  self.neighbors())
         if axis_neighbors:
-            assert len(axis_neighbors) == 1
-                # stub, since the updater checks needed to ensure this are NIM as of 071203
+            assert len(axis_neighbors) == 1, \
+                   "%r.axis_neighbor() finds more than one: %r" % \
+                   (self, axis_neighbors)
+                # stub, since the updater checks needed to ensure this
+                # are NIM as of 071203
             return axis_neighbors[0]
         return None
 
