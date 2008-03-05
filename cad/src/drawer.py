@@ -1111,6 +1111,8 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         self.dl = 0             # The display list called for the current appearance.
         self.color_dl = 0       # Second-level display list setting color and calling sublists
         self.nocolor_dl = 0     # 2nd level call-list without colors, used for color over-ride.
+        self.selected = False   # Whether to draw in the selection over-ride color.
+        self.selected_dl = 0    # 2nd level call-list with a single over-ride color.
         self.per_color_dls = [] # Per-color sublists.
         return
 
@@ -1118,7 +1120,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         """
         Check for empty state.
         """
-        return self.dl or self.color_dl or self.nocolor_dl or \
+        return self.dl or self.color_dl or self.nocolor_dl or self.selected_dl or \
                self.per_color_dls and len(self.per_color_dls)
 
     def activate(self):
@@ -1128,6 +1130,21 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         self.dl = glGenLists(1) # Display list id for the current appearance.
         assert type(self.dl) in (type(1), type(1L)) #bruce 070521 added these two asserts
         assert self.dl != 0     # This failed on Linux, keep checking. (bug 2042)
+        return
+
+    def selectPick(self, boolVal):
+        """
+        Remember whether we're selected or not.
+        """
+        self.selected = boolVal
+        self.selectDl()
+        return
+
+    def selectDl(self):
+        """
+        Change to either the normal-color display list or the selected one.
+        """
+        self.dl = self.selected and self.selected_dl or self.color_dl
         return
 
     def reset(self):
@@ -1144,7 +1161,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         """
         Free any allocated display lists.
         """
-        for dl in [self.dl, self.color_dl, self.nocolor_dl] + \
+        for dl in [self.dl, self.color_dl, self.nocolor_dl, self.selected_dl] + \
                  [dl for clr, dl in self.per_color_dls]:
             if dl != 0:
                 glDeleteLists(dl, 1)
@@ -1333,7 +1350,7 @@ class ColorSorter:
 
     schedule_cylinder = staticmethod(schedule_cylinder)
 
-    def schedule_polycone(color, pos_array, rad_array, opacity = 1.0):
+    def schedule_polycone(color, pos_array, rad_array, capped = 0, opacity = 1.0):
         """
         Schedule a polycone for rendering whenever ColorSorter thinks is
         appropriate.
@@ -1344,7 +1361,7 @@ class ColorSorter:
             else:
                 lcolor = color
             assert 0, "Need to implement a C add_polycone function."
-            ColorSorter._cur_shapelist.add_polycone(Lcolor, pos_array, rad_array,
+            ColorSorter._cur_shapelist.add_polycone(lcolor, pos_array, rad_array,
                                                     ColorSorter._gl_name_stack[-1], capped)
         else:
             if len(color) == 3:		
@@ -1482,7 +1499,8 @@ class ColorSorter:
                     glEndList()
                     continue
 
-                # Now the two second-level lists, one with colors and the other without.
+                # Now the second-level lists.
+                # One with colors.
                 color_dl = parent_csdl.color_dl = glGenLists(1)
                 glNewList(color_dl, GL_COMPILE)
                 for color, dl in parent_csdl.per_color_dls:
@@ -1491,6 +1509,7 @@ class ColorSorter:
                     continue
                 glEndList()
 
+                # Another one without any colors.
                 nocolor_dl = parent_csdl.nocolor_dl = glGenLists(1)
                 glNewList(nocolor_dl, GL_COMPILE)
                 for color, dl in parent_csdl.per_color_dls:
@@ -1498,9 +1517,16 @@ class ColorSorter:
                     continue
                 glEndList()
 
-                # Default to the normal-color list.
-                parent_csdl.dl = color_dl
-                glCallList(color_dl) # Draw it now.
+                # A third overlaying the second one with a single color for selection.
+                selected_dl = parent_csdl.selected_dl = glGenLists(1)
+                glNewList(selected_dl, GL_COMPILE)
+                apply_material(darkgreen)
+                glCallList(nocolor_dl)
+                glEndList()
+
+                # Use either the normal-color display list or the selected one.
+                parent_csdl.selectDl()
+                glCallList(parent_csdl.dl) # Draw it now.
                 pass
 
             ColorSorter.sorted_by_color = None

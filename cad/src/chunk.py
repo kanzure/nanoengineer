@@ -2583,8 +2583,10 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             #Note: There needs to be a user preference that will allow user to 
             # select the chunk as a wireframe --  ninad
             
-            self.havelist = 0 
-                        
+            #### russ 080303: Back again to display lists, this time color-sorted.
+            ####self.havelist = 0
+            self.displist.selectPick(True)
+
         return
     
     def unpick(self):
@@ -2611,7 +2613,9 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # See also comments in 'def pick'... this sped up deselection
             # of the same example mentioned there by about 1.5-2 seconds.
             
-            self.havelist = 0 
+            #### russ 080303: Back again to display lists, this time color-sorted.
+            ####self.havelist = 0 
+            self.displist.selectPick(False)
             
         return
     
