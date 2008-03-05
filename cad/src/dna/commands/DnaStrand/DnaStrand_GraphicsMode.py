@@ -41,11 +41,19 @@ class DnaStrand_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         #@see: comment in DnaSegment_GraphicsMode.leftUp on why the following 
         #doesn't call command.preview_finialize_structure before calling 
         #command.Done()
-        if self.cursor_over_when_LMB_pressed == 'Empty Space':
-            self.command.Done()
+        #IMPLEMENTATION CHANGE 2008-03-05. 
+        #Due to an implementation change, user is not allowed to 
+        #exit this command by simply clicking onto empty space. So following 
+        #is commented out. (Keeping it for now just in case we change our mind
+        #soon. If you see this code being commented out even after 1 or 2 months
+        #from the original comment date, please just delete it. 
+        #--Ninad 2008-03-05
+        ##if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            ##self.command.Done()
     
     def Draw(self):
         """
+        Draw this DnaStrand object and its contents including handles (if any.)
         """
         if self._handleDrawingRequested:
             self._drawHandles()     

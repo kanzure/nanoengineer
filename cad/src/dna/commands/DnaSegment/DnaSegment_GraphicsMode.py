@@ -273,20 +273,27 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         if self.command and self.command.handles:
             if not self._handleDrawingRequested:
                 self._handleDrawingRequested = True
-                    
-        if self.cursor_over_when_LMB_pressed == 'Empty Space':   
-            #Exit this command by directly calling command.Done. 
-            #This skips call of command.preview_or_finalize_structure
-            #Not calling 'preview_or_finialize_structure before calling 
-            #command.Done(), has an advantage. As of 2008-02-20, we
-            #remove the structure (segment) and recreate it upon done. 
-            #This also removes, for instance, any cross overs you created 
-            #earlier. although same thing happens when you hit 'Done button', 
-            #it is likely to happen by accident while you are in segment edit 
-            #mode and just click on empty space, Therefore, we simply call 
-            #Command.Done(). See a related bug mentioned in 
-            #DnaSegment_EditCommand.setStructureName
-            self.command.Done()
+        
+        #IMPLEMENTATION CHANGE 2008-03-05. 
+        #Due to an implementation change, user is not allowed to 
+        #exit this command by simply clicking onto empty space. So following 
+        #is commented out. (Keeping it for now just in case we change our mind
+        #soon. If you see this code being commented out even after 1 or 2 months
+        #from the original comment date, please just delete it. 
+        #--Ninad 2008-03-05        
+        ##if self.cursor_over_when_LMB_pressed == 'Empty Space':   
+            ###Exit this command by directly calling command.Done. 
+            ###This skips call of command.preview_or_finalize_structure
+            ###Not calling 'preview_or_finialize_structure before calling 
+            ###command.Done(), has an advantage. As of 2008-02-20, we
+            ###remove the structure (segment) and recreate it upon done. 
+            ###This also removes, for instance, any cross overs you created 
+            ###earlier. although same thing happens when you hit 'Done button', 
+            ###it is likely to happen by accident while you are in segment edit 
+            ###mode and just click on empty space, Therefore, we simply call 
+            ###Command.Done(). See a related bug mentioned in 
+            ###DnaSegment_EditCommand.setStructureName
+            ##self.command.Done()
 
 
     def leftDrag(self, event):
