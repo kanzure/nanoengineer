@@ -48,7 +48,7 @@ from DnaDuplexPropertyManager import DnaDuplexPropertyManager
 from constants import gensym
 
 
-from Dna_Constants import getNumberOfBasePairsFromDuplexLength, getDuplexRise
+from Dna_Constants import getNumberOfBasePairsFromDuplexLength
 from Dna_Constants import getDuplexLength
 
 
@@ -199,7 +199,7 @@ class DnaDuplex_EditCommand(EditCommand):
             #Should this be an assertion? Should we always kill _parentDnaGroup
             #if its not None? ..not a good idea. Lets just make it to None. 
             self._parentDnaGroup = None             
-            self._fallbackDnaGroup = self._createFallbackDnaGroup()
+            self._createFallbackDnaGroup()
 
     def restore_gui(self):
         """
@@ -598,12 +598,12 @@ class DnaDuplex_EditCommand(EditCommand):
         assert temporaryModeName == 'DNA_LINE_MODE'
 
         mouseClickLimit = None
-        #duplexRise =  getDuplexRise('B-DNA')
-        jigList = self.win.assy.getSelectedJigs()
+        duplexRise =  self.getDuplexRise()
 
         callback_cursorText = self.getCursorTextForTemporaryMode
         callback_snapEnabled = self.isRubberbandLineSnapEnabled
         callback_rubberbandLineDisplay = self.getDisplayStyleForRubberbandLine
+        
         return (mouseClickLimit, 
                 duplexRise, 
                 callback_cursorText, 
