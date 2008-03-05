@@ -160,7 +160,7 @@ Z_AXIS = V(0,0,1)
 class Q(DataMixin): # by Josh; some comments and docstring revised by bruce 050518
     """
     Q(W, x, y, z) is the quaternion with axis vector x,y,z
-    and sin(theta/2) = W
+    and cos(theta/2) = W
     (e.g. Q(1,0,0,0) is no rotation [used a lot])
     [Warning: the python argument names are not in the same order as in
      the usage-form above! This is not a bug, just possibly confusing.]
