@@ -351,7 +351,11 @@ class DnaChain(object):
                     next_atom_candidates.remove(not_this_atom)
                         # it has to be there, so we don't mind raising an
                         # exception when it's not
-                    assert len(next_atom_candidates) <= 1
+                    assert len(next_atom_candidates) <= 1, \
+                           "too many candidates: %r" % (next_atom_candidates,)
+                        # Note: got exception here when lots of Ss had two
+                        # Ax neighbors due to errors in an mmp file;
+                        # assertion message untested [080304]
                     if next_atom_candidates:
                         next_atom = next_atom_candidates[0]
                         if next_atom._dna_updater__error:

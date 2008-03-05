@@ -78,9 +78,25 @@ def fix_local_bond_directions( changed_atoms):
             # note: at this stage we might have Ss or Pl;
             # valence has not been checked (in code as of 080123)
 
-            # todo: catch exceptions from _fix_atom_or_return_error_info,
-            # turn them into errors
-            error_info = _fix_atom_or_return_error_info(atom)
+            # catch specially labelled AssertionErrors from
+            # _fix_atom_or_return_error_info;
+            # turn them into errors, history summaries
+            # (needed here? or done more generally for them all, elsewhere?),
+            # and console prints
+            try:
+                error_info = _fix_atom_or_return_error_info(atom)
+            except AssertionError, e:
+                e_string = "%s" % (e,)
+                if not e_string.startswith("__ERROR:"):
+                    raise
+                # it's a specially labelled exception meant to become
+                # an updater error string
+                print "%s: %r (neighbors: %r)" % (e_string, atom, atom.neighbors())
+                # TODO: history summary needed? better error_data string?
+                prefix = "" # STUB
+                error_data = prefix + e_string[len("__ERROR:"):].strip()
+                error_info = _ATOM_HAS_ERROR, error_data
+                pass
         
         if error_info:
             error_type, error_data = error_info
@@ -142,19 +158,54 @@ def _same_base_pair_atoms(atom):
     detected dna updater errors; for that use it's important to propogate
     across rung bonds, so that strand and axis chains cover the same set of
     base pairs.)
+
+    @note: since we are used to report errors, we have to work even
+    if there are arbitrary errors, including errors in how many atoms of
+    what elements are bonded to a given atom. But, we don't want to consider
+    too many atoms to be part of one base pair... or do we? For now, we will
+    propogate errors across any number of "rung bonds", regardless
+    of how many atoms this reaches.
     """
     # POSSIBLE OPTIM: in current calling code, atom itself needs to be part of
     # our return value. This could be revised, permitting this to return
     # a constant value of () in some cases.
-    if atom.element.role == 'strand':
-        axis_atom = atom.axis_neighbor() # might be None (for Pl or single-stranded)
-        if not axis_atom:
-            return (atom,)
-    elif atom.element.role == 'axis':
-        axis_atom = atom
-    else:
-        return (atom,)
-    return [axis_atom] + axis_atom.strand_neighbors()
+
+    # implem note: for speed, we don't use the utility function transclose,
+    # and we use special case optimizations based on the kind of atoms and
+    # bonds we are looking for. [implem rewritten, bruce 080304]
+    look_at_these = {atom.key : atom} # atoms we still need to explore
+    found = {} # atoms found in prior steps
+    have_role = atom.element.role # role of all atoms in look_at_these
+        # (where strand implies not Pl, in this loop but not in general;
+        #  we take no steps to exclude it explicitly, since it will not
+        #  be included in correct structures due to only crossing
+        #  strand-axis bonds)
+    # look for neighbor atoms of alternating roles
+    while look_at_these:
+        found.update(look_at_these)
+        next = {}
+        next_role = (have_role == 'axis' and 'strand' or 'axis')
+        for atom1 in look_at_these.itervalues():
+            assert have_role == atom1.element.role # remove when works
+            for atom2 in atom1.neighbors():
+                # maybe add atom2 to next, if suitable and not in found
+                if atom2.element.role == next_role and not found.has_key(atom2.key):
+                    next[atom2.key] = atom2
+                continue
+            continue
+        look_at_these = next
+        have_role = next_role
+        continue
+    return found.values()
+##    if atom.element.role == 'strand':
+##        axis_atom = atom.axis_neighbor() # might be None (for Pl or single-stranded)
+##        if not axis_atom:
+##            return (atom,)
+##    elif atom.element.role == 'axis':
+##        axis_atom = atom
+##    else:
+##        return (atom,)
+##    return [axis_atom] + axis_atom.strand_neighbors()
     
 # ==
 
@@ -164,6 +215,9 @@ _ATOM_HAS_ERROR = 1
 def _fix_atom_or_return_error_info(atom):
     """
     [private helper for fix_local_bond_directions]
+
+    note: at this stage we might have Ss or Pl;
+    valence has not been checked (in code as of 080123)
 
     If atom looks fine (re directional bonds), do nothing and return None.
 
@@ -194,7 +248,9 @@ def _fix_atom_or_return_error_info(atom):
     num_plus_open = 0
     num_minus_open = 0
     num_unset_open = 0
-        
+
+    neighbors = []
+    
     for bond in atom.bonds:
         direction = bond.bond_direction_from(atom)
         neighbor = bond.other(atom)
@@ -202,6 +258,7 @@ def _fix_atom_or_return_error_info(atom):
             # bond.is_directional and bond.is_open_bond,
             # since we know enough about atom that only neighbor
             # can affect their values.
+        neighbors += [neighbor]
         is_directional = neighbor.element.bonds_can_be_directional
         is_open_bond = (neighbor.element is Singlet)
 
@@ -229,6 +286,68 @@ def _fix_atom_or_return_error_info(atom):
             pass
         continue # next bond of atom
 
+    # first check for a legal set of neighbors [new feature, bruce 080304];
+    # for simpler code, we'll report errors as exceptions with unvarying text
+    # and a standard prefix recognized by caller, and let caller convert those
+    # to error strings (and also print them with name of specific atom). #### @@@@@ DOIT
+    #
+    # (note, someday this might be done more generally by an earlier
+    #  updater stage)
+    # (note, this is not complete, just enough to catch some errors
+    #  noticed in test files on 080304)
+    
+    if atom.element.symbol.startswith("Pl"): # KLUGE
+        # permit only strand atoms (not Pl) and bondpoints as neighbors, valence 2
+        assert len(atom.bonds) == 2, "__ERROR: Pl valence must be 2"
+        for neighbor in neighbors:
+            element = neighbor.element
+            assert element is Singlet or \
+                   (element.role == 'strand' and
+                    not element.symbol.startswith("Pl")), \
+                    "__ERROR: Pl has non-permitted neighbor element %s" % element.symbol
+    elif atom.element.role == 'strand':
+        # other strand atoms (Ss or equivalent) must have 2 bonds to other strand atoms (Pl or not) or bondpoints,
+        # and 1 bond to an axis atom or a bondpoint or (doesn't yet happen) 1 or 2 unpaired base atoms.
+        num_bondpoint = 0
+        num_strand = 0
+        num_axis = 0
+        num_unpaired_base = 0
+        for neighbor in neighbors:
+            element = neighbor.element
+            role = element.role
+            if element is Singlet:
+                num_bondpoint += 1
+            elif role == 'strand':
+                num_strand += 1
+            elif role == 'axis':
+                num_axis += 1
+            elif role == 'unpaired-base':
+                num_unpaired_base += 1
+            else:
+                assert 0, \
+                       "__ERROR: strand sugar has non-permitted " \
+                       "neighbor element %s" % element.symbol
+            continue
+        assert num_strand <= 2, \
+               "__ERROR: strand sugar has more than 2 strand bonds"
+        assert num_axis <= 1, \
+               "__ERROR: strand sugar has more than one axis bond"
+        assert num_unpaired_base <= 2, \
+               "__ERROR: strand sugar has more than two unpaired base neighbors"
+        assert num_bondpoint + num_strand + num_axis + \
+               (not not num_unpaired_base) == 3, \
+               "__ERROR: strand sugar has wrong number of bonds"
+    else:
+        # should never happen, so no valence or neighbor checks are
+        # implemented here, but print a nim warning
+        print "BUG: fix_bond_directions got %r of unexpected element %s" % (atom, element.symbol)
+        msg = "BUG: fix_bond_directions got [N] atom(s) of unexpected element %s" % element.symbol
+        summary_format = redmsg( msg )
+        env.history.deferred_summary_message(summary_format)
+        pass
+
+    # now look at actual bond directions.
+    #
     # what to look for, for all to be already ok: ### REVIEW -- correct and complete? I think so, but re-check it...
     # (might optim the above to only check for that first -- usual case)
     # considering directional bonds (dirbonds) only:
@@ -445,7 +564,7 @@ def _clear_illegal_direction(bond):
     """    
     bond.clear_bond_direction()
 
-    summary_format = "Warning: dna updater cleared [N] bond directions on pseudoelements that don't permit one"
+    summary_format = "Warning: dna updater cleared [N] bond direction(s) on pseudoelements that don't permit one"
     env.history.deferred_summary_message( orangemsg(summary_format) )
     return
 
