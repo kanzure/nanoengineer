@@ -82,6 +82,7 @@ ORIGIN = V(0,0,0)
 #display and computation while in DnaSegment_EditCommand
 DEBUG_ROTATION_HANDLES = False
 
+
 class DnaSegment_EditCommand(State_preMixin, EditCommand):
     """
     Command to edit a DnaSegment object. 
@@ -359,6 +360,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """
 
         params = self._gatherParameters()
+        
 
         # No error checking in build_struct, do all your error
         # checking in gather_parameters
@@ -420,11 +422,10 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         # --Part.ensure_toplevel_group method. This is an important line
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
-        if 1:
-            dnaSegment = DnaSegment(self.name, 
-                                    self.win.assy,
-                                    self.win.assy.part.topnode,
-                                    editCommand = self  )
+        dnaSegment = DnaSegment(self.name, 
+                                self.win.assy,
+                                self.win.assy.part.topnode,
+                                editCommand = self  )
         try:
             # Make the DNA duplex. <dnaGroup> will contain three chunks:
             #  - Strand1
@@ -437,8 +438,24 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                      duplexRise,
                      endPoint1,
                      endPoint2)
-
-
+            
+            #set some properties such as duplexRise and number of bases per turn
+            #This information will be stored on the DnaSegment object so that
+            #it can be retrieved while editing this object. 
+            #This works with or without dna_updater. Now the question is 
+            #should these props be assigned to the DnaSegment in 
+            #dnaDuplex.make() itself ? This needs to be answered while modifying
+            #make() method to fit in the dna data model. --Ninad 2008-03-05
+            
+            #WARNING 2008-03-05: Since self._modifyStructure calls 
+            #self._createStructure() 
+            #If in the near future, we actually permit modifying a
+            #structure (such as dna) without actually recreating the whole 
+            #structre, then the following properties must be set in 
+            #self._modifyStructure as well. Needs more thought.
+            props = (duplexRise, basesPerTurn)            
+            dnaSegment.setProps(props)
+            
             return dnaSegment
 
         except (PluginBug, UserError):
@@ -579,16 +596,17 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         @see: B{self._modifyStructure}        
 
         As of 2008-02-01 it recreates the structure
+        @see: a note in self._createStructure() about use of dnaSegment.setProps 
         """
         if self.grabbedHandle is None:
-            return
+            return        
 
         self.propMgr.endPoint1 = self.grabbedHandle.fixedEndOfStructure
         self.propMgr.endPoint2 = self.grabbedHandle.currentPosition
         length = vlen(self.propMgr.endPoint1 - self.propMgr.endPoint2 )
         numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
                                                                  length )
-        self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
+        self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)       
 
         self.preview_or_finalize_structure(previewing = True)  
 

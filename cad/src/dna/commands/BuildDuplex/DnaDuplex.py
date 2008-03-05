@@ -30,6 +30,8 @@ from constants          import gensym, darkred, blue
 from constants          import diBALL, diTUBES
 from prefs_constants import dnaDefaultSegmentColor_prefs_key
 
+from dna.model.Dna_Constants import getDuplexBasesPerTurn
+
 from runSim import adjustSinglet
 
 from elements import PeriodicTable
@@ -66,6 +68,8 @@ class Dna:
     
     @note: Atomistic models are not supported.
     """
+    
+    
         
     def make(self, 
              group, 
@@ -116,6 +120,12 @@ class Dna:
         
         self.setNumberOfBasePairs(numberOfBasePairs)
         self.setBaseRise(duplexRise)
+        #See a note in DnaSegment_EditCommand._createStructure(). Should 
+        #the parentGroup object <group> be assigned properties such as
+        #duplexRise, basesPerTurn in this method itself? to be decided 
+        #once dna data model is fully functional (and when this method is 
+        #revised) -- Ninad 2008-03-05
+        self.setBasesPerTurn(basesPerTurn)
         
         def insertBaseFromMmp(filename, subgroup, tfm, position = position):
             """
@@ -387,6 +397,20 @@ class Dna:
         @type  inNumberOfBasePairs: int
         """
         self.numberOfBasePairs  =  inNumberOfBasePairs
+        
+    def setBasesPerTurn(self, basesPerTurn):
+        """
+        Sets the number of base pairs per turn
+        @param basesPerTurn: Number of bases per turn
+        @type  basesPerTurn: int
+        """
+        self.basesPerTurn = basesPerTurn
+    
+    def getBasesPerTurn(self):
+        """
+        returns the number of bases per turn in the duplex
+        """
+        return self.basesPerTurn
     
     pass
 
@@ -429,6 +453,9 @@ class B_Dna(Dna):
     form       =  "B-DNA"
     baseRise   =  dnaDict['B-DNA']['DuplexRise']
     handedness =  RIGHT_HANDED
+   
+    basesPerTurn = getDuplexBasesPerTurn('B-DNA')   
+    
     pass
 
 class B_Dna_PAM5(B_Dna):

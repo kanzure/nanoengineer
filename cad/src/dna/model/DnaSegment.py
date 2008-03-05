@@ -44,16 +44,17 @@ class DnaSegment(DnaStrandOrSegment):
     _mmp_group_classifications = ('DnaSegment',)
     
     _duplexRise = None
-    _numberOfBasesPerTurn = None
+    _basesPerTurn = None
         # TODO: undo or copy code for those attrs,
         # and updating them when the underlying structure changes.
         # But maybe that won't be needed, if they are replaced
         # by computing them from the atom geometry as needed.
         # [bruce 080227 comment]
     
-    def __init__(self, name, assy, dad, members = (), editCommand = None): 
-        self._duplexRise = None
-        self._numberOfBasesPerTurn = None
+    def __init__(self, name, assy, dad, members = (), editCommand = None):
+        
+        self._duplexRise = 3.18 #Default value.
+        self._basesPerTurn = 10 #Default value
         
         DnaStrandOrSegment.__init__(self, 
                                     name, 
@@ -307,7 +308,11 @@ class DnaSegment(DnaStrandOrSegment):
         @see: DnaDuplex_EditCommand.createStructure which calls this method. 
         @see: self.getProps, DnaSegment_EditCommand.editStructure        
         """        
-        self._duplexRise, self._numberOfBasesPerTurn = props
+        
+        duplexRise, basesPerTurn = props                
+        self.setDuplexRise(duplexRise) 
+        self.setBasesPerTurn(basesPerTurn)
+        
                     
     def getProps(self):
         """
@@ -315,26 +320,32 @@ class DnaSegment(DnaStrandOrSegment):
         @see: DnaSegment_EditCommand.editStructure where it is used. 
         @see: DnaSegment_PropertyManager.getParameters
         @see: DnaSegmentEditCommand._createStructure        
-        """                
-        
-        if self._duplexRise is None:
-            self._duplexRise = self._computeDuplexRise() 
-            
-       
-        if self._duplexRise is None:
-            #If its still none , hard code it to 3.18 as a precaution. 
-            self._duplexRise = 3.18
-        
-        if self._numberOfBasesPerTurn is None:
-            self._numberOfBasesPerTurn = 10                   
-                    
-        props = (self._duplexRise, self._numberOfBasesPerTurn)
+        """                                    
+        props = (self.getDuplexRise(), self.getBasesPerTurn())
         return props
+    
+    def getDuplexRise(self):
+        return self._duplexRise
+    
+    def setDuplexRise(self, duplexRise):
+        if duplexRise:
+            self._duplexRise = duplexRise   
+    
+    def getBasesPerTurn(self):
+        return self._basesPerTurn
+            
+    def setBasesPerTurn(self, basesPerTurn):
+        if basesPerTurn:
+            self._basesPerTurn = basesPerTurn
+                   
     
     def _computeDuplexRise(self):
         """
         Compute the duplex rise
         @see: self.getProps
+        
+        TODO: THIS METHOD IS DEPRECATED AS OF 2008-03-05 AND IS SCHEDULED
+        FOR REMOVAL. IT MIGHT HAVE BUGS. 
         """
         duplexRise = None
         numberOfAxisAtoms = self.getNumberOfAxisAtoms()   

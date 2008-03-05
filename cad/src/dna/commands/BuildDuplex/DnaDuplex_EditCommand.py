@@ -351,6 +351,7 @@ class DnaDuplex_EditCommand(EditCommand):
         structure and creates a new one using self._createStructure. This 
         was needed for the structures like this (Dna, Nanotube etc) . .
         See more comments in the method.
+        @see: a note in self._createSegment() about use of dnaSegment.setProps 
         """    
         assert self.struct
         # parameters have changed, update existing structure
@@ -576,6 +577,24 @@ class DnaDuplex_EditCommand(EditCommand):
                      duplexRise,
                      endPoint1,
                      endPoint2)
+            
+            #set some properties such as duplexRise and number of bases per turn
+            #This information will be stored on the DnaSegment object so that
+            #it can be retrieved while editing this object. 
+            #This works with or without dna_updater. Now the question is 
+            #should these props be assigned to the DnaSegment in 
+            #dnaDuplex.make() itself ? This needs to be answered while modifying
+            #make() method to fit in the dna data model. --Ninad 2008-03-05
+            
+            #WARNING 2008-03-05: Since self._modifyStructure calls 
+            #self._createStructure() (which in turn calls self._createSegment() 
+            #in this case) If in the near future, we actually permit modifying a
+            #structure (such as dna) without actually recreating the whole 
+            #structre, then the following properties must be set in 
+            #self._modifyStructure as well. Needs more thought.
+            props = (duplexRise, basesPerTurn)
+
+            dnaSegment.setProps(props)
 
             return dnaSegment
 
