@@ -1042,7 +1042,7 @@ class basicGraphicsMode(GraphicsMode_API):
         The default implementation just sets it to a simple arrow cursor
         (arrow cursor seen in selectMolsMode) 
         """
-        self.o.setCursor(self.w.MolSelCursor)
+        self.o.setCursor(self.w.SelectArrowCursor)
         
     def update_cursor_for_LMB(self): # mark 060228
         """
@@ -1063,7 +1063,7 @@ class basicGraphicsMode(GraphicsMode_API):
         elif self.o.modkeys == 'Control':
             self.o.setCursor(self.w.RotateZCursor)
         elif self.o.modkeys == 'Shift+Control':
-            self.o.setCursor(self.w.ZoomPOVCursor)
+            self.o.setCursor(self.w.ZoomPovCursor)
         else:
             print "Error in update_cursor_for_MMB(): Invalid modkey=", self.o.modkeys
         return

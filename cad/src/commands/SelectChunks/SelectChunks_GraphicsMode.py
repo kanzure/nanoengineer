@@ -659,13 +659,13 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #  self.o.button,"modkeys=",self.o.modkeys
 
         if self.o.modkeys is None:
-            ##print "seeing modkeys is None",self.w.MolSelCursor #bruce 070628
+            ##print "seeing modkeys is None",self.w.SelectArrowCursor #bruce 070628
             ##self.o.gl_update()  #bruce 070628, didn't help
-            self.o.setCursor(self.w.MolSelCursor)
+            self.o.setCursor(self.w.SelectArrowCursor)
         elif self.o.modkeys == 'Shift':
-            self.o.setCursor(self.w.MolSelAddCursor)
+            self.o.setCursor(self.w.SelectArrowAddCursor)
         elif self.o.modkeys == 'Control':
-            self.o.setCursor(self.w.MolSelSubCursor)
+            self.o.setCursor(self.w.SelectArrowSubtractCursor)
         elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:

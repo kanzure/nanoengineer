@@ -39,13 +39,13 @@ class RotateChunks_GraphicsMode(Move_GraphicsMode):
         """
         if self.o.modkeys is None:
             if self.isConstrainedDragAlongAxis:
-                self.o.setCursor(self.w.MolSelAxisRotTransCursor)
+                self.o.setCursor(self.w.AxisTranslateRotateSelectionCursor)
             else:
-                self.o.setCursor(self.w.MolSelRotCursor)		    
+                self.o.setCursor(self.w.RotateSelectionCursor)		    
         elif self.o.modkeys == 'Shift':
-            self.o.setCursor(self.w.MolSelRotAddCursor)
+            self.o.setCursor(self.w.RotateSelectionAddCursor)
         elif self.o.modkeys == 'Control':
-            self.o.setCursor(self.w.MolSelRotSubCursor)  
+            self.o.setCursor(self.w.RotateSelectionSubtractCursor)  
         elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:

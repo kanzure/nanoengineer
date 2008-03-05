@@ -164,7 +164,7 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
     output_dir = find_or_make_Nanorex_subdir("Nano-Hive") # ~/Nanorex/Nano-Hive
     
     # Put up the wait cursor.  The cursor will be restored by exit_nh().       
-    QApplication.setOverrideCursor( assy.w.SelectWaitCursor )
+    QApplication.setOverrideCursor( assy.w.ArrowWaitCursor )
     
     # 1. Try to connect to Nano-Hive, get socket.
     # 99% of the time, no socket will be returned since Nano-Hive hasn't been started yet.

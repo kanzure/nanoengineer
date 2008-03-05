@@ -7,6 +7,11 @@ cursors.py - load all the custom cursors needed by NE1
 @copyright: 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
 
 mark 060427 - loadCursors() moved from MWsemantics.py.
+
+To do: (Mark)
+- Find and replace all uses of self.o.setCursor(QCursor(Qt.ArrowCursor)) with
+self.o.setCursor(win.ArrowCursor)).
+- Replace all bitmap cursors with color PNG cursors.
 """
 
 from PyQt4.Qt import QCursor, QBitmap, Qt
@@ -123,28 +128,27 @@ def loadCursors(w):
     w.BondToolSubtractCursor.append(loadCursor("BondGToolSubtractCursor", 0, 0))
 
     # Select Chunks cursors
-    w.MolSelCursor = loadCursor("MolSelCursor", 0, 0) # was SelectMolsCursor
-    w.MolSelAddCursor = loadCursor("MolSelAddCursor", 0, 0) # was SelectMolsAddCursor
-    w.MolSelSubCursor = loadCursor("MolSelSubCursor", 0, 0) # was SelectMolsSubCursor
+    w.SelectArrowCursor = QCursor(getCursorPixmap("SelectArrowCursor"), 0, 0)
+    w.SelectArrowAddCursor = QCursor(getCursorPixmap("SelectArrowAddCursor"), 0, 0)
+    w.SelectArrowSubtractCursor = QCursor(getCursorPixmap("SelectArrowSubtractCursor"), 0, 0)
 
     # Translate selection cursors
-    w.MolSelTransCursor = loadCursor("MolSelTransCursor", 0, 0) # was MoveSelectCursor
-    w.MolSelTransAddCursor = loadCursor("MolSelTransAddCursor", 0, 0) # was MoveSelectAddCursor
-    w.MolSelTransSubCursor = loadCursor("MolSelTransSubCursor", 0, 0) # was MoveSelectSubtractCursor
+    w.TranslateSelectionCursor = QCursor(getCursorPixmap("TranslateSelectionCursor"), 0, 0)
+    w.TranslateSelectionAddCursor = QCursor(getCursorPixmap("TranslateSelectionAddCursor"), 0, 0)
+    w.TranslateSelectionSubtractCursor = QCursor(getCursorPixmap("TranslateSelectionSubtractCursor"), 0, 0)
 
     # Rotate selection cursors
-    w.MolSelRotCursor = loadCursor("MolSelRotCursor", 0, 0) # was MoveSelectCursor
-    w.MolSelRotAddCursor = loadCursor("MolSelRotAddCursor", 0, 0) # was MoveSelectAddCursor
-    w.MolSelRotSubCursor = loadCursor("MolSelRotSubCursor", 0, 0) # was MoveSelectSubtractCursor
+    w.RotateSelectionCursor = QCursor(getCursorPixmap("RotateSelectionCursor"), 0, 0)
+    w.RotateSelectionAddCursor = QCursor(getCursorPixmap("RotateSelectionAddCursor"), 0, 0)
+    w.RotateSelectionSubtractCursor = QCursor(getCursorPixmap("RotateSelectionSubtractCursor"), 0, 0)
 
-    # Misc rotate and translate cursors
-    w.MolSelAxisRotTransCursor = loadCursor("MolSelAxisRotTransCursor", -1, -1) # Shift accel key - was MoveAxisRotateMolCursor
-    #w.MolSelRotCursor = loadCursor("MolSelRotCursor", -1, -1) # Control/Cmd accel key - was MoveFreeRotateMolCursor
+    # Axis translation/rotation cursor
+    w.AxisTranslateRotateSelectionCursor = QCursor(getCursorPixmap("AxisTranslateRotateSelectionCursor"), 0, 0)
 
     # Build Crystal cursors
-    w.CookieCursor = loadCursor("CookieCursor", -1, -1)
-    w.CookieAddCursor = loadCursor("CookieAddCursor", -1, -1)
-    w.CookieSubtractCursor = loadCursor("CookieSubtractCursor", -1, -1)
+    w.CookieCursor = QCursor(getCursorPixmap("CookieCursor"), 0, 0)
+    w.CookieAddCursor = QCursor(getCursorPixmap("CookieAddCursor"), 0, 0)
+    w.CookieSubtractCursor = QCursor(getCursorPixmap("CookieSubtractCursor"), 0, 0)
 
     # View Zoom, Pan, Rotate cursors
     w.ZoomCursor = QCursor(getCursorPixmap("ZoomCursor.png"), 0, 0)
@@ -153,9 +157,9 @@ def loadCursors(w):
     w.RotateViewCursor = QCursor(getCursorPixmap("RotateViewCursor.png"), 0, 0)
 
     # Miscellaneous cursors
-    w.RotateZCursor = loadCursor("RotateZCursor", 0, 0)
-    w.ZoomPOVCursor = loadCursor("ZoomPOVCursor", -1, -1)
-    w.SelectWaitCursor = loadCursor("SelectWaitCursor", 0, 0)
+    w.RotateZCursor = QCursor(getCursorPixmap("RotateZCursor.png"), 0, 0)
+    w.ZoomPovCursor = QCursor(getCursorPixmap("ZoomPovCursor.png"), -1, -1)
+    w.ArrowWaitCursor = QCursor(getCursorPixmap("ArrowWaitCursor.png"), 0, 0)
     w.ArrowCursor = QCursor(Qt.ArrowCursor) #bruce 070627
 
     # Confirmation corner cursors [loaded by bruce 070626 from files committed by mark]
