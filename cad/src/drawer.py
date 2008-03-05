@@ -1393,13 +1393,16 @@ class ColorSorter:
         #russ 080225: Moved glNewList here for displist re-org.
         ColorSorter.parent_csdl = csdl # Remember, used by finish().
         if csdl != None:
-            parent_top = csdl.dl
             if not (allow_color_sorting and use_color_sorted_dls):
                 # This is the beginning of the single display list created when color
                 # sorting is turned off.  It is ended in ColorSorter.finish .  In
                 # between, the calls to draw{sphere,cylinder,polycone} methods pass
                 # through ColorSorter.schedule_* but are immediately sent to *_worker
                 # where they do OpenGL drawing that is captured into the display list.
+                
+                csdl.reset() #bruce 080304 try to fix major bug reported tonight
+                parent_top = csdl.dl #bruce 080304 moved this line inside the 'if' statement
+                
                 try:
                         glNewList(parent_top, GL_COMPILE_AND_EXECUTE) # Start single-level list.
                 except:

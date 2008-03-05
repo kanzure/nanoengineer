@@ -1924,7 +1924,10 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         Return the color tuple to use for drawing self, or None if
         per-atom colors should be used.
         """
-        if self.picked:
+        if self.picked and not (allow_color_sorting and use_color_sorted_dls):
+            #bruce disable this case when using use_color_sorted_dls
+            # since they provide a better way (might fix "stuck green" bug)
+            
             #ninad070405 Following draws the chunk as a colored selection 
             #(if selected)
             #bruce 080210 possible appearance change:
@@ -2611,10 +2614,13 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             #Note: There needs to be a user preference that will allow user to 
             # select the chunk as a wireframe --  ninad
 
-            #### russ 080303: Back again to display lists, this time color-sorted.
-            ####self.havelist = 0
-            self.displist.selectPick(True)
-
+            if (allow_color_sorting and use_color_sorted_dls):
+                # russ 080303: Back again to display lists, this time color-sorted.
+                self.displist.selectPick(True)
+            else:
+                self.havelist = 0
+            pass
+        
         return
 
     def unpick(self):
@@ -2641,9 +2647,12 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # See also comments in 'def pick'... this sped up deselection
             # of the same example mentioned there by about 1.5-2 seconds.
 
-            #### russ 080303: Back again to display lists, this time color-sorted.
-            ####self.havelist = 0 
-            self.displist.selectPick(False)
+            if (allow_color_sorting and use_color_sorted_dls):
+                # russ 080303: Back again to display lists, this time color-sorted.
+                self.displist.selectPick(False)
+            else:
+                self.havelist = 0
+            pass
 
         return
 
