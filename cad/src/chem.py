@@ -1935,16 +1935,23 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
             # should be done somewhere else, not here
             # (since doing it per atom would be too verbose).
         # Review: could we make the following conditional on
-        # self.display != disp? I don't know. Possible reasons we couldn't:
-        # if any callers first set self.disp, then call this method to bless
+        # self.display != disp? Possible reasons we couldn't:
+        # if any callers first set self.disp, then called this method to bless
         # that. I reviewed all the calls and I think this change would be safe,
-        # so I might try it soon -- if it caused some chunks to not changeapp
+        # so I am trying it below -- if it causes some chunks to not changeapp,
         # out of those touched by a large selection of atoms, it might be a
-        # useful optimization. [bruce 060607/080305 comment @@@@]
+        # useful optimization. [bruce 080305 optimization]
+        if self.display == disp:
+            return
         self.display = disp
         _changed_otherwise_Atoms[self.key] = self #bruce 060322
         self.molecule.changeapp(1)
         self.changed() # bruce 041206 bugfix (unreported bug); revised, bruce 050509
+        
+        # TODO: tell chunk its atom display modes changed, so it can decide
+        # whether to update its [nim] related attrs for MT icon overlays, etc.
+        # [bruce 080305 comment @@@@]
+        
         # bruce 041109 comment:
         # Atom.setDisplay changes appearance of this atom's bonds,
         # so: do we need to invalidate the bonds? No, they don't store display
@@ -1952,6 +1959,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         # What about the mols on both ends of the bonds? The changeapp() handles
         # that for internal bonds, and external bonds are redrawn every time so
         # no invals are needed if their appearance changes.
+        
         return
 
     def howdraw(self, dispdef): # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!

@@ -2445,10 +2445,18 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         change self's display mode
         """
+        if self.display == disp:
+            #bruce 080305 optimization; looks safe after review of all calls;
+            # important (due to avoiding inlined changeapp and display list
+            # remake) if user selects several chunks and changes them all
+            # at once, and some are already set to disp.
+            return
         self.display = disp
+        # inlined self.changeapp(1):
         self.havelist = 0
         self.haveradii = 0
         self.changed()
+        return
 
     def show_invisible_atoms(self):
         """
