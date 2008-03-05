@@ -1,8 +1,9 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 drawer.py - OpenGL drawing utilities.
 
-$Id$
+@version: $Id$
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 TODO:
 
@@ -463,7 +464,8 @@ class glprefs:
         return
 
     def materialprefs_summary(self): #bruce 051126
-        """Return a Python data object summarizing our prefs which affect chunk display lists,
+        """
+        Return a Python data object summarizing our prefs which affect chunk display lists,
         so that memoized display lists should become invalid (due to changes in this object)
         if and only if this value becomes different.
         """
@@ -511,7 +513,8 @@ _default_lights = ((white, 0.1, 0.5, 0.5, -50, 70, 30, True),
         # Mark 051204. [a comment from when this was located in GLPane]
 
 def glprefs_data_used_by_setup_standard_lights( glprefs = None): #bruce 051212
-    """Return a summary of the glprefs data used by setup_standard_lights,
+    """
+    Return a summary of the glprefs data used by setup_standard_lights,
     for use in later deciding whether it needs to be called again due to changes in glprefs.
     """
     global _glprefs
@@ -520,7 +523,8 @@ def glprefs_data_used_by_setup_standard_lights( glprefs = None): #bruce 051212
     return (glprefs.override_light_specular,) # this must be kept in sync with what's used by setup_standard_lights()
 
 def setup_standard_lights( lights, glprefs = None):
-    """Set up lighting in the current GL context using the supplied "lights" tuple (in the format used by GLPane's prefs)
+    """
+    Set up lighting in the current GL context using the supplied "lights" tuple (in the format used by GLPane's prefs)
     and the optional glprefs object (which defaults to drawer._glprefs).
        Note: the glprefs data used can be summarized by the related function glprefs_data_used_by_setup_standard_lights (which see).
        Warning: has side effects on GL_MODELVIEW matrix.
@@ -1799,6 +1803,14 @@ def setup_drawer():
     use_color_sorted_dls_pref = debug_pref("Use Color-sorted Display Lists?",
                                            initial_choice, prefs_key = use_color_sorted_dls_prefs_key)
 
+    # temporarily always print this, while default setting might be in flux,
+    # and to avoid confusion if the two necessary prefs are set differently
+    # [bruce 080305]
+    if allow_color_sorting_pref and use_color_sorted_dls_pref:
+        print "\nnote: this session WILL use color sorted display lists"
+    else:
+        print "\nnote: this session will NOT use color sorted display lists"
+    
     # 20060313 grantham Added use_c_renderer debug pref, can
     # take out when C renderer used by default.
     global use_c_renderer
