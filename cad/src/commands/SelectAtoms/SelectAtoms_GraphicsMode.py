@@ -1770,7 +1770,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
             self.o.setCursor(self.w.SelectAtomsSubtractFilterCursor)
         elif self.o.modkeys == 'Shift+Control':
             # Fixes bug 1604. mark 060303.
-            self.o.setCursor(self.w.DeleteFilterCursor) 
+            self.o.setCursor(self.w.DeleteAtomsFilterCursor) 
         else:
             print "Error in update_cursor_for_no_MB(): "\
                   "Invalid modkey = ", self.o.modkeys

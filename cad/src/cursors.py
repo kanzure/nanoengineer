@@ -12,7 +12,7 @@ mark 060427 - loadCursors() moved from MWsemantics.py.
 from PyQt4.Qt import QCursor, QBitmap, Qt
 import os, sys
 
-from icon_utilities import getpixmap
+from icon_utilities import getpixmap, getCursorPixmap
 
 def loadCursors(w):
     """
@@ -74,25 +74,29 @@ def loadCursors(w):
 
         return cursor
 
-    # Build mode - normal cursors
+    # Build Atoms - normal cursors
     w.SelectAtomsCursor = \
-     QCursor(getpixmap("ui/cursors/SelectAtomsCursor.png"), 0, 0)
+     QCursor(getCursorPixmap("SelectAtomsCursor.png"), 0, 0)
     w.SelectAtomsAddCursor = \
-     QCursor(getpixmap("ui/cursors/SelectAtomsAddCursor.png"), 0, 0)
+     QCursor(getCursorPixmap("SelectAtomsAddCursor.png"), 0, 0)
     w.SelectAtomsSubtractCursor = \
-     QCursor(getpixmap("ui/cursors/SelectAtomsSubtractCursor.png"), 0, 0)
+     QCursor(getCursorPixmap("SelectAtomsSubtractCursor.png"), 0, 0)
     w.DeleteCursor = \
-     QCursor(getpixmap("ui/cursors/DeleteCursor.png"), 0, 0)
+     QCursor(getCursorPixmap("DeleteCursor.png"), 0, 0)
 
-    # Build mode - Atom Selection cursors
-    w.SelectAtomsFilterCursor = loadCursor("SelectAtomsFilterCursor", 0, 0)
-    w.SelectAtomsAddFilterCursor = loadCursor("SelectAtomsAddFilterCursor", 0, 0)
-    w.SelectAtomsSubtractFilterCursor = loadCursor("SelectAtomsSubtractFilterCursor", 0, 0)
-    w.DeleteFilterCursor = loadCursor("DeleteFilterCursor", 0, 0)
+    # Build Atoms - Atom Selection Filter cursors
+    w.SelectAtomsFilterCursor = \
+     QCursor(getCursorPixmap("SelectAtomsFilterCursor.png"), 0, 0)
+    w.SelectAtomsAddFilterCursor = \
+     QCursor(getCursorPixmap("SelectAtomsAddFilterCursor.png"), 0, 0)
+    w.SelectAtomsSubtractFilterCursor = \
+     QCursor(getCursorPixmap("SelectAtomsSubtractFilterCursor.png"), 0, 0)
+    w.DeleteAtomsFilterCursor = \
+     QCursor(getCursorPixmap("DeleteAtomsFilterCursor.png"), 0, 0)
 
-    # Build mode - Bond Tool cursors with no modkey pressed
+    # Build Atoms - Bond Tool cursors with no modkey pressed
     w.BondToolCursor = []
-    w.BondToolCursor.append(QCursor(getpixmap("ui/cursors/SelectAtomsCursor.png"), 0, 0))
+    w.BondToolCursor.append(QCursor(getCursorPixmap("SelectAtomsCursor.png"), 0, 0))
     w.BondToolCursor.append(loadCursor("Bond1ToolCursor", 0, 0))
     w.BondToolCursor.append(loadCursor("Bond2ToolCursor", 0, 0))
     w.BondToolCursor.append(loadCursor("Bond3ToolCursor", 0, 0))
@@ -100,35 +104,35 @@ def loadCursors(w):
     w.BondToolCursor.append(loadCursor("BondGToolCursor", 0, 0))
     w.BondToolCursor.append(loadCursor("CutBondCursor", 0, 0))    
 
-    # Build mode - Bond Tool cursors with Shift modkey pressed
+    # Build Atoms - Bond Tool cursors with Shift modkey pressed
     w.BondToolAddCursor = []
-    w.BondToolAddCursor.append(QCursor(getpixmap("ui/cursors/SelectAtomsAddCursor.png"), 0, 0))
+    w.BondToolAddCursor.append(QCursor(getCursorPixmap("SelectAtomsAddCursor.png"), 0, 0))
     w.BondToolAddCursor.append(loadCursor("Bond1ToolAddCursor", 0, 0))
     w.BondToolAddCursor.append(loadCursor("Bond2ToolAddCursor", 0, 0))
     w.BondToolAddCursor.append(loadCursor("Bond3ToolAddCursor", 0, 0))
     w.BondToolAddCursor.append(loadCursor("BondAToolAddCursor", 0, 0))
     w.BondToolAddCursor.append(loadCursor("BondGToolAddCursor", 0, 0))
 
-    # Build mode - Bond Tool cursors with Control/Cmd modkey pressed
+    # Build Atoms - Bond Tool cursors with Control/Cmd modkey pressed
     w.BondToolSubtractCursor = []
-    w.BondToolSubtractCursor.append(QCursor(getpixmap("ui/cursors/SelectAtomsSubtractCursor.png"), 0, 0))
+    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("SelectAtomsSubtractCursor.png"), 0, 0))
     w.BondToolSubtractCursor.append(loadCursor("Bond1ToolSubtractCursor", 0, 0))
     w.BondToolSubtractCursor.append(loadCursor("Bond2ToolSubtractCursor", 0, 0))
     w.BondToolSubtractCursor.append(loadCursor("Bond3ToolSubtractCursor", 0, 0))
     w.BondToolSubtractCursor.append(loadCursor("BondAToolSubtractCursor", 0, 0))
     w.BondToolSubtractCursor.append(loadCursor("BondGToolSubtractCursor", 0, 0))
 
-    # Select Chunks mode - normal cursors
+    # Select Chunks cursors
     w.MolSelCursor = loadCursor("MolSelCursor", 0, 0) # was SelectMolsCursor
     w.MolSelAddCursor = loadCursor("MolSelAddCursor", 0, 0) # was SelectMolsAddCursor
     w.MolSelSubCursor = loadCursor("MolSelSubCursor", 0, 0) # was SelectMolsSubCursor
 
-    # Translate select cursors
+    # Translate selection cursors
     w.MolSelTransCursor = loadCursor("MolSelTransCursor", 0, 0) # was MoveSelectCursor
     w.MolSelTransAddCursor = loadCursor("MolSelTransAddCursor", 0, 0) # was MoveSelectAddCursor
     w.MolSelTransSubCursor = loadCursor("MolSelTransSubCursor", 0, 0) # was MoveSelectSubtractCursor
 
-    # Rotate select cursors
+    # Rotate selection cursors
     w.MolSelRotCursor = loadCursor("MolSelRotCursor", 0, 0) # was MoveSelectCursor
     w.MolSelRotAddCursor = loadCursor("MolSelRotAddCursor", 0, 0) # was MoveSelectAddCursor
     w.MolSelRotSubCursor = loadCursor("MolSelRotSubCursor", 0, 0) # was MoveSelectSubtractCursor
@@ -137,16 +141,16 @@ def loadCursors(w):
     w.MolSelAxisRotTransCursor = loadCursor("MolSelAxisRotTransCursor", -1, -1) # Shift accel key - was MoveAxisRotateMolCursor
     #w.MolSelRotCursor = loadCursor("MolSelRotCursor", -1, -1) # Control/Cmd accel key - was MoveFreeRotateMolCursor
 
-    # Cookie Cutter mode - normal cursors
+    # Build Crystal cursors
     w.CookieCursor = loadCursor("CookieCursor", -1, -1)
     w.CookieAddCursor = loadCursor("CookieAddCursor", -1, -1)
     w.CookieSubtractCursor = loadCursor("CookieSubtractCursor", -1, -1)
 
     # View Zoom, Pan, Rotate cursors
-    w.ZoomCursor = QCursor(getpixmap("ui/cursors/ZoomCursor.png"), 0, 0)
-    w.ZoomInOutCursor = QCursor(getpixmap("ui/cursors/ZoomInOutCursor.png"), 0, 0)
-    w.PanViewCursor = QCursor(getpixmap("ui/cursors/PanViewCursor.png"), 0, 0)
-    w.RotateViewCursor = QCursor(getpixmap("ui/cursors/RotateViewCursor.png"), 0, 0)
+    w.ZoomCursor = QCursor(getCursorPixmap("ZoomCursor.png"), 0, 0)
+    w.ZoomInOutCursor = QCursor(getCursorPixmap("ZoomInOutCursor.png"), 0, 0)
+    w.PanViewCursor = QCursor(getCursorPixmap("PanViewCursor.png"), 0, 0)
+    w.RotateViewCursor = QCursor(getCursorPixmap("RotateViewCursor.png"), 0, 0)
 
     # Miscellaneous cursors
     w.RotateZCursor = loadCursor("RotateZCursor", 0, 0)
@@ -162,18 +166,18 @@ def loadCursors(w):
     w._confcorner_CancelCursor = \
      QCursor(getpixmap("ui/confcorner/CancelCursor.png"), 0, 0)
 
-    # COLOR CURSORS!
+    # Pencil cursors
     w.colorPencilCursor = \
-     QCursor(getpixmap("ui/cursors/Pencil.png"), 0, 0)
+     QCursor(getCursorPixmap("Pencil.png"), 0, 0)
     w.pencilHorizontalSnapCursor = \
-     QCursor(getpixmap("ui/cursors/Pencil_HorizontalSnap.png"), 0, 0)
+     QCursor(getCursorPixmap("Pencil_HorizontalSnap.png"), 0, 0)
     w.pencilVerticalSnapCursor = \
-     QCursor(getpixmap("ui/cursors/Pencil_VerticalSnap.png"), 0, 0)
+     QCursor(getCursorPixmap("Pencil_VerticalSnap.png"), 0, 0)
     
-    #Some Build Dna mode cursors
+    # Some Build Dna mode cursors
     w.rotateAboutCentralAxisCursor = \
-     QCursor(getpixmap("ui/cursors/Rotate_About_Central_Axis.png"), 0, 0)
+     QCursor(getCursorPixmap("Rotate_About_Central_Axis.png"), 0, 0)
     w.translateAlongCentralAxisCursor = \
-     QCursor(getpixmap("ui/cursors/Translate_Along_Central_Axis.png"), 0, 0)
+     QCursor(getCursorPixmap("Translate_Along_Central_Axis.png"), 0, 0)
 
     return # from loadCursors
