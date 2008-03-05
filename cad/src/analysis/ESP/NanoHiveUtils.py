@@ -1,10 +1,10 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 NanoHiveUtils.py
 
 @author: Brian, Mark
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
     
@@ -248,7 +248,7 @@ def activate_nh_plugin(win):
         0, 1 )
             
     if ret == 0: # OK
-        win.userPrefs.showDialog('Plug-ins') # Show Prefences | Plug-in.
+        win.userPrefs.showDialog('Plug-ins') # Show Preferences | Plug-in.
         if not env.prefs[nanohive_enabled_prefs_key]:
             return 1 # Nano-Hive was not enabled by user.
         

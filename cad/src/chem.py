@@ -1930,8 +1930,17 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         return drawrad
         
     def setDisplay(self, disp):
-        disp = remap_atom_dispdefs.get(disp, disp) #bruce 060607; error message, if any, should not be done per-atom, ie not here
-        #e could we make the following conditional on self.display != disp? I don't know. [bruce 060607 comment]
+        disp = remap_atom_dispdefs.get(disp, disp) #bruce 060607
+            # note: error message from rejecting disp, if any,
+            # should be done somewhere else, not here
+            # (since doing it per atom would be too verbose).
+        # Review: could we make the following conditional on
+        # self.display != disp? I don't know. Possible reasons we couldn't:
+        # if any callers first set self.disp, then call this method to bless
+        # that. I reviewed all the calls and I think this change would be safe,
+        # so I might try it soon -- if it caused some chunks to not changeapp
+        # out of those touched by a large selection of atoms, it might be a
+        # useful optimization. [bruce 060607/080305 comment @@@@]
         self.display = disp
         _changed_otherwise_Atoms[self.key] = self #bruce 060322
         self.molecule.changeapp(1)
@@ -1943,6 +1952,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         # What about the mols on both ends of the bonds? The changeapp() handles
         # that for internal bonds, and external bonds are redrawn every time so
         # no invals are needed if their appearance changes.
+        return
 
     def howdraw(self, dispdef): # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
         """

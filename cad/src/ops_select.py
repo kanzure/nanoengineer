@@ -351,7 +351,7 @@ class ops_select_Mixin:
         Selected chunks and/or any other object (i.e. jigs, planes, etc.) 
         are hidden.
         """
-        # Added by Mark 2008-02-14.
+        # Added by Mark 2008-02-14. [slight revisions, bruce 080305]
 
         cmd = "Hide: "
         env.history.message(greenmsg(cmd))
@@ -359,36 +359,38 @@ class ops_select_Mixin:
         # Hide selected objects.
         self.assy.Hide()
         
-        if not self.selatoms:
-            return
-
-        # Hide selected atoms by changing their display style to invisible.
-        assert self.selwhat == SELWHAT_ATOMS
-        for a in self.selatoms.values():
-            a.setDisplay(diINVISIBLE)
-            
+        if self.selatoms:
+            # Hide selected atoms by changing their display style to invisible.
+            for a in self.selatoms.itervalues():
+                a.setDisplay(diINVISIBLE)
+        return
+    
     def unhideSelection(self):
         """
-        Unhides the current selection. Selected atoms are made visible. 
+        Unhides the current selection.
+
+        Selected atoms are made visible by changing their display style
+        to default (even if their display style before they were hidden
+        was something different).
+        
         Selected chunks and/or any other object (i.e. jigs, planes, etc.) 
         are unhidden.
         """
-        # Added by Mark 2008-02-25.
+        # Added by Mark 2008-02-25. [slight revisions, bruce 080305]
 
         cmd = "Unhide: "
         env.history.message(greenmsg(cmd))
         
-        # Hide selected objects.
+        # Unhide selected objects.
         self.assy.Unhide()
         
         if not self.selatoms:
             self.selectNone()
-            return
-
-        # Unhide selected atoms by changing their display style to default.
-        assert self.selwhat == SELWHAT_ATOMS
-        for a in self.selatoms.values():
-            a.setDisplay(diDEFAULT)
+        else:
+            # Unhide selected atoms by changing their display style to default.
+            for a in self.selatoms.itervalues():
+                a.setDisplay(diDEFAULT)
+        return
     
     # ==
 

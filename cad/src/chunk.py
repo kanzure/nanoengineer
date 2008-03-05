@@ -1616,13 +1616,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             q = self.quat
             glRotatef(q.angle*180.0/math.pi, q.x, q.y, q.z)
 
-            disp = self.get_dispdef(glpane) #bruce 041109 split into separate method
-            # disp is passed to two methods below... but if we use a cached display
-            # list, it's not reflected in that, and we don't check for this here
-            # [interjection, much later, 050415 -- now we do check for it];
-            # this would cause bugs in redrawing after changing the glpane's display
-            # mode, except that doing that calls changeapp() on the required mols,
-            # so it's ok in theory. [comment by bruce 041109/041123]
+            disp = self.get_dispdef(glpane)
 
 ##            delegate_selection_wireframe = False
             delegate_draw_atoms = False
@@ -1645,7 +1639,6 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # (and split it into a new submethod), even though it's done outside of the display list.
             # This was necessary for _drawchunk_selection_frame's use of memoized data to work.            
             ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
-
 
             # cache chunk display (other than selection wireframe or hover highlighting) as OpenGL display list
 
@@ -2443,21 +2436,24 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.color = color
             # warning: some callers (ChunkProp.py) first trash self.color, then call us to bless it. [bruce 050505 comment]
         self.havelist = 0
-        self.changed() #[bruce 050505]
+        self.changed()
 
     def setDisplay(self, disp):
+        # TODO: optimize when self.display == disp, since I just reviewed
+        # all calls and this looks safe. (Ditto with Atom version of this
+        # method.) [bruce comment 080305 @@@@]
         """
         change self's display mode
         """
         self.display = disp
         self.havelist = 0
         self.haveradii = 0
-        self.changed() # [bruce 050505 revised this]
+        self.changed()
 
     def show_invisible_atoms(self):
         """
         Resets the display mode for each invisible (diINVISIBLE) atom 
-        to diDEFAULT display mode, rendering them visible again.
+        to diDEFAULT display mode, making them visible again.
         It returns the number of invisible atoms found.
         """
         n = 0
@@ -2496,15 +2492,21 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         if atoms: #bruce 041207 added this arg and its effect
             self.haveradii = 0 # invalidate self.sel_radii_squared
             # (using self.invalidate_attr would be too slow)
-        #bruce 050804 new feature (related to graphics prefs updating, probably more generally useful):
+        #bruce 050804 new feature
+        # (related to graphics prefs updating,
+        # probably more generally useful):
+        # REVIEW: do some inlines of changeapp need to do this too?
+        # If they did, would that catch the redraws that currently
+        # only Qt knows we need to do? [bruce 080305 question]
         glpane = self.glpane # the last glpane that drew this chunk, or None if it was never drawn
             # (if more than one can ever draw it at once, this code needs to be revised to scan them all ##k)
         if glpane is not None:
             try:
                 flag = glpane.wants_gl_update
             except AttributeError:
-                pass # this will happen for ThumbViews
-                        # until they are fixed to use this system so they get updated when graphics prefs change
+                # this will happen for ThumbViews, until they are fixed to use
+                # this system so they get updated when graphics prefs change
+                pass
             else:
                 if flag:
                     glpane.wants_gl_update_was_True() # sets it False and does gl_update

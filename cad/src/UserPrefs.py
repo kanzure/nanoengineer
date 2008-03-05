@@ -2228,9 +2228,13 @@ restored when the user undoes a structural change.</p>
         # set the pref
         env.prefs[defaultDisplayMode_prefs_key] = displayMode
 
-        # Set to the current display mode in the glpane.
+        # Set the current display mode in the glpane.
+        # (This will be noticed later by chunk.draw of affected chunks.)
         self.glpane.setDisplay(displayMode, True)
         self.glpane.gl_update()
+        # (Note: no mt_update is needed, since per-node display style icons
+        #  have not changed.)
+        return
 
     ########## End of slot methods for "Modes" page widgets ###########
 

@@ -1,4 +1,4 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 prefs_constants.py
 
@@ -7,7 +7,7 @@ which need to be defined immediately upon startup.
 
 @author: Mark, Bruce, Ninad
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 
 History:
 
@@ -45,7 +45,7 @@ import sys, os # for getDefaultWorkingDirectory
 
 # Compass position constants.  These are used to preserve the preference value
 # for the compass position and relate directly to the radio button group values for the options 
-# presented in the Prefences/General dialog.  Do not change the value of these 4 constants!
+# presented in the Preferences/General dialog.  Do not change the value of these 4 constants!
 # Mark 050919.
 # (Note: they are also used for other, analogous purposes. [bruce 071215 comment])
 # UPPER_RIGHT will conflict with the Confirmation Corner when it is implemented in A10.

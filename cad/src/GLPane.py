@@ -2307,12 +2307,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         'default_display' changes the header of the display status bar
         to either 'Default Display' (True)
         or 'Current Display' (False, the default).
-        """
-        #&&& print_compact_stack("GLPane.setDisplay():")
-        #&&& print "Current Display Mode = ", self.displayMode
-        #&&& print "Default Display Mode = ", env.prefs[defaultDisplayMode_prefs_key]
-        #&&& print "setDisplay(disp = ", disp, ", default_display=", default_display, ")"
 
+        @note: doesn't update the MT, and callers typically won't need to,
+               since the per-node display style icons are not changing.
+        """
         # Fix to bug 800. Mark 050807
         if default_display:
             # Used when the user presses "Default Display" or changes the "Default Display"
@@ -2333,12 +2331,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
         else:    
             #self.win.statusBar().dispbarLabel.setText( "Default Display: " + dispLabel[disp] )
             self.win.statusBar().dispbarLabel.setText( header + dispLabel[disp] )
-        #bruce 050415: following should no longer be needed
-        # (and it wasn't enough, anyway, since missed mols in non-current parts;
-        #  see comments in chunk.py about today's bugfix in molecule.draw for
-        #  bug 452 item 15)
-        ## for mol in self.assy.molecules:
-        ##     if mol.display == diDEFAULT: mol.changeapp(1)
+        # Note: we don't need to call changeapp on all chunks with no individual
+        # display style set, because their draw methods compare self.displayMode
+        # (or their currently set individual display style) to the one they used
+        # to make their display lists. [bruce 080305 comment]
         return
 
     # note: as of long before 060829, set/getZoomFactor are never called, and I suspect that nothing

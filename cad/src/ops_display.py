@@ -1,11 +1,11 @@
-# Copyright 2004-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 ops_display.py provides displaySlotsMixin for MWsemantics,
 with display slot methods and related helper methods.
 
 @author: Mark
 @version: $Id$
-@copyright: 2008 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
 
 Note: most other ops_*.py files provide mixin classes for Part,
 not for MWsemantics like this one.
@@ -162,7 +162,7 @@ class displaySlotsMixin:
         """
         self.assy.unhideSelection()
 
-    def setDisplay(self, form, default_display=False):
+    def setDisplay(self, form, default_display = False):
         """
         Set the display of the selection to 'form'.  If nothing is selected, then change
         the GLPane's current display to 'form'.
@@ -181,9 +181,9 @@ class displaySlotsMixin:
                 # hits a button, so it's more important to fix any bugs that
                 # might be in other code failing to call changeapp when needed.
             self.glpane.setDisplay(form, default_display) # See docstring for info about default_display
-        self.win_update() # bruce 041206, needed for model tree display mode icons
-        ## was self.glpane.paintGL() [but now would be self.glpane.gl_update]
-
+        self.win_update() # bruce 041206, needed for model tree display mode icons, as well as glpane
+        return
+    
     def dispObjectColor(self, initialColor = None):
         """
         Sets the color of the selected chunks and/or jigs to a color the user 
@@ -338,7 +338,7 @@ class displaySlotsMixin:
         """
         self.showElementColorSettings()
 
-    def showElementColorSettings(self, parent=None):
+    def showElementColorSettings(self, parent = None):
         """
         Opens the Element Color Setting dialog, allowing the user to change 
         default colors of elements and bondpoints, and save them to a file.
@@ -371,4 +371,8 @@ class displaySlotsMixin:
         """
         Allows user to change lighting brightness.
         """
-        self.userPrefs.showDialog('Lighting') # Show Prefences | Lighting.
+        self.userPrefs.showDialog('Lighting') # Show Preferences | Lighting.
+
+    pass # end of class displaySlotsMixin
+
+# end

@@ -919,7 +919,7 @@ class BuildAtoms_basicCommand(SelectAtoms_basicCommand):
     # -- bruce 071012]
     #    def restore_patches_by_GraphicsMode(self):
     #        self.o.setDisplay(self.saveDisp) #bruce 041129; see notes for 
-    #        bug 133
+    #            # bug 133
     #        self.o.selatom = None
 
     def clear(self):
