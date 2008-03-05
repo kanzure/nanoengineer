@@ -115,7 +115,7 @@ def _run_dna_updater(): #bruce 080210 split this out
         if debug_pref_reload_dna_updater(): # for release, always false
             _reload_dna_updater() # also reinits it if needed
         _ensure_ok_to_call_dna_updater() # soon will not be needed here
-        from dna_updater.dna_updater_main import full_dna_update
+        from dna.updater.dna_updater_main import full_dna_update
             # soon will be toplevel import
         try:
             full_dna_update()
@@ -210,13 +210,13 @@ _initialized_dna_updater_yet = False
 def _ensure_ok_to_call_dna_updater():
     global _initialized_dna_updater_yet
     if not _initialized_dna_updater_yet:
-        from dna_updater import dna_updater_init
+        from dna.updater import dna_updater_init
         dna_updater_init.initialize()
         _initialized_dna_updater_yet = True
     return
 
 def _reload_dna_updater():
-    from dna_updater import dna_updater_atoms
+    from dna.updater import dna_updater_atoms
     reload(dna_updater_atoms)
     #e could add more modules to that list, in order;
     # no need to reinit

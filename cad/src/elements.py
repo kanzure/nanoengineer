@@ -41,8 +41,8 @@ from preferences import prefs_context
 from Elem import Elem
 
 from elements_data      import init_chemical_elements
-from elements_data_PAM3 import init_PAM3_elements
-from elements_data_PAM5 import init_PAM5_elements
+from dna.model.elements_data_PAM3 import init_PAM3_elements
+from dna.model.elements_data_PAM5 import init_PAM5_elements
 
 # ==
 

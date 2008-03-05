@@ -127,7 +127,7 @@ import drawer
 # has been moved from here (where it didn't belong) to a new file,
 # builtin_command_loaders.py [bruce 080209]
 
-from CommandSequencer import modeMixin
+from commandSequencer.CommandSequencer import modeMixin
 
 from utilities import debug_flags
 

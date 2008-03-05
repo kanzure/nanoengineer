@@ -26,7 +26,7 @@ from utilities import debug_flags
 from PlatformDependent import fix_plurals
 from GlobalPreferences import permit_atom_chunk_coselection
 
-from dna_model.DnaGroup import DnaGroup
+from dna.model.DnaGroup import DnaGroup
 
 # Object flags, used by objectSelected() and its callers. 
 ATOMS = 1

@@ -119,7 +119,7 @@ from constants import noop
 from elements import PeriodicTable
 from commands.ChunkProperties.ChunkProp import ChunkProp
 
-from Dna_Constants import getComplementSequence
+from dna.model.Dna_Constants import getComplementSequence
 
 from bond_chains import grow_directional_bond_chain
 

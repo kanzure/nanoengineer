@@ -327,14 +327,14 @@ class MWsemantics(QMainWindow,
                       prefs_key = "A9 devel/DNA Duplex"):
 
             print "Using original DNA generator (supports PAM-5)."
-            from DnaGenerator import DnaGenerator
+            from dna.commands.BuildDuplex_old.DnaGenerator import DnaGenerator
             self.dnacntl = DnaGenerator(self)
         else:
             # This might soon become the usual case, with the debug_pref 
             # removed. - Mark
 
             print "Using new DNA Duplex command (supports PAM-3 only)."
-            from DnaDuplex_EditCommand import DnaDuplex_EditCommand
+            from dna.commands.BuildDuplex.DnaDuplex_EditCommand import DnaDuplex_EditCommand
             self.dnaEditCommand = DnaDuplex_EditCommand(self.glpane)	
             self.dnacntl = self.dnaEditCommand
 
@@ -1535,7 +1535,7 @@ class MWsemantics(QMainWindow,
         be thats the best way)
         """
         if not self.sequenceEditor:
-            from DnaSequenceEditor import DnaSequenceEditor
+            from dna.DnaSequenceEditor.DnaSequenceEditor import DnaSequenceEditor
             self.sequenceEditor = DnaSequenceEditor(self)
             self.sequenceEditor.setObjectName("sequence_editor")
             #Should changes.keep_forevenr be called here? 
@@ -1614,7 +1614,7 @@ class MWsemantics(QMainWindow,
         @parameter editCommand: The edit controller object for this PM 
         @type editCommand: B{DnaDuplex_EditCommand}
         """
-        from DnaDuplexPropertyManager import DnaDuplexPropertyManager
+        from dna.commands.BuildDuplex.DnaDuplexPropertyManager import DnaDuplexPropertyManager
         if self.dnaDuplexPropMgr is None:
             self.dnaDuplexPropMgr = \
                 DnaDuplexPropertyManager(self, editCommand)
@@ -1632,7 +1632,7 @@ class MWsemantics(QMainWindow,
         @type editCommand: B{BuildDna_EditCommand}
         @see: B{BuildDna_EditCommand._createPropMgrObject}
         """
-        from BuildDna_PropertyManager import BuildDna_PropertyManager
+        from dna.commands.BuildDna.BuildDna_PropertyManager import BuildDna_PropertyManager
         if self.buildDnaPropMgr is None:
             self.buildDnaPropMgr = \
                 BuildDna_PropertyManager(self, editCommand)
@@ -1651,7 +1651,7 @@ class MWsemantics(QMainWindow,
         @see: B{DnaSegment_EditCommand._createPropMgrObject}
         """
         
-        from DnaSegment_PropertyManager import DnaSegment_PropertyManager
+        from dna.commands.DnaSegment.DnaSegment_PropertyManager import DnaSegment_PropertyManager
         if self.dnaSegmentPropMgr is None:
             self.dnaSegmentPropMgr = \
                 DnaSegment_PropertyManager(self, editCommand)
@@ -1671,7 +1671,7 @@ class MWsemantics(QMainWindow,
         @see: B{DnaSegment_EditCommand._createPropMgrObject}
         """
         
-        from DnaStrand_PropertyManager import DnaStrand_PropertyManager
+        from dna.commands.DnaStrand.DnaStrand_PropertyManager import DnaStrand_PropertyManager
         if self.dnaStrandPropMgr is None:
             self.dnaStrandPropMgr = \
                 DnaStrand_PropertyManager(self, editCommand)

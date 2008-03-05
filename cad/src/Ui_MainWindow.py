@@ -93,7 +93,7 @@ class Ui_MainWindow(object):
         # Add the Command Toolbar to the top of the central widget.
         # Note: Main window widgets must have their text set 
         # via retranslateUi() before instantiating CommandToolbar.
-        from CommandToolbar import CommandToolbar
+        from commandToolbar.CommandToolbar import CommandToolbar
         self.commandToolbar = CommandToolbar(self)
         self.centralAreaVBoxLayout.addWidget(self.commandToolbar)
         

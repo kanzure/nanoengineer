@@ -65,7 +65,7 @@ def register_MMP_RecordParsers(): #bruce 071019
     PovrayScene.register_MMP_RecordParser_for_PovrayScene()
 
     try:
-        import dna_model.DnaMarker as DnaMarker
+        import dna.model.DnaMarker as DnaMarker
         DnaMarker.register_MMP_RecordParser_for_DnaMarkers()
     except:
         print_compact_traceback("bug: ignoring exception in register_MMP_RecordParser_for_DnaMarkers: ")

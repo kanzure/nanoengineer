@@ -149,7 +149,7 @@ from inval import InvalMixin #bruce 050510
 import Utility
 from jigs import Jig
 
-from crossovers import crossover_menu_spec
+from dna.operations.crossovers import crossover_menu_spec
 
 # ==
 
@@ -4455,8 +4455,8 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
                 return ladder.error
             return ""
         # otherwise report error from self
-        from dna_updater.fix_bond_directions import PROPOGATED_DNA_UPDATER_ERROR
-        from dna_updater.fix_bond_directions import _f_detailed_dna_updater_error_string
+        from dna.updater.fix_bond_directions import PROPOGATED_DNA_UPDATER_ERROR
+        from dna.updater.fix_bond_directions import _f_detailed_dna_updater_error_string
             # note: use a runtime import for these, until this method can be
             # moved to a subclass of Atom defined in dna_model;
             # even so, this may cause an import cycle issue; ### REVIEW

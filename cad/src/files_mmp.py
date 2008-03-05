@@ -72,10 +72,10 @@ from files_mmp_registration import find_registered_parser_class
 # the following imports and the assignment they're used in
 # should be replaced by some registration scheme
 # (not urgent) [bruce 080115]
-from dna_model.DnaGroup import DnaGroup
-from dna_model.DnaSegment import DnaSegment
-from dna_model.DnaStrand import DnaStrand
-from dna_model.Block import Block
+from dna.model.DnaGroup import DnaGroup
+from dna.model.DnaSegment import DnaSegment
+from dna.model.DnaStrand import DnaStrand
+from dna.model.Block import Block
 
 # ==
 

@@ -104,10 +104,10 @@ from files_mmp_writing import writemmpfile_assy
 
 # kluge for register_classname -- should use a
 # registration scheme: [bruce 080115]
-from dna_model.DnaGroup   import DnaGroup
-from dna_model.Block      import Block
-from dna_model.DnaSegment import DnaSegment
-from dna_model.DnaStrand  import DnaStrand
+from dna.model.DnaGroup import DnaGroup
+from dna.model.Block import Block
+from dna.model.DnaSegment import DnaSegment
+from dna.model.DnaStrand import DnaStrand
 
 # ==
 
