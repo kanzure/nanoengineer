@@ -439,7 +439,7 @@ def setupUi(win):
 
     win.partLibAction = QtGui.QAction(MainWindow)
     win.partLibAction.setObjectName("partLibAction")
-    win.partLibAction.setText("Part from partlib...")    
+    win.partLibAction.setText("Part from Part Library...")    
     win.partLibAction.setIcon(geticon('ui/actions/Insert/Partlib'))
     win.partLibAction.setWhatsThis("Insert Part from Library" )
     
