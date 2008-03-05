@@ -43,8 +43,14 @@ def update_PAM_chunks( changed_atoms):
                           Note: in present calling code [071127]
                           this dict might include atoms from closed files.
 
-    @return: list of all newly made DnaLadderRailChunks (or modified ones,
-             if that's ever possible)
+    @return: the 2-tuple (all_new_chunks, new_wholechains),
+             containing a list of all newly made DnaLadderRailChunks
+             (or modified ones, if that's ever possible),
+             and a list of all newly made WholeChains
+             (each of which covers either all new small chains,
+              or some new and some old small chains, with each small chain
+              also called one "DnaLadder rail" and having its own
+              DnaLadderRailChunk).
     """
 
     # see scratch file for comments to revise and bring back here...
