@@ -122,10 +122,26 @@ def geticon(name):
             
     return icon
 
+def getCursorPixmap(png_filename):
+    """
+    Return the QPixmap for the given cursor PNG image file name.
+    
+    @param png_filename: The cursor image (PNG) file name provided by the user. 
+                 The cursor file must live in the 'ui/cursors' directory
+                 inside the src directory.
+    @type  png_filename: str
+    
+    @return: QPixmap object for the given cursor image file name. 
+             (could return a Null icon)
+    @rtype:  QPixmap object.
+    """
+    return getpixmap(os.path.join("ui/cursors/", png_filename))
+    
 def getpixmap(name):
     """
-    Return the QPixmap for the given image path name. 
-    @param name: The image path name provided by the user. the path should start 
+    Return the QPixmap for the given image path name.
+    
+    @param name: The image path name provided by the user. The path should start 
            with 'ui/' directory inside the src directory.
     @type  name: str
     
