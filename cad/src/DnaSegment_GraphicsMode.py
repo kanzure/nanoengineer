@@ -59,6 +59,9 @@ from bonds import Bond
 SPHERE_RADIUS = 2.0
 SPHERE_DRAWLEVEL = 2
 
+
+from BuildDna_GraphicsMode import DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND
+
 _superclass = BuildDna_GraphicsMode
 
 class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
@@ -111,14 +114,53 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                         self.o.setCursor(self.win.rotateAboutCentralAxisCursor)
                     else:
                         self.o.setCursor(self.win.translateAlongCentralAxisCursor)
-
+                        
+    #===========================================================================
+    #START-- UNUSED METHODS DUE TO CHANGE IN IMPLEMENTATION 
+    #The following methods are not used as of 2008-03-04 due to a change in
+    #implementation" Earlier, if you click on a strand or segment (while 
+    #in BuildDna_EditCommand or its subcommands) it used to enter the edit mode 
+    #of the object being editable. I am planning to make it a user preference
+    #-- Ninad 2008-03-04
+    def chunkLeftDown(self, aChunk, event):
+        if 0:
+            if self.command and self.command.hasValidStructure():
+                dnaGroup = aChunk.getDnaGroup()
+                
+                if dnaGroup is not None:
+                    if dnaGroup is self.command.struct.getDnaGroup():
+                        if aChunk.isStrandChunk():
+                            aChunk.pick()
+                            pass
+    #END -- UNUSED METHODS DUE TO CHANGE IN IMPLEMENTATION 
+    #===========================================================================
+                        
+    def chunkLeftUp(self, aChunk, event):
+        """
+        """
+        _superclass.chunkLeftUp(self, aChunk, event)
+        
+        if not self.current_obj_clicked:
+            return
+        
+        if DEBUG_CLICK_ON_OBJECT_ENTERS_ITS_EDIT_COMMAND:        
+            if aChunk.picked:
+                if aChunk.isAxisChunk():   
+                    segmentGroup = aChunk.parent_node_of_class(self.o.assy.DnaSegment)
+                    if segmentGroup is not None:                    
+                        segmentGroup.edit()
+                elif aChunk.isStrandChunk() and aChunk is not self.command.struct:
+                    strandGroup = aChunk.parent_node_of_class(self.o.assy.DnaStrand)
+                    if strandGroup is not None:
+                        strandGroup.edit()
+                    else:
+                        aChunk.edit()
 
     def leftDown(self, event):
         """
         """
         self.reset_drag_vars()
-        
-               
+                       
         obj = self.get_obj_under_cursor(event)
 
         if obj is None:
@@ -141,7 +183,8 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
                 #Optimization: This value will be used in self.leftDrag. 
                 # Instead of checking everytime whether the 
                 #self.command.struct contains the highlighted objetc 
-                #(glpane.selobj) 
+                #(glpane.selobj)                 
+                _superclass.leftDown(self, event)
                 self.cursor_over_when_LMB_pressed = 'Structure Being Edited'
                 
         self.LMB_press_event = QMouseEvent(event) # Make a copy of this event 
@@ -216,6 +259,7 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         """
         Method called during Left up event. 
         """
+             
                 
         _superclass.leftUp(self, event)  
         
@@ -252,6 +296,8 @@ class DnaSegment_GraphicsMode(ESC_to_exit_GraphicsMode_preMixin,
         if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
             # [let this happen even for drag_handlers -- bruce 060728]
             return
+        
+        self.current_obj_clicked = False
         
         #If there is a drag handler (e.g. a segment resize handle is being 
         #dragged, call its drag method and don't proceed further. 

@@ -15,7 +15,7 @@ While in this command, user can
     to translate the  whole segment along the axis
 (c) Highlight and then left drag any strand atom to rotate the segment around 
     its axis. 
-    
+
     Note that implementation b and c may change slightly if we implement special
     handles to do these oprations. 
     See also: DnaSegment_GraphicsMode .. the default graphics mode for this 
@@ -51,15 +51,13 @@ from DnaDuplex      import B_Dna_PAM5
 
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
-from exprs.ExprsConstants import Color
 
 from constants import gensym
-from constants import diTrueCPK, diDEFAULT
 
 from Dna_Constants import getDuplexLength
 from test_connectWithState import State_preMixin
 
-from constants import white
+from constants import noop
 from exprs.attr_decl_macros import Instance, State
 
 from exprs.__Symbols__ import _self
@@ -68,6 +66,9 @@ from exprs.Exprs import norm_Expr
 from prefs_widgets import ObjAttr_StateRef
 from exprs.ExprsConstants import Width, Point
 
+from chunk import Chunk
+from chem import Atom
+from bonds import Bond
 
 
 from DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
@@ -106,6 +107,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
 
+    call_makeMenus_for_each_event = True 
+
     #Graphics Mode 
     GraphicsMode_class = DnaSegment_GraphicsMode
 
@@ -117,23 +120,23 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
     handlePoint1 = State( Point, ORIGIN)
     handlePoint2 = State( Point, ORIGIN)
-    
+
     rotationHandleBasePoint1 = State( Point, ORIGIN)
     rotationHandleBasePoint2 = State( Point, ORIGIN)
-    
+
     #See self._determine_hresize_handle_radius where this gets changed. 
     #also see DnaSegment_ResizeHandle to see how its implemented. 
     handleSphereRadius1 = State(Width, HANDLE_RADIUS_DEFAULT_VALUE)
     handleSphereRadius2 = State(Width, HANDLE_RADIUS_DEFAULT_VALUE)
-    
+
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     #@TODO: modify the 'State params for rotation_distance 
     rotation_distance1 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
     rotation_distance2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE)
-    
+
     duplexRise =  getDuplexRise('B-DNA')
-    
+
     leftHandle = Instance(         
         DnaSegment_ResizeHandle(    
             command = _self,
@@ -143,7 +146,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             direction = norm_Expr(handlePoint1 - handlePoint2),
             sphereRadius = max(1.002*handleSphereRadius1, 
                                1.002*HANDLE_RADIUS_DEFAULT_VALUE)
-            ))
+                           ))
 
     rightHandle = Instance( 
         DnaSegment_ResizeHandle(
@@ -154,36 +157,40 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             direction = norm_Expr(handlePoint2 - handlePoint1),
             sphereRadius = max(1.002*handleSphereRadius2,
                                1.002*HANDLE_RADIUS_DEFAULT_VALUE)
-        ))
-    
+                           ))
+
     rotationHandle1 = Instance(         
         RotationHandle(    
             command = _self,
-            rotationDistanceRef = call_Expr( ObjAttr_StateRef, _self, 'rotation_distance1'),
+            rotationDistanceRef = call_Expr( ObjAttr_StateRef,
+                                             _self, 
+                                             'rotation_distance1'),
             center = handlePoint1,
             axis = norm_Expr(handlePoint1 - handlePoint2),
             origin = rotationHandleBasePoint1,
             radiusVector = norm_Expr(rotationHandleBasePoint1 - handlePoint1)
-            
-            ))
-    
+
+        ))
+
     rotationHandle2 = Instance(         
         RotationHandle(    
             command = _self,
-            rotationDistanceRef = call_Expr( ObjAttr_StateRef, _self, 'rotation_distance2'),
+            rotationDistanceRef = call_Expr( ObjAttr_StateRef,
+                                             _self, 
+                                             'rotation_distance2'),
             center = handlePoint2,
             axis = norm_Expr(handlePoint2 - handlePoint1),
             origin = rotationHandleBasePoint2,
             radiusVector = norm_Expr(rotationHandleBasePoint2 - handlePoint2)
-            
-            ))
-    
-   
+
+        ))
+
+
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for DnaDuplex_EditCommand
         """
-        
+
         glpane = commandSequencer
         State_preMixin.__init__(self, glpane)        
         EditCommand.__init__(self, commandSequencer)
@@ -197,6 +204,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """
         Initialize gui. 
         """
+
         #Note that DnaSegment_EditCommand only act as an edit command for an 
         #existing structure. The call to self.propMgr.show() is done only during
         #the call to self.editStructure ..i .e. only after self.struct is 
@@ -212,7 +220,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         #  EditCommand API was written before the command sequencer API and 
         #  it has some loose ends like this. ) -- Ninad 2008-01-22
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
-    
+
     def editStructure(self, struct = None):
         EditCommand.editStructure(self, struct)        
         if self.struct:
@@ -232,22 +240,22 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             self.previousParams = self._gatherParameters()
             self._updateHandleList()
             self.updateHandlePositions()
-    
+
     def hasValidStructure(self):
         """
         Tells the caller if this edit command has a valid structure. 
         Overrides EditCommand.hasValidStructure()
         """
         #(By Bruce 2008-02-13)
-                
+
         isValid = EditCommand.hasValidStructure(self)
-        
+
         if not isValid:
             return isValid
-        
+
         if not isinstance(self.struct, DnaSegment): 
             return False    
-        
+
         # would like to check here whether it's empty of axis chunks;
         # instead, this will do for now (probably too slow, though):
         p1, p2 = self.struct.getAxisEndPoints()
@@ -269,25 +277,25 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         if DEBUG_ROTATION_HANDLES:
             self.handles.append(self.rotationHandle1)
             self.handles.append(self.rotationHandle2)
-        
+
     def updateHandlePositions(self):
         """
         Update handle positions
         """        
-        
+
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
-        
+
         self._determine_resize_handle_radius()
-        
-                
+
         handlePoint1, handlePoint2 = self.struct.getAxisEndPoints()
-        
+
+
         if handlePoint1 is not None:
             # (that condition is bugfix for deleted axis segment, bruce 080213)
-            
+
             self.handlePoint1, self.handlePoint2 = handlePoint1, handlePoint2
-        
+
             if DEBUG_ROTATION_HANDLES:
                 self.rotation_distance1 = CYLINDER_WIDTH_DEFAULT_VALUE
                 self.rotation_distance2 = CYLINDER_WIDTH_DEFAULT_VALUE
@@ -295,19 +303,19 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 #to be revised -- Ninad 2008-02-13
 
                 unitVectorAlongAxis = norm(self.handlePoint1 - self.handlePoint2)
-                
+
                 v  = cross(self.glpane.lineOfSight, unitVectorAlongAxis)
-                
+
                 self.rotationHandleBasePoint1 = self.handlePoint1 + norm(v) * 4.0  
                 self.rotationHandleBasePoint2 = self.handlePoint2 + norm(v) * 4.0 
-                
+
     def _determine_resize_handle_radius(self):
         """
         Finds out the sphere radius to use for the resize handles, based on 
         atom /chunk or glpane display (whichever decides the display of the end 
         atoms.  The default  value is 1.2.
-        
-        
+
+
         @see: self.updateHandlePositions()
         @see: B{Atom.drawing_radius()}
         """
@@ -316,7 +324,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             self.handleSphereRadius1 = atm1.drawing_radius()               
         if atm2 is not None: 
             self.handleSphereRadius2 = atm2.drawing_radius()
-            
+
     def _createPropMgrObject(self):
         """
         Creates a property manager object (that defines UI things) for this 
@@ -422,7 +430,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #  - Strand1
             #  - Strand2
             #  - Axis
-            
+
             dna.make(dnaSegment, 
                      numberOfBases, 
                      basesPerTurn, 
@@ -489,7 +497,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #None. For now lets just print a warning if parentDnaGroup is None 
             self._parentDnaGroup.addSegment(self.struct)
         return  
-    
+
     def getStructureName(self):
         """
         Returns the name string of self.struct if there is a valid structure. 
@@ -502,7 +510,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             return self.struct.name
         else:
             return None
-        
+
     def setStructureName(self, name):
         """
         Sets the name of self.struct to param <name> (if there is a valid 
@@ -512,17 +520,17 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         @type name: string
         @see: DnaSegment_PropertyManager.close()
         @see: self.getStructureName()
-        
+
         """
         #@BUG: We call this method in self.propMgr.close(). But propMgr.close() 
-              #is called even when the command is 'cancelled'. That means the 
-              #structure will get changed even when user hits cancel button or
-              #exits the command by clicking on empty space. 
-              #This should really be done in self._finalizeStructure but that 
-              #method doesn't get called when you click on empty space to exit 
-              #the command. See DnaSegment_GraphicsMode.leftUp for a detailed 
-              #comment. 
-               
+                #is called even when the command is 'cancelled'. That means the 
+                #structure will get changed even when user hits cancel button or
+                #exits the command by clicking on empty space. 
+                #This should really be done in self._finalizeStructure but that 
+                #method doesn't get called when you click on empty space to exit 
+                #the command. See DnaSegment_GraphicsMode.leftUp for a detailed 
+                #comment. 
+
         if self.hasValidStructure():
             self.struct.name = name
 
@@ -535,7 +543,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             return
 
         text = ""
-        
+
         currentPosition = self.grabbedHandle.currentPosition
         fixedEndOfStructure = self.grabbedHandle.fixedEndOfStructure
 
@@ -562,14 +570,14 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         Note that Client should call this public method and should never call
         the private method self._modifyStructure. self._modifyStructure is 
         called only by self.preview_or_finalize_structure
-        
+
         @see: B{DnaSegment_ResizeHandle.on_release} (the caller)
         @see: B{SelectChunks_GraphicsMode.leftUp} (which calls the 
               the relevent method in DragHandler API. )
         @see: B{exprs.DraggableHandle_AlongLine}, B{exprs.DragBehavior}
         @see: B{self.preview_or_finalize_structure }
         @see: B{self._modifyStructure}        
-        
+
         As of 2008-02-01 it recreates the structure
         """
         if self.grabbedHandle is None:
@@ -581,13 +589,57 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         numberOfBasePairs = getNumberOfBasePairsFromDuplexLength('B-DNA', 
                                                                  length )
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
-        
+
         self.preview_or_finalize_structure(previewing = True)  
-                
+
         self.updateHandlePositions()
         self.glpane.gl_update()
-               
+
+    def makeMenus(self): 
+        """
+        Create context menu for this command. (Build Dna mode)
+        """
+        if not hasattr(self, 'graphicsMode'):
+            return
+
+        selobj = self.glpane.selobj
+
+        if selobj is None:
+            return
+
+        self.Menu_spec = []
+
+        highlightedChunk = None
+        if isinstance(selobj, Chunk):
+            highlightedChunk = selobj
+        if isinstance(selobj, Atom):
+            highlightedChunk = selobj.molecule
+        elif isinstance(selobj, Bond):
+            chunk1 = selobj.atom1.molecule
+            chunk2 = selobj.atom2.molecule
+            if chunk1 is chunk2 and chunk1 is not None:
+                highlightedChunk = chunk1
         
+        if highlightedChunk is None:
+            return
+
+        if self.hasValidStructure():        
+             
+            dnaGroup = self.struct.parent_node_of_class(self.assy.DnaGroup)
+            if dnaGroup is None:
+                return
+            #following should be self.struct.get_DnaGroup or self.struct.getDnaGroup
+            #need to formalize method name and then make change.
+            if not dnaGroup is highlightedChunk.parent_node_of_class(self.assy.DnaGroup):
+                item = ("Edit unavailable: Member of a different DnaGroup",
+                        noop, 'disabled')
+                self.Menu_spec.append(item)
+                return
+        
+        highlightedChunk.make_context_menu_items(self.Menu_spec,
+                                                 command = self)
+
+
     #START- EXPERIMENTAL CODE Not called anywhere ==============================
 
     #Using an alternate graphics mode to draw DNA line? 
@@ -601,7 +653,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
     #for this to work , we need to refactor DnaLine_GM at some point 
     #(it was originally designed to work as a temporary mode which returns to 
     #the previous mode after certain mouse clicks.) -- Ninad 2008-02-01
-        
+
     ##Following is needed by DnaLine_GM -- Declare it in class definition
     ##when using DnaLine_GM
     ##mouseClickPoints = []
@@ -678,7 +730,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
         self.callback_rubberbandLineDisplay = \
             self.EXPERIMENTALgetDisplayStyleForRubberbandLine
-        
+
     def EXPERIMENTALgetCursorTextForTemporaryMode(self, endPoint1, endPoint2):
         """
         EXPERIMENTAL method. rename it to getCursorTextForTemporaryMode while 
@@ -698,7 +750,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         self.propMgr.numberOfBasePairsSpinBox.setValue(numberOfBasePairs)
 
         return ""
-    
+
     def EXPERIMENTALgetDisplayStyleForRubberbandLine(self):
         """
         EXPERIMENTAL: rename it to: getDisplayStyleForRubberbandLine while 
@@ -709,7 +761,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         @see: DnaLineMode.setParams, DnaLineMode_GM.Draw
         """
         return "Ribbons"
-    
+
     def EXPERIMENTALprovideParamsForTemporaryMode(self, temporaryModeName):
         """
         EXPERIMENTAL: rename it to: provideParamsForTemporaryMode while 
@@ -740,7 +792,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
                 callback_rubberbandLineDisplay,
                 endPoint1
             )   
-    
+
     def EXPERIMENTALisRubberbandLineSnapEnabled(self):
         """
         rubbernad snap enabled?

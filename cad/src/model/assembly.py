@@ -366,7 +366,7 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
         self._init_glselect_name_dict()
 
         self.assy_valid = True
-        
+                
         return # from assembly.__init__
 
     # ==
@@ -1068,7 +1068,7 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
             raise AttributeError, attr
         elif attr == 'part':
             sg = self.current_selgroup() # this fixes it if possible; should always be a node but maybe with no Part during init
-            ## return self.parts[node_id(sg)]
+            ## return self.parts[node_id(sg)]           
 #bruce 050528 removing this since it prevents clipboard from opening in MT once it's closed, when displaying a clipboard item!
 ##            if 1:
 ##                # open all containing nodes below assy.root (i.e. the clipboard, if we're a clipboard item)
@@ -1110,6 +1110,14 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
                 meth = getattr(self.part, attr)
                 return meth(*args,**kws)
             return deleg
+        #TODO: TO BE REVISED. The following attr will be used in isinstance tests
+        #and also in Node.parent_node_of_class checks-- NINAD 2008-03-04
+        elif attr == 'DnaGroup':
+            return DnaGroup
+        elif attr == 'DnaSegment':
+            return DnaSegment
+        elif attr == 'DnaStrand':
+            return DnaStrand
         raise AttributeError, attr
 
     # == tracking undoable changes that aren't saved

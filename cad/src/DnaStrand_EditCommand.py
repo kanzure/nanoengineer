@@ -32,14 +32,15 @@ from prefs_widgets import ObjAttr_StateRef
 from exprs.ExprsConstants import Width, Point
 
 from chunk import Chunk
+from chem import Atom
+from bonds import Bond
 
 from DnaStrand_GraphicsMode import DnaStrand_GraphicsMode
 from DnaStrand_ResizeHandle import DnaStrand_ResizeHandle
 
 from command_support.EditCommand import EditCommand 
 
-from dna_model.DnaSegment import DnaSegment
-from dna_model.DnaStrand  import DnaStrand
+from constants import noop
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 
@@ -48,7 +49,7 @@ ORIGIN = V(0,0,0)
 class DnaStrand_EditCommand(State_preMixin, EditCommand):
     """
     Command to edit a DnaStrand (chunk object as of 2008-02-14)
-    
+
     To edit a Strand, first enter BuildDna_EditCommand (accessed using 
     Build> Dna) then, select a strand chunk of an existing DnaSegment within the 
     DnaGroup you are editing. When you select the strand chunk, it enters 
@@ -71,6 +72,8 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
 
+    call_makeMenus_for_each_event = True 
+
     #Graphics Mode 
     GraphicsMode_class = DnaStrand_GraphicsMode
 
@@ -86,7 +89,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
     #along with 'height_ref attr in exprs.DraggableHandle_AlongLine
     cylinderWidth = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
     cylinderWidth2 = State(Width, CYLINDER_WIDTH_DEFAULT_VALUE) 
-        
+
     #Resize Handles for Strand. See self.updateHandlePositions()
     leftHandle = Instance(         
         DnaStrand_ResizeHandle( 
@@ -95,7 +98,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             origin = handlePoint1,
             fixedEndOfStructure = handlePoint2,
             direction = norm_Expr(axisEnd1 - axisEnd2)
-            ))
+        ))
 
     rightHandle = Instance( 
         DnaStrand_ResizeHandle(
@@ -105,21 +108,21 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             fixedEndOfStructure = handlePoint1,
             direction = norm_Expr(axisEnd2 - axisEnd1)
         ))
-    
+
 
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for DnaDuplex_EditCommand
         """
-        
+
         glpane = commandSequencer
         State_preMixin.__init__(self, glpane)        
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
-        
+
         #DnaSegment object to which this strand belongs 
         self._parentDnaSegment = None
-        
+
         #It uses BuildDna_EditCommand.flyoutToolbar ( in other words, that 
         #toolbar is still accessible and not changes while in this command)
         flyoutToolbar = None
@@ -135,7 +138,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         #@see DnaSegment_EditCommand.init_gui() for a detailed note. 
         #This command implements similar thing 
         self.create_and_or_show_PM_if_wanted(showPropMgr = False)
-        
+
     def _createPropMgrObject(self):
         """
         Creates a property manager  object (that defines UI things) for this 
@@ -158,7 +161,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         @rtype:  tuple
         """     
         return None
-    
+
     def _createStructure(self):
         """
         Creates and returns the structure -- TO BE IMPLEMENTED ONCE 
@@ -168,7 +171,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         @note: This needs to return a DNA object once that model is implemented        
         """
         pass
-    
+
     def _modifyStructure(self, params):
         """
         TO BE IMPLEMENTED ONCE 
@@ -180,7 +183,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         See more comments in the method.
         """    
         pass
-    
+
     def getStructureName(self):
         """
         Returns the name string of self.struct if there is a valid structure. 
@@ -193,7 +196,7 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
             return self.struct.name
         else:
             return None
-        
+
     def setStructureName(self, name):
         """
         Sets the name of self.struct to param <name> (if there is a valid 
@@ -207,10 +210,10 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
               DnaSegment_editCommand.setStructureName for comments about some 
               issues.         
         """
-               
+
         if self.hasValidStructure():
             self.struct.name = name
-    
+
     def editStructure(self, struct = None):
         """
         Edit the structure 
@@ -220,29 +223,29 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         EditCommand.editStructure(self, struct)        
         if self.struct:
             #TO BE REVISED post dna data model - 2008-02-14
-            if isinstance(self.struct.dad , DnaSegment):
+            if isinstance(self.struct.dad , self.assy.DnaSegment):
                 self._parentDnaSegment = self.struct.dad   
-                
+
             self._updateHandleList()
             self.updateHandlePositions()
-    
+
     def hasValidStructure(self):
         """
         Tells the caller if this edit command has a valid structure. 
         Overrides EditCommand.hasValidStructure()
         """
-        
+
         if self.struct is None:
             return False
-                
+
         if self.struct.killed(): # (bruce080213: can this happen?)
             return False
-        
-        if isinstance(self.struct, DnaStrand):
+
+        if isinstance(self.struct, self.assy.DnaStrand):
             return True
         elif isinstance(self.struct, Chunk) and self.struct.isStrandChunk(): 
             return True
-        
+
         return False
 
     def _updateHandleList(self):
@@ -258,20 +261,20 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         self.handles = [] # guess, but seems like a good idea [bruce 080128]
         self.handles.append(self.leftHandle)
         self.handles.append(self.rightHandle)
-    
+
     def updateHandlePositions(self):
         """
         Update handle positions
         """
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE    
-               
+
         if self.struct is not None and \
            self.struct.dad is self._parentDnaSegment:
-                       
+
             #axis end atom positions
             axisEnd1, axisEnd2 = \
-                self._parentDnaSegment.getAxisEndPoints()
+                    self._parentDnaSegment.getAxisEndPoints()
 
             if axisEnd1 is not None and axisEnd2 is not None:
                 # note: this condition was an attempt to fix traceback
@@ -281,17 +284,17 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                 # so I will leave it in place. [bruce 080216]
 
                 self.axisEnd1, self.axisEnd2 = axisEnd1, axisEnd2
-                
+
                 #List of *positions* of strand atoms connected to the axis end atoms.
                 strandEndPoints = self._parentDnaSegment.getStrandEndPointsFor(self.struct)
-                
+
                 if len(strandEndPoints) != 2:
                     print_compact_stack("BUG in drawing handles: dna segment "\
                                         "probably doesn't have exactly two end"\
                                         " axis atoms: "
-                                        )
+                                    )
                     return
-                
+
                 #Now comput the handle base positions. for Strand resize handles, 
                 #the base position will lie midway between the axis end atom 
                 #and corresponding strand end atom of the strand. 
@@ -304,11 +307,11 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
                     v2 = strandEnd2 - self.axisEnd2
                     self.handlePoint2 = self.axisEnd2 + norm(v2)*vlen(v2)/2.0
 
-    
+
     def modifyStructure(self):
         """
         TO BE MODIFIED POST DNA DATA MODEL IMPLEMENTATION.       
-        
+
         @see: @see: B{DnaStrand_ResizeHandle.on_release} (the caller)
         @see: B{DnaSegment_EditCommand.modifystructure()} for comments
         @see: B{SelectChunks_GraphicsMode.leftUp} (which calls the 
@@ -316,7 +319,57 @@ class DnaStrand_EditCommand(State_preMixin, EditCommand):
         @see: B{exprs.DraggableHandle_AlongLine}, B{exprs.DragBehavior}
         @see: B{self.preview_or_finalize_structure }
         @see: B{self._modifyStructure}        
-    
+
         """
         pass
-        
+
+    def makeMenus(self): 
+        """
+        Create context menu for this command. (Build Dna mode)
+        """
+        if not hasattr(self, 'graphicsMode'):
+            return
+
+        selobj = self.glpane.selobj
+
+        if selobj is None:
+            return
+
+        self.Menu_spec = []
+
+        highlightedChunk = None
+        if isinstance(selobj, Chunk):
+            highlightedChunk = selobj
+        if isinstance(selobj, Atom):
+            highlightedChunk = selobj.molecule
+        elif isinstance(selobj, Bond):
+            chunk1 = selobj.atom1.molecule
+            chunk2 = selobj.atom2.molecule
+            if chunk1 is chunk2 and chunk1 is not None:
+                highlightedChunk = chunk1
+
+        if highlightedChunk is None:
+            return
+
+        if self.hasValidStructure():
+            if (self.struct is highlightedChunk) or \
+               (self.struct is highlightedChunk.parent_node_of_class(
+                   self.assy.DnaStrand)):
+                item = (("Currently editing %r"%self.struct.name), 
+                        noop, 'disabled')
+                self.Menu_spec.append(item)
+                return	 
+            #following should be self.struct.get_DnaGroup or self.struct.getDnaGroup
+            #need to formalize method name and then make change.
+            dnaGroup = self.struct.parent_node_of_class(self.assy.DnaGroup)
+            if dnaGroup is None:
+                return            
+            if not dnaGroup is highlightedChunk.parent_node_of_class(self.assy.DnaGroup):                
+                item = ("Edit unavailable: Member of a different DnaGroup",
+                        noop, 'disabled')
+                self.Menu_spec.append(item)
+                return
+
+        highlightedChunk.make_context_menu_items(self.Menu_spec,
+                                                 command = self)
+

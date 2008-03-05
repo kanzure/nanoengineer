@@ -27,7 +27,12 @@ from utilities.Log  import greenmsg
 from command_support.GeneratorBaseClass import PluginBug, UserError
 
 from constants import gensym
+
 from Ui_DnaFlyout import DnaFlyout
+
+from chem import Atom 
+from chunk import Chunk
+from bonds import Bond
 
 ##from SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 
@@ -44,52 +49,59 @@ class BuildDna_EditCommand(EditCommand):
     cmdname          = "Build Dna"
     commandName       = 'BUILD_DNA'
     featurename       = 'Build_Dna'
-    
+
     GraphicsMode_class = BuildDna_GraphicsMode
-    
+
     command_should_resume_prevMode = False
     command_has_its_own_gui = True
     command_can_be_suspended = True
-    
+
     # Generators for DNA, nanotubes and graphene have their MT name 
     # generated (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix  =  True 
-   
+    
+    #The following class constant is used in creating dynamic menu items (using self.makeMenus)
+    #if this flag is not defined, the menu doesn't get created
+    #or use of self.graphicsMode in self.makeMenus throws errors. 
+    #See also other examples of its use in older Commands such as 
+    #BuildAtoms_Command (earlier depositmode) 
+    call_makeMenus_for_each_event = True    
 
     def __init__(self, commandSequencer, struct = None):
         """
         Constructor for BuildDna_EditCommand
         """
+
         EditCommand.__init__(self, commandSequencer)
         self.struct = struct
-    
-    
+
+
     def init_gui(self):
         """
         Do changes to the GUI while entering this command. This includes opening 
         the property manager, updating the command toolbar , connecting widget 
         slots (if any) etc. Note: The slot connection in property manager and 
         command toolbar is handled in those classes. 
-        
+
         Called once each time the command is entered; should be called only 
         by code in modes.py
-        
+
         @see: L{self.restore_gui}
         """
         EditCommand.init_gui(self)    
-            
+
         if self.flyoutToolbar is None:
             self.flyoutToolbar = DnaFlyout(self.win, self.propMgr)
-        
+
         self.flyoutToolbar.activateFlyoutToolbar()
-    
+
     def resume_gui(self):
         """
         Called when this command, that was suspended earlier, is being resumed. 
         The temporary command (which was entered by suspending this command)
         might have made some changes to the model which need to be reflected 
         while resuming command. 
-        
+
         Example: A user enters BreakStrands_Command by suspending 
         BuildDna_EditCommand, then breaks a few strands, thereby creating new 
         strand chunks. Now when the user returns to the BuildDna_EditCommand, 
@@ -108,10 +120,10 @@ class BuildDna_EditCommand(EditCommand):
         #toolbar are reset during #3  --- Ninad 2008-01-14
         if self.propMgr:
             self.propMgr.updateListWidgets()        
-            
+
         if self.flyoutToolbar:
             self.flyoutToolbar.resetStateOfActions()
-        
+
 
     def restore_gui(self):
         """
@@ -124,7 +136,7 @@ class BuildDna_EditCommand(EditCommand):
         EditCommand.restore_gui(self)
         if self.flyoutToolbar:
             self.flyoutToolbar.deActivateFlyoutToolbar()
-              
+
     def StateDone(self):   
         """
         @see: Command.StateDone 
@@ -136,7 +148,7 @@ class BuildDna_EditCommand(EditCommand):
         @see Command.StateCancel
         """
         return None
-    
+
     def runCommand(self):
         """
         Overrides EditCommand.runCommand
@@ -155,12 +167,12 @@ class BuildDna_EditCommand(EditCommand):
         EditCommand.create_and_or_show_PM_if_wanted(
             self,
             showPropMgr = showPropMgr)
-        
+
         self.propMgr.updateMessage("Use appropriate command in the command "\
                                    "toolbar to create or modify a DNA Object"\
                                    "<br>"                                   
-                                   )
-        
+                               )
+
     def createStructure(self, showPropMgr = True):
         """
         Overrides superclass method. It doesn't do anything for this type
@@ -168,50 +180,50 @@ class BuildDna_EditCommand(EditCommand):
         """
 
         self.preview_or_finalize_structure(previewing = True)
-        
-    
+
+
     def editStructure(self, struct = None):
         """
         Overrides EditCommand.editStructure method. Provides a way to edit an 
         existing structure. This implements a topLevel command that the client
         can execute to edit an existing object(i.e. self.struct) that it wants.
-        
+
         Example: If its a plane edit controller, this method will be used to 
                 edit an object of class Plane. 
-        
+
         This method also creates a propMgr objects if it doesn't exist and 
         shows this property manager 
-        
+
         @see: L{self.createStructure} (another top level command that 
               facilitates creation of a model object created by this 
               editCommand
         @see: L{Plane.edit} and L{Plane_EditCommand._createPropMgrObject} 
         """
-        
+
         if struct is not None:
             #Should we always unpick the structure while editing it? 
             #Makes sense for editing a Dna. If this is problematic, the 
             #following should be done in the subclasses that need this.
             if hasattr(struct, 'picked') and struct.picked:
                 struct.unpick()
-            
+
         EditCommand.editStructure(self, struct) 
-    
+
     def hasValidStructure(self):
         """
         Tells the caller if this edit command has a valid structure. 
         Overrides EditCommand.hasValidStructure()
         """        
         isValid = EditCommand.hasValidStructure(self)
-        
+
         if not isValid:
             return isValid
-                
+
         if isinstance(self.struct, DnaGroup): 
             return True    
-        
+
         return False
-                       
+
 
     def _createPropMgrObject(self):
         """
@@ -231,7 +243,7 @@ class BuildDna_EditCommand(EditCommand):
         @rtype: L{Group}  
         @note: This needs to return a DNA object once that model is implemented        
         """
-       
+
         # self.name needed for done message
         if self.create_name_from_prefix:
             # create a new name
@@ -243,8 +255,8 @@ class BuildDna_EditCommand(EditCommand):
                 # (can't reuse name in this case -- not sure what prefix it was
                 #  made with)
             name = self.name
-        
-               
+
+
         # Create the model tree group node. 
         # Make sure that the 'topnode'  of this part is a Group (under which the
         # DNa group will be placed), if the topnode is not a group, make it a
@@ -252,15 +264,15 @@ class BuildDna_EditCommand(EditCommand):
         # --Part.ensure_toplevel_group method. This is an important line
         # and it fixes bug 2585
         self.win.assy.part.ensure_toplevel_group()
-       
+
         dnaGroup = DnaGroup(self.name, 
-                         self.win.assy,
-                         self.win.assy.part.topnode,
-                         editCommand = self)
+                            self.win.assy,
+                            self.win.assy.part.topnode,
+                            editCommand = self)
         try:
-            
+
             self.win.assy.place_new_geometry(dnaGroup)
-            
+
             return dnaGroup
 
         except (PluginBug, UserError):
@@ -277,17 +289,17 @@ class BuildDna_EditCommand(EditCommand):
                  (which is a dna group) or None if self.structure doesn't exist
         @rtype:  tuple
         """       
-        
+
         #Passing the segmentList as a parameter is not implemented
         ##if self.struct:
             ##segmentList = []
             ##for segment in self.struct.members:
                 ##if isinstance(segment, DnaSegment):
                     ##segmentList.append(segment)
-            
+
             ##if segmentList:
                 ##return (segmentList)
-                    
+
         return None               
 
 
@@ -314,7 +326,7 @@ class BuildDna_EditCommand(EditCommand):
                 # (can't reuse name in this case -- not sure what prefix it was
                 #  made with)
             name = self.name
-            
+
         #@NOTE: Unlike editcommands such as Plane_EditCommand, this 
         #editCommand actually removes the structure and creates a new one 
         #when its modified. We don't yet know if the DNA object model 
@@ -325,10 +337,10 @@ class BuildDna_EditCommand(EditCommand):
         self._removeStructure()
 
         self.previousParams = params        
-  
+
         self.struct = self._createStructure()            
         return 
-    
+
     def _finalizeStructure(self):
         """
         Overrides EditCommand._finalizeStructure. 
@@ -344,7 +356,7 @@ class BuildDna_EditCommand(EditCommand):
                 self.win.win_update()
             else:
                 EditCommand._finalizeStructure(self) 
-        
+
         if self.struct is not None:
             #Make sure that he DnaGroup in the Model Tree is in collapsed state
             #after finalizing the structure.
@@ -352,7 +364,7 @@ class BuildDna_EditCommand(EditCommand):
             #because the EditCommand._finalizeStructure may have assigned
             #'None' for 'self.struct'!
             self.struct.open = False
-                
+
     def cancelStructure(self):
         """
         Cancel the structure
@@ -361,8 +373,8 @@ class BuildDna_EditCommand(EditCommand):
         if self.struct is not None:
             if self.struct.isEmpty():
                 self._removeStructure()
-            
-            
+
+
     def provideParamsForTemporaryMode(self, temporaryModeName):
         """
         NOTE: This needs to be a general API method. There are situations when 
@@ -371,13 +383,13 @@ class BuildDna_EditCommand(EditCommand):
 	previous mode to the temporary mode .	 
 	@see: B{DnaLineMode}
 	@see: self.acceptParamsFromTemporaryMode 
-        
+
         @see DnaDuplex_EditCommand._createSegment(), 
         @see: DnaDuplex_EditCommand.createStructure()
         @see: DnaDuplex_EditCommand.restore_gui()
         """
         params = None
-   
+
         if temporaryModeName == 'DNA_DUPLEX':
             #Pass the self.struct to the DnaDuplex_EdiCommand
             #This deprecates use of self.callback_addSegments (in which 
@@ -388,39 +400,68 @@ class BuildDna_EditCommand(EditCommand):
             #See: DnaDuplex_EditCommand._createSegment(), 
             #    DnaDuplex_EditCommand.createStructure(), and
             #    DnaDuplex_EditCommand.restore_gui()
-            
+
             if self.struct is None:
                 self.struct = self._createStructure()
             params = (self.callback_addSegments, self.struct)
-        
+
         return params    
-    
+
     def callback_addSegments(self, segmentList):
         """
         Call back method supplied to the temporary command DnaDuplex_EditCommand. 
         The DnaDuplex_EditCommand gives it a list of segments created 
         while that command was active.
         To be revised and renamed. 
-        
+
         @see: DnaDuplex_EditCommand.restore_gui
-        
+
         @TODO: Remove this method when safe. DEPRECATED AS OF 2008-02-24
                See self.provideParametersForTemporaryMode which pass on 
                self.struct (a DnaGroup) to be used in DnaDuplex_EditCommand 
                (which adds created DnaSegments to it ) 
         """      
-        
+
         if self.struct is None:
             self.struct = self._createStructure()  
-              
+
         assert self.struct is not None   
         for segment in segmentList:
             self.struct.addSegment(segment)
         ##self.win.assy.place_new_geometry(dnaGroup)
         self.propMgr.updateListWidgets()
-        
+
         self.previousParams = self._gatherParameters() 
-        
+
         self.win.win_update()
 
+    def makeMenus(self): 
+        """
+        Create context menu for this command. (Build Dna mode)
+        @see: chunk.make_context_menu_items
+        @see: DnaSegment_EditCommand.makeMenus
+        """
+        if not hasattr(self, 'graphicsMode'):
+            return
 
+        selobj = self.glpane.selobj
+
+        if selobj is None:
+            return
+
+        self.Menu_spec = []
+
+        highlightedChunk = None
+        if isinstance(selobj, Chunk):
+            highlightedChunk = selobj
+        if isinstance(selobj, Atom):
+            highlightedChunk = selobj.molecule
+        elif isinstance(selobj, Bond):
+            chunk1 = selobj.atom1.molecule
+            chunk2 = selobj.atom2.molecule
+            if chunk1 is chunk2 and chunk1 is not None:
+                highlightedChunk = chunk1
+
+        if highlightedChunk is not None:
+            highlightedChunk.make_context_menu_items(self.Menu_spec,
+                                                     command = self)
