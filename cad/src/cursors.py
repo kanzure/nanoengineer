@@ -12,7 +12,7 @@ mark 060427 - loadCursors() moved from MWsemantics.py.
 from PyQt4.Qt import QCursor, QBitmap, Qt
 import os, sys
 
-from icon_utilities import getpixmap, getCursorPixmap
+from icon_utilities import getCursorPixmap
 
 def loadCursors(w):
     """
@@ -160,11 +160,11 @@ def loadCursors(w):
 
     # Confirmation corner cursors [loaded by bruce 070626 from files committed by mark]
     w._confcorner_OKCursor = \
-     QCursor(getpixmap("ui/confcorner/OKCursor.png"), 0, 0)
+     QCursor(getCursorPixmap("OKCursor.png"), 0, 0)
     w.confcorner_TransientDoneCursor = \
-     QCursor(getpixmap("ui/confcorner/TransientDoneCursor.png"), 0, 0)
+     QCursor(getCursorPixmap("TransientDoneCursor.png"), 0, 0)
     w._confcorner_CancelCursor = \
-     QCursor(getpixmap("ui/confcorner/CancelCursor.png"), 0, 0)
+     QCursor(getCursorPixmap("CancelCursor.png"), 0, 0)
 
     # Pencil cursors
     w.colorPencilCursor = \
