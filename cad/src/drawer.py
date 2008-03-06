@@ -1105,6 +1105,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
     """
     def __init__(self):
         self.clear()
+        self.selected = False   # Whether to draw in the selection over-ride color.
         self.activate()
         return
     
@@ -1115,7 +1116,6 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         self.dl = 0             # The display list called for the current appearance.
         self.color_dl = 0       # Second-level display list setting color and calling sublists
         self.nocolor_dl = 0     # 2nd level call-list without colors, used for color over-ride.
-        self.selected = False   # Whether to draw in the selection over-ride color.
         self.selected_dl = 0    # 2nd level call-list with a single over-ride color.
         self.per_color_dls = [] # Per-color sublists.
         return
@@ -1131,7 +1131,13 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         """
         Make a top-level display list id ready, but don't fill it in.
         """
-        self.dl = glGenLists(1) # Display list id for the current appearance.
+        # Display list id for the current appearance.
+        if not self.selected:
+            self.color_dl = glGenLists(1)
+        else:
+            self.selected_dl = glGenLists(1)
+            pass
+        self.selectDl()
         assert type(self.dl) in (type(1), type(1L)) #bruce 070521 added these two asserts
         assert self.dl != 0     # This failed on Linux, keep checking. (bug 2042)
         return
@@ -1149,6 +1155,7 @@ class ColorSortedDisplayList:         #Russ 080225: Added.
         Change to either the normal-color display list or the selected one.
         """
         self.dl = self.selected and self.selected_dl or self.color_dl
+        assert self.dl != 0
         return
 
     def reset(self):
@@ -1387,26 +1394,27 @@ class ColorSorter:
     schedule_surface = staticmethod(schedule_surface)
 
 
-    def start(csdl):
+    def start(csdl, pickstate=None):
         """
         Start sorting - objects provided to "schedule", "schedule_sphere", and
         "schedule_cylinder" will be stored for a sort at the time "finish" is called.
         csdl is a ColorSortedDisplayList or None, in which case immediate drawing is done.
+        pickstate (optional) indicates whether the parent is currently selected.
         """
 
         #russ 080225: Moved glNewList here for displist re-org.
         ColorSorter.parent_csdl = csdl # Remember, used by finish().
+        if pickstate is not None:
+            csdl.selectPick(pickstate)
+
         if csdl != None:
+            parent_top = csdl.dl
             if not (allow_color_sorting and use_color_sorted_dls):
                 # This is the beginning of the single display list created when color
                 # sorting is turned off.  It is ended in ColorSorter.finish .  In
                 # between, the calls to draw{sphere,cylinder,polycone} methods pass
                 # through ColorSorter.schedule_* but are immediately sent to *_worker
                 # where they do OpenGL drawing that is captured into the display list.
-                
-                csdl.reset() #bruce 080304 try to fix major bug reported tonight
-                parent_top = csdl.dl #bruce 080304 moved this line inside the 'if' statement
-                
                 try:
                         glNewList(parent_top, GL_COMPILE_AND_EXECUTE) # Start single-level list.
                 except:

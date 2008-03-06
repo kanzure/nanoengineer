@@ -1678,7 +1678,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     match_checking_code = self.begin_tracking_usage()
                     #russ 080225: Moved glNewList into ColorSorter.start for displist re-org.
                     #russ 080225: displist side effect allocates a ColorSortedDisplayList.
-                    ColorSorter.start(self.displist) # grantham 20051205
+                    #russ 080305: Chunk may already be selected, tell the CSDL.
+                    ColorSorter.start(self.displist, self.picked) # grantham 20051205
 
                 # bruce 041028 -- protect against exceptions while making display
                 # list, or OpenGL will be left in an unusable state (due to the lack
@@ -1919,7 +1920,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         if self.picked and not (allow_color_sorting and use_color_sorted_dls):
             #bruce disable this case when using use_color_sorted_dls
-            # since they provide a better way (might fix "stuck green" bug)
+            # since they provide a better way (fixes "stuck green" bug.)
             
             #ninad070405 Following draws the chunk as a colored selection 
             #(if selected)
