@@ -50,6 +50,15 @@ class BreakStrands_GraphicsMode( ESC_to_exit_GraphicsMode_preMixin,
 	
 	""" 
         return red
+    
+    
+    
+    def leftDouble(self, event):
+        """
+        Overrides BuildAtoms_GraphicsMode.leftDouble. In BuildAtoms mode,
+        left double deposits an atom. We don't want that happening here!
+        """
+        pass
         
     
   
