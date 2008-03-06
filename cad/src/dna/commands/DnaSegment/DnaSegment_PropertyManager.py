@@ -95,6 +95,14 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
         change_connect( self.numberOfBasePairsSpinBox,
                       SIGNAL("valueChanged(int)"),
                       self.numberOfBasesChanged )
+        
+        change_connect( self.basesPerTurnDoubleSpinBox,
+                      SIGNAL("valueChanged(double)"),
+                      self.basesPerTurnChanged )
+        
+        change_connect( self.duplexRiseDoubleSpinBox,
+                      SIGNAL("valueChanged(double)"),
+                      self.duplexRiseChanged )
     
     def show(self):
         """
@@ -123,7 +131,25 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
             name = str(self.nameLineEdit.text())
             self.editCommand.setStructureName(name)
         EditCommand_PM.close(self)
-
+        
+    def setParameters(self, params):
+        """
+        This is usually called when you are editing an existing structure. 
+        Some property manager ui elements then display the information 
+        obtained from the object being edited. 
+        TODO:
+        - Make this a EditCommand_PM API method? 
+        - See also the routines GraphicsMode.setParams or object.setProps
+        ..better to name them all in one style?  
+        """
+        #Set the duplex rise and bases per turn spinbox values. 
+        duplexRise, basesPerTurn = params 
+        if duplexRise:
+            self.duplexRiseDoubleSpinBox.setValue(duplexRise)
+        if basesPerTurn:
+            self.basesPerTurnDoubleSpinBox.setValue(basesPerTurn)
+        
+        
     def getParameters(self):
         """
         """
@@ -177,6 +203,21 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
              + " Angstroms"
         self.duplexLengthLineEdit.setText(text)
         return
+    
+    def basesPerTurnChanged( self, basesPerTurn ):
+        """
+        Slot for the B{Bases per turn} spinbox.
+        """
+        self.basesPerTurn = basesPerTurn
+        
+    
+    def duplexRiseChanged( self, rise ):
+        """
+        Slot for the B{Rise} spinbox.
+        """
+        self.duplexRise = rise
+        
+    
                           
     def _addGroupBoxes( self ):
         """
@@ -204,6 +245,26 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                         setAsDefault  =  False,
                         minimum       =  0,
                         maximum       =  10000 )
+        
+        self.basesPerTurnDoubleSpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Bases Per Turn:",
+                              value         =  self.basesPerTurn,
+                              setAsDefault  =  True,
+                              minimum       =  8.0,
+                              maximum       =  20.0,
+                              decimals      =  2,
+                              singleStep    =  0.1 )
+        
+        self.duplexRiseDoubleSpinBox  =  \
+            PM_DoubleSpinBox( pmGroupBox,
+                              label         =  "Rise:",
+                              value         =  self.duplexRise,
+                              setAsDefault  =  True,
+                              minimum       =  2.0,
+                              maximum       =  4.0,
+                              decimals      =  3,
+                              singleStep    =  0.01 )
 
 
         # Duplex Length
@@ -214,6 +275,8 @@ class DnaSegment_PropertyManager( EditCommand_PM, DebugMenuMixin ):
                          setAsDefault  =  False)
 
         self.duplexLengthLineEdit.setDisabled(True)  
+        
+        
     
     def _addWhatsThisText(self):
         """

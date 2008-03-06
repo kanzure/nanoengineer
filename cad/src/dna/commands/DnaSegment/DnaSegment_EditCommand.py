@@ -232,8 +232,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             #it will be added to the original DnaGroup to which it belonged 
             #before we began editing (modifying) it. 
             self._parentDnaGroup = self.struct.get_DnaGroup() 
-            self.propMgr.duplexRise, self.propMgr.basesPerTurn  = \
-                self.struct.getProps()  
+            #Set the duplex rise and number of bases
+            self.propMgr.setParameters(self.struct.getProps())
             #Store the previous parameters. Important to set it after you 
             #set duplexRise and basesPerTurn attrs in the propMgr. 
             #self.previousParams is used in self._previewStructure and 
