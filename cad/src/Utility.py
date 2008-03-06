@@ -1812,30 +1812,7 @@ class NodeWith3DContents(Node): #bruce 080305
         assert 0, "subclass must implement"
     # def draw_in_abs_coords?
     pass
-
-# ==
  
-class NodeWithAtomContents(NodeWith3DContents): #bruce 080305
-    # REVIEW: which methods can safely assert that subclass must implement?
-    """
-    Abstract class for Node subclasses which can contain Atoms.
-
-    Notable subclasses include Chunk and Group.
-    """
-    def pickatoms(self):
-        """
-        [overrides Node method; subclasses must override this method]
-        """
-        pass ### assert 0, "subclass must implement"
-
-    def contains_atom(self, atom):
-        """
-        [overrides Node method; subclasses must override this method]
-        """
-        assert 0, "subclass must implement"
-
-    pass
-
 # ==
 
 class SimpleCopyMixin(Node):

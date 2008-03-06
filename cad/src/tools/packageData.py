@@ -433,6 +433,7 @@ packageMapping_for_files = {
     "LinearMotor_EditCommand"          : "command|commands/LinearMotorProperties?",
     "LinearMotorPropertyManager"       : "ui/propmgr|commands/LinearMotorProperties?",
     "LineMode"                         : "temporary_command", #?? a temporary command and gm... apparently can be used directly?
+
     "main"                             : "top_level", # someday to be renamed to ne1_main
     "master_model_updater"             : "model_updater",
     "mdldata"                          : "graphics_io|graphics/rendering/mdl",
@@ -466,6 +467,7 @@ packageMapping_for_files = {
     "NE1_QToolBar"                     : "widget", # New main toolbar class for the NE1 main window.
     "Node_as_MT_DND_Target"            : "controller|modelTree",
     "node_indices"                     : "foundation",
+    "NodeWithAtomContents"             : "foundation",
 
     "objectBrowse"                     : "utilities", # debug
     "ops_atoms"                        : "operations",

@@ -69,7 +69,7 @@ import chem
 
 from geometry.VQT import V, Q, A, vlen
 
-from Utility import NodeWithAtomContents
+from NodeWithAtomContents import NodeWithAtomContents
 
 from utilities.Log import orangemsg, redmsg, quote_html, graymsg
 

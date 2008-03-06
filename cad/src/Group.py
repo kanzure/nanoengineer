@@ -26,7 +26,7 @@ from state_constants import S_CHILDREN
 from commands.GroupProperties.GroupProp import GroupProp
 from icon_utilities import imagename_to_pixmap
 
-from Utility import NodeWithAtomContents
+from NodeWithAtomContents import NodeWithAtomContents
 
 from utilities.Log import redmsg, quote_html
 
