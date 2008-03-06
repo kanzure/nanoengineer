@@ -289,16 +289,6 @@ class DnaDuplex_EditCommand(EditCommand):
                 ##segment.unpick()
 
 
-        #set some properties such as duplexRise and number of bases per turn
-        #This information will be stored on the DnaSegment object so that
-        #it can be retrieved while editing this object. Its a temporary 
-        #KLUDGE until we have a singing and dancing version of 
-        #dna data model. -- Ninad 2008-02-01
-        params = (self.duplexRise, 
-                  self.propMgr.basesPerTurnDoubleSpinBox.value())
-
-        self.struct.setProps(params)
-
         #Now append this dnaSegment  to self._segmentList 
         self._segmentList.append(self.struct)
 
@@ -326,7 +316,32 @@ class DnaDuplex_EditCommand(EditCommand):
         @note: This needs to return a DNA object once that model is implemented        
         """
         return self._createSegment()
-
+    
+    def _finalizeStructure(self):
+        """
+        Finalize the structure. This is a step just before calling Done method.
+        to exit out of this command. Subclasses may overide this method
+        @see: EditCommand_PM.ok_btn_clicked
+        @see: DnaSegment_EditCommand where this method is overridden. 
+        """
+        #The following can happen in this case: User creates first duplex, 
+        #Now clicks inside 3D workspace to define the first point of the 
+        #next duplex. Now moves the mouse to draw dna rubberband line. 
+        #and then its 'Done' When it does that, it has modified the 
+        #'number of base pairs' value in the PM and then it uses that value 
+        #to modify self.struct ...which is the first segment user created!
+        #In order to avoid this, either self.struct should be set to None after
+        #its appended to the segment list (in self.createStructure) 
+        #Or it should compute the number of base pairs each time instead of 
+        #relying on the corresponding value in the PM. The latter is not 
+        #advisable if we support modifying the number of base pairs from the 
+        #PM (and hitting preview) while in DnaDuplex command. 
+        #In the mean time, I think this solution will always work. 
+        if len(self.mouseClickPoints) == 1:
+            return
+        else:
+            EditCommand._finalizeStructure(self)
+        
 
     def _gatherParameters(self):
         """

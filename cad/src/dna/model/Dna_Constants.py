@@ -190,9 +190,22 @@ def getNumberOfBasePairsFromDuplexLength(conformation, duplexLength, duplexRise 
     assert duplexLength >= 0
     assert duplexRise >= 0
     if duplexRise:
-        numberOfBasePairs = 1 + (duplexLength / duplexRise)
+        numberOfBasePairs = 1.0005 + (duplexLength / duplexRise)
     else:
-        numberOfBasePairs = 1 + (duplexLength / getDuplexRise(conformation))
+        numberOfBasePairs = 1.0005 + (duplexLength / getDuplexRise(conformation))
+    
+    #Explanation on adding '1.0005':
+    #The number of base-pairs returned is NOT rounded to the nearest integer.
+    #See why its not done in this method's docstring. But why do we add 1.005
+    #instead of '1' while computing the number of basepairs? As of 2008-03-05
+    #there a bug observed in the number this method returns if we just add '1'
+    #Suppose a print statement shows the the numberOfBasePairs computed
+    #above as 5.0. But int(numberOfBasePairs) returns 4 and not 5! This happens 
+    #sometime. I am not sure if in those cases the number of basepairs are
+    #something like 4.99999......N which python rounds off to 5.0, but int of 
+    #that number actually returns 4. This is just a guess. But some print
+    #statements do show this happening! So a workaround is to add some tolerance
+    #of 0.0005 to 1. This addition is unlikely to have any user visible effect.
     return int(numberOfBasePairs)
 
 
