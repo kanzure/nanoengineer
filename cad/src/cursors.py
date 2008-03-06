@@ -14,7 +14,7 @@ self.o.setCursor(win.ArrowCursor)).
 - Replace all bitmap cursors with color PNG cursors.
 """
 
-from PyQt4.Qt import QCursor, QBitmap, Qt
+from PyQt4.Qt import QCursor, QBitmap, Qt, QPainter
 import os, sys
 
 from icon_utilities import getCursorPixmap
@@ -78,6 +78,27 @@ def loadCursors(w):
             cursor = None
 
         return cursor
+    
+    # Selection lock symbol
+    selectionLockSymbol = QCursor(getCursorPixmap("symbols/SelectionLock.png"), 0, 0)
+    
+    # Test cursors for NE1_QCursor class. Mark 2008-03-06.
+    w.selectionLockCursorOverlay = \
+     QCursor(getCursorPixmap("selectionLockCursorOverlay.png"), 0, 0)
+    w.selectionLockCursorUnderlay = \
+     QCursor(getCursorPixmap("selectionLockCursorUnderlay.png"), 0, 0)
+    
+    # Pencil symbols.
+    horizontalSymbol = QCursor(getCursorPixmap("symbols/HorizontalSnap.png"), 0, 0)
+    verticalSymbol = QCursor(getCursorPixmap("symbols/VerticalSnap.png"), 0, 0)
+    
+    # Pencil cursors
+    w.colorPencilCursor = \
+     QCursor(getCursorPixmap("Pencil.png"), 0, 0)
+    w.pencilHorizontalSnapCursor = \
+     createCompositeCursor(w.colorPencilCursor, horizontalSymbol, offsetX = 22, offsetY = 22)
+    w.pencilVerticalSnapCursor = \
+     createCompositeCursor(w.colorPencilCursor, verticalSymbol, offsetX = 22, offsetY = 22)
 
     # Build Atoms - normal cursors
     w.SelectAtomsCursor = \
@@ -169,19 +190,92 @@ def loadCursors(w):
      QCursor(getCursorPixmap("TransientDoneCursor.png"), 0, 0)
     w._confcorner_CancelCursor = \
      QCursor(getCursorPixmap("CancelCursor.png"), 0, 0)
-
-    # Pencil cursors
-    w.colorPencilCursor = \
-     QCursor(getCursorPixmap("Pencil.png"), 0, 0)
-    w.pencilHorizontalSnapCursor = \
-     QCursor(getCursorPixmap("Pencil_HorizontalSnap.png"), 0, 0)
-    w.pencilVerticalSnapCursor = \
-     QCursor(getCursorPixmap("Pencil_VerticalSnap.png"), 0, 0)
     
     # Some Build Dna mode cursors
     w.rotateAboutCentralAxisCursor = \
      QCursor(getCursorPixmap("Rotate_About_Central_Axis.png"), 0, 0)
     w.translateAlongCentralAxisCursor = \
      QCursor(getCursorPixmap("Translate_Along_Central_Axis.png"), 0, 0)
+    
+    # Experimental- Add the selection lock symbol to the SelectArrowCursor.
+    if 0:
+        
+        # This uses the new NE1_Cursor class to add the selection lock symbol.
+        # SelectArrowCursor needs to be a NE1_QCursor (not QCursor) to work. 
+        # The NE1_QCursor class has not been committed yet. --Mark 2008-03-06
+        #w.SelectArrowCursor.overlay(w.selectionLockCursorOverlay)
+        #w.SelectArrowCursor.underlay(w.selectionLockCursorUnderlay)
+        
+        # This uses createCompositeCursor() to add the selection lock symbol.
+        w.SelectArrowCursor = createCompositeCursor(w.SelectArrowCursor,
+                                                    selectionLockSymbol,
+                                                    offsetX = 5, offsetY = 17)
 
     return # from loadCursors
+
+def createCompositeCursor(cursor, overlayCursor, 
+                          hotX = None, hotY = None, 
+                          offsetX = 0, offsetY = 0):
+    """
+    Returns a composite 32x32 cursor using two other cursors.
+
+    This is useful for creating composite cursor images from two (or more)
+    cursors.
+    
+    For example, the pencil cursor includes a horizontal and vertical 
+    symbol when drawing a horizontal or vertical line. This function can
+    be used to create these cursors without having to create each one by hand.
+    The payoff is when the developer/artist wants to change the base cursor 
+    image (i.e. the pencil cursor) without having to redraw and save all the 
+    other versions of the cursor in the set.
+    
+    @param cursor: The main cursor.
+    @type  cursor: QCursor
+    
+    @param overlayCursor: The cursor to overlay on top of I{cursor}.
+    @type  overlayCursor: QCursor
+    
+    @param hotX: The X coordinate of the hotspot. If none is given, the
+                 hotspot of I{cursor} is used.
+    @type  hotX: int
+    
+    @param hotY: The Y coordinate of the hotspot. If none is given, the
+                 hotspot of I{cursor} is used.
+    @type  hotY: int
+    
+    @param offsetX: The X offset in which to draw the overlay cursor onto
+                    I{cursor}. The default is 0.
+    @type  offsetX: int
+    
+    @param offsetY: The Y offset in which to draw the overlay cursor onto
+                    I{cursor}. The default is 0.
+    @type  offsetY: int
+    
+    @return: The composite cursor.
+    @rtype:  QCursor
+    
+    @note: It would be easy and useful to allow overlayCursor to be a QPixmap.
+           I'll add this when it becomes helpful. --Mark 2008-03-06.
+    """
+    # Method: 
+    # 1. Get cursor's pixmap and create a painter from it.
+    # 2. Get the pixmap from the overlay cursor and draw it onto the
+    #    cursor pixmap to create the composite pixmap.
+    # 3. Create and return a new QCursor from the composite pixmap.
+    # Mark 2008-03-05
+    
+    assert isinstance(cursor, QCursor)
+    assert isinstance(overlayCursor, QCursor)
+    
+    if hotX is None:
+        hotX = cursor.hotSpot().x()
+    if hotY is None:
+        hotY = cursor.hotSpot().y()
+    pixmap = cursor.pixmap()
+    overlayPixmap = overlayCursor.pixmap()
+    painter = QPainter(pixmap)
+    painter.drawPixmap(offsetX, offsetY, overlayPixmap)
+    painter.end()
+    return QCursor(pixmap, hotX, hotY)
+    
+
