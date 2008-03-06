@@ -32,7 +32,8 @@ SOURCES += ../../DataWindow.cpp \
  ../../TrajectoryGraphicsWindow.cpp \
  ../../StructureGraphicsWindow.cpp \
  ../../InputParametersWindow.cpp \
- ../../ResultsSummaryWindow.cpp
+ ../../ResultsSummaryWindow.cpp \
+ ../../JobSelectorDialog.cpp
 
 HEADERS += ../../DataWindow.h \
 ../../LogHandlerWidget.h \
@@ -46,7 +47,8 @@ HEADERS += ../../DataWindow.h \
  ../../TrajectoryGraphicsWindow.h \
  ../../StructureGraphicsWindow.h \
  ../../InputParametersWindow.h \
- ../../ResultsSummaryWindow.h
+ ../../ResultsSummaryWindow.h \
+ ../../JobSelectorDialog.h
 
 FORMS += ../../LogHandlerWidget.ui \
 ../../MainWindowTabWidget.ui \
@@ -54,7 +56,8 @@ FORMS += ../../LogHandlerWidget.ui \
 ../../ErrorDialog.ui \
  ../../TrajectoryGraphicsWindow.ui \
  ../../InputParametersWindow.ui \
- ../../ResultsSummaryWindow.ui
+ ../../ResultsSummaryWindow.ui \
+ ../../JobSelectorDialog.ui
 
 RESOURCES += ../../application.qrc
 

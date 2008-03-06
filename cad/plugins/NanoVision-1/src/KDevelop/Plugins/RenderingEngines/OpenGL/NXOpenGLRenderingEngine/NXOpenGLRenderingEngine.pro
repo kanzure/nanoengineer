@@ -13,7 +13,6 @@ HEADERS += ../../../../../../include/Nanorex/Interface/NXAtomRenderData.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLRenderingEngine.h \
  ../../../../../../include/Nanorex/Interface/NXRendererPlugin.h \
  ../../../../../../include/Nanorex/Interface/NXRenderingEngine.h \
- ../../../../../../include/Nanorex/Interface/NXRGBColor.h \
  ../../../../../../include/Nanorex/Interface/NXSceneGraph.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLSceneGraph.h \
  ../../../../../Plugins/RenderingEngines/OpenGL/NXOpenGLMaterial.h \

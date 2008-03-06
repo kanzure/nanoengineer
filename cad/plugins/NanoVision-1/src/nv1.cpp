@@ -46,51 +46,61 @@ nv1::~nv1() {
 /* FUNCTION: processCommandLine */
 void nv1::processCommandLine(int argc, char *argv[]) {
     
+	string filename, processType, processInit;
     NXCommandLine commandLine;
     if ((commandLine.SplitLine(argc, argv) > 0) &&
         (commandLine.HasSwitch("-f"))) {
-		string filename = commandLine.GetArgument("-f", 0);
+		filename = commandLine.GetArgument("-f", 0);
+		if (commandLine.GetArgumentCount("-p") == 2) {
+			processType = commandLine.GetArgument("-p", 0);
+			processInit = commandLine.GetArgument("-p", 1);
+		}
 		
-		QString message = tr("Opening file: %1").arg(filename.c_str());
-		NXLOG_INFO("nv1", qPrintable(message));
-		
-		if (resultsWindow->loadFile(filename.c_str())) {
-			statusBar()->showMessage(tr("File loaded"), 2000);
-			resultsWindow->show();
-		
-			// Start job monitor
-			string processType, processInit;
-			JobMonitor* jobMonitor = 0;
-			if (commandLine.GetArgumentCount("-p") == 2) {
-				processType = commandLine.GetArgument("-p", 0);
-				processInit = commandLine.GetArgument("-p", 1);
-				message =
-				tr("Setting up job management with job handle info: %1 %2")
-					.arg(processType.c_str()).arg(processInit.c_str());
-				NXLOG_INFO("nv1", qPrintable(message));
-				if (processType == "GMX") {
-					jobMonitor = new GROMACS_JobMonitor(processInit.c_str());
-				}
-				if (jobMonitor != 0) {
-					connect(jobMonitor,
-							SIGNAL(startedMonitoring(const QString&,
-													 const QString&,
-													 const QString&)),
-							this,
-							SLOT(addMonitoredJob(const QString&,
-												 const QString&,
-												 const QString&)));
-					connect(jobMonitor, SIGNAL(jobFinished(const QString&)),
-							this, SLOT(removeMonitoredJob(const QString&)));
-					connect(jobMonitor, SIGNAL(jobAborted(const QString&)),
-							this, SLOT(removeMonitoredJob(const QString&)));
-					jobMonitors[processInit.c_str()] = jobMonitor;
-					jobMonitor->start();
-				}
+	} else {
+		checkForActiveJobs(filename, processType, processInit);
+	}
+
+	if (filename != "")
+		loadFile(filename, processType, processInit);
+}
+
+
+/* FUNCTION: loadFile */
+void nv1::loadFile(const string& filename, const string& processType,
+				   const string& processInit) {
 				
-			} else {
-				// Check if there are any active jobs and ask user which, if any
-				// to connect to.
+	QString message = tr("Opening file: %1").arg(filename.c_str());
+	NXLOG_INFO("nv1", qPrintable(message));
+	
+	if (resultsWindow->loadFile(filename.c_str())) {
+		statusBar()->showMessage(tr("File loaded"), 2000);
+		resultsWindow->show();
+	
+		// Start job monitor
+		JobMonitor* jobMonitor = 0;
+		if ((processType != "") && (processInit != "")) {
+			message =
+			tr("Setting up job management with job handle info: %1 %2")
+				.arg(processType.c_str()).arg(processInit.c_str());
+			NXLOG_INFO("nv1", qPrintable(message));
+			if (processType == "GMX") {
+				jobMonitor = new GROMACS_JobMonitor(processInit.c_str());
+			}
+			if (jobMonitor != 0) {
+				connect(jobMonitor,
+						SIGNAL(startedMonitoring(const QString&,
+												 const QString&,
+												 const QString&)),
+						this,
+						SLOT(addMonitoredJob(const QString&,
+											 const QString&,
+											 const QString&)));
+				connect(jobMonitor, SIGNAL(jobFinished(const QString&)),
+						this, SLOT(removeMonitoredJob(const QString&)));
+				connect(jobMonitor, SIGNAL(jobAborted(const QString&)),
+						this, SLOT(removeMonitoredJob(const QString&)));
+				jobMonitors[processInit.c_str()] = jobMonitor;
+				jobMonitor->start();
 			}
 		}
 	}
@@ -383,5 +393,70 @@ void nv1::removeMonitoredJob(const QString& id) {
 /* FUNCTION: abortJob */
 void nv1::abortJob(const QString& id) {
     jobMonitors[id]->abortJob();
+}
+
+
+/* FUNCTION: checkForActiveJobs
+ *
+ * Check if there are any active jobs and ask the user which, if any to
+ * connect to. Populate the given variables.
+ */
+void nv1::checkForActiveJobs(string& filename, string& processType,
+							 string& processInit) {
+
+	// Get a list of active jobs
+	QSettings settings(QSettings::IniFormat, QSettings::UserScope,
+					   "Nanorex", "NanoVision-1");
+	QFileInfo fileInfo(settings.fileName());
+	QDir dir(fileInfo.absolutePath().append("/Jobs"));
+	if (!dir.exists()) {
+		dir.cdUp();
+		dir.mkdir("Jobs");
+	}
+	bool jobActive;
+	QStringList activeJobs;
+	QStringList fileList = dir.entryList(QDir::Files);
+	QStringList::const_iterator constIterator;
+	for (constIterator = fileList.constBegin();
+		 constIterator != fileList.constEnd(); ++constIterator) {
+		jobActive = false;
+		if ((*constIterator).startsWith("GMX")) {
+			QString pid = (*constIterator).mid(4);
+			jobActive = GROMACS_JobMonitor::CheckJobActive(pid);
+		}
+		if (jobActive)
+			activeJobs.append(*constIterator);
+		else
+			; // Delete job file
+	}
+	
+	// Show a selector dialog
+	int jobSelectionResult = QDialog::Rejected;
+	QString selectedJob;
+	if (!activeJobs.empty()) {
+		JobSelectorDialog jobSelectorDialog;
+		jobSelectorDialog.addActiveJobs(activeJobs);
+		jobSelectorDialog.exec();
+		jobSelectionResult = jobSelectorDialog.result();
+		if (jobSelectionResult == QDialog::Accepted)
+			selectedJob = jobSelectorDialog.getSelection();
+	}
+	
+	if (jobSelectionResult == QDialog::Accepted) {
+		
+		// TODO: make this handle more than just "GMX_<pid>"
+		processType = "GMX";
+		processInit = qPrintable(selectedJob.mid(4));
+		
+		QString jobFilename = dir.absolutePath().append("/").append(selectedJob);
+		QFile jobFile(jobFilename);
+		if (jobFile.open(QIODevice::ReadOnly)) {
+			char buffer[512];
+			if (jobFile.readLine(buffer, sizeof(buffer)) != -1) {
+				filename = buffer;
+			}
+			jobFile.close();
+		}
+	}
 }
 

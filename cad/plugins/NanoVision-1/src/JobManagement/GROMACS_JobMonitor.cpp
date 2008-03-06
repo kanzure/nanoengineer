@@ -81,6 +81,12 @@ void GROMACS_JobMonitor::run() {
 }
 
 
+/* FUNCTION: CheckJobActive */
+bool GROMACS_JobMonitor::CheckJobActive(const QString& pid) {
+	return true;
+}
+
+
 /* FUNCTION: abortJob */
 void GROMACS_JobMonitor::abortJob() {
 	QMutexLocker locker(&jobControlMutex);
