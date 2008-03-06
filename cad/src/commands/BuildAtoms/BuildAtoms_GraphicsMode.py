@@ -907,7 +907,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
             #& Would be nice if this could be an object. Problem is that clipboard and library
             #& both deposit chunks. mark 060314.
         
-        if self.o.modkeys is None: # no Shift or Ctrl modifier key.
+        # no Shift or Ctrl modifier key , also make sure that 'selection lock' 
+        #is not ON.
+        if self.o.modkeys is None and not self.selection_locked(): 
             self.o.assy.unpickall_in_GLPane() # Clear selection. [was unpickatoms -- bruce 060721]
         
         if self.w.depositState == 'Atoms':
@@ -1097,6 +1099,9 @@ class BuildAtoms_basicGraphicsMode(SelectAtoms_basicGraphicsMode):
         If modkey is None (no modkey is pressed), it will unpick all currently
         picked atoms.
         """
+        if self.selection_locked():
+            return False
+        
         if self.o.modkeys is None:
             self.o.assy.unpickall_in_GLPane() 
             # [was unpickatoms; this is a guess, 

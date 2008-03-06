@@ -713,17 +713,20 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         # dragjigs contains all the selected jigs.
         self.dragjigs = self.o.assy.getSelectedJigs()
         
-    def atomLeftDown(self, a, event):            
-        if not a.picked and self.o.modkeys is None:
-            self.o.assy.unpickall_in_GLPane()
-            a.pick()
-        if not a.picked and self.o.modkeys == 'Shift':
-            a.pick()
-
-        if a.picked:
-            self.cursor_over_when_LMB_pressed = 'Picked Atom'
-        else:
-            self.cursor_over_when_LMB_pressed = 'Unpicked Atom'
+    def atomLeftDown(self, a, event):    
+        
+        if not self.selection_locked():
+            if not a.picked and self.o.modkeys is None:
+                self.o.assy.unpickall_in_GLPane()
+                a.pick()
+            if not a.picked and self.o.modkeys == 'Shift':
+                a.pick()
+        
+            if a.picked:
+                self.cursor_over_when_LMB_pressed = 'Picked Atom'
+            else:
+                self.cursor_over_when_LMB_pressed = 'Unpicked Atom'
+                
         self.atomSetup(a, event)
     
     def atomLeftUp(self, a, event): # Was atomClicked(). mark 060220.
@@ -821,6 +824,9 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         """
         Atom double click event handler for the left mouse button.
         """
+        if self.selection_locked():
+            return
+        
         if self.o.modkeys == 'Control':
             self.o.assy.unselectConnected( [ self.obj_doubleclicked ] )
         elif self.o.modkeys == 'Shift+Control':
