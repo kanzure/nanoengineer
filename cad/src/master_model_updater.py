@@ -38,6 +38,8 @@ bruce 050627 started this as part of supporting higher-order bonds.
 
 bruce 071108 split this out of bond_updater.py, in preparation for adding
 DNA-specific code in other specific updater modules, for this to also call.
+
+bruce 080305 added _autodelete_empty_groups.
 """
 
 from global_model_changedicts import changed_structure_atoms
@@ -101,6 +103,10 @@ def _master_model_updater( warn_if_needed = False ):
     env.history.emit_all_deferred_summary_messages()
 
     _run_bond_updater( warn_if_needed = warn_if_needed)
+
+    env.history.emit_all_deferred_summary_messages()
+
+    _autodelete_empty_groups(assy)
 
     env.history.emit_all_deferred_summary_messages()
 
@@ -182,7 +188,39 @@ def _run_bond_updater(warn_if_needed = False): #bruce 080210 split this out
 
 # ==
 
+def _autodelete_empty_groups(assy): #bruce 080305
+    """
+    Safely call currentCommand.autodelete_empty_groups( part.topnode)
+    (if a debug_pref permits) for currentCommand and current part found via assy
+    """
+    if debug_pref_autodelete_empty_groups():
+        try:
+            part = assy.part
+            currentCommand = assy.w.currentCommand
+            if part:
+                currentCommand.autodelete_empty_groups( part.topnode)
+        except:
+            msg = "\n*** exception in _autodelete_empty_groups; will attempt to continue"
+            print_compact_traceback(msg + ": ")
+            msg2 = "Error: exception in _autodelete_empty_groups (see console for details); will attempt to continue"
+            env.history.message(redmsg(msg2))
+            pass
+        pass
+    return
+        
+# ==
+
 # temporary code for use while developing dna_updater
+
+def debug_pref_autodelete_empty_groups():
+    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+    res = debug_pref("autodelete empty groups?",
+                     Choice_boolean_False,
+                     ## SOON: Choice_boolean_True,
+                     non_debug = True,
+                     ## prefs_key = True # not sure it's safe enough for this yet
+                     )
+    return res
 
 def debug_pref_use_dna_updater():
     from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False

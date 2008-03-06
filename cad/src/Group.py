@@ -53,6 +53,13 @@ class Group(NodeWithAtomContents):
         # or to relegate it to a help submenu rather than MT context menu, or in some other way make it less visible...
         # [bruce 051201]
 
+    autodelete_when_empty = False # subclasses whose instances want most
+        # current commands to delete them whenever they become empty should
+        # define this to be True. (Individual instances could also override it
+        # if desired.) The current command's keep_empty_group method
+        # will then get to decide, assuming that command doesn't override its
+        # autodelete_empty_groups method. [bruce 080305]
+        
     _s_attr_members = S_CHILDREN # this declares group.members for Undo
         # note: group.members are informally called its "kids",
         # but need not be identical to the output of group.MT_kids(),

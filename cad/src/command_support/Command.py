@@ -157,6 +157,46 @@ class anyCommand(object, StateMixin): #bruce 071008 added object superclass; 071
 
     def get_featurename(self):
         return ""
+
+    def keep_empty_group(self, group): #bruce 080305
+        """
+        When self is the current command, and an empty group with
+        group.autodelete_when_empty set to true is noticed by
+        self.autodelete_empty_groups(), should that group be kept
+        (not killed) by that method? (Otherwise it will be killed,
+        at least by the default implementation of that method.)
+
+        @note: subclasses should override this to return True
+               for certain kinds of empty groups which they want
+               to preserve while they are the current command
+               (and which would otherwise be deleted due to having
+               group.autodelete_when_empty set).
+        """
+        return False
+
+    def autodelete_empty_groups(self, topnode): #bruce 080305
+        """
+        Kill all empty groups under topnode
+        (which may or may not be a group)
+        for which group.autodelete_when_empty is true
+        and self.keep_empty_group(group) returns False.
+        Do this bottom-up, so killing inner empty groups
+        (if it makes their containing groups empty)
+        subjects their containing groups to this test.
+
+        @note: called by master_model_updater, after the dna updater.
+
+        @note: overridden in nullCommand to do nothing. Not normally
+               overridden otherwise, but can be.
+        """
+        if not topnode.is_group():
+            return
+        for member in topnode.members[:]:
+            self.autodelete_empty_groups(member)
+        if not topnode.members and topnode.autodelete_when_empty and \
+           not self.keep_empty_group(topnode):
+            topnode.kill()
+        return
     
     pass # end of class anyCommand
 
@@ -204,6 +244,9 @@ class nullCommand(anyCommand):
     
     def Done(self, *args, **kws): #bruce 060316 added this to remove frequent harmless debug print
         pass
+
+    def autodelete_empty_groups(self, topnode):
+        return
     
     pass # end of class nullCommand
 

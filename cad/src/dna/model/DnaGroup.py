@@ -68,11 +68,9 @@ class DnaGroup(Block):
     open = False
     
     autodelete_when_empty = True
-    #This group will be autodeletes when empty (exceptions apply) 
-    #see: Command.keep_empty_groups that does some further checks in specific 
-    #command todecide whether or not to delete this group even when its empty
-    #while in that command. Outside of those exceptions, the empty group object
-    #of this class will be deleted automatically
+        # (but only if current command permits that for this class --
+        #  see comment near Group.autodelete_when_empty for more info,
+        #  and implems of Command.keep_empty_group)
     
     def node_icon(self, display_prefs):
         """

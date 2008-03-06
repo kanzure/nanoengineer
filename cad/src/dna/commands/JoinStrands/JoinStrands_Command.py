@@ -83,7 +83,7 @@ class JoinStrands_Command(BuildAtoms_Command):
         if self.propMgr is not None:
             self.propMgr.close()
     
-   def keep_empty_group(self, group):
+    def keep_empty_group(self, group):
         """
         Returns True if the empty group should not be automatically deleted. 
         otherwise returns False. The default implementation always returns 
