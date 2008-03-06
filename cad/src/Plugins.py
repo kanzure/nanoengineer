@@ -123,6 +123,8 @@ def checkPluginPreferences(plugin_name,
     to a file. I{ask_for_help} can be set to B{False} if the user shouldn't be 
     given a chance to fix the problem via the "Plugin" page in the Preferences
     dialog.
+
+    Note:  this should be refactored to use exceptions.
     
     Returns :0, plugin path on success, or
              1 and an error message indicating the problem.
