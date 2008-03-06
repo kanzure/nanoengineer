@@ -114,7 +114,10 @@ def _checkPluginPreferences_0(plugin_name, plugin_prefs_keys):
 
     return 0, plugin_path
 
-def checkPluginPreferences(plugin_name, plugin_prefs_keys, ask_for_help = True):
+def checkPluginPreferences(plugin_name,
+                           plugin_prefs_keys,
+                           ask_for_help = True,
+                           extra_check = None):
     """
     Checks I{plugin_name} to make sure it is enabled and that its path points 
     to a file. I{ask_for_help} can be set to B{False} if the user shouldn't be 
@@ -136,6 +139,13 @@ def checkPluginPreferences(plugin_name, plugin_prefs_keys, ask_for_help = True):
                          dialog (i.e. enable the plugin and set the path to
                          its executable).
     @type  ask_for_help: bool
+
+    @param extra_check: If not None (default is None), is a routine to
+                        perform extra validation checks on the plugin
+                        path.
+    @type extra_check: Function which takes path as argument, and
+                       returns either an error message, or None if all
+                       is ok.
     
     @return: 0, plugin path on success, or
              1, an error message indicating the problem.
@@ -147,6 +157,11 @@ def checkPluginPreferences(plugin_name, plugin_prefs_keys, ask_for_help = True):
     while 1:
         errorcode, errortext_or_path = \
                  _checkPluginPreferences_0(plugin_name, plugin_prefs_keys)
+        if (extra_check and not errorcode):
+            extra_message = extra_check(errortext_or_path)
+            if (extra_message):
+                errorcode = 1
+                errortext_or_path = extra_message
         if errorcode:
             if not ask_for_help:
                 return errorcode, errortext_or_path

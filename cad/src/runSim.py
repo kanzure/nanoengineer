@@ -108,6 +108,29 @@ def timestep_flag_and_arg( mflag = False): #bruce 060503
 ##    # Oops, this doesn't work from here, since this module is not imported until it's needed! Never mind for now,
 ##    # since it won't be an issue later when timestep is again supported as a movie attribute.
 
+def verifyExecutable(executable_path):
+    if (os.access(executable_path, os.F_OK)):
+        if (os.access(executable_path, os.X_OK)):
+            return None
+        return "%s exists, but is not executable" % executable_path
+    return "%s: file does not exist" % executable_path
+
+def verifyGromppAndMdrunExecutables(gromacs_plugin_path):
+    gromacs_bin_dir, junk_exe = os.path.split(gromacs_plugin_path)
+    if (sys.platform == 'win32'):
+        dot_exe = ".exe"
+    else:
+        dot_exe = ""
+    grompp = os.path.join(gromacs_bin_dir, "grompp%s" % dot_exe)
+    message = verifyExecutable(grompp)
+    if (message):
+        return message
+    mdrun = os.path.join(gromacs_bin_dir, "mdrun%s" % dot_exe)
+    message = verifyExecutable(mdrun)
+    if (message):
+        return message
+    return None
+
 # ==
 
 class GromacsProcess(Process):
@@ -201,7 +224,8 @@ class SimRunner:
         plugin_prefs_keys = (gromacs_enabled_prefs_key, gromacs_path_prefs_key)
             
         errorcode, errortext_or_path = \
-                 checkPluginPreferences(plugin_name, plugin_prefs_keys)
+                 checkPluginPreferences(plugin_name, plugin_prefs_keys,
+                                        extra_check=verifyGromppAndMdrunExecutables)
         if errorcode:
             msg = redmsg("Verify Plugin: %s (code %d)" % (errortext_or_path, errorcode))
             env.history.message(msg)
