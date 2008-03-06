@@ -19,6 +19,7 @@ using namespace Nanorex;
 #include "ResultsWindow.h"
 #include "LogHandlerWidget.h"
 #include "JobSelectorDialog.h"
+#include "PreferencesDialog.h"
 #include "MainWindowTabWidget.h"
 #include "JobManagement/JobMonitor.h"
 #include "JobManagement/GROMACS_JobMonitor.h"
@@ -52,28 +53,36 @@ private slots:
 	void updateWindowMenu();
 	void abortJob(const QString& id);
 	void checkForActiveJobs(string& filename, string& processType,
-							string& processInit);
+							string& processInit, bool notify = false);
+	void openActiveJobs();
+	void showPreferences();
 
 private:
 	NXEntityManager* entityManager;
-	
-	QMenu* fileMenu;
-	QMenu* processMenu;
-	QMenu* windowMenu;
-	QMenu* helpMenu;
 	
 	QToolBar* fileToolBar;
 
 	MainWindowTabWidget* mainWindowTabs;
 	ResultsWindow* resultsWindow;
 	
+	QMenu* fileMenu;
+	QMenu* toolsMenu;
+	QMenu* jobsMenu;
+	QMenu* windowMenu;
+	QMenu* helpMenu;
+
 	// File
 	QAction* openAction;
     QAction* closeAction;
     QAction* exitAction;
 	
+	// Tools
+	//
 	// Job Management
+	QAction* openJobsAction;
 	QAction* abortJobAction;
+	
+	QAction* preferencesAction;
 	
 	// Window
     QAction* windowCloseAction;

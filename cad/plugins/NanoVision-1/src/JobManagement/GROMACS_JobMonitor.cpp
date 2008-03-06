@@ -83,6 +83,7 @@ void GROMACS_JobMonitor::run() {
 
 /* FUNCTION: CheckJobActive */
 bool GROMACS_JobMonitor::CheckJobActive(const QString& pid) {
+	// TODO: Implement
 	return true;
 }
 

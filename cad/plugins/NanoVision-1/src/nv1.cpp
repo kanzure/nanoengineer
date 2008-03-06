@@ -221,6 +221,7 @@ void nv1::updateWindowMenu() {
 /* FUNCTION: createActions */
 void nv1::createActions() {
     
+	// File
     openAction =
         new QAction(QIcon(":/Icons/File/Open.png"), tr("&Open..."), this);
     openAction->setShortcut(tr("Ctrl+O"));
@@ -238,6 +239,20 @@ void nv1::createActions() {
     exitAction->setStatusTip(tr("Exit NanoVision-1"));
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
     
+	// Tools
+	//
+	// Job Management
+	openJobsAction =
+        new QAction(QIcon(":/Icons/File/Open.png"), tr("&Open Active Job..."), this);
+    openJobsAction->setStatusTip(tr("Open an active job"));
+    connect(openJobsAction, SIGNAL(triggered()), this, SLOT(openActiveJobs()));
+	
+	preferencesAction = new QAction(tr("Preferences..."), this);
+    preferencesAction->setStatusTip(tr("Modify your preferences"));
+    connect(preferencesAction, SIGNAL(triggered()),
+			this, SLOT(showPreferences()));
+
+	// Window
     windowCloseAction = new QAction(tr("Cl&ose"), this);
     windowCloseAction->setShortcut(tr("Ctrl+F4"));
     windowCloseAction->setStatusTip(tr("Close the active window"));
@@ -278,6 +293,7 @@ void nv1::createActions() {
     windowSeparatorAction = new QAction(this);
     windowSeparatorAction->setSeparator(true);
     
+	// Help
     aboutAction = new QAction(tr("&About"), this);
     aboutAction->setStatusTip(tr("Show NanoVision-1's About box"));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(about()));
@@ -292,7 +308,12 @@ void nv1::createMenus() {
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
     
-    processMenu = menuBar()->addMenu(tr("&Job Management"));
+    toolsMenu = menuBar()->addMenu(tr("&Tools"));
+		jobsMenu = toolsMenu->addMenu("Job Management");
+		jobsMenu->addAction(openJobsAction);
+		jobsMenu->addSeparator();
+	toolsMenu->addSeparator();
+	toolsMenu->addAction(preferencesAction);
     
     windowMenu = menuBar()->addMenu(tr("&Window"));
     updateWindowMenu();
@@ -372,13 +393,13 @@ void nv1::addMonitoredJob(const QString& processType, const QString& id,
 	}
 	// TODO: catch/emit errors
 	
-    processMenu->addAction(abortJobAction);
+    jobsMenu->addAction(abortJobAction);
 }
 
 
 /* FUNCTION: removeMonitoredJob */
 void nv1::removeMonitoredJob(const QString& id) {
-    processMenu->removeAction(abortJobAction);
+    jobsMenu->removeAction(abortJobAction);
     delete abortJobAction;
     
     JobMonitor* jobMonitor = jobMonitors[id];
@@ -396,13 +417,26 @@ void nv1::abortJob(const QString& id) {
 }
 
 
+/* FUNCTION: openActiveJobs */
+void nv1::openActiveJobs() {
+	string filename, processType, processInit;
+	checkForActiveJobs(filename, processType, processInit, true /* notify */);
+
+	if (filename != "")
+		loadFile(filename, processType, processInit);
+}
+
+
 /* FUNCTION: checkForActiveJobs
  *
  * Check if there are any active jobs and ask the user which, if any to
  * connect to. Populate the given variables.
+ *
+ * notify - Whether to notify the user that there aren't any active jobs to
+ *			choose from (default: false.)
  */
 void nv1::checkForActiveJobs(string& filename, string& processType,
-							 string& processInit) {
+							 string& processInit, bool notify) {
 
 	// Get a list of active jobs
 	QSettings settings(QSettings::IniFormat, QSettings::UserScope,
@@ -427,13 +461,22 @@ void nv1::checkForActiveJobs(string& filename, string& processType,
 		if (jobActive)
 			activeJobs.append(*constIterator);
 		else
-			; // Delete job file
+			; // TODO: Delete job file
 	}
 	
 	// Show a selector dialog
 	int jobSelectionResult = QDialog::Rejected;
 	QString selectedJob;
-	if (!activeJobs.empty()) {
+	if (activeJobs.empty()) {
+		if (notify) {
+			QMessageBox messageBox;
+			messageBox.setWindowTitle(tr("No Active Jobs."));
+			messageBox.setText(tr("There are no active jobs at this time."));
+			messageBox.setIconPixmap(QPixmap(":/Icons/error.png"));
+			messageBox.exec();
+		}
+		
+	} else {
 		JobSelectorDialog jobSelectorDialog;
 		jobSelectorDialog.addActiveJobs(activeJobs);
 		jobSelectorDialog.exec();
@@ -457,6 +500,16 @@ void nv1::checkForActiveJobs(string& filename, string& processType,
 			}
 			jobFile.close();
 		}
+	}
+}
+
+
+/* FUNCTION: showPreferences */
+void nv1::showPreferences() {
+	PreferencesDialog prefsDialog;
+	prefsDialog.exec();
+	int prefsDialogResult = prefsDialog.result();
+	if (prefsDialogResult == QDialog::Accepted) {
 	}
 }
 
