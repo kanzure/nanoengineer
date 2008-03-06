@@ -77,7 +77,37 @@ def same_vals(v1, v2): #060303
        The only reason we really need this (as opposed to just using Python '==' or '!=' and our own __eq__ methods)
     is because Numeric.array.__eq__ is erroneously defined, and if we were using '==' or '!=' on a Python tuple containing 
     a Numeric array, we'd have no way of preventing this issue from making '==' or '!=' come out wrong on the tuple.
-    (For details, see bruce email to 'all' of 060302, planned to be copied into code comments and/or the wiki.)
+
+    (For details, see bruce email to 'all' of 060302, partially included below.)
+
+    [...]
+    It turns out that you can safely naively use != on Numeric arrays,
+    but not ==, since they both act elementwise, and this only 
+    does what you usually want with != . I knew this in the past
+    (and fixed some weird bugs caused by it) but forgot it recently,
+    so Undo was thinking that atom position arrays had not changed
+    provided at least one coordinate of one atom had not changed.
+    [...]
+    - Bruce
+
+    In particular:
+
+    a = Numeric.array((1, 2, 3))
+    b = Numeric.array((1, 2, 3))
+    assert a == b                  # result: [1 1 1], interpreted as True
+    assert not a != b              # result: [0 0 0], interpreted as False
+    b = Numeric.array((1, 4, 5))
+    assert a != b                  # result: [1 0 0], interpreted as True
+    assert not a == b              # result: [0 1 1], interpreted as True
+    # the last assertion fails!
+
+    Do the maintainers of Numeric consider this to be correct
+    behavior?!?!?!?  Probably.
+
+    What they should have done was define a new ufunc for equality
+    testing, and made the semantics of __eq__ and __ne__ work as
+    expected.  Probably too late to expect them to change this now.
+
        As long as we have it, we might as well make it a bit more stringent than Python '==' in other ways too,
     like not imitating the behaviors (which are good for '==') of 1.0 == 1, array([1]) == [1], etc. The only reason
     we'll count non-identical objects as equal is that we're not interested in their addresses or in whether someone

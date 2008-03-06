@@ -23,19 +23,30 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
     typ2 = v2->ob_type;
     if (typ1 != typ2) return 1;
     if (typ1 == &PyDict_Type) {
-	/* Dicts have too much complicated internal structure, so
-	 * compare lists of 2-tuples instead. This won't be as
-	 * efficient as other data types. We can hope to do better
-	 * with atom/bond-sets because we know a lot about their
-	 * internal structure. Dictionaries are black magic.
-	 */
-        printf("WARNING: samevals.c comparing dicts, may get false negatives\n");
-	return _same_vals_helper(PyDict_Items(v1),
-				PyDict_Items(v2));
+        PyObject *key;
+        PyObject *value;
+        Py_ssize_t pos = 0;
+        
+        if (PyDict_Size(v1) != PyDict_Size(v2)) {
+            return 1;
+        }
+        while (PyDict_Next(v1, &pos, &key, &value)) {
+            PyObject *value2 = PyDict_GetItem(v2, key);
+            if (value2 == NULL) {
+                return 1;
+            }
+            if (_same_vals_helper(value, value2)) {
+                return 1;
+            }
+        }
+        return 0;
     } else if (typ1 == &PyList_Type) {
 	int i, n;
+
 	n = PyList_Size(v1);
-	if (n != PyList_Size(v2)) return 1;
+	if (n != PyList_Size(v2)) {
+            return 1;
+        }
 	for (i = 0; i < n; i++)
 	    if (_same_vals_helper(PyList_GetItem(v1, i),
 				 PyList_GetItem(v2, i)))
@@ -43,8 +54,11 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
 	return 0;
     } else if (typ1 == &PyTuple_Type) {
 	int i, n;
+
 	n = PyTuple_Size(v1);
-	if (n != PyTuple_Size(v2)) return 1;
+	if (n != PyTuple_Size(v2)) {
+            return 1;
+        }
 	for (i = 0; i < n; i++)
 	    if (_same_vals_helper(PyTuple_GetItem(v1, i),
 				 PyTuple_GetItem(v2, i)))
