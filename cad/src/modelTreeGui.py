@@ -34,10 +34,10 @@ comments below, before A9 release, using QScrollArea instead of QTreeView. Now I
 obsolete code which used QTreeView, but some comments still refer to its classes. What's being
 removed includes the classes:
 
-  class _our_QItemDelegate(QItemDelegate):
-  class _our_TreeItem:
-  class _QtTreeModel(QAbstractItemModel):
-  class ModelTreeGui_QTreeView(QTreeView, ModelTreeGui_common):
+  class _our_QItemDelegate(QItemDelegate): # removed
+  class _our_TreeItem: # removed
+  class _QtTreeModel(QAbstractItemModel): # removed
+  class ModelTreeGui_QTreeView(QTreeView, ModelTreeGui_common): # removed
 
 """
 
@@ -172,7 +172,7 @@ class Ne1Model_api(Api):
         """
         Return a list of the top-level nodes, typically assy.tree and assy.shelf for an assembly.
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def make_cmenuspec_for_set(self, nodeset, optflag):
         """
@@ -188,13 +188,13 @@ class Ne1Model_api(Api):
         and every node not in it or under something in it is not picked.
         [all subclasses should override this]
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def get_current_part_topnode(self): #bruce 070509 added this to API ##e rename?
         """
         Return a node guaranteed to contain all selected nodes, and be fast.
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     # helper methods -- strictly speaking these are now part of the API, but they have default implems
     # based on more primitive methods (which need never be overridden, and maybe should never be overridden).
@@ -212,11 +212,11 @@ class Ne1Model_api(Api):
                 continue
         else:
             func(topnode)
-            if hasattr(topnode, 'members'):
+            if hasattr(topnode, 'members'): ### BUG: should be MT_kids (also better not to use hasattr) [bruce 080306 comment]
                 if not visible_only or topnode.open:                    
                     if fake_nodes_to_mark_groups:
                         func(0)
-                    for child in topnode.members:
+                    for child in topnode.members: ### BUG: should be MT_kids @@@@ [bruce 080306 comment]
                         self.recurseOnNodes(func, child,
                                             fake_nodes_to_mark_groups = fake_nodes_to_mark_groups,
                                             visible_only = visible_only)
@@ -278,7 +278,7 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
         self.open MUST be a boolean instance variable.
         There is no API requirement about arguments for __init__.
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def pick(self):
         """
@@ -288,7 +288,7 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
          since in the future these methods will sometimes invalidate other state
          which needs to depend on which Nodes are picked.]
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def ModelTree_plain_left_click(self): #bruce 080213 addition to Node API
         """
@@ -306,20 +306,20 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
          since in the future these methods will sometimes invalidate other state
          which needs to depend on which Nodes are picked.]
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def apply2picked(self, func):
         """
         Apply fn to the topmost picked nodes under (or equal to) self,
         but don't scan below picked nodes. See Group.apply2picked docstring for details.
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def is_disabled(self):
         """
         MUST return a boolean
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def node_icon(self, display_prefs):
         """
@@ -331,7 +331,7 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
         #  its value at that key, but "not open but openable" vs "not open and not even openable"
         #  is a meaningful difference. The value of 'openable' is usually (so far, always)
         #  implicit in the Node's concrete subclass, so typical methods won't need to look at it.]
-        raise Exception('overload me')
+        raise Exception("overload me")
 
 ##    def drop_on_ok(self, drag_type, nodes):
 ##        """
@@ -339,7 +339,7 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
 ##        dragged in the given way, and if not, why not.
 ##        @rtype: ( boolean, string )
 ##        """
-##        raise Exception('overload me')
+##        raise Exception("overload me")
 ##
 ##    def drop_on(self, drag_type, nodes):
 ##        """
@@ -347,27 +347,28 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
 ##        drop of the given list of nodes onto this node. Return any new nodes this creates (toplevel
 ##        nodes only, for copied groups).
 ##        """
-##        raise Exception('overload me')
+##        raise Exception("overload me")
 
     def MT_kids(self, item_prefs = {}): #bruce 080108 renamed kids -> MT_kids; only used in some places it needs to be
         """
         Return a list of Nodes that the model tree should show
         as a child of this Node, if it's openable and open.
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def openable(self): #bruce 070508
         """
         Return True if tree widgets should display an openclose icon
         for this node, False otherwise.
         """
-        raise Exception('overload me')        
+        raise Exception("overload me")        
     pass
 
-class ModelTreeGui_api(Api):
+class ModelTreeGui_api(Api): 
     """
     This should be a Qt4 widget that can be put into a layout.
     """
+    # not private, but only used in this file so far [bruce 080306 comment]
     def update_item_tree(self, unpickEverybody = False): # in ModelTreeGui_api
         """
         Removes and deletes all the items in this list view and triggers an update. Previously
@@ -376,14 +377,14 @@ class ModelTreeGui_api(Api):
         ###REVIEW: in the implementation below, this also creates a new tree of items given a root node.
         # I guess this means the meaning of this method in this API was changed since the above was written.
         # (So has the name -- it was called 'clear' until bruce 070509. Also the option was not listed in this API.)
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def topmost_selected_nodes(self): # in ModelTreeGui_api
         """
         return a list of all selected nodes as seen by apply2picked, i.e. without looking inside selected Groups
         """
         # this should really be called topmost_PICKED_nodes: nodes are picked, items are selected
-        raise Exception('overload me')
+        raise Exception("overload me")
 
     def mt_update(self, nodetree = None): # in ModelTreeGui_api
         """
@@ -396,8 +397,12 @@ class ModelTreeGui_api(Api):
            If these changes are known to be confined to a single node and its children,
         that node can be passed as a second argument as a possible optimization
         (though as of 050113 the current implem does not take advantage of this).
+
+        @warning: as of 080306 the implementations of this don't conform to the
+                  argspec, since they don't even accept (let alone pay attention
+                  to) the nodetree optional argument.
         """
-        raise Exception('overload me')
+        raise Exception("overload me")
     pass
 
 ####################### End of the API #############################
@@ -629,11 +634,13 @@ _DISPLAY_PREFS_LEAF   = {}
 
 class DoNotDrop(Exception): pass
 
-class ModelTreeGui_common(ModelTreeGui_api): #bruce 070529 split this out of class ModelTreeGui
+class ModelTreeGui_common(ModelTreeGui_api):
     """
     The part of our model tree implementation which is the same
     for either type of Qt widget used to show it.
     """
+    # not private, but only used in this file so far [bruce 080306 comment]
+    #bruce 070529 split this out of class ModelTreeGui
     def __init__(self, win, ne1model):
         self.win = win
         self.ne1model = ne1model
@@ -1591,6 +1598,9 @@ class MT_View(QtGui.QWidget):
         self.mac_expanded =  getpixmap("ui/modeltree/mac_expanded_mtnode.png") # triangle pointing down (indicates "expanded")
         self.win_collapsed = getpixmap("ui/modeltree/win_collapsed_mtnode.png") # plus in a box (indicates "expand action")
         self.win_expanded =  getpixmap("ui/modeltree/win_expanded_mtnode.png") # minus in a box (indicates "collapse action")
+
+        ### TODO: also get content indicator icons here, ie yellow ghost @@@@
+        
         # Default MT style depends on platform, but user can change it at runtime
         # to the same set of possibilities on all platforms. For now this uses debug_prefs.
         if sys.platform == 'darwin':
@@ -1608,7 +1618,6 @@ class MT_View(QtGui.QWidget):
         [private]
         As an optimization, choose the openclose icons (etc) just once before drawing.
         """
-        
         style = debug_pref("Model Tree: openclose icon style", self._icon_style_choice,
                            non_debug = True, prefs_key = "A9/MT openclose icon style",
                            call_with_new_value = (lambda val: self.mt_update()) )
@@ -1756,24 +1765,32 @@ class MT_View(QtGui.QWidget):
                     return resnode, resdepth, resy0, y0
         return (None, None, None, y0)
 
-    # WARNING: the following methods duplicate some of the code in _our_QItemDelegate in the other MT implem, far above [now removed].
-    # Also, they are mostly not yet used (still true, 070612). They might be used to help make in-place node-label-edit work again.
+    # WARNING: the following methods duplicate some of the code in
+    # _our_QItemDelegate in the other MT implem, far above [now removed].
+    # Also, they are mostly not yet used (still true, 070612). They might be
+    # used to help make in-place node-label-edit work again.
     
     def createEditor(self, node):
-        "Create and return a QLineEdit child widget to serve as an editor for the given node; initialize its text."
+        """
+        Create and return a QLineEdit child widget to serve as an editor for the given node; initialize its text.
+        """
         parent = self
         qle = QLineEdit(parent)
         self.setEditorData(qle, node)
         return qle
 
     def setEditorData(self, lineEdit, node):
-        "copy the editable data from node to lineEdit"
+        """
+        copy the editable data from node to lineEdit
+        """
         value = node.name
         lineEdit.setText(value)
         return
 
     def setModelData(self, lineEdit, node):
-        "copy the editable data from lineEdit to node (if permitted); display a statusbar message about the result"
+        """
+        copy the editable data from lineEdit to node (if permitted); display a statusbar message about the result
+        """
         # Note: try_rename checks node.rename_enabled()
         # BUG: try_rename doesn't handle unicode (though it seems to handle some non-ascii chars somehow)
         # Note: see similar code in a method in another class in this file.
@@ -1818,8 +1835,11 @@ class FakeItem:
         return ITEM_HEIGHT
     pass
 
-class ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529-30 rewrite of some of [now-removed] class ModelTreeGui_QTreeView
-    
+class ModelTreeGui(QScrollArea, ModelTreeGui_common):
+    """
+    The GUI part of the NE1 model tree widget.
+    """
+    #bruce 070529-30 rewrite of some of [now-removed] class ModelTreeGui_QTreeView
     def __init__(self, win, name, ne1model, parent = None):
         ## print "what are these args?", win, name, ne1model, parent
         # win = <MWsemantics.MWsemantics object at 0x4ce8a08>
@@ -1875,10 +1895,11 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529-30 rewrite of
         return FakeItem(node)
     
     def mt_update(self):
-        "part of the public API"
-
+        """
+        part of the public API
+        """
         if self.MT_debug_prints():
-            print 'mt_update',time.asctime()
+            print "mt_update", time.asctime()
 
         # probably we need to scan the nodes and decide what needs remaking (on next paintevent) and how tall it is;
         # should we do this in MT_View? yes.
@@ -1914,7 +1935,9 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529-30 rewrite of
         return
     
     def update_item_tree(self, unpickEverybody = False):
-        "part of the public API"
+        """
+        part of the public API
+        """
         self.mt_update()
 
     def paint_item(self, painter, item):
@@ -1926,7 +1949,8 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):#bruce 070529-30 rewrite of
         return width
 
     def item_and_rect_at_event_pos(self, event):
-        """Given a mouse event, return the item under it (or None if no item),
+        """
+        Given a mouse event, return the item under it (or None if no item),
         and a QRect encompassing certain(?) parts of it (or None if no item).
         ### which parts?
         ### what coords?
@@ -2059,7 +2083,9 @@ class TestNode(Node_api):
         self.picked = False
         if DEBUG0: self._verify_api_compliance()
     def showTree(self, indent = 0):
-        "handy diagnostic"
+        """
+        handy diagnostic
+        """
         s = (indent * '\t') + repr(self)
         if self.picked: s += ' PICKED'
         print s
@@ -2213,7 +2239,7 @@ class TestNe1Model(Ne1Model_api):
 
 class TestGLPane:
     def gl_update(self):
-        print 'GL Pane update'
+        print "GLPane update"
 class TestMainWindow:
     def __init__(self):
         self.glpane = TestGLPane()
@@ -2271,16 +2297,22 @@ class TestWrapper(QGroupBox):
         self.view.mt_update()
 
     def addmol(self):
-        "Chunk"
+        """
+        Chunk
+        """
         # This is equivalent to Part.addmol() in part.py
         self.addsomething("Chunk")
 
     def addjig(self):
-        "Jig"
+        """
+        Jig
+        """
         self.addsomething("Jig")
 
     def selected(self):
-        "Selected"
+        """
+        Selected
+        """
         print self.view.topmost_selected_nodes()
 
 ####################################################################
@@ -2290,7 +2322,7 @@ def test_api():
     # exceptions.
     global ModelTreeGui
 ##    global _our_QItemDelegate, _QtTreeModel
-    ModelTreeGui = ModelTreeGui_api
+    ModelTreeGui = ModelTreeGui_api # in test code
 ##    del _our_QItemDelegate, _QtTreeModel
 
 class MainWindow(QMainWindow):
@@ -2301,7 +2333,7 @@ class MainWindow(QMainWindow):
         self.resize(200, 300)
         self.wrapper.show()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
     if len(sys.argv) > 1:
         test_api()
