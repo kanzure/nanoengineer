@@ -22,6 +22,8 @@ bruce circa 050518 made rmotor arrow rotate along with the atoms.
 050927 moved motor classes to jigs_motors.py and plane classes to jigs_planes.py
 
 mark 051104 Changed named of Ground jig to Anchor.
+
+bruce 080305 changed Jig superclass from Node to NodeWith3DContents
 """
 
 from OpenGL.GL import glLineStipple
@@ -40,7 +42,7 @@ from OpenGL.GL import GL_FILL
 
 from utilities import debug_flags
 
-from Utility import Node
+from Utility import NodeWith3DContents
 from icon_utilities import imagename_to_pixmap
 from geometry.VQT import A
 from commands.ThermostatProperties.StatProp import StatProp
@@ -61,9 +63,18 @@ from state_constants import S_REFS
 
 from Selobj import Selobj_API
 
-class Jig(Node, Selobj_API):
+_superclass = NodeWith3DContents #bruce 080305 revised this
+
+class Jig(NodeWith3DContents, Selobj_API):
     """
-    abstract superclass for all jigs
+    Abstract superclass for all jigs.
+
+    @note: some jigs refer to atoms, but no jigs *contain* atoms.
+
+    @note: most jigs don't really have "3D content", since they derive
+           this implicitly from their atoms. But some do, so as long as
+           they are all inheriting one class, that class needs to
+           inherit NodeWith3DContents rather than just Node.
     """
     
     # Each Jig subclass must define the class variables:
@@ -126,7 +137,7 @@ class Jig(Node, Selobj_API):
     cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
     propmgr = None # see set_propmgr method in RotaryMotor class. Mark 2007-05-28.
     
-    copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color')
+    copyable_attrs = _superclass.copyable_attrs + ('pickcolor', 'normcolor', 'color')
         # added in some subclasses: 'enable_minimize', 'dampers_enabled'
         # most Jig subclasses need to extend this further
 
@@ -138,10 +149,12 @@ class Jig(Node, Selobj_API):
         or at least sometime before it's used as a Node.
 
         @warning: any subclass which overrides this and changes the argument signature
-        may need to override _um_initargs as well.
+                  may need to override _um_initargs as well.
+
+        [extends superclass method]
         """
         # Warning: some Jig subclasses require atomlist in __init__ to equal [] [revised circa 050526]
-        Node.__init__(self, assy, gensym("%s-" % self.sym)) # Changed from "." to "-". mark 060107
+        _superclass.__init__(self, assy, gensym("%s-" % self.sym)) # Changed from "." to "-". mark 060107
         self.setAtoms(atomlist) #bruce 050526 revised this; this matters since some subclasses now override setAtoms
             # Note: the atomlist fed to __init__ is always [] for some subclasses
             # (with the real one being fed separately, later, to self.setAtoms)
@@ -380,10 +393,13 @@ class Jig(Node, Selobj_API):
         return
     
     def kill(self):
+        """
+        [extends superclass method]
+        """
         # bruce 050215 modified this to remove self from our atoms' jiglists, via remove_atom
         for atom in self.atoms[:]: #bruce 050316: copy the list (presumably a bugfix)
             self.remove_atom(atom) # the last one removed kills the jig recursively!
-        Node.kill(self) # might happen twice, that's ok
+        _superclass.kill(self) # might happen twice, that's ok
 
     def destroy(self): #bruce 050718, for bonds code
         # not sure if this ever needs to differ from kill -- probably not; in fact, you should probably override kill, not destroy
@@ -396,13 +412,15 @@ class Jig(Node, Selobj_API):
     def pick(self): 
         """
         select the Jig
+
+        [extends superclass method]
         """
         from debug_prefs import debug_pref_History_print_every_selected_object
         if debug_pref_History_print_every_selected_object(): #bruce 070504 added this condition
             env.history.message(self.getinfo())
                 #bruce 050901 revised this; now done even if jig is killed (might affect fixed bug 451-9)
-        if not self.picked: #bruce 050131 added this condition (maybe good for history.message too?)
-            Node.pick(self) #bruce 050131 for Alpha: using Node.pick
+        if not self.picked:
+            _superclass.pick(self)
             self.normcolor = self.color # bug if this is done twice in a row! [bruce 050131 maybe fixed now due to the 'if']
             self.color = self.pickcolor
         return
@@ -410,9 +428,11 @@ class Jig(Node, Selobj_API):
     def unpick(self):
         """
         unselect the Jig
+
+        [extends superclass method]
         """
         if self.picked:
-            Node.unpick(self) # bruce 050126 -- required now
+            _superclass.unpick(self) # bruce 050126 -- required now
             self.color = self.normcolor # see also a copy method which has to use the same statement to compensate for this kluge
 
     def rot(self, quat):
@@ -470,7 +490,7 @@ class Jig(Node, Selobj_API):
 
     def writemmp(self, mapping): #bruce 050322 revised interface to use mapping
         """
-        [overrides Node.writemmp; could be overridden by Jig subclasses, but isn't (as of 050322)]
+        [extends Node.writemmp; could be overridden by Jig subclasses, but isn't (as of 050322)]
         """
         #bruce 050322 made this from old Node.writemmp, but replaced nonstandard use of __repr__
         line, wroteleaf = self.mmp_record(mapping) # includes '\n' at end
@@ -480,14 +500,14 @@ class Jig(Node, Selobj_API):
                 self.writemmp_info_leaf(mapping)
                 # only in this case, since other case means no node was actually written [bruce 050421]
         else:
-            Node.writemmp(self, mapping) # just writes comment into file and atom_debug msg onto stdout
+            _superclass.writemmp(self, mapping) # just writes comment into file and atom_debug msg onto stdout
         return
     
     def writemmp_info_leaf(self, mapping): #bruce 051102
         """
         [extends superclass method]
         """
-        Node.writemmp_info_leaf(self, mapping)
+        _superclass.writemmp_info_leaf(self, mapping)
         if self.enable_minimize:
             mapping.write("info leaf enable_in_minimize = True\n") #bruce 051102
         if not self.dampers_enabled:
@@ -507,7 +527,7 @@ class Jig(Node, Selobj_API):
             val = (val != 'False')
             self.dampers_enabled = val
         else:
-            Node.readmmp_info_leaf_setitem( self, key, val, interp)
+            _superclass.readmmp_info_leaf_setitem( self, key, val, interp)
         return
     
     def _mmp_record_front_part(self, mapping):

@@ -23,6 +23,9 @@ but the basic structure of Nodes and Groups has not been changed.
 
 Bruce 071110 split Group.py out of Utility.py. (And may soon
 split out Node and/or LeafNode as well.)
+
+Bruce 080305 added some abstract classes between Node and Group
+in the inheritance hierarchy (defined in this module for now).
 """
 
 from debug import print_compact_stack
@@ -1550,8 +1553,8 @@ class Node( StateMixin, IdentityCopyMixin):
         #e should we check here to see if they override Node.edit?? nah.
         return True # wrong for an abstract Node, but there is no such thing!
     
-    def dumptree(self, depth=0):
-        print depth*"...", self.name
+    def dumptree(self, depth = 0):
+        print depth * "...", self.name
 
     def node_must_follow_what_nodes(self): #bruce 050422 made Node and Jig implems of this from function of same name
         """
@@ -1668,7 +1671,8 @@ class Node( StateMixin, IdentityCopyMixin):
         """
         Break all illegal bonds (atom-atom or atom-Jig or (in future) anything similar)
         between this node and other nodes in a different Part.
-        [Note that as of 050513 and earlier, all atom-Jig interpart bonds are permitted; but we let the Jig decide that.] 
+        [Note that as of 050513 and earlier, all atom-Jig interpart bonds
+         are permitted; but we let the Jig decide that.] 
         Error if this node or nodes it bonds to have no .part.
         Subclasses with bonds must override this method as appropriate.
            It's ok if some kinds of nodes do this more fancily than mere "breakage",
@@ -1687,26 +1691,150 @@ class Node( StateMixin, IdentityCopyMixin):
 
     def move(self, offset): #bruce 070501 added this to Node API
         """
-        translate self in 3d space (if applicable to self's class) by offset;
-        do all necessary invalidations, but try to optimize those based on self's
-        relative structure not having changed or reoriented.
-        [subclasses with any content in 3d space should override this as needed]
+        If self has any geometry in 3d space, and if this operation makes
+        sense for self's class, translate self in 3d space by the vector offset;
+        do all necessary invalidations, but try to optimize those based on
+        self's relative structure not having changed or reoriented.
+        See also self.rot() and self.pivot().
+
+        @param offset: vector by which to translate self in 3d space
+        @type  offset: L{VQT.V}
+
+        @note: there is not yet a Node API method to find out whether
+               this method is a noop. However, the Node API defines
+               a class constant attribute, is_movable, which is
+               closely related to that. See also "getSelectedMovables".
+        
+        [most subclasses with content in 3d space should override this method]
         """
         return # correct for many kinds of nodes
 
-    def pickatoms(self): #bruce 070501 added this to Node API [was defined only in Chunk]
+    def rot(self, quat):
+        #bruce 080305 added this to Node API (already on many subclasses)
+        """
+        If self has any geometry in 3d space, and if this operation makes
+        sense for self's class, rotate self around its center of rotation
+        (defined differently by different subclasses) by quaternion I{quat};
+        do all necessary invalidations, but optimize those based on
+        self's relative structure not having changed. See also self.pivot()
+        and self.move().
+        
+        @param quat: The quaternion to rotate self by.
+        @type  quat: L{VQT.Q}
+
+        @note: there is not yet a Node API method to retrieve self's
+               center of rotation, or to find out whether it has one,
+               or to find out whether this method is a noop.
+
+        [most subclasses with content in 3d space should override this method]
+        """
+        return # correct for many kinds of nodes
+    
+    def pivot(self, point, quat):
+        #bruce 080305 added this to Node API (already on some subclasses)
+        """
+        If self has any geometry in 3d space, and if this operation makes
+        sense for self's class, rotate self around point by quaternion quat;
+        do all necessary invalidations, but optimize those based on
+        self's relative structure not having changed. See also self.rot()
+        and self.move().
+
+        @param point: The point to rotate self around.
+        @type  point: L{VQT.V}
+
+        @param quat: The quaternion to rotate self by, around I{point}.
+        @type  quat: L{VQT.Q}
+
+        @note: some subclasses define self.rot but not self.pivot.
+
+        @note: there is not yet a Node API method to find out whether
+               this method is a noop.
+
+        [most subclasses with content in 3d space should override this method]
+        """
+        return # correct for many kinds of nodes
+    
+    def pickatoms(self):
+        #bruce 070501 added this to Node API (was defined only in Chunk)
         """
         Pick the atoms owned by self which are not already picked, and which the selection filter
         permits the user to pick (select). Return the number of newly picked atoms.
-        [overridden in some subclasses]
+        [subclasses that can contain atoms must override this method]
         """
         return 0 # correct for most kinds of nodes
+
+    def contains_atom(self, atom):
+        #bruce 080305 added this to Node API
+        # (was defined only in Chunk and in a class outside the Node hierarchy)
+        """
+        Does self contain the given atom (a real atom or bondpoint)?
+        
+        [subclasses that can contain atoms must override this method]
+        """
+        return False # correct for nodes that can't contain atoms
 
     pass # end of class Node
 
     # an old todo comment:
     #in addition, each Node should have the following methods:
     # draw, cut, copy, paste
+
+# ==
+
+class NodeWith3DContents(Node): #bruce 080305
+    # REVIEW: which methods can safely assert that subclass must implement?
+    """
+    Abstract class for Node subclasses which can have contents
+    with 3D position (possibly appearing in the graphics area
+    and/or affecting a simulation).
+
+    Notable subclasses (some indirect) include Chunk, Group, Jig.
+    """
+    def break_interpart_bonds(self):
+        """
+        [overrides Node method; subclasses must override this method]
+        """
+        pass ### assert 0, "subclass must implement"        
+    def move(self, offset):
+        """
+        [overrides Node method; subclasses must override this method]
+        """
+        pass ### assert 0, "subclass must implement"
+    def rot(self, quat):
+        """
+        [overrides Node method; subclasses must override this method]
+        """
+        assert 0, "subclass must implement"
+    def pivot(self, point, quat):
+        """
+        [overrides Node method; subclasses must override this method]
+        """
+        assert 0, "subclass must implement"
+    # def draw_in_abs_coords?
+    pass
+
+# ==
+ 
+class NodeWithAtomContents(NodeWith3DContents): #bruce 080305
+    # REVIEW: which methods can safely assert that subclass must implement?
+    """
+    Abstract class for Node subclasses which can contain Atoms.
+
+    Notable subclasses include Chunk and Group.
+    """
+    def pickatoms(self):
+        """
+        [overrides Node method; subclasses must override this method]
+        """
+        pass ### assert 0, "subclass must implement"
+
+    def contains_atom(self, atom):
+        """
+        [overrides Node method; subclasses must override this method]
+        """
+        assert 0, "subclass must implement"
+
+    pass
 
 # ==
 
@@ -1727,7 +1855,9 @@ class SimpleCopyMixin(Node):
     for use in creating the copy-stub.
     """
     def will_copy_if_selected(self, sel, realCopy):
-        "[overrides Node method]"
+        """
+        [overrides Node method]
+        """
         return True
 
     def copy_full_in_mapping(self, mapping): # warning: most of this code is copied from the Jig method.

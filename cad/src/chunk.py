@@ -10,37 +10,38 @@ and selected as a unit.
 
 History:
 
-- originally by Josh
+originally by Josh
 
-- lots of changes, by various developers
+lots of changes, by various developers
 
-- split out of chem.py by bruce circa 041118
+split out of chem.py by bruce circa 041118
 
-- bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
-  for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
+bruce optimized some things, including using 'is' and 'is not' rather than '==', '!='
+for atoms, molecules, elements, parts, assys in many places (not all commented individually); 050513
 
-- bruce 060308 rewriting Atom and Chunk so that atom positions are always stored in the atom
-  (eliminating Atom.xyz and Chunk.curpos, adding Atom._posn, eliminating incremental update of atpos/basepos).
-  Motivation is to make it simpler to rewrite high-frequency methods in Pyrex. 
+bruce 060308 rewriting Atom and Chunk so that atom positions are always stored in the atom
+(eliminating Atom.xyz and Chunk.curpos, adding Atom._posn, eliminating incremental update of atpos/basepos).
+Motivation is to make it simpler to rewrite high-frequency methods in Pyrex. 
 
-- bruce 060313 splitting _recompute_atlist out of _recompute_atpos, and planning to remove atom.index from
-  undoable state. Rules for atom.index (old, reviewed now and reconfirmed): owned by atom.molecule; value doesn't matter
-  unless atom.molecule and its .atlist exist (but is set to -1 otherwise when this is convenient, to help catch bugs);
-  must be correct whenever atom.molecule.atlist exists (and is reset when it's made); correct means it's an index for
-  that atom into .atlist, .atpos, .basepos, whichever of those exist at the time (atlist always does).
-  This means a chunk's addatom, delatom, and _undo_update need to invalidate its .atlist,
-  and means there's no need to store atom.index as undoable state (making diffs more compact),
-  or to update a chunk's .atpos (or even .atlist) when making an undo checkpoint.
+bruce 060313 splitting _recompute_atlist out of _recompute_atpos, and planning to remove atom.index from
+undoable state. Rules for atom.index (old, reviewed now and reconfirmed): owned by atom.molecule; value doesn't matter
+unless atom.molecule and its .atlist exist (but is set to -1 otherwise when this is convenient, to help catch bugs);
+must be correct whenever atom.molecule.atlist exists (and is reset when it's made); correct means it's an index for
+that atom into .atlist, .atpos, .basepos, whichever of those exist at the time (atlist always does).
+This means a chunk's addatom, delatom, and _undo_update need to invalidate its .atlist,
+and means there's no need to store atom.index as undoable state (making diffs more compact),
+or to update a chunk's .atpos (or even .atlist) when making an undo checkpoint.
 
-  (It would be nice for Undo to not store copies of changed .atoms dicts of chunks too, but that's harder. ###e)
+(It would be nice for Undo to not store copies of changed .atoms dicts of chunks too, but that's harder. ###e)
 
-  [update, bruce 060411: I did remove atom.index from undoable state, as well as chunk.atoms, and I made atoms always store
-   their own absposns. I forgot to summarize the new rules here -- maybe I did somewhere else. Looking at the code now,
-   atoms still try to get baseposns from their chunk, which still computes that before drawing them; moving a chunk
-   probably invalidates atpos and basepos (guess, but _recompute_atpos inval decl code would seem wrong otherwise)
-   and drawing it then recomputes them -- or maybe not, since it's only when remaking display list that it should need to.
-   Sometime I should review this and see if there is some obvious optimization needed.]
+[update, bruce 060411: I did remove atom.index from undoable state, as well as chunk.atoms, and I made atoms always store
+their own absposns. I forgot to summarize the new rules here -- maybe I did somewhere else. Looking at the code now,
+atoms still try to get baseposns from their chunk, which still computes that before drawing them; moving a chunk
+probably invalidates atpos and basepos (guess, but _recompute_atpos inval decl code would seem wrong otherwise)
+and drawing it then recomputes them -- or maybe not, since it's only when remaking display list that it should need to.
+Sometime I should review this and see if there is some obvious optimization needed.]
 
+bruce 080305 changed superclass from Node to NodeWithAtomContents
 """
 
 import math # only used for pi, everything else is from Numeric [as of before 071113]
@@ -68,7 +69,7 @@ import chem
 
 from geometry.VQT import V, Q, A, vlen
 
-from Utility import Node
+from Utility import NodeWithAtomContents
 
 from utilities.Log import orangemsg, redmsg, quote_html, graymsg
 
@@ -159,7 +160,9 @@ _inval_all_bonds_counter = 1 #bruce 050516
 
 ##register_class_nickname("Chunk", "molecule") # for use in Undo attr-dependency decls
 
-class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
+_superclass = NodeWithAtomContents #bruce 080305 revised this
+
+class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     """
     """
     #bruce 071114 renamed this from class molecule -> class Chunk
@@ -194,7 +197,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     # user_specified_center -- see far below; as of 050526 it's sometimes used, but it's always None
 
-    copyable_attrs = Node.copyable_attrs + ('display', 'color') # this extends the tuple from Node
+    copyable_attrs = _superclass.copyable_attrs + ('display', 'color') # this extends the tuple from Node
         # (could add _colorfunc, but better to handle it separately in case this gets used for mmp writing someday,
         #  as of 051003 _colorfunc would anyway not be permitted since state_utils.copy_val doesn't know how to copy it.)
         #e should add user_specified_center once that's in active use
@@ -242,7 +245,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self._dispfunc = None
         del self._dispfunc
 
-        Node._undo_update(self)
+        _superclass._undo_update(self)
             # (Q: what's the general rule for whether to call our superclass
             #  implem before or after running our own code in this method?
             #  A: guess: this method is more like destroy than create, so do
@@ -285,7 +288,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.init_InvalMixin()
         ## dad = None #bruce 050216 removed dad from __init__ args, since no calls pass it
             # and callers need to do more to worry about the location anyway (see comments above) 
-        Node.__init__(self, assy, name or gensym("Chunk."))
+        _superclass.__init__(self, assy, name or gensym("Chunk."))
 
         # atoms in a dictionary, indexed by atom.key
         self.atoms = {}
@@ -2595,13 +2598,15 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def pick(self):
         """
         select self
+
+        [extends Node method]
         """
         if not self.picked:
             if self.assy is not None:
                 self.assy.permit_pick_parts() #bruce 050125 added this... hope it's ok! ###k ###@@@
                 # (might not be needed for other kinds of leaf nodes... not sure. [bruce 050131])
-            Node.pick(self)
-            #bruce 050308 comment: Node.pick has ensured that we're in the current selection group,
+            _superclass.pick(self)
+            #bruce 050308 comment: _superclass.pick (Node.pick) has ensured that we're in the current selection group,
             # so it's correct to append to selmols, *unless* we recompute it now and get a version
             # which already contains self. So, we'll maintain it iff it already exists.
             # Let the Part figure out how best to do this.
@@ -2637,9 +2642,11 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def unpick(self):
         """
         unselect self
+
+        [extends Node method]
         """
         if self.picked:
-            Node.unpick(self)
+            _superclass.unpick(self)
             # bruce 050308 comment: following probably needs no change for assy/part.
             # But we'll let the Part do it, so it needn't remake selmols if not made.
             # But in case the code for assy.part is not yet committed, check that first:
@@ -2678,6 +2685,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         of all atoms kills it automatically; redundant kills have no effect.
         It's probably legal to reuse a killed mol (if it's added to a new
         assy -- there's no method for this), but this has never been tested.
+
+        [extends Node method]
         """
         ## print "fyi debug: mol.kill on %r" % self
         # Bruce 041116 revised docstring, made redundant kills noticed
@@ -2687,8 +2696,8 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         if self is _nullMol:
             return
         # all the following must be ok for an already-killed Chunk!
-        self._prekill() #bruce 060327, needed here even though Node.kill might do it too
-        self.unpick() #bruce 050214 comment: keep doing this here even though Node.kill now does it too
+        self._prekill() #bruce 060327, needed here even though _superclass.kill might do it too
+        self.unpick() #bruce 050214 comment: keep doing this here even though _superclass.kill now does it too
         for b in self.externs[:]: #bruce 050214 copy list as a precaution
             b.bust()
         self.externs = [] #bruce 041029 precaution against repeated kills
@@ -2715,7 +2724,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if self.part:
                 self.part.remove(self)
                 assert self.part is None
-        Node.kill(self) #bruce 050214 moved this here, made it unconditional
+        _superclass.kill(self) #bruce 050214 moved this here, made it unconditional
         if self._enable_deallocate_displist():
             self.deallocate_displist_later() #bruce 071103
         return # from Chunk.kill
@@ -2724,7 +2733,7 @@ class Chunk(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         [extends private superclass method; see its docstring for details]
         """
-        Node._set_will_kill( self, val)
+        _superclass._set_will_kill( self, val)
         for a in self.atoms.itervalues():
             a._will_kill = val # inlined a._prekill(val), for speed
             ##e want to do it on their bonds too??
@@ -3769,4 +3778,4 @@ debug_messup_basecenter = 0
 
 messupKey = genKey()
 
-# end of chunk.py
+# end

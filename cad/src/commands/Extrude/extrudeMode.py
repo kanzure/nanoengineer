@@ -2145,7 +2145,10 @@ class fake_merged_mol( virtual_group_of_Chunks): #e rename? 'extrude_unit_holder
         weights = [mol.center_weight for mol in self._mols]
         self.center = weighted_average(weights, centers)
         return
-    def contains_atom(self, atom): #bruce 070514
+    def contains_atom(self, atom): #bruce 070514, added to Node API 080305
+        """
+        [imitates Node API method]
+        """
         mol = atom.molecule
         assert mol.contains_atom(atom)
             # Note: this fact is not needed here, but this assert is the only test

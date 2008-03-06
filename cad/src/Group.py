@@ -14,6 +14,8 @@ but the basic structure of Nodes and Groups has not been changed.
 
 Bruce 071110 split Group.py out of Utility.py. (And may soon
 split out Node and/or LeafNode as well.)
+
+Bruce 080305 changed superclass from Node to NodeWithAtomContents.
 """
 
 from debug import print_compact_stack, print_compact_traceback
@@ -24,12 +26,15 @@ from state_constants import S_CHILDREN
 from commands.GroupProperties.GroupProp import GroupProp
 from icon_utilities import imagename_to_pixmap
 
-from Utility import Node
+from Utility import NodeWithAtomContents
 
 from utilities.Log import redmsg, quote_html
+
 # ==
 
-class Group(Node):
+_superclass = NodeWithAtomContents #bruce 080305 revised this
+
+class Group(NodeWithAtomContents):
     """
     A kind of Node which groups other nodes (its .members,
     informally called its "kids") in the model tree, for drawing,
@@ -61,9 +66,9 @@ class Group(Node):
         # [bruce 080115]
 
     def __init__(self, name, assy, dad, members = (), editCommand = None): ###@@@ review inconsistent arg order
-        self.members = [] # must come before Node.__init__ [bruce 050316]
+        self.members = [] # must come before _superclass.__init__ [bruce 050316]
         self.__cmfuncs = [] # funcs to call right after the next time self.members is changed
-        Node.__init__(self, assy, name, dad)
+        _superclass.__init__(self, assy, name, dad)
         self.open = True
         for ob in members:
             self.addchild(ob)
@@ -90,7 +95,7 @@ class Group(Node):
             ###k is this safe to do in arbitrary order vs. other Undo-related updates,
             # or do we need to only do it at the end, and/or in some order when several Groups changed??
             # I don't know, so for now I'll wait and see if we notice bugs from doing it in arbitrary order. [bruce 060306]
-        Node._undo_update(self)
+        _superclass._undo_update(self)
         return
 
     def is_group(self):
@@ -515,10 +520,10 @@ class Group(Node):
         """
         select the Group -- and all its members! [see also pick_top]
 
-        [overrides Node.pick]
+        [extends Node.pick]
         """
-        Node.pick(self)
-            # bruce 050131 comment: important for speed to do Node.pick first,
+        _superclass.pick(self)
+            # bruce 050131 comment: important for speed to do _superclass.pick first,
             # so ob.pick() sees it's picked when its subr scans up the tree
         for ob in self.members:
             ob.pick()
@@ -542,17 +547,20 @@ class Group(Node):
     def unpick(self):
         """
         unselect the Group -- and all its members! [see also unpick_top]
+
+        [extends Node method]
         """
-        Node.unpick(self)
+        _superclass.unpick(self)
         for ob in self.members:
             ob.unpick()
 
     def unpick_top(self): #bruce 050131 for Alpha: bugfix
         """
         [Group implem -- go up but don't go down]
+        [extends Node method]
         """
         #redoc, and clean it all up
-        Node.unpick(self)
+        _superclass.unpick(self)
 
     def unpick_all_members_except(self, node): #bruce 050131 for Alpha
         """
@@ -572,9 +580,9 @@ class Group(Node):
         Self (a Group) is inheriting part from its dad.
         Set this part in self and all partless kids
         (assuming those are all at the top of the nodetree under self).
-        [overrides Node method]
+        [extends Node method]
         """
-        Node.inherit_part(self, part)
+        _superclass.inherit_part(self, part)
         for m in self.members:
             if m.part is None:
                 m.inherit_part(part)
@@ -726,30 +734,34 @@ class Group(Node):
     # ==
 
     def kill(self): # in class Group
+        """
+        [extends Node method]
+        """
         #bruce 050214: called Node.kill instead of inlining it; enhanced Node.kill;
         # and fixed bug 381 by killing all members first.
-        self._prekill() # this has to be done before killing the members, even though Node.kill might do it too [bruce 060327]
+        self._prekill() # this has to be done before killing the members, even though _superclass.kill might do it too [bruce 060327]
         for m in self.members[:]:
             m.kill()
-        Node.kill(self)
+        _superclass.kill(self)
 
     def _set_will_kill(self, val): #bruce 060327 in Group
         """
         [private helper method for _prekill; see its docstring for details;
         subclasses with owned objects should extend this]
+        [extends Node method]
         """
-        Node._set_will_kill( self, val)
+        _superclass._set_will_kill( self, val)
         for m in self.members:
             m._set_will_kill( val)
         return
 
     def reset_subtree_part_assy(self): #bruce 051227
         """
-        [overrides Node method]
+        [extends Node method]
         """
         for m in self.members[:]:
             m.reset_subtree_part_assy()
-        Node.reset_subtree_part_assy(self)
+        _superclass.reset_subtree_part_assy(self)
         return
 
     def is_ascendant(self, node):
@@ -771,12 +783,13 @@ class Group(Node):
     def nodespicked(self):
         """
         Return the number of nodes currently selected in this subtree.
-        [Overrides Node.nodespicked()]
+        [extends Node.nodespicked()]
+        
         Warning (about current implementation [050113]):
         scans the entire tree... calling this on every node in the tree
         might be slow (every node scanned as many times as it is deep in the tree).
         """
-        npick = Node.nodespicked(self)
+        npick = _superclass.nodespicked(self)
             # bruce 050126 bugfix: was 0 (as if this was called leavespicked)
         for ob in self.members: 
             npick += ob.nodespicked()
