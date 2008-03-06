@@ -2,6 +2,8 @@
 temporary scratch file, OWNED BY BRUCE
 (but if it has any imports it's fine if a file move tool rewrites them)
 
+thi is the final form, now it's being distributed into the named methods and will be removed
+
 $Id$
 """
 
@@ -18,8 +20,6 @@ if 0:
     # future:
     # - kinds of atoms (pam, chem, bondpoint, even strand or axis)
     # - various kinds of nodes (eg 3d nodes)
-
-} bug: remove is same as might remove, but add != might add and that's what I did here
 
 class Node:
 
