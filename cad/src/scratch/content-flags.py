@@ -13,7 +13,8 @@ if 0:
     #    (not nec. the only source of atom content, but is for now)
     # - atoms with errors (chunks with errors can be handled separately...
     #    not sure, they might fit into this scheme; otoh they are not only about "atoms"...
-    #    maybe this whole scheme needs generalization for that reason, at least in classnames)
+    #    maybe this whole scheme needs generalization for that reason, at least in classnames...
+    #    e.g. maybe rename NodeWithAtomContents -> NodeWithContents, or have a new superclass for that? above 3d? not sure...
     # future:
     # - kinds of atoms (pam, chem, bondpoint, even strand or axis)
     # - various kinds of nodes (eg 3d nodes)
@@ -101,7 +102,7 @@ class NodeWithAtomContents(Node):
 
     # incremental update
     
-    def remove_some_atom_content(self, flags):
+    def remove_some_atom_content(self, flags): # TODO: call this or an inval method in changed_members of Group; and in delatom etc in Chunk
         """
         One of your kids is removing some "atom content" of the given type.
         Record and propogate the change, doing mt_update if required.
