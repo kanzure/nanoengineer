@@ -161,7 +161,8 @@ def average_value(seq, default = 0.0): #bruce 070412; renamed and moved from sel
 
 # ==
 
-# Display modes:
+# Display styles (aka display modes)
+
 # These are arranged in order of increasing thickness of the bond representation.
 # They are indices of dispNames and dispLabel.
 # Josh 11/2
@@ -182,7 +183,6 @@ diDNACYLINDER = 6
 diCYLINDER = 7
 diSURFACE = 8
 
-
 # note: some of the following lists are extended later at runtime. [as of bruce 060607]
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
     # these dispNames can't be easily revised, since they are used in mmp files; cpk and vdw are misleading as of 060307.
@@ -196,7 +196,27 @@ properDisplayNames = ["def", "inv", "cpk", "lin", "bas", "tub", qxDNACYLINDER]
 dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
 # Changed "CPK" => "Ball and Stick" and "VdW" => "CPK".  mark 060307.
 
-# display mode for new glpanes (#e should be a user preference) [bruce 041129]
+
+# atom content flags [bruce 080306]
+
+# (so far, we only have these for display style, but more might be added
+#  for other aspects of atoms, such as kind of element, whether selected,
+#  whether highlighted, whether has error, etc;
+#  in spite of the term "atom content" we might also add some for nodes,
+#  e.g. all the same ones mentioned for atoms.)
+
+ATOM_CONTENT_FOR_DISPLAY_STYLE = [] # modified by the loop below to be same length as dispNames
+AC_HAS_INDIVIDUAL_DISPLAY_STYLE = 1
+AC_INVISIBLE = 1 << diINVISIBLE # note: fewer bits than ATOM_CONTENT_FOR_DISPLAY_STYLE[diINVISIBLE]
+for _disp in range(len(dispNames)):
+    _content_for_disp = _disp and \
+        (AC_HAS_INDIVIDUAL_DISPLAY_STYLE + (1 << _disp))
+        # this uses bits 1 through len(dispNames) - 1, plus bit 0 for "any of those"
+    ATOM_CONTENT_FOR_DISPLAY_STYLE.append(_content_for_disp)
+
+# ==
+
+# display style for new glpanes (#e should be a user preference) [bruce 041129]
 default_display_mode = diTUBES # Now in user prefs db, set in GLPane.__init__ [Mark 050715]
 
 TubeRadius = 0.3 # (i.e. "TubesSigmaBondRadius")

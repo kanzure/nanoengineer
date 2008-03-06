@@ -1775,6 +1775,35 @@ class Node( StateMixin, IdentityCopyMixin):
 
     pass # end of class Node
 
+    def get_atom_content(self, flags = -1): #bruce 080306
+        """
+        Return your current (up to date) atom content
+        which intersects the given content flags.
+
+        @param flags: the subset of content flags we should update and return
+        @type flags: an "or" of content flag bits [#doc where they are defined]
+
+        @return: current atom content of self
+        @rtype: an "or" of content flag bits
+
+        [subclasses which can have any atom content need to override
+         this method]
+        """
+        # default implem, for nodes which can never have atom content
+        return 0
+
+    def _f_updated_atom_content(self): #bruce 080306
+        """
+        Recompute, record, and return our atom content,
+        optimizing this if it's exactly known on self or on any node-subtrees.
+        
+        [Subclasses which can contain atoms need to override this method.]
+        """
+        # default implem, for nodes which can never have atom content
+        # (note, this default definition is needed on Node, since it's called
+        #  on all members of a Group, whether or not they can contain atoms)
+        return 0 
+
     # an old todo comment:
     #in addition, each Node should have the following methods:
     # draw, cut, copy, paste

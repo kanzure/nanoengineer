@@ -191,6 +191,7 @@ class Group(NodeWithAtomContents):
         change self.members, but if it does, calling this immediately afterwards is required.
         [As of 050121 I don't know for sure if all code yet follows this rule, but I think it does. ##k]
         """
+        self.invalidate_atom_content() #bruce 080306
         if self.part:
             self.part.changed() # does assy.changed too
         elif self.assy:
@@ -212,6 +213,19 @@ class Group(NodeWithAtomContents):
                 except:
                     print_compact_traceback("error in some cmfunc, ignored by %r: " % self)
         return
+    
+    def _ac_recompute_atom_content(self): #bruce 080306
+        """
+        Recompute and return (but do not record) our atom content,
+        optimizing this if it's exactly known on any node-subtrees.
+
+        [Overrides superclass method. Subclasses whose kids are not exactly
+         self.members must override or extend this further.]
+        """
+        atom_content = 0
+        for member in self.members:
+            atom_content |= (member._f_updated_atom_content())
+        return atom_content
 
     def call_after_next_changed_members(self, func, only_if_new = False):
         """

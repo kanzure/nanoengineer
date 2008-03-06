@@ -116,8 +116,12 @@ from constants import diLINES
 from constants import diTUBES
 from constants import diTrueCPK
 from constants import diDNACYLINDER
+
+from constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
 from constants import noop
+
 from elements import PeriodicTable
+
 from commands.ChunkProperties.ChunkProp import ChunkProp
 
 from dna.model.Dna_Constants import getComplementSequence
@@ -1122,7 +1126,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
 
     # some invalidation methods
 
-    def invalidate_atom_lists(self):
+    def invalidate_atom_lists(self, invalidate_atom_content = True):
         """
         private method:
         for now this is the same for addatom and delatom
@@ -1135,8 +1139,13 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         #  method _f_invalidate_atom_lists_and_maybe_deallocate_displist);
         # I'm not 100% sure that's ok, but I can't see a problem in the method
         # and I didn't find a bug in testing. [bruce 060409]
+        
         self.havelist = 0
         self.haveradii = 0
+
+        if invalidate_atom_content:
+            self.invalidate_atom_content() #bruce 080306
+
         # bruce 050513 try to optimize this
         # (since it's 25% of time to read atom records from mmp file, 1 sec for 8k atoms)
         ## self.invalidate_attrs(['externs', 'atlist'])
@@ -1166,6 +1175,28 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             self.externs = self.atlist = -1
             self.invalidate_attrs(['externs', 'atlist'])
         return
+
+    def _ac_recompute_atom_content(self): #bruce 080306
+        """
+        Recompute and return (but do not record) our atom content,
+        optimizing this if it's exactly known on any node-subtrees.
+
+        [Overrides superclass method. Subclasses whose atoms are stored differently
+         may need to override this further.]
+        """
+        atom_content = 0
+        for atom in self.atoms.itervalues():
+            ## atom_content |= (atom._f_updated_atom_content())
+                # IMPLEM that method on class Atom (look up from self.display)?
+                # no, probably best to inline it here instead:
+            atom_content |= ATOM_CONTENT_FOR_DISPLAY_STYLE[atom.display]
+                # possible optimizations, if needed:
+                # - could use 1<<(atom.display) and then postprocess
+                # to add AC_HAS_INDIVIDUAL_DISPLAY_STYLE, if we wanted to inline
+                # the definition of ATOM_CONTENT_FOR_DISPLAY_STYLE
+                # - could skip bondpoints
+                # - could skip all diDEFAULT atoms [###doit]
+        return atom_content
 
     # debugging methods (not fully tested, use at your own risk)
 
@@ -2455,6 +2486,7 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # remake) if user selects several chunks and changes them all
             # at once, and some are already set to disp.
             return
+        self.revise_atom_content(self.display, disp) #bruce 080306
         self.display = disp
         # inlined self.changeapp(1):
         self.havelist = 0
@@ -2462,6 +2494,20 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         self.changed()
         return
 
+    def revise_atom_content(old, new): #bruce 080306
+        """
+        We're changing self's atom content from old to new.
+        Invalidate or update self.molecule's knowledge of its atom content
+        as needed.
+        """
+        if not self.molecule:
+            return # needed?
+        if old & ~new:
+            self.molecule.remove_atom_content(old & ~new)
+        if new & ~old:
+            self.molecule.add_atom_content(new & ~old)
+        return
+    
     def show_invisible_atoms(self):
         """
         Resets the display mode for each invisible (diINVISIBLE) atom 

@@ -79,6 +79,8 @@ from icon_utilities import imagename_to_pixmap
 
 from Node_as_MT_DND_Target import Node_as_MT_DND_Target #bruce 071025
 
+from constants import AC_INVISIBLE, AC_HAS_INDIVIDUAL_DISPLAY_STYLE
+
 DEBUG0 = False # debug api compliance
 DEBUG = False # debug selection stuff
 DEBUG2 = False # mouse press event details
@@ -468,15 +470,41 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
     #   chunks and/or atoms _and_ the node also contains atoms that have their
     #   display style set to something other than diDEFAULT.
     # Mark 2008-03-04
+    #
+    # revised by bruce 080306, but not yet in final form, or in final place in this file. ###
+    # What remains to do (assuming this works so far):
+    # - some optimizations in the code for maintaining the node flags this accesses
+    # - MT needs to subscribe to changes in this data for nodes it draws (and get mt_update when that changes)
+    # - MT needs to include this data in what it compares about a node when deciding if redraw is needed.
+    #   Until it does, even an MT click often won't update the MT as needed.
+    #   (So to test this as it is so far, modify the model, then save and reopen the file.)
+    
     node_symbols = debug_pref("Model Tree: add special symbols to node icons?", 
                               Choice_boolean_False, 
                               non_debug = True, 
                               prefs_key = False)
-    
-    if node_symbols: 
-        node_has_invisible_contents = node.hidden # Hidden nodes get ghosts.
-        node_has_special_display_contents = True # All other nodes get dots.
+    if node_symbols:
+
+        flags = node.get_atom_content(AC_INVISIBLE | AC_HAS_INDIVIDUAL_DISPLAY_STYLE)
+
+        # Hidden nodes get ghosts. [hmm, probably not right ### FIX]
+        node_has_invisible_contents = node.hidden
+
+        # NIM: so do nodes with hidden sub-nodes. ##### IMPLEM
         
+        # So do nodes which contain invisible (aka hidden) atoms:
+        if flags & AC_INVISIBLE:
+            node_has_invisible_contents = True
+
+        # Nodes which contain atoms with non-default display styles get yellow dots
+        # (or yellow ghosts if they already would have ghosts).
+        node_has_special_display_contents = False
+        if flags & AC_HAS_INDIVIDUAL_DISPLAY_STYLE:
+            node_has_special_display_contents = True
+
+        # What about non-default display styles on chunks? ### DECIDE, FIX
+
+        # Now draw all this.
         if node_has_invisible_contents and node_has_special_display_contents:
             painter.drawPixmap(x, y, 
                                imagename_to_pixmap("modeltree/yellow_ghost.png"))
