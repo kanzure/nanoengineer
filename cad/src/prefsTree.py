@@ -1,12 +1,12 @@
-# Copyright 2005-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2005-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 prefsTree.py -- experimental code related to showing
 user preferences in the model tree
 (not presently used as of 050612, but works; very incomplete)
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2005-2008 Nanorex, Inc.  See LICENSE file for details.
 
 History:
 
@@ -26,7 +26,7 @@ from part import Part
 from constants import noop, dispLabel, default_display_mode
 import env
 
-debug_prefstree = 1 ###@@@ safe for commit even when 1
+_debug_prefstree = True # safe for commit even when True
 
 class PrefNode(Node):
     """
@@ -152,7 +152,9 @@ class MainPrefsGroupPart(Part):
     def location_name(self):
         return "prefs tree" #k used??
     def movie_suffix(self):
-        "what suffix should we use in movie filenames? None means don't permit making them."
+        """
+        what suffix should we use in movie filenames? None means don't permit making them.
+        """
         None #k does this still work?
     pass
 
@@ -167,7 +169,7 @@ def prefsTree(assy):
         assert assy.prefsTree.__class__.__name__ == "prefsTree_class"
         return assy.prefsTree
     except:
-        if debug_prefstree:
+        if _debug_prefstree:
             print "remaking prefsTree object for", assy # this is normal
         pass
     assy.prefsTree = prefsTree_class(assy)

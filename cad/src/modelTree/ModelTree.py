@@ -1,8 +1,7 @@
 # Copyright 2004-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-modelTree.py -- The model tree display widget.
-
-[Note: in Qt4, this no longer uses TreeWidget.py or TreeView.py.]
+modelTree.py -- The NE1 model tree display widget, including
+its context menu commands.
 
 @version: $Id$
 @copyright: 2004-2008 Nanorex, Inc.  See LICENSE file for details.
@@ -20,7 +19,7 @@ and split it into three modules:
 - TreeWidget.py (event handling, and some conventions suitable for
   all our tree widgets, if we define other ones), and
 
-- modelTree.py (customized for showing a "model tree" per se).
+- modelTree.py (customized for showing "the NE1 model tree" per se).
 
 After that, Will ported it to Qt4, and since the Q3 compatibility
 classes were unsupported by PyQt4, rewrote much of it, in the process
@@ -32,22 +31,22 @@ might therefore be:
 - modelTreeGui.py (display and update, event handling, and some
   conventions suitable for all our tree widgets, if we define other ones), and
   
-- modelTree.py (customized for showing an NE1 "model tree" per se).
+- modelTree.py (customized for showing "the NE1 model tree" per se).
 
 Bruce later rewrote much of modelTreeGui.py, and has added lots
-of context menu commands to modelTree.py.
+of context menu commands to modelTree.py at various times.
 """
 
 from PyQt4 import QtCore
 
 import env
-from utilities import debug_flags # for atom_debug
-from PlatformDependent import fix_plurals #bruce 070503 Qt4
-import modelTreeGui   # ModelTreeGui, Ne1Model_api
+from utilities import debug_flags
+from PlatformDependent import fix_plurals
+import modelTreeGui # defines ModelTreeGui (note case difference), Ne1Model_api
 
 from chunk import Chunk
 from jigs import Jig
-from utilities.Log import redmsg, greenmsg, orangemsg # not all used, that's ok
+from utilities.Log import orangemsg
 from Group import Group
 from debug import print_compact_traceback
 
@@ -61,11 +60,11 @@ from constants import noop
 
 from qt4transition import qt4here
 
-debug_preftree = 0 # bruce 050602 experiment; requires new (not yet committed) file when enabled #####@@@@@ DO NOT COMMIT with 1
+_debug_preftree = False # bruce 050602 experiment; do not commit with True
 
 # helpers for making context menu commands
 
-class statsclass:
+class statsclass: # todo: rename, and  move to its own utility module?
     """
     class for holding and totalling counts of whatever you want, in named attributes
     """
@@ -74,7 +73,9 @@ class statsclass:
             return 0 # no need to set it
         raise AttributeError, attr
     def __iadd__(self, other):
-        """this is self += other"""
+        """
+        this implements self += other
+        """
         for attr in other.__dict__.keys():
             setattr( self, attr, getattr( self, attr) + getattr( other, attr) )
         return self ###k why would this retval be needed??
@@ -95,12 +96,13 @@ class statsclass:
     __repr__ = __str__ #k needed?
     pass
 
-def accumulate_stats(node, stats):
+def _accumulate_stats(node, stats):
     """
     When making a context menu from a nodeset (of "topselected nodes"),
     this is run once on every topselected node (note: they are all picked)
     and once on every node under those (whether or not they are picked).
     """
+    # todo (refactoring): could be a method on our own subclass of statsclass
     stats.n += 1
 
     stats.ngroups += int(isinstance(node, Group))
@@ -323,7 +325,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             # [not anymore, as of some time before 050417] inserts assy.viewdata.members into assy.tree
         self.tree_node, self.shelf_node = self.assy.tree, self.assy.shelf
         topnodes = [self.assy.tree, self.assy.shelf]
-        if debug_preftree: ###IMPLEM # this is where i am, bruce 050602
+        if _debug_preftree: #bruce 050602
             try:
                 from Utility import Node
                 ## print "reloading prefsTree"
@@ -361,7 +363,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             self.toggle_open(shelf_item, openflag = True)
             # toggle_open is defined in TreeView.py in the Qt 3 code
         if False:
-            qt4here(show_traceback=True)
+            qt4here(show_traceback = True)
             def grep_dash_il(str, substr):
                 str = str.upper()
                 substr = substr.upper()
@@ -428,9 +430,9 @@ class modelTree(modelTreeGui.Ne1Model_api):
         allstats = statsclass()
         
         for node in nodeset:
-            node.__stats = statsclass() # we expect python name-mangling to make this _modelTree__stats (or something like that)
-            node.apply2all( lambda n1: accumulate_stats( n1, node.__stats) )
-            allstats += node.__stats # totals to allstats
+            node_stats = statsclass()
+            node.apply2all( lambda node1: _accumulate_stats( node1, node_stats) )
+            allstats += node_stats # totals to allstats
 
         # Hide command (and sometimes Unhide)
         
@@ -655,7 +657,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # for very initial experiment let's provide it only for single items.
         # Do we ask them what can be customized about them? I guess so.
 ##unfinished...
-##        if debug_preftree and len(nodeset) == 1:
+##        if _debug_preftree and len(nodeset) == 1:
 ##            mspec = nodeset[0].customize_menuspec()
 ##            submenu = []
             
