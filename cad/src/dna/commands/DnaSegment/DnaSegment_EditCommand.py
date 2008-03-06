@@ -241,6 +241,39 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             self.previousParams = self._gatherParameters()
             self._updateHandleList()
             self.updateHandlePositions()
+            
+    def keep_empty_group(self, group):
+        """
+        Returns True if the empty group should not be automatically deleted. 
+        otherwise returns False. The default implementation always returns 
+        False. Subclasses should override this method if it needs to keep the
+        empty group for some reasons. Note that this method will only get called
+        when a group has a class constant autdelete_when_empty set to True. 
+        (and as of 2008-03-06, it is proposed that dna_updater calls this method
+        when needed. 
+        @see: Command.keep_empty_group() which is overridden here. 
+        @see: BreakStrands_Command.keep_empty_group
+        @see: Group.autodelete_when_empty.. a class constant used by the 
+              dna_updater (the dna updater then decides whether to call this 
+              method to see which empty groups need to be deleted)
+        """
+        
+        bool_keep = EditCommand.keep_empty_group(self, group)
+        
+        if not bool_keep:     
+            if self.hasValidStructure():                
+                if group is self.struct:
+                    bool_keep = True
+                elif group is self.struct.parent_node_of_class(self.assy.DnaGroup):
+                    bool_keep = True
+            #If this command doesn't have a valid structure, as a fall back, 
+            #lets instruct it to keep ALL the DnaGroup objects even when empty
+            #Reason? ..see explanation in BreakStrands_Command.keep_empty_group
+            elif isinstance(group, self.assy.DnaGroup):
+                bool_keep = True
+        
+        return bool_keep
+    
 
     def hasValidStructure(self):
         """

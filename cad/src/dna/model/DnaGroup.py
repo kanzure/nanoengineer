@@ -67,6 +67,13 @@ class DnaGroup(Block):
     # (e.g. a PM display widget) is not yet decided.
     open = False
     
+    autodelete_when_empty = True
+    #This group will be autodeletes when empty (exceptions apply) 
+    #see: Command.keep_empty_groups that does some further checks in specific 
+    #command todecide whether or not to delete this group even when its empty
+    #while in that command. Outside of those exceptions, the empty group object
+    #of this class will be deleted automatically
+    
     def node_icon(self, display_prefs):
         """
         Model Tree node icon for the dna group node

@@ -76,7 +76,6 @@ class BreakStrands_Command(BuildAtoms_Command):
     
     flyoutToolbar = None
 
-    
     def init_gui(self):
         """
         Initialize GUI for this mode 
@@ -111,3 +110,36 @@ class BreakStrands_Command(BuildAtoms_Command):
             self.propMgr.close()
     
    
+    def keep_empty_group(self, group):
+        """
+        Returns True if the empty group should not be automatically deleted. 
+        otherwise returns False. The default implementation always returns 
+        False. Subclasses should override this method if it needs to keep the
+        empty group for some reasons. Note that this method will only get called
+        when a group has a class constant autdelete_when_empty set to True. 
+        (and as of 2008-03-06, it is proposed that dna_updater calls this method
+        when needed. 
+        @see: Command.keep_empty_group() which is overridden here. 
+        """
+        
+        bool_keep = BuildAtoms_Command.keep_empty_group(self, group)
+        
+        if not bool_keep:
+            #Lets just not delete *ANY* DnaGroup while in BreakStrands_Command
+            #Although BreakStrands command can only be accessed through
+            #BuildDna_EditCommand, it could happen (due to a bug) that the 
+            #previous command is not BuildDna_Editcommand. So bool_keep 
+            #in that case will return False propmting dna updater to even delete
+            #the empty DnaGroup (if it becomes empty for some reasons) of the 
+            #BuildDna command. To avoid this ,this method will instruct 
+            # to keep all instances of DnaGroup even when they might be empty.            
+            if isinstance(group, self.assy.DnaGroup):
+                bool_keep = True
+            #Commented out code that shows what I was planning to implement 
+            #earlier. 
+            ##previousCommand = self.commandSequencer.prevMode 
+            ##if previousCommand.commandName == 'BUILD_DNA':
+                ##if group is previousCommand.struct:
+                    ##bool_keep = True                                
+        
+        return bool_keep

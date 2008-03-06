@@ -83,4 +83,26 @@ class JoinStrands_Command(BuildAtoms_Command):
         if self.propMgr is not None:
             self.propMgr.close()
     
-   
+   def keep_empty_group(self, group):
+        """
+        Returns True if the empty group should not be automatically deleted. 
+        otherwise returns False. The default implementation always returns 
+        False. Subclasses should override this method if it needs to keep the
+        empty group for some reasons. Note that this method will only get called
+        when a group has a class constant autdelete_when_empty set to True. 
+        (and as of 2008-03-06, it is proposed that dna_updater calls this method
+        when needed. 
+        @see: Command.keep_empty_group() which is overridden here. 
+        """
+        
+        bool_keep = BuildAtoms_Command.keep_empty_group(self, group)
+        
+        if not bool_keep:
+            #Lets just not delete *ANY* DnaGroup while in JoinStrands_Command
+            #Reason same as the one explained in 
+            #.. BreakStrands_Command.keep_empty_group()
+                       
+            if isinstance(group, self.assy.DnaGroup):
+                bool_keep = True                                
+        
+        return bool_keep

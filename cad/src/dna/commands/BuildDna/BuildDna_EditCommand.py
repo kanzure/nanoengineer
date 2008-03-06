@@ -156,6 +156,26 @@ class BuildDna_EditCommand(EditCommand):
         self.struct = None     
         self.existingStructForEditing = False
         self.propMgr.updateListWidgets()
+    
+    def keep_empty_group(self, group):
+        """
+        Returns True if the empty group should not be automatically deleted. 
+        otherwise returns False. The default implementation always returns 
+        False. Subclasses should override this method if it needs to keep the
+        empty group for some reasons. Note that this method will only get called
+        when a group has a class constant autdelete_when_empty set to True. 
+        (and as of 2008-03-06, it is proposed that dna_updater calls this method
+        when needed. 
+        @see: Command.keep_empty_group() which is overridden here. 
+        """
+        
+        bool_keep = EditCommand.keep_empty_group(self, group)
+        
+        if not bool_keep:     
+            if group is self.struct:
+                bool_keep = True
+        
+        return bool_keep
 
     def create_and_or_show_PM_if_wanted(self, showPropMgr = True):
         """
