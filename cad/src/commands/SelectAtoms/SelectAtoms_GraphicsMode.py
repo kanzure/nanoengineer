@@ -736,7 +736,10 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
           selection.
         - If Shift+Control (Delete) is pressed, delete atom <a>.
         """
-
+        
+        if self.selection_locked():
+            return
+        
         self.deallocate_bc_in_use()
         
         if not self.current_obj_clicked:
@@ -1555,6 +1558,9 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         - If Shift+Control (Delete) is pressed, delete bond <b>.
         <event> is a LMB release event.
         """
+        
+        if self.selection_locked():
+            return
 
         #& To do: check if anything changed (picked/unpicked) before 
         #calling gl_update(). mark 060210.

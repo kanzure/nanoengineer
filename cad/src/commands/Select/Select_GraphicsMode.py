@@ -504,6 +504,13 @@ class Select_basicGraphicsMode(Select_GraphicsMode_DrawMethod_preMixin,
         """
         Close the selection curve and do the selection.
         """
+        #Don't select anything if the selection is locked. 
+        #@see: Select_GraphicsMode_MouseHelper_preMixin.selection_locked()
+        if self.selection_locked():
+            self.selCurve_List = []
+            self.glpane.gl_update()
+            return
+        
         if not self.picking:
             return
         self.picking = False

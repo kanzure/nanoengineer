@@ -219,8 +219,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
     def leftUp(self, event):  
         """
         Overrides leftdrag method of _superclass
-        """
-
+        """       
         if self.cursor_over_when_LMB_pressed == 'Empty Space': #@@ needed?
             self.emptySpaceLeftUp(event)
         elif self.dragdist < 2:
@@ -230,6 +229,11 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         """
         Pick if click
         """
+        #Don't select anything if the selection is locked. 
+        #see self.selection_locked() for more comments. 
+        if self.selection_locked():
+            return
+        
         if not self.picking:
             return
 
@@ -446,7 +450,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
     def leftShiftUp(self, event):
         """
         Handle Left mouse up event when shift key is pressed.
-        """
+        """        
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
             self.emptySpaceLeftUp(event)
             return
@@ -468,4 +472,7 @@ class Move_GraphicsMode(SelectChunks_GraphicsMode):
         """
         # bruce 071008 (intending to be equivalent to prior code)
         return False
+    
+    
+    
     

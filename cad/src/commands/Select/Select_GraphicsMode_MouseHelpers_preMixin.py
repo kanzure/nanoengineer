@@ -530,6 +530,9 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
             self.set_cmdname('Move Jig')
             self.o.assy.changed()
             return
+        
+        if self.selection_locked():
+            return
 
         nochange = False
 
@@ -643,6 +646,22 @@ class Select_GraphicsMode_MouseHelpers_preMixin(commonGraphicsMode):
         return
 
     # == End of (most) Jig helper methods
+    
+    def selection_locked(self, msg = ''):
+        """
+        Returns whether the current selection is 'locked' . If True, no changes 
+        to the current selection are possible from glpane (i.e using mouse 
+        opearions) But user can still select the objects using MT or using 
+        toolbar options such as 'select all'.
+        
+        @param msg: optional string to include in statusbar text
+        """
+        isLocked = self.glpane.mouse_selection_lock_enabled
+        if isLocked and msg:
+            env.history.statusbar_msg("%s"% msg)
+            
+        return isLocked
+            
     
     
     # == END of object specific LMB helper methods =============================

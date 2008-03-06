@@ -142,6 +142,10 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         @see: self.atomLeftDown
         @see: self.chunkLeftDown
         """
+        #Don't select anything if the selection is locked. 
+        #see self.selection_locked() for more comments. 
+        if self.selection_locked():
+            return
         
         assert isinstance(a_chunk, Chunk)
         
@@ -198,6 +202,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
         #(e.g. leftup on a bondPoint etc), this method is invoked. 
         #although it is a bug, its harmless because we do proper check here.
         #So print a warning message if ATOM_DEBUG flag is enabled. 
+        
+        
+        
         if not self.current_obj_clicked:
             if debug_flags.atom_debug:
                 print_compact_stack("Note: self.current_obj_clicked is False "
@@ -205,8 +212,12 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
                 "call selectMode.objectSpecificLeftUp before calling "
                 "selectMolsMode.chunkLeftUp: ")
             return
-               
-                
+        
+        #Don't select anything if the selection is locked. 
+        #see self.selection_locked() for more comments. 
+        if self.selection_locked():
+            return       
+        
         assert isinstance(a_chunk, Chunk)    
         
         m = a_chunk
@@ -242,8 +253,11 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
           with this bond <b>. <event> is a LMB release event.
         """
         self.cursor_over_when_LMB_pressed = 'Bond'
-        
+          
         self.bondSetup(b)
+        
+        if self.selection_locked():
+            return
 
         chunk1 = b.atom1.molecule
         chunk2 = b.atom2.molecule
@@ -311,6 +325,9 @@ class SelectChunks_basicGraphicsMode(Select_basicGraphicsMode):
             "and still selectMolsMode.bondLeftUp is called. Make sure to "
             "call selectMode.objectSpecificLeftUp before calling "
             "selectMolsMode.bondLeftUp: ")
+            return
+        
+        if self.selection_locked():
             return
         
         chunk1 = b.atom1.molecule
