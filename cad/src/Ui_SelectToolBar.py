@@ -31,7 +31,8 @@ def setupUi(win, toolbarArea):
     win.selectToolBar.addAction(win.selectConnectedAction)
     win.selectToolBar.addAction(win.selectDoublyAction)
     win.selectToolBar.addAction(win.selectExpandAction)
-    win.selectToolBar.addAction(win.selectContractAction)    
+    win.selectToolBar.addAction(win.selectContractAction)
+    win.selectToolBar.addAction(win.selectLockAction)
 
 def retranslateUi(win):
     """

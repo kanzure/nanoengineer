@@ -663,6 +663,12 @@ def setupUi(win):
     win.selectContractAction.setIcon(
         geticon("ui/actions/Tools/Select/Contract"))
     win.selectContractAction.setObjectName("selectContractAction")
+    
+    win.selectLockAction = QtGui.QAction(MainWindow)
+    win.selectLockAction.setIcon(
+        geticon("ui/actions/Tools/Select/Selection_Unlocked"))
+    win.selectLockAction.setObjectName("selectLockAction")
+    win.selectLockAction.setCheckable(True)
 
     #= "Simulation" (menu and toolbar) widgets.
     
@@ -1522,6 +1528,9 @@ def retranslateUi(win):
     win.selectContractAction.setIconText(QtGui.QApplication.translate("MainWindow", "Contract", None, QtGui.QApplication.UnicodeUTF8))
     win.selectContractAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Contract Selection (Ctrl+Shift+D)", None, QtGui.QApplication.UnicodeUTF8))
     win.selectContractAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+Shift+D", None, QtGui.QApplication.UnicodeUTF8))
+    win.selectLockAction.setIconText(QtGui.QApplication.translate("MainWindow", "Selection Lock", None, QtGui.QApplication.UnicodeUTF8))
+    win.selectLockAction.setToolTip(QtGui.QApplication.translate("MainWindow", "Selection Lock (Ctrl+L)", None, QtGui.QApplication.UnicodeUTF8))
+    win.selectLockAction.setShortcut(QtGui.QApplication.translate("MainWindow", "Ctrl+L", None, QtGui.QApplication.UnicodeUTF8))
     
     #= "Simulation" (menu and toolbar) actions.
     win.simSetupAction.setText(QtGui.QApplication.translate(

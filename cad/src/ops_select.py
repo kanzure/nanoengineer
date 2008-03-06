@@ -25,6 +25,7 @@ from debug import print_compact_traceback
 from utilities import debug_flags
 from PlatformDependent import fix_plurals
 from GlobalPreferences import permit_atom_chunk_coselection
+from icon_utilities import geticon
 
 from dna.model.DnaGroup import DnaGroup
 
@@ -345,6 +346,32 @@ class ops_select_Mixin:
 
         self.w.win_update() # Needed? Mark 2008-02-14
 
+    def lockSelection(self, lockState):
+        """
+        Enable/disable the mouse "selection lock". When enabled, selection
+        operations using the mouse (i.e. clicks and drags) are disabled in the
+        3D graphics area (glpane). All other selection commands via the 
+        toolbar, menus, model tree and keyboard shortcuts are not affected by
+        the selection lock state.
+        
+        @param lockState: The selection lock state, where:
+                        - True  = selection locked
+                        - False = selection unlocked
+        @type  lockState: boolean
+        """
+        if lockState:
+            self.w.selectLockAction.setIcon(
+                geticon("ui/actions/Tools/Select/Selection_Locked"))
+        else:
+            self.w.selectLockAction.setIcon(
+                geticon("ui/actions/Tools/Select/Selection_Unlocked"))
+        
+        self.o.mouse_selection_lock_enabled = lockState
+        
+        if 0:
+            print "mouse_selection_lock_enabled=", \
+                  self.o.mouse_selection_lock_enabled
+        
     def hideSelection(self):
         """
         Hides the current selection. Selected atoms are made invisible. 

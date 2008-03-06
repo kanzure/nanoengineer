@@ -1031,6 +1031,15 @@ class MWsemantics(QMainWindow,
         a bond to an unselected atom, or which has any open bonds.
         """
         self.assy.selectContract()
+        
+    def selectLock(self, lockState):
+        """
+        Slot for Lock Selection, which locks/unlocks selection.
+        @param lockState: The new selection lock state, either locked (True)
+                          or unlocked (False).
+        @type  lockState: boolean
+        """
+        self.assy.lockSelection(lockState)
 
     ###################################
     # Jig Toolbar Slots

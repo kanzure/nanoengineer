@@ -442,6 +442,10 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
         # Current coordinates of the mouse.
         self.MousePos = V(0,0)
+        
+        # Selection lock state of the mouse for this glpane.
+        # See selectionLock() in the ops_select_Mixin class for details.
+        self.mouse_selection_lock_enabled = False
 
         ##Huaicai 2/8/05: If this is true, redraw everything. It's better to split
         ##the paintGL() to several functions, so we may choose to draw 
