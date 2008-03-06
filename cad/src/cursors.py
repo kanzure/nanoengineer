@@ -79,44 +79,62 @@ def loadCursors(w):
 
         return cursor
     
+    # Pencil symbols.
+    addSymbol = QCursor(getCursorPixmap("symbols/PlusSign.png"), 0, 0)
+    subtractSymbol = QCursor(getCursorPixmap("symbols/MinusSign.png"), 0, 0)
+    
     # Selection lock symbol
     selectionLockSymbol = QCursor(getCursorPixmap("symbols/SelectionLock.png"), 0, 0)
     
-    # Test cursors for NE1_QCursor class. Mark 2008-03-06.
-    w.selectionLockCursorOverlay = \
-     QCursor(getCursorPixmap("selectionLockCursorOverlay.png"), 0, 0)
-    w.selectionLockCursorUnderlay = \
-     QCursor(getCursorPixmap("selectionLockCursorUnderlay.png"), 0, 0)
-    
     # Pencil symbols.
-    horizontalSymbol = QCursor(getCursorPixmap("symbols/HorizontalSnap.png"), 0, 0)
-    verticalSymbol = QCursor(getCursorPixmap("symbols/VerticalSnap.png"), 0, 0)
+    horizontalSymbol = \
+        QCursor(getCursorPixmap("symbols/HorizontalSnap.png"), 0, 0)
+    verticalSymbol = \
+        QCursor(getCursorPixmap("symbols/VerticalSnap.png"), 0, 0)
     
     # Pencil cursors
-    w.colorPencilCursor = \
-     QCursor(getCursorPixmap("Pencil.png"), 0, 0)
+    w.colorPencilCursor = QCursor(getCursorPixmap("Pencil.png"), 0, 0)
+    
     w.pencilHorizontalSnapCursor = \
-     createCompositeCursor(w.colorPencilCursor, horizontalSymbol, offsetX = 22, offsetY = 22)
+        createCompositeCursor(w.colorPencilCursor, horizontalSymbol, 
+                              offsetX = 22, offsetY = 22)
     w.pencilVerticalSnapCursor = \
-     createCompositeCursor(w.colorPencilCursor, verticalSymbol, offsetX = 22, offsetY = 22)
+        createCompositeCursor(w.colorPencilCursor, verticalSymbol, 
+                              offsetX = 22, offsetY = 22)
+    
+    # Select Chunks cursors
+    w.SelectArrowCursor = QCursor(getCursorPixmap("SelectArrowCursor"), 0, 0)
+    w.SelectArrowAddCursor = \
+     createCompositeCursor(w.SelectArrowCursor, addSymbol, 
+                           offsetX = 12, offsetY = 0)
+    w.SelectArrowSubtractCursor = \
+     createCompositeCursor(w.SelectArrowCursor, subtractSymbol, 
+                           offsetX = 12, offsetY = 0)
 
     # Build Atoms - normal cursors
     w.SelectAtomsCursor = \
      QCursor(getCursorPixmap("SelectAtomsCursor.png"), 0, 0)
+    
     w.SelectAtomsAddCursor = \
-     QCursor(getCursorPixmap("SelectAtomsAddCursor.png"), 0, 0)
-    w.SelectAtomsSubtractCursor = \
-     QCursor(getCursorPixmap("SelectAtomsSubtractCursor.png"), 0, 0)
+     createCompositeCursor(w.SelectAtomsCursor, addSymbol, 
+                           offsetX = 12, offsetY = 0)
+    w.SelectSubtractCursor = \
+     createCompositeCursor(w.SelectAtomsCursor, subtractSymbol, 
+                           offsetX = 12, offsetY = 0)
     w.DeleteCursor = \
      QCursor(getCursorPixmap("DeleteCursor.png"), 0, 0)
 
     # Build Atoms - Atom Selection Filter cursors
     w.SelectAtomsFilterCursor = \
      QCursor(getCursorPixmap("SelectAtomsFilterCursor.png"), 0, 0)
+    
     w.SelectAtomsAddFilterCursor = \
-     QCursor(getCursorPixmap("SelectAtomsAddFilterCursor.png"), 0, 0)
+     createCompositeCursor(w.SelectAtomsFilterCursor, addSymbol, 
+                           offsetX = 12, offsetY = 0)
     w.SelectAtomsSubtractFilterCursor = \
-     QCursor(getCursorPixmap("SelectAtomsSubtractFilterCursor.png"), 0, 0)
+     createCompositeCursor(w.SelectAtomsFilterCursor, subtractSymbol, 
+                           offsetX = 12, offsetY = 0)
+    
     w.DeleteAtomsFilterCursor = \
      QCursor(getCursorPixmap("DeleteAtomsFilterCursor.png"), 0, 0)
 
@@ -132,45 +150,50 @@ def loadCursors(w):
 
     # Build Atoms - Bond Tool cursors with Shift modkey pressed
     w.BondToolAddCursor = []
-    w.BondToolAddCursor.append(QCursor(getCursorPixmap("SelectAtomsAddCursor.png"), 0, 0))
-    w.BondToolAddCursor.append(QCursor(getCursorPixmap("Bond1ToolAddCursor.png"), 0, 0))
-    w.BondToolAddCursor.append(QCursor(getCursorPixmap("Bond2ToolAddCursor.png"), 0, 0))
-    w.BondToolAddCursor.append(QCursor(getCursorPixmap("Bond3ToolAddCursor.png"), 0, 0))
-    w.BondToolAddCursor.append(QCursor(getCursorPixmap("BondAToolAddCursor.png"), 0, 0))
-    w.BondToolAddCursor.append(QCursor(getCursorPixmap("BondGToolAddCursor.png"), 0, 0))
+    for cursor in w.BondToolCursor:
+        w.BondToolAddCursor.append(
+            createCompositeCursor(cursor, addSymbol, 
+                                  offsetX = 12, offsetY = 0))
 
     # Build Atoms - Bond Tool cursors with Control/Cmd modkey pressed
     w.BondToolSubtractCursor = []
-    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("SelectAtomsSubtractCursor.png"), 0, 0))
-    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("Bond1ToolSubtractCursor.png"), 0, 0))
-    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("Bond2ToolSubtractCursor.png"), 0, 0))
-    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("Bond3ToolSubtractCursor.png"), 0, 0))
-    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("BondAToolSubtractCursor.png"), 0, 0))
-    w.BondToolSubtractCursor.append(QCursor(getCursorPixmap("BondGToolSubtractCursor.png"), 0, 0))
-
-    # Select Chunks cursors
-    w.SelectArrowCursor = QCursor(getCursorPixmap("SelectArrowCursor"), 0, 0)
-    w.SelectArrowAddCursor = QCursor(getCursorPixmap("SelectArrowAddCursor"), 0, 0)
-    w.SelectArrowSubtractCursor = QCursor(getCursorPixmap("SelectArrowSubtractCursor"), 0, 0)
+    for cursor in w.BondToolCursor:
+        w.BondToolSubtractCursor.append(
+            createCompositeCursor(cursor, subtractSymbol, 
+                                  offsetX = 12, offsetY = 0))
 
     # Translate selection cursors
-    w.TranslateSelectionCursor = QCursor(getCursorPixmap("TranslateSelectionCursor"), 0, 0)
-    w.TranslateSelectionAddCursor = QCursor(getCursorPixmap("TranslateSelectionAddCursor"), 0, 0)
-    w.TranslateSelectionSubtractCursor = QCursor(getCursorPixmap("TranslateSelectionSubtractCursor"), 0, 0)
+    w.TranslateSelectionCursor = \
+     QCursor(getCursorPixmap("TranslateSelectionCursor"), 0, 0)
+    w.TranslateSelectionAddCursor = \
+     createCompositeCursor(w.TranslateSelectionCursor, addSymbol, 
+                           offsetX = 12, offsetY = 0)
+    w.TranslateSelectionSubtractCursor = \
+     createCompositeCursor(w.TranslateSelectionCursor, subtractSymbol, 
+                           offsetX = 12, offsetY = 0)
 
     # Rotate selection cursors
     w.RotateSelectionCursor = QCursor(getCursorPixmap("RotateSelectionCursor"), 0, 0)
-    w.RotateSelectionAddCursor = QCursor(getCursorPixmap("RotateSelectionAddCursor"), 0, 0)
-    w.RotateSelectionSubtractCursor = QCursor(getCursorPixmap("RotateSelectionSubtractCursor"), 0, 0)
+    
+    w.RotateSelectionAddCursor = \
+     createCompositeCursor(w.RotateSelectionCursor, addSymbol, 
+                           offsetX = 12, offsetY = 0)
+    w.RotateSelectionSubtractCursor = \
+     createCompositeCursor(w.RotateSelectionCursor, subtractSymbol, 
+                           offsetX = 12, offsetY = 0)
 
     # Axis translation/rotation cursor
     w.AxisTranslateRotateSelectionCursor = QCursor(getCursorPixmap("AxisTranslateRotateSelectionCursor"), 0, 0)
 
     # Build Crystal cursors
-    w.CookieCursor = QCursor(getCursorPixmap("CookieCursor"), 0, 0)
-    w.CookieAddCursor = QCursor(getCursorPixmap("CookieAddCursor"), 0, 0)
-    w.CookieSubtractCursor = QCursor(getCursorPixmap("CookieSubtractCursor"), 0, 0)
-
+    w.CookieCursor = QCursor(getCursorPixmap("Pencil.png"), 0, 0)
+    w.CookieAddCursor = \
+     createCompositeCursor(w.colorPencilCursor, addSymbol, \
+                           offsetX = 12, offsetY = 0)
+    w.CookieSubtractCursor = \
+     createCompositeCursor(w.colorPencilCursor, subtractSymbol, \
+                           offsetX = 12, offsetY = 0)
+    
     # View Zoom, Pan, Rotate cursors
     w.ZoomCursor = QCursor(getCursorPixmap("ZoomCursor.png"), 0, 0)
     w.ZoomInOutCursor = QCursor(getCursorPixmap("ZoomInOutCursor.png"), 0, 0)
@@ -199,10 +222,14 @@ def loadCursors(w):
     
     # Experimental- Add the selection lock symbol to the SelectArrowCursor.
     if 0:
-        
+        # Test cursors for NE1_QCursor class. Mark 2008-03-06.
         # This uses the new NE1_Cursor class to add the selection lock symbol.
         # SelectArrowCursor needs to be a NE1_QCursor (not QCursor) to work. 
         # The NE1_QCursor class has not been committed yet. --Mark 2008-03-06
+        #w.selectionLockCursorOverlay = \
+        # QCursor(getCursorPixmap("selectionLockCursorOverlay.png"), 0, 0)
+        #w.selectionLockCursorUnderlay = \
+        # QCursor(getCursorPixmap("selectionLockCursorUnderlay.png"), 0, 0)
         #w.SelectArrowCursor.overlay(w.selectionLockCursorOverlay)
         #w.SelectArrowCursor.underlay(w.selectionLockCursorUnderlay)
         
