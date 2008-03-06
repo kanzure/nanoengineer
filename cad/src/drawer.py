@@ -750,6 +750,34 @@ def drawsphere_worker(params):
     glPopMatrix()
     return
 
+def drawwiresphere_worker(params):
+    """Draw a wireframe sphere.  Receive parameters through a sequence so that this
+    function and its parameters can be passed to another function for
+    deferment.  Right now this is only ColorSorter.schedule (see below)"""
+
+    (color, pos, radius, detailLevel) = params
+    ## assert detailLevel == 1 # true, but leave out for speed
+    from debug_prefs import debug_pref, Choice_boolean_True
+    newway = debug_pref("new wirespheres?", Choice_boolean_True) #bruce 060415 experiment, re iMac G4 wiresphere bug; fixes it!
+    oldway = not newway
+    # These objects want a constant line color even if they are selected or highlighted.
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+    if oldway:
+        glPolygonMode(GL_FRONT, GL_LINE)
+    glPushMatrix()
+    glTranslatef(pos[0], pos[1], pos[2])
+    glScale(radius,radius,radius)
+    if oldway:
+        glCallList(sphereList[detailLevel])
+    else:
+        glCallList(wiresphere1list)
+    glEnable(GL_LIGHTING)
+    glPopMatrix()
+    if oldway:
+        glPolygonMode(GL_FRONT, GL_FILL)
+    return
+
 def drawcylinder_worker(params):
     """
     Draw a cylinder.  Receive parameters through a sequence so that this
@@ -1338,6 +1366,31 @@ class ColorSorter:
 
     schedule_sphere = staticmethod(schedule_sphere)
 
+
+    def schedule_wiresphere(color, pos, radius, detailLevel = 1):
+        """
+        Schedule a wiresphere for rendering whenever ColorSorter thinks is
+        appropriate.
+        """
+        if use_c_renderer and ColorSorter.sorting:
+            if len(color) == 3:
+                lcolor = (color[0], color[1], color[2], 1.0)
+            else:
+                lcolor = color
+            assert 0, "Need to implement a C add_wiresphere function."
+            ColorSorter._cur_shapelist.add_wiresphere(lcolor, pos, radius,
+                                                  ColorSorter._gl_name_stack[-1])
+        else:
+            if len(color) == 3:		
+                lcolor = (color[0], color[1], color[2], 1.0)
+            else:
+                lcolor = color		    
+
+            ColorSorter.schedule(lcolor, drawwiresphere_worker,
+                                 # Use constant-color line drawing.
+                                 (color, pos, radius, detailLevel))
+
+    schedule_wiresphere = staticmethod(schedule_wiresphere)
 
     def schedule_cylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0 ):
         """
@@ -1972,8 +2025,9 @@ def drawRotateSign(color, pos1, pos2, radius, rotation = 0.0):
     return
 
 def drawsphere(color, pos, radius, detailLevel, opacity = 1.0):
-    """Schedule a sphere for rendering whenever ColorSorter thinks is
-    appropriate."""
+    """
+    Schedule a sphere for rendering whenever ColorSorter thinks is appropriate.
+    """
     ColorSorter.schedule_sphere(color, 
                                 pos, 
                                 radius, 
@@ -1981,26 +2035,10 @@ def drawsphere(color, pos, radius, detailLevel, opacity = 1.0):
                                 opacity = opacity)
 
 def drawwiresphere(color, pos, radius, detailLevel = 1):
-    ## assert detailLevel == 1 # true, but leave out for speed
-    from debug_prefs import debug_pref, Choice_boolean_True
-    newway = debug_pref("new wirespheres?", Choice_boolean_True) #bruce 060415 experiment, re iMac G4 wiresphere bug; fixes it!
-    oldway = not newway
-    glColor3fv(color)
-    glDisable(GL_LIGHTING)
-    if oldway:
-        glPolygonMode(GL_FRONT, GL_LINE)
-    glPushMatrix()
-    glTranslatef(pos[0], pos[1], pos[2])
-    glScale(radius,radius,radius)
-    if oldway:
-        glCallList(sphereList[detailLevel])
-    else:
-        glCallList(wiresphere1list)
-    glEnable(GL_LIGHTING)
-    glPopMatrix()
-    if oldway:
-        glPolygonMode(GL_FRONT, GL_FILL)
-    return
+    """
+    Schedule a wireframe sphere for rendering whenever ColorSorter thinks is appropriate.
+    """
+    ColorSorter.schedule_wiresphere(color, pos, radius, detailLevel = detailLevel)
 
 def drawcylinder(color, pos1, pos2, radius, capped = 0, opacity = 1.0):
     """Schedule a cylinder for rendering whenever ColorSorter thinks is
