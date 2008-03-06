@@ -409,7 +409,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
             res = [('Model Tree (nothing selected)',noop,'disabled')]
             #bruce 050505 adding some commands here (cm_delete_clipboard is a just-reported NFR from Mark)
             res.append(( 'Create new empty clipboard item', self.cm_new_clipboard_item ))
-            lenshelf = len(self.assy.shelf.members)
+            lenshelf = len(self.assy.shelf.members) # FIX - use MT_kids?
             if lenshelf:
                 if lenshelf > 2:
                     text = 'Delete all %d clipboard items' % lenshelf
@@ -425,7 +425,12 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # Hmm... let's put in Hide (with checkmark meaning "all hidden"), then iff that's not enough, Unhide.
         # So how do we know if a node is hidden -- this is only defined for leaf nodes now!
         # I guess we figure it out... I guess we might as well classify nodeset and its kids.
-        # [update, bruce 080108: I think "and its kids" refers to members, not MT_kids, but I'm not sure.]
+        # [update, bruce 080108/080306: does "and its kids" refer to members, or MT_kids?
+        #  It might be some of each -- we would want to include members present but not shown
+        #  in the MT (like the members of DnaGroup or DnaStrand), which are in members but not in
+        #  MT_kids, but we might also want to cover "shared members", like DnaStrandChunks,
+        #  which *might* be included in both strands and segments for this purpose (in the future;
+        #  shared members are NIM now).]
         
         allstats = statsclass()
         
@@ -527,6 +532,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
                 text = "Ungroup %s (unsupported)" % (node.__class__.__name__.split('.')[-1],)
                     # todo: put that into Node.classname_for_ModelTree()
             elif not node.members: #bruce 080207
+                # [REVIEW: use MT_kids? same issue in many places in this file, as of 080306]
                 text = "Remove empty Group"
             elif node.dad == self.shelf_node and len(node.members) > 1:
                 # todo: "Ungroup into %d separate clipboard item(s)"

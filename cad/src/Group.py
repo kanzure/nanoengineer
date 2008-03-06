@@ -823,7 +823,7 @@ class Group(NodeWithAtomContents):
         else:
             return imagename_to_pixmap("modeltree/group-collapsed.png")
 
-    def MT_kids(self, display_prefs = {}): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids, revised semantics
+    def MT_kids(self, display_prefs = {}): #bruce 050109; 080108 renamed from kids to MT_kids, revised semantics
         """
         [Overrides Node.MT_kids(); is overridden in our subclass Block]
         
@@ -846,7 +846,8 @@ class Group(NodeWithAtomContents):
          [Note that it ought to be ok for subclasses to have a set of MT_kids which is
         not related to their .members, provided callers (tree widgets) never assume node.dad
         corresponds to the parent relation in their own tree of display items. I don't know
-        how well the existing caller (modelTree.py) follows this so far. -- bruce 050113]
+        how well the existing caller (modelTree.py) follows this so far. -- bruce 050113
+        Update, bruce 080306 -- maybe as of a change today, it does -- we'll see.]
         """
         # Historical note: self.members used to be stored in reversed order, but
         # Mark fixed that some time ago. Some callers in modelTree needed reversed

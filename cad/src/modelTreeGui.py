@@ -200,10 +200,15 @@ class Ne1Model_api(Api):
     # based on more primitive methods (which need never be overridden, and maybe should never be overridden).
     # [moved them into this class from modelTreeGui, bruce 070529]
     
-    def recurseOnNodes(self, func, topnode = None, fake_nodes_to_mark_groups = False, visible_only = False ):
+    def recurseOnNodes(self, func, topnode = None,
+                       fake_nodes_to_mark_groups = False,
+                       visible_only = False ):
         """
         """
-        #bruce 070509 new features: fake_nodes_to_mark_groups, visible_only
+        #bruce 070509 new features:
+        # - fake_nodes_to_mark_groups [not used as of 080306],
+        # - visible_only [always true as of 080306]
+        assert visible_only # see above comment
         if topnode is None:
             for topnode in self.get_topnodes():
                 self.recurseOnNodes(func, topnode,
@@ -212,17 +217,31 @@ class Ne1Model_api(Api):
                 continue
         else:
             func(topnode)
-            if hasattr(topnode, 'members'): ### BUG: should be MT_kids (also better not to use hasattr) [bruce 080306 comment]
-                if not visible_only or topnode.open:                    
-                    if fake_nodes_to_mark_groups:
-                        func(0)
-                    for child in topnode.members: ### BUG: should be MT_kids @@@@ [bruce 080306 comment]
-                        self.recurseOnNodes(func, child,
-                                            fake_nodes_to_mark_groups = fake_nodes_to_mark_groups,
-                                            visible_only = visible_only)
-                        continue
-                    if fake_nodes_to_mark_groups:
-                        func(1)
+            
+            #bruce 080306 use MT_kids, not .members, to fix some bugs
+            # (at least the one about lots of extra scroll height when
+            #  a large DnaGroup is in the MT). Note, MT_kids is always
+            # defined; it's a length 0 sequence on leaf nodes.
+            if visible_only:
+                if topnode.open and topnode.openable():
+                    members = topnode.MT_kids()
+                        # note: we're required to not care what MT_kids returns
+                        # unless topnode.open and topnode.openable() are true.
+                else:
+                    members = ()
+            else:
+                assert 0 # not well defined what this means, due to MT_kids vs members issue [bruce 080306]
+            
+            if members:
+                if fake_nodes_to_mark_groups:
+                    func(0)
+                for child in members:
+                    self.recurseOnNodes(func, child,
+                                        fake_nodes_to_mark_groups = fake_nodes_to_mark_groups,
+                                        visible_only = visible_only)
+                    continue
+                if fake_nodes_to_mark_groups:
+                    func(1)
             pass
         return
     
@@ -245,7 +264,7 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
     This could in principle inherit from this class, and at least ought to define all its methods.]
 
     In addition to what appears here, a node that has child nodes must maintain them in a list
-    called 'self.members'.
+    called 'self.members'. [that might be WRONG as of 080306, since we now use MT_kids]
     """
     # There still needs to be an API call to support renaming, where the model tree is allowed to
     # change the Node's name.
@@ -261,6 +280,7 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
     #   when they're nonempty the node is openable.
     #   What I think *should* be made true is that node.members is private, or at least read-only...
     #   OTOH MT_kids is not yet different, and not yet used by other NE1 code [bruce 080108 updated this comment]
+    #   [this may have been fixed today in favor of only using MT_kids -- bruce 080306]
     #
     # - it ought to include (and the code herein make use of) node.try_rename or so.
     #
@@ -349,10 +369,11 @@ class Node_api(Api): # REVIEW: maybe refile this into model/Node_API and inherit
 ##        """
 ##        raise Exception("overload me")
 
-    def MT_kids(self, item_prefs = {}): #bruce 080108 renamed kids -> MT_kids; only used in some places it needs to be
+    def MT_kids(self, item_prefs = {}): #bruce 080108 renamed kids -> MT_kids; only used in some of the places it needs to be
         """
         Return a list of Nodes that the model tree should show
         as a child of this Node, if it's openable and open.
+        (It doesn't matter what this returns in other cases.)
         """
         raise Exception("overload me")
 
@@ -1674,7 +1695,8 @@ class MT_View(QtGui.QWidget):
         openable = node.openable()
         open = node.open and openable
         if open:
-            members = node.members
+            ## members = node.members
+            members = node.MT_kids() #bruce 080306 fix
         else:
             members = ()
         # openclose line
@@ -1759,7 +1781,13 @@ class MT_View(QtGui.QWidget):
         if node.open and node.openable(): #bruce 080108 bugfix for Block: add .openable() check
             d += 1
             for child in node.MT_kids(): #bruce 080108 change for Block: use MT_kids
-                                         # (but BUG elsewhere, since this is not yet done in drawing code for MT)
+                     # (but BUG elsewhere, since this is not yet done in drawing code for MT)
+                     # [update, bruce 080306 -- so how does e.g. DnaStrand hide its kids?
+                     #  I guess it does this by returning False for node.openable(),
+                     #  which I guess we do check in enough places, e.g. display_prefs_for_node.
+                     #  This means we can effectively notice an MT_kids being empty
+                     #  but not one being partial. As of now I think that happens to cover
+                     #  the ways we're using it, but clearly this is fragile.]
                 resnode, resdepth, resy0, y0 = self.look_for_y_recursive( child, y0, d, y)
                 if resnode:
                     return resnode, resdepth, resy0, y0
@@ -1901,12 +1929,16 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
         if self.MT_debug_prints():
             print "mt_update", time.asctime()
 
-        # probably we need to scan the nodes and decide what needs remaking (on next paintevent) and how tall it is;
-        # should we do this in MT_View? yes.
+        # probably we need to scan the nodes and decide what needs remaking
+        # (on next paintevent) and how tall it is; should we do this in MT_View? yes.
         self.__count = 0
         def func(node):
             self.__count += 1 # using a local var doesn't work, due to Python scoping
         self.ne1model.recurseOnNodes(func, visible_only = True)
+        NUMBER_OF_BLANK_ITEMS_AT_BOTTOM = 1
+            # not 0, to let user be certain they are at the end
+            # [bruce 080306 new feature]
+        self.__count += NUMBER_OF_BLANK_ITEMS_AT_BOTTOM
         height = self.__count * ITEM_HEIGHT
         if self.MT_debug_prints():
             print "mt_update: total height", height
@@ -1914,7 +1946,8 @@ class ModelTreeGui(QScrollArea, ModelTreeGui_common):
 ##        self._debug_scrollbars("mt_update pre-resize")
 
         self.view.resize(MT_CONTENT_WIDTH, height)
-        #e updateGeometry? guess: this does that itself. I don't know for sure, but the scrollbars do seem to adjust properly.
+        #e updateGeometry? guess: this does that itself. I don't know for sure,
+        # but the scrollbars do seem to adjust properly.
 
 ##        self._debug_scrollbars("mt_update post-resize")
 

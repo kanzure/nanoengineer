@@ -1519,7 +1519,10 @@ class PartGroup(Group):
     with provisions for including the "assy.viewdata" elements as initial MT_kids, but not in self.members
     (which is a kluge, and hopefully can be removed reasonably soon, though perhaps not for Alpha).
     """
-    _initialkids = [] #bruce 050302
+    def __init__(self, name, assy, dad, members = (), editCommand = None): #bruce 080306
+        self._initialkids = [] #bruce 050302, bugfixed 080306 (was a mutable class variable! tho not used as such in its old code)
+        Group.__init__(self, name, assy, dad, members = members, editCommand = editCommand)
+        return
     # These revised definitions are the non-kluge reason we need this subclass: ###@@@ also some for menus...
     def is_top_of_selection_group(self):
         return True #bruce 050131 for Alpha
@@ -1537,7 +1540,8 @@ class PartGroup(Group):
 ##    # And this temporary kluge makes it possible to use this subclass where it's
 ##    # needed, without modifying assembly.py or files_mmp.py:
 ##    def kluge_set_initial_nonmember_kids(self, lis): #bruce 050302 comment: no longer used, for now
-##        """[This kluge lets the csys and datum plane model tree items
+##        """
+##        [This kluge lets the csys and datum plane model tree items
 ##        show up in the PartGroup, without their nodes being in its members list,
 ##        since other code wants their nodes to remain in assy.viewdata, but they can
 ##        only have one .dad at a time. Use of it means you can't assume node.dad
@@ -1552,8 +1556,30 @@ class PartGroup(Group):
         """
 ##        if not self.openable() or not display_prefs.get('open', False):
 ##            return []
+        # (I think this is never called when not self.open and self.openable(),
+        #  so don't bother optimizing that case. [bruce 080306])
         regularkids = Group.MT_kids(self, display_prefs)
-        return list(self._initialkids + regularkids)
+        if 1 and self.open:
+            #bruce 080306 test code, should clean up
+            from debug_prefs import debug_pref, Choice_boolean_False
+            want_fake_kid = debug_pref("Model Tree: show fake initial kid?", Choice_boolean_False)
+            have_fake_kid = not not self._initialkids
+            if have_fake_kid and not want_fake_kid:
+                self._initialkids = []
+            elif want_fake_kid and not have_fake_kid:
+                dad = None # works...
+                # Note, if you select it you can get messages like:
+                #   atom_debug: bug(?): change_current_selgroup_to_include_self on node with no selgroup; ignored
+                # and that clicking elsewhere on MT doesn't deselect it.
+                #
+                # Note: if dad is self, making the Group apparently adds it
+                # to our members list! This seems to be why it was appearing
+                # twice, one in the fake top position and once at the
+                # bottom (the same node, sharing selection/renaming state).
+                _fake_kid = Group("fake initial kid", self.assy, dad)
+                self._initialkids = [_fake_kid]
+            pass
+        return list(self._initialkids) + list(regularkids)
     def edit(self):
         cntl = PartProp(self.assy)
             #bruce comment 050420: PartProp is passed assy and gets its stats from assy.tree.

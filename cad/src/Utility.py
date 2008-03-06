@@ -640,13 +640,13 @@ class Node( StateMixin, IdentityCopyMixin):
         """
         return False
     
-    def MT_kids(self, display_prefs = {}): #bruce 050109; 080108 not yet used; renamed from kids to MT_kids; revised semantics
+    def MT_kids(self, display_prefs = {}): #bruce 050109; 080108 renamed from kids to MT_kids; revised semantics
         """
         For doc, see Group.MT_kids()
         
         [some subclasses should override this, especially Group]
         """
-        return [] # review: could this be ()? Is this method needed on Node at all?
+        return [] # review: must this be []? Some calling code might add it to another list...
     
     def openable(self):
         """
