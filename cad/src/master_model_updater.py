@@ -215,10 +215,13 @@ def _autodelete_empty_groups(assy): #bruce 080305
 def debug_pref_autodelete_empty_groups():
     from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
     res = debug_pref("autodelete empty groups?",
-                     Choice_boolean_False,
-                     ## SOON: Choice_boolean_True,
+                     ##Choice_boolean_False,
+                     #autodelete empty groups by default. This looks safe so far
+                     #and soon, we will make it mainstream (not just a debug 
+                     #option) -- Ninad 2008-03-07
+                     Choice_boolean_True, 
                      non_debug = True,
-                     ## prefs_key = True # not sure it's safe enough for this yet
+                     prefs_key = True 
                      )
     return res
 
