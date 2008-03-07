@@ -32,6 +32,10 @@ from commands.Select.Select_Command import Select_basicCommand
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from command_support.GraphicsMode_API import GraphicsMode_API
 
+from chem import Atom
+from chunk import Chunk
+from bonds import Bond
+
 class SelectChunks_basicCommand(Select_basicCommand):
     """
     The 'Command' part of the Select Chunks Mode (SelectChunks_basicCommand and 
@@ -80,6 +84,22 @@ class SelectChunks_basicCommand(Select_basicCommand):
     def makeMenus(self): # mark 060303.
 
         self.Menu_spec = []
+        selobj = self.glpane.selobj
+        highlightedChunk = None
+        if isinstance(selobj, Chunk):
+            highlightedChunk = selobj
+        if isinstance(selobj, Atom):
+            highlightedChunk = selobj.molecule
+        elif isinstance(selobj, Bond):
+            chunk1 = selobj.atom1.molecule
+            chunk2 = selobj.atom2.molecule
+            if chunk1 is chunk2 and chunk1 is not None:
+                highlightedChunk = chunk1
+
+        if highlightedChunk is not None:
+            highlightedChunk.make_context_menu_items(self.Menu_spec,
+                                                     command = self)
+            
 
         if self.o.assy.selmols:
             # Menu items added when there are selected chunks.

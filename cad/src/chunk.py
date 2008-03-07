@@ -370,6 +370,17 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         """
         if command is None:
             return 
+        
+        if command.commandName == 'SELECTMOLS':
+            dnaGroup = self.getDnaGroup()
+            if dnaGroup is not None:
+                item = (("DnaGroup: [%s]"%dnaGroup.name), noop, 'disabled')
+                contextMenuList.append(item)	    
+                item = (("Edit properties..."), 
+                        dnaGroup.edit) 
+                contextMenuList.append(item)
+            return
+                     
 
         if command.commandName in ['BUILD_DNA', 'DNA_SEGMENT', 'DNA_STRAND']:
             if self.isStrandChunk():
