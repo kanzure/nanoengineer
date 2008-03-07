@@ -103,7 +103,8 @@ class SelectChunks_basicCommand(Select_basicCommand):
 
         if self.o.assy.selmols:
             # Menu items added when there are selected chunks.
-            self.Menu_spec = [
+            
+            contextMenuList = [
                 ('Change Color of Selected Chunks...', 
                  self.w.dispObjectColor),
                 ('Reset Color of Selected Chunks', 
@@ -114,6 +115,8 @@ class SelectChunks_basicCommand(Select_basicCommand):
                  self.w.dispShowInvisAtoms),
                 ('Hide Selected Chunks', self.o.assy.Hide),
             ]
+            
+            self.Menu_spec.extend(contextMenuList)
 
         # Enable/Disable Jig Selection.
         # This is duplicated in depositMode.makeMenus().
