@@ -656,14 +656,14 @@ class modeMixin(object):
                           ))
         return modemenu
     
-    def _custom_mode_names_files(self): #bruce 061207 & 070427 revised this
+    def _custom_mode_names_files(self): #bruce 061207 & 070427 & 080306 revised this
         res = []
         try:
-            # special case for cad/src/testmode.py (or .pyc)
+            # special case for cad/src/exprs/testmode.py (or .pyc)
             from constants import CAD_SRC_PATH
             ## CAD_SRC_PATH = os.path.dirname(__file__)
             for filename in ('testmode.py', 'testmode.pyc'):
-                testmodefile = os.path.join( CAD_SRC_PATH, filename)
+                testmodefile = os.path.join( CAD_SRC_PATH, "exprs", filename)
                 if os.path.isfile(testmodefile):
                     # note: this fails inside site-packages.zip (in Mac release);
                     # a workaround is below
@@ -676,7 +676,7 @@ class modeMixin(object):
             assert res
         except:
             if debug_flags.atom_debug:
-                print "fyi: error adding testmode.py from cad/src to custom modes menu (ignored)"
+                print "fyi: error adding testmode.py from cad/src/exprs to custom modes menu (ignored)"
             pass
         try:
             import gpl_only

@@ -1,11 +1,11 @@
-# Copyright 2006-2007 Nanorex, Inc.  See LICENSE file for details. 
+# Copyright 2006-2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 testmode.py -- Command/GraphicsMode for testing graphical exprs
 (implemented in the exprs module).
 
-@author: bruce
+@author: Bruce
 @version: $Id$
-@copyright: 2006-2007 Nanorex, Inc.  See LICENSE file for details.
+@copyright: 2006-2008 Nanorex, Inc.  See LICENSE file for details.
 
 How to use:
 
@@ -14,7 +14,7 @@ How to use:
   [this symlink is no longer needed as of 061207:]
   make a symlink from ~/Nanorex/Modes/testmode.py to this file, i.e.
   % cd ~/Nanorex/Modes
-  % ln -s /.../cad/src/testmode.py .
+  % ln -s /.../cad/src/exprs/testmode.py .
 
 then find testmode in the debug menu's custom modes submenu. It reloads testdraw.py
 on every click on empty space, so new drawing code can be tried by editing that file and clicking.
