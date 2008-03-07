@@ -94,7 +94,7 @@ debug_parts = False # set this to True in a debugger, to enable some print state
 
 debug_1855 = False # DO NOT COMMIT WITH TRUE [bruce 060415]
 
-class Part( jigmakers_Mixin, InvalMixin, StateMixin,
+class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
             ops_atoms_Mixin, ops_connected_Mixin, ops_copy_Mixin,
             ops_motion_Mixin, ops_rechunk_Mixin, ops_select_Mixin
             ):
@@ -1095,7 +1095,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
 # == subclasses of Part
 
-class MainPart(Part, IdentityCopyMixin):
+class MainPart(Part):
     def immortal(self):
         return True
     def location_name(self):
