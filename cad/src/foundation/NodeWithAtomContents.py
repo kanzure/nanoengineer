@@ -131,8 +131,8 @@ class NodeWithAtomContents(NodeWith3DContents):
         # much of this would then be doable in Pyrex.
         new = old = self._min_atom_content
         new &= (~flags)
-        if (old, new) != (0, 0):
-            print "removed %#x from %#x to get %#x" % (flags, old, new) ###k remove when works
+        ## if (old, new) != (0, 0):
+        ##     print "removed %#x from %#x to get %#x" % (flags, old, new)
         removed = old - new # often 0, so we optimize for that
         if removed:
             self._min_atom_content = new
@@ -160,8 +160,8 @@ class NodeWithAtomContents(NodeWith3DContents):
         # note: see possible optimization comment in remove_some_atom_content
         new = old = self._max_atom_content
         new |= flags
-        if (old, new) != (-1, -1):
-            print "added %#x to %#x to get %#x" % (flags, old, new) ###k remove when works
+        ## if (old, new) != (-1, -1):
+        ##     print "added %#x to %#x to get %#x" % (flags, old, new)
         added = new - old # often 0, so we optimize for that
         if added:
             self._max_atom_content = new
@@ -191,14 +191,14 @@ class NodeWithAtomContents(NodeWith3DContents):
 
         new_max = old_max = self._max_atom_content
         new_max |= flags
-        if (old_max, new_max) != (-1, -1):
-            print "max: added %#x to %#x to get %#x" % (flags, old_max, new_max) ###k remove when works
+        ## if (old_max, new_max) != (-1, -1):
+        ##     print "max: added %#x to %#x to get %#x" % (flags, old_max, new_max)
         added_max = new_max - old_max # often 0, so we optimize for that
         
         new_min = old_min = self._min_atom_content
         new_min |= flags
-        if (old_min, new_min) != (-1, -1):
-            print "min: added %#x to %#x to get %#x" % (flags, old_min, new_min) ###k remove when works
+        ## if (old_min, new_min) != (-1, -1):
+        ##     print "min: added %#x to %#x to get %#x" % (flags, old_min, new_min)
         added_min = new_min - old_min # often 0, so we optimize for that
 
         if added_max or added_min:
