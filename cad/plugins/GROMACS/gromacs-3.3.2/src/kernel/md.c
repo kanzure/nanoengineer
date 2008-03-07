@@ -86,9 +86,11 @@ static RETSIGTYPE signal_handler(int n)
   case SIGTERM:
     bGotTermSignal = TRUE;
     break;
+#ifndef WIN32
   case SIGUSR1:
     bGotUsr1Signal = TRUE;
     break;
+#endif
   }
 }
 
@@ -351,8 +353,10 @@ time_t do_md(FILE *log,t_commrec *cr,t_commrec *mcr,int nfile,t_filenm fnm[],
   /* Turn on signal handling */
   if (getenv("GMX_NO_TERM") == NULL)
     signal(SIGTERM,signal_handler);
+#ifndef WIN32
   if (getenv("GMX_NO_USR1") == NULL)
     signal(SIGUSR1,signal_handler);
+#endif
 
   /* Check for special mdrun options */
   bRerunMD = (Flags & MD_RERUN)  == MD_RERUN;

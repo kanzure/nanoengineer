@@ -5,7 +5,7 @@
 AM_CPPFLAGS = -I$(top_srcdir)/include -DGMXLIBDIR=\"$(datadir)/top\"
 
 LDADD = ../mdlib/libmd@LIBSUFFIX@.la ../gmxlib/libgmx@LIBSUFFIX@.la \
-    -lHDF5_SimResults -lhdf5
+    -lHDF5_SimResults -lhdf5 -lz
 
 bin_PROGRAMS = \
 	grompp		mdrun		tpbconv	  	pdb2gmx		\

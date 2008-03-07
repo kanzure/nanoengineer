@@ -1,5 +1,9 @@
 
-//#include <io.h>
+#ifdef WIN32
+// Needed for unlink() on Win32 with MinGW
+#include <io.h>
+#endif
+
 #include <errno.h>
 
 #include <sys/stat.h>
@@ -39,9 +43,14 @@ printf(">>> hdf5simresults.cpp: openHDF5dataStore\n");
 	
 	// Create the datastore directory
 	//
+#if defined(WIN32)
+	int status =
+		mkdir(dataStoreDirectory.c_str());
+#else
 	int status =
 		mkdir(dataStoreDirectory.c_str(),
 			  S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
 
 	if (status == 0)
 		fprintf(stderr, "[HDF5] HDF5 datastore directory created: %s\n",
