@@ -70,6 +70,12 @@ def whatsThis_DnaDuplexPropertyManager(propMgr):
     
     return # End of whatsThis_DnaDuplexPropertyManager
 
+def whatsThis_PeptideGeneratorPropertyManager(propMgr):
+    """
+    "Whats This" text for widgets in the Peptide Generator Property Manager.
+    """
+    pass
+
 def whatsThis_NanotubeGeneratorPropertyManager(propMgr):
     """
     "Whats This" text for widgets in the Nanotube Property Manager.
