@@ -140,6 +140,7 @@ from debug import print_compact_traceback, print_compact_stack
 import preferences
 import env
 from changes import SubUsageTrackingMixin
+from cursors import createCompositeCursor
 
 from DynamicTip import DynamicTip
 from Guides import Guides
@@ -490,6 +491,7 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
             # Supports timerEvent() to minimize calls to bareMotion(). Mark 060814.
 
         self.cursorMotionlessStartTime = time.time() #bruce 070110 fix bug when debug_pref turns off glpane timer from startup
+        
 
         ###### User Preference initialization ##############################
 
@@ -1145,9 +1147,27 @@ class GLPane(GLPane_minimal, modeMixin, DebugMenuMixin, SubUsageTrackingMixin,
 
     # == "callback methods" from modeMixin:
 
-##    def setCursor(self, cursor):# bruce 070628 for debug only
-##        print_compact_stack( "glpane setcursor to %r: " % cursor )
-##        return QGLWidget.setCursor(self, cursor)
+    def setCursor(self, cursor = None):
+        """
+        Sets the cursor for the glpane.
+        
+        This method is also responsible for adding special symbols to the 
+        cursor that should be persistent as cursors change (i.e. the selection
+        lock symbol).
+        
+        @param cursor: The cursor. If cursor is None, reset the cursor to the
+                       most resent version without the selection lock symbol.
+        @type  type: U{B{QCursor}<http://doc.trolltech.com/4/qcursor.html>}
+        """
+        if not cursor:
+            cursor = self.cursorWithoutSelectionLock
+        self.cursorWithoutSelectionLock = cursor
+
+        if self.mouse_selection_lock_enabled: # Add the selection lock symbol.
+            cursor = createCompositeCursor(cursor,
+                                           self.win.selectionLockSymbol,
+                                           offsetX = 2, offsetY = 19)
+        return QGLWidget.setCursor(self, cursor)
 
     def update_after_new_mode(self): ### TODO: this will be split between GLPane and CommandSequencer
         """
