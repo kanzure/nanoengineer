@@ -1192,6 +1192,8 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         Recompute and return (but do not record) our atom content,
         optimizing this if it's exactly known on any node-subtrees.
 
+        @see: Atom.setDisplay, Atom.revise_atom_content
+        
         [Overrides superclass method. Subclasses whose atoms are stored differently
          may need to override this further.]
         """
@@ -2497,26 +2499,11 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             # remake) if user selects several chunks and changes them all
             # at once, and some are already set to disp.
             return
-        self.revise_atom_content(self.display, disp) #bruce 080306
         self.display = disp
         # inlined self.changeapp(1):
         self.havelist = 0
         self.haveradii = 0
         self.changed()
-        return
-
-    def revise_atom_content(self, old, new): #bruce 080306
-        """
-        We're changing self's atom content from old to new.
-        Invalidate or update self.molecule's knowledge of its atom content
-        as needed.
-        """
-        if not hasattr(self, "molecule"):
-            return # needed?
-        if old & ~new:
-            self.molecule.remove_atom_content(old & ~new)
-        if new & ~old:
-            self.molecule.add_atom_content(new & ~old)
         return
     
     def show_invisible_atoms(self):

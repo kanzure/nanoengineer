@@ -209,7 +209,14 @@ ATOM_CONTENT_FOR_DISPLAY_STYLE = [] # modified by the loop below to be same leng
 AC_HAS_INDIVIDUAL_DISPLAY_STYLE = 1
 AC_INVISIBLE = 1 << diINVISIBLE # note: fewer bits than ATOM_CONTENT_FOR_DISPLAY_STYLE[diINVISIBLE]
 for _disp in range(len(dispNames)):
-    _content_for_disp = _disp and \
+    if not _disp:
+        assert _disp == diDEFAULT
+        _content_for_disp = 0
+    elif _disp == diINVISIBLE:
+        # don't redundantly count this as "individual display style"
+        _content_for_disp = AC_INVISIBLE 
+    else:
+        _content_for_disp = \
         (AC_HAS_INDIVIDUAL_DISPLAY_STYLE + (1 << _disp))
         # this uses bits 1 through len(dispNames) - 1, plus bit 0 for "any of those"
     ATOM_CONTENT_FOR_DISPLAY_STYLE.append(_content_for_disp)

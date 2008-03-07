@@ -95,6 +95,8 @@ from constants import diTrueCPK
 from constants import diTUBES
 from constants import diINVISIBLE
 
+from constants import ATOM_CONTENT_FOR_DISPLAY_STYLE
+
 from constants import dispLabel
 from constants import default_display_mode
 from constants import TubeRadius
@@ -1943,14 +1945,14 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         # useful optimization. [bruce 080305 optimization]
         if self.display == disp:
             return
+        self.revise_atom_content(
+            ATOM_CONTENT_FOR_DISPLAY_STYLE[self.display],
+            ATOM_CONTENT_FOR_DISPLAY_STYLE[disp]
+         ) #bruce 080307; see also Chunk._ac_recompute_atom_content
         self.display = disp
         _changed_otherwise_Atoms[self.key] = self #bruce 060322
         self.molecule.changeapp(1)
         self.changed() # bruce 041206 bugfix (unreported bug); revised, bruce 050509
-        
-        # TODO: tell chunk its atom display modes changed, so it can decide
-        # whether to update its [nim] related attrs for MT icon overlays, etc.
-        # [bruce 080305 comment @@@@]
         
         # bruce 041109 comment:
         # Atom.setDisplay changes appearance of this atom's bonds,
@@ -1960,6 +1962,20 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
         # that for internal bonds, and external bonds are redrawn every time so
         # no invals are needed if their appearance changes.
         
+        return
+
+    def revise_atom_content(self, old, new): #bruce 080306/080307
+        """
+        We're changing self's atom content from old to new.
+        Invalidate or update self.molecule's knowledge of its atom content
+        as needed.
+        """
+        if not self.molecule:
+            return # needed?
+        if old & ~new:
+            self.molecule.remove_some_atom_content(old & ~new)
+        if new & ~old:
+            self.molecule.add_some_atom_content(new & ~old)
         return
 
     def howdraw(self, dispdef): # warning: if you add env.prefs[] lookups to this routine, modify selradius_prefs_values!
