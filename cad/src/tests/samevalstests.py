@@ -51,19 +51,61 @@ class SameValsTests(unittest.TestCase):
         assert same_vals((1, 2), (1, 2))
         assert not same_vals((1, 2), (2, 1))
 
-    def test_numeric_equals(self):
+    def test_numericArray1(self):
         a = Numeric.array((1, 2, 3))
         b = Numeric.array((1, 2, 3))
-        print a == b
-        print a != b
-        assert a == b
-        assert not a != b
-        b = Numeric.array((1, 4, 5))
-        print a == b
-        print a != b
-        assert a != b
-        assert not a == b
+        assert same_vals(a, b)
+        b = Numeric.array((1, 2, 4))
+        assert not same_vals(a, b)
+        b = Numeric.array((1, 2))
+        assert not same_vals(a, b)
 
+        a = Numeric.array([[1, 2], [3, 4]])
+        b = Numeric.array([[1, 2], [3, 4]])
+        assert same_vals(a, b)
+
+        b = Numeric.array([4, 3])
+        c = a[1, 1::-1]
+        assert same_vals(b, c)
+
+        a = Numeric.array([[[[ 1,  2,  3], [ 4,  5,  6], [ 7,  8,  9]],
+                            [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                            [[19, 20, 21], [22, 23, 24], [25, 26, 27]]],
+                           [[[28, 29, 30], [31, 32, 33], [34, 35, 36]],
+                            [[37, 38, 39], [40, 41, 42], [43, 44, 45]],
+                            [[46, 47, 48], [49, 50, 51], [52, 53, 54]]]])
+        b = Numeric.array([[[[ 1,  2,  3], [ 4,  5,  6], [ 7,  8,  9]],
+                            [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                            [[19, 20, 21], [22, 23, 24], [25, 26, 27]]],
+                           [[[28, 29, 30], [31, 32, 33], [34, 35, 36]],
+                            [[37, 38, 39], [40, 41, 42], [43, 44, 45]],
+                            [[46, 47, 48], [49, 50, 51], [52, 53, 54]]]])
+        assert same_vals(a, b)
+        b = Numeric.array([[[[ 1,  2,  3], [ 4,  5,  6], [ 7,  8,  9]],
+                            [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                            [[19, 20, 21], [22, 23, 24], [25, 26, 27]]],
+                           [[[28, 29, 30], [31, 32, 33], [34, 35, 36]],
+                            [[37, 38, 39], [40, 41, 42], [43, 44, 45]],
+                            [[46, 47, 48], [49, 50, 51], [52, 53, 55]]]])
+        assert not same_vals(a, b)
+        b = Numeric.array([[[[ 1,  2,  3], [ 4,  5,  6], [ 7,  8,  9]],
+                            [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                            [[19, 20, 21], [22, 23, 24], [25, 26, 27]]],
+                           [[[28, 29, 30], [31, 30, 33], [34, 35, 36]],
+                            [[37, 38, 39], [40, 41, 42], [43, 44, 45]],
+                            [[46, 47, 48], [49, 50, 51], [52, 53, 54]]]])
+        assert not same_vals(a, b)
+        b = Numeric.array([[[[ 1,  2,  3], [ 4,  5,  6], [ 7,  8,  9]],
+                            [[10, 11, 12], [13, 14, 15], [16, 17, 18]],
+                            [[19, 20, 21], [22, 23, 24], [25, 26, 27]]]])
+        assert not same_vals(a, b)
+
+        a = Numeric.array(["abc", "def"], Numeric.PyObject)
+        b = Numeric.array(["abc", "def"], Numeric.PyObject)
+        assert same_vals(a, b)
+        b = Numeric.array(["abc", "defg"], Numeric.PyObject)
+        assert not same_vals(a, b)
+        
 def test():
     suite = unittest.makeSuite(SameValsTests, 'test')
     runner = unittest.TextTestRunner()

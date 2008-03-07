@@ -3,6 +3,7 @@
  * Type "python setup2.py build_ext --inplace" to build.
  */
 
+#include <alloca.h>
 #include "Python.h"
 #include "Numeric/arrayobject.h"
 
@@ -67,24 +68,85 @@ _same_vals_helper(PyObject *v1, PyObject *v2)
     } else if (arrayType != NULL && typ1 == arrayType) {
 	PyArrayObject *x = (PyArrayObject *) v1;
 	PyArrayObject *y = (PyArrayObject *) v2;
-	int i, elsize, howmany = 1;
-	if (x->nd != y->nd) return 1;
-	for (i = 0; i < x->nd; i++) {
+	int i;
+        int elementSize;
+        int *indices;
+        int topDimension;
+        char *xdata;
+        char *ydata;
+        int objectCompare = 0;
+
+        // do all quick rejects first (no loops)
+	if (x->nd != y->nd) {
+            // number of dimensions doesn't match
+            return 1;
+            // note that a (1 x X) array can never equal a single
+            // dimensional array of length X.
+        }
+	if (x->descr->type_num != y->descr->type_num) {
+            // type of elements doesn't match
+            return 1;
+        }
+        if (x->descr->type_num == PyArray_OBJECT) {
+            objectCompare = 1;
+        }
+	elementSize = x->descr->elsize;
+	if (elementSize != y->descr->elsize) {
+            // size of elements doesn't match (shouldn't happen if
+            // types match!)
+            return 1;
+        }
+        for (i = x->nd - 1; i >= 0; i--) {
 	    if (x->dimensions[i] != y->dimensions[i])
+                // shapes don't match
 		return 1;
-	    howmany *= x->dimensions[i];
 	}
-	// if one stride is NULL and the other isn't, it's a problem
-	if ((x->strides == NULL) ^ (y->strides == NULL)) return 1;
-	if (x->strides != NULL) {
-	    // both non-null, compare them
-	    for (i = 0; i < x->nd; i++)
-		if (x->strides[i] != y->strides[i]) return 1;
-	}
-	if (x->descr->type_num != y->descr->type_num) return 1;
-	elsize = x->descr->elsize;
-	if (elsize != y->descr->elsize) return 1;
-	if (memcmp(x->data, y->data, elsize * howmany) != 0) return 1;
+        // we do a lot of these, so handle them early
+        if (x->nd == 1 && !objectCompare && x->strides[0]==elementSize && y->strides[0]==elementSize) {
+            // contiguous one dimensional array of non-objects
+            return memcmp(x->data, y->data, elementSize * x->dimensions[0]) ? 1 : 0;
+        }
+        if (x->nd == 0) {
+            // scalar, just compare one element
+            if (objectCompare) {
+                return _same_vals_helper(*(PyObject **)x->data, *(PyObject **)y->data);
+            } else {
+                return memcmp(x->data, y->data, elementSize) ? 1 : 0;
+            }
+        }
+        // If we decide we can't do alloca() for some reason, we can
+        // either have a fixed maximum dimensionality, or use alloc
+        // and free.
+        indices = (int *)alloca(sizeof(int) * x->nd);
+        for (i = x->nd - 1; i >= 0; i--) {
+            indices[i] = 0;
+        }
+        topDimension = x->dimensions[0];
+        while (indices[0] < topDimension) {
+            xdata = x->data;
+            ydata = y->data;
+            for (i = 0; i < x->nd; i++) {
+                xdata += indices[i] * x->strides[i];
+                ydata += indices[i] * y->strides[i];
+            }
+            if (objectCompare) {
+                if (_same_vals_helper(*(PyObject **)xdata, *(PyObject **)ydata)) {
+                    return 1;
+                }
+            } else if (memcmp(xdata, ydata, elementSize) != 0) {
+                // element mismatch
+                return 1;
+            }
+            // step to next element
+            for (i = x->nd - 1; i>=0; i--) {
+                indices[i]++;
+                if (i == 0 || indices[i] < x->dimensions[i]) {
+                    break;
+                }
+                indices[i] = 0;
+            }
+        }
+        // all elements match
 	return 0;
     }
 #if 0
