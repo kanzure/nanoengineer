@@ -161,7 +161,11 @@ class DnaMarker( ChainAtomMarker):
     # default values of instance variables:
 
     wholechain = None
-    
+
+    _rail = None # 080306
+
+    _baseindex = None # 080306
+
     controlling = _CONTROLLING_IS_UNKNOWN
 
 ##    _owning_strand_or_segment = None
@@ -199,7 +203,7 @@ class DnaMarker( ChainAtomMarker):
             print msg
         if self.wholechain:
             self.wholechain._f_marker_killed(self)
-            self.wholechain = None
+            self._clear_wholechain()
         self._inside_its_own_strand_or_segment = False # guess
         _superclass.kill(self)
         return
@@ -245,15 +249,25 @@ class DnaMarker( ChainAtomMarker):
     def wants_to_be_controlling(self):
         return self._wants_to_be_controlling
     
-    def set_wholechain(self, wholechain, controlling = _CONTROLLING_IS_UNKNOWN):
+    def set_wholechain(self, wholechain, rail, baseindex, controlling = _CONTROLLING_IS_UNKNOWN):
         """
         [to be called by dna updater]
         @param wholechain: a new WholeChain which owns us (not None)
         """
+        # rail, baseindex args added 080306
         assert wholechain
         self.wholechain = wholechain
+        self._rail = rail
+        self._baseindex = baseindex
         self.set_whether_controlling(controlling) # might kill self
 
+    def _clear_wholechain(self): # 080306
+        self.wholechain = None
+        self._rail = None
+        self._baseindex = None
+        self.controlling = _CONTROLLING_IS_UNKNOWN # 080306; never kills self [review: is that ok?]
+        return
+    
     def forget_wholechain(self, wholechain):
         """
         Remove any references we have to wholechain.
@@ -262,8 +276,7 @@ class DnaMarker( ChainAtomMarker):
         """
         assert wholechain
         if self.wholechain is wholechain:
-            self.wholechain = None
-            # review: also do self.set_whether_controlling(False)?? @@@
+            self._clear_wholechain()
         return
 
     def _undo_update(self): # in class DnaMarker
@@ -273,8 +286,8 @@ class DnaMarker( ChainAtomMarker):
         _homeless_dna_markers[id(self)] = self # ok?? sufficient?? [080118]
         # guess, 080227: this should be enough, since our own attrs (in superclass)
         # are declared as undoable state... but just to be safe, do these as well:
-        self.wholechain = None
-        self.controlling = _CONTROLLING_IS_UNKNOWN
+        self._clear_wholechain()
+            # a new one will shortly be made by the dna updater and take us over
         self._inside_its_own_strand_or_segment = False
         _superclass._undo_update(self)
         return
@@ -475,19 +488,20 @@ class DnaMarker( ChainAtomMarker):
     def _f_move_to_live_atom_step1(self): #e todo: split docstring; ### FIX/REVIEW/REFILE/REPLACE - move into WholeChain or smallchain? @@@
         """
         [friend method, called from dna_updater]
-        Our atom died; see if there is a live atom on our old chain which we want to move to;
-        if so, move to the best one (updating all our properties accordingly) and return True;
+        Our atom died; see if there is a live atom on our old wholechain which we want to move to;
+        if so, move to the best one (updating all our properties accordingly, except for
+        whatever is deferred to our _step2 sibling method) and return True;
         if not, die and return False.
 
         @return: whether this marker is still alive after this method runs.
         @rtype: boolean
         """
 
-        if 'SAFETY STUB 080118': # @@@@
-            if debug_flags.DEBUG_DNA_UPDATER:
-                print "kill %r since move step1 is nim" % self ##### @@@@
-            self.kill()
-            return False
+##        if 'SAFETY STUB 080118': # @@@@
+##            if debug_flags.DEBUG_DNA_UPDATER:
+##                print "kill %r since move step1 is nim" % self ##### @@@@
+##            self.kill()
+##            return False
         
         # Algorithm -- just find the nearest live atom in the right direction.
         # Do this by scanning old atom lists in chain objects known to markers,
@@ -495,9 +509,51 @@ class DnaMarker( ChainAtomMarker):
         # [Possible alternative (rejected): sort new atoms for best new home -- bad,
         #  since requires storing that info on atoms, or lots of lookup.]
 
-        assert self.is_homeless()
+        if not self.is_homeless():
+            # was an assert, but now I worry that some code plops us onto that list
+            # for other reasons so this might not always be true, so make it safe
+            # and find out (ie debug print) [bruce 080306]
+            print "bug or ok?? not %r.is_homeless() in _f_move_to_live_atom_step1" % self
+
+        old_wholechain = self.wholechain
+        if not old_wholechain:
+            print "bug? no wholechain in %r._f_move_to_live_atom_step1(); dying" % self
+            self.kill()
+            return False
+
+
+
+
+        if 'SAFETY STUB 080306': # @@@@@@@ turn this on here so my code runs again for the night
+            if debug_flags.DEBUG_DNA_UPDATER:
+                print "kill %r since move step1 is nim" % self ##### @@@@
+            self.kill()
+            return False
+
+
+
+
+        old_atom = self._get_marker_atom() ###k IMPLEM - or is it in superclass?? - and review, note that atom might be killed or not
+
+        # now find where this is in the wholechain. can we find which chain has it? to be efficient,
+        # let's make the wholechain tell us this in set_wholechain.
+        # (we could also ask it to look us up, since it has a dict to map us to that info,
+        #  but this works just as well. I might still decide that way is cleaner or better ##review.)
+        old_rail = self._rail
+        old_baseindex = self._baseindex
+
+        # now ask the wholechain to let us iterate over rails and their atoms,
+        # and look for a live atom, stopping if we get back to self (if it's a ring),
+        # looking in both directions if it's not a ring.
+
+
+
+        # @@@@@@@@@@@@@@@ where i am in rewrite
+
+
+
         
-        old_chain = self._chain # @@@ needs revision so this is a FullChain (list of chain frags), not just one chain frag like now
+        old_chain = self._chain # @@@ needs revision so this is a WholeChain (list of chain frags), not just one chain frag like now
         old_atom = self._get_marker_atom()
         
         assert not self.atoms

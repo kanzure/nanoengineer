@@ -102,7 +102,8 @@ class WholeChain(object):
     _strand_or_segment = None
     _controlling_marker = None
     _num_bases = -1 # unknown, to start with (used in __repr__)
-    _all_markers = () # (used in __repr__, could be needed before __init__ done)
+    _all_markers = () # in instances, will be a mutable dict
+        # (len is used in __repr__; could be needed before __init__ done)
     
     def __init__(self, dict_of_rails): # fyi: called by update_PAM_chunks
         """
@@ -118,7 +119,7 @@ class WholeChain(object):
         self._dict_of_rails = dict_of_rails
 
 ##        chunk = None # for self._arbitrary_chunk; modified during loop
-        markers = {} # collects markers from all our atoms during loop
+        markers = {} # collects markers from all our atoms during loop, maps them to (rail, baseindex)
         num_bases = 0
         end0_baseatoms = self._end0_baseatoms = {} # end0 atom key -> rail (aka chain)
         end1_baseatoms = self._end1_baseatoms = {}
@@ -129,7 +130,8 @@ class WholeChain(object):
             end1_baseatoms[baseatoms[-1].key] = rail
             chunk = baseatoms[0].molecule
             chunk.set_wholechain(self)
-            for atom in rail.baseatoms:
+            for baseindex in range(len(baseatoms)):
+                atom = baseatoms[baseindex]
                 for jig in atom.jigs: ### ASSUMES markers are already moved and valid again (on correct live atoms) @@@
                     if isinstance(jig, DnaMarker):
                         marker = jig
@@ -137,7 +139,7 @@ class WholeChain(object):
                             # might fail if they're not yet all in the model @@@
                         # cache the set of these on the rail? might matter when lots of old rails.
                         # does it matter which of its atoms we are? Not if we remove duplicates...
-                        markers[id(marker)] = marker
+                        markers[marker] = (rail, baseindex)
             continue
 
         self._num_bases = num_bases # used only for debug (eg repr) so far, but later will help with base indexing
@@ -145,14 +147,15 @@ class WholeChain(object):
 ##        self._arbitrary_chunk = chunk
 ##        assert self._arbitrary_chunk
 
-        self._all_markers = markers.values()
+        self._all_markers = markers # maps markers to (rail, baseindex)
+            # revised from just being a list of markers, 080306
         
         return # from __init__
 
     def destroy(self): # 080120 7pm untested
         # note: can be called from chunk._undo_update from one of our chunks;
         # try to make it ok to call this multiple times
-        for marker in self._all_markers:
+        for marker in self.all_markers():
             marker.forget_wholechain(self)
         self._all_markers = ()
         self._controlling_marker = None
@@ -210,7 +213,7 @@ class WholeChain(object):
         Assuming we still own all our atoms (not checked),
         return all the DnaMarkers on them.
         """
-        return self._all_markers
+        return self._all_markers.keys()
 
     def own_markers(self):
         """
@@ -224,7 +227,7 @@ class WholeChain(object):
         [As of 080116 this part is not yet needed or done.]
         """
         self._controlling_marker = self._choose_or_make_controlling_marker()
-        for marker in self._all_markers[:]:
+        for (marker, (rail, baseindex)) in self._all_markers.items(): # can't be iteritems!
 ##            print "debug loop: %r.own_marker %r" % (self, marker)
             controllingQ = (marker is self._controlling_marker)
             ## assert not marker.killed(), \
@@ -240,12 +243,12 @@ class WholeChain(object):
                 #  and unable to tell us, since nothing happens in caller to kill them)
                 self._f_marker_killed(marker) #k guess 080222
                 continue
-            marker.set_wholechain(self, controlling = controllingQ)
+            marker.set_wholechain(self, rail, baseindex, controlling = controllingQ)
                 # own it; tell it whether controlling (some might die then,
                 # and if so they'll call self._f_marker_killed
                 # which removes them from self._all_markers)
             continue
-        for marker in self._all_markers[:]:
+        for marker in self.all_markers():
             # [precaution 080222 - change assert to debug print & bug mitigation:]
             ## assert not marker.killed(), \
             if marker.killed():
@@ -266,9 +269,9 @@ class WholeChain(object):
         [Also called by self if we realize that failed to happen.]
         """
         try:
-            self._all_markers.remove(marker)
+            self._all_markers.pop(marker)
         except:
-            msg = "bug: can't remove %r from %r._all_markers: " % (marker, self)
+            msg = "bug: can't pop %r from %r._all_markers: " % (marker, self)
             print_compact_traceback( msg)
             pass
         return
@@ -433,11 +436,28 @@ class WholeChain(object):
             # (overkill in runtime, but should be correct, since both marker's
             #  atoms should be in the same group)
         
-        # and remember it's on our atoms
-        self._all_markers.append(marker)
+        # and remember it's on our atoms, and where
+
+        try:
+            rail, baseindex = self._find_end_atom_chain_and_index( atom) # 080306
+                # could be optimized due to how we found atom above,
+                # but not trivially (rail can be the chain found above
+                # or either of its adjacent chains)
+        except KeyError:
+            # should never happen, due to how we found atom and when we might
+            # swap it with next_atom above
+            print "following exception relates to:", atom, next_atom, chain, index, self
+            raise
+        
+        self._append_marker(marker, rail, baseindex)
         
         return marker
 
+    def _append_marker(self, marker, rail, baseindex): # 080306
+        assert not marker in self._all_markers
+        self._all_markers[marker] = (rail, baseindex)
+        return
+    
     def _find_end_atom_chain_and_index(self, atom):
         """
         Assume atom is an end_baseatom of one of our chains (aka rails).
