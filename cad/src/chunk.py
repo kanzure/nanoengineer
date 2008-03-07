@@ -2505,13 +2505,13 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         self.changed()
         return
 
-    def revise_atom_content(old, new): #bruce 080306
+    def revise_atom_content(self, old, new): #bruce 080306
         """
         We're changing self's atom content from old to new.
         Invalidate or update self.molecule's knowledge of its atom content
         as needed.
         """
-        if not self.molecule:
+        if not hasattr(self, "molecule"):
             return # needed?
         if old & ~new:
             self.molecule.remove_atom_content(old & ~new)
