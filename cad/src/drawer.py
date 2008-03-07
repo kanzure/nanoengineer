@@ -656,6 +656,8 @@ def apply_material(color): # grantham 20051121, renamed 20051201; revised by bru
         # should never happen; if it does, this assert will always fail
         assert len(color) in [3,4], "color tuples must have length 3 or 4, unlike %r" % (color,)
 
+    glColor4fv(color)          # For drawing lines with lighting disabled.
+
     if not _glprefs.enable_specular_highlights:
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
         # glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, (0,0,0,1))
@@ -751,9 +753,11 @@ def drawsphere_worker(params):
     return
 
 def drawwiresphere_worker(params):
-    """Draw a wireframe sphere.  Receive parameters through a sequence so that this
+    """
+    Draw a wireframe sphere.  Receive parameters through a sequence so that this
     function and its parameters can be passed to another function for
-    deferment.  Right now this is only ColorSorter.schedule (see below)"""
+    deferment.  Right now this is only ColorSorter.schedule (see below)
+    """
 
     (color, pos, radius, detailLevel) = params
     ## assert detailLevel == 1 # true, but leave out for speed
@@ -838,6 +842,36 @@ def drawsurface_worker(params):
     glScale(radius,radius,radius)
     renderSurface(tm, nm)
     glPopMatrix()
+    return
+
+def drawline_worker(params):
+    """
+    Draw a line.  Receive parameters through a sequence so that this
+    function and its parameters can be passed to another function for
+    deferment.  Right now this is only ColorSorter.schedule (see below)
+    """
+    (endpt1, endpt2, dashEnabled, stipleFactor, width, isSmooth) = params
+    
+    ###glDisable(GL_LIGHTING)
+    ###glColor3fv(color)
+    if dashEnabled: 
+        glLineStipple(stipleFactor, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
+    if width != 1:
+        glLineWidth(width)
+    if isSmooth:
+        glEnable(GL_LINE_SMOOTH)
+    glBegin(GL_LINES)
+    glVertex(endpt1[0], endpt1[1], endpt1[2])
+    glVertex(endpt2[0], endpt2[1], endpt2[2])
+    glEnd()
+    if isSmooth:
+        glDisable(GL_LINE_SMOOTH)
+    if width != 1:
+        glLineWidth(1.0) # restore default state
+    if dashEnabled: 
+        glDisable(GL_LINE_STIPPLE)
+    ###glEnable(GL_LIGHTING)
     return
 
 # 20060208 grantham - The following classes, ShapeList_inplace, ShapeList and
@@ -1320,18 +1354,24 @@ class ColorSorter:
             else:
                 opacity = 1.0
 
-            if opacity != 1.0:	
+            if opacity >= 0.0 and opacity != 1.0:	
                 glDepthMask(GL_FALSE)
                 glEnable(GL_BLEND)
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            elif opacity < 0:
+                #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
+                glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
+                glColor3fv(color[:3])
+                pass
 
             apply_material(color)
             func(params)
 
-            if opacity != 1.0:	
+            if opacity > 0.0 and opacity != 1.0:
                 glDisable(GL_BLEND)
                 glDepthMask(GL_TRUE)
-
+            elif opacity < 0:
+                glEnable(GL_LIGHTING)
 
             if name:
                 glPopName()
@@ -1446,6 +1486,19 @@ class ColorSorter:
 
     schedule_surface = staticmethod(schedule_surface)
 
+    def schedule_line(color, endpt1, endpt2, dashEnabled,
+                      stipleFactor, width, isSmooth):
+        """
+        Schedule a line for rendering whenever ColorSorter thinks is
+        appropriate.
+        """
+        #russ 080306: Signal "unshaded colors" for lines by a negative alpha.  (Hack!)
+        color = tuple(color) + (-1,)
+        ColorSorter.schedule(color, drawline_worker,
+                             (endpt1, endpt2, dashEnabled,
+                              stipleFactor, width, isSmooth))
+
+    schedule_line = staticmethod(schedule_line)
 
     def start(csdl, pickstate=None):
         """
@@ -1525,7 +1578,16 @@ class ColorSorter:
 
                 # Either all in one display list, or immediate-mode drawing.
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
-                    apply_material(color)
+
+                    opacity = color[3]
+                    if opacity < 0:
+                        #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
+                        glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
+                        glColor3fv(color[:3])
+                    else:
+                        apply_material(color)
+                        pass
+
                     for func, params, name in funcs:
                         objects_drawn += 1
                         if name != 0:
@@ -1535,6 +1597,10 @@ class ColorSorter:
                             glPopName()
                             pass
                         continue
+
+                    if opacity < 0:
+                        glEnable(GL_LIGHTING)
+
                     continue
 
                 #russ 080225: Moved glEndList here for displist re-org.
@@ -1554,7 +1620,14 @@ class ColorSorter:
                 for color, funcs in ColorSorter.sorted_by_color.iteritems():
                     sublist = glGenLists(1)
                     parent_csdl.per_color_dls.append([color, sublist]) # Remember.
+
                     glNewList(sublist, GL_COMPILE)
+                    opacity = color[3]
+                    if opacity < 0:
+                        #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
+                        glDisable(GL_LIGHTING)          # Don't forget to re-enable it!
+                        pass
+
                     for func, params, name in funcs:
                         objects_drawn += 1
                         if name != 0:
@@ -1564,15 +1637,26 @@ class ColorSorter:
                             glPopName()
                             pass
                         continue
+
+                    if opacity < 0:
+                        glEnable(GL_LIGHTING)
+                        pass
                     glEndList()
                     continue
 
-                # Now the second-level lists.
+                # Now the second-level lists that call all of the per-color sublists.
                 # One with colors.
                 color_dl = parent_csdl.color_dl = glGenLists(1)
                 glNewList(color_dl, GL_COMPILE)
                 for color, dl in parent_csdl.per_color_dls:
-                    apply_material(color)
+
+                    opacity = color[3]
+                    if opacity < 0:
+                        #russ 080306: "Unshaded colors" for lines are signaled by a negative alpha.
+                        glColor3fv(color[:3])
+                    else:
+                        apply_material(color)
+
                     glCallList(dl)
                     continue
                 glEndList()
@@ -2114,7 +2198,8 @@ def drawline(color,
              width = 1, 
              isSmooth = False):
     """
-    Draw a line from endpt1 to endpt2 in the given color. 
+    Draw a line from endpt1 to endpt2 in the given color.  Actually, schedule
+    it for rendering whenever ColorSorter thinks is appropriate.
     
     @param endpt1: First endpoint.
     @type  endpt1: point
@@ -2140,27 +2225,8 @@ def drawline(color,
     @warning: Some callers pass dashEnabled as a positional argument rather 
     than a named argument.    
     """
-    glDisable(GL_LIGHTING)
-    glColor3fv(color)
-    if dashEnabled: 
-        glLineStipple(stipleFactor, 0xAAAA)
-        glEnable(GL_LINE_STIPPLE)
-    if width != 1:
-        glLineWidth(width)
-    if isSmooth:
-        glEnable(GL_LINE_SMOOTH)
-    glBegin(GL_LINES)
-    glVertex(endpt1[0], endpt1[1], endpt1[2])
-    glVertex(endpt2[0], endpt2[1], endpt2[2])
-    glEnd()
-    if isSmooth:
-        glDisable(GL_LINE_SMOOTH)
-    if width != 1:
-        glLineWidth(1.0) # restore default state
-    if dashEnabled: 
-        glDisable(GL_LINE_STIPPLE)
-    glEnable(GL_LIGHTING)
-    return
+    ColorSorter.schedule_line(color, endpt1, endpt2, dashEnabled,
+                              stipleFactor, width, isSmooth)
 
 def drawPolyLine(color, points):
     '''Draws a poly line passing through the given list of points'''
