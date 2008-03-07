@@ -145,8 +145,8 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             origin = handlePoint1,
             fixedEndOfStructure = handlePoint2,
             direction = norm_Expr(handlePoint1 - handlePoint2),
-            sphereRadius = max(1.002*handleSphereRadius1, 
-                               1.002*HANDLE_RADIUS_DEFAULT_VALUE)
+            sphereRadius = handleSphereRadius1, 
+                               
                            ))
 
     rightHandle = Instance( 
@@ -156,8 +156,7 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
             origin = handlePoint2,
             fixedEndOfStructure = handlePoint1,
             direction = norm_Expr(handlePoint2 - handlePoint1),
-            sphereRadius = max(1.002*handleSphereRadius2,
-                               1.002*HANDLE_RADIUS_DEFAULT_VALUE)
+            sphereRadius = handleSphereRadius2
                            ))
 
     rotationHandle1 = Instance(         
@@ -319,8 +318,14 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
 
         self.cylinderWidth = CYLINDER_WIDTH_DEFAULT_VALUE
         self.cylinderWidth2 = CYLINDER_WIDTH_DEFAULT_VALUE
+        
+        print "***before, self.handlesphereRadius1 =", self.handleSphereRadius1
+        
 
         self._determine_resize_handle_radius()
+        
+        print "***after, self.handlesphereRadius1 =", self.handleSphereRadius1
+        print "~~~~~~~~~~~"
 
         handlePoint1, handlePoint2 = self.struct.getAxisEndPoints()
 
@@ -355,9 +360,11 @@ class DnaSegment_EditCommand(State_preMixin, EditCommand):
         """
         atm1 , atm2 = self.struct.getAxisEndAtoms()                  
         if atm1 is not None:
-            self.handleSphereRadius1 = atm1.drawing_radius()               
+            self.handleSphereRadius1 = max(1.005*atm1.drawing_radius(), 
+                                           1.005*HANDLE_RADIUS_DEFAULT_VALUE)
         if atm2 is not None: 
-            self.handleSphereRadius2 = atm2.drawing_radius()
+            self.handleSphereRadius2 =  max(1.005*atm2.drawing_radius(), 
+                                           1.005*HANDLE_RADIUS_DEFAULT_VALUE)
 
     def _createPropMgrObject(self):
         """
