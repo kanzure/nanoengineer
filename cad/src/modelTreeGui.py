@@ -506,9 +506,10 @@ def _paintnode(node, painter, x, y, widget): #bruce 070529 split this out
     #   (So to test this as it is so far, modify the model, then save and reopen the file.)
     
     node_symbols = debug_pref("Model Tree: add special symbols to node icons?", 
-                              Choice_boolean_False, 
+                              Choice_boolean_True, #bruce 080307 False -> True
                               non_debug = True, 
-                              prefs_key = False)
+                              prefs_key = True #bruce 080307 (safe now)
+                            )
     if node_symbols:
 
         flags = node.get_atom_content(AC_INVISIBLE | AC_HAS_INDIVIDUAL_DISPLAY_STYLE)
