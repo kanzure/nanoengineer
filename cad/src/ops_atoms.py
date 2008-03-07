@@ -18,7 +18,7 @@ from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
 
 from PlatformDependent import fix_plurals
 from elements import Singlet
-import env
+import foundation.env as env
 
 class ops_atoms_Mixin:
     "Mixin class for providing these methods to class Part"

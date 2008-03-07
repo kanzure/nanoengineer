@@ -50,7 +50,7 @@ from PyQt4.Qt import QInputDialog
 
 # == imports from parent directory
 
-import changes
+import foundation.changes as changes
 changes._debug_standard_inval_nottwice_stack = False
 changes._debug_standard_inval_twice = False # WARNING: this hides the pseudobug [061207]
 changes._debug_standard_inval_twice_stack = False
@@ -143,7 +143,7 @@ from constants import ave_colors, noop
 # more colors imported below, from ExprsConstants
 
 from prefs_constants import displayOriginAxis_prefs_key
-from texture_fonts import courierfile
+from graphics.drawing.texture_fonts import courierfile
 from exprs.reload import exprs_globals
 
 from exprs.Exprs import format_Expr, getattr_Expr, list_Expr, mod_Expr, not_Expr, eval_Expr, call_Expr, is_Expr
@@ -1455,7 +1455,7 @@ class _testexpr_33(DelegatingInstanceOrExpr):#070226
     def draw(self):
         if self._delegate.transient_state.in_drag: # (requires mouse click!) # other tests here say glpane.in_drag
             ll, lr, ur, ul = self.screenrect() # these points should be valid in the HL's coords == self's coords
-            from drawer import drawline
+            from graphics.drawing.drawer import drawline
             drawline(blue,ll,ur) # at first I tried putting color last, and it seemed to work but with the wrong coords... ugh.
             drawline(red,lr,ul)
         self.drawkid(self._delegate)
@@ -1630,7 +1630,7 @@ testexpr = testexpr_35b ### testexpr_11pd5a # testexpr_36f # testexpr_38 # teste
 
 def get_redraw_counter(): #070108
     "#doc [WARNING: this is not a usage/change-tracked attribute!]"
-    import env
+    import foundation.env as env
     return env.redraw_counter
 
 ##_lval_for_redraw_counter = Lval_which_recomputes_every_time( get_redraw_counter) #070108; SEVERELY DEPRECATED
@@ -1639,13 +1639,13 @@ def get_redraw_counter(): #070108
 ##    "like get_redraw_counter() but act as if we use something which changes every time (usage/change tracked the max legal amount)"
 ##    return _lval_for_redraw_counter.get_value()
 
-from preferences import _NOT_PASSED ###k
+from foundation.preferences import _NOT_PASSED ###k
 
 def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forget
     """Return a prefs value. Fully usage-tracked.
     [Kluge until we have better direct access from an expr to env.prefs. Suggest: use in call_Expr.]
     """
-    import env
+    import foundation.env as env
     return env.prefs.get(key, dflt)
 
 debug_prints_prefs_key = "A9 devel/debug prints for my bug?" # also defined in GLPane.py
@@ -1656,7 +1656,7 @@ class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 expe
     testname = State(str)#070122
     delegate = Arg(Anything) # might need to delegate lbox attrs (or might not, not sure, but no harm in doing it)
     def draw(self):
-        import env
+        import foundation.env as env
 ##        print "changes._print_all_subs = True"
 ##        changes._print_all_subs = True ####
         self.redraw_counter = env.redraw_counter # assume this set is subject to LvalForState's same_vals->noinval optimization #k verify
@@ -1722,12 +1722,12 @@ recent_tests_prefs_key = 'A9 devel/exprs/recent tests'
 
 def _save_recent_tests():
     global _recent_tests #fyi
-    import env
+    import foundation.env as env
     env.prefs[recent_tests_prefs_key] = _recent_tests
     return
 
 def _load_recent_tests():
-    import env
+    import foundation.env as env
     return env.prefs.get(recent_tests_prefs_key, [])
 
 def _add_recent_test( _recent_tests, this_test):
@@ -1877,7 +1877,7 @@ def _clear_state(): #070318; doesn't crash, but has bugs -- see comments where i
     "clear state, then reload (without reload, gets exception)"
     print "clearing _state (len %d), then reloading" % len(_state)
     _state.clear()
-    import env
+    import foundation.env as env
     win = env.mainwindow()
     command = win.commandSequencer.currentCommand
     command.reload()
@@ -2018,7 +2018,7 @@ def drawtest1_innards(glpane):
                 # might be problematic if *all* drag-caused redraws are not printed, but I'm guessing the last one will be [##k].
                 # it turns out, it is in some cases and not others.
                 # if this is a problem, or if in_drag redraws matter, also consider printing ".", for them. In fact, try this now.
-            import env
+            import foundation.env as env
             ##print "drew", env.redraw_counter   ##e or print_compact_stack
             sys.stdout.write(";")
             sys.stdout.flush()

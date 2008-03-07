@@ -31,7 +31,7 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
 from analysis.ESP.ESPImage import ESPImage
 from PyQt4.Qt import QMouseEvent
 
-import env
+import foundation.env as env
 from utilities import debug_flags
 
 from geometry.VQT import V, Q, norm, vlen, ptonline
@@ -42,7 +42,7 @@ from elements import Singlet
 
 from debug import print_compact_traceback, print_compact_stack
 
-from Group import Group
+from foundation.Group import Group
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 
@@ -1170,7 +1170,7 @@ class SelectAtoms_basicGraphicsMode(Select_basicGraphicsMode):
         # Do this by transclosing boundary across bonds to atoms in atoms_todo.
         layers = {} # will map N to set-of-atoms-with-N (using terminology of 
                    #smooth-reshaping drag proposal)
-        from state_utils import transclose
+        from foundation.state_utils import transclose
         def collector( atom, dict1):
             """
             Add neighbors of atom which are in atoms_todo (which maps 

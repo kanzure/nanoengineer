@@ -30,7 +30,7 @@ interface to rather than "try to be").
 
 from debug import print_compact_traceback, print_compact_stack
 from utilities import debug_flags
-import env
+import foundation.env as env
 import os
 import sys
 
@@ -703,9 +703,9 @@ class modeMixin(object):
             #bruce 070429 explicit import probably needed for sake of py2app (so an explicit --include is not needed for it)
             # (but this is apparently still failing to let the testmode item work in a built release -- I don't know why ###FIX)
             print "_enter_custom_mode specialcase for testmode" #e remove this print, when it works in a built release
-            import testmode
+            import exprs.testmode as testmode
             ## reload(testmode) # This reload is part of what prevented this case from working in A9 [bruce 070611]
-            from testmode import testmode as _modeclass
+            from exprs.testmode import testmode as _modeclass
             print "_enter_custom_mode specialcase -- import succeeded"
         else:
             dir, file = os.path.split(fn)

@@ -36,7 +36,7 @@ import setup # build script for the optional dlls loaded by extensions.py
 import setup2 # build script for samevals.c dll (experimental, optional)
     # [bruce 071008]
 
-import Selobj # a draft API file, soon to be renamed and imported from NE1
+import graphics.drawables.Selobj as Selobj # a draft API file, soon to be renamed and imported from NE1
     # [bruce 071008]
 
 # end

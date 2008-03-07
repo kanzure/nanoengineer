@@ -44,7 +44,7 @@ Mark 2007-10-18:
 # 2) Actions (reverse, complement, etc in _getSequence() should not purge
 #    unrecognized characters.
 
-import env
+import foundation.env as env
 
 from dna.model.Dna_Constants import basesDict, dnaDict
 from dna.model.Dna_Constants import getComplementSequence

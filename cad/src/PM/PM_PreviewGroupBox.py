@@ -16,7 +16,7 @@ ninad 2007-08-29: Created.
 """
 
 from PyQt4.Qt         import QSize
-from ThumbView        import MMKitView
+from graphics.widgets.ThumbView import MMKitView
 from PM.PM_GroupBox   import PM_GroupBox
 
 class PM_PreviewGroupBox(PM_GroupBox):

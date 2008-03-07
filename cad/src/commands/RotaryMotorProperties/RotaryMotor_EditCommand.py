@@ -10,7 +10,7 @@ History:
 ninad 2007-10-09: Created. This deprecates 'RotoryMotorGenerator'
 """
 
-import env
+import foundation.env as env
 from utilities.Log   import redmsg, greenmsg, orangemsg
 from jigs_motors     import RotaryMotor
 from jigmakers_Mixin import atom_limit_exceeded_and_confirmed

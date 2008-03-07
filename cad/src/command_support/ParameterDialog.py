@@ -54,7 +54,7 @@ from debug import print_compact_traceback
 
 from qt4transition import qt4todo
 
-import env # for env.debug(); warning: some methods have a local variable which overrides this
+import foundation.env as env # for env.debug(); warning: some methods have a local variable which overrides this
 
 from icon_utilities import imagename_to_pixmap
 
@@ -79,7 +79,7 @@ class parameter_dialog_or_frame:
     ####@@@@
     def __init__(self, parent = None, desc = None, name = None, modal = 0, fl = 0, env = None, type = "QDialog"):
         if env is None:
-            import env # this is a little weird... probably it'll be ok, and logically it seems correct.
+            import foundation.env as env # this is a little weird... probably it'll be ok, and logically it seems correct.
         
         self.desc = desc
 

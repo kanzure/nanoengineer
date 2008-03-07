@@ -20,10 +20,10 @@ Bruce 080303 simplified NamedView.__init__ arg signature and some calling code.
 from constants import gensym
 from geometry.VQT import V, Q, vlen
 from icon_utilities import imagename_to_pixmap
-from Utility import SimpleCopyMixin
-from Utility import Node
+from foundation.Utility import SimpleCopyMixin
+from foundation.Utility import Node
 from utilities import debug_flags
-import env
+import foundation.env as env
 from utilities.Log import greenmsg
 
 class NamedView(SimpleCopyMixin, Node):

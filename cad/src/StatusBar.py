@@ -33,7 +33,7 @@ import os, time
 from PyQt4.Qt import QProgressBar, QFrame, QToolButton, QIcon, QLabel, SIGNAL, QMessageBox, QStatusBar
 from utilities import debug_flags
 from PlatformDependent import hhmmss_str #bruce 060106 moved that function there
-import env
+import foundation.env as env
 from icon_utilities import geticon
 from utilities.Log import redmsg #bruce 060208 fix bug in traceback printing re bug 1263 (doesn't fix 1263 itself)
 from qt4transition import qt4todo

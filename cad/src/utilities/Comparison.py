@@ -31,7 +31,7 @@ except:
     # this gets warned about in state_utils
     _haveNumeric = False
 
-import env
+import foundation.env as env
 
 _debug_same_vals = False #bruce 060419; relates to bug 1869
 

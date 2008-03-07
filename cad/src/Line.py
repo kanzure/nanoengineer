@@ -9,12 +9,12 @@ Ninad 20070703 : Created
 Ninad 20070706 : Added support for resizing a poly-line. 
 """
 
-import env
+import foundation.env as env
 
 from OpenGL.GL  import glPushMatrix
 from OpenGL.GL  import glPopMatrix
 from OpenGL.GLU import gluProject, gluUnProject
-from drawer     import drawPolyLine
+from graphics.drawing.drawer import drawPolyLine
 
 from Numeric    import dot
 from math       import pi, cos
@@ -22,7 +22,7 @@ from geometry.VQT import V, Q, cross, A, planeXline, vlen, norm, angleBetween
 
 from debug     import print_compact_traceback
 from constants import blue
-from ResizeHandle     import ResizeHandle
+from graphics.drawables.ResizeHandle import ResizeHandle
 from ReferenceGeometry import ReferenceGeometry
 
 

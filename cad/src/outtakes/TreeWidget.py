@@ -27,7 +27,7 @@ allButtons = (leftButton|midButton|rightButton) #e should be defined in same fil
 from utilities import debug_flags
 from platform import tupleFromQPoint, fix_plurals
 import os
-import env
+import foundation.env as env
 
 # but platform thinks "# def qpointFromTuple - not needed"; for now, don't argue, just do it here:
 def QPointFromTuple((x,y)):
@@ -1386,7 +1386,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     def doit(self, event, drag_type, nodes): #bruce 050201 quick hack for Alpha ###@@@ review #e rename
         "stub to do a drop"
-        from Utility import node_name
+        from foundation.Utility import node_name
         # can't do this: cpos = self.true_dragMove_cpos # None or a tuple
         # since attr has been set to None already by our caller
         pos = event.pos() # this pos is more recent anyway -- but we might be in the middle of autoscroll, oh well

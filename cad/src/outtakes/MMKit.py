@@ -35,16 +35,16 @@ from PyQt4.Qt import QDialog, SIGNAL, QIcon, QVBoxLayout, QStringList, QFileDial
 from PyQt4.Qt import QDir, QTreeView, QTreeWidgetItem, QAbstractItemDelegate, QWhatsThis
 
 from MMKitDialog import Ui_MMKitDialog
-from ThumbView import MMKitView, ChunkView
+from graphics.widgets.ThumbView import MMKitView, ChunkView
 from elements import PeriodicTable
 from constants import diTUBES
 ## from chem import Atom [not used i think - bruce 071113]
 ## from chunk import Chunk [not used i think - bruce 071113]
-from Utility import imagename_to_icon, geticon
+from foundation.Utility import imagename_to_icon, geticon
 from assembly import assembly
-from files_mmp import readmmp
+from files.mmp.files_mmp import readmmp
 from part import Part
-import env
+import foundation.env as env
 from utilities import debug_flags
 from debug import print_compact_traceback
 from Sponsors import SponsorableMixin

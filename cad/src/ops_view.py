@@ -17,7 +17,7 @@ mark 060120 split this out of MWsemantics.py.
 import math
 from Numeric import dot
 from geometry.geometryUtilities import compute_heuristic_axis
-import env
+import foundation.env as env
 from geometry.VQT import V, Q, A, norm, vlen
 from utilities.Log import greenmsg, redmsg, orangemsg
 from prefs_constants import ORTHOGRAPHIC

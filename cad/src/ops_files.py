@@ -31,19 +31,19 @@ from PyQt4.Qt import QCursor
 from PyQt4.Qt import QProcess
 from PyQt4.Qt import QStringList
 
-import env
+import foundation.env as env
 from utilities import debug_flags
 
 from PlatformDependent import find_or_make_Nanorex_subdir
 
 from model.assembly import assembly
 
-from files_pdb import insertpdb, writepdb
-from files_pdb import EXCLUDE_BONDPOINTS, EXCLUDE_HIDDEN_ATOMS
-from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
-from fileIO import writepovfile
-from fileIO import writemdlfile
-from qutemol import write_qutemol_pdb_file
+from files.pdb.files_pdb import insertpdb, writepdb
+from files.pdb.files_pdb import EXCLUDE_BONDPOINTS, EXCLUDE_HIDDEN_ATOMS
+from files.mmp.files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
+from graphics.rendering.fileIO import writepovfile
+from graphics.rendering.fileIO import writemdlfile
+from graphics.rendering.qutemol.qutemol import write_qutemol_pdb_file
 
 from debug import print_compact_traceback
 from debug import linenum

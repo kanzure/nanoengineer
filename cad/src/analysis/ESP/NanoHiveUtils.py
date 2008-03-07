@@ -17,7 +17,7 @@ Mostly control & io code. Some model & ui code (via assy arg & assy.w).
 Probably "simulation". [bruce 071214]
 """
 
-import env, os, sys, time
+import foundation.env as env, os, sys, time
 from PlatformDependent import find_or_make_Nanorex_subdir
 from prefs_constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
 from PyQt4.Qt import Qt, QApplication, QCursor

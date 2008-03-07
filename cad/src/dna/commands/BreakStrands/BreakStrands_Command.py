@@ -11,7 +11,7 @@ TODOs: [ as of 2008-01-04]
 - Move BreakStrands_GraphicsMode into its own module when need arises. 
 """
 
-import changes
+import foundation.changes as changes
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command
 from constants             import red

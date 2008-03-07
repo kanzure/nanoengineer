@@ -20,7 +20,7 @@ from elements import PeriodicTable
 from PlatformDependent import get_gms_name
 from utilities.Log import redmsg, orangemsg
 from geometry.VQT import A
-import env
+import foundation.env as env
 
 failpat = re.compile("ABNORMALLY")
 errorPat = re.compile("Fatal error")

@@ -16,7 +16,7 @@ from PlatformDependent import fix_plurals
 from chunk import Chunk
 from constants import gensym
 from dna.model.Dna_Constants import getNextStrandColor
-import env
+import foundation.env as env
 from debug_prefs import debug_pref, Choice_boolean_False
 from debug import print_compact_stack
 from runSim import adjustSinglet

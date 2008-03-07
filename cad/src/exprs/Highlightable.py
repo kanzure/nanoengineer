@@ -61,10 +61,10 @@ from exprs.Set import Action
 from exprs.py_utils import printnim
 from exprs.__Symbols__ import _self, Anything
 
-from DragHandler import DragHandler_API
+from graphics.drawables.DragHandler import DragHandler_API
     #bruce 070602 moved this from exprs/Highlightable.py to DragHandler.py, and renamed it
 
-from Selobj import Selobj_API # for the "selobj interface" (subject to renaming)
+from graphics.drawables.Selobj import Selobj_API # for the "selobj interface" (subject to renaming)
 
 # ==
 
@@ -108,7 +108,7 @@ def recycle_glselect_name(glpane, glname, newobj): #e refile (see above)
     # requires new API (could be optional) in objs that call alloc_my_glselect_name. ##e
     # 2. If the old obj is the glpane's selobj, change that to point to the new obj. [#e might need improvement, see comment]
     # 3. register the new object for this glname.
-    import env
+    import foundation.env as env
     oldobj = env.obj_with_glselect_name.get(glname, None) #e should be an attr of the glpane (or of one it shares displaylists with)
     if oldobj is not None and glpane.selobj is oldobj:
         glpane.selobj = None ###### normally newobj -- SEE IF THIS HELPs THE BUG 061120 956p
@@ -120,7 +120,7 @@ def recycle_glselect_name(glpane, glname, newobj): #e refile (see above)
     return
 
 def selobj_for_glname(glname):#e use above? nah, it also has to store into here
-    import env
+    import foundation.env as env
     return env.obj_with_glselect_name.get(glname, None)
 
 # ==
@@ -630,7 +630,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
 
         if self.glpane_state.glname is None or 'TRY ALLOCATING A NEW NAME EACH TIME 061120 958p':
             # allocate a new glname for the first time (specific to this ipath)
-            import env
+            import foundation.env as env
             self.glpane_state.glname = env.alloc_my_glselect_name( glname_handler)
         else:
             # reuse old glname for new self
@@ -776,7 +776,7 @@ class Highlightable(_CoordsysHolder, DelegatingMixin, DragHandler_API, Selobj_AP
             # MORE IS PROBABLY NEEDED HERE: that check above is about whether this selobj got replaced locally;
             # the comments in the calling code are about whether it's no longer being drawn in the current frame;
             # I think both issues are valid and need addressing in this code or it'll probably cause bugs. [061120 comment] ###BUG
-        import env
+        import foundation.env as env
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self ###@@@
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.

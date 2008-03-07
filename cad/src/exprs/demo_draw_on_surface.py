@@ -275,7 +275,7 @@ class _cmd_DrawOnSurface_BG(Highlightable):
         return
 
     def on_release(self):#070223 new hack
-        import env #FIX - make this unnecessary
+        import foundation.env as env #FIX - make this unnecessary
         if isinstance(self.newnode, polyline3d) and env.prefs.get(kluge_dragtool_state_prefs_key + "bla2", False):
             self.newnode._closed_state = True ####KLUGE, I'd rather say .closed but that won't work until I have OptionState
         return

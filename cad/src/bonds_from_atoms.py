@@ -36,7 +36,7 @@ import math
 from geometry.VQT import vlen
 from geometry.VQT import atom_angle_radians
 
-import env
+import foundation.env as env
 
 from bonds import bond_atoms_faster, NeighborhoodGenerator
 

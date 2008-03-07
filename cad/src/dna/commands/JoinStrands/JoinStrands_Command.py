@@ -8,7 +8,7 @@
 TODOs: 
 Many changes planned in JoinStrands_GraphicsMode . 
 """
-import changes
+import foundation.changes as changes
 
 from commands.BuildAtoms.BuildAtoms_GraphicsMode import BuildAtoms_GraphicsMode
 from commands.BuildAtoms.BuildAtoms_Command import BuildAtoms_Command

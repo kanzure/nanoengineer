@@ -195,7 +195,7 @@ def set_default_attrs(obj, **kws): #e if this was general, we could refile into 
         from exprs.Exprs import is_pure_expr
         if is_pure_expr(obj):
             assert 0, "set_default_attrs called on pure_expr %r is almost surely a bug; normally do it in _init_instance" % (obj,)
-    import changes
+    import foundation.changes as changes
     try:
         method = obj.__setattr_default__
     except AttributeError:

@@ -28,7 +28,7 @@ from OpenGL.GL import glReadPixelsf
 from OpenGL.GLU import gluUnProject
 
 from geometry.VQT import V, A
-import drawer
+import graphics.drawing.drawer as drawer
 from constants import GL_FAR_Z
 
 

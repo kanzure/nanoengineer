@@ -42,26 +42,26 @@ from OpenGL.GL import GL_FILL
 
 from utilities import debug_flags
 
-from Utility import NodeWith3DContents
+from foundation.Utility import NodeWith3DContents
 from icon_utilities import imagename_to_pixmap
 from geometry.VQT import A
 from commands.ThermostatProperties.StatProp import StatProp
 from commands.ThermometerProperties.ThermoProp import ThermoProp
 
 from utilities.Log import orangemsg
-from povheader import povpoint
+from graphics.rendering.povray.povheader import povpoint
 from debug import print_compact_stack, print_compact_traceback
-import env
-from drawer import drawwirecube
+import foundation.env as env
+from graphics.drawing.drawer import drawwirecube
 
 from constants import gensym
 from constants import darkgreen
 from constants import blue
 from constants import darkred
 from constants import black
-from state_constants import S_REFS
+from foundation.state_constants import S_REFS
 
-from Selobj import Selobj_API
+from graphics.drawables.Selobj import Selobj_API
 
 _superclass = NodeWith3DContents #bruce 080305 revised this
 

@@ -52,11 +52,11 @@ from PyQt4.Qt import QTextBrowser
 from PyQt4.Qt import QPushButton
 from PyQt4.Qt import SIGNAL
 
-import env
+import foundation.env as env
 from utilities import debug_flags
 
 from PlatformDependent import find_or_make_Nanorex_subdir
-from wiki_help import WikiHelpBrowser
+from foundation.wiki_help import WikiHelpBrowser
 from debug import print_compact_stack, print_compact_traceback
 from qt4transition import qt4todo
 from prefs_constants import sponsor_download_permission_prefs_key

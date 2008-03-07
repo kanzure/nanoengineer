@@ -53,7 +53,7 @@ def sorted_by(seq, func): #070206 ##e do I have this under some other name, some
     items.sort()
     return [elt for (f, elt) in items]
 
-from env import seen_before # public in this module
+from foundation.env import seen_before # public in this module
 
 def printonce(msg, constpart = None):
     """print msg (which should be a constant), but only once per session.
@@ -100,7 +100,7 @@ class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibled
         try:
             return dict.__getitem__(self, key)
         except KeyError:
-            import changes
+            import foundation.changes as changes
             mc = changes.begin_disallowing_usage_tracking(self) # note: argument is just explanation for use in error messages
             try:
                 val = self._way(key)

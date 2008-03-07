@@ -30,7 +30,7 @@ def construct_cmdrun( cmd_class, glpane):
         print "bug: no glpane in cmdrun %r: did it forget to call ExampleCommand.__init__?" % (cmdrun,)
     ###e should also put it somewhere, as needed for a mode ####DOIT
     if 'kluge, might prevent malloc errors after removing pm from ui (guess)':
-        import changes
+        import foundation.changes as changes
         changes.keep_forever(cmdrun)
     return cmdrun
 

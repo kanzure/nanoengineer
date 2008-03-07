@@ -25,11 +25,11 @@ from test_connectWithState_constants import CYLINDER_WIDTH_DEFAULT_VALUE
 # object attribute.
 
 def cylinder_height():
-    import env
+    import foundation.env as env
     return env.prefs.get( CYLINDER_HEIGHT_PREFS_KEY, CYLINDER_HEIGHT_DEFAULT_VALUE)
 
 def set_cylinder_height(val):
-    import env
+    import foundation.env as env
     env.prefs[CYLINDER_HEIGHT_PREFS_KEY] = val
 
 # REVISE: for prefs state, what is defined in what file?
@@ -61,7 +61,7 @@ from constants import pink, white
 DX = V(1,0,0)
 DY = V(0,1,0)
 ORIGIN = V(0,0,0)
-from drawer import drawcylinder, drawsphere
+from graphics.drawing.drawer import drawcylinder, drawsphere
 
 from exprs.ExprsMeta import ExprsMeta
 from exprs.instance_helpers import IorE_guest_mixin

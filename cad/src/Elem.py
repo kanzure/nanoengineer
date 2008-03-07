@@ -23,7 +23,7 @@ for PAM3 and PAM5 (etc). (Should we define new Elem subclasses for them?)
 """
 
 from atomtypes import AtomType
-from state_utils import IdentityCopyMixin
+from foundation.state_utils import IdentityCopyMixin
 
 class Elem(IdentityCopyMixin): # bruce 050510 renamed this from 'elem' (not using 'Element' since too common in strings/comments)
     """

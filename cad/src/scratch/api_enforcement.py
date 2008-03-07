@@ -19,7 +19,7 @@ Bruce 071107 split it from debug.py into this scratch file.
 
 import sys, os, time, types, traceback
 from constants import noop
-import env
+import foundation.env as env
 from utilities import debug_flags
 
 # ==

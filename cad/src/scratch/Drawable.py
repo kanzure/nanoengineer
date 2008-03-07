@@ -7,9 +7,9 @@ $Id$
 [not yet used]
 """
 
-import env
+import foundation.env as env
 
-from Selobj import Selobj_API
+from graphics.drawables.Selobj import Selobj_API
 
 class Drawable(Selobj_API):
     """

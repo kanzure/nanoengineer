@@ -11,8 +11,8 @@ TODO:
 
 from LineMode import LineMode
 
-from drawDnaLadder import drawDnaLadder
-from drawDnaRibbons import drawDnaRibbons
+from graphics.drawing.drawDnaLadder import drawDnaLadder
+from graphics.drawing.drawDnaRibbons import drawDnaRibbons
 
 from constants import black, darkred, blue, white
 

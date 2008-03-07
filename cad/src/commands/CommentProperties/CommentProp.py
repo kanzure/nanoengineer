@@ -16,7 +16,7 @@ from PyQt4.Qt import QDialog, QTextEdit, SIGNAL
 from Comment import Comment
 from commands.CommentProperties.CommentPropDialog import Ui_CommentPropDialog
 import time
-import env
+import foundation.env as env
 from utilities.Log import redmsg, orangemsg, greenmsg, quote_html
 from qt4transition import qt4todo
 from debug import print_compact_traceback

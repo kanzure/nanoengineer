@@ -89,13 +89,13 @@ from constants import DELETE_SELECTION
 
 from constants import black
 
-import env
+import foundation.env as env
 from debug_prefs import debug_pref
 from debug_prefs import Choice
 
 from geometry.VQT import V, A, vlen
 
-from shape import SelectionShape
+from graphics.behaviors.shape import SelectionShape
 from bonds import Bond
 from chem  import Atom 
 from jigs  import Jig

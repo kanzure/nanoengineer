@@ -17,7 +17,7 @@ from PM.PM_CheckBox      import PM_CheckBox
 from PM.PM_RadioButtonList import PM_RadioButtonList
 from PM.PM_Constants     import pmRestoreDefaultsButton
 from command_support.EditCommand_PM import EditCommand_PM
-import env
+import foundation.env as env
 
 # Placement Options radio button list to create radio button list.
 # Format: buttonId, buttonText, tooltip

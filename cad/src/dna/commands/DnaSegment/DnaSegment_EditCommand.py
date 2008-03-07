@@ -72,7 +72,7 @@ from bonds import Bond
 
 
 from dna.commands.DnaSegment.DnaSegment_ResizeHandle import DnaSegment_ResizeHandle
-from RotationHandle          import RotationHandle
+from graphics.drawables.RotationHandle import RotationHandle
 
 CYLINDER_WIDTH_DEFAULT_VALUE = 0.0
 HANDLE_RADIUS_DEFAULT_VALUE = 1.2

@@ -20,7 +20,7 @@ but filed into "processes" package, since it's all about letting
 the user maintain info needed to run external processes.
 """
 
-import env
+import foundation.env as env
 import os
 from PyQt4.Qt import QMessageBox
 from Process import Process    

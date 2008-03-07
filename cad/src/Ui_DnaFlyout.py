@@ -12,7 +12,7 @@ TODO:
   flyouttoolbar object in the 'Command.
 """
 
-import env
+import foundation.env as env
 from PyQt4 import QtCore, QtGui
 from PyQt4.Qt import Qt
 from PyQt4.Qt import SIGNAL

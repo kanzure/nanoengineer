@@ -76,7 +76,7 @@ from exprs.Center import Center
 from utilities import debug_flags
 
 from geometry.VQT import V
-from env import seen_before
+from foundation.env import seen_before
 
 from exprs.ExprsMeta import ExprsMeta
 from exprs.Exprs import call_Expr
@@ -94,7 +94,7 @@ from exprs.__Symbols__ import _self, Anything
 # ImageUtils.py class nEImageOps -- see following comment
 
 # TODO: find out if the functions we need from texture_helpers could be imported here at toplevel:
-import texture_helpers
+import graphics.drawing.texture_helpers as texture_helpers
     # Note: from texture_helpers we use:
     #   function create_PIL_image_obj_from_image_file, a trivial glue function into ImageUtils.py class nEImageOps,
     #   function loadTexture.

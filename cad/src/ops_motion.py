@@ -15,7 +15,7 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 from utilities.Log import greenmsg, redmsg
 from PlatformDependent import fix_plurals
 from geometry.VQT import V, norm, Q, vlen, orthodist
-import env
+import foundation.env as env
 from math import pi
 from debug import print_compact_traceback
 
@@ -23,7 +23,7 @@ from chunk       import Chunk
 from jigs        import Jig
 from jigs_motors import Motor
 from analysis.ESP.ESPImage import ESPImage
-from Group       import Group
+from foundation.Group import Group
 
 
 class ops_motion_Mixin:

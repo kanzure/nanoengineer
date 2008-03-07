@@ -16,7 +16,7 @@ bruce 050629 code cleanup.
 """
 
 from utilities.Log import greenmsg, redmsg
-import env
+import foundation.env as env
 
 class ops_connected_Mixin:
     "Mixin for providing Select Connected and Select Doubly methods to class Part"

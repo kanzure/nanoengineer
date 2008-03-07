@@ -20,11 +20,11 @@ Ninad 2008-01-02: Moved several methods originally in class depositMode to
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import Qt
 
-import env
-import changes
+import foundation.env as env
+import foundation.changes as changes
 
 from utilities.Log import orangemsg, redmsg
-from Group         import Group
+from foundation.Group import Group
 from chem          import Atom
 from chunk         import Chunk
 from elements      import Singlet

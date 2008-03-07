@@ -10,7 +10,7 @@ Note: this is likely to not always be Dna-specific, and accordingly
 might be moved into a more general package.
 """
 
-from Group import Group
+from foundation.Group import Group
 
 from debug_prefs import debug_pref, Choice_boolean_False
 

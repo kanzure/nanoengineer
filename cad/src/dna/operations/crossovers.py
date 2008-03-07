@@ -22,7 +22,7 @@ from bond_constants import atoms_are_bonded, find_bond
 from bonds import bond_atoms_faster, bond_direction ##, bond_atoms
 from utilities.Log import redmsg, greenmsg, quote_html ##, orangemsg
 ##from debug_prefs import debug_pref, Choice
-import env
+import foundation.env as env
 
 from elements import PeriodicTable
 Element_Sj5 = PeriodicTable.getElement('Sj5')

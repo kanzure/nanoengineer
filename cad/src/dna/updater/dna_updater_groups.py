@@ -141,7 +141,7 @@ def update_DNA_groups( new_chunks, new_wholechains ):
     #  original list we delete things from below, and only consider those
     #  (and groups originally in our list) for dissolution.)
 
-    from state_utils import transclose # todo: make toplevel import
+    from foundation.state_utils import transclose # todo: make toplevel import
     def collector(group, dict1):
         # group can't be None, but an optim to earlier code might change that,
         # so permit it here

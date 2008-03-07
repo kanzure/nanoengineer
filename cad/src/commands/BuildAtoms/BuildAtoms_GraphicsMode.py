@@ -56,7 +56,7 @@ from OpenGL.GLU import gluUnProject
 
 from PyQt4.Qt import Qt
 
-import env
+import foundation.env as env
 from utilities import debug_flags
 
 from PlatformDependent import fix_plurals
@@ -67,12 +67,12 @@ from chem       import oneUnbonded
 from elements   import Singlet
 from geometry.VQT import Q, A, norm, twistor
 
-from drawer     import drawline
+from graphics.drawing.drawer import drawline
 
-from Group      import Group
-from Utility    import Node
+from foundation.Group import Group
+from foundation.Utility import Node
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
-from shape import get_selCurve_color
+from graphics.behaviors.shape import get_selCurve_color
 
 from bonds           import bond_atoms, bond_at_singlets
 from bond_constants  import V_SINGLE

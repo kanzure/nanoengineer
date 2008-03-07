@@ -16,7 +16,7 @@ from utilities import debug_flags
 from dna.updater.dna_updater_prefs import pref_fix_deprecated_PAM3_atoms
 from dna.updater.dna_updater_prefs import pref_fix_deprecated_PAM5_atoms
 
-import env
+import foundation.env as env
 from utilities.Log import orangemsg
 
 # ==

@@ -31,7 +31,7 @@ import time
 from PyQt4.Qt import QDialog, QGridLayout, QLabel, QPushButton, QLineEdit, SIGNAL
 from PyQt4.Qt import QFontDialog, QInputDialog
 
-import env
+import foundation.env as env
 from utilities import debug_flags
 import debug
 import debug_prefs

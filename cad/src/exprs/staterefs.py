@@ -79,13 +79,13 @@ class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
         #e should coerce this to self.type before returning it -- or add glue code wrt actual type, or....
         prefs_key = self.prefs_key
         assert type(prefs_key) == type("") #k redundant?
-        import env
+        import foundation.env as env
         return env.prefs.get( prefs_key, self.defaultValue ) # note: this computes defaultValue at least once, even if not needed.
     def set_value(self, val): 
         #e should coerce that to self.type, or add glue code...
         prefs_key = self.prefs_key
         assert type(prefs_key) == type("") #k redundant?
-        import env
+        import foundation.env as env
         env.prefs[prefs_key] = val
         if 0 and debug_flags.atom_debug:
             print "fyi: %r set env.prefs[%r] = %r" % (self, prefs_key, val)

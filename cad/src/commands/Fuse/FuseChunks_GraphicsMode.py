@@ -12,8 +12,8 @@ Ninad 2008-01-25: Split Command and GraphicsMode classes
                   out of class fuseChunksMode. The command class can be 
                   found in FuseChunks_Command.py
 """
-from drawer import drawline
-from shape import get_selCurve_color
+from graphics.drawing.drawer import drawline
+from graphics.behaviors.shape import get_selCurve_color
 
 from constants import green
 from constants import magenta

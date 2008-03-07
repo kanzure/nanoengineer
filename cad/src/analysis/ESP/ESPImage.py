@@ -59,26 +59,26 @@ from OpenGL.GLU import gluBuild2DMipmaps
 from PyQt4.Qt import QMessageBox
 from PyQt4.Qt import QFileDialog
 
-import env
+import foundation.env as env
 from utilities import debug_flags
-from state_utils import DataMixin
+from foundation.state_utils import DataMixin
 
 from chunk import Chunk
 from chem import Atom
 
-from drawer import drawPlane
-from drawer import drawwirecube
-from drawer import drawLineLoop
+from graphics.drawing.drawer import drawPlane
+from graphics.drawing.drawer import drawwirecube
+from graphics.drawing.drawer import drawLineLoop
 
 from geometry.VQT import V, Q, A
-from povheader import povpoint
-from shape import SelectionShape
+from graphics.rendering.povray.povheader import povpoint
+from graphics.behaviors.shape import SelectionShape
 from geometry.Slab import Slab
 
 from utilities.Log import redmsg, greenmsg 
 from debug_prefs import debug_pref, Choice_boolean_False
 from jigs import Jig # REVIEW: all uses of this are suspicious!
-from ImageUtils import nEImageOps
+from graphics.images.ImageUtils import nEImageOps
 
 from constants import black
 from constants import ave_colors
@@ -391,7 +391,7 @@ class ESPImage(RectGadget):
             # This is for debugging purposes.  This draws a green normal vector using
             # local space coords.  Mark 050930
             if 0:
-                from drawer import drawline
+                from graphics.drawing.drawer import drawline
                 drawline(green, V(0.0, 0.0, 0.0), V(0.0, 0.0, 1.0), 0, 3)
 
         glPopMatrix()
@@ -399,7 +399,7 @@ class ESPImage(RectGadget):
         # This is for debugging purposes. This draws a yellow normal vector using 
         # model space coords.  Mark 050930
         if 0:
-            from drawer import drawline
+            from graphics.drawing.drawer import drawline
             from constants import yellow
             drawline(yellow, self.center, self.center + self.planeNorm, 0, 3)
 

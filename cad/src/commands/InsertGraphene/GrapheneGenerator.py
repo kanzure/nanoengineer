@@ -22,7 +22,7 @@ import bonds # for bond_atoms
 import bond_constants
 
 from chunk import Chunk
-import env
+import foundation.env as env
 from debug import Stopwatch
 from elements import PeriodicTable
 from utilities.Log import greenmsg

@@ -24,16 +24,16 @@ from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
 
-import env
+import foundation.env as env
 from geometry.VQT import V, Q, A, norm, cross, vlen
-from drawer import drawcylinder
-from drawer import drawRotateSign
-from drawer import drawbrick
-from drawer import drawLinearSign
+from graphics.drawing.drawer import drawcylinder
+from graphics.drawing.drawer import drawRotateSign
+from graphics.drawing.drawer import drawbrick
+from graphics.drawing.drawer import drawLinearSign
 
 from utilities.Log import orangemsg
 from utilities.Log import redmsg, greenmsg
-from povheader import povpoint #bruce 050413
+from graphics.rendering.povray.povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 from jigs import Jig
 

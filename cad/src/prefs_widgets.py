@@ -23,16 +23,16 @@ calling this a "ui/widgets" module without splitting it -- we'll see.
 [bruce 071215 comment]
 """
 
-import env # for env.prefs
+import foundation.env as env # for env.prefs
 from debug import print_compact_traceback
 
-from changes import Formula
+from foundation.changes import Formula
 from widgets.widget_helpers import RGBf_to_QColor
 from PyQt4.Qt import QColorDialog
 from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QPalette
 
-from undo_manager import wrap_callable_for_undo
+from foundation.undo_manager import wrap_callable_for_undo
 
 # public helper functions
 

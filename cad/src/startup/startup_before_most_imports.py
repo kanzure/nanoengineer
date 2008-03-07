@@ -141,7 +141,7 @@ def before_creating_app():
     # cause subsequent signal->slot connections to be wrapped for undo support
     # (see comment in caller about whether this could be moved later in caller
     #  due to the imports it requires)
-    import undo_internals
+    import foundation.undo_internals as undo_internals
     undo_internals.call_asap_after_QWidget_and_platform_imports_are_ok() #bruce 050917
     return
 

@@ -10,7 +10,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QVBoxLayout
 
 from commands.ElementSelector.ElementSelectorDialog import Ui_ElementSelectorDialog
-from ThumbView import ElementView
+from graphics.widgets.ThumbView import ElementView
 from elements import PeriodicTable
 from constants import diTUBES
 

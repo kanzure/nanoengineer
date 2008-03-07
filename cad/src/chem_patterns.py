@@ -15,7 +15,7 @@ Todo later:
 
 __author__ = "bruce"
 
-import env
+import foundation.env as env
 import debug
 
 from PlatformDependent import fix_plurals

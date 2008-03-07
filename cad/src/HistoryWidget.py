@@ -33,7 +33,7 @@ from PyQt4.Qt import QTextEdit, QTextOption
 from utilities import debug_flags
 from PlatformDependent import mkdirs_in_filename
 from DebugMenuMixin import DebugMenuMixin
-import env
+import foundation.env as env
 
 from prefs_constants import historyMsgTimestamp_prefs_key
 from prefs_constants import historyMsgSerialNumber_prefs_key

@@ -17,13 +17,13 @@ from PyQt4.Qt import QGLFormat
 from commands.ElementColors.ElementColorsDialog import Ui_ElementColorsDialog
 from elements import PeriodicTable 
 from constants import diTrueCPK, diBALL, diTUBES 
-from ThumbView import ElementView
+from graphics.widgets.ThumbView import ElementView
 from qt4transition import qt4todo
 
 from utilities.Log import redmsg # Mark 050311
 from geometry.VQT import V
 from widgets.widget_helpers import RGBf_to_QColor
-import env
+import foundation.env as env
 
 class elementColors(QDialog, Ui_ElementColorsDialog):
     _displayList = (diTUBES, diBALL, diTrueCPK)

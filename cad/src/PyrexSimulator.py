@@ -10,7 +10,7 @@ src/sim/globals.c.
 """
 
 import os
-import env
+import foundation.env as env
 from PlatformDependent import find_plugin_dir
 
 _thePyrexSimulator = None

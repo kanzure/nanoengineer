@@ -101,7 +101,7 @@ from OpenGL.GL import GL_FALSE
 
 from exprs.Overlay import Overlay
 
-import drawer
+import graphics.drawing.drawer as drawer
 
 from exprs.world import World
 
@@ -224,7 +224,7 @@ class Cylinder(Geom3D): #e super? ####IMPLEM - and answer the design Qs herein a
         end1, end2 = self.axis #####
         radius = self.radius
         capped = self.capped
-        import drawer
+        import graphics.drawing.drawer as drawer
         drawer.drawcylinder(color, end1, end2, radius, capped = capped) ###coordsys?
         return
     def perpvec_at_surfacepoint(self, point): #e rename?
@@ -348,7 +348,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
         self.draw_quad_strip( interior_color, offsets, points, normals)
         if self.showballs: #070202
             kluge_hardcoded_size = 0.2
-            from drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
+            from graphics.drawing.drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
             for c in points:
                 ##e It might be interesting to set a clipping plane to cut off the sphere inside the ribbon-quad;
                 # but that kind of fanciness belongs in the caller, passing us something to draw for each base
@@ -356,7 +356,7 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
                 #  for different kinds of bases, in the form of a "base view" base->expr function.)
                 drawsphere(color, c, kluge_hardcoded_size, 2)
         if self.showlines:
-            from drawer import drawline
+            from graphics.drawing.drawer import drawline
             for c, n in zip(points, normals):
                 nout, nin = n * 0.2, n * 1.0 # hardcoded numbers -- not too bad since there are canonical choices 
                 drawline(color, c + nout, c - nin) ##k lighting??
@@ -405,12 +405,12 @@ kluge_dna_ribbon_view_prefs_key_prefix = "A9 devel/kluge_dna_ribbon_view_prefs_k
 def dna_pref(subkey):
     return kluge_dna_ribbon_view_prefs_key_prefix + '/' + subkey
 
-from preferences import _NOT_PASSED ###k
+from foundation.preferences import _NOT_PASSED ###k
 def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forget ####DUP CODE with test.py, should refile
     """Return a prefs value. Fully usage-tracked.
     [Kluge until we have better direct access from an expr to env.prefs. Suggest: use in call_Expr.]
     """
-    import env
+    import foundation.env as env
     return env.prefs.get(key, dflt)
 
 def get_dna_pref(subkey, **kws): ###DESIGN FLAW: lack of central decl means no warning for misspelling one ref out of several

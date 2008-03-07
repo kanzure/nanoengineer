@@ -26,12 +26,12 @@ from geometry.VQT import vlen, V
 from OpenGL.GL import glNewList, glEndList, glCallList
 from OpenGL.GL import GL_COMPILE_AND_EXECUTE
 
-from drawer import drawCircle
-from drawer import genDiam
-from drawer import drawcylinder
-from drawer import drawsphere
-from drawer import drawline
-from drawer import ColorSorter, ColorSortedDisplayList
+from graphics.drawing.drawer import drawCircle
+from graphics.drawing.drawer import genDiam
+from graphics.drawing.drawer import drawcylinder
+from graphics.drawing.drawer import drawsphere
+from graphics.drawing.drawer import drawline
+from graphics.drawing.drawer import ColorSorter, ColorSortedDisplayList
 
 from constants import SUBTRACT_FROM_SELECTION
 from constants import OUTSIDE_SUBTRACT_FROM_SELECTION
@@ -43,9 +43,9 @@ from debug import print_compact_traceback
 
 from geometry.BoundingBox import BBox
 
-from shape import simple_shape_2d
-from shape import get_selCurve_color
-from shape import shape
+from graphics.behaviors.shape import simple_shape_2d
+from graphics.behaviors.shape import get_selCurve_color
+from graphics.behaviors.shape import shape
 
 # ==
 

@@ -157,10 +157,10 @@ def _initialize_custom_display_modes(win):
     # [bruce 080212 comment; related code has comments with same signature]
     
     # diDNACYLINDER
-    import DnaCylinderChunks #mark 2008-02-11
+    import graphics.display_styles.DnaCylinderChunks as DnaCylinderChunks #mark 2008-02-11
     
     # diCYLINDER
-    import CylinderChunks #bruce 060609
+    import graphics.display_styles.CylinderChunks as CylinderChunks #bruce 060609
     from debug_prefs import debug_pref, Choice_boolean_False
     enable_CylinderChunks = debug_pref("enable CylinderChunks next session?",
                                       Choice_boolean_False, 
@@ -173,7 +173,7 @@ def _initialize_custom_display_modes(win):
         win.displayStylesToolBar.addAction(win.dispCylinderAction)
     
     # diSURFACE
-    import SurfaceChunks #mark 060610
+    import graphics.display_styles.SurfaceChunks as SurfaceChunks #mark 060610
     enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?",
                                       Choice_boolean_False, 
                                       non_debug = True, 

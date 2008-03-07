@@ -28,7 +28,7 @@ with uses of this class, if that would simplify them (but I'm not sure whether i
 from PyQt4.Qt import QProcess, QStringList, qApp, SIGNAL, QDir, QString
 import time
 
-import env
+import foundation.env as env
 
 def ensure_QStringList(args):
     if type(args) == type([]):

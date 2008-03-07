@@ -22,7 +22,7 @@ context.
 
 from debug import print_compact_traceback
 
-import env
+import foundation.env as env
 from utilities.Log import greenmsg, redmsg, _graymsg
 
 from widgets.widget_helpers import PleaseConfirmMsgBox

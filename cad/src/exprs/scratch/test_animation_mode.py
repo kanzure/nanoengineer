@@ -47,7 +47,7 @@ and a couple more noted on g4:
 """
 
 from prefs_widgets import Preferences_StateRef, Preferences_StateRef_double, ObjAttr_StateRef
-from changes import Formula
+from foundation.changes import Formula
 
 ## from test_animation_mode_PM import test_animation_mode_PM
 from test_command_PMs import ExampleCommand1_PM
@@ -64,16 +64,16 @@ from command_support.GraphicsMode import GraphicsMode
 from debug import print_compact_traceback, register_debug_menu_command
 import time, math
 
-from state_utils import copy_val
+from foundation.state_utils import copy_val
 
 from constants import green, red, white, pink, black, brown, gray # other colors below
 from math import pi
-from drawer import drawline, drawbrick, drawsphere, drawcylinder
+from graphics.drawing.drawer import drawline, drawbrick, drawsphere, drawcylinder
 from OpenGL.GL import GL_LIGHTING, glDisable, glEnable
 from geometry.VQT import cross, proj2sphere, V, norm, Q, vlen
 
-from Utility import Node
-import env
+from foundation.Utility import Node
+import foundation.env as env
 
 DX = V(1,0,0)
 DY = V(0,1,0)
@@ -967,7 +967,7 @@ annoyers = [##'editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
 # code copied from test_commands.py:
 # these imports are not needed in a minimal example like ExampleCommand2;
 # to make that clear, we put them down here instead of at the top of the file
-from drawer import drawline
+from graphics.drawing.drawer import drawline
 from constants import red, green
 ##from exprs.ExprsConstants import PIXELS
 from exprs.images import Image

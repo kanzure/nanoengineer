@@ -59,7 +59,7 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
             _pyrex_atoms_failed = True # don't try it again
             msg = "exception importing atombase as requested -- won't use it: "
             print_compact_traceback(msg)
-            import env # import cycle??
+            import foundation.env as env # import cycle??
             # note: in present implem of history [080220], this is printed too
             # early to show up in the widget, but hopefully that will be fixed
             env.history.redmsg("ERROR: unable to use experimental Pyrex Atoms and Bonds from atombase module; see console prints")
@@ -68,7 +68,7 @@ def usePyrexAtomsAndBonds(): #bruce 080218, revised/renamed 080220
             _pyrex_atoms_succeeded = True
             # for now, we need a can't miss note for success, as well (red, though not an error):
             print "\nNOTE: using experimental Pyrex Atoms and Bonds from atombase module\n"
-            import env # import cycle??
+            import foundation.env as env # import cycle??
             env.history.redmsg("NOTE: using experimental Pyrex Atoms and Bonds from atombase module")
         pass
 

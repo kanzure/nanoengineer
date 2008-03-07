@@ -18,7 +18,7 @@ widget_controllers.py - miscellaneous widget-controller classes
 from PyQt4.Qt import QIcon, SIGNAL
 from qt4transition import qt4todo
 
-import env
+import foundation.env as env
 
 
 def _env_imagename_to_QIcon(imagename, _cache = {}): ### to be replaced with env.imagename_to_QIcon for global env or an arg env

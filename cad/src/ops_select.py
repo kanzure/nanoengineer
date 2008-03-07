@@ -19,7 +19,7 @@ from chunk import Chunk
 from elements import Singlet
 from geometry.VQT import V, A, norm, cross
 from Numeric import dot, transpose
-import env
+import foundation.env as env
 from utilities.Log import redmsg, greenmsg, orangemsg
 from debug import print_compact_traceback
 from utilities import debug_flags

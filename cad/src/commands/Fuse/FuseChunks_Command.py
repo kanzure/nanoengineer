@@ -18,8 +18,8 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QWidgetAction
 from PyQt4.Qt import QAction
 
-import env
-import changes
+import foundation.env as env
+import foundation.changes as changes
 from geometry.VQT import vlen
 
 from elements import Singlet

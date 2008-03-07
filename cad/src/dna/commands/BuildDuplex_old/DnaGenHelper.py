@@ -39,7 +39,7 @@ Bruce 2008-1-1:
 # 1) Atomistic and PAM-5 generated models should have exact orientation
 # (i.e. rotational origin).
 
-import env
+import foundation.env as env
 import os
 import re
 
@@ -48,7 +48,7 @@ from math    import sin, cos, pi
 from debug import print_compact_traceback
 
 from PlatformDependent  import find_plugin_dir
-from files_mmp          import readmmp
+from files.mmp.files_mmp import readmmp
 from geometry.VQT import V
 from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log import orangemsg

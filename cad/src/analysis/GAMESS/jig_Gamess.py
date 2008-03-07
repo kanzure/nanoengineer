@@ -10,14 +10,14 @@ jig_Gamess.py
 import sys
 
 from jigs import Jig
-from drawer import drawwirecube
-from povheader import povpoint # Fix for bug 692 Mark 050628
+from graphics.drawing.drawer import drawwirecube
+from graphics.rendering.povray.povheader import povpoint # Fix for bug 692 Mark 050628
 from analysis.GAMESS.files_gms import get_energy_from_gms_outfile, get_atompos_from_gms_outfile
 from utilities.Log import redmsg, greenmsg
-import env
+import foundation.env as env
 from utilities.Log import redmsg
 from chem import move_alist_and_snuggle
-import state_utils
+import foundation.state_utils as state_utils
 from debug import print_compact_traceback
 
 from analysis.GAMESS.GamessJob import GamessJob
@@ -49,10 +49,10 @@ from utilities import debug_flags
 
 from constants import magenta
 
-from files_mmp_registration import MMP_RecordParser
-from files_mmp_registration import register_MMP_RecordParser
+from files.mmp.files_mmp_registration import MMP_RecordParser
+from files.mmp.files_mmp_registration import register_MMP_RecordParser
 
-from files_mmp import mmp_interp_just_for_decode_methods # for a kluge
+from files.mmp.files_mmp import mmp_interp_just_for_decode_methods # for a kluge
 
 # == GAMESS
 

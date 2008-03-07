@@ -9,11 +9,11 @@ dna_updater_debug.py -- debug code for dna_updater
 
 from utilities import debug_flags
 
-from drawer import drawline
+from graphics.drawing.drawer import drawline
 
 from jigs import Jig
 
-import env
+import foundation.env as env
 
 from utilities.Log import quote_html
 

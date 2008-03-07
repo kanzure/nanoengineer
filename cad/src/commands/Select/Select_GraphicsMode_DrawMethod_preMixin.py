@@ -18,7 +18,7 @@ To be used as a Mixin class only for Select_basicGraphicsMode.
 
 import sys
 import os
-import env
+import foundation.env as env
 import Numeric
 from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glPushMatrix

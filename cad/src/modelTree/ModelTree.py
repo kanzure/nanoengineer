@@ -39,7 +39,7 @@ of context menu commands to modelTree.py at various times.
 
 from PyQt4 import QtCore
 
-import env
+import foundation.env as env
 from utilities import debug_flags
 from PlatformDependent import fix_plurals
 import modelTreeGui # defines ModelTreeGui (note case difference), Ne1Model_api
@@ -47,7 +47,7 @@ import modelTreeGui # defines ModelTreeGui (note case difference), Ne1Model_api
 from chunk import Chunk
 from jigs import Jig
 from utilities.Log import orangemsg
-from Group import Group
+from foundation.Group import Group
 from debug import print_compact_traceback
 
 from GlobalPreferences import permit_atom_chunk_coselection
@@ -327,7 +327,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         topnodes = [self.assy.tree, self.assy.shelf]
         if _debug_preftree: #bruce 050602
             try:
-                from Utility import Node
+                from foundation.Utility import Node
                 ## print "reloading prefsTree"
                 import prefsTree as _X
                 reload(_X)
@@ -777,7 +777,7 @@ class modelTree(modelTreeGui.Ne1Model_api):
         # for single items that have a featurename, add wiki-help command [bruce 051201]
         if len(nodeset) == 1:
             node = nodeset[0]
-            from wiki_help import wiki_help_menuspec_for_object #e (will this func ever need to know which widget is asking?)
+            from foundation.wiki_help import wiki_help_menuspec_for_object #e (will this func ever need to know which widget is asking?)
             ms = wiki_help_menuspec_for_object(node) # will be [] if this node should have no wiki help menu items
             if ms:
                 res.append(None) # separator

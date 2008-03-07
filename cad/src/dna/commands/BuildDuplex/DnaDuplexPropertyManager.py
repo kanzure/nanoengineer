@@ -16,7 +16,7 @@ feature to generate Dna using endpoints of a line.
 
 __author__ = "Mark"
 
-import env
+import foundation.env as env
 
 from dna.model.Dna_Constants import getDuplexBasesPerTurn, getDuplexRise, getDuplexLength
 

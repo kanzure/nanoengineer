@@ -15,7 +15,7 @@ History:
 
 2007-12-23: Moved all QActions from menu and toolbar setupUi() functions here.
 """
-import env
+import foundation.env as env
 from PyQt4 import QtGui
 from PyQt4.Qt import QToolButton
 from icon_utilities import geticon

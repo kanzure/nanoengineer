@@ -3,7 +3,7 @@
 $Id$
 """
 from PyQt4 import QtGui
-from wiki_help import QToolBar_WikiHelp
+from foundation.wiki_help import QToolBar_WikiHelp
 
 def setupUi(win, toolbarArea):
     """

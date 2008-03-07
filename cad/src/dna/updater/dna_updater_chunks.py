@@ -7,7 +7,7 @@ dna_updater_chunks.py - enforce rules on chunks containing changed PAM atoms
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
 
-from state_utils import transclose
+from foundation.state_utils import transclose
 
 from dna.updater.dna_updater_globals import ignore_new_changes
 

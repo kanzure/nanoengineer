@@ -21,7 +21,7 @@ History:
 2007-08-19 - Started out as part of DnaGenHelper.py
 """
 
-import env
+import foundation.env as env
 from constants import purple, brass, steelblue, lightgreen, darkgray, lightblue
 from constants import darkorange, violet, copper, olive, gray
 from prefs_constants import adnaBasesPerTurn_prefs_key, adnaRise_prefs_key

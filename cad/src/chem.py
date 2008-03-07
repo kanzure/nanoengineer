@@ -54,11 +54,11 @@ import string
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
 
-from drawer import ColorSorter
-from drawer import drawcylinder
-from drawer import drawsphere
-from drawer import drawpolycone
-from drawer import drawwiresphere
+from graphics.drawing.drawer import ColorSorter
+from graphics.drawing.drawer import drawcylinder
+from graphics.drawing.drawer import drawsphere
+from graphics.drawing.drawer import drawpolycone
+from graphics.drawing.drawer import drawwiresphere
 
 from elements import Singlet
 from elements import Hydrogen
@@ -74,15 +74,15 @@ import chunk
 from geometry.VQT import V, Q, A, norm, cross, twistor, vlen, orthodist
 from geometry.VQT import atom_angle_radians
 
-from mdldata import marks, links, filler
-from povheader import povpoint
+from graphics.rendering.mdl.mdldata import marks, links, filler
+from graphics.rendering.povray.povheader import povpoint
 
 import debug
 from debug import print_compact_stack, print_compact_traceback
 ##from debug import compact_stack
 from debug_prefs import debug_pref, Choice_boolean_False, Choice
 
-from changedicts import register_changedict, register_class_changedicts
+from foundation.changedicts import register_changedict, register_class_changedicts
 
 from utilities.Printing import Vector3ToString
 from utilities.Log import orangemsg, redmsg
@@ -123,30 +123,30 @@ from prefs_constants import showValenceErrors_prefs_key
 from prefs_constants import cpkScaleFactor_prefs_key
 from prefs_constants import diBALL_AtomRadius_prefs_key
 
-from state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
-from state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
+from foundation.state_constants import S_CHILDREN, S_PARENT, S_DATA, S_CACHE
+from foundation.state_constants import UNDO_SPECIALCASE_ATOM, ATOM_CHUNK_ATTRIBUTE_NAME
 
-from Selobj import Selobj_API
+from graphics.drawables.Selobj import Selobj_API
 
 
 from utilities import debug_flags
 
 from PlatformDependent import fix_plurals
 
-import env
+import foundation.env as env
 
-from state_utils import StateMixin, IdentityCopyMixin
-from state_utils import register_instancelike_class
+from foundation.state_utils import StateMixin, IdentityCopyMixin
+from foundation.state_utils import register_instancelike_class
 
-import undo_archive
-from undo_archive import register_undo_updater
+import foundation.undo_archive as undo_archive
+from foundation.undo_archive import register_undo_updater
 
-from displaymodes import remap_atom_dispdefs
+from graphics.display_styles.displaymodes import remap_atom_dispdefs
     # (moved from chem to displaymodes to break import cycle, bruce 071102)
 
-from inval import InvalMixin #bruce 050510
+from foundation.inval import InvalMixin #bruce 050510
 
-import Utility
+import foundation.Utility as Utility
 from jigs import Jig
 
 from dna.operations.crossovers import crossover_menu_spec
@@ -873,7 +873,7 @@ class Atom(AtomBase, InvalMixin, StateMixin, Selobj_API, IdentityCopyMixin):
                 menu_spec.append((cmdname, command))
                 continue
         if debug_flags.atom_debug:
-            from undo_archive import _undo_debug_obj # don't do this at toplevel
+            from foundation.undo_archive import _undo_debug_obj # don't do this at toplevel
             if self is _undo_debug_obj:
                 checked = 'checked'
             else:

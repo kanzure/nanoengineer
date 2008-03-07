@@ -15,7 +15,7 @@ created by bruce 050705 to help with higher-order bonds for Alpha6.
 
 from geometry.VQT import Q
 from constants import noop
-import env
+import foundation.env as env
 from utilities.Log import greenmsg, redmsg, orangemsg, quote_html
 from debug import print_compact_stack
 

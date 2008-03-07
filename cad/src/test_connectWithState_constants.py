@@ -28,7 +28,7 @@ CYLINDER_ROUND_CAPS_PREFS_KEY = "a9.2 scratch/test_connectWithState_PM/cylinder 
 CYLINDER_ROUND_CAPS_DEFAULT_VALUE = True
 
 def cylinder_round_caps():
-    import env
+    import foundation.env as env
     return env.prefs.get( CYLINDER_ROUND_CAPS_PREFS_KEY, CYLINDER_ROUND_CAPS_DEFAULT_VALUE)
 
 # The state for cylinder width, cylinder color [nim], and cylinder orientation

@@ -59,7 +59,7 @@ from PyQt4.Qt import QApplication
 from PyQt4.Qt import QCursor
 from PyQt4.Qt import QWhatsThis
 
-import env
+import foundation.env as env
 from utilities import debug_flags
 
 from utilities.Log import redmsg, orangemsg, greenmsg, quote_html

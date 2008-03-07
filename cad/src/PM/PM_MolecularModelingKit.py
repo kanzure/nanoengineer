@@ -182,7 +182,7 @@ class PM_MolecularModelingKit( PM_GroupBox ):
         if not self.elementViewer:
             return
         
-        from ThumbView import MMKitView
+        from graphics.widgets.ThumbView import MMKitView
         assert isinstance(self.elementViewer, MMKitView)       
         self.elementViewer.resetView()                
         self.elementViewer.changeHybridType(self.atomType)        

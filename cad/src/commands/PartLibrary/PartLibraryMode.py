@@ -21,8 +21,8 @@ ninad 2007-09-06: Created. Split out some methods originally in depositMode.py
                   to this file. 
 
 """
-import changes
-import env
+import foundation.changes as changes
+import foundation.env as env
 import os
 
 from utilities.Log import orangemsg, greenmsg, quote_html, redmsg

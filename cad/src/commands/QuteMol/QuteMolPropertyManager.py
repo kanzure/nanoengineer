@@ -24,13 +24,13 @@ from PM.PM_Dialog        import PM_Dialog
 
 from PM.PM_Constants     import pmRestoreDefaultsButton, pmPreviewButton
 
-import env
+import foundation.env as env
 
 from utilities.Log import greenmsg
-from qutemol import launch_qutemol, write_qutemol_files
-from files_pdb import EXCLUDE_HIDDEN_ATOMS
-from files_pdb import EXCLUDE_DNA_AXIS_BONDS
-from files_pdb import EXCLUDE_DNA_AXIS_ATOMS
+from graphics.rendering.qutemol.qutemol import launch_qutemol, write_qutemol_files
+from files.pdb.files_pdb import EXCLUDE_HIDDEN_ATOMS
+from files.pdb.files_pdb import EXCLUDE_DNA_AXIS_BONDS
+from files.pdb.files_pdb import EXCLUDE_DNA_AXIS_ATOMS
 
 class QuteMolPropertyManager(PM_Dialog):
     """

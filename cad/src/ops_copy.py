@@ -12,12 +12,12 @@ bruce 050507 made this by collecting appropriate methods from class Part.
 """
 
 from utilities import debug_flags
-import env
+import foundation.env as env
 
 from debug         import print_compact_stack
 from utilities.Log import greenmsg, redmsg, orangemsg
 from PlatformDependent import fix_plurals
-from Group         import Group
+from foundation.Group import Group
 from chunk         import Chunk
 from chunk         import mol_copy_name
 from chem          import Atom_prekill_prep

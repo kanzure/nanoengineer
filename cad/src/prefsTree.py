@@ -20,11 +20,11 @@ Perhaps ought to be split into two files?
 """
 
 import os
-from Utility import Node
-from Group import Group
+from foundation.Utility import Node
+from foundation.Group import Group
 from part import Part
 from constants import noop, dispLabel, default_display_mode
-import env
+import foundation.env as env
 
 _debug_prefstree = True # safe for commit even when True
 
@@ -192,7 +192,7 @@ class prefsTree_class:
     pass
 
 def read_mmp_single_part(assy, filename):
-    from files_mmp import readmmp
+    from files.mmp.files_mmp import readmmp
     # start incredible kluge block
     history = env.history
         #bruce 050901 revised this.

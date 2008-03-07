@@ -26,7 +26,7 @@ from PyQt4.Qt import QButtonGroup
 from PyQt4.Qt import QAbstractButton
 from PyQt4.Qt import SIGNAL
 
-import env
+import foundation.env as env
 
 from SimSetupDialog import Ui_SimSetupDialog
 from movie import Movie

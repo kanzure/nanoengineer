@@ -13,7 +13,7 @@ sequence and secondary structure.
 for notes about what's going on here.
 """
 
-import env
+import foundation.env as env
 import platform
 
 from commands.InsertPeptide.PeptideGeneratorPropertyManager import PeptideGeneratorPropertyManager

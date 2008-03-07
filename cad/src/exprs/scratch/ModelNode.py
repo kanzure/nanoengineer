@@ -59,14 +59,14 @@ much later: see also non-cvs notes (files & paper) of 070105
 """
 import time
 
-from Utility import Node
-from state_constants import S_DATA
+from foundation.Utility import Node
+from foundation.state_constants import S_DATA
 
 from exprs.Rect import Sphere
 
 from exprs.lvals import RecomputingMemoDict ##, call_but_discard_tracked_usage, LvalError_ValueIsUnset
 
-import env
+import foundation.env as env
 
 from constants import gray
 

@@ -19,7 +19,7 @@ ninad 2007-08-29: Created. (Initially to support the clipboard in L{PasteMode})
 from PyQt4.Qt import QListWidget
 from PyQt4.Qt import SIGNAL
 
-from ThumbView      import MMKitView
+from graphics.widgets.ThumbView import MMKitView
 from PM.PM_GroupBox import PM_GroupBox
 from constants      import diTUBES
 

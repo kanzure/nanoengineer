@@ -31,20 +31,20 @@ from OpenGL.GL import glPopMatrix
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QCursor
 
-import env
+import foundation.env as env
 from geometry.VQT import V, Q, A, norm, vlen
 from command_support.modes import basicMode
 from commands.BuildCrystal.CookieCtrlPanel import CookieCtrlPanel
 from utilities.Log import orangemsg
 from utilities.Log import redmsg
 
-from shape import get_selCurve_color
+from graphics.behaviors.shape import get_selCurve_color
 from geometry.Slab import Slab
 from commands.BuildCrystal.CookieShape import CookieShape
 
-import drawer
-from drawer import DiGridSp
-from drawer import genDiam
+import graphics.drawing.drawer as drawer
+from graphics.drawing.drawer import DiGridSp
+from graphics.drawing.drawer import genDiam
 from chunk import Chunk
 from chem import Atom
 
@@ -57,7 +57,7 @@ from constants import ADD_TO_SELECTION
 from constants import SUBTRACT_FROM_SELECTION
 from constants import SELSHAPE_RECT
 
-import changes
+import foundation.changes as changes
 
 
 class cookieMode(basicMode):
@@ -184,7 +184,7 @@ class cookieMode(basicMode):
         # We do this last, so as not to do it if there are exceptions in the rest of the method,
         # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
         # [bruce 060414; same thing done in some other modes]
-        import undo_manager
+        import foundation.undo_manager as undo_manager
         undo_manager.disable_undo_checkpoints('Build Crystal Mode')
         undo_manager.disable_UndoRedo('Build Crystal Mode', "in Build Crystal") # optimizing this for shortness in menu text
             # this makes Undo menu commands and tooltips look like "Undo (not permitted in Cookie Cutter)" (and similarly for Redo)
@@ -197,7 +197,7 @@ class cookieMode(basicMode):
         # do it first to protect it from exceptions in the rest of this method
         # (since if it never happens, Undo/Redo won't work for the rest of the session)
         # [bruce 060414; same thing done in some other modes]
-        import undo_manager
+        import foundation.undo_manager as undo_manager
         undo_manager.reenable_undo_checkpoints('Build Crystal Mode')
         undo_manager.reenable_UndoRedo('Build Crystal Mode')
         self.set_cmdname('Build Crystal') # this covers all changes while we were in the mode

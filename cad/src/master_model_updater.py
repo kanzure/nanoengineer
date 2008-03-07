@@ -45,7 +45,7 @@ bruce 080305 added _autodelete_empty_groups.
 from global_model_changedicts import changed_structure_atoms
 from global_model_changedicts import changed_bond_types
 
-import env
+import foundation.env as env
 from utilities.Log import redmsg
 
 from bond_updater import update_bonds_after_each_event

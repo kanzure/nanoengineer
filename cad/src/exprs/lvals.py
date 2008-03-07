@@ -59,8 +59,8 @@ import sys
 
 # from modules in cad/src
 
-from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
-import changes
+from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
+import foundation.changes as changes
 from debug import print_compact_traceback
 from utilities.Comparison import same_vals
 

@@ -16,7 +16,7 @@ from Numeric import dot
 
 from PyQt4.Qt import QMouseEvent
 from PyQt4.Qt import Qt
-import env
+import foundation.env as env
 from geometry.VQT import V, Q, A, vlen, norm
 from commands.SelectChunks.SelectChunks_GraphicsMode import SelectChunks_GraphicsMode
 from constants import SUBTRACT_FROM_SELECTION

@@ -7,7 +7,7 @@ $Id$
 
 # not all of these are needed, perhaps:
 from cPickle import dump, load, HIGHEST_PROTOCOL
-import env
+import foundation.env as env
 from debug import register_debug_menu_command, register_debug_menu_command_maker
     ###@@@ don't put all those commands in there -- use a submenu, use atom-debug,
     # or let them only show up if a related flag is set, or so...

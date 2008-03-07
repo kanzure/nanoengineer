@@ -43,7 +43,7 @@ from PyQt4.Qt import QStatusBar
 
 from elements import PeriodicTable
 from model.assembly import assembly 
-from drawer import get_gl_info_string ## grantham 20051201
+from graphics.drawing.drawer import get_gl_info_string ## grantham 20051201
 import os, sys
 import time
 
@@ -73,10 +73,10 @@ from ops_view import viewSlotsMixin
 from ops_display import displaySlotsMixin
 from ops_modify import modifySlotsMixin 
 
-from changes import register_postinit_object
-import preferences
-import env 
-import undo_internals
+from foundation.changes import register_postinit_object
+import foundation.preferences as preferences
+import foundation.env as env 
+import foundation.undo_internals as undo_internals
 
 from prefs_constants import nanohive_enabled_prefs_key
 from prefs_constants import gamess_enabled_prefs_key
@@ -412,7 +412,7 @@ class MWsemantics(QMainWindow,
         
         # bruce 050810 replaced user preference initialization with this,
         # and revised update_mainwindow_caption to match
-        from changes import Formula
+        from foundation.changes import Formula
         self._caption_formula = Formula(
             # this should depend on whatever update_mainwindow_caption_properly depends on;
             # but it can't yet depend on assy.has_changed(),
@@ -829,7 +829,7 @@ class MWsemantics(QMainWindow,
         """
         Slot for enabling/disabling automatic checkpointing.
         """
-        import undo_manager
+        import foundation.undo_manager as undo_manager
         undo_manager.editAutoCheckpointing(self, enabled)
             # note: see code comment there, for why that's not in undo_UI.
             # note: that will probably do this (among other things):

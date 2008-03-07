@@ -10,8 +10,8 @@ and their lowest-level accessors.
 
 from utilities import debug_flags
 
-from changedicts import refreshing_changedict_subscription
-from changedicts import _cdproc_for_dictid # but it's private!
+from foundation.changedicts import refreshing_changedict_subscription
+from foundation.changedicts import _cdproc_for_dictid # but it's private!
 
 from chem import _changed_structure_Atoms, _changed_parent_Atoms # but they're private! refactor sometime
 

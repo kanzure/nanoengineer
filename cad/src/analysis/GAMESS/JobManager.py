@@ -84,7 +84,7 @@ def get_job_manager_job_id_and_dir():
     Returns a unique Job Id number and JobManager subdirectory for this Job Id.  
     The Job Id is stored in the User Preference db.
     """
-    from preferences import prefs_context
+    from foundation.preferences import prefs_context
     prefs = prefs_context()
     job_id = prefs.get('JobId')
     

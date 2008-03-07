@@ -36,8 +36,8 @@ from SimJob import SimJob
 from analysis.GAMESS.GamessProp import GamessProp
 from analysis.GAMESS.files_gms import writegms_inpfile
 ## from files_gms import writegms_batfile
-import preferences
-import env # for setting prefs and doing recursive event processing
+import foundation.preferences as preferences
+import foundation.env as env # for setting prefs and doing recursive event processing
 from icon_utilities import geticon
 
 from ServerManager import ServerManager

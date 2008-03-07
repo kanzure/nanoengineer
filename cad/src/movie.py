@@ -22,9 +22,9 @@ from chem import move_alist_and_snuggle
 from utilities import debug_flags
 from PlatformDependent import fix_plurals
 from debug import print_compact_stack, print_compact_traceback
-from moviefile import MovieFile #e might be renamed, creation API revised, etc
+from files.dpb_trajectory.moviefile import MovieFile #e might be renamed, creation API revised, etc
 
-import env
+import foundation.env as env
 
 ADD = True
 SUBTRACT = False
@@ -638,7 +638,7 @@ class Movie:
         You may then make a move of it with:
             mencoder "mf://*.png" -mf fps=25 -o output.avi -ovc lavc -lavcopts vcodec=mpeg4
         """
-        from fileIO import writepovfile
+        from graphics.rendering.fileIO import writepovfile
 
         if not self.isOpen: #bruce 050428 not sure if this is the best condition to use here ###@@@
             if (not self.might_be_playable()) and 0: ## self.why_not_playable:

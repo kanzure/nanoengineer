@@ -10,7 +10,7 @@ dna_updater_prefs.py - access to preferences settings affecting the dna updater
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
 from debug_prefs import Choice
 
-import env
+import foundation.env as env
 
 from utilities.Log import orangemsg
 

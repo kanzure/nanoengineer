@@ -6,7 +6,7 @@ DnaSegment.py - ...
 @version: $Id$
 @copyright: 2007-2008 Nanorex, Inc.  See LICENSE file for details.
 """
-import env
+import foundation.env as env
 from dna.model.DnaStrandOrSegment import DnaStrandOrSegment
 from dna.model.DnaLadderRailChunk import DnaAxisChunk
 

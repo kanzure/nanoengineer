@@ -33,7 +33,7 @@ TODO:
   editcommand classes.
 """
 
-import changes
+import foundation.changes as changes
 from utilities.Comparison import same_vals
 
 from constants            import permit_gensym_to_reuse_name

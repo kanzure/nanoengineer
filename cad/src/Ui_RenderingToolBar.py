@@ -4,12 +4,12 @@ Ui_RenderingToolBar.py - Toolbar for Rendering plug-ins like QuteMolX and
 POV-Ray.
 
 @author: Mark
-@version: $Id:$
+@version: $Id$
 @copyright: 2005-2007 Nanorex, Inc.  See LICENSE file for details.
 """
 
 from PyQt4 import QtGui
-from wiki_help import QToolBar_WikiHelp
+from foundation.wiki_help import QToolBar_WikiHelp
 
 def setupUi(win, toolbarArea):
     """

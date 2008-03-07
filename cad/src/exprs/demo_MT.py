@@ -351,7 +351,7 @@ def mt_node_id(node): # 070207; the name 'node_id' itself conflicts with a funct
     assert not is_Expr(node), "pure exprs like %r don't belong as nodes in the model tree" % (node,)
     
     # look for legacy Node property
-    from Utility import node_id
+    from foundation.Utility import node_id
     res = node_id(node) # not sure what to do if this fails -- let it be an error for now -- consider using id(node) if we need to
     if print_mt_node_id:
         print "legacy node %r has effective mt_node_id %r" % (node,res)

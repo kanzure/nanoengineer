@@ -55,22 +55,22 @@ from bond_constants import find_bond
 from bond_chains import grow_directional_bond_chain
 
 import global_model_changedicts
-import env
+import foundation.env as env
 
 from GlobalPreferences import usePyrexAtomsAndBonds
 
-from state_utils import StateMixin, IdentityCopyMixin
-from state_utils import register_instancelike_class
+from foundation.state_utils import StateMixin, IdentityCopyMixin
+from foundation.state_utils import register_instancelike_class
 
-from changedicts import register_changedict, register_class_changedicts
+from foundation.changedicts import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False
 from utilities.Log import redmsg, quote_html
 
-from state_constants import S_CACHE, S_DATA, S_PARENT, UNDO_SPECIALCASE_BOND
+from foundation.state_constants import S_CACHE, S_DATA, S_PARENT, UNDO_SPECIALCASE_BOND
 
-from bond_drawer import writepov_bond
+from graphics.drawing.bond_drawer import writepov_bond
 
-from Selobj import Selobj_API
+from graphics.drawables.Selobj import Selobj_API
 
 # bond length constants
 # (note: these ought to be moved to bond_constants.py
@@ -1815,9 +1815,9 @@ class Bond(BondBase, StateMixin, Selobj_API, IdentityCopyMixin):
         # As of 041109 this is now handled by bond.__getattr__.
         # The attr toolong is new as of 041112.
         if debug_flags.atom_debug:
-            import bond_drawer
+            import graphics.drawing.bond_drawer as bond_drawer
             reload_once_per_event( bond_drawer) #bruce 050825 use reload_once_per_event
-        from bond_drawer import draw_bond
+        from graphics.drawing.bond_drawer import draw_bond
         draw_bond( self, glpane, dispdef, col, level, highlighted, bool_fullBondLength)
         # if we're an external bond, also draw our atoms'
         # geometry_error_indicators, so those stay out of their chunk

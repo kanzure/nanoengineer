@@ -24,19 +24,19 @@ from OpenGL.GL import glPopMatrix
 from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 
-from drawer     import drawLineLoop, drawPlane
+from graphics.drawing.drawer import drawLineLoop, drawPlane
 from constants  import black, orange, yellow, darkgreen, brown
 
 from geometry.VQT import V, Q, cross, planeXline, vlen, norm, ptonline
 from geometry.BoundingBox import BBox
 
 from debug import print_compact_traceback
-import env
+import foundation.env as env
 
 from utilities.Log     import redmsg
 from ReferenceGeometry import ReferenceGeometry 
-from DirectionArrow    import DirectionArrow
-from ResizeHandle      import ResizeHandle  
+from graphics.drawables.DirectionArrow import DirectionArrow
+from graphics.drawables.ResizeHandle import ResizeHandle  
 
 ONE_RADIAN = 180.0 / pi
 # One radian = 57.29577951 degrees

@@ -17,7 +17,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QMessageBox
 from PyQt4.Qt import QColorDialog
 
-import env
+import foundation.env as env
 
 from analysis.GAMESS.GamessPropDialog import Ui_GamessPropDialog
 from ServerManager import ServerManager

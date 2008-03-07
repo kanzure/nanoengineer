@@ -19,7 +19,7 @@ To be used as a Mixin class only for Select_basicGraphicsMode.
 
 """
 
-import env
+import foundation.env as env
 from bonds import Bond
 from chem  import Atom 
 from jigs  import Jig

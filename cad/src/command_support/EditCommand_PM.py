@@ -11,7 +11,7 @@ from this class to use common methods such as ok_btn_cliked.
 
 """
 
-import env
+import foundation.env as env
 
 from PM.PM_Dialog import PM_Dialog
 from PyQt4.Qt import QWidgetAction

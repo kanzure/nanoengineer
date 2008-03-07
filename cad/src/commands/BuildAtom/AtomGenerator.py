@@ -22,7 +22,7 @@ Mark 2007-07-25: Uses new PM module.
 """
 
 from utilities import debug_flags
-import env
+import foundation.env as env
 from chem import Atom
 from chunk import Chunk
 from geometry.VQT import V

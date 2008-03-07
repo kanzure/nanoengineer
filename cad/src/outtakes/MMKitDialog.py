@@ -37,8 +37,8 @@ from PyQt4.Qt import QSizePolicy
 from PyQt4.Qt import QFont
 from PyQt4.Qt import QLineEdit
 
-from Utility import geticon, getpixmap
-import env
+from foundation.Utility import geticon, getpixmap
+import foundation.env as env
 from PropMgrBaseClass import getPalette
 
 from PropertyManagerMixin import pmVBoxLayout

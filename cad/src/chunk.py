@@ -69,26 +69,26 @@ import chem
 
 from geometry.VQT import V, Q, A, vlen
 
-from NodeWithAtomContents import NodeWithAtomContents
+from foundation.NodeWithAtomContents import NodeWithAtomContents
 
 from utilities.Log import orangemsg, redmsg, quote_html, graymsg
 
 from debug import print_compact_stack, print_compact_traceback, safe_repr
 
-from inval import InvalMixin
-from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
+from foundation.inval import InvalMixin
+from foundation.changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
     #bruce 050804, so glpanes can know when they need to redraw a chunk's display list,
     # and chunks can know when they need to inval that because something drawn into it
     # would draw differently due to a change in some graphics pref it used
 from prefs_constants import bondpointHotspotColor_prefs_key
-import env
-import drawer
-from undo_archive import set_undo_nullMol
+import foundation.env as env
+import graphics.drawing.drawer as drawer
+from foundation.undo_archive import set_undo_nullMol
 from utilities.Comparison import same_vals
 ##from state_utils import copy_val
-from displaymodes import get_display_mode_handler
+from graphics.display_styles.displaymodes import get_display_mode_handler
 
-from state_constants import S_REF, S_CHILDREN_NOT_DATA
+from foundation.state_constants import S_REF, S_CHILDREN_NOT_DATA
 
 from utilities import debug_flags
 
@@ -101,7 +101,7 @@ import bonds # TODO: import specific functions, since no longer an import cycle
 from elements import Singlet
 
 from geometry.BoundingBox import BBox
-from drawer import ColorSorter, ColorSortedDisplayList
+from graphics.drawing.drawer import ColorSorter, ColorSortedDisplayList
 ##from drawer import drawlinelist
 
 ##from constants import PickedColor
@@ -128,7 +128,7 @@ from dna.model.Dna_Constants import getComplementSequence
 
 from bond_chains import grow_directional_bond_chain
 
-from drawer import apply_material, allow_color_sorting, use_color_sorted_dls
+from graphics.drawing.drawer import apply_material, allow_color_sorting, use_color_sorted_dls
 
 
 

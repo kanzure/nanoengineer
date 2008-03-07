@@ -27,12 +27,12 @@ from dna.updater.dna_updater_prefs import pref_draw_internal_markers
 
 from utilities import debug_flags
 
-from drawer import drawwirecube
+from graphics.drawing.drawer import drawwirecube
 
 from constants import orange
 
-from files_mmp_registration import MMP_RecordParser
-from files_mmp_registration import register_MMP_RecordParser
+from files.mmp.files_mmp_registration import MMP_RecordParser
+from files.mmp.files_mmp_registration import register_MMP_RecordParser
 
 # ==
 

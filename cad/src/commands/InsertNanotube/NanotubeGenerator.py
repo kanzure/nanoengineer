@@ -14,7 +14,7 @@ from math import atan2, sin, cos, pi, asin
 from Numeric import dot
 
 from geometry.VQT import vlen, cross, norm, V
-import env
+import foundation.env as env
 from utilities import debug_flags
 from debug import Stopwatch
 

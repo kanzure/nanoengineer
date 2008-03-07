@@ -26,13 +26,13 @@ from OpenGL.GL import glTranslatef
 from OpenGL.GL import glRotatef
 from OpenGL.GL import glPopMatrix
 
-from drawer import drawLineLoop
+from graphics.drawing.drawer import drawLineLoop
 
-from draw_grid_lines import drawGPGrid
-from draw_grid_lines import drawSiCGrid
+from graphics.drawing.draw_grid_lines import drawGPGrid
+from graphics.drawing.draw_grid_lines import drawSiCGrid
 
 from geometry.VQT import V, Q, A, cross
-from povheader import povpoint
+from graphics.rendering.povray.povheader import povpoint
 
 from jigs import Jig
 

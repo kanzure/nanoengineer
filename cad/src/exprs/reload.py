@@ -85,7 +85,7 @@ def reload_once(module):
     if not ENABLE_RELOAD:
         def printfyi(msg): # WARNING: dup code, inlining py_utils version since not yet imported
             msg = "fyi (printonce): " + msg
-            from env import seen_before
+            from foundation.env import seen_before
             if not seen_before(msg):
                 print msg
         if 1:

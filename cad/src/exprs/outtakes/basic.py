@@ -45,7 +45,7 @@ from geometry.VQT import V, A, Q, norm, vlen, cross
 from math import sqrt #070225
 from math import pi, sin, cos #070130
 
-from state_utils import transclose, same_vals
+from foundation.state_utils import transclose, same_vals
 ## not yet needed: from state_utils import _UNSET_ # warning: not included in "import *"
 
 from constants import noop # def noop(*args,**kws): pass

@@ -69,8 +69,8 @@ import time
 
 import Initialize
 
-from Utility import node_name
-from Group import Group
+from foundation.Utility import node_name
+from foundation.Group import Group
 from pastables import is_pastable
 
 from debug import print_compact_traceback
@@ -79,13 +79,13 @@ from prefs_constants import workingDirectory_prefs_key
 from utilities.Log import orangemsg ##, greenmsg, redmsg
 from utilities import debug_flags
 from PlatformDependent import find_or_make_any_directory
-import env
-from state_utils import StateMixin, IdentityCopyMixin
+import foundation.env as env
+from foundation.state_utils import StateMixin, IdentityCopyMixin
 from debug import print_compact_stack
-import undo_archive
+import foundation.undo_archive as undo_archive
 
 from constants import gensym, SELWHAT_CHUNKS, SELWHAT_ATOMS
-from state_constants import S_CHILD, S_DATA, S_REF
+from foundation.state_constants import S_CHILD, S_DATA, S_REF
 
 from part import Part as Part_class # use a name we can search for [bruce 071029]
     ### TODO: rename the class Part itself somehow; both Part and part are too generic
@@ -97,10 +97,10 @@ from icon_utilities import imagename_to_pixmap
 from commands.PartProperties.PartProp import PartProp
 from PyQt4 import QtGui
 
-from Assembly_API import Assembly_API
+from foundation.Assembly_API import Assembly_API
 from prefsTree import MainPrefsGroupPart
-import undo_manager
-from files_mmp_writing import writemmpfile_assy
+import foundation.undo_manager as undo_manager
+from files.mmp.files_mmp_writing import writemmpfile_assy
 
 # kluge for register_classname -- should use a
 # registration scheme: [bruce 080115]
@@ -408,7 +408,7 @@ class assembly( StateMixin, Assembly_API, IdentityCopyMixin):
         if 0:
             # use this code as soon as all users of env.py *glselect_name funcs/attrs
             # are replaced with calls of our replacement methods below. [bruce 080220]
-            from glselect_name_dict import glselect_name_dict
+            from graphics.drawing.glselect_name_dict import glselect_name_dict
             self._glselect_name_dict = glselect_name_dict()
             # todo: clear this when we are destroyed, and make sure accesses to it
             # either never happen or don't mind not finding an object for a name.

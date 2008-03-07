@@ -17,7 +17,7 @@ Translate_GraphicsMode or TranslateComponents_GraphicsMode.
 from utilities import debug_flags 
 import math
 from Numeric import dot
-import env
+import foundation.env as env
 from debug import print_compact_traceback
 from geometry.VQT import V, A, vlen, norm
 from commands.Move.Move_GraphicsMode import Move_GraphicsMode

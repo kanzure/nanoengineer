@@ -21,9 +21,9 @@ History:
 See Move_GraphicsMode.py
 
 """
-import env
+import foundation.env as env
 import math
-import changes
+import foundation.changes as changes
 from PyQt4 import QtGui
 from PyQt4.Qt import SIGNAL
 from commands.Move.MovePropertyManager import MovePropertyManager

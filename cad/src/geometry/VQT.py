@@ -18,7 +18,7 @@ so the remaining part of this module can be classified as "geometry"
 
 import math
 from utilities import debug_flags
-from state_utils import DataMixin
+from foundation.state_utils import DataMixin
 
 import Numeric 
 

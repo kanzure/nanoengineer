@@ -47,10 +47,10 @@ from OpenGL.GL import glEnable
 from PyQt4.Qt import Qt
 from PyQt4.Qt import QFont, QString
 
-from Utility import Node
-from Group   import Group
+from foundation.Utility import Node
+from foundation.Group import Group
 
-from Assembly_API import Assembly_API
+from foundation.Assembly_API import Assembly_API
 
 from NamedView import NamedView
 from geometry.VQT import V, Q
@@ -62,14 +62,14 @@ from geometry.BoundingBox import BBox
 
 from chunk import Chunk
 from jigs import Jig
-from node_indices import fix_one_or_complain
+from foundation.node_indices import fix_one_or_complain
 
 from constants import diINVISIBLE
 
-import env
+import foundation.env as env
 
-from inval import InvalMixin
-from state_utils import StateMixin, IdentityCopyMixin
+from foundation.inval import InvalMixin
+from foundation.state_utils import StateMixin, IdentityCopyMixin
 from jigmakers_Mixin import jigmakers_Mixin
 from ops_atoms     import ops_atoms_Mixin
 from ops_connected import ops_connected_Mixin
@@ -80,7 +80,7 @@ from ops_select    import ops_select_Mixin
 
 from constants import diDEFAULT
 from constants import SELWHAT_CHUNKS, SELWHAT_ATOMS
-from state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
+from foundation.state_constants import S_REF, S_DATA, S_PARENT, S_CHILD
 from prefs_constants import levelOfDetail_prefs_key
 
 from Line  import Line
@@ -1088,7 +1088,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin, IdentityCopyMixin,
         # as of 050412 this didn't yet turn singlets into H;
         # but as of long before 051115 it does (for all calls -- so it would not be good to use for Save Selection!)
         #bruce 051209  -- now it only does that if **mapping_options ask it to.
-        from files_mmp_writing import writemmpfile_part
+        from files.mmp.files_mmp_writing import writemmpfile_part
         writemmpfile_part( self, filename, **mapping_options)
 
     pass # end of class Part

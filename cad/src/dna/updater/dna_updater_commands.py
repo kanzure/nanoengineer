@@ -11,7 +11,7 @@ from debug import register_debug_menu_command
 
 from chem import _changed_structure_Atoms # but it's private! refactor sometime
 
-import env
+import foundation.env as env
 
 from utilities.Log import greenmsg
 

@@ -22,7 +22,7 @@ __author__ = "bruce" # and others
 
 import sys, os, time
 from PyQt4.Qt import Qt, QDesktopWidget, QRect
-import env
+import foundation.env as env
 from utilities import debug_flags
 from debug import print_compact_traceback
 from debug import print_compact_stack

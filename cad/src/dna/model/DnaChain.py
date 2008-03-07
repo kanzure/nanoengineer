@@ -15,7 +15,7 @@ from utilities import debug_flags
 from dna.model.dna_model_constants import LADDER_ENDS
 from dna.model.dna_model_constants import LADDER_END0
 
-import env
+import foundation.env as env
 from utilities.Log import redmsg
 
 from bond_constants import find_bond

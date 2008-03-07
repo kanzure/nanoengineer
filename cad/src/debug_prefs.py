@@ -24,7 +24,7 @@ from utilities.Comparison import same_vals
     # module to import from debug. (There may be other reasons it can't in the current code.)
     # [bruce 070613 comment]
 
-import env
+import foundation.env as env
 # see below for "import preferences" at runtime; we can't import it here due to errors caused by recursive import
 
 _NOT_PASSED = [] # private object for use as keyword arg default [bruce 070110, part of fixing bug of None as Choice value]
@@ -97,7 +97,7 @@ class Pref:
             assert type(prefs_key) == type(""), "prefs_key must be True or a string"
             assert prefs_key # implied by the other asserts/ifs
             self.prefs_key = prefs_key
-            import preferences # make sure env.prefs is initialized [bruce 070110 precaution]
+            import foundation.preferences as preferences # make sure env.prefs is initialized [bruce 070110 precaution]
                 # (evidently ok this early, but not sure if needed -- it didn't fix the bug in a Choice of None I commented on today)
             self.value = env.prefs.get( prefs_key, self.value ) ###k guess about this being a fully ok way to store a default value
                 # Note: until I fixed preferences.py today, this failed to store a default value when self.value was None. [bruce 070110]

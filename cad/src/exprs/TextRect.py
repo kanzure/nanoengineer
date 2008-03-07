@@ -29,7 +29,7 @@ class TextRect(Widget2D):
     ncols defaults to cols in msg, limited by option max_cols, default 45.
     #doc textsize issues, lbox issues, arg order reason (some caller comment explains it, i think, maybe in test.py).
     """
-    from texture_fonts import tex_width, tex_height # constants (#e shouldn't be; see comments where they're defined)
+    from graphics.drawing.texture_fonts import tex_width, tex_height # constants (#e shouldn't be; see comments where they're defined)
     # args
     msg = Arg(str)
     nlines = Arg(int, min_Expr( _self.msg_lines, _self.max_lines) ) # related to height, but in chars
@@ -67,7 +67,7 @@ class TextRect(Widget2D):
             width = int(width)
             height = int(height)
         
-        from texture_fonts import drawfont2
+        from graphics.drawing.texture_fonts import drawfont2
         glPushMatrix() ####k guess, not sure needed
         #e translate by margin
         drawfont2(glpane, msg, width, height, pixelwidth = PIXELS)

@@ -26,12 +26,12 @@ Mark 2007-10-18:
 # 1) Use two endpoints to create an arbitrarily positioned duplex.
 # 2) Remove support for Atomistic DNA models.
 
-import env
+import foundation.env as env
 import random
 
 from constants import darkred, blue, lightgray
 
-from Group          import Group
+from foundation.Group import Group
 from utilities.Log  import redmsg, greenmsg ##, orangemsg
 from geometry.VQT import Q, V, angleBetween, cross, vlen, Veq
 from math           import pi

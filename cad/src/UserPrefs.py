@@ -34,17 +34,17 @@ from PyQt4.Qt import Qt
 
 
 from UserPrefsDialog import Ui_UserPrefsDialog
-import preferences
+import foundation.preferences as preferences
 from debug import print_compact_traceback
 from debug_prefs import debug_pref, Choice_boolean_False
-import env
+import foundation.env as env
 from widgets.widget_helpers import RGBf_to_QColor, QColor_to_RGBf
 from widgets.widget_helpers import double_fixup
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 from utilities import debug_flags
 from PlatformDependent import screen_pos_size
 from PlatformDependent import get_rootdir
-from povray import get_default_plugin_path
+from graphics.rendering.povray.povray import get_default_plugin_path
 from icon_utilities import geticon
 
 from prefs_constants import displayCompass_prefs_key
@@ -363,7 +363,7 @@ def _get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
     dpos, dsize = defaults
     px,py = dpos # check correctness of args, even if not used later
     sx,sy = dsize
-    import preferences
+    import foundation.preferences as preferences
     prefs = preferences.prefs_context()
     ksize, kpos = _size_pos_keys( keyprefix)
     pos = prefs.get(kpos, dpos)

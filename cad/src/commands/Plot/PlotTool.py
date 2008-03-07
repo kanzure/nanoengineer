@@ -21,7 +21,7 @@ from commands.Plot.PlotToolDialog import Ui_PlotToolDialog
 from utilities.Log import redmsg, greenmsg, orangemsg
 from movie import find_saved_movie
 from PlatformDependent import open_file_in_editor
-import env
+import foundation.env as env
 from debug import print_compact_traceback
 
 debug_gnuplot = False

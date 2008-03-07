@@ -15,7 +15,7 @@ History:
 mark 2008-02-02 split this out of MWsemantics.py.
 """
 
-import env
+import foundation.env as env
 
 # Keep these in the same order that they are defined in constants.py.
 # It really helps since some lists are dependent on the display mode order.

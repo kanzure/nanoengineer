@@ -33,7 +33,7 @@ Bruce 071107 split out two modules by Will:
 
 import sys, os, time, traceback
 from constants import noop
-import env
+import foundation.env as env
 from utilities import debug_flags
 
 # note: some debug features run user-supplied code in this module's

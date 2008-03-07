@@ -33,7 +33,7 @@ from PyQt4.Qt import QIcon
 
 from utilities import debug_flags
 
-from undo_manager import wrap_callable_for_undo
+from foundation.undo_manager import wrap_callable_for_undo
 
 # ==
 
@@ -107,7 +107,7 @@ def makemenu_helper(widget, menu_spec, menu = None):
                 # [bruce 060324 for possible bugs in undo noticing cmenu items, and for the cmdnames]
                 func = wrap_callable_for_undo(m[1], cmdname = m[0])
                     # guess about cmdname, but it might be reasonable for A7 as long as we ensure weird characters won't confuse it
-                import changes
+                import foundation.changes as changes
                 changes.keep_forever(func) # THIS IS BAD (memory leak), but it's not a severe one, so ok for A7 [bruce 060324]
                     # (note: the hard part about removing these when we no longer need them is knowing when to do that
                     #  if the user ends up not selecting anything from the menu. Also, some callers make these
@@ -166,10 +166,10 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
     # Only called for len(options) > 0, though it presumably works
     # just as well for len 0 (try it sometime).
     import types
-    from whatsthis_utilities import turn_featurenames_into_links, enable_whatsthis_links
+    from foundation.whatsthis_utilities import turn_featurenames_into_links, enable_whatsthis_links
     if not raw_command:
         command = wrap_callable_for_undo(command, cmdname = undo_cmdname or menutext)
-        import changes
+        import foundation.changes as changes
         changes.keep_forever(command)
             # see comments on similar code above about why this is bad in theory, but necessary and ok for now
     iconset = None
@@ -188,7 +188,7 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
                     # (this is true for imagename_to_pixmap retval)
                     iconset = QIcon(iconset)
     if iconset is not None:
-        import changes
+        import foundation.changes as changes
         changes.keep_forever(iconset) #e memory leak; ought to make caller pass a place to keep it, or a unique id of what to keep
         #mitem_id = menu.insertItem( iconset, menutext, -1, position ) #bruce 050614, revised 060613 (added -1, position)
         mitem = menu.addAction( iconset, menutext ) #bruce 050614, revised 060613 (added -1, position)

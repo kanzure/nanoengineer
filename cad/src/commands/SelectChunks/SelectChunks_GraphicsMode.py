@@ -30,14 +30,14 @@ Ninad & Bruce 2007-12-13: Created new Command and GraphicsMode classes from
 
 from PyQt4.Qt import QMouseEvent
 
-import env
+import foundation.env as env
 
 from bonds import Bond
 from chem import Atom
 
 from commands.Select.Select_GraphicsMode import DRAG_STICKINESS_LIMIT
 from chunk import Chunk
-from drawer import apply_material, allow_color_sorting, use_color_sorted_dls
+from graphics.drawing.drawer import apply_material, allow_color_sorting, use_color_sorted_dls
 from OpenGL.GL import glCallList
 from debug import print_compact_traceback, print_compact_stack
 

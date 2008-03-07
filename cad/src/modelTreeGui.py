@@ -72,7 +72,7 @@ from PlatformDependent import fix_plurals
 from utilities.Log import quote_html
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 from menu_helpers import makemenu_helper
-import env
+import foundation.env as env
 
 from widgets.simple_dialogs import grab_text_line_using_dialog
 from icon_utilities import imagename_to_pixmap

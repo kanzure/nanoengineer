@@ -23,7 +23,7 @@ reload(CoNTubGenerator)
 
 import os, sys, time
 
-import env
+import foundation.env as env
 import Initialize
 from utilities.Log import quote_html, redmsg ##, orangemsg, greenmsg
 from command_support.ParameterDialog import ParameterDialog, ParameterPane
@@ -558,7 +558,7 @@ class PluginlikeGenerator:
         filename = outfiles[0]
         assert filename.endswith('.mmp') # for now; in future, also permit .pdb or anything else we know how to read
         assy = self.win.assy #k
-        from files_mmp import readmmp
+        from files.mmp.files_mmp import readmmp
         grouplist  = readmmp(assy, filename, isInsert=True)
         if not grouplist:
             raise Exception("Trouble with output file: " + filename)###@@@ predict NameError: Exception (good enough for now)

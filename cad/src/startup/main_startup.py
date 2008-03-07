@@ -273,7 +273,7 @@ def startup_script( main_globals):
             # fileOpen gracefully handles the case where the file doesn't exist.
             foo.fileOpen(sys.argv[2])
             if len(sys.argv) > 3:
-                import env
+                import foundation.env as env
                 from utilities.Log import orangemsg
                 env.history.message(orangemsg("We can only import one file at a time."))
 

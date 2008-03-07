@@ -19,7 +19,7 @@ from utilities import debug_flags
 def _DEBUG_REUSE_CHUNKS():
     return debug_flags.DEBUG_DNA_UPDATER_VERBOSE
 
-import env
+import foundation.env as env
 from utilities.Log import orangemsg, graymsg
 
 from elements import Singlet

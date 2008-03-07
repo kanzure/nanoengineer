@@ -19,19 +19,19 @@ from PyQt4.Qt import QRect
 from PyQt4.Qt import QSize
 from PyQt4.Qt import QApplication
 
-import env
-from Utility import SimpleCopyMixin, Node
+import foundation.env as env
+from foundation.Utility import SimpleCopyMixin, Node
 from icon_utilities import imagename_to_pixmap
-from povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
-from fileIO import writepovfile
+from graphics.rendering.povray.povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
+from graphics.rendering.fileIO import writepovfile
 from utilities.Log import redmsg, orangemsg, greenmsg, _graymsg
 from utilities import debug_flags
 from PlatformDependent import find_or_make_Nanorex_subdir
 from debug import print_compact_traceback
 
 import re
-from files_mmp_registration import MMP_RecordParser
-from files_mmp_registration import register_MMP_RecordParser
+from files.mmp.files_mmp_registration import MMP_RecordParser
+from files.mmp.files_mmp_registration import register_MMP_RecordParser
 
 POVNum = 0
 

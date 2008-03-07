@@ -9,7 +9,7 @@ fix_bond_directions.py - dna updater helper functions
 
 from elements import Singlet
 
-import env
+import foundation.env as env
 from utilities.Log import orangemsg
 from PlatformDependent import fix_plurals
 

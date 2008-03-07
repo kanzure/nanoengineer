@@ -18,7 +18,7 @@ import sys
 from PyQt4.Qt import QMessageBox
 
 from utilities.Log import redmsg, greenmsg, orangemsg
-import env
+import foundation.env as env
 from jigs import Anchor
 from jigs import Stat
 from jigs import Thermo

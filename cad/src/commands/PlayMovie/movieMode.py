@@ -24,8 +24,8 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QDialog, QGridLayout, QPushButton, QTextBrowser, SIGNAL, QCursor
 from PyQt4.Qt import QMessageBox, QString, QWidgetAction, QAction
 
-import env
-import changes
+import foundation.env as env
+import foundation.changes as changes
 
 from movie import find_saved_movie
 from command_support.modes import basicMode
@@ -172,7 +172,7 @@ class movieMode(basicMode):
         # We do this last, so as not to do it if there are exceptions in the rest of the method,
         # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
         # [bruce 060414; same thing done in some other modes]
-        import undo_manager
+        import foundation.undo_manager as undo_manager
         undo_manager.disable_undo_checkpoints('Movie Player')
         undo_manager.disable_UndoRedo('Movie Player', "in Movie Player") # optimizing this for shortness in menu text
             # this makes Undo menu commands and tooltips look like "Undo (not permitted in Movie Player)" (and similarly for Redo)
@@ -315,7 +315,7 @@ class movieMode(basicMode):
         # do it first to protect it from exceptions in the rest of this method
         # (since if it never happens, Undo/Redo won't work for the rest of the session)
         # [bruce 060414; same thing done in some other modes]
-        import undo_manager
+        import foundation.undo_manager as undo_manager
 
         undo_manager.reenable_undo_checkpoints('Movie Player')
         undo_manager.reenable_UndoRedo('Movie Player')

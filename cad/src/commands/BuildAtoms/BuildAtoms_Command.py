@@ -37,8 +37,8 @@ from PyQt4 import QtGui
 from PyQt4.Qt import QSize
 from PyQt4.Qt import SIGNAL
 
-import env
-import changes
+import foundation.env as env
+import foundation.changes as changes
 
 from icon_utilities import geticon
 

@@ -41,9 +41,9 @@ from dna.model.DnaSegment import DnaSegment
 from dna.temporary_commands.DnaLineMode import DnaLine_GM
 from TemporaryCommand import ESC_to_exit_GraphicsMode_preMixin
 
-from drawDnaRibbons import drawDnaRibbons
+from graphics.drawing.drawDnaRibbons import drawDnaRibbons
 
-import env
+import foundation.env as env
 from prefs_constants import bdnaBasesPerTurn_prefs_key
 
 import math

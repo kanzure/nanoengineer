@@ -32,7 +32,7 @@ from prefs_constants import Minimize_minimizationEngine_prefs_key
 from prefs_constants import electrostaticsForDnaDuringMinimize_prefs_key
 
 from debug import print_compact_traceback
-import env
+import foundation.env as env
 from utilities import debug_flags
 from UserPrefs import get_pref_or_optval
 from widgets.widget_helpers import double_fixup

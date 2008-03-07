@@ -559,7 +559,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro): # see also class World_dna_h
         return
 
     def on_release_bg(self):#070223 new hack
-        import env #FIX
+        import foundation.env as env #FIX
         if isinstance(self.newnode, polyline) and env.prefs.get(kluge_dragtool_state_prefs_key + "bla2", False):
             self.newnode._closed_state = True ####KLUGE, I'd rather say .closed but that won't work until I have OptionState
         return
@@ -582,7 +582,7 @@ def kluge_dragtool_state():
     # organized in std hierarchy but filtered for whether they are "in use". For now do this by hand, but later we'll want some way
     # to find out what's in use in that sense, and usage-tracking might be enough unless prefs get bundled into single tracked objs
     # of which then only some parts get used. We can probably avoid that well enough by convention.
-    import env
+    import foundation.env as env
     polyline = env.prefs.get(kluge_dragtool_state_prefs_key + "bla", False)#070223 new hack
     if polyline:
         return "polyline"

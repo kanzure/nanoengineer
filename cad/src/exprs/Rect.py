@@ -102,7 +102,7 @@ class Sphere(Widget2D): # the superclass is to give it a 2D lbox. We'll need to 
     btop = _self.radius
     bbottom = _self.radius
     def draw(self):
-        from drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
+        from graphics.drawing.drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
         drawsphere(self.fix_color(self.color), self.center, self.radius, self.detailLevel)
     pass
     
@@ -200,7 +200,7 @@ class Line(InstanceOrExpr): #070211; revised 070419 (Widget2D -> IorE, more opti
         end1, end2 = self.end1, self.end2
         width = self.width
         dashed = self.dashed
-        import drawer
+        import graphics.drawing.drawer as drawer
         drawer.drawline(color[:3], end1, end2, width = width, dashEnabled = dashed) ###k dashEnabled untested here
     pass
 

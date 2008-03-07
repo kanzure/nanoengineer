@@ -35,7 +35,7 @@ from constants import *
 from chem import *
 from jigs import *
 from Utility import *
-from Group import Group
+from foundation.Group import Group
 import sys, os, time
 from utilities import debug_flags
 from qt4transition import *

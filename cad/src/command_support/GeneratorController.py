@@ -15,7 +15,7 @@ However, until that happens, this file should remain in the source code
 so it can be maintained in trivial ways (imports, external method names).
 """
 
-import env
+import foundation.env as env
 
 from command_support.GeneratorBaseClass import GeneratorBaseClass
 

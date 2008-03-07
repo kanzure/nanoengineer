@@ -12,7 +12,7 @@ __author__ = "Mark"
 
 from PyQt4.Qt import SIGNAL, QDialog, QWhatsThis, QDialog
 from commands.PovraySceneProperties.PovrayScenePropDialog import Ui_PovrayScenePropDialog
-import env, os
+import foundation.env as env, os
 from utilities.Log import redmsg, greenmsg
 from GroupButtonMixin import GroupButtonMixin
 from Sponsors import SponsorableMixin

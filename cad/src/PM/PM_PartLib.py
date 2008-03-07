@@ -22,9 +22,9 @@ import os
 from utilities import debug_flags
 
 from constants      import diTUBES
-from ThumbView      import MMKitView
+from graphics.widgets.ThumbView import MMKitView
 from model.assembly import assembly
-from files_mmp      import readmmp
+from files.mmp.files_mmp import readmmp
 
 from PM.PM_GroupBox    import PM_GroupBox
 from PM.PM_TreeView    import PM_TreeView

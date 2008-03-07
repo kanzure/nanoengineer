@@ -29,14 +29,14 @@ from PyQt4.Qt import Qt
 from PyQt4.Qt import QMenu
 
 from geometry.VQT import V, Q, vlen, norm, planeXline, ptonline, cross
-import drawer
+import graphics.drawing.drawer as drawer
 
 from debug import print_compact_traceback
 
 from utilities import debug_flags
 
-import env
-from shape import get_selCurve_color
+import foundation.env as env
+from graphics.behaviors.shape import get_selCurve_color
 
 from constants import SELSHAPE_RECT
 from constants import yellow
@@ -48,8 +48,8 @@ from prefs_constants import displayPOVAxis_prefs_key
 
 from chem import Atom
 from bonds import Bond
-from Utility import Node
-from Group import Group
+from foundation.Utility import Node
+from foundation.Group import Group
 
 import time
 
@@ -241,7 +241,7 @@ class basicGraphicsMode(GraphicsMode_API):
         if not debug_pref("Enable confirmation corner?", Choice_boolean_True, prefs_key = True):
             return 
         # figure out what kind of confirmation corner we want, and draw it
-        import confirmation_corner
+        import graphics.behaviors.confirmation_corner as confirmation_corner
         cctype = self.command.want_confirmation_corner_type()
         self._ccinstance = confirmation_corner.find_or_make(cctype, self)
             # Notes:
@@ -980,7 +980,7 @@ class basicGraphicsMode(GraphicsMode_API):
         elif key == Qt.Key_F1:
             featurename = self.command.get_featurename()
             if featurename:
-                from wiki_help import open_wiki_help_dialog
+                from foundation.wiki_help import open_wiki_help_dialog
                 open_wiki_help_dialog( featurename)
             pass
         elif 0 and debug_flags.atom_debug:#bruce 051201 -- might be wrong depending on how subclasses call this, so disabled for now

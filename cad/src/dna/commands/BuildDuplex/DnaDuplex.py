@@ -12,7 +12,7 @@ Mark 2007-10-18:
 - Created. Major rewrite of DnaGenHelper.py.
 """
 
-import env
+import foundation.env as env
 import os
 import random
 
@@ -21,7 +21,7 @@ from math    import sin, cos, pi
 from debug import print_compact_traceback
 
 from PlatformDependent  import find_plugin_dir
-from files_mmp          import readmmp
+from files.mmp.files_mmp import readmmp
 from geometry.VQT import Q, V, angleBetween, cross, vlen
 from commands.Fuse.fusechunksMode import fusechunksBase
 from utilities.Log      import orangemsg

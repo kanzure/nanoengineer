@@ -27,8 +27,8 @@ on __xxx__ attrs in python objects.
 from geometry.VQT import Q
 from utilities.Log import redmsg
 from utilities import debug_flags
-from state_utils import IdentityCopyMixin
-import env
+from foundation.state_utils import IdentityCopyMixin
+import foundation.env as env
 
 from bond_constants import V_SINGLE, V_DOUBLE, V_TRIPLE, V_AROMATIC, V_GRAPHITE, V_CARBOMERIC
 

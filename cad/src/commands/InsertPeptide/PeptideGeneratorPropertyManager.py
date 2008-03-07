@@ -34,7 +34,7 @@ from PM.PM_TextEdit       import PM_TextEdit
 from debug import print_compact_traceback
 
 from utilities.Log import orangemsg, greenmsg, redmsg
-import env
+import foundation.env as env
 
 # list of button descriptors for PM_ToolButtonGrid
 

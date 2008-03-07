@@ -23,8 +23,8 @@ extrude_loop_debug = 0 # do not commit with 1, change back to 0
 
 import math
 from utilities import debug_flags
-import env
-import changes
+import foundation.env as env
+import foundation.changes as changes
 
 from Numeric import dot
 
@@ -62,13 +62,13 @@ from geometry.VQT import V, Q, norm, vlen, cross
 
 from commands.Extrude.ExtrudePropertyManager import ExtrudePropertyManager
 
-from drawer import drawline
+from graphics.drawing.drawer import drawline
 from chunk import Chunk
-from shape import get_selCurve_color
+from graphics.behaviors.shape import get_selCurve_color
 
-from handles import repunitHandleSet
-from handles import niceoffsetsHandleSet
-from handles import draggableHandle_HandleSet
+from graphics.drawables.handles import repunitHandleSet
+from graphics.drawables.handles import niceoffsetsHandleSet
+from graphics.drawables.handles import draggableHandle_HandleSet
 from constants import blue
 from constants import green
 
@@ -1074,7 +1074,7 @@ class extrudeMode(basicMode):
         # We do this last, so as not to do it if there are exceptions in the rest of the method,
         # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
         # [bruce 060414, to mitigate bug 1625; same thing done in some other modes]
-        import undo_manager
+        import foundation.undo_manager as undo_manager
         undo_manager.disable_undo_checkpoints('Extrude')
         undo_manager.disable_UndoRedo('Extrude', "during Extrude")
             # this makes Undo menu commands and tooltips look like "Undo (not permitted during Extrude)" (and similarly for Redo)
@@ -1319,7 +1319,7 @@ class extrudeMode(basicMode):
         # do it first to protect it from exceptions in the rest of this method
         # (since if it never happens, Undo/Redo won't work for the rest of the session)
         # [bruce 060414; same thing done in some other modes]
-        import undo_manager
+        import foundation.undo_manager as undo_manager
         undo_manager.reenable_undo_checkpoints('Extrude')
         undo_manager.reenable_UndoRedo('Extrude')
         self.set_cmdname('Extrude') # this covers all changes while we were in the mode
@@ -1768,7 +1768,7 @@ class extrudeMode(basicMode):
                 self.commandSequencer.mode_classes.remove(clas) # was: self.__class__
             except ValueError:
                 print "a mode class was not in _commandTable (normal if last reload of it had syntax error)"
-        import handles
+        import graphics.drawables.handles as handles
         reload(handles)
         import commands.Extrude.extrudeMode as _exm
         reload(_exm)

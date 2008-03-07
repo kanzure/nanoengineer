@@ -36,7 +36,7 @@ To access public attributes of elements, just use getElement()
 and then access the attribute directly.
 """
 
-from preferences import prefs_context
+from foundation.preferences import prefs_context
 
 from Elem import Elem
 

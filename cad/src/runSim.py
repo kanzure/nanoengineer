@@ -46,8 +46,8 @@ from PyQt4.Qt import QApplication, QCursor, Qt, QStringList
 from PyQt4.Qt import QProcess, QObject, QFileInfo, SIGNAL
 from movie import Movie
 from utilities.Log import redmsg, greenmsg, orangemsg, quote_html, _graymsg
-import env
-from env import seen_before
+import foundation.env as env
+from foundation.env import seen_before
 from geometry.VQT import A
 import re
 from chem import AtomDict
@@ -2895,7 +2895,7 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
          That means the validity hash is really made up now, not when we're made.]
         """
         ## do we need to do a part.assy.update_parts() as a precaution?? if so, have to do it earlier, not now.
-        from files_mmp_writing import writemmp_mapping
+        from files.mmp.files_mmp_writing import writemmp_mapping
         assy = self.part.assy
         fp = open(filename, "w")
         mapping = writemmp_mapping(assy, min = True)

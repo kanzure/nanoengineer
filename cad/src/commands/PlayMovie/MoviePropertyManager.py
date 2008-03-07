@@ -14,7 +14,7 @@ __author__  = "Ninad"
 from PyQt4 import QtCore, QtGui
 from commands.PlayMovie.Ui_MoviePropertyManager import Ui_MoviePropertyManager
 from PyQt4.Qt import Qt, SIGNAL, QFileDialog, QString, QMessageBox
-import os, env
+import os, foundation.env as env
 from utilities.Log import redmsg, greenmsg
 from constants import filesplit
 

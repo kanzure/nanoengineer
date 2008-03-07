@@ -20,7 +20,7 @@ from PM.PM_Colors import getPalette
 from PlatformDependent import make_history_filename
 from qt4transition import qt4todo
 from prefs_constants import displayReportsWidget_prefs_key
-import env
+import foundation.env as env
 
 class Ui_ReportsDockWidget(QDockWidget):
     """

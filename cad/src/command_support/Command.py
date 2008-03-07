@@ -36,8 +36,8 @@ from PlatformDependent import shift_name
 from PlatformDependent import control_name
 from PlatformDependent import context_menu_prefix
 
-import env
-from state_utils import StateMixin
+import foundation.env as env
+from foundation.state_utils import StateMixin
 
 from constants import noop, GLPANE_IS_COMMAND_SEQUENCER
 
@@ -597,7 +597,7 @@ class basicCommand(anyCommand):
             # [bruce comment 071009]
             ##print "fyi: basicCommand.setup_graphics_menu_specs sees isinstance(selobj, Jig)" # see if this can ever happen
             ##    # yes, this happened when I grabbed an RMotor's GLPane cmenu. [bruce 071025]
-            from wiki_help import wiki_help_menuspec_for_object
+            from foundation.wiki_help import wiki_help_menuspec_for_object
             ms = wiki_help_menuspec_for_object( self.o.selobj )
             if ms:
                 self.Menu_spec.append( None )
@@ -605,7 +605,7 @@ class basicCommand(anyCommand):
         else:
             featurename = self.get_featurename()
             if featurename:
-                from wiki_help import wiki_help_menuspec_for_featurename
+                from foundation.wiki_help import wiki_help_menuspec_for_featurename
                 ms = wiki_help_menuspec_for_featurename( featurename )
                 if ms:
                     self.Menu_spec.append( None ) # there's a bug in this separator, for cookiemode...

@@ -15,7 +15,7 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QDialog
 from PyQt4.Qt import QString
 
-import env
+import foundation.env as env
 
 from constants import filesplit
 from utilities.Log import redmsg, greenmsg, orangemsg

@@ -26,7 +26,7 @@ some methods in this file have become overdefined. This needs cleanup
 #-After making jig a superclass of ReferenceGeometry
 #some methods in this file have become overdefined. This needs cleanup.
 
-import env
+import foundation.env as env
 from utilities import debug_flags
 
 from debug import print_compact_traceback
@@ -36,10 +36,10 @@ from constants import darkgreen, orange, yellow
 from OpenGL.GL import glPushName
 from OpenGL.GL import glPopName
 
-from Utility import Node
+from foundation.Utility import Node
 from jigs    import Jig
 
-from DragHandler   import DragHandler_API
+from graphics.drawables.DragHandler import DragHandler_API
 from utilities.Log import greenmsg
 
 class ReferenceGeometry(Jig, DragHandler_API):

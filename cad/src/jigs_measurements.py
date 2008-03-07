@@ -26,15 +26,15 @@ import sys
 import Numeric
 from Numeric import dot
 
-import env
+import foundation.env as env
 
 from geometry.VQT import V, norm, cross, vlen, angleBetween
-from Utility import Node
+from foundation.Utility import Node
 from utilities.Log import redmsg, greenmsg, orangemsg
 from debug import print_compact_stack, print_compact_traceback
 from jigs import Jig
-from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
-from drawer import drawtext
+from graphics.drawing.dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
+from graphics.drawing.drawer import drawtext
 
 from constants import black
 from prefs_constants import dynamicToolTipAtomDistancePrecision_prefs_key

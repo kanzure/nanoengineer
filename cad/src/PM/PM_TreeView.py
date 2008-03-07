@@ -19,7 +19,7 @@ from PyQt4.Qt import QDirModel
 from PyQt4.Qt import Qt
 
 import os
-import env
+import foundation.env as env
 import sys
 
 from utilities.Log import redmsg

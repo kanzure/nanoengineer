@@ -34,7 +34,7 @@ import Ui_RenderingToolBar
 
 from StatusBar import StatusBar
 
-import env
+import foundation.env as env
 
 class Ui_MainWindow(object):
     """
@@ -110,7 +110,7 @@ class Ui_MainWindow(object):
         # be created before this line. [If this is not possible, we'll need to 
         # split out some functions within this one which can be called
         # later on individual QActions and/or QWidgets. bruce 060319]
-        from whatsthis_utilities import fix_whatsthis_text_and_links
+        from foundation.whatsthis_utilities import fix_whatsthis_text_and_links
         fix_whatsthis_text_and_links(self, refix_later = (self.editMenu,)) 
             # (main call) Fixes bug 1136.  Mark 051126.
             # [bruce 060319 added refix_later as part of fixing bug 1421]

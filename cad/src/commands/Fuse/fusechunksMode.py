@@ -11,11 +11,11 @@ from PyQt4.Qt import SIGNAL
 from PyQt4.Qt import QWidgetAction
 from PyQt4.Qt import QAction
 
-import env
-import changes
+import foundation.env as env
+import foundation.changes as changes
 
 from geometry.VQT import vlen
-from drawer import drawline
+from graphics.drawing.drawer import drawline
 from elements import Singlet
 from commands.Move.modifyMode import modifyMode
 from bonds import bond_at_singlets
@@ -23,7 +23,7 @@ from utilities.Log import redmsg, orangemsg
 from PlatformDependent import fix_plurals
 from commands.Fuse.FusePropertyManager import FusePropertyManager
 from icon_utilities import geticon
-from shape import get_selCurve_color
+from graphics.behaviors.shape import get_selCurve_color
 
 from constants import green
 from constants import magenta
