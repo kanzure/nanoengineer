@@ -1061,7 +1061,27 @@ def createWhatsThisTextForMainWindowWidgets(win):
         "</p>"
 
     win.selectContractAction.setWhatsThis(selectContractActionText )
+    
+    # Selection Lock
 
+    selectionLockActionText = \
+        "<u><b>Selection Lock</b></u>    "\
+        "(Ctrl + L)"\
+        "<p>"\
+        "<img source=\"ui/actions/Tools/Select/Selection_Unlocked.png\">"\
+        " (off) "\
+        "<img source=\"ui/actions/Tools/Select/Selection_Locked.png\">"\
+        " (on)<br> "\
+        "Toggles the mouse <i>Selection Lock</i> on and off. </p>"\
+        "<p>"\
+        "When enabled, selection operations using the mouse (i.e. clicks and "\
+        "drags) are disabled in the 3D graphics area. All other selection "\
+        "commands available via toolbars, menus, the model tree and keyboard "\
+        "shortcuts are not affected when the Selection Lock is turned on."\
+        "</p>"
+
+    win.selectLockAction.setWhatsThis(selectionLockActionText)
+    
     #
     # Modify Toolbar
     #
