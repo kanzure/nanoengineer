@@ -74,7 +74,7 @@ def whatsThis_PeptideGeneratorPropertyManager(propMgr):
     """
     "Whats This" text for widgets in the Peptide Generator Property Manager.
     """
-    pass
+    return
 
 def whatsThis_NanotubeGeneratorPropertyManager(propMgr):
     """

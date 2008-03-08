@@ -159,7 +159,7 @@ def ToolTip_PeptideGeneratorPropertyManager(propMgr):
     """
     "ToolTip" text for the Peptide Generator Property Manager
     """
-    pass
+    return
 
 def ToolTip_BuildAtomsPropertyManager(propMgr):
     """
