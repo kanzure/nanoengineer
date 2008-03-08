@@ -510,20 +510,20 @@ AMINO_ACIDS = [
 
 # degrees to radians conversion
 DEG2RAD = (pi/180.0) 
-             
+
 def enablePeptideGenerator(enable):
     """
     This function enables/disables the Peptide Generator command by hiding or 
     showing it in the Command Manager toolbar and menu.
     The enabling/disabling is done by the user via the "secret" NE1 debugging
     menu. 
-    
+
     To display the secret debugging menu, hold down Shift+Ctrl+Alt keys 
     (or Shift+Cmd+Alt on Mac) and right click over the graphics area. 
     Select "debug prefs submenu > Peptide Generator" and 
     set the value to True. The "Peptide" option will then appear on the
     "Build" Command Manager toolbar/menu.
-    
+
     @param enable: If true, the Peptide Generator is enabled. Specifically, it
                    will be added to the "Build" Command Manager toolbar and
                    menu.
@@ -542,209 +542,209 @@ class PeptideGenerator(PeptideGeneratorPropertyManager, GeneratorBaseClass):
     # Generators for DNA, peptides, nanotubes and graphene have their MT name generated 
     # (in GeneratorBaseClass) from the prefix.
     create_name_from_prefix = True 
-    
+
     # Peptide sponsor keywords
     sponsor_keyword = ('Peptides', 'Proteins')
-    
+
     def __init__(self, win):
-	self.coords = zeros([30,3], Float)		
-	self.prev_coords = zeros([3,3], Float)
-	
-	self.peptide_mol = None
-	self.length = 0
-	self.prev_psi = 0
-	
-	PeptideGeneratorPropertyManager.__init__(self)
+        self.coords = zeros([30,3], Float)		
+        self.prev_coords = zeros([3,3], Float)
+
+        self.peptide_mol = None
+        self.length = 0
+        self.prev_psi = 0
+
+        PeptideGeneratorPropertyManager.__init__(self)
         GeneratorBaseClass.__init__(self, win)
 
     def gather_parameters(self):
         """
         Return all the parameters from the Property Manager dialog.
         """        
-	
-	return (self.length)
+
+        return (self.length)
 
     def _buildResiduum(self, mol, zmatrix, n_atoms, phi, psi):
-	"""
+        """
 	Builds cartesian coordinates for an amino acid from the internal coordinates table.
 	mol is a chunk to where the amino acid will be added. 
-	
+
 	zmatrix is an internal coordinates array corresponding to a given amino acid.
 	n_atoms is a number of atoms to be build + 3 dummy atoms.
 	phi is a peptide bond PHI angle.
 	psi is a peptide bond PSI angle.
-	
+
 	Note: currently, it doesn't rebuild bonds, so inferBonds has to be called after.
 	Unfortunately, the bond order is not correctly recognized this way.
 	"""
-	
-	if mol==None:
-	    return
-	
-	if self.prev_coords: # assign three previous atom positions
-	    for i in range (0,3):
-		self.coords[i][0] = self.prev_coords[i][0]
-		self.coords[i][1] = self.prev_coords[i][1]
-		self.coords[i][2] = self.prev_coords[i][2]
-	else: # if no prev_coords are given, compute the first three atom positions
-	    num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[1]
-	    self.coords[1][0] = r;
-	    self.coords[1][1] = 0.0;
-	    self.coords[1][2] = 0.0;
-	    ccos = cos(DEG2RAD*a)
-	    num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[2]
-	    if mc==1: 
-		self.coords[2][0] = self.coords[0][0]+r*ccos
-	    else:
-		self.coords[2][0] = self.coords[0][0]-r*ccos					
-	    self.coords[2][1] = r * sin(DEG2RAD*a)
-	    self.coords[2][2] = 0.0
-    
-	for n in range (3, n_atoms): # generate all coordinates using three atoms 
-	                             # as a frame of reference
-	    num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[n]
-	    cosa = cos(DEG2RAD*a)
-	    xb = self.coords[atom_b][0]-self.coords[atom_c][0]
-	    yb = self.coords[atom_b][1]-self.coords[atom_c][1]
-	    zb = self.coords[atom_b][2]-self.coords[atom_c][2]
-	    rbc = 1.0/sqrt(xb*xb+yb*yb+zb*zb)
-	    if abs(cosa)>=0.999: # almost linear bond
-		rbc = r*rbc*cosa
-		self.coords[n][0] = self.coords[atom_c][0]+xb*rbc
-		self.coords[n][1] = self.coords[atom_c][1]+yb*rbc
-		self.coords[n][2] = self.coords[atom_c][2]+zb*rbc
-	    else:
-		xa = self.coords[atom_a][0]-self.coords[atom_c][0]
-		ya = self.coords[atom_a][1]-self.coords[atom_c][1]
-		za = self.coords[atom_a][2]-self.coords[atom_c][2]
-		xyb = sqrt(xb*xb+yb*yb)
-		inv = False
-		if xyb<=0.001:
-		    xpa = za
-		    za = -xa
-		    xa = xpa
-		    xpb = zb
-		    zb = -xb
-		    xb = xpb
-		    xyb = sqrt(xb*xb+yb*yb)
-		    inv = True
-		costh = xb/xyb
-		sinth = yb/xyb
-		xpa = xa*costh+ya*sinth
-		ypa = ya*costh-xa*sinth
-		sinph = zb*rbc
-		cosph = sqrt(abs(1.0-sinph*sinph))
-		xqa = xpa*cosph+za*sinph
-		zqa = za*cosph-xpa*sinph      
-		yza = sqrt(ypa*ypa+zqa*zqa)
-		if yza<1e-8:
-		    coskh = 1.0
-		    sinkh = 0.0
-		else:
-		    coskh = ypa/yza
-		    sinkh = zqa/yza				
-		# apply the peptide bond conformation 
-		if name=="N  ":
-		    t = self.prev_psi
-		if name=="O  ":
-		    t = psi+180.0
-		if name=="HA " or name=="HA2": 
-		    t = 120.0+phi
-		if name=="CB " or name=="HA3": 
-		    t = 240.0+phi
-		if name=="C  ": 
-		    t = phi
-		sina = sin(DEG2RAD*a)
-		sind = -sin(DEG2RAD*t)
-		cosd = cos(DEG2RAD*t)
-		xd = r*cosa
-		yd = r*sina*cosd
-		zd = r*sina*sind     
-		ypd = yd * coskh - zd * sinkh
-		zpd = zd * coskh + yd * sinkh
-		xpd = xd * cosph - zpd * sinph
-		zqd = zpd * cosph + xd * sinph
-		xqd = xpd * costh - ypd * sinth
-		yqd = ypd * costh + xpd * sinth
-		if inv: 
-		    xrd = -zqd
-		    zqd = xqd
-		    xqd = xrd
-		self.coords[n][0] = xqd+self.coords[atom_c][0]
-		self.coords[n][1] = yqd+self.coords[atom_c][1]
-		self.coords[n][2] = zqd+self.coords[atom_c][2]
-		# store previous coordinates for the next building step
-		if name=="N  ":
-		    self.prev_coords[0][0] = self.coords[n][0]
-		    self.prev_coords[0][1] = self.coords[n][1]
-		    self.prev_coords[0][2] = self.coords[n][2]
-		if name=="CA ":
-		    self.prev_coords[1][0] = self.coords[n][0]
-		    self.prev_coords[1][1] = self.coords[n][1]
-		    self.prev_coords[1][2] = self.coords[n][2]
-		if name=="C  ":
-		    self.prev_coords[2][0] = self.coords[n][0]
-		    self.prev_coords[2][1] = self.coords[n][1]
-		    self.prev_coords[2][2] = self.coords[n][2]
-		# add a new atom to the molecule	
-		atom = Atom(atom_name, V(self.coords[n][0], self.coords[n][1], self.coords[n][2]), mol)    
-		atom.set_atomtype_but_dont_revise_singlets(atom_type)
-		if name=="CA ": # set c-alpha flag for visualization
-		    atom.is_calpha = True
-		else:
-		    atom.is_calpha = False
 
-		# debug - output in PDB format	
-		# print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, coords[n][0], coords[n][1], coords[n][2])	
-	
-	self.prev_psi = self.psi # remember previous psi angle
-	self.length += 1 # increase amino acid counter
-	
-	return        
-        
+        if mol==None:
+            return
+
+        if self.prev_coords: # assign three previous atom positions
+            for i in range (0,3):
+                self.coords[i][0] = self.prev_coords[i][0]
+                self.coords[i][1] = self.prev_coords[i][1]
+                self.coords[i][2] = self.prev_coords[i][2]
+        else: # if no prev_coords are given, compute the first three atom positions
+            num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[1]
+            self.coords[1][0] = r;
+            self.coords[1][1] = 0.0;
+            self.coords[1][2] = 0.0;
+            ccos = cos(DEG2RAD*a)
+            num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[2]
+            if mc==1: 
+                self.coords[2][0] = self.coords[0][0]+r*ccos
+            else:
+                self.coords[2][0] = self.coords[0][0]-r*ccos					
+            self.coords[2][1] = r * sin(DEG2RAD*a)
+            self.coords[2][2] = 0.0
+
+        for n in range (3, n_atoms): # generate all coordinates using three atoms 
+                                        # as a frame of reference
+            num, name, atom_name, atom_type, atom_c, atom_b, atom_a, r, a, t = zmatrix[n]
+            cosa = cos(DEG2RAD*a)
+            xb = self.coords[atom_b][0]-self.coords[atom_c][0]
+            yb = self.coords[atom_b][1]-self.coords[atom_c][1]
+            zb = self.coords[atom_b][2]-self.coords[atom_c][2]
+            rbc = 1.0/sqrt(xb*xb+yb*yb+zb*zb)
+            if abs(cosa)>=0.999: # almost linear bond
+                rbc = r*rbc*cosa
+                self.coords[n][0] = self.coords[atom_c][0]+xb*rbc
+                self.coords[n][1] = self.coords[atom_c][1]+yb*rbc
+                self.coords[n][2] = self.coords[atom_c][2]+zb*rbc
+            else:
+                xa = self.coords[atom_a][0]-self.coords[atom_c][0]
+                ya = self.coords[atom_a][1]-self.coords[atom_c][1]
+                za = self.coords[atom_a][2]-self.coords[atom_c][2]
+                xyb = sqrt(xb*xb+yb*yb)
+                inv = False
+                if xyb<=0.001:
+                    xpa = za
+                    za = -xa
+                    xa = xpa
+                    xpb = zb
+                    zb = -xb
+                    xb = xpb
+                    xyb = sqrt(xb*xb+yb*yb)
+                    inv = True
+                costh = xb/xyb
+                sinth = yb/xyb
+                xpa = xa*costh+ya*sinth
+                ypa = ya*costh-xa*sinth
+                sinph = zb*rbc
+                cosph = sqrt(abs(1.0-sinph*sinph))
+                xqa = xpa*cosph+za*sinph
+                zqa = za*cosph-xpa*sinph      
+                yza = sqrt(ypa*ypa+zqa*zqa)
+                if yza<1e-8:
+                    coskh = 1.0
+                    sinkh = 0.0
+                else:
+                    coskh = ypa/yza
+                    sinkh = zqa/yza				
+                # apply the peptide bond conformation 
+                if name=="N  ":
+                    t = self.prev_psi
+                if name=="O  ":
+                    t = psi+180.0
+                if name=="HA " or name=="HA2": 
+                    t = 120.0+phi
+                if name=="CB " or name=="HA3": 
+                    t = 240.0+phi
+                if name=="C  ": 
+                    t = phi
+                sina = sin(DEG2RAD*a)
+                sind = -sin(DEG2RAD*t)
+                cosd = cos(DEG2RAD*t)
+                xd = r*cosa
+                yd = r*sina*cosd
+                zd = r*sina*sind     
+                ypd = yd * coskh - zd * sinkh
+                zpd = zd * coskh + yd * sinkh
+                xpd = xd * cosph - zpd * sinph
+                zqd = zpd * cosph + xd * sinph
+                xqd = xpd * costh - ypd * sinth
+                yqd = ypd * costh + xpd * sinth
+                if inv: 
+                    xrd = -zqd
+                    zqd = xqd
+                    xqd = xrd
+                self.coords[n][0] = xqd+self.coords[atom_c][0]
+                self.coords[n][1] = yqd+self.coords[atom_c][1]
+                self.coords[n][2] = zqd+self.coords[atom_c][2]
+                # store previous coordinates for the next building step
+                if name=="N  ":
+                    self.prev_coords[0][0] = self.coords[n][0]
+                    self.prev_coords[0][1] = self.coords[n][1]
+                    self.prev_coords[0][2] = self.coords[n][2]
+                if name=="CA ":
+                    self.prev_coords[1][0] = self.coords[n][0]
+                    self.prev_coords[1][1] = self.coords[n][1]
+                    self.prev_coords[1][2] = self.coords[n][2]
+                if name=="C  ":
+                    self.prev_coords[2][0] = self.coords[n][0]
+                    self.prev_coords[2][1] = self.coords[n][1]
+                    self.prev_coords[2][2] = self.coords[n][2]
+                # add a new atom to the molecule	
+                atom = Atom(atom_name, V(self.coords[n][0], self.coords[n][1], self.coords[n][2]), mol)    
+                atom.set_atomtype_but_dont_revise_singlets(atom_type)
+                if name=="CA ": # set c-alpha flag for visualization
+                    atom.is_calpha = True
+                else:
+                    atom.is_calpha = False
+
+                # debug - output in PDB format	
+                # print "ATOM  %5d  %-3s %3s %c%4d    %8.3f%8.3f%8.3f" % ( n, name, "ALA", ' ', res_num, coords[n][0], coords[n][1], coords[n][2])	
+
+        self.prev_psi = self.psi # remember previous psi angle
+        self.length += 1 # increase amino acid counter
+
+        return        
+
     def build_struct(self, name, params, position, mol=None, createPrinted=False):
         """
         Build a peptide from a sequence entered through the Property Manager dialog.
         """
-	
-	# create a molecule	
-	mol = Chunk(self.win.assy,name)
-	
-	# generate dummy atom positions
-	# starting approximately at <position>
-	
-	self.prev_coords[0][0] = position[0]-2.0
-	self.prev_coords[0][1] = position[1]
-	self.prev_coords[0][2] = position[2]
-	
-	self.prev_coords[1][0] = position[0]-1.5
-	self.prev_coords[1][1] = position[1]+1.5
-	self.prev_coords[1][2] = position[2]
-	
-	self.prev_coords[2][0] = position[0]
-	self.prev_coords[2][1] = position[1]
-	self.prev_coords[2][2] = position[2]
-	
-	# generate the chain
-	self.length = 1	
-	for index, phi, psi in self.peptide_cache:
-	    name, short_name, symbol, zmatrix, size = AMINO_ACIDS[index]
-	    self._buildResiduum(mol, zmatrix, size, phi, psi)
-	    	
-	# Compute bonds. This should be replaced by a proper bond assignment. 
-	inferBonds(mol)
-	
+
+        # create a molecule	
+        mol = Chunk(self.win.assy,name)
+
+        # generate dummy atom positions
+        # starting approximately at <position>
+
+        self.prev_coords[0][0] = position[0]-2.0
+        self.prev_coords[0][1] = position[1]
+        self.prev_coords[0][2] = position[2]
+
+        self.prev_coords[1][0] = position[0]-1.5
+        self.prev_coords[1][1] = position[1]+1.5
+        self.prev_coords[1][2] = position[2]
+
+        self.prev_coords[2][0] = position[0]
+        self.prev_coords[2][1] = position[1]
+        self.prev_coords[2][2] = position[2]
+
+        # generate the chain
+        self.length = 1	
+        for index, phi, psi in self.peptide_cache:
+            name, short_name, symbol, zmatrix, size = AMINO_ACIDS[index]
+            self._buildResiduum(mol, zmatrix, size, phi, psi)
+
+        # Compute bonds. This should be replaced by a proper bond assignment. 
+        inferBonds(mol)
+
         return mol
 
     def addAminoAcid(self, index):        
-	"""
+        """
 	Adds a new amino acid to the peptide molecule.
 	This is going to be displayed after user accepts or previews the structure.
 	"""
-	
-	# add a new amino acid and chain conformation to the peptide cache
-	self.peptide_cache.append((index,self.phi,self.psi))
-	
-	return
-    
+
+        # add a new amino acid and chain conformation to the peptide cache
+        self.peptide_cache.append((index,self.phi,self.psi))
+
+        return
+
 # end

@@ -73,7 +73,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
     pmName = title
     # The relative path to PNG file that appears in the header.
     iconPath = "ui/actions/Tools/Build Structures/Peptide.png"
-    
+
     def __init__(self):
         """Construct the Peptide Property Manager.
         """
@@ -84,20 +84,20 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         self.psi = -47.0 
         self.ss_idx = 0
         self.peptide_cache = []
-            
+
         self.updateMessageGroupBox()
-                
+
     def updateMessageGroupBox(self):
         msg = ""
 
         msg = msg + "Click on <b>Amino Acid</b> buttons to add a new residuum to the \
-        polypeptide chain. Click <b>Done</b> to insert it into the model."
-        
+            polypeptide chain. Click <b>Done</b> to insert it into the model."
+
         # This causes the "Message" box to be displayed as well.
         # setAsDefault=True causes this message to be reset whenever
         # this PropMgr is (re)displayed via show(). Mark 2007-06-01.
         self.MessageGroupBox.insertHtmlMessage(msg, setAsDefault=True)
-        
+
     def _addGroupBoxes(self):
         """
         Add the group boxe to the Peptide Property Manager dialog.
@@ -105,7 +105,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         self.pmGroupBox1 = \
             PM_GroupBox( self, 
                          title          = "Peptide Parameters" )
-        
+
         # Add group box widgets.
         self._loadGroupBox1(self.pmGroupBox1)
 
@@ -113,7 +113,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         """
         Load widgets in the group box.
         """
-        
+
         memberChoices = ["Alpha helix", "Pi helix", "3_10 helix", "Beta strand"]
         self.aaTypeComboBox= \
             PM_ComboBox( inPmGroupBox,
@@ -126,7 +126,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         self.connect( self.aaTypeComboBox,
                       SIGNAL("currentIndexChanged(int)"),
                       self._aaTypeChanged)
- 
+
         self.aaTypesButtonGroup = \
             PM_ToolButtonGrid( inPmGroupBox, 
                                buttonList = AA_BUTTON_LIST,
@@ -137,12 +137,12 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         self.connect( self.aaTypesButtonGroup.buttonGroup,
                       SIGNAL("buttonClicked(int)"),
                       self._setAminoAcidType)
-        
+
         self.sequenceEditor = \
             PM_TextEdit( inPmGroupBox, 
                          label      = "",
                          spanWidth = True )
-                         
+
         self.sequenceEditor.insertHtml("Sequence:<br>", False, 4, 10, True)
 
         self.startOverButton = \
@@ -162,14 +162,14 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         """
         from gui.WhatsThisText_for_PropertyManagers import whatsThis_PeptideGeneratorPropertyManager
         whatsThis_PeptideGeneratorPropertyManager(self)
-        
+
     def _addToolTipText(self):
         """
         Tool Tip text for widgets in this Property Manager.  
         """
         from gui.ToolTipText_for_PropertyManagers import ToolTip_PeptideGeneratorPropertyManager
         ToolTip_PeptideGeneratorPropertyManager(self)
-        
+
     def _aaTypeChanged(self, idx):
         """
         Slot for Peptide Structure Type combobox.
@@ -188,7 +188,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         else: # beta strand
             self.phi = 180.0
             self.psi = 170.0
- 
+
     def _setAminoAcidType(self, aaTypeIndex):
         """
         Adds a new amino acid to the peptide molecule.
@@ -196,7 +196,7 @@ class PeptideGeneratorPropertyManager(PM_Dialog):
         button, idx, short_name, dum, name, symbol, x, y = AA_BUTTON_LIST[aaTypeIndex]
         self.sequenceEditor.insertHtml(symbol, False, 4, 10, False)
         self.addAminoAcid(aaTypeIndex)
-        
+
     def _startOverClicked(self):
         """
         Resets a sequence in the sequence editor window.
