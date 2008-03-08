@@ -66,11 +66,17 @@ def update_PAM_chunks( changed_atoms):
     #  direction, since the new chain is not yet constructed, but they record
     #  private info to help them do that later.)
 
-    homeless_markers = _f_get_homeless_dna_markers() #e rename; pull in the ones touched by changed_atoms @@@
+    homeless_markers = _f_get_homeless_dna_markers() #e rename
+        # this includes markers whose atoms got killed (which calls marker.remove_atom)
+        # or got changed in structure (which calls marker.changed_structure)
+        # so it should not be necessary to also add to this all markers noticed
+        # on changed_atoms, even though that might include more markers than
+        # we have so far (if we already added atoms from invalid ladders -- not
+        #  sure if we did that yet ###CHECK).
     
     live_markers = []
     for marker in homeless_markers:
-        still_alive = marker._f_move_to_live_atom_step1() #e rename, doc (also fix @@@) --
+        still_alive = marker._f_move_to_live_atompair_step1() #e rename, doc (also fix @@@) --
             # this step moves them, later steps (nim now @@@) update their direction & wholechain
             # move (if possible), and record info (old neighbor atoms?)
             # for later use in determining new baseindex direction advice
@@ -167,7 +173,7 @@ def update_PAM_chunks( changed_atoms):
 ##            new_chain_info[atom.key] = info
 ##
 ##    for marker in live_markers:
-##        still_alive = marker._f_move_to_live_atom_step2(new_chain_info)
+##        still_alive = marker._f_move_to_live_atompair_step2(new_chain_info)
 ##            # Note: this also comes up with direction advice for the new chain,
 ##            # stored in the marker and based on the direction of its new atoms
 ##            # in its old chain (if enough of them remain adjacent, currently 2);

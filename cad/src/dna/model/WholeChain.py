@@ -1,7 +1,8 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
 WholeChain.py - a complete chain or ring of PAM atoms, made of one or more
-smaller chains (or 1 smaller ring), with refs to markers and a strand or segment
+smaller chains (or 1 smaller ring) often known as rails (short for ladder rails,
+referring to DnaLadder), with refs to markers and a strand or segment
 
 @author: Bruce
 @version: $Id$
@@ -19,16 +20,17 @@ from debug import print_compact_traceback
 
 class WholeChain(object):
     """
-    A WholeChain knows a sequence of 1 or more smaller chains
+    A WholeChain knows a sequence of 1 or more rails, i.e. smaller chains
     (of DNA PAM atoms) which are linked into a single longer chain or ring
     (or which were so linked when it was constructed).
-    (If it's not a ring, then it must be a maximal chain,
-    i.e. not able to be extended with more atoms at the ends,
+    
+    (If it's not a ring, then it is required to be a maximal chain,
+    i.e. to not be able to be extended with more atoms at the ends,
     at the time it's constructed.)
 
-    It is immutable once constructed, as are its smaller chains.
+    It is immutable once constructed, as are its rails.
     Modifications to the underlying chaining from which it and its
-    smaller chains are derived result in its becoming invalid
+    rails are derived result in its becoming invalid
     (in various ways needed by different users of it)
     and (for some of those users) replaced by one or more newly
     constructed wholechains.
@@ -73,7 +75,7 @@ class WholeChain(object):
     - When things change (i.e. when user operations make wholechains invalid),
     and the dna updater runs again (always before the next undo checkpoint
     takes its snapshot of the model state), the dna updater
-    (and methods in the markers and chains) decide how to maintain this
+    (and methods in the markers and wholechains) decide how to maintain this
     association (wholechain -> controlling marker -> owning strand or segment)
     based on how the controlling marker moves and whether it stays / stops being
     / becomes controlling. (The wholechain chooses
@@ -115,11 +117,10 @@ class WholeChain(object):
         @param dict_of_rails: maps id(rail) -> rail for all rails in wholechain
         """
         assert dict_of_rails, "a WholeChain can't be empty"
-##            # needed for self._arbitrary_chunk
         self._dict_of_rails = dict_of_rails
 
-##        chunk = None # for self._arbitrary_chunk; modified during loop
-        markers = {} # collects markers from all our atoms during loop, maps them to (rail, baseindex)
+        markers = {} # collects markers from all our atoms during loop, maps them to (rail, baseindex) for their marked_atom
+        markers_2 = {} # same, but for their next_atom (will let us compute their direction & do a sanity check)
         num_bases = 0
         end0_baseatoms = self._end0_baseatoms = {} # end0 atom key -> rail (aka chain)
         end1_baseatoms = self._end1_baseatoms = {}
@@ -137,18 +138,43 @@ class WholeChain(object):
                         marker = jig
                         assert not marker.killed(), "marker %r is killed" % ( marker, )
                             # might fail if they're not yet all in the model @@@
-                        # cache the set of these on the rail? might matter when lots of old rails.
-                        # does it matter which of its atoms we are? Not if we remove duplicates...
-                        markers[marker] = (rail, baseindex)
+                            # someday: possible optim: cache the set of markers on each rail
+                            # (and maintain it as markers move)?
+                            # might matter when lots of old rails.
+                        if marker.marked_atom is atom:
+                            markers[marker] = (rail, baseindex)
+                        if marker.next_atom is atom: # not elif, can be same atom
+                            markers_2[marker] = (rail, baseindex)
             continue
 
         self._num_bases = num_bases # used only for debug (eg repr) so far, but later will help with base indexing
-        
-##        self._arbitrary_chunk = chunk
-##        assert self._arbitrary_chunk
 
-        self._all_markers = markers # maps markers to (rail, baseindex)
+        # todo: for safety, make these not be asserts, just prints ##### DOIT
+        ###BUG predicted if we fail to treat as homeless markers whose atoms change structure
+        # since if we break bond between their atoms we need to kill or move them even though atoms did not die.
+        for marker in markers.iterkeys():
+            assert marker in markers_2 # and assert the two indices are nearby, or they're on ends of different rails
+        assert len(markers) == len(markers_2)
+
+        self._all_markers = {}
+        
+        for marker, (rail, index) in markers.iteritems():
+            rail2, index2 = markers_2[marker]
+            if rail is rail2:
+                direction = index2 - index
+                if not direction:
+                    assert num_bases == 1
+                    direction = 1 # arbitrary
+                assert direction in (-1, 1)
+            # better than the following: just use rail.neighbor_baseatoms and look for atom2 ###TODO
+            elif index == 0:
+                direction = -1 # might be WRONG if len(rail) == 1! need to check neighbor_baseatoms as said above ###BUG
+            else:
+                direction = 1
+            
+            self._all_markers[marker] = PositionInWholeChain(self, rail, index, direction)
             # revised from just being a list of markers, 080306
+            continue
         
         return # from __init__
 
@@ -160,35 +186,41 @@ class WholeChain(object):
         self._all_markers = ()
         self._controlling_marker = None
         self._strand_or_segment = None # review: need to tell it to forget us, too? @@@
-        for chain in self.chains():
-            chunk = chain.baseatoms[0].molecule
-##            chain.destroy() # IMPLEM @@@@ [also, goodness is partly a guess]
+        for rail in self.rails():
+            chunk = rail.baseatoms[0].molecule
+##            rail.destroy() # IMPLEM @@@@ [also, goodness is partly a guess]
             if hasattr(chunk, 'forget_wholechain'): # KLUGE
                 chunk.forget_wholechain(self)
             continue
         self._dict_of_rails = {}
         return
     
-    def chains(self):
+    def rails(self):
         """
-        Return our chains, IN ARBITRARY ORDER (that might be revised)
+        Return all our rails, IN ARBITRARY ORDER (that might be revised)
         """
         return self._dict_of_rails.values()
 
-    def end_chains(self): # bruce 080212
+    def end_rails(self): # bruce 080212; rename?
         """
-        Return a list of those of our chains which have ends.
-        (asserted to be length 0 or 1 or 2; length 1 is possible
-        if we are a 1-chain ring.)
+        Return a list of those of our rails which have end_atoms of self
+        as a whole.
+
+        @note: if we are a ring, this list will have length 0.
+               if we are a length-1 wholechain, it will have length 1.
+               if we are a longer wholechain, it will have length 1 or 2,
+               depending on whether we're made of one rail or more.
+               (We assert that the length is 0 or 1 or 2.)
         """
-        res = [chain for chain in self.chains() if chain.at_wholechain_end()]
+        res = [rail for rail in self.rails() if rail.at_wholechain_end()]
         assert len(res) <= 2
         return res
 
     def end_baseatoms(self):
         """
-        Return a list of our end_baseatoms, based on chain.neighbor_baseatoms
-        for each of our chains (set by dna updater, not always valid during it).
+        Return a list of our end_baseatoms, based on rail.neighbor_baseatoms
+        (used via rail.wholechain_end_baseatoms())
+        for each of our rails (set by dna updater, not always valid during it).
 
         @note: result is asserted length 0 or 2; will be 0 if we are a ring
         or 2 if we are a chain.
@@ -196,9 +228,9 @@ class WholeChain(object):
         @note: Intended for use by user ops between dna updater runs.
         """
         res = []
-        for chain in self.end_chains():
-            res.extend(chain.wholechain_end_baseatoms())
-        assert len(res) in (0,2), "impossible set of %r.end_baseatoms(): %r" % \
+        for rail in self.end_rails():
+            res.extend(rail.wholechain_end_baseatoms())
+        assert len(res) in (0, 2), "impossible set of %r.end_baseatoms(): %r" % \
                (self, res)
         return res
         
@@ -223,11 +255,11 @@ class WholeChain(object):
         (But don't move them in the model tree, not even the newly made ones.)
         
         Also cache whatever base-indexing info is needed
-        (in self, our rails/chains/chunks, and/or their atoms).
+        (in self, our rails/chunks, and/or their atoms).
         [As of 080116 this part is not yet needed or done.]
         """
         self._controlling_marker = self._choose_or_make_controlling_marker()
-        for (marker, (rail, baseindex)) in self._all_markers.items(): # can't be iteritems!
+        for (marker, position_holder) in self._all_markers.items(): # can't be iteritems!
 ##            print "debug loop: %r.own_marker %r" % (self, marker)
             controllingQ = (marker is self._controlling_marker)
             ## assert not marker.killed(), \
@@ -243,7 +275,7 @@ class WholeChain(object):
                 #  and unable to tell us, since nothing happens in caller to kill them)
                 self._f_marker_killed(marker) #k guess 080222
                 continue
-            marker.set_wholechain(self, rail, baseindex, controlling = controllingQ)
+            marker.set_wholechain(self, position_holder, controlling = controllingQ)
                 # own it; tell it whether controlling (some might die then,
                 # and if so they'll call self._f_marker_killed
                 # which removes them from self._all_markers)
@@ -305,7 +337,7 @@ class WholeChain(object):
     def _choose_or_make_controlling_marker(self):
         """
         [private]
-        Choose one of our markers to control this chain, or make a new one
+        Choose one of our markers to control this wholechain, or make a new one
         (at a good position on one of our atoms) to do that.
         Return it, but don't save it anywhere (caller must do that).
         """
@@ -364,19 +396,19 @@ class WholeChain(object):
         We do that because the callers really need every wholechain to have one.
         """
         # improvements, 080222: should pick end atom with lowest .key, but to be easier and work for rings,
-        # might pick end atom of any chain with lowest key (over all chains). Also this is best for segments
+        # might pick end atom of any rail with lowest key (over all rails). Also this is best for segments
         # and also ok for strands but maybe not best for strands (who should look at Ax atoms in same basepairs,
         # but note, these can be same for different strand atoms!).
 
         end_atoms = self.end_baseatoms() # should find 2 atoms unless we're a ring
         if not end_atoms:
-            # we're a ring - just consider all end atoms of all our chains
-            # (don't bother not including some twice for length-1 chains,
+            # we're a ring - just consider all end atoms of all our rails
+            # (don't bother not including some twice for length-1 rails,
             #  no need in following code)
             end_atoms = []
-            for chain in self.chains():
-                end_atoms.append( chain.baseatoms[0] )
-                end_atoms.append( chain.baseatoms[-1] )
+            for rail in self.rails():
+                end_atoms.append( rail.baseatoms[0] )
+                end_atoms.append( rail.baseatoms[-1] )
             pass
         assert end_atoms
 
@@ -388,26 +420,41 @@ class WholeChain(object):
         
         # now pick the best next_atom
 
-        chain, index = self._find_end_atom_chain_and_index( atom)
+        rail, index, direction_into_chain = self._find_end_atom_chain_and_index( atom)
             # Q. is index for end1 positive or -1?
-            # A. positive (or 0 for length-1 chain), but following code doesn't care.
-            # Q. does best next_atom come from same chain if possible?
+            # A. positive (or 0 for length-1 rail), but following code doesn't care.
+            # Q. does best next_atom come from same rail if possible?
             # A. (guess yes, doing that for now)
-        direction_into_chain = index and -1 or 1
+        ## direction_into_chain = index and -1 or 1
         
-        if len(chain.baseatoms) > 1:
-            next_atom = chain.baseatoms[index + direction_into_chain]
-        elif chain.neighbor_baseatoms[LADDER_END1]: # ignore index and direction_into_chain
-            next_atom = chain.neighbor_baseatoms[LADDER_END1]
-        elif chain.neighbor_baseatoms[LADDER_END0]:
-            next_atom = chain.neighbor_baseatoms[LADDER_END0] # reverse direction!
+        if len(rail.baseatoms) > 1:
+            next_atom = rail.baseatoms[index + direction_into_chain]
+            position = (rail, index, direction_into_chain)
+        elif rail.neighbor_baseatoms[LADDER_END1]: # ignore index and direction_into_chain
+            next_atom = rail.neighbor_baseatoms[LADDER_END1]
+            # direction within rail is 1, not necessarily same as direction within next_atom's rail
+            position = (rail, index, 1)
+        elif rail.neighbor_baseatoms[LADDER_END0]:
+            next_atom = rail.neighbor_baseatoms[LADDER_END0] # reverse direction!
             atom, next_atom = next_atom, atom
+            # direction within rail is -1, but we need the direction within the next rail!
+            rail2, index2, dir2junk = self._find_end_atom_chain_and_index(next_atom)
+            # if rail2 is len 1, dir2 and index2 are useless for finding
+            # direction2 (direction in next rail), so always do this:
+            if atom is rail2.neighbor_baseatoms[LADDER_END1]:
+                direction2 = 1
+            else:
+                assert atom is rail2.neighbor_baseatoms[LADDER_END0]
+                direction2 = -1
+            position = rail2, index2, direction2
         else:
             # a 1-atom wholechain, hmm ...
             # DnaMarker support for this added 080216, not fully tested
             # (note that a 1-atom wholechain *ring* is not possible,
             #  but if it was it'd be handled by the above if/else cases)
             next_atom = atom
+            direction = 1 # arbitrary, but needs to be in (-1, 1)
+            position = (rail, index, direction)
 
         # now make the marker on those atoms
         # (todo: in future, we might give it some user settings too)
@@ -436,53 +483,124 @@ class WholeChain(object):
             # (overkill in runtime, but should be correct, since both marker's
             #  atoms should be in the same group)
         
-        # and remember it's on our atoms, and where
-
-        try:
-            rail, baseindex = self._find_end_atom_chain_and_index( atom) # 080306
-                # could be optimized due to how we found atom above,
-                # but not trivially (rail can be the chain found above
-                # or either of its adjacent chains)
-        except KeyError:
-            # should never happen, due to how we found atom and when we might
-            # swap it with next_atom above
-            print "following exception relates to:", atom, next_atom, chain, index, self
-            raise
-        
-        self._append_marker(marker, rail, baseindex)
+        # and remember it's on our atoms, and where on them it is
+        self._append_marker(marker, *position)
         
         return marker
 
-    def _append_marker(self, marker, rail, baseindex): # 080306
+    def _append_marker(self, marker, rail, baseindex, direction): # 080306
         assert not marker in self._all_markers
-        self._all_markers[marker] = (rail, baseindex)
+        self._all_markers[marker] = PositionInWholeChain(self, rail, baseindex, direction)
         return
     
     def _find_end_atom_chain_and_index(self, atom):
+        # REVIEW: rename chain -> rail, in this method name? (and all local vars in file)
         """
-        Assume atom is an end_baseatom of one of our chains (aka rails).
+        Assume atom is an end_baseatom of one of our rails (aka chains).
         (If not true, raise KeyError.)
-        Find that chain and its index in it, and return them as (chain, index).
+        Find that rail and atom's index in it, and return them as
+        the tuple (rail, index_in_rail, direction_into_rail).
         The index is nonnegative, meaning that we use 0 for
-        either end of a length-1 chain (there is no distinction
+        either end of a length-1 rail (there is no distinction
         between the ends in that case).
         """
+        key = atom.key
         try:
-            chain = self._end0_baseatoms[atom.key]
-            return chain, 0
+            rail = self._end0_baseatoms[key]
+            return rail, 0, 1
         except KeyError:
-            chain = self._end1_baseatoms[atom.key]
-                # raise KeyError if atom is not an end_atom of any of our chains
-            return chain, len(chain) - 1
+            rail = self._end1_baseatoms[key]
+                # raise KeyError if atom is not an end_atom of any of our rails
+            return rail, len(rail) - 1, -1
         pass
         
     # todo: methods related to base indexing
 
     # todo: methods to help move markers, derived from or related to
-    # _f_move_to_live_atom_step1 and _step2 in dna_updater_chunks.py
+    # _f_move_to_live_atompair_step1 and _step2 in dna_updater_chunks.py
     
+    def yield_rail_index_direction_counter(self, pos, counter = 0, countby = 1): # in class WholeChain
+        """
+        #doc
+        @note: the first position we yield is always the one passed, with counter at its initial value
+        """
+        # possible optim: option to skip (most) killed atoms, and optimize that
+        # to notice entire dead rails (noticeable when their chunks get killed)
+        # and pass them in a single step. We might still need to yield the
+        # final repeat of starting pos.
+        rail, index, direction = pos
+        # assert one of our rails, valid index in it
+        assert direction in (-1, 1)
+        while 1:
+            # yield, move, adjust, check, continue
+            yield rail, index, direction, counter
+            # move
+            counter += countby
+            index += direction
+            # adjust
+            def jump_off(end):
+                neighbor_atom = rail.neighbor_baseatoms[end]
+                # neighbor_atom might be None, atom, or -1 if not yet set
+                assert neighbor_atom != -1
+                if neighbor_atom is None:
+                    rail = None # outer code will return due to this, ending the generated sequence
+                    index, direction = None, None # illegal values (to detect bugs in outer code)
+                else:
+                    rail, index, direction = self._find_end_atom_chain_and_index(neighbor_atom)
+                    assert rail
+                return rail, index, direction
+            if index < 0:
+                # jump off END0 of this rail
+                rail, index, direction = jump_off(LADDER_END0)
+            elif index >= len(rail):
+                # jump off END1 of this rail
+                rail, index, direction = jump_off(LADDER_END1)
+            else:
+                pass
+            # check
+            if not rail:
+                return
+            assert 0 <= index < len(rail)
+            assert direction in (-1, 1)
+            if (rail, index, direction) == pos:
+                # we wrapped around a ring to our starting position.
+                # (or, someday, to another limit pos passed by caller?)
+                # yield it one more time, as a signal that we're a ring, and
+                # to help with algorithms looking at every pair of successive
+                # positions; then return.
+                yield rail, index, direction, counter
+                return
+            continue
+        assert 0 # not reached
+        pass
+
     pass # end of class WholeChain
 
+# ==
+
+class PositionInWholeChain(object):
+    """
+    A mutable position (and direction) along a WholeChain.
+    """
+    def __init__(self, wholechain, rail, index, direction):
+        self.wholechain = wholechain
+        self.set_position(rail, index, direction)
+
+    def set_position(self, rail, index, direction):
+        self.rail = rail
+        self.index = index # base index in current rail
+        self.direction = direction # in current rail only
+            # note: our direction in each rail is unrelated
+        self.pos = (rail, index, direction)
+        return
+        
+    def yield_rail_index_direction_counter(self, **options): # in class PositionInWholeChain
+        return self.wholechain.yield_rail_index_direction_counter( self.pos, **options )
+
+    #e also, method to scan in both directions, etc
+
+    pass
+    
 # ==
 
 class Axis_WholeChain(WholeChain):
@@ -510,6 +628,5 @@ def new_Group_around_Node(node, group_class): #e refile, might use in other ways
     node.addsibling(group)
     group.addchild(node)
     return group
-
     
 # end

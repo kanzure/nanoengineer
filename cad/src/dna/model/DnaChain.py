@@ -423,6 +423,9 @@ class DnaChain(object):
         """
         Return a list of whichever end baseatoms of our wholechain
         we have (as end baseatoms of self). (Length will be 0 to 2.)
+
+        Only correct if self.neighbor_baseatoms has already been set.
+        AssertionError if it hasn't.
         """
         next1, next2 = self.neighbor_baseatoms
         assert next1 != -1

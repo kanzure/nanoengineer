@@ -69,11 +69,11 @@ def assert_unique_wholechain_baseatoms(wholechains, when = ""):
         when = " (%s)" % when
     baseatom_info = {} # maps atom.key to (wholechain, chain)
     for wholechain in wholechains:
-        for chain in wholechain.chains():
+        for chain in wholechain.rails():
             for atom in chain.baseatoms:
                 loc_info = (wholechain, chain)
                 assert atom.key not in baseatom_info, \
-                       "baseatom %r in two chains%s; loc info: %r and %r" % \
+                       "baseatom %r in two rails%s; loc info: %r and %r" % \
                        (atom, when, baseatom_info[atom.key], loc_info)
                 baseatom_info[atom.key] = loc_info
     return

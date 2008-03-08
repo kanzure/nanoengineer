@@ -1,6 +1,7 @@
 # Copyright 2008 Nanorex, Inc.  See LICENSE file for details. 
 """
-BaseIterator.py - stub, not yet used
+BaseIterator.py - stub, not yet used -- probably superseded by
+class PositionInWholeChain in WholeChain.py, being written now.
 
 @author: Bruce
 @version: $Id$
@@ -57,6 +58,13 @@ class BaseIterator(object):
         ## assert isinstance(self._rail, self._rail_class) # IMPLEM self._rail_class (strandQ affects it)
         pass # nim @@@
     def move_to_next_base(self, delta = 1): # rename to move?
+
+        assert 0 ### LOGIC BUG [noticed much later, 080307]:
+                # our index direction of motion can differ on each rail.
+                # this code treats it as always 1.
+                # This code probably superseded by class PositionInWholeChain
+                # in WholeChain.py being written now.
+
         self.whichbase += delta
             # do we need all, some, or none of self._update_after_changing_init_args()
             # if we only change whichbase? guess for now: none, except the following loop conds.

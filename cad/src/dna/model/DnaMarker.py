@@ -162,9 +162,9 @@ class DnaMarker( ChainAtomMarker):
 
     wholechain = None
 
-    _rail = None # 080306
-
-    _baseindex = None # 080306
+    _position_holder = None # mutable object which records our position
+        # in self.wholechain, should be updated when we move
+        # [080307, replacing _rail and _baseindex from 080306]
 
     controlling = _CONTROLLING_IS_UNKNOWN
 
@@ -249,7 +249,7 @@ class DnaMarker( ChainAtomMarker):
     def wants_to_be_controlling(self):
         return self._wants_to_be_controlling
     
-    def set_wholechain(self, wholechain, rail, baseindex, controlling = _CONTROLLING_IS_UNKNOWN):
+    def set_wholechain(self, wholechain, position_holder, controlling = _CONTROLLING_IS_UNKNOWN):
         """
         [to be called by dna updater]
         @param wholechain: a new WholeChain which owns us (not None)
@@ -257,14 +257,12 @@ class DnaMarker( ChainAtomMarker):
         # rail, baseindex args added 080306
         assert wholechain
         self.wholechain = wholechain
-        self._rail = rail
-        self._baseindex = baseindex
+        self._position_holder = position_holder
         self.set_whether_controlling(controlling) # might kill self
 
     def _clear_wholechain(self): # 080306
         self.wholechain = None
-        self._rail = None
-        self._baseindex = None
+        self._position_holder = None
         self.controlling = _CONTROLLING_IS_UNKNOWN # 080306; never kills self [review: is that ok?]
         return
     
@@ -485,7 +483,7 @@ class DnaMarker( ChainAtomMarker):
             self.kill() # in future, might depend more on user-settable properties and/or on subclass
         return
     
-    def _f_move_to_live_atom_step1(self): #e todo: split docstring; ### FIX/REVIEW/REFILE/REPLACE - move into WholeChain or smallchain? @@@
+    def _f_move_to_live_atompair_step1(self): #e todo: split docstring; ### FIX/REVIEW/REFILE/REPLACE - move into WholeChain or smallchain? @@@
         """
         [friend method, called from dna_updater]
         Our atom died; see if there is a live atom on our old wholechain which we want to move to;
@@ -513,22 +511,111 @@ class DnaMarker( ChainAtomMarker):
             # was an assert, but now I worry that some code plops us onto that list
             # for other reasons so this might not always be true, so make it safe
             # and find out (ie debug print) [bruce 080306]
-            print "bug or ok?? not %r.is_homeless() in _f_move_to_live_atom_step1" % self
+            print "bug or ok?? not %r.is_homeless() in _f_move_to_live_atompair_step1" % self
 
         old_wholechain = self.wholechain
         if not old_wholechain:
-            print "bug? no wholechain in %r._f_move_to_live_atom_step1(); dying" % self
+            print "bug? no wholechain in %r._f_move_to_live_atompair_step1(); dying" % self
             self.kill()
             return False
 
 
 
 
-        if 'SAFETY STUB 080306': # @@@@@@@ turn this on here so my code runs again for the night
+        if 'SAFETY STUB 080307': # @@@@@@@ turn this on here so my code runs again for the night
             if debug_flags.DEBUG_DNA_UPDATER:
                 print "kill %r since move step1 is nim" % self ##### @@@@
             self.kill()
             return False
+
+
+
+        old_atom1 = self.marked_atom
+        old_atom2 = self.next_atom # might be at next higher or next lower index, or be the same
+
+        if not old_atom1.killed() and not old_atom2.killed():
+            # No need to move (note, these atoms might be the same)
+            # but (if they are not the same) we don't know if they are still
+            # bonded so as to be adjacent in the new wholechain. I don't yet know
+            # if that will be checked in step1 or step2.
+            # Also, if we return True, we may need to record what self needs to do in step2.
+            # And we may want all returns to have a uniform debug print.
+            # So -- call a common submethod to do whatever needs doing when we find the
+            # atom pair we might move to.
+            return _move_step1_might_move_to(old_atom1, old_atom2)
+
+        # We need to move (or die). Find where to move to if we can.
+
+        if old_atom1 is old_atom2:
+            # We don't know which way to scan, and more importantly,
+            # either this means the wholechain has length 1 or there's a bug.
+            # So don't try to move in this case.
+            if len(old_wholechain) != 1:
+                print "bug? marker %r has only one atom but its wholechain %r is length %d (not 1)" % \
+                      (self, len(old_wholechain))
+            assert old_atom1.killed() # checked by prior code
+            if debug_flags.DEBUG_DNA_UPDATER:
+                print "kill %r since we can't move a 1-atom marker" % self
+            self.kill()
+            return False
+
+        # Slide this pair of atoms along the wholechain
+        # (using the pair to define a direction of sliding and the relative
+        #  index of the slide) until we find two adjacent unkilled atoms (if such exist).
+
+        ### TODO @@@@@@@ rewrite in terms of old_wholechain.yield_rail_index_direction_counter
+        # or self._position_holder.yield_rail_index_direction_counter,
+        # then pass new position, not atoms, to _move_step1_might_move_to
+        
+        foundit = False
+        for atom1, atom2, relindex in old_wholechain.scan_atom_pairs(old_atom1, old_atom2,
+                                                            ### IMPLEM; remember each rail can be rev or not
+                                                                     ### LOGIC BUG, we need to pass in the index of atom too
+                                                                     # (and maybe of the other atom? no, guess unambig)
+                                                           norepeat = True,
+                                                           include_this_pair_at_start = False, # could be True, doesn't matter
+                                                           forward_then_backward_for_chain = True):
+            if not atom1.killed() and not atom2.killed():
+                # we found the only place we'll consider moving to.
+                foundit = True
+                break
+            continue
+
+        if not foundit:
+            if debug_flags.DEBUG_DNA_UPDATER:
+                print "kill %r since we can't find a place to move to" % self
+            self.kill()
+            return False
+
+        return _move_step1_might_move_to(atom1, atom2, relindex)
+
+    def _move_step1_might_move_to(self, atom1, atom2, relindex):
+        """
+        """
+        # The atom pair we might move to is (atom1, atom2), at the relative
+        # index relindex from the index of self.marked_atom (in the direction
+        # from that to self.next_atom). (This is in terms of
+        # the implicit index direction in which atom2 comes after atom1, regardless
+        # of internal wholechain indices, if those even exist. If we had passed
+        # norepeat = False and old_wholechain was a ring, this might be
+        # larger than its length as we wrapped around the ring indefinitely.) ## move some to docstring of method used in caller
+        
+        # We'll move to this new atom pair if they are adjacent in a new chain
+        # found later (and consistent in bond direction if applicable? not sure).
+        #
+        # We can probably figure out whether they're adjacent right now, but for
+        # now let's try waiting for the new chain and deciding then if we're
+        # still ok. (Maybe we won't even have to -- maybe we could do it lazily
+        # in set_whether_controlling, only checking this if we want to stay alive
+        # once we know whether we're controlling. [review])
+
+        ### ISSUE: if we move, we want to tell wholechain and/or self where we moved to!
+        # since we are assuming we always know, in terms of a rail, index, and (ideally but NIM) direction within rail.
+        # maybe we pass that info, not an atom pair, to wholechain, to do the scan? #### DECIDE #@@@@@@@@@@
+
+        # maybe we want a helper class for a "position within a WholeChain" and we own that and can
+        # scan it along, and the wholechain can own it for us too, in its dict? it has rail, index, direction. YES,
+        # this would be useful.
 
 
 
@@ -539,8 +626,7 @@ class DnaMarker( ChainAtomMarker):
         # let's make the wholechain tell us this in set_wholechain.
         # (we could also ask it to look us up, since it has a dict to map us to that info,
         #  but this works just as well. I might still decide that way is cleaner or better ##review.)
-        old_rail = self._rail
-        old_baseindex = self._baseindex
+        old_position_holder = self._position_holder
 
         # now ask the wholechain to let us iterate over rails and their atoms,
         # and look for a live atom, stopping if we get back to self (if it's a ring),
@@ -679,7 +765,7 @@ class DnaMarker( ChainAtomMarker):
             self.kill()
         return didit
     
-    def _f_move_to_live_atom_step2(self, new_chain_info): #e todo: split docstring ### FIX/REVIEW/REFILE/REPLACE @@@
+    def _f_move_to_live_atompair_step2(self, new_chain_info): #e todo: split docstring ### FIX/REVIEW/REFILE/REPLACE @@@
         """
         [friend method, called from dna_updater]
         Our atom died; see if there is a live atom on our old chain which we want to move to;
