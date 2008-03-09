@@ -4,7 +4,9 @@
 #define PREFERENCESDIALOG_H
 
 #include <QObject>
+#include <QFileDialog>
 
+#include "UserSettings.h"
 #include "ui_PreferencesDialog.h"
 
 class PreferencesDialog : public QDialog, private Ui_PreferencesDialog {
@@ -13,6 +15,14 @@ class PreferencesDialog : public QDialog, private Ui_PreferencesDialog {
 	public:
 		PreferencesDialog(QWidget *parent = 0);
 		~PreferencesDialog();
+		
+	public slots:
+		void accept();
+		
+	private slots:
+		void logToFileCheckBoxChanged(int state);
+		void logToConsoleCheckBoxChanged(int state);
+		void fileLogBrowseButtonClicked(bool checked);
 };
 
 #endif

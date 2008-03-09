@@ -4,6 +4,7 @@
 #define MAIN_H
 
 #include <QtGui>
+#include <QSettings>
 #include <QMainWindow>
 
 #include "Nanorex/Utility/NXLogger.h"
@@ -12,6 +13,7 @@
 using namespace Nanorex;
 
 #include "nv1.h"
+#include "UserSettings.h"
 
 
 /* CLASS: SplashScreen */

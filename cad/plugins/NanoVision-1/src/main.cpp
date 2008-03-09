@@ -16,8 +16,7 @@ int main(int argc, char *argv[]) {
  	//splash->show();
 
 	// Get user settings
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-					   "Nanorex", "NanoVision-1");
+	UserSettings* settings = UserSettings::Instance();
 
 	// Start logger
 	//
@@ -27,21 +26,24 @@ int main(int argc, char *argv[]) {
 	NXLogger* logger = new NXLogger();
 	
 	// Console logging
-	if (settings.value("Logging/EnableConsoleLogging", true).toBool()) {
+	if (settings->value("Logging/EnableConsoleLogging", true).toBool()) {
 		logLevel =
-			settings.value("Logging/ConsoleLoggingLevel",
+			settings->value("Logging/ConsoleLoggingLevel",
 						   NXLogLevel_Config).toInt();
 		logger->addHandler(new NXConsoleLogHandler((NXLogLevel)logLevel));
 	}
 	
 	// File logging
-	if (settings.value("Logging/EnableFileLogging", true).toBool()) {
+	if (settings->value("Logging/EnableFileLogging", true).toBool()) {
 		logLevel =
-			settings.value("Logging/FileLoggingLevel",
+			settings->value("Logging/FileLoggingLevel",
 						   NXLogLevel_Config).toInt();
-		QString logFilename = settings.fileName();
+		QString logFilename = settings->fileName();
 		logFilename.chop(3);
 		logFilename.append("log");
+		logFilename =
+			settings->value("Logging/FileLoggingFilename", logFilename)
+				.toString();
 		NXFileLogHandler* logHandler =
 			new NXFileLogHandler(qPrintable(logFilename), (NXLogLevel)logLevel);
 		logger->addHandler(logHandler);
@@ -61,15 +63,15 @@ int main(int argc, char *argv[]) {
 	NXProperties* properties = new NXProperties();
 	
 	QString pluginsSearchPath =
-		settings.value("Miscellaneous/PluginsSearchPath").toString();
+		settings->value("Miscellaneous/PluginsSearchPath").toString();
 	properties->setProperty("PluginsSearchPath", qPrintable(pluginsSearchPath));
-	settings.beginGroup("NXEntityManager");
-	QStringList keys = settings.allKeys();
+	settings->beginGroup("NXEntityManager");
+	QStringList keys = settings->allKeys();
 	QStringList::const_iterator iter;
 	for (iter = keys.constBegin(); iter != keys.constEnd(); iter++)
 		properties->setProperty(qPrintable(*iter),
-								qPrintable(settings.value(*iter).toString()));
-	settings.endGroup();
+								qPrintable(settings->value(*iter).toString()));
+	settings->endGroup();
 	NXEntityManager* entityManager = new NXEntityManager();
 	entityManager->loadDataImportExportPlugins(properties);
 	delete properties;

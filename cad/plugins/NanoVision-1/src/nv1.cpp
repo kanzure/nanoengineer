@@ -342,10 +342,13 @@ void nv1::createStatusBar() {
 
 /* FUNCTION: readSettings */
 void nv1::readSettings() {
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                       "Nanorex", "NanoVision-1");
-    QPoint pos = settings.value("Layout/Position", QPoint(200, 200)).toPoint();
-    QSize size = settings.value("Layout/Size", QSize(400, 400)).toSize();
+
+    QPoint pos =
+		UserSettings::Instance()->value("Layout/Position",
+										QPoint(200, 200)).toPoint();
+    QSize size =
+		UserSettings::Instance()->value("Layout/Size",
+										QSize(400, 400)).toSize();
     resize(size);
     move(pos);
 }
@@ -353,10 +356,11 @@ void nv1::readSettings() {
 
 /* FUNCTION: writeSettings */
 void nv1::writeSettings() {
-    QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                       "Nanorex", "NanoVision-1");
-    settings.setValue("Layout/Position", pos());
-    settings.setValue("Layout/Size", size());
+	if (UserSettings::Instance()->value("Miscellaneous/SaveWindowSizeOnExit")
+			.toBool()) {
+		UserSettings::Instance()->setValue("Layout/Position", pos());
+		UserSettings::Instance()->setValue("Layout/Size", size());
+	}
 }
 
 
@@ -375,9 +379,7 @@ void nv1::addMonitoredJob(const QString& processType, const QString& id,
             this, SLOT(abortJob(const QString&)));
     
 	// Write job details to a file for later resumption of monitoring
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-					   "Nanorex", "NanoVision-1");
-	QFileInfo fileInfo(settings.fileName());
+	QFileInfo fileInfo(UserSettings::Instance()->fileName());
 	QDir dir(fileInfo.absolutePath().append("/Jobs"));
 	if (!dir.exists()) {
 		dir.cdUp();
@@ -439,9 +441,7 @@ void nv1::checkForActiveJobs(string& filename, string& processType,
 							 string& processInit, bool notify) {
 
 	// Get a list of active jobs
-	QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-					   "Nanorex", "NanoVision-1");
-	QFileInfo fileInfo(settings.fileName());
+	QFileInfo fileInfo(UserSettings::Instance()->fileName());
 	QDir dir(fileInfo.absolutePath().append("/Jobs"));
 	if (!dir.exists()) {
 		dir.cdUp();

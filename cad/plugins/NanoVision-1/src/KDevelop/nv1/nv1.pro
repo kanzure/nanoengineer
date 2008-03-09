@@ -34,7 +34,8 @@ SOURCES += ../../DataWindow.cpp \
  ../../InputParametersWindow.cpp \
  ../../ResultsSummaryWindow.cpp \
  ../../JobSelectorDialog.cpp \
- ../../PreferencesDialog.cpp
+ ../../PreferencesDialog.cpp \
+ ../../UserSettings.cpp
 
 HEADERS += ../../DataWindow.h \
 ../../LogHandlerWidget.h \
@@ -50,7 +51,8 @@ HEADERS += ../../DataWindow.h \
  ../../InputParametersWindow.h \
  ../../ResultsSummaryWindow.h \
  ../../JobSelectorDialog.h \
- ../../PreferencesDialog.h
+ ../../PreferencesDialog.h \
+ ../../UserSettings.h
 
 FORMS += ../../LogHandlerWidget.ui \
 ../../MainWindowTabWidget.ui \
