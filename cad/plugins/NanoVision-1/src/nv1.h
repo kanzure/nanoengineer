@@ -45,6 +45,7 @@ public slots:
 	void addMonitoredJob(const QString& processType, const QString& id,
 						 const QString& title);
 	void removeMonitoredJob(const QString& id);
+	void raiseLogDockWidget();
 
 private slots:
 	void open();
@@ -56,16 +57,19 @@ private slots:
 							string& processInit, bool notify = false);
 	void openActiveJobs();
 	void showPreferences();
+	void toggleLogWindow();
 
 private:
 	NXEntityManager* entityManager;
 	
 	QToolBar* fileToolBar;
+	QDockWidget* logDockWidget;
 
 	MainWindowTabWidget* mainWindowTabs;
 	ResultsWindow* resultsWindow;
 	
 	QMenu* fileMenu;
+	QMenu* viewMenu;
 	QMenu* toolsMenu;
 	QMenu* jobsMenu;
 	QMenu* windowMenu;
@@ -75,6 +79,9 @@ private:
 	QAction* openAction;
     QAction* closeAction;
     QAction* exitAction;
+	
+	// View
+	QAction* logWindowAction;
 	
 	// Tools
 	//

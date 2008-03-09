@@ -29,10 +29,12 @@ nv1::nv1(NXEntityManager* entityManager, LogHandlerWidget* logHandlerWidget)
     readSettings();
     
     // Setup log dock widget
-    QDockWidget* dock = new QDockWidget(tr("Log"), this);
-    dock->setAllowedAreas(Qt::BottomDockWidgetArea);
-    dock->setWidget(logHandlerWidget);
-    addDockWidget(Qt::BottomDockWidgetArea, dock);
+    logDockWidget = new QDockWidget(tr("Log"), this);
+    logDockWidget->setAllowedAreas(Qt::BottomDockWidgetArea);
+    logDockWidget->setWidget(logHandlerWidget);
+    addDockWidget(Qt::BottomDockWidgetArea, logDockWidget);
+	connect(logHandlerWidget, SIGNAL(raiseWidget()),
+			this, SLOT(raiseLogDockWidget()));
     
     fileName.clear();
 }
@@ -239,6 +241,14 @@ void nv1::createActions() {
     exitAction->setStatusTip(tr("Exit NanoVision-1"));
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
     
+	// View
+	logWindowAction = new QAction(tr("Show log window"), this);
+	logWindowAction->setStatusTip(tr("Toggle the log window on and off"));
+	logWindowAction->setCheckable(true);
+	logWindowAction->setChecked(true);
+	connect(logWindowAction, SIGNAL(triggered()),
+			this, SLOT(toggleLogWindow()));
+	
 	// Tools
 	//
 	// Job Management
@@ -308,6 +318,9 @@ void nv1::createMenus() {
     fileMenu->addSeparator();
     fileMenu->addAction(exitAction);
     
+	viewMenu = menuBar()->addMenu(tr("&View"));
+	viewMenu->addAction(logWindowAction);
+	
     toolsMenu = menuBar()->addMenu(tr("&Tools"));
 		jobsMenu = toolsMenu->addMenu("Job Management");
 		jobsMenu->addAction(openJobsAction);
@@ -413,6 +426,13 @@ void nv1::removeMonitoredJob(const QString& id) {
 }
 
 
+/* FUNCTION: raiseLogDockWidget */
+void nv1::raiseLogDockWidget() {
+	logDockWidget->setVisible(true);
+	logWindowAction->setChecked(true);
+}
+
+
 /* FUNCTION: abortJob */
 void nv1::abortJob(const QString& id) {
     jobMonitors[id]->abortJob();
@@ -513,3 +533,8 @@ void nv1::showPreferences() {
 	}
 }
 
+
+/* FUNCTION: toggleLogWindow */
+void nv1::toggleLogWindow() {
+	logDockWidget->setVisible(logWindowAction->isChecked());
+}

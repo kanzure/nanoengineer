@@ -1,10 +1,18 @@
 <ui version="4.0" >
  <class>LogHandlerWidget</class>
  <widget class="QWidget" name="LogHandlerWidget" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>98</width>
+    <height>98</height>
+   </rect>
+  </property>
   <property name="windowTitle" >
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" >
+  <layout class="QVBoxLayout" >
    <property name="margin" >
     <number>9</number>
    </property>
@@ -13,9 +21,23 @@
    </property>
    <item>
     <widget class="QTextEdit" name="textEdit" >
+     <property name="sizePolicy" >
+      <sizepolicy>
+       <hsizetype>7</hsizetype>
+       <vsizetype>7</vsizetype>
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize" >
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="font" >
       <font>
-       <pointsize>8</pointsize>
+       <pointsize>13</pointsize>
       </font>
      </property>
      <property name="readOnly" >

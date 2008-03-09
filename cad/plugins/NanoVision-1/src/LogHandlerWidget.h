@@ -19,14 +19,17 @@ class LogHandlerWidget : public QWidget, public NXLogHandler,
 						 private Ui_LogHandlerWidget {
 	Q_OBJECT
 	
-public:
-	LogHandlerWidget(NXLogLevel logLevel, QWidget* parent = 0);
-	~LogHandlerWidget() { }
+	public:
+		LogHandlerWidget(NXLogLevel logLevel, QWidget* parent = 0);
+		~LogHandlerWidget() { }
+			
+		void publish(LogRecord logRecord);
+	
+	signals:
+		void raiseWidget();
 		
-	void publish(LogRecord logRecord);
-
-private:
-	QMutex mutex;
+	private:
+		QMutex mutex;
 };
 
 #endif
