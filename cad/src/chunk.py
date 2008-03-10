@@ -2741,7 +2741,16 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
             return
         # all the following must be ok for an already-killed Chunk!
         self._prekill() #bruce 060327, needed here even though _superclass.kill might do it too
-        self.unpick() #bruce 050214 comment: keep doing this here even though _superclass.kill now does it too
+        ## self.unpick()
+            #bruce 050214 comment [superseded, see below]: keep doing unpick
+            # here, even though _superclass.kill now does it too.
+            #update, bruce 080310: doing this here looks like a bug if self.dad
+            # is selected but not being killed -- a situation that never arises
+            # from a user op of "kill selection", but that might happen when the
+            # dna updater kills a chunk, e.g. due to merging it. So, don't do it
+            # here. Superclass method avoids the issue by doing it only after
+            # self.dad becomes None. If this doesn't work, we'll need to define
+            # and call here self._unpick_during_kill rather than just self.kill.
         for b in self.externs[:]: #bruce 050214 copy list as a precaution
             b.bust()
         self.externs = [] #bruce 041029 precaution against repeated kills
@@ -2750,7 +2759,9 @@ class Chunk(NodeWithAtomContents, InvalMixin, SelfUsageTrackingMixin, SubUsageTr
         #  attaching the jig . Huaicai
         for a in self.atoms.values():
             a.kill()
-            # this will recursively kill this chunk! Should be ok,
+            # WARNING: this will recursively kill self (when its last atom is
+            # killed as this loop ends, or perhaps earlier if a bondpoint comes
+            # last in the values list)! Should be ok,
             # though I ought to rewrite it so that if that does happen here,
             # I don't redo everything and have to worry whether that's safe.
             # [bruce 050214 comment] 
