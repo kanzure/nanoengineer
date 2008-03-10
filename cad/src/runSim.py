@@ -388,16 +388,24 @@ class SimRunner:
                             gromacsFullBaseFileInfo.completeBaseName()
                         os.mkdir(hdf5DataStoreDir)
                             
-                        # Write a pid file for NV1 tp use for GMX process
-                        # management
-                        pid = gromacsProcess.pid()
-                        pidFileName = hdf5DataStoreDir + os.sep + "pid"
-                        pidFile = open(pidFileName, 'w')
-                        pidFile.write("%d\n" % pid)
-                        pidFile.close()
+                        # Determine the GMX process id (pid) for passing to nv1.
+                        pid = str(gromacsProcess.pid())
+                        if (sys.platform == 'win32'):
+                            # (Py)QProcess.pid() doesn't return anything useable
+                            # on Windows, read the pid from the mdrun log file.
+                            mdrunLogFileName = \
+                                "%s-mdrun.log" % gromacsFullBaseFileName
+                            logFile = open(mdrunLogFileName, 'r')
+                            for line in logFile:
+                                index = line.find(" pid: ");
+                                if (index != -1):
+                                    pid = line[index+6:]
+                                    pid = pid.split(" ")[0];
+                                    break
+                            logFile.close()
                         
                         # Write the input file into the HDF5 data store
-                        # directory (it is part of data store.)
+                        # directory. (It is part of data store.)
                         inputFileName = hdf5DataStoreDir + os.sep + "input.mmp"
                         self.part.writemmpfile(inputFileName)
                         
@@ -406,7 +414,7 @@ class SimRunner:
                         nv1Process = Process()
                         nv1Args = [
                             "-f", hdf5DataStoreDir + ".nh5",
-                            "-p", "GMX", "%d" % pid,
+                            "-p", "GMX", "%s" % pid,
                             ]
                         nv1Process.setStandardOutputPassThrough(True)
                         nv1Process.setStandardErrorPassThrough(True)
