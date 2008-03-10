@@ -17,6 +17,8 @@ Bruce 080306 added atom content access & maintenance methods.
 
 from foundation.Utility import NodeWith3DContents
 
+_superclass = NodeWith3DContents
+
 class NodeWithAtomContents(NodeWith3DContents):
     # REVIEW: which methods can safely assert that subclass must implement?
     """
@@ -110,7 +112,12 @@ class NodeWithAtomContents(NodeWith3DContents):
         self.maybe_remove_some_atom_content(flags)
         self.maybe_add_some_atom_content(flags)
         return
-    
+
+    def _undo_update(self): #bruce 080310
+        self.invalidate_atom_content()
+        _superclass._undo_update(self)
+        return
+
     # incremental update
     
     def remove_some_atom_content(self, flags):
