@@ -3,13 +3,15 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (-0.011137, 0.001407, -0.997664, -0.067382) (40.682376) (-43.459119, -14.984393, -6.242654) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (40.158376) (-50.416260, -0.647033, -3.475586) (1.000000)
 egroup (View Data)
+group (Untitled)
+info opengroup open = True
 group (DAE)
 info opengroup open = True
 group (Dna 1) DnaGroup
 info opengroup open = True
-mol (strand 5) def
+mol (strand 5) tub
 atom 1 (301) (0, -7756, 3767) def
 info atom dnaBaseName = b
 atom 2 (0) (-1216, -6564, 5473) def
@@ -135,7 +137,7 @@ atom 32 (0) (93435, -5686, 6383) def
 bond1 31
 bond_direction 32 31
 info chunk color = 255 0 0
-mol (strand 4) def
+mol (strand 4) tub
 atom 33 (301) (63600, 8179, 3086) def
 info atom dnaBaseName = a
 atom 34 (301) (66780, 4793, 7260) def
@@ -221,7 +223,7 @@ atom 54 (0) (93435, 11668, 1564) def
 bond1 53
 bond_direction 54 53
 info chunk color = 170 0 255
-mol (strand 3) def
+mol (strand 3) tub
 atom 55 (301) (0, 8179, 3086) def
 info atom dnaBaseName = a
 atom 56 (0) (-1215, 8613, 1051) def
@@ -306,7 +308,7 @@ bond1 75 65
 bond_direction 76 75
 bond_direction 65 76
 info chunk color = 170 0 255
-mol (strand 2) def
+mol (strand 2) tub
 atom 77 (301) (0, 24677, 7389) def
 info atom dnaBaseName = a
 atom 78 (0) (-1215, 26260, 6038) def
@@ -432,7 +434,7 @@ atom 108 (0) (93435, 27081, 5077) def
 bond1 107
 bond_direction 107 108
 info chunk color = 0 0 255
-mol (strand 1) def
+mol (strand 1) tub
 atom 109 (301) (31799, 8179, 3086) def
 info atom dnaBaseName = a
 atom 110 (301) (34980, 4793, 7260) def
@@ -453,8 +455,6 @@ bond1 112
 bond_direction 112 113
 atom 114 (301) (47699, -8051, -3161) def
 info atom dnaBaseName = a
-bond1 113
-bond_direction 113 114
 atom 115 (301) (50879, -4665, -7334) def
 info atom dnaBaseName = a
 bond1 114
@@ -512,141 +512,148 @@ info atom dnaBaseName = b
 bond1 127 118
 bond_direction 128 127
 bond_direction 118 128
+atom 129 (0) (46471, -8161, -1089) def
+bond1 114
+bond_direction 129 114
+atom 130 (0) (45747, -8227, 132) def
+bond1 113
+bond_direction 113 130
 info chunk color = 255 255 255
 mol (axis) tub
-atom 129 (300) (3179, 7, -5) def
+atom 131 (300) (3179, 7, -5) def
 bond1 57 3
-atom 130 (300) (6359, 7, -5) def
-bond1 129 58 4
-atom 131 (300) (9540, 7, -5) def
-bond1 130 59 5
-atom 132 (300) (12719, 7, -5) def
-bond1 131 60 6
-atom 133 (300) (15900, 7, -5) def
-bond1 132 61 7
-atom 134 (300) (19079, 7, -5) def
-bond1 133 62 8
-atom 135 (300) (22259, 7, -5) def
-bond1 134 63 9
-atom 136 (300) (25439, 7, -5) def
-bond1 135 64 10
-atom 137 (300) (28619, 7, -5) def
-bond1 136 65 11
-atom 138 (300) (31799, 7, -5) def
-bond1 137 109 12
-atom 139 (300) (34980, 7, -5) def
-bond1 138 110 13
-atom 140 (300) (38160, 7, -5) def
-bond1 139 111 14
-atom 141 (300) (41339, 7, -5) def
-bond1 140 112 15
-atom 142 (300) (44520, 7, -5) def
-bond1 141 113 16
-atom 143 (300) (47699, 7, -5) def
-bond1 142 114 17
-atom 144 (300) (50879, 7, -5) def
-bond1 143 115 18
-atom 145 (300) (54060, 7, -5) def
-bond1 144 116 19
-atom 146 (300) (57240, 7, -5) def
-bond1 145 117 20
-atom 147 (300) (60419, 7, -5) def
-bond1 146 118 21
-atom 148 (300) (63600, 7, -5) def
-bond1 147 33 22
-atom 149 (300) (66780, 7, -5) def
-bond1 148 34 23
-atom 150 (300) (69960, 7, -5) def
-bond1 149 35 24
-atom 151 (300) (73140, 7, -5) def
-bond1 150 36 25
-atom 152 (300) (76319, 7, -5) def
-bond1 151 37 26
-atom 153 (300) (79500, 7, -5) def
-bond1 152 38 27
-atom 154 (300) (82680, 7, -5) def
-bond1 153 39 28
-atom 155 (300) (85860, 7, -5) def
-bond1 154 40 29
-atom 156 (300) (89039, 7, -5) def
-bond1 155 41 30
-atom 157 (300) (3179, 20139, -29) def
+atom 132 (300) (6359, 7, -5) def
+bond1 131 58 4
+atom 133 (300) (9540, 7, -5) def
+bond1 132 59 5
+atom 134 (300) (12719, 7, -5) def
+bond1 133 60 6
+atom 135 (300) (15900, 7, -5) def
+bond1 134 61 7
+atom 136 (300) (19079, 7, -5) def
+bond1 135 62 8
+atom 137 (300) (22259, 7, -5) def
+bond1 136 63 9
+atom 138 (300) (25439, 7, -5) def
+bond1 137 64 10
+atom 139 (300) (28619, 7, -5) def
+bond1 138 65 11
+atom 140 (300) (31799, 7, -5) def
+bond1 139 109 12
+atom 141 (300) (34980, 7, -5) def
+bond1 140 110 13
+atom 142 (300) (38160, 7, -5) def
+bond1 141 111 14
+atom 143 (300) (41339, 7, -5) def
+bond1 142 112 15
+atom 144 (300) (44520, 7, -5) def
+bond1 143 113 16
+atom 145 (300) (47699, 7, -5) def
+bond1 144 114 17
+atom 146 (300) (50879, 7, -5) def
+bond1 145 115 18
+atom 147 (300) (54060, 7, -5) def
+bond1 146 116 19
+atom 148 (300) (57240, 7, -5) def
+bond1 147 117 20
+atom 149 (300) (60419, 7, -5) def
+bond1 148 118 21
+atom 150 (300) (63600, 7, -5) def
+bond1 149 33 22
+atom 151 (300) (66780, 7, -5) def
+bond1 150 34 23
+atom 152 (300) (69960, 7, -5) def
+bond1 151 35 24
+atom 153 (300) (73140, 7, -5) def
+bond1 152 36 25
+atom 154 (300) (76319, 7, -5) def
+bond1 153 37 26
+atom 155 (300) (79500, 7, -5) def
+bond1 154 38 27
+atom 156 (300) (82680, 7, -5) def
+bond1 155 39 28
+atom 157 (300) (85860, 7, -5) def
+bond1 156 40 29
+atom 158 (300) (89039, 7, -5) def
+bond1 157 41 30
+atom 159 (300) (3179, 20139, -29) def
 bond1 79 68
-atom 158 (300) (6359, 20139, -29) def
-bond1 157 80 69
-atom 159 (300) (9540, 20139, -29) def
-bond1 158 81 70
-atom 160 (300) (12719, 20139, -29) def
-bond1 159 82 71
-atom 161 (300) (15899, 20139, -29) def
-bond1 160 83 72
-atom 162 (300) (19079, 20139, -29) def
-bond1 161 84 73
-atom 163 (300) (22259, 20139, -29) def
-bond1 162 85 74
-atom 164 (300) (25439, 20139, -29) def
-bond1 163 86 75
-atom 165 (300) (28619, 20139, -29) def
-bond1 164 87 76
-atom 166 (300) (31799, 20139, -29) def
-bond1 165 119 88
-atom 167 (300) (34980, 20139, -29) def
-bond1 166 120 89
-atom 168 (300) (38160, 20139, -29) def
-bond1 167 121 90
-atom 169 (300) (41339, 20139, -29) def
-bond1 168 122 91
-atom 170 (300) (44520, 20139, -29) def
-bond1 169 123 92
-atom 171 (300) (47699, 20139, -29) def
-bond1 170 124 93
-atom 172 (300) (50879, 20139, -29) def
-bond1 171 125 94
-atom 173 (300) (54060, 20139, -29) def
-bond1 172 126 95
-atom 174 (300) (57240, 20139, -29) def
-bond1 173 127 96
-atom 175 (300) (60419, 20139, -29) def
-bond1 174 128 97
-atom 176 (300) (63600, 20139, -29) def
-bond1 175 98 44
-atom 177 (300) (66780, 20139, -29) def
-bond1 176 99 45
-atom 178 (300) (69960, 20139, -29) def
-bond1 177 100 46
-atom 179 (300) (73140, 20139, -29) def
-bond1 178 101 47
-atom 180 (300) (76319, 20139, -29) def
-bond1 179 102 48
-atom 181 (300) (79500, 20139, -29) def
-bond1 180 103 49
-atom 182 (300) (82680, 20139, -29) def
-bond1 181 104 50
-atom 183 (300) (85860, 20139, -29) def
-bond1 182 105 51
-atom 184 (300) (89039, 20139, -29) def
-bond1 183 106 52
-atom 185 (300) (0, 7, -5) cpk
-bond1 129 55 1
-atom 186 (300) (92219, 7, -5) cpk
-bond1 156 42 31
-atom 187 (300) (0, 20139, -29) cpk
-bond1 157 77 66
-atom 188 (300) (92219, 20139, -29) cpk
-bond1 184 107 53
-atom 189 (0) (-855, -74, -1810) def
-bond1 185
-atom 190 (0) (93067, -1123, -1419) def
-bond1 186
-atom 191 (0) (-850, 21178, -1510) def
+atom 160 (300) (6359, 20139, -29) def
+bond1 159 80 69
+atom 161 (300) (9540, 20139, -29) def
+bond1 160 81 70
+atom 162 (300) (12719, 20139, -29) def
+bond1 161 82 71
+atom 163 (300) (15899, 20139, -29) def
+bond1 162 83 72
+atom 164 (300) (19079, 20139, -29) def
+bond1 163 84 73
+atom 165 (300) (22259, 20139, -29) def
+bond1 164 85 74
+atom 166 (300) (25439, 20139, -29) def
+bond1 165 86 75
+atom 167 (300) (28619, 20139, -29) def
+bond1 166 87 76
+atom 168 (300) (31799, 20139, -29) def
+bond1 167 119 88
+atom 169 (300) (34980, 20139, -29) def
+bond1 168 120 89
+atom 170 (300) (38160, 20139, -29) def
+bond1 169 121 90
+atom 171 (300) (41339, 20139, -29) def
+bond1 170 122 91
+atom 172 (300) (44520, 20139, -29) def
+bond1 171 123 92
+atom 173 (300) (47699, 20139, -29) def
+bond1 172 124 93
+atom 174 (300) (50879, 20139, -29) def
+bond1 173 125 94
+atom 175 (300) (54060, 20139, -29) def
+bond1 174 126 95
+atom 176 (300) (57240, 20139, -29) def
+bond1 175 127 96
+atom 177 (300) (60419, 20139, -29) def
+bond1 176 128 97
+atom 178 (300) (63600, 20139, -29) def
+bond1 177 98 44
+atom 179 (300) (66780, 20139, -29) def
+bond1 178 99 45
+atom 180 (300) (69960, 20139, -29) def
+bond1 179 100 46
+atom 181 (300) (73140, 20139, -29) def
+bond1 180 101 47
+atom 182 (300) (76319, 20139, -29) def
+bond1 181 102 48
+atom 183 (300) (79500, 20139, -29) def
+bond1 182 103 49
+atom 184 (300) (82680, 20139, -29) def
+bond1 183 104 50
+atom 185 (300) (85860, 20139, -29) def
+bond1 184 105 51
+atom 186 (300) (89039, 20139, -29) def
+bond1 185 106 52
+atom 187 (300) (0, 7, -5) cpk
+bond1 131 55 1
+atom 188 (300) (92219, 7, -5) cpk
+bond1 158 42 31
+atom 189 (300) (0, 20139, -29) cpk
+bond1 159 77 66
+atom 190 (300) (92219, 20139, -29) cpk
+bond1 186 107 53
+atom 191 (0) (-855, -74, -1810) def
 bond1 187
-atom 192 (0) (93069, 20108, -1838) def
+atom 192 (0) (93067, -1123, -1419) def
 bond1 188
+atom 193 (0) (-850, 21178, -1510) def
+bond1 189
+atom 194 (0) (93069, 20108, -1838) def
+bond1 190
 info chunk color = 255 255 255
 egroup (Dna 1)
 egroup (DAE)
+egroup (Untitled)
 end1
 group (Clipboard)
-info opengroup open = True
+info opengroup open = False
 egroup (Clipboard)
-end molecular machine part DAE
+end molecular machine part Untitled
